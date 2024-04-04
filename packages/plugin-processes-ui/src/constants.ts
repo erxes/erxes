@@ -1,16 +1,20 @@
-export const JOB_TYPE_CHOISES = {
-  product: 'Product',
-  service: 'Service'
+export const PERFORM_STATUSES = {
+  '': 'All',
+  confirmed: 'Confirmed',
+  draft: 'Draft'
 };
 
-export const PRODUCT_CATEGORIES_STATUS = ['active', 'disabled', 'archived'];
+export const JOB_TYPE_CHOISES = {
+  job: 'Facture',
+  end: 'End Point',
+  income: 'Income',
+  move: 'Move',
+  outlet: 'Outlet'
+};
+
 export const PRODUCT_CATEGORIES_STATUS_FILTER = {
   disabled: 'Disabled',
   archived: 'Archived'
-};
-
-export const CONFIGS_KEY_LABELS = {
-  isReqiureUOM: 'is reqiured UOM'
 };
 
 export const DURATION_TYPES = {
@@ -27,14 +31,14 @@ export const PRODUCT_CATEGORY_STATUSES = [
   { label: 'Archived', value: 'archived' }
 ];
 
-export const menuContacts = [
+export const menuSettings = [
   { title: 'Jobs', link: '/processes/Jobs' },
   { title: 'Flows', link: '/processes/Flows' }
 ];
 
-export const menuContacts1 = [
-  { title: 'Assignments', link: '/processes/performances' },
+export const menuNavs = [
+  { title: 'Overall Works', link: '/processes/overallWorks' },
+  { title: 'Overall Work Detail', link: '/processes/overallWorkDetail' },
   { title: 'Works', link: '/processes/works' },
-  { title: 'OverallWorks', link: '/processes/overallWorks' },
   { title: 'Performances', link: '/processes/performanceList' }
 ];

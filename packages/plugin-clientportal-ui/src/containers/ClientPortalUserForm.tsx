@@ -5,10 +5,10 @@ import {
   IQueryParams,
   IRouterProps
 } from '@erxes/ui/src/types';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 
 import ClientPortalUserForm from '../components/forms/ClientPortalUserForm';
 import { mutations, queries } from '../graphql';
@@ -18,6 +18,7 @@ type Props = {
   clientPortalUser: IClientPortalUser;
   closeModal: () => void;
   queryParams: IQueryParams;
+  kind: 'client' | 'vendor';
 };
 
 type FinalProps = {
@@ -110,7 +111,11 @@ const getRefetchQueries = () => {
 export default withProps<Props>(
   compose(
     graphql<Props, ClientPortalConfigsQueryResponse>(gql(queries.getConfigs), {
-      name: 'clientPortalConfigsQuery'
+      name: 'clientPortalConfigsQuery',
+      options: ({ kind }) => ({
+        fetchPolicy: 'network-only',
+        variables: { kind }
+      })
     })
   )(ClientPortalUserFormContainer)
 );

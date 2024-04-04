@@ -40,7 +40,8 @@ export const LANGUAGES = [
 export const SERVICE_TYPES = [
   { label: __('Local'), value: 'local' },
   { label: __('Amazon Web Service'), value: 'AWS' },
-  { label: __('Google Cloud Service'), value: 'GCS' }
+  { label: __('Google Cloud Service'), value: 'GCS' },
+  { label: __('Cloudflare'), value: 'CLOUDFLARE' }
 ];
 
 export const FILE_SYSTEM_TYPES = [
@@ -68,52 +69,18 @@ export const LOG_RETENTION_DURATION = [
   { label: __('12 months'), value: 12 }
 ];
 
-export const MEASUREMENTS = [
-  { label: 'Bag BG', value: 'BG' },
-  { label: 'Barrel BA', value: 'BA' },
-  { label: 'Bolt BT', value: 'BT' },
-  { label: 'Box BOX', value: 'BOX' },
-  { label: 'Bunch BH', value: 'BH' },
-  { label: 'Bundle BE', value: 'BE' },
-  { label: 'Butt BU', value: 'BU' },
-  { label: 'Canister CI', value: 'CI' },
-  { label: 'Carton CT', value: 'CT' },
-  { label: 'Case CS', value: 'CS' },
-  { label: 'Centimeter CM', value: 'CM' },
-  { label: 'Container CON', value: 'CON' },
-  { label: 'Crate CR', value: 'CR' },
-  { label: 'Cylinder CY', value: 'CY' },
-  { label: 'Dozen DOZ', value: 'DOZ' },
-  { label: 'Each/Number EA', value: 'EA' },
-  { label: 'Envelope EN', value: 'EN' },
-  { label: 'Foot FT', value: 'FT' },
-  { label: 'Kilogram KG', value: 'KG' },
-  { label: 'Kilograms KGS', value: 'KGS' },
-  { label: 'Liter L', value: 'L' },
-  { label: 'Man hour H', value: 'H' },
-  { label: 'Meter M', value: 'M' },
-  { label: 'Package PK', value: 'PK' },
-  { label: 'Packet PA', value: 'PA' },
-  { label: 'Pair PAR', value: 'PAR' },
-  { label: 'Pairs PRS', value: 'PRS' },
-  { label: 'Pallet PAL', value: 'PAL' },
-  { label: 'Piece PC', value: 'PC' },
-  { label: 'Pieces PCS', value: 'PCS' },
-  { label: 'Pound LB', value: 'LB' },
-  { label: 'Proof Liter PF', value: 'PF' },
-  { label: 'Roll ROL', value: 'ROL' },
-  { label: 'Set SET', value: 'SET' },
-  { label: 'Square Meter SME', value: 'SME' },
-  { label: 'Square Yard SYD', value: 'SYD' },
-  { label: 'Tube TU', value: 'TU' },
-  { label: 'Yard YD', value: 'YD' }
-];
-
 export const KEY_LABELS = {
   UPLOAD_FILE_TYPES: 'Upload File Types',
   WIDGETS_UPLOAD_FILE_TYPES: 'Upload File Types of Widget',
   UPLOAD_SERVICE_TYPE: 'Upload Service Type',
   FILE_SYSTEM_PUBLIC: 'Bucket file system type',
+  CLOUDFLARE_ACCESS_KEY_ID: 'Cloudflare Access Key id',
+  CLOUDFLARE_SECRET_ACCESS_KEY: 'Cloudflare Secret Access Key',
+  CLOUDFLARE_BUCKET_NAME: 'Cloudflare R2 Bucket Name',
+  CLOUDFLARE_ACCOUNT_ID: 'Cloudflare Account id',
+  CLOUDFLARE_API_TOKEN: 'Cloudflare API Token',
+  CLOUDFLARE_USE_CDN: 'Use Cloudflare Images and Stream',
+  CLOUDFLARE_ACCOUNT_HASH: 'Cloudflare Account Hash',
   AWS_ACCESS_KEY_ID: 'AWS Access Key Id',
   AWS_SECRET_ACCESS_KEY: 'AWS Secret Access Key',
   AWS_BUCKET: 'AWS Bucket',
@@ -131,10 +98,6 @@ export const KEY_LABELS = {
   MAIL_USER: 'Username',
   MAIL_PASS: 'Password',
   MAIL_HOST: 'Host',
-  FACEBOOK_APP_ID: 'Facebook App Id',
-  FACEBOOK_APP_SECRET: 'Facebook App Secret',
-  FACEBOOK_VERIFY_TOKEN: 'Facebook Verify Token',
-  FACEBOOK_PERMISSIONS: 'Facebook permissions',
   TWITTER_CONSUMER_KEY: 'Twitter Consumer Key',
   TWITTER_CONSUMER_SECRET: 'Twitter Consumer secret',
   TWITTER_ACCESS_TOKEN: 'Twitter Access Token',
@@ -179,14 +142,16 @@ export const KEY_LABELS = {
   company_industry_types: 'Company industry types',
   social_links: 'Social links',
 
-  NOTIFICATION_DATA_RETENTION: 'Notification data retention',
-  LOG_DATA_RETENTION: 'Log data retention',
-
   THEME_LOGO: 'Logo',
+  THEME_MOTTO: 'Motto',
   THEME_LOGIN_PAGE_DESCRIPTION: 'Login page description',
   THEME_FAVICON: 'Favicon',
   THEME_TEXT_COLOR: 'Text color',
   THEME_BACKGROUND: 'Background',
+
+  NOTIFICATION_DATA_RETENTION: 'Notification data retention',
+  LOG_DATA_RETENTION: 'Log data retention',
+
   MESSAGE_PRO_API_KEY: 'MessagePro api key',
   MESSAGE_PRO_PHONE_NUMBER: 'MessagePro phone number'
 };
@@ -351,6 +316,26 @@ export const FILE_MIME_TYPES = [
     value: 'video/mp4',
     label: 'MP4 video',
     extension: '.mp4'
+  },
+  {
+    value: 'video/webm',
+    label: 'WebM video',
+    extension: '.webm'
+  },
+  {
+    value: 'audio/wav',
+    label: 'WAV audio',
+    extension: '.wav'
+  },
+  {
+    value: 'audio/vnd.wave',
+    label: 'WAV vnd audio',
+    extension: '.wav'
+  },
+  {
+    value: 'audio/m4a',
+    label: 'MPEG-4 Audio',
+    extension: '.m4a'
   },
   // archives
   {

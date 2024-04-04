@@ -1,56 +1,49 @@
-import React from 'react';
+import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
+import { IAttachment } from '@erxes/ui/src/types';
 import Datetime from '@nateradebaugh/react-datetime';
-import {
-  __,
-  Button,
-  FormControl,
-  FormGroup,
-  Form as CommonForm,
-  ControlLabel,
-  FlexContent,
-  FlexItem,
-  MainStyleModalFooter as ModalFooter
-} from '@erxes/ui/src';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import React, { useState } from 'react';
+import Select from 'react-select-plus';
+// erxes
+import { gql } from '@apollo/client';
+import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
+import client from '@erxes/ui/src/apolloClient';
+import Button from '@erxes/ui/src/components/Button';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import CommonForm from '@erxes/ui/src/components/form/Form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
-type State = {
-  branchId: string;
-  departmentId: string;
-  date: Date;
-  description: string;
-  productCategoryId: string;
-};
+export default function FormComponent(props: Props) {
+  const { renderButton, closeModal } = props;
 
-class Form extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+  // Hooks
+  const [branchId, setBranchId] = useState<string>('');
+  const [departmentId, setDepartmentId] = useState<string>('');
+  const [date, setDate] = useState<Date>(new Date());
+  const [description, setDescription] = useState<string>('');
+  const [categoryId, setCategoryId] = useState<string>('');
+  const [attachment, setAttachment] = useState<IAttachment | undefined>(
+    undefined
+  );
+  const [fieldsCombined, setFieldsCombined] = useState<any[]>([]);
+  const [filterField, setFilterField] = useState<string>('');
 
-    this.state = {
-      branchId: '',
-      departmentId: '',
-      date: new Date(),
-      description: '',
-      productCategoryId: ''
-    };
-  }
-
-  generateDoc = (values: {}) => {
+  // Methods
+  const generateDoc = (values: {}) => {
     const finalValues = values;
-    const {
-      branchId,
-      departmentId,
-      date,
-      description,
-      productCategoryId
-    } = this.state;
 
     return {
       ...finalValues,
@@ -58,21 +51,58 @@ class Form extends React.Component<Props, State> {
       departmentId,
       date,
       description,
-      productCategoryId
+      productCategoryId: categoryId,
+      attachment,
+      filterField
     };
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { renderButton, closeModal } = this.props;
-    const { values, isSubmitted } = formProps;
+  const changeAttachment = files => {
+    setAttachment(files.length ? files[0] : undefined);
 
-    const {
-      branchId,
-      departmentId,
-      date,
-      description,
-      productCategoryId
-    } = this.state;
+    if (isEnabled('forms')) {
+      client
+        .query({
+          query: gql(formQueries.fieldsCombinedByContentType),
+          variables: {
+            contentType: 'products:product'
+          }
+        })
+        .then(({ data }) => {
+          setFieldsCombined(data?.fieldsCombinedByContentType || []);
+        });
+    } else {
+      setFieldsCombined([
+        { name: 'code', label: 'code' },
+        { name: 'barcode', label: 'barcode' }
+      ]);
+    }
+  };
+
+  const renderFilterField = () => {
+    if (!attachment) {
+      return <></>;
+    }
+
+    return (
+      <FormGroup>
+        <ControlLabel>{__('Choose B filter field')}</ControlLabel>
+        <Select
+          value={filterField || ''}
+          onChange={option =>
+            setFilterField(!option ? '' : option.value.toString())
+          }
+          options={(fieldsCombined || []).map(f => ({
+            value: f.name,
+            label: f.label
+          }))}
+        />
+      </FormGroup>
+    );
+  };
+
+  const renderContent = (formProps: IFormProps) => {
+    const { values, isSubmitted } = formProps;
 
     return (
       <>
@@ -82,16 +112,14 @@ class Form extends React.Component<Props, State> {
               <ControlLabel>{__('Date')}</ControlLabel>
               <Datetime
                 inputProps={{ placeholder: 'Click to select a date' }}
-                dateFormat="YYYY MM DD"
+                dateFormat="YYYY-MM-DD"
                 timeFormat=""
                 viewMode={'days'}
                 closeOnSelect
                 utc
                 input
                 value={date}
-                onChange={date =>
-                  this.setState({ date: new Date(date || new Date()) })
-                }
+                onChange={(date: any) => setDate(new Date(date || new Date()))}
               />
             </FormGroup>
 
@@ -101,10 +129,10 @@ class Form extends React.Component<Props, State> {
                 {...formProps}
                 name="description"
                 defaultValue={description}
-                onChange={e =>
-                  this.setState({
-                    description: (e.currentTarget as HTMLButtonElement).value
-                  })
+                onChange={(event: any) =>
+                  setDescription(
+                    (event.currentTarget as HTMLButtonElement).value
+                  )
                 }
                 autoFocus
                 required
@@ -117,9 +145,7 @@ class Form extends React.Component<Props, State> {
                 label="Choose branch"
                 name="selectedBranchIds"
                 initialValue={branchId}
-                onSelect={branchId =>
-                  this.setState({ branchId: String(branchId) })
-                }
+                onSelect={(branchId: any) => setBranchId(String(branchId))}
                 multi={false}
                 customOption={{ value: '', label: 'All branches' }}
               />
@@ -130,8 +156,8 @@ class Form extends React.Component<Props, State> {
                 label="Choose department"
                 name="selectedDepartmentIds"
                 initialValue={departmentId}
-                onSelect={departmentId =>
-                  this.setState({ departmentId: String(departmentId) })
+                onSelect={(departmentId: any) =>
+                  setDepartmentId(String(departmentId))
                 }
                 multi={false}
                 customOption={{ value: '', label: 'All departments' }}
@@ -142,15 +168,28 @@ class Form extends React.Component<Props, State> {
               <SelectProductCategory
                 label="Choose product category"
                 name="selectedProductCategoryId"
-                initialValue={productCategoryId}
-                onSelect={productCategoryId =>
-                  this.setState({
-                    productCategoryId: productCategoryId as string
-                  })
+                initialValue={categoryId}
+                onSelect={(categoryId: any) =>
+                  setCategoryId(categoryId as string)
                 }
                 multi={false}
               />
             </FormGroup>
+            <FormGroup>
+              <ControlLabel>Attach file</ControlLabel>
+              <p>
+                {__(
+                  'xls file: A=>info, B=>filter, C=>changeCount || D=>lastCount'
+                )}
+              </p>
+              <Uploader
+                defaultFileList={attachment ? [attachment] : []}
+                onChange={files => changeAttachment(files)}
+                multiple={false}
+                single={true}
+              />
+            </FormGroup>
+            {renderFilterField()}
           </FlexItem>
         </FlexContent>
 
@@ -166,7 +205,7 @@ class Form extends React.Component<Props, State> {
 
           {renderButton({
             name: 'product and service',
-            values: this.generateDoc(values),
+            values: generateDoc(values),
             isSubmitted,
             callback: closeModal
           })}
@@ -175,9 +214,5 @@ class Form extends React.Component<Props, State> {
     );
   };
 
-  render() {
-    return <CommonForm renderContent={this.renderContent} />;
-  }
+  return <CommonForm renderContent={renderContent} />;
 }
-
-export default Form;

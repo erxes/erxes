@@ -59,9 +59,8 @@ const voucherCampaignsRemove = `
   }
 `;
 
-
 export default {
   voucherCampaignsAdd,
   voucherCampaignsEdit,
-  voucherCampaignsRemove,
+  voucherCampaignsRemove
 };

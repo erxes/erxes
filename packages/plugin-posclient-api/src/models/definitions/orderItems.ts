@@ -1,4 +1,6 @@
+import { IAttachment } from '@erxes/api-utils/src/types';
 import { Document, Schema } from 'mongoose';
+import { ORDER_ITEM_STATUSES } from './constants';
 import {
   field,
   getDateFieldDefinition,
@@ -13,9 +15,15 @@ export interface IOrderItem {
   unitPrice?: number;
   discountAmount?: number;
   discountPercent?: number;
+  bonusCount?: number;
+  bonusVoucherId?: string;
   orderId?: string;
   isPackage?: boolean;
   isTake?: boolean;
+  status?: string;
+  manufacturedDate?: string;
+  description?: string;
+  attachment?: IAttachment;
 }
 
 export interface IOrderItemDocument extends Document, IOrderItem {
@@ -28,6 +36,7 @@ export const orderItemSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     createdAt: getDateFieldDefinition('Created at'),
     productId: field({ type: String, label: 'Product' }),
+    productName: field({ type: String, label: 'Product Name if subtoken' }),
     count: getNumberFieldDefinition({ label: 'Count', positive: true }),
     unitPrice: getNumberFieldDefinition({
       label: 'Unit price',
@@ -35,14 +44,21 @@ export const orderItemSchema = schemaHooksWrapper(
     }),
     discountAmount: getNumberFieldDefinition({
       label: 'Discount price amount',
-      discount: true
+      optional: true
     }),
     discountPercent: getNumberFieldDefinition({
       label: 'Discount percent',
       discount: true,
+      optional: true,
       default: 0
     }),
-    orderId: field({ type: String, label: 'Order id' }),
+    bonusCount: getNumberFieldDefinition({
+      label: 'Bonus count',
+      positive: true,
+      optional: true
+    }),
+    bonusVoucherId: field({ type: String, label: 'Bonus Voucher' }),
+    orderId: field({ type: String, label: 'Order id', index: true }),
     isPackage: field({
       type: Boolean,
       default: false,
@@ -52,7 +68,21 @@ export const orderItemSchema = schemaHooksWrapper(
       type: Boolean,
       label: 'order eat but some take',
       default: false
-    })
+    }),
+    status: field({
+      type: String,
+      label: 'status of order item',
+      enum: ORDER_ITEM_STATUSES.ALL,
+      default: ORDER_ITEM_STATUSES.NEW
+    }),
+    isInner: field({
+      type: Boolean,
+      label: 'inner or skip ebarimt',
+      default: false
+    }),
+    manufacturedDate: field({ type: String, label: 'manufactured' }),
+    description: field({ type: String, label: 'Description' }),
+    attachment: field({ type: Object, label: 'Attachment' })
   }),
   'erxes_orderItem'
 );

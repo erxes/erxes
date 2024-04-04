@@ -54,5 +54,5 @@ export default {
   conversationClientMessageInserted,
   conversationClientTypingStatusChanged,
   conversationExternalIntegrationMessageInserted,
-  customerConnectionChanged
+  customerConnectionChanged,
 };

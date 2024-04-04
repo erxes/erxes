@@ -1,5 +1,7 @@
 import { IContext } from '../../connectionResolver';
+import { sendCommonMessage } from '../../messageBroker';
 import { IProductDocument } from '../../models/definitions/products';
+import { customFieldsDataByFieldCode } from '@erxes/api-utils/src/fieldUtils';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
@@ -16,7 +18,7 @@ export default {
 
   async getTags(product: IProductDocument, _, { dataLoaders }: IContext) {
     const tags = await dataLoaders.tag.loadMany(product.tagIds || []);
-    return tags.filter(tag => tag);
+    return tags.filter((tag) => tag);
   },
 
   vendor(product: IProductDocument, _, { dataLoaders }: IContext) {
@@ -25,20 +27,11 @@ export default {
     );
   },
 
-  async uom(product: IProductDocument, _, { dataLoaders, models }: IContext) {
-    if (!(await models.ProductsConfigs.getConfig('isReqiureUOM', ''))) {
-      return null;
-    }
-
-    let uomId = product.uomId;
-    if (!uomId) {
-      uomId = await models.ProductsConfigs.getConfig('default_uom', '');
-    }
-
-    if (!uomId) {
-      return null;
-    }
-
-    return await models.Uoms.findOne({ _id: uomId });
-  }
+  customFieldsDataByFieldCode(
+    product: IProductDocument,
+    _,
+    { subdomain }: IContext,
+  ) {
+    return customFieldsDataByFieldCode(product, subdomain);
+  },
 };

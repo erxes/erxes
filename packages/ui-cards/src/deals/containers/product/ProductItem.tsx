@@ -1,19 +1,21 @@
-import { isEnabled, withProps } from '@erxes/ui/src/utils/core';
-import { graphql } from 'react-apollo';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import gql from 'graphql-tag';
-import { mutations, queries } from '../../graphql';
-import { IDeal, IProductData } from '../../types';
+import { gql } from '@apollo/client';
 import ProductItem from '../../components/product/ProductItem';
+import React from 'react';
+import { graphql } from '@apollo/client/react/hoc';
+import { IDeal, IProductData } from '../../types';
+import { isEnabled, withProps } from '@erxes/ui/src/utils/core';
+import { mutations } from '../../graphql';
 
 type Props = {
-  uom: string[];
+  advancedView?: boolean;
   currencies: string[];
   productsData?: IProductData[];
   productData: IProductData;
+  duplicateProductItem?: (productId: string) => void;
   removeProductItem?: (productId: string) => void;
   onChangeProductsData?: (productsData: IProductData[]) => void;
+  calculatePerProductAmount: (type: string, productData: IProductData) => void;
   updateTotal?: () => void;
   currentProduct?: string;
   onChangeDiscount: (id: string, discount: number) => void;

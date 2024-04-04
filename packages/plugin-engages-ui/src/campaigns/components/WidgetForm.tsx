@@ -1,29 +1,30 @@
-import { IUser } from "@erxes/ui/src/auth/types";
-import Button from "@erxes/ui/src/components/Button";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import Uploader from "@erxes/ui/src/components/Uploader";
-import EditorCK from "@erxes/ui/src/containers/EditorCK";
-import { ModalFooter } from "@erxes/ui/src/styles/main";
-import { __ } from "coreui/utils";
-import { ICustomer } from "@erxes/ui/src/customers/types";
-import { METHODS } from "@erxes/ui-engage/src/constants";
-import { FlexContent, FlexItem } from "@erxes/ui/src/layout/styles";
-import { MAIL_TOOLBARS_CONFIG } from "@erxes/ui/src/constants/integrations";
-import React from "react";
-import Select from "react-select-plus";
-import { IAttachment } from "@erxes/ui/src/types";
-import { IBrand } from "@erxes/ui/src/brands/types";
-import MessengerPreview from "../containers/MessengerPreview";
-import { Half, Recipient, Recipients } from "@erxes/ui-engage/src/styles";
+import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+import { Half, Recipient, Recipients } from '@erxes/ui-engage/src/styles';
 import {
   IEmailTemplate,
   IEngageEmail,
   IEngageMessageDoc,
   IEngageMessenger,
-} from "@erxes/ui-engage/src/types";
-import { generateEmailTemplateParams } from "@erxes/ui-engage/src/utils";
+} from '@erxes/ui-engage/src/types';
+
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import RichTextEditor from '@erxes/ui/src/containers/RichTextEditor';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IAttachment } from '@erxes/ui/src/types';
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
+import { METHODS } from '@erxes/ui-engage/src/constants';
+import MessengerPreview from '../containers/MessengerPreview';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import React from 'react';
+import Select from 'react-select-plus';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import { __ } from 'coreui/utils';
+import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
 
 type Props = {
   customers: ICustomer[];
@@ -51,11 +52,11 @@ class WidgetForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      content: "",
-      channel: props.channelType || "email",
+      content: '',
+      channel: props.channelType || 'email',
       attachments: [],
-      sentAs: "snippet",
-      templateId: "",
+      sentAs: 'snippet',
+      templateId: '',
       isSaved: false,
     };
 
@@ -68,28 +69,28 @@ class WidgetForm extends React.Component<Props, State> {
     const { save, customers } = this.props;
 
     const doc = {
-      title: (document.getElementById("title") as HTMLInputElement).value,
+      title: (document.getElementById('title') as HTMLInputElement).value,
       customerIds: customers.map((customer) => customer._id),
-      method: "",
+      method: '',
     } as IEngageMessageDoc;
 
-    if (this.state.channel === "email") {
+    if (this.state.channel === 'email') {
       doc.method = METHODS.EMAIL;
       doc.email = {
-        subject: (document.getElementById("emailSubject") as HTMLInputElement)
+        subject: (document.getElementById('emailSubject') as HTMLInputElement)
           .value,
         attachments: this.state.attachments,
         content: this.state.content,
       } as IEngageEmail;
     }
 
-    if (this.state.channel === "messenger") {
+    if (this.state.channel === 'messenger') {
       doc.method = METHODS.MESSENGER;
       doc.messenger = {
-        brandId: (document.getElementById("brandId") as HTMLInputElement).value,
-        kind: (document.getElementById("messengerKind") as HTMLInputElement)
+        brandId: (document.getElementById('brandId') as HTMLInputElement).value,
+        kind: (document.getElementById('messengerKind') as HTMLInputElement)
           .value,
-        sentAs: (document.getElementById("sentAs") as HTMLInputElement).value,
+        sentAs: (document.getElementById('sentAs') as HTMLInputElement).value,
         content: this.state.content,
       } as IEngageMessenger;
     }
@@ -98,7 +99,7 @@ class WidgetForm extends React.Component<Props, State> {
   };
 
   onChangeCommon = <T extends keyof State>(name: T, value: State[T]) => {
-    this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
+    this.setState({ [name]: value } as unknown as Pick<State, keyof State>);
   };
 
   onChannelChange = (e) => {
@@ -109,12 +110,12 @@ class WidgetForm extends React.Component<Props, State> {
     this.setState({ content: this.findTemplate(e.value), templateId: e.value });
   };
 
-  onEditorChange = (e) => {
-    this.onChangeCommon("content", e.editor.getData());
+  onEditorChange = (content: string) => {
+    this.onChangeCommon('content', content);
   };
 
   onSentAsChange = (e) => {
-    this.onChangeCommon("sentAs", e.target.value);
+    this.onChangeCommon('sentAs', e.target.value);
   };
 
   findTemplate = (id) => {
@@ -124,7 +125,7 @@ class WidgetForm extends React.Component<Props, State> {
       return template.content;
     }
 
-    return "";
+    return '';
   };
 
   renderReceivers() {
@@ -135,7 +136,7 @@ class WidgetForm extends React.Component<Props, State> {
           {this.props.customers.map((customer) => (
             <Recipient key={customer._id}>
               <strong>{customer.firstName}</strong>
-              <span>({customer.primaryEmail || "Unknown"})</span>
+              <span>({customer.primaryEmail || 'Unknown'})</span>
             </Recipient>
           ))}
         </Recipients>
@@ -157,8 +158,8 @@ class WidgetForm extends React.Component<Props, State> {
             onChange={this.onChannelChange}
             defaultValue={this.state.channel}
           >
-            <option value="email">{__("Email")}</option>
-            <option value="messenger">{__("Messenger")}</option>
+            <option value="email">{__('Email')}</option>
+            <option value="messenger">{__('Messenger')}</option>
           </FormControl>
         </FormGroup>
       </Half>
@@ -175,20 +176,17 @@ class WidgetForm extends React.Component<Props, State> {
     const currentUser = this.props.currentUser;
 
     const editor = (options?) => (
-      <EditorCK
+      <RichTextEditor
         {...options}
         content={this.state.content}
         onChange={this.onEditorChange}
-        toolbar={[
-          { name: "insert", items: ["strinsert"] },
-          ...MAIL_TOOLBARS_CONFIG,
-        ]}
+        toolbar={MAIL_TOOLBARS_CONFIG}
         name={`engage_widget_${this.state.channel}_${currentUser._id}`}
         isSubmitted={this.state.isSaved}
       />
     );
 
-    if (this.state.channel === "messenger") {
+    if (this.state.channel === 'messenger') {
       return (
         <FlexContent>
           <FlexItem>
@@ -261,7 +259,7 @@ class WidgetForm extends React.Component<Props, State> {
 
     const { attachments } = this.state;
     const onChange = (attachmentsAtt) =>
-      this.onChangeCommon("attachments", attachmentsAtt);
+      this.onChangeCommon('attachments', attachmentsAtt);
 
     return (
       <>
@@ -273,7 +271,7 @@ class WidgetForm extends React.Component<Props, State> {
 
           <FormGroup>
             <ControlLabel>Email templates:</ControlLabel>
-            <p>{__("Insert email template to content")}</p>
+            <p>{__('Insert email template to content')}</p>
 
             <Select
               value={this.state.templateId}

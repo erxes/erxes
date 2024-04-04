@@ -1,24 +1,23 @@
-import React from 'react';
-
+import { Description, SubHeading } from '@erxes/ui-settings/src/styles';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
-import Row from './Row';
 
 import { ColumnTable } from 'modules/settings/importExport/styles';
-import { isBoardKind } from '@erxes/ui-segments/src/utils';
-import { Info } from '@erxes/ui/src/styles/main';
-import { __ } from 'modules/common/utils';
-import { Description, SubHeading } from '@erxes/ui-settings/src/styles';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import { Info } from '@erxes/ui/src/styles/main';
+import React from 'react';
+import Row from './Row';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   columns: any[];
   fields: any[];
   columnWithChosenField: any;
-  onChangeColumn: (column, value, contentType) => void;
+  onChangeColumn: (column, value, contentType, columns) => void;
   contentType: string;
 };
 
 class MapColumn extends React.Component<Props, {}> {
+  // fix this function after
   renderText = value => {
     switch (value) {
       case 'customer':
@@ -27,6 +26,8 @@ class MapColumn extends React.Component<Props, {}> {
         return 'Companies';
       case 'deal':
         return 'Deals';
+      case 'purchase':
+        return 'Purchases';
       case 'ticket':
         return 'Tickets';
       case 'task':
@@ -38,6 +39,8 @@ class MapColumn extends React.Component<Props, {}> {
 
   renderInfo = () => {
     const { contentType } = this.props;
+    const isBoardKind = (contentType?: string) =>
+      ['deal', 'ticket', 'task', 'purchase'].includes(contentType || '');
 
     if (isBoardKind(contentType)) {
       return (

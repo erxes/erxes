@@ -8,7 +8,6 @@ import {
   sendFormsMessage
 } from '../messageBroker';
 
-import { KIND_CHOICES } from './definitions/constants';
 import {
   IBookingData,
   IIntegration,
@@ -64,7 +63,8 @@ export const isTimeInBetween = (
   closeTime: string
 ): boolean => {
   // date of given timezone
-  const now = momentTz(date).tz(timezone);
+  const tz = timezone || momentTz.tz.guess();
+  const now = momentTz(date).tz(tz) || momentTz(date);
 
   const start = getHourAndMinute(startTime);
   const startDate: any = momentTz(now);
@@ -137,7 +137,7 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
     formId: string,
     get?: boolean
   ): Promise<IIntegrationDocument>;
-  isOnline(integration: IIntegrationDocument, now?: Date): boolean;
+  isOnline(integration: IIntegrationDocument, userTimezone?: string): boolean;
   createBookingIntegration(
     doc: IIntegration,
     userId: string
@@ -192,15 +192,6 @@ export const loadClass = (models: IModels, subdomain: string) => {
       return models.Integrations.aggregate([
         { $match: query },
         {
-          $lookup: {
-            from: 'forms',
-            localField: 'formId',
-            foreignField: '_id',
-            as: 'form'
-          }
-        },
-        { $unwind: '$form' },
-        {
           $project: {
             isActive: 1,
             name: 1,
@@ -247,7 +238,8 @@ export const loadClass = (models: IModels, subdomain: string) => {
       return models.Integrations.create({
         ...doc,
         isActive: true,
-        createdUserId: userId
+        createdUserId: userId,
+        createdAt: new Date()
       });
     }
 
@@ -259,7 +251,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       userId: string
     ) {
       const integration = await models.Integrations.findOne({
-        kind: KIND_CHOICES.MESSENGER,
+        kind: 'messenger',
         brandId: doc.brandId
       });
 
@@ -267,10 +259,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
         throw new Error('Duplicated messenger for single brand');
       }
 
-      return this.createIntegration(
-        { ...doc, kind: KIND_CHOICES.MESSENGER },
-        userId
-      );
+      return this.createIntegration({ ...doc, kind: 'messenger' }, userId);
     }
 
     /**
@@ -282,7 +271,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
     ) {
       const integration = await models.Integrations.findOne({
         _id: { $ne: _id },
-        kind: KIND_CHOICES.MESSENGER,
+        kind: 'messenger',
         brandId: doc.brandId
       });
 
@@ -333,7 +322,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       { leadData = {}, ...mainDoc }: IIntegration,
       userId: string
     ) {
-      const doc = { ...mainDoc, kind: KIND_CHOICES.LEAD, leadData };
+      const doc = { ...mainDoc, kind: 'lead', leadData };
 
       if (Object.keys(leadData).length === 0) {
         throw new Error('leadData must be supplied');
@@ -343,7 +332,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
     }
 
     /**
-     * Create external integrations like facebook, twitter integration
+     * Create external integrations like twitter
      */
     public static createExternalIntegration(
       doc: IExternalIntegrationParams,
@@ -364,7 +353,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
       const doc = {
         ...mainDoc,
-        kind: KIND_CHOICES.LEAD,
+        kind: 'lead',
         leadData: {
           ...leadData,
           viewCount: prevLeadData.viewCount,
@@ -490,8 +479,10 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
     public static isOnline(
       integration: IIntegrationDocument,
-      now = new Date()
+      userTimezone?: string
     ) {
+      const now = new Date();
+
       const daysAsString = [
         'sunday',
         'monday',
@@ -521,8 +512,12 @@ export const loadClass = (models: IModels, subdomain: string) => {
       }
 
       const { messengerData } = integration;
-      const { availabilityMethod, onlineHours = [], timezone } = messengerData;
-      const timezoneString = timezone || '';
+      const {
+        availabilityMethod,
+        onlineHours = [],
+        timezone = ''
+      } = messengerData;
+      const timezoneString = userTimezone || timezone || momentTz.tz.guess();
 
       /*
        * Manual: We can determine state from isOnline field value when method is manual
@@ -603,7 +598,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
         throw new Error('Product main category already registered!');
       }
 
-      const doc = { ...mainDoc, kind: KIND_CHOICES.BOOKING, bookingData };
+      const doc = { ...mainDoc, kind: 'booking', bookingData };
 
       if (Object.keys(bookingData).length === 0) {
         throw new Error('bookingData must be supplied');
@@ -634,7 +629,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
       const doc = {
         ...mainDoc,
-        kind: KIND_CHOICES.BOOKING,
+        kind: 'booking',
         bookingData: {
           ...bookingData,
           viewCount: prevBookingData.viewCount

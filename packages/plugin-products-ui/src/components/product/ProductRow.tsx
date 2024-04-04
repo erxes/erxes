@@ -1,8 +1,19 @@
-import { FormControl } from '@erxes/ui/src/components/form';
 import Tags from '@erxes/ui/src/components/Tags';
 import TextInfo from '@erxes/ui/src/components/TextInfo';
 import React from 'react';
 import { IProduct } from '../../types';
+
+import ProductForm from '@erxes/ui-products/src/containers/ProductForm';
+
+import {
+  Button,
+  FormControl,
+  Icon,
+  ModalTrigger,
+  Tip,
+  __,
+  ActionButtons
+} from '@erxes/ui/src';
 
 type Props = {
   product: IProduct;
@@ -16,6 +27,14 @@ class Row extends React.Component<Props> {
     const { product, history, toggleBulk, isChecked } = this.props;
 
     const tags = product.getTags || [];
+
+    const trigger = (
+      <Button btnStyle="link">
+        <Tip text={__('Edit')} placement="bottom">
+          <Icon icon="edit-3" />
+        </Tip>
+      </Button>
+    );
 
     const onChange = e => {
       if (toggleBulk) {
@@ -31,24 +50,16 @@ class Row extends React.Component<Props> {
       history.push(`/settings/product-service/details/${product._id}`);
     };
 
-    const {
-      code,
-      name,
-      type,
-      category,
-      supply,
-      productCount,
-      minimiumCount,
-      unitPrice,
-      sku
-    } = product;
+    const content = props => <ProductForm {...props} product={product} />;
+
+    const { code, name, type, category, unitPrice } = product;
 
     return (
       <tr onClick={onTrClick}>
         <td onClick={onClick}>
           <FormControl
             checked={isChecked}
-            componentClass='checkbox'
+            componentClass="checkbox"
             onChange={onChange}
           />
         </td>
@@ -58,13 +69,19 @@ class Row extends React.Component<Props> {
           <TextInfo>{type}</TextInfo>
         </td>
         <td>{category ? category.name : ''}</td>
-        <td>{supply || ''}</td>
-        <td>{productCount ? productCount : 0}</td>
-        <td>{minimiumCount ? minimiumCount : 0}</td>
         <td>{(unitPrice || 0).toLocaleString()}</td>
-        <td>{sku}</td>
         <td>
           <Tags tags={tags} limit={2} />
+        </td>
+        <td onClick={onClick}>
+          <ActionButtons>
+            <ModalTrigger
+              title="Edit basic info"
+              trigger={trigger}
+              size="xl"
+              content={content}
+            />
+          </ActionButtons>
         </td>
       </tr>
     );

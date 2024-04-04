@@ -5,7 +5,7 @@ export default {
 };
 
 export const beforeResolverHandlers = async (subdomain, params) => {
-  const { resolver, args, user } = params;
+  const { args } = params;
 
-  return companyCheckCode(user, args, subdomain);
+  return companyCheckCode(args, subdomain);
 };

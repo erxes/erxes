@@ -4,7 +4,7 @@ const commonTypes = `
   type: String
 `;
 
-export const types = ({}) => `
+export const types = ({ tags }) => `
 
   type Board @key(fields: "_id") {
     _id: String!
@@ -18,6 +18,8 @@ export const types = ({}) => `
     name: String!
     status: String
     boardId: String!
+    tagId: String
+    ${tags ? `tag: Tag` : ''}
     visibility: String!
     memberIds: [String]
     departmentIds: [String]
@@ -33,6 +35,7 @@ export const types = ({}) => `
     hackScoringType: String
     templateId: String
     state: String
+    isCheckDate: Boolean
     isCheckUser: Boolean
     isCheckDepartment: Boolean
     excludeCheckUserIds: [String]
@@ -48,18 +51,26 @@ export const types = ({}) => `
     visibility: String
     code: String
     memberIds: [String]
+    canMoveMemberIds: [String]
+    canEditMemberIds: [String]
     members: [User]
     departmentIds: [String]
     probability: String
     status: String
+    unUsedAmount: JSON
     amount: JSON
     itemsTotalCount: Int
     compareNextStage: JSON
+    compareNextStagePurchase: JSON
     stayedDealsTotalCount: Int
     initialDealsTotalCount: Int
     inProcessDealsTotalCount: Int
+    stayedPurchasesTotalCount: Int
+    initialPurchasesTotalCount: Int
+    inProcessPurchasesTotalCount: Int
     formId: String
     age: Int
+    defaultTick: Boolean
     ${commonTypes}
   }
 
@@ -70,10 +81,18 @@ export const types = ({}) => `
     data: JSON
   }
 
+  type ProductsDataChangeResponse {
+    _id: String
+    proccessId: String
+    action: String
+    data: JSON
+  }
+
   type ConvertTo {
     ticketUrl: String,
     dealUrl: String,
     taskUrl: String,
+    purchaseUrl:String,
   }
 
   type BoardCount {
@@ -86,6 +105,11 @@ export const types = ({}) => `
     month: Int
     year: Int
   }
+
+  input Interval {
+    startTime: Date
+    endTime: Date
+  }
 `;
 
 const stageParams = `
@@ -97,7 +121,19 @@ const stageParams = `
   extraParams: JSON,
   closeDateType: String,
   assignedToMe: String,
-  age: Int
+  age: Int,
+  branchIds: [String]
+  departmentIds: [String]
+  segment: String
+  segmentData:String
+  createdStartDate: Date
+  createdEndDate: Date
+  stateChangedStartDate: Date
+  stateChangedEndDate: Date
+  startDateStartDate: Date
+  startDateEndDate: Date
+  closeDateStartDate: Date
+  closeDateEndDate: Date
 `;
 
 export const queries = `
@@ -111,7 +147,8 @@ export const queries = `
   stages(
     isNotLost: Boolean,
     isAll: Boolean,
-    pipelineId: String!,
+    pipelineId: String,
+    pipelineIds: [String],
     ${stageParams}
   ): [Stage]
   stageDetail(_id: String!, ${stageParams}): Stage
@@ -124,6 +161,7 @@ export const queries = `
   cardsFields: JSON
   boardContentTypeDetail(contentType: String, contentId: String): JSON
   boardLogs(action: String, content:JSON, contentId: String, contentType: String): JSON
+  checkFreeTimes(pipelineId: String, intervals: [Interval]): JSON
 `;
 
 const commonParams = `
@@ -138,12 +176,14 @@ const pipelineParams = `
   stages: JSON,
   visibility: String!,
   memberIds: [String],
+  tagId: String,
   bgColor: String,
   startDate: Date,
   endDate: Date,
   metric: String,
   hackScoringType: String,
   templateId: String,
+  isCheckDate: Boolean
   isCheckUser: Boolean
   isCheckDepartment: Boolean
   excludeCheckUserIds: [String],
@@ -164,7 +204,7 @@ export const mutations = `
   pipelinesUpdateOrder(orders: [OrderItem]): [Pipeline]
   pipelinesWatch(_id: String!, isAdd: Boolean, type: String!): Pipeline
   pipelinesRemove(_id: String!): JSON
-  pipelinesArchive(_id: String!): JSON  
+  pipelinesArchive(_id: String!): JSON
   pipelinesCopied(_id: String!): JSON
 
   stagesUpdateOrder(orders: [OrderItem]): [Stage]

@@ -60,12 +60,17 @@ const taskQueries = {
    */
   async taskDetail(
     _root,
-    { _id }: { _id: string },
+    { _id, clientPortalCard }: { _id: string; clientPortalCard: boolean },
     { user, models }: IContext
   ) {
     const task = await models.Tasks.getTask(_id);
 
-    return checkItemPermByUser(models, user._id, task);
+    // no need to check permission on cp task
+    if (clientPortalCard) {
+      return task;
+    }
+
+    return checkItemPermByUser(models, user, task);
   },
 
   async tasksAsLogs(

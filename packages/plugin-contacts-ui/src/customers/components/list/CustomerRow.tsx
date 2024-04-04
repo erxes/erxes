@@ -1,26 +1,28 @@
-import _ from 'lodash';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import Tags from '@erxes/ui/src/components/Tags';
-import TextInfo from '@erxes/ui/src/components/TextInfo';
-import { formatValue } from '@erxes/ui/src/utils';
-import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
-import {
-  GENDER_TYPES,
-  LEAD_STATUS_TYPES
-} from '@erxes/ui/src/customers/constants';
 import {
   BooleanStatus,
-  ClickableRow
+  ClickableRow,
 } from '@erxes/ui-contacts/src/customers/styles';
+import {
+  GENDER_TYPES,
+  LEAD_STATUS_TYPES,
+} from '@erxes/ui-contacts/src/customers/constants';
 import { ICustomer, IVisitorContact } from '../../types';
-import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
-import React from 'react';
-import parse from 'ua-parser-js';
-import { renderFlag } from '@erxes/ui-contacts/src/customers/components/common//DevicePropertiesSection';
+
+import { FlexContent } from '@erxes/ui-log/src/activityLogs/styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { IConfigColumn } from '@erxes/ui-forms/src/settings/properties/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import PrimaryEmail from '@erxes/ui-contacts/src/customers/components/common/PrimaryEmail';
 import PrimaryPhone from '@erxes/ui-contacts/src/customers/components/common/PrimaryPhone';
+import React from 'react';
+import Tags from '@erxes/ui/src/components/Tags';
+import TextInfo from '@erxes/ui/src/components/TextInfo';
+import _ from 'lodash';
+import { formatValue } from '@erxes/ui/src/utils';
+import parse from 'ua-parser-js';
+import { renderFlag } from '@erxes/ui-contacts/src/customers/components/common//DevicePropertiesSection';
+import { displayObjectListItem } from '../../utils';
 
 type Props = {
   index: number;
@@ -31,22 +33,7 @@ type Props = {
   toggleBulk: (target: any, toAdd: boolean) => void;
 };
 
-function displayObjectListItem(customer, customerFieldName, subFieldName) {
-  const objectList = customer[customerFieldName] || [];
-  const subFieldKey = subFieldName.replace(`${customerFieldName}.`, '');
-
-  const subField = objectList.find
-    ? objectList.find(obj => obj.field === subFieldKey)
-    : [];
-
-  if (!subField) {
-    return null;
-  }
-
-  return formatValue(subField.value);
-}
-
-function displayValue(customer, name, index) {
+function displayValue(customer, name, group, index) {
   const value = _.get(customer, name);
 
   if (name === 'firstName') {
@@ -59,11 +46,11 @@ function displayValue(customer, name, index) {
   }
 
   if (name.includes('customFieldsData')) {
-    return displayObjectListItem(customer, 'customFieldsData', name);
+    return displayObjectListItem(customer, 'customFieldsData', name, group);
   }
 
   if (name.includes('trackedData')) {
-    return displayObjectListItem(customer, 'trackedData', name);
+    return displayObjectListItem(customer, 'trackedData', name, group);
   }
 
   if (name === 'location.country') {
@@ -84,15 +71,6 @@ function displayValue(customer, name, index) {
       <div>
         {ua.browser.name} {ua.browser.version} / {ua.os.name} {ua.os.version}
       </div>
-    );
-  }
-
-  if (name === 'primaryEmail') {
-    return (
-      <PrimaryEmail
-        email={value}
-        status={customer.emailValidationStatus || ''}
-      />
     );
   }
 
@@ -155,17 +133,17 @@ function CustomerRow({
   toggleBulk,
   isChecked,
   history,
-  index
+  index,
 }: Props) {
   const tags = customer.getTags;
 
-  const onChange = e => {
+  const onChange = (e) => {
     if (toggleBulk) {
       toggleBulk(customer, e.target.checked);
     }
   };
 
-  const onClick = e => {
+  const onClick = (e) => {
     e.stopPropagation();
   };
 
@@ -182,13 +160,27 @@ function CustomerRow({
           onChange={onChange}
         />
       </td>
-      {(columnsConfig || []).map(({ name }, i) => (
-        <td key={i}>
-          <ClickableRow onClick={onTrClick}>
-            {displayValue(customer, name, index)}
-          </ClickableRow>
-        </td>
-      ))}
+      {(columnsConfig || []).map(({ name, group }, i) => {
+        if (name === 'primaryEmail') {
+          return (
+            <td key={i}>
+              <PrimaryEmail
+                customerId={customer._id}
+                email={_.get(customer, name)}
+                status={customer.emailValidationStatus || ''}
+              />
+            </td>
+          );
+        }
+
+        return (
+          <td key={i}>
+            <ClickableRow onClick={onTrClick}>
+              {displayValue(customer, name, group, index)}
+            </ClickableRow>
+          </td>
+        );
+      })}
       <td onClick={onTrClick}>
         <Tags tags={tags || []} limit={3} />
       </td>

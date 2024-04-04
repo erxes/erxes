@@ -9,7 +9,7 @@
     "pm2": "./node_modules/pm2/bin/pm2"
   },
   "dependencies": {
-    "amqplib": "^0.9.0",
+    "amqplib": "^0.10.2",
     "pm2": "^5.2.0",
     "shelljs": "^0.8.5"
   }

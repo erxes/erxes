@@ -22,7 +22,8 @@ export default function TicketConvertTrigger(props: Props) {
   const extendedProps = {
     ...props,
     options,
-    title
+    title,
+    autoOpenKey: 'showTicketConvertModal'
   };
 
   return <ConvertTrigger {...extendedProps} />;

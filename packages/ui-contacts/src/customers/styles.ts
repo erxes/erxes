@@ -296,6 +296,11 @@ const Box = styled(BoxRoot)`
   }
 `;
 
+const CustomPadding = styled.div`
+  display: flex;
+  padding: 6px 20px;
+`;
+
 export {
   InfoDetail,
   InfoAvatar,
@@ -310,5 +315,6 @@ export {
   ClickableRow,
   BooleanStatus,
   UserHeader,
-  MailBox
+  MailBox,
+  CustomPadding
 };

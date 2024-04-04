@@ -1,72 +1,123 @@
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 import { generateModels } from './connectionResolver';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+import { sendMessage } from '@erxes/api-utils/src/core';
+import type {
+  MessageArgs,
+  MessageArgsOmitService,
+} from '@erxes/api-utils/src/core';
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeRPCQueue } = client;
-
+export const setupMessageConsumers = async () => {
   consumeRPCQueue('inventories:remainders', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       data: await models.Remainders.getRemainders(subdomain, data),
-      status: 'success'
+      status: 'success',
     };
   });
 
-  consumeRPCQueue('inventories:remainder', async ({ subdomain, data }) => {
+  consumeRPCQueue('inventories:remainderCount', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
-      data: await models.Remainders.getRemainder(subdomain, data),
-      status: 'success'
+      data: await models.Remainders.getRemainderCount(subdomain, data),
+      status: 'success',
     };
   });
 
-  // consumeRPCQueue('inventories:transaction', async({ subdomain, data }) => {
-  //   const models = await generateModels(subdomain);
+  consumeQueue(
+    'inventories:remainders.updateMany',
+    async ({ subdomain, data: { branchId, departmentId, productsData } }) => {
+      const models = await generateModels(subdomain);
 
-  //   return {
-  //     data: await models.Transactions.createTransaction(subdomain),
-  //     status: 'success'
-  //   }
-  // })
-};
+      return {
+        status: 'success',
+        data: await models.Remainders.updateRemainders(
+          subdomain,
+          branchId,
+          departmentId,
+          productsData,
+        ),
+      };
+    },
+  );
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
-): Promise<any> => {
-  return sendMessage({
-    serviceDiscovery,
-    client,
-    ...args
+  consumeRPCQueue(
+    'inventories:reserveRemainders.find',
+    async ({ subdomain, data: { productIds, branchId, departmentId } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.ReserveRems.find({
+          branchId,
+          departmentId,
+          productId: { $in: productIds },
+        }).lean(),
+      };
+    },
+  );
+
+  consumeRPCQueue('inventories:transactionAdd', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await models.Transactions.createTransaction(data),
+      status: 'success',
+    };
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
+    ...args,
+  });
+};
+
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessage({
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendProductsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'products',
-    ...args
+    ...args,
   });
 };
 
-export default function() {
-  return client;
-}
+export const sendFormsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'forms',
+    ...args,
+  });
+};
+
+export const sendPosMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'pos',
+    ...args,
+  });
+};
+
+export const sendProcessesMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'processes',
+    ...args,
+  });
+};

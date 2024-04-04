@@ -1,12 +1,8 @@
 // Settings
 
 const configs = `
-  query configs {
-    configs {
-      _id
-      code
-      value
-    }
+  query configsGetValue($code: String!) {
+    configsGetValue(code: $code)
   }
 `;
 
@@ -20,7 +16,10 @@ const listParamsDef = `
   $success: String
   $billType: String
   $billIdRule: String
+  $isLast: String
   $orderNumber: String
+  $contractNumber: String
+  $transactionNumber: String
   $dealName: String
   $pipelineId: String
   $stageId: String
@@ -39,7 +38,10 @@ const listParamsValue = `
   success: $success
   billType: $billType
   billIdRule: $billIdRule
+  isLast: $isLast
   orderNumber: $orderNumber
+  contractNumber: $contractNumber
+  transactionNumber: $transactionNumber
   dealName: $dealName
   pipelineId: $pipelineId
   stageId: $stageId
@@ -54,6 +56,7 @@ const responseFields = `
   modifiedAt
   contentType
   contentId
+  number
   success
   billId
   date
@@ -88,9 +91,41 @@ const putResponses = `
   }
 `;
 
+const putResponsesByDate = `
+  query putResponsesByDate(${listParamsDef}) {
+    putResponsesByDate(${listParamsValue})
+  }
+`;
+
+const putResponsesDuplicated = `
+  query putResponsesDuplicated($billType: String, $startDate: Date, $endDate: Date, $page: Int, $perPage: Int) {
+    putResponsesDuplicated(billType: $billType, startDate: $startDate, endDate: $endDate, page: $page, perPage: $perPage)
+  }
+`;
+
+const putResponsesDuplicatedDetail = `
+  query putResponsesDuplicatedDetail($contentId: String, $taxType: String) {
+    putResponsesDuplicatedDetail(contentId: $contentId, taxType: $taxType) {
+      ${responseFields}
+    }
+  }
+`;
+
+const putResponsesDuplicatedCount = `
+  query putResponsesDuplicatedCount($billType: String, $startDate: Date, $endDate: Date) {
+    putResponsesDuplicatedCount(billType: $billType, startDate: $startDate, endDate: $endDate)
+  }
+`;
+
 const putResponsesCount = `
   query putResponsesCount(${listParamsDef}) {
     putResponsesCount(${listParamsValue})
+  }
+`;
+
+const putResponsesAmount = `
+  query putResponsesAmount(${listParamsDef}) {
+    putResponsesAmount(${listParamsValue})
   }
 `;
 
@@ -98,10 +133,15 @@ const getDealLink = `
   query getDealLink($_id: String) {
     getDealLink(_id: $_id)
   }
-`
+`;
 export default {
   configs,
   putResponses,
+  putResponsesByDate,
   putResponsesCount,
-  getDealLink
+  putResponsesAmount,
+  getDealLink,
+  putResponsesDuplicated,
+  putResponsesDuplicatedCount,
+  putResponsesDuplicatedDetail,
 };

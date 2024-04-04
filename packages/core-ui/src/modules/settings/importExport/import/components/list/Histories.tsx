@@ -12,7 +12,7 @@ import { BarItems } from 'modules/layout/styles';
 import React from 'react';
 import { IImportHistory } from '../../../types';
 import HistoryRow from './HistoryRow';
-import Sidebar from '../../containers/list/SideBar';
+import Sidebar from '../../../common/containers/SideBar';
 import { Title } from '@erxes/ui-settings/src/styles';
 import { Link } from 'react-router-dom';
 import { EMPTY_IMPORT_CONTENT } from '@erxes/ui-settings/src/constants';
@@ -39,14 +39,14 @@ class Histories extends React.Component<Props & IRouterProps> {
             <th>{__('Name')}</th>
             <th>{__('Records')}</th>
             <th>{__('Updated records')}</th>
-            <th>{__('Error Count')}</th>
+            <th>{__('Errors')}</th>
             <th>{__('User')}</th>
             <th>{__('Date')}</th>
             <th>{__('Action')}</th>
           </tr>
         </thead>
         <tbody>
-          {histories.map(history => {
+          {histories.map((history) => {
             return (
               <HistoryRow
                 key={history._id}
@@ -71,6 +71,9 @@ class Histories extends React.Component<Props & IRouterProps> {
       case 'deal':
         buttonText = 'sales pipelines';
         break;
+      case 'purchase':
+        buttonText = 'purchases pipelines';
+        break;
       case 'user':
         buttonText = 'team members';
         break;
@@ -82,28 +85,11 @@ class Histories extends React.Component<Props & IRouterProps> {
     return buttonText;
   }
 
-  renderExportButton = () => {
+  renderDataImporter() {
     const { currentType } = this.props;
 
-    if (currentType)
-      return (
-        <Link to={`/settings/export?type=${currentType}`}>
-          <Button icon="export" btnStyle="primary">
-            {__(`Export ${this.getButtonText()}`)}
-          </Button>
-        </Link>
-      );
-
     return (
-      <Button icon="export" btnStyle="primary" disabled>
-        {__('Export')}
-      </Button>
-    );
-  };
-
-  renderDataImporter() {
-    return (
-      <Link to={`/settings/import`}>
+      <Link to={`/settings/import?type=${currentType}`}>
         <Button icon="import" btnStyle="success">
           {__(`Import data`)}
         </Button>
@@ -112,12 +98,7 @@ class Histories extends React.Component<Props & IRouterProps> {
   }
 
   renderImportButton = () => {
-    return (
-      <BarItems>
-        {this.renderDataImporter()}
-        {this.renderExportButton()}
-      </BarItems>
-    );
+    return <BarItems>{this.renderDataImporter()}</BarItems>;
   };
 
   render() {
@@ -125,18 +106,18 @@ class Histories extends React.Component<Props & IRouterProps> {
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Import & Export'), link: '/settings/importHistories' },
-      { title: __('Imports') }
+      { title: __('Import & Export'), link: '/settings/selectMenu' },
+      { title: __('Imports') },
     ];
 
     const headerDescription = (
       <HeaderDescription
         icon="/images/actions/27.svg"
-        title={__('Import & export')}
+        title={__('Import')}
         description={`${__(
-          'Here you can find data of all your previous imports of companies and customers'
+          'Here you can find data of all your previous imports of companies and customers',
         )}.${__('Find out when they joined and their current status')}.${__(
-          'Nothing goes missing around here'
+          'Nothing goes missing around here',
         )}`}
       />
     );
@@ -150,12 +131,16 @@ class Histories extends React.Component<Props & IRouterProps> {
           <Wrapper.ActionBar
             left={<Title capitalize={true}>{__('Imports')}</Title>}
             right={this.renderImportButton()}
-            background="colorWhite"
-            withMargin
-            wide
+            wideSpacing={true}
           />
         }
-        leftSidebar={<Sidebar history={history} currentType={currentType} />}
+        leftSidebar={
+          <Sidebar
+            history={history}
+            currentType={currentType}
+            mainType="import"
+          />
+        }
         mainHead={headerDescription}
         footer={<Pagination count={totalCount} />}
         content={
@@ -166,9 +151,8 @@ class Histories extends React.Component<Props & IRouterProps> {
             emptyContent={<EmptyContent content={EMPTY_IMPORT_CONTENT} />}
           />
         }
-        hasBorder={true}
         transparent={true}
-        noPadding={true}
+        hasBorder={true}
       />
     );
   }

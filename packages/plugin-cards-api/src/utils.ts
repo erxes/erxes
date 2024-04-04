@@ -1,18 +1,18 @@
-import { debug } from './configs';
 import { getCollection } from './models/utils';
 import { CARD_PROPERTIES_INFO, MODULE_NAMES } from './constants';
 import { generateModels, IModels } from './connectionResolver';
 import { sendCoreMessage } from './messageBroker';
 import { IUserDocument } from '@erxes/api-utils/src/types';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 
-export const configReplacer = config => {
+export const configReplacer = (config) => {
   const now = new Date();
 
   // replace type of date
   return config
     .replace(/\{year}/g, now.getFullYear().toString())
-    .replace(/\{month}/g, (now.getMonth() + 1).toString())
-    .replace(/\{day}/g, now.getDate().toString());
+    .replace(/\{month}/g, `0${(now.getMonth() + 1).toString()}`.slice(-2))
+    .replace(/\{day}/g, `0${now.getDate().toString()}`.slice(-2));
 };
 
 export const generateConditionStageIds = async (
@@ -20,12 +20,12 @@ export const generateConditionStageIds = async (
   {
     boardId,
     pipelineId,
-    options
+    options,
   }: {
     boardId?: string;
     pipelineId?: string;
     options?: any;
-  }
+  },
 ) => {
   let pipelineIds: string[] = [];
 
@@ -39,27 +39,27 @@ export const generateConditionStageIds = async (
     const pipelines = await models.Pipelines.find(
       {
         _id: {
-          $in: pipelineId ? [pipelineId] : board.pipelines || []
-        }
+          $in: pipelineId ? [pipelineId] : board.pipelines || [],
+        },
       },
-      { _id: 1 }
+      { _id: 1 },
     );
 
-    pipelineIds = pipelines.map(p => p._id);
+    pipelineIds = pipelines.map((p) => p._id);
   }
 
   const stages = await models.Stages.find(
     { pipelineId: pipelineIds },
-    { _id: 1 }
+    { _id: 1 },
   );
 
-  return stages.map(s => s._id);
+  return stages.map((s) => s._id);
 };
 
 export const getContentItem = async (subdomain, data) => {
   const models = await generateModels(subdomain);
 
-  const { Deals, Tasks, Tickets, GrowthHacks, Stages } = models;
+  const { Deals, Tasks, Tickets, GrowthHacks, Stages, Purchases } = models;
   const { action, content, contentType, contentId } = data;
 
   const type =
@@ -83,6 +83,8 @@ export const getContentItem = async (subdomain, data) => {
       case 'ticket':
         item = await Tickets.getTicket(contentId);
         break;
+      case 'purchase':
+        item = await Purchases.getPurchase(contentId);
       default:
         break;
     }
@@ -90,7 +92,7 @@ export const getContentItem = async (subdomain, data) => {
     const { oldStageId, destinationStageId } = content;
 
     const destinationStage = await Stages.findOne({
-      _id: destinationStageId
+      _id: destinationStageId,
     }).lean();
     const oldStage = await Stages.findOne({ _id: oldStageId }).lean();
 
@@ -98,12 +100,12 @@ export const getContentItem = async (subdomain, data) => {
       return {
         destinationStage: destinationStage.name,
         oldStage: oldStage.name,
-        item
+        item,
       };
     }
 
     return {
-      text: content.text
+      text: content.text,
     };
   }
 
@@ -123,6 +125,8 @@ export const getContentItem = async (subdomain, data) => {
       case 'ticket':
         item = await Tickets.getTicket(contentId);
         break;
+      case 'purchase':
+        item = await Purchases.getPurchase(contentId);
       default:
         break;
     }
@@ -130,7 +134,7 @@ export const getContentItem = async (subdomain, data) => {
     const { oldStageId, destinationStageId } = content;
 
     const destinationStage = await Stages.findOne({
-      _id: destinationStageId
+      _id: destinationStageId,
     }).lean();
     const oldStage = await Stages.findOne({ _id: oldStageId }).lean();
 
@@ -138,12 +142,12 @@ export const getContentItem = async (subdomain, data) => {
       return {
         destinationStage: destinationStage.name,
         oldStage: oldStage.name,
-        item
+        item,
       };
     }
 
     return {
-      text: content.text
+      text: content.text,
     };
   }
 
@@ -157,11 +161,11 @@ export const getContentItem = async (subdomain, data) => {
         action: 'users.find',
         data: {
           query: {
-            _id: { $in: content.addedUserIds }
-          }
+            _id: { $in: content.addedUserIds },
+          },
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       removedUsers = await sendCoreMessage({
@@ -169,11 +173,11 @@ export const getContentItem = async (subdomain, data) => {
         action: 'users.find',
         data: {
           query: {
-            _id: { $in: content.removedUserIds }
-          }
+            _id: { $in: content.removedUserIds },
+          },
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
     }
 
@@ -190,7 +194,8 @@ export const getContentTypeDetail = async (subdomain, data) => {
     Tasks,
     GrowthHacks,
     ChecklistItems,
-    Checklists
+    Checklists,
+    Purchases,
   } = models;
   const { contentType = '', contentId, content } = data;
 
@@ -216,9 +221,12 @@ export const getContentTypeDetail = async (subdomain, data) => {
       case 'checklistitem':
         item = (await ChecklistItems.findOne({ _id: content._id })) || {};
         break;
+      case 'purchase':
+        item = await Purchases.getPurchase(contentId);
+        break;
     }
   } catch (e) {
-    debug.error(e.message);
+    debugError(e.message);
 
     return e.message;
   }
@@ -229,7 +237,7 @@ export const getContentTypeDetail = async (subdomain, data) => {
 export const collectItems = async (
   models: IModels,
   subdomain: string,
-  { contentType, contentId }
+  { contentType, contentId },
 ) => {
   let tasks: any[] = [];
 
@@ -243,10 +251,10 @@ export const collectItems = async (
     data: {
       mainType: contentType.split(':')[1],
       mainTypeId: contentId,
-      relTypes: ['task']
+      relTypes: ['task'],
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   if (contentType !== 'cards:task') {
@@ -255,12 +263,12 @@ export const collectItems = async (
         $match: {
           $and: [
             { _id: { $in: relatedTaskIds } },
-            { status: { $ne: 'archived' } }
-          ]
-        }
+            { status: { $ne: 'archived' } },
+          ],
+        },
       },
       {
-        $addFields: { contentType: 'cards:taskDetail' }
+        $addFields: { contentType: 'cards:taskDetail' },
       },
       {
         $project: {
@@ -271,25 +279,25 @@ export const collectItems = async (
               branches: [
                 {
                   case: { $gt: ['$closeDate', null] },
-                  then: '$closeDate'
-                }
+                  then: '$closeDate',
+                },
               ],
-              default: '$createdAt'
-            }
-          }
-        }
+              default: '$createdAt',
+            },
+          },
+        },
       },
-      { $sort: { closeDate: 1 } }
+      { $sort: { closeDate: 1 } },
     ]);
   }
 
   return tasks;
 };
 
-// contentType should come with "cards:deal|task|ticket|growthHack" format
+// contentType should come with "cards:deal|task|ticket|growthHack|purchase" format
 export const getCardContentIds = async (
   models: IModels,
-  { pipelineId, contentType }
+  { pipelineId, contentType },
 ) => {
   const type =
     contentType.indexOf(':') !== -1 ? contentType.split(':')[1] : contentType;
@@ -301,9 +309,9 @@ export const getCardContentIds = async (
 
 export const getCardItem = async (
   models: IModels,
-  { contentTypeId, contentType }
+  { contentTypeId, contentType },
 ) => {
-  const { Deals, Tasks, Tickets, GrowthHacks } = models;
+  const { Deals, Tasks, Tickets, GrowthHacks, Purchases } = models;
   const filter = { _id: contentTypeId };
 
   let item;
@@ -321,6 +329,9 @@ export const getCardItem = async (
     case MODULE_NAMES.GROWTH_HACK:
       item = await GrowthHacks.findOne(filter);
       break;
+    case MODULE_NAMES.PURCHASE:
+      item = await Purchases.findOne(filter);
+      break;
     default:
       break;
   }
@@ -328,7 +339,7 @@ export const getCardItem = async (
   return item;
 };
 
-export const getBoardsAndPipelines = doc => {
+export const getBoardsAndPipelines = (doc) => {
   const { config } = doc;
 
   if (!config || !config.boardsPipelines) {
@@ -361,7 +372,7 @@ export const getBoardsAndPipelines = doc => {
 export const generateSystemFields = ({ data: { groupId, type } }) => {
   const fields: any = [];
 
-  CARD_PROPERTIES_INFO.ALL.map(e => {
+  CARD_PROPERTIES_INFO.ALL.map((e) => {
     fields.push({
       text: e.label,
       type: e.type,
@@ -371,7 +382,7 @@ export const generateSystemFields = ({ data: { groupId, type } }) => {
       groupId,
       options: e.options,
       contentType: `cards:${type}`,
-      isDefinedByErxes: true
+      isDefinedByErxes: true,
     });
   });
 

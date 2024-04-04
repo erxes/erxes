@@ -1,8 +1,0 @@
-{
-  "name": "@erxes/ui-calendar",
-  "version": "1.0.0",
-  "dependencies": {
-    "react": "^16.14.0",
-    "styled-components": "^3.2.6"
-  }
-}

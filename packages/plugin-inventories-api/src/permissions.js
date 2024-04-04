@@ -1,7 +1,7 @@
-export default {
+module.exports = {
   inventories: {
     name: 'inventories',
-    description: 'Intentories',
+    description: 'Inventories',
     actions: [
       {
         name: 'inventoriesAll',

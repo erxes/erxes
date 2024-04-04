@@ -1,16 +1,16 @@
 import Button from '@erxes/ui/src/components/Button';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { getEnv } from '@erxes/ui/src/utils';
-import { MarkdownWrapper } from '@erxes/ui-settings/src/styles';
-import React from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import ReactMarkdown from 'react-markdown';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { IScript } from '../types';
+import { MarkdownWrapper } from '@erxes/ui-settings/src/styles';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import React from 'react';
+import ReactMarkdown from 'react-markdown';
+import { getEnv } from '@erxes/ui/src/utils';
 
 type Props = {
   script: IScript;
-  closeModal: () => void;
+  closeModal?: () => void;
 };
 
 type State = {
@@ -61,7 +61,7 @@ class InstallCode extends React.Component<Props, State> {
     return (
       <React.Fragment>
         <MarkdownWrapper>
-          <ReactMarkdown children={this.state.code || ""} />
+          <ReactMarkdown children={this.state.code || ''} />
           {this.state.code ? (
             <CopyToClipboard text={this.state.code} onCopy={this.onCopy}>
               <Button size="small" btnStyle="primary" icon="copy-1">
@@ -77,7 +77,7 @@ class InstallCode extends React.Component<Props, State> {
           <Button
             btnStyle="simple"
             icon="times-circle"
-            onClick={this.props.closeModal}
+            onClick={this.props.closeModal && this.props.closeModal}
           >
             Close
           </Button>

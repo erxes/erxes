@@ -11,12 +11,12 @@ import {
 } from '../types';
 import { PipelineConsumer, PipelineProvider } from './PipelineContext';
 
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { withRouter } from 'react-router-dom';
 import styled from 'styled-components';
 import { queries } from '../graphql';
@@ -180,11 +180,18 @@ const WithStagesQuery = (props: WithStagesQueryProps) => {
   return <WithStages {...props} stageMap={stageMap} initialItemMap={itemMap} />;
 };
 
-export default withProps<Props>(
+type WithQueryProps = Props & { abortController };
+
+const WithQuery = withProps<WithQueryProps>(
   compose(
-    graphql<Props, StagesQueryResponse>(gql(queries.stages), {
+    graphql<WithQueryProps, StagesQueryResponse>(gql(queries.stages), {
       name: 'stagesQuery',
-      options: ({ pipeline, queryParams, options: { getExtraParams } }) => ({
+      options: ({
+        pipeline,
+        queryParams,
+        options: { getExtraParams },
+        abortController
+      }) => ({
         variables: {
           pipelineId: pipeline._id,
           search: queryParams.search,
@@ -195,9 +202,41 @@ export default withProps<Props>(
           extraParams: getExtraParams(queryParams),
           closeDateType: queryParams.closeDateType,
           userIds: queryParams.userIds,
-          assignedToMe: queryParams.assignedToMe
+          assignedToMe: queryParams.assignedToMe,
+          branchIds: queryParams.branchIds,
+          departmentIds: queryParams.departmentIds,
+          segment: queryParams.segment,
+          segmentData: queryParams.segmentData
+        },
+        context: {
+          fetchOptions: { signal: abortController && abortController.signal }
         }
       })
     })
   )(withRouter(WithStagesQuery))
 );
+
+class WithData extends React.Component<Props> {
+  private abortController;
+
+  componentWillUnmount() {
+    this.abortController.abort();
+  }
+
+  constructor(props) {
+    super(props);
+
+    this.abortController = new AbortController();
+  }
+
+  render() {
+    const updatedProps = {
+      ...this.props,
+      abortController: this.abortController
+    };
+
+    return <WithQuery {...updatedProps} />;
+  }
+}
+
+export default withProps<Props>(WithData);

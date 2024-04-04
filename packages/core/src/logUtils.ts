@@ -11,6 +11,7 @@ import {
 } from './db/models/definitions/permissions';
 import { IUserDocument, userSchema } from './db/models/definitions/users';
 import { generateModels } from './connectionResolver';
+import { configSchema } from './db/models/definitions/configs';
 // import { sendLogsMessage } from './messageBroker';
 
 const LOG_MAPPINGS = [
@@ -29,6 +30,10 @@ const LOG_MAPPINGS = [
   {
     name: MODULE_NAMES.USER,
     schemas: [userSchema]
+  },
+  {
+    name: MODULE_NAMES.CONFIG,
+    schemas: [configSchema]
   }
 ];
 

@@ -7,10 +7,6 @@ type Props = {
   goToIntro: () => void;
   booking: IBookingData | null;
   goToCategory: (categoryId: string) => void;
-  invoiceResponse?: any;
-  invoiceType?: string;
-  lastMessageId?: string;
-  onCancelOrder: (customerId: string, messageId: string) => void;
 };
 
 function Booking({ goToIntro, booking, goToCategory }: Props) {

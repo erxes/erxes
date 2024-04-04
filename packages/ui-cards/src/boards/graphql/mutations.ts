@@ -15,6 +15,7 @@ const createTicketComment = `
 `;
 
 export const commonMutationVariables = `
+  $parentId: String,
   $proccessId: String,
   $aboveItemId: String,
   $stageId: String,
@@ -30,9 +31,13 @@ export const commonMutationVariables = `
   $priority: String,
   $sourceConversationIds: [String],
   $customFieldsData: JSON,
+  $tagIds: [String]
+  $branchIds:[String],
+  $departmentIds:[String]
 `;
 
 export const commonMutationParams = `
+  parentId: $parentId,
   proccessId: $proccessId,
   aboveItemId: $aboveItemId,
   stageId: $stageId,
@@ -48,6 +53,9 @@ export const commonMutationParams = `
   priority: $priority,
   sourceConversationIds: $sourceConversationIds,
   customFieldsData: $customFieldsData,
+  tagIds: $tagIds
+  branchIds: $branchIds
+  departmentIds: $departmentIds
 `;
 
 export const commonDragVariables = `
@@ -85,6 +93,9 @@ export const commonListFields = `
   hasNotified
   score
   number
+  tagIds
+  customProperties
+  status
 `;
 
 export const commonFields = `
@@ -95,15 +106,29 @@ export const commonFields = `
   pipeline {
     _id
     name
+    tagId
+    isCheckDate
+
+    ${
+      isEnabled('tags')
+        ? `
+        tag {
+          order
+        }
+    `
+        : ``
+    }
   }
   boardId
   ${
     isEnabled('contacts')
       ? `
-    companies {
-      _id
-      primaryName
-      links
+    ... @defer {
+      companies {
+        _id
+        primaryName
+        links
+      }
     }
   `
       : ``
@@ -111,18 +136,32 @@ export const commonFields = `
   ${
     isEnabled('contacts')
       ? `
-    customers {
-      _id
-      firstName
-      middleName
-      lastName
-      primaryEmail
-      primaryPhone
-      visitorContactInfo
+    ... @defer {
+      customers {
+        _id
+        firstName
+        middleName
+        lastName
+        primaryEmail
+        primaryPhone
+        visitorContactInfo
+      }
     }
   `
       : ``
   }
+  ${
+    isEnabled('tags')
+      ? `
+  tags {
+    _id
+    name
+    colorCode
+  }
+  `
+      : ``
+  }
+  tagIds
   startDate
   closeDate
   description
@@ -146,6 +185,8 @@ export const commonFields = `
   labelIds
   stage {
     probability
+    type
+    defaultTick
   }
   isWatched
   attachments {
@@ -176,6 +217,9 @@ export const commonFields = `
     startDate
   }
   number
+  customProperties
+  branchIds
+  departmentIds
 `;
 
 const pipelinesWatch = `
@@ -256,9 +300,39 @@ const stagesUpdateOrder = `
 `;
 
 const conversationConvertToCard = `
-  mutation conversationConvertToCard($_id: String!, $type:String!, $stageId: String, $itemName:String, $itemId:String $bookingProductId: String){
-    conversationConvertToCard(_id:$_id,type:$type,itemId:$itemId,stageId:$stageId,itemName:$itemName bookingProductId: $bookingProductId)
-  }
+mutation conversationConvertToCard(
+  $_id: String!
+  $type: String!
+  $assignedUserIds: [String]
+  $attachments: [AttachmentInput]
+  $bookingProductId: String
+  $closeDate: Date
+  $customFieldsData: JSON
+  $description: String
+  $itemId: String
+  $itemName: String
+  $labelIds: [String]
+  $priority: String
+  $stageId: String
+  $startDate: Date
+) {
+  conversationConvertToCard(
+    _id: $_id
+    type: $type
+    assignedUserIds: $assignedUserIds
+    attachments: $attachments
+    bookingProductId: $bookingProductId
+    closeDate: $closeDate
+    customFieldsData: $customFieldsData
+    description: $description
+    itemId: $itemId
+    itemName: $itemName
+    labelIds: $labelIds
+    priority: $priority
+    stageId: $stageId
+    startDate: $startDate
+  )
+}
 `;
 
 export default {
@@ -274,5 +348,5 @@ export default {
   pipelineLabelsLabel,
   boardItemsSaveForGanttTimeline,
   stagesUpdateOrder,
-  conversationConvertToCard
+  conversationConvertToCard,
 };

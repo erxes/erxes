@@ -1,4 +1,5 @@
 import Icon from '@erxes/ui/src/components/Icon';
+import Tip from '@erxes/ui/src/components/Tip';
 import Label from '@erxes/ui/src/components/Label';
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 import { __ } from '@erxes/ui/src/utils';
@@ -105,7 +106,9 @@ class Widget extends React.Component<Props, State> {
         overlay={popoverNotification}
       >
         <NotifButton>
-          <Icon icon="bell" size={20} />
+          <Tip text={__('Notifications')} placement="bottom">
+            <Icon icon="bell" size={20} />
+          </Tip>
           {this.renderUnreadCount()}
         </NotifButton>
       </OverlayTrigger>

@@ -31,55 +31,6 @@ export const CONVERSATION_SELECT_OPTIONS = {
   ]
 };
 
-export const KIND_CHOICES = {
-  MESSENGER: 'messenger',
-  LEAD: 'lead',
-  FACEBOOK_MESSENGER: 'facebook-messenger',
-  FACEBOOK_POST: 'facebook-post',
-  GMAIL: 'gmail',
-  NYLAS_GMAIL: 'nylas-gmail',
-  NYLAS_IMAP: 'nylas-imap',
-  NYLAS_OFFICE365: 'nylas-office365',
-  NYLAS_EXCHANGE: 'nylas-exchange',
-  NYLAS_OUTLOOK: 'nylas-outlook',
-  NYLAS_YAHOO: 'nylas-yahoo',
-  CALLPRO: 'callpro',
-  TWITTER_DM: 'twitter-dm',
-  CHATFUEL: 'chatfuel',
-  SMOOCH_VIBER: 'smooch-viber',
-  SMOOCH_LINE: 'smooch-line',
-  SMOOCH_TELEGRAM: 'smooch-telegram',
-  SMOOCH_TWILIO: 'smooch-twilio',
-  WHATSAPP: 'whatsapp',
-  TELNYX: 'telnyx',
-  WEBHOOK: 'webhook',
-  BOOKING: 'booking',
-  ALL: [
-    'messenger',
-    'lead',
-    'facebook-messenger',
-    'facebook-post',
-    'gmail',
-    'callpro',
-    'chatfuel',
-    'nylas-gmail',
-    'nylas-imap',
-    'nylas-office365',
-    'nylas-outlook',
-    'nylas-exchange',
-    'nylas-yahoo',
-    'twitter-dm',
-    'smooch-viber',
-    'smooch-line',
-    'smooch-telegram',
-    'smooch-twilio',
-    'whatsapp',
-    'telnyx',
-    'webhook',
-    'booking'
-  ]
-};
-
 export const LEAD_LOAD_TYPES = {
   SHOUTBOX: 'shoutbox',
   POPUP: 'popup',
@@ -116,33 +67,6 @@ export const AUTO_BOT_MESSAGES = {
   CHANGE_OPERATOR: 'The team will reply in message'
 };
 
-export const INTEGRATION_NAMES_MAP = {
-  messenger: 'Messenger',
-  lead: 'Forms',
-  'facebook-messenger': 'Facebook Messenger',
-  'facebook-post': 'Facebook Post',
-  gmail: 'Gmail',
-  webhook: 'Webhook',
-  callpro: 'Call pro',
-  chatfuel: 'Chatfuel',
-
-  whatsapp: 'WhatsApp by Smooch',
-  'smooch-telegram': 'Telegram by Smooch',
-  'smooch-viber': 'Viber by Smooch',
-  'smooch-line': 'Line by Smooch',
-  'smooch-twilio': 'SMS Twilio by Smooch',
-
-  'nylas-imap': 'IMAP by Nylas',
-  'nylas-gmail': 'Gmail by Nylas',
-  'nylas-office365': 'Office 365 by Nylas',
-  'nylas-exchange': 'Microsoft Exchange by Nylas',
-  'nylas-outlook': 'Outlook by Nylas',
-  'nylas-yahoo': 'Yahoo by Nylas',
-  'twitter-dm': 'Twitter dm',
-
-  telnyx: 'SMS by Telnyx'
-};
-
 export const BOT_MESSAGE_TYPES = {
-    SAY_SOMETHING: 'say_something'
+  SAY_SOMETHING: 'say_something'
 };

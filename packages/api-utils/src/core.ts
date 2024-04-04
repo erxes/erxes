@@ -1,22 +1,31 @@
 import * as mongoose from 'mongoose';
 import * as strip from 'strip';
-import * as faker from 'faker';
-import * as Random from 'meteor-random';
 import { IUserDocument } from './types';
 import { IPermissionDocument } from './definitions/permissions';
+import { randomAlphanumeric } from '@erxes/api-utils/src/random';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import * as messageBroker from './messageBroker';
+import type { InterMessage } from './messageBroker';
+import { coreModelOrganizations, getCoreConnection } from './saas/saas';
+import { connect } from './mongo-connection';
 
 export const getEnv = ({
   name,
-  defaultValue
+  defaultValue,
+  subdomain,
 }: {
   name: string;
-  subdomain?: string;
   defaultValue?: string;
+  subdomain?: string;
 }): string => {
-  const value = process.env[name];
+  let value = process.env[name] || '';
 
   if (!value && typeof defaultValue !== 'undefined') {
     return defaultValue;
+  }
+
+  if (subdomain) {
+    value = value.replace('<subdomain>', subdomain);
   }
 
   return value || '';
@@ -26,7 +35,11 @@ export const getEnv = ({
  * Returns user's name  or email
  */
 export const getUserDetail = (user: IUserDocument) => {
-  return (user.details && user.details.fullName) || user.email;
+  if (user.details) {
+    return `${user.details.firstName} ${user.details.lastName}`;
+  }
+
+  return user.email;
 };
 
 export const paginate = (
@@ -36,7 +49,7 @@ export const paginate = (
     page?: number;
     perPage?: number;
     excludeIds?: boolean;
-  }
+  },
 ) => {
   const { page = 0, perPage = 0, ids, excludeIds } = params || { ids: null };
 
@@ -64,8 +77,8 @@ const stringToRegex = (value: string) => {
   const specialChars = '{}[]\\^$.|?*+()'.split('');
   const val = value.split('');
 
-  const result = val.map(char =>
-    specialChars.includes(char) ? '.?\\' + char : '.?' + char
+  const result = val.map((char) =>
+    specialChars.includes(char) ? '.?\\' + char : '.?' + char,
   );
 
   return '.*' + result.join('').substring(2) + '.*';
@@ -73,7 +86,7 @@ const stringToRegex = (value: string) => {
 
 export const regexSearchText = (
   searchValue: string,
-  searchKey = 'searchText'
+  searchKey = 'searchText',
 ) => {
   const result: any[] = [];
 
@@ -82,7 +95,9 @@ export const regexSearchText = (
   const words = searchValue.split(' ');
 
   for (const word of words) {
-    result.push({ [searchKey]: new RegExp(`${stringToRegex(word)}`, 'mui') });
+    result.push({
+      [searchKey]: { $regex: `${stringToRegex(word)}`, $options: 'mui' },
+    });
   }
 
   return { $and: result };
@@ -119,9 +134,20 @@ export const getToday = (date: Date): Date => {
       date.getUTCDate(),
       0,
       0,
-      0
-    )
+      0,
+    ),
   );
+};
+
+export const getPureDate = (date: Date, multiplier = 1) => {
+  const ndate = new Date(date);
+  const diffTimeZone =
+    multiplier * Number(process.env.TIMEZONE || 0) * 1000 * 60 * 60;
+  return new Date(ndate.getTime() - diffTimeZone);
+};
+
+export const getTomorrow = (date: Date) => {
+  return getToday(new Date(date.getTime() + 24 * 60 * 60 * 1000));
 };
 
 export const getNextMonth = (date: Date): { start: number; end: number } => {
@@ -144,11 +170,11 @@ export const getNextMonth = (date: Date): { start: number; end: number } => {
  */
 export const checkUserIds = (
   oldUserIds: string[] = [],
-  newUserIds: string[] = []
+  newUserIds: string[] = [],
 ) => {
-  const removedUserIds = oldUserIds.filter(e => !newUserIds.includes(e));
+  const removedUserIds = oldUserIds.filter((e) => !newUserIds.includes(e));
 
-  const addedUserIds = newUserIds.filter(e => !oldUserIds.includes(e));
+  const addedUserIds = newUserIds.filter((e) => !oldUserIds.includes(e));
 
   return { addedUserIds, removedUserIds };
 };
@@ -190,13 +216,23 @@ export const splitStr = (str: string, size: number): string[] => {
   return cleanStr.match(new RegExp(new RegExp(`.{1,${size}}(\s|$)`, 'g')));
 };
 
+const generateRandomEmail = () => {
+  let chars = 'abcdefghijklmnopqrstuvwxyz1234567890';
+  let string = '';
+  for (let ii = 0; ii < 15; ii++) {
+    string += chars[Math.floor(Math.random() * chars.length)];
+  }
+
+  return string + '@gmail.com';
+};
+
 export const getUniqueValue = async (
   collection: any,
   fieldName: string = 'code',
-  defaultValue?: string
+  defaultValue?: string,
 ) => {
   const getRandomValue = (type: string) =>
-    type === 'email' ? faker.internet.email().toLowerCase() : Random.id();
+    type === 'email' ? generateRandomEmail() : randomAlphanumeric();
 
   let uniqueValue = defaultValue || getRandomValue(fieldName);
 
@@ -215,50 +251,47 @@ export const escapeRegExp = (str: string) => {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 };
 
-export interface ISendMessageArgs {
-  subdomain: string;
-  action: string;
-  data;
-  isRPC?: boolean;
-  defaultValue?;
+export interface MessageArgs extends MessageArgsOmitService {
+  serviceName: string;
 }
 
-export const sendMessage = async (
-  args: {
-    client: any;
-    serviceDiscovery: any;
-    serviceName: string;
-  } & ISendMessageArgs
-): Promise<any> => {
+export interface MessageArgsOmitService extends InterMessage {
+  action: string;
+  isRPC?: boolean;
+  isMQ?: boolean;
+}
+
+export const sendMessage = async (args: MessageArgs): Promise<any> => {
   const {
-    client,
-    serviceDiscovery,
     serviceName,
     subdomain,
     action,
     data,
     defaultValue,
-    isRPC
+    isRPC,
+    isMQ,
+    timeout,
   } = args;
 
-  if (serviceName) {
-    if (!(await serviceDiscovery.isEnabled(serviceName))) {
+  if (serviceName && !(await isEnabled(serviceName))) {
+    if (isRPC && defaultValue === undefined) {
+      throw new Error(`${serviceName} service is not enabled`);
+    } else {
       return defaultValue;
-    }
-
-    if (isRPC && !(await serviceDiscovery.isAvailable(serviceName))) {
-      if (process.env.NODE_ENV === 'development') {
-        throw new Error(`${serviceName} service is not available`);
-      } else {
-        return defaultValue;
-      }
     }
   }
 
-  return client[isRPC ? 'sendRPCMessage' : 'sendMessage'](
-    serviceName + (serviceName ? ':' : '') + action,
-    { subdomain, data, thirdService: data && data.thirdService }
-  );
+  const queueName = serviceName + (serviceName ? ':' : '') + action;
+
+  return messageBroker[
+    isRPC ? (isMQ ? 'sendRPCMessageMq' : 'sendRPCMessage') : 'sendMessage'
+  ](queueName, {
+    subdomain,
+    data,
+    defaultValue,
+    timeout,
+    thirdService: data && data.thirdService,
+  });
 };
 
 interface IActionMap {
@@ -268,12 +301,12 @@ interface IActionMap {
 export const userActionsMap = async (
   userPermissions: IPermissionDocument[],
   groupPermissions: IPermissionDocument[],
-  user: any
+  user: any,
 ): Promise<IActionMap> => {
   const totalPermissions: IPermissionDocument[] = [
     ...userPermissions,
     ...groupPermissions,
-    ...(user.customPermissions || [])
+    ...(user.customPermissions || []),
   ];
   const allowedActions: IActionMap = {};
 
@@ -301,45 +334,205 @@ export const userActionsMap = async (
   return allowedActions;
 };
 
-export const getSubdomain = (req): string => {
-  const hostname = req.headers.hostname || req.hostname;
-  return hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
+/*
+ * Generate url depending on given file upload publicly or not
+ */
+export const generateAttachmentUrl = (urlOrName: string) => {
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
+
+  if (urlOrName.startsWith('http')) {
+    return urlOrName;
+  }
+
+  return `${DOMAIN}/gateway/pl:core/read-file?key=${urlOrName}`;
 };
 
-const connectionOptions: mongoose.ConnectionOptions = {
+export const getSubdomain = (req): string => {
+  const hostname =
+    req.headers['nginx-hostname'] || req.headers.hostname || req.hostname;
+  const subdomain = hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
+  return subdomain;
+};
+
+export const connectionOptions: mongoose.ConnectionOptions = {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
-  family: 4
+  family: 4,
 };
 
-export const createGenerateModels = <IModels>(models, loadClasses) => {
-  return async (hostnameOrSubdomain: string): Promise<IModels> => {
-    if (models) {
+export const createGenerateModels = <IModels>(
+  loadClasses: (
+    db: mongoose.Connection,
+    subdomain: string,
+  ) => IModels | Promise<IModels>,
+): ((hostnameOrSubdomain: string) => Promise<IModels>) => {
+  const VERSION = getEnv({ name: 'VERSION' });
+
+  connect();
+
+  if (VERSION && VERSION !== 'saas') {
+    let models: IModels | null = null;
+    return async function genereteModels(
+      hostnameOrSubdomain: string,
+    ): Promise<IModels> {
+      if (models) {
+        return models;
+      }
+
+      models = await loadClasses(mongoose.connection, hostnameOrSubdomain);
+
       return models;
-    }
+    };
+  } else {
+    return async function genereteModels(
+      hostnameOrSubdomain: string = '',
+    ): Promise<IModels> {
+      let subdomain: string = hostnameOrSubdomain;
 
-    const MONGO_URL = getEnv({ name: 'MONGO_URL' });
+      // means hostname
+      if (subdomain && subdomain.includes('.')) {
+        subdomain = getSubdomain(hostnameOrSubdomain);
+      }
 
-    const db = await mongoose.connect(MONGO_URL, connectionOptions);
+      if (!subdomain) {
+        throw new Error(`Subdomain is \`${subdomain}\``);
+      }
 
-    models = loadClasses(db, hostnameOrSubdomain);
+      await getCoreConnection();
 
-    return models;
-  };
+      const organization = await coreModelOrganizations.findOne({ subdomain });
+
+      if (!organization) {
+        throw new Error(
+          `Organization with subdomain = ${subdomain} is not found`,
+        );
+      }
+
+      const DB_NAME = getEnv({ name: 'DB_NAME' });
+      const GE_MONGO_URL = (DB_NAME || 'erxes_<organizationId>').replace(
+        '<organizationId>',
+        organization._id,
+      );
+
+      // @ts-ignore
+      const tenantCon = mongoose.connection.useDb(GE_MONGO_URL, {
+        // so that conn.model method can use cached connection
+        useCache: true,
+        noListener: true,
+      });
+
+      return await loadClasses(tenantCon, subdomain);
+    };
+  }
 };
 
-export const authCookieOptions = (options = {}) => {
+export const authCookieOptions = (options: any = {}) => {
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
-  const twoWeek = 14 * 24 * 3600 * 1000; // 14 days
+  const maxAge = options.expires || 14 * 24 * 60 * 60 * 1000;
+
+  const secure = !['test', 'development'].includes(NODE_ENV);
+
+  if (!secure && options.sameSite) {
+    delete options.sameSite;
+  }
 
   const cookieOptions = {
     httpOnly: true,
-    expires: new Date(Date.now() + twoWeek),
-    maxAge: twoWeek,
-    secure: !['test', 'development'].includes(NODE_ENV),
-    ...options
+    expires: new Date(Date.now() + maxAge),
+    maxAge,
+    secure,
+    ...options,
   };
 
   return cookieOptions;
+};
+
+export const stripHtml = (string: any) => {
+  if (typeof string === 'undefined' || string === null) {
+    return;
+  } else {
+    const regex = /(&nbsp;|<([^>]+)>)/gi;
+    let result = string.replace(regex, '');
+    result = result.replace(/&#[0-9][0-9][0-9][0-9];/gi, ' ');
+    const cut = result.slice(0, 70);
+    return cut;
+  }
+};
+
+const DATE_OPTIONS = {
+  d: 1000 * 60 * 60 * 24,
+  h: 1000 * 60 * 60,
+  m: 1000 * 60,
+  s: 1000,
+  ms: 1,
+};
+
+const CHARACTERS =
+  '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!@#$%^&*()-=+{}[]<>.,:;"`|/?';
+
+const BEGIN_DIFF = 1577836800000; // new Date('2020-01-01').getTime();
+
+export const dateToShortStr = (
+  date?: Date | string | number,
+  scale?: 10 | 16 | 62 | 92 | number,
+  kind?: 'd' | 'h' | 'm' | 's' | 'ms',
+) => {
+  date = new Date(date || new Date());
+
+  if (!scale) {
+    scale = 62;
+  }
+  if (!kind) {
+    kind = 'd';
+  }
+
+  const divider = DATE_OPTIONS[kind];
+  const chars = CHARACTERS.substring(0, scale);
+
+  let intgr = Math.round((date.getTime() - BEGIN_DIFF) / divider);
+
+  let short = '';
+
+  while (intgr > 0) {
+    const preInt = intgr;
+    intgr = Math.floor(intgr / scale);
+    const strInd = preInt - intgr * scale;
+    short = `${chars[strInd]}${short}`;
+  }
+
+  return short;
+};
+
+export const shortStrToDate = (
+  shortStr: string,
+  scale?: 10 | 16 | 62 | 92 | number,
+  kind?: 'd' | 'h' | 'm' | 's' | 'ms',
+  resultType?: 'd' | 'n',
+) => {
+  if (!shortStr) return;
+
+  if (!scale) {
+    scale = 62;
+  }
+  if (!kind) {
+    kind = 'd';
+  }
+  const chars = CHARACTERS.substring(0, scale);
+  const multiplier = DATE_OPTIONS[kind];
+
+  let intgr = 0;
+  let scaler = 1;
+
+  for (let i = shortStr.length; i--; i >= 0) {
+    const char = shortStr[i];
+    intgr = intgr + scaler * chars.indexOf(char);
+    scaler = scaler * scale;
+  }
+
+  intgr = intgr * multiplier + BEGIN_DIFF;
+
+  if (resultType === 'd') return new Date(intgr);
+
+  return intgr;
 };

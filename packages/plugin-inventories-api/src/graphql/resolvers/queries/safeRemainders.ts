@@ -1,4 +1,4 @@
-import { paginate } from '@erxes/api-utils/src';
+import { paginate } from '@erxes/api-utils/src/core';
 import {
   checkPermission,
   requireLogin
@@ -6,14 +6,7 @@ import {
 import { IContext } from '../../../connectionResolver';
 
 const safeRemainderQueries = {
-  /**
-   * Get one tag
-   */
-  safeRemainderDetail(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.SafeRemainders.findOne({ _id });
-  },
-
-  safeRemainders: async (_root, params, { models, subdomain }: IContext) => {
+  safeRemainders: async (_root: any, params: any, { models }: IContext) => {
     const query: any = {};
 
     if (params.departmentId) {
@@ -25,7 +18,19 @@ const safeRemainderQueries = {
     }
 
     if (params.searchValue) {
-      query.description = params.searchValue;
+      const regexOption = {
+        $regex: `.*${params.searchValue}.*`,
+        $options: 'i'
+      };
+
+      query.$or = [
+        {
+          name: regexOption
+        },
+        {
+          code: regexOption
+        }
+      ];
     }
 
     const dateQuery: any = {};
@@ -35,6 +40,7 @@ const safeRemainderQueries = {
     if (params.endDate) {
       dateQuery.$lte = new Date(params.endDate);
     }
+
     if (Object.keys(dateQuery).length) {
       query.date = dateQuery;
     }
@@ -54,10 +60,21 @@ const safeRemainderQueries = {
 
     return {
       totalCount: await models.SafeRemainders.find(query).count(),
-      remainders: await paginate(models.SafeRemainders.find(query), {
-        ...params
-      })
+      remainders: await paginate(
+        models.SafeRemainders.find(query).sort({ modifiedAt: -1 }),
+        {
+          ...params
+        }
+      )
     };
+  },
+
+  safeRemainderDetail: async (
+    _root: any,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) => {
+    return await models.SafeRemainders.getRemainder(_id);
   }
 };
 

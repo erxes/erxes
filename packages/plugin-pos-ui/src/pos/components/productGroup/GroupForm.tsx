@@ -1,15 +1,9 @@
 import Modal from 'react-bootstrap/Modal';
 import React from 'react';
-import Select from 'react-select-plus';
-import {
-  Button,
-  ControlLabel,
-  FormControl,
-  FormGroup,
-} from '@erxes/ui/src';
+import { Button, ControlLabel, FormControl, FormGroup } from '@erxes/ui/src';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
-import { IProductCategory } from '@erxes/ui-products/src/types';
 import { IProductGroup } from '../../../types';
+import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
 
 type Props = {
   group?: IProductGroup;
@@ -17,12 +11,10 @@ type Props = {
   onDelete: (group: IProductGroup) => void;
   closeModal: () => void;
   mode: 'create' | 'update';
-  categories: IProductCategory[];
 };
 
 type State = {
   group: IProductGroup;
-  categories: IProductCategory[];
 };
 
 class GroupForm extends React.Component<Props, State> {
@@ -37,15 +29,14 @@ class GroupForm extends React.Component<Props, State> {
         categoryIds: [],
         excludedCategoryIds: [],
         excludedProductIds: []
-      },
-      categories: props.categories,
+      }
     };
   }
 
   onChangeFunction = (name: any, value: any) => {
     const { group } = this.state;
-    group[name] = value;
-    this.setState({ group });
+
+    this.setState({ group: { ...group, [name]: value } });
   };
 
   onClicksave = () => {
@@ -59,14 +50,7 @@ class GroupForm extends React.Component<Props, State> {
 
   render() {
     const { mode } = this.props;
-    const { group, categories } = this.state;
-
-    const categoryOptions = categories.map(e => {
-      return { value: e._id, label: e.name };
-    });
-
-    const categoryIds = group.categoryIds || [];
-    const excludedCategoryIds = group.excludedCategoryIds || [];
+    const { group } = this.state;
 
     const onChangeName = e => {
       this.onChangeFunction(
@@ -82,25 +66,12 @@ class GroupForm extends React.Component<Props, State> {
       );
     };
 
-    const onChangeCategories = values => {
-      this.onChangeFunction(
-        'categoryIds',
-        values.map(e => e.value)
-      );
-    };
-
-    const onChangeExcludeCategories = values => {
-      this.onChangeFunction(
-        'excludedCategoryIds',
-        values.map(e => e.value)
-      );
+    const onChangeCategories = (field, values) => {
+      this.onChangeFunction(field, values);
     };
 
     const onChangeExcludeProducts = values => {
-      this.onChangeFunction(
-        'excludedProductIds',
-        values
-      );
+      this.onChangeFunction('excludedProductIds', values);
     };
 
     return (
@@ -127,23 +98,33 @@ class GroupForm extends React.Component<Props, State> {
         </FormGroup>
         <FormGroup>
           <ControlLabel>Product Category</ControlLabel>
-          <Select
-            options={categoryOptions.filter(
-              e => !excludedCategoryIds.includes(e.value)
-            )}
-            value={group.categoryIds}
-            onChange={onChangeCategories}
+          <SelectProductCategory
+            label="Choose product category"
+            name="productCategoryId"
+            initialValue={group.categoryIds}
+            customOption={{
+              value: '',
+              label: '...Clear product category filter'
+            }}
+            onSelect={categoryIds =>
+              onChangeCategories('categoryIds', categoryIds)
+            }
             multi={true}
           />
         </FormGroup>
         <FormGroup>
           <ControlLabel>Exclude Product Category</ControlLabel>
-          <Select
-            options={categoryOptions.filter(
-              e => !categoryIds.includes(e.value)
-            )}
-            value={group.excludedCategoryIds}
-            onChange={onChangeExcludeCategories}
+          <SelectProductCategory
+            label="Choose product category"
+            name="productCategoryId"
+            initialValue={group.excludedCategoryIds}
+            customOption={{
+              value: '',
+              label: '...Clear product category filter'
+            }}
+            onSelect={categoryIds =>
+              onChangeCategories('excludedCategoryIds', categoryIds)
+            }
             multi={true}
           />
         </FormGroup>

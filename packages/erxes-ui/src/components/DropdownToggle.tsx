@@ -3,6 +3,7 @@ import React from 'react';
 type Props = {
   children: React.ReactNode;
   onClick?: (e: React.FormEvent) => void;
+  id?: string;
 };
 
 class DropdownToggle extends React.Component<Props> {
@@ -18,7 +19,11 @@ class DropdownToggle extends React.Component<Props> {
   };
 
   render() {
-    return <div onClick={this.handleClick}>{this.props.children}</div>;
+    return (
+      <div onClick={this.handleClick} id={this.props.id && this.props.id}>
+        {this.props.children}
+      </div>
+    );
   }
 }
 

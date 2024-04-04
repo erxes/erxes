@@ -1,5 +1,5 @@
+import { IActivityLogForMonth } from '@erxes/ui-log/src/activityLogs/types';
 import { QueryResponse } from '@erxes/ui/src/types';
-import { IActivityLogForMonth } from '@erxes/ui/src/activityLogs/types';
 
 export type IWebhookActionDoc = {
   label: string;

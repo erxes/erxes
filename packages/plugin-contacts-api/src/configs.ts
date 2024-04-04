@@ -1,10 +1,11 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
-import { initBroker, sendSegmentsMessage } from './messageBroker';
+import { setupMessageConsumers, sendSegmentsMessage } from './messageBroker';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
-import { buildFile } from './exporter';
+import { buildFile } from './exporterByUrl';
 import segments from './segments';
+import dashboards from './dashboards';
 import forms from './forms';
 import { generateModels } from './connectionResolver';
 import logs from './logUtils';
@@ -16,26 +17,32 @@ import search from './search';
 import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
-
-export let mainDb;
-export let graphqlPubsub;
-export let serviceDiscovery;
-
-export let debug;
+import {
+  updateContactsValidationStatus,
+  updateContactValidationStatus,
+} from './verifierUtils';
+import exporter from './exporter';
+import documents from './documents';
+import { EMAIL_VALIDATION_STATUSES, NOTIFICATION_MODULES } from './constants';
+import app from '@erxes/api-utils/src/app';
 
 export default {
   name: 'contacts',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers
+      typeDefs: await typeDefs(),
+      resolvers,
     };
   },
 
   hasSubscriptions: true,
+  subscriptionPluginPath: require('path').resolve(
+    __dirname,
+    'graphql',
+    'subscriptionPlugin.js',
+  ),
+
   meta: {
     imports,
     segments,
@@ -45,7 +52,13 @@ export default {
     tags,
     search,
     internalNotes,
-    webhooks
+    webhooks,
+    dashboards,
+    exporter,
+    documents,
+    // for fixing permissions
+    permissions,
+    notificationModules: NOTIFICATION_MODULES,
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
@@ -54,10 +67,7 @@ export default {
     context.subdomain = subdomain;
   },
 
-  onServerInit: async options => {
-    const app = options.app;
-    mainDb = options.db;
-
+  onServerInit: async () => {
     app.get(
       '/file-export',
       routeErrorHandling(async (req: any, res) => {
@@ -75,7 +85,7 @@ export default {
             sendSegmentsMessage({
               subdomain,
               action: 'removeSegment',
-              data: { segmentId: segment }
+              data: { segmentId: segment },
             });
           } catch (e) {
             console.log((e as Error).message);
@@ -83,12 +93,63 @@ export default {
         }
 
         return res.send(result.response);
-      })
+      }),
     );
 
-    initBroker(options.messageBrokerClient);
+    app.post(
+      `/verifier/webhook`,
+      routeErrorHandling(async (req, res) => {
+        const { emails, phones, email, phone } = req.body;
+        const subdomain = getSubdomain(req);
+        const models = await generateModels(subdomain);
 
-    debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-  }
+        if (email) {
+          await updateContactValidationStatus(models, email);
+        } else if (emails) {
+          await updateContactsValidationStatus(models, 'email', emails);
+        } else if (phone) {
+          await updateContactValidationStatus(models, phone);
+        } else if (phones) {
+          await updateContactsValidationStatus(models, 'phone', phones);
+        }
+
+        return res.send('success');
+      }),
+    );
+
+    app.get('/verify', async (req, res) => {
+      const { p } = req.query;
+
+      const data = JSON.parse(
+        Buffer.from(p as string, 'base64').toString('utf8'),
+      );
+
+      const { email, customerId } = data;
+
+      const subdomain = getSubdomain(req);
+      const models = await generateModels(subdomain);
+
+      const customer = await models.Customers.findOne({ _id: customerId });
+
+      if (!customer) {
+        return res.send('Can not find customer');
+      }
+
+      if (customer.primaryEmail !== email) {
+        return res.send('Customer email does not match');
+      }
+
+      if (customer.emails?.findIndex((e) => e === email) === -1) {
+        return res.send('Customer email does not match');
+      }
+
+      await models.Customers.updateOne(
+        { _id: customerId },
+        { $set: { primaryEmail: email, emailValidationStatus: 'valid' } },
+      );
+
+      return res.send('Successfully verified, you can close this tab now');
+    });
+  },
+  setupMessageConsumers,
 };

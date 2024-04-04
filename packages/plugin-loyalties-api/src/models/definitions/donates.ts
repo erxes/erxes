@@ -19,7 +19,7 @@ export const donateSchema = schemaHooksWrapper(
 
     donateScore: field({ type: Number }),
     awardId: field({ type: String, label: 'Won Award', optional: true }),
-    voucherId: field({ type: String, label: 'Won Voucher', optional: true }),
+    voucherId: field({ type: String, label: 'Won Voucher', optional: true })
   }),
   'erxes_loyalty_donates'
 );

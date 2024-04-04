@@ -29,6 +29,11 @@ export const PROBABILITY = {
     LOST: 'Lost',
     ALL: [...COMMON_PERCENT, 'Won', 'Lost']
   },
+  purchase: {
+    WON: 'Won',
+    LOST: 'Lost',
+    ALL: [...COMMON_PERCENT, 'Won', 'Lost']
+  },
   task: {
     DONE: 'Done',
     ALL: [...COMMON_PERCENT, 'Done']

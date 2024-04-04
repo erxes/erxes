@@ -1,5 +1,5 @@
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
-import { checkPermission } from '../../permissions/wrappers';
 
 const structuresMutations = {
   async structuresAdd(_root, doc, { user, models }: IContext) {
@@ -27,14 +27,20 @@ const structuresMutations = {
   },
 
   async departmentsEdit(_root, { _id, ...doc }, { user, models }: IContext) {
-    const department = await models.Departments.updateDepartment(_id, doc, user);
+    const department = await models.Departments.updateDepartment(
+      _id,
+      doc,
+      user,
+    );
 
     return department;
   },
 
-  async departmentsRemove(_root, { _id }, { models }: IContext) {
-    const deleteResponse = await models.Departments.removeDepartment(_id);
-
+  async departmentsRemove(_root, { ids }, { models }: IContext) {
+    if (!ids.length) {
+      throw new Error('You must specify at least one department id to remove');
+    }
+    const deleteResponse = models.Departments.removeDepartments(ids);
     return deleteResponse;
   },
 
@@ -50,8 +56,11 @@ const structuresMutations = {
     return unit;
   },
 
-  async unitsRemove(_root, { _id }, { models }: IContext) {
-    const deleteResponse = await models.Units.removeUnit(_id);
+  async unitsRemove(_root, { ids }, { models }: IContext) {
+    if (!ids.length) {
+      throw new Error('You must specify at least one department id to remove');
+    }
+    const deleteResponse = await models.Units.removeUnits(ids);
 
     return deleteResponse;
   },
@@ -68,11 +77,34 @@ const structuresMutations = {
     return branch;
   },
 
-  async branchesRemove(_root, { _id }, { models }: IContext) {
-    const deleteResponse = await models.Branches.removeBranch(_id);
-
+  async branchesRemove(_root, { ids }, { models }: IContext) {
+    if (!ids.length) {
+      throw new Error('You must specify at least one branch id to remove');
+    }
+    const deleteResponse = await models.Branches.removeBranches(ids);
     return deleteResponse;
-  }
+  },
+
+  async positionsAdd(_root, doc, { user, models }: IContext) {
+    const branch = await models.Positions.createPosition(doc, user);
+    return branch;
+  },
+
+  async positionsEdit(_root, { _id, ...doc }, { user, models }: IContext) {
+    const branch = await models.Positions.updatePosition(_id, doc, user);
+
+    return branch;
+  },
+
+  async positionsRemove(_root, { ids }, { models }: IContext) {
+    if (!ids.length) {
+      throw new Error('You must specify at least one position id to remove');
+    }
+
+    const branch = await models.Positions.removePositions(ids);
+
+    return branch;
+  },
 };
 
 checkPermission(structuresMutations, 'structuresAdd', 'addStructure');

@@ -3,36 +3,40 @@ name: Widgets CI
 on:
   push:
     branches:
-      - "**"
+      - dev
+      - master
+      - rc
     paths:
-      - "widgets/**"
-      - ".github/workflows/widgets.yaml"
+      - 'widgets/**'
+      - '.github/workflows/widgets.yaml'
   pull_request:
     branches:
       - master
-      - develop
-      - apm
+      - rc
+      - dev
+      - master
+      - rc
     paths:
-      - "widgets/**"
+      - 'widgets/**'
 
 jobs:
   widgets:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - name: Use Node.js 14.20.x
-        uses: actions/setup-node@v1
+      - name: Use Node.js 18.17.x
+        uses: actions/setup-node@v4
         with:
-          node-version: 14.20.x
+          node-version: 18.17.x
 
       # https://github.com/actions/cache/blob/master/examples.md#node---yarn
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v4
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -40,16 +44,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-widgets-
             ${{ runner.os }}-yarn-
-
-      # - name: Install dependencies
-      #   run: |
-      #     yarn install
-      #     cd widgets
-      #     yarn install --frozen-lockfile
-
-      # - name: Lint
-      #   run: |
-      #     yarn lint widgets
 
       - name: Build
         run: |
@@ -59,9 +53,9 @@ jobs:
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/apm' || github.ref == 'refs/heads/federation' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' )
         run: |
           cd widgets
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/erxes-widgets:${GITHUB_REF#refs/heads/} -f Dockerfile .
-          docker push erxes/erxes-widgets:${GITHUB_REF#refs/heads/}
+          docker buildx build -t erxes/widgets:${GITHUB_REF#refs/heads/} -f Dockerfile .
+          docker push erxes/widgets:${GITHUB_REF#refs/heads/}

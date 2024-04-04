@@ -7,7 +7,7 @@ import {
   HACK_SCORING_TYPES,
   VISIBLITIES,
   PROBABILITY,
-  TIME_TRACK_TYPES
+  TIME_TRACK_TYPES,
 } from './constants';
 import { field, schemaWrapper } from './utils';
 
@@ -53,6 +53,9 @@ export interface IItemCommonFields {
   number?: string;
   data?: any;
   tagIds?: string[];
+  branchIds?: string[];
+  departmentIds?: string[];
+  parentId?: string;
 }
 
 export interface IItemCommonFieldsDocument extends IItemCommonFields, Document {
@@ -89,6 +92,7 @@ export interface IPipeline extends ICommonFields {
   metric?: string;
   hackScoringType?: string;
   templateId?: string;
+  isCheckDate?: boolean;
   isCheckUser?: boolean;
   isCheckDepartment?: boolean;
   excludeCheckUserIds?: string[];
@@ -96,6 +100,7 @@ export interface IPipeline extends ICommonFields {
   numberSize?: string;
   lastNum?: string;
   departmentIds?: string[];
+  tagId?: string;
 }
 
 export interface IPipelineDocument extends IPipeline, Document {
@@ -108,11 +113,14 @@ export interface IStage extends ICommonFields {
   pipelineId: string;
   visibility?: string;
   memberIds?: string[];
+  canMoveMemberIds?: string[];
+  canEditMemberIds?: string[];
   departmentIds?: string[];
   formId?: string;
   status?: string;
   code?: string;
   age?: number;
+  defaultTick?: boolean;
 }
 
 export interface IStageDocument extends IStage, Document {
@@ -128,9 +136,9 @@ export const attachmentSchema = new Schema(
     url: field({ type: String }),
     type: field({ type: String }),
     size: field({ type: Number, optional: true }),
-    duration: field({ type: Number, optional: true })
+    duration: field({ type: Number, optional: true }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 // Mongoose schemas =======================
@@ -139,15 +147,15 @@ const commonFieldsSchema = {
   createdAt: field({
     type: Date,
     default: new Date(),
-    label: 'Created at'
+    label: 'Created at',
   }),
   order: field({ type: Number, label: 'Order' }),
   type: field({
     type: String,
     enum: BOARD_TYPES.ALL,
     required: true,
-    label: 'Type'
-  })
+    label: 'Type',
+  }),
 };
 
 const timeTrackSchema = new Schema(
@@ -157,40 +165,41 @@ const timeTrackSchema = new Schema(
     status: field({
       type: String,
       enum: TIME_TRACK_TYPES.ALL,
-      default: TIME_TRACK_TYPES.STOPPED
-    })
+      default: TIME_TRACK_TYPES.STOPPED,
+    }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 const relationSchema = new Schema(
   {
     id: field({ type: String }),
     start: field({ type: String }),
-    end: field({ type: String })
+    end: field({ type: String }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const commonItemFieldsSchema = {
   _id: field({ pkey: true }),
+  parentId: field({ type: String, optional: true, label: 'Parent Id' }),
   userId: field({ type: String, optional: true, esType: 'keyword' }),
   createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
-  order: field({ type: Number }),
+  order: field({ type: Number, index: true }),
   name: field({ type: String, label: 'Name' }),
   startDate: field({ type: Date, label: 'Start date', esType: 'date' }),
   closeDate: field({ type: Date, label: 'Close date', esType: 'date' }),
   stageChangedDate: field({
     type: Date,
     label: 'Stage changed date',
-    esType: 'date'
+    esType: 'date',
   }),
   reminderMinute: field({ type: Number, label: 'Reminder minute' }),
   isComplete: field({
     type: Boolean,
     default: false,
     label: 'Is complete',
-    esType: 'boolean'
+    esType: 'boolean',
   }),
   description: field({ type: String, optional: true, label: 'Description' }),
   assignedUserIds: field({ type: [String], esType: 'keyword' }),
@@ -200,13 +209,13 @@ export const commonItemFieldsSchema = {
   stageId: field({ type: String, index: true }),
   initialStageId: field({
     type: String,
-    optional: true
+    optional: true,
   }),
   modifiedAt: field({
     type: Date,
     default: new Date(),
     label: 'Modified at',
-    esType: 'date'
+    esType: 'date',
   }),
   modifiedBy: field({ type: String, esType: 'keyword' }),
   searchText: field({ type: String, optional: true, index: true }),
@@ -215,7 +224,7 @@ export const commonItemFieldsSchema = {
   sourceConversationId: field({ type: String, optional: true }),
   sourceConversationIds: field({ type: [String], optional: true }),
   timeTrack: field({
-    type: timeTrackSchema
+    type: timeTrackSchema,
   }),
   status: field({
     type: String,
@@ -223,61 +232,78 @@ export const commonItemFieldsSchema = {
     default: BOARD_STATUSES.ACTIVE,
     label: 'Status',
     selectOptions: BOARD_STATUSES_OPTIONS,
-    index: true
+    index: true,
   }),
   customFieldsData: field({
     type: [customFieldSchema],
     optional: true,
-    label: 'Custom fields data'
+    label: 'Custom fields data',
   }),
   score: field({
     type: Number,
     optional: true,
     label: 'Score',
-    esType: 'number'
+    esType: 'number',
   }),
   number: field({
     type: String,
     unique: true,
     sparse: true,
-    label: 'Item number'
+    label: 'Item number',
   }),
   relations: field({
     type: [relationSchema],
     optional: true,
-    label: 'Related items used for gantt chart'
+    label: 'Related items used for gantt chart',
   }),
   tagIds: field({
     type: [String],
     optional: true,
     index: true,
-    label: 'Tags'
-  })
+    label: 'Tags',
+  }),
+  branchIds: field({
+    type: [String],
+    optional: true,
+    index: true,
+    label: 'Tags',
+  }),
+  departmentIds: field({
+    type: [String],
+    optional: true,
+    index: true,
+    label: 'Tags',
+  }),
 };
 
 export const boardSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Name' }),
-    ...commonFieldsSchema
-  })
+    ...commonFieldsSchema,
+  }),
 );
 
 export const pipelineSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Name' }),
   boardId: field({ type: String, label: 'Board' }),
+  tagId: field({
+    type: String,
+    optional: true,
+    label: 'Tags',
+  }),
   status: field({
     type: String,
     enum: BOARD_STATUSES.ALL,
     default: BOARD_STATUSES.ACTIVE,
-    label: 'Status'
+    label: 'Status',
   }),
   visibility: field({
     type: String,
     enum: VISIBLITIES.ALL,
     default: VISIBLITIES.PUBLIC,
-    label: 'Visibility'
+    label: 'Visibility',
   }),
   watchedUserIds: field({ type: [String], label: 'Watched users' }),
   memberIds: field({ type: [String], label: 'Members' }),
@@ -289,37 +315,42 @@ export const pipelineSchema = new Schema({
   hackScoringType: field({
     type: String,
     enum: HACK_SCORING_TYPES.ALL,
-    label: 'Hacking scoring type'
+    label: 'Hacking scoring type',
   }),
   templateId: field({ type: String, optional: true, label: 'Template' }),
+  isCheckDate: field({
+    type: Boolean,
+    optional: true,
+    label: 'Select the day after the card created date',
+  }),
   isCheckUser: field({
     type: Boolean,
     optional: true,
-    label: 'Show only the users created or assigned cards'
+    label: 'Show only the users created or assigned cards',
   }),
   isCheckDepartment: field({
     type: Boolean,
     optional: true,
-    label: 'Show only the departments created or assigned cards'
+    label: 'Show only the departments created or assigned cards',
   }),
   excludeCheckUserIds: field({
     type: [String],
     optional: true,
-    label: 'Users elligible to see all cards'
+    label: 'Users elligible to see all cards',
   }),
   numberConfig: field({ type: String, optional: true, label: 'Number config' }),
   numberSize: field({ type: String, optional: true, label: 'Number count' }),
   lastNum: field({
     type: String,
     optional: true,
-    label: 'Last generated number'
+    label: 'Last generated number',
   }),
   departmentIds: field({
     type: [String],
     optional: true,
-    label: 'Related departments'
+    label: 'Related departments',
   }),
-  ...commonFieldsSchema
+  ...commonFieldsSchema,
 });
 
 export const stageSchema = new Schema({
@@ -328,28 +359,35 @@ export const stageSchema = new Schema({
   probability: field({
     type: String,
     enum: PROBABILITY.ALL,
-    label: 'Probability'
+    label: 'Probability',
   }), // Win probability
   pipelineId: field({ type: String, label: 'Pipeline' }),
   formId: field({ type: String, label: 'Form' }),
   status: field({
     type: String,
     enum: BOARD_STATUSES.ALL,
-    default: BOARD_STATUSES.ACTIVE
+    default: BOARD_STATUSES.ACTIVE,
   }),
   visibility: field({
     type: String,
     enum: VISIBLITIES.ALL,
     default: VISIBLITIES.PUBLIC,
-    label: 'Visibility'
+    label: 'Visibility',
   }),
   code: field({
     type: String,
     label: 'Code',
-    optional: true
+    optional: true,
   }),
   age: field({ type: Number, optional: true, label: 'Age' }),
   memberIds: field({ type: [String], label: 'Members' }),
+  canMoveMemberIds: field({ type: [String], label: 'Can move members' }),
+  canEditMemberIds: field({ type: [String], label: 'Can edit members' }),
   departmentIds: field({ type: [String], label: 'Departments' }),
-  ...commonFieldsSchema
+  defaultTick: field({
+    type: Boolean,
+    label: 'Default tick used',
+    optional: true,
+  }),
+  ...commonFieldsSchema,
 });

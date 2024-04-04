@@ -1,19 +1,6 @@
 import * as dayjs from 'dayjs';
-import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import IntegrationIcon from '@erxes/ui-settings/src/integrations/components/IntegrationIcon';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import Tags from '@erxes/ui/src/components/Tags';
-import Tip from '@erxes/ui/src/components/Tip';
-import { readFile, renderFullName, cleanIntegrationKind } from '@erxes/ui/src/utils';
-import { CallLabel } from '@erxes/ui-inbox/src/inbox/styles';
-import React from 'react';
-import strip from 'strip';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { ICustomer } from '@erxes/ui/src/customers/types';
-import { IBrand } from '@erxes/ui/src/brands/types';
-import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
-import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
+import * as relativeTime from 'dayjs/plugin/relativeTime';
+
 import {
   AssigneeImg,
   CheckBox,
@@ -26,7 +13,34 @@ import {
   RowItem,
   SmallTextOneLine
 } from './styles';
-import { Flex as FlexRoot, CustomerName, EllipsisContent } from '@erxes/ui/src/styles/main';
+import {
+  CustomerName,
+  EllipsisContent,
+  Flex as FlexRoot
+} from '@erxes/ui/src/styles/main';
+import {
+  cleanIntegrationKind,
+  readFile,
+  renderFullName
+} from '@erxes/ui/src/utils';
+
+import { CallLabel } from '@erxes/ui-inbox/src/inbox/styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
+import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import IntegrationIcon from '@erxes/ui-inbox/src/settings/integrations/components/IntegrationIcon';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import React from 'react';
+import Tags from '@erxes/ui/src/components/Tags';
+import Tip from '@erxes/ui/src/components/Tip';
+import strip from 'strip';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
+
+dayjs.extend(relativeTime);
+
 type Props = {
   conversation: IConversation;
   channelId?: string;
@@ -59,7 +73,7 @@ class ConversationItem extends React.Component<Props> {
 
     return (
       <CheckBox onClick={this.onClickCheckBox}>
-        <FormControl componentClass='checkbox' onChange={this.toggleCheckbox} />
+        <FormControl componentClass="checkbox" onChange={this.toggleCheckbox} />
       </CheckBox>
     );
   }
@@ -157,14 +171,14 @@ class ConversationItem extends React.Component<Props> {
                 {assignedUser && (
                   <Tip
                     key={assignedUser._id}
-                    placement='top'
+                    placement="top"
                     text={assignedUser.details && assignedUser.details.fullName}
                   >
                     <AssigneeImg
                       src={
                         assignedUser.details &&
                         (assignedUser.details.avatar
-                          ? readFile(assignedUser.details.avatar)
+                          ? readFile(assignedUser.details.avatar, 36)
                           : '/images/avatar-colored.svg')
                       }
                     />
@@ -176,7 +190,7 @@ class ConversationItem extends React.Component<Props> {
           </FlexContent>
         </RowContent>
         {this.isIdle(integration, idleTime) && (
-          <Tip placement='left' text='Idle'>
+          <Tip placement="left" text="Idle">
             <Idle />
           </Tip>
         )}

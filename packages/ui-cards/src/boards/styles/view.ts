@@ -123,3 +123,22 @@ export const TextStyle = styled.div`
   padding-top: 3px;
   text-align: left !important;
 `;
+
+export const CalendarContainer = styled.div`
+  background: white;
+
+  .sticky {
+    background: #6569df !important;
+
+    &:first-child {
+      display: flex;
+      align-items: center;
+      text-align: center;
+    }
+  }
+
+  .react-calendar-timeline .rct-vertical-lines .rct-vl,
+  .react-calendar-timeline .rct-items .rct-item {
+    z-index: 0 !important;
+  }
+`;

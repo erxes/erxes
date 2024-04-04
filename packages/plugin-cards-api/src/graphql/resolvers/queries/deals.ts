@@ -12,7 +12,7 @@ import {
   getItemList,
   IArchiveArgs
 } from './utils';
-import { IContext, models } from '../../../connectionResolver';
+import { IContext } from '../../../connectionResolver';
 import {
   sendCoreMessage,
   sendLoyaltiesMessage,
@@ -37,10 +37,9 @@ const dealQueries = {
     };
 
     const getExtraFields = async (item: any) => ({
-      amount: await dealResolvers.amount(item)
+      amount: await dealResolvers.amount(item),
+      unUsedAmount: await dealResolvers.unUsedAmount(item)
     });
-
-    serverTiming.startTime('getItemsList');
 
     const deals = await getItemList(
       models,
@@ -53,8 +52,6 @@ const dealQueries = {
       getExtraFields,
       serverTiming
     );
-
-    serverTiming.endTime('getItemsList');
 
     // @ts-ignore
     const dealProductIds = deals.flatMap(deal => {
@@ -82,16 +79,18 @@ const dealQueries = {
     serverTiming.endTime('sendProductsMessage');
 
     for (const deal of deals) {
-      if (
-        !deal.productsData ||
-        (deal.productsData && deal.productsData.length === 0)
-      ) {
+      let pd = deal.productsData;
+
+      if (!pd || pd.length === 0) {
         continue;
       }
 
       deal.products = [];
 
-      for (const pData of deal.productsData) {
+      // do not display to many products
+      pd = pd.splice(0, 10);
+
+      for (const pData of pd) {
         if (!pData.productId) {
           continue;
         }
@@ -99,6 +98,15 @@ const dealQueries = {
         deal.products.push({
           ...(typeof pData.toJSON === 'function' ? pData.toJSON() : pData),
           product: products.find(p => p._id === pData.productId) || {}
+        });
+      }
+
+      // do not display to many products
+      if (deal.productsData.length > pd.length) {
+        deal.products.push({
+          product: {
+            name: '...More'
+          }
         });
       }
     }
@@ -234,12 +242,17 @@ const dealQueries = {
    */
   async dealDetail(
     _root,
-    { _id }: { _id: string },
+    { _id, clientPortalCard }: { _id: string; clientPortalCard: boolean },
     { user, models }: IContext
   ) {
     const deal = await models.Deals.getDeal(_id);
 
-    return checkItemPermByUser(models, user._id, deal);
+    // no need to check permission on cp deal
+    if (clientPortalCard) {
+      return deal;
+    }
+
+    return checkItemPermByUser(models, user, deal);
   },
 
   async checkDiscount(
@@ -247,7 +260,10 @@ const dealQueries = {
     {
       _id,
       products
-    }: { _id: string; products: { productId: string; quantity: number }[] },
+    }: {
+      _id: string;
+      products: Array<{ productId: string; quantity: number }>;
+    },
     { subdomain }: IContext
   ) {
     let ownerId = '';
@@ -297,7 +313,7 @@ const dealQueries = {
       data: {
         ownerType,
         ownerId,
-        products: products
+        products
       },
       isRPC: true
     });

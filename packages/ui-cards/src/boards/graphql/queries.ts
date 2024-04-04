@@ -140,7 +140,19 @@ const commonParams = `
   $labelIds: [String],
   $extraParams: JSON,
   $closeDateType: String,
-  $assignedToMe: String
+  $assignedToMe: String,
+  $branchIds: [String]
+  $departmentIds: [String]
+  $segment: String
+  $segmentData:String
+  $createdStartDate: Date
+  $createdEndDate: Date
+  $stateChangedStartDate: Date
+  $stateChangedEndDate: Date
+  $startDateStartDate: Date
+  $startDateEndDate: Date
+  $closeDateStartDate: Date
+  $closeDateEndDate: Date
 `;
 
 const commonParamDefs = `
@@ -151,7 +163,19 @@ const commonParamDefs = `
   labelIds: $labelIds,
   extraParams: $extraParams,
   closeDateType: $closeDateType,
-  assignedToMe: $assignedToMe
+  assignedToMe: $assignedToMe,
+  branchIds:$branchIds
+  departmentIds:$departmentIds
+  segment: $segment
+  segmentData:$segmentData
+  createdStartDate: $createdStartDate
+  createdEndDate: $createdEndDate
+  stateChangedStartDate: $stateChangedStartDate
+  stateChangedEndDate: $stateChangedEndDate
+  startDateStartDate: $startDateStartDate
+  startDateEndDate: $startDateEndDate
+  closeDateStartDate: $closeDateStartDate
+  closeDateEndDate: $closeDateEndDate
 `;
 
 const stageParams = `
@@ -170,11 +194,14 @@ const stageCommon = `
   _id
   name
   order
+  unUsedAmount
   amount
   itemsTotalCount
   pipelineId
   code
   age
+  defaultTick
+  probability
 `;
 
 const stages = `
@@ -205,6 +232,7 @@ const pipelineDetail = `
       bgColor
       isWatched
       hackScoringType
+      tagId
     }
   }
 `;
@@ -315,9 +343,13 @@ const conversionStages = `
     ) {
       ${stageCommon}
       compareNextStage
+      compareNextStagePurchase
       initialDealsTotalCount
       stayedDealsTotalCount
       inProcessDealsTotalCount
+      initialPurchasesTotalCount
+      stayedPurchasesTotalCount
+      inProcessPurchasesTotalCount
     }
   }
 `;
@@ -328,20 +360,29 @@ const cardFields = `
   customers
   companies
   assignedUsers
+  startDate
+  closeDate
+  tagIds
 `;
 
 const boardItemQueryParamsDef = `
   $_ids: [String],
   $pipelineId: String,
   $stageId: String,
-  $limit: Int
+  $skip: Int,
+  $limit: Int,
+  $tagIds: [String],
+  $searchValue: String,
 `;
 
 const boardItemQueryParams = `
   _ids: $_ids,
   pipelineId: $pipelineId,
   stageId: $stageId,
-  limit: $limit
+  skip: $skip,
+  limit: $limit,
+  tagIds: $tagIds,
+  search: $searchValue,
 `;
 
 const tasks = `
@@ -368,6 +409,14 @@ const deals = `
   }
 `;
 
+const purchases = `
+  query purchases(${boardItemQueryParamsDef}) {
+    purchases(${boardItemQueryParams}) {
+      ${cardFields}
+    }
+  }
+`;
+
 const boardContentTypeDetail = `
   query boardContentTypeDetail($contentType: String, $contentId: String){
     boardContentTypeDetail(contentType: $contentType, contentId: $contentId)
@@ -377,6 +426,17 @@ const boardContentTypeDetail = `
 const boardLogs = `
   query boardLogs($action: String, $content: JSON, $contentType: String, $contentId: String){
     boardLogs(action: $action, content: $content, contentType: $contentType, contentId: $contentId)
+  }
+`;
+
+const documents = `
+  query documents($page: Int, $perPage: Int, $contentType: String, $subType: String) {
+    documents(page: $page, perPage: $perPage, contentType: $contentType, subType: $subType) {
+      _id
+      contentType
+      name
+      createdAt
+    }
   }
 `;
 
@@ -408,5 +468,7 @@ export default {
   tickets,
   tasks,
   boardContentTypeDetail,
-  boardLogs
+  boardLogs,
+  documents,
+  purchases
 };

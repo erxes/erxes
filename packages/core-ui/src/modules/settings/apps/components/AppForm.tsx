@@ -23,6 +23,8 @@ type State = {
   userGroupId: string;
   name: string;
   expireDate?: Date;
+  noExpire: boolean;
+  allowAllPermission: boolean;
 };
 
 export default class AppForm extends React.Component<Props, State> {
@@ -42,13 +44,20 @@ export default class AppForm extends React.Component<Props, State> {
     this.state = {
       userGroupId: app.userGroupId,
       name: app.name,
-      expireDate: app.expireDate
+      expireDate: app.expireDate,
+      noExpire: false,
+      allowAllPermission: false
     };
   }
 
   render() {
     const { app, userGroups = [], closeModal, addApp, editApp } = this.props;
-    const { userGroupId, expireDate } = this.state;
+    const {
+      userGroupId,
+      expireDate,
+      allowAllPermission,
+      noExpire
+    } = this.state;
 
     const onGroupChange = option => {
       const value = option ? option.value : '';
@@ -70,11 +79,19 @@ export default class AppForm extends React.Component<Props, State> {
       if (!(el && el.value)) {
         return Alert.warning(__('App name must not be empty'));
       }
-      if (!userGroupId) {
-        return Alert.warning(__('User group must be chosen'));
+      if (!userGroupId && !allowAllPermission) {
+        return Alert.warning(
+          __('User group or allow all permission must be chosen')
+        );
       }
 
-      const doc = { name: el.value, userGroupId, expireDate };
+      const doc = {
+        name: el.value,
+        userGroupId,
+        expireDate,
+        allowAllPermission,
+        noExpire
+      };
 
       if (app) {
         editApp(app._id, doc);
@@ -92,7 +109,7 @@ export default class AppForm extends React.Component<Props, State> {
           <FormControl defaultValue={app && app.name} id="app-name" />
         </FormGroup>
         <FormGroup>
-          <ControlLabel required={true}>{__('User group')}</ControlLabel>
+          <ControlLabel>{__('User group')}</ControlLabel>
           <Select
             placeholder={__('Choose user group')}
             options={options}
@@ -111,6 +128,26 @@ export default class AppForm extends React.Component<Props, State> {
             utc={true}
             input={false}
             onChange={onDateChange}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('No expire')}</ControlLabel>
+          <FormControl
+            checked={this.state.noExpire}
+            componentClass="checkbox"
+            onChange={() => this.setState({ noExpire: !this.state.noExpire })}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Allow all permission')}</ControlLabel>
+          <FormControl
+            checked={this.state.allowAllPermission}
+            componentClass="checkbox"
+            onChange={() =>
+              this.setState({
+                allowAllPermission: !this.state.allowAllPermission
+              })
+            }
           />
         </FormGroup>
         <ModalFooter>

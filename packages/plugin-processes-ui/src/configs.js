@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'processes',
   port: 3025,
   exposes: {
@@ -17,14 +18,17 @@ module.exports = {
       location: 'settings',
       scope: 'processes',
       action: '',
-      permissions: ['showProcesses', 'manageProcesses']
+      permissions: ['showJobs', 'manageJobs']
     },
     {
       text: 'Processes',
-      url: '/processes/performances',
+      url: '/processes/overallWorks',
       icon: 'icon-file-check-alt',
-      location: 'mainNavigation',
-      permission: 'manageProcesses'
+      location: 'mainNavigation'
+      
+      ,
+      scope: 'processes',
+      permission: 'showWorks'
     }
   ]
 };

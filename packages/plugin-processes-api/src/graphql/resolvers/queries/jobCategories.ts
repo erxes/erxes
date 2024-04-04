@@ -1,7 +1,7 @@
-import {
-  checkPermission,
-  requireLogin
-} from '@erxes/api-utils/src/permissions';
+// import {
+//   checkPermission,
+//   requireLogin
+// } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 
 const jobCategoryQueries = {
@@ -30,8 +30,6 @@ const jobCategoryQueries = {
       filter.name = new RegExp(`.*${searchValue}.*`, 'i');
     }
 
-    console.log('jobCategories:', filter);
-
     return models.JobCategories.find(filter)
       .sort({ order: 1 })
       .lean();
@@ -47,6 +45,6 @@ const jobCategoryQueries = {
 };
 
 // requireLogin(jobCategoryQueries, 'jobsTotalCount');
-// checkPermission(jobCategoryQueries, 'jobCategories', 'showJobRefers');
+// checkPermission(jobCategoryQueries, 'jobCategories', 'showJobs');
 
 export default jobCategoryQueries;

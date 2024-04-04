@@ -1,14 +1,15 @@
 import * as compose from 'lodash.flowright';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import PutResponse from '../components/PutResponses';
 import queryString from 'query-string';
 import React from 'react';
 import { Bulk, Spinner } from '@erxes/ui/src/components';
 import { router, withProps } from '@erxes/ui/src/utils';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
 import {
   ListQueryVariables,
+  PutResponsesAmountQueryResponse,
   PutResponsesCountQueryResponse,
   PutResponsesQueryResponse
 } from '../types';
@@ -24,6 +25,7 @@ type Props = {
 type FinalProps = {
   putResponsesQuery: PutResponsesQueryResponse;
   putResponsesCountQuery: PutResponsesCountQueryResponse;
+  putResponsesAmountQuery: PutResponsesAmountQueryResponse;
 } & Props &
   IRouterProps;
 
@@ -97,21 +99,31 @@ class PutResponsesContainer extends React.Component<FinalProps, State> {
   };
 
   render() {
-    const { putResponsesQuery, putResponsesCountQuery } = this.props;
+    const {
+      putResponsesQuery,
+      putResponsesCountQuery,
+      putResponsesAmountQuery
+    } = this.props;
 
-    if (putResponsesQuery.loading || putResponsesCountQuery.loading) {
+    if (
+      putResponsesQuery.loading ||
+      putResponsesCountQuery.loading ||
+      putResponsesAmountQuery.loading
+    ) {
       return <Spinner />;
     }
 
     const searchValue = this.props.queryParams.searchValue || '';
     const putResponses = putResponsesQuery.putResponses || [];
     const putResponsesCount = putResponsesCountQuery.putResponsesCount || 0;
+    const putResponsesAmount = putResponsesAmountQuery.putResponsesAmount || 0;
 
     const updatedProps = {
       ...this.props,
       searchValue,
       putResponses,
       totalCount: putResponsesCount,
+      sumAmount: putResponsesAmount,
       loading: putResponsesQuery.loading,
 
       onFilter: this.onFilter,
@@ -144,7 +156,10 @@ const generateParams = ({ queryParams }) => ({
   success: queryParams.success,
   billType: queryParams.billType,
   billIdRule: queryParams.billIdRule,
+  isLast: queryParams.isLast,
   orderNumber: queryParams.orderNumber,
+  contractNumber: queryParams.contractNumber,
+  transactionNumber: queryParams.transactionNumber,
   dealName: queryParams.dealName,
   pipelineId: queryParams.pipelineId,
   stageId: queryParams.stageId,
@@ -173,6 +188,17 @@ export default withProps<Props>(
       ListQueryVariables
     >(gql(queries.putResponsesCount), {
       name: 'putResponsesCountQuery',
+      options: ({ queryParams }) => ({
+        variables: generateParams({ queryParams }),
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<
+      { queryParams: any },
+      PutResponsesAmountQueryResponse,
+      ListQueryVariables
+    >(gql(queries.putResponsesAmount), {
+      name: 'putResponsesAmountQuery',
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams }),
         fetchPolicy: 'network-only'

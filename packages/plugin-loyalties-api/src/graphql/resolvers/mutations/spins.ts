@@ -8,7 +8,11 @@ const spinsMutations = {
     return models.Spins.createSpin(doc);
   },
 
-  async spinsEdit(_root, { _id, ...doc }: ISpin & { _id: string }, { models, user }: IContext) {
+  async spinsEdit(
+    _root,
+    { _id, ...doc }: ISpin & { _id: string },
+    { models, user }: IContext
+  ) {
     return models.Spins.updateSpin(_id, { ...doc, userId: user._id });
   },
 

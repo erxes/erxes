@@ -1,28 +1,31 @@
-import { AppConsumer } from "@erxes/ui/src/appContext";
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import * as queries from "@erxes/ui/src/auth/graphql";
-import { IUser } from "@erxes/ui/src/auth/types";
-import { Alert, withProps } from "@erxes/ui/src/utils";
-import React from "react";
-import { graphql } from "react-apollo";
-import Spinner from "@erxes/ui/src/components/Spinner";
-import { queries as brandQueries } from "@erxes/ui/src/brands/graphql";
-import { BrandsQueryResponse } from "@erxes/ui/src/brands/types";
-import Signature from "../components/Signature";
+import * as compose from 'lodash.flowright';
+import * as queries from '@erxes/ui/src/auth/graphql';
+
+import { Alert, withProps } from '@erxes/ui/src/utils';
 import {
   IEmailSignature,
   IEmailSignatureWithBrand,
   UsersConfigEmailSignaturesMutationResponse,
-  UsersConfigEmailSignaturesMutationVariables,
-} from "../types";
+  UsersConfigEmailSignaturesMutationVariables
+} from '../types';
+
+import { AppConsumer } from 'coreui/appContext';
+import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import Signature from '../components/Signature';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { queries as brandQueries } from '@erxes/ui/src/brands/graphql';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 
 type Props = {
-  currentUser: IUser;
   closeModal: () => void;
 };
 
 type FinalProps = {
+  currentUser: IUser;
   brandsQuery: BrandsQueryResponse;
 } & Props &
   UsersConfigEmailSignaturesMutationResponse;
@@ -39,47 +42,47 @@ const SignatureContainer = (props: FinalProps) => {
     const doc: IEmailSignature[] = [];
 
     // remove brandName from list
-    signaturesToSave.forEach((item) => {
+    signaturesToSave.forEach(item => {
       if (item.signature) {
         doc.push({
           brandId: item.brandId,
-          signature: item.signature,
+          signature: item.signature
         });
       }
     });
 
     saveMutation({ variables: { signatures: doc } })
       .then(() => {
-        Alert.success("Great job! You just set up your email signature.");
+        Alert.success('Great job! You just set up your email signature.');
 
         callback();
       })
-      .catch((error) => {
+      .catch(error => {
         Alert.error(error.message);
       });
   };
 
-  const emailSignatures = currentUser.emailSignatures || [];
+  const emailSignatures = currentUser?.emailSignatures || [];
   const signatures: IEmailSignatureWithBrand[] = [];
   const brands = brandsQuery.brands || [];
 
-  brands.forEach((brand) => {
+  brands.forEach(brand => {
     // previously configured signature
     const oldEntry = emailSignatures.find(
-      (signature) => signature.brandId === brand._id
+      signature => signature.brandId === brand._id
     );
 
     signatures.push({
       brandId: brand._id,
-      brandName: brand.name || "",
-      signature: oldEntry ? oldEntry.signature : "",
+      brandName: brand.name || '',
+      signature: oldEntry ? oldEntry.signature : ''
     });
   });
 
   const updatedProps = {
     ...props,
     signatures,
-    save,
+    save
   };
 
   return <Signature {...updatedProps} />;
@@ -88,7 +91,7 @@ const SignatureContainer = (props: FinalProps) => {
 const WithQuery = withProps<Props>(
   compose(
     graphql<Props, BrandsQueryResponse, {}>(gql(brandQueries.brands), {
-      name: "brandsQuery",
+      name: 'brandsQuery'
     }),
     graphql<
       Props,
@@ -103,20 +106,20 @@ const WithQuery = withProps<Props>(
         }
       `,
       {
-        name: "saveMutation",
+        name: 'saveMutation',
         options: () => ({
           refetchQueries: [
             {
-              query: gql(queries.currentUser),
-            },
-          ],
-        }),
+              query: gql(queries.currentUser)
+            }
+          ]
+        })
       }
     )
-  )(SignatureContainer)
+  )(withCurrentUser(SignatureContainer))
 );
 
-const WithConsumer = (props) => {
+const WithConsumer = props => {
   return (
     <AppConsumer>
       {({ currentUser }) => <WithQuery {...props} currentUser={currentUser} />}

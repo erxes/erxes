@@ -1,29 +1,32 @@
-import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
-import { excludedNames } from '../../../../containers/forms/actions/subForms/SetProperty';
-import { DrawerDetail } from '../../../../styles';
-import { IAction } from '../../../../types';
+import { DrawerDetail } from '@erxes/ui-automations/src/styles';
+import { IAction } from '@erxes/ui-automations/src/types';
+import { Alert, __ } from '@erxes/ui/src';
+
 import Button from '@erxes/ui/src/components/Button';
-import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { __, Alert } from 'coreui/utils';
-import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
-import { FieldsCombinedByType } from '@erxes/ui-settings/src/properties/types';
+import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
+import { FormGroup, FormControl } from '@erxes/ui/src/components/form';
 import React from 'react';
 import Select from 'react-select-plus';
 
-import Common from '../Common';
-import { PROPERTY_OPERATOR, PROPERTY_TYPES } from '../constants';
-import PlaceHolderInput from '../placeHolder/PlaceHolderInput';
+import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
+import { PROPERTY_OPERATOR } from '../constants';
+import PlaceHolderInput from '@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput';
 import { GroupWrapper } from '@erxes/ui-segments/src/styles';
 import Tip from '@erxes/ui/src/components/Tip';
+import client from '@erxes/ui/src/apolloClient';
+import { excludedNames } from '../../../../containers/forms/actions/subForms/SetProperty';
+import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
+import { gql } from '@apollo/client';
 
 type Props = {
   closeModal: () => void;
   activeAction: IAction;
   triggerType: string;
+  triggerConfig: any;
   addAction: (action: IAction, actionId?: string, config?: any) => void;
   fields: FieldsCombinedByType[];
+  propertyTypesConst: any[];
 };
 
 type State = {
@@ -31,6 +34,10 @@ type State = {
   type: string;
   fields: FieldsCombinedByType[];
 };
+
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
 class SetProperty extends React.Component<Props, State> {
   constructor(props) {
@@ -46,7 +53,7 @@ class SetProperty extends React.Component<Props, State> {
     this.state = {
       config: fillConfig,
       type: fillConfig.module || '',
-      fields: this.props.fields || []
+      fields: this.props.fields || [],
     };
   }
 
@@ -70,12 +77,12 @@ class SetProperty extends React.Component<Props, State> {
       .query({
         query: gql(formQueries.fieldsCombinedByContentType),
         fetchPolicy: 'network-only',
-        variables: { contentType: type, excludedNames }
+        variables: { contentType: type, excludedNames },
       })
-      .then(data => {
+      .then((data) => {
         this.setState({ fields: data.data.fieldsCombinedByContentType });
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
 
@@ -84,7 +91,7 @@ class SetProperty extends React.Component<Props, State> {
   };
 
   getFieldType = (chosenField: FieldsCombinedByType) => {
-    if (chosenField.selectOptions) {
+    if (chosenField.selectOptions && chosenField.selectOptions?.length > 0) {
       return 'select';
     }
 
@@ -92,13 +99,21 @@ class SetProperty extends React.Component<Props, State> {
       return 'date';
     }
 
+    if (chosenField.name.includes('customFieldsData')) {
+      return chosenField.validation;
+    }
+
     return chosenField.type;
   };
 
   getIsMulti = (chosenField: FieldsCombinedByType) => {
-    if (chosenField.selectOptions && !chosenField.name.includes('Ids')) {
+    if (
+      !!chosenField?.selectOptions?.length &&
+      !chosenField.name.includes('Ids')
+    ) {
       return false;
     }
+
     return true;
   };
 
@@ -108,27 +123,32 @@ class SetProperty extends React.Component<Props, State> {
     this.setState({ config });
   };
 
-  removeRule = id => {
+  removeRule = (id) => {
     const { config } = this.state;
-    config.rules = config.rules.filter(r => r.id !== id);
+    config.rules = config.rules.filter((r) => r.id !== id);
     this.setState({ config });
   };
 
   renderPerValue() {
-    const { triggerType } = this.props;
+    const { triggerType, triggerConfig } = this.props;
     const { type, config, fields } = this.state;
 
-    return config.rules.map(rule => {
+    return config.rules.map((rule) => {
       const chosenField: FieldsCombinedByType = fields.find(
-        f => f.name === rule.field
+        (f) => f.name === rule.field,
       ) || {
         _id: String(Math.random()),
         type: 'Default',
         name: 'name',
-        label: 'label'
+        label: 'label',
       };
+
+      const operatorType: string = chosenField.name.includes('customFieldsData')
+        ? capitalizeFirstLetter(chosenField.validation || 'String')
+        : chosenField.type;
+
       const operators =
-        PROPERTY_OPERATOR[chosenField.type] || PROPERTY_OPERATOR.Default;
+        PROPERTY_OPERATOR[operatorType] || PROPERTY_OPERATOR.Default;
 
       const onChangeSelect = (field, e) => {
         const value = e.value;
@@ -137,14 +157,27 @@ class SetProperty extends React.Component<Props, State> {
 
         this.onChangeField(
           'rules',
-          config.rules.map(r => (r.id === rule.id ? { ...rule } : r))
+          config.rules.map((r) => (r.id === rule.id ? { ...rule } : r)),
         );
       };
 
-      const onChangeValue = rConf => {
+      const onChangeValue = (rConf) => {
         this.onChangeField(
           'rules',
-          config.rules.map(r => (r.id === rule.id ? { ...rule, ...rConf } : r))
+          config.rules.map((r) =>
+            r.id === rule.id ? { ...rule, ...rConf } : r,
+          ),
+        );
+      };
+
+      const onChangeForwardToValue = (e) => {
+        const value = e.currentTarget.value;
+
+        rule = { ...rule, forwardTo: value };
+
+        this.onChangeField(
+          'rules',
+          config.rules.map((r) => (r.id === rule.id ? { ...rule } : r)),
         );
       };
 
@@ -155,9 +188,9 @@ class SetProperty extends React.Component<Props, State> {
 
             <Select
               value={rule.field}
-              options={fields.map(f => ({
+              options={fields.map((f) => ({
                 label: f.label,
-                value: f.name
+                value: f.name,
               }))}
               onChange={onChangeSelect.bind(this, 'field')}
               placeholder={__('Choose field')}
@@ -169,9 +202,9 @@ class SetProperty extends React.Component<Props, State> {
 
             <Select
               value={rule.operator}
-              options={operators.map(f => ({
+              options={operators.map((f) => ({
                 label: f.label,
-                value: f.value
+                value: f.value,
               }))}
               onChange={onChangeSelect.bind(this, 'operator')}
               placeholder={__('Choose operator')}
@@ -187,9 +220,20 @@ class SetProperty extends React.Component<Props, State> {
             type={type}
             fieldType={this.getFieldType(chosenField)}
             isMulti={this.getIsMulti(chosenField)}
-            attrType={chosenField.type}
+            attrType={operatorType}
             options={chosenField.selectOptions}
+            triggerConfig={triggerConfig}
+            attrWithSegmentConfig={true}
           />
+
+          <FormGroup>
+            <ControlLabel>{__('Forward to')}</ControlLabel>
+
+            <FormControl
+              onChange={onChangeForwardToValue}
+              value={rule.forwardTo}
+            />
+          </FormGroup>
 
           <Tip text={'Delete'}>
             <Button
@@ -206,6 +250,7 @@ class SetProperty extends React.Component<Props, State> {
 
   renderContent() {
     const { type } = this.state;
+    const { propertyTypesConst } = this.props;
 
     return (
       <DrawerDetail>
@@ -215,9 +260,9 @@ class SetProperty extends React.Component<Props, State> {
           <Select
             isRequired={true}
             value={type || ''}
-            options={PROPERTY_TYPES.map(p => ({
+            options={propertyTypesConst.map((p) => ({
               label: p.label,
-              value: p.value
+              value: p.value,
             }))}
             onChange={this.onChangeType}
             placeholder={__('Choose type')}

@@ -147,8 +147,8 @@ class LeftSidebar extends React.Component<Props, State> {
           {calendarCount !== 1 && <>&nbsp; &nbsp; &nbsp;</>}
           <FormControl
             key={calendar._id}
-            className='toggle-message'
-            componentClass='checkbox'
+            className="toggle-message"
+            componentClass="checkbox"
             onChange={this.toggleCheckbox.bind(this, calendarId)}
             checked={calendarIds.includes(calendarId)}
             color={calendar.color || color}
@@ -171,7 +171,7 @@ class LeftSidebar extends React.Component<Props, State> {
               currentBoard ? currentBoard._id : ''
             }`}
           >
-            <Button block={true} btnStyle='success' icon='cog'>
+            <Button block={true} btnStyle="success" icon="cog">
               Connect account
             </Button>
           </Link>
@@ -189,8 +189,8 @@ class LeftSidebar extends React.Component<Props, State> {
               {calendarCount !== 1 && (
                 <CalendarItem>
                   <FormControl
-                    className='toggle-message'
-                    componentClass='checkbox'
+                    className="toggle-message"
+                    componentClass="checkbox"
                     onChange={this.toggleAccountCheckbox.bind(this, account)}
                     checked={this.state.calendarIds.includes(account._id)}
                     color={account.color}
@@ -220,7 +220,7 @@ class LeftSidebar extends React.Component<Props, State> {
           btnStyle={!disabled ? 'success' : 'simple'}
           onClick={this.onHideModal}
           block={true}
-          icon='plus-circle'
+          icon="plus-circle"
           disabled={disabled}
         >
           Create Event
@@ -247,12 +247,12 @@ class LeftSidebar extends React.Component<Props, State> {
       return (
         <Sidebar full={true}>
           <EmptyState
-            text='There is no connected account'
-            image='/images/actions/6.svg'
-            size='full'
+            text="There is no connected account"
+            image="/images/actions/6.svg"
+            size="full"
             extra={
-              <Link to='/settings/calendars'>
-                <Button btnStyle='success' icon='cog'>
+              <Link to="/settings/calendars">
+                <Button btnStyle="success" icon="cog">
                   Create Board & Group
                 </Button>
               </Link>
@@ -267,8 +267,8 @@ class LeftSidebar extends React.Component<Props, State> {
         <FormGroup>
           <Datetime
             inputProps={{ placeholder: 'Click to select a date' }}
-            dateFormat='YYYY/MM/DD'
-            timeFormat='HH:mm'
+            dateFormat="YYYY/MM/DD"
+            timeFormat="HH:mm"
             closeOnSelect={true}
             utc={true}
             input={false}

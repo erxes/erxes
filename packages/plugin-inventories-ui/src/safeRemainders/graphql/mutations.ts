@@ -1,71 +1,40 @@
-import { safeRemainderFields, safeRemainderItemFields } from './queries';
+import { safeRemainderFields } from './queries';
 
-const createSafeRemainderFields = `
+const addSafeRemainderFields = `
   $branchId: String,
   $departmentId: String,
   $date: Date,
   $description: String,
-  $productCategoryId: String
+  $productCategoryId: String,
+  $attachment: AttachmentInput
+  $filterField: String
 `;
 
-const createSafeRemainderVariables = `
+const addSafeRemainderVariables = `
   branchId: $branchId,
   departmentId: $departmentId,
   date: $date,
   description: $description,
-  productCategoryId: $productCategoryId
+  productCategoryId: $productCategoryId,
+  attachment: $attachment,
+  filterField: $filterField,
 `;
 
-const createSafeRemainder = `
-  mutation createSafeRemainder(${createSafeRemainderFields}) {
-    createSafeRemainder(${createSafeRemainderVariables}) {
+const safeRemainderAdd = `
+  mutation safeRemainderAdd(${addSafeRemainderFields}) {
+    safeRemainderAdd(${addSafeRemainderVariables}) {
       ${safeRemainderFields}
     }
   }
 `;
 
-const removeSafeRemainder = `
-  mutation removeSafeRemainder($_id: String!) {
-    removeSafeRemainder(_id: $_id)
-  }
-`;
-
-const transactionAdd = `
-  mutation transactionAdd($contentId: String, $contentType: String, $products: [TransactionProductInput], $status: String) {
-    transactionAdd(contentId: $contentId, contentType: $contentType, products: $products, status: $status)
-  }
-`;
-
-const updateSafeRemainderItem = `
-  mutation updateSafeRemainderItem(
-    $_id: String,
-    $status: String,
-    $remainder: Float,
-  ) {
-    updateSafeRemainderItem(
-      _id: $_id,
-      status: $status,
-      remainder: $remainder,
-    ) {
-      ${safeRemainderItemFields}
-    }
-  }
-`;
-
-const removeSafeRemainderItem = `
-  mutation removeSafeRemainderItem(
-    $_id: String
-  ) {
-    removeSafeRemainderItem(
-      _id: $_id
-    )
+const safeRemainderRemove = `
+  mutation safeRemainderRemove($_id: String!) {
+    safeRemainderRemove(_id: $_id)
   }
 `;
 
 export default {
-  createSafeRemainder,
-  removeSafeRemainder,
-  transactionAdd,
-  updateSafeRemainderItem,
-  removeSafeRemainderItem
+  safeRemainderAdd,
+  safeRemainderRemove
 };

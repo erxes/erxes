@@ -1,6 +1,6 @@
-import { queries as customerQueries } from '@erxes/ui/src/customers/graphql';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 import conversationFields from './conversationFields';
+import { queries as customerQueries } from '@erxes/ui-contacts/src/customers/graphql';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import messageFields from './messageFields';
 
 export const paramsDef = `
@@ -53,8 +53,8 @@ const conversationList = `
 `;
 
 const sidebarConversations = `
-  query conversations(${listParamsDef}) {
-    conversations(${listParamsValue}) {
+  query conversations(${listParamsDef}, $skip: Int) {
+    conversations(${listParamsValue}, skip: $skip) {
       _id
       content
       status
@@ -115,7 +115,7 @@ const sidebarConversations = `
   }
 `;
 
-const conversationDetail = `
+export const conversationDetail = `
   query conversationDetail($_id: String!) {
     conversationDetail(_id: $_id) {
       ${conversationFields}
@@ -132,7 +132,7 @@ const conversationDetailMarkAsRead = `
   }
 `;
 
-const conversationMessages = `
+export const conversationMessages = `
   query conversationMessages($conversationId: String!, $skip: Int, $limit: Int, $getFirst: Boolean) {
     conversationMessages(conversationId: $conversationId, skip: $skip, limit: $limit, getFirst: $getFirst) {
       ${messageFields}
@@ -206,12 +206,18 @@ const allBrands = `
   }
 `;
 
+const tagsQueryCount = `
+  query tagsQueryCount($type: String) {
+    tagsQueryCount(type: $type)
+  }
+`;
+
 const tagList = `
-  query tags($type: String) {
+  query tags($type: String, $page: Int, $perPage: Int) {
     ${
       isEnabled('tags')
         ? `
-    tags(type: $type) {
+    tags(type: $type, page: $page, perPage: $perPage) {
       _id
       name
       colorCode
@@ -268,10 +274,18 @@ const lastConversation = `
     }
   }
 `;
-
+const postInfo = `
+  query facebookGetPost( $erxesApiId: String!){
+    facebookGetPost(erxesApiId: $erxesApiId){
+      _id
+      content
+      permalink_url
+    }
+  }
+ `;
 const responseTemplateList = `
-  query responseTemplates($perPage: Int) {
-    responseTemplates(perPage: $perPage) {
+  query responseTemplates($page: Int, $perPage: Int, $searchValue: String, $brandId:String) {
+    responseTemplates(page:$page ,perPage: $perPage, searchValue: $searchValue, brandId: $brandId) {
       _id
       name
       brandId
@@ -286,18 +300,19 @@ const convertToInfo = `
       ticketUrl
       dealUrl
       taskUrl
+      purchaseUrl
     }
   }
 `;
 
-const generateCustomerDetailQuery = params => {
+const generateCustomerDetailQuery = (params) => {
   const {
     showDeviceProperties = false,
     showTrackedData = false,
     showCustomFields = false,
     showCompanies = false,
     showTags = false,
-    showSegments = false
+    showSegments = false,
   } = params || {};
 
   let fields = `
@@ -391,45 +406,6 @@ const generateCustomerDetailQuery = params => {
   `;
 };
 
-const integrationsConversationFbComments = `
-  query integrationsConversationFbComments($postId: String!,$isResolved: Boolean, $commentId: String, $senderId: String, $skip: Int, $limit: Int) {
-    integrationsConversationFbComments(postId: $postId,isResolved:$isResolved, limit: $limit, commentId: $commentId, senderId: $senderId, skip: $skip) {
-      conversationId
-      commentId
-      postId
-      recipientId
-      senderId
-      attachments
-      content
-      erxesApiId
-      timestamp
-      parentId
-      commentCount
-      isResolved
-      permalink_url
-      ${
-        isEnabled('contacts')
-          ? `
-      customer {
-        _id
-        visitorContactInfo
-        avatar
-        firstName
-        lastName
-        middleName
-      }`
-          : ``
-      }
-    }
-  }
-`;
-
-const integrationsConversationFbCommentsCount = `
-  query integrationsConversationFbCommentsCount($postId: String!, $isResolved: Boolean) {
-    integrationsConversationFbCommentsCount(postId: $postId, isResolved:$isResolved) 
-  }
-`;
-
 export default {
   conversationList,
   sidebarConversations,
@@ -449,9 +425,9 @@ export default {
   totalConversationsCount,
   unreadConversationsCount,
   lastConversation,
+  tagsQueryCount,
   channelsByMembers,
   generateCustomerDetailQuery,
   convertToInfo,
-  integrationsConversationFbComments,
-  integrationsConversationFbCommentsCount
+  postInfo,
 };

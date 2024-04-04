@@ -1,18 +1,15 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import List from '../../components/config/Uoms';
 import { mutations, queries } from '../../graphql';
-import {
-  UomsQueryResponse,
-  UomsCountQueryResponse,
-  UomRemoveMutationResponse
-} from '../../types';
+import { UomRemoveMutationResponse, UomsCountQueryResponse } from '../../types';
 import Spinner from '@erxes/ui/src/components/Spinner';
+import { UomsQueryResponse } from '@erxes/ui-products/src/types';
 
 type Props = {
   history: any;
@@ -26,10 +23,6 @@ type FinalProps = {
 
 const ListContainer = (props: FinalProps) => {
   const { uomsQuery, uomsCountQuery, uomsRemove } = props;
-
-  if (uomsQuery.loading || uomsCountQuery.loading) {
-    return <Spinner />;
-  }
 
   const remove = uom => {
     confirm(`This action will remove the uom. Are you sure?`)
@@ -75,7 +68,7 @@ const ListContainer = (props: FinalProps) => {
     ...props,
     uoms: uomsQuery.uoms || [],
     uomsTotalCount: uomsCountQuery.uomsTotalCount || 0,
-    loading: uomsQuery.loading,
+    loading: uomsQuery.loading || uomsCountQuery.loading,
     renderButton,
     remove
   };

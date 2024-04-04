@@ -1,3 +1,5 @@
+import { router } from '@erxes/ui/src';
+import { IUser } from '@erxes/ui/src/auth/types';
 import AvatarUpload from '@erxes/ui/src/components/AvatarUpload';
 import CollapseContent from '@erxes/ui/src/components/CollapseContent';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -5,19 +7,30 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import timezones from '@erxes/ui/src/constants/timezones';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
+import SelectPositions from '@erxes/ui/src/team/containers/SelectPositions';
 import { IFormProps } from '@erxes/ui/src/types';
 import { __, getConstantFromStore } from '@erxes/ui/src/utils';
-import React from 'react';
 import dayjs from 'dayjs';
-import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
 
 type Props = {
   user: IUser;
   onAvatarUpload: (url: string) => void;
   formProps?: IFormProps;
+  history?: any;
 };
 
-class UserCommonInfos extends React.PureComponent<Props> {
+type State = {
+  positionIds: string[];
+};
+class UserCommonInfos extends React.PureComponent<Props, State> {
+  constructor(props) {
+    super(props);
+    this.state = {
+      positionIds: this.props.user?.positionIds || [],
+    };
+  }
+
   renderLink(link) {
     const { user, formProps } = this.props;
     const links = user.links || {};
@@ -36,8 +49,15 @@ class UserCommonInfos extends React.PureComponent<Props> {
   }
 
   render() {
-    const { user, onAvatarUpload, formProps } = this.props;
+    const { user, onAvatarUpload, formProps, history } = this.props;
+    console.log(user, 'init');
     const details = user.details || {};
+    const positionIds = this.state.positionIds;
+
+    const handlePositionChange = (val) => {
+      this.setState({ positionIds: val });
+      router.setParams(history, { positionIds: val });
+    };
 
     return (
       <>
@@ -53,20 +73,20 @@ class UserCommonInfos extends React.PureComponent<Props> {
           <FormWrapper>
             <FormColumn>
               <FormGroup>
-                <ControlLabel>Full name</ControlLabel>
+                <ControlLabel>First name</ControlLabel>
                 <FormControl
                   type="text"
-                  name="fullName"
-                  defaultValue={details.fullName || ''}
+                  name="firstName"
+                  defaultValue={details.firstName || ''}
                   {...formProps}
                 />
               </FormGroup>
               <FormGroup>
-                <ControlLabel>Short name</ControlLabel>
+                <ControlLabel>Last name</ControlLabel>
                 <FormControl
                   type="text"
-                  name="shortName"
-                  defaultValue={details.shortName || ''}
+                  name="lastName"
+                  defaultValue={details.lastName || ''}
                   {...formProps}
                 />
               </FormGroup>
@@ -91,8 +111,60 @@ class UserCommonInfos extends React.PureComponent<Props> {
                   {...formProps}
                 />
               </FormGroup>
+              <FormGroup>
+                <ControlLabel>Position</ControlLabel>
+
+                <FormControl
+                  type="text"
+                  name="position"
+                  defaultValue={details.position}
+                  {...formProps}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>Positions</ControlLabel>
+                <br />
+
+                <SelectPositions
+                  initialValue={positionIds}
+                  label={`Choose positions`}
+                  name="positionIds"
+                  onSelect={(value) => handlePositionChange(value)}
+                  filterParams={{ withoutUserFilter: true }}
+                  showAvatar={false}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>Join date</ControlLabel>
+                <FormControl
+                  type="date"
+                  name="workStartedDate"
+                  defaultValue={dayjs(
+                    details.workStartedDate || new Date(),
+                  ).format('YYYY-MM-DD')}
+                  {...formProps}
+                />
+              </FormGroup>
             </FormColumn>
             <FormColumn>
+              <FormGroup>
+                <ControlLabel>Middle name</ControlLabel>
+                <FormControl
+                  type="text"
+                  name="middleName"
+                  defaultValue={details.middleName || ''}
+                  {...formProps}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>Short name</ControlLabel>
+                <FormControl
+                  type="text"
+                  name="shortName"
+                  defaultValue={details.shortName || ''}
+                  {...formProps}
+                />
+              </FormGroup>
               <FormGroup>
                 <ControlLabel required={true}>Username</ControlLabel>
                 <FormControl
@@ -104,33 +176,23 @@ class UserCommonInfos extends React.PureComponent<Props> {
                 />
               </FormGroup>
               <FormGroup>
+                <ControlLabel>Employee Id</ControlLabel>
+                <FormControl
+                  type="number"
+                  min={0}
+                  name="employeeId"
+                  defaultValue={user.employeeId}
+                  {...formProps}
+                />
+              </FormGroup>
+              <FormGroup>
                 <ControlLabel>Birthdate</ControlLabel>
                 <FormControl
                   type="date"
                   name="birthDate"
                   defaultValue={dayjs(details.birthDate || new Date()).format(
-                    'YYYY-MM-DD'
+                    'YYYY-MM-DD',
                   )}
-                  {...formProps}
-                />
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel>Position</ControlLabel>
-                <FormControl
-                  type="text"
-                  name="position"
-                  defaultValue={details.position}
-                  {...formProps}
-                />
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel>Join date</ControlLabel>
-                <FormControl
-                  type="date"
-                  name="workStartedDate"
-                  defaultValue={dayjs(
-                    details.workStartedDate || new Date()
-                  ).format('YYYY-MM-DD')}
                   {...formProps}
                 />
               </FormGroup>
@@ -160,8 +222,8 @@ class UserCommonInfos extends React.PureComponent<Props> {
         <CollapseContent title={__('Links')} compact={true}>
           <FormWrapper>
             <FormColumn>
-              {getConstantFromStore('social_links').map(link =>
-                this.renderLink(link)
+              {getConstantFromStore('social_links').map((link) =>
+                this.renderLink(link),
               )}
             </FormColumn>
           </FormWrapper>

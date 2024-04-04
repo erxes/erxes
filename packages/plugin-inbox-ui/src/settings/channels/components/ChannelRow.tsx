@@ -1,17 +1,18 @@
-import { IUser } from '@erxes/ui/src/auth/types';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Tip from '@erxes/ui/src/components/Tip';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
-import { FieldStyle } from '@erxes/ui/src/layout/styles';
 import { ActionButtons, SidebarListItem } from '@erxes/ui-settings/src/styles';
-import React from 'react';
+
+import Button from '@erxes/ui/src/components/Button';
+import ChannelForm from '@erxes/ui-inbox/src/settings/channels/containers/ChannelForm';
+import { FieldStyle } from '@erxes/ui/src/layout/styles';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { IChannel } from '@erxes/ui-inbox/src/settings/channels/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import Icon from '@erxes/ui/src/components/Icon';
 import { Link } from 'react-router-dom';
-import ChannelForm from '@erxes/ui-settings/src/channels/containers/ChannelForm';
-import { IChannel } from '@erxes/ui-settings/src/channels/types';
-import MemberAvatars from '@erxes/ui-inbox/src/settings/channels/components/MemberAvatars';
+import MemberAvatars from '@erxes/ui/src/components/MemberAvatars';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from 'coreui/utils';
 
 type Props = {
   channel: IChannel;

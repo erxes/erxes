@@ -1,31 +1,29 @@
-import React, { useState } from 'react';
-import Select from 'react-select-plus';
 import { FormControl, FormGroup } from '@erxes/ui/src/components/form';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import Form from '@erxes/ui/src/components/form/Form';
+import React, { useState } from 'react';
+
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __ } from 'modules/common/utils';
+import Form from '@erxes/ui/src/components/form/Form';
 import { IDepartment } from '@erxes/ui/src/team/types';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { generateTree } from '../../utils';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  department?: IDepartment;
+  item?: IDepartment;
   closeModal: () => void;
-  departments: IDepartment[];
+  items: IDepartment[];
 };
 
 export default function DepartmentForm(props: Props) {
-  const { closeModal, renderButton, departments } = props;
-  const object = props.department || ({} as any);
+  const { closeModal, renderButton, items, item } = props;
+  const object = item || ({} as IDepartment);
 
   const [userIds, setUserIds] = useState(
     (object.users || []).map(user => user._id)
   );
-  const [parentId, setParentId] = useState(object.parentId);
   const [supervisorId, setSupervisorId] = useState(object.supervisorId);
 
   const generateDoc = values => {
@@ -37,18 +35,13 @@ export default function DepartmentForm(props: Props) {
 
     return {
       userIds,
-      parentId,
       supervisorId,
-      ...finalValues
+      parentId: finalValues.parentId ? finalValues.parentId : null,
+      code: finalValues.code,
+      description: finalValues.description,
+      title: finalValues.title,
+      _id: finalValues._id
     };
-  };
-
-  const onChangeParent = (parent: any) => {
-    if (parent) {
-      setParentId(parent.value);
-    } else {
-      setParentId(null);
-    }
   };
 
   const onSelectUsers = values => {
@@ -61,6 +54,14 @@ export default function DepartmentForm(props: Props) {
 
   const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
+
+    const generateOptions = () => {
+      return items.map(branch => (
+        <option key={branch._id} value={branch._id}>
+          {branch.title}
+        </option>
+      ));
+    };
 
     return (
       <>
@@ -84,8 +85,13 @@ export default function DepartmentForm(props: Props) {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Code')}</ControlLabel>
-          <FormControl {...formProps} name="code" defaultValue={object.code} />
+          <ControlLabel required={true}>{__('Code')}</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="code"
+            defaultValue={object.code}
+            required={true}
+          />
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Supervisor')}</ControlLabel>
@@ -100,16 +106,15 @@ export default function DepartmentForm(props: Props) {
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Parent')}</ControlLabel>
-          <Select
-            placeholder={__('Choose parent')}
-            value={parentId}
-            clearable={true}
-            onChange={onChangeParent}
-            options={generateTree(departments, null, (node, level) => ({
-              value: node._id,
-              label: `${'---'.repeat(level)} ${node.title}`
-            }))}
-          />
+          <FormControl
+            {...formProps}
+            name="parentId"
+            componentClass="select"
+            defaultValue={object.parentId || null}
+          >
+            <option value="" />
+            {generateOptions()}
+          </FormControl>
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Team Members')}</ControlLabel>

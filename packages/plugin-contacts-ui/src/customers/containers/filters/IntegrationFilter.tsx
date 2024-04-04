@@ -1,7 +1,7 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { withProps } from '@erxes/ui/src/utils';
 import { queries as inboxQueries } from '@erxes/ui-inbox/src/inbox/graphql';
 import IntegrationFilter from '../../components/list/IntegrationFilter';
@@ -42,6 +42,7 @@ class IntegrationFilterContainer extends React.Component<Props> {
 }
 
 type WrapperProps = {
+  abortController?: any;
   type: string;
   loadingMainQuery: boolean;
 };
@@ -53,15 +54,23 @@ export default withProps<WrapperProps>(
       {
         name: 'customersCountQuery',
         skip: ({ loadingMainQuery }) => loadingMainQuery,
-        options: ({ type }) => ({
-          variables: { type, only: 'byIntegrationType' }
+        options: ({ type, abortController }) => ({
+          variables: { type, only: 'byIntegrationType' },
+          context: {
+            fetchOptions: { signal: abortController && abortController.signal }
+          }
         })
       }
     ),
     graphql<WrapperProps, IntegrationGetUsedQueryResponse>(
       gql(inboxQueries.integrationsGetUsedTypes),
       {
-        name: 'integrationsGetUsedTypesQuery'
+        name: 'integrationsGetUsedTypesQuery',
+        options: ({ abortController }) => ({
+          context: {
+            fetchOptions: { signal: abortController && abortController.signal }
+          }
+        })
       }
     )
   )(IntegrationFilterContainer)

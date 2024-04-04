@@ -1,23 +1,19 @@
 import { Document, Schema } from 'mongoose';
-import { DURATION_TYPES } from './constants';
 import { field, schemaHooksWrapper } from './utils';
-import { IJobRefer, jobReferSchema, productsDataSchema } from './jobs';
-
-export interface IJob {
-  id: string;
-  nextJobIds: string[];
-  jobRefer: IJobRefer;
-  style: { type: object };
-  label: { type: string; optional: true };
-  description: { type: string; optional: true };
-  quantity: { type: number };
-}
+import { IFlow, IFlowDocument } from './flows';
 
 export interface IProcess {
-  name: string;
-  categoryId: string;
+  flowId: string;
+  flow: IFlowDocument;
+  date: Date;
+  branchId: string;
+  departmentId: string;
+  productId: string;
+  uom?: string;
+  origin: string;
   status: string;
-  jobs: IJob[];
+  isSub: boolean;
+  referInfos: any;
 }
 
 export interface IProcessDocument extends IProcess, Document {
@@ -26,52 +22,30 @@ export interface IProcessDocument extends IProcess, Document {
   createdBy: string;
   updatedAt: Date;
   updatedBy: string;
+  currentFlow: IFlow;
 }
-
-export const jobSchema = new Schema(
-  {
-    id: { type: String, required: true },
-    nextJobIds: { type: [String] },
-    jobRefer: { type: jobReferSchema },
-    style: { type: Object },
-    label: { type: String, optional: true },
-    description: { type: String, optional: true },
-    quantity: { type: Number }
-  },
-  { _id: false }
-);
 
 export const processSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    flowId: field({ type: String }),
+    flowId: field({ type: String, label: 'flow' }),
+    flow: field({ type: Object, label: 'flow' }),
+    date: field({ type: Date, label: 'date' }),
+    productId: field({ type: String, label: 'Product', index: true }),
+    uom: field({ type: String, label: 'Product', index: true }),
     status: field({ type: String, label: 'Status' }),
+    isSub: field({ type: Boolean, optional: true, label: 'Is Sub Process' }),
     createdAt: { type: Date, default: new Date(), label: 'Created date' },
-
-    jobs: field({ type: jobSchema, label: 'Jobs' }),
-
-    dueDate: field({ type: Date, label: 'Due Date' }),
-    startAt: field({ type: Date, optional: true, label: 'Start at' }),
-    endAt: field({ type: Date, optional: true, label: 'End at' }),
-    quantity: field({ type: Number, label: 'Quantity' }),
-
-    // realization
-    assignedUserIds: field({ type: [String], label: 'Assigned users' }),
-    duration: field({ type: Number, label: 'Duration value' }),
-    durationType: field({
-      type: String,
-      enum: DURATION_TYPES.ALL,
-      default: DURATION_TYPES.HOUR,
-      label: 'Duration value'
-    }),
-    needProducts: field({ type: productsDataSchema, label: 'Need products' }),
-    resultProducts: field({
-      type: productsDataSchema,
-      label: 'Result products'
-    })
+    createdBy: { type: String },
+    updatedAt: { type: Date, default: new Date(), label: 'Updated date' },
+    updatedBy: { type: String },
+    referInfos: field({ type: Object, optional: true, label: 'Jobs' }),
+    branchId: { type: String, label: 'Branch' },
+    departmentId: { type: String, label: 'Department' },
+    origin: field({ type: String, label: 'Origin' })
   }),
-  'erxes_flows'
+  'erxes_processes'
 );
 
-// for processSchema query. increases search speed, avoids in-memory sorting
+// for tags query. increases search speed, avoids in-memory sorting
 processSchema.index({ status: 1 });

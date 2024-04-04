@@ -1,12 +1,12 @@
-import React from 'react';
-import styled from 'styled-components';
-import colors from '../styles/colors';
-import { rgba } from '../styles/ecolor';
-import { IAttachment } from './types';
-import Alert from '../utils/Alert';
-import uploadHandler from './uploadHandler';
-import Spinner from './Spinner';
-import AttachmentsGallery from './AttachmentGallery';
+import Alert from "../utils/Alert";
+import AttachmentsGallery from "./AttachmentGallery";
+import { IAttachment } from "./types";
+import React from "react";
+import Spinner from "./Spinner";
+import colors from "../styles/colors";
+import { rgba } from "../styles/ecolor";
+import styled from "styled-components";
+import uploadHandler from "./uploadHandler";
 
 const LoadingContainer = styled.div`
   margin: 10px 0;
@@ -40,7 +40,7 @@ const UploadBtn = styled.div`
     }
   }
 
-  input[type='file'] {
+  input[type="file"] {
     display: none;
   }
 `;
@@ -51,6 +51,7 @@ type Props = {
   single?: boolean;
   limit?: number;
   multiple?: boolean;
+  showUploader?: boolean;
 };
 
 type State = {
@@ -61,7 +62,7 @@ type State = {
 class Uploader extends React.Component<Props, State> {
   static defaultProps = {
     multiple: true,
-    limit: 4
+    limit: 4,
   };
 
   constructor(props: Props) {
@@ -69,7 +70,7 @@ class Uploader extends React.Component<Props, State> {
 
     this.state = {
       attachments: props.defaultFileList || [],
-      loading: false
+      loading: false,
     };
   }
 
@@ -81,17 +82,17 @@ class Uploader extends React.Component<Props, State> {
 
       beforeUpload: () => {
         this.setState({
-          loading: true
+          loading: true,
         });
       },
 
       afterUpload: ({ status, response, fileInfo }) => {
-        if (status !== 'ok') {
+        if (status !== "ok") {
           Alert.error(response);
           return this.setState({ loading: false });
         }
 
-        Alert.info('Success');
+        Alert.info("Success");
 
         // set attachments
         const attachment = { url: response, ...fileInfo };
@@ -102,12 +103,12 @@ class Uploader extends React.Component<Props, State> {
 
         this.setState({
           loading: false,
-          attachments
+          attachments,
         });
-      }
+      },
     });
 
-    target.value = '';
+    target.value = "";
   };
 
   removeAttachment = (index: number) => {
@@ -121,9 +122,9 @@ class Uploader extends React.Component<Props, State> {
   };
 
   renderUploadButton() {
-    const { multiple, single } = this.props;
+    const { multiple, single, showUploader } = this.props;
 
-    if (single && this.state.attachments.length > 0) {
+    if (!showUploader || (single && this.state.attachments.length > 0)) {
       return null;
     }
 
@@ -142,7 +143,7 @@ class Uploader extends React.Component<Props, State> {
   }
 
   render() {
-    const { limit = 4, onChange } = this.props;
+    const { limit = 4, onChange, showUploader } = this.props;
     const { attachments, loading } = this.state;
 
     return (
@@ -153,12 +154,14 @@ class Uploader extends React.Component<Props, State> {
             Uploading...
           </LoadingContainer>
         )}
-        <AttachmentsGallery
-          attachments={attachments}
-          limit={limit}
-          onChange={onChange}
-          removeAttachment={this.removeAttachment}
-        />
+        {!showUploader && (
+          <AttachmentsGallery
+            attachments={attachments}
+            limit={limit}
+            onChange={onChange}
+            removeAttachment={this.removeAttachment}
+          />
+        )}
         {this.renderUploadButton()}
       </>
     );

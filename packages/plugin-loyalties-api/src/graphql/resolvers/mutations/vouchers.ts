@@ -8,18 +8,25 @@ const vouchersMutations = {
     return models.Vouchers.createVoucher(doc);
   },
 
-  async vouchersEdit(_root, { _id, ...doc }: IVoucher & { _id: string }, { models, user }: IContext) {
+  async vouchersEdit(
+    _root,
+    { _id, ...doc }: IVoucher & { _id: string },
+    { models, user }: IContext
+  ) {
     return models.Vouchers.updateVoucher(_id, { ...doc, userId: user._id });
   },
 
-  async vouchersRemove(_root, { _ids }: { _ids: string[] }, { models }: IContext) {
+  async vouchersRemove(
+    _root,
+    { _ids }: { _ids: string[] },
+    { models }: IContext
+  ) {
     return models.Vouchers.removeVouchers(_ids);
   },
 
   async buyVoucher(_root, param: IBuyParams, { models }: IContext) {
     return models.Vouchers.buyVoucher(param);
   }
-
 };
 
 checkPermission(vouchersMutations, 'vouchersAdd', 'manageLoyalties');

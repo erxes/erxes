@@ -42,7 +42,7 @@ class Row extends React.Component<Props, State> {
     const editTrigger = (
       <Button btnStyle="link">
         <Tip text={__('Edit')} placement="bottom">
-          <Icon icon="edit" />
+          <Icon icon="edit-3" />
         </Tip>
       </Button>
     );
@@ -72,20 +72,18 @@ class Row extends React.Component<Props, State> {
 
     return (
       <tr>
-        <td>{uom.name || ''}</td>
         <td>{uom.code || ''}</td>
+        <td>{uom.name || ''}</td>
         <td>
           <ActionButtons>
-            <ActionButtons>
-              {this.renderEditAction(uom)}
-              <Tip text={__('Delete')} placement="bottom">
-                <Button
-                  btnStyle="link"
-                  onClick={() => this.remove(uom)}
-                  icon="cancel-1"
-                />
-              </Tip>
-            </ActionButtons>
+            {this.renderEditAction(uom)}
+            <Tip text={__('Delete')} placement="bottom">
+              <Button
+                btnStyle="link"
+                onClick={() => this.remove(uom)}
+                icon="times-circle"
+              />
+            </Tip>
           </ActionButtons>
         </td>
       </tr>

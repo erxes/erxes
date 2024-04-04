@@ -1,21 +1,17 @@
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from '@erxes/ui/src/utils/core';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { INTEGRATIONS } from '@erxes/ui/src/constants/integrations';
-import React from 'react';
-import { ByKindTotalCount } from '@erxes/ui-settings/src/integrations/types';
-import Row from './Row';
-import Sidebar from './Sidebar';
 import {
   Content,
   FullHeight,
-  IntegrationWrapper,
-  SearchInput
-} from '@erxes/ui-settings/src/integrations/components/store/styles';
-import { Title } from '@erxes/ui-settings/src/styles';
+  IntegrationWrapper
+} from '@erxes/ui-inbox/src/settings/integrations/components/store/styles';
+
+import { ByKindTotalCount } from '@erxes/ui-inbox/src/settings/integrations/types';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
+import { INTEGRATIONS } from '@erxes/ui/src/constants/integrations';
+import React from 'react';
+import Row from './Row';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from 'coreui/utils';
 
 type Props = {
   totalCount: ByKindTotalCount;
@@ -31,31 +27,20 @@ type State = {
 class Home extends React.Component<Props, State> {
   constructor(props) {
     super(props);
+
+    let integrations = [...INTEGRATIONS];
+    const pluginsWithIntegrations = (window as any).plugins.filter(
+      plugin => plugin.inboxIntegrations
+    );
+
+    for (const p of pluginsWithIntegrations) {
+      integrations = integrations.concat(p.inboxIntegrations);
+    }
+
     this.state = {
       searchValue: '',
-      integrations: INTEGRATIONS.filter(
-        integration => integration.category.indexOf('All add-ons') !== -1
-      )
+      integrations
     };
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    const { searchValue } = this.state;
-    const { queryParams } = this.props;
-
-    if (
-      prevProps.queryParams.type !== queryParams.type ||
-      prevState.searchValue !== searchValue
-    ) {
-      this.setState({
-        integrations: INTEGRATIONS.filter(
-          integration =>
-            integration.name.toLowerCase().indexOf(searchValue) !== -1 &&
-            integration.category.indexOf(queryParams.type || 'All add-ons') !==
-              -1
-        )
-      });
-    }
   }
 
   onSearch = e => {
@@ -95,36 +80,18 @@ class Home extends React.Component<Props, State> {
     return datas;
   }
 
-  renderSearch() {
-    return (
-      <SearchInput isInPopover={false}>
-        <Icon icon="search-1" />
-        <FormControl
-          type="text"
-          placeholder={__('Type to search for an add-ons') + '...'}
-          onChange={this.onSearch}
-        />
-      </SearchInput>
-    );
-  }
-
   render() {
-    const { queryParams } = this.props;
-
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Add-ons') },
-      { title: `${this.props.queryParams.type || __('All add-ons')}` }
+      { title: __('Integrations') }
     ];
 
     const headerDescription = (
       <HeaderDescription
         icon="/images/actions/33.svg"
-        title="Add-ons"
+        title="Integrations"
         description={`${__(
-          'Set up your add-ons and start connecting with your customers'
-        )}.${__(
-          'Now you can reach them on wherever platform they feel most comfortable'
+          'Set up your integrations and start connecting with your customers'
         )}`}
       />
     );
@@ -132,27 +99,16 @@ class Home extends React.Component<Props, State> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__('Add-ons')} breadcrumb={breadcrumb} />
-        }
-        actionBar={
-          <Wrapper.ActionBar
-            left={<Title>{queryParams.type || 'All Add-ons'}</Title>}
-            right={this.renderSearch()}
-            withMargin
-            wide
-            background="colorWhite"
-          />
+          <Wrapper.Header title={__('Integrations')} breadcrumb={breadcrumb} />
         }
         mainHead={headerDescription}
-        leftSidebar={<Sidebar currentType={queryParams.type} />}
         content={
           <Content>
             <IntegrationWrapper>{this.renderIntegrations()}</IntegrationWrapper>
           </Content>
         }
-        hasBorder={true}
         transparent={true}
-        noPadding
+        hasBorder={true}
       />
     );
   }

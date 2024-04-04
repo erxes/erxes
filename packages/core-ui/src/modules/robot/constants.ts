@@ -279,7 +279,7 @@ export const ROLE_SETUP_DETAILS = {
     settingsDetails: {
       integrationsCreate: {
         name: 'Choose which integrations you would like to add',
-        url: '/settings/add-ons/'
+        url: '/settings/integrations/'
       },
       connectIntegrationsToChannel: {
         name:
@@ -370,6 +370,27 @@ export const ROLE_SETUP_DETAILS = {
       dealCreate: {
         name: 'Create deal',
         url: '/deal/board'
+      }
+    }
+  },
+  purchasePipeline: {
+    text: 'Purchase stage',
+    description:
+      'Create purchase stages to track your entire purchase pipeline from one dashboard',
+    videoUrl: '',
+    videoThumb: '',
+    settingsDetails: {
+      purchaseBoardsCreate: {
+        name: 'Create a board',
+        url: '/settings/boards/purchase#showBoardModal=true'
+      },
+      purchasePipelinesCreate: {
+        name: 'Create a purchase to be used on your board',
+        url: '/settings/boards/purchase#showPipelineModal=true'
+      },
+      purchaseCreate: {
+        name: 'Create purchase',
+        url: '/purchase/board'
       }
     }
   },
@@ -548,7 +569,7 @@ export const ROLE_SETUP_DETAILS = {
     settingsDetails: {
       messengerIntegrationCreate: {
         name: 'Add the erxes messenger',
-        url: '/settings/add-ons/createMessenger'
+        url: '/settings/integrations/createMessenger'
       }
     }
   },

@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: "emailtemplates",
   port: 3020,
   exposes: {
@@ -16,8 +17,8 @@ module.exports = {
       image: "/images/icons/erxes-09.svg",
       location: "settings",
       scope: "emailtemplates",
-      action: "",
-      permissions: [],
+      action: "emailTemplateAll",
+      permissions: ["showEmailTemplates"],
     },
   ],
 };

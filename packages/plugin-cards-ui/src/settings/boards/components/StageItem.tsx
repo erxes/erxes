@@ -1,13 +1,14 @@
-import { IStage } from '@erxes/ui-cards/src/boards/types';
+import { __, generateTree } from 'coreui/utils';
+
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { __, generateTree } from 'coreui/utils';
-import React from 'react';
-import { PROBABILITY } from '../constants';
-import { StageItemContainer } from '@erxes/ui-settings/src/boards/styles';
 import { IDepartment } from '@erxes/ui/src/team/types';
+import { IStage } from '@erxes/ui-cards/src/boards/types';
+import { PROBABILITY } from '../constants';
+import React from 'react';
 import Select from 'react-select-plus';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { StageItemContainer } from '@erxes/ui-cards/src/settings/boards/styles';
 
 type Props = {
   stage: IStage;
@@ -30,7 +31,7 @@ class StageItem extends React.Component<Props> {
     return (
       <>
         <SelectTeamMembers
-          label="Choose members"
+          label="Members"
           name="memberIds"
           initialValue={memberIds}
           onSelect={ids => onChange(_id, 'memberIds', ids)}
@@ -52,7 +53,7 @@ class StageItem extends React.Component<Props> {
               (options || []).map(o => o.value)
             )
           }
-          placeholder={__('Choose department ...')}
+          placeholder={__('Department ...')}
           multi={true}
         />
       </>
@@ -65,6 +66,11 @@ class StageItem extends React.Component<Props> {
 
     const onChangeFormControl = (stageId, e) =>
       onChange(stageId, e.target.name, e.target.value);
+
+    const onChangeCheckbox = (stageId, e) => {
+      const value = e.target.checked;
+      onChange(stageId, e.target.name, e.target.checked);
+    };
 
     return (
       <StageItemContainer key={stage._id}>
@@ -136,7 +142,36 @@ class StageItem extends React.Component<Props> {
           onChange={onChangeFormControl.bind(this, stage._id)}
         />
 
+        {(['deal', 'purchase'].includes(type) && (
+          <FormControl
+            componentClass="checkbox"
+            checked={
+              stage.defaultTick === undefined || stage.defaultTick === null
+                ? true
+                : stage.defaultTick
+            }
+            name="defaultTick"
+            placeholder={__('defaultTick')}
+            autoFocus={true}
+            onChange={onChangeCheckbox.bind(this, stage._id)}
+          />
+        )) || <></>}
+
         {this.renderSelectMembers()}
+
+        <SelectTeamMembers
+          label="Can move members"
+          name="canMoveMemberIds"
+          initialValue={stage.canMoveMemberIds}
+          onSelect={ids => onChange(stage._id, 'canMoveMemberIds', ids)}
+        />
+
+        <SelectTeamMembers
+          label="Can edit members"
+          name="canEditMemberIds"
+          initialValue={stage.canEditMemberIds}
+          onSelect={ids => onChange(stage._id, 'canEditMemberIds', ids)}
+        />
 
         <Button
           btnStyle="link"

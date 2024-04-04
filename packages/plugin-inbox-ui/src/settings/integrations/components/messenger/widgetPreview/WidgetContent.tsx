@@ -1,10 +1,3 @@
-import Button from '@erxes/ui/src/components/Button';
-import { __ } from '@erxes/ui/src/utils/core';
-import {
-  IMessagesItem,
-  ISkillData
-} from '@erxes/ui-settings/src/integrations/types';
-import React from 'react';
 import {
   CallButtons,
   ErxesAvatar,
@@ -18,6 +11,14 @@ import {
   SkillWrapper,
   VideoCallRequestWrapper
 } from './styles';
+import {
+  IMessagesItem,
+  ISkillData
+} from '@erxes/ui-inbox/src/settings/integrations/types';
+
+import Button from '@erxes/ui/src/components/Button';
+import React from 'react';
+import { __ } from 'coreui/utils';
 
 type Props = {
   color: string;

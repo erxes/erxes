@@ -8,7 +8,7 @@ const resolvers: any = async () => ({
 
   Comment,
   Mutation,
-  Query,
+  Query
 });
 
 export default resolvers;

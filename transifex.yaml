@@ -1,0 +1,6 @@
+filters:
+  - filter_type: dynamic
+    file_format: KEYVALUEJSON
+    source_file: <dir>/en.json
+    source_language: en
+    translation_files_expression: '<dir>/<lang>.json'

@@ -1,13 +1,30 @@
-import { ICustomer } from '../../models/definitions/customers';
-import { sendCoreMessage, sendIntegrationsMessage } from '../../messageBroker';
-import { MODULE_NAMES } from '../../constants';
+import * as _ from 'underscore';
+
+import {
+  ICustomer,
+  ICustomerDocument
+} from '../../models/definitions/customers';
+import {
+  sendCoreMessage,
+  sendIntegrationsMessage,
+  sendCommonMessage,
+  sendInboxMessage
+} from '../../messageBroker';
+import { COC_LIFECYCLE_STATE_TYPES, MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { validateBulk } from '../../verifierUtils';
 import { IContext } from '../../connectionResolver';
+import { getServices } from '@erxes/api-utils/src/serviceDiscovery';
+
 
 interface ICustomersEdit extends ICustomer {
   _id: string;
+}
+
+interface IStateParams {
+  _ids: string[];
+  value: string;
 }
 
 const customerMutations = {
@@ -162,20 +179,19 @@ const customerMutations = {
     { customerIds }: { customerIds: string[] },
     { user, models, subdomain }: IContext
   ) {
-    const customers = await models.Customers.find({
+    const customers: ICustomerDocument[] = await models.Customers.find({
       _id: { $in: customerIds }
     }).lean();
 
     await models.Customers.removeCustomers(customerIds);
 
-    await sendIntegrationsMessage({
+    const commonParams = (ids: string[]) => ({
       subdomain,
       action: 'notification',
-      data: {
-        type: 'removeCustomers',
-        customerIds
-      }
+      data: { type: 'removeCustomers', customerIds: ids }
     });
+
+    await sendIntegrationsMessage({ ...commonParams(customerIds) });
 
     for (const customer of customers) {
       await putDeleteLog(
@@ -184,17 +200,42 @@ const customerMutations = {
         { type: MODULE_NAMES.CUSTOMER, object: customer },
         user
       );
+    }
 
-      if (customer.mergedIds) {
-        await sendIntegrationsMessage({
-          subdomain,
-          action: 'notification',
-          data: {
-            type: 'removeCustomers',
-            customerIds: customer.mergedIds
-          }
-        });
+    const services = await getServices();
+    let relatedIntegrationIds: string[] = [];
+    let mergedIds: string[] = [];
+
+    customers.forEach(c => {
+      if (c.relatedIntegrationIds && c.relatedIntegrationIds.length > 0) {
+        relatedIntegrationIds = relatedIntegrationIds.concat(
+          c.relatedIntegrationIds
+        );
       }
+      if (c.mergedIds && c.mergedIds.length > 0) {
+        mergedIds = mergedIds.concat(c.mergedIds);
+      }
+    });
+
+    relatedIntegrationIds = _.uniq(relatedIntegrationIds);
+    mergedIds = _.uniq(mergedIds);
+
+    const integrations = await sendInboxMessage({
+      subdomain,
+      action: 'integrations.find',
+      isRPC: true,
+      data: { query: { _id: { $in: relatedIntegrationIds } } },
+      defaultValue: []
+    });
+
+    // find related integration of the customer & delete where it's linked
+    for (const integration of integrations) {
+      const kind = (integration.kind || '').split('-')[0];
+
+      await sendCommonMessage({
+        serviceName: services.includes(kind) ? kind : 'integrations',
+        ...commonParams([...customerIds, ...mergedIds])
+      });
     }
 
     return customerIds;
@@ -203,9 +244,9 @@ const customerMutations = {
   async customersVerify(
     _root,
     { verificationType }: { verificationType: string },
-    { models }: IContext
+    { models, subdomain }: IContext
   ) {
-    await validateBulk(models, verificationType);
+    await validateBulk(models, subdomain, verificationType);
   },
 
   async customersChangeVerificationStatus(
@@ -217,6 +258,24 @@ const customerMutations = {
       args.customerIds,
       args.type,
       args.status
+    );
+  },
+
+  customersChangeStateBulk(
+    _root,
+    { _ids, value }: IStateParams,
+    { models }: IContext
+  ) {
+    if (!_ids || _ids.length < 1) {
+      throw new Error('Customer ids can not be empty');
+    }
+    if (!COC_LIFECYCLE_STATE_TYPES.includes(value)) {
+      throw new Error('Invalid customer state');
+    }
+
+    return models.Customers.updateMany(
+      { _id: { $in: _ids } },
+      { $set: { state: value } }
     );
   }
 };

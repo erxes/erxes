@@ -1,4 +1,4 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import * as strip from 'strip';
 import { IModels } from '../connectionResolver';
 import { MESSAGE_TYPES } from './definitions/constants';

@@ -1,11 +1,11 @@
 import React from 'react';
 import Form from '../../../../components/forms/actions/subForms/IfForm';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { LeadIntegrationsQueryResponse } from '@erxes/ui-leads/src/types';
 import { withProps } from '@erxes/ui/src/utils';
 import { queries } from '@erxes/ui-forms/src/forms/graphql';
-import { IAction } from '../../../../types';
+import { IAction } from '@erxes/ui-automations/src/types';
 import client from '@erxes/ui/src/apolloClient';
 import { IField } from '@erxes/ui/src/types';
 

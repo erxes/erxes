@@ -45,7 +45,6 @@ const exmMutations = {
     }
 
     try {
-
       return sendCoreMessage({
         subdomain,
         action: 'users.create',
@@ -56,7 +55,6 @@ const exmMutations = {
         },
         isRPC: true
       });
-
     } catch (e) {
       throw e;
     }

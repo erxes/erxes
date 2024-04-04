@@ -11,7 +11,7 @@ import { __, Alert } from 'coreui/utils';
 import {
   MESSAGE_KIND_FILTERS,
   MESSAGE_KINDS,
-  METHODS
+  METHODS,
 } from '@erxes/ui-engage/src/constants';
 import React from 'react';
 import s from 'underscore.string';
@@ -56,11 +56,7 @@ class Row extends React.Component<Props> {
   onEdit = () => {
     const msg = this.props.message;
 
-    if (
-      msg.isLive &&
-      (msg.kind === MESSAGE_KINDS.AUTO ||
-        msg.kind === MESSAGE_KINDS.VISITOR_AUTO)
-    ) {
+    if (msg.isLive && msg.kind != MESSAGE_KINDS.MANUAL) {
       return Alert.info('Pause the Campaign first and try editing');
     }
 
@@ -73,10 +69,41 @@ class Row extends React.Component<Props> {
     return this.props.edit();
   };
 
+  renderStatus() {
+    const { message } = this.props;
+    const { kind, isLive, runCount, isDraft } = message;
+    let labelStyle = 'primary';
+    let labelText = 'Sending';
+
+    if (isDraft === true) {
+      return <Label lblStyle="simple">{__('Draft')}</Label>;
+    }
+
+    if (!isLive) {
+      labelStyle = 'simple';
+      labelText = 'Paused';
+    } else {
+      labelStyle = 'primary';
+      labelText = 'Sending';
+    }
+
+    if (kind === MESSAGE_KINDS.MANUAL) {
+      if (runCount > 0) {
+        labelStyle = 'success';
+        labelText = 'Sent';
+      } else {
+        labelStyle = 'danger';
+        labelText = 'Not Sent';
+      }
+    }
+
+    // scheduled auto campaign
+
+    return <Label lblStyle={labelStyle}>{labelText}</Label>;
+  }
   renderLinks() {
     const msg = this.props.message;
 
-    const pause = this.renderLink('Pause', 'pause-circle', this.props.setPause);
     const live = this.renderLink('Set live', 'play-circle', this.props.setLive);
     const liveM = this.renderLink(
       'Set live',
@@ -84,12 +111,19 @@ class Row extends React.Component<Props> {
       this.props.setLiveManual
     );
     const show = this.renderLink('Show statistics', 'eye', this.props.show);
-    const copy = this.renderLink('Copy', 'copy-1', this.props.copy);
+    const copy = this.renderLink('Duplicate', 'copy-1', this.props.copy);
     const editLink = this.renderLink('Edit', 'edit-3', this.onEdit, msg.isLive);
 
-    const links: React.ReactNode[] = [copy, editLink];
+    const links: React.ReactNode[] = [];
 
-    if ([METHODS.EMAIL, METHODS.SMS].includes(msg.method) && !msg.isDraft) {
+    if ([METHODS.EMAIL, METHODS.SMS, METHODS.MESSENGER].includes(msg.method)) {
+      links.push(editLink, copy);
+    }
+
+    if (
+      [METHODS.EMAIL, METHODS.SMS, METHODS.NOTIFICATION].includes(msg.method) &&
+      !msg.isDraft
+    ) {
       links.push(show);
     }
 
@@ -101,14 +135,16 @@ class Row extends React.Component<Props> {
       return links;
     }
 
-    if (msg.isLive) {
-      return [...links, pause];
-    }
-
     return [...links, live];
   }
 
-  renderRemoveButton = onClick => {
+  renderRemoveButton = (onClick) => {
+    const { message } = this.props;
+    const { runCount } = message;
+
+    if (runCount > 0) {
+      return null;
+    }
     return (
       <Tip text={__('Delete')} placement="top">
         <Button btnStyle="link" onClick={onClick} icon="times-circle" />
@@ -116,16 +152,16 @@ class Row extends React.Component<Props> {
     );
   };
 
-  toggleBulk = e => {
+  toggleBulk = (e) => {
     this.props.toggleBulk(this.props.message, e.target.checked);
   };
 
   renderSegments(message) {
     let segments = message.segments || ([] as ISegment[]);
 
-    segments = segments.filter(segment => segment && segment._id);
+    segments = segments.filter((segment) => segment && segment._id);
 
-    return segments.map(segment => (
+    return segments.map((segment) => (
       <HelperText key={segment._id}>
         <Icon icon="chart-pie" /> {segment.name}
       </HelperText>
@@ -136,7 +172,7 @@ class Row extends React.Component<Props> {
     const messenger = message.messenger || ({} as IEngageMessenger);
     const rules = messenger.rules || [];
 
-    return rules.map(rule => (
+    return rules.map((rule) => (
       <HelperText key={rule._id}>
         <Icon icon="sign-alt" /> {rule.text} {rule.condition} {rule.value}
       </HelperText>
@@ -146,7 +182,7 @@ class Row extends React.Component<Props> {
   renderBrands(message) {
     const brands = message.brands || ([] as IBrand[]);
 
-    return brands.map(brand => (
+    return brands.map((brand) => (
       <HelperText key={brand._id}>
         <Icon icon="award" /> {brand.name}
       </HelperText>
@@ -165,53 +201,9 @@ class Row extends React.Component<Props> {
     }
   };
 
-  renderStatus() {
-    const { message } = this.props;
-    const { kind, scheduleDate, isLive, runCount, isDraft } = message;
-    let labelStyle = 'primary';
-    let labelText = 'Sending';
-
-    if (!isLive && isDraft) {
-      labelStyle = 'simple';
-      labelText = 'Paused';
-    }
-    if (isLive && !isDraft) {
-      labelStyle = 'primary';
-      labelText = 'Sending';
-    }
-
-    if (kind === MESSAGE_KINDS.MANUAL) {
-      if (runCount > 0) {
-        labelStyle = 'success';
-        labelText = 'Sent';
-      }
-    }
-
-    // scheduled auto campaign
-    if (scheduleDate && kind === MESSAGE_KINDS.AUTO) {
-      const scheduledDate = new Date(scheduleDate.dateTime);
-      const now = new Date();
-
-      if (
-        scheduleDate.type === 'pre' &&
-        scheduledDate.getTime() > now.getTime()
-      ) {
-        labelStyle = 'warning';
-        labelText = 'Scheduled';
-      }
-      if (scheduleDate.type === 'sent') {
-        labelStyle = 'success';
-        labelText = 'Sent';
-      }
-    }
-
-    return <Label lblStyle={labelStyle}>{labelText}</Label>;
-  }
-
   renderType(msg) {
     let icon: string = 'multiply';
     let label: string = 'Other type';
-
     switch (msg.method) {
       case METHODS.EMAIL:
         icon = 'envelope';
@@ -228,16 +220,22 @@ class Row extends React.Component<Props> {
         label = __('Messenger');
 
         break;
+      case METHODS.NOTIFICATION:
+        icon = 'message';
+        label = __('Notification');
+
+        break;
       default:
         break;
     }
 
-    const kind = MESSAGE_KIND_FILTERS.find(item => item.name === msg.kind);
+    const kind = MESSAGE_KIND_FILTERS.find((item) => item.name === msg.kind);
+
     return (
       <div>
         <Icon icon={icon} /> {label}
         <HelperText>
-          <Icon icon="clipboard-notes" /> {kind && kind.text} Campaign
+          <Icon icon="clipboard-notes" /> {kind && kind.text}
         </HelperText>
       </div>
     );
@@ -245,12 +243,7 @@ class Row extends React.Component<Props> {
 
   render() {
     const { isChecked, message, remove } = this.props;
-    const {
-      brand = { name: '' },
-      scheduleDate,
-      totalCustomersCount = 0
-    } = message;
-
+    const { brand = { name: '' }, totalCustomersCount } = message;
     return (
       <tr key={message._id}>
         <td>
@@ -261,10 +254,7 @@ class Row extends React.Component<Props> {
           />
         </td>
         <td>
-          <RowTitle onClick={this.onClick}>
-            {message.title}{' '}
-            {message.isDraft && <Label lblStyle="simple">Draft</Label>}
-          </RowTitle>
+          <RowTitle onClick={this.onClick}>{message.title}</RowTitle>
           {this.renderBrands(message)}
           {this.renderSegments(message)}
           {this.renderMessengerRules(message)}
@@ -272,7 +262,7 @@ class Row extends React.Component<Props> {
         <td>{this.renderStatus()}</td>
         <td className="text-primary">
           <Icon icon="cube-2" />
-          <b> {s.numberFormat(totalCustomersCount)}</b>
+          <b> {s.numberFormat(totalCustomersCount || 0)}</b>
         </td>
         <td>{this.renderType(message)}</td>
         <td>
@@ -290,16 +280,14 @@ class Row extends React.Component<Props> {
           {dayjs(message.createdAt).format('DD MMM YYYY')}
         </td>
 
-        <td>
-          <Icon icon="clock-eight" />{' '}
-          {scheduleDate && scheduleDate.dateTime
-            ? dayjs(scheduleDate.dateTime).format('DD MMM YYYY HH:mm')
-            : '-- --- ---- --:--'}
-        </td>
-
         {isEnabled('tags') && (
           <td>
-            <Tags tags={message.customerTags || []} />
+            <Tags
+              tags={[
+                ...(message.customerTags || []),
+                ...(message.getTags || []),
+              ]}
+            />
           </td>
         )}
 

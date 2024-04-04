@@ -1,29 +1,59 @@
+import {
+  fetchByQuery,
+  fetchByQueryWithScroll,
+} from '@erxes/api-utils/src/elasticsearch';
+import { getEsIndexByContentType } from '@erxes/api-utils/src/segments';
+import * as _ from 'underscore';
+
 export default {
-  indexesTypeContentType: {
-    'inbox:conversation': 'conversations'
-  },
+  dependentServices: [{ name: 'contacts', twoWay: true }],
 
-  contentTypes: ['conversation'],
-
-  descriptionMap: {
-    deal: 'Deal',
-    ticket: 'Ticket',
-    task: 'Task',
-    customer: 'Customer',
-    company: 'Company',
-    conversation: 'Conversation'
-  },
-
-  associationTypes: [
-    'inbox:conversation',
-    'cards:deal',
-    'contacts:customer',
-    'contacts:company',
-    'cards:ticket',
-    'cards:task'
+  contentTypes: [
+    {
+      type: 'conversation',
+      description: 'Conversation',
+      esIndex: 'conversations',
+    },
   ],
 
   esTypesMap: async () => {
     return { data: { typesMap: {} }, status: 'success' };
-  }
+  },
+
+  associationFilter: async ({
+    subdomain,
+    data: { mainType, propertyType, positiveQuery, negativeQuery },
+  }) => {
+    let ids: string[] = [];
+
+    if (mainType.includes('contacts')) {
+      ids = await fetchByQuery({
+        subdomain,
+        index: await getEsIndexByContentType(mainType),
+        _source: 'customerId',
+        positiveQuery,
+        negativeQuery,
+      });
+    }
+
+    if (propertyType.includes('contacts')) {
+      const customerIds = await fetchByQueryWithScroll({
+        subdomain,
+        index: await getEsIndexByContentType(propertyType),
+        positiveQuery,
+        negativeQuery,
+      });
+
+      ids = await fetchByQueryWithScroll({
+        subdomain,
+        index: 'conversations',
+        positiveQuery: [{ terms: { 'customerId.keyword': customerIds } }],
+        negativeQuery: [],
+      });
+    }
+
+    ids = _.uniq(ids);
+
+    return { data: ids, status: 'success' };
+  },
 };

@@ -1,5 +1,5 @@
-import { commonDefs, commonVariables } from "../../common/graphq";
-import { voucherFields } from "./queries";
+import { commonDefs, commonVariables } from '../../common/graphq';
+import { voucherFields } from './queries';
 
 const vouchersAdd = `
   mutation vouchersAdd(${commonDefs}, $status: String) {
@@ -26,5 +26,5 @@ const vouchersRemove = `
 export default {
   vouchersAdd,
   vouchersEdit,
-  vouchersRemove,
-}
+  vouchersRemove
+};

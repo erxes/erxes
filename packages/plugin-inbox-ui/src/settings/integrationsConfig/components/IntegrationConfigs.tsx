@@ -1,15 +1,17 @@
+import { ContentBox, Title } from '@erxes/ui-settings/src/styles';
+import { __, loadDynamicComponent } from '@erxes/ui/src/utils/core';
+
 import Button from '@erxes/ui/src/components/Button';
 import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FormControl } from '@erxes/ui/src/components/form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Info from '@erxes/ui/src/components/Info';
-import { __ } from '@erxes/ui/src/utils/core';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import React from 'react';
-import { ContentBox, Title } from '@erxes/ui-settings/src/styles';
-import { KEY_LABELS } from '@erxes/ui-settings/src/general/constants';
 import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import Info from '@erxes/ui/src/components/Info';
+import { KEY_LABELS } from '@erxes/ui-settings/src/general/constants';
+import React from 'react';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
@@ -49,17 +51,18 @@ class IntegrationConfigs extends React.Component<Props, State> {
     this.onChangeConfig(code, e.target.value);
   };
 
-  renderItem(
+  renderItem = (
     key: string,
     type?: string,
     description?: string,
-    defaultValue?: string
-  ) {
+    defaultValue?: string,
+    label?: string
+  ) => {
     const { configsMap } = this.state;
 
     return (
       <FormGroup>
-        <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
+        <ControlLabel>{label || KEY_LABELS[key]}</ControlLabel>
         {description && <p>{__(description)}</p>}
         <FormControl
           type={type || 'text'}
@@ -68,39 +71,22 @@ class IntegrationConfigs extends React.Component<Props, State> {
         />
       </FormGroup>
     );
-  }
+  };
 
   renderContent = () => {
     const { configsMap } = this.state;
 
     return (
       <ContentBox id={'IntegrationSettingsMenu'}>
-        <CollapseContent title="Facebook">
+        <CollapseContent
+          beforeTitle={<Icon icon="twitter-alt" />}
+          transparent={true}
+          title="Twitter"
+        >
           <Info>
             <a
               target="_blank"
-              href="https://erxes.org/administrator/system-config#facebook"
-              rel="noopener noreferrer"
-            >
-              {__('Learn how to set Facebook Integration Variables')}
-            </a>
-          </Info>
-          {this.renderItem('FACEBOOK_APP_ID')}
-          {this.renderItem('FACEBOOK_APP_SECRET')}
-          {this.renderItem('FACEBOOK_VERIFY_TOKEN')}
-          {this.renderItem(
-            'FACEBOOK_PERMISSIONS',
-            '',
-            '',
-            'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content'
-          )}
-        </CollapseContent>
-
-        <CollapseContent title="Twitter">
-          <Info>
-            <a
-              target="_blank"
-              href="https://erxes.org/administrator/system-config#twitter"
+              href="https://docs.erxes.io/docs/user-guide/xos/system-configuration#twitter"
               rel="noopener noreferrer"
             >
               {__('Learn how to set Twitter Integration Variables')}
@@ -113,11 +99,15 @@ class IntegrationConfigs extends React.Component<Props, State> {
           {this.renderItem('TWITTER_WEBHOOK_ENV')}
         </CollapseContent>
 
-        <CollapseContent title="Nylas">
+        <CollapseContent
+          beforeTitle={<Icon icon="database-alt" />}
+          transparent={true}
+          title="Nylas"
+        >
           <Info>
             <a
               target="_blank"
-              href="https://erxes.org/administrator/system-config#nylas-integrations"
+              href="https://docs.erxes.io/docs/user-guide/xos/system-configuration#nylas-integrations"
               rel="noopener noreferrer"
             >
               {__('Learn how to set Nylas Integration')}
@@ -134,11 +124,15 @@ class IntegrationConfigs extends React.Component<Props, State> {
           {this.renderItem('MICROSOFT_CLIENT_SECRET')}
         </CollapseContent>
 
-        <CollapseContent title="Video call">
+        <CollapseContent
+          beforeTitle={<Icon icon="videocamera" />}
+          transparent={true}
+          title="Video call"
+        >
           <Info>
             <a
               target="_blank"
-              href="https://erxes.org/administrator/system-config#video-calls"
+              href="https://docs.erxes.io/docs/user-guide/xos/system-configuration#video-calls"
               rel="noopener noreferrer"
             >
               {__('Learn more about Video call configuration')}
@@ -163,11 +157,15 @@ class IntegrationConfigs extends React.Component<Props, State> {
           {this.renderItem('VIDEO_CALL_MESSAGE_FOR_TIME_DELAY')}
         </CollapseContent>
 
-        <CollapseContent title="Sunshine Conversations API">
+        <CollapseContent
+          beforeTitle={<Icon icon="comments" />}
+          transparent={true}
+          title="Sunshine Conversations API"
+        >
           <Info>
             <a
               target="_blank"
-              href="https://erxes.org/administrator/system-config#sunshine-conversations-api-integration"
+              href="https://docs.erxes.io/docs/user-guide/xos/system-configuration#sunshine-conversations-api-integration"
               rel="noopener noreferrer"
             >
               {__('Learn how to set Smooch Integration Variables')}
@@ -183,11 +181,15 @@ class IntegrationConfigs extends React.Component<Props, State> {
           )}
         </CollapseContent>
 
-        <CollapseContent title="WhatsApp Chat-API">
+        <CollapseContent
+          beforeTitle={<Icon icon="whatsapp" />}
+          transparent={true}
+          title="WhatsApp Chat-API"
+        >
           <Info>
             <a
               target="_blank"
-              href="https://erxes.org/administrator/system-config#whatsapp-integration"
+              href="https://docs.erxes.io/docs/user-guide/xos/system-configuration#whatsapp-integration"
               rel="noopener noreferrer"
             >
               {__('Learn how to set WhatsApp Integration Variables')}
@@ -197,9 +199,21 @@ class IntegrationConfigs extends React.Component<Props, State> {
           {this.renderItem('CHAT_API_WEBHOOK_CALLBACK_URL')}
         </CollapseContent>
 
-        <CollapseContent title="Telnyx SMS">
+        <CollapseContent
+          beforeTitle={<Icon icon="comment-alt-check" />}
+          transparent={true}
+          title="Telnyx SMS"
+        >
           {this.renderItem('TELNYX_API_KEY')}
         </CollapseContent>
+
+        {loadDynamicComponent(
+          'inboxIntegrationSettings',
+          {
+            renderItem: this.renderItem
+          },
+          true
+        )}
       </ContentBox>
     );
   };
@@ -213,24 +227,25 @@ class IntegrationConfigs extends React.Component<Props, State> {
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Add-ons config') }
+      { title: __('Integrations config') }
     ];
 
     return (
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Add-ons config')}
+            title={__('Integrations config')}
             breadcrumb={breadcrumb}
           />
         }
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__('Add-ons config')}</Title>}
+            left={<Title>{__('Integrations config')}</Title>}
             right={actionButtons}
           />
         }
         content={this.renderContent()}
+        hasBorder={true}
       />
     );
   }

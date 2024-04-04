@@ -5,6 +5,7 @@ import { Route } from 'react-router-dom';
 import Settings from './containers/config/Settings';
 import Uom from './containers/config/Uoms';
 import GeneralSettings from './components/config/GeneralSettings';
+import SimilarityGroup from './components/config/SimilarityGroup';
 
 const ProductList = asyncComponent(() =>
   import(
@@ -15,6 +16,12 @@ const ProductList = asyncComponent(() =>
 const ProductDetails = asyncComponent(() =>
   import(
     /* webpackChunkName: "Settings List - ProductService" */ './containers/product/detail/ProductDetails'
+  )
+);
+
+const BarcodeGenerator = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "Settings List - ProductService" */ './containers/barcodeGenerator/BarcodeGenerator'
   )
 );
 
@@ -37,8 +44,23 @@ const generalSetting = () => {
   return <Settings component={GeneralSettings} />;
 };
 
+const similarityGroup = () => {
+  return <Settings component={SimilarityGroup} />;
+};
+
 const uomManage = () => {
   return <Uom history={history} />;
+};
+
+const barcodeGenerator = ({ match, location }) => {
+  const id = match.params.id;
+
+  return (
+    <BarcodeGenerator
+      id={id}
+      queryParams={queryString.parse(location.search)}
+    />
+  );
 };
 
 const routes = () => (
@@ -65,10 +87,24 @@ const routes = () => (
     />
 
     <Route
+      path="/settings/similarity-group/"
+      exact={true}
+      key="/settings/similarity-group"
+      component={similarityGroup}
+    />
+
+    <Route
       path="/settings/uoms-manage/"
       exact={true}
       key="/settings/uoms-manage/"
       component={uomManage}
+    />
+
+    <Route
+      path="/settings/barcode-generator/:id"
+      exact={true}
+      key="/settings/barcode-generator/:id"
+      component={barcodeGenerator}
     />
   </React.Fragment>
 );

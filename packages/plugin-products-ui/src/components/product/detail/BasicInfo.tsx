@@ -3,7 +3,7 @@ import Button from '@erxes/ui/src/components/Button';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { InfoWrapper } from '@erxes/ui/src/styles/main';
+import { Actions, InfoWrapper } from '@erxes/ui/src/styles/main';
 import { IAttachment } from '@erxes/ui/src/types';
 import { __, Alert, confirm } from '@erxes/ui/src/utils';
 
@@ -21,15 +21,20 @@ import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { Link } from 'react-router-dom';
 import xss from 'xss';
-import { ProductContent } from '../../../styles';
+import { ProductBarcodeContent, ProductContent } from '../../../styles';
+import { isValidBarcode } from '../../../utils';
+import { Tip } from '@erxes/ui/src';
 
 type Props = {
   product: IProduct;
   remove: () => void;
+  history: any;
 };
 
 class BasicInfo extends React.Component<Props> {
   renderVendor = vendor => {
+    const { history } = this.props;
+
     if (!vendor) {
       return (
         <li>
@@ -42,11 +47,37 @@ class BasicInfo extends React.Component<Props> {
     return (
       <li>
         <FieldStyle>{__(`Vendor`)}</FieldStyle>
-
-        <Link to={`/companies/details/${vendor._id}`}>
-          <SidebarCounter>{vendor.primaryName || ''}</SidebarCounter>
-        </Link>
+        <SidebarCounter>{vendor.primaryName || ''}</SidebarCounter>
+        <Button
+          onClick={() => history.push(`/companies/details/${vendor._id}`)}
+          btnStyle="link"
+          style={{ padding: '0', paddingLeft: '8px' }}
+        >
+          <Tip text="See Vendor Detail" placement="bottom">
+            <Icon icon="rightarrow" />
+          </Tip>
+        </Button>
       </li>
+    );
+  };
+
+  renderBarcodes = barcodes => {
+    return (
+      <>
+        <li>
+          <FieldStyle>{__(`Barcodes`)}</FieldStyle>
+        </li>
+        {(barcodes || []).map((item: string, iteration: number) => (
+          <ProductBarcodeContent key={iteration} isValid={isValidBarcode(item)}>
+            <Link
+              to={`/settings/barcode-generator/${this.props.product._id}?barcode=${item}`}
+            >
+              <Icon icon="print" />
+              {item}
+            </Link>
+          </ProductBarcodeContent>
+        ))}
+      </>
     );
   };
 
@@ -61,6 +92,23 @@ class BasicInfo extends React.Component<Props> {
     );
   };
 
+  renderEdit() {
+    const { product } = this.props;
+    const content = props => <ProductForm {...props} product={product} />;
+    return (
+      <ModalTrigger
+        title="Edit basic info"
+        trigger={
+          <li>
+            <a href="#edit">{__('Edit')}</a>
+          </li>
+        }
+        size="xl"
+        content={content}
+      />
+    );
+  }
+
   renderAction() {
     const { remove } = this.props;
 
@@ -72,7 +120,7 @@ class BasicInfo extends React.Component<Props> {
         });
 
     return (
-      <Action>
+      <Actions>
         <Dropdown>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
             <Button btnStyle="simple" size="medium">
@@ -81,6 +129,7 @@ class BasicInfo extends React.Component<Props> {
             </Button>
           </Dropdown.Toggle>
           <Dropdown.Menu>
+            {this.renderEdit()}
             <li>
               <a href="#delete" onClick={onDelete}>
                 {__('Delete')}
@@ -88,7 +137,7 @@ class BasicInfo extends React.Component<Props> {
             </li>
           </Dropdown.Menu>
         </Dropdown>
-      </Action>
+      </Actions>
     );
   }
 
@@ -100,38 +149,42 @@ class BasicInfo extends React.Component<Props> {
     return <Attachment attachment={item} />;
   };
 
+  renderProductContent = () => {
+    const { product } = this.props;
+
+    if (!product.description) {
+      return null;
+    }
+
+    return (
+      <ProductContent
+        dangerouslySetInnerHTML={{
+          __html: xss(product.description)
+        }}
+      />
+    );
+  };
+
   renderInfo() {
     const { product } = this.props;
 
-    const content = props => <ProductForm {...props} product={product} />;
     const {
       code,
       name,
       type,
       category,
-      supply,
-      productCount,
-      minimiumCount,
       unitPrice,
-      sku,
+      barcodes,
       attachment,
-      vendor,
-      description
+      vendor
     } = product;
 
     return (
       <Sidebar.Section>
         <InfoWrapper>
           <Name>{name}</Name>
-          <ModalTrigger
-            title="Edit basic info"
-            trigger={<Icon icon="edit" />}
-            size="lg"
-            content={content}
-          />
+          {this.renderAction()}
         </InfoWrapper>
-
-        {this.renderAction()}
 
         {this.renderImage(attachment)}
         <SidebarList className="no-link">
@@ -139,18 +192,11 @@ class BasicInfo extends React.Component<Props> {
           {this.renderView('Type', type)}
           {this.renderView('Category', category ? category.name : '')}
           {this.renderView('Unit price', (unitPrice || 0).toLocaleString())}
-          {this.renderView('Sku', sku)}
+          {this.renderBarcodes(barcodes)}
           {this.renderVendor(vendor)}
-          {this.renderView('Supply', supply)}
-          {this.renderView('Product count', productCount)}
-          {this.renderView('Minimium product count', minimiumCount)}
           <SidebarFlexRow>{__(`Description`)}</SidebarFlexRow>
         </SidebarList>
-        <ProductContent
-          dangerouslySetInnerHTML={{
-            __html: xss(description)
-          }}
-        />
+        {this.renderProductContent()}
       </Sidebar.Section>
     );
   }

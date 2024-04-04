@@ -1,8 +1,7 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './dataloaders/resolvers';
 
-import { initBroker } from './messageBroker';
-import { initMemoryStorage } from './inmemoryStorage';
+import { setupMessageConsumers } from './messageBroker';
 import { generateAllDataLoaders } from './dataloaders';
 import { generateModels } from './connectionResolver';
 import logs from './logUtils';
@@ -12,20 +11,19 @@ import forms from './forms';
 import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import imports from './imports';
-
-export let debug;
-export let mainDb;
-export let serviceDiscovery;
+import exporter from './exporter';
+import segments from './segments';
+import search from './search';
+import documents from './documents';
+import dashboards from './dashboards';
 
 export default {
   name: 'products',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers
+      typeDefs: await typeDefs(),
+      resolvers,
     };
   },
   apolloServerContext: async (context, req) => {
@@ -42,13 +40,20 @@ export default {
     return context;
   },
 
-  meta: { logs: { consumers: logs }, tags, internalNotes, forms, imports },
+  meta: {
+    logs: { consumers: logs },
+    tags,
+    internalNotes,
+    forms,
+    imports,
+    exporter,
+    permissions,
+    segments,
+    documents,
+    dashboards,
+    search,
+  },
 
-  onServerInit: async options => {
-    initBroker(options.messageBrokerClient);
-
-    initMemoryStorage();
-
-    debug = options.debug;
-  }
+  onServerInit: async () => {},
+  setupMessageConsumers,
 };

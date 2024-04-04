@@ -1,54 +1,101 @@
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
-import { __, Wrapper, Box, FormGroup, ControlLabel } from '@erxes/ui/src';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import { router } from '@erxes/ui/src/utils/core';
-import CategoryFilter from '../containers/CategoryFilter';
-import { SidebarContent } from '../../styles';
+import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
+import Tip from '@erxes/ui/src/components/Tip';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __, router } from '@erxes/ui/src/utils/core';
+import { SidebarFilters } from '../../styles';
+import { SidebarList as List } from '@erxes/ui/src/layout';
+import { useHistory } from 'react-router-dom';
 
-type Props = {
-  queryParams: any;
-  history: any;
-};
+const { Section } = Wrapper.Sidebar;
 
-const Sidebar = (props: Props) => {
-  const { queryParams, history } = props;
+export default function Sidebar() {
+  const history = useHistory();
 
-  const setFilter = (name: string, value: any) => {
-    router.setParams(history, { [name]: value });
+  const categoryId = router.getParam(history, 'categoryId');
+  const branchId = router.getParam(history, 'branchId');
+  const departmentId = router.getParam(history, 'departmentId');
+
+  const clearFilter = () => {
+    router.setParams(history, {
+      categoryId: null,
+      branchId: null,
+      departmentId: null,
+      beginDate: null,
+      endDate: null,
+      productIds: null
+    });
+  };
+
+  const setFilter = (key, value) => {
+    router.setParams(history, { [key]: value, page: 1 });
   };
 
   return (
     <Wrapper.Sidebar>
-      <Box title={__('Filter')} isOpen={true} name="showFilter">
-        <SidebarContent>
+      <Section.Title>
+        {__('Filters')}
+        <Section.QuickButtons>
+          {(branchId || departmentId || categoryId) && (
+            <a href="#cancel" tabIndex={0} onClick={clearFilter}>
+              <Tip text={__('Clear filter')} placement="bottom">
+                <Icon icon="cancel-1" />
+              </Tip>
+            </a>
+          )}
+        </Section.QuickButtons>
+      </Section.Title>
+      <SidebarFilters>
+        <List id="SettingsSidebar">
           <FormGroup>
             <ControlLabel>Branch</ControlLabel>
             <SelectBranches
               label="Choose branch"
-              name="selectedBranchIds"
-              initialValue={queryParams.branchId}
+              name="branchId"
+              initialValue={branchId || ''}
+              customOption={{
+                value: '',
+                label: '...Clear branch filter'
+              }}
               onSelect={branchId => setFilter('branchId', branchId)}
               multi={false}
-              customOption={{ value: '', label: 'All branches' }}
             />
           </FormGroup>
           <FormGroup>
             <ControlLabel>Department</ControlLabel>
             <SelectDepartments
               label="Choose department"
-              name="selectedDepartmentIds"
-              initialValue={queryParams.departmentId}
+              name="departmentId"
+              initialValue={departmentId || ''}
+              customOption={{
+                value: '',
+                label: '...Clear department filter'
+              }}
               onSelect={departmentId => setFilter('departmentId', departmentId)}
               multi={false}
-              customOption={{ value: '', label: 'All departments' }}
             />
           </FormGroup>
-        </SidebarContent>
-      </Box>
-      <CategoryFilter />
+          <FormGroup>
+            <ControlLabel>Product Category</ControlLabel>
+            <SelectProductCategory
+              label="Choose product category"
+              name="categoryId"
+              initialValue={categoryId || ''}
+              customOption={{
+                value: '',
+                label: '...Clear product category filter'
+              }}
+              onSelect={categoryId => setFilter('categoryId', categoryId)}
+              multi={false}
+            />
+          </FormGroup>
+        </List>
+      </SidebarFilters>
     </Wrapper.Sidebar>
   );
-};
-
-export default Sidebar;
+}

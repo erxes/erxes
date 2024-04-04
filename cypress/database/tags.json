@@ -1,0 +1,276 @@
+[{
+    "_id": "EicT7zQyGWgfnPZSL",
+    "relatedIds": [
+      "aDbr23TXviC6DkBvE",
+      "vFkAo7PFJM5Ct2cdY",
+      "NtkgttRxTS6TcsYmP"
+    ],
+    "scopeBrandIds": [],
+    "name": "test1",
+    "type": "dashboard:dashboard",
+    "colorCode": "#697689",
+    "parentId": "",
+    "order": "test1dashboard:dashboard",
+    "createdAt": {
+      "date": "2023-08-24T05:38:28.397Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "rFkiMqLuLpJQt7j2X",
+    "relatedIds": [
+      "odqDcNM3ZkLvZuYGG",
+      "Qq9zNHbSep6nDgJL4"
+    ],
+    "scopeBrandIds": [],
+    "name": "test2",
+    "type": "dashboard:dashboard",
+    "colorCode": "#89609d",
+    "parentId": "",
+    "order": "test2dashboard:dashboard",
+    "createdAt": {
+      "date": "2023-08-24T05:38:35.343Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "vFkAo7PFJM5Ct2cdY",
+    "relatedIds": [
+      "aDbr23TXviC6DkBvE"
+    ],
+    "scopeBrandIds": [],
+    "name": "test1.1",
+    "type": "dashboard:dashboard",
+    "colorCode": "#0078bf",
+    "parentId": "EicT7zQyGWgfnPZSL",
+    "order": "test1dashboard:dashboard/test1.1dashboard:dashboard",
+    "createdAt": {
+      "date": "2023-08-24T05:38:45.080Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "NtkgttRxTS6TcsYmP",
+    "relatedIds": [],
+    "scopeBrandIds": [],
+    "name": "test1.2",
+    "type": "dashboard:dashboard",
+    "colorCode": "#89609d",
+    "parentId": "EicT7zQyGWgfnPZSL",
+    "order": "test1dashboard:dashboard/test1.2dashboard:dashboard",
+    "createdAt": {
+      "date": "2023-08-24T05:38:55.203Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "Qq9zNHbSep6nDgJL4",
+    "relatedIds": [],
+    "scopeBrandIds": [],
+    "name": "test2.1",
+    "type": "dashboard:dashboard",
+    "colorCode": "#89609d",
+    "parentId": "rFkiMqLuLpJQt7j2X",
+    "order": "test2dashboard:dashboard/test2.1dashboard:dashboard",
+    "createdAt": {
+      "date": "2023-08-24T05:39:05.147Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "odqDcNM3ZkLvZuYGG",
+    "relatedIds": [],
+    "scopeBrandIds": [],
+    "name": "test2.2",
+    "type": "dashboard:dashboard",
+    "colorCode": "#D9E3F0",
+    "parentId": "rFkiMqLuLpJQt7j2X",
+    "order": "test2dashboard:dashboard/test2.2dashboard:dashboard",
+    "createdAt": {
+      "date": "2023-08-24T05:39:15.134Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "aDbr23TXviC6DkBvE",
+    "relatedIds": [],
+    "scopeBrandIds": [],
+    "name": "test1.1.1",
+    "type": "dashboard:dashboard",
+    "colorCode": "#D9E3F0",
+    "parentId": "vFkAo7PFJM5Ct2cdY",
+    "order": "test1dashboard:dashboard/test1.1dashboard:dashboard/test1.1.1dashboard:dashboard",
+    "createdAt": {
+      "date": "2023-08-24T05:39:25.118Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "DcfvRidK2Ro66LjQ5",
+    "relatedIds": [
+      "ngeFiHpdw5cJteGk3",
+      "TXeBc5D7dAbmHapWw"
+    ],
+    "scopeBrandIds": [],
+    "name": "test1",
+    "type": "contacts:company",
+    "colorCode": "#F47373",
+    "parentId": "",
+    "order": "test1contacts:company",
+    "createdAt": {
+      "date": "2023-08-24T05:39:46.023Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "iWPMspmPr7Kgs2kgL",
+    "relatedIds": [
+      "f2KhtHCLTD9HfWGHi"
+    ],
+    "scopeBrandIds": [],
+    "name": "test2",
+    "type": "contacts:company",
+    "colorCode": "#4bbf6b",
+    "parentId": "",
+    "order": "test2contacts:company",
+    "createdAt": {
+      "date": "2023-08-24T05:39:51.997Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "TXeBc5D7dAbmHapWw",
+    "relatedIds": [
+      "ngeFiHpdw5cJteGk3"
+    ],
+    "scopeBrandIds": [],
+    "name": "test1.1",
+    "type": "contacts:company",
+    "colorCode": "#697689",
+    "parentId": "DcfvRidK2Ro66LjQ5",
+    "order": "test1contacts:company/test1.1contacts:company",
+    "createdAt": {
+      "date": "2023-08-24T05:40:00.269Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "f2KhtHCLTD9HfWGHi",
+    "relatedIds": [],
+    "scopeBrandIds": [],
+    "name": "test2.1",
+    "type": "contacts:company",
+    "colorCode": "#01aecc",
+    "parentId": "iWPMspmPr7Kgs2kgL",
+    "order": "test2contacts:company/test2.1contacts:company",
+    "createdAt": {
+      "date": "2023-08-24T05:40:08.896Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "ngeFiHpdw5cJteGk3",
+    "relatedIds": [],
+    "scopeBrandIds": [],
+    "name": "test1.1.1",
+    "type": "contacts:company",
+    "colorCode": "#4bbf6b",
+    "parentId": "TXeBc5D7dAbmHapWw",
+    "order": "test1contacts:company/test1.1contacts:company/test1.1.1contacts:company",
+    "createdAt": {
+      "date": "2023-08-24T05:40:17.603Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "JS94Ss8NWvFDSGikh",
+    "relatedIds": [
+      "7k5zRWWYw7oBKNbDK",
+      "Tpw5JeC5rAY9LQz8z",
+      "N2X2ksQWXodGkYAwq"
+    ],
+    "scopeBrandIds": [],
+    "name": "test1",
+    "type": "contacts:customer",
+    "colorCode": "#01aecc",
+    "parentId": "",
+    "order": "test1contacts:customer",
+    "createdAt": {
+      "date": "2023-08-24T05:45:06.910Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "vSjyscg9gAL2h9HuR",
+    "relatedIds": [
+      "Y8cJ6fiFCLroN9Aw4"
+    ],
+    "scopeBrandIds": [],
+    "name": "test2",
+    "type": "contacts:customer",
+    "colorCode": "#89609d",
+    "parentId": "",
+    "order": "test2contacts:customer",
+    "createdAt": {
+      "date": "2023-08-24T05:45:11.365Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "Tpw5JeC5rAY9LQz8z",
+    "relatedIds": [
+      "7k5zRWWYw7oBKNbDK"
+    ],
+    "scopeBrandIds": [],
+    "name": "test1.1",
+    "type": "contacts:customer",
+    "colorCode": "#0078bf",
+    "parentId": "JS94Ss8NWvFDSGikh",
+    "order": "test1contacts:customer/test1.1contacts:customer",
+    "createdAt": {
+      "date": "2023-08-24T05:45:19.084Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "N2X2ksQWXodGkYAwq",
+    "relatedIds": [],
+    "scopeBrandIds": [],
+    "name": "test1.2",
+    "type": "contacts:customer",
+    "colorCode": "#4bbf6b",
+    "parentId": "JS94Ss8NWvFDSGikh",
+    "order": "test1contacts:customer/test1.2contacts:customer",
+    "createdAt": {
+      "date": "2023-08-24T05:45:26.868Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "Y8cJ6fiFCLroN9Aw4",
+    "relatedIds": [],
+    "scopeBrandIds": [],
+    "name": "test2.1",
+    "type": "contacts:customer",
+    "colorCode": "#F47373",
+    "parentId": "vSjyscg9gAL2h9HuR",
+    "order": "test2contacts:customer/test2.1contacts:customer",
+    "createdAt": {
+      "date": "2023-08-24T05:45:35.172Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "7k5zRWWYw7oBKNbDK",
+    "relatedIds": [],
+    "scopeBrandIds": [],
+    "name": "test1.1.1",
+    "type": "contacts:customer",
+    "colorCode": "#0078bf",
+    "parentId": "Tpw5JeC5rAY9LQz8z",
+    "order": "test1contacts:customer/test1.1contacts:customer/test1.1.1contacts:customer",
+    "createdAt": {
+      "date": "2023-08-24T05:45:42.169Z"
+    },
+    "__v": 0
+  }]

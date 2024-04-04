@@ -1,0 +1,29 @@
+@media screen and (max-width: 1000px) {
+  .qr {
+    width: 40%;
+  }
+}
+@media screen and (max-width: 991px) {
+  .qr {
+    width: 100%;
+  }
+  #info {
+    flex-direction: column;
+  }
+  .my-layout {
+    width: 100%;
+    height: 100%;
+  }
+}
+@media screen and (max-width: 600px) {
+  .flex-reverse {
+    flex-direction: column-reverse;
+  }
+  .amount {
+    margin-top: 20px;
+  }
+  .row {
+    margin-left: 0;
+    margin-right: 0;
+  }
+} /*# sourceMappingURL=response.min.css.map */

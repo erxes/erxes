@@ -108,6 +108,9 @@ class NotificationRow extends React.Component<IProps> {
     if (notifType.includes('task')) {
       icon = 'file-check';
     }
+    if (notifType.includes('purchase')) {
+      icon = 'dollar-alt';
+    }
 
     return icon;
   }

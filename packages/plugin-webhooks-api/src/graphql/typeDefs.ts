@@ -1,11 +1,11 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 import {
   types as webhookTypes,
   queries as webhookQueries,
   mutations as webhookMutations
 } from './schema/webhook';
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

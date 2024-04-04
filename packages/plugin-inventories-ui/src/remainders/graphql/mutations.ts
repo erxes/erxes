@@ -1,25 +1,25 @@
 import { remainderProductFields } from './queries';
 
-const updateRemaindersFields = `
+const remaindersUpdateFields = `
   $productCategoryId: String,
   $productIds: [String],
   $departmentId: String,
   $branchId: String
 `;
 
-const updateRemaindersVariables = `
+const remaindersUpdateVariables = `
   productCategoryId: $productCategoryId,
   productIds: $productIds,
   departmentId: $departmentId,
   branchId: $branchId,
 `;
 
-const updateRemainders = `
-  mutation updateRemainders(${updateRemaindersFields}) {
-    updateRemainders(${updateRemaindersVariables}) {
+const remaindersUpdate = `
+  mutation remaindersUpdate(${remaindersUpdateFields}) {
+    remaindersUpdate(${remaindersUpdateVariables}) {
       ${remainderProductFields}
     }
   }
 `;
 
-export default { updateRemainders };
+export default { remaindersUpdate };

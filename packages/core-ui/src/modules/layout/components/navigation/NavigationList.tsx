@@ -1,16 +1,14 @@
-import React from 'react';
-import { Nav } from '../../styles';
+import { Redirect, Route } from 'react-router-dom';
 
+import { Nav } from '../../styles';
 import NavigationItem from './NavigationItem';
 import NavigationMore from './NavigationMore';
-
 import { Plugin } from './types';
+import React from 'react';
 import { pluginNavigations } from './utils';
-import { Redirect, Route } from 'react-router-dom';
 
 type Props = {
   navCollapse: number;
-  unreadConversationsCount?: number;
 };
 
 type State = {
@@ -28,7 +26,7 @@ export default class NavigationList extends React.Component<Props, State> {
       showMenu: false,
       clickedMenu: '',
       pinnedPlugins: JSON.parse(localStorage.getItem('pinnedPlugins') || '[]'),
-      countOfPinnedPlugins: window.innerHeight > 900 ? 8 : 5
+      countOfPinnedPlugins: window.innerHeight > 900 ? 7 : 5
     };
   }
 
@@ -47,7 +45,7 @@ export default class NavigationList extends React.Component<Props, State> {
   };
 
   render() {
-    const { navCollapse, unreadConversationsCount } = this.props;
+    const { navCollapse } = this.props;
 
     const {
       showMenu,
@@ -68,19 +66,19 @@ export default class NavigationList extends React.Component<Props, State> {
 
       return <Redirect to={`/welcome`} />;
     };
+
     return (
       <>
         <Route exact={true} path="/" key="root" render={index} />
         <Nav id="navigation">
-          {plugins.map((plugin: any, index: number) => (
+          {plugins.map((plugin: any, i: number) => (
             <NavigationItem
-              key={index}
+              key={i}
               plugin={plugin}
               navCollapse={navCollapse}
               showMenu={showMenu}
               clickedMenu={clickedMenu}
               toggleMenu={this.toggleMenu}
-              unreadConversationsCount={unreadConversationsCount}
             />
           ))}
 

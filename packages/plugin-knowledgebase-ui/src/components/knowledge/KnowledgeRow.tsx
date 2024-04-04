@@ -74,7 +74,13 @@ class KnowledgeRow extends React.Component<Props, State> {
   }
 
   renderManage() {
-    const { topic, renderButton, remove, refetchTopics } = this.props;
+    const {
+      topic,
+      renderButton,
+      remove,
+      refetchTopics,
+      queryParams
+    } = this.props;
 
     const addCategory = <Dropdown.Item>{__('Add category')}</Dropdown.Item>;
     const manageTopic = (
@@ -93,6 +99,7 @@ class KnowledgeRow extends React.Component<Props, State> {
     const categoryContent = props => (
       <CategoryForm
         {...props}
+        queryParams={queryParams}
         topicId={topic._id}
         refetchTopics={refetchTopics}
       />

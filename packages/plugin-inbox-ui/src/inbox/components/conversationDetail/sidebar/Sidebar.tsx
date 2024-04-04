@@ -1,24 +1,25 @@
-import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import React from 'react';
 import { BasicInfo, TabContent } from './styles';
+import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
+import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
-import { IUser } from '@erxes/ui/src/auth/types';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import Box from '@erxes/ui/src/components/Box';
-import { __ } from '@erxes/ui/src/utils/core';
-import CompanySection from '@erxes/ui/src/companies/components/CompanySection';
-import WebsiteActivity from '@erxes/ui-contacts/src/customers/components/common/WebsiteActivity';
-import { ICustomer } from '@erxes/ui/src/customers/types';
-import { IField } from '@erxes/ui/src/types';
+import CompanySection from '@erxes/ui-contacts/src/companies/components/CompanySection';
 import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
+import { IField } from '@erxes/ui/src/types';
 import { IFieldsVisibility } from '@erxes/ui-contacts/src/customers/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import WebsiteActivity from '@erxes/ui-contacts/src/customers/components/common/WebsiteActivity';
+import { __ } from 'coreui/utils';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 
-const ActionSection = asyncComponent(() =>
-  import(
-    /* webpackChunkName:"Inbox-Sidebar-ActionSection" */ '@erxes/ui-contacts/src/customers/containers/ActionSection'
-  )
+const ActionSection = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName:"Inbox-Sidebar-ActionSection" */ '@erxes/ui-contacts/src/customers/containers/ActionSection'
+    ),
 );
 
 const CustomFieldsSection = asyncComponent(
@@ -26,7 +27,7 @@ const CustomFieldsSection = asyncComponent(
     import(
       /* webpackChunkName:"Inbox-Sidebar-CustomFieldsSection" */ '@erxes/ui-contacts/src/customers/containers/CustomFieldsSection'
     ),
-  { height: '200px', width: '100%', color: '#fff' }
+  { height: '200px', width: '100%', color: '#fff' },
 );
 
 const ConversationCustomFieldsSection = asyncComponent(
@@ -34,31 +35,41 @@ const ConversationCustomFieldsSection = asyncComponent(
     import(
       /* webpackChunkName:"Inbox-Sidebar-ConversationCustomFieldsSection" */ '../../../containers/conversationDetail/ConversationCustomFieldsSection'
     ),
-  { height: '200px', width: '100%', color: '#fff' }
+  { height: '200px', width: '100%', color: '#fff' },
 );
 
-const PortableDeals = asyncComponent(() =>
-  import(
-    /* webpackChunkName:"Inbox-Sidebar-PortableDeals" */ '@erxes/ui-cards/src/deals/components/PortableDeals'
-  )
+const PortableDeals = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName:"Inbox-Sidebar-PortableDeals" */ '@erxes/ui-cards/src/deals/components/PortableDeals'
+    ),
 );
 
-const PortableTasks = asyncComponent(() =>
-  import(
-    /* webpackChunkName:"Inbox-Sidebar-PortableTasks" */ '@erxes/ui-cards/src/tasks/components/PortableTasks'
-  )
+const PortableTasks = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName:"Inbox-Sidebar-PortableTasks" */ '@erxes/ui-cards/src/tasks/components/PortableTasks'
+    ),
 );
 
-const PortableTickets = asyncComponent(() =>
-  import(
-    /* webpackChunkName:"Inbox-Sidebar-PortableTickets" */ '@erxes/ui-cards/src/tickets/components/PortableTickets'
-  )
+const PortableTickets = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName:"Inbox-Sidebar-PortableTickets" */ '@erxes/ui-cards/src/tickets/components/PortableTickets'
+    ),
+);
+const PortablePurchases = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName:"Inbox-Sidebar-PortablePurchases" */ '@erxes/ui-cards/src/purchases/components/PortablePurchases'
+    ),
 );
 
-const Contacts = asyncComponent(() =>
-  import(
-    /* webpackChunkName:"Inbox-Sidebar-Contacts" */ '@erxes/ui-contacts/src/companies/components/detail/Contacts'
-  )
+const Contacts = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName:"Inbox-Sidebar-Contacts" */ '@erxes/ui-contacts/src/companies/components/detail/Contacts'
+    ),
 );
 
 const DetailInfo = asyncComponent(
@@ -66,7 +77,7 @@ const DetailInfo = asyncComponent(
     import(
       /* webpackChunkName:"Inbox-Sidebar-InfoSection" */ '@erxes/ui-contacts/src/customers/components/common/DetailInfo'
     ),
-  { isBox: true }
+  { isBox: true },
 );
 
 const InfoSection = asyncComponent(
@@ -74,19 +85,21 @@ const InfoSection = asyncComponent(
     import(
       /* webpackChunkName:"Inbox-Sidebar-InfoSection" */ '@erxes/ui-contacts/src/customers/components/common/InfoSection'
     ),
-  { withImage: true }
+  { withImage: true },
 );
 
-const DevicePropertiesSection = asyncComponent(() =>
-  import(
-    /* webpackChunkName:"Inbox-Sidebar-DevicePropertiesSection" */ '@erxes/ui-contacts/src/customers/components/common/DevicePropertiesSection'
-  )
+const DevicePropertiesSection = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName:"Inbox-Sidebar-DevicePropertiesSection" */ '@erxes/ui-contacts/src/customers/components/common/DevicePropertiesSection'
+    ),
 );
 
-const TrackedDataSection = asyncComponent(() =>
-  import(
-    /* webpackChunkName:"Inbox-Sidebar-TrackedDataSection" */ '@erxes/ui-contacts/src/customers/components/common/TrackedDataSection'
-  )
+const TrackedDataSection = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName:"Inbox-Sidebar-TrackedDataSection" */ '@erxes/ui-contacts/src/customers/components/common/TrackedDataSection'
+    ),
 );
 
 const TaggerSection = asyncComponent(
@@ -94,13 +107,14 @@ const TaggerSection = asyncComponent(
     import(
       /* webpackChunkName:"Inbox-Sidebar-TaggerSection" */ '@erxes/ui-contacts/src/customers/components/common/TaggerSection'
     ),
-  { height: '200px', width: '100%', color: '#fff' }
+  { height: '200px', width: '100%', color: '#fff' },
 );
 
-const SidebarActivity = asyncComponent(() =>
-  import(
-    /* webpackChunkName:"Inbox-Sidebar-SidebarActivity" */ '../../../containers/conversationDetail/SidebarActivity'
-  )
+const SidebarActivity = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName:"Inbox-Sidebar-SidebarActivity" */ '../../../containers/conversationDetail/SidebarActivity'
+    ),
 );
 
 const ConversationDetails = asyncComponent(
@@ -108,7 +122,7 @@ const ConversationDetails = asyncComponent(
     import(
       /* webpackChunkName:"Inbox-Sidebar-ConversationDetails" */ './ConversationDetails'
     ),
-  { isBox: true }
+  { isBox: true },
 );
 
 type IndexProps = {
@@ -144,15 +158,15 @@ class Index extends React.Component<IndexProps, IndexState> {
 
     this.state = {
       currentTab: 'customer',
-      currentSubTab: 'details'
+      currentSubTab: 'details',
     };
   }
 
-  onTabClick = currentTab => {
+  onTabClick = (currentTab) => {
     this.setState({ currentTab });
   };
 
-  onSubtabClick = currentSubTab => {
+  onSubtabClick = (currentSubTab) => {
     this.setState({ currentSubTab });
   };
 
@@ -169,7 +183,7 @@ class Index extends React.Component<IndexProps, IndexState> {
     customer,
     kind,
     fields,
-    toggleSection
+    toggleSection,
   }: IRenderData) => {
     if (!(kind === 'messenger' || kind === 'form')) {
       return null;
@@ -199,7 +213,7 @@ class Index extends React.Component<IndexProps, IndexState> {
       customerVisibility,
       deviceFields,
       conversationFields,
-      customerFields
+      customerFields,
     } = this.props;
 
     const { kind = '' } = customer.integration || {};
@@ -217,6 +231,7 @@ class Index extends React.Component<IndexProps, IndexState> {
             loading={loading}
             customer={customer}
             isDetail={false}
+            collapseCallback={toggleSection}
           />
           <Box
             title={__('Conversation details')}
@@ -243,9 +258,17 @@ class Index extends React.Component<IndexProps, IndexState> {
             customer,
             kind,
             fields: deviceFields,
-            toggleSection
+            toggleSection,
           })}
           <WebsiteActivity urlVisits={customer.urlVisits || []} />
+
+          {loadDynamicComponent('conversationDetailSidebar', {
+            conversation,
+            customer,
+            customerId: customer._id,
+            contentType: 'inbox:conversations',
+            contentTypeId: conversation._id,
+          })}
         </TabContent>
       );
     }
@@ -265,6 +288,7 @@ class Index extends React.Component<IndexProps, IndexState> {
         <PortableDeals mainType="customer" mainTypeId={customer._id} />
         <PortableTickets mainType="customer" mainTypeId={customer._id} />
         <PortableTasks mainType="customer" mainTypeId={customer._id} />
+        <PortablePurchases mainType="customer" mainTypeId={customer._id} />
       </>
     );
   }

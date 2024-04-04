@@ -27,7 +27,7 @@ export const GENERAL_SETTINGS = [
     name: 'General Settings',
     text: 'Import & Export',
     icon: 'icon-settings',
-    url: '/settings/importHistories'
+    url: '/settings/selectMenu'
   },
   {
     name: 'General Settings',
@@ -55,5 +55,12 @@ export const ACTIONS = [
     text: 'Add team member',
     icon: 'icon-plus',
     url: '/settings/team#showMemberInviteModal=true'
+  },
+  {
+    name: 'Actions',
+    text: 'New Email',
+    icon: 'icon-plus',
+    url: '#',
+    type: 'email'
   }
 ];

@@ -3,18 +3,18 @@ import {
   TExmThank,
   thankSchema,
   IFeedDocument,
-  IThankDocument,
-} from "./definitions/exm";
+  IThankDocument
+} from './definitions/exm';
 
-import { Model } from "mongoose";
+import { Model } from 'mongoose';
 
-export const loadFeedClass = (models) => {
+export const loadFeedClass = models => {
   class Feed {
     public static async getExmFeed(_id: string) {
       const exm = await models.ExmFeed.findOne({ _id });
 
       if (!exm) {
-        throw new Error("Feed not found");
+        throw new Error('Feed not found');
       }
 
       return exm;
@@ -22,7 +22,7 @@ export const loadFeedClass = (models) => {
 
     public static async removeFeeds(ids: string[]) {
       await models.ExmFeed.deleteMany({
-        _id: { $in: ids },
+        _id: { $in: ids }
       });
     }
 
@@ -30,10 +30,22 @@ export const loadFeedClass = (models) => {
      * Create new exm
      */
     public static async createExmFeed(doc: any, user: any) {
+      if (doc && doc.contentType === 'event') {
+        const { eventData } = doc;
+
+        if (!eventData.startDate || !eventData.endDate) {
+          throw new Error('StartDate and EndDate must be chosen');
+        }
+
+        if (!eventData.where) {
+          throw new Error('Where must be chosen');
+        }
+      }
+
       const exm = await models.ExmFeed.create({
         createdBy: user._id,
         createdAt: doc.createdAt || new Date(),
-        ...doc,
+        ...doc
       });
 
       return exm;
@@ -49,8 +61,8 @@ export const loadFeedClass = (models) => {
           $set: {
             updatedBy: user._id,
             updatedAt: new Date(),
-            ...doc,
-          },
+            ...doc
+          }
         }
       );
 
@@ -81,13 +93,13 @@ export interface IFeedModel extends Model<IFeedDocument> {
   removeExmFeed(_id: string);
 }
 
-export const loadExmThankClass = (models) => {
+export const loadExmThankClass = models => {
   class ExmThank {
     public static async getThank(_id: string) {
       const thank = await models.ExmThanks.findOne({ _id });
 
       if (!thank) {
-        throw new Error("Thank you not found");
+        throw new Error('Thank you not found');
       }
 
       return thank;
@@ -100,7 +112,7 @@ export const loadExmThankClass = (models) => {
       const thank = await models.ExmThanks.create({
         createdBy: user._id,
         createdAt: new Date(),
-        ...doc,
+        ...doc
       });
 
       return thank;
@@ -116,13 +128,13 @@ export const loadExmThankClass = (models) => {
           $set: {
             updatedBy: user._id,
             updatedAt: new Date(),
-            ...doc,
-          },
+            ...doc
+          }
         }
       );
 
       return models.ExmThanks.findOne({
-        _id,
+        _id
       });
     }
 

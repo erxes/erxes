@@ -1,23 +1,24 @@
-import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
+import { ChooseBox } from '@erxes/ui-engage/src/styles';
+import PercentItem, { ItemWrapper } from './PercentItem';
+
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
 import { EMPTY_CONTENT_ENGAGE } from '@erxes/ui-settings/src/constants';
-import Table from '@erxes/ui/src/components/table';
-import colors from '@erxes/ui/src/styles/colors';
-import { __ } from '@erxes/ui/src/utils/core';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import React from 'react';
+import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { IEngageMessage } from '@erxes/ui-engage/src/types';
 import { Link } from 'react-router-dom';
 import MessageListRow from '../containers/MessageListRow';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import React from 'react';
 import Sidebar from '../containers/Sidebar';
-import { ChooseBox, FlexContainer } from '@erxes/ui-engage/src/styles';
-import { IEngageMessage } from '@erxes/ui-engage/src/types';
-import PercentItem, { ItemWrapper } from './PercentItem';
-import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
+import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
+import Table from '@erxes/ui/src/components/table';
+import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from 'coreui/utils';
+import colors from '@erxes/ui/src/styles/colors';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
@@ -60,6 +61,7 @@ class List extends React.Component<Props> {
         targets={bulk}
         trigger={tagButton}
         successCallback={emptyBulk}
+        refetchQueries={['engageMessages']}
       />
     );
   }
@@ -79,7 +81,7 @@ class List extends React.Component<Props> {
     const { emailPercentages } = this.props;
 
     if (!emailPercentages) {
-      return <>You haven't sent email campaigns yet.</>;
+      return <>You haven't sent email broadcast yet.</>;
     }
 
     const trigger = (
@@ -96,7 +98,7 @@ class List extends React.Component<Props> {
       avgClickPercent,
       avgRenderingFailurePercent,
       avgRejectPercent,
-      avgSendPercent
+      avgSendPercent,
     } = emailPercentages;
 
     const content = () => (
@@ -168,43 +170,14 @@ class List extends React.Component<Props> {
   }
 
   renderRightActionBar = () => {
-    const trigger = (
-      <Button btnStyle="success" size="small" icon="plus-circle">
-        {__('New campaign')}
-      </Button>
-    );
-
-    const content = () => (
-      <FlexContainer direction="column">
-        {this.renderBox(
-          'Auto campaign',
-          'Auto message description',
-          '/campaigns/create?kind=auto'
-        )}
-        {this.renderBox(
-          'Manual campaign',
-          'Manual message description',
-          '/campaigns/create?kind=manual'
-        )}
-        {this.renderBox(
-          'Visitor auto campaign',
-          'Visitor auto message description',
-          '/campaigns/create?kind=visitorAuto'
-        )}
-      </FlexContainer>
-    );
-
     return (
       <>
         {this.renderPercentage()}
-        <ModalTrigger
-          title="New campaign"
-          trigger={trigger}
-          content={content}
-          hideHeader={true}
-          enforceFocus={false}
-          centered={true}
-        />
+        <Link to="/campaigns/create?kind=manual">
+          <Button btnStyle="success" size="small" icon="plus-circle">
+            {__('New broadcast')}
+          </Button>
+        </Link>
       </>
     );
   };
@@ -218,14 +191,11 @@ class List extends React.Component<Props> {
       loading,
       queryParams,
       isAllSelected,
-      refetch
+      refetch,
     } = this.props;
 
     const actionBar = (
       <Wrapper.ActionBar
-        withMargin
-        wide
-        background="colorWhite"
         left={isEnabled('tags') && this.renderTagger()}
         right={this.renderRightActionBar()}
       />
@@ -250,13 +220,12 @@ class List extends React.Component<Props> {
             <th>{__('From')}</th>
             <th>{__('Created by')}</th>
             <th>{__('Created date')}</th>
-            <th>{__('Scheduled date')}</th>
             {isEnabled('tags') && <th>{__('Tags')}</th>}
             <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody id="engageMessages">
-          {messages.map(message => (
+          {messages.map((message) => (
             <MessageListRow
               isChecked={bulk.includes(message)}
               toggleBulk={toggleBulk}
@@ -274,8 +243,8 @@ class List extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Campaigns')}
-            breadcrumb={[{ title: __('Campaigns') }]}
+            title={__('Broadcast')}
+            breadcrumb={[{ title: __('Broadcast') }]}
             queryParams={queryParams}
           />
         }
@@ -291,7 +260,6 @@ class List extends React.Component<Props> {
           />
         }
         hasBorder
-        noPadding
       />
     );
   }

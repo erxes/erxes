@@ -5,7 +5,7 @@ import Step from '@erxes/ui/src/components/step/Step';
 import Steps from '@erxes/ui/src/components/step/Steps';
 import {
   StepWrapper,
-  TitleContainer
+  TitleContainer,
 } from '@erxes/ui/src/components/step/styles';
 import { Alert, __ } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -17,17 +17,20 @@ import { IConfig } from '@erxes/ui-settings/src/general/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { METHODS } from '@erxes/ui-engage/src/constants';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import {
   IEngageEmail,
   IEngageMessage,
   IEngageMessageDoc,
   IEngageMessenger,
-  IEngageScheduleDate,
   IEngageSms,
+  IEngageNotification,
   IEmailTemplate,
-  IIntegrationWithPhone
+  IIntegrationWithPhone,
 } from '@erxes/ui-engage/src/types';
+import { ClientPortalConfig } from '@erxes/plugin-clientportal-ui/src/types';
 import SmsForm from './SmsForm';
+import NotificationForm from './NotificationForm';
 import ChannelStep from './step/ChannelStep';
 import FullPreviewStep from './step/FullPreviewStep';
 import MessageStep from './step/MessageStep';
@@ -51,6 +54,10 @@ type Props = {
   breadcrumbs: IBreadCrumbItem[];
   smsConfig: IConfig;
   integrations: IIntegrationWithPhone[];
+  currentUser: IUser;
+  clientPortalGetConfigs: ClientPortalConfig[];
+  businessPortalKind?: string;
+  handleClientPortalKindChange: (kind: string) => void;
 };
 
 type State = {
@@ -63,10 +70,11 @@ type State = {
   fromUserId: string;
   messenger?: IEngageMessenger;
   email?: IEngageEmail;
-  scheduleDate: IEngageScheduleDate;
   shortMessage?: IEngageSms;
   rules: IConditionsRule[];
   isSaved: boolean;
+  notification?: IEngageNotification;
+  cpId?: string;
 };
 
 class AutoAndManualForm extends React.Component<Props, State> {
@@ -80,7 +88,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     let content = email.content || '';
 
     const rules = messenger.rules
-      ? messenger.rules.map(rule => ({ ...rule }))
+      ? messenger.rules.map((rule) => ({ ...rule }))
       : [];
 
     if (messenger.content && messenger.content !== '') {
@@ -88,7 +96,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     }
 
     this.state = {
-      method: message.method || METHODS.EMAIL,
+      method: message.method || METHODS.EMAIL || METHODS.NOTIFICATION,
       title: message.title || '',
       segmentIds: message.segmentIds || [],
       brandIds: message.brandIds || [],
@@ -97,15 +105,16 @@ class AutoAndManualForm extends React.Component<Props, State> {
       fromUserId: message.fromUserId,
       messenger: message.messenger,
       email: message.email,
-      scheduleDate: message.scheduleDate,
       shortMessage: message.shortMessage,
+      notification: message.notification,
+      cpId: message.cpId,
       rules,
-      isSaved: false
+      isSaved: false,
     };
   }
 
   changeState = <T extends keyof State>(key: T, value: State[T]) => {
-    this.setState(({ [key]: value } as unknown) as Pick<State, keyof State>);
+    this.setState({ [key]: value } as unknown as Pick<State, keyof State>);
   };
 
   clearState = () => {
@@ -113,11 +122,12 @@ class AutoAndManualForm extends React.Component<Props, State> {
       segmentIds: [],
       brandIds: [],
       tagIds: [],
-      rules: []
+      rules: [],
     });
   };
 
   handleSubmit = (type: string): Promise<any> | void => {
+    const currentUser = this.props.currentUser;
     const doc = {
       segmentIds: this.state.segmentIds,
       customerTagIds: this.state.tagIds,
@@ -125,8 +135,9 @@ class AutoAndManualForm extends React.Component<Props, State> {
       title: this.state.title,
       fromUserId: this.state.fromUserId,
       method: this.state.method,
-      scheduleDate: this.state.scheduleDate,
-      shortMessage: this.state.shortMessage
+      shortMessage: this.state.shortMessage,
+      notification: this.state.notification,
+      cpId: this.state.cpId,
     } as IEngageMessageDoc;
 
     if (this.state.method === METHODS.EMAIL) {
@@ -138,7 +149,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
         replyTo: (email.replyTo || '').split(' ').toString(),
         content: this.state.content,
         attachments: email.attachments,
-        templateId: email.templateId || ''
+        templateId: email.templateId || '',
       };
 
       if (doc.messenger) {
@@ -146,6 +157,9 @@ class AutoAndManualForm extends React.Component<Props, State> {
       }
       if (doc.shortMessage) {
         delete doc.shortMessage;
+      }
+      if (doc.notification) {
+        delete doc.notification;
       }
     }
     if (this.state.method === METHODS.MESSENGER) {
@@ -156,7 +170,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
         kind: messenger.kind || '',
         sentAs: messenger.sentAs || '',
         content: this.state.content,
-        rules: this.state.rules
+        rules: this.state.rules,
       };
 
       if (doc.email) {
@@ -165,18 +179,21 @@ class AutoAndManualForm extends React.Component<Props, State> {
       if (doc.shortMessage) {
         delete doc.shortMessage;
       }
+      if (doc.notification) {
+        delete doc.notification;
+      }
     }
     if (this.state.method === METHODS.SMS) {
       const shortMessage = this.state.shortMessage || {
         from: '',
         content: '',
-        fromIntegrationId: ''
+        fromIntegrationId: '',
       };
 
       doc.shortMessage = {
         from: shortMessage.from,
         content: shortMessage.content,
-        fromIntegrationId: shortMessage.fromIntegrationId
+        fromIntegrationId: shortMessage.fromIntegrationId,
       };
 
       if (doc.email) {
@@ -185,10 +202,36 @@ class AutoAndManualForm extends React.Component<Props, State> {
       if (doc.messenger) {
         delete doc.messenger;
       }
+      if (doc.notification) {
+        delete doc.notification;
+      }
+    }
+
+    if (this.state.method === METHODS.NOTIFICATION) {
+      const notification = this.state?.notification || {
+        title: '',
+        content: '',
+        isMobile: false,
+      };
+
+      doc.notification = {
+        title: notification.title,
+        content: notification.content,
+        isMobile: notification.isMobile || false,
+      };
+      doc.fromUserId = currentUser?._id;
+      if (doc.email) {
+        delete doc.email;
+      }
+      if (doc.messenger) {
+        delete doc.messenger;
+      }
+      if (doc.shortMessage) {
+        delete doc.shortMessage;
+      }
     }
 
     const response = this.props.validateDoc(type, doc);
-
     if (this.state.method === METHODS.SMS && !this.props.smsConfig) {
       return Alert.warning(
         'SMS integration is not configured. Go to Settings > System config > Integrations config and set Telnyx SMS API key.'
@@ -244,25 +287,18 @@ class AutoAndManualForm extends React.Component<Props, State> {
   };
 
   renderMessageContent() {
-    const {
-      message,
-      brands,
-      users,
-      kind,
-      templates,
-      smsConfig,
-      integrations
-    } = this.props;
+    const { message, brands, users, kind, templates, smsConfig, integrations } =
+      this.props;
 
     const {
       messenger,
       email,
       fromUserId,
       content,
-      scheduleDate,
       method,
       shortMessage,
-      isSaved
+      notification,
+      isSaved,
     } = this.state;
 
     const imagePath = '/images/icons/erxes-08.svg';
@@ -273,7 +309,6 @@ class AutoAndManualForm extends React.Component<Props, State> {
           <SmsForm
             onChange={this.changeState}
             messageKind={kind}
-            scheduleDate={scheduleDate}
             shortMessage={shortMessage}
             fromUserId={fromUserId}
             smsConfig={smsConfig}
@@ -283,10 +318,22 @@ class AutoAndManualForm extends React.Component<Props, State> {
       );
     }
 
+    if (method === METHODS.NOTIFICATION) {
+      return (
+        <Step noButton={true} title="Compose your notification" img={imagePath}>
+          <NotificationForm
+            onChange={this.changeState}
+            messageKind={kind}
+            notification={notification}
+          />
+        </Step>
+      );
+    }
+
     return (
       <Step
         img={imagePath}
-        title="Compose your campaign"
+        title="Compose your broadcast"
         message={message}
         noButton={method !== METHODS.EMAIL && true}
       >
@@ -301,7 +348,6 @@ class AutoAndManualForm extends React.Component<Props, State> {
           email={email}
           fromUserId={fromUserId}
           content={content}
-          scheduleDate={scheduleDate}
           isSaved={isSaved}
         />
       </Step>
@@ -347,11 +393,11 @@ class AutoAndManualForm extends React.Component<Props, State> {
   }
 
   render() {
-    const { renderTitle, breadcrumbs, segmentType } = this.props;
-
+    const { clientPortalGetConfigs, renderTitle, breadcrumbs, segmentType } =
+      this.props;
     const { segmentIds, brandIds, title, tagIds } = this.state;
 
-    const onChange = e =>
+    const onChange = (e) =>
       this.changeState('title', (e.target as HTMLInputElement).value);
 
     return (
@@ -372,20 +418,28 @@ class AutoAndManualForm extends React.Component<Props, State> {
             <ChannelStep
               onChange={this.changeState}
               method={this.state.method}
+              kind={this.props.kind}
             />
           </Step>
 
           <Step
             img="/images/icons/erxes-06.svg"
-            title="Who is this campaign for?"
+            title="Who is this broadcast for?"
           >
             <MessageTypeStep
+              method={this.state.method}
               onChange={this.changeState}
               clearState={this.clearState}
               segmentType={segmentType}
               segmentIds={segmentIds}
               brandIds={brandIds}
               tagIds={tagIds}
+              clientPortalGetConfigs={clientPortalGetConfigs}
+              businessPortalKind={this.props.businessPortalKind}
+              handleClientPortalKindChange={
+                this.props.handleClientPortalKindChange
+              }
+              selectedCpId={this.state.cpId}
             />
           </Step>
 
@@ -398,4 +452,4 @@ class AutoAndManualForm extends React.Component<Props, State> {
   }
 }
 
-export default AutoAndManualForm;
+export default withCurrentUser(AutoAndManualForm);

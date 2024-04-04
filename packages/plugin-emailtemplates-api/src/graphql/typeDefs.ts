@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 
 import {
   types as emailTemplateTypes,
@@ -6,7 +6,7 @@ import {
   mutations as emailTemplateMutations
 } from './schema/emailTemplate';
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date

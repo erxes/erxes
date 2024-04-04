@@ -11,42 +11,51 @@ export interface IPutResponseConfig {
 }
 
 export interface IPutResponse {
-  date: Date;
-  orderId: string;
-  hasVat: boolean;
-  hasCitytax: boolean;
-  billType: string;
-  customerCode: string;
-  customerName: string;
-  productsById: any;
-  details: any[];
-  cashAmount: number;
-  nonCashAmount: number;
+  number?: string;
+  billId?: string;
+  date?: string;
+  hasVat?: boolean;
+  hasCitytax?: boolean;
+  billType?: string;
+  customerCode?: string;
+  customerName?: string;
+  productsById?: any;
+  details?: any[];
+  amount?: number;
+  cityTax?: number;
+  vat?: number;
+  cashAmount?: number;
+  nonCashAmount?: number;
+  customerNo?: string;
+  registerNo?: string;
 
-  transaction?;
-  records?;
   taxType?: string;
   returnBillId?: string;
+  stocks?: any[];
 
   contentType: string;
   contentId: string;
+  sendInfo?: any;
+  status?: string;
 }
 
 export interface IPutResponseDocument extends Document, IPutResponse {
   _id: string;
   createdAt: Date;
   modifiedAt: Date;
+  lottery?: string;
 }
 
 export const putResponseSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    createdAt: field({ type: Date, label: 'Created at' }),
+    createdAt: field({ type: Date, label: 'Created at', index: true }),
     modifiedAt: field({ type: Date, label: 'Modified at' }),
+    number: field({ type: String, label: 'Inner bill number', index: true }),
 
     // Холбогдох обьект
     contentType: field({ type: String, label: 'Content Type' }),
-    contentId: field({ type: String, label: 'Content' }),
+    contentId: field({ type: String, label: 'Content', index: true }),
 
     // Баримтыг бүртгэх процесс амжилттай болсон тухай илтгэнэ
     success: field({ type: String, label: 'success status' }),
@@ -103,9 +112,12 @@ export const putResponseSchema = schemaHooksWrapper(
     registerNo: field({ type: String, label: '' }),
     customerNo: field({ type: String, label: '' }),
     customerName: field({ type: String, label: '' }),
-
+    status: field({ type: String, optional: true }),
     posToken: field({ type: String, optional: true })
   }),
 
   'erxes_ebarimt'
 );
+
+putResponseSchema.index({ contentType: 1, contentId: 1, status: 1 });
+putResponseSchema.index({ contentType: 1, contentId: 1, taxType: 1, status: 1 });

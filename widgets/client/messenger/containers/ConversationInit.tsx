@@ -58,7 +58,10 @@ const ListWithData = graphql<{}, QueryResponse>(
   {
     options: () => ({
       fetchPolicy: "network-only",
-      variables: connection.data
+      variables: connection.data,
+      notifyOnNetworkStatusChange: true,
+      // every minute
+      pollInterval: connection.setting.pollInterval || 0
     })
   }
 )(ConversationInit);

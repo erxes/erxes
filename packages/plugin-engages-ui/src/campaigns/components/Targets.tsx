@@ -13,6 +13,7 @@ type Props<Target> = {
   defaultValues: string[];
   onChangeStep: (name: string, targetIds: string[]) => void;
   icons?: React.ReactNode[];
+  loadingCount: boolean;
 };
 
 type State = {
@@ -65,7 +66,7 @@ class Targets<
 
   renderTarget(targets: Target[]) {
     const { selectedIds } = this.state;
-    const { targetCount, messageType, name, icons } = this.props;
+    const { targetCount, messageType, name, icons, loadingCount } = this.props;
 
     if (targets.length === 0) {
       return (
@@ -85,7 +86,9 @@ class Targets<
           >
             {icons && icons[index]}
             {target.name}
-            <SidebarCounter>{targetCount[_id] || 0}</SidebarCounter>
+            <SidebarCounter>
+              {loadingCount ? '...loading' : targetCount[_id] || 0}
+            </SidebarCounter>
           </a>
         </ListCounter>
       );

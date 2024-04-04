@@ -14,6 +14,13 @@ export type IProductCategory = IProductCategoryC & {};
 
 export type IUom = IUomC & {};
 
+export type Counts = {
+  [key: string]: number;
+};
+type ProductCounts = {
+  bySegment: Counts;
+  byTag: Counts;
+};
 // query types
 
 export type ProductsQueryResponse = {
@@ -24,33 +31,44 @@ export type ProductsCountQueryResponse = {
   productsTotalCount: number;
 } & QueryResponse;
 
+export type ProductsGroupCountsQueryResponse = {
+  productsGroupsCounts: ProductCounts;
+} & QueryResponse;
+
 export type ProductCategoriesCountQueryResponse = {
   productCategoriesTotalCount: number;
 } & QueryResponse;
 
 // UOM
-
-export type UomsQueryResponse = {
-  uoms: IUom[];
-} & QueryResponse;
-
 export type UomsCountQueryResponse = {
   uomsTotalCount: number;
 } & QueryResponse;
+
+export type MutationUomVariables = {
+  _id?: string;
+  name: string;
+  code: string;
+};
+
+export type UomAddMutationResponse = {
+  uomsAdd: (mutation: { variables: MutationUomVariables }) => Promise<any>;
+};
+
+export type UomEditMutationResponse = {
+  uomsEdit: (mutation: { variables: MutationUomVariables }) => Promise<any>;
+};
+
+export type UomRemoveMutationResponse = {
+  uomsRemove: (mutation: { variables: { uomIds: string[] } }) => Promise<any>;
+};
 
 export type MutationVariables = {
   _id?: string;
   type: string;
   name?: string;
   description?: string;
-  sku?: string;
+  uom?: string;
   createdAt?: Date;
-};
-
-export type MutationUomVariables = {
-  _id?: string;
-  name: string;
-  code: string;
 };
 
 // mutation types
@@ -101,20 +119,6 @@ export type MergeMutationResponse = {
   }) => Promise<any>;
 };
 
-// UOM
-
-export type UomAddMutationResponse = {
-  uomsAdd: (mutation: { variables: MutationUomVariables }) => Promise<any>;
-};
-
-export type UomEditMutationResponse = {
-  uomsEdit: (mutation: { variables: MutationUomVariables }) => Promise<any>;
-};
-
-export type UomRemoveMutationResponse = {
-  uomsRemove: (mutation: { variables: { uomIds: string[] } }) => Promise<any>;
-};
-
 // SETTINGS
 
 export type IConfigsMap = { [key: string]: any };
@@ -123,6 +127,30 @@ export type IProductsConfig = {
   _id: string;
   code: string;
   value: any;
+};
+
+export type BarcodeConfig = {
+  row: number;
+  column: number;
+  width: number;
+  height: number;
+  margin: number;
+  isDate: boolean;
+  date: number;
+  isProductName: boolean;
+  productNameFontSize: number;
+  isPrice: boolean;
+  priceFontSize: number;
+
+  isBarcode: boolean;
+  isBarcodeDescription: boolean;
+  barWidth: number;
+  barHeight: number;
+  barcodeFontSize: number;
+  barcodeDescriptionFontSize: number;
+
+  isQrcode: boolean;
+  qrSize: number;
 };
 
 // query types

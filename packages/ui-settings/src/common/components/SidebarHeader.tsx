@@ -1,7 +1,7 @@
 import Button from '@erxes/ui/src/components/Button';
-import React from 'react';
+import { Header } from '../../styles';
 import { Link } from 'react-router-dom';
-import { Header } from '@erxes/ui-settings/src/styles';
+import React from 'react';
 
 class SidebarHeader extends React.PureComponent {
   render() {

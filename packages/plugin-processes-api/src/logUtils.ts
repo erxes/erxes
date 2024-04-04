@@ -3,40 +3,37 @@ import {
   putUpdateLog as commonPutUpdateLog,
   putDeleteLog as commonPutDeleteLog,
   LogDesc,
-  gatherNames,
   IDescriptions,
-  getSchemaLabels
+  getSchemaLabels,
 } from '@erxes/api-utils/src/logUtils';
 
 import { IModels } from './connectionResolver';
-import messageBroker from './messageBroker';
 import { jobReferSchema } from './models/definitions/jobs';
 import { jobCategorySchema } from './models/definitions/jobCategories';
-import { flowCategorySchema } from './models/definitions/flowCategories';
 import { flowSchema } from './models/definitions/flows';
+import { performSchema } from './models/definitions/performs';
 
 export const LOG_ACTIONS = {
   CREATE: 'create',
   UPDATE: 'update',
-  DELETE: 'delete'
+  DELETE: 'delete',
 };
 
 export const MODULE_NAMES = {
-  PRODUCT: 'product',
-  PRODUCT_CATEGORY: 'productCategory',
   JOBREFER: 'jobRefer',
+  JOBREFER_CATEGORY: 'jobReferCategory',
   FLOW: 'flow',
   WORK: 'work',
   OVERALWORK: 'overalWork',
-  PERFORM: 'perform'
+  PERFORM: 'perform',
 };
 
 const gatherDescriptions = async (
-  models: IModels,
-  subdomain: string,
-  params: any
+  _args,
+  _args1,
+  params: any,
 ): Promise<IDescriptions> => {
-  const { action, type, object, updatedDocument } = params;
+  const { action, object } = params;
 
   const extraDesc: LogDesc[] = [];
   const description = `"${object.name}" has been ${action}d`;
@@ -48,22 +45,21 @@ export const putDeleteLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  user
+  user,
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
     {
       ...logDoc,
-      action: LOG_ACTIONS.DELETE
-    }
+      action: LOG_ACTIONS.DELETE,
+    },
   );
 
   await commonPutDeleteLog(
     subdomain,
-    messageBroker(),
-    { ...logDoc, description, extraDesc, type: `products:${logDoc.type}` },
-    user
+    { ...logDoc, description, extraDesc, type: `processes:${logDoc.type}` },
+    user,
   );
 };
 
@@ -71,22 +67,21 @@ export const putUpdateLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  user
+  user,
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
     {
       ...logDoc,
-      action: LOG_ACTIONS.UPDATE
-    }
+      action: LOG_ACTIONS.UPDATE,
+    },
   );
 
   await commonPutUpdateLog(
     subdomain,
-    messageBroker(),
-    { ...logDoc, description, extraDesc, type: `products:${logDoc.type}` },
-    user
+    { ...logDoc, description, extraDesc, type: `processes:${logDoc.type}` },
+    user,
   );
 };
 
@@ -94,22 +89,21 @@ export const putCreateLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  user
+  user,
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
     {
       ...logDoc,
-      action: LOG_ACTIONS.CREATE
-    }
+      action: LOG_ACTIONS.CREATE,
+    },
   );
 
   await commonPutCreateLog(
     subdomain,
-    messageBroker(),
-    { ...logDoc, description, extraDesc, type: `products:${logDoc.type}` },
-    user
+    { ...logDoc, description, extraDesc, type: `processes:${logDoc.type}` },
+    user,
   );
 };
 
@@ -119,8 +113,8 @@ export default {
     data: getSchemaLabels(type, [
       { name: 'jobRefer', schemas: [jobReferSchema] },
       { name: 'jobCategory', schemas: [jobCategorySchema] },
-      { name: 'flowCategory', schemas: [flowCategorySchema] },
-      { name: 'flow', schemas: [flowSchema] }
-    ])
-  })
+      { name: 'flow', schemas: [flowSchema] },
+      { name: 'perform', schemas: [performSchema] },
+    ]),
+  }),
 };

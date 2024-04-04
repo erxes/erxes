@@ -1,64 +1,243 @@
-import { IProductCategoryDocument } from '../../../models/definitions/products';
-import { PRODUCT_STATUSES } from '../../../models/definitions/constants';
+import { escapeRegExp, paginate } from '@erxes/api-utils/src/core';
 import { IContext } from '../../types';
 import { IModels } from '../../../connectionResolver';
-import { escapeRegExp, paginate } from '@erxes/api-utils/src/core';
+import { IProductCategoryDocument } from '../../../models/definitions/products';
+import { PRODUCT_STATUSES } from '../../../models/definitions/constants';
+import { sendPricingMessage } from '../../../messageBroker';
+import { Builder } from '../../../utils';
+import { checkRemainders } from '../../utils/products';
+import { IConfigDocument } from '../../../models/definitions/configs';
+import {
+  getSimilaritiesProducts,
+  getSimilaritiesProductsCount
+} from '../../../maskUtils';
 
-interface IProductParams {
-  type?: string;
-  categoryId?: string;
-  searchValue?: string;
+interface ICommonParams {
+  sortField?: string;
+  sortDirection?: number;
   page?: number;
   perPage?: number;
 }
+interface IProductParams extends ICommonParams {
+  ids?: string[];
+  excludeIds?: boolean;
+  type?: string;
+  categoryId?: string;
+  searchValue?: string;
+  vendorId?: string;
+  branchId?: string;
+  tag?: string;
+  pipelineId?: string;
+  boardId?: string;
+  segment?: string;
+  segmentData?: string;
+  isKiosk?: boolean;
+  groupedSimilarity?: string;
+  categoryMeta?: string;
+}
 
-interface ICategoryParams {
+interface ICategoryParams extends ICommonParams {
   parentId: string;
+  withChild: boolean;
   searchValue: string;
+  status: string;
   excludeEmpty?: boolean;
+  meta?: string;
+  isKiosk: Boolean;
 }
 
 const generateFilter = async (
+  subdomain: string,
   models: IModels,
-  { type, categoryId, searchValue }: IProductParams
+  config: IConfigDocument,
+  {
+    type,
+    categoryId,
+    searchValue,
+    vendorId,
+    tag,
+    ids,
+    excludeIds,
+    segment,
+    segmentData,
+    categoryMeta,
+    isKiosk,
+    ...paginationArgs
+  }: IProductParams
 ) => {
-  const filter: any = { status: { $ne: PRODUCT_STATUSES.DELETED } };
+  const { token } = config;
+  const filter: any = {
+    status: { $ne: PRODUCT_STATUSES.DELETED },
+    tokens: { $in: [token] }
+  };
 
   if (type) {
     filter.type = type;
   }
 
-  if (categoryId) {
-    const category = await models.ProductCategories.getProductCategory({
-      _id: categoryId
-    });
+  if (ids && ids.length > 0) {
+    filter._id = { [excludeIds ? '$nin' : '$in']: ids };
+    if (!paginationArgs.page && !paginationArgs.perPage) {
+      paginationArgs.page = 1;
+      paginationArgs.perPage = 100;
+    }
+  }
 
-    const relatedCategoryIds = await models.ProductCategories.find(
-      { order: { $regex: new RegExp(category.order) } },
-      { _id: 1 }
-    );
-
-    filter.categoryId = { $in: relatedCategoryIds };
+  if (tag) {
+    filter.tagIds = { $in: [tag] };
   }
 
   // search =========
   if (searchValue) {
     const regex = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
 
-    filter.$or = [{ name: { $in: [regex] } }, { code: { $in: [regex] } }];
+    let codeFilter = { code: { $in: [regex] } };
+    if (searchValue.includes('.') || searchValue.includes('_') || searchValue.includes('*')) {
+      const codeRegex = new RegExp(
+        `^${searchValue.replace(/\*/g, '.').replace(/_/g, '.')}$`,
+        'igu',
+      );
+      codeFilter = { code: { $in: [codeRegex] }, };
+    }
+
+    filter.$or = [
+      codeFilter,
+      { name: { $in: [regex] } },
+      { barcodes: { $in: [searchValue] } },
+    ];
   }
-  return filter;
+
+  if (segment || segmentData) {
+    const qb = new Builder(models, subdomain, { segment, segmentData }, {});
+
+    await qb.buildAllQueries();
+
+    const { list } = await qb.runQueries();
+
+    filter._id = { $in: list.map(l => l._id) };
+  }
+
+  if (vendorId) {
+    filter.vendorId = vendorId;
+  }
+
+  const $and: any[] = [{}];
+
+  if (categoryId) {
+    const category = await models.ProductCategories.getProductCategory({
+      _id: categoryId
+    });
+
+    const relatedCategoryIds = (
+      await models.ProductCategories.find(
+        { order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) } },
+        { _id: 1 }
+      ).lean()
+    ).map(c => c._id);
+
+    $and.push({ categoryId: { $in: relatedCategoryIds } });
+  }
+
+  if (categoryMeta) {
+    let categoryFilter: any[] = [];
+
+    if (!isNaN(Number(categoryMeta))) {
+      categoryFilter = [
+        {
+          $project: {
+            _id: 1,
+            meta: 1,
+            intMeta: {
+              $convert: { input: '$meta', to: 'int', onError: '', onNull: '' }
+            }
+          }
+        },
+        { $match: { intMeta: { $lte: Number(categoryMeta) } } }
+      ];
+    } else {
+      categoryFilter = [
+        { $project: { _id: 1, meta: 1 } },
+        { $match: { meta: { $eq: categoryMeta } } }
+      ];
+    }
+
+    const categories = await models.ProductCategories.aggregate([
+      { $match: { tokens: { $in: [token] }, meta: { $exists: true } } },
+      ...categoryFilter
+    ]);
+
+    $and.push({ categoryId: { $in: categories.map(c => c._id) } });
+  }
+
+  const lastFilter = { ...filter, $and };
+
+  if (isKiosk) {
+    return {
+      $and: [
+        lastFilter,
+        { categoryId: { $nin: config.kioskExcludeCategoryIds } },
+        { _id: { $nin: config.kioskExcludeProductIds } }
+      ]
+    };
+  }
+
+  return lastFilter;
 };
 
-const generateFilterCat = ({ parentId, searchValue }) => {
-  const filter: any = {};
+const generateFilterCat = async ({
+  models,
+  config,
+  parentId,
+  withChild,
+  searchValue,
+  status,
+  meta,
+  isKiosk
+}) => {
+  const { token } = config;
+
+  const filter: any = { tokens: { $in: [token] } };
+  filter.status = { $nin: ['disabled', 'archived'] };
+
+  if (status && status !== 'active') {
+    filter.status = status;
+  }
 
   if (parentId) {
-    filter.parentId = parentId;
+    if (withChild) {
+      const category = await (
+        models as IModels
+      ).ProductCategories.getProductCategory({
+        _id: parentId
+      });
+
+      const relatedCategoryIds = (
+        await models.ProductCategories.find(
+          { order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) } },
+          { _id: 1 }
+        ).lean()
+      ).map(c => c._id);
+
+      filter.parentId = { $in: relatedCategoryIds };
+    } else {
+      filter.parentId = parentId;
+    }
+  }
+
+  if (meta) {
+    if (!isNaN(meta)) {
+      filter.meta = { $lte: Number(meta) };
+    } else {
+      filter.meta = meta;
+    }
   }
 
   if (searchValue) {
     filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+  }
+
+  if (isKiosk) {
+    filter._id = { $nin: config.kioskExcludeCategoryIds };
   }
 
   return filter;
@@ -67,22 +246,72 @@ const generateFilterCat = ({ parentId, searchValue }) => {
 const productQueries = {
   async poscProducts(
     _root,
-    { type, categoryId, searchValue, ...paginationArgs }: IProductParams,
-    { models, config }: IContext
-  ) {
-    let filter = await generateFilter(models, {
+    {
       type,
       categoryId,
-      searchValue
+      branchId,
+      searchValue,
+      vendorId,
+      tag,
+      ids,
+      excludeIds,
+      pipelineId,
+      boardId,
+      segment,
+      segmentData,
+      isKiosk,
+      categoryMeta,
+      groupedSimilarity,
+      sortField,
+      sortDirection,
+      ...paginationArgs
+    }: IProductParams,
+    { models, subdomain, config }: IContext
+  ) {
+    let filter = await generateFilter(subdomain, models, config, {
+      type,
+      categoryId,
+      branchId,
+      searchValue,
+      vendorId,
+      tag,
+      ids,
+      excludeIds,
+      pipelineId,
+      boardId,
+      segment,
+      segmentData,
+      categoryMeta,
+      isKiosk
     });
 
-    filter.tokens = { $in: [config.token] };
+    let sortParams: any = { code: 1 };
 
-    return paginate(
-      models.Products.find(filter)
-        .sort('code')
-        .lean(),
+    if (sortField) {
+      if (sortField === 'unitPrice') {
+        sortParams = { [`prices.${config.token}`]: sortDirection || 1 };
+      } else {
+        sortParams = { [sortField]: sortDirection || 1 };
+      }
+    }
+
+    if (groupedSimilarity) {
+      return await getSimilaritiesProducts(models, filter, {
+        groupedSimilarity,
+        ...paginationArgs
+      });
+    }
+
+    const paginatedProducts = await paginate(
+      models.Products.find(filter).sort(sortParams).lean(),
       paginationArgs
+    );
+
+    return checkRemainders(
+      subdomain,
+      config,
+      paginatedProducts,
+      branchId || ''
     );
   },
 
@@ -91,30 +320,248 @@ const productQueries = {
    */
   async poscProductsTotalCount(
     _root,
-    { type, categoryId, searchValue }: IProductParams,
-    { models }: IContext
-  ) {
-    const filter = await generateFilter(models, {
+    {
       type,
       categoryId,
-      searchValue
+      branchId,
+      searchValue,
+      vendorId,
+      tag,
+      ids,
+      excludeIds,
+      pipelineId,
+      boardId,
+      segment,
+      segmentData,
+      categoryMeta,
+      groupedSimilarity,
+      isKiosk
+    }: IProductParams,
+    { models, config, subdomain }: IContext
+  ) {
+    const filter = await generateFilter(subdomain, models, config, {
+      type,
+      categoryId,
+      branchId,
+      searchValue,
+      vendorId,
+      tag,
+      ids,
+      excludeIds,
+      pipelineId,
+      boardId,
+      segment,
+      segmentData,
+      categoryMeta,
+      isKiosk
     });
+
+    if (groupedSimilarity) {
+      return await getSimilaritiesProductsCount(models, filter, {
+        groupedSimilarity
+      });
+    }
 
     return models.Products.find(filter).countDocuments();
   },
 
+  async poscProductSimilarities(
+    _root,
+    { _id, groupedSimilarity },
+    { models }: IContext
+  ) {
+    const product = await models.Products.getProduct({ _id });
+
+    if (groupedSimilarity === 'config') {
+      const getRegex = str => {
+        return new RegExp(
+          `^${str
+            .replace(/\./g, '\\.')
+            .replace(/\*/g, '.')
+            .replace(/_/g, '.')}.*`,
+          'igu'
+        );
+      };
+
+      const similarityGroups =
+        await models.ProductsConfigs.getConfig('similarityGroup');
+
+      const codeMasks = Object.keys(similarityGroups);
+      const customFieldIds = (product.customFieldsData || []).map(
+        cf => cf.field
+      );
+
+      const matchedMasks = codeMasks.filter(cm => {
+        const mask = similarityGroups[cm];
+        const filterFieldDef = mask.filterField || 'code';
+        const regexer = getRegex(cm);
+
+        if (filterFieldDef.includes('customFieldsData.')) {
+          if (
+            !(product.customFieldsData || []).find(
+              cfd =>
+                cfd.field === filterFieldDef.replace('customFieldsData.', '') &&
+                cfd.stringValue?.match(regexer)
+            )
+          ) {
+            return false;
+          }
+        } else {
+          if (!product[filterFieldDef].match(regexer)) {
+            return false;
+          }
+        }
+
+        return (
+          (similarityGroups[cm].rules || [])
+            .map(sg => sg.fieldId)
+            .filter(sgf => customFieldIds.includes(sgf)).length ===
+          (similarityGroups[cm].rules || []).length
+        );
+      });
+
+      if (!matchedMasks.length) {
+        return {
+          products: await models.Products.find({ _id })
+        };
+      }
+
+      const codeRegexs: any[] = [];
+      const fieldIds: string[] = [];
+      const groups: { title: string; fieldId: string }[] = [];
+      for (const matchedMask of matchedMasks) {
+        const matched = similarityGroups[matchedMask];
+        const filterFieldDef = matched.filterField || 'code';
+
+        if (filterFieldDef.includes('customFieldsData.')) {
+          codeRegexs.push({
+            $and: [
+              {
+                'customFieldsData.field': filterFieldDef.replace(
+                  'customFieldsData.',
+                  ''
+                )
+              },
+              {
+                'customFieldsData.stringValue': {
+                  $in: [getRegex(matchedMask)]
+                }
+              }
+            ]
+          });
+        } else {
+          codeRegexs.push({
+            [filterFieldDef]: { $in: [getRegex(matchedMask)] }
+          });
+        }
+
+        for (const rule of similarityGroups[matchedMask].rules || []) {
+          const { fieldId, title } = rule;
+          if (!fieldIds.includes(fieldId)) {
+            fieldIds.push(fieldId);
+            groups.push({ title, fieldId });
+          }
+        }
+      }
+
+      const filters: any = {
+        $and: [
+          {
+            $or: codeRegexs
+          },
+          {
+            'customFieldsData.field': { $in: fieldIds }
+          }
+        ]
+      };
+
+      let products = await models.Products.find(filters)
+        .sort({ code: 1 })
+        .lean();
+      if (!products.length) {
+        products = [product];
+      }
+      return {
+        products,
+        groups
+      };
+    }
+
+    const category = await models.ProductCategories.getProductCategory({
+      _id: product.categoryId
+    });
+    if (!category.isSimilarity || !category.similarities.length) {
+      return {
+        products: await models.Products.find({ _id })
+      };
+    }
+
+    const fieldIds = category.similarities.map(r => r.fieldId);
+    const filters: any = {
+      $and: [
+        {
+          categoryId: category._id,
+          'customFieldsData.field': { $in: fieldIds }
+        }
+      ]
+    };
+
+    const groups: {
+      title: string;
+      fieldId: string;
+    }[] = category.similarities.map(r => ({ ...r }));
+
+    return {
+      products: await models.Products.find(filters).sort({ code: 1 }),
+      groups
+    };
+  },
+
   async poscProductCategories(
     _root,
-    { parentId, searchValue, excludeEmpty }: ICategoryParams,
+    {
+      parentId,
+      withChild,
+      searchValue,
+      status,
+      excludeEmpty,
+      meta,
+      isKiosk,
+      sortDirection,
+      sortField,
+      ...paginationArgs
+    }: ICategoryParams,
     { models, config }: IContext
   ) {
-    const filter = generateFilterCat({ parentId, searchValue });
-
-    filter.tokens = { $in: [config.token] };
-
-    const categories = await models.ProductCategories.find(filter).sort({
-      order: 1
+    const filter = await generateFilterCat({
+      models,
+      config,
+      parentId,
+      withChild,
+      searchValue,
+      status,
+      meta,
+      isKiosk
     });
+
+    let sortParams: any = { order: 1 };
+
+    if (sortField) {
+      sortParams = { [sortField]: sortDirection };
+    }
+
+    let categories;
+    if (paginationArgs.page || paginationArgs.perPage) {
+      categories = await paginate(
+        models.ProductCategories.find(filter).sort(sortParams).lean(),
+        paginationArgs
+      );
+    } else {
+      categories = await models.ProductCategories.find(filter)
+        .sort(sortParams)
+        .lean();
+    }
+
     const list: IProductCategoryDocument[] = [];
 
     if (excludeEmpty) {
@@ -137,15 +584,37 @@ const productQueries = {
 
   async poscProductCategoriesTotalCount(
     _root,
-    { parentId, searchValue }: { parentId: string; searchValue: string },
-    { models }: IContext
+    { parentId, withChild, searchValue, status, meta, isKiosk },
+    { models, config }: IContext
   ) {
-    const filter = await generateFilterCat({ parentId, searchValue });
+    const filter = await generateFilterCat({
+      models,
+      config,
+      parentId,
+      withChild,
+      searchValue,
+      status,
+      meta,
+      isKiosk
+    });
     return models.ProductCategories.find(filter).countDocuments();
   },
 
-  poscProductDetail(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.Products.findOne({ _id }).lean();
+  async poscProductDetail(
+    _root,
+    { _id, branchId }: { _id: string; branchId?: string },
+    { subdomain, models, config }: IContext
+  ) {
+    const product = await models.Products.getProduct({ _id });
+
+    const result = await checkRemainders(
+      subdomain,
+      config,
+      [product],
+      branchId
+    );
+
+    return result[0];
   },
 
   poscProductCategoryDetail(
@@ -154,6 +623,30 @@ const productQueries = {
     { models }: IContext
   ) {
     return models.ProductCategories.findOne({ _id }).lean();
+  },
+
+  async getPriceInfo(
+    _root,
+    { productId }: { productId: string },
+    { models, subdomain, config }: IContext
+  ) {
+    const product = await models.Products.getProduct({ _id: productId });
+
+    const d = await sendPricingMessage({
+      subdomain,
+      action: 'getQuanityRules',
+      data: {
+        departmentId: config.departmentId,
+        branchId: config.branchId,
+        products: [
+          { ...product, unitPrice: (product.prices || {})[config.token] }
+        ]
+      },
+      isRPC: true,
+      defaultValue: {}
+    });
+
+    return JSON.stringify(d);
   }
 };
 

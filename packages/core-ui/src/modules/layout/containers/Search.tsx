@@ -1,5 +1,5 @@
 import client from 'apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import { queries as generalQueries } from '@erxes/ui-settings/src/general/graphql';
 import React from 'react';
 import Search from '../components/Search';

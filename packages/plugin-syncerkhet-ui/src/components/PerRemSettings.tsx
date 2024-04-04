@@ -1,9 +1,17 @@
-import { Button, CollapseContent, ControlLabel, FormControl, FormGroup } from '@erxes/ui/src/components';
+import {
+  Button,
+  CollapseContent,
+  ControlLabel,
+  FormControl,
+  FormGroup,
+  Icon
+} from '@erxes/ui/src/components';
 import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
 import { __ } from '@erxes/ui/src/utils';
 import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import React from 'react';
 import { IConfigsMap } from '../types';
+import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 
 type Props = {
   configsMap: IConfigsMap;
@@ -16,7 +24,7 @@ type Props = {
 type State = {
   config: any;
   hasOpen: boolean;
-}
+};
 
 class PerSettings extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -36,6 +44,10 @@ class PerSettings extends React.Component<Props, State> {
     this.setState({ config: { ...this.state.config, pipelineId } });
   };
 
+  onChangeStage = (stageId: string) => {
+    this.setState({ config: { ...this.state.config, stageId } });
+  };
+
   onSave = e => {
     e.preventDefault();
     const { configsMap, currentConfigKey } = this.props;
@@ -45,13 +57,13 @@ class PerSettings extends React.Component<Props, State> {
     delete configsMap.remainderConfig[currentConfigKey];
     configsMap.remainderConfig[key] = config;
     this.props.save(configsMap);
-  }
+  };
 
   onDelete = e => {
     e.preventDefault();
 
     this.props.delete(this.props.currentConfigKey);
-  }
+  };
 
   onChangeConfig = (code: string, value) => {
     const { config } = this.state;
@@ -82,35 +94,46 @@ class PerSettings extends React.Component<Props, State> {
   render() {
     const { config } = this.state;
     return (
-      <CollapseContent title={__(config.title)} open={this.props.currentConfigKey === 'newremainderConfig' ? true: false}>
+      <CollapseContent
+        title={__(config.title)}
+        beforeTitle={<Icon icon="settings" />}
+        transparent={true}
+        open={
+          this.props.currentConfigKey === 'newremainderConfig' ? true : false
+        }
+      >
         <FormGroup>
           <ControlLabel>{'Title'}</ControlLabel>
           <FormControl
-            defaultValue={config['title']}
+            defaultValue={config.title}
             onChange={this.onChangeInput.bind(this, 'title')}
             required={true}
             autoFocus={true}
           />
         </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Destination Stage</ControlLabel>
-          <BoardSelectContainer
-            type='deal'
-            autoSelectStage={false}
-            boardId={config.boardId}
-            pipelineId={config.pipelineId}
-            onChangeBoard={this.onChangeBoard}
-            onChangePipeline={this.onChangePipeline}
-          />
-        </FormGroup>
-
-        {this.renderInput('account', 'account', '')}
-        {this.renderInput('location', 'location', '')}
-
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <BoardSelectContainer
+                type="deal"
+                autoSelectStage={false}
+                boardId={config.boardId}
+                pipelineId={config.pipelineId}
+                stageId={config.stageId}
+                onChangeBoard={this.onChangeBoard}
+                onChangePipeline={this.onChangePipeline}
+                onChangeStage={this.onChangeStage}
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            {this.renderInput('account', 'account', '')}
+            {this.renderInput('location', 'location', '')}
+          </FormColumn>
+        </FormWrapper>
         <ModalFooter>
           <Button
-            btnStyle="simple"
+            btnStyle="danger"
             icon="cancel-1"
             onClick={this.onDelete}
             uppercase={false}
@@ -119,7 +142,7 @@ class PerSettings extends React.Component<Props, State> {
           </Button>
 
           <Button
-            btnStyle="primary"
+            btnStyle="success"
             icon="check-circle"
             onClick={this.onSave}
             uppercase={false}
@@ -129,7 +152,7 @@ class PerSettings extends React.Component<Props, State> {
           </Button>
         </ModalFooter>
       </CollapseContent>
-    )
+    );
   }
 }
 export default PerSettings;

@@ -1,36 +1,53 @@
-import React from 'react';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
+import { AddOns, Addon } from '../styles';
 import {
-  SidebarWrapper,
-  SidebarBox,
+  CardInformation,
+  ColorHeader,
   DetailCard,
   MemberPic,
-  CardInformation,
-  SmallText,
-  ColorHeader,
-  PluginContainer
+  PluginContainer,
+  SidebarBox,
+  SidebarWrapper,
+  SmallText
 } from '../../styles';
 
+import Button from '@erxes/ui/src/components/Button';
+import Icon from '@erxes/ui/src/components/Icon';
+import { Link } from 'react-router-dom';
+import React from 'react';
+import { __ } from 'modules/common/utils';
+
 type Props = {
-  plugin?: {};
+  plugin: any;
+  plugins: any;
 };
 
 export default class RightSidebar extends React.Component<Props> {
   renderCreator() {
+    const { creator } = this.props.plugin || {};
+    const { logo, address, description, email, name, phone } =
+      creator || ({} as any);
+
     return (
       <SidebarBox>
-        <ColorHeader>Creater</ColorHeader>
+        <ColorHeader>{__('Creater')}</ColorHeader>
         <DetailCard>
           <MemberPic>
-            <img src="/images/glyph_dark.png" alt="creator"></img>
+            <img src={logo ? logo : '/images/glyph_dark.png'} alt="creator" />
           </MemberPic>
           <CardInformation>
-            <b>Erxes Inc</b>
-            <SmallText withMargin>6525 Woodman Avenue, Los Angeles</SmallText>
-            <SmallText>California, USA, 91401</SmallText>
-            <SmallText withMargin>Tel: +1 617 506 9010</SmallText>
-            <SmallText>Email: info@erxes.io</SmallText>
+            <b>{name || 'Erxes Inc'}</b>
+            <div dangerouslySetInnerHTML={{ __html: description }} />
+            <SmallText withMargin={true}>
+              <b>{__('Address')}:</b>{' '}
+              {address ||
+                '6525 Woodman Avenue, Los Angeles California, USA, 91401'}
+            </SmallText>
+            <SmallText withMargin={true}>
+              <b>{__('Tel')}</b>: {phone || '+1 617 506 9010'}
+            </SmallText>
+            <SmallText>
+              <b>{__('Email')}</b>: {email || 'info@erxes.io'}
+            </SmallText>
           </CardInformation>
         </DetailCard>
       </SidebarBox>
@@ -48,7 +65,7 @@ export default class RightSidebar extends React.Component<Props> {
             btnStyle="simple"
           >
             <Icon icon="github-circled" size={20} />
-            Github
+            <b>Github</b>
           </Button>
           <Button
             href="https://www.facebook.com/erxesHQ"
@@ -56,17 +73,88 @@ export default class RightSidebar extends React.Component<Props> {
             btnStyle="simple"
           >
             <Icon icon="facebook-official" size={20} />
-            Facebook
+            <b>Facebook</b>
           </Button>
           <Button
             href="https://twitter.com/erxesHQ"
             target="_blank"
             btnStyle="simple"
           >
-            <Icon icon="twitter-alt" size={20} />
-            Twitter
+            <Icon icon="twitter" size={20} />
+            <b>Twitter</b>
           </Button>
         </PluginContainer>
+      </SidebarBox>
+    );
+  }
+
+  renderDependencies() {
+    const { dependencies } = this.props.plugin || {};
+
+    if (!dependencies || dependencies.length === 0) {
+      return null;
+    }
+
+    const dependentPlugins = this.props.plugins.filter(item =>
+      dependencies.includes(item._id)
+    );
+
+    return (
+      <SidebarBox>
+        <ColorHeader>Dependent plugins</ColorHeader>
+        <AddOns>
+          {(dependentPlugins || []).map(dependency => (
+            <Link
+              to={`installer/details/${dependency._id}`}
+              key={dependency._id}
+            >
+              <Addon>
+                <img
+                  src={
+                    dependency.avatar ||
+                    dependency.icon ||
+                    '/images/no-plugin.png'
+                  }
+                  alt="dependency-plugin"
+                />
+                {__(dependency.title)}
+              </Addon>
+            </Link>
+          ))}
+        </AddOns>
+      </SidebarBox>
+    );
+  }
+
+  renderRelatedPlugins() {
+    const { relatedPlugins } = this.props.plugin || {};
+
+    if (!relatedPlugins || relatedPlugins.length === 0) {
+      return null;
+    }
+
+    const relations = this.props.plugins.filter(item =>
+      relatedPlugins.includes(item._id)
+    );
+
+    return (
+      <SidebarBox>
+        <ColorHeader>Related plugins</ColorHeader>
+        <AddOns>
+          {(relations || []).map(related => (
+            <Link to={`installer/details/${related._id}`} key={related._id}>
+              <Addon>
+                <img
+                  src={
+                    related.avatar || related.icon || '/images/no-plugin.png'
+                  }
+                  alt="related-plugin"
+                />
+                {__(related.title)}
+              </Addon>
+            </Link>
+          ))}
+        </AddOns>
       </SidebarBox>
     );
   }
@@ -76,12 +164,15 @@ export default class RightSidebar extends React.Component<Props> {
       <SidebarWrapper>
         {this.renderCreator()}
         {this.renderShare()}
+        {this.renderDependencies()}
+        {this.renderRelatedPlugins()}
         <Button
           href="https://github.com/erxes/erxes/issues"
           target="_blank"
-          block
+          block={true}
         >
-          Report an issue
+          <Icon icon="exclamation-circle" size={18} />
+          &nbsp;Report an issue
         </Button>
       </SidebarWrapper>
     );

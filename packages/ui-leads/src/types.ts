@@ -1,15 +1,16 @@
 import {
+  Counts,
   IAttachment,
   IConditionsRule,
-  QueryResponse,
   MutationVariables,
-  Counts
+  QueryResponse
 } from '@erxes/ui/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IForm } from '@erxes/ui-forms/src/forms/types';
+
 import { IBrand } from '@erxes/ui/src/brands/types';
-import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
-import { ITag } from '@erxes/ui/src/tags/types';
+import { IForm } from '@erxes/ui-forms/src/forms/types';
+// import { IIntegration } from '../../../settings/integrations/types';
+import { ITag } from '@erxes/ui-tags/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 export interface ICallout {
   title?: string;
@@ -51,6 +52,7 @@ export interface ILeadData {
   conversionRate?: number;
   successImage?: string;
   successImageSize?: string;
+  verifyEmail?: boolean;
 }
 
 export interface IWebhookData {
@@ -59,6 +61,10 @@ export interface IWebhookData {
   token: string;
 }
 
+export interface IIntegration {
+  _id: string;
+  name: string;
+}
 export interface ILeadIntegration extends IIntegration {
   brand: IBrand;
   tags: ITag[];

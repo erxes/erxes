@@ -1,16 +1,20 @@
-import { AppConsumer } from 'appContext';
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Spinner from 'modules/common/components/Spinner';
-import { Alert, withProps } from 'modules/common/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import GeneralSettings from '../components/GeneralSettings';
-import { mutations, queries } from '@erxes/ui-settings/src/general/graphql';
+
+import { Alert, getEnv, withProps } from 'modules/common/utils';
 import {
   ConfigsQueryResponse,
-  IConfigsMap
+  IConfigsMap,
 } from '@erxes/ui-settings/src/general/types';
+import { mutations, queries } from '@erxes/ui-settings/src/general/graphql';
+
+import { AppConsumer } from 'appContext';
+import GeneralSettings from '../components/GeneralSettings';
+import SAASGeneralSettings from '../../../saas/settings/GeneralSettings';
+import React from 'react';
+import Spinner from 'modules/common/components/Spinner';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { getVersion } from '@erxes/ui/src/utils/core';
 
 type FinalProps = {
   configsQuery: ConfigsQueryResponse;
@@ -21,22 +25,23 @@ type FinalProps = {
 class SettingsContainer extends React.Component<FinalProps> {
   render() {
     const { updateConfigs, configsQuery, constantsQuery } = this.props;
+    const { VERSION } = getVersion();
 
     if (configsQuery.loading) {
-      return <Spinner objective={true} />;
+      return <Spinner />;
     }
 
     // create or update action
     const save = (map: IConfigsMap) => {
       updateConfigs({
-        variables: { configsMap: map }
+        variables: { configsMap: map },
       })
         .then(() => {
           configsQuery.refetch();
 
           Alert.success('You successfully updated general settings');
         })
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
     };
@@ -49,13 +54,16 @@ class SettingsContainer extends React.Component<FinalProps> {
       configsMap[config.code] = config.value;
     }
 
+    const SettingComponent =
+      VERSION && VERSION === 'saas' ? SAASGeneralSettings : GeneralSettings;
+
     return (
       <AppConsumer>
         {({ currentLanguage, changeLanguage }) => (
-          <GeneralSettings
+          <SettingComponent
             {...this.props}
             configsMap={configsMap}
-            constants={constantsQuery.configsConstants || {}}
+            constants={constantsQuery?.configsConstants || {}}
             save={save}
             currentLanguage={currentLanguage}
             changeLanguage={changeLanguage}
@@ -69,13 +77,13 @@ class SettingsContainer extends React.Component<FinalProps> {
 export default withProps<{}>(
   compose(
     graphql<{}, ConfigsQueryResponse>(gql(queries.configs), {
-      name: 'configsQuery'
+      name: 'configsQuery',
     }),
     graphql<{}>(gql(queries.configsConstants), {
-      name: 'constantsQuery'
+      name: 'constantsQuery',
     }),
     graphql<{}>(gql(mutations.updateConfigs), {
-      name: 'updateConfigs'
-    })
-  )(SettingsContainer)
+      name: 'updateConfigs',
+    }),
+  )(SettingsContainer),
 );

@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'exm',
   port: 3105,
   exposes: {

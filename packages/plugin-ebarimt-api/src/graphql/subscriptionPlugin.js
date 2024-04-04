@@ -1,7 +1,7 @@
-var { withFilter } = require("graphql-subscriptions");
+var { withFilter } = require('graphql-subscriptions');
 
 module.exports = {
-  name: "ebarimt",
+  name: 'ebarimt',
   typeDefs: `
       automationResponded(userId: String, sessionCode: String): AutomationResponse
 		`,
@@ -9,11 +9,11 @@ module.exports = {
     return {
       automationResponded: {
         subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator("automationResponded"),
+          (_, { userId }) =>
+            graphqlPubsub.asyncIterator(`automationResponded:${userId}`),
           // filter by _id
           (payload, variables) => {
             return (
-              payload.automationResponded.userId === variables.userId &&
               payload.automationResponded.sessionCode === variables.sessionCode
             );
           }

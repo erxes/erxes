@@ -1,5 +1,8 @@
 import { Document, Schema } from 'mongoose';
-import { customFieldSchema, ICustomField } from '@erxes/api-utils/src/definitions/common';
+import {
+  customFieldSchema,
+  ICustomField
+} from '@erxes/api-utils/src/definitions/common';
 import {
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_SELECT_OPTIONS,
@@ -90,7 +93,7 @@ export const conversationSchemaOptions = {
     index: true
   }),
   messageCount: field({ type: 'Number', label: 'Message count' }),
-  tagIds: field({ type: ['String'] }),
+  tagIds: field({ type: ['String'], index: true }),
 
   // number of total conversations
   number: field({ type: 'Number' }),

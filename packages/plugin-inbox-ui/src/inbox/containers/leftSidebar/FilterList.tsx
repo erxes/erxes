@@ -1,12 +1,12 @@
-import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
-import FilterByParams from '@erxes/ui/src/components/FilterByParams';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert } from '@erxes/ui/src/utils';
-import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
+import FilterByParams from '@erxes/ui/src/components/FilterByParams';
 import { NoHeight } from '@erxes/ui-inbox/src/inbox/styles';
-import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
 import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import client from '@erxes/ui/src/apolloClient';
+import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
+import { gql } from '@apollo/client';
+import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
 
 type Props = {
   query?: { queryName: string; dataName: string; variables?: any };
@@ -18,6 +18,7 @@ type Props = {
   refetchRequired: string;
   multiple?: boolean;
   treeView?: boolean;
+  setCounts?: (counts: any) => void;
 };
 
 type State = {
@@ -29,8 +30,12 @@ type State = {
 export default class FilterList extends React.PureComponent<Props, State> {
   mounted: boolean;
 
+  private abortController;
+
   constructor(props: Props) {
     super(props);
+
+    this.abortController = new AbortController();
 
     let loading = true;
 
@@ -48,21 +53,22 @@ export default class FilterList extends React.PureComponent<Props, State> {
   }
 
   fetchData(ignoreCache = false) {
-    const { query, counts, queryParams } = this.props;
+    const { query, counts, queryParams, setCounts } = this.props;
 
     this.mounted = true;
 
     // Fetching filter lists channels, brands, tags etc
     if (query) {
       const { queryName, dataName, variables = {} } = query;
+
       client
         .query({
           query: gql(queries[queryName]),
           variables
         })
-        .then(({ data }: any) => {
+        .then(({ data, loading }: any) => {
           if (this.mounted) {
-            this.setState({ fields: data[dataName] });
+            this.setState({ fields: data[dataName], loading });
           }
         })
         .catch(e => {
@@ -76,10 +82,17 @@ export default class FilterList extends React.PureComponent<Props, State> {
         query: gql(queries.conversationCounts),
         variables: { ...generateParams({ ...queryParams }), only: counts },
         fetchPolicy: ignoreCache ? 'network-only' : 'cache-first'
+        // context: {
+        //   fetchOptions: { signal: this.abortController.signal }
+        // }
       })
       .then(({ data, loading }: { data: any; loading: boolean }) => {
         if (this.mounted) {
           this.setState({ counts: data.conversationCounts[counts], loading });
+
+          if (setCounts) {
+            setCounts({ [counts]: data.conversationCounts[counts] });
+          }
         }
       })
       .catch(e => {
@@ -93,6 +106,7 @@ export default class FilterList extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     this.mounted = false;
+    this.abortController.abort();
   }
 
   componentDidUpdate(prevProps) {

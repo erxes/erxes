@@ -1,79 +1,49 @@
-import React from 'react';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
 import * as compose from 'lodash.flowright';
-import { mutations, queries } from '../../graphql';
+
+import { IRouterProps } from '@erxes/ui/src/types';
+import { PagesMainQueryResponse } from '../../types';
+import React from 'react';
 import SiteForm from '../../components/sites/SiteForm';
-import {
-  ISiteDoc,
-  SitesAddMutationResponse,
-  SitesEditMutationResponse
-} from '../../types';
-import Alert from '@erxes/ui/src/utils/Alert';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '../../graphql';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
-  site?: ISiteDoc;
-  closeModal: () => void;
+  _id: string;
   queryParams: any;
+} & IRouterProps;
+
+type FinalProps = Props & {
+  pagesMainQuery: PagesMainQueryResponse;
 };
 
-type FinalProps = {} & Props &
-  SitesAddMutationResponse &
-  SitesEditMutationResponse;
+const FormContainer = (props: FinalProps) => {
+  const { pagesMainQuery } = props;
 
-function SiteFormContainer(props: FinalProps) {
-  const save = (variables: any, id: string) => {
-    const { sitesAddMutation, sitesEditMutation, closeModal } = props;
+  if (pagesMainQuery.loading) {
+    return null;
+  }
 
-    let method: any = sitesAddMutation;
-    let message: string = 'create';
-
-    if (id) {
-      method = sitesEditMutation;
-      variables._id = id;
-
-      message = 'update';
-    }
-
-    method({ variables })
-      .then(() => {
-        Alert.success(`You successfully ${message} a site.`);
-
-        closeModal();
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
+  const pagesMain = pagesMainQuery.webbuilderPagesMain || {};
 
   const updatedProps = {
     ...props,
-    save
+    pages: pagesMain.list || []
   };
 
   return <SiteForm {...updatedProps} />;
-}
-
-const getRefetchQueries = queryParams => [
-  {
-    query: gql(queries.sites),
-    variables: { ...generatePaginationParams(queryParams) }
-  },
-  { query: gql(queries.sitesTotalCount) }
-];
+};
 
 export default compose(
-  graphql<Props, SitesAddMutationResponse>(gql(mutations.sitesAdd), {
-    name: 'sitesAddMutation',
-    options: ({ queryParams }) => ({
-      refetchQueries: getRefetchQueries(queryParams)
-    })
-  }),
-  graphql<Props, SitesEditMutationResponse>(gql(mutations.sitesEdit), {
-    name: 'sitesEditMutation',
-    options: ({ queryParams }) => ({
-      refetchQueries: getRefetchQueries(queryParams)
+  graphql<Props, PagesMainQueryResponse>(gql(queries.pagesMain), {
+    name: 'pagesMainQuery',
+    options: ({ _id, queryParams }) => ({
+      variables: {
+        ...generatePaginationParams(queryParams),
+        siteId: _id || ''
+      }
     })
   })
-)(SiteFormContainer);
+)(withRouter(FormContainer));

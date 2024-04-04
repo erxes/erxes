@@ -1,4 +1,5 @@
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
 export default `
   _id
   content
@@ -31,7 +32,7 @@ export default `
   }
   customerId
   ${
-    isEnabled("contacts")
+    isEnabled('contacts')
       ? `
   customer {
     _id
@@ -61,7 +62,7 @@ export default `
   }
   tagIds
   ${
-    isEnabled("tags")
+    isEnabled('tags')
       ? `
   tags {
     _id
@@ -71,23 +72,40 @@ export default `
   `
       : ``
   }
+
+  ${
+    isEnabled('dailyco')
+      ? `
   videoCallData {
     url
     name
+  }`
+      : ''
   }
+
+    ${
+      isEnabled('calls')
+        ? `
+  callHistory {
+    receiverNumber
+    callerNumber
+    callDuration
+    callStartTime
+    callEndTime
+    callType
+    callStatus
+    sessionId
+    modifiedAt
+    createdAt
+    createdBy
+    modifiedBy
+  }`
+        : ''
+    }
+
+
   readUserIds
   callProAudio
-  facebookPost {
-    postId
-    recipientId
-    senderId
-    content
-    erxesApiId
-    attachments
-    timestamp
-    permalink_url
-  }
-  isFacebookTaggedMessage
   customFieldsData
   
   bookingProductId

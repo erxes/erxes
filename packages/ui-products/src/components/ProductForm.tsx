@@ -1,95 +1,173 @@
-import React from 'react';
-import Select from 'react-select-plus';
-import SelectCompanies from '@erxes/ui/src/companies/containers/SelectCompanies';
-import Button from '@erxes/ui/src/components/Button';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import CommonForm from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Uploader from '@erxes/ui/src/components/Uploader';
+import { BarcodeItem, TableBarcode } from "../styles";
 import {
-  ModalFooter,
   FormColumn,
-  FormWrapper
-} from '@erxes/ui/src/styles/main';
+  FormWrapper,
+  ModalFooter,
+} from "@erxes/ui/src/styles/main";
 import {
   IAttachment,
   IButtonMutateProps,
-  IFormProps
-} from '@erxes/ui/src/types';
-import {
-  extractAttachment,
-  generateCategoryOptions
-} from '@erxes/ui/src/utils';
-import { TYPES, PRODUCT_SUPPLY } from '../constants';
-import CategoryForm from '../containers/CategoryForm';
-import { Row } from '@erxes/ui-settings/src/integrations/styles';
-import { IProduct, IProductCategory, IUom, IConfigsMap } from '../types';
+  IFormProps,
+} from "@erxes/ui/src/types";
+import { IProduct, IProductCategory, IUom, IVariant } from "../types";
+import { TAX_TYPES, TYPES } from "../constants";
+import { __, router } from "@erxes/ui/src/utils/core";
+
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import AutoCompletionSelect from "@erxes/ui/src/components/AutoCompletionSelect";
+import Button from "@erxes/ui/src/components/Button";
+import CategoryForm from "../containers/CategoryForm";
+import CommonForm from "@erxes/ui/src/components/form/Form";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
+import { Row } from "@erxes/ui-inbox/src/settings/integrations/styles";
+import Select from "react-select-plus";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import Tip from "@erxes/ui/src/components/Tip";
+import Uploader from "@erxes/ui/src/components/Uploader";
+import { extractAttachment } from "@erxes/ui/src/utils";
+import { queries } from "../graphql";
 
 type Props = {
   product?: IProduct;
   productCategories: IProductCategory[];
   uoms?: IUom[];
-  configsMap?: IConfigsMap;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
+  history: any;
 };
 
 type State = {
-  disabled: boolean;
-  productCount: number;
-  minimiumCount: number;
+  barcodes: string[];
+  variants: IVariant;
+  barcodeInput: string;
+  barcodeDescription: string;
   attachment?: IAttachment;
   attachmentMore?: IAttachment[];
   vendorId: string;
   description: string;
-  uomId: string;
+  uom: string;
   subUoms: any[];
+  taxType: string;
+  taxCode: string;
+  scopeBrandIds: string[];
+  categoryId: string;
+  code: string;
+  category?: IProductCategory;
+  maskStr?: string;
 };
 
 class Form extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
+    const paramCategoryId = router.getParam(props.history, "categoryId");
+
     const product = props.product || ({} as IProduct);
     const {
       attachment,
       attachmentMore,
-      supply,
-      productCount,
-      minimiumCount,
+      barcodes,
+      variants,
+      barcodeDescription,
       vendorId,
       description,
-      uomId,
-      subUoms
+      uom,
+      subUoms,
+      taxType,
+      taxCode,
+      scopeBrandIds,
+      code,
+      categoryId,
     } = product;
 
-    const defaultUom = props.configsMap.default_uom || '';
+    const fixVariants = {};
+    for (const barcode of barcodes || []) {
+      fixVariants[barcode] = (variants || {})[barcode] || {};
+    }
 
     this.state = {
-      disabled: supply === 'limited' ? false : true,
-      productCount: productCount ? productCount : 0,
-      minimiumCount: minimiumCount ? minimiumCount : 0,
+      barcodes: barcodes ? barcodes : [],
+      variants: fixVariants,
+      barcodeInput: "",
+      barcodeDescription: barcodeDescription ? barcodeDescription : "",
       attachment: attachment ? attachment : undefined,
       attachmentMore: attachmentMore ? attachmentMore : undefined,
-      vendorId: vendorId ? vendorId : '',
-      description: description ? description : '',
-      uomId: uomId ? uomId : defaultUom,
-      subUoms: subUoms ? subUoms : []
+      vendorId: vendorId ? vendorId : "",
+      description: description ? description : "",
+      uom,
+      subUoms: subUoms ? subUoms : [],
+      taxType,
+      taxCode,
+      scopeBrandIds,
+      code: code || "",
+      categoryId: categoryId || paramCategoryId,
     };
   }
 
+  componentDidMount(): void {
+    this.getMaskStr(this.state.categoryId);
+  }
+
+  componentDidUpdate(): void {
+    if (!this.state.categoryId && this.props.productCategories.length > 0) {
+      this.setState({
+        categoryId: this.props.productCategories[0]._id,
+      });
+    }
+  }
+
+  getMaskStr = (categoryId) => {
+    const { code } = this.state;
+    const { productCategories } = this.props;
+
+    const category = productCategories.find((pc) => pc._id === categoryId);
+    let maskStr = "";
+
+    if (category && category.maskType && category.mask) {
+      const maskList: any[] = [];
+      for (const value of category.mask.values || []) {
+        if (value.static) {
+          maskList.push(value.static);
+          continue;
+        }
+
+        if (value.type === "char") {
+          maskList.push(value.char);
+        }
+
+        if (value.type === "customField" && value.matches) {
+          maskList.push(`(${Object.values(value.matches).join("|")})`);
+        }
+      }
+      maskStr = `${maskList.join("")}\w+`;
+
+      if (maskList.length && !code) {
+        this.setState({ code: maskList[0] });
+      }
+    }
+    this.setState({ maskStr });
+
+    return category;
+  };
+
   generateDoc = (values: {
     _id?: string;
+    barcodes?: string[];
+    variants?: IVariant;
     attachment?: IAttachment;
     attachmentMore?: IAttachment[];
     productCount: number;
     minimiumCount: number;
     vendorId: string;
     description: string;
-    uomId: string;
+    uom: string;
     subUoms: [];
   }) => {
     const { product } = this.props;
@@ -97,12 +175,16 @@ class Form extends React.Component<Props, State> {
     const {
       attachment,
       attachmentMore,
-      productCount,
-      minimiumCount,
+      barcodes,
+      variants,
+      barcodeDescription,
       vendorId,
       description,
-      uomId,
-      subUoms
+      uom,
+      subUoms,
+      scopeBrandIds,
+      code,
+      categoryId,
     } = this.state;
 
     if (product) {
@@ -113,19 +195,28 @@ class Form extends React.Component<Props, State> {
 
     return {
       ...finalValues,
+      code,
+      categoryId,
+      scopeBrandIds,
       attachment,
       attachmentMore,
-      productCount,
-      minimiumCount,
+      barcodes,
+      variants,
+      barcodeDescription,
       vendorId,
       description,
-      uomId,
-      subUoms
+      uom,
+      subUoms: subUoms
+        .filter((su) => su.uom)
+        .map((su) => ({
+          ...su,
+          ratio: Math.abs(Number(su.ratio)) || 1,
+        })),
     };
   };
 
   renderFormTrigger(trigger: React.ReactNode) {
-    const content = props => (
+    const content = (props) => (
       <CategoryForm {...props} categories={this.props.productCategories} />
     );
 
@@ -134,18 +225,45 @@ class Form extends React.Component<Props, State> {
     );
   }
 
-  renderSubUoms(uoms) {
-    const subUoms = this.state.subUoms;
-    return subUoms.map(subUom => (
-      <>
-        <FormWrapper>
+  renderSubUoms() {
+    const { uoms } = this.props;
+    const { subUoms } = this.state;
+
+    return subUoms.map((subUom) => {
+      const updateUoms = (key, value) => {
+        const { subUoms } = this.state;
+        subUom[key] = value;
+        this.setState({
+          subUoms: subUoms.map((su) => (su._id === subUom._id ? subUom : su)),
+        });
+      };
+
+      const onChangeUom = ({ selectedOption }) => {
+        updateUoms("uom", selectedOption);
+      };
+
+      const onChangeRatio = (e) => {
+        const name = e.currentTarget.name;
+        let value = e.currentTarget.value;
+        if (name === "inverse") {
+          value = Number((1 / e.currentTarget.value || 1).toFixed(13));
+        }
+        updateUoms("ratio", value);
+      };
+
+      return (
+        <FormWrapper key={subUom._id}>
           <FormColumn>
             <FormGroup>
               <ControlLabel>Sub UOM</ControlLabel>
-              <Select
-                value={subUom.uomId}
-                onChange={this.updateUoms.bind(this, 'subUomId', subUom._id)}
-                options={uoms.map(e => ({ value: e._id, label: e.name }))}
+              <AutoCompletionSelect
+                defaultValue={subUom.uom}
+                defaultOptions={(uoms || []).map((e) => e.code)}
+                autoCompletionType="uoms"
+                placeholder="Enter an uom"
+                queryName="uoms"
+                query={queries.uoms}
+                onChange={onChangeUom}
               />
             </FormGroup>
           </FormColumn>
@@ -154,33 +272,49 @@ class Form extends React.Component<Props, State> {
               <ControlLabel>Ratio</ControlLabel>
               <Row>
                 <FormControl
+                  name="ratio"
+                  min={0}
                   value={subUom.ratio}
-                  onChange={this.updateUoms.bind(this, 'ratio', subUom._id)}
+                  onChange={onChangeRatio}
                   type="number"
-                />
-                <Button
-                  btnStyle="simple"
-                  uppercase={false}
-                  icon="cancel-1"
-                  onClick={this.onClickMinusSub.bind(this, subUom._id)}
                 />
               </Row>
             </FormGroup>
           </FormColumn>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel>~Inverse Ratio</ControlLabel>
+              <Row>
+                <FormControl
+                  name="inverse"
+                  value={Math.round((1 / (subUom.ratio || 1)) * 100) / 100}
+                  onChange={onChangeRatio}
+                  type="number"
+                />
+              </Row>
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            <Row>
+              <Button
+                btnStyle="simple"
+                uppercase={false}
+                icon="cancel-1"
+                onClick={this.onClickMinusSub.bind(this, subUom._id)}
+              />
+            </Row>
+          </FormColumn>
         </FormWrapper>
-      </>
-    ));
+      );
+    });
   }
 
   onComboEvent = (variable: string, e) => {
-    let value = '';
+    let value = "";
 
     switch (variable) {
-      case 'vendorId':
+      case "vendorId":
         value = e;
-        break;
-      case 'uomId':
-        value = e ? e.value : '';
         break;
       default:
         value = e.target.value;
@@ -189,40 +323,47 @@ class Form extends React.Component<Props, State> {
     this.setState({ [variable]: value } as any);
   };
 
-  updateUoms = (type, id, e) => {
-    const { subUoms } = this.state;
-    const condition = type === 'ratio';
-    const value = condition ? e.target.value : e.value;
+  onChangeUom = ({ selectedOption }) => {
+    this.setState({ uom: selectedOption });
+  };
 
-    let chosen = subUoms.find(sub => sub._id === id);
-    const uomId = condition ? chosen.uomId : value;
-    const ratio = condition ? value : chosen.ratio;
+  updateBarcodes = (barcode?: string) => {
+    const value = barcode || this.state.barcodeInput || "";
+    if (!value) {
+      return;
+    }
 
-    chosen = { uomId, ratio, _id: id };
+    const { barcodes } = this.state;
 
-    const others = subUoms.filter(sub => sub._id !== id);
+    if (barcodes.includes(value)) {
+      return;
+    }
 
-    others.push(chosen);
-    this.setState({ subUoms: others });
+    barcodes.unshift(value);
+
+    this.setState({ barcodes, barcodeInput: "" });
   };
 
   onClickAddSub = () => {
     const subUoms = this.state.subUoms;
-    const count = subUoms.length;
 
-    subUoms.push({ uomId: '', ratio: 0, _id: count + 1 });
+    subUoms.push({ uom: "", ratio: 1, _id: Math.random().toString() });
     this.setState({ subUoms });
   };
 
-  onClickMinusSub = counter => {
+  onClickMinusSub = (id) => {
     const subUoms = this.state.subUoms;
-    const filteredUoms = subUoms.filter(sub => sub._id !== counter);
+    const filteredUoms = subUoms.filter((sub) => sub._id !== id);
 
     this.setState({ subUoms: filteredUoms });
   };
 
-  onChangeDescription = e => {
-    this.setState({ description: e.editor.getData() });
+  onChangeDescription = (content: string) => {
+    this.setState({ description: content });
+  };
+
+  onChangeBarcodeDescription = (content: string) => {
+    this.setState({ barcodeDescription: content });
   };
 
   onChangeAttachment = (files: IAttachment[]) => {
@@ -233,27 +374,142 @@ class Form extends React.Component<Props, State> {
     this.setState({ attachmentMore: files ? files : undefined });
   };
 
-  onSupplyChange = e => {
-    const { productCount, minimiumCount } = this.state;
-    const islimited = e.target.value === 'limited';
-    const isUnique = e.target.value === 'unique';
+  onChangeBarcodeInput = (e) => {
+    this.setState({ barcodeInput: e.target.value });
 
+    if (e.target.value.length - this.state.barcodeInput.length > 1)
+      this.updateBarcodes(e.target.value);
+  };
+
+  onKeyDownBarcodeInput = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+
+      this.updateBarcodes();
+    }
+  };
+
+  onClickBarcode = (value: string) => {
     this.setState({
-      disabled: islimited ? false : true,
-      productCount: islimited ? productCount : isUnique ? 1 : 0,
-      minimiumCount: islimited ? minimiumCount : 0
+      barcodes: this.state.barcodes.filter((b) => b !== value),
     });
   };
 
+  onTaxChange = (e) => {
+    this.setState({
+      [e.target.name]: e.target.value,
+    } as any);
+  };
+
+  onChangeCateogry = (option) => {
+    const value = option.value;
+
+    this.setState({
+      categoryId: value,
+      category: this.getMaskStr(value),
+    });
+  };
+
+  onChangeBrand = (brandIds: string[]) => {
+    this.setState({ scopeBrandIds: brandIds });
+  };
+
+  renderBarcodes = () => {
+    const { barcodes, variants, attachmentMore } = this.state;
+    if (!barcodes.length) {
+      return <></>;
+    }
+
+    const onChangePerImage = (item, e) => {
+      const value = e.target.value;
+      this.setState({
+        variants: {
+          ...variants,
+          [item]: {
+            ...variants[item],
+            image: (attachmentMore || []).find((a) => a.url === value),
+          },
+        },
+      });
+    };
+
+    return (
+      <TableBarcode>
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Image</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {barcodes.map((item: any) => (
+            <tr>
+              <td>
+                <BarcodeItem
+                  key={item}
+                  onClick={() => this.onClickBarcode(item)}
+                >
+                  {item}
+                </BarcodeItem>
+              </td>
+              <td>
+                <FormControl
+                  name="name"
+                  value={(variants[item] || {}).name || ""}
+                  onChange={(e) =>
+                    this.setState({
+                      variants: {
+                        ...variants,
+                        [item]: {
+                          ...variants[item],
+                          name: (e.target as any).value,
+                        },
+                      },
+                    })
+                  }
+                />
+              </td>
+              <td>
+                <FormControl
+                  name="image"
+                  componentClass="select"
+                  value={((variants[item] || {}).image || {}).url || ""}
+                  onChange={onChangePerImage.bind(this, item)}
+                >
+                  <option key={Math.random()} value="">
+                    {" "}
+                  </option>
+                  {(attachmentMore || []).map((img) => (
+                    <option key={img.url} value={img.url}>
+                      {img.name}
+                    </option>
+                  ))}
+                </FormControl>
+              </td>
+              <td>
+                <ActionButtons>
+                  <Button
+                    btnStyle="link"
+                    onClick={() => this.onClickBarcode(item)}
+                  >
+                    <Tip text={__("Delete")} placement="bottom">
+                      <Icon icon="trash" />
+                    </Tip>
+                  </Button>
+                </ActionButtons>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </TableBarcode>
+    );
+  };
+
   renderContent = (formProps: IFormProps) => {
-    const {
-      renderButton,
-      closeModal,
-      product,
-      productCategories,
-      configsMap,
-      uoms
-    } = this.props;
+    const { renderButton, closeModal, product, productCategories, uoms } =
+      this.props;
     const { values, isSubmitted } = formProps;
     const object = product || ({} as IProduct);
 
@@ -272,17 +528,61 @@ class Form extends React.Component<Props, State> {
     const {
       vendorId,
       description,
-      productCount,
-      disabled,
-      minimiumCount
+      barcodeDescription,
+      taxType,
+      taxCode,
+      scopeBrandIds,
+      code,
+      categoryId,
+      maskStr,
     } = this.state;
 
-    const isUom = (configsMap || {}).isReqiureUOM || false;
+    const generateOptions = () => {
+      return productCategories.map((item) => ({
+        label: item.name,
+        value: item._id,
+      }));
+    };
 
     return (
       <>
         <FormWrapper>
           <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>Category</ControlLabel>
+              <Row>
+                <Select
+                  {...formProps}
+                  placeholder={__("Choose a category")}
+                  value={categoryId}
+                  options={generateOptions()}
+                  onChange={this.onChangeCateogry}
+                />
+                {this.renderFormTrigger(trigger)}
+              </Row>
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel required={true}>Code</ControlLabel>
+              <p>
+                Depending on your business type, you may type in a barcode or
+                any other UPC (Universal Product Code). If you don't use UPC,
+                type in any numeric value to differentiate your products. With
+                pattern {maskStr}
+              </p>
+              <FormControl
+                {...formProps}
+                name="code"
+                value={code}
+                required={true}
+                onChange={(e: any) => {
+                  this.setState({
+                    code: e.target.value.replace(/\*/g, ""),
+                  });
+                }}
+              />
+            </FormGroup>
+
             <FormGroup>
               <ControlLabel required={true}>Name</ControlLabel>
               <FormControl
@@ -291,6 +591,16 @@ class Form extends React.Component<Props, State> {
                 defaultValue={object.name}
                 autoFocus={true}
                 required={true}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel required={true}>Short name</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="shortName"
+                defaultValue={object.shortName}
+                required={false}
               />
             </FormGroup>
 
@@ -312,60 +622,22 @@ class Form extends React.Component<Props, State> {
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel required={true}>Code</ControlLabel>
-              <p>
-                Depending on your business type, you may type in a barcode or
-                any other UPC (Universal Product Code). If you don't use UPC,
-                type in any numeric value to differentiate your products.
-              </p>
-              <FormControl
-                {...formProps}
-                name="code"
-                defaultValue={object.code}
-                required={true}
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <ControlLabel required={true}>Category</ControlLabel>
-              <Row>
-                <FormControl
-                  {...formProps}
-                  name="categoryId"
-                  componentClass="select"
-                  defaultValue={object.categoryId}
-                  required={true}
-                >
-                  {generateCategoryOptions(productCategories)}
-                </FormControl>
-
-                {this.renderFormTrigger(trigger)}
-              </Row>
-            </FormGroup>
-
-            <FormGroup>
               <ControlLabel>Description</ControlLabel>
-              <EditorCK
+              <RichTextEditor
                 content={description}
                 onChange={this.onChangeDescription}
                 height={150}
                 isSubmitted={formProps.isSaved}
                 name={`product_description_${description}`}
                 toolbar={[
-                  {
-                    name: 'basicstyles',
-                    items: [
-                      'Bold',
-                      'Italic',
-                      'NumberedList',
-                      'BulletedList',
-                      'Link',
-                      'Unlink',
-                      '-',
-                      'Image',
-                      'EmojiPanel'
-                    ]
-                  }
+                  "bold",
+                  "italic",
+                  "orderedList",
+                  "bulletList",
+                  "link",
+                  "unlink",
+                  "|",
+                  "image",
                 ]}
               />
             </FormGroup>
@@ -373,8 +645,8 @@ class Form extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel required={true}>Unit price</ControlLabel>
               <p>
-                Please ensure you have set the default currency in the{' '}
-                <a href="/settings/general"> {'General Settings'}</a> of the
+                Please ensure you have set the default currency in the{" "}
+                <a href="/settings/general"> {"General Settings"}</a> of the
                 System Configuration.
               </p>
               <FormControl
@@ -386,55 +658,62 @@ class Form extends React.Component<Props, State> {
                 min={0}
               />
             </FormGroup>
-          </FormColumn>
-          <FormColumn>
             <FormGroup>
-              <ControlLabel>Product supply</ControlLabel>
+              <ControlLabel>Vendor</ControlLabel>
+              <SelectCompanies
+                label="Choose an vendor"
+                name="vendorId"
+                customOption={{ value: "", label: "No vendor chosen" }}
+                initialValue={vendorId}
+                onSelect={this.onComboEvent.bind(this, "vendorId")}
+                multi={false}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Tax Type</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="taxType"
+                componentClass="select"
+                onChange={this.onTaxChange}
+                defaultValue={taxType}
+                options={[
+                  { value: "", label: "default" },
+                  ...Object.keys(TAX_TYPES).map((type) => ({
+                    value: type,
+                    label: TAX_TYPES[type].label,
+                  })),
+                ]}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Tax Code</ControlLabel>
 
               <FormControl
                 {...formProps}
-                name="supply"
+                name="taxCode"
                 componentClass="select"
-                onChange={this.onSupplyChange}
-                defaultValue={object.supply}
-                options={PRODUCT_SUPPLY}
+                onChange={this.onTaxChange}
+                defaultValue={taxCode}
+                options={(TAX_TYPES[taxType || ""] || {}).options || []}
               />
             </FormGroup>
-
-            <FormWrapper>
-              <FormColumn>
-                <FormGroup>
-                  <ControlLabel>Product count</ControlLabel>
-
-                  <FormControl
-                    {...formProps}
-                    name="productCount"
-                    value={productCount}
-                    disabled={disabled}
-                    onChange={this.onComboEvent.bind(this, 'productCount')}
-                    type="number"
-                  />
-                </FormGroup>
-              </FormColumn>
-              <FormColumn>
-                <FormGroup>
-                  <ControlLabel>Minimium count</ControlLabel>
-
-                  <FormControl
-                    {...formProps}
-                    name="minimiumCount"
-                    value={minimiumCount}
-                    disabled={disabled}
-                    onChange={this.onComboEvent.bind(this, 'minimiumCount')}
-                    type="number"
-                  />
-                </FormGroup>
-              </FormColumn>
-            </FormWrapper>
-
+          </FormColumn>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel>Brand</ControlLabel>
+              <SelectBrands
+                label={__("Choose brands")}
+                onSelect={(brandIds) =>
+                  this.onChangeBrand(brandIds as string[])
+                }
+                initialValue={scopeBrandIds}
+                multi={true}
+                name="selectedBrands"
+              />
+            </FormGroup>
             <FormGroup>
               <ControlLabel>Featured image</ControlLabel>
-
               <Uploader
                 defaultFileList={attachments}
                 onChange={this.onChangeAttachment}
@@ -445,7 +724,6 @@ class Form extends React.Component<Props, State> {
 
             <FormGroup>
               <ControlLabel>Secondary Images</ControlLabel>
-
               <Uploader
                 defaultFileList={attachmentsMore}
                 onChange={this.onChangeAttachmentMore}
@@ -455,56 +733,73 @@ class Form extends React.Component<Props, State> {
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel>Vendor</ControlLabel>
-              <SelectCompanies
-                label="Choose an vendor"
-                name="vendorId"
-                customOption={{ value: '', label: 'No vendor chosen' }}
-                initialValue={vendorId}
-                onSelect={this.onComboEvent.bind(this, 'vendorId')}
-                multi={false}
-              />
-            </FormGroup>
-
-            {!isUom && (
-              <FormGroup>
-                <ControlLabel>SKU</ControlLabel>
+              <ControlLabel>Barcodes</ControlLabel>
+              <Row>
                 <FormControl
                   {...formProps}
-                  name="sku"
-                  defaultValue={object.sku}
+                  name="barcodes"
+                  value={this.state.barcodeInput}
+                  autoComplete="off"
+                  onChange={this.onChangeBarcodeInput}
+                  onKeyDown={this.onKeyDownBarcodeInput}
                 />
-              </FormGroup>
-            )}
+                <Button
+                  btnStyle="primary"
+                  icon="plus-circle"
+                  onClick={() => this.updateBarcodes()}
+                >
+                  Add barcode
+                </Button>
+              </Row>
+              {this.renderBarcodes()}
+            </FormGroup>
 
-            {isUom && (
-              <>
-                <FormGroup>
-                  <ControlLabel>UOM</ControlLabel>
-                  <Row>
-                    <Select
-                      value={this.state.uomId}
-                      onChange={this.onComboEvent.bind(this, 'uomId')}
-                      options={(uoms || []).map(e => ({
-                        value: e._id,
-                        label: e.name
-                      }))}
-                    />
-                    <Button
-                      btnStyle="primary"
-                      uppercase={false}
-                      icon="plus-circle"
-                      onClick={this.onClickAddSub}
-                    >
-                      {' '}
-                      Add sub
-                    </Button>
-                  </Row>
-                </FormGroup>
+            <FormGroup>
+              <ControlLabel>Barcode Description</ControlLabel>
+              <RichTextEditor
+                content={barcodeDescription}
+                onChange={this.onChangeBarcodeDescription}
+                height={150}
+                isSubmitted={formProps.isSaved}
+                name={`product_barcode_description_${barcodeDescription}`}
+                toolbar={[
+                  "bold",
+                  "italic",
+                  "orderedList",
+                  "bulletList",
+                  "link",
+                  "unlink",
+                  "|",
+                  "image",
+                ]}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel required={true}>UOM</ControlLabel>
+              <Row>
+                <AutoCompletionSelect
+                  defaultValue={this.state.uom}
+                  defaultOptions={(uoms || []).map((e) => e.code)}
+                  autoCompletionType="uoms"
+                  placeholder="Enter an uom"
+                  queryName="uoms"
+                  query={queries.uoms}
+                  onChange={this.onChangeUom}
+                  required={true}
+                />
+                <Button
+                  btnStyle="primary"
+                  uppercase={false}
+                  icon="plus-circle"
+                  onClick={this.onClickAddSub}
+                >
+                  {" "}
+                  Add sub
+                </Button>
+              </Row>
+            </FormGroup>
 
-                {this.renderSubUoms(uoms)}
-              </>
-            )}
+            {this.renderSubUoms()}
           </FormColumn>
         </FormWrapper>
 
@@ -519,11 +814,11 @@ class Form extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'product and service',
+            name: "product and service",
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: product
+            object: product,
           })}
         </ModalFooter>
       </>

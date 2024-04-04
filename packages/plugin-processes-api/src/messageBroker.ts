@@ -1,20 +1,69 @@
 import { generateModels } from './connectionResolver';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
-import { debugBase } from '@erxes/api-utils/src/debuggers';
-import { rf } from './utils/receiveFlow';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 
-let client;
+import { beforeResolverHandlers } from './beforeResolvers';
+import {
+  consumeSalesPlans,
+  removeFromSalesPlans,
+} from './utils/consumeSalesPlans';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 
-export const initBroker = async cl => {
-  client = cl;
-  const { consumeQueue, consumeRPCQueue } = cl;
-  consumeQueue('processes:createWorks', async ({ subdomain, data }) => {
-    debugBase(`Receiving queue data: ${JSON.stringify(data)}`);
+export const setupMessageConsumers = async () => {
+  consumeQueue(
+    'processes:createWorks',
+    async ({ subdomain, data: { dayPlans, date, branchId, departmentId } }) => {
+      // if (!(branchId && departmentId && date && new Date(date) > new Date())) {
+      if (!(branchId && departmentId && date)) {
+        throw new Error('not valid data');
+      }
 
+      if (!dayPlans || !dayPlans.length) {
+        throw new Error('not valid data');
+      }
+
+      await sendSalesplansMessage({
+        subdomain,
+        action: 'dayPlans.updateStatus',
+        data: { _ids: dayPlans.map((d) => d._id), status: 'pending' },
+      });
+
+      const models = await generateModels(subdomain);
+
+      const qb = new consumeSalesPlans(models, subdomain, {
+        dayPlans,
+        date,
+        branchId,
+        departmentId,
+      });
+
+      await qb.run();
+    },
+  );
+
+  consumeRPCQueue(
+    'processes:removeWorks',
+    async ({ subdomain, data: { dayPlans } }) => {
+      const models = await generateModels(subdomain);
+      return {
+        status: 'success',
+        data: { removedIds: await removeFromSalesPlans(models, dayPlans) },
+      };
+    },
+  );
+
+  consumeRPCQueue('processes:beforeResolver', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
-    await rf(models, subdomain, { data });
-    return { status: 'success' };
+    return {
+      data: await beforeResolverHandlers(models, data),
+      status: 'success',
+    };
   });
 
   consumeRPCQueue(
@@ -23,58 +72,93 @@ export const initBroker = async cl => {
       const models = await generateModels(subdomain);
 
       const needProductIds = await await models.JobRefers.find({
-        'needProducts.productId': { $in: _ids }
+        'needProducts.productId': { $in: _ids },
       }).distinct('productsData.productId');
       const resProductIds = await await models.JobRefers.find({
-        'resultProducts.productId': { $in: _ids }
+        'resultProducts.productId': { $in: _ids },
       }).distinct('productsData.productId');
 
       return { data: [...needProductIds, ...resProductIds], status: 'success' };
-    }
+    },
+  );
+
+  consumeRPCQueue('processes:performs.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    return {
+      status: 'success',
+      data: await models.Performs.find(data).lean(),
+    };
+  });
+
+  consumeRPCQueue(
+    'processes:performs.aggregate',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      const { aggregate, replacers } = data;
+      for (const repl of replacers || []) {
+        try {
+          eval(repl);
+        } catch (e) {}
+      }
+
+      return {
+        status: 'success',
+        data: await models.Performs.aggregate(aggregate),
+      };
+    },
   );
 };
 
 export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
+  args: MessageArgs & { serviceName: string },
 ): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
-    client,
-    ...args
+    ...args,
   });
 };
 
 export const sendProductsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'products',
-    ...args
+    ...args,
+  });
+};
+
+export const sendContactsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'contacts',
+    ...args,
+  });
+};
+
+export const sendInventoriesMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'inventories',
+    ...args,
   });
 };
 
 export const sendSalesplansMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'salesplans',
-    ...args
+    ...args,
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
-
-export default function() {
-  return client;
-}

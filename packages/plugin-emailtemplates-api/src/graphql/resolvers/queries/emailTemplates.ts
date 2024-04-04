@@ -43,14 +43,27 @@ const emailTemplateQueries = {
   ) {
     const filter = generateFilter(commonQuerySelector, args);
 
-    return paginate(models.EmailTemplates.find(filter), args);
+    return paginate(
+      models.EmailTemplates.find(filter).sort({ createdAt: -1 }),
+      args
+    );
   },
 
   /**
    * Get all email templates count. We will use it in pager
    */
-  emailTemplatesTotalCount(_root, _args, { models }: IContext) {
-    return models.EmailTemplates.find({}).countDocuments();
+  emailTemplatesTotalCount(_root, { searchValue }, { models }: IContext) {
+    const filter: any = {};
+
+    if (searchValue) {
+      filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+    }
+
+    return models.EmailTemplates.find(filter).countDocuments();
+  },
+
+  emailTemplate(_root, { _id }, { models }: IContext) {
+    return models.EmailTemplates.findOne({ _id }).lean();
   }
 };
 
@@ -60,6 +73,13 @@ checkPermission(
   'emailTemplates',
   'showEmailTemplates',
   []
+);
+
+checkPermission(
+  emailTemplateQueries,
+  'emailTemplate',
+  'showEmailTemplates',
+  {}
 );
 
 export default emailTemplateQueries;

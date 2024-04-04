@@ -24,7 +24,11 @@ export const spinSchema = schemaHooksWrapper(
 
     status: field({ type: String, enum: SPIN_STATUS.ALL, default: 'new' }),
 
-    voucherCampaignId: field({ type: String, label: 'Source Voucher Campaign', optional: true }),
+    voucherCampaignId: field({
+      type: String,
+      label: 'Source Voucher Campaign',
+      optional: true
+    }),
 
     // won
     awardId: field({ type: String, label: 'Won award' }),

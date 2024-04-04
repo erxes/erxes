@@ -1,6 +1,7 @@
+import { colors, dimensions } from '../../styles';
+
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { colors, dimensions } from '../../styles';
 
 const PopoverHeader = styled.div`
   display: block !important;
@@ -22,6 +23,17 @@ const FlexRow = styled.div`
 
   > li {
     flex: 1;
+    display: flex !important;
+
+    &.active {
+      color: rgb(55, 55, 55);
+      background: rgb(240, 240, 240);
+      outline: 0px;
+    }
+
+    &:focus {
+      outline: none;
+    }
   }
 `;
 
@@ -65,7 +77,7 @@ const PopoverList = styledTS<{ selectable?: boolean; isIndented?: boolean }>(
 
     i {
       &.icon-tag-alt{
-        margin-right: ${dimensions.unitSpacing / 5}px;
+        margin-right: ${dimensions.unitSpacing}px;
       }
     }
 
@@ -112,7 +124,7 @@ const PopoverBody = styled.div`
     max-height: unset;
   }
 
-  min-width: 260px;
+  min-width: 300px;
 `;
 
 const PopoverFooter = styled.div`
@@ -149,18 +161,13 @@ const ChildList = styled.div`
 
 const iconWidth = 30;
 
-const ToggleIcon = styledTS<{ isIndented?: boolean; type?: string }>(
-  styled.div
-)`
+const ToggleIcon = styledTS<{ type?: string }>(styled.div)`
   position: absolute;
   ${props =>
     props.type === 'list' &&
     `
-  left:${
-    props.isIndented
-      ? `${dimensions.unitSpacing * 0.5}px`
-      : `${dimensions.unitSpacing * 1.5}px`
-  };
+  top: 8px;
+  left:${dimensions.unitSpacing * 0.5}px;
   line-height: ${iconWidth}px;
   text-align: center;
   width: ${iconWidth / 2}px;`}
@@ -186,6 +193,11 @@ const PopoverContent = styled.div`
   }
 `;
 
+const ItemText = styled.span`
+  flex: 1;
+  width: 100%;
+`;
+
 export {
   PopoverHeader,
   PopoverBody,
@@ -196,7 +208,8 @@ export {
   AvatarImg,
   IconWrapper,
   ChildList,
-  ToggleIcon
+  ToggleIcon,
+  ItemText
 };
 
 export default {
@@ -209,5 +222,6 @@ export default {
   AvatarImg,
   IconWrapper,
   ChildList,
-  ToggleIcon
+  ToggleIcon,
+  ItemText
 };

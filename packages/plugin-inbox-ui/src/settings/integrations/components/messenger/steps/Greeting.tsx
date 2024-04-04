@@ -1,19 +1,21 @@
-import { IUser } from '@erxes/ui/src/auth/types';
+import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
+
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
-import { __ } from '@erxes/ui/src/utils/core';
-import { IMessages } from '@erxes/ui-settings/src/integrations/types';
-import { SubHeading } from '@erxes/ui-settings/src/styles';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { IMessages } from '../../../types';
+import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { SubHeading } from '@erxes/ui-settings/src/styles';
+import { __ } from 'coreui/utils';
 
 type Props = {
   onChange: (name: any, value: any) => void;
   teamMembers: IUser[];
   supporterIds: string[];
   facebook?: string;
+  instagram?: string;
   twitter?: string;
   youtube?: string;
   languageCode: string;
@@ -22,6 +24,7 @@ type Props = {
 
 type State = {
   facebook?: string;
+  instagram?: string;
   twitter?: string;
   youtube?: string;
   languageCode?: string;
@@ -36,6 +39,7 @@ class Greeting extends React.Component<Props, State> {
 
     this.state = {
       facebook: '',
+      instagram: '',
       twitter: '',
       youtube: '',
       messages
@@ -60,6 +64,7 @@ class Greeting extends React.Component<Props, State> {
   render() {
     const {
       facebook,
+      instagram,
       twitter,
       youtube,
       languageCode,
@@ -80,6 +85,10 @@ class Greeting extends React.Component<Props, State> {
 
     const facebookChange = e =>
       this.onInputChange('facebook', (e.target as HTMLInputElement).value);
+
+    const instagramChange = e => {
+      this.onInputChange('instagram', (e.target as HTMLInputElement).value);
+    };
 
     const twitterChange = e =>
       this.onInputChange('twitter', (e.target as HTMLInputElement).value);
@@ -138,6 +147,15 @@ class Greeting extends React.Component<Props, State> {
             />
           </FormGroup>
 
+          <FormGroup>
+            <ControlLabel>Instagram</ControlLabel>
+
+            <FormControl
+              rows={3}
+              value={instagram || ''}
+              onChange={instagramChange}
+            />
+          </FormGroup>
           <FormGroup>
             <ControlLabel>Twitter</ControlLabel>
 

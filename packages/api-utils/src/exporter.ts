@@ -1,20 +1,5 @@
 import * as moment from 'moment';
-import * as xlsxPopulate from 'xlsx-populate';
 import { IColumnLabel } from '.';
-
-export const createXlsFile = async () => {
-  // Generating blank workbook
-  const workbook = await xlsxPopulate.fromBlankAsync();
-
-  return { workbook, sheet: workbook.sheet(0) };
-};
-
-/**
- * Generates downloadable xls file on the url
- */
-export const generateXlsx = async (workbook: any): Promise<string> => {
-  return workbook.outputAsync();
-};
 
 export const getCustomFieldsData = async (getField, item, column, type) => {
   let field;
@@ -35,7 +20,7 @@ export const getCustomFieldsData = async (getField, item, column, type) => {
         }
 
         if (field.validation === 'date') {
-          value = moment(value).format('YYYY-MM-DD HH:mm');
+          value = moment(value).format('YYYY-MM-DD');
         }
 
         return { field, value };

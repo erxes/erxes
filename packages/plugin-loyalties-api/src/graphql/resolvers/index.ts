@@ -9,6 +9,8 @@ import SpinCampaign from './customResolvers/spinCampaign';
 import Lottery from './customResolvers/lottery';
 import LotteryCampaign from './customResolvers/lotteryCampaign';
 import ScoreLog from './customResolvers/scoreLog';
+import Assignment from './customResolvers/assignments';
+import AssignmentCampaign from './customResolvers/assignmentCampaign';
 import {
   Configs as LoyaltyConfigMutations,
   Donates as DonateMutations,
@@ -20,7 +22,9 @@ import {
   Lotteries as LotteryMutations,
   LotteryCampaigns as LotteryCampaignMutations,
   Loyalties as LoyaltyMutations,
-  ScoreLogs as ScoreLogMutations
+  ScoreLogs as ScoreLogMutations,
+  Assignments as AssignmentMutations,
+  AssignmentCampaigns as AssignmentCampaignMutations
 } from './mutations';
 import {
   Donates as DonateQueries,
@@ -32,48 +36,53 @@ import {
   Vouchers as VoucherQueries,
   VoucherCampaigns as VoucherCampaignQueries,
   ScoreLogs as ScoreLogQueries,
-  Loyalties as LoyaltyQueries
+  Loyalties as LoyaltyQueries,
+  Assignments as AssignmentQueries,
+  AssignmentCampaigns as AssignmentCampaignQueries
 } from './queries';
-
-const resolvers: any = async (serviceDiscovery) => (
-
-  {
-    ...customScalars,
-    Donate,
-    DonateCampaign,
-    Voucher,
-    VoucherCampaign,
-    Spin,
-    SpinCampaign,
-    Lottery,
-    LotteryCampaign,
-    ScoreLog,
-    Mutation: {
-      ...LoyaltyConfigMutations,
-      ...DonateMutations,
-      ...DonateCampaignMutations,
-      ...VoucherMutations,
-      ...VoucherCampaignMutations,
-      ...SpinMutations,
-      ...SpinCampaignMutations,
-      ...LotteryMutations,
-      ...LotteryCampaignMutations,
-      ...LoyaltyMutations,
-      ...ScoreLogMutations
-    },
-    Query: {
-      ...loyaltyConfigQueries,
-      ...DonateQueries,
-      ...DonateCampaignQueries,
-      ...SpinQueries,
-      ...SpinCampaignQueries,
-      ...LotteryQueries,
-      ...LotteryCampaignQueries,
-      ...VoucherQueries,
-      ...VoucherCampaignQueries,
-      ...ScoreLogQueries,
-      ...LoyaltyQueries
-    }
-  });
+const resolvers: any = async serviceDiscovery => ({
+  ...customScalars,
+  Donate,
+  DonateCampaign,
+  Assignment,
+  AssignmentCampaign,
+  Voucher,
+  VoucherCampaign,
+  Spin,
+  SpinCampaign,
+  Lottery,
+  LotteryCampaign,
+  ScoreLog,
+  Mutation: {
+    ...LoyaltyConfigMutations,
+    ...DonateMutations,
+    ...DonateCampaignMutations,
+    ...VoucherMutations,
+    ...VoucherCampaignMutations,
+    ...SpinMutations,
+    ...SpinCampaignMutations,
+    ...LotteryMutations,
+    ...LotteryCampaignMutations,
+    ...LoyaltyMutations,
+    ...ScoreLogMutations,
+    ...AssignmentMutations,
+    ...AssignmentCampaignMutations
+  },
+  Query: {
+    ...loyaltyConfigQueries,
+    ...DonateQueries,
+    ...DonateCampaignQueries,
+    ...SpinQueries,
+    ...SpinCampaignQueries,
+    ...LotteryQueries,
+    ...LotteryCampaignQueries,
+    ...VoucherQueries,
+    ...VoucherCampaignQueries,
+    ...ScoreLogQueries,
+    ...LoyaltyQueries,
+    ...AssignmentQueries,
+    ...AssignmentCampaignQueries
+  }
+});
 
 export default resolvers;

@@ -1,22 +1,19 @@
-import { sendMessage, ISendMessageArgs } from '@erxes/api-utils/src/core';
+import { sendMessage, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
-import { serviceDiscovery, debug } from './configs';
-import { generateModels } from './connectionResolver';
-import { start, sendBulkSms } from './sender';
+import { generateModels, IModels } from './connectionResolver';
+import { start, sendBulkSms, sendEmail } from './sender';
 import { CAMPAIGN_KINDS } from './constants';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 
-export let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeQueue, consumeRPCQueue } = client;
-
+export const setupMessageConsumers = async () => {
   consumeQueue('engages:pre-notification', async ({ data, subdomain }) => {
     const models = await generateModels(subdomain);
 
     const { engageMessage, customerInfos = [] } = data;
-
     if (
       engageMessage.kind === CAMPAIGN_KINDS.MANUAL &&
       customerInfos.length === 0
@@ -66,9 +63,8 @@ export const initBroker = async cl => {
   });
 
   consumeQueue('engages:notification', async ({ subdomain, data }) => {
-    debug.info(`Receiving queue data ${JSON.stringify(data)}`);
-
-    const models = await generateModels(subdomain);
+    debugInfo(`Receiving queue data ${JSON.stringify(data)}`);
+    const models = (await generateModels(subdomain)) as IModels;
 
     try {
       const { action, data: realData } = data;
@@ -85,7 +81,7 @@ export const initBroker = async cl => {
         await sendBulkSms(models, subdomain, realData);
       }
     } catch (e) {
-      debug.error(e.message);
+      debugError(e.message);
     }
   });
 
@@ -114,102 +110,118 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.EngageMessages.createVisitorOrCustomerMessages(data)
+        data: await models.EngageMessages.createVisitorOrCustomerMessages(data),
       };
     }
   );
-};
 
-export const removeEngageConversations = async (_id): Promise<any> => {
-  return client.consumeQueue('removeEngageConversations', _id);
-};
+  consumeQueue('engages:sendEmail', async ({ data, subdomain }) => {
+    const models = await generateModels(subdomain);
 
-export default function() {
-  return client;
-}
-
-export const sendContactsMessage = async (
-  args: ISendMessageArgs
-): Promise<any> => {
-  return sendMessage({
-    client,
-    serviceDiscovery,
-    serviceName: 'contacts',
-    ...args
+    await sendEmail(models, data);
   });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const removeEngageConversations = async (_id: string): Promise<any> => {
+  // FIXME: This doesn't look like it should be calling consumeQueue
+  // return consumeQueue('removeEngageConversations', _id);
+};
+
+export const sendContactsMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
+    serviceName: 'contacts',
+    ...args,
+  });
+};
+
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendInboxMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'inbox',
-    ...args
+    ...args,
   });
 };
 
-export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendLogsMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'logs',
-    ...args
+    ...args,
   });
 };
 
 export const sendSegmentsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'segments',
-    ...args
+    ...args,
   });
 };
 
-export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendTagsMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'tags',
-    ...args
+    ...args,
   });
 };
 
 export const sendIntegrationsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'integrations',
-    ...args
+    ...args,
   });
 };
 
 export const sendEmailTemplatesMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
-    serviceName: 'emailTemplates',
-    ...args
+    serviceName: 'emailtemplates',
+    ...args,
+  });
+};
+
+export const sendClientPortalMessage = (args: MessageArgsOmitService) => {
+  return sendMessage({
+    serviceName: 'clientportal',
+    ...args,
+  });
+};
+
+export const sendImapMessage = (args: MessageArgsOmitService) => {
+  return sendMessage({
+    serviceName: 'imap',
+    ...args,
+  });
+};
+
+export const sendNotificationsMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'notifications',
+    ...args,
   });
 };
 
 export const sendToWebhook = ({ subdomain, data }) => {
-  return sendWebhook(client, { subdomain, data });
+  return sendWebhook({ subdomain, data });
 };

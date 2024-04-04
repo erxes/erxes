@@ -1,6 +1,8 @@
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import { IContext } from '../../connectionResolver';
 import { sendProductsMessage } from '../../messageBroker';
 import {
+  IField,
   IFieldDocument,
   IFieldGroupDocument
 } from '../../models/definitions/fields';
@@ -33,6 +35,15 @@ export const field = {
     return models.Fields.findOne({ _id: associatedFieldId });
   },
 
+  async subFields(root: IFieldDocument, _params, { models }: IContext) {
+    const { subFieldIds = [] } = root;
+    const subfields = await models.Fields.find({ _id: { $in: subFieldIds } });
+
+    return subfields.sort(
+      (a, b) => subFieldIds.indexOf(a._id) - subFieldIds.indexOf(b._id)
+    );
+  },
+
   async groupName(root: IFieldDocument, _params, { models }: IContext) {
     const { groupId } = root;
 
@@ -59,20 +70,37 @@ export const field = {
       defaultValue: []
     });
 
-    return (products || []).map(({ _id }) => ({
-      __typename: 'Product',
-      _id
+    return products.map(product => ({
+      _id: product._id,
+      name: product.name,
+      unitPrice: product.unitPrice
     }));
   }
 };
 
 export const fieldsGroup = {
-  fields(root: IFieldGroupDocument, _params, { models }: IContext) {
+  async fields(root: IFieldGroupDocument, _params, { models }: IContext) {
     // Returning all fields that are related to the group
-    return models.Fields.find({
+    const fields = await models.Fields.find({
       groupId: root._id,
       contentType: root.contentType
     }).sort({ order: 1 });
+
+    // Splitting code to array
+    const splitted = root.code && root.code.split(':');
+
+    if (splitted && splitted.length === 3 && splitted[2] === 'relations') {
+      const enabledFields: IField[] = [];
+      for (const f of fields) {
+        if (await isEnabled(f.relationType?.split(':')[0])) {
+          enabledFields.push(f);
+        }
+      }
+
+      return enabledFields;
+    }
+
+    return fields;
   },
 
   lastUpdatedUser(fieldGroup: IFieldGroupDocument) {

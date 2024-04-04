@@ -7,6 +7,7 @@ import { INote } from '../../../models/definitions/notes';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
 import { sendSegmentsMessage } from '../../../messageBroker';
 import { IContext } from '../../../connectionResolver';
+import { STATUSES } from '../../../constants';
 
 interface IAutomationNoteEdit extends INote {
   _id: string;
@@ -16,7 +17,7 @@ interface IAutomationsEdit extends IAutomation {
   _id: string;
 }
 
-const automationMutations = _serviceDiscovery => ({
+const automationMutations = {
   /**
    * Creates a new automation
    */
@@ -72,6 +73,22 @@ const automationMutations = _serviceDiscovery => ({
     );
 
     return models.Automations.getAutomation(_id);
+  },
+
+  /**
+   * Archive automations
+   */
+
+  async archiveAutomations(
+    _root,
+    { automationIds, isRestore },
+    { models }: IContext
+  ) {
+    await models.Automations.updateMany(
+      { _id: { $in: automationIds } },
+      { $set: { status: isRestore ? STATUSES.DRAFT : STATUSES.ARCHIVED } }
+    );
+    return automationIds;
   },
 
   /**
@@ -288,7 +305,7 @@ const automationMutations = _serviceDiscovery => ({
 
     return note;
   }
-});
+};
 
 checkPermission(automationMutations, 'automationsAdd', 'automationsAdd');
 checkPermission(automationMutations, 'automationsEdit', 'automationsEdit');

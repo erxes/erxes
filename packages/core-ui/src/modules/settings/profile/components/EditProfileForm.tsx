@@ -1,13 +1,11 @@
-import UserCommonInfos from '@erxes/ui-settings/src/common/components/UserCommonInfos';
-import { IUser, IUserDoc } from 'modules/auth/types';
-import Button from 'modules/common/components/Button';
-import Form from 'modules/common/components/form/Form';
-import { ModalFooter } from 'modules/common/styles/main';
-import { IFormProps } from 'modules/common/types';
-import { __, getConstantFromStore } from 'modules/common/utils';
-import React from 'react';
-import Modal from 'react-bootstrap/Modal';
-import PasswordConfirmation from './PasswordConfirmation';
+import { IUser, IUserDoc } from "modules/auth/types";
+import { __, getConstantFromStore } from "modules/common/utils";
+
+import Button from "modules/common/components/Button";
+import Form from "modules/common/components/form/Form";
+import { ModalFooter } from "modules/common/styles/main";
+import React from "react";
+import UserCommonInfos from "@erxes/ui-settings/src/common/components/UserCommonInfos";
 
 type Props = {
   currentUser: IUser;
@@ -31,24 +29,19 @@ class EditProfile extends React.Component<Props, State> {
     const { details } = currentUser;
 
     this.state = {
-      avatar: details ? details.avatar || '' : '',
-      isShowPasswordPopup: false
+      avatar: details ? details.avatar || "" : "",
+      isShowPasswordPopup: false,
     };
   }
 
-  closeConfirm = () => {
-    this.setState({ isShowPasswordPopup: false });
-  };
-
   closeAllModals = () => {
-    this.closeConfirm();
     this.props.closeModal();
   };
 
-  handleSubmit = (password: string, values: any) => {
+  handleSubmit = (values: any) => {
     const links = {};
 
-    getConstantFromStore('social_links').forEach(link => {
+    getConstantFromStore("social_links").forEach((link) => {
       links[link.value] = values[link.value];
     });
 
@@ -65,49 +58,23 @@ class EditProfile extends React.Component<Props, State> {
           workStartedDate: values.workStartedDate,
           location: values.location,
           description: values.description,
-          operatorPhone: values.operatorPhone
+          operatorPhone: values.operatorPhone,
+          firstName: values.firstName,
+          middleName: values.middleName,
+          lastName: values.lastName,
         },
         links,
-        password
+        employeeId: values.employeeId,
       },
       this.closeAllModals
     );
   };
 
-  onAvatarUpload = url => {
+  onAvatarUpload = (url) => {
     this.setState({ avatar: url });
   };
 
-  onSuccess = (password: string, values: any[]) => {
-    return this.handleSubmit(password, values);
-  };
-
-  showConfirm = () => {
-    return this.setState({ isShowPasswordPopup: true });
-  };
-
-  renderPasswordConfirmationModal(formProps: IFormProps) {
-    return (
-      <Modal
-        show={this.state.isShowPasswordPopup}
-        onHide={this.closeConfirm}
-        animation={false}
-      >
-        <Modal.Header closeButton={true}>
-          <Modal.Title>{__('Enter your password to Confirm')}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <PasswordConfirmation
-            formProps={formProps}
-            onSuccess={this.onSuccess}
-            closeModal={this.closeConfirm}
-          />
-        </Modal.Body>
-      </Modal>
-    );
-  }
-
-  renderContent = formProps => {
+  renderContent = (formProps) => {
     return (
       <>
         <UserCommonInfos
@@ -115,8 +82,6 @@ class EditProfile extends React.Component<Props, State> {
           user={this.props.currentUser}
           onAvatarUpload={this.onAvatarUpload}
         />
-
-        {this.renderPasswordConfirmationModal(formProps)}
 
         <ModalFooter>
           <Button
@@ -127,7 +92,7 @@ class EditProfile extends React.Component<Props, State> {
             Cancel
           </Button>
 
-          <Button type="submit" btnStyle="success" icon="plus-circle">
+          <Button type="submit" btnStyle="success" icon="check-circle">
             Save
           </Button>
         </ModalFooter>
@@ -137,7 +102,7 @@ class EditProfile extends React.Component<Props, State> {
 
   render() {
     return (
-      <Form renderContent={this.renderContent} onSubmit={this.showConfirm} />
+      <Form renderContent={this.renderContent} onSubmit={this.handleSubmit} />
     );
   }
 }

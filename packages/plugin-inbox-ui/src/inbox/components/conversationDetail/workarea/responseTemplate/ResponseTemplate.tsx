@@ -1,16 +1,16 @@
 import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
 import { IAttachment } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
-import Modal from '../../../../containers/conversationDetail/responseTemplate/Modal';
-import PopoverContent from '../../../../containers/conversationDetail/responseTemplate/PopoverContent';
-import { ResponseTemplateStyled } from '@erxes/ui-inbox/src/inbox/styles';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IResponseTemplate } from '../../../../../settings/responseTemplates/types';
-import React from 'react';
+import Icon from '@erxes/ui/src/components/Icon';
+import Modal from '../../../../containers/conversationDetail/responseTemplate/Modal';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
+import PopoverContent from '../../../../containers/conversationDetail/responseTemplate/PopoverContent';
+import React from 'react';
+import { ResponseTemplateStyled } from '@erxes/ui-inbox/src/inbox/styles';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils/core';
 import strip from 'strip';
 
 type Props = {
@@ -21,14 +21,7 @@ type Props = {
   content?: string;
 };
 
-type State = {
-  key?: string;
-  brandId?: string;
-  searchValue: string;
-  options: IResponseTemplate[];
-};
-
-class ResponseTemplate extends React.Component<Props, State> {
+class ResponseTemplate extends React.Component<Props> {
   private overlayRef;
 
   hidePopover = () => {
@@ -66,7 +59,7 @@ class ResponseTemplate extends React.Component<Props, State> {
             this.overlayRef = overlayTrigger;
           }}
         >
-          <Button btnStyle="link">
+          <Button btnStyle="link" id="overlay-trigger-button">
             <Tip text={__('Response template')}>
               <Icon icon="file-bookmark-alt" />
             </Tip>

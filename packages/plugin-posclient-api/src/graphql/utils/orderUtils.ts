@@ -3,11 +3,12 @@ import { IModels } from '../../connectionResolver';
 import { IPayment } from '../resolvers/mutations/orders';
 import { IOrderInput, IOrderItemInput } from '../types';
 import { IOrderItemDocument } from '../../models/definitions/orderItems';
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
 import {
   DISTRICTS,
-  ORDER_STATUSES,
-  BILL_TYPES
+  BILL_TYPES,
+  ORDER_TYPES,
+  ORDER_ITEM_STATUSES
 } from '../../models/definitions/constants';
 import {
   IConfigDocument,
@@ -15,30 +16,29 @@ import {
   IEbarimtConfig
 } from '../../models/definitions/configs';
 import * as moment from 'moment';
-import { graphqlPubsub } from '../../configs';
-import messageBroker from '../../messageBroker';
 import { debugError } from '@erxes/api-utils/src/debuggers';
+import { isValidBarcode } from './otherUtils';
+import { IProductDocument } from '../../models/definitions/products';
+import { checkLoyalties } from './loyalties';
+import { checkPricing } from './pricing';
+import { checkRemainders } from './products';
+import { getPureDate } from '@erxes/api-utils/src';
+import { checkDirectDiscount } from './directDiscount';
+import { IPosUserDocument } from '../../models/definitions/posUsers';
 
 interface IDetailItem {
   count: number;
   amount: number;
   inventoryCode: string;
+  barcode: string;
   productId: string;
 }
 
-export const getPureDate = (date?: Date) => {
-  const ndate = date ? new Date(date) : new Date();
-  const diffTimeZone = ndate.getTimezoneOffset() * 1000 * 60;
-  return new Date(ndate.getTime() - diffTimeZone);
-};
-
 export const generateOrderNumber = async (
   models: IModels,
-  config?: IConfig
+  config: IConfig
 ): Promise<string> => {
-  const todayStr = moment()
-    .format('YYYYMMDD')
-    .toString();
+  const todayStr = moment().format('YYYYMMDD').toString();
 
   const beginNumber =
     (config && config.beginNumber && `${config.beginNumber}.`) || '';
@@ -46,13 +46,28 @@ export const generateOrderNumber = async (
   let suffix = '0001';
   let number = `${todayStr}_${beginNumber}${suffix}`;
 
-  const latestOrder = ((await models.Orders.find({
-    number: { $regex: new RegExp(`^${todayStr}_${beginNumber}*`) },
-    posToken: { $in: ['', null] }
-  })
-    .sort({ number: -1 })
-    .limit(1)
-    .lean()) || [])[0];
+  let latestOrder;
+
+  const latestOrders = await models.Orders.aggregate([
+    {
+      $match: {
+        posToken: config.token,
+        number: { $regex: new RegExp(`^${todayStr}_${beginNumber}*`) }
+      }
+    },
+    {
+      $project: {
+        number: 1,
+        number_len: { $strLenCP: '$number' }
+      }
+    },
+    { $sort: { number_len: -1, number: -1 } },
+    { $limit: 1 }
+  ]);
+
+  if (latestOrders.length) {
+    latestOrder = latestOrders[0];
+  }
 
   if (latestOrder && latestOrder._id) {
     const parts = latestOrder.number.split('_');
@@ -76,16 +91,85 @@ export const generateOrderNumber = async (
   return number;
 };
 
-export const validateOrder = async (models: IModels, doc: IOrderInput) => {
+export const validateOrder = async (
+  subdomain: string,
+  models: IModels,
+  config: IConfigDocument,
+  doc: IOrderInput
+) => {
   const { items = [] } = doc;
 
-  if (items.filter(i => !i.isPackage).length < 1) {
+  if (!items.filter(i => !i.isPackage).length) {
     throw new Error('Products missing in order. Please add products');
   }
 
+  if (doc.isPre && (!doc.dueDate || doc.dueDate < getPureDate(new Date()))) {
+    throw new Error(
+      'The due date of the pre-order must be recorded in the future'
+    );
+  }
+
+  const products = await models.Products.find({
+    _id: { $in: items.map(i => i.productId) }
+  }).lean();
+  const productIds = products.map(p => p._id);
+
   for (const item of items) {
     // will throw error if product is not found
-    await models.Products.getProduct({ _id: item.productId });
+    if (!productIds.includes(item.productId)) {
+      throw new Error('Products missing in order');
+    }
+  }
+
+  if (
+    config.isCheckRemainder &&
+    (doc.branchId || config.branchId) &&
+    config.departmentId
+  ) {
+    const checkProducts = products.filter(
+      p => (p.isCheckRems || {})[config.token || ''] || false
+    );
+
+    if (checkProducts.length) {
+      const result = await checkRemainders(
+        subdomain,
+        config,
+        checkProducts,
+        doc.branchId || config.branchId
+      );
+
+      const errors: string[] = [];
+      const withRemProductById = {};
+      for (const product of result) {
+        withRemProductById[product._id] = product;
+      }
+
+      for (const item of items) {
+        const product = withRemProductById[item.productId];
+        if (!product) {
+          continue;
+        }
+
+        if (!doc.isPre && product.remainder < item.count) {
+          errors.push(
+            `#${product.code} - ${product.name} have a potential sales balance of ${product.remainder}`
+          );
+        }
+
+        if (
+          doc.isPre &&
+          product.remainder + product.soonIn - product.soonOut < item.count
+        ) {
+          errors.push(
+            `#${product.code} - ${product.name} have a potential sales limit of ${product.remainder}`
+          );
+        }
+      }
+
+      if (errors.length) {
+        throw new Error(errors.join(', '));
+      }
+    }
   }
 };
 
@@ -94,13 +178,19 @@ export const validateOrderPayment = (order: IOrder, doc: IPayment) => {
     throw new Error('Order has already been paid');
   }
   const {
-    cardAmount: paidCard = 0,
     cashAmount: paidCash = 0,
-    mobileAmount: paidMobile = 0
+    mobileAmount: paidMobile = 0,
+    paidAmounts
   } = order;
   const { cashAmount = 0 } = doc;
 
-  const paidTotal = Number((paidCard + paidCash + paidMobile).toFixed(2));
+  const paidTotal = Number(
+    (
+      paidCash +
+      paidMobile +
+      (paidAmounts || []).reduce((sum, i) => Number(sum) + Number(i.amount), 0)
+    ).toFixed(2)
+  );
   // only remainder cash amount will come
   const total = Number(cashAmount.toFixed(2));
 
@@ -123,7 +213,7 @@ export const cleanOrderItems = async (
 export const updateOrderItems = async (
   orderId: string,
   items: IOrderItemInput[],
-  models
+  models: IModels
 ) => {
   const oldItems = await models.OrderItems.find({
     _id: { $in: items.map(item => item._id) }
@@ -136,8 +226,15 @@ export const updateOrderItems = async (
       productId: item.productId,
       count: item.count,
       unitPrice: item.unitPrice,
+      discountPercent: item.discountPercent,
+      discountAmount: item.discountAmount,
+      bonusCount: item.bonusCount,
+      bonusVoucherId: item.bonusVoucherId,
       isPackage: item.isPackage,
-      isTake: item.isTake
+      isTake: item.isTake,
+      manufacturedDate: item.manufacturedDate,
+      description: item.description,
+      attachment: item.attachment
     };
 
     if (itemIds.includes(item._id)) {
@@ -175,7 +272,8 @@ export const prepareEbarimtData = async (
   config: IEbarimtConfig,
   items: IOrderItemDocument[] = [],
   orderBillType: string,
-  registerNumber?: string
+  registerNumber?: string,
+  paymentTypes?: any[]
 ) => {
   if (!config) {
     throw new Error('has not ebarimt config');
@@ -189,16 +287,42 @@ export const prepareEbarimtData = async (
   let customerName = '';
 
   if (registerNumber) {
-    const response = await sendRequest({
-      url: config.checkCompanyUrl,
-      method: 'GET',
-      params: { regno: registerNumber }
-    });
+    const response = await fetch(
+      config.checkCompanyUrl +
+        '?' +
+        new URLSearchParams({ regno: registerNumber })
+    ).then(res => res.json());
 
     if (response.found) {
       billType = BILL_TYPES.ENTITY;
       customerCode = registerNumber;
       customerName = response.name;
+    }
+  }
+
+  let itemAmountPrePercent = 0;
+  const preTaxPaymentTypes = (paymentTypes || []).filter(p =>
+    (p.config || '').includes('preTax: true')
+  );
+  if (
+    preTaxPaymentTypes.length &&
+    order.paidAmounts &&
+    order.paidAmounts.length
+  ) {
+    let preSentAmount = 0;
+    for (const preTaxPaymentType of preTaxPaymentTypes) {
+      const matchOrderPays = order.paidAmounts.filter(
+        pa => pa.type === preTaxPaymentType.type
+      );
+      if (matchOrderPays.length) {
+        for (const matchOrderPay of matchOrderPays) {
+          preSentAmount += matchOrderPay.amount;
+        }
+      }
+    }
+
+    if (preSentAmount && preSentAmount <= order.totalAmount) {
+      itemAmountPrePercent = (preSentAmount / order.totalAmount) * 100;
     }
   }
 
@@ -211,91 +335,289 @@ export const prepareEbarimtData = async (
   }
 
   const details: IDetailItem[] = [];
+  const detailsFree: IDetailItem[] = [];
+  const details0: IDetailItem[] = [];
+  const detailsInner: (IDetailItem & { itemId: string })[] = [];
+  let amountDefault = 0;
+  let amountFree = 0;
+  let amount0 = 0;
+  let amountInner = 0;
 
   for (const item of items) {
+    const product = productsById[item.productId];
+
     // if wrong productId then not sent
-    if (!productsById[item.productId]) {
+    if (!product) {
       continue;
     }
 
-    const amount = (item.count || 0) * (item.unitPrice || 0);
+    const tempAmount = (item.count || 0) * (item.unitPrice || 0);
+    const amount = tempAmount - (tempAmount / 100) * itemAmountPrePercent;
 
-    details.push({
+    const stock = {
       count: item.count,
       amount,
-      inventoryCode: productsById[item.productId].code,
+      discount: item.discountAmount,
+      inventoryCode: product.code,
       productId: item.productId
-    });
+    };
+
+    if (product.taxType === '2') {
+      detailsFree.push({ ...stock, barcode: product.taxCode });
+      amountFree += amount;
+    } else if (product.taxType === '3' && billType === '3') {
+      details0.push({ ...stock, barcode: product.taxCode });
+      amount0 += amount;
+    } else if (product.taxType === '5') {
+      detailsInner.push({
+        ...stock,
+        barcode: product.taxCode,
+        itemId: item._id
+      });
+      amountInner += amount;
+    } else {
+      let trueBarcode = '';
+      for (const barcode of product.barcodes) {
+        if (isValidBarcode(barcode)) {
+          trueBarcode = barcode;
+          continue;
+        }
+      }
+      details.push({ ...stock, barcode: trueBarcode });
+      amountDefault += amount;
+    }
   }
 
-  const cashAmount = order.totalAmount || 0;
-
-  const orderInfo = {
+  const commonOderInfo = {
     date: new Date().toISOString().slice(0, 10),
     orderId: order._id,
+    number: order.number,
     hasVat: config.hasVat || false,
     hasCitytax: config.hasCitytax || false,
     billType,
     customerCode,
     customerName,
     description: order.number,
-    details,
-    cashAmount,
-    nonCashAmount: 0,
-    ebarimtResponse: {}
-  };
-
-  return {
-    ...orderInfo,
+    ebarimtResponse: {},
     productsById,
     contentType: 'pos',
     contentId: order._id
   };
+
+  const result: any[] = [];
+  let calcCashAmount = order.cashAmount || 0;
+  let cashAmount = 0;
+
+  if (detailsFree && detailsFree.length) {
+    if (calcCashAmount > amountFree) {
+      cashAmount = amountFree;
+      calcCashAmount -= amountFree;
+    } else {
+      cashAmount = calcCashAmount;
+      calcCashAmount = 0;
+    }
+    result.push({
+      ...commonOderInfo,
+      hasVat: false,
+      taxType: '2',
+      details: detailsFree,
+      cashAmount,
+      nonCashAmount: amountFree - cashAmount
+    });
+  }
+
+  if (details0 && details0.length) {
+    if (calcCashAmount > amount0) {
+      cashAmount = amount0;
+      calcCashAmount -= amount0;
+    } else {
+      cashAmount = calcCashAmount;
+      calcCashAmount = 0;
+    }
+    result.push({
+      ...commonOderInfo,
+      hasVat: false,
+      taxType: '3',
+      details: details0,
+      cashAmount,
+      nonCashAmount: amount0 - cashAmount
+    });
+  }
+
+  if (detailsInner && detailsInner.length) {
+    if (calcCashAmount > amountInner) {
+      cashAmount = amountInner;
+      calcCashAmount -= amountInner;
+    } else {
+      cashAmount = calcCashAmount;
+      calcCashAmount = 0;
+    }
+    result.push({
+      ...commonOderInfo,
+      hasVat: false,
+      hasCityTax: false,
+      itemIds: detailsInner.map(di => di.itemId),
+      inner: true,
+      details: detailsInner,
+      cashAmount,
+      nonCashAmount: amountInner - cashAmount
+    });
+  }
+
+  if (details && details.length) {
+    if (calcCashAmount > amountDefault) {
+      cashAmount = amountDefault;
+    } else {
+      cashAmount = calcCashAmount;
+    }
+    result.push({
+      ...commonOderInfo,
+      details,
+      cashAmount,
+      nonCashAmount: amountDefault - cashAmount
+    });
+  }
+
+  return result;
+};
+
+const getMatchMaps = (matchOrders, lastCatProdMaps, product) => {
+  for (const order of matchOrders) {
+    const matchMaps = lastCatProdMaps.filter(
+      lcp => lcp.category.order === order
+    );
+
+    if (matchMaps.length) {
+      const withCodeMatch = matchMaps.find(
+        m => m.code && product.code.includes(m.code)
+      );
+      if (withCodeMatch) {
+        return withCodeMatch;
+      }
+
+      const withNameMatch = matchMaps.find(
+        m => !m.code && m.name && product.name.includes(m.name)
+      );
+      if (withNameMatch) {
+        return withNameMatch;
+      }
+
+      const normalMatch = matchMaps.find(m => !m.code && !m.name);
+      if (normalMatch) {
+        return normalMatch;
+      }
+    }
+  }
+  return;
+};
+
+const checkPrices = async (subdomain, preparedDoc, config, posUser) => {
+  const { type } = preparedDoc;
+
+  if (ORDER_TYPES.SALES.includes(type)) {
+    preparedDoc = await checkLoyalties(subdomain, preparedDoc);
+    preparedDoc = await checkPricing(subdomain, preparedDoc, config);
+    preparedDoc = checkDirectDiscount(preparedDoc, config, posUser);
+    return preparedDoc;
+  }
+
+  if (ORDER_TYPES.OUT.includes(type)) {
+    for (const item of preparedDoc.items || []) {
+      item.discountPercent = 100;
+      item.discountAmount = item.count * item.unitPrice;
+      item.unitPrice = 0;
+    }
+  }
+
+  return preparedDoc;
 };
 
 export const prepareOrderDoc = async (
+  subdomain: string,
   doc: IOrderInput,
   config: IConfigDocument,
-  models: IModels
+  models: IModels,
+  posUser: IPosUserDocument
 ) => {
   const { catProdMappings = [] } = config;
 
   const items = doc.items.filter(i => !i.isPackage) || [];
 
+  const products: IProductDocument[] = await models.Products.find({
+    _id: { $in: items.map(i => i.productId) }
+  }).lean();
+
+  const productsOfId: { [_id: string]: IProductDocument } = {};
+
+  for (const prod of products) {
+    productsOfId[prod._id] = prod;
+  }
+
+  // set unitPrice
+  doc.totalAmount = 0;
+  for (const item of items) {
+    const fixedUnitPrice = Number(
+      Number(
+        ((productsOfId[item.productId] || {}).prices || {})[config.token] ||
+          item.unitPrice ||
+          0
+      ).toFixed(2)
+    );
+
+    item.unitPrice = isNaN(fixedUnitPrice) ? 0 : fixedUnitPrice;
+    doc.totalAmount += (item.count || 0) * fixedUnitPrice;
+  }
+
   const hasTakeItems = items.filter(i => i.isTake);
 
   if (hasTakeItems.length > 0 && catProdMappings.length > 0) {
-    const packOfCategoryId = {};
+    const toAddProducts = {};
 
-    for (const rel of catProdMappings) {
-      packOfCategoryId[rel.categoryId] = rel.productId;
-    }
-
-    const products = await models.Products.find({
-      _id: { $in: items.map(i => i.productId) }
+    const mapCatIds = catProdMappings
+      .filter(cpm => cpm.categoryId)
+      .map(cpm => cpm.categoryId);
+    const hasTakeProducIds = hasTakeItems.map(hti => hti.productId);
+    const hasTakeCatIds = hasTakeProducIds.map(
+      htpi => (productsOfId[htpi] || {}).categoryId
+    );
+    const categories = await models.ProductCategories.find({
+      _id: { $in: [...mapCatIds, ...hasTakeCatIds] }
     }).lean();
 
-    const productsOfId = {};
-
-    for (const prod of products) {
-      productsOfId[prod._id] = prod;
+    const categoriesOfId = {};
+    for (const cat of categories) {
+      categoriesOfId[cat._id] = cat;
     }
-
-    const toAddProducts = {};
+    const lastCatProdMaps = catProdMappings.map(cpm => ({
+      ...cpm,
+      category: categoriesOfId[cpm.categoryId]
+    }));
 
     for (const item of hasTakeItems) {
       const product = productsOfId[item.productId];
+      const category = categoriesOfId[product.categoryId || ''];
 
-      if (Object.keys(packOfCategoryId).includes(product.categoryId)) {
-        const packProductId = packOfCategoryId[product.categoryId];
-
-        if (!Object.keys(toAddProducts).includes(packProductId)) {
-          toAddProducts[packProductId] = { count: 0 };
-        }
-
-        toAddProducts[packProductId].count += item.count;
+      if (!category) {
+        continue;
       }
-    } // end items loop
+
+      const perOrders = category.order.split('/');
+      const matchOrders: string[] = [];
+      for (let i = perOrders.length - 1; i > 0; i--) {
+        matchOrders.push(`${perOrders.slice(0, i).join('/')}/`);
+      }
+
+      const matchMap = getMatchMaps(matchOrders, lastCatProdMaps, product);
+      if (matchMap) {
+        const packProductId = matchMap.productId;
+        if (packProductId) {
+          if (!Object.keys(toAddProducts).includes(packProductId)) {
+            toAddProducts[packProductId] = { count: 0 };
+          }
+          toAddProducts[packProductId].count += item.count;
+        }
+      }
+    }
 
     const addProductIds = Object.keys(toAddProducts);
 
@@ -307,7 +629,9 @@ export const prepareOrderDoc = async (
       for (const addProduct of takingProducts) {
         const toAddItem = toAddProducts[addProduct._id];
 
-        const fixedUnitPrice = Number((addProduct.unitPrice || 0).toFixed(2));
+        const fixedUnitPrice = Number(
+          ((addProduct.prices || {})[config.token] || 0).toFixed(2)
+        );
 
         items.push({
           _id: Math.random().toString(),
@@ -323,165 +647,90 @@ export const prepareOrderDoc = async (
     }
   }
 
-  return { ...doc, items };
+  if (
+    doc.type === ORDER_TYPES.DELIVERY &&
+    config.deliveryConfig &&
+    config.deliveryConfig.productId
+  ) {
+    const deliveryProd = await models.Products.findOne({
+      _id: config.deliveryConfig.productId
+    }).lean();
+
+    if (deliveryProd) {
+      const deliveryUnitPrice = (deliveryProd.prices || {})[config.token || ''] || 0;
+      items.push({
+        _id: Math.random().toString(),
+        productId: deliveryProd._id,
+        count: 1,
+        unitPrice: deliveryUnitPrice,
+        isPackage: true,
+        isTake: true
+      });
+      doc.totalAmount += deliveryUnitPrice;
+    }
+  }
+
+  return await checkPrices(subdomain, { ...doc, items }, config, posUser);
 };
 
 export const checkOrderStatus = (order: IOrderDocument) => {
-  if (order.status === ORDER_STATUSES.PAID || order.paidDate) {
+  if (order.paidDate) {
     throw new Error('Order is already paid');
   }
 };
 
 export const checkOrderAmount = (order: IOrderDocument, amount: number) => {
-  const { cardAmount = 0, cashAmount = 0, mobileAmount = 0 } = order;
+  const { cashAmount = 0, mobileAmount = 0, paidAmounts } = order;
 
-  const paidAmount = cardAmount + cashAmount + mobileAmount;
+  const paidAmount =
+    cashAmount +
+    mobileAmount +
+    (paidAmounts || []).reduce((sum, i) => Number(sum) + Number(i.amount), 0);
 
-  if (paidAmount + amount > order.totalAmount) {
+  if (amount < 0 && paidAmount < order.totalAmount) {
+    throw new Error('Amount less 0');
+  }
+
+  if (amount > 0 && paidAmount > order.totalAmount) {
+    throw new Error('Amount exceeds total amount');
+  }
+
+  if (
+    paidAmount <= order.totalAmount &&
+    paidAmount + amount > order.totalAmount
+  ) {
     throw new Error('Amount exceeds total amount');
   }
 };
 
-export const checkUnpaidInvoices = async (orderId: string, models: IModels) => {
-  const invoices = await models.QPayInvoices.countDocuments({
-    senderInvoiceNo: orderId,
-    status: { $ne: 'PAID' }
-  });
-
-  if (invoices > 0) {
-    throw new Error('There are unpaid QPay invoices for this order');
-  }
-};
-
-// qpay нэхэмжлэх үүсгэхийн өмнө дуудна
-export const checkInvoiceAmount = async ({
-  order,
-  amount,
-  models
-}: {
-  order: IOrderDocument;
-  amount: number;
-  models: IModels;
-}) => {
-  const invoices = await models.QPayInvoices.find({
-    senderInvoiceNo: order._id
-  }).lean();
-
-  let total = 0;
-
-  for (const inv of invoices) {
-    total += Number(inv.amount || 0);
-  }
-
-  if (total + amount > order.totalAmount) {
-    throw new Error('Invoice amount exceeds order amount');
-  }
-
-  const paidAmount = models.Orders.getPaidAmount(order);
-
-  // үүсгэх гэж буй нэхэмжлэхийн дүн төлөх үлдэгдлээс ихгүй байх ёстой
-  if (paidAmount + amount > order.totalAmount) {
-    throw new Error('Invoice amount exceeds remainder amount');
-  }
-};
-
-export const commonCheckPayment = async (
-  models,
-  orderId,
-  config,
-  paidAmount
+export const reverseItemStatus = async (
+  models: IModels,
+  items: IOrderItemInput[]
 ) => {
-  let order = await models.Orders.getOrder(orderId);
-
-  await models.Orders.updateOne(
-    { _id: orderId },
-    {
-      $set: { mobileAmount: paidAmount }
-    }
-  );
-
-  order = await models.Orders.getOrder(orderId);
-
-  const doc = {
-    billType: order.billType || BILL_TYPES.CITIZEN,
-    registerNumber: order.registerNumber || '',
-    cashAmount: order.cashAmount || 0,
-    mobileAmount: order.mobileAmount,
-    cardAmount: order.cardAmount || 0
-  };
-
-  checkOrderStatus(order);
-
-  await checkUnpaidInvoices(orderId, models);
-
-  const items = await models.OrderItems.find({
-    orderId: order._id
-  }).lean();
-
-  await validateOrderPayment(order, doc);
-
-  const data = await prepareEbarimtData(
-    models,
-    order,
-    config.ebarimtConfig,
-    items,
-    doc.billType,
-    doc.registerNumber || order.registerNumber
-  );
-
-  const ebarimtConfig = {
-    ...config.ebarimtConfig,
-    districtName: getDistrictName(config.ebarimtConfig.districtCode)
-  };
-
+  let newPreparedDocItems: IOrderItemInput[] = [...items];
   try {
-    const response = await models.PutResponses.putData({
-      ...data,
-      config: ebarimtConfig,
-      models
-    });
+    const oldOrderItems = await models.OrderItems.find({
+      _id: { $in: items.map(item => item._id) }
+    }).lean();
+    if (oldOrderItems) {
+      newPreparedDocItems.forEach(async (newItem, index) => {
+        const foundItem = oldOrderItems.find(
+          oldItem =>
+            oldItem._id === newItem._id && oldItem.count < newItem.count
+        );
+        if (foundItem && foundItem._id) {
+          newPreparedDocItems[index].status = ORDER_ITEM_STATUSES.CONFIRM;
 
-    if (response && response.success === 'true') {
-      const now = new Date();
-
-      await models.Orders.updateOne(
-        { _id: orderId },
-        {
-          $set: {
-            ...doc,
-            paidDate: now,
-            status: ORDER_STATUSES.PAID,
-            modifiedAt: now
-          }
+          await models.OrderItems.updateOrderItem(foundItem._id, {
+            ...foundItem,
+            status: ORDER_ITEM_STATUSES.CONFIRM
+          });
         }
-      );
-    }
-
-    order = await models.Orders.getOrder(orderId);
-    graphqlPubsub.publish('ordersOrdered', {
-      ordersOrdered: {
-        _id: orderId,
-        status: order.status,
-        customerId: order.customerId
-      }
-    });
-
-    try {
-      messageBroker().sendMessage('vrpc_queue:erxes-pos-to-api', {
-        action: 'makePayment',
-        posToken: config.token,
-        response,
-        order,
-        items
       });
-    } catch (e) {
-      debugError(`Error occurred while sending data to erxes: ${e.message}`);
     }
-
-    return response;
+    return newPreparedDocItems;
   } catch (e) {
     debugError(e);
-
     return e;
   }
 };

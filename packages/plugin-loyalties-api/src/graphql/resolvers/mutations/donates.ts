@@ -7,7 +7,11 @@ const donatesMutations = {
     return models.Donates.createDonate(doc);
   },
 
-  async donatesRemove(_root, { _ids }: { _ids: string[] }, { models }: IContext) {
+  async donatesRemove(
+    _root,
+    { _ids }: { _ids: string[] },
+    { models }: IContext
+  ) {
     return models.Donates.removeDonates(_ids);
   },
 
@@ -15,10 +19,13 @@ const donatesMutations = {
     return models.Donates.createDonate({ ...doc });
   },
 
-  async cpDonatesRemove(_root, { _ids }: { _ids: string[] }, { models }: IContext) {
+  async cpDonatesRemove(
+    _root,
+    { _ids }: { _ids: string[] },
+    { models }: IContext
+  ) {
     return models.Donates.removeDonates(_ids);
-  },
-
+  }
 };
 
 checkPermission(donatesMutations, 'donatesAdd', 'manageLoyalties');

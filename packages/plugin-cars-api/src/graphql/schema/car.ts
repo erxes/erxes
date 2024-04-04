@@ -1,15 +1,25 @@
 import {
   attachmentType,
   attachmentInput,
-} from "@erxes/api-utils/src/commonTypeDefs";
+} from '@erxes/api-utils/src/commonTypeDefs';
 
-export const types = ({ contacts }) => `
+export const types = ({ contacts, tags }) => `
 
   ${attachmentType}
   ${attachmentInput}
 
   extend type User @key(fields: "_id") {
     _id: String! @external
+  }
+
+  ${
+    tags
+      ? `
+        extend type Tag @key(fields: "_id") {
+          _id: String! @external
+        }
+      `
+      : ''
   }
 
   ${
@@ -23,7 +33,7 @@ export const types = ({ contacts }) => `
           _id: String! @external
         }
         `
-      : ""
+      : ''
   }
   
 
@@ -36,6 +46,9 @@ export const types = ({ contacts }) => `
     order: String!
     isRoot: Boolean
     carCount: Int
+    image: Attachment
+    secondaryImages: [Attachment]
+    productCategoryId: String
   }
   type Car {
     _id: String!
@@ -51,9 +64,11 @@ export const types = ({ contacts }) => `
       customers: [Customer]
       companies: [Company]
       `
-        : ""
+        : ''
     }
-    
+
+    ${tags ? `getTags: [Tag]` : ''}
+    tagIds: [String]
     plateNumber: String
     vinNumber: String
     colorCode: String
@@ -65,6 +80,7 @@ export const types = ({ contacts }) => `
     vintageYear: Float
     importYear: Float
     attachment: Attachment
+    customFieldsData: JSON
   }
   type CarsListResponse {
     list: [Car],
@@ -75,7 +91,9 @@ export const types = ({ contacts }) => `
 const queryParams = `
   page: Int
   perPage: Int
+  tag: String
   segment: String
+  segmentData: String
   categoryId: String
   ids: [String]
   searchValue: String
@@ -94,6 +112,7 @@ export const queries = `
   cars(${queryParams}): [Car]
   carCounts(${queryParams}, only: String): JSON
   carDetail(_id: String!): Car
+  carCountByTags: JSON
   carCategories(parentId: String, searchValue: String): [CarCategory]
   carCategoriesTotalCount: Int
   carCategoryDetail(_id: String): CarCategory
@@ -116,6 +135,7 @@ const commonFields = `
   vintageYear: Float
   importYear: Float
   attachment: AttachmentInput
+  customFieldsData: JSON
 `;
 
 const carCategoryParams = `
@@ -123,11 +143,14 @@ const carCategoryParams = `
   code: String!,
   description: String,
   parentId: String,
+  image: AttachmentInput,
+  secondaryImages: [AttachmentInput],
+  productCategoryId: String
 `;
 
 export const mutations = `
   carsAdd(${commonFields}): Car
-  carsEdit(_id: String!, ${commonFields}): Car
+  carsEdit(_id: String!, ${commonFields}, customFieldsData: JSON): Car
   carsRemove(carIds: [String]): [String]
   carsMerge(carIds: [String], carFields: JSON) : Car
   carCategoriesAdd(${carCategoryParams}): CarCategory

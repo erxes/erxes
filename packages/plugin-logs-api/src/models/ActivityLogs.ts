@@ -1,4 +1,4 @@
-import * as Random from 'meteor-random';
+import { nanoid } from 'nanoid';
 import { Document, Model, Schema } from 'mongoose';
 import { IModels } from '../connectionResolver';
 
@@ -26,7 +26,7 @@ export interface IActivityLogDocument extends IActivityLog, Document {
 }
 
 export const activityLogSchema = new Schema({
-  _id: { type: String, default: () => Random.id() },
+  _id: { type: String, default: () => nanoid() },
   contentId: field({ type: String, index: true }),
   contentType: field({ type: String, index: true }),
   action: field({ type: String, index: true }),

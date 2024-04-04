@@ -3,7 +3,7 @@ import { Model } from 'mongoose';
 import {
   removeEngageConversations,
   sendContactsMessage,
-  sendInboxMessage
+  sendInboxMessage,
 } from '../messageBroker';
 import { checkCustomerExists, findElk, findUser } from '../engageUtils';
 import { getEditorAttributeUtil, isUsingElk } from '../utils';
@@ -13,7 +13,7 @@ import { IEngageData, IMessageDocument } from '../types';
 import {
   engageMessageSchema,
   IEngageMessage,
-  IEngageMessageDocument
+  IEngageMessageDocument,
 } from './definitions/engages';
 import { IModels } from '../connectionResolver';
 import { checkRules } from '../widgetUtils';
@@ -67,11 +67,9 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
      */
     public static async getEngageMessage(_id: string) {
       const engageMessage = await models.EngageMessages.findOne({ _id });
-
       if (!engageMessage) {
         throw new Error('Campaign not found');
       }
-
       return engageMessage;
     }
 
@@ -131,7 +129,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
         throw new Error(`Campaign not found with id ${_id}`);
       }
 
-      await removeEngageConversations(_id);
+      // await removeEngageConversations(_id);
 
       return message.remove();
     }
@@ -213,37 +211,19 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
       visitorId?: string;
       browserInfo: any;
     }) {
-      const {
-        brandId,
-        integrationId,
-        customer,
-        visitorId,
-        browserInfo
-      } = params;
+      const { brandId, integrationId, customer, visitorId, browserInfo } =
+        params;
 
       const customerObj = customer
         ? customer
         : { _id: '', state: CONTENT_TYPES.VISITOR };
 
-      let messages: IEngageMessageDocument[] = [];
-
-      if (isUsingElk()) {
-        messages = await findElk(subdomain, 'engage_messages', {
-          bool: {
-            must: [
-              { match: { 'messenger.brandId': brandId } },
-              { match: { method: CAMPAIGN_METHODS.MESSENGER } },
-              { match: { isLive: true } }
-            ]
-          }
-        });
-      } else {
-        messages = await models.EngageMessages.find({
+      const messages: IEngageMessageDocument[] =
+        await models.EngageMessages.find({
           'messenger.brandId': brandId,
           method: CAMPAIGN_METHODS.MESSENGER,
-          isLive: true
+          isLive: true,
         });
-      }
 
       const conversationMessages: IMessageDocument[] = [];
 
@@ -257,7 +237,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           segmentIds,
           customerTagIds,
           brandIds,
-          fromUserId
+          fromUserId,
         } = message;
 
         if (
@@ -273,7 +253,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           customerIds,
           segmentIds,
           tagIds: customerTagIds,
-          brandIds
+          brandIds,
         });
 
         if (message.kind !== CAMPAIGN_KINDS.VISITOR_AUTO && !customerExists) {
@@ -301,14 +281,14 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           data: {
             url: browserInfo.url,
             visitorId,
-            customerId: customer ? customer._id : undefined
-          }
+            customerId: customer ? customer._id : undefined,
+          },
         });
 
         const hasPassedAllRules = await checkRules({
           rules: messenger.rules,
           browserInfo,
-          numberOfVisits
+          numberOfVisits,
         });
 
         // if given visitor is matched with given condition then create
@@ -320,20 +300,20 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           const replacedContent = await editorAttributeUtil.replaceAttributes({
             content: messenger.content,
             customer,
-            user
+            user,
           });
 
           if (messenger.rules) {
-            messenger.rules = messenger.rules.map(r => ({
+            messenger.rules = messenger.rules.map((r) => ({
               kind: r.kind,
               text: r.text,
               condition: r.condition,
-              value: r.value
+              value: r.value,
             }));
           }
 
-          const conversationMessage = await this.createOrUpdateConversationAndMessages(
-            {
+          const conversationMessage =
+            await this.createOrUpdateConversationAndMessages({
               customerId: customer && customer._id,
               visitorId,
               integrationId,
@@ -344,17 +324,20 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
                 content: replacedContent,
                 engageKind: message.kind,
                 messageId: message._id,
-                fromUserId: message.fromUserId
-              }
-            }
-          );
+                fromUserId: message.fromUserId,
+              },
+            });
 
           if (conversationMessage) {
             // collect created messages
             conversationMessages.push(conversationMessage);
 
             // add given customer to customerIds list
-            if (customer) {
+            if (
+              customer &&
+              message.customerIds &&
+              !message.customerIds.includes(customer._id)
+            ) {
               await models.EngageMessages.updateOne(
                 { _id: message._id },
                 { $push: { customerIds: customer._id } }
@@ -362,7 +345,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
             }
           }
         }
-      }
+      } // end for loop
 
       return conversationMessages;
     }
@@ -384,7 +367,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
         integrationId,
         user,
         engageData,
-        replacedContent
+        replacedContent,
       } = args;
 
       let prevMessage: IMessageDocument | null;
@@ -397,9 +380,9 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
             bool: {
               must: [
                 { match: { 'engageData.messageId': engageData.messageId } },
-                { match: customerId ? { customerId } : { visitorId } }
-              ]
-            }
+                { match: customerId ? { customerId } : { visitorId } },
+              ],
+            },
           }
         );
 
@@ -417,7 +400,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           subdomain,
           action: 'conversationMessages.findOne',
           data: query,
-          isRPC: true
+          isRPC: true,
         });
       }
 
@@ -437,14 +420,14 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
         if (isUsingElk()) {
           messages = await findElk(subdomain, 'conversation_messages', {
             match: {
-              conversationId
-            }
+              conversationId,
+            },
           });
         } else {
           messages = await sendInboxMessage({
             ...commonParams,
             data: { conversationId },
-            action: 'conversationMessages.find'
+            action: 'conversationMessages.find',
           });
         }
 
@@ -459,8 +442,8 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           action: 'updateConversationMessage',
           data: {
             filter: { _id: prevMessage._id },
-            updateDoc: { engageData, isCustomerRead: false }
-          }
+            updateDoc: { engageData, isCustomerRead: false },
+          },
         });
 
         return null;
@@ -476,9 +459,9 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           customerId,
           visitorId,
           integrationId,
-          replacedContent,
-          engageData
-        }
+          content: replacedContent,
+          engageData,
+        },
       });
     }
   }

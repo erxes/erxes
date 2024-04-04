@@ -1,13 +1,32 @@
+import {
+  attachmentInput,
+  attachmentType
+} from '@erxes/api-utils/src/commonTypeDefs';
+
 export const types = `
+  ${attachmentType}
+  ${attachmentInput}
+
+  extend type User @key(fields: "_id") {
+    _id: String! @external
+  }
+
   type WebbuilderPage {
     _id: String!
     name: String
     description: String
     html: String
     css: String
-    jsonData: JSON
     siteId: String
     site: WebbuilderSite
+    
+    createdUser: User
+    updatedUser: User
+  }
+
+  type WebbuilderPagesList {
+    list: [WebbuilderPage]
+    totalCount: Int
   }
 
   type WebbuilderContentType {
@@ -20,41 +39,54 @@ export const types = `
     site: WebbuilderSite
   }
 
+  type WebbuilderContentTypesList {
+    list: [WebbuilderContentType]
+    totalCount: Int
+  }
+
   type WebbuilderEntry {
     _id: String!
     contentTypeId: String
     values: JSON
   }
 
+  type WebbuilderEntriesList {
+    list: [WebbuilderEntry]
+    totalCount: Int
+  }
+
   type WebbuilderTemplate {
     _id: String!
     name: String
-    jsonData: JSON,
+    html: String
+    image: String
+    categories: String
   }
 
   type WebbuilderSite {
     _id: String!
     name: String
     domain: String
+    coverImage: Attachment
   }
 `;
 
 export const queries = `
-  webbuilderPages(page: Int perPage: Int): [WebbuilderPage]
-  webbuilderPagesTotalCount: Int
+  webbuilderPagesMain(page: Int, perPage: Int, searchValue: String, siteId: String): WebbuilderPagesList
   webbuilderPageDetail(_id: String!): WebbuilderPage
 
-  webbuilderContentTypes(page: Int perPage: Int): [WebbuilderContentType ]
-  webbuilderContentTypesTotalCount: Int
+  webbuilderContentTypes(siteId: String): [WebbuilderContentType]
+  webbuilderContentTypesMain(page: Int, perPage: Int, siteId: String): WebbuilderContentTypesList 
   webbuilderContentTypeDetail(_id: String!): WebbuilderContentType 
 
-  webbuilderEntries(contentTypeId: String! page: Int perPage: Int): [WebbuilderEntry]
-  webbuilderEntriesTotalCount(contentTypeId: String! page: Int perPage: Int): Int
+  webbuilderEntriesMain(contentTypeId: String! page: Int perPage: Int): WebbuilderEntriesList
   webbuilderEntryDetail(_id: String!): WebbuilderEntry
 
-  webbuilderTemplates: [WebbuilderTemplate]
+  webbuilderTemplates(page: Int, perPage: Int, searchValue: String): [WebbuilderTemplate]
+  webbuilderTemplatesTotalCount: Int
+  webbuilderTemplateDetail(_id: String!): WebbuilderTemplate
 
-  webbuilderSites(page: Int, perPage: Int): [WebbuilderSite]
+  webbuilderSites(page: Int, perPage: Int, searchValue: String, fromSelect: Boolean): [WebbuilderSite]
   webbuilderSitesTotalCount: Int
 `;
 
@@ -63,8 +95,7 @@ const params = `
   description: String,
   html: String,
   css: String,
-  jsonData: JSON,
-  siteId: String
+  siteId: String,
 `;
 
 const contentTypeParams = `
@@ -87,10 +118,12 @@ export const mutations = `
   webbuilderEntriesEdit(_id: String!, contentTypeId: String! values: JSON): WebbuilderEntry
   webbuilderEntriesRemove(_id: String!): JSON
 
-  webbuilderTemplatesAdd(name: String, jsonData: JSON): WebbuilderTemplate 
+  webbuilderTemplatesAdd(name: String, html: String): WebbuilderTemplate 
+  webbuilderTemplatesUse(_id: String!, name: String!, coverImage: AttachmentInput): String
   webbuilderTemplatesRemove(_id: String!): JSON
   
   webbuilderSitesAdd(name: String domain: String): WebbuilderSite 
   webbuilderSitesEdit(_id: String! name: String domain: String): WebbuilderSite 
   webbuilderSitesRemove(_id: String!): JSON 
+  webbuilderSitesDuplicate(_id: String!): WebbuilderSite
 `;

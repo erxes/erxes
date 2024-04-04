@@ -1,6 +1,7 @@
+import { colors, typography } from './';
+
 import { injectGlobal } from 'styled-components';
 import { robotAnimation } from '../utils/animations';
-import { colors, typography } from './';
 
 const style = `
 html {
@@ -8,11 +9,11 @@ html {
 }
 
 body {
-  font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;
+  font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif !important;
   margin: 0;
   font-size: ${typography.fontSizeBody}px !important;
   line-height: ${typography.lineHeightBody};
-  color: ${colors.textPrimary};
+  color: ${colors.textPrimary} !important;
   height: 100%;
   background: ${colors.colorWhite} !important;
   -webkit-font-smoothing: antialiased;
@@ -51,12 +52,21 @@ a:hover {
 }
 /* override */
 
+.modal {
+  overflow-y: auto;
+}
+
 .modal-backdrop {
   background-color: #30435C;
 } !important
 
 .modal-backdrop.in {
   opacity: 0.8;
+}
+
+.modal.show {
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .modal.in .modal-dialog {
@@ -146,6 +156,10 @@ a:hover {
 
 .wide-modal {
   width: 90%;
+}
+
+.extra-wide-modal {
+  max-width: 100%;
 }
 
 .close {
@@ -313,6 +327,10 @@ a:hover {
   cursor: pointer;
 }
 
+.gjs-four-color, .gjs-four-color-h:hover {
+  color: #6569df !important;
+}
+
 /* tooltip */
 
 .tooltip {
@@ -352,6 +370,22 @@ a:hover {
 
 .bs-tooltip-right {
   padding: 0 5px 0 6px;
+}
+
+.bs-popover-top>.arrow, .bs-popover-auto[x-placement^="top"]>.arrow {
+  bottom: calc((0.5rem + 1px) * -1);
+}
+
+.bs-popover-right>.arrow, .bs-popover-auto[x-placement^="right"]>.arrow {
+  left:calc((0.5rem + 1px) * -1);
+}
+
+.bs-popover-bottom>.arrow, .bs-popover-auto[x-placement^="bottom"]>.arrow,.bs-popover-bottom-start>.arrow,.bs-popover-bottom-end>.arrow {
+  top:calc((0.5rem + 1px) * -1);
+}
+
+.bs-popover-left>.arrow, .bs-popover-auto[x-placement^="left"]>.arrow {
+  right:calc((0.5rem + 1px) * -1);
 }
 
 /* popover */
@@ -461,6 +495,30 @@ a:hover {
 .notification-popover {
   right: 15px;
   max-width: 360px;
+}
+
+.call-popover {
+  right: 15px;
+  left: auto !important;
+  width: 360px;
+  max-width: 360px;
+  position: fixed !important;
+  bottom: 155px;
+  top: auto !important;
+  transform: none !important;
+  border-radius: 25px;
+}
+
+.call-popover .arrow, #color-picker .arrow  {
+  display: none !important;
+}
+
+#chatGroupMembers-popover {
+  padding: 10px 0;
+  z-index: 50;
+}
+#chatGroupMembers-popover .arrow {
+  display: none;
 }
 
 /* select  */
@@ -636,6 +694,14 @@ a:hover {
   padding: 8px 20px;
 }
 
+.Select .Select-input {
+  width: 100%;
+
+  input {
+    width: 100% !important;
+  }
+}
+
 .simple-option .channel-round {
   color: ${colors.colorWhite};
   font-weight: bold;
@@ -665,6 +731,20 @@ a:hover {
 }
 
 /* react datetime */
+
+.rdt input {
+  border: none;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none !important;
+  border-bottom: 1px solid;
+  border-color: #DDD;
+  background: transparent;
+}
+
+.rdt input:hover {
+  border-color: #AAA;
+}
 
 .rdtPicker {
   box-shadow: 0 5px 15px -3px rgba(0, 0, 0, 0.15) !important;
@@ -835,7 +915,6 @@ a:hover {
 .mentionSuggestionsEntryTitle {
   font-size: 95%;
   color: ${colors.colorCoreGray};
-  margin-top: 2px;
 }
 
 .mentionSuggestionsEntryAvatar {
@@ -849,7 +928,6 @@ a:hover {
 .sidebar-accordion {
   border-top: 1px solid ${colors.borderPrimary};
   border-bottom: 1px solid ${colors.borderPrimary};
-  margin-bottom: 10px;
 
   ul {
     padding-top: 0;
@@ -1168,6 +1246,215 @@ a:hover {
     font:inherit;
     color:inherit
   }
+
+  /* Tiptap */
+  .tiptap {
+    > * + * {
+      margin-top: 0.75em;
+    }
+
+    a {
+      color: #228be6;
+      display: inline-flex;
+    }
+    
+    a:hover {
+      text-decoration: underline;
+    }
+
+    ul,
+    ol {
+      padding: 0 1rem;
+    }
+  
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      line-height: 1.1;
+    }
+  
+    code {
+      background-color: rgba(#616161, 0.1);
+      color: #616161;
+    }
+  
+    pre {
+      background: #0D0D0D;
+      color: #FFF;
+      font-family: 'JetBrainsMono', monospace;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+  
+      code {
+        color: inherit;
+        padding: 0;
+        background: none;
+        font-size: 0.8rem;
+      }
+    }
+  
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  
+    blockquote {
+      padding-left: 1rem;
+      border-left: 2px solid #0d0d0d1a;
+    }
+  
+    hr {
+      border-top: 2px solid #0d0d0d1a;
+      margin: 2rem 0;
+    }
+
+    table {
+      border-collapse: collapse;
+      margin: 0;
+      overflow: hidden;
+      table-layout: fixed;
+      display: table;
+      td,
+      th {
+        box-sizing: border-box;
+        min-width: 1em;
+        position: relative;
+        vertical-align: top;
+        > * {
+          margin-bottom: 0;
+        }
+      }
+  
+      th {
+        background-color: #f1f3f5;
+        font-weight: bold;
+        text-align: left;
+      }
+  
+      .selectedCell:after {
+        background: rgba(200, 200, 255, 0.4);
+        content: "";
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        pointer-events: none;
+        position: absolute;
+        z-index: 2;
+      }
+  
+      p {
+        margin: 0;
+      }
+    }
+  
+    .tableWrapper {
+      overflow-x: auto;
+    }
+
+    p.is-editor-empty:first-child::before {
+      color: #adb5bd;
+      content: attr(data-placeholder);
+      float: left;
+      height: 0;
+      pointer-events: none;
+    }
+    
+    .resize-cursor {
+      cursor: ew-resize;
+      cursor: col-resize;
+    }
+
+    [data-type="mention"]{
+      padding-top: 0.25rem;
+      padding-bottom: 0.25rem;
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+      border-radius: 0.375rem;
+      border-style: solid;
+      border-width: 1px;
+      border-color: #93c5fd;
+      line-height: 1;
+      background-color: #f1f5f9;
+      display: inline-block;
+    }
+
+  }
+
+  /* ProseMirror (actual editable section of editor) */
+  
+  .ProseMirror{ 
+    padding: 1rem;
+    outline: 0px;
+    height: 100%;
+    overflow-y: auto;
+    a {
+      color: #228be6;
+      display: inline-flex;
+    }
+    
+    a:hover {
+      text-decoration: underline;
+    }
+
+    table {
+      border-collapse: collapse;
+      margin: 0;
+      overflow: hidden;
+      table-layout: fixed;
+      display: table;
+
+      td,
+      th {
+        box-sizing: border-box;
+        min-width: 1em;
+        position: relative;
+        vertical-align: top;
+        border: 1px solid #e9ecef;
+        > * {
+          margin-bottom: 0;
+        }
+      }
+  
+      th {
+        background-color: #f1f3f5;
+        font-weight: bold;
+        text-align: left;
+      }
+  
+      .selectedCell:after {
+        background: rgba(200, 200, 255, 0.4);
+        content: "";
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        pointer-events: none;
+        position: absolute;
+        z-index: 2;
+      }
+  
+      p {
+        margin: 0;
+      }
+    }
+  
+    .tableWrapper {
+      overflow-x: auto;
+    }
+
+    img.ProseMirror-separator{
+      display: inline !important;
+      border: none !important;
+      margin: 0 !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+  }
+ 
 `;
 
 const globalStyle = [`${style}`] as any;

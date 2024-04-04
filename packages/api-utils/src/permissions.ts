@@ -1,5 +1,9 @@
+import { all } from 'underscore';
+import { getEnv, userActionsMap } from './core';
 import { sendRPCMessage } from './messageBroker';
 import redis from './redis';
+
+import { checkOrganizationCharge } from '../src/saas/chargeUtils';
 
 export interface IUser {
   _id: string;
@@ -38,9 +42,9 @@ const resolverWrapper = async (methodName, args, context) => {
           subdomain: context.subdomain,
           data: {
             resolver: methodName,
-            args
-          }
-        }))
+            args,
+          },
+        })),
       };
     }
   }
@@ -51,7 +55,7 @@ const resolverWrapper = async (methodName, args, context) => {
 export const permissionWrapper = (
   cls: any,
   methodName: string,
-  checkers: any
+  checkers: any,
 ) => {
   const oldMethod = cls[methodName];
 
@@ -59,7 +63,7 @@ export const permissionWrapper = (
     root: any,
     args: any,
     context: IPermissionContext,
-    info: any
+    info: any,
   ) => {
     const { user } = context;
 
@@ -74,18 +78,53 @@ export const permissionWrapper = (
 };
 
 export const getUserActionsMap = async (
-  user: IUser
-): Promise<IActionMap | null> => {
+  subdomain: string,
+  user: IUser,
+  permissionsFind?: (query: any) => any,
+): Promise<IActionMap> => {
   const key = getKey(user);
-  const actionMapJson = await redis.get(key);
+  const permissionCache = await redis.get(key);
 
-  if (!actionMapJson) {
-    return null;
+  let actionMap: IActionMap;
+
+  if (permissionCache && permissionCache !== '{}') {
+    actionMap = JSON.parse(permissionCache);
+  } else {
+    const userPermissionQuery = {
+      userId: user._id,
+    };
+
+    const userPermissions = await (permissionsFind
+      ? permissionsFind(userPermissionQuery)
+      : sendRPCMessage('core:permissions.find', {
+          subdomain,
+          data: userPermissionQuery,
+        }));
+
+    const groupPermissionQuery = {
+      groupId: { $in: user.groupIds },
+    };
+
+    const groupPermissions = await (permissionsFind
+      ? permissionsFind(groupPermissionQuery)
+      : sendRPCMessage('core:permissions.find', {
+          subdomain,
+          data: groupPermissionQuery,
+        }));
+
+    actionMap = await userActionsMap(userPermissions, groupPermissions, user);
+
+    redis.set(key, JSON.stringify(actionMap));
   }
-  return JSON.parse(actionMapJson);
+
+  return actionMap;
 };
 
-export const can = async (action: string, user?: IUser): Promise<boolean> => {
+export const can = async (
+  subdomain: string,
+  action: string,
+  user?: IUser,
+): Promise<boolean> => {
   if (!user || !user._id) {
     return false;
   }
@@ -94,7 +133,7 @@ export const can = async (action: string, user?: IUser): Promise<boolean> => {
     return true;
   }
 
-  const actionMap = await getUserActionsMap(user);
+  const actionMap = await getUserActionsMap(subdomain, user);
 
   if (!actionMap) {
     return false;
@@ -103,25 +142,45 @@ export const can = async (action: string, user?: IUser): Promise<boolean> => {
   return actionMap[action] === true;
 };
 
+/*
+ * Get allowed actions
+ */
+export const getUserAllowedActions = async (
+  subdomain: string,
+  user: any,
+): Promise<string[]> => {
+  const map = await getUserActionsMap(subdomain, user);
+
+  const allowedActions: string[] = [];
+
+  for (const key of Object.keys(map)) {
+    if (map[key]) {
+      allowedActions.push(key);
+    }
+  }
+
+  return allowedActions;
+};
+
 export const checkPermission = async (
   cls: any,
   methodName: string,
   actionName: string,
-  defaultValue?: any
+  defaultValue?: any,
 ) => {
   const oldMethod = cls[methodName];
 
   cls[methodName] = async (
     root: any,
     args: any,
-    context: { user?: IUser; [x: string]: any },
-    info: any
+    context: { user?: IUser; [x: string]: any; subdomain: string },
+    info: any,
   ) => {
-    const { user } = context;
+    const { user, subdomain } = context;
 
     checkLogin(user);
 
-    const allowed = await can(actionName, user);
+    const allowed = await can(subdomain, actionName, user);
 
     if (!allowed) {
       if (defaultValue) {
@@ -129,6 +188,19 @@ export const checkPermission = async (
       }
 
       throw new Error('Permission required');
+    }
+
+    const VERSION = getEnv({ name: 'VERSION' });
+
+    const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+
+    if (VERSION && VERSION === 'saas' && NODE_ENV === 'production') {
+      await checkOrganizationCharge({
+        actionName,
+        methodName,
+        context,
+        params: args,
+      });
     }
 
     args = await resolverWrapper(methodName, args, context);
@@ -154,7 +226,7 @@ export const moduleRequireLogin = (mdl: any) => {
 export const moduleCheckPermission = async (
   mdl: any,
   action: string,
-  defaultValue?: any
+  defaultValue?: any,
 ) => {
   for (const method in mdl) {
     if (mdl.hasOwnProperty(method)) {

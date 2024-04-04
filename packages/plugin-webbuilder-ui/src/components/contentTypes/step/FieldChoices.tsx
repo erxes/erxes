@@ -44,6 +44,8 @@ function FieldChoices(props: Props) {
         text={__('Text area')}
         icon="paragraph"
       />
+
+      <FieldChoice {...props} type="file" text={__('File')} icon="paperclip" />
     </Options>
   );
 }

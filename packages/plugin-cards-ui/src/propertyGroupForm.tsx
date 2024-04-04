@@ -1,5 +1,5 @@
 import React from 'react';
-import SelectBoards from '@erxes/ui-settings/src/properties/containers/SelectBoardPipeline';
+import SelectBoards from '@erxes/ui-forms/src/settings/properties/containers/SelectBoardPipeline';
 class Form extends React.Component<any, any> {
   constructor(props) {
     super(props);

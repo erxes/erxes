@@ -10,18 +10,6 @@ const importHistoryGetDuplicatedHeaders = `
   }
 `;
 
-const importHistoryGetTypes = `
-  query importHistoryGetTypes {
-    importHistoryGetTypes
-  }
-`;
-
-const importHistoryGetExportableServices = `
-  query importHistoryGetExportableServices {
-    importHistoryGetExportableServices
-  }
-`;
-
 const importHistories = `
   query importHistories($type: String, $perPage: Int, $page: Int) {
     importHistories(type: $type, perPage: $perPage, page: $page) {
@@ -38,7 +26,12 @@ const importHistories = `
         percentage
         attachments
         removed
-        user 
+        user {
+          _id
+          details {
+            fullName
+          }
+        }
         error
         }
       count 
@@ -47,8 +40,6 @@ const importHistories = `
 `;
 
 export default {
-  importHistoryGetExportableServices,
-  importHistoryGetTypes,
   importHistories,
   importHistoryGetColumns,
   importHistoryGetDuplicatedHeaders

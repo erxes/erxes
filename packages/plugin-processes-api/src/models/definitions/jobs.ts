@@ -4,7 +4,6 @@ import { attachmentSchema } from '@erxes/api-utils/src/types';
 
 import { DURATION_TYPES, JOB_TYPES } from './constants';
 import { field, schemaHooksWrapper } from './utils';
-import { ICustomField, ISubUom } from './common';
 
 export interface IProduct {
   name: string;
@@ -12,23 +11,20 @@ export interface IProduct {
   categoryCode?: string;
   type?: string;
   description?: string;
-  sku?: string;
   unitPrice?: number;
   code: string;
+  barcodes: string[];
   productId?: string;
   tagIds?: string[];
   attachment?: any;
   attachmentMore?: any[];
   status?: string;
-  supply?: string;
-  productCount?: number;
-  minimiumCount?: number;
   vendorId?: string;
   vendorCode?: string;
 
   mergedIds?: string[];
 
-  uomId?: string;
+  uom?: string;
   subUoms?: any[];
 }
 
@@ -41,17 +37,14 @@ export interface IProductsData {
   _id: string;
   productId: string;
   quantity: number;
-  uomId: string;
-  branchId: string;
-  departmentId: string;
+  amount?: number;
+  uom: string;
+  series?: string[];
+
+  product?: IProduct;
 }
 
-export interface IProductsDataDocument extends IProductsData {
-  product: IProduct;
-  branch?: IBranch;
-  department?: IDepartment;
-  uom: IUom;
-}
+export interface IProductsDataDocument extends IProductsData {}
 
 export interface IUom {
   code: string;
@@ -92,27 +85,30 @@ export interface IJobRefer {
   name: string;
   type: string;
   status: string;
-  createdAt: Date;
-  duration: number;
-  durationType: string;
+  createdAt?: Date;
+  duration?: number;
+  durationType?: string;
+  needProducts?: IProductsData[];
+  resultProducts?: IProductsData[];
 }
 
 export interface IJobReferDocument extends IJobRefer, Document {
   _id: string;
   createdAt: Date;
-  needProducts: any[];
-  resultProducts: any[];
+  needProducts?: IProductsData[];
+  resultProducts?: IProductsData[];
 }
 
 export const productsDataSchema = new Schema({
   _id: field({ pkey: true }),
   productId: field({ type: String, label: 'Product' }),
-  product: field({ type: Object }),
   quantity: field({ type: Number, label: 'Quantity' }),
-  uomId: field({ type: String, label: 'UOM' }),
-  uom: field({ type: Object }),
+  amount: field({ type: Number, optional: true, label: 'Quantity' }),
+  uom: field({ type: String, label: 'UOM' }),
+  proportion: field({ type: Number, optional: true }),
   branchId: field({ type: String, optional: true, label: 'Branch' }),
-  departmentId: field({ type: String, optional: true, label: 'Department' })
+  departmentId: field({ type: String, optional: true, label: 'Department' }),
+  series: field({ type: [String], optional: true, label: 'Series' })
 });
 
 export const jobReferSchema = schemaHooksWrapper(

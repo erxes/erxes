@@ -57,8 +57,8 @@ const segmentsPreviewCount = `
 `;
 
 const headSegments = `
-  query headSegments {
-    segmentsGetHeads {
+  query headSegments($contentType:String) {
+    segmentsGetHeads(contentType: $contentType) {
       ${segmentFields}
       getSubSegments {
         ${segmentFields}

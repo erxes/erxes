@@ -1,7 +1,13 @@
 import { paginate } from '@erxes/api-utils/src';
-import { checkPermission, requireLogin } from '@erxes/api-utils/src/permissions';
+import {
+  checkPermission,
+  requireLogin,
+} from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { sendSegmentsMessage } from '../../../messageBroker';
+import { ITrigger } from '../../../models/definitions/automaions';
+import { STATUSES, UI_ACTIONS } from '../../../constants';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
 interface IListArgs {
   status: string;
@@ -11,6 +17,7 @@ interface IListArgs {
   perPage?: number;
   sortField: string;
   sortDirection: number;
+  tagIds: string[];
 }
 
 interface IHistoriesParams {
@@ -25,21 +32,24 @@ interface IHistoriesParams {
 }
 
 const generateFilter = (params: IListArgs) => {
-  const { status, searchValue } = params;
+  const { status, searchValue, tagIds } = params;
 
-  const filter: any = {};
+  const filter: any = { status: { $nin: [STATUSES.ARCHIVED, 'template'] } };
 
   if (status) {
     filter.status = status;
-  } else {
-    filter.status = { $ne: 'template' };
   }
 
   if (searchValue) {
     filter.name = new RegExp(`.*${searchValue}.*`, 'i');
   }
+
+  if (tagIds) {
+    filter.tagIds = { $in: tagIds };
+  }
+
   return filter;
-}
+};
 
 const automationQueries = {
   /**
@@ -60,32 +70,40 @@ const automationQueries = {
     const filter = generateFilter(params);
 
     const automations = paginate(
-      models.Automations.find(filter)
-        .sort({ createdAt: -1 })
-        .lean(),
-      { perPage, page }
+      models.Automations.find(filter).sort({ createdAt: -1 }).lean(),
+      { perPage, page },
     );
 
     const totalCount = await models.Automations.find(filter).countDocuments();
 
     return {
       list: automations,
-      totalCount
+      totalCount,
     };
   },
 
   /**
    * Get one automation
    */
-  async automationDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  async automationDetail(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
     return models.Automations.getAutomation(_id);
   },
 
   /**
    * Automations note list
    */
-  automationNotes(_root, params: { automationId: string }, { models }: IContext) {
-    return models.Notes.find({ automationId: params.automationId }).sort({ createdAt: -1 });
+  automationNotes(
+    _root,
+    params: { automationId: string },
+    { models }: IContext,
+  ) {
+    return models.Notes.find({ automationId: params.automationId }).sort({
+      createdAt: -1,
+    });
   },
 
   /**
@@ -100,7 +118,7 @@ const automationQueries = {
       triggerId,
       status,
       beginDate,
-      endDate
+      endDate,
     } = params;
 
     const filter: any = { automationId };
@@ -125,13 +143,17 @@ const automationQueries = {
       filter.createdAt = { $lte: endDate };
     }
 
-    return paginate(
-      models.Executions.find(filter).sort({ createdAt: -1 }),
-      { page, perPage }
-    )
+    return paginate(models.Executions.find(filter).sort({ createdAt: -1 }), {
+      page,
+      perPage,
+    });
   },
 
-  async automationConfigPrievewCount(_root, params: { config: any }, { subdomain }: IContext) {
+  async automationConfigPrievewCount(
+    _root,
+    params: { config: any },
+    { subdomain }: IContext,
+  ) {
     const config = params.config;
     if (!config) {
       return;
@@ -142,7 +164,12 @@ const automationQueries = {
       return;
     }
 
-    const segment = await sendSegmentsMessage({ subdomain, action: 'findOne', data: { _id: contentId }, isRPC: true });
+    const segment = await sendSegmentsMessage({
+      subdomain,
+      action: 'findOne',
+      data: { _id: contentId },
+      isRPC: true,
+    });
 
     if (!segment) {
       return;
@@ -150,7 +177,7 @@ const automationQueries = {
 
     const result = await sendSegmentsMessage({
       subdomain,
-      action: "fetchSegment",
+      action: 'fetchSegment',
       data: {
         segmentId: segment._id,
         options: { returnCount: true },
@@ -161,7 +188,11 @@ const automationQueries = {
     return result;
   },
 
-  async automationsTotalCount(_root, { status }: { status: string }, { models }: IContext) {
+  async automationsTotalCount(
+    _root,
+    { status }: { status: string },
+    { models }: IContext,
+  ) {
     const filter: any = {};
 
     if (status) {
@@ -169,7 +200,66 @@ const automationQueries = {
     }
 
     return models.Automations.find(filter).countDocuments();
-  }
+  },
+
+  async automationConstants(_root, {}) {
+    const services = await getServices();
+
+    const constants: {
+      triggersConst: ITrigger[];
+      triggerTypesConst: string[];
+      actionsConst: any[];
+      propertyTypesConst: Array<{ value: string; label: string }>;
+    } = {
+      triggersConst: [],
+      triggerTypesConst: [],
+      actionsConst: [...UI_ACTIONS],
+      propertyTypesConst: [],
+    };
+
+    for (const serviceName of services) {
+      const service = await getService(serviceName);
+      const meta = service.config?.meta || {};
+
+      if (meta && meta.automations && meta.automations.constants) {
+        const pluginConstants = meta.automations.constants || {};
+        const { triggers = [], actions = [] } = pluginConstants;
+
+        for (const trigger of triggers) {
+          constants.triggersConst.push(trigger);
+          constants.triggerTypesConst.push(trigger.type);
+          constants.propertyTypesConst.push({
+            value: trigger.type,
+            label: trigger.label,
+          });
+        }
+
+        for (const action of actions) {
+          constants.actionsConst.push(action);
+        }
+
+        if (!!pluginConstants?.emailRecipientTypes?.length) {
+          const updatedEmailRecipIentTypes =
+            pluginConstants.emailRecipientTypes.map((eRT) => ({
+              ...eRT,
+              serviceName,
+            }));
+          constants.actionsConst = constants.actionsConst.map((actionConst) =>
+            actionConst.type === 'sendEmail'
+              ? {
+                  ...actionConst,
+                  emailRecipientsConst: actionConst.emailRecipientsConst.concat(
+                    updatedEmailRecipIentTypes,
+                  ),
+                }
+              : actionConst,
+          );
+        }
+      }
+    }
+
+    return constants;
+  },
 };
 
 requireLogin(automationQueries, 'automationsMain');
@@ -179,7 +269,7 @@ requireLogin(automationQueries, 'automationDetail');
 checkPermission(automationQueries, 'automations', 'showAutomations', []);
 checkPermission(automationQueries, 'automationsMain', 'showAutomations', {
   list: [],
-  totalCount: 0
+  totalCount: 0,
 });
 
 export default automationQueries;

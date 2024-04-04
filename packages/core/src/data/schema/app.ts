@@ -1,7 +1,9 @@
 const commonFields = `
   name: String
   userGroupId: String
-  expireDate: Date
+  expireDate: Date    
+  allowAllPermission: Boolean
+  noExpire: Boolean
 `;
 
 export const types = `

@@ -1,65 +1,65 @@
 import * as mongoose from 'mongoose';
-import {
-  loadPosClass,
-  loadProductGroupClass,
-  IPosModel,
-  IProductGroupModel,
-  IPosOrderModel,
-  loadPosOrderClass,
-  IPosSlotModel,
-  loadPosSlotClass
-} from './models/Pos';
-
+import { createGenerateModels } from '@erxes/api-utils/src/core';
+import { IContext as IMainContext } from '@erxes/api-utils/src';
 import {
   IPosDocument,
-  IPosOrderDocument,
   IPosSlotDocument,
-  IProductGroupDocument
+  IProductGroupDocument,
 } from './models/definitions/pos';
-import { IContext as IMainContext } from '@erxes/api-utils/src';
-import { createGenerateModels } from '@erxes/api-utils/src/core';
+import {
+  IPosModel,
+  IPosSlotModel,
+  IProductGroupModel,
+  loadPosClass,
+  loadPosSlotClass,
+  loadProductGroupClass,
+} from './models/Pos';
+import { IPosOrderModel, loadPosOrderClass } from './models/Orders';
+import { ICoverModel, loadCoverClass } from './models/Covers';
+import { ICoverDocument } from './models/definitions/covers';
+import { IPosOrderDocument } from './models/definitions/orders';
 
 export interface IModels {
   Pos: IPosModel;
   ProductGroups: IProductGroupModel;
   PosOrders: IPosOrderModel;
   PosSlots: IPosSlotModel;
+  Covers: ICoverModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (
   db: mongoose.Connection,
-  subdomain: string
+  subdomain: string,
 ): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Pos = db.model<IPosDocument, IPosModel>(
     'pos',
-    loadPosClass(models, subdomain)
+    loadPosClass(models, subdomain),
   );
   models.ProductGroups = db.model<IProductGroupDocument, IProductGroupModel>(
     'product_groups',
-    loadProductGroupClass(models, subdomain)
+    loadProductGroupClass(models, subdomain),
   );
 
   models.PosOrders = db.model<IPosOrderDocument, IPosOrderModel>(
     'pos_orders',
-    loadPosOrderClass(models, subdomain)
+    loadPosOrderClass(models, subdomain),
   );
   models.PosSlots = db.model<IPosSlotDocument, IPosSlotModel>(
     'pos_slots',
-    loadPosSlotClass(models, subdomain)
+    loadPosSlotClass(models, subdomain),
+  );
+  models.Covers = db.model<ICoverDocument, ICoverModel>(
+    'pos_covers',
+    loadCoverClass(models),
   );
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

@@ -1,5 +1,4 @@
 import { Document, Schema } from 'mongoose';
-import { NOTIFICATION_TYPES } from '../../constants';
 import { field } from './utils';
 
 export interface INotification {
@@ -24,12 +23,11 @@ export interface INotificationDocument extends INotification, Document {
 export const notificationSchema = new Schema({
   _id: field({ pkey: true }),
   notifType: field({
-    type: String,
-    enum: NOTIFICATION_TYPES.ALL,
+    type: String
   }),
   action: field({
     type: String,
-    optional: true,
+    optional: true
   }),
   title: field({ type: String }),
   link: field({ type: String }),
@@ -41,11 +39,22 @@ export const notificationSchema = new Schema({
   date: field({
     type: Date,
     default: Date.now,
+    index: true
   }),
   isRead: field({
     type: Boolean,
     default: false,
-  }),
+    index: true
+  })
+});
+
+notificationSchema.index({
+  receiver: 1,
+  isRead: 1,
+  title: 1,
+  notifType: 1,
+  contentType: 1,
+  date: 1
 });
 
 export interface IConfig {
@@ -63,8 +72,7 @@ export const configSchema = new Schema({
   // to whom this config is related
   user: field({ type: String }),
   notifType: field({
-    type: String,
-    enum: NOTIFICATION_TYPES.ALL,
+    type: String
   }),
-  isAllowed: field({ type: Boolean }),
+  isAllowed: field({ type: Boolean })
 });

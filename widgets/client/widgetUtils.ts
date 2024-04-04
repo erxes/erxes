@@ -65,7 +65,8 @@ export const getBrowserInfo = async () => {
       url: window.location.pathname,
       hostname: window.location.href,
       language: navigator.language,
-      userAgent: navigator.userAgent
+      userAgent: navigator.userAgent,
+      countryCode: 'MN',
     };
   }
 
@@ -75,6 +76,7 @@ export const getBrowserInfo = async () => {
     const response = await fetch('https://geo.erxes.io');
 
     location = await response.json();
+
   } catch (e) {
     location = {
       city: '',

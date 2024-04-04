@@ -9,7 +9,11 @@ export default {
   ) {
     const product = await models.Products.findOne({ _id: orderItem.productId });
 
-    return product ? product.name : 'product not found';
+    if (!product) {
+      return orderItem.productName || 'product not found';
+    }
+
+    return `${product.code} - ${product.name}`;
   },
   async productImgUrl(
     orderItem: IOrderItemDocument,

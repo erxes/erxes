@@ -57,6 +57,7 @@ const Progress = styledTS<{ color?: string }>(styled.div)`
 
 const Container = styled.div`
   position: relative;
+  display: flex;
 `;
 
 const Circle = styled.circle`
@@ -86,7 +87,6 @@ const Text = styledTS<{ color?: string }>(styled.div)`
   right: 0;
   top: 0;
   width: 100%;
-  z-index: 100;
 `;
 
 type Props = {

@@ -16,7 +16,7 @@ import {
 import { IPosProduct } from '../types';
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
-import { menuPos } from './List';
+import { menuPos } from '../../constants';
 
 interface IProps extends IRouterProps {
   history: any;

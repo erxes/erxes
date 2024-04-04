@@ -3,5 +3,5 @@ export const VOUCHER_TYPES = {
   bonus: { label: 'Product Bonus', value: 'bonus' },
   lottery: { label: 'Lottery Campaign', value: 'lottery' },
   spin: { label: 'Spin Campaign', value: 'spin' },
-  coupon: { label: 'Coupon', value: 'coupon' },
-}
+  coupon: { label: 'Coupon', value: 'coupon' }
+};

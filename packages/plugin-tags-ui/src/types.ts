@@ -1,4 +1,4 @@
-import { ITag as ITagC } from '@erxes/ui/src/tags/types';
+import { ITag as ITagC } from '@erxes/ui-tags/src/types';
 export type ITag = ITagC;
 export interface ITagSaveParams {
   tag?: ITag;
@@ -19,7 +19,6 @@ export type ITagTypes =
   | 'integration';
 
 // queries
-
 export type TagsQueryResponse = {
   tags: ITag[];
   loading: boolean;

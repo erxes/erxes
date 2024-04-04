@@ -1,6 +1,7 @@
-import { IUser } from '@erxes/ui/src/auth/types';
 import { IAttachment, QueryResponse } from '@erxes/ui/src/types';
+
 import { IBrand } from '@erxes/ui/src/brands/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 export interface IArticle {
   _id: string;
@@ -8,6 +9,7 @@ export interface IArticle {
   summary: string;
   content: string;
   status: string;
+  isPrivate: boolean;
   reactionChoices: string[];
   reactionCounts: any;
   createdBy: string;
@@ -19,6 +21,8 @@ export interface IArticle {
   categoryId: string;
   image: IAttachment;
   attachments: [IAttachment];
+  forms: IErxesForm[];
+  code?: string;
 }
 
 export interface ITopic {
@@ -35,6 +39,8 @@ export interface ITopic {
   modifiedBy: string;
   modifiedDate: Date;
   parentCategories: ICategory[];
+  notificationSegmentId: string;
+  code?: string;
 }
 
 export interface ICategory {
@@ -49,6 +55,12 @@ export interface ICategory {
   modifiedDate: Date;
   firstTopic: ITopic;
   parentCategoryId?: string;
+  code?: string;
+}
+
+export interface IErxesForm {
+  brandId: string;
+  formId: string;
 }
 
 // mutation types
@@ -58,7 +70,9 @@ export type ArticleVariables = {
   summary: string;
   content: string;
   status: string;
+  isPrivate: boolean;
   categoryIds: string[];
+  code?: string;
 };
 
 export type AddArticlesMutationResponse = {
@@ -108,6 +122,7 @@ export type TopicVariables = {
   brandId: string;
   languageCode: string;
   color: string;
+  code?: string;
 };
 
 export type AddTopicsMutationResponse = {

@@ -1,9 +1,9 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { withProps } from '@erxes/ui/src/utils';
 import Segments from '@erxes/ui-segments/src/containers/Filter';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../../graphql';
 import { CountQueryResponse } from '../../types';
 
@@ -16,21 +16,30 @@ const SegmentFilterContainer = (props: {
     ? companyCountsQuery.companyCounts
     : null) || { bySegment: {} };
 
-  return <Segments contentType="contacts:company" counts={counts.bySegment || {}} />;
+  return (
+    <Segments contentType="contacts:company" counts={counts.bySegment || {}} />
+  );
 };
 
-export default withProps<{ loadingMainQuery: boolean }>(
+type Props = {
+  loadingMainQuery: boolean;
+  abortController?: any;
+};
+
+export default withProps<Props>(
   compose(
-    graphql<
-      { loadingMainQuery: boolean },
-      CountQueryResponse,
-      { only: string }
-    >(gql(queries.companyCounts), {
-      name: 'companyCountsQuery',
-      skip: ({ loadingMainQuery }) => loadingMainQuery,
-      options: {
-        variables: { only: 'bySegment' }
+    graphql<Props, CountQueryResponse, { only: string }>(
+      gql(queries.companyCounts),
+      {
+        name: 'companyCountsQuery',
+        skip: ({ loadingMainQuery }) => loadingMainQuery,
+        options: ({ abortController }) => ({
+          variables: { only: 'bySegment' },
+          context: {
+            fetchoptions: { signal: abortController && abortController.signal }
+          }
+        })
       }
-    })
+    )
   )(SegmentFilterContainer)
 );

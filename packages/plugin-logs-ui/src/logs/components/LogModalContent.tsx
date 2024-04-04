@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import TextInfo from '@erxes/ui/src/components/TextInfo';
 import colors from '@erxes/ui/src/styles/colors';
 import React from 'react';
-import { LogBox } from '../styles';
+import { LogBox, LogBoxContainer } from '../styles';
 import { ILog, ILogDesc } from '../types';
 import { flattenObject, isObjectEmpty } from '../utils';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -75,7 +75,7 @@ export default class LogModal extends React.Component<Props> {
     return <ul key="array" />;
   }
 
-  buildListFromObject(obj = {}): JSX.Element[] {
+  buildListFromObject(obj = {}, checkSchema = true): JSX.Element[] {
     const { schemaLabelMaps } = this.props;
 
     const flatObject: object = flattenObject(obj);
@@ -90,9 +90,16 @@ export default class LogModal extends React.Component<Props> {
 
     for (const name of names) {
       const field: any = flatObject[name];
-      const mappedItem: ILogDesc | undefined = schemaLabelMaps.find(
-        fn => fn.name === name
-      );
+      const mappedItem: ILogDesc | undefined = checkSchema
+        ? schemaLabelMaps.find(fn => fn.name === name)
+        : {
+            name,
+            label: name
+              .replace(/([A-Z])/g, match => ` ${match}`)
+              .toLowerCase()
+              .replace(/^./, match => match.toUpperCase())
+              .trim()
+          };
 
       if (!mappedItem) {
         continue;
@@ -136,7 +143,7 @@ export default class LogModal extends React.Component<Props> {
 
           list.push(item);
         } else {
-          const sub = this.buildListFromObject(field);
+          const sub = this.buildListFromObject(field, false);
 
           item = <li key={Math.random()}>{name}:</li>;
 
@@ -191,7 +198,7 @@ export default class LogModal extends React.Component<Props> {
     iconType: string
   ): JSX.Element {
     if (!data || data === '{}') {
-      return <span />;
+      return <></>;
     }
 
     let color: string = colors.colorPrimary;
@@ -230,13 +237,19 @@ export default class LogModal extends React.Component<Props> {
 
   render() {
     const { log } = this.props;
+    const dataSections = [
+      log.oldData,
+      log.addedData,
+      log.changedData,
+      log.removedData
+    ].filter(Boolean);
 
     if (!log) {
       return null;
     }
 
     return (
-      <div className="modal-items-list">
+      <LogBoxContainer onlyOne={dataSections.length === 1}>
         {this.renderData(
           log.oldData,
           'Before any changes',
@@ -246,7 +259,7 @@ export default class LogModal extends React.Component<Props> {
         {this.renderData(log.addedData, 'Added fields', 'success', 'add')}
         {this.renderData(log.changedData, 'Changed fields', 'warning', 'edit')}
         {this.renderData(log.removedData, 'Removed fields', 'danger', 'trash')}
-      </div>
+      </LogBoxContainer>
     );
   }
 

@@ -1,9 +1,9 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import { confirm } from '@erxes/ui/src/utils';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import SegmentsList from '../components/SegmentsList';
 import { mutations, queries } from '@erxes/ui-segments/src/graphql';
 import { router } from '@erxes/ui/src/utils';
@@ -36,7 +36,7 @@ const SegmentListContainer = (props: FinalProps) => {
   if (!router.getParam(history, 'contentType') || !segmentsQuery) {
     router.setParams(
       history,
-      { contentType: types[0].contentType.toString() },
+      { contentType: types[0] ? types[0].contentType.toString() : '' },
       true
     );
   }

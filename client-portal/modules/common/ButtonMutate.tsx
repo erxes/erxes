@@ -1,11 +1,11 @@
-import gql from "graphql-tag";
-import { colors } from "../styles";
 import Alert from "../utils/Alert";
-import confirm from "../utils/confirmation/confirm";
-import { rotate } from "../utils/animations";
-import React from "react";
-import styled from "styled-components";
 import Button from "./Button";
+import React from "react";
+import { colors } from "../styles";
+import confirm from "../utils/confirmation/confirm";
+import gql from "graphql-tag";
+import { rotate } from "../utils/animations";
+import styled from "styled-components";
 import withApolloClient from "../../pages/api/lib/withApolloClient";
 
 export const SmallLoader = styled.i`
@@ -50,7 +50,6 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
 
   static defaultProps = {
     btnSize: "medium",
-    icon: "check-circle",
   };
 
   constructor(props: Props) {

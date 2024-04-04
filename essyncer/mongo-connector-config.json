@@ -27,6 +27,9 @@
     "erxes*.deals": {
       "rename": "erxes*__deals._doc"
     },
+    "erxes*.purchases": {
+      "rename": "erxes*__purchases._doc"
+    },
     "erxes*.brands": {
       "rename": "erxes*__brands._doc"
     },
@@ -65,6 +68,9 @@
     },
     "erxes*.fields_groups": {
       "rename": "erxes*__fields_groups._doc"
+    }, 
+    "erxes*.products": {
+      "rename": "erxes*__products._doc"
     }
   },
   "docManagers": [

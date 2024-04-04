@@ -1,10 +1,10 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { withProps } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import Form from '../components/Form';
-import { mutations, queries } from '../graphql';
+import { mutations } from '../graphql';
 
 type Props = {
   contentType: string;
@@ -20,14 +20,20 @@ class FormContainer extends React.Component<FinalProps, State> {
   render() {
     const { importHistoriesCreate } = this.props;
 
-    const addImportHistory = doc => {
+    const addImportHistory = (doc, columnAllSelected) => {
       const { contentTypes } = doc;
 
-      importHistoriesCreate({
-        variables: doc
-      }).then(() => {
-        window.location.href = `/settings/importHistories?type=${contentTypes[0].contentType}`;
-      });
+      if (!columnAllSelected) {
+        Alert.error('You must chose all column');
+      }
+
+      if (columnAllSelected) {
+        importHistoriesCreate({
+          variables: doc
+        }).then(() => {
+          window.location.href = `/settings/importHistories?type=${contentTypes[0].contentType}`;
+        });
+      }
     };
 
     return (
@@ -43,9 +49,6 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(mutations.importHistoriesCreate), {
       name: 'importHistoriesCreate'
-    }),
-    graphql<Props>(gql(queries.importHistoryGetTypes), {
-      name: 'importHistoryGetTypes'
     })
   )(FormContainer)
 );

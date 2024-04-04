@@ -1,60 +1,60 @@
 import React from 'react';
+import { useHistory } from 'react-router-dom';
 import * as compose from 'lodash.flowright';
+// erxes
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils';
-import From from '../components/Form';
+// local
+import FormComponent from '../components/Form';
 import { mutations } from '../graphql';
 
 type Props = {
   closeModal: () => void;
-  history: any;
 };
 
-class Form extends React.Component<Props> {
-  render() {
-    const { history } = this.props;
-    const renderButton = ({
-      name,
-      values,
-      isSubmitted,
-      callback
-    }: IButtonMutateProps) => {
-      const callBack = (data: any) => {
-        if (callback) {
-          callback(data);
-        }
+function FormContainer(props: Props) {
+  const history = useHistory();
 
-        history.push(
-          `/inventories/safe-remainders/details/${data.createSafeRemainder._id}`
-        );
-      };
+  const getRefetchQueries = () => {
+    return ['safeRemainders'];
+  };
 
-      return (
-        <ButtonMutate
-          mutation={mutations.createSafeRemainder}
-          variables={values}
-          callback={callBack}
-          refetchQueries={getRefetchQueries()}
-          isSubmitted={isSubmitted}
-          type="submit"
-          uppercase={false}
-          successMessage={`You successfully added a ${name}`}
-        />
+  const renderButton = ({
+    name,
+    values,
+    isSubmitted,
+    callback
+  }: IButtonMutateProps) => {
+    const _callback = (data: any) => {
+      if (callback) {
+        callback(data);
+      }
+
+      history.push(
+        `/inventories/safe-remainders/details/${data.safeRemainderAdd._id}`
       );
     };
 
-    const updatedProps = {
-      ...this.props,
-      renderButton
-    };
+    return (
+      <ButtonMutate
+        mutation={mutations.safeRemainderAdd}
+        variables={values}
+        callback={_callback}
+        refetchQueries={getRefetchQueries()}
+        isSubmitted={isSubmitted}
+        type="submit"
+        uppercase={false}
+        successMessage={`You successfully added a ${name}`}
+      />
+    );
+  };
 
-    return <From {...updatedProps} />;
-  }
+  const componentProps = {
+    ...props,
+    renderButton
+  };
+
+  return <FormComponent {...componentProps} />;
 }
 
-const getRefetchQueries = () => {
-  return ['safeRemainders'];
-};
-
-export default withProps<Props>(compose()(Form));
+export default compose()(FormContainer);

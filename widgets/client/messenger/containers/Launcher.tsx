@@ -1,12 +1,12 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import { ChildProps, graphql } from 'react-apollo';
-import { IBrowserInfo, IIntegrationUiOptions } from '../../types';
-import DumpLauncher from '../components/Launcher';
-import { connection } from '../connection';
-import graphqlTypes from '../graphql';
-import { IMessage } from '../types';
-import { AppConsumer } from './AppContext';
+import gql from "graphql-tag";
+import * as React from "react";
+import { ChildProps, graphql } from "react-apollo";
+import { IBrowserInfo, IIntegrationUiOptions } from "../../types";
+import DumpLauncher from "../components/Launcher";
+import { connection } from "../connection";
+import graphqlTypes from "../graphql";
+import { IMessage } from "../types";
+import { AppConsumer } from "./AppContext";
 
 type BaseProps = {
   isMessengerVisible: boolean;

@@ -1,14 +1,18 @@
-import React from 'react';
-import { withRouter } from 'react-router-dom';
+import {
+  FieldStyle,
+  SidebarCounter,
+  SidebarList
+} from '@erxes/ui/src/layout/styles';
+import { __, router } from 'coreui/utils';
 
 import Box from '@erxes/ui/src/components/Box';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import Icon from '@erxes/ui/src/components/Icon';
-import { __, router } from 'coreui/utils';
-import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { LEAD_STATUS_TYPES } from '@erxes/ui/src/customers/constants';
+import Icon from '@erxes/ui/src/components/Icon';
+import { LEAD_STATUS_TYPES } from '@erxes/ui-contacts/src/customers/constants';
+import React from 'react';
 import { leadStatusChoices } from '../../utils';
+import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   counts: { [key: string]: number };

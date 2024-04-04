@@ -1,4 +1,40 @@
-export const formDetailQuery = `
+const fieldsFragment = `
+_id
+name
+type
+text
+content
+description
+options
+locationOptions{
+  lat
+  lng
+  description
+}
+objectListConfigs{
+  key
+  label
+  type
+}
+isRequired
+order
+validation
+associatedFieldId
+column
+groupId
+logicAction
+pageNumber
+logics {
+  fieldId
+  logicOperator
+  logicValue
+}
+subFieldIds
+
+`;
+
+
+export const formDetailQuery = (isProductsEnabled: boolean) => `
   query formDetail($_id: String!) {
     formDetail(_id: $_id) {
       title
@@ -9,40 +45,23 @@ export const formDetailQuery = `
       code
 
       fields {
-        _id
-        name
-        type
-        text
-        content
-        description
-        options
-        locationOptions{
-          lat
-          lng
-          description
+        ${fieldsFragment}
+        ${
+          isProductsEnabled
+            ? `
+            products {
+              _id
+              name
+              unitPrice
+              attachment {
+                url
+              }
+            }
+          `
+            : ''
         }
-        objectListConfigs{
-          key
-          label
-          type
-        }
-        isRequired
-        order
-        validation
-        associatedFieldId
-        column
-        groupId
-        logicAction
-        pageNumber
-        logics {
-          fieldId
-          logicOperator
-          logicValue
-        }
-        products{
-          _id
-          name
-          unitPrice
+        subFields {
+          ${fieldsFragment}
         }
       }
     }
@@ -71,15 +90,13 @@ export const saveFormMutation = `
   mutation widgetsSaveLead($integrationId: String!, $formId: String!, $submissions: [FieldValueInput], $browserInfo: JSON!, $cachedCustomerId: String, $userId: String) {
     widgetsSaveLead(integrationId: $integrationId, formId: $formId, submissions: $submissions, browserInfo: $browserInfo, cachedCustomerId: $cachedCustomerId, userId: $userId) {
       status
-      messageId
+      conversationId
       customerId
       errors {
         fieldId
         code
         text
       }
-      invoiceResponse
-      invoiceType
     }
   }
 `;
@@ -96,14 +113,22 @@ export const increaseViewCountMutation = `
   }
 `;
 
-export const cancelOrderMutation = `
-  mutation widgetsCancelOrder($customerId: String!, $messageId: String!) {
-    widgetsCancelOrder(customerId: $customerId, messageId: $messageId)
-  }
-`;
+export const generateInvoiceUrl = `
+mutation GenerateInvoiceUrl($amount: Float!, $contentType: String, $contentTypeId: String, $customerId: String, $customerType: String, $description: String, $email: String, $paymentIds: [String], $phone: String) {
+  generateInvoiceUrl(amount: $amount, contentType: $contentType, contentTypeId: $contentTypeId, customerId: $customerId, customerType: $customerType, description: $description, email: $email, paymentIds: $paymentIds, phone: $phone)
+}
+`
 
-export const formInvoiceUpdated = `
-  subscription formInvoiceUpdated($messageId: String) {
-    formInvoiceUpdated(messageId: $messageId) 
+export const enabledServicesQuery = `
+query enabledServices {
+  enabledServices
+}
+`
+
+export const getPaymentMethods = `
+query GetPaymentConfig($contentType: String!, $contentTypeId: String!) {
+  getPaymentConfig(contentType: $contentType, contentTypeId: $contentTypeId) {
+    paymentIds
   }
-`;
+}
+`

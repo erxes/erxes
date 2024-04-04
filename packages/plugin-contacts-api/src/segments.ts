@@ -1,92 +1,67 @@
+import {
+  fetchByQuery,
+  fetchByQueryWithScroll,
+} from '@erxes/api-utils/src/elasticsearch';
+import {
+  gatherAssociatedTypes,
+  getEsIndexByContentType,
+  getName,
+  getServiceName,
+} from '@erxes/api-utils/src/segments';
 import * as _ from 'underscore';
-import { fetchByQuery } from '@erxes/api-utils/src/elasticsearch';
-import { sendCoreMessage } from './messageBroker';
-
-const indexesTypeContentType = {
-  'contacts:lead': 'customers',
-  'contacts:customer': 'customers',
-  'contacts:company': 'companies',
-  'cards:deal': 'deals',
-  'cards:task': 'tasks',
-  'cards:ticket': 'tickets',
-  'inbox:conversation': 'conversations'
+import { sendCommonMessage, sendCoreMessage } from './messageBroker';
+const successMessage = (ids) => {
+  return { data: ids, status: 'success' };
 };
 
-export const getName = type =>
-  type.replace('contacts:', '').replace('cards:', '');
+const changeType = (type: string) =>
+  type === 'contacts:lead' ? 'contacts:customer' : type;
 
 export default {
-  indexesTypeContentType,
-  associationTypes: [
-    'contacts:lead',
-    'contacts:customer',
-    'contacts:company',
-    'cards:deal',
-    'cards:ticket',
-    'cards:task',
-    'inbox:conversation',
-    'forms:form_submission'
+  contentTypes: [
+    { type: 'company', description: 'Company', esIndex: 'companies' },
+    { type: 'customer', description: 'Customer', esIndex: 'customers' },
+    {
+      type: 'lead',
+      description: 'Lead',
+      esIndex: 'customers',
+      notAssociated: true,
+    },
   ],
-
-  contentTypes: ['lead', 'customer', 'company'],
-
-  descriptionMap: {
-    deal: 'Deal',
-    ticket: 'Ticket',
-    task: 'Task',
-    lead: 'Lead',
-    customer: 'Customer',
-    company: 'Company',
-    conversation: 'Conversation',
-    form_submission: 'Form Submission'
-  },
 
   associationFilter: async ({
     subdomain,
-    data: { mainType, propertyType, positiveQuery, negativeQuery }
+    data: { mainType, propertyType, positiveQuery, negativeQuery },
   }) => {
-    let associatedTypes: string[] = [];
-
-    if (['contacts:customer', 'contacts:lead'].includes(mainType)) {
-      associatedTypes = [
-        'contacts:company',
-        'cards:deal',
-        'cards:ticket',
-        'cards:task'
-      ];
-    }
-
-    if (mainType === 'contacts:company') {
-      associatedTypes = [
-        'contacts:customer',
-        'cards:deal',
-        'cards:ticket',
-        'cards:task'
-      ];
-    }
+    const associatedTypes: string[] = await gatherAssociatedTypes(
+      changeType(mainType),
+    );
 
     let ids: string[] = [];
 
-    if (associatedTypes.includes(propertyType)) {
-      const mainTypeIds = await fetchByQuery({
+    if (
+      associatedTypes.includes(propertyType) ||
+      propertyType === 'contacts:lead'
+    ) {
+      const mainTypeIds = await fetchByQueryWithScroll({
         subdomain,
-        index: indexesTypeContentType[propertyType],
+        index: await getEsIndexByContentType(propertyType),
         positiveQuery,
-        negativeQuery
+        negativeQuery,
       });
 
       ids = await sendCoreMessage({
         subdomain,
         action: 'conformities.filterConformity',
         data: {
-          mainType: getName(propertyType),
+          mainType: getName(changeType(propertyType)),
           mainTypeIds,
-          relType: getName(
-            mainType === 'contacts:lead' ? 'contacts:customer' : mainType
-          )
+          relType: getName(changeType(mainType)),
         },
-        isRPC: true
+        isRPC: true,
       });
+
+      return successMessage(ids);
     }
 
     if (propertyType === 'forms:form_submission') {
@@ -95,13 +70,33 @@ export default {
         index: 'form_submissions',
         _source: 'customerId',
         positiveQuery,
-        negativeQuery
+        negativeQuery,
       });
+    } else {
+      const serviceName = getServiceName(propertyType);
 
-      ids = _.uniq(ids);
+      if (serviceName === 'contacts') {
+        return { data: [], status: 'error' };
+      }
+
+      ids = await sendCommonMessage({
+        serviceName,
+        subdomain,
+        action: 'segments.associationFilter',
+        data: {
+          mainType,
+          propertyType,
+          positiveQuery,
+          negativeQuery,
+        },
+        defaultValue: [],
+        isRPC: true,
+      });
     }
 
-    return { data: ids, status: 'success' };
+    ids = _.uniq(ids);
+
+    return successMessage(ids);
   },
 
   esTypesMap: async () => {
@@ -111,10 +106,10 @@ export default {
   initialSelector: async () => {
     const negative = {
       term: {
-        status: 'deleted'
-      }
+        status: 'deleted',
+      },
     };
 
     return { data: { negative }, status: 'success' };
-  }
+  },
 };

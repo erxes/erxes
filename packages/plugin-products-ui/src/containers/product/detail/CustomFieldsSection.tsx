@@ -1,17 +1,19 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+
 import { EditMutationResponse, IProduct } from '../../../types';
-import GenerateCustomFields from '@erxes/ui-settings/src/properties/components/GenerateCustomFields';
-import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-settings/src/properties/constants';
-import { queries as fieldQueries } from '@erxes/ui-settings/src/properties/graphql';
+
+import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-forms/src/settings/properties/constants';
+import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
+import GenerateCustomFields from '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields';
 import React from 'react';
-import { graphql } from 'react-apollo';
-import { withProps } from '@erxes/ui/src/utils';
-import { FieldsGroupsQueryResponse } from '@erxes/ui-settings/src/properties/types';
-import { mutations } from '../../../graphql';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { mutations } from '../../../graphql';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   product: IProduct;
@@ -38,12 +40,12 @@ const CustomFieldsSection = (props: FinalProps) => {
 
   const save = (data, callback) => {
     editMutation({
-      variables: { _id, ...data }
+      variables: { _id, ...data },
     })
       .then(() => {
         callback();
       })
-      .catch(e => {
+      .catch((e) => {
         callback(e);
       });
   };
@@ -51,36 +53,39 @@ const CustomFieldsSection = (props: FinalProps) => {
   const updatedProps = {
     save,
     loading,
+    object: product,
     customFieldsData: product.customFieldsData,
     fieldsGroups: (fieldsGroupsQuery && fieldsGroupsQuery.fieldsGroups) || [],
-    isDetail: true
+    isDetail: true,
   };
 
   return <GenerateCustomFields {...updatedProps} />;
 };
 
 const options = () => ({
-  refetchQueries: ['companDetail']
+  refetchQueries: ['productDetail'],
 });
 
 export default withProps<Props>(
   compose(
-    graphql<Props, FieldsGroupsQueryResponse, { contentType: string }>(
-      gql(fieldQueries.fieldsGroups),
-      {
-        name: 'fieldsGroupsQuery',
-        options: () => ({
-          variables: {
-            contentType: FIELDS_GROUPS_CONTENT_TYPES.PRODUCT,
-            isDefinedByErxes: false
-          }
-        }),
-        skip: !isEnabled('forms')
-      }
-    ),
+    graphql<
+      Props,
+      FieldsGroupsQueryResponse,
+      { product: IProduct; contentType: string }
+    >(gql(fieldQueries.fieldsGroups), {
+      name: 'fieldsGroupsQuery',
+      options: ({ product }: { product: IProduct }) => ({
+        variables: {
+          contentType: FIELDS_GROUPS_CONTENT_TYPES.PRODUCT,
+          isDefinedByErxes: false,
+          config: { categoryId: product.categoryId },
+        },
+      }),
+      skip: !isEnabled('forms'),
+    }),
     graphql<Props, EditMutationResponse, IProduct>(gql(mutations.productEdit), {
       name: 'editMutation',
-      options
-    })
-  )(CustomFieldsSection)
+      options,
+    }),
+  )(CustomFieldsSection),
 );

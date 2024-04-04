@@ -1,10 +1,9 @@
 import * as compose from 'lodash.flowright';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import React from 'react';
 import { Alert, Spinner, withProps } from '@erxes/ui/src';
-import { queries as productQueries } from '@erxes/ui-products/src/graphql';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import Pos from '../components/Pos';
 import {
   AddPosMutationResponse,
@@ -17,12 +16,7 @@ import {
   SlotsBulkUpdateMutationResponse,
   SlotsQueryResponse
 } from '../../types';
-import {
-  IPos,
-  ProductCategoriesQueryResponse,
-  BranchesQueryResponse,
-  ISlot
-} from '../../types';
+import { IPos, ISlot } from '../../types';
 import { mutations, queries } from '../graphql';
 
 type Props = {
@@ -38,8 +32,6 @@ type State = {
 type FinalProps = {
   posDetailQuery: PosDetailQueryResponse;
   groupsQuery: GroupsQueryResponse;
-  productCategoriesQuery: ProductCategoriesQueryResponse;
-  branchesQuery: BranchesQueryResponse;
   slotsQuery: SlotsQueryResponse;
   posEnvQuery: PosEnvQueryResponse;
 } & Props &
@@ -65,8 +57,6 @@ class EditPosContainer extends React.Component<FinalProps, State> {
       productGroupsBulkInsertMutation,
       slotsBulkUpdateMutation,
       history,
-      productCategoriesQuery,
-      branchesQuery,
       slotsQuery,
       posEnvQuery
     } = this.props;
@@ -74,8 +64,6 @@ class EditPosContainer extends React.Component<FinalProps, State> {
     if (
       (posDetailQuery && posDetailQuery.loading) ||
       (groupsQuery && groupsQuery.loading) ||
-      productCategoriesQuery.loading ||
-      branchesQuery.loading ||
       (slotsQuery && slotsQuery.loading)
     ) {
       return <Spinner objective={true} />;
@@ -83,9 +71,7 @@ class EditPosContainer extends React.Component<FinalProps, State> {
 
     const pos = (posDetailQuery && posDetailQuery.posDetail) || ({} as IPos);
     const groups = (groupsQuery && groupsQuery.productGroups) || [];
-    const branches = branchesQuery.branches || [];
     const slots = (slotsQuery && slotsQuery.posSlots) || [];
-    const productCategories = productCategoriesQuery.productCategories || [];
     const envs = posEnvQuery.posEnv || {};
 
     const save = doc => {
@@ -143,10 +129,8 @@ class EditPosContainer extends React.Component<FinalProps, State> {
       groups,
       pos,
       save,
-      branches,
       isActionLoading: this.state.isLoading,
       slots,
-      productCategories,
       envs
     };
 
@@ -227,22 +211,6 @@ export default withProps<Props>(
       { posId: string; groups: ISlot[] }
     >(gql(mutations.saveSlots), {
       name: 'slotsBulkUpdateMutation'
-    }),
-
-    graphql<Props, ProductCategoriesQueryResponse>(
-      gql(productQueries.productCategories),
-      {
-        name: 'productCategoriesQuery',
-        options: () => ({
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
-    graphql<Props, BranchesQueryResponse>(gql(queries.branches), {
-      name: 'branchesQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
     })
   )(EditPosContainer)
 );

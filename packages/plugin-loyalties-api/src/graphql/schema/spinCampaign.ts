@@ -1,4 +1,9 @@
-import { commonCampaignInputs, commonCampaignTypes, commonFilterTypes, paginateTypes } from './common';
+import {
+  commonCampaignInputs,
+  commonCampaignTypes,
+  commonFilterTypes,
+  paginateTypes
+} from './common';
 
 export const types = `
   type SpinCampaign @key(fields: "_id") @cacheControl(maxAge: 3) {
@@ -23,7 +28,7 @@ const SpinCampaignDoc = `
   ${commonCampaignInputs}
   buyScore: Float,
   awards: JSON
-`
+`;
 
 export const mutations = `
   spinCampaignsAdd(${SpinCampaignDoc}): SpinCampaign

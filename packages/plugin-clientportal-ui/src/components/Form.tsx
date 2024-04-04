@@ -1,13 +1,14 @@
-import Button from '@erxes/ui/src/components/Button';
-import { Alert } from '@erxes/ui/src/utils';
-import React from 'react';
-
-import { CONFIG_TYPES } from '../constants';
-import General from '../containers/General';
 import { ButtonWrap, Content } from '../styles';
-import { ClientPortalConfig } from '../types';
+import { ClientPortalConfig, MailConfig } from '../types';
+import { isEnabled, removeTypename } from '@erxes/ui/src/utils/core';
+
+import { Alert } from '@erxes/ui/src/utils';
 import Appearance from './forms/Appearance';
+import Button from '@erxes/ui/src/components/Button';
+import { CONFIG_TYPES } from '../constants';
 import Config from './forms/Config';
+import General from '../containers/General';
+import React from 'react';
 
 type Props = {
   configType: string;
@@ -31,12 +32,8 @@ class Form extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const formValues = this.cleanValues(
-      props.defaultConfigValues || ({} as ClientPortalConfig)
-    );
-
     this.state = {
-      formValues
+      formValues: props.defaultConfigValues || ({} as ClientPortalConfig)
     };
   }
 
@@ -45,25 +42,9 @@ class Form extends React.Component<Props, State> {
       this.props.defaultConfigValues &&
       nextProps.defaultConfigValues !== this.props.defaultConfigValues
     ) {
-      const formValues = this.cleanValues(
-        nextProps.defaultConfigValues || ({} as ClientPortalConfig)
-      );
-      this.setState({ formValues });
+      this.setState({ formValues: nextProps.defaultConfigValues });
     }
   }
-
-  cleanValues = (values: ClientPortalConfig) => {
-    const { __typename = '', ...otp }: any = values.otpConfig || {
-      smsTransporterType: '',
-      emailTransporterType: '',
-      codeLength: 4,
-      content: 'Your verification code is {{code}}'
-    };
-
-    values.otpConfig = otp;
-
-    return values;
-  };
 
   handleSubmit = e => {
     e.preventDefault();
@@ -81,19 +62,51 @@ class Form extends React.Component<Props, State> {
       return Alert.error('Please enter a valid domain');
     }
 
-    if (!formValues.knowledgeBaseTopicId) {
+    if (!formValues.knowledgeBaseTopicId && isEnabled('knowledgebase')) {
       return Alert.error('Please choose a Knowledge base topic');
     }
 
-    if (!formValues.taskPublicBoardId) {
-      return Alert.error('Please select a public task board first');
+    if (formValues.styles) {
+      formValues.styles = removeTypename(formValues.styles || ({} as any));
     }
 
-    if (!formValues.taskPublicPipelineId) {
-      return Alert.error('Please select a public task pipeline');
+    if (formValues.mailConfig) {
+      const mailConfig: MailConfig =
+        removeTypename(formValues.mailConfig) || {};
+
+      if (!mailConfig.registrationContent.match(/{{ link }}/g)) {
+        return Alert.error(
+          'Please add {{ link }} to registration mail content to send verification link'
+        );
+      }
+
+      if (!mailConfig.invitationContent.match(/{{ link }}|{{ password }}/g)) {
+        return Alert.error(
+          'Please add {{ link }} and {{ password }} to invitation mail content to send verification link and password'
+        );
+      }
+
+      formValues.mailConfig = mailConfig;
     }
 
-    delete (formValues.styles || ({} as any)).__typename;
+    if (formValues.otpConfig) {
+      const { content } = formValues.otpConfig;
+
+      if (!content.match(/{{ code }}/g)) {
+        return Alert.error(
+          'Please add {{ code }} to OTP content to send verification code'
+        );
+      }
+
+      formValues.otpConfig = removeTypename(formValues.otpConfig);
+    }
+
+    if (
+      formValues.manualVerificationConfig &&
+      !formValues.manualVerificationConfig.userIds.length
+    ) {
+      return Alert.error('Please select at least one user who can verify');
+    }
 
     this.props.handleUpdate(formValues);
   };
@@ -118,7 +131,7 @@ class Form extends React.Component<Props, State> {
         return <General {...commonProps} />;
       case CONFIG_TYPES.APPEARANCE.VALUE:
         return <Appearance {...commonProps} />;
-      case CONFIG_TYPES.CUSTOM.VALUE:
+      case CONFIG_TYPES.AUTH.VALUE:
         return <Config {...commonProps} />;
       default:
         return null;

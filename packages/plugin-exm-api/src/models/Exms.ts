@@ -21,17 +21,13 @@ const featureSchema = new Schema({
   subContentId: { type: String }
 });
 
-const welcomeContentSchema = new Schema({
-  _id: { type: String },
-  title: { type: String },
-  image: { type: Object },
-  content: { type: String }
-});
-
 const appearanceSchema = new Schema(
   {
     primaryColor: { type: String },
-    secondaryColor: { type: String }
+    secondaryColor: { type: String },
+    bodyColor: { type: String },
+    headerColor: { type: String },
+    footerColor: { type: String }
   },
   { _id: false }
 );
@@ -49,10 +45,20 @@ const scoringConfigSchema = new Schema(
 export const exmSchema = new Schema({
   _id: field({ pkey: true }),
   name: { type: String, label: 'Name' },
+  webName: { type: String, label: 'Web Name' },
+  webDescription: { type: String, label: 'Web Description' },
+  url: { type: String, label: 'Url' },
   description: { type: String, label: 'Description' },
   features: { type: [featureSchema] },
   logo: { type: Object },
-  welcomeContent: { type: [welcomeContentSchema] },
+  favicon: { type: Object },
+  vision: { type: Object },
+  structure: { type: Object },
+  knowledgeBaseLabel: { type: String, label: 'knowledgeBase label' },
+  knowledgeBaseTopicId: { type: String, label: 'knowledgeBase topicId' },
+  ticketLabel: { type: String, label: 'ticket label' },
+  ticketPipelineId: { type: String, label: 'ticket Pipeline Id' },
+  ticketBoardId: { type: String, label: 'ticket BoardId' },
   appearance: { type: appearanceSchema },
   scoringConfig: { type: [scoringConfigSchema] },
   createdBy: { type: String, label: 'Created by' },

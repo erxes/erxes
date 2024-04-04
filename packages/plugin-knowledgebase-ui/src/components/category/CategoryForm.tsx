@@ -18,6 +18,7 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   topics: ITopic[];
+  queryParams: any;
 };
 
 type State = {
@@ -64,6 +65,7 @@ class CategoryForm extends React.Component<Props, State> {
     _id?: string;
     title: string;
     description: string;
+    code?: string;
   }) => {
     const { category } = this.props;
     const finalValues = values;
@@ -82,7 +84,8 @@ class CategoryForm extends React.Component<Props, State> {
         icon: selectedIcon,
         topicIds: [topicId],
         topicId,
-        parentCategoryId
+        parentCategoryId,
+        code: finalValues.code
       }
     };
   };
@@ -131,13 +134,21 @@ class CategoryForm extends React.Component<Props, State> {
   }
 
   renderParentCategories() {
+    const { queryParams, topics } = this.props;
     const self = this;
-    const topic = this.props.topics.find(t => t._id === self.state.topicId);
+    const topic = topics.find(t => t._id === self.state.topicId);
     let categories = topic ? topic.parentCategories : [];
     const { category, currentTopicId } = self.props;
+    const isCurrentCategory = categories.find(
+      cat => cat._id === queryParams.id
+    );
 
     if (category && currentTopicId === this.state.topicId) {
       categories = categories.filter(cat => cat._id !== category._id);
+    }
+
+    if (!self.state.parentCategoryId && isCurrentCategory) {
+      self.setState({ parentCategoryId: queryParams.id });
     }
 
     const onChange = selectedCategory => {
@@ -174,6 +185,15 @@ class CategoryForm extends React.Component<Props, State> {
             name="title"
             defaultValue={object.title}
             required={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Code</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="code"
+            defaultValue={object.code}
           />
         </FormGroup>
 

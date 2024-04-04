@@ -1,20 +1,21 @@
-import debounce from 'lodash/debounce';
-import Button from '@erxes/ui/src/components/Button';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
-import { isEmptyContent } from '@erxes/ui/src/utils';
-import { urlify } from '@erxes/ui-inbox/src/inbox/utils';
-import React, { useEffect, useState } from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import xss from 'xss';
 import {
   ChecklistItem,
   ChecklistText,
   FormControlWrapper,
   FormWrapper
 } from '../styles';
+import React, { useEffect, useState } from 'react';
+
+import Button from '@erxes/ui/src/components/Button';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import { IChecklistItem } from '../types';
+import Icon from '@erxes/ui/src/components/Icon';
+import debounce from 'lodash/debounce';
+import { isEmptyContent } from '@erxes/ui/src/utils';
+import { urlify } from '@erxes/ui/src/utils/urlParser';
+import xss from 'xss';
 
 type Props = {
   item: IChecklistItem;

@@ -1,10 +1,6 @@
 import React from 'react';
 import queryString from 'query-string';
-import {
-  DataWithLoader,
-  Icon,
-  Tip,
-} from '@erxes/ui/src/components';
+import { DataWithLoader, Icon, Tip } from '@erxes/ui/src/components';
 import { __, router } from '@erxes/ui/src/utils';
 import { Sidebar, Wrapper } from '@erxes/ui/src/layout';
 import { IVoucherCampaign } from '../../../configs/voucherCampaign/types';
@@ -39,22 +35,21 @@ class List extends React.Component<IProps> {
 
     const otherParams = { ...queryParams };
     delete otherParams.campaignId;
-    const qryString = queryString.stringify(otherParams)
+    const qryString = queryString.stringify(otherParams);
 
     const result: React.ReactNode[] = [];
 
     for (const campaign of voucherCampaigns || []) {
+      const name = `${campaign.title} (${campaign.vouchersCount})`;
 
-      const name = `${campaign.title} (${campaign.vouchersCount})`
-
-      let link
+      let link;
       switch (campaign.voucherType) {
         case 'lottery':
           link = `/lotteries?${qryString}&voucherCampaignId=${campaign._id}`;
           break;
 
         case 'spin':
-          link =`/spins?${qryString}&voucherCampaignId=${campaign._id}`;
+          link = `/spins?${qryString}&voucherCampaignId=${campaign._id}`;
           break;
 
         default:
@@ -66,9 +61,7 @@ class List extends React.Component<IProps> {
           key={campaign._id}
           isActive={this.isActive(campaign._id)}
         >
-          <Link to={link}>
-            {name}
-          </Link>
+          <Link to={link}>{name}</Link>
         </SidebarListItem>
       );
     }
@@ -80,9 +73,7 @@ class List extends React.Component<IProps> {
     return (
       <>
         <Section.Title>
-          <Link
-            to={`/erxes-plugin-loyalty/settings/voucher`}
-          >
+          <Link to={`/erxes-plugin-loyalty/settings/voucher`}>
             <Icon icon="cog" />
             {__('Manage Voucher Campaigns')}
           </Link>
@@ -101,10 +92,7 @@ class List extends React.Component<IProps> {
   }
 
   renderCategoryList() {
-    const {
-      voucherCampaignsCount,
-      loading
-    } = this.props;
+    const { voucherCampaignsCount, loading } = this.props;
 
     return (
       <DataWithLoader
@@ -120,7 +108,7 @@ class List extends React.Component<IProps> {
 
   render() {
     return (
-      <Sidebar>
+      <Sidebar hasBorder>
         <Section
           maxHeight={188}
           collapsible={this.props.voucherCampaignsCount > 5}

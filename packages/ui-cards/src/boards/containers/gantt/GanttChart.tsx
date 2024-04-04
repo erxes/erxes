@@ -1,8 +1,8 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import client from '@erxes/ui/src/apolloClient';
 import GanttChart from '../../components/gantt/GanttChart';
 import {
@@ -15,6 +15,7 @@ import {
 } from '../../types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { mutations } from '../../graphql';
+import { getFilterParams } from '../../utils';
 
 export type BoardItemArgs = {
   _id: string;
@@ -128,34 +129,6 @@ class GanttChartContainer extends React.PureComponent<FinalStageProps, State> {
     );
   }
 }
-
-const getFilterParams = (
-  queryParams: IFilterParams,
-  getExtraParams: (queryParams) => any
-) => {
-  if (!queryParams) {
-    return {};
-  }
-
-  const selectType = {
-    search: queryParams.search,
-    customerIds: queryParams.customerIds,
-    companyIds: queryParams.companyIds,
-    assignedUserIds: queryParams.assignedUserIds,
-    labelIds: queryParams.labelIds,
-    userIds: queryParams.userIds,
-    segment: queryParams.segment,
-    assignedToMe: queryParams.assignedToMe,
-    startDate: queryParams.startDate,
-    endDate: queryParams.endDate,
-    pipelineId: queryParams.pipelineId,
-    hasStartAndCloseDate: true,
-    limit: 1000,
-    ...getExtraParams(queryParams)
-  };
-
-  return selectType;
-};
 
 const withQuery = ({ options }) => {
   return withProps<StageProps>(

@@ -1,4 +1,3 @@
-import * as permissionActions from '../permissions/actions';
 import Brand from './brand';
 import customScalars from './customScalars';
 import Mutation from './mutations';
@@ -12,10 +11,11 @@ import Department from './departments';
 import Unit from './units';
 import Branch from './branches';
 import App from './app';
+import UserMovement from './userMovements';
+import Position from './positions';
 
 const resolvers: any = {
   ...customScalars,
-  ...permissionActions,
 
   Brand,
 
@@ -30,7 +30,9 @@ const resolvers: any = {
   Department,
   Unit,
   Branch,
-  App
+  App,
+  UserMovement,
+  Position,
 };
 
 export default resolvers;

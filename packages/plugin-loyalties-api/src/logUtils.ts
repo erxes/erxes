@@ -2,97 +2,134 @@ import {
   putCreateLog as commonPutCreateLog,
   putUpdateLog as commonPutUpdateLog,
   putDeleteLog as commonPutDeleteLog,
-  putActivityLog as commonPutActivityLog,
+  LogDesc,
+  gatherNames,
+  IDescriptions,
   getSchemaLabels,
-  IDescriptions
 } from '@erxes/api-utils/src/logUtils';
-import { IModels } from './connectionResolver';
 
-import messageBroker from './messageBroker';
-import { donateCampaignSchema } from './models/definitions/donateCampaigns';
+import { IModels } from './connectionResolver';
+import {
+  donateCampaignSchema,
+  donateAwardSchema,
+} from './models/definitions/donateCampaigns';
+import {
+  lotteryCampaignSchema,
+  lotteryAwardSchema,
+} from './models/definitions/lotteryCampaigns';
+import {
+  spinCampaignSchema,
+  spinAwardSchema,
+} from './models/definitions/spinCampaigns';
+import { assignmentCampaignSchema } from './models/definitions/assignmentCampaigns';
+import { voucherCampaignSchema } from './models/definitions/voucherCampaigns';
 
 export const LOG_ACTIONS = {
   CREATE: 'create',
   UPDATE: 'update',
-  DELETE: 'delete'
+  DELETE: 'delete',
 };
 
+export const MODULE_NAMES = {
+  VOUCHER: 'voucherCampaign',
+  LOTTERY: 'lotteryCampaign',
+  SPIN: 'spinCampaign',
+  DONATE: 'donateCampaign',
+  ASSINGNMENT: 'assignmentCampaign',
+};
 const gatherDescriptions = async (
-  models: IModels,
-  params: any
+  _args,
+  _args1,
+  params: any,
 ): Promise<IDescriptions> => {
   const { action, object } = params;
+  const extraDesc: LogDesc[] = [];
+  const description = `"${object.title}" has been ${action}d`;
 
-  const description = `"${object.name}" has been ${action}d`;
-
-  return { description };
+  return { extraDesc, description };
 };
 
-export const putDeleteLog = async (models, subdomain, logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions(models, {
-    ...logDoc,
-    action: LOG_ACTIONS.DELETE
-  });
+export const putDeleteLog = async (
+  models: IModels,
+  subdomain: string,
+  logDoc,
+  user,
+) => {
+  const { description, extraDesc } = await gatherDescriptions(
+    models,
+    subdomain,
+    {
+      ...logDoc,
+      action: LOG_ACTIONS.DELETE,
+    },
+  );
 
   await commonPutDeleteLog(
     subdomain,
-    messageBroker(),
-    { ...logDoc, description, extraDesc, type: `${logDoc.type}` },
-    user
+    { ...logDoc, description, extraDesc, type: `loyalties:${logDoc.type}` },
+    user,
   );
 };
 
-export const putUpdateLog = async (models, subdomain, logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions(models, {
-    ...logDoc,
-    action: LOG_ACTIONS.UPDATE
-  });
+export const putUpdateLog = async (
+  models: IModels,
+  subdomain: string,
+  logDoc,
+  user,
+) => {
+  const { description, extraDesc } = await gatherDescriptions(
+    models,
+    subdomain,
+    {
+      ...logDoc,
+      action: LOG_ACTIONS.UPDATE,
+    },
+  );
 
   await commonPutUpdateLog(
     subdomain,
-    messageBroker(),
-    { ...logDoc, description, extraDesc, type: `${logDoc.type}` },
-    user
+    { ...logDoc, description, extraDesc, type: `loyalties:${logDoc.type}` },
+    user,
   );
 };
 
-export const putCreateLog = async (models, subdomain, logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions(models, {
-    ...logDoc,
-    action: LOG_ACTIONS.CREATE
-  });
+export const putCreateLog = async (
+  models: IModels,
+  subdomain: string,
+  logDoc,
+  user,
+) => {
+  const { description, extraDesc } = await gatherDescriptions(
+    models,
+    subdomain,
+    {
+      ...logDoc,
+      action: LOG_ACTIONS.CREATE,
+    },
+  );
 
   await commonPutCreateLog(
     subdomain,
-    messageBroker(),
-    { ...logDoc, description, extraDesc, type: `${logDoc.type}` },
-    user
+    { ...logDoc, description, extraDesc, type: `loyalties:${logDoc.type}` },
+    user,
   );
-};
-
-export const putActivityLog = async (
-  subdomain: string,
-  params: { action: string; data: any }
-) => {
-  const { data } = params;
-
-  const updatedParams = {
-    ...params,
-    data: { ...data, contentType: `${data.contentType}` }
-  };
-
-  return commonPutActivityLog(subdomain, {
-    messageBroker: messageBroker(),
-    ...updatedParams
-  });
 };
 
 export default {
   getSchemaLabels: ({ data: { type } }) => ({
     status: 'success',
     data: getSchemaLabels(type, [
-      { name: 'donateCampaign', schemas: [donateCampaignSchema] }
-      // { name: 'productCategory', schemas: [productCategorySchema] }
-    ])
-  })
+      {
+        name: 'donateCampaign',
+        schemas: [donateCampaignSchema, donateAwardSchema],
+      },
+      {
+        name: 'lotteryCampaign',
+        schemas: [lotteryCampaignSchema, lotteryAwardSchema],
+      },
+      { name: 'spinCampaign', schemas: [spinCampaignSchema, spinAwardSchema] },
+      { name: 'assignmentCampaign', schemas: [assignmentCampaignSchema] },
+      { name: 'voucherCampaign', schemas: [voucherCampaignSchema] },
+    ]),
+  }),
 };

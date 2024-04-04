@@ -9,6 +9,8 @@ export type ListQueryVariables = {
 
 export type IRemainderProduct = {
   remainder: number;
+  soonIn?: number;
+  soonOut?: number;
   uom: IUom;
 } & IProduct;
 

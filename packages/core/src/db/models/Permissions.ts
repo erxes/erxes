@@ -1,6 +1,9 @@
 import { Model } from 'mongoose';
 import { IModels } from '../../connectionResolver';
-import { actionsMap, IActionsMap } from '../../data/permissions/utils';
+import {
+  getPermissionActionsMap,
+  IActionsMap
+} from '../../data/permissions/utils';
 import {
   IPermission,
   IPermissionDocument,
@@ -45,15 +48,11 @@ export const loadPermissionClass = (models: IModels) => {
     public static async createPermission(doc: IPermissionParams) {
       const permissions: IPermissionDocument[] = [];
 
-      for (const action of doc.actions) {
-        if (!actionsMap[action]) {
-          throw new Error('Invalid data');
-        }
-      }
-
       let filter = {};
 
       let actionObj: IActionsMap = {};
+
+      const actionsMap = await getPermissionActionsMap();
 
       for (const action of doc.actions) {
         const entry: IPermission = {
@@ -76,7 +75,10 @@ export const loadPermissionClass = (models: IModels) => {
             const entryObj = await models.Permissions.findOne(filter);
 
             if (!entryObj) {
-              const newEntry = await models.Permissions.create({ ...entry, userId });
+              const newEntry = await models.Permissions.create({
+                ...entry,
+                userId
+              });
               permissions.push(newEntry);
             }
           }
@@ -89,7 +91,10 @@ export const loadPermissionClass = (models: IModels) => {
             const entryObj = await models.Permissions.findOne(filter);
 
             if (!entryObj) {
-              const newEntry = await models.Permissions.create({ ...entry, groupId });
+              const newEntry = await models.Permissions.create({
+                ...entry,
+                groupId
+              });
               permissions.push(newEntry);
             }
           }
@@ -220,7 +225,9 @@ export const loadUserGroupClass = (models: IModels) => {
         memberIds
       );
 
-      const permissions = await models.Permissions.find({ groupId: sourceGroupId });
+      const permissions = await models.Permissions.find({
+        groupId: sourceGroupId
+      });
 
       for (const perm of permissions) {
         await models.Permissions.create({

@@ -1,4 +1,4 @@
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
+import { authCookieOptions } from '@erxes/api-utils/src/core';
 import {
   extractConfig,
   getServerAddress,
@@ -6,78 +6,64 @@ import {
   importSlots,
   importUsers,
   preImportProducts,
-  validateConfig
+  validateConfig,
 } from '../../utils/syncUtils';
 import { IContext } from '../../../connectionResolver';
-import { init as initBrokerMain } from '@erxes/api-utils/src/messageBroker';
-import { initBroker } from '../../../messageBroker';
+import { connectToMessageBroker } from '@erxes/api-utils/src/messageBroker';
+import { setupMessageConsumers, sendPosMessage } from '../../../messageBroker';
 import { IOrderItemDocument } from '../../../models/definitions/orderItems';
-import { ORDER_STATUSES } from '../../../models/definitions/constants';
-import { redis } from '@erxes/api-utils/src/serviceDiscovery';
-import { sendRequest } from '@erxes/api-utils/src/requests';
+import fetch from 'node-fetch';
+import { IPutResponseDocument } from '../../../models/definitions/putResponses';
 
 const configMutations = {
   posConfigsFetch: async (
     _root,
     { token },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     const address = await getServerAddress(subdomain);
 
-    const config = await models.Configs.createConfig(token);
+    const config = await models.Configs.createConfig(token, 'init');
 
     try {
-      const response = await sendRequest({
-        url: `${address}/pos-init`,
-        method: 'get',
-        headers: { 'POS-TOKEN': token }
+      const response = await fetch(`${address}/pos-init`, {
+        headers: { 'POS-TOKEN': token },
       });
-      if (response && !response.error) {
-        const {
-          pos = {},
-          adminUsers = [],
-          cashiers = [],
-          productGroups = [],
-          qpayConfig,
-          slots = []
-        } = response;
-
-        validateConfig(pos);
-
-        await models.Configs.updateConfig(config._id, {
-          ...(await extractConfig(subdomain, pos)),
-          qpayConfig,
-          token
-        });
-
-        await importUsers(models, cashiers, token);
-        await importUsers(models, adminUsers, token, true);
-        await importSlots(models, slots);
-        await importProducts(subdomain, models, token, productGroups);
-      } else {
+      if (!response.ok) {
         await models.Configs.deleteOne({ token });
-        throw new Error(response ? response.error : 'cant connect server');
+        throw new Error(response.statusText);
       }
+
+      const {
+        pos = {},
+        adminUsers = [],
+        cashiers = [],
+        productGroups = [],
+        slots = [],
+      } = await response.json();
+
+      validateConfig(pos);
+
+      await models.Configs.updateConfig(config._id, {
+        ...(await extractConfig(subdomain, pos)),
+        token,
+      });
+
+      await importUsers(models, cashiers, token);
+      await importUsers(models, adminUsers, token, true);
+      await importSlots(models, slots, token);
+      await importProducts(subdomain, models, token, productGroups);
     } catch (e) {
       await models.Configs.deleteOne({ token });
       throw new Error(e.message);
     }
 
-    const { RABBITMQ_HOST, MESSAGE_BROKER_PREFIX } = process.env;
-
-    const messageBrokerClient = await initBrokerMain({
-      RABBITMQ_HOST,
-      MESSAGE_BROKER_PREFIX,
-      redis
-    });
-
-    await initBroker(messageBrokerClient)
-      .then(() => {
-        debugInfo('Message broker has started.');
-      })
-      .catch(e => {
-        debugError(`Error occurred when starting message broker: ${e.message}`);
-      });
+    try {
+      await connectToMessageBroker(setupMessageConsumers);
+      console.log('Message broker has started.');
+    } catch (e) {
+      console.log(`Error occurred when starting message broker: ${e.message}`);
+    }
 
     return config;
   },
@@ -86,141 +72,141 @@ const configMutations = {
     const address = await getServerAddress(subdomain);
     const { token } = config;
 
-    const response = await sendRequest({
-      url: `${address}/pos-sync-config`,
-      method: 'get',
-      headers: { 'POS-TOKEN': config.token || '' },
-      body: { token, type }
+    const response = await fetch(`${address}/pos-sync-config`, {
+      headers: {
+        'POS-TOKEN': config.token || '',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token, type }),
+      timeout: 300000,
+      method: 'POST',
     });
 
-    if (!response) {
-      return;
+    if (!response.ok) {
+      throw new Error(response.statusText);
     }
+
+    const responseData = await response.json();
 
     switch (type) {
       case 'config':
-        const {
-          pos = {},
-          adminUsers = [],
-          cashiers = [],
-          slots = [],
-          qpayConfig
-        } = response;
-
+        const { pos = {}, adminUsers = [], cashiers = [] } = responseData;
         await models.Configs.updateConfig(config._id, {
           ...(await extractConfig(subdomain, pos)),
-          qpayConfig,
-          token: config.token
+          token: config.token,
         });
 
         await importUsers(models, cashiers, config.token);
         await importUsers(models, adminUsers, config.token, true);
-        await importSlots(models, slots);
 
         break;
       case 'products':
-        const { productGroups = [] } = response;
+        const { productGroups = [] } = responseData;
         await preImportProducts(models, token, productGroups);
         await importProducts(subdomain, models, token, productGroups);
+        break;
+      case 'slots':
+        const { slots = [] } = responseData;
+        await importSlots(models, slots, token);
+        break;
+      case 'productsConfigs':
+        await models.ProductsConfigs.createOrUpdateConfig({
+          code: 'similarityGroup',
+          value: responseData,
+        });
         break;
     }
     return 'success';
   },
 
   async syncOrders(_root, _param, { models, subdomain, config }: IContext) {
+    const unSyncedPutResponses: IPutResponseDocument[] =
+      await models.PutResponses.find({ synced: { $ne: true } })
+        .sort({ paidDate: 1 })
+        .limit(100)
+        .lean();
+    const putResContentIds = unSyncedPutResponses.map((pr) => pr.contentId);
+
     const orderFilter = {
-      synced: false,
-      status: { $in: ORDER_STATUSES.FULL },
-      paidDate: { $exists: true, $ne: null }
+      $and: [
+        { posToken: config.token },
+        {
+          $or: [
+            {
+              synced: { $ne: true },
+              paidDate: { $exists: true, $ne: null },
+            },
+            { _id: { $in: putResContentIds } },
+          ],
+        },
+      ],
     };
+
     let sumCount = await models.Orders.find({ ...orderFilter }).count();
     const orders = await models.Orders.find({ ...orderFilter })
       .sort({ paidDate: 1 })
       .limit(100)
       .lean();
 
-    let kind = 'order';
-    let putResponses = [];
+    const data: any[] = [];
+    const orderIds = orders.map((o) => o._id);
+    const orderItems: IOrderItemDocument[] = await models.OrderItems.find({
+      orderId: { $in: orderIds },
+    }).lean();
 
-    if (orders.length) {
-      const orderIds = orders.map(o => o._id);
-      const orderItems: IOrderItemDocument[] = await models.OrderItems.find({
-        orderId: { $in: orderIds }
-      }).lean();
+    const putResponses = await models.PutResponses.find({
+      contentId: { $in: orderIds },
+    }).lean();
 
-      for (const order of orders) {
-        order.items = (orderItems || []).filter(
-          item => item.orderId === order._id
-        );
-      }
+    for (const order of orders) {
+      const perData: any = {
+        posToken: config.token,
+        order,
+      };
+      perData.items = (orderItems || []).filter(
+        (item) => item.orderId === order._id,
+      );
+      perData.responses = (putResponses || []).filter(
+        (pr) => pr.contentId === order._id,
+      );
 
-      putResponses = await models.PutResponses.find({
-        contentId: { $in: orderIds },
-        synced: false
-      }).lean();
-    } else {
-      kind = 'putResponse';
-      sumCount = await models.PutResponses.find({ synced: false }).count();
-      putResponses = await models.PutResponses.find({ synced: false })
-        .sort({ paidDate: 1 })
-        .limit(100)
-        .lean();
+      data.push(perData);
     }
 
-    const address = await getServerAddress(subdomain);
-
-    try {
-      const response = await sendRequest({
-        url: `${address}/pos-sync-orders`,
-        method: 'post',
-        headers: { 'POS-TOKEN': config.token || '' },
-        body: { token: config.token, orders, putResponses }
+    if (data.length) {
+      await sendPosMessage({
+        subdomain,
+        action: 'createOrUpdateOrdersMany',
+        data: { posToken: config.token, syncOrders: data },
       });
-
-      const { error, resOrderIds, putResponseIds } = response;
-
-      if (error) {
-        throw new Error(error);
-      }
-
-      await models.Orders.updateMany(
-        { _id: { $in: resOrderIds } },
-        { $set: { synced: true } }
-      );
-      await models.PutResponses.updateMany(
-        { _id: { $in: putResponseIds } },
-        { $set: { synced: true } }
-      );
-    } catch (e) {
-      throw new Error(e.message);
     }
 
     return {
-      kind,
+      kind: 'order',
       sumCount,
-      syncedCount: orders.length
+      syncedCount: orders.length,
     };
   },
 
   async deleteOrders(_root, _param, { models }: IContext) {
-    const orderFilter = {
-      synced: false,
-      status: ORDER_STATUSES.NEW
-    };
+    // const orderFilter = {
+    //   synced: false,
+    //   status: ORDER_STATUSES.NEW
+    // };
 
-    const count = await models.Orders.find({ ...orderFilter }).count();
+    // const count = await models.Orders.find({ ...orderFilter }).count();
 
-    await models.Orders.deleteMany({ ...orderFilter });
+    // await models.Orders.deleteMany({ ...orderFilter });
 
     return {
-      deletedCount: count
+      deletedCount: 0,
     };
   },
 
   posChooseConfig: async (
     _root,
     { token }: { token: string },
-    { res, models }: IContext
+    { res, models }: IContext,
   ) => {
     const config = await models.Configs.findOne({ token });
 
@@ -228,10 +214,14 @@ const configMutations = {
       throw new Error('token not found');
     }
 
-    res.cookie('pos-config-token', token);
+    res.cookie(
+      'pos-config-token',
+      token,
+      authCookieOptions({ sameSite: 'none' }),
+    );
 
     return 'chosen';
-  }
+  },
 };
 
 export default configMutations;

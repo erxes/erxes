@@ -1,13 +1,14 @@
-import { __ } from '@erxes/ui/src/utils';
 import {
   FieldStyle,
   SidebarCounter,
   SidebarFlexRow,
   SidebarList
 } from '@erxes/ui/src/layout/styles';
+
+import { ICompany } from '@erxes/ui-contacts/src/companies/types';
 import { IField } from '@erxes/ui/src/types';
 import React from 'react';
-import { ICompany } from '@erxes/ui/src/companies/types';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   company: ICompany;

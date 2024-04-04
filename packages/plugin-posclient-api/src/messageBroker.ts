@@ -1,6 +1,10 @@
 import { generateModels } from './connectionResolver';
-import { graphqlPubsub, serviceDiscovery } from './configs';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 import {
   importProducts,
   importSlots,
@@ -8,12 +12,17 @@ import {
   receivePosConfig,
   receiveProduct,
   receiveProductCategory,
-  receiveUser
+  receiveUser,
 } from './graphql/utils/syncUtils';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+  sendRPCMessageMq,
+} from '@erxes/api-utils/src/messageBroker';
+import { updateMobileAmount } from './utils';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
-let client;
-
-export const initBroker = async cl => {
+export const setupMessageConsumers = async () => {
   const { SKIP_REDIS } = process.env;
 
   let channelToken = '';
@@ -32,8 +41,39 @@ export const initBroker = async cl => {
     channelToken = `_${config.token}`;
   }
 
-  client = cl;
-  const { consumeQueue, consumeRPCQueue } = client;
+  consumeRPCQueue(
+    `posclient:configs.manage${channelToken}`,
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await receivePosConfig(subdomain, models, data),
+      };
+    },
+  );
+
+  consumeRPCQueue(
+    `posclient:configs.remove${channelToken}`,
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const { posId, posToken } = data;
+
+      const config = await models.Configs.findOne({ token: posToken }).lean();
+      if (!config) {
+        throw new Error('not found config from posclient');
+      }
+
+      await models.Configs.updateOne(
+        { token: posToken },
+        { $set: { status: 'deleted' } },
+      );
+      return {
+        status: 'success',
+        data: {},
+      };
+    },
+  );
 
   consumeQueue(
     `posclient:crudData${channelToken}`,
@@ -52,9 +92,6 @@ export const initBroker = async cl => {
           case 'user':
             await receiveUser(models, data);
             break;
-          case 'pos':
-            await receivePosConfig(subdomain, models, data);
-            break;
           case 'productGroups':
             const { productGroups = [] } = data;
             await preImportProducts(models, token, productGroups);
@@ -62,30 +99,30 @@ export const initBroker = async cl => {
             break;
           case 'slots':
             const { slots = [] } = data;
-            await importSlots(models, slots);
+            await importSlots(models, slots, token);
             break;
           default:
             break;
         }
       }
-    }
+    },
   );
 
   consumeQueue(
     `posclient:updateSynced${channelToken}`,
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
-      const { responseId, orderId } = data;
+      const { responseIds, orderId } = data;
 
       await models.Orders.updateOne(
         { _id: orderId },
-        { $set: { synced: true } }
+        { $set: { synced: true } },
       );
-      await models.PutResponses.updateOne(
-        { _id: responseId },
-        { $set: { synced: true } }
+      await models.PutResponses.updateMany(
+        { _id: { $in: responseIds } },
+        { $set: { synced: true } },
       );
-    }
+    },
   );
 
   consumeQueue(
@@ -96,8 +133,8 @@ export const initBroker = async cl => {
 
       await models.Orders.updateOne(
         { _id: order._id },
-        { $set: { ...order } },
-        { upsert: true }
+        { $set: { ...order, modifiedAt: new Date() } },
+        { upsert: true },
       );
 
       const bulkOps: any[] = [];
@@ -109,11 +146,11 @@ export const initBroker = async cl => {
             update: {
               $set: {
                 ...item,
-                orderId: order._id
-              }
+                orderId: order._id,
+              },
             },
-            upsert: true
-          }
+            upsert: true,
+          },
         });
       }
       if (bulkOps.length) {
@@ -122,12 +159,41 @@ export const initBroker = async cl => {
 
       await graphqlPubsub.publish('ordersOrdered', {
         ordersOrdered: {
+          ...(await models.Orders.findOne({ _id: order._id }).lean()),
           _id: order._id,
           status: order.status,
-          customerId: order.customerId
-        }
+          customerId: order.customerId,
+          customerType: order.customerType,
+        },
       });
-    }
+    },
+  );
+
+  consumeQueue(
+    `posclient:erxes-posclient-to-pos-api-remove${channelToken}`,
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const { order } = data;
+
+      await models.Orders.deleteOne({
+        _id: order._id,
+        posToken: order.posToken,
+        subToken: order.subToken,
+      });
+    },
+  );
+
+  consumeQueue(
+    `posclient:paymentCallbackClient${channelToken}`,
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const { status } = data;
+      if (status !== 'paid') {
+        return;
+      }
+
+      await updateMobileAmount(subdomain, models, [data]);
+    },
   );
 
   consumeRPCQueue(
@@ -136,7 +202,7 @@ export const initBroker = async cl => {
       if (channelToken) {
         return {
           status: 'success',
-          data: { healthy: 'ok' }
+          data: { healthy: 'ok' },
         };
       }
 
@@ -146,56 +212,163 @@ export const initBroker = async cl => {
       if (!conf) {
         return {
           status: 'success',
-          data: { healthy: 'no' }
+          data: { healthy: 'no' },
         };
       }
 
       return {
         status: 'success',
-        data: { healthy: 'ok' }
+        data: { healthy: 'ok' },
       };
-    }
+    },
+  );
+
+  consumeRPCQueue(
+    `posclient:covers.remove${channelToken}`,
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      const { cover } = data;
+      await models.Covers.updateOne(
+        { _id: cover._id },
+        { $set: { status: 'reconf' } },
+      );
+      return {
+        status: 'success',
+        data: await models.Covers.findOne({ _id: cover._id }),
+      };
+    },
   );
 };
 
-const sendMessageWrapper = async (
+export const sendCommonMessage = async (
+  args: MessageArgs & { serviceName: string },
+): Promise<any> => {
+  return sendMessage({
+    ...args,
+  });
+};
+
+export const sendMessageWrapper = async (
   serviceName: string,
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   const { SKIP_REDIS } = process.env;
+
   if (SKIP_REDIS) {
-    const { action } = args;
+    const { action, isRPC, defaultValue, subdomain } = args;
+
+    // check connected gateway on server and check some plugins isAvailable
+    if (isRPC) {
+      const longTask: Promise<boolean> = sendRPCMessageMq(
+        'core:isServiceEnabled',
+        {
+          subdomain,
+          data: serviceName,
+          thirdService: true,
+        },
+      );
+
+      const timeout = new Promise<boolean>((resolve) =>
+        setTimeout(() => resolve(false), 1000),
+      );
+
+      const response = await Promise.race([longTask, timeout]);
+
+      args.isMQ = true;
+
+      if (!response) {
+        return defaultValue;
+      }
+    }
+
     return sendMessage({
-      client,
-      serviceDiscovery,
       serviceName: '',
       ...args,
-      action: `${serviceName}:${action}`
+      data: { ...(args.data || {}), thirdService: true },
+      action: `${serviceName}:${action}`,
     });
   }
 
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName,
-    ...args
+    ...args,
   });
 };
 
-export const sendPosMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendPosMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessageWrapper('pos', args);
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessageWrapper('core', args);
 };
 
+export const sendInventoriesMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessageWrapper('inventories', args);
+};
+
 export const sendContactsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessageWrapper('contacts', args);
 };
 
-export default function() {
-  return client;
-}
+export const sendCardsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessageWrapper('cards', args);
+};
+
+export const sendInboxMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessageWrapper('inbox', args);
+};
+
+export const sendLoyaltiesMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessageWrapper('loyalties', args);
+};
+
+export const sendPricingMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessageWrapper('pricing', args);
+};
+
+export const sendTagsMessage = (args: MessageArgsOmitService): Promise<any> => {
+  return sendMessageWrapper('tags', args);
+};
+
+export const sendSegmentsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessageWrapper('segments', args);
+};
+
+export const sendFormsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessageWrapper('forms', args);
+};
+
+export const fetchSegment = (
+  subdomain: string,
+  segmentId: string,
+  options?,
+  segmentData?: any,
+) =>
+  sendSegmentsMessage({
+    subdomain,
+    action: 'fetchSegment',
+    data: { segmentId, options, segmentData },
+    isRPC: true,
+  });

@@ -2,11 +2,16 @@ export const posCommonFields = `
   _id
   name
   description
+  orderPassword
+  scopeBrandIds
+  pdomain
   createdAt
   token
+  erxesAppToken
   adminIds
   cashierIds
-
+  paymentIds
+  paymentTypes
   user {
     _id
     details {
@@ -18,6 +23,7 @@ export const posCommonFields = `
   isOnline
   onServer
   branchId
+  departmentId
   allowBranchIds
   beginNumber
   maxSkipNumber
@@ -31,12 +37,24 @@ export const posCommonFields = `
   catProdMappings {
     _id
     categoryId
+    code
+    name
     productId
   }
 
   initialCategoryIds
+  kioskExcludeCategoryIds
   kioskExcludeProductIds
   deliveryConfig
+  checkRemainder
+  permissionConfig
+  allowTypes
+  isCheckRemainder
+  checkExcludeCategoryIds
+  banFractions
+
+  branchTitle
+  departmentTitle
 `;
 
 const commonParamDefs = `
@@ -79,20 +97,6 @@ const productGroups = `
   }
 `;
 
-const branches = `
-  query branches {
-    branches {
-      _id
-      title
-      address
-      parentId
-      supervisorId
-      code
-      userIds
-    }
-  }
-`;
-
 const posSlots = `
   query posSlots($posId: String!) {
     posSlots(posId: $posId) {
@@ -100,6 +104,7 @@ const posSlots = `
       posId
       code
       name
+      option
     }
   }
 `;
@@ -128,12 +133,18 @@ const posEnv = `
   }
 `;
 
+const posOrdersSummary = `
+query PosOrdersSummary($customerId: String) {
+  posOrdersSummary(customerId: $customerId)
+}
+`;
+
 export default {
   posList,
   productGroups,
   posDetail,
   posEnv,
   getDbSchemaLabels,
-  branches,
-  posSlots
+  posSlots,
+  posOrdersSummary,
 };

@@ -1,7 +1,7 @@
-import { Wrapper } from "@erxes/ui/src/layout";
-import React from "react";
-import CampaignList from "../containers/CampaignList";
-import FilterCampaign from "./FilterCampaign";
+import { Wrapper } from '@erxes/ui/src/layout';
+import React from 'react';
+import CampaignList from '../containers/CampaignList';
+import FilterCampaign from './FilterCampaign';
 import { PaddingTop } from '../../../styles';
 
 function Sidebar({
@@ -16,7 +16,7 @@ function Sidebar({
   isAward: boolean;
 }) {
   return (
-    <Wrapper.Sidebar>
+    <Wrapper.Sidebar hasBorder>
       <PaddingTop>
         <CampaignList queryParams={queryParams} history={history} />
         {isAward && (

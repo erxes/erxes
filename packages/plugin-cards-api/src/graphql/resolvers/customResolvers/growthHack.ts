@@ -1,7 +1,7 @@
 import { IGrowthHackDocument } from '../../../models/definitions/growthHacks';
 import { boardId } from '../../utils';
 import { IContext } from '../../../connectionResolver';
-import { sendFormsMessage } from '../../../messageBroker';
+import { sendCoreMessage, sendFormsMessage } from '../../../messageBroker';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
@@ -62,7 +62,25 @@ export default {
     });
   },
 
-  assignedUsers(growthHack: IGrowthHackDocument) {
+  assignedUsers(
+    growthHack: IGrowthHackDocument,
+    _args,
+    { subdomain }: IContext,
+    { isSubscription }
+  ) {
+    if (isSubscription && growthHack.assignedUserIds?.length) {
+      return sendCoreMessage({
+        subdomain,
+        action: 'users.find',
+        data: {
+          query: {
+            _id: { $in: growthHack.assignedUserIds }
+          }
+        },
+        isRPC: true
+      });
+    }
+
     return (growthHack.assignedUserIds || [])
       .filter(e => e)
       .map(_id => ({

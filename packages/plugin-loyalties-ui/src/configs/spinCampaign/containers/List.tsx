@@ -1,12 +1,17 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { Bulk } from '@erxes/ui/src/components';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import SpinCampaign from '../components/List';
 import { mutations, queries } from '../graphql';
-import { SpinCampaignQueryResponse, SpinCampaignRemoveMutationResponse } from '../types';
+import {
+  SpinCampaignQueryResponse,
+  SpinCampaignRemoveMutationResponse,
+  SpinCampaignsCountQueryResponse
+} from '../types';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
   queryParams: any;
@@ -16,12 +21,15 @@ type Props = {
 
 type FinalProps = {
   spinCampaignQuery: SpinCampaignQueryResponse;
-} & Props & SpinCampaignRemoveMutationResponse;
+  spinCampaignQueryCount: SpinCampaignsCountQueryResponse;
+} & Props &
+  SpinCampaignRemoveMutationResponse;
 
 class SpinCampaignContainer extends React.Component<FinalProps> {
   render() {
     const {
       spinCampaignQuery,
+      spinCampaignQueryCount,
       queryParams,
       spinCampaignsRemove
     } = this.props;
@@ -47,6 +55,7 @@ class SpinCampaignContainer extends React.Component<FinalProps> {
     const filterStatus = this.props.queryParams.filterStatus || '';
 
     const spinCampaigns = spinCampaignQuery.spinCampaigns || [];
+    const totalCount = spinCampaignQueryCount.spinCampaignsCount || 0;
 
     const updatedProps = {
       ...this.props,
@@ -55,12 +64,11 @@ class SpinCampaignContainer extends React.Component<FinalProps> {
       remove,
       loading: spinCampaignQuery.loading,
       searchValue,
-      filterStatus
+      filterStatus,
+      totalCount
     };
 
-    const productList = props => (
-      <SpinCampaign {...updatedProps} {...props} />
-    );
+    const productList = props => <SpinCampaign {...updatedProps} {...props} />;
 
     const refetch = () => {
       this.props.spinCampaignQuery.refetch();
@@ -71,9 +79,7 @@ class SpinCampaignContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return [
-    'spinCampaigns'
-  ];
+  return ['spinCampaigns'];
 };
 
 const options = () => ({
@@ -82,15 +88,30 @@ const options = () => ({
 
 export default withProps<Props>(
   compose(
-    graphql<{}, SpinCampaignQueryResponse>(gql(queries.spinCampaigns), {
-      name: 'spinCampaignQuery'
+    graphql<Props>(gql(queries.spinCampaignsCount), {
+      name: 'spinCampaignQueryCount',
+      options: ({ queryParams }: Props) => ({
+        variables: {
+          searchValue: queryParams.searchValue
+        }
+      })
     }),
-    graphql<Props, SpinCampaignRemoveMutationResponse, { spinCampaignIds: string[] }>(
-      gql(mutations.spinCampaignsRemove),
-      {
-        name: 'spinCampaignsRemove',
-        options
-      }
-    ),
+    graphql<Props, SpinCampaignQueryResponse>(gql(queries.spinCampaigns), {
+      name: 'spinCampaignQuery',
+      options: ({ queryParams }: Props) => ({
+        variables: {
+          searchValue: queryParams.searchValue,
+          ...generatePaginationParams(queryParams)
+        }
+      })
+    }),
+    graphql<
+      Props,
+      SpinCampaignRemoveMutationResponse,
+      { spinCampaignIds: string[] }
+    >(gql(mutations.spinCampaignsRemove), {
+      name: 'spinCampaignsRemove',
+      options
+    })
   )(SpinCampaignContainer)
 );

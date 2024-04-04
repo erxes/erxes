@@ -1,43 +1,88 @@
-import { init as initBrokerCore } from '@erxes/api-utils/src/messageBroker';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  InterMessage,
+  connectToMessageBroker,
+} from '@erxes/api-utils/src/messageBroker';
+import { sendMessage } from '@erxes/api-utils/src/core';
+import type {
+  MessageArgs,
+  MessageArgsOmitService,
+} from '@erxes/api-utils/src/core';
 
 import { logConsumers } from '@erxes/api-utils/src/logUtils';
 import { internalNoteConsumers } from '@erxes/api-utils/src/internalNotes';
 import { formConsumers } from '@erxes/api-utils/src/forms';
 import { graphqlPubsub } from './pubsub';
 import { registerOnboardHistory } from './data/modules/robot';
-import { registerModule } from './data/permissions/utils';
+
 import {
+  escapeRegExp,
   getConfig,
   getConfigs,
   getFileUploadConfigs,
   sendEmail,
-  sendMobileNotification
+  sendMobileNotification,
 } from './data/utils';
 
-import * as serviceDiscovery from './serviceDiscovery';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 import logUtils from './logUtils';
 import internalNotes from './internalNotes';
 import forms from './forms';
 import { generateModels } from './connectionResolver';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
-import segments from './segments';
+import imports from './imports';
+import exporter from './exporter';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+  consumeRPCQueueMq,
+} from '@erxes/api-utils/src/messageBroker';
 
-let client;
+export const initBroker = async (): Promise<void> => {
+  await connectToMessageBroker(setupMessageConsumers);
+};
 
-export const initBroker = async options => {
-  client = await initBrokerCore(options);
+export const setupMessageConsumers = async (): Promise<void> => {
+  consumeQueue(
+    'core:manage-installation-notification',
+    async ({
+      subdomain,
+      type,
+      name,
+      message,
+    }: InterMessage & { [others: string]: any }) => {
+      const models = await generateModels(subdomain);
 
-  // do not receive messages in crons worker
-  const { consumeQueue, consumeRPCQueue } = client;
+      if (type === 'uninstall' && message === 'done') {
+        await models.InstallationLogs.remove({ pluginName: name });
+        return;
+      }
+
+      await models.InstallationLogs.createLog({
+        pluginName: name,
+        message,
+      });
+
+      if (message === 'done') {
+        await models.InstallationLogs.remove({
+          pluginName: name,
+          message: { $ne: 'done' },
+        });
+      }
+    },
+  );
 
   consumeQueue('core:runCrons', async () => {
     console.log('Running crons ........');
   });
 
-  consumeQueue('registerPermissions', async permissions => {
-    await registerModule(permissions);
+  consumeRPCQueue('core:permissions.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Permissions.find(data).lean(),
+    };
   });
 
   consumeQueue('core:sendMobileNotification', async ({ subdomain, data }) => {
@@ -59,9 +104,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Conformities.addConformity(data)
+        data: await models.Conformities.addConformity(data),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -71,9 +116,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Conformities.savedConformity(data)
+        data: await models.Conformities.savedConformity(data),
       };
-    }
+    },
   );
 
   consumeQueue('core:conformities.create', async ({ subdomain, data }) => {
@@ -81,7 +126,7 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Conformities.create(data)
+      data: await models.Conformities.create(data),
     };
   });
 
@@ -90,7 +135,7 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Conformities.removeConformities(data)
+      data: await models.Conformities.removeConformities(data),
     };
   });
 
@@ -101,9 +146,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Conformities.removeConformity(data)
+        data: await models.Conformities.removeConformity(data),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -113,9 +158,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Conformities.getConformities(data)
+        data: await models.Conformities.getConformities(data),
       };
-    }
+    },
   );
 
   consumeQueue(
@@ -125,9 +170,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Conformities.addConformities(data)
+        data: await models.Conformities.addConformities(data),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -137,9 +182,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Conformities.relatedConformity(data)
+        data: await models.Conformities.relatedConformity(data),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -149,9 +194,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Conformities.filterConformity(data)
+        data: await models.Conformities.filterConformity(data),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -161,9 +206,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Conformities.changeConformity(data)
+        data: await models.Conformities.changeConformity(data),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -173,9 +218,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Conformities.find(data).lean()
+        data: await models.Conformities.find(data).lean(),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -185,15 +230,10 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Conformities.editConformity(data)
+        data: await models.Conformities.editConformity(data),
       };
-    }
+    },
   );
-
-  // graphql subscriptions call =========
-  consumeQueue('callPublish', params => {
-    graphqlPubsub.publish(params.name, params.data);
-  });
 
   // listen for rpc queue =========
   consumeQueue(
@@ -202,7 +242,7 @@ export const initBroker = async options => {
       const models = await generateModels(subdomain);
 
       await registerOnboardHistory(models, type, user);
-    }
+    },
   );
 
   consumeRPCQueue('core:getConfigs', async ({ subdomain }) => {
@@ -210,7 +250,7 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await getConfigs(models)
+      data: await getConfigs(models),
     };
   });
 
@@ -219,9 +259,21 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Configs.find(data).distinct('value')
+      data: await models.Configs.find(data).distinct('value'),
     };
   });
+
+  consumeRPCQueue(
+    'core:configs.createOrUpdateConfig',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Configs.createOrUpdateConfig(data),
+      };
+    },
+  );
 
   consumeRPCQueue(
     'core:configs.findOne',
@@ -230,9 +282,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Configs.findOne(query).lean()
+        data: await models.Configs.findOne(query).lean(),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -242,9 +294,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await getConfig(code, defaultValue, models)
+        data: await getConfig(code, defaultValue, models),
       };
-    }
+    },
   );
 
   consumeRPCQueue('core:users.findOne', async ({ subdomain, data }) => {
@@ -252,7 +304,7 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Users.findOne(data).lean()
+      data: await models.Users.findOne(data).lean(),
     };
   });
 
@@ -261,7 +313,40 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Users.findUsers(data, { _id: 1 })
+      data: await models.Users.findUsers(data, { _id: 1 }),
+    };
+  });
+
+  consumeRPCQueue(
+    'core:users.getIdsBySearchParams',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      const { searchValue } = data;
+
+      const query: any = {};
+
+      query.$or = [
+        { email: new RegExp(`.*${searchValue}.*`, 'i') },
+        { employeeId: new RegExp(`.*${searchValue}.*`, 'i') },
+        { username: new RegExp(`.*${searchValue}.*`, 'i') },
+        { 'details.fullName': new RegExp(`.*${searchValue}.*`, 'i') },
+        { 'details.position': new RegExp(`.*${searchValue}.*`, 'i') },
+      ];
+
+      return {
+        status: 'success',
+        data: await models.Users.find(query).distinct('_id'),
+      };
+    },
+  );
+
+  consumeRPCQueue('core:users.checkLoginAuth', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Users.checkLoginAuth(data),
     };
   });
 
@@ -270,7 +355,7 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Departments.find(data).lean()
+      data: await models.Departments.find(data).lean(),
     };
   });
 
@@ -279,9 +364,44 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Departments.findOne(data).lean()
+      data: await models.Departments.findOne(data).lean(),
     };
   });
+
+  consumeRPCQueue(
+    'core:departments.findWithChild',
+    async ({ subdomain, data: { query, fields } }) => {
+      const models = await generateModels(subdomain);
+
+      const departments = await models.Departments.find(query);
+
+      if (!departments.length) {
+        return {
+          data: [],
+          status: 'success',
+        };
+      }
+
+      const orderQry: any[] = [];
+      for (const tag of departments) {
+        orderQry.push({
+          order: { $regex: new RegExp(`^${escapeRegExp(tag.order || '')}`) },
+        });
+      }
+
+      return {
+        data: await models.Departments.find(
+          {
+            $or: orderQry,
+          },
+          fields || {},
+        )
+          .sort({ order: 1 })
+          .lean(),
+        status: 'success',
+      };
+    },
+  );
 
   consumeRPCQueue(
     'core:users.updateOne',
@@ -290,9 +410,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Users.updateOne(selector, modifier)
+        data: await models.Users.updateOne(selector, modifier),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -302,9 +422,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Users.updateMany(selector, modifier)
+        data: await models.Users.updateMany(selector, modifier),
       };
-    }
+    },
   );
 
   consumeRPCQueue(
@@ -314,9 +434,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Users.countDocuments(query)
+        data: await models.Users.countDocuments(query),
       };
-    }
+    },
   );
 
   consumeRPCQueue('core:users.create', async ({ subdomain, data }) => {
@@ -324,23 +444,39 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Users.createUser(data)
+      data: await models.Users.createUser(data),
     };
   });
 
   consumeRPCQueue('core:users.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    const { query, sort = {} } = data;
+    const { query, sort = {}, fields, skip, limit } = data;
 
     return {
       status: 'success',
-      data: await models.Users.find({
-        ...query,
-        role: { $ne: USER_ROLES.SYSTEM }
-      })
+      data: await models.Users.find(
+        {
+          ...query,
+          role: { $ne: USER_ROLES.SYSTEM },
+        },
+        fields,
+      )
         .sort(sort)
-        .lean()
+        .skip(skip || 0)
+        .limit(limit || 0)
+        .lean(),
+    };
+  });
+
+  consumeRPCQueue('core:users.comparePassword', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    const { password, userPassword } = data;
+
+    return {
+      status: 'success',
+      data: await models.Users.comparePassword(password, userPassword),
     };
   });
 
@@ -351,9 +487,9 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Brands.getBrand(query)
+        data: await models.Brands.getBrand(query),
       };
-    }
+    },
   );
 
   consumeRPCQueue('core:brands.find', async ({ subdomain, data }) => {
@@ -363,18 +499,29 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Brands.find(query).lean()
+      data: await models.Brands.find(query).lean(),
+    };
+  });
+
+  consumeRPCQueue('core:branches.aggregate', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    const { pipeline } = data;
+
+    return {
+      status: 'success',
+      data: await models.Branches.aggregate(pipeline).exec(),
     };
   });
 
   consumeRPCQueue('core:branches.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    const { query } = data;
+    const { query, fields } = data;
 
     return {
       status: 'success',
-      data: await models.Branches.find(query).lean()
+      data: await models.Branches.find(query, fields).lean(),
     };
   });
 
@@ -383,7 +530,60 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Branches.findOne(data).lean()
+      data: await models.Branches.findOne(data).lean(),
+    };
+  });
+
+  consumeRPCQueue(
+    'core:branches.findWithChild',
+    async ({ subdomain, data: { query, fields } }) => {
+      const models = await generateModels(subdomain);
+
+      const branches = await models.Branches.find(query);
+
+      if (!branches.length) {
+        return {
+          data: [],
+          status: 'success',
+        };
+      }
+
+      const orderQry: any[] = [];
+      for (const tag of branches) {
+        orderQry.push({
+          order: { $regex: new RegExp(`^${escapeRegExp(tag.order || '')}`) },
+        });
+      }
+
+      return {
+        data: await models.Branches.find(
+          {
+            $or: orderQry,
+          },
+          fields || {},
+        )
+          .sort({ order: 1 })
+          .lean(),
+        status: 'success',
+      };
+    },
+  );
+
+  consumeRPCQueue('core:units.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Units.find(data).lean(),
+    };
+  });
+
+  consumeRPCQueue('core:units.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Units.findOne(data).lean(),
     };
   });
 
@@ -392,99 +592,140 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await getFileUploadConfigs(models)
+      data: await getFileUploadConfigs(models),
     };
   });
 
   logConsumers({
     name: 'core',
-    consumeRPCQueue,
     getActivityContent: logUtils.getActivityContent,
     collectItems: logUtils.collectItems,
-    getSchemalabels: logUtils.getSchemaLabels
+    getSchemalabels: logUtils.getSchemaLabels,
   });
 
   internalNoteConsumers({
     name: 'core',
-    consumeRPCQueue,
-    generateInternalNoteNotif: internalNotes.generateInternalNoteNotif
+    generateInternalNoteNotif: internalNotes.generateInternalNoteNotif,
   });
 
   formConsumers({
     name: 'core',
-    consumeRPCQueue,
-    systemFields: forms.systemFields
+    systemFields: forms.systemFields,
   });
 
-  consumeRPCQueue('core:fields.getList', async ({ subdomain }) => {
+  consumeRPCQueue('core:fields.getList', async ({ subdomain, data }) => {
     return {
       status: 'success',
-      data: await forms.fields({ subdomain })
+      data: await forms.fields({ subdomain, data }),
     };
   });
 
-  consumeRPCQueue(`core:segments.associationTypes`, segments.associationTypes);
+  consumeRPCQueue('core:imports.insertImportItems', async (args) => {
+    return {
+      status: 'success',
+      data: await imports.insertImportItems(args),
+    };
+  });
 
-  return client;
+  consumeRPCQueue('core:imports.prepareImportDocs', async (args) => {
+    return {
+      status: 'success',
+      data: await imports.prepareImportDocs(args),
+    };
+  });
+
+  consumeRPCQueue('core:exporter.prepareExportData', async (args) => ({
+    status: 'success',
+    data: await exporter.prepareExportData(args),
+  }));
+
+  consumeRPCQueue('core:exporter.getExportDocs', async (args) => ({
+    status: 'success',
+    data: await exporter.getExportDocs(args),
+  }));
+
+  consumeRPCQueueMq('core:isServiceEnabled', async ({ data }) => ({
+    status: 'success',
+    data: await isEnabled(data),
+  }));
 };
 
-interface IISendMessageArgs {
-  subdomain: string;
-  action: string;
-  data;
-  isRPC?: boolean;
-  defaultValue?;
-  serviceName: string;
-}
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
+  return sendMessage({
+    ...args,
+  });
+};
 
-export const sendCommonMessage = async (
-  args: IISendMessageArgs
+export const sendSegmentsMessage = async (
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
-    client,
-    ...args
+    serviceName: 'segments',
+    ...args,
   });
 };
 
 export const sendIntegrationsMessage = (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'integrations',
-    ...args
+    ...args,
   });
 };
 
-export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendCardsMessage = (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'cards',
-    ...args
+    ...args,
   });
 };
 
-export const sendLogsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendLogsMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'logs',
-    ...args
+    ...args,
   });
 };
 
-export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
+export const sendContactsMessage = (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
-export default function() {
-  return client;
-}
+export const sendInboxMessage = (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'inbox',
+    ...args,
+  });
+};
+
+export const sendFormsMessage = (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'forms',
+    ...args,
+  });
+};
+
+export const fetchSegment = (
+  subdomain: string,
+  segmentId: string,
+  options?,
+  segmentData?: any,
+) =>
+  sendSegmentsMessage({
+    subdomain,
+    action: 'fetchSegment',
+    data: { segmentId, options, segmentData },
+    isRPC: true,
+  });

@@ -8,6 +8,7 @@ export const types = `
 
   type ENV {
     USE_BRAND_RESTRICTIONS: String
+    RELEASE: String
   }
 `;
 
@@ -21,6 +22,7 @@ export const queries = `
   configsCheckPremiumService(type: String!): Boolean
   configsGetEmailTemplate(name: String): String
   configsGetValue(code:String!):JSON
+  configsGetInstallationStatus(name: String!): JSON
   enabledServices: JSON
 `;
 

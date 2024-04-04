@@ -33,7 +33,7 @@ function Assignees(props: Props) {
           alt={getFullName(user)}
           title={getFullName(user)}
           key={user._id}
-          src={getUserAvatar(user)}
+          src={getUserAvatar(user, 60)}
           width={28}
           height={28}
         />

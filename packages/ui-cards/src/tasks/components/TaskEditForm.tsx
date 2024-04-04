@@ -10,8 +10,13 @@ import {
   IOptions
 } from '../../boards/types';
 import PortableDeals from '../../deals/components/PortableDeals';
+import PortablePurchases from '../../purchases/components/PortablePurchases';
 import PortableTickets from '../../tickets/components/PortableTickets';
 import React from 'react';
+import { pluginsOfItemSidebar } from 'coreui/pluginUtils';
+import queryString from 'query-string';
+import ChildrenSection from '../../boards/containers/editForm/ChildrenSection';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   options: IOptions;
@@ -31,6 +36,7 @@ type Props = {
   ) => void;
   beforePopupClose: () => void;
   sendToBoard?: (item: any) => void;
+  currentUser: IUser;
 };
 
 type State = {
@@ -57,8 +63,25 @@ export default class TaskEditForm extends React.Component<Props, State> {
       <>
         <PortableDeals mainType="task" mainTypeId={this.props.item._id} />
         <PortableTickets mainType="task" mainTypeId={this.props.item._id} />
+        <PortablePurchases mainType="task" mainTypeId={this.props.item._id} />
+        {pluginsOfItemSidebar(this.props.item, 'task')}
       </>
     );
+  };
+
+  renderChildrenSection = () => {
+    const { item } = this.props;
+
+    const updatedProps = {
+      ...this.props,
+      type: 'task',
+      itemId: item._id,
+      stageId: item.stageId,
+      pipelineId: item.pipeline._id,
+      queryParams: queryString.parse(window.location.search) || {}
+    };
+
+    return <ChildrenSection {...updatedProps} />;
   };
 
   renderFormContent = ({
@@ -70,6 +93,7 @@ export default class TaskEditForm extends React.Component<Props, State> {
   }: IEditFormContent) => {
     const {
       item,
+      currentUser,
       options,
       onUpdate,
       addItem,
@@ -107,6 +131,8 @@ export default class TaskEditForm extends React.Component<Props, State> {
             saveItem={saveItem}
             updateTimeTrack={updateTimeTrack}
             renderItems={this.renderItems}
+            childrenSection={this.renderChildrenSection}
+            currentUser={currentUser}
           />
         </Flex>
       </>

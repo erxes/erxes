@@ -24,7 +24,9 @@ export type RemoveMutationVariables = {
 };
 
 export type RemoveMutationResponse = {
-  donatesRemove: (params: { variables: RemoveMutationVariables }) => Promise<any>;
+  donatesRemove: (params: {
+    variables: RemoveMutationVariables;
+  }) => Promise<any>;
 };
 
 // query types

@@ -1,21 +1,24 @@
-import Button from '@erxes/ui/src/components/Button';
-import MailForm from '@erxes/ui-settings/src/integrations/containers/mail/MailForm';
-import { cleanHtml } from '../../../../../settings/integrations/containers/utils';
-import React from 'react';
-import { IMessage } from '../../../../types';
+import { BoxItem, Content, MailSubject, Reply } from './style';
+
 import Attachments from './Attachments';
+import Button from '@erxes/ui/src/components/Button';
+import { IMessage } from '../../../../types';
+import MailForm from '@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm';
 import MailHeader from './MailHeader';
-import { BoxItem, Content, Reply } from './style';
+import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
+import { cleanHtml } from '../../../../../settings/integrations/containers/utils';
 
 type Props = {
+  detailQuery?: any;
   message: IMessage;
   integrationId: string;
   conversationId?: string;
   customerId?: string;
-  kind: string;
   isLast: boolean;
-  brandId?: string;
   mails: IMessage[];
+  brandId?: string;
+  conversationStatus?: string;
 };
 
 type State = {
@@ -64,28 +67,28 @@ class Mail extends React.PureComponent<Props, State> {
     return (
       <Reply>
         <Button
-          icon='reply'
-          size='small'
+          icon="reply"
+          size="small"
           onClick={this.toggleReply}
-          btnStyle='primary'
+          btnStyle="primary"
         >
           Reply
         </Button>
         {addressLength > 1 && (
           <Button
-            icon='reply-all'
-            size='small'
+            icon="reply-all"
+            size="small"
             onClick={toggleReplyAll}
-            btnStyle='primary'
+            btnStyle="primary"
           >
             Reply to all
           </Button>
         )}
         <Button
-          icon='corner-down-right-alt'
-          size='small'
+          icon="corner-down-right-alt"
+          size="small"
           onClick={toggleForward}
-          btnStyle='primary'
+          btnStyle="primary"
         >
           Forward
         </Button>
@@ -101,17 +104,21 @@ class Mail extends React.PureComponent<Props, State> {
     }
 
     const {
+      detailQuery,
       conversationId,
       message,
       integrationId,
       customerId,
       brandId,
-      mails
+      mails,
+      conversationStatus
     } = this.props;
 
     return (
       <BoxItem>
         <MailForm
+          detailQuery={detailQuery}
+          source="inbox"
           replyAll={replyAll}
           isReply={isReply}
           isForward={isForward}
@@ -122,6 +129,7 @@ class Mail extends React.PureComponent<Props, State> {
           toggleReply={this.toggleReply}
           integrationId={integrationId}
           refetchQueries={['detailQuery']}
+          conversationStatus={conversationStatus}
           mailData={mailData}
           brandId={brandId}
           mails={mails}
@@ -156,14 +164,13 @@ class Mail extends React.PureComponent<Props, State> {
       return;
     }
 
-    const { kind, integrationId } = this.props;
+    const { integrationId } = this.props;
 
     return (
       <Attachments
-        kind={kind}
         integrationId={integrationId}
         attachments={attachments}
-        messageId={messageId}
+        messageId={encodeURIComponent(messageId)}
       />
     );
   }
@@ -184,6 +191,17 @@ class Mail extends React.PureComponent<Props, State> {
     return (
       <>
         <BoxItem toggle={this.state.isCollapsed}>
+          {message.mailData && (
+            <Tip text={message.mailData.subject || ''} placement="top-start">
+              <MailSubject>
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: message.mailData.subject || ''
+                  }}
+                />
+              </MailSubject>
+            </Tip>
+          )}
           <MailHeader
             message={message}
             isContentCollapsed={this.state.isCollapsed}

@@ -29,6 +29,8 @@ export const types = tagsEnabled => `
     primaryEmail: String
     phones: [String]
     primaryPhone: String
+    primaryAddress: JSON
+    addresses: [JSON]
 
     businessType: String
     description: String
@@ -40,6 +42,7 @@ export const types = tagsEnabled => `
     tagIds: [String]
 
     customFieldsData: JSON
+    customFieldsDataByFieldCode: JSON
     trackedData: JSON
 
     customers: [Customer]
@@ -68,6 +71,8 @@ const queryParams = `
   sortField: String
   sortDirection: Int
   brand: String
+  dateFilters: String
+  segmentData: String
   ${conformityQueryFields}
 `;
 
@@ -89,6 +94,9 @@ const commonFields = `
 
   primaryEmail: String,
   emails: [String],
+
+  primaryAddress: JSON,
+  addresses: [JSON],
 
   size: Int,
   website: String,

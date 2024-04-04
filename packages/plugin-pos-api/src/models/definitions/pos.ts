@@ -1,83 +1,59 @@
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
 
-export interface IPosOrderItem {
-  createdAt: Date;
-  productId: string;
-  count: number;
-  unitPrice: number;
-  discountAmount: number;
-  discountPercent: number;
-}
-export interface IPosOrderItemDocument extends IPosOrderItem, Document {
-  _id: string;
-}
-export interface IPosOrder {
-  createdAt: Date;
-  status: string;
-  paidDate: Date;
-  number: string;
-  customerId: string;
-  cardAmount: number;
-  cashAmount: number;
-  mobileAmount: number;
-  totalAmount: number;
-  finalAmount: number;
-  shouldPrintEbarimt: Boolean;
-  printedEbarimt: Boolean;
-  billType: string;
-  billId: string;
-  oldBillId: string;
-  type: string;
-  userId: string;
-  items: IPosOrderItem[];
-  branchId: string;
-  posToken: string;
-  syncedErkhet: Boolean;
-  deliveryInfo: Object;
-}
-export interface IPosOrderDocument extends IPosOrder, Document {
-  _id: string;
-}
 export interface IPos {
   name: string;
-  description: string;
+  description?: string;
+  orderPassword?: string;
+  scopeBrandIds?: string[];
+  pdomain?: string;
   userId: string;
   createdAt: Date;
-  productDetails: string;
-  adminIds: string[];
-  cashierIds: string[];
-  isOnline: Boolean;
+  productDetails?: string;
+  adminIds?: string[];
+  cashierIds?: string[];
+  paymentIds?: string[];
+  paymentTypes?: any[];
+  erxesAppToken: string;
+  isOnline?: Boolean;
   onServer?: Boolean;
-  branchId: string;
-  allowBranchIds: string;
-  beginNumber: string;
-  maxSkipNumber: number;
-  waitingScreen: Object;
-  kioskMachine: Object;
-  kitchenScreen: Object;
-  uiOptions: Object;
+  branchId?: string;
+  departmentId?: string;
+  allowBranchIds?: string[];
+  beginNumber?: string;
+  maxSkipNumber?: number;
+  waitingScreen?: any;
+  kioskMachine?: any;
+  kitchenScreen?: any;
+  uiOptions?: any;
   token: string;
-  ebarimtConfig: Object;
-  erkhetConfig: Object;
-  syncInfos: Object;
-  catProdMappings: Object;
-  initialCategoryIds: string;
-  kioskExcludeProductIds: string;
-  deliveryConfig: Object;
-  slotCode: string;
-  cardsConfig: Object;
+  ebarimtConfig?: any;
+  erkhetConfig?: any;
+  syncInfos?: any;
+  catProdMappings?: any;
+  initialCategoryIds?: string;
+  kioskExcludeCategoryIds?: string;
+  kioskExcludeProductIds?: string;
+  deliveryConfig?: any;
+  cardsConfig?: any;
+  checkRemainder?: boolean;
+  permissionConfig?: any;
+  allowTypes: string[];
+  isCheckRemainder: boolean;
+  checkExcludeCategoryIds: string[];
+  banFractions: boolean;
 }
 export interface IPosDocument extends IPos, Document {
   _id: string;
 }
+
 export interface IProductGroup {
   name: string;
   description: string;
   posId: string;
-  categoryIds: string;
-  excludedCategoryIds: string;
-  excludedProductIds: string;
+  categoryIds?: string[];
+  excludedCategoryIds?: string[];
+  excludedProductIds: string[];
 }
 export interface IProductGroupDocument extends IProductGroup, Document {
   _id: string;
@@ -88,130 +64,100 @@ export interface IPosSlot {
   posId: string;
   name: string;
   code: string;
+  options: {
+    [key: string]: string | number;
+  };
 }
 
 export interface IPosSlotDocument extends IPosSlot, Document {
   _id: string;
 }
 
-const posOrderItemSchema = schemaHooksWrapper(
-  new Schema({
-    _id: field({ type: String }),
-    createdAt: field({ type: Date }),
-    productId: field({ type: String, label: 'Product' }),
-    count: field({ type: Number }),
-    unitPrice: field({ type: Number }),
-    discountAmount: field({ type: Number }),
-    discountPercent: field({ type: Number })
-  }),
-  'erxes_posOrderItem'
-);
-
-export const posOrderSchema = schemaHooksWrapper(
-  new Schema({
-    _id: field({ pkey: true }),
-    createdAt: field({ type: Date }),
-    status: field({ type: String, label: 'Status of the order' }),
-    paidDate: field({ type: Date, label: 'Paid date' }),
-    number: field({ type: String, label: 'Order number' }),
-    customerId: field({ type: String, label: 'Customer' }),
-    cardAmount: field({ type: Number }),
-    cashAmount: field({ type: Number }),
-    mobileAmount: field({ type: Number }),
-    totalAmount: field({ type: Number }),
-    finalAmount: field({ type: Number }),
-    shouldPrintEbarimt: field({
-      type: Boolean,
-      label: 'Should print ebarimt for this order'
-    }),
-    printedEbarimt: field({
-      type: Boolean,
-      label: 'Printed ebarimt',
-      default: false
-    }),
-    billType: field({
-      type: String,
-      label: 'Ebarimt receiver entity type'
-    }),
-    billId: field({ type: String, label: 'Bill id' }),
-    registerNumber: field({
-      type: String,
-      label: 'Register number of the entity'
-    }),
-    oldBillId: field({
-      type: String,
-      label: 'Previous bill id if it is changed'
-    }),
-    type: field({ type: String }),
-    userId: field({ type: String, label: 'Created user id' }),
-
-    items: field({ type: [posOrderItemSchema], label: 'items' }),
-    branchId: field({ type: String, label: 'Branch' }),
-    posToken: field({ type: String, optional: true }),
-
-    syncedErkhet: field({ type: Boolean, default: false }),
-    deliveryInfo: field({
-      type: Object,
-      optional: true,
-      label: 'Delivery Info, address, map, etc'
-    })
-  }),
-  'erxes_posOrders'
-);
-
 export const posSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Name' }),
     description: field({ type: String, label: 'Description', optional: true }),
+    orderPassword: field({
+      type: String,
+      label: 'OrderPassword',
+      optional: true,
+    }),
+    pdomain: field({ type: String, optional: true, label: 'Domain' }),
     userId: field({ type: String, optional: true, label: 'Created by' }),
     createdAt: field({ type: Date, label: 'Created at' }),
     productDetails: field({ type: [String], label: 'Product fields' }),
     adminIds: field({ type: [String], label: 'Admin user ids' }),
     cashierIds: field({ type: [String], label: 'Cashier ids' }),
     isOnline: field({ type: Boolean, label: 'Is online pos' }),
+    paymentIds: field({ type: [String], label: 'Online Payments' }),
+    paymentTypes: field({ type: [Object], label: 'Other Payments' }),
     onServer: field({
       type: Boolean,
       optional: true,
-      label: 'On cloud server'
+      label: 'On cloud server',
     }),
     branchId: field({ type: String, optional: true, label: 'Branch' }),
+    departmentId: field({ type: String, optional: true, label: 'Branch' }),
     allowBranchIds: field({
       type: [String],
       optional: true,
-      label: 'Allow branches'
+      label: 'Allow branches',
     }),
     beginNumber: field({ type: String, optional: true, label: 'Begin number' }),
     maxSkipNumber: field({
       type: Number,
       optional: true,
-      label: 'Skip number'
+      label: 'Skip number',
     }),
     waitingScreen: field({ type: Object, label: 'Waiting screen config' }),
     kioskMachine: field({ type: Object, label: 'Kiosk config' }),
     kitchenScreen: field({ type: Object, label: 'Kitchen screen config' }),
     uiOptions: field({ type: Object, label: 'UI Options' }),
     token: field({ type: String, label: 'Pos token' }),
-    ebarimtConfig: field({ type: Object, label: 'Ebarimt Config' }),
+    erxesAppToken: field({ type: String, label: 'Erxes App token' }),
+    ebarimtConfig: field({
+      type: Object,
+      optional: true,
+      label: 'Ebarimt Config',
+    }),
     erkhetConfig: field({ type: Object, label: 'Erkhet Config' }),
     syncInfos: field({ type: Object, label: 'sync info' }),
     catProdMappings: field({
       type: [Object],
       label: 'Category product mappings',
-      optional: true
+      optional: true,
     }),
     initialCategoryIds: field({
       type: [String],
-      label: 'Pos initial categories'
+      label: 'Pos initial categories',
+    }),
+    kioskExcludeCategoryIds: field({
+      type: [String],
+      label: 'Kiosk exclude categories',
     }),
     kioskExcludeProductIds: field({
       type: [String],
-      label: 'Kiosk exclude products'
+      label: 'Kiosk exclude products',
     }),
     deliveryConfig: field({ type: Object, label: 'Delivery Config' }),
-    cardsConfig: field({ type: Object, label: 'Cards Config' })
+    cardsConfig: field({ type: Object, label: 'Cards Config' }),
+    checkRemainder: field({ type: Boolean, optional: true }),
+    permissionConfig: field({
+      type: Object,
+      optional: true,
+      label: 'Permission',
+    }),
+    allowTypes: field({ type: [String], label: 'Allow Types' }),
+    isCheckRemainder: field({ type: Boolean, label: 'is Check Remainder' }),
+    checkExcludeCategoryIds: field({
+      type: [String],
+      label: 'Check Exclude Categories',
+    }),
+    banFractions: field({ type: Boolean, label: 'has Float count' }),
+    status: field({ type: String, label: 'Status', optional: true }),
   }),
-  'erxes_pos'
+  'erxes_pos',
 );
 
 export const productGroupSchema = schemaHooksWrapper(
@@ -223,22 +169,22 @@ export const productGroupSchema = schemaHooksWrapper(
     categoryIds: field({
       type: [String],
       optional: true,
-      label: 'Category ids'
+      label: 'Category ids',
     }),
 
     excludedCategoryIds: field({
       type: [String],
       optional: true,
-      label: 'Exclude Category ids'
+      label: 'Exclude Category ids',
     }),
 
     excludedProductIds: field({
       type: [String],
       optional: true,
-      label: 'Exclude Product ids'
-    })
+      label: 'Exclude Product ids',
+    }),
   }),
-  'erxes_productGroup'
+  'erxes_productGroup',
 );
 
 export const posSlotSchema = schemaHooksWrapper(
@@ -246,7 +192,16 @@ export const posSlotSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Name' }),
     code: field({ type: String, label: 'Code' }),
-    posId: field({ type: String, label: 'Pos' })
+    posId: field({ type: String, label: 'Pos' }),
+    option: field({ type: Object, label: 'Option' }),
   }),
-  'erxes_pos_slot'
+  'erxes_pos_slot',
+);
+
+export const posCoverKindValueSchema = schemaHooksWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    code: field({ type: String, label: 'Code' }),
+  }),
+  'erxes_pos_slot',
 );

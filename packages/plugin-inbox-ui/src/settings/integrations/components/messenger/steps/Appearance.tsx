@@ -2,7 +2,6 @@ import classnames from 'classnames';
 import { TEXT_COLORS } from '@erxes/ui-cards/src/boards/constants';
 import { ControlLabel } from '@erxes/ui/src/components/form';
 import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
-import { __, uploadHandler } from 'coreui/utils';
 import {
   BackgroundSelector,
   SubItem,
@@ -13,6 +12,7 @@ import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
+import { __, uploadHandler } from '@erxes/ui/src/utils';
 
 type Props = {
   onChange: (
@@ -97,7 +97,11 @@ class Appearance extends React.Component<Props, State> {
     return (
       <SubItem>
         <ControlLabel>{title}</ControlLabel>
-        <input type='file' onChange={this.handleLogoChange} />
+        <input
+          type="file"
+          accept="image/png, image/jpeg"
+          onChange={this.handleLogoChange}
+        />
       </SubItem>
     );
   }
@@ -107,22 +111,22 @@ class Appearance extends React.Component<Props, State> {
     const onChangeColor = (key, e) => onChange(key, e.hex);
 
     const popoverContent = (
-      <Popover id='color-picker'>
+      <Popover id="color-picker">
         <TwitterPicker
           color={color}
           onChange={onChangeColor.bind(this, 'color')}
-          triangle='hide'
+          triangle="hide"
         />
       </Popover>
     );
 
     const textColorContent = (
-      <Popover id='text-color-picker'>
+      <Popover id="text-color-picker">
         <TwitterPicker
           color={textColor}
           onChange={onChangeColor.bind(this, 'textColor')}
           colors={TEXT_COLORS}
-          triangle='hide'
+          triangle="hide"
         />
       </Popover>
     );
@@ -133,9 +137,9 @@ class Appearance extends React.Component<Props, State> {
           <SubItem>
             <ControlLabel>{__('Choose a background color')}</ControlLabel>
             <OverlayTrigger
-              trigger='click'
+              trigger="click"
               rootClose={true}
-              placement='bottom-start'
+              placement="bottom-start"
               overlay={popoverContent}
             >
               <ColorPick>
@@ -146,9 +150,9 @@ class Appearance extends React.Component<Props, State> {
           <SubItem>
             <ControlLabel>{__('Choose a text color')}</ControlLabel>
             <OverlayTrigger
-              trigger='click'
+              trigger="click"
               rootClose={true}
-              placement='bottom-start'
+              placement="bottom-start"
               overlay={textColorContent}
             >
               <ColorPick>

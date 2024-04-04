@@ -1,7 +1,6 @@
-import { IFormData } from '@erxes/ui-forms/src/forms/types';
+import CommonPreview from './CommonPreview';
 import { IField } from '../../../types';
 import React from 'react';
-import CommonPreview from './CommonPreview';
 
 type Props = {
   previewRenderer: () => React.ReactNode;
@@ -16,7 +15,7 @@ type Props = {
   onFieldChange?: (name: string, value: IField[]) => void;
   type: string;
   currentPage: number;
-  formData: IFormData;
+  formData: any; //check -IFormData
   onPageChange?: (page: number) => void;
 };
 
@@ -44,7 +43,7 @@ class FormPreview extends React.Component<Props, {}> {
         theme={theme}
         color={color}
         btnText={btnText}
-        btnStyle='primary'
+        btnStyle="primary"
         type={type}
         currentPage={currentPage}
         numberOfPages={formData.numberOfPages || 1}

@@ -1,9 +1,9 @@
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { StepFormWrapper } from '@erxes/ui-engage/src/styles';
-import TagForm from '@erxes/ui/src/tags/components/Form';
-import { ITag } from '@erxes/ui/src/tags/types';
+import { ITag } from '@erxes/ui-tags/src/types';
 import React from 'react';
-import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
+import { StepFormWrapper } from '@erxes/ui-engage/src/styles';
+import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
+import TagForm from '@erxes/ui-tags/src/components/Form';
 
 type Props = {
   tags?: ITag[];
@@ -15,7 +15,13 @@ const Form = ({ renderButton, afterSave, tags }: Props) => {
   return (
     <StepFormWrapper>
       <TagForm
-        type={TAG_TYPES.CUSTOMER}
+        tagType={TAG_TYPES.CUSTOMER}
+        types={[
+          {
+            contentType: TAG_TYPES.CUSTOMER,
+            description: 'Customer',
+          },
+        ]}
         renderButton={renderButton}
         afterSave={afterSave}
         tags={tags || []}

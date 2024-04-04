@@ -1,6 +1,6 @@
-import { IContext } from "../../../connectionResolver";
-import { sendCoreMessage } from "../../../messageBroker";
-import { IBoardDocument } from "../../../models/definitions/boards";
+import { IContext } from '../../../connectionResolver';
+import { sendCoreMessage } from '../../../messageBroker';
+import { IBoardDocument } from '../../../models/definitions/boards';
 
 export default {
   async pipelines(
@@ -15,47 +15,47 @@ export default {
     if (user.isOwner) {
       return models.Pipelines.find({
         boardId: board._id,
-        status: { $ne: "archived" },
+        status: { $ne: 'archived' }
       }).lean();
     }
 
-    const departments = await sendCoreMessage({
+    const userDetail = await sendCoreMessage({
       subdomain,
-      action: "departments.find",
+      action: 'users.findOne',
       data: {
-        userIds: { $in: [user._id] },
+        _id: user._id
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
-    const departmentIds = departments.map(d => d._id);
+    const departmentIds = userDetail?.departmentIds || [];
 
     const query: any = {
       $and: [
-        { status: { $ne: "archived" } },
+        { status: { $ne: 'archived' } },
         { boardId: board._id },
         {
           $or: [
-            { visibility: "public" },
+            { visibility: 'public' },
             {
-              visibility: "private",
-              $or: [{ memberIds: { $in: [user._id] } }, { userId: user._id }],
-            },
-          ],
-        },
-      ],
+              visibility: 'private',
+              $or: [{ memberIds: { $in: [user._id] } }, { userId: user._id }]
+            }
+          ]
+        }
+      ]
     };
 
     if (departmentIds.length > 0) {
       query.$and[2].$or.push({
         $and: [
-          { visibility: "private" },
-          { departmentIds: { $in: departmentIds } },
-        ],
+          { visibility: 'private' },
+          { departmentIds: { $in: departmentIds } }
+        ]
       });
     }
 
     return models.Pipelines.find(query).lean();
-  },
+  }
 };

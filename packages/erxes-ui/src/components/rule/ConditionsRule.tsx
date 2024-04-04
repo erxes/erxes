@@ -13,8 +13,6 @@ import { IConditionsRule } from '../../types';
 import ModalTrigger from '../ModalTrigger';
 import RuleForm from './RuleForm';
 
-
-
 const RuleDescription = styled.p`
   text-transform: initial;
 `;
@@ -34,7 +32,7 @@ class ConditionsRule extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      rules: this.props.rules || []
+      rules: props.rules || []
     };
   }
 
@@ -57,6 +55,7 @@ class ConditionsRule extends React.Component<Props, State> {
 
   renderDescription(rule) {
     let description;
+
     switch (rule.kind) {
       case 'browserLanguage':
         description =
@@ -76,7 +75,9 @@ class ConditionsRule extends React.Component<Props, State> {
         break;
       default:
         description = 'Counts individual visitor’s visitting number.';
+        break;
     }
+
     return description;
   }
 
@@ -149,16 +150,13 @@ class ConditionsRule extends React.Component<Props, State> {
   }
 
   renderAddRule = () => {
-
     const trigger = (
       <Button btnStyle="primary" uppercase={false} icon="plus-circle">
         Add another rule
       </Button>
     );
 
-    const content = props => (
-      <RuleForm {...props} onChange={this.addRule} />
-    );
+    const content = props => <RuleForm {...props} onChange={this.addRule} />;
 
     return (
       <ModalTrigger title="Add rule" trigger={trigger} content={content} />
@@ -167,13 +165,15 @@ class ConditionsRule extends React.Component<Props, State> {
 
   render() {
     const { description } = this.props;
+
     return (
       <FlexPad overflow="auto" direction="column">
         <FormGroup>
           <ControlLabel>Add rules</ControlLabel>
           <RuleDescription>
-            {description || "Rules are used when you wish to target the audience of the form according to custom rules. For example, you can show the form only if a visitor views the webpage more than 5 times."} 
-            </RuleDescription>
+            {description ||
+              'Rules are used when you wish to target the audience of the form according to custom rules. For example, you can show the form only if a visitor views the webpage more than 5 times.'}
+          </RuleDescription>
           <FormControl componentClass="select" onChange={this.addRule}>
             {VISITOR_AUDIENCE_RULES.map((rule, index) => (
               <option key={index} value={rule.value}>
@@ -187,9 +187,7 @@ class ConditionsRule extends React.Component<Props, State> {
           {this.state.rules.map(rule => this.renderRule(rule))}
         </FormGroup>
 
-        <FormGroup>
-          {this.renderAddRule()}
-        </FormGroup>
+        <FormGroup>{this.renderAddRule()}</FormGroup>
       </FlexPad>
     );
   }

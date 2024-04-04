@@ -3,8 +3,6 @@ import {
   productGroupSchema,
   IPosDocument,
   IProductGroupDocument,
-  IPosOrderDocument,
-  posOrderSchema,
   IPos,
   posSlotSchema,
   IPosSlotDocument
@@ -87,7 +85,10 @@ export const loadPosClass = (models: IModels, _subdomain) => {
       await models.ProductGroups.remove({ posId: pos._id });
       await models.PosSlots.remove({ posId: pos._id });
 
-      return models.Pos.deleteOne({ _id });
+      await models.Pos.updateOne({ _id }, { $set: { status: 'deleted' } });
+
+      // return models.Pos.deleteOne({ _id });
+      return await models.Pos.getPos({ _id });
     }
   }
 
@@ -143,16 +144,6 @@ export const loadProductGroupClass = (models, _subdomain) => {
   productGroupSchema.loadClass(ProductGroup);
 
   return productGroupSchema;
-};
-
-export interface IPosOrderModel extends Model<IPosOrderDocument> {}
-
-export const loadPosOrderClass = (_models, _subdomain) => {
-  class PosOrder {}
-
-  posOrderSchema.loadClass(PosOrder);
-
-  return posOrderSchema;
 };
 
 export interface IPosSlotModel extends Model<IPosSlotDocument> {}

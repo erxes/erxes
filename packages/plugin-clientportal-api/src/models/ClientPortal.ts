@@ -7,6 +7,11 @@ import {
   IClientPortalDocument
 } from './definitions/clientPortal';
 
+import {
+  removeLastTrailingSlash,
+  removeExtraSpaces
+} from '@erxes/api-utils/src/commonUtils';
+
 export interface IClientPortalModel extends Model<IClientPortalDocument> {
   getConfig(_id: string): Promise<IClientPortalDocument>;
   createOrUpdateConfig(args: IClientPortal): Promise<IClientPortalDocument>;
@@ -27,17 +32,23 @@ export const loadClientPortalClass = (models: IModels) => {
     public static async createOrUpdateConfig({ _id, ...doc }: IClientPortal) {
       let config = await models.ClientPortals.findOne({ _id });
 
+      if (doc.url) {
+        doc.url = removeExtraSpaces(removeLastTrailingSlash(doc.url));
+      }
+
       if (!config) {
         config = await models.ClientPortals.create(doc);
 
         return config.toJSON();
       }
 
-      return models.ClientPortals.findOneAndUpdate(
+      await models.ClientPortals.findOneAndUpdate(
         { _id: config._id },
         { $set: doc },
         { new: true }
       );
+
+      return models.ClientPortals.findOne({ _id: config._id });
     }
   }
 

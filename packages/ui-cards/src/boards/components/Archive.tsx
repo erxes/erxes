@@ -172,6 +172,24 @@ function Archive(props: Props) {
           />
         )}
 
+        {options.type === 'purchase' && (
+          <SelectProducts
+            label={__('Filter by products')}
+            name="productIds"
+            onSelect={v => {
+              if (typeof v === 'string') {
+                if (!v) {
+                  setProductIds([]);
+                } else {
+                  setProductIds([v]);
+                }
+              } else {
+                setProductIds(v);
+              }
+            }}
+          />
+        )}
+
         {options.type === 'ticket' && (
           <Select
             placeholder={__('Choose a source')}

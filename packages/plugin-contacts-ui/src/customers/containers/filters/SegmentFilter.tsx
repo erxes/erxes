@@ -1,8 +1,8 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import Segments from '@erxes/ui-segments/src/containers/Filter';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { withProps } from '@erxes/ui/src/utils';
 import { queries as customerQueries } from '@erxes/ui-contacts/src/customers/graphql';
 import { CountQueryResponse } from '@erxes/ui-contacts/src/customers/types';
@@ -27,6 +27,7 @@ const SegmentFilterContainer = (props: Props & WrapperProps) => {
 };
 
 type WrapperProps = {
+  abortController?: any;
   type: string;
   loadingMainQuery: boolean;
 };
@@ -38,8 +39,11 @@ export default withProps<WrapperProps>(
       {
         name: 'customersCountQuery',
         skip: ({ loadingMainQuery }) => loadingMainQuery,
-        options: ({ type }) => ({
-          variables: { type, only: 'bySegment' }
+        options: ({ type, abortController }) => ({
+          variables: { type, only: 'bySegment' },
+          context: {
+            fetchOptions: { signal: abortController && abortController.signal }
+          }
         })
       }
     )

@@ -1,116 +1,75 @@
-import queryString from 'query-string';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import { Route, Switch } from 'react-router-dom';
+
 import React from 'react';
-import { Route } from 'react-router-dom';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import queryString from 'query-string';
 
-const WebBuilder = asyncComponent(() =>
+const SitesListContainer = asyncComponent(() =>
   import(
-    /* webpackChunkName: "webbuilderHome - Webbuilders" */ './containers/WebBuilder'
+    /* webpackChunkName: "Websites - ListContainer" */ './containers/templates/List'
   )
 );
 
-const PageForm = asyncComponent(() =>
+const SiteForm = asyncComponent(() =>
   import(
-    /* webpackChunkName: "PageForm - Webbuilders" */ './containers/pages/PageForm'
+    /* webpackChunkName: "SiteForm - XBuilders" */ './containers/sites/SiteForm'
   )
 );
 
-const EntryForm = asyncComponent(() =>
+const WebBuilderContainer = asyncComponent(() =>
   import(
-    /* webpackChunkName: "EntryForm - Webbuilders" */ './containers/entries/EntryForm'
+    /* webpackChunkName: "PageForm - XBuilderContainer" */ './containers/Webbuilder'
   )
 );
 
-const ContentTypeForm = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "ContentType -- Webbuilders" */ './containers/contentTypes/ContentTypeForm'
-  )
-);
-
-const webBuilders = history => {
+const webBuilderSitesContainer = history => {
   const { location, match } = history;
 
   const queryParams = queryString.parse(location.search);
 
   const { step } = match.params;
 
-  return <WebBuilder step={step} queryParams={queryParams} history={history} />;
+  return <WebBuilderContainer step={step} queryParams={queryParams} />;
 };
 
-const typeEdit = ({ match }) => {
-  const id = match.params.id;
+const webBuilderSitesCreate = history => {
+  const { location, match } = history;
 
-  return <ContentTypeForm contentTypeId={id} />;
+  const queryParams = queryString.parse(location.search);
+
+  const { step } = match.params;
+
+  return <SitesListContainer step={step} queryParams={queryParams} />;
 };
 
-const pageEdit = ({ match }) => {
+const webBuilderSitesEdit = ({ match, location }) => {
   const _id = match.params._id;
-
-  return <PageForm _id={_id} />;
-};
-
-const entryAdd = ({ match, location }) => {
-  const { contentTypeId } = match.params;
   const queryParams = queryString.parse(location.search);
 
-  return <EntryForm contentTypeId={contentTypeId} queryParams={queryParams} />;
-};
-
-const entryEdit = ({ match, location }) => {
-  const { contentTypeId, _id } = match.params;
-
-  const queryParams = queryString.parse(location.search);
-
-  return (
-    <EntryForm
-      contentTypeId={contentTypeId}
-      queryParams={queryParams}
-      _id={_id}
-    />
-  );
+  return <SiteForm _id={_id} queryParams={queryParams} />;
 };
 
 const routes = () => {
   return (
-    <>
+    <Switch>
       <Route
-        path="/webbuilder/pages/create"
+        path="/xbuilder"
         exact={true}
-        component={PageForm}
-      />
-      <Route
-        key="/webbuilder/pages/edit/:_id"
-        path="/webbuilder/pages/edit/:_id"
-        exact={true}
-        component={pageEdit}
+        component={webBuilderSitesContainer}
       />
 
       <Route
-        path="/webbuilder/contenttypes/create"
+        path="/xbuilder/sites/create"
         exact={true}
-        component={ContentTypeForm}
+        component={webBuilderSitesCreate}
       />
 
       <Route
-        path="/webbuilder/contenttypes/edit/:id"
+        path="/xbuilder/sites/edit/:_id"
         exact={true}
-        component={typeEdit}
+        component={webBuilderSitesEdit}
       />
-
-      <Route
-        path="/webbuilder/entries/create/:contentTypeId"
-        exact={true}
-        component={entryAdd}
-      />
-      <Route
-        key="/webbuilder/entries/edit/:contentTypeId/:_id"
-        path="/webbuilder/entries/edit/:contentTypeId/:_id"
-        exact={true}
-        component={entryEdit}
-      />
-
-      <Route path="/webbuilder/:step" exact={true} component={webBuilders} />
-    </>
+    </Switch>
   );
 };
 

@@ -15,7 +15,7 @@ export const types = `
     ids: [String]
     
     date: Date
-    user: JSON
+    user: User
     error: String
   }
 
@@ -26,13 +26,10 @@ export const types = `
 `;
 
 export const queries = `
-  importHistoryGetTypes: JSON
   importHistories(perPage: Int, page: Int, type: String): ImportHistoryList
   importHistoryDetail(_id: String!): ImportHistory
-  importHistoryPreviewExportCount(segmentId: String, contentType: String!): String
   importHistoryGetColumns(attachmentName: String): JSON
   importHistoryGetDuplicatedHeaders(attachmentNames: [String]): JSON
-  importHistoryGetExportableServices: JSON
 `;
 
 export const mutations = `

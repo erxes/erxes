@@ -1,26 +1,31 @@
+import { Alert, __, confirm, router } from '@erxes/ui/src/utils';
+import { Count, Title } from '@erxes/ui/src/styles/main';
+import { IProduct, IProductCategory } from '../../types';
+
+import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import CategoryList from '../../containers/productCategory/CategoryList';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Form from '@erxes/ui-products/src/containers/ProductForm';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { Link } from 'react-router-dom';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Table from '@erxes/ui/src/components/table';
-import { Count, Title } from '@erxes/ui/src/styles/main';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import Form from '@erxes/ui-products/src/containers/ProductForm';
-import CategoryList from '../../containers/productCategory/CategoryList';
-import { IProduct, IProductCategory } from '../../types';
 import ProductsMerge from './detail/ProductsMerge';
+import ProductsPrintAction from './ProductPrintAction';
+import React from 'react';
 import Row from './ProductRow';
-import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
+import Table from '@erxes/ui/src/components/table';
+import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
+import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { FlexItem, InputBar } from '@erxes/ui-settings/src/styles';
+import { Icon } from '@erxes/ui/src';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -42,6 +47,7 @@ interface IProps extends IRouterProps {
 
 type State = {
   searchValue?: string;
+  checked?: boolean;
 };
 
 class List extends React.Component<IProps, State> {
@@ -51,48 +57,55 @@ class List extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue
+      searchValue: this.props.searchValue,
+      checked: false,
     };
+  }
+
+  componentDidUpdate(): void {
+    const { history, bulk } = this.props;
+
+    if (this.state.checked && !(bulk || []).length) {
+      this.setState({ checked: false });
+      router.removeParams(history, 'page', 'ids');
+    }
   }
 
   renderRow = () => {
     const { products, history, toggleBulk, bulk } = this.props;
 
-    return products.map(product => (
+    return products.map((product) => (
       <Row
         history={history}
         key={product._id}
         product={product}
         toggleBulk={toggleBulk}
-        isChecked={bulk.includes(product)}
+        isChecked={(bulk || []).map((b) => b._id).includes(product._id)}
       />
     ));
   };
 
   onChange = () => {
-    const { toggleAll, products } = this.props;
+    const { toggleAll, products, bulk, history } = this.props;
     toggleAll(products, 'products');
+
+    if (bulk.length === products.length) {
+      router.removeParams(history, 'ids');
+      router.setParams(history, { page: 1 });
+    }
   };
 
-  removeProducts = products => {
+  removeProducts = (products) => {
     const productIds: string[] = [];
 
-    products.forEach(product => {
+    products.forEach((product) => {
       productIds.push(product._id);
     });
 
     this.props.remove({ productIds }, this.props.emptyBulk);
   };
 
-  renderCount = productCount => {
-    return (
-      <Count>
-        {productCount} product{productCount > 1 && 's'}
-      </Count>
-    );
-  };
-
-  search = e => {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -115,61 +128,43 @@ class List extends React.Component<IProps, State> {
     e.target.value = tmpValue;
   }
 
-  render() {
-    const {
-      productsCount,
-      loading,
-      queryParams,
-      isAllSelected,
-      history,
-      bulk,
-      emptyBulk,
-      currentCategory,
-      mergeProducts,
-      mergeProductLoading
-    } = this.props;
+  onChangeChecked = (e) => {
+    const { bulk, history } = this.props;
+    const checked = e.target.checked;
 
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Product & Service') }
-    ];
+    if (checked && (bulk || []).length) {
+      this.setState({ checked: true });
+      this.setState({ searchValue: '' });
+      router.removeParams(history, 'page', 'searchValue', 'categoryId');
+      router.setParams(history, {
+        ids: (bulk || []).map((b) => b._id).join(','),
+      });
+    } else {
+      this.setState({ checked: false });
+      router.removeParams(history, 'page', 'ids');
+    }
+  };
 
-    const trigger = (
-      <Button btnStyle="success" icon="plus-circle">
-        Add items
-      </Button>
-    );
+  renderContent = () => {
+    const { productsCount, loading, isAllSelected, currentCategory } =
+      this.props;
 
-    const modalContent = props => <Form {...props} />;
+    if (loading) {
+      return <Spinner objective={true} />;
+    }
 
-    let actionBarRight = (
-      <BarItems>
-        <FormControl
-          type="text"
-          placeholder={__('Type to search')}
-          onChange={this.search}
-          value={this.state.searchValue}
-          autoFocus={true}
-          onFocus={this.moveCursorAtTheEnd}
+    if (currentCategory.productCount === 0) {
+      return (
+        <EmptyState
+          image="/images/actions/8.svg"
+          text="No Brands"
+          size="small"
         />
-        <Link to="/settings/importHistories?type=product">
-          <Button btnStyle="simple" icon="arrow-from-right">
-            {__('Import items')}
-          </Button>
-        </Link>
-        <ModalTrigger
-          title="Add Product/Services"
-          trigger={trigger}
-          autoOpenKey="showProductModal"
-          content={modalContent}
-          size="lg"
-        />
-      </BarItems>
-    );
+      );
+    }
 
-    let content = (
+    return (
       <>
-        {this.renderCount(currentCategory.productCount || productsCount)}
         <Table hover={true}>
           <thead>
             <tr>
@@ -184,30 +179,43 @@ class List extends React.Component<IProps, State> {
               <th>{__('Name')}</th>
               <th>{__('Type')}</th>
               <th>{__('Category')}</th>
-              <th>{__('Supply')}</th>
-              <th>{__('Product count')}</th>
-              <th>{__('Minimium count')}</th>
               <th>{__('Unit Price')}</th>
-              <th>{__('SKU')}</th>
               <th>{__('Tags')}</th>
+              <th>{__('Actions')}</th>
             </tr>
           </thead>
           <tbody>{this.renderRow()}</tbody>
         </Table>
       </>
     );
+  };
 
-    if (currentCategory.productCount === 0) {
-      content = (
-        <EmptyState
-          image="/images/actions/8.svg"
-          text="No Brands"
-          size="small"
-        />
-      );
-    }
+  render() {
+    const {
+      productsCount,
+      queryParams,
+      history,
+      bulk,
+      emptyBulk,
+      currentCategory,
+      mergeProducts,
+      mergeProductLoading,
+    } = this.props;
 
-    const productsMerge = props => {
+    const breadcrumb = [
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Product & Service') },
+    ];
+
+    const trigger = (
+      <Button btnStyle="success" icon="plus-circle">
+        Add items
+      </Button>
+    );
+
+    const modalContent = (props) => <Form {...props} />;
+
+    const productsMerge = (props) => {
       return (
         <ProductsMerge
           {...props}
@@ -218,62 +226,105 @@ class List extends React.Component<IProps, State> {
       );
     };
 
-    if (bulk.length > 0) {
-      const tagButton = (
-        <Button btnStyle="simple" size="small" icon="tag-alt">
-          Tag
-        </Button>
-      );
+    const actionBarRight = () => {
+      if ((bulk || []).length > 0) {
+        const onClick = () =>
+          confirm()
+            .then(() => {
+              this.removeProducts(bulk);
+            })
+            .catch((error) => {
+              Alert.error(error.message);
+            });
 
-      const onClick = () =>
-        confirm()
-          .then(() => {
-            this.removeProducts(bulk);
-          })
-          .catch(error => {
-            Alert.error(error.message);
-          });
-
-      const mergeButton = (
-        <Button btnStyle="primary" size="small" icon="merge">
-          Merge
-        </Button>
-      );
-
-      actionBarRight = (
-        <BarItems>
-          {bulk.length === 2 && (
-            <ModalTrigger
-              title="Merge Product"
-              size="lg"
-              dialogClassName="modal-1000w"
-              trigger={mergeButton}
-              content={productsMerge}
-            />
-          )}
-          {isEnabled('tags') && (
-            <TaggerPopover
-              type={TAG_TYPES.PRODUCT}
-              successCallback={emptyBulk}
-              targets={bulk}
-              trigger={tagButton}
-              refetchQueries={['productCountByTags']}
-            />
-          )}
-          <Button
-            btnStyle="danger"
-            size="small"
-            icon="cancel-1"
-            onClick={onClick}
-          >
-            Remove
+        const mergeButton = (
+          <Button btnStyle="success" icon="merge">
+            Merge
           </Button>
+        );
+
+        const tagButton = (
+          <Button btnStyle="success" icon="tag-alt">
+            Tag
+          </Button>
+        );
+
+        return (
+          <BarItems>
+            <FormControl
+              componentClass="checkbox"
+              onChange={this.onChangeChecked}
+              checked={this.state.checked}
+            />
+            {(bulk || []).length === 2 && (
+              <ModalTrigger
+                title="Merge Product"
+                size="lg"
+                dialogClassName="modal-1000w"
+                trigger={mergeButton}
+                content={productsMerge}
+              />
+            )}
+            <ProductsPrintAction bulk={this.props.bulk} />
+            {isEnabled('tags') && (
+              <TaggerPopover
+                type={TAG_TYPES.PRODUCT}
+                successCallback={emptyBulk}
+                targets={bulk}
+                trigger={tagButton}
+                perPage={1000}
+                refetchQueries={['productCountByTags']}
+              />
+            )}
+
+            <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
+              Remove
+            </Button>
+          </BarItems>
+        );
+      }
+
+      return (
+        <BarItems>
+          <InputBar type="searchBar">
+            <Icon icon="search-1" size={20} />
+            <FlexItem>
+              <FormControl
+                type="text"
+                placeholder={__('Type to search')}
+                onChange={this.search}
+                value={this.state.searchValue}
+                autoFocus={true}
+                onFocus={this.moveCursorAtTheEnd}
+              />
+            </FlexItem>
+          </InputBar>
+          {isEnabled('segments') && (
+            <TemporarySegment
+              btnSize="medium"
+              contentType={`products:product`}
+            />
+          )}
+          <Link to="/settings/importHistories?type=products:product">
+            <Button btnStyle="simple" icon="arrow-from-right">
+              {__('Import items')}
+            </Button>
+          </Link>
+          <ModalTrigger
+            title="Add Product/Services"
+            trigger={trigger}
+            autoOpenKey="showProductModal"
+            content={modalContent}
+            size="lg"
+          />
         </BarItems>
       );
-    }
+    };
 
     const actionBarLeft = (
-      <Title>{currentCategory.name || 'All products'}</Title>
+      <Title>{`${
+        currentCategory.name || 'All products'
+      } (${productsCount})`}</Title>
     );
 
     return (
@@ -281,6 +332,7 @@ class List extends React.Component<IProps, State> {
         header={
           <Wrapper.Header
             title={__('Product & Service')}
+            queryParams={queryParams}
             breadcrumb={breadcrumb}
           />
         }
@@ -289,37 +341,22 @@ class List extends React.Component<IProps, State> {
             icon="/images/actions/30.svg"
             title={'Product & Service'}
             description={`${__(
-              'All information and know-how related to your business products and services are found here'
+              'All information and know-how related to your business products and services are found here',
             )}.${__(
-              'Create and add in unlimited products and servicess so that you and your team members can edit and share'
+              'Create and add in unlimited products and servicess so that you and your team members can edit and share',
             )}`}
           />
         }
         actionBar={
-          <Wrapper.ActionBar
-            left={actionBarLeft}
-            right={actionBarRight}
-            withMargin
-            wide
-            background="colorWhite"
-          />
+          <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight()} />
         }
         leftSidebar={
           <CategoryList queryParams={queryParams} history={history} />
         }
         footer={<Pagination count={productsCount} />}
-        content={
-          <DataWithLoader
-            data={content}
-            loading={loading}
-            count={productsCount}
-            emptyText="There is no data"
-            emptyImage="/images/actions/5.svg"
-          />
-        }
-        hasBorder={true}
+        content={this.renderContent()}
         transparent={true}
-        noPadding
+        hasBorder={true}
       />
     );
   }

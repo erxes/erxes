@@ -70,10 +70,10 @@ class AccountCalendars extends React.Component<Props, State> {
     const color = calendar.color || colors.colorPrimaryDark;
 
     const popoverBottom = (
-      <Popover id='color-picker'>
+      <Popover id="color-picker">
         <TwitterPicker
-          width='266px'
-          triangle='hide'
+          width="266px"
+          triangle="hide"
           color={color}
           onChange={onColorChange}
           colors={COLORS}
@@ -83,11 +83,11 @@ class AccountCalendars extends React.Component<Props, State> {
 
     return (
       <>
-        <Tip text='Color' placement='top'>
+        <Tip text="Color" placement="top">
           <OverlayTrigger
-            trigger='click'
+            trigger="click"
             rootClose={true}
-            placement='bottom'
+            placement="bottom"
             overlay={popoverBottom}
           >
             <ColorPick>
@@ -99,9 +99,9 @@ class AccountCalendars extends React.Component<Props, State> {
             </ColorPick>
           </OverlayTrigger>
         </Tip>
-        <Tip text='View' placement='top'>
+        <Tip text="View" placement="top">
           <Button
-            btnStyle='link'
+            btnStyle="link"
             onClick={edit}
             icon={calendar.show ? 'eye' : 'eye-slash'}
           />

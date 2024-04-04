@@ -1,15 +1,7 @@
-import * as apm from 'elastic-apm-node';
 import * as dotenv from 'dotenv';
 
 // load environment variables
 dotenv.config();
-
-if (process.env.ELASTIC_APM_HOST_NAME) {
-  apm.start({
-    serviceName: `${process.env.ELASTIC_APM_HOST_NAME}-core-api`,
-    serverUrl: 'http://172.104.115.19:8200'
-  });
-}
 
 import * as cookieParser from 'cookie-parser';
 import * as cors from 'cors';
@@ -29,50 +21,61 @@ import {
   handleUnsubscription,
   readFileRequest,
   registerOnboardHistory,
-  routeErrorHandling
+  routeErrorHandling,
+  uploadsFolderPath,
 } from './data/utils';
 
 import { debugBase, debugError, debugInit } from './debuggers';
-import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker, sendCommonMessage } from './messageBroker';
 import { uploader } from './middlewares/fileMiddleware';
 import {
   getService,
   getServices,
+  isEnabled,
   join,
   leave,
-  redis
-} from './serviceDiscovery';
+} from '@erxes/api-utils/src/serviceDiscovery';
 import logs from './logUtils';
 
 import init from './startup';
 import forms from './forms';
 import { generateModels } from './connectionResolver';
-import { authCookieOptions, getSubdomain } from '@erxes/api-utils/src/core';
+import {
+  authCookieOptions,
+  getSubdomain,
+  connectionOptions,
+} from '@erxes/api-utils/src/core';
 import segments from './segments';
+import automations from './automations';
+import imports from './imports';
+import exporter from './exporter';
+import { moduleObjects } from './data/permissions/actions/permission';
+import dashboards from './dashboards';
+import { getEnabledServices } from '@erxes/api-utils/src/serviceDiscovery';
+import { applyInspectorEndpoints } from '@erxes/api-utils/src/inspect';
+import { handleCoreLogin, handleMagiclink, ssocallback } from './saas';
+import app from '@erxes/api-utils/src/app';
+import sanitizeFilename from '@erxes/api-utils/src/sanitize-filename';
 
 const {
   JWT_TOKEN_SECRET,
   WIDGETS_DOMAIN,
   DOMAIN,
-  CLIENT_PORTAL_DOMAINS
+  CLIENT_PORTAL_DOMAINS,
+  VERSION,
 } = process.env;
 
 if (!JWT_TOKEN_SECRET) {
   throw new Error('Please configure JWT_TOKEN_SECRET environment variable.');
 }
 
-export const app = express();
-
-app.disable('x-powered-by');
-
 // don't move it above telnyx controllers
 app.use(express.urlencoded({ limit: '15mb', extended: true }));
 
 app.use(
   express.json({
-    limit: '15mb'
-  })
+    limit: '15mb',
+  }),
 );
 
 app.use(cookieParser());
@@ -83,8 +86,10 @@ const corsOptions = {
     DOMAIN ? DOMAIN : 'http://localhost:3000',
     WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
     ...(CLIENT_PORTAL_DOMAINS || '').split(','),
-    ...(process.env.ALLOWED_ORIGINS || '').split(',').map(c => c && RegExp(c))
-  ]
+    ...(process.env.ALLOWED_ORIGINS || '')
+      .split(',')
+      .map((c) => c && RegExp(c)),
+  ],
 };
 
 app.use(cors(corsOptions));
@@ -107,7 +112,7 @@ app.get(
       const services = await getServices();
 
       for (const serviceName of services) {
-        const service = await getService(serviceName, true);
+        const service = await getService(serviceName);
         const meta = service.config?.meta || {};
 
         if (meta && meta.initialSetup && meta.initialSetup.generateAvailable) {
@@ -115,7 +120,7 @@ app.get(
             subdomain,
             action: 'initialSetup',
             serviceName,
-            data: {}
+            data: {},
           });
         }
       }
@@ -128,11 +133,11 @@ app.get(
     }
 
     const configs = await models.Configs.find({
-      code: new RegExp(`.*THEME_.*`, 'i')
+      code: new RegExp(`.*THEME_.*`, 'i'),
     }).lean();
 
     return res.json(configs);
-  })
+  }),
 );
 
 // app.post('/webhooks/:id', webhookMiddleware);
@@ -150,15 +155,10 @@ app.get(
     registerOnboardHistory({ models, type: `${name}Download`, user: req.user });
 
     return res.redirect(
-      `https://erxes-docs.s3-us-west-2.amazonaws.com/templates/${name}`
+      `https://erxes-docs.s3-us-west-2.amazonaws.com/templates/${name}`,
     );
-  })
+  }),
 );
-
-// for health check
-app.get('/health', async (_req, res) => {
-  res.end('ok');
-});
 
 app.get(
   '/template-export',
@@ -171,14 +171,14 @@ app.get(
     registerOnboardHistory({
       models,
       type: `importDownloadTemplate`,
-      user: req.user
+      user: req.user,
     });
 
     const { name, response } = await templateExport(req.query);
 
     res.attachment(`${name}.${importType}`);
     return res.send(response);
-  })
+  }),
 );
 
 // read file
@@ -189,12 +189,19 @@ app.get('/read-file', async (req: any, res, next) => {
   try {
     const key = req.query.key;
     const name = req.query.name;
+    const width = req.query.width;
 
     if (!key) {
       return res.send('Invalid key');
     }
 
-    const response = await readFileRequest(key, models);
+    const response = await readFileRequest({
+      key,
+      subdomain,
+      models,
+      userId: req.headers.userid,
+      width,
+    });
 
     res.attachment(name || key);
 
@@ -215,7 +222,7 @@ app.post(
   '/delete-file',
   routeErrorHandling(async (req: any, res) => {
     // require login
-    if (!req.user) {
+    if (!req.headers.userid) {
       return res.end('forbidden');
     }
 
@@ -229,7 +236,7 @@ app.post(
     }
 
     return res.status(500).send(status);
-  })
+  }),
 );
 
 // unsubscribe
@@ -244,16 +251,20 @@ app.get(
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
 
     const template = fs.readFileSync(
-      __dirname + '/private/emailTemplates/unsubscribe.html'
+      __dirname + '/private/emailTemplates/unsubscribe.html',
     );
 
     return res.send(template);
-  })
+  }),
 );
 
 app.post('/upload-file', uploader);
 
 app.post('/upload-file&responseType=json', uploader);
+
+app.get('/ml-callback', (req: any, res) => handleMagiclink(req, res));
+app.get('/core-login', (req: any, res) => handleCoreLogin(req, res));
+app.get('/sso-callback', ssocallback);
 
 // Error handling middleware
 app.use((error, _req, res, _next) => {
@@ -261,24 +272,52 @@ app.use((error, _req, res, _next) => {
   res.status(500).send(error.message);
 });
 
+app.get('/dashboard', async (req, res) => {
+  const headers = req.rawHeaders;
+
+  const index = headers.indexOf('schemaName') + 1;
+
+  const schemaName = headers[index];
+
+  res.sendFile(path.join(__dirname, `./dashboardSchemas/${schemaName}.js`));
+});
+
+app.get('/get-import-file/:fileName', async (req, res) => {
+  const fileName = req.params.fileName;
+
+  const sanitizeFileName = sanitizeFilename(fileName);
+
+  const filePath = path.join(uploadsFolderPath, sanitizeFileName);
+
+  res.sendFile(filePath);
+});
+
+app.get('/plugins/enabled/:name', async (req, res) => {
+  const result = await isEnabled(req.params.name);
+  res.json(result);
+});
+
+app.get('/plugins/enabled', async (_req, res) => {
+  const result = (await getEnabledServices()) || [];
+  res.json(result);
+});
+
+applyInspectorEndpoints('core');
+
 // Wrap the Express server
 const httpServer = createServer(app);
 
 const PORT = getEnv({ name: 'PORT' });
 const MONGO_URL = getEnv({ name: 'MONGO_URL' });
-const RABBITMQ_HOST = getEnv({ name: 'RABBITMQ_HOST' });
-const MESSAGE_BROKER_PREFIX = getEnv({ name: 'MESSAGE_BROKER_PREFIX' });
 
 httpServer.listen(PORT, async () => {
-  initApolloServer(app, httpServer).then(apolloServer => {
-    apolloServer.applyMiddleware({ app, path: '/graphql', cors: corsOptions });
-  });
+  await initApolloServer(app, httpServer);
 
-  initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis }).catch(e => {
-    debugError(`Error ocurred during message broker init ${e.message}`);
-  });
+  await initBroker();
 
-  initMemoryStorage();
+  // if (VERSION && VERSION === 'saas') {
+  //   await mongoose.connect(MONGO_URL, connectionOptions);
+  // }
 
   init()
     .then(() => {
@@ -287,20 +326,24 @@ httpServer.listen(PORT, async () => {
 
       debugBase('Startup successfully started');
     })
-    .catch(e => {
+    .catch((e) => {
       debugError(`Error occured while starting init: ${e.message}`);
     });
 
   await join({
     name: 'core',
     port: PORT,
-    dbConnectionString: MONGO_URL,
     hasSubscriptions: false,
     meta: {
       logs: { providesActivityLog: true, consumers: logs },
       forms,
-      segments
-    }
+      segments,
+      automations,
+      permissions: moduleObjects,
+      imports,
+      exporter,
+      dashboards,
+    },
   });
 
   debugInit(`GraphQL Server is now running on ${PORT}`);
@@ -344,7 +387,7 @@ async function closeHttpServer() {
 }
 
 // If the Node process ends, close the http-server and mongoose.connection and leave service discovery.
-(['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
+(['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach((sig) => {
   process.on(sig, async () => {
     await closeHttpServer();
     await closeMongooose();

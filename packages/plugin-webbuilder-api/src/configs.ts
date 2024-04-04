@@ -1,25 +1,22 @@
 import typeDefs from './graphql/typeDefs';
+import fetch from 'node-fetch';
 import resolvers from './graphql/resolvers';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
-import permissions = require('./permissions');
-
-export let mainDb;
-export let debug;
-export let graphqlPubsub;
-export let serviceDiscovery;
+import { pageReplacer } from './utils';
+const permissions = require('./permissions');
+import app from '@erxes/api-utils/src/app';
 
 export default {
   name: 'webbuilder',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  meta: { permissions },
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
   apolloServerContext: async (context, req) => {
@@ -32,17 +29,7 @@ export default {
 
     return context;
   },
-  onServerInit: async options => {
-    mainDb = options.db;
-
-    initBroker(options.messageBrokerClient);
-
-    graphqlPubsub = options.pubsubClient;
-
-    debug = options.debug;
-
-    const { app } = options;
-
+  onServerInit: async () => {
     app.get('/:sitename', async (req, res) => {
       const { sitename } = req.params;
 
@@ -57,63 +44,22 @@ export default {
 
       const page = await models.Pages.findOne({
         siteId: site._id,
-        name: 'home'
+        name: 'home',
       });
 
       if (!page) {
         return res.status(404).send('Not found');
       }
 
-      let html = page.html;
-
-      const pages = await models.Pages.find({
-        siteId: site._id,
-        name: { $ne: 'home' }
-      });
-
-      for (const p of pages) {
-        const holder = `{{${p.name}}}`;
-
-        if (html.includes(holder)) {
-          let subHtml = '';
-
-          if (p.name.includes('_entry')) {
-            const contentTypeCode = p.name.replace('_entry', '');
-
-            const contentType = await models.ContentTypes.findOne({
-              siteId: site._id,
-              code: contentTypeCode
-            });
-
-            const entries = await models.Entries.find({
-              contentTypeId: contentType?._id
-            });
-
-            for (const entry of entries) {
-              let entryHtml = p.html.replace('{{entry._id}}', entry._id);
-
-              for (const evalue of entry.values) {
-                const { fieldCode, value } = evalue;
-                entryHtml = entryHtml.replace(`{{entry.${fieldCode}}}`, value);
-              }
-
-              subHtml += entryHtml + `<style>${p.css}</style>`;
-            }
-          } else {
-            subHtml = `${p.html} <style>${p.css}</style>`;
-          }
-
-          html = html.replace(holder, subHtml);
-        }
-      }
+      const html = await pageReplacer(models, subdomain, page, site);
 
       return res.send(
         `
+          ${html}
           <style>
             ${page.css}
           </style>
-          ${html}
-        `
+        `,
       );
     });
 
@@ -131,7 +77,7 @@ export default {
 
       const ct = await models.ContentTypes.findOne({
         siteId: site._id,
-        code: contenttype
+        code: contenttype,
       });
 
       if (!ct) {
@@ -140,7 +86,7 @@ export default {
 
       const page = await models.Pages.findOne({
         siteId: site._id,
-        name: `${contenttype}_detail`
+        name: `${contenttype}_detail`,
       });
 
       if (!page) {
@@ -153,32 +99,22 @@ export default {
         return res.status(404).send('Entry not found');
       }
 
-      let html = page.html;
-
-      const pages = await models.Pages.find({
-        siteId: site._id,
-        name: { $ne: 'home' }
-      });
-
-      for (const p of pages) {
-        html = html.replace(
-          `{{${p.name}}}`,
-          `${p.html} <style>${p.css}</style>`
-        );
-      }
+      let html = await pageReplacer(models, subdomain, page, site);
 
       for (const evalue of entry.values) {
         const { fieldCode, value } = evalue;
-        html = html.replace(`{{entry.${fieldCode}}}`, value);
+        const target = `{{entry.${fieldCode}}}`;
+
+        html = html.replace(new RegExp(target, 'g'), value);
       }
 
       return res.send(
         `
+          ${html}
           <style>
             ${page.css}
           </style>
-          ${html}
-        `
+        `,
       );
     });
 
@@ -200,14 +136,70 @@ export default {
         return res.status(404).send('Page not found');
       }
 
+      const html = await pageReplacer(models, subdomain, page, site);
+
       return res.send(
         `
+          ${html}
           <style>
             ${page.css}
           </style>
-          ${page.html}
-        `
+        `,
       );
     });
-  }
+
+    app.get('/:sitename/get-data', async (req, res) => {
+      const subdomain = getSubdomain(req);
+      const models = await generateModels(subdomain);
+
+      const { sitename } = req.params;
+
+      const site = await models.Sites.findOne({ name: sitename }).lean();
+
+      if (!site) {
+        return res.status(404).send('Not found');
+      }
+
+      const pages = await models.Pages.find({ siteId: site._id }).lean();
+
+      const responses = await models.ContentTypes.find({
+        siteId: site._id,
+      }).lean();
+      const contentTypes: any[] = [];
+
+      for (const contentType of responses) {
+        contentTypes.push({
+          ...contentType,
+          entries: await models.Entries.find({
+            contentTypeId: contentType._id,
+          }).lean(),
+        });
+      }
+
+      return res.json({
+        pages,
+        contentTypes,
+      });
+    });
+
+    app.get('/demo/:templateId', async (req, res) => {
+      const HELPERS_DOMAIN = `https://helper.erxes.io`;
+
+      const { templateId } = req.params;
+
+      const url = `${HELPERS_DOMAIN}/get-webbuilder-demo-page?templateId=${templateId}`;
+
+      const page = await fetch(url).then((res) => res.json());
+
+      return res.send(
+        `
+          ${page.html}
+          <style>
+            ${page.css}
+          </style>
+        `,
+      );
+    });
+  },
+  setupMessageConsumers,
 };

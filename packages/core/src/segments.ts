@@ -1,15 +1,23 @@
 export default {
-  indexesTypeContentType: {
-    'core:user': 'users'
+  contentTypes: [
+    {
+      type: 'user',
+      description: 'Team member',
+      esIndex: 'users'
+    }
+  ],
+
+  esTypesMap: async () => {
+    return { data: { typesMap: {} }, status: 'success' };
   },
 
-  contentTypes: ['user'],
+  initialSelector: async () => {
+    const negative = {
+      term: {
+        status: 'deleted'
+      }
+    };
 
-  descriptionMap: {
-    user: 'Team member'
-  },
-
-  associationTypesAvailable: true,
-
-  associationTypes: ['core:user']
+    return { data: { negative }, status: 'success' };
+  }
 };

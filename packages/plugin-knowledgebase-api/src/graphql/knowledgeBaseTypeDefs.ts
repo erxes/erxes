@@ -1,4 +1,7 @@
-import { attachmentInput, attachmentType } from '@erxes/api-utils/src/commonTypeDefs';
+import {
+  attachmentInput,
+  attachmentType,
+} from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = `
   ${attachmentType}
@@ -12,12 +15,24 @@ export const types = `
         _id: String! @external
       }
 
+  type FormCode {
+    brandId: String
+    formId: String
+  }
+
+  input FormCodeInput {
+    brandId: String
+    formId: String
+  }
+
   type KnowledgeBaseArticle @key(fields: "_id") {
     _id: String!
+    code: String
     title: String
     summary: String
     content: String
     status: String
+    isPrivate: Boolean
     reactionChoices: [String]
     reactionCounts: JSON
     createdBy: String
@@ -30,23 +45,30 @@ export const types = `
     viewCount: Int
     attachments: [Attachment]
     image: Attachment
+
+    forms: [FormCode]
   }
 
   input KnowledgeBaseArticleDoc {
+    code: String
     title: String!
     summary: String
     content: String!
     status: String!
+    isPrivate: Boolean
     reactionChoices: [String]
     categoryIds: [String]
     topicId: String
     categoryId: String
     image: AttachmentInput
     attachments: [AttachmentInput]
+
+    forms: [FormCodeInput]
   }
 
   type KnowledgeBaseCategory {
     _id: String
+    code: String
     title: String
     description: String
     articles: [KnowledgeBaseArticle]
@@ -60,10 +82,12 @@ export const types = `
     firstTopic: KnowledgeBaseTopic
     authors: [User]
     numOfArticles: Float
+    countArticles:Int
   }
 
   type KnowledgeBaseParentCategory {
     _id: String
+    code: String
     title: String
     description: String
     articles: [KnowledgeBaseArticle]
@@ -82,6 +106,7 @@ export const types = `
   }
 
   input KnowledgeBaseCategoryDoc {
+    code: String
     title: String!
     description: String
     articleIds: [String]
@@ -93,6 +118,7 @@ export const types = `
 
   type KnowledgeBaseTopic @key(fields: "_id") {
     _id: String!
+    code: String
     title: String
     description: String
     categories: [KnowledgeBaseCategory]
@@ -105,10 +131,11 @@ export const types = `
     modifiedBy: String
     modifiedDate: Date
     parentCategories: [KnowledgeBaseParentCategory]
+    notificationSegmentId: String
   }
-  
 
   input KnowledgeBaseTopicDoc {
+    code: String
     title: String!
     description: String
     categoryIds: [String]
@@ -116,6 +143,7 @@ export const types = `
     color: String
     backgroundImage: String
     languageCode: String
+    notificationSegmentId: String
   }
 
   type KnowledgeBaseLoader {
@@ -124,19 +152,19 @@ export const types = `
 `;
 
 export const queries = `
-  knowledgeBaseTopics(page: Int, perPage: Int, brandId: String): [KnowledgeBaseTopic]
+  knowledgeBaseTopics(page: Int, perPage: Int, brandId: String, codes: [String]): [KnowledgeBaseTopic]
   knowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
   knowledgeBaseTopicsTotalCount: Int
 
-  knowledgeBaseCategories(page: Int, perPage: Int, topicIds: [String]): [KnowledgeBaseCategory]
+  knowledgeBaseCategories(page: Int, perPage: Int, topicIds: [String], codes: [String]): [KnowledgeBaseCategory]
   knowledgeBaseCategoryDetail(_id: String!): KnowledgeBaseCategory
-  knowledgeBaseCategoriesTotalCount(topicIds: [String]): Int
+  knowledgeBaseCategoriesTotalCount(topicIds: [String], codes: [String]): Int
   knowledgeBaseCategoriesGetLast: KnowledgeBaseCategory
 
-  knowledgeBaseArticles(searchValue: String, page: Int, perPage: Int, categoryIds: [String]): [KnowledgeBaseArticle]
+  knowledgeBaseArticles(searchValue: String, page: Int, perPage: Int, categoryIds: [String],articleIds:[String], codes: [String], topicIds: [String]): [KnowledgeBaseArticle]
   knowledgeBaseArticleDetail(_id: String!): KnowledgeBaseArticle
   knowledgeBaseArticleDetailAndIncViewCount(_id: String!): KnowledgeBaseArticle
-  knowledgeBaseArticlesTotalCount(categoryIds: [String]): Int
+  knowledgeBaseArticlesTotalCount(categoryIds: [String], codes: [String]): Int
 `;
 
 export const mutations = `

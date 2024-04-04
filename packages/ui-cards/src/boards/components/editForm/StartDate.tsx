@@ -67,8 +67,27 @@ class StartDate extends React.Component<Props, State> {
   renderContent() {
     const { startDate } = this.state;
 
-    const day = dayjs(startDate).format('YYYY/MM/DD');
+    const day = dayjs(startDate).format('YYYY-MM-DD');
     const time = dayjs(startDate).format('HH:mm');
+
+    const onChangeDateTime = e => {
+      const type = e.target.type;
+      const value = e.target.value;
+
+      const oldDay = dayjs(startDate).format('YYYY/MM/DD');
+      const oldTime = dayjs(startDate).format('HH:mm');
+      let newDate = startDate;
+
+      if (type === 'date') {
+        newDate = new Date(value.concat(' ', oldTime));
+      }
+
+      if (type === 'time') {
+        newDate = new Date(oldDay.concat(' ', value));
+      }
+
+      this.setState({ startDate: newDate });
+    };
 
     return (
       <Popover id="pipeline-popover">
@@ -77,11 +96,11 @@ class StartDate extends React.Component<Props, State> {
             <DateGrid>
               <div>
                 <ControlLabel>Date</ControlLabel>
-                <span>{day}</span>
+                <input type="date" value={day} onChange={onChangeDateTime} />
               </div>
               <div>
                 <ControlLabel>Time</ControlLabel>
-                <span>{time}</span>
+                <input type="time" value={time} onChange={onChangeDateTime} />
               </div>
             </DateGrid>
           )}

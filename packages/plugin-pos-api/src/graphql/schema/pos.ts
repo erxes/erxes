@@ -1,6 +1,6 @@
 import {
   attachmentType,
-  attachmentInput
+  attachmentInput,
 } from '@erxes/api-utils/src/commonTypeDefs';
 
 const groupCommonFields = `
@@ -15,12 +15,18 @@ const groupCommonFields = `
 const posCommonFields = `
   name: String
   description: String
+  orderPassword: String
+  scopeBrandIds: [String]
+  pdomain: String
   productDetails: [String]
   adminIds: [String]
   cashierIds: [String]
+  paymentIds: [String]
+  paymentTypes: [JSON]
   isOnline: Boolean
   onServer: Boolean
   branchId: String
+  departmentId: String
   allowBranchIds: [String]
   beginNumber: String
   maxSkipNumber: Int
@@ -29,52 +35,28 @@ const posCommonFields = `
   kioskMachine: JSON
   uiOptions: JSON
   token: String
+  erxesAppToken: String
   ebarimtConfig: JSON
   erkhetConfig: JSON
   initialCategoryIds: [String]
+  kioskExcludeCategoryIds: [String]
   kioskExcludeProductIds: [String]
   deliveryConfig: JSON
   cardsConfig: JSON
+  checkRemainder: Boolean
+  permissionConfig: JSON
+  allowTypes: [String]
+  isCheckRemainder: Boolean
+  checkExcludeCategoryIds: [String]
+  banFractions: Boolean
 `;
 
 const catProd = `
   _id: String
   categoryId: String
+  code: String
+  name: String
   productId: String
-`;
-
-const posOrderFields = contactsEnabled => `
-  _id: String,
-  createdAt: Date,
-  status: String,
-  paidDate: Date,
-  number: String,
-  customerId: String,
-  cardAmount: Float,
-  cashAmount: Float,
-  mobileAmount: Float,
-  totalAmount: Float,
-  finalAmount: Float,
-  shouldPrintEbarimt: Boolean,
-  printedEbarimt: Boolean,
-  billType: String,
-  billId: String,
-  registerNumber: String,
-  oldBillId: String,
-  type: String,
-  userId: String,
-  items: JSON,
-  posToken: String,
-  posName: String,
-  user: User,
-  ${
-    contactsEnabled
-      ? `
-      customer: Customer
-    `
-      : ''
-  }
-  syncedErkhet: Boolean
 `;
 
 export const types = ({ contactsEnabled, productsEnabled }) => `
@@ -117,6 +99,9 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     user: User
     ${posCommonFields}
     catProdMappings: [CatProd]
+
+    branchTitle: String
+    departmentTitle: String
   }
 
   type PosSlot {
@@ -124,6 +109,7 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     posId: String
     code: String
     name: String
+    option: JSON
   }
 
   type ProductGroups {
@@ -150,77 +136,20 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     posId: String!
     code: String
     name: String
+    option: JSON
   }
 
   input CatProdInput {
     ${catProd}
   }
-
-
-  type PosOrder {
-    ${posOrderFields(contactsEnabled)}
-  }
-
-  type PosOrderDetail {
-    ${posOrderFields(contactsEnabled)}
-    putResponses: JSON
-  }
-
-  type PosProduct {
-    _id: String!
-    name: String
-    code: String
-    type: String
-    sku: String
-    unitPrice: Float
-    categoryId: String
-    createdAt: Date,
-    counts: JSON,
-    count: Float,
-    amount: Float,
-    ${
-      productsEnabled
-        ? `
-        category: ProductCategory
-      `
-        : ''
-    }
-  }
-  type PosProducts {
-    products: [PosProduct],
-    totalCount: Float,
-  }
-`;
-
-const queryParams = `
-  page: Int
-  perPage: Int
-  sortField: String
-  sortDirection: Int
-  search: String
-  paidStartDate: Date
-  paidEndDate: Date
-  createdStartDate: Date
-  createdEndDate: Date
-  paidDate: String
-  userId: String
-  customerId: String
 `;
 
 export const queries = `
-  posList(page: Int,
-    perPage: Int,
-    isOnline: String,
-    sortField: String
-    sortDirection: Int): [Pos]
+  posList(page: Int, perPage: Int, isOnline: String, sortField: String, sortDirection: Int): [Pos]
   posDetail(_id: String!): Pos
   posEnv: JSON
   productGroups(posId: String!): [ProductGroups]
   posSlots(posId: String!): [PosSlot]
-  posOrders(${queryParams}): [PosOrder]
-  posOrderDetail(_id: String): PosOrderDetail
-  posProducts(${queryParams} categoryId: String, searchValue: String): PosProducts
-  posOrdersSummary(${queryParams}): JSON
   ecommerceGetBranches(posToken: String): [JSON]
 `;
 
@@ -231,7 +160,4 @@ export const mutations = `
   productGroupsAdd(${groupCommonFields}): ProductGroups
   productGroupsBulkInsert(posId: String, groups:[GroupInput]): [ProductGroups]
   posSlotBulkUpdate(posId: String, slots: [SlotInput]): [PosSlot]
-  posOrderSyncErkhet(_id: String!): PosOrder
-  posOrderReturnBill(_id: String!): PosOrder
-  posOrderChangePayments(_id: String!, cashAmount: Float, cardAmount: Float, mobileAmount: Float): PosOrder
 `;

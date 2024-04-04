@@ -14,6 +14,8 @@ export interface IApp extends IAppEditParams {
   isEnabled?: boolean;
   accessToken: string;
   createdAt: Date;
+  noExpire: boolean;
+  allowAllPermission: boolean;
 
   userGroupName: string;
 }

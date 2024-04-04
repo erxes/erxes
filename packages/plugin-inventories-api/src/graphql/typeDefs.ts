@@ -1,4 +1,5 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
+import extendTypes from './schema/extendTypes';
 import {
   mutations as RemainderMutations,
   queries as RemainderQueries,
@@ -10,6 +11,11 @@ import {
   types as SafeRemainderTypes
 } from './schema/safeRemainder';
 import {
+  mutations as ReserveRemMutations,
+  queries as ReserveRemQueries,
+  types as ReserveRemTypes
+} from './schema/reserveRems';
+import {
   mutations as SafeRemainderItemMutations,
   queries as SafeRemainderItemQueries,
   types as SafeRemainderItemTypes
@@ -20,7 +26,7 @@ import {
   types as TransactionTypes
 } from './schema/transaction';
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date
@@ -36,15 +42,18 @@ const typeDefs = async _serviceDiscovery => {
       inheritMaxAge: Boolean
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
 
+    ${extendTypes}
     ${RemainderTypes}
     ${SafeRemainderTypes}
     ${SafeRemainderItemTypes}
+    ${ReserveRemTypes}
     ${TransactionTypes}
 
     extend type Query {
       ${RemainderQueries}
       ${SafeRemainderQueries}
       ${SafeRemainderItemQueries}
+      ${ReserveRemQueries}
       ${TransactionQueries}
     }
 
@@ -52,6 +61,7 @@ const typeDefs = async _serviceDiscovery => {
       ${RemainderMutations}
       ${SafeRemainderMutations}
       ${SafeRemainderItemMutations}
+      ${ReserveRemMutations}
       ${TransactionMutations}
     }
   `;

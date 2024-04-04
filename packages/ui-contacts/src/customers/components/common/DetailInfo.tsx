@@ -1,18 +1,19 @@
-import dayjs from 'dayjs';
-import { __ } from '@erxes/ui/src/utils';
-import { GENDER_TYPES } from '@erxes/ui/src/customers/constants';
-import { ICustomer } from '@erxes/ui/src/customers/types';
 import {
   FieldStyle,
   SidebarCounter,
   SidebarFlexRow,
   SidebarList
 } from '@erxes/ui/src/layout/styles';
-import React from 'react';
+
+import { GENDER_TYPES } from '@erxes/ui-contacts/src/customers/constants';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
+import { IField } from '@erxes/ui/src/types';
+import { IFieldsVisibility } from '../../types';
 import PrimaryEmail from './PrimaryEmail';
 import PrimaryPhone from './PrimaryPhone';
-import { IFieldsVisibility } from '../../types';
-import { IField } from '@erxes/ui/src/types';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils';
+import dayjs from 'dayjs';
 
 type Props = {
   customer: ICustomer;
@@ -59,7 +60,11 @@ class DetailInfo extends React.PureComponent<Props> {
       <li>
         <FieldStyle>{__('Primary Email')}:</FieldStyle>
         <SidebarCounter>
-          <PrimaryEmail email={email} status={status} />
+          <PrimaryEmail
+            email={email}
+            status={status}
+            customerId={this.props.customer._id}
+          />
         </SidebarCounter>
       </li>
     );

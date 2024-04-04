@@ -101,7 +101,7 @@ class BoardSelect extends React.Component<Props> {
   }
 
   render() {
-    return <FormContainer>{this.renderContent()}</FormContainer>;
+    return <>{this.renderContent()}</>;
   }
 }
 

@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+import { STATUSES } from '../../constants';
 
 export type IActionsMap = { [key: string]: IAction };
 
@@ -18,6 +19,7 @@ export type TriggerType =
   | 'company'
   | 'deal'
   | 'task'
+  | 'purchase'
   | 'ticket'
   | 'conversation';
 
@@ -25,11 +27,16 @@ export interface ITrigger {
   id: string;
   type: string;
   actionId?: string;
-  config: { contentId: string; reEnrollment: boolean; reEnrollmentRules: string[] };
+  config: {
+    contentId: string;
+    reEnrollment: boolean;
+    reEnrollmentRules: string[];
+  };
   style?: any;
   icon?: string;
   label?: string;
   description?: string;
+  isCustom?: boolean;
 }
 
 export interface IAutomation {
@@ -41,6 +48,7 @@ export interface IAutomation {
   createdBy: string;
   updatedAt: Date;
   updatedBy: string;
+  tagIds: string[];
 }
 
 export interface IAutomationDoc extends IAutomation {
@@ -58,11 +66,13 @@ export const triggerSchema = new Schema(
     actionId: { type: String },
     config: { type: Object },
     style: { type: Object },
+    position: { type: Object },
     icon: { type: String, optional: true },
     label: { type: String, optional: true },
-    description: { type: String, optional: true }
+    description: { type: String, optional: true },
+    isCustom: { type: Boolean, optional: true },
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const actionSchema = new Schema(
@@ -72,24 +82,26 @@ export const actionSchema = new Schema(
     nextActionId: { type: String },
     config: { type: Object },
     style: { type: Object },
+    position: { type: Object },
     icon: { type: String, optional: true },
     label: { type: String, optional: true },
-    description: { type: String, optional: true }
+    description: { type: String, optional: true },
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const automationSchema = new Schema({
   name: { type: String, required: true },
-  status: { type: String, default: 'draft' },
+  status: { type: String, default: STATUSES.DRAFT },
   triggers: { type: [triggerSchema] },
   actions: { type: [actionSchema] },
   createdAt: {
     type: Date,
     default: new Date(),
-    label: 'Created date'
+    label: 'Created date',
   },
   createdBy: { type: String },
   updatedAt: { type: Date, default: new Date(), label: 'Updated date' },
   updatedBy: { type: String },
+  tagIds: { type: [String], label: 'Tag Ids', optional: true },
 });

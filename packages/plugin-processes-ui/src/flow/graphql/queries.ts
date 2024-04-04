@@ -1,24 +1,70 @@
-import { queries as productQueries } from '@erxes/ui-products/src/graphql';
+export const flowFields = `
+  _id
+  createdAt
+  createdBy
+  updatedAt
+  updatedBy
+  name
+  productId
+  product
+  status
+  isSub
+  flowValidation
+  jobCount
+  latestBranchId
+  latestDepartmentId
+`;
 
-const flowFields = `
-_id
-createdAt
-createdBy
-updatedAt
-updatedBy
-name
-categoryId
-status
-flowJobStatus
-jobs
+const flowsQueryDefs = `
+  $ids: [String]
+  $isSub: Boolean
+  $categoryId: String,
+  $searchValue: String,
+  $branchId: String,
+  $departmentId: String,
+  $status: String,
+  $validation: String,
+`;
+
+const flowsQueryParams = `
+  ids: $ids,
+  isSub: $isSub,
+  categoryId: $categoryId,
+  searchValue: $searchValue,
+  branchId: $branchId,
+  departmentId: $departmentId,
+  status: $status,
+  validation: $validation,
 `;
 
 const flows = `
-query flows($categoryId: String, $searchValue: String) {
-  flows(categoryId: $categoryId, searchValue: $searchValue) {
-    ${flowFields}
+  query flows($page: Int, $perPage: Int, ${flowsQueryDefs}) {
+    flows(page: $page, perPage: $perPage, ${flowsQueryParams}) {
+      ${flowFields}
+    }
   }
-}
+`;
+
+const flowsMain = `
+  query flows($page: Int, $perPage: Int, ${flowsQueryDefs}) {
+    flows(page: $page, perPage: $perPage, ${flowsQueryParams}) {
+      ${flowFields}
+      latestBranch
+      latestDepartment
+    }
+  }
+`;
+
+const subFlows = `
+  query flows($page: Int, $perPage: Int, ${flowsQueryDefs}) {
+    flows(page: $page, perPage: $perPage, ${flowsQueryParams}) {
+      ${flowFields}
+      latestNeedProducts
+      latestResultProducts
+      latestBranch
+      latestDepartment
+    }
+  }
 `;
 
 const flowsAll = `
@@ -32,34 +78,41 @@ query flowsAll {
 const flowDetail = `
 query flowDetail($_id: String!) {
   flowDetail(_id: $_id) {
-    _id
-    createdAt
-    createdBy
-    updatedAt
-    updatedBy
-    name
-    categoryId
-    productId
-    product
-    status
-    flowJobStatus
+    ${flowFields}
     jobs
+
+    latestBranchId
+    latestDepartmentId
+    latestBranch
+    latestDepartment
+    latestNeedProducts
+    latestResultProducts
   }
 }
 `;
 
 const flowTotalCount = `
-query flowTotalCount($categoryId: String, $searchValue: String) {
-  flowTotalCount(categoryId: $categoryId, searchValue: $searchValue)
+query flowTotalCount(${flowsQueryDefs}) {
+  flowTotalCount(${flowsQueryParams})
 }
 `;
 
-const flowCategories = productQueries.productCategories;
-const uoms = productQueries.uoms;
-const uomsTotalCount = productQueries.uomsTotalCount;
+const flowCategories = `
+  query flowCategories($status: String) {
+    flowCategories(status: $status) {
+      _id
+      name
+      order
+      code
+      parentId
+      description
+      status
 
-const productsConfigs = productQueries.productsConfigs;
-const productDetail = productQueries.productDetail;
+      isRoot
+      flowCount
+    }
+  }
+`;
 
 const flowCategoriesTotalCount = `
   query flowCategoriesTotalCount {
@@ -72,12 +125,9 @@ export default {
   flowCategoriesTotalCount,
 
   flows,
+  flowsMain,
+  subFlows,
   flowsAll,
   flowDetail,
-  flowTotalCount,
-
-  uoms,
-  productsConfigs,
-  productDetail,
-  uomsTotalCount
+  flowTotalCount
 };

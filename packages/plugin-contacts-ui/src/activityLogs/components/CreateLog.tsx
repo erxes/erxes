@@ -1,7 +1,7 @@
-import { IActivityLogItemProps } from '@erxes/ui/src/activityLogs/types';
-import React from 'react';
 import CompanyCreateLog from './CompanyCreateLog';
 import CustomerCreateLog from './CustomerCreateLog';
+import { IActivityLogItemProps } from '@erxes/ui-log/src/activityLogs/types';
+import React from 'react';
 
 class CreatedLog extends React.Component<IActivityLogItemProps> {
   render() {

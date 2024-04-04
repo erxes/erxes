@@ -1,36 +1,39 @@
-import Button from '@erxes/ui/src/components/Button';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Info from '@erxes/ui/src/components/Info';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import colors from '@erxes/ui/src/styles/colors';
 import { ColorPick, ColorPicker, ModalFooter } from '@erxes/ui/src/styles/main';
+import { ExpandWrapper, MarkdownWrapper } from '@erxes/ui-settings/src/styles';
 import {
   IAttachment,
   IButtonMutateProps,
   IFormProps
 } from '@erxes/ui/src/types';
 import { __, getEnv } from 'coreui/utils';
+
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import CopyToClipboard from 'react-copy-to-clipboard';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { FlexContent } from '@erxes/ui/src/layout/styles';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IBrand } from '@erxes/ui/src/brands/types';
+import { ITopic } from '@erxes/ui-knowledgeBase/src/types';
+import Info from '@erxes/ui/src/components/Info';
 import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
-import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
-import { ExpandWrapper, MarkdownWrapper } from '@erxes/ui-settings/src/styles';
-import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import TwitterPicker from 'react-color/lib/Twitter';
-import CopyToClipboard from 'react-copy-to-clipboard';
+import React from 'react';
 import ReactMarkdown from 'react-markdown';
-import { ITopic } from '@erxes/ui-knowledgeBase/src/types';
 import Select from 'react-select-plus';
+import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
+import TwitterPicker from 'react-color/lib/Twitter';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import colors from '@erxes/ui/src/styles/colors';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   topic: ITopic;
   brands: IBrand[];
+  segments: any[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove?: (knowledgeBaseId: string) => void;
   closeModal: () => void;
@@ -44,6 +47,7 @@ type State = {
   color: string;
   backgroundImage: string;
   languageCode?: string;
+  notificationSegmentId?: string;
 };
 
 class KnowledgeForm extends React.Component<Props, State> {
@@ -105,7 +109,8 @@ class KnowledgeForm extends React.Component<Props, State> {
       tag,
       color,
       backgroundImage,
-      languageCode: topic && topic.languageCode
+      languageCode: topic && topic.languageCode,
+      notificationSegmentId: topic && topic.notificationSegmentId
     };
   }
 
@@ -193,14 +198,24 @@ class KnowledgeForm extends React.Component<Props, State> {
     }
   };
 
+  onChangeNotificationSegment = ({ value }) => {
+    this.setState({ notificationSegmentId: value });
+  };
+
   generateDoc = (values: {
     _id?: string;
     title: string;
     description: string;
     brandId: string;
+    code?: string;
   }) => {
     const { topic } = this.props;
-    const { color, backgroundImage, languageCode } = this.state;
+    const {
+      color,
+      backgroundImage,
+      languageCode,
+      notificationSegmentId
+    } = this.state;
     const finalValues = values;
 
     if (topic) {
@@ -215,13 +230,20 @@ class KnowledgeForm extends React.Component<Props, State> {
         languageCode,
         title: finalValues.title,
         color,
-        backgroundImage
+        backgroundImage,
+        notificationSegmentId,
+        code: finalValues.code
       }
     };
   };
 
   renderFormContent(topic = {} as ITopic, formProps: IFormProps) {
-    const { color, backgroundImage, languageCode } = this.state;
+    const {
+      color,
+      backgroundImage,
+      languageCode,
+      notificationSegmentId
+    } = this.state;
     const { brand } = topic;
     const brandId = brand != null ? brand._id : '';
 
@@ -303,6 +325,15 @@ class KnowledgeForm extends React.Component<Props, State> {
         </FlexContent>
 
         <FormGroup>
+          <ControlLabel>Code</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="code"
+            defaultValue={topic.code || ''}
+          />
+        </FormGroup>
+
+        <FormGroup>
           <ControlLabel>Background image: </ControlLabel>
           <Uploader
             multiple={false}
@@ -321,6 +352,20 @@ class KnowledgeForm extends React.Component<Props, State> {
             onChange={this.onBackgroundImageChange}
           />
         </FormGroup>
+
+        {isEnabled('segments') && (
+          <FormGroup>
+            <ControlLabel>Notification segment</ControlLabel>
+            <Select
+              options={this.props.segments.map(segment => ({
+                label: `${segment.name}`,
+                value: segment._id
+              }))}
+              value={notificationSegmentId}
+              onChange={this.onChangeNotificationSegment}
+            />
+          </FormGroup>
+        )}
 
         {this.renderInstallCode()}
       </React.Fragment>

@@ -1,6 +1,6 @@
 import {
   attachmentType,
-  attachmentInput
+  attachmentInput,
 } from '@erxes/api-utils/src/commonTypeDefs';
 const commonContactInfoTypes = `
 
@@ -34,6 +34,7 @@ export const types = `
         supervisorId: String
         supervisor: User
         code: String
+        order:String
         parent: Department
         children: [Department]
         childCount: Int
@@ -52,6 +53,7 @@ export const types = `
         description: String
         department: Department
         users: [User]
+        userCount: Int
         userIds: [String]
     }
 
@@ -62,13 +64,30 @@ export const types = `
         supervisorId: String
         supervisor: User
         code: String
+        order:String
         users: [User]
         userIds: [String]
+        userCount: Int
         parent: Branch
         children: [Branch]
 
         address: String
+        radius: Int
         ${commonContactInfoTypes}
+    }
+
+    type Position @key(fields: "_id") @cacheControl(maxAge: 3){
+        _id: String!
+        title: String
+        code: String
+        order: String
+        parentId: String
+        parent: Position
+        status: String
+        children: [Position]
+        users: [User]
+        userIds: [String]
+        userCount: Int
     }
 
     type Coordinate {
@@ -80,19 +99,59 @@ export const types = `
         longitude: String
         latitude: String
     }
+
+    type BranchListQueryResponse {
+        list:[Branch]
+        totalCount: Int
+        totalUsersCount:Int
+    }
+    
+    type DepartmentListQueryResponse {
+        list:[Department]
+        totalCount: Int
+        totalUsersCount:Int
+    }
+    
+    type UnitListQueryResponse {
+        list:[Unit]
+        totalCount: Int
+        totalUsersCount:Int
+    }
+    
+    type PositionListQueryResponse {
+        list:[Position]
+        totalCount: Int
+        totalUsersCount:Int
+    }
+`;
+
+const commonParams = `
+    ids: [String]
+    excludeIds: Boolean
+    perPage: Int
+    page: Int
+    searchValue: String,
+    status: String,
 `;
 
 export const queries = `
-    departments(searchValue: String): [Department]
+    departments(${commonParams},withoutUserFilter:Boolean): [Department]
+    departmentsMain(${commonParams},withoutUserFilter:Boolean):DepartmentListQueryResponse
     departmentDetail(_id: String!): Department
 
     noDepartmentUsers(excludeId: String): [User]
 
     units(searchValue: String): [Unit]
+    unitsMain(${commonParams}): UnitListQueryResponse
     unitDetail(_id: String!): Unit
 
-    branches(searchValue: String): [Branch]
+    branches(${commonParams},withoutUserFilter:Boolean): [Branch]
+    branchesMain(${commonParams},withoutUserFilter:Boolean): BranchListQueryResponse
     branchDetail(_id: String!): Branch
+    
+    positions(${commonParams},withoutUserFilter:Boolean): [Position]
+    positionsMain(${commonParams}): PositionListQueryResponse
+    positionDetail(_id: String): Position
 
     structureDetail: Structure
 `;
@@ -140,8 +199,17 @@ const commonBranchParams = `
     code: String
     parentId: String
     userIds: [String]
+    radius: Int
 
     ${commonContactInfoParams}
+`;
+
+const commonPositionParams = `
+    title: String
+    code: String
+    parentId: String
+    userIds: [String]
+    status: String
 `;
 
 export const mutations = `
@@ -151,13 +219,17 @@ export const mutations = `
 
     departmentsAdd(${commonDepartmentParams}): Department
     departmentsEdit(_id: String!, ${commonDepartmentParams}): Department
-    departmentsRemove(_id: String!): JSON
+    departmentsRemove(ids: [String!]): JSON
 
     unitsAdd(${commonUnitParams}): Unit
     unitsEdit(_id: String!, ${commonUnitParams}): Unit
-    unitsRemove(_id: String!): JSON
+    unitsRemove(ids:[String!]): JSON
 
     branchesAdd(${commonBranchParams}): Branch
     branchesEdit(_id: String!, ${commonBranchParams}): Branch
-    branchesRemove(_id: String!): JSON
+    branchesRemove(ids:[String!]): JSON
+
+    positionsAdd(${commonPositionParams}):Position
+    positionsEdit(_id: String!, ${commonPositionParams}):Position
+    positionsRemove(ids:[String!]): JSON
 `;

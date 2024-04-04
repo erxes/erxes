@@ -1,4 +1,5 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
+
 import { IModels } from '../connectionResolver';
 import {
   channelSchema,
@@ -42,7 +43,11 @@ export const loadClass = (models: IModels) => {
     }
 
     public static async updateChannel(_id: string, doc: IChannel) {
-      await models.Channels.updateOne({ _id }, { $set: doc }, { runValidators: true });
+      await models.Channels.updateOne(
+        { _id },
+        { $set: doc },
+        { runValidators: true }
+      );
 
       return models.Channels.findOne({ _id });
     }

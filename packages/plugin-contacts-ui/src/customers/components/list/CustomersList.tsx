@@ -1,4 +1,17 @@
-import gql from 'graphql-tag';
+import CustomersMerge from '@erxes/ui-contacts/src/customers/components/detail/CustomersMerge';
+import {
+  EMAIL_VALIDATION_STATUSES,
+  PHONE_VALIDATION_STATUSES,
+  CUSTOMER_STATE_OPTIONS
+} from '@erxes/ui-contacts/src/customers/constants';
+import CustomerForm from '@erxes/ui-contacts/src/customers/containers/CustomerForm';
+import { queries } from '@erxes/ui-contacts/src/customers/graphql';
+import Widget from '@erxes/ui-engage/src/containers/Widget';
+import ManageColumns from '@erxes/ui-forms/src/settings/properties/containers/ManageColumns';
+import { IConfigColumn } from '@erxes/ui-forms/src/settings/properties/types';
+import { EMPTY_CONTENT_CONTACTS } from '@erxes/ui-settings/src/constants';
+import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
+import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import DateFilter from '@erxes/ui/src/components/DateFilter';
@@ -11,33 +24,22 @@ import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
 import Table from '@erxes/ui/src/components/table';
 import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
-import { menuContacts } from '@erxes/ui/src/utils/menus';
-import * as routerUtils from '@erxes/ui/src/utils/router';
-import {
-  EMAIL_VALIDATION_STATUSES,
-  PHONE_VALIDATION_STATUSES
-} from '@erxes/ui/src/customers/constants';
-import { queries } from '@erxes/ui-contacts/src/customers/graphql';
-import { EMPTY_CONTENT_CONTACTS } from '@erxes/ui-settings/src/constants';
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { withRouter } from 'react-router-dom';
-import { Link } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { __, Alert, confirm, router } from 'coreui/utils';
-import Widget from '@erxes/ui-engage/src/containers/Widget';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { BarItems } from '@erxes/ui/src/layout/styles';
-import ManageColumns from '@erxes/ui-settings/src/properties/containers/ManageColumns';
-import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
-import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
-import CustomerForm from '@erxes/ui/src/customers/containers/CustomerForm';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import { menuContacts } from '@erxes/ui/src/utils/menus';
+import * as routerUtils from '@erxes/ui/src/utils/router';
+import { __, Alert, confirm, router } from 'coreui/utils';
+import { gql } from '@apollo/client';
+import React from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
+import { Link, withRouter } from 'react-router-dom';
+import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
+
 import { ICustomer } from '../../types';
-import CustomersMerge from '@erxes/ui-contacts/src/customers/components/detail/CustomersMerge';
 import CustomerRow from './CustomerRow';
 import Sidebar from './Sidebar';
-import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 
 interface IProps extends IRouterProps {
   type: string;
@@ -75,6 +77,7 @@ interface IProps extends IRouterProps {
   isExpand?: boolean;
   page: number;
   perPage: number;
+  changeStateBulk: (_ids: string[], value: string) => void;
 }
 
 type State = {
@@ -150,6 +153,18 @@ class CustomersList extends React.Component<IProps, State> {
 
     changeVerificationStatus({ verificationType: type, status, customerIds });
   };
+
+  changeState(value: string) {
+    const { type, changeStateBulk, bulk = [] } = this.props;
+
+    if (type === value) {
+      return Alert.warning(`Contacts are already in "${value}" state`);
+    }
+
+    const _ids: string[] = bulk.map(c => c._id);
+
+    changeStateBulk(_ids, value);
+  }
 
   renderContent() {
     const {
@@ -274,6 +289,10 @@ class CustomersList extends React.Component<IProps, State> {
       this.changeVerificationStatus('phone', e.target.id, bulk);
     };
 
+    const onStateClick = e => {
+      this.changeState(e.target.id);
+    };
+
     const emailVerificationStatusList = [] as any;
 
     for (const status of EMAIL_VALIDATION_STATUSES) {
@@ -301,6 +320,18 @@ class CustomersList extends React.Component<IProps, State> {
             onClick={onPhoneStatusClick}
           >
             {status.label}
+          </a>
+        </li>
+      );
+    }
+
+    const customerStateOptions: any[] = [];
+
+    for (const option of CUSTOMER_STATE_OPTIONS) {
+      customerStateOptions.push(
+        <li key={option.value}>
+          <a id={option.value} href="#changeState" onClick={onStateClick}>
+            {option.label}
           </a>
         </li>
       );
@@ -360,6 +391,10 @@ class CustomersList extends React.Component<IProps, State> {
 
         {dateFilter}
 
+        {isEnabled('segments') && (
+          <TemporarySegment contentType={`contacts:${type}`} />
+        )}
+
         <Dropdown className="dropdown-btn" alignRight={true}>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
             <Button btnStyle="simple" size="small">
@@ -410,16 +445,14 @@ class CustomersList extends React.Component<IProps, State> {
           </Button>
         </Link>
 
-        {type === 'visitor' ? null : (
-          <ModalTrigger
-            title="New customer"
-            autoOpenKey="showCustomerModal"
-            trigger={addTrigger}
-            size="lg"
-            content={customerForm}
-            backDrop="static"
-          />
-        )}
+        <ModalTrigger
+          title="New customer"
+          autoOpenKey="showCustomerModal"
+          trigger={addTrigger}
+          size="lg"
+          content={customerForm}
+          backDrop="static"
+        />
       </BarItems>
     );
 
@@ -468,7 +501,7 @@ class CustomersList extends React.Component<IProps, State> {
           {bulk.length === 2 && (
             <ModalTrigger
               title="Merge Customers"
-              size="lg"
+              size="xl"
               dialogClassName="modal-1000w"
               trigger={mergeButton}
               content={customersMerge}
@@ -482,7 +515,7 @@ class CustomersList extends React.Component<IProps, State> {
           >
             <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
               <Button btnStyle="simple" size="small">
-                {__('Change email status ')} <Icon icon="angle-down" />
+                {__('Change email status')} <Icon icon="angle-down" />
               </Button>
             </Dropdown.Toggle>
             <Dropdown.Menu>
@@ -493,11 +526,22 @@ class CustomersList extends React.Component<IProps, State> {
           <Dropdown className="dropdown-btn" alignRight={true}>
             <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
               <Button btnStyle="simple" size="small">
-                {__('Change phone status ')} <Icon icon="angle-down" />
+                {__('Change phone status')} <Icon icon="angle-down" />
               </Button>
             </Dropdown.Toggle>
             <Dropdown.Menu>
               <div>{phoneVerificationStatusList}</div>
+            </Dropdown.Menu>
+          </Dropdown>
+
+          <Dropdown className="dropdown-btn" alignRight={true}>
+            <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
+              <Button btnStyle="simple" size="small">
+                {__('Change state')} <Icon icon="angle-down" />
+              </Button>
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <div>{customerStateOptions}</div>
             </Dropdown.Menu>
           </Dropdown>
 
@@ -528,7 +572,13 @@ class CustomersList extends React.Component<IProps, State> {
         }
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
-        leftSidebar={<Sidebar loadingMainQuery={loading} type={type} />}
+        leftSidebar={
+          <Sidebar
+            loadingMainQuery={loading}
+            type={type}
+            queryParams={queryParams}
+          />
+        }
         content={
           <DataWithLoader
             data={this.renderContent()}
@@ -537,6 +587,7 @@ class CustomersList extends React.Component<IProps, State> {
             emptyContent={<EmptyContent content={EMPTY_CONTENT_CONTACTS} />}
           />
         }
+        hasBorder={true}
       />
     );
   }

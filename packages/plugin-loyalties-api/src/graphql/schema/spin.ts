@@ -23,7 +23,7 @@ export const queries = `
 const SpinDoc = `
   ${commonInputs}
   status: String
-`
+`;
 
 export const mutations = `
   spinsAdd(${SpinDoc}): Spin

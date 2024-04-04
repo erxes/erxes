@@ -1,9 +1,8 @@
 import * as dotenv from 'dotenv';
-import * as request from 'request-promise';
 import * as sanitizeHtml from 'sanitize-html';
 import { IModels } from './connectionResolver';
 import { debugBase, debugExternalRequests } from './debuggers';
-import {get, set} from './inmemoryStorage';
+import redis from '@erxes/api-utils/src/redis';
 import { sendInboxMessage } from './messageBroker';
 
 dotenv.config();
@@ -43,69 +42,8 @@ export const checkConcurrentError = (e: any, name: string) => {
   throw new Error(
     e.message.includes('duplicate')
       ? `Concurrent request: nylas ${name} duplication`
-      : e
+      : e,
   );
-};
-
-/**
- * Send request
- */
-export const sendRequest = ({
-  url,
-  headerType,
-  headerParams,
-  method,
-  body,
-  params
-}: IRequestParams): Promise<any> => {
-  return new Promise((resolve, reject) => {
-    const DOMAIN = getEnv({ name: 'DOMAIN' });
-
-    const reqBody = JSON.stringify(body || {});
-    const reqParams = JSON.stringify(params || {});
-
-    debugExternalRequests(`
-        Sending request
-        url: ${url}
-        method: ${method}
-        body: ${reqBody}
-        params: ${reqParams}
-      `);
-
-    request({
-      uri: encodeURI(url || ""),
-      method,
-      headers: {
-        'Content-Type': headerType || 'application/json',
-        ...headerParams,
-        origin: DOMAIN
-      },
-      ...(headerType && headerType.includes('form')
-        ? { form: body }
-        : { body }),
-      qs: params,
-      json: true
-    })
-      .then(res => {
-        debugExternalRequests(`
-        Success from ${url}
-        requestBody: ${reqBody}
-        requestParams: ${reqParams}
-        responseBody: ${JSON.stringify(res)}
-      `);
-
-        return resolve(res);
-      })
-      .catch(e => {
-        if (e.code === 'ECONNREFUSED') {
-          debugExternalRequests(`Failed to connect ${url}`);
-          throw new Error(`Failed to connect ${url}`);
-        } else {
-          debugExternalRequests(`Error occurred in ${url}: ${e.body}`);
-          reject(e);
-        }
-      });
-  });
 };
 
 /**
@@ -116,7 +54,7 @@ export const sendRequest = ({
 export const cleanHtml = (body: string) => {
   const clean = sanitizeHtml(body || '', {
     allowedTags: [],
-    allowedAttributes: {}
+    allowedAttributes: {},
   }).trim();
 
   return clean.substring(0, 65);
@@ -124,7 +62,7 @@ export const cleanHtml = (body: string) => {
 
 export const getEnv = ({
   name,
-  defaultValue
+  defaultValue,
 }: {
   name: string;
   defaultValue?: string;
@@ -147,45 +85,13 @@ export const getEnv = ({
  * @param {Functions} fns
  * @returns {Promise} fns value
  */
-export const compose = (...fns) => arg =>
-  fns.reduceRight((p, f) => p.then(f), Promise.resolve(arg));
-
-/*
- * Generate url depending on given file upload publicly or not
- */
-export const generateAttachmentUrl = (urlOrName: string) => {
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
-
-  if (urlOrName.startsWith('http')) {
-    return urlOrName;
-  }
-
-  return `${DOMAIN}/gateway/pl:core/read-file?key=${urlOrName}`;
-};
-
-export const downloadAttachment = urlOrName => {
-  return new Promise(async (resolve, reject) => {
-    const url = generateAttachmentUrl(urlOrName);
-
-    const options = {
-      url,
-      encoding: null
-    };
-
-    try {
-      await request.get(options).then(res => {
-        const buffer = Buffer.from(res, 'utf8');
-
-        resolve(buffer.toString('base64'));
-      });
-    } catch (e) {
-      reject(e);
-    }
-  });
-};
+export const compose =
+  (...fns) =>
+  (arg) =>
+    fns.reduceRight((p, f) => p.then(f), Promise.resolve(arg));
 
 export const getConfigs = async (models: IModels) => {
-  const configsCache = await get('configs_erxes_integrations');
+  const configsCache = await redis.get('configs_erxes_integrations');
 
   if (configsCache && configsCache !== '{}') {
     return JSON.parse(configsCache);
@@ -198,7 +104,7 @@ export const getConfigs = async (models: IModels) => {
     configsMap[config.code] = config.value;
   }
 
- set('configs_erxes_integrations', JSON.stringify(configsMap));
+  await redis.set('configs_erxes_integrations', JSON.stringify(configsMap));
 
   return configsMap;
 };
@@ -218,9 +124,9 @@ export const getCommonGoogleConfigs = async (subdomain: string) => {
     subdomain,
     action: 'integrations.receive',
     data: {
-      action: 'get-configs'
+      action: 'get-configs',
     },
-    isRPC: true
+    isRPC: true,
   });
 
   const configs = response.configs;
@@ -229,26 +135,21 @@ export const getCommonGoogleConfigs = async (subdomain: string) => {
     GOOGLE_PROJECT_ID: configs.GOOGLE_PROJECT_ID,
     GOOGLE_CLIENT_ID: configs.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: configs.GOOGLE_CLIENT_SECRET,
-    GOOGLE_GMAIL_TOPIC: configs.GOOGLE_GMAIL_TOPIC
+    GOOGLE_GMAIL_TOPIC: configs.GOOGLE_GMAIL_TOPIC,
   };
 };
 
-export const resetConfigsCache = () => {
-  set('configs_erxes_integrations', '');
+export const resetConfigsCache = async () => {
+  await redis.set('configs_erxes_integrations', '');
 };
 
 export const generateUid = () => {
-  return (
-    '_' +
-    Math.random()
-      .toString(36)
-      .substr(2, 9)
-  );
+  return '_' + Math.random().toString(36).substr(2, 9);
 };
 
 export const isAfter = (
   expiresTimestamp: number,
-  defaultMillisecond?: number
+  defaultMillisecond?: number,
 ) => {
   const millisecond = defaultMillisecond || new Date().getTime();
   const expiresMillisecond = new Date(expiresTimestamp * 1000).getTime();

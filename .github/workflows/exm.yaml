@@ -1,0 +1,51 @@
+name: EXM WEB CI
+
+on:
+  push:
+    branches:
+      - dev
+      - master
+      - rc
+      - staging
+      - exm-improve
+    paths:
+      - 'exm-web/**'
+      - '.github/workflows/exm.yaml'
+
+  pull_request:
+    branches:
+      - dev
+      - master
+      - rc
+      - staging
+      - exm-improve
+    paths:
+      - 'exm-web/**'
+      - '.github/workflows/exm.yaml'
+
+jobs:
+  exm-ui:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 18.17.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.17.x
+
+      - name: Build
+        run: |
+          cd exm-web
+          rm -rf node_modules
+          yarn install --frozen-lockfile
+          yarn build
+
+      - name: Build docker image
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/exm-improve')
+        run: |
+          cd exm-web
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          DOCKER_BUILDKIT=1 docker build -t erxes/exm:${GITHUB_REF#refs/heads/} -f Dockerfile .
+          docker push erxes/exm:${GITHUB_REF#refs/heads/}

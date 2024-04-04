@@ -1,30 +1,30 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import forms from './forms';
 import initialSetup from './initialSetup';
-
-export let mainDb;
-export let debug;
-export let serviceDiscovery;
+import segments from './segments';
+import dashboards from './dashboards';
 
 export default {
   name: 'forms',
   permissions,
   meta: {
+    dashboards,
     forms,
-    initialSetup
+    initialSetup,
+    // for fixing permissions
+    permissions,
+    segments,
   },
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
   apolloServerContext: async (context, req) => {
@@ -34,11 +34,6 @@ export default {
 
     return context;
   },
-  onServerInit: async options => {
-    mainDb = options.db;
-
-    initBroker(options.messageBrokerClient);
-
-    debug = options.debug;
-  }
+  onServerInit: async () => {},
+  setupMessageConsumers,
 };

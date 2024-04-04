@@ -1,9 +1,10 @@
 import {
   IActivityLog,
-  IActivityLogForMonth
-} from '@erxes/ui/src/activityLogs/types';
-import { IUser } from '@erxes/ui/src/auth/types';
+  IActivityLogForMonth,
+} from '@erxes/ui-log/src/activityLogs/types';
+
 import { IAttachment } from '@erxes/ui/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 export interface ICarCategoryDoc {
   _id?: string;
@@ -38,6 +39,7 @@ export interface ICarDoc {
 }
 
 export interface ICarCategory {
+  object: IAttachment;
   _id: string;
   name: string;
   order: string;
@@ -47,6 +49,9 @@ export interface ICarCategory {
   createdAt: Date;
   carCount: number;
   isRoot: boolean;
+  image?: IAttachment;
+  secondaryImages?: IAttachment[];
+  productCategoryId?: string;
 }
 
 export type CarCategoriesQueryResponse = {
@@ -84,6 +89,7 @@ export interface ICar extends ICarDoc {
   _id: string;
   owner: IUser;
   category?: ICarCategory;
+  customFieldsData: JSON;
 }
 
 // mutation types
@@ -176,4 +182,9 @@ export type CountQueryResponse = {
   carCounts: CarCounts;
   loading: boolean;
   refetch: () => void;
+};
+
+export type CountByTagsQueryResponse = {
+  carCountByTags: { [key: string]: number };
+  loading: boolean;
 };

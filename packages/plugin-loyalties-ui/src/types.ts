@@ -15,4 +15,4 @@ export interface ICommonTypes {
   attachment?: IAttachment;
 
   status?: string;
-};
+}

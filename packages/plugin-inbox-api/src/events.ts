@@ -1,15 +1,16 @@
 import { client, getIndexPrefix } from '@erxes/api-utils/src/elasticsearch';
 import * as getUuid from 'uuid-by-string';
-import { debug } from './configs';
 import {
   sendAutomationsMessage,
   sendContactsMessage,
-  sendFormsMessage
+  sendFormsMessage,
 } from './messageBroker';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 
 interface ISaveEventArgs {
   type?: string;
   name?: string;
+  triggerAutomation?: boolean;
   customerId?: string;
   visitorId?: string;
   attributes?: any;
@@ -24,7 +25,7 @@ interface ICustomerIdentifyParams {
 }
 
 export const saveEvent = async (subdomain: string, args: ISaveEventArgs) => {
-  const { type, name, attributes, additionalQuery } = args;
+  const { type, name, triggerAutomation, attributes, additionalQuery } = args;
 
   if (!type) {
     throw new Error('Type is required');
@@ -41,9 +42,9 @@ export const saveEvent = async (subdomain: string, args: ISaveEventArgs) => {
     bool: {
       must: [
         { term: { name } },
-        { term: customerId ? { customerId } : { visitorId } }
-      ]
-    }
+        { term: customerId ? { customerId } : { visitorId } },
+      ],
+    },
   };
 
   if (additionalQuery) {
@@ -70,18 +71,38 @@ export const saveEvent = async (subdomain: string, args: ISaveEventArgs) => {
             subdomain,
             action: 'fields.generateTypedListFromMap',
             data: attributes || {},
-            isRPC: true
-          })
-        }
-      }
+            isRPC: true,
+          }),
+        },
+      },
     });
 
-    debug.info(`Response ${JSON.stringify(response)}`);
+    debugInfo(`Response ${JSON.stringify(response)}`);
   } catch (e) {
-    debug.error(`Save event error ${e.message}`);
+    debugError(`Save event error ${e.message}`);
 
     customerId = undefined;
     visitorId = undefined;
+  }
+
+  if (triggerAutomation && customerId) {
+    const customer = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: {
+        _id: customerId,
+      },
+      isRPC: true,
+    });
+
+    sendAutomationsMessage({
+      subdomain,
+      action: 'trigger',
+      data: {
+        type: `contacts:${customer.state}`,
+        targets: [customer],
+      },
+    });
   }
 
   return { customerId };
@@ -93,7 +114,7 @@ export const trackViewPageEvent = (
     customerId?: string;
     visitorId?: string;
     attributes: any;
-  }
+  },
 ) => {
   const { attributes, customerId, visitorId } = args;
 
@@ -114,22 +135,22 @@ export const trackViewPageEvent = (
                   must: [
                     {
                       term: {
-                        'attributes.field': 'url'
-                      }
+                        'attributes.field': 'url',
+                      },
                     },
                     {
                       match: {
-                        'attributes.value': attributes.url
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          }
-        ]
-      }
-    }
+                        'attributes.value': attributes.url,
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        ],
+      },
+    },
   });
 };
 
@@ -137,30 +158,32 @@ export const trackCustomEvent = (
   subdomain: string,
   args: {
     name: string;
+    triggerAutomation?: boolean;
     customerId?: string;
     visitorId?: string;
     attributes: any;
-  }
+  },
 ) => {
   return saveEvent(subdomain, {
     type: 'custom',
     name: args.name,
+    triggerAutomation: args.triggerAutomation,
     customerId: args.customerId,
     visitorId: args.visitorId,
-    attributes: args.attributes
+    attributes: args.attributes,
   });
 };
 
 export const identifyCustomer = async (
   subdomain: string,
-  args: ICustomerIdentifyParams = {}
+  args: ICustomerIdentifyParams = {},
 ) => {
   // get or create customer
   let customer = await sendContactsMessage({
     subdomain,
     action: 'customers.getWidgetCustomer',
     data: args,
-    isRPC: true
+    isRPC: true,
   });
 
   if (!customer) {
@@ -170,9 +193,9 @@ export const identifyCustomer = async (
       data: {
         primaryEmail: args.email,
         code: args.code,
-        primaryPhone: args.phone
+        primaryPhone: args.phone,
       },
-      isRPC: true
+      isRPC: true,
     });
   }
 
@@ -183,11 +206,11 @@ export const updateCustomerProperties = async (
   subdomain: string,
   {
     customerId,
-    data
+    data,
   }: {
     customerId: string;
     data: Array<{ name: string; value: any }>;
-  }
+  },
 ) => {
   if (!customerId) {
     throw new Error('Customer id is required');
@@ -197,9 +220,9 @@ export const updateCustomerProperties = async (
     subdomain,
     action: 'customers.findOne',
     data: {
-      _id: customerId
+      _id: customerId,
     },
-    isRPC: true
+    isRPC: true,
   });
 
   const prevTrackedData = {};
@@ -208,13 +231,13 @@ export const updateCustomerProperties = async (
   if (customer) {
     if (customer.trackedData) {
       customer.trackedData.forEach(
-        td => (prevTrackedData[td.field] = td.value)
+        (td) => (prevTrackedData[td.field] = td.value),
       );
     }
 
     if (customer.customFieldsData) {
       customer.customFieldsData.forEach(
-        td => (prevCustomFieldsData[td.field] = td.value)
+        (td) => (prevCustomFieldsData[td.field] = td.value),
       );
     }
   }
@@ -229,7 +252,7 @@ export const updateCustomerProperties = async (
         'middleName',
         'primaryPhone',
         'primaryEmail',
-        'code'
+        'code',
       ].includes(name)
     ) {
       modifier[name] = value;
@@ -249,14 +272,14 @@ export const updateCustomerProperties = async (
     subdomain,
     action: 'fields.generateTypedListFromMap',
     data: prevTrackedData,
-    isRPC: true
+    isRPC: true,
   });
 
   modifier.customFieldsData = await sendFormsMessage({
     subdomain,
     action: 'fields.generateTypedListFromMap',
     data: prevCustomFieldsData,
-    isRPC: true
+    isRPC: true,
   });
 
   await await sendContactsMessage({
@@ -264,18 +287,18 @@ export const updateCustomerProperties = async (
     action: 'customers.updateCustomer',
     data: {
       _id: customerId,
-      doc: modifier
+      doc: modifier,
     },
-    isRPC: true
+    isRPC: true,
   });
 
   const updatedCustomer = await sendContactsMessage({
     subdomain,
     action: 'customers.findOne',
     data: {
-      _id: customerId
+      _id: customerId,
     },
-    isRPC: true
+    isRPC: true,
   });
 
   // customer automation trigger =========
@@ -285,8 +308,8 @@ export const updateCustomerProperties = async (
       action: 'trigger',
       data: {
         type: `contacts:${updatedCustomer.state}`,
-        targets: [updatedCustomer]
-      }
+        targets: [updatedCustomer],
+      },
     });
   }
 

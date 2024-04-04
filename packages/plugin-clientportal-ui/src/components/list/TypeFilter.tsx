@@ -23,7 +23,7 @@ interface IProps extends IRouterProps {
 
 function TypeFilter({ history, counts, emptyText }: IProps) {
   const onRemove = () => {
-    router.setParams(history, { type: null });
+    router.removeParams(history, 'type');
   };
 
   const extraButtons = (

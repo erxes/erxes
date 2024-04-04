@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: "ebarimt",
   port: 3018,
   exposes: {

@@ -1,36 +1,46 @@
-import withCurrentUser from 'modules/auth/containers/withCurrentUser';
-import asyncComponent from 'modules/common/components/AsyncComponent';
+import { Route, BrowserRouter as Router, Switch } from 'react-router-dom';
 import { pluginLayouts, pluginRouters } from './pluginUtils';
-import queryString from 'query-string';
-import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import AuthRoutes from './modules/auth/routes';
+
+import OSAuthRoutes from './modules/auth/routes';
+import SAASAuthRoutes from './modules/saas/auth/routes';
 import { IUser } from './modules/auth/types';
+import React from 'react';
 import SettingsRoutes from './modules/settings/routes';
 import WelcomeRoutes from './modules/welcome/routes';
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import queryString from 'query-string';
+import withCurrentUser from 'modules/auth/containers/withCurrentUser';
+import OnboardingRoutes from './modules/saas/onBoarding/routes';
+import AccountSuspended from 'modules/saas/limit/AccountSuspend';
 
-const MainLayout = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "MainLayout" */ 'modules/layout/containers/MainLayout'
-  )
+import { getVersion } from '@erxes/ui/src/utils/core';
+
+const MainLayout = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "MainLayout" */ 'modules/layout/containers/MainLayout'
+    ),
 );
 
-const Unsubscribe = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Unsubscribe" */ 'modules/auth/containers/Unsubscribe'
-  )
+const OnboardingLayout = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "OnboardingLayout" */ 'modules/saas/onBoarding/container/OnboardingLayout'
+    ),
 );
 
-const UserConfirmation = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings - UserConfirmation" */ '@erxes/ui/src/team/containers/UserConfirmation'
-  )
+const Unsubscribe = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Unsubscribe" */ 'modules/auth/containers/Unsubscribe'
+    ),
 );
 
-const Schedule = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Calendar - Schedule" */ '@erxes/ui-calendar/src/components/scheduler/Index'
-  )
+const UserConfirmation = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings - UserConfirmation" */ '@erxes/ui/src/team/containers/UserConfirmation'
+    ),
 );
 
 export const unsubscribe = ({ location }) => {
@@ -39,13 +49,7 @@ export const unsubscribe = ({ location }) => {
   return <Unsubscribe queryParams={queryParams} />;
 };
 
-const schedule = ({ match }) => {
-  const slug = match.params.slug;
-
-  return <Schedule slug={slug} />;
-};
-
-const renderRoutes = currentUser => {
+const renderRoutes = (currentUser) => {
   const userConfirmation = ({ location }) => {
     const queryParams = queryString.parse(location.search);
 
@@ -58,13 +62,33 @@ const renderRoutes = currentUser => {
     sessionStorage.setItem('sessioncode', Math.random().toString());
   }
 
-  const { pathname } = window.location;
-
-  if (pathname.search('/schedule/') === 0) {
-    return null;
-  }
+  const { VERSION } = getVersion();
 
   if (currentUser) {
+    if (VERSION && VERSION === 'saas') {
+      const currentOrganization = currentUser.currentOrganization;
+
+      if (currentOrganization) {
+        if (!currentOrganization.onboardingDone) {
+          return (
+            <OnboardingLayout>
+              <OnboardingRoutes currentUser={currentUser} />
+            </OnboardingLayout>
+          );
+        }
+
+        if (!currentOrganization.contactRemaining) {
+          return (
+            <>
+              <MainLayout currentUser={currentUser}>
+                <AccountSuspended />;
+              </MainLayout>
+            </>
+          );
+        }
+      }
+    }
+
     return (
       <>
         <MainLayout currentUser={currentUser}>
@@ -92,7 +116,7 @@ const renderRoutes = currentUser => {
         path="/confirmation"
         component={userConfirmation}
       />
-      <AuthRoutes />
+      {VERSION && VERSION === 'saas' ? <SAASAuthRoutes /> : <OSAuthRoutes />}
     </Switch>
   );
 };
@@ -105,13 +129,6 @@ const Routes = ({ currentUser }: { currentUser: IUser }) => (
         exact={true}
         path="/unsubscribe"
         component={unsubscribe}
-      />
-
-      <Route
-        key="/schedule"
-        exact={true}
-        path="/schedule/:slug"
-        component={schedule}
       />
 
       {renderRoutes(currentUser)}

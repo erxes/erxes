@@ -1,15 +1,18 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import { Spinner } from '@erxes/ui/src/components';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { mutations, queries } from '../graphql';
 import { ConfigsQueryResponse, IConfigsMap } from '../types';
+import { mutations, queries } from '../graphql';
+
+import React from 'react';
+import { Spinner } from '@erxes/ui/src/components';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   component: any;
-}
+  configCode: string;
+};
 
 type FinalProps = {
   configsQuery: ConfigsQueryResponse;
@@ -21,7 +24,7 @@ class SettingsContainer extends React.Component<FinalProps> {
     const { updateConfigs, configsQuery } = this.props;
 
     if (configsQuery.loading) {
-      return <Spinner objective={true} />;
+      return <Spinner />;
     }
 
     // create or update action
@@ -32,36 +35,32 @@ class SettingsContainer extends React.Component<FinalProps> {
         .then(() => {
           configsQuery.refetch();
 
-          Alert.success('You successfully updated loyalty settings');
+          Alert.success('You successfully updated ebarimt settings');
         })
         .catch(error => {
           Alert.error(error.message);
         });
     };
 
-    const configs = configsQuery.configs || [];
+    const config = configsQuery.configsGetValue || [];
 
-    const configsMap = {};
-
-    for (const config of configs) {
-      configsMap[config.code] = config.value;
-    }
-
+    const configsMap = { [config.code]: config.value };
     const Component = this.props.component;
-    return (
-      <Component
-        {...this.props}
-        configsMap={configsMap}
-        save={save}
-      />
-    );
+
+    return <Component {...this.props} configsMap={configsMap} save={save} />;
   }
 }
 
 export default withProps<Props>(
   compose(
-    graphql<{}, ConfigsQueryResponse>(gql(queries.configs), {
-      name: 'configsQuery'
+    graphql<Props, ConfigsQueryResponse>(gql(queries.configs), {
+      name: 'configsQuery',
+      options: props => ({
+        variables: {
+          code: props.configCode
+        },
+        fetchPolicy: 'network-only'
+      })
     }),
     graphql<{}>(gql(mutations.updateConfigs), {
       name: 'updateConfigs'

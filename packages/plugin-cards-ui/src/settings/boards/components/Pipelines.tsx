@@ -1,26 +1,27 @@
+import {
+  EMPTY_CONTENT_DEAL_PIPELINE,
+  EMPTY_CONTENT_TASK_PIPELINE,
+  EMPTY_CONTENT_PURCHASE_PIPELINE
+} from '@erxes/ui-settings/src/constants';
 import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
-import { collectOrders } from '@erxes/ui-cards/src/boards/utils';
+import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import { Link, withRouter } from 'react-router-dom';
+import { __, router } from 'coreui/utils';
+import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Table from '@erxes/ui/src/components/table';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { __, router } from 'coreui/utils';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import {
-  EMPTY_CONTENT_DEAL_PIPELINE,
-  EMPTY_CONTENT_TASK_PIPELINE
-} from '@erxes/ui-settings/src/constants';
-import React from 'react';
-import { Link, withRouter } from 'react-router-dom';
-import PipelineForm from '../containers/PipelineForm';
 import { IOption } from '../types';
-import { PipelineCount } from '@erxes/ui-settings/src/boards/styles';
+import { PipelineCount } from '@erxes/ui-cards/src/settings/boards/styles';
+import PipelineForm from '../containers/PipelineForm';
 import PipelineRow from './PipelineRow';
+import React from 'react';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
+import Table from '@erxes/ui/src/components/table';
 import { Title } from '@erxes/ui-settings/src/styles';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { collectOrders } from '@erxes/ui-cards/src/boards/utils';
 
 type Props = {
   type: string;
@@ -169,7 +170,7 @@ class Pipelines extends React.Component<Props, State> {
   renderContent() {
     const { pipelines, options, type } = this.props;
 
-    const pipelineName = options ? options.pipelineName : 'pipeline';
+    const pipelineName = options?.pipelineName || 'pipeline';
 
     if (pipelines.length === 0) {
       if (type === 'deal' || type === 'task') {
@@ -185,6 +186,18 @@ class Pipelines extends React.Component<Props, State> {
         );
       }
 
+      if (type === 'purchase') {
+        return (
+          <EmptyContent
+            content={
+              type === 'purchase'
+                ? EMPTY_CONTENT_PURCHASE_PIPELINE
+                : EMPTY_CONTENT_TASK_PIPELINE
+            }
+            maxItemWidth="420px"
+          />
+        );
+      }
       return (
         <EmptyState
           text={`Get started on your ${pipelineName.toLowerCase()}`}
@@ -224,12 +237,18 @@ class Pipelines extends React.Component<Props, State> {
       );
     }
 
+    if (options && options.additionalButtonModal) {
+      const Content = options.additionalButtonModal;
+
+      return <Content />;
+    }
+
     return null;
   };
 
   renderButton() {
     const { options, boardId, history } = this.props;
-    const pipelineName = options ? options.pipelineName : 'pipeline';
+    const pipelineName = options?.pipelineName || 'pipeline';
 
     if (!boardId) {
       return null;
@@ -259,7 +278,7 @@ class Pipelines extends React.Component<Props, State> {
 
   render() {
     const { currentBoard, pipelines, options } = this.props;
-    const pipelineName = options ? options.pipelineName : 'pipeline';
+    const pipelineName = options?.pipelineName || 'pipeline';
 
     const leftActionBar = (
       <Title>
@@ -275,9 +294,7 @@ class Pipelines extends React.Component<Props, State> {
     return (
       <div id="pipelines-content">
         <Wrapper.ActionBar
-          withMargin
-          wide
-          background="colorWhite"
+          wideSpacing
           left={leftActionBar}
           right={this.renderButton()}
         />

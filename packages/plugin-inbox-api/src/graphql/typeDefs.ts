@@ -1,39 +1,39 @@
-import { gql } from "apollo-server-express";
+import gql from 'graphql-tag';
 
 import {
   types as ChannelTypes,
   queries as ChannelQueries,
-  mutations as ChannelMutations
+  mutations as ChannelMutations,
 } from './channelTypeDefs';
 
 import {
   types as ConversationTypes,
   queries as ConversationQueries,
-  mutations as ConversationMutations
+  mutations as ConversationMutations,
 } from './conversationTypeDefs';
 
 import {
   types as MessengerAppTypes,
   queries as MessengerAppQueries,
-  mutations as MessengerAppMutations
+  mutations as MessengerAppMutations,
 } from './messengerAppTypeDefs';
 
 import {
   types as integrationTypes,
   queries as IntegrationQueries,
-  mutations as IntegrationMutations
+  mutations as IntegrationMutations,
 } from './integrationTypeDefs';
 
 import {
   types as ResponseTemplateTypes,
   queries as ResponseTemplateQueries,
-  mutations as ResponseTemplateMutations
+  mutations as ResponseTemplateMutations,
 } from './responseTemplateTypeDefs';
 
 import {
   types as widgetTypes,
   queries as widgetQueries,
-  mutations as widgetMutations
+  mutations as widgetMutations,
 } from './widgetTypeDefs';
 
 import {
@@ -45,43 +45,50 @@ import {
 import {
   types as ScriptTypes,
   queries as ScriptQueries,
-  mutations as ScriptMutations
-} from './scriptTypeDefs'
+  mutations as ScriptMutations,
+} from './scriptTypeDefs';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
-const typeDefs = async (serviceDiscovery) => {
-  const isProductsEnabled = await serviceDiscovery.isEnabled('products');
-  const isTagsEnabled = await serviceDiscovery.isEnabled('tags');
-  const isFormsEnabled = await serviceDiscovery.isEnabled('forms');
-  const isKbEnabled = await serviceDiscovery.isEnabled('knowledgebase');
+const typeDefs = async () => {
+  const isProductsEnabled = await isEnabled('products');
+  const isTagsEnabled = await isEnabled('tags');
+  const isFormsEnabled = await isEnabled('forms');
+  const isKbEnabled = await isEnabled('knowledgebase');
+  const isContactsEnabled = await isEnabled('contacts');
+  const isDailycoEnabled = await isEnabled('dailyco');
+  const isCallsEnabled = await isEnabled('calls');
 
-  const isEnabled = {
+  const isEnabledTable = {
     products: isProductsEnabled,
     tags: isTagsEnabled,
     forms: isFormsEnabled,
-    knowledgeBase: isKbEnabled
+    knowledgeBase: isKbEnabled,
+    contacts: isContactsEnabled,
+    dailyco: isDailycoEnabled,
+    calls: isCallsEnabled,
   };
 
   return gql`
     scalar JSON
     scalar Date
 
-    ${ConversationTypes(isEnabled)}
+    ${ConversationTypes(isEnabledTable)}
     ${MessengerAppTypes}
     ${ChannelTypes}
-    ${integrationTypes(isEnabled)}
+    ${integrationTypes(isEnabledTable)}
     ${ResponseTemplateTypes}
-    ${widgetTypes(isEnabled)}
+    ${widgetTypes(isEnabledTable)}
     ${SkillTypes}
-    ${ScriptTypes(isEnabled)}
+    ${ScriptTypes(isEnabledTable)}
     
     
     extend type Query {
-      ${ConversationQueries(isEnabled)}
+      ${ConversationQueries(isEnabledTable)}
       ${MessengerAppQueries}
       ${ChannelQueries}
       ${IntegrationQueries}
       ${ResponseTemplateQueries}
-      ${widgetQueries(isEnabled)}
+      ${widgetQueries(isEnabledTable)}
       ${SkillQueries}
       ${ScriptQueries}
     }
@@ -92,11 +99,11 @@ const typeDefs = async (serviceDiscovery) => {
       ${ChannelMutations}
       ${IntegrationMutations}
       ${ResponseTemplateMutations}
-      ${widgetMutations(isEnabled)}
+      ${widgetMutations(isEnabledTable)}
       ${SkillMutations}
       ${ScriptMutations}
     }
-  `
+  `;
 };
 
 export default typeDefs;

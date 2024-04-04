@@ -1,26 +1,31 @@
-import Button from '@erxes/ui/src/components/Button';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+import { FlexRow, Forms, ReactionItem } from './styles';
+import {
+  IArticle,
+  IErxesForm,
+  ITopic,
+} from '@erxes/ui-knowledgeBase/src/types';
 import {
   IAttachment,
   IButtonMutateProps,
   IFormProps,
-  IOption
+  IOption,
 } from '@erxes/ui/src/types';
-import { extractAttachment, __ } from 'coreui/utils';
-import { articleReactions } from '../../icons.constant';
-import { FlexItem } from '@erxes/ui/src/layout/styles';
-import { FlexContent } from '@erxes/ui/src/layout/styles';
+import { __, extractAttachment } from 'coreui/utils';
+
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import { FILE_MIME_TYPES } from '@erxes/ui-settings/src/general/constants';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import Icon from '@erxes/ui/src/components/Icon';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import Select from 'react-select-plus';
-import { IArticle, ITopic } from '@erxes/ui-knowledgeBase/src/types';
-import { ReactionItem } from './styles';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import { articleReactions } from '../../icons.constant';
 
 type Props = {
   article: IArticle;
@@ -28,6 +33,7 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   topics: ITopic[];
+  topicId?: string;
 };
 
 type State = {
@@ -37,6 +43,8 @@ type State = {
   categoryId: string;
   attachments: IAttachment[];
   image: IAttachment | null;
+  erxesForms: IErxesForm[];
+  isPrivate: boolean;
 };
 
 class ArticleForm extends React.Component<Props, State> {
@@ -53,16 +61,22 @@ class ArticleForm extends React.Component<Props, State> {
       reactionChoices: article.reactionChoices || [],
       topicId: article.topicId,
       categoryId: article.categoryId,
+      erxesForms: article.forms || [],
       image,
-      attachments
+      attachments,
+      isPrivate: article.isPrivate || false,
     };
   }
 
   componentDidUpdate(prevProps) {
     const { topics, currentCategoryId } = this.props;
+    const self = this;
 
     if (!this.state.topicId && topics && topics.length > 0) {
-      this.setState({ topicId: topics[0]._id, categoryId: currentCategoryId });
+      this.setState({
+        topicId: self.props.topicId,
+        categoryId: currentCategoryId,
+      });
     }
   }
 
@@ -77,6 +91,7 @@ class ArticleForm extends React.Component<Props, State> {
     title: string;
     summary: string;
     status: string;
+    code?: string;
   }) => {
     const { article, currentCategoryId } = this.props;
     const {
@@ -85,7 +100,9 @@ class ArticleForm extends React.Component<Props, State> {
       reactionChoices,
       topicId,
       categoryId,
-      image
+      image,
+      erxesForms,
+      isPrivate,
     } = this.state;
 
     const finalValues = values;
@@ -98,25 +115,31 @@ class ArticleForm extends React.Component<Props, State> {
       _id: finalValues._id,
       doc: {
         title: finalValues.title,
+        code: finalValues.code,
         summary: finalValues.summary,
         content,
         reactionChoices,
         status: finalValues.status,
+        isPrivate,
         categoryIds: [currentCategoryId],
         topicId,
+        forms: erxesForms.map((f) => ({
+          formId: f.formId,
+          brandId: f.brandId,
+        })),
         attachments,
         categoryId,
-        image
-      }
+        image,
+      },
     };
   };
 
-  onChange = e => {
-    this.setState({ content: e.editor.getData() });
+  onChange = (content: string) => {
+    this.setState({ content });
   };
 
   onChangeReactions = (options: IOption[]) => {
-    this.setState({ reactionChoices: options.map(option => option.value) });
+    this.setState({ reactionChoices: options.map((option) => option.value) });
   };
 
   onChangeAttachments = (attachments: IAttachment[]) =>
@@ -130,18 +153,54 @@ class ArticleForm extends React.Component<Props, State> {
     }
   };
 
+  onChangeIsCheckDate = (e) => {
+    const isChecked = (e.currentTarget as HTMLInputElement).checked;
+    this.setState({ isPrivate: isChecked });
+  };
+
   onChangeAttachment = (key: string, value: string | number) => {
     this.setState({
       attachments: [
         {
           ...this.getFirstAttachment(),
-          [key]: value
-        }
-      ]
+          [key]: value,
+        },
+      ],
     });
   };
 
-  renderOption = option => {
+  onChangeForm = (formId: string, key: string, value: string | number) => {
+    const erxesForms = this.state.erxesForms;
+
+    // find current editing one
+    const erxesForm = erxesForms.find((form) => form.formId === formId) || [];
+
+    // set new value
+    erxesForm[key] = value;
+
+    this.setState({ erxesForms });
+  };
+
+  addErxesForm = () => {
+    const erxesForms = this.state.erxesForms.slice();
+
+    erxesForms.push({
+      brandId: '',
+      formId: '',
+    });
+
+    this.setState({ erxesForms });
+  };
+
+  removeForm = (formId) => {
+    let erxesForms = this.state.erxesForms;
+
+    erxesForms = erxesForms.filter((form) => form.formId !== formId);
+
+    this.setState({ erxesForms });
+  };
+
+  renderOption = (option) => {
     return (
       <ReactionItem>
         <img src={option.value} alt={option.label} />
@@ -150,10 +209,10 @@ class ArticleForm extends React.Component<Props, State> {
     );
   };
 
-  generateOptions = options => {
-    return options.map(option => ({
+  generateOptions = (options) => {
+    return options.map((option) => ({
       value: option._id,
-      label: option.title
+      label: option.title,
     }));
   };
 
@@ -161,17 +220,17 @@ class ArticleForm extends React.Component<Props, State> {
     const self = this;
     const { topics } = this.props;
 
-    const onChange = e => {
+    const onChange = (e) => {
       e.preventDefault();
 
       const selectedTopicId = e.target.value;
 
-      const topic = topics.find(t => t._id === selectedTopicId);
+      const topic = topics.find((t) => t._id === selectedTopicId);
       const categories = topic ? topic.categories || [] : [];
 
       self.setState({
         topicId: selectedTopicId,
-        categoryId: categories.length > 0 ? categories[0]._id : ''
+        categoryId: categories.length > 0 ? categories[0]._id : '',
       });
     };
 
@@ -196,10 +255,10 @@ class ArticleForm extends React.Component<Props, State> {
 
   renderCategories(formProps: IFormProps) {
     const self = this;
-    const topic = this.props.topics.find(t => t._id === self.state.topicId);
+    const topic = this.props.topics.find((t) => t._id === self.state.topicId);
     const categories = topic ? topic.categories || [] : [];
 
-    const onChange = e => {
+    const onChange = (e) => {
       e.preventDefault();
 
       self.setState({ categoryId: e.target.value });
@@ -224,14 +283,55 @@ class ArticleForm extends React.Component<Props, State> {
     );
   }
 
+  renderErxesForm = (form: IErxesForm, formProps: IFormProps) => {
+    const remove = () => {
+      this.removeForm(form.formId);
+    };
+
+    return (
+      <FlexRow key={form.formId}>
+        <FormGroup>
+          <ControlLabel required={true}>{__('Brand id')}</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="brandId"
+            required={true}
+            defaultValue={form.brandId}
+            onChange={(e: any) =>
+              this.onChangeForm(form.formId, 'brandId', e.target.value)
+            }
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={true}>{__('Form id')}</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="formId"
+            required={true}
+            defaultValue={form.formId}
+            onChange={(e: any) =>
+              this.onChangeForm(form.formId, 'formId', e.target.value)
+            }
+          />
+        </FormGroup>
+
+        <Button size="small" btnStyle="danger" onClick={remove}>
+          <Icon icon="cancel-1" />
+        </Button>
+      </FlexRow>
+    );
+  };
+
   renderContent = (formProps: IFormProps) => {
     const { article, renderButton, closeModal } = this.props;
-    const { attachments, reactionChoices, content, image } = this.state;
+    const { attachments, reactionChoices, content, image, isPrivate } =
+      this.state;
     const attachment = this.getFirstAttachment();
 
-    const mimeTypeOptions = FILE_MIME_TYPES.map(item => ({
+    const mimeTypeOptions = FILE_MIME_TYPES.map((item) => ({
       value: item.value,
-      label: `${item.label} (${item.extension})`
+      label: `${item.label} (${item.extension})`,
     }));
 
     const { isSubmitted, values } = formProps;
@@ -248,6 +348,14 @@ class ArticleForm extends React.Component<Props, State> {
             defaultValue={object.title}
             required={true}
             autoFocus={true}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Code')}</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="code"
+            defaultValue={object.code}
           />
         </FormGroup>
 
@@ -286,12 +394,20 @@ class ArticleForm extends React.Component<Props, State> {
                 defaultValue={object.status || 'draft'}
                 required={true}
               >
-                {[{ value: 'draft' }, { value: 'publish' }].map(op => (
+                {[{ value: 'draft' }, { value: 'publish' }].map((op) => (
                   <option key={op.value} value={op.value}>
                     {op.value}
                   </option>
                 ))}
               </FormControl>
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel required={true}>{__('isPrivate')}</ControlLabel>
+              <FormControl
+                componentClass="checkbox"
+                checked={isPrivate}
+                onChange={this.onChangeIsCheckDate}
+              />
             </FormGroup>
           </FlexItem>
         </FlexContent>
@@ -366,7 +482,7 @@ class ArticleForm extends React.Component<Props, State> {
                 }
                 options={[
                   { value: '', label: 'Select type' },
-                  ...mimeTypeOptions
+                  ...mimeTypeOptions,
                 ]}
               />
             </FormGroup>
@@ -380,7 +496,7 @@ class ArticleForm extends React.Component<Props, State> {
                 onChange={(e: any) =>
                   this.onChangeAttachment(
                     'duration',
-                    parseInt(e.target.value, 10)
+                    parseInt(e.target.value, 10),
                   )
                 }
               />
@@ -389,8 +505,26 @@ class ArticleForm extends React.Component<Props, State> {
         </FlexContent>
 
         <FormGroup>
+          <ControlLabel>{__('erxes forms')}</ControlLabel>
+          <Forms>
+            {this.state.erxesForms.map((form) =>
+              this.renderErxesForm(form, formProps),
+            )}
+          </Forms>
+
+          <Button
+            btnStyle="simple"
+            size="small"
+            onClick={this.addErxesForm}
+            icon="add"
+          >
+            Add another form
+          </Button>
+        </FormGroup>
+
+        <FormGroup>
           <ControlLabel required={true}>{__('Content')}</ControlLabel>
-          <EditorCK
+          <RichTextEditor
             content={content}
             onChange={this.onChange}
             isSubmitted={isSubmitted}
@@ -410,11 +544,11 @@ class ArticleForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'article',
+            passedName: 'article',
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: article
+            object: article,
           })}
         </ModalFooter>
       </>

@@ -1,7 +1,7 @@
-import React from 'react';
-import styled from 'styled-components';
-import { colors } from '../../styles';
-import Avatar from './Avatar';
+import Avatar from "./Avatar";
+import React from "react";
+import { colors } from "../../styles";
+import styled from "styled-components";
 
 const NameCardStyled = styled.div`
   overflow: hidden;
@@ -9,7 +9,7 @@ const NameCardStyled = styled.div`
   align-items: center;
 `;
 
-const NameCardText = styled.div`
+export const NameCardText = styled.div`
   margin-left: 10px;
 `;
 
@@ -51,7 +51,10 @@ class NameCard extends React.Component<Props> {
     }
 
     if (user.details) {
-      return user.details.fullName;
+      return (
+        user.details.fullName ||
+        `${user.details.firstName} ${user.details.lastName}`
+      );
     }
 
     if (user.username) {

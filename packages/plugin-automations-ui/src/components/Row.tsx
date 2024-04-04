@@ -12,7 +12,7 @@ import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import { Link } from 'react-router-dom';
 import Button from '@erxes/ui/src/components/Button';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __, isEnabled } from '@erxes/ui/src/utils/core';
 import WithPermission from 'coreui/withPermission';
 
 type Props = {
@@ -98,7 +98,8 @@ function ActionRow({
     createdUser,
     updatedUser,
     triggers,
-    actions
+    actions,
+    tags
   } = automation;
 
   const isActive = status !== 'draft' ? true : false;
@@ -125,6 +126,13 @@ function ActionRow({
         <Icon icon="share-alt" />
         <b> {s.numberFormat(actions.length)}</b>
       </td>
+      {isEnabled('tags') && (
+        <td>
+          {(tags || []).map(tag => (
+            <Label lblColor={tag.colorCode}>{tag.name}</Label>
+          ))}
+        </td>
+      )}
       <td>
         <FlexCenter>
           <NameCard user={updatedUser} avatarSize={30} />

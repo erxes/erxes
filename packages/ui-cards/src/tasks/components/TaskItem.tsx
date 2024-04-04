@@ -1,3 +1,6 @@
+import { colors } from '@erxes/ui/src/styles';
+import React from 'react';
+
 import Assignees from '../../boards/components/Assignees';
 import Details from '../../boards/components/Details';
 import DueDateLabel from '../../boards/components/DueDateLabel';
@@ -9,7 +12,7 @@ import { PriceContainer, Right } from '../../boards/styles/item';
 import { Content } from '../../boards/styles/stage';
 import { IItem, IOptions } from '../../boards/types';
 import { renderPriority } from '../../boards/utils';
-import React from 'react';
+import ItemArchivedStatus from '../../boards/components/portable/ItemArchivedStatus';
 
 type Props = {
   stageId?: string;
@@ -45,7 +48,14 @@ class TaskItem extends React.PureComponent<Props> {
 
   renderContent() {
     const { item } = this.props;
-    const { customers, companies, closeDate, isComplete } = item;
+    const {
+      customers,
+      companies,
+      closeDate,
+      startDate,
+      isComplete,
+      customProperties
+    } = item;
 
     return (
       <>
@@ -56,6 +66,10 @@ class TaskItem extends React.PureComponent<Props> {
 
         <Details color="#F7CE53" items={customers || []} />
         <Details color="#EA475D" items={companies || []} />
+        <Details
+          color={colors.colorCoreOrange}
+          items={customProperties || []}
+        />
 
         <PriceContainer>
           <Right>
@@ -63,7 +77,11 @@ class TaskItem extends React.PureComponent<Props> {
           </Right>
         </PriceContainer>
 
-        <DueDateLabel closeDate={closeDate} isComplete={isComplete} />
+        <DueDateLabel
+          startDate={startDate}
+          closeDate={closeDate}
+          isComplete={isComplete}
+        />
 
         <ItemFooter item={item} />
       </>
@@ -77,6 +95,10 @@ class TaskItem extends React.PureComponent<Props> {
       return (
         <>
           <ItemContainer onClick={onClick}>
+            <ItemArchivedStatus
+              status={item.status || 'active'}
+              skipContainer={false}
+            />
             <Content>{this.renderContent()}</Content>
           </ItemContainer>
           {this.renderForm()}

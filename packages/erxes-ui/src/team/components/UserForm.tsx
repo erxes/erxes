@@ -1,32 +1,34 @@
-import UserCommonInfos from '@erxes/ui-settings/src/common/components/UserCommonInfos';
-import { IUser, IUserDetails, IUserLinks } from '@erxes/ui/src/auth/types';
-import CollapseContent from '@erxes/ui/src/components/CollapseContent';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { IUser, IUserDetails, IUserLinks } from '@erxes/ui/src/auth/types';
 import { __, getConstantFromStore } from '@erxes/ui/src/utils';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
-import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
+
+import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import CommonForm from '@erxes/ui-settings/src/common/components/Form';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import React from 'react';
 import Select from 'react-select-plus';
-import { IChannel } from '@erxes/ui-settings/src/channels/types';
-import CommonForm from '@erxes/ui-settings/src/common/components/Form';
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
+import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
+import UserCommonInfos from '@erxes/ui-settings/src/common/components/UserCommonInfos';
 
 type Props = {
-  channels: IChannel[];
-  groups: IUserGroup[];
-  selectedChannels: IChannel[];
-  selectedGroups: IUserGroup[];
+  channels: any[]; // check - IChannel
+  groups: any[]; // check - IUserGroup
+  selectedChannels: any[]; // check - IChannel
+  selectedGroups: any[]; // check - IUserGroup
+  selectedBrandIds: string[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   showBrands: boolean;
+  history?: any;
+  queryParams?: any;
 } & ICommonFormProps;
 
 type State = {
   avatar: string;
-  selectedChannels: IChannel[];
-  selectedGroups: IUserGroup[];
-  selectedBrands: string[];
+  selectedChannels: any[]; // check - IChannel
+  selectedGroups: any[]; // check - IUserGroup
+  selectedBrandIds: string[];
 };
 
 class UserForm extends React.Component<Props, State> {
@@ -43,30 +45,30 @@ class UserForm extends React.Component<Props, State> {
           : defaultAvatar,
       selectedChannels: this.generateParams(props.selectedChannels),
       selectedGroups: this.generateParams(props.selectedGroups),
-      selectedBrands: user.brandIds || []
+      selectedBrandIds: props.selectedBrandIds,
     };
   }
 
-  onAvatarUpload = url => {
+  onAvatarUpload = (url) => {
     this.setState({ avatar: url });
   };
 
-  generateParams = options => {
-    return options.map(option => ({
+  generateParams = (options) => {
+    return options.map((option) => ({
       value: option._id,
-      label: option.name
+      label: option.name,
     }));
   };
 
-  collectValues = items => {
-    return items.map(item => item.value);
+  collectValues = (items) => {
+    return items.map((item) => (typeof item === 'string' ? item : item.value));
   };
 
   renderGroups() {
     const self = this;
     const { groups } = this.props;
 
-    const onChange = selectedGroups => {
+    const onChange = (selectedGroups) => {
       this.setState({ selectedGroups });
     };
 
@@ -94,8 +96,8 @@ class UserForm extends React.Component<Props, State> {
       return null;
     }
 
-    const onChange = selectedBrands => {
-      this.setState({ selectedBrands });
+    const onChange = (selectedBrandIds) => {
+      this.setState({ selectedBrandIds });
     };
 
     return (
@@ -105,9 +107,9 @@ class UserForm extends React.Component<Props, State> {
 
         <SelectBrands
           label="Brand"
-          initialValue={self.state.selectedBrands}
+          initialValue={self.state.selectedBrandIds}
           onSelect={onChange}
-          name="selectedBrands"
+          name="selectedBrandIds"
           multi={true}
         />
       </FormGroup>
@@ -118,7 +120,7 @@ class UserForm extends React.Component<Props, State> {
     const self = this;
     const { channels } = this.props;
 
-    const onChange = selectedChannels => {
+    const onChange = (selectedChannels) => {
       self.setState({ selectedChannels });
     };
 
@@ -140,7 +142,7 @@ class UserForm extends React.Component<Props, State> {
 
   generateDoc = (values: {} & IUser & IUserDetails & IUserLinks) => {
     const { object } = this.props;
-    const { selectedChannels, selectedGroups, selectedBrands } = this.state;
+    const { selectedChannels, selectedGroups, selectedBrandIds } = this.state;
     const finalValues = values;
 
     if (object) {
@@ -149,7 +151,7 @@ class UserForm extends React.Component<Props, State> {
 
     const links = {};
 
-    getConstantFromStore('social_links').forEach(link => {
+    getConstantFromStore('social_links').forEach((link) => {
       links[link.value] = finalValues[link.value];
     });
 
@@ -157,21 +159,25 @@ class UserForm extends React.Component<Props, State> {
       _id: finalValues._id,
       username: finalValues.username,
       email: finalValues.email,
+      positionIds: this.props.queryParams?.positionIds,
       details: {
         avatar: this.state.avatar,
         shortName: finalValues.shortName,
-        fullName: finalValues.fullName,
         birthDate: finalValues.birthDate,
         position: finalValues.position,
         workStartedDate: finalValues.workStartedDate,
         location: finalValues.location,
         description: finalValues.description,
-        operatorPhone: finalValues.operatorPhone
+        operatorPhone: finalValues.operatorPhone,
+        firstName: finalValues.firstName,
+        lastName: finalValues.lastName,
+        middleName: finalValues.middleName,
       },
       channelIds: this.collectValues(selectedChannels),
       links,
       groupIds: this.collectValues(selectedGroups),
-      brandIds: selectedBrands
+      brandIds: selectedBrandIds,
+      employeeId: finalValues.employeeId,
     };
   };
 
@@ -184,6 +190,7 @@ class UserForm extends React.Component<Props, State> {
         <UserCommonInfos
           user={user}
           onAvatarUpload={this.onAvatarUpload}
+          history={this.props.history}
           formProps={formProps}
         />
 

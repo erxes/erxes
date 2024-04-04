@@ -2,6 +2,7 @@ import gql from "graphql-tag";
 import * as React from "react";
 import { ChildProps, compose, graphql } from "react-apollo";
 import client from "../../apollo-client";
+import { getLocalStorageItem } from "../../common";
 import { IParticipator, IUser } from "../../types";
 import DumbComponent from "../components/ConversationDetail";
 import { connection } from "../connection";
@@ -60,7 +61,7 @@ class ConversationDetail extends React.Component<
 
     // lister for new message
     data.subscribeToMore({
-      document: gql(graphqlTypes.conversationMessageInserted),
+      document: gql(graphqlTypes.conversationMessageInserted(connection.enabledServices.dailyco)),
       variables: { _id: conversationId },
       updateQuery: (prev, { subscriptionData }) => {
         const message = subscriptionData.data.conversationMessageInserted;
@@ -126,6 +127,22 @@ class ConversationDetail extends React.Component<
       refetchConversationDetail = data.refetch;
     }
 
+    const { messengerData }: any = JSON.parse(
+      getLocalStorageItem("messengerDataJson")
+    );
+
+    if (!messengerData.showLauncher && connection.enabledServices.engages) {
+      client.query({
+        query: gql(graphqlTypes.getEngageMessage),
+        variables: {
+          integrationId: connection.data.integrationId,
+          customerId: connection.data.customerId,
+          visitorId: connection.data.visitorId,
+          browserInfo: {}
+        },
+      });
+    }
+
     return (
       <DumbComponent
         {...this.props}
@@ -141,7 +158,7 @@ class ConversationDetail extends React.Component<
 
 const query = compose(
   graphql<{ conversationId: string }>(
-    gql(graphqlTypes.conversationDetailQuery),
+    gql(graphqlTypes.conversationDetailQuery(connection.enabledServices.dailyco)),
     {
       options: ownProps => ({
         variables: {

@@ -1,8 +1,21 @@
+import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
 import {
-  __, Alert, Button, confirm, DataWithLoader, FormControl, ModalTrigger, Pagination, router,
-  SortHandler, Table, Wrapper, BarItems
+  __,
+  Alert,
+  Button,
+  confirm,
+  DataWithLoader,
+  FormControl,
+  ModalTrigger,
+  Pagination,
+  router,
+  SortHandler,
+  Table,
+  Wrapper,
+  BarItems
 } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 
@@ -88,6 +101,7 @@ class CarsList extends React.Component<IProps, State> {
       loading,
       toggleBulk,
       bulk,
+      emptyBulk,
       isAllSelected,
       totalCount,
       mergeCars,
@@ -107,19 +121,31 @@ class CarsList extends React.Component<IProps, State> {
                 />
               </th>
               <th>
-                <SortHandler sortField={'plateNumber'} label={__('Plate Number')} />
+                <SortHandler
+                  sortField={'plateNumber'}
+                  label={__('Plate Number')}
+                />
               </th>
               <th>
                 <SortHandler sortField={'vinNumber'} label={__('Vin Number')} />
               </th>
               <th>
-                <SortHandler sortField={'vintageYear'} label={__('Vintage Year')} />
+                <SortHandler
+                  sortField={'vintageYear'}
+                  label={__('Vintage Year')}
+                />
               </th>
               <th>
-                <SortHandler sortField={'importYear'} label={__('Import Year')} />
+                <SortHandler
+                  sortField={'importYear'}
+                  label={__('Import Year')}
+                />
               </th>
               <th>
-                <SortHandler sortField={'description'} label={__('Description')} />
+                <SortHandler
+                  sortField={'description'}
+                  label={__('Description')}
+                />
               </th>
             </tr>
           </thead>
@@ -150,6 +176,12 @@ class CarsList extends React.Component<IProps, State> {
       </Button>
     );
 
+    const tagButton = (
+      <Button btnStyle="simple" size="small" icon="tag-alt">
+        Tag
+      </Button>
+    );
+
     let actionBarLeft: React.ReactNode;
 
     const carsMerge = props => {
@@ -174,6 +206,16 @@ class CarsList extends React.Component<IProps, State> {
               size="lg"
               trigger={mergeButton}
               content={carsMerge}
+            />
+          )}
+
+          {isEnabled('tags') && (
+            <TaggerPopover
+              type={'cars:car'}
+              successCallback={emptyBulk}
+              targets={bulk}
+              trigger={tagButton}
+              refetchQueries={['productCountByTags']}
             />
           )}
 

@@ -3,118 +3,150 @@ import {
   requireLogin
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
-import { sendProductsMessage } from '../../../messageBroker';
+import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
 import {
   IRemainderParams,
+  IRemainderProductsParams,
   IRemaindersParams
 } from '../../../models/definitions/remainders';
+import { getPosOrders } from '../utils/posOrders';
+import { getProcesses } from '../utils/processes';
+import { getSafeRemainders } from '../utils/safeRemainders';
 
 const remainderQueries = {
-  async remainders(
-    _root,
+  remainders: async (
+    _root: any,
     params: IRemaindersParams,
     { models, subdomain }: IContext
-  ) {
-    return models.Remainders.getRemainders(subdomain, params);
+  ) => {
+    return await models.Remainders.getRemainders(subdomain, params);
   },
 
-  /**
-   * Get one tag
-   */
-  remainderDetail(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.Remainders.findOne({ _id });
+  remainderDetail: async (
+    _root: any,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) => {
+    return await models.Remainders.getRemainder(_id);
   },
 
-  getRemainder(
-    _root,
+  remainderCount: async (
+    _root: any,
     params: IRemainderParams,
     { models, subdomain }: IContext
-  ) {
-    return models.Remainders.getRemainder(subdomain, params);
+  ) => {
+    return await models.Remainders.getRemainderCount(subdomain, params);
   },
 
-  remainderProducts: async (_root, params, { models, subdomain }: IContext) => {
-    const query: any = { status: { $ne: 'deleted' } };
+  remainderProducts: async (
+    _root: any,
+    params: IRemainderProductsParams,
+    { models, subdomain }: IContext
+  ) => {
+    return await models.Remainders.getRemainderProducts(subdomain, params);
+  },
 
-    if (params.categoryId) {
+  remaindersLog: async (
+    _root: any,
+    params: {
+      categoryId: string;
+      productIds: string[];
+      branchId: string;
+      departmentId: string;
+      beginDate: Date;
+      endDate: Date;
+      isDetailed: boolean;
+    },
+    { models, subdomain }: IContext
+  ) => {
+    const { categoryId, productIds, branchId, departmentId } = params;
+
+    const productFilter: any = {};
+    if (categoryId) {
       const productCategories = await sendProductsMessage({
         subdomain,
         action: 'categories.withChilds',
         data: {
-          _id: params.categoryId
+          _id: categoryId
         },
         isRPC: true,
         defaultValue: []
       });
-
-      const productCategoryIds = productCategories.map(p => p._id);
-
-      query.categoryId = { $in: productCategoryIds };
+      const categoryIds = productCategories.map((item: any) => item._id);
+      productFilter.categoryId = { $in: categoryIds };
+    }
+    if (productIds && productIds.length) {
+      productFilter._id = { $in: productIds };
     }
 
-    if (params.searchValue) {
-      const regexOption = {
-        $regex: `.*${params.searchValue}.*`,
-        $options: 'i'
-      };
-
-      query.$or = [
-        {
-          name: regexOption
-        },
-        {
-          code: regexOption
-        }
-      ];
-    }
-
-    const limit = params.perPage || 20;
-    const skip = params.page ? (params.page - 1) * limit : 0;
+    const limit = await sendProductsMessage({
+      subdomain,
+      action: 'count',
+      data: { query: productFilter },
+      isRPC: true
+    });
 
     const products = await sendProductsMessage({
       subdomain,
       action: 'find',
-      data: {
-        query,
-        sort: {},
-        skip,
-        limit
-      },
+      data: { query: productFilter, limit },
       isRPC: true
     });
 
-    const totalCount = await sendProductsMessage({
-      subdomain,
-      action: 'count',
-      data: {
-        query
-      },
-      isRPC: true
-    });
-
-    const productIds = products.map(p => p._id);
-
-    const remQuery: any = {
-      productId: { $in: productIds }
-    };
-
-    if (params.departmentId) {
-      remQuery.departmentId = params.departmentId;
-    }
-    if (params.branchId) {
-      remQuery.branchId = params.branchId;
-    }
-
-    const remainders = await models.Remainders.find(remQuery).lean();
+    const beProductIds = products.map(p => p._id);
+    const productById = {};
 
     for (const product of products) {
-      const { count = 0, uomId = '' } =
-        remainders.find(r => r.productId === product._id) || {};
-
-      product.remainder = count;
+      productById[product._id] = product;
     }
 
-    return { totalCount, products };
+    const branch = await sendCoreMessage({
+      subdomain,
+      action: 'branches.findOne',
+      data: { _id: branchId },
+      isRPC: true
+    });
+
+    const department = await sendCoreMessage({
+      subdomain,
+      action: 'departments.findOne',
+      data: { _id: departmentId },
+      isRPC: true
+    });
+
+    let result = {};
+
+    result = await getSafeRemainders(
+      models,
+      params,
+      result,
+      branch,
+      department,
+      productById,
+      beProductIds
+    );
+
+    result = await getProcesses(
+      subdomain,
+      params,
+      result,
+      branch,
+      department,
+      productById,
+      beProductIds
+    );
+
+    result = await getPosOrders(
+      subdomain,
+      params,
+      result,
+      branch,
+      department,
+      productById,
+      beProductIds
+    );
+
+    return result;
   }
 };
 

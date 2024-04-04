@@ -1,20 +1,21 @@
+import { isEnabled, renderFullName } from '@erxes/ui/src/utils/core';
+
 import Box from '@erxes/ui/src/components/Box';
+import CompanySection from '@erxes/ui-contacts/src/companies/components/CompanySection';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
-import colors from '@erxes/ui/src/styles/colors';
-import { __ } from '@erxes/ui/src/utils/core';
-import CompanySection from '@erxes/ui/src/companies/components/CompanySection';
-import { List } from '../../../companies/styles';
 import { ICustomer } from '../../types';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import Icon from '@erxes/ui/src/components/Icon';
+import { List } from '../../../companies/styles';
 import PortableDeals from '@erxes/ui-cards/src/deals/components/PortableDeals';
 import PortableTasks from '@erxes/ui-cards/src/tasks/components/PortableTasks';
 import PortableTickets from '@erxes/ui-cards/src/tickets/components/PortableTickets';
-import { isEnabled, renderFullName } from '@erxes/ui/src/utils/core';
-
-import { pluginsOfCustomerSidebar } from 'coreui/pluginUtils';
+import PortabelPurchases from '@erxes/ui-cards/src/purchases/components/PortablePurchases';
 import React from 'react';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from 'coreui/utils';
+import colors from '@erxes/ui/src/styles/colors';
+import { pluginsOfCustomerSidebar } from 'coreui/pluginUtils';
 
 type Props = {
   customer: ICustomer;
@@ -94,6 +95,11 @@ export default class RightSidebar extends React.Component<Props> {
               mainTypeName={mainTypeName}
             />
             <PortableTasks
+              mainType="customer"
+              mainTypeId={customer._id}
+              mainTypeName={mainTypeName}
+            />
+            <PortabelPurchases
               mainType="customer"
               mainTypeId={customer._id}
               mainTypeName={mainTypeName}

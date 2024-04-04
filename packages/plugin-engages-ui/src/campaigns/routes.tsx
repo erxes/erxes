@@ -1,7 +1,7 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import queryString from 'query-string';
 
 const MessageForm = asyncComponent(() => {
   const comp = import(
@@ -27,7 +27,7 @@ const EngageStats = asyncComponent(() =>
 
 const EngageConfigs = asyncComponent(() =>
   import(
-    /* webpackChunkName: "Engage configs" */ '../settings/components/EngageConfigs'
+    /* webpackChunkName: "Engage configs" */ '../settings/campaigns/components/EngageConfigs'
   )
 );
 

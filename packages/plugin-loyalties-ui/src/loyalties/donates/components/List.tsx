@@ -1,9 +1,18 @@
+import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
 import {
-  __, Alert, confirm, router,
-} from '@erxes/ui/src/utils';
-import { Button, DataWithLoader, FormControl, ModalTrigger, Pagination, SortHandler, Table } from '@erxes/ui/src/components';
+  Button,
+  DataWithLoader,
+  FormControl,
+  ModalTrigger,
+  Pagination,
+  SortHandler,
+  Table
+} from '@erxes/ui/src/components';
 import { Wrapper } from '@erxes/ui/src/layout';
-import { MainStyleTitle as Title, MainStyleCount as Count } from '@erxes/ui/src/styles/eindex';
+import {
+  MainStyleTitle as Title,
+  MainStyleCount as Count
+} from '@erxes/ui/src/styles/eindex';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
@@ -99,7 +108,6 @@ class DonatesList extends React.Component<IProps, State> {
     } = this.props;
 
     const mainContent = (
-
       <LoyaltiesTableWrapper>
         <Table whiteSpace="nowrap" bordered={true} hover={true}>
           <thead>
@@ -121,11 +129,12 @@ class DonatesList extends React.Component<IProps, State> {
                 <SortHandler sortField={'ownerId'} label={__('Owner')} />
               </th>
               <th>
-                <SortHandler sortField={'donateScore'} label={__('Donate Score')} />
+                <SortHandler
+                  sortField={'donateScore'}
+                  label={__('Donate Score')}
+                />
               </th>
-              <th>
-                Actions
-              </th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody id="donates">
@@ -198,11 +207,14 @@ class DonatesList extends React.Component<IProps, State> {
             backDrop="static"
           />
         </BarItems>
-      )
+      );
     };
 
     const actionBarLeft = (
-      <Title>{currentCampaign && `${currentCampaign.title}` || 'All donate campaigns'} </Title>
+      <Title>
+        {(currentCampaign && `${currentCampaign.title}`) ||
+          'All donate campaigns'}{' '}
+      </Title>
     );
     const actionBar = (
       <Wrapper.ActionBar right={actionBarRight()} left={actionBarLeft} />
@@ -238,8 +250,8 @@ class DonatesList extends React.Component<IProps, State> {
               emptyImage="/images/actions/1.svg"
             />
           </>
-
         }
+        hasBorder
       />
     );
   }

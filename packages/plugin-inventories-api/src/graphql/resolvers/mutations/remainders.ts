@@ -1,24 +1,25 @@
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
-import { updateLiveRemainder } from './utils';
+import { updateLiveRemainders } from './utils';
 
 export interface IUpdateRemaindersParams {
+  departmentId?: string;
+  branchId?: string;
   productCategoryId?: string;
   productIds?: string[];
-  departmentId: string;
-  branchId: string;
 }
 
 const remainderMutations = {
-  async updateRemainders(
-    _root,
+  // TODO remove code
+  remaindersUpdate: async (
+    _root: any,
     params: IUpdateRemaindersParams,
-    { models, subdomain }: IContext
-  ) {
-    return updateLiveRemainder({ subdomain, ...params });
+    { subdomain }: IContext
+  ) => {
+    return updateLiveRemainders({ subdomain, ...params });
   }
 };
 
-checkPermission(remainderMutations, 'updateRemainders', 'manageRemainders');
+checkPermission(remainderMutations, 'remaindersUpdate', 'manageRemainders');
 
 export default remainderMutations;

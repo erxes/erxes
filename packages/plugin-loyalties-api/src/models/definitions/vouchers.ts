@@ -17,7 +17,12 @@ export const voucherSchema = schemaHooksWrapper(
   new Schema({
     ...commonSchema,
 
-    status: field({ type: String, enum: VOUCHER_STATUS.ALL, default: 'new', label: 'Status' }),
+    status: field({
+      type: String,
+      enum: VOUCHER_STATUS.ALL,
+      default: 'new',
+      label: 'Status'
+    }),
     // etc: bonus-> usedCount
     bonusInfo: field({ type: Object, optional: true, label: 'Bonus log' })
   }),

@@ -1,20 +1,24 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+
 import {
   BoardsQueryResponse,
   StagesQueryResponse
 } from '@erxes/ui-cards/src/boards/types';
-import { IPipeline } from '@erxes/ui-cards/src/boards/types';
+
 import { DepartmentsQueryResponse } from '@erxes/ui/src/team/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import PipelineForm from '../components/PipelineForm';
-import { queries } from '@erxes/ui-settings/src/boards/graphql';
-import { queries as teamQueries } from '@erxes/ui/src/team/graphql';
 import { IOption } from '../types';
+import { IPipeline } from '@erxes/ui-cards/src/boards/types';
+import PipelineForm from '../components/PipelineForm';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '@erxes/ui-cards/src/settings/boards/graphql';
+import { queries as teamQueries } from '@erxes/ui/src/team/graphql';
+import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
+import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   pipeline?: IPipeline;
@@ -30,6 +34,7 @@ type FinalProps = {
   stagesQuery: StagesQueryResponse;
   boardsQuery: BoardsQueryResponse;
   departmentsQuery: DepartmentsQueryResponse;
+  tagsQuery: TagsQueryResponse;
 } & Props;
 
 class PipelineFormContainer extends React.Component<FinalProps> {
@@ -40,13 +45,15 @@ class PipelineFormContainer extends React.Component<FinalProps> {
       departmentsQuery,
       boardId,
       renderButton,
-      options
+      options,
+      tagsQuery
     } = this.props;
 
     if (
       (stagesQuery && stagesQuery.loading) ||
       (boardsQuery && boardsQuery.loading) ||
-      (departmentsQuery && departmentsQuery.loading)
+      (departmentsQuery && departmentsQuery.loading) ||
+      (tagsQuery && tagsQuery.loading)
     ) {
       return <Spinner />;
     }
@@ -54,6 +61,7 @@ class PipelineFormContainer extends React.Component<FinalProps> {
     const stages = stagesQuery ? stagesQuery.stages : [];
     const boards = boardsQuery.boards || [];
     const departments = departmentsQuery.departments || [];
+    const tags = tagsQuery.tags || [];
 
     const extendedProps = {
       ...this.props,
@@ -61,10 +69,11 @@ class PipelineFormContainer extends React.Component<FinalProps> {
       boards,
       departments,
       boardId,
-      renderButton
+      renderButton,
+      tags
     };
 
-    const Form = options ? options.PipelineForm : PipelineForm;
+    const Form = options?.PipelineForm || PipelineForm;
 
     return <Form {...extendedProps} />;
   }
@@ -72,6 +81,13 @@ class PipelineFormContainer extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
+    graphql(gql(tagQueries.tags), {
+      name: 'tagsQuery',
+      options: (props: Props) => ({
+        variables: { type: `cards:${props.type}` }
+      })
+    }),
+
     graphql<Props, StagesQueryResponse, { pipelineId: string }>(
       gql(queries.stages),
       {

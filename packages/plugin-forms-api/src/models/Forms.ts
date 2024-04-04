@@ -1,6 +1,6 @@
-import * as Random from 'meteor-random';
-import { Model, model } from 'mongoose';
-import * as validator from 'validator';
+import { nanoid } from 'nanoid';
+import { Model } from 'mongoose';
+import validator from 'validator';
 import { IModels } from '../connectionResolver';
 import {
   formSchema,
@@ -59,7 +59,7 @@ export const loadFormClass = (models: IModels) => {
       let foundForm = true;
 
       do {
-        code = Random.id().substr(0, 6);
+        code = nanoid(6);
         foundForm = Boolean(await models.Forms.findOne({ code }));
       } while (foundForm);
 
@@ -134,7 +134,8 @@ export const loadFormClass = (models: IModels) => {
           description: field.description,
           options: field.options,
           isRequired: field.isRequired,
-          order: field.order
+          order: field.order,
+          optionsValues: field?.optionsValues
         });
       }
 

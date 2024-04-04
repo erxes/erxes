@@ -1,9 +1,0 @@
-node_modules
-public
-src
-.env*
-.git*
-*.md
-Dockerfile*
-*.json
-yarn.lock

@@ -1,11 +1,12 @@
-import { LeftContent, Row } from '@erxes/ui-settings/src/integrations/styles';
-import FormGroup from '@erxes/ui/src/components/form/Group';
+import { LeftContent, Row } from '../../styles';
+
 import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IDepartment } from '../types';
 import { IOption } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import Select from 'react-select-plus';
-import { IDepartment } from '../types';
+import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   departments: IDepartment[];

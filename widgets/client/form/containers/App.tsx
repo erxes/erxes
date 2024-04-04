@@ -16,6 +16,7 @@ type Props = {
   setHeight: () => void;
   setCallSubmit: (state: boolean) => void;
   setExtraContent: (content: string) => void;
+  onChangeCurrentStatus: (status: string) => void;
 };
 
 class App extends React.Component<Props> {
@@ -23,7 +24,7 @@ class App extends React.Component<Props> {
     saveBrowserInfo();
 
     window.addEventListener("message", event => {
-      const { fromPublisher, message, action, formId, html } = event.data;
+      const { fromPublisher, fromPayment, message, action, formId, html, invoice } = event.data;
 
       if (fromPublisher) {
         // receive sendingBrowserInfo command from publisher
@@ -47,6 +48,13 @@ class App extends React.Component<Props> {
           }
         }
       }
+
+      if (fromPayment) {
+        if (message === "paymentSuccessfull") {
+          this.props.onChangeCurrentStatus("SUCCESS");
+        }
+      }
+
     });
   }
 
@@ -136,7 +144,8 @@ const WithContext = () => (
           setHeight,
           getIntegrationConfigs,
           setCallSubmit,
-          setExtraContent
+          setExtraContent,
+          onChangeCurrentStatus
         } = value;
 
         return (
@@ -151,6 +160,7 @@ const WithContext = () => (
             setHeight={setHeight}
             closePopup={closePopup}
             showPopup={showPopup}
+            onChangeCurrentStatus={onChangeCurrentStatus}
           />
         );
       }}

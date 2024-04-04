@@ -1,9 +1,9 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 
 import {
   types as reactionTypes,
   queries as reactionQueries,
-  mutations as reactionMutations,
+  mutations as reactionMutations
 } from './schema/reactions';
 
 const typeDefs = async () => {

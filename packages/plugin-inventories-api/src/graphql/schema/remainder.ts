@@ -1,30 +1,20 @@
 export const types = `
   type Remainder @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String
-    modifiedAt: Date
-    productId: String
-    count: Float
-    uomId: String
     branchId: String
     departmentId: String
+    productId: String
+    count: Float
+    soonIn: Float
+    soonOut: Float
+    uom: String
+    modifiedAt: Date
   }
 
-  type GetRemainder {
+  type RemainderCount {
     _id: String
     remainder: Float
-    uomId: String
-
-    uom: JSON
-  }
-
-  extend type ProductCategory @key(fields: "_id") {
-    _id: String! @external
-  }
-
-  type Uom_ {
-    _id: String!
-    code: String
-    name: String
+    uom: String
   }
 
   type RemainderProduct @key(fields: "_id") {
@@ -32,13 +22,14 @@ export const types = `
     name: String
     code: String
     type: String
-    uomId: String
-    unitPrice: Float
-    categoryId: String
-    createdAt: Date
-    remainder: Float
+    uom: String
     category: ProductCategory
-    uom: Uom_
+    categoryId: String
+    remainder: Float
+    soonIn: Float
+    soonOut: Float
+    unitPrice: Float
+    createdAt: Date
   }
 
   type RemainderProducts {
@@ -48,12 +39,47 @@ export const types = `
 `;
 
 export const queries = `
-  getRemainder(productId: String, departmentId: String, branchId: String, uomId: String): GetRemainder
-  remainders(departmentId: String, branchId: String, productCategoryId: String, productIds: [String]): [Remainder]
+  remainders(
+    departmentId: String,
+    branchId: String,
+    productCategoryId: String,
+    productIds: [String]
+  ): [Remainder]
   remainderDetail(_id: String): Remainder
-  remainderProducts(categoryId: String, searchValue: String, page: Int, perPage: Int, sortField: String, sortDirection: Int, search: String, departmentId: String, branchId: String): RemainderProducts
+  remainderCount(
+    departmentId: String,
+    branchId: String,
+    productId: String,
+    uom: String
+  ): RemainderCount
+  remainderProducts(
+    departmentId: String,
+    branchId: String,
+    categoryId: String,
+    search: String,
+    searchValue: String,
+    page: Int,
+    perPage: Int,
+    sortField: String,
+    sortDirection: Int,
+  ): RemainderProducts
+  remaindersLog(
+    categoryId: String,
+    productIds: [String],
+    searchValue: String,
+    departmentId: String,
+    branchId: String,
+    beginDate: Date,
+    endDate: Date,
+    isDetailed: Boolean
+  ): JSON
 `;
 
 export const mutations = `
-  updateRemainders(productCategoryId: String, productIds: [String], departmentId: String, branchId: String): [RemainderProduct]
+  remaindersUpdate(
+    departmentId: String,
+    branchId: String,
+    productCategoryId: String,
+    productIds: [String],
+  ): [RemainderProduct]
 `;

@@ -14,7 +14,6 @@ import {
 type Props = {
   attachments: IMailAttachment[];
   integrationId: string;
-  kind: string;
   messageId: string;
 };
 
@@ -34,17 +33,17 @@ class Attachments extends React.PureComponent<Props, {}> {
 
   getIcon(type: string) {
     if (type.startsWith('image')) {
-      return <Icon icon='image-v' size={14} />;
+      return <Icon icon="image-v" size={14} />;
     }
 
-    return <Icon icon='file-alt' size={14} />;
+    return <Icon icon="file-alt" size={14} />;
   }
 
   createLink(attachmentId: string, filename: string, type?: string) {
     const { REACT_APP_API_URL } = getEnv();
-    const { messageId, integrationId, kind } = this.props;
+    const { messageId, integrationId } = this.props;
 
-    return `${REACT_APP_API_URL}/read-mail-attachment?messageId=${messageId}&attachmentId=${attachmentId}&integrationId=${integrationId}&filename=${filename}&kind=${kind}&contentType=${type}`;
+    return `${REACT_APP_API_URL}/pl:imap/read-mail-attachment?messageId=${messageId}&attachmentId=${attachmentId}&integrationId=${integrationId}&filename=${filename}&contentType=${type}`;
   }
 
   renderAttach(attachment: IMailAttachment) {
@@ -65,12 +64,12 @@ class Attachments extends React.PureComponent<Props, {}> {
 
         <FileInfo>
           <span>{this.formatSize(size)}</span>
-          <Tip text={__('Download')} placement='top'>
+          <Tip text={__('Download')} placement="top">
             <Download
               href={this.createLink(id || attachmentId, filename, type)}
-              target='_blank'
+              target="_blank"
             >
-              <Icon icon='arrow-down' />
+              <Icon icon="arrow-down" />
             </Download>
           </Tip>
         </FileInfo>

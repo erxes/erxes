@@ -1,12 +1,5 @@
 import * as React from 'react';
-import dayjs from 'dayjs';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import Icon from '@erxes/ui/src/components/Icon';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
-import { ICustomer } from '@erxes/ui/src/customers/types';
-import Dropdown from 'react-bootstrap/Dropdown';
+
 import {
   ActionButton,
   AddressContainer,
@@ -18,8 +11,17 @@ import {
   RightSide,
   Title
 } from './style';
-import { IMessage, IMail } from '../../../../types';
+import { IMail, IMessage } from '../../../../types';
+
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import { Flex } from '@erxes/ui/src/styles/main';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils';
+import dayjs from 'dayjs';
 
 type Props = {
   message: IMessage;
@@ -43,7 +45,7 @@ class MailHeader extends React.Component<Props, State> {
     };
   }
 
-  toggleDateFormat = e => {
+  toggleDateFormat = (e) => {
     e.stopPropagation();
 
     this.setState({
@@ -51,7 +53,7 @@ class MailHeader extends React.Component<Props, State> {
     });
   };
 
-  toggleExpand = e => {
+  toggleExpand = (e) => {
     if (this.props.isContentCollapsed) {
       return;
     }
@@ -79,40 +81,38 @@ class MailHeader extends React.Component<Props, State> {
       return null;
     }
 
-    const onToggleReply = event => this.onToggleMailForm({ event });
-    const onToggleReplyAll = event =>
+    const onToggleReply = (event) => this.onToggleMailForm({ event });
+    const onToggleReplyAll = (event) =>
       this.onToggleMailForm({ event, replyToAll: true });
-    const onToggleForward = event =>
+    const onToggleForward = (event) =>
       this.onToggleMailForm({ event, isForward: true });
 
     return (
       <>
-        <Tip text={__('Reply')} placement='bottom'>
+        <Tip
+          text={__('Reply')}
+          placement='bottom'>
           <ActionButton onClick={onToggleReply}>
             <Icon icon='reply' />
           </ActionButton>
         </Tip>
         <Dropdown alignRight={true}>
-          <Dropdown.Toggle as={DropdownToggle} id='dropdown-engage'>
+          <Dropdown.Toggle
+            as={DropdownToggle}
+            id='dropdown-engage'>
             <ActionButton>
               <Icon icon='ellipsis-v' />
             </ActionButton>
           </Dropdown.Toggle>
           <Dropdown.Menu>
             <li>
-              <a href='#action' onClick={onToggleReply}>
-                Reply
-              </a>
+              <a onClick={onToggleReply}>Reply</a>
             </li>
             <li>
-              <a href='#action' onClick={onToggleReplyAll}>
-                Reply all
-              </a>
+              <a onClick={onToggleReplyAll}>Reply all</a>
             </li>
             <li>
-              <a href='#action' onClick={onToggleForward}>
-                Forward
-              </a>
+              <a onClick={onToggleForward}>Forward</a>
             </li>
           </Dropdown.Menu>
         </Dropdown>
@@ -181,53 +181,37 @@ class MailHeader extends React.Component<Props, State> {
     );
   };
 
-  renderSubject = (subject: string) => {
-    if (!this.state.isDetailExpanded) {
-      return null;
-    }
-
-    return (
-      <Flex>
-        <Title>{__('Subject')}:</Title>
-        <Addresses>{subject}</Addresses>
-      </Flex>
-    );
-  };
-
-  renderSecondaryContent = mailData => {
+  renderSecondaryContent = (mailData) => {
     const { message, isContentCollapsed } = this.props;
 
     if (isContentCollapsed) {
       // remove all tags and convert plain text
       const plainContent = (message.content || '').trim();
-
       return <div>{plainContent.substring(0, 100)}...</div>;
     }
 
     return (
-      <>
-        <AddressContainer isExpanded={this.state.isDetailExpanded}>
-          {this.renderAddress('To:', mailData.to)}
-          {this.renderAddress('Cc:', mailData.cc)}
-          {this.renderAddress('Bcc:', mailData.bcc)}
-        </AddressContainer>
-        {this.renderSubject(mailData.subject || '')}
-      </>
+      <AddressContainer isExpanded={this.state.isDetailExpanded}>
+        {this.renderAddress('To:', mailData.to)}
+        {this.renderAddress('Cc:', mailData.cc)}
+        {this.renderAddress('Bcc:', mailData.bcc)}
+      </AddressContainer>
     );
   };
 
   renderDetails(mailData) {
     const [from] = mailData.from || [{}];
 
-    return (
-      <Details
-        onClick={this.toggleExpand}
-        clickable={!this.props.isContentCollapsed}
-      >
-        {this.renderCustomer(from.email || '')}
-        {this.renderSecondaryContent(mailData)}
-      </Details>
-    );
+    const modifiedEmail = from.email.replace('noreply@', '');
+    if (from.email)
+      return (
+        <Details
+          onClick={this.toggleExpand}
+          clickable={!this.props.isContentCollapsed}>
+          {this.renderCustomer(modifiedEmail || '')}
+          {this.renderSecondaryContent(mailData)}
+        </Details>
+      );
   }
 
   render() {
@@ -238,8 +222,14 @@ class MailHeader extends React.Component<Props, State> {
       : false;
 
     return (
-      <Meta toggle={isContentCollapsed} onClick={onToggleContent}>
-        <NameCard.Avatar customer={customer} size={32} letterCount={1} />
+      <Meta
+        toggle={isContentCollapsed}
+        onClick={onToggleContent}>
+        <NameCard.Avatar
+          customer={customer}
+          size={32}
+          letterCount={1}
+        />
         {this.renderDetails(mailData)}
         {this.renderRightSide(hasAttachments, createdAt)}
       </Meta>

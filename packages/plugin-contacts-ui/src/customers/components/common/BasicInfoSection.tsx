@@ -1,10 +1,9 @@
+import DetailInfo from '@erxes/ui-contacts/src/customers/components/common/DetailInfo';
 import { ICustomer } from '../../types';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import { IField } from '@erxes/ui/src/types';
 import { IFieldsVisibility } from '@erxes/ui-contacts/src/customers/types';
 import React from 'react';
-
-import DetailInfo from '@erxes/ui-contacts/src/customers/components/common/DetailInfo';
-import { IField } from '@erxes/ui/src/types';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 
 type Props = {
   customer: ICustomer;

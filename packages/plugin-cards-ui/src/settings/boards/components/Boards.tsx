@@ -45,7 +45,7 @@ class Boards extends React.Component<Props, {}> {
   renderSidebarHeader() {
     const { renderButton, type, options } = this.props;
 
-    const boardName = options ? options.boardName : 'Board';
+    const boardName = options?.boardName || 'Board';
 
     const addBoard = (
       <Button btnStyle="success" icon="plus-circle" block={true}>
@@ -76,7 +76,7 @@ class Boards extends React.Component<Props, {}> {
       options && options.boardName ? options.boardName.toLowerCase() : 'board';
 
     return (
-      <Sidebar noMargin wide header={this.renderSidebarHeader()} hasBorder>
+      <Sidebar wide header={this.renderSidebarHeader()} hasBorder>
         <DataWithLoader
           data={
             <List noTextColor noBackground>

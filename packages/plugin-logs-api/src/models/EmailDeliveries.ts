@@ -1,5 +1,5 @@
 import { Model, Schema, Document } from 'mongoose';
-import * as Random from 'meteor-random';
+import { nanoid } from 'nanoid';
 import { IModels } from '../connectionResolver';
 import { field } from './utils';
 
@@ -33,7 +33,6 @@ export interface IEmailDeliveryModel extends Model<IEmailDeliveriesDocument> {
   updateEmailDeliveryStatus(_id: string, status: string): Promise<void>;
 }
 
-
 export const EMAIL_DELIVERY_STATUS = {
   PENDING: 'pending',
   RECEIVED: 'received',
@@ -41,7 +40,7 @@ export const EMAIL_DELIVERY_STATUS = {
 };
 
 const schema = new Schema({
-  _id: { type: String, default: () => Random.id() },
+  _id: { type: String, default: () => nanoid() },
   subject: field({ type: String }),
   body: field({ type: String }),
   to: field({ type: [String] }),

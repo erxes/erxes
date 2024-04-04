@@ -1,12 +1,12 @@
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import { Counts } from '@erxes/ui/src/types';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
 export const generateListQueryVariables = ({ queryParams }) => ({
   ...generatePaginationParams(queryParams),
   kind: queryParams.kind,
   status: queryParams.status,
   tag: queryParams.tag,
-  ids: queryParams.ids
+  ids: queryParams.ids,
 });
 
 export const crudMutationsOptions = () => {
@@ -15,15 +15,15 @@ export const crudMutationsOptions = () => {
       'engageMessages',
       'engageMessagesTotalCount',
       'kindCounts',
-      'statusCounts'
-    ]
+      'statusCounts',
+    ],
   };
 };
 
-export const generateEmailTemplateParams = emailTemplates => {
-  return emailTemplates.map(template => ({
+export const generateEmailTemplateParams = (emailTemplates) => {
+  return (emailTemplates || []).map((template) => ({
     value: template._id,
-    label: template.name
+    label: template.name,
   }));
 };
 

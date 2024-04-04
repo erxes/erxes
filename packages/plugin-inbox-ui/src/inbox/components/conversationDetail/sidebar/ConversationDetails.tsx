@@ -1,19 +1,20 @@
-import dayjs from 'dayjs';
-import IntegrationIcon from '@erxes/ui-settings/src/integrations/components/IntegrationIcon';
-import { __ } from '@erxes/ui/src/utils/core';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import {
   FieldStyle,
   SidebarCounter,
   SidebarList
 } from '@erxes/ui/src/layout/styles';
-import { cleanIntegrationKind } from '@erxes/ui/src/utils';
-import { IField } from '@erxes/ui/src/types';
-import React from 'react';
-import { ICustomer } from '@erxes/ui/src/customers/types';
+
 import { IBrand } from '@erxes/ui/src/brands/types';
-import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
+import { IField } from '@erxes/ui/src/types';
+import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
+import IntegrationIcon from '@erxes/ui-inbox/src/settings/integrations/components/IntegrationIcon';
+import React from 'react';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import { __ } from 'coreui/utils';
+import { cleanIntegrationKind } from '@erxes/ui/src/utils';
+import dayjs from 'dayjs';
 
 type Props = {
   conversation: IConversation;

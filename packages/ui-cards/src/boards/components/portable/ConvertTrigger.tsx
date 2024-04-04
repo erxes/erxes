@@ -1,7 +1,7 @@
 import AddForm from '../../containers/portable/AddForm';
+import { IOptions } from '../../types';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
-import { IOptions } from '../../types';
 
 type Props = {
   relType: string;
@@ -17,6 +17,7 @@ type Props = {
   description?: string;
   attachments?: any[];
   bookingProductId?: string;
+  autoOpenKey?: string;
 };
 
 export default function ConvertTrigger(props: Props) {
@@ -33,18 +34,24 @@ export default function ConvertTrigger(props: Props) {
     subject,
     description,
     attachments,
-    bookingProductId
+    bookingProductId,
+    autoOpenKey
   } = props;
 
   if (url) {
     return (
-      <a target="_blank" rel="noopener noreferrer" href={url}>
+      <a
+        onClick={() => {
+          window.open(url, '_blank');
+        }}
+        id={autoOpenKey}
+      >
         {title}
       </a>
     );
   }
 
-  const trigger = <a href="#title">{title}</a>;
+  const trigger = <a id={autoOpenKey}>{title}</a>;
 
   const content = formProps => (
     <AddForm
@@ -64,5 +71,12 @@ export default function ConvertTrigger(props: Props) {
     />
   );
 
-  return <ModalTrigger title={title} trigger={trigger} content={content} />;
+  return (
+    <ModalTrigger
+      title={title}
+      trigger={trigger}
+      content={content}
+      addisOpenToQueryParam={true}
+    />
+  );
 }

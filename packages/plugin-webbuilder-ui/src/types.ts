@@ -1,11 +1,15 @@
-import { QueryResponse } from '@erxes/ui/src/types';
+import { IAttachment, QueryResponse } from '@erxes/ui/src/types';
+
+import { IUser } from '@erxes/ui/src/auth/types';
+
 export interface IPage {
   name: string;
   description: string;
   html: string;
   css: string;
-  jsonData: any;
   siteId: string;
+  createdUser?: IUser;
+  updatedUser?: IUser;
 }
 
 export interface IPageDoc extends IPage {
@@ -19,8 +23,10 @@ export interface IField {
   show: boolean;
 }
 export interface IContentType {
+  _id: string;
   code: string;
   displayName: string;
+  entries: IEntry[];
   fields: IField[];
   siteId: string;
 }
@@ -31,7 +37,6 @@ export interface IContentTypeDoc extends IContentType {
 }
 
 export interface IEntryValue {
-  fieldId: string;
   fieldCode: string;
   value: any;
 }
@@ -47,7 +52,9 @@ export interface IEntryDoc extends IEntry {
 
 export interface ITemplate {
   name: string;
-  jsonData: any;
+  html: string;
+  image: string;
+  categories: string;
 }
 
 export interface ITemplateDoc extends ITemplate {
@@ -57,6 +64,8 @@ export interface ITemplateDoc extends ITemplate {
 export interface ISite {
   name: string;
   domain: string;
+  templateImage?: string;
+  coverImage: IAttachment;
 }
 
 export interface ISiteDoc extends ISite {
@@ -64,14 +73,8 @@ export interface ISiteDoc extends ISite {
 }
 
 // query
-
-// page
-export type PagesQueryResponse = {
-  webbuilderPages: IPageDoc[];
-} & QueryResponse;
-
-export type PagesTotalCountQueryResponse = {
-  webbuilderPagesTotalCount: number;
+export type PagesMainQueryResponse = {
+  webbuilderPagesMain: { list: IPageDoc[]; totalCount: number };
 } & QueryResponse;
 
 export type PageDetailQueryResponse = {
@@ -83,8 +86,8 @@ export type TypesQueryResponse = {
   webbuilderContentTypes: IContentTypeDoc[];
 } & QueryResponse;
 
-export type TypesTotalCountQueryResponse = {
-  webbuilderContentTypesTotalCount: number;
+export type TypesMainQueryResponse = {
+  webbuilderContentTypesMain: { list: IContentTypeDoc[]; totalCount: number };
 } & QueryResponse;
 
 export type TypeDetailQueryResponse = {
@@ -92,12 +95,8 @@ export type TypeDetailQueryResponse = {
 } & QueryResponse;
 
 // entry
-export type EntriesQueryResponse = {
-  webbuilderEntries: IEntryDoc[];
-} & QueryResponse;
-
-export type EntriesTotalCountQueryResponse = {
-  webbuilderEntriesTotalCount: number;
+export type EntriesMainQueryResponse = {
+  webbuilderEntriesMain: { list: IEntryDoc[]; totalCount: number };
 } & QueryResponse;
 
 export type EntryDetailQueryResponse = {
@@ -107,6 +106,14 @@ export type EntryDetailQueryResponse = {
 // template
 export type TemplatesQueryResponse = {
   webbuilderTemplates: ITemplateDoc[];
+} & QueryResponse;
+
+export type TemplatesDetailQueryResponse = {
+  webbuilderTemplateDetail: ITemplateDoc;
+} & QueryResponse;
+
+export type TemplatesTotalCountQueryResponse = {
+  webbuilderTemplatesTotalCount: number;
 } & QueryResponse;
 
 // site
@@ -168,12 +175,10 @@ export type EntriesRemoveMutationResponse = {
 };
 
 // template
-export type TemplatesAddMutationResponse = {
-  templatesAdd: (doc: { variables: ITemplate }) => Promise<any>;
-};
-
-export type TemplatesRemoveMutationResponse = {
-  templatesRemove: (doc: { variables: { _id: string } }) => Promise<any>;
+export type TemplatesUseMutationResponse = {
+  templatesUse: (doc: {
+    variables: { _id: string; name: string; coverImage?: string };
+  }) => Promise<any>;
 };
 
 // site
@@ -190,4 +195,8 @@ export type SitesEditMutationResponse = {
 
 export type SitesRemoveMutationResponse = {
   sitesRemoveMutation: (doc: { variables: { _id: string } }) => Promise<any>;
+};
+
+export type SitesDuplicateMutationResponse = {
+  sitesDuplicateMutation: (doc: { variables: { _id: string } }) => Promise<any>;
 };

@@ -1,12 +1,15 @@
-import { IAction } from '../../../types';
+import { IAction } from '@erxes/ui-automations/src/types';
 import React from 'react';
 import { ActionForms } from './';
 
 type Props = {
   activeAction: IAction;
   triggerType: string;
+  triggerConfig: any;
   addAction: (action: IAction, actionId?: string, config?: any) => void;
   closeModal: () => void;
+  actionsConst: any[];
+  propertyTypesConst: any[];
 };
 
 class ActionDetailForm extends React.Component<Props> {
@@ -21,23 +24,9 @@ class ActionDetailForm extends React.Component<Props> {
   render() {
     const { activeAction } = this.props;
 
-    let { type } = activeAction;
+    const { type } = activeAction;
 
-    if (['cards:deal.create', 'cards:task.create', 'cards:ticket.create'].includes(type)) {
-      type = 'boardItem';
-    }
-
-    if ('loyalties:voucher.create' === type ) {
-      type = 'voucher'
-    }
-
-    if ('loyalties:scoreLog.create' === type ) {
-      type = 'changeScore'
-    }
-
-    const Content = ActionForms[type] || ActionForms.default;
-
-    return <Content onSave={this.onSave} {...this.props} />;
+    return <>{ActionForms({ onSave: this.onSave, ...this.props })[type]}</>;
   }
 }
 

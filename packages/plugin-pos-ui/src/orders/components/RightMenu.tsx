@@ -1,15 +1,8 @@
-import Datetime from '@nateradebaugh/react-datetime';
-import dayjs from 'dayjs';
-import React from 'react';
-import RTG from 'react-transition-group';
-import { IQueryParams } from '@erxes/ui/src/types';
 import {
-  __,
   Button,
   ControlLabel,
   FormControl,
   Icon,
-  SelectCustomers,
   SelectTeamMembers
 } from '@erxes/ui/src';
 import {
@@ -20,6 +13,32 @@ import {
   RightMenuContainer,
   TabContent
 } from '../../styles';
+import Select from 'react-select-plus';
+import Datetime from '@nateradebaugh/react-datetime';
+import { IQueryParams } from '@erxes/ui/src/types';
+import RTG from 'react-transition-group';
+import React from 'react';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import dayjs from 'dayjs';
+import { isEnabled, __ } from '@erxes/ui/src/utils/core';
+import SelectPos from './SelectPos';
+import { ALLOW_STATUSES, ALLOW_TYPES } from '../../constants';
+
+const SelectCustomers = asyncComponent(
+  () =>
+    isEnabled('contacts') &&
+    import(
+      /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/customers/containers/SelectCustomers'
+    )
+);
+
+const SelectCompanies = asyncComponent(
+  () =>
+    isEnabled('contacts') &&
+    import(
+      /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/companies/containers/SelectCompanies'
+    )
+);
 
 type Props = {
   onSearch: (search: string) => void;
@@ -36,7 +55,7 @@ type StringState = {
 
 type State = {
   showMenu: boolean;
-  filterParams: IQueryParams
+  filterParams: IQueryParams;
 } & StringState;
 
 export default class RightMenu extends React.Component<Props, State> {
@@ -58,7 +77,7 @@ export default class RightMenu extends React.Component<Props, State> {
   setFilter = () => {
     const { filterParams } = this.state;
     this.props.onFilter(filterParams);
-  }
+  };
 
   setWrapperRef(node) {
     this.wrapperRef = node;
@@ -80,7 +99,7 @@ export default class RightMenu extends React.Component<Props, State> {
     this.setState({ filterParams: { ...filterParams, [key]: String(values) } });
   };
 
-  onChangeInput = (e) => {
+  onChangeInput = e => {
     const target = e.target;
     const name = target.name;
     const value = target.value;
@@ -138,7 +157,7 @@ export default class RightMenu extends React.Component<Props, State> {
               inputProps={{ placeholder: __('Click to select a date') }}
               dateFormat="YYYY-MM-DD"
               timeFormat="HH:mm"
-              value={filterParams[lblStart] || null}
+              value={filterParams[lblStart]}
               closeOnSelect={true}
               utc={true}
               input={true}
@@ -164,7 +183,7 @@ export default class RightMenu extends React.Component<Props, State> {
           </div>
         </CustomRangeContainer>
       </>
-    )
+    );
   }
 
   renderFilter() {
@@ -181,14 +200,26 @@ export default class RightMenu extends React.Component<Props, State> {
           onChange={this.onChangeInput}
         />
 
-        <SelectCustomers
-          label="Filter by customer"
-          name="customerId"
-          initialValue={filterParams.customerId}
-          onSelect={this.onSelect}
-          customOption={{ value: '', label: '...Clear customer filter' }}
-          multi={false}
-        />
+        {isEnabled('contacts') && (
+          <>
+            <SelectCustomers
+              label="Filter by customer"
+              name="customerId"
+              initialValue={filterParams.customerId}
+              onSelect={this.onSelect}
+              customOption={{ value: '', label: '...Clear customer filter' }}
+              multi={false}
+            />
+            <SelectCompanies
+              label="Filter by company"
+              name="customerId"
+              initialValue={filterParams.customerId}
+              onSelect={this.onSelect}
+              customOption={{ value: '', label: '...Clear company filter' }}
+              multi={false}
+            />
+          </>
+        )}
 
         <SelectTeamMembers
           label="Choose users"
@@ -199,11 +230,61 @@ export default class RightMenu extends React.Component<Props, State> {
           multi={false}
         />
 
+        <SelectPos
+          label="Choose pos"
+          name="posId"
+          initialValue={filterParams.posId}
+          onSelect={this.onSelect}
+          customOption={{ value: '', label: '...Clear user filter' }}
+          multi={false}
+        />
+
+        <Select
+          name={'types'}
+          multi={true}
+          placeholder={__('Choose types')}
+          value={filterParams.types}
+          onChange={types => {
+            this.onSelect(
+              (types || []).map(t => t.value),
+              'types'
+            );
+          }}
+          options={ALLOW_TYPES}
+        />
+
+        <Select
+          name={'statuses'}
+          multi={true}
+          placeholder={__('Choose status')}
+          value={filterParams.statuses}
+          onChange={statuses => {
+            this.onSelect(
+              (statuses || []).map(t => t.value),
+              'statuses'
+            );
+          }}
+          options={ALLOW_STATUSES}
+        />
+
+        <Select
+          name={'excludeStatuses'}
+          multi={true}
+          placeholder={__('Exclude status')}
+          value={filterParams.excludeStatuses}
+          onChange={statuses => {
+            this.onSelect(
+              (statuses || []).map(t => t.value),
+              'excludeStatuses'
+            );
+          }}
+          options={ALLOW_STATUSES}
+        />
+
         {this.renderRange('created')}
         {this.renderRange('paid')}
 
         {this.renderSpecials()}
-
       </FilterBox>
     );
   }
@@ -258,9 +339,7 @@ export default class RightMenu extends React.Component<Props, State> {
           classNames="slide-in-right"
           unmountOnExit={true}
         >
-          <RightMenuContainer>
-            {this.renderTabContent()}
-          </RightMenuContainer>
+          <RightMenuContainer>{this.renderTabContent()}</RightMenuContainer>
         </RTG.CSSTransition>
       </div>
     );

@@ -1,12 +1,13 @@
-import { commonFields, commonListFields } from "../../boards/graphql/mutations";
+import { commonFields, commonListFields } from '../../boards/graphql/mutations';
 import {
   conformityQueryFieldDefs,
-  conformityQueryFields,
-} from "../../conformity/graphql/queries";
+  conformityQueryFields
+} from '../../conformity/graphql/queries';
 
 const commonParams = `
   $companyIds: [String],
   $customerIds: [String],
+  $parentId: String,
   $assignedUserIds: [String],
   $closeDateType: String,
   $priority: [String],
@@ -15,16 +16,29 @@ const commonParams = `
   $sortDirection: Int,
   $userIds: [String],
   $segment: String,
+  $segmentData:String,
   $assignedToMe: String,
   $startDate: String,
   $endDate: String,
   $hasStartAndCloseDate: Boolean
+  $noSkipArchive: Boolean
+  $branchIds:[String]
+  $departmentIds:[String]
   ${conformityQueryFields}
+  $createdStartDate: Date
+  $createdEndDate: Date
+  $stateChangedStartDate: Date
+  $stateChangedEndDate: Date
+  $startDateStartDate: Date
+  $startDateEndDate: Date
+  $closeDateStartDate: Date
+  $closeDateEndDate: Date
 `;
 
 const commonParamDefs = `
   companyIds: $companyIds
   customerIds: $customerIds
+  parentId: $parentId
   assignedUserIds: $assignedUserIds
   closeDateType: $closeDateType
   priority: $priority
@@ -33,11 +47,23 @@ const commonParamDefs = `
   sortDirection: $sortDirection
   userIds: $userIds
   segment: $segment
+  segmentData: $segmentData,
   assignedToMe: $assignedToMe
   startDate: $startDate
   endDate: $endDate
   hasStartAndCloseDate: $hasStartAndCloseDate
+  noSkipArchive: $noSkipArchive
+  branchIds: $branchIds,
+  departmentIds: $departmentIds,
   ${conformityQueryFieldDefs}
+  createdStartDate: $createdStartDate
+  createdEndDate: $createdEndDate
+  stateChangedStartDate: $stateChangedStartDate
+  stateChangedEndDate: $stateChangedEndDate
+  startDateStartDate: $startDateStartDate
+  startDateEndDate: $startDateEndDate
+  closeDateStartDate: $closeDateStartDate
+  closeDateEndDate: $closeDateEndDate
 `;
 
 const tasks = `
@@ -149,5 +175,5 @@ export default {
   tasksTotalCount,
   taskDetail,
   archivedTasks,
-  archivedTasksCount,
+  archivedTasksCount
 };

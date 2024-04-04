@@ -1,14 +1,16 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
+import { DefaultColumnsConfigQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
 import Bulk from '@erxes/ui/src/components/Bulk';
+import { IRouterProps } from '@erxes/ui/src/types';
 import { Alert, getEnv, withProps } from '@erxes/ui/src/utils';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { gql } from '@apollo/client';
+import * as compose from 'lodash.flowright';
 import queryString from 'query-string';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { DefaultColumnsConfigQueryResponse } from '@erxes/ui-settings/src/properties/types';
+
 import CompaniesList from '../components/list/CompaniesList';
 import { mutations, queries } from '../graphql';
 import {
@@ -20,7 +22,6 @@ import {
   RemoveMutationResponse,
   RemoveMutationVariables
 } from '../types';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   queryParams?: any;
@@ -149,13 +150,13 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
       }
 
       columnsConfig.forEach(checked => {
-        checkedConfigs.push(checked);
+        checkedConfigs.push(checked.name);
       });
 
       const stringified = queryString.stringify({
         ...queryParams,
         type: 'company',
-        configs: JSON.stringify(columnsConfig)
+        configs: JSON.stringify(checkedConfigs)
       });
 
       window.open(
@@ -200,11 +201,13 @@ const generateParams = ({ queryParams }) => {
   return {
     ...generatePaginationParams(queryParams),
     segment: queryParams.segment,
+    segmentData: queryParams.segmentData,
     tag: queryParams.tag,
     brand: queryParams.brand,
     ids: queryParams.ids,
     searchValue: queryParams.searchValue,
     sortField: queryParams.sortField,
+    dateFilters: queryParams.dateFilters,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
       : undefined

@@ -2,14 +2,16 @@ declare var __webpack_init_sharing__;
 declare var __webpack_share_scopes__;
 declare var window;
 
-import { IUser } from 'modules/auth/types';
-import { IItem } from '@erxes/ui-cards/src/boards/types';
-import { __ } from 'modules/common/utils';
-import { ICompany } from '@erxes/ui/src/companies/types';
-import { ICustomer } from '@erxes/ui/src/customers/types';
+import { ApolloProvider } from '@apollo/client';
+import { AppProvider } from './appContext';
+import { BrowserRouter } from 'react-router-dom';
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
-import React from 'react';
+import { IUser } from 'modules/auth/types';
 import { NavItem } from 'modules/layout/components/QuickNavigation';
+import React from 'react';
+import { __ } from 'modules/common/utils';
+import apolloClient from '@erxes/ui/src/apolloClient';
+import { render } from 'react-dom';
 
 const PLUGIN_LABEL_COLORS: string[] = [
   '',
@@ -26,19 +28,64 @@ const PLUGIN_LABEL_COLORS: string[] = [
   '#CDDC39', // LIME
   '#FFC107', // AMBER
   '#FF9800', // ORANGE
-  '#FF5722' // DEEP ORANGE
+  '#FF5722', // DEEP ORANGE
 ];
+
+class CustomComponent extends React.Component<
+  { scope: string; component: any; isTopNav?: boolean },
+  { showComponent: boolean }
+> {
+  constructor(props) {
+    super(props);
+
+    this.state = { showComponent: false };
+  }
+
+  componentDidMount() {
+    const interval = setInterval(() => {
+      if (window[this.props.scope]) {
+        window.clearInterval(interval);
+
+        this.setState({ showComponent: true });
+      }
+    }, 500);
+  }
+
+  renderComponent = () => {
+    if (!this.state.showComponent) {
+      return null;
+    }
+
+    const { scope, component } = this.props;
+
+    const Component = React.lazy(loadComponent(scope, component));
+
+    return (
+      <React.Suspense fallback="">
+        <Component />
+      </React.Suspense>
+    );
+  };
+
+  render() {
+    if (this.props.isTopNav) {
+      return <NavItem>{this.renderComponent()}</NavItem>;
+    }
+
+    return this.renderComponent();
+  }
+}
 
 const PluginsWrapper = ({
   itemName,
   callBack,
-  plugins
+  plugins,
 }: {
   itemName: string;
   callBack: (plugin: any, item: any) => React.ReactNode;
   plugins: any;
 }) => {
-  return (plugins || []).map(plugin => {
+  return (plugins || []).map((plugin) => {
     const item = plugin[itemName];
 
     if (!item) {
@@ -49,7 +96,7 @@ const PluginsWrapper = ({
   });
 };
 
-const useDynamicScript = args => {
+const useDynamicScript = (args) => {
   const [ready, setReady] = React.useState(false);
   const [failed, setFailed] = React.useState(false);
 
@@ -59,8 +106,10 @@ const useDynamicScript = args => {
     }
 
     const element = document.createElement('script');
+    const id = `dynamic-script-${args.scope}`;
 
     element.src = args.url;
+    element.id = id;
     element.type = 'text/javascript';
     element.async = true;
 
@@ -73,7 +122,7 @@ const useDynamicScript = args => {
     };
 
     element.onerror = () => {
-      console.error(`Dynamic Script Error: ${args.url}`);
+      console.error(`Dynamic Script Error: ${args.url}`, args);
       setReady(false);
       setFailed(true);
     };
@@ -88,7 +137,7 @@ const useDynamicScript = args => {
 
   return {
     ready,
-    failed
+    failed,
   };
 };
 
@@ -99,10 +148,14 @@ export const loadComponent = (scope, module) => {
 
     const container = window[scope]; // or get the container somewhere else
 
-    // Initialize the container, it may provide shared modules
-    await container.init(__webpack_share_scopes__.default);
-    const factory = await window[scope].get(module);
+    try {
+      // Initialize the container, it may provide shared modules
+      await container.init(__webpack_share_scopes__.default);
+    } catch (e) {
+      // already was initialized
+    }
 
+    const factory = await window[scope].get(module);
     const Module = factory();
     return Module;
   };
@@ -116,33 +169,38 @@ const renderPluginSidebar = (itemName: string, type: string, object: any) => {
       itemName={itemName}
       plugins={plugins}
       callBack={(_plugin, sections) => {
-        return (sections || []).map(section => {
+        return (sections || []).map((section) => {
           if (!window[section.scope]) {
             return null;
           }
 
           const Component = React.lazy(
-            loadComponent(section.scope, section.component)
+            loadComponent(section.scope, section.component),
           );
 
-          return (
-            <Component
-              key={Math.random()}
-              id={object._id}
-              mainType={type}
-              mainTypeId={object._id}
-            />
-          );
+          const updatedProps = {
+            key: Math.random(),
+            id: object._id,
+            mainType: type,
+            mainTypeId: object._id,
+          };
+
+          if (section?.withDetail) {
+            updatedProps['object'] = object;
+          }
+
+          return <Component {...updatedProps} />;
         });
       }}
     />
   );
 };
 
-const System = props => {
+const System = (props) => {
   if (props.loadScript) {
     const { ready, failed } = useDynamicScript({
-      url: props.system && props.system.url
+      url: props.system && props.system.url,
+      scope: props.system.scope,
     });
 
     if (!props.system || !ready || failed) {
@@ -151,13 +209,42 @@ const System = props => {
   }
 
   const Component = React.lazy(
-    loadComponent(props.system.scope, props.system.module)
+    loadComponent(props.system.scope, props.system.module),
   );
 
   return (
     <ErrorBoundary pluginName={props.pluginName}>
       <React.Suspense fallback="">
         <Component />
+      </React.Suspense>
+    </ErrorBoundary>
+  );
+};
+
+const SystemWithApolloProvider = (props) => {
+  if (props.loadScript) {
+    const { ready, failed } = useDynamicScript({
+      url: props.system && props.system.url,
+      scope: props.system.scope,
+    });
+
+    if (!props.system || !ready || failed) {
+      return null;
+    }
+  }
+
+  const Component = React.lazy(
+    loadComponent(props.system.scope, props.system.module),
+  );
+
+  return (
+    <ErrorBoundary pluginName={props.pluginName}>
+      <React.Suspense fallback="">
+        <ApolloProvider client={apolloClient}>
+          <AppProvider>
+            <Component />
+          </AppProvider>
+        </ApolloProvider>
       </React.Suspense>
     </ErrorBoundary>
   );
@@ -200,7 +287,7 @@ class SettingsCustomBox extends React.Component<any, any> {
       settingsNav.action,
       settingsNav.permissions,
       settingsNav.scope,
-      color
+      color,
     );
 
     if (settingsNav.component && hasComponent) {
@@ -223,8 +310,8 @@ export const pluginsSettingsNavigations = (
     to: string,
     action: string,
     permissions?: string[],
-    type?: string
-  ) => React.ReactNode
+    type?: string,
+  ) => React.ReactNode,
 ) => {
   const plugins: any[] = (window as any).plugins || [];
   const navigationMenus: any[] = [];
@@ -248,7 +335,7 @@ export const pluginsSettingsNavigations = (
               renderBox={renderBox}
               hasComponent={hasComponent}
             />
-          </React.Fragment>
+          </React.Fragment>,
         );
       }
     }
@@ -256,44 +343,6 @@ export const pluginsSettingsNavigations = (
 
   return navigationMenus;
 };
-
-class TopNavigation extends React.Component<any, any> {
-  constructor(props) {
-    super(props);
-
-    this.state = { showComponent: false };
-  }
-
-  componentDidMount() {
-    const interval = setInterval(() => {
-      if (window[this.props.topNav.scope]) {
-        window.clearInterval(interval);
-
-        this.setState({ showComponent: true });
-      }
-    }, 500);
-  }
-
-  renderComponent = () => {
-    if (!this.state.showComponent) {
-      return null;
-    }
-
-    const { topNav } = this.props;
-
-    const Component = React.lazy(loadComponent(topNav.scope, topNav.component));
-
-    return (
-      <React.Suspense fallback="">
-        <Component />
-      </React.Suspense>
-    );
-  };
-
-  render() {
-    return <NavItem>{this.renderComponent()}</NavItem>;
-  }
-}
 
 export const pluginsOfTopNavigations = () => {
   const plugins: any[] = (window as any).plugins || [];
@@ -304,8 +353,12 @@ export const pluginsOfTopNavigations = () => {
       if (menu.location === 'topNavigation') {
         topNavigationMenus.push(
           <React.Fragment key={menu.text}>
-            <TopNavigation topNav={menu} />
-          </React.Fragment>
+            <CustomComponent
+              scope={menu.scope}
+              component={menu.component}
+              isTopNav={true}
+            />
+          </React.Fragment>,
         );
       }
     }
@@ -327,12 +380,47 @@ export const pluginLayouts = (currentUser: IUser) => {
           system={plugin.layout}
           currentUser={currentUser}
           pluginName={plugin.name}
-        />
+        />,
       );
     }
   }
 
   return layouts;
+};
+
+export const pluginsInnerWidgets = () => {
+  const plugins: any[] = (window as any).plugins || [];
+  const rootDiv = document.getElementById('root');
+  const newDiv = document.createElement('div');
+  newDiv.style.cssText =
+    'position:absolute;width:72px;z-index:999999;height:72px;display:flex;align-items:center;justify-content:center;';
+
+  for (const plugin of plugins) {
+    if (!plugin.innerWidget) {
+      continue;
+    }
+
+    newDiv.style.cssText =
+      newDiv.style.cssText + (plugin.innerWidget.style || '');
+
+    render(
+      <BrowserRouter>
+        <SystemWithApolloProvider
+          key={Math.random()}
+          loadScript={true}
+          system={plugin.innerWidget}
+          pluginName={plugin.name}
+        />
+      </BrowserRouter>,
+      newDiv,
+    );
+  }
+
+  if (rootDiv) {
+    document.body.insertBefore(newDiv, rootDiv.nextSibling);
+  } else {
+    document.body.appendChild(newDiv);
+  }
 };
 
 export const pluginRouters = () => {
@@ -347,7 +435,7 @@ export const pluginRouters = () => {
           loadScript={true}
           system={plugin.routes}
           pluginName={plugin.name}
-        />
+        />,
       );
     }
   }
@@ -355,24 +443,26 @@ export const pluginRouters = () => {
   return pluginRoutes;
 };
 
-export const pluginsOfCustomerSidebar = (customer: ICustomer) => {
+export const pluginsOfCustomerSidebar = (customer: any) => {
+  // check - ICustomer
   return renderPluginSidebar(
     'customerRightSidebarSection',
     'customer',
-    customer
+    customer,
   );
 };
 
-export const pluginsOfCompanySidebar = (company: ICompany) => {
+export const pluginsOfCompanySidebar = (company: any) => {
+  // check - ICompany
   return renderPluginSidebar('companyRightSidebarSection', 'company', company);
 };
 
-export const pluginsOfItemSidebar = (item: IItem, type: string) => {
+export const pluginsOfItemSidebar = (item: any, type: string) => {
   return renderPluginSidebar(`${type}RightSidebarSection`, type, item);
 };
 
 export const pluginsOfPaymentForm = (
-  renderPaymentsByType: (type) => JSX.Element
+  renderPaymentsByType: (type) => JSX.Element,
 ) => {
   const plugins: any[] = (window as any).plugins || [];
 
@@ -403,9 +493,9 @@ export const pluginsOfProductCategoryActions = (category: any) => {
       plugins={plugins}
       itemName={'productCategoryActions'}
       callBack={(_plugin, actions) => {
-        return actions.map(action => {
+        return actions.map((action) => {
           const Component = React.lazy(
-            loadComponent(action.scope, action.component)
+            loadComponent(action.scope, action.component),
           );
 
           return <Component key={Math.random()} productCategory={category} />;
@@ -413,4 +503,52 @@ export const pluginsOfProductCategoryActions = (category: any) => {
       }}
     />
   );
+};
+
+export const customNavigationLabel = () => {
+  const plugins: any[] = (window as any).plugins || [];
+  const customLabels: any[] = [];
+
+  for (const plugin of plugins) {
+    for (const lbl of plugin.customNavigationLabel || []) {
+      customLabels.push(
+        <React.Fragment key={lbl.text}>
+          <CustomComponent scope={lbl.scope} component={lbl.component} />
+        </React.Fragment>,
+      );
+    }
+  }
+
+  return customLabels;
+};
+
+export const pluginsOfJobCategoryActions = (productCategoryId: string) => {
+  const plugins: any[] = (window as any).plugins || [];
+
+  return (
+    <PluginsWrapper
+      plugins={plugins}
+      itemName={'jobCategoryActions'}
+      callBack={(_plugin, actions) => {
+        return actions.map((action) => {
+          const Component = React.lazy(
+            loadComponent(action.scope, action.component),
+          );
+
+          return (
+            <Component
+              key={Math.random()}
+              productCategoryId={productCategoryId}
+            />
+          );
+        });
+      }}
+    />
+  );
+};
+
+export const pluginsOfWebhooks = () => {
+  const plugins = (window as any).plugins.filter((p) => p.webhookActions) || [];
+
+  return plugins;
 };

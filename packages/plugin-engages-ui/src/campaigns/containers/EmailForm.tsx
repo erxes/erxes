@@ -1,11 +1,14 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import EmailForm from '../components/EmailForm';
 import { mutations, queries } from '@erxes/ui-engage/src/graphql';
-import { EngageVerifiedEmailsQueryResponse, IEmailFormProps } from '@erxes/ui-engage/src/types';
+import {
+  EngageVerifiedEmailsQueryResponse,
+  IEmailFormProps
+} from '@erxes/ui-engage/src/types';
 
 type FinalProps = {
   engageVerifiedEmailsQuery: EngageVerifiedEmailsQueryResponse;

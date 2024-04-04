@@ -15,7 +15,7 @@ export const loadDonateClass = (models: IModels, subdomain: string) => {
       const donate = await models.Donates.findOne({ _id });
 
       if (!donate) {
-        throw new Error('not found donate rule')
+        throw new Error('not found donate rule');
       }
 
       return donate;
@@ -31,7 +31,9 @@ export const loadDonateClass = (models: IModels, subdomain: string) => {
         throw new Error('Not create donate, owner is undefined');
       }
 
-      const donateCampaign = await models.DonateCampaigns.getDonateCampaign(campaignId);
+      const donateCampaign = await models.DonateCampaigns.getDonateCampaign(
+        campaignId
+      );
 
       const now = new Date();
 
@@ -47,7 +49,9 @@ export const loadDonateClass = (models: IModels, subdomain: string) => {
       let fitAward: any = {};
 
       if ((donateCampaign.awards || []).length) {
-        const awards = (donateCampaign.awards || []).sort((a, b) => a.minScore - b.minScore);
+        const awards = (donateCampaign.awards || []).sort(
+          (a, b) => a.minScore - b.minScore
+        );
 
         for (const award of awards) {
           if (donateScore >= award.minScore) {
@@ -56,20 +60,34 @@ export const loadDonateClass = (models: IModels, subdomain: string) => {
         }
 
         if (fitAward.voucherCampaignId) {
-          voucher = await models.Vouchers.createVoucher({ campaignId: fitAward.voucherCampaignId, ownerType, ownerId });
+          voucher = await models.Vouchers.createVoucher({
+            campaignId: fitAward.voucherCampaignId,
+            ownerType,
+            ownerId
+          });
         }
       }
 
       await models.ScoreLogs.changeScore({
-        ownerType, ownerId, changeScore: -1 * donateScore,
+        ownerType,
+        ownerId,
+        changeScore: -1 * donateScore,
         description: 'give donate'
       });
 
-      return await models.Donates.create({ campaignId, ownerType, ownerId, createdAt: new Date(), donateScore, awardId: fitAward._id, voucherId: voucher._id });
+      return await models.Donates.create({
+        campaignId,
+        ownerType,
+        ownerId,
+        createdAt: new Date(),
+        donateScore,
+        awardId: fitAward._id,
+        voucherId: voucher._id
+      });
     }
 
     public static async removeDonates(_ids: string[]) {
-      return models.Donates.deleteMany({ _id: { $in: _ids } })
+      return models.Donates.deleteMany({ _id: { $in: _ids } });
     }
   }
 

@@ -16,6 +16,7 @@ const clientPortalUserQueries = {
       ids,
       excludeIds,
       cpId,
+      dateFilters,
       ...pagintationArgs
     }: {
       ids: string[];
@@ -25,6 +26,7 @@ const clientPortalUserQueries = {
       page: number;
       perPage: number;
       cpId: string;
+      dateFilters: string;
     },
     { commonQuerySelector, models }: IContext
   ) {
@@ -61,7 +63,9 @@ const clientPortalUserQueries = {
             $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
           }
         },
-        { code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] } }
+        {
+          code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
+        }
       ];
 
       filter.$or = fields;
@@ -71,9 +75,39 @@ const clientPortalUserQueries = {
       filter.clientPortalId = cpId;
     }
 
+    if (dateFilters) {
+      const filters = JSON.parse(dateFilters);
+
+      const rangeFilters: any[] = [];
+
+      for (const key of Object.keys(filters)) {
+        const { gte, lte } = filters[key];
+
+        if (gte) {
+          const gteFilter: any = {};
+
+          gteFilter[key] = { $gte: gte };
+
+          rangeFilters.push(gteFilter);
+        }
+
+        if (lte) {
+          const lteFilter: any = {};
+
+          lteFilter[key] = { $lte: lte };
+
+          rangeFilters.push(lteFilter);
+        }
+      }
+
+      if (rangeFilters.length) {
+        filter.$and = rangeFilters;
+      }
+    }
+
     return paginate(
       models.ClientPortalUsers.find(filter)
-        .sort('createdAt')
+        .sort({ createdAt: -1 })
         .lean(),
       pagintationArgs
     );
@@ -107,7 +141,16 @@ const clientPortalUserQueries = {
     }
 
     return models.ClientPortalUsers.find(filter).countDocuments();
+  },
+
+  async clientPortalCompanies(
+    _root,
+    { clientPortalId }: { clientPortalId: string },
+    { models }: IContext
+  ) {
+    return models.Companies.find({ clientPortalId }).lean();
   }
+
 };
 
 export default clientPortalUserQueries;

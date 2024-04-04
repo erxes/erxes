@@ -86,6 +86,12 @@ const activity = ({ location }) => {
   return <TicketBoard viewType="activity" queryParams={queryParams} />;
 };
 
+const time = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <TicketBoard viewType="time" queryParams={queryParams} />;
+};
+
 const routes = () => {
   return (
     <>
@@ -131,6 +137,13 @@ const routes = () => {
         exact={true}
         path="/ticket/gantt"
         component={gantt}
+      />
+
+      <Route
+        key="ticket/time"
+        exact={true}
+        path="/ticket/time"
+        component={time}
       />
     </>
   );

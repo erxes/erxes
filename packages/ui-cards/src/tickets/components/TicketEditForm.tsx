@@ -9,12 +9,17 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ISelectedOption } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import PortableDeals from '../../deals/components/PortableDeals';
+import PortablePurchase from '../../purchases/components/PortablePurchases';
 import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import { Capitalize } from '@erxes/ui-settings/src/permissions/styles';
 import PortableTasks from '../../tasks/components/PortableTasks';
 import React, { useEffect, useState } from 'react';
 import Select from 'react-select-plus';
 import { ITicket, ITicketParams } from '../types';
+import { pluginsOfItemSidebar } from 'coreui/pluginUtils';
+import queryString from 'query-string';
+import ChildrenSection from '../../boards/containers/editForm/ChildrenSection';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   options: IOptions;
@@ -34,6 +39,7 @@ type Props = {
     }: { _id: string; status: string; timeSpent: number; startDate?: string },
     callback?: () => void
   ) => void;
+  currentUser: IUser;
 };
 
 export default function TicketEditForm(props: Props) {
@@ -91,9 +97,27 @@ export default function TicketEditForm(props: Props) {
       <>
         <PortableDeals mainType="ticket" mainTypeId={props.item._id} />
         <PortableTasks mainType="ticket" mainTypeId={props.item._id} />
+        <PortablePurchase mainType="ticket" mainTypeId={props.item._id} />
+        {pluginsOfItemSidebar(props.item, 'ticket')}
       </>
     );
   }
+
+  const renderChildrenSection = () => {
+    const { item, options } = props;
+
+    const updatedProps = {
+      ...props,
+      type: 'ticket',
+      itemId: item._id,
+      stageId: item.stageId,
+      pipelineId: item.pipeline._id,
+      options,
+      queryParams: queryString.parse(window.location.search) || {}
+    };
+
+    return <ChildrenSection {...updatedProps} />;
+  };
 
   function renderFormContent({
     state,
@@ -102,7 +126,14 @@ export default function TicketEditForm(props: Props) {
     saveItem,
     onChangeStage
   }: IEditFormContent) {
-    const { options, onUpdate, addItem, sendToBoard, updateTimeTrack } = props;
+    const {
+      options,
+      onUpdate,
+      addItem,
+      sendToBoard,
+      updateTimeTrack,
+      currentUser
+    } = props;
 
     const renderSidebar = () => renderSidebarFields(saveItem);
 
@@ -137,6 +168,8 @@ export default function TicketEditForm(props: Props) {
             saveItem={saveItem}
             renderItems={renderItems}
             updateTimeTrack={updateTimeTrack}
+            childrenSection={renderChildrenSection}
+            currentUser={currentUser}
           />
         </Flex>
       </>

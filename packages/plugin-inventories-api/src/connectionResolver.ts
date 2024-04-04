@@ -10,16 +10,18 @@ import { IRemainderModel, loadRemainderClass } from './models/Remainders';
 import { ITransactionModel, loadTransactionClass } from './models/Transactions';
 import {
   ITransactionItemModel,
-  loadTransactionItemClass
+  loadTransactionItemClass,
 } from './models/TransactionItems';
 import {
   ISafeRemainderModel,
-  loadSafeRemainderClass
+  loadSafeRemainderClass,
 } from './models/SafeRemainders';
 import {
   ISafeRemainderItemModel,
-  loadSafeRemainderItemClass
+  loadSafeRemainderItemClass,
 } from './models/SafeRemainderItems';
+import { IReserveRemModel, loadReserveRemClass } from './models/ReserveRems';
+import { IReserveRemDocument } from './models/definitions/reserveRems';
 
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
@@ -30,42 +32,42 @@ export interface IModels {
   Remainders: IRemainderModel;
   SafeRemainders: ISafeRemainderModel;
   SafeRemainderItems: ISafeRemainderItemModel;
+  ReserveRems: IReserveRemModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Transactions = db.model<ITransactionDocument, ITransactionModel>(
-    'transactions',
-    loadTransactionClass(models)
+    'inv_transactions',
+    loadTransactionClass(models),
   );
   models.TransactionItems = db.model<
     ITransactionItemDocument,
     ITransactionItemModel
-  >('transaction_items', loadTransactionItemClass(models));
+  >('inv_transaction_items', loadTransactionItemClass(models));
   models.Remainders = db.model<IRemainderDocument, IRemainderModel>(
     'remainders',
-    loadRemainderClass(models)
+    loadRemainderClass(models),
   );
   models.SafeRemainders = db.model<ISafeRemainderDocument, ISafeRemainderModel>(
     'safe_remainders',
-    loadSafeRemainderClass(models)
+    loadSafeRemainderClass(models),
   );
   models.SafeRemainderItems = db.model<
     ISafeRemainderItemDocument,
     ISafeRemainderItemModel
   >('safe_remainder_items', loadSafeRemainderItemClass(models));
 
+  models.ReserveRems = db.model<IReserveRemDocument, IReserveRemModel>(
+    'inventories_reserverems',
+    loadReserveRemClass(models),
+  );
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

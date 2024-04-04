@@ -1,14 +1,14 @@
-import Select from 'react-select-plus';
-import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { Description } from '@erxes/ui-settings/src/styles';
+import { FlexHeight as FlexItemContainer } from '@erxes/ui/src/styles/main';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FlexHeight as FlexItemContainer } from '@erxes/ui/src/styles/main';
+import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
+import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import React from 'react';
-import { Description } from '@erxes/ui-settings/src/styles';
-import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
-import SelectChannels from '@erxes/ui-settings/src/integrations/containers/SelectChannels';
+import Select from 'react-select-plus';
+import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
+import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
 
 type Name = 'languageCode';
 
@@ -45,7 +45,7 @@ function SettingsStep({
             Name this widget to differentiate from the rest internally.
           </Description>
           <FormControl
-            type='text'
+            type="text"
             onChange={(e: any) => onChange('title', e.target.value)}
             defaultValue={title}
           />
@@ -69,7 +69,7 @@ function SettingsStep({
         <FormGroup>
           <ControlLabel required={true}>Language</ControlLabel>
           <Select
-            placeholder='Choose language'
+            placeholder="Choose language"
             options={LANGUAGES.map(el => ({
               label: el.label,
               value: el.value

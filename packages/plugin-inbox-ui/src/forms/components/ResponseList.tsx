@@ -1,17 +1,16 @@
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Table from '@erxes/ui/src/components/table';
-import { __ } from '@erxes/ui/src/utils';
-import { IFormResponse } from '@erxes/ui-forms/src/forms/types';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { IField } from '@erxes/ui/src/types';
+import { IFormResponse } from '@erxes/ui-forms/src/forms/types';
+import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import React from 'react';
-
 import ResponseRow from './ResponseRow';
-import { getEnv } from 'coreui/utils';
-import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 import { SortHandler } from '@erxes/ui/src';
+import Table from '@erxes/ui/src/components/table';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from '@erxes/ui/src/utils';
+import { getEnv } from 'coreui/utils';
 
 type Props = {
   integrationDetail: IIntegration;

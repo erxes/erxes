@@ -4,7 +4,17 @@ const commonParamsDef = `
   $features: [ExmFeatureInput],
   $logo: AttachmentInput,
   $appearance: ExmAppearanceInput,
-  $welcomeContent: [ExmWelcomeContentInput],
+  $url: String
+  $favicon: AttachmentInput
+  $webName: String
+  $webDescription: String
+  $vision: String
+  $structure: String
+  $knowledgeBaseLabel: String
+  $knowledgeBaseTopicId: String
+  $ticketLabel: String
+  $ticketPipelineId: String
+  $ticketBoardId: String
 `;
 
 const commonParams = `
@@ -13,7 +23,17 @@ const commonParams = `
   features: $features,
   logo: $logo,
   appearance: $appearance,
-  welcomeContent: $welcomeContent,
+  url: $url
+  favicon: $favicon
+  webName: $webName
+  webDescription: $webDescription
+  vision: $vision
+  structure: $structure
+  knowledgeBaseLabel: $knowledgeBaseLabel
+  knowledgeBaseTopicId: $knowledgeBaseTopicId
+  ticketLabel: $ticketLabel
+  ticketPipelineId: $ticketPipelineId
+  ticketBoardId: $ticketBoardId
 `;
 
 const exmsAdd = `

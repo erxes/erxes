@@ -2,7 +2,10 @@ import {
   Box,
   EmptyState,
   Icon,
-  ModalTrigger, MainStyleButtonRelated as ButtonRelated, __, SectionBodyItem
+  ModalTrigger,
+  MainStyleButtonRelated as ButtonRelated,
+  __,
+  SectionBodyItem,
 } from '@erxes/ui/src';
 import GetConformity from '@erxes/ui-cards/src/conformity/containers/GetConformity';
 import React from 'react';
@@ -28,10 +31,10 @@ function Component(
     mainType = '',
     mainTypeId = '',
     onSelect,
-    collapseCallback
-  }: Props
+    collapseCallback,
+  }: Props,
 ) {
-  const renderCarChooser = props => {
+  const renderCarChooser = (props) => {
     return (
       <CarChooser
         {...props}
@@ -41,7 +44,7 @@ function Component(
     );
   };
 
-  const renderRelatedCarChooser = props => {
+  const renderRelatedCarChooser = (props) => {
     return (
       <CarChooser
         {...props}
@@ -81,20 +84,31 @@ function Component(
     />
   );
 
-  const content = (
-    <>
-      {items.map((car, index) => (
-        <SectionBodyItem key={index}>
-          <Link to={`/erxes-plugin-car/details/${car._id}`}>
-            <Icon icon="arrow-to-right" />
-          </Link>
-          <span>{car.plateNumber || 'Unknown'}</span>
-        </SectionBodyItem>
-      ))}
-      {items.length === 0 && <EmptyState icon="building" text="No car" />}
-      {mainTypeId && mainType && relQuickButtons}
-    </>
-  );
+  const content = () => {
+    if (items.length > 0) {
+      const categoryId = items[0].category?.productCategoryId;
+
+      localStorage.setItem(
+        'erxes_products:chooser_filter',
+        JSON.stringify({ categoryId }),
+      );
+    }
+
+    return (
+      <>
+        {items.map((car, index) => (
+          <SectionBodyItem key={index}>
+            <Link to={`/erxes-plugin-car/details/${car._id}`}>
+              <Icon icon="arrow-to-right" />
+            </Link>
+            <span>{car.plateNumber || 'Unknown'}</span>
+          </SectionBodyItem>
+        ))}
+        {items.length === 0 && <EmptyState icon="building" text="No car" />}
+        {mainTypeId && mainType && relQuickButtons}
+      </>
+    );
+  };
 
   return (
     <Box
@@ -104,7 +118,7 @@ function Component(
       isOpen={true}
       callback={collapseCallback}
     >
-      {content}
+      {content()}
     </Box>
   );
 }

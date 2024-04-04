@@ -1,14 +1,9 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import Button from '@erxes/ui/src/components/Button';
-import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import Tip from '@erxes/ui/src/components/Tip';
-import { IAttachmentPreview } from '@erxes/ui/src/types';
-import { __, Alert, readFile, uploadHandler } from 'coreui/utils';
-import { deleteHandler } from '@erxes/ui/src/utils/uploadHandler';
-import ResponseTemplate from '../../../containers/conversationDetail/responseTemplate/ResponseTemplate';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  AddMessageMutationVariables,
+  IConversation,
+} from '@erxes/ui-inbox/src/inbox/types';
+import { Alert, __, readFile, uploadHandler } from 'coreui/utils';
 import {
   Attachment,
   AttachmentIndicator,
@@ -20,157 +15,145 @@ import {
   MaskWrapper,
   PreviewImg,
   RespondBoxStyled,
-  SmallEditor
+  SmallEditor,
 } from '@erxes/ui-inbox/src/inbox/styles';
-import ManageVideoRoom from '../../../../videoCall/containers/ManageRoom';
-import React from 'react';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
-import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
-import { AddMessageMutationVariables, IConversation } from '@erxes/ui-inbox/src/inbox/types';
-import FacebookTaggedMessageModal from './facebook/FacebookTaggedMessageModal';
-import { FacebookTaggedMessage } from './styles';
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import {
+  getPluginConfig,
+  isEnabled,
+  loadDynamicComponent,
+} from '@erxes/ui/src/utils/core';
 
-const Editor = asyncComponent(
-  () => import(/* webpackChunkName: "Editor-in-Inbox" */ './Editor'),
-  {
-    height: '137px',
-    width: '100%',
-    color: '#fff'
-  }
-);
+import Button from '@erxes/ui/src/components/Button';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { IAttachmentPreview } from '@erxes/ui/src/types';
+import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
+import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { MentionSuggestionParams } from '@erxes/ui/src/components/richTextEditor/utils/getMentionSuggestions';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import ResponseTemplate from '../../../containers/conversationDetail/responseTemplate/ResponseTemplate';
+import Editor from './Editor';
+import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
+import Tip from '@erxes/ui/src/components/Tip';
+import { deleteHandler } from '@erxes/ui/src/utils/uploadHandler';
+import { getParsedMentions } from '@erxes/ui/src/components/richTextEditor/utils/getParsedMentions';
+import { useGenerateJSON } from '@erxes/ui/src/components/richTextEditor/hooks/useExtensions';
+import { EditorMethods } from '@erxes/ui/src/components/richTextEditor/TEditor';
+import {
+  useDebounce,
+  useDebouncedCallback,
+} from '@erxes/ui/src/components/richTextEditor/hooks';
 
 type Props = {
   conversation: IConversation;
   currentUser: IUser;
   sendMessage: (
     message: AddMessageMutationVariables,
-    callback: (error: Error) => void
+    callback: (error: Error) => void,
   ) => void;
   onSearchChange: (value: string) => void;
   showInternal: boolean;
+  disableInternalState: boolean;
   setAttachmentPreview?: (data: IAttachmentPreview) => void;
   responseTemplates: IResponseTemplate[];
-  teamMembers: IUser[];
   refetchMessages: () => void;
   refetchDetail: () => void;
+  refetchResponseTemplates: (content: string) => void;
+  mentionSuggestion?: MentionSuggestionParams;
 };
 
 type State = {
   isInactive: boolean;
-  isFacebookTaggedMessage: boolean;
   isInternal: boolean;
   sending: boolean;
   attachments: any[];
   responseTemplate: string;
-  content: string;
   mentionedUserIds: string[];
-  editorKey: string;
   loading: object;
-  facebookMessageTag: string;
+  extraInfo?: any;
 };
-class RespondBox extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
 
-    this.state = {
-      isInactive: !this.checkIsActive(props.conversation),
-      isFacebookTaggedMessage: props.conversation.isFacebookTaggedMessage,
-      editorKey: 'editor',
-      isInternal: props.showInternal || false,
-      sending: false,
-      attachments: [],
-      responseTemplate: '',
-      content: '',
-      mentionedUserIds: [],
-      loading: {},
-      facebookMessageTag: ''
-    };
-  }
-  isContentWritten() {
-    const { content } = this.state;
+const RespondBox = (props: Props) => {
+  const {
+    conversation,
+    currentUser,
+    sendMessage,
+    setAttachmentPreview,
+    responseTemplates,
+  } = props;
 
-    // draftjs empty content
-    if (content === '<p><br></p>' || content === '') {
-      return false;
-    }
+  const forwardedRef = useRef<EditorMethods>(null);
+  const [content, setContent] = useState('');
+  const [state, setState] = useState<State>({
+    isInactive: !checkIsActive(props.conversation),
+    isInternal: props.showInternal || false,
+    sending: false,
+    attachments: [],
+    responseTemplate: '',
+    mentionedUserIds: [],
+    loading: {},
+  });
+  const [debouncedContent] = useDebounce(content, 200);
 
-    return true;
-  }
+  useEffect(() => {
+    setState((prevState) => ({
+      ...prevState,
+      isInactive: !checkIsActive(props.conversation),
+    }));
 
-  componentDidUpdate(prevProps, prevState) {
-    const { sending, content, responseTemplate } = this.state;
+    setState((prevState) => ({
+      ...prevState,
+      isInternal: props.showInternal,
+    }));
+  }, [props.conversation, props.showInternal]);
 
-    if (responseTemplate && responseTemplate === prevState.responseTemplate) {
-      this.setState({ responseTemplate: '' });
-    }
+  useEffect(() => {
+    const textContent = debouncedContent.toLowerCase().replace(/<[^>]+>/g, '');
+    props.refetchResponseTemplates(textContent);
+  }, [debouncedContent]);
 
-    if (sending && content !== prevState.content) {
-      this.setState({ sending: false });
-    }
-  }
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyEvents);
+    return () => window.removeEventListener('keydown', handleKeyEvents);
+  }, [handleKeyEvents]);
 
-  componentWillReceiveProps(nextProps) {
-    if (this.props.conversation.customer !== nextProps.conversation.customer) {
-      this.setState({
-        isInactive: !this.checkIsActive(nextProps.conversation),
-        isFacebookTaggedMessage: nextProps.conversation.isFacebookTaggedMessage,
-        facebookMessageTag: ''
-      });
-    }
+  function handleKeyEvents(event: KeyboardEvent) {
+    const isFocused = forwardedRef?.current?.getIsFocused();
 
-    if (this.props.showInternal !== nextProps.showInternal) {
-      this.setState({
-        isInternal: nextProps.showInternal
-      });
+    if (!isFocused) return;
+
+    if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+      addMessage();
     }
   }
-
-  getUnsendMessage = (id: string) => {
-    return localStorage.getItem(id) || '';
-  };
 
   // save editor current content to state
-  onEditorContentChange = (content: string) => {
-    this.setState({ content });
+  const onEditorContentChange = useDebouncedCallback(
+    (editorContent: string) => {
+      setContent(editorContent);
 
-    if (this.isContentWritten()) {
-      localStorage.setItem(this.props.conversation._id, content);
-    }
+      if (props.conversation.integration.kind === 'telnyx') {
+        const characterCount = calcCharacterCount(160);
 
-    if (this.props.conversation.integration.kind === 'telnyx') {
-      const characterCount = this.calcCharacterCount(160);
-
-      if (characterCount < 1) {
-        Alert.warning(__('You have reached maximum number of characters'));
+        if (characterCount < 1) {
+          Alert.warning(__('You have reached maximum number of characters'));
+        }
       }
-    }
-  };
+    },
+    200,
+  );
 
-  // save mentioned user to state
-  onAddMention = (mentionedUserIds: string[]) => {
-    this.setState({ mentionedUserIds });
-  };
-
-  onSearchChange = (value: string) => {
-    this.props.onSearchChange(value);
-  };
-
-  checkIsActive(conversation: IConversation) {
+  function checkIsActive(conversation: IConversation) {
     if (conversation.integration.kind === 'messenger') {
       return conversation.customer && conversation.customer.isOnline;
     }
 
-    if (conversation.integration.kind === 'facebook-messenger') {
-      return !conversation.isFacebookTaggedMessage;
-    }
-
     return true;
   }
 
-  hideMask = () => {
-    this.setState({ isInactive: false, isFacebookTaggedMessage: false });
+  const hideMask = () => {
+    setState((prevState) => ({ ...prevState, isInactive: false }));
 
     const element = document.querySelector('.DraftEditor-root') as HTMLElement;
 
@@ -181,66 +164,66 @@ class RespondBox extends React.Component<Props, State> {
     element.click();
   };
 
-  onSend = (e: React.FormEvent) => {
+  const onSend = (e: React.FormEvent) => {
     e.preventDefault();
-
-    this.addMessage();
-
-    // redrawing editor after send button, so editor content will be reseted
-    this.setState({ editorKey: `${this.state.editorKey}Key` });
+    addMessage();
   };
 
-  onSelectTemplate = (responseTemplate?: IResponseTemplate) => {
+  const onSelectTemplate = (responseTemplate?: IResponseTemplate) => {
     if (!responseTemplate) {
       return null;
     }
 
-    return this.setState({
-      responseTemplate: responseTemplate.content,
+    onEditorContentChange(responseTemplate.content);
 
+    setState((prevState) => ({
+      ...prevState,
+      responseTemplate: responseTemplate.content,
       // set attachment from response template files
-      attachments: responseTemplate.files || []
-    });
+      attachments: responseTemplate.files || [],
+    }));
   };
 
-  handleDeleteFile = (url: string) => {
+  const handleDeleteFile = (url: string) => {
     const urlArray = url.split('/');
 
     // checking whether url is full path or just file name
     const fileName =
       urlArray.length === 1 ? url : urlArray[urlArray.length - 1];
 
-    let loading = this.state.loading;
+    let loading = state.loading;
     loading[url] = true;
 
-    this.setState({ loading });
+    setState((prevState) => ({ ...prevState, loading }));
 
     deleteHandler({
       fileName,
       afterUpload: ({ status }) => {
         if (status === 'ok') {
-          const remainedAttachments = this.state.attachments.filter(
-            a => a.url !== url
+          const remainedAttachments = state.attachments.filter(
+            (a) => a.url !== url,
           );
 
-          this.setState({ attachments: remainedAttachments });
+          setState((prevState) => ({
+            ...prevState,
+            attachments: remainedAttachments,
+          }));
 
           Alert.success('You successfully deleted a file');
         } else {
           Alert.error(status);
         }
 
-        loading = this.state.loading;
+        loading = state.loading;
         delete loading[url];
 
-        this.setState({ loading });
-      }
+        setState((prevState) => ({ ...prevState, loading }));
+      },
     });
   };
 
-  handleFileInput = (e: React.FormEvent<HTMLInputElement>) => {
+  const handleFileInput = (e: React.FormEvent<HTMLInputElement>) => {
     const files = e.currentTarget.files;
-    const { setAttachmentPreview } = this.props;
 
     uploadHandler({
       files,
@@ -250,12 +233,14 @@ class RespondBox extends React.Component<Props, State> {
 
       afterUpload: ({ response, fileInfo }) => {
         // set attachments
-        this.setState({
+        setState((prevState) => ({
+          ...prevState,
           attachments: [
-            ...this.state.attachments,
-            Object.assign({ url: response }, fileInfo)
-          ]
-        });
+            ...state.attachments,
+            Object.assign({ url: response }, fileInfo),
+          ],
+        }));
+
         // remove preview
         if (setAttachmentPreview) {
           setAttachmentPreview(null);
@@ -266,16 +251,15 @@ class RespondBox extends React.Component<Props, State> {
         if (setAttachmentPreview) {
           setAttachmentPreview(Object.assign({ data: result }, fileInfo));
         }
-      }
+      },
     });
   };
 
-  cleanText(text: string) {
+  function cleanText(text: string) {
     return text.replace(/&nbsp;/g, ' ');
   }
 
-  calcCharacterCount = (maxlength: number) => {
-    const { content } = this.state;
+  const calcCharacterCount = (maxlength: number) => {
     const cleanContent = content.replace(/<\/?[^>]+(>|$)/g, '');
 
     if (!cleanContent) {
@@ -287,66 +271,59 @@ class RespondBox extends React.Component<Props, State> {
     return ret > 0 ? ret : 0;
   };
 
-  addMessage = () => {
-    const { conversation, sendMessage } = this.props;
-    const {
-      isInternal,
-      attachments,
-      content,
-      mentionedUserIds,
-      facebookMessageTag
-    } = this.state;
-
+  const addMessage = () => {
+    const { isInternal, attachments, extraInfo } = state;
     const message = {
       conversationId: conversation._id,
-      content: this.cleanText(content) || ' ',
-      facebookMessageTag,
+      content: cleanText(content) || ' ',
+      extraInfo,
       contentType: 'text',
       internal: isInternal,
       attachments,
-      mentionedUserIds
+      mentionedUserIds: getParsedMentions(useGenerateJSON(content)),
     };
+    if (content) {
+      setState((prevState) => ({ ...prevState, sending: true }));
 
-    if (this.state.content && !this.state.sending) {
-      this.setState({ sending: true });
-
-      sendMessage(message, error => {
+      sendMessage(message, (error) => {
         if (error) {
           return Alert.error(error.message);
         }
-
-        localStorage.removeItem(this.props.conversation._id);
-
+        localStorage.removeItem(props.conversation._id);
         // clear attachments, content, mentioned user ids
-        return this.setState({
+        setState((prevState) => ({
+          ...prevState,
           attachments: [],
-          content: '',
           sending: false,
-          mentionedUserIds: []
-        });
+          mentionedUserIds: [],
+        }));
+        setContent('');
       });
     }
   };
 
-  toggleForm = () => {
-    this.setState({
-      isInternal: !this.state.isInternal
-    });
+  const toggleForm = () => {
+    setState((prevState) => ({ ...prevState, isInternal: !state.isInternal }));
+
+    localStorage.setItem(
+      `showInternalState-${props.conversation._id}`,
+      String(state.isInternal),
+    );
   };
 
-  renderIndicator() {
-    const { attachments, loading } = this.state;
+  function renderIndicator() {
+    const { attachments, loading } = state;
 
     if (attachments.length > 0) {
       return (
         <AttachmentIndicator>
-          {attachments.map(attachment => (
+          {attachments.map((attachment) => (
             <Attachment key={attachment.name}>
               <AttachmentThumb>
                 {attachment.type.startsWith('image') && (
                   <PreviewImg
                     style={{
-                      backgroundImage: `url(${readFile(attachment.url)})`
+                      backgroundImage: `url(${readFile(attachment.url)})`,
                     }}
                   />
                 )}
@@ -360,8 +337,8 @@ class RespondBox extends React.Component<Props, State> {
                 <SmallLoader />
               ) : (
                 <Icon
-                  icon='times'
-                  onClick={this.handleDeleteFile.bind(this, attachment.url)}
+                  icon="times"
+                  onClick={handleDeleteFile.bind(this, attachment.url)}
                 />
               )}
             </Attachment>
@@ -373,12 +350,12 @@ class RespondBox extends React.Component<Props, State> {
     return null;
   }
 
-  renderMask() {
-    if (this.state.isInactive) {
+  function renderMask() {
+    if (state.isInactive) {
       return (
-        <Mask id='mask' onClick={this.hideMask}>
+        <Mask id="mask" onClick={hideMask}>
           {__(
-            'Customer is offline Click to hide and send messages and they will receive them the next time they are online'
+            'Customer is offline Click to hide and send messages and they will receive them the next time they are online',
           )}
         </Mask>
       );
@@ -387,36 +364,8 @@ class RespondBox extends React.Component<Props, State> {
     return null;
   }
 
-  renderFacebookTagMessage() {
-    const selectTag = value => {
-      this.setState({ facebookMessageTag: value });
-    };
-
-    if (this.state.isFacebookTaggedMessage) {
-      return (
-        <Mask id='mask'>
-          <div>
-            {__(
-              'Your last interaction with this contact was more than 24 hours ago. Only Tagged Messages are allowed outside the standard messaging window'
-            )}
-            <FacebookTaggedMessage>
-              <FacebookTaggedMessageModal
-                tag={this.state.facebookMessageTag}
-                selectTag={selectTag}
-                hideMask={this.hideMask}
-              />
-            </FacebookTaggedMessage>
-          </div>
-        </Mask>
-      );
-    }
-
-    return null;
-  }
-
-  renderEditor() {
-    const { isInternal, responseTemplate } = this.state;
-    const { responseTemplates, conversation } = this.props;
+  function renderEditor() {
+    const { isInternal } = state;
 
     let type = 'message';
 
@@ -425,31 +374,29 @@ class RespondBox extends React.Component<Props, State> {
     }
 
     const placeholder = __(
-      `To send your ${type} press Enter and Shift + Enter to add a new line`
+      `To send your ${type} press Enter and Shift + Enter to add a new line`,
     );
 
     return (
       <Editor
+        ref={forwardedRef}
         currentConversation={conversation._id}
-        defaultContent={this.getUnsendMessage(conversation._id)}
         integrationKind={conversation.integration.kind}
-        key={this.state.editorKey}
-        onChange={this.onEditorContentChange}
-        onAddMention={this.onAddMention}
-        onAddMessage={this.addMessage}
-        onSearchChange={this.onSearchChange}
+        onChange={onEditorContentChange}
         placeholder={placeholder}
-        mentions={this.props.teamMembers}
+        content={content}
         showMentions={isInternal}
-        responseTemplate={responseTemplate}
+        mentionSuggestion={props.mentionSuggestion}
         responseTemplates={responseTemplates}
-        handleFileInput={this.handleFileInput}
+        limit={
+          props.conversation.integration.kind === 'telnyx' ? 160 : undefined
+        }
       />
     );
   }
 
-  renderCheckbox(kind: string) {
-    const { isInternal } = this.state;
+  function renderCheckbox(kind: string) {
+    const { isInternal } = state;
 
     if (kind.includes('nylas') || kind === 'gmail') {
       return null;
@@ -457,132 +404,148 @@ class RespondBox extends React.Component<Props, State> {
 
     return (
       <>
-        {isEnabled("internalnotes") && (
+        {isEnabled('internalnotes') && (
           <FormControl
-          id='conversationInternalNote'
-          className='toggle-message'
-          componentClass='checkbox'
+            id="conversationInternalNote"
+            className="toggle-message"
+            componentClass="checkbox"
             checked={isInternal}
-            onChange={this.toggleForm}
-            disabled={this.props.showInternal}
+            onChange={toggleForm}
+            // disabled={ props.disableInternalState}
           >
-            {__("Internal note")}
+            {__('Internal note')}
           </FormControl>
         )}
       </>
     );
   }
 
-  renderVideoRoom() {
-    const { conversation, refetchMessages, refetchDetail } = this.props;
-    const integration = conversation.integration || ({} as IIntegration);
+  // renderVideoRoom() {
+  //   const { conversation, refetchMessages, refetchDetail } =  props;
+  //   const integration = conversation.integration || ({} as IIntegration);
 
-    if (this.state.isInternal || integration.kind !== 'messenger') {
-      return null;
-    }
+  //   if ( state.isInternal || integration.kind !== 'messenger') {
+  //     return null;
+  //   }
 
-    return (
-      <ManageVideoRoom
-        refetchMessages={refetchMessages}
-        refetchDetail={refetchDetail}
-        conversationId={conversation._id}
-        activeVideo={conversation.videoCallData}
-      />
-    );
-  }
+  //   return (
+  //     <ManageVideoRoom
+  //       refetchMessages={refetchMessages}
+  //       refetchDetail={refetchDetail}
+  //       conversationId={conversation._id}
+  //       activeVideo={conversation.videoCallData}
+  //     />
+  //   );
+  // }
 
-  renderButtons() {
-    const { conversation } = this.props;
+  function renderButtons() {
     const integration = conversation.integration || ({} as IIntegration);
     const disabled =
       integration.kind.includes('nylas') || integration.kind === 'gmail';
 
     return (
       <EditorActions>
-        {this.renderCheckbox(integration.kind)}
-        {this.renderVideoRoom()}
+        {renderCheckbox(integration.kind)}
+        {/* { renderVideoRoom()} */}
+
+        {loadDynamicComponent('inboxEditorAction', props, true)}
 
         <Tip text={__('Attach file')}>
           <label>
-            <Icon icon='paperclip' />
-            <input
-              type='file'
-              onChange={this.handleFileInput}
-              multiple={true}
-            />
+            <Icon icon="paperclip" />
+            <input type="file" onChange={handleFileInput} multiple={true} />
           </label>
         </Tip>
 
         <ResponseTemplate
           brandId={integration.brandId}
-          attachments={this.state.attachments}
-          content={this.state.content}
-          onSelect={this.onSelectTemplate}
+          attachments={state.attachments}
+          content={content}
+          onSelect={onSelectTemplate}
         />
 
-        <Button
-          onClick={this.onSend}
-          btnStyle='success'
-          size='small'
-          icon='message'
-        >
+        <Button onClick={onSend} btnStyle="success" size="small" icon="message">
           {!disabled && 'Send'}
         </Button>
       </EditorActions>
     );
   }
-  renderBody() {
+
+  function renderBody() {
     return (
       <>
-        {this.renderEditor()}
-        {this.renderIndicator()}
-        {this.renderButtons()}
+        {renderEditor()}
+        {renderIndicator()}
+        {renderButtons()}
       </>
     );
   }
 
-  renderContent() {
-    const { isInternal, isInactive, isFacebookTaggedMessage } = this.state;
+  function renderContent() {
+    const { isInternal, isInactive, extraInfo } = state;
+
+    const setExtraInfo = (value) => {
+      setState((prevState) => ({ ...prevState, extraInfo: value }));
+    };
+
+    const { integration } = conversation;
+
+    const integrations = getPluginConfig({
+      pluginName: integration.kind.split('-')[0],
+      configName: 'inboxIntegrations',
+    });
+
+    let dynamicComponent = null;
+
+    if (integrations && integrations.length > 0) {
+      const entry = integrations.find((s) => s.kind === integration.kind);
+
+      if (entry && entry.components && entry.components.length > 0) {
+        const name = entry.components.find(
+          (el) => el === 'inboxConversationDetailRespondBoxMask',
+        );
+
+        if (name) {
+          dynamicComponent = loadDynamicComponent(name, {
+            hideMask: hideMask,
+            extraInfo,
+            setExtraInfo,
+            conversationId: conversation._id,
+          });
+        }
+      }
+    }
 
     return (
       <MaskWrapper>
-        {this.renderMask()}
-        {this.renderFacebookTagMessage()}
-        <RespondBoxStyled
-          isInternal={isInternal}
-          isInactive={isInactive || isFacebookTaggedMessage}
-        >
-          {this.renderBody()}
+        {renderMask()}
+        {dynamicComponent}
+        <RespondBoxStyled isInternal={isInternal} isInactive={isInactive}>
+          {renderBody()}
         </RespondBoxStyled>
       </MaskWrapper>
     );
   }
 
-  renderMailRespondBox() {
-    const { currentUser } = this.props;
-
+  function renderMailRespondBox() {
     return (
       <MailRespondBox isInternal={true}>
         <NameCard.Avatar user={currentUser} size={34} />
-        <SmallEditor>{this.renderBody()}</SmallEditor>
+        <SmallEditor>{renderBody()}</SmallEditor>
       </MailRespondBox>
     );
   }
 
-  render() {
-    const { conversation } = this.props;
+  const integration = conversation.integration || ({} as IIntegration);
+  const { kind } = integration;
 
-    const integration = conversation.integration || ({} as IIntegration);
-    const { kind } = integration;
+  const isMail = kind.includes('nylas') || kind === 'gmail';
 
-    const isMail = kind.includes('nylas') || kind === 'gmail';
-
-    if (isMail) {
-      return this.renderMailRespondBox();
-    }
-
-    return this.renderContent();
+  if (isMail) {
+    return renderMailRespondBox();
   }
-}
+
+  return renderContent();
+};
 
 export default RespondBox;

@@ -1,5 +1,4 @@
-import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
-
+// import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
 import { IJobCategory } from '../../../models/definitions/jobCategories';
 import {
   putCreateLog,
@@ -31,7 +30,7 @@ const jobCategoryMutations = {
       models,
       subdomain,
       {
-        type: MODULE_NAMES.PRODUCT_CATEGORY,
+        type: MODULE_NAMES.JOBREFER_CATEGORY,
         newData: { ...doc, order: jobCategory.order },
         object: jobCategory
       },
@@ -58,7 +57,7 @@ const jobCategoryMutations = {
       models,
       subdomain,
       {
-        type: MODULE_NAMES.PRODUCT_CATEGORY,
+        type: MODULE_NAMES.JOBREFER_CATEGORY,
         object: jobCategory,
         newData: doc,
         updatedDocument: updated
@@ -84,7 +83,7 @@ const jobCategoryMutations = {
     await putDeleteLog(
       models,
       subdomain,
-      { type: MODULE_NAMES.PRODUCT_CATEGORY, object: jobCategory },
+      { type: MODULE_NAMES.JOBREFER_CATEGORY, object: jobCategory },
       user
     );
 
@@ -92,6 +91,6 @@ const jobCategoryMutations = {
   }
 };
 
-moduleCheckPermission(jobCategoryMutations, 'manageJobRefers');
+// moduleCheckPermission(jobCategoryMutations, 'manageJobs');
 
 export default jobCategoryMutations;

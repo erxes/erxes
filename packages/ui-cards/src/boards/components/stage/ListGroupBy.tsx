@@ -7,22 +7,22 @@ import {
   ListStageFooter,
   StageTitle,
   GroupTitle,
-  ColumnLastChild,
-} from "../../styles/stage";
-import EmptyState from "@erxes/ui/src/components/EmptyState";
-import Icon from "@erxes/ui/src/components/Icon";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import { __ } from "@erxes/ui/src/utils";
-import React from "react";
-import { AddForm } from "../../containers/portable";
-import { IItem, IOptions } from "../../types";
-import Table from "@erxes/ui/src/components/table";
-import ListItemRow from "./ListItemRow";
-import * as routerUtils from "@erxes/ui/src/utils/router";
-import Item from "./Item";
-import { withRouter } from "react-router-dom";
-import { IRouterProps } from "@erxes/ui/src/types";
-import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
+  ColumnLastChild
+} from '../../styles/stage';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { __ } from '@erxes/ui/src/utils';
+import React from 'react';
+import { AddForm } from '../../containers/portable';
+import { IItem, IOptions } from '../../types';
+import Table from '@erxes/ui/src/components/table';
+import ListItemRow from './ListItemRow';
+import * as routerUtils from '@erxes/ui/src/utils/router';
+import Item from './Item';
+import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '@erxes/ui/src/types';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 
 type Props = {
   index: number;
@@ -67,10 +67,10 @@ class ListGroupBy extends React.Component<Props> {
       showSelect: false,
       callback: (item: IItem) => onAddItem(groupObj._id, item),
       stageId: groupObj._id,
-      aboveItemId: "",
+      aboveItemId: ''
     };
 
-    const content = (props) => <AddForm {...props} {...formProps} />;
+    const content = props => <AddForm {...props} {...formProps} />;
 
     return <ModalTrigger title={addText} trigger={trigger} content={content} />;
   }
@@ -80,7 +80,7 @@ class ListGroupBy extends React.Component<Props> {
 
     routerUtils.setParams(history, {
       itemId: `${item._id}${groupObj._id}`,
-      key: "",
+      key: ''
     });
   };
 
@@ -91,7 +91,7 @@ class ListGroupBy extends React.Component<Props> {
   renderHeader = () => {
     const { groupType, groupObj } = this.props;
 
-    if (groupType === "assignee") {
+    if (groupType === 'assignee') {
       return <NameCard user={groupObj} avatarSize={30} />;
     }
 
@@ -119,17 +119,18 @@ class ListGroupBy extends React.Component<Props> {
         <Table hover={true} bordered={true}>
           <thead>
             <tr>
-              <th>{__("Card Title")}</th>
-              <th>{groupType === "stage" ? __("Label") : __("Stage")}</th>
-              {(groupType === "assignee" || groupType === "dueDate") && (
-                <th>{__("Label")}</th>
+              <th>{__('Card Title')}</th>
+              <th>{groupType === 'stage' ? __('Label') : __('Stage')}</th>
+              {(groupType === 'assignee' || groupType === 'dueDate') && (
+                <th>{__('Label')}</th>
               )}
-              <th>{groupType === "priority" ? __("Label") : __("Priority")}</th>
-              <th>{__("Due Date")}</th>
-              {groupType !== "assignee" && <th>{__("Assignee")}</th>}
-              {options.type === "deal" && <th>{__("Products")}</th>}
-              <th>{__("Associated Customer")}</th>
-              <ColumnLastChild>{__("Associated Company")}</ColumnLastChild>
+              <th>{groupType === 'priority' ? __('Label') : __('Priority')}</th>
+              <th>{__('Due Date')}</th>
+              {groupType !== 'assignee' && <th>{__('Assignee')}</th>}
+              {options.type === 'deal' ||
+                (options.type === 'purchase' && <th>{__('Products')}</th>)}
+              <th>{__('Associated Customer')}</th>
+              <ColumnLastChild>{__('Associated Company')}</ColumnLastChild>
             </tr>
           </thead>
           <tbody id="groupByList">
@@ -160,7 +161,7 @@ class ListGroupBy extends React.Component<Props> {
           <StageTitle>{this.renderHeader()}</StageTitle>
         </Header>
         <ListBody onScroll={this.onScroll}>{this.renderTable()}</ListBody>
-        {groupType === "stage" && (
+        {groupType === 'stage' && (
           <Footer>{this.renderAddItemTrigger()}</Footer>
         )}
       </ListContainer>

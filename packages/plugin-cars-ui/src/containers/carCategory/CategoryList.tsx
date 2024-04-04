@@ -1,13 +1,15 @@
 import { Alert, confirm, withProps } from '@erxes/ui/src';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 
 import List from '../../components/carCategory/CategoryList';
 import { mutations, queries } from '../../graphql';
 import {
-  CarCategoriesCountQueryResponse, CarCategoriesQueryResponse, CarCategoryRemoveMutationResponse
+  CarCategoriesCountQueryResponse,
+  CarCategoriesQueryResponse,
+  CarCategoryRemoveMutationResponse
 } from '../../types';
 
 type Props = { history: any; queryParams: any };
@@ -35,9 +37,7 @@ class CarListContainer extends React.Component<FinalProps> {
             carCategoriesQuery.refetch();
             carCategoriesCountQuery.refetch();
 
-            Alert.success(
-              `You successfully deleted a car & service category`
-            );
+            Alert.success(`You successfully deleted a car & service category`);
           })
           .catch(error => {
             Alert.error(error.message);
@@ -53,8 +53,7 @@ class CarListContainer extends React.Component<FinalProps> {
       refetch: carCategoriesQuery.refetch,
       carCategories,
       loading: carCategoriesQuery.loading,
-      carCategoriesCount:
-        carCategoriesCountQuery.carCategoriesTotalCount || 0
+      carCategoriesCount: carCategoriesCountQuery.carCategoriesTotalCount || 0
     };
 
     return <List {...updatedProps} />;

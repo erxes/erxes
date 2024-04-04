@@ -4,6 +4,6 @@ import { getOwner } from '../../../models/utils';
 
 export default {
   async owner(voucher: IScoreLog, _args, { subdomain }: IContext) {
-    return getOwner(subdomain, voucher.ownerType, voucher.ownerId)
+    return getOwner(subdomain, voucher.ownerType, voucher.ownerId);
   }
-}
+};

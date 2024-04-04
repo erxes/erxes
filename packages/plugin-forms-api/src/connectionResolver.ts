@@ -1,26 +1,26 @@
-import * as mongoose from "mongoose";
+import * as mongoose from 'mongoose';
 import {
   IFieldDocument,
-  IFieldGroupDocument
-} from "./models/definitions/fields";
+  IFieldGroupDocument,
+} from './models/definitions/fields';
 import {
   IFormDocument,
-  IFormSubmissionDocument
-} from "./models/definitions/forms";
-import { IContext as IMainContext } from "@erxes/api-utils/src";
+  IFormSubmissionDocument,
+} from './models/definitions/forms';
+import { IContext as IMainContext } from '@erxes/api-utils/src';
 import {
   IFieldModel,
   IFieldGroupModel,
   loadFieldClass,
-  loadGroupClass
-} from "./models/Fields";
+  loadGroupClass,
+} from './models/Fields';
 import {
   IFormModel,
   IFormSubmissionModel,
   loadFormClass,
-  loadFormSubmissionClass
-} from "./models/Forms";
-import { createGenerateModels } from "@erxes/api-utils/src/core";
+  loadFormSubmissionClass,
+} from './models/Forms';
+import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 export interface IModels {
   Fields: IFieldModel;
@@ -34,33 +34,30 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
-
 export const loadClasses = (
   db: mongoose.Connection,
-  subdomain: string
+  subdomain: string,
 ): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.Fields = db.model<IFieldDocument, IFieldModel>(
-    "fields",
-    loadFieldClass(models, subdomain)
+    'form_fields',
+    loadFieldClass(models, subdomain),
   );
   models.FieldsGroups = db.model<IFieldGroupDocument, IFieldGroupModel>(
-    "fields_groups",
-    loadGroupClass(models)
+    'fields_groups',
+    loadGroupClass(models),
   );
   models.Forms = db.model<IFormDocument, IFormModel>(
-    "forms",
-    loadFormClass(models)
+    'forms',
+    loadFormClass(models),
   );
   models.FormSubmissions = db.model<
     IFormSubmissionDocument,
     IFormSubmissionModel
-  >("form_submissions", loadFormSubmissionClass(models));
+  >('form_submissions', loadFormSubmissionClass(models));
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(models, loadClasses);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

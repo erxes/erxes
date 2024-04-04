@@ -1,6 +1,6 @@
 import {
   attachmentType,
-  attachmentInput
+  attachmentInput,
 } from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = () => `
@@ -12,10 +12,23 @@ export const types = () => `
     _id: String! @external
   }
 
+  extend type Branch @key(fields: "_id") {
+    _id: String! @external
+  }
+
+  extend type Department @key(fields: "_id") {
+    _id: String! @external
+  }
+
   type SeenInfo {
     user: User
     lastSeenMessageId: String
     seenDate: Date
+  }
+
+  type ChatMessageReaction {
+    user: User
+    reaction: String
   }
   
   type ChatMessage {
@@ -28,6 +41,7 @@ export const types = () => `
     createdUser: User
     createdAt: Date
     seenList: [SeenInfo]
+    reactions: [ChatMessageReaction]
   }
 
   type ChatUserDetails {
@@ -35,14 +49,18 @@ export const types = () => `
     description: String
     fullName: String
     operatorPhone: String
+    position: String
   }
 
   type ChatUser {
     _id: String!
     username: String
     email: String
+    employeeId: String
     details: ChatUserDetails
     isAdmin: Boolean
+    departments: [Department]
+    branches: [Branch]
   }
 
   type ChatTypingStatusChangedResponse {
@@ -57,10 +75,17 @@ export const types = () => `
     description: String
     visibility: String
     isSeen: Boolean
+    isArchived: Boolean
     lastMessage: ChatMessage
     participantUsers: [ChatUser]
     createdUser: User
     createdAt: Date
+    isPinned: Boolean
+    isPinnedUserIds: [String]
+    muteUserIds: [String]
+    archivedUserIds: [String]
+    isWithNotification: Boolean
+    featuredImage: JSON
   }
 
   type ChatResponse {
@@ -72,7 +97,11 @@ export const types = () => `
     list: [ChatMessage]
     totalCount: Int
   }
-
+  type UserStatus {
+    _id: String!
+    onlineDate: Date
+    userId: String
+  }
   enum ChatType {
     direct
     group
@@ -95,25 +124,38 @@ const paginationParams = `
 `;
 
 export const queries = `
-  chats(type: ChatType, ${paginationParams}): ChatResponse
+  chats(type: ChatType, position: String, searchValue: String, ${paginationParams}): ChatResponse
+  chatsPinned: ChatResponse
   chatDetail(_id: String!): Chat
   getUnreadChatCount: Int
   chatMessages(chatId: String, isPinned: Boolean, ${paginationParams}): ChatMessageResponse
   chatMessageDetail(_id : String) : ChatMessage
+  chatMessageAttachments(chatId: String, ${paginationParams}): ChatMessageResponse
   getChatIdByUserIds(userIds: [String]): String
+  isChatUserOnline(userIds:[String]): [UserStatus]
+  activeMe(userId:String!):UserStatus
 `;
 
 export const mutations = `
-  chatAdd(name: String, type: ChatType!, description: String, visibility: ChatVisibilityType, participantIds: [String]): Chat
-  chatEdit(_id: String!, name: String, description: String, visibility: ChatVisibilityType): Chat
+  chatAdd(name: String, type: ChatType!, description: String, visibility: ChatVisibilityType, participantIds: [String], featuredImage: JSON): Chat
+  chatEdit(_id: String!, name: String, description: String, visibility: ChatVisibilityType, featuredImage: JSON): Chat
   chatRemove(_id: String!): JSON
+  chatArchive(_id: String!): JSON
+
+  
   chatAddOrRemoveMember(_id: String!, userIds: [String], type: ChatMemberModifyType): String
   chatMarkAsRead(_id : String!) : String
+  chatToggleIsPinned(_id: String!): Boolean
+  chatToggleIsWithNotification(_id: String!): Boolean
   
   chatMessageAdd(chatId: String!, relatedId: String, attachments: [JSON], content: String, mentionedUserIds: [String]): ChatMessage
   chatMessageRemove(_id: String!): JSON
   chatMakeOrRemoveAdmin(_id: String!, userId: String!): String
   chatMessageToggleIsPinned(_id: String!): Boolean
+  chatForward(chatId: String, userIds:[String], content: String, attachments: [JSON]): ChatMessage
 
   chatTypingInfo(chatId: String!, userId : String!): String
+
+  chatMessageReactionAdd(userId: String,chatMessageId: String!, reaction: String): JSON
+  chatMessageReactionRemove(_id: String!): JSON
 `;

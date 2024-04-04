@@ -9,37 +9,61 @@ import {
   sendProductsMessage
 } from '../../../messageBroker';
 
-export const generateProducts = async (subdomain: string, productsData) => {
+export const generateProducts = async (
+  subdomain: string,
+  productsData?: any[]
+) => {
   const products: any = [];
+
+  if (!productsData || !productsData.length) {
+    return products;
+  }
+
+  const productIds = productsData
+    .filter(pd => pd.productId)
+    .map(pd => pd.productId);
+
+  const allProducts = await sendProductsMessage({
+    subdomain,
+    action: 'find',
+    data: { query: { _id: { $in: productIds } }, limit: productsData.length },
+    isRPC: true,
+    defaultValue: []
+  });
 
   for (const data of productsData || []) {
     if (!data.productId) {
       continue;
     }
+    const product = allProducts.find(p => p._id === data.productId);
 
-    const product =
-      (await sendProductsMessage({
-        subdomain,
-        action: 'findOne',
-        data: { _id: data.productId },
-        isRPC: true
-      })) || {};
+    if (!product) {
+      continue;
+    }
 
     const { customFieldsData } = product;
 
     const customFields: any[] = [];
 
+    const fieldIds: string[] = [];
     for (const customFieldData of customFieldsData || []) {
-      const field = await sendFormsMessage({
-        subdomain,
-        action: 'fields.findOne',
-        data: {
-          query: {
-            _id: customFieldData.field
-          }
-        },
-        isRPC: true
-      });
+      fieldIds.push(customFieldData.field);
+    }
+
+    const fields = await sendFormsMessage({
+      subdomain,
+      action: 'fields.find',
+      data: {
+        query: {
+          _id: { $in: fieldIds }
+        }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    for (const customFieldData of customFieldsData || []) {
+      const field = fields.find(f => f._id === customFieldData.field);
 
       if (field) {
         customFields[customFieldData.field] = {
@@ -60,12 +84,16 @@ export const generateProducts = async (subdomain: string, productsData) => {
   return products;
 };
 
-export const generateAmounts = productsData => {
+export const generateAmounts = (productsData, useTick = true) => {
   const amountsMap = {};
 
   (productsData || []).forEach(product => {
     // Tick paid or used is false then exclude
-    if (!product.tickUsed) {
+    if (useTick && !product.tickUsed) {
+      return;
+    }
+
+    if (!useTick && product.tickUsed) {
       return;
     }
 
@@ -91,10 +119,9 @@ export default {
   async companies(
     deal: IDealDocument,
     _args,
-    { subdomain, serverTiming }: IContext
+    { subdomain }: IContext,
+    { isSubscription }
   ) {
-    serverTiming.startTime('companiesResolver:savedConformity');
-
     const companyIds = await sendCoreMessage({
       subdomain,
       action: 'conformities.savedConformity',
@@ -107,10 +134,6 @@ export default {
       defaultValue: []
     });
 
-    serverTiming.endTime('companiesResolver:savedConformity');
-
-    serverTiming.startTime('companiesResolver:findActiveCompanies');
-
     const activeCompanies = await sendContactsMessage({
       subdomain,
       action: 'companies.findActiveCompanies',
@@ -119,23 +142,22 @@ export default {
       defaultValue: []
     });
 
-    const response = (activeCompanies || []).map(c => ({
+    if (isSubscription) {
+      return activeCompanies;
+    }
+
+    return (activeCompanies || []).map(c => ({
       __typename: 'Company',
       _id: c._id
     }));
-
-    serverTiming.endTime('companiesResolver:findActiveCompanies');
-
-    return response;
   },
 
   async customers(
     deal: IDealDocument,
     _args,
-    { subdomain, serverTiming }: IContext
+    { subdomain }: IContext,
+    { isSubscription }
   ) {
-    serverTiming.startTime('customersResolver:savedConformity');
-
     const customerIds = await sendCoreMessage({
       subdomain,
       action: 'conformities.savedConformity',
@@ -148,10 +170,6 @@ export default {
       defaultValue: []
     });
 
-    serverTiming.endTime('customersResolver:savedConformity');
-
-    serverTiming.startTime('customersResolver:findActiveCustomers');
-
     const activeCustomers = await sendContactsMessage({
       subdomain,
       action: 'customers.findActiveCustomers',
@@ -160,35 +178,49 @@ export default {
       defaultValue: []
     });
 
-    const response = (activeCustomers || []).map(c => ({
+    if (isSubscription) {
+      return activeCustomers;
+    }
+
+    return (activeCustomers || []).map(c => ({
       __typename: 'Customer',
       _id: c._id
     }));
+  },
 
-    serverTiming.endTime('customersResolver:findActiveCustomers');
+  async products(deal: IDealDocument, _args, { subdomain }: IContext) {
+    const response = await generateProducts(subdomain, deal.productsData);
 
     return response;
   },
 
-  async products(
-    deal: IDealDocument,
-    _args,
-    { subdomain, serverTiming }: IContext
-  ) {
-    serverTiming.startTime('customersResolver:products');
-
-    const response = await generateProducts(subdomain, deal.productsData);
-
-    serverTiming.endTime('customersResolver:products');
-
-    return response;
+  unUsedAmount(deal: IDealDocument) {
+    return generateAmounts(deal.productsData || [], false);
   },
 
   amount(deal: IDealDocument) {
     return generateAmounts(deal.productsData || []);
   },
 
-  assignedUsers(deal: IDealDocument) {
+  assignedUsers(
+    deal: IDealDocument,
+    _args,
+    { subdomain }: IContext,
+    { isSubscription }
+  ) {
+    if (isSubscription && deal.assignedUserIds?.length) {
+      return sendCoreMessage({
+        subdomain,
+        action: 'users.find',
+        data: {
+          query: {
+            _id: { $in: deal.assignedUserIds }
+          }
+        },
+        isRPC: true
+      });
+    }
+
     return (deal.assignedUserIds || [])
       .filter(e => e)
       .map(_id => ({
@@ -221,13 +253,7 @@ export default {
     return false;
   },
 
-  async hasNotified(
-    deal: IDealDocument,
-    _args,
-    { user, subdomain, serverTiming }: IContext
-  ) {
-    serverTiming.startTime('hasNotifified');
-
+  async hasNotified(deal: IDealDocument, _args, { user, subdomain }: IContext) {
     const response = await sendNotificationsMessage({
       subdomain,
       action: 'checkIfRead',
@@ -236,8 +262,6 @@ export default {
         itemId: deal._id
       }
     });
-
-    serverTiming.endTime('hasNotifified');
 
     return response;
   },

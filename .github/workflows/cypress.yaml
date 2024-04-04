@@ -1,0 +1,64 @@
+name: Cypress Tests
+
+on:
+  pull_request:
+    branches:
+      - 'dev'
+      - master
+      - rc
+jobs:
+  runtest:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - name: setup node -v
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.20.x
+
+      - uses: actions/checkout@v2
+
+      - name: docker up
+        run: |
+          cd docker
+          docker compose up -d
+
+      - name: yarn install & install pm2
+        run: |
+          sudo -i
+          yarn install --save
+          sudo npm install -g pm2
+
+      - name: Run 'yarn install' in the './cli' directory.
+        run: |
+          cd cli
+          yarn install --save
+          cp configs.json.cli.sample configs.json
+
+      - name: Run 'yarn watch template' in the './packages/gateway' directory.
+        run: |
+          cd packages/gateway
+          yarn install --save
+
+      - name: start with "dev --deps"
+        run: |
+          cd cli
+          ./bin/erxes.js dev --deps
+
+      - run: sleep 30
+
+      - name: 'run test'
+        uses: cypress-io/github-action@v5
+        with:
+          wait-on: 'http://localhost:3000'
+          wait-on-timeout: 1000
+          browser: chrome
+          record: true
+          spec: ./cypress/tests/**/*.cy.js
+          config-file: cypress.config.js
+        env:
+          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEBUG: 'cypress:server:args'

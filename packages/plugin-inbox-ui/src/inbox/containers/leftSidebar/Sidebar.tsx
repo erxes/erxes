@@ -1,21 +1,27 @@
-import { AppConsumer } from 'coreui/appContext';
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Bulk from '@erxes/ui/src/components/Bulk';
-import { IBulkContentProps } from '@erxes/ui/src/components/Bulk';
+
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import DumbSidebar from '../../components/leftSidebar/Sidebar';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { mutations } from '@erxes/ui-inbox/src/inbox/graphql';
 import {
   ResolveAllMutationResponse,
   ResolveAllMutationVariables
 } from '@erxes/ui-inbox/src/inbox/types';
-import { getConfig, setConfig, refetchSidebarConversationsOptions } from '@erxes/ui-inbox/src/inbox/utils';
+import {
+  getConfig,
+  refetchSidebarConversationsOptions,
+  setConfig
+} from '@erxes/ui-inbox/src/inbox/utils';
+import { mutations, queries } from '@erxes/ui-inbox/src/inbox/graphql';
+
+import { AppConsumer } from 'coreui/appContext';
+import Bulk from '@erxes/ui/src/components/Bulk';
+import DumbSidebar from '../../components/leftSidebar/Sidebar';
+import { IBulkContentProps } from '@erxes/ui/src/components/Bulk';
+import { IRouterProps } from '@erxes/ui/src/types';
 import { InboxManagementActionConsumer } from '../InboxCore';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;

@@ -1,15 +1,16 @@
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+
+import CommonForm from '@erxes/ui-settings/src/common/components/Form';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
+import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
+import { IScript } from '../types';
 import { ITopic } from '@erxes/ui-knowledgeBase/src/types';
-import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 import React from 'react';
 import Select from 'react-select-plus';
-import CommonForm from '@erxes/ui-settings/src/common/components/Form';
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-import { IScript } from '../types';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   object?: IScript;

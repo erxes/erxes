@@ -3,23 +3,20 @@ import resolvers from './graphql/resolvers';
 import * as permissions from './permissions';
 import { generateModels } from './connectionResolver';
 
-import { initBroker } from './messageBroker';
-import { initMemoryStorage } from './inmemoryStorage';
+import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let debug: any;
 export let graphqlPubsub: any;
 export let mainDb: any;
-export let serviceDiscovery: any;
 
 export default {
   name: 'salesplans',
   permissions,
-  graphql: async (sd: any) => {
-    serviceDiscovery = sd;
+  graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers()
+      resolvers,
     };
   },
   apolloServerContext: async (context: any, req: any) => {
@@ -30,16 +27,9 @@ export default {
 
     return context;
   },
-  onServerInit: async (options: any) => {
-    mainDb = options.db;
-
-    initBroker(options.messageBrokerClient);
-
-    initMemoryStorage();
-
-    debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
+  onServerInit: async (options: any) => {},
+  setupMessageConsumers,
+  meta: {
+    permissions,
   },
-
-  meta: {}
 };

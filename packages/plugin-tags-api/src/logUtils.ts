@@ -5,23 +5,21 @@ import {
   putActivityLog as commonPutActivityLog,
   LogDesc,
   IDescriptions,
-  getSchemaLabels
+  getSchemaLabels,
 } from '@erxes/api-utils/src/logUtils';
 import { IModels, generateModels } from './connectionResolver';
-
-import messageBroker from './messageBroker';
 import { ITagDocument, tagSchema } from './models/definitions/tags';
 
 export const LOG_ACTIONS = {
   CREATE: 'create',
   UPDATE: 'update',
-  DELETE: 'delete'
+  DELETE: 'delete',
 };
 
 const gatherTagNames = async (
   models: IModels,
   doc: ITagDocument,
-  prevList?: LogDesc[]
+  prevList?: LogDesc[],
 ) => {
   const options: LogDesc[] = prevList ? prevList : [];
 
@@ -33,13 +31,13 @@ const gatherTagNames = async (
 
   if (doc.relatedIds) {
     const children = await models.Tags.find({
-      _id: { $in: doc.relatedIds }
+      _id: { $in: doc.relatedIds },
     }).lean();
 
     if (children.length > 0) {
       options.push({
         relatedIds: doc.relatedIds,
-        name: children.map(c => c.name)
+        name: children.map((c) => c.name),
       });
     }
   }
@@ -49,7 +47,7 @@ const gatherTagNames = async (
 
 const gatherDescriptions = async (
   models: IModels,
-  params: any
+  params: any,
 ): Promise<IDescriptions> => {
   const { action, object, updatedDocument } = params;
 
@@ -66,48 +64,45 @@ const gatherDescriptions = async (
 export const putDeleteLog = async (models, subdomain, logDoc, user) => {
   const { description, extraDesc } = await gatherDescriptions(models, {
     ...logDoc,
-    action: LOG_ACTIONS.DELETE
+    action: LOG_ACTIONS.DELETE,
   });
 
   await commonPutDeleteLog(
     subdomain,
-    messageBroker(),
     { ...logDoc, description, extraDesc, type: `tags:${logDoc.type}` },
-    user
+    user,
   );
 };
 
 export const putUpdateLog = async (models, subdomain, logDoc, user) => {
   const { description, extraDesc } = await gatherDescriptions(models, {
     ...logDoc,
-    action: LOG_ACTIONS.UPDATE
+    action: LOG_ACTIONS.UPDATE,
   });
 
   await commonPutUpdateLog(
     subdomain,
-    messageBroker(),
     { ...logDoc, description, extraDesc, type: `tags:${logDoc.type}` },
-    user
+    user,
   );
 };
 
 export const putCreateLog = async (models, subdomain, logDoc, user) => {
   const { description, extraDesc } = await gatherDescriptions(models, {
     ...logDoc,
-    action: LOG_ACTIONS.CREATE
+    action: LOG_ACTIONS.CREATE,
   });
 
   await commonPutCreateLog(
     subdomain,
-    messageBroker(),
     { ...logDoc, description, extraDesc, type: `tags:${logDoc.type}` },
-    user
+    user,
   );
 };
 
 export const putActivityLog = async (
   subdomain: string,
-  params: { action: string; data: any }
+  params: { action: string; data: any },
 ) => {
   const { data } = params;
 
@@ -117,21 +112,20 @@ export const putActivityLog = async (
       ...data,
       contentType: `tags:${data.contentType}`,
       automations: {
-        type: data.contentType
-      }
-    }
+        type: data.contentType,
+      },
+    },
   };
 
   return commonPutActivityLog(subdomain, {
-    messageBroker: messageBroker(),
-    ...updatedParams
+    ...updatedParams,
   });
 };
 
 export default {
   getSchemaLabels: ({ data: { type } }) => ({
     status: 'success',
-    data: getSchemaLabels(type, [{ name: 'tag', schemas: [tagSchema] }])
+    data: getSchemaLabels(type, [{ name: 'tag', schemas: [tagSchema] }]),
   }),
   getActivityContent: async ({ subdomain, data }) => {
     const { action, content } = data;
@@ -146,13 +140,13 @@ export default {
 
       return {
         data: tags,
-        status: 'success'
+        status: 'success',
       };
     }
 
     return {
       status: 'error',
-      data: 'wrong action'
+      data: 'wrong action',
     };
-  }
+  },
 };

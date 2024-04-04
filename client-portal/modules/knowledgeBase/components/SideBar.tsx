@@ -1,12 +1,16 @@
-import React from "react";
-import { IKbCategory, IKbParentCategory } from "../../types";
-import Link from "next/link";
+import { Config, IKbCategory, IKbParentCategory } from "../../types";
 import { SubCategories, SubMenu } from "./styles";
+
+import Icon from "../../common/Icon";
+import Link from "next/link";
+import React from "react";
+import { getConfigColor } from "../../common/utils";
 
 type Props = {
   parentCategories: IKbParentCategory[];
   category: IKbCategory;
   articleId?: string;
+  config: Config;
 };
 
 class SideBar extends React.Component<Props> {
@@ -34,9 +38,19 @@ class SideBar extends React.Component<Props> {
     );
   };
 
-  renderCategory(cat) {
-    const icon = cat.childrens ? cat.icon : "angle-right";
+  renderCatIcon(cat) {
+    if (!cat.childrens) {
+      return <span>&#x2022;</span>;
+    }
 
+    return (
+      <div className="icon-wrapper d-flex justify-content-center align-items-center">
+        <i className={`icon-${cat.icon}`} />
+      </div>
+    );
+  }
+
+  renderCategory(cat) {
     return (
       <React.Fragment key={cat._id}>
         <Link href={`/knowledge-base/category?id=${cat._id}`}>
@@ -46,10 +60,12 @@ class SideBar extends React.Component<Props> {
             }`}
           >
             <div>
-              <i className={`icon-${icon}`} />
+              {this.renderCatIcon(cat)}
               <h6>{cat.title}</h6>
             </div>
-            <span>{`(${cat.numOfArticles})`}</span>
+            <span className="d-flex align-items-center">
+              {`(${cat.numOfArticles})`}
+            </span>
           </div>
         </Link>
         {this.renderArticles(cat._id === this.props.category._id)}
@@ -58,7 +74,7 @@ class SideBar extends React.Component<Props> {
   }
 
   render() {
-    const { parentCategories } = this.props;
+    const { parentCategories, config } = this.props;
 
     if (!parentCategories || parentCategories.length === 0) {
       return null;
@@ -69,7 +85,7 @@ class SideBar extends React.Component<Props> {
         {this.renderCategory(cat)}
 
         {cat.childrens && (
-          <SubCategories>
+          <SubCategories baseColor={getConfigColor(config, "baseColor")}>
             {cat.childrens.map((child) => this.renderCategory(child))}
           </SubCategories>
         )}

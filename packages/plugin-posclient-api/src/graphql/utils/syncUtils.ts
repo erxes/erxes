@@ -50,9 +50,14 @@ export const importUsers = async (
   }
 };
 
-export const importSlots = async (models: IModels, slots: any[]) => {
-  await models.PosSlots.deleteMany({});
-  await models.PosSlots.insertMany(slots);
+export const importSlots = async (
+  models: IModels,
+  slots: any[],
+  token: string
+) => {
+  const pos = await models.Configs.getConfig({ token });
+  await models.PosSlots.deleteMany({ posId: pos.posId });
+  await models.PosSlots.insertMany(slots.map(s => ({ ...s, posToken: token })));
 };
 
 export const preImportProducts = async (
@@ -115,8 +120,16 @@ export const preImportProducts = async (
     { $or: [{ tokens: { $exists: false } }, { tokens: [] }] },
     { _id: 1 }
   ).lean();
+
   for (const catId of (deleteCategoryIds || []).map(d => d._id) || []) {
-    await models.ProductCategories.removeProductCategory(catId);
+    try {
+      await models.ProductCategories.removeProductCategory(catId);
+    } catch (_e) {
+      await models.ProductCategories.updateOne(
+        { _id: catId },
+        { $set: { status: PRODUCT_CATEGORY_STATUSES.DISABLED } }
+      );
+    }
   }
 };
 
@@ -138,14 +151,16 @@ export const importProducts = async (
     const categories = group.categories || [];
 
     for (const category of categories) {
-      await models.ProductCategories.updateOne(
-        { _id: category._id },
-        {
-          $set: { ...category, products: undefined },
-          $addToSet: { tokens: token }
-        },
-        { upsert: true }
-      );
+      if (category._id) {
+        await models.ProductCategories.updateOne(
+          { _id: category._id },
+          {
+            $set: { ...category, products: undefined },
+            $addToSet: { tokens: token }
+          },
+          { upsert: true }
+        );
+      }
 
       const bulkOps: {
         updateOne: {
@@ -162,11 +177,13 @@ export const importProducts = async (
             update: {
               $set: {
                 ...product,
-                sku: product.sku || 'ш',
+                [`prices.${token}`]: product.unitPrice,
+                uom: product.uom || 'ш',
                 attachment: attachmentUrlChanger(product.attachment),
                 attachmentMore: (product.attachmentMore || []).map(a =>
                   attachmentUrlChanger(a)
-                )
+                ),
+                [`isCheckRems.${token}`]: product.isCheckRem
               },
               $addToSet: { tokens: token }
             },
@@ -200,60 +217,82 @@ export const extractConfig = async (subdomain, doc) => {
 
   try {
     uiOptions.favIcon =
-      (uiOptions.favIcon || '').indexOf('http') === -1
+      uiOptions.favIcon && uiOptions.favIcon.indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.favIcon}`
         : uiOptions.favIcon;
 
     uiOptions.logo =
-      (uiOptions.logo || '').indexOf('http') === -1
+      uiOptions.logo && uiOptions.logo.indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.logo}`
         : uiOptions.logo;
 
     uiOptions.bgImage =
-      (uiOptions.bgImage || '').indexOf('http') === -1
+      uiOptions.bgImage && uiOptions.bgImage.indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.bgImage}`
         : uiOptions.bgImage;
 
     uiOptions.receiptIcon =
-      (uiOptions.receiptIcon || '').indexOf('http') === -1
+      uiOptions.receiptIcon && uiOptions.receiptIcon.indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.receiptIcon}`
         : uiOptions.receiptIcon;
 
     uiOptions.kioskHeaderImage =
-      (uiOptions.kioskHeaderImage || '').indexOf('http') === -1
+      uiOptions.kioskHeaderImage &&
+      uiOptions.kioskHeaderImage.indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.kioskHeaderImage}`
         : uiOptions.kioskHeaderImage;
 
     uiOptions.mobileAppImage =
-      (uiOptions.mobileAppImage || '').indexOf('http') === -1
+      uiOptions.mobileAppImage &&
+      uiOptions.mobileAppImage.indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.mobileAppImage}`
         : uiOptions.mobileAppImage;
 
     uiOptions.qrCodeImage =
-      (uiOptions.qrCodeImage || '').indexOf('http') === -1
+      uiOptions.qrCodeImage && uiOptions.qrCodeImage.indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.qrCodeImage}`
         : uiOptions.qrCodeImage;
   } catch (e) {
-    console.log(e, '-------');
+    console.log(e.message);
   }
 
   return {
     name: doc.name,
     description: doc.description,
+    pdomain: doc.pdomain,
     productDetails: doc.productDetails,
     adminIds: doc.adminIds,
     cashierIds: doc.cashierIds,
+    paymentIds: doc.paymentIds,
+    paymentTypes: doc.paymentTypes,
     beginNumber: doc.beginNumber,
     maxSkipNumber: doc.maxSkipNumber,
+    orderPassword: doc.orderPassword,
     uiOptions,
     ebarimtConfig: doc.ebarimtConfig,
+    erkhetConfig: doc.erkhetConfig,
     kitchenScreen: doc.kitchenScreen,
     waitingScreen: doc.waitingScreen,
     catProdMappings: doc.catProdMappings,
     posSlot: doc.posSlot,
     initialCategoryIds: doc.initialCategoryIds,
+    kioskExcludeCategoryIds: doc.kioskExcludeCategoryIds,
     kioskExcludeProductIds: doc.kioskExcludeProductIds,
-    posId: doc._id
+    deliveryConfig: doc.deliveryConfig,
+    cardsConfig: doc.cardsConfig,
+    posId: doc._id,
+    erxesAppToken: doc.erxesAppToken,
+    isOnline: doc.isOnline,
+    onServer: doc.onServer,
+    branchId: doc.branchId,
+    departmentId: doc.departmentId,
+    allowBranchIds: doc.allowBranchIds,
+    checkRemainder: doc.checkRemainder,
+    permissionConfig: doc.permissionConfig,
+    allowTypes: doc.allowTypes,
+    isCheckRemainder: doc.isCheckRemainder,
+    checkExcludeCategoryIds: doc.checkExcludeCategoryIds,
+    banFractions: doc.banFractions
   };
 };
 
@@ -287,9 +326,25 @@ export const receiveProduct = async (models: IModels, data) => {
       tokens.push(token);
     }
     const info = action === 'update' ? updatedDocument : object;
+    if (info.attachment && info.attachment.url) {
+      const FILE_PATH = `${await getServerAddress(
+        'localhost',
+        'core'
+      )}/read-file`;
+      info.attachment.url =
+        info.attachment.url.indexOf('http') === -1
+          ? `${FILE_PATH}?key=${info.attachment.url}`
+          : info.attachment.url;
+    }
+
     return await models.Products.updateOne(
       { _id: object._id },
-      { ...info, tokens },
+      {
+        ...info,
+        [`prices.${token}`]: info.unitPrice,
+        [`isCheckRems.${token}`]: info.isCheckRem,
+        tokens
+      },
       { upsert: true }
     );
   }
@@ -331,6 +386,7 @@ export const receiveProductCategory = async (models: IModels, data) => {
     if (!category || category.status !== PRODUCT_CATEGORY_STATUSES.ACTIVE) {
       return;
     }
+
     await models.ProductCategories.removeProductCategory(category._id);
   }
 };
@@ -395,7 +451,7 @@ export const receivePosConfig = async (
       throw new Error('token not found');
     }
 
-    config = await models.Configs.createConfig(token);
+    config = await models.Configs.createConfig(token, pos.name);
   }
 
   await models.Configs.updateConfig(config._id, {
@@ -412,4 +468,5 @@ export const receivePosConfig = async (
 
   await importUsers(models, adminUsers, token, true);
   await importUsers(models, cashiers, token, false);
+  return models.Configs.findOne({ _id: config._id }).lean();
 };

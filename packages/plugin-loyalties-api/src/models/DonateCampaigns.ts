@@ -11,7 +11,10 @@ import { IModels } from '../connectionResolver';
 
 export interface IDonateCampaignModel extends Model<IDonateCampaignDocument> {
   getDonateCampaign(_id: string): Promise<IDonateCampaignDocument>;
-  createDonateCampaign(doc: IDonateCampaign): Promise<IDonateCampaignDocument>;
+  createDonateCampaign(
+    doc: IDonateCampaign,
+    userId: string
+  ): Promise<IDonateCampaignDocument>;
   updateDonateCampaign(
     _id: string,
     doc: IDonateCampaign
@@ -56,10 +59,15 @@ export const loadDonateCampaignClass = (
       }
     }
 
-    public static async createDonateCampaign(doc: IDonateCampaign) {
+    public static async createDonateCampaign(
+      doc: IDonateCampaign,
+      userId: string
+    ) {
       const modifier = {
         ...doc,
         awards: getSortAwards(doc.awards),
+        createdBy: userId,
+        updatedBy: userId,
         createdAt: new Date(),
         modifiedAt: new Date()
       };

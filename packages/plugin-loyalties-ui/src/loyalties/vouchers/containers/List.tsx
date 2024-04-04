@@ -1,9 +1,9 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { Bulk, Spinner } from '@erxes/ui/src/components';
 import { Alert, withProps, router } from '@erxes/ui/src/utils';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import List from '../components/List';
@@ -72,8 +72,8 @@ class VoucherListContainer extends React.Component<FinalProps, State> {
     const searchValue = this.props.queryParams.searchValue || '';
     const { list = [], totalCount = 0 } = vouchersMainQuery.vouchersMain || {};
     const currentCampaign =
-      voucherCampaignDetailQuery.voucherCampaignDetail &&
-      voucherCampaignDetailQuery.voucherCampaignDetail[0];
+      voucherCampaignDetailQuery &&
+      voucherCampaignDetailQuery.voucherCampaignDetail;
 
     const updatedProps = {
       ...this.props,

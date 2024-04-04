@@ -29,7 +29,7 @@ const Text = styledTS<{ textStyle: string; hugeness: string }>(styled.span)`
   text-transform: uppercase;
   font-size: ${props => (props.hugeness !== 'small' ? '14px' : '10px')};
   font-weight: bold;
-  color: ${props => types[props.textStyle].color}
+  color: ${props => types[props.textStyle || 'default'].color}
 `;
 
 type Props = {

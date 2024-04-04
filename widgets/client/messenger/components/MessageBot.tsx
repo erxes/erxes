@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as xss from 'xss';
+import xss from 'xss';
 import { IUser } from '../../types';
 import { urlify } from '../../utils';
 import { IBotData } from '../types';

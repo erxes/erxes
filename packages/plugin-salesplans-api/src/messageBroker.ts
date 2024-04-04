@@ -1,69 +1,80 @@
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 import { generateModels } from './connectionResolver';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 
-let client: any;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeQueue } = cl;
+export const setupMessageConsumers = async () => {
   consumeQueue(
-    'salesplans:saleslogs.statusUpdate',
-    async ({ subdomain, data: { _id, status } }) => {
+    'salesplans:dayPlans.updateStatus',
+    async ({ subdomain, data: { _ids, status } }) => {
       const models = await generateModels(subdomain);
 
-      const result = await models.SalesLogs.salesLogStatusUpdate(_id, status);
+      await models.DayPlans.updateMany(
+        { _id: { $in: _ids } },
+        { $set: { status } },
+      );
+    },
+  );
+
+  consumeRPCQueue(
+    'salesplans:timeframes.find',
+    async ({ subdomain, data: {} }) => {
+      const models = await generateModels(subdomain);
 
       return {
-        data: result,
-        status: 'success'
+        status: 'success',
+        data: await models.Timeframes.find({
+          status: { $ne: 'deleted' },
+        }).lean(),
       };
-    }
+    },
   );
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
 export const sendInternalNotesMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'internalnotes',
-    ...args
+    ...args,
+  });
+};
+
+export const sendProductsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'products',
+    ...args,
   });
 };
 
 export const sendProcessesMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
     serviceName: 'processes',
-    ...args
+    ...args,
   });
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
-    client,
-    ...args
+    ...args,
   });
 };
-
-export default function() {
-  return client;
-}

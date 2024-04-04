@@ -1,9 +1,9 @@
 import { withProps } from '@erxes/ui/src/utils';
 import { Spinner } from '@erxes/ui/src/components';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 
 import List from '../components/CampaignList';
 import { queries } from '../../../configs/donateCampaign/graphql';
@@ -21,13 +21,10 @@ type FinalProps = {
 
 class CarListContainer extends React.Component<FinalProps> {
   render() {
-    const {
-      donateCampaignQuery,
-      donateCampaignsCountQuery,
-    } = this.props;
+    const { donateCampaignQuery, donateCampaignsCountQuery } = this.props;
 
     if (donateCampaignQuery.loading || donateCampaignsCountQuery.loading) {
-      return <Spinner />
+      return <Spinner />;
     }
     const donateCampaigns = donateCampaignQuery.donateCampaigns || [];
 
@@ -36,8 +33,7 @@ class CarListContainer extends React.Component<FinalProps> {
       refetch: donateCampaignQuery.refetch,
       donateCampaigns,
       loading: donateCampaignQuery.loading,
-      donateCampaignsCount:
-        donateCampaignsCountQuery.donateCampaignsCount || 0
+      donateCampaignsCount: donateCampaignsCountQuery.donateCampaignsCount || 0
     };
 
     return <List {...updatedProps} />;
@@ -60,6 +56,6 @@ export default withProps<Props>(
       {
         name: 'donateCampaignsCountQuery'
       }
-    ),
+    )
   )(CarListContainer)
 );

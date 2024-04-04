@@ -1,28 +1,24 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
-import { initBroker } from './messageBroker';
-import initApp from '.';
+import { setupMessageConsumers } from './messageBroker';
+import initApp from './initApp';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-
-export let graphqlPubsub;
-export let serviceDiscovery;
-
-export let debug;
-export let mainDb;
+import dashboards from './dashboards';
 
 export default {
   name: 'integrations',
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers
+      typeDefs: await typeDefs(),
+      resolvers,
     };
   },
   hasSubscriptions: false,
+  meta: {
+    dashboards,
+  },
   segment: {},
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
@@ -34,16 +30,8 @@ export default {
 
     return context;
   },
-  onServerInit: async options => {
-    mainDb = options.db;
-
-    const app = options.app;
-
-    initApp(app);
-
-    initBroker(options.messageBrokerClient);
-
-    debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-  }
+  onServerInit: async () => {
+    initApp();
+  },
+  setupMessageConsumers,
 };

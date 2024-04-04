@@ -1,0 +1,170 @@
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: 'Open Sans', sans-serif;
+  line-height: 1.5;
+  color: #444;
+  height: 100%;
+}
+
+#__next, #__next>div {
+  height: 100%;
+}
+
+a,
+a:hover,
+a:focus {
+  color: inherit;
+  text-decoration: none;
+}
+
+*,
+::after,
+::before {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+img {
+  vertical-align: middle;
+  border-style: none;
+}
+
+input:focus {
+  outline: none;
+}
+
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  line-height: 1.2;
+}
+
+hr {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  border: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.mb-10 {
+  margin-bottom: 10px;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-title {
+  margin: 0;
+  text-align: center;
+  flex: 1;
+  font-size: 18px;
+}
+
+.modal-body {
+  padding: 20px 40px;
+}
+
+.modal-dialog.create-post textarea {
+  min-height: 200px;
+}
+
+.modal-header {
+  padding: 1rem 40px 1em 1em;
+}
+
+.Select-placeholder {
+  padding: 0 1rem;
+}
+
+.Select-control {
+  font-size: 14px;
+  outline: 0;
+  border-radius: 10px;
+  transition: all ease .3s;
+  border: 1px solid #E2E8F0;
+}
+
+.Select-control:hover {
+  cursor: pointer;
+  box-shadow: none;
+  border-color: #AAA;
+}
+
+.Select-menu-outer {
+  border: none;
+  margin-top: 1px;
+  box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.15);
+  max-height: 220px;
+  z-index: 9999;
+}
+
+.Select-menu-outer, .Select-option:last-child {
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+#groupMembers-popover {
+  padding: 10px;
+  background: #fff;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+  width: 300px;
+  border: none;
+  z-index: 9;
+  border-radius: 8px;
+  max-height: 350px;
+  overflow: scroll;
+}
+
+#contextmenu-popover {
+  left: -15px !important;
+}
+
+@keyframes searchIcon {
+  0% {
+    transform: translateX(10px);
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0px);
+  }
+}
+@keyframes fadeInDown {
+  0% {
+    transform: translateY(5px);
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0px);
+  }
+}
+@keyframes zoom {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+.kep-login-facebook {
+  width: 100% !important;
+  padding: inherit;
+  border-radius: 3px !important;
+}

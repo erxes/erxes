@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
 import { IRouterProps } from '@erxes/ui/src/types';

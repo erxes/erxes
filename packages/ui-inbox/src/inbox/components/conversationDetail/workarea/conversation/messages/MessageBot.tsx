@@ -1,14 +1,15 @@
-import dayjs from 'dayjs';
-import ImageWithPreview from '@erxes/ui/src/components/ImageWithPreview';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import Tip from '@erxes/ui/src/components/Tip';
-import React from 'react';
-import xss from 'xss';
 import { IBotData, IMessage } from '../../../../../types';
 import { MessageBody, MessageContent, MessageItem } from '../styles';
+
 import Carousel from './bot/Carousel';
 import CustomMessage from './bot/CustomMessage';
-import { urlify } from '../../../../../utils';
+import ImageWithPreview from '@erxes/ui/src/components/ImageWithPreview';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
+import dayjs from 'dayjs';
+import { urlify } from '@erxes/ui/src/utils/urlParser';
+import xss from 'xss';
 
 type Props = {
   message: IMessage;

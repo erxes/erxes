@@ -3,10 +3,10 @@ import client from '@erxes/ui/src/apolloClient';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { router } from '@erxes/ui/src/utils';
 import { withProps } from '@erxes/ui/src/utils/core';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import AwardContentComponent from '../../components/award/content';
 import { mutations, queries } from '../../graphql';
 import { lotteriesCampaignMain } from '../../graphql/queries';
@@ -73,9 +73,15 @@ class AwardContent extends React.Component<FinalProps, Props> {
   }
 
   render() {
-    const { lotteryCampaignWinnerList, lotteriesCampaignCustomerList } = this.props;
+    const {
+      lotteryCampaignWinnerList,
+      lotteriesCampaignCustomerList
+    } = this.props;
 
-    if (lotteriesCampaignCustomerList.loading || lotteryCampaignWinnerList.loading) {
+    if (
+      lotteriesCampaignCustomerList.loading ||
+      lotteryCampaignWinnerList.loading
+    ) {
       return <Spinner objective={true} />;
     }
 
@@ -86,9 +92,11 @@ class AwardContent extends React.Component<FinalProps, Props> {
       getNextChar: this.getNextChar,
       nextChar: this.state.nextChar,
       winners: lotteryCampaignWinnerList.lotteryCampaignWinnerList?.list,
-      winnersTotalCount: lotteryCampaignWinnerList.lotteryCampaignWinnerList?.totalCount,
+      winnersTotalCount:
+        lotteryCampaignWinnerList.lotteryCampaignWinnerList?.totalCount,
       list: lotteriesCampaignCustomerList.lotteriesCampaignCustomerList?.list,
-      totalCount: lotteriesCampaignCustomerList.lotteriesCampaignCustomerList?.totalCount
+      totalCount:
+        lotteriesCampaignCustomerList.lotteriesCampaignCustomerList?.totalCount
     };
 
     const content = props => {
@@ -123,17 +131,23 @@ export default withProps<Props>(
         variables: generateParams({ queryParams })
       })
     }),
-    graphql<{ queryParams: any }, MainQueryResponse>(gql(lotteriesCampaignMain), {
-      name: 'lotteriesCampaignCustomerList',
-      options: ({ queryParams }) => ({
-        variables: generateParams({ queryParams }),
-        fetchPolicy: 'network-only'
-      })
-    }),
+    graphql<{ queryParams: any }, MainQueryResponse>(
+      gql(lotteriesCampaignMain),
+      {
+        name: 'lotteriesCampaignCustomerList',
+        options: ({ queryParams }) => ({
+          variables: generateParams({ queryParams }),
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
     graphql(gql(mutations.doLotteries), {
       name: 'doLottery',
       options: {
-        refetchQueries: ['lotteryCampaignWinnerList', 'lotteriesCampaignCustomerList']
+        refetchQueries: [
+          'lotteryCampaignWinnerList',
+          'lotteriesCampaignCustomerList'
+        ]
       }
     }),
     graphql(gql(mutations.getNextChar), {

@@ -1,18 +1,21 @@
-import Alert from './Alert';
 import * as animations from './animations';
 import * as calendar from './calendar';
 import * as categories from './categories';
-import confirm from './confirmation/confirm';
 import * as core from './core';
-import parseMD from './parseMd';
 import * as router from './router';
-import toggleCheckBoxes from './toggleCheckBoxes';
+
 import uploadHandler, {
   deleteHandler as uploadDeleteHandler
 } from './uploadHandler';
-import urlParser from './urlParser';
-import commonListComposer from './commonListComposer';
 
+import Alert from './Alert';
+import commonListComposer from './commonListComposer';
+import confirm from './confirmation/confirm';
+import parseMD from './parseMd';
+import toggleCheckBoxes from './toggleCheckBoxes';
+import urlParser from './urlParser';
+
+export const loadDynamicComponent = core.loadDynamicComponent;
 export const renderFullName = core.renderFullName;
 export const renderUserFullName = core.renderUserFullName;
 export const setTitle = core.setTitle;
@@ -45,6 +48,7 @@ export const storeConstantToStore = core.storeConstantToStore;
 export const getConstantFromStore = core.getConstantFromStore;
 export const bustIframe = core.bustIframe;
 export const getEnv = core.getEnv;
+export const getSubdomain = core.getSubdomain;
 export const cleanIntegrationKind = core.cleanIntegrationKind;
 export const getConfig = core.getConfig;
 export const setConfig = core.setConfig;

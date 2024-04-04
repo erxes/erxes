@@ -14,6 +14,8 @@ const commonFields = `
   $vintageYear: Float,
   $importYear: Float,
   $attachment: AttachmentInput
+
+  $customFieldsData: JSON
 `;
 
 const commonVariables = `
@@ -32,6 +34,8 @@ const commonVariables = `
   vintageYear: $vintageYear,
   importYear: $importYear,
   attachment: $attachment,
+
+  customFieldsData: $customFieldsData,
 `;
 
 const carsAdd = `
@@ -86,6 +90,9 @@ const carCategoryParamsDef = `
   $code: String!,
   $parentId: String,
   $description: String,
+  $image: AttachmentInput
+  $secondaryImages: [AttachmentInput]
+  $productCategoryId: String
 `;
 
 const carCategoryParams = `
@@ -93,6 +100,9 @@ const carCategoryParams = `
   code: $code,
   parentId: $parentId,
   description: $description,
+  image: $image
+  secondaryImages: $secondaryImages
+  productCategoryId: $productCategoryId
 `;
 
 const carCategoryAdd = `
@@ -124,5 +134,5 @@ export default {
   carsMerge,
   carCategoryAdd,
   carCategoryEdit,
-  carCategoryRemove
+  carCategoryRemove,
 };

@@ -6,6 +6,7 @@ export const types = `
     name: String,
     code: String,
     order: String,
+    isRoot: Boolean,
     description: String,
     parentId: String,
     attachment: Attachment,
@@ -17,20 +18,4 @@ export const types = `
 export const queries = `
   flowCategories(parentId: String, searchValue: String, status: String): [FlowCategory]
   flowCategoriesTotalCount: Int
-  flowCategoryDetail(_id: String!): FlowCategory
-`;
-
-const flowCategoryParams = `
-  name: String!,
-  code: String!,
-  description: String,
-  parentId: String,
-  attachment: AttachmentInput,
-  status: String,
-`;
-
-export const mutations = `
-  flowCategoriesAdd(${flowCategoryParams}): FlowCategory
-  flowCategoriesEdit(_id: String!, ${flowCategoryParams}): FlowCategory
-  flowCategoriesRemove(_id: String!): JSON
 `;

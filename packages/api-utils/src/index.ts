@@ -6,16 +6,20 @@ import {
   getEnv,
   getNextMonth,
   getToday,
+  getPureDate,
+  getTomorrow,
   getUserDetail,
   paginate,
   regexSearchText,
   validSearchText,
   cleanHtml,
   splitStr,
-  escapeRegExp
+  escapeRegExp,
+  dateToShortStr,
+  shortStrToDate,
 } from './core';
 import { putCreateLog, putDeleteLog, putUpdateLog } from './logUtils';
-import { sendRequest, sendToWebhook } from './requests';
+import { sendToWebhook } from './requests';
 import { updateUserScore, getScoringConfig } from './scoring';
 import { generateFieldsFromSchema } from './fieldUtils';
 
@@ -28,14 +32,13 @@ import {
   permissionWrapper,
   getUserActionsMap,
   checkPermission,
-  requireLogin
+  requireLogin,
 } from './permissions';
 
 import { IContext } from './types';
 import { ruleSchema } from './definitions/common';
 import { field, schemaWrapper } from './definitions/utils';
 
-import { createXlsFile, generateXlsx } from './exporter';
 import { IColumnLabel } from './types';
 import { afterQueryWrapper } from './quiriesWrappers';
 
@@ -44,11 +47,12 @@ export { getUserDetail }; // (user: IUserDocument)
 export { paginate }; // ( collection, params: { ids ?: string[]; page ?: number; perPage ?: number } )
 export { validSearchText }; // (values: string[])
 export { regexSearchText }; // ( searchValue: string, searchKey = "searchText" )
-export { sendRequest }; // ( { url, method, headers, form, body, params }: IRequestParams, errorMessage ?: string )
 export { sendToWebhook };
 export { fixDate };
 export { getDate };
 export { getToday };
+export { getPureDate };
+export { getTomorrow };
 export { getNextMonth };
 export { checkUserIds };
 export { chunkArray };
@@ -57,6 +61,8 @@ export { updateUserScore };
 export { getScoringConfig };
 export { generateFieldsFromSchema };
 export { afterQueryWrapper };
+export { dateToShortStr };
+export { shortStrToDate };
 export {
   can,
   IActionMap,
@@ -71,7 +77,7 @@ export {
   IColumnLabel,
   ruleSchema,
   field,
-  schemaWrapper
+  schemaWrapper,
 };
 
 export default {
@@ -83,11 +89,12 @@ export default {
   paginate,
   validSearchText,
   regexSearchText,
-  sendRequest,
   sendToWebhook,
   fixDate,
   getDate,
   getToday,
+  getPureDate,
+  getTomorrow,
   getNextMonth,
   checkUserIds,
   chunkArray,
@@ -97,7 +104,7 @@ export default {
   updateUserScore,
   getScoringConfig,
   generateFieldsFromSchema,
-  createXlsFile,
-  generateXlsx,
-  afterQueryWrapper
+  afterQueryWrapper,
+  dateToShortStr,
+  shortStrToDate,
 };

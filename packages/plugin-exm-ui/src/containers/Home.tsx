@@ -1,6 +1,6 @@
 import React from 'react';
-import gql from 'graphql-tag';
-import { useQuery } from 'react-apollo';
+import { gql } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 import Spinner from '@erxes/ui/src/components/Spinner';

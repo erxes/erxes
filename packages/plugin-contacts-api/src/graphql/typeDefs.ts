@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 
 import {
   types as customerTypes,
@@ -12,9 +12,12 @@ import {
   mutations as CompanyMutations
 } from './company';
 
-const typeDefs = async (serviceDiscovery) =>  {
-  const tagsEnabled = await serviceDiscovery.isEnabled('tags');
-  const inboxEnabled = await serviceDiscovery.isEnabled('inbox');
+import { types as contactsTypes, queries as contactQueries } from './contacts';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+
+const typeDefs = async () => {
+  const tagsEnabled = isEnabled('tags');
+  const inboxEnabled = isEnabled('inbox');
 
   return gql`
     scalar JSON
@@ -37,30 +40,34 @@ const typeDefs = async (serviceDiscovery) =>  {
     }
   
     ${
-      tagsEnabled ? 
-      `
+      tagsEnabled
+        ? `
         extend type Tag @key(fields: "_id") {
           _id: String! @external
         }
-      ` : ''
+      `
+        : ''
     }
 
     ${
-      inboxEnabled ? 
-      `
+      inboxEnabled
+        ? `
         extend type Integration @key(fields: "_id") {
           _id: String! @external
         }
-      ` : ''
+      `
+        : ''
     }
 
 
     ${customerTypes(tagsEnabled, inboxEnabled)}
     ${companyTypes(tagsEnabled)}
+    ${contactsTypes}
     
     extend type Query {
       ${CustomerQueries}
       ${CompanyQueries}
+      ${contactQueries}
     }
 
     extend type Mutation {
@@ -68,6 +75,6 @@ const typeDefs = async (serviceDiscovery) =>  {
       ${CompanyMutations}
     }
   `;
-}
+};
 
 export default typeDefs;

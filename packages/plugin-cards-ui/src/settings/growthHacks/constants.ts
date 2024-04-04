@@ -2,10 +2,16 @@ export const metricOptions = [
   {
     label: 'GROWTHHACKERS RECOMMENDED',
     options: [
-      { value: 'monthly-active-users', label: 'Monthly Active Users' },
-      { value: 'weekly-orders', label: 'Weekly Orders' },
-      { value: 'monthly-orders', label: 'Monthly Orders' },
-      { value: 'repeat-purchases', label: 'Repeat Purchases (Total)' }
+      { value: 'viral-coefficient', label: 'Viral coefficient' },
+      {
+        value: 'free-to-paid-conversion-rate',
+        label: 'Free-to-paid conversion rate'
+      },
+      {
+        value: 'number-of-purchases-created',
+        label: 'Number of purchases created'
+      },
+      { value: 'purchase-to-close-rate', label: 'Purchase-to-close rate' }
     ]
   },
   {

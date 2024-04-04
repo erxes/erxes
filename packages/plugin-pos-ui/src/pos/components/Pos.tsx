@@ -1,30 +1,33 @@
-import Appearance, { IUIOptions } from './step/Appearance';
-import ConfigStep from './step/ConfigStep';
-import EbarimtConfig from './step/EbarimtConfig';
-import ErkhetConfig from './step/ErkhetConfig';
-import DeliveryConfig from './step/DeliveryConfig';
-import GeneralStep from './step/GeneralStep';
-import CardsConfig from './step/CardsConfig';
-import React from 'react';
 import {
-  __,
   Alert,
   Button,
   ButtonMutate,
   Step,
   Steps,
-  Wrapper
+  Wrapper,
+  __,
 } from '@erxes/ui/src';
+import Appearance, { IUIOptions } from './step/Appearance';
 import { Content, LeftContent } from '../../styles';
 import {
   ControlWrapper,
   Indicator,
-  StepWrapper
+  StepWrapper,
 } from '@erxes/ui/src/components/step/styles';
 import { IPos, IProductGroup, ISlot } from '../../types';
-import { IProductCategory } from '@erxes/ui-products/src/types';
+
+import CardsConfig from './step/CardsConfig';
+import ConfigStep from './step/ConfigStep';
+import DeliveryConfig from './step/DeliveryConfig';
+import EbarimtConfig from './step/EbarimtConfig';
+import ErkhetConfig from './step/ErkhetConfig';
+import GeneralStep from './step/GeneralStep';
 import { Link } from 'react-router-dom';
-import { FieldsCombinedByType } from '@erxes/ui-settings/src/properties/types';
+import React from 'react';
+import PermissionStep from './step/Permission';
+import PaymentsStep from './step/PaymentsStep';
+import { ALLOW_TYPES } from '../../constants';
+import ScreensConfig from './step/Screens';
 
 type Props = {
   pos?: IPos;
@@ -32,8 +35,6 @@ type Props = {
   isActionLoading: boolean;
   groups: IProductGroup[];
   save: (params: any) => void;
-  productCategories: IProductCategory[];
-  branches: any[];
   slots: ISlot[];
   envs: any;
 };
@@ -54,6 +55,8 @@ type State = {
   erkhetConfig: any;
   deliveryConfig: any;
   cardsConfig: any;
+  checkRemainder: boolean;
+  allowTypes: string[];
 };
 
 class Pos extends React.Component<Props, State> {
@@ -66,7 +69,7 @@ class Pos extends React.Component<Props, State> {
       colors: {
         bodyColor: '#FFFFFF',
         headerColor: '#6569DF',
-        footerColor: '#3CCC38'
+        footerColor: '#3CCC38',
       },
       logo: '',
       bgImage: '',
@@ -74,7 +77,7 @@ class Pos extends React.Component<Props, State> {
       receiptIcon: '',
       kioskHeaderImage: '',
       mobileAppImage: '',
-      qrCodeImage: ''
+      qrCodeImage: '',
     };
 
     this.state = {
@@ -87,7 +90,11 @@ class Pos extends React.Component<Props, State> {
       erkhetConfig: pos.erkhetConfig,
       deliveryConfig: pos.deliveryConfig,
       cardsConfig: pos.cardsConfig,
-      slots: props.slots || []
+      slots: props.slots || [],
+      checkRemainder: pos.checkRemainder || false,
+      allowTypes:
+        pos.allowTypes ||
+        ALLOW_TYPES.filter((at) => at.kind === 'sale').map((at) => at.value),
     };
   }
 
@@ -95,14 +102,16 @@ class Pos extends React.Component<Props, State> {
     e.preventDefault();
 
     const {
-      pos,
+      pos = {} as IPos,
       slots,
       groups,
       uiOptions,
+      checkRemainder,
       ebarimtConfig,
       erkhetConfig,
       deliveryConfig,
-      cardsConfig
+      cardsConfig,
+      allowTypes,
     } = this.state;
 
     if (!pos.name) {
@@ -117,26 +126,38 @@ class Pos extends React.Component<Props, State> {
       return Alert.error('Choose cashier users');
     }
 
-    const cleanMappings = (pos.catProdMappings || []).map(m => ({
+    const saveTypes = allowTypes.filter((at) => at);
+    if (!saveTypes.length) {
+      return Alert.error('Toggle at least one type');
+    }
+
+    const cleanMappings = (pos.catProdMappings || []).map((m) => ({
       _id: m._id,
       categoryId: m.categoryId,
-      productId: m.productId
+      productId: m.productId,
+      code: m.code || '',
+      name: m.name || '',
     }));
 
-    const cleanSlot = (slots || []).map(m => ({
+    const cleanSlot = (slots || []).map((m) => ({
       _id: m._id,
       code: m.code,
       name: m.name,
-      posId: m.posId
+      posId: m.posId,
+      option: m.option,
     }));
 
     let doc: any = {
       name: pos.name,
       description: pos.description,
+      pdomain: pos.pdomain,
+      erxesAppToken: pos.erxesAppToken,
       productDetails: pos.productDetails || [],
       groups,
       adminIds: pos.adminIds,
       cashierIds: pos.cashierIds,
+      paymentIds: pos.paymentIds || [],
+      paymentTypes: pos.paymentTypes || [],
       kioskMachine: pos.kioskMachine,
       uiOptions,
       ebarimtConfig,
@@ -148,25 +169,30 @@ class Pos extends React.Component<Props, State> {
       waitingScreen: pos.waitingScreen,
       kitchenScreen: pos.kitchenScreen,
       branchId: pos.branchId,
+      departmentId: pos.departmentId,
       allowBranchIds: pos.allowBranchIds,
       beginNumber: pos.beginNumber,
       maxSkipNumber: Number(pos.maxSkipNumber) || 0,
+      orderPassword: pos.orderPassword,
+      scopeBrandIds: pos.scopeBrandIds || [],
       initialCategoryIds: pos.initialCategoryIds || [],
+      kioskExcludeCategoryIds: pos.kioskExcludeCategoryIds || [],
       kioskExcludeProductIds: pos.kioskExcludeProductIds || [],
       deliveryConfig,
-      cardsConfig
+      cardsConfig,
+      checkRemainder,
+      permissionConfig: pos.permissionConfig || {},
+      allowTypes: saveTypes,
+      isCheckRemainder: pos.isCheckRemainder,
+      checkExcludeCategoryIds: pos.checkExcludeCategoryIds || [],
+      banFractions: pos.banFractions,
     };
 
-    if (pos.isOnline) {
-      doc = {
-        ...doc,
-        branchId: ''
-      };
-    } else {
+    if (!pos.isOnline) {
       doc = {
         ...doc,
         beginNumber: '',
-        allowBranchIds: ''
+        allowBranchIds: [],
       };
     }
 
@@ -179,7 +205,7 @@ class Pos extends React.Component<Props, State> {
 
   onChangeAppearance = (key: string, value: any) => {
     let uiOptions = this.state.uiOptions || {};
-    const { pos } = this.state || {};
+    const { pos = {} as IPos } = this.state || {};
     uiOptions[key] = value;
 
     if (uiOptions[key]) {
@@ -195,11 +221,11 @@ class Pos extends React.Component<Props, State> {
     this.setState({ pos });
   };
 
-  onFormDocChange = formData => {
+  onFormDocChange = (formData) => {
     this.setState({ formData });
   };
 
-  onStepClick = currentStepNumber => {
+  onStepClick = (currentStepNumber) => {
     const { isSkip } = this.state;
 
     let carousel = 'form';
@@ -251,8 +277,9 @@ class Pos extends React.Component<Props, State> {
   };
 
   render() {
-    const { pos, slots, groups, uiOptions } = this.state;
-    const { productCategories, branches, envs } = this.props;
+    const { pos, slots, groups, uiOptions, checkRemainder, allowTypes } =
+      this.state;
+    const { envs } = this.props;
     const breadcrumb = [{ title: 'POS List', link: `/pos` }, { title: 'POS' }];
 
     const name = pos.name || '';
@@ -272,8 +299,31 @@ class Pos extends React.Component<Props, State> {
                 <GeneralStep
                   onChange={this.onChange}
                   pos={pos}
-                  branches={branches}
                   posSlots={slots}
+                  allowTypes={allowTypes}
+                  envs={envs}
+                />
+              </Step>
+              <Step
+                img="/images/icons/erxes-12.svg"
+                title={`Payments`}
+                onClick={this.onStepClick}
+              >
+                <PaymentsStep
+                  onChange={this.onChange}
+                  pos={pos}
+                  posSlots={slots}
+                  envs={envs}
+                />
+              </Step>
+              <Step
+                img="/images/icons/erxes-02.svg"
+                title={`Permission`}
+                onClick={this.onStepClick}
+              >
+                <PermissionStep
+                  onChange={this.onChange}
+                  pos={pos}
                   envs={envs}
                 />
               </Step>
@@ -287,7 +337,6 @@ class Pos extends React.Component<Props, State> {
                   pos={pos}
                   groups={groups}
                   catProdMappings={pos.catProdMappings || []}
-                  productCategories={productCategories}
                 />
               </Step>
               <Step
@@ -303,6 +352,18 @@ class Pos extends React.Component<Props, State> {
                 />
               </Step>
               <Step
+                img="/images/icons/erxes-14.svg"
+                title={'Screens Config'}
+                onClick={this.onStepClick}
+                noButton={true}
+              >
+                <ScreensConfig
+                  onChange={this.onChange}
+                  pos={pos}
+                  checkRemainder={checkRemainder}
+                />
+              </Step>
+              <Step
                 img="/images/icons/erxes-05.svg"
                 title={'ebarimt Config'}
                 onClick={this.onStepClick}
@@ -312,11 +373,15 @@ class Pos extends React.Component<Props, State> {
               </Step>
               <Step
                 img="/images/icons/erxes-07.svg"
-                title={'erkhet Config'}
+                title={'finance Config'}
                 onClick={this.onStepClick}
                 noButton={true}
               >
-                <ErkhetConfig onChange={this.onChange} pos={pos} />
+                <ErkhetConfig
+                  onChange={this.onChange}
+                  pos={pos}
+                  checkRemainder={checkRemainder}
+                />
               </Step>
               <Step
                 img="/images/icons/erxes-09.svg"

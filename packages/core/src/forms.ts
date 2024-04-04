@@ -1,9 +1,14 @@
 import { generateFieldsFromSchema } from '@erxes/api-utils/src';
 import { generateModels } from './connectionResolver';
-import { USER_PROPERTIES_INFO } from './constants';
+import {
+  USER_EXPORT_EXTENDED_FIELDS,
+  USER_EXTENDED_FIELDS,
+  USER_PROPERTIES_INFO
+} from './constants';
 
-const generateFields = async ({ subdomain }) => {
+const generateFields = async ({ subdomain, data }) => {
   const models = await generateModels(subdomain);
+  const { usageType } = data;
 
   const { Users } = models;
 
@@ -20,6 +25,14 @@ const generateFields = async ({ subdomain }) => {
   }> = [];
 
   schema = Users.schema;
+
+  if (usageType && usageType === 'import') {
+    fields = USER_EXTENDED_FIELDS;
+  }
+
+  if (usageType && usageType === 'export') {
+    fields = USER_EXPORT_EXTENDED_FIELDS;
+  }
 
   if (schema) {
     // generate list using customer or company schema

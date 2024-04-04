@@ -1,6 +1,6 @@
 import {
   attachmentInput,
-  attachmentType
+  attachmentType,
 } from '@erxes/api-utils/src/commonTypeDefs';
 
 const ruleFields = `
@@ -49,6 +49,8 @@ export const commonTypes = `
   createdAt: Date
   hasNotified: Boolean
   assignedUserIds: [String]
+  branchIds: [String]
+  departmentIds:[String]
   labelIds: [String]
   startDate: Date
   closeDate: Date
@@ -75,9 +77,13 @@ export const commonTypes = `
   score: Float
   timeTrack: TimeTrack
   number: String
+  stageChangedDate: Date
+
+  customProperties: JSON
 `;
 
 export const commonMutationParams = `
+  parentId:String,
   proccessId: String,
   aboveItemId: String,
   stageId: String,
@@ -92,7 +98,10 @@ export const commonMutationParams = `
   priority: String,
   status: String,
   sourceConversationIds: [String],
-  customFieldsData: JSON
+  customFieldsData: JSON,
+  tagIds: [String],
+  branchIds: [String],
+  departmentIds: [String],
 `;
 
 export const commonDragParams = `
@@ -124,4 +133,15 @@ export const commonListTypes = `
   hasNotified: Boolean
   score: Float
   number: String
+  stageChangedDate: Date
+  tagIds: [String]
+  customProperties: JSON
+  status: String
+  branchIds: [String]
+  branches:[Branch]
+  departmentIds: [String]
+  departments:[Department]
+  assignedUserIds: [String]
+  order: Int,
+  createdUserId:String
 `;

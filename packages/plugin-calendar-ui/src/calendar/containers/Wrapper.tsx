@@ -1,12 +1,12 @@
 import { AppConsumer } from '@erxes/ui/src/appContext';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import Info from '@erxes/ui/src/components/Info';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { withProps } from '@erxes/ui/src/utils';
 import { IBoard, IGroup } from '../types';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import Wrapper from '../components/Wrapper';
 import { queries } from '../graphql';
 

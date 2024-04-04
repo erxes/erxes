@@ -1,31 +1,67 @@
 export const types = `
-  type Transaction @key(fields: "_id") @cacheControl(maxAge: 3) {
+  type InventoriesTransaction @key(fields: "_id") {
     _id: String
-    contentType: String
+
     contentId: String
+    contentType: String
     status: String
-    branchId: String
-    departmentId: String
+
     createdAt: Date
-    createdBy: String
   }
 
-  input TransactionProductInput {
+  type InventoriesTransactionDetail @key(fields: "_id") {
+    _id: String
+
+    branch: Branch
     branchId: String
+    department: Department
     departmentId: String
-    remainderId: String
+    contentId: String
+    contentType: String
+    status: String
+    createdAt: Date
+
+    transactionItems: [InventoriesTransactionItem]
+  }
+
+  type InventoriesTransactionItem {
+    product: Product
+    productId: String
+    transactionId: String
+    isDebit: Boolean
+    count: Float
+    uom: String
+
+    modifiedAt: Date
+  }
+
+  input InventoriesTransactionProductInput {
     productId: String
     count: Float
+    uom: String
     isDebit: Boolean
-    uomId: String
   }
 `;
 
 export const queries = `
-  transactions(contentType: String, contentId: String, status: String, date: Date): [Transaction]
-  transactionDetail(_id: String): Transaction
+  inventoriesTransactions(
+    branchId: String,
+    departmentId: String,
+    contentType: String,
+    contentId: String,
+    status: String,
+    createdAt: Date
+  ): [InventoriesTransaction]
+  inventoriesTransactionDetail(_id: String): InventoriesTransactionDetail
 `;
 
 export const mutations = `
-  transactionAdd(contentType: String, contentId: String, status: String, products: [TransactionProductInput]): JSON
+  inventoriesTransactionAdd(
+    branchId: String,
+    departmentId: String,
+    contentType: String,
+    contentId: String,
+    status: String,
+    products: [InventoriesTransactionProductInput]
+  ): JSON
 `;

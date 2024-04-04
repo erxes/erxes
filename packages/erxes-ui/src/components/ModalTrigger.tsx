@@ -1,12 +1,15 @@
-import { __ } from '../utils/core';
-import React from 'react';
-import { Modal } from 'react-bootstrap';
-import { withRouter } from 'react-router-dom';
-import RTG from 'react-transition-group';
+import * as routerUtils from '../utils/router';
+
+import { __, router } from '../utils/core';
+
 import { CloseModal } from '../styles/main';
 import { IRouterProps } from '../types';
-import * as routerUtils from '../utils/router';
 import Icon from './Icon';
+import { Modal } from 'react-bootstrap';
+import RTG from 'react-transition-group';
+import React from 'react';
+import queryString from 'query-string';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   title: string;
@@ -20,6 +23,7 @@ type Props = {
   enforceFocus?: boolean;
   hideHeader?: boolean;
   isOpen?: boolean;
+  addisOpenToQueryParam?: boolean;
   history: any;
   paddingContent?: 'less-padding';
   centered?: boolean;
@@ -53,6 +57,23 @@ class ModalTrigger extends React.Component<Props, State> {
       isOpen: props.isOpen || false,
       autoOpenKey: ''
     };
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { isOpen } = this.state;
+    const queryParams = queryString.parse(location.search);
+
+    if (this.props.addisOpenToQueryParam && prevState.isOpen !== isOpen) {
+      if (isOpen && !queryParams.isOpen) {
+        router.setParams(this.props.history, {
+          isModalOpen: isOpen
+        });
+      }
+
+      if (queryParams.isModalOpen) {
+        router.removeParams(this.props.history, 'isModalOpen');
+      }
+    }
   }
 
   openModal = () => {
@@ -104,6 +125,14 @@ class ModalTrigger extends React.Component<Props, State> {
         })
       : null;
 
+    const onHideHandler = () => {
+      this.closeModal();
+
+      if (onExit) {
+        onExit();
+      }
+    };
+
     return (
       <>
         {triggerComponent}
@@ -112,7 +141,7 @@ class ModalTrigger extends React.Component<Props, State> {
           dialogClassName={dialogClassName}
           size={size}
           show={isOpen}
-          onHide={this.closeModal}
+          onHide={onHideHandler}
           backdrop={backDrop}
           enforceFocus={enforceFocus}
           onExit={onExit}

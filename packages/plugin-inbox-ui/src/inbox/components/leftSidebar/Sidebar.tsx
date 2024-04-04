@@ -1,34 +1,34 @@
-import { IUser } from '@erxes/ui/src/auth/types';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from '@erxes/ui/src/utils/core';
-import { CONVERSATION_STATUSES } from '../../constants';
-import FilterToggler from '../../containers/leftSidebar/FilterToggler';
-import Resolver from '../../containers/Resolver';
-import Tagger from '../../containers/Tagger';
-import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
-import { PopoverButton } from '@erxes/ui-inbox/src/inbox/styles';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
-import React from 'react';
-import RTG from 'react-transition-group';
-import { InboxManagementActionConsumer } from '../../containers/InboxCore';
-import { StatusFilterPopover } from '../../containers/leftSidebar';
-import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
-import { IntegrationModal } from './IntegrationModal';
 import {
   AdditionalSidebar,
   DropdownWrapper,
   FlexCenter,
   LeftContent,
   RightItems,
+  ScrollContent,
   SidebarActions,
   SidebarContent,
-  ToggleButton,
-  ScrollContent
+  ToggleButton
 } from './styles';
+
+import Button from '@erxes/ui/src/components/Button';
+import { CONVERSATION_STATUSES } from '../../constants';
+import FilterToggler from '../../containers/leftSidebar/FilterToggler';
+import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { InboxManagementActionConsumer } from '../../containers/InboxCore';
+import { PopoverButton } from '@erxes/ui-inbox/src/inbox/styles';
+import RTG from 'react-transition-group';
+import React from 'react';
+import Resolver from '../../containers/Resolver';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import { StatusFilterPopover } from '../../containers/leftSidebar';
+import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
+import Tagger from '../../containers/Tagger';
+import { __ } from 'coreui/utils';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
 
 const DateFilter = asyncComponent(
   () =>
@@ -71,6 +71,7 @@ type Props = {
 
 type State = {
   isOpen: boolean;
+  counts?: any;
 };
 
 class LeftSidebar extends React.Component<Props, State> {
@@ -78,7 +79,8 @@ class LeftSidebar extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      isOpen: props.config.showAddition
+      isOpen: props.config.showAddition,
+      counts: {}
     };
   }
 
@@ -161,6 +163,12 @@ class LeftSidebar extends React.Component<Props, State> {
       return null;
     }
 
+    const setCounts = (counts: any) => {
+      const current = { ...this.state.counts };
+
+      this.setState({ counts: { ...current, ...counts } });
+    };
+
     return (
       <RTG.CSSTransition
         in={this.state.isOpen}
@@ -186,6 +194,7 @@ class LeftSidebar extends React.Component<Props, State> {
                 paramKey="channelId"
                 queryParams={queryParams}
                 refetchRequired={refetchRequired}
+                setCounts={setCounts}
               />
             </FilterToggler>
 
@@ -209,6 +218,7 @@ class LeftSidebar extends React.Component<Props, State> {
                   icon="tag-alt"
                   refetchRequired={refetchRequired}
                   treeView={true}
+                  setCounts={setCounts}
                 />
               </FilterToggler>
             )}
@@ -224,13 +234,14 @@ class LeftSidebar extends React.Component<Props, State> {
                 queryParams={queryParams}
                 paramKey="brandId"
                 refetchRequired={refetchRequired}
+                setCounts={setCounts}
               />
             </FilterToggler>
 
             <FilterToggler
               groupText="Integrations"
               toggleName="showIntegrations"
-              manageUrl="/settings/add-ons"
+              manageUrl="/settings/integrations"
             >
               <FilterList
                 query={{
@@ -241,6 +252,7 @@ class LeftSidebar extends React.Component<Props, State> {
                 counts="byIntegrationTypes"
                 paramKey="integrationType"
                 refetchRequired={refetchRequired}
+                setCounts={setCounts}
               />
             </FilterToggler>
 
@@ -248,14 +260,15 @@ class LeftSidebar extends React.Component<Props, State> {
               <FilterToggler
                 groupText="Tags"
                 toggleName="showTags"
-                manageUrl="/tags/inbox:conversation"
+                manageUrl="/settings/tags/inbox:conversation"
               >
                 <FilterList
                   query={{
                     queryName: 'tagList',
                     dataName: 'tags',
                     variables: {
-                      type: TAG_TYPES.CONVERSATION
+                      type: TAG_TYPES.CONVERSATION,
+                      perPage: 100
                     }
                   }}
                   queryParams={queryParams}
@@ -265,15 +278,16 @@ class LeftSidebar extends React.Component<Props, State> {
                   refetchRequired={refetchRequired}
                   multiple={true}
                   treeView={true}
+                  setCounts={setCounts}
                 />
               </FilterToggler>
             )}
           </ScrollContent>
-          <IntegrationModal />
         </SidebarContent>
       </RTG.CSSTransition>
     );
   }
+
   render() {
     const {
       currentUser,
@@ -293,7 +307,12 @@ class LeftSidebar extends React.Component<Props, State> {
             </AdditionalSidebar>
           )}
         </InboxManagementActionConsumer>
-        <Sidebar wide={true} full={true} header={this.renderSidebarHeader()}>
+        <Sidebar
+          wide={true}
+          full={true}
+          header={this.renderSidebarHeader()}
+          hasBorder={true}
+        >
           <ConversationList
             currentUser={currentUser}
             currentConversationId={currentConversationId}
@@ -301,6 +320,7 @@ class LeftSidebar extends React.Component<Props, State> {
             queryParams={queryParams}
             toggleRowCheckbox={toggleBulk}
             selectedConversations={bulk}
+            counts={this.state.counts}
           />
         </Sidebar>
       </LeftContent>

@@ -1,5 +1,5 @@
-import { getEnv } from "../../utils/configs";
-import Alert from "../utils/Alert";
+import { getEnv } from '../../utils/configs';
+import Alert from '../utils/Alert';
 
 type FileInfo = {
   name: string;
@@ -8,7 +8,7 @@ type FileInfo = {
 };
 
 type AfterUploadParams = {
-  status: "ok" | "error";
+  status: 'ok' | 'error';
   response: any;
   fileInfo: FileInfo;
 };
@@ -37,50 +37,62 @@ export const deleteHandler = (params: {
 }) => {
   const { REACT_APP_MAIN_API_DOMAIN } = getEnv();
 
+  let url = `${REACT_APP_MAIN_API_DOMAIN}/gateway/pl:core/delete-file`;
+
+  if(REACT_APP_MAIN_API_DOMAIN.includes('localhost')) {
+    url = `${REACT_APP_MAIN_API_DOMAIN}/pl:core/delete-file`;
+  }
+
   const {
-    url = `${REACT_APP_MAIN_API_DOMAIN}/delete-file`,
     fileName,
-    afterUpload,
+    afterUpload
   } = params;
 
-  fetch(`${url}`, {
-    method: "post",
+  fetch(url, {
+    method: 'post',
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
     },
     body: `fileName=${fileName}`,
-    credentials: "include",
-  }).then((response) => {
+    credentials: 'include'
+  }).then(response => {
     response
       .text()
-      .then((text) => {
+      .then(text => {
         if (!response.ok) {
           return afterUpload({
-            status: text,
+            status: text
           });
         }
 
-        return afterUpload({ status: "ok" });
+        return afterUpload({ status: 'ok' });
       })
-      .catch((error) => {
+      .catch(error => {
         Alert.error(error.message);
       });
   });
 };
 
-const uploadHandler = (params: Params) => {
-  const { REACT_APP_MAIN_API_DOMAIN } = getEnv();
+const getURL = () => {
+  const { REACT_APP_DOMAIN } = getEnv();
 
+  if (REACT_APP_DOMAIN.includes('localhost')) {
+    return `${REACT_APP_DOMAIN}/upload-file`;
+  }
+  return `${REACT_APP_DOMAIN}/gateway/pl:core/upload-file`;
+};
+
+const uploadHandler = (params: Params) => {
   const {
     files,
     beforeUpload,
     afterUpload,
     afterRead,
-    url = `${REACT_APP_MAIN_API_DOMAIN}/upload-file`,
-    kind = "main",
-    responseType = "text",
+    url = getURL(),
+    kind = 'main',
+    responseType = 'text',
     userId,
-    extraFormData = [],
+    extraFormData = []
   } = params;
 
   if (!files) {
@@ -117,39 +129,39 @@ const uploadHandler = (params: Params) => {
       }
 
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append('file', file);
 
       for (const data of extraFormData) {
         formData.append(data.key, data.value);
       }
 
       fetch(`${url}?kind=${kind}`, {
-        method: "post",
+        method: 'post',
         body: formData,
-        credentials: "include",
-        ...(userId ? { headers: { userId } } : {}),
+        credentials: 'include',
+        ...(userId ? { headers: { userId } } : {})
       })
-        .then((response) => {
+        .then(response => {
           response[responseType]()
-            .then((text) => {
+            .then(text => {
               if (!response.ok) {
                 return afterUpload({
-                  status: "error",
+                  status: 'error',
                   response,
-                  fileInfo,
+                  fileInfo
                 });
               }
 
               // after upload
               if (afterUpload) {
-                afterUpload({ status: "ok", response: text, fileInfo });
+                afterUpload({ status: 'ok', response: text, fileInfo });
               }
             })
-            .catch((error) => {
+            .catch(error => {
               Alert.error(error.message);
             });
         })
-        .catch((error) => {
+        .catch(error => {
           Alert.error(error.message);
         });
     };

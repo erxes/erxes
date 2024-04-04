@@ -8,6 +8,12 @@ interface ICommonFields {
   createdDate: Date;
   modifiedBy: string;
   modifiedDate: Date;
+  code?: string;
+}
+
+interface IFormCodes {
+  brandId: string;
+  formId: string;
 }
 
 export interface IArticle {
@@ -15,10 +21,13 @@ export interface IArticle {
   summary?: string;
   content?: string;
   status?: string;
+  isPrivate?: boolean;
   reactionChoices?: string[];
   reactionCounts?: { [key: string]: number };
   categoryId?: string;
   topicId?: string;
+
+  forms?: IFormCodes[];
 }
 
 export interface IArticleDocument extends ICommonFields, IArticle, Document {
@@ -46,6 +55,7 @@ export interface ITopic {
   color?: string;
   backgroundImage?: string;
   languageCode?: string;
+  notificationSegmentId?: string;
 }
 
 export interface ITopicDocument extends ICommonFields, ITopic, Document {
@@ -61,7 +71,16 @@ const commonFields = {
   modifiedBy: field({ type: String, label: 'Modified by' }),
   modifiedDate: field({ type: Date, label: 'Modified at' }),
   title: field({ type: String, label: 'Title' }),
+  code: field({ type: String, unique: true, label: 'Code'}),
 };
+
+const formcodesSchema = new Schema(
+  {
+    brandId: field({ type: String, label: 'Brand id' }),
+    formId: field({ type: String, label: 'Form id' }),
+  },
+  { _id: false },
+);
 
 export const articleSchema = new Schema({
   _id: field({ pkey: true }),
@@ -72,6 +91,12 @@ export const articleSchema = new Schema({
     enum: PUBLISH_STATUSES.ALL,
     default: PUBLISH_STATUSES.DRAFT,
     label: 'Status',
+  }),
+  isPrivate: field({
+    type: Boolean,
+    optional: true,
+    default: false,
+    label: 'isPrivate',
   }),
   reactionChoices: field({
     type: [String],
@@ -88,6 +113,8 @@ export const articleSchema = new Schema({
   reactionCounts: field({ type: Object, label: 'Reaction counts' }),
   topicId: field({ type: String, optional: true, label: 'Topic' }),
   categoryId: field({ type: String, optional: true, label: 'Category' }),
+
+  forms: field({ type: [formcodesSchema], label: 'Forms' }),
   ...commonFields,
 });
 
@@ -130,6 +157,17 @@ export const topicSchema = schemaWrapper(
       label: 'Language codes',
     }),
 
+    notificationSegmentId: field({
+      type: String,
+      required: false,
+    }),
+
+    
+
     ...commonFields,
-  })
+  }),
 );
+
+articleSchema.index({ code: 1}, { unique: true });
+categorySchema.index({ code: 1}, { unique: true });
+topicSchema.index({ code: 1}, { unique: true });

@@ -1,11 +1,3 @@
-import dayjs from 'dayjs';
-import { IUser } from '@erxes/ui/src/auth/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from '@erxes/ui/src/utils/core';
-import { IBrand } from '@erxes/ui/src/brands/types';
-import { IMessengerApps } from '@erxes/ui-inbox/src/settings/integrations/types';
-import { IMessagesItem } from '@erxes/ui-settings/src/integrations/types';
-import React from 'react';
 import {
   ErxesGreeting,
   ErxesMiddleTitle,
@@ -17,7 +9,16 @@ import {
   TopBarIcon,
   TopBarTab
 } from './styles';
+
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { IMessagesItem } from '@erxes/ui-inbox/src/settings/integrations/types';
+import { IMessengerApps } from '@erxes/ui-inbox/src/settings/integrations/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
 import SupporterComponent from './Supporters';
+import { __ } from 'coreui/utils';
+import dayjs from 'dayjs';
 
 type Props = {
   color: string;
@@ -36,6 +37,7 @@ type Props = {
   timezone?: string;
   showTimezone?: boolean;
   facebook?: string;
+  instagram?: string;
   twitter?: string;
   youtube?: string;
 };
@@ -178,7 +180,7 @@ class TopBar extends React.Component<Props> {
   }
 
   renderGreetingTopbar() {
-    const { facebook, twitter, youtube } = this.props;
+    const { facebook, instagram, twitter, youtube } = this.props;
 
     return (
       <>
@@ -186,6 +188,7 @@ class TopBar extends React.Component<Props> {
           <Links>
             <Socials>
               {this.renderLink(facebook, 'facebook-official')}
+              {this.renderLink(instagram, 'instagram')}
               {this.renderLink(twitter, 'twitter')}
               {this.renderLink(youtube, 'youtube-play')}
             </Socials>

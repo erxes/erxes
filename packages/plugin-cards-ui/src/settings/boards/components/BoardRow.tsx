@@ -1,14 +1,14 @@
-import { IBoard } from '@erxes/ui-cards/src/boards/types';
 import { ActionButtons } from '@erxes/ui-settings/src/styles';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Tip from '@erxes/ui/src/components/Tip';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { BoardItem } from '@erxes/ui-settings/src/boards/styles';
 import BoardForm from './BoardForm';
+import { BoardItem } from '@erxes/ui-cards/src/settings/boards/styles';
+import Button from '@erxes/ui/src/components/Button';
+import { IBoard } from '@erxes/ui-cards/src/boards/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { Link } from 'react-router-dom';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
 
 type Props = {
   type: string;

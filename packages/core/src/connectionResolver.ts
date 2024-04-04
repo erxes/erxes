@@ -1,55 +1,69 @@
 import * as mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
-import { IUserModel, loadUserClass } from './db/models/Users';
+import {
+  IUserModel,
+  IUserMovemmentModel,
+  loadUserClass,
+  loadUserMovemmentClass,
+} from './db/models/Users';
 import { IUserDocument } from './db/models/definitions/users';
 import { IBrandModel, loadBrandClass } from './db/models/Brands';
 import {
   IConformityModel,
-  loadConformityClass
+  loadConformityClass,
 } from './db/models/Conformities';
 import { IConfigModel, loadConfigClass } from './db/models/Configs';
 import {
   IPermissionModel,
   IUserGroupModel,
   loadPermissionClass,
-  loadUserGroupClass
+  loadUserGroupClass,
 } from './db/models/Permissions';
 import {
   IOnboardingHistoryModel,
   IRobotEntryModel,
   loadOnboardingHistoryClass,
-  loadRobotClass
+  loadRobotClass,
 } from './db/models/Robot';
 import {
   IBranchModel,
   IDepartmentModel,
+  IPositionModel,
   IStructureModel,
   IUnitModel,
   loadBranchClass,
   loadDepartmentClass,
+  loadPositionClass,
   loadStructureClass,
-  loadUnitClass
+  loadUnitClass,
 } from './db/models/Structure';
 import { IBrandDocument } from './db/models/definitions/brands';
 import { IConformityDocument } from './db/models/definitions/conformities';
 import { IConfigDocument } from './db/models/definitions/configs';
 import {
   IPermissionDocument,
-  IUserGroupDocument
+  IUserGroupDocument,
 } from './db/models/definitions/permissions';
 import {
   IOnboardingHistoryDocument,
-  IRobotEntryDocument
+  IRobotEntryDocument,
 } from './db/models/definitions/robot';
 import {
   IBranchDocument,
   IDepartmentDocument,
+  IPositionDocument,
   IStructureDocument,
-  IUnitDocument
+  IUnitDocument,
 } from './db/models/definitions/structures';
 import { IAppModel, loadAppClass } from './db/models/Apps';
 import { IAppDocument } from './db/models/definitions/apps';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
+import {
+  IInstallationLogModel,
+  loadInstallationLogClass,
+} from './db/models/InstallationLog';
+import { IInstallationLogDocument } from './db/models/definitions/installationLogs';
+import { IUserMovementDocument } from './db/models/definitions/users';
 
 export interface IModels {
   Users: IUserModel;
@@ -64,7 +78,10 @@ export interface IModels {
   Departments: IDepartmentModel;
   Units: IUnitModel;
   Branches: IBranchModel;
+  Positions: IPositionModel;
   Apps: IAppModel;
+  InstallationLogs: IInstallationLogModel;
+  UserMovements: IUserMovemmentModel;
 }
 
 export interface IContext extends IMainContext {
@@ -72,43 +89,46 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels | null = null;
-
-export const loadClasses = async (
+export const loadClasses = (
   db: mongoose.Connection,
-  subdomain: string
-) => {
-  models = {} as IModels;
+  subdomain: string,
+): IModels => {
+  const models = {} as IModels;
 
   models.Users = db.model<IUserDocument, IUserModel>(
     'users',
-    loadUserClass(models)
+    loadUserClass(models),
   );
   models.Brands = db.model<IBrandDocument, IBrandModel>(
     'brands',
-    loadBrandClass(models)
+    loadBrandClass(models),
   );
   models.Conformities = db.model<IConformityDocument, IConformityModel>(
     'conformity',
-    loadConformityClass(models, subdomain)
+    loadConformityClass(models, subdomain),
   );
 
   models.Configs = db.model<IConfigDocument, IConfigModel>(
     'configs',
-    loadConfigClass(models)
+    loadConfigClass(models),
   );
   models.Permissions = db.model<IPermissionDocument, IPermissionModel>(
     'permissions',
-    loadPermissionClass(models)
+    loadPermissionClass(models),
   );
   models.UsersGroups = db.model<IUserGroupDocument, IUserGroupModel>(
     'user_groups',
-    loadUserGroupClass(models)
+    loadUserGroupClass(models),
+  );
+
+  models.UserMovements = db.model<IUserMovementDocument, IUserMovemmentModel>(
+    'user_movements',
+    loadUserMovemmentClass(models),
   );
 
   models.RobotEntries = db.model<IRobotEntryDocument, IRobotEntryModel>(
     'robot_entries',
-    loadRobotClass(models)
+    loadRobotClass(models),
   );
   models.OnboardingHistories = db.model<
     IOnboardingHistoryDocument,
@@ -117,27 +137,33 @@ export const loadClasses = async (
 
   models.Structures = db.model<IStructureDocument, IStructureModel>(
     'structures',
-    loadStructureClass(models)
+    loadStructureClass(models),
   );
   models.Departments = db.model<IDepartmentDocument, IDepartmentModel>(
     'departments',
-    loadDepartmentClass(models)
+    loadDepartmentClass(models),
   );
   models.Units = db.model<IUnitDocument, IUnitModel>(
     'units',
-    loadUnitClass(models)
+    loadUnitClass(models),
   );
   models.Branches = db.model<IBranchDocument, IBranchModel>(
     'branches',
-    loadBranchClass(models)
+    loadBranchClass(models),
+  );
+
+  models.Positions = db.model<IPositionDocument, IPositionModel>(
+    'positions',
+    loadPositionClass(models),
   );
 
   models.Apps = db.model<IAppDocument, IAppModel>('apps', loadAppClass(models));
+  models.InstallationLogs = db.model<
+    IInstallationLogDocument,
+    IInstallationLogModel
+  >('installation_logs', loadInstallationLogClass(models));
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(
-  models,
-  loadClasses
-);
+export const generateModels = createGenerateModels<IModels>(loadClasses);

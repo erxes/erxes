@@ -1,0 +1,15 @@
+{
+  "name": "@erxes/plugin-timeclock-api",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "nodemon src/index.ts",
+    "build" : "tsc"
+  },
+  "dependencies": {
+    "@erxes/api-utils" : "*",
+    "dayjs": "1.8.15",
+    "sequelize": "^6.27.0",
+    "tedious": "^15.1.2",
+    "xlsx-populate": "^1.20.1"
+  }
+}

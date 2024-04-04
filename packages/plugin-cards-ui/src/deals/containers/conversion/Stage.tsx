@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { IConversionStage } from '@erxes/ui-cards/src/boards/types';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
@@ -12,7 +12,7 @@ import {
   IQueryParams
 } from '@erxes/ui-cards/src/deals/types';
 import * as React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   stage: IConversionStage;

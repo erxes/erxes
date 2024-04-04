@@ -1,8 +1,8 @@
-import { debug } from '../../configs';
 import { IConversationDocument } from '../../models/definitions/conversations';
 import { MESSAGE_TYPES } from '../../models/definitions/constants';
-import { sendIntegrationsMessage } from '../../messageBroker';
+import { sendCallsMessage, sendIntegrationsMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 
 export default {
   /**
@@ -11,24 +11,28 @@ export default {
   idleTime(conversation: IConversationDocument) {
     const now = new Date();
 
-    return (now.getTime() - conversation.updatedAt.getTime()) / (1000 * 60);
+    return (
+      (now.getTime() - (conversation.updatedAt || now).getTime()) / (1000 * 60)
+    );
   },
 
   customer(conversation: IConversationDocument) {
     return (
       conversation.customerId && {
         __typename: 'Customer',
-        _id: conversation.customerId
+        _id: conversation.customerId,
       }
     );
   },
 
-  integration(
+  async integration(
     conversation: IConversationDocument,
     _args,
-    { models }: IContext
+    { models }: IContext,
   ) {
-    return models.Integrations.findOne({ _id: conversation.integrationId });
+    return models.Integrations.findOne({
+      _id: conversation.integrationId,
+    });
   },
 
   user(conversation: IConversationDocument) {
@@ -41,15 +45,15 @@ export default {
     return (
       conversation.assignedUserId && {
         __typename: 'User',
-        _id: conversation.assignedUserId
+        _id: conversation.assignedUserId,
       }
     );
   },
 
   participatedUsers(conv: IConversationDocument) {
-    return (conv.participatedUserIds || []).map(_id => ({
+    return (conv.participatedUserIds || []).map((_id) => ({
       __typename: 'User',
-      _id
+      _id,
     }));
   },
 
@@ -58,50 +62,19 @@ export default {
   },
 
   async messages(conv: IConversationDocument, _, { dataLoaders }: IContext) {
-    const messages = await dataLoaders.conversationMessagesByConversationId.load(
-      conv._id
-    );
-    return messages.filter(message => message);
-  },
-
-  async facebookPost(
-    conv: IConversationDocument,
-    _args,
-    { models, subdomain }: IContext
-  ) {
-    const integration =
-      (await models.Integrations.findOne({ _id: conv.integrationId })) ||
-      ({} as any);
-
-    if (integration && integration.kind !== 'facebook-post') {
-      return null;
-    }
-
-    try {
-      const response = await sendIntegrationsMessage({
-        subdomain,
-        action: 'getFacebookPost',
-        data: {
-          erxesApiId: conv._id
-        },
-        isRPC: true
-      });
-
-      return response;
-    } catch (e) {
-      debug.error(e);
-      return null;
-    }
+    const messages =
+      await dataLoaders.conversationMessagesByConversationId.load(conv._id);
+    return messages.filter((message) => message);
   },
 
   async callProAudio(
     conv: IConversationDocument,
     _args,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const integration =
       (await models.Integrations.findOne({
-        _id: conv.integrationId
+        _id: conv.integrationId,
       })) || ({} as any);
 
     if (integration && integration.kind !== 'callpro') {
@@ -115,14 +88,14 @@ export default {
           action: 'getCallproAudio',
           data: {
             erxesApiId: conv._id,
-            integrationId: integration._id
+            integrationId: integration._id,
           },
-          isRPC: true
+          isRPC: true,
         });
 
         return response ? response.audioSrc : '';
       } catch (e) {
-        debug.error(e);
+        debugError(e);
         return null;
       }
     }
@@ -131,17 +104,17 @@ export default {
   },
 
   async tags(conv: IConversationDocument) {
-    return (conv.tagIds || []).map(_id => ({ __typename: 'Tag', _id }));
+    return (conv.tagIds || []).map((_id) => ({ __typename: 'Tag', _id }));
   },
 
   async videoCallData(
     conversation: IConversationDocument,
     _args,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const message = await models.ConversationMessages.findOne({
       conversationId: conversation._id,
-      contentType: MESSAGE_TYPES.VIDEO_CALL
+      contentType: MESSAGE_TYPES.VIDEO_CALL,
     }).lean();
 
     if (!message) {
@@ -153,44 +126,49 @@ export default {
         subdomain,
         action: 'getDailyActiveRoom',
         data: {
-          erxesApiConversationId: conversation._id
+          erxesApiConversationId: conversation._id,
         },
-        isRPC: true
+        isRPC: true,
       });
 
       return response;
     } catch (e) {
-      debug.error(e);
+      debugError(e);
       return null;
     }
   },
-
-  async isFacebookTaggedMessage(
+  async callHistory(
     conversation: IConversationDocument,
     _args,
-    { models }: IContext
+    { models, subdomain }: IContext,
   ) {
     const integration =
       (await models.Integrations.findOne({
-        _id: conversation.integrationId
+        _id: conversation.integrationId,
       })) || ({} as any);
 
-    if (integration && integration.kind !== 'facebook-messenger') {
-      return false;
+    if (integration && integration.kind !== 'calls') {
+      return null;
     }
 
-    const message = await models.ConversationMessages.find({
-      conversationId: conversation._id,
-      customerId: { $exists: true },
-      createdAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) }
-    })
-      .limit(1)
-      .lean();
+    // if (user.isOwner || user._id === conv.assignedUserId) {
+    try {
+      const response = await sendCallsMessage({
+        subdomain,
+        action: 'getCallHistory',
+        data: {
+          erxesApiConversationId: conversation._id,
+        },
+        isRPC: true,
+      });
 
-    if (message.length && message.length >= 1) {
-      return false;
+      return response ? response : '';
+    } catch (e) {
+      debugError(e);
+      return null;
     }
+    // }
 
-    return true;
-  }
+    return null;
+  },
 };

@@ -1,19 +1,19 @@
-import Car from "./cars";
-import CarCategory from "./carCategories";
+import Car from './cars';
+import CarCategory from './carCategories';
 
-import { Cars as CarMutations } from "./mutations";
+import { Cars as CarMutations } from './mutations';
 
-import { Cars as CarQueries } from "./queries";
+import { Cars as CarQueries } from './queries';
 
 const resolvers: any = async () => ({
   CarCategory,
   Car,
   Mutation: {
-    ...CarMutations,
+    ...CarMutations
   },
   Query: {
-    ...CarQueries,
-  },
+    ...CarQueries
+  }
 });
 
 export default resolvers;

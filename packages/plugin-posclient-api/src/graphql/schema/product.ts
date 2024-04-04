@@ -18,42 +18,98 @@ export const types = `
   type PosProductCategory {
     ${commonFieldDefs}
     parentId: String
+    meta: String
     order: String!
     isRoot: Boolean
     productCount: Int
+    maskType: String
+    mask: JSON
+    isSimilarity: Boolean
+    similarities: JSON
   }
 
   type PoscProduct {
     ${commonFieldDefs}
+    shortName: String
     type: String
-    sku: String
+    barcodes: [String]
+    barcodeDescription: String
     unitPrice: Float
     categoryId: String
     customFieldsData: JSON
+    customFieldsDataByFieldCode: JSON
     createdAt: Date
     tagIds: [String]
     vendorId: String
-    attachmentMore: Attachment
+    attachmentMore: [Attachment]
+    uom: String
+    subUoms: JSON
     category: PosProductCategory
+    remainder: Float
+    soonIn: Float
+    soonOut: Float
+    remainders: [JSON]
+    isCheckRem: Boolean
+    hasSimilarity: Boolean
+  }
+
+  type PoscProductSimilarityGroup {
+    title: String
+    fieldId: String
+  }
+  type PoscProductSimilarity {
+    products: [PoscProduct],
+    groups: [PoscProductSimilarityGroup],
   }
 `;
 
+const productsQueryParams = `
+  type: String,
+  categoryId: String,
+  searchValue: String,
+  vendorId: String,
+  tag: String,
+  ids: [String],
+  excludeIds: Boolean,
+  segment: String,
+  segmentData: String,
+  isKiosk: Boolean,
+  groupedSimilarity: String,
+  categoryMeta: String,
+`;
+
+const productCategoriesParams = `
+  parentId: String,
+  withChild: Boolean,
+  searchValue: String,
+  status: String,
+  excludeEmpty: Boolean,
+  meta: String,
+  isKiosk: Boolean,
+`;
+const commonParams = `
+  page: Int,
+  perPage: Int,
+  sortField: String,
+  sortDirection: Int,
+`;
+
 export const queries = `
-  poscProductCategories(parentId: String, searchValue: String, excludeEmpty: Boolean): [PosProductCategory]
-  poscProductCategoriesTotalCount(parentId: String, searchValue: String): Int
+  poscProductCategories(
+    ${productCategoriesParams}
+    ${commonParams}
+  ): [PosProductCategory]
+  poscProductCategoriesTotalCount(${productCategoriesParams}): Int
   poscProductCategoryDetail(_id: String): PosProductCategory
 
   poscProducts(
-    type: String,
-    categoryId: String,
-    searchValue: String,
-    page: Int,
-    perPage: Int,
+    ${productsQueryParams}
+    ${commonParams}
   ): [PoscProduct]
   poscProductsTotalCount(
-    type: String,
-    categoryId: String,
-    searchValue: String,
+    ${productsQueryParams}
   ): Int
-  poscProductDetail(_id: String): PoscProduct
+  poscProductDetail(_id: String, branchId: String): PoscProduct
+  getPriceInfo(productId: String!): String
+  poscProductSimilarities(_id: String!, groupedSimilarity: String): PoscProductSimilarity
 `;

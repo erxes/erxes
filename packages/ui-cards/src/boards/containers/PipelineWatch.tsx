@@ -1,13 +1,9 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import {
-  IPipeline,
-  WatchMutation,
-  WatchVariables
-} from '../types';
+import { IPipeline, WatchMutation, WatchVariables } from '../types';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import * as React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import PipelineWatch from '../components/PipelineWatch';
 import { mutations, queries } from '../graphql';
 

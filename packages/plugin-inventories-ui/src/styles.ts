@@ -165,5 +165,44 @@ export const TableOver = styled(Table)`
         text-align: right;
       }
     }
+
+    tr td {
+      padding-top: 0px;
+      padding-bottom: 1px;
+    }
   }
+`;
+
+export const TableTransactionAdd = styled(Table)`
+  box-shadow: 1px solid black;
+  border-collapse: collapse;
+
+  thead,
+  tbody {
+    th {
+      border-top: none;
+      text-align: center;
+    }
+    tr {
+      th:first-child,
+      td:first-child {
+        text-align: left;
+      }
+      th:nth-child(2),
+      td:nth-child(2) {
+        max-width: 50px;
+        text-align: left;
+      }
+      th:last-child,
+      td:last-child {
+        max-width: 25px;
+        text-align: center;
+      }
+    }
+  }
+`;
+
+export const SidebarFilters = styledTS(styled.div)`
+  overflow: hidden;
+  padding: 5px 15px 30px 15px;
 `;

@@ -27,6 +27,8 @@ export const types = (tagsEnabled, inboxEnabled) => `
     emails: [String]
     primaryPhone: String
     phones: [String]
+    primaryAddress: JSON
+    addresses: [JSON]
 
     phone: String
     tagIds: [String]
@@ -34,6 +36,7 @@ export const types = (tagsEnabled, inboxEnabled) => `
     location: JSON
     visitorContactInfo: JSON
     customFieldsData: JSON
+    customFieldsDataByFieldCode: JSON
     trackedData: JSON
     ownerId: String
     position: String
@@ -88,6 +91,9 @@ const queryParams = `
   sortDirection: Int
   sex:Int
   birthDate: Date
+  dateFilters: String
+  segmentData: String
+  emailValidationStatus:String
   ${conformityQueryFields}
 `;
 
@@ -108,6 +114,8 @@ const fields = `
   emails: [String]
   primaryPhone: String
   phones: [String]
+  primaryAddress: JSON
+  addresses: [JSON]
   ownerId: String
   position: String
   department: String
@@ -133,4 +141,5 @@ export const mutations = `
   customersChangeState(_id: String!, value: String!): Customer
   customersVerify(verificationType:String!): String
   customersChangeVerificationStatus(customerIds: [String], type: String!, status: String!): [Customer]
+  customersChangeStateBulk(_ids: [String]!, value: String!): JSON
 `;

@@ -3,8 +3,8 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 
 import CarList from './containers/CarsList';
-import CarDetails from './containers/detail/CarDetails'
-import CarSection from './components/common/CarSection'
+import CarDetails from './containers/detail/CarDetails';
+import CarSection from './components/common/CarSection';
 
 const details = ({ match }) => {
   const id = match.params.id;
@@ -30,12 +30,7 @@ const routes = () => {
         path="/erxes-plugin-car/details/:id"
         component={details}
       />
-      <Route
-        path="/cars"
-        exact={true}
-        key="/cars"
-        component={list}
-      />
+      <Route path="/cars" exact={true} key="/cars" component={list} />
     </>
   );
 };

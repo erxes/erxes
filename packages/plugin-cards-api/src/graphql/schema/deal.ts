@@ -10,6 +10,7 @@ import {
 export const types = ({ contacts, tags }) => `
   type DealListItem @key(fields: "_id") {
     products: JSON
+    unUsedAmount: JSON
     amount: JSON
     customFieldsData: JSON
     ${commonListTypes}
@@ -17,6 +18,7 @@ export const types = ({ contacts, tags }) => `
 
   type Deal @key(fields: "_id") {
     _id: String!
+    unUsedAmount: JSON
     amount: JSON
 
     ${
@@ -29,7 +31,7 @@ export const types = ({ contacts, tags }) => `
     }
 
     ${tags ? `tags: [Tag]` : ''}
-    
+
     products: JSON
     productsData: JSON
     paymentsData: JSON
@@ -62,7 +64,9 @@ const dealMutationParams = `
 const commonQueryParams = `
   _ids: [String]
   date: ItemDate
+  parentId:String
   pipelineId: String
+  pipelineIds: [String]
   customerIds: [String]
   companyIds: [String]
   assignedUserIds: [String]
@@ -75,11 +79,30 @@ const commonQueryParams = `
   sortDirection: Int
   userIds: [String]
   segment: String
+  segmentData: String
   assignedToMe: String
   startDate: String
   endDate: String
   hasStartAndCloseDate: Boolean
-  `;
+  stageChangedStartDate: Date
+  stageChangedEndDate: Date
+  noSkipArchive: Boolean
+  tagIds: [String]
+  number: String
+  branchIds: [String]
+  departmentIds: [String]
+  boardIds: [String]
+  stageCodes: [String]
+  dateRangeFilters:JSON,
+  createdStartDate: Date,
+  createdEndDate: Date
+  stateChangedStartDate: Date
+  stateChangedEndDate: Date
+  startDateStartDate: Date
+  startDateEndDate: Date
+  closeDateStartDate: Date
+  closeDateEndDate: Date
+`;
 
 const listQueryParams = `
     initialStageId: String
@@ -105,7 +128,7 @@ const archivedDealsParams = `
  `;
 
 export const queries = `
-  dealDetail(_id: String!): Deal
+  dealDetail(_id: String!, clientPortalCard: Boolean): Deal
   checkDiscount(_id: String!,products:[ProductField]):JSON
   deals(${listQueryParams}): [DealListItem]
   dealsTotalCount(${listQueryParams}): Int
@@ -131,4 +154,7 @@ export const mutations = `
   dealsWatch(_id: String, isAdd: Boolean): Deal
   dealsCopy(_id: String!, proccessId: String): Deal
   dealsArchive(stageId: String!, proccessId: String): String
+  dealsCreateProductsData(proccessId: String, dealId: String, docs: JSON): JSON
+  dealsEditProductData(proccessId: String, dealId: String, dataId: String, doc: JSON): JSON
+  dealsDeleteProductData(proccessId: String, dealId: String, dataId: String): JSON
 `;

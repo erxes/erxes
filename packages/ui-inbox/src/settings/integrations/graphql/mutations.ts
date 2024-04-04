@@ -13,7 +13,8 @@ const commonParams = `
 `;
 
 const mailParamsDef = `
-  $erxesApiId: String!,
+  $integrationId: String,
+  $conversationId: String,
   $replyTo: [String],
   $inReplyTo: String,
   $headerId: String,
@@ -22,25 +23,25 @@ const mailParamsDef = `
   $references: [String]
   $replyToMessageId: String,
   $subject: String!,
-  $kind: String,
   $body: String!,
   $to: [String]!,
   $cc: [String],
   $bcc: [String] ,
   $from: String!,
   $shouldResolve: Boolean,
+  $shouldOpen: Boolean,
   $attachments: [JSON],
   $customerId: String
 `;
 
 const mailParams = `
-  erxesApiId: $erxesApiId,
+  integrationId: $integrationId,
+  conversationId: $conversationId,
   replyTo: $replyTo,
   inReplyTo: $inReplyTo,
   headerId: $headerId,
   threadId: $threadId,
   messageId: $messageId,
-  kind: $kind,
   references: $references,
   replyToMessageId: $replyToMessageId,
   subject: $subject,
@@ -50,13 +51,14 @@ const mailParams = `
   bcc: $bcc,
   from: $from,
   shouldResolve: $shouldResolve,
+  shouldOpen: $shouldOpen,
   attachments: $attachments,
   customerId: $customerId
 `;
 
-const integrationSendMail = ` 
-  mutation integrationSendMail(${mailParamsDef}) {
-    integrationSendMail(${mailParams})
+const imapSendMail = ` 
+  mutation imapSendMail(${mailParamsDef}) {
+    imapSendMail(${mailParams})
   }
 `;
 
@@ -87,8 +89,8 @@ const integrationsCreateExternalIntegration = `
 `;
 
 const integrationsEditCommonFields = `
-  mutation integrationsEditCommonFields($_id: String!, $name: String!, $brandId: String!, $channelIds: [String], $data: JSON) {
-    integrationsEditCommonFields(_id: $_id, name: $name, brandId: $brandId, channelIds: $channelIds, data: $data) {
+  mutation integrationsEditCommonFields($_id: String!, $name: String!, $brandId: String!, $channelIds: [String], $details: JSON) {
+    integrationsEditCommonFields(_id: $_id, name: $name, brandId: $brandId, channelIds: $channelIds, details: $details) {
       _id
     }
   }
@@ -140,8 +142,8 @@ const messengerAppSave = `
 `;
 
 const removeAccount = `
-  mutation integrationsRemoveAccount($_id: String!) {
-    integrationsRemoveAccount(_id: $_id)
+  mutation integrationsRemoveAccount($_id: String!, $kind: String) {
+    integrationsRemoveAccount(_id: $_id, kind: $kind)
   }
 `;
 
@@ -160,8 +162,8 @@ const integrationsArchive = `
 `;
 
 const integrationsRepair = `
-  mutation integrationsRepair($_id: String!) {
-    integrationsRepair(_id: $_id) 
+  mutation integrationsRepair($_id: String!, $kind: String!) {
+    integrationsRepair(_id: $_id, kind: $kind) 
   }
 `;
 
@@ -183,7 +185,7 @@ export default {
   integrationsSaveMessengerAppearance,
   integrationsRemove,
   removeAccount,
-  integrationSendMail,
+  imapSendMail,
   integrationsSendSms,
   messengerAppSave
 };

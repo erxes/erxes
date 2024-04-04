@@ -1,19 +1,15 @@
-import React from 'react';
+import { ChildPlugin, Plugin } from './types';
+import { NavIcon, NavItem, NavMenuItem } from '../../styles';
+import { getChildren, getLink } from './utils';
+
 import { NavLink } from 'react-router-dom';
-
-import { NavItem, NavMenuItem, NavIcon } from '../../styles';
-
-import WithPermission from 'modules/common/components/WithPermission';
-import Tip from 'modules/common/components/Tip';
-import Label from 'modules/common/components/Label';
-import { __ } from 'modules/common/utils';
-
-import { isEnabled } from '@erxes/ui/src/utils/core';
-
 import NavigationItemChildren from './NavigationItemChildren';
-
-import { getLink, getChildren } from './utils';
-import { Plugin, ChildPlugin } from './types';
+import React from 'react';
+import Tip from 'modules/common/components/Tip';
+import WithPermission from 'modules/common/components/WithPermission';
+import { __ } from 'modules/common/utils';
+import { customNavigationLabel } from 'pluginUtils';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   plugin: Plugin;
@@ -21,26 +17,12 @@ type Props = {
   showMenu?: boolean;
   clickedMenu?: string;
   toggleMenu?: (text: string) => void;
-  unreadConversationsCount?: number;
 };
 
 export default function NavigationItem(props: Props) {
-  const {
-    plugin,
-    navCollapse,
-    showMenu,
-    clickedMenu,
-    toggleMenu,
-    unreadConversationsCount
-  } = props;
+  const { plugin, navCollapse, showMenu, clickedMenu, toggleMenu } = props;
 
   const children: ChildPlugin[] = getChildren(plugin);
-
-  const unreadIndicator = unreadConversationsCount !== 0 && (
-    <Label shake={true} lblStyle="danger" ignoreTrans={true}>
-      {unreadConversationsCount}
-    </Label>
-  );
 
   const renderNavIcon = () => {
     if (navCollapse === 1) {
@@ -64,19 +46,20 @@ export default function NavigationItem(props: Props) {
         {renderNavIcon()}
 
         {plugin.url.includes('inbox') && isEnabled('inbox')
-          ? unreadIndicator
+          ? customNavigationLabel()
           : plugin.label}
       </NavLink>
     </NavMenuItem>
   );
 
   const renderNavMenuItem = () => {
-    if (children.length === 0 && plugin.text !== 'Settings')
+    if (children.length === 0 && plugin.text !== 'Settings') {
       return (
         <Tip placement="right" key={Math.random()} text={__(plugin.text)}>
           {navMenuItemNode}
         </Tip>
       );
+    }
 
     return navMenuItemNode;
   };
@@ -97,7 +80,7 @@ export default function NavigationItem(props: Props) {
     );
   };
 
-  if (plugin.text === 'Settings') {
+  if (plugin.text === 'Settings' || plugin.text === 'Marketplace') {
     return <React.Fragment key={plugin.url}>{renderItem()}</React.Fragment>;
   }
 

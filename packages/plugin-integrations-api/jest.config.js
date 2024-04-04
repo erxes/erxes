@@ -12,7 +12,6 @@ module.exports = {
   collectCoverageFrom: [
     'src/nylas/**',
     'src/gmail/**',
-    'src/facebook/**',
     'src/twitter/**',
     'src/whatsapp/**',
     'src/smooch/**',
@@ -20,10 +19,7 @@ module.exports = {
     '!src/nylas/controller.ts',
     '!src/gmail/api.ts',
     '!src/gmail/controller.ts',
-    '!src/twitter/api.ts',
-    '!src/facebook/store.ts',
-    '!src/facebook/utils.ts',
-    '!src/facebook/handleFacebookMessage.ts'
+    '!src/twitter/api.ts'
   ],
   globals: {
     'ts-jest': {

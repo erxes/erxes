@@ -5,6 +5,7 @@ import { field, schemaHooksWrapper } from './utils';
 export interface IPutResponse {
   contentType: string;
   contentId: string;
+  number?: string;
   success?: string;
   billId?: string;
   date?: string;
@@ -18,8 +19,9 @@ export interface IPutResponse {
   taxType?: string;
   qrData?: string;
   lottery?: string;
-  sendInfo?: object;
-  stocks?: object;
+  sendInfo?: any;
+  status?: string;
+  stocks?: object[];
   amount?: string;
   vat?: string;
   cityTax?: string;
@@ -43,7 +45,7 @@ export const putResponseSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     createdAt: getDateFieldDefinition('Created at'),
     modifiedAt: field({ type: Date, label: 'Modified at' }),
-
+    number: field({ type: String, label: 'Inner bill number' }),
     contentType: field({ type: String, label: 'Content Type' }),
     contentId: field({ type: String, label: 'Pos order id' }),
 
@@ -106,7 +108,10 @@ export const putResponseSchema = schemaHooksWrapper(
     registerNo: field({ type: String, label: 'Company register number' }),
     customerNo: field({ type: String }),
     customerName: field({ type: String }),
+    status: field({ type: String, optional: true }),
     synced: field({ type: Boolean, default: false, label: 'synced on erxes' })
   }),
   'erxes_putResponse'
 );
+
+putResponseSchema.index({ contentType: 1, contentId: 1, status: 1 });

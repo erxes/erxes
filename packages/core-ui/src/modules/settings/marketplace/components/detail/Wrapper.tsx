@@ -8,7 +8,6 @@ const VerticalContent = styled.div`
   display: flex;
   flex-direction: column;
   background: ${colors.colorWhite};
-  padding: ${dimensions.coreSpacing}px;
   position: relative;
   height: 100%;
 `;
@@ -23,6 +22,7 @@ const Contents = styled.div`
   bottom: 0;
   overflow-x: hidden;
   height: 100%;
+  padding: ${dimensions.coreSpacing}px;
 
   @-moz-document url-prefix() {
     // overflow: hidden;
@@ -32,7 +32,7 @@ const Contents = styled.div`
 const MainContent = styled.div`
   flex: 1;
   padding-right: ${dimensions.coreSpacing}px;
-  overflow: auto;
+  overflow: hidden;
   height: 100%;
 `;
 

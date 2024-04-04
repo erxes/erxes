@@ -2,43 +2,65 @@ export const types = `
 
   type Work @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String,
-    createdAt: Date,
-    createdBy: String,
-    updatedAt: Date,
-    updatedBy: String,
+    processId: String,
     name: String,
     status: String,
     dueDate: Date,
     startAt: Date,
     endAt: Date,
-    jobId: String,
-    job: JSON,
+    type: String,
+    typeId: String,
     flowId: String,
-    flow: JSON,
-    productId: String,
-    product: JSON,
+    origin: String,
     count: String,
     intervalId: String,
-    interval: JSON,
     inBranchId: String,
-    inBranch: String
     inDepartmentId: String,
-    inDepartment: String
     outBranchId: String,
-    outBranch: String,
     outDepartmentId: String,
-    outDepartment: String
     needProducts: JSON,
     resultProducts: JSON
+    
+    createdAt: Date,
+    createdBy: String,
+    updatedAt: Date,
+    updatedBy: String,
+
+    flow: JSON,
+    interval: JSON,
+    inBranch: Branch
+    inDepartment: Department,
+    outBranch: Branch,
+    outDepartment: Department,
+    createdUser: User
+    updatedUser: User    
   }
 `;
 
+const paginateParams = `
+  page: Int
+  perPage: Int
+  sortField: String
+  sortDirection: Int
+`;
+
 const qryParams = `
-  searchValue: String
+  search: String
+  type: String
+  startDate: Date
+  endDate: Date
+  inBranchId: String
+  outBranchId: String
+  inDepartmentId: String
+  outDepartmentId: String
+  productCategoryId: String
+  productId: String
+  jobCategoryId: String
+  jobReferId: String
 `;
 
 export const queries = `
-  works(page: Int, perPage: Int, ${qryParams}): [Work]
+  works(${qryParams}, ${paginateParams}): [Work]
   worksTotalCount(${qryParams}): Int
 `;
 
@@ -48,19 +70,19 @@ const workParams = `
   dueDate: Date,
   startAt: Date,
   endAt: Date,
-  jobId: String,
-  flowId: String,
-  productId: String,
-  count: String,
-  intervalId: String,
+  type: String,
+  typeId: String,
+  count: Float,
   inBranchId: String,
   inDepartmentId: String,
   outBranchId: String,
   outDepartmentId: String,
-  needProducts: [JobProductsInput],
-  resultProducts: [JobProductsInput]
+  needProducts: JSON,
+  resultProducts: JSON,
 `;
 
 export const mutations = `
-  worksAdd(${workParams}): Work
+  workAdd(${workParams}): Work
+  workEdit(_id: String!, ${workParams}): Work
+  workRemove(_id: String!): JSON
 `;

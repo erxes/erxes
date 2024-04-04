@@ -1,5 +1,5 @@
+import { IActivityLogForMonth } from '@erxes/ui-log/src/activityLogs/types';
 import { IUser } from './auth/types';
-import { IActivityLogForMonth } from './activityLogs/types';
 
 export interface IRouterProps {
   history: any;
@@ -120,6 +120,10 @@ export interface IField {
   showInCard?: boolean;
   keys?: string[];
   productCategoryId?: string;
+  optionsValues?: string;
+
+  relationType?: string;
+  subFieldIds?: string[];
 }
 
 export interface IFormProps {
@@ -136,15 +140,18 @@ export type IOption = {
   label: string;
   value: string;
   avatar?: string;
+  extraValue?: string;
 };
 
 export type IButtonMutateProps = {
+  passedName?: string;
   name?: string;
   values: any;
   isSubmitted: boolean;
   confirmationUpdate?: boolean;
   callback?: (data?: any) => void;
   resetSubmit?: () => void;
+  beforeSubmit?: () => void;
   size?: string;
   object?: any;
   text?: string;
@@ -155,35 +162,39 @@ export type IButtonMutateProps = {
 
 export type IMentionUser = {
   id: string;
-  avatar: string;
+  avatar?: string;
   username: string;
   fullName?: string;
+  title?: string;
 };
 
 export type IEditorProps = {
+  placeholder?: string;
   onCtrlEnter?: (evt?: any) => void;
   content: string;
   onChange: (evt: any) => void;
+  onInstanceReady?: (e: any) => any;
   height?: number | string;
   insertItems?: any;
   removeButtons?: string;
   removePlugins?: string;
   toolbarCanCollapse?: boolean;
-  mentionUsers?: IMentionUser[];
+  showMentions?: boolean;
   toolbar?: any[];
   autoFocus?: boolean;
   toolbarLocation?: 'top' | 'bottom';
   autoGrow?: boolean;
-  autoGrowMinHeight?: number;
-  autoGrowMaxHeight?: number;
+  autoGrowMinHeight?: number | string;
+  autoGrowMaxHeight?: number | string;
   name?: string;
   isSubmitted?: boolean;
   formItems?: any;
+  contentType?: string;
 };
 
 export type QueryResponse = {
   loading: boolean;
-  refetch: () => Promise<any>;
+  refetch: (variables?: any) => Promise<any>;
   error?: string;
 };
 

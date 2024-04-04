@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 
 import { types, queries, mutations } from './schema/product';
 
@@ -13,10 +13,11 @@ import {
   queries as uomQueries,
   mutations as uomMutations
 } from './schema/uom';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
-const typeDefs = async serviceDiscovery => {
-  const tagsAvailable = await serviceDiscovery.isEnabled('tags');
-  const contactsAvailable = await serviceDiscovery.isEnabled('contacts');
+const typeDefs = async () => {
+  const tagsAvailable = await isEnabled('tags');
+  const contactsAvailable = await isEnabled('contacts');
 
   return gql`
     scalar JSON
@@ -32,17 +33,17 @@ const typeDefs = async serviceDiscovery => {
       scope: CacheControlScope
       inheritMaxAge: Boolean
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
-    
+
     ${types(tagsAvailable, contactsAvailable)}
     ${productConfigTypes}
     ${uomTypes}
-    
+
     extend type Query {
       ${queries}
       ${productConfigQueries}
       ${uomQueries}
     }
-    
+
     extend type Mutation {
       ${mutations}
       ${productConfigMutations}

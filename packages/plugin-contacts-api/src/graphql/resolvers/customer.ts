@@ -1,11 +1,17 @@
 import { ICustomerDocument } from '../../models/definitions/customers';
-import { sendCoreMessage, sendInboxMessage } from '../../messageBroker';
+import {
+  sendCoreMessage,
+  sendInboxMessage,
+  sendCommonMessage,
+} from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
+import { customFieldsDataByFieldCode } from '@erxes/api-utils/src/fieldUtils';
 
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
-    return models.Customers.findOne({ _id });
+  async __resolveReference({ _id }, { models }: IContext) {
+    const customer = await models.Customers.findOne({ _id });
+    return customer;
   },
 
   integration(customer: ICustomerDocument) {
@@ -16,7 +22,7 @@ export default {
   },
 
   async getTags(customer: ICustomerDocument) {
-    return (customer.tagIds || []).map(_id => ({ __typename: 'Tag', _id }));
+    return (customer.tagIds || []).map((_id) => ({ __typename: 'Tag', _id }));
   },
 
   async urlVisits(customer: ICustomerDocument, _args, { subdomain }: IContext) {
@@ -30,26 +36,28 @@ export default {
           bool: {
             must: [
               {
-                term: { customerId: customer._id }
+                term: { customerId: customer._id },
               },
               {
-                term: { name: 'viewPage' }
-              }
-            ]
-          }
-        }
+                term: { name: 'viewPage' },
+              },
+            ],
+          },
+        },
       },
-      defaultValue: { hits: { hits: [] } }
+      defaultValue: { hits: { hits: [] } },
     });
 
-    return response.hits.hits.map(hit => {
+    return response.hits.hits.map((hit) => {
       const source = hit._source;
-      const firstAttribute = source.attributes[0] || {};
+      const { attributes } = source;
+      const firstAttribute =
+        (attributes && attributes.length > 0 && attributes[0]) || {};
 
       return {
         createdAt: source.createdAt,
         count: source.count,
-        url: firstAttribute.value
+        url: firstAttribute.value,
       };
     });
   },
@@ -57,21 +65,21 @@ export default {
   async conversations(
     customer: ICustomerDocument,
     _args,
-    { subdomain }: IContext
+    { subdomain }: IContext,
   ) {
     return sendInboxMessage({
       subdomain,
       action: 'getConversations',
       data: { customerId: customer._id },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
   },
 
   async companies(
     customer: ICustomerDocument,
     _params,
-    { models: { Companies }, subdomain }: IContext
+    { models: { Companies }, subdomain }: IContext,
   ) {
     const companyIds = await sendCoreMessage({
       subdomain,
@@ -79,14 +87,14 @@ export default {
       data: {
         mainType: 'customer',
         mainTypeId: customer._id,
-        relTypes: ['company']
+        relTypes: ['company'],
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     const companies = await Companies.find({
-      _id: { $in: (companyIds || []).filter(id => id) }
+      _id: { $in: (companyIds || []).filter((id) => id) },
     }).limit(10);
     return companies;
   },
@@ -97,5 +105,13 @@ export default {
     }
 
     return { __typename: 'User', _id: customer.ownerId };
-  }
+  },
+
+  customFieldsDataByFieldCode(
+    company: ICustomerDocument,
+    _,
+    { subdomain }: IContext,
+  ) {
+    return customFieldsDataByFieldCode(company, subdomain);
+  },
 };

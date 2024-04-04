@@ -1,4 +1,8 @@
-import { commonFields, commonParamsDef, commonParamsValue } from '../../common/graphq';
+import {
+  commonFields,
+  commonParamsDef,
+  commonParamsValue
+} from '../../common/graphq';
 
 export const donateFields = `
   ${commonFields}
@@ -33,7 +37,6 @@ export const donatesMain = `
   }
 `;
 
-
 const donateDetail = `
   query donateDetail($_id: String!) {
     donateDetail(_id: $_id) {
@@ -45,5 +48,5 @@ const donateDetail = `
 export default {
   donates,
   donatesMain,
-  donateDetail,
+  donateDetail
 };

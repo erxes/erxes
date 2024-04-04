@@ -1,10 +1,10 @@
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps, router as routerUtils } from '@erxes/ui/src/utils';
 import { UserDetailQueryResponse } from '@erxes/ui/src/auth/types';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { requestIdleCallback } from 'request-idle-callback';
 import { setTimeout } from 'timers';
 import { mutations, queries, subscriptions } from '../graphql';
@@ -415,6 +415,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
       })
       .catch((e: Error) => {
         Alert.error(e.message);
+        location.reload();
       });
   };
 
@@ -563,7 +564,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
   onRemoveItem = (itemId: string, stageId: string) => {
     const { itemMap } = this.state;
 
-    const items = itemMap[stageId].filter(item => item._id !== itemId);
+    const items = (itemMap[stageId] || []).filter(item => item._id !== itemId);
 
     this.setState({
       itemMap: { ...itemMap, [stageId]: items }
@@ -586,7 +587,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
     // Moved between stages
     if (prevStageId && stageId !== prevStageId) {
       // remove from old stage
-      const prevStageItems = itemMap[prevStageId].filter(
+      const prevStageItems = (itemMap[prevStageId] || []).filter(
         (d: IItem) => d._id !== item._id
       );
 

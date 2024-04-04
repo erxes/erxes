@@ -1,25 +1,26 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
-import { initBroker } from './messageBroker';
-import { initMemoryStorage } from './inmemoryStorage';
+import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
+import cronjobs, {
+  createCeremonies,
+  sendCeremonyNotification,
+} from './cronjobs';
 
-export let debug;
-export let graphqlPubsub;
-export let mainDb;
-export let serviceDiscovery;
+import automations from './automations';
+import segments from './segments';
+import forms from './forms';
+import app from '@erxes/api-utils/src/app';
 
 export default {
   name: 'exmfeed',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers()
+      resolvers: await resolvers(),
     };
   },
 
@@ -32,15 +33,16 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
-    mainDb = options.db;
+  onServerInit: async () => {
+    app.get('/trigger-cron', async (req, res) => {
+      const subdomain = getSubdomain(req);
 
-    initBroker(options.messageBrokerClient);
+      await createCeremonies(subdomain);
+      await sendCeremonyNotification(subdomain);
 
-    initMemoryStorage();
-
-    debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
+      return res.send('ok');
+    });
   },
-  meta: {}
+
+  meta: { cronjobs, automations, segments, forms, permissions },
 };

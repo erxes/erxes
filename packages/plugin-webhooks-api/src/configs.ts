@@ -2,24 +2,18 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
 
-import { initBroker } from './messageBroker';
-import { initMemoryStorage } from './inmemoryStorage';
+import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
-
-export let debug;
-export let graphqlPubsub;
-export let mainDb;
-export let serviceDiscovery;
+import automations from './automations';
 
 export default {
   name: 'webhooks',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
   apolloServerContext: async (context, req) => {
@@ -31,16 +25,8 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
-    mainDb = options.db;
+  onServerInit: async () => {},
+  setupMessageConsumers,
 
-    initBroker(options.messageBrokerClient);
-
-    initMemoryStorage();
-
-    debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-  },
-
-  meta: {}
+  meta: { permissions, automations },
 };

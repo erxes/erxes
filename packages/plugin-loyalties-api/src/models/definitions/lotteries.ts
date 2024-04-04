@@ -25,7 +25,11 @@ export const lotterySchema = schemaHooksWrapper(
     status: field({ type: String, enum: LOTTERY_STATUS.ALL, default: 'new' }),
     number: field({ type: String, optional: true, label: 'Lottery number' }),
 
-    voucherCampaignId: field({ type: String, label: 'Source Voucher Campaign', optional: true }),
+    voucherCampaignId: field({
+      type: String,
+      label: 'Source Voucher Campaign',
+      optional: true
+    }),
 
     // won
     awardId: field({ type: String, label: 'Won award' }),

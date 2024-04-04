@@ -1,8 +1,10 @@
 import { IModels } from '../../connectionResolver';
 import { IPermissionDocument } from '../../db/models/definitions/permissions';
-import { IUserDocument } from '../../db/models/definitions/users';
-import { get, set } from '../../inmemoryStorage';
+
+import { getKey } from '@erxes/api-utils/src';
+import redis from '@erxes/api-utils/src/redis';
 import { moduleObjects } from './actions/permission';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
 export interface IModuleMap {
   name: string;
@@ -17,137 +19,6 @@ export interface IActionsMap {
   use?: string[];
 }
 
-// Schema: {name: description}
-export const modulesMap: IModuleMap[] = [];
-
-/*
-Schema:
-  {
-    name: {
-      module: '', // module name
-      description: '', // human friendly description
-      use: [<action_names>] // Optional: required actions
-    }
-  }
-*/
-export const actionsMap: IActionsMap = {};
-
-export const registerModule = (modules: any): void => {
-  const moduleKeys = Object.keys(modules);
-
-  for (const key of moduleKeys) {
-    const module = modules[key];
-
-    if (!module.actions) {
-      throw new Error(`Actions not found in module`);
-    }
-
-    // check module, actions duplicate
-    if (modulesMap[module.name]) {
-      throw new Error(`"${module.name}" module has been registered`);
-    }
-
-    if (module.actions) {
-      for (const action of module.actions) {
-        if (!action.name) {
-          throw new Error(`Action name is missing`);
-        }
-
-        if (actionsMap[action.name]) {
-          throw new Error(`"${action.name}" action has been registered`);
-        }
-      }
-    }
-
-    // save
-    modulesMap[module.name] = module;
-
-    if (module.actions) {
-      for (const action of module.actions) {
-        if (!action.name) {
-          throw new Error('Action name is missing');
-        }
-
-        actionsMap[action.name] = {
-          module: module.name,
-          description: action.description
-        };
-
-        if (action.use) {
-          actionsMap[action.name].use = action.use;
-        }
-      }
-    }
-  }
-};
-
-export const can = async (
-  models: IModels,
-  action: string,
-  user: IUserDocument
-): Promise<boolean> => {
-  if (!user || !user._id) {
-    return false;
-  }
-
-  if (user.isOwner) {
-    return true;
-  }
-
-  const actionMap: IActionMap = await getUserActionsMap(models, user);
-
-  return actionMap[action] === true;
-};
-
-interface IActionMap {
-  [key: string]: boolean;
-}
-
-const getKey = (user: IUserDocument) => `user_permissions_${user._id}`;
-
-/*
- * Get given users permission map from inmemory storage or database
- */
-export const getUserActionsMap = async (
-  models: IModels,
-  user: IUserDocument
-): Promise<IActionMap> => {
-  const key = getKey(user);
-  const permissionCache = await get(key);
-
-  let actionMap: IActionMap;
-
-  if (permissionCache && permissionCache !== '{}') {
-    actionMap = JSON.parse(permissionCache);
-  } else {
-    actionMap = await userActionsMap(models, user);
-
-    set(key, JSON.stringify(actionMap));
-  }
-
-  return actionMap;
-};
-
-/*
- * Get allowed actions
- */
-export const getUserAllowedActions = async (
-  models: IModels,
-  user: IUserDocument
-): Promise<string[]> => {
-  const map = await getUserActionsMap(models, user);
-
-  const allowedActions: string[] = [];
-
-  for (const key of Object.keys(map)) {
-    if (map[key]) {
-      allowedActions.push(key);
-    }
-  }
-
-  return allowedActions;
-};
-
 /*
  * Reset permissions map for all users
  */
@@ -157,68 +28,135 @@ export const resetPermissionsCache = async (models: IModels) => {
   for (const user of users) {
     const key = getKey(user);
 
-    set(key, '');
+    redis.set(key, '');
   }
-};
-
-export const userActionsMap = async (
-  models: IModels,
-  user: IUserDocument
-): Promise<IActionMap> => {
-  const userPermissions = await models.Permissions.find({ userId: user._id });
-  const groupPermissions = await models.Permissions.find({
-    groupId: { $in: user.groupIds }
-  });
-
-  const totalPermissions: IPermissionDocument[] = [
-    ...userPermissions,
-    ...groupPermissions,
-    ...(user.customPermissions || [])
-  ];
-  const allowedActions: IActionMap = {};
-
-  const check = (name: string, allowed: boolean) => {
-    if (typeof allowedActions[name] === 'undefined') {
-      allowedActions[name] = allowed;
-    }
-
-    // if a specific permission is denied elsewhere, follow that rule
-    if (allowedActions[name] && !allowed) {
-      allowedActions[name] = false;
-    }
-  };
-
-  for (const { requiredActions, allowed, action } of totalPermissions) {
-    if (requiredActions.length > 0) {
-      for (const actionName of requiredActions) {
-        check(actionName, allowed);
-      }
-    } else {
-      check(action, allowed);
-    }
-  }
-
-  return allowedActions;
 };
 
 /**
  * If a permission is added or removed from the constants & forgotten from required actions,
  * this util will fix that.
  */
-export const fixPermissions = async (models: IModels): Promise<string[]> => {
-  const modules = Object.getOwnPropertyNames(moduleObjects);
+
+export const getPermissionModules = async () => {
+  const modules: IModuleMap[] = [];
+
+  const services = await getServices();
+
+  for (const name of services) {
+    const service = await getService(name);
+    if (!service) continue;
+    if (!service.config) continue;
+
+    const permissions =
+      service.config.meta?.permissions || service.config.permissions;
+
+    if (!permissions) continue;
+
+    const moduleKeys = Object.keys(permissions);
+
+    for (const key of moduleKeys) {
+      const module = permissions[key];
+
+      modules.push(module);
+    }
+  }
+
+  return modules;
+};
+
+export const getPermissionActions = async () => {
+  const actions: IActionsMap[] = [];
+
+  const services = await getServices();
+
+  for (const name of services) {
+    const service = await getService(name);
+    if (!service) continue;
+    if (!service.config) continue;
+
+    const permissions =
+      service.config.meta?.permissions || service.config.permissions;
+
+    if (!permissions) continue;
+
+    const moduleKeys = Object.keys(permissions);
+
+    for (const key of moduleKeys) {
+      const module = permissions[key];
+
+      if (module.actions) {
+        for (const action of module.actions) {
+          if (!action.name) continue;
+
+          action.module = module.name;
+
+          actions.push(action);
+        }
+      }
+    }
+  }
+
+  return actions;
+};
+
+export const getPermissionActionsMap = async (): Promise<IActionsMap> => {
+  const actionsMap: IActionsMap = {};
+
+  const services = await getServices();
+
+  for (const name of services) {
+    const service = await getService(name);
+    if (!service) continue;
+    if (!service.config) continue;
+
+    const permissions =
+      service.config.meta?.permissions || service.config.permissions;
+
+    if (!permissions) continue;
+
+    const moduleKeys = Object.keys(permissions);
+
+    for (const key of moduleKeys) {
+      const module = permissions[key];
+
+      if (module.actions) {
+        for (const action of module.actions) {
+          if (!action.name) continue;
+
+          actionsMap[action.name] = {
+            module: module.name,
+            description: action.description,
+          };
+
+          if (action.use) {
+            actionsMap[action.name].use = action.use;
+          }
+        }
+      }
+    }
+  }
+
+  return actionsMap;
+};
+
+export const fixPermissions = async (
+  models: IModels,
+  externalObjects?,
+): Promise<string[]> => {
+  const permissionObjects = { ...moduleObjects, ...(externalObjects || {}) };
+  const modules = Object.getOwnPropertyNames(permissionObjects);
   const result: string[] = [];
 
   for (const mod of modules) {
-    const moduleItem: IModuleMap = moduleObjects[mod];
+    const moduleItem: IModuleMap = permissionObjects[mod];
 
     if (moduleItem && moduleItem.actions) {
       const allAction: IActionsMap | undefined = moduleItem.actions.find(
-        a => a.description === 'All'
+        (a) => a.description === 'All',
       );
       const otherActions = moduleItem.actions
-        .filter(a => a.description !== 'All')
-        .map(a => a.name);
+        .filter((a) => a.description !== 'All')
+        .map((a) => a.name);
 
       if (
         allAction &&
@@ -232,19 +170,20 @@ export const fixPermissions = async (models: IModels): Promise<string[]> => {
             ? allAction.use
             : otherActions;
 
-        const permissions: IPermissionDocument[] = await models.Permissions.find({
-          module: mod,
-          action: allAction.name,
-          $or: [
-            { requiredActions: { $eq: null } },
-            { requiredActions: { $not: { $size: mostActions.length } } }
-          ]
-        }).lean();
+        const permissions: IPermissionDocument[] =
+          await models.Permissions.find({
+            module: mod,
+            action: allAction.name,
+            $or: [
+              { requiredActions: { $eq: null } },
+              { requiredActions: { $not: { $size: mostActions.length } } },
+            ],
+          }).lean();
 
         for (const perm of permissions) {
           await models.Permissions.updateOne(
             { _id: perm._id },
-            { $set: { requiredActions: mostActions } }
+            { $set: { requiredActions: mostActions } },
           );
 
           let message = '';
@@ -257,13 +196,15 @@ export const fixPermissions = async (models: IModels): Promise<string[]> => {
               : perm.userId;
           }
           if (perm.groupId) {
-            const group = await models.UsersGroups.findOne({ _id: perm.groupId });
+            const group = await models.UsersGroups.findOne({
+              _id: perm.groupId,
+            });
 
             message = group ? `user group "${group.name}"` : perm.groupId;
           }
 
           result.push(
-            `Permission "${allAction.name}" of module "${mod}" has been fixed for ${message}`
+            `Permission "${allAction.name}" of module "${mod}" has been fixed for ${message}`,
           );
         }
       } // end allAction checking

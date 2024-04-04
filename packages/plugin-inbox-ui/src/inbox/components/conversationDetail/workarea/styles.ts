@@ -8,6 +8,15 @@ const ConversationWrapper = styled.div`
   background: ${colors.bgLight};
 `;
 
+const RenderConversationWrapper = styled.div`
+  padding: 20px;
+  overflow: hidden;
+  min-height: 100%;
+  > div:first-child {
+    margin-top: 0;
+  }
+`;
+
 const ActionBarLeft = styled.div`
   display: flex;
   flex-direction: row;
@@ -54,13 +63,9 @@ const MailSubject = styled.h3`
   line-height: 22px;
 `;
 
-const FacebookTaggedMessage = styled.div`
-  margin-top: 15px;
-`;
-
 export {
-  FacebookTaggedMessage,
   ConversationWrapper,
+  RenderConversationWrapper,
   ActionBarLeft,
   AssignTrigger,
   AssignText,

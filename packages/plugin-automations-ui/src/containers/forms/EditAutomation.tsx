@@ -1,18 +1,19 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { router, withProps, Alert } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { IUser } from '@erxes/ui/src/auth/types';
-import AutomationForm from '../../components/forms/AutomationForm';
+import AutomationForm from '../../components/editor/Main';
 import { queries, mutations } from '../../graphql';
 import {
   DetailQueryResponse,
   EditMutationResponse,
   IAutomation,
-  AutomationsNoteQueryResponse
+  AutomationsNoteQueryResponse,
+  AutomationConstantsQueryResponse
 } from '../../types';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
@@ -25,6 +26,7 @@ type Props = {
 type FinalProps = {
   automationDetailQuery: DetailQueryResponse;
   automationNotesQuery: AutomationsNoteQueryResponse;
+  automationConstantsQuery: AutomationConstantsQueryResponse;
   currentUser: IUser;
   saveAsTemplateMutation: any;
 } & Props &
@@ -37,7 +39,8 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     automationNotesQuery,
     currentUser,
     history,
-    editAutomationMutation
+    editAutomationMutation,
+    automationConstantsQuery
   } = props;
 
   const [saveLoading, setLoading] = useState(false);
@@ -65,7 +68,11 @@ const AutomationDetailsContainer = (props: FinalProps) => {
       });
   };
 
-  if (automationDetailQuery.loading || automationNotesQuery.loading) {
+  if (
+    automationDetailQuery.loading ||
+    automationNotesQuery.loading ||
+    automationConstantsQuery.loading
+  ) {
     return <Spinner objective={true} />;
   }
 
@@ -77,6 +84,7 @@ const AutomationDetailsContainer = (props: FinalProps) => {
 
   const automationDetail = automationDetailQuery.automationDetail;
   const automationNotes = automationNotesQuery.automationNotes || [];
+  const constants = automationConstantsQuery.automationConstants || {};
 
   const updatedProps = {
     ...props,
@@ -85,7 +93,8 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     automationNotes,
     currentUser,
     save,
-    saveLoading
+    saveLoading,
+    constants
   };
 
   return <AutomationForm {...updatedProps} />;
@@ -122,6 +131,12 @@ export default withProps<Props>(
         options: () => ({
           refetchQueries: ['automations', 'automationsMain', 'automationDetail']
         })
+      }
+    ),
+    graphql<AutomationConstantsQueryResponse>(
+      gql(queries.automationConstants),
+      {
+        name: 'automationConstantsQuery'
       }
     )
   )(withRouter<FinalProps>(AutomationDetailsContainer))

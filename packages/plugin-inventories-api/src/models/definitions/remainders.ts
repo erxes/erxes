@@ -5,14 +5,31 @@ export interface IRemainderParams {
   departmentId?: string;
   branchId?: string;
   productId: string;
-  uomId?: string;
+  uom?: string;
+}
+
+export interface IRemainderProductsParams {
+  departmentId?: string;
+  branchId?: string;
+  categoryId?: string;
+
+  searchValue?: string;
+  page?: number;
+  perPage?: number;
 }
 
 export interface IRemaindersParams {
-  departmentId?: string;
-  branchId?: string;
+  departmentIds?: string[];
+  branchIds?: string[];
   productCategoryId?: string;
   productIds?: string[];
+  searchValue?: string;
+}
+
+export interface IRemainderCount {
+  _id: string;
+  count: number;
+  uom: string;
 }
 
 export interface IRemainder {
@@ -20,7 +37,9 @@ export interface IRemainder {
   departmentId: string;
   productId: string;
   count: number;
-  uomId: string;
+  soonIn?: number;
+  soonOut?: number;
+  shortLogs: any[];
 }
 
 export interface IRemainderDocument extends IRemainder, Document {
@@ -28,27 +47,24 @@ export interface IRemainderDocument extends IRemainder, Document {
   modifiedAt: Date;
 }
 
-export interface IGetRemainder {
-  _id: string;
-  remainder: number;
-  uomId: string;
-}
-
 export const remainderSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
+    branchId: field({ type: String, default: '', label: 'Branch' }),
+    departmentId: field({ type: String, default: '', label: 'Department' }),
+
     status: field({ type: String, label: 'Status' }),
     productId: field({ type: String, index: true }),
     count: field({ type: Number, label: 'Count' }),
-
-    branchId: field({ type: String, default: '', label: 'Branch' }),
-    departmentId: field({ type: String, default: '', label: 'Department' }),
+    soonIn: field({ type: Number, optional: true, label: 'Soon In' }),
+    soonOut: field({ type: Number, optional: true, label: 'Soon Out' }),
 
     modifiedAt: field({
       type: Date,
       default: new Date(),
       label: 'Modified date'
-    })
+    }),
+    shortLogs: field({ type: [Object] })
   }),
   'erxes_remainders'
 );

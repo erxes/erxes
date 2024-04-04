@@ -1,16 +1,10 @@
-// import {
-//   putCreateLog,
-//   putDeleteLog,
-//   putUpdateLog,
-//   sendNotification
-// } from 'erxes-api-utils';
 // import { sendMobileNotification } from "../../../utils";
-import { checkPermission } from "@erxes/api-utils/src";
-import { sendCoreMessage, sendNotification } from "../../../messageBroker";
+import { checkPermission } from '@erxes/api-utils/src';
+import { sendCoreMessage, sendNotification } from '../../../messageBroker';
 
 export const gatherDescriptions = async () => {
   const extraDesc = [];
-  const description = "description";
+  const description = 'description';
 
   return { extraDesc, description };
 };
@@ -31,49 +25,94 @@ const exmFeedMutations = {
     //   user
     // );
 
-    let receivers = await sendCoreMessage({
+    const unit = await sendCoreMessage({
       subdomain,
-      action: "users.find",
+      action: 'units.findOne',
       data: {
-        query: {
-          _id: { $ne: user._id },
-        },
+        _id: doc.unitId
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
-    receivers = receivers.map((r) => r._id);
+    let receivers = await sendCoreMessage({
+      subdomain,
+      action: 'users.find',
+      data: {
+        query: {
+          $or: [
+            { departmentIds: { $in: doc?.departmentIds || [] } },
+            { branchIds: { $in: doc?.branchIds || [] } },
+            { _id: { $in: unit?.userIds || [] } },
+            { _id: { $in: doc?.recipientIds || [] } }
+          ]
+        }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
 
-    if (doc.contentType === "bravo") {
+    if (doc && doc.contentType === 'publicHoliday') {
+      receivers = await sendCoreMessage({
+        subdomain,
+        action: 'users.find',
+        data: {
+          query: {
+            _id: { $ne: user._id }
+          }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+    }
+
+    const receiversEmail = receivers.map(r => r.email);
+
+    receivers = receivers.map(r => r._id);
+
+    if (doc.contentType === 'bravo') {
       receivers = doc.recipientIds;
     }
 
     sendNotification(subdomain, {
       createdUser: user,
       title: doc.title,
-      contentType: "exmFeed",
+      contentType: 'exmFeed',
       contentTypeId: exmFeed._id,
-      notifType: "plugin",
+      notifType: 'plugin',
       action: `${doc.contentType} created`,
       content: doc.description,
       link: `/erxes-plugin-exm-feed/list=${exmFeed._id}`,
-      receivers: receivers,
+      receivers
     });
 
     sendCoreMessage({
-      subdomain: subdomain,
-      action: "sendMobileNotification",
+      subdomain,
+      action: 'sendMobileNotification',
       data: {
         title: doc.title,
         body: doc.description,
-        receivers,
-      },
+        receivers
+      }
     });
 
-    if (doc.type === "bravo" && models.Exms) {
+    sendCoreMessage({
+      subdomain,
+      action: 'sendEmail',
+      data: {
+        toEmails: [receiversEmail],
+        title: `New post - ${doc.title}`,
+        template: {
+          data: {
+            content: doc.description
+          }
+        }
+      }
+    });
+
+    if (doc.type === 'bravo' && models.Exms) {
       for (const userId of doc.recipientIds || []) {
-        await models.Exms.useScoring(userId, "exmBravoAdd");
+        await models.Exms.useScoring(userId, 'exmBravoAdd');
       }
     }
 
@@ -83,10 +122,8 @@ const exmFeedMutations = {
   exmFeedEdit: async (
     _root,
     { _id, ...doc },
-    { user, docModifier, models, messageBroker }
+    { user, docModifier, models }
   ) => {
-    const exmFeed = await models.ExmFeed.getExmFeed(_id);
-
     const updated = await models.ExmFeed.updateExmFeed(
       _id,
       docModifier(doc),
@@ -147,45 +184,45 @@ const exmFeedMutations = {
     const updateModifier: { $push?: any; $pull?: any } = {};
     const eventData = exmFeed.eventData || {};
 
-    if (goingOrInterested === "neither") {
+    if (goingOrInterested === 'neither') {
       updateModifier.$pull = {
-        "eventData.goingUserIds": user._id,
-        "eventData.interestedUserIds": user._id,
+        'eventData.goingUserIds': user._id,
+        'eventData.interestedUserIds': user._id
       };
-    } else if (goingOrInterested === "interested") {
+    } else if (goingOrInterested === 'interested') {
       if ((eventData.interestedUserIds || []).includes(user._id)) {
         return exmFeed;
       }
 
-      updateModifier.$pull = { "eventData.goingUserIds": user._id };
-      updateModifier.$push = { "eventData.interestedUserIds": user._id };
-    } else if (goingOrInterested === "going") {
+      updateModifier.$pull = { 'eventData.goingUserIds': user._id };
+      updateModifier.$push = { 'eventData.interestedUserIds': user._id };
+    } else if (goingOrInterested === 'going') {
       if ((eventData.goingUserIds || []).includes(user._id)) {
         return exmFeed;
       }
 
-      updateModifier.$push = { "eventData.goingUserIds": user._id };
-      updateModifier.$pull = { "eventData.interestedUserIds": user._id };
+      updateModifier.$push = { 'eventData.goingUserIds': user._id };
+      updateModifier.$pull = { 'eventData.interestedUserIds': user._id };
     }
 
     await models.ExmFeed.updateOne({ _id }, updateModifier);
 
     return models.ExmFeed.getExmFeed(_id);
-  },
+  }
 };
 
-checkPermission(exmFeedMutations, "exmFeedAdd", "manageExmActivityFeed");
-checkPermission(exmFeedMutations, "exmFeedEdit", "manageExmActivityFeed");
-checkPermission(exmFeedMutations, "exmFeedRemove", "manageExmActivityFeed");
+checkPermission(exmFeedMutations, 'exmFeedAdd', 'manageExmActivityFeed');
+checkPermission(exmFeedMutations, 'exmFeedEdit', 'manageExmActivityFeed');
+checkPermission(exmFeedMutations, 'exmFeedRemove', 'manageExmActivityFeed');
 checkPermission(
   exmFeedMutations,
-  "exmFeedToggleIsPinned",
-  "manageExmActivityFeed"
+  'exmFeedToggleIsPinned',
+  'manageExmActivityFeed'
 );
 checkPermission(
   exmFeedMutations,
-  "exmFeedEventGoingOrInterested",
-  "manageExmActivityFeed"
+  'exmFeedEventGoingOrInterested',
+  'manageExmActivityFeed'
 );
 
 export default exmFeedMutations;

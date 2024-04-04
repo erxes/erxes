@@ -1,4 +1,4 @@
-import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 
 import {
   IProduct,
@@ -62,7 +62,10 @@ const productMutations = {
     { user, models, subdomain }: IContext
   ) {
     const product = await models.Products.getProduct({ _id });
-    const updated = await models.Products.updateProduct(_id, doc);
+    const updated = await models.Products.updateProduct(_id, {
+      ...doc,
+      status: 'active'
+    });
 
     await putUpdateLog(
       models,
@@ -70,7 +73,11 @@ const productMutations = {
       {
         type: MODULE_NAMES.PRODUCT,
         object: product,
-        newData: { ...doc, customFieldsData: updated.customFieldsData },
+        newData: {
+          ...doc,
+          status: 'active',
+          customFieldsData: updated.customFieldsData
+        },
         updatedDocument: updated
       },
       user
@@ -143,7 +150,7 @@ const productMutations = {
     { _id, ...doc }: IProductCategoriesEdit,
     { user, models, subdomain }: IContext
   ) {
-    const productCategory = await models.ProductCategories.getProductCatogery({
+    const productCategory = await models.ProductCategories.getProductCategory({
       _id
     });
     const updated = await models.ProductCategories.updateProductCategory(
@@ -175,7 +182,7 @@ const productMutations = {
     { _id }: { _id: string },
     { user, models, subdomain }: IContext
   ) {
-    const productCategory = await models.ProductCategories.getProductCatogery({
+    const productCategory = await models.ProductCategories.getProductCategory({
       _id
     });
     const removed = await models.ProductCategories.removeProductCategory(_id);
@@ -205,6 +212,13 @@ const productMutations = {
   }
 };
 
-moduleCheckPermission(productMutations, 'manageProducts');
+checkPermission(productMutations, 'productsAdd', 'manageProducts');
+checkPermission(productMutations, 'productsEdit', 'manageProducts');
+checkPermission(productMutations, 'productsRemove', 'removeProducts');
+checkPermission(productMutations, 'productsMerge', 'productsMerge');
+
+checkPermission(productMutations, 'productCategoriesAdd', 'manageProducts');
+checkPermission(productMutations, 'productCategoriesEdit', 'manageProducts');
+checkPermission(productMutations, 'productCategoriesRemove', 'manageProducts');
 
 export default productMutations;

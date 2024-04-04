@@ -227,9 +227,9 @@ class Event extends React.Component<Props, State> {
 
     if (rowCount > 1) {
       const content = (
-        <Popover id='calendar-popover'>
+        <Popover id="calendar-popover">
           <PopoverCell>
-            <Icon icon='times' onClick={this.onClosePopover} size={18} />
+            <Icon icon="times" onClick={this.onClosePopover} size={18} />
             <h5>{day.getDate()}</h5>
             {this.renderEvents(events, false)}
           </PopoverCell>
@@ -241,8 +241,8 @@ class Event extends React.Component<Props, State> {
           ref={overlayTrigger => {
             this.overlayTrigger = overlayTrigger;
           }}
-          trigger='click'
-          placement='auto'
+          trigger="click"
+          placement="auto"
           rootClose={false}
           overlay={content}
         >

@@ -1,36 +1,23 @@
 export const types = `
-  extend type Branch @key(fields: "_id") {
-    _id: String! @external
-  }
-
-  extend type Department @key(fields: "_id") {
-    _id: String! @external
-  }
-
-  extend type User @key(fields: "_id") {
-    _id: String! @external
-  }
-
-  extend type Product @key(fields: "_id") {
-    _id: String! @external
-  }
-
   type SafeRemainder @key(fields: "_id") {
     _id: String!
+    branch: Branch
+    branchId: String
+    department: Department
+    departmentId: String
+    productCategory: ProductCategory
+    attachment: Attachment
+    filterField: String
+    productCategoryId: String
+
+    date: Date
+    description: String
+    status: String    
+
     createdAt: Date
     createdBy: String
     modifiedAt: Date
     modifiedBy: String
-    date: Date
-    description: String
-    status: String
-    branchId: String
-    departmentId: String
-    productCategoryId: String
-
-    department: Department
-    branch: Branch
-    productCategory: ProductCategory
     modifiedUser: User
   }
 
@@ -38,14 +25,43 @@ export const types = `
     remainders: [SafeRemainder],
     totalCount: Float,
   }
+
+  input SafeRemainderSubmitProduct {
+    transactionId: String
+    productId: String
+    preCount: Float
+    count: Float
+    uom: String
+    isDebit: Boolean
+  }
 `;
 
 export const queries = `
-  safeRemainders(beginDate: Date, endDate: Date, productId: String, searchValue: String, page: Int, perPage: Int, sortField: String, sortDirection: Int, departmentId: String, branchId: String): SafeRemainders
+  safeRemainders(
+    branchId: String,
+    departmentId: String,
+    productId: String,
+    searchValue: String,
+    beginDate: Date,
+    endDate: Date,
+    page: Int,
+    perPage: Int,
+    sortField: String,
+    sortDirection: Int,
+  ): SafeRemainders
   safeRemainderDetail(_id: String!): SafeRemainder
 `;
 
 export const mutations = `
-  createSafeRemainder(branchId: String, departmentId: String, date: Date, description: String, productCategoryId: String): SafeRemainder
-  removeSafeRemainder(_id: String!): JSON
+  safeRemainderAdd(
+    branchId: String,
+    departmentId: String,
+    date: Date,
+    description: String,
+    productCategoryId: String,
+    attachment: AttachmentInput,
+    filterField: String
+  ): SafeRemainder
+  safeRemainderRemove(_id: String!): JSON
+  safeRemainderSubmit( _id: String! ): JSON
 `;

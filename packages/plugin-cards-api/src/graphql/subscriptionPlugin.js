@@ -1,24 +1,19 @@
-var { withFilter } = require("graphql-subscriptions");
-var { gql } = require("apollo-server-express");
+var { withFilter } = require('graphql-subscriptions');
 
 module.exports = {
-  name: "cards",
+  name: 'cards',
   typeDefs: `
       pipelinesChanged(_id: String!): PipelineChangeResponse
 
       checklistsChanged(contentType: String!, contentTypeId: String!): Checklist
       checklistDetailChanged(_id: String!): Checklist
+      productsDataChanged(_id: String!): ProductsDataChangeResponse
 		`,
   generateResolvers: (graphqlPubsub) => {
     return {
       pipelinesChanged: {
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator("pipelinesChanged"),
-          // filter by _id
-          (payload, variables) => {
-            return payload.pipelinesChanged._id === variables._id;
-          }
-        ),
+        subscribe: (_, { _id }) =>
+          graphqlPubsub.asyncIterator(`pipelinesChanged:${_id}`),
       },
       checklistsChanged: {
         resolve(payload, _args, { dataSources: { gatewayDataSource } }, info) {
@@ -26,7 +21,7 @@ module.exports = {
             payload,
             info,
             queryVariables: { _id: payload.checklistsChanged._id },
-            buildQueryUsingSelections: (selections) => gql`
+            buildQueryUsingSelections: (selections) => `
               query Subscription_GetChecklist($_id: String!) {
                 checklistDetail(_id: $_id) {
                   ${selections}
@@ -35,17 +30,10 @@ module.exports = {
           `,
           });
         },
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator("checklistsChanged"),
-          (payload, variables) => {
-            const { contentType, contentTypeId } = payload.checklistsChanged;
-
-            return (
-              contentType === variables.contentType &&
-              contentTypeId === variables.contentTypeId
-            );
-          }
-        ),
+        subscribe: (_, { contentType, contentTypeId }) =>
+          graphqlPubsub.asyncIterator(
+            `checklistsChanged:${contentType}:${contentTypeId}`
+          ),
       },
 
       checklistDetailChanged: {
@@ -54,7 +42,7 @@ module.exports = {
             payload,
             info,
             queryVariables: { _id: payload.checklistDetailChanged._id },
-            buildQueryUsingSelections: (selections) => gql`
+            buildQueryUsingSelections: (selections) => `
               query Subscription_GetChecklist($_id: String!) {
                 checklistDetail(_id: $_id) {
                   ${selections}
@@ -63,12 +51,13 @@ module.exports = {
           `,
           });
         },
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator("checklistDetailChanged"),
-          (payload, variables) => {
-            return payload.checklistDetailChanged._id === variables._id;
-          }
-        ),
+        subscribe: (_, { _id }) =>
+          graphqlPubsub.asyncIterator(`checklistDetailChanged:${_id}`),
+      },
+
+      productsDataChanged: {
+        subscribe: (_, { _id }) =>
+          graphqlPubsub.asyncIterator(`productsDataChanged:${_id}`),
       },
     };
   },

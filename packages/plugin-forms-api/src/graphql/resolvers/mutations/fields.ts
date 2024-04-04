@@ -1,4 +1,4 @@
-import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { putCreateLog } from '../../../logUtils';
 import {
@@ -7,8 +7,9 @@ import {
   IFieldGroup
 } from '../../../models/definitions/fields';
 import { IOrderInput } from '@erxes/api-utils/src/commonUtils';
-import { serviceDiscovery } from '../../../configs';
+
 import { sendCommonMessage } from '../../../messageBroker';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
 interface IFieldsEdit extends IField {
   _id: string;
@@ -35,14 +36,14 @@ const fieldsGroupsHook = async (
   subdomain: string,
   doc: IFieldGroup
 ): Promise<IFieldGroup> => {
-  const services = await serviceDiscovery.getServices();
+  const services = await getServices();
 
   for (const serviceName of services) {
     if (!(doc.contentType || '').includes(serviceName)) {
       continue;
     }
 
-    const service = await serviceDiscovery.getService(serviceName, true);
+    const service = await getService(serviceName);
     const meta = service.config?.meta || {};
 
     if (meta && meta.forms && meta.forms.groupsHookAvailable) {
@@ -90,7 +91,7 @@ const fieldMutations = {
     { user, models }: IContext
   ) {
     const { contentType, contentTypeId, addingFields, editingFields } = args;
-    const temp: { [key: string]: string } = {};
+    const tempFieldIdsMap: { [key: string]: string } = {};
     const response: IFieldDocument[] = [];
     const logicalFields: IField[] = [];
 
@@ -114,8 +115,10 @@ const fieldMutations = {
       });
 
       if (tempId) {
-        temp[tempId] = field._id;
+        tempFieldIdsMap[tempId] = field._id;
       }
+
+      response.push(field);
     }
 
     for (const f of logicalFields) {
@@ -123,7 +126,8 @@ const fieldMutations = {
 
       for (const logic of logics) {
         if (f.logics && !logic.fieldId && logic.tempFieldId) {
-          f.logics[logics.indexOf(logic)].fieldId = temp[logic.tempFieldId];
+          f.logics[logics.indexOf(logic)].fieldId =
+            tempFieldIdsMap[logic.tempFieldId];
         }
       }
 
@@ -135,7 +139,7 @@ const fieldMutations = {
       });
 
       if (f.tempFieldId) {
-        temp[f.tempFieldId] = field._id;
+        tempFieldIdsMap[f.tempFieldId] = field._id;
       }
 
       response.push(field);
@@ -146,7 +150,7 @@ const fieldMutations = {
         for (const logic of doc.logics) {
           if (!logic.fieldId && logic.tempFieldId) {
             doc.logics[doc.logics.indexOf(logic)].fieldId =
-              temp[logic.tempFieldId];
+              tempFieldIdsMap[logic.tempFieldId];
           }
         }
       }
@@ -157,6 +161,27 @@ const fieldMutations = {
       });
 
       response.push(field);
+    }
+
+    const parentFields = response.filter(f => f.type === 'parentField');
+
+    for (const f of parentFields) {
+      for (const subFieldId of f.subFieldIds || []) {
+        if (subFieldId.startsWith('temp') && tempFieldIdsMap[subFieldId]) {
+          const indexOfElement = (f.subFieldIds || []).indexOf(subFieldId);
+
+          if (indexOfElement > -1) {
+            const set: any = {};
+            set[`subFieldIds.${indexOfElement}`] = tempFieldIdsMap[subFieldId];
+            await models.Fields.updateOne(
+              { _id: f._id },
+              {
+                $set: set
+              }
+            );
+          }
+        }
+      }
     }
 
     return response;
@@ -323,7 +348,26 @@ const fieldsGroupsMutations = {
   }
 };
 
-moduleCheckPermission(fieldMutations, 'manageForms');
-moduleCheckPermission(fieldsGroupsMutations, 'manageForms');
+checkPermission(fieldMutations, 'fieldsAdd', 'manageForms');
+checkPermission(fieldMutations, 'fieldsBulkAddAndEdit', 'manageForms');
+checkPermission(fieldMutations, 'fieldsEdit', 'manageForms');
+checkPermission(fieldMutations, 'fieldsRemove', 'manageForms');
+checkPermission(fieldMutations, 'fieldsUpdateOrder', 'manageForms');
+checkPermission(fieldMutations, 'fieldsUpdateVisible', 'manageForms');
+checkPermission(fieldMutations, 'fieldsUpdateSystemFields', 'manageForms');
+
+checkPermission(fieldsGroupsMutations, 'fieldsGroupsAdd', 'manageForms');
+checkPermission(fieldsGroupsMutations, 'fieldsGroupsEdit', 'manageForms');
+checkPermission(fieldsGroupsMutations, 'fieldsGroupsRemove', 'manageForms');
+checkPermission(
+  fieldsGroupsMutations,
+  'fieldsGroupsUpdateVisible',
+  'manageForms'
+);
+checkPermission(
+  fieldsGroupsMutations,
+  'fieldsGroupsUpdateOrder',
+  'manageForms'
+);
 
 export { fieldsGroupsMutations, fieldMutations };

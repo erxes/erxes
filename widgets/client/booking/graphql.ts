@@ -26,7 +26,7 @@ const productFields = `
 
   description
   unitPrice
-  sku
+  uom
   
   createdAt
   categoryId
@@ -98,6 +98,7 @@ const formDetailQuery = `
           name
           unitPrice
         }
+        subFieldIds
       }
     }
   }
@@ -153,8 +154,6 @@ export const saveBookingMutation = `
         code
         text
       }
-      invoiceResponse
-      invoiceType
     }
   }
 `;

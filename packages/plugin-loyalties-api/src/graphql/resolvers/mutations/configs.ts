@@ -15,9 +15,8 @@ const configsMutations = {
       const doc = { code, value };
 
       await models.LoyaltyConfigs.createOrUpdateConfig(doc);
-
     }
-  },
+  }
 };
 
 checkPermission(configsMutations, 'loyaltyConfigsUpdate', 'manageLoyalties');

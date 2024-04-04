@@ -33,7 +33,7 @@ export interface ICarCategoryModel extends Model<ICarCategoryDocument> {
   ): Promise<ICarCategoryDocument>;
 }
 
-export const loadCarClass = (models) => {
+export const loadCarClass = models => {
   class Car {
     /**
      * Checking if car has duplicated unique properties
@@ -220,7 +220,7 @@ export const loadCarClass = (models) => {
   return carSchema;
 };
 
-export const loadCarCategoryClass = (models) => {
+export const loadCarCategoryClass = models => {
   class CarCategory {
     /**
      *
@@ -280,7 +280,7 @@ export const loadCarCategoryClass = (models) => {
       await models.CarCategories.updateOne({ _id }, { $set: doc });
 
       // updating child categories order
-      childCategories.forEach(async (category) => {
+      childCategories.forEach(async category => {
         let order = category.order;
 
         order = order.replace(carCategory.order, doc.order);

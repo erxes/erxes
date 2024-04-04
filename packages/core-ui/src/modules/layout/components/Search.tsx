@@ -9,23 +9,24 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const MainContainer = styledTS<{ active?: boolean }>(styled.div)`
-  background-color: ${props =>
+  background-color: ${(props) =>
     props.active ? colors.colorWhite : colors.bgMain};
-  border: 1px solid ${props =>
+  border: 1px solid ${(props) =>
     props.active ? colors.borderDarker : colors.bgMain};
   border-radius: 35px;
   height: 32px;
   position: relative;
   transition: .3s all;
-  width: ${props => (props.active ? '280px' : '120px')};
+  width: ${(props) => (props.active ? '280px' : '120px')};
   display: flex;
   padding: 0 ${dimensions.unitSpacing}px;
   align-items: center;
   position: relative;
+  font-size: 12px;
 
   > span {
     color: ${colors.colorCoreGray};
-    padding-left: ${dimensions.unitSpacing}px;
+    padding-left: 3px;
   }
   
   i {
@@ -176,13 +177,13 @@ class Search extends React.Component<
     document.removeEventListener('click', this.handleClickOutside, true);
   }
 
-  handleClickOutside = event => {
+  handleClickOutside = (event) => {
     if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
       this.setState({ showInput: false });
     }
   };
 
-  renderTitle = module => {
+  renderTitle = (module) => {
     let text = module;
 
     if (module === 'conversationMessages') {
@@ -190,7 +191,7 @@ class Search extends React.Component<
     }
 
     if (module === 'engageMessages') {
-      text = 'Campaigns';
+      text = 'Broadcast';
     }
 
     return <SearchTitle>{text}</SearchTitle>;
@@ -255,6 +256,10 @@ class Search extends React.Component<
         href = `/task/board?id=${source.boardId}&itemId=${source._id}&pipelineId=${source.pipelineId}`;
       }
 
+      if (module === 'purchases') {
+        href = `/purchase/board?id=${source.boardId}&itemId=${source._id}&pipelineId=${source.pipelineId}`;
+      }
+
       if (module === 'tickets') {
         href = `/ticket/board?id=${source.boardId}&itemId=${source._id}&pipelineId=${source.pipelineId}`;
       }
@@ -280,7 +285,7 @@ class Search extends React.Component<
         {this.renderTitle(result.module)}
 
         <List>
-          {result.items.map(item => this.renderItem(result.module, item))}
+          {result.items.map((item) => this.renderItem(result.module, item))}
         </List>
       </div>
     );
@@ -308,7 +313,7 @@ class Search extends React.Component<
 
     let totalItems = 0;
 
-    results.forEach(result => {
+    results.forEach((result) => {
       totalItems += result.items.length;
     });
 
@@ -340,13 +345,13 @@ class Search extends React.Component<
     this.setState({ showInput: true });
   };
 
-  closeInput = e => {
+  closeInput = (e) => {
     e.stopPropagation();
     this.setState({ showInput: false, searchValue: '' });
     this.props.clearSearch();
   };
 
-  handleInput = e => {
+  handleInput = (e) => {
     this.setState({ searchValue: e.target.value });
   };
 

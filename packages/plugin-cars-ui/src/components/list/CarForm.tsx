@@ -1,16 +1,37 @@
 import {
-  __, Button, CollapseContent, ControlLabel, Form, FormControl, FormGroup, Icon,
-  MainStyleFormColumn as FormColumn, MainStyleFormWrapper as FormWrapper,
-  MainStyleModalFooter as ModalFooter, MainStyleScrollWrapper as ScrollWrapper, router,
-  SelectTeamMembers, generateCategoryOptions, extractAttachment
+  __,
+  Button,
+  CollapseContent,
+  ControlLabel,
+  Form,
+  FormControl,
+  FormGroup,
+  Icon,
+  MainStyleFormColumn as FormColumn,
+  MainStyleFormWrapper as FormWrapper,
+  MainStyleModalFooter as ModalFooter,
+  MainStyleScrollWrapper as ScrollWrapper,
+  router,
+  SelectTeamMembers,
+  generateCategoryOptions,
+  extractAttachment
 } from '@erxes/ui/src';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { IButtonMutateProps, IFormProps, IAttachment } from '@erxes/ui/src/types';
+import {
+  IButtonMutateProps,
+  IFormProps,
+  IAttachment
+} from '@erxes/ui/src/types';
 import { ChooseColor, BackgroundSelector } from '../../styles';
 import React from 'react';
 import Select from 'react-select-plus';
 
-import { CAR_BODY_TYPES, CAR_FUEL_TYPES, CAR_GEAR_BOXS, COLORS } from '../../constants';
+import {
+  CAR_BODY_TYPES,
+  CAR_FUEL_TYPES,
+  CAR_GEAR_BOXS,
+  COLORS
+} from '../../constants';
 import { ICar, ICarCategory, ICarDoc } from '../../types';
 import { Uploader } from '@erxes/ui/src';
 

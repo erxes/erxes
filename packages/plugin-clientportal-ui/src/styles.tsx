@@ -111,8 +111,8 @@ export const Features = styledTS<{ isToggled: boolean }>(styled.span)`
   display: flex;
   flex: 1;
   transition: all ease .3s;
-  filter: ${props => !props.isToggled && `blur(4px)`};
-  pointer-events: ${props => !props.isToggled && `none`};
+  filter: ${(props) => !props.isToggled && `blur(4px)`};
+  pointer-events: ${(props) => !props.isToggled && `none`};
 `;
 
 export const List = styled(SidebarList)`
@@ -134,5 +134,13 @@ export const List = styled(SidebarList)`
     &:last-child {
       border: none;
     }
+  }
+`;
+
+export const ParticipantsWrapper = styled.div`
+  padding: 3px 12px 3px 12px;
+  > div {
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 4px 0px;
+    background: ${colors.bgLight};
   }
 `;

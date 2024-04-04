@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 import {
   types as checkListTypes,
   queries as checkListQueries,
@@ -14,6 +14,11 @@ import {
   queries as dealQueries,
   mutations as dealMutations
 } from './schema/deal';
+import {
+  types as purchaseTypes,
+  queries as purchaseQueries,
+  mutations as purchaseMutations
+} from './schema/purchase';
 import {
   types as taskTypes,
   queries as taskQueries,
@@ -40,13 +45,14 @@ import {
   mutations as ptMutations
 } from './schema/pipelineTemplate';
 import { types as CommonTypes } from './schema/common';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
-const typeDefs = async serviceDiscovery => {
-  const contactsEnabled = await serviceDiscovery.isEnabled('contacts');
-  const tagsEnabled = await serviceDiscovery.isEnabled('tags');
-  const formsEnabled = await serviceDiscovery.isEnabled('forms');
+const typeDefs = async () => {
+  const contactsEnabled = await isEnabled('contacts');
+  const tagsEnabled = await isEnabled('tags');
+  const formsEnabled = await isEnabled('forms');
 
-  const isEnabled = {
+  const isEnabledTable = {
     contacts: contactsEnabled,
     forms: formsEnabled,
     tags: tagsEnabled
@@ -60,6 +66,14 @@ const typeDefs = async serviceDiscovery => {
       _id: String! @external
     }
   
+    extend type Branch @key(fields: "_id") {
+          _id: String! @external
+    }
+
+    extend type Department @key(fields: "_id") {
+          _id: String! @external
+    }
+
     ${
       contactsEnabled
         ? `
@@ -84,10 +98,11 @@ const typeDefs = async serviceDiscovery => {
         : ''
     }
     
-    ${boardTypes(isEnabled)}
-    ${dealTypes(isEnabled)}
-    ${taskTypes(isEnabled)}
-    ${ticketTypes(isEnabled)}
+    ${boardTypes(isEnabledTable)}
+    ${dealTypes(isEnabledTable)}
+    ${purchaseTypes(isEnabledTable)}
+    ${taskTypes(isEnabledTable)}
+    ${ticketTypes(isEnabledTable)}
 
     ${formsEnabled ? growthHackTypes : ''}
 
@@ -99,6 +114,7 @@ const typeDefs = async serviceDiscovery => {
     extend type Query {
       ${boardQueries}
       ${dealQueries}
+      ${purchaseQueries}
       ${taskQueries}
       ${ticketQueries}
 
@@ -112,11 +128,10 @@ const typeDefs = async serviceDiscovery => {
     extend type Mutation {
       ${boardMutations}
       ${dealMutations}
+      ${purchaseMutations}
       ${taskMutations}
       ${ticketMutations}
-
       ${formsEnabled ? growthHackMutations : ''}
-
       ${plMutations}
       ${ptMutations}
       ${checkListMutations}

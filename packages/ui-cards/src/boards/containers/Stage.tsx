@@ -1,17 +1,16 @@
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { queries } from '../graphql';
 import { __, Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import Stage from '../components/stage/Stage';
 import { mutations } from '../graphql';
 import {
   IFilterParams,
   IItem,
   IOptions,
-  IPipeline,
   IStage,
   ItemsQueryResponse,
   RemoveStageMutation,
@@ -243,10 +242,13 @@ const getFilterParams = (
     customerIds: queryParams.customerIds,
     companyIds: queryParams.companyIds,
     assignedUserIds: queryParams.assignedUserIds,
+    branchIds: queryParams.branchIds,
+    departmentIds: queryParams.departmentIds,
     closeDateType: queryParams.closeDateType,
     labelIds: queryParams.labelIds,
     userIds: queryParams.userIds,
     segment: queryParams.segment,
+    segmentData: queryParams.segmentData,
     assignedToMe: queryParams.assignedToMe,
     startDate: queryParams.startDate,
     endDate: queryParams.endDate,
@@ -254,27 +256,32 @@ const getFilterParams = (
   };
 };
 
+type WithQueryProps = StageProps & { abortController: any };
+
 const withQuery = ({ options }) => {
-  return withProps<StageProps>(
+  return withProps<WithQueryProps>(
     compose(
-      graphql<StageProps>(gql(options.queries.itemsQuery), {
+      graphql<WithQueryProps>(gql(options.queries.itemsQuery), {
         name: 'itemsQuery',
         skip: ({ loadingState }) => loadingState !== 'readyToLoad',
-        options: ({ stage, queryParams, loadingState }) => ({
+        options: ({ stage, queryParams, loadingState, abortController }) => ({
           variables: {
             stageId: stage._id,
             pipelineId: stage.pipelineId,
             ...getFilterParams(queryParams, options.getExtraParams)
+          },
+          context: {
+            fetchOptions: { signal: abortController && abortController.signal }
           },
           fetchPolicy:
             loadingState === 'readyToLoad' ? 'network-only' : 'cache-only',
           notifyOnNetworkStatusChange: loadingState === 'readyToLoad'
         })
       }),
-      graphql<StageProps>(gql(mutations.stagesRemove), {
+      graphql<WithQueryProps>(gql(mutations.stagesRemove), {
         name: 'removeStageMutation'
       }),
-      graphql<StageProps>(gql(mutations.stagesSortItems), {
+      graphql<WithQueryProps>(gql(mutations.stagesSortItems), {
         name: 'stagesSortItemsMutation'
       })
     )(StageContainer)
@@ -283,17 +290,28 @@ const withQuery = ({ options }) => {
 
 class WithData extends React.Component<StageProps> {
   private withQuery;
+  private abortController;
 
   constructor(props) {
     super(props);
 
     this.withQuery = withQuery({ options: props.options });
+    this.abortController = new AbortController();
+  }
+
+  componentWillUnmount() {
+    this.abortController.abort();
   }
 
   render() {
     const Component = this.withQuery;
 
-    return <Component {...this.props} />;
+    const updatedProps = {
+      ...this.props,
+      abortController: this.abortController
+    };
+
+    return <Component {...updatedProps} />;
   }
 }
 

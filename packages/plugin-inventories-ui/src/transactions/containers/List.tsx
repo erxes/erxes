@@ -1,11 +1,23 @@
 import React from 'react';
-import { useQuery } from 'react-apollo';
+import { useLocation } from 'react-router-dom';
+import { useQuery } from '@apollo/client';
+import queryString from 'query-string';
+import { gql } from '@apollo/client';
+import * as compose from 'lodash.flowright';
+// erxes
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+// local
 import { queries } from '../graphql';
-import gql from 'graphql-tag';
 import ListComponent from '../components/List';
 
 const ListContainer = () => {
+  const location = useLocation();
+  const queryParams = queryString.parse(location.search);
+
   const transactionsQuery = useQuery(gql(queries.transactions), {
+    variables: {
+      ...generatePaginationParams(queryParams)
+    },
     fetchPolicy: 'network-only'
   });
 
@@ -17,4 +29,4 @@ const ListContainer = () => {
   );
 };
 
-export default ListContainer;
+export default compose()(ListContainer);

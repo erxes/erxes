@@ -9,6 +9,7 @@ const fieldCommonFields = `
   order: Int
   associatedFieldId: String
   logicAction: String
+  
   column: Int
   groupName: String
   pageNumber: Int
@@ -17,6 +18,8 @@ const fieldCommonFields = `
   showInCard: Boolean
   isVisibleToCreate: Boolean
   productCategoryId: String
+  field: String
+  isDefinedByErxes: Boolean
 `;
 
 export const fieldsTypes = ({ products }) => `
@@ -69,18 +72,19 @@ export const fieldsTypes = ({ products }) => `
     contentType: String!
     contentTypeId: String
     name: String
-    field: String
     isVisible: Boolean
     isVisibleInDetail: Boolean
     canHide: Boolean
-    isDefinedByErxes: Boolean
     groupId: String
     lastUpdatedUser: User
     lastUpdatedUserId: String
     associatedField: Field
-    logics: [Logic]
     locationOptions: [LocationOption]
     objectListConfigs: [ObjectListConfig]
+    optionsValues: String
+    subFieldIds: [String]
+    subFields: [Field]
+
     ${
       products
         ? `
@@ -88,8 +92,11 @@ export const fieldsTypes = ({ products }) => `
       `
         : ''
     }
-   
+    
     ${fieldCommonFields}
+    logics: [Logic]
+
+    relationType: String
   }
 
   input OrderItem {
@@ -110,6 +117,8 @@ export const fieldsTypes = ({ products }) => `
     logics: [LogicInput]
     locationOptions: [LocationOptionInput]
     objectListConfigs: [objectListConfigInput]
+    optionsValues: String
+    subFieldIds: [String]
     ${fieldCommonFields}
   }
 
@@ -122,9 +131,12 @@ export const fieldsTypes = ({ products }) => `
 
 export const fieldsQueries = `
   fieldsGetTypes: [JSON]
+  getFieldsInputTypes:[JSON]
   fields(contentType: String!, contentTypeId: String, isVisible: Boolean, searchable: Boolean, isVisibleToCreate: Boolean, pipelineId: String): [Field]
-  fieldsCombinedByContentType(contentType: String!, usageType: String, excludedNames: [String], segmentId: String, config: JSON): JSON
+  fieldsCombinedByContentType(contentType: String!, usageType: String, excludedNames: [String], segmentId: String, config: JSON, onlyDates: Boolean): JSON
   fieldsDefaultColumnsConfig(contentType: String!): [ColumnConfigItem]
+  fieldsGetRelations(contentType: String!, isVisibleToCreate: Boolean): [Field]
+  fieldByCode(contentType: String!, code: String): Field
 `;
 
 const fieldsCommonFields = `
@@ -141,7 +153,8 @@ const fieldsCommonFields = `
   isVisible: Boolean
   canHide: Boolean
   associatedFieldId: String
-  logic: LogicInput
+  logicAction: String
+  logics: [LogicInput]
   searchable: Boolean
   showInCard: Boolean
   objectListConfigs: [objectListConfigInput]
@@ -165,14 +178,20 @@ export const fieldsGroupsTypes = `
     contentType: String
     order: Int
     code: String
+    parentId: String
     description: String
+    isMultiple: Boolean
     isVisible: Boolean
     isVisibleInDetail: Boolean
+    alwaysOpen: Boolean
     isDefinedByErxes: Boolean
     fields: [Field]
     lastUpdatedUserId: String
     lastUpdatedUser: User
     config: JSON
+
+    logicAction: String
+    logics: [Logic]
   }
 `;
 
@@ -181,14 +200,21 @@ const fieldsGroupsCommonFields = `
   contentType: String
   order: Int
   description: String
+  parentId: String
   code: String
+  isMultiple: Boolean
   isVisible: Boolean
+  alwaysOpen: Boolean
   isVisibleInDetail: Boolean
   config: JSON
+
+  logicAction: String
+  logics: [LogicInput]
 `;
 
 export const fieldsGroupsQueries = `
-  fieldsGroups(contentType: String, isDefinedByErxes: Boolean, config: JSON): [FieldsGroup]
+  fieldsGroups(contentType: String, isDefinedByErxes: Boolean, codes: [String] config: JSON): [FieldsGroup]
+  fieldsGetDetail(_id: String, code: String): Field
   getSystemFieldsGroup(contentType: String): FieldsGroup
 `;
 

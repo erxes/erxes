@@ -1,26 +1,26 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-
-export let mainDb;
-export let graphqlPubsub;
-export let serviceDiscovery;
-
-export let debug;
+import automations from './automations';
 
 export default {
   name: 'notifications',
-  graphql: sd => {
-    serviceDiscovery = sd;
+  graphql: () => {
     return {
       typeDefs,
-      resolvers
+      resolvers,
     };
   },
   hasSubscriptions: true,
+  subscriptionPluginPath: require('path').resolve(
+    __dirname,
+    'graphql',
+    'subscriptionPlugin.js',
+  ),
+
   segment: {},
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
@@ -29,12 +29,8 @@ export default {
     context.models = await generateModels(subdomain);
   },
 
-  onServerInit: async options => {
-    mainDb = options.db;
+  onServerInit: async () => {},
+  setupMessageConsumers,
 
-    initBroker(options.messageBrokerClient);
-
-    debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-  }
+  meta: { automations },
 };

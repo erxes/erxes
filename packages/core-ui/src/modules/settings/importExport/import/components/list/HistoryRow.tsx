@@ -68,6 +68,10 @@ class HistoryRow extends React.Component<Props> {
 
     const renderDownloadFile = () => {
       return contentTypes.map(value => {
+        if (!attachments) {
+          return null;
+        }
+
         const attachment = attachments[value.contentType][0];
 
         return (
@@ -205,7 +209,7 @@ class HistoryRow extends React.Component<Props> {
           <span>{renderValue(history.failed)}</span>
         </td>
 
-        <td>{details.fullName || '-'}</td>
+        <td>{details?.fullName || '-'}</td>
 
         <td>
           <DateWrapper>{dayjs(history.date).format('lll')}</DateWrapper>

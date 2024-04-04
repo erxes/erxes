@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "declaration": false,
+    "target": "ES2022",
+    "moduleResolution": "Node",
+    "module": "CommonJS",
+    "lib": ["ES2022"],
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "strict": true,
+    "useUnknownInCatchVariables": false,
+    "preserveSymlinks": true,
+    "allowSyntheticDefaultImports": true,
+    "incremental": true
+  }
+}

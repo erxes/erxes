@@ -1,4 +1,9 @@
-import { connection } from "./connection";
+import { connection } from './connection';
+
+const userDetailFields = `
+  avatar
+  fullName
+`;
 
 const messageFields = `
   _id
@@ -7,8 +12,7 @@ const messageFields = `
   user {
     _id
     details {
-      avatar
-      fullName
+      ${userDetailFields}
     }
   }
   content
@@ -16,10 +20,7 @@ const messageFields = `
   internal
   fromBot
   contentType
-  videoCallData {
-    url
-    status
-  }
+
   engageData {
     content
     kind
@@ -41,18 +42,28 @@ const userFields = `
   _id
   isActive
   details {
-    avatar
-    fullName
+    ${userDetailFields}
     shortName
+    location
   }
+  isOnline
 `;
 
-const conversationDetailQuery = `
+const conversationDetailQuery = (isDailycoEnabled: boolean) => `
   query ($_id: String, $integrationId: String!) {
     widgetsConversationDetail(_id: $_id, integrationId: $integrationId) {
       _id
       messages {
         ${messageFields}
+        ${
+          isDailycoEnabled
+            ? `
+        videoCallData {
+          url
+          status
+        }`
+            : ''
+        }
       }
 
       operatorStatus
@@ -60,15 +71,13 @@ const conversationDetailQuery = `
       supporters {
         _id
         details {
-          avatar
-          fullName
+          ${userDetailFields}
         }
       }
       participatedUsers {
         _id
         details {
-          avatar
-          fullName
+          ${userDetailFields}
           shortName
           description
           position
@@ -86,10 +95,19 @@ const widgetExportMessengerDataQuery = `
   }
 `;
 
-const conversationMessageInserted = `
+const conversationMessageInserted = (isDailycoEnabled: boolean) => `
   subscription conversationMessageInserted($_id: String!) {
     conversationMessageInserted(_id: $_id) {
       ${messageFields}
+      ${
+        isDailycoEnabled
+          ? `
+      videoCallData {
+        url
+        status
+      }`
+          : ''
+      }
     }
   }
 `;
@@ -121,7 +139,6 @@ const messengerSupportersQuery = `
         ${userFields}
       }
       isOnline
-      serverTime
     }
   }
 `;
@@ -148,8 +165,7 @@ const allConversations = `
       createdAt
       participatedUsers {
         details {
-          fullName
-          avatar
+          ${userDetailFields}
         }
       }
     }
@@ -286,5 +302,5 @@ export default {
   faqSearchArticlesQuery,
   integrationsFetchApi,
   conversationBotTypingStatus,
-  getEngageMessage
+  getEngageMessage,
 };

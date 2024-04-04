@@ -23,6 +23,7 @@ type Props = {
     selectedComponent: React.ReactNode;
     customerCounts: React.ReactNode;
   }) => React.ReactNode;
+  loadingCount: boolean;
 };
 
 const BrandStep = (props: Props) => {
@@ -34,7 +35,8 @@ const BrandStep = (props: Props) => {
     targetCount,
     customersCount,
     messageType,
-    renderContent
+    renderContent,
+    loadingCount
   } = props;
 
   const icons: React.ReactNode[] = [];
@@ -57,6 +59,7 @@ const BrandStep = (props: Props) => {
       Form={BrandForm}
       content={renderContent}
       icons={icons}
+      loadingCount={loadingCount}
     />
   );
 };

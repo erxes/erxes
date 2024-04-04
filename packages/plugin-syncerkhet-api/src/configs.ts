@@ -2,27 +2,22 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { initBrokerErkhet } from './messageBrokerErkhet';
-import { initMemoryStorage } from './inmemoryStorage';
 import afterMutations from './afterMutations';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
 import afterQueries from './afterQueries';
-
-export let debug;
-export let graphqlPubsub;
-export let mainDb;
-export let serviceDiscovery;
+import { getOrderInfo } from './routes';
 
 export default {
   name: 'syncerkhet',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
+  getHandlers: [{ path: `/getOrderInfo`, method: getOrderInfo }],
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
   apolloServerContext: async (context, req) => {
@@ -34,19 +29,13 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
-    mainDb = options.db;
-
-    await initBroker(options.messageBrokerClient);
+  onServerInit: async () => {
     await initBrokerErkhet();
-
-    initMemoryStorage();
-
-    debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
   },
+  setupMessageConsumers,
   meta: {
     afterMutations,
-    afterQueries
-  }
+    afterQueries,
+    permissions,
+  },
 };

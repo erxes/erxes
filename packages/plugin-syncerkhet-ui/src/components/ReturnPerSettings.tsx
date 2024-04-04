@@ -1,4 +1,11 @@
-import { Button, CollapseContent, ControlLabel, FormControl, FormGroup } from '@erxes/ui/src/components';
+import {
+  Button,
+  CollapseContent,
+  ControlLabel,
+  FormControl,
+  FormGroup,
+  Icon
+} from '@erxes/ui/src/components';
 import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import { __ } from '@erxes/ui/src/utils';
 import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
@@ -16,7 +23,7 @@ type Props = {
 type State = {
   config: any;
   hasOpen: boolean;
-}
+};
 
 class PerSettings extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -24,7 +31,7 @@ class PerSettings extends React.Component<Props, State> {
 
     this.state = {
       config: props.config,
-      hasOpen: false,
+      hasOpen: false
     };
   }
 
@@ -49,21 +56,21 @@ class PerSettings extends React.Component<Props, State> {
     delete configsMap.returnEbarimtConfig[currentConfigKey];
     configsMap.returnEbarimtConfig[key] = config;
     this.props.save(configsMap);
-  }
+  };
 
   onDelete = e => {
     e.preventDefault();
 
     this.props.delete(this.props.currentConfigKey);
-  }
+  };
 
   onChangeCombo = option => {
-    this.onChangeConfig('defaultPay', option.value)
+    this.onChangeConfig('defaultPay', option.value);
   };
 
   onChangeCheckbox = (code: string, e) => {
-    this.onChangeConfig(code, e.target.checked)
-  }
+    this.onChangeConfig(code, e.target.checked);
+  };
 
   onChangeConfig = (code: string, value) => {
     const { config } = this.state;
@@ -101,20 +108,25 @@ class PerSettings extends React.Component<Props, State> {
         <FormControl
           checked={config[key]}
           onChange={this.onChangeCheckbox.bind(this, key)}
-          componentClass='checkbox'
+          componentClass="checkbox"
         />
       </FormGroup>
     );
-  }
+  };
 
   render() {
     const { config } = this.state;
     return (
-      <CollapseContent title={__(config.title)} open={this.props.currentConfigKey === 'newEbarimtConfig' ? true: false}>
+      <CollapseContent
+        title={__(config.title)}
+        beforeTitle={<Icon icon="settings" />}
+        transparent={true}
+        open={this.props.currentConfigKey === 'newEbarimtConfig' ? true : false}
+      >
         <FormGroup>
           <ControlLabel>{'Title'}</ControlLabel>
           <FormControl
-            defaultValue={config['title']}
+            defaultValue={config.title}
             onChange={this.onChangeInput.bind(this, 'title')}
             required={true}
             autoFocus={true}
@@ -124,7 +136,7 @@ class PerSettings extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Destination Stage</ControlLabel>
           <BoardSelectContainer
-            type='deal'
+            type="deal"
             autoSelectStage={false}
             boardId={config.boardId}
             pipelineId={config.pipelineId}
@@ -132,16 +144,14 @@ class PerSettings extends React.Component<Props, State> {
             onChangeBoard={this.onChangeBoard}
             onChangePipeline={this.onChangePipeline}
             onChangeStage={this.onChangeStage}
-
           />
         </FormGroup>
 
         {this.renderInput('userEmail', 'userEmail', '')}
-        {this.renderCheckbox('isEbarimt', 'isEbarimt', '')}
 
         <ModalFooter>
           <Button
-            btnStyle="simple"
+            btnStyle="danger"
             icon="cancel-1"
             onClick={this.onDelete}
             uppercase={false}
@@ -150,7 +160,7 @@ class PerSettings extends React.Component<Props, State> {
           </Button>
 
           <Button
-            btnStyle="primary"
+            btnStyle="success"
             icon="check-circle"
             onClick={this.onSave}
             uppercase={false}
@@ -160,7 +170,7 @@ class PerSettings extends React.Component<Props, State> {
           </Button>
         </ModalFooter>
       </CollapseContent>
-    )
+    );
   }
 }
 export default PerSettings;

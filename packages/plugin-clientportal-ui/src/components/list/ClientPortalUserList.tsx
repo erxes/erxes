@@ -1,28 +1,29 @@
-import { EMPTY_CONTENT_CONTACTS } from '@erxes/ui-settings/src/constants';
+import { Alert, confirm, router } from '@erxes/ui/src/utils';
+
+import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
+import ClientPortalUserForm from '../../containers/ClientPortalUserForm';
+import ClientPortalUserRow from './ClientPortalUserRow';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import { EMPTY_CONTENT_CONTACTS } from '@erxes/ui-settings/src/constants';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import FormControl from '@erxes/ui/src/components/form/Control';
+import { IClientPortalUser } from '../../types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import React from 'react';
+import Sidebar from './Sidebar';
 import Table from '@erxes/ui/src/components/table';
-import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { Alert, confirm, router } from '@erxes/ui/src/utils';
 import { __ } from '@erxes/ui/src/utils/core';
 import { menuContacts } from '@erxes/ui/src/utils/menus';
-import React from 'react';
-
-import ClientPortalUserForm from '../../containers/ClientPortalUserForm';
-import { IClientPortalUser } from '../../types';
-import ClientPortalUserRow from './ClientPortalUserRow';
-import Sidebar from './Sidebar';
+import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
 
 interface IProps extends IRouterProps {
   history: any;
   type: string;
+  kind: 'client' | 'vendor';
   queryParams: any;
   clientPortalUsers: IClientPortalUser[];
   clientPortalUserCount: number;
@@ -49,7 +50,6 @@ class ClientportalUserList extends React.Component<IProps, State> {
 
   constructor(props) {
     super(props);
-
     this.state = {
       searchValue: this.props.searchValue
     };
@@ -111,15 +111,20 @@ class ClientportalUserList extends React.Component<IProps, State> {
                 />
               </th>
               <th>#</th>
+              <th>{__('ID Verification')}</th>
               <th>{__('Email')}</th>
               <th>{__('Phone')}</th>
               <th>{__('User Name')}</th>
               <th>{__('Code')}</th>
               <th>{__('First Name')}</th>
               <th>{__('Last Name')}</th>
+              <th>{__('Company name')}</th>
               <th>{__('Type')}</th>
               <th>{__('from')}</th>
-              <th>{__('Registered Date')}</th>
+              <th>{__('Status')}</th>
+              <th>{__('Session count')}</th>
+              <th>{__('Last seen at')}</th>
+              <th>{__('Registered at')}</th>
             </tr>
           </thead>
           <tbody id="clientPortalUsers">
@@ -179,7 +184,9 @@ class ClientportalUserList extends React.Component<IProps, State> {
     );
 
     const customerForm = props => {
-      return <ClientPortalUserForm {...props} size="lg" />;
+      return (
+        <ClientPortalUserForm {...props} size="lg" kind={this.props.kind} />
+      );
     };
 
     const actionBarRight = (
@@ -217,17 +224,17 @@ class ClientportalUserList extends React.Component<IProps, State> {
           });
 
       const onClickConfirm = e => {
-        const type = e.currentTarget.id;
+        const userType = e.currentTarget.id;
         confirm(
           `This action forces the ${
             bulk.length > 1 ? "users'" : "user's"
-          }  ${type} to be verified. Do you want to continue?`
+          }  ${userType} to be verified. Do you want to continue?`
         )
           .then(() => {
-            this.verifyUsers(type, bulk);
+            this.verifyUsers(userType, bulk);
           })
-          .catch(e => {
-            Alert.error(e.message);
+          .catch(error => {
+            Alert.error(error.message);
           });
       };
 
@@ -281,10 +288,12 @@ class ClientportalUserList extends React.Component<IProps, State> {
         footer={<Pagination count={clientPortalUserCount} />}
         leftSidebar={
           <Sidebar
+            loadingMainQuery={loading}
             counts={{
               byCP: { byCP: clientPortalUserCount },
               byType: { byType: 0 }
             }}
+            kind={this.props.kind}
           />
         }
         content={
@@ -295,6 +304,8 @@ class ClientportalUserList extends React.Component<IProps, State> {
             emptyContent={<EmptyContent content={EMPTY_CONTENT_CONTACTS} />}
           />
         }
+        transparent={true}
+        hasBorder={true}
       />
     );
   }

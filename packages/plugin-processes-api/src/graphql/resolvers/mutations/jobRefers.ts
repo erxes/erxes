@@ -1,6 +1,5 @@
-import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
-
-import { IJobRefer, IJobReferDocument } from '../../../models/definitions/jobs';
+// import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
+import { IJobRefer } from '../../../models/definitions/jobs';
 import {
   putCreateLog,
   putDeleteLog,
@@ -8,7 +7,6 @@ import {
   MODULE_NAMES
 } from '../../../logUtils';
 import { IContext } from '../../../connectionResolver';
-import { IJobCategory } from '../../../models/definitions/jobCategories';
 
 interface IJobRefersEdit extends IJobRefer {
   _id: string;
@@ -24,8 +22,6 @@ const jobReferMutations = {
     doc: IJobRefer,
     { user, docModifier, models, subdomain }: IContext
   ) {
-    console.log('jobRefers doc: ', doc);
-
     const jobRefer = await models.JobRefers.createJobRefer(docModifier(doc));
 
     await putCreateLog(
@@ -63,7 +59,7 @@ const jobReferMutations = {
       models,
       subdomain,
       {
-        type: MODULE_NAMES.PRODUCT,
+        type: MODULE_NAMES.JOBREFER,
         object: jobRefer,
         newData: { ...doc },
         updatedDocument: updated
@@ -93,7 +89,7 @@ const jobReferMutations = {
       await putDeleteLog(
         models,
         subdomain,
-        { type: MODULE_NAMES.PRODUCT, object: jobRefer },
+        { type: MODULE_NAMES.JOBREFER, object: jobRefer },
         user
       );
     }
@@ -102,6 +98,6 @@ const jobReferMutations = {
   }
 };
 
-moduleCheckPermission(jobReferMutations, 'manageJobRefers');
+// moduleCheckPermission(jobReferMutations, 'manageJobs');
 
 export default jobReferMutations;

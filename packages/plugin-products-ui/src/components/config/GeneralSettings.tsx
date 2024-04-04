@@ -1,15 +1,18 @@
 import {
+  AutoCompletionSelect,
   Button,
   CollapseContent,
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
+  Icon,
+  Spinner
 } from '@erxes/ui/src/components';
-import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
+import { Title } from '@erxes/ui-settings/src/styles';
 import { __ } from '@erxes/ui/src/utils';
 import { Wrapper } from '@erxes/ui/src/layout';
+import { queries } from '@erxes/ui-products/src/graphql';
 import React from 'react';
-import Select from 'react-select-plus';
 import { ContentBox } from '../../styles';
 import { IConfigsMap, IUom } from '../../types';
 import Header from './Header';
@@ -19,12 +22,13 @@ type Props = {
   save: (configsMap: IConfigsMap) => void;
   configsMap: IConfigsMap;
   uoms: IUom[];
+  loading: boolean;
 };
 
 type State = {
   currentMap: IConfigsMap;
   is_uom: boolean;
-  default_uom: string;
+  defaultUOM: string;
 };
 
 class GeneralSettings extends React.Component<Props, State> {
@@ -33,11 +37,21 @@ class GeneralSettings extends React.Component<Props, State> {
 
     this.state = {
       currentMap: props.configsMap || {},
-      is_uom: props.configsMap.isReqiureUOM || false,
-      default_uom: props.configsMap.default_uom
-        ? props.configsMap.default_uom
-        : ''
+      is_uom: props.configsMap.isRequireUOM || false,
+      defaultUOM: props.configsMap.defaultUOM ? props.configsMap.defaultUOM : ''
     };
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>): void {
+    const { configsMap } = this.props;
+
+    if (prevProps.configsMap !== configsMap) {
+      this.setState({
+        currentMap: configsMap || {},
+        is_uom: configsMap.isRequireUOM || false,
+        defaultUOM: configsMap.defaultUOM ? configsMap.defaultUOM : ''
+      });
+    }
   }
 
   save = e => {
@@ -65,10 +79,9 @@ class GeneralSettings extends React.Component<Props, State> {
     this.onChangeConfig(code, checked);
   };
 
-  onChangeCombobox = (code: string, option) => {
-    const value = option.value;
-    this.setState({ default_uom: value });
-    this.onChangeConfig(code, value);
+  onChangeUom = ({ selectedOption }) => {
+    this.setState({ defaultUOM: selectedOption });
+    this.onChangeConfig('defaultUOM', selectedOption);
   };
 
   renderCheckbox = (key: string, title?: string, description?: string) => {
@@ -94,12 +107,36 @@ class GeneralSettings extends React.Component<Props, State> {
       <FormGroup>
         <ControlLabel>{title || key}</ControlLabel>
         {description && <p>{__(description)}</p>}
-        <Select
-          value={this.state.default_uom}
-          onChange={this.onChangeCombobox.bind(this, key)}
-          options={uoms.map(e => ({ value: e._id, label: e.name }))}
+        <AutoCompletionSelect
+          defaultValue={this.state.defaultUOM}
+          defaultOptions={(uoms || []).map(e => e.code)}
+          autoCompletionType="uoms"
+          placeholder="Enter an uom"
+          queryName="uoms"
+          query={queries.uoms}
+          onChange={this.onChangeUom}
         />
       </FormGroup>
+    );
+  };
+
+  renderContent = () => {
+    if (this.props.loading) {
+      return <Spinner objective={true} />;
+    }
+
+    return (
+      <ContentBox id={'GeneralSettingsMenu'}>
+        <CollapseContent
+          title="General settings"
+          beforeTitle={<Icon icon="settings" />}
+          transparent={true}
+        >
+          {this.renderCheckbox('isRequireUOM', 'is Required UOM', '')}
+          {this.state.is_uom &&
+            this.renderCombobox('defaultUOM', 'default uom')}
+        </CollapseContent>
+      </ContentBox>
     );
   };
 
@@ -111,23 +148,13 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const actionButtons = (
       <Button
-        btnStyle="primary"
+        btnStyle="success"
         onClick={this.save}
         icon="check-circle"
         uppercase={false}
       >
         Save
       </Button>
-    );
-
-    const content = (
-      <ContentBox id={'GeneralSettingsMenu'}>
-        <CollapseContent title="General settings">
-          {this.renderCheckbox('isReqiureUOM', 'is Reqiured UOM', '')}
-          {this.state.is_uom &&
-            this.renderCombobox('default_uom', 'default uom')}
-        </CollapseContent>
-      </ContentBox>
     );
 
     return (
@@ -143,12 +170,13 @@ class GeneralSettings extends React.Component<Props, State> {
           <Wrapper.ActionBar
             left={<Title>{__('Products configs')}</Title>}
             right={actionButtons}
+            wideSpacing
           />
         }
         leftSidebar={<Sidebar />}
-        content={content}
+        content={this.renderContent()}
         transparent={true}
-        hasBorder={true}
+        hasBorder
       />
     );
   }

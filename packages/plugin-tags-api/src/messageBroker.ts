@@ -1,20 +1,18 @@
+import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 import { generateModels } from './connectionResolver';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
+import {
+  escapeRegExp,
+  MessageArgs,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 
-let client;
-
-export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeRPCQueue } = client;
-
+export const setupMessageConsumers = async () => {
   consumeRPCQueue('tags:find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       data: await models.Tags.find(data).lean(),
-      status: 'success'
+      status: 'success',
     };
   });
 
@@ -23,7 +21,7 @@ export const initBroker = async cl => {
 
     return {
       data: await models.Tags.findOne(data).lean(),
-      status: 'success'
+      status: 'success',
     };
   });
 
@@ -32,21 +30,48 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Tags.createTag(data)
+      data: await models.Tags.createTag(data),
     };
   });
+
+  consumeRPCQueue(
+    'tags:withChilds',
+    async ({ subdomain, data: { query, fields } }) => {
+      const models = await generateModels(subdomain);
+
+      const tags = await models.Tags.find(query);
+
+      if (!tags.length) {
+        return {
+          data: [],
+          status: 'success',
+        };
+      }
+
+      const orderQry: any[] = [];
+      for (const tag of tags) {
+        orderQry.push({
+          order: { $regex: new RegExp(`^${escapeRegExp(tag.order || '')}`) },
+        });
+      }
+
+      return {
+        data: await models.Tags.find(
+          {
+            $or: orderQry,
+          },
+          fields || {},
+        )
+          .sort({ order: 1 })
+          .lean(),
+        status: 'success',
+      };
+    },
+  );
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
-    client,
-    ...args
+    ...args,
   });
 };
-
-export default function() {
-  return client;
-}

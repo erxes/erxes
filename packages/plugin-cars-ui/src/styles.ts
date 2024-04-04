@@ -96,7 +96,6 @@ const ActionButtons = styled.div`
   }
 `;
 
-
 const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   position: relative;
   border-bottom: 1px solid ${colors.borderPrimary};

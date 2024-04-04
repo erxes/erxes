@@ -1,12 +1,17 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { Bulk } from '@erxes/ui/src/components';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import VoucherCampaign from '../components/List';
 import { mutations, queries } from '../graphql';
-import { VoucherCampaignQueryResponse, VoucherCampaignRemoveMutationResponse } from '../types';
+import {
+  VoucherCampaignQueryResponse,
+  VoucherCampaignRemoveMutationResponse,
+  VoucherCampaignsCountQueryResponse
+} from '../types';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
   queryParams: any;
@@ -16,12 +21,15 @@ type Props = {
 
 type FinalProps = {
   voucherCampaignQuery: VoucherCampaignQueryResponse;
-} & Props & VoucherCampaignRemoveMutationResponse;
+  voucherCampaignQueryCount: VoucherCampaignsCountQueryResponse;
+} & Props &
+  VoucherCampaignRemoveMutationResponse;
 
 class VoucherCampaignContainer extends React.Component<FinalProps> {
   render() {
     const {
       voucherCampaignQuery,
+      voucherCampaignQueryCount,
       queryParams,
       voucherCampaignsRemove
     } = this.props;
@@ -47,6 +55,7 @@ class VoucherCampaignContainer extends React.Component<FinalProps> {
     const filterStatus = this.props.queryParams.filterStatus || '';
 
     const voucherCampaigns = voucherCampaignQuery.voucherCampaigns || [];
+    const totalCount = voucherCampaignQueryCount.voucherCampaignsCount || 0;
 
     const updatedProps = {
       ...this.props,
@@ -55,6 +64,7 @@ class VoucherCampaignContainer extends React.Component<FinalProps> {
       remove,
       loading: voucherCampaignQuery.loading,
       searchValue,
+      totalCount,
       filterStatus
     };
 
@@ -71,9 +81,7 @@ class VoucherCampaignContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return [
-    'voucherCampaigns'
-  ];
+  return ['voucherCampaigns'];
 };
 
 const options = () => ({
@@ -82,15 +90,33 @@ const options = () => ({
 
 export default withProps<Props>(
   compose(
-    graphql<{}, VoucherCampaignQueryResponse>(gql(queries.voucherCampaigns), {
-      name: 'voucherCampaignQuery'
+    graphql<Props>(gql(queries.voucherCampaignsCount), {
+      name: 'voucherCampaignQueryCount',
+      options: ({ queryParams }: Props) => ({
+        variables: {
+          searchValue: queryParams.searchValue
+        }
+      })
     }),
-    graphql<Props, VoucherCampaignRemoveMutationResponse, { voucherCampaignIds: string[] }>(
-      gql(mutations.voucherCampaignsRemove),
+    graphql<Props, VoucherCampaignQueryResponse>(
+      gql(queries.voucherCampaigns),
       {
-        name: 'voucherCampaignsRemove',
-        options
+        name: 'voucherCampaignQuery',
+        options: ({ queryParams }: Props) => ({
+          variables: {
+            searchValue: queryParams.searchValue,
+            ...generatePaginationParams(queryParams)
+          }
+        })
       }
     ),
+    graphql<
+      Props,
+      VoucherCampaignRemoveMutationResponse,
+      { voucherCampaignIds: string[] }
+    >(gql(mutations.voucherCampaignsRemove), {
+      name: 'voucherCampaignsRemove',
+      options
+    })
   )(VoucherCampaignContainer)
 );

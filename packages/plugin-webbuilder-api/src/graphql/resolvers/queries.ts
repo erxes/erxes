@@ -1,73 +1,213 @@
 import { paginate } from '@erxes/api-utils/src';
-import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
+import { escapeRegExp } from '@erxes/api-utils/src/core';
+import {
+  moduleRequireLogin,
+  checkPermission,
+} from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
+import fetch from 'node-fetch';
+
+const generateCommonFilter = ({
+  searchValue,
+  siteId,
+}: {
+  searchValue?: string;
+  siteId?: string;
+}) => {
+  const filter: any = {};
+
+  if (searchValue) {
+    filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+  }
+
+  if (siteId) {
+    filter.siteId = siteId;
+  }
+
+  return filter;
+};
 
 const webbuilderQueries = {
-  webbuilderPages(_root, args, { models }: IContext) {
-    return paginate(models.Pages.find({}), args);
-  },
+  webbuilderPagesMain(
+    _root,
+    {
+      page,
+      perPage,
+      searchValue,
+      siteId,
+    }: { page: number; perPage: number; searchValue: string; siteId: string },
+    { models }: IContext,
+  ) {
+    const filter = generateCommonFilter({ searchValue, siteId });
 
-  webbuilderPagesTotalCount(_root, _args, { models }: IContext) {
-    return models.Pages.find({}).count();
+    return {
+      list: paginate(models.Pages.find(filter), {
+        page,
+        perPage,
+      }),
+      totalCount: models.Pages.find(filter).count(),
+    };
   },
 
   webbuilderPageDetail(_root, { _id }, { models }: IContext) {
     return models.Pages.findOne({ _id });
   },
 
-  webbuilderContentTypes(_root, args, { models }: IContext) {
-    return paginate(models.ContentTypes.find({}), args);
+  webbuilderContentTypes(
+    _root,
+    { siteId }: { siteId: string },
+    { models }: IContext,
+  ) {
+    const filter: any = {};
+
+    if (siteId) {
+      filter.siteId = siteId;
+    }
+
+    return models.ContentTypes.find(filter).sort({ displayName: 1 });
   },
 
-  webbuilderContentTypesTotalCount(_root, _args, { models }: IContext) {
-    return models.ContentTypes.find({}).count();
+  webbuilderContentTypesMain(
+    _root,
+    {
+      page,
+      perPage,
+      siteId,
+    }: { page: number; perPage: number; siteId: string },
+    { models }: IContext,
+  ) {
+    const filter = generateCommonFilter({ siteId });
+
+    return {
+      list: paginate(
+        models.ContentTypes.find(filter).sort({ displayName: 1 }),
+        {
+          page,
+          perPage,
+        },
+      ),
+      totalCount: models.ContentTypes.find(filter).count(),
+    };
   },
 
   webbuilderContentTypeDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.ContentTypes.findOne({ _id });
   },
 
-  webbuilderEntries(
+  webbuilderEntriesMain(
     _root,
     {
       contentTypeId,
       page,
-      perPage
+      perPage,
     }: { contentTypeId: string; page: number; perPage: number },
-    { models }: IContext
+    { models }: IContext,
   ) {
-    return paginate(models.Entries.find({ contentTypeId }), { page, perPage });
-  },
-
-  webbuilderEntriesTotalCount(
-    _root,
-    { contentTypeId }: { contentTypeId: string },
-    { models }: IContext
-  ) {
-    return models.Entries.find({ contentTypeId }).count();
+    return {
+      list: paginate(models.Entries.find({ contentTypeId }), { page, perPage }),
+      totalCount: models.Entries.find({ contentTypeId }).count(),
+    };
   },
 
   webbuilderEntryDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Entries.findOne({ _id });
   },
 
-  webbuilderTemplates(_root, _args, { models }: IContext) {
-    return models.Templates.find().lean();
+  async webbuilderTemplates(_root, { searchValue }: { searchValue: string }) {
+    return await fetch(
+      `https://helper.erxes.io/get-webbuilder-templates?searchValue=${searchValue}`,
+    ).then((res) => res.json());
   },
 
-  webbuilderSites(_root, args, { models }: IContext) {
-    return paginate(models.Sites.find({}).lean(), args);
+  webbuilderTemplatesTotalCount(_root, _args, { models }: IContext) {
+    return models.Templates.find().count();
+  },
+
+  webbuilderTemplateDetail(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return models.Templates.findOne({ _id });
+  },
+
+  webbuilderSites(
+    _root,
+    {
+      page,
+      perPage,
+      searchValue,
+      fromSelect,
+    }: {
+      page: number;
+      perPage: number;
+      searchValue: string;
+      fromSelect: boolean;
+    },
+    { models }: IContext,
+  ) {
+    const filter: any = {};
+
+    if (fromSelect) {
+      return models.Sites.find().lean();
+    }
+
+    if (searchValue) {
+      filter.name = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
+    }
+
+    return paginate(models.Sites.find(filter).sort({ name: 1 }), {
+      page,
+      perPage,
+    });
   },
 
   webbuilderSitesTotalCount(_root, _args, { models }: IContext) {
     return models.Sites.find().count();
-  }
+  },
 };
 
 moduleRequireLogin(webbuilderQueries);
+
+checkPermission(webbuilderQueries, 'webbuilderPagesMain', 'showWebbuilder');
+checkPermission(webbuilderQueries, 'webbuilderPageDetail', 'showWebbuilder');
+
+checkPermission(webbuilderQueries, 'webbuilderContentTypes', 'showWebbuilder');
+checkPermission(
+  webbuilderQueries,
+  'webbuilderContentTypesMain',
+  'showWebbuilder',
+);
+checkPermission(
+  webbuilderQueries,
+  'webbuilderContentTypeDetail',
+  'showWebbuilder',
+);
+
+checkPermission(webbuilderQueries, 'webbuilderEntriesMain', 'showWebbuilder');
+checkPermission(webbuilderQueries, 'webbuilderEntryDetail', 'showWebbuilder');
+
+checkPermission(webbuilderQueries, 'webbuilderTemplates', 'showWebbuilder');
+checkPermission(
+  webbuilderQueries,
+  'webbuilderTemplatesTotalCount',
+  'showWebbuilder',
+);
+checkPermission(
+  webbuilderQueries,
+  'webbuilderTemplateDetail',
+  'showWebbuilder',
+);
+
+checkPermission(webbuilderQueries, 'webbuilderSites', 'showWebbuilder');
+checkPermission(
+  webbuilderQueries,
+  'webbuilderSitesTotalCount',
+  'showWebbuilder',
+);
 
 export default webbuilderQueries;

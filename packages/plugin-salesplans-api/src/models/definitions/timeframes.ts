@@ -4,6 +4,8 @@ import { Schema, Document } from 'mongoose';
 export interface ITimeframe {
   name: string;
   description: string;
+  percent: number;
+  status: string;
   startTime: number;
   endTime: number;
 }
@@ -17,6 +19,8 @@ export const timeframeSchema = schemaWrapper(
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Name' }),
     description: field({ type: String, label: 'Description' }),
+    percent: field({ type: Number, label: 'Percent' }),
+    status: field({ type: String, optional: true, label: 'Status' }),
     startTime: field({ type: Number, label: 'Start time' }),
     endTime: field({ type: Number, label: 'String' })
   })

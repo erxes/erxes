@@ -1,23 +1,20 @@
-import { StepButton } from '@erxes/ui/src/components/step/styles';
+import { Content, LeftContent } from '../../styles';
 import { Step, Steps } from '@erxes/ui/src/components/step';
-import { __ } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
-import React from 'react';
-import FileUpload from './FileUpload';
 
-import Details from './Details';
-import TypeForm from '../containers/TypeForm';
 import AccociateForm from '../containers/AccociateForm';
-import MapColumn from '../containers/MapColumn';
+import Details from './Details';
+import FileUpload from './FileUpload';
 import { IImportHistoryContentType } from '../../types';
-import {
-  Content,
-  LeftContent
-} from '@erxes/ui-settings/src/integrations/styles';
+import MapColumn from '../containers/MapColumn';
+import React from 'react';
+import { StepButton } from '@erxes/ui/src/components/step/styles';
+import TypeForm from '../containers/TypeForm';
+import Wrapper from 'modules/layout/components/Wrapper';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   contentType: string;
-  addImportHistory: (doc: any) => void;
+  addImportHistory: (doc: any, columnAllSelected: boolean) => void;
 };
 
 type State = {
@@ -27,10 +24,14 @@ type State = {
   importName: string;
   disclaimer: boolean;
   type: string;
+  contentType: string;
   contentTypes: IImportHistoryContentType[];
 
   associatedField: string;
   associatedContentType: string;
+
+  columnWithSelected: any;
+  columnNumber: number;
 };
 
 class Form extends React.Component<Props, State> {
@@ -43,9 +44,12 @@ class Form extends React.Component<Props, State> {
       importName: '',
       disclaimer: false,
       type: 'single',
+      contentType: props.contentType || '',
       contentTypes: [],
       associatedField: '',
-      associatedContentType: ''
+      associatedContentType: '',
+      columnNumber: 0,
+      columnWithSelected: 0,
     };
   }
 
@@ -61,7 +65,7 @@ class Form extends React.Component<Props, State> {
     this.setState({ attachments: temp });
   };
 
-  onChangeColumn = (column, value, contentType) => {
+  onChangeColumn = (column, value, contentType, columns) => {
     const { columnWithChosenField } = this.state;
 
     const temp = columnWithChosenField[contentType] || {};
@@ -74,25 +78,31 @@ class Form extends React.Component<Props, State> {
     temp2[contentType] = temp;
 
     this.setState({ columnWithChosenField: temp2 });
+    this.setState({ columnWithSelected: Object.keys(temp).length });
+    this.setState({ columnNumber: Object.keys(columns).length });
   };
 
-  onChangeImportName = value => {
+  onChangeImportName = (value) => {
     this.setState({ importName: value });
   };
 
-  onChangeDisclaimer = value => {
+  onChangecolumnNumber = (value) => {
+    this.setState({ columnNumber: value });
+  };
+
+  onChangeDisclaimer = (value) => {
     this.setState({ disclaimer: value });
   };
 
-  onChangeType = value => {
+  onChangeType = (value) => {
     this.setState({ type: value, contentTypes: [] });
   };
 
-  onChangeAssociateHeader = value => {
+  onChangeAssociateHeader = (value) => {
     this.setState({ associatedField: value });
   };
 
-  onChangeAssociateContentType = value => {
+  onChangeAssociateContentType = (value) => {
     this.setState({ associatedContentType: value });
   };
 
@@ -129,7 +139,9 @@ class Form extends React.Component<Props, State> {
       attachments,
       contentTypes,
       associatedField,
-      associatedContentType
+      associatedContentType,
+      columnNumber,
+      columnWithSelected,
     } = this.state;
 
     const files = [] as any;
@@ -148,10 +160,14 @@ class Form extends React.Component<Props, State> {
       files: attachments,
       columnsConfig: columnWithChosenField,
       associatedField,
-      associatedContentType
+      associatedContentType,
     };
 
-    return this.props.addImportHistory(doc);
+    if (columnWithSelected === columnNumber) {
+      return this.props.addImportHistory(doc, true);
+    }
+
+    return this.props.addImportHistory(doc, false);
   };
 
   renderImportButton = () => {
@@ -212,7 +228,7 @@ class Form extends React.Component<Props, State> {
               columnWithChosenField={columnWithChosenField}
               onChangeColumn={this.onChangeColumn}
             />
-          </Step>
+          </Step>,
         );
       }
     }
@@ -221,14 +237,15 @@ class Form extends React.Component<Props, State> {
   };
 
   render() {
-    const { importName, disclaimer, type, contentTypes } = this.state;
+    const { importName, disclaimer, type, contentType, contentTypes } =
+      this.state;
 
     const title = __('Import');
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('Import & Export'), link: '/settings/importHistories' },
-      { title }
+      { title },
     ];
 
     const content = (
@@ -239,6 +256,7 @@ class Form extends React.Component<Props, State> {
               <TypeForm
                 type={type}
                 onChangeContentType={this.onChangeContentType}
+                contentType={contentType}
                 contentTypes={contentTypes}
               />
             </Step>

@@ -1,27 +1,21 @@
-import typeDefs from './graphql/typeDefs';
-import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
+import resolvers from './graphql/resolvers';
+import typeDefs from './graphql/typeDefs';
 
-import { initBroker } from './messageBroker';
-import { initMemoryStorage } from './inmemoryStorage';
+import { setupMessageConsumers } from './messageBroker';
 // import logs from './logUtils';
-import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-
-export let debug;
-export let graphqlPubsub;
-export let mainDb;
-export let serviceDiscovery;
+import { exportCensusRunner } from './exporterByUrl';
+import * as permissions from './permissions';
 
 export default {
   name: 'inventories',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
-
+  getHandlers: [{ path: `/file-export-census`, method: exportCensusRunner }],
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
   apolloServerContext: async (context, req) => {
@@ -33,16 +27,10 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
-    mainDb = options.db;
+  onServerInit: async () => {},
+  setupMessageConsumers,
 
-    initBroker(options.messageBrokerClient);
-
-    initMemoryStorage();
-
-    debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
+  meta: {
+    permissions,
   },
-
-  meta: {}
 };

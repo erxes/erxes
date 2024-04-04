@@ -1,16 +1,15 @@
-import { CONVERSATION_STATUSES } from '../../models/definitions/constants';
-import { IMessageDocument } from '../../models/definitions/conversationMessages';
-import { countByConversations } from '../../conversationUtils';
-
+import { IContext, IModels } from '../../connectionResolver';
+import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';
 import {
   checkPermission,
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
 
-import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';
-import { IContext, IModels } from '../../connectionResolver';
-import { sendFormsMessage } from '../../messageBroker';
+import { CONVERSATION_STATUSES } from '../../models/definitions/constants';
+import { IMessageDocument } from '../../models/definitions/conversationMessages';
+import { countByConversations } from '../../conversationUtils';
 import { paginate } from '@erxes/api-utils/src';
+import { sendFormsMessage } from '../../messageBroker';
 
 interface ICountBy {
   [index: string]: number;
@@ -34,27 +33,46 @@ const conversationQueries: any = {
   async conversations(
     _root,
     params: IListArgs,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain, serverTiming }: IContext
   ) {
+    serverTiming.startTime('conversations');
+
     // filter by ids of conversations
     if (params && params.ids) {
-      return models.Conversations.find({ _id: { $in: params.ids } }).sort({
-        updatedAt: -1
-      });
+      return models.Conversations.find({ _id: { $in: params.ids } })
+        .sort({
+          updatedAt: -1
+        })
+        .skip(params.skip || 0)
+        .limit(params.limit || 0);
     }
+
+    serverTiming.startTime('buildQuery');
 
     // initiate query builder
     const qb = new QueryBuilder(models, subdomain, params, {
       _id: user._id,
       code: user.code,
-      starredConversationIds: user.starredConversationIds
+      starredConversationIds: user.starredConversationIds,
+      role: user.role
     });
 
     await qb.buildAllQueries();
 
-    return models.Conversations.find(qb.mainQuery())
+    serverTiming.endTime('buildQuery');
+
+    serverTiming.startTime('conversationsQuery');
+
+    const conversations = await models.Conversations.find(qb.mainQuery())
       .sort({ updatedAt: -1 })
+      .skip(params.skip || 0)
       .limit(params.limit || 0);
+
+    serverTiming.endTime('conversationsQuery');
+
+    serverTiming.endTime('conversations');
+
+    return conversations;
   },
 
   /**
@@ -122,7 +140,8 @@ const conversationQueries: any = {
     const _user = {
       _id: user._id,
       code: user.code,
-      starredConversationIds: user.starredConversationIds
+      starredConversationIds: user.starredConversationIds,
+      role: user.role
     };
 
     const qb = new QueryBuilder(models, subdomain, params, _user);
@@ -237,8 +256,10 @@ const conversationQueries: any = {
   async conversationsTotalUnreadCount(
     _root,
     _args,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain, serverTiming }: IContext
   ) {
+    serverTiming.startTime('buildQuery');
+
     // initiate query builder
     const qb = new QueryBuilder(
       models,
@@ -249,16 +270,29 @@ const conversationQueries: any = {
 
     await qb.buildAllQueries();
 
+    serverTiming.endTime('buildQuery');
+
+    serverTiming.startTime('integrationFilter');
+
     // get all possible integration ids
     const integrationsFilter = await qb.integrationsFilter();
 
-    return models.Conversations.find({
+    serverTiming.endTime('integrationFilter');
+
+    serverTiming.startTime('query');
+
+    const response = await models.Conversations.find({
       ...integrationsFilter,
       status: { $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN] },
       readUserIds: { $ne: user._id },
       $and: [{ $or: qb.userRelevanceQuery() }]
     }).countDocuments();
+
+    serverTiming.endTime('query');
+
+    return response;
   },
+
   async inboxFields(_root, _args, { subdomain }: IContext) {
     const response: {
       customer?: any[];
@@ -276,7 +310,8 @@ const conversationQueries: any = {
       data: {
         query: {
           contentType: 'contacts:customer',
-          isDefinedByErxes: true
+          isDefinedByErxes: true,
+          name: 'Basic information'
         }
       },
       isRPC: true
@@ -302,7 +337,8 @@ const conversationQueries: any = {
       data: {
         query: {
           contentType: 'inbox:conversation',
-          isDefinedByErxes: true
+          isDefinedByErxes: true,
+          name: 'Basic information'
         }
       },
       isRPC: true
@@ -328,7 +364,8 @@ const conversationQueries: any = {
       data: {
         query: {
           contentType: 'contacts:device',
-          isDefinedByErxes: true
+          isDefinedByErxes: true,
+          name: 'Basic information'
         }
       },
       isRPC: true

@@ -1,13 +1,14 @@
+import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
+
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Datetime from '@nateradebaugh/react-datetime';
-import dayjs from 'dayjs';
+import { FlexRow } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
-import timezones from '@erxes/ui/src/constants/timezones';
-import { FlexRow } from '@erxes/ui-settings/src/integrations/styles';
 import React from 'react';
+import dayjs from 'dayjs';
 import styled from 'styled-components';
+import timezones from '@erxes/ui/src/constants/timezones';
 
 const WeekContainers = styled.div`
   display: inline-block;
@@ -114,16 +115,16 @@ class OpeningHours extends React.Component<Props, State> {
             your availability in their local time zone.
             <br />
             <FormControl
-              componentClass='select'
+              componentClass="select"
               defaultValue={timezone}
-              name='timezone'
+              name="timezone"
               options={timezones}
               onChange={this.onChangeInput.bind(null, 'timezone')}
             />
           </FormGroup>
 
           <FlexRow>
-            <div className='flex-item'>
+            <div className="flex-item">
               <WeekContainers>
                 {weeks.map((k, index) => {
                   const value = weekValues[index];
@@ -142,12 +143,12 @@ class OpeningHours extends React.Component<Props, State> {
                 })}
               </WeekContainers>
             </div>
-            <div className='flex-item'>
+            <div className="flex-item">
               <ControlLabel>Start Time</ControlLabel>
 
               <Datetime
                 dateFormat={false}
-                timeFormat='HH:mm'
+                timeFormat="HH:mm"
                 closeOnSelect={true}
                 utc={true}
                 input={false}
@@ -156,12 +157,12 @@ class OpeningHours extends React.Component<Props, State> {
               />
             </div>
 
-            <div className='flex-item'>
+            <div className="flex-item">
               <ControlLabel>End Time</ControlLabel>
 
               <Datetime
                 dateFormat={false}
-                timeFormat='HH:mm'
+                timeFormat="HH:mm"
                 closeOnSelect={true}
                 utc={true}
                 input={false}

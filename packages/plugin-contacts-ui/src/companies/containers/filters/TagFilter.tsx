@@ -1,14 +1,15 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import CountsByTag from '@erxes/ui/src/components/CountsByTag';
-import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
-import { queries as tagQueries } from '@erxes/ui/src/tags/graphql';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withProps } from '@erxes/ui/src/utils';
-import { TagsQueryResponse } from '@erxes/ui/src/tags/types';
-import { queries as companyQueries } from '../../graphql';
+
 import { CountQueryResponse } from '../../types';
+import CountsByTag from '@erxes/ui/src/components/CountsByTag';
+import React from 'react';
+import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
+import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
+import { queries as companyQueries } from '../../graphql';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
+import { withProps } from '@erxes/ui/src/utils';
 
 const TagFilterContainer = (props: {
   companyCountsQuery?: CountQueryResponse;
@@ -24,36 +25,41 @@ const TagFilterContainer = (props: {
     <CountsByTag
       tags={(tagsQuery ? tagsQuery.tags : null) || []}
       counts={counts.byTag || {}}
-      manageUrl="/tags?type=contacts:company"
+      manageUrl="/settings/tags?type=contacts:company"
       loading={(tagsQuery ? tagsQuery.loading : null) || false}
     />
   );
 };
 
-export default withProps<{ loadingMainQuery: boolean }>(
+type Props = {
+  loadingMainQuery: boolean;
+  abortController?;
+};
+
+export default withProps<Props>(
   compose(
-    graphql<
-      { loadingMainQuery: boolean },
-      CountQueryResponse,
-      { only: string }
-    >(gql(companyQueries.companyCounts), {
-      name: 'companyCountsQuery',
-      skip: ({ loadingMainQuery }) => loadingMainQuery,
-      options: {
-        variables: { only: 'byTag' }
-      }
-    }),
-    graphql<{ loadingMainQuery: boolean }, TagsQueryResponse, { type: string }>(
-      gql(tagQueries.tags),
+    graphql<Props, CountQueryResponse, { only: string }>(
+      gql(companyQueries.companyCounts),
       {
-        name: 'tagsQuery',
+        name: 'companyCountsQuery',
         skip: ({ loadingMainQuery }) => loadingMainQuery,
-        options: () => ({
-          variables: {
-            type: TAG_TYPES.COMPANY
+        options: ({ abortController }) => ({
+          variables: { only: 'byTag' },
+          context: {
+            fetchoptions: { signal: abortController && abortController.signal }
           }
         })
       }
-    )
+    ),
+    graphql<Props, TagsQueryResponse, { type: string }>(gql(tagQueries.tags), {
+      name: 'tagsQuery',
+      skip: ({ loadingMainQuery }) => loadingMainQuery,
+      options: ({ abortController }) => ({
+        variables: { type: TAG_TYPES.COMPANY },
+        context: {
+          fetchoptions: { signal: abortController && abortController.signal }
+        }
+      })
+    })
   )(TagFilterContainer)
 );

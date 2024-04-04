@@ -1,16 +1,18 @@
-import React from 'react';
 import {
   Checkbox,
   FormLabel,
   Input,
+  Progress,
   Radio,
   Select,
-  SelectWrapper,
-  Progress
+  SelectWrapper
 } from './styles';
+
 import { Column } from '@erxes/ui/src/styles/main';
-import Textarea from './Textarea';
 import ProgressBar from '../ProgressBar';
+import React from 'react';
+import Textarea from './Textarea';
+import NumberInput from './NumberInput';
 
 type Props = {
   children?: React.ReactNode;
@@ -46,6 +48,8 @@ type Props = {
   maxLength?: number;
   color?: string;
   align?: string;
+  useNumberFormat?: boolean;
+  fixed?: number; // useNumberFormat is true then used
 };
 
 const renderElement = (Element, attributes, type, child) => {
@@ -201,6 +205,15 @@ class FormControl extends React.Component<Props> {
       return (
         <Column>
           <Textarea {...props} hasError={errorMessage} />
+          {errorMessage}
+        </Column>
+      );
+    }
+
+    if (props.type === 'number' && props.useNumberFormat) {
+      return (
+        <Column>
+          <NumberInput {...attributes} fixed={props.fixed} />
           {errorMessage}
         </Column>
       );

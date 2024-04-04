@@ -1,4 +1,9 @@
-import { FormControl, TextInfo, ModalTrigger, Icon } from '@erxes/ui/src/components';
+import {
+  FormControl,
+  TextInfo,
+  ModalTrigger,
+  Icon
+} from '@erxes/ui/src/components';
 import React from 'react';
 import Form from '../containers/Form';
 import { IDonateCampaign } from '../types';
@@ -18,11 +23,9 @@ class Row extends React.Component<Props> {
     const updatedProps = {
       ...props,
       donateCampaign
-    }
+    };
 
-    return (
-      <Form {...updatedProps} />
-    )
+    return <Form {...updatedProps} />;
   };
 
   render() {
@@ -44,8 +47,7 @@ class Row extends React.Component<Props> {
       startDate,
       endDate,
       finishDateOfUse,
-      status,
-
+      status
     } = donateCampaign;
 
     const trigger = (
@@ -66,11 +68,11 @@ class Row extends React.Component<Props> {
         </td>
         <td onClick={onClick}>
           <Link to={`/donates?campaignId=${_id}`}>
-            <Icon icon='list-2' />
+            <Icon icon="list-2" />
           </Link>
         </td>
       </tr>
-    )
+    );
 
     return (
       <ModalTrigger
@@ -80,7 +82,6 @@ class Row extends React.Component<Props> {
         autoOpenKey="showProductModal"
         content={this.modalContent}
       />
-
     );
   }
 }

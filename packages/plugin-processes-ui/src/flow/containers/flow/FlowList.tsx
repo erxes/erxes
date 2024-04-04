@@ -1,14 +1,13 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import Bulk from '@erxes/ui/src/components/Bulk';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import List from '../../components/flow/FlowList';
 import { mutations, queries } from '../../graphql';
 import {
-  CategoryDetailQueryResponse,
   flowsRemoveMutationResponse,
   flowTotalCountQueryResponse,
   FlowsQueryResponse,
@@ -25,7 +24,6 @@ type Props = {
 type FinalProps = {
   flowsQuery: FlowsQueryResponse;
   flowTotalCountQuery: flowTotalCountQueryResponse;
-  productCategoryDetailQuery: CategoryDetailQueryResponse;
 } & Props &
   flowsRemoveMutationResponse &
   FlowsAddMutationResponse;
@@ -49,11 +47,12 @@ class ProductListContainer extends React.Component<FinalProps> {
       flowsAdd
     } = this.props;
 
-    const addFlow = () => {
+    const addFlow = (isSub?: boolean) => {
       flowsAdd({
         variables: {
           name: 'Your flow title',
-          status: 'draft'
+          status: 'draft',
+          isSub
         }
       })
         .then(data => {
@@ -100,8 +99,7 @@ class ProductListContainer extends React.Component<FinalProps> {
       addFlow,
       loading: flowsQuery.loading,
       searchValue: this.props.queryParams.searchValue || '',
-      flowsTotalCount: flowTotalCountQuery.flowTotalCount || 0,
-      currentCategory: {}
+      flowsTotalCount: flowTotalCountQuery.flowTotalCount || 0
     };
 
     const flowList = props => {
@@ -117,23 +115,33 @@ class ProductListContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return ['flows', 'flowCategories', 'flowTotalCount'];
+  return ['flows', 'flowsMain', 'flowCategories', 'flowTotalCount'];
 };
 
 const options = () => ({
   refetchQueries: getRefetchQueries()
 });
 
+const generateFilter = qp => {
+  return {
+    categoryId: qp.categoryId,
+    searchValue: qp.searchValue,
+    branchId: qp.branchId,
+    departmentId: qp.departmentId,
+    status: qp.status,
+    validation: qp.validation
+  };
+};
+
 export default withProps<Props>(
   compose(
     graphql<Props, FlowsQueryResponse, { page: number; perPage: number }>(
-      gql(queries.flows),
+      gql(queries.flowsMain),
       {
         name: 'flowsQuery',
         options: ({ queryParams }) => ({
           variables: {
-            categoryId: queryParams.categoryId,
-            searchValue: queryParams.searchValue,
+            ...generateFilter(queryParams),
             ...generatePaginationParams(queryParams)
           },
           fetchPolicy: 'network-only'
@@ -144,8 +152,7 @@ export default withProps<Props>(
       name: 'flowTotalCountQuery',
       options: ({ queryParams }) => ({
         variables: {
-          searchValue: queryParams.searchValue,
-          ...generatePaginationParams(queryParams)
+          ...generateFilter(queryParams)
         },
         fetchPolicy: 'network-only'
       })
@@ -162,7 +169,7 @@ export default withProps<Props>(
       {
         name: 'flowsAdd',
         options: () => ({
-          refetchQueries: ['flows', 'flowDetail', 'jobRefersAll']
+          refetchQueries: ['flows', 'flowDetail']
         })
       }
     )

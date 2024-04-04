@@ -13,14 +13,7 @@ export interface IEbarimtConfig {
   vatPercent: number;
   cityTaxPercent: number;
   footerText: string;
-}
-
-export interface IQPayConfig {
-  url: string;
-  callbackUrl: string;
-  username: string;
-  password: string;
-  invoiceCode: string;
+  hasCopy?: boolean;
 }
 
 interface IConfigColors {
@@ -39,23 +32,24 @@ interface IUIOptions {
   texts: IConfigColors;
 }
 
-interface ISyncInfo {
-  id: string;
-  date: Date;
-}
-
 interface ICatProd {
   _id: string;
   categoryId: string;
+  code?: string;
+  name?: string;
   productId: string;
 }
 
 export interface IConfig {
   name: string;
   description?: string;
+  orderPassword?: string;
+  pdomain?: string;
   productDetails?: string[];
   adminIds: string[];
   cashierIds: string[];
+  paymentIds: string[];
+  paymentTypes: any[];
   beginNumber?: string;
   maxSkipNumber?: number;
   kitchenScreen?: any;
@@ -64,11 +58,25 @@ export interface IConfig {
   token: string;
   uiOptions: IUIOptions;
   ebarimtConfig?: IEbarimtConfig;
-  qpayConfig?: IQPayConfig;
+  erkhetConfig?: any;
   catProdMappings?: ICatProd[];
   initialCategoryIds?: string[];
+  kioskExcludeCategoryIds?: string[];
   kioskExcludeProductIds?: string[];
+  deliveryConfig?: any;
+  cardsConfig?: any;
   posId: string;
+  isOnline?: boolean;
+  onServer?: boolean;
+  branchId?: string;
+  departmentId?: string;
+  allowBranchIds?: string[];
+  checkRemainder?: boolean;
+  permissionConfig?: any;
+  allowTypes: string[];
+  isCheckRemainder: boolean;
+  checkExcludeCategoryIds: string[];
+  banFractions: boolean;
 }
 
 export interface IConfigDocument extends Document, IConfig {
@@ -83,79 +91,124 @@ export interface IProductGroupDocument extends Document, IProductGroup {
 
 const ebarimtConfigSchema = new Schema(
   {
-    companyName: field({ type: String, label: 'Company name' }),
-    ebarimtUrl: field({ type: String, label: 'Ebarimt server url' }),
-    checkCompanyUrl: field({ type: String, label: 'Company info url' }),
-    hasVat: field({ type: Boolean }),
-    hasCitytax: field({ type: Boolean }),
-    districtCode: field({ type: String, label: 'Province or district code' }),
-    companyRD: field({ type: String, label: 'Company register number' }),
-    defaultGSCode: field({ type: String, label: 'Default inventory code' }),
+    companyName: field({ type: String, optional: true, label: 'Company name' }),
+    ebarimtUrl: field({
+      type: String,
+      optional: true,
+      label: 'Ebarimt server url',
+    }),
+    checkCompanyUrl: field({
+      type: String,
+      optional: true,
+      label: 'Company info url',
+    }),
+    hasVat: field({ type: Boolean, optional: true }),
+    hasCitytax: field({ type: Boolean, optional: true }),
+    districtCode: field({
+      type: String,
+      optional: true,
+      label: 'Province or district code',
+    }),
+    companyRD: field({
+      type: String,
+      optional: true,
+      label: 'Company register number',
+    }),
+    defaultGSCode: field({
+      type: String,
+      optional: true,
+      label: 'Default inventory code',
+    }),
     vatPercent: field({ type: Number, optional: true, label: 'Vat percent' }),
     cityTaxPercent: {
       type: Number,
       optional: true,
-      label: 'UB city tax percent'
+      label: 'UB city tax percent',
     },
-    footerText: field({ type: String, optional: true, label: 'Footer text' })
+    footerText: field({ type: String, optional: true, label: 'Footer text' }),
+    hasCopy: field({ type: Boolean, optional: true }),
   },
-  { _id: false }
-);
-
-const qpayConfigSchema = new Schema(
-  {
-    url: field({ type: String, label: 'QPay url' }),
-    callbackUrl: field({ type: String, label: 'Callback url' }),
-    username: field({ type: String, label: 'QPay username' }),
-    password: field({ type: String, label: 'QPay password' }),
-    invoiceCode: field({ type: String, label: 'QPay invoice' })
-  },
-  { _id: false }
+  { _id: false },
 );
 
 export const configSchema = new Schema({
   _id: field({ pkey: true }),
-  name: field({ type: String, label: 'Name' }),
-  description: field({ type: String, label: 'Description' }),
+  name: field({ type: String, unique: true, label: 'Name' }),
+  description: field({ type: String, optional: true, label: 'Description' }),
+  orderPassword: field({
+    type: String,
+    optional: true,
+    label: ' OrderPassword',
+  }),
+  pdomain: field({ type: String, optional: true, label: 'Domain' }),
   userId: field({ type: String, optional: true, label: 'Created by' }),
   createdAt: getDateFieldDefinition('Created at'),
-  integrationId: field({ type: String, label: 'Erxes integration' }),
   productDetails: field({ type: [String] }),
   adminIds: field({ type: [String] }),
   cashierIds: field({ type: [String] }),
+  paymentIds: field({ type: [String] }),
+  paymentTypes: field({ type: [Object] }),
   beginNumber: field({ type: String, optional: true }),
   maxSkipNumber: field({ type: Number }),
   waitingScreen: field({ type: Object }),
   kioskMachine: field({ type: Object, optional: true }),
   kitchenScreen: field({ type: Object }),
-  formSectionTitle: field({ type: String }),
-  formIntegrationIds: field({ type: [String] }),
-  brandId: field({ type: String }),
   token: field({ type: String, label: 'Token generated at erxes-api' }),
+  erxesAppToken: field({ type: String, label: 'Erxes app token' }),
   uiOptions: field({ type: Object, label: 'Logo & color configs' }),
-  ebarimtConfig: field({ type: ebarimtConfigSchema }),
-  qpayConfig: field({ type: qpayConfigSchema }),
+  ebarimtConfig: field({ type: ebarimtConfigSchema, optional: true }),
+  erkhetConfig: field({ type: Object }),
   catProdMappings: field({
     type: [Object],
-    label: 'Product category mappings'
+    label: 'Product category mappings',
   }),
   initialCategoryIds: field({
     type: [String],
-    label: 'Pos initial categories'
+    label: 'Pos initial categories',
+  }),
+  kioskExcludeCategoryIds: field({
+    type: [String],
+    label: 'kiosk Exclude Categories',
   }),
   kioskExcludeProductIds: field({
     type: [String],
-    label: 'kiosk Exclude Products'
+    label: 'kiosk Exclude Products',
   }),
-  posId: field({ type: String, label: 'Pos id' })
+  deliveryConfig: field({ type: Object }),
+  cardsConfig: field({ type: Object }),
+  posId: field({ type: String, label: 'Pos id' }),
+  isOnline: field({ type: Boolean, optional: true }),
+  onServer: field({ type: Boolean, optional: true }),
+  branchId: field({ type: String, optional: true, label: 'Branch' }),
+  departmentId: field({ type: String, optional: true, label: 'Department' }),
+  allowBranchIds: field({
+    type: [String],
+    optional: true,
+    label: 'Allow branches',
+  }),
+  checkRemainder: field({ type: Boolean, optional: true }),
+  permissionConfig: field({ type: Object, optional: true }),
+  allowTypes: field({ type: [String], label: 'Allow Types' }),
+  isCheckRemainder: field({ type: Boolean, optional: true }),
+  checkExcludeCategoryIds: field({ type: [String] }),
+  banFractions: field({ type: Boolean, optional: true }),
+  status: field({ type: String, optional: true }),
 });
 
-export const productGroupSchema = new Schema({
+// products config
+export interface IProductsConfig {
+  code: string;
+  value: any;
+}
+
+export interface IProductsConfigDocument extends IProductsConfig, Document {
+  _id: string;
+}
+
+// Mongoose schemas ===========
+
+export const productsConfigSchema = new Schema({
   _id: field({ pkey: true }),
-  name: field({ type: String }),
-  description: field({ type: String }),
-  posId: field({ type: String }),
-  categoryIds: field({ type: [String], optional: true }),
-  excludedCategoryIds: field({ type: [String], optional: true }),
-  excludedProductIds: field({ type: [String], optional: true })
+  code: field({ type: String, unique: true }),
+  value: field({ type: Object }),
 });

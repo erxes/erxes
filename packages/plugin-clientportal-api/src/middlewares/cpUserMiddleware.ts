@@ -1,18 +1,59 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import { GraphQLError } from 'graphql';
 import { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
-
-import { generateModels } from '../connectionResolver';
+import { extractClientportalToken } from '@erxes/api-utils/src/clientportal';
+import { IModels, generateModels } from '../connectionResolver';
 
 export default async function cpUserMiddleware(
   req: Request & { cpUser?: any },
-  _res: Response,
-  next: NextFunction
+  res: Response,
+  next: NextFunction,
 ) {
-  const subdomain = getSubdomain(req);
-  const models = await generateModels(subdomain);
+  if (
+    req.path === '/subscriptionPlugin.js' ||
+    req.body?.operationName === 'SubgraphIntrospectQuery' ||
+    req.body?.operationName === 'IntrospectionQuery'
+  ) {
+    return next();
+  }
 
-  const token = req.cookies['client-auth-token'];
+  const subdomain = getSubdomain(req);
+  let models: IModels;
+  try {
+    models =  await generateModels(subdomain);
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
+  }
+  const { body } = req;
+
+  const operationName = body.operationName && body.operationName.split('__')[0];
+
+  if (
+    [
+      'clientPortalGetLast',
+      'clientPortalGetConfigs',
+      'clientPortalGetConfig',
+      'clientPortalConfigsTotalCount',
+      'clientPortalConfigUpdate',
+      'clientPortalRemove',
+      'clientPortalGetAllowedFields',
+      'clientPortalLogin',
+      'clientPortalLogout',
+      'clientPortalLoginWithPhone',
+      'clientPortalLoginWithMailOTP',
+      'clientPortalLoginWithSocialPay',
+      'clientPortalRegister',
+      'clientPortalVerifyOTP',
+      'clientPortalRefreshToken',
+      'clientPortalGetConfigByDomain',
+      'clientPortalKnowledgeBaseTopicDetail',
+    ].includes(operationName)
+  ) {
+    return next();
+  }
+
+  const token = extractClientportalToken(req);
 
   if (!token) {
     return next();
@@ -20,10 +61,12 @@ export default async function cpUserMiddleware(
 
   try {
     // verify user token and retrieve stored user information
-    const { userId }: any = jwt.verify(
+    const verifyResult: any = jwt.verify(
       token,
-      process.env.JWT_TOKEN_SECRET || ''
+      process.env.JWT_TOKEN_SECRET || '',
     );
+
+    const { userId } = verifyResult;
 
     const userDoc = await models.ClientPortalUsers.findOne({ _id: userId });
 
@@ -36,8 +79,13 @@ export default async function cpUserMiddleware(
     req.cpUser.loginToken = token;
     req.cpUser.sessionCode = req.headers.sessioncode || '';
   } catch (e) {
-    console.error(e);
-    return next();
+    if (e.name === 'TokenExpiredError') {
+      const graphQLError = new GraphQLError('token expired');
+
+      return res.status(200).json({ errors: [graphQLError] });
+    }
+
+    return next(e);
   }
 
   return next();

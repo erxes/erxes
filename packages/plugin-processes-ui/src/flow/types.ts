@@ -1,25 +1,46 @@
+import { IJobRefer } from '../job/types';
+import { IProduct } from '@erxes/ui-products/src/types';
+import { IProductsData } from '../types';
 import { QueryResponse } from '@erxes/ui/src/types';
-import {
-  IProduct,
-  IProductCategory as IProductCategoryC
-} from '@erxes/ui-products/src/types';
-export type IProductCategory = IProductCategoryC & {};
-export interface IJob {
-  id: string;
-  nextJobIds?: string[];
-  jobReferId?: string;
-  style?: object;
-  label?: string;
+
+export type IFlowCategory = {
+  _id: string;
+  name: string;
+  order: string;
+  code: string;
   description?: string;
+  attachment?: any;
+  status: string;
+  parentId?: string;
+  createdAt: Date;
+  flowCount: number;
+  isRoot: boolean;
+};
+
+interface IConfig {
+  jobReferId?: string;
+  productId?: string;
+  subFlowId?: string;
+
   quantity?: number;
+
+  durationType: string;
+  duration: number;
   inBranchId?: string;
   inDepartmentId?: string;
   outBranchId?: string;
   outDepartmentId?: string;
 }
 
-export interface IJobDocument extends IJob {
-  jobRefer: IJobRefer;
+export interface IJob {
+  id: string;
+  type: string;
+  config: IConfig;
+  nextJobIds?: string[];
+  style?: any;
+  label?: string;
+  description?: string;
+  icon?: string;
 }
 
 export interface IFlow {
@@ -28,8 +49,11 @@ export interface IFlow {
   productId?: string;
   product?: IProduct;
   status: string;
-  flowJobStatus?: boolean;
+  isSub?: boolean;
+  flowValidation?: string;
   jobs?: IJob[];
+  needProducts?: IProductsData[];
+  resultProducts?: IProductsData[];
 }
 
 export interface IFlowDocument extends IFlow, Document {
@@ -38,40 +62,25 @@ export interface IFlowDocument extends IFlow, Document {
   createdBy?: string;
   updatedAt?: Date;
   updatedBy?: string;
-}
-
-export interface IJobCategory {
-  _id: string;
-  name: string;
-  code: string;
-  description?: string;
-  parentId?: string;
-  attachment?: any;
-  status?: string;
-  order: string;
-  createdAt: Date;
-  isRoot: boolean;
-  productCount: number;
-}
-
-export interface IJobRefer {
-  _id: string;
-  createdAt: Date;
-  code: string;
-  name: string;
-  type: string;
-  status?: string;
-  categoryId?: string;
-  duration: number;
-  durationType: string;
-  needProducts?: any[];
-  resultProducts?: any[];
+  jobCount: number;
+  latestBranchId?: string;
+  latestDepartmentId?: string;
+  latestBranch?: any;
+  latestDepartment?: any;
+  latestNeedProducts?: IProductsData[];
+  latestResultProducts?: IProductsData[];
 }
 
 // FLOW
 
 export type FlowsQueryResponse = {
   flows: IFlowDocument[];
+  refetch: (variables?: {
+    searchValue?: string;
+    isSub?: boolean;
+    perPage?: number;
+    categoryId?: string;
+  }) => void;
 } & QueryResponse;
 
 export type FlowsAllQueryResponse = {
@@ -95,7 +104,7 @@ export type flowTotalCountQueryResponse = {
 } & QueryResponse;
 
 export type FlowCategoriesQueryResponse = {
-  productCategories: IProductCategory[];
+  flowCategories: any[];
 } & QueryResponse;
 
 export type FlowCategoriesCountQueryResponse = {
@@ -107,18 +116,7 @@ export type flowsRemoveMutationResponse = {
   flowsRemove: (mutation: { variables: { flowIds: string[] } }) => Promise<any>;
 };
 
-export type FlowCategoriesRemoveMutationResponse = {
-  flowCategoriesRemove: (mutation: {
-    variables: { _id: string };
-  }) => Promise<any>;
-};
-
 export type DetailQueryResponse = {
   jobReferDetail: IJobRefer;
-  loading: boolean;
-};
-
-export type CategoryDetailQueryResponse = {
-  productCategoryDetail: IProductCategory;
   loading: boolean;
 };

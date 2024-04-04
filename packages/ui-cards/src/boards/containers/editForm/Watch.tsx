@@ -1,9 +1,9 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { IItem, IOptions, WatchMutation, WatchVariables } from '../../types';
 import { Alert, renderWithProps } from '@erxes/ui/src/utils';
 import * as React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import Watch from '../../components/editForm/Watch';
 
 type IProps = {

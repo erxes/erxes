@@ -5,34 +5,34 @@ import {
   LogDesc,
   gatherNames,
   IDescriptions,
-  getSchemaLabels
+  getSchemaLabels,
 } from '@erxes/api-utils/src/logUtils';
 
 import { IModels } from './connectionResolver';
-import messageBroker, { sendTagsMessage } from './messageBroker';
+import { sendTagsMessage } from './messageBroker';
 import {
   IProductDocument,
   productSchema,
-  productCategorySchema
+  productCategorySchema,
 } from './models/definitions/products';
 
 export const LOG_ACTIONS = {
   CREATE: 'create',
   UPDATE: 'update',
-  DELETE: 'delete'
+  DELETE: 'delete',
 };
 
 export const MODULE_NAMES = {
   PRODUCT: 'product',
   PRODUCT_CATEGORY: 'productCategory',
-  UOM: 'uom'
+  UOM: 'uom',
 };
 
 const gatherProductFieldNames = async (
   models: IModels,
   subdomain: string,
   doc: IProductDocument,
-  prevList?: LogDesc[]
+  prevList?: LogDesc[],
 ): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
@@ -49,11 +49,11 @@ const gatherProductFieldNames = async (
         subdomain,
         action: 'find',
         data: {
-          _id: { $in: doc.tagIds }
+          _id: { $in: doc.tagIds },
         },
         isRPC: true,
-        defaultValue: []
-      })
+        defaultValue: [],
+      }),
     });
   }
 
@@ -63,8 +63,8 @@ const gatherProductFieldNames = async (
       prevList: options,
       nameFields: ['name'],
       items: await models.ProductCategories.find({
-        _id: { $in: [doc.categoryId] }
-      }).lean()
+        _id: { $in: [doc.categoryId] },
+      }).lean(),
     });
   }
 
@@ -74,7 +74,7 @@ const gatherProductFieldNames = async (
 const gatherDescriptions = async (
   models: IModels,
   subdomain: string,
-  params: any
+  params: any,
 ): Promise<IDescriptions> => {
   const { action, type, object, updatedDocument } = params;
 
@@ -90,7 +90,7 @@ const gatherDescriptions = async (
           models,
           subdomain,
           updatedDocument,
-          extraDesc
+          extraDesc,
         );
       }
 
@@ -111,8 +111,8 @@ const gatherDescriptions = async (
           foreignKey: 'parentId',
           nameFields: ['name'],
           items: await models.ProductCategories.find({
-            _id: { $in: parentIds }
-          }).lean()
+            _id: { $in: parentIds },
+          }).lean(),
         });
       }
 
@@ -128,22 +128,21 @@ export const putDeleteLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  user
+  user,
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
     {
       ...logDoc,
-      action: LOG_ACTIONS.DELETE
-    }
+      action: LOG_ACTIONS.DELETE,
+    },
   );
 
   await commonPutDeleteLog(
     subdomain,
-    messageBroker(),
     { ...logDoc, description, extraDesc, type: `products:${logDoc.type}` },
-    user
+    user,
   );
 };
 
@@ -151,22 +150,21 @@ export const putUpdateLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  user
+  user,
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
     {
       ...logDoc,
-      action: LOG_ACTIONS.UPDATE
-    }
+      action: LOG_ACTIONS.UPDATE,
+    },
   );
 
   await commonPutUpdateLog(
     subdomain,
-    messageBroker(),
     { ...logDoc, description, extraDesc, type: `products:${logDoc.type}` },
-    user
+    user,
   );
 };
 
@@ -174,22 +172,21 @@ export const putCreateLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  user
+  user,
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
     {
       ...logDoc,
-      action: LOG_ACTIONS.CREATE
-    }
+      action: LOG_ACTIONS.CREATE,
+    },
   );
 
   await commonPutCreateLog(
     subdomain,
-    messageBroker(),
     { ...logDoc, description, extraDesc, type: `products:${logDoc.type}` },
-    user
+    user,
   );
 };
 
@@ -198,7 +195,7 @@ export default {
     status: 'success',
     data: getSchemaLabels(type, [
       { name: 'product', schemas: [productSchema] },
-      { name: 'productCategory', schemas: [productCategorySchema] }
-    ])
-  })
+      { name: 'productCategory', schemas: [productCategorySchema] },
+    ]),
+  }),
 };

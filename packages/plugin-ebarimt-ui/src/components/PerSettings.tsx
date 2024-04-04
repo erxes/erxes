@@ -1,9 +1,18 @@
-import { Button, CollapseContent, ControlLabel, FormControl, FormGroup } from '@erxes/ui/src/components';
-import { __ } from '@erxes/ui/src/utils';
+import {
+  Button,
+  CollapseContent,
+  ControlLabel,
+  FormControl,
+  FormGroup,
+  Icon
+} from '@erxes/ui/src/components';
+
 import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import { DISTRICTS } from '../constants';
+import { IConfigsMap } from '../types';
 import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
 import React from 'react';
-import { IConfigsMap } from '../types';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   configsMap: IConfigsMap;
@@ -16,7 +25,7 @@ type Props = {
 type State = {
   config: any;
   hasOpen: boolean;
-}
+};
 
 class PerSettings extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -24,7 +33,7 @@ class PerSettings extends React.Component<Props, State> {
 
     this.state = {
       config: props.config,
-      hasOpen: false,
+      hasOpen: false
     };
   }
 
@@ -49,17 +58,17 @@ class PerSettings extends React.Component<Props, State> {
     delete configsMap.stageInEbarimt[currentConfigKey];
     configsMap.stageInEbarimt[key] = config;
     this.props.save(configsMap);
-  }
+  };
 
   onDelete = e => {
     e.preventDefault();
 
     this.props.delete(this.props.currentConfigKey);
-  }
+  };
 
   onChangeCheckbox = (code: string, e) => {
-    this.onChangeConfig(code, e.target.checked)
-  }
+    this.onChangeConfig(code, e.target.checked);
+  };
 
   onChangeConfig = (code: string, value) => {
     const { config } = this.state;
@@ -97,16 +106,21 @@ class PerSettings extends React.Component<Props, State> {
         <FormControl
           checked={config[key]}
           onChange={this.onChangeCheckbox.bind(this, key)}
-          componentClass='checkbox'
+          componentClass="checkbox"
         />
       </FormGroup>
     );
-  }
+  };
 
   render() {
     const { config } = this.state;
     return (
-      <CollapseContent title={__(config.title)} open={this.props.currentConfigKey === 'newEbarimtConfig' ? true : false}>
+      <CollapseContent
+        title={__(config.title)}
+        transparent={true}
+        beforeTitle={<Icon icon="settings" />}
+        open={this.props.currentConfigKey === 'newEbarimtConfig' ? true : false}
+      >
         <FormGroup>
           <ControlLabel>{'Title'}</ControlLabel>
           <FormControl
@@ -120,7 +134,7 @@ class PerSettings extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Destination Stage</ControlLabel>
           <BoardSelectContainer
-            type='deal'
+            type="deal"
             autoSelectStage={false}
             boardId={config.boardId}
             pipelineId={config.pipelineId}
@@ -128,24 +142,39 @@ class PerSettings extends React.Component<Props, State> {
             onChangeBoard={this.onChangeBoard}
             onChangePipeline={this.onChangePipeline}
             onChangeStage={this.onChangeStage}
+          />
+        </FormGroup>
+        {this.renderInput('companyName', 'companyName', 'optional')}
+        {this.renderInput('userEmail', 'userEmail', '')}
 
+        <FormGroup>
+          <ControlLabel>{__('Provice/District')}</ControlLabel>
+          <FormControl
+            componentClass="select"
+            defaultValue={this.state.config.districtName}
+            options={DISTRICTS}
+            onChange={this.onChangeInput.bind(this, 'districtName')}
+            required={true}
           />
         </FormGroup>
 
-        {this.renderInput('userEmail', 'userEmail', '')}
-        {this.renderInput('districtName', 'districtName', '')}
         {this.renderInput('companyRD', 'companyRD', '')}
         {this.renderInput('vatPercent', 'vatPercent', '')}
         {this.renderInput('cityTaxPercent', 'cityTaxPercent', '')}
         {this.renderInput('defaultGSCode', 'defaultGSCode', '')}
 
-        {this.renderCheckbox('hasVat', 'hasVat', '')}
-        {this.renderCheckbox('hasCitytax', 'hasCitytax', '')}
+        {this.renderCheckbox('hasVat', 'has Vat', '')}
+        {this.renderCheckbox('hasCitytax', 'has Citytax', '')}
+        {this.renderCheckbox(
+          'skipPutData',
+          'skip Ebarimt',
+          'When checked only  print inner bill'
+        )}
 
         <ModalFooter>
           <Button
-            btnStyle="simple"
-            icon="cancel-1"
+            btnStyle="danger"
+            icon="times-circle"
             onClick={this.onDelete}
             uppercase={false}
           >
@@ -153,7 +182,7 @@ class PerSettings extends React.Component<Props, State> {
           </Button>
 
           <Button
-            btnStyle="primary"
+            btnStyle="success"
             icon="check-circle"
             onClick={this.onSave}
             uppercase={false}
@@ -163,7 +192,7 @@ class PerSettings extends React.Component<Props, State> {
           </Button>
         </ModalFooter>
       </CollapseContent>
-    )
+    );
   }
 }
 export default PerSettings;

@@ -1,43 +1,33 @@
 import * as mongoose from 'mongoose';
-import { mainDb } from './configs';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { ILabelDocument } from './models/definitions/labels';
 import { ITimeframeDocument } from './models/definitions/timeframes';
+import { ILabelModel, loadLabelClass } from './models/Labels';
+import { ITimeframeModel, loadTimeframeClass } from './models/Timeframes';
+import { createGenerateModels } from '@erxes/api-utils/src/core';
+import { IYearPlanModel, loadYearPlanClass } from './models/YearPlans';
+import { IDayLabelModel, loadDayLabelClass } from './models/DayLabels';
+import { IDayPlanModel, loadDayPlanClass } from './models/DayPlans';
+import { IYearPlanDocument } from './models/definitions/yearPlans';
+import { IDayPlanDocument } from './models/definitions/dayPlans';
+import { IDayLabelDocument } from './models/definitions/dayLabels';
 import {
-  ISalesLogDocument,
-  IDayPlanConfigDocument,
-  IMonthPlanConfigDocument,
-  IYearPlanConfigDocument
-} from './models/definitions/salesplans';
-import { ILabelModel, loadLabelClass } from './models/labels';
-import { ITimeframeModel, loadTimeframeClass } from './models/timeframes';
-import {
-  ISalesLogModel,
-  loadSalesLogClass,
-  IDayPlanConfigModel,
-  loadDayPlanConfigClass,
-  IMonthPlanConfigModel,
-  loadMonthPlanConfigClass,
-  IYearPlanConfigModel,
-  loadYearPlanConfigClass
-} from './models/salesplans';
-import { MongoClient } from 'mongodb';
+  ITimeProportionModel,
+  loadTimeProportionClass,
+} from './models/TimeProportions';
+import { ITimeProportionDocument } from './models/definitions/timeProportions';
 
 export interface IModels {
-  SalesLogs: ISalesLogModel;
   Labels: ILabelModel;
   Timeframes: ITimeframeModel;
-  DayPlanConfigs: IDayPlanConfigModel;
-  MonthPlanConfigs: IMonthPlanConfigModel;
-  YearPlanConfigs: IYearPlanConfigModel;
+  TimeProportions: ITimeProportionModel;
+  YearPlans: IYearPlanModel;
+  DayLabels: IDayLabelModel;
+  DayPlans: IDayPlanModel;
 }
 
 export interface IContext extends IMainContext {
   models: IModels;
-}
-
-export interface ICoreModels {
-  Users: any;
 }
 
 export interface IContext extends IMainContext {
@@ -45,80 +35,40 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels;
-export let coreModels: ICoreModels;
-
-export const generateModels = async (
-  _hostnameOrSubdomain: string
-): Promise<IModels> => {
-  if (models) {
-    return models;
-  }
-
-  coreModels = await connectCore();
-
-  loadClasses(mainDb);
-
-  return models;
-};
-
-const connectCore = async () => {
-  if (coreModels) {
-    return coreModels;
-  }
-
-  const url = process.env.API_MONGO_URL || 'mongodb://localhost/erxes';
-  const client = new MongoClient(url);
-
-  const dbName = 'erxes';
-
-  let db;
-
-  await client.connect();
-
-  console.log('Connected successfully to server');
-
-  db = client.db(dbName);
-
-  coreModels = {
-    Users: db.collection('users')
-  };
-
-  return coreModels;
-};
-
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
-
-  models.SalesLogs = db.model<ISalesLogDocument, ISalesLogModel>(
-    'salesLogs',
-    loadSalesLogClass(models)
-  );
+  const models = {} as IModels;
 
   models.Labels = db.model<ILabelDocument, ILabelModel>(
-    'labels',
-    loadLabelClass(models)
+    'salesplans_labels',
+    loadLabelClass(models),
   );
 
   models.Timeframes = db.model<ITimeframeDocument, ITimeframeModel>(
     'timeframes',
-    loadTimeframeClass(models)
+    loadTimeframeClass(models),
   );
 
-  models.DayPlanConfigs = db.model<IDayPlanConfigDocument, IDayPlanConfigModel>(
-    'dayPlanConfigs',
-    loadDayPlanConfigClass(models)
+  models.TimeProportions = db.model<
+    ITimeProportionDocument,
+    ITimeProportionModel
+  >('time_proportions', loadTimeProportionClass(models));
+
+  models.YearPlans = db.model<IYearPlanDocument, IYearPlanModel>(
+    'salesplans_yearplans',
+    loadYearPlanClass(models),
   );
 
-  models.MonthPlanConfigs = db.model<
-    IMonthPlanConfigDocument,
-    IMonthPlanConfigModel
-  >('monthPlanConfigs', loadMonthPlanConfigClass(models));
+  models.DayLabels = db.model<IDayLabelDocument, IDayLabelModel>(
+    'salesplans_daylabels',
+    loadDayLabelClass(models),
+  );
 
-  models.YearPlanConfigs = db.model<
-    IYearPlanConfigDocument,
-    IYearPlanConfigModel
-  >('yearPlanConfigs', loadYearPlanConfigClass(models));
+  models.DayPlans = db.model<IDayPlanDocument, IDayPlanModel>(
+    'salesplans_dayplans',
+    loadDayPlanClass(models),
+  );
 
   return models;
 };
+
+export const generateModels = createGenerateModels<IModels>(loadClasses);

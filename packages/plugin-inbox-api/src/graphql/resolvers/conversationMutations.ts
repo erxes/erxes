@@ -2,35 +2,33 @@ import * as strip from 'strip';
 import * as _ from 'underscore';
 
 import {
-  KIND_CHOICES,
-  MESSAGE_TYPES
-} from '../../models/definitions/constants';
+  checkPermission,
+  requireLogin,
+} from '@erxes/api-utils/src/permissions';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 
+import { MESSAGE_TYPES } from '../../models/definitions/constants';
 import { IMessageDocument } from '../../models/definitions/conversationMessages';
 import { IConversationDocument } from '../../models/definitions/conversations';
 import { AUTO_BOT_MESSAGES } from '../../models/definitions/constants';
-import { debug } from '../../configs';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import {
   sendContactsMessage,
   sendCardsMessage,
   sendCoreMessage,
   sendIntegrationsMessage,
   sendNotificationsMessage,
-  sendToWebhook
+  sendCommonMessage,
+  sendAutomationsMessage,
 } from '../../messageBroker';
-import { graphqlPubsub } from '../../configs';
-
 import { putUpdateLog } from '../../logUtils';
-
-import {
-  checkPermission,
-  requireLogin
-} from '@erxes/api-utils/src/permissions';
-import { splitStr } from '@erxes/api-utils/src/core';
 import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';
 import { CONVERSATION_STATUSES } from '../../models/definitions/constants';
-import { IUserDocument } from '@erxes/api-utils/src/types';
-import { IContext, IModels } from '../../connectionResolver';
+import { generateModels, IContext, IModels } from '../../connectionResolver';
+import { isServiceRunning } from '../../utils';
+import { IIntegrationDocument } from '../../models/definitions/integrations';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import { sendToWebhook } from '@erxes/api-utils/src';
 
 export interface IConversationMessageAdd {
   conversationId: string;
@@ -38,13 +36,16 @@ export interface IConversationMessageAdd {
   mentionedUserIds?: string[];
   internal?: boolean;
   attachments?: any;
-  facebookMessageTag?: string;
+  userId?: string;
+  extraInfo?: any;
 }
 
-interface IReplyFacebookComment {
-  conversationId: string;
-  commentId: string;
-  content: string;
+interface IAttachment {
+  name: string;
+  type: string;
+  url: string;
+  size?: number;
+  duration?: number;
 }
 
 interface IConversationConvert {
@@ -54,72 +55,42 @@ interface IConversationConvert {
   stageId: string;
   itemName: string;
   bookingProductId?: string;
+  customFieldsData?: { [key: string]: any };
+  priority?: string;
+  assignedUserIds?: string[];
+  labelIds?: string[];
+  startDate?: Date;
+  closeDate?: Date;
+  attachments?: IAttachment[];
+  description?: string;
 }
 
 /**
  *  Send conversation to integrations
  */
-
-const sendConversationToIntegrations = async (
+const sendConversationToServices = async (
   subdomain: string,
-  type: string,
-  integrationId: string,
-  conversationId: string,
-  requestName: string,
-  doc: IConversationMessageAdd,
-  action?: string,
-  facebookMessageTag?: string
+  integration: IIntegrationDocument,
+  serviceName: string,
+  payload: object,
 ) => {
-  if (type === 'facebook') {
-    const regex = new RegExp('<img[^>]* src="([^"]*)"', 'g');
-
-    const images: string[] = (doc.content.match(regex) || []).map(m =>
-      m.replace(regex, '$1')
-    );
-
-    images.forEach(img => {
-      doc.attachments.push({ type: 'image', url: img });
-    });
-
-    const content = strip(doc.content);
-
-    try {
-      await sendIntegrationsMessage({
-        subdomain,
-        action: 'api_to_integrations',
-        data: {
-          action,
-          type,
-          payload: JSON.stringify({
-            integrationId,
-            conversationId,
-            content: content.replace(/&amp;/g, '&'),
-            attachments: doc.attachments || [],
-            tag: facebookMessageTag
-          })
-        },
-        isRPC: true
-      });
-    } catch (e) {
-      throw new Error(
-        `Your message not sent Error: ${e.message}. Go to integrations list and fix it`
-      );
-    }
-  }
-
-  if (requestName) {
-    return sendIntegrationsMessage({
+  try {
+    return sendCommonMessage({
       subdomain,
-      action: 'reply',
+      isRPC: true,
+      serviceName,
+      action: 'api_to_integrations',
       data: {
-        conversationId,
-        integrationId,
-        content: strip(doc.content),
-        attachments: doc.attachments || [],
-        requestName
+        action: `reply-${integration.kind.split('-')[1]}`,
+        type: serviceName,
+        payload: JSON.stringify(payload),
+        integrationId: integration._id,
       },
-      isRPC: true
     });
+  } catch (e) {
+    throw new Error(
+      `Your message not sent Error: ${e.message}. Go to integrations list and fix it`,
+    );
   }
 };
 
@@ -129,7 +100,7 @@ const sendConversationToIntegrations = async (
 export const conversationNotifReceivers = (
   conversation: IConversationDocument,
   currentUserId: string,
-  exclude: boolean = true
+  exclude: boolean = true,
 ): string[] => {
   let userIds: string[] = [];
 
@@ -158,13 +129,27 @@ export const conversationNotifReceivers = (
  * Using this subscription to track conversation detail's assignee, tag, status
  * changes
  */
-export const publishConversationsChanged = (
+export const publishConversationsChanged = async (
+  subdomain: string,
   _ids: string[],
-  type: string
-): string[] => {
+  type: string,
+): Promise<string[]> => {
+  const models = await generateModels(subdomain);
+
   for (const _id of _ids) {
-    graphqlPubsub.publish('conversationChanged', {
-      conversationChanged: { conversationId: _id, type }
+    graphqlPubsub.publish(`conversationChanged:${_id}`, {
+      conversationChanged: { conversationId: _id, type },
+    });
+
+    const conversation = await models.Conversations.findOne({ _id });
+
+    sendAutomationsMessage({
+      subdomain,
+      action: 'trigger',
+      data: {
+        type: `inbox:conversation`,
+        targets: [conversation],
+      },
     });
   }
 
@@ -177,43 +162,47 @@ export const publishConversationsChanged = (
 export const publishMessage = async (
   models: IModels,
   message: IMessageDocument,
-  customerId?: string
+  customerId?: string,
 ) => {
-  graphqlPubsub.publish('conversationMessageInserted', {
-    conversationMessageInserted: message
-  });
+  graphqlPubsub.publish(
+    `conversationMessageInserted:${message.conversationId}`,
+    {
+      conversationMessageInserted: message,
+    },
+  );
 
   // widget is listening for this subscription to show notification
   // customerId available means trying to notify to client
   if (customerId) {
-    const unreadCount = await models.ConversationMessages.widgetsGetUnreadMessagesCount(
-      message.conversationId
-    );
+    const unreadCount =
+      await models.ConversationMessages.widgetsGetUnreadMessagesCount(
+        message.conversationId,
+      );
 
-    graphqlPubsub.publish('conversationAdminMessageInserted', {
+    graphqlPubsub.publish(`conversationAdminMessageInserted:${customerId}`, {
       conversationAdminMessageInserted: {
         customerId,
-        unreadCount
-      }
+        unreadCount,
+      },
     });
   }
 };
 
-const sendNotifications = async (
+export const sendNotifications = async (
   subdomain: string,
   {
     user,
     conversations,
     type,
     mobile,
-    messageContent
+    messageContent,
   }: {
     user: IUserDocument;
     conversations: IConversationDocument[];
     type: string;
     mobile?: boolean;
     messageContent?: string;
-  }
+  },
 ) => {
   for (const conversation of conversations) {
     const doc = {
@@ -227,32 +216,38 @@ const sendNotifications = async (
       receivers: conversationNotifReceivers(conversation, user._id),
       action: 'updated conversation',
       contentType: 'conversation',
-      contentTypeId: conversation._id
+      contentTypeId: conversation._id,
     };
 
     switch (type) {
       case 'conversationAddMessage':
         doc.action = `sent you a message`;
         doc.receivers = conversationNotifReceivers(conversation, user._id);
+
         break;
       case 'conversationAssigneeChange':
         doc.action = 'has assigned you to conversation ';
+
         break;
       case 'unassign':
         doc.notifType = 'conversationAssigneeChange';
         doc.action = 'has removed you from conversation';
+
         break;
       case 'conversationStateChange':
         doc.action = `changed conversation status to ${(
           conversation.status || ''
         ).toUpperCase()}`;
+
+        break;
+      default:
         break;
     }
 
     await sendNotificationsMessage({
       subdomain,
       action: 'send',
-      data: doc
+      data: doc,
     });
 
     if (mobile) {
@@ -267,14 +262,18 @@ const sendNotifications = async (
             receivers: conversationNotifReceivers(
               conversation,
               user._id,
-              false
+              false,
             ),
             customerId: conversation.customerId,
-            conversationId: conversation._id
-          }
+            conversationId: conversation._id,
+            data: {
+              type: 'messenger',
+              id: conversation._id,
+            },
+          },
         });
       } catch (e) {
-        debug.error(`Failed to send mobile notification: ${e.message}`);
+        debugError(`Failed to send mobile notification: ${e.message}`);
       }
     }
   }
@@ -296,13 +295,13 @@ const conversationMutations = {
   async conversationMessageAdd(
     _root,
     doc: IConversationMessageAdd,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const conversation = await models.Conversations.getConversation(
-      doc.conversationId
+      doc.conversationId,
     );
     const integration = await models.Integrations.getIntegration({
-      _id: conversation.integrationId
+      _id: conversation.integrationId,
     });
 
     await sendNotifications(subdomain, {
@@ -310,14 +309,78 @@ const conversationMutations = {
       conversations: [conversation],
       type: 'conversationAddMessage',
       mobile: true,
-      messageContent: doc.content
+      messageContent: doc.content,
     });
+
+    const kind = integration.kind;
+
+    const customer = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: {
+        _id: conversation.customerId,
+      },
+      isRPC: true,
+    });
+
+    // if conversation's integration kind is form then send reply to
+    // customer's email
+    const email = customer ? customer.primaryEmail : '';
+
+    if (!doc.internal && kind === 'lead' && email) {
+      await sendCoreMessage({
+        subdomain,
+        action: 'sendEmail',
+        data: {
+          toEmails: [email],
+          title: 'Reply',
+          template: {
+            data: doc.content,
+          },
+        },
+      });
+    }
+
+    const serviceName = integration.kind.split('-')[0];
+    const serviceRunning = await isServiceRunning(serviceName);
+
+    if (serviceRunning) {
+      const payload = {
+        integrationId: integration._id,
+        conversationId: conversation._id,
+        content: doc.content || '',
+        internal: doc.internal,
+        attachments: doc.attachments || [],
+        extraInfo: doc.extraInfo,
+        userId: user._id,
+      };
+
+      const response = await sendConversationToServices(
+        subdomain,
+        integration,
+        serviceName,
+        payload,
+      );
+
+      // if the service runs separately & returns data, then don't save message inside inbox
+      if (response && response.data) {
+        const { conversationId, content } = response.data;
+
+        if (!!conversationId && !!content) {
+          await models.Conversations.updateConversation(conversationId, {
+            content: content || '',
+            updatedAt: new Date(),
+          });
+        }
+        return { ...response.data };
+      }
+    }
 
     // do not send internal message to third service integrations
     if (doc.internal) {
       const messageObj = await models.ConversationMessages.addMessage(
         doc,
-        user._id
+        user._id,
       );
 
       // publish new message to conversation detail
@@ -326,131 +389,7 @@ const conversationMutations = {
       return messageObj;
     }
 
-    const kind = integration.kind;
-    const integrationId = integration.id;
-    const conversationId = conversation.id;
-    const facebookMessageTag = doc.facebookMessageTag;
-
-    const customer = await sendContactsMessage({
-      subdomain,
-      action: 'customers.findOne',
-      data: {
-        _id: conversation.customerId
-      },
-      isRPC: true
-    });
-
-    // if conversation's integration kind is form then send reply to
-    // customer's email
-    const email = customer ? customer.primaryEmail : '';
-
-    if (kind === KIND_CHOICES.LEAD && email) {
-      await sendCoreMessage({
-        subdomain,
-        action: 'sendEmail',
-        data: {
-          toEmails: [email],
-          title: 'Reply',
-          template: {
-            data: doc.content
-          }
-        }
-      });
-    }
-
-    let requestName;
-    let type;
-    let action;
-
-    if (kind === KIND_CHOICES.FACEBOOK_POST) {
-      type = 'facebook';
-      action = 'reply-post';
-
-      return sendConversationToIntegrations(
-        subdomain,
-        type,
-        integrationId,
-        conversationId,
-        requestName,
-        doc,
-        action
-      );
-    }
-
     const message = await models.ConversationMessages.addMessage(doc, user._id);
-
-    /**
-     * Send SMS only when:
-     * - integration is of kind telnyx
-     * - customer has primary phone filled
-     * - customer's primary phone is valid
-     */
-    if (
-      kind === KIND_CHOICES.TELNYX &&
-      customer &&
-      customer.primaryPhone &&
-      customer.phoneValidationStatus === 'valid'
-    ) {
-      /**
-       * SMS part is limited to 160 characters, so we split long content by 160 characters.
-       * See below for details.
-       * https://developers.telnyx.com/docs/v2/messaging/configuration-and-limitations/character-and-rate-limits
-       */
-      const chunks =
-        doc.content.length > 160 ? splitStr(doc.content, 160) : [doc.content];
-
-      for (let i = 0; i < chunks.length; i++) {
-        await sendIntegrationsMessage({
-          subdomain,
-          action: 'notification',
-          data: {
-            action: 'sendConversationSms',
-            payload: JSON.stringify({
-              conversationMessageId: `${message._id}-part${i + 1}`,
-              conversationId,
-              integrationId,
-              toPhone: customer.primaryPhone,
-              content: strip(chunks[i])
-            })
-          }
-        });
-      }
-    }
-
-    // send reply to facebook
-    if (kind === KIND_CHOICES.FACEBOOK_MESSENGER) {
-      type = 'facebook';
-      action = 'reply-messenger';
-    }
-
-    // send reply to chatfuel
-    if (kind === KIND_CHOICES.CHATFUEL) {
-      requestName = 'replyChatfuel';
-    }
-
-    if (kind === KIND_CHOICES.TWITTER_DM) {
-      requestName = 'replyTwitterDm';
-    }
-
-    if (kind.includes('smooch')) {
-      requestName = 'replySmooch';
-    }
-
-    // send reply to whatsapp
-    if (kind === KIND_CHOICES.WHATSAPP) {
-      requestName = 'replyWhatsApp';
-    }
-
-    await sendConversationToIntegrations(
-      subdomain,
-      type,
-      integrationId,
-      conversationId,
-      requestName,
-      doc,
-      action,
-      facebookMessageTag
-    );
 
     const dbMessage = await models.ConversationMessages.getMessage(message._id);
 
@@ -459,73 +398,14 @@ const conversationMutations = {
       data: {
         action: 'create',
         type: 'inbox:userMessages',
-        params: dbMessage
-      }
+        params: dbMessage,
+      },
     });
 
     // Publishing both admin & client
     publishMessage(models, dbMessage, conversation.customerId);
 
     return dbMessage;
-  },
-
-  async conversationsReplyFacebookComment(
-    _root,
-    doc: IReplyFacebookComment,
-    { user, models, subdomain }: IContext
-  ) {
-    const conversation = await models.Conversations.getConversation(
-      doc.conversationId
-    );
-    const integration = await models.Integrations.getIntegration({
-      _id: conversation.integrationId
-    });
-
-    await sendNotifications(subdomain, {
-      user,
-      conversations: [conversation],
-      type: 'conversationStateChange',
-      mobile: true,
-      messageContent: doc.content
-    });
-
-    const requestName = 'replyFacebookPost';
-    const integrationId = integration.id;
-    const conversationId = doc.commentId;
-    const type = 'facebook';
-    const action = 'reply-post';
-
-    await sendConversationToIntegrations(
-      subdomain,
-      type,
-      integrationId,
-      conversationId,
-      requestName,
-      doc,
-      action
-    );
-  },
-
-  async conversationsChangeStatusFacebookComment(
-    _root,
-    doc: IReplyFacebookComment,
-    { subdomain }: IContext
-  ) {
-    const requestName = 'replyFacebookPost';
-    const type = 'facebook';
-    const action = 'change-status-comment';
-    const conversationId = doc.commentId;
-    doc.content = '';
-
-    return sendConversationToIntegrations(
-      subdomain,
-      type,
-      '',
-      conversationId,
-      requestName,
-      doc,
-      action
-    );
   },
 
   /**
@@ -535,26 +415,27 @@ const conversationMutations = {
     _root,
     {
       conversationIds,
-      assignedUserId
+      assignedUserId,
     }: { conversationIds: string[]; assignedUserId: string },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const { oldConversationById } = await getConversationById(models, {
-      _id: { $in: conversationIds }
+      _id: { $in: conversationIds },
     });
 
-    const conversations: IConversationDocument[] = await models.Conversations.assignUserConversation(
-      conversationIds,
-      assignedUserId
-    );
+    const conversations: IConversationDocument[] =
+      await models.Conversations.assignUserConversation(
+        conversationIds,
+        assignedUserId,
+      );
 
     // notify graphl subscription
-    publishConversationsChanged(conversationIds, 'assigneeChanged');
+    publishConversationsChanged(subdomain, conversationIds, 'assigneeChanged');
 
     await sendNotifications(subdomain, {
       user,
       conversations,
-      type: 'conversationAssigneeChange'
+      type: 'conversationAssigneeChange',
     });
 
     for (const conversation of conversations) {
@@ -566,9 +447,9 @@ const conversationMutations = {
           description: 'assignee Changed',
           object: oldConversationById[conversation._id],
           newData: { assignedUserId },
-          updatedDocument: conversation
+          updatedDocument: conversation,
         },
-        user
+        user,
       );
     }
 
@@ -581,24 +462,23 @@ const conversationMutations = {
   async conversationsUnassign(
     _root,
     { _ids }: { _ids: string[] },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
-    const {
-      oldConversations,
-      oldConversationById
-    } = await getConversationById(models, { _id: { $in: _ids } });
-    const updatedConversations = await models.Conversations.unassignUserConversation(
-      _ids
+    const { oldConversations, oldConversationById } = await getConversationById(
+      models,
+      { _id: { $in: _ids } },
     );
+    const updatedConversations =
+      await models.Conversations.unassignUserConversation(_ids);
 
     await sendNotifications(subdomain, {
       user,
       conversations: oldConversations,
-      type: 'unassign'
+      type: 'unassign',
     });
 
     // notify graphl subscription
-    publishConversationsChanged(_ids, 'assigneeChanged');
+    publishConversationsChanged(subdomain, _ids, 'assigneeChanged');
 
     for (const conversation of updatedConversations) {
       await putUpdateLog(
@@ -609,9 +489,9 @@ const conversationMutations = {
           description: 'unassignee',
           object: oldConversationById[conversation._id],
           newData: { assignedUserId: '' },
-          updatedDocument: conversation
+          updatedDocument: conversation,
         },
-        user
+        user,
       );
     }
 
@@ -624,26 +504,36 @@ const conversationMutations = {
   async conversationsChangeStatus(
     _root,
     { _ids, status }: { _ids: string[]; status: string },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain, serverTiming }: IContext,
   ) {
+    serverTiming.startTime('changeStatus');
+
     const { oldConversationById } = await getConversationById(models, {
-      _id: { $in: _ids }
+      _id: { $in: _ids },
     });
 
     await models.Conversations.changeStatusConversation(_ids, status, user._id);
 
+    serverTiming.endTime('changeStatus');
+
+    serverTiming.startTime('sendNotifications');
+
     // notify graphl subscription
-    publishConversationsChanged(_ids, status);
+    publishConversationsChanged(subdomain, _ids, status);
 
     const updatedConversations = await models.Conversations.find({
-      _id: { $in: _ids }
+      _id: { $in: _ids },
     });
 
     await sendNotifications(subdomain, {
       user,
       conversations: updatedConversations,
-      type: 'conversationStateChange'
+      type: 'conversationStateChange',
     });
+
+    serverTiming.endTime('sendNotifications');
+
+    serverTiming.startTime('putLog');
 
     for (const conversation of updatedConversations) {
       await putUpdateLog(
@@ -654,11 +544,13 @@ const conversationMutations = {
           description: 'change status',
           object: oldConversationById[conversation._id],
           newData: { status },
-          updatedDocument: conversation
+          updatedDocument: conversation,
         },
-        user
+        user,
       );
     }
+
+    serverTiming.endTime('putLog');
 
     return updatedConversations;
   },
@@ -669,7 +561,7 @@ const conversationMutations = {
   async conversationResolveAll(
     _root,
     params: IListArgs,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     // initiate query builder
     const qb = new QueryBuilder(models, subdomain, params, { _id: user._id });
@@ -681,16 +573,16 @@ const conversationMutations = {
     const param = {
       status: CONVERSATION_STATUSES.CLOSED,
       closedUserId: user._id,
-      closedAt: new Date()
+      closedAt: new Date(),
     };
 
     const updated = await models.Conversations.resolveAllConversation(
       query,
-      param
+      param,
     );
 
     const updatedConversations = await models.Conversations.find({
-      _id: { $in: Object.keys(oldConversationById) }
+      _id: { $in: Object.keys(oldConversationById) },
     }).lean();
 
     for (const conversation of updatedConversations) {
@@ -702,9 +594,9 @@ const conversationMutations = {
           description: 'resolve all',
           object: oldConversationById[conversation._id],
           newData: param,
-          updatedDocument: conversation
+          updatedDocument: conversation,
         },
-        user
+        user,
       );
     }
 
@@ -717,81 +609,43 @@ const conversationMutations = {
   async conversationMarkAsRead(
     _root,
     { _id }: { _id: string },
-    { user, models }: IContext
+    { user, models }: IContext,
   ) {
     return models.Conversations.markAsReadConversation(_id, user._id);
-  },
-
-  async conversationCreateVideoChatRoom(
-    _root,
-    { _id },
-    { user, models, subdomain }: IContext
-  ) {
-    let message;
-
-    try {
-      const doc = {
-        conversationId: _id,
-        internal: false,
-        contentType: MESSAGE_TYPES.VIDEO_CALL
-      };
-
-      message = await models.ConversationMessages.addMessage(doc, user._id);
-
-      const videoCallData = await sendIntegrationsMessage({
-        subdomain,
-        action: 'createDailyRoom',
-        data: {
-          erxesApiConversationId: _id,
-          erxesApiMessageId: message._id
-        },
-        isRPC: true
-      });
-
-      const updatedMessage = { ...message._doc, videoCallData };
-
-      // publish new message to conversation detail
-      publishMessage(models, updatedMessage);
-
-      return videoCallData;
-    } catch (e) {
-      debug.error(e.message);
-
-      await models.ConversationMessages.deleteOne({ _id: message._id });
-
-      throw new Error(e.message);
-    }
   },
 
   async changeConversationOperator(
     _root,
     { _id, operatorStatus }: { _id: string; operatorStatus: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const message = await models.ConversationMessages.createMessage({
       conversationId: _id,
       botData: [
         {
           type: 'text',
-          text: AUTO_BOT_MESSAGES.CHANGE_OPERATOR
-        }
-      ]
+          text: AUTO_BOT_MESSAGES.CHANGE_OPERATOR,
+        },
+      ],
     });
 
-    graphqlPubsub.publish('conversationMessageInserted', {
-      conversationMessageInserted: message
-    });
+    graphqlPubsub.publish(
+      `conversationMessageInserted:${message.conversationId}`,
+      {
+        conversationMessageInserted: message,
+      },
+    );
 
     return models.Conversations.updateOne(
       { _id },
-      { $set: { operatorStatus } }
+      { $set: { operatorStatus } },
     );
   },
 
   async conversationConvertToCard(
     _root,
     params: IConversationConvert,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const { _id } = params;
 
@@ -800,55 +654,54 @@ const conversationMutations = {
     const args = {
       ...params,
       conversation,
-      user
+      user,
     };
 
     return sendCardsMessage({
       subdomain,
       action: 'conversationConvert',
       data: args,
-      isRPC: true
+      isRPC: true,
     });
   },
 
   async conversationEditCustomFields(
     _root,
     { _id, customFieldsData }: { _id: string; customFieldsData: any },
-    { models }: IContext
+    { models }: IContext,
   ) {
     await models.Conversations.updateConversation(_id, { customFieldsData });
     return models.Conversations.getConversation(_id);
-  }
+  },
 };
 
 requireLogin(conversationMutations, 'conversationMarkAsRead');
-requireLogin(conversationMutations, 'conversationCreateVideoChatRoom');
 requireLogin(conversationMutations, 'conversationConvertToCard');
 
 checkPermission(
   conversationMutations,
   'conversationMessageAdd',
-  'conversationMessageAdd'
+  'conversationMessageAdd',
 );
 checkPermission(
   conversationMutations,
   'conversationsAssign',
-  'assignConversation'
+  'assignConversation',
 );
 checkPermission(
   conversationMutations,
   'conversationsUnassign',
-  'assignConversation'
+  'assignConversation',
 );
 checkPermission(
   conversationMutations,
   'conversationsChangeStatus',
-  'changeConversationStatus'
+  'changeConversationStatus',
 );
 checkPermission(
   conversationMutations,
   'conversationResolveAll',
-  'conversationResolveAll'
+  'conversationResolveAll',
 );
 
 export default conversationMutations;

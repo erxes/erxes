@@ -9,7 +9,7 @@ export const types = ({ products, tags, forms }) => `
       : ''
   }
 
-  extend input InputRule {
+  input InputRule {
     _id : String!,
     kind: String!,
     text: String!,
@@ -26,6 +26,7 @@ export const types = ({ products, tags, forms }) => `
     code: String
     formId: String
     tagIds: [String]
+    createdAt: Date
 
     ${tags ? `tags: [Tag]` : ''}
     
@@ -33,6 +34,7 @@ export const types = ({ products, tags, forms }) => `
     messengerData: JSON
     uiOptions: JSON
     isActive: Boolean
+    isConnected: Boolean
     webhookData: JSON
 
     brand: Brand
@@ -49,6 +51,8 @@ export const types = ({ products, tags, forms }) => `
 
     visibility: String
     departmentIds: [String]
+
+    details: JSON
   }
 
   type BookingData {
@@ -114,6 +118,7 @@ export const types = ({ products, tags, forms }) => `
     css: String
     successImage: String
     successImageSize: String
+    verifyEmail: Boolean
   }
 
   input BookingStyleInput {
@@ -152,6 +157,7 @@ export const types = ({ products, tags, forms }) => `
   input IntegrationLinks {
     twitter: String
     facebook: String
+    instagram:String
     youtube: String
   }
 
@@ -176,6 +182,7 @@ export const types = ({ products, tags, forms }) => `
     showLauncher: Boolean
     forceLogoutWhenResolve: Boolean
     showVideoCallRequest: Boolean
+    hideWhenOffline: Boolean
   }
 
   input MessengerUiOptions {
@@ -210,6 +217,23 @@ export const queries = `
 `;
 
 export const mutations = `
+  integrationsCreateMessengerOnboarding(
+    brandName: String!,
+    languageCode: String
+    color: String
+    logo:String
+  ): Integration
+    
+    
+  integrationsEditMessengerOnboarding(
+    _id: String!,
+    brandId: String!,
+    brandName: String!,
+    languageCode: String
+    color: String
+    logo:String
+  ): Integration
+ 
   integrationsCreateMessengerIntegration(
     name: String!,
     brandId: String!,
@@ -262,33 +286,13 @@ export const mutations = `
     channelIds: [String]
     data: JSON): Integration
 
-  integrationsEditCommonFields(_id: String!, name: String!, brandId: String!, channelIds: [String], data: JSON): Integration
+  integrationsEditCommonFields(_id: String!, name: String!, brandId: String!, channelIds: [String], details: JSON): Integration
 
   integrationsRemove(_id: String!): JSON
-  integrationsRemoveAccount(_id: String!): JSON
+  integrationsRemoveAccount(_id: String!, kind: String): JSON
+  integrationsRepair(_id: String!, kind: String!): JSON
 
   integrationsArchive(_id: String!, status: Boolean!): Integration
-
-  integrationSendMail(
-    erxesApiId: String!
-    subject: String!
-    body: String
-    to: [String]!
-    cc: [String]
-    bcc: [String]
-    from: String!
-    shouldResolve: Boolean
-    headerId: String
-    replyTo: [String]
-    inReplyTo: String
-    threadId: String
-    messageId: String
-    replyToMessageId: String
-    kind: String
-    references: [String]
-    attachments: [JSON]
-    customerId: String
-  ): JSON
 
   integrationsSendSms(integrationId: String!, content: String!, to: String!): JSON
 

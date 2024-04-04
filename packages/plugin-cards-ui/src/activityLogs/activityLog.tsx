@@ -1,15 +1,22 @@
-import { ActivityIcon, ActivityRow } from '@erxes/ui/src/activityLogs/styles';
-import { formatText, getIconAndColor } from '@erxes/ui/src/activityLogs/utils';
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
-import React from 'react';
-import AssigneeLog from './containers/AssigneeLog';
-import CreatedLog from './components/CreatedLog';
-import Task from './containers/Task';
-import MovementLog from './containers/MovementLog';
+import {
+  ActivityIcon,
+  ActivityRow
+} from '@erxes/ui-log/src/activityLogs/styles';
+import {
+  formatText,
+  getIconAndColor
+} from '@erxes/ui-log/src/activityLogs/utils';
+
 import ArchiveLog from './components/ArchiveLog';
-import DeletedLog from './components/DeleteLog';
+import AssigneeLog from './containers/AssigneeLog';
 import ConvertLog from './containers/ConvertLog';
+import CreatedLog from './components/CreatedLog';
+import DeletedLog from './components/DeleteLog';
+import Icon from '@erxes/ui/src/components/Icon';
+import MovementLog from './containers/MovementLog';
+import React from 'react';
+import Task from './containers/Task';
+import Tip from '@erxes/ui/src/components/Tip';
 
 type Props = {
   contentType: string;

@@ -1,12 +1,13 @@
-import { IConditionsRule } from '@erxes/ui/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IAttachment } from '@erxes/ui/src/types';
-import { QueryResponse } from '@erxes/ui/src/types';
-import { IBrand } from '@erxes/ui/src/brands/types';
 import { ISegment, ISegmentCondition } from '@erxes/ui-segments/src/types';
-import { ITag } from '@erxes/ui/src/tags/types';
-import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
+
+import { IAttachment } from '@erxes/ui/src/types';
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { IConditionsRule } from '@erxes/ui/src/types';
+import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
+import { ITag } from '@erxes/ui-tags/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 import { MutationVariables } from '@erxes/ui/src/types';
+import { QueryResponse } from '@erxes/ui/src/types';
 
 export type IEngageScheduleDate = {
   type: string;
@@ -37,7 +38,11 @@ export interface IEngageSms {
   content: string;
   fromIntegrationId: string;
 }
-
+export interface IEngageNotification {
+  title: string;
+  content: string;
+  isMobile: boolean;
+}
 export interface IEngageStats {
   send: number;
   delivery: number;
@@ -61,6 +66,10 @@ export interface IEngageSmsStats {
   delivery_unconfirmed: number;
   webhook_delivered: number;
   error?: number;
+}
+
+export interface IEngageNotificationStats {
+  read: number;
 }
 
 export interface IEmailDelivery {
@@ -104,6 +113,8 @@ export interface IEngageMessageDoc {
   isLive?: boolean;
   email?: IEngageEmail;
   messenger?: IEngageMessenger;
+  notification?: IEngageNotification;
+  cpId?: string;
   scheduleDate?: IEngageScheduleDate;
   shortMessage?: IEngageSms;
 }
@@ -112,6 +123,7 @@ export interface IEngageMessage extends IEngageMessageDoc {
   _id: string;
   stopDate: Date;
   createdDate: Date;
+  createdAt: Date;
   messengerReceivedCustomerIds?: string[];
   brand: IBrand;
   segments: ISegment[];
@@ -127,6 +139,7 @@ export interface IEngageMessage extends IEngageMessageDoc {
   stats?: IEngageStats;
   logs?: Array<{ message: string }>;
   smsStats?: IEngageSmsStats;
+  notificationStats?: IEngageNotificationStats;
   fromIntegration?: IIntegration;
   createdUserName?: string;
 }
@@ -238,8 +251,8 @@ export type TagAdd = (params: {
 
 export type IEmailFormProps = {
   onChange: (
-    name: 'email' | 'content' | 'fromUserId' | 'scheduleDate',
-    value?: IEngageEmail | IEngageScheduleDate | string
+    name: 'email' | 'content' | 'fromUserId',
+    value?: IEngageEmail | string
   ) => void;
   message?: string;
   users: IUser[];
@@ -248,7 +261,6 @@ export type IEmailFormProps = {
   email: IEngageEmail;
   fromUserId: string;
   content: string;
-  scheduleDate: IEngageScheduleDate;
   isSaved?: boolean;
 };
 

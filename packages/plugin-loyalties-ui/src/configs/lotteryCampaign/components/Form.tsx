@@ -8,9 +8,9 @@ import {
   Form as CommonForm,
   FormControl,
   FormGroup,
-  Uploader
+  Uploader,
 } from '@erxes/ui/src/components';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import {
   MainStyleDateContainer as DateContainer,
   MainStyleFormColumn as FormColumn,
@@ -18,7 +18,11 @@ import {
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
 } from '@erxes/ui/src/styles/eindex';
-import { IAttachment, IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import {
+  IAttachment,
+  IButtonMutateProps,
+  IFormProps,
+} from '@erxes/ui/src/types';
 import { ILotteryCampaign, ILotteryCampaignAward } from '../types';
 import { IVoucherCampaign } from '../../voucherCampaign/types';
 
@@ -49,57 +53,83 @@ class Form extends React.Component<Props, State> {
   componentWillUnmount(): void {
     this.props.closeModal();
   }
-
   generateDoc = (values: {
     _id?: string;
     attachment?: IAttachment;
     description: string;
   }) => {
-    const finalValues = values;
-    const {
-      lotteryCampaign
-    } = this.state;
+    const finalValues = { ...values }; // Create a copy of values
+    const { lotteryCampaign } = this.state;
 
     if (lotteryCampaign._id) {
       finalValues._id = lotteryCampaign._id;
     }
 
-    lotteryCampaign.buyScore = Number(lotteryCampaign.buyScore || 0);
-    lotteryCampaign.awards = lotteryCampaign.awards && lotteryCampaign.awards.sort((a, b) => (a.count - b.count)) || []
+    const updatedLotteryCampaign = { ...lotteryCampaign }; // Create a copy of lotteryCampaign
+
+    updatedLotteryCampaign.buyScore = Number(
+      updatedLotteryCampaign.buyScore || 0,
+    );
+
+    // Create a sorted copy of the awards array with null checks
+
+    const sortedAwards =
+      (updatedLotteryCampaign.awards &&
+        [...updatedLotteryCampaign.awards].sort(
+          (a, b) => (a?.count || 0) - (b?.count || 0),
+        )) ||
+      [];
 
     return {
       ...finalValues,
-      ...lotteryCampaign
+      ...updatedLotteryCampaign,
+      awards: sortedAwards, // Assign the sorted array to the awards property
     };
   };
 
-  onChangeDescription = (e) => {
-    this.setState({ lotteryCampaign: { ...this.state.lotteryCampaign, description: e.editor.getData() } });
+  onChangeDescription = (content: string) => {
+    this.setState({
+      lotteryCampaign: {
+        ...this.state.lotteryCampaign,
+        description: content,
+      },
+    });
   };
 
   onChangeAttachment = (files: IAttachment[]) => {
-    this.setState({ lotteryCampaign: { ...this.state.lotteryCampaign, attachment: files.length ? files[0] : undefined } });
+    this.setState({
+      lotteryCampaign: {
+        ...this.state.lotteryCampaign,
+        attachment: files.length ? files[0] : undefined,
+      },
+    });
   };
 
   onChangeMultiCombo = (name: string, values) => {
     let value = values;
 
     if (Array.isArray(values)) {
-      value = values.map(el => el.value);
+      value = values.map((el) => el.value);
     }
 
-    this.setState({ lotteryCampaign: { ...this.state.lotteryCampaign, [name]: value } });
+    this.setState({
+      lotteryCampaign: { ...this.state.lotteryCampaign, [name]: value },
+    });
   };
 
   onDateInputChange = (type: string, date) => {
-    this.setState({ lotteryCampaign: { ...this.state.lotteryCampaign, [type]: date } });
+    this.setState({
+      lotteryCampaign: { ...this.state.lotteryCampaign, [type]: date },
+    });
   };
 
-  onInputChange = e => {
+  onInputChange = (e) => {
     const value = e.target.value;
     const name = e.target.name;
 
-    this.setState({ lotteryCampaign: { ...this.state.lotteryCampaign, [name]: value } });
+    this.setState({
+      lotteryCampaign: { ...this.state.lotteryCampaign, [name]: value },
+    });
   };
 
   onAddAward = () => {
@@ -109,41 +139,42 @@ class Form extends React.Component<Props, State> {
       _id: Math.random().toString(),
       name: '',
       count: 0,
-      voucherCampaignId: ''
-    })
+      voucherCampaignId: '',
+    });
     lotteryCampaign.awards = awards;
-    this.setState({ lotteryCampaign })
-  }
+    this.setState({ lotteryCampaign });
+  };
 
   onRemoveAward = (awardId) => {
     const { lotteryCampaign } = this.state;
     const { awards = [] } = lotteryCampaign;
-    lotteryCampaign.awards = awards.filter(a => (a._id !== awardId))
-    this.setState({ lotteryCampaign })
-  }
+    lotteryCampaign.awards = awards.filter((a) => a._id !== awardId);
+    this.setState({ lotteryCampaign });
+  };
 
   renderAward = (award: ILotteryCampaignAward, formProps) => {
     const changeAward = (key, value) => {
       const { lotteryCampaign } = this.state;
-      award[key] = value;
-      lotteryCampaign.awards = (lotteryCampaign.awards || []).map(a => a._id === award._id && award || a)
-      this.setState({ lotteryCampaign });
-    }
-    const onChangeName = e => {
-      e.preventDefault();
-      const value = e.target.value
-      changeAward('name', value)
+      const awards = (lotteryCampaign.awards || []).map(
+        (a) => (a._id === award._id && { ...a, [key]: value }) || a,
+      );
+      this.setState({ lotteryCampaign: { ...lotteryCampaign, awards } });
     };
-    const onChangeCount = e => {
+    const onChangeName = (e) => {
       e.preventDefault();
-      const value = e.target.value
-      changeAward('count', value)
+      const value = e.target.value;
+      changeAward('name', value);
+    };
+    const onChangeCount = (e) => {
+      e.preventDefault();
+      const value = e.target.value;
+      changeAward('count', value);
     };
 
-    const onChangeVoucherCampaign = selected => {
+    const onChangeVoucherCampaign = (selected) => {
       const value = (selected || {}).value;
       changeAward('voucherCampaignId', value);
-    }
+    };
 
     return (
       <FormWrapper key={award._id}>
@@ -160,9 +191,9 @@ class Form extends React.Component<Props, State> {
           <Select
             placeholder={__('Choose voucher')}
             value={award.voucherCampaignId}
-            options={this.props.voucherCampaigns.map(voucher => ({
+            options={this.props.voucherCampaigns.map((voucher) => ({
               label: `${voucher.title}`,
-              value: voucher._id
+              value: voucher._id,
             }))}
             name="voucherCampaignId"
             onChange={onChangeVoucherCampaign}
@@ -185,26 +216,26 @@ class Form extends React.Component<Props, State> {
           size="small"
           onClick={this.onRemoveAward.bind(this, award._id)}
           icon="times"
-        >Remove lvl</Button>
+        >
+          Remove lvl
+        </Button>
       </FormWrapper>
-    )
-  }
+    );
+  };
 
-  renderAwards = formProps => {
-    return (
-      (this.state.lotteryCampaign.awards || []).map(award => (
-        this.renderAward(award, formProps)
-      ))
-    )
-  }
+  renderAwards = (formProps) => {
+    return (this.state.lotteryCampaign.awards || []).map((award) =>
+      this.renderAward(award, formProps),
+    );
+  };
 
   onSelectPerFormat = (value) => {
-    this.setState({ perFormatType: value ? value.value : '' })
-  }
+    this.setState({ perFormatType: value ? value.value : '' });
+  };
 
   onChangePerLen = (e) => {
-    this.setState({ perFormatLen: e.target.value })
-  }
+    this.setState({ perFormatLen: e.target.value });
+  };
 
   onAddFormat = () => {
     const { perFormatType, perFormatLen } = this.state;
@@ -212,16 +243,22 @@ class Form extends React.Component<Props, State> {
       return Alert.error('must choose format type and format len');
     }
     let { numberFormat } = this.state.lotteryCampaign;
-    numberFormat = `${numberFormat || ''}${`{ [${perFormatType}] * ${perFormatLen} }`}`
-    this.setState({ lotteryCampaign: { ...this.state.lotteryCampaign, numberFormat } });
-  }
+    numberFormat = `${
+      numberFormat || ''
+    }${`{ [${perFormatType}] * ${perFormatLen} }`}`;
+    this.setState({
+      lotteryCampaign: { ...this.state.lotteryCampaign, numberFormat },
+    });
+  };
 
   numberFormatKey = (e: React.KeyboardEvent) => {
     if (['Backspace', 'Delete'].includes(e.key)) {
       e.preventDefault();
-      this.setState({ lotteryCampaign: { ...this.state.lotteryCampaign, numberFormat: '' } });
+      this.setState({
+        lotteryCampaign: { ...this.state.lotteryCampaign, numberFormat: '' },
+      });
     }
-  }
+  };
 
   renderContent = (formProps: IFormProps) => {
     const { renderButton, closeModal } = this.props;
@@ -233,12 +270,12 @@ class Form extends React.Component<Props, State> {
       </Button>
     );
 
-    const {
-      lotteryCampaign
-    } = this.state;
+    const { lotteryCampaign } = this.state;
 
     const attachments =
-      (lotteryCampaign.attachment && extractAttachment([lotteryCampaign.attachment])) || [];
+      (lotteryCampaign.attachment &&
+        extractAttachment([lotteryCampaign.attachment])) ||
+      [];
 
     return (
       <>
@@ -298,7 +335,10 @@ class Form extends React.Component<Props, State> {
                     name="finishDateOfUse"
                     placeholder={__('Finish Date of Use')}
                     value={lotteryCampaign.finishDateOfUse}
-                    onChange={this.onDateInputChange.bind(this, 'finishDateOfUse')}
+                    onChange={this.onDateInputChange.bind(
+                      this,
+                      'finishDateOfUse',
+                    )}
                   />
                 </DateContainer>
               </FormGroup>
@@ -353,10 +393,7 @@ class Form extends React.Component<Props, State> {
                 />
               </FormColumn>
               <FormColumn>
-                <Button
-                  btnStyle='simple'
-                  onClick={this.onAddFormat}
-                >
+                <Button btnStyle="simple" onClick={this.onAddFormat}>
                   {__('Add format')}
                 </Button>
               </FormColumn>
@@ -383,11 +420,7 @@ class Form extends React.Component<Props, State> {
             <FormColumn>
               <ControlLabel required={true}>Count</ControlLabel>
             </FormColumn>
-            <Button
-              btnStyle='simple'
-              icon="add"
-              onClick={this.onAddAward}
-            >
+            <Button btnStyle="simple" icon="add" onClick={this.onAddAward}>
               {__('Add level')}
             </Button>
           </FormWrapper>
@@ -396,27 +429,21 @@ class Form extends React.Component<Props, State> {
           <br />
           <FormGroup>
             <ControlLabel>Description</ControlLabel>
-            <EditorCK
-              content={lotteryCampaign.description}
+            <RichTextEditor
+              content={lotteryCampaign.description || ''}
               onChange={this.onChangeDescription}
               height={150}
               isSubmitted={formProps.isSaved}
               name={`lotteryCampaign_description_${lotteryCampaign.description}`}
               toolbar={[
-                {
-                  name: "basicstyles",
-                  items: [
-                    "Bold",
-                    "Italic",
-                    "NumberedList",
-                    "BulletedList",
-                    "Link",
-                    "Unlink",
-                    "-",
-                    "Image",
-                    "EmojiPanel",
-                  ],
-                },
+                'bold',
+                'italic',
+                'orderedList',
+                'bulletList',
+                'link',
+                'unlink',
+                '|',
+                'image',
               ]}
             />
           </FormGroup>
@@ -443,7 +470,7 @@ class Form extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: "lottery Campaign",
+            name: 'lottery Campaign',
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,

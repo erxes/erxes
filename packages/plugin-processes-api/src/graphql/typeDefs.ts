@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 
 import {
   types as jobReferTypes,
@@ -20,8 +20,7 @@ import {
 
 import {
   types as flowCategoryTypes,
-  queries as flowCategoryQueries,
-  mutations as flowCategoryMutations
+  queries as flowCategoryQueries
 } from './schema/flowCategory';
 
 import {
@@ -42,7 +41,12 @@ import {
   mutations as performMutations
 } from './schema/perform';
 
-const typeDefs = async _serviceDiscovery => {
+import { types as commonTypes } from './schema/common';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+
+const typeDefs = async () => {
+  const contactsAvailable = isEnabled('contacts');
+
   return gql`
     scalar JSON
     scalar Date
@@ -58,13 +62,14 @@ const typeDefs = async _serviceDiscovery => {
       inheritMaxAge: Boolean
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
 
+    ${commonTypes(contactsAvailable)}
     ${jobReferTypes}
     ${jobCategoryTypes}
     ${flowTypes}
     ${flowCategoryTypes}
     ${workTypes}
     ${overallWorkTypes}
-    ${performTypes}
+    ${performTypes(contactsAvailable)}
 
     extend type Query {
       ${jobReferQueries}
@@ -80,7 +85,6 @@ const typeDefs = async _serviceDiscovery => {
       ${jobReferMutations}
       ${jobCategoryMutations}
       ${flowMutations}
-      ${flowCategoryMutations}
       ${workMutations}
       ${overallWorkMutations}
       ${performMutations}

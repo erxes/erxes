@@ -1,5 +1,9 @@
 import { generateModels, IModels } from './connectionResolver';
-import { sendPosclientMessage, sendProductsMessage } from './messageBroker';
+import {
+  sendPosclientMessage,
+  sendPricingMessage,
+  sendProductsMessage
+} from './messageBroker';
 import { IPosDocument } from './models/definitions/pos';
 import { getChildCategories } from './utils';
 
@@ -26,7 +30,26 @@ const isInProduct = async (
 ) => {
   const groups = await models.ProductGroups.groups(pos._id);
 
-  let allProductIds: string[] = [];
+  const followProductIds: string[] = [];
+
+  if (pos.deliveryConfig && pos.deliveryConfig.productId) {
+    followProductIds.push(pos.deliveryConfig.productId);
+  }
+
+  if (pos.catProdMappings && pos.catProdMappings.length) {
+    for (const map of pos.catProdMappings) {
+      if (!followProductIds.includes(map.productId)) {
+        followProductIds.push(map.productId);
+      }
+    }
+  }
+
+  if (followProductIds.includes(productId)) {
+    return true;
+  }
+
+  let allExcludedProductIds: string[] = [];
+  let allCategoryIds: string[] = [];
 
   for (const group of groups) {
     const includeCatIds = await getChildCategories(
@@ -42,24 +65,35 @@ const isInProduct = async (
       c => !excludeCatIds.includes(c)
     );
 
-    const products = await sendProductsMessage({
-      subdomain,
-      action: 'find',
-      data: {
-        query: {
-          status: { $ne: 'deleted' },
-          categoryId: { $in: productCategoryIds },
-          _id: { $nin: group.excludedProductIds }
-        }
-      },
-      isRPC: true,
-      defaultValue: []
-    });
-
-    allProductIds = allProductIds.concat(products.map(p => p._id));
+    allExcludedProductIds = allExcludedProductIds.concat(
+      group.excludedProductIds
+    );
+    allCategoryIds = allCategoryIds.concat(productCategoryIds);
   } // end product group for loop
 
-  return allProductIds.includes(productId);
+  if (allExcludedProductIds.includes(productId)) {
+    return false;
+  }
+
+  const products = await sendProductsMessage({
+    subdomain,
+    action: 'find',
+    data: {
+      query: {
+        status: { $ne: 'deleted' },
+        categoryId: { $in: allCategoryIds },
+        _id: productId
+      }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  if (!products.length) {
+    return false;
+  }
+
+  return true;
 };
 
 const isInProductCategory = async (
@@ -100,7 +134,7 @@ const isInProductCategory = async (
 };
 
 const isInUser = (pos: IPosDocument, userId: string) => {
-  const allUserIds = pos.adminIds.concat(pos.cashierIds);
+  const allUserIds = (pos.adminIds || []).concat(pos.cashierIds || []);
   return allUserIds.includes(userId);
 };
 
@@ -118,7 +152,68 @@ export const afterMutationHandlers = async (subdomain, params) => {
   if (type === 'products:product') {
     for (const pos of poss) {
       if (await isInProduct(subdomain, models, pos, params.object._id)) {
-        await handler(subdomain, params, action, 'product', pos);
+        const item = params.updatedDocument || params.object;
+        const firstUnitPrice = params.updatedDocument
+          ? params.updatedDocument.unitPrice
+          : params.object.unitPrice;
+
+        const pricing = await sendPricingMessage({
+          subdomain,
+          action: 'checkPricing',
+          data: {
+            prioritizeRule: 'only',
+            totalAmount: 0,
+            departmentId: pos.departmentId,
+            branchId: pos.branchId,
+            products: [
+              {
+                itemId: item._id,
+                productId: item._id,
+                quantity: 1,
+                price: item.unitPrice
+              }
+            ]
+          },
+          isRPC: true,
+          defaultValue: {}
+        });
+
+        const discount = pricing[item._id] || {};
+
+        if (Object.keys(discount).length) {
+          let unitPrice = (item.unitPrice -= discount.value);
+          if (unitPrice < 0) {
+            unitPrice = 0;
+          }
+
+          let isCheckRem = false;
+          if (pos.isCheckRemainder) {
+            const excludeCategoryIds = await getChildCategories(
+              subdomain,
+              pos.checkExcludeCategoryIds
+            );
+
+            if (!excludeCategoryIds.includes(item.categoryId)) {
+              isCheckRem = true;
+            }
+          }
+
+          if (params.updatedDocument) {
+            params.updatedDocument.unitPrice = unitPrice;
+            params.updatedDocument.isCheckRem = isCheckRem;
+          } else {
+            params.object.unitPrice = unitPrice;
+            params.object.isCheckRem = isCheckRem;
+          }
+        }
+
+        await handler(subdomain, { ...params }, action, 'product', pos);
+
+        if (params.updatedDocument) {
+          params.updatedDocument.unitPrice = firstUnitPrice;
+        } else {
+          params.object.unitPrice = firstUnitPrice;
+        }
       }
     }
     return;

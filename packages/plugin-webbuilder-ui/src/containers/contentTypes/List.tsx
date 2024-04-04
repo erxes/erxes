@@ -1,87 +1,52 @@
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
 import * as compose from 'lodash.flowright';
-import List from '../../components/contentTypes/List';
-import { queries, mutations } from '../../graphql';
-import React from 'react';
-import { Alert, confirm } from '@erxes/ui/src/utils';
+
 import {
-  TypesQueryResponse,
-  TypesRemoveMutationResponse,
-  TypesTotalCountQueryResponse
+  TypesMainQueryResponse,
+  TypesRemoveMutationResponse
 } from '../../types';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import Spinner from '@erxes/ui/src/components/Spinner';
+
+import List from '../../components/contentTypes/List';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '../../graphql';
 
 type Props = {
-  history: any;
-  queryParams: any;
-  getActionBar: (actionBar: any) => void;
-  setCount: (count: number) => void;
+  siteId: string;
+  handleItemSettings: (item: any, type: string) => void;
 };
 
 type FinalProps = {
-  typesQuery: TypesQueryResponse;
-  typesTotalCountQuery: TypesTotalCountQueryResponse;
-} & Props &
-  TypesRemoveMutationResponse;
+  typesMainQuery: TypesMainQueryResponse;
+} & Props;
 
 function ContentTypesContainer(props: FinalProps) {
-  const { typesQuery, typesRemoveMutation, typesTotalCountQuery } = props;
+  const { typesMainQuery } = props;
 
-  if (typesTotalCountQuery.loading) {
-    return <Spinner objective={true} />;
+  if (typesMainQuery.loading) {
+    return null;
   }
 
-  const contentTypes = typesQuery.webbuilderContentTypes || [];
-  const contentTypesCount =
-    typesTotalCountQuery.webbuilderContentTypesTotalCount || 0;
-
-  const remove = (_id: string) => {
-    confirm().then(() => {
-      typesRemoveMutation({ variables: { _id } })
-        .then(() => {
-          Alert.success('Successfully removed a type');
-
-          typesQuery.refetch();
-          typesTotalCountQuery.refetch();
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    });
-  };
+  const { list = [], totalCount } =
+    typesMainQuery.webbuilderContentTypesMain || {};
 
   const updatedProps = {
     ...props,
-    contentTypes,
-    remove,
-    contentTypesCount
+    contentTypes: list,
+    contentTypesCount: totalCount
   };
 
   return <List {...updatedProps} />;
 }
 
 export default compose(
-  graphql<Props, TypesQueryResponse>(gql(queries.contentTypes), {
-    name: 'typesQuery',
-    options: ({ queryParams }) => ({
+  graphql<Props, TypesMainQueryResponse>(gql(queries.contentTypesMain), {
+    name: 'typesMainQuery',
+    options: ({ siteId }) => ({
       variables: {
-        ...generatePaginationParams(queryParams)
+        siteId
       },
       fetchPolicy: 'network-only'
-    })
-  }),
-  graphql<{}, TypesTotalCountQueryResponse>(
-    gql(queries.contentTypesTotalCount),
-    {
-      name: 'typesTotalCountQuery'
-    }
-  ),
-  graphql<{}, TypesRemoveMutationResponse>(gql(mutations.typesRemove), {
-    name: 'typesRemoveMutation',
-    options: () => ({
-      refetchQueries: [{ query: gql(queries.contentTypes) }]
     })
   })
 )(ContentTypesContainer);

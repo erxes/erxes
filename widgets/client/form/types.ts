@@ -49,6 +49,8 @@ export interface IField {
   pageNumber?: number;
   productCategoryId?: string;
   products?: IProduct[];
+  subFieldIds?: string[];
+  subFields?: IField[];
 }
 
 export interface ICallout {
@@ -85,7 +87,8 @@ export type FieldValue =
   | string[]
   | IAttachment[]
   | ILocationOption
-  | IObjectListConfig[];
+  | IObjectListConfig[]
+  | object;
 
 export interface IFieldError {
   fieldId?: string;
@@ -114,14 +117,17 @@ export interface IFormDoc {
 
 export interface ISaveFormResponse {
   status: string;
+  conversationId: string;
   errors?: IFieldError[];
-  invoiceType?: string;
-  invoiceResponse?: string;
-  messageId?: string;
 }
 
 export interface ILocationOption {
   lat: number;
   lng: number;
   description?: string;
+}
+
+
+export type EnabledServices = {
+  [key: string]: boolean;
 }

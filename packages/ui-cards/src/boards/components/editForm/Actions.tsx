@@ -1,21 +1,25 @@
-import SelectItem from '../../components/SelectItem';
-import { PRIORITIES } from '../../constants';
-import Watch from '../../containers/editForm/Watch';
-import LabelChooser from '../../containers/label/LabelChooser';
-import { ColorButton } from '../../styles/common';
-import { ActionContainer } from '../../styles/item';
 import { IItem, IOptions } from '../../types';
-import ChecklistAdd from '../../../checklists/components/AddButton';
-import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
+
+import { ActionContainer } from '../../styles/item';
 import { ArchiveBtn } from './ArchiveBtn';
-import PriorityIndicator from './PriorityIndicator';
+import ChecklistAdd from '../../../checklists/components/AddButton';
+import { ColorButton } from '../../styles/common';
+import Icon from '@erxes/ui/src/components/Icon';
+import LabelChooser from '../../containers/label/LabelChooser';
+import { PRIORITIES } from '../../constants';
 import { PopoverButton } from '@erxes/ui-inbox/src/inbox/styles';
+import PriorityIndicator from './PriorityIndicator';
+import React from 'react';
+import SelectItem from '../../components/SelectItem';
+import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
+import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
 import Tags from '@erxes/ui/src/components/Tags';
+import Watch from '../../containers/editForm/Watch';
+import Comment from '../../../comment/containers/Comment';
+import { loadDynamicComponent, __ } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
-import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
+import PrintActionButton from './PrintDocumentBtn';
+import { Button } from 'react-bootstrap';
 
 type Props = {
   item: IItem;
@@ -55,6 +59,7 @@ class Actions extends React.Component<Props> {
     const onLabelChange = labels => saveItem({ labels });
 
     const tags = item.tags || [];
+    const pipelineTagId = item.pipeline.tagId || '';
 
     const priorityTrigger = (
       <ColorButton>
@@ -66,6 +71,15 @@ class Actions extends React.Component<Props> {
         {item.priority ? item.priority : __('Priority')}
       </ColorButton>
     );
+
+    const TAG_TYPE =
+      options.type === 'deal'
+        ? TAG_TYPES.DEAL
+        : options.type === 'task'
+        ? TAG_TYPES.TASK
+        : options.type === 'purchase' // Add a new condition for 'purchase'
+        ? TAG_TYPES.PURCHASE
+        : TAG_TYPES.TICKET;
 
     const tagTrigger = (
       <PopoverButton id="conversationTags">
@@ -99,12 +113,11 @@ class Actions extends React.Component<Props> {
         <ChecklistAdd itemId={item._id} type={options.type} />
 
         <Watch item={item} options={options} isSmall={true} />
-
+        {(isEnabled('clientportal') && <Comment item={item} />) || ''}
         <ColorButton onClick={copyItem}>
           <Icon icon="copy-1" />
           {__('Copy')}
         </ColorButton>
-
         <ArchiveBtn
           item={item}
           removeItem={removeItem}
@@ -112,15 +125,28 @@ class Actions extends React.Component<Props> {
           sendToBoard={sendToBoard}
           onChangeStage={onChangeStage}
         />
-
-        {options.type === 'deal' && isEnabled('tags') && (
+        {isEnabled('tags') && (
           <TaggerPopover
-            type={TAG_TYPES.DEAL}
+            type={TAG_TYPE}
             trigger={tagTrigger}
-            refetchQueries={['dealDetail']}
+            refetchQueries={['dealDetail', 'taskDetail', 'ticketDetail']}
             targets={[item]}
+            parentTagId={pipelineTagId}
+            singleSelect={true}
           />
         )}
+
+        {loadDynamicComponent(
+          'cardDetailAction',
+          {
+            item,
+            contentType: 'cards',
+            subType: item.stage?.type,
+            path: `stageId=${item.stageId}`
+          },
+          true
+        )}
+        {/* {isEnabled('documents') && <PrintActionButton item={item} />} */}
       </ActionContainer>
     );
   }

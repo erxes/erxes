@@ -1,7 +1,7 @@
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
+import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
+import { ITag } from '@erxes/ui-tags/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { ICustomer } from '@erxes/ui/src/customers/types';
-import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
-import { ITag } from '@erxes/ui/src/tags/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 
 export interface IVideoCallData {
@@ -9,6 +9,21 @@ export interface IVideoCallData {
   name?: string;
   status?: string;
   recordingLinks?: string[];
+}
+
+export interface ICallHistory {
+  receiverNumber: string;
+  callerNumber: string;
+  callDuration: number;
+  callStartTime: Date;
+  callEndTime: Date;
+  callType: string;
+  callStatus: string;
+  sessionId: string;
+  updatedAt: Date;
+  createdAt: Date;
+  createdBy: string;
+  updatedBy: string;
 }
 
 export interface IConversation {
@@ -39,11 +54,9 @@ export interface IConversation {
   tags: ITag[];
   updatedAt: Date;
   idleTime: number;
-  facebookPost?: IFacebookPost;
   callProAudio?: string;
   videoCallData?: IVideoCallData;
-
-  isFacebookTaggedMessage?: boolean;
+  callHistory?: ICallHistory;
 
   customFieldsData?: {
     [key: string]: any;
@@ -57,31 +70,6 @@ interface IEngageDataRules {
   text: string;
   condition: string;
   value?: string;
-}
-
-export interface IFacebookPost {
-  postId: string;
-  recipientId: string;
-  senderId: string;
-  content: string;
-  erxesApiId?: string;
-  attachments: string[];
-  timestamp: Date;
-  permalink_url: string;
-}
-
-export interface IFacebookComment {
-  postId: string;
-  conversationId: string;
-  parentId: string;
-  commentId: string;
-  content: string;
-  attachments: string[];
-  commentCount: number;
-  timestamp: Date;
-  customer: ICustomer;
-  isResolved: boolean;
-  permalink_url: string;
 }
 
 export interface IEmail {
@@ -156,7 +144,7 @@ export interface IBotData {
     {
       title: string;
       payload: string;
-    }
+    },
   ];
   wrapped?: {
     type: string;
@@ -189,6 +177,7 @@ export interface IMessage {
   createdAt: Date;
   updatedAt: Date;
   bookingWidgetData?: any;
+  mid?: string;
 }
 
 // mutation types
@@ -281,6 +270,7 @@ export type LastConversationQueryResponse = {
 export type ConversationsQueryResponse = {
   conversations: IConversation[];
   subscribeToMore: (variables) => void;
+  fetchMore?: any;
 } & QueryResponse;
 
 export type ConversationDetailQueryResponse = {
@@ -306,38 +296,6 @@ export type UnreadConversationsTotalCountQueryResponse = {
   subscribeToMore: (variables) => void;
 } & QueryResponse;
 
-export type FacebookCommentsQueryResponse = {
-  integrationsConversationFbComments: IFacebookComment[];
-  fetchMore: (variables) => void;
-} & QueryResponse;
-
-export type FacebookCommentsCountQueryResponse = {
-  integrationsConversationFbCommentsCount: any;
-  fetchMore: (variables) => void;
-} & QueryResponse;
-
-export type ReplyFaceBookCommentMutationVariables = {
-  conversationId: string;
-  commentId: string;
-  content: string;
-};
-
-export type ReplyFacebookCommentMutationResponse = {
-  replyMutation: (doc: {
-    variables: ReplyFaceBookCommentMutationVariables;
-  }) => Promise<any>;
-};
-
-export type ResolveFacebookCommentMutationVariables = {
-  commentId: string;
-};
-
-export type ResolveFacebookCommentResponse = {
-  resolveMutation: (doc: {
-    variables: ResolveFacebookCommentMutationVariables;
-  }) => Promise<any>;
-};
-
 export type EditCustomFieldsMutationVariables = {
   _id: string;
   customFieldsData: any;
@@ -352,3 +310,15 @@ export type EditMutationResponse = {
 export type ResponseTemplatesTotalCountQueryResponse = {
   responseTemplatesTotalCount: number;
 } & QueryResponse;
+
+// inbox direct message configs
+export type DmQueryItem = {
+  query: string;
+  name: string;
+  integrationKind: string;
+};
+
+export type DmConfig = {
+  messagesQuery: DmQueryItem;
+  countQuery: DmQueryItem;
+};

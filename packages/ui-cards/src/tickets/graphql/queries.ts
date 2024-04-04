@@ -1,11 +1,12 @@
-import { commonFields, commonListFields } from "../../boards/graphql/mutations";
+import { commonFields, commonListFields } from '../../boards/graphql/mutations';
 import {
   conformityQueryFieldDefs,
-  conformityQueryFields,
-} from "../../conformity/graphql/queries";
+  conformityQueryFields
+} from '../../conformity/graphql/queries';
 
 const commonParams = `
   $companyIds: [String],
+  $parentId: String,
   $customerIds: [String],
   $assignedUserIds: [String],
   $closeDateType: String,
@@ -16,15 +17,28 @@ const commonParams = `
   $sortDirection: Int,
   $userIds: [String],
   $segment: String,
+  $segmentData:String,
   $assignedToMe: String,
   $startDate: String,
   $endDate: String,
+  $noSkipArchive: Boolean,
+  $branchIds:[String]
+  $departmentIds:[String]
   ${conformityQueryFields}
+  $createdStartDate: Date
+  $createdEndDate: Date
+  $stateChangedStartDate: Date
+  $stateChangedEndDate: Date
+  $startDateStartDate: Date
+  $startDateEndDate: Date
+  $closeDateStartDate: Date
+  $closeDateEndDate: Date
 `;
 
 const commonParamDefs = `
   companyIds: $companyIds,
   customerIds: $customerIds,
+  parentId: $parentId,
   assignedUserIds: $assignedUserIds,
   closeDateType: $closeDateType,
   priority: $priority,
@@ -34,10 +48,22 @@ const commonParamDefs = `
   sortDirection: $sortDirection,
   userIds: $userIds,
   segment: $segment,
+  segmentData: $segmentData,
   assignedToMe: $assignedToMe,
   startDate: $startDate,
   endDate: $endDate,
+  noSkipArchive: $noSkipArchive,
+  branchIds: $branchIds,
+  departmentIds: $departmentIds,
   ${conformityQueryFieldDefs}
+  createdStartDate: $createdStartDate
+  createdEndDate: $createdEndDate
+  stateChangedStartDate: $stateChangedStartDate
+  stateChangedEndDate: $stateChangedEndDate
+  startDateStartDate: $startDateStartDate
+  startDateEndDate: $startDateEndDate
+  closeDateStartDate: $closeDateStartDate
+  closeDateEndDate: $closeDateEndDate
 `;
 
 export const ticketFields = `
@@ -93,6 +119,19 @@ const ticketDetail = `
     ticketDetail(_id: $_id) {
       ${ticketFields}
       ${commonFields}
+    }
+  }
+`;
+
+const clientPortalComments = `
+  query clientPortalComments($typeId: String!, $type: String!) {
+    clientPortalComments(typeId: $typeId, type: $type) {
+      _id
+      content
+      createdUser 
+      createdAt
+      userType
+      type
     }
   }
 `;
@@ -158,4 +197,5 @@ export default {
   ticketDetail,
   archivedTickets,
   archivedTicketsCount,
+  clientPortalComments
 };

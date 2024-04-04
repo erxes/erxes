@@ -1,0 +1,23 @@
+module.exports = {
+  srcDir: __dirname,
+  name: 'goalType',
+  port: 3017,
+  scope: 'goalType',
+  exposes: {
+    './routes': './src/routes.tsx'
+  },
+  routes: {
+    url: 'http://localhost:3017/remoteEntry.js',
+    scope: 'goalType',
+    module: './routes'
+  },
+  menus: [
+    {
+      text: 'Goals',
+      to: '/erxes-plugin-goalType/goalType',
+      image: '/images/icons/erxes-18.svg',
+      location: 'settings',
+      scope: 'goalType'
+    }
+  ]
+};

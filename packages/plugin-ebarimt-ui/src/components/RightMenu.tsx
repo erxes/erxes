@@ -7,7 +7,7 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon,
+  Icon
 } from '@erxes/ui/src/components';
 import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import { __ } from '@erxes/ui/src/utils';
@@ -20,6 +20,7 @@ import {
   TabContent
 } from '../styles';
 import { IQueryParams } from '@erxes/ui/src/types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   onSearch: (search: string, key?: string) => void;
@@ -28,6 +29,7 @@ type Props = {
   queryParams: any;
   isFiltered: boolean;
   clearFilter: () => void;
+  showMenu?: boolean;
 };
 
 type StringState = {
@@ -36,7 +38,7 @@ type StringState = {
 
 type State = {
   showMenu: boolean;
-  filterParams: IQueryParams
+  filterParams: IQueryParams;
 } & StringState;
 
 export default class RightMenu extends React.Component<Props, State> {
@@ -47,7 +49,7 @@ export default class RightMenu extends React.Component<Props, State> {
 
     this.state = {
       currentTab: 'Filter',
-      showMenu: false,
+      showMenu: this.props.showMenu || false,
 
       filterParams: this.props.queryParams
     };
@@ -57,8 +59,8 @@ export default class RightMenu extends React.Component<Props, State> {
 
   setFilter = () => {
     const { filterParams } = this.state;
-    this.props.onFilter(filterParams);
-  }
+    this.props.onFilter({ ...filterParams, page: '1' });
+  };
 
   setWrapperRef(node) {
     this.wrapperRef = node;
@@ -80,10 +82,9 @@ export default class RightMenu extends React.Component<Props, State> {
     this.setState({ filterParams: { ...filterParams, [key]: String(values) } });
   };
 
-  onChangeInput = (e) => {
-    const target = e.target;
-    const name = target.name;
-    const value = target.value;
+  onChangeInput = e => {
+    const { target } = e;
+    const { name, value } = target;
 
     const { filterParams } = this.state;
     this.setState({ filterParams: { ...filterParams, [name]: value } });
@@ -113,11 +114,7 @@ export default class RightMenu extends React.Component<Props, State> {
   };
 
   renderSpecials() {
-    return (
-      <>
-        {this.renderLink('Only Today', 'paidDate', 'today')}
-      </>
-    );
+    return <>{this.renderLink('Only Today', 'paidDate', 'today')}</>;
   }
 
   renderRange(dateType: string) {
@@ -136,7 +133,7 @@ export default class RightMenu extends React.Component<Props, State> {
               inputProps={{ placeholder: __('Click to select a date') }}
               dateFormat="YYYY-MM-DD"
               timeFormat="HH:mm"
-              value={filterParams[lblStart] || null}
+              value={filterParams[lblStart]}
               closeOnSelect={true}
               utc={true}
               input={true}
@@ -162,7 +159,7 @@ export default class RightMenu extends React.Component<Props, State> {
           </div>
         </CustomRangeContainer>
       </>
-    )
+    );
   }
 
   renderContentType() {
@@ -182,20 +179,26 @@ export default class RightMenu extends React.Component<Props, State> {
             onChange={this.onChangeInput}
           />
         </FormGroup>
-      )
+      );
     }
 
     if (contentType === 'deal') {
       const onChangeBoard = (boardId: string) => {
-        this.setState({ filterParams: { ...this.state.filterParams, boardId } });
+        this.setState({
+          filterParams: { ...this.state.filterParams, boardId }
+        });
       };
 
       const onChangePipeline = (pipelineId: string) => {
-        this.setState({ filterParams: { ...this.state.filterParams, pipelineId } });
+        this.setState({
+          filterParams: { ...this.state.filterParams, pipelineId }
+        });
       };
 
       const onChangeStage = (stageId: string) => {
-        this.setState({ filterParams: { ...this.state.filterParams, stageId } });
+        this.setState({
+          filterParams: { ...this.state.filterParams, stageId }
+        });
       };
 
       return (
@@ -214,7 +217,7 @@ export default class RightMenu extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Stage</ControlLabel>
             <BoardSelectContainer
-              type='deal'
+              type="deal"
               autoSelectStage={false}
               boardId={filterParams.boardId}
               pipelineId={filterParams.pipelineId}
@@ -222,14 +225,41 @@ export default class RightMenu extends React.Component<Props, State> {
               onChangeBoard={onChangeBoard}
               onChangePipeline={onChangePipeline}
               onChangeStage={onChangeStage}
-
             />
           </FormGroup>
         </>
-      )
+      );
     }
 
-    return ''
+    if (contentType === 'loans:transaction') {
+      return (
+        <>
+          <FormGroup>
+            <ControlLabel>{`Contract number`}</ControlLabel>
+            <FormControl
+              name={'contractNumber'}
+              defaultValue={filterParams.contractNumber}
+              placeholder={__('Search value')}
+              onKeyPress={this.onSearch}
+              autoFocus={true}
+              onChange={this.onChangeInput}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{`Transaction number`}</ControlLabel>
+            <FormControl
+              name={'transactionNumber'}
+              defaultValue={filterParams.transactionNumber}
+              placeholder={__('Search value')}
+              onKeyPress={this.onSearch}
+              autoFocus={true}
+              onChange={this.onChangeInput}
+            />
+          </FormGroup>
+        </>
+      );
+    }
+    return '';
   }
 
   renderFilter() {
@@ -253,13 +283,18 @@ export default class RightMenu extends React.Component<Props, State> {
           <ControlLabel>{`Content Type`}</ControlLabel>
           <FormControl
             name={'contentType'}
-            componentClass='select'
+            componentClass="select"
             defaultValue={filterParams.contentType}
             onChange={this.onChangeInput}
           >
             <option value="">{__('All')}</option>
-            <option value="deal">{__('Deal')}</option>
-            <option value="pos">{__('Pos')}</option>
+            {isEnabled('cards') && <option value="deal">{__('Deal')}</option>}
+            {isEnabled('pos') && <option value="pos">{__('Pos')}</option>}
+            {isEnabled('loans') && (
+              <option value="loans:transaction">
+                {__('Loan Transaction')}
+              </option>
+            )}
           </FormControl>
         </FormGroup>
 
@@ -269,7 +304,7 @@ export default class RightMenu extends React.Component<Props, State> {
           <ControlLabel>{`Success`}</ControlLabel>
           <FormControl
             name={'success'}
-            componentClass='select'
+            componentClass="select"
             defaultValue={filterParams.success}
             onChange={this.onChangeInput}
           >
@@ -283,7 +318,7 @@ export default class RightMenu extends React.Component<Props, State> {
           <ControlLabel>{`Bill Type`}</ControlLabel>
           <FormControl
             name={'billType'}
-            componentClass='select'
+            componentClass="select"
             defaultValue={filterParams.billType}
             onChange={this.onChangeInput}
           >
@@ -297,7 +332,7 @@ export default class RightMenu extends React.Component<Props, State> {
           <ControlLabel>{`Bill ID Rule`}</ControlLabel>
           <FormControl
             name={'billIdRule'}
-            componentClass='select'
+            componentClass="select"
             defaultValue={filterParams.billIdRule}
             onChange={this.onChangeInput}
           >
@@ -310,13 +345,21 @@ export default class RightMenu extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          {this.renderRange('created')}
+          <ControlLabel>{`On Last`}</ControlLabel>
+          <FormControl
+            name={'isLast'}
+            componentClass="select"
+            defaultValue={filterParams.isLast}
+            onChange={this.onChangeInput}
+          >
+            <option value="">{__('All')}</option>
+            <option value="1">{__('on last')}</option>
+          </FormControl>
         </FormGroup>
 
-        <FormGroup>
-          {this.renderSpecials()}
-        </FormGroup>
+        <FormGroup>{this.renderRange('created')}</FormGroup>
 
+        <FormGroup>{this.renderSpecials()}</FormGroup>
       </FilterBox>
     );
   }
@@ -371,9 +414,7 @@ export default class RightMenu extends React.Component<Props, State> {
           classNames="slide-in-right"
           unmountOnExit={true}
         >
-          <RightMenuContainer>
-            {this.renderTabContent()}
-          </RightMenuContainer>
+          <RightMenuContainer>{this.renderTabContent()}</RightMenuContainer>
         </RTG.CSSTransition>
       </div>
     );

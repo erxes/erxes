@@ -1,13 +1,11 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { withProps } from '@erxes/ui/src';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import List from '../components/CategoryList';
 import { queries } from '../graphql';
-import {
-  ProductCategoriesQueryResponse,
-} from '../../types';
+import { ProductCategoriesQueryResponse } from '../../types';
 
 type Props = { history: any; queryParams: any };
 
@@ -17,16 +15,14 @@ type FinalProps = {
 
 class ProductListContainer extends React.Component<FinalProps> {
   render() {
-    const {
-      productCategoriesQuery,
-    } = this.props;
+    const { productCategoriesQuery } = this.props;
 
     const productCategories = productCategoriesQuery.productCategories || [];
 
     const updatedProps = {
       ...this.props,
       productCategories,
-      loading: productCategoriesQuery.loading,
+      loading: productCategoriesQuery.loading
     };
 
     return <List {...updatedProps} />;
@@ -47,6 +43,6 @@ export default withProps<Props>(
           fetchPolicy: 'network-only'
         })
       }
-    ),
+    )
   )(ProductListContainer)
 );

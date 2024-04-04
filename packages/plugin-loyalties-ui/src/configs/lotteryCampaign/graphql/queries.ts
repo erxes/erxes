@@ -1,4 +1,10 @@
-import { commonFields, commonFilterDefs, commonFilterValues, paginateDefs, paginateValues } from '../../commonTypes';
+import {
+  commonFields,
+  commonFilterDefs,
+  commonFilterValues,
+  paginateDefs,
+  paginateValues
+} from '../../commonTypes';
 
 export const lotteryCampaignFields = `
   _id

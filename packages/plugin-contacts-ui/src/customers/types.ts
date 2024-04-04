@@ -6,9 +6,9 @@ import {
   ICustomerLinks as ICustomerLinksC,
   IUrlVisits as IUrlVisitsC,
   IVisitorContact as IVisitorContactC
-} from '@erxes/ui/src/customers/types';
+} from '@erxes/ui-contacts/src/customers/types';
 
-import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
+import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 
 export type IVisitorContact = IVisitorContactC;
 

@@ -1,15 +1,17 @@
-import React from 'react';
-
+import {
+  FileUploadBox,
+  FullContent,
+  ImportHeader,
+  UploadText
+} from '../../styles';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
+import { __, loadDynamicComponent } from 'modules/common/utils';
+import { renderText } from '../../utils';
+
 import { IAttachment } from 'modules/common/types';
-import { FullContent, UploadText } from '../../styles';
-import { renderIcon, renderText } from '../../utils';
 import { IImportHistoryContentType } from '../../types';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import ManageColumns from '@erxes/ui-settings/src/properties/containers/ManageColumns';
+import React from 'react';
 import Uploader from '@erxes/ui/src/components/Uploader';
-import { __ } from 'modules/common/utils';
-import { ImportHeader, FileUploadBox } from '../../styles';
 
 type Props = {
   onChangeAttachment: (files: IAttachment[], contentType: string) => void;
@@ -18,30 +20,6 @@ type Props = {
 };
 
 class FileUpload extends React.Component<Props, {}> {
-  renderColumnChooser = (currentType: string) => {
-    const manageColumns = props => {
-      return (
-        <ManageColumns
-          {...props}
-          contentType={currentType}
-          type={'import'}
-          isImport={true}
-        />
-      );
-    };
-
-    const editColumns = <span>{__(`Download template`)}</span>;
-
-    return (
-      <ModalTrigger
-        title="Select Columns"
-        trigger={editColumns}
-        content={manageColumns}
-        autoOpenKey="showManageColumnsModal"
-      />
-    );
-  };
-
   rendertContent = () => {
     const { contentTypes, onChangeAttachment } = this.props;
 
@@ -53,7 +31,9 @@ class FileUpload extends React.Component<Props, {}> {
         <FileUploadBox key={contentType.contentType}>
           <UploadText>
             <p>{renderText(contentType.contentType)}</p>
-            {this.renderColumnChooser(contentType.contentType)}
+            {loadDynamicComponent('importExportUploadForm', {
+              contentType: contentType.contentType
+            })}
           </UploadText>
 
           <Uploader
@@ -61,7 +41,7 @@ class FileUpload extends React.Component<Props, {}> {
               contentType.contentType
             )}.`}
             warningText={'Only .csv file is supported.'}
-            icon={renderIcon(contentType)}
+            icon={contentType.icon || 'users-alt'}
             accept=".csv"
             single={true}
             defaultFileList={[]}

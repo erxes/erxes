@@ -65,10 +65,6 @@ class Appearance extends React.Component<Props, State> {
       uiOptions.colors = {};
     }
 
-    if (!uiOptions.texts) {
-      uiOptions.texts = {};
-    }
-
     this.state = { uiOptions };
   }
 
@@ -104,9 +100,13 @@ class Appearance extends React.Component<Props, State> {
     const { uiOptions } = this.state;
 
     const onChangeInput = e => {
-      uiOptions['texts'][key] = e.target.value;
-
-      this.onChangeFunction('uiOptions', uiOptions);
+      const newUiOptions = {
+        ...uiOptions,
+        texts: { ...uiOptions.texts, [key]: e.target.value }
+      };
+      this.setState({ uiOptions: newUiOptions }, () => {
+        this.onChangeFunction('uiOptions', newUiOptions);
+      });
     };
 
     const defaultValue = (uiOptions['texts'] || {})[key];
@@ -122,16 +122,20 @@ class Appearance extends React.Component<Props, State> {
   renderPicker(group, key, title, colour) {
     const { uiOptions } = this.state;
 
+    const onChangeColor = e => {
+      const newUiOptions = {
+        ...uiOptions,
+        [group]: { ...uiOptions[group], [key]: e.hex }
+      };
+      this.setState({ uiOptions: newUiOptions }, () => {
+        this.onChangeFunction('uiOptions', newUiOptions);
+      });
+    };
+
     const color =
       uiOptions[group] && uiOptions[group][key]
         ? uiOptions[group][key]
         : colour;
-
-    const onChangeColor = e => {
-      uiOptions[group][key] = e.hex;
-
-      this.onChangeFunction('uiOptions', uiOptions);
-    };
 
     const popoverContent = (
       <Popover id={key}>

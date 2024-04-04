@@ -1,10 +1,10 @@
-import debounce from 'lodash/debounce';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { __ } from '@erxes/ui/src/utils';
-import { ICustomer } from '@erxes/ui/src/customers/types';
 import React from 'react';
 import Select from 'react-select-plus';
+import { __ } from '@erxes/ui/src/utils';
+import debounce from 'lodash/debounce';
 
 type Props = {
   object: any;
@@ -90,7 +90,7 @@ class TargetMergeModal extends React.Component<Props, State> {
     return (
       <ModalTrigger
         title={__('Merge')}
-        trigger={<a href="#merge">{__('Merge')}</a>}
+        trigger={<a>{__('Merge')}</a>}
         size="lg"
         content={modalContent}
       />

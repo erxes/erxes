@@ -30,6 +30,7 @@ const channels = `
       members {
         _id
         email
+        isActive
         details {
           avatar
           fullName

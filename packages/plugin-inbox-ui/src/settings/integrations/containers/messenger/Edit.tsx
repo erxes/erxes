@@ -1,18 +1,12 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { __, Alert, withProps } from 'coreui/utils';
-import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
-import Form from '../../components/messenger/Form';
-import {
-  mutations,
-  queries
-} from '@erxes/ui-settings/src/integrations/graphql';
+
+import { Alert, __, withProps } from 'coreui/utils';
 import {
   EditMessengerMutationResponse,
   EditMessengerMutationVariables,
   IMessengerApps,
+  IMessengerData,
+  IUiOptions,
   IntegrationDetailQueryResponse,
   MessengerAppsQueryResponse,
   SaveMessengerAppearanceMutationResponse,
@@ -20,15 +14,21 @@ import {
   SaveMessengerConfigsMutationResponse
 } from '@erxes/ui-inbox/src/settings/integrations/types';
 import {
-  IMessengerData,
-  IUiOptions
-} from '@erxes/ui-settings/src/integrations/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
+  mutations,
+  queries
+} from '@erxes/ui-inbox/src/settings/integrations/graphql';
+
 import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
+import Form from '../../components/messenger/Form';
+import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
 import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   integrationId: string;
@@ -136,7 +136,7 @@ const EditMessenger = (props: FinalProps) => {
       .then(() => {
         Alert.success('You successfully updated a messenger');
 
-        history.push('/settings/add-ons?refetch=true');
+        history.push('/settings/integrations?refetch=true');
       })
       .catch(error => {
         if (error.message.includes('Duplicated messenger for single brand')) {

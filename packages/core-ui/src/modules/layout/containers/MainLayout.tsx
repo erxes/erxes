@@ -1,11 +1,11 @@
-import { withProps } from "@erxes/ui/src/utils/core";
-import * as compose from "lodash.flowright";
-import gql from "graphql-tag";
-import { AppConsumer, AppProvider } from "appContext";
-import { IUser } from "modules/auth/types";
-import React from "react";
-import { graphql } from "react-apollo";
-import MainLayout from "../components/MainLayout";
+import { withProps } from '@erxes/ui/src/utils/core';
+import * as compose from 'lodash.flowright';
+import { gql } from '@apollo/client';
+import { AppConsumer, AppProvider } from 'appContext';
+import { IUser } from 'modules/auth/types';
+import React from 'react';
+import { graphql } from '@apollo/client/react/hoc';
+import MainLayout from '../components/MainLayout';
 
 type Props = {
   currentUser?: IUser;
@@ -50,7 +50,7 @@ export default withProps<Props>(
           enabledServices
         }`),
       {
-        name: "enabledServicesQuery",
+        name: 'enabledServicesQuery'
       }
     )
   )<FinalProps>(MainLayoutContainer)

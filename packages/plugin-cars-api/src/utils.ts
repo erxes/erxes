@@ -1,5 +1,17 @@
-
+import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
+import { generateFieldsFromSchema } from '@erxes/api-utils/src';
 import * as _ from 'underscore';
+import { generateModels, IModels } from './connectionResolver';
+import {
+  fetchSegment,
+  sendSegmentsMessage,
+  sendTagsMessage,
+} from './messageBroker';
+import { debugError } from '@erxes/api-utils/src/debuggers';
+
+export interface ICountBy {
+  [index: string]: number;
+}
 
 const gatherNames = async (params) => {
   const {
@@ -7,7 +19,7 @@ const gatherNames = async (params) => {
     idFields,
     foreignKey,
     prevList,
-    nameFields = []
+    nameFields = [],
   } = params;
   let options = [] as any;
 
@@ -35,11 +47,7 @@ const gatherNames = async (params) => {
   return options;
 };
 
-const gatherCarFieldNames = async (
-  models,
-  doc,
-  prevList = null
-) => {
+const gatherCarFieldNames = async (models, doc, prevList = null) => {
   let options = [];
 
   if (prevList) {
@@ -52,7 +60,7 @@ const gatherCarFieldNames = async (
       idFields: [doc.categoryId],
       foreignKey: 'categoryId',
       prevList: options,
-      nameFields: ['name']
+      nameFields: ['name'],
     });
   }
 
@@ -73,7 +81,11 @@ export const gatherDescriptions = async (params) => {
       extraDesc = await gatherCarFieldNames(models, obj);
 
       if (updatedDocument) {
-        extraDesc = await gatherCarFieldNames(models, updatedDocument, extraDesc);
+        extraDesc = await gatherCarFieldNames(
+          models,
+          updatedDocument,
+          extraDesc,
+        );
       }
       break;
     }
@@ -95,7 +107,7 @@ export const gatherDescriptions = async (params) => {
           collection: models.CarCategories,
           idFields: parentIds,
           foreignKey: 'parentId',
-          nameFields: ['name']
+          nameFields: ['name'],
         });
       }
     }
@@ -103,4 +115,279 @@ export const gatherDescriptions = async (params) => {
       break;
   }
   return { extraDesc, description };
+};
+
+export const generateFields = async ({ subdomain }) => {
+  const models = await generateModels(subdomain);
+
+  const { Cars } = models;
+
+  const schema = Cars.schema as any;
+  let fields: Array<{
+    _id: number;
+    name: string;
+    group?: string;
+    label?: string;
+    type?: string;
+    validation?: string;
+    options?: string[];
+    selectOptions?: Array<{ label: string; value: string }>;
+  }> = [];
+
+  if (schema) {
+    // generate list using customer or company schema
+    fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
+
+    for (const name of Object.keys(schema.paths)) {
+      const path = schema.paths[name];
+
+      // extend fields list using sub schema fields
+      if (path.schema) {
+        fields = [
+          ...fields,
+          ...(await generateFieldsFromSchema(path.schema, `${name}.`)),
+        ];
+      }
+    }
+  }
+
+  fields = fields.filter((field) => {
+    if (
+      field.name === 'parentCarCategoryId' ||
+      field.name === 'carCategoryId'
+    ) {
+      return false;
+    }
+
+    return true;
+  });
+
+  const parentCategories = await models.CarCategories.find({
+    $or: [{ parentId: null }, { parentId: '' }],
+  });
+
+  const categories = await models.CarCategories.find({
+    $or: [{ parentId: { $ne: null } }, { parentId: { $ne: '' } }],
+  });
+
+  const additionalFields = [
+    {
+      _id: Math.random(),
+      name: 'parentCarCategoryId',
+      label: 'Category',
+      type: 'String',
+      selectOptions: parentCategories.map((category) => ({
+        value: category._id,
+        label: category.name,
+      })),
+    },
+    {
+      _id: Math.random(),
+      name: 'carCategoryId',
+      label: 'Sub category',
+      type: 'String',
+      selectOptions: categories.map((category) => ({
+        value: category._id,
+        label: category.name,
+      })),
+    },
+    {
+      _id: Math.random(),
+      name: 'drivers',
+      label: 'Driver(s)',
+      type: 'String',
+      selectOptions: undefined,
+    },
+    {
+      _id: Math.random(),
+      name: 'companies',
+      label: 'Company(s)',
+      type: 'String',
+      selectOptions: undefined,
+    },
+  ];
+
+  return [...additionalFields, ...fields];
+};
+
+export const countBySegment = async (
+  subdomain: string,
+  contentType: string,
+  qb,
+): Promise<ICountBy> => {
+  const counts: ICountBy = {};
+
+  let segments: any[] = [];
+
+  segments = await sendSegmentsMessage({
+    subdomain,
+    action: 'find',
+    data: { contentType, name: { $exists: true } },
+    isRPC: true,
+    defaultValue: [],
+  });
+
+  for (const s of segments) {
+    try {
+      await qb.buildAllQueries();
+      await qb.segmentFilter(s);
+      counts[s._id] = await qb.runQueries('count');
+    } catch (e) {
+      debugError(`Error during segment count ${e.message}`);
+      counts[s._id] = 0;
+    }
+  }
+
+  return counts;
+};
+
+export interface IListArgs {
+  segment?: string;
+  segmentData?: string;
+}
+
+export class Builder {
+  public params: IListArgs;
+  public context;
+  public positiveList: any[];
+  public negativeList: any[];
+  public models: IModels;
+  public subdomain: string;
+
+  private contentType: 'cars';
+
+  constructor(models: IModels, subdomain: string, params: IListArgs, context) {
+    this.contentType = 'cars';
+    this.context = context;
+    this.params = params;
+    this.models = models;
+    this.subdomain = subdomain;
+
+    this.positiveList = [];
+    this.negativeList = [];
+
+    this.resetPositiveList();
+    this.resetNegativeList();
+  }
+
+  public resetNegativeList() {
+    this.negativeList = [{ term: { status: 'deleted' } }];
+  }
+
+  public resetPositiveList() {
+    this.positiveList = [];
+
+    if (this.context.commonQuerySelectorElk) {
+      this.positiveList.push(this.context.commonQuerySelectorElk);
+    }
+  }
+
+  public async tagFilter(tagId: string, withRelated?: boolean) {
+    let tagIds: string[] = [tagId];
+
+    if (withRelated) {
+      const tag = await sendTagsMessage({
+        subdomain: this.subdomain,
+        action: 'find',
+        data: { _id: tagId },
+      });
+
+      tagIds = [tagId, ...(tag?.relatedIds || [])];
+    }
+
+    this.positiveList.push({
+      terms: {
+        tagIds,
+      },
+    });
+  }
+
+  // filter by segment
+  public async segmentFilter(segment: any, segmentData?: any) {
+    const selector = await fetchSegment(
+      this.subdomain,
+      segment._id,
+      { returnSelector: true },
+      segmentData,
+    );
+
+    this.positiveList = [...this.positiveList, selector];
+  }
+
+  public getRelType() {
+    return 'car';
+  }
+
+  /*
+   * prepare all queries. do not do any action
+   */
+  public async buildAllQueries(): Promise<void> {
+    this.resetPositiveList();
+    this.resetNegativeList();
+
+    // filter by segment data
+    if (this.params.segmentData) {
+      const segment = JSON.parse(this.params.segmentData);
+
+      await this.segmentFilter({}, segment);
+    }
+
+    // filter by segment
+    if (this.params.segment) {
+      const segment = await sendSegmentsMessage({
+        isRPC: true,
+        action: 'findOne',
+        subdomain: this.subdomain,
+        data: { _id: this.params.segment },
+      });
+
+      await this.segmentFilter(segment);
+    }
+  }
+
+  public async runQueries(action = 'search'): Promise<any> {
+    const queryOptions: any = {
+      query: {
+        bool: {
+          must: this.positiveList,
+          must_not: this.negativeList,
+        },
+      },
+    };
+
+    let totalCount = 0;
+
+    const totalCountResponse = await fetchEs({
+      subdomain: this.subdomain,
+      action: 'count',
+      index: this.contentType,
+      body: queryOptions,
+      defaultValue: 0,
+    });
+
+    totalCount = totalCountResponse.count;
+
+    const response = await fetchEs({
+      subdomain: this.subdomain,
+      action,
+      index: this.contentType,
+      body: queryOptions,
+    });
+
+    if (action === 'count') {
+      return response && response.count ? response.count : 0;
+    }
+
+    const list = response.hits.hits.map((hit) => {
+      return {
+        _id: hit._id,
+        ...hit._source,
+      };
+    });
+
+    return {
+      list,
+      totalCount,
+    };
+  }
 }

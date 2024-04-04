@@ -79,10 +79,12 @@ export type PipelineCopyMutation = ({
 }) => Promise<any>;
 
 export type IOption = {
+  modal: string;
   boardName: string;
   pipelineName: string;
   StageItem: any;
   PipelineForm: any;
   additionalButton?: string;
+  additionalButtonModal?: any;
   additionalButtonText?: string;
 };

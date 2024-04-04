@@ -9,7 +9,7 @@ const conversationMessageAdd = `
     $mentionedUserIds: [String],
     $internal: Boolean,
     $attachments: [AttachmentInput],
-    $facebookMessageTag: String
+    $extraInfo: JSON
   ) {
     conversationMessageAdd(
       conversationId: $conversationId,
@@ -18,39 +18,11 @@ const conversationMessageAdd = `
       mentionedUserIds: $mentionedUserIds,
       internal: $internal,
       attachments: $attachments,
-      facebookMessageTag: $facebookMessageTag
+      extraInfo: $extraInfo
     ) {
       ${messageFields}
     }
   }
-`;
-
-const conversationsReplyFacebookComment = `
-  mutation conversationsReplyFacebookComment(
-    $conversationId: String,
-    $content: String,
-    $commentId: String,
-  ) {
-    conversationsReplyFacebookComment(
-    conversationId: $conversationId,
-    content: $content,
-    commentId: $commentId,
-  ) {
-    commentId
-  }
-}
-`;
-
-const conversationsChangeStatusFacebookComment = `
-  mutation conversationsChangeStatusFacebookComment(
-    $commentId: String,
-  ) {
-    conversationsChangeStatusFacebookComment(
-    commentId: $commentId,
-  ) {
-    commentId
-  }
-}
 `;
 
 const markAsRead = `
@@ -132,14 +104,12 @@ const createVideoChatRoom = `
 `;
 
 export default {
-  conversationsReplyFacebookComment,
   conversationMessageAdd,
   conversationsChangeStatus,
   conversationsAssign,
   conversationsUnassign,
   saveResponseTemplate,
   markAsRead,
-  conversationsChangeStatusFacebookComment,
   resolveAll,
   editCustomFields,
   createVideoChatRoom

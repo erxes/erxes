@@ -1,3 +1,9 @@
+export const menuSalesplans = [
+  { title: 'Labels', link: '/sales-plans/day-labels' },
+  { title: 'Day plans', link: '/sales-plans/day-plan' },
+  { title: 'Year plans', link: '/sales-plans/year-plan' }
+];
+
 export const COLORS = [
   '#01aecc',
   '#D9E3F0',
@@ -42,6 +48,21 @@ export const MONTH = [
   { value: 10, label: 'October' },
   { value: 11, label: 'November' },
   { value: 12, label: 'December' }
+];
+
+export const MONTHS = [
+  'jan',
+  'feb',
+  'mar',
+  'apr',
+  'may',
+  'jun',
+  'jul',
+  'aug',
+  'sep',
+  'oct',
+  'nov',
+  'dec'
 ];
 
 export const DAYS = [

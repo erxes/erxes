@@ -1,13 +1,13 @@
 import {
   checkPermission,
-  requireLogin
+  requireLogin,
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
-import messageBroker, { sendCoreMessage } from '../../../messageBroker';
+import { sendCoreMessage } from '../../../messageBroker';
 import {
   putCreateLog,
   putDeleteLog,
-  putUpdateLog
+  putUpdateLog,
 } from '@erxes/api-utils/src/logUtils';
 
 const carMutations = {
@@ -16,14 +16,13 @@ const carMutations = {
 
     await putCreateLog(
       subdomain,
-      messageBroker(),
       {
         type: 'car',
         newData: doc,
         object: car,
-        extraParams: { models }
+        extraParams: { models },
       },
-      user
+      user,
     );
 
     return car;
@@ -35,15 +34,14 @@ const carMutations = {
 
     await putUpdateLog(
       subdomain,
-      messageBroker(),
       {
         type: 'car',
         object: car,
         newData: { ...doc },
         updatedDocument: updated,
-        extraParams: { models }
+        extraParams: { models },
       },
-      user
+      user,
     );
 
     return updated;
@@ -52,7 +50,7 @@ const carMutations = {
   carsRemove: async (
     _root,
     { carIds }: { carIds: string[] },
-    { models, user }: IContext
+    { models, user }: IContext,
   ) => {
     const cars = await models.Cars.find({ _id: { $in: carIds } }).lean();
 
@@ -82,22 +80,21 @@ const carMutations = {
   carCategoriesAdd: async (
     _root,
     doc,
-    { docModifier, models, subdomain, user }
+    { docModifier, models, subdomain, user },
   ) => {
     const carCategory = await models.CarCategories.createCarCategory(
-      docModifier(doc)
+      docModifier(doc),
     );
 
     await putCreateLog(
       subdomain,
-      messageBroker(),
       {
         type: 'car-category',
         newData: { ...doc, order: carCategory.order },
         object: carCategory,
-        extraParams: { models }
+        extraParams: { models },
       },
-      user
+      user,
     );
 
     return carCategory;
@@ -106,24 +103,23 @@ const carMutations = {
   carCategoriesEdit: async (
     _root,
     { _id, ...doc },
-    { models, subdomain, user }
+    { models, subdomain, user },
   ) => {
     const carCategory = await models.CarCategories.getCarCatogery({
-      _id
+      _id,
     });
     const updated = await models.CarCategories.updateCarCategory(_id, doc);
 
     await putUpdateLog(
       subdomain,
-      messageBroker(),
       {
         type: 'car-category',
         object: carCategory,
         newData: doc,
         updatedDocument: updated,
-        extraParams: { models }
+        extraParams: { models },
       },
-      user
+      user,
     );
 
     return updated;
@@ -132,18 +128,17 @@ const carMutations = {
   carCategoriesRemove: async (
     _root,
     { _id }: { _id: string },
-    { models, subdomain, user }: IContext
+    { models, subdomain, user }: IContext,
   ) => {
     const carCategory = await models.CarCategories.getCarCatogery({
-      _id
+      _id,
     });
     const removed = await models.CarCategories.removeCarCategory(_id);
 
     await putDeleteLog(
       subdomain,
-      messageBroker(),
       { type: 'car-category', object: carCategory, extraParams: { models } },
-      user
+      user,
     );
 
     return removed;
@@ -160,8 +155,8 @@ const carMutations = {
           mainType: 'customer',
           mainTypeId: doc.customerId,
           relType: 'car',
-          relTypeId: car._id
-        }
+          relTypeId: car._id,
+        },
       });
     }
 
@@ -173,8 +168,8 @@ const carMutations = {
           mainType: 'company',
           mainTypeId: doc.companyId,
           relType: 'car',
-          relTypeId: car._id
-        }
+          relTypeId: car._id,
+        },
       });
     }
 
@@ -191,7 +186,7 @@ const carMutations = {
   cpCarsRemove: async (_root, { carIds }: { carIds: string[] }, { models }) => {
     await models.Cars.removeCars(carIds);
     return carIds;
-  }
+  },
 };
 
 requireLogin(carMutations, 'manageCars');

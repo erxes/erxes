@@ -1,28 +1,33 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
+
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import List from '../components/List';
-import { mutations, queries } from '../graphql';
 import {
   MergeMutationResponse,
   RemoveMutationResponse,
   TagsQueryResponse
 } from '../types';
+import { mutations, queries } from '../graphql';
+
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import List from '../components/List';
+import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { router } from '@erxes/ui/src/utils';
+import { __ } from '@erxes/ui/src/utils/core';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   history: any;
-  type: string;
+  queryParams?: any;
 };
 
 type FinalProps = {
   tagsQuery: TagsQueryResponse;
   tagsGetTypes: any;
+  tagsQueryCount: any;
 } & Props &
   RemoveMutationResponse &
   MergeMutationResponse;
@@ -31,25 +36,42 @@ const ListContainer = (props: FinalProps) => {
   const {
     tagsGetTypes,
     tagsQuery,
+    tagsQueryCount,
     removeMutation,
-    type,
     mergeMutation,
-    history
+    queryParams
   } = props;
 
   if (tagsGetTypes.loading) {
     return <Spinner />;
   }
 
+  const tagType = queryParams.tagType || '';
   const types = tagsGetTypes.tagsGetTypes || [];
 
-  if (!router.getParam(history, 'type') || !tagsQuery) {
-    router.setParams(history, { type: types[0].contentType.toString() }, true);
+  if (types.length === 0) {
+    return (
+      <EmptyState
+        image="/images/actions/5.svg"
+        text={__('No taggable plugin found')}
+        size="full"
+      />
+    );
+  }
+
+  if (!tagsQuery || !tagsQueryCount) {
+    return (
+      <EmptyState
+        image="/images/actions/5.svg"
+        text={__('No taggable plugin found')}
+        size="full"
+      />
+    );
   }
 
   const remove = tag => {
     confirm(
-      `This action will untag all ${type}(s) with this tag and remove the tag. Are you sure?`
+      `This action will untag all ${tag.type}(s) with this tag and remove the tag. Are you sure?`
     )
       .then(() => {
         removeMutation({ variables: { _id: tag._id } })
@@ -79,18 +101,18 @@ const ListContainer = (props: FinalProps) => {
   };
 
   const renderButton = ({
-    name,
     values,
     isSubmitted,
     callback,
-    object
+    object,
+    name
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
         mutation={object ? mutations.edit : mutations.add}
         variables={values}
         callback={callback}
-        refetchQueries={getRefetchQueries(type)}
+        refetchQueries={getRefetchQueries(queryParams)}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
@@ -100,12 +122,15 @@ const ListContainer = (props: FinalProps) => {
     );
   };
 
+  const total = tagsQueryCount.tagsQueryCount || 0;
+
   const updatedProps = {
     ...props,
     types,
     tags: tagsQuery.tags || [],
     loading: tagsQuery.loading,
-    type,
+    tagType,
+    total,
     remove,
     merge,
     renderButton
@@ -114,11 +139,22 @@ const ListContainer = (props: FinalProps) => {
   return <List {...updatedProps} />;
 };
 
-const getRefetchQueries = (type: string) => {
+const getRefetchQueries = queryParams => {
   return [
     {
       query: gql(queries.tags),
-      variables: { type: type || '' }
+      variables: {
+        type: queryParams.tagType,
+        searchValue: queryParams.searchValue,
+        ...generatePaginationParams(queryParams)
+      }
+    },
+    {
+      query: gql(queries.tagsQueryCount),
+      variables: {
+        type: queryParams.tagType,
+        searchValue: queryParams.searchValue
+      }
     }
   ];
 };
@@ -128,10 +164,24 @@ export default withProps<Props>(
     graphql<Props>(gql(queries.tagsGetTypes), {
       name: 'tagsGetTypes'
     }),
+    graphql<Props>(gql(queries.tagsQueryCount), {
+      name: 'tagsQueryCount',
+      options: ({ queryParams }) => ({
+        variables: {
+          type: queryParams.tagType,
+          searchValue: queryParams.searchValue
+        },
+        fetchPolicy: 'network-only'
+      })
+    }),
     graphql<Props, TagsQueryResponse, { type: string }>(gql(queries.tags), {
       name: 'tagsQuery',
-      options: ({ type }) => ({
-        variables: { type },
+      options: ({ queryParams }) => ({
+        variables: {
+          type: queryParams.tagType,
+          searchValue: queryParams.searchValue,
+          ...generatePaginationParams(queryParams)
+        },
         fetchPolicy: 'network-only'
       })
     }),
@@ -139,15 +189,15 @@ export default withProps<Props>(
       gql(mutations.remove),
       {
         name: 'removeMutation',
-        options: ({ type }: Props) => ({
-          refetchQueries: getRefetchQueries(type)
+        options: ({ queryParams }: Props) => ({
+          refetchQueries: getRefetchQueries(queryParams)
         })
       }
     ),
     graphql<Props, MergeMutationResponse>(gql(mutations.merge), {
       name: 'mergeMutation',
-      options: ({ type }: Props) => ({
-        refetchQueries: getRefetchQueries(type)
+      options: ({ queryParams }: Props) => ({
+        refetchQueries: getRefetchQueries(queryParams)
       })
     })
   )(ListContainer)

@@ -23,9 +23,7 @@ class CategoryFormContainer extends React.Component<Props> {
       return (
         <ButtonMutate
           mutation={
-            object
-              ? mutations.carCategoryEdit
-              : mutations.carCategoryAdd
+            object ? mutations.carCategoryEdit : mutations.carCategoryAdd
           }
           variables={values}
           callback={callback}
@@ -33,8 +31,9 @@ class CategoryFormContainer extends React.Component<Props> {
           isSubmitted={isSubmitted}
           type="submit"
           uppercase={false}
-          successMessage={`You successfully ${object ? 'updated' : 'added'
-            } a ${name}`}
+          successMessage={`You successfully ${
+            object ? 'updated' : 'added'
+          } a ${name}`}
         />
       );
     };

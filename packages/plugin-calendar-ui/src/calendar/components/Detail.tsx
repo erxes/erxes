@@ -105,16 +105,16 @@ class Detail extends React.Component<FinalProps, { toggle: boolean }> {
             <h4>{event.title || ''}</h4>
             <div>
               <HeadButton onClick={edit}>
-                <Icon icon='pen-1' />
+                <Icon icon="pen-1" />
               </HeadButton>
               <HeadButton onClick={remove}>
-                <Icon icon='trash-alt' />
+                <Icon icon="trash-alt" />
               </HeadButton>
             </div>
           </EventHeading>
 
           <EventRow>
-            <Icon icon='clock-eight' />
+            <Icon icon="clock-eight" />
             <div>
               {dayjs(startDate).format('dddd, MMMM D , HH:mm')}
               {dayjs(endDate).format(
@@ -123,11 +123,11 @@ class Detail extends React.Component<FinalProps, { toggle: boolean }> {
             </div>
           </EventRow>
           <EventRow>
-            <Icon icon='calendar-alt' />
+            <Icon icon="calendar-alt" />
             <div>{event.owner}</div>
           </EventRow>
           <EventRow>
-            <Icon icon='users-alt' />
+            <Icon icon="users-alt" />
             <div>
               {guestCount} guests &nbsp;
               {guestCount !== 0 && (
@@ -151,7 +151,7 @@ class Detail extends React.Component<FinalProps, { toggle: boolean }> {
 
           {event.description && (
             <EventRow>
-              <Icon icon='align-left' />
+              <Icon icon="align-left" />
               <div dangerouslySetInnerHTML={{ __html: event.description }} />
             </EventRow>
           )}

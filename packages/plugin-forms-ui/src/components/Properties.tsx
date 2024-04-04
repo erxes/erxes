@@ -1,22 +1,22 @@
 import Button from '@erxes/ui/src/components/Button';
+import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
+import { IField } from '@erxes/ui/src/types';
+import { IFieldGroup } from '@erxes/ui-forms/src/settings/properties/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { Title } from '@erxes/ui-settings/src/styles';
-import { __ } from '@erxes/ui/src/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import PropertyForm from '@erxes/ui-settings/src/properties/containers/PropertyForm';
-import PropertyGroupForm from '@erxes/ui-settings/src/properties/containers/PropertyGroupForm';
-import { PropertyList } from '@erxes/ui-settings/src/properties/styles';
-import { IFieldGroup } from '@erxes/ui-settings/src/properties/types';
-import { IField } from '@erxes/ui/src/types';
+import PropertyForm from '@erxes/ui-forms/src/settings/properties/containers/PropertyForm';
+import PropertyGroupForm from '@erxes/ui-forms/src/settings/properties/containers/PropertyGroupForm';
+import { PropertyList } from '@erxes/ui-forms/src/settings/properties/styles';
 import PropertyRow from './PropertyRow';
+import React from 'react';
 import Sidebar from './Sidebar';
 import SortableList from '@erxes/ui/src/components/SortableList';
+import { Title } from '@erxes/ui-settings/src/styles';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from '@erxes/ui/src/utils';
 
 // Props
 type Props = {
@@ -47,7 +47,7 @@ type Props = {
 
 class Properties extends React.Component<
   Props,
-  { fieldsGroups: IFieldGroup[] }
+  { fieldsGroups: IFieldGroup[]; fieldsGroupsWithParent: IFieldGroup[] }
 > {
   constructor(props: Props) {
     super(props);
@@ -55,7 +55,12 @@ class Properties extends React.Component<
     const { fieldsGroups = [] } = props;
 
     this.state = {
-      fieldsGroups: fieldsGroups.filter(gro => !gro.isDefinedByErxes)
+      fieldsGroups: fieldsGroups.filter(
+        gro => !gro.isDefinedByErxes && !gro.parentId
+      ),
+      fieldsGroupsWithParent: fieldsGroups.filter(
+        gro => !gro.isDefinedByErxes && gro.parentId
+      )
     };
   }
 
@@ -63,7 +68,10 @@ class Properties extends React.Component<
     if (this.props.fieldsGroups !== nextProps.fieldsGroups) {
       this.setState({
         fieldsGroups: nextProps.fieldsGroups.filter(
-          gro => !gro.isDefinedByErxes
+          gro => !gro.isDefinedByErxes && !gro.parentId
+        ),
+        fieldsGroupsWithParent: nextProps.fieldsGroups.filter(
+          gro => !gro.isDefinedByErxes && gro.parentId
         )
       });
     }
@@ -83,14 +91,19 @@ class Properties extends React.Component<
       updatePropertyVisible,
       updatePropertyDetailVisible,
       updatePropertySystemFields,
-      updateFieldOrder
+      updateFieldOrder,
+      updateGroupOrder
     } = this.props;
+
+    const { fieldsGroupsWithParent } = this.state;
 
     return (
       <PropertyRow
         key={group._id}
         group={group}
+        groupsWithParents={fieldsGroupsWithParent}
         queryParams={queryParams}
+        updateGroupOrder={updateGroupOrder}
         removePropertyGroup={removePropertyGroup}
         removeProperty={removeProperty}
         updatePropertyVisible={updatePropertyVisible}
@@ -151,11 +164,11 @@ class Properties extends React.Component<
 
     let size;
 
-    if (['task', 'deal', 'ticket'].includes(currentType)) {
+    if (['task', 'deal', 'ticket', 'purchase'].includes(currentType)) {
       size = 'lg';
     }
 
-    const addGroup = <Dropdown.Item>{__('Add group')}</Dropdown.Item>;
+    const addGroup = <Dropdown.Item>{__('Add Group')}</Dropdown.Item>;
     const addField = <Dropdown.Item>{__('Add Property')}</Dropdown.Item>;
 
     const groupContent = props => (
@@ -233,11 +246,10 @@ class Properties extends React.Component<
       <Wrapper
         actionBar={
           <Wrapper.ActionBar
-            withMargin
-            wide
             background="bgWhite"
             left={title}
             right={this.renderActionBar()}
+            wideSpacing={true}
           />
         }
         header={
@@ -248,9 +260,8 @@ class Properties extends React.Component<
           <Sidebar currentType={__(currentType)} services={services} />
         }
         content={this.renderProperties()}
-        hasBorder={true}
         transparent={true}
-        noPadding
+        hasBorder={true}
       />
     );
   }

@@ -14,7 +14,6 @@ export const LoyaltyAmount = styled.div`
 
 export const ContentBox = styled.div`
   padding: ${dimensions.coreSpacing}px;
-  max-width: 640px;
   margin: 0 auto;
 `;
 
@@ -58,7 +57,7 @@ export const CustomRangeContainer = styled.div`
   }
 
   .filterDate {
-    max-width: 50%
+    max-width: 50%;
   }
 `;
 
@@ -80,7 +79,7 @@ export const FilterButton = styledTS<{ selected?: boolean }>(styled.div)`
 
   &:hover {
     background: ${props =>
-    props.selected ? colors.colorPrimaryDark : colors.bgGray};
+      props.selected ? colors.colorPrimaryDark : colors.bgGray};
     cursor: pointer;
   }
 `;

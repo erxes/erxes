@@ -1,45 +1,75 @@
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
 import * as compose from 'lodash.flowright';
-import List from '../../components/sites/List';
-import { queries, mutations } from '../../graphql';
-import React from 'react';
+
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import {
+  SitesDuplicateMutationResponse,
   SitesQueryResponse,
-  SitesRemoveMutationResponse,
-  SitesTotalCountQueryResponse
+  SitesRemoveMutationResponse
 } from '../../types';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { mutations, queries } from '../../graphql';
+
+import List from '../../components/sites/List';
+import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   queryParams: any;
   getActionBar: (actionBar: any) => void;
   setCount: (count: number) => void;
+  sitesCount: number;
+  selectedSite: string;
 };
 
 type FinalProps = {
   sitesQuery: SitesQueryResponse;
-  sitesTotalCountQuery: any;
 } & Props &
-  SitesRemoveMutationResponse;
+  SitesRemoveMutationResponse &
+  SitesDuplicateMutationResponse;
 
 function SitesContainer(props: FinalProps) {
-  const { sitesQuery, sitesTotalCountQuery, sitesRemoveMutation } = props;
+  const {
+    sitesQuery,
+    sitesRemoveMutation,
+    sitesDuplicateMutation,
+    selectedSite,
+    queryParams
+  } = props;
 
   if (sitesQuery.loading) {
     return <Spinner objective={true} />;
   }
 
   const sites = sitesQuery.webbuilderSites || [];
-  const sitesCount = sitesTotalCountQuery.webbuilderSitesTotalCount || 0;
+  const searchValue = queryParams.searchValue || '';
 
   const remove = (_id: string) => {
-    confirm().then(() => {
+    if (_id === selectedSite) {
+      localStorage.removeItem('webbuilderSiteId');
+    }
+
+    const message = `This will permanently delete the current site. Are you absolutely sure?`;
+
+    confirm(message, { hasDeleteConfirm: true }).then(() => {
       sitesRemoveMutation({ variables: { _id } })
         .then(() => {
           Alert.success('Successfully removed a site');
+
+          sitesQuery.refetch();
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    });
+  };
+
+  const duplicate = (_id: string) => {
+    confirm().then(() => {
+      sitesDuplicateMutation({ variables: { _id } })
+        .then(() => {
+          Alert.success('Successfully duplicated a site');
 
           sitesQuery.refetch();
         })
@@ -53,7 +83,8 @@ function SitesContainer(props: FinalProps) {
     ...props,
     sites,
     remove,
-    sitesCount
+    searchValue,
+    duplicate
   };
 
   return <List {...updatedProps} />;
@@ -64,22 +95,19 @@ export default compose(
     name: 'sitesQuery',
     options: ({ queryParams }) => ({
       variables: {
-        ...generatePaginationParams(queryParams)
-      }
+        ...generatePaginationParams(queryParams || {}),
+        searchValue: queryParams.searchValue
+      },
+      fetchPolicy: 'network-only'
     })
   }),
-  graphql<{}, SitesTotalCountQueryResponse>(gql(queries.sitesTotalCount), {
-    name: 'sitesTotalCountQuery'
+  graphql<Props, SitesRemoveMutationResponse>(gql(mutations.sitesRemove), {
+    name: 'sitesRemoveMutation'
   }),
-  graphql<{}, SitesRemoveMutationResponse>(gql(mutations.sitesRemove), {
-    name: 'sitesRemoveMutation',
-    options: () => ({
-      refetchQueries: [
-        { query: gql(queries.sites) },
-        {
-          query: gql(queries.sitesTotalCount)
-        }
-      ]
-    })
-  })
+  graphql<Props, SitesDuplicateMutationResponse>(
+    gql(mutations.sitesDuplicate),
+    {
+      name: 'sitesDuplicateMutation'
+    }
+  )
 )(SitesContainer);

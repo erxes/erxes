@@ -27,9 +27,9 @@ const Container = styledTS<{ isComplete: boolean }>(styled.div)`
     `};
 
   button {
-    width: 39px;
-    height: 39px;
-    padding: 8px 12px;
+    width: 30px;
+    height: 30px;
+    padding: 4px 8px;
     font-size: 15px;
   }
 `;
@@ -45,11 +45,12 @@ const TimeWrapper = styled.div`
 
 const Time = styled.h4`
   margin-bottom: 0;
-  font-size: 28px;
+  font-size: 24px;
 
   span {
     font-size: 14px;
     opacity: 0.6;
+    margin: 0 5px;
   }
 `;
 

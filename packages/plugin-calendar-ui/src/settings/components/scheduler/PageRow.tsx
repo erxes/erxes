@@ -31,16 +31,16 @@ class PageRow extends React.Component<Props> {
 
     return (
       <>
-        <Tip text='Delete'>
+        <Tip text="Delete">
           <Button
-            btnStyle='link'
+            btnStyle="link"
             onClick={this.remove.bind(this, page._id)}
-            icon='times-circle'
+            icon="times-circle"
           />
         </Tip>
 
-        <Tip text='View'>
-          <Button btnStyle='link' onClick={this.onView} icon='eye' />
+        <Tip text="View">
+          <Button btnStyle="link" onClick={this.onView} icon="eye" />
         </Tip>
       </>
     );

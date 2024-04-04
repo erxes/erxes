@@ -1,10 +1,9 @@
-import React from 'react';
-
-import { __ } from '@erxes/ui/src/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import EditForm from '../containers/EditForm';
 import AddForm from '../containers/AddForm';
+import EditForm from '../containers/EditForm';
 import { IExm } from '../types';
+import React from 'react';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   exm?: IExm;

@@ -1,12 +1,13 @@
-import { QueryResponse } from '@erxes/ui/src/types';
 import {
-  IIntegration,
-  ITopic,
-  IUiOptions,
-  IMessengerData,
-  IWebsite,
-  ILead
-} from '@erxes/ui-settings/src/integrations/types';
+  ILeadData,
+  ILeadIntegration,
+  IWebhookData,
+} from '@erxes/ui-leads/src/types';
+
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { IForm } from '@erxes/ui-forms/src/forms/types';
+import { IProductCategory } from '@erxes/ui-products/src/types';
+import { QueryResponse } from '@erxes/ui/src/types';
 
 export interface IPages {
   id: string;
@@ -22,6 +23,12 @@ export interface IImapForm {
   imapPort: number;
   smtpHost: string;
   smtpPort: number;
+}
+
+export interface IEmailTemplate {
+  _id: string;
+  name: string;
+  content: string;
 }
 
 export interface IExchangeForm {
@@ -45,21 +52,8 @@ export interface IAccount {
 }
 
 // query types
-export type IntegrationTypes =
-  | 'facebook'
-  | 'gmail'
-  | 'nylas-gmail'
-  | 'nylas-exchange'
-  | 'nylas-imap'
-  | 'nylas-office365'
-  | 'nylas-outlook'
-  | 'nylas-yahoo'
-  | 'twitter'
-  | 'smooch-telegram'
-  | 'smooch-viber'
-  | 'smooch-line'
-  | 'smooch-twilio';
-
+export type IntegrationTypes = 'facebook';
+export type IntegrationTypesInstagram = 'instagram';
 export type IntegrationDetailQueryResponse = {
   integrationDetail: IIntegration;
 } & QueryResponse;
@@ -138,7 +132,261 @@ export type CommonFieldsEditResponse = {
       name: string;
       brandId: string;
       channelIds?: string[];
-      data: any;
+      details: any;
     };
   }) => Promise<any>;
+};
+
+export interface IMessengerApp {
+  _id: string;
+  name: string;
+}
+
+export interface IStyle {
+  itemShape?: string;
+  widgetColor: string;
+  productAvailable: string;
+  line?: string;
+  columns?: number;
+  rows?: number;
+  margin?: number;
+  baseFont?: string;
+}
+
+export interface IBookingData {
+  name?: string;
+  image?: any;
+  description?: string;
+  userFilters?: string[];
+  productCategoryId?: string;
+  style?: IStyle;
+  mainProductCategory?: IProductCategory;
+  navigationText?: string;
+  bookingFormText?: string;
+
+  viewCount?: number;
+  productFieldIds?: string[];
+}
+
+export interface ILink {
+  twitter?: string;
+  facebook?: string;
+  instagram?: string;
+  youtube?: string;
+}
+
+export interface IOnlineHour {
+  _id: string;
+  day: string;
+  from: string;
+  to: string;
+}
+
+export interface IMessagesItem {
+  greetings: { title?: string; message?: string };
+  away?: string;
+  thank?: string;
+  welcome?: string;
+}
+
+export interface IMessages {
+  [key: string]: IMessagesItem;
+}
+
+export interface ISkillData {
+  typeId: string;
+  options: Array<{
+    label: string;
+    response: string;
+    skillId: string;
+  }>;
+}
+
+export interface IMessengerData {
+  botEndpointUrl?: string;
+  botShowInitialMessage?: boolean;
+  skillData?: ISkillData;
+  messages?: IMessages;
+  notifyCustomer?: boolean;
+  supporterIds?: string[];
+  availabilityMethod?: string;
+  isOnline?: boolean;
+  timezone?: string;
+  responseRate?: string;
+  showTimezone?: boolean;
+  requireAuth?: boolean;
+  showChat?: boolean;
+  showLauncher?: boolean;
+  forceLogoutWhenResolve?: boolean;
+  showVideoCallRequest?: boolean;
+  onlineHours?: IOnlineHour[];
+  hideWhenOffline?: boolean;
+  links?: ILink;
+}
+
+export interface IUiOptions {
+  color?: string;
+  textColor?: string;
+  wallpaper?: string;
+  logo?: string;
+  logoPreviewUrl?: string;
+}
+
+export interface ITopic {
+  topicId: string;
+}
+
+export interface ITopicMessengerApp {
+  credentials: ITopic;
+}
+
+export interface IWebsite {
+  url: string;
+  buttonText: string;
+  description: string;
+}
+
+export interface IWebsiteMessengerApp {
+  credentials: IWebsite;
+}
+
+export interface ILead {
+  formCode: string;
+}
+
+export interface ILeadMessengerApp {
+  credentials: ILead;
+}
+
+interface IIntegartionHealthStatus {
+  status: string;
+  error: string;
+}
+
+export interface IIntegration {
+  _id: string;
+  kind: string;
+  name: string;
+  brandId?: string;
+  code: string;
+  formId: string;
+  languageCode?: string;
+  createUrl: string;
+  messengerData?: IMessengerData;
+  form: IForm;
+  uiOptions?: IUiOptions;
+  leadData: ILeadData;
+  brand: IBrand;
+  channels: any[];
+  isActive?: boolean;
+  isConnected?: boolean;
+  healthStatus?: IIntegartionHealthStatus;
+  webhookData?: IWebhookData;
+  leadMessengerApps?: ILeadMessengerApp[];
+  websiteMessengerApps?: IWebsiteMessengerApp[];
+  knowledgeBaseMessengerApps?: ITopicMessengerApp[];
+  bookingData?: IBookingData;
+  visibility?: string;
+  departmentIds?: string[];
+  details?: any;
+}
+
+export type QueryVariables = {
+  page?: number;
+  perPage?: number;
+  searchValue?: string;
+};
+
+export type IntegrationsQueryResponse = {
+  integrations: IIntegration[];
+  loading: boolean;
+  refetch: (variables?: QueryVariables) => Promise<any>;
+};
+
+export type ArchiveIntegrationResponse = {
+  archiveIntegration: (params: {
+    variables: { _id: string; status: boolean };
+  }) => Promise<any>;
+};
+
+export type IntegrationMutationVariables = {
+  brandId: string;
+  name: string;
+  channelIds?: string[];
+  visibility?: string;
+  departmentIds?: string[];
+  details?: any;
+};
+
+export type AddIntegrationMutationVariables = {
+  leadData: ILeadData;
+  languageCode: string;
+  formId: string;
+} & IntegrationMutationVariables;
+
+export type AddIntegrationMutationResponse = {
+  addIntegrationMutation: (params: {
+    variables: AddIntegrationMutationVariables;
+  }) => Promise<any>;
+};
+
+export type EditIntegrationMutationVariables = {
+  _id: string;
+  leadData: ILeadData;
+  languageCode: string;
+  formId: string;
+} & IntegrationMutationVariables;
+
+export type EditIntegrationMutationResponse = {
+  editIntegrationMutation: (params: {
+    variables: EditIntegrationMutationVariables;
+  }) => Promise<void>;
+};
+
+export type LeadIntegrationDetailQueryResponse = {
+  integrationDetail: ILeadIntegration;
+} & QueryResponse;
+
+export type SendSmsMutationVariables = {
+  integrationId: string;
+  content: string;
+  to: string;
+};
+
+export type SendSmsMutationResponse = (params: {
+  variables: SendSmsMutationVariables;
+}) => Promise<any>;
+
+type By = { [key: string]: number };
+
+export type ByKindTotalCount = {
+  messenger: number;
+  lead: number;
+  facebook: number;
+  instagram: number;
+  gmail: number;
+  callpro: number;
+  chatfuel: number;
+  imap: number;
+  office365: number;
+  outlook: number;
+  yahoo: number;
+  telegram: number;
+  viber: number;
+  line: number;
+  twilio: number;
+  whatsapp: number;
+};
+
+type IntegrationsCount = {
+  total: number;
+  byTag: By;
+  byChannel: By;
+  byBrand: By;
+  byKind: ByKindTotalCount;
+};
+
+export type IntegrationsCountQueryResponse = {
+  integrationsTotalCount: IntegrationsCount;
+  loading: boolean;
 };

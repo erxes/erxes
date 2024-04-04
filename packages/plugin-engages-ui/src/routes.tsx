@@ -1,6 +1,6 @@
-import React from "react";
-import EngageRoutes from "./campaigns/routes";
-import SmsDeliveriesRoutes from "@erxes/ui-settings/src/smsDeliveries/routes";
+import EngageRoutes from './campaigns/routes';
+import React from 'react';
+import SmsDeliveriesRoutes from './settings/smsDeliveries/routes';
 
 const routes = () => {
   return (

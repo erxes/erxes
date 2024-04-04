@@ -3,12 +3,19 @@ import { posCommonFields } from './queries';
 const commonFields = `
   $name: String
   $description: String
+  $orderPassword: String
+  $scopeBrandIds: [String]
+  $pdomain: String
+  $erxesAppToken: String
   $productDetails: [String]
   $adminIds: [String]
   $cashierIds: [String]
+  $paymentIds: [String]
+  $paymentTypes: [JSON]
   $isOnline: Boolean
   $onServer: Boolean
   $branchId: String
+  $departmentId: String
   $allowBranchIds: [String]
   $beginNumber: String
   $maxSkipNumber: Int
@@ -21,19 +28,33 @@ const commonFields = `
   $cardsConfig: JSON
   $catProdMappings: [CatProdInput]
   $initialCategoryIds: [String]
+  $kioskExcludeCategoryIds: [String]
   $kioskExcludeProductIds: [String]
   $deliveryConfig: JSON
+  $checkRemainder: Boolean
+  $permissionConfig: JSON
+  $allowTypes: [String]
+  $isCheckRemainder: Boolean
+  $checkExcludeCategoryIds: [String]
+  $banFractions: Boolean
 `;
 
 const commonVariables = `
   name: $name,
   description: $description,
+  orderPassword: $orderPassword,
+  scopeBrandIds: $scopeBrandIds,
+  pdomain: $pdomain,
+  erxesAppToken: $erxesAppToken
   productDetails: $productDetails
   adminIds: $adminIds
   cashierIds: $cashierIds
+  paymentIds: $paymentIds
+  paymentTypes: $paymentTypes
   isOnline: $isOnline
   onServer: $onServer
   branchId: $branchId
+  departmentId: $departmentId
   allowBranchIds: $allowBranchIds
   beginNumber: $beginNumber
   maxSkipNumber: $maxSkipNumber
@@ -45,9 +66,16 @@ const commonVariables = `
   erkhetConfig: $erkhetConfig
   catProdMappings: $catProdMappings
   initialCategoryIds: $initialCategoryIds
+  kioskExcludeCategoryIds: $kioskExcludeCategoryIds
   kioskExcludeProductIds: $kioskExcludeProductIds
   deliveryConfig: $deliveryConfig
   cardsConfig: $cardsConfig
+  checkRemainder: $checkRemainder
+  permissionConfig: $permissionConfig
+  allowTypes: $allowTypes
+  isCheckRemainder: $isCheckRemainder
+  checkExcludeCategoryIds: $checkExcludeCategoryIds
+  banFractions: $banFractions
 `;
 
 const posAdd = `
@@ -109,5 +137,5 @@ export default {
   updateConfigs,
   brandAdd,
   saveProductGroups,
-  saveSlots
+  saveSlots,
 };

@@ -1,6 +1,7 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
+import { SAFE_REMAINDER_STATUSES } from './definitions/constants';
 import { IRemainderParams } from './definitions/remainders';
 import {
   ISafeRemainderItem,
@@ -10,80 +11,124 @@ import {
 
 export interface ISafeRemainderItemModel
   extends Model<ISafeRemainderItemDocument> {
-  getItem(params: IRemainderParams): Promise<Number>;
-  getItemObject(_id: string): Promise<ISafeRemainderItemDocument>;
-  createItem(doc: ISafeRemainderItem): Promise<ISafeRemainderItemDocument>;
+  getItem(_id: string): Promise<ISafeRemainderItemDocument>;
+  getItemCount(params: IRemainderParams): Promise<Number>;
+  createItem(_id: string, userId: string): Promise<ISafeRemainderItemDocument>;
   updateItem(
     _id: string,
-    doc: ISafeRemainderItem
+    doc: Partial<ISafeRemainderItem>,
+    userId: string
   ): Promise<ISafeRemainderItemDocument>;
   removeItem(_id: string): void;
 }
 
 export const loadSafeRemainderItemClass = (models: IModels) => {
   class SafeRemainderItem {
-    public static async getItem(params: IRemainderParams) {
-      const { productId, departmentId, branchId } = params;
-      const filter: any = { productId };
-
-      if (departmentId) {
-        filter.departmentId = departmentId;
-      }
-
-      if (branchId) {
-        filter.branchId = branchId;
-      }
-
-      const result = await models.SafeRemainderItems.find(filter);
-
-      let remainderItem = 0;
-      for (const item of result) {
-        remainderItem = remainderItem + item.count;
-      }
-
-      return remainderItem;
-    }
     /**
-     * Get a safe remainder item
+     * Get safe remainder item
+     * @param _id Safe remainder item ID
+     * @returns Found object
      */
-    public static async getItemObject(_id: string) {
-      const result = await models.SafeRemainderItems.findOne({ _id });
+    public static async getItem(_id: string) {
+      const result: any = await models.SafeRemainderItems.findOne({
+        _id
+      }).lean();
 
-      if (!result) {
-        return new Error('Remainder Item not found');
-      }
+      if (!result) throw new Error('Safe remainder item not found!');
 
       return result;
     }
 
     /**
-     * Create a remItem
+     * Get item count
+     * @param params Filter to get safe remainder items
+     * @returns Count number
      */
-    public static async createItem(doc: ISafeRemainderItem) {
+    public static async getItemCount(params: IRemainderParams) {
+      const { productId, departmentId, branchId } = params;
+      const filter: any = { productId };
+
+      if (departmentId) filter.departmentId = departmentId;
+      if (branchId) filter.branchId = branchId;
+
+      const safeRemainderItems: any = await models.SafeRemainderItems.find(
+        filter
+      );
+
+      let count: number = 0;
+      for (const item of safeRemainderItems) count += item.count;
+
+      return count;
+    }
+
+    /**
+     * Create safe remainder item
+     * @param doc New data to create
+     * @returns Created response
+     */
+    public static async createItem(doc: ISafeRemainderItem, userId: string) {
       return await models.SafeRemainderItems.create({
         ...doc,
-        createdAt: new Date()
+        modifiedBy: userId
       });
     }
 
     /**
-     * Update RemItem
+     * Update safe remainder item
+     * @param _id Safe remainder item ID
+     * @param doc New data to update
+     * @returns Updated object
      */
-    public static async updateItem(_id: string, doc: ISafeRemainderItem) {
-      await models.SafeRemainderItems.getItemObject(_id);
-      await models.SafeRemainderItems.updateOne({ _id }, { $set: { ...doc } });
+    public static async updateItem(
+      _id: string,
+      doc: ISafeRemainderItem,
+      userId: string
+    ) {
+      const item = await models.SafeRemainderItems.getItem(_id);
+      const safeRemainder = await models.SafeRemainders.getRemainder(
+        item.remainderId
+      );
+      if (safeRemainder.status === SAFE_REMAINDER_STATUSES.PUBLISHED) {
+        throw new Error('Cant edit cause remainder has submited');
+      }
 
-      const updated = await models.SafeRemainderItems.getItemObject(_id);
+      const liveRem =
+        (await models.Remainders.findOne({
+          productId: item.productId,
+          branchId: item.branchId,
+          departmentId: item.departmentId
+        }).lean()) || {};
 
-      return updated;
+      await models.SafeRemainderItems.updateOne(
+        { _id },
+        {
+          $set: {
+            ...doc,
+            preCount: liveRem.count || 0,
+            modifiedAt: new Date(),
+            modifiedBy: userId
+          }
+        }
+      );
+
+      return await this.getItem(_id);
     }
 
     /**
-     * Remove RemItem
+     * Delete safe remainder item
+     * @param _id Safe remainder item ID
+     * @returns Deleted response
      */
     public static async removeItem(_id: string) {
-      await models.SafeRemainderItems.getItemObject(_id);
-      return models.SafeRemainderItems.deleteOne({ _id });
+      const item = await models.SafeRemainderItems.getItem(_id);
+      const safeRemainder = await models.SafeRemainders.getRemainder(
+        item.remainderId
+      );
+      if (safeRemainder.status === SAFE_REMAINDER_STATUSES.PUBLISHED) {
+        throw new Error('Cant remove cause remainder has submited');
+      }
+
+      await models.SafeRemainderItems.deleteOne({ _id });
     }
   }
 

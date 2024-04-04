@@ -7,8 +7,9 @@ import {
   copyParams
 } from './common';
 
-export const types = ({ contacts }) => `
+export const types = ({ contacts, tags }) => `
   type TicketListItem {
+    customPropertiesData:JSON,
     ${commonListTypes}
   }
 
@@ -24,6 +25,8 @@ export const types = ({ contacts }) => `
         : ''
     }
 
+    ${tags ? `tags: [Tag]` : ''}
+
     ${commonTypes}
   }
 `;
@@ -31,6 +34,10 @@ export const types = ({ contacts }) => `
 const listQueryParams = `
   _ids: [String]
   pipelineId: String
+  pipelineIds: [String]
+  page: Int
+  perPage: Int
+  parentId:String
   stageId: String
   customerIds: [String]
   companyIds: [String]
@@ -47,10 +54,28 @@ const listQueryParams = `
   sortDirection: Int
   userIds: [String]
   segment: String
+  segmentData: String
   assignedToMe: String
   startDate: String
   endDate: String
   hasStartAndCloseDate: Boolean
+  tagIds: [String]
+  noSkipArchive: Boolean
+  number: String
+  branchIds: [String]
+  departmentIds: [String]
+  boardIds: [String]
+  stageCodes: [String]
+  dateRangeFilters:JSON
+  customFieldsDataFilters:JSON
+  createdStartDate: Date,
+  createdEndDate: Date
+  stateChangedStartDate: Date
+  stateChangedEndDate: Date
+  startDateStartDate: Date
+  startDateEndDate: Date
+  closeDateStartDate: Date
+  closeDateEndDate: Date
   ${conformityQueryFields}
 `;
 

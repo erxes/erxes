@@ -1,33 +1,22 @@
-import FilterByParams from './FilterByParams';
-import Icon from './Icon';
 import { __, router } from '../utils/core';
+
+import Box from './Box';
+import FilterByParams from './FilterByParams';
+import { IRouterProps } from '../types';
+import { ITag } from '@erxes/ui-tags/src/types';
+import Icon from './Icon';
+import { Link } from 'react-router-dom';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import { Link } from 'react-router-dom';
-import { IRouterProps } from '../types';
-import Box from './Box';
-import { ITag } from '../tags/types';
 
 interface IProps extends IRouterProps {
   tags: ITag[];
   counts: any;
   manageUrl: string;
   loading: boolean;
-  noBackground?: boolean;
-  noSpacing?: boolean;
-  noShadow?: boolean;
 }
 
-function CountsByTag({
-  history,
-  tags,
-  counts,
-  manageUrl,
-  loading,
-  noBackground,
-  noSpacing,
-  noShadow
-}: IProps) {
+function CountsByTag({ history, tags, counts, manageUrl, loading }: IProps) {
   const onClick = () => {
     router.setParams(history, { tag: null });
   };
@@ -52,9 +41,6 @@ function CountsByTag({
       title={__('Filter by tags')}
       collapsible={tags.length > 7}
       name="showFilterByTags"
-      noBackground={noBackground}
-      noSpacing={noSpacing}
-      noShadow={noShadow}
     >
       <FilterByParams
         fields={tags}

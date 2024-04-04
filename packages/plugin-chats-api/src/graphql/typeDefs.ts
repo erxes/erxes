@@ -1,9 +1,9 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 
 import {
   types as chatTypes,
   queries as chatQueries,
-  mutations as chatMutations,
+  mutations as chatMutations
 } from './schema/chat';
 
 const typeDefs = async () => {

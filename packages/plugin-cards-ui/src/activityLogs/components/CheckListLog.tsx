@@ -1,17 +1,18 @@
-import dayjs from 'dayjs';
 import {
   ActivityDate,
   FlexBody,
   FlexCenterContent,
   Header,
   ShowMore
-} from '@erxes/ui/src/activityLogs/styles';
-import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
-import Tip from '@erxes/ui/src/components/Tip';
-import { renderUserFullName } from '@erxes/ui/src/utils';
-import React from 'react';
+} from '@erxes/ui-log/src/activityLogs/styles';
+
 import CheckListItem from './ChecklistItem';
+import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
 import { IChecklist } from '@erxes/ui-cards/src/checklists/types';
+import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
+import dayjs from 'dayjs';
+import { renderUserFullName } from '@erxes/ui/src/utils';
 
 type Props = {
   activity: IActivityLog;
@@ -49,8 +50,6 @@ class ChecklistLog extends React.Component<Props, { toggleItems: boolean }> {
     const { action, contentType, createdByDetail, createdAt } = activity;
 
     let userName = 'Unknown';
-
-    console.log(activity, createdByDetail, 'sadasd');
 
     if (createdByDetail && createdByDetail.type === 'user') {
       const createdByDetailContent = createdByDetail.content

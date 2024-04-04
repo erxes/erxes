@@ -1,5 +1,12 @@
-import { __, FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src';
+import { __ } from '@erxes/ui/src/utils/core';
+import {
+  SidebarList,
+  SidebarCounter,
+  FieldStyle
+} from '@erxes/ui/src/layout/styles';
 import React from 'react';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import dayjs from 'dayjs';
 
 import { IClientPortalUser } from '../../types';
 
@@ -52,7 +59,12 @@ class DetailInfo extends React.Component<Props> {
         {this.renderRow('Code', clientPortalUser.code)}
         {this.renderRow('Email', clientPortalUser.email)}
         {this.renderRow('Phone', clientPortalUser.phone)}
-        {this.renderRow('Client Portal', clientPortalUser.clientPortal.name)}
+        {this.renderRow('Business Portal', clientPortalUser.clientPortal.name)}
+        {isEnabled('forum') &&
+          this.renderRow(
+            'Subscription ends after',
+            dayjs(clientPortalUser.forumSubscriptionEndsAfter).format('lll')
+          )}
       </SidebarList>
     );
   }

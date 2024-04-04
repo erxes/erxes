@@ -1,7 +1,10 @@
-import { debug } from '../../configs';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import { IMessageDocument } from '../../models/definitions/conversationMessages';
 import { MESSAGE_TYPES } from '../../models/definitions/constants';
-import { sendIntegrationsMessage } from '../../messageBroker';
+import {
+  sendCommonMessage,
+  sendIntegrationsMessage,
+} from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 
 export default {
@@ -18,10 +21,10 @@ export default {
   async mailData(
     message: IMessageDocument,
     _args,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const conversation = await models.Conversations.findOne({
-      _id: message.conversationId
+      _id: message.conversationId,
     }).lean();
 
     if (!conversation || message.internal) {
@@ -29,7 +32,7 @@ export default {
     }
 
     const integration = await models.Integrations.findOne({
-      _id: conversation.integrationId
+      _id: conversation.integrationId,
     });
 
     if (!integration) {
@@ -54,19 +57,19 @@ export default {
         action: 'getMessage',
         erxesApiMessageId: message._id,
         integrationId: integration._id,
-        path
+        path,
       },
-      isRPC: true
+      isRPC: true,
     });
   },
 
   async videoCallData(
     message: IMessageDocument,
     _args,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const conversation = await models.Conversations.findOne({
-      _id: message.conversationId
+      _id: message.conversationId,
     }).lean();
 
     if (!conversation || message.internal) {
@@ -78,19 +81,22 @@ export default {
     }
 
     try {
-      const response = await sendIntegrationsMessage({
+      const response = await sendCommonMessage({
+        serviceName: 'dailyco',
         subdomain,
         action: 'getDailyRoom',
         data: {
-          erxesApiMessageId: message._id
+          contentType: 'inbox:conversations',
+          contentTypeId: message.conversationId,
+          messageId: message._id,
         },
-        isRPC: true
+        isRPC: true,
       });
 
       return response;
     } catch (e) {
-      debug.error(e);
+      debugError(e);
       return null;
     }
-  }
+  },
 };

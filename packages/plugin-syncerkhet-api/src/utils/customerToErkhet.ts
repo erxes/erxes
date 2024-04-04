@@ -1,10 +1,13 @@
-import { sendRequest } from '@erxes/api-utils/src/requests';
-import { sendContactsMessage, sendNotificationsMessage } from '../messageBroker';
-import { getConfig, toErkhet } from './utils';
+import { toErkhet } from './utils';
+import fetch from 'node-fetch';
 
-export const customerToErkhet = async (subdomain, params, action) => {
-  const config = await getConfig(subdomain, 'ERKHET', {});
-
+export const customerToErkhet = async (
+  models,
+  mainConfig,
+  syncLog,
+  params,
+  action,
+) => {
   const customer = params.updatedDocument || params.object;
   const oldCustomer = params.object;
   let sendData = {};
@@ -19,7 +22,7 @@ export const customerToErkhet = async (subdomain, params, action) => {
     name && customer.lastName
       ? name.concat(' - ').concat(customer.lastName || '')
       : name || customer.lastName || '';
-  name = name ? name : config.customerDefaultName;
+  name = name ? name : mainConfig.customerDefaultName;
 
   sendData = {
     action,
@@ -27,69 +30,49 @@ export const customerToErkhet = async (subdomain, params, action) => {
     object: {
       code: customer.code || '',
       name,
-      defaultCategory: config.customerCategoryCode.concat(''),
+      defaultCategory: (mainConfig.customerCategoryCode || '').toString(),
       email: customer.primaryEmail || '',
       phone: customer.primaryPhone || '',
     },
   };
 
-  toErkhet(config, sendData, 'customer-change');
-}
+  toErkhet(models, syncLog, mainConfig, sendData, 'customer-change');
+};
 
 export const validCompanyCode = async (config, companyCode) => {
   let result = false;
+  if (
+    !config ||
+    !config.checkCompanyUrl ||
+    !config.checkCompanyUrl.includes('http')
+  ) {
+    return result;
+  }
+
   const re = new RegExp('(^[А-ЯЁӨҮ]{2}[0-9]{8}$)|(^\\d{7}$)', 'gui');
 
   if (re.test(companyCode)) {
-    const response = await sendRequest({ url: config.checkCompanyUrl, method: 'GET', params: { regno: companyCode } });
+    const response = await fetch(
+      config.checkCompanyUrl +
+        '?' +
+        new URLSearchParams({ regno: companyCode }),
+    ).then((res) => res.json());
 
     if (response.found) {
-      result = response.name
+      result = response.name;
     }
   }
   return result;
-}
+};
 
-export const companyToErkhet = async (subdomain, params, action, user) => {
-  const config = await getConfig(subdomain, 'ERKHET', {});
+export const companyToErkhet = async (
+  models,
+  mainConfig,
+  syncLog,
+  params,
+  action,
+) => {
   const company = params.updatedDocument || params.object;
-  const companyName = await validCompanyCode(config, company.code);
-
-  if (companyName) {
-    if (company.primaryName !== companyName) {
-      company.primaryName = companyName;
-
-      await sendContactsMessage({
-        subdomain,
-        action: 'companies.updateCompany',
-        data: {
-          _id: company._id, doc: {
-            company,
-            primaryName: companyName,
-            names: [companyName]
-          }
-        },
-        isRPC: true
-      })
-    }
-  } else {
-    sendNotificationsMessage({
-      subdomain,
-      action: "send",
-      data: {
-        createdUser: user,
-        receivers: [user._id],
-        title: 'wrong company code',
-        content: `Байгууллагын код буруу бөглөсөн байна. "${company.code}"`,
-        notifType: 'companyMention',
-        link: `/companies/details/${company._id}`,
-        action: 'update',
-        contentType: 'company',
-        contentTypeId: company._id,
-      },
-      defaultValue: true,
-    });
-  }
 
   const oldCompany = params.object;
 
@@ -99,11 +82,11 @@ export const companyToErkhet = async (subdomain, params, action, user) => {
     object: {
       code: company.code || '',
       name: company.primaryName,
-      defaultCategory: config.companyCategoryCode,
+      defaultCategory: mainConfig.companyCategoryCode,
       email: company.primaryEmail || '',
       phone: company.primaryPhone || '',
     },
   };
 
-  toErkhet(config, sendData, 'customer-change');
-}
+  toErkhet(models, syncLog, mainConfig, sendData, 'customer-change');
+};

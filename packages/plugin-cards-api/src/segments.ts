@@ -1,38 +1,55 @@
-import { fetchByQuery } from '@erxes/api-utils/src/elasticsearch';
+import {
+  fetchByQuery,
+  fetchByQueryWithScroll
+} from '@erxes/api-utils/src/elasticsearch';
 import { generateModels } from './connectionResolver';
-import { sendCoreMessage } from './messageBroker';
+import {
+  sendCommonMessage,
+  sendCoreMessage,
+  sendProductsMessage
+} from './messageBroker';
 import { generateConditionStageIds } from './utils';
-
-const indexesTypeContentType = {
-  'contacts:lead': 'customers',
-  'contacts:customer': 'customers',
-  'contacts:company': 'companies',
-  'cards:deal': 'deals',
-  'cards:ticket': 'tickets',
-  'cards:task': 'tasks',
-  'inbox:conversation': 'conversations'
-};
-
-const getName = type => type.replace('contacts:', '').replace('cards:', '');
+import {
+  gatherAssociatedTypes,
+  getEsIndexByContentType,
+  getName,
+  getServiceName
+} from '@erxes/api-utils/src/segments';
 
 export default {
-  indexesTypeContentType,
+  dependentServices: [
+    { name: 'contacts', twoWay: true, associated: true },
+    { name: 'inbox', twoWay: true }
+  ],
 
-  contentTypes: ['deal', 'ticket', 'task'],
-
-  descriptionMap: {
-    deal: 'Deal',
-    ticket: 'Ticket',
-    task: 'Task',
-    customer: 'Customer',
-    company: 'Company',
-    converstaion: 'Conversation'
-  },
+  contentTypes: [
+    {
+      type: 'deal',
+      description: 'Deal',
+      esIndex: 'deals'
+    },
+    {
+      type: 'purchase',
+      description: 'Purchase',
+      esIndex: 'purchases'
+    },
+    {
+      type: 'ticket',
+      description: 'Ticket',
+      esIndex: 'tickets'
+    },
+    {
+      type: 'task',
+      description: 'Task',
+      esIndex: 'tasks'
+    }
+  ],
 
   propertyConditionExtender: async ({ subdomain, data: { condition } }) => {
     const models = await generateModels(subdomain);
 
     let positive;
+    let ignoreThisPostiveQuery;
 
     const stageIds = await generateConditionStageIds(models, {
       boardId: condition.boardId,
@@ -47,57 +64,39 @@ export default {
       };
     }
 
-    return { data: { positive }, status: 'success' };
-  },
+    const productIds = await generateProductsCategoryProductIds(
+      subdomain,
+      condition
+    );
+    if (productIds.length > 0) {
+      positive = {
+        bool: {
+          should: productIds.map(productId => ({
+            match: { 'productsData.productId': productId }
+          }))
+        }
+      };
 
-  associationTypes: [
-    'cards:deal',
-    'contacts:customer',
-    'contacts:company',
-    'cards:ticket',
-    'cards:task',
-    'inbox:conversation'
-  ],
+      if (condition.propertyName == 'productsData.categoryId') {
+        ignoreThisPostiveQuery = true;
+      }
+    }
+
+    return { data: { positive, ignoreThisPostiveQuery }, status: 'success' };
+  },
 
   associationFilter: async ({
     subdomain,
     data: { mainType, propertyType, positiveQuery, negativeQuery }
   }) => {
-    let associatedTypes: string[] = [];
-
-    if (mainType === 'cards:deal') {
-      associatedTypes = [
-        'contacts:customer',
-        'contacts:company',
-        'cards:ticket',
-        'cards:task'
-      ];
-    }
-
-    if (mainType === 'cards:task') {
-      associatedTypes = [
-        'contacts:customer',
-        'contacts:company',
-        'cards:ticket',
-        'cards:deal'
-      ];
-    }
-
-    if (mainType === 'cards:ticket') {
-      associatedTypes = [
-        'contacts:customer',
-        'contacts:company',
-        'cards:deal',
-        'cards:task'
-      ];
-    }
+    const associatedTypes: string[] = await gatherAssociatedTypes(mainType);
 
     let ids: string[] = [];
 
     if (associatedTypes.includes(propertyType)) {
-      const mainTypeIds = await fetchByQuery({
+      const mainTypeIds = await fetchByQueryWithScroll({
         subdomain,
-        index: indexesTypeContentType[propertyType],
+        index: await getEsIndexByContentType(propertyType),
         positiveQuery,
         negativeQuery
       });
@@ -110,6 +109,26 @@ export default {
           mainTypeIds,
           relType: getName(mainType)
         },
+        isRPC: true
+      });
+    } else {
+      const serviceName = getServiceName(propertyType);
+
+      if (serviceName === 'cards') {
+        return { data: [], status: 'error' };
+      }
+
+      ids = await sendCommonMessage({
+        serviceName,
+        subdomain,
+        action: 'segments.associationFilter',
+        data: {
+          mainType,
+          propertyType,
+          positiveQuery,
+          negativeQuery
+        },
+        defaultValue: [],
         isRPC: true
       });
     }
@@ -140,4 +159,29 @@ export default {
 
     return { data: { positive }, status: 'success' };
   }
+};
+
+const generateProductsCategoryProductIds = async (subdomain, condition) => {
+  let productCategoryIds: string[] = [];
+
+  const { propertyName, propertyValue } = condition;
+  if (propertyName === 'productsData.categoryId') {
+    productCategoryIds.push(propertyValue);
+
+    const products = await sendProductsMessage({
+      subdomain,
+      action: 'find',
+      data: {
+        categoryIds: [...new Set(productCategoryIds)],
+        fields: { _id: 1 }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const productIds = products.map(product => product._id);
+
+    return productIds;
+  }
+  return [];
 };

@@ -2,14 +2,17 @@ declare var __webpack_init_sharing__;
 declare var __webpack_share_scopes__;
 declare var window;
 
-import dayjs from 'dayjs';
-import T from 'i18n-react';
-import React from 'react';
-import { IUser, IUserDoc } from '../auth/types';
-import Tip from '../components/Tip';
-import { Limited } from '../styles/main';
-import { IAttachment } from '../types';
 import * as router from './router';
+
+import { IUser, IUserDoc } from '../auth/types';
+
+import ErrorBoundary from '../components/ErrorBoundary';
+import { IAttachment } from '../types';
+import { Limited } from '../styles/main';
+import React from 'react';
+import T from 'i18n-react';
+import Tip from '../components/Tip';
+import dayjs from 'dayjs';
 import urlParser from './urlParser';
 
 export { urlParser, router };
@@ -21,8 +24,13 @@ export const loadComponent = (scope, module) => {
 
     const container = window[scope]; // or get the container somewhere else
 
-    // Initialize the container, it may provide shared modules
-    await container.init(__webpack_share_scopes__.default);
+    try {
+      // Initialize the container, it may provide shared modules
+      await container.init(__webpack_share_scopes__.default);
+    } catch (e) {
+      // already was initialized
+    }
+
     const factory = await window[scope].get(module);
 
     const Module = factory();
@@ -30,10 +38,51 @@ export const loadComponent = (scope, module) => {
   };
 };
 
+export const loadDynamicComponent = (
+  componentName: string,
+  injectedProps?: any,
+  multi?: boolean,
+  pluginName?: string,
+): any => {
+  const plugins: any[] = (window as any).plugins || [];
+
+  const filteredPlugins = plugins.filter((plugin) => plugin[componentName]);
+
+  const renderDynamicComp = (plugin: any) => (
+    <ErrorBoundary key={plugin.scope}>
+      <RenderDynamicComponent
+        scope={plugin.scope}
+        component={plugin[componentName]}
+        injectedProps={injectedProps ? injectedProps : {}}
+      />
+    </ErrorBoundary>
+  );
+
+  if (filteredPlugins && filteredPlugins.length === 0) {
+    return null;
+  }
+
+  if (multi) {
+    return filteredPlugins.map((plugin) => renderDynamicComp(plugin));
+  }
+
+  if (pluginName) {
+    const withPluginName = filteredPlugins.filter(
+      (plugin) => plugin.name === pluginName,
+    );
+
+    return renderDynamicComp(withPluginName[0]);
+  }
+
+  return renderDynamicComp(filteredPlugins[0]);
+};
+
 export class RenderDynamicComponent extends React.Component<
   { scope: string; component: any; injectedProps: any },
   { showComponent: boolean }
 > {
+  private Component;
+
   constructor(props) {
     super(props);
 
@@ -44,7 +93,6 @@ export class RenderDynamicComponent extends React.Component<
     const interval = setInterval(() => {
       if (window[this.props.scope]) {
         window.clearInterval(interval);
-
         this.setState({ showComponent: true });
       }
     }, 500);
@@ -57,11 +105,16 @@ export class RenderDynamicComponent extends React.Component<
 
     const { scope, component, injectedProps } = this.props;
 
-    const Component = React.lazy(loadComponent(scope, component));
+    let Comp = this.Component;
+
+    if (!Comp) {
+      this.Component = React.lazy(loadComponent(scope, component));
+      Comp = this.Component;
+    }
 
     return (
       <React.Suspense fallback="">
-        <Component {...injectedProps} />
+        <Comp {...injectedProps} />
       </React.Suspense>
     );
   };
@@ -71,7 +124,22 @@ export class RenderDynamicComponent extends React.Component<
   }
 }
 
-export const renderFullName = data => {
+export const getPluginConfig = ({ pluginName, configName }) => {
+  const plugins: any[] = (window as any).plugins || [];
+
+  let result;
+
+  for (const plugin of plugins) {
+    if (plugin.name === pluginName && plugin[configName]) {
+      result = plugin[configName];
+      break;
+    }
+  }
+
+  return result;
+};
+
+export const renderFullName = (data, noPhone?: boolean) => {
   if (data.firstName || data.lastName || data.middleName || data.primaryPhone) {
     return (
       (data.firstName || '') +
@@ -80,7 +148,7 @@ export const renderFullName = data => {
       ' ' +
       (data.lastName || '') +
       ' ' +
-      (data.primaryPhone || '')
+      (!noPhone && data.primaryPhone || '')
     );
   }
 
@@ -101,11 +169,15 @@ export const renderFullName = data => {
   return 'Unknown';
 };
 
-export const renderUserFullName = data => {
+export const renderUserFullName = (data) => {
   const { details } = data;
 
   if (details && details.fullName) {
     return details.fullName;
+  }
+
+  if (details && (details.firstName || details.lastName)) {
+    return (data.firstName || '') + ' ' + (data.lastName || '');
   }
 
   if (data.email || data.username) {
@@ -141,7 +213,7 @@ export const setBadge = (count: number, title: string) => {
 export const reorder = (
   list: string[],
   startIndex: number,
-  endIndex: number
+  endIndex: number,
 ) => {
   const result = Array.from(list);
 
@@ -152,16 +224,14 @@ export const reorder = (
 };
 
 export const generateRandomColorCode = () => {
-  return `#${Math.random()
-    .toString(16)
-    .slice(2, 8)}`;
+  return `#${Math.random().toString(16).slice(2, 8)}`;
 };
 
-const isNumeric = n => {
+const isNumeric = (n) => {
   return !isNaN(parseFloat(n)) && isFinite(n);
 };
 
-export const isTimeStamp = timestamp => {
+export const isTimeStamp = (timestamp) => {
   const newTimestamp = new Date(timestamp).getTime();
   return isNumeric(newTimestamp);
 };
@@ -173,17 +243,17 @@ export const range = (start: number, stop: number) => {
 
 // Return the list of values that are the intersection of two arrays
 export const intersection = (array1: any[], array2: any[]) => {
-  return array1.filter(n => array2.includes(n));
+  return array1.filter((n) => array2.includes(n));
 };
 
 // Computes the union of the passed-in arrays: the list of unique items
 export const union = (array1: any[], array2: any[]) => {
-  return array1.concat(array2.filter(n => !array1.includes(n)));
+  return array1.concat(array2.filter((n) => !array1.includes(n)));
 };
 
 // Similar to without, but returns the values from array that are not present in the other arrays.
 export const difference = (array1: any[], array2: any[]) => {
-  return array1.filter(n => !array2.includes(n));
+  return array1.filter((n) => !array2.includes(n));
 };
 
 export const can = (actionName: string, currentUser: IUser): boolean => {
@@ -216,7 +286,7 @@ export const __ = (key: string, options?: any) => {
 
 export const isEnabled = (service: string) => {
   const enabledServices = JSON.parse(
-    localStorage.getItem('enabledServices') || '{}'
+    localStorage.getItem('enabledServices') || '{}',
   );
 
   return enabledServices[service];
@@ -227,32 +297,43 @@ export const isEnabled = (service: string) => {
  * @param {String} - value
  * @return {String} - URL
  */
-export const readFile = (value: string): string => {
-  if (!value || urlParser.isValidURL(value) || value.includes('/')) {
+export const readFile = (value: string, width?: number): string => {
+  if (
+    !value ||
+    urlParser.isValidURL(value) ||
+    (typeof value === 'string' && value.includes('http')) ||
+    (typeof value === 'string' && value.startsWith('/'))
+  ) {
     return value;
   }
 
   const { REACT_APP_API_URL } = getEnv();
 
-  return `${REACT_APP_API_URL}/read-file?key=${value}`;
+  let url = `${REACT_APP_API_URL}/read-file?key=${value}`;
+
+  if (width) {
+    url += `&width=${width}`;
+  }
+
+  return url;
 };
 
-export const getUserAvatar = (user: IUserDoc) => {
+export const getUserAvatar = (user: IUserDoc, width?: number) => {
   if (!user) {
     return '';
   }
 
-  const { details = {} } = user;
+  const details = user.details;
 
-  if (!details.avatar) {
+  if (!details || !details.avatar) {
     return '/images/avatar-colored.svg';
   }
 
-  return readFile(details.avatar);
+  return readFile(details.avatar, width);
 };
 
 export function withProps<IProps>(
-  Wrapped: new (props: IProps) => React.Component<IProps>
+  Wrapped: new (props: IProps) => React.Component<IProps>,
 ) {
   return class WithProps extends React.Component<IProps, {}> {
     render() {
@@ -263,12 +344,12 @@ export function withProps<IProps>(
 
 export function renderWithProps<Props>(
   props: Props,
-  Wrapped: new (props: Props) => React.Component<Props>
+  Wrapped: new (props: Props) => React.Component<Props>,
 ) {
   return <Wrapped {...props} />;
 }
 
-export const isValidDate = date => {
+export const isValidDate = (date) => {
   const parsedDate = Date.parse(date);
 
   // Checking if it is date
@@ -280,12 +361,12 @@ export const isValidDate = date => {
 };
 
 export const extractAttachment = (attachments: IAttachment[]) => {
-  return attachments.map(file => ({
+  return attachments.map((file) => ({
     name: file.name,
     type: file.type,
     url: file.url,
     size: file.size,
-    duration: file.duration
+    duration: file.duration,
   }));
 };
 
@@ -299,7 +380,7 @@ export const setCookie = (cname: string, cvalue: string, exdays = 100) => {
   document.cookie = `${cname}=${cvalue};${expires};path=/`;
 };
 
-export const getCookie = cname => {
+export const getCookie = (cname) => {
   const name = `${cname}=`;
   const ca = document.cookie.split(';');
 
@@ -356,7 +437,7 @@ export const sendDesktopNotification = (doc: {
     const notification = new Notification(doc.title, {
       body: doc.content,
       icon: '/favicon.png',
-      dir: 'ltr'
+      dir: 'ltr',
     });
 
     // notify by sound
@@ -379,7 +460,7 @@ export const sendDesktopNotification = (doc: {
   }
 
   if (Notification.permission !== 'denied') {
-    Notification.requestPermission(permission => {
+    Notification.requestPermission((permission) => {
       if (!('permission' in Notification)) {
         (Notification as any).permission = permission;
       }
@@ -391,7 +472,7 @@ export const sendDesktopNotification = (doc: {
   }
 };
 
-export const roundToTwo = value => {
+export const roundToTwo = (value) => {
   if (!value) {
     return 0;
   }
@@ -399,12 +480,20 @@ export const roundToTwo = value => {
   return Math.round(value * 100) / 100;
 };
 
+export const calculatePercentage = (total: number, done: number) => {
+  if (total > 0) {
+    return roundToTwo((done * 100) / total);
+  }
+
+  return 0;
+};
+
 function createLinkFromUrl(url) {
   if (!url.includes('http')) {
     url = 'http://' + url;
   }
 
-  const onClick = e => {
+  const onClick = (e) => {
     e.stopPropagation();
     window.open(url);
   };
@@ -447,6 +536,45 @@ export function formatValue(value) {
   return value || '-';
 }
 
+export function numberFormatter(value = '', fixed) {
+  if (
+    fixed &&
+    `${value}`.includes('.') &&
+    `${value}`.split('.')?.[1]?.length > fixed
+  ) {
+    value = Number(value).toFixed(fixed);
+  }
+
+  return `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+export function numberParser(value, fixed) {
+  if (value === '-') {
+    return '-';
+  }
+  if (RegExp('-', 'g').test(value)) {
+    value = value.replace(RegExp('-', 'g'), '');
+    value = `-${value}`;
+  }
+
+  value = value!.replace(/(,*)/g, '');
+
+  if (value?.includes('.')) {
+    const numberValues = value.split('.');
+    numberValues[0] = Number(numberValues[0]);
+
+    if (fixed && numberValues[1].length > fixed) {
+      numberValues[1] = numberValues[1].substring(0, fixed);
+    }
+
+    value = `${numberValues[0]}.${numberValues[1]}`;
+  } else {
+    value = Number(value);
+  }
+
+  return value;
+}
+
 export function isEmptyContent(content: string) {
   // check if a string contains whitespace or empty
   return !/\S/.test(content);
@@ -465,12 +593,12 @@ export const storeConstantToStore = (key, values) => {
 export const getConstantFromStore = (
   key,
   isMap?: boolean,
-  isFlat?: boolean
+  isFlat?: boolean,
 ) => {
   const constant = JSON.parse(localStorage.getItem(`config:${key}`) || '[]');
 
   if (isFlat) {
-    return constant.map(element => element.value);
+    return constant.map((element) => element.value);
   }
 
   if (!isMap) {
@@ -479,7 +607,7 @@ export const getConstantFromStore = (
 
   const map = {};
 
-  constant.forEach(element => {
+  constant.forEach((element) => {
     map[element.value] = element.label;
   });
 
@@ -499,15 +627,84 @@ export const bustIframe = () => {
   }
 };
 
-// get env config from process.env or window.env
-export const getEnv = (): any => {
-  const envs = {};
+export const getSubdomain = () => {
+  const env = (window as any).erxesEnv || {};
+  return env.subdomain || 'localhost';
+};
 
-  for (const envMap of (window as any).envMaps) {
-    envs[envMap.name] = localStorage.getItem(`erxes_env_${envMap.name}`);
+export const getVersion = () => {
+  const env = (window as any).env || {};
+  const envMaps = (window as any).envMaps || [];
+  const envMapsDic = {};
+
+  for (const map of envMaps) {
+    envMapsDic[map.name] = map.processValue;
   }
 
-  return envs;
+  const getItem = (name) => env[name] || envMapsDic[name] || '';
+
+  const VERSION = getItem('REACT_APP_VERSION');
+
+  const result = {
+    VERSION,
+  };
+
+  return result;
+};
+
+// get env config from process.env or window.env
+export const getEnv = () => {
+  const env = (window as any).env || {};
+  const envMaps = (window as any).envMaps || [];
+  const envMapsDic = {};
+
+  for (const map of envMaps) {
+    envMapsDic[map.name] = map.processValue;
+  }
+
+  const getItem = (name) => env[name] || envMapsDic[name] || '';
+
+  const VERSION = getItem('REACT_APP_VERSION');
+
+  if (!VERSION || VERSION !== 'saas') {
+    const envs = {} as any;
+
+    for (const envMap of (window as any).envMaps) {
+      envs[envMap.name] = localStorage.getItem(`erxes_env_${envMap.name}`);
+    }
+
+    return envs;
+  }
+
+  const domainFormat = getItem('REACT_APP_DOMAIN_FORMAT') || '';
+  const subdomain = getSubdomain();
+  const API_URL = `${domainFormat.replace('<subdomain>', subdomain)}`;
+  const API_SUBSCRIPTION_URL = `${domainFormat
+    .replace('<subdomain>', subdomain)
+    .replace('http', 'ws')}/graphql`;
+  const CDN_HOST = `${getItem('REACT_APP_CDN_HOST').replace(
+    '<subdomain>',
+    subdomain,
+  )}`;
+
+  const result = {
+    VERSION,
+    STRIPE_KEY: getItem('REACT_APP_STRIPE_KEY'),
+    CORE_URL: getItem('REACT_APP_CORE_URL'),
+    FILE_UPLOAD_MAX_SIZE: getItem('REACT_APP_FILE_UPLOAD_MAX_SIZE'),
+    API_URL,
+    REACT_APP_API_URL: API_URL,
+    API_SUBSCRIPTION_URL,
+    REACT_APP_API_SUBSCRIPTION_URL: API_SUBSCRIPTION_URL,
+    CDN_HOST,
+    REACT_APP_CDN_HOST: CDN_HOST,
+    REACT_APP_DASHBOARD_URL: `${getItem('REACT_APP_DASHBOARD_URL').replace(
+      '<subdomain>',
+      subdomain,
+    )}`,
+  };
+
+  return result;
 };
 
 export const cleanIntegrationKind = (name: string) => {
@@ -540,9 +737,9 @@ export const generateTree = (
   parentId,
   callback,
   level = -1,
-  parentKey = 'parentId'
+  parentKey = 'parentId',
 ) => {
-  const filtered = list.filter(c => c[parentKey] === parentId);
+  const filtered = list.filter((c) => c[parentKey] === parentId);
 
   if (filtered.length > 0) {
     level++;
@@ -554,26 +751,25 @@ export const generateTree = (
     return [
       ...tree,
       callback(node, level),
-      ...generateTree(list, node._id, callback, level, parentKey)
+      ...generateTree(list, node._id, callback, level, parentKey),
     ];
   }, []);
 };
 
 export const removeTypename = (obj?: any[] | any) => {
-  if (Array.isArray(obj)) {
-    return obj.map(item => {
-      delete item.__typename;
+  const deleteType = (e: any) => {
+    const { __typename, ...rest } = e;
+    return rest;
+  };
 
-      return item;
-    });
+  if (Array.isArray(obj)) {
+    return obj.map((item) => deleteType(item));
   }
 
-  delete obj.__typename;
-
-  return obj;
+  return deleteType(obj);
 };
 
-export const publicUrl = path => {
+export const publicUrl = (path) => {
   const { REACT_APP_PUBLIC_PATH } = window.env || {};
 
   let prefix = '';
@@ -583,4 +779,94 @@ export const publicUrl = path => {
   }
 
   return `${prefix}${path}`;
+};
+
+export const getThemeItem = (code) => {
+  const configs = JSON.parse(
+    localStorage.getItem('erxes_theme_configs') || '[]',
+  );
+  const config = configs.find((c) => c.code === `THEME_${code.toUpperCase()}`);
+
+  return config ? config.value : '';
+};
+
+const DATE_OPTIONS = {
+  d: 1000 * 60 * 60 * 24,
+  h: 1000 * 60 * 60,
+  m: 1000 * 60,
+  s: 1000,
+  ms: 1,
+};
+
+const CHARACTERS =
+  '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!@#$%^&*()-=+{}[]<>.,:;"`|/?';
+
+const BEGIN_DIFF = 1577836800000; // new Date('2020-01-01').getTime();
+
+export const dateToShortStr = (
+  date?: Date | string | number,
+  scale?: 10 | 16 | 62 | 92 | number,
+  kind?: 'd' | 'h' | 'm' | 's' | 'ms',
+) => {
+  date = new Date(date || new Date());
+
+  if (!scale) {
+    scale = 62;
+  }
+  if (!kind) {
+    kind = 'd';
+  }
+
+  const divider = DATE_OPTIONS[kind];
+  const chars = CHARACTERS.substring(0, scale);
+
+  let intgr = Math.round((date.getTime() - BEGIN_DIFF) / divider);
+
+  let short = '';
+
+  while (intgr > 0) {
+    const preInt = intgr;
+    intgr = Math.floor(intgr / scale);
+    const strInd = preInt - intgr * scale;
+    short = `${chars[strInd]}${short}`;
+  }
+
+  return short;
+};
+
+export const shortStrToDate = (
+  shortStr: string,
+  scale?: 10 | 16 | 62 | 92 | number,
+  kind?: 'd' | 'h' | 'm' | 's' | 'ms',
+  resultType?: 'd' | 'n',
+) => {
+  if (!scale) {
+    scale = 62;
+  }
+  if (!kind) {
+    kind = 'd';
+  }
+  const chars = CHARACTERS.substring(0, scale);
+  const multiplier = DATE_OPTIONS[kind];
+
+  let intgr = 0;
+  let scaler = 1;
+
+  for (let i = shortStr.length; i--; i >= 0) {
+    const char = shortStr[i];
+    intgr = intgr + scaler * chars.indexOf(char);
+    scaler = scaler * scale;
+  }
+
+  intgr = intgr * multiplier + BEGIN_DIFF;
+
+  if (resultType === 'd') {
+    return new Date(intgr);
+  }
+
+  return intgr;
+};
+
+export const getGqlString = (doc) => {
+  return doc.loc && doc.loc.source.body;
 };

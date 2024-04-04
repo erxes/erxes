@@ -22,14 +22,24 @@ export const tagSchema = schemaHooksWrapper(
     name: field({ type: String, label: 'Name' }),
     type: field({
       type: String,
-      label: 'Type'
+      label: 'Type',
+      index: true
     }),
     colorCode: field({ type: String, label: 'Color code' }),
     createdAt: field({ type: Date, label: 'Created at' }),
     objectCount: field({ type: Number, label: 'Object count' }),
-    order: field({ type: String, label: 'Order' }),
-    parentId: field({ type: String, optional: true, label: 'Parent' }),
-    relatedIds: field({ type: [String], optional: true, label: 'Children tag ids' })
+    order: field({ type: String, label: 'Order', index: true }),
+    parentId: field({
+      type: String,
+      optional: true,
+      index: true,
+      label: 'Parent'
+    }),
+    relatedIds: field({
+      type: [String],
+      optional: true,
+      label: 'Children tag ids'
+    })
   }),
   'erxes_tags'
 );

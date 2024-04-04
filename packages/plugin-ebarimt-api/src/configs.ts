@@ -1,46 +1,40 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-import { generateModels, models } from './connectionResolver';
+import { generateModels } from './connectionResolver';
 import afterMutations from './afterMutations';
-import { initBroker } from './messageBroker';
-import { initMemoryStorage } from './inmemoryStorage';
+import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
 import beforeResolvers from './beforeResolvers';
-
-export let debug;
-export let graphqlPubsub;
-export let mainDb;
-export let serviceDiscovery;
 
 export default {
   name: 'ebarimt',
   permissions,
   hasSubscriptions: true,
-  graphql: async sd => {
-    serviceDiscovery = sd;
+  subscriptionPluginPath: require('path').resolve(
+    __dirname,
+    'graphql',
+    'subscriptionPlugin.js',
+  ),
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
 
-    context.subdomain = await generateModels(subdomain);
-    context.models = models;
+    context.subdomain = subdomain;
+    context.models = await generateModels(subdomain);
 
     return context;
   },
-  onServerInit: async options => {
-    mainDb = options.db;
-
-    initBroker(options.messageBrokerClient);
-
-    initMemoryStorage();
-
-    debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
+  onServerInit: async () => {},
+  setupMessageConsumers,
+  meta: {
+    afterMutations,
+    beforeResolvers,
+    permissions,
   },
-  meta: { afterMutations, beforeResolvers }
 };

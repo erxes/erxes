@@ -1,15 +1,12 @@
-import React from 'react';
-import queryString from 'query-string';
-import {
-  DataWithLoader,
-  Icon,
-  Tip
-} from '@erxes/ui/src/components';
-import { __, router } from '@erxes/ui/src/utils';
+import { DataWithLoader, Icon, Tip } from '@erxes/ui/src/components';
 import { Sidebar, Wrapper } from '@erxes/ui/src/layout';
+import { __, router } from '@erxes/ui/src/utils';
+
 import { ISpinCampaign } from '../../../configs/spinCampaign/types';
 import { Link } from 'react-router-dom';
+import React from 'react';
 import { SidebarListItem } from '../../common/styles';
+import queryString from 'query-string';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -39,22 +36,19 @@ class List extends React.Component<IProps> {
 
     const otherParams = { ...queryParams };
     delete otherParams.campaignId;
-    const qryString = queryString.stringify(otherParams)
+    const qryString = queryString.stringify(otherParams);
 
     const result: React.ReactNode[] = [];
 
     for (const campaign of spinCampaigns || []) {
-
-      const name = `${campaign.title} (${campaign.spinsCount})`
+      const name = `${campaign.title} (${campaign.spinsCount})`;
 
       result.push(
         <SidebarListItem
           key={campaign._id}
-          isActive={this.isActive(campaign._id)}
+          isActive={campaign._id ? this.isActive(campaign._id) : false}
         >
-          <Link to={`?${qryString}&campaignId=${campaign._id}`}>
-            {name}
-          </Link>
+          <Link to={`?${qryString}&campaignId=${campaign._id}`}>{name}</Link>
         </SidebarListItem>
       );
     }
@@ -66,9 +60,7 @@ class List extends React.Component<IProps> {
     return (
       <>
         <Section.Title>
-          <Link
-            to={`/erxes-plugin-loyalty/settings/spin`}
-          >
+          <Link to={`/erxes-plugin-loyalty/settings/spin`}>
             <Icon icon="cog" />
             {__('Manage Spin Campaigns')}
           </Link>
@@ -87,10 +79,7 @@ class List extends React.Component<IProps> {
   }
 
   renderCategoryList() {
-    const {
-      spinCampaignsCount,
-      loading
-    } = this.props;
+    const { spinCampaignsCount, loading } = this.props;
 
     return (
       <DataWithLoader
@@ -106,7 +95,7 @@ class List extends React.Component<IProps> {
 
   render() {
     return (
-      <Sidebar>
+      <Sidebar hasBorder={true}>
         <Section
           maxHeight={188}
           collapsible={this.props.spinCampaignsCount > 5}

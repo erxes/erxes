@@ -1,5 +1,5 @@
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { Alert, renderWithProps } from '@erxes/ui/src/utils';
 import { mutations } from '../../../conformity/graphql';
@@ -8,7 +8,7 @@ import {
   IConformityEdit
 } from '../../../conformity/types';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import AddForm from '../../components/portable/AddForm';
 import { mutations as boardMutations, queries } from '../../graphql';
 import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
@@ -18,14 +18,17 @@ import {
   IItem,
   IItemParams,
   IOptions,
-  SaveMutation
+  SaveMutation,
+  StagesQueryResponse
 } from '../../types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type IProps = {
   options: IOptions;
   boardId?: string;
   pipelineId?: string;
   stageId?: string;
+  parentId?: string;
   showSelect?: boolean;
   relType?: string;
   mailSubject?: string;
@@ -40,6 +43,10 @@ type IProps = {
   description?: string;
   attachments?: any[];
   bookingProductId?: string;
+  tagIds?: string[];
+  startDate?: Date;
+  closeDate?: Date;
+  showStageSelect?: boolean;
 };
 
 type FinalProps = {
@@ -47,6 +54,7 @@ type FinalProps = {
   conversationConvertToCard: ConvertToMutationResponse;
   editConformity: EditConformityMutation;
   fieldsQuery: any;
+  stagesQuery: StagesQueryResponse;
 } & IProps &
   ConvertToMutationResponse;
 
@@ -63,7 +71,8 @@ class AddFormContainer extends React.Component<FinalProps> {
       relType,
       relTypeIds,
       editConformity,
-      bookingProductId
+      bookingProductId,
+      parentId
     } = this.props;
 
     doc.assignedUserIds = doc.assignedUserIds || assignedUserIds;
@@ -75,18 +84,20 @@ class AddFormContainer extends React.Component<FinalProps> {
     doc.proccessId = proccessId;
     doc.description = doc.description || description;
     doc.attachments = doc.attachments || attachments;
+    doc.parentId = parentId;
 
     if (sourceConversationId) {
       doc.sourceConversationIds = [sourceConversationId];
 
       conversationConvertToCard({
         variables: {
-          _id: sourceConversationId || '',
+          ...doc,
           type: options.type,
           itemId: doc._id,
           itemName: doc.name,
           stageId: doc.stageId,
-          bookingProductId
+          bookingProductId,
+          _id: sourceConversationId || ''
         }
       })
         .then(({ data }) => {
@@ -112,6 +123,24 @@ class AddFormContainer extends React.Component<FinalProps> {
       addMutation({ variables: doc })
         .then(({ data }) => {
           const message = `You've successfully created ${options.type}`;
+
+          if (doc.relationData && Object.keys(doc.relationData).length > 0) {
+            const { relationData } = doc;
+
+            for (const key in relationData) {
+              if (relationData.hasOwnProperty(key)) {
+                client.mutate({
+                  mutation: gql(mutations.conformityEdit),
+                  variables: {
+                    mainType: options.type,
+                    mainTypeId: data[options.mutationsName.addMutation]._id,
+                    relType: key,
+                    relTypeIds: relationData[key]
+                  }
+                });
+              }
+            }
+          }
 
           if (relType && relTypeIds) {
             editConformity({
@@ -182,14 +211,15 @@ class AddFormContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { fieldsQuery } = this.props;
+    const { fieldsQuery, stagesQuery } = this.props;
 
     const extendedProps = {
       ...this.props,
       fields: fieldsQuery?.fields || [],
       refetchFields: fieldsQuery?.refetch,
       saveItem: this.saveItem,
-      fetchCards: this.fetchCards
+      fetchCards: this.fetchCards,
+      stages: stagesQuery?.stages || []
     };
 
     return <AddForm {...extendedProps} />;
@@ -234,11 +264,20 @@ export default (props: IProps) =>
       ),
       graphql<FinalProps>(gql(formQueries.fields), {
         name: 'fieldsQuery',
+        skip: !isEnabled('forms'),
         options: ({ options, pipelineId }) => ({
           variables: {
             contentType: `cards:${options.type}`,
             isVisibleToCreate: true,
             pipelineId
+          }
+        })
+      }),
+      graphql<FinalProps, StagesQueryResponse>(gql(queries.stages), {
+        name: 'stagesQuery',
+        options: (finalProps: FinalProps) => ({
+          variables: {
+            pipelineId: finalProps.pipelineId || ''
           }
         })
       })

@@ -1,11 +1,12 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withProps } from '@erxes/ui/src/utils';
-import LeadStatusFilter from '../../components/list/LeadStatusFilter';
 import { queries } from '@erxes/ui-contacts/src/customers/graphql';
 import { CountQueryResponse } from '@erxes/ui-contacts/src/customers/types';
+import { withProps } from '@erxes/ui/src/utils';
+import { gql } from '@apollo/client';
+import * as compose from 'lodash.flowright';
+import React from 'react';
+import { graphql } from '@apollo/client/react/hoc';
+
+import LeadStatusFilter from '../../components/list/LeadStatusFilter';
 
 type Props = {
   customersCountQuery?: CountQueryResponse;
@@ -29,6 +30,7 @@ class LeadStatusFilterContainer extends React.Component<Props> {
 }
 
 type WrapperProps = {
+  abortController?: any;
   type: string;
   loadingMainQuery: boolean;
 };
@@ -40,8 +42,11 @@ export default withProps<WrapperProps>(
       {
         name: 'customersCountQuery',
         skip: ({ loadingMainQuery }) => loadingMainQuery,
-        options: ({ type }) => ({
-          variables: { type, only: 'byLeadStatus' }
+        options: ({ type, abortController }) => ({
+          variables: { type, only: 'byLeadStatus' },
+          context: {
+            fetchOptions: { signal: abortController && abortController.signal }
+          }
         })
       }
     )

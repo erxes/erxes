@@ -1,16 +1,18 @@
-import React from 'react';
-import { IMessage, IConversation } from '../../../../types';
-import SimpleMessage from '../conversation/messages/SimpleMessage';
+import { IConversation, IMessage } from '../../../../types';
+
 import Mail from './Mail';
+import React from 'react';
+import SimpleMessage from '../conversation/messages/SimpleMessage';
 
 type Props = {
+  detailQuery?: any;
   conversation: IConversation;
   conversationMessages: IMessage[];
 };
 
 class MailConversation extends React.Component<Props, {}> {
   render() {
-    const { conversation, conversationMessages } = this.props;
+    const { conversation, conversationMessages, detailQuery } = this.props;
 
     if (!conversation) {
       return null;
@@ -18,7 +20,7 @@ class MailConversation extends React.Component<Props, {}> {
 
     const messages = conversationMessages || [];
     const { integration } = conversation;
-    const { _id, kind, brandId } = integration;
+    const { _id, brandId } = integration;
 
     const length = messages.length;
 
@@ -37,12 +39,13 @@ class MailConversation extends React.Component<Props, {}> {
 
       return (
         <Mail
+          detailQuery={detailQuery}
           key={message._id}
-          kind={kind}
           customerId={conversation.customerId}
           conversationId={conversation._id}
           isLast={length === index + 1}
           message={message}
+          conversationStatus={conversation.status}
           integrationId={_id}
           brandId={brandId}
           mails={mails}

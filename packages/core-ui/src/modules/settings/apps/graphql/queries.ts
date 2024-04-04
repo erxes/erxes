@@ -5,6 +5,8 @@ const appFields = `
   userGroupId
   accessToken
   expireDate
+  allowAllPermission
+  noExpire
 
   userGroupName
 `;

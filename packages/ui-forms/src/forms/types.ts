@@ -1,6 +1,6 @@
-import { IUser } from '@erxes/ui/src/auth/types';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { IField } from '@erxes/ui/src/types';
-import { ICustomer } from '@erxes/ui/src/customers/types'
+import { IUser } from '@erxes/ui/src/auth/types';
 
 interface IFormCommonFIelds {
   title?: string;

@@ -1,8 +1,8 @@
 import {
   conformityQueryFieldDefs,
   conformityQueryFields,
-} from "@erxes/ui-cards/src/conformity/graphql/queries";
-import { isEnabled } from "@erxes/ui/src/utils/core";
+} from '@erxes/ui-cards/src/conformity/graphql/queries';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const carCategoryFields = `
   _id
@@ -11,8 +11,20 @@ const carCategoryFields = `
   code
   parentId
   description
-
   isRoot
+  productCategoryId
+  image {
+      url
+      name
+      size
+      type
+    }
+  secondaryImages {
+      url
+      name
+      size
+      type
+    }
 `;
 
 const carFields = `
@@ -46,6 +58,7 @@ const carFields = `
 const listParamsDef = `
   $page: Int
   $perPage: Int
+  $tag: String
   $segment: String
   $categoryId: String
   $ids: [String]
@@ -59,6 +72,7 @@ const listParamsDef = `
 const listParamsValue = `
   page: $page
   perPage: $perPage
+  tag: $tag
   segment: $segment
   categoryId: $categoryId
   ids: $ids
@@ -95,6 +109,12 @@ export const carCounts = `
   }
 `;
 
+const carCountByTags = `
+  query carCountByTags {
+    carCountByTags
+  }
+`;
+
 const carCategories = `
   query carCategories {
     carCategories {
@@ -124,7 +144,7 @@ export const carDetail = `
     carDetail(_id: $_id) {
       ${carFields}
       ${
-        isEnabled("contacts")
+        isEnabled('contacts')
           ? `
             customers {
               _id
@@ -147,6 +167,7 @@ export const carDetail = `
         size
         type
       }
+      customFieldsData
     }
   }
 `;
@@ -166,4 +187,5 @@ export default {
   carCategories,
   carCategoriesCount,
   carCategoryDetail,
+  carCountByTags,
 };

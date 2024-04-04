@@ -1,9 +1,9 @@
-import * as Random from 'meteor-random';
+import { nanoid } from 'nanoid';
 
 /*
  * Mongoose field options wrapper
  */
-export const field = options => {
+export const field = (options: any) => {
   const { pkey, type, optional } = options;
 
   if (type === String && !pkey && !optional) {
@@ -13,18 +13,18 @@ export const field = options => {
   // TODO: remove
   if (pkey) {
     options.type = String;
-    options.default = () => Random.id();
+    options.default = () => nanoid();
   }
 
   return options;
 };
 
-export const schemaWrapper = schema => {
+export const schemaWrapper = (schema: any) => {
   schema.add({ scopeBrandIds: [String] });
 
   return schema;
 };
 
-export const schemaHooksWrapper = (schema, _cacheKey: string) => {
+export const schemaHooksWrapper = (schema: any, _cacheKey: string) => {
   return schemaWrapper(schema);
 };

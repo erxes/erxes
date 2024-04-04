@@ -1,11 +1,6 @@
-import { debug } from './configs';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import { IActivityLogDocument } from './models/ActivityLogs';
-import messageBroker from './messageBroker';
-import { IFilter } from './graphql/resolvers/logQueries';
 import { IModels } from './connectionResolver';
-
-export const sendToApi = (channel: string, data) =>
-  messageBroker().sendMessage(channel, data);
 
 /**
  * Takes 2 arrays and detect changes between them.
@@ -248,7 +243,7 @@ export const compareObjects = (oldData: object = {}, newData: object = {}) => {
 };
 
 export const receivePutLogCommand = async (models: IModels, params) => {
-  debug.info(params);
+  debugInfo(params);
 
   const {
     createdBy,
@@ -279,7 +274,10 @@ interface IActivityLogList {
   totalCount: number;
 }
 
-export const fetchActivityLogs = async (models: IModels, params): Promise<IActivityLogList> => {
+export const fetchActivityLogs = async (
+  models: IModels,
+  params,
+): Promise<IActivityLogList> => {
   const filter: {
     contentType?: string;
     contentId?: any;
@@ -307,14 +305,27 @@ export const fetchActivityLogs = async (models: IModels, params): Promise<IActiv
   }
 
   return {
-    activityLogs: await models.ActivityLogs.find(filter).sort({ createdAt: -1 }).lean(),
+    activityLogs: await models.ActivityLogs.find(filter)
+      .sort({ createdAt: -1 })
+      .lean(),
     totalCount: await models.ActivityLogs.countDocuments(filter),
-  }
+  };
 };
 
 export const fetchLogs = async (models: IModels, params) => {
-  const { start, end, userId, action, page, perPage, type, desc } = params;
-  const filter: IFilter = {};
+  const {
+    start,
+    end,
+    userId,
+    action,
+    page,
+    perPage,
+    type,
+    desc,
+    objectId,
+    searchValue,
+  } = params;
+  const filter: any = {};
 
   // filter by date
   if (start && end) {
@@ -325,17 +336,31 @@ export const fetchLogs = async (models: IModels, params) => {
     filter.createdAt = { $lte: new Date(end) };
   }
 
-  if (userId) {
-    filter.createdBy = userId;
-  }
-  if (action) {
-    filter.action = action;
-  }
   if (type) {
     filter.type = type;
   }
+
+  if (action) {
+    filter.action = action;
+  }
+
+  if (userId) {
+    filter.createdBy = userId;
+  }
+
   if (desc) {
     filter.description = { $regex: desc, $options: '$i' };
+  }
+
+  if (objectId) {
+    filter.objectId = objectId;
+  }
+
+  if (searchValue) {
+    filter.$or = [
+      { objectId: new RegExp(`.*${params.searchValue}.*`, 'i') },
+      { description: new RegExp(`.*${params.searchValue}.*`, 'i') },
+    ];
   }
 
   const _page = Number(page || '1');

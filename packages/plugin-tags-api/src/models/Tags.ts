@@ -50,14 +50,14 @@ const removeRelatedIds = async (models: IModels, tag: ITagDocument) => {
     };
   }> = [];
 
-  tags.forEach(async (t) => {
-    const ids = (t.relatedIds || []).filter((id) => !relatedIds.includes(id));
+  tags.forEach(async t => {
+    const ids = (t.relatedIds || []).filter(id => !relatedIds.includes(id));
 
     doc.push({
       updateOne: {
         filter: { _id: t._id },
-        update: { $set: { relatedIds: ids } },
-      },
+        update: { $set: { relatedIds: ids } }
+      }
     });
   });
 
@@ -76,7 +76,7 @@ export interface ITagModel extends Model<ITagDocument> {
   ): Promise<boolean>;
 }
 
-export const loadTagClass = (models) => {
+export const loadTagClass = models => {
   class Tag {
     /*
      * Get a tag
@@ -132,7 +132,7 @@ export const loadTagClass = (models) => {
      */
     static async getParentTag(doc: ITag) {
       return models.Tags.findOne({
-        _id: doc.parentId,
+        _id: doc.parentId
       }).lean();
     }
 
@@ -158,7 +158,7 @@ export const loadTagClass = (models) => {
       const tag = await models.Tags.create({
         ...doc,
         order,
-        createdAt: new Date(),
+        createdAt: new Date()
       });
 
       await setRelatedIds(models, tag);
@@ -186,49 +186,43 @@ export const loadTagClass = (models) => {
         throw new Error('Cannot change tag');
       }
 
+      const tag = await models.Tags.getTag(_id);
+
       // Generatingg  order
       const order = await this.generateOrder(parentTag, doc);
 
-      const tag = await models.Tags.findOne({
-        _id,
+      const childTags = await models.Tags.find({
+        $and: [
+          { order: { $regex: new RegExp(escapeRegExp(tag.order), 'i') } },
+          { _id: { $ne: _id } }
+        ]
       });
 
-      if (tag && tag.order) {
-        const childTags = await models.Tags.find({
-          $and: [
-            { order: { $regex: new RegExp(escapeRegExp(tag.order), 'i') } },
-            { _id: { $ne: _id } },
-          ],
-        });
+      if (childTags.length > 0) {
+        const bulkDoc: Array<{
+          updateOne: {
+            filter: { _id: string };
+            update: { $set: { order: string } };
+          };
+        }> = [];
 
-        if (childTags.length > 0) {
-          const bulkDoc: Array<{
+        // updating child categories order
+        childTags.forEach(async childTag => {
+          let childOrder = childTag.order;
+
+          childOrder = childOrder.replace(tag.order, order);
+
+          bulkDoc.push({
             updateOne: {
-              filter: { _id: string };
-              update: { $set: { order: string } };
-            };
-          }> = [];
-
-          // updating child categories order
-          childTags.forEach(async (childTag) => {
-            let childOrder = childTag.order;
-
-            if (tag.order && childOrder) {
-              childOrder = childOrder.replace(tag.order, order);
-
-              bulkDoc.push({
-                updateOne: {
-                  filter: { _id: childTag._id },
-                  update: { $set: { order: childOrder } },
-                },
-              });
+              filter: { _id: childTag._id },
+              update: { $set: { order: childOrder } }
             }
           });
+        });
 
-          await models.Tags.bulkWrite(bulkDoc);
+        await models.Tags.bulkWrite(bulkDoc);
 
-          await removeRelatedIds(models, tag);
-        }
+        await removeRelatedIds(models, tag);
       }
 
       await models.Tags.updateOne({ _id }, { $set: { ...doc, order } });
@@ -264,28 +258,11 @@ export const loadTagClass = (models) => {
      */
     public static async generateOrder(
       parentTag: ITagDocument,
-      { name, type }: { name: string; type: string }
+      { name }: { name: string }
     ) {
-      const order = `${name}${type}`;
+      const order = parentTag ? `${parentTag.order}${name}/` : `${name}/`;
 
-      if (!parentTag) {
-        return order;
-      }
-
-      let parentOrder = parentTag.order;
-
-      if (!parentOrder) {
-        parentOrder = `${parentTag.name}${parentTag.type}`;
-
-        await models.Tags.updateOne(
-          {
-            _id: parentTag._id,
-          },
-          { $set: { order: parentOrder } }
-        );
-      }
-
-      return `${parentOrder}/${order}`;
+      return order;
     }
   }
 

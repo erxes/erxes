@@ -1,3 +1,4 @@
+import { ICustomField } from '@erxes/api-utils/src/definitions/common';
 import { Schema, Document } from 'mongoose';
 import { CAR_SELECT_OPTIONS } from './constants';
 import { field, schemaHooksWrapper } from './utils';
@@ -11,10 +12,35 @@ const attachmentSchema = new Schema(
     name: String,
     url: String,
     type: String,
-    size: Number
+    size: Number,
   },
-  { _id: false }
+  { _id: false },
 );
+
+const customFieldSchema = new Schema(
+  {
+    field: { type: String },
+    value: { type: Schema.Types.Mixed },
+    stringValue: { type: String, optional: true },
+    numberValue: { type: Number, optional: true },
+    dateValue: { type: Date, optional: true },
+    locationValue: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        optional: true,
+      },
+      coordinates: {
+        type: [Number],
+        optional: true,
+      },
+      required: false,
+    },
+  },
+  { _id: false },
+);
+
+customFieldSchema.index({ locationValue: '2dsphere' });
 
 export interface ICar {
   plateNumber: string;
@@ -31,6 +57,7 @@ export interface ICar {
   tagIds: string[];
   mergedIds: string[];
   attachment?: any;
+  customFieldsData?: ICustomField[];
 }
 
 export interface ICarDocument extends ICar, Document {
@@ -46,6 +73,9 @@ export interface ICarCategory {
   code: string;
   parentId?: string;
   description?: string;
+  image?: any;
+  secondaryImages?: any[];
+  productCategoryId?: string;
 }
 
 export interface ICarCategoryDocument extends ICarCategory, Document {
@@ -61,14 +91,25 @@ export const carCategorySchema = schemaHooksWrapper(
     code: field({ type: String, unique: true, label: 'Code' }),
     order: field({ type: String, label: 'Order' }),
     parentId: field({ type: String, optional: true, label: 'Parent' }),
-    description: field({ type: String, optional: true, label: 'Description' }),
+    description: field({
+      type: String,
+      optional: true,
+      label: 'Description',
+    }),
+    image: field({ type: attachmentSchema }),
+    secondaryImages: field({ type: [attachmentSchema] }),
+    productCategoryId: field({
+      type: String,
+      optional: true,
+      label: 'Product Category Id',
+    }),
     createdAt: field({
       type: Date,
       default: new Date(),
-      label: 'Created at'
-    })
+      label: 'Created at',
+    }),
   }),
-  'erxes_carCategory'
+  'erxes_carCategory',
 );
 
 export const carSchema = schemaHooksWrapper(
@@ -85,14 +126,14 @@ export const carSchema = schemaHooksWrapper(
       type: String,
       optional: true,
       label: 'Plate number',
-      index: true
+      index: true,
     }),
 
     vinNumber: field({
       type: String,
       label: 'VIN number',
       optional: true,
-      index: true
+      index: true,
     }),
 
     colorCode: field({ type: String, label: 'Color code', optional: true }),
@@ -106,7 +147,7 @@ export const carSchema = schemaHooksWrapper(
       optional: true,
       label: 'Brand',
       esType: 'keyword',
-      selectOptions: CAR_SELECT_OPTIONS.BODY_TYPES
+      selectOptions: CAR_SELECT_OPTIONS.BODY_TYPES,
     }),
 
     fuelType: field({
@@ -116,7 +157,7 @@ export const carSchema = schemaHooksWrapper(
       optional: true,
       label: 'Brand',
       esType: 'keyword',
-      selectOptions: CAR_SELECT_OPTIONS.BODY_TYPES
+      selectOptions: CAR_SELECT_OPTIONS.BODY_TYPES,
     }),
 
     gearBox: field({
@@ -126,19 +167,19 @@ export const carSchema = schemaHooksWrapper(
       optional: true,
       label: 'Gear box',
       esType: 'keyword',
-      selectOptions: CAR_SELECT_OPTIONS.BODY_TYPES
+      selectOptions: CAR_SELECT_OPTIONS.BODY_TYPES,
     }),
 
     vintageYear: field({
       type: Number,
       label: 'Vintage year',
-      default: new Date().getFullYear()
+      default: new Date().getFullYear(),
     }),
 
     importYear: field({
       type: Number,
       label: 'Imported year',
-      default: new Date().getFullYear()
+      default: new Date().getFullYear(),
     }),
 
     status: field({
@@ -149,7 +190,7 @@ export const carSchema = schemaHooksWrapper(
       label: 'Status',
       esType: 'keyword',
       selectOptions: CAR_SELECT_OPTIONS.STATUSES,
-      index: true
+      index: true,
     }),
 
     description: field({ type: String, optional: true, label: 'Description' }),
@@ -157,19 +198,25 @@ export const carSchema = schemaHooksWrapper(
     tagIds: field({
       type: [String],
       optional: true,
-      label: 'Tags'
+      label: 'Tags',
     }),
 
     // Merged car ids
     mergedIds: field({
       type: [String],
       optional: true,
-      label: 'Merged companies'
+      label: 'Merged companies',
     }),
 
     searchText: field({ type: String, optional: true, index: true }),
 
-    attachment: field({ type: attachmentSchema })
+    attachment: field({ type: attachmentSchema }),
+
+    customFieldsData: field({
+      type: [customFieldSchema],
+      optional: true,
+      label: 'Custom fields data',
+    }),
   }),
-  'erxes_cars'
+  'erxes_cars',
 );

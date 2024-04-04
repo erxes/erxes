@@ -33,9 +33,10 @@ export const paginateTypes = `
 `;
 
 export const commonFilterTypes = `
+  _ids: [String],
   searchValue: String,
   filterStatus: String,
-`
+`;
 
 export const commonTypes = `
   _id: String,
@@ -67,4 +68,4 @@ export const commonFilters = `
   ownerType: String,
   ownerId: String,
   status: String,
-`
+`;

@@ -1,57 +1,65 @@
-import { ISendMessageArgs, sendMessage } from "@erxes/api-utils/src/core";
-import { serviceDiscovery } from "./configs";
+import {
+  MessageArgs,
+  MessageArgsOmitService,
+  sendMessage,
+} from '@erxes/api-utils/src/core';
 
-let client;
+import { generateModels } from './connectionResolver';
+import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 
-export const initBroker = async (cl) => {
-  client = cl;
+export const setupMessageConsumers = async () => {
+  consumeRPCQueue('exmfeed:ExmFeed.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.ExmFeed.find(data).lean(),
+    };
+  });
 };
 
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
-    serviceName: "core",
+    serviceName: 'core',
     ...args,
   });
 };
 
 export const sendReactionsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
-    serviceName: "reactions",
+    serviceName: 'reactions',
     ...args,
   });
 };
 
-export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
-): Promise<any> => {
+export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
-    serviceDiscovery,
-    client,
     ...args,
   });
 };
 
 export const sendNotificationsMessage = async (
-  args: ISendMessageArgs
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
-    serviceName: "notifications",
+    serviceName: 'notifications',
     ...args,
   });
 };
 
 export const sendNotification = (subdomain: string, data) => {
-  return sendNotificationsMessage({ subdomain, action: "send", data });
+  return sendNotificationsMessage({ subdomain, action: 'send', data });
 };
 
-export default function() {
-  return client;
-}
+export const sendEXMFeedMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'exmfeed',
+    ...args,
+  });
+};

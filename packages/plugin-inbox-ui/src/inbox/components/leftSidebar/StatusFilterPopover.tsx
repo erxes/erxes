@@ -1,5 +1,5 @@
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import Icon from '@erxes/ui/src/components/Icon';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { __, Alert, router } from 'coreui/utils';
@@ -93,7 +93,7 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
     return (
       <li>
         <a
-          href='#link'
+          href="#link"
           className={
             router.getParam(history, [paramName]) === paramValue ? 'active' : ''
           }
@@ -111,8 +111,8 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
 
     if (loading) {
       return (
-        <Popover id='filter-popover'>
-          <Popover.Title as='h3'>{__('Filter by status')}</Popover.Title>
+        <Popover id="filter-popover">
+          <Popover.Title as="h3">{__('Filter by status')}</Popover.Title>
           <Popover.Content>
             <Spinner objective={true} />
           </Popover.Content>
@@ -121,8 +121,8 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
     }
 
     return (
-      <Popover id='filter-popover'>
-        <Popover.Title as='h3'>{__('Filter by status')}</Popover.Title>
+      <Popover id="filter-popover">
+        <Popover.Title as="h3">{__('Filter by status')}</Popover.Title>
         <Popover.Content>
           <SidebarList>
             {this.renderSingleFilter(
@@ -163,15 +163,15 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
         ref={overlayTrigger => {
           this.overlayTrigger = overlayTrigger;
         }}
-        trigger='click'
-        placement='bottom'
+        trigger="click"
+        placement="bottom"
         overlay={this.renderPopover()}
         container={this}
         rootClose={true}
       >
         <PopoverButton onClick={this.onClick}>
           {__('Status')}
-          <Icon icon='angle-down' />
+          <Icon icon="angle-down" />
         </PopoverButton>
       </OverlayTrigger>
     );

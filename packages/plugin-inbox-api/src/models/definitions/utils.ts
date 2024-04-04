@@ -1,5 +1,5 @@
-import * as Random from 'meteor-random';
-import { removeKey } from '../../inmemoryStorage';
+import { nanoid } from 'nanoid';
+import redis from '@erxes/api-utils/src/redis';
 
 /*
  * Mongoose field options wrapper
@@ -14,7 +14,7 @@ export const field = options => {
   // TODO: remove
   if (pkey) {
     options.type = String;
-    options.default = () => Random.id();
+    options.default = () => nanoid();
   }
 
   return options;
@@ -39,8 +39,8 @@ const hookList = [
 
 export const schemaHooksWrapper = (schema, cacheKey: string) => {
   for (const hook of hookList) {
-    schema.post(hook, () => {
-      removeKey(cacheKey);
+    schema.post(hook, async () => {
+      await redis.del(cacheKey);
     });
   }
 

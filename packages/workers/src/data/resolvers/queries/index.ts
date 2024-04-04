@@ -1,5 +1,9 @@
 import importHistory from './importHistory';
+import exportHistory from './exportHistory';
+import generalHistory from './generalHistory';
 
 export default {
-  ...importHistory
+  ...importHistory,
+  ...exportHistory,
+  ...generalHistory
 };

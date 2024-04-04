@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: 'salesplans',
   port: 3026,
   exposes: {
@@ -12,7 +13,16 @@ module.exports = {
   menus: [
     {
       text: 'Sales Plans',
-      url: '/sales-plans',
+      to: '/salesplans/labels',
+      image: '/images/icons/erxes-31.png',
+      location: 'settings',
+      scope: 'salesplans',
+      action: '',
+      // permissions: ['showJobs', 'manageJobs']
+    },
+    {
+      text: 'Sales Plans',
+      url: '/sales-plans/day-labels',
       icon: 'icon-file-check-alt',
       location: 'mainNavigation',
       scope: 'salesplans',

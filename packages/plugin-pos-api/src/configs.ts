@@ -2,38 +2,36 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
-import {
-  posInit,
-  posSyncConfig,
-  posSyncOrders,
-  unfetchOrderInfo
-} from './routes';
+import { posInit, posSyncConfig, unfetchOrderInfo } from './routes';
 import afterMutations from './afterMutations';
-
-export let debug;
-export let graphqlPubsub;
-export let mainDb;
-export let serviceDiscovery;
+import beforeResolvers from './beforeResolvers';
+import automations from './automations';
+import forms from './forms';
+import segments from './segments';
+import dashboards from './dashboards';
+import imports from './imports';
+import exporter from './exporter';
+import payment from './payment';
+import { exportFileRunner } from './exporterByUrl';
 
 export default {
   name: 'pos',
   permissions,
   getHandlers: [
     { path: `/pos-init`, method: posInit },
-    { path: `/pos-sync-config`, method: posSyncConfig }
+    { path: `/file-export`, method: exportFileRunner },
   ],
   postHandlers: [
     { path: `/api/unfetch-order-info`, method: unfetchOrderInfo },
-    { path: `/pos-sync-orders`, method: posSyncOrders }
+    { path: `/pos-sync-config`, method: posSyncConfig },
   ],
-  graphql: async sd => {
-    serviceDiscovery = sd;
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
   apolloServerContext: async (context, req) => {
@@ -45,15 +43,18 @@ export default {
     return context;
   },
 
-  onServerInit: async options => {
-    mainDb = options.db;
-
-    initBroker(options.messageBrokerClient);
-
-    debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-  },
+  onServerInit: async () => {},
+  setupMessageConsumers,
   meta: {
-    afterMutations
-  }
+    afterMutations,
+    automations,
+    forms,
+    segments,
+    permissions,
+    dashboards,
+    beforeResolvers,
+    imports,
+    exporter,
+    payment,
+  },
 };

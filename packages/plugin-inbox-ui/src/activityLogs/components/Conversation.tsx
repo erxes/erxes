@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import {
   ActivityDate,
   ActivityIcon,
@@ -11,33 +10,28 @@ import {
   FlexBody,
   FlexCenterContent,
   Header
-} from '@erxes/ui/src/activityLogs/styles';
-import { formatText, getIconAndColor } from '@erxes/ui/src/activityLogs/utils';
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
+} from '@erxes/ui-log/src/activityLogs/styles';
+import { IConversation, IMessage } from '@erxes/ui-inbox/src/inbox/types';
 import { __, renderFullName } from '@erxes/ui/src/utils';
-import Message from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/Message';
 import {
-  Comment,
-  PostContainer
-} from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/styles';
-import UserName from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/UserName';
-import MailConversation from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/mail/MailConversation';
-import {
-  IConversation,
-  IFacebookComment,
-  IMessage
-} from '@erxes/ui-inbox/src/inbox/types';
-import React from 'react';
+  formatText,
+  getIconAndColor
+} from '@erxes/ui-log/src/activityLogs/utils';
+
+import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
+import Icon from '@erxes/ui/src/components/Icon';
 import { Link } from 'react-router-dom';
+import MailConversation from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/mail/MailConversation';
+import Message from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/Message';
+import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
+import dayjs from 'dayjs';
 import xss from 'xss';
-import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 
 type Props = {
   activity: any;
   conversation: IConversation;
   messages: IMessage[];
-  comments: IFacebookComment[];
 };
 
 class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
@@ -53,30 +47,6 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
     this.setState({ toggleMessage: !this.state.toggleMessage });
   };
 
-  renderComments() {
-    const { comments } = this.props;
-
-    if (!comments || comments.length === 0) {
-      return null;
-    }
-
-    return comments.map(comment => (
-      <div key={comment.commentId}>
-        <Comment>
-          <UserName
-            username={`${comment.customer.firstName} ${comment.customer
-              .lastName || ''}`}
-          />
-          <p
-            dangerouslySetInnerHTML={{
-              __html: xss(comment.content)
-            }}
-          />
-        </Comment>
-      </div>
-    ));
-  }
-
   renderMessages() {
     const { conversation, messages } = this.props;
 
@@ -85,15 +55,6 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
     }
 
     const { kind } = conversation.integration;
-
-    if (kind === 'facebook-post') {
-      return (
-        <>
-          <PostContainer>{conversation.content}</PostContainer>
-          {this.renderComments()}
-        </>
-      );
-    }
 
     if (kind.includes('nylas')) {
       return (
@@ -136,10 +97,10 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
   }
 
   renderAction() {
-    const { activity, conversation, comments } = this.props;
-    const { _id, integration } = conversation;
+    const { activity, conversation } = this.props;
 
-    let { customer } = conversation;
+    const { _id, integration } = conversation;
+    const { customer } = conversation;
 
     if (!customer) {
       return null;
@@ -154,47 +115,18 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
     let item = 'message';
 
     switch (condition) {
-      case 'chatfuel':
-        kind = 'chatfuel';
-        break;
       case 'callpro':
         action = 'made a';
         kind = 'phone call';
         item = 'by CallPro';
-        break;
-      case 'comment':
-        action = '';
-        kind = 'commented';
-        item = `on ${renderFullName(customer)}'s facebook post`;
-        break;
-      case 'facebook-post':
-        action = 'wrote a Facebook';
-        kind = 'Post';
-        item = '';
-        break;
-      case 'facebook-messenger':
-        kind = 'message';
-        item = 'by Facebook Messenger';
         break;
       case 'lead':
         action = 'submitted a';
         kind = 'Form';
         item = '';
         break;
-      case 'nylas-gmail':
-        action = 'send';
-        kind = 'email';
-        item = 'by gmail';
+      default:
         break;
-      case 'nylas-imap':
-        action = 'send';
-        kind = 'email';
-        item = 'by imap';
-        break;
-    }
-
-    if (condition === 'comment') {
-      customer = comments.length > 0 ? comments[0].customer : customer;
     }
 
     return (
@@ -216,7 +148,6 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
 
   renderContent() {
     const { conversation, messages } = this.props;
-
     const { customer, content, createdAt, integration } = conversation;
 
     if (!this.state.toggleMessage && integration) {

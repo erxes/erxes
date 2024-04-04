@@ -1,13 +1,13 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 
 import { types, mutations, queries } from './schema/exm';
 
-const typeDefs = async serviceDiscovery => {
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date
 
-    ${await types(serviceDiscovery)}
+    ${await types()}
 
     extend type Query {
       ${queries}

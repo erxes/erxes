@@ -21,6 +21,7 @@ export interface IUser {
   _id: string;
   isActive?: boolean;
   details?: IUserDetails;
+  isOnline: boolean;
 }
 
 export interface IUserLinks {
@@ -205,7 +206,7 @@ export interface IProduct {
   type: string;
   categoryId: string;
   description: string;
-  sku: string;
+  uom: string;
   code: string;
   unitPrice: number;
   customFieldsData?: any;
@@ -214,8 +215,12 @@ export interface IProduct {
 
   attachment?: any;
   attachmentMore?: any[];
-  supply: string;
-  productCount: number;
-  minimiumCount: number;
   category: IProductCategory;
 }
+
+export interface ICountry {
+  code: string;
+  name: string;
+  dialCode: string;
+  emoji: string;
+};

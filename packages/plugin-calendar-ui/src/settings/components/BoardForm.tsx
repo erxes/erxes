@@ -39,7 +39,7 @@ class BoardForm extends React.Component<Props> {
 
           <FormControl
             {...formProps}
-            name='name'
+            name="name"
             defaultValue={object.name}
             required={true}
             autoFocus={true}
@@ -48,9 +48,9 @@ class BoardForm extends React.Component<Props> {
 
         <ModalFooter>
           <Button
-            btnStyle='simple'
-            type='button'
-            icon='cancel-1'
+            btnStyle="simple"
+            type="button"
+            icon="cancel-1"
             onClick={closeModal}
           >
             Cancel

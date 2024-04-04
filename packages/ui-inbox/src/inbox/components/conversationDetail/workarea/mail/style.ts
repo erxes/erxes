@@ -1,13 +1,28 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
-import { Flex } from '@erxes/ui/src/styles/main';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
-import { MailBox } from '@erxes/ui-contacts/src/customers/styles';
 import styled, { css } from 'styled-components';
+
+import { Flex } from '@erxes/ui/src/styles/main';
+import { MailBox } from '@erxes/ui-contacts/src/customers/styles';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styledTS from 'styled-components-ts';
 
 const Content = styled.div`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   overflow: auto;
+
+  a {
+    &.primary-button-text {
+      color: #fff;
+    }
+    &.grey-button-text {
+      color: #5f6368;
+    }
+
+    span {
+      font-size: 14px;
+      cursor: pointer;
+    }
+  }
 `;
 
 const SmallContent = styledTS<{ toggle?: boolean }>(styled.div)`
@@ -36,7 +51,7 @@ const Subject = styled.h2`
 const Meta = styledTS<{ toggle?: boolean }>(styled.div)`
   padding: ${dimensions.unitSpacing - 2}px ${dimensions.coreSpacing}px;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   border-bottom: ${props =>
     props.toggle ? 0 : `1px solid ${colors.borderPrimary}`};
 
@@ -211,6 +226,18 @@ const Addresses = styled.div`
   word-break: break-word;
 `;
 
+const MailSubject = styled.h5`
+  margin: 0;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px 0;
+  font-size: 13px;
+
+  > div {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+`;
+
 export {
   Subject,
   Meta,
@@ -230,5 +257,6 @@ export {
   From,
   AddressContainer,
   Title,
-  Addresses
+  Addresses,
+  MailSubject
 };

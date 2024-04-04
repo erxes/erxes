@@ -1,13 +1,16 @@
-import _ from 'lodash';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import { ClickableRow } from '@erxes/ui-contacts/src/customers/styles';
+import { FlexContent } from '@erxes/ui-log/src/activityLogs/styles';
 import Tags from '@erxes/ui/src/components/Tags';
 import TextInfo from '@erxes/ui/src/components/TextInfo';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import { formatValue } from '@erxes/ui/src/utils';
-import { ClickableRow } from '@erxes/ui-contacts/src/customers/styles';
+
+import _ from 'lodash';
 import React from 'react';
-import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
+
 import { ICompany } from '../../types';
+import { displayObjectListItem } from '../../../customers/utils';
 
 type Props = {
   index: number;
@@ -18,22 +21,7 @@ type Props = {
   toggleBulk: (company: ICompany, isChecked?: boolean) => void;
 };
 
-function displayObjectListItem(company, customFieldName, subFieldName) {
-  const objectList = company[customFieldName] || [];
-  const subFieldKey = subFieldName.replace(`${customFieldName}.`, '');
-
-  const subField = objectList.find
-    ? objectList.find(obj => obj.field === subFieldKey)
-    : [];
-
-  if (!subField) {
-    return null;
-  }
-
-  return formatValue(subField.value);
-}
-
-function displayValue(company, name, index) {
+function displayValue(company, name, group, index) {
   const value = _.get(company, name);
 
   if (name === 'primaryName') {
@@ -49,12 +37,12 @@ function displayValue(company, name, index) {
     return <TextInfo>{value}</TextInfo>;
   }
 
-  if (name.includes('customFieldsData')) {
-    return displayObjectListItem(company, 'customFieldsData', name);
-  }
-
   if (name === '#') {
     return <TextInfo>{index.toString()}</TextInfo>;
+  }
+
+  if (name.includes('customFieldsData')) {
+    return displayObjectListItem(company, 'customFieldsData', name, group);
   }
 
   return formatValue(value);
@@ -66,17 +54,17 @@ function CompanyRow({
   history,
   isChecked,
   toggleBulk,
-  index
+  index,
 }: Props) {
   const tags = company.getTags || [];
 
-  const onChange = e => {
+  const onChange = (e) => {
     if (toggleBulk) {
       toggleBulk(company, e.target.checked);
     }
   };
 
-  const onClick = e => {
+  const onClick = (e) => {
     e.stopPropagation();
   };
 
@@ -93,9 +81,11 @@ function CompanyRow({
           onChange={onChange}
         />
       </td>
-      {columnsConfig.map(({ name }) => (
+      {columnsConfig.map(({ name, group }) => (
         <td key={name}>
-          <ClickableRow>{displayValue(company, name, index)}</ClickableRow>
+          <ClickableRow>
+            {displayValue(company, name, group, index)}
+          </ClickableRow>
         </td>
       ))}
       <td>

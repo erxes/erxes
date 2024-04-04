@@ -1,0 +1,200 @@
+import * as _ from 'underscore';
+import { generateModels } from '../../connectionResolvers';
+import { sendRPCMessage } from '@erxes/api-utils/src/messageBroker';
+import { disconnect } from '@erxes/api-utils/src/mongo-connection';
+// tslint:disable-next-line
+const { parentPort, workerData } = require('worker_threads');
+const { subdomain } = workerData;
+
+const WORKER_BULK_LIMIT = 300;
+
+let cancel = false;
+
+parentPort.once('message', (message) => {
+  if (message === 'cancel') {
+    parentPort.postMessage('Cancelled');
+    cancel = true;
+  }
+});
+
+const create = async ({
+  docs,
+  user,
+  contentType,
+  useElkSyncer,
+}: {
+  docs: any;
+  user: any;
+  contentType: any;
+  useElkSyncer: any;
+}) => {
+  console.log('Importing  data');
+
+  const [serviceName, type] = contentType.split(':');
+
+  const result = await sendRPCMessage(
+    `${serviceName}:imports.insertImportItems`,
+    {
+      subdomain,
+      data: {
+        docs,
+        user,
+        contentType: type,
+        useElkSyncer,
+      },
+      timeout: 5 * 60 * 1000, // 5 minutes
+    },
+  );
+
+  const { objects, updated, error } = result;
+
+  if (error) {
+    throw new Error(error);
+  }
+
+  return { objects, updated };
+};
+
+const main = async () => {
+  if (cancel) {
+    return;
+  }
+
+  console.log(`Worker message recieved`);
+
+  const {
+    user,
+    scopeBrandIds,
+    result,
+    contentType,
+    properties,
+    importHistoryId,
+    percentage,
+    useElkSyncer,
+    rowIndex,
+  }: {
+    user: any;
+    scopeBrandIds: string[];
+    result: any;
+    contentType: string;
+    properties: Array<{ [key: string]: string }>;
+    importHistoryId: string;
+    percentage: number;
+    useElkSyncer: boolean;
+    rowIndex?: number;
+  } = workerData;
+
+  const [serviceName, type] = contentType.split(':');
+  const models = await generateModels(subdomain);
+
+  // tslint:disable-next-line:no-eval
+
+  let bulkDoc = [];
+  const modifier: { $inc?; $push? } = {
+    $inc: {},
+  };
+
+  try {
+    bulkDoc = await sendRPCMessage(`${serviceName}:imports.prepareImportDocs`, {
+      subdomain,
+      data: {
+        result,
+        properties,
+        contentType: type,
+        user,
+        scopeBrandIds,
+        useElkSyncer,
+      },
+      timeout: 5 * 60 * 1000, // 5 minutes
+    });
+  } catch (e) {
+    let startRow = 1;
+    let endRow = WORKER_BULK_LIMIT;
+
+    if (rowIndex && rowIndex > 1) {
+      startRow = rowIndex * WORKER_BULK_LIMIT - WORKER_BULK_LIMIT;
+      endRow = startRow + WORKER_BULK_LIMIT;
+    }
+
+    const distance = endRow - startRow;
+
+    if (distance === 1) {
+      endRow = startRow;
+    }
+
+    modifier.$push = { errorMsgs: e.message };
+    modifier.$inc.failed = WORKER_BULK_LIMIT;
+    modifier.$push = {
+      errorMsgs: {
+        startRow,
+        endRow,
+        errorMsgs: e.message,
+        contentType,
+      },
+    };
+
+    await models.ImportHistory.update({ _id: importHistoryId }, modifier);
+
+    console.log(`Worker done`);
+
+    parentPort.postMessage({
+      action: 'remove',
+      message: 'Successfully finished the job',
+    });
+
+    await disconnect();
+  }
+
+  try {
+    const { updated, objects } = await create({
+      docs: bulkDoc,
+      user,
+      contentType,
+      useElkSyncer,
+    });
+
+    const cocIds = objects.map((obj) => obj._id).filter((obj) => obj);
+
+    modifier.$push = { ids: cocIds };
+    modifier.$inc.updated = updated;
+    modifier.$inc.success = bulkDoc.length;
+  } catch (e) {
+    let startRow = 1;
+    let endRow = bulkDoc.length;
+
+    if (rowIndex && rowIndex > 1) {
+      startRow = rowIndex * WORKER_BULK_LIMIT - WORKER_BULK_LIMIT;
+      endRow = startRow + WORKER_BULK_LIMIT;
+    }
+
+    const distance = endRow - startRow;
+
+    if (distance === 1) {
+      endRow = startRow;
+    }
+
+    modifier.$push = { errorMsgs: e.message };
+    modifier.$inc.failed = WORKER_BULK_LIMIT;
+    modifier.$push = {
+      errorMsgs: {
+        startRow,
+        endRow,
+        errorMsgs: e.message,
+        contentType,
+      },
+    };
+  }
+
+  await models.ImportHistory.updateOne({ _id: importHistoryId }, modifier);
+
+  console.log(`Worker done`);
+
+  parentPort.postMessage({
+    action: 'remove',
+    message: 'Successfully finished the job',
+  });
+
+  await disconnect();
+};
+
+main();

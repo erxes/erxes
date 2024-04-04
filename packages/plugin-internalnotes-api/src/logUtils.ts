@@ -5,37 +5,38 @@ import {
   gatherNames,
   LogDesc,
   ILogDataParams,
-  getSchemaLabels
+  getSchemaLabels,
 } from '@erxes/api-utils/src/logUtils';
 
-import messageBroker, {
+import {
   sendCardsMessage,
   sendContactsMessage,
   sendCoreMessage,
-  sendProductsMessage
+  sendProductsMessage,
 } from './messageBroker';
 import {
   IInternalNoteDocument,
-  internalNoteSchema
+  internalNoteSchema,
 } from './models/definitions/internalNotes';
 import { generateModels } from './connectionResolver';
 
 const MODULE_NAMES = {
   DEAL: 'deal',
+  PURCHASE: 'purchase',
   TICKET: 'ticket',
   TASK: 'task',
   GROWTH_HACK: 'growthHack',
   COMPANY: 'company',
   CUSTOMER: 'customer',
   PRODUCT: 'product',
-  USER: 'user'
+  USER: 'user',
 };
 
 // used in internalNotes mutations
 const findContentItemName = async (
   subdomain: string,
   contentType: string,
-  contentTypeId: string
+  contentTypeId: string,
 ): Promise<string> => {
   let name: string = '';
   const type =
@@ -43,6 +44,7 @@ const findContentItemName = async (
 
   const isCardItem =
     type === MODULE_NAMES.DEAL ||
+    type === MODULE_NAMES.PURCHASE ||
     type === MODULE_NAMES.TASK ||
     type === MODULE_NAMES.TICKET ||
     type === MODULE_NAMES.GROWTH_HACK;
@@ -53,9 +55,9 @@ const findContentItemName = async (
       action: 'findItem',
       data: {
         _id: contentTypeId,
-        contentType
+        contentType,
       },
-      isRPC: true
+      isRPC: true,
     });
 
     if (cardItem && cardItem.name) {
@@ -68,16 +70,16 @@ const findContentItemName = async (
       action: 'customers.findOne',
       data: { _id: contentTypeId },
       isRPC: true,
-      defaultValue: {}
+      defaultValue: {},
     });
 
     if (customer) {
       name = await sendContactsMessage({
         subdomain,
         action: 'customers.getCustomerName',
-        data: { customer },
+        data: customer,
         isRPC: true,
-        defaultValue: 'Unknown'
+        defaultValue: 'Unknown',
       });
     }
   }
@@ -86,10 +88,10 @@ const findContentItemName = async (
       subdomain,
       action: 'companies.findOne',
       data: {
-        _id: contentTypeId
+        _id: contentTypeId,
       },
       isRPC: true,
-      defaultValue: {}
+      defaultValue: {},
     });
 
     if (company) {
@@ -106,7 +108,7 @@ const findContentItemName = async (
       action: 'users.findOne',
       data: { _id: contentTypeId },
       isRPC: true,
-      defaultValue: {}
+      defaultValue: {},
     });
 
     if (user) {
@@ -119,7 +121,7 @@ const findContentItemName = async (
       action: 'findOne',
       data: { _id: contentTypeId },
       isRPC: true,
-      defaultValue: {}
+      defaultValue: {},
     });
 
     if (product) {
@@ -132,7 +134,7 @@ const findContentItemName = async (
 
 const gatherDescriptions = async (
   subdomain: string,
-  obj: IInternalNoteDocument
+  obj: IInternalNoteDocument,
 ) => {
   let extraDesc: LogDesc[] = [
     {
@@ -140,9 +142,9 @@ const gatherDescriptions = async (
       name: await findContentItemName(
         subdomain,
         obj.contentType,
-        obj.contentTypeId
-      )
-    }
+        obj.contentTypeId,
+      ),
+    },
   ];
 
   extraDesc = await gatherNames({
@@ -155,9 +157,9 @@ const gatherDescriptions = async (
         action: 'users.findOne',
         data: { _id: obj.createdUserId },
         isRPC: true,
-        defaultValue: {}
-      })
-    ]
+        defaultValue: {},
+      }),
+    ],
   });
 
   return extraDesc;
@@ -166,51 +168,48 @@ const gatherDescriptions = async (
 export const putDeleteLog = async (
   subdomain: string,
   logDoc: ILogDataParams,
-  user
+  user,
 ) => {
   await commonPutDeleteLog(
     subdomain,
-    messageBroker(),
     {
       ...logDoc,
       extraDesc: await gatherDescriptions(subdomain, logDoc.object),
-      type: `internalnotes:${logDoc.type}`
+      type: `internalnotes:${logDoc.type}`,
     },
-    user
+    user,
   );
 };
 
 export const putUpdateLog = async (
   subdomain: string,
   logDoc: ILogDataParams,
-  user
+  user,
 ) => {
   await commonPutUpdateLog(
     subdomain,
-    messageBroker(),
     {
       ...logDoc,
       extraDesc: await gatherDescriptions(subdomain, logDoc.object),
-      type: `internalnotes:${logDoc.type}`
+      type: `internalnotes:${logDoc.type}`,
     },
-    user
+    user,
   );
 };
 
 export const putCreateLog = async (
   subdomain: string,
   logDoc: ILogDataParams,
-  user
+  user,
 ) => {
   await commonPutCreateLog(
     subdomain,
-    messageBroker(),
     {
       ...logDoc,
       extraDesc: await gatherDescriptions(subdomain, logDoc.object),
-      type: `internalnotes:${logDoc.type}`
+      type: `internalnotes:${logDoc.type}`,
     },
-    user
+    user,
   );
 };
 
@@ -220,7 +219,7 @@ export default {
 
     const models = await generateModels(subdomain);
     const notes = await models.InternalNotes.find({
-      contentTypeId: contentId
+      contentTypeId: contentId,
     }).sort({ createdAt: -1 });
 
     for (const note of notes) {
@@ -229,14 +228,14 @@ export default {
 
     return {
       status: 'success',
-      data: notes
+      data: notes,
     };
   },
 
   getSchemaLabels: ({ data: { type } }) => ({
     status: 'success',
     data: getSchemaLabels(type, [
-      { name: 'internalNote', schemas: [internalNoteSchema] }
-    ])
-  })
+      { name: 'internalNote', schemas: [internalNoteSchema] },
+    ]),
+  }),
 };

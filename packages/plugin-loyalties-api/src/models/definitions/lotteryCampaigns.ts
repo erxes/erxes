@@ -1,9 +1,13 @@
 import { Document, Schema } from 'mongoose';
 import { field } from './utils';
-import { commonCampaignSchema, ICommonCampaignFields, ICommonCampaignDocument } from './common';
+import {
+  commonCampaignSchema,
+  ICommonCampaignFields,
+  ICommonCampaignDocument
+} from './common';
 
 export interface ILotteryAward extends Document {
-  _id: string,
+  _id: string;
   name: string;
   voucherCampaignId: string;
   count: number;
@@ -14,23 +18,30 @@ export interface ILotteryCampaign extends ICommonCampaignFields {
   numberFormat: string;
   buyScore: number;
 
-  awards: ILotteryAward[]
+  awards: ILotteryAward[];
 }
 
-export interface ILotteryCampaignDocument extends ILotteryCampaign, ICommonCampaignDocument, Document {
+export interface ILotteryCampaignDocument
+  extends ILotteryCampaign,
+    ICommonCampaignDocument,
+    Document {
   _id: string;
 }
 
-const lotteryAwardSchema = new Schema(
+export const lotteryAwardSchema = new Schema(
   {
-    _id: { type: String },
-    name: { type: String },
-    voucherCampaignId: { type: String },
-    count: { type: Number, min: 0 },
-    wonLotteryIds: { type: [String], optional: true }
+    _id: field({ pkey: true }),
+    name: field({ type: String, label: 'Name' }),
+    voucherCampaignId: field({ type: String, label: 'Voucher campaign' }),
+    count: field({ type: Number, label: 'Count', min: 0 }),
+    wonLotteryIds: field({
+      type: [String],
+      label: 'Won lottery ids',
+      optional: true
+    })
   },
   { _id: false }
-)
+);
 
 export const lotteryCampaignSchema = new Schema({
   ...commonCampaignSchema,
@@ -38,5 +49,5 @@ export const lotteryCampaignSchema = new Schema({
   numberFormat: field({ type: String, label: 'Number format type' }),
   buyScore: field({ type: Number }),
 
-  awards: field({ type: [lotteryAwardSchema] })
+  awards: field({ type: [lotteryAwardSchema], label: 'Awards' })
 });

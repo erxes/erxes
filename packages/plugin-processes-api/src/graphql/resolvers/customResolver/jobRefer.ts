@@ -1,80 +1,37 @@
-import { IJobReferDocument, IUom } from '../../../models/definitions/jobs';
+import { IJobReferDocument } from '../../../models/definitions/jobs';
 import { IContext } from '../../../connectionResolver';
-import { JOB_CATEGORY_STATUSES } from '../../../models/definitions/constants';
-import { sendProductsMessage } from '../../../messageBroker';
+import { getProductAndUoms } from './utils';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
-    return models.JobRefers.findOne({ _id });
+    return models.JobRefers.findOne({ _id }).lean();
   },
 
-  async needProducts(
-    jobRefer: IJobReferDocument,
-    {},
-    { models, subdomain }: IContext
-  ) {
-    const jobRefers = await models.JobRefers.findOne({
-      _id: jobRefer._id,
-      status: { $ne: JOB_CATEGORY_STATUSES.ARCHIVED }
-    });
+  async needProducts(jobRefer: IJobReferDocument, {}, { subdomain }: IContext) {
+    const needProducts = jobRefer.needProducts || [];
 
-    const needProducts = jobRefers?.needProducts || [];
+    const { productById } = await getProductAndUoms(subdomain, needProducts);
 
-    const resolvedNeedProducts: any[] = [];
-    for await (const need of needProducts) {
-      const uom =
-        (await sendProductsMessage({
-          subdomain,
-          action: 'findOneUom',
-          data: { _id: need.uomId || '' },
-          isRPC: true
-        })) || null;
-
-      const product =
-        (await sendProductsMessage({
-          subdomain,
-          action: 'findOne',
-          data: { _id: need.productId || '' },
-          isRPC: true
-        })) || null;
-
-      need.product = product;
-      need.uom = uom;
+    for (let need of needProducts) {
+      need.product = productById[need.productId] || {};
+      need.uom = (productById[need.productId] || {}).uom;
     }
 
     return needProducts;
   },
+
   async resultProducts(
     jobRefer: IJobReferDocument,
     {},
-    { models, subdomain }: IContext
+    { subdomain }: IContext
   ) {
-    const jobRefers = await models.JobRefers.findOne({
-      _id: jobRefer._id,
-      status: { $ne: JOB_CATEGORY_STATUSES.ARCHIVED }
-    });
+    const resultProducts = jobRefer.resultProducts || [];
 
-    const resultProducts = jobRefers?.resultProducts || [];
+    const { productById } = await getProductAndUoms(subdomain, resultProducts);
 
-    for await (const result of resultProducts) {
-      const uom =
-        (await sendProductsMessage({
-          subdomain,
-          action: 'findOneUom',
-          data: { _id: result.uomId || '' },
-          isRPC: true
-        })) || null;
-
-      const product =
-        (await sendProductsMessage({
-          subdomain,
-          action: 'findOne',
-          data: { _id: result.productId || '' },
-          isRPC: true
-        })) || null;
-
-      result.product = product;
-      result.uom = uom;
+    for (const result of resultProducts) {
+      result.product = productById[result.productId] || {};
+      result.uom = (productById[result.productId] || {}).uom;
     }
 
     return resultProducts;

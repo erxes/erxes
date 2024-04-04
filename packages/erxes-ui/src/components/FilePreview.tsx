@@ -1,10 +1,11 @@
 import Icon from './Icon';
 import ImageWithPreview from './ImageWithPreview';
 import React from 'react';
-import styled from 'styled-components';
-import { rgba } from '../styles/ecolor';
 import colors from '../styles/colors';
-import { SelectOption } from '@erxes/ui-cards/src/boards/styles/item';
+import { rgba } from '../styles/ecolor';
+import styled from 'styled-components';
+import { readFile } from '../utils/core';
+import VideoPlayer from './VideoPlayer';
 
 const Wrapper = styled.a`
   border-radius: 4px;
@@ -23,6 +24,12 @@ const Wrapper = styled.a`
     max-width: 100%;
     max-height: 320px;
   }
+`;
+
+const SelectOption = styled.div`
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 `;
 
 const Content = styled.div`
@@ -74,7 +81,7 @@ export default function FilePreview({ fileUrl, fileName }: Props) {
   const renderFile = (icon: string) => {
     const attr = {
       rel: 'noopener noreferrer',
-      href: fileUrl,
+      href: readFile(fileUrl),
       target: '_blank'
     };
 
@@ -104,6 +111,28 @@ export default function FilePreview({ fileUrl, fileName }: Props) {
     );
   };
 
+  const renderCloudflareStreamVideoFile = () => {
+    const options = {
+      autoplay: false,
+      playbackRates: [0.5, 1, 1.25, 1.5, 2],
+      controls: true,
+      sources: [
+        {
+          src: fileUrl,
+          type: 'application/x-mpegURL'
+        }
+      ]
+    };
+
+    return (
+      <Wrapper>
+        <Content>
+          <VideoPlayer options={options} />
+        </Content>
+      </Wrapper>
+    );
+  };
+
   const renderImagePreview = () => {
     return (
       <Wrapper>
@@ -128,6 +157,9 @@ export default function FilePreview({ fileUrl, fileName }: Props) {
       break;
     case 'mp4':
       filePreview = renderVideo();
+      break;
+    case 'm3u8':
+      filePreview = renderCloudflareStreamVideoFile();
       break;
     case 'jpeg':
     case 'jpg':

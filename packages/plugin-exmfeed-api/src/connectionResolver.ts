@@ -1,13 +1,13 @@
 import * as mongoose from 'mongoose';
-import { mainDb } from './configs';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { IFeedDocument, IThankDocument } from './models/definitions/exm';
 import {
   loadFeedClass,
   loadExmThankClass,
   IThankModel,
-  IFeedModel
+  IFeedModel,
 } from './models/exmFeed';
+import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 export interface IModels {
   ExmFeed: IFeedModel;
@@ -19,32 +19,20 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels;
-
-export const generateModels = async (
-  _hostnameOrSubdomain: string
-): Promise<IModels> => {
-  if (models) {
-    return models;
-  }
-
-  loadClasses(mainDb);
-
-  return models;
-};
-
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  models = {} as IModels;
+  const models = {} as IModels;
 
   models.ExmFeed = db.model<IFeedDocument, IFeedModel>(
     'exm_feeds',
-    loadFeedClass(models)
+    loadFeedClass(models),
   );
 
   models.ExmThanks = db.model<IThankDocument, IThankModel>(
     'exm_thanks',
-    loadExmThankClass(models)
+    loadExmThankClass(models),
   );
 
   return models;
 };
+
+export const generateModels = createGenerateModels<IModels>(loadClasses);

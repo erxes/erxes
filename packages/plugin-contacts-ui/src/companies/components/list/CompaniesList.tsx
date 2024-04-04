@@ -1,4 +1,9 @@
-import gql from 'graphql-tag';
+import CompaniesMerge from '@erxes/ui-contacts/src/companies/components/detail/CompaniesMerge';
+import CompanyForm from '@erxes/ui-contacts/src/companies/containers/CompanyForm';
+import ManageColumns from '@erxes/ui-forms/src/settings/properties/containers/ManageColumns';
+import { IConfigColumn } from '@erxes/ui-forms/src/settings/properties/types';
+import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
+import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
@@ -9,26 +14,22 @@ import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
 import Table from '@erxes/ui/src/components/table';
 import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
-import { __, Alert, confirm, router } from 'coreui/utils';
-import { menuContacts } from '@erxes/ui/src/utils/menus';
-import { queries } from '../../graphql';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { BarItems } from '@erxes/ui/src/layout/styles';
-import ManageColumns from '@erxes/ui-settings/src/properties/containers/ManageColumns';
-import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import { menuContacts } from '@erxes/ui/src/utils/menus';
+import { __, Alert, confirm, router } from 'coreui/utils';
+import { gql } from '@apollo/client';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
-import { withRouter } from 'react-router-dom';
-import { Link } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
-import CompanyForm from '@erxes/ui/src/companies/containers/CompanyForm';
+import { Link, withRouter } from 'react-router-dom';
+import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
+
+import { queries } from '../../graphql';
 import { ICompany } from '../../types';
-import CompaniesMerge from '@erxes/ui-contacts/src/companies/components/detail/CompaniesMerge';
 import CompanyRow from './CompanyRow';
 import Sidebar from './Sidebar';
-import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 
 interface IProps extends IRouterProps {
   companies: ICompany[];
@@ -238,7 +239,7 @@ class CompaniesList extends React.Component<IProps, State> {
           {bulk.length === 2 && (
             <ModalTrigger
               title="Merge Companies"
-              size="lg"
+              size="xl"
               dialogClassName="modal-1000w"
               trigger={mergeButton}
               content={companiesMerge}
@@ -284,6 +285,10 @@ class CompaniesList extends React.Component<IProps, State> {
         />
 
         {renderExpandButton()}
+
+        {isEnabled('segments') && (
+          <TemporarySegment contentType={`contacts:company`} />
+        )}
 
         <Dropdown className="dropdown-btn" alignRight={true}>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
@@ -352,6 +357,7 @@ class CompaniesList extends React.Component<IProps, State> {
             emptyImage="/images/actions/1.svg"
           />
         }
+        hasBorder={true}
       />
     );
   }

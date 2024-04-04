@@ -8,15 +8,23 @@ const List = asyncComponent(() =>
 );
 
 const PosContainer = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "PosContainer" */ './pos/containers/Pos'
-  )
+  import(/* webpackChunkName: "PosContainer" */ './pos/containers/Pos')
 );
 
 const OrderList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "OrderList" */ './orders/containers/List'
-  )
+  import(/* webpackChunkName: "OrderList" */ './orders/containers/List')
+);
+
+const OrderRecords = asyncComponent(() =>
+  import(/* webpackChunkName: "OrderList" */ './orders/containers/Records')
+);
+
+const OrderSummary = asyncComponent(() =>
+  import(/* webpackChunkName: "OrderList" */ './orders/containers/Summary')
+);
+
+const CoverList = asyncComponent(() =>
+  import(/* webpackChunkName: "OrderList" */ './orders/containers/CoverList')
 );
 
 const PosProductList = asyncComponent(() =>
@@ -35,7 +43,9 @@ const posComponent = ({ match, location, history }) => {
   const { posId } = match.params;
   const queryParams = queryString.parse(location.search);
 
-  return <PosContainer queryParams={queryParams} posId={posId} history={history} />;
+  return (
+    <PosContainer queryParams={queryParams} posId={posId} history={history} />
+  );
 };
 
 const OrderListComponent = ({ location, history }) => {
@@ -44,16 +54,44 @@ const OrderListComponent = ({ location, history }) => {
       queryParams={queryString.parse(location.search)}
       history={history}
     />
-  )
-}
+  );
+};
+
+const OrderRecordsComponent = ({ location, history }) => {
+  return (
+    <OrderRecords
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+const OrderSummaryComponent = ({ location, history }) => {
+  return (
+    <OrderSummary
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+const CoverListComponent = ({ location, history }) => {
+  return (
+    <CoverList
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
 const OrderItemsComponent = ({ location, history }) => {
   return (
     <PosProductList
       queryParams={queryString.parse(location.search)}
       history={history}
     />
-  )
-}
+  );
+};
 
 const routes = () => {
   return (
@@ -83,10 +121,28 @@ const routes = () => {
         component={OrderListComponent}
       />
       <Route
+        key="/pos-covers"
+        exact={true}
+        path="/pos-covers"
+        component={CoverListComponent}
+      />
+      <Route
         key="/pos-order-items"
         exact={true}
         path="/pos-order-items"
         component={OrderItemsComponent}
+      />
+      <Route
+        key="/pos-order-records"
+        exact={true}
+        path="/pos-order-records"
+        component={OrderRecordsComponent}
+      />
+      <Route
+        key="/pos-order-summary"
+        exact={true}
+        path="/pos-order-summary"
+        component={OrderSummaryComponent}
       />
     </>
   );

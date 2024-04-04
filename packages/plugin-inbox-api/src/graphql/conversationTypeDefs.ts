@@ -1,12 +1,15 @@
+import {
+  attachmentInput,
+  attachmentType,
+} from '@erxes/api-utils/src/commonTypeDefs';
 
-import { attachmentInput, attachmentType } from '@erxes/api-utils/src/commonTypeDefs';
-
-export const types = ({ tags, forms }) => `
+export const types = ({ tags, forms, contacts, dailyco, calls }) => `
   ${attachmentType}
   ${attachmentInput}
 
+
   extend type Customer @key(fields: "_id") {
-    _id: String! @external
+    _id: String @external
     conversations: [Conversation]
   }
 
@@ -24,17 +27,43 @@ export const types = ({ tags, forms }) => `
       : ''
   }
 
-  extend type User @key(fields: "_id") {
-    _id: String! @external
+  ${
+    dailyco
+      ? `
+      extend type VideoCallData {
+        url: String
+        name: String
+        status: String
+        recordingLinks: [String]
+      }
+    `
+      : ''
   }
 
-  type ConversationFacebookData {
-    kind: String
-    senderName: String
-    senderId: String
-    recipientId: String
-    postId: String
-    pageId: String
+  ${
+    calls
+      ? `
+        type CallHistoryData {
+        _id: String!
+        receiverNumber: String
+        callerNumber: String
+        callDuration: Int
+        callStartTime: Date
+        callEndTime: Date
+        callType: String
+        callStatus: String
+        sessionId: String
+        modifiedAt: Date
+        createdAt: Date
+        createdBy: String
+        modifiedBy: String
+      }
+    `
+      : ''
+  }
+
+  extend type User @key(fields: "_id") {
+    _id: String! @external
   }
 
   type Conversation {
@@ -56,19 +85,17 @@ export const types = ({ tags, forms }) => `
     operatorStatus: String
 
     messages: [ConversationMessage]
-    facebookPost: FacebookPost
     callProAudio: String
     
-    ${tags ? `tags: [Tag]` : ''}
-
-    customer: Customer
+    ${tags ? 'tags: [Tag]' : ''}
+    ${contacts ? 'customer: Customer' : ''}
     integration: Integration
     user: User
     assignedUser: User
     participatedUsers: [User]
     participatorCount: Int
-    videoCallData: VideoCallData
-    isFacebookTaggedMessage: Boolean
+    ${dailyco ? 'videoCallData: VideoCallData' : ''}
+    ${calls ? 'callHistory: CallHistoryData' : ''}
     customFieldsData: JSON
 
     bookingProductId: String
@@ -103,37 +130,10 @@ export const types = ({ tags, forms }) => `
     user: User
     customer: Customer
     mailData: MailData
-    videoCallData: VideoCallData
+    ${dailyco ? 'videoCallData: VideoCallData' : ''}
     contentType: String
     bookingWidgetData: JSON
-  }
-
-  type FacebookPost {
-    postId: String
-    recipientId: String
-    senderId: String
-    content:String
-    erxesApiId: String
-    attachments: [String]
-    timestamp: Date
-    permalink_url: String
-  }
-
-  type FacebookComment {
-    conversationId: String
-    commentId: String
-    postId: String
-    parentId: String
-    recipientId:String
-    senderId: String
-    permalink_url: String
-    attachments: [String]
-    content: String
-    erxesApiId: String
-    timestamp: Date
-    customer: Customer
-    commentCount: Int
-    isResolved: Boolean
+    mid: String
   }
 
   type Email {
@@ -184,13 +184,6 @@ export const types = ({ tags, forms }) => `
     unreadCount: Int
   }
 
-  type VideoCallData {
-    url: String
-    name: String
-    status: String
-    recordingLinks: [String]
-  }
-
   ${
     forms
       ? `
@@ -236,6 +229,23 @@ const mutationFilterParams = `
   segment: String
 `;
 
+const convertParams = `
+  _id: String!
+  type: String!
+  itemId: String
+  itemName: String
+  stageId: String
+  bookingProductId: String
+  customFieldsData: JSON
+  priority: String
+  assignedUserIds: [String]
+  labelIds: [String]
+  startDate: Date
+  closeDate: Date
+  attachments: [AttachmentInput]
+  description: String
+`;
+
 const filterParams = `
   limit: Int,
   ids: [String]
@@ -245,7 +255,7 @@ const filterParams = `
 export const queries = ({ forms }) => `
   conversationMessage(_id: String!): ConversationMessage
   
-  conversations(${filterParams}): [Conversation]
+  conversations(${filterParams}, skip: Int): [Conversation]
 
   conversationMessages(
     conversationId: String!
@@ -260,7 +270,7 @@ export const queries = ({ forms }) => `
   conversationDetail(_id: String!): Conversation
   conversationsGetLast(${filterParams}): Conversation
   conversationsTotalUnreadCount: Int
-  ${ forms ? `inboxFields: InboxField` : '' }
+  ${forms ? `inboxFields: InboxField` : ''}
   userConversations(_id: String, perPage: Int): UserConversationListResponse
 `;
 
@@ -272,17 +282,14 @@ export const mutations = `
     internal: Boolean,
     attachments: [AttachmentInput],
     contentType: String
-    facebookMessageTag: String
+    extraInfo: JSON
   ): ConversationMessage
-  conversationsReplyFacebookComment(conversationId: String, commentId: String, content: String): FacebookComment
-  conversationsChangeStatusFacebookComment(commentId: String): FacebookComment
   conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
   conversationsUnassign(_ids: [String]!): [Conversation]
   conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]
   conversationMarkAsRead(_id: String): Conversation
-  conversationCreateVideoChatRoom(_id: String!): VideoCallData
   changeConversationOperator(_id: String! operatorStatus: String!): JSON
   conversationResolveAll(${mutationFilterParams}): Int
-  conversationConvertToCard(_id: String!, type: String!, itemId: String, itemName: String, stageId: String, bookingProductId: String): String
+  conversationConvertToCard(${convertParams}): String
   conversationEditCustomFields(_id: String!, customFieldsData: JSON): Conversation
 `;

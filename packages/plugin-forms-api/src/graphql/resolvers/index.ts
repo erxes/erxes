@@ -8,7 +8,7 @@ import { fieldMutations, fieldsGroupsMutations } from "./mutations/fields";
 import formQueries from "./queries/forms";
 import formMutations from "./mutations/forms";
 
-const resolvers = _serviceDiscovery => ({
+const resolvers = () => ({
   ...customScalars,
   Field,
   FieldsGroup,

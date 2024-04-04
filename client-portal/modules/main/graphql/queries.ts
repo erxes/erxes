@@ -14,13 +14,28 @@ export const clientPortalGetConfig = `
       knowledgeBaseTopicId
       taskLabel
       taskPublicPipelineId
+      taskPublicBoardId
+      taskPublicLabel
+      taskPipelineId
       taskStageId
+      dealLabel
+      dealPipelineId
+      dealStageId
+      purchaseLabel
+      purchasePipelineId
+      purchaseStageId
       ticketLabel
       ticketStageId
+      ticketPipelineId
       publicTaskToggle
       ticketToggle
       taskToggle
+      dealToggle
+      purchaseToggle
       kbToggle
+      googleClientId
+      facebookAppId
+      erxesAppToken
 
       styles {
         bodyColor

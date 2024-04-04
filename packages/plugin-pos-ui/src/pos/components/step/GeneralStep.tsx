@@ -1,65 +1,33 @@
 import Modal from 'react-bootstrap/Modal';
-import PosSlotItem from '../productGroup/PosSlotItem';
-import React from 'react';
 import Select from 'react-select-plus';
+import React from 'react';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import {
   __,
-  Button,
   ControlLabel,
   FormControl,
   FormGroup,
-  getEnv,
-  ModalTrigger,
-  SelectTeamMembers,
-  Toggle
+  Toggle,
 } from '@erxes/ui/src';
-import {
-  Block,
-  BlockRow,
-  BlockRowUp,
-  DomainRow,
-  FlexColumn,
-  FlexItem,
-  PosSlotAddButton,
-  Row
-} from '../../../styles';
-import { IPos, IScreenConfig, ISlot } from '../../../types';
+import { IPos, ISlot } from '../../../types';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
+import { Block, BlockRow, FlexColumn, FlexItem } from '../../../styles';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import { ALLOW_TYPES } from '../../../constants';
+import PosSlotPlan from '../productGroup/posSlotPlan';
+import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 
 type Props = {
-  onChange: (name: 'pos' | 'slots', value: any) => void;
+  onChange: (name: 'pos' | 'slots' | 'allowTypes', value: any) => void;
   pos: IPos;
-  branches: any[];
   posSlots: ISlot[];
+  allowTypes: string[];
   envs: any;
 };
 
 type State = {
   slots: ISlot[];
-};
-
-export const generateTree = (
-  list,
-  parentId,
-  callback,
-  level = -1,
-  parentKey = 'parentId'
-) => {
-  const filtered = list.filter(c => c[parentKey] === parentId);
-
-  if (filtered.length > 0) {
-    level++;
-  } else {
-    level--;
-  }
-
-  return filtered.reduce((tree, node) => {
-    return [
-      ...tree,
-      callback(node, level),
-      ...generateTree(list, node._id, callback, level, parentKey)
-    ];
-  }, []);
+  allowTypes: string[];
 };
 
 class GeneralStep extends React.Component<Props, State> {
@@ -67,325 +35,41 @@ class GeneralStep extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      slots: props.posSlots || []
+      slots: props.posSlots || [],
+      allowTypes: props.allowTypes,
     };
-  }
-
-  onChangeConfig = (code: string, value) => {
-    this.setState({}, () => {});
-  };
-
-  onChangeCheckbox = (code: string, e) => {
-    this.onChangeConfig(code, e.target.checked);
-  };
-
-  renderMapping(slot: ISlot, props) {
-    const { slots } = this.state;
-
-    const removeItem = (_id: string) => {
-      const excluded = slots.filter(m => m._id !== _id);
-
-      this.setState({ slots: excluded });
-      this.props.onChange('slots', excluded);
-    };
-
-    const onChange = (changedSlot: ISlot) => {
-      const excluded = slots.filter(m => m._id !== changedSlot._id);
-
-      const updated = [...excluded, changedSlot];
-      this.setState({ slots: updated });
-      this.props.onChange('slots', updated);
-    };
-
-    return (
-      <PosSlotItem
-        {...props}
-        onChange={onChange}
-        removeItem={removeItem}
-        slot={slot}
-      />
-    );
-  }
-
-  renderPosSlotForm(trigger: React.ReactNode) {
-    const { slots = [] } = this.state;
-
-    const onClickAddSlot = () => {
-      const m = slots.slice();
-
-      m.push({
-        _id: Math.random().toString(),
-        code: '',
-        name: '',
-        posId: this.props.pos._id
-      });
-
-      this.setState({ slots: m });
-    };
-
-    const content = props => (
-      <FormGroup>
-        <PosSlotAddButton>
-          <Button
-            btnStyle="primary"
-            icon="plus-circle"
-            onClick={onClickAddSlot}
-          >
-            Add
-          </Button>
-        </PosSlotAddButton>
-        {slots.map(s => this.renderMapping(s, props))}
-        <Modal.Footer>
-          <Button
-            onClick={props.closeModal}
-            btnStyle="success"
-            icon={'plus-circle'}
-          >
-            {'Save'}
-          </Button>
-        </Modal.Footer>
-      </FormGroup>
-    );
-
-    return (
-      <ModalTrigger
-        title={'Slots'}
-        trigger={trigger}
-        content={content}
-        size={'lg'}
-      />
-    );
   }
 
   onChangeFunction = (name: any, value: any) => {
     this.props.onChange(name, value);
   };
 
-  onChangeSwitchIsOnline = e => {
+  onChangeSwitchMain = (e) => {
     const { pos } = this.props;
-    pos.isOnline = e.target.checked;
 
-    this.onChangeFunction('pos', pos);
+    this.onChangeFunction('pos', { ...pos, [e.target.id]: e.target.checked });
   };
 
-  onChangeSwitchOnServer = e => {
+  onChangeInput = (e) => {
     const { pos } = this.props;
-    pos.onServer = e.target.checked;
-
-    this.onChangeFunction('pos', pos);
-  };
-
-  onChangeSwitch = e => {
-    const { pos } = this.props;
-
-    if (pos[e.target.id]) {
-      pos[e.target.id].isActive = e.target.checked;
-    } else {
-      pos[e.target.id] = { isActive: e.target.checked };
-    }
-
-    this.onChangeFunction('pos', pos);
-  };
-
-  renderWaitingScreen() {
-    const { pos } = this.props;
-
-    let waitingScreen: IScreenConfig = {
-      isActive: false,
-      type: 'time',
-      value: 0,
-      contentUrl: ''
-    };
-
-    let posId;
-
-    if (pos) {
-      waitingScreen = pos.waitingScreen || {
-        isActive: false,
-        type: 'time',
-        value: 0,
-        contentUrl: ''
-      };
-      posId = pos._id;
-    }
-
-    if (!waitingScreen.isActive) {
-      return (
-        <FormGroup>
-          <DomainRow></DomainRow>
-        </FormGroup>
-      );
-    }
-
-    const onChangeType = e => {
-      e.preventDefault();
-      pos.waitingScreen.type = e.target.value;
-      this.onChangeFunction('pos', pos);
-    };
-
-    const onChangeValue = e => {
-      e.preventDefault();
-      pos.waitingScreen.value = e.target.value;
-      this.onChangeFunction('pos', pos);
-    };
-
-    const onChangeContentUrl = e => {
-      e.preventDefault();
-      pos.waitingScreen.contentUrl = e.target.value;
-      this.onChangeFunction('pos', pos);
-    };
-
-    const typeOptions = [
-      { label: 'Time', value: 'time' },
-      { label: 'Count', value: 'count' }
-    ];
-
-    const valueTitle =
-      waitingScreen.type === 'time' ? 'Change time (min)' : 'Change count';
-
-    return (
-      <FormGroup>
-        <DomainRow>
-          <ControlLabel>Change type</ControlLabel>
-          <FormControl
-            name="changeType"
-            componentClass="select"
-            placeholder={__('Select type')}
-            defaultValue={waitingScreen.type}
-            onChange={onChangeType}
-            required={true}
-          >
-            <option />
-            {typeOptions.map(option => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </FormControl>
-
-          <br />
-
-          <ControlLabel>{valueTitle}</ControlLabel>
-
-          <FormControl
-            id="changeValue"
-            type="text"
-            value={waitingScreen.value}
-            onChange={onChangeValue}
-          />
-
-          <br />
-          <ControlLabel>Content Url</ControlLabel>
-
-          <FormControl
-            id="contentUrl"
-            type="text"
-            value={waitingScreen.contentUrl || ''}
-            onChange={onChangeContentUrl}
-          />
-        </DomainRow>
-      </FormGroup>
-    );
-  }
-
-  renderKitchen() {
-    const { pos } = this.props;
-
-    let kitchenScreen = {
-      isActive: false,
-      type: 'time',
-      value: 0
-    };
-
-    let posId;
-
-    if (pos) {
-      kitchenScreen = pos.kitchenScreen || {
-        isActive: false,
-        type: 'time',
-        value: 0
-      };
-      posId = pos._id;
-    }
-
-    if (!kitchenScreen.isActive) {
-      return (
-        <FormGroup>
-          <DomainRow></DomainRow>
-        </FormGroup>
-      );
-    }
-
-    const onChangeType = e => {
-      e.preventDefault();
-      pos.kitchenScreen.type = e.target.value;
-      this.onChangeFunction('pos', pos);
-    };
-
-    const onChangeValue = e => {
-      e.preventDefault();
-      pos.kitchenScreen.value = e.target.value;
-      this.onChangeFunction('pos', pos);
-    };
-
-    const typeOptions = [
-      { label: 'Time', value: 'time' },
-      { label: 'Manual', value: 'manual' }
-    ];
-
-    return (
-      <FormGroup>
-        <DomainRow>
-          <ControlLabel>Status change</ControlLabel>
-          <FormControl
-            name="statusChange"
-            componentClass="select"
-            placeholder={__('Select type')}
-            defaultValue={kitchenScreen.type}
-            onChange={onChangeType}
-            required={true}
-          >
-            <option />
-            {typeOptions.map(option => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </FormControl>
-
-          <br />
-
-          {kitchenScreen.type === 'time' ? (
-            <>
-              <ControlLabel>Time (minute)</ControlLabel>
-              <FormControl
-                id="changeValue"
-                type="text"
-                value={kitchenScreen.value}
-                onChange={onChangeValue}
-              />
-            </>
-          ) : null}
-        </DomainRow>
-      </FormGroup>
-    );
-  }
-
-  onChangeInput = e => {
-    const { pos } = this.props;
-    pos[e.target.id] = (e.currentTarget as HTMLInputElement).value;
-    this.onChangeFunction('pos', pos);
+    this.onChangeFunction('pos', {
+      ...pos,
+      [e.target.id]: (e.currentTarget as HTMLInputElement).value,
+    });
   };
 
   renderCauseOnline() {
-    const { pos, branches } = this.props;
-    if (pos.isOnline) {
-      const onChangeMultiBranches = ops => {
-        const selectedOptionsValues = ops.map(option => option.value);
+    const { pos } = this.props;
 
+    const onChangeBranches = (branchId) => {
+      this.onChangeFunction('pos', { ...pos, branchId });
+    };
+
+    if (pos.isOnline) {
+      const onChangeMultiBranches = (branchIds) => {
         this.onChangeFunction('pos', {
           ...pos,
-          allowBranchIds: selectedOptionsValues
+          allowBranchIds: branchIds,
         });
       };
 
@@ -393,17 +77,41 @@ class GeneralStep extends React.Component<Props, State> {
         <>
           <BlockRow>
             <FormGroup>
+              <ControlLabel>Choose branch</ControlLabel>
+              <p>{__(`If the POS has real goods, select the branch`)}</p>
+              <SelectBranches
+                label="Choose branch"
+                name="branchId"
+                initialValue={pos.branchId}
+                onSelect={onChangeBranches}
+                customOption={{ value: '', label: 'No branch...' }}
+                multi={false}
+              />
+            </FormGroup>
+          </BlockRow>
+          <BlockRow>
+            <FormGroup>
               <ControlLabel>Allow branches</ControlLabel>
-              <Select
-                placeholder={__('Choose parent')}
-                value={pos.allowBranchIds || []}
-                clearable={true}
-                onChange={onChangeMultiBranches}
-                options={generateTree(branches || [], null, (node, level) => ({
-                  value: node._id,
-                  label: `${'---'.repeat(level)} ${node.title}`
-                }))}
+              <p>
+                {__(`Select the potential branches for sales from this pos`)}
+              </p>
+              <SelectBranches
+                label="Choose branch"
+                name="allowBranchIds"
+                initialValue={pos.allowBranchIds}
+                onSelect={onChangeMultiBranches}
                 multi={true}
+              />
+            </FormGroup>
+          </BlockRow>
+          <BlockRow>
+            <FormGroup>
+              <ControlLabel required={true}>Pos domain</ControlLabel>
+              <FormControl
+                id="pdomain"
+                type="text"
+                value={pos.pdomain || ''}
+                onChange={this.onChangeInput}
               />
             </FormGroup>
           </BlockRow>
@@ -423,108 +131,76 @@ class GeneralStep extends React.Component<Props, State> {
       );
     }
 
-    const onChangeBranches = opt => {
-      this.onChangeFunction('pos', { ...pos, branchId: opt.value });
-    };
-
     return (
       <>
-        <h4>{__('Domain')}</h4>
         <BlockRow>
           <FormGroup>
-            <ControlLabel>Waiting screen</ControlLabel>
-            <Toggle
-              id={'waitingScreen'}
-              checked={
-                pos && pos.waitingScreen ? pos.waitingScreen.isActive : false
-              }
-              onChange={this.onChangeSwitch}
-              icons={{
-                checked: <span>Yes</span>,
-                unchecked: <span>No</span>
-              }}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Kitchen screen</ControlLabel>
-            <Toggle
-              id={'kitchenScreen'}
-              checked={
-                pos && pos.kitchenScreen ? pos.kitchenScreen.isActive : false
-              }
-              onChange={this.onChangeSwitch}
-              icons={{
-                checked: <span>Yes</span>,
-                unchecked: <span>No</span>
-              }}
-            />
-          </FormGroup>
-          <FormGroup>
             <ControlLabel>Choose branch</ControlLabel>
-            <Select
-              placeholder={__('Choose parent')}
-              value={pos.branchId}
-              clearable={true}
-              onChange={onChangeBranches}
-              options={generateTree(branches || [], null, (node, level) => ({
-                value: node._id,
-                label: `${'---'.repeat(level)} ${node.title}`
-              }))}
+            <SelectBranches
+              label="Choose branch"
+              name="branchId"
+              initialValue={pos.branchId}
+              onSelect={onChangeBranches}
+              customOption={{ value: '', label: 'No branch...' }}
+              multi={false}
             />
           </FormGroup>
         </BlockRow>
-        <BlockRowUp>
-          {this.renderWaitingScreen()}
-          {this.renderKitchen()}
-        </BlockRowUp>
       </>
     );
   }
 
-  renderCheckbox = (key: string, title?: string, description?: string) => {
-    return (
-      <>
-        {description && <p>{__(description)}</p>}
+  renderToggleType() {
+    const { allowTypes } = this.state;
 
-        <FormControl
-          onChange={this.onChangeCheckbox.bind(this, key)}
-          componentClass="checkbox"
-        />
-        <ControlLabel>{title || key}</ControlLabel>
-      </>
-    );
-  };
+    const onChange = (i: number, option) => {
+      const newTypes = [...allowTypes];
+      const preChosenInd = allowTypes.indexOf(option.value);
+      if (preChosenInd >= 0) {
+        newTypes[preChosenInd] = '';
+      }
+
+      newTypes[i] = option.value;
+      this.setState({ allowTypes: newTypes }, () => {
+        this.props.onChange('allowTypes', newTypes);
+      });
+    };
+
+    const chosenTypes: string[] = [];
+    const result: any[] = [];
+    for (var i = 0; i < ALLOW_TYPES.length; i++) {
+      const currentCh = (allowTypes || [])[i] || '';
+
+      result.push(
+        <Select
+          key={i}
+          index={i}
+          options={(i !== 0 ? [{ value: '', label: 'Null' }] : []).concat(
+            ALLOW_TYPES.filter((at) => !chosenTypes.includes(at.value)),
+          )}
+          value={currentCh}
+          onChange={onChange.bind(this, i)}
+        />,
+      );
+      chosenTypes.push(currentCh);
+    }
+    return result;
+  }
 
   render() {
     const { pos, envs } = this.props;
 
-    const slotTrigger = (
-      <div>
-        Total slots: <button>{this.state.slots.length}</button>
-      </div>
-    );
-
-    const onAdminSelect = users => {
-      pos.adminIds = users;
-      this.onChangeFunction('pos', pos);
-    };
-
-    const onCashierSelect = users => {
-      pos.cashierIds = users;
-      this.onChangeFunction('pos', pos);
-    };
-
     let name = 'POS name';
     let description: any = 'description';
-    let cashierIds: any = [];
-    let adminIds: any = [];
 
     if (pos) {
       name = pos.name;
       description = pos.description;
-      cashierIds = pos.cashierIds;
-      adminIds = pos.adminIds;
     }
+
+    const onChangeDepartments = (departmentId) => {
+      this.onChangeFunction('pos', { ...pos, departmentId });
+    };
 
     return (
       <FlexItem>
@@ -563,44 +239,58 @@ class GeneralStep extends React.Component<Props, State> {
                     onChange={this.onChangeInput}
                   />
                 </FormGroup>
+                <FormGroup>
+                  <ControlLabel>Order Password</ControlLabel>
+                  <FormControl
+                    id="orderPassword"
+                    value={pos.orderPassword || ''}
+                    onChange={this.onChangeInput}
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <ControlLabel>Brand</ControlLabel>
+                  <SelectBrands
+                    label={__('Choose brands')}
+                    onSelect={(brand) =>
+                      this.onChangeFunction('pos', {
+                        ...pos,
+                        scopeBrandIds: [brand],
+                      })
+                    }
+                    initialValue={pos.scopeBrandIds}
+                    multi={false}
+                    name="selectedBrands"
+                    customOption={{
+                      label: 'No Brand (noBrand)',
+                      value: '',
+                    }}
+                  />
+                </FormGroup>
               </BlockRow>
             </Block>
 
             <Block>
               <BlockRow>
                 <FormGroup>
-                  <ControlLabel>Slots:</ControlLabel>
+                  <PosSlotPlan
+                    slots={this.state.slots}
+                    onSave={(slots) => {
+                      this.setState({ slots });
+                      this.props.onChange('slots', slots);
+                    }}
+                    posId={this.props.pos._id}
+                  />
                 </FormGroup>
-                <FormGroup>{this.renderCheckbox('Slot Required')}</FormGroup>
-                <FormGroup>{this.renderPosSlotForm(slotTrigger)}</FormGroup>
               </BlockRow>
             </Block>
-
             <Block>
-              <h4>{__('Permission')}</h4>
               <BlockRow>
                 <FormGroup>
-                  <ControlLabel required={true}>POS admin</ControlLabel>
-                  <SelectTeamMembers
-                    label={__('Choose team member')}
-                    name="adminIds"
-                    initialValue={adminIds}
-                    onSelect={onAdminSelect}
-                  />
-                </FormGroup>
-
-                <FormGroup>
-                  <ControlLabel required={true}>POS cashier</ControlLabel>
-                  <SelectTeamMembers
-                    label={__('Choose team member')}
-                    name="cashierIds"
-                    initialValue={cashierIds}
-                    onSelect={onCashierSelect}
-                  />
+                  <ControlLabel>Types:</ControlLabel>
                 </FormGroup>
               </BlockRow>
+              <BlockRow>{this.renderToggleType()}</BlockRow>
             </Block>
-
             <Block>
               <BlockRow>
                 <FormGroup>
@@ -608,10 +298,10 @@ class GeneralStep extends React.Component<Props, State> {
                   <Toggle
                     id={'isOnline'}
                     checked={pos && pos.isOnline ? true : false}
-                    onChange={this.onChangeSwitchIsOnline}
+                    onChange={this.onChangeSwitchMain}
                     icons={{
                       checked: <span>Yes</span>,
-                      unchecked: <span>No</span>
+                      unchecked: <span>No</span>,
                     }}
                   />
                 </FormGroup>
@@ -619,16 +309,27 @@ class GeneralStep extends React.Component<Props, State> {
                   <FormGroup>
                     <ControlLabel>On Server</ControlLabel>
                     <Toggle
-                      id={'on Server'}
+                      id={'onServer'}
                       checked={pos && pos.onServer ? true : false}
-                      onChange={this.onChangeSwitchOnServer}
+                      onChange={this.onChangeSwitchMain}
                       icons={{
                         checked: <span>Yes</span>,
-                        unchecked: <span>No</span>
+                        unchecked: <span>No</span>,
                       }}
                     />
                   </FormGroup>
                 )}
+                <FormGroup>
+                  <ControlLabel>Choose department</ControlLabel>
+                  <SelectDepartments
+                    label="Choose department"
+                    name="departmentId"
+                    initialValue={pos.departmentId}
+                    onSelect={onChangeDepartments}
+                    multi={false}
+                    customOption={{ value: '', label: 'No department...' }}
+                  />
+                </FormGroup>
               </BlockRow>
               {this.renderCauseOnline()}
             </Block>

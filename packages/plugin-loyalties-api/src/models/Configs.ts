@@ -1,5 +1,9 @@
 import * as _ from 'underscore';
-import { ILoyaltyConfig, ILoyaltyConfigDocument, loyaltyConfigSchema } from './definitions/config';
+import {
+  ILoyaltyConfig,
+  ILoyaltyConfigDocument,
+  loyaltyConfigSchema
+} from './definitions/config';
 import { IModels } from '../connectionResolver';
 import { Model, model } from 'mongoose';
 
@@ -36,7 +40,10 @@ export const loadLoyaltyConfigClass = (models: IModels, _subdomain: string) => {
       const obj = await models.LoyaltyConfigs.findOne({ code });
 
       if (obj) {
-        await models.LoyaltyConfigs.updateOne({ _id: obj._id }, { $set: { value } });
+        await models.LoyaltyConfigs.updateOne(
+          { _id: obj._id },
+          { $set: { value } }
+        );
 
         return models.LoyaltyConfigs.findOne({ _id: obj._id });
       }

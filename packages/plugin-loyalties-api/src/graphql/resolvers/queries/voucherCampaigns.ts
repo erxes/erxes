@@ -1,8 +1,8 @@
-import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { CAMPAIGN_STATUS } from '../../../models/definitions/constants';
 import { ICommonCampaignParams } from '../../../models/definitions/common';
 import { IContext } from '../../../connectionResolver';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { paginate } from '@erxes/api-utils/src/core';
-import { CAMPAIGN_STATUS } from '../../../models/definitions/constants';
 
 const generateFilter = async (models, params) => {
   const filter: any = {};
@@ -14,6 +14,10 @@ const generateFilter = async (models, params) => {
     if (campaign) {
       filter.voucherType = campaign.voucherType;
     }
+  }
+
+  if (params._ids) {
+    filter._id = params._ids;
   }
 
   if (params.searchValue) {
@@ -37,6 +41,7 @@ const voucherCampaignQueries = {
     params: ICommonCampaignParams & {
       equalTypeCampaignId: string;
       voucherType: string;
+      _ids: [string];
     },
     { models }: IContext
   ) {
@@ -71,7 +76,7 @@ const voucherCampaignQueries = {
     return models.VoucherCampaigns.find(filter).countDocuments();
   },
 
-  voucherCampaignDetail(_root, { _id }: { _id: string | [string] }, { models }: IContext) {
+  voucherCampaignDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.VoucherCampaigns.getVoucherCampaign(_id);
   }
 };

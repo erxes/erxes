@@ -1,22 +1,23 @@
-import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Table from '@erxes/ui/src/components/table';
-import { Count } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
-import { EMPTY_CONTENT_MESSENGER } from '@erxes/ui-settings/src/constants';
-import React from 'react';
-import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import {
   IIntegration,
   IntegrationMutationVariables
-} from '@erxes/ui-settings/src/integrations/types';
+} from '@erxes/ui-inbox/src/settings/integrations/types';
+
+import { Count } from '@erxes/ui/src/styles/main';
+import { EMPTY_CONTENT_MESSENGER } from '@erxes/ui-settings/src/constants';
+import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import IntegrationListItem from './IntegrationListItem';
+import React from 'react';
+import Table from '@erxes/ui/src/components/table';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   integrations: IIntegration[];
   removeIntegration: (integration: IIntegration, callback?: any) => void;
   archive: (id: string, status: boolean) => void;
-  repair: (id: string) => void;
+  repair: (id: string, kind: string) => void;
   kind?: string | null;
   editIntegration: (
     id: string,
@@ -79,7 +80,7 @@ class IntegrationList extends React.Component<Props, State> {
 
       return (
         <EmptyState
-          text="Start adding add-ons now!"
+          text="Start adding integrations now!"
           image="/images/actions/2.svg"
         />
       );

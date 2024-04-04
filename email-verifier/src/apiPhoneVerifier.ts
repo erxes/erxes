@@ -9,6 +9,7 @@ import { debugBase, debugError, getEnv, sendRequest } from './utils';
 dotenv.config();
 
 const CLEAR_OUT_PHONE_API_KEY = getEnv({ name: 'CLEAR_OUT_PHONE_API_KEY' });
+const CLEAR_OUT_PHONE_API_URL = 'https://api.clearoutphone.io/v1';
 
 const savePhone = async (doc: {
   phone: string;
@@ -27,13 +28,13 @@ const savePhone = async (doc: {
 const singleClearOut = async (phone: string): Promise<any> => {
   try {
     const response = await sendRequest({
-      url: 'https://api.clearoutphone.io/v1/phonenumber/validate',
+      url: `${CLEAR_OUT_PHONE_API_URL}/phonenumber/validate`,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer:${CLEAR_OUT_PHONE_API_KEY}`
+        Authorization: `Bearer:${CLEAR_OUT_PHONE_API_KEY}`,
       },
-      body: { number: phone }
+      body: { number: phone },
     });
 
     if (typeof response === 'string') {
@@ -49,24 +50,20 @@ const singleClearOut = async (phone: string): Promise<any> => {
 
 const bulkClearOut = async (unverifiedPhones: string[], hostname: string) => {
   const fileName =
-    Math.random()
-      .toString(36)
-      .substring(2, 15) +
-    Math.random()
-      .toString(36)
-      .substring(2, 15);
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15);
 
   const csvWriter = csv.createObjectCsvWriter({
     path: `./${fileName}.csv`,
-    header: [{ id: 'number', title: 'Phone' }]
+    header: [{ id: 'number', title: 'Phone' }],
   });
 
   await csvWriter.writeRecords(
-    unverifiedPhones.map(phone => ({ number: phone }))
+    unverifiedPhones.map((phone) => ({ number: phone })),
   );
 
   try {
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
       setTimeout(resolve, 1000);
     });
 
@@ -81,14 +78,14 @@ export const sendFile = async (fileName: string, hostname: string) => {
   try {
     const result = await request({
       method: 'POST',
-      url: 'https://api.clearoutphone.io/v1/phonenumber/bulk',
+      url: `${CLEAR_OUT_PHONE_API_URL}/phonenumber/bulk`,
       headers: {
         'Content-Type': 'multipart/form-data',
-        Authorization: `Bearer:${CLEAR_OUT_PHONE_API_KEY}`
+        Authorization: `Bearer:${CLEAR_OUT_PHONE_API_KEY}`,
       },
       formData: {
-        file: fs.createReadStream(`./${fileName}.csv`)
-      }
+        file: fs.createReadStream(`./${fileName}.csv`),
+      },
     });
 
     let data;
@@ -120,15 +117,15 @@ export const sendFile = async (fileName: string, hostname: string) => {
 };
 
 export const getStatus = async (listId: string) => {
-  const url = `https://api.clearoutphone.io/v1/phonenumber/bulk/progress_status?list_id=${listId}`;
+  const url = `${CLEAR_OUT_PHONE_API_URL}/phonenumber/bulk/progress_status?list_id=${listId}`;
   try {
     const result = await request({
       method: 'GET',
       url,
       headers: {
         'Content-Type': 'multipart/form-data',
-        Authorization: `Bearer:${CLEAR_OUT_PHONE_API_KEY}`
-      }
+        Authorization: `Bearer:${CLEAR_OUT_PHONE_API_KEY}`,
+      },
     });
 
     if (typeof result === 'string') {
@@ -143,6 +140,7 @@ export const getStatus = async (listId: string) => {
 };
 
 export const validateSinglePhone = async (phone: string, hostname: string) => {
+  phone = phone.toString();
   const phoneOnDb = await Phones.findOne({ phone }).lean();
 
   if (phoneOnDb) {
@@ -152,8 +150,8 @@ export const validateSinglePhone = async (phone: string, hostname: string) => {
       url: `${hostname}/verifier/webhook`,
       method: 'POST',
       body: {
-        phone: { phone, status: phoneOnDb.status }
-      }
+        phone: { phone, status: phoneOnDb.status },
+      },
     });
   }
 
@@ -166,7 +164,7 @@ export const validateSinglePhone = async (phone: string, hostname: string) => {
 
   try {
     debugBase(
-      `Phone number is not found on verifier DB. Sending request to clearoutphone`
+      `Phone number is not found on verifier DB. Sending request to clearoutphone`,
     );
     response = await singleClearOut(phone);
     debugBase(`Received single phone validation status`);
@@ -182,7 +180,7 @@ export const validateSinglePhone = async (phone: string, hostname: string) => {
       lineType: data.lineType,
       carrier: data.carrier,
       internationalFormat: data.internationalFormat,
-      localFormat: data.localFormat
+      localFormat: data.localFormat,
     });
 
     debugBase(`Sending single phone validation status to erxes-api`);
@@ -191,8 +189,8 @@ export const validateSinglePhone = async (phone: string, hostname: string) => {
       url: `${hostname}/verifier/webhook`,
       method: 'POST',
       body: {
-        phone: { phone, status: data.status }
-      }
+        phone: { phone, status: data.status },
+      },
     });
   } else {
     // if status is not success
@@ -200,32 +198,33 @@ export const validateSinglePhone = async (phone: string, hostname: string) => {
       url: `${hostname}/verifier/webhook`,
       method: 'POST',
       body: {
-        phone: { phone, status: PHONE_VALIDATION_STATUSES.UNKNOWN }
-      }
+        phone: { phone, status: PHONE_VALIDATION_STATUSES.UNKNOWN },
+      },
     });
   }
 };
 
 export const validateBulkPhones = async (
   phones: string[],
-  hostname: string
+  hostname: string,
 ) => {
+  phones = phones.map((phone) => phone.toString());
   const phonesOnDb = await Phones.find({ phone: { $in: phones } });
 
   const phonesMap: Array<{ phone: string; status: string }> = phonesOnDb.map(
     ({ phone, status }) => ({
       phone,
-      status
-    })
+      status,
+    }),
   );
 
-  const verifiedPhones = phonesMap.map(verified => ({
+  const verifiedPhones = phonesMap.map((verified) => ({
     phone: verified.phone,
-    status: verified.status
+    status: verified.status,
   }));
 
   const unverifiedPhones: string[] = phones.filter(
-    phone => !verifiedPhones.some(p => p.phone === phone)
+    (phone) => !verifiedPhones.some((p) => p.phone === phone),
   );
 
   if (verifiedPhones.length > 0) {
@@ -236,8 +235,8 @@ export const validateBulkPhones = async (
         url: `${hostname}/verifier/webhook`,
         method: 'POST',
         body: {
-          phones: verifiedPhones
-        }
+          phones: verifiedPhones,
+        },
       });
     } catch (e) {
       // request may fail
@@ -257,10 +256,10 @@ export const validateBulkPhones = async (
 };
 
 export const getBulkResult = async (listId: string, hostname: string) => {
-  const url = 'https://api.clearoutphone.io/v1/download/result';
+  const url = `${CLEAR_OUT_PHONE_API_URL}/download/result`;
   const headers = {
     'Content-Type': 'application/json',
-    Authorization: `Bearer:${CLEAR_OUT_PHONE_API_KEY}`
+    Authorization: `Bearer:${CLEAR_OUT_PHONE_API_KEY}`,
   };
 
   try {
@@ -269,13 +268,13 @@ export const getBulkResult = async (listId: string, hostname: string) => {
       url,
       method: 'POST',
       headers,
-      body: { list_id: listId }
+      body: { list_id: listId },
     });
 
     try {
       const resp = await sendRequest({
         url: response.data.url,
-        method: 'GET'
+        method: 'GET',
       });
 
       const rows = resp.split('\n');
@@ -299,7 +298,7 @@ export const getBulkResult = async (listId: string, hostname: string) => {
 
             phones.push({
               phone,
-              status
+              status,
             });
 
             const found = await Phones.findOne({ phone });
@@ -312,7 +311,7 @@ export const getBulkResult = async (listId: string, hostname: string) => {
                 lineType,
                 carrier,
                 internationalFormat,
-                localFormat
+                localFormat,
               };
 
               await savePhone(doc);
@@ -327,8 +326,8 @@ export const getBulkResult = async (listId: string, hostname: string) => {
         url: `${hostname}/verifier/webhook`,
         method: 'POST',
         body: {
-          phones
-        }
+          phones,
+        },
       });
     } catch (e) {
       // request may fail

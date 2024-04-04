@@ -1,14 +1,15 @@
-import { IUser } from '@erxes/ui/src/auth/types';
-import { ICompany } from '@erxes/ui/src/companies/types';
-import { ICustomer } from '@erxes/ui/src/customers/types';
 import {
   IAttachment,
+  MutationVariables,
   QueryResponse,
-  MutationVariables
 } from '@erxes/ui/src/types';
+
+import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
+import { ICompany } from '@erxes/ui-contacts/src/companies/types';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { ISavedConformity } from '../conformity/types';
-import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
-import { ITag } from '@erxes/ui/src/tags/types';
+import { ITag } from '@erxes/ui-tags/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 export interface IOptions {
   EditForm: any;
@@ -63,6 +64,7 @@ export interface IPipeline {
   _id: string;
   name: string;
   boardId: string;
+  tagId?: string;
   visibility: string;
   status: string;
   createdAt: Date;
@@ -81,6 +83,7 @@ export interface IPipeline {
   templateId?: string;
   state?: string;
   itemsTotalCount?: number;
+  isCheckDate?: boolean;
   isCheckUser?: boolean;
   isCheckDepartment?: boolean;
   excludeCheckUserIds?: string[];
@@ -98,6 +101,7 @@ export interface IItemParams {
   _id?: string;
   name?: string;
   stageId?: string;
+  parentId?: string;
   assignedUserIds?: string[];
   closeDate?: Date;
   description?: string;
@@ -112,11 +116,14 @@ export interface IItemParams {
   proccessId?: string;
   aboveItemId?: string;
   attachments?: string[];
+  relationData?: any;
+  branchIds?: string[];
+  departmentIds?: string[];
 }
 
 export type SaveItemMutation = ({ variables: IItemParams }) => Promise<any>;
 export type RemoveStageMutation = ({
-  variables
+  variables,
 }: {
   variables: { _id: string };
 }) => Promise<any>;
@@ -133,17 +140,21 @@ export interface IStage {
   probability: string;
   index?: number;
   itemId?: string;
+  unUsedAmount?: any;
   amount?: any;
   itemsTotalCount: number;
   formId: string;
   pipelineId: string;
   visibility: string;
   memberIds: string[];
+  canMoveMemberIds?: string[];
+  canEditMemberIds?: string[];
   departmentIds: string[];
   status: string;
   order: number;
   code?: string;
   age?: number;
+  defaultTick?: boolean;
 }
 
 export interface IConversionStage extends IStage {
@@ -151,6 +162,13 @@ export interface IConversionStage extends IStage {
   inProcessDealsTotalCount: number;
   stayedDealsTotalCount: number;
   compareNextStage: IStageComparisonInfo;
+}
+
+export interface IConversionStagePurchase extends IStage {
+  initialPurchasesTotalCount: number;
+  inProcessPurchasesTotalCount: number;
+  stayedPurchasesTotalCount: number;
+  compareNextStagePurchase: IStageComparisonInfo;
 }
 
 export interface IPipelineLabel {
@@ -176,6 +194,7 @@ export interface IItem {
   startDate: Date;
   closeDate: Date;
   description: string;
+  unUsedAmount?: number;
   amount: number;
   modifiedAt: Date;
   assignedUserIds?: string[];
@@ -207,6 +226,10 @@ export interface IItem {
   number?: string;
   relations: any[];
   tags: ITag[];
+  tagIds: string[];
+  customProperties?: any;
+  departmentIds: string[];
+  branchIds: string[];
 }
 
 export interface IDraggableLocation {
@@ -261,7 +284,7 @@ export type PipelinesQueryResponse = {
   loading: boolean;
   refetch: ({
     boardId,
-    type
+    type,
   }: {
     boardId?: string;
     type?: string;
@@ -316,7 +339,7 @@ export type UpdateTimeVariables = {
 export type RemoveMutation = ({ variables: MutationVariables }) => Promise<any>;
 
 export type UpdateTimeTrackMutation = ({
-  variables: UpdateTimeVariables
+  variables: UpdateTimeVariables,
 }) => Promise<any>;
 
 export type CopyVariables = {
@@ -328,6 +351,7 @@ export type CopyMutation = ({ variables: CopyVariables }) => Promise<any>;
 
 export type ItemsQueryResponse = {
   fetchMore: any;
+  subscribeToMore: any;
 } & QueryResponse;
 
 export type DetailQueryResponse = {
@@ -346,11 +370,11 @@ export type PipelineLabelDetailQueryResponse = {
 
 // mutation response
 export type AddPipelineLabelMutationResponse = ({
-  variables: IPipelineLabelVariables
+  variables: IPipelineLabelVariables,
 }) => Promise<any>;
 
 export type EditPipelineLabelMutationResponse = ({
-  variables: EditMutationVariables
+  variables: EditMutationVariables,
 }) => Promise<any>;
 
 export type RemovePipelineLabelMutationResponse = {
@@ -380,10 +404,22 @@ export interface IFilterParams extends ISavedConformity {
   labelIds?: string;
   userIds?: string;
   segment?: string;
+  segmentData?: string;
   assignedToMe?: string;
   startDate?: string;
   endDate?: string;
   pipelineId?: string;
+  tagIds?: string[];
+  branchIds: string[];
+  departmentIds: string[];
+  createdEndDate: Date;
+  createdStartDate: Date;
+  stateChangedStartDate: Date;
+  stateChangedEndDate: Date;
+  startDateStartDate: Date;
+  startDateEndDate: Date;
+  closeDateStartDate: Date;
+  closeDateEndDate: Date;
 }
 
 export interface INonFilterParams {
@@ -416,7 +452,7 @@ export type ConvertToMutationResponse = {
 };
 
 export type StagesSortItemsMutationResponse = ({
-  variables
+  variables,
 }: {
   variables: {
     stageId: string;
@@ -451,4 +487,12 @@ export type TicketCommentAddMutationResponse = {
   ticketCommentAdd: (params: {
     variables: TicketCommentAddMutationVariables;
   }) => Promise<any>;
+};
+
+export type ITimeData = {
+  closeDate?: Date;
+  startDate?: Date;
+  tagIds?: string[];
+  assignedUserIds?: string[];
+  stageId?: string;
 };

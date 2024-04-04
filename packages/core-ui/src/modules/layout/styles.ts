@@ -25,10 +25,10 @@ import { Modal } from 'react-bootstrap';
 import { twinkling } from 'modules/common/utils/animations';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { getThemeItem } from 'utils';
 
 import { colors, dimensions } from '../common/styles';
 import { rgba } from '../common/styles/color';
+import { getThemeItem } from '@erxes/ui/src/utils/core';
 
 const thBackground = getThemeItem('background');
 const thColor = getThemeItem('text_color');
@@ -196,7 +196,6 @@ const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
   styled.div
 )`
   width: 100%;
-
   > a {  
     display: flex;
     color: ${colors.bgLight};
@@ -300,7 +299,7 @@ const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
     }
 
     &:hover {
-      background: rgba(0, 0, 0, 0.04);
+      background: rgb(245, 245, 246);
 
       > i, label {
         opacity: .8;
@@ -337,7 +336,7 @@ const NavImage = styledTS<{ navCollapse?: number }>(styled.img)`
       : props.navCollapse === 2
       ? dimensions.headerSpacing * 2 - 1
       : dimensions.headerSpacing * 3 + dimensions.unitSpacing}px !important;
-  margin: 5px;
+  padding: 5px;
 `;
 
 const BottomMenu = styled.div`
@@ -463,6 +462,24 @@ const NavItem = styledTS<{ isMoreItem?: boolean }>(styled.div)`
       visibility: visible;
     }
   }
+
+  @media screen and (max-height: 720px){
+    &.more-2 {
+      position: fixed;
+      bottom: 160px;
+    }
+  }
+  @media screen and (max-height: 560px){
+    &.more-1 {
+      position: fixed;
+      bottom: 120px;
+    }
+    &.more-3 {
+      position: fixed;
+      bottom: 120px;
+    }
+  }
+
 `;
 
 const DropNav = styled.a`
@@ -566,6 +583,10 @@ const MoreMenuWrapper = styledTS<{ visible: boolean; navCollapse: number }>(
     0px 0px 1px rgba(0, 0, 0, 0.04);
     cursor : default
 
+  @media (max-height: 760px) {
+    top: unset;
+    bottom: 0;
+  }
 `;
 
 const MoreSearch = styled.div`

@@ -45,8 +45,8 @@ const getIntegrations = async (models: IModels) => {
 
   return {
     _id: Math.random(),
-    name: 'relatedIntegrationIds',
-    label: 'Related integration',
+    name: 'integrationId',
+    label: 'Integration',
     selectOptions
   };
 };

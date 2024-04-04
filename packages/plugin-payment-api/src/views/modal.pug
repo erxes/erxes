@@ -1,0 +1,26 @@
+mixin modal()
+    .modal.fade(id='myModal', tabindex='-1', role='dialog', aria-labelledby='myModalLabel', aria-hidden='true')
+      .modal-dialog
+        .modal-content
+          .modal-header
+            button(type='button', class='close', data-dismiss='modal', aria-hidden='true') &times;
+            h4(class='modal-title', id="paymentKind", style="color: white; text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);")
+          .modal-body
+            div(class='loader')
+              p #{__('Please wait...')}
+            img(src="", alt="qr code", class="qr", id="qr-code", style="display: block; margin: auto; border-radius: 8px;")
+            div(id="bank-buttons")
+            a(id="deeplink", style="color: white; text-decoration: underline;")
+            h3(id="apiResponse")
+            br
+            
+            h2(id="amount")
+
+            
+            input(type="tel", placeholder="Phone number", id='storepayInput')
+            button(id="storepayBtn", type='button', class='btn btn-primary' style='background-color: white; border-color: grey; color: black;') #{__('Submit')}
+            
+            div#error.alert.alert-danger(role='alert', style='display: none;')
+            div#apiMessage.alert.alert-success(role='alert', style='display: none;')
+
+            button(id="checkButton", type='button', class='btn btn-primary', style="display: block; margin: auto; background-color: white; color: black;") #{__('Manual check')}

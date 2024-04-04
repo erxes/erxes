@@ -1,10 +1,11 @@
-import React from "react";
-import * as compose from "lodash.flowright";
-import gql from "graphql-tag";
-import { graphql } from "react-apollo";
-import { queries } from "../graphql";
-import Select from "react-select-plus";
-import { ProductCategoriesQueryResponse } from "@erxes/ui-products/src/types";
+import * as compose from 'lodash.flowright';
+
+import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
+import React from 'react';
+import Select from 'react-select-plus';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '../graphql';
 
 type Props = {
   productCategoriesQuery: ProductCategoriesQueryResponse;
@@ -19,14 +20,16 @@ function SelectProductCategory(props: Props) {
   if (productCategoriesQuery.loading) {
     return null;
   }
-  const { productCategories } = productCategoriesQuery;
-  const mainCategory = productCategories.filter((item) => item.isRoot);
+
+  const { productCategories = [] } = productCategoriesQuery;
+
+  const mainCategory = productCategories.filter(item => item.isRoot);
 
   return (
     <Select
-      options={mainCategory.map((el) => ({
+      options={mainCategory.map(el => ({
         label: el.name,
-        value: el._id,
+        value: el._id
       }))}
       onChange={onChange}
       value={value}
@@ -39,7 +42,7 @@ export default compose(
   graphql<{}, ProductCategoriesQueryResponse, { parentId: string }>(
     gql(queries.productCategories),
     {
-      name: "productCategoriesQuery",
+      name: 'productCategoriesQuery'
     }
   )
 )(SelectProductCategory);

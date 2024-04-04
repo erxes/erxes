@@ -1,15 +1,21 @@
-import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 import { IConformity, IConformityRelated } from './definitions/conformities';
+
+interface IMainParams {
+  mainType: string;
+  mainTypeId: string;
+}
+
+interface IParams {
+  mainType: string;
+  mainTypeIds: string[];
+  relTypes: string[];
+}
 
 export const getMatchConformities = ({
   mainType,
   mainTypeIds,
   relTypes
-}: {
-  mainType: string;
-  mainTypeIds: string[];
-  relTypes: string[];
-}) => {
+}: IParams) => {
   return {
     $match: {
       $or: [
@@ -32,148 +38,16 @@ export const getMatchConformities = ({
   };
 };
 
-export const getQueryConformities = ({
-  mainType,
-  mainTypeIds,
-  relTypes
-}: {
-  mainType: string;
-  mainTypeIds: string[];
-  relTypes: string[];
-}) => {
-  return {
-    bool: {
-      should: [
-        {
-          bool: {
-            must: [
-              {
-                match: {
-                  mainType
-                }
-              },
-              {
-                terms: {
-                  mainTypeId: mainTypeIds
-                }
-              },
-              {
-                terms: {
-                  relType: relTypes
-                }
-              }
-            ]
-          }
-        },
-        {
-          bool: {
-            must: [
-              {
-                terms: {
-                  mainType: relTypes
-                }
-              },
-              {
-                match: {
-                  relType: mainType
-                }
-              },
-              {
-                terms: {
-                  relTypeId: mainTypeIds
-                }
-              }
-            ]
-          }
-        }
-      ]
-    }
-  };
-};
-
 export const getSavedAnyConformityMatch = ({
   mainType,
   mainTypeId
-}: {
-  mainType: string;
-  mainTypeId: string;
-}) => {
+}: IMainParams) => {
   return {
     $or: [
-      {
-        $and: [{ mainType }, { mainTypeId }]
-      },
-      {
-        $and: [{ relType: mainType }, { relTypeId: mainTypeId }]
-      }
+      { $and: [{ mainType }, { mainTypeId }] },
+      { $and: [{ relType: mainType }, { relTypeId: mainTypeId }] }
     ]
   };
-};
-
-export const getSavedAnyConformityQuery = ({
-  mainType,
-  mainTypeId
-}: {
-  mainType: string;
-  mainTypeId: string;
-}) => {
-  return {
-    bool: {
-      should: [
-        {
-          bool: {
-            must: [
-              {
-                match: {
-                  mainType
-                }
-              },
-              {
-                match: {
-                  mainTypeId
-                }
-              }
-            ]
-          }
-        },
-        {
-          bool: {
-            must: [
-              {
-                match: {
-                  relType: mainType
-                }
-              },
-              {
-                match: {
-                  relTypeId: mainTypeId
-                }
-              }
-            ]
-          }
-        }
-      ]
-    }
-  };
-};
-
-export const findElk = async (subdomain, query) => {
-  const response = await fetchEs({
-    subdomain,
-    action: 'search',
-    index: 'conformities',
-    body: {
-      query
-    },
-    defaultValue: { hits: { hits: [] } }
-  });
-
-  return response.hits.hits.map(hit => {
-    return {
-      _id: hit._id,
-      ...hit._source
-    };
-  });
 };
 
 export const conformityHelper = async ({

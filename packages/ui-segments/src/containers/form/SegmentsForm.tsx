@@ -1,12 +1,12 @@
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { ITrigger } from '../../types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import SegmentsForm from '../../components/form/SegmentsForm';
 import { mutations, queries } from '../../graphql';
 import {
@@ -26,10 +26,9 @@ type Props = {
   closeModal: () => void;
   activeTrigger?: ITrigger;
   addConfig?: (trigger: ITrigger, id?: string, config?: any) => void;
-  addFilter?: (segmentId: string) => void;
+  filterContent?: (values: any) => void;
   afterSave?: () => void;
   hideDetailForm?: boolean;
-  usageType?: string;
 };
 
 type FinalProps = {
@@ -68,8 +67,7 @@ class SegmentsFormContainer extends React.Component<
       history,
       addConfig,
       activeTrigger,
-      closeModal,
-      addFilter
+      closeModal
     } = this.props;
 
     const callBackResponse = data => {
@@ -91,12 +89,6 @@ class SegmentsFormContainer extends React.Component<
 
         closeModal();
       }
-
-      if (addFilter) {
-        const result = values._id ? data.segmentsEdit : data.segmentsAdd;
-
-        addFilter(result._id);
-      }
     };
 
     return (
@@ -109,7 +101,7 @@ class SegmentsFormContainer extends React.Component<
         type="submit"
         successMessage={`Success`}
       >
-        {text || 'save'}
+        {text || 'Save'}
       </ButtonMutate>
     );
   };
@@ -156,7 +148,8 @@ class SegmentsFormContainer extends React.Component<
       headSegmentsQuery,
       eventsQuery,
       segmentsQuery,
-      history
+      history,
+      filterContent
     } = this.props;
 
     if (segmentDetailQuery.loading) {
@@ -183,7 +176,8 @@ class SegmentsFormContainer extends React.Component<
       fields: this.state.fields,
       count: this.state.count,
       counterLoading: this.state.loading,
-      isModal
+      isModal,
+      filterContent
     };
 
     return <SegmentsForm {...updatedProps} />;
@@ -205,7 +199,10 @@ export default withProps<Props>(
     graphql<Props, HeadSegmentsQueryResponse, { contentType: string }>(
       gql(queries.headSegments),
       {
-        name: 'headSegmentsQuery'
+        name: 'headSegmentsQuery',
+        options: ({ contentType }) => ({
+          variables: { contentType }
+        })
       }
     ),
     graphql<Props, SegmentsQueryResponse, { contentTypes: string[] }>(

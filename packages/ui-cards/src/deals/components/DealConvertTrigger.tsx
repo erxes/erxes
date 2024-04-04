@@ -22,7 +22,8 @@ export default (props: Props) => {
   const extendedProps = {
     ...props,
     options,
-    title
+    title,
+    autoOpenKey: 'showDealConvertModal'
   };
 
   return <ConvertTrigger {...extendedProps} />;

@@ -34,25 +34,7 @@ export const COC_LIFECYCLE_STATE_TYPES = [
   'other'
 ];
 
-export const IMPORT_TYPES = [
-  {
-    text: 'Customers',
-    contentType: 'customer',
-    icon: 'users-alt'
-  },
-  {
-    text: 'Leads',
-    contentType: 'lead',
-    icon: 'file-alt'
-  },
-  {
-    text: 'Companies',
-    contentType: 'company',
-    icon: 'building'
-  }
-];
-
-export const EXPORT_TYPES = [
+export const IMPORT_EXPORT_TYPES = [
   {
     text: 'Customers',
     contentType: 'customer',
@@ -247,3 +229,28 @@ export const DEVICE_PROPERTIES_INFO = {
     { field: 'agent', label: 'User Agent' }
   ]
 };
+
+export const NOTIFICATION_MODULES = [
+  {
+    name: 'customers',
+    description: 'Customers',
+    icon: 'user',
+    types: [
+      {
+        name: 'customerMention',
+        text: 'Mention on customer note'
+      }
+    ]
+  },
+  {
+    name: 'companies',
+    description: 'Companies',
+    icon: 'building',
+    types: [
+      {
+        name: 'companyMention',
+        text: 'Mention on company note'
+      }
+    ]
+  }
+];

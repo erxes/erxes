@@ -1,4 +1,4 @@
-import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
+// import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
 
 import { IFlow } from '../../../models/definitions/flows';
 import {
@@ -8,7 +8,6 @@ import {
   MODULE_NAMES
 } from '../../../logUtils';
 import { IContext } from '../../../connectionResolver';
-import { IJobCategory } from '../../../models/definitions/jobCategories';
 
 interface IFlowsEdit extends IFlow {
   _id: string;
@@ -30,7 +29,7 @@ const flowMutations = {
       models,
       subdomain,
       {
-        type: MODULE_NAMES.PRODUCT,
+        type: MODULE_NAMES.FLOW,
         newData: {
           ...doc,
           categoryId: flow.categoryId
@@ -60,7 +59,7 @@ const flowMutations = {
       models,
       subdomain,
       {
-        type: MODULE_NAMES.PRODUCT,
+        type: MODULE_NAMES.FLOW,
         object: flow,
         newData: { ...doc },
         updatedDocument: updated
@@ -90,7 +89,7 @@ const flowMutations = {
       await putDeleteLog(
         models,
         subdomain,
-        { type: MODULE_NAMES.PRODUCT, object: flow },
+        { type: MODULE_NAMES.FLOW, object: flow },
         user
       );
     }
@@ -99,6 +98,6 @@ const flowMutations = {
   }
 };
 
-// moduleCheckPermission(flowMutations, 'manageJobRefers');
+// moduleCheckPermission(flowMutations, 'manageJobs');
 
 export default flowMutations;

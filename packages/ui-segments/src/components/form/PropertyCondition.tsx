@@ -1,16 +1,17 @@
-import Select from 'react-select-plus';
-import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IField, ISegmentCondition, ISegmentMap } from '../../types';
+
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { __ } from '@erxes/ui/src/utils';
-import { IField, ISegmentCondition, ISegmentMap } from '../../types';
-import React from 'react';
-import PropertyForm from './PropertyForm';
-import { SegmentBackIcon } from '../styles';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 import Icon from '@erxes/ui/src/components/Icon';
+import PropertyForm from './PropertyForm';
 import PropertyList from '../../containers/form/PropertyList';
-import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
+import React from 'react';
 import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
+import { SegmentBackIcon } from '../styles';
+import Select from 'react-select-plus';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   contentType: string;
@@ -26,26 +27,24 @@ type Props = {
     conjunction: string
   ) => void;
   config?: any;
+  onChangeConfig?: (config: any) => void;
 };
 
 type State = {
   propertyType: string;
   chosenProperty?: IField;
   searchValue: string;
-
-  config: any;
 };
 
 class PropertyCondition extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { contentType, config = {} } = props;
+    const { contentType } = props;
 
     this.state = {
       propertyType: contentType,
-      searchValue: '',
-      config
+      searchValue: ''
     };
   }
 
@@ -63,13 +62,9 @@ class PropertyCondition extends React.Component<Props, State> {
     this.setState({ searchValue: value });
   };
 
-  onChangeConfig = config => {
-    this.setState({ config });
-  };
-
   renderExtraContent = () => {
-    const { contentType, hideDetailForm } = this.props;
-    const { config, propertyType } = this.state;
+    const { contentType, hideDetailForm, config, onChangeConfig } = this.props;
+    const { propertyType } = this.state;
 
     const plugins: any[] = (window as any).plugins || [];
 
@@ -83,7 +78,7 @@ class PropertyCondition extends React.Component<Props, State> {
               config,
               type: contentType,
               propertyType,
-              onChangeConfig: this.onChangeConfig,
+              onChangeConfig,
               hideDetailForm,
               component: 'filter'
             }}
@@ -96,9 +91,14 @@ class PropertyCondition extends React.Component<Props, State> {
   };
 
   render() {
-    const { associationTypes, onClickBackToList, hideBackButton } = this.props;
+    const {
+      associationTypes,
+      onClickBackToList,
+      hideBackButton,
+      config
+    } = this.props;
 
-    const { chosenProperty, propertyType, searchValue, config } = this.state;
+    const { chosenProperty, propertyType, searchValue } = this.state;
 
     const onChange = e => {
       const value = e.value;

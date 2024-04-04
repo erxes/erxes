@@ -1,9 +1,16 @@
-import { ActivityIcon, ActivityRow } from '@erxes/ui/src/activityLogs/styles';
-import { formatText, getIconAndColor } from '@erxes/ui/src/activityLogs/utils';
+import {
+  ActivityIcon,
+  ActivityRow
+} from '@erxes/ui-log/src/activityLogs/styles';
+import {
+  formatText,
+  getIconAndColor
+} from '@erxes/ui-log/src/activityLogs/utils';
+
 import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
 import React from 'react';
 import TaggedLog from './containers/TaggedLog';
+import Tip from '@erxes/ui/src/components/Tip';
 
 type Props = {
   contentType: string;

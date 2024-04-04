@@ -1,23 +1,26 @@
-import { gql } from "apollo-server-express";
+import gql from 'graphql-tag';
 
 import {
   types as carTypes,
   queries as carQueries,
-  mutations as carMutations,
-} from "./schema/car";
+  mutations as carMutations
+} from './schema/car';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
-const typeDefs = async (serviceDiscovery) => {
-  const isContactsEnabled = await serviceDiscovery.isEnabled("contacts");
+const typeDefs = async () => {
+  const isContactsEnabled = await isEnabled('contacts');
+  const isTagEnabled = await isEnabled('tags');
 
-  const isEnabled = {
+  const isEnabledTable = {
     contacts: isContactsEnabled,
+    tags: isTagEnabled
   };
 
   return gql`
     scalar JSON
     scalar Date
     
-    ${carTypes(isEnabled)}
+    ${carTypes(isEnabledTable)}
     
     extend type Query {
 

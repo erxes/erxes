@@ -1,12 +1,10 @@
-import messageBroker, { sendEbarimtMessage } from '../../../messageBroker';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { getConfig } from '../../../utils';
 import { IContext } from '../../../connectionResolver';
 import { IPos, IPosSlot } from '../../../models/definitions/pos';
-import { orderDeleteToErkhet, orderToErkhet } from '../../../utils';
 import {
   syncPosToClient,
   syncProductGroupsToClient,
+  syncRemovePosToClient,
   syncSlotsToClient
 } from './utils';
 
@@ -20,10 +18,13 @@ const mutations = {
     params: IPos,
     { models, user, subdomain }: IContext
   ) => {
+    const { ALL_AUTO_INIT } = process.env;
+    if ([true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '')) {
+      params.onServer = true;
+    }
     const pos = await models.Pos.posAdd(user, params);
 
-    const { ALL_AUTO_INIT } = process.env;
-    if (ALL_AUTO_INIT || pos.isOnline) {
+    if (pos.onServer) {
       await syncPosToClient(subdomain, pos);
     }
 
@@ -36,6 +37,12 @@ const mutations = {
     { models, subdomain }: IContext
   ) => {
     await models.Pos.getPos({ _id });
+
+    const { ALL_AUTO_INIT } = process.env;
+    if ([true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '')) {
+      doc.onServer = true;
+    }
+
     const updatedDocument = await models.Pos.posEdit(_id, { ...doc });
 
     await syncPosToClient(subdomain, updatedDocument);
@@ -43,7 +50,13 @@ const mutations = {
     return updatedDocument;
   },
 
-  posRemove: async (_root, { _id }: { _id: string }, { models }: IContext) => {
+  posRemove: async (
+    _root,
+    { _id }: { _id: string },
+    { models, subdomain }: IContext
+  ) => {
+    const pos = await models.Pos.getPos({ _id });
+    await syncRemovePosToClient(subdomain, pos);
     return await models.Pos.posRemove(_id);
   },
 
@@ -79,10 +92,7 @@ const mutations = {
 
     const updatedGroups = await models.ProductGroups.groups(posId);
 
-    const { ALL_AUTO_INIT } = process.env;
-    if (ALL_AUTO_INIT || pos.isOnline) {
-      await syncProductGroupsToClient(subdomain, models, pos);
-    }
+    await syncProductGroupsToClient(subdomain, models, pos);
 
     return updatedGroups;
   },
@@ -121,101 +131,17 @@ const mutations = {
       });
     }
 
-    await models.PosSlots.bulkWrite(bulkOps);
+    if (bulkOps && bulkOps.length) {
+      await models.PosSlots.bulkWrite(bulkOps);
+    }
 
     await models.PosSlots.insertMany(slots.filter(s => !s._id));
 
     const updatedSlots = await models.PosSlots.find({ posId });
-    const { ALL_AUTO_INIT } = process.env;
 
-    if (ALL_AUTO_INIT || pos.isOnline) {
-      await syncSlotsToClient(subdomain, pos, updatedSlots);
-    }
+    await syncSlotsToClient(subdomain, pos, updatedSlots);
 
     return updatedSlots;
-  },
-
-  posOrderSyncErkhet: async (
-    _root,
-    { _id }: { _id: string },
-    { models, subdomain }: IContext
-  ) => {
-    const order = await models.PosOrders.findOne({ _id }).lean();
-    if (!order) {
-      throw new Error('not found order');
-    }
-    const pos = await models.Pos.findOne({ token: order.posToken }).lean();
-
-    const putRes = await sendEbarimtMessage({
-      subdomain,
-      action: 'putresponses.putHistories',
-      data: {
-        contentType: 'pos',
-        contentId: _id
-      },
-      isRPC: true
-    });
-
-    if (!pos) {
-      throw new Error('not found pos');
-    }
-    if (!putRes) {
-      throw new Error('not found put response');
-    }
-    await orderToErkhet(models, messageBroker, subdomain, pos, _id, putRes);
-    return await models.PosOrders.findOne({ _id }).lean();
-  },
-
-  posOrderReturnBill: async (
-    _root,
-    { _id }: { _id: string },
-    { models, subdomain }: IContext
-  ) => {
-    const order = await models.PosOrders.findOne({ _id }).lean();
-    if (!order) {
-      throw new Error('not found order');
-    }
-    const pos = await models.Pos.findOne({ token: order.posToken }).lean();
-    if (!pos) {
-      throw new Error('not found pos');
-    }
-    const ebarimtMainConfig = await getConfig(subdomain, 'EBARIMT', {});
-
-    await sendEbarimtMessage({
-      subdomain,
-      action: 'putresponses.returnBill',
-      data: {
-        contentType: 'pos',
-        contentId: _id,
-        config: { ...pos.ebarimtConfig, ...ebarimtMainConfig }
-      },
-      isRPC: true
-    });
-
-    if (order.syncedErkhet) {
-      await orderDeleteToErkhet(models, messageBroker, subdomain, pos, _id);
-    }
-    return await models.PosOrders.deleteOne({ _id });
-  },
-  posOrderChangePayments: async (
-    _root,
-    { _id, cashAmount, cardAmount, mobileAmount },
-    { models }
-  ) => {
-    const order = await models.PosOrders.findOne({ _id }).lean();
-    if (!order) {
-      throw new Error('not found order');
-    }
-
-    if (order.totalAmount !== cashAmount + cardAmount + mobileAmount) {
-      throw new Error('not balanced');
-    }
-
-    await models.PosOrders.updateOne(
-      { _id },
-      { $set: { cashAmount, cardAmount, mobileAmount } }
-    );
-    return models.PosOrders.findOne({ _id }).lean();
   }
 };
 

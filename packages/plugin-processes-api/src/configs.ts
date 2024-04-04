@@ -1,55 +1,37 @@
-import typeDefs from './graphql/typeDefs';
+import { generateModels } from './connectionResolver';
 import resolvers from './graphql/resolvers';
-// import { IFetchElkArgs } from '@erxes/api-utils/src/types';
+import typeDefs from './graphql/typeDefs';
 import * as permissions from './permissions';
-import { generateModels, models } from './connectionResolver';
 
-import { initBroker } from './messageBroker';
-import { initMemoryStorage } from './inmemoryStorage';
+import { getSubdomain } from '@erxes/api-utils/src/core';
+import beforeResolvers from './beforeResolvers';
+import documents from './documents';
 import logs from './logUtils';
-
-export let debug;
-export let graphqlPubsub;
-export let mainDb;
-export let serviceDiscovery;
-
-// export let es: {
-//   client;
-//   fetchElk(args: IFetchElkArgs): Promise<any>;
-//   getMappings(index: string): Promise<any>;
-//   getIndexPrefix(): string;
-// };
+import { setupMessageConsumers } from './messageBroker';
 
 export default {
   name: 'processes',
   permissions,
-  graphql: async sd => {
-    serviceDiscovery = sd;
+  graphql: async () => {
     return {
-      typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      typeDefs: await typeDefs(),
+      resolvers: await resolvers(),
     };
   },
-  apolloServerContext: context => {
-    const subdomain = 'os';
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req);
 
     context.subdomain = subdomain;
-    context.models = models;
+    context.models = await generateModels(subdomain);
 
     return context;
   },
-  onServerInit: async options => {
-    mainDb = options.db;
-
-    await generateModels('os');
-
-    initBroker(options.messageBrokerClient);
-
-    initMemoryStorage();
-
-    debug = options.debug;
-    graphqlPubsub = options.pubsubClient;
-    // es = options.elasticsearch;
+  onServerInit: async () => {},
+  setupMessageConsumers,
+  meta: {
+    logs: { consumers: logs },
+    beforeResolvers,
+    permissions,
+    documents,
   },
-  meta: { logs: { consumers: logs } }
 };

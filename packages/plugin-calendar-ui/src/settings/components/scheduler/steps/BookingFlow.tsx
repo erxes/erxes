@@ -31,8 +31,8 @@ class BookingFlow extends React.Component<Props> {
             <br />
             <br />
             <FormControl
-              value='automatic'
-              componentClass='radio'
+              value="automatic"
+              componentClass="radio"
               checked={this.props.confirmationMethod === 'automatic'}
               onChange={onChange}
             >
@@ -45,8 +45,8 @@ class BookingFlow extends React.Component<Props> {
             <br />
             <br />
             <FormControl
-              value='manual'
-              componentClass='radio'
+              value="manual"
+              componentClass="radio"
               checked={this.props.confirmationMethod === 'manual'}
               onChange={onChange}
             >

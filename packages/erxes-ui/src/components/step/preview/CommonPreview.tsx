@@ -1,13 +1,3 @@
-import Button from '../../Button';
-import { readFile } from '../../../utils';
-import {
-  LauncherContainer,
-  WebPreview,
-  WidgetPreview
-} from '@erxes/ui-engage/src/styles';
-import { FlexRow } from '@erxes/ui-settings/src/styles';
-import React from 'react';
-import styled from 'styled-components';
 import {
   BodyContent,
   CallOutBody,
@@ -22,6 +12,13 @@ import {
   SlideLeftContent,
   SlideRightContent
 } from './styles';
+import { LauncherContainer, WebPreview, WidgetPreview } from '../styles';
+
+import Button from '../../Button';
+import { FlexRow } from '@erxes/ui-settings/src/styles';
+import React from 'react';
+import { readFile } from '../../../utils';
+import styled from 'styled-components';
 
 export const ShoutBox = styled(WebPreview)`
   height: 100%;
@@ -136,7 +133,7 @@ class CommonPreview extends React.Component<Props, {}> {
 
     return (
       <div
-        id='progress'
+        id="progress"
         style={{
           background: theme ? theme : color,
           opacity: 0.7,
@@ -161,7 +158,7 @@ class CommonPreview extends React.Component<Props, {}> {
         </PreviewTitle>
         {this.renderProgress()}
 
-        <PreviewBody embedded='embedded'>
+        <PreviewBody embedded="embedded">
           {this.renderCallOutBody()}
 
           <BodyContent>

@@ -1,8 +1,8 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { queries } from '@erxes/ui/src/brands/graphql';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { withProps } from '@erxes/ui/src/utils';
 import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
 import BrandFilter from '@erxes/ui/src/brands/components/BrandFilter';
@@ -35,6 +35,7 @@ class BrandFilterContainer extends React.Component<Props> {
 }
 
 type WrapperProps = {
+  abortController?: any;
   type: string;
   loadingMainQuery: boolean;
 };
@@ -43,15 +44,23 @@ export default withProps<WrapperProps>(
   compose(
     graphql<WrapperProps, BrandsQueryResponse, {}>(gql(queries.brands), {
       name: 'brandsQuery',
-      skip: ({ loadingMainQuery }) => loadingMainQuery
+      skip: ({ loadingMainQuery }) => loadingMainQuery,
+      options: ({ abortController }) => ({
+        context: {
+          fetchOptions: { signal: abortController && abortController.signal }
+        }
+      })
     }),
     graphql<WrapperProps, CountQueryResponse, { only: string }>(
       gql(customerQueries.customerCounts),
       {
         name: 'customersCountQuery',
         skip: ({ loadingMainQuery }) => loadingMainQuery,
-        options: ({ type }) => ({
-          variables: { type, only: 'byBrand' }
+        options: ({ type, abortController }) => ({
+          variables: { type, only: 'byBrand' },
+          context: {
+            fetchOptions: { signal: abortController && abortController.signal }
+          }
         })
       }
     )

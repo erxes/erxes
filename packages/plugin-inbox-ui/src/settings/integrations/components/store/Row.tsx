@@ -1,13 +1,14 @@
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import IntegrationList from '@erxes/ui-inbox/src/settings/integrations/containers/common/IntegrationList';
-import React from 'react';
-import Collapse from 'react-bootstrap/Collapse';
-import { ByKindTotalCount } from '@erxes/ui-settings/src/integrations/types';
-import Entry from './Entry';
 import {
   CollapsibleContent,
   IntegrationRow
-} from '@erxes/ui-settings/src/integrations/components/store/styles';
+} from '@erxes/ui-inbox/src/settings/integrations/components/store/styles';
+
+import { ByKindTotalCount } from '@erxes/ui-inbox/src/settings/integrations/types';
+import Collapse from 'react-bootstrap/Collapse';
+import Entry from './Entry';
+import IntegrationList from '@erxes/ui-inbox/src/settings/integrations/containers/common/IntegrationList';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import React from 'react';
 
 type Props = {
   integrations: any[];
@@ -94,7 +95,7 @@ class Row extends React.Component<Props, State> {
       queryParams
     };
 
-    return <Entry {...commonProp} customLink={this.props.customLink} />;
+    return <Entry {...commonProp} />;
   }
 
   renderList() {

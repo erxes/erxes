@@ -1,34 +1,39 @@
 // @ts-ignore
 import * as telemetry from 'erxes-telemetry';
 import * as jwt from 'jsonwebtoken';
-// @ts-ignore
-import { sendRequest } from 'erxes-api-utils';
 import { NextFunction, Request, Response } from 'express';
-import { redis } from '../redis';
-import { generateModels } from '../connectionResolver';
+import redis from '@erxes/api-utils/src/redis';
+import { IModels, generateModels } from '../connectionResolver';
 import { getSubdomain, userActionsMap } from '@erxes/api-utils/src/core';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
+import fetch from 'node-fetch';
+import { sanitizeHeaders, setUserHeader } from '@erxes/api-utils/src/headers';
 
 export default async function userMiddleware(
   req: Request & { user?: any },
-  _res: Response,
-  next: NextFunction
+  res: Response,
+  next: NextFunction,
 ) {
-  const erxesCoreToken = req.headers['erxes-core-token'];
+  sanitizeHeaders(req.headers);
   const url = req.headers['erxes-core-website-url'];
+  const erxesCoreToken = req.headers['erxes-core-token'];
+
+  if (Array.isArray(erxesCoreToken)) {
+    return res.status(400).json({ error: `Multiple erxes-core-tokens found` });
+  }
 
   if (erxesCoreToken && url) {
     try {
-      const response = await sendRequest({
-        url: 'https://erxes.io/check-website',
+      const response = await fetch('https://erxes.io/check-website', {
         method: 'POST',
         headers: {
-          'erxes-core-token': erxesCoreToken
+          'erxes-core-token': erxesCoreToken,
+          'Content-Type': 'application/json',
         },
-        body: {
-          url
-        }
-      });
+        body: JSON.stringify({
+          url,
+        }),
+      }).then((r) => r.text());
 
       if (response === 'ok') {
         req.user = {
@@ -37,19 +42,19 @@ export default async function userMiddleware(
             {
               action: 'showIntegrations',
               allowed: true,
-              requiredActions: []
+              requiredActions: [],
             },
             {
               action: 'showKnowledgeBase',
               allowed: true,
-              requiredActions: []
+              requiredActions: [],
             },
             {
               action: 'showScripts',
               allowed: true,
-              requiredActions: []
-            }
-          ]
+              requiredActions: [],
+            },
+          ],
         };
       }
     } catch (e) {
@@ -61,13 +66,19 @@ export default async function userMiddleware(
 
   const appToken = (req.headers['erxes-app-token'] || '').toString();
   const subdomain = getSubdomain(req);
-  const models = await generateModels(subdomain);
+
+  let models: IModels;
+  try {
+    models =  await generateModels(subdomain);
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
+  }
 
   if (appToken) {
     try {
       const { app }: any = jwt.verify(
         appToken,
-        process.env.JWT_TOKEN_SECRET || ''
+        process.env.JWT_TOKEN_SECRET || '',
       );
 
       if (app && app._id) {
@@ -76,14 +87,14 @@ export default async function userMiddleware(
         if (appInDb) {
           const permissions = await models.Permissions.find({
             groupId: appInDb.userGroupId,
-            allowed: true
+            allowed: true,
           }).lean();
 
           const user = await models.Users.findOne({
             role: USER_ROLES.SYSTEM,
             groupIds: { $in: [app.userGroupId] },
-            appId: app._id
-          });
+            appId: app._id,
+          }).lean();
 
           if (user) {
             const key = `user_permissions_${user._id}`;
@@ -94,16 +105,16 @@ export default async function userMiddleware(
               (cachedPermissions && cachedPermissions === '{}')
             ) {
               const userPermissions = await models.Permissions.find({
-                userId: user._id
+                userId: user._id,
               });
               const groupPermissions = await models.Permissions.find({
-                groupId: { $in: user.groupIds }
+                groupId: { $in: user.groupIds },
               });
 
               const actionMap = await userActionsMap(
                 userPermissions,
                 groupPermissions,
-                user
+                user,
               );
 
               await redis.set(key, JSON.stringify(actionMap));
@@ -111,15 +122,20 @@ export default async function userMiddleware(
 
             req.user = {
               _id: user._id || 'userId',
-              customPermissions: permissions.map(p => ({
+              ...user,
+              role: USER_ROLES.SYSTEM,
+              isOwner: appInDb.allowAllPermission || false,
+              customPermissions: permissions.map((p) => ({
                 action: p.action,
                 allowed: p.allowed,
-                requiredActions: p.requiredActions
-              }))
+                requiredActions: p.requiredActions,
+              })),
             };
           }
         }
       }
+
+      setUserHeader(req.headers, req.user);
 
       return next();
     } catch (e) {
@@ -174,8 +190,13 @@ export default async function userMiddleware(
       redis.set('hostname', process.env.DOMAIN || 'http://localhost:3000');
     }
   } catch (e) {
-    console.error(e);
+    if (e instanceof jwt.TokenExpiredError) {
+    } else {
+      console.error(e);
+    }
   }
+
+  setUserHeader(req.headers, req.user);
 
   return next();
 }

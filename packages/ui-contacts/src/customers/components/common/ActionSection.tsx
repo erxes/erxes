@@ -1,23 +1,25 @@
+import { Alert, __, confirm } from '@erxes/ui/src/utils';
+import { Box, States } from '../../styles';
+
+import { Actions } from '@erxes/ui/src/styles/main';
 import Button from '@erxes/ui/src/components/Button';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import CompaniesMerge from '../../../companies/components/detail/CompaniesMerge';
+import CompanyForm from '@erxes/ui-contacts/src/companies/containers/CompanyForm';
 import { ControlLabel } from '@erxes/ui/src/components/form';
+import CustomerForm from '../../containers/CustomerForm';
+import CustomersMerge from '../detail/CustomersMerge';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import { ICompany } from '@erxes/ui-contacts/src/companies/types';
+import { ICustomer } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __, Alert, confirm } from '@erxes/ui/src/utils';
-import CompaniesMerge from '../../../companies/components/detail/CompaniesMerge';
-import CompanyForm from '@erxes/ui/src/companies/containers/CompanyForm';
-import { ICompany } from '@erxes/ui/src/companies/types';
-import TargetMerge from './TargetMerge';
-import CustomersMerge from '../detail/CustomersMerge';
-import CustomerForm from '../../containers/CustomerForm';
-import { Actions } from '@erxes/ui/src/styles/main';
-import { ICustomer } from '../../types';
-import { Box, States, MailBox } from '../../styles';
-import MailForm from '@erxes/ui-settings/src/integrations/containers/mail/MailForm';
-import SmsForm from '@erxes/ui-settings/src/integrations/containers/telnyx/SmsForm';
 import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
+import SmsForm from '@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm';
+import TargetMerge from './TargetMerge';
+import Tip from '@erxes/ui/src/components/Tip';
+import EmailWidget from '@erxes/ui-inbox/src/inbox/components/EmailWidget';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   coc: ICustomer | ICompany;
@@ -28,6 +30,7 @@ type Props = {
   changeState?: (value: string) => void;
   isSmall?: boolean;
 };
+
 class ActionSection extends React.Component<Props, { customerState: string }> {
   constructor(props) {
     super(props);
@@ -41,44 +44,20 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
     const { coc, cocType } = this.props;
     const { primaryPhone, primaryEmail } = coc;
 
-    const content = props => (
-      <MailBox>
-        <MailForm
-          fromEmail={primaryEmail}
-          customerId={cocType === 'customer' ? coc._id : undefined}
-          refetchQueries={
-            cocType === 'customer'
-              ? ['activityLogsCustomer']
-              : ['activityLogsCompany']
-          }
-          closeModal={props.closeModal}
-        />
-      </MailBox>
-    );
-
     const smsForm = props => <SmsForm {...props} primaryPhone={primaryPhone} />;
 
     return (
       <>
-        <ModalTrigger
-          dialogClassName="middle"
-          title="Email"
-          trigger={
-            <Button
-              disabled={primaryEmail ? false : true}
-              size="small"
-              btnStyle={primaryEmail ? 'primary' : 'simple'}
-            >
-              <Tip text="Send e-mail" placement="top-end">
-                <Icon icon="envelope" />
-              </Tip>
-            </Button>
-          }
-          size="lg"
-          content={content}
-          paddingContent="less-padding"
-          enforceFocus={false}
-        />
+        {(isEnabled('engages') || isEnabled('imap')) && (
+          <EmailWidget
+            disabled={primaryEmail ? false : true}
+            buttonStyle={primaryEmail ? 'primary' : 'simple'}
+            emailTo={primaryEmail}
+            customerId={cocType === 'customer' ? coc._id : undefined}
+            buttonSize="small"
+            type="action"
+          />
+        )}
         <ModalTrigger
           dialogClassName="middle"
           title={`Send SMS to (${primaryPhone})`}
@@ -140,7 +119,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
       <li>
         <ModalTrigger
           title="Edit basic info"
-          trigger={<a href="#edit">{__('Edit')}</a>}
+          trigger={<a>{__('Edit')}</a>}
           size="lg"
           content={cocType === 'company' ? companyForm : customerForm}
         />
@@ -201,7 +180,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
     return (
       <ModalTrigger
         title={__('Change state')}
-        trigger={<a href="#changeState">{__('Change state')}</a>}
+        trigger={<a>{__('Change state')}</a>}
         content={modalContent}
         hideHeader={true}
         centered={true}

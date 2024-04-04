@@ -1,54 +1,28 @@
 import Button from '@erxes/ui/src/components/Button';
-import GrapesJS from 'grapesjs';
-import gjsPresetWebpage from 'grapesjs-preset-webpage';
-import { __ } from '@erxes/ui/src/utils';
-import 'grapesjs/dist/css/grapes.min.css';
-import Select from 'react-select-plus';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { FlexPad } from '@erxes/ui/src/components/step/styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FlexItem, FlexPad } from '@erxes/ui/src/components/step/styles';
-import { EditorContainer } from '@erxes/ui-engage/src/styles';
-import { Indicator } from '@erxes/ui/src/components/step/styles';
-import { ControlWrapper } from '@erxes/ui/src/components/step/styles';
-import Step from '@erxes/ui/src/components/step/Step';
-import Steps from '@erxes/ui/src/components/step/Steps';
-import { StepWrapper } from '@erxes/ui/src/components/step/styles';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-
+import { IPageDoc } from '../../types';
+import { PageFormContainer } from './styles';
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { IContentTypeDoc, IPageDoc } from '../../types';
-import customPlugins from './customPlugins';
-import SelectSite from '../../containers/sites/SelectSite';
+import { SubTitle } from '../sites/styles';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
-  page?: IPageDoc;
-  save: (
-    name: string,
-    description: string,
-    siteId: string,
-    html: string,
-    css: string,
-    jsonData: any
-  ) => void;
-  saveTemplate: (name: string, jsonData: any) => void;
-  templates: any;
-  removeTemplate: (_id: string) => void;
-  contentTypes: IContentTypeDoc[];
-  pages: IPageDoc[];
+  page: IPageDoc;
+  onCancel: (settingsObject: any, type: string) => void;
+  remove: (_id: string, afterSave?: any) => void;
+  save: (pageName: string, pageDescription: string, pageId: string) => void;
 };
 
 type State = {
   name: string;
   description: string;
-  templateId: string;
-  siteId: string;
+  slug: string;
 };
 
 class PageForm extends React.Component<Props, State> {
-  grapes;
-
   constructor(props) {
     super(props);
 
@@ -57,250 +31,58 @@ class PageForm extends React.Component<Props, State> {
     this.state = {
       name: page.name,
       description: page.description,
-      siteId: page.siteId,
-      templateId: ''
+      slug: page.slug || ''
     };
   }
 
-  componentDidMount() {
-    const { page, contentTypes } = this.props;
-    let { pages } = this.props;
+  componentDidUpdate(prevProps) {
+    const { page } = this.props;
 
-    pages = pages.filter(p => p._id !== page?._id);
-
-    this.grapes = GrapesJS.init({
-      container: `#editor`,
-      fromElement: true,
-      plugins: [gjsPresetWebpage, customPlugins],
-      pluginsOpts: {
-        [customPlugins as any]: {
-          pages,
-          contentTypes,
-          open: false
-        }
-      },
-      storageManager: false
-    });
-
-    if (page && page.jsonData) {
-      this.grapes.loadProjectData(page.jsonData);
+    if (prevProps.page !== page) {
+      this.setState({
+        name: page.name,
+        description: page.description
+      });
     }
-
-    const editor = this.grapes;
-
-    const pfx = editor.getConfig().stylePrefix;
-    const modal = editor.Modal;
-    const cmdm = editor.Commands;
-    const codeViewer = editor.CodeManager.getViewer('CodeMirror').clone();
-    const pnm = editor.Panels;
-    const container = document.createElement('div');
-    const btnEdit = document.createElement('button');
-
-    codeViewer.set({
-      codeName: 'htmlmixed',
-      readOnly: 0,
-      theme: 'hopscotch',
-      autoBeautify: true,
-      autoCloseTags: true,
-      autoCloseBrackets: true,
-      lineWrapping: true,
-      styleActiveLine: true,
-      smartIndent: true,
-      indentWithTabs: true
-    });
-
-    btnEdit.innerHTML = 'Edit';
-    btnEdit.className = pfx + 'btn-prim ' + pfx + 'btn-import';
-    btnEdit.onclick = () => {
-      const code = codeViewer.editor.getValue();
-      editor.DomComponents.getWrapper().set('content', '');
-      editor.setComponents(code.trim());
-      modal.close();
-    };
-
-    cmdm.add('html-edit', {
-      run: (editr, sender) => {
-        if (sender) {
-          sender.set('active', 0);
-        }
-
-        let viewer = codeViewer.editor;
-
-        modal.setTitle('Edit code');
-
-        if (!viewer) {
-          const txtarea = document.createElement('textarea');
-          container.appendChild(txtarea);
-          container.appendChild(btnEdit);
-          codeViewer.init(txtarea);
-          viewer = codeViewer.editor;
-        }
-
-        const InnerHtml = editr.getHtml();
-        const Css = editr.getCss();
-        modal.setContent('');
-        modal.setContent(container);
-        codeViewer.setContent(InnerHtml + '<style>' + Css + '</style>');
-        modal.open();
-        viewer.refresh();
-      }
-    });
-
-    pnm.addButton('options', [
-      {
-        id: 'edit',
-        className: 'fa fa-edit',
-        command: 'html-edit',
-        attributes: {
-          title: 'Edit'
-        }
-      }
-    ]);
   }
-
-  selectTemplates = () => {
-    const { templates } = this.props;
-    const options: any[] = [{ label: ' . ' }];
-
-    templates.map(template =>
-      options.push({
-        value: template._id,
-        label: template.name,
-        jsonData: template.jsonData
-      })
-    );
-
-    return options;
-  };
 
   onChange = (type: string, value: any) => {
     this.setState({ [type]: value } as any);
   };
 
-  onSelectTemplate = (option: any) => {
-    this.setState({ templateId: option.value });
-
-    this.grapes.loadProjectData(option.jsonData);
-  };
-
-  onSelectSite = (value: any) => {
-    this.setState({ siteId: value });
-  };
-
   save = () => {
-    const e = this.grapes;
+    const { save, page } = this.props;
 
-    this.props.save(
-      this.state.name,
-      this.state.description,
-      this.state.siteId,
-      e.getHtml(),
-      e.getCss(),
-      e.getProjectData()
-    );
+    save(this.state.name, this.state.description, page._id || '');
   };
-
-  saveTemplate = () => {
-    const e = this.grapes;
-
-    this.props.saveTemplate(this.state.name || 'Template', e.getProjectData());
-  };
-
-  renderPageContent() {
-    const imagePath = '/images/icons/erxes-12.svg';
-    const { description, name, templateId, siteId } = this.state;
-    const { removeTemplate } = this.props;
-
-    return (
-      <Step img={imagePath} title="Manage web builder page" noButton={true}>
-        <FlexItem>
-          <FlexPad direction="column" overflow="auto">
-            <FormGroup>
-              <ControlLabel>Name:</ControlLabel>
-              <FormControl
-                placeholder="Enter a name"
-                onChange={(e: any) => this.onChange('name', e.target.value)}
-                defaultValue={name}
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <ControlLabel>Description:</ControlLabel>
-              <FormControl
-                placeholder="Enter a description"
-                onChange={(e: any) =>
-                  this.onChange('description', e.target.value)
-                }
-                defaultValue={description}
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <ControlLabel>Site:</ControlLabel>
-              <SelectSite
-                label="Choose a site"
-                name="siteId"
-                onSelect={this.onSelectSite}
-                multi={false}
-                initialValue={siteId}
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <ControlLabel>Page template:</ControlLabel>
-              <p>{'Choose a page template'}</p>
-
-              <Select
-                onChange={this.onSelectTemplate}
-                value={templateId}
-                options={this.selectTemplates()}
-                clearable={false}
-              />
-            </FormGroup>
-
-            {templateId ? (
-              <Button
-                btnStyle="danger"
-                uppercase={false}
-                icon="times-circle"
-                size="small"
-                onClick={() => removeTemplate(templateId)}
-              >
-                Remove a selected template
-              </Button>
-            ) : null}
-          </FlexPad>
-
-          <FlexItem overflow="auto" count="7">
-            <EditorContainer>
-              <div id="editor" />
-            </EditorContainer>
-          </FlexItem>
-        </FlexItem>
-      </Step>
-    );
-  }
 
   renderButtons = () => {
+    const { remove, page, onCancel } = this.props;
+
     const cancelButton = (
-      <Link to="/webbuilder/pages">
-        <Button btnStyle="simple" icon="times-circle">
-          Cancel
-        </Button>
-      </Link>
+      <Button
+        btnStyle="simple"
+        icon="times-circle"
+        onClick={() => onCancel(null, '')}
+      >
+        Cancel
+      </Button>
+    );
+
+    const deleteButton = (
+      <Button
+        btnStyle="danger"
+        icon="trash-alt"
+        onClick={() => remove(page._id, onCancel(null, ''))}
+      >
+        Delete
+      </Button>
     );
 
     return (
       <Button.Group>
+        {page.name && deleteButton}
         {cancelButton}
-
-        <Button
-          btnStyle="warning"
-          icon={'check-circle'}
-          onClick={this.saveTemplate}
-        >
-          Save as template
-        </Button>
 
         <Button btnStyle="success" icon={'check-circle'} onClick={this.save}>
           Save
@@ -310,27 +92,44 @@ class PageForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { name } = this.state;
-    const { page } = this.props;
-
-    const breadcrumb = [
-      { title: 'Webbuilder', link: '/webbuilder/pages' },
-      { title: __('Page') }
-    ];
+    const { description, name, slug } = this.state;
 
     return (
-      <StepWrapper>
-        <Wrapper.Header title={'Page Form'} breadcrumb={breadcrumb} />
-        <Steps>{this.renderPageContent()}</Steps>
+      <PageFormContainer className="gjs-one-bg gjs-two-color">
+        <SubTitle flexBetween={true}>
+          {__('Page Settings')} {this.renderButtons()}
+        </SubTitle>
+        <FlexPad direction="column" overflow="auto">
+          <FormGroup>
+            <ControlLabel>Name:</ControlLabel>
+            <FormControl
+              placeholder="Enter a name"
+              onChange={(e: any) => this.onChange('name', e.target.value)}
+              value={name}
+            />
+          </FormGroup>
 
-        <ControlWrapper>
-          <Indicator>
-            {__('You are')} {page ? 'editing ' : 'creating '}
-            <strong>{name}</strong> {__('page')}
-          </Indicator>
-          {this.renderButtons()}
-        </ControlWrapper>
-      </StepWrapper>
+          <FormGroup>
+            <ControlLabel>Description:</ControlLabel>
+            <FormControl
+              placeholder="Enter a description"
+              onChange={(e: any) =>
+                this.onChange('description', e.target.value)
+              }
+              value={description}
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>Slug:</ControlLabel>
+            <FormControl
+              placeholder="Enter a page slug"
+              onChange={(e: any) => this.onChange('slug', e.target.value)}
+              value={slug}
+            />
+          </FormGroup>
+        </FlexPad>
+      </PageFormContainer>
     );
   }
 }

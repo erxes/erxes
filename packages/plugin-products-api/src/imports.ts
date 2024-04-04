@@ -1,34 +1,49 @@
 import { generateModels } from './connectionResolver';
 import { sendFormsMessage, sendTagsMessage } from './messageBroker';
 
-export const EXPORT_TYPES = [
+export const IMPORT_EXPORT_TYPES = [
   {
     text: 'Product & Services',
     contentType: 'product',
     icon: 'server-alt'
   }
 ];
-
-export const IMPORT_TYPES = [
-  {
-    text: 'Product & Services',
-    contentType: 'product',
-    icon: 'server-alt'
-  }
-];
-
 export default {
-  exportTypes: EXPORT_TYPES,
-  importTypes: IMPORT_TYPES,
+  importExportTypes: IMPORT_EXPORT_TYPES,
 
   insertImportItems: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     const { docs } = data;
 
+    let updated = 0;
+    const objects: any = [];
+
     try {
-      const objects = await models.Products.insertMany(docs);
-      return { objects, updated: 0 };
+      for (const doc of docs) {
+        if (doc.code) {
+          const product = await models.Products.findOne({ code: doc.code });
+
+          if (product) {
+            delete doc.code;
+            await models.Products.updateOne(
+              { _id: product._id },
+              { $set: { ...doc } }
+            );
+            updated++;
+          } else {
+            const insertedProduct = await models.Products.create(doc);
+
+            objects.push(insertedProduct);
+          }
+        } else {
+          const insertedProduct = await models.Products.create(doc);
+
+          objects.push(insertedProduct);
+        }
+      }
+
+      return { objects, updated };
     } catch (e) {
       return { error: e.message };
     }
@@ -37,6 +52,8 @@ export default {
   prepareImportDocs: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     const { result, properties } = data;
+
+    const defaultUom = await models.ProductsConfigs.getConfig('defaultUOM', '');
 
     const bulkDoc: any = [];
 
@@ -47,6 +64,8 @@ export default {
       };
 
       let colIndex: number = 0;
+      let subUomNames = [];
+      let ratios = [];
 
       // Iterating through detailed properties
       for (const property of properties) {
@@ -64,7 +83,9 @@ export default {
                 subdomain,
                 action: 'fields.prepareCustomFieldsData',
                 data: doc.customFieldsData,
-                isRPC: true
+                isRPC: true,
+                defaultValue: doc.customFieldsData,
+                timeout: 60 * 1000 // 1 minute
               });
             }
             break;
@@ -105,6 +126,33 @@ export default {
 
             break;
 
+          case 'barcodes':
+            {
+              doc.barcodes = value
+                .replace(/\s/g, '')
+                .split(',')
+                .filter(br => br);
+            }
+            break;
+
+          case 'subUoms.uom':
+            {
+              subUomNames = value.replace(/\s/g, '').split(',');
+            }
+            break;
+
+          case 'subUoms.ratio':
+            {
+              ratios = value.replace(/\s/g, '').split(',');
+            }
+            break;
+
+          case 'uom':
+            {
+              doc.uom = value || defaultUom;
+            }
+            break;
+
           default:
             {
               doc[property.name] = value;
@@ -126,6 +174,19 @@ export default {
 
         colIndex++;
       }
+
+      let ind = 0;
+      const subUoms: any = [];
+
+      for (const uom of subUomNames) {
+        subUoms.push({
+          id: Math.random(),
+          uom: uom,
+          ratio: Number(ratios[ind] || 1)
+        });
+        ind += 1;
+      }
+      doc.subUoms = subUoms;
 
       bulkDoc.push(doc);
     }

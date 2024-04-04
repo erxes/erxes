@@ -1,5 +1,9 @@
 import {
-  Button, ChooserColumn as Column, ChooserColumns as Columns, ChooserTitle as Title, Icon,
+  Button,
+  ChooserColumn as Column,
+  ChooserColumns as Columns,
+  ChooserTitle as Title,
+  Icon,
   MainStyleModalFooter as ModalFooter
 } from '@erxes/ui/src';
 import { Info, InfoDetail, InfoTitle } from '../../styles';
@@ -10,13 +14,7 @@ import { ICar } from '../../types';
 
 type Props = {
   objects: ICar[];
-  save: (
-    doc: {
-      ids: string[];
-      data: any;
-      callback: () => void;
-    }
-  ) => void;
+  save: (doc: { ids: string[]; data: any; callback: () => void }) => void;
   closeModal: () => void;
 };
 
@@ -144,7 +142,9 @@ class CarsMerge extends React.Component<Props, State> {
     return (
       <Info>
         <InfoTitle>Name: </InfoTitle>
-        <InfoDetail>{data.code} - {data.name}</InfoDetail>
+        <InfoDetail>
+          {data.code} - {data.name}
+        </InfoDetail>
       </Info>
     );
   }

@@ -124,7 +124,6 @@ export interface IUpdateCustomerMutationResponse {
 export interface IMessengerSupporters {
   supporters: [IUser];
   isOnline: boolean;
-  serverTime: string;
 }
 
 export interface IBotData {

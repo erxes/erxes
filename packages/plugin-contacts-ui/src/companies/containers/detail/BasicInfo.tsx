@@ -1,11 +1,11 @@
 import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import { mutations, queries } from '../../graphql';
 import ActionSection from '@erxes/ui-contacts/src/customers/components/common/ActionSection';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import { withRouter } from 'react-router-dom';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IRouterProps } from '@erxes/ui/src/types';

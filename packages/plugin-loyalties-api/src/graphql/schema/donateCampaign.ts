@@ -1,4 +1,9 @@
-import { commonCampaignInputs, commonCampaignTypes, commonFilterTypes, paginateTypes } from './common';
+import {
+  commonCampaignInputs,
+  commonCampaignTypes,
+  commonFilterTypes,
+  paginateTypes
+} from './common';
 
 export const types = `
   type DonateCampaign @key(fields: "_id") @cacheControl(maxAge: 3) {
@@ -23,7 +28,7 @@ const DonateCampaignDoc = `
   ${commonCampaignInputs}
   maxScore: Float
   awards: JSON
-`
+`;
 
 export const mutations = `
   donateCampaignsAdd(${DonateCampaignDoc}): DonateCampaign

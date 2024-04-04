@@ -221,9 +221,7 @@ class PermissionList extends React.Component<Props> {
       <Wrapper.ActionBar
         left={title}
         right={actionBarRight}
-        background="colorWhite"
-        withMargin
-        wide
+        wideSpacing={true}
       />
     );
   }
@@ -256,15 +254,19 @@ class PermissionList extends React.Component<Props> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__('Permissions')} breadcrumb={breadcrumb} />
+          <Wrapper.Header
+            title={__('Permissions')}
+            queryParams={queryParams}
+            breadcrumb={breadcrumb}
+            filterTitle={this.props.currentGroupName}
+          />
         }
         actionBar={this.renderActionBar()}
         leftSidebar={<GroupList queryParams={queryParams} />}
         footer={<Pagination count={totalCount} />}
         content={this.renderContent()}
-        hasBorder={true}
         center={false}
-        noPadding={true}
+        hasBorder={true}
       />
     );
   }

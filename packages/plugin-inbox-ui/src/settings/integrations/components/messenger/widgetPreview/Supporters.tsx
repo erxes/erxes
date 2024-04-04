@@ -30,7 +30,7 @@ class Supporters extends React.Component<Props> {
 
       return (
         <ErxesStaffProfile key={u._id}>
-          <div className='avatar'>
+          <div className="avatar">
             <img src={getUserAvatar(u)} alt={details.fullName} />
             <StateSpan state={isOnline || false} />
           </div>
@@ -46,7 +46,7 @@ class Supporters extends React.Component<Props> {
       return null;
     }
 
-    return <span>{timezone ? timezone : __('Asia/Ulaanbaatar')}</span>;
+    return <span>{timezone ? timezone : __('No timezone chosen')}</span>;
   }
 
   render() {

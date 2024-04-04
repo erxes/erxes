@@ -1,0 +1,47 @@
+version: '3.6'
+services:
+  mongo:
+    hostname: mongo
+    image: mongo:4.0.10
+    # container_name: mongo
+    ports:
+      - "27017:27017"
+    networks:
+      - erxes-net
+    healthcheck:
+      test: test $$(echo "rs.initiate().ok || rs.status().ok" | mongo --quiet) -eq 1
+      interval: 2s
+      timeout: 2s
+      retries: 200
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+    extra_hosts:
+      - "mongo:127.0.0.1"
+    volumes:
+      - ./data/db:/data/db
+
+  redis:
+    image: 'redis'
+    # container_name: redis
+    # command: redis-server --requirepass pass
+    ports:
+      - "6379:6379"
+    networks:
+      - erxes-net
+
+  rabbitmq:
+    image: rabbitmq:3.7.17-management
+    # container_name: rabbitmq
+    restart: unless-stopped
+    hostname: rabbitmq
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    networks:
+      - erxes-net
+    # RabbitMQ data will be saved into ./rabbitmq-data folder.
+    volumes:
+      - ./rabbitmq-data:/var/lib/rabbitmq
+
+networks:
+  erxes-net:
+    driver: bridge

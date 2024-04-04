@@ -1,18 +1,26 @@
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Button from '@erxes/ui/src/components/Button';
+import Icon from '@erxes/ui/src/components/Icon';
+import Label from '@erxes/ui/src/components/Label';
+import moment from 'moment';
 import React from 'react';
-import dayjs from 'dayjs';
-import { __, ActionButtons, Button, Icon, Label, Tip } from '@erxes/ui/src';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils';
 import { DateWrapper } from '@erxes/ui/src/styles/main';
-import { renderUserFullName } from '@erxes/ui/src/utils/core';
 import { ISafeRemainder } from '../types';
+import { renderUserFullName } from '@erxes/ui/src/utils/core';
+import { useHistory } from 'react-router-dom';
 
 type Props = {
   remainder: ISafeRemainder;
-  history: any;
-  removeRemainder: (remainder: ISafeRemainder) => void;
+  removeItem: (remainder: ISafeRemainder) => void;
 };
 
-const Row = (props: Props) => {
-  const { remainder, history, removeRemainder } = props;
+export default function Row(props: Props) {
+  const { remainder = {} as ISafeRemainder, removeItem } = props;
+
+  // Hooks
+  const history = useHistory();
 
   const {
     date,
@@ -44,7 +52,9 @@ const Row = (props: Props) => {
     <tr onClick={handleClick}>
       <td>
         <Icon icon="calender" />{' '}
-        <DateWrapper>{dayjs(date).format('ll') || 'Created at'}</DateWrapper>
+        <DateWrapper>
+          {moment(date).format('YYYY/MM/DD') || 'Created at'}
+        </DateWrapper>
       </td>
       <td>{branch ? branch.title : ''}</td>
       <td>{department ? department.title : ''}</td>
@@ -58,7 +68,7 @@ const Row = (props: Props) => {
       <td>
         <Icon icon="calender" />{' '}
         <DateWrapper>
-          {dayjs(modifiedAt).format('ll') || 'Created at'}
+          {moment(date).format('YYYY/MM/DD') || 'Created at'}
         </DateWrapper>
       </td>
       <td>{renderUserFullName(modifiedUser || {})}</td>
@@ -67,7 +77,7 @@ const Row = (props: Props) => {
           <Tip text="Delete" placement="top">
             <Button
               btnStyle="link"
-              onClick={() => removeRemainder(remainder)}
+              onClick={() => removeItem(remainder)}
               icon="times-circle"
             />
           </Tip>
@@ -75,6 +85,4 @@ const Row = (props: Props) => {
       </td>
     </tr>
   );
-};
-
-export default Row;
+}

@@ -1,8 +1,9 @@
-import { PopoverList } from '@erxes/ui/src/components/filterableList/styles';
+import { borderRadius, stageWidth } from './common';
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import styled, { css } from 'styled-components';
+
+import { PopoverList } from '@erxes/ui/src/components/filterableList/styles';
 import styledTS from 'styled-components-ts';
-import { borderRadius, stageWidth } from './common';
 
 const hoverColor = 'rgba(10,45,65,.13)';
 const stageGray = '#e5e8ec';
@@ -64,6 +65,10 @@ const StageFooter = styled.div`
   border-radius: 0 0 3px 3px;
 `;
 
+const ItemBox = styled.div`
+  word-break: break-word;
+`;
+
 const Header = styled.div`
   padding: 12px 16px;
   position: relative;
@@ -94,31 +99,27 @@ const HeaderAmount = styled.div`
   min-height: 28px;
 `;
 
-const Amount = styled.ul`
+const Amount = styledTS<{ unUsed: boolean }>(styled.ul)`
   list-style: none;
   margin: 5px 0 0;
   overflow: hidden;
   padding: 0 !important;
   max-width: 230px;
   font-size: 12px;
+
   display: inline-block;
   li {
-    float: left;
+    float: right;
+    ${props => props.unUsed && `text-decoration: line-through;`}
     padding-right: 5px;
     line-height: 22px;
     span {
       font-weight: bold;
       font-size: 10px;
     }
-    &:after {
-      content: '/';
-      margin-left: 5px;
-    }
-    &:last-child:after {
-      content: '';
-    }
   }
 `;
+
 const ListContainer = styled.div`
   border: 1px solid rgb(238, 238, 238);
   border-radius: ${dimensions.unitSpacing - 4}px;
@@ -189,6 +190,37 @@ export const StageTitle = styled.h4`
   position: relative;
   display: flex;
   justify-content: space-between;
+
+  i {
+    cursor: pointer;
+  }
+`;
+
+export const StageInfo = styled.div`
+  margin-bottom: 10px;
+
+  div {
+    display: flex;
+    justify-content: space-between;
+    min-height: unset !important;
+    align-items: center;
+  }
+
+  span {
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  ul {
+    margin: 0;
+    li {
+      font-size: 11px;
+      line-height: 12px;
+      span {
+        font-size: 9px;
+      }
+    }
+  }
 `;
 
 export const GroupTitle = styled.div`
@@ -227,6 +259,13 @@ export const ActionButton = styled.div`
   }
 `;
 
+export const Quantity = styled.div`
+  display: inline;
+  font-weight: 600;
+  font-size: 11px;
+  margin-left: ${dimensions.unitSpacing - 5}px;
+`;
+
 export {
   AddNew,
   Container,
@@ -241,5 +280,6 @@ export {
   StageFooter,
   LoadingContent,
   StageRoot,
-  ListContainer
+  ListContainer,
+  ItemBox
 };

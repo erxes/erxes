@@ -1,4 +1,6 @@
 import * as crypto from 'crypto';
+import { getEnv } from './core';
+import { URL } from 'url';
 
 import { IEncryptionData } from './types';
 
@@ -8,7 +10,6 @@ export interface IOrderInput {
 }
 
 export const updateOrder = async (collection: any, orders: IOrderInput[]) => {
-  
   if (orders.length === 0) {
     return [];
   }
@@ -40,7 +41,7 @@ export const updateOrder = async (collection: any, orders: IOrderInput[]) => {
 };
 
 export const encryptText = (text: string): IEncryptionData => {
-  const algorithm = 'aes-256-cbc';
+  const algorithm = 'AES-256-GCM';
   // key must be 32 bytes long
   const key = crypto.randomBytes(32);
   const iv = crypto.randomBytes(16);
@@ -71,7 +72,11 @@ export const decryptText = (data: IEncryptionData): string => {
 
   const encryptedText = Buffer.from(data.encryptedData, 'hex');
 
-  const decipher = crypto.createDecipheriv(data.algorithm, Buffer.from(data.key), iv);
+  const decipher = crypto.createDecipheriv(
+    data.algorithm,
+    Buffer.from(data.key),
+    iv,
+  );
 
   // decipher
   let decrypted = decipher.update(encryptedText);
@@ -80,4 +85,47 @@ export const decryptText = (data: IEncryptionData): string => {
   decrypted = Buffer.concat([decrypted, decipher.final()]);
 
   return decrypted.toString();
+};
+
+export const pluralFormation = (type: string) => {
+  if (type[type.length - 1] === 'y') {
+    return type.slice(0, -1) + 'ies';
+  }
+
+  return type + 's';
+};
+
+export const removeLastTrailingSlash = (url) => {
+  if (typeof url !== 'string') {
+    return url;
+  }
+  return url.replace(/\/$/, '');
+};
+
+export const removeExtraSpaces = (text) => {
+  if (typeof text !== 'string') {
+    return;
+  }
+  return text.replace(/\s+/g, ' ').trim();
+};
+
+// check if valid url
+export const isValidURL = (url: string): boolean => {
+  try {
+    return Boolean(new URL(url));
+  } catch (e) {
+    return false;
+  }
+};
+
+export const readFileUrl = (value: string) => {
+  if (!value || isValidURL(value) || value.includes('/')) {
+    return value;
+  }
+
+  const DOMAIN = getEnv({
+    name: 'DOMAIN',
+  });
+
+  return `${DOMAIN}/gateway/read-file?key=${value}`;
 };

@@ -1,17 +1,13 @@
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import CallPro from '../../components/callpro/Form';
-import { mutations } from '@erxes/ui-settings/src/integrations/graphql';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import Chatfuel from '../../components/chatfuel/Form';
-import Telegram from '../../components/telegram/Telegram';
-import TelnyxForm from '../../components/telnyx/TelnyxForm';
-import Viber from '../../components/viber/Viber';
-import WebHookForm from '../../components/webhook/Form';
 import OutgoingWebHookFrom from '../../components/outgoing-webhook/Form';
-import Whatsapp from '../../components/whatsapp/Whatsapp';
+import WebHookForm from '../../components/webhook/Form';
+import React from 'react';
 import { getRefetchQueries } from '@erxes/ui-inbox/src/settings/integrations/containers/utils';
+import { mutations } from '@erxes/ui-inbox/src/settings/integrations/graphql';
+import { withRouter } from 'react-router-dom';
+import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 type Props = {
   type: string;
@@ -26,11 +22,6 @@ type FinalProps = {} & IRouterProps & Props;
 
 const INTEGRATION_FORM = {
   callpro: CallPro,
-  chatfuel: Chatfuel,
-  'smooch-viber': Viber,
-  'smooch-telegram': Telegram,
-  whatsapp: Whatsapp,
-  telnyx: TelnyxForm,
   webhook: WebHookForm,
   'outgoing-webhook': OutgoingWebHookFrom
 };
@@ -46,12 +37,7 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
     this.setState({ channelIds: values });
   };
 
-  renderButton = ({
-    name,
-    values,
-    isSubmitted,
-    callback
-  }: IButtonMutateProps) => {
+  renderButton = ({ values, isSubmitted, callback }: IButtonMutateProps) => {
     const { type } = this.props;
 
     return (
@@ -61,8 +47,8 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
         callback={callback}
         isSubmitted={isSubmitted}
         refetchQueries={getRefetchQueries(type)}
-        type='submit'
-        successMessage={`You successfully added a ${type} ${name}`}
+        type="submit"
+        successMessage={`You successfully added a ${type}`}
       />
     );
   };
@@ -77,6 +63,15 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
       channelIds,
       onChannelChange: this.onChannelChange
     };
+
+    if (['imap', 'viber', 'calls'].includes(type)) {
+      return loadDynamicComponent(
+        'inboxIntegrationForm',
+        updatedProps,
+        false,
+        type
+      );
+    }
 
     const Component = INTEGRATION_FORM[type];
 

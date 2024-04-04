@@ -1,30 +1,31 @@
-import ActivityInputs from '@erxes/ui/src/activityLogs/components/ActivityInputs';
-import ActivityLogs from '@erxes/ui/src/activityLogs/containers/ActivityLogs';
-import { IItem, IItemParams, IOptions } from '../../types';
-import Checklists from '../../../checklists/containers/Checklists';
-import Button from '@erxes/ui/src/components/Button';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Icon from '@erxes/ui/src/components/Icon';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import { IAttachment } from '@erxes/ui/src/types';
-import { __, extractAttachment } from '@erxes/ui/src/utils';
-import {
-  EditorActions,
-  EditorWrapper
-} from '@erxes/ui/src/internalNotes/components/Form';
-import React, { useEffect, useState } from 'react';
-import xss from 'xss';
 import {
   Content,
   ContentWrapper,
   LeftContainer,
-  TitleRow
+  TitleRow,
 } from '../../styles/item';
-import Labels from '../label/Labels';
+import {
+  EditorActions,
+  EditorWrapper,
+} from '@erxes/ui-internalnotes/src/components/Form';
+import { IItem, IItemParams, IOptions } from '../../types';
+import React, { useEffect, useState } from 'react';
+import { __, extractAttachment } from '@erxes/ui/src/utils';
+
 import Actions from './Actions';
+import ActivityInputs from '@erxes/ui-log/src/activityLogs/components/ActivityInputs';
+import ActivityLogs from '@erxes/ui-log/src/activityLogs/containers/ActivityLogs';
+import Button from '@erxes/ui/src/components/Button';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
+import Checklists from '../../../checklists/containers/Checklists';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IAttachment } from '@erxes/ui/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import Labels from '../label/Labels';
+import Uploader from '@erxes/ui/src/components/Uploader';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import xss from 'xss';
 
 type DescProps = {
   item: IItem;
@@ -54,12 +55,12 @@ const Description = (props: DescProps) => {
   };
 
   const toggleEdit = () => {
-    setEdit(currentValue => !currentValue);
+    setEdit((currentValue) => !currentValue);
     setSubmit(false);
   };
 
-  const onChangeDescription = e => {
-    setDescription(e.editor.getData());
+  const onChangeDescription = (content: string) => {
+    setDescription(content);
   };
 
   const renderFooter = () => {
@@ -103,13 +104,12 @@ const Description = (props: DescProps) => {
             dangerouslySetInnerHTML={{
               __html: item.description
                 ? xss(item.description)
-                : `${__('Add a more detailed description')}...`
+                : `${__('Add a more detailed description')}...`,
             }}
           />
         ) : (
           <EditorWrapper>
-            <EditorCK
-              onCtrlEnter={onSend}
+            <RichTextEditor
               content={description}
               onChange={onChangeDescription}
               height={120}
@@ -117,20 +117,14 @@ const Description = (props: DescProps) => {
               autoFocus={true}
               name={`${contentType}_description_${item._id}`}
               toolbar={[
-                {
-                  name: 'basicstyles',
-                  items: [
-                    'Bold',
-                    'Italic',
-                    'NumberedList',
-                    'BulletedList',
-                    'Link',
-                    'Unlink',
-                    '-',
-                    'Image',
-                    'EmojiPanel'
-                  ]
-                }
+                'bold',
+                'italic',
+                'orderedList',
+                'bulletList',
+                'link',
+                'unlink',
+                '|',
+                'image',
               ]}
             />
 
@@ -166,7 +160,7 @@ const Left = (props: Props) => {
     addItem,
     sendToBoard,
     onChangeStage,
-    onChangeRefresh
+    onChangeRefresh,
   } = props;
 
   const onChangeAttachment = (files: IAttachment[]) =>

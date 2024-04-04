@@ -1,4 +1,4 @@
-import * as Random from 'meteor-random';
+import { nanoid } from 'nanoid';
 
 /**
  * Mongoose field options wrapper
@@ -12,7 +12,7 @@ export const field = options => {
 
   if (pkey) {
     options.type = String;
-    options.default = () => Random.id();
+    options.default = () => nanoid();
   }
 
   return options;
@@ -42,13 +42,13 @@ export const getDateFieldDefinition = (label: string) =>
  */
 export const getNumberFieldDefinition = (options: any) => {
   const { positive, label, discount } = options;
-  const definition: any = { type: Number, label };
+  const definition: any = { type: Number, ...options, label };
 
   if (positive === true) {
     definition.min = 0;
   }
   if (discount === true) {
-    definition.min = 0;
+    definition.min = -100;
     definition.max = 100;
   }
 

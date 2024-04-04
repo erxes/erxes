@@ -6,19 +6,29 @@ const fields = `
         name
         domain
       }
+      createdUser {
+        details {
+          fullName
+        }
+      }
+
+      updatedUser {
+        details {
+          fullName
+        }
+      }
 `;
 
-const pages = `
-  query pages($page: Int, $perPage: Int) {
-    webbuilderPages(page: $page, perPage: $perPage) {
-      ${fields}
+const pagesMain = `
+  query pagesMain($page: Int, $perPage: Int, $searchValue: String, $siteId: String) {
+    webbuilderPagesMain(page: $page, perPage: $perPage, searchValue: $searchValue, siteId: $siteId) {
+      list {
+        ${fields}
+        html
+        css
+      }
+      totalCount
     }
-  }
-`;
-
-const pagesTotalCount = `
-  query pagesTotalCount {
-    webbuilderPagesTotalCount
   }
 `;
 
@@ -28,33 +38,43 @@ const pageDetail = `
       ${fields}
       html
       css
-      jsonData
       siteId
     }
   }
 `;
 
+const typeFields = `
+  _id
+  code
+  displayName
+  fields
+  entries {
+    _id
+  }
+  site {
+    name
+    domain
+  }
+`;
+
 const contentTypes = `
-  query contentTypes($page: Int $perPage: Int) {
-    webbuilderContentTypes(page: $page perPage: $perPage) {
+  query contentTypes($siteId: String) {
+    webbuilderContentTypes(siteId: $siteId) {
       _id
-      code
       displayName
       fields
-      entries {
-        _id
-      }
-      site {
-        name
-        domain
-      }
     }
   }
 `;
 
-const contentTypesTotalCount = `
-  query contentTypesTotalCount {
-    webbuilderContentTypesTotalCount
+const contentTypesMain = `
+  query contentTypesMain($page: Int, $perPage: Int, $siteId: String) {
+    webbuilderContentTypesMain(page: $page, perPage: $perPage, siteId: $siteId) {
+      list {
+        ${typeFields}
+      }
+      totalCount
+    }
   }
 `;
 
@@ -70,19 +90,16 @@ const contentTypeDetail = `
   } 
 `;
 
-const entries = `
-  query entries($contentTypeId: String! $page: Int $perPage: Int) {
-    webbuilderEntries(contentTypeId: $contentTypeId page: $page perPage: $perPage) {
-      _id
-      contentTypeId
-      values
+const entriesMain = `
+  query entriesMain($contentTypeId: String! $page: Int $perPage: Int) {
+    webbuilderEntriesMain(contentTypeId: $contentTypeId page: $page perPage: $perPage) {
+      list {
+        _id
+        contentTypeId
+        values
+      }
+      totalCount
     } 
-  }
-`;
-
-const entriesTotalCount = `
-  query entriesTotalCount($contentTypeId: String!) {
-    webbuilderEntriesTotalCount(contentTypeId: $contentTypeId)
   }
 `;
 
@@ -97,21 +114,41 @@ const entryDetail = `
 `;
 
 const templates = `
-  query templates {
-    webbuilderTemplates {
+  query templates($page: Int, $perPage: Int, $searchValue: String) {
+    webbuilderTemplates(page: $page, perPage: $perPage, searchValue: $searchValue) {
       _id
       name
-      jsonData
+      html
+      image
+      categories
     } 
   }
 `;
 
+const templatesTotalCount = `
+  query templatesCount {
+    webbuilderTemplatesTotalCount
+  }
+`;
+
+const templateDetail = `
+  query templateDetail($_id: String!) {
+    webbuilderTemplateDetail(_id: $_id) {
+      _id
+      name
+    }
+  }
+`;
+
 const sites = `
-  query sites($page: Int, $perPage: Int) {
-    webbuilderSites(page: $page, perPage: $perPage) {
+  query sites($page: Int, $perPage: Int, $searchValue: String, $fromSelect: Boolean) {
+    webbuilderSites(page: $page, perPage: $perPage, searchValue: $searchValue, fromSelect: $fromSelect) {
       _id
       name
       domain
+      coverImage {
+        url
+      }
     }
   }
 `;
@@ -123,16 +160,16 @@ const sitesTotalCount = `
 `;
 
 export default {
-  pages,
-  pagesTotalCount,
+  pagesMain,
   pageDetail,
   contentTypes,
-  contentTypesTotalCount,
+  contentTypesMain,
   contentTypeDetail,
-  entries,
+  entriesMain,
   entryDetail,
   templates,
-  entriesTotalCount,
+  templatesTotalCount,
+  templateDetail,
   sites,
   sitesTotalCount
 };

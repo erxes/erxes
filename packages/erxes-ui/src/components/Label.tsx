@@ -1,11 +1,12 @@
-import color from 'color';
+import { darken, rgba } from '../styles/ecolor';
+import styled, { css } from 'styled-components';
+
+import React from 'react';
 import { __ } from '../utils/core';
 import { shake as animationShake } from '../utils/animations';
-import React from 'react';
-import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
+import color from 'color';
 import { colors } from '../styles';
-import { darken, rgba } from '../styles/ecolor';
+import styledTS from 'styled-components-ts';
 
 const types = {
   default: {
@@ -33,7 +34,7 @@ const LabelStyled = styledTS<{
   isLightColor?: boolean;
   shake?: boolean;
 }>(styled.span)`
-  border-radius: 14px;
+  border-radius: 5px;
   padding: 3px 9px;
   text-transform: uppercase;
   white-space: nowrap;

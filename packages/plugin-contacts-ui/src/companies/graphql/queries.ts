@@ -1,4 +1,4 @@
-import { queries as companyQueries } from '@erxes/ui/src/companies/graphql';
+import { queries as companyQueries } from '@erxes/ui-contacts/src/companies/graphql';
 
 const companyFields = companyQueries.companyFields;
 

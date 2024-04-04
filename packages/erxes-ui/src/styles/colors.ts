@@ -14,7 +14,7 @@ const colorCoreDarkBlue = '#0a1e41';
 const colorCoreBlack = '#393C40';
 const colorCoreGray = '#888';
 const colorCoreLightGray = '#AAAEB3';
-const colorCoreSunYellow ='#FDA50F';
+const colorCoreSunYellow = '#FDA50F';
 
 const colorLightGray = '#AAA';
 const colorLightBlue = '#F8FBFF';
@@ -61,7 +61,7 @@ const socialTelegram = '#0088cc';
 const socialViber = '#8f5db7';
 const socialLine = '#00c300';
 const socialTwilio = '#cf272d';
-
+const socialInstagramMessenger = '#C13584';
 export default {
   colorPrimary,
   colorPrimaryDark,
@@ -114,5 +114,6 @@ export default {
   socialViber,
   socialLine,
   socialTwilio,
-  socialWhatsApp
+  socialWhatsApp,
+  socialInstagramMessenger
 };

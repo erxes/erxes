@@ -1,3 +1,5 @@
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
 const users = `
   query users {
     users {
@@ -37,7 +39,6 @@ const integrationDetail = `
   query integrationDetail($_id: String!) {
     integrationDetail(_id: $_id) {
       ${commonFields}
-      
       messengerData
       uiOptions
       websiteMessengerApps {
@@ -93,20 +94,34 @@ const integrations = `
         name
         code
       }
+      createdAt
       webhookData
       leadData
       formId
       tagIds
-      tags {
-        _id
-        colorCode
-        name
+      ${
+        isEnabled('tags')
+          ? `
+        tags {
+          _id
+          colorCode
+          name
+        }
+      `
+          : ``
       }
-      form {
-        _id
-        title
-        code
+      ${
+        isEnabled('forms')
+          ? `
+              form {
+                _id
+                title
+                code
+              }
+            `
+          : ''
       }
+      details
       healthStatus
     }
   }
@@ -148,6 +163,62 @@ const integrationsGetIntegrationDetail = `
   }
 `;
 
+const integrationsGetAccounts = `
+  query integrationsGetAccounts($kind: String) {
+    integrationsGetAccounts(kind: $kind)
+  }
+`;
+
+const integrationsGetIntegrations = `
+  query integrationsGetIntegrations($kind: String) {
+    integrationsGetIntegrations(kind: $kind)
+  }
+`;
+
+const integrationsGetTwitterAccount = `
+  query integrationsGetTwitterAccount($accountId: String!) {
+    integrationsGetTwitterAccount(accountId: $accountId)
+  }
+`;
+
+const integrationsGetFbPages = `
+  query integrationsGetFbPages($accountId: String!, $kind: String!) {
+    integrationsGetFbPages(accountId: $accountId, kind: $kind)
+  }
+`;
+
+const integrationsVideoCallUsageStatus = `
+  query VideoCallUsageStatus {
+    videoCallUsageStatus
+  }
+`;
+
+const emailTemplates = `
+  query emailTemplates($page: Int, $perPage: Int, $searchValue: String) {
+    emailTemplates(page: $page, perPage: $perPage, searchValue: $searchValue) {
+      _id
+      name
+      content
+    }
+  }
+`;
+
+const templateTotalCount = `
+  query emailTemplatesTotalCount($searchValue: String) {
+    emailTemplatesTotalCount(searchValue: $searchValue)
+  }
+`;
+
+const imapIntegrations = `
+  query imapGetIntegrations {
+    imapGetIntegrations {
+      mainUser
+      user
+      host
+    }
+  }
+`;
+
 export default {
   users,
   brands,
@@ -157,5 +228,13 @@ export default {
   integrations,
   integrationGetLineWebhookUrl,
   integrationsGetConfigs,
-  integrationsGetIntegrationDetail
+  integrationsGetIntegrationDetail,
+  emailTemplates,
+  templateTotalCount,
+  integrationsGetAccounts,
+  integrationsGetIntegrations,
+  integrationsGetTwitterAccount,
+  integrationsGetFbPages,
+  integrationsVideoCallUsageStatus,
+  imapIntegrations
 };

@@ -3,7 +3,7 @@ import { IResponseTemplate } from '../../models/definitions/responseTemplates';
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 
-import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
 
 interface IResponseTemplatesEdit extends IResponseTemplate {
@@ -44,7 +44,10 @@ const responseTemplateMutations = {
     { user, models, subdomain }: IContext
   ) {
     const template = await models.ResponseTemplates.getResponseTemplate(_id);
-    const updated = await models.ResponseTemplates.updateResponseTemplate(_id, fields);
+    const updated = await models.ResponseTemplates.updateResponseTemplate(
+      _id,
+      fields
+    );
 
     await putUpdateLog(
       models,
@@ -83,6 +86,20 @@ const responseTemplateMutations = {
   }
 };
 
-moduleCheckPermission(responseTemplateMutations, 'manageResponseTemplate');
+checkPermission(
+  responseTemplateMutations,
+  'responseTemplatesAdd',
+  'manageResponseTemplate'
+);
+checkPermission(
+  responseTemplateMutations,
+  'responseTemplatesEdit',
+  'manageResponseTemplate'
+);
+checkPermission(
+  responseTemplateMutations,
+  'responseTemplatesRemove',
+  'manageResponseTemplate'
+);
 
 export default responseTemplateMutations;

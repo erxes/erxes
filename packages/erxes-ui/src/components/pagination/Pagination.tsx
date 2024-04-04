@@ -112,6 +112,7 @@ class Page extends React.Component<{
 interface IPaginationProps extends IRouterProps {
   totalPagesCount: number;
   pages?: number[];
+  count?: number;
   currentPage?: number;
   isPaginated?: boolean;
 }
@@ -197,7 +198,7 @@ class Pagination extends React.Component<IPaginationProps> {
   }
 
   renderPerPageChooser() {
-    return <PerPageChooser />;
+    return <PerPageChooser count={this.props.count || 0} />;
   }
 
   render() {

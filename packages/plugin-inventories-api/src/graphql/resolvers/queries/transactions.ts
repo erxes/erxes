@@ -1,16 +1,22 @@
 import { IContext } from '../../../connectionResolver';
 
 const transactionQueries = {
-  async transactions(_root: any, params: any, { models, subdomain }: IContext) {
-    return models.Transactions.find();
+  transactions: async (_root: any, params: any, { models }: IContext) => {
+    const limit = params.perPage || 20;
+    const skip = params.page ? (params.page - 1) * limit : 0;
+
+    return await models.Transactions.find()
+      .skip(skip || 0)
+      .limit(limit || 100)
+      .sort({ createdAt: -1 });
   },
 
-  async transactionDetail(
+  transactionDetail: async (
     _root: any,
     { _id }: { _id: string },
-    { models }: IContext
-  ) {
-    return models.Transactions.findOne({ _id });
+    { subdomain, models }: IContext
+  ) => {
+    return await models.Transactions.getTransactionDetail(subdomain, _id);
   }
 };
 

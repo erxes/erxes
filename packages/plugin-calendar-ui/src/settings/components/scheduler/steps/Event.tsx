@@ -1,10 +1,11 @@
+import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
+
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { FlexRow } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
-import { __ } from '@erxes/ui/src/utils/core';
-import { FlexRow } from '@erxes/ui-settings/src/integrations/styles';
 import React from 'react';
+import { __ } from 'coreui/utils';
 
 type Props = {
   onChange: (

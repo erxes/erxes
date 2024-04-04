@@ -1,18 +1,19 @@
-import dayjs from 'dayjs';
+import { Actions, Bottom, BoxItem, Created } from '../styles';
+
+import { BoxContainer } from '../../../growthHacks/components/home/styles';
 import Button from '@erxes/ui/src/components/Button';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Tip from '@erxes/ui/src/components/Tip';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
-import { BoxContainer } from '../../../growthHacks/components/home/styles';
-import React from 'react';
+import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
+import Icon from '@erxes/ui/src/components/Icon';
 import { Link } from 'react-router-dom';
 import List from '@erxes/ui-settings/src/common/components/List';
-import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
-import { Actions, Bottom, BoxItem, Created } from '../styles';
-import TemplateForm from '@erxes/ui-settings/src/growthHacks/components/TemplateForm';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import TemplateForm from './TemplateForm';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from 'coreui/utils';
+import dayjs from 'dayjs';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;

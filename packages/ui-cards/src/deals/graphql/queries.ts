@@ -1,11 +1,12 @@
+import { queries } from '@erxes/ui-products/src/graphql';
 import { commonFields, commonListFields } from '../../boards/graphql/mutations';
 import {
   conformityQueryFieldDefs,
   conformityQueryFields
 } from '../../conformity/graphql/queries';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const commonParams = `
+  $_ids: [String]
   $companyIds: [String],
   $customerIds: [String],
   $assignedUserIds: [String],
@@ -15,18 +16,33 @@ const commonParams = `
   $priority: [String],
   $date: ItemDate,
   $pipelineId: String,
+  $parentId: String,
   $closeDateType: String,
   $sortField: String,
   $sortDirection: Int,
   $userIds: [String],
   $segment: String,
+  $segmentData:String,
   $assignedToMe: String,
   $startDate: String,
   $endDate: String,
-  ${conformityQueryFields}
+  $tagIds: [String],
+  $noSkipArchive: Boolean
+  $branchIds:[String]
+  $departmentIds:[String]
+  ${conformityQueryFields},
+  $createdStartDate: Date,
+  $createdEndDate: Date,
+  $stateChangedStartDate: Date
+  $stateChangedEndDate: Date
+  $startDateStartDate: Date
+  $startDateEndDate: Date
+  $closeDateStartDate: Date
+  $closeDateEndDate: Date
 `;
 
 const commonParamDefs = `
+  _ids: $_ids,
   companyIds: $companyIds,
   customerIds: $customerIds,
   assignedUserIds: $assignedUserIds,
@@ -36,34 +52,37 @@ const commonParamDefs = `
   search: $search,
   date: $date,
   pipelineId: $pipelineId,
+  parentId: $parentId,
   closeDateType: $closeDateType,
   sortField: $sortField,
   sortDirection: $sortDirection,
   userIds: $userIds,
   segment: $segment,
+  segmentData: $segmentData,
   assignedToMe: $assignedToMe,
   startDate: $startDate,
   endDate: $endDate,
-  ${conformityQueryFieldDefs}
+  tagIds: $tagIds,
+  noSkipArchive: $noSkipArchive
+  branchIds: $branchIds,
+  departmentIds: $departmentIds,
+  ${conformityQueryFieldDefs},
+  createdStartDate: $createdStartDate,
+  createdEndDate: $createdEndDate,
+  stateChangedStartDate: $stateChangedStartDate
+  stateChangedEndDate: $stateChangedEndDate
+  startDateStartDate: $startDateStartDate
+  startDateEndDate: $startDateEndDate
+  closeDateStartDate: $closeDateStartDate
+  closeDateEndDate: $closeDateEndDate
 `;
 
 export const dealFields = `
   products
   productsData
   paymentsData
+  unUsedAmount
   amount
-  ${
-    isEnabled('tags')
-      ? `
-  tags {
-    _id
-    name
-    colorCode
-  }
-  `
-      : ``
-  }
-  tagIds
 `;
 
 const dealsTotalAmounts = `
@@ -99,6 +118,7 @@ const deals = `
       ${commonParamDefs}
     ) {
       products
+      unUsedAmount
       amount
       ${commonListFields}
     }
@@ -200,11 +220,14 @@ const checkDiscount = `
   }
 `;
 
+const productCategories = queries.productCategories;
+
 export default {
   deals,
   dealsTotalCount,
   dealDetail,
   productDetail,
+  productCategories,
   dealsTotalAmounts,
   archivedDeals,
   archivedDealsCount,

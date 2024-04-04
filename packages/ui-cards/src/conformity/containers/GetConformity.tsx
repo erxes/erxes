@@ -1,8 +1,10 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from 'react-apollo';
+
 import { ConformityQueryResponse, ISavedConformity } from '../types';
+
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { renderWithProps } from '@erxes/ui/src/utils/core';
 
 type IProps = {
@@ -65,14 +67,28 @@ export default (props: IProps) =>
           skip: ({ mainType, mainTypeId, relType, alreadyItems }) =>
             (!mainType && !mainTypeId && !relType) ||
             alreadyItems !== undefined,
-          options: ({ mainType, mainTypeId, relType }) => ({
-            variables: {
+          options: ({ mainType, mainTypeId, relType }) => {
+            const variables: any = {
               mainType,
               mainTypeId,
               relType,
+              limit: 40,
               isSaved: true
+            };
+
+            // conformity with mainType "user" is not saved
+            if (mainType === 'user') {
+              variables.assignedUserIds = [mainTypeId];
+              variables.isSaved = false;
             }
-          })
+
+            // add archived items in contacts side bar
+            if (mainType === 'customer' || mainType === 'company') {
+              variables.noSkipArchive = true;
+            }
+
+            return { variables };
+          }
         }
       )
     )(PortableItemsContainer)

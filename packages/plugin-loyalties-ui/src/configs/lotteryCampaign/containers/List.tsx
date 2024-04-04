@@ -1,12 +1,17 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { Bulk } from '@erxes/ui/src/components';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import LotteryCampaign from '../components/List';
 import { mutations, queries } from '../graphql';
-import { LotteryCampaignQueryResponse, LotteryCampaignRemoveMutationResponse } from '../types';
+import {
+  LotteryCampaignQueryResponse,
+  LotteryCampaignRemoveMutationResponse,
+  LotteryCampaignsCountQueryResponse
+} from '../types';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
   queryParams: any;
@@ -16,12 +21,15 @@ type Props = {
 
 type FinalProps = {
   lotteryCampaignQuery: LotteryCampaignQueryResponse;
-} & Props & LotteryCampaignRemoveMutationResponse;
+  lotteryCampaignQueryCount: LotteryCampaignsCountQueryResponse;
+} & Props &
+  LotteryCampaignRemoveMutationResponse;
 
 class LotteryCampaignContainer extends React.Component<FinalProps> {
   render() {
     const {
       lotteryCampaignQuery,
+      lotteryCampaignQueryCount,
       queryParams,
       lotteryCampaignsRemove
     } = this.props;
@@ -47,6 +55,7 @@ class LotteryCampaignContainer extends React.Component<FinalProps> {
     const filterStatus = this.props.queryParams.filterStatus || '';
 
     const lotteryCampaigns = lotteryCampaignQuery.lotteryCampaigns || [];
+    const totalCount = lotteryCampaignQueryCount.lotteryCampaignsCount || 0;
 
     const updatedProps = {
       ...this.props,
@@ -55,6 +64,7 @@ class LotteryCampaignContainer extends React.Component<FinalProps> {
       remove,
       loading: lotteryCampaignQuery.loading,
       searchValue,
+      totalCount,
       filterStatus
     };
 
@@ -71,9 +81,7 @@ class LotteryCampaignContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return [
-    'lotteryCampaigns'
-  ];
+  return ['lotteryCampaigns'];
 };
 
 const options = () => ({
@@ -82,15 +90,33 @@ const options = () => ({
 
 export default withProps<Props>(
   compose(
-    graphql<{}, LotteryCampaignQueryResponse>(gql(queries.lotteryCampaigns), {
-      name: 'lotteryCampaignQuery'
+    graphql<Props>(gql(queries.lotteryCampaignsCount), {
+      name: 'lotteryCampaignQueryCount',
+      options: ({ queryParams }: Props) => ({
+        variables: {
+          searchValue: queryParams.searchValue
+        }
+      })
     }),
-    graphql<Props, LotteryCampaignRemoveMutationResponse, { lotteryCampaignIds: string[] }>(
-      gql(mutations.lotteryCampaignsRemove),
+    graphql<Props, LotteryCampaignQueryResponse>(
+      gql(queries.lotteryCampaigns),
       {
-        name: 'lotteryCampaignsRemove',
-        options
+        name: 'lotteryCampaignQuery',
+        options: ({ queryParams }: Props) => ({
+          variables: {
+            searchValue: queryParams.searchValue,
+            ...generatePaginationParams(queryParams)
+          }
+        })
       }
     ),
+    graphql<
+      Props,
+      LotteryCampaignRemoveMutationResponse,
+      { lotteryCampaignIds: string[] }
+    >(gql(mutations.lotteryCampaignsRemove), {
+      name: 'lotteryCampaignsRemove',
+      options
+    })
   )(LotteryCampaignContainer)
 );

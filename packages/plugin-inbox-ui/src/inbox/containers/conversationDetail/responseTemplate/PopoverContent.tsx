@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { withProps } from '@erxes/ui/src/utils';
 import PopoverContent from '../../../components/conversationDetail/workarea/responseTemplate/PopoverContent';
@@ -6,11 +6,11 @@ import { IBrand } from '@erxes/ui/src/brands/types';
 import { queries as responseTemplateQuery } from '../../../../settings/responseTemplates/graphql';
 import {
   IResponseTemplate,
-  ResponseTemplatesQueryResponse
+  ResponseTemplatesQueryResponse,
 } from '../../../../settings/responseTemplates/types';
 import { ResponseTemplatesTotalCountQueryResponse } from '@erxes/ui-inbox/src/inbox/types';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 
 import { AppConsumer } from 'coreui/appContext';
 
@@ -27,40 +27,20 @@ type FinalProps = {
   responseTemplatesQuery: ResponseTemplatesQueryResponse;
   responseTemplatesTotalCountQuery: ResponseTemplatesTotalCountQueryResponse;
 } & Props;
+
 const PopoverContentContainer = (props: FinalProps) => {
   const {
     brands,
     search,
     responseTemplatesQuery,
-    responseTemplatesTotalCountQuery
+    responseTemplatesTotalCountQuery,
   } = props;
-
   if (
     responseTemplatesQuery.loading ||
     responseTemplatesTotalCountQuery.loading
   ) {
     return null;
   }
-
-  const fetchMore = (variables: { page: number; perPage: number }) => {
-    responseTemplatesQuery.fetchMore({
-      variables,
-      updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) {
-          return prev;
-        }
-
-        const prevTemplates = prev.responseTemplates || [];
-
-        const fetchedTemplates = fetchMoreResult.responseTemplates || [];
-
-        return {
-          ...prev,
-          responseTemplates: [...prevTemplates, ...fetchedTemplates]
-        };
-      }
-    });
-  };
 
   const onSearchChange = (name: string, value: string) => {
     search(name, value);
@@ -69,14 +49,21 @@ const PopoverContentContainer = (props: FinalProps) => {
   const responseTemplates = responseTemplatesQuery.responseTemplates;
   const count = responseTemplatesTotalCountQuery.responseTemplatesTotalCount;
   const hasMore = count > responseTemplates.length;
-
+  const refetchResponseTemplates = (content, brandId, page, perPage) => {
+    responseTemplatesQuery.refetch({
+      searchValue: content,
+      brandId: brandId,
+      page: page,
+      perPage: perPage,
+    });
+  };
   const updatedProps = {
     ...props,
     onSearchChange,
     brands,
-    fetchMore,
     hasMore,
-    responseTemplates: responseTemplatesQuery.responseTemplates
+    responseTemplates: responseTemplatesQuery.responseTemplates,
+    refetchResponseTemplates,
   };
 
   return <PopoverContent {...updatedProps} />;
@@ -88,22 +75,13 @@ const withQuery = () =>
       graphql<Props & { searchValue: string }, ResponseTemplatesQueryResponse>(
         gql(responseTemplateQuery.responseTemplates),
         {
-          name: 'responseTemplatesQuery',
-          options: ({ searchValue, brandId }) => {
-            return {
-              variables: {
-                perPage: 10,
-                searchValue,
-                brandId
-              }
-            };
-          }
-        }
+          name: 'responseTemplatesQueryAll',
+        },
       ),
       graphql(gql(responseTemplateQuery.responseTemplatesTotalCount), {
-        name: 'responseTemplatesTotalCountQuery'
-      })
-    )(PopoverContentContainer)
+        name: 'responseTemplatesTotalCountQuery',
+      }),
+    )(PopoverContentContainer),
   );
 
 type WrapperState = {
@@ -123,7 +101,7 @@ class Wrapper extends React.Component<Props, WrapperState> {
   }
 
   search = <T extends keyof WrapperState>(name: T, value: WrapperState[T]) => {
-    this.setState(({ [name]: value } as unknown) as Pick<
+    this.setState({ [name]: value } as unknown as Pick<
       WrapperState,
       keyof WrapperState
     >);

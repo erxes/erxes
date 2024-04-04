@@ -1,11 +1,12 @@
-import { PipelinePopoverContent } from '../../styles/item';
 import Chooser, { CommonProps } from '@erxes/ui/src/components/Chooser';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Select } from '@erxes/ui/src/styles/chooser';
-import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
+
 import BoardSelect from '../../containers/BoardSelect';
+import Icon from '@erxes/ui/src/components/Icon';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import { PipelinePopoverContent } from '../../styles/item';
+import Popover from 'react-bootstrap/Popover';
+import React from 'react';
+import { Select } from '@erxes/ui/src/styles/chooser';
 
 type Props = {
   boardId?: string;
@@ -16,6 +17,8 @@ type Props = {
     boardId?: string,
     pipelineId?: string
   ) => void;
+  loading?: boolean;
+  onLoadMore?: () => void;
   translator?: (key: string, options?: any) => string;
 } & CommonProps;
 

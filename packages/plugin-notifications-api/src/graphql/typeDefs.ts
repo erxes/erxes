@@ -1,9 +1,9 @@
-import { gql } from 'apollo-server-express';
+import gql from 'graphql-tag';
 
 import {
   types as NotificationTypes,
   queries as NotificationQueries,
-  mutations as NotificationMutations,
+  mutations as NotificationMutations
 } from './notificationTypeDefs';
 
 const typeDefs = gql`

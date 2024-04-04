@@ -1,17 +1,18 @@
-import gql from "graphql-tag";
 import * as compose from "lodash.flowright";
-import { IButtonMutateProps } from "@erxes/ui/src/types";
-import { IRouterProps } from "@erxes/ui/src/types";
+
 import { Alert, confirm, withProps } from "modules/common/utils";
-import { queries as queriesInbox } from "@erxes/ui-inbox/src/inbox/graphql";
-import React from "react";
-import { ChildProps, graphql } from "react-apollo";
-import { withRouter } from "react-router-dom";
-import Sidebar from "../components/Sidebar";
+import { ChildProps, graphql } from "@apollo/client/react/hoc";
 import { mutations, queries } from "../graphql";
+
 import { BrandRemoveMutationResponse } from "../types";
 import { BrandsQueryResponse } from "@erxes/ui/src/brands/types";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { IRouterProps } from "@erxes/ui/src/types";
 import { MutationVariables } from "@erxes/ui/src/types";
+import React from "react";
+import Sidebar from "../components/Sidebar";
+import { gql } from "@apollo/client";
+import { withRouter } from "react-router-dom";
 
 type Props = {
   queryParams: any;
@@ -32,7 +33,9 @@ const SidebarContainer = (props: ChildProps<FinalProps>) => {
 
   // remove action
   const remove = (brandId) => {
-    confirm().then(() => {
+    confirm("This will permanently delete a brand. Are you absolutely sure?", {
+      hasDeleteConfirm: true,
+    }).then(() => {
       removeMutation({
         variables: { _id: brandId },
       })
@@ -76,7 +79,7 @@ const getRefetchQueries = (queryParams, currentBrandId?: string) => {
       variables: { _id: currentBrandId || "" },
     },
     { query: gql(queries.brandsCount) },
-    { query: gql(queriesInbox.brandList) },
+    { query: gql(queries.brands) },
   ];
 };
 

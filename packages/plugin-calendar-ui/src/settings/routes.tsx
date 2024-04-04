@@ -54,26 +54,26 @@ const editPage = ({ history, match }) => {
 
 const routes = () => (
   <React.Fragment>
-    <Route path='/settings/calendars' component={Calendar} />
+    <Route path="/settings/calendars" component={Calendar} />
 
     <Route
-      path='/settings/schedule'
+      path="/settings/schedule"
       exact={true}
-      key='/settings/schedule'
+      key="/settings/schedule"
       component={schedule}
     />
 
     <Route
-      path='/settings/schedule/create/:accountId'
+      path="/settings/schedule/create/:accountId"
       exact={true}
-      key='/settings/schedule/create/:accountId'
+      key="/settings/schedule/create/:accountId"
       component={createPage}
     />
 
     <Route
-      path='/settings/schedule/edit/:accountId/:id'
+      path="/settings/schedule/edit/:accountId/:id"
       exact={true}
-      key='/settings/schedule/edit:id'
+      key="/settings/schedule/edit:id"
       component={editPage}
     />
   </React.Fragment>

@@ -1,22 +1,24 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import {
   EditIntegrationMutationResponse,
   EditIntegrationMutationVariables,
   LeadIntegrationDetailQueryResponse
-} from '@erxes/ui-settings/src/integrations/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import Lead from '../components/Lead';
+} from '@erxes/ui-inbox/src/settings/integrations/types';
 import { mutations, queries } from '@erxes/ui-leads/src/graphql';
+
+import { ConfigsQueryResponse } from '@erxes/ui-settings/src/general/types';
 import { ILeadData } from '@erxes/ui-leads/src/types';
 import { ILeadIntegration } from '@erxes/ui-leads/src/types';
-import { queries as settingsQueries } from '@erxes/ui-settings/src/general/graphql';
-import { ConfigsQueryResponse } from '@erxes/ui-settings/src/general/types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import Lead from '../components/Lead';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { queries as settingsQueries } from '@erxes/ui-settings/src/general/graphql';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   contentTypeId: string;
@@ -27,6 +29,8 @@ type Props = {
 type State = {
   isLoading: boolean;
   isReadyToSaveForm: boolean;
+  isIntegrationSubmitted: boolean;
+  mustWait?: any;
   doc?: {
     brandId: string;
     channelIds?: string[];
@@ -52,8 +56,32 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
   constructor(props: FinalProps) {
     super(props);
 
-    this.state = { isLoading: false, isReadyToSaveForm: false };
+    this.state = {
+      isLoading: false,
+      isReadyToSaveForm: false,
+      mustWait: { optionsStep: false },
+      isIntegrationSubmitted: false
+    };
   }
+
+  redirect = () => {
+    let canClose = true;
+
+    for (const key in this.state.mustWait) {
+      if (this.state.mustWait[key]) {
+        canClose = false;
+      } else {
+        canClose = true;
+      }
+    }
+
+    if (canClose) {
+      this.props.history.push({
+        pathname: '/forms',
+        search: `?popUpRefetchList=true`
+      });
+    }
+  };
 
   render() {
     const {
@@ -100,10 +128,10 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
           .then(() => {
             Alert.success('You successfully updated a form');
 
-            history.push({
-              pathname: '/forms',
-              search: '?popUpRefetchList=true'
+            this.setState({
+              isIntegrationSubmitted: true
             });
+            this.redirect();
           })
 
           .catch(error => {
@@ -114,6 +142,11 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
       }
     };
 
+    const waitUntilFinish = (obj: any) => {
+      const mustWait = { ...this.state.mustWait, ...obj };
+      this.setState({ mustWait });
+    };
+
     const save = doc => {
       this.setState({ isLoading: true, isReadyToSaveForm: true, doc });
     };
@@ -121,17 +154,28 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
     const updatedProps = {
       ...this.props,
       integration: integration ? integration : ({} as any),
+      integrationId: integration._id,
       save,
       afterFormDbSave,
+      waitUntilFinish,
+      onChildProcessFinished: component => {
+        if (this.state.mustWait.hasOwnProperty(component)) {
+          const mustWait = { ...this.state.mustWait };
+          mustWait[component] = false;
+          this.setState({ mustWait });
+        }
+        this.redirect();
+      },
       isActionLoading: this.state.isLoading,
       isReadyToSaveForm: this.state.isReadyToSaveForm,
+      isIntegrationSubmitted: this.state.isIntegrationSubmitted,
       emailTemplates: emailTemplatesQuery
         ? emailTemplatesQuery.emailTemplates || []
         : [],
       configs: configsQuery.configs || []
     };
 
-    return <Lead {...updatedProps} />;
+    return <Lead {...updatedProps} currentMode="update" />;
   }
 }
 

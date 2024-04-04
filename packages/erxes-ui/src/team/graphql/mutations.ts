@@ -6,7 +6,11 @@ const commonParamsDef = `
   $channelIds: [String]
   $groupIds: [String]
   $brandIds: [String]
+  $departmentIds: [String]
+  $branchIds: [String]
+  $positionIds:[String]
   $customFieldsData: JSON
+  $employeeId: String
 `;
 
 const commonParams = `
@@ -16,8 +20,12 @@ const commonParams = `
   links: $links,
   channelIds: $channelIds
   groupIds: $groupIds
+  branchIds: $branchIds
+  departmentIds: $departmentIds
+  positionIds: $positionIds
   brandIds: $brandIds
   customFieldsData: $customFieldsData
+  employeeId: $employeeId
 `;
 
 const usersEdit = `
@@ -33,15 +41,15 @@ const usersEditProfile = `
     $username: String!
     $email: String!
     $details: UserDetails
-    $links: JSON 
-    $password: String!
+    $links: JSON
+    $employeeId: String
   ) {
     usersEditProfile(
       username: $username
       email: $email
       details: $details
       links: $links
-      password: $password
+      employeeId: $employeeId
     ) {
       _id
     }
@@ -179,8 +187,8 @@ const departmentsEdit = `
 `;
 
 const departmentsRemove = `
-  mutation departmentsRemove($_id: String!) {
-    departmentsRemove(_id: $_id)
+  mutation departmentsRemove($ids: [String!]) {
+    departmentsRemove(ids: $ids)
   }
 `;
 
@@ -219,9 +227,23 @@ const unitsEdit = `
 `;
 
 const unitsRemove = `
-  mutation unitsRemove($_id: String!) {
-    unitsRemove(_id: $_id)
+  mutation unitsRemove($ids: [String!]) {
+    unitsRemove(ids: $ids)
   }
+`;
+
+const commonPositionParamsDef = `
+  $title: String
+  $code: String
+  $parentId: String
+  $userIds: [String]
+`;
+
+const commonPositionParams = `
+  title: $title,
+  parentId: $parentId
+  code: $code
+  userIds: $userIds
 `;
 
 const commonBranchParamsDef = `
@@ -231,6 +253,7 @@ const commonBranchParamsDef = `
   $code: String
   $parentId: String
   $userIds: [String]
+  $radius: Int
   ${commonContactInfoParamsDef}
 `;
 
@@ -241,6 +264,7 @@ const commonBranchParams = `
   code: $code
   supervisorId: $supervisorId
   userIds: $userIds
+  radius: $radius
   ${commonContactInfoParams}
 `;
 
@@ -261,8 +285,29 @@ const branchesEdit = `
 `;
 
 const branchesRemove = `
-  mutation branchesRemove($_id: String!) {
-    branchesRemove(_id: $_id)
+  mutation branchesRemove($ids: [String!]) {
+    branchesRemove(ids: $ids)
+  }
+`;
+
+const positionsAdd = `
+mutation positionsAdd(${commonPositionParamsDef}){
+  positionsAdd(${commonPositionParams}){
+    _id
+  }
+}`;
+
+const positionsEdit = `
+  mutation positionsEdit($_id: String!, ${commonPositionParamsDef}) {
+    positionsEdit(_id: $_id, ${commonPositionParams}) {
+      _id
+    }
+  }
+`;
+
+const positionsRemove = `
+  mutation positionsRemove($ids: [String!]) {
+    positionsRemove(ids: $ids)
   }
 `;
 
@@ -286,5 +331,8 @@ export default {
   unitsRemove,
   branchesAdd,
   branchesEdit,
-  branchesRemove
+  branchesRemove,
+  positionsAdd,
+  positionsEdit,
+  positionsRemove,
 };

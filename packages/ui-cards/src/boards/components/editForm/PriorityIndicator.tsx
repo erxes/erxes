@@ -1,6 +1,6 @@
 import { ItemIndicator } from '../../styles/stage';
-import { colors } from '@erxes/ui/src/styles';
 import React from 'react';
+import { colors } from '@erxes/ui/src/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -32,7 +32,7 @@ export default (props: IProps) => {
       case 'High':
       case 'Acquisition':
         return colors.colorCoreYellow;
-      case 'Normal':
+      case 'Medium':
       case 'Activation':
         return colors.colorCoreBlue;
       case 'Revenue':

@@ -3,20 +3,29 @@ import queryString from 'query-string';
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 
-const AuthLayout = asyncComponent(() =>
-  import(/* webpackChunkName: "AuthLayout" */ '@erxes/ui/src/layout/components/AuthLayout')
+const AuthLayout = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "AuthLayout" */ '@erxes/ui/src/layout/components/AuthLayout'
+    ),
 );
 
-const ForgotPassword = asyncComponent(() =>
-  import(/* webpackChunkName: "ForgotPassword" */ './containers/ForgotPassword')
+const ForgotPassword = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "ForgotPassword" */ './containers/ForgotPassword'
+    ),
 );
 
-const ResetPassword = asyncComponent(() =>
-  import(/* webpackChunkName: "ResetPassword" */ './containers/ResetPassword')
+const ResetPassword = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "ResetPassword" */ './containers/ResetPassword'
+    ),
 );
 
-const SignIn = asyncComponent(() =>
-  import(/* webpackChunkName: "SignIn" */ './containers/SignIn')
+const SignIn = asyncComponent(
+  () => import(/* webpackChunkName: "SignIn" */ './containers/SignIn'),
 );
 
 const signIn = () => <AuthLayout content={<SignIn />} />;

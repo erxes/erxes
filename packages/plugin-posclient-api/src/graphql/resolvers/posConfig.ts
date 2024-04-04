@@ -1,18 +1,15 @@
-import { sendPosMessage } from '../../messageBroker';
+import { IContext } from '../../connectionResolver';
 import { IConfigDocument } from '../../models/definitions/configs';
 
 export default {
-  slots(config: IConfigDocument, _args, { subdomain }) {
-    return (
-      config.posId &&
-      sendPosMessage({
-        subdomain,
-        action: 'findSlots',
-        data: {
-          posId: config.posId
-        },
-        isRPC: true
-      })
-    );
+  async slots(config: IConfigDocument, _args, { models }: IContext) {
+    return await models.PosSlots.find({ posId: config.posId });
+  },
+
+  allowTypes(config: IConfigDocument, _args, {}: IContext) {
+    if (!config.allowTypes || !config.allowTypes.length) {
+      return ['eat', 'take', 'delivery'];
+    }
+    return config.allowTypes;
   }
 };

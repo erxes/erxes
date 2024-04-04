@@ -4,7 +4,7 @@ import {
   putUpdateLog as commonPutUpdateLog,
   putDeleteLog as commonPutDeleteLog,
   getSchemaLabels,
-  gatherNames
+  gatherNames,
 } from '@erxes/api-utils/src/logUtils';
 
 import {
@@ -13,26 +13,26 @@ import {
   scheduleDateSchema,
   messengerSchema,
   IEngageMessageDocument,
-  IEngageMessage
+  IEngageMessage,
 } from './models/definitions/engages';
-import messageBroker, {
+import {
   sendSegmentsMessage,
   sendCoreMessage,
   sendTagsMessage,
-  sendEmailTemplatesMessage
+  sendEmailTemplatesMessage,
 } from './messageBroker';
 import configs from './configs';
 
 export const LOG_ACTIONS = {
   CREATE: 'create',
   UPDATE: 'update',
-  DELETE: 'delete'
+  DELETE: 'delete',
 };
 
 const gatherEngageFieldNames = async (
   subdomain: string,
   doc: IEngageMessageDocument | IEngageMessage,
-  prevList?: LogDesc[]
+  prevList?: LogDesc[],
 ): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
@@ -47,14 +47,14 @@ const gatherEngageFieldNames = async (
   if (doc.segmentIds && doc.segmentIds.length > 0) {
     const segments = await sendRPCMessage(
       { action: 'find', data: { _id: { $in: doc.segmentIds } } },
-      sendSegmentsMessage
+      sendSegmentsMessage,
     );
 
     options = await gatherNames({
       foreignKey: 'segmentIds',
       prevList: options,
       nameFields: ['name'],
-      items: segments
+      items: segments,
     });
   }
 
@@ -62,30 +62,30 @@ const gatherEngageFieldNames = async (
     const brands = await sendRPCMessage(
       {
         action: 'brands.find',
-        data: { query: { _id: { $in: doc.brandIds } } }
+        data: { query: { _id: { $in: doc.brandIds } } },
       },
-      sendCoreMessage
+      sendCoreMessage,
     );
 
     options = await gatherNames({
       foreignKey: 'brandIds',
       prevList: options,
       nameFields: ['name'],
-      items: brands
+      items: brands,
     });
   }
 
   if (doc.customerTagIds && doc.customerTagIds.length > 0) {
     const tags = await sendRPCMessage(
       { action: 'find', data: { _id: { $in: doc.customerTagIds } } },
-      sendTagsMessage
+      sendTagsMessage,
     );
 
     options = await gatherNames({
       foreignKey: 'customerTagIds',
       prevList: options,
       nameFields: ['name'],
-      items: tags
+      items: tags,
     });
   }
 
@@ -93,9 +93,9 @@ const gatherEngageFieldNames = async (
     const user = await sendRPCMessage(
       {
         action: 'users.findOne',
-        data: { _id: doc.fromUserId }
+        data: { _id: doc.fromUserId },
       },
-      sendCoreMessage
+      sendCoreMessage,
     );
 
     if (user && user._id) {
@@ -103,7 +103,7 @@ const gatherEngageFieldNames = async (
         foreignKey: 'fromUserId',
         prevList: options,
         nameFields: ['email', 'username'],
-        items: [user]
+        items: [user],
       });
     }
   }
@@ -112,9 +112,9 @@ const gatherEngageFieldNames = async (
     const brand = await sendRPCMessage(
       {
         action: 'brands.findOne',
-        data: { _id: doc.messenger.brandId }
+        data: { _id: doc.messenger.brandId },
       },
-      sendCoreMessage
+      sendCoreMessage,
     );
 
     if (brand) {
@@ -122,7 +122,7 @@ const gatherEngageFieldNames = async (
         foreignKey: 'brandId',
         prevList: options,
         nameFields: ['name'],
-        items: [brand]
+        items: [brand],
       });
     }
   }
@@ -131,9 +131,9 @@ const gatherEngageFieldNames = async (
     const user = await sendRPCMessage(
       {
         action: 'users.findOne',
-        data: { _id: doc.createdBy }
+        data: { _id: doc.createdBy },
       },
-      sendCoreMessage
+      sendCoreMessage,
     );
 
     if (user) {
@@ -141,7 +141,7 @@ const gatherEngageFieldNames = async (
         foreignKey: 'createdBy',
         prevList: options,
         nameFields: ['email', 'username'],
-        items: [user]
+        items: [user],
       });
     }
   }
@@ -150,9 +150,9 @@ const gatherEngageFieldNames = async (
     const template = await sendRPCMessage(
       {
         action: 'findOne',
-        data: { _id: doc.email.templateId }
+        data: { _id: doc.email.templateId },
       },
-      sendEmailTemplatesMessage
+      sendEmailTemplatesMessage,
     );
 
     if (template) {
@@ -160,7 +160,7 @@ const gatherEngageFieldNames = async (
         foreignKey: 'email.templateId',
         prevList: options,
         nameFields: ['name'],
-        items: [template]
+        items: [template],
       });
     }
   }
@@ -178,7 +178,7 @@ export const gatherDescriptions = async (subdomain: string, params: any) => {
     extraDesc = await gatherEngageFieldNames(
       subdomain,
       updatedDocument,
-      extraDesc
+      extraDesc,
     );
   }
 
@@ -188,57 +188,54 @@ export const gatherDescriptions = async (subdomain: string, params: any) => {
 export const putDeleteLog = async (subdomain: string, logDoc, user) => {
   const { description, extraDesc } = await gatherDescriptions(subdomain, {
     ...logDoc,
-    action: LOG_ACTIONS.DELETE
+    action: LOG_ACTIONS.DELETE,
   });
 
   await commonPutDeleteLog(
     subdomain,
-    messageBroker(),
     {
       ...logDoc,
       description,
       extraDesc,
-      type: `${configs.name}:${logDoc.type}`
+      type: `${configs.name}:${logDoc.type}`,
     },
-    user
+    user,
   );
 };
 
 export const putUpdateLog = async (subdomain: string, logDoc, user) => {
   const { description, extraDesc } = await gatherDescriptions(subdomain, {
     ...logDoc,
-    action: LOG_ACTIONS.UPDATE
+    action: LOG_ACTIONS.UPDATE,
   });
 
   await commonPutUpdateLog(
     subdomain,
-    messageBroker(),
     {
       ...logDoc,
       description,
       extraDesc,
-      type: `${configs.name}:${logDoc.type}`
+      type: `${configs.name}:${logDoc.type}`,
     },
-    user
+    user,
   );
 };
 
 export const putCreateLog = async (subdomain: string, logDoc, user) => {
   const { description, extraDesc } = await gatherDescriptions(subdomain, {
     ...logDoc,
-    action: LOG_ACTIONS.CREATE
+    action: LOG_ACTIONS.CREATE,
   });
 
   await commonPutCreateLog(
     subdomain,
-    messageBroker(),
     {
       ...logDoc,
       description,
       extraDesc,
-      type: `${configs.name}:${logDoc.type}`
+      type: `${configs.name}:${logDoc.type}`,
     },
-    user
+    user,
   );
 };
 
@@ -252,9 +249,9 @@ export default {
           engageMessageSchema,
           emailSchema,
           scheduleDateSchema,
-          messengerSchema
-        ]
-      }
-    ])
-  })
+          messengerSchema,
+        ],
+      },
+    ]),
+  }),
 };

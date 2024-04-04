@@ -1,10 +1,11 @@
+import * as _ from 'lodash';
 import { generateModels } from '../../../connectionResolver';
 import { sendProductsMessage } from '../../../messageBroker';
 import { IRemainderDocument } from '../../../models/definitions/remainders';
 import { ISafeRemainderItemDocument } from '../../../models/definitions/safeRemainderItems';
 import { IUpdateRemaindersParams } from './remainders';
 
-export const updateLiveRemainder = async ({
+export const updateLiveRemainders = async ({
   subdomain,
   departmentId,
   branchId,
@@ -16,10 +17,11 @@ export const updateLiveRemainder = async ({
   const selector: any = {};
   let allProductIds: string[] = [];
 
-  selector.departmentId = departmentId;
-  selector.branchId = branchId;
+  if (departmentId) selector.departmentId = departmentId;
+  if (branchId) selector.branchId = branchId;
 
   if (productCategoryId) {
+    // Find all products in category by categoryId
     const products = await sendProductsMessage({
       subdomain,
       action: 'find',
@@ -30,70 +32,68 @@ export const updateLiveRemainder = async ({
       isRPC: true
     });
 
-    const pIds = products.map(p => p._id);
-    selector.productId = { $in: pIds };
-    allProductIds = allProductIds.concat(pIds);
+    // Get product ids
+    const productIds = products.map((item: any) => item._id);
+    selector.productId = { $in: productIds };
+    allProductIds = _.union(allProductIds, productIds);
   }
 
   if (productIds) {
     selector.productId = { $in: productIds };
-    allProductIds = allProductIds.concat(productIds);
+    allProductIds = _.union(allProductIds, productIds);
   }
 
-  const safeRemainders = await models.SafeRemainderItems.find(selector).lean();
-
-  const remainders: IRemainderDocument[] = await models.Remainders.find(
+  const safeRemainders: any = await models.SafeRemainderItems.find(
     selector
   ).lean();
-
+  const remainders: any = await models.Remainders.find(selector).lean();
   const resultRemainder: IRemainderDocument[] = [];
 
   for (const productId of allProductIds) {
     let safe: ISafeRemainderItemDocument | undefined = undefined;
-    const safed = safeRemainders.filter(
-      (item: any) =>
+    safe = safeRemainders.find((item: any) => {
+      if (
         item.productId === productId &&
         item.departmentId === departmentId &&
         item.branchId === branchId
-    );
-    if (safed.length) {
-      safe = safed[0];
-    }
+      )
+        return item;
+    });
 
     const transactionSelector: any = {
       departmentId,
       branchId,
-      productId: productId
+      productId
     };
 
-    if (safe && safe.lastTransactionDate) {
-      transactionSelector.date = { $gt: safe.lastTransactionDate };
-    }
-
-    const trs = await models.TransactionItems.find(transactionSelector).lean();
+    const transactionItems = await models.TransactionItems.find(
+      transactionSelector
+    ).lean();
     let remainderCount = safe ? safe.count : 0;
 
-    for (const tr of trs) {
-      remainderCount += tr.isDebit ? tr.count : -1 * tr.count;
+    for (const item of transactionItems) {
+      remainderCount += item.isDebit ? item.count : -1 * item.count;
     }
 
-    const realRemainder = remainders.find(
-      (item: any) =>
+    const realRemainder = remainders.find((item: any) => {
+      if (
         item.productId === productId &&
         item.departmentId === departmentId &&
         item.branchId === branchId
-    );
+      )
+        return item;
+    });
 
     if (realRemainder && realRemainder._id) {
       if (realRemainder.count === remainderCount) {
         resultRemainder.push(realRemainder);
       } else {
-        models.Remainders.updateOne(
-          { _id: realRemainder._id },
-          { $set: { count: remainderCount } }
-        );
+        await models.Remainders.updateRemainder(realRemainder._id, {
+          count: remainderCount
+        });
+
         resultRemainder.push(
-          await models.Remainders.getRemainderObject(realRemainder._id)
+          await models.Remainders.getRemainder(realRemainder._id)
         );
       }
     } else {
@@ -102,10 +102,52 @@ export const updateLiveRemainder = async ({
         departmentId,
         branchId,
         count: remainderCount
-        // uomId:
       });
     }
   }
 
   return resultRemainder;
+};
+
+export const getProducts = async (subdomain, productId, productCategoryId) => {
+  let products: any[] = [];
+  if (productId) {
+    const product = await sendProductsMessage({
+      subdomain,
+      action: 'find',
+      data: { _id: productId },
+      isRPC: true
+    });
+    products = [product];
+  }
+
+  if (productCategoryId) {
+    const limit = await sendProductsMessage({
+      subdomain,
+      action: 'count',
+      data: {
+        query: { status: { $nin: ['archived', 'deleted'] } },
+        categoryId: productCategoryId
+      },
+      isRPC: true,
+      defaultValue: 0
+    });
+
+    products = await sendProductsMessage({
+      subdomain,
+      action: 'find',
+      data: {
+        query: { status: { $nin: ['archived', 'deleted'] } },
+        categoryId: productCategoryId,
+        limit,
+        sort: { code: 1 }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+  }
+
+  const productIds = products.map(p => p._id);
+
+  return { products, productIds };
 };

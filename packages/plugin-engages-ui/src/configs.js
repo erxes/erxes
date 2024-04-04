@@ -1,4 +1,5 @@
 module.exports = {
+  srcDir: __dirname,
   name: "engages",
   port: 3001,
   exposes: {
@@ -11,20 +12,20 @@ module.exports = {
   },
   menus: [
     {
-      text: "Campaigns",
+      text: "Broadcast",
       url: "/campaigns",
       icon: "icon-megaphone",
       location: "mainNavigation",
       permission: "showEngagesMessages",
     },
     {
-      text: "Campaign settings",
+      text: "Broadcast settings",
       to: "/settings/campaign-configs",
-      image: "/images/icons/erxes-31.png",
+      image: "/images/icons/erxes-08.svg",
       location: "settings",
       scope: "engages",
-      action: "",
-      permissions: [],
+      action: "engagesAll",
+      permissions: ["showEngagesMessages"],
     },
   ],
 };

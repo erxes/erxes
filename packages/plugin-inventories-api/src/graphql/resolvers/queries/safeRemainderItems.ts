@@ -1,3 +1,4 @@
+import { paginate } from '@erxes/api-utils/src/core';
 import {
   checkPermission,
   requireLogin
@@ -5,15 +6,33 @@ import {
 import { IContext } from '../../../connectionResolver';
 import { sendProductsMessage } from '../../../messageBroker';
 
-const generateFilterItems = async (params, subdomain) => {
-  const { remainderId, productCategoryId, status, diffType } = params;
+export const generateFilterItems = async (subdomain: string, params: any) => {
+  const { remainderId, productCategoryIds, status, diffType } = params;
   const query: any = { remainderId };
 
-  if (productCategoryId) {
+  if (productCategoryIds && productCategoryIds.length) {
+    const categories = await sendProductsMessage({
+      subdomain,
+      action: 'categories.withChilds',
+      data: { ids: productCategoryIds },
+      isRPC: true
+    });
+
+    const limit = await sendProductsMessage({
+      subdomain,
+      action: 'count',
+      data: { query: { categoryId: { $in: categories.map(c => c._id) } } },
+      isRPC: true,
+      defaultValue: 0
+    });
+
     const products = await sendProductsMessage({
       subdomain,
       action: 'find',
-      data: { query: {}, categoryId: productCategoryId },
+      data: {
+        query: { categoryId: { $in: categories.map(c => c._id) } },
+        limit
+      },
       isRPC: true,
       defaultValue: []
     });
@@ -52,20 +71,25 @@ const generateFilterItems = async (params, subdomain) => {
 
 const safeRemainderItemsQueries = {
   safeRemainderItems: async (
-    _root,
-    params,
+    _root: any,
+    params: any,
     { models, subdomain }: IContext
   ) => {
-    const query = await generateFilterItems(params, subdomain);
-    return models.SafeRemainderItems.find(query);
+    const query: any = await generateFilterItems(subdomain, params);
+    return paginate(
+      models.SafeRemainderItems.find(query)
+        .sort({ order: 1 })
+        .lean(),
+      params
+    );
   },
 
   safeRemainderItemsCount: async (
-    _root,
-    params,
+    _root: any,
+    params: any,
     { models, subdomain }: IContext
   ) => {
-    const query = await generateFilterItems(params, subdomain);
+    const query: any = await generateFilterItems(subdomain, params);
     return models.SafeRemainderItems.find(query).count();
   }
 };

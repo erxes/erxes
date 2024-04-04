@@ -6,12 +6,15 @@ module.exports = {
       {
         name: 'productsAll',
         description: 'All',
-        use: ['showProducts', 'manageProducts', 'productsMerge']
+        use: ['showProducts', 'manageProducts', 'productsMerge', 'removeProducts']
       },
       {
         name: 'manageProducts',
-        description: 'Manage products',
-        use: ['showProducts']
+        description: 'Manage products'
+      },
+      {
+        name: 'removeProducts',
+        description: 'Remove products'
       },
       {
         name: 'showProducts',
@@ -22,5 +25,5 @@ module.exports = {
         description: 'Merge products'
       }
     ]
-  },
-}
+  }
+};

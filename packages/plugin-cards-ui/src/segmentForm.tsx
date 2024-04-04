@@ -1,16 +1,17 @@
-import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+
+import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+
+import { BoardsQueryResponse } from '@erxes/ui-cards/src/boards/types';
 import { ControlLabel } from '@erxes/ui/src/components/form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import Select from 'react-select-plus';
-import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 import React from 'react';
-import { BoardsQueryResponse } from '@erxes/ui-cards/src/boards/types';
-import { withProps } from '@erxes/ui/src/utils';
-import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
-
-import { queries } from '@erxes/ui-settings/src/boards/graphql';
+import Select from 'react-select-plus';
 import Spinner from '@erxes/ui/src/components/Spinner';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '@erxes/ui-cards/src/settings/boards/graphql';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   type: string;
@@ -106,27 +107,42 @@ class Form extends React.Component<any, any, any> {
     if (component === 'filter') {
       if (
         propertyType &&
-        !['cards:deal', 'cards:ticket', 'cards:task'].includes(propertyType)
+        ![
+          'cards:deal',
+          'cards:ticket',
+          'cards:task',
+          'cards:purchase'
+        ].includes(propertyType)
       ) {
         return null;
       }
 
       if (
         !hideDetailForm &&
-        ['cards:deal', 'cards:ticket', 'cards:task'].includes(type)
+        ['cards:deal', 'cards:ticket', 'cards:task', 'cards:purchase'].includes(
+          type
+        )
       ) {
         return null;
       }
 
       return content;
-    } else if (['cards:deal', 'cards:ticket', 'cards:task'].includes(type)) {
+    } else if (
+      ['cards:deal', 'cards:ticket', 'cards:task', 'cards:purchase'].includes(
+        type
+      )
+    ) {
       return content;
     }
   }
 }
 
 const generateVariable = (type, propertyType) => {
-  if (['cards:deal', 'cards:ticket', 'cards:task'].includes(type)) {
+  if (
+    ['cards:deal', 'cards:ticket', 'cards:task', 'cards:purchase'].includes(
+      type
+    )
+  ) {
     return { type: type.split(':')[1] };
   }
 

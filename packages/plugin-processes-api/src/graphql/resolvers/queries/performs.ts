@@ -1,32 +1,144 @@
-import { paginate } from '@erxes/api-utils/src/core';
-import {
-  checkPermission,
-  requireLogin
-} from '@erxes/api-utils/src/permissions';
+import { getPureDate, paginate } from '@erxes/api-utils/src/core';
+// import {
+//   checkPermission,
+//   requireLogin
+// } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { sendProductsMessage } from '../../../messageBroker';
 
 interface IParam {
-  searchValue?: string;
-  ids: string[];
-  excludeIds: boolean;
-  overallWorkId: string;
+  search: string;
+  type: string;
+  status: string;
+  startDate: Date;
+  endDate: Date;
+  inBranchId: string;
+  outBranchId: string;
+  inDepartmentId: string;
+  outDepartmentId: string;
+  productCategoryId: string;
+  vendorIds: string[];
+  productIds: string[];
+  jobReferId: string;
 }
 
-const generateFilter = (params: IParam, commonQuerySelector) => {
-  const { searchValue, ids, excludeIds, overallWorkId } = params;
+const generateFilter = async (
+  subdomain: string,
+  params: IParam,
+  commonQuerySelector
+) => {
+  const {
+    search,
+    startDate,
+    endDate,
+    inBranchId,
+    inDepartmentId,
+    outBranchId,
+    outDepartmentId,
+    type,
+    status,
+    jobReferId,
+    productCategoryId,
+    vendorIds,
+    productIds
+  } = params;
   const selector: any = { ...commonQuerySelector };
 
-  if (overallWorkId) {
-    selector.overallWorkId = new RegExp(`.*${overallWorkId}.*`, 'i');
+  if (startDate) {
+    selector.endAt = { $gte: getPureDate(startDate) };
+  }
+  if (endDate) {
+    selector.startAt = { $lte: getPureDate(endDate) };
   }
 
-  if (searchValue) {
-    selector.name = new RegExp(`.*${searchValue}.*`, 'i');
+  if (search) {
+    selector.name = new RegExp(`.*${search}.*`, 'i');
   }
 
-  if (ids && ids.length > 0) {
-    selector._id = { [excludeIds ? '$nin' : '$in']: ids };
+  if (type) {
+    selector.type = type;
+  }
+
+  if (status) {
+    selector.status = status;
+  }
+
+  if (outBranchId) {
+    selector.outBranchId = outBranchId;
+  }
+  if (outDepartmentId) {
+    selector.outDepartmentId = outDepartmentId;
+  }
+
+  if (inBranchId) {
+    selector.inBranchId = inBranchId;
+  }
+  if (inDepartmentId) {
+    selector.inDepartmentId = inDepartmentId;
+  }
+
+  let filterProductIds: string[] = [];
+  let hasFilterProductIds: boolean = false;
+  if (productCategoryId) {
+    const limit = await sendProductsMessage({
+      subdomain,
+      action: 'count',
+      data: { categoryId: productCategoryId },
+      isRPC: true
+    });
+
+    const products = await sendProductsMessage({
+      subdomain,
+      action: 'find',
+      data: { limit, categoryId: productCategoryId, fields: { _id: 1 } },
+      isRPC: true
+    });
+
+    filterProductIds = products.map(pr => pr._id);
+    hasFilterProductIds = true;
+  }
+
+  if (vendorIds && vendorIds.length) {
+    const limit = await sendProductsMessage({
+      subdomain,
+      action: 'count',
+      data: { query: { vendorId: { $in: vendorIds } } },
+      isRPC: true
+    });
+
+    const products = await sendProductsMessage({
+      subdomain,
+      action: 'find',
+      data: {
+        limit,
+        query: { vendorId: { $in: vendorIds } },
+        fields: { _id: 1 }
+      },
+      isRPC: true
+    });
+
+    filterProductIds = filterProductIds.concat(products.map(pr => pr._id));
+    hasFilterProductIds = true;
+  }
+
+  if (
+    productIds &&
+    productIds.length &&
+    productIds.filter(p => p !== '').length
+  ) {
+    filterProductIds = filterProductIds.concat(productIds);
+    hasFilterProductIds = true;
+  }
+
+  if (hasFilterProductIds) {
+    selector.$or = [
+      { 'inProducts.productId': { $in: filterProductIds } },
+      { 'outProducts.productId': { $in: filterProductIds } }
+    ];
+  }
+
+  if (jobReferId) {
+    selector.typeId = jobReferId;
   }
 
   return selector;
@@ -39,65 +151,95 @@ const performQueries = {
       page: number;
       perPage: number;
     },
-    { models, commonQuerySelector }: IContext
+    { subdomain, models, commonQuerySelector }: IContext
   ) {
-    const selector = generateFilter(params, commonQuerySelector);
-
-    console.log('selector: ', selector);
+    const selector = await generateFilter(
+      subdomain,
+      params,
+      commonQuerySelector
+    );
 
     return paginate(models.Performs.find(selector).lean(), { ...params });
   },
 
-  performsByOverallWorkId(
+  async performsCount(
     _root,
-    params: IParam & {
-      page: number;
-      perPage: number;
+    params: IParam,
+    { subdomain, models, commonQuerySelector }: IContext
+  ) {
+    const selector = await generateFilter(
+      subdomain,
+      params,
+      commonQuerySelector
+    );
+
+    return models.Performs.find(selector).count();
+  },
+
+  performDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Performs.getPerform(_id);
+  },
+
+  async series(
+    _root,
+    {
+      search,
+      productId,
+      ids,
+      excludeIds,
+      selfSeries,
+      ...paginationArgs
+    }: {
+      search?: string;
+      selfSeries?: string;
+      productId?: string;
+      ids?: string[];
+      excludeIds?: boolean;
+      page?: number;
+      perPage?: number;
     },
-    { models, commonQuerySelector }: IContext
+    { models }: IContext
   ) {
-    const selector = generateFilter(params, commonQuerySelector);
+    const filter: any = {
+      $and: [{ series: { $nin: ['', undefined, null, 0, selfSeries] } }]
+    };
 
-    return models.Performs.find(selector).lean();
-  },
+    if (ids && ids.length > 0) {
+      filter.$and.push({
+        series: { [excludeIds ? '$nin' : '$in']: ids }
+      });
+      if (!paginationArgs.page && !paginationArgs.perPage) {
+        paginationArgs.page = 1;
+        paginationArgs.perPage = 100;
+      }
+    }
 
-  performsTotalCount(
-    _root,
-    params: IParam,
-    { commonQuerySelector, models }: IContext
-  ) {
-    const selector = generateFilter(params, commonQuerySelector);
+    if (productId) {
+      filter.$and.push({ ['outProducts.productId']: { $in: [productId] } });
+    }
 
-    return models.Performs.find(selector).count();
-  },
+    if (search) {
+      filter.$and.push({ series: { $regex: new RegExp(search) } });
+    }
 
-  performsByOverallWorkIdTotalCount(
-    _root,
-    params: IParam,
-    { commonQuerySelector, models }: IContext
-  ) {
-    const selector = generateFilter(params, commonQuerySelector);
+    const performs = await paginate(
+      models.Performs.find(filter, { series: 1 })
+        .sort({ series: -1 })
+        .lean(),
+      { ...paginationArgs }
+    );
 
-    return models.Performs.find(selector).count();
-  },
-  async allProducts(_root, _args, { subdomain }: IContext) {
-    const productsCount =
-      (await sendProductsMessage({
-        subdomain,
-        action: 'count',
-        data: {},
-        isRPC: true
-      })) || null;
+    const series = performs.map(p => p.series);
 
-    const productsData =
-      (await sendProductsMessage({
-        subdomain,
-        action: 'find',
-        data: { limit: productsCount },
-        isRPC: true
-      })) || [];
+    let notPerformSeries: string[] = [];
+    if (ids && ids.length && !excludeIds) {
+      notPerformSeries = ids.filter(id => !series.includes(id));
+    }
 
-    return productsData;
+    return series.concat(notPerformSeries).map(ser => ({
+      _id: ser,
+      series: ser
+    }));
   }
 };
 

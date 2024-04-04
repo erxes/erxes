@@ -1,4 +1,4 @@
-import { IModels } from "./connectionResolver";
+import { IModels } from './connectionResolver';
 
 export const insertImportItems = async (models: IModels, args) => {
   const { docs, contentType } = args;
@@ -15,6 +15,8 @@ export const insertImportItems = async (models: IModels, args) => {
         model = models.Tasks;
       case 'ticket':
         model = models.Tickets;
+      case 'purchase':
+        model = models.Purchases;
     }
 
     objects = await model.insertMany(docs);

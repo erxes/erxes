@@ -1,34 +1,33 @@
-const commonFields = `
-  _id: String!
-  createdAt: Date
-`;
+import {
+  commonFields,
+  ordersQueryParams,
+  orderTypeFields,
+  PaidAmountDefs
+} from '../graphql/schema/orders';
 
-const orderFields = `
-  status: String
-  customerId: String
-  number: String
-`;
-
-const paymentInputDefs = `
-  cashAmount: Float
-  billType: String
-  registerNumber: String
-  mobileAmount: Float
-  cardAmount: Float
-`;
 export const types = `
+  type PaidAmount {
+    ${PaidAmountDefs}
+  }
+
   type PosOrderItem {
     ${commonFields}
     productId: String!
-    count: Int!
+    categoryId: String
+    count: Float!
     orderId: String!
     unitPrice: Float
     discountAmount: Float
     discountPercent: Float
+    bonusCount: Float
     productName: String
     isPackage: Boolean
     isTake: Boolean
     productImgUrl: String
+    status: String
+    manufacturedDate: String
+    description: String
+    attachment: JSON
   }
 
   type PosPutResponse {
@@ -59,39 +58,74 @@ export const types = `
     message: String
     getInformation: String
     returnBillId: String
+    stocks: JSON
   }
 
-  type CardPayment {
+  type PosCustomer {
+    _id: String!
+    code: String
+    primaryPhone: String
+    primaryEmail: String
+    firstName: String
+    lastName: String
+    primaryAddress: JSON
+    addresses: [JSON]
+  }
+
+  type PosUserDetailsType {
+    avatar: String
+    fullName: String
+    shortName: String
+    birthDate: Date
+    position: String
+    workStartedDate: Date
+    location: String
+    description: String
+    operatorPhone: String
+  }
+
+  type PosUser {
+    _id: String!
+    createdAt: Date
+    username: String
+    firstName: String
+    lastName: String
+    primaryPhone: String
+    primaryEmail: String
+    email: String
+    isActive: Boolean
+    isOwner: Boolean
+    details: PosUserDetailsType
+  }
+
+  type PreDate {
     _id: String
-    amount: Float
-    cardInfo: JSON
+    dueDate: Date
   }
 
+  type PosclientSlot {
+    _id: String
+    posToken: String
+    code: String
+    name: String
+    status: String
+    isPreDates: [PreDate]
+    option: JSON
+  }
 
   type Order {
-    ${commonFields}
-    ${orderFields}
-    ${paymentInputDefs}
+    ${orderTypeFields}
+  }
 
-    paidDate: Date
-    modifiedAt: Date
-    totalAmount: Float
-    finalAmount: Float
-    shouldPrintEbarimt: Boolean
-    printedEbarimt: Boolean
-    billId: String
-    oldBillId: String
-    type: String
-    branchId: String
-    deliveryInfo: JSON
-    cardPaymentInfo: String
-    cardPayments: [CardPayment]
-    origin: String
-    items: [PosOrderItem]
-    putResponses: [PosPutResponse]
+  type OrderDetail {
+    ${orderTypeFields}
+    deal: JSON
+    dealLink: String
   }
 `;
 
 export const queries = `
-  fullOrders(searchValue: String, statuses: [String], customerId: String, page: Int, perPage: Int, sortField: String, sortDirection: Int): [Order]
+  orders(${ordersQueryParams}): [Order]
+  fullOrders(${ordersQueryParams}): [Order]
+  poscSlots: [PosclientSlot]
 `;

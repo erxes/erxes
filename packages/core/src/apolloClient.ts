@@ -1,12 +1,15 @@
-import { ApolloServer, gql } from 'apollo-server-express';
-import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
-import { buildSubgraphSchema } from '@apollo/federation';
+import { ApolloServer } from '@apollo/server';
+import { expressMiddleware } from '@apollo/server/express4';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import { gql } from 'graphql-tag';
+import { buildSubgraphSchema } from '@apollo/subgraph';
 import * as dotenv from 'dotenv';
 import resolvers from './data/resolvers';
 import * as typeDefDetails from './data/schema';
 import { IDataLoaders, generateAllDataLoaders } from './data/dataLoaders';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import { extractUserFromHeader } from '@erxes/api-utils/src/headers';
 
 // load environment variables
 dotenv.config();
@@ -15,7 +18,7 @@ const { USE_BRAND_RESTRICTIONS } = process.env;
 
 let apolloServer;
 
-export const initApolloServer = async (_app, httpServer) => {
+export const initApolloServer = async (app, httpServer) => {
   const { types, queries, mutations } = typeDefDetails;
 
   const typeDefs = gql(`
@@ -32,89 +35,94 @@ export const initApolloServer = async (_app, httpServer) => {
     schema: buildSubgraphSchema([
       {
         typeDefs,
-        resolvers
-      }
+        resolvers,
+      },
     ]),
     // for graceful shutdowns
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-    context: async ({ req, res }) => {
-      const subdomain = getSubdomain(req);
-      const models = await generateModels(subdomain);
+  });
 
-      let user: any = null;
+  await apolloServer.start();
 
-      if (req.headers.user) {
-        const userJson = Buffer.from(req.headers.user, 'base64').toString(
-          'utf-8'
-        );
-        user = JSON.parse(userJson);
-      }
+  app.use(
+    '/graphql',
+    expressMiddleware(apolloServer, {
+      context: async ({ req, res }) => {
+        if (
+          req.body.operationName === 'IntrospectionQuery' ||
+          req.body.operationName === 'SubgraphIntrospectQuery'
+        ) {
+          return {};
+        }
+        const subdomain = getSubdomain(req);
+        const models = await generateModels(subdomain);
 
-      const dataLoaders: IDataLoaders = generateAllDataLoaders(models);
+        let user: any = extractUserFromHeader(req.headers);
 
-      const requestInfo = {
-        secure: req.secure,
-        cookies: req.cookies
-      };
+        const dataLoaders: IDataLoaders = generateAllDataLoaders(models);
 
-      if (USE_BRAND_RESTRICTIONS !== 'true') {
+        const requestInfo = {
+          secure: req.secure,
+          cookies: req.cookies,
+        };
+
+        if (USE_BRAND_RESTRICTIONS !== 'true') {
+          return {
+            brandIdSelector: {},
+            singleBrandIdSelector: {},
+            userBrandIdsSelector: {},
+            docModifier: (doc) => doc,
+            commonQuerySelector: {},
+            user,
+            res,
+            requestInfo,
+            dataLoaders,
+            subdomain,
+            models,
+          };
+        }
+
+        let scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || '[]');
+        let brandIds = [];
+        let brandIdSelector = {};
+        let commonQuerySelector = {};
+        let commonQuerySelectorElk;
+        let userBrandIdsSelector = {};
+        let singleBrandIdSelector = {};
+
+        if (user) {
+          brandIds = user.brandIds || [];
+
+          if (scopeBrandIds.length === 0) {
+            scopeBrandIds = brandIds;
+          }
+
+          if (!user.isOwner && scopeBrandIds.length > 0) {
+            brandIdSelector = { _id: { $in: scopeBrandIds } };
+            commonQuerySelector = { scopeBrandIds: { $in: scopeBrandIds } };
+            commonQuerySelectorElk = { terms: { scopeBrandIds } };
+            userBrandIdsSelector = { brandIds: { $in: scopeBrandIds } };
+            singleBrandIdSelector = { brandId: { $in: scopeBrandIds } };
+          }
+        }
+
         return {
-          brandIdSelector: {},
-          singleBrandIdSelector: {},
-          userBrandIdsSelector: {},
-          docModifier: doc => doc,
-          commonQuerySelector: {},
+          brandIdSelector,
+          singleBrandIdSelector,
+          docModifier: (doc) => ({ ...doc, scopeBrandIds }),
+          commonQuerySelector,
+          commonQuerySelectorElk,
+          userBrandIdsSelector,
           user,
           res,
           requestInfo,
           dataLoaders,
           subdomain,
-          models
+          models,
         };
-      }
-
-      let scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || '[]');
-      let brandIds = [];
-      let brandIdSelector = {};
-      let commonQuerySelector = {};
-      let commonQuerySelectorElk;
-      let userBrandIdsSelector = {};
-      let singleBrandIdSelector = {};
-
-      if (user) {
-        brandIds = user.brandIds || [];
-
-        if (scopeBrandIds.length === 0) {
-          scopeBrandIds = brandIds;
-        }
-
-        if (!user.isOwner && scopeBrandIds.length > 0) {
-          brandIdSelector = { _id: { $in: scopeBrandIds } };
-          commonQuerySelector = { scopeBrandIds: { $in: scopeBrandIds } };
-          commonQuerySelectorElk = { terms: { scopeBrandIds } };
-          userBrandIdsSelector = { brandIds: { $in: scopeBrandIds } };
-          singleBrandIdSelector = { brandId: { $in: scopeBrandIds } };
-        }
-      }
-
-      return {
-        brandIdSelector,
-        singleBrandIdSelector,
-        docModifier: doc => ({ ...doc, scopeBrandIds }),
-        commonQuerySelector,
-        commonQuerySelectorElk,
-        userBrandIdsSelector,
-        user,
-        res,
-        requestInfo,
-        dataLoaders,
-        subdomain,
-        models
-      };
-    }
-  });
-
-  await apolloServer.start();
+      },
+    }),
+  );
 
   return apolloServer;
 };

@@ -4,7 +4,10 @@ import { Wrapper } from '@erxes/ui/src/layout';
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { ILotteryCampaign, LotteryCampaignDetailQueryResponse } from '../../../configs/lotteryCampaign/types';
+import {
+  ILotteryCampaign,
+  LotteryCampaignDetailQueryResponse
+} from '../../../configs/lotteryCampaign/types';
 import { TriggerTabs } from '../../../styles';
 import AwardContent from '../containers/award/content';
 import AwardDetail from '../containers/award/detail';
@@ -80,7 +83,15 @@ class VouchersAward extends React.Component<IProps, State> {
     };
 
     const actionBarRight = () => {
-      return <ModalTrigger title="Lottery Detail" trigger={detailBtn} autoOpenKey="showVoucherModal" content={Modalcontent} backDrop="static" />;
+      return (
+        <ModalTrigger
+          title="Lottery Detail"
+          trigger={detailBtn}
+          autoOpenKey="showVoucherModal"
+          content={Modalcontent}
+          backDrop="static"
+        />
+      );
     };
 
     const updatedProps = {
@@ -96,7 +107,11 @@ class VouchersAward extends React.Component<IProps, State> {
           <Tabs full={true}>
             {lotteryCampaign?.awards &&
               lotteryCampaign?.awards.map(p => (
-                <TabTitle className={currentTab?._id === p._id ? 'active' : ''} onClick={this.onClick.bind(this, p)} key={p._id}>
+                <TabTitle
+                  className={currentTab?._id === p._id ? 'active' : ''}
+                  onClick={this.onClick.bind(this, p)}
+                  key={p._id}
+                >
                   {p.name}
                 </TabTitle>
               ))}
@@ -109,8 +124,23 @@ class VouchersAward extends React.Component<IProps, State> {
         )}
       </div>
     );
-    const actionBar = <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight()} />;
-    return <Wrapper actionBar={actionBar} leftSidebar={<Sidebar loadingMainQuery={loading} queryParams={queryParams} history={history} isAward={false} />} content={content} />;
+    const actionBar = (
+      <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight()} />
+    );
+    return (
+      <Wrapper
+        actionBar={actionBar}
+        leftSidebar={
+          <Sidebar
+            loadingMainQuery={loading}
+            queryParams={queryParams}
+            history={history}
+            isAward={false}
+          />
+        }
+        content={content}
+      />
+    );
   }
 }
 export default VouchersAward;
