@@ -56,7 +56,15 @@ const Image: FC<
 
   if (srcI === "/product.png" || !srcI)
     return (
-      <Package className={cn("text-zinc-300", className)} strokeWidth={0.5} />
+      <Package
+        className={cn(
+          "text-zinc-300",
+          updatedProps.fill &&
+            "h-12 w-12 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 absolute",
+          className
+        )}
+        strokeWidth={0.5}
+      />
     )
 
   return (

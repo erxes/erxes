@@ -1,30 +1,57 @@
-import { activeCatName } from "@/store"
-import { useAtomValue } from "jotai"
+import { activeCatName, mobileTabAtom } from "@/store"
+import { cartAtom } from "@/store/cart.store"
+import { useAtom, useAtomValue } from "jotai"
 
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import CheckoutMain from "../checkout/main"
 import Products from "../products"
 
 const SelectTab = () => {
-  const catName = useAtomValue(activeCatName)
+  const [tab, setTab] = useAtom(mobileTabAtom)
   return (
-    <Tabs defaultValue="products" className="flex-1 flex flex-col">
+    <Tabs
+      value={tab}
+      onValueChange={(value) => setTab(value as "products" | "checkout")}
+      className="flex-auto flex flex-col overflow-hidden"
+    >
       <TabsList className="w-full grid grid-cols-2 mb-2">
         <TabsTrigger value="products">
-          Бараа {!!catName && `(${catName})`}
+          Бараа <CategoryName />
         </TabsTrigger>
-        <TabsTrigger value="checkout">Сагс</TabsTrigger>
+        <TabsTrigger value="checkout">
+          Сагс (<TotalProducts />)
+        </TabsTrigger>
       </TabsList>
-      <TabsContent value="products" className="flex-auto">
-        <div></div>
-        <Products />
+      <TabsContent
+        value="products"
+        className="flex-auto flex flex-col overflow-hidden"
+      >
+        <ScrollArea className="flex flex-auto flex-col">
+          <Products />
+        </ScrollArea>
       </TabsContent>
-      <TabsContent value="checkout" className="flex-auto flex flex-col">
+      <TabsContent
+        value="checkout"
+        className="flex-auto flex flex-col overflow-hidden"
+      >
         <CheckoutMain />
       </TabsContent>
     </Tabs>
   )
+}
+
+const TotalProducts = () => {
+  const cart = useAtomValue(cartAtom)
+  const itemCount = cart.reduce((prev, current) => prev + current.count, 0)
+  return <>{itemCount}</>
+}
+
+const CategoryName = () => {
+  const catName = useAtomValue(activeCatName)
+
+  return <>{catName ? `- ${catName}` : ""}</>
 }
 
 export default SelectTab

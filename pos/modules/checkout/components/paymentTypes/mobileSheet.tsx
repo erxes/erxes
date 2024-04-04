@@ -11,7 +11,7 @@ import {
 } from "@/store/order.store"
 import { useMutation, useQuery } from "@apollo/client"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
-import { ShieldAlert } from "lucide-react"
+import { ShieldAlert, XIcon } from "lucide-react"
 
 import { IPaymentOption } from "@/types/payment.types"
 import { INSTRUCTIONS } from "@/lib/constants"
@@ -20,6 +20,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { Button } from "@/components/ui/button"
 import Loader from "@/components/ui/loader"
 import { RadioGroup } from "@/components/ui/radio-group"
+import { SheetClose } from "@/components/ui/sheet"
 import { useToast } from "@/components/ui/use-toast"
 
 import { mutations } from "../../graphql"
@@ -132,15 +133,24 @@ const MobileSheet = () => {
   if (loading) return <Loader />
   return (
     <div>
-      <h1 className="font-bold text-lg mb-4 pb-1 border-b border-dashed">
+      <h1 className="font-bold text-lg mb-4 pb-2 border-b border-dashed relative">
         Цахимаар төлөх
+        <SheetClose asChild>
+          <Button
+            className="ml-auto absolute right-0"
+            size="icon"
+            variant="ghost"
+          >
+            <XIcon className="h-5 w-5" />
+          </Button>
+        </SheetClose>
       </h1>
       {!error && (
         <div className="text-black/60 mb-1">Төлбөрийн хэрэгслээ сонгоно уу</div>
       )}
       {!!error && <Error />}
       <RadioGroup
-        className="grid grid-cols-2 gap-2 mb-6"
+        className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-6"
         value={selected}
         onValueChange={handleValueChange}
       >

@@ -15,7 +15,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       )}
       {mode === "kiosk" && <Kiosk>{children}</Kiosk>}
       {mode === "mobile" && (
-        <div className="relative flex flex-auto items-center justify-center bg-neutral-50">
+        <div className="relative flex flex-auto items-center justify-center bg-neutral-100">
           {children}
         </div>
       )}

@@ -26,7 +26,7 @@ export const useCheckNotSplit = () => {
   const paidAmounts = useAtomValue(paidAmountsAtom)
   const unPaidAmount = useAtomValue(unPaidAmountAtom)
   const setCurrentAmount = useSetAtom(currentAmountAtom)
-  const [paymentType, setType] = useAtom(currentPaymentTypeAtom)
+  const [currentPaymentType, setType] = useAtom(currentPaymentTypeAtom)
   const paymentTypes = filterPaymentTypes(pTs)
 
   const notSplitPts = (paymentTypes || [])
@@ -62,9 +62,15 @@ export const useCheckNotSplit = () => {
     setType(type)
   }
 
-  const disableInput = notSplitPts.includes(paymentType || "")
+  const disableInput = notSplitPts.includes(currentPaymentType || "")
 
-  return { mappedPts, handleSetType, disableInput, paidNotSplit }
+  return {
+    mappedPts,
+    handleSetType,
+    disableInput,
+    paidNotSplit,
+    currentPaymentType,
+  }
 }
 
 export default usePaymentType

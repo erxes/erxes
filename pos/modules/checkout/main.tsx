@@ -34,7 +34,7 @@ const CheckoutMain = () => {
           open={orderCollapsible}
           onOpenChange={(open) => setOrderCollapsibleAtom(open)}
         >
-          <div className="grid flex-none grid-cols-2 gap-2 md:p-4">
+          <div className="grid flex-none grid-cols-2 gap-2 pt-4 md:p-4">
             <DeliveryInputs />
             <TotalAmount />
             <ChooseType />
