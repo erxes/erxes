@@ -1,4 +1,8 @@
-export default function Detail() {
+import { FunctionComponent } from "react"
+
+interface ChatsPageProps {}
+
+const ChatsPage: FunctionComponent<ChatsPageProps> = () => {
   return (
     <div className="flex items-center justify-center h-screen w-full">
       <p className="text-center text-2xl bold font-bold text-[#65676B]">
@@ -7,3 +11,5 @@ export default function Detail() {
     </div>
   )
 }
+
+export default ChatsPage
