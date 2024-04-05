@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.6](https://github.com/erxes/erxes/compare/1.7.5...1.7.6) (2024-04-05)
+
+
+### Bug Fixes
+
+* **editor:** RTE related issues ([#5116](https://github.com/erxes/erxes/issues/5116)) ([7b580b8](https://github.com/erxes/erxes/commit/7b580b84100b6a6f6485510f441bfe542e3a7d7d))
+
 ## [1.7.5](https://github.com/erxes/erxes/compare/1.7.4...1.7.5) (2024-04-02)
 
 ### Bug Fixes
