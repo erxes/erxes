@@ -1368,7 +1368,7 @@ a:hover {
       cursor: col-resize;
     }
 
-    [data-type="mention"]{
+    .mention {
       padding-top: 0.25rem;
       padding-bottom: 0.25rem;
       padding-left: 0.5rem;
@@ -1400,6 +1400,10 @@ a:hover {
       text-decoration: underline;
     }
 
+    &.resize-cursor {
+      cursor: col-resize;
+    }
+    
     table {
       border-collapse: collapse;
       margin: 0;
