@@ -150,9 +150,13 @@ class CloseDate extends React.Component<Props, State> {
 
         <Select
           required={true}
-          value={selectOptions(REMINDER_MINUTES).filter(
-            (o) => o.value === reminderMinute.toString()
-          )}
+          value={
+            reminderMinute
+              ? selectOptions(REMINDER_MINUTES).filter(
+                  (o) => o.value === reminderMinute.toString()
+                )
+              : null
+          }
           onChange={this.minuteOnChange}
           options={selectOptions(REMINDER_MINUTES)}
           isClearable={false}

@@ -1,7 +1,7 @@
 import { IFolder } from "../../types";
 import Icon from "@erxes/ui/src/components/Icon";
 import React from "react";
-import Select from "react-select";
+import Select, { components } from "react-select";
 import { __ } from "@erxes/ui/src/utils/core";
 import styled from "styled-components";
 
@@ -98,12 +98,20 @@ class FolderChooser extends React.Component<Props, State> {
   };
 
   render() {
+    const Option = (props) => {
+      return (
+        <components.Option {...props}>
+          {this.renderOptions(props.data)}
+        </components.Option>
+      );
+    };
+
     return (
       <FolderChooserWrapper>
         <Select
           required={true}
           placeholder={__("Choose a folder")}
-          // optionRenderer={this.renderOptions}
+          components={{ Option }}
           options={this.selectOptions(this.props.folders)}
           value={this.selectOptions(this.props.folders).find(
             (o) => o.value === this.state.folderId

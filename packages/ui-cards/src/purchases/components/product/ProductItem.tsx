@@ -14,7 +14,7 @@ import Icon from "@erxes/ui/src/components/Icon";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import ProductChooser from "@erxes/ui-products/src/containers/ProductChooser";
 import React from "react";
-import Select from "react-select";
+import Select, { components } from "react-select";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
@@ -400,6 +400,14 @@ class ProductItem extends React.Component<Props, State> {
       </div>
     );
 
+    const Option = (props) => {
+      return (
+        <components.Option {...props}>
+          {selectOption(props.data)}
+        </components.Option>
+      );
+    };
+
     if (!productData.product) {
       return null;
     }
@@ -497,7 +505,7 @@ class ProductItem extends React.Component<Props, State> {
               (option) => option.value === productData.currency
             )}
             onChange={this.currencyOnChange}
-            optionRenderer={selectOption}
+            components={{ Option }}
             options={currencyOptions}
           />
         </td>
@@ -507,7 +515,7 @@ class ProductItem extends React.Component<Props, State> {
             placeholder={__("Choose")}
             value={uoms.find((uom) => uom.value === productData.uom)}
             onChange={this.uomOnChange}
-            optionRenderer={selectOption}
+            components={{ Option }}
             options={uoms}
           />
         </td>

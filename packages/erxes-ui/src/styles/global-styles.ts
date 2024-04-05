@@ -675,25 +675,30 @@ a:hover {
   margin-left: 0;
 }
 
-.Select--multi .Select-value {
-  background-color: ${colors.colorSecondary};
-  border-radius: 11px;
+.css-1p3m7a8-multiValue {
+  background-color: ${colors.colorSecondary} !important;
+  border-radius: 11px !important;
   border: 1px solid ${colors.colorSecondary};
   color: ${colors.colorWhite};
-  margin-top: 6px;
-  margin-left: 0;
-  margin-right: 5px;
+  margin-top: 6px !important;
+  margin-left: 0 !important;
+  margin-right: 5px !important;
   position: relative;
   padding-right: 20px;
 }
 
-.Select--multi .Select-value-icon {
+.css-wsp0cs-MultiValueGeneric {
+  color: ${colors.colorWhite} !important;
+  padding: 2px !important;
+}
+
+.css-12a83d4-MultiValueRemove {
   display: inline-block;
   vertical-align: middle;
   cursor: pointer;
   width: 20px;
   height: 20px;
-  border-radius: 10px;
+  border-radius: 10px !important;
   position: absolute;
   right: 0;
   top: 0;
@@ -703,9 +708,9 @@ a:hover {
   padding: 0;
 }
 
-.Select--multi .Select-value-icon:hover,
-.Select--multi .Select-value-icon:focus,
-.Select--multi .Select-value-icon:active {
+.css-12a83d4-MultiValueRemove:hover,
+.css-12a83d4-MultiValueRemove:focus,
+.css-12a83d4-MultiValueRemove:active {
   background-color: rgba(0, 0, 0, 0.2);
   color: ${colors.colorWhite};
 }

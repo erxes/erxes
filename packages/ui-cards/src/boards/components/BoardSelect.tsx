@@ -2,7 +2,7 @@ import { IBoard, IPipeline, IStage } from "../types";
 
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import { FormContainer } from "../styles/common";
-import Select from "react-select";
+import Select, { components } from "react-select";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import React from "react";
 import { selectOptions } from "../utils";
@@ -31,13 +31,21 @@ class BoardSelect extends React.Component<Props> {
   };
 
   renderSelect(placeholder, value, onChange, options) {
+    const Option = (props) => {
+      return (
+        <components.Option {...props}>
+          {this.renderOptions(props.data)}
+        </components.Option>
+      );
+    };
+
     return (
       <Select
         required={true}
         placeholder={placeholder}
         value={options.find((o) => value === o.value)}
         onChange={onChange}
-        // optionRenderer={this.renderOptions}
+        components={{ Option }}
         options={options}
         isClearable={false}
       />

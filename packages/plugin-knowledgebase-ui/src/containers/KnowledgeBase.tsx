@@ -1,26 +1,22 @@
-import * as compose from 'lodash.flowright';
-
 import {
   ArticlesTotalCountQueryResponse,
   CategoryDetailQueryResponse,
   ICategory,
   LastCategoryQueryResponse,
-} from '@erxes/ui-knowledgebase/src/types';
-import { router as routerUtils, withProps } from '@erxes/ui/src/utils';
+} from "@erxes/ui-knowledgebase/src/types";
+import { router as routerUtils } from "@erxes/ui/src/utils";
 
-import { IRouterProps } from '@erxes/ui/src/types';
-// import { withRouter } from 'react-router-dom';
-import KnowledgeBaseComponent from '../components/KnowledgeBase';
-import React, { useEffect } from 'react';
-import { gql, useQuery } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '@erxes/ui-knowledgebase/src/graphql';
-import queryString from 'query-string';
+import KnowledgeBaseComponent from "../components/KnowledgeBase";
+import React, { useEffect } from "react";
+import { gql, useQuery } from "@apollo/client";
+import { queries } from "@erxes/ui-knowledgebase/src/graphql";
+import queryString from "query-string";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
   currentCategoryId: string;
-} & IRouterProps;
+};
 
 const KnowledgeBaseContainer = (props: Props) => {
   const { currentCategoryId } = props;
@@ -29,8 +25,8 @@ const KnowledgeBaseContainer = (props: Props) => {
     gql(queries.knowledgeBaseCategoryDetail),
     {
       variables: { _id: currentCategoryId },
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
 
   const articlesCountQuery = useQuery<ArticlesTotalCountQueryResponse>(
@@ -38,7 +34,7 @@ const KnowledgeBaseContainer = (props: Props) => {
     {
       variables: { categoryIds: [currentCategoryId] },
       skip: !currentCategoryId,
-    },
+    }
   );
 
   const articlesCount =
@@ -59,19 +55,20 @@ const KnowledgeBaseContainer = (props: Props) => {
 };
 
 type WithCurrentIdProps = {
-  history: any;
   queryParams: any;
-} & IRouterProps;
+};
 
 const WithLastCategory = (props: WithCurrentIdProps) => {
-  const { queryParams, history } = props;
+  const { queryParams } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const lastCategoryQuery = useQuery<LastCategoryQueryResponse>(
     gql(queries.categoriesGetLast),
     {
       skip: queryParams.id,
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
 
   useEffect(() => {
@@ -85,32 +82,32 @@ const WithLastCategory = (props: WithCurrentIdProps) => {
       !lastCategoryQuery.loading
     ) {
       routerUtils.setParams(
-        history,
+        navigate,
+        location,
         {
           id: lastCategoryQuery?.data?.knowledgeBaseCategoriesGetLast._id,
         },
-        true,
+        true
       );
     }
   }, [lastCategoryQuery?.data]);
 
   const updatedProps = {
     ...props,
-    currentCategoryId: queryParams.id || '',
+    currentCategoryId: queryParams.id || "",
   };
 
   return <KnowledgeBaseContainer {...updatedProps} />;
 };
 
-const WithQueryParams = (props: IRouterProps) => {
-  const { location } = props;
+const WithQueryParams = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  const extendedProps = { ...props, queryParams };
+  const extendedProps = { queryParams };
 
   return <WithLastCategory {...extendedProps} />;
 };
 
 export default WithQueryParams;
 
-// export default withRouter<IRouterProps>(WithQueryParams);

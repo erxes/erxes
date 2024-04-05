@@ -11,7 +11,7 @@ import { LeftItem } from "@erxes/ui/src/components/step/styles";
 import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
 import { isEnabled, loadDynamicComponent } from "@erxes/ui/src/utils/core";
 import React, { useState } from "react";
-import Select from "react-select";
+import Select, { components } from "react-select";
 import styled from "styled-components";
 import { PAYMENT_TYPE_ICONS } from "../../../constants";
 import { Block, Description, FlexColumn, FlexItem } from "../../../styles";
@@ -75,6 +75,20 @@ const PaymentsStep = (props: Props) => {
   const selectItemRenderer = (option): React.ReactNode => {
     return <SelectValue>{content(option)}</SelectValue>;
   };
+
+  const Option = (props) => {
+    return (
+      <components.Option {...props}>
+        {selectItemRenderer(props.data)}
+      </components.Option>
+    );
+  };
+
+  const SingleValue = (props) => (
+    <components.SingleValue {...props}>
+      {selectItemRenderer(props.data)}
+    </components.SingleValue>
+  );
 
   const renderPaymentType = (paymentType: any) => {
     const editPayment = (name, value) => {
@@ -144,8 +158,7 @@ const PaymentsStep = (props: Props) => {
             <FormGroup>
               <Select
                 name="icon"
-                // optionRenderer={selectItemRenderer}
-                // valueRenderer={selectItemRenderer}
+                components={{ Option, SingleValue }}
                 value={iconOptions.find(
                   (o) => o.value === (paymentType.icon || "")
                 )}

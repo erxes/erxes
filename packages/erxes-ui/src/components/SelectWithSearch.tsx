@@ -5,7 +5,7 @@ import { __, confirm, readFile, withProps } from "../utils";
 import { IOption } from "../types";
 import Icon from "./Icon";
 import React from "react";
-import Select, { OnChangeValue } from "react-select";
+import Select, { OnChangeValue, components, MultiValueProps } from "react-select";
 import colors from "../styles/colors";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
@@ -15,7 +15,7 @@ export const SelectValue = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-left: -7px;
+  margin-left: -2px;
   padding-left: 25px;
 
   img {
@@ -242,28 +242,30 @@ class SelectWithSearch extends React.Component<
       selectOptions.unshift(customOption);
     }
 
-    let optionRenderer;
-    let valueRenderer;
+    const Option = (props) => {
+      return (
+        <components.Option {...props}>
+          {selectItemRenderer(props.data, showAvatar, SelectOption)}
+        </components.Option>
+      );
+    };
 
-    if (multi) {
-      valueRenderer = (option: IOption) =>
-        selectItemRenderer(option, showAvatar, SelectValue);
-
-      optionRenderer = (option: IOption) =>
-        selectItemRenderer(option, showAvatar, SelectOption);
-    }
+    const MultiValue = ({ children, ...props }: MultiValueProps<any, boolean, any>) => (
+      <components.MultiValue {...props}>
+        {selectItemRenderer(props.data, showAvatar, SelectValue)}
+      </components.MultiValue>
+    );
 
     return (
       <Select
         placeholder={__(label)}
         value={multi ? selectedOptions : selectedOptions && selectedOptions[0]}
-        // loadingMessage={__('Loading...')}
+        loadingMessage={({ inputValue }) => __('Loading...')}
         isLoading={customQuery.loading}
         onMenuOpen={onOpen}
-        onChange={(options:any) => onChange(options)}
+        components={{ Option, MultiValue }}
+        onChange={(options: any) => onChange(options)}
         openMenuOnClick={true}
-        // optionRenderer={optionRenderer}
-        // valueRenderer={optionRenderer}
         onInputChange={onSearch}
         options={selectOptions}
         isMulti={multi}

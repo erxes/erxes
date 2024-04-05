@@ -19,7 +19,7 @@ import { IUser } from "@erxes/ui/src/auth/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import React from "react";
 import RichTextEditor from "../containers/RichTextEditor";
-import Select from "react-select";
+import Select, { components } from "react-select";
 import Tip from "@erxes/ui/src/components/Tip";
 import Uploader from "@erxes/ui/src/components/Uploader";
 import { __ } from "coreui/utils";
@@ -148,6 +148,14 @@ class EmailForm extends React.Component<Props, State> {
         {option.label}
       </FlexContent>
     );
+    
+    const Option = (props) => {
+      return (
+        <components.Option {...props}>
+          {optionRenderer(props.data)}
+        </components.Option>
+      );
+    };
 
     return (
       <Select
@@ -156,7 +164,7 @@ class EmailForm extends React.Component<Props, State> {
           (option) => option.value === this.state.fromUserId
         )}
         onChange={onChangeUser}
-        // optionRenderer={optionRenderer}
+        components={{ Option }}
         options={selectOptions()}
       />
     );

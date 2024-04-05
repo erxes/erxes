@@ -1,5 +1,5 @@
 import React from "react";
-import Select from "react-select";
+import Select, { components } from "react-select";
 
 import Icon from "@erxes/ui/src/components/Icon";
 import { __ } from "@erxes/ui/src/utils/core";
@@ -72,13 +72,20 @@ class JobCategoryChooser extends React.Component<Props, State> {
   render() {
     const { categories } = this.props;
     const onChangeCategory = (option) => this.onChange(option.value);
+    const Option = (props) => {
+      return (
+        <components.Option {...props}>
+          {this.renderOptions(props.data)}
+        </components.Option>
+      );
+    };
 
     return (
       <CategoryContainer>
         <Select
           required={true}
           placeholder={__("Choose a category")}
-          // optionRenderer={this.renderOptions}
+          components={{ Option }}
           options={this.selectOptions(categories)}
           value={this.selectOptions(categories).find(
             (o) => o.value === this.state.categoryId

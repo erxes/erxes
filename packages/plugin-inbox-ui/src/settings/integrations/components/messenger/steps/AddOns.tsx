@@ -18,7 +18,7 @@ import { ITopic } from "@erxes/ui-knowledgebase/src/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import { Options } from "@erxes/ui-inbox/src/settings/integrations/styles";
 import React from "react";
-import Select from "react-select";
+import Select, { components } from "react-select";
 import Tip from "@erxes/ui/src/components/Tip";
 import { __ } from "@erxes/ui/src/utils";
 import styled from "styled-components";
@@ -188,6 +188,14 @@ class AddOns extends React.Component<Props, State> {
     const { knowledgeBase, popups, websites } = this.state;
     const { leads, topics } = this.props;
 
+    const Option = (props) => {
+      return (
+        <components.Option {...props}>
+          {this.renderOption(props.data)}
+        </components.Option>
+      );
+    };
+
     return (
       <FlexItem>
         <LeftItem>
@@ -205,7 +213,7 @@ class AddOns extends React.Component<Props, State> {
               )}
               options={this.generateObjectsParams(topics)}
               onChange={this.onChangeKb}
-              // optionRenderer={this.renderOption}
+              components={{ Option }}
             />
           </FormGroup>
           <FormGroup>
@@ -219,7 +227,7 @@ class AddOns extends React.Component<Props, State> {
               )}
               options={this.generateObjectsParams(leads)}
               onChange={this.onChangePopups}
-              // optionRenderer={this.renderOption}
+              components={{ Option }}
               isMulti={true}
             />
           </FormGroup>

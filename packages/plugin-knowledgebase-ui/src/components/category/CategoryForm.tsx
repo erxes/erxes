@@ -9,7 +9,7 @@ import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import Icon from "@erxes/ui/src/components/Icon";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
-import Select from "react-select";
+import Select, { components } from "react-select";
 import { __ } from "@erxes/ui/src/utils/core";
 import { icons } from "../../icons.constant";
 
@@ -157,6 +157,20 @@ const CategoryForm = (props: Props) => {
     );
   };
 
+  const Option = (props) => {
+    return (
+      <components.Option {...props}>
+        {renderOption(props.data)}
+      </components.Option>
+    );
+  };
+
+  const SingleValue = (props) => (
+    <components.SingleValue {...props}>
+      {renderOption(props.data)}
+    </components.SingleValue>
+  );
+
   const renderContent = (formProps: IFormProps) => {
     const object = category || ({} as ICategory);
     const { values, isSubmitted } = formProps;
@@ -194,8 +208,7 @@ const CategoryForm = (props: Props) => {
             value={icons.find((o) => o.value === selectedIcon)}
             options={icons}
             onChange={handleIconChange}
-            // optionRenderer={renderOption}
-            // valueRenderer={renderOption}
+            components={{ Option, SingleValue }}
           />
         </FormGroup>
 

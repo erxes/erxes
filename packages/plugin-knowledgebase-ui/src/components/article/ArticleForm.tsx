@@ -23,7 +23,7 @@ import FormGroup from "@erxes/ui/src/components/form/Group";
 import Icon from "@erxes/ui/src/components/Icon";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
 import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
-import Select, { OnChangeValue } from "react-select";
+import Select, { OnChangeValue, components } from "react-select";
 import Uploader from "@erxes/ui/src/components/Uploader";
 import { articleReactions } from "../../icons.constant";
 
@@ -179,6 +179,20 @@ const ArticleForm = (props: Props) => {
       </ReactionItem>
     );
   };
+
+  const Option = (props) => {
+    return (
+      <components.Option {...props}>
+        {renderOption(props.data)}
+      </components.Option>
+    );
+  };
+
+  const MultiValue = (props) => (
+    <components.MultiValue {...props}>
+      {renderOption(props.data)}
+    </components.MultiValue>
+  );
 
   const generateOptions = (options) => {
     return options.map((option) => ({
@@ -366,8 +380,7 @@ const ArticleForm = (props: Props) => {
                 )}
                 options={articleReactions}
                 onChange={handleReactionsChange}
-                // optionRenderer={renderOption}
-                // valueRenderer={renderOption}
+                components={{ Option, MultiValue }}
                 placeholder={__("Select")}
               />
             </FormGroup>

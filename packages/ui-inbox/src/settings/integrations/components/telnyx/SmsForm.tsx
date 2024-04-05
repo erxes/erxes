@@ -7,7 +7,7 @@ import { ISelectedOption } from "@erxes/ui/src/types";
 import React from "react";
 import { __ } from "@erxes/ui/src/utils";
 import colors from "@erxes/ui/src/styles/colors";
-import Select from "react-select";
+import Select, { components } from "react-select";
 import styled from "styled-components";
 import styledTS from "styled-components-ts";
 
@@ -123,6 +123,14 @@ class SmsForm extends React.Component<Props, State> {
       });
     };
 
+    const Option = (props) => {
+      return (
+        <components.Option {...props}>
+          {this.fromOptionRenderer(props.data)}
+        </components.Option>
+      );
+    };
+
     return (
       <>
         <FormGroup>
@@ -134,7 +142,7 @@ class SmsForm extends React.Component<Props, State> {
             )}
             onChange={onChangeFrom}
             options={this.fromSelectOptions()}
-            // optionRenderer={this.fromOptionRenderer}
+            components={{ Option }}
           />
         </FormGroup>
         <FormGroup>

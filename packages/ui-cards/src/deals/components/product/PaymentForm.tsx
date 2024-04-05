@@ -12,7 +12,7 @@ import FormControl from "@erxes/ui/src/components/form/Control";
 import { IPaymentsData } from "../../types";
 import { PAYMENT_TYPES } from "../../constants";
 import React from "react";
-import Select from "react-select";
+import Select, { components } from "react-select";
 import { __ } from "@erxes/ui/src/utils";
 import { pluginsOfPaymentForm } from "coreui/pluginUtils";
 import { selectConfigOptions } from "../../utils";
@@ -130,6 +130,14 @@ class PaymentForm extends React.Component<Props, State> {
       });
     };
 
+    const Option = (props) => {
+      return (
+        <components.Option {...props}>
+          {this.selectOption(props.data)}
+        </components.Option>
+      );
+    };
+
     const selectOptions = selectConfigOptions(currencies, CURRENCIES);
 
     return (
@@ -160,7 +168,7 @@ class PaymentForm extends React.Component<Props, State> {
                 (paymentsData[type.name] ? paymentsData[type.name].currency : 0)
             )}
             onChange={currencyOnChange}
-            // optionRenderer={this.selectOption}
+            components={{ Option }}
             options={selectOptions}
           />
         </ContentColumn>

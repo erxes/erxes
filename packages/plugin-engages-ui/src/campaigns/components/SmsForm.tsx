@@ -1,4 +1,4 @@
-import Select, { OnChangeValue } from "react-select";
+import Select, { OnChangeValue, components } from "react-select";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
@@ -151,6 +151,14 @@ class MessengerForm extends React.Component<Props, State> {
       });
     };
 
+    const Option = (props) => {
+      return (
+        <components.Option {...props}>
+          {this.fromOptionRenderer(props.data)}
+        </components.Option>
+      );
+    };
+
     if (!smsConfig) {
       return (
         <EmptyState
@@ -172,7 +180,7 @@ class MessengerForm extends React.Component<Props, State> {
               )}
               onChange={onChangeFrom}
               options={this.fromSelectOptions()}
-              // optionRenderer={this.fromOptionRenderer}
+              components={{ Option }}
             />
           </FormGroup>
           <FormGroup>
