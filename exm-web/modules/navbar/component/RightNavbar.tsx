@@ -3,7 +3,7 @@
 import { currentUserAtom } from "@/modules/JotaiProiveder"
 import { IUser } from "@/modules/auth/types"
 import { useAtomValue } from "jotai"
-import { LogOut, User, ChevronDown } from "lucide-react"
+import { ChevronDown, LogOut, User } from "lucide-react"
 
 import Image from "@/components/ui/image"
 import {
@@ -40,11 +40,18 @@ const RightNavbar = () => {
                   alt="User Profile"
                   width={80}
                   height={80}
-                  className="w-[32px] h-[32px] rounded-[8px] object-cover mr-[10px] border-[1.5px] border-exm"
+                  className="w-[32px] h-[32px]"
                 />
-                <div className="leading-none mr-[12px]">
-                  <div>{currentUser.details ? currentUser.details.fullName : currentUser.username}</div>
-                  <div className="font-normal font-[12px]">{currentUser.email}</div>
+
+                <div className="leading-none mr-[12px] ml-[10px] flex flex-col justify-between">
+                  <div>
+                    {currentUser.details
+                      ? currentUser.details.fullName
+                      : currentUser.username}
+                  </div>
+                  <div className="font-normal font-[12px] text-[#475467]">
+                    {currentUser.email}
+                  </div>
                 </div>
                 <ChevronDown />
               </div>

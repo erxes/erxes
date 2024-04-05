@@ -1,35 +1,60 @@
 # Changelog
 
-## [1.7.4](https://github.com/erxes/erxes/compare/1.7.3...1.7.4) (2024-04-01)
+## [1.8.0-rc.0](https://github.com/erxes/erxes/compare/1.7.5...1.8.0-rc.0) (2024-04-03)
 
+### Features
+
+- **forms:** introduce new type 'Team members' as a new custom property option ([c992c1d](https://github.com/erxes/erxes/commit/c992c1d535886c973db280ec24914d2346fb7cb7))
+- msDynamics get products remainder ([#5032](https://github.com/erxes/erxes/issues/5032)) ([fc09bc1](https://github.com/erxes/erxes/commit/fc09bc15a1f099e41d296cc7e001a66a76adcf40))
+
+## [1.7.6](https://github.com/erxes/erxes/compare/1.7.5...1.7.6) (2024-04-05)
 
 ### Bug Fixes
 
-* segment count rabbitmq message ([ebf63a2](https://github.com/erxes/erxes/commit/ebf63a27c6c2c494598c119eff3f2dbfd27ef312))
+- **calls:** add input action and fix many conversations and fix incoming call user ([9c41263](https://github.com/erxes/erxes/commit/9c4126335e315c79193458399643a5f64bfd1214))
+- **ebarimt:** previously submitted ebarimt data has not yet been processed ([228164d](https://github.com/erxes/erxes/commit/228164d5031e3fa8b4f87f85c85212af3fb65386))
+- **facebook:** fix login reload ([4e36459](https://github.com/erxes/erxes/commit/4e364595a0306d0d5456b5eb3a0530430749cc88))
+- **instagram:** add reload ([7cbe389](https://github.com/erxes/erxes/commit/7cbe3897c64561134d48c5cb173ab91dd51aefe7))
+- **instagram:** instagram reload ([adae6b9](https://github.com/erxes/erxes/commit/adae6b92dfddc44b6000684f7ce670803d0e1a37))
+- internalnotes remove from main content remove ([cc4e452](https://github.com/erxes/erxes/commit/cc4e452df7d34c9566b6a43b5e4ffcf16e09f22b))
+- multierkhet check deals render multi row ([66ef9a1](https://github.com/erxes/erxes/commit/66ef9a1537bd0d66689a12ffe3e2359a87954a6a))
+- **posclient:** ebarimt waiting previous sending data ([9b9de6d](https://github.com/erxes/erxes/commit/9b9de6da56fd74b9132c06f4b5eac9af0fa9b7c4))
+- products export filter by status ([955e8ba](https://github.com/erxes/erxes/commit/955e8bab01a96f564754d4a4b1d75b8ec14da071))
+- **products:** filter segment data for tag and category options ([7d1cbbb](https://github.com/erxes/erxes/commit/7d1cbbbdbfdd37c608ae49ec0a80e607473546fc))
+- **widgets:** fix country code select of phone input ([afce6e1](https://github.com/erxes/erxes/commit/afce6e134b025de1e54a87ab8e8972b2e59e42bd))
+- **editor:** RTE related issues ([#5116](https://github.com/erxes/erxes/issues/5116)) ([7b580b8](https://github.com/erxes/erxes/commit/7b580b84100b6a6f6485510f441bfe542e3a7d7d))
+
+## [1.7.5](https://github.com/erxes/erxes/compare/1.7.4...1.7.5) (2024-04-02)
+
+### Bug Fixes
+
+- **xbuilder:** Entries list scroll not working ([#5084](https://github.com/erxes/erxes/issues/5084)) ([c4bc165](https://github.com/erxes/erxes/commit/c4bc165bc2c4f8a3e4a48a93577b85fc36b12e63))
+
+## [1.7.4](https://github.com/erxes/erxes/compare/1.7.3...1.7.4) (2024-04-01)
+
+### Bug Fixes
+
+- segment count rabbitmq message ([ebf63a2](https://github.com/erxes/erxes/commit/ebf63a27c6c2c494598c119eff3f2dbfd27ef312))
 
 ## [1.7.3](https://github.com/erxes/erxes/compare/1.7.2...1.7.3) (2024-03-27)
 
+### Bug Fixes
+
+- **segment:** fix segment db connection string ([9519038](https://github.com/erxes/erxes/commit/9519038f3a9e69e6788ef68cb2d3dc97ba59cf19))
 
 ### Bug Fixes
 
-* **segment:** fix segment db connection string ([9519038](https://github.com/erxes/erxes/commit/9519038f3a9e69e6788ef68cb2d3dc97ba59cf19))
-
-
-### Reverts
-
-* revert erxes request headers erxes-user to user ([cf0684b](https://github.com/erxes/erxes/commit/cf0684be5d2e7e8bceccd7bb47a4e79b7087a5f0))
+- revert erxes request headers erxes-user to user ([cf0684b](https://github.com/erxes/erxes/commit/cf0684be5d2e7e8bceccd7bb47a4e79b7087a5f0))
 
 ## [1.7.2](https://github.com/erxes/erxes/compare/1.7.1...1.7.2) (2024-03-27)
 
-
 ### Bug Fixes
 
-* customer render full name ([dc3aa68](https://github.com/erxes/erxes/commit/dc3aa68823e9abe6e9852451c66190ded2ca371e))
-
+- customer render full name ([dc3aa68](https://github.com/erxes/erxes/commit/dc3aa68823e9abe6e9852451c66190ded2ca371e))
 
 ### Performance Improvements
 
-* **calls:** increase session timers, fix call timer and add integration config   ([ea49253](https://github.com/erxes/erxes/commit/ea49253ba53f08c03a86ac1cb3ad11b046d0a2d0))
+- **calls:** increase session timers, fix call timer and add integration config ([ea49253](https://github.com/erxes/erxes/commit/ea49253ba53f08c03a86ac1cb3ad11b046d0a2d0))
 
 ## [1.7.1](https://github.com/erxes/erxes/compare/1.7.0...1.7.1) (2024-03-26)
 

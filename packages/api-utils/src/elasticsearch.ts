@@ -32,7 +32,7 @@ export const doSearch = async ({
 }) => {
   const highlightFields = {};
 
-  fields.forEach(field => {
+  fields.forEach((field) => {
     highlightFields[field] = {};
   });
 
@@ -67,7 +67,7 @@ export const doSearch = async ({
     defaultValue: { hits: { hits: [] } },
   });
 
-  const results = fetchResults.hits.hits.map(result => {
+  const results = fetchResults.hits.hits.map((result) => {
     return {
       source: {
         _id: getRealIdFromElk(result._id),
@@ -246,8 +246,8 @@ export const fetchByQueryWithScroll = async ({
   const scrollId = response._scroll_id;
 
   let ids = response.hits.hits
-    .map(hit => (_source === '_id' ? hit._id : hit._source[_source]))
-    .filter(r => r);
+    .map((hit) => (_source === '_id' ? hit._id : hit._source[_source]))
+    .filter((r) => r);
 
   if (totalCount < 10000) {
     return ids;
@@ -260,7 +260,7 @@ export const fetchByQueryWithScroll = async ({
       break;
     }
 
-    ids = ids.concat(scrollResponse.hits.hits.map(hit => hit._id));
+    ids = ids.concat(scrollResponse.hits.hits.map((hit) => hit._id));
   }
 
   return ids;
@@ -296,8 +296,8 @@ export const fetchByQuery = async ({
   });
 
   return response.hits.hits
-    .map(hit => (_source === '_id' ? hit._id : hit._source[_source]))
-    .filter(r => r);
+    .map((hit) => (_source === '_id' ? hit._id : hit._source[_source]))
+    .filter((r) => r);
 };
 
 export const getRealIdFromElk = (_id: string) => {
@@ -313,7 +313,7 @@ export const generateElkIds = async (ids: string[], subdomain: string) => {
     if (ids && ids.length) {
       const organizationId = await getOrganizationIdBySubdomain(subdomain);
 
-      return ids.map(_id => `${organizationId}__${_id}`);
+      return ids.map((_id) => `${organizationId}__${_id}`);
     }
     return [];
   }
