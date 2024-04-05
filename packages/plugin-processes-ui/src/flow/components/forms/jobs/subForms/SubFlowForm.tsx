@@ -1,5 +1,5 @@
 import Common from '../Common';
-import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
+import { ProductButton } from '@erxes/ui-deals/src/deals/styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FlowChooser from '../../../../containers/flow/Chooser';
 import FormGroup from '@erxes/ui/src/components/form/Group';
@@ -42,7 +42,7 @@ class JobForm extends React.Component<Props, State> {
       description: description || '',
       currentTab: 'inputs',
 
-      categoryId: ''
+      categoryId: '',
     };
   }
 
@@ -51,7 +51,7 @@ class JobForm extends React.Component<Props, State> {
       this.setState({
         description: nextProps.activeFlowJob.description,
         subFlowId: nextProps.activeFlowJob.subFlowId,
-        subFlow: nextProps.subFlow
+        subFlow: nextProps.subFlow,
       });
     }
   }
@@ -89,7 +89,7 @@ class JobForm extends React.Component<Props, State> {
       this.setState({ [type]: e.target.value } as any);
     };
 
-    const onChangeJob = prs => {
+    const onChangeJob = (prs) => {
       let pr: any;
       if (!prs.length) {
         this.setState({ subFlowId: '', subFlow: undefined });
@@ -100,7 +100,7 @@ class JobForm extends React.Component<Props, State> {
       this.setState({ subFlowId: pr._id, subFlow: pr });
     };
 
-    const content = props => {
+    const content = (props) => {
       const onCloseModal = () => {
         this.props.setUsedPopup(false);
         props.closeModal();
@@ -111,11 +111,11 @@ class JobForm extends React.Component<Props, State> {
           {...props}
           closeModal={onCloseModal}
           onSelect={onChangeJob}
-          onChangeCategory={categoryId => this.setState({ categoryId })}
+          onChangeCategory={(categoryId) => this.setState({ categoryId })}
           categoryId={this.state.categoryId}
           data={{
             name: 'Flows',
-            flows: subFlow ? [subFlow] : []
+            flows: subFlow ? [subFlow] : [],
           }}
           isSub={true}
           limit={1}

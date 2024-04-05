@@ -12,7 +12,7 @@ export interface IContext extends IMainContext {
 export const setupMessageConsumers = async () => {};
 
 export const sendCommonMessage = async (
-  args: MessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string }
 ) => {
   return sendMessage({
     ...args,
@@ -20,19 +20,10 @@ export const sendCommonMessage = async (
 };
 
 export const sendCoreMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
-    ...args,
-  });
-};
-
-export const sendCardsMessage = async (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'cards',
     ...args,
   });
 };

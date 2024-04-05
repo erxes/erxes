@@ -1,4 +1,4 @@
-import { sendCardsMessage, sendCoreMessage } from '../messageBroker';
+import { sendDealsMessage, sendCoreMessage } from '../messageBroker';
 import { sendRPCMessage } from '../messageBrokerErkhet';
 
 export const toErkhet = (models, syncLog, config, sendData, action) => {
@@ -6,13 +6,13 @@ export const toErkhet = (models, syncLog, config, sendData, action) => {
     token: config.apiToken,
     apiKey: config.apiKey,
     apiSecret: config.apiSecret,
-    orderInfos: JSON.stringify(sendData)
+    orderInfos: JSON.stringify(sendData),
   };
 
   sendRPCMessage(models, syncLog, 'rpc_queue:erxes-automation-erkhet', {
     action,
     payload: JSON.stringify(postData),
-    thirdService: true
+    thirdService: true,
   });
 };
 
@@ -21,30 +21,30 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
     subdomain,
     action: 'getConfig',
     data: { code, defaultValue },
-    isRPC: true
+    isRPC: true,
   });
 };
 
 export const sendCardInfo = async (subdomain, deal, config, value) => {
   const field = config.responseField.replace('customFieldsData.', '');
 
-  await sendCardsMessage({
+  await sendDealsMessage({
     subdomain,
-    action: 'deals.updateOne',
+    action: 'updateOne',
     data: {
       selector: { _id: deal._id },
       modifier: {
         $pull: {
-          customFieldsData: { field }
-        }
-      }
+          customFieldsData: { field },
+        },
+      },
     },
-    isRPC: true
+    isRPC: true,
   });
 
-  await sendCardsMessage({
+  await sendDealsMessage({
     subdomain,
-    action: 'deals.updateOne',
+    action: 'updateOne',
     data: {
       selector: { _id: deal._id },
       modifier: {
@@ -52,11 +52,11 @@ export const sendCardInfo = async (subdomain, deal, config, value) => {
           customFieldsData: {
             field,
             value,
-            stringValue: value
-          }
-        }
-      }
+            stringValue: value,
+          },
+        },
+      },
     },
-    isRPC: true
+    isRPC: true,
   });
 };

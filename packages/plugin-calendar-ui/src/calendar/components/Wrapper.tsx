@@ -2,8 +2,7 @@ import { IBoard, IGroup } from '../types';
 import { extractDate, generateFilters } from '../utils';
 
 import Button from '@erxes/ui/src/components/Button';
-import { ButtonGroup } from '@erxes/ui-cards/src/boards/styles/header';
-import { CalendarController } from '../styles';
+import { CalendarController, ButtonGroup } from '../styles';
 import Event from '../containers/Event';
 import { IAccount } from '../types';
 import { IUser } from '@erxes/ui/src/auth/types';
@@ -50,31 +49,31 @@ class CalendarWrapper extends React.Component<Props, State> {
     this.state = {
       currentDate: new Date(),
       type: TYPES.MONTH,
-      calendarIds: []
+      calendarIds: [],
     };
   }
 
-  typeOnChange = type => {
+  typeOnChange = (type) => {
     this.setState({ type });
   };
 
-  dateOnChange = date => {
+  dateOnChange = (date) => {
     this.setState({ currentDate: date });
   };
 
-  onDayClick = date => {
+  onDayClick = (date) => {
     this.setState({ type: TYPES.DAY, currentDate: date });
   };
 
-  onChangeCalendarIds = calendarIds => {
+  onChangeCalendarIds = (calendarIds) => {
     this.setState({ calendarIds });
   };
 
   setColors() {
     const color = {};
 
-    this.props.accounts.map(acc => {
-      return acc.calendars.map(calendar => {
+    this.props.accounts.map((acc) => {
+      return acc.calendars.map((calendar) => {
         return (color[calendar.providerCalendarId] = acc.color);
       });
     });
@@ -129,7 +128,7 @@ class CalendarWrapper extends React.Component<Props, State> {
   };
 
   renderOptions = (list: string[]) => {
-    return list.map(item => ({ value: item, label: item.toUpperCase() }));
+    return list.map((item) => ({ value: item, label: item.toUpperCase() }));
   };
 
   renderTypeChooser = () => {
@@ -137,7 +136,7 @@ class CalendarWrapper extends React.Component<Props, State> {
 
     return (
       <ButtonGroup>
-        {TYPES.all.map(item => {
+        {TYPES.all.map((item) => {
           const onClick = () => this.typeOnChange(item);
 
           return (
@@ -163,7 +162,7 @@ class CalendarWrapper extends React.Component<Props, State> {
       currentUser,
       currentGroup,
       currentBoard,
-      boards
+      boards,
     } = this.props;
 
     const actionBar = (

@@ -1,23 +1,27 @@
 import { generateFields, generateSystemFields } from './utils';
 
-const relations = type => {
+const relations = (type) => {
   return [
     {
       name: 'customerIds',
       label: 'Customers',
-      relationType: 'contacts:customer'
+      relationType: 'contacts:customer',
     },
     {
       name: 'companyIds',
       label: 'Companies',
-      relationType: 'contacts:company'
+      relationType: 'contacts:company',
     },
-    { name: 'dealIds', label: 'Deals', relationType: 'cards:deal' },
-    { name: 'purchaseIds', label: 'Purchases', relationType: 'cards:purchase' },
-    { name: 'taskIds', label: 'Tasks', relationType: 'cards:task' },
-    { name: 'ticketIds', label: 'Tickets', relationType: 'cards:ticket' },
-    { name: 'carIds', label: 'Cars', relationType: 'cars:car' }
-  ].filter(r => r.relationType !== type);
+    { name: 'dealIds', label: 'Deals', relationType: 'deals:deal' },
+    {
+      name: 'purchaseIds',
+      label: 'Purchases',
+      relationType: 'purchases:purchase',
+    },
+    { name: 'taskIds', label: 'Tasks', relationType: 'tasks:task' },
+    { name: 'ticketIds', label: 'Tickets', relationType: 'tickets:ticket' },
+    { name: 'carIds', label: 'Cars', relationType: 'cars:car' },
+  ].filter((r) => r.relationType !== type);
 };
 
 export default {
@@ -25,17 +29,17 @@ export default {
     {
       description: 'Customers',
       type: 'customer',
-      relations: relations('contacts:customer')
+      relations: relations('contacts:customer'),
     },
     {
       description: 'Companies',
       type: 'company',
-      relations: relations('contacts:company')
+      relations: relations('contacts:company'),
     },
     {
       description: 'Device properties',
-      type: 'device'
-    }
+      type: 'device',
+    },
   ],
   fields: generateFields,
   defaultColumnsConfig: {
@@ -48,7 +52,7 @@ export default {
       { name: 'sessionCount', label: 'Session count', order: 5 },
       { name: 'profileScore', label: 'Profile score', order: 6 },
       { name: 'middleName', label: 'Middle name', order: 7 },
-      { name: 'score', label: 'Score', order: 8 }
+      { name: 'score', label: 'Score', order: 8 },
     ],
     company: [
       { name: 'primaryName', label: 'Primary Name', order: 1 },
@@ -58,8 +62,8 @@ export default {
       { name: 'plan', label: 'Plan', order: 5 },
       { name: 'lastSeenAt', label: 'Last seen at', order: 6 },
       { name: 'sessionCount', label: 'Session count', order: 7 },
-      { name: 'score', label: 'Score', order: 8 }
-    ]
+      { name: 'score', label: 'Score', order: 8 },
+    ],
   },
-  systemFields: generateSystemFields
+  systemFields: generateSystemFields,
 };

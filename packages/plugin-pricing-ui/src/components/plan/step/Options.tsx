@@ -5,7 +5,7 @@ import FormLabel from '@erxes/ui/src/components/form/Label';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartment from '@erxes/ui/src/team/containers/SelectDepartments';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import BoardSelectContainer from '@erxes/ui-deals/src/boards/containers/BoardSelect';
 import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
 import { __ } from '@erxes/ui/src/utils';
 // local
@@ -30,7 +30,7 @@ export default function Options(props: Props) {
           name="departmentIds"
           label="Choose Departments"
           initialValue={formValues.departmentIds || []}
-          onSelect={departments => handleState('departmentIds', departments)}
+          onSelect={(departments) => handleState('departmentIds', departments)}
           multi={true}
         />
       </FormGroup>
@@ -40,7 +40,7 @@ export default function Options(props: Props) {
           name="branchIds"
           label="Choose Branches"
           initialValue={formValues.branchIds || []}
-          onSelect={branches => handleState('branchIds', branches)}
+          onSelect={(branches) => handleState('branchIds', branches)}
           multi={true}
         />
       </FormGroup>
@@ -48,7 +48,7 @@ export default function Options(props: Props) {
   );
 
   const renderBoardForm = () => {
-    if (isEnabled('cards'))
+    if (isEnabled('deals'))
       return (
         <Block>
           <h4>{__('Stage')}</h4>
@@ -58,11 +58,11 @@ export default function Options(props: Props) {
             boardId={formValues.boardId}
             pipelineId={formValues.pipelineId}
             stageId={formValues.stageId}
-            onChangeBoard={boardId => handleState('boardId', boardId)}
-            onChangePipeline={pipelineId =>
+            onChangeBoard={(boardId) => handleState('boardId', boardId)}
+            onChangePipeline={(pipelineId) =>
               handleState('pipelineId', pipelineId)
             }
-            onChangeStage={stageId => handleState('stageId', stageId)}
+            onChangeStage={(stageId) => handleState('stageId', stageId)}
           />
         </Block>
       );

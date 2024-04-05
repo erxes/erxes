@@ -10,8 +10,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { STORAGE_CALENDAR_IDS } from '../constants';
 import EventForm from '../containers/EventForm';
-import { CalendarItem, SidebarHeading } from '../styles';
-import { MenuFooter } from '@erxes/ui-cards/src/boards/styles/rightMenu';
+import { CalendarItem, MenuFooter, SidebarHeading } from '../styles';
 import { IAccount, INylasCalendar } from '../types';
 import BoardChooser from './BoardChooser';
 
@@ -38,7 +37,7 @@ class LeftSidebar extends React.Component<Props, State> {
 
     this.state = {
       isPopupVisible: false,
-      calendarIds: this.getCalendarIds(props.accounts)
+      calendarIds: this.getCalendarIds(props.accounts),
     };
   }
 
@@ -67,12 +66,12 @@ class LeftSidebar extends React.Component<Props, State> {
       return JSON.parse(storedCalendarIds);
     }
 
-    accounts.map(acc => {
+    accounts.map((acc) => {
       calendarIds.push(acc._id);
 
       return acc.calendars
-        .filter(c => !c.readOnly)
-        .map(cal => calendarIds.push(cal.providerCalendarId));
+        .filter((c) => !c.readOnly)
+        .map((cal) => calendarIds.push(cal.providerCalendarId));
     });
 
     localStorage.setItem(STORAGE_CALENDAR_IDS, JSON.stringify(calendarIds));
@@ -82,7 +81,7 @@ class LeftSidebar extends React.Component<Props, State> {
 
   onHideModal = () => {
     this.setState({
-      isPopupVisible: !this.state.isPopupVisible
+      isPopupVisible: !this.state.isPopupVisible,
     });
   };
 
@@ -113,7 +112,7 @@ class LeftSidebar extends React.Component<Props, State> {
     const checked = (e.target as HTMLInputElement).checked;
     let calendarIds = this.state.calendarIds || [];
     const providerCalendarIds = account.calendars.map(
-      c => c.providerCalendarId
+      (c) => c.providerCalendarId
     );
 
     const ids = [account._id, ...providerCalendarIds];
@@ -121,7 +120,7 @@ class LeftSidebar extends React.Component<Props, State> {
     if (checked) {
       calendarIds = calendarIds.concat(ids);
     } else {
-      ids.map(id => {
+      ids.map((id) => {
         const index = calendarIds.indexOf(id);
         return index >= 0 && calendarIds.splice(index, 1);
       });
@@ -139,7 +138,7 @@ class LeftSidebar extends React.Component<Props, State> {
   ) => {
     const { calendarIds } = this.state;
 
-    return calendars.map(calendar => {
+    return calendars.map((calendar) => {
       const calendarId = calendar.providerCalendarId;
 
       return (
@@ -182,7 +181,7 @@ class LeftSidebar extends React.Component<Props, State> {
     return (
       <FormGroup>
         <SidebarHeading>My Calendars</SidebarHeading>
-        {this.props.accounts.map(account => {
+        {this.props.accounts.map((account) => {
           const calendarCount = account.calendars.length;
           return (
             <div key={account._id}>
@@ -235,13 +234,8 @@ class LeftSidebar extends React.Component<Props, State> {
   }
 
   render() {
-    const {
-      currentDate,
-      dateOnChange,
-      currentGroup,
-      currentBoard,
-      boards
-    } = this.props;
+    const { currentDate, dateOnChange, currentGroup, currentBoard, boards } =
+      this.props;
 
     if (!currentBoard) {
       return (

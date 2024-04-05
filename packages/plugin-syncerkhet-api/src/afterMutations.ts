@@ -12,8 +12,8 @@ import { userToErkhet } from './utils/userToErkhet';
 
 const allowTypes = {
   'core:user': ['create', 'update'],
-  'cards:deal': ['update'],
-  'cards:purchase': ['update'],
+  'deals:deal': ['update'],
+  'purchases:purchase': ['update'],
   'products:productCategory': ['create', 'update', 'delete'],
   'products:product': ['create', 'update', 'delete'],
   'contacts:customer': ['create', 'update', 'delete'],
@@ -46,7 +46,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
   let syncLog;
 
   try {
-    if (type === 'cards:deal') {
+    if (type === 'deals:deal') {
       if (action === 'update') {
         const deal = params.updatedDocument;
         const oldDeal = params.object;
@@ -71,7 +71,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
         const returnConfigs = await getConfig(
           subdomain,
           'returnEbarimtConfig',
-          {},
+          {}
         );
 
         // return
@@ -107,7 +107,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
               isEbarimt: false,
               payload: JSON.stringify(postData),
               thirdService: true,
-            },
+            }
           );
 
           return;
@@ -133,7 +133,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
               isEbarimt: false,
               payload: JSON.stringify(postData),
               thirdService: true,
-            },
+            }
           );
 
           if (response.message || response.error) {
@@ -170,7 +170,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
               payload: JSON.stringify(postData),
               isJson: true,
               thirdService: true,
-            },
+            }
           );
 
           if (response && (response.message || response.error)) {
@@ -191,7 +191,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       return;
     }
 
-    if (type === 'cards:purchase') {
+    if (type === 'purchases:purchase') {
       if (action === 'update') {
         const purchase = params.updatedDocument;
         const oldPurchase = params.object;
@@ -216,7 +216,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
         const incomeConfigs = await getConfig(
           subdomain,
           'stageInIncomeConfig',
-          {},
+          {}
         );
 
         // income
@@ -230,7 +230,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           const postData = await getIncomeData(
             subdomain,
             incomeConfig,
-            purchase,
+            purchase
           );
 
           const response = await sendRPCMessage(
@@ -243,7 +243,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
               isEbarimt: false,
               payload: JSON.stringify(postData),
               thirdService: true,
-            },
+            }
           );
 
           if (response.message || response.error) {
@@ -284,7 +284,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           mainConfig,
           syncLog,
           params,
-          'create',
+          'create'
         );
         return;
       }
@@ -295,7 +295,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           mainConfig,
           syncLog,
           params,
-          'update',
+          'update'
         );
         return;
       }
@@ -306,7 +306,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           mainConfig,
           syncLog,
           params,
-          'delete',
+          'delete'
         );
         return;
       }
@@ -331,7 +331,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           mainConfig,
           syncLog,
           params,
-          'createCategory',
+          'createCategory'
         );
         return;
       }
@@ -343,7 +343,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           mainConfig,
           syncLog,
           params,
-          'updateCategory',
+          'updateCategory'
         );
         return;
       }
@@ -355,7 +355,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           mainConfig,
           syncLog,
           params,
-          'deleteCategory',
+          'deleteCategory'
         );
         return;
       }
@@ -447,7 +447,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
   } catch (e) {
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
-      { $set: { error: e.message } },
+      { $set: { error: e.message } }
     );
   }
 };

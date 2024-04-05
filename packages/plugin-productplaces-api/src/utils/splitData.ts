@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { sendCardsMessage, sendSegmentsMessage } from '../messageBroker';
+import { sendDealsMessage, sendSegmentsMessage } from '../messageBroker';
 import { getChildCategories, getChildTags } from './utils';
 
 const checkSplit = async (
@@ -63,7 +63,7 @@ const checkSplit = async (
         await sendSegmentsMessage({
           subdomain,
           action: 'isInSegment',
-          data: { segmentId, idToCheck: pdata.productId }
+          data: { segmentId, idToCheck: pdata.productId },
         })
       ) {
         segmentRes = true;
@@ -102,7 +102,7 @@ export const splitData = async (
       config.excludeCategoryIds || []
     );
 
-    calcedCatIds = includeCatIds.filter(c => !excludeCatIds.includes(c));
+    calcedCatIds = includeCatIds.filter((c) => !excludeCatIds.includes(c));
   }
 
   if (config.productTagIds && config.productTagIds.length) {
@@ -112,7 +112,7 @@ export const splitData = async (
       config.excludeTagIds || []
     );
 
-    calcedTagIds = includeCatIds.filter(c => !excludeCatIds.includes(c));
+    calcedTagIds = includeCatIds.filter((c) => !excludeCatIds.includes(c));
   }
 
   for (const pdata of productsData) {
@@ -131,14 +131,14 @@ export const splitData = async (
       const tax = (pdata.tax / pdata.quantity) * newCount;
       const discount = (pdata.discount / pdata.quantity) * newCount;
 
-      pdatas = pdatas.map(pd =>
+      pdatas = pdatas.map((pd) =>
         pd._id === pdata._id
           ? {
               ...pdata,
               quantity: updateCount,
               amount: pdata.amount - amount,
               tax: pdata.tax - tax,
-              discount: pdata.discount - discount
+              discount: pdata.discount - discount,
             }
           : pd
       );
@@ -149,19 +149,19 @@ export const splitData = async (
         quantity: newCount,
         amount,
         tax,
-        discount
+        discount,
       });
     }
   }
 
-  await sendCardsMessage({
+  await sendDealsMessage({
     subdomain,
-    action: 'deals.updateOne',
+    action: 'updateOne',
     data: {
       selector: { _id: dealId },
-      modifier: { $set: { productsData: pdatas } }
+      modifier: { $set: { productsData: pdatas } },
     },
-    isRPC: true
+    isRPC: true,
   });
 
   return pdatas;

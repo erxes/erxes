@@ -1,6 +1,11 @@
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { sendCardsMessage, sendSegmentsMessage } from '../messageBroker';
+import {
+  sendDealsMessage,
+  sendSegmentsMessage,
+  sendTasksMessage,
+  sendTicketsMessage,
+} from '../messageBroker';
 import { goalSchema, IGoal, IGoalDocument } from './definitions/goals';
 import { CONTRIBUTIONTYPE, TEAMGOALTYPE } from '../constants';
 export interface IGoalModel extends Model<IGoalDocument> {
@@ -18,13 +23,13 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
       return models.Goals.create({
         ...doc,
         createdDate: new Date(),
-        createdUserId
+        createdUserId,
       });
     }
 
     public static async getGoal(_id: string) {
       const goal = await models.Goals.findOne({
-        _id
+        _id,
       });
 
       if (!goal) {
@@ -36,32 +41,32 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
     public static async updateGoal(_id: string, doc: IGoal) {
       await models.Goals.updateOne(
         {
-          _id
+          _id,
         },
         {
-          $set: doc
+          $set: doc,
         },
         {
-          runValidators: true
+          runValidators: true,
         }
       );
 
       return models.Goals.findOne({
-        _id
+        _id,
       });
     }
 
     public static async removeGoal(_ids: string[]) {
       return models.Goals.deleteMany({
         _id: {
-          $in: _ids
-        }
+          $in: _ids,
+        },
       });
     }
 
     public static async progressGoal(_id: string) {
       const goal = await models.Goals.findOne({
-        _id
+        _id,
       });
       return goal;
     }
@@ -102,29 +107,56 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
 
       if (item.contributionType === CONTRIBUTIONTYPE.PERSON) {
         requestData = {
-          assignedUserIds: item.contribution
+          assignedUserIds: item.contribution,
         };
       } else if (item.contributionType === CONTRIBUTIONTYPE.TEAM) {
         if (item.teamGoalType === TEAMGOALTYPE.DEPARTMENT) {
           requestData = {
-            departmentIds: item.department
+            departmentIds: item.department,
           };
         } else if (item.teamGoalType === TEAMGOALTYPE.BRANCH) {
           requestData = {
-            branchIds: item.branch
+            branchIds: item.branch,
           };
         }
       }
       // Send the request
-      amount = await sendCardsMessage({
-        subdomain,
-        action: item.entity + 's.find',
-        data: {
-          ...requestData, // Spread the requestData to include its properties
-          stageId: item.stageId
-        },
-        isRPC: true
-      });
+
+      if (item.entity === 'deal') {
+        amount = await sendDealsMessage({
+          subdomain,
+          action: 'find',
+          data: {
+            ...requestData, // Spread the requestData to include its properties
+            stageId: item.stageId,
+          },
+          isRPC: true,
+        });
+      }
+
+      if (item.entity === 'ticket') {
+        amount = await sendTicketsMessage({
+          subdomain,
+          action: 'find',
+          data: {
+            ...requestData, // Spread the requestData to include its properties
+            stageId: item.stageId,
+          },
+          isRPC: true,
+        });
+      }
+
+      if (item.entity === 'task') {
+        amount = await sendTasksMessage({
+          subdomain,
+          action: 'find',
+          data: {
+            ...requestData, // Spread the requestData to include its properties
+            stageId: item.stageId,
+          },
+          isRPC: true,
+        });
+      }
 
       let customerIdsBySegments: string[] = [];
 
@@ -135,7 +167,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
             isRPC: true,
             subdomain,
             action: 'fetchSegment',
-            data: { segmentId: segment }
+            data: { segmentId: segment },
           });
 
           // Concatenate the fetched customer IDs to the array
@@ -150,8 +182,8 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
           { _id: item._id },
           {
             $set: {
-              segmentCount: count
-            }
+              segmentCount: count,
+            },
           }
         );
       } catch (error) {
@@ -169,7 +201,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
           if (items.productsData && items.status === 'active') {
             const productsData = items.productsData;
 
-            productsData.forEach(item => {
+            productsData.forEach((item) => {
               totalAmount += item.amount;
             });
           }
@@ -200,7 +232,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
         current = totalAmount;
         amountData = {
           mobileAmountsData,
-          paymentsData: data
+          paymentsData: data,
         };
         progress = await differenceFunction(current, item.target);
         if (
@@ -209,13 +241,13 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
         ) {
           const updatedSpecificPeriodGoals = item.specificPeriodGoals
             .filter(
-              result =>
+              (result) =>
                 current !== 0 &&
                 !isNaN(current) &&
                 result.addTarget !== 0 &&
                 result.addTarget !== null
             )
-            .map(result => {
+            .map((result) => {
               let convertedNumber;
               if (current === 0 || result.addTarget === 0) {
                 convertedNumber = 100;
@@ -228,7 +260,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
                 ...result,
                 addMonthly: result.addMonthly, // update other properties as needed
                 current,
-                progress: convertedNumber // updating the progress property
+                progress: convertedNumber, // updating the progress property
               };
             });
 
@@ -236,13 +268,15 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
             { _id: item._id },
             {
               $set: {
-                specificPeriodGoals: updatedSpecificPeriodGoals
-              }
+                specificPeriodGoals: updatedSpecificPeriodGoals,
+              },
             }
           );
         }
       } else if (item.metric === 'Count') {
-        const activeElements = amount.filter(item => item.status === 'active');
+        const activeElements = amount.filter(
+          (item) => item.status === 'active'
+        );
         current = activeElements.length;
         progress = await differenceFunction(current, item.target);
 
@@ -252,13 +286,13 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
         ) {
           const updatedSpecificPeriodGoals = item.specificPeriodGoals
             .filter(
-              result =>
+              (result) =>
                 current !== 0 &&
                 !isNaN(current) &&
                 result.addTarget !== 0 &&
                 result.addTarget !== null
             )
-            .map(result => {
+            .map((result) => {
               let convertedNumber;
               if (current === 0 || result.addTarget === 0) {
                 convertedNumber = 100;
@@ -271,7 +305,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
                 ...result,
                 addMonthly: result.addMonthly, // update other properties as needed
                 current,
-                progress: convertedNumber // updating the progress property
+                progress: convertedNumber, // updating the progress property
               };
             });
 
@@ -279,8 +313,8 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
             { _id: item._id },
             {
               $set: {
-                specificPeriodGoals: updatedSpecificPeriodGoals
-              }
+                specificPeriodGoals: updatedSpecificPeriodGoals,
+              },
             }
           );
         }
@@ -292,7 +326,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
         current,
         progress,
         amountData,
-        target: item.target
+        target: item.target,
       });
     }
 
@@ -308,9 +342,9 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
                   progress: result.progress,
                   amountData: result.amountData,
                   target: result.target,
-                  _id: result._id
-                }
-              }
+                  _id: result._id,
+                },
+              },
             },
             { runValidators: true }
           );

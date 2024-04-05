@@ -1,7 +1,7 @@
 import { IContext } from '../../../connectionResolver';
 import fetch from 'node-fetch';
 import {
-  sendCardsMessage,
+  sendDealsMessage,
   sendContactsMessage,
   sendCoreMessage,
   sendProductsMessage,
@@ -12,10 +12,10 @@ const erkhetQueries = {
   async multiErkhetRemainders(
     _root,
     { productIds, stageId, pipelineId },
-    { subdomain, models }: IContext,
+    { subdomain, models }: IContext
   ) {
     if (!pipelineId && stageId) {
-      const pipeline = await sendCardsMessage({
+      const pipeline = await sendDealsMessage({
         subdomain,
         action: 'pipelines.findOne',
         data: { stageId },
@@ -99,7 +99,7 @@ const erkhetQueries = {
             }),
           {
             timeout: 8000,
-          },
+          }
         );
 
         const jsonRes = await response.json();
@@ -158,7 +158,7 @@ const erkhetQueries = {
       isMore: boolean;
       brandId?: string;
     },
-    { subdomain, models }: IContext,
+    { subdomain, models }: IContext
   ) {
     const result: any = {};
 
@@ -230,7 +230,7 @@ const erkhetQueries = {
           new URLSearchParams({ ...sendParams, kind: 'remainder' }),
         {
           timeout: 8000,
-        },
+        }
       );
 
       const jsonRes = await response.json();

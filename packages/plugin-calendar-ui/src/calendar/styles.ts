@@ -1,12 +1,65 @@
-import { HeaderButton } from '@erxes/ui-cards/src/boards/styles/header';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { colors } from '@erxes/ui/src/styles';
+import { colors, dimensions, typography } from '@erxes/ui/src/styles';
+import { SidebarListItem } from '@erxes/ui-settings/src/styles';
 
 const rowHeight = 40;
 const borderColor = '#D9E2EC';
 const textColor = '#486581';
+
+const HeaderButton = styledTS<{
+  hasBackground?: boolean;
+  rightIconed?: boolean;
+  isActive?: boolean;
+}>(styled.div)`
+  padding: 0 ${dimensions.unitSpacing}px;
+  line-height: ${dimensions.coreSpacing + 10}px;
+  height: ${dimensions.coreSpacing + 12}px; 
+  border-radius: ${dimensions.unitSpacing - 6}px;
+  transition: background 0.3s ease;
+  background: ${(props) => props.hasBackground && 'rgba(0, 0, 0, 0.04)'};
+  font-weight: ${typography.fontWeightMedium};
+  display: inline-block;
+  vertical-align: middle;
+  font-size: ${typography.fontSizeHeading8}px;
+  > i {
+    color: ${(props) =>
+      props.isActive ? colors.colorCoreLightGray : colors.colorCoreGray};
+    margin-right: ${dimensions.unitSpacing - 5}px;
+    ${(props) =>
+      props.rightIconed &&
+      css`
+        margin-right: -3px;
+        margin-left: ${dimensions.unitSpacing - 5}px;
+      `};
+  }
+  &:hover {
+    background: rgba(0, 0, 0, 0.06);
+    cursor: pointer;
+  }
+  a span {
+    margin: 0;
+  }
+`;
+
+export const HeaderLink = styled(HeaderButton)`
+  padding: 0;
+  margin-left: 10px;
+  font-size: 12px;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 17px;
+  line-height: 21px;
+  a {
+    color: ${colors.colorCoreGray};
+    padding: 0 10px;
+    display: block;
+    line-height: 32px;
+    &:hover {
+      color: ${colors.colorCoreDarkGray};
+    }
+  }
+`;
 
 const CalendarWrapper = styled.div`
   z-index: auto;
@@ -44,10 +97,10 @@ const ColumnHeader = styledTS<{ isCurrent?: boolean; isWeek?: boolean }>(
   text-align: center;
   font-size: 11px;
   line-height: 20px;
-  color: ${props => (props.isCurrent ? colors.colorSecondary : textColor)};
-  font-weight: ${props => (props.isCurrent ? 'bold' : '500')};
+  color: ${(props) => (props.isCurrent ? colors.colorSecondary : textColor)};
+  font-weight: ${(props) => (props.isCurrent ? 'bold' : '500')};
   text-transform: uppercase;
-  transform: ${props => props.isWeek && 'translateY(5px)'};
+  transform: ${(props) => props.isWeek && 'translateY(5px)'};
 
   strong {
     display: block;
@@ -91,7 +144,7 @@ const Cell = styledTS<{ isCurrent?: boolean }>(styled.div)`
   flex: 1 1 0%;
   display: block;
   min-height: 70px;
-  background: ${props => props.isCurrent && rgba(colors.colorPrimary, 0.05)};
+  background: ${(props) => props.isCurrent && rgba(colors.colorPrimary, 0.05)};
   position: relative;
   transition: background 0.3s ease;
 
@@ -114,13 +167,13 @@ const Day = styledTS<{ isSelectedDate?: boolean; isSameMonth: boolean }>(
   white-space: nowrap;
   width: max-content;
   min-width: 22px;
-  color: ${props => (props.isSameMonth ? textColor : '#9FB3C8')};
+  color: ${(props) => (props.isSameMonth ? textColor : '#9FB3C8')};
   line-height: 22px;
   border-radius: 8px;
   position: relative;
   z-index: 2;
   
-  ${props =>
+  ${(props) =>
     props.isSelectedDate &&
     `
     background-color: ${colors.colorSecondary};
@@ -272,7 +325,7 @@ const EventTitle = styledTS<{
     font-weight: 500;
   }
 
-  ${props => `
+  ${(props) => `
     color: ${props.color};
 
     &:hover:before {
@@ -280,7 +333,7 @@ const EventTitle = styledTS<{
     }
   `}
 
-  ${props =>
+  ${(props) =>
     props.start &&
     props.height &&
     `
@@ -306,7 +359,7 @@ const EventTitle = styledTS<{
     right: 0;
     bottom: 0;
     transition: background 0.3s ease;
-    ${props => ` background-color: ${rgba(props.color, 0.2)};`}
+    ${(props) => ` background-color: ${rgba(props.color, 0.2)};`}
   }
 `;
 
@@ -360,7 +413,7 @@ const WeekCol = styledTS<{ isCurrent?: boolean }>(styled.div)`
   border-right: ${borderColor} 1px solid;
   flex: 1 1 0%;
   position: relative;
-  background: ${props => props.isCurrent && colors.bgLight};
+  background: ${(props) => props.isCurrent && colors.bgLight};
 
   ${EventTitle} {
     padding: 1px 4px;
@@ -382,7 +435,7 @@ const SidebarHeading = styled.h4`
 
 const Indicator = styledTS<{ hour: number }>(styled.div)`
   position: absolute;
-  top: ${props => props.hour * 41}px;
+  top: ${(props) => props.hour * 41}px;
   border-top: 2px solid ${colors.colorCoreRed};
   background: red;
   left: 0;
@@ -484,6 +537,57 @@ const CalendarForm = styled.div`
   }
 `;
 
+const MenuFooter = styled.footer`
+  padding: 10px 20px;
+`;
+
+const ButtonGroup = styled.div`
+  display: inline-block;
+  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid ${colors.bgActive};
+  > a {
+    padding: 7px ${dimensions.coreSpacing}px;
+    display: inline-block;
+    color: ${colors.colorCoreGray};
+    font-weight: 500;
+    border-radius: 17px;
+    &.active {
+      color: ${colors.colorCoreDarkGray};
+      background: ${colors.colorWhite};
+      box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.08);
+      i {
+        color: ${colors.colorSecondary};
+      }
+    }
+    &:last-of-type {
+      border: none;
+    }
+    &:hover {
+      color: ${colors.colorCoreDarkGray};
+    }
+  }
+`;
+
+const BoardItem = styledTS<{ isActive: boolean }>(styled(SidebarListItem))`
+  overflow: hidden;
+  
+  > button {
+    padding: 10px 15px 10px 20px;
+
+    i {
+      color: ${colors.colorCoreYellow};
+    }
+  }
+
+  a {
+    // margin: 10px 20px 0 20px;
+    // padding-bottom: 10px;
+    // margin-left: 0;
+    // border-left: 0;
+  }
+`;
+
 export {
   CalendarForm,
   CalendarWrapper,
@@ -516,5 +620,9 @@ export {
   PopoverCell,
   Events,
   Controls,
-  FlexRow
+  FlexRow,
+  HeaderButton,
+  MenuFooter,
+  ButtonGroup,
+  BoardItem,
 };

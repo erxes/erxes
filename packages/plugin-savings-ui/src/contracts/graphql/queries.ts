@@ -1,7 +1,7 @@
 import {
   conformityQueryFieldDefs,
   conformityQueryFields,
-} from '@erxes/ui-cards/src/conformity';
+} from '@erxes/ui-deals/src/conformity';
 
 const contractFields = `
   _id

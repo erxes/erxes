@@ -2,15 +2,15 @@ import { IOption, IQueryParams } from '@erxes/ui/src/types';
 
 import React, { useEffect, useState } from 'react';
 import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
-import { IDeal } from '@erxes/ui-cards/src/deals/types';
+import { IDeal } from '@erxes/ui-deals/src/deals/types';
 import queries from '../../../graphql/queries';
 
 function generateDealOptions(array: IDeal[] = []): IOption[] {
-  return array.map(item => {
+  return array.map((item) => {
     const deal = item || ({} as IDeal);
     return {
       value: deal._id,
-      label: deal.name
+      label: deal.name,
     };
   });
 }
@@ -35,7 +35,7 @@ const SelectDeal = (props: Props) => {
     customOption,
     initialValue,
     name,
-    filterParams
+    filterParams,
   } = props;
   const defaultValue = queryParams ? queryParams[name] : initialValue;
   const abortController = new AbortController();

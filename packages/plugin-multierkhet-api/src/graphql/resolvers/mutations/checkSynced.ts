@@ -3,10 +3,10 @@ import { getPostData as getPostDataOrders } from '../../../utils/orders';
 import { getPostData } from '../../../utils/ebarimtData';
 import { generateModels, IContext } from '../../../connectionResolver';
 import {
-  sendCardsMessage,
+  sendDealsMessage,
   sendCoreMessage,
   sendPosMessage,
-  sendProductsMessage
+  sendProductsMessage,
 } from '../../../messageBroker';
 import { sendRPCMessage, sendTRPCMessage } from '../../../messageBrokerErkhet';
 
@@ -27,15 +27,15 @@ const checkSyncedMutations = {
 
     switch (type) {
       case 'deal':
-        trs = await sendCardsMessage({
+        trs = await sendDealsMessage({
           subdomain,
-          action: 'deals.find',
+          action: 'find',
           data: { _id: { $in: ids } },
-          isRPC: true
+          isRPC: true,
         });
 
-        trs.forEach(tr => {
-          (tr.productsData || []).forEach(pd => {
+        trs.forEach((tr) => {
+          (tr.productsData || []).forEach((pd) => {
             productIds.push(pd.productId);
           });
         });
@@ -45,11 +45,11 @@ const checkSyncedMutations = {
           subdomain,
           action: 'orders.find',
           data: { _id: { $in: ids } },
-          isRPC: true
+          isRPC: true,
         });
 
-        trs.forEach(tr => {
-          (tr.items || []).forEach(item => {
+        trs.forEach((tr) => {
+          (tr.items || []).forEach((item) => {
             productIds.push(item.productId);
           });
         });
@@ -60,7 +60,7 @@ const checkSyncedMutations = {
       subdomain,
       action: 'find',
       data: { query: { _id: { $in: productIds } } },
-      isRPC: true
+      isRPC: true,
     });
 
     const productById = {};
@@ -74,7 +74,7 @@ const checkSyncedMutations = {
       subdomain,
       action: 'brands.find',
       data: { _id: { $in: configBrandIds } },
-      isRPC: true
+      isRPC: true,
     });
     const brandById = {};
     for (const brand of brands) {
@@ -140,7 +140,7 @@ const checkSyncedMutations = {
     const results = {};
     for (const id of ids) {
       results[id] = {
-        mustBrands: []
+        mustBrands: [],
       };
     }
 
@@ -150,7 +150,7 @@ const checkSyncedMutations = {
         continue;
       }
 
-      orderIds.forEach(id => {
+      orderIds.forEach((id) => {
         results[id].mustBrands.push(brand);
       });
 
@@ -159,7 +159,7 @@ const checkSyncedMutations = {
         token: config.apiToken,
         apiKey: config.apiKey,
         apiSecret: config.apiSecret,
-        orderIds: JSON.stringify(ids)
+        orderIds: JSON.stringify(ids),
       };
 
       const response = await sendTRPCMessage(
@@ -167,7 +167,7 @@ const checkSyncedMutations = {
         {
           action: 'check-order-synced',
           payload: JSON.stringify(postData),
-          thirdService: true
+          thirdService: true,
         }
       );
       const result = JSON.parse(response);
@@ -178,7 +178,7 @@ const checkSyncedMutations = {
 
       const perData = result.data || {};
 
-      (Object.keys(perData) || []).forEach(_id => {
+      (Object.keys(perData) || []).forEach((_id) => {
         const res: any = perData[_id] || {};
         if (res.isSynced) {
           results[_id][brand] = {
@@ -187,13 +187,13 @@ const checkSyncedMutations = {
             syncedDate: res.date,
             syncedBillNumber: res.bill_number,
             syncedCustomer: res.customer,
-            brandName: brand === 'noBrand' ? 'noBrand' : brandById[brand] || ''
+            brandName: brand === 'noBrand' ? 'noBrand' : brandById[brand] || '',
           };
         }
       });
     }
 
-    return Object.keys(results).map(r => ({ ...results[r], _id: r }));
+    return Object.keys(results).map((r) => ({ ...results[r], _id: r }));
   },
 
   async toMultiSyncDeals(
@@ -201,31 +201,31 @@ const checkSyncedMutations = {
     {
       dealIds,
       configStageId,
-      dateType
+      dateType,
     }: { dealIds: string[]; configStageId: string; dateType: string },
     { subdomain, user, models }: IContext
   ) {
     const result: { skipped: string[]; error: string[]; success: string[] } = {
       skipped: [],
       error: [],
-      success: []
+      success: [],
     };
 
     const configs = await models.Configs.getConfig('ebarimtConfig', {});
     const moveConfigs = await models.Configs.getConfig('stageInMoveConfig', {});
     const mainConfig = await models.Configs.getConfig('ERKHET', {});
 
-    const deals = await sendCardsMessage({
+    const deals = await sendDealsMessage({
       subdomain,
-      action: 'deals.find',
+      action: 'find',
       data: { _id: { $in: dealIds } },
-      isRPC: true
+      isRPC: true,
     });
 
     const syncLogDoc = {
-      contentType: 'cards:deal',
+      contentType: 'deals:deal',
       createdAt: new Date(),
-      createdBy: user._id
+      createdBy: user._id,
     };
 
     for (const deal of deals) {
@@ -235,12 +235,12 @@ const checkSyncedMutations = {
           ...syncLogDoc,
           contentId: deal._id,
           consumeData: deal,
-          consumeStr: JSON.stringify(deal)
+          consumeStr: JSON.stringify(deal),
         });
         try {
           const config = {
             ...configs[syncedStageId],
-            ...mainConfig
+            ...mainConfig,
           };
           const postData = await getPostData(
             subdomain,
@@ -260,14 +260,14 @@ const checkSyncedMutations = {
               isEbarimt: false,
               payload: JSON.stringify(postData),
               thirdService: true,
-              isJson: true
+              isJson: true,
             }
           );
 
           if (response.message || response.error) {
             const txt = JSON.stringify({
               message: response.message,
-              error: response.error
+              error: response.error,
             });
             if (config.responseField) {
               await sendCardInfo(subdomain, deal, config, txt);
@@ -305,7 +305,7 @@ const checkSyncedMutations = {
     const result: { skipped: string[]; error: string[]; success: string[] } = {
       skipped: [],
       error: [],
-      success: []
+      success: [],
     };
 
     const orders = await sendPosMessage({
@@ -313,17 +313,17 @@ const checkSyncedMutations = {
       action: 'orders.find',
       data: { _id: { $in: orderIds } },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
-    const posTokens = [...new Set((orders || []).map(o => o.posToken))];
+    const posTokens = [...new Set((orders || []).map((o) => o.posToken))];
     const models = await generateModels(subdomain);
     const poss = await sendPosMessage({
       subdomain,
       action: 'configs.find',
       data: { token: { $in: posTokens } },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     const posByToken = {};
@@ -334,7 +334,7 @@ const checkSyncedMutations = {
     const syncLogDoc = {
       contentType: 'pos:order',
       createdAt: new Date(),
-      createdBy: user._id
+      createdBy: user._id,
     };
 
     for (const order of orders) {
@@ -342,7 +342,7 @@ const checkSyncedMutations = {
         ...syncLogDoc,
         contentId: order._id,
         consumeData: order,
-        consumeStr: JSON.stringify(order)
+        consumeStr: JSON.stringify(order),
       });
       try {
         const pos = posByToken[order.posToken];
@@ -358,14 +358,14 @@ const checkSyncedMutations = {
             isEbarimt: false,
             payload: JSON.stringify(postData),
             thirdService: true,
-            isJson: true
+            isJson: true,
           }
         );
 
         if (response.message || response.error) {
           const txt = JSON.stringify({
             message: response.message,
-            error: response.error
+            error: response.error,
           });
 
           await sendPosMessage({
@@ -374,10 +374,10 @@ const checkSyncedMutations = {
             data: {
               selector: { _id: order._id },
               modifier: {
-                $set: { multiErkhetInfo: txt }
-              }
+                $set: { multiErkhetInfo: txt },
+              },
             },
-            isRPC: true
+            isRPC: true,
           });
         }
 
@@ -396,7 +396,7 @@ const checkSyncedMutations = {
     }
 
     return result;
-  }
+  },
 };
 
 export default checkSyncedMutations;

@@ -16,14 +16,14 @@ export default {
       subdomain,
       action: 'users.findOne',
       data: { _id: syncLog.createdBy },
-      isRPC: true
+      isRPC: true,
     });
   },
 
   async content(syncLog: ISyncLogDocument, _, {}: IContext) {
     const { contentType, contentId } = syncLog;
 
-    if (contentType === 'cards:deal') {
+    if (contentType === 'deals:deal') {
       const info =
         syncLog.consumeData.updatedDocument ||
         syncLog.consumeData.object ||
@@ -31,7 +31,7 @@ export default {
       return info.number || info.name || contentId;
     }
 
-    if (contentType === 'cards:purchase') {
+    if (contentType === 'purchases:purchase') {
       const info =
         syncLog.consumeData.updatedDocument ||
         syncLog.consumeData.object ||
@@ -75,5 +75,5 @@ export default {
     }
 
     return contentId;
-  }
+  },
 };

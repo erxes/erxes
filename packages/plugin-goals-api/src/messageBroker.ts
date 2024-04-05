@@ -35,17 +35,35 @@ export const setupMessageConsumers = async () => {
   });
 };
 
-export const sendCardsMessage = (
-  args: MessageArgsOmitService,
+export const sendTicketsMessage = (
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'cards',
+    serviceName: 'tickets',
+    ...args,
+  });
+};
+
+export const sendDealsMessage = (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'deals',
+    ...args,
+  });
+};
+
+export const sendTasksMessage = (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'tasks',
     ...args,
   });
 };
 
 export const sendSegmentsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
@@ -54,7 +72,7 @@ export const sendSegmentsMessage = async (
 };
 
 export const sendCoreMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',

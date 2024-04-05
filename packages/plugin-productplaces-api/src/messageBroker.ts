@@ -14,7 +14,7 @@ export const setupMessageConsumers = async () => {
 };
 
 export const sendProductsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'products',
@@ -23,7 +23,7 @@ export const sendProductsMessage = async (
 };
 
 export const sendTagsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'tags',
@@ -32,7 +32,7 @@ export const sendTagsMessage = async (
 };
 
 export const sendContactsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
@@ -40,17 +40,17 @@ export const sendContactsMessage = async (
   });
 };
 
-export const sendCardsMessage = async (
-  args: MessageArgsOmitService,
+export const sendDealsMessage = async (
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'cards',
+    serviceName: 'deals',
     ...args,
   });
 };
 
 export const sendPricingMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'pricing',
@@ -59,7 +59,7 @@ export const sendPricingMessage = async (
 };
 
 export const sendCoreMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
@@ -68,7 +68,7 @@ export const sendCoreMessage = async (
 };
 
 export const sendSegmentsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',

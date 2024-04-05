@@ -1,10 +1,10 @@
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import BoardSelectContainer from '@erxes/ui-deals/src/boards/containers/BoardSelect';
 import {
   Button,
   CollapseContent,
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
 } from '@erxes/ui/src/components';
 import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
@@ -34,7 +34,7 @@ class PerPrintSettings extends React.Component<Props, State> {
     this.state = {
       config: props.config,
       hasOpen: false,
-      conditions: props.config.conditions || []
+      conditions: props.config.conditions || [],
     };
   }
 
@@ -50,7 +50,7 @@ class PerPrintSettings extends React.Component<Props, State> {
     this.setState({ config: { ...this.state.config, stageId } });
   };
 
-  onSave = e => {
+  onSave = (e) => {
     e.preventDefault();
     const { configsMap, currentConfigKey } = this.props;
     const { config } = this.state;
@@ -61,7 +61,7 @@ class PerPrintSettings extends React.Component<Props, State> {
     this.props.save(configsMap);
   };
 
-  onDelete = e => {
+  onDelete = (e) => {
     e.preventDefault();
 
     this.props.delete(this.props.currentConfigKey);
@@ -84,19 +84,19 @@ class PerPrintSettings extends React.Component<Props, State> {
   addCondition = () => {
     const { conditions } = this.state;
     conditions.push({
-      id: Math.random().toString()
+      id: Math.random().toString(),
     });
     this.setState({ conditions });
   };
 
   renderConditions = () => {
     const { conditions } = this.state;
-    const remove = id => {
-      this.setState({ conditions: conditions.filter(c => c.id !== id) });
+    const remove = (id) => {
+      this.setState({ conditions: conditions.filter((c) => c.id !== id) });
     };
 
     const editCondition = (id, condition) => {
-      const updated = (conditions || []).map(c =>
+      const updated = (conditions || []).map((c) =>
         c.id === id ? condition : c
       );
       this.setState({ conditions: updated }, () => {
@@ -104,7 +104,7 @@ class PerPrintSettings extends React.Component<Props, State> {
       });
     };
 
-    return (conditions || []).map(c => (
+    return (conditions || []).map((c) => (
       <PerPrintConditions
         key={c.id}
         condition={c}

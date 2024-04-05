@@ -2,7 +2,7 @@ import { getConfig, sendCardInfo } from '../../../utils/utils';
 import { getPostData as getPostDataOrders } from '../../../utils/orders';
 import { getMoveData, getPostData } from '../../../utils/ebarimtData';
 import { generateModels, IContext } from '../../../connectionResolver';
-import { sendCardsMessage, sendPosMessage } from '../../../messageBroker';
+import { sendDealsMessage, sendPosMessage } from '../../../messageBroker';
 import { sendRPCMessage, sendTRPCMessage } from '../../../messageBrokerErkhet';
 
 const checkSyncedMutations = {
@@ -21,7 +21,7 @@ const checkSyncedMutations = {
       token: config.apiToken,
       apiKey: config.apiKey,
       apiSecret: config.apiSecret,
-      orderIds: JSON.stringify(ids)
+      orderIds: JSON.stringify(ids),
     };
 
     const response = await sendTRPCMessage(
@@ -29,7 +29,7 @@ const checkSyncedMutations = {
       {
         action: 'check-order-synced',
         payload: JSON.stringify(postData),
-        thirdService: true
+        thirdService: true,
       }
     );
     const result = JSON.parse(response);
@@ -40,14 +40,14 @@ const checkSyncedMutations = {
 
     const data = result.data || {};
 
-    return (Object.keys(data) || []).map(_id => {
+    return (Object.keys(data) || []).map((_id) => {
       const res: any = data[_id] || {};
       return {
         _id,
         isSynced: res.isSynced,
         syncedDate: res.date,
         syncedBillNumber: res.bill_number,
-        syncedCustomer: res.customer
+        syncedCustomer: res.customer,
       };
     });
   },
@@ -57,14 +57,14 @@ const checkSyncedMutations = {
     {
       dealIds,
       configStageId,
-      dateType
+      dateType,
     }: { dealIds: string[]; configStageId: string; dateType: string },
     { subdomain, user }: IContext
   ) {
     const result: { skipped: string[]; error: string[]; success: string[] } = {
       skipped: [],
       error: [],
-      success: []
+      success: [],
     };
 
     const configs = await getConfig(subdomain, 'ebarimtConfig', {});
@@ -73,17 +73,17 @@ const checkSyncedMutations = {
 
     const models = await generateModels(subdomain);
 
-    const deals = await sendCardsMessage({
+    const deals = await sendDealsMessage({
       subdomain,
-      action: 'deals.find',
+      action: 'find',
       data: { _id: { $in: dealIds } },
-      isRPC: true
+      isRPC: true,
     });
 
     const syncLogDoc = {
-      contentType: 'cards:deal',
+      contentType: 'deals:deal',
       createdAt: new Date(),
-      createdBy: user._id
+      createdBy: user._id,
     };
 
     for (const deal of deals) {
@@ -93,12 +93,12 @@ const checkSyncedMutations = {
           ...syncLogDoc,
           contentId: deal._id,
           consumeData: deal,
-          consumeStr: JSON.stringify(deal)
+          consumeStr: JSON.stringify(deal),
         });
         try {
           const config = {
             ...configs[syncedStageId],
-            ...mainConfig
+            ...mainConfig,
           };
           const postData = await getPostData(subdomain, config, deal, dateType);
 
@@ -111,14 +111,14 @@ const checkSyncedMutations = {
               isEbarimt: false,
               payload: JSON.stringify(postData),
               thirdService: true,
-              isJson: true
+              isJson: true,
             }
           );
 
           if (response.message || response.error) {
             const txt = JSON.stringify({
               message: response.message,
-              error: response.error
+              error: response.error,
             });
             if (config.responseField) {
               await sendCardInfo(subdomain, deal, config, txt);
@@ -147,12 +147,12 @@ const checkSyncedMutations = {
           ...syncLogDoc,
           contentId: deal._id,
           consumeData: deal,
-          consumeStr: JSON.stringify(deal)
+          consumeStr: JSON.stringify(deal),
         });
         try {
           const config = {
             ...moveConfigs[syncedStageId],
-            ...mainConfig
+            ...mainConfig,
           };
 
           const postData = await getMoveData(subdomain, config, deal, dateType);
@@ -166,14 +166,14 @@ const checkSyncedMutations = {
               isEbarimt: false,
               payload: JSON.stringify(postData),
               thirdService: true,
-              isJson: true
+              isJson: true,
             }
           );
 
           if (response.message || response.error) {
             const txt = JSON.stringify({
               message: response.message,
-              error: response.error
+              error: response.error,
             });
             if (config.responseField) {
               await sendCardInfo(subdomain, deal, config, txt);
@@ -210,7 +210,7 @@ const checkSyncedMutations = {
     const result: { skipped: string[]; error: string[]; success: string[] } = {
       skipped: [],
       error: [],
-      success: []
+      success: [],
     };
 
     const orders = await sendPosMessage({
@@ -218,17 +218,17 @@ const checkSyncedMutations = {
       action: 'orders.find',
       data: { _id: { $in: orderIds } },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
-    const posTokens = [...new Set((orders || []).map(o => o.posToken))];
+    const posTokens = [...new Set((orders || []).map((o) => o.posToken))];
     const models = await generateModels(subdomain);
     const poss = await sendPosMessage({
       subdomain,
       action: 'configs.find',
       data: { token: { $in: posTokens } },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     const posByToken = {};
@@ -239,7 +239,7 @@ const checkSyncedMutations = {
     const syncLogDoc = {
       contentType: 'pos:order',
       createdAt: new Date(),
-      createdBy: user._id
+      createdBy: user._id,
     };
 
     for (const order of orders) {
@@ -247,7 +247,7 @@ const checkSyncedMutations = {
         ...syncLogDoc,
         contentId: order._id,
         consumeData: order,
-        consumeStr: JSON.stringify(order)
+        consumeStr: JSON.stringify(order),
       });
       try {
         const pos = posByToken[order.posToken];
@@ -267,14 +267,14 @@ const checkSyncedMutations = {
             isEbarimt: false,
             payload: JSON.stringify(postData),
             thirdService: true,
-            isJson: true
+            isJson: true,
           }
         );
 
         if (response.message || response.error) {
           const txt = JSON.stringify({
             message: response.message,
-            error: response.error
+            error: response.error,
           });
 
           await sendPosMessage({
@@ -283,10 +283,10 @@ const checkSyncedMutations = {
             data: {
               selector: { _id: order._id },
               modifier: {
-                $set: { syncErkhetInfo: txt }
-              }
+                $set: { syncErkhetInfo: txt },
+              },
             },
-            isRPC: true
+            isRPC: true,
           });
         }
 
@@ -305,7 +305,7 @@ const checkSyncedMutations = {
     }
 
     return result;
-  }
+  },
 };
 
 export default checkSyncedMutations;

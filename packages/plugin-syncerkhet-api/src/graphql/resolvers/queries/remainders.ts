@@ -2,7 +2,7 @@ import { IContext } from '../../../connectionResolver';
 import { getConfig } from '../../../utils/utils';
 import fetch from 'node-fetch';
 import {
-  sendCardsMessage,
+  sendDealsMessage,
   sendContactsMessage,
   sendCoreMessage,
   sendProductsMessage,
@@ -13,10 +13,10 @@ const erkhetQueries = {
   async erkhetRemainders(
     _root,
     { productIds, stageId, pipelineId },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     if (!pipelineId && stageId) {
-      const pipeline = await sendCardsMessage({
+      const pipeline = await sendDealsMessage({
         subdomain,
         action: 'pipelines.findOne',
         data: { stageId },
@@ -70,7 +70,7 @@ const erkhetQueries = {
           }),
         {
           timeout: 8000,
-        },
+        }
       );
 
       const jsonRes = await response.json();
@@ -124,7 +124,7 @@ const erkhetQueries = {
       endDate?: Date;
       isMore: boolean;
     },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     const result: any = {};
 
@@ -195,7 +195,7 @@ const erkhetQueries = {
         configs.getRemainderApiUrl + '?' + new URLSearchParams(sendParams),
         {
           timeout: 8000,
-        },
+        }
       );
 
       const jsonRes = await response.json();

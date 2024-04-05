@@ -36,7 +36,7 @@ class ActivityList extends React.Component<IActivityListProps> {
     return (
       <div key={index}>
         <ActivityTitle>{data}</ActivityTitle>
-        {data.map(key => this.renderItem(activity[key]))}
+        {data.map((key) => this.renderItem(activity[key]))}
       </div>
     );
   }
@@ -47,7 +47,7 @@ class ActivityList extends React.Component<IActivityListProps> {
       const createdDate = dayjs(activity.createdAt).format('MMMM YYYY');
 
       if (
-        contentType === 'cards:taskDetail' &&
+        contentType === 'tasks:taskDetail' &&
         dayjs(activity.createdAt) >= dayjs()
       ) {
         item.Upcoming = item.Upcoming || [];

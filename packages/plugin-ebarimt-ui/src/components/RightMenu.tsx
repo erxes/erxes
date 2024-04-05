@@ -7,9 +7,9 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon
+  Icon,
 } from '@erxes/ui/src/components';
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import BoardSelectContainer from '@erxes/ui-deals/src/boards/containers/BoardSelect';
 import { __ } from '@erxes/ui/src/utils';
 import {
   CustomRangeContainer,
@@ -17,7 +17,7 @@ import {
   FilterButton,
   MenuFooter,
   RightMenuContainer,
-  TabContent
+  TabContent,
 } from '../styles';
 import { IQueryParams } from '@erxes/ui/src/types';
 import { isEnabled } from '@erxes/ui/src/utils/core';
@@ -51,7 +51,7 @@ export default class RightMenu extends React.Component<Props, State> {
       currentTab: 'Filter',
       showMenu: this.props.showMenu || false,
 
-      filterParams: this.props.queryParams
+      filterParams: this.props.queryParams,
     };
 
     this.setWrapperRef = this.setWrapperRef.bind(this);
@@ -82,7 +82,7 @@ export default class RightMenu extends React.Component<Props, State> {
     this.setState({ filterParams: { ...filterParams, [key]: String(values) } });
   };
 
-  onChangeInput = e => {
+  onChangeInput = (e) => {
     const { target } = e;
     const { name, value } = target;
 
@@ -95,7 +95,7 @@ export default class RightMenu extends React.Component<Props, State> {
 
     const selected = queryParams[key] === value;
 
-    const onClick = _e => {
+    const onClick = (_e) => {
       onSelect(value, key);
     };
 
@@ -185,19 +185,19 @@ export default class RightMenu extends React.Component<Props, State> {
     if (contentType === 'deal') {
       const onChangeBoard = (boardId: string) => {
         this.setState({
-          filterParams: { ...this.state.filterParams, boardId }
+          filterParams: { ...this.state.filterParams, boardId },
         });
       };
 
       const onChangePipeline = (pipelineId: string) => {
         this.setState({
-          filterParams: { ...this.state.filterParams, pipelineId }
+          filterParams: { ...this.state.filterParams, pipelineId },
         });
       };
 
       const onChangeStage = (stageId: string) => {
         this.setState({
-          filterParams: { ...this.state.filterParams, stageId }
+          filterParams: { ...this.state.filterParams, stageId },
         });
       };
 
@@ -288,7 +288,7 @@ export default class RightMenu extends React.Component<Props, State> {
             onChange={this.onChangeInput}
           >
             <option value="">{__('All')}</option>
-            {isEnabled('cards') && <option value="deal">{__('Deal')}</option>}
+            {isEnabled('deals') && <option value="deal">{__('Deal')}</option>}
             {isEnabled('pos') && <option value="pos">{__('Pos')}</option>}
             {isEnabled('loans') && (
               <option value="loans:transaction">

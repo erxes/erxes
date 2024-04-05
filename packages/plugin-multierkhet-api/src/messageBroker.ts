@@ -69,13 +69,13 @@ export const setupMessageConsumers = async () => {
             payload: JSON.stringify(postData),
             thirdService: true,
             isJson: true,
-          },
+          }
         ),
       };
     } catch (e) {
       await models.SyncLogs.updateOne(
         { _id: syncLog._id },
-        { $set: { error: e.message } },
+        { $set: { error: e.message } }
       );
       return {
         status: 'success',
@@ -105,7 +105,7 @@ export const setupMessageConsumers = async () => {
         const postData = await loansTransactionToErkhet(
           subdomain,
           generals,
-          orderId,
+          orderId
         );
         if (!postData) {
           return {
@@ -126,20 +126,20 @@ export const setupMessageConsumers = async () => {
               payload: JSON.stringify(postData),
               thirdService: true,
               isJson: true,
-            },
+            }
           ),
         };
       } catch (e) {
         await models.SyncLogs.updateOne(
           { _id: syncLog._id },
-          { $set: { error: e.message } },
+          { $set: { error: e.message } }
         );
         return {
           status: 'success',
           data: { error: e.message },
         };
       }
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -162,7 +162,7 @@ export const setupMessageConsumers = async () => {
         const postData = await loansTransactionToErkhet(
           subdomain,
           generals,
-          orderId,
+          orderId
         );
         if (!postData) {
           return {
@@ -183,20 +183,20 @@ export const setupMessageConsumers = async () => {
               payload: JSON.stringify(postData),
               thirdService: true,
               isJson: true,
-            },
+            }
           ),
         };
       } catch (e) {
         await models.SyncLogs.updateOne(
           { _id: syncLog._id },
-          { $set: { error: e.message } },
+          { $set: { error: e.message } }
         );
         return {
           status: 'success',
           data: { error: e.message },
         };
       }
-    },
+    }
   );
 
   consumeRPCQueue('multierkhet:returnOrder', async ({ subdomain, data }) => {
@@ -210,7 +210,7 @@ export const setupMessageConsumers = async () => {
 };
 
 export const sendProductsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'products',
@@ -219,7 +219,7 @@ export const sendProductsMessage = async (
 };
 
 export const sendContactsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
@@ -227,17 +227,17 @@ export const sendContactsMessage = async (
   });
 };
 
-export const sendCardsMessage = async (
-  args: MessageArgsOmitService,
+export const sendDealsMessage = async (
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'cards',
+    serviceName: 'deals',
     ...args,
   });
 };
 
 export const sendPosMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'pos',
@@ -246,7 +246,7 @@ export const sendPosMessage = async (
 };
 
 export const sendEbarimtMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'ebarimt',
@@ -255,7 +255,7 @@ export const sendEbarimtMessage = async (
 };
 
 export const sendCoreMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
@@ -264,7 +264,7 @@ export const sendCoreMessage = async (
 };
 
 export const sendNotificationsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'notifications',

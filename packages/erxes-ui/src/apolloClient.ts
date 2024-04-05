@@ -11,8 +11,8 @@ import { getMainDefinition } from '@apollo/client/utilities';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { __, getEnv } from './utils/core';
 import { createClient } from 'graphql-ws';
-import noIdNestedTypes from './no-id-nested-types';
 import addMergeKeyfieldPolicy from './add-merge-keyfield-policy';
+import noIdNestedTypes from './no-id-nested-types';
 
 const { REACT_APP_API_SUBSCRIPTION_URL, REACT_APP_API_URL } = getEnv();
 
@@ -51,9 +51,9 @@ export const wsLink: any = new GraphQLWsLink(
     url: REACT_APP_API_SUBSCRIPTION_URL || 'ws://localhost:4000/graphql',
     retryAttempts: 1000,
     retryWait: async () => {
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+      await new Promise(resolve => setTimeout(resolve, 5000));
     },
-  }),
+  })
 );
 
 type Definintion = {
@@ -69,7 +69,7 @@ const link = split(
     return kind === 'OperationDefinition' && operation === 'subscription';
   },
   wsLink,
-  httpLinkWithMiddleware,
+  httpLinkWithMiddleware
 );
 
 const typePolicies = {};

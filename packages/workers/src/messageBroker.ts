@@ -34,25 +34,25 @@ export const removeProducts = (subdomain, _ids) =>
   });
 
 export const removeTickets = (subdomain, _ids) =>
-  sendRPCMessage('cards:tickets.remove', {
+  sendRPCMessage('tickets:remove', {
     subdomain,
     data: { _ids },
   });
 
 export const removeDeals = (subdomain, _ids) =>
-  sendRPCMessage('cards:deals.remove', {
+  sendRPCMessage('deals:remove', {
     subdomain,
     data: { _ids },
   });
 
 export const removeTasks = (subdomain, _ids) =>
-  sendRPCMessage('cards:tasks.remove', {
+  sendRPCMessage('tasks:remove', {
     subdomain,
     data: { _ids },
   });
 
 export const removePurchases = (subdomain, _ids) =>
-  sendRPCMessage('cards:purchases.remove', {
+  sendRPCMessage('purchases:remove', {
     subdomain,
     data: { _ids },
   });

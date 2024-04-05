@@ -31,7 +31,7 @@ export const setupMessageConsumers = async () => {
 };
 
 export const sendCoreMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
@@ -45,17 +45,8 @@ export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   });
 };
 
-export const sendCardsMessage = (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'cards',
-    ...args,
-  });
-};
-
 export const sendTagsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'tags',
@@ -64,7 +55,7 @@ export const sendTagsMessage = async (
 };
 
 export const sendSegmentsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',

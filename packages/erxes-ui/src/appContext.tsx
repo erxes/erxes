@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
-import T from 'i18n-react';
 import { IUser } from './auth/types';
+import T from 'i18n-react';
 import React from 'react';
 
 interface IState {
@@ -42,7 +42,7 @@ export class AppProvider extends React.Component<
       isShownIndicator: false,
       isRemovingImport: false,
 
-      isDoneIndicatorAction: false
+      isDoneIndicatorAction: false,
     };
 
     this.setLocale(currentLanguage);
@@ -71,7 +71,7 @@ export class AppProvider extends React.Component<
     this.setState({
       isDoneIndicatorAction: false,
       isShownIndicator: true,
-      isRemovingImport
+      isRemovingImport,
     });
   };
 
@@ -116,7 +116,7 @@ export class AppProvider extends React.Component<
       currentLanguage,
       isShownIndicator,
       isRemovingImport,
-      isDoneIndicatorAction
+      isDoneIndicatorAction,
     } = this.state;
 
     return (
@@ -131,7 +131,7 @@ export class AppProvider extends React.Component<
           doneIndicatorAction: this.doneIndicatorAction,
           isShownIndicator,
           isRemovingImport,
-          isDoneIndicatorAction
+          isDoneIndicatorAction,
         }}
       >
         {this.props.children}

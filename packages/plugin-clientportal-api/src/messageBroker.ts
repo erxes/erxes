@@ -23,7 +23,7 @@ export const setupMessageConsumers = async () => {
         data: await models.ClientPortals.findOne(data),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -35,7 +35,7 @@ export const setupMessageConsumers = async () => {
         data: await models.ClientPortalUsers.findOne(data),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -47,7 +47,7 @@ export const setupMessageConsumers = async () => {
         data: await models.ClientPortalUsers.find(data).lean(),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -59,7 +59,7 @@ export const setupMessageConsumers = async () => {
         status: 'success',
         data: await models.ClientPortalUsers.find(data).distinct('_id'),
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -71,7 +71,7 @@ export const setupMessageConsumers = async () => {
         data: await models.ClientPortalUsers.createUser(subdomain, data),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -83,7 +83,7 @@ export const setupMessageConsumers = async () => {
         data: await models.ClientPortals.find(selector).count(),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -105,22 +105,22 @@ export const setupMessageConsumers = async () => {
 
       console.log(
         'clientportal:clientPortalEngageNotifications.count',
-        selector,
+        selector
       );
       return {
         data: await models.ClientPortalNotifications.find(
-          selector,
+          selector
         ).countDocuments(),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeQueue(
     'clientportal:sendSMS',
     async ({ subdomain, data: { to, content, type } }) => {
       await sendSms(subdomain, type, to, content);
-    },
+    }
   );
 
   /**
@@ -186,7 +186,7 @@ export const setupMessageConsumers = async () => {
         data: models.ClientPortalUsers.bulkWrite(operations),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue('clientportal:createCard', async ({ subdomain, data }) => {
@@ -212,7 +212,7 @@ export const setupMessageConsumers = async () => {
       const valid = await models.ClientPortalUsers.validatePassword(
         userId,
         password,
-        secondary,
+        secondary
       );
 
       if (!valid) {
@@ -226,7 +226,7 @@ export const setupMessageConsumers = async () => {
         data: valid,
         status: 'success',
       };
-    },
+    }
   );
 };
 
@@ -238,7 +238,7 @@ export const sendCoreMessage = async (args: MessageArgsOmitService) => {
 };
 
 export const sendContactsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
@@ -247,7 +247,7 @@ export const sendContactsMessage = async (
 };
 
 export const sendCardsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
@@ -255,8 +255,17 @@ export const sendCardsMessage = async (
   });
 };
 
+export const sendTicketsMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'tickets',
+    ...args,
+  });
+};
+
 export const sendKbMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'knowledgebase',
@@ -265,7 +274,7 @@ export const sendKbMessage = async (
 };
 
 export const sendCommonMessage = async (
-  args: MessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string }
 ) => {
   return sendMessage({
     ...args,

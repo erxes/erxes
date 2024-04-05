@@ -16,7 +16,7 @@ const CompanySection = asyncComponent(
     isEnabled('contacts') &&
     import(
       /* webpackChunkName: "CompanySection" */ '@erxes/ui-contacts/src/companies/components/CompanySection'
-    ),
+    )
 );
 
 const CustomerSection = asyncComponent(
@@ -24,7 +24,7 @@ const CustomerSection = asyncComponent(
     isEnabled('contacts') &&
     import(
       /* webpackChunkName: "CustomerSection" */ '@erxes/ui-contacts/src/customers/components/CustomerSection'
-    ),
+    )
 );
 
 type Props = {
@@ -74,7 +74,7 @@ export default class RightSidebar extends React.Component<Props> {
               name={'Contract'}
             />
 
-            {isEnabled('cards') && <DealSection contract={contract} />}
+            {isEnabled('deals') && <DealSection contract={contract} />}
           </>
         )}
         {isEnabled('loans') && !!contract.loansOfForeclosed?.length && (

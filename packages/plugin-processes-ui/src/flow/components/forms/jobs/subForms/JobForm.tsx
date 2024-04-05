@@ -1,5 +1,5 @@
 import Common from '../Common';
-import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
+import { ProductButton } from '@erxes/ui-deals/src/deals/styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import JobReferChooser from '../../../../../job/containers/refer/Chooser';
 import FormGroup from '@erxes/ui/src/components/form/Group';
@@ -43,7 +43,7 @@ class JobForm extends React.Component<Props, State> {
       description: description || '',
       currentTab: 'inputs',
 
-      categoryId: ''
+      categoryId: '',
     };
   }
 
@@ -52,7 +52,7 @@ class JobForm extends React.Component<Props, State> {
       this.setState({
         description: nextProps.activeFlowJob.description,
         jobReferId: nextProps.activeFlowJob.jobReferId,
-        jobRefer: nextProps.jobRefer
+        jobRefer: nextProps.jobRefer,
       });
     }
   }
@@ -90,7 +90,7 @@ class JobForm extends React.Component<Props, State> {
       this.setState({ [type]: e.target.value } as any);
     };
 
-    const onChangeJob = prs => {
+    const onChangeJob = (prs) => {
       let pr: any;
       if (!prs.length) {
         this.setState({ jobReferId: '', jobRefer: undefined });
@@ -101,7 +101,7 @@ class JobForm extends React.Component<Props, State> {
       this.setState({ jobReferId: pr._id, jobRefer: pr });
     };
 
-    const content = props => {
+    const content = (props) => {
       const onCloseModal = () => {
         this.props.setUsedPopup(false);
         props.closeModal();
@@ -112,12 +112,12 @@ class JobForm extends React.Component<Props, State> {
           {...props}
           closeModal={onCloseModal}
           onSelect={onChangeJob}
-          onChangeCategory={categoryId => this.setState({ categoryId })}
+          onChangeCategory={(categoryId) => this.setState({ categoryId })}
           categoryId={this.state.categoryId}
           types={['job', 'income', 'outlet', 'move']}
           data={{
             name: 'Jobs',
-            jobRefers: jobRefer ? [jobRefer] : []
+            jobRefers: jobRefer ? [jobRefer] : [],
           }}
           limit={1}
         />
