@@ -57,3 +57,37 @@ export const PTR_STATUSES = {
   OK: 'ok',
   ALL: ['dt', 'ct', 'zero', 'ok'],
 };
+
+export const JOURNALS = {
+  MAIN: 'main',
+  MAIN_FB: 'main_fb',
+  CASH_IN: 'cash_in',
+  CASH_OUT: 'cash_out',
+  BANK_IN: 'bank_in',
+  BANK_OUT: 'bank_out',
+  DEBT: 'debt',
+  PAYABLE_FB: 'payable_fb',
+  PAYABLE: 'payable',
+  RECEIVABLE_FB: 'receivable_fb',
+  RECEIVABLE: 'receivable',
+  INV_FB: 'inv_fb',
+  INV_INCOME: 'inv_income',
+  INV_OUT: 'inv_out',
+  INV_MOVE: 'inv_move',
+  INV_ADJUST: 'inv_adjust',
+  INV_CONVERT: 'inv_convert',
+  INV_SALE: 'inv_sale',
+  INV_COST: 'inv_cost',
+  INV_IN_RETURN: 'inv_in_return',
+  INV_SALE_RETURN: 'inv_sale_return',
+  ALL: [
+    'main',
+    'cash_in', 'cash_out',
+    'bank_in', 'bank_out',
+    'debt', 'payable', 'receivable',
+    'inv_fb', 'inv_income', 'inv_out', 'inv_move', 'inv_adjust', 'inv_convert',
+    'inv_sale', 'inv_cost',
+    'inv_in_return', 'inv_sale_return',
+    'expense'
+  ]
+}

@@ -1,6 +1,6 @@
 import { Schema, Document } from 'mongoose';
 import { field, schemaWrapper } from './utils';
-import { PTR_STATUSES, TR_SIDES, TR_STATUSES } from './constants';
+import { JOURNALS, PTR_STATUSES, TR_SIDES, TR_STATUSES } from './constants';
 
 export interface ITrDetail {
   _id: string;
@@ -8,10 +8,13 @@ export interface ITrDetail {
   transactionId: string;
   side: string;
   amount: number;
-  currency: string;
-  currencyAmount: number;
-  customRate: number;
+  currency?: string;
+  currencyAmount?: number;
+  customRate?: number;
 
+  productId?: string;
+  count?: number;
+  unitPrice?: number;
 };
 
 export interface ITransaction {
@@ -24,21 +27,21 @@ export interface ITransaction {
   parentId: string;
   ptrStatus: string;
 
-  branchId: string;
-  departmentId: string;
-  customerType: string;
-  customerId: string;
+  branchId?: string;
+  departmentId?: string;
+  customerType?: string;
+  customerId?: string;
 
 
   details: ITrDetail[];
   createdBy: string;
-  modifiedBy: string;
+  modifiedBy?: string;
 }
 
 export interface ITransactionDocument extends ITransaction, Document {
   _id: string;
   createdAt: Date;
-  modifiedAt: Date;
+  modifiedAt?: Date;
 }
 
 export const transactionDetailSchema = schemaWrapper(
@@ -54,9 +57,13 @@ export const transactionDetailSchema = schemaWrapper(
       index: true,
     }),
     amount: field({ type: Number, label: 'Amount' }),
-    currency: field({ type: String, label: 'Currency' }),
-    currencyAmount: field({ type: Number, label: 'CurrencyAmount' }),
-    customRate: field({ type: Number, label: 'CustomRate' })
+    currency: field({ type: String, optional: true, label: 'Currency' }),
+    currencyAmount: field({ type: Number, optional: true, label: 'CurrencyAmount' }),
+    customRate: field({ type: Number, optional: true, label: 'CustomRate' }),
+
+    productId: field({ type: String, optional: true, label: 'Product' }),
+    count: field({ type: Number, optional: true, label: 'Count' }),
+    unitPrice: field({ type: Number, optional: true, label: 'unitPrice' }),
   })
 );
 
@@ -70,33 +77,37 @@ export const transactionSchema = schemaWrapper(
       enum: TR_STATUSES.ALL,
       label: 'Status',
       default: 'new',
-      esType: 'keyword',
       index: true,
     }),
     groupId: field({ type: String, label: 'Group' }),
     number: field({ type: String, optional: true, label: 'Number', index: true }),
-    journal: field({ type: String, label: 'Journal', index: true }),
+    journal: field({
+      type: String,
+      enum: JOURNALS.ALL,
+      default: 'zero',
+      label: 'Journal',
+      index: true
+    }),
     parentId: field({ type: String, optional: true, label: 'parentId', index: true }),
     ptrStatus: field({
       type: String,
       enum: PTR_STATUSES.ALL,
-      label: 'PTR Status',
       default: 'zero',
+      label: 'PTR Status',
       optional: true,
-      esType: 'keyword',
       index: true,
     }),
 
-    branchId: field({ type: String, label: 'Branch' }),
-    departmentId: field({ type: String, label: 'Department' }),
-    customerType: field({ type: String, label: 'Customer type' }),
-    customerId: field({ type: String, label: 'Customer' }),
+    branchId: field({ type: String, optional: true, label: 'Branch' }),
+    departmentId: field({ type: String, optional: true, label: 'Department' }),
+    customerType: field({ type: String, optional: true, label: 'Customer type' }),
+    customerId: field({ type: String, optional: true, label: 'Customer' }),
 
     details: field({ type: [transactionDetailSchema], label: 'details' }),
 
     createdBy: field({ type: String, label: 'Created user' }),
-    modifiedBy: field({ type: String, label: 'Modified user' }),
+    modifiedBy: field({ type: String, optional: true, label: 'Modified user' }),
     createdAt: field({ type: Date, default: new Date(), label: 'Created at' }),
-    modifiedAt: field({ type: Date, label: 'Modified at' }),
+    modifiedAt: field({ type: Date, optional: true, label: 'Modified at' }),
   }),
 );
