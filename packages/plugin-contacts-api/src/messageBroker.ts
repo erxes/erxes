@@ -585,6 +585,13 @@ export const sendIntegrationsMessage = (
   });
 };
 
+export const sendClientPortalMessage = (args: MessageArgsOmitService) => {
+  return sendMessage({
+    serviceName: 'clientportal',
+    ...args,
+  });
+};
+
 export const fetchSegment = (
   subdomain: string,
   segmentId: string,

@@ -48,7 +48,7 @@ const MessageContent = styledTS<{ $internal?: boolean; $staff?: boolean }>(
     display: block;
   }
 
-  span[data-type="mention"]{
+  .mention {
     font-weight: bold;
     display: inline-block;
   }

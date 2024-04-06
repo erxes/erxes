@@ -4720,31 +4720,6 @@
     "@tiptap/extension-bubble-menu" "^2.2.4"
     "@tiptap/extension-floating-menu" "^2.2.4"
 
-"@tiptap/starter-kit@^2.2.4":
-  version "2.2.4"
-  resolved "https://registry.yarnpkg.com/@tiptap/starter-kit/-/starter-kit-2.2.4.tgz#7d9c35fc423bb0bb6a9b2e660c41a080d8caa7e7"
-  integrity sha512-Kbk7qUfIZg3+bNa3e/wBeDQt4jJB46uQgM+xy5NSY6H8NZP6gdmmap3aIrn9S/W/hGpxJl4RcXAeaT0CQji9XA==
-  dependencies:
-    "@tiptap/core" "^2.2.4"
-    "@tiptap/extension-blockquote" "^2.2.4"
-    "@tiptap/extension-bold" "^2.2.4"
-    "@tiptap/extension-bullet-list" "^2.2.4"
-    "@tiptap/extension-code" "^2.2.4"
-    "@tiptap/extension-code-block" "^2.2.4"
-    "@tiptap/extension-document" "^2.2.4"
-    "@tiptap/extension-dropcursor" "^2.2.4"
-    "@tiptap/extension-gapcursor" "^2.2.4"
-    "@tiptap/extension-hard-break" "^2.2.4"
-    "@tiptap/extension-heading" "^2.2.4"
-    "@tiptap/extension-history" "^2.2.4"
-    "@tiptap/extension-horizontal-rule" "^2.2.4"
-    "@tiptap/extension-italic" "^2.2.4"
-    "@tiptap/extension-list-item" "^2.2.4"
-    "@tiptap/extension-ordered-list" "^2.2.4"
-    "@tiptap/extension-paragraph" "^2.2.4"
-    "@tiptap/extension-strike" "^2.2.4"
-    "@tiptap/extension-text" "^2.2.4"
-
 "@tiptap/suggestion@^2.2.4":
   version "2.2.4"
   resolved "https://registry.yarnpkg.com/@tiptap/suggestion/-/suggestion-2.2.4.tgz#746e4659fb4be2f49ad43ee5aa9801cc8154889c"

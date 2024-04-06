@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
-import Select from "react-select";
 
 import ControlLabel from "@erxes/ui/src/components/form/Label";
-import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
-import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
-import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
-import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
-
 import DateRange from "../utils/DateRange";
-import { MarginY } from "../../styles";
 import { IFieldLogic } from "../../types";
-import { stringify } from "querystring";
+import { IFilterType } from "../../containers/chart/ChartFormField";
+import { MarginY } from "../../styles";
+import Select from "react-select";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
+import SelectClientPortal from "../utils/SelectClientPortal";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import SelectLeads from "../utils/SelectLeads";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import { SelectWithAssets } from "../utils/SelectAssets";
 
 type Props = {
@@ -27,6 +28,7 @@ type Props = {
   fieldValues?: any;
   fieldLogics?: IFieldLogic[];
   fieldDefaultValue?: any;
+  filterType: IFilterType;
 };
 const ChartFormField = (props: Props) => {
   const {
@@ -43,7 +45,12 @@ const ChartFormField = (props: Props) => {
     endDate,
     fieldValues,
     fieldDefaultValue,
+    filterType,
   } = props;
+
+  const { fieldValueVariable, fieldLabelVariable, fieldQueryVariables } =
+    filterType;
+
   useEffect(() => {
     if (fieldDefaultValue) {
       setFieldValue(fieldDefaultValue);
@@ -156,6 +163,36 @@ const ChartFormField = (props: Props) => {
           />
         </div>
       );
+    case "forms":
+      return (
+        <div>
+          <ControlLabel> {fieldLabel}</ControlLabel>
+
+          <SelectLeads
+            multi={true}
+            name="selecteForms"
+            label={"Choose forms"}
+            onSelect={onChange}
+            initialValue={fieldValue}
+            filterParams={JSON.parse(fieldQueryVariables)}
+          />
+        </div>
+      );
+    case "clientPortalGetConfigs":
+      return (
+        <div>
+          <ControlLabel> {fieldLabel}</ControlLabel>
+
+          <SelectClientPortal
+            multi={true}
+            name="selectePortal"
+            label={"Choose portal"}
+            onSelect={onChange}
+            initialValue={fieldValue}
+            filterParams={JSON.parse(fieldQueryVariables)}
+          />
+        </div>
+      );
     case "assets":
       return (
         <div>
@@ -166,7 +203,6 @@ const ChartFormField = (props: Props) => {
             multi={multi}
             initialValue={fieldValue}
             onSelect={onChange}
-            customOption={{ value: "", label: "Choose Asset" }}
           />
         </div>
       );
