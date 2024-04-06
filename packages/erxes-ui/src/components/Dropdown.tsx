@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+
 import { Menu } from "@headlessui/react";
 
 type Props = {
@@ -15,12 +16,12 @@ const Dropdown: React.FC<Props> = ({ children, as, drop, toggleComponent }) => {
   const buttonRef = useRef({} as any);
 
   useEffect(() => {
-    if (buttonRef.current.clientHeight) {
+    if (buttonRef.current && buttonRef.current.clientHeight) {
       setTimeout(() => {
         setHeight(buttonRef.current.clientHeight);
       }, 1000);
     }
-  }, [buttonRef.current.clientHeight]);
+  }, [buttonRef.current, buttonRef.current.clientHeight]);
 
   const style = drop === "up" ? { bottom: height + 5 } : {};
 

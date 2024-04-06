@@ -28,7 +28,7 @@ type Props = {
   index: number;
   customer: ICustomer;
   columnsConfig: IConfigColumn[];
-  history: any;
+  navigate: any;
   isChecked?: boolean;
   toggleBulk: (target: any, toAdd: boolean) => void;
 };
@@ -132,7 +132,7 @@ function CustomerRow({
   columnsConfig,
   toggleBulk,
   isChecked,
-  history,
+  navigate,
   index,
 }: Props) {
   const tags = customer.getTags;
@@ -148,7 +148,7 @@ function CustomerRow({
   };
 
   const onTrClick = () => {
-    history(`/contacts/details/${customer._id}`);
+    navigate(`/contacts/details/${customer._id}`);
   };
 
   return (

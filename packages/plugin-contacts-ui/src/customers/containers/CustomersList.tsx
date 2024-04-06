@@ -1,6 +1,6 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { Alert, getEnv, withProps } from '@erxes/ui/src/utils';
+import { Alert, getEnv, withProps } from "@erxes/ui/src/utils";
 import {
   ChangeStateBulkMutationResponse,
   ChangeStateBulkMutationVariables,
@@ -10,26 +10,25 @@ import {
   MainQueryResponse,
   VerifyMutationResponse,
   VerifyMutationVariables,
-} from '@erxes/ui-contacts/src/customers/types';
+} from "@erxes/ui-contacts/src/customers/types";
 import {
   MergeMutationResponse,
   MergeMutationVariables,
   RemoveMutationResponse,
   RemoveMutationVariables,
-} from '@erxes/ui-contacts/src/customers/types';
-import { mutations, queries } from '@erxes/ui-contacts/src/customers/graphql';
+} from "@erxes/ui-contacts/src/customers/types";
+import React, { useEffect, useRef, useState } from "react";
+import { mutations, queries } from "@erxes/ui-contacts/src/customers/graphql";
 
-// import { withRouter } from 'react-router-dom';
-import Bulk from '@erxes/ui/src/components/Bulk';
-import CustomersList from '../components/list/CustomersList';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { ListConfigQueryResponse } from '../../companies/types';
-import React, { useState, useEffect, useRef } from 'react';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import queryString from 'query-string';
+import Bulk from "@erxes/ui/src/components/Bulk";
+import CustomersList from "../components/list/CustomersList";
+import { ListConfigQueryResponse } from "../../companies/types";
+import { generatePaginationParams } from "@erxes/ui/src/utils/router";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import queryString from "query-string";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
@@ -45,16 +44,16 @@ type FinalProps = {
   MergeMutationResponse &
   VerifyMutationResponse &
   ChangeStatusMutationResponse &
-  IRouterProps &
   ChangeStateBulkMutationResponse;
 
 const CustomerListContainer: React.FC<FinalProps> = (props: FinalProps) => {
   let timer;
   const { queryParams } = props;
-  const [responseId, setResponseId] = useState('');
+  const [responseId, setResponseId] = useState("");
   const [loading, setLoading] = useState(false);
   const [mergeCustomerLoading, setMergeCustomerLoading] = useState(false);
   const prevQueryParams = useRef(queryParams);
+  const navigate = useNavigate();
 
   useEffect(() => {
     return () => {
@@ -85,24 +84,23 @@ const CustomerListContainer: React.FC<FinalProps> = (props: FinalProps) => {
     customersVerify,
     customersChangeVerificationStatus,
     type,
-    history,
     customersChangeStateBulk,
   } = props;
 
   let columnsConfig = (customersListConfigQuery &&
     customersListConfigQuery.fieldsDefaultColumnsConfig) || [
-    { name: 'firstName', label: 'First name', order: 1 },
-    { name: 'lastName', label: 'Last name', order: 2 },
-    { name: 'primaryEmail', label: 'Primary email', order: 3 },
-    { name: 'lastSeenAt', label: 'Last seen at', order: 4 },
-    { name: 'sessionCount', label: 'Session count', order: 5 },
-    { name: 'profileScore', label: 'Profile score', order: 6 },
-    { name: 'middleName', label: 'Middle name', order: 7 },
+    { name: "firstName", label: "First name", order: 1 },
+    { name: "lastName", label: "Last name", order: 2 },
+    { name: "primaryEmail", label: "Primary email", order: 3 },
+    { name: "lastSeenAt", label: "Last seen at", order: 4 },
+    { name: "sessionCount", label: "Session count", order: 5 },
+    { name: "profileScore", label: "Profile score", order: 6 },
+    { name: "middleName", label: "Middle name", order: 7 },
   ];
 
   // load config from local storage
   const localConfig = localStorage.getItem(
-    `erxes_contacts:${type}_columns_config`,
+    `erxes_contacts:${type}_columns_config`
   );
 
   if (localConfig) {
@@ -118,8 +116,8 @@ const CustomerListContainer: React.FC<FinalProps> = (props: FinalProps) => {
       .then(() => {
         emptyBulk();
         Alert.success(
-          'You successfully deleted a customer. The changes will take a few seconds',
-          4500,
+          "You successfully deleted a customer. The changes will take a few seconds",
+          4500
         );
 
         refetchWithDelay();
@@ -141,8 +139,8 @@ const CustomerListContainer: React.FC<FinalProps> = (props: FinalProps) => {
       .then((result: any) => {
         callback();
         setMergeCustomerLoading(false);
-        Alert.success('You successfully merged a customer');
-        history(`/contacts/details/${result.data.customersMerge._id}`);
+        Alert.success("You successfully merged a customer");
+        navigate(`/contacts/details/${result.data.customersMerge._id}`);
       })
       .catch((e) => {
         Alert.error(e.message);
@@ -160,7 +158,7 @@ const CustomerListContainer: React.FC<FinalProps> = (props: FinalProps) => {
     })
       .then(() => {
         Alert.success(
-          'Your request has been successfully sent. Your contacts will be verified after a while',
+          "Your request has been successfully sent. Your contacts will be verified after a while"
         );
       })
       .catch((e) => {
@@ -181,7 +179,7 @@ const CustomerListContainer: React.FC<FinalProps> = (props: FinalProps) => {
       },
     })
       .then((result: any) => {
-        Alert.success('You successfully changed a status');
+        Alert.success("You successfully changed a status");
 
         customersMainQuery.refetch();
       })
@@ -218,21 +216,21 @@ const CustomerListContainer: React.FC<FinalProps> = (props: FinalProps) => {
 
     window.open(
       `${REACT_APP_API_URL}/pl:contacts/file-export?${stringified}`,
-      '_blank',
+      "_blank"
     );
   };
 
   const changeStateBulk = (_ids: string[], value: string) => {
     customersChangeStateBulk({ variables: { _ids, value } })
       .then(() => {
-        Alert.success('Customer state has been changed');
+        Alert.success("Customer state has been changed");
       })
       .catch((e) => {
         Alert.error(e.message);
       });
   };
 
-  const searchValue = props.queryParams.searchValue || '';
+  const searchValue = props.queryParams.searchValue || "";
 
   const { list = [], totalCount = 0 } = customersMainQuery.customersMain || {};
 
@@ -298,27 +296,27 @@ const getRefetchQueries = (queryParams?: any, type?: string) => {
     },
     {
       query: gql(queries.customerCounts),
-      variables: { type, only: 'byTag' },
+      variables: { type, only: "byTag" },
     },
     {
       query: gql(queries.customerCounts),
-      variables: { type, only: 'byForm' },
+      variables: { type, only: "byForm" },
     },
     {
       query: gql(queries.customerCounts),
-      variables: { type, only: 'byIntegrationType' },
+      variables: { type, only: "byIntegrationType" },
     },
     {
       query: gql(queries.customerCounts),
-      variables: { type, only: 'byLeadStatus' },
+      variables: { type, only: "byLeadStatus" },
     },
     {
       query: gql(queries.customerCounts),
-      variables: { type, only: 'bySegment' },
+      variables: { type, only: "bySegment" },
     },
     {
       query: gql(queries.customerCounts),
-      variables: { type, only: 'byBrand' },
+      variables: { type, only: "byBrand" },
     },
   ];
 };
@@ -328,64 +326,64 @@ const WithProps = withProps<Props>(
     graphql<Props & { abortController }, MainQueryResponse, ListQueryVariables>(
       gql(queries.customersMain),
       {
-        name: 'customersMainQuery',
+        name: "customersMainQuery",
         options: ({ queryParams, type, abortController }) => ({
           variables: generateParams({ queryParams, type }),
           context: {
             fetchOptions: { signal: abortController && abortController.signal },
           },
         }),
-      },
+      }
     ),
     graphql<Props, ListConfigQueryResponse, {}>(
       gql(queries.customersListConfig),
       {
-        name: 'customersListConfigQuery',
-        skip: !isEnabled('forms'),
-      },
+        name: "customersListConfigQuery",
+        skip: !isEnabled("forms"),
+      }
     ),
     // mutations
     graphql<Props, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.customersRemove),
       {
-        name: 'customersRemove',
+        name: "customersRemove",
         options: ({ queryParams, type }) => ({
           refetchQueries: getRefetchQueries(queryParams, type),
         }),
-      },
+      }
     ),
     graphql<Props, MergeMutationResponse, MergeMutationVariables>(
       gql(mutations.customersMerge),
       {
-        name: 'customersMerge',
+        name: "customersMerge",
         options: ({ queryParams, type }) => ({
           refetchQueries: getRefetchQueries(queryParams, type),
         }),
-      },
+      }
     ),
     graphql<Props, VerifyMutationResponse, VerifyMutationVariables>(
       gql(mutations.customersVerify),
       {
-        name: 'customersVerify',
-      },
+        name: "customersVerify",
+      }
     ),
     graphql<Props, ChangeStatusMutationResponse, ChangeStatusMutationVariables>(
       gql(mutations.customersChangeVerificationStatus),
       {
-        name: 'customersChangeVerificationStatus',
-      },
+        name: "customersChangeVerificationStatus",
+      }
     ),
     graphql<
       Props,
       ChangeStateBulkMutationResponse,
       ChangeStateBulkMutationVariables
     >(gql(mutations.customersChangeStateBulk), {
-      name: 'customersChangeStateBulk',
+      name: "customersChangeStateBulk",
       options: ({ queryParams, type }) => ({
         refetchQueries: getRefetchQueries(queryParams, type),
       }),
-    }),
-  )(CustomerListContainer),
+    })
+  )(CustomerListContainer)
 );
 
 export default class extends React.Component<Props> {

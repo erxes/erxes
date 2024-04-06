@@ -28,7 +28,6 @@ import { gql } from "@apollo/client";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 import { menuContacts } from "@erxes/ui/src/utils/menus";
 import { queries } from "../../graphql";
-// import { withRouter } from 'react-router-dom';
 import withTableWrapper from "@erxes/ui/src/components/table/withTableWrapper";
 
 interface IProps {
@@ -164,7 +163,7 @@ const CompaniesList: React.FC<IProps> = (props) => {
               columnsConfig={columnsConfig}
               isChecked={bulk.includes(company)}
               key={company._id}
-              history={navigate}
+              navigate={navigate}
               toggleBulk={toggleBulk}
             />
           ))}
@@ -263,6 +262,14 @@ const CompaniesList: React.FC<IProps> = (props) => {
     return <CompanyForm {...props} queryParams={queryParams} />;
   };
 
+  const MenuButton = React.forwardRef(function (props, ref) {
+    return (
+      <Button btnStyle="simple" size="small">
+        {__("Customize ")} <Icon icon="angle-down" />
+      </Button>
+    );
+  });
+
   const actionBarRight = (
     <BarItems>
       <FormControl
@@ -281,11 +288,7 @@ const CompaniesList: React.FC<IProps> = (props) => {
       )}
 
       <Menu as="div" className="relative">
-        <Menu.Button>
-          <Button btnStyle="simple" size="small">
-            {__("Customize ")} <Icon icon="angle-down" />
-          </Button>
-        </Menu.Button>
+        <Menu.Button as={MenuButton} />
         <Menu.Items className="absolute">
           <Menu.Item>
             <ModalTrigger
@@ -347,7 +350,7 @@ const CompaniesList: React.FC<IProps> = (props) => {
           emptyImage="/images/actions/1.svg"
         />
       }
-      $hasBorder={true}
+      hasBorder={true}
     />
   );
 };
