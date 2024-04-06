@@ -1,29 +1,31 @@
 import {
   Box,
   Button,
+  FormGroup as CommonFormGroup,
+  Sidebar as CommonSideBar,
   ControlLabel,
   DateControl,
-  FormGroup as CommonFormGroup,
   Icon,
-  router,
   SelectTeamMembers,
-  Sidebar as CommonSideBar,
   Tip,
   Wrapper,
   __,
+  router,
 } from "@erxes/ui/src";
-import { DateContainer } from "@erxes/ui/src/styles/main";
-import dayjs from "dayjs";
-import React from "react";
 import {
   ContainerBox,
   CustomRangeContainer,
   EndDateContainer,
 } from "../../../style";
-import { useLocation, useNavigate } from "react-router-dom";
+
+import { DateContainer } from "@erxes/ui/src/styles/main";
+import React from "react";
+import dayjs from "dayjs";
 
 type Props = {
   queryParams: any;
+  navigate: any;
+  location: any;
 };
 
 const fields = [
@@ -39,9 +41,7 @@ const fields = [
 const { Section } = Wrapper.Sidebar;
 
 const Sidebar = (props: Props) => {
-  const { queryParams } = props;
-  const location = useLocation();
-  const navigate = useNavigate();
+  const { queryParams, navigate, location } = props;
 
   const handleDate = (field, date) => {
     if (dayjs(date).isValid()) {
@@ -80,7 +80,7 @@ const Sidebar = (props: Props) => {
     children: React.ReactNode;
   }) => (
     <CommonFormGroup>
-      <ContainerBox row spaceBetween>
+      <ContainerBox $row={true} $spaceBetween={true}>
         <ControlLabel>{label}</ControlLabel>
         {clearable && (
           <Button btnStyle="link" onClick={() => clearParams(field)}>
@@ -110,7 +110,7 @@ const Sidebar = (props: Props) => {
           {fields.some((field) => queryParams[field]) && extraButton}
         </Section.QuickButtons>
       </Section.Title>
-      <ContainerBox vertical column gap={5}>
+      <ContainerBox $vertical={true} $column={true} gap={5}>
         <FormGroup
           field="userId"
           label="Moved User"

@@ -3,45 +3,45 @@ import {
   Bulk,
   Button,
   CollapseContent,
-  DateControl,
   Form as CommonForm,
+  DateControl,
   FormControl,
   ModalTrigger,
   SelectTeamMembers,
   Table,
   __,
 } from "@erxes/ui/src";
-
-import {
-  ContentColumn,
-  ItemRow,
-  ItemText,
-} from "@erxes/ui-cards/src/deals/styles";
-import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
-import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
-import client from "@erxes/ui/src/apolloClient";
-import {
-  DateContainer,
-  FormColumn,
-  FormWrapper,
-  ModalFooter,
-} from "@erxes/ui/src/styles/main";
-import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
-import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
-import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-import { gql } from "@apollo/client";
-import _loadash from "lodash";
-import React, { useState, useEffect } from "react";
-import { IMovementItem, IMovementType } from "../../../common/types";
 import { CommonFormGroup, CommonItemRow } from "../../../common/utils";
 import {
   ContainerBox,
   MovementItemContainer,
   MovementTableWrapper,
 } from "../../../style";
+import {
+  ContentColumn,
+  ItemRow,
+  ItemText,
+} from "@erxes/ui-cards/src/deals/styles";
+import {
+  DateContainer,
+  FormColumn,
+  FormWrapper,
+  ModalFooter,
+} from "@erxes/ui/src/styles/main";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { IMovementItem, IMovementType } from "../../../common/types";
+import React, { useEffect, useState } from "react";
+
 import AssetChooser from "../containers/Chooser";
-import { queries } from "../graphql";
 import MovementItems from "./MovementItem";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import _loadash from "lodash";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
+import { queries } from "../graphql";
 
 type Props = {
   detail: IMovementType;
@@ -431,7 +431,7 @@ const Form = (props: Props) => {
     const { isSubmitted } = formProps;
 
     return (
-      <ContainerBox column gap={20}>
+      <ContainerBox $column gap={20}>
         <FormWrapper>
           <FormColumn>
             <CommonFormGroup label="Date">

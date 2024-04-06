@@ -1,17 +1,18 @@
-import React from 'react';
-import { gql, useQuery } from '@apollo/client';
-import MovementItem from '../components/List';
-import { queries } from '../graphql';
 import {
   MovementItemsQueryResponse,
   MovementItemsTotalCountQueryResponse,
-} from '../../../common/types';
-import { generateParams } from '../../../common/utils';
+} from "../../../common/types";
+import { gql, useQuery } from "@apollo/client";
 
-type Props = { queryParams: any; history: any };
+import MovementItem from "../components/List";
+import React from "react";
+import { generateParams } from "../../../common/utils";
+import { queries } from "../graphql";
+
+type Props = { queryParams: any; location: any; navigate: any };
 
 const MovementItemsContainer = (props: Props) => {
-  const { history, queryParams } = props;
+  const { location, queryParams, navigate } = props;
 
   const itemsQuery = useQuery<MovementItemsQueryResponse>(gql(queries.items), {
     variables: generateParams({ queryParams }),
@@ -21,14 +22,15 @@ const MovementItemsContainer = (props: Props) => {
     gql(queries.itemsTotalCount),
     {
       variables: generateParams({ queryParams }),
-    },
+    }
   );
 
   const updatedProps = {
     items: itemsQuery?.data?.assetMovementItems || [],
     totalCount: itemsTotalCount?.data?.assetMovementItemsTotalCount || 0,
     loading: itemsQuery.loading || itemsTotalCount.loading,
-    history,
+    location,
+    navigate,
     queryParams,
   };
 

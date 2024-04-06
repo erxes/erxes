@@ -1,16 +1,16 @@
-import { Alert, Bulk, confirm } from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { gql, useQuery, useMutation } from '@apollo/client';
-import React from 'react';
+import { Alert, Bulk, confirm } from "@erxes/ui/src";
 import {
   MovementQueryResponse,
   MovementsTotalCountQueryResponse,
-} from '../../../common/types';
-import { generateParams, movementRefetchQueries } from '../../../common/utils';
-import List from '../components/List';
-import { mutations, queries } from '../graphql';
+} from "../../../common/types";
+import { generateParams, movementRefetchQueries } from "../../../common/utils";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { mutations, queries } from "../graphql";
 
-type Props = { queryParams: any; history: string } & IRouterProps;
+import List from "../components/List";
+import React from "react";
+
+type Props = { queryParams: any; location: any; navigate: any };
 
 const ListContainer = (props: Props) => {
   const { queryParams } = props;
@@ -19,14 +19,14 @@ const ListContainer = (props: Props) => {
     gql(queries.movements),
     {
       variables: generateParams({ queryParams }),
-    },
+    }
   );
 
   const movementsTotalCountQuery = useQuery<MovementsTotalCountQueryResponse>(
     gql(queries.movementsTotalCount),
     {
       variables: generateParams({ queryParams }),
-    },
+    }
   );
 
   const [movementRemove] = useMutation(gql(mutations.movementRemove), {
@@ -37,7 +37,7 @@ const ListContainer = (props: Props) => {
     confirm()
       .then(() => {
         movementRemove({ variables: { ids } }).then(() => {
-          Alert.success('Removed movement');
+          Alert.success("Removed movement");
         });
       })
       .catch((error) => Alert.error(error.message));

@@ -1,37 +1,39 @@
 import {
   BarItems,
   Button,
-  FormControl,
-  ModalTrigger,
-  router,
-  Table,
-  __,
   DataWithLoader,
-  Wrapper,
-  Pagination,
+  FormControl,
   Icon,
-} from '@erxes/ui/src';
-import React, { useState, useRef } from 'react';
-import { menuMovements } from '../../../common/constant';
-import { IMovementItem } from '../../../common/types';
-import { DefaultWrapper } from '../../../common/utils';
-import { InputBar, Title, FlexItem } from '@erxes/ui-settings/src/styles';
-import Form from '../../movements/containers/Form';
-import Row from './Row';
-import Sidebar from './Sidebar';
+  ModalTrigger,
+  Pagination,
+  Table,
+  Wrapper,
+  __,
+  router,
+} from "@erxes/ui/src";
+import { FlexItem, InputBar, Title } from "@erxes/ui-settings/src/styles";
+import React, { useRef, useState } from "react";
+
+import { DefaultWrapper } from "../../../common/utils";
+import Form from "../../movements/containers/Form";
+import { IMovementItem } from "../../../common/types";
+import Row from "./Row";
+import Sidebar from "./Sidebar";
+import { menuMovements } from "../../../common/constant";
 
 type Props = {
   items: IMovementItem[];
   totalCount: number;
-  history: any;
+  location: any;
+  navigate: any;
   queryParams: any;
   loading: boolean;
 };
 
 const List = (props: Props) => {
-  const { items, totalCount, history, queryParams, loading } = props;
+  const { items, totalCount, location, navigate, queryParams, loading } = props;
 
-  const [searchValue, setSearchValue] = useState(queryParams.searchValue || '');
+  const [searchValue, setSearchValue] = useState(queryParams.searchValue || "");
   const timerRef = useRef<number | null>(null);
 
   const handleSearch = (e) => {
@@ -43,15 +45,15 @@ const List = (props: Props) => {
     setSearchValue(searchValue);
 
     timerRef.current = window.setTimeout(() => {
-      router.removeParams(history, 'page');
-      router.setParams(history, { searchValue });
+      router.removeParams(navigate, location, "page");
+      router.setParams(navigate, location, { searchValue });
     }, 500);
   };
 
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
 
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
@@ -92,14 +94,14 @@ const List = (props: Props) => {
       <Table>
         <thead>
           <tr>
-            <th>{__('Asset Name')}</th>
-            <th>{__('Branch')}</th>
-            <th>{__('Department')}</th>
-            <th>{__('Team Member')}</th>
-            <th>{__('Company')}</th>
-            <th>{__('Customer')}</th>
-            <th>{__('Created At')}</th>
-            <th>{__('Actions')}</th>
+            <th>{__("Asset Name")}</th>
+            <th>{__("Branch")}</th>
+            <th>{__("Department")}</th>
+            <th>{__("Team Member")}</th>
+            <th>{__("Company")}</th>
+            <th>{__("Customer")}</th>
+            <th>{__("Created At")}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody>{renderRow()}</tbody>
@@ -108,7 +110,7 @@ const List = (props: Props) => {
   };
 
   const renderActionBar = () => {
-    const leftActionBar = <Title>{__('Asset Items')}</Title>;
+    const leftActionBar = <Title>{__("Asset Items")}</Title>;
 
     const rightActionBar = (
       <BarItems>
@@ -117,7 +119,7 @@ const List = (props: Props) => {
           <FlexItem>
             <FormControl
               type="text"
-              placeholder={__('Type to search')}
+              placeholder={__("Type to search")}
               onChange={handleSearch}
               value={searchValue}
               autoFocus={true}
@@ -136,7 +138,7 @@ const List = (props: Props) => {
     <Wrapper
       header={
         <Wrapper.Header
-          title={'Asset Movement Items'}
+          title={"Asset Movement Items"}
           submenu={menuMovements}
         />
       }
@@ -147,11 +149,17 @@ const List = (props: Props) => {
           data={renderContent()}
           count={totalCount}
           emptyImage="/images/actions/5.svg"
-          emptyText={__('No data')}
+          emptyText={__("No data")}
         />
       }
       hasBorder={true}
-      leftSidebar={<Sidebar history={history} queryParams={queryParams} />}
+      leftSidebar={
+        <Sidebar
+          navigate={navigate}
+          location={location}
+          queryParams={queryParams}
+        />
+      }
       footer={<Pagination count={totalCount} />}
     />
   );

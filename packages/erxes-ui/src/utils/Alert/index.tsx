@@ -1,12 +1,11 @@
-import AlertStyled from './Alert';
-import React from 'react';
-import ReactDOM from 'react-dom';
-import T from 'i18n-react';
-import styled from 'styled-components';
-import { createRoot } from 'react-dom/client';
+import AlertStyled from "./Alert";
+import React from "react";
+import T from "i18n-react";
+import { createRoot } from "react-dom/client";
+import styled from "styled-components";
 
 const AlertsWrapper = styled.div.attrs({
-  id: 'alerts-wrapper',
+  id: "alerts-wrapper",
 })`
   position: fixed;
   display: flex;
@@ -22,10 +21,10 @@ const AlertsWrapper = styled.div.attrs({
 `;
 
 const createAlert = (type: string, text: string, time?: number) => {
-  if (!document.getElementById('alert-container')) {
-    const alertContainer = document.createElement('div');
+  if (!document.getElementById("alert-container")) {
+    const alertContainer = document.createElement("div");
 
-    alertContainer.setAttribute('id', 'alert-container');
+    alertContainer.setAttribute("id", "alert-container");
 
     document.body.appendChild(alertContainer);
 
@@ -40,7 +39,7 @@ const createAlert = (type: string, text: string, time?: number) => {
     const lastChild = alertsWrapper ? alertsWrapper.lastChild : null;
 
     if (!lastChild) {
-      const alertContainer = document.getElementById('alert-container');
+      const alertContainer = document.getElementById("alert-container");
 
       if (alertContainer) {
         alertContainer.remove();
@@ -57,13 +56,13 @@ const createAlert = (type: string, text: string, time?: number) => {
   const alertcount = alertsWrapper ? alertsWrapper.childElementCount : 0;
 
   if (!document.getElementById(`alert-container-${alertcount}`)) {
-    const alertContainer = document.createElement('div');
+    const alertContainer = document.createElement("div");
 
     if (alertContainer && alertsWrapper) {
       alertsWrapper.appendChild(alertContainer);
     }
 
-    alertContainer.setAttribute('id', `alert-container-${alertcount}`);
+    alertContainer.setAttribute("id", `alert-container-${alertcount}`);
 
     const deleteNode = (index: number) => {
       const container = document.getElementById(`alert-container-${index}`);
@@ -83,24 +82,24 @@ const createAlert = (type: string, text: string, time?: number) => {
         type={type}
       >
         {T.translate(text)}
-      </AlertStyled>,
+      </AlertStyled>
     );
   }
 };
 
 const success = (text: string, time?: number) =>
-  createAlert('success', text, time);
+  createAlert("success", text, time);
 
 const error = (text: string, time?: number) => {
   if (text) {
-    createAlert('error', text.replace('GraphQL error:', ''), time);
+    createAlert("error", text.replace("GraphQL error:", ""), time);
   }
 };
 
 const warning = (text: string, time?: number) =>
-  createAlert('warning', text, time);
+  createAlert("warning", text, time);
 
-const info = (text: string, time?: number) => createAlert('info', text, time);
+const info = (text: string, time?: number) => createAlert("info", text, time);
 
 const Alert = {
   success,

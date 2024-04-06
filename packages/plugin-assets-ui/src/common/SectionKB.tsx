@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import { Box, Button, ControlLabel, Icon, Tip } from "@erxes/ui/src";
+import { KbArticlesContainer, KbTreeViewItem } from "../style";
+import React, { useState } from "react";
+import { gql, useQuery } from "@apollo/client";
+import { removeParams, setParams } from "@erxes/ui/src/utils/router";
 
-import { gql, useQuery } from '@apollo/client';
-import { queries } from '../asset/graphql';
-import { ControlLabel, Icon, Box, Button, Tip } from '@erxes/ui/src';
-import { ContainerBox } from '../style';
-import { KbArticlesContainer, KbTreeViewItem } from '../style';
-import client from '@erxes/ui/src/apolloClient';
-import { removeParams, setParams } from '@erxes/ui/src/utils/router';
-import { generateParamsIds } from './utils';
-import { checkKnowledge } from './constant';
+import { ContainerBox } from "../style";
+import { checkKnowledge } from "./constant";
+import client from "@erxes/ui/src/apolloClient";
+import { generateParamsIds } from "./utils";
+import { queries } from "../asset/graphql";
 
 type Props = {
   queryParams: any;
@@ -23,7 +23,7 @@ const SelectKbArticles = (props: Props) => {
   const [articles, setArticles] = useState<any[]>([]);
 
   const { data: knowledgeBaseTopics } = useQuery(
-    gql(queries.knowledgeBaseTopics),
+    gql(queries.knowledgeBaseTopics)
   );
 
   const renderArticles = (catId) => {
@@ -48,7 +48,7 @@ const SelectKbArticles = (props: Props) => {
       .map((article) => (
         <KbTreeViewItem
           key={article._id}
-          className={articleIds.includes(article._id) ? 'active' : ''}
+          className={articleIds.includes(article._id) ? "active" : ""}
           onClick={handleSelect.bind(this, article._id)}
         >
           <ControlLabel>{article.title}</ControlLabel>
@@ -71,7 +71,7 @@ const SelectKbArticles = (props: Props) => {
       e.stopPropagation();
       if (categoriesToShow.includes(catId)) {
         return setCategoriesToShow(
-          categoriesToShow.filter((topicId) => topicId !== catId),
+          categoriesToShow.filter((topicId) => topicId !== catId)
         );
       }
 
@@ -82,10 +82,10 @@ const SelectKbArticles = (props: Props) => {
       const articleIds = getArticlesCategory(catId);
       if (
         articleIds.every((articleId) =>
-          (queryParams?.articleIds || []).includes(articleId),
+          (queryParams?.articleIds || []).includes(articleId)
         )
       ) {
-        return removeParams(history, 'articleIds');
+        return removeParams(history, "articleIds");
       }
       setParams(history, { articleIds });
     };
@@ -97,22 +97,22 @@ const SelectKbArticles = (props: Props) => {
           const isSelected =
             !!articleIds?.length &&
             articleIds.every((articleId) =>
-              (queryParams?.articleIds || []).includes(articleId),
+              (queryParams?.articleIds || []).includes(articleId)
             );
 
           return (
-            <ContainerBox column key={_id}>
+            <ContainerBox $column={true} key={_id}>
               <KbTreeViewItem
-                className={isSelected ? 'active' : ''}
+                className={isSelected ? "active" : ""}
                 onClick={handleSelect.bind(this, _id)}
               >
-                <ContainerBox spaceBetween>
+                <ContainerBox $spaceBetween={true}>
                   <ControlLabel>{title}</ControlLabel>
                   <Icon
                     size={10}
                     onClick={(e) => handleOpen(e, _id)}
                     icon={
-                      categoriesToShow.includes(_id) ? 'downarrow-2' : 'chevron'
+                      categoriesToShow.includes(_id) ? "downarrow-2" : "chevron"
                     }
                   />
                 </ContainerBox>
@@ -129,7 +129,7 @@ const SelectKbArticles = (props: Props) => {
     client
       .query({
         query: gql(queries.knowledgeBaseArticles),
-        fetchPolicy: 'network-only',
+        fetchPolicy: "network-only",
         variables: { categoryIds },
       })
       .then(({ data }) => {
@@ -137,7 +137,7 @@ const SelectKbArticles = (props: Props) => {
         const articleIds = articles.map((article) => article._id);
 
         const uniqueArticles = kbArticles.filter(
-          (kbArticle) => !articleIds.includes(kbArticle._id),
+          (kbArticle) => !articleIds.includes(kbArticle._id)
         );
 
         setArticles((prevArticles) => [...prevArticles, ...uniqueArticles]);
@@ -145,36 +145,36 @@ const SelectKbArticles = (props: Props) => {
   };
 
   const clearParams = () => {
-    removeParams(history, 'articleIds', 'withKnowledge');
+    removeParams(history, "articleIds", "withKnowledge");
   };
 
   const handleWithKnowledge = (type) => {
-    if (type === 'Assigned') {
-      if (queryParams?.withKnowledge === 'true') {
-        return removeParams(history, 'withKnowledge');
+    if (type === "Assigned") {
+      if (queryParams?.withKnowledge === "true") {
+        return removeParams(history, "withKnowledge");
       }
       setParams(history, { withKnowledge: true });
     }
-    if (type === 'Designated') {
-      if (queryParams?.withKnowledge === 'false') {
-        return removeParams(history, 'withKnowledge');
+    if (type === "Designated") {
+      if (queryParams?.withKnowledge === "false") {
+        return removeParams(history, "withKnowledge");
       }
       setParams(history, { withKnowledge: false });
     }
   };
 
   const getBtnStyle = (type) => {
-    if (type === 'Assigned' && queryParams.withKnowledge === 'true') {
-      return 'active';
+    if (type === "Assigned" && queryParams.withKnowledge === "true") {
+      return "active";
     }
-    if (type === 'Designated' && queryParams.withKnowledge === 'false') {
-      return 'active';
+    if (type === "Designated" && queryParams.withKnowledge === "false") {
+      return "active";
     }
-    return '';
+    return "";
   };
 
   const extraButtons = (queryParams?.articleIds ||
-    ['true', 'false'].includes(queryParams?.withKnowledge)) && (
+    ["true", "false"].includes(queryParams?.withKnowledge)) && (
     <Button btnStyle="link" onClick={clearParams}>
       <Icon icon="cancel-1" />
     </Button>
@@ -187,8 +187,8 @@ const SelectKbArticles = (props: Props) => {
       isOpen
       extraButtons={extraButtons}
     >
-      <ContainerBox vertical horizontal column>
-        <ContainerBox row spaceAround vertical>
+      <ContainerBox $vertical $horizontal $column>
+        <ContainerBox $row $spaceAround $vertical>
           {checkKnowledge.map((type) => (
             <Tip key={type.title} text={type.label} placement="top">
               <KbTreeViewItem
@@ -208,20 +208,20 @@ const SelectKbArticles = (props: Props) => {
 
               if (topicsToShow.includes(_id)) {
                 return setTopicsToShow(
-                  topicsToShow.filter((topicId) => topicId !== _id),
+                  topicsToShow.filter((topicId) => topicId !== _id)
                 );
               }
               setTopicsToShow([...topicsToShow, _id]);
             };
 
             return (
-              <ContainerBox column key={_id}>
+              <ContainerBox $column key={_id}>
                 <KbTreeViewItem onClick={handleTopic}>
-                  <ContainerBox spaceBetween>
+                  <ContainerBox $spaceBetween>
                     <ControlLabel>{title}</ControlLabel>
                     <Icon
                       icon={
-                        topicsToShow.includes(_id) ? 'downarrow-2' : 'chevron'
+                        topicsToShow.includes(_id) ? "downarrow-2" : "chevron"
                       }
                       size={10}
                     />
@@ -230,7 +230,7 @@ const SelectKbArticles = (props: Props) => {
                 {rendeCategories(_id, categories)}
               </ContainerBox>
             );
-          },
+          }
         )}
       </ContainerBox>
     </Box>
