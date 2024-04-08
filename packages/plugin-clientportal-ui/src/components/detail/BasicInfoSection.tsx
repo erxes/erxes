@@ -1,20 +1,20 @@
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import { confirm } from '@erxes/ui/src/utils';
-import Alert from '@erxes/ui/src/utils/Alert';
-import Button from '@erxes/ui/src/components/Button';
-import { ModalTrigger } from '@erxes/ui/src/components';
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
-import { Actions } from '@erxes/ui/src/styles/main';
-import ClientPortalUserForm from '../../containers/ClientPortalUserForm';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { IClientPortalUser } from '../../types';
-import React from 'react';
-import SmsForm from '@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm';
-import { loadDynamicComponent, __ } from '@erxes/ui/src/utils';
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import { confirm } from "@erxes/ui/src/utils";
+import Alert from "@erxes/ui/src/utils/Alert";
+import Button from "@erxes/ui/src/components/Button";
+import { ModalTrigger } from "@erxes/ui/src/components";
+import Icon from "@erxes/ui/src/components/Icon";
+import Tip from "@erxes/ui/src/components/Tip";
+import { Actions } from "@erxes/ui/src/styles/main";
+import ClientPortalUserForm from "../../containers/ClientPortalUserForm";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import { IClientPortalUser } from "../../types";
+import React from "react";
+import SmsForm from "@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm";
+import { loadDynamicComponent, __ } from "@erxes/ui/src/utils";
 // import ExtendSubscription from '@erxes/ui-forum/src/containers/ExtendSubscriptionForm';
-import EmailWidget from '@erxes/ui-inbox/src/inbox/components/EmailWidget';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import EmailWidget from "@erxes/ui-inbox/src/inbox/components/EmailWidget";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   clientPortalUser: IClientPortalUser;
@@ -34,10 +34,10 @@ const BasicInfoSection: React.FC<Props> = ({
 
     return (
       <>
-        {(isEnabled('engages') || isEnabled('imap')) && (
+        {(isEnabled("engages") || isEnabled("imap")) && (
           <EmailWidget
             disabled={email ? false : true}
-            buttonStyle={email ? 'primary' : 'simple'}
+            buttonStyle={email ? "primary" : "simple"}
             emailTo={email}
             customerId={clientPortalUser._id || undefined}
             buttonSize="small"
@@ -51,7 +51,7 @@ const BasicInfoSection: React.FC<Props> = ({
             <Button
               disabled={phone ? false : true}
               size="small"
-              btnStyle={phone ? 'primary' : 'simple'}
+              btnStyle={phone ? "primary" : "simple"}
             >
               <Tip text="Send SMS" placement="top-end">
                 <Icon icon="message" />
@@ -63,7 +63,7 @@ const BasicInfoSection: React.FC<Props> = ({
         <Button
           href={phone && `tel:${phone}`}
           size="small"
-          btnStyle={phone ? 'primary' : 'simple'}
+          btnStyle={phone ? "primary" : "simple"}
           disabled={phone ? false : true}
         >
           <Tip text="Call" placement="top-end">
@@ -81,7 +81,7 @@ const BasicInfoSection: React.FC<Props> = ({
           <Icon icon="ellipsis-h" />
         ) : (
           <>
-            {__('Action')} <Icon icon="angle-down" />
+            {__("Action")} <Icon icon="angle-down" />
           </>
         )}
       </Button>
@@ -103,7 +103,7 @@ const BasicInfoSection: React.FC<Props> = ({
       <li>
         <ModalTrigger
           title="Edit basic info"
-          trigger={<a href="#edit">{__('Edit')}</a>}
+          trigger={<a href="#edit">{__("Edit")}</a>}
           size="lg"
           content={customerForm}
         />
@@ -120,7 +120,7 @@ const BasicInfoSection: React.FC<Props> = ({
         });
 
     const extendSubscription = (props) => {
-      if (!isEnabled('forum')) {
+      if (!isEnabled("forum")) {
         return null;
       }
 
@@ -131,30 +131,25 @@ const BasicInfoSection: React.FC<Props> = ({
     };
 
     return (
-      <Dropdown>
-        <Dropdown.Toggle as={DropdownToggle} id="dropdown-action">
-          {renderButton()}
-        </Dropdown.Toggle>
-        <Dropdown.Menu>
-          {renderEditButton()}
-          {isEnabled('forum') && (
-            <ModalTrigger
-              title="Extend Subscription"
-              trigger={
-                <li>
-                  <a href="#extend-subscription">{__('Extend Subscription')}</a>
-                </li>
-              }
-              size="lg"
-              content={extendSubscription}
-            />
-          )}
-          <li>
-            <a href="#delete" onClick={onClick}>
-              {__('Delete')}
-            </a>
-          </li>
-        </Dropdown.Menu>
+      <Dropdown as={DropdownToggle} toggleComponent={renderButton()}>
+        {renderEditButton()}
+        {isEnabled("forum") && (
+          <ModalTrigger
+            title="Extend Subscription"
+            trigger={
+              <li>
+                <a href="#extend-subscription">{__("Extend Subscription")}</a>
+              </li>
+            }
+            size="lg"
+            content={extendSubscription}
+          />
+        )}
+        <li>
+          <a href="#delete" onClick={onClick}>
+            {__("Delete")}
+          </a>
+        </li>
       </Dropdown>
     );
   };
@@ -162,9 +157,9 @@ const BasicInfoSection: React.FC<Props> = ({
   return (
     <>
       {loadDynamicComponent(
-        'clientPortalUserDetailAction',
+        "clientPortalUserDetailAction",
         { clientPortalUser },
-        true,
+        true
       )}
       <Actions>
         {renderActions()}

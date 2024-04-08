@@ -9,7 +9,7 @@ import { __, getEnv } from "@erxes/ui/src/utils";
 import Button from "@erxes/ui/src/components/Button";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import Datetime from "@nateradebaugh/react-datetime";
-import Dropdown from "react-bootstrap/Dropdown";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
@@ -328,20 +328,14 @@ const BulkDocuments: React.FC<Props> = ({ bulk }: { bulk: any[] }) => {
     <WithPermission action="manageDocuments">
       {renderPopup()}
 
-      <Dropdown>
-        <Dropdown.Toggle as={DropdownToggle} id="dropdown-select">
-          {trigger}
-        </Dropdown.Toggle>
-
-        <Dropdown.Menu>
-          {documents.map((item) => (
-            <li key={item._id}>
-              <ActionItem onClick={showPopupHandler.bind(this, item._id)}>
-                {item.name}
-              </ActionItem>
-            </li>
-          ))}
-        </Dropdown.Menu>
+      <Dropdown as={DropdownToggle} toggleComponent={trigger}>
+        {documents.map((item) => (
+          <li key={item._id}>
+            <ActionItem onClick={showPopupHandler.bind(this, item._id)}>
+              {item.name}
+            </ActionItem>
+          </li>
+        ))}
       </Dropdown>
     </WithPermission>
   );

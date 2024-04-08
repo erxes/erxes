@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 
 import RTG from "react-transition-group";
-import Dropdown from "react-bootstrap/Dropdown";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
 
 import CollapsibleList from "@erxes/ui/src/components/collapsibleList/CollapsibleList";
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
@@ -46,25 +46,25 @@ const ReportSection = (props: Props) => {
   };
 
   const extraButtons = (
-    <Dropdown drop="down" alignRight={true}>
-      <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
-        <Icon icon="ellipsis-h" size={16} />
-      </Dropdown.Toggle>
-      <Dropdown.Menu>
-        <li>
-          <a
-            href="#addReport"
-            onClick={() => {
-              setCurrentReport({} as any);
-              setShowDrawer(!showDrawer);
-            }}
-          >
-            <Icon icon="plus-1" />
+    <Dropdown
+      drop="down"
+      as={DropdownToggle}
+      toggleComponent={<Icon icon="ellipsis-h" size={16} />}
+      // alignRight={true}
+    >
+      <li>
+        <a
+          href="#addReport"
+          onClick={() => {
+            setCurrentReport({} as any);
+            setShowDrawer(!showDrawer);
+          }}
+        >
+          <Icon icon="plus-1" />
 
-            {__("Report")}
-          </a>
-        </li>
-      </Dropdown.Menu>
+          {__("Report")}
+        </a>
+      </li>
     </Dropdown>
   );
 

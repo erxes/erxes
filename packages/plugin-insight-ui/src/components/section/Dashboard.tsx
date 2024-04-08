@@ -1,24 +1,24 @@
-import React, { useRef, useState } from 'react';
-import RTG from 'react-transition-group';
-import Dropdown from 'react-bootstrap/Dropdown';
+import React, { useRef, useState } from "react";
+import RTG from "react-transition-group";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
 
-import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
-import Box from '@erxes/ui/src/components/Box';
-import { __ } from '@erxes/ui/src/utils/index';
-import { router } from '@erxes/ui/src/utils';
-import { SidebarList } from '@erxes/ui/src/layout/styles';
+import CollapsibleList from "@erxes/ui/src/components/collapsibleList/CollapsibleList";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import Button from "@erxes/ui/src/components/Button";
+import Icon from "@erxes/ui/src/components/Icon";
+import Tip from "@erxes/ui/src/components/Tip";
+import Box from "@erxes/ui/src/components/Box";
+import { __ } from "@erxes/ui/src/utils/index";
+import { router } from "@erxes/ui/src/utils";
+import { SidebarList } from "@erxes/ui/src/layout/styles";
 
-import FormContainer from '../../containers/dashboard/Form';
-import SectionList from '../../containers/section/List';
-import { RightDrawerContainer } from '../../styles';
-import { IDashboard, ISection } from '../../types';
-import { useLocation, useNavigate } from 'react-router-dom';
+import FormContainer from "../../containers/dashboard/Form";
+import SectionList from "../../containers/section/List";
+import { RightDrawerContainer } from "../../styles";
+import { IDashboard, ISection } from "../../types";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
@@ -31,16 +31,10 @@ type Props = {
 };
 
 const DashboardSection = (props: Props) => {
-  const {
-    queryParams,
-    sections,
-    dashboards,
-    loading,
-    removeDashboard,
-  } = props;
+  const { queryParams, sections, dashboards, loading, removeDashboard } = props;
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   const wrapperRef = useRef<any>(null);
 
   const [showDrawer, setShowDrawer] = useState<any>(false);
@@ -52,27 +46,27 @@ const DashboardSection = (props: Props) => {
   };
 
   const extraButtons = (
-    <Dropdown drop="down" alignRight={true}>
-      <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
-        <Icon icon="ellipsis-h" size={16} />
-      </Dropdown.Toggle>
-      <Dropdown.Menu>
-        <li>
-          {
-            <a
-              href="#addDashboard"
-              onClick={() => {
-                setCurrentDashboard({} as any);
-                setShowDrawer(!showDrawer);
-              }}
-            >
-              <Icon icon="plus-1" />
+    <Dropdown
+      drop="down"
+      as={DropdownToggle}
+      toggleComponent={<Icon icon="ellipsis-h" size={16} />}
+      // alignRight={true}
+    >
+      <li>
+        {
+          <a
+            href="#addDashboard"
+            onClick={() => {
+              setCurrentDashboard({} as any);
+              setShowDrawer(!showDrawer);
+            }}
+          >
+            <Icon icon="plus-1" />
 
-              {__('Dashboard')}
-            </a>
-          }
-        </li>
-      </Dropdown.Menu>
+            {__("Dashboard")}
+          </a>
+        }
+      </li>
     </Dropdown>
   );
 
@@ -85,7 +79,7 @@ const DashboardSection = (props: Props) => {
           setShowDrawer(!showDrawer);
         }}
       >
-        <Tip text={__('Edit')} placement="bottom">
+        <Tip text={__("Edit")} placement="bottom">
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -95,7 +89,7 @@ const DashboardSection = (props: Props) => {
   const renderRemoveAction = (dashboard: any) => {
     return (
       <Button btnStyle="link" onClick={() => removeDashboard(dashboard._id)}>
-        <Tip text={__('Remove')} placement="bottom">
+        <Tip text={__("Remove")} placement="bottom">
           <Icon icon="times-circle" />
         </Tip>
       </Button>
@@ -110,7 +104,7 @@ const DashboardSection = (props: Props) => {
   const renderListWithoutSection = () => {
     const items = dashboards.filter(
       (dashboard) =>
-        dashboard.sectionId === null || !dashboard.hasOwnProperty('sectionId'),
+        dashboard.sectionId === null || !dashboard.hasOwnProperty("sectionId")
     );
 
     if (items.length === 0) {

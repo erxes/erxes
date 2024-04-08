@@ -1,4 +1,4 @@
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 import {
   Alert,
   Button,
@@ -9,14 +9,14 @@ import {
   ModalTrigger,
   Sidebar,
   SidebarList,
-} from '@erxes/ui/src';
-import { __ } from 'coreui/utils';
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
+} from "@erxes/ui/src";
+import { __ } from "coreui/utils";
+import React from "react";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
 
-import { Action, Name } from '../../contracts/styles';
-import PeriodLockForm from '../containers/PeriodLockForm';
-import { IPeriodLockDetail } from '../types';
+import { Action, Name } from "../../contracts/styles";
+import PeriodLockForm from "../containers/PeriodLockForm";
+import { IPeriodLockDetail } from "../types";
 
 type Props = {
   periodLock: IPeriodLockDetail;
@@ -36,20 +36,20 @@ const DetailInfo = (props: Props) => {
 
     return (
       <Action>
-        <Dropdown>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
+        <Dropdown
+          as={DropdownToggle}
+          toggleComponent={
             <Button btnStyle="simple" size="medium">
-              {__('Action')}
+              {__("Action")}
               <Icon icon="angle-down" />
             </Button>
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <li>
-              <a href="#delete" onClick={onDelete}>
-                {__('Delete')}
-              </a>
-            </li>
-          </Dropdown.Menu>
+          }
+        >
+          <li>
+            <a href="#delete" onClick={onDelete}>
+              {__("Delete")}
+            </a>
+          </li>
         </Dropdown>
       </Action>
     );
@@ -66,9 +66,9 @@ const DetailInfo = (props: Props) => {
     <Sidebar wide={true}>
       <Sidebar.Section>
         <InfoWrapper>
-          <Name>{dayjs(periodLock.date).format('ll')}</Name>
+          <Name>{dayjs(periodLock.date).format("ll")}</Name>
           <ModalTrigger
-            title={__('Edit basic info')}
+            title={__("Edit basic info")}
             trigger={<Icon icon="edit" />}
             size="lg"
             content={content}

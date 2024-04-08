@@ -10,7 +10,7 @@ import { ModalFooter } from "@erxes/ui/src/styles/main";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import { __ } from "@erxes/ui/src/utils/core";
 import React from "react";
-import Dropdown from "react-bootstrap/Dropdown";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
 import Dialog from "@erxes/ui/src/components/Dialog";
 import { CalendarForm } from "../styles";
 import { IAccount, IEvent, INylasCalendar } from "../types";
@@ -111,45 +111,47 @@ class EditForm extends React.Component<FinalProps, State> {
 
     const renderAccounts = () => {
       return (
-        <Dropdown>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-board">
-            {calendar ? calendar.name : "Select calendar"}
-            <Icon icon="angle-down" />
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <ul>
-              {accounts.map((acc) => {
-                return (
-                  <li key={acc._id}>
-                    {acc.name}
-                    <ul>
-                      {acc.calendars.map((cal) => {
-                        return (
-                          <li
-                            key={cal._id}
-                            onClick={this.onChangeCalendar.bind(
-                              this,
-                              cal,
-                              acc.accountId
-                            )}
-                          >
-                            <Icon
-                              icon={"circle"}
-                              style={{
-                                color: cal.color || (acc && acc.color),
-                              }}
-                            />{" "}
-                            &nbsp;
-                            {cal.name}
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </li>
-                );
-              })}
-            </ul>
-          </Dropdown.Menu>
+        <Dropdown
+          as={DropdownToggle}
+          toggleComponent={
+            <>
+              {calendar ? calendar.name : "Select calendar"}
+              <Icon icon="angle-down" />
+            </>
+          }
+        >
+          <ul>
+            {accounts.map((acc) => {
+              return (
+                <li key={acc._id}>
+                  {acc.name}
+                  <ul>
+                    {acc.calendars.map((cal) => {
+                      return (
+                        <li
+                          key={cal._id}
+                          onClick={this.onChangeCalendar.bind(
+                            this,
+                            cal,
+                            acc.accountId
+                          )}
+                        >
+                          <Icon
+                            icon={"circle"}
+                            style={{
+                              color: cal.color || (acc && acc.color),
+                            }}
+                          />{" "}
+                          &nbsp;
+                          {cal.name}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </li>
+              );
+            })}
+          </ul>
         </Dropdown>
       );
     };

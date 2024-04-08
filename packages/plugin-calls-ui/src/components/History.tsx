@@ -8,7 +8,7 @@ import { EmptyState, Spinner } from "@erxes/ui/src/components";
 import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
 import { __, renderFullName } from "@erxes/ui/src/utils";
 
-import Dropdown from "react-bootstrap/Dropdown";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 import { IHistory } from "../types";
 import Icon from "@erxes/ui/src/components/Icon";
@@ -118,15 +118,13 @@ class History extends React.Component<Props, State> {
           </div>
           <AdditionalDetail>
             <span>{dayjs(createdAt).format("DD MMM, HH:mm")}</span>
-            <Dropdown>
-              <Dropdown.Toggle as={DropdownToggle} id="dropdown-convert-to">
-                <Icon icon="ellipsis-v" size={18} />
-              </Dropdown.Toggle>
-              <Dropdown.Menu>
-                <li key="delete" onClick={() => this.onRemove(item._id)}>
-                  <Icon icon="trash-alt" size={14} /> {__("Delete")}
-                </li>
-              </Dropdown.Menu>
+            <Dropdown
+              as={DropdownToggle}
+              toggleComponent={<Icon icon="ellipsis-v" size={18} />}
+            >
+              <li key="delete" onClick={() => this.onRemove(item._id)}>
+                <Icon icon="trash-alt" size={14} /> {__("Delete")}
+              </li>
             </Dropdown>
           </AdditionalDetail>
         </CallDetail>

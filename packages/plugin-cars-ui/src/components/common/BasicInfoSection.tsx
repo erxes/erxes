@@ -8,16 +8,16 @@ import {
   MainStyleInfoWrapper as InfoWrapper,
   ModalTrigger,
   Sidebar,
-} from '@erxes/ui/src';
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
+} from "@erxes/ui/src";
+import React from "react";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
 
-import CarForm from '../../containers/CarForm';
-import { Action, Name } from '../../styles';
-import { ICar } from '../../types';
-import DetailInfo from './DetailInfo';
-import { IAttachment } from '@erxes/ui/src/types';
-import Attachment from '@erxes/ui/src/components/Attachment';
+import CarForm from "../../containers/CarForm";
+import { Action, Name } from "../../styles";
+import { ICar } from "../../types";
+import DetailInfo from "./DetailInfo";
+import { IAttachment } from "@erxes/ui/src/types";
+import Attachment from "@erxes/ui/src/components/Attachment";
 
 type Props = {
   car: ICar;
@@ -37,7 +37,7 @@ const BasicInfoSection = (props: Props) => {
         title="Edit basic info"
         trigger={
           <li>
-            <a href="#edit">{__('Edit')}</a>
+            <a href="#edit">{__("Edit")}</a>
           </li>
         }
         size="lg"
@@ -64,21 +64,21 @@ const BasicInfoSection = (props: Props) => {
 
     return (
       <Action>
-        <Dropdown>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
+        <Dropdown
+          as={DropdownToggle}
+          toggleComponent={
             <Button btnStyle="simple" size="medium">
-              {__('Action')}
+              {__("Action")}
               <Icon icon="angle-down" />
             </Button>
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            {renderEditForm()}
-            <li>
-              <a href="#delete" onClick={onDelete}>
-                {__('Delete')}
-              </a>
-            </li>
-          </Dropdown.Menu>
+          }
+        >
+          {renderEditForm()}
+          <li>
+            <a href="#delete" onClick={onDelete}>
+              {__("Delete")}
+            </a>
+          </li>
         </Dropdown>
       </Action>
     );

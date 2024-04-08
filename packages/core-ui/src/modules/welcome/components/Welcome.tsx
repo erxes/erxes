@@ -11,22 +11,22 @@ import {
   SetupContent,
   VideoFrame,
   VideoLink,
-} from '../styles';
-import { COMMUNITY, DOCS, SETUP, STEPS, VIDEO } from '../constants';
-import React, { useState } from 'react';
+} from "../styles";
+import { COMMUNITY, DOCS, SETUP, STEPS, VIDEO } from "../constants";
+import React, { useState } from "react";
 
-import Button from '@erxes/ui/src/components/Button';
-import { DescImg } from '@erxes/ui/src/components/HeaderDescription';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownToggle from 'modules/common/components/DropdownToggle';
-import { IUser } from 'modules/auth/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import ProgressBar from '@erxes/ui/src/components/ProgressBar';
-import { WidgetBackgrounds } from '@erxes/ui-settings/src/styles';
-import Wrapper from 'modules/layout/components/Wrapper';
-import _ from 'lodash';
-import { __ } from 'modules/common/utils';
-import { useNavigate } from 'react-router-dom';
+import Button from "@erxes/ui/src/components/Button";
+import { DescImg } from "@erxes/ui/src/components/HeaderDescription";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import DropdownToggle from "modules/common/components/DropdownToggle";
+import { IUser } from "modules/auth/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import ProgressBar from "@erxes/ui/src/components/ProgressBar";
+import { WidgetBackgrounds } from "@erxes/ui-settings/src/styles";
+import Wrapper from "modules/layout/components/Wrapper";
+import _ from "lodash";
+import { __ } from "modules/common/utils";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   currentUser: IUser;
@@ -51,19 +51,19 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
 
   let active = 0;
 
-  if (completedSteps && completedSteps.includes('generalSettingsCreate')) {
+  if (completedSteps && completedSteps.includes("generalSettingsCreate")) {
     active = active + 1;
   }
 
-  if (completedSteps && completedSteps.includes('brandCreate')) {
+  if (completedSteps && completedSteps.includes("brandCreate")) {
     active = active + 1;
   }
 
-  if (completedSteps && completedSteps.includes('userGroupCreate')) {
+  if (completedSteps && completedSteps.includes("userGroupCreate")) {
     active = active + 1;
   }
 
-  if (completedSteps && completedSteps.includes('userCreate')) {
+  if (completedSteps && completedSteps.includes("userCreate")) {
     active = active + 1;
   }
 
@@ -91,18 +91,18 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
     return (
       <Header>
         <h1>
-          {__('Welcome!')} {renderUserName()} &nbsp;
+          {__("Welcome!")} {renderUserName()} &nbsp;
           <span role="img" aria-label="Wave">
             👋
           </span>
         </h1>
         <div>
           {__(
-            'Enjoy a single yet complete experience operating system (XOS) to build your own experience.',
+            "Enjoy a single yet complete experience operating system (XOS) to build your own experience."
           )}
           <br />
           {__(
-            'All-in-one cost-effective platform for customer service, marketing, sales, and employees. ',
+            "All-in-one cost-effective platform for customer service, marketing, sales, and employees. "
           )}
         </div>
       </Header>
@@ -113,16 +113,16 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
     title: string,
     handleOpen: () => void,
     image?: string,
-    isOpen?: boolean,
+    isOpen?: boolean
   ) => {
     const percentage = Math.floor((active / 5) * 100);
-    const icon = isOpen ? 'angle-down' : 'angle-right';
+    const icon = isOpen ? "angle-down" : "angle-right";
 
     return (
       <BoxHeader
         onClick={() => handleOpen()}
         $isOpen={isOpen}
-        $isSetup={title === 'Getting Started'}
+        $isSetup={title === "Getting Started"}
       >
         <Left>
           {image && <DescImg src={image} />}
@@ -130,15 +130,15 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
             <h4>{title}</h4>
           </div>
         </Left>
-        {title === 'Getting Started' && (
+        {title === "Getting Started" && (
           <ProgressBar
             percentage={percentage}
-            color={percentage === 100 ? '#3CCC38' : '#673FBD'}
+            color={percentage === 100 ? "#3CCC38" : "#673FBD"}
             type="circle"
             height="70px"
           />
         )}
-        {title !== 'Getting Started' && (
+        {title !== "Getting Started" && (
           <Icon icon={icon} size={25} color="#673FBD" />
         )}
       </BoxHeader>
@@ -149,7 +149,7 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
     title: string,
     description: string,
     url: string,
-    icon: string,
+    icon: string
   ) => {
     return (
       <LinkedButton href={url} target="_blank">
@@ -167,12 +167,12 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
       <WidgetBackgrounds>
         <Boxes>
           {DOCS.slice(0, 2).map((item) =>
-            renderDocContent(item.title, item.desc, item.url, item.icon),
+            renderDocContent(item.title, item.desc, item.url, item.icon)
           )}
         </Boxes>
         <Boxes>
           {DOCS.slice(2, 4).map((item) =>
-            renderDocContent(item.title, item.desc, item.url, item.icon),
+            renderDocContent(item.title, item.desc, item.url, item.icon)
           )}
         </Boxes>
       </WidgetBackgrounds>
@@ -184,7 +184,7 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
       const { url, title, icon, btnText, action } = item;
       const [isOpen, setIsOpen] = useState(false);
       const isComplete =
-        url === '/settings/structure'
+        url === "/settings/structure"
           ? branchesLength > 0 || departmentLength > 0
           : completedSteps?.includes(action);
 
@@ -193,10 +193,10 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
       };
 
       const dropdownIcon = isComplete
-        ? 'check'
+        ? "check"
         : isOpen
-          ? 'uparrow'
-          : 'downarrow-2';
+          ? "uparrow"
+          : "downarrow-2";
 
       return (
         <Setup key={title}>
@@ -204,14 +204,14 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
             <Icon
               icon={icon}
               size={20}
-              color={isComplete ? '#3CCC38' : '#888888'}
+              color={isComplete ? "#3CCC38" : "#888888"}
             />
             <div>
               <h3>{title}</h3>
             </div>
             <Button
               icon={dropdownIcon}
-              btnStyle={isComplete ? 'success' : 'link'}
+              btnStyle={isComplete ? "success" : "link"}
               size="small"
             />
           </LinkedButton>
@@ -230,11 +230,12 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
     title: string,
     description: string,
     icon: string,
-    url: string,
+    url: string
   ) => {
     return (
-      <Dropdown align="end">
-        <Dropdown.Toggle as={DropdownToggle} id="dropdown-user">
+      <Dropdown
+        as={DropdownToggle}
+        toggleComponent={
           <LinkedButton>
             <Icon icon={icon} size={20} color="#888888" />
             <div>
@@ -242,22 +243,21 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
               <span>{description}</span>
             </div>
             <VideoLink onClick={() => handleClick(title)}>
-              {__('Watch video')}
+              {__("Watch video")}
               <Icon icon="play-1" size={15} color="#fff" />
             </VideoLink>
           </LinkedButton>
-        </Dropdown.Toggle>
-        <Dropdown.Menu>
-          <VideoFrame>
-            <iframe
-              width="100%"
-              height="478"
-              src={url}
-              title="YouTube video player"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            />
-          </VideoFrame>
-        </Dropdown.Menu>
+        }
+      >
+        <VideoFrame>
+          <iframe
+            width="100%"
+            height="478"
+            src={url}
+            title="YouTube video player"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          />
+        </VideoFrame>
       </Dropdown>
     );
   };
@@ -302,11 +302,11 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
       {renderHeader()}
       {STEPS.map((group, index) => {
         const [isOpen, setIsOpen] = useState(
-          window.location.hash.includes(group.key) ? true : false,
+          window.location.hash.includes(group.key) ? true : false
         );
 
         const handleOpen = () => {
-          if (group.key !== 'setup') {
+          if (group.key !== "setup") {
             setIsOpen(!isOpen);
           }
         };
@@ -316,28 +316,28 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
             {renderBoxHeader(group.title, handleOpen, group.image, isOpen)}
             {isOpen && (
               <BoxContent>
-                {group.key === 'documentation' && renderDocumentation()}
-                {group.key === 'usingGuide' && renderGuide()}
-                {group.key === 'community' && renderCommunity()}
+                {group.key === "documentation" && renderDocumentation()}
+                {group.key === "usingGuide" && renderGuide()}
+                {group.key === "community" && renderCommunity()}
               </BoxContent>
             )}
-            {group.key === 'setup' && renderSetup()}
+            {group.key === "setup" && renderSetup()}
           </BoxedStep>
         );
       })}
       <React.Fragment>
         <Card>
           <div>
-            <h4>{__('Onboarding optimized for you')}</h4>
-            <p>{__('Contact us to start the onboarding process')}</p>
+            <h4>{__("Onboarding optimized for you")}</h4>
+            <p>{__("Contact us to start the onboarding process")}</p>
             <br />
             <Button
               size="large"
               btnStyle="white"
-              href={'https://erxes.io/service'}
+              href={"https://erxes.io/service"}
               target="_blank"
             >
-              {__('Request')}
+              {__("Request")}
             </Button>
           </div>
         </Card>

@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 
-import Dropdown from "react-bootstrap/Dropdown";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
 import RTG from "react-transition-group";
 import { capitalize } from "lodash";
 
@@ -44,25 +44,25 @@ const GoalSection = (props: Props) => {
   };
 
   const extraButtons = (
-    <Dropdown drop="down" alignRight={true}>
-      <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
-        <Icon icon="ellipsis-h" size={16} />
-      </Dropdown.Toggle>
-      <Dropdown.Menu>
-        <li>
-          <a
-            href="#addGoal"
-            onClick={() => {
-              setCurrentGoal({} as any);
-              setShowDrawer(!showDrawer);
-            }}
-          >
-            <Icon icon="plus-1" />
+    <Dropdown
+      drop="down"
+      as={DropdownToggle}
+      toggleComponent={<Icon icon="ellipsis-h" size={16} />}
+      // alignRight={true}
+    >
+      <li>
+        <a
+          href="#addGoal"
+          onClick={() => {
+            setCurrentGoal({} as any);
+            setShowDrawer(!showDrawer);
+          }}
+        >
+          <Icon icon="plus-1" />
 
-            {__("Goal")}
-          </a>
-        </li>
-      </Dropdown.Menu>
+          {__("Goal")}
+        </a>
+      </li>
     </Dropdown>
   );
 
