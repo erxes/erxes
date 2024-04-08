@@ -1,4 +1,3 @@
-import Modal from "react-bootstrap/Modal";
 import Select from "react-select";
 import React, { useState } from "react";
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";

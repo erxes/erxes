@@ -9,7 +9,7 @@ import {
 } from "./styles";
 
 import Icon from "../../Icon";
-import { Popover } from "@headlessui/react";
+import Popover from "@erxes/ui/src/components/Popover";
 import { useRichTextEditorContext } from "../RichTextEditor.context";
 
 export interface IRichTextEditorMoreControlProps
@@ -37,15 +37,17 @@ export const MoreButtonControl = (props: IRichTextEditorMoreControlProps) => {
   );
 
   return (
-    <Popover>
-      <Popover.Button>
+    <Popover
+      trigger={
         <RichTextEditorControlBase
           icon={MoreIcon}
           aria-label={labels.moreControlLabel}
           title={labels.moreControlLabel}
         />
-      </Popover.Button>
-      <Popover.Panel>{renderMenu}</Popover.Panel>
+      }
+      placement="bottom-end"
+    >
+      {renderMenu}
     </Popover>
   );
 };

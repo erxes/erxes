@@ -1,4 +1,4 @@
-import Modal from "react-bootstrap/Modal";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
 import React, { useState } from "react";
 import { Button, ControlLabel, FormControl, FormGroup } from "@erxes/ui/src";
 import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
@@ -123,7 +123,7 @@ const GroupForm = (props: Props) => {
           multi={true}
         />
       </FormGroup>
-      <Modal.Footer>
+      <ModalFooter>
         <Button
           btnStyle="simple"
           type="button"
@@ -140,7 +140,7 @@ const GroupForm = (props: Props) => {
         >
           {mode === "update" ? "Save" : "Add to POS"}
         </Button>
-      </Modal.Footer>
+      </ModalFooter>
     </>
   );
 };

@@ -1,9 +1,9 @@
-import { jsPlumb } from 'jsplumb';
-import jquery from 'jquery';
-import RTG from 'react-transition-group';
-import React from 'react';
-import { AutomationConstants } from '../../types';
-import { IAction } from '@erxes/ui-automations/src/types';
+import { jsPlumb } from "jsplumb";
+import jquery from "jquery";
+import RTG from "react-transition-group";
+import React from "react";
+import { AutomationConstants } from "../../types";
+import { IAction } from "@erxes/ui-automations/src/types";
 import {
   ActionBarButtonsWrapper,
   AutomationFormContainer,
@@ -14,13 +14,13 @@ import {
   ToggleWrapper,
   ZoomActions,
   ZoomIcon,
-} from '../../styles';
-import { BackButton, BackIcon } from '@erxes/ui-automations/src/styles';
-import { ScrolledContent } from '@erxes/ui-automations/src/styles';
-import { Alert, __ } from 'coreui/utils';
-import { BarItems, HeightedWrapper } from '@erxes/ui/src/layout/styles';
-import { IAutomation, IAutomationNote, ITrigger } from '../../types';
-import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
+} from "../../styles";
+import { BackButton, BackIcon } from "@erxes/ui-automations/src/styles";
+import { ScrolledContent } from "@erxes/ui-automations/src/styles";
+import { Alert, __ } from "coreui/utils";
+import { BarItems, HeightedWrapper } from "@erxes/ui/src/layout/styles";
+import { IAutomation, IAutomationNote, ITrigger } from "../../types";
+import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
 import {
   connection,
   connectorHoverStyle,
@@ -34,26 +34,26 @@ import {
   sourceEndpoint,
   targetEndpoint,
   yesEndPoint,
-} from '../../utils';
+} from "../../utils";
 
-import TemplateForm from '../../containers/forms/TemplateForm';
-import ActionDetailForm from './actions/ActionDetailForm';
-import ActionsForm from '../../containers/forms/actions/ActionsForm';
-import Button from '@erxes/ui/src/components/Button';
-import Confirmation from '../../containers/forms/Confirmation';
-import { FlexContent } from '@erxes/ui-log/src/activityLogs/styles';
-import Form from '@erxes/ui/src/components/form/Form';
-import { FormControl } from '@erxes/ui/src/components/form';
-import Histories from '../../components/histories/Wrapper';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
-import Modal from 'react-bootstrap/Modal';
-import NoteFormContainer from '../../containers/forms/NoteForm';
-import PageContent from '@erxes/ui/src/layout/components/PageContent';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import TriggerDetailForm from './triggers/TriggerDetailForm';
-import TriggerForm from '../../containers/forms/triggers/TriggerForm';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import TemplateForm from "../../containers/forms/TemplateForm";
+import ActionDetailForm from "./actions/ActionDetailForm";
+import ActionsForm from "../../containers/forms/actions/ActionsForm";
+import Button from "@erxes/ui/src/components/Button";
+import Confirmation from "../../containers/forms/Confirmation";
+import { FlexContent } from "@erxes/ui-log/src/activityLogs/styles";
+import Form from "@erxes/ui/src/components/form/Form";
+import { FormControl } from "@erxes/ui/src/components/form";
+import Histories from "../../components/histories/Wrapper";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Link } from "react-router-dom";
+import Dialog from "@erxes/ui/src/components/Dialog";
+import NoteFormContainer from "../../containers/forms/NoteForm";
+import PageContent from "@erxes/ui/src/layout/components/PageContent";
+import Toggle from "@erxes/ui/src/components/Toggle";
+import TriggerDetailForm from "./triggers/TriggerDetailForm";
+import TriggerForm from "../../containers/forms/triggers/TriggerForm";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { Transition } from "@headlessui/react";
 
 const plumb: any = jsPlumb;
@@ -108,10 +108,10 @@ class AutomationForm extends React.Component<Props, State> {
       actions: JSON.parse(JSON.stringify(automation.actions || [])),
       triggers: JSON.parse(JSON.stringify(automation.triggers || [])),
       activeTrigger: {} as ITrigger,
-      activeId: '',
-      currentTab: 'triggers',
+      activeId: "",
+      currentTab: "triggers",
       isActionTab: true,
-      isActive: automation.status === 'active',
+      isActive: automation.status === "active",
       showNoteForm: false,
       showTemplateForm: false,
       showTrigger: false,
@@ -133,7 +133,7 @@ class AutomationForm extends React.Component<Props, State> {
   componentDidMount() {
     this.connectInstance();
 
-    document.addEventListener('click', this.handleClickOutside, true);
+    document.addEventListener("click", this.handleClickOutside, true);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -148,15 +148,15 @@ class AutomationForm extends React.Component<Props, State> {
       instanceZoom = instanceZoom || jsPlumb;
       el = el || instanceZoom.getContainer();
 
-      const p = ['webkit', 'moz', 'ms', 'o'];
-      const s = 'scale(' + zoom + ')';
+      const p = ["webkit", "moz", "ms", "o"];
+      const s = "scale(" + zoom + ")";
       const oString =
-        transformOrigin[0] * 100 + '% ' + transformOrigin[1] * 100 + '%';
+        transformOrigin[0] * 100 + "% " + transformOrigin[1] * 100 + "%";
 
       // tslint:disable-next-line:prefer-for-of
       for (let i = 0; i < p.length; i++) {
-        el.style[p[i] + 'Transform'] = s;
-        el.style[p[i] + 'TransformOrigin'] = oString;
+        el.style[p[i] + "Transform"] = s;
+        el.style[p[i] + "TransformOrigin"] = oString;
       }
 
       el.style.transform = s;
@@ -174,36 +174,36 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   componentWillUnmount() {
-    document.removeEventListener('click', this.handleClickOutside, true);
+    document.removeEventListener("click", this.handleClickOutside, true);
   }
 
   connectInstance = () => {
     instance = plumb.getInstance({
-      DragOptions: { cursor: 'pointer', zIndex: 2000 },
+      DragOptions: { cursor: "pointer", zIndex: 2000 },
       PaintStyle: connectorPaintStyle,
       HoverPaintStyle: connectorHoverStyle,
       EndpointStyle: { radius: 10 },
       EndpointHoverStyle: hoverPaintStyle,
-      Container: 'canvas',
+      Container: "canvas",
     });
 
     const { triggers, actions } = this.state;
 
-    instance.bind('ready', () => {
-      instance.bind('connection', (info) => {
+    instance.bind("ready", () => {
+      instance.bind("connection", (info) => {
         this.onConnection(info);
       });
 
-      instance.bind('connectionDetached', (info) => {
+      instance.bind("connectionDetached", (info) => {
         this.onDettachConnection(info);
       });
 
       for (const action of actions) {
-        this.renderControl('action', action, this.onClickAction);
+        this.renderControl("action", action, this.onClickAction);
       }
 
       for (const trigger of triggers) {
-        this.renderControl('trigger', trigger, this.onClickTrigger);
+        this.renderControl("trigger", trigger, this.onClickTrigger);
       }
 
       // create connections ===================
@@ -214,31 +214,31 @@ class AutomationForm extends React.Component<Props, State> {
     });
 
     // hover action control ===================
-    jquery('#canvas .control').hover((event) => {
+    jquery("#canvas .control").hover((event) => {
       event.preventDefault();
 
-      jquery(`div#${event.currentTarget.id}`).toggleClass('show-action-menu');
+      jquery(`div#${event.currentTarget.id}`).toggleClass("show-action-menu");
 
       this.setState({ activeId: event.currentTarget.id });
     });
 
     // delete control ===================
-    jquery('#canvas').on('click', '.delete-control', (event) => {
+    jquery("#canvas").on("click", ".delete-control", (event) => {
       event.preventDefault();
 
       const item = event.currentTarget.id;
-      const splitItem = item.split('-');
+      const splitItem = item.split("-");
       const type = splitItem[0];
 
       instance.remove(item);
 
-      if (type === 'action') {
+      if (type === "action") {
         return this.setState({
           actions: actions.filter((action) => action.id !== splitItem[1]),
         });
       }
 
-      if (type === 'trigger') {
+      if (type === "trigger") {
         return this.setState({
           triggers: triggers.filter((trigger) => trigger.id !== splitItem[1]),
         });
@@ -246,7 +246,7 @@ class AutomationForm extends React.Component<Props, State> {
     });
 
     // add note ===================
-    jquery('#canvas').on('click', '.add-note', (event) => {
+    jquery("#canvas").on("click", ".add-note", (event) => {
       event.preventDefault();
 
       this.handleNoteModal();
@@ -257,15 +257,15 @@ class AutomationForm extends React.Component<Props, State> {
     const { name, isActive, triggers, actions } = this.state;
     const { automation, save } = this.props;
 
-    if (!name || name === 'Your automation title') {
-      return Alert.error('Enter an Automation title');
+    if (!name || name === "Your automation title") {
+      return Alert.error("Enter an Automation title");
     }
 
     const generateValues = () => {
       const finalValues = {
         _id: automation._id,
         name,
-        status: isActive ? 'active' : 'draft',
+        status: isActive ? "active" : "draft",
         triggers: triggers.map((t) => ({
           id: t.id,
           type: t.type,
@@ -274,7 +274,7 @@ class AutomationForm extends React.Component<Props, State> {
           label: t.label,
           description: t.description,
           actionId: t.actionId,
-          style: jquery(`#trigger-${t.id}`).attr('style'),
+          style: jquery(`#trigger-${t.id}`).attr("style"),
         })),
         actions: actions.map((a) => ({
           id: a.id,
@@ -284,7 +284,7 @@ class AutomationForm extends React.Component<Props, State> {
           icon: a.icon,
           label: a.label,
           description: a.description,
-          style: jquery(`#action-${a.id}`).attr('style'),
+          style: jquery(`#action-${a.id}`).attr("style"),
         })),
       };
 
@@ -306,7 +306,7 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   switchActionbarTab = (type) => {
-    this.setState({ isActionTab: type === 'action' ? true : false });
+    this.setState({ isActionTab: type === "action" ? true : false });
   };
 
   onToggle = (e) => {
@@ -317,7 +317,7 @@ class AutomationForm extends React.Component<Props, State> {
     const { save, automation } = this.props;
 
     if (automation) {
-      save({ _id: automation._id, status: isActive ? 'active' : 'draft' });
+      save({ _id: automation._id, status: isActive ? "active" : "draft" });
     }
   };
 
@@ -333,7 +333,7 @@ class AutomationForm extends React.Component<Props, State> {
 
     if (inRange) {
       this.setState({ zoom: zoom + step });
-      this.setZoom(zoom, jsPlumb, null, jquery('#canvas')[0]);
+      this.setZoom(zoom, jsPlumb, null, jquery("#canvas")[0]);
 
       if (isZoomable) {
         this.setState({ zoom: zoom + step });
@@ -350,14 +350,14 @@ class AutomationForm extends React.Component<Props, State> {
       const max = zoom <= 1;
       const min = zoom >= 0.399;
 
-      if (type === 'zoomIn') {
+      if (type === "zoomIn") {
         step = +zoomStep;
 
         this.doZoom(step, max);
         this.setState({ percentage: max ? percentage + 10 : 100 });
       }
 
-      if (type === 'zoomOut') {
+      if (type === "zoomOut") {
         this.doZoom(step, min);
         this.setState({ percentage: min ? percentage - 10 : 0 });
       }
@@ -372,7 +372,7 @@ class AutomationForm extends React.Component<Props, State> {
       showTrigger: true,
       showDrawer: true,
       showAction: false,
-      currentTab: 'triggers',
+      currentTab: "triggers",
       selectedContentId,
       activeTrigger: trigger ? trigger : ({} as ITrigger),
     });
@@ -383,7 +383,7 @@ class AutomationForm extends React.Component<Props, State> {
       showAction: true,
       showDrawer: true,
       showTrigger: false,
-      currentTab: 'actions',
+      currentTab: "actions",
       activeAction: action ? action : ({} as IAction),
     });
   };
@@ -391,7 +391,7 @@ class AutomationForm extends React.Component<Props, State> {
   onConnection = (info) => {
     const { triggers, actions } = this.state;
 
-    connection(triggers, actions, info, info.targetId.replace('action-', ''));
+    connection(triggers, actions, info, info.targetId.replace("action-", ""));
 
     this.setState({ triggers, actions });
   };
@@ -406,7 +406,7 @@ class AutomationForm extends React.Component<Props, State> {
 
   handleClickOutside = (event) => {
     const isInModal = Array.from(event.path).some((element: any) => {
-      return element.classList && element.classList.contains('modal');
+      return element.classList && element.classList.contains("modal");
     });
 
     if (
@@ -422,8 +422,8 @@ class AutomationForm extends React.Component<Props, State> {
   toggleDrawer = (type: string) => {
     const { showDrawer, triggers } = this.state;
 
-    if (type === 'actions' && triggers.length === 0) {
-      return Alert.warning('Please add a Trigger first!');
+    if (type === "actions" && triggers.length === 0) {
+      return Alert.warning("Please add a Trigger first!");
     }
 
     this.setState({ showDrawer: !showDrawer, currentTab: type });
@@ -462,7 +462,7 @@ class AutomationForm extends React.Component<Props, State> {
 
     this.setState({ triggers, activeTrigger: trigger }, () => {
       if (!triggerId) {
-        this.renderControl('trigger', trigger, this.onClickTrigger);
+        this.renderControl("trigger", trigger, this.onClickTrigger);
       }
     });
   };
@@ -492,7 +492,7 @@ class AutomationForm extends React.Component<Props, State> {
 
     this.setState({ actions, activeAction: action }, () => {
       if (!actionId) {
-        this.renderControl('action', action, this.onClickAction);
+        this.renderControl("action", action, this.onClickAction);
       }
     });
   };
@@ -509,15 +509,15 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   checkNote = (activeId: string) => {
-    const item = activeId.split('-');
+    const item = activeId.split("-");
     const type = item[0];
 
     return (this.state.automationNotes || []).filter((note) => {
-      if (type === 'trigger' && note.triggerId !== item[1]) {
+      if (type === "trigger" && note.triggerId !== item[1]) {
         return null;
       }
 
-      if (type === 'action' && note.actionId !== item[1]) {
+      if (type === "action" && note.actionId !== item[1]) {
         return null;
       }
 
@@ -534,7 +534,7 @@ class AutomationForm extends React.Component<Props, State> {
 
     return `
       <div class="note-badge note-badge-${key}" title=${__(
-        'Notes',
+        "Notes"
       )} id="${key}">
         <i class="icon-notes"></i>
       </div>
@@ -550,20 +550,20 @@ class AutomationForm extends React.Component<Props, State> {
       return `(${item.count})`;
     }
 
-    return '';
+    return "";
   }
 
   renderControl = (key: string, item: ITrigger | IAction, onClick: any) => {
     const idElm = `${key}-${item.id}`;
 
-    jquery('#canvas').append(`
+    jquery("#canvas").append(`
       <div class="${key} control" id="${idElm}" style="${item.style}">
         <div class="trigger-header">
           <div class='custom-menu'>
             <div>
-              <i class="icon-notes add-note" title=${__('Write Note')}></i>
+              <i class="icon-notes add-note" title=${__("Write Note")}></i>
               <i class="icon-trash-alt delete-control" id="${idElm}" title=${__(
-                'Delete control',
+                "Delete control"
               )}></i>
             </div>
           </div>
@@ -578,55 +578,55 @@ class AutomationForm extends React.Component<Props, State> {
       </div>
     `);
 
-    jquery('#canvas').on('dblclick', `#${idElm}`, (event) => {
+    jquery("#canvas").on("dblclick", `#${idElm}`, (event) => {
       event.preventDefault();
 
       onClick(item);
     });
 
-    jquery('#canvas').on('click', `.note-badge-${idElm}`, (event) => {
+    jquery("#canvas").on("click", `.note-badge-${idElm}`, (event) => {
       event.preventDefault();
 
       this.onClickNote(event.currentTarget.id);
     });
 
-    if (key === 'trigger') {
+    if (key === "trigger") {
       instance.addEndpoint(idElm, sourceEndpoint, {
         anchor: [1, 0.5],
       });
 
       if (instance.getSelector(`#${idElm}`).length > 0) {
         instance.draggable(instance.getSelector(`#${idElm}`), {
-          cursor: 'move',
+          cursor: "move",
           stop(params) {
-            item.style = jquery(`#${idElm}`).attr('style');
+            item.style = jquery(`#${idElm}`).attr("style");
           },
         });
       }
     }
 
-    if (key === 'action') {
-      if (item.type === 'if') {
+    if (key === "action") {
+      if (item.type === "if") {
         instance.addEndpoint(idElm, targetEndpoint, {
-          anchor: ['Left'],
+          anchor: ["Left"],
         });
 
         instance.addEndpoint(idElm, yesEndPoint);
         instance.addEndpoint(idElm, noEndPoint);
       } else {
         instance.addEndpoint(idElm, targetEndpoint, {
-          anchor: ['Left'],
+          anchor: ["Left"],
         });
 
         instance.addEndpoint(idElm, sourceEndpoint, {
-          anchor: ['Right'],
+          anchor: ["Right"],
         });
       }
 
       instance.draggable(instance.getSelector(`#${idElm}`), {
-        cursor: 'move',
+        cursor: "move",
         stop(params) {
-          item.style = jquery(`#${idElm}`).attr('style');
+          item.style = jquery(`#${idElm}`).attr("style");
         },
       });
     }
@@ -643,7 +643,7 @@ class AutomationForm extends React.Component<Props, State> {
           btnStyle="primary"
           size="small"
           icon="plus-circle"
-          onClick={this.toggleDrawer.bind(this, 'triggers')}
+          onClick={this.toggleDrawer.bind(this, "triggers")}
         >
           Add a Trigger
         </Button>
@@ -651,7 +651,7 @@ class AutomationForm extends React.Component<Props, State> {
           btnStyle="primary"
           size="small"
           icon="plus-circle"
-          onClick={this.toggleDrawer.bind(this, 'actions')}
+          onClick={this.toggleDrawer.bind(this, "actions")}
         >
           Add an Action
         </Button>
@@ -665,9 +665,9 @@ class AutomationForm extends React.Component<Props, State> {
     return (
       <BarItems>
         <ToggleWrapper>
-          <span className={isActive ? 'active' : ''}>{__('Inactive')}</span>
+          <span className={isActive ? "active" : ""}>{__("Inactive")}</span>
           <Toggle defaultChecked={isActive} onChange={this.onToggle} />
-          <span className={!isActive ? 'active' : ''}>{__('Active')}</span>
+          <span className={!isActive ? "active" : ""}>{__("Active")}</span>
         </ToggleWrapper>
         <ActionBarButtonsWrapper>
           {this.renderButtons()}
@@ -675,7 +675,7 @@ class AutomationForm extends React.Component<Props, State> {
             <Button
               btnStyle="primary"
               size="small"
-              icon={'check-circle'}
+              icon={"check-circle"}
               onClick={this.handleTemplateModal}
             >
               Save as a template
@@ -684,10 +684,10 @@ class AutomationForm extends React.Component<Props, State> {
           <Button
             btnStyle="success"
             size="small"
-            icon={'check-circle'}
+            icon={"check-circle"}
             onClick={this.handleSubmit}
           >
-            {__('Save')}
+            {__("Save")}
           </Button>
         </ActionBarButtonsWrapper>
       </BarItems>
@@ -717,16 +717,16 @@ class AutomationForm extends React.Component<Props, State> {
         <CenterBar>
           <Tabs full={true}>
             <TabTitle
-              className={isActionTab ? 'active' : ''}
-              onClick={this.switchActionbarTab.bind(this, 'action')}
+              className={isActionTab ? "active" : ""}
+              onClick={this.switchActionbarTab.bind(this, "action")}
             >
-              {__('Actions')}
+              {__("Actions")}
             </TabTitle>
             <TabTitle
-              className={isActionTab ? '' : 'active'}
-              onClick={this.switchActionbarTab.bind(this, 'history')}
+              className={isActionTab ? "" : "active"}
+              onClick={this.switchActionbarTab.bind(this, "history")}
             >
-              {__('Histories')}
+              {__("Histories")}
             </TabTitle>
           </Tabs>
         </CenterBar>
@@ -751,12 +751,12 @@ class AutomationForm extends React.Component<Props, State> {
     const onBack = () => this.setState({ showTrigger: false });
     const onBackAction = () => this.setState({ showAction: false });
 
-    if (currentTab === 'triggers') {
+    if (currentTab === "triggers") {
       if (showTrigger && activeTrigger) {
         return (
           <>
             <BackIcon onClick={onBack}>
-              <Icon icon="angle-left" size={20} /> {__('Back to triggers')}
+              <Icon icon="angle-left" size={20} /> {__("Back to triggers")}
             </BackIcon>
             <ScrolledContent>
               <TriggerDetailForm
@@ -778,14 +778,14 @@ class AutomationForm extends React.Component<Props, State> {
       );
     }
 
-    if (currentTab === 'actions') {
+    if (currentTab === "actions") {
       const { actions, triggers } = this.state;
 
       if (showAction && activeAction) {
         return (
           <>
             <BackIcon onClick={onBackAction}>
-              <Icon icon="angle-left" size={20} /> {__('Back to actions')}
+              <Icon icon="angle-left" size={20} /> {__("Back to actions")}
             </BackIcon>
             <ActionDetailForm
               activeAction={activeAction}
@@ -795,7 +795,7 @@ class AutomationForm extends React.Component<Props, State> {
               triggerConfig={getTriggerConfig(
                 actions,
                 triggers,
-                activeAction.id,
+                activeAction.id
               )}
               actionsConst={actionsConst}
               propertyTypesConst={propertyTypesConst}
@@ -821,17 +821,17 @@ class AutomationForm extends React.Component<Props, State> {
         <div className="icon-wrapper">
           <ZoomIcon
             disabled={this.state.zoom >= 1}
-            onMouseDown={this.onZoom.bind(this, 'zoomIn')}
+            onMouseDown={this.onZoom.bind(this, "zoomIn")}
             onMouseUp={() => this.setState({ isZoomable: false })}
           >
             <Icon icon="plus" />
           </ZoomIcon>
           <ZoomIcon
             disabled={this.state.zoom <= 0.399}
-            onMouseDown={this.onZoom.bind(this, 'zoomOut')}
+            onMouseDown={this.onZoom.bind(this, "zoomOut")}
             onMouseUp={() => this.setState({ isZoomable: false })}
           >
-            <Icon icon="minus" />{' '}
+            <Icon icon="minus" />{" "}
           </ZoomIcon>
         </div>
         <span>{`${this.state.percentage}%`}</span>
@@ -847,10 +847,10 @@ class AutomationForm extends React.Component<Props, State> {
         <Container>
           <div
             className="trigger scratch"
-            onClick={this.toggleDrawer.bind(this, 'triggers')}
+            onClick={this.toggleDrawer.bind(this, "triggers")}
           >
             <Icon icon="file-plus" size={25} />
-            <p>{__('How do you want to trigger this automation')}?</p>
+            <p>{__("How do you want to trigger this automation")}?</p>
           </div>
         </Container>
       );
@@ -920,27 +920,20 @@ class AutomationForm extends React.Component<Props, State> {
     const { automation } = this.props;
 
     return (
-      <Modal
-        enforceFocus={false}
-        show={showNoteForm}
-        onHide={this.handleNoteModal}
-        animation={false}
-      >
-        <Modal.Body>
-          <Form
-            renderContent={(formProps) => (
-              <NoteFormContainer
-                formProps={formProps}
-                automationId={automation ? automation._id : ''}
-                isEdit={editNoteForm}
-                itemId={activeId}
-                notes={this.checkNote(activeId) || []}
-                closeModal={this.handleNoteModal}
-              />
-            )}
-          />
-        </Modal.Body>
-      </Modal>
+      <Dialog show={showNoteForm} closeModal={this.handleNoteModal}>
+        <Form
+          renderContent={(formProps) => (
+            <NoteFormContainer
+              formProps={formProps}
+              automationId={automation ? automation._id : ""}
+              isEdit={editNoteForm}
+              itemId={activeId}
+              notes={this.checkNote(activeId) || []}
+              closeModal={this.handleNoteModal}
+            />
+          )}
+        />
+      </Dialog>
     );
   }
 
@@ -953,25 +946,18 @@ class AutomationForm extends React.Component<Props, State> {
     }
 
     return (
-      <Modal
-        enforceFocus={false}
-        show={showTemplateForm}
-        onHide={this.handleTemplateModal}
-        animation={false}
-      >
-        <Modal.Body>
-          <Form
-            renderContent={(formProps) => (
-              <TemplateForm
-                formProps={formProps}
-                closeModal={this.handleTemplateModal}
-                id={automation._id}
-                name={automation.name}
-              />
-            )}
-          />
-        </Modal.Body>
-      </Modal>
+      <Dialog show={showTemplateForm} closeModal={this.handleTemplateModal}>
+        <Form
+          renderContent={(formProps) => (
+            <TemplateForm
+              formProps={formProps}
+              closeModal={this.handleTemplateModal}
+              id={automation._id}
+              name={automation.name}
+            />
+          )}
+        />
+      </Dialog>
     );
   }
 
@@ -984,10 +970,10 @@ class AutomationForm extends React.Component<Props, State> {
         <HeightedWrapper>
           <AutomationFormContainer>
             <Wrapper.Header
-              title={`${(automation && automation.name) || 'Automation'}`}
+              title={`${(automation && automation.name) || "Automation"}`}
               breadcrumb={[
-                { title: __('Automations'), link: '/automations' },
-                { title: `${(automation && automation.name) || ''}` },
+                { title: __("Automations"), link: "/automations" },
+                { title: `${(automation && automation.name) || ""}` },
               ]}
             />
             <PageContent

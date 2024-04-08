@@ -7,7 +7,7 @@ import { usePopper } from "react-popper";
 type Props = {
   trigger: any;
   children: any;
-  style?: any;
+  style?: object;
   className?: string;
   closeAfterSelect?: boolean;
   ref?: any;
@@ -39,7 +39,7 @@ const Popover = (props: Props) => {
   });
 
   return (
-    <PopoverContainer style={{ position: "relative" }} ref={ref && ref}>
+    <PopoverContainer style={{ position: "relative", ...style }} ref={ref && ref}>
       {({ close }) => (
         <>
           <PopoverContainer.Button ref={setReferenceElement}>

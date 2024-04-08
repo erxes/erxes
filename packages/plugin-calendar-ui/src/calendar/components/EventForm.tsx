@@ -11,7 +11,7 @@ import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import { __ } from "@erxes/ui/src/utils/core";
 import React from "react";
 import Dropdown from "react-bootstrap/Dropdown";
-import Modal from "react-bootstrap/Modal";
+import Dialog from "@erxes/ui/src/components/Dialog";
 import { CalendarForm } from "../styles";
 import { IAccount, IEvent, INylasCalendar } from "../types";
 import { milliseconds } from "../utils";
@@ -102,16 +102,6 @@ class EditForm extends React.Component<FinalProps, State> {
   hideModal() {
     this.setState({ accountId: "" });
     this.props.onHideModal();
-  }
-
-  renderHeader() {
-    return (
-      <Modal.Header closeButton={true}>
-        <Modal.Title>
-          {__(`${this.props.event ? "Edit" : "Create"}  Event`)}
-        </Modal.Title>
-      </Modal.Header>
-    );
   }
 
   renderContent = (formProps: IFormProps) => {
@@ -235,17 +225,13 @@ class EditForm extends React.Component<FinalProps, State> {
     }
 
     return (
-      <Modal
-        enforceFocus={false}
+      <Dialog
         show={this.props.isPopupVisible}
-        onHide={this.hideModal}
-        animation={false}
+        closeModal={this.hideModal}
+        title={__(`${this.props.event ? "Edit" : "Create"}  Event`)}
       >
-        {this.renderHeader()}
-        <Modal.Body>
-          <Form renderContent={this.renderContent} />
-        </Modal.Body>
-      </Modal>
+        <Form renderContent={this.renderContent} />
+      </Dialog>
     );
   }
 }
