@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import useConfig from "@/modules/auth/hooks/useConfig"
-import { currentPaymentTypeAtom, kioskDialogOpenAtom } from "@/store"
+import { checkoutDialogOpenAtom, currentPaymentTypeAtom } from "@/store"
 import { useAtom, useSetAtom } from "jotai"
 
 import { BANK_CARD_TYPES } from "@/lib/constants"
@@ -65,7 +65,7 @@ const PaymentType = ({
   const [currentPaymentType, handleSetType] = useAtom(currentPaymentTypeAtom)
   const [shouldPay, setShouldPay] = useState(false)
 
-  const setOpen = useSetAtom(kioskDialogOpenAtom)
+  const setOpen = useSetAtom(checkoutDialogOpenAtom)
 
   useEffect(() => {
     if (currentPaymentType && shouldPay) {

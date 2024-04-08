@@ -62,6 +62,11 @@ const SelectPaymentType = () => {
               </PaymentType>
             ))}
           </RadioGroup>
+          {notPaidAmount === 0 && (
+            <Button className="w-full mt-2" onClick={() => setView("billType")}>
+              Баримт хэвлэх
+            </Button>
+          )}
         </div>
       )}
     </div>

@@ -12,18 +12,16 @@ const Checkout = () => {
   useHandleOrderId()
 
   return (
-    <>
-      <OrderDetail>
-        <div className="flex max-h-screen min-h-[600px] w-auto min-w-[880px] flex-auto items-stretch">
-          <Payment />
-          <div className="w-5/12 rounded-3xl bg-white p-5 text-black flex flex-col">
-            <Detail />
-            <EbarimtMain />
-          </div>
+    <OrderDetail>
+      <div className="flex max-h-screen min-h-[600px] w-auto min-w-[880px] flex-auto items-stretch">
+        <Payment />
+        <div className="w-5/12 rounded-3xl bg-white p-5 text-black flex flex-col">
+          <Detail />
+          <EbarimtMain />
         </div>
-      </OrderDetail>
+      </div>
       <PaymentSheet />
-    </>
+    </OrderDetail>
   )
 }
 
