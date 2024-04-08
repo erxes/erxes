@@ -591,12 +591,12 @@ a:hover {
 }
 
 .call-popover {
-  right: 15px;
+  right: 15px !important;
   left: auto !important;
   width: 360px;
-  max-width: 360px;
+  max-width: 360px !important;
   position: fixed !important;
-  bottom: 155px;
+  bottom: 155px !important;
   top: auto !important;
   transform: none !important;
   border-radius: 25px;
