@@ -30,7 +30,8 @@ import moment from "moment";
 const { Section } = Wrapper.Sidebar;
 
 type Props = {
-  history: any;
+  navigate: any;
+  location: any;
   queryParams: any;
 };
 
@@ -46,7 +47,7 @@ const fields = [
 ];
 
 const Sidebar = (props: Props) => {
-  const { queryParams, history } = props;
+  const { queryParams, navigate, location } = props;
 
   console.log(props);
 
@@ -56,14 +57,14 @@ const Sidebar = (props: Props) => {
     }
 
     // this.setState({ [name]: value });
-    router.setParams(history, { [name]: value });
-    router.setParams(history, { page: 1 });
+    router.setParams(navigate, location, { [name]: value });
+    router.setParams(navigate, location, { page: 1 });
   };
 
   const handleToggle = (value, name) => {
     value
-      ? router.removeParams(history, name)
-      : router.setParams(history, { [name]: !value });
+      ? router.removeParams(navigate, location, name)
+      : router.setParams(navigate, location, { [name]: !value });
   };
 
   const clearParams = (field) => {
@@ -90,7 +91,7 @@ const Sidebar = (props: Props) => {
   }) => {
     return (
       <CommonFormGroup>
-        <ContainerBox row spaceBetween>
+        <ContainerBox $row $spaceBetween>
           <ControlLabel>{label}</ControlLabel>
           {clearable && (
             <Button btnStyle="link" onClick={() => clearParams(field)}>
@@ -121,7 +122,7 @@ const Sidebar = (props: Props) => {
           {fields.some((field) => queryParams[field]) && extraButton}
         </Section.QuickButtons>
       </Section.Title>
-      <ContainerBox vertical column gap={5}>
+      <ContainerBox $vertical $column gap={5}>
         <FormGroup
           label="Branch"
           field="branchId"

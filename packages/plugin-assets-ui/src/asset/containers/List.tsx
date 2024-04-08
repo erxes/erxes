@@ -1,27 +1,23 @@
-import React from "react";
-import { Alert, Bulk, Spinner } from "@erxes/ui/src";
-import { withProps } from "@erxes/ui/src/utils/core";
-import { graphql } from "@apollo/client/react/hoc";
-import { generatePaginationParams } from "@erxes/ui/src/utils/router";
-import { generateParamsIds, getRefetchQueries } from "../../common/utils";
-import * as compose from "lodash.flowright";
-import { queries, mutations } from "../graphql";
-
-import { gql, useQuery, useMutation } from "@apollo/client";
+import { Alert, Bulk } from "@erxes/ui/src";
 import {
-  AssetRemoveMutationResponse,
   IAssetCategoryDetailQueryResponse,
   IAssetDetailQueryResponse,
   IAssetQueryResponse,
   IAssetTotalCountQueryResponse,
-  MergeMutationResponse,
 } from "../../common/types";
+import { generateParamsIds, getRefetchQueries } from "../../common/utils";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { mutations, queries } from "../graphql";
+
 import List from "../components/List";
+import React from "react";
+import { generatePaginationParams } from "@erxes/ui/src/utils/router";
 import { useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
 };
+
 const ListContainer = (props: Props) => {
   const { queryParams } = props;
   const navigate = useNavigate();

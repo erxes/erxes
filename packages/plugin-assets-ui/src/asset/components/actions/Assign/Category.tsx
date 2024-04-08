@@ -1,10 +1,11 @@
-import { __ } from "@erxes/ui/src/utils";
-import React from "react";
-import { IAsset } from "../../../../common/types";
-import { KbArticlesContainer, KbCategories } from "../../../../style";
 import { ControlLabel, EmptyState, FormControl } from "@erxes/ui/src";
-import { ContainerBox } from "../../../../style";
+import { KbArticlesContainer, KbCategories } from "../../../../style";
+
 import Article from "./Article";
+import { ContainerBox } from "../../../../style";
+import { IAsset } from "../../../../common/types";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   objects?: IAsset[];
@@ -88,7 +89,7 @@ const Category = (props: Props) => {
   return (
     <>
       <KbCategories onClick={() => handleCategorySelect()}>
-        <ContainerBox spaceBetween={true} align="center">
+        <ContainerBox $spaceBetween={true} align="center">
           <ContainerBox gap={5} align="center">
             <FormControl
               componentclass="checkbox"

@@ -1,24 +1,24 @@
 import {
   IRichTextEditorControlBaseProps,
   RichTextEditorControlBase,
-} from './RichTextEditorControl';
-import React, { ReactNode } from 'react';
+} from "./RichTextEditorControl";
+import React, { ReactNode } from "react";
 import {
   RichTextEditorMenuPopoverWrapper,
   RichTextEditorMenuWrapper,
-} from './styles';
+} from "./styles";
 
-import Icon from '../../Icon';
-import { Popover } from '@headlessui/react';
-import { useRichTextEditorContext } from '../RichTextEditor.context';
+import Icon from "../../Icon";
+import { Popover } from "@headlessui/react";
+import { useRichTextEditorContext } from "../RichTextEditor.context";
 
 export interface IRichTextEditorMoreControlProps
   extends React.HTMLAttributes<HTMLDivElement> {
-  toolbarPlacement?: 'top' | 'bottom';
+  toolbarPlacement?: "top" | "bottom";
   children: ReactNode;
 }
 
-const MoreIcon: IRichTextEditorControlBaseProps['icon'] = () => (
+const MoreIcon: IRichTextEditorControlBaseProps["icon"] = () => (
   <Icon icon="ellipsis-v" />
 );
 

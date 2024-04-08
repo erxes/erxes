@@ -7,7 +7,6 @@ import {
   PHONE_VALIDATION_STATUSES,
 } from "@erxes/ui-contacts/src/customers/constants";
 import React, { useEffect, useState } from "react";
-// import { withRouter } from 'react-router-dom';
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { BarItems } from "@erxes/ui/src/layout/styles";
@@ -204,7 +203,7 @@ const CustomersList: React.FC<IProps> = (props) => {
                 key={customer._id}
                 isChecked={bulk.includes(customer)}
                 toggleBulk={toggleBulk}
-                history={navigate}
+                navigate={navigate}
               />
             ))}
           </tbody>
@@ -325,7 +324,7 @@ const CustomersList: React.FC<IProps> = (props) => {
         {...props}
         contentType={`contacts:${type}`}
         location={location}
-        history={navigate}
+        navigate={navigate}
       />
     );
   };
@@ -352,6 +351,14 @@ const CustomersList: React.FC<IProps> = (props) => {
     );
   };
 
+  const MenuButton = React.forwardRef(function (props, ref) {
+    return (
+      <Button btnStyle="simple" size="small">
+        {__("Customize ")} <Icon icon="angle-down" />
+      </Button>
+    );
+  });
+
   const actionBarRight = (
     <BarItems>
       <FormControl
@@ -372,11 +379,7 @@ const CustomersList: React.FC<IProps> = (props) => {
       )}
 
       <Menu as="div" className="relative">
-        <Menu.Button>
-          <Button btnStyle="simple" size="small">
-            {__("Customize ")} <Icon icon="angle-down" />
-          </Button>
-        </Menu.Button>
+        <Menu.Button as={MenuButton} />
         <Menu.Items className="absolute">
           <Menu.Item>
             <ModalTrigger

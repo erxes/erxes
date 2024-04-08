@@ -1,9 +1,9 @@
-import { __ } from "@erxes/ui/src/utils";
-import React from "react";
+import { ContainerBox } from "../../../../style";
+import { FormControl } from "@erxes/ui/src";
 import { IAsset } from "../../../../common/types";
 import { KbArticles } from "../../../../style";
-import { FormControl } from "@erxes/ui/src";
-import { ContainerBox } from "../../../../style";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   objects?: IAsset[];
@@ -36,7 +36,7 @@ const Article = (props: Props) => {
 
   return (
     <KbArticles key={article._id}>
-      <ContainerBox spaceBetween={true} align="center">
+      <ContainerBox $spaceBetween={true} align="center">
         <ContainerBox gap={5}>
           <FormControl
             componentclass="checkbox"

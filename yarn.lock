@@ -4720,31 +4720,6 @@
     "@tiptap/extension-bubble-menu" "^2.2.4"
     "@tiptap/extension-floating-menu" "^2.2.4"
 
-"@tiptap/starter-kit@^2.2.4":
-  version "2.2.4"
-  resolved "https://registry.yarnpkg.com/@tiptap/starter-kit/-/starter-kit-2.2.4.tgz#7d9c35fc423bb0bb6a9b2e660c41a080d8caa7e7"
-  integrity sha512-Kbk7qUfIZg3+bNa3e/wBeDQt4jJB46uQgM+xy5NSY6H8NZP6gdmmap3aIrn9S/W/hGpxJl4RcXAeaT0CQji9XA==
-  dependencies:
-    "@tiptap/core" "^2.2.4"
-    "@tiptap/extension-blockquote" "^2.2.4"
-    "@tiptap/extension-bold" "^2.2.4"
-    "@tiptap/extension-bullet-list" "^2.2.4"
-    "@tiptap/extension-code" "^2.2.4"
-    "@tiptap/extension-code-block" "^2.2.4"
-    "@tiptap/extension-document" "^2.2.4"
-    "@tiptap/extension-dropcursor" "^2.2.4"
-    "@tiptap/extension-gapcursor" "^2.2.4"
-    "@tiptap/extension-hard-break" "^2.2.4"
-    "@tiptap/extension-heading" "^2.2.4"
-    "@tiptap/extension-history" "^2.2.4"
-    "@tiptap/extension-horizontal-rule" "^2.2.4"
-    "@tiptap/extension-italic" "^2.2.4"
-    "@tiptap/extension-list-item" "^2.2.4"
-    "@tiptap/extension-ordered-list" "^2.2.4"
-    "@tiptap/extension-paragraph" "^2.2.4"
-    "@tiptap/extension-strike" "^2.2.4"
-    "@tiptap/extension-text" "^2.2.4"
-
 "@tiptap/suggestion@^2.2.4":
   version "2.2.4"
   resolved "https://registry.yarnpkg.com/@tiptap/suggestion/-/suggestion-2.2.4.tgz#746e4659fb4be2f49ad43ee5aa9801cc8154889c"
@@ -8338,6 +8313,21 @@ cjs-module-lexer@^1.2.2:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/cjs-module-lexer/-/cjs-module-lexer-1.2.3.tgz#6c370ab19f8a3394e318fe682686ec0ac684d107"
   integrity sha512-0TNiGstbQmCFwt4akjjBg5pLRTSyj/PkWQ1ZoO2zntmg9yLqSRxwEa4iCfQLGjqhiqBfOJa7W/E8wfGrTDmlZQ==
+
+ckeditor4-integrations-common@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/ckeditor4-integrations-common/-/ckeditor4-integrations-common-0.2.0.tgz#994a83f94e14161fa8ee15e7f0edc8735b12d8f8"
+  integrity sha512-KkHztF0bkGOnTcifWFd55j5Y9SCR3uk12SGgS6L1mZNnBeIJFCcgTwZWEHtG2aDJF7aZob7cex1CShL+SrNuow==
+  dependencies:
+    load-script "^1.0.0"
+
+ckeditor4-react@^1.0.0:
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/ckeditor4-react/-/ckeditor4-react-1.4.2.tgz#6fc9b350c2f0541fd7acf3b102450039f57d91d5"
+  integrity sha512-4H5ZRCLBWoAaOVN+u+3bMXGOaq0n+FlYvHiH7F4FAIbxDXPSyDweQiTdMS74au/neOJffGY8mLtqf2nIP9wr7g==
+  dependencies:
+    ckeditor4-integrations-common "^0.2.0"
+    prop-types "^15.6.2"
 
 class-utils@^0.3.5:
   version "0.3.6"
@@ -15070,6 +15060,11 @@ load-json-file@^1.0.0:
     pify "^2.0.0"
     pinkie-promise "^2.0.0"
     strip-bom "^2.0.0"
+
+load-script@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/load-script/-/load-script-1.0.0.tgz#0491939e0bee5643ee494a7e3da3d2bac70c6ca4"
+  integrity sha512-kPEjMFtZvwL9TaZo0uZ2ml+Ye9HUMmPwbYRJ324qF9tqMejwykJ5ggTyvzmrbBeapCAbk98BSbTeovHEEP1uCA==
 
 loader-runner@^4.2.0:
   version "4.3.0"

@@ -1,24 +1,25 @@
 import {
-  ContentColumn,
   ItemRow as CommonItemRow,
+  ContentColumn,
   ItemText,
 } from "@erxes/ui-cards/src/deals/styles";
-import { FormControl, Icon, TextInfo, __ } from "@erxes/ui/src";
-import client from "@erxes/ui/src/apolloClient";
-import { Flex } from "@erxes/ui/src/styles/main";
-import { renderFullName } from "@erxes/ui/src/utils/core";
-import { gql } from "@apollo/client";
-import React from "react";
-import { Link } from "react-router-dom";
-import { IMovementItem } from "../../../common/types";
-import { SelectWithAssets } from "../../../common/utils";
 import {
   ContainerBox,
   MovementItemConfigContainer,
   MovementItemInfoContainer,
   RemoveRow,
 } from "../../../style";
+import { FormControl, Icon, TextInfo, __ } from "@erxes/ui/src";
+
+import { Flex } from "@erxes/ui/src/styles/main";
+import { IMovementItem } from "../../../common/types";
+import { Link } from "react-router-dom";
+import React from "react";
+import { SelectWithAssets } from "../../../common/utils";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
 import { queries as itemQueries } from "../../assets/graphql";
+import { renderFullName } from "@erxes/ui/src/utils/core";
 
 type Props = {
   item: IMovementItem;
@@ -154,7 +155,7 @@ const MovementItem = (props: Props) => {
           />
         </td>
         <td>
-          <ContainerBox row>{__(assetDetail?.name || "-")}</ContainerBox>
+          <ContainerBox $row>{__(assetDetail?.name || "-")}</ContainerBox>
         </td>
         <td>{__(branch?.title || "-")}</td>
         <td>{__(department?.title || "-")}</td>
@@ -221,7 +222,7 @@ const MovementItem = (props: Props) => {
                   </ItemRow>
                 </MovementItemInfoContainer>
                 <MovementItemConfigContainer>
-                  <ContainerBox column>{children}</ContainerBox>
+                  <ContainerBox $column>{children}</ContainerBox>
                 </MovementItemConfigContainer>
               </Flex>
             </>

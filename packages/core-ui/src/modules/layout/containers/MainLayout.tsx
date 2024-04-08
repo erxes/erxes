@@ -1,13 +1,9 @@
-import * as compose from 'lodash.flowright';
+import { AppConsumer, AppProvider } from "appContext";
+import { gql, useQuery } from "@apollo/client";
 
-import { AppConsumer, AppProvider } from 'appContext';
-
-import { IUser } from 'modules/auth/types';
-import MainLayout from '../components/MainLayout';
-import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { withProps } from '@erxes/ui/src/utils/core';
+import { IUser } from "modules/auth/types";
+import MainLayout from "../components/MainLayout";
+import React from "react";
 
 type Props = {
   currentUser?: IUser;
@@ -15,18 +11,23 @@ type Props = {
   children: React.ReactNode;
 };
 
-type FinalProps = {
-  enabledServicesQuery: any;
-} & Props;
+const GET_ENABLED_SERVICES = gql`
+  query enabledServices {
+    enabledServices
+  }
+`;
 
-const MainLayoutContainer = (props: FinalProps) => {
-  const { currentUser, plugins, enabledServicesQuery } = props;
+const MainLayoutContainer = (props: Props) => {
+  const { currentUser, plugins } = props;
 
-  if (enabledServicesQuery.loading) {
+  const { loading, data } = useQuery(GET_ENABLED_SERVICES);
+
+  if (loading) {
     return null;
   }
 
-  const enabledServices = enabledServicesQuery.enabledServices || {};
+  const enabledServices = data?.enabledServices || {};
+
   return (
     <AppProvider currentUser={currentUser} plugins={plugins}>
       <AppConsumer>
@@ -45,15 +46,4 @@ const MainLayoutContainer = (props: FinalProps) => {
   );
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, {}, {}>(
-      gql(`query enabledServices {
-          enabledServices
-        }`),
-      {
-        name: 'enabledServicesQuery',
-      },
-    ),
-  )<FinalProps>(MainLayoutContainer),
-);
+export default MainLayoutContainer;

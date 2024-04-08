@@ -6,6 +6,7 @@ import {
 import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src';
 import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
+import { getContentTypes } from '../../../utils';
 
 const tagQueries = {
   /**
@@ -88,7 +89,14 @@ const tagQueries = {
     const selector: any = { ...commonQuerySelector };
 
     if (type) {
-      selector.type = type;
+      const [serviceName, contentType] = type.split(":")
+
+      if (contentType === "all") {
+        const contentTypes: Array<string> = await getContentTypes(serviceName);
+        selector.type = { $in: contentTypes };
+      } else {
+        selector.type = type;
+      }
     }
 
     if (searchValue) {

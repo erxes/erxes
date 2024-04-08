@@ -1,36 +1,38 @@
 import {
   BarItems,
   Button,
+  DataWithLoader,
   FormControl,
+  Icon,
   ModalTrigger,
-  router,
+  Pagination,
   Table,
   Tip,
-  __,
   Wrapper,
-  DataWithLoader,
-  Pagination,
-  Icon,
+  __,
+  router,
 } from "@erxes/ui/src";
-import React, { useRef, useState } from "react";
-import { menuMovements } from "../../../common/constant";
-import { IMovementType } from "../../../common/types";
-import { ContainerBox } from "../../../style";
-import Form from "../containers/Form";
-import Sidebar from "./Sidebar";
-import Row from "./Row";
 import {
-  InputBar,
-  Title,
   FlexItem,
   FlexRow,
+  InputBar,
+  Title,
 } from "@erxes/ui-settings/src/styles";
+import React, { useRef, useState } from "react";
+
+import { ContainerBox } from "../../../style";
+import Form from "../containers/Form";
+import { IMovementType } from "../../../common/types";
+import Row from "./Row";
+import Sidebar from "./Sidebar";
+import { menuMovements } from "../../../common/constant";
 
 type Props = {
   movements: IMovementType[];
   totalCount: number;
   loading: boolean;
-  history: any;
+  navigate: any;
+  location: any;
   queryParams: any;
   isAllSelected: boolean;
   remove: (ids: string[]) => void;
@@ -42,7 +44,8 @@ const List = (props: Props) => {
   const {
     movements,
     totalCount,
-    history,
+    navigate,
+    location,
     queryParams,
     loading,
     remove,
@@ -66,8 +69,8 @@ const List = (props: Props) => {
     setSearchValue(value);
 
     timerRef.current = window.setTimeout(() => {
-      router.removeParams(history, "page");
-      router.setParams(history, { searchValue: value });
+      router.removeParams(navigate, location, "page");
+      router.setParams(navigate, location, { searchValue: value });
     }, 500);
   };
 
@@ -202,7 +205,7 @@ const List = (props: Props) => {
     const rightActionBar = <BarItems>{renderRightActionBar()}</BarItems>;
 
     const leftActionBar = (
-      <ContainerBox row>
+      <ContainerBox $row>
         <Title>{"All Movements"}</Title>
       </ContainerBox>
     );
@@ -229,7 +232,13 @@ const List = (props: Props) => {
         />
       }
       hasBorder={true}
-      leftSidebar={<Sidebar history={history} queryParams={queryParams} />}
+      leftSidebar={
+        <Sidebar
+          navigate={navigate}
+          location={location}
+          queryParams={queryParams}
+        />
+      }
       footer={<Pagination count={totalCount} />}
     />
   );

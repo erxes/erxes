@@ -577,6 +577,13 @@ const clientPortalUserMutations = {
       ...args,
     });
 
+    if (args.erxesCompanyId) {
+      await models.Companies.createOrUpdateCompany({
+        erxesCompanyId: args.erxesCompanyId,
+        clientPortalId: args.clientPortalId,
+      });
+    }
+
     return user;
   },
 

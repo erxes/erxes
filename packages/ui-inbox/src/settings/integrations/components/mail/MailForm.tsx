@@ -838,7 +838,6 @@ class MailForm extends React.Component<Props, State> {
           toolbarLocation="bottom"
           content={this.state.content}
           onChange={this.onEditorChange}
-          autoGrow={true}
           toolbar={[
             "bold",
             "italic",
@@ -870,8 +869,7 @@ class MailForm extends React.Component<Props, State> {
               isMoreControl: true,
             },
           ]}
-          autoGrowMinHeight={300}
-          autoGrowMaxHeight={300}
+          height={300}
         />
       </MailEditorWrapper>
     );

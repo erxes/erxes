@@ -1,8 +1,9 @@
-import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import { Route, Routes, useNavigate } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
+
 import React from "react";
-import { Route, Routes } from "react-router-dom";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 import queryString from "query-string";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 const AssetList = asyncComponent(
   () =>
@@ -33,11 +34,7 @@ const AssetDetail = asyncComponent(
 const Assets = () => {
   const location = useLocation();
 
-  return (
-    <AssetList
-      queryParams={queryString.parse(location.search)}
-    />
-  );
+  return <AssetList queryParams={queryString.parse(location.search)} />;
 };
 
 const Detail = () => {
@@ -45,27 +42,32 @@ const Detail = () => {
   const { id } = useParams();
 
   return (
-    <AssetDetail
-      queryParams={queryString.parse(location.search)}
-      id={id}
-    />
+    <AssetDetail queryParams={queryString.parse(location.search)} id={id} />
   );
 };
 
-const Movements = (props) => {
+const Movements = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   return (
     <AssetMovements
-      {...props}
       queryParams={queryString.parse(location.search)}
+      location={location}
+      navigate={navigate}
     />
   );
 };
 
-const MovementItems = (props) => {
+const MovementItems = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   return (
     <AssetMovementItems
-      {...props}
       queryParams={queryString.parse(location.search)}
+      location={location}
+      navigate={navigate}
     />
   );
 };

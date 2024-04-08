@@ -18,6 +18,7 @@ import {
 import { ICustomer, ICustomerDoc } from "../types";
 import { IUser, IUserLinks } from "@erxes/ui/src/auth/types";
 import { genderChoices, isValidPhone } from "../utils";
+import { isEnabled, loadDynamicComponent } from "@erxes/ui/src/utils/core";
 
 import AutoCompletionSelect from "@erxes/ui/src/components/AutoCompletionSelect";
 import AvatarUpload from "@erxes/ui/src/components/AvatarUpload";
@@ -30,7 +31,6 @@ import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import React from "react";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
-import { isEnabled, loadDynamicComponent } from "@erxes/ui/src/utils/core";
 import validator from "validator";
 
 type Props = {
@@ -256,7 +256,7 @@ class CustomerForm extends React.Component<Props, State> {
     return this.getVisitorInfo(customer, "email") || emails.length > 0;
   };
 
-  renderLink(formProps, link) {
+  renderLink(formProps, link, index) {
     const { customer } = this.props;
     const links = (customer ? customer.links : {}) || {};
 
@@ -487,9 +487,11 @@ class CustomerForm extends React.Component<Props, State> {
           <CollapseContent title={__("Links")} compact={true}>
             <FormWrapper>
               <FormColumn>
-                {getConstantFromStore("social_links").map((link) =>
-                  this.renderLink(formProps, link)
-                )}
+                {getConstantFromStore("social_links").map((link, index) => (
+                  <React.Fragment key={index}>
+                    {this.renderLink(formProps, link, index)}
+                  </React.Fragment>
+                ))}
               </FormColumn>
             </FormWrapper>
           </CollapseContent>

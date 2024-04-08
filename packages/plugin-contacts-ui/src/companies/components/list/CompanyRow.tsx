@@ -14,7 +14,7 @@ type Props = {
   index: number;
   company: ICompany;
   columnsConfig: any[];
-  history: any;
+  navigate: any;
   isChecked: boolean;
   toggleBulk: (company: ICompany, isChecked?: boolean) => void;
 };
@@ -49,7 +49,7 @@ function displayValue(company, name, group, index) {
 function CompanyRow({
   company,
   columnsConfig,
-  history,
+  navigate,
   isChecked,
   toggleBulk,
   index,
@@ -67,7 +67,7 @@ function CompanyRow({
   };
 
   const onTrClick = () => {
-    history(`/companies/details/${company._id}`);
+    navigate(`/companies/details/${company._id}`);
   };
 
   return (

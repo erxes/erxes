@@ -2,22 +2,22 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import {
-  AwardIcon,
-  CalendarClock,
+  BookOpen,
+  BookUserIcon,
+  Building,
+  Clock,
+  GitForkIcon,
   HomeIcon,
   MessageCircleIcon,
   Rss,
-  ScrollTextIcon,
   StarIcon,
-  Users2Icon,
 } from "lucide-react"
 
 import { useChatNotif } from "../hooks/useChatNotif"
 
 export const Sidebar = () => {
-  const router = useRouter()
   const pathname = usePathname()
   const [activeClass, setActiveClass] = useState(
     pathname ? pathname.split("/")[1] || "/" : "/"
@@ -26,7 +26,6 @@ export const Sidebar = () => {
   const { unreadCount, refetch } = useChatNotif()
 
   const handleLink = (href: string) => {
-    // router.replace(`/${href}`)
     setActiveClass(href)
   }
 
@@ -92,15 +91,15 @@ export const Sidebar = () => {
             value="Overview"
             Icon={HomeIcon}
           />
-          {Object.entries(MAIN_NAVIGATION).map(([key, arrays]) => (
-            <>
+          {Object.entries(MAIN_NAVIGATION).map(([key, arrays], ind) => (
+            <div key={ind}>
               <h2 className="px-[16px] py-[8px] capitalize text-[16px] font-bold">
                 {key}
               </h2>
-              {arrays.map((items) => (
-                <NavigationItem {...items} />
+              {arrays.map((items, index) => (
+                <NavigationItem key={index} {...items} />
               ))}
-            </>
+            </div>
           ))}
         </ul>
       </div>
@@ -125,36 +124,42 @@ export const MAIN_NAVIGATION = {
   ],
   directory: [
     {
+      active: "contacts",
+      href: "contacts",
+      value: "Contacts",
+      Icon: BookUserIcon,
+    },
+    {
       active: "company",
       href: "company",
       value: "Company",
-      Icon: Users2Icon,
+      Icon: Building,
+    },
+    {
+      active: "org-chart",
+      href: "org-chart",
+      value: "Org chart",
+      Icon: GitForkIcon,
+    },
+  ],
+  operations: [
+    {
+      active: "timeclock",
+      href: "timeclock",
+      value: "Timeclock",
+      Icon: Clock,
+    },
+    {
+      active: "learn",
+      href: "learn",
+      value: "Learn",
+      Icon: BookOpen,
     },
     {
       active: "discover",
       href: "discover",
       value: "Discover",
       Icon: StarIcon,
-    },
-  ],
-  operations: [
-    {
-      active: "learn",
-      href: "#",
-      value: "Learn",
-      Icon: ScrollTextIcon,
-    },
-    {
-      active: "leaderboard",
-      href: "#",
-      value: "Leaderboard",
-      Icon: AwardIcon,
-    },
-    {
-      active: "timeclocks",
-      href: "timeclocks",
-      value: "Timeclocks",
-      Icon: CalendarClock,
     },
   ],
 }
