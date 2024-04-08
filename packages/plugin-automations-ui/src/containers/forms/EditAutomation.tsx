@@ -1,24 +1,23 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { Alert, router, withProps } from '@erxes/ui/src/utils';
+import { Alert, router, withProps } from "@erxes/ui/src/utils";
 import {
   AutomationConstantsQueryResponse,
   AutomationsNoteQueryResponse,
   DetailQueryResponse,
   EditMutationResponse,
   IAutomation,
-} from '../../types';
-import React, { useState } from 'react';
-import { mutations, queries } from '../../graphql';
+} from "../../types";
+import React, { useState } from "react";
+import { mutations, queries } from "../../graphql";
 
-import AutomationForm from '../../components/editor/Main';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-// import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
+import AutomationForm from "../../components/editor/Main";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { IRouterProps } from "@erxes/ui/src/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
 
 type Props = {
   id: string;
@@ -40,7 +39,8 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     automationDetailQuery,
     automationNotesQuery,
     currentUser,
-    history,
+    navigate,
+    location,
     editAutomationMutation,
     automationConstantsQuery,
   } = props;
@@ -56,13 +56,13 @@ const AutomationDetailsContainer = (props: FinalProps) => {
       },
     })
       .then(() => {
-        router.removeParams(history, 'isCreate');
+        router.removeParams(navigate, location, "isCreate");
 
         setTimeout(() => {
           setLoading(false);
         }, 300);
 
-        Alert.success(`You successfully updated a ${doc.name || 'status'}`);
+        Alert.success(`You successfully updated a ${doc.name || "status"}`);
       })
 
       .catch((error) => {
@@ -107,43 +107,43 @@ export default withProps<Props>(
     graphql<Props, DetailQueryResponse, { _id: string }>(
       gql(queries.automationDetail),
       {
-        name: 'automationDetailQuery',
+        name: "automationDetailQuery",
         options: ({ id }) => ({
           variables: {
             _id: id,
           },
         }),
-      },
+      }
     ),
     graphql<Props, AutomationsNoteQueryResponse, { automationId: string }>(
       gql(queries.automationNotes),
       {
-        name: 'automationNotesQuery',
+        name: "automationNotesQuery",
         options: ({ id }) => ({
           variables: {
             automationId: id,
           },
         }),
-      },
+      }
     ),
     graphql<{}, EditMutationResponse, IAutomation>(
       gql(mutations.automationsEdit),
       {
-        name: 'editAutomationMutation',
+        name: "editAutomationMutation",
         options: () => ({
           refetchQueries: [
-            'automations',
-            'automationsMain',
-            'automationDetail',
+            "automations",
+            "automationsMain",
+            "automationDetail",
           ],
         }),
-      },
+      }
     ),
     graphql<AutomationConstantsQueryResponse>(
       gql(queries.automationConstants),
       {
-        name: 'automationConstantsQuery',
-      },
-    ),
-  )(AutomationDetailsContainer),
+        name: "automationConstantsQuery",
+      }
+    )
+  )(AutomationDetailsContainer)
 );

@@ -2,7 +2,6 @@ import { IActivityLogForMonth } from '@erxes/ui-log/src/activityLogs/types';
 import { IUser } from './auth/types';
 
 export interface IRouterProps {
-  history: any;
   location: any;
   match: any;
   navigate: any;

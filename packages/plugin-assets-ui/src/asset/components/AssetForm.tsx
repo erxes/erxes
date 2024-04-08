@@ -32,8 +32,8 @@ import {
 import React, { useEffect, useState } from "react";
 
 import CategoryForm from "../containers/CategoryForm";
-import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
 import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
 
 type Props = {
   asset?: IAsset;
@@ -120,8 +120,8 @@ function AssetForm({
     );
   };
 
-  const onChangeDescription = (e) => {
-    setDescription(e.editor.getData());
+  const onChangeDescription = (content: string) => {
+    setDescription(content);
   };
 
   const onComboEvent = (variable: string, e) => {

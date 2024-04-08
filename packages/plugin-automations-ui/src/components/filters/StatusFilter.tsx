@@ -1,17 +1,16 @@
-import { Counts } from "@erxes/ui/src/types";
 import {
   FieldStyle,
   SidebarCounter,
   SidebarList,
 } from "@erxes/ui/src/layout/styles";
 import { __, router } from "coreui/utils";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import Box from "@erxes/ui/src/components/Box";
+import { Counts } from "@erxes/ui/src/types";
 import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
 import React from "react";
-// import { withRouter } from 'react-router-dom';
 import { statusFilters } from "../../constants";
-import { useLocation, useNavigate } from "react-router-dom";
 
 interface IProps {
   counts: Counts;
@@ -27,7 +26,7 @@ function StatusFilter({ counts, emptyText }: IProps) {
       {statusFilters.map((status, index) => {
         const onClick = () => {
           router.setParams(navigate, location, { status: status.key });
-          router.removeParams(navigate, location, "page");
+          // router.removeParams(navigate, location, "page");
         };
 
         return (

@@ -6,7 +6,6 @@ import Button from "@erxes/ui/src/components/Button";
 import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
 import { EmptyContent } from "../styles";
 import FormControl from "@erxes/ui/src/components/form/Control";
-// import { withRouter } from 'react-router-dom';
 import { IRouterProps } from "@erxes/ui/src/types";
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 import React from "react";
@@ -73,14 +72,14 @@ class AutomationsList extends React.Component<IProps, State> {
       clearTimeout(this.timer);
     }
 
-    const { history } = this.props;
+    const { navigate, location } = this.props;
     const searchValue = e.target.value;
 
     this.setState({ searchValue });
 
     this.timer = setTimeout(() => {
-      router.removeParams(history, "page");
-      router.setParams(history, { searchValue });
+      router.removeParams(navigate, location, "page");
+      router.setParams(navigate, location, { searchValue });
     }, 500);
   };
 
@@ -123,7 +122,7 @@ class AutomationsList extends React.Component<IProps, State> {
 
   render() {
     const {
-      history,
+      navigate,
       loading,
       toggleBulk,
       duplicate,
@@ -133,6 +132,7 @@ class AutomationsList extends React.Component<IProps, State> {
       queryParams,
       isExpand,
       counts,
+      location,
       addAutomation,
       emptyBulk,
     } = this.props;
@@ -169,7 +169,7 @@ class AutomationsList extends React.Component<IProps, State> {
                 key={automation._id}
                 automation={automation}
                 isChecked={bulk.includes(automation)}
-                history={history}
+                navigate={navigate}
                 removeAutomations={this.removeAutomations}
                 toggleBulk={toggleBulk}
                 duplicate={duplicate}
@@ -257,7 +257,8 @@ class AutomationsList extends React.Component<IProps, State> {
         leftSidebar={
           <Sidebar
             counts={counts || ({} as any)}
-            history={history}
+            location={location}
+            navigate={navigate}
             queryParams={queryParams}
           />
         }
