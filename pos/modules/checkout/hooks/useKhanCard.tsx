@@ -53,7 +53,7 @@ export const useSendTransaction = ({
   onCompleted,
   onError,
 }: {
-  onCompleted: () => void
+  onCompleted: (info?: any) => void
   onError: () => void
 }) => {
   const { onError: errorHandle, toast } = useToast()
@@ -96,7 +96,7 @@ export const useSendTransaction = ({
           const { response_code, response_msg } = response
           if (response_code === "000") {
             toast({ description: "Transaction was successful" })
-            onCompleted && onCompleted()
+            onCompleted && onCompleted(response)
             return setLoading(false)
           }
           return error(response_msg)

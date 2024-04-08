@@ -27,7 +27,7 @@ const useTDB = () => {
 }
 
 export const useTDBTransaction = (options: {
-  onCompleted: () => void
+  onCompleted: (info?: any) => void
   onError: () => void
 }) => {
   const { onCompleted, onError } = options
@@ -53,7 +53,7 @@ export const useTDBTransaction = (options: {
           toast({
             description: "Transaction was successful",
           })
-          return !!onCompleted && onCompleted()
+          return !!onCompleted && onCompleted(ecrResult)
         }
         toast({
           description: `${JSON.stringify(ecrResult)}`,
