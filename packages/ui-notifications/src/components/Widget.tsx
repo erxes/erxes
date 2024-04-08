@@ -7,8 +7,7 @@ import Icon from "@erxes/ui/src/components/Icon";
 import Label from "@erxes/ui/src/components/Label";
 import { NotifButton } from "./styles";
 import NotificationsLatest from "./NotificationsLatest";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Popover from "react-bootstrap/Popover";
+import Popover from "@erxes/ui/src/components/Popover";
 import Tip from "@erxes/ui/src/components/Tip";
 import { __ } from "@erxes/ui/src/utils";
 
@@ -67,8 +66,19 @@ const Widget = (props: Props) => {
     showNotifications(true);
   };
 
-  const popoverNotification = (
-    <Popover id="npopover" className="notification-popover">
+  return (
+    <Popover
+      trigger={
+        <NotifButton>
+          <Tip text={__("Notifications")} placement="bottom">
+            <Icon icon="bell" size={20} />
+          </Tip>
+          {renderUnreadCount()}
+        </NotifButton>
+      }
+      placement="bottom"
+      className="notification-popover"
+    >
       <Tabs full={true}>
         <TabTitle
           className={currentTab === "Recent" ? "active" : ""}
@@ -85,22 +95,6 @@ const Widget = (props: Props) => {
       </Tabs>
       <NotificationsLatest {...popoverProps} />
     </Popover>
-  );
-
-  return (
-    <OverlayTrigger
-      trigger="click"
-      rootClose={true}
-      placement="bottom"
-      overlay={popoverNotification}
-    >
-      <NotifButton>
-        <Tip text={__("Notifications")} placement="bottom">
-          <Icon icon="bell" size={20} />
-        </Tip>
-        {renderUnreadCount()}
-      </NotifButton>
-    </OverlayTrigger>
   );
 };
 

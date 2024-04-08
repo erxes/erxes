@@ -1,10 +1,9 @@
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import React, { useState } from 'react';
-import TwitterPicker from 'react-color/lib/Twitter';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import { __, AvatarUpload, FormControl, FormGroup } from '@erxes/ui/src';
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Popover from "@erxes/ui/src/components/Popover";
+import React, { useState } from "react";
+import TwitterPicker from "react-color/lib/Twitter";
+import { LeftItem } from "@erxes/ui/src/components/step/styles";
+import { __, AvatarUpload, FormControl, FormGroup } from "@erxes/ui/src";
 import {
   AppearanceRow,
   ColorPick,
@@ -14,7 +13,7 @@ import {
   LogoWrapper,
   ColorPickerWrap,
   ColorChooserTile,
-} from '../../../styles';
+} from "../../../styles";
 
 interface IColor {
   [key: string]: string;
@@ -34,8 +33,8 @@ export interface IUIOptions {
 
 type Props = {
   onChange: (
-    name: 'uiOptions' | 'logoPreviewUrl' | 'logoPreviewStyle',
-    value: any,
+    name: "uiOptions" | "logoPreviewUrl" | "logoPreviewStyle",
+    value: any
   ) => void;
   uiOptions?: IUIOptions;
   logoPreviewUrl: string;
@@ -46,15 +45,15 @@ const Appearance = (props: Props) => {
   const [uiOptions, setUiOptions] = useState(
     props.uiOptions || {
       colors: {},
-      logo: '',
-      favIcon: '',
-      bgImage: '',
-      receiptIcon: '',
+      logo: "",
+      favIcon: "",
+      bgImage: "",
+      receiptIcon: "",
       texts: {},
-      kioskHeaderImage: '',
-      mobileAppImage: '',
-      qrCodeImage: '',
-    },
+      kioskHeaderImage: "",
+      mobileAppImage: "",
+      qrCodeImage: "",
+    }
   );
 
   const onChangeFunction = (name: any, value: any) => {
@@ -63,7 +62,7 @@ const Appearance = (props: Props) => {
 
   const handleLogoChange = (id, url) => {
     setUiOptions((prevOptions) => ({ ...prevOptions, [id]: url }));
-    onChange('uiOptions', { ...uiOptions, [id]: url });
+    onChange("uiOptions", { ...uiOptions, [id]: url });
   };
 
   const renderUploadImage = (id, title, desc) => {
@@ -89,10 +88,10 @@ const Appearance = (props: Props) => {
       };
 
       setUiOptions(newUiOptions);
-      onChangeFunction('uiOptions', newUiOptions);
+      onChangeFunction("uiOptions", newUiOptions);
     };
 
-    const defaultValue = (uiOptions['texts'] || {})[key];
+    const defaultValue = (uiOptions["texts"] || {})[key];
     return (
       <FormGroup>
         <ControlLabel>{title || key}</ControlLabel>
@@ -110,7 +109,7 @@ const Appearance = (props: Props) => {
       };
 
       setUiOptions(newUiOptions);
-      onChangeFunction('uiOptions', newUiOptions);
+      onChangeFunction("uiOptions", newUiOptions);
     };
 
     const color =
@@ -118,26 +117,24 @@ const Appearance = (props: Props) => {
         ? uiOptions[group][key]
         : colour;
 
-    const popoverContent = (
-      <Popover id={key}>
-        <TwitterPicker color={color} onChange={onChangeColor} triangle="hide" />
-      </Popover>
-    );
-
     return (
       <FormGroup>
         <ColorChooserTile>{title}</ColorChooserTile>
         <div>
-          <OverlayTrigger
-            trigger="click"
-            rootClose={true}
+          <Popover
+            trigger={
+              <ColorPick>
+                <ColorPicker style={{ backgroundColor: color }} />
+              </ColorPick>
+            }
             placement="bottom-start"
-            overlay={popoverContent}
           >
-            <ColorPick>
-              <ColorPicker style={{ backgroundColor: color }} />
-            </ColorPick>
-          </OverlayTrigger>
+            <TwitterPicker
+              color={color}
+              onChange={onChangeColor}
+              triangle="hide"
+            />
+          </Popover>
         </div>
       </FormGroup>
     );
@@ -147,55 +144,55 @@ const Appearance = (props: Props) => {
     <FlexItem>
       <LeftItem>
         <Block>
-          <h4>{__('Logo and favicon')}</h4>
+          <h4>{__("Logo and favicon")}</h4>
           <AppearanceRow>
-            {renderUploadImage('logo', 'Main Logo', 'Pos main logo PNG')}
+            {renderUploadImage("logo", "Main Logo", "Pos main logo PNG")}
             {renderUploadImage(
-              'bgImage',
-              'Background Image',
-              'Pos background Image PNG',
+              "bgImage",
+              "Background Image",
+              "Pos background Image PNG"
             )}
-            {renderUploadImage('favIcon', 'Favicon', '16x16px transparent PNG')}
+            {renderUploadImage("favIcon", "Favicon", "16x16px transparent PNG")}
             {renderUploadImage(
-              'receiptIcon',
-              'Receipt icon',
-              '16x16px transparent PNG',
-            )}
-            {renderUploadImage(
-              'kioskHeaderImage',
-              'Kiosk header image',
-              'Kiosk header image PNG',
+              "receiptIcon",
+              "Receipt icon",
+              "16x16px transparent PNG"
             )}
             {renderUploadImage(
-              'mobileAppImage',
-              'Mobile app image',
-              'Mobile app image PNG',
+              "kioskHeaderImage",
+              "Kiosk header image",
+              "Kiosk header image PNG"
             )}
             {renderUploadImage(
-              'qrCodeImage',
-              'QR code image',
-              'QR code image PNG',
+              "mobileAppImage",
+              "Mobile app image",
+              "Mobile app image PNG"
+            )}
+            {renderUploadImage(
+              "qrCodeImage",
+              "QR code image",
+              "QR code image PNG"
             )}
           </AppearanceRow>
         </Block>
         <Block>
-          <h4>{__('Main colors')}</h4>
+          <h4>{__("Main colors")}</h4>
           <FormGroup>
-            <ControlLabel>{__('Colors')}</ControlLabel>
+            <ControlLabel>{__("Colors")}</ControlLabel>
             <AppearanceRow>
               <ColorPickerWrap>
-                {renderPicker('colors', 'primary', 'Primary', '#6569df')}
-                {renderPicker('colors', 'secondary', 'Secondary', '#3fc7cc')}
-                {renderPicker('colors', 'third', 'Third', '#3fc700')}
+                {renderPicker("colors", "primary", "Primary", "#6569df")}
+                {renderPicker("colors", "secondary", "Secondary", "#3fc7cc")}
+                {renderPicker("colors", "third", "Third", "#3fc700")}
               </ColorPickerWrap>
             </AppearanceRow>
           </FormGroup>
         </Block>
         <Block>
-          <h4>{__('Infos')}</h4>
+          <h4>{__("Infos")}</h4>
           <FormGroup>
-            {renderInput('website', 'WebSite', '')}
-            {renderInput('phone', 'Phone', '')}
+            {renderInput("website", "WebSite", "")}
+            {renderInput("phone", "Phone", "")}
           </FormGroup>
         </Block>
       </LeftItem>

@@ -33,8 +33,7 @@ import Header from "@erxes/ui-settings/src/general/components/Header";
 import { IConfigsMap } from "@erxes/ui-settings/src/general/types";
 import Icon from "modules/common/components/Icon";
 import Info from "modules/common/components/Info";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Popover from "react-bootstrap/Popover";
+import Popover from "@erxes/ui/src/components/Popover";
 import React from "react";
 import Select from "react-select";
 import { SelectTeamMembers } from "@erxes/ui/src";
@@ -138,27 +137,21 @@ class GeneralSettings extends React.Component<Props, State> {
     const { configsMap } = this.state;
     const value = configsMap[field];
 
-    const popoverContent = (
-      <Popover id="color-picker">
+    return (
+      <Popover
+        trigger={
+          <ColorPick>
+            <ColorPicker style={{ backgroundColor: value }} />
+          </ColorPick>
+        }
+        placement="bottom-start"
+      >
         <TwitterPicker
           color={value}
           onChange={this.onChangeColor.bind(this, field)}
           triangle="hide"
         />
       </Popover>
-    );
-
-    return (
-      <OverlayTrigger
-        trigger="click"
-        rootClose={true}
-        placement="bottom-start"
-        overlay={popoverContent}
-      >
-        <ColorPick>
-          <ColorPicker style={{ backgroundColor: value }} />
-        </ColorPick>
-      </OverlayTrigger>
     );
   };
 

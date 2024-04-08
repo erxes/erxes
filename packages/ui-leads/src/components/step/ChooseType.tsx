@@ -1,24 +1,23 @@
-import { COLORS } from '@erxes/ui/src/constants/colors';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Icon from '@erxes/ui/src/components/Icon';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import { __ } from '@erxes/ui/src/utils';
-import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
-import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import TwitterPicker from 'react-color/lib/Twitter';
+import { COLORS } from "@erxes/ui/src/constants/colors";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Icon from "@erxes/ui/src/components/Icon";
+import { LeftItem } from "@erxes/ui/src/components/step/styles";
+import { __ } from "@erxes/ui/src/utils";
+import { ColorPick, ColorPicker } from "@erxes/ui/src/styles/main";
+import React from "react";
+import Popover from "@erxes/ui/src/components/Popover";
+import TwitterPicker from "react-color/lib/Twitter";
 import {
   Box,
   BoxRow,
   FlexItem,
-  LabelWrapper
-} from '@erxes/ui/src/components/step/style';
+  LabelWrapper,
+} from "@erxes/ui/src/components/step/style";
 
 type Props = {
   type: string;
-  onChange: (name: 'type' | 'color' | 'theme', value: string) => void;
+  onChange: (name: "type" | "color" | "theme", value: string) => void;
   calloutTitle?: string;
   calloutBtnText?: string;
   color: string;
@@ -38,30 +37,18 @@ class ChooseType extends React.Component<Props, {}> {
   }
 
   onChange(value: string) {
-    return this.props.onChange('type', value);
+    return this.props.onChange("type", value);
   }
 
-  onColorChange = e => {
-    this.setState({ color: e.hex, theme: '#000' }, () => {
-      this.props.onChange('color', e.hex);
-      this.props.onChange('theme', e.hex);
+  onColorChange = (e) => {
+    this.setState({ color: e.hex, theme: "#000" }, () => {
+      this.props.onChange("color", e.hex);
+      this.props.onChange("theme", e.hex);
     });
   };
 
   render() {
     const { color, theme } = this.props;
-
-    const popoverTop = (
-      <Popover id="color-picker">
-        <TwitterPicker
-          width="240px"
-          triangle="hide"
-          colors={COLORS}
-          color={color}
-          onChange={this.onColorChange}
-        />
-      </Popover>
-    );
 
     return (
       <FlexItem>
@@ -71,16 +58,22 @@ class ChooseType extends React.Component<Props, {}> {
               <ControlLabel>Theme color</ControlLabel>
             </LabelWrapper>
             <div>
-              <OverlayTrigger
-                trigger="click"
-                rootClose={true}
+              <Popover
+                trigger={
+                  <ColorPick>
+                    <ColorPicker style={{ backgroundColor: theme }} />
+                  </ColorPick>
+                }
                 placement="bottom-start"
-                overlay={popoverTop}
               >
-                <ColorPick>
-                  <ColorPicker style={{ backgroundColor: theme }} />
-                </ColorPick>
-              </OverlayTrigger>
+                <TwitterPicker
+                  width="240px"
+                  triangle="hide"
+                  colors={COLORS}
+                  color={color}
+                  onChange={this.onColorChange}
+                />
+              </Popover>
             </div>
           </FormGroup>
 
@@ -88,21 +81,21 @@ class ChooseType extends React.Component<Props, {}> {
             <ControlLabel>Choose a flow type</ControlLabel>
           </LabelWrapper>
           <BoxRow>
-            {this.renderBox('ShoutBox', 'comment-1', 'shoutbox')}
-            {this.renderBox('Popup', 'window', 'popup')}
+            {this.renderBox("ShoutBox", "comment-1", "shoutbox")}
+            {this.renderBox("Popup", "window", "popup")}
           </BoxRow>
 
           <BoxRow>
-            {this.renderBox('Embedded', 'focus', 'embedded')}
-            {this.renderBox('Dropdown', 'arrow-from-top', 'dropdown')}
+            {this.renderBox("Embedded", "focus", "embedded")}
+            {this.renderBox("Dropdown", "arrow-from-top", "dropdown")}
           </BoxRow>
 
           <BoxRow>
-            {this.renderBox('Slide-in Left', 'arrow-from-right', 'slideInLeft')}
+            {this.renderBox("Slide-in Left", "arrow-from-right", "slideInLeft")}
             {this.renderBox(
-              'Slide-in Right',
-              'left-arrow-from-left',
-              'slideInRight'
+              "Slide-in Right",
+              "left-arrow-from-left",
+              "slideInRight"
             )}
           </BoxRow>
         </LeftItem>
