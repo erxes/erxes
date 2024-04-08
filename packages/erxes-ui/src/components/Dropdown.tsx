@@ -17,9 +17,7 @@ const Dropdown: React.FC<Props> = ({ children, as, drop, toggleComponent }) => {
 
   useEffect(() => {
     if (buttonRef.current && buttonRef.current.clientHeight) {
-      setTimeout(() => {
-        setHeight(buttonRef.current.clientHeight);
-      }, 1000);
+      setHeight(buttonRef.current.clientHeight);
     }
   }, [buttonRef.current, buttonRef.current.clientHeight]);
 

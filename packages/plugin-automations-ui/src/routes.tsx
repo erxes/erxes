@@ -1,8 +1,9 @@
+import { Route, Routes, useNavigate } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
+
+import React from "react";
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 import queryString from "query-string";
-import React from "react";
-import { Route, Routes } from "react-router-dom";
-import { useLocation, useParams } from "react-router-dom";
 
 const GeneralSettings = asyncComponent(
   () =>
@@ -41,17 +42,28 @@ const BotsSettingsComponent = () => {
 
 const DetailsComponent = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { id } = useParams();
   const queryParams = queryString.parse(location.search);
 
-  return <Details id={id} queryParams={queryParams} />;
+  return (
+    <Details
+      id={id}
+      queryParams={queryParams}
+      location={location}
+      navigate={navigate}
+    />
+  );
 };
 
 const ListComponent = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const queryParams = queryString.parse(location.search);
 
-  return <List queryParams={queryParams} />;
+  return (
+    <List queryParams={queryParams} navigate={navigate} location={location} />
+  );
 };
 
 const routes = () => {

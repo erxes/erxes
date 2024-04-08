@@ -1,13 +1,14 @@
 import { Button, FormControl, ModalTrigger, Tip } from "@erxes/ui/src";
-import moment from "moment";
-import React from "react";
-import { Link } from "react-router-dom";
-import { IMovementType } from "../../../common/types";
+
 import Form from "../containers/Form";
+import { IMovementType } from "../../../common/types";
+import { Link } from "react-router-dom";
+import React from "react";
+import moment from "moment";
 
 type Props = {
   movement: IMovementType;
-  history: any;
+  navigate: any;
   isChecked: boolean;
   toggleBulk?: (
     movement: IMovementType,
@@ -18,12 +19,12 @@ type Props = {
 };
 
 const Row = (props: Props) => {
-  const { movement, isChecked, toggleBulk, history, queryParams } = props;
+  const { movement, isChecked, toggleBulk, navigate, queryParams } = props;
 
   const { createdAt, _id, user, movedAt, modifiedAt, description } = movement;
 
   const handleItems = () => {
-    history.push(`/asset-movement-items?movementId=${_id}`);
+    navigate(`/asset-movement-items?movementId=${_id}`);
   };
 
   const onClick = (e) => {

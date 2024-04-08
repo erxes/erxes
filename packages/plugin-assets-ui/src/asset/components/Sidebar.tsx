@@ -1,14 +1,14 @@
-import React from 'react';
-import { Wrapper } from '@erxes/ui/src/layout';
-import Button from '@erxes/ui/src/components/Button';
-import { Header } from '@erxes/ui-settings/src/styles';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import StatusFilter from './filters/StatusFilter';
-import KnowledgebaseFilter from '../containers/filters/KnowledgebaseFilter';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import CategoryForm from '../containers/CategoryForm';
-import { IAssetCategoryTypes } from '../../common/types';
-import CategoryFilter from './filters/CategoryFilter';
+import Button from "@erxes/ui/src/components/Button";
+import CategoryFilter from "./filters/CategoryFilter";
+import CategoryForm from "../containers/CategoryForm";
+import { Header } from "@erxes/ui-settings/src/styles";
+import { IAssetCategoryTypes } from "../../common/types";
+import KnowledgebaseFilter from "../containers/filters/KnowledgebaseFilter";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import StatusFilter from "./filters/StatusFilter";
+import { Wrapper } from "@erxes/ui/src/layout";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   assetCategories: IAssetCategoryTypes[];
@@ -18,6 +18,7 @@ type Props = {
   refetchAssetCategories: () => void;
   queryParams: any;
 };
+
 const Sidebar = (props: Props) => {
   const {
     assetCategories,
@@ -69,18 +70,18 @@ const Sidebar = (props: Props) => {
   };
 
   const renderStatusFilter = () => {
-    return <StatusFilter queryParams={queryParams}  />;
+    return <StatusFilter queryParams={queryParams} />;
   };
 
   const renderKnowledgebaseFilter = () => {
-    return <KnowledgebaseFilter queryParams={queryParams}  />;
+    return <KnowledgebaseFilter queryParams={queryParams} />;
   };
 
   return (
     <Wrapper.Sidebar hasBorder={true} header={header}>
       {renderCategoryFilter()}
       {renderStatusFilter()}
-      {isEnabled('knowledgebase') && renderKnowledgebaseFilter()}
+      {isEnabled("knowledgebase") && renderKnowledgebaseFilter()}
     </Wrapper.Sidebar>
   );
 };

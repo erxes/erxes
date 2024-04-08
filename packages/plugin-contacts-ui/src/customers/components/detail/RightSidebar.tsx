@@ -1,21 +1,21 @@
-import { isEnabled, renderFullName } from '@erxes/ui/src/utils/core';
+import { isEnabled, renderFullName } from "@erxes/ui/src/utils/core";
 
-import Box from '@erxes/ui/src/components/Box';
-import CompanySection from '@erxes/ui-contacts/src/companies/components/CompanySection';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { ICustomer } from '../../types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { List } from '../../../companies/styles';
-import PortableDeals from '@erxes/ui-cards/src/deals/components/PortableDeals';
-import PortableTasks from '@erxes/ui-cards/src/tasks/components/PortableTasks';
-import PortableTickets from '@erxes/ui-cards/src/tickets/components/PortableTickets';
-import PortabelPurchases from '@erxes/ui-cards/src/purchases/components/PortablePurchases';
-import React from 'react';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from 'coreui/utils';
-import colors from '@erxes/ui/src/styles/colors';
-import { pluginsOfCustomerSidebar } from 'coreui/pluginUtils';
+import Box from "@erxes/ui/src/components/Box";
+import CompanySection from "@erxes/ui-contacts/src/companies/components/CompanySection";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { ICustomer } from "../../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { List } from "../../../companies/styles";
+import PortabelPurchases from "@erxes/ui-cards/src/purchases/components/PortablePurchases";
+import PortableDeals from "@erxes/ui-cards/src/deals/components/PortableDeals";
+import PortableTasks from "@erxes/ui-cards/src/tasks/components/PortableTasks";
+import PortableTickets from "@erxes/ui-cards/src/tickets/components/PortableTickets";
+import React from "react";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __ } from "coreui/utils";
+import colors from "@erxes/ui/src/styles/colors";
+import { pluginsOfCustomerSidebar } from "coreui/pluginUtils";
 
 type Props = {
   customer: ICustomer;
@@ -31,20 +31,20 @@ export default class RightSidebar extends React.Component<Props> {
     }
 
     let integrationNode: React.ReactNode = null;
-    let icon: string = 'check-1';
+    let icon: string = "check-1";
     let color: string = colors.colorCoreGreen;
-    let text: string = __('Active');
+    let text: string = __("Active");
 
     if (integration && integration.name) {
       if (!integration.isActive) {
-        icon = 'archive-alt';
+        icon = "archive-alt";
         color = colors.colorPrimary;
-        text = __('Inactive');
+        text = __("Inactive");
       }
 
       integrationNode = (
         <li>
-          <div>{__('Integration')}:</div>
+          <div>{__("Integration")}:</div>
           {integration.name}
           <Tip text={text}>
             <Icon icon={icon} color={color} />
@@ -58,7 +58,7 @@ export default class RightSidebar extends React.Component<Props> {
         {integrationNode}
         {visitorContactInfo && (
           <li>
-            <div>{__('Visitor contact info')}:</div>
+            <div>{__("Visitor contact info")}:</div>
             <span>{visitorContactInfo.email || visitorContactInfo.phone}</span>
           </li>
         )}
@@ -68,7 +68,7 @@ export default class RightSidebar extends React.Component<Props> {
 
   renderOther() {
     return (
-      <Box title={__('Other')} name="showOthers">
+      <Box title={__("Other")} name="showOthers">
         {this.renderContent()}
       </Box>
     );
@@ -82,7 +82,7 @@ export default class RightSidebar extends React.Component<Props> {
     return (
       <Sidebar>
         <CompanySection mainType="customer" mainTypeId={customer._id} />
-        {isEnabled('cards') && (
+        {isEnabled("cards") && (
           <>
             <PortableDeals
               mainType="customer"

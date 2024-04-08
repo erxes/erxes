@@ -1,24 +1,24 @@
-import { Alert, __, confirm } from '@erxes/ui/src/utils';
-import { Box, States } from '../../styles';
-import { Dialog, Menu } from '@headlessui/react';
+import { Alert, __, confirm } from "@erxes/ui/src/utils";
+import { Box, States } from "../../styles";
+import { Dialog, Menu } from "@headlessui/react";
 
-import { Actions } from '@erxes/ui/src/styles/main';
-import Button from '@erxes/ui/src/components/Button';
-import CompaniesMerge from '../../../companies/components/detail/CompaniesMerge';
-import CompanyForm from '@erxes/ui-contacts/src/companies/containers/CompanyForm';
-import { ControlLabel } from '@erxes/ui/src/components/form';
-import CustomerForm from '../../containers/CustomerForm';
-import CustomersMerge from '../detail/CustomersMerge';
-import EmailWidget from '@erxes/ui-inbox/src/inbox/components/EmailWidget';
-import { ICompany } from '@erxes/ui-contacts/src/companies/types';
-import { ICustomer } from '../../types';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import SmsForm from '@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm';
-import TargetMerge from './TargetMerge';
-import Tip from '@erxes/ui/src/components/Tip';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { Actions } from "@erxes/ui/src/styles/main";
+import Button from "@erxes/ui/src/components/Button";
+import CompaniesMerge from "../../../companies/components/detail/CompaniesMerge";
+import CompanyForm from "@erxes/ui-contacts/src/companies/containers/CompanyForm";
+import { ControlLabel } from "@erxes/ui/src/components/form";
+import CustomerForm from "../../containers/CustomerForm";
+import CustomersMerge from "../detail/CustomersMerge";
+import EmailWidget from "@erxes/ui-inbox/src/inbox/components/EmailWidget";
+import { ICompany } from "@erxes/ui-contacts/src/companies/types";
+import { ICustomer } from "../../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import SmsForm from "@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm";
+import TargetMerge from "./TargetMerge";
+import Tip from "@erxes/ui/src/components/Tip";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   coc: ICustomer | ICompany;
@@ -38,7 +38,7 @@ class ActionSection extends React.Component<
     super(props);
 
     this.state = {
-      customerState: props.cocType === 'customer' ? props.coc.state : '',
+      customerState: props.cocType === "customer" ? props.coc.state : "",
       show: false,
     };
   }
@@ -53,12 +53,12 @@ class ActionSection extends React.Component<
 
     return (
       <>
-        {(isEnabled('engages') || isEnabled('imap')) && (
+        {(isEnabled("engages") || isEnabled("imap")) && (
           <EmailWidget
             disabled={primaryEmail ? false : true}
-            buttonStyle={primaryEmail ? 'primary' : 'simple'}
+            buttonStyle={primaryEmail ? "primary" : "simple"}
             emailTo={primaryEmail}
-            customerId={cocType === 'customer' ? coc._id : undefined}
+            customerId={cocType === "customer" ? coc._id : undefined}
             buttonSize="small"
             type="action"
           />
@@ -70,7 +70,7 @@ class ActionSection extends React.Component<
             <Button
               disabled={primaryPhone ? false : true}
               size="small"
-              btnStyle={primaryPhone ? 'primary' : 'simple'}
+              btnStyle={primaryPhone ? "primary" : "simple"}
             >
               <Tip text="Send SMS" placement="top-end">
                 <Icon icon="message" />
@@ -82,7 +82,7 @@ class ActionSection extends React.Component<
         <Button
           href={primaryPhone && `tel:${primaryPhone}`}
           size="small"
-          btnStyle={primaryPhone ? 'primary' : 'simple'}
+          btnStyle={primaryPhone ? "primary" : "simple"}
           disabled={primaryPhone ? false : true}
         >
           <Tip text="Call" placement="top-end">
@@ -102,7 +102,7 @@ class ActionSection extends React.Component<
           <Icon icon="ellipsis-h" />
         ) : (
           <>
-            {__('Action')} <Icon icon="angle-down" />
+            {__("Action")} <Icon icon="angle-down" />
           </>
         )}
       </Button>
@@ -124,9 +124,9 @@ class ActionSection extends React.Component<
       <Menu.Item>
         <ModalTrigger
           title="Edit basic info"
-          trigger={<a>{__('Edit')}</a>}
+          trigger={<a>{__("Edit")}</a>}
           size="lg"
-          content={cocType === 'company' ? companyForm : customerForm}
+          content={cocType === "company" ? companyForm : customerForm}
         />
       </Menu.Item>
     );
@@ -160,12 +160,12 @@ class ActionSection extends React.Component<
   renderChangeStateForm() {
     const options = [
       {
-        value: 'lead',
-        desc: __('A person who preparing to buy some service or product'),
+        value: "lead",
+        desc: __("A person who preparing to buy some service or product"),
       },
       {
-        value: 'customer',
-        desc: __('A person who already bought some service or product'),
+        value: "customer",
+        desc: __("A person who already bought some service or product"),
       },
     ];
 
@@ -175,7 +175,7 @@ class ActionSection extends React.Component<
           <ControlLabel>Change State</ControlLabel>
           <States>
             {options.map((option, index) =>
-              this.renderBox(index, option.value, option.desc),
+              this.renderBox(index, option.value, option.desc)
             )}
           </States>
         </>
@@ -184,8 +184,8 @@ class ActionSection extends React.Component<
 
     return (
       <ModalTrigger
-        title={__('Change state')}
-        trigger={<a>{__('Change state')}</a>}
+        title={__("Change state")}
+        trigger={<a>{__("Change state")}</a>}
         content={modalContent}
         hideHeader={true}
         centered={true}
@@ -213,7 +213,7 @@ class ActionSection extends React.Component<
           cus.middleName ||
           cus.primaryEmail ||
           cus.primaryPhone ||
-          'Unknown',
+          "Unknown",
       }));
     };
 
@@ -221,7 +221,7 @@ class ActionSection extends React.Component<
       return companies.map((c, key) => ({
         key,
         value: JSON.stringify(c),
-        label: c.primaryName || c.website || 'Unknown',
+        label: c.primaryName || c.website || "Unknown",
       }));
     };
 
@@ -236,16 +236,16 @@ class ActionSection extends React.Component<
               object={coc}
               searchObject={search}
               mergeForm={
-                cocType === 'customer' ? CustomersMerge : CompaniesMerge
+                cocType === "customer" ? CustomersMerge : CompaniesMerge
               }
               generateOptions={
-                cocType === 'customer' ? generateOptions : targetMergeOptions
+                cocType === "customer" ? generateOptions : targetMergeOptions
               }
             />
           </Menu.Item>
           <Menu.Item>
             <a href="#delete" onClick={onClick}>
-              {__('Delete')}
+              {__("Delete")}
             </a>
           </Menu.Item>
           <Menu.Item>{this.renderChangeStateForm()}</Menu.Item>

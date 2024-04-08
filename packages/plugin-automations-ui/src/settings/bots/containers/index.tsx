@@ -1,13 +1,12 @@
-import React from 'react';
-import * as compose from 'lodash.flowright';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils/core';
-import Component from '../components';
-type Props = {} & IRouterProps;
+import * as compose from "lodash.flowright";
 
-type FinalProps = {} & Props;
+import Component from "../components";
+import React from "react";
+import { withProps } from "@erxes/ui/src/utils/core";
 
-function Settings({}: FinalProps) {
+type Props = {};
+
+function Settings({}: Props) {
   return <Component />;
 }
 

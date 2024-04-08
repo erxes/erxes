@@ -1,12 +1,13 @@
 import React, { useState } from "react";
-import { __ } from "coreui/utils";
+
 import Box from "@erxes/ui/src/components/Box";
-import FormGroup from "@erxes/ui/src/components/form/Group";
+import Button from "@erxes/ui/src/components/Button";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import FormControl from "@erxes/ui/src/components/form/Control";
-import Button from "@erxes/ui/src/components/Button";
-import Select from "react-select";
+import FormGroup from "@erxes/ui/src/components/form/Group";
 import { List } from "../styles";
+import Select from "react-select";
+import { __ } from "coreui/utils";
 
 type Props = {
   id: string;
@@ -25,7 +26,7 @@ function CustomerSideBar({
 }: Props) {
   const [balance, SetBalance] = useState(0);
   const [verify, SetVerify] = useState(verified);
-
+  console.log("block- sidebar");
   const onChangeBalance = (e) => {
     SetBalance(Number(e.target.value));
   };

@@ -1,23 +1,24 @@
-import FormControl from "@erxes/ui/src/components/form/Control";
-import React from "react";
-import { IAutomation } from "../types";
-import dayjs from "dayjs";
-import Label from "@erxes/ui/src/components/Label";
-import Icon from "@erxes/ui/src/components/Icon";
-import { DateWrapper } from "@erxes/ui/src/styles/main";
-import s from "underscore.string";
-import { FlexCenter } from "@erxes/ui/src/styles/main";
-import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
-import ActionButtons from "@erxes/ui/src/components/ActionButtons";
-import { Link } from "react-router-dom";
-import Button from "@erxes/ui/src/components/Button";
-import Tip from "@erxes/ui/src/components/Tip";
 import { __, isEnabled } from "@erxes/ui/src/utils/core";
+
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import Button from "@erxes/ui/src/components/Button";
+import { DateWrapper } from "@erxes/ui/src/styles/main";
+import { FlexCenter } from "@erxes/ui/src/styles/main";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IAutomation } from "../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import Label from "@erxes/ui/src/components/Label";
+import { Link } from "react-router-dom";
+import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
+import React from "react";
+import Tip from "@erxes/ui/src/components/Tip";
 import WithPermission from "coreui/withPermission";
+import dayjs from "dayjs";
+import s from "underscore.string";
 
 type Props = {
   automation: IAutomation;
-  history: any;
+  navigate: any;
   isChecked: boolean;
   duplicate: (_id: string) => void;
   toggleBulk: (automation: IAutomation, isChecked?: boolean) => void;
@@ -26,7 +27,7 @@ type Props = {
 
 function ActionRow({
   automation,
-  history,
+  navigate,
   isChecked,
   duplicate,
   toggleBulk,
@@ -43,7 +44,7 @@ function ActionRow({
   };
 
   const onNameClick = () => {
-    history.push(`/automations/details/${automation._id}`);
+    navigate(`/automations/details/${automation._id}`);
   };
 
   const editAction = () => {

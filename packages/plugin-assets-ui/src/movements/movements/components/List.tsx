@@ -110,7 +110,7 @@ const List = (props: Props) => {
       <Row
         key={movement._id}
         movement={movement}
-        history={history}
+        navigate={navigate}
         toggleBulk={handleSelecteRow}
         isChecked={props.bulk.includes(movement)}
         queryParams={queryParams}

@@ -35,7 +35,7 @@ export const ContainerBox = styledTS<ContainerBoxType>(styled.div)`
     padding: ${({ $horizontal, $vertical }) =>
       $horizontal && $vertical
         ? '10px'
-        : `${$vertical ? '10px' : '0px'} ${$horizontal ? '10px' : '0px'}`};
+        : `${$vertical ? '10px 20px' : '0px'} ${$horizontal ? '10px' : '0px'}`};
     justify-content: ${({ $spaceBetween }) =>
       $spaceBetween ? 'space-between' : ''};
     justify-content:${({ $spaceAround }) => ($spaceAround ? 'space-around' : '')};
