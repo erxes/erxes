@@ -24,11 +24,11 @@ const Widget = (props: Props, context) => {
   return (
     <Popover
       trigger={
-        <WidgetWrapper isConnected={isConnected}>
+        <WidgetWrapper $isConnected={isConnected}>
           <Icon icon={isConnected ? "phone-slash" : "phone"} size={23} />
         </WidgetWrapper>
       }
-      placement="bottom"
+      placement="top"
       className="call-popover"
     >
       <WidgetPopover autoOpenTab="Keyboard" {...props} />

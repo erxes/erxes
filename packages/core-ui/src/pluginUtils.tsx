@@ -11,7 +11,7 @@ import { NavItem } from "modules/layout/components/QuickNavigation";
 import React from "react";
 import { __ } from "modules/common/utils";
 import apolloClient from "@erxes/ui/src/apolloClient";
-import { render } from "react-dom";
+import { createRoot } from "react-dom/client";
 
 const PLUGIN_LABEL_COLORS: string[] = [
   "",
@@ -403,7 +403,7 @@ export const pluginsInnerWidgets = () => {
     newDiv.style.cssText =
       newDiv.style.cssText + (plugin.innerWidget.style || "");
 
-    render(
+    createRoot(newDiv).render(
       <BrowserRouter>
         <SystemWithApolloProvider
           key={Math.random()}
@@ -411,8 +411,7 @@ export const pluginsInnerWidgets = () => {
           system={plugin.innerWidget}
           pluginName={plugin.name}
         />
-      </BrowserRouter>,
-      newDiv
+      </BrowserRouter>
     );
   }
 

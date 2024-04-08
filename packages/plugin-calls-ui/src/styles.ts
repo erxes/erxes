@@ -518,13 +518,13 @@ export const CallTabContent = styledTS<{ tab: string; show: boolean }>(
   }
 `;
 
-export const WidgetWrapper = styledTS<{ isConnected?: boolean }>(styled.div)`
+export const WidgetWrapper = styledTS<{ $isConnected?: boolean }>(styled.div)`
   cursor: pointer;
   width: 56px;
   height: 56px;
   border-radius: 56px;
   background: ${(props) =>
-    props.isConnected ? colors.colorCoreRed : colors.colorCoreGreen};
+    props.$isConnected ? colors.colorCoreRed : colors.colorCoreGreen};
   position: relative;
   color: ${colors.colorWhite};
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
@@ -539,7 +539,7 @@ export const WidgetWrapper = styledTS<{ isConnected?: boolean }>(styled.div)`
 
   &:before {
     animation: ${(props) =>
-      !props.isConnected && `${animationPulse} 2s infinite`};
+      !props.$isConnected && `${animationPulse} 2s infinite`};
     border-radius: 50%;
     color: inherit;
     content: '';

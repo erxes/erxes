@@ -1,46 +1,47 @@
-import '@nateradebaugh/react-datetime/css/react-datetime.css';
-import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
-import dayjs from 'dayjs';
-import localizedFormat from 'dayjs/plugin/localizedFormat';
-import relativeTime from 'dayjs/plugin/relativeTime';
-import utc from 'dayjs/plugin/utc';
-import 'erxes-icon/css/erxes.min.css';
+import "@nateradebaugh/react-datetime/css/react-datetime.css";
+import "abortcontroller-polyfill/dist/polyfill-patch-fetch";
+import "erxes-icon/css/erxes.min.css";
 // global style
-import '@erxes/ui/src/styles/global-styles.ts';
-import React from 'react';
-import { render } from 'react-dom';
-import { ApolloProvider } from '@apollo/client';
+import "@erxes/ui/src/styles/global-styles.ts";
+
+import { ApolloProvider } from "@apollo/client";
+import React from "react";
+import { createRoot } from "react-dom/client";
+import dayjs from "dayjs";
+import localizedFormat from "dayjs/plugin/localizedFormat";
+import relativeTime from "dayjs/plugin/relativeTime";
+import utc from "dayjs/plugin/utc";
 
 const wenv = (window as any).env || {};
-const getItem = (name) => wenv[name] || process.env[name] || 'https://erxes.io';
+const getItem = (name) => wenv[name] || process.env[name] || "https://erxes.io";
 
-const REACT_APP_CORE_URL = getItem('REACT_APP_CORE_URL');
+const REACT_APP_CORE_URL = getItem("REACT_APP_CORE_URL");
 
 dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);
 dayjs.extend(utc, { parseLocal: true });
 
-const target = document.querySelector('#root');
+const target = document.getElementById("root") as any;
 
 const normalize = (domain) =>
   domain
-    .replace('https://', '')
-    .replace('http://', '')
-    .replace('www.', '')
-    .replace('/', '');
+    .replace("https://", "")
+    .replace("http://", "")
+    .replace("www.", "")
+    .replace("/", "");
 
 const onResponse = (response) => {
   const { hostname, pathname, search, port, hash } = window.location;
-  const currentHostname = `${hostname}${port ? `:${port}` : ''}`;
+  const currentHostname = `${hostname}${port ? `:${port}` : ""}`;
 
-  if (response.domain && response.dnsStatus === 'active') {
+  if (response.domain && response.dnsStatus === "active") {
     // from subdomain to domain if whiteLabel is valid
     if (
       response.isWhiteLabel &&
       normalize(currentHostname) !== normalize(response.domain)
     ) {
       return window.location.replace(
-        `${response.domain}${pathname}${search}${hash}`,
+        `${response.domain}${pathname}${search}${hash}`
       );
     }
 
@@ -50,7 +51,7 @@ const onResponse = (response) => {
       !response.isWhiteLabel
     ) {
       return window.location.replace(
-        `https://${response.subdomain}.app.erxes.io${pathname}${search}${hash}`,
+        `https://${response.subdomain}.app.erxes.io${pathname}${search}${hash}`
       );
     }
   }
@@ -60,13 +61,13 @@ const onResponse = (response) => {
 
   (window as any).erxesEnv = { subdomain, dashboardToken };
 
-  const Routes = require('./routes').default;
-  const apolloClient = require('./apolloClient').default;
+  const Routes = require("./routes").default;
+  const apolloClient = require("./apolloClient").default;
 
   if (response.isWhiteLabel) {
     // Save organization info for white label customers
     localStorage.setItem(
-      'organizationInfo',
+      "organizationInfo",
       JSON.stringify({
         icon: response.icon,
         name: response.name,
@@ -78,16 +79,16 @@ const onResponse = (response) => {
         dnsStatus: response.dnsStatus,
         backgroundColor: response.backgroundColor,
         description: response.description,
-      }),
+      })
     );
   } else {
-    localStorage.removeItem('organizationInfo');
+    localStorage.removeItem("organizationInfo");
   }
 
   const notShowPlugins: any[] = response.notShowPlugins || [];
 
   (window as any).plugins = ((window as any).plugins || []).filter(
-    (p) => !notShowPlugins.includes(p.name),
+    (p) => !notShowPlugins.includes(p.name)
   );
 
   // const REACT_APP_APM_SERVER_URL = getItem('REACT_APP_APM_SERVER_URL');
@@ -104,15 +105,14 @@ const onResponse = (response) => {
   //   });
   // }
 
-  render(
+  createRoot(target).render(
     <ApolloProvider client={apolloClient}>
       <Routes />
-    </ApolloProvider>,
-    target,
+    </ApolloProvider>
   );
 };
 
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === "production") {
   fetch(`${REACT_APP_CORE_URL}/check-subdomain`)
     .then((response) => {
       if (response.ok) {
@@ -130,10 +130,10 @@ if (process.env.NODE_ENV === 'production') {
 
       (window as any).erxesEnv = {};
 
-      const NotFound = require('modules/layout/components/NotFound');
+      const NotFound = require("modules/layout/components/NotFound");
 
-      render(<NotFound />, target);
+      createRoot(target).render(<NotFound />);
     });
 } else {
-  onResponse({ subdomain: location.hostname.split('.')[0] });
+  onResponse({ subdomain: location.hostname.split(".")[0] });
 }
