@@ -81,7 +81,7 @@ class MessengerForm extends React.Component<Props, State> {
           defaultValue={this.state.messenger.kind}
         >
           <option />{" "}
-          {MESSENGER_KINDS.SELECT_OPTIONS.map((k) => (
+          {(MESSENGER_KINDS.SELECT_OPTIONS || []).map((k) => (
             <option key={k.value} value={k.value}>
               {k.text}
             </option>
@@ -134,7 +134,7 @@ class MessengerForm extends React.Component<Props, State> {
               value={this.state.fromUserId}
             >
               <option />{" "}
-              {this.props.users.map((user) => (
+              {(this.props.users || []).map((user) => (
                 <option key={user._id} value={user._id}>
                   {user.details ? user.details.fullName : user.username}
                 </option>
@@ -150,7 +150,7 @@ class MessengerForm extends React.Component<Props, State> {
               defaultValue={this.state.messenger.brandId}
             >
               <option />{" "}
-              {this.props.brands.map((b) => (
+              {(this.props.brands || []).map((b) => (
                 <option key={b._id} value={b._id}>
                   {b.name}
                 </option>
@@ -168,7 +168,7 @@ class MessengerForm extends React.Component<Props, State> {
               defaultValue={this.state.messenger.sentAs}
             >
               <option />{" "}
-              {SENT_AS_CHOICES.SELECT_OPTIONS.map((s) => (
+              {(SENT_AS_CHOICES.SELECT_OPTIONS || []).map((s) => (
                 <option key={s.value} value={s.value}>
                   {__(s.text)}
                 </option>

@@ -1,11 +1,12 @@
-import React, { useCallback } from "react";
-import styled from "styled-components";
-import Icon from "@erxes/ui/src/components/Icon";
-import { colors } from "@erxes/ui/src/styles";
 import { BoxRoot, FullContent } from "@erxes/ui/src/styles/main";
+import React, { useCallback } from "react";
+
+import Icon from "@erxes/ui/src/components/Icon";
+import { Link } from "react-router-dom";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { __ } from "@erxes/ui/src/utils";
-import { Link } from "react-router-dom";
+import { colors } from "@erxes/ui/src/styles";
+import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 
 const Box = styled(BoxRoot)`
@@ -38,13 +39,13 @@ const Box = styled(BoxRoot)`
 type Props = {};
 
 const SelectMenu = (props) => {
+  const navigate = useNavigate();
   // const onChangeFunction = useCallback((key, val) => {
   //     props.onChange(key, val);
   //   }, []);
 
   const renderBox = useCallback((name, icon, desc, path) => {
     // const { name, icon, desc, path } = args;
-    const navigate = useNavigate();
     return (
       <Box
         selected={true}
@@ -82,7 +83,7 @@ const SelectMenu = (props) => {
         content={""}
         transparent={true}
       />
-      <FullContent center={true}>
+      <FullContent $center={true}>
         {renderBox(
           "Client portal",
           "user",
