@@ -3,7 +3,7 @@ import { gql } from "@apollo/client";
 import React from "react";
 import { queries } from "../../graphql";
 import { getEnv, __ } from "@erxes/ui/src/utils";
-import Dropdown from "react-bootstrap/Dropdown";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
 import { Button, Alert } from "@erxes/ui/src";
 import { IStage } from "../../types";
 import FormControl from "@erxes/ui/src/components/form/Control";
@@ -12,6 +12,7 @@ import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
 import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
 import Dialog from "@erxes/ui/src/components/Dialog";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
+import { Menu } from "@headlessui/react";
 
 type Props = {
   item: any;
@@ -138,26 +139,24 @@ export default class StageModal extends React.Component<Props, State> {
     const { selectedDocumentId, documents } = this.state;
 
     return (
-      <Dropdown onClick={this.loadDocuments}>
-        {loading ? "loading" : ""}
-        <Dropdown.Toggle variant="success" id="dropdown-basic">
-          {selectedDocumentId
+      <Dropdown
+        // onClick={this.loadDocuments}
+        toggleComponent={
+          selectedDocumentId
             ? documents.find((item) => item._id === selectedDocumentId)?.name ||
               "Select Document"
-            : "Select Document"}
-          {}
-        </Dropdown.Toggle>
-
-        <Dropdown.Menu>
-          {documents.map((item) => (
-            <Dropdown.Item
-              key={item._id}
-              onSelect={() => this.onchangeDocument(item._id, item.name)}
-            >
-              {item.name}
-            </Dropdown.Item>
-          ))}
-        </Dropdown.Menu>
+            : "Select Document"
+        }
+      >
+        {loading ? "loading" : ""}
+        {documents.map((item) => (
+          <Menu.Item
+            key={item._id}
+            // onSelect={() => this.onchangeDocument(item._id, item.name)}
+          >
+            {item.name}
+          </Menu.Item>
+        ))}
       </Dropdown>
     );
   }

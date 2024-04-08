@@ -7,7 +7,7 @@ import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
 import Icon from "@erxes/ui/src/components/Icon";
 import Button from "@erxes/ui/src/components/Button";
 import confirm from "@erxes/ui/src/utils/confirmation/confirm";
-import Dropdown from "react-bootstrap/Dropdown";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 import ChartRenderer from "../../containers/chart/ChartRenderer";
 import queryString from "query-string";
@@ -96,35 +96,35 @@ const Dashboard = (props: Props) => {
         {/* <Button btnStyle="simple" onClick={() => {}} icon="share-alt">
           Share
         </Button> */}
-        <Dropdown drop="down" alignRight={true}>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
-            <Button btnStyle="simple" icon="ellipsis-h" />
-          </Dropdown.Toggle>
-          <Dropdown.Menu className="dropdown-container">
-            <li>
-              <a
-                href="#duplicate"
-                onClick={() => {
-                  dashboardDuplicate(dashboard._id);
-                }}
-              >
-                <Icon icon="copy" />
-                {__("Duplicate")}
-              </a>
-            </li>
-            <li>
-              <a
-                href="#delete"
-                onClick={() => {
-                  dashboardRemove(dashboard._id);
-                }}
-              >
-                <Icon icon="trash-alt" />
+        <Dropdown
+          drop="down"
+          as={DropdownToggle}
+          toggleComponent={<Button btnStyle="simple" icon="ellipsis-h" />}
+          // alignRight={true}
+        >
+          <li>
+            <a
+              href="#duplicate"
+              onClick={() => {
+                dashboardDuplicate(dashboard._id);
+              }}
+            >
+              <Icon icon="copy" />
+              {__("Duplicate")}
+            </a>
+          </li>
+          <li>
+            <a
+              href="#delete"
+              onClick={() => {
+                dashboardRemove(dashboard._id);
+              }}
+            >
+              <Icon icon="trash-alt" />
 
-                {__("Delete")}
-              </a>
-            </li>
-          </Dropdown.Menu>
+              {__("Delete")}
+            </a>
+          </li>
         </Dropdown>
       </BarItems>
     );

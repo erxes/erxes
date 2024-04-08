@@ -1,21 +1,21 @@
-import Alert from '@erxes/ui/src/utils/Alert';
-import Button from '@erxes/ui/src/components/Button';
-import confirm from '@erxes/ui/src/utils/confirmation/confirm';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import { FieldStyle } from '@erxes/ui/src/layout/styles';
-import Icon from '@erxes/ui/src/components/Icon';
-import { MainStyleInfoWrapper as InfoWrapper } from '@erxes/ui/src/styles/eindex';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
-import { __ } from 'coreui/utils';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { Action, Name } from '../../contracts/styles';
-import React from 'react';
+import Alert from "@erxes/ui/src/utils/Alert";
+import Button from "@erxes/ui/src/components/Button";
+import confirm from "@erxes/ui/src/utils/confirmation/confirm";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import { FieldStyle } from "@erxes/ui/src/layout/styles";
+import Icon from "@erxes/ui/src/components/Icon";
+import { MainStyleInfoWrapper as InfoWrapper } from "@erxes/ui/src/styles/eindex";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import { SidebarCounter, SidebarList } from "@erxes/ui/src/layout/styles";
+import { __ } from "coreui/utils";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import { Action, Name } from "../../contracts/styles";
+import React from "react";
 
-import { Description } from '../../contracts/styles';
-import ContractTypeForm from '../containers/ContractTypeForm';
-import { IContractTypeDetail } from '../types';
+import { Description } from "../../contracts/styles";
+import ContractTypeForm from "../containers/ContractTypeForm";
+import { IContractTypeDetail } from "../types";
 
 type Props = {
   contractType: IContractTypeDetail;
@@ -27,7 +27,7 @@ const DetailInfo = (props: Props) => {
     return (
       <li>
         <FieldStyle>{__(`${label}`)}</FieldStyle>
-        <SidebarCounter>{value || '-'}</SidebarCounter>
+        <SidebarCounter>{value || "-"}</SidebarCounter>
       </li>
     );
   };
@@ -44,20 +44,20 @@ const DetailInfo = (props: Props) => {
 
     return (
       <Action>
-        <Dropdown>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
+        <Dropdown
+          as={DropdownToggle}
+          toggleComponent={
             <Button btnStyle="simple" size="medium">
-              {__('Action')}
+              {__("Action")}
               <Icon icon="angle-down" />
             </Button>
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <li>
-              <a href="#delete" onClick={onDelete}>
-                {__('Delete')}
-              </a>
-            </li>
-          </Dropdown.Menu>
+          }
+        >
+          <li>
+            <a href="#delete" onClick={onDelete}>
+              {__("Delete")}
+            </a>
+          </li>
         </Dropdown>
       </Action>
     );
@@ -76,7 +76,7 @@ const DetailInfo = (props: Props) => {
         <InfoWrapper>
           <Name>{contractType.name}</Name>
           <ModalTrigger
-            title={__('Edit basic info')}
+            title={__("Edit basic info")}
             trigger={<Icon icon="edit" />}
             size="lg"
             content={content}
@@ -87,29 +87,29 @@ const DetailInfo = (props: Props) => {
 
         <Section>
           <SidebarList className="no-link">
-            {renderRow('Code', contractType.code)}
-            {renderRow('Name', contractType.name || '')}
-            {renderRow('Start Number', contractType.number || '')}
+            {renderRow("Code", contractType.code)}
+            {renderRow("Name", contractType.name || "")}
+            {renderRow("Start Number", contractType.number || "")}
             {renderRow(
-              'After vacancy count',
-              (contractType.vacancy || 0).toLocaleString(),
+              "After vacancy count",
+              (contractType.vacancy || 0).toLocaleString()
             )}
             {renderRow(
-              'Loss percent',
-              (contractType.unduePercent || 0).toLocaleString(),
+              "Loss percent",
+              (contractType.unduePercent || 0).toLocaleString()
             )}
-            {renderRow('Loss calc type', contractType.undueCalcType)}
-            {renderRow('Is use debt', __(contractType.useDebt ? 'Yes' : 'No'))}
+            {renderRow("Loss calc type", contractType.undueCalcType)}
+            {renderRow("Is use debt", __(contractType.useDebt ? "Yes" : "No"))}
             {renderRow(
-              'Is use margin',
-              __(contractType.useMargin ? 'Yes' : 'No'),
+              "Is use margin",
+              __(contractType.useMargin ? "Yes" : "No")
             )}
             {renderRow(
-              'Is use skip interest',
-              __(contractType.useSkipInterest ? 'Yes' : 'No'),
+              "Is use skip interest",
+              __(contractType.useSkipInterest ? "Yes" : "No")
             )}
 
-            {renderRow('Leasing Type', contractType.leaseType)}
+            {renderRow("Leasing Type", contractType.leaseType)}
             <li>
               <FieldStyle>{__(`Allow categories`)}</FieldStyle>
             </li>

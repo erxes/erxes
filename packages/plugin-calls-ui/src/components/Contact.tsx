@@ -1,7 +1,7 @@
 import { AdditionalDetail, ContactItem, Contacts, InputBar } from "../styles";
 import React, { useState } from "react";
 
-import Dropdown from "react-bootstrap/Dropdown";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 import { EmptyState } from "@erxes/ui/src/components";
 import { FormControl } from "@erxes/ui/src/components/form";
@@ -45,15 +45,13 @@ const Contact: React.FC<Props> = ({
             secondLine={customer.primaryPhone}
           />
           <AdditionalDetail>
-            <Dropdown>
-              <Dropdown.Toggle as={DropdownToggle} id="dropdown-convert-to">
-                <Icon icon="ellipsis-v" size={18} />
-              </Dropdown.Toggle>
-              <Dropdown.Menu>
-                <li key="call" onClick={() => onCall(customer?.primaryPhone)}>
-                  <Icon icon="outgoing-call" /> {__("Call")}
-                </li>
-              </Dropdown.Menu>
+            <Dropdown
+              as={DropdownToggle}
+              toggleComponent={<Icon icon="ellipsis-v" size={18} />}
+            >
+              <li key="call" onClick={() => onCall(customer?.primaryPhone)}>
+                <Icon icon="outgoing-call" /> {__("Call")}
+              </li>
             </Dropdown>
           </AdditionalDetail>
         </ContactItem>

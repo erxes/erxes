@@ -7,7 +7,7 @@ import {
 import React, { useEffect, useState } from "react";
 
 import Button from "@erxes/ui/src/components/Button";
-import Dropdown from "react-bootstrap/Dropdown";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import { IChecklistItem } from "../types";
@@ -155,22 +155,20 @@ function Item(props: Props) {
           dangerouslySetInnerHTML={{ __html: xss(urlify(content)) }}
         />
 
-        <Dropdown>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-brand">
-            <Icon icon="ellipsis-h" />
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <li>
-              <a onClick={onConvert} href="#convert">
-                Convert to Card
-              </a>
-            </li>
-            <li>
-              <a onClick={onRemove} href="#remove">
-                Delete
-              </a>
-            </li>
-          </Dropdown.Menu>
+        <Dropdown
+          as={DropdownToggle}
+          toggleComponent={<Icon icon="ellipsis-h" />}
+        >
+          <li>
+            <a onClick={onConvert} href="#convert">
+              Convert to Card
+            </a>
+          </li>
+          <li>
+            <a onClick={onRemove} href="#remove">
+              Delete
+            </a>
+          </li>
         </Dropdown>
       </ChecklistText>
     );

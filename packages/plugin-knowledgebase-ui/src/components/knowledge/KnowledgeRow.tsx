@@ -1,21 +1,22 @@
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { DropIcon } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
-import React, { useState, useEffect } from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import CategoryForm from '../../containers/category/CategoryForm';
-import CategoryList from '../../containers/category/CategoryList';
-import KnowledgeForm from '../../containers/knowledge/KnowledgeForm';
-import { ITopic } from '@erxes/ui-knowledgebase/src/types';
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import { DropIcon } from "@erxes/ui/src/styles/main";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { __ } from "@erxes/ui/src/utils/core";
+import React, { useState, useEffect } from "react";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import CategoryForm from "../../containers/category/CategoryForm";
+import CategoryList from "../../containers/category/CategoryList";
+import KnowledgeForm from "../../containers/knowledge/KnowledgeForm";
+import { ITopic } from "@erxes/ui-knowledgebase/src/types";
 import {
   KnowledgeBaseRow,
   RowActions,
   SectionHead,
   SectionTitle,
-} from './styles';
+} from "./styles";
+import { Menu } from "@headlessui/react";
 
 type Props = {
   queryParams: any;
@@ -64,7 +65,7 @@ const KnowledgeRow = (props: Props) => {
     const { categories } = topic;
 
     if (categories.some((category) => category._id === currentCategoryId)) {
-      setDetailed(collapse('', false, true));
+      setDetailed(collapse("", false, true));
     }
   }, [currentCategoryId]);
 
@@ -91,33 +92,31 @@ const KnowledgeRow = (props: Props) => {
   );
 
   const renderManage = () => {
-    const addCategory = <Dropdown.Item>{__('Add category')}</Dropdown.Item>;
+    const addCategory = <Menu.Item>{__("Add category")}</Menu.Item>;
 
-    const manageTopic = (
-      <Dropdown.Item>{__('Edit Knowledge Base')}</Dropdown.Item>
-    );
+    const manageTopic = <Menu.Item>{__("Edit Knowledge Base")}</Menu.Item>;
 
     return (
       <RowActions>
-        <Dropdown alignRight={true} style={{ float: 'left' }}>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-knowledgebase">
-            <Icon icon="cog" size={15} />
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <ModalTrigger
-              title="Manage Knowledge Base"
-              trigger={manageTopic}
-              content={content}
-              enforceFocus={false}
-              size="lg"
-            />
-            <ModalTrigger
-              title="Add Category"
-              trigger={addCategory}
-              autoOpenKey="showKBAddCategoryModal"
-              content={categoryContent}
-            />
-          </Dropdown.Menu>
+        <Dropdown
+          // alignRight={true}
+          as={DropdownToggle}
+          toggleComponent={<Icon icon="cog" size={15} />}
+          // style={{ float: "left" }}
+        >
+          <ModalTrigger
+            title="Manage Knowledge Base"
+            trigger={manageTopic}
+            content={content}
+            enforceFocus={false}
+            size="lg"
+          />
+          <ModalTrigger
+            title="Add Category"
+            trigger={addCategory}
+            autoOpenKey="showKBAddCategoryModal"
+            content={categoryContent}
+          />
         </Dropdown>
         <DropIcon onClick={handleToggle} isOpen={detailed} />
       </RowActions>

@@ -1,22 +1,21 @@
-import { IBoard, ICalendar, IGroup } from '../types';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import { IBoard, ICalendar, IGroup } from "../types";
+import { IButtonMutateProps, IRouterProps } from "@erxes/ui/src/types";
 
-import Button from '@erxes/ui/src/components/Button';
-// import { withRouter } from 'react-router-dom';
-import { CALENDAR_INTEGRATIONS } from '../constants';
-import CalendarForm from './CalendarForm';
-import { Count } from '@erxes/ui/src/styles/main';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import GroupForm from '../containers/GroupForm';
-import GroupRow from './GroupRow';
-import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
-import Table from '@erxes/ui/src/components/table';
-import { Title } from '@erxes/ui-settings/src/styles';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils/core';
+import Button from "@erxes/ui/src/components/Button";
+import { CALENDAR_INTEGRATIONS } from "../constants";
+import CalendarForm from "./CalendarForm";
+import { Count } from "@erxes/ui/src/styles/main";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import GroupForm from "../containers/GroupForm";
+import GroupRow from "./GroupRow";
+import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
+import Table from "@erxes/ui/src/components/table";
+import { Title } from "@erxes/ui-settings/src/styles";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "@erxes/ui/src/utils/core";
 
 type Props = {
   groups: IGroup[];
@@ -44,7 +43,7 @@ class Groups extends React.Component<Props, State> {
     const { history } = props;
 
     const showCalendarModal =
-      history.location.hash.includes('showCalendarModal');
+      history.location.hash.includes("showCalendarModal");
 
     this.state = {
       showModal: false,
@@ -134,8 +133,8 @@ class Groups extends React.Component<Props, State> {
     return (
       <>
         <Count>
-          {groups.length} {__('group')}
-          {groups.length > 1 && 's'}
+          {groups.length} {__("group")}
+          {groups.length > 1 && "s"}
         </Count>
         <Table>
           <tbody>{this.renderRows()}</tbody>
@@ -152,24 +151,26 @@ class Groups extends React.Component<Props, State> {
     }
 
     return (
-      <Dropdown className="dropdown-btn" alignRight={true}>
-        <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
+      <Dropdown
+        // className="dropdown-btn"
+        // alignRight={true}
+        as={DropdownToggle}
+        toggleComponent={
           <Button btnStyle="simple">
-            {__('Add calendar')} <Icon icon="angle-down" />
+            {__("Add calendar")} <Icon icon="angle-down" />
           </Button>
-        </Dropdown.Toggle>
-        <Dropdown.Menu>
-          {CALENDAR_INTEGRATIONS.map((i) => (
-            <li key={i.kind}>
-              <a
-                href={`#${i.kind}`}
-                onClick={this.connectCalendar.bind(this, i.kind)}
-              >
-                {i.name}
-              </a>
-            </li>
-          ))}
-        </Dropdown.Menu>
+        }
+      >
+        {CALENDAR_INTEGRATIONS.map((i) => (
+          <li key={i.kind}>
+            <a
+              href={`#${i.kind}`}
+              onClick={this.connectCalendar.bind(this, i.kind)}
+            >
+              {i.name}
+            </a>
+          </li>
+        ))}
       </Dropdown>
     );
   }
@@ -195,7 +196,7 @@ class Groups extends React.Component<Props, State> {
     const { currentBoard } = this.props;
 
     const leftActionBar = (
-      <Title>{currentBoard ? currentBoard.name : ''}</Title>
+      <Title>{currentBoard ? currentBoard.name : ""}</Title>
     );
 
     return (

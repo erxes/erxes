@@ -1,29 +1,29 @@
-import Attachment from '@erxes/ui/src/components/Attachment';
-import Button from '@erxes/ui/src/components/Button';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { Actions, InfoWrapper } from '@erxes/ui/src/styles/main';
-import { IAttachment } from '@erxes/ui/src/types';
-import { __, Alert, confirm } from '@erxes/ui/src/utils';
+import Attachment from "@erxes/ui/src/components/Attachment";
+import Button from "@erxes/ui/src/components/Button";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import { Actions, InfoWrapper } from "@erxes/ui/src/styles/main";
+import { IAttachment } from "@erxes/ui/src/types";
+import { __, Alert, confirm } from "@erxes/ui/src/utils";
 
-import { Name } from '@erxes/ui-contacts/src/customers/styles';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import { Name } from "@erxes/ui-contacts/src/customers/styles";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
 import {
   FieldStyle,
   SidebarCounter,
   SidebarFlexRow,
   SidebarList,
-} from '@erxes/ui/src/layout/styles';
-import ProductForm from '@erxes/ui-products/src/containers/ProductForm';
-import { IProduct } from '../../../types';
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { Link } from 'react-router-dom';
-import xss from 'xss';
-import { ProductBarcodeContent, ProductContent } from '../../../styles';
-import { isValidBarcode } from '../../../utils';
-import { Tip } from '@erxes/ui/src';
+} from "@erxes/ui/src/layout/styles";
+import ProductForm from "@erxes/ui-products/src/containers/ProductForm";
+import { IProduct } from "../../../types";
+import React from "react";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import { Link } from "react-router-dom";
+import xss from "xss";
+import { ProductBarcodeContent, ProductContent } from "../../../styles";
+import { isValidBarcode } from "../../../utils";
+import { Tip } from "@erxes/ui/src";
 
 type Props = {
   product: IProduct;
@@ -47,11 +47,11 @@ const BasicInfo: React.FC<Props> = (props) => {
     return (
       <li>
         <FieldStyle>{__(`Vendor`)}</FieldStyle>
-        <SidebarCounter>{vendor.primaryName || ''}</SidebarCounter>
+        <SidebarCounter>{vendor.primaryName || ""}</SidebarCounter>
         <Button
           onClick={() => history.push(`/companies/details/${vendor._id}`)}
           btnStyle="link"
-          style={{ padding: '0', paddingLeft: '8px' }}
+          style={{ padding: "0", paddingLeft: "8px" }}
         >
           <Tip text="See Vendor Detail" placement="bottom">
             <Icon icon="rightarrow" />
@@ -82,7 +82,7 @@ const BasicInfo: React.FC<Props> = (props) => {
   };
 
   const renderView = (name, variable) => {
-    const defaultName = name.includes('count') ? 0 : '-';
+    const defaultName = name.includes("count") ? 0 : "-";
 
     return (
       <li>
@@ -99,7 +99,7 @@ const BasicInfo: React.FC<Props> = (props) => {
         title="Edit basic info"
         trigger={
           <li>
-            <a href="#edit">{__('Edit')}</a>
+            <a href="#edit">{__("Edit")}</a>
           </li>
         }
         size="xl"
@@ -118,21 +118,21 @@ const BasicInfo: React.FC<Props> = (props) => {
 
     return (
       <Actions>
-        <Dropdown>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
+        <Dropdown
+          as={DropdownToggle}
+          toggleComponent={
             <Button btnStyle="simple" size="medium">
-              {__('Action')}
+              {__("Action")}
               <Icon icon="angle-down" />
             </Button>
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            {renderEdit()}
-            <li>
-              <a href="#delete" onClick={onDelete}>
-                {__('Delete')}
-              </a>
-            </li>
-          </Dropdown.Menu>
+          }
+        >
+          {renderEdit()}
+          <li>
+            <a href="#delete" onClick={onDelete}>
+              {__("Delete")}
+            </a>
+          </li>
         </Dropdown>
       </Actions>
     );
@@ -181,10 +181,10 @@ const BasicInfo: React.FC<Props> = (props) => {
 
         {renderImage(attachment)}
         <SidebarList className="no-link">
-          {renderView('Code', code)}
-          {renderView('Type', type)}
-          {renderView('Category', category ? category.name : '')}
-          {renderView('Unit price', (unitPrice || 0).toLocaleString())}
+          {renderView("Code", code)}
+          {renderView("Type", type)}
+          {renderView("Category", category ? category.name : "")}
+          {renderView("Unit price", (unitPrice || 0).toLocaleString())}
           {renderBarcodes(barcodes)}
           {renderVendor(vendor)}
           <SidebarFlexRow>{__(`Description`)}</SidebarFlexRow>

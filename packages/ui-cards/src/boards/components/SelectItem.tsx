@@ -1,10 +1,10 @@
-import PriorityIndicator from './editForm/PriorityIndicator';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import Icon from '@erxes/ui/src/components/Icon';
-import colors from '@erxes/ui/src/styles/colors';
-import * as React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import styled from 'styled-components';
+import PriorityIndicator from "./editForm/PriorityIndicator";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import Icon from "@erxes/ui/src/components/Icon";
+import colors from "@erxes/ui/src/styles/colors";
+import * as React from "react";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import styled from "styled-components";
 
 export const ActionItem = styled.button`
   width: 100%;
@@ -46,20 +46,15 @@ class SelectItem extends React.Component<IProps> {
     const onChangeItem = (value: string) => onChange(value);
 
     return (
-      <Dropdown>
-        <Dropdown.Toggle as={DropdownToggle} id="dropdown-select">
-          {trigger}
-        </Dropdown.Toggle>
-        <Dropdown.Menu>
-          {items.map(item => (
-            <li key={item}>
-              <ActionItem onClick={onChangeItem.bind(this, item)}>
-                <PriorityIndicator value={item} /> {item}
-                {this.isChecked(item) && <Icon icon="check-1" />}
-              </ActionItem>
-            </li>
-          ))}
-        </Dropdown.Menu>
+      <Dropdown as={DropdownToggle} toggleComponent={trigger}>
+        {items.map((item) => (
+          <li key={item}>
+            <ActionItem onClick={onChangeItem.bind(this, item)}>
+              <PriorityIndicator value={item} /> {item}
+              {this.isChecked(item) && <Icon icon="check-1" />}
+            </ActionItem>
+          </li>
+        ))}
       </Dropdown>
     );
   }

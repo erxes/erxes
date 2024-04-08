@@ -1,15 +1,16 @@
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Alert from '@erxes/ui/src/utils/Alert/index';
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from '@erxes/ui/src/utils/core';
-import React, { useEffect, useState } from 'react';
-import { ButtonRow, Container, Row } from '../../styles';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { FormContainer } from '@erxes/ui-cards/src/boards/styles/common';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import LinkAction from './LinkAction';
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import Alert from "@erxes/ui/src/utils/Alert/index";
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Icon from "@erxes/ui/src/components/Icon";
+import { __ } from "@erxes/ui/src/utils/core";
+import React, { useEffect, useState } from "react";
+import { ButtonRow, Container, Row } from "../../styles";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import { FormContainer } from "@erxes/ui-cards/src/boards/styles/common";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import LinkAction from "./LinkAction";
+import { Menu } from "@headlessui/react";
 
 type Props = {
   _id: string;
@@ -45,13 +46,13 @@ function ButtonsGenerator({
   };
 
   const onChangeButtons = (buttons) => {
-    onChange(_id, 'buttons', buttons);
+    onChange(_id, "buttons", buttons);
   };
 
   const renderButton = (button) => {
     const onBtnChange = (name, value) => {
       const updateButtons = btns.map((btn) =>
-        btn._id === button._id ? { ...btn, [name]: value } : btn,
+        btn._id === button._id ? { ...btn, [name]: value } : btn
       );
 
       setButtons(updateButtons);
@@ -61,15 +62,15 @@ function ButtonsGenerator({
           text,
           type,
           link,
-        })),
+        }))
       );
     };
 
     const onDoubleClick = () => {
       setButtons(
         btns.map((btn) =>
-          btn._id === button._id ? { ...btn, isEditing: true } : btn,
-        ),
+          btn._id === button._id ? { ...btn, isEditing: true } : btn
+        )
       );
     };
 
@@ -77,7 +78,7 @@ function ButtonsGenerator({
       const { value } = e.currentTarget as HTMLInputElement;
 
       const updateButtons = btns.map((btn) =>
-        btn._id === button._id ? { ...btn, text: value } : btn,
+        btn._id === button._id ? { ...btn, text: value } : btn
       );
       setButtons(updateButtons);
     };
@@ -87,15 +88,15 @@ function ButtonsGenerator({
 
       e.preventDefault();
       if (value.trim().length === 0) {
-        return Alert.warning('Button text required!');
+        return Alert.warning("Button text required!");
       }
 
-      onBtnChange('isEditing', false);
+      onBtnChange("isEditing", false);
     };
 
     const onRemove = () => {
       const updateButtons = generateButtons().filter(
-        (btn) => btn._id !== button._id,
+        (btn) => btn._id !== button._id
       );
 
       onChangeButtons(updateButtons);
@@ -104,16 +105,16 @@ function ButtonsGenerator({
     const handleBtnTypeChange = (e, type) => {
       e.preventDefault();
 
-      onBtnChange('type', type);
+      onBtnChange("type", type);
     };
 
     const renderTrigger = (type) => {
-      if (type === 'link') {
+      if (type === "link") {
         const onChangeLink = (e) => {
           e.stopPropagation();
           const { value } = e.currentTarget as HTMLInputElement;
 
-          onBtnChange('link', value);
+          onBtnChange("link", value);
         };
 
         return (
@@ -126,7 +127,7 @@ function ButtonsGenerator({
               />
             </div>
             <Button btnStyle="link" size="small">
-              {__('Link')} <Icon icon="angle-down" />
+              {__("Link")} <Icon icon="angle-down" />
             </Button>
           </Row>
         );
@@ -136,9 +137,9 @@ function ButtonsGenerator({
         <Button
           btnStyle="link"
           size="small"
-          style={{ display: 'flex', gap: 5 }}
+          style={{ display: "flex", gap: 5 }}
         >
-          {__('Button')} <Icon icon="angle-down" />
+          {__("Button")} <Icon icon="angle-down" />
         </Button>
       );
     };
@@ -153,7 +154,7 @@ function ButtonsGenerator({
               onChange={handleEdit}
               value={button?.text || null}
               onBlur={onSave}
-              onKeyPress={(e) => e.key === 'Enter' && onSave(e)}
+              onKeyPress={(e) => e.key === "Enter" && onSave(e)}
             />
           </FormContainer>
         );
@@ -170,29 +171,24 @@ function ButtonsGenerator({
         {renderInput()}
 
         {!hideMenu && (
-          <Dropdown>
-            <Dropdown.Toggle
-              id="dropdown-customize dropdown-autoclose-true"
-              as={DropdownToggle}
-            >
-              {renderTrigger(button.type)}
-            </Dropdown.Toggle>
-            <Dropdown.Menu rootCloseEvent="click">
-              <Container>
-                {[
-                  { type: 'btn', text: 'Button' },
-                  { type: 'link', text: 'Link' },
-                ].map(({ text, type }) => (
-                  <Dropdown.Item
-                    className="dropdown-item"
-                    key={type}
-                    onClick={(e) => handleBtnTypeChange(e, type)}
-                  >
-                    <a>{text}</a>
-                  </Dropdown.Item>
-                ))}
-              </Container>
-            </Dropdown.Menu>
+          <Dropdown
+            as={DropdownToggle}
+            toggleComponent={renderTrigger(button.type)}
+          >
+            <Container>
+              {[
+                { type: "btn", text: "Button" },
+                { type: "link", text: "Link" },
+              ].map(({ text, type }) => (
+                <Menu.Item
+                  // className="dropdown-item"
+                  key={type}
+                  // onClick={(e) => handleBtnTypeChange(e, type)}
+                >
+                  <a>{text}</a>
+                </Menu.Item>
+              ))}
+            </Container>
           </Dropdown>
         )}
 
@@ -205,7 +201,7 @@ function ButtonsGenerator({
 
   const addButton = () => {
     const newBtnCount = btns.filter((btn) =>
-      btn.text.includes('New Button #'),
+      btn.text.includes("New Button #")
     ).length;
 
     onChangeButtons([
@@ -213,7 +209,7 @@ function ButtonsGenerator({
       {
         _id: Math.random().toString(),
         text: `New Button #${newBtnCount + 1}`,
-        type: 'button',
+        type: "button",
         isEditing: true,
       },
     ]);
@@ -223,7 +219,7 @@ function ButtonsGenerator({
     <>
       {btns.map((button) => renderButton(button))}
       <Button block btnStyle="link" icon="plus-1" onClick={addButton}>
-        {__(addButtonLabel || 'Add Button')}
+        {__(addButtonLabel || "Add Button")}
       </Button>
     </>
   );

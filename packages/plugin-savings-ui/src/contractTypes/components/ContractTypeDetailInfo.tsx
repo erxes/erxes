@@ -10,15 +10,15 @@ import {
   Sidebar,
   SidebarCounter,
   SidebarList,
-} from '@erxes/ui/src';
-import { __ } from 'coreui/utils';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { Action, Name } from '../../contracts/styles';
-import React from 'react';
+} from "@erxes/ui/src";
+import { __ } from "coreui/utils";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import { Action, Name } from "../../contracts/styles";
+import React from "react";
 
-import { Description } from '../../contracts/styles';
-import ContractTypeForm from '../containers/ContractTypeForm';
-import { IContractTypeDetail } from '../types';
+import { Description } from "../../contracts/styles";
+import ContractTypeForm from "../containers/ContractTypeForm";
+import { IContractTypeDetail } from "../types";
 
 type Props = {
   contractType: IContractTypeDetail;
@@ -30,7 +30,7 @@ const DetailInfo = (props: Props) => {
     return (
       <li>
         <FieldStyle>{__(`${label}`)}</FieldStyle>
-        <SidebarCounter>{value || '-'}</SidebarCounter>
+        <SidebarCounter>{value || "-"}</SidebarCounter>
       </li>
     );
   };
@@ -47,20 +47,20 @@ const DetailInfo = (props: Props) => {
 
     return (
       <Action>
-        <Dropdown>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
+        <Dropdown
+          as={DropdownToggle}
+          toggleComponent={
             <Button btnStyle="simple" size="medium">
-              {__('Action')}
+              {__("Action")}
               <Icon icon="angle-down" />
             </Button>
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <li>
-              <a href="#delete" onClick={onDelete}>
-                {__('Delete')}
-              </a>
-            </li>
-          </Dropdown.Menu>
+          }
+        >
+          <li>
+            <a href="#delete" onClick={onDelete}>
+              {__("Delete")}
+            </a>
+          </li>
         </Dropdown>
       </Action>
     );
@@ -79,7 +79,7 @@ const DetailInfo = (props: Props) => {
         <InfoWrapper>
           <Name>{contractType.name}</Name>
           <ModalTrigger
-            title={__('Edit basic info')}
+            title={__("Edit basic info")}
             trigger={<Icon icon="edit" />}
             size="lg"
             content={content}
@@ -90,21 +90,21 @@ const DetailInfo = (props: Props) => {
 
         <Section>
           <SidebarList className="no-link">
-            {renderRow('Code', contractType.code)}
-            {renderRow('Name', contractType.name || '')}
-            {renderRow('Start Number', contractType.number || '')}
+            {renderRow("Code", contractType.code)}
+            {renderRow("Name", contractType.name || "")}
+            {renderRow("Start Number", contractType.number || "")}
             {renderRow(
-              'After vacancy count',
-              (contractType.vacancy || 0).toLocaleString(),
+              "After vacancy count",
+              (contractType.vacancy || 0).toLocaleString()
             )}
 
-            {renderRow('Interest calc type', contractType.interestCalcType)}
+            {renderRow("Interest calc type", contractType.interestCalcType)}
             {renderRow(
-              'Store interest interval',
-              contractType.storeInterestInterval,
+              "Store interest interval",
+              contractType.storeInterestInterval
             )}
-            {renderRow('Is allow income', contractType.isAllowIncome)}
-            {renderRow('Is allow outcome', contractType.isAllowOutcome)}
+            {renderRow("Is allow income", contractType.isAllowIncome)}
+            {renderRow("Is allow outcome", contractType.isAllowOutcome)}
             <li>
               <FieldStyle>{__(`Description`)}</FieldStyle>
             </li>
