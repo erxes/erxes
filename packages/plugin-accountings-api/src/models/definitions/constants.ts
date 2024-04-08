@@ -53,9 +53,9 @@ export const TR_STATUSES = {
 export const PTR_STATUSES = {
   DT: 'dt',
   CT: 'ct',
-  ZERO: 'zero',
+  UNKNOWN: 'unknown',
   OK: 'ok',
-  ALL: ['dt', 'ct', 'zero', 'ok'],
+  ALL: ['dt', 'ct', 'unknown', 'ok'],
 };
 
 export const JOURNALS = {

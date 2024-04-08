@@ -21,11 +21,11 @@ export interface ITransaction {
   date: Date;
   description: string;
   status: string;
-  groupId: string;
-  number: string;
+  ptrId?: string;
+  parentId?: string;
+  number?: string;
   journal: string;
-  parentId: string;
-  ptrStatus: string;
+  ptrStatus?: string;
 
   branchId?: string;
   departmentId?: string;
@@ -34,12 +34,20 @@ export interface ITransaction {
 
 
   details: ITrDetail[];
-  createdBy: string;
+  sumDt: number;
+  sumCt: number;
+  createdBy?: string;
   modifiedBy?: string;
 }
 
 export interface ITransactionDocument extends ITransaction, Document {
   _id: string;
+
+  ptrId: string;
+  parentId: string;
+  number: string;
+  ptrStatus: string;
+
   createdAt: Date;
   modifiedAt?: Date;
 }
@@ -79,7 +87,8 @@ export const transactionSchema = schemaWrapper(
       default: 'new',
       index: true,
     }),
-    groupId: field({ type: String, label: 'Group' }),
+    ptrId: field({ type: String, label: 'Group' }),
+    parentId: field({ type: String, optional: true, label: 'parentId', index: true }),
     number: field({ type: String, optional: true, label: 'Number', index: true }),
     journal: field({
       type: String,
@@ -88,7 +97,6 @@ export const transactionSchema = schemaWrapper(
       label: 'Journal',
       index: true
     }),
-    parentId: field({ type: String, optional: true, label: 'parentId', index: true }),
     ptrStatus: field({
       type: String,
       enum: PTR_STATUSES.ALL,
@@ -104,6 +112,8 @@ export const transactionSchema = schemaWrapper(
     customerId: field({ type: String, optional: true, label: 'Customer' }),
 
     details: field({ type: [transactionDetailSchema], label: 'details' }),
+    sumDt: field({ type: Number, label: 'sumDt' }),
+    sumCt: field({ type: Number, label: 'sumCt' }),
 
     createdBy: field({ type: String, label: 'Created user' }),
     modifiedBy: field({ type: String, optional: true, label: 'Modified user' }),
