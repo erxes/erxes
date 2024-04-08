@@ -7,7 +7,7 @@ import Button from "@erxes/ui/src/components/Button";
 import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import InvoiceDetail from "../../containers/invoice/Detail";
-import Modal from "react-bootstrap/Modal";
+import Dialog from "@erxes/ui/src/components/Dialog";
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 import Row from "./Row";
 import Sidebar from "./SideBar";
@@ -138,14 +138,14 @@ const List = (props: IProps) => {
         <tbody>{renderRow()}</tbody>
       </Table>
 
-      <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
-        <Modal.Header closeButton={true}>
-          <Modal.Title>{__("Invoice detail")}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <InvoiceDetail id={currentInvoiceId || ""} />
-        </Modal.Body>
-      </Modal>
+      <Dialog
+        show={showModal}
+        closeModal={() => setShowModal(false)}
+        size="lg"
+        title={__("Invoice detail")}
+      >
+        <InvoiceDetail id={currentInvoiceId || ""} />
+      </Dialog>
     </>
   );
 

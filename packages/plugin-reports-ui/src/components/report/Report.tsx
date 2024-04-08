@@ -5,7 +5,7 @@ import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { BarItems, FlexContent } from "@erxes/ui/src/layout/styles";
 import { __, confirm, router } from "@erxes/ui/src/utils";
 import React, { useState, useEffect } from "react";
-import Modal from "react-bootstrap/Modal";
+import Dialog from "@erxes/ui/src/components/Dialog";
 import {
   ActionBarButtonsWrapper,
   BackButton,
@@ -241,30 +241,28 @@ const Report = (props: Props) => {
 
   const renderMembersSelectModal = () => {
     return (
-      <Modal
+      <Dialog
         show={showTeamMemberSelect}
-        onHide={() => setShowTeamMembersSelect(false)}
+        closeModal={() => setShowTeamMembersSelect(false)}
       >
-        <Modal.Body>
-          <SelectMembersForm
-            handleDepartmentChange={handleDepartmentChange}
-            handleUserChange={handleUserChange}
-            userIds={userIds}
-            departmentIds={departmentIds}
-          />
-          <FlexCenter>
-            <Button
-              btnStyle="primary"
-              onClick={() => setShowTeamMembersSelect(false)}
-            >
-              Cancel
-            </Button>
-            <Button btnStyle="success" onClick={handleMembersSubmit}>
-              Save
-            </Button>
-          </FlexCenter>
-        </Modal.Body>
-      </Modal>
+        <SelectMembersForm
+          handleDepartmentChange={handleDepartmentChange}
+          handleUserChange={handleUserChange}
+          userIds={userIds}
+          departmentIds={departmentIds}
+        />
+        <FlexCenter>
+          <Button
+            btnStyle="primary"
+            onClick={() => setShowTeamMembersSelect(false)}
+          >
+            Cancel
+          </Button>
+          <Button btnStyle="success" onClick={handleMembersSubmit}>
+            Save
+          </Button>
+        </FlexCenter>
+      </Dialog>
     );
   };
 

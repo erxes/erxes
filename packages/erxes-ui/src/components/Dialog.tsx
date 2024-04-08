@@ -12,11 +12,15 @@ function DialogComponent({
   closeModal,
   title,
   children,
+  size,
+  className,
 }: {
   show: boolean;
   closeModal: () => void;
-  title: any;
+  title?: any;
   children: any;
+  size?: string;
+  className?: string;
 }) {
   return (
     <Transition appear show={show} as={Fragment}>
@@ -34,13 +38,15 @@ function DialogComponent({
         </Transition.Child>
         <DialogWrapper>
           <DialogContent>
-            <Dialog.Panel className={` dialog-size-lg`}>
+            <Dialog.Panel className={`dialog-size-${size ? size : 'lg'}`}>
               <Dialog.Title as="h3">
                 {title}
                 <Icon icon="times" size={24} onClick={closeModal} />
               </Dialog.Title>
               <Transition.Child>
-                <div className="dialog-description">{children}</div>
+                <div className={`dialog-description ${className}`}>
+                  {children}
+                </div>
               </Transition.Child>
             </Dialog.Panel>
           </DialogContent>
@@ -50,4 +56,4 @@ function DialogComponent({
   );
 }
 
-export default DialogComponent
+export default DialogComponent;

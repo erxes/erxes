@@ -13,7 +13,8 @@ import { FlexItem } from "@erxes/ui/src/components/step/styles";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import Icon from "@erxes/ui/src/components/Icon";
-import Modal from "react-bootstrap/Modal";
+import Dialog from "@erxes/ui/src/components/Dialog";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
 import React from "react";
 import { __ } from "@erxes/ui/src/utils";
 
@@ -133,7 +134,7 @@ class FieldForm extends React.Component<Props, State> {
           </FormGroup>
         </CollapseContent>
 
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             type="button"
@@ -152,7 +153,7 @@ class FieldForm extends React.Component<Props, State> {
           >
             {mode === "update" ? "Save" : "Add Field"}
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </>
     );
   }
@@ -181,22 +182,15 @@ class FieldForm extends React.Component<Props, State> {
     const { mode, field, onCancel } = this.props;
 
     return (
-      <Modal
+      <Dialog
+        className="md-padding"
         show={true}
         size="xl"
-        onHide={onCancel}
-        animation={false}
-        enforceFocus={false}
+        closeModal={onCancel}
+        title={`${mode === "create" ? "Add" : "Edit"} ${field.type} field`}
       >
-        <Modal.Header closeButton={true}>
-          <Modal.Title>
-            {mode === "create" ? "Add" : "Edit"} {field.type} field
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body id="ModalBody" className="md-padding">
-          {this.renderContent()}
-        </Modal.Body>
-      </Modal>
+        {this.renderContent()}
+      </Dialog>
     );
   }
 }
