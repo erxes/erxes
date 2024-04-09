@@ -13,6 +13,7 @@ import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import internalNotes from './internalNotes';
 import aftermutations from './aftermutations';
 import forms from './forms';
+import { getBuildingsByBounds } from './utils';
 
 
 export default {
@@ -23,6 +24,9 @@ export default {
     aftermutations,
     forms,
   },
+
+  getHandlers: [{ path: `/buildings`, method: getBuildingsByBounds }],
+
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),

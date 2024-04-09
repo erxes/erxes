@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ICoordinates } from '../types';
 import { IBuilding } from '../modules/buildings/types';
+import { getEnv } from '@erxes/ui/src/utils/core';
 
 type Props = {
   id: string;
@@ -16,8 +17,11 @@ type Props = {
 
 const Map = (props: Props) => {
   const [center, setCenter] = useState<ICoordinates | undefined>(props.center);
+  const [isInited, setIsInited] = useState(false);
 
   const mapRef = React.useRef(null);
+
+  const { REACT_APP_API_URL = '' } = getEnv();
 
   let timer: any = null;
 
@@ -32,7 +36,7 @@ const Map = (props: Props) => {
     }
 
     const script: any = document.createElement('script');
-    script.src = 'https://erxesmn.s3.amazonaws.com/osmb.js';
+    script.src = `${REACT_APP_API_URL}/pl:mobinet/static/assets/osmb.js`;
     script.async = true;
     script.defer = true;
     script.id = props.id;
@@ -77,20 +81,31 @@ const Map = (props: Props) => {
         '© Data <a href="https://openstreetmap.org/copyright/">OpenStreetMap</a> © 3D <a href="https://osmbuildings.org/copyright/">OSM Buildings</a>',
     });
 
+    const bounds = map.getBounds();
+
     map.addMapTiles('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution:
         '© Data <a href="https://openstreetmap.org/copyright/">OpenStreetMap</a>',
     });
 
-    map.addGeoJSONTiles(
-      'https://{s}.data.osmbuildings.org/0.2/anonymous/tile/{z}/{x}/{y}.json',
+    // map.addGeoJSONTiles(
+    //   'https://{s}.data.osmbuildings.org/0.2/anonymous/tile/{z}/{x}/{y}.json',
+    // );
+
+    const boundsJson = JSON.stringify(bounds);
+
+    map.addGeoJSON(
+      `${REACT_APP_API_URL}/pl:mobinet/buildings?bounds=${boundsJson}`
     );
+
+
 
     map.on('doubleclick', (e) => {
       console.log('double click', e);
     });
 
     map.on('pointerup', (e) => {
+      console.log('pointerup', e)
       if (!e.features || e.features.length === 0) {
         return;
       }
@@ -105,7 +120,7 @@ const Map = (props: Props) => {
 
       timer = setTimeout(() => {
         const pos = map.getPosition();
-        const bounds = map.getBounds();
+        const currentBounds = map.getBounds();
 
         if (
           center &&
@@ -118,11 +133,18 @@ const Map = (props: Props) => {
         props.onChangeCenter &&
           props.onChangeCenter(
             { lat: pos.latitude, lng: pos.longitude },
-            bounds.map((bound) => ({
+            currentBounds.map((bound) => ({
               lat: bound.latitude,
               lng: bound.longitude,
-            })),
+            }))
           );
+
+        const boundsJson = JSON.stringify(currentBounds);
+
+        map.addGeoJSON(
+          `${REACT_APP_API_URL}/pl:mobinet/buildings?bounds=${boundsJson}`
+        );
+
         return;
       }, 1000);
 
@@ -131,7 +153,10 @@ const Map = (props: Props) => {
       };
     });
 
-    map.addGeoJSON('http://localhost:4000/pl:mobinet/static/assets/custom.json');
+    map.addGeoJSON(
+      'http://localhost:4000/pl:mobinet/static/assets/custom.json'
+    );
+    // map.addGeoJSON('http://localhost:4000/pl:mobinet/buildings?bounds=[{%22longitude%22:106.92151974962191,%22latitude%22:47.9127473511875},{%22longitude%22:106.93385665926432,%22latitude%22:47.9127473511875},{%22longitude%22:106.9474390144251,%22latitude%22:47.94585990212495},{%22longitude%22:106.90793739446113,%22latitude%22:47.94585990212495}]')
 
     // if (props.selectedValues && props.selectedValues.length > 0) {
     //   map.highlight((feature) => {
@@ -156,7 +181,7 @@ const Map = (props: Props) => {
             lng: bound.longitude,
           };
         }),
-        mapRef,
+        mapRef
       );
   };
 
