@@ -2092,7 +2092,6 @@
     
     
     class WorkerPool {
-    
       constructor (path, num) {
         this.items = [];
         for (let i = 0; i < num; i++) {
@@ -3177,7 +3176,6 @@
         // this.emit('doubleclick', { x: pos.x, y: pos.y });
     
         APP.view.Picking.getTarget(pos.x, pos.y, target => {
-          console.log('target ======= ',target)
           this.emit('doubleclick', { features: target.features, marker: target.marker });
         });
   
@@ -4102,7 +4100,6 @@
       }
     
       onLoad (res) {
-        console.log("RES ++++++ ",res)
         this.longitude = res.position.longitude;
         this.latitude = res.position.latitude;
         this.metersPerLon = METERS_PER_DEGREE_LATITUDE * Math.cos(this.latitude / 180 * Math.PI);
@@ -6030,8 +6027,6 @@
       }
     
       destroy () {
-        console.log('destroy called')
-  
         this.shader.destroy();
         this.framebuffer.destroy();
         this.vertexBuffer.destroy();
