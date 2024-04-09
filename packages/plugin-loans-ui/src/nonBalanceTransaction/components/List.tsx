@@ -43,6 +43,7 @@ interface IProps extends IRouterProps {
   queryParams: any;
   currentUser: IUser;
   closeModal: () => void;
+  tableHeadName: any[]
 }
 
 class List extends React.Component<IProps> {
@@ -61,7 +62,6 @@ class List extends React.Component<IProps> {
 
     this.props.removeNonBalanceTransactions({ nonBalanceTransactionIds }, this.props.emptyBulk);
   };
-
   render() {
     const {
       nonBalanceTransactions,
@@ -72,14 +72,16 @@ class List extends React.Component<IProps> {
       totalCount,
       queryParams,
       currentUser,
-      closeModal
+      closeModal,
+      tableHeadName
     } = this.props;
-
+   
     const mainContent = (
       <TableWrapper>
         <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
           <thead>
-            <tr>
+            
+          <tr>
               <th>
                 <FormControl
                   checked={isAllSelected}
@@ -87,38 +89,17 @@ class List extends React.Component<IProps> {
                   onChange={this.onChange}
                 />
               </th>
-              <th>
-                <SortHandler
-                  sortField={'nonBalanceTransaction.number'}
-                  label={__('Number')}
-                />
-              </th>
-              <th>
-                <SortHandler
-                  sortField={'nonBalanceTransaction.description'}
-                  label={__('Description')}
-                />
-              </th>
+                {tableHeadName.map((head) => (
+                  <th key={head}>{head || ''}</th>
+                 ))}
               <th>
                 <SortHandler
                   sortField={'nonBalanceTransaction.createdAt'}
                   label={__('Create Date')}
                 />
               </th>
-              <th>
-                <SortHandler
-                  sortField={'nonBalanceTransaction.customerId'}
-                  label={__('customer')}
-                />
-              </th>
-              <th>
-                <SortHandler
-                  sortField={'nonBalanceTransaction.transactionType'}
-                  label={__('Type')}
-                />
-              </th>
               <th>Detail</th>
-            </tr>
+          </tr>
           </thead>
           <tbody id="nonBalanceTransactions">
             {nonBalanceTransactions.map(nonBalanceTransaction => (

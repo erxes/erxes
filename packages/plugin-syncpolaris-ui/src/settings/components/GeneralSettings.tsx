@@ -46,15 +46,12 @@ class GeneralSettings extends React.Component<Props, State> {
     const { currentMap } = this.state;
     const { configsMap } = this.props;
     configsMap.POLARIS = currentMap;
-
     this.props.save(configsMap);
   };
 
   onChangeConfig = (code: string, value) => {
     let currentMap = this.state.currentMap;
     this.setState({ currentMap:{...currentMap,[code]:value} });
-
-
   };
 
   onChangeInput = (code: string, e) => {
@@ -118,7 +115,6 @@ class GeneralSettings extends React.Component<Props, State> {
             breadcrumb={breadcrumb}
           />
         }
-        // mainHead={<Header />}
         actionBar={
           <Wrapper.ActionBar
             left={<Title>{__('Sync polaris configs')}</Title>}

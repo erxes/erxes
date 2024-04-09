@@ -5,8 +5,6 @@ import * as compose from 'lodash.flowright';
 import queryString from 'query-string';
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
-
-import { FILTER_PARAMS_TR } from '../../constants';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
 import {
@@ -19,6 +17,7 @@ import {
 type Props = {
   queryParams: any;
   history: any;
+  closeModal: () => void;
 };
 
 type FinalProps = {
@@ -45,7 +44,7 @@ class ListContainer extends React.Component<FinalProps, State> {
   }
 
   render() {
-    const { nonBalanceTransactionsMainQuery, nonBalanceTransactionsRemove } = this.props;
+    const { nonBalanceTransactionsMainQuery, nonBalanceTransactionsRemove, closeModal } = this.props;
 
     const removeNonBalanceTransactions = ({ nonBalanceTransactionIds }, emptyBulk) => {
       nonBalanceTransactionsRemove({
@@ -61,13 +60,15 @@ class ListContainer extends React.Component<FinalProps, State> {
     };
     const { list = [], totalCount = 0 } =
     nonBalanceTransactionsMainQuery.nonBalanceTransactionsMain || {};
-      
+    const tableHeadName = ['number','description','customer','type']
     const updatedProps = {
       ...this.props,
       totalCount,
       nonBalanceTransactions: list,
       loading: nonBalanceTransactionsMainQuery.loading || this.state.loading,
-      removeNonBalanceTransactions
+      removeNonBalanceTransactions,
+      tableHeadName: tableHeadName,
+      closeModal: closeModal
     };
 
     const nonBalanceTransactionsList = props => {

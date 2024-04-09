@@ -55,9 +55,9 @@ function nonBalanceTransactionRow({
             ''}
         </td>
         <td key={'description'}>{nonBalanceTransaction.description || ''} </td>
-        <td key={'createdAt'}>{dayjs(nonBalanceTransaction && nonBalanceTransaction.createdAt).format('lll') || ''}</td>
         <td key={'customerId'}>{(nonBalanceTransaction && nonBalanceTransaction?.customer?.firstName) || ''}</td>
         <td key={'transactionType'}>{(nonBalanceTransaction && nonBalanceTransaction.transactionType) ||''} </td>
+        <td key={'createdAt'}>{dayjs(nonBalanceTransaction && nonBalanceTransaction.createdAt).format('lll') || ''}</td>
         <td>
           <div>
             <ModalTrigger
