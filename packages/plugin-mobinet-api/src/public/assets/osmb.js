@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 (function(){
     var w3cColors = {
       aliceblue: '#f0f8ff',
