@@ -41,9 +41,11 @@ export const RichTextEditorColorControl = () => {
       ? getAttributesForEachSelected(editor?.state, 'textStyle')
       : [];
 
-    const currentSelectionTextColors: string[] = allSelectionTextStyleAttrs.map(
-      (attrs) => attrs.color,
-    );
+    const currentSelectionTextColors: string[] = allSelectionTextStyleAttrs
+      .map((attrs) => {
+        if (attrs?.color) return attrs.color;
+      })
+      .filter((color) => typeof color === 'string');
 
     const numUniqueSelectionTextColors = new Set(currentSelectionTextColors)
       .size;
@@ -87,9 +89,11 @@ export const RichTextEditorColorControl = () => {
     ? getAttributesForEachSelected(editor?.state, 'textStyle')
     : [];
 
-  const currentTextColors: string[] = allCurrentTextStyleAttrs.map(
-    (attrs) => attrs.color,
-  );
+  const currentTextColors: string[] = allCurrentTextStyleAttrs
+    .map((attrs) => {
+      if (attrs?.color) return attrs.color;
+    })
+    .filter((color) => typeof color === 'string');
 
   const numUniqueCurrentTextColors = new Set(currentTextColors).size;
 
