@@ -384,7 +384,7 @@ export const consumeCategory = async (
   config,
   categoryId,
   doc,
-  action,
+  action
 ) => {
   const updateCode = action === 'delete' ? doc.code : doc.Code;
 
@@ -517,6 +517,7 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
   let sendVAT;
   let sendCity;
   let sendPostCode;
+  let getCompanyName;
 
   name =
     name && customer.firstName
@@ -557,15 +558,17 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
     }
   }
 
-  const getCompanyName = await fetch(
-    `https://info.ebarimt.mn/rest/merchant/info?regno=${sendVAT}`,
-    {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    },
-  ).then((r) => r.json());
+  if (sendVAT) {
+    getCompanyName = await fetch(
+      `https://ebarimt.erkhet.biz/getCompany?regno=${sendVAT}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    ).then((r) => r.json());
+  }
 
   const sendData: any = {
     Name: name,
@@ -608,10 +611,10 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
           'Content-Type': 'application/json',
           Accept: 'application/json',
           Authorization: `Basic ${Buffer.from(
-            `${username}:${password}`,
+            `${username}:${password}`
           ).toString('base64')}`,
         },
-      },
+      }
     ).then((r) => r.json());
 
     if (response.value.length === 0) {
@@ -620,7 +623,7 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Basic ${Buffer.from(
-            `${username}:${password}`,
+            `${username}:${password}`
           ).toString('base64')}`,
         },
         body: JSON.stringify(sendData),
@@ -636,12 +639,12 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
           responseData,
           responseStr: JSON.stringify(responseData),
         },
-      },
+      }
     );
   } catch (e) {
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
-      { $set: { error: e.message } },
+      { $set: { error: e.message } }
     );
     console.log(e, 'error');
   }
@@ -697,10 +700,10 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
             'Content-Type': 'application/json',
             Accept: 'application/json',
             Authorization: `Basic ${Buffer.from(
-              `${username}:${password}`,
+              `${username}:${password}`
             ).toString('base64')}`,
           },
-        },
+        }
       ).then((r) => r.json());
 
       if (responseCustomer.value.length === 0) {
@@ -709,7 +712,7 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Basic ${Buffer.from(
-              `${username}:${password}`,
+              `${username}:${password}`
             ).toString('base64')}`,
           },
           body: JSON.stringify('sendData'),
@@ -769,7 +772,7 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
           sendData,
           sendStr: JSON.stringify(sendData),
         },
-      },
+      }
     );
 
     const responseSale = await fetch(`${salesApi}`, {
@@ -777,7 +780,7 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
-          'base64',
+          'base64'
         )}`,
       },
       body: JSON.stringify(sendData),
@@ -806,7 +809,7 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Basic ${Buffer.from(
-              `${username}:${password}`,
+              `${username}:${password}`
             ).toString('base64')}`,
           },
           body: JSON.stringify(sendSalesLine),
@@ -821,12 +824,12 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
           responseData: responseSale,
           responseStr: JSON.stringify(responseSale),
         },
-      },
+      }
     );
   } catch (e) {
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
-      { $set: { error: e.message } },
+      { $set: { error: e.message } }
     );
     console.log(e, 'error');
   }
