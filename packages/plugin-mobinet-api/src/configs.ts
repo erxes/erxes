@@ -1,5 +1,8 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import app from '@erxes/api-utils/src/app';
 import * as cookieParser from 'cookie-parser';
+import * as express from 'express';
+import * as path from 'path';
 
 import { generateModels } from './connectionResolver';
 import documents from './documents';
@@ -10,6 +13,7 @@ import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import internalNotes from './internalNotes';
 import aftermutations from './aftermutations';
 import forms from './forms';
+
 
 export default {
   name: 'mobinet',
@@ -36,6 +40,10 @@ export default {
 
   middlewares: [cookieParser(), cpUserMiddleware],
 
-  onServerInit: async () => {},
+  onServerInit: async () => {
+
+
+    app.use('/static', express.static(path.join(__dirname, '/public')));
+  },
   setupMessageConsumers,
 };

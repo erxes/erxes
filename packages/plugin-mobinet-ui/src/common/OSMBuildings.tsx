@@ -131,7 +131,7 @@ const Map = (props: Props) => {
       };
     });
 
-    map.addGeoJSON('http://localhost:3000/geojson/custom.json');
+    map.addGeoJSON('http://localhost:4000/pl:mobinet/static/assets/custom.json');
 
     // if (props.selectedValues && props.selectedValues.length > 0) {
     //   map.highlight((feature) => {
