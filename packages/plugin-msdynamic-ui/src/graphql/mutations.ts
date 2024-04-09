@@ -52,6 +52,24 @@ const toSyncPrices = `
   }
 `;
 
+const toCheckSynced = `
+  mutation toCheckSynced($ids: [String]) {
+    toCheckSynced(ids: $ids) {
+      _id
+      isSynced
+      syncedDate
+      syncedBillNumber
+      syncedCustomer
+    }
+  }
+`;
+
+const toSyncOrders = `
+  mutation toSyncOrders($orderIds: [String]) {
+    toSyncOrders(orderIds: $orderIds)
+  }
+`;
+
 export default {
   updateConfigs,
   toCheckProducts,
@@ -62,4 +80,6 @@ export default {
   toSyncCustomers,
   toCheckPrices,
   toSyncPrices,
+  toCheckSynced,
+  toSyncOrders,
 };
