@@ -1,6 +1,6 @@
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import React, { useState } from 'react';
-import Collapse from 'react-bootstrap/Collapse';
+import Collapse from '@erxes/ui/src/components/Collapse';
 
 import PaymentList from '../containers/PaymentList';
 import { ByKindTotalCount } from '../types';
@@ -108,8 +108,8 @@ const Row: React.FC<Props> = (props) => {
         )}
       </PaymentRow>
       <Collapse
-        in={state.isContentVisible && selected ? true : false}
-        unmountOnExit={true}
+        show={state.isContentVisible && selected ? true : false}
+        unmount={true}
       >
         <CollapsibleContent>{renderList()}</CollapsibleContent>
       </Collapse>

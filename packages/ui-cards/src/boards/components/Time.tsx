@@ -1,23 +1,23 @@
 // make sure you include the timeline stylesheet or the timeline will not be styled
-import 'react-calendar-timeline/lib/Timeline.css';
+import "react-calendar-timeline/lib/Timeline.css";
 
-import { IItem, IOptions, IPipeline, ITimeData } from '../types';
+import { IItem, IOptions, IPipeline, ITimeData } from "../types";
 import Timeline, {
   DateHeader,
   SidebarHeader,
   TimelineHeaders,
   TimelineMarkers,
   TodayMarker,
-} from 'react-calendar-timeline';
+} from "react-calendar-timeline";
 
-import AddForm from '../containers/portable/AddForm';
-import { CalendarContainer } from '../styles/view';
-import EditForm from '../containers/editForm/EditForm';
-import { Modal } from 'react-bootstrap';
-import React from 'react';
-import { Transition } from 'react-transition-group';
-import { __ } from '@erxes/ui/src/utils';
-import moment from 'moment';
+import AddForm from "../containers/portable/AddForm";
+import { CalendarContainer } from "../styles/view";
+import EditForm from "../containers/editForm/EditForm";
+import Dialog from "@erxes/ui/src/components/Dialog";
+import React from "react";
+import { Transition } from "react-transition-group";
+import { __ } from "@erxes/ui/src/utils";
+import moment from "moment";
 
 type Props = {
   pipeline: IPipeline;
@@ -46,7 +46,7 @@ export class TimeView extends React.Component<Props, State> {
       closeTime: null,
       startTime: null,
       isModalOpen: false,
-      groupId: '',
+      groupId: "",
     };
   }
 
@@ -87,7 +87,7 @@ export class TimeView extends React.Component<Props, State> {
   };
 
   handleItemResize = (itemId, time, edge) => {
-    edge === 'right'
+    edge === "right"
       ? this.props.itemMoveResizing(itemId, { closeDate: time })
       : this.props.itemMoveResizing(itemId, { startDate: time });
   };
@@ -101,16 +101,16 @@ export class TimeView extends React.Component<Props, State> {
     let endDate: any;
     let groupBy: any;
 
-    if (groupType === 'stage') {
-      groupBy = 'stageId';
+    if (groupType === "stage") {
+      groupBy = "stageId";
     }
 
-    if (groupType === 'tags') {
-      groupBy = 'tagIds';
+    if (groupType === "tags") {
+      groupBy = "tagIds";
     }
 
-    if (groupType === 'members') {
-      groupBy = 'assignedUserIds';
+    if (groupType === "members") {
+      groupBy = "assignedUserIds";
     }
 
     newResourceId.push(resources[newGroupOrder].id);
@@ -124,7 +124,7 @@ export class TimeView extends React.Component<Props, State> {
 
     this.props.itemMoveResizing(itemId, {
       startDate: new Date(dragTime),
-      [groupBy]: groupBy === 'stageId' ? newResourceId[0] : newResourceId,
+      [groupBy]: groupBy === "stageId" ? newResourceId[0] : newResourceId,
       closeDate: dragTime + (endDate - startDate),
     });
   };
@@ -146,18 +146,18 @@ export class TimeView extends React.Component<Props, State> {
     let key: any;
     let value: any;
 
-    if (groupType === 'stage') {
-      key = 'stageId';
+    if (groupType === "stage") {
+      key = "stageId";
       value = groupId;
     }
 
-    if (groupType === 'tags') {
-      key = 'tagIds';
+    if (groupType === "tags") {
+      key = "tagIds";
       value = [groupId];
     }
 
-    if (groupType === 'members') {
-      key = 'assignedUserIds';
+    if (groupType === "members") {
+      key = "assignedUserIds";
       value = [groupId];
     }
 
@@ -168,22 +168,22 @@ export class TimeView extends React.Component<Props, State> {
       [key]: value,
       startDate: new Date(startTime),
       closeDate: new Date(startTime + 3600000),
-      showStageSelect: groupType !== 'stage' ? true : false,
+      showStageSelect: groupType !== "stage" ? true : false,
     };
 
     const content = (props) => <AddForm {...props} {...formProps} />;
 
     return (
-      <Modal size="lg" show={isModalOpen} onHide={this.closeModal}>
-        <Modal.Header closeButton={true}>
-          <Modal.Title>{__(addText)}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Transition in={isModalOpen} timeout={300} unmountOnExit={true}>
-            {content({ closeModal: this.closeModal })}
-          </Transition>
-        </Modal.Body>
-      </Modal>
+      <Dialog
+        title={__(addText)}
+        size="lg"
+        show={isModalOpen}
+        closeModal={this.closeModal}
+      >
+        <Transition in={isModalOpen} timeout={300} unmountOnExit={true}>
+          {content({ closeModal: this.closeModal })}
+        </Transition>
+      </Dialog>
     );
   }
 
@@ -195,13 +195,13 @@ export class TimeView extends React.Component<Props, State> {
         <Timeline
           groups={resources}
           items={events}
-          defaultTimeStart={moment().add(-12, 'hour')}
-          defaultTimeEnd={moment().add(12, 'hour')}
+          defaultTimeStart={moment().add(-12, "hour")}
+          defaultTimeEnd={moment().add(12, "hour")}
           onItemResize={this.handleItemResize}
           onItemClick={this.onSelectItem}
           onItemMove={this.handleItemMove}
           onCanvasDoubleClick={this.addItem}
-          canResize={'both'}
+          canResize={"both"}
           refetch={refetch}
           stackItems
           dragSnap={1}
@@ -210,7 +210,7 @@ export class TimeView extends React.Component<Props, State> {
             <SidebarHeader>
               {({ getRootProps }) => {
                 return (
-                  <div {...getRootProps({ style: { color: '#fff' } })}>
+                  <div {...getRootProps({ style: { color: "#fff" } })}>
                     {groupType}
                   </div>
                 );
@@ -224,7 +224,7 @@ export class TimeView extends React.Component<Props, State> {
               {({ styles }) => {
                 const customStyles = {
                   ...styles,
-                  backgroundColor: 'red',
+                  backgroundColor: "red",
                 };
 
                 return <div style={customStyles} />;

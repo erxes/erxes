@@ -19,7 +19,7 @@ import FormGroup from "@erxes/ui/src/components/form/Group";
 import { ISelectedOption } from "@erxes/ui/src/types";
 import { ITopic } from "@erxes/ui-knowledgeBase/src/types";
 import Icon from "@erxes/ui/src/components/Icon";
-import { OverlayTrigger } from "react-bootstrap";
+import Popover from "@erxes/ui/src/components/Popover";
 import Select from "react-select";
 import Toggle from "@erxes/ui/src/components/Toggle";
 import CategoryForm from "@erxes/ui-products/src/containers/CategoryForm";
@@ -180,21 +180,21 @@ function General({
               onChange={handleChange}
             />
             {boardType && (
-              <OverlayTrigger
-                trigger="click"
+              <Popover
                 placement="bottom-end"
-                overlay={renderBoardSelect({
+                trigger={
+                  <IconWrap>
+                    <Icon icon="cog" size={24} />
+                  </IconWrap>
+                }
+              >
+                {renderBoardSelect({
                   type: boardType,
                   stageId,
                   boardId,
                   pipelineId,
                 })}
-                rootClose={true}
-              >
-                <IconWrap>
-                  <Icon icon="cog" size={24} />
-                </IconWrap>
-              </OverlayTrigger>
+              </Popover>
             )}
           </FlexContent>
         </FormGroup>

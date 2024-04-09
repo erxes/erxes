@@ -1,21 +1,21 @@
 import {
   ImportHistoryActions,
   ImportTitle,
-} from 'modules/settings/importExport/styles';
-import { __, getEnv, readFile } from 'modules/common/utils';
+} from "modules/settings/importExport/styles";
+import { __, getEnv, readFile } from "modules/common/utils";
 
-import Button from 'modules/common/components/Button';
-import { DateWrapper } from 'modules/common/styles/main';
-import { Dropdown } from 'react-bootstrap';
-import DropdownToggle from 'modules/common/components/DropdownToggle';
-import Icon from 'modules/common/components/Icon';
-import { Link } from 'react-router-dom';
-import React from 'react';
-import TextInfo from '@erxes/ui/src/components/TextInfo';
-import Tip from 'modules/common/components/Tip';
-import dayjs from 'dayjs';
-import queryString from 'query-string';
-import { renderText } from 'modules/settings/importExport/utils';
+import Button from "modules/common/components/Button";
+import { DateWrapper } from "modules/common/styles/main";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import DropdownToggle from "modules/common/components/DropdownToggle";
+import Icon from "modules/common/components/Icon";
+import { Link } from "react-router-dom";
+import React from "react";
+import TextInfo from "@erxes/ui/src/components/TextInfo";
+import Tip from "modules/common/components/Tip";
+import dayjs from "dayjs";
+import queryString from "query-string";
+import { renderText } from "modules/settings/importExport/utils";
 
 type Props = {
   history?: any;
@@ -32,30 +32,32 @@ class HistoryRow extends React.Component<Props> {
 
     if (contentTypes.length > 1) {
       return (
-        <Dropdown className="dropdown-btn" align="end">
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
+        <Dropdown
+          toggleComponent={
             <Button btnStyle="simple" size="small">
-              {__('View')} <Icon icon="angle-down" />
+              {__("View")} <Icon icon="angle-down" />
             </Button>
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            {contentTypes.map((value) => {
-              return (
-                <li key={Math.random()}>
-                  <Link to={`/contacts/${value.contentType}`}>
-                    {__(`View ${renderText(value.contentType)}`)}
-                  </Link>
-                </li>
-              );
-            })}
-          </Dropdown.Menu>
+          }
+          as={DropdownToggle}
+          // className="dropdown-btn"
+          // align="end"
+        >
+          {contentTypes.map((value) => {
+            return (
+              <li key={Math.random()}>
+                <Link to={`/contacts/${value.contentType}`}>
+                  {__(`View ${renderText(value.contentType)}`)}
+                </Link>
+              </li>
+            );
+          })}
         </Dropdown>
       );
     }
 
     return (
       <Button btnStyle="simple" size="small">
-        <Link to={`/contacts/${contentTypes[0]}`} style={{ color: '#888' }}>
+        <Link to={`/contacts/${contentTypes[0]}`} style={{ color: "#888" }}>
           {__(`View ${renderText(contentTypes[0])}`)}
         </Link>
       </Button>
@@ -126,28 +128,30 @@ class HistoryRow extends React.Component<Props> {
     };
 
     return (
-      <Dropdown className="dropdown-btn" align="end">
-        <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
+      <Dropdown
+        as={DropdownToggle}
+        toggleComponent={
           <Button btnStyle="simple" size="small">
-            {__('Actions')} <Icon icon="angle-down" />
+            {__("Actions")} <Icon icon="angle-down" />
           </Button>
-        </Dropdown.Toggle>
-        <Dropdown.Menu>
-          {renderDownloadFile()}
-          {renderDownloadErrorFile()}
-          {renderDelete()}
-        </Dropdown.Menu>
+        }
+        // className="dropdown-btn"
+        // align="end"
+      >
+        {renderDownloadFile()}
+        {renderDownloadErrorFile()}
+        {renderDelete()}
       </Dropdown>
     );
   };
 
   renderStatus = (history) => {
-    if (history.status === 'Done' || history.percentage === 100) {
+    if (history.status === "Done" || history.percentage === 100) {
       return history.contentTypes.map((value) => {
         const { removed = [] } = history;
 
         const isRemoved = removed.find(
-          (removedItem) => removedItem === value.contentType,
+          (removedItem) => removedItem === value.contentType
         );
 
         if (isRemoved) {
@@ -183,7 +187,7 @@ class HistoryRow extends React.Component<Props> {
 
     const renderValue = (value) => {
       if (!value || value === 0) {
-        return '-';
+        return "-";
       }
 
       return value;
@@ -193,7 +197,7 @@ class HistoryRow extends React.Component<Props> {
       <tr>
         <td>
           <ImportTitle>
-            <h6>{history.name || '-'}</h6>
+            <h6>{history.name || "-"}</h6>
             {this.renderStatus(history)}
           </ImportTitle>
         </td>
@@ -209,10 +213,10 @@ class HistoryRow extends React.Component<Props> {
           <span>{renderValue(history.failed)}</span>
         </td>
 
-        <td>{details?.fullName || '-'}</td>
+        <td>{details?.fullName || "-"}</td>
 
         <td>
-          <DateWrapper>{dayjs(history.date).format('lll')}</DateWrapper>
+          <DateWrapper>{dayjs(history.date).format("lll")}</DateWrapper>
         </td>
 
         <td>
