@@ -1,5 +1,4 @@
 import React from "react";
-import { FormGroup } from "react-bootstrap";
 
 import { IPaymentDocument, IPaymentConfig } from "../../types";
 import { IOption } from "@erxes/ui/src/types";
@@ -57,7 +56,7 @@ function SelectPayments(props: Props) {
   }, [props.currentConfig, props.isSubmitted]);
 
   return (
-    <FormGroup>
+    <div>
       <ControlLabel required={props.isRequired}>Payments</ControlLabel>
       <p>
         {props.description
@@ -74,7 +73,7 @@ function SelectPayments(props: Props) {
         onChange={onChange}
         isDisabled={props.isSubmitted}
       />
-    </FormGroup>
+    </div>
   );
 }
 

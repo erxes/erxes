@@ -24,7 +24,7 @@ import {
 import { colors, dimensions } from '../common/styles';
 import styled, { css } from 'styled-components';
 
-import { Modal } from 'react-bootstrap';
+import Dialog from '@erxes/ui/src/components/Dialog';
 import { getThemeItem } from '@erxes/ui/src/utils/core';
 import { rgba } from '../common/styles/color';
 import styledTS from 'styled-components-ts';
@@ -768,7 +768,7 @@ const GotoItem = styled.div`
   }
 `;
 
-const GotoModal = styled(Modal)`
+const GotoModal = styled(Dialog)`
   & > div {
     border-radius: 10px;
     overflow: hidden;

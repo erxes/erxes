@@ -13,7 +13,6 @@ import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 import { removeParams, setParams } from "@erxes/ui/src/utils/router";
 import React, { useEffect, useState } from "react";
-import { Placement } from "react-bootstrap/Overlay";
 import Popover from "@erxes/ui/src/components/Popover";
 import styled from "styled-components";
 import { generateParamsIds } from "../../common/utils";
@@ -27,7 +26,22 @@ type Props = {
   icon?: string;
   iconColor?: string;
   customComponent?: JSX.Element;
-  placement?: Placement;
+  placement?:
+    | "auto-start"
+    | "auto"
+    | "auto-end"
+    | "top-start"
+    | "top"
+    | "top-end"
+    | "right-start"
+    | "right"
+    | "right-end"
+    | "bottom-end"
+    | "bottom"
+    | "bottom-start"
+    | "left-end"
+    | "left"
+    | "left-start";
   rootClose?: boolean;
   children: React.ReactNode;
 };

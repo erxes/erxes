@@ -1,4 +1,4 @@
-import { ACTIONS, GENERAL_SETTINGS } from './constants';
+import { ACTIONS, GENERAL_SETTINGS } from "./constants";
 import {
   GotoCategory,
   GotoContentWrapper,
@@ -8,17 +8,17 @@ import {
   GotoModal,
   NavIcon,
   NavItem,
-} from '../../styles';
-import { getConfig, setConfig } from '@erxes/ui/src/utils/core';
+} from "../../styles";
+import { getConfig, setConfig } from "@erxes/ui/src/utils/core";
 
-import Icon from 'modules/common/components/Icon';
-import { NavLink } from 'react-router-dom';
-import React from 'react';
-import Tip from 'modules/common/components/Tip';
-import WithPermission from 'modules/common/components/WithPermission';
-import _ from 'lodash';
-import { __ } from 'modules/common/utils';
-import { pluginNavigations } from './utils';
+import Icon from "modules/common/components/Icon";
+import { NavLink } from "react-router-dom";
+import React from "react";
+import Tip from "modules/common/components/Tip";
+import WithPermission from "modules/common/components/WithPermission";
+import _ from "lodash";
+import { __ } from "modules/common/utils";
+import { pluginNavigations } from "./utils";
 
 type Props = {
   navCollapse: number;
@@ -45,7 +45,7 @@ export default class NavigationGoto extends React.Component<Props, State> {
       keysPressed: {},
       plugins: [],
       filteredPlugins: [],
-      searchValue: '',
+      searchValue: "",
       cursor: 0,
     };
 
@@ -63,16 +63,16 @@ export default class NavigationGoto extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    document.addEventListener('keydown', this.handleKeyDown);
-    document.addEventListener('keyup', this.handleKeyUp);
-    document.addEventListener('keydown', this.handleArrowSelection);
+    document.addEventListener("keydown", this.handleKeyDown);
+    document.addEventListener("keyup", this.handleKeyUp);
+    document.addEventListener("keydown", this.handleArrowSelection);
 
     const plugins: any[] = pluginNavigations() || [];
     const totalPlugins: any[] = [];
 
     if (plugins.length !== 0) {
       plugins[0].children.map((child: any, index: number) => {
-        child.icon = 'icon-settings';
+        child.icon = "icon-settings";
         child.name = child.scope;
 
         totalPlugins.push(child);
@@ -89,9 +89,9 @@ export default class NavigationGoto extends React.Component<Props, State> {
   }
 
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleKeyDown);
-    document.removeEventListener('keyup', this.handleKeyUp);
-    document.removeEventListener('keydown', this.handleArrowSelection);
+    document.removeEventListener("keydown", this.handleKeyDown);
+    document.removeEventListener("keyup", this.handleKeyUp);
+    document.removeEventListener("keydown", this.handleArrowSelection);
   }
 
   handleKeyDown = (event: any) => {
@@ -121,7 +121,7 @@ export default class NavigationGoto extends React.Component<Props, State> {
 
     switch (event.keyCode) {
       case 13:
-        const element = document.getElementById('nav-item-' + cursor);
+        const element = document.getElementById("nav-item-" + cursor);
 
         if (element) {
           element.click();
@@ -149,10 +149,10 @@ export default class NavigationGoto extends React.Component<Props, State> {
   };
 
   handleShow = (item?) => {
-    const config = getConfig('emailWidgetShow') || {};
-    if (item?.type === 'email' && config['show'] === false) {
-      config['show'] = true;
-      setConfig('emailWidgetShow', config);
+    const config = getConfig("emailWidgetShow") || {};
+    if (item?.type === "email" && config["show"] === false) {
+      config["show"] = true;
+      setConfig("emailWidgetShow", config);
     }
 
     this.setState({ show: !this.state.show, keysPressed: {} });
@@ -183,13 +183,13 @@ export default class NavigationGoto extends React.Component<Props, State> {
       }
     });
 
-    filteredPlugins = _.sortBy(filteredPlugins, ['name', 'text']);
+    filteredPlugins = _.sortBy(filteredPlugins, ["name", "text"]);
 
     this.setState({ filteredPlugins });
   };
 
   handleClear = () => {
-    this.setState({ searchValue: '', cursor: 0 });
+    this.setState({ searchValue: "", cursor: 0 });
   };
 
   renderActions = () => {
@@ -200,13 +200,13 @@ export default class NavigationGoto extends React.Component<Props, State> {
           {this.actions.map((item: any, index: number) => {
             return (
               <NavLink
-                id={'nav-item-' + index}
+                id={"nav-item-" + index}
                 onClick={() => this.handleShow(item)}
                 to={item.url}
                 key={index}
               >
                 <GotoItem
-                  className={this.state.cursor === index ? ' active' : ''}
+                  className={this.state.cursor === index ? " active" : ""}
                 >
                   <i className={item.icon} />
                   <p>{item.text}</p>
@@ -233,17 +233,17 @@ export default class NavigationGoto extends React.Component<Props, State> {
             return (
               <WithPermission
                 key={index}
-                action={plugin.permission ? plugin.permission : ''}
+                action={plugin.permission ? plugin.permission : ""}
                 actions={plugin.permissions ? plugin.permissions : []}
               >
                 <NavLink
-                  id={'nav-item-' + navItemIndex}
+                  id={"nav-item-" + navItemIndex}
                   onClick={this.handleShow}
                   to={plugin.url ? plugin.url : plugin.to}
                 >
                   <GotoItem
                     className={
-                      this.state.cursor === navItemIndex ? ' active' : ''
+                      this.state.cursor === navItemIndex ? " active" : ""
                     }
                   >
                     <i className={plugin.icon} />
@@ -286,15 +286,15 @@ export default class NavigationGoto extends React.Component<Props, State> {
             return (
               <WithPermission
                 key={index}
-                action={permission ? permission : ''}
+                action={permission ? permission : ""}
                 actions={permissions ? permissions : []}
               >
                 <NavLink
-                  id={'nav-item-' + index}
+                  id={"nav-item-" + index}
                   onClick={this.handleShow}
                   to={url ? url : to}
                 >
-                  <GotoItem className={cursor === index ? ' active' : ''}>
+                  <GotoItem className={cursor === index ? " active" : ""}>
                     <i className={icon} />
                     <p>{text}</p>
                     <span>{name}</span>
@@ -320,7 +320,7 @@ export default class NavigationGoto extends React.Component<Props, State> {
     return (
       <>
         <NavIcon className="icon-search" />
-        <label>{__('Go to (Ctrl + M)')}</label>
+        <label>{__("Go to (Ctrl + M)")}</label>
       </>
     );
   };
@@ -340,7 +340,7 @@ export default class NavigationGoto extends React.Component<Props, State> {
 
     const { navCollapse } = this.props;
 
-    const element = document.getElementById('nav-item-' + cursor);
+    const element = document.getElementById("nav-item-" + cursor);
 
     if (keysPressed.Control === true && keysPressed.m === true) {
       this.handleShow();
@@ -353,14 +353,14 @@ export default class NavigationGoto extends React.Component<Props, State> {
     return (
       <React.Fragment>
         <NavItem $isMoreItem={false}>
-          <Tip placement="right" text={__('Go to... (Ctrl + M)')}>
+          <Tip placement="right" text={__("Go to... (Ctrl + M)")}>
             <GotoMenuItem $isMoreItem={false} $navCollapse={navCollapse}>
               <a onClick={this.handleShow}>{this.renderIcon()}</a>
             </GotoMenuItem>
           </Tip>
         </NavItem>
 
-        <GotoModal show={show} onHide={this.handleShow} size="lg">
+        <GotoModal show={show} closeModal={this.handleShow} size="lg">
           <GotoFormWrapper>
             <Icon icon="search-1" size={16} />
             <input
