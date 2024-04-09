@@ -27,6 +27,7 @@ type State = {
 
 class GeneralSettings extends React.Component<Props, State> {
   constructor(props: Props) {
+   
     super(props);
     this.state = {
       currentMap: props.configsMap.POLARIS || {},
@@ -50,11 +51,10 @@ class GeneralSettings extends React.Component<Props, State> {
   };
 
   onChangeConfig = (code: string, value) => {
-    const { currentMap } = this.state;
+    let currentMap = this.state.currentMap;
+    this.setState({ currentMap:{...currentMap,[code]:value} });
 
-    currentMap[code] = value;
 
-    this.setState({ currentMap });
   };
 
   onChangeInput = (code: string, e) => {

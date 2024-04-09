@@ -21,9 +21,13 @@ module.exports = {
           'manageInvoices',
           'showLoanInvoices',
           'manageTransactions',
+          'manageNonBalanceTransactions',
           'showTransactions',
+          'showNonBalanceTransactions',
           'transactionsEdit',
+          'nonBalanceTransactionsEdit',
           'transactionsRemove',
+          'nonBalanceTransactionsRemove',
           'showPeriodLocks',
           'managePeriodLocks'
         ]
@@ -49,7 +53,11 @@ module.exports = {
           'manageTransactions',
           'showTransactions',
           'transactionsEdit',
-          'transactionsRemove'
+          'transactionsRemove',
+          'manageNonBalanceTransactions',
+          'showNonBalanceTransactions',
+          'nonBalanceTransactionsEdit',
+          'nonBalanceTransactionsRemove'
         ]
       },
       {
@@ -128,6 +136,23 @@ module.exports = {
       {
         name: 'transactionsRemove',
         description: 'Remove Transactions'
+      },
+      //nonBalanceTransaction
+      {
+        name: 'manageNonBalanceTransactions',
+        description: 'Manage Non Balance Transaction'
+      },
+      {
+        name: 'showNonBalanceTransactions',
+        description: 'Show Non Balance Transactions'
+      },
+      {
+        name: 'nonBalanceTransactionsEdit',
+        description: 'Edit Non Balance Transactions'
+      },
+      {
+        name: 'nonBalanceTransactionsRemove',
+        description: 'Remove Non Balance Transactions'
       },
       //period Lock
       {
