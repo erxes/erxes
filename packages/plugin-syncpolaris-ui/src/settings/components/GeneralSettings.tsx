@@ -50,7 +50,7 @@ class GeneralSettings extends React.Component<Props, State> {
   };
 
   onChangeConfig = (code: string, value) => {
-    let currentMap = this.state.currentMap;
+    let {currentMap} = this.state.currentMap;
     this.setState({ currentMap:{...currentMap,[code]:value} });
   };
 

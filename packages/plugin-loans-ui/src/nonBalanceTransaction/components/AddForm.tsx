@@ -114,9 +114,8 @@ class AddTransactionForm extends React.Component<Props, State> {
         e.target.type === 'checkbox'
           ? (e.target as HTMLInputElement).checked
           : (e.target as HTMLInputElement).value;
-
-      const name = (e.target as HTMLInputElement).name;
-
+          
+      const {name} = e.target as HTMLInputElement;
       this.setState({
         [name]: value
       } as any);

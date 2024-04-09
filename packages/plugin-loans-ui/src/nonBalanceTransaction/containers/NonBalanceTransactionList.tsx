@@ -13,6 +13,7 @@ import {
   RemoveMutationResponse,
   RemoveMutationVariables
 } from '../types';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
@@ -30,11 +31,7 @@ type State = {
   loading: boolean;
 };
 
-const generateQueryParams = ({ location }) => {
-  return queryString.parse(location.search);
-};
-
-class ListContainer extends React.Component<FinalProps, State> {
+class NonBalanceTransactionListContainer extends React.Component<FinalProps, State> {
   constructor(props) {
     super(props);
 
@@ -120,5 +117,5 @@ export default withProps<Props>(
         options: generateOptions
       }
     )
-    )(ListContainer)
+    )(NonBalanceTransactionListContainer)
 );

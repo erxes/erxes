@@ -62,7 +62,7 @@ const ClassificationList = asyncComponent(() =>
 
 const NonBalanceTransactionList = asyncComponent(() =>
   import(
-    /* webpackChunkName: "nonBalanceTransactions" */ './nonBalanceTransaction/containers/List'
+    /* webpackChunkName: "NonBalanceTransactionList" */ './nonBalanceTransaction/containers/NonBalanceTransactionList'
   )
 );
 

@@ -41,7 +41,7 @@ const generateFilter = async (params, commonQuerySelector) => {
 };
 
 export const sortBuilder = params => {
-  const sortField = params.sortField;
+  const {sortField} = params;
   const sortDirection = params.sortDirection || 0;
 
   if (sortField) {

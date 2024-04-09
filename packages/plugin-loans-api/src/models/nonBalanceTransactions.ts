@@ -58,11 +58,9 @@ export const loadNonBalanceTransactionClass = (models: IModels) => {
           { $set: { ...doc  } }
         );
 
-        const newNonBalTr = await models.NonBalanceTransactions.getNonBalanceTransaction({
+        return await models.NonBalanceTransactions.getNonBalanceTransaction({
           _id
         });
-  
-        return newNonBalTr;
       }
     
     /**
@@ -73,8 +71,7 @@ export const loadNonBalanceTransactionClass = (models: IModels) => {
         ...doc
       }: INonBalanceTransaction
     ) {
-      const nonBaltr = await models.NonBalanceTransactions.create({ ...doc });
-      return nonBaltr;
+      return await models.NonBalanceTransactions.create({ ...doc });
     }
         /**
      * Remove Non Balance Transaction
