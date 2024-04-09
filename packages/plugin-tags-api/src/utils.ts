@@ -1,3 +1,4 @@
+import { getService } from '@erxes/api-utils/src/serviceDiscovery';
 import { sendCommonMessage } from './messageBroker';
 
 export const countDocuments = async (
@@ -69,3 +70,10 @@ export const fixRelatedItems = async ({
     }
   });
 };
+
+export const getContentTypes = async (serviceName) => {
+  const service = await getService(serviceName);
+  const meta = service.config.meta || {};
+  const types = (meta.tags && meta.tags.types) || [];
+  return types.map((type) => `${serviceName}:${type.type}`);
+}

@@ -2,15 +2,13 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { initBrokerErkhet } from './messageBrokerErkhet';
 import afterMutations from './afterMutations';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
 import afterQueries from './afterQueries';
 import { getOrderInfo } from './routes';
-
-export let debug;
 
 export default {
   name: 'multierkhet',
@@ -37,12 +35,10 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
+  onServerInit: async () => {
     await initBrokerErkhet();
-    await initBroker();
-
-    debug = options.debug;
   },
+  setupMessageConsumers,
   meta: {
     afterMutations,
     afterQueries,

@@ -1,7 +1,7 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
@@ -9,8 +9,6 @@ import app from '@erxes/api-utils/src/app';
 
 import tags from './tags';
 import { buildFile } from './reportExport';
-
-export let debug;
 
 export default {
   name: 'reports',
@@ -32,11 +30,7 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
-    initBroker();
-
-    debug = options.debug;
-
+  onServerInit: async () => {
     app.get(
       '/report-table-export',
       routeErrorHandling(async (req: any, res) => {
@@ -53,4 +47,5 @@ export default {
       }),
     );
   },
+  setupMessageConsumers,
 };

@@ -49,7 +49,7 @@ const Signature = asyncComponent(
   () =>
     import(
       /* webpackChunkName:"Signature" */ '@erxes/ui-settings/src/email/containers/Signature'
-    ),
+    )
 );
 
 type Props = {
@@ -82,6 +82,7 @@ type Props = {
   }) => void;
   verifiedImapEmails: string[];
   verifiedEngageEmails: string[];
+  detailQuery: string[];
   history: any;
   shrink?: boolean;
   clear?: boolean;
@@ -122,7 +123,7 @@ class MailForm extends React.Component<Props, State> {
     const { isForward, replyAll, mailData = {} as IMail, emailTo } = props;
 
     const mailWidget = JSON.parse(
-      localStorage.getItem('emailWidgetData') || '{}',
+      localStorage.getItem('emailWidgetData') || '{}'
     );
 
     const cc = replyAll
@@ -347,7 +348,7 @@ class MailForm extends React.Component<Props, State> {
       },
       () => {
         localStorage.setItem(this.state.showReply, 'true');
-      },
+      }
     );
   };
 
@@ -382,7 +383,7 @@ class MailForm extends React.Component<Props, State> {
 
     if (!isReply && (!subject || !content)) {
       return Alert.warning(
-        'Send this message with a subject or text in the body.',
+        'Send this message with a subject or text in the body.'
       );
     }
 
@@ -473,7 +474,7 @@ class MailForm extends React.Component<Props, State> {
 
     this.setState({
       attachments: attachments.filter(
-        (item) => item.filename !== attachment.filename,
+        (item) => item.filename !== attachment.filename
       ),
     });
   };
@@ -542,7 +543,8 @@ class MailForm extends React.Component<Props, State> {
   };
 
   renderFromValue = () => {
-    const { verifiedImapEmails, verifiedEngageEmails } = this.props;
+    const { verifiedImapEmails, verifiedEngageEmails, detailQuery } =
+      this.props;
 
     const onChangeMail = (from: string) => {
       this.setState({ from });
@@ -557,6 +559,7 @@ class MailForm extends React.Component<Props, State> {
         selectedItem={this.state.from}
         verifiedImapEmails={verifiedImapEmails}
         verifiedEngageEmails={verifiedEngageEmails}
+        detailQuery={detailQuery}
       />
     );
   };
@@ -681,7 +684,7 @@ class MailForm extends React.Component<Props, State> {
     onClick,
     type: string,
     icon = 'message',
-    kind?: string,
+    kind?: string
   ) {
     const { isSubmitLoading, isSubmitResolveLoading } = this.state;
     const isResolve = kind && kind === 'resolveOrOpen';
@@ -763,7 +766,7 @@ class MailForm extends React.Component<Props, State> {
                   onSubmitResolve,
                   conversationStatus === 'closed' ? 'warning' : 'success',
                   conversationStatus === 'closed' ? 'redo' : 'check-circle',
-                  'resolveOrOpen',
+                  'resolveOrOpen'
                 )}
             </div>
             <ToolBar>
@@ -836,7 +839,6 @@ class MailForm extends React.Component<Props, State> {
           toolbarLocation="bottom"
           content={this.state.content}
           onChange={this.onEditorChange}
-          autoGrow={true}
           toolbar={[
             'bold',
             'italic',
@@ -868,8 +870,7 @@ class MailForm extends React.Component<Props, State> {
               isMoreControl: true,
             },
           ]}
-          autoGrowMinHeight={300}
-          autoGrowMaxHeight={300}
+          height={300}
         />
       </MailEditorWrapper>
     );

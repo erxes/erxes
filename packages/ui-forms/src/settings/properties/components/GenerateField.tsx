@@ -1,34 +1,34 @@
-import { Button, Icon } from '@erxes/ui/src/components';
 import {
   COMPANY_BUSINESS_TYPES,
   COMPANY_INDUSTRY_TYPES,
   COUNTRIES,
 } from '@erxes/ui-contacts/src/companies/constants';
+import { Button, ControlLabel, FormGroup, Icon } from '@erxes/ui/src/components';
 import { IAttachment, IField, ILocationOption } from '@erxes/ui/src/types';
-import { LogicIndicator, SelectInput } from '../styles';
 import {
   RenderDynamicComponent,
   __,
   isEnabled,
 } from '@erxes/ui/src/utils/core';
+import { LogicIndicator, SelectInput } from '../styles';
 
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Datetime from '@nateradebaugh/react-datetime';
+import { SelectTeamMembers } from '@erxes/ui/src';
+
+import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
+import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IOption } from '@erxes/ui/src/types';
-import Map from '@erxes/ui/src/containers/map/Map';
 import ModifiableList from '@erxes/ui/src/components/ModifiableList';
-import ObjectList from './ObjectList';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Map from '@erxes/ui/src/containers/map/Map';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import { IOption } from '@erxes/ui/src/types';
+import Datetime from '@nateradebaugh/react-datetime';
 import React from 'react';
 import Select from 'react-select-plus';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectProductCategory from '../containers/SelectProductCategory';
-import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
-import Uploader from '@erxes/ui/src/components/Uploader';
+import ObjectList from './ObjectList';
 
 type Props = {
   field: IField;
@@ -105,7 +105,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
   renderLabelSelect(
     options: { key: string; label: string }[] = [],
-    attrs = {},
+    attrs = {}
   ) {
     return (
       <FormControl componentClass="select" {...attrs}>
@@ -304,6 +304,28 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
+  renderUser({ id, value }) {
+    const onSelect = (e) => {
+      const { onValueChange } = this.props;
+
+      if (onValueChange) {
+        this.setState({ value: e });
+
+        onValueChange({ _id: id, value: e });
+      }
+    };
+
+    return (
+      <SelectTeamMembers
+        label="Choose team members"
+        name="userIds"
+        multi={true}
+        initialValue={value}
+        onSelect={onSelect}
+      />
+    );
+  }
+
   renderProduct({ id, value }) {
     const onSelect = (e) => {
       const { onValueChange } = this.props;
@@ -382,7 +404,7 @@ export default class GenerateField extends React.Component<Props, State> {
     };
 
     const { scope, component } = filteredPlugin.formsExtraFields.find(
-      (extraField) => extraField.type === type,
+      (extraField) => extraField.type === type
     );
     return (
       <ErrorBoundary key={scope}>
@@ -543,7 +565,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
     const subFields =
       otherFields.filter(
-        (otherField) => field.subFieldIds?.includes(otherField._id),
+        (otherField) => field.subFieldIds?.includes(otherField._id)
       ) || [];
 
     return (
@@ -703,6 +725,10 @@ export default class GenerateField extends React.Component<Props, State> {
         return this.renderCustomer(attrs);
       }
 
+      case 'users': {
+        return this.renderUser(attrs);
+      }
+
       case 'product': {
         if (!isEnabled('products')) {
           return <p>Products service is not enabled</p>;
@@ -748,13 +774,13 @@ export default class GenerateField extends React.Component<Props, State> {
       default:
         try {
           const plugins = ((window as any).plugins || []).filter(
-            (plugin) => plugin.formsExtraFields,
+            (plugin) => plugin.formsExtraFields
           );
 
           const filteredPlugin = plugins.find((plugin) =>
             plugin.formsExtraFields.find(
-              (extraField) => extraField.type === type,
-            ),
+              (extraField) => extraField.type === type
+            )
           );
 
           if (filteredPlugin) {

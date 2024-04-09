@@ -99,6 +99,12 @@ export interface IUserReport {
   totalAbsenceMins?: number;
   totalMinsAbsenceThisMonth?: number;
   absenceInfo?: IUserAbsenceInfo;
+
+  index?: number;
+
+  schedules?: ISchedule[];
+  timeclocks?: ITimeclock[];
+  requests?: IAbsence[];
 }
 
 export interface IUserAbsenceInfo {
@@ -273,6 +279,10 @@ export type BranchesQueryResponse = {
 
 export type ReportsQueryResponse = {
   timeclockReports: { list: IReport[]; totalCount: number };
+} & QueryResponse;
+
+export type ReportByUsersQueryResponse = {
+  timeclockReportByUsers: { list: [IUserReport]; totalCount: number };
 } & QueryResponse;
 
 export type MutationVariables = {

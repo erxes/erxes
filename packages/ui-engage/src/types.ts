@@ -68,6 +68,10 @@ export interface IEngageSmsStats {
   error?: number;
 }
 
+export interface IEngageNotificationStats {
+  read: number;
+}
+
 export interface IEmailDelivery {
   _id: string;
   subject: string;
@@ -119,6 +123,7 @@ export interface IEngageMessage extends IEngageMessageDoc {
   _id: string;
   stopDate: Date;
   createdDate: Date;
+  createdAt: Date;
   messengerReceivedCustomerIds?: string[];
   brand: IBrand;
   segments: ISegment[];
@@ -134,6 +139,7 @@ export interface IEngageMessage extends IEngageMessageDoc {
   stats?: IEngageStats;
   logs?: Array<{ message: string }>;
   smsStats?: IEngageSmsStats;
+  notificationStats?: IEngageNotificationStats;
   fromIntegration?: IIntegration;
   createdUserName?: string;
 }
@@ -245,8 +251,8 @@ export type TagAdd = (params: {
 
 export type IEmailFormProps = {
   onChange: (
-    name: 'email' | 'content' | 'fromUserId' | 'scheduleDate',
-    value?: IEngageEmail | IEngageScheduleDate | string,
+    name: 'email' | 'content' | 'fromUserId',
+    value?: IEngageEmail | string
   ) => void;
   message?: string;
   users: IUser[];
@@ -255,7 +261,6 @@ export type IEmailFormProps = {
   email: IEngageEmail;
   fromUserId: string;
   content: string;
-  scheduleDate: IEngageScheduleDate;
   isSaved?: boolean;
 };
 

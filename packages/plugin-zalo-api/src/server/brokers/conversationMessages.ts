@@ -1,7 +1,7 @@
 import * as strip from 'strip';
 import axios from 'axios';
 import { generateModels } from '../../models';
-import { debug } from '../../configs';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import { userIds } from '../middlewares/userMiddleware';
 import {
   createOrUpdateConversation,

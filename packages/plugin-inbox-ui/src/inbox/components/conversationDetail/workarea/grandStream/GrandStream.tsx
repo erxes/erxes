@@ -1,27 +1,88 @@
-import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
+import { Audio, CallWrapper, StatusContent, StatusIcon } from './styles';
+import { ICallHistory, IConversation } from '@erxes/ui-inbox/src/inbox/types';
+import {
+  MessageBody,
+  MessageItem,
+} from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/styles';
+
+import Icon from '@erxes/ui/src/components/Icon';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils';
+import dayjs from 'dayjs';
 
 type Props = {
   conversation: IConversation;
 };
 
-class GrandStream extends React.Component<Props, {}> {
-  render() {
-    const { conversation } = this.props;
-    const { callProAudio } = conversation;
+const GrandStream: React.FC<Props> = ({ conversation }) => {
+  const { callDuration, callStatus, callType, createdAt } =
+    conversation.callHistory || ({} as ICallHistory);
 
-    if (!callProAudio) {
-      return <p>You dont have permission to listen</p>;
-    }
-
+  const renderAudio = () => {
     return (
-      <>
+      <Audio>
+        <span>Recorder</span>
         <audio controls={true}>
-          <source src={callProAudio} type="audio/ogg" />
+          <source src={conversation.callProAudio} type="audio/ogg" />
         </audio>
-      </>
+      </Audio>
     );
-  }
-}
+  };
+
+  const renderIcon = () => {
+    switch (callStatus) {
+      case 'connected':
+        return 'missed-call';
+      case 'missed':
+        return 'missed-call';
+      case 'cancelled':
+        return 'phone-times';
+      default:
+        return 'phone-slash';
+    }
+  };
+
+  const renderCallStatus = () => {
+    switch (callStatus) {
+      case 'connected':
+        return 'Call ended';
+      case 'missed':
+        return 'Missed call';
+      case 'cancelled':
+        return 'Call cancelled';
+      default:
+        return 'Outgoing call';
+    }
+  };
+
+  return (
+    <MessageItem>
+      <NameCard.Avatar customer={conversation.customer} size={40} />
+
+      <MessageBody>
+        <CallWrapper>
+          <StatusContent>
+            <StatusIcon type={callStatus}>
+              <Icon icon={renderIcon()} size={16} />
+            </StatusIcon>
+            <div>
+              <h5>
+                {__(renderCallStatus())} ({callType})
+              </h5>
+              <span>Call duration: {callDuration}s</span>
+            </div>
+          </StatusContent>
+          {conversation.callProAudio ||
+            (callStatus === 'connected' && renderAudio())}
+        </CallWrapper>
+        <Tip text={dayjs(createdAt).format('lll')}>
+          <footer>{dayjs(createdAt).format('LT')}</footer>
+        </Tip>
+      </MessageBody>
+    </MessageItem>
+  );
+};
 
 export default GrandStream;

@@ -2,11 +2,10 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import * as permissions from './permissions';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import logs from './logUtils';
-export let debug;
 
 export default {
   name: 'pricing',
@@ -28,11 +27,8 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
-    initBroker();
-
-    debug = options.debug;
-  },
+  onServerInit: async () => {},
+  setupMessageConsumers,
   meta: {
     permissions,
     logs: { consumers: logs },

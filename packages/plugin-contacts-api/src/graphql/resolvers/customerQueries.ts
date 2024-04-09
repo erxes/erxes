@@ -5,11 +5,11 @@ import {
   countByLeadStatus,
   countBySegment,
   countByTag,
-  ICountBy
+  ICountBy,
 } from '../../coc/utils';
 import {
   checkPermission,
-  moduleRequireLogin
+  moduleRequireLogin,
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
 import { sendFormsMessage, sendInboxMessage } from '../../messageBroker';
@@ -29,7 +29,7 @@ const countByIntegrationType = async (
     data: {},
     action: 'getIntegrationKinds',
     isRPC: true,
-    defaultValue: {}
+    defaultValue: {},
   });
 
   for (const type of Object.keys(kindsMap)) {
@@ -54,10 +54,10 @@ const countByForm = async (
     subdomain,
     action: 'find',
     data: {
-      query: {}
+      query: {},
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   for (const form of forms) {
@@ -81,7 +81,7 @@ const customerQueries = {
   ) {
     const qb = new BuildQuery(models, subdomain, params, {
       commonQuerySelector,
-      commonQuerySelectorElk
+      commonQuerySelectorElk,
     });
 
     await qb.buildAllQueries();
@@ -101,7 +101,7 @@ const customerQueries = {
   ) {
     const qb = new BuildQuery(models, subdomain, params, {
       commonQuerySelector,
-      commonQuerySelectorElk
+      commonQuerySelectorElk,
     });
 
     await qb.buildAllQueries();
@@ -127,12 +127,12 @@ const customerQueries = {
       byIntegrationType: {},
       byTag: {},
       byForm: {},
-      byLeadStatus: {}
+      byLeadStatus: {},
     };
 
     const qb = new BuildQuery(models, subdomain, params, {
       commonQuerySelector,
-      commonQuerySelectorElk
+      commonQuerySelectorElk,
     });
 
     switch (only) {
@@ -180,7 +180,7 @@ const customerQueries = {
     { _id }: { _id: string },
     { models: { Customers } }: IContext
   ) {
-    return Customers.findOne({ _id });
+    return Customers.findOne({ $or: [{ _id }, { code: _id }] });
   },
 
   async contactsLogs(_root, args, { models }: IContext) {
@@ -194,12 +194,12 @@ const customerQueries = {
       switch (type) {
         case 'company':
           result = await Companies.find({
-            _id: { $in: content }
+            _id: { $in: content },
           }).lean();
           break;
         case 'customer':
           result = await Customers.find({
-            _id: { $in: content }
+            _id: { $in: content },
           }).lean();
           break;
       }
@@ -208,7 +208,7 @@ const customerQueries = {
     }
 
     return result;
-  }
+  },
 };
 
 moduleRequireLogin(customerQueries);
@@ -216,7 +216,7 @@ moduleRequireLogin(customerQueries);
 checkPermission(customerQueries, 'customers', 'showCustomers', []);
 checkPermission(customerQueries, 'customersMain', 'showCustomers', {
   list: [],
-  totalCount: 0
+  totalCount: 0,
 });
 
 export default customerQueries;

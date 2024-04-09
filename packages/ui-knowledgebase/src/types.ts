@@ -9,6 +9,7 @@ export interface IArticle {
   summary: string;
   content: string;
   status: string;
+  isPrivate: boolean;
   reactionChoices: string[];
   reactionCounts: any;
   createdBy: string;
@@ -21,6 +22,7 @@ export interface IArticle {
   image: IAttachment;
   attachments: [IAttachment];
   forms: IErxesForm[];
+  code?: string;
 }
 
 export interface ITopic {
@@ -38,6 +40,7 @@ export interface ITopic {
   modifiedDate: Date;
   parentCategories: ICategory[];
   notificationSegmentId: string;
+  code?: string;
 }
 
 export interface ICategory {
@@ -52,6 +55,7 @@ export interface ICategory {
   modifiedDate: Date;
   firstTopic: ITopic;
   parentCategoryId?: string;
+  code?: string;
 }
 
 export interface IErxesForm {
@@ -66,7 +70,9 @@ export type ArticleVariables = {
   summary: string;
   content: string;
   status: string;
+  isPrivate: boolean;
   categoryIds: string[];
+  code?: string;
 };
 
 export type AddArticlesMutationResponse = {
@@ -116,6 +122,7 @@ export type TopicVariables = {
   brandId: string;
   languageCode: string;
   color: string;
+  code?: string;
 };
 
 export type AddTopicsMutationResponse = {

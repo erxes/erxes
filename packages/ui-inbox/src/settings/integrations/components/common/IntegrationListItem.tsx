@@ -246,7 +246,7 @@ class IntegrationListItem extends React.Component<Props, State> {
 
     if (
       !integration.kind.includes('facebook') &&
-      !integration.kind.includes('instagram-messenger')
+      !integration.kind.includes('instagram')
     ) {
       return null;
     }

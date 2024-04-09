@@ -74,7 +74,7 @@ const createOrUpdate = async ({
   return collection.bulkWrite(operations);
 };
 
-export const initBroker = () => {
+export const setupMessageConsumers = () => {
   consumeRPCQueue('contacts:customers.findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -581,6 +581,13 @@ export const sendIntegrationsMessage = (
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'integrations',
+    ...args,
+  });
+};
+
+export const sendClientPortalMessage = (args: MessageArgsOmitService) => {
+  return sendMessage({
+    serviceName: 'clientportal',
     ...args,
   });
 };

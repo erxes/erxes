@@ -15,7 +15,7 @@ import {
   consumeRPCQueue,
 } from '@erxes/api-utils/src/messageBroker';
 
-export const initBroker = async () => {
+export const setupMessageConsumers = async () => {
   consumeQueue(
     'processes:createWorks',
     async ({ subdomain, data: { dayPlans, date, branchId, departmentId } }) => {

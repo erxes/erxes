@@ -236,5 +236,5 @@ export default {
   integrationsGetTwitterAccount,
   integrationsGetFbPages,
   integrationsVideoCallUsageStatus,
-  imapIntegrations,
+  imapIntegrations
 };

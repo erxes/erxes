@@ -5,13 +5,13 @@ export const EMPTY_IMPORT_CONTENT = {
     {
       title: 'Export your data',
       description: __(
-        'Export your data from your previous software or have your data sheet (csv, xls) ready',
+        'Export your data from your previous software or have your data sheet (csv, xls) ready'
       ),
     },
     {
       title: __('Create Custom Properties'),
       description: __(
-        'If you wish to import any properties that are not available on erxes, you need to create custom properties',
+        'If you wish to import any properties that are not available on erxes, you need to create custom properties'
       ),
       url: 'https://docs.erxes.io',
       isOutside: true,
@@ -20,7 +20,7 @@ export const EMPTY_IMPORT_CONTENT = {
     {
       title: __('Choose the data type'),
       description: `${__(
-        'Make sure you’re on the right page and you’ve selected the right data type Lead, Customer, etc on the left',
+        'Make sure you’re on the right page and you’ve selected the right data type Lead, Customer, etc on the left'
       )}`,
       url: 'http://docs.erxes.io',
       target: '_blank',
@@ -29,22 +29,22 @@ export const EMPTY_IMPORT_CONTENT = {
     {
       title: __('Download Template'),
       description: `${__('Click on Download Template for importing')}.${__(
-        'This is an important step, because your column titles need to match with erxes titles',
+        'This is an important step, because your column titles need to match with erxes titles'
       )}`,
       isOutside: false,
     },
     {
       title: __('Clean and prepare your data sheet'),
       description: `${__(
-        'Make sure the column titles match with the Template',
+        'Make sure the column titles match with the Template'
       )}.${__('The order of the columns does not need to match')}`,
     },
     {
       title: __('Export your data'),
       description: `${__(
-        'You can export your data from the list on the left',
+        'You can export your data from the list on the left'
       )}.${__(
-        'If you wish to export your popup forms, go to Customer and click on Export Popups Data',
+        'If you wish to export your popup forms, go to Customer and click on Export Popups Data'
       )}`,
       url: '/settings/importHistories',
       isOutside: false,
@@ -57,7 +57,7 @@ export const EMPTY_IMPORT_CONTENT = {
 export const EMPTY_SEGMENT_CONTENT = {
   title: __('Getting Started with Segments'),
   description: `${__(
-    'The Segments feature helps you to filter, target, and engage a certain group of contacts',
+    'The Segments feature helps you to filter, target, and engage a certain group of contacts'
   )}.${__('The Segments are used in the Contacts and Engage features')}`,
   urlText: __('Watch our tutorial'),
   url: '/tutorial#settingStage',
@@ -65,7 +65,7 @@ export const EMPTY_SEGMENT_CONTENT = {
     {
       title: __('Create Custom Properties'),
       description: __(
-        'If you wish to segment by any properties that are not available on erxes, make sure you’ve already created them',
+        'If you wish to segment by any properties that are not available on erxes, make sure you’ve already created them'
       ),
       url: '/settings/properties?type=contacts:customer',
       urlText: 'Go to Properties',
@@ -73,7 +73,7 @@ export const EMPTY_SEGMENT_CONTENT = {
     {
       title: __('Choose the Contact Type'),
       description: __(
-        'Make sure you’re on the right page and  you want to segment by from the list on the left: Visitor, Lead, Customer, Company',
+        'Make sure you’re on the right page and  you want to segment by from the list on the left: Visitor, Lead, Customer, Company'
       ),
     },
   ],
@@ -82,13 +82,13 @@ export const EMPTY_SEGMENT_CONTENT = {
 export const EMPTY_NEW_SEGMENT_CONTENT = {
   title: __('Setup a new segment'),
   description: `${__('There aren’t any filters at the moment')}.${__(
-    'You can create a segment by Property and/or by Events',
+    'You can create a segment by Property and/or by Events'
   )}`,
   steps: [
     {
       title: __('Create Custom Properties'),
       description: __(
-        'If you wish to segment by any properties that are not available on erxes, make sure you’ve already created them',
+        'If you wish to segment by any properties that are not available on erxes, make sure you’ve already created them'
       ),
       url: '/settings/properties?type=contacts:customer',
       urlText: __('Go to Properties'),
@@ -97,7 +97,7 @@ export const EMPTY_NEW_SEGMENT_CONTENT = {
       title: __('Install the Event Tracking script'),
       description:
         __(
-          'If you wish to segment by events, i.e actions that are triggered by something your Customer performs on your website or app',
+          'If you wish to segment by events, i.e actions that are triggered by something your Customer performs on your website or app'
         ) + '.',
     },
     {
@@ -119,7 +119,7 @@ export const EMPTY_NEW_SEGMENT_CONTENT = {
 export const EMPTY_CONTENT_SCRIPT = {
   title: __('Getting Started with erxes Scripts'),
   description: __(
-    `Avoid duplication of erxes widget scripts on your website, which might disable some of your erxes widgets (messenger, popups, etc)`,
+    `Avoid duplication of erxes widget scripts on your website, which might disable some of your erxes widgets (messenger, popups, etc)`
   ),
   steps: [
     {
@@ -130,7 +130,7 @@ export const EMPTY_CONTENT_SCRIPT = {
     {
       title: 'Install the script',
       description: __(
-        'Copy the updated script and paste it into your website or Google Tag Manager',
+        'Copy the updated script and paste it into your website or Google Tag Manager'
       ),
     },
   ],
@@ -139,7 +139,7 @@ export const EMPTY_CONTENT_SCRIPT = {
 export const EMPTY_CONTENT_POPUPS = {
   title: __('Getting Started with erxes forms'),
   description: __(
-    'Never miss a potential lead by capturing them with a customizable Forms',
+    'Never miss a potential lead by capturing them with a customizable Forms'
   ),
   steps: [
     {
@@ -151,7 +151,7 @@ export const EMPTY_CONTENT_POPUPS = {
     {
       title: 'Install the script',
       description: __(
-        'Copy the individual script or use Script Manager to avoid script duplication errors if you’re planning to display this form along with any other erxes widgets',
+        'Copy the individual script or use Script Manager to avoid script duplication errors if you’re planning to display this form along with any other erxes widgets'
       ),
       url: '/settings/scripts',
       urlText: __('Go to Script Manager'),
@@ -162,7 +162,7 @@ export const EMPTY_CONTENT_POPUPS = {
 export const EMPTY_CONTENT_FORUMS = {
   title: __('Getting Started with erxes forums'),
   description: __(
-    'Never miss a potential lead by capturing them with a forums',
+    'Never miss a potential lead by capturing them with a forums'
   ),
   steps: [
     {
@@ -181,10 +181,10 @@ export const EMPTY_CONTENT_FORUMS = {
 };
 
 export const EMPTY_CONTENT_ENGAGE = {
-  title: __('Getting Started with Campaigns'),
+  title: __('Getting Started with Broadcast'),
   description:
     __(
-      'Learn how to use this feature to engage your contacts and drive conversations',
+      'Learn how to use this feature to engage your contacts and drive conversations'
     ) + '.',
   steps: [
     {
@@ -197,7 +197,7 @@ export const EMPTY_CONTENT_ENGAGE = {
     {
       title: 'Messenger',
       description: __(
-        '<strong>Prepare your contacts by Segment / Tag / Brand</strong><br/> For more targeted marketing, create a Segment',
+        '<strong>Prepare your contacts by Segment / Tag / Brand</strong><br/> For more targeted marketing, create a Segment'
       ),
       html: true,
       url: '/segments/new/customer',
@@ -217,13 +217,13 @@ export const EMPTY_CONTENT_ENGAGE = {
 export const EMPTY_CONTENT_KNOWLEDGEBASE = {
   title: __('Getting Started with erxes Knowledgebase'),
   description: __(
-    'Educate your customers and staff by creating help articles to reach higher levels of satisfaction',
+    'Educate your customers and staff by creating help articles to reach higher levels of satisfaction'
   ),
   steps: [
     {
       title: __('Create your knowledgebase'),
       description: __(
-        '<ul><li>Make sure you’ve created your Brands</li><li>Click on “Add Knowledgebase” to create one for a specific Brand</li><li>Click on the “Settings” button and “Add Categories”. A good one to get started with would be “General, Pricing, etc.”</li><li>Click on “Add Articles” to start adding help articles</li></ul>',
+        '<ul><li>Make sure you’ve created your Brands</li><li>Click on “Add Knowledgebase” to create one for a specific Brand</li><li>Click on the “Settings” button and “Add Categories”. A good one to get started with would be “General, Pricing, etc.”</li><li>Click on “Add Articles” to start adding help articles</li></ul>'
       ),
       html: true,
     },
@@ -241,7 +241,7 @@ export const EMPTY_CONTENT_KNOWLEDGEBASE = {
 export const EMPTY_CONTENT_MESSENGER = {
   title: __('Getting Started with erxes Messenger'),
   description: `${__(
-    'Learn how the erxes Messenger works and it is set up',
+    'Learn how the erxes Messenger works and it is set up'
   )}.${' It is used in the Team Inbox and Knowledgebase and Engage features uses Messenger'}`,
   steps: [
     {
@@ -253,7 +253,7 @@ export const EMPTY_CONTENT_MESSENGER = {
     {
       title: __('Display your Knowledgebase'),
       description: __(
-        'Click on “Add” of the Knowledgebase integration, if any, and complete the steps.',
+        'Click on “Add” of the Knowledgebase integration, if any, and complete the steps.'
       ),
       url: '/settings/integrations#showKBAddModal=true',
       urlText: 'Add Knowledgebase',
@@ -261,7 +261,7 @@ export const EMPTY_CONTENT_MESSENGER = {
     {
       title: __('Display your form'),
       description: __(
-        'Click on “Add” of the Popup integration,if any, and complete the steps.',
+        'Click on “Add” of the Popup integration,if any, and complete the steps.'
       ),
       url: '/settings/integrations#showPopupAddModal=true',
       urlText: 'Add Popup',
@@ -269,13 +269,13 @@ export const EMPTY_CONTENT_MESSENGER = {
     {
       title: __('Install the script'),
       description: __(
-        'Copy the script and install it on your website by clicking on the “Install Code” button.',
+        'Copy the script and install it on your website by clicking on the “Install Code” button.'
       ),
     },
     {
       title: __('Avoid duplication of erxes widget scripts'),
       description: __(
-        'If you wish to display erxes messenger and any other erxes widgets on the same webpage, use the Script Manager to combine scripts and avoid any duplication errors.',
+        'If you wish to display erxes messenger and any other erxes widgets on the same webpage, use the Script Manager to combine scripts and avoid any duplication errors.'
       ),
       icon: 'exclamation-circle',
       url: '/settings/scripts',
@@ -291,7 +291,7 @@ export const EMPTY_CONTENT_CONTACTS = {
     {
       title: __('Import your previous contacts'),
       description: __(
-        'Use Import feature to bulk import all your previous Customers or Leads',
+        'Use Import feature to bulk import all your previous Customers or Leads'
       ),
       url: '/settings/importHistories',
       urlText: 'Go to Customer Import',
@@ -299,7 +299,7 @@ export const EMPTY_CONTENT_CONTACTS = {
     {
       title: __('Collect visitor information'),
       description: __(
-        'Create your erxes Messenger to start capturing Visitors',
+        'Create your erxes Messenger to start capturing Visitors'
       ),
       url: '/settings/integrations/createMessenger',
       urlText: 'Create Messenger',
@@ -307,7 +307,7 @@ export const EMPTY_CONTENT_CONTACTS = {
     {
       title: __('Sync email contacts'),
       description: __(
-        'Integrate your email address to sync previous email Leads',
+        'Integrate your email address to sync previous email Leads'
       ),
       url: '/settings/integrations',
       urlText: 'Visit AppStore',
@@ -315,7 +315,7 @@ export const EMPTY_CONTENT_CONTACTS = {
     {
       title: __('Start capturing social media contacts'),
       description: __(
-        'Integrate social media website to start capturing Leads',
+        'Integrate social media website to start capturing Leads'
       ),
       url: '/settings/integrations',
       urlText: 'Visit AppStore',
@@ -332,14 +332,14 @@ export const EMPTY_CONTENT_CONTACTS = {
 export const EMPTY_CONTENT_DEAL_PIPELINE = {
   title: __('Getting Started with Sales Pipeline'),
   description: __(
-    'Drive leads to a successful close with our Kanban-style boards',
+    'Drive leads to a successful close with our Kanban-style boards'
   ),
   steps: [
     {
       title: __('Create your first Sales Board'),
       description:
         __(
-          'Tip: This could be equivalent to your brands and/or you can organize by year/project/etc',
+          'Tip: This could be equivalent to your brands and/or you can organize by year/project/etc'
         ) + '.',
       url: '/settings/boards/deal#showBoardModal=true',
       urlText: 'Create a Board',
@@ -348,7 +348,7 @@ export const EMPTY_CONTENT_DEAL_PIPELINE = {
       title: __('Start adding Pipelines to the Board'),
       description:
         __(
-          'Tip: This could be a bit more granular than the Board and/or you can organize by period/project/etc',
+          'Tip: This could be a bit more granular than the Board and/or you can organize by period/project/etc'
         ) + '.',
       urlText: 'Create a Pipeline',
       url: '/settings/boards/deal#showPipelineModal=true',
@@ -359,14 +359,14 @@ export const EMPTY_CONTENT_DEAL_PIPELINE = {
 export const EMPTY_CONTENT_PURCHASE_PIPELINE = {
   title: __('Getting Started with Purchase'),
   description: __(
-    'Drive leads to a successful close with our Kanban-style boards',
+    'Drive leads to a successful close with our Kanban-style boards'
   ),
   steps: [
     {
       title: __('Create your first Purchases Board'),
       description:
         __(
-          'Tip: This could be equivalent to your brands and/or you can organize by year/project/etc',
+          'Tip: This could be equivalent to your brands and/or you can organize by year/project/etc'
         ) + '.',
       url: '/settings/boards/purchase#showBoardModal=true',
       urlText: 'Create a Board',
@@ -375,7 +375,7 @@ export const EMPTY_CONTENT_PURCHASE_PIPELINE = {
       title: __('Start adding Purchase to the Board'),
       description:
         __(
-          'Tip: This could be a bit more granular than the Board and/or you can organize by period/project/etc',
+          'Tip: This could be a bit more granular than the Board and/or you can organize by period/project/etc'
         ) + '.',
       urlText: 'Create a Purchase',
       url: '/settings/boards/purchase#showPipelineModal=true',
@@ -386,13 +386,13 @@ export const EMPTY_CONTENT_PURCHASE_PIPELINE = {
 export const EMPTY_CONTENT_TASK_PIPELINE = {
   title: __('Getting Started with Sales Pipeline'),
   description: __(
-    'Drive leads to a successful close with our Kanban-style boards',
+    'Drive leads to a successful close with our Kanban-style boards'
   ),
   steps: [
     {
       title: __('Create your first Task Board'),
       description: __(
-        'Tip: This could be equivalent to your departments and/or you can organize by year/project/etc.',
+        'Tip: This could be equivalent to your departments and/or you can organize by year/project/etc.'
       ),
       url: '/settings/boards/task#showBoardModal=true',
       urlText: 'Create a Board',
@@ -400,7 +400,7 @@ export const EMPTY_CONTENT_TASK_PIPELINE = {
     {
       title: __('Start adding Pipelines to the Board'),
       description: __(
-        'Tip: This could be a bit more granular than the Board and/or you can organize by period/project/etc.',
+        'Tip: This could be a bit more granular than the Board and/or you can organize by period/project/etc.'
       ),
       urlText: 'Create a Pipeline',
       url: '/settings/boards/task#showPipelineModal=true',
@@ -437,7 +437,7 @@ export const WEBHOOK_ACTIONS = [
     type: 'conversation',
   },
   { label: 'Customer messages', action: 'create', type: 'customerMessages' },
-  { label: 'Campaign', action: 'create', type: 'engageMessages' },
+  { label: 'Broadcast', action: 'create', type: 'engageMessages' },
   {
     label: 'Form submission received',
     action: 'create',
@@ -528,13 +528,13 @@ export const WEBHOOK_ACTIONS = [
 export const EMPTY_CONTENT_BOOKINGS = {
   title: __('Getting Started with erxes Booking'),
   description: __(
-    'erxes Booking widget helps you create listings of your Products and Services and receive bookings with your erxes Form.',
+    'erxes Booking widget helps you create listings of your Products and Services and receive bookings with your erxes Form.'
   ),
   steps: [
     {
       title: __('Prepare Product Properties'),
       description: __(
-        'This widget is based on your erxes Products and Services. Depending on your products, you may need to create custom Properties first. For example, you can display additional information such as Amenities, Services, etc. in the product detail page or as user filters.',
+        'This widget is based on your erxes Products and Services. Depending on your products, you may need to create custom Properties first. For example, you can display additional information such as Amenities, Services, etc. in the product detail page or as user filters.'
       ),
       url: '/settings/properties?type=products:product',
       urlText: 'Create Custom Properties',
@@ -542,7 +542,7 @@ export const EMPTY_CONTENT_BOOKINGS = {
     {
       title: __('Organize Your Products'),
       description: __(
-        'The number of pages in this widget depends on how many sub-categories you’ll create for your products and services. If you haven’t created or organized them yet, please go to Products & Services first.',
+        'The number of pages in this widget depends on how many sub-categories you’ll create for your products and services. If you haven’t created or organized them yet, please go to Products & Services first.'
       ),
       url: '/settings/product-service',
       urlText: 'Manage Products & Services',
@@ -616,7 +616,6 @@ export const COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES = {
     'state',
     'avatar',
     'ownerId',
-    'status',
     'integrationId',
     'categoryId',
     'vendorId',

@@ -29,6 +29,12 @@ const PutResponsesByDate = asyncComponent(() =>
   )
 );
 
+const PutResponsesDuplicated = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "PutResponsesDuplicated" */ './containers/PutResponsesDuplicated'
+  )
+);
+
 const GeneralSetting = () => {
   return <Settings component={GeneralSettings} configCode="EBARIMT" />;
 };
@@ -64,6 +70,15 @@ const PutResponsesByDateComponent = ({ location, history }) => {
   );
 };
 
+const PutResponsesDuplicatedComponent = ({ location, history }) => {
+  return (
+    <PutResponsesDuplicated
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
 const routes = () => {
   return (
     <React.Fragment>
@@ -83,6 +98,10 @@ const routes = () => {
       <Route
         path="/put-responses-by-date"
         component={PutResponsesByDateComponent}
+      />
+      <Route
+        path="/put-responses-duplicated"
+        component={PutResponsesDuplicatedComponent}
       />
     </React.Fragment>
   );

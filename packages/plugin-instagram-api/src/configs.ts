@@ -1,13 +1,11 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
-import { initBroker } from './messageBroker';
+import { setupMessageConsumers } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import initApp from './initApp';
 import { INTEGRATION_KINDS } from './constants';
-
-export let debug;
 
 export default {
   name: 'instagram',
@@ -35,11 +33,8 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
-    initBroker();
-
+  onServerInit: async () => {
     initApp();
-
-    debug = options.debug;
   },
+  setupMessageConsumers,
 };

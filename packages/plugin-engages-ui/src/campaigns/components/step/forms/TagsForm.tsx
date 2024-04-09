@@ -15,7 +15,13 @@ const Form = ({ renderButton, afterSave, tags }: Props) => {
   return (
     <StepFormWrapper>
       <TagForm
-        type={TAG_TYPES.CUSTOMER}
+        tagType={TAG_TYPES.CUSTOMER}
+        types={[
+          {
+            contentType: TAG_TYPES.CUSTOMER,
+            description: 'Customer',
+          },
+        ]}
         renderButton={renderButton}
         afterSave={afterSave}
         tags={tags || []}

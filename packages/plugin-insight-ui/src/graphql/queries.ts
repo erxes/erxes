@@ -279,8 +279,8 @@ tag: $tag
 `;
 
 const reportList = `
-  query reportsList(${commonParams}) {
-    reportsList(${commonParamsDef}) {
+  query reportList(${commonParams}) {
+    reportList(${commonParamsDef}) {
       list {
         _id
         name
@@ -388,9 +388,9 @@ const reportDetail = `
   }
 `;
 
-const reportTemplatesList = `
-  query reportTemplatesList($searchValue: String, $serviceName: String) {
-    reportTemplatesList(searchValue: $searchValue, serviceName: $serviceName) {
+const insightTemplatesList = `
+  query insightTemplatesList($searchValue: String, $serviceName: String) {
+    insightTemplatesList(searchValue: $searchValue, serviceName: $serviceName) {
       title
       type
       description
@@ -402,21 +402,21 @@ const reportTemplatesList = `
   }
 `;
 
-const reportChartTemplatesList = `
-  query reportChartTemplatesList($serviceName: String!, $charts: [String]) {
-    reportChartTemplatesList(serviceName: $serviceName, charts: $charts)
+const insightChartTemplatesList = `
+  query insightChartTemplatesList($serviceName: String!, $charts: [String]) {
+    insightChartTemplatesList(serviceName: $serviceName, charts: $charts)
   }
 `;
 
-const reportChartGetResult = `
-  query reportChartGetResult($serviceName: String!, $templateType: String!, $filter: JSON, $dimension: JSON){
-    reportChartGetResult(serviceName: $serviceName, templateType: $templateType, filter: $filter , dimension: $dimension)
+const chartGetResult = `
+  query chartGetResult($serviceName: String!, $templateType: String!, $filter: JSON, $dimension: JSON){
+    chartGetResult(serviceName: $serviceName, templateType: $templateType, filter: $filter , dimension: $dimension)
   }
 `;
 
-const reportServicesList = `
-  query reportServicesList{
-    reportServicesList
+const insightServicesList = `
+  query insightServicesList{
+    insightServicesList
   }
 `;
 
@@ -434,8 +434,21 @@ const integrations = `
     integrations(kind: $kind, brandId: $brandId) {
       _id
       name
+      form {
+        _id
+        title
+      }
     }
   }
+`;
+
+const channels = `
+    query channels {
+        channels {
+            _id
+            name
+        }
+    }
 `;
 
 const tags = `  
@@ -443,7 +456,9 @@ const tags = `
     tags(type: $type, perPage: $perPage) {
       _id
       name
+      parentId
       colorCode
+      type
     }
   }
 `;
@@ -462,8 +477,8 @@ const boards = `
   }
 `;
 const stages = `
-  query stages($pipelineId: String!, $isAll: Boolean) {
-    stages(pipelineId: $pipelineId, isAll: $isAll) {
+  query stages($pipelineId: String, $isAll: Boolean, $pipelineIds: [String]) {
+    stages(pipelineId: $pipelineId, isAll: $isAll, pipelineIds: $pipelineIds) {
       _id
       name
       probability
@@ -496,9 +511,19 @@ const pipelines = `
 `;
 
 const pipelineLabels = `
-  query pipelineLabels($pipelineId: String!) {
-    pipelineLabels(pipelineId: $pipelineId) {
+  query pipelineLabels($pipelineId: String, $pipelineIds: [String]) {
+    pipelineLabels(pipelineId: $pipelineId, pipelineIds: $pipelineIds) {
       ${pipelineLabelFields}
+    }
+  }
+`;
+
+const fields = `
+  query fields($contentType: String!, $groupIds: [String]) {
+    fields(contentType: $contentType, groupIds: $groupIds) {
+      _id
+      text
+      groupId
     }
   }
 `;
@@ -627,12 +652,15 @@ const departmentsMain = `
 `;
 
 const dashboardList = `
-  query dashboards {
-    dashboards {
-      _id
-      name
-      sectionId
-      chartsCount
+  query dashboardList {
+    dashboardList {
+      list {
+        _id
+        name
+        sectionId
+        chartsCount
+      }
+      totalCount
     }
   }
 `;
@@ -674,9 +702,9 @@ const dashboardDetail = `
   }
 `;
 
-const dashboardGetLast = `
-  query dashboardGetLast {
-    dashboardGetLast
+const insightGetLast = `
+  query insightGetLast {
+    insightGetLast
   }
 `;
 
@@ -691,12 +719,38 @@ const sectionList = `
     }
   }
 `;
+const fieldsGetTypes = `
+  query fieldsGetTypes {
+    fieldsGetTypes
+  }
+`;
+
+const tagsGetTypes = `
+  query tagsGetTypes {
+    tagsGetTypes
+  }
+`;
+const assets = `
+  query assets($searchValue: String) {
+    assets(searchValue: $searchValue) {
+      _id,
+      name,
+      code,
+      order
+    }
+  }
+`;
 
 export default {
+  insightGetLast,
+  insightTemplatesList,
+  insightChartTemplatesList,
+  insightServicesList,
+  chartGetResult,
+
   //dashboard
   dashboardList,
   dashboardDetail,
-  dashboardGetLast,
 
   //section
   sectionList,
@@ -709,24 +763,20 @@ export default {
   reportList,
   reportDetail,
 
-  reportTemplatesList,
-  reportChartTemplatesList,
-
-  reportChartGetResult,
-  reportServicesList,
-
   // related
 
   allBrands,
   integrations,
 
   tags,
-
+  channels,
+  assets,
   boards,
   stages,
   pipelines,
   pipelineLabels,
 
+  fields,
   fieldsGroups,
 
   pipelineDetail,
@@ -737,4 +787,6 @@ export default {
   branchesMain,
   unitsMain,
   departmentsMain,
+  fieldsGetTypes,
+  tagsGetTypes,
 };

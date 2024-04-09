@@ -53,6 +53,7 @@ type FinalProps = {
   currentUser: IUser;
   emailTemplatesQuery: any /*change type*/;
   emailTemplatesTotalCountQuery: any /*change type*/;
+  currentConversation: any;
 } & Props;
 
 class MailFormContainer extends React.Component<
@@ -85,14 +86,12 @@ class MailFormContainer extends React.Component<
       emailTemplatesTotalCountQuery,
       currentUser,
       mails,
-      messageId
+      messageId,
+      currentConversation
     } = this.props;
 
-    const {
-      loadedEmails,
-      verifiedImapEmails,
-      verifiedEngageEmails
-    } = this.state;
+    const { loadedEmails, verifiedImapEmails, verifiedEngageEmails } =
+      this.state;
 
     if (!loadedEmails) {
       if (isEnabled('engages')) {
@@ -228,7 +227,7 @@ class MailFormContainer extends React.Component<
             callback();
           }
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
 
           if (callback) {
@@ -265,7 +264,6 @@ class MailFormContainer extends React.Component<
         callback
       });
     };
-
     const updatedProps = {
       ...this.props,
       sendMail,
@@ -279,7 +277,8 @@ class MailFormContainer extends React.Component<
       mails,
       messageId,
       verifiedImapEmails: verifiedImapEmails || [],
-      verifiedEngageEmails: verifiedEngageEmails || []
+      verifiedEngageEmails: verifiedEngageEmails || [],
+      detailQuery: detailQuery || []
     };
 
     return <MailForm {...updatedProps} />;

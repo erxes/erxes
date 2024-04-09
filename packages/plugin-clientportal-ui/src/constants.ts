@@ -1,16 +1,16 @@
 export const CONFIG_TYPES = {
   GENERAL: {
     LABEL: 'General Settings',
-    VALUE: 'general'
+    VALUE: 'general',
   },
   APPEARANCE: {
     LABEL: 'Appearance',
-    VALUE: 'appearance'
+    VALUE: 'appearance',
   },
   AUTH: {
     LABEL: 'Authentication',
-    VALUE: 'auth'
-  }
+    VALUE: 'auth',
+  },
 };
 
 export const COLORS = [
@@ -25,46 +25,61 @@ export const COLORS = [
   '#cd5a91',
   '#d29034',
   '#63D2D6',
-  '#F7CE53'
+  '#F7CE53',
 ];
 
 export const FONTS = [
   {
     label: 'Ubuntu',
-    value: `'Ubuntu', sans-serif`
+    value: `'Ubuntu', sans-serif`,
   },
   {
     label: 'Lobster',
-    value: `'Lobster', cursive`
+    value: `'Lobster', cursive`,
   },
   {
     label: 'Roboto',
-    value: `'Roboto', sans-serif`
+    value: `'Roboto', sans-serif`,
   },
   {
     label: 'Roboto Condensed',
-    value: `'Roboto Condensed', sans-serif`
+    value: `'Roboto Condensed', sans-serif`,
   },
   {
     label: 'Open Sans',
-    value: `'Open Sans', sans-serif`
-  }
+    value: `'Open Sans', sans-serif`,
+  },
 ];
 
 export const CONFIGURATIONS = [
   {
     label: 'MessagePro',
-    value: 'messagePro'
-  }
+    value: 'messagePro',
+  },
 ];
 
 export const USER_LOGIN_TYPES = [
   {
     label: 'Customer',
-    value: 'customer'
+    value: 'customer',
   },
   {
     label: 'Company',
-    value: 'company'
-  }
+    value: 'company',
+  },
+];
+
+export const CARD_USER_STATUS = [
+  { label: 'participating', value: 'participating' },
+  { label: 'invited', value: 'invited' },
+  { label: 'left', value: 'left' },
+  { label: 'rejected', value: 'rejected' },
+  { label: 'won', value: 'won' },
+  { label: 'lost', value: 'lost' },
+  { label: 'completed', value: 'completed' },
+];
+
+export const CARD_PAYMENT_STATUS = [
+  { label: 'paid', value: 'paid' },
+  { label: 'unpaid', value: 'unpaid' },
 ];

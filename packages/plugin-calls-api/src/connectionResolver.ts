@@ -12,20 +12,29 @@ import {
 } from './models/Conversations';
 
 import { ICustomerDocument } from './models/definitions/customers';
-import {
-  IActiveSessionDocument,
-  IActiveSessions,
-} from './models/definitions/activeSessions';
+import { IActiveSessionDocument } from './models/definitions/activeSessions';
 import {
   IActiveSessionModel,
   loadActiveSessionClass,
 } from './models/ActiveSessions';
+import { ICallHistoryDocument } from './models/definitions/callHistories';
+import {
+  ICallHistoryModel,
+  loadCallHistoryClass,
+} from './models/CallHistories';
+import {
+  IConfigDocument,
+  IConfigModel,
+  loadConfigClass,
+} from './models/Configs';
 
 export interface IModels {
   Integrations: IIntegrationModel;
   Conversations: IConversationModel;
   Customers: ICustomerModel;
   ActiveSessions: IActiveSessionModel;
+  CallHistory: ICallHistoryModel;
+  Configs: IConfigModel;
 }
 
 export interface IContext extends IMainContext {
@@ -53,6 +62,14 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.ActiveSessions = db.model<IActiveSessionDocument, IActiveSessionModel>(
     'calls_active_sessions',
     loadActiveSessionClass(models),
+  );
+  models.CallHistory = db.model<ICallHistoryDocument, ICallHistoryModel>(
+    'calls_history',
+    loadCallHistoryClass(models),
+  );
+  models.Configs = db.model<IConfigDocument, IConfigModel>(
+    'calls_configs',
+    loadConfigClass(models),
   );
 
   return models;
