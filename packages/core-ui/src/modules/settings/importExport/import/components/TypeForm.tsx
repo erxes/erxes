@@ -40,7 +40,7 @@ class TypeForm extends React.Component<Props> {
     return (
       <Box
         key={Math.random()}
-        selected={this.renderSelected(selectedType)}
+        $selected={this.renderSelected(selectedType)}
         onClick={() => this.props.onChangeContentType(selectedType)}
       >
         <Icon icon={icon} />
