@@ -20,7 +20,7 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
   const company = await sendContactsMessage({
     subdomain,
     action: 'companies.findOne',
-    data: { code: updateCode },
+    data: { $or: [{ code: updateCode }, { primaryName: doc.Name }] },
     isRPC: true,
     defaultValue: {},
   });
@@ -48,10 +48,12 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
         isRPC: true,
       });
 
-      customFieldData.push({
-        field: foundfield._id,
-        value: doc.Post_Code,
-      });
+      if (foundfield) {
+        customFieldData.push({
+          field: foundfield._id,
+          value: doc.Post_Code,
+        });
+      }
     }
 
     if (doc.City) {
@@ -67,10 +69,12 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
         isRPC: true,
       });
 
-      customFieldData.push({
-        field: foundfield._id,
-        value: doc.City,
-      });
+      if (foundfield) {
+        customFieldData.push({
+          field: foundfield._id,
+          value: doc.City,
+        });
+      }
     }
 
     if (doc.VAT_Registration_No) {
@@ -86,10 +90,12 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
         isRPC: true,
       });
 
-      customFieldData.push({
-        field: foundfield._id,
-        value: doc.VAT_Registration_No,
-      });
+      if (foundfield) {
+        customFieldData.push({
+          field: foundfield._id,
+          value: doc.VAT_Registration_No,
+        });
+      }
     }
 
     if (doc.Post_Code || doc.VAT_Registration_No || doc.City) {
@@ -162,10 +168,12 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
         isRPC: true,
       });
 
-      customFieldData.push({
-        field: foundfield._id,
-        value: doc.Post_Code,
-      });
+      if (foundfield) {
+        customFieldData.push({
+          field: foundfield._id,
+          value: doc.Post_Code,
+        });
+      }
     }
 
     if (doc.City) {
@@ -181,10 +189,12 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
         isRPC: true,
       });
 
-      customFieldData.push({
-        field: foundfield._id,
-        value: doc.City,
-      });
+      if (foundfield) {
+        customFieldData.push({
+          field: foundfield._id,
+          value: doc.City,
+        });
+      }
     }
 
     if (doc.VAT_Registration_No) {
@@ -200,10 +210,12 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
         isRPC: true,
       });
 
-      customFieldData.push({
-        field: foundfield._id,
-        value: doc.VAT_Registration_No,
-      });
+      if (foundfield) {
+        customFieldData.push({
+          field: foundfield._id,
+          value: doc.VAT_Registration_No,
+        });
+      }
     }
 
     if (doc.Post_Code || doc.VAT_Registration_No || doc.City) {
@@ -507,6 +519,10 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
     },
     isRPC: true,
   });
+
+  if (brand) {
+    throw new Error('MS Dynamic brand not found');
+  }
 
   const config = configs[brand._id || 'noBrand'];
 
