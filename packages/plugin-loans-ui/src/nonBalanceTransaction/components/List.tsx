@@ -40,21 +40,13 @@ interface IProps extends IRouterProps {
     doc: { nonBalanceTransactionIds: string[] },
     emptyBulk: () => void
   ) => void;
-  onSearch: (search: string) => void;
-  onSelect: (values: string[] | string, key: string) => void;
   queryParams: any;
-  isFiltered: boolean;
-  clearFilter: () => void;
   currentUser: IUser;
   closeModal: () => void;
 }
 
 class List extends React.Component<IProps> {
-
-  constructor(props) {
-    super(props);
-  }
-
+  
   onChange = () => {
     const { toggleAll, nonBalanceTransactions } = this.props;
     toggleAll(nonBalanceTransactions, 'nonBalanceTransactions');
@@ -187,7 +179,7 @@ class List extends React.Component<IProps> {
 
     const actionBarRight = (
       <BarItems>
-        {can('manageNonBalanceTransactions', currentUser) && (
+        {can('manageTransactions', currentUser) && (
           <Dropdown>
             <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
               <Button btnStyle="success" size="medium" icon="add">

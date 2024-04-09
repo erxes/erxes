@@ -44,39 +44,6 @@ class ListContainer extends React.Component<FinalProps, State> {
     };
   }
 
-  onSearch = (search: string) => {
-    if (!search) {
-      return router.removeParams(this.props.history, 'search');
-    }
-
-    router.setParams(this.props.history, { search });
-  };
-
-  onSelect = (values: string[] | string, key: string) => {
-    const params = generateQueryParams(this.props.history);
-
-    if (params[key] === values) {
-      return router.removeParams(this.props.history, key);
-    }
-    return router.setParams(this.props.history, { [key]: values });
-  };
-
-  isFiltered = (): boolean => {
-    const params = generateQueryParams(this.props.history);
-
-    for (const param in params) {
-      if (FILTER_PARAMS_TR.includes(param)) {
-        return true;
-      }
-    }
-    return false;
-  };
-
-  clearFilter = () => {
-    const params = generateQueryParams(this.props.history);
-    router.removeParams(this.props.history, ...Object.keys(params));
-  };
-
   render() {
     const { nonBalanceTransactionsMainQuery, nonBalanceTransactionsRemove } = this.props;
 
@@ -100,14 +67,10 @@ class ListContainer extends React.Component<FinalProps, State> {
       totalCount,
       nonBalanceTransactions: list,
       loading: nonBalanceTransactionsMainQuery.loading || this.state.loading,
-      removeNonBalanceTransactions,
-      onSelect: this.onSelect,
-      onSearch: this.onSearch,
-      isFiltered: this.isFiltered(),
-      clearFilter: this.clearFilter
+      removeNonBalanceTransactions
     };
 
-    const transactionsList = props => {
+    const nonBalanceTransactionsList = props => {
       return <List {...updatedProps} {...props} />;
     };
 
@@ -115,7 +78,7 @@ class ListContainer extends React.Component<FinalProps, State> {
       this.props.nonBalanceTransactionsMainQuery.refetch();
     };
 
-    return <Bulk content={transactionsList} refetch={refetch} />;
+    return <Bulk content={nonBalanceTransactionsList} refetch={refetch} />;
   }
 }
 

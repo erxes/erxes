@@ -87,36 +87,6 @@ export const nonBalanceTransactionsMain = `
     }
   }
 `;
-// export const nonBalanceTransactionsMain = `
-// query NonBalanceTransactionsMain($page: Int, $perPage: Int, $contractId: String, $customerId: String, $startDate: String, $endDate: String, $ids: [String], $searchValue: String, $sortField: String, $sortDirection: Int) {
-//   nonBalanceTransactionsMain(page: $page, perPage: $perPage, contractId: $contractId, customerId: $customerId, startDate: $startDate, endDate: $endDate, ids: $ids, searchValue: $searchValue, sortField: $sortField, sortDirection: $sortDirection) {
-//     list {
-//       _id
-//       createdAt
-//       createdBy
-//       contractId
-//       customerId
-//       description
-//       number
-//       contract {
-//         _id
-//       }
-//       customer {
-//         _id
-//       }
-//       transactionType
-//       detail {
-//         ktAmount
-//         dtAmount
-//         type
-//         currency
-//       }
-//     }
-//     totalCount
-//   }
-// }
-// `;
-
 
 export default {
   nonBalanceTransactions,

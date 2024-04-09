@@ -81,8 +81,8 @@ class AddTransactionForm extends React.Component<Props, State> {
     const finalValues = values;
     let addDetail:any = {};
     addDetail.currency = this.state.currency;
-    (this.state.isDedit) ? addDetail.dtAmount = this.state.amount :  addDetail.ktAmount = this.state.amount;
-    (this.state.isDedit) ? addDetail.dtAmount = this.state.amount :  addDetail.ktAmount = this.state.amount 
+    addDetail.dtAmount = (this.state.isDedit) ? this.state.amount : 0 ;
+    addDetail.ktAmount = (!this.state.isDedit) ? this.state.amount : 0 ;
     addDetail.type = this.state.detailType;
     addDetail.currency = this.state.currency || ''
     finalValues.contractId = this.state.contractId || '';

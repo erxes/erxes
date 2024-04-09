@@ -5,7 +5,6 @@ import {
   FormGroup,
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
-  MainStyleScrollWrapper as ScrollWrapper,
   CollapseContent,
   Table
 } from '@erxes/ui/src';
@@ -16,10 +15,6 @@ type Props = {
   nonBalanceTransaction: INonBalanceTransaction;
 };
 class NonBalanceTransactionForm extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-  }
-
   DetailInfo = () => {
     const { nonBalanceTransaction} = this.props;
     const  nonBalTrDetail = nonBalanceTransaction?.detail || []
@@ -45,9 +40,9 @@ class NonBalanceTransactionForm extends React.Component<Props> {
             </tr>
           </thead>
           <tbody id="nonBalanceTransactionDetails">
-          { nonBalTrDetail.map((item, index) => (
-             <tr key={index}>
-              <td >{(item && item?.type === 'allInterest') ? 'storedInterest, stoppedInterest' : item?.type || ''}</td>
+          { nonBalTrDetail.map((item) => (
+             <tr key={item?.type}>
+              <td >{(item && item?.type === 'allOfInterest') ? 'storedInterest, stoppedInterest' : item?.type || ''}</td>
               <td >{(item && item?.ktAmount > 0) ? item?.ktAmount : item?.dtAmount || ''}</td>
               <td >{(item && item.currency) || ''}</td>
             </tr>

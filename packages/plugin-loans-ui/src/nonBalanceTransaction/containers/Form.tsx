@@ -18,7 +18,7 @@ type FinalProps = {
   currentUser: IUser;
 } & Props;
 
-class nonBalanceTransactionContainer extends React.Component<FinalProps> {
+class NonBalanceTransactionContainer extends React.Component<FinalProps> {
   render() {
     const { nonBalanceTransaction } = this.props;
 
@@ -67,4 +67,4 @@ const getRefetchQueries = () => {
   return ['nonBalanceTransactionsMain'];
 };
 
-export default withProps<Props>(compose()(nonBalanceTransactionContainer));
+export default withProps<Props>(compose()(NonBalanceTransactionContainer));

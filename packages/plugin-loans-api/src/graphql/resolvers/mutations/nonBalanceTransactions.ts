@@ -72,7 +72,7 @@ const nonBalanceTransactionMutations = {
     { nonBalanceTransactionIds }: { nonBalanceTransactionIds: string[] },
     { models, user, subdomain }: IContext
   ) => {
-    // TODO: contracts check
+    
     const nonBalanceTransactions = await models.NonBalanceTransactions.find({ _id: { $in: nonBalanceTransactionIds } },{ $exists: true }).lean();
 
     await models.NonBalanceTransactions.removeNonBalanceTransactions(nonBalanceTransactions.map(a => a._id));

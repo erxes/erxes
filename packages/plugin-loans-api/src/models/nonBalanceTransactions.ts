@@ -1,6 +1,5 @@
-import { INonBalanceTransaction, nonBalanceTransactionSchema } from './definitions/nonBalanceTransactions';
+import { INonBalanceTransaction, nonBalanceTransactionSchema, INonBalanceTransactionDocument } from './definitions/nonBalanceTransactions';
 import { Model } from 'mongoose';
-import { INonBalanceTransactionDocument } from './definitions/nonBalanceTransactions';
 import { IModels } from '../connectionResolver';
 import { FilterQuery } from 'mongodb';
 

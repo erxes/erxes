@@ -42,7 +42,6 @@ function nonBalanceTransactionRow({
   };
   
   return (
-  <>
       <tr>
         <td onClick={onClick}>
           <FormControl
@@ -77,7 +76,6 @@ function nonBalanceTransactionRow({
           </div>
         </td>
       </tr>
-  </>
   );
 }
 
