@@ -6,18 +6,17 @@ import {
   EngageMessagesTotalCountQueryResponse,
   ListQueryVariables,
 } from "@erxes/ui-engage/src/types";
+import React, { useEffect, useState } from "react";
 
 import Bulk from "@erxes/ui/src/components/Bulk";
 import MessageList from "../components/MessageList";
-import React, { useEffect, useState } from "react";
 import { generateListQueryVariables } from "@erxes/ui-engage/src/utils";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 import { queries } from "@erxes/ui-engage/src/graphql";
 import queryString from "query-string";
-// import { withRouter } from 'react-router-dom';
-import { withProps } from "@erxes/ui/src/utils";
 import { useLocation } from "react-router-dom";
+import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   type: string;

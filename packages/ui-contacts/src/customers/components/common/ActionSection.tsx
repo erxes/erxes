@@ -93,22 +93,6 @@ class ActionSection extends React.Component<
     );
   }
 
-  renderButton() {
-    const { isSmall } = this.props;
-
-    return (
-      <Button size="small" btnStyle="default">
-        {isSmall ? (
-          <Icon icon="ellipsis-h" />
-        ) : (
-          <>
-            {__("Action")} <Icon icon="angle-down" />
-          </>
-        )}
-      </Button>
-    );
-  }
-
   renderEditButton() {
     const { cocType, coc } = this.props;
 
@@ -225,9 +209,21 @@ class ActionSection extends React.Component<
       }));
     };
 
+    const MenuButton = React.forwardRef(function (props, ref) {
+      return <Button size="small" btnStyle="default" {...props} />;
+    });
+
     return (
       <Menu as="div" className="relative">
-        <Menu.Button>{this.renderButton()}</Menu.Button>
+        <Menu.Button as={MenuButton}>
+          {this.props.isSmall ? (
+            <Icon icon="ellipsis-h" />
+          ) : (
+            <>
+              {__("Action")} <Icon icon="angle-down" />
+            </>
+          )}
+        </Menu.Button>
         <Menu.Items className="absolute">
           {this.renderEditButton()}
           <Menu.Item>

@@ -2,21 +2,19 @@ import { Alert, __, confirm, formatValue } from "@erxes/ui/src/utils";
 import { Button, SortHandler, Table } from "@erxes/ui/src/components";
 
 import { IPutResponse } from "../types";
-import { IRouterProps } from "@erxes/ui/src/types";
 import PerResponse from "./PerResponse";
 import React from "react";
 import Response from "./Response";
 import WithPermission from "coreui/withPermission";
 import _ from "lodash";
 import dayjs from "dayjs";
-import { withRouter } from "react-router-dom";
 
 export const displayValue = (putResponse, name) => {
   const value = _.get(putResponse, name);
   return formatValue(value);
 };
 
-interface IProps extends IRouterProps {
+interface IProps {
   putResponses: IPutResponse[];
   onReturnBill: (_id: string) => void;
 }
@@ -128,4 +126,4 @@ class DetailDuplicated extends React.Component<IProps, State> {
   }
 }
 
-export default withRouter<IRouterProps>(DetailDuplicated);
+export default DetailDuplicated;

@@ -1,14 +1,13 @@
-import Button from '@erxes/ui/src/components/Button';
-import { IPutResponse } from '../types';
-import PerResponse from './PerResponse';
-import React from 'react';
-import Response from './Response';
-import _ from 'lodash';
-import client from '@erxes/ui/src/apolloClient';
-import dayjs from 'dayjs';
-import { formatValue } from '@erxes/ui/src/utils';
-import { gql } from '@apollo/client';
-import queries from '../graphql/queries';
+import Button from "@erxes/ui/src/components/Button";
+import { IPutResponse } from "../types";
+import PerResponse from "./PerResponse";
+import React from "react";
+import Response from "./Response";
+import _ from "lodash";
+import client from "@erxes/ui/src/apolloClient";
+import { formatValue } from "@erxes/ui/src/utils";
+import { gql } from "@apollo/client";
+import queries from "../graphql/queries";
 
 type Props = {
   putResponse: IPutResponse;
@@ -36,23 +35,23 @@ const PutResponseRow: React.FC<Props> = ({ putResponse, history }: Props) => {
     const printContent = PerResponse(putResponse);
     const printMianContent = Response(printContent);
     const myWindow =
-      window.open(`__`, '_blank', 'width=800, height=800') || ({} as any);
+      window.open(`__`, "_blank", "width=800, height=800") || ({} as any);
     myWindow.document.write(printMianContent);
   };
 
   return (
     <tr>
-      <td key={'BillID'}>{putResponse.billId} </td>
-      <td key={'number'}>{putResponse.number} </td>
-      <td key={'Date'}>{putResponse.date}</td>
-      <td key={'success'}>{displayValue(putResponse, 'success')}</td>
-      <td key={'billType'}>{displayValue(putResponse, 'billType')}</td>
-      <td key={'taxType'}>{displayValue(putResponse, 'taxType')}</td>
-      <td key={'amount'}>{displayValue(putResponse, 'amount')}</td>
-      <td key={'message'}>{displayValue(putResponse, 'message')}</td>
-      <td key={'ReturnBillId'}>{putResponse.sendInfo?.returnBillId} </td>
-      <td key={'actions'}>
-        {putResponse.contentType === 'deal' && (
+      <td key={"BillID"}>{putResponse.billId} </td>
+      <td key={"number"}>{putResponse.number} </td>
+      <td key={"Date"}>{putResponse.date}</td>
+      <td key={"success"}>{displayValue(putResponse, "success")}</td>
+      <td key={"billType"}>{displayValue(putResponse, "billType")}</td>
+      <td key={"taxType"}>{displayValue(putResponse, "taxType")}</td>
+      <td key={"amount"}>{displayValue(putResponse, "amount")}</td>
+      <td key={"message"}>{displayValue(putResponse, "message")}</td>
+      <td key={"ReturnBillId"}>{putResponse.sendInfo?.returnBillId} </td>
+      <td key={"actions"}>
+        {putResponse.contentType === "deal" && (
           <Button
             btnStyle="link"
             size="small"

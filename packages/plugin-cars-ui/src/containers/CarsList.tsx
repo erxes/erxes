@@ -1,30 +1,19 @@
-import * as compose from 'lodash.flowright';
+import { Alert, Bulk, router } from "@erxes/ui/src";
+import { MainQueryResponse, RemoveMutationResponse } from "../types";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { mutations, queries } from "../graphql";
 
-import { Alert, Bulk, router, withProps } from '@erxes/ui/src';
-import {
-  ListQueryVariables,
-  MainQueryResponse,
-  MergeMutationResponse,
-  MergeMutationVariables,
-  RemoveMutationResponse,
-  RemoveMutationVariables,
-} from '../types';
-import { mutations, queries } from '../graphql';
-
-import CarsList from '../components/list/CarsList';
-// import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { gql, useQuery, useMutation } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { useNavigate } from 'react-router-dom';
+import CarsList from "../components/list/CarsList";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
 };
 
 const CarsListContainer = (props: Props) => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const { queryParams } = props;
 
   const carsMainQuery = useQuery<MainQueryResponse>(gql(queries.carsMain), {
@@ -41,12 +30,12 @@ const CarsListContainer = (props: Props) => {
         ? parseInt(queryParams.sortDirection, 10)
         : undefined,
     },
-    fetchPolicy: 'network-only',
+    fetchPolicy: "network-only",
   });
 
   const [carsRemove] = useMutation<RemoveMutationResponse>(
     gql(mutations.carsRemove),
-    generateOptions(),
+    generateOptions()
   );
   const [carsMerge] = useMutation(gql(mutations.carsMerge), generateOptions());
 
@@ -56,7 +45,7 @@ const CarsListContainer = (props: Props) => {
     })
       .then(() => {
         emptyBulk();
-        Alert.success('You successfully deleted a car');
+        Alert.success("You successfully deleted a car");
       })
       .catch((e) => {
         Alert.error(e.message);
@@ -71,11 +60,9 @@ const CarsListContainer = (props: Props) => {
       },
     })
       .then((response) => {
-        Alert.success('You successfully merged cars');
+        Alert.success("You successfully merged cars");
         callback();
-        navigate(
-          `/erxes-plugin-car/details/${response.data.carsMerge._id}`,
-        );
+        navigate(`/erxes-plugin-car/details/${response.data.carsMerge._id}`);
       })
       .catch((e) => {
         Alert.error(e.message);
@@ -83,7 +70,7 @@ const CarsListContainer = (props: Props) => {
   };
 
   const carsList = (bulkProps) => {
-    const searchValue = queryParams.searchValue || '';
+    const searchValue = queryParams.searchValue || "";
     const { list = [], totalCount = 0 } = carsMainQuery?.data?.carsMain || {};
 
     const updatedProps = {
@@ -108,10 +95,10 @@ const CarsListContainer = (props: Props) => {
 
 const generateOptions = () => ({
   refetchQueries: [
-    'carsMain',
-    'carCounts',
-    'carCategories',
-    'carCategoriesTotalCount',
+    "carsMain",
+    "carCounts",
+    "carCategories",
+    "carCategoriesTotalCount",
   ],
 });
 

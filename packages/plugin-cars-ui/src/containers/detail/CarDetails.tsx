@@ -1,12 +1,13 @@
-import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
-import { EmptyState, Spinner, withCurrentUser, withProps } from '@erxes/ui/src';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { gql, useQuery } from '@apollo/client';
-import React from 'react';
-import CarDetails from '../../components/detail/CarDetails';
-import { queries } from '../../graphql';
-import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
-import { DetailQueryResponse } from '../../types';
+import { EmptyState, Spinner, withCurrentUser, withProps } from "@erxes/ui/src";
+import { gql, useQuery } from "@apollo/client";
+
+import CarDetails from "../../components/detail/CarDetails";
+import { DetailQueryResponse } from "../../types";
+import { FieldsGroupsQueryResponse } from "@erxes/ui-forms/src/settings/properties/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import React from "react";
+import { queries as fieldQueries } from "@erxes/ui-forms/src/settings/properties/graphql";
+import { queries } from "../../graphql";
 
 type Props = {
   id: string;
@@ -26,10 +27,10 @@ const CarDetailsContainer = (props: Props) => {
     gql(fieldQueries.fieldsGroups),
     {
       variables: {
-        contentType: 'cars:car',
+        contentType: "cars:car",
         isDefinedByErxes: false,
       },
-    },
+    }
   );
 
   if (carDetailQuery.loading) {

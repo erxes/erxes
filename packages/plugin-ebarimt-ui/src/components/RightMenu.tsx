@@ -16,9 +16,9 @@ import {
 import React, { ChangeEvent, KeyboardEvent, useRef, useState } from "react";
 
 import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import { CSSTransition } from "react-transition-group";
 import Datetime from "@nateradebaugh/react-datetime";
 import { IQueryParams } from "@erxes/ui/src/types";
-import RTG from "react-transition-group";
 import { __ } from "@erxes/ui/src/utils";
 import dayjs from "dayjs";
 import { isEnabled } from "@erxes/ui/src/utils/core";
@@ -397,14 +397,14 @@ const RightMenu: React.FC<Props> = (props) => {
         {showMenu ? __("Hide Filter") : __("Show Filter")}
       </Button>
 
-      <RTG.CSSTransition
+      <CSSTransition
         in={showMenu}
         timeout={300}
         classNames="slide-in-right"
         unmountOnExit={true}
       >
         <RightMenuContainer>{renderTabContent()}</RightMenuContainer>
-      </RTG.CSSTransition>
+      </CSSTransition>
     </div>
   );
 };

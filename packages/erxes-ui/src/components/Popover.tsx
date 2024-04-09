@@ -1,6 +1,7 @@
+import React, { useState } from "react";
+
 import { Popover as PopoverContainer } from "@headlessui/react";
 import { PopoverPanel } from "@erxes/ui/src/styles/main";
-import React, { useState } from "react";
 import { __ } from "@erxes/ui/src/utils/core";
 import { usePopper } from "react-popper";
 
@@ -39,7 +40,10 @@ const Popover = (props: Props) => {
   });
 
   return (
-    <PopoverContainer style={{ position: "relative", ...style }} ref={ref && ref}>
+    <PopoverContainer
+      style={{ position: "relative", ...style }}
+      ref={ref && ref}
+    >
       {({ close }) => (
         <>
           <PopoverContainer.Button ref={setReferenceElement}>

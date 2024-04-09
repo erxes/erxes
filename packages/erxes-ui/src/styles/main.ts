@@ -27,14 +27,6 @@ const Actions = styledTS<{ isSmall?: boolean }>(styled.div)`
   justify-content: space-between;
   padding: 0 ${dimensions.coreSpacing}px ${dimensions.unitSpacing}px;
 
-  [id^="headlessui-menu-button-"] {
-    padding: 0;
-
-    button {
-      display: flex;
-    }
-  }
-
   > a, button {
     flex: 1;
     padding: 4px 15px;

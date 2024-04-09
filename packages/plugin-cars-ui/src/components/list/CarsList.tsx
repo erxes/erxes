@@ -18,16 +18,17 @@ import {
   Title,
 } from "@erxes/ui-settings/src/styles";
 import React, { useRef, useState } from "react";
-import { isEnabled, router } from "@erxes/ui/src/utils/core";
+import { __, isEnabled, router } from "@erxes/ui/src/utils/core";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import CarForm from "../../containers/CarForm";
 import CarRow from "./CarRow";
 import CarsMerge from "../detail/CarsMerge";
 import { CarsTableWrapper } from "../../styles";
 import { ICar } from "../../types";
-import { IRouterProps } from "@erxes/ui/src/types";
 import Sidebar from "./Sidebar";
 import TaggerPopover from "@erxes/ui-tags/src/components/TaggerPopover";
+import { confirm } from "@erxes/ui/src/utils";
 
 type Props = {
   cars: ICar[];
@@ -42,11 +43,13 @@ type Props = {
   emptyBulk: () => void;
   remove: (doc: { carIds: string[] }, emptyBulk: () => void) => void;
   merge: () => void;
-  history: any;
   queryParams: any;
 };
 
 const CarsList = (props: Props) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const {
     cars,
     loading,
@@ -59,7 +62,6 @@ const CarsList = (props: Props) => {
     emptyBulk,
     remove,
     merge,
-    history,
     queryParams,
   } = props;
 
@@ -79,8 +81,8 @@ const CarsList = (props: Props) => {
     setSearch(value);
 
     timerRef.current = window.setTimeout(() => {
-      router.removeParams(history, "page");
-      router.setParams(history, { searchValue: value });
+      router.removeParams(navigate, location, "page");
+      router.setParams(navigate, location, { searchValue: value });
     }, 500);
   };
 

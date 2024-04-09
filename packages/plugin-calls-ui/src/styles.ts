@@ -4,7 +4,7 @@ import {
   pop,
   slideRight,
 } from '@erxes/ui/src/utils/animations';
-import styled, { keyframes } from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 
 import colors from '@erxes/ui/src/styles/colors';
 import { dimensions } from '@erxes/ui/src/styles';
@@ -34,6 +34,7 @@ export const TabsContainer = styled(Tabs)`
   border-top: 1px solid ${colors.borderPrimary};
   border-radius: 0 0 25px 10px;
   overflow: hidden;
+  background:red;
 `;
 
 export const TabContent = styledTS<{ show?: boolean }>(styled.div)`
@@ -325,7 +326,7 @@ export const IncomingCallNav = styledTS<{ type?: string }>(styled.div)`
   bottom: ${(props) => (props.type === 'outgoing' ? '0' : '150px')};
   right: ${(props) => (props.type === 'outgoing' ? '0' : '20px')};
   z-index: 999;
-  animation: ${slideRight} 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
+  animation: ${css`${slideRight}`} 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
 
   button {
     height: 30px;
@@ -360,7 +361,7 @@ export const CallButton = styledTS<{
   margin-top: auto;
   margin-bottom: auto;
   margin-left: ${(props) => (props.type === 'decline' ? '0' : '0px')};
-  animation: ${pulse} 1.5s infinite alternate;
+  animation: ${css`${pulse}`} 1.5s infinite alternate;
 `;
 
 export const InCall = styled.div`
@@ -531,7 +532,7 @@ export const WidgetWrapper = styledTS<{ $isConnected?: boolean }>(styled.div)`
   transition:
     box-shadow 0.3s ease-in-out,
     background-image 0.3s ease-in;
-  animation: ${pop} 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
+  animation: ${css`${pop}`} 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -539,7 +540,7 @@ export const WidgetWrapper = styledTS<{ $isConnected?: boolean }>(styled.div)`
 
   &:before {
     animation: ${(props) =>
-      !props.$isConnected && `${animationPulse} 2s infinite`};
+      !props.$isConnected && css`${animationPulse} 2s infinite`};
     border-radius: 50%;
     color: inherit;
     content: '';
@@ -638,7 +639,7 @@ export const NameCardContainer = styled.div`
 
     > i {
       margin-right: 5px;
-      animation: ${pulse} 2s infinite;
+      animation: ${css`${pulse}`} 2s infinite;
     }
   }
 
