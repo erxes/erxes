@@ -15,10 +15,12 @@ import { Alert, confirm } from '@erxes/ui/src/utils';
 
 import { menuDynamic } from '../../constants';
 import { Title } from '@erxes/ui-settings/src/styles';
+import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 
 type Props = {
   totalCount: number;
   loading: boolean;
+  setBrand: (brandId: string) => void;
   orders: any[];
   history: any;
   queryParams: any;
@@ -92,6 +94,7 @@ class CheckSyncedOrders extends React.Component<Props> {
       unSyncedOrderIds,
       toSyncMsdOrders,
       posList,
+      setBrand,
       syncedOrderInfos,
     } = this.props;
     const tablehead = [
@@ -155,6 +158,17 @@ class CheckSyncedOrders extends React.Component<Props> {
 
     const actionBarRight = (
       <BarItems>
+        <SelectBrands
+          label={__('Choose brands')}
+          onSelect={(brand) => setBrand(brand as string)}
+          initialValue={queryParams.brandId}
+          multi={false}
+          name="selectedBrands"
+          customOption={{
+            label: 'No Brand (noBrand)',
+            value: '',
+          }}
+        />
         {bulk.length > 0 && (
           <Button btnStyle="success" icon="check-circle" onClick={onClickCheck}>
             Check
@@ -197,8 +211,6 @@ class CheckSyncedOrders extends React.Component<Props> {
           <Wrapper.ActionBar
             left={<Title>{__(`Orders (${totalCount})`)}</Title>}
             right={actionBarRight}
-            // withMargin
-            // wide
             background="colorWhite"
             wideSpacing={true}
           />

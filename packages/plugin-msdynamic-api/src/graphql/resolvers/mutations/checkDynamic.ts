@@ -2,6 +2,7 @@ import fetch from 'node-fetch';
 import {
   IContext,
   sendContactsMessage,
+  sendPosMessage,
   sendProductsMessage,
 } from '../../../messageBroker';
 import { getConfig } from '../../../utils';
@@ -506,7 +507,7 @@ const msdynamicCheckMutations = {
     };
   },
 
-  async toCheckSynced(
+  async toCheckMsdSynced(
     _root,
     { ids, brandId }: { ids: string[]; brandId: string },
     { subdomain }: IContext
@@ -520,36 +521,60 @@ const msdynamicCheckMutations = {
 
     const { salesApi, username, password } = config;
 
-    const response = await fetch(
-      `${salesApi}?$filter=(No eq 'MO-155170' or No eq '22-11-0694'`,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          Authorization: `Basic ${Buffer.from(
-            `${username}:${password}`
-          ).toString('base64')}`,
-        },
+    let filterSection = '';
+    let dynamicNo = [] as any;
+    let dynamicId = [] as any;
+
+    for (const id of ids) {
+      const order = await sendPosMessage({
+        subdomain,
+        action: 'orders.findOne',
+        data: { _id: id },
+        isRPC: true,
+      });
+
+      if (order && order.syncErkhetInfo) {
+        const obj = {};
+        obj[order.syncErkhetInfo] = id;
+
+        dynamicNo.push(order.syncErkhetInfo);
+        dynamicId.push(obj);
       }
-    ).then((r) => r.json());
+    }
 
-    // const result = JSON.parse(response);
+    if (dynamicNo) {
+      for (const no of dynamicNo) {
+        filterSection += `No eq '${no}' or `;
+      }
 
-    // if (result.status === 'error') {
-    //   throw new Error(result.message);
-    // }
+      filterSection = filterSection.slice(0, -4) + '';
+    }
 
-    // const data = result?.data || {};
-    const data = {};
+    const url = `${salesApi}?$filter=(${filterSection})`;
 
-    return (Object.keys(data) || []).map((_id) => {
-      const res: any = data[_id] || {};
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
+          'base64'
+        )}`,
+      },
+      timeout: 60000,
+    }).then((r) => r.json());
+
+    const datas = response?.value || {};
+
+    return (datas || []).map((data) => {
+      const key = data.No;
+      const valueObject = dynamicId.find((obj) => key in obj);
+
       return {
-        _id,
-        isSynced: res.isSynced,
-        syncedDate: res.date,
-        syncedBillNumber: res.bill_number,
-        syncedCustomer: res.customer,
+        _id: valueObject[key],
+        isSynced: true,
+        syncedDate: data.Order_Date,
+        syncedBillNumber: data.Bill_to_Contact_No,
+        syncedCustomer: data.Sell_to_Customer_No,
       };
     });
   },
