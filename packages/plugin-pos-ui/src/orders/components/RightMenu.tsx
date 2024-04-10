@@ -1,3 +1,4 @@
+import { ALLOW_STATUSES, ALLOW_TYPES } from "../../constants";
 import {
   Button,
   ControlLabel,
@@ -13,16 +14,16 @@ import {
   RightMenuContainer,
   TabContent,
 } from "../../styles";
-import Select from "react-select";
+import React, { useRef, useState } from "react";
+import { __, isEnabled } from "@erxes/ui/src/utils/core";
+
+import { CSSTransition } from "react-transition-group";
 import Datetime from "@nateradebaugh/react-datetime";
 import { IQueryParams } from "@erxes/ui/src/types";
-import RTG from "react-transition-group";
-import React, { useRef, useState } from "react";
+import Select from "react-select";
+import SelectPos from "./SelectPos";
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 import dayjs from "dayjs";
-import { isEnabled, __ } from "@erxes/ui/src/utils/core";
-import SelectPos from "./SelectPos";
-import { ALLOW_STATUSES, ALLOW_TYPES } from "../../constants";
 
 const SelectCustomers = asyncComponent(
   () =>
@@ -308,14 +309,14 @@ const RightMenu = (props: Props) => {
         {showMenu ? __("Hide Filter") : __("Show Filter")}
       </Button>
 
-      <RTG.CSSTransition
+      <CSSTransition
         in={showMenu}
         timeout={300}
         classNames="slide-in-right"
         unmountOnExit={true}
       >
         <RightMenuContainer>{renderTabContent()}</RightMenuContainer>
-      </RTG.CSSTransition>
+      </CSSTransition>
     </div>
   );
 };

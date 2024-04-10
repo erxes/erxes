@@ -1,28 +1,27 @@
-import React, { useState, useRef } from "react";
-import RTG from "react-transition-group";
+import { ChartTitle, ContentContainer, DragField } from "../../styles";
+import React, { useRef, useState } from "react";
+import { defaultLayout, deserializeItem } from "../../utils";
 
-import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import PageContent from "@erxes/ui/src/layout/components/PageContent";
-import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
-import Icon from "@erxes/ui/src/components/Icon";
+import { BarItems } from "@erxes/ui/src";
 import Button from "@erxes/ui/src/components/Button";
-import confirm from "@erxes/ui/src/utils/confirmation/confirm";
+import { CSSTransition } from "react-transition-group";
+import ChartRenderer from "../../containers/chart/ChartRenderer";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
 import Dropdown from "@erxes/ui/src/components/Dropdown";
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
-import ChartRenderer from "../../containers/chart/ChartRenderer";
-import queryString from "query-string";
-import { Title } from "@erxes/ui-settings/src/styles";
-import { BarItems } from "@erxes/ui/src";
-import { __ } from "@erxes/ui/src/utils/index";
-import { getEnv } from "@erxes/ui/src/utils/index";
-
-import Participators from "../utils/Participators";
 import Form from "../../containers/chart/Form";
-import SelectMembersPopover from "../utils/SelectMembersPopover";
-import { ChartTitle, ContentContainer, DragField } from "../../styles";
-import { defaultLayout, deserializeItem } from "../../utils";
-import { RightDrawerContainer } from "../../styles";
 import { IDashboard } from "../../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import PageContent from "@erxes/ui/src/layout/components/PageContent";
+import Participators from "../utils/Participators";
+import { RightDrawerContainer } from "../../styles";
+import SelectMembersPopover from "../utils/SelectMembersPopover";
+import { Title } from "@erxes/ui-settings/src/styles";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "@erxes/ui/src/utils/index";
+import confirm from "@erxes/ui/src/utils/confirmation/confirm";
+import { getEnv } from "@erxes/ui/src/utils/index";
+import queryString from "query-string";
 
 type Props = {
   queryParams: any;
@@ -254,7 +253,7 @@ const Dashboard = (props: Props) => {
         {renderContent()}
 
         <div ref={wrapperRef}>
-          <RTG.CSSTransition
+          <CSSTransition
             in={showDrawer}
             timeout={300}
             classNames="slide-in-right"
@@ -271,7 +270,7 @@ const Dashboard = (props: Props) => {
                 />
               }
             </RightDrawerContainer>
-          </RTG.CSSTransition>
+          </CSSTransition>
         </div>
       </PageContent>
     </ContentContainer>

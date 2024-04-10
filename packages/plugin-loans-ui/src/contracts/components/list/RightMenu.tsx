@@ -1,7 +1,3 @@
-import Button from "@erxes/ui/src/components/Button";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import Icon from "@erxes/ui/src/components/Icon";
 import {
   CustomRangeContainer,
   FilterBox,
@@ -10,14 +6,18 @@ import {
   RightMenuContainer,
   TabContent,
 } from "../../../styles";
-
-import RTG from "react-transition-group";
 import React, { useRef, useState } from "react";
+
+import Button from "@erxes/ui/src/components/Button";
+import { CSSTransition } from "react-transition-group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Icon from "@erxes/ui/src/components/Icon";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectContractType from "../../../contractTypes/containers/SelectContractType";
 import { __ } from "coreui/utils";
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 import { isEnabled } from "@erxes/ui/src/utils/core";
-import SelectContractType from "../../../contractTypes/containers/SelectContractType";
-import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 
 const SelectCompanies = asyncComponent(
   () =>
@@ -281,14 +281,14 @@ export default function RightMenu(props: Props) {
         {showMenu ? __("Hide Menu") : __("Show Menu")}
       </Button>
 
-      <RTG.CSSTransition
+      <CSSTransition
         in={showMenu}
         timeout={300}
         classNames="slide-in-right"
         unmountOnExit={true}
       >
         <RightMenuContainer>{renderTabContent()}</RightMenuContainer>
-      </RTG.CSSTransition>
+      </CSSTransition>
     </div>
   );
 }

@@ -1,5 +1,7 @@
 import * as routerUtils from "@erxes/ui/src/utils/router";
 
+import { useLocation, useNavigate } from "react-router-dom";
+
 import AccountList from "../accounts/containers/List";
 import Box from "@erxes/ui/src/components/Box";
 import Button from "@erxes/ui/src/components/Button";
@@ -15,7 +17,6 @@ import React from "react";
 import { SidebarList } from "@erxes/ui/src/layout/styles";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import { TopHeader } from "@erxes/ui/src/styles/main";
-import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   configs: IKhanbankConfigsItem[];
@@ -118,8 +119,8 @@ const ConfigsList = (props: Props) => {
     <ConfigList>
       <LeftSidebar wide={true} header={renderSidebarHeader()} hasBorder={true}>
         <SidebarList
-          noTextColor={true}
-          noBackground={true}
+          $noTextColor={true}
+          $noBackground={true}
           id={"khanbankSidebar"}
         >
           {renderRow()}

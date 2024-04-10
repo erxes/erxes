@@ -1,22 +1,23 @@
-import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
-import Icon from "@erxes/ui/src/components/Icon";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import { DropIcon } from "@erxes/ui/src/styles/main";
-import { IButtonMutateProps } from "@erxes/ui/src/types";
-import { __ } from "@erxes/ui/src/utils/core";
-import React, { useState, useEffect } from "react";
-import Dropdown from "@erxes/ui/src/components/Dropdown";
-import CategoryForm from "../../containers/category/CategoryForm";
-import CategoryList from "../../containers/category/CategoryList";
-import KnowledgeForm from "../../containers/knowledge/KnowledgeForm";
-import { ITopic } from "@erxes/ui-knowledgebase/src/types";
 import {
   KnowledgeBaseRow,
   RowActions,
   SectionHead,
   SectionTitle,
 } from "./styles";
+import React, { useEffect, useState } from "react";
+
+import CategoryForm from "../../containers/category/CategoryForm";
+import CategoryList from "../../containers/category/CategoryList";
+import { DropIcon } from "@erxes/ui/src/styles/main";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { ITopic } from "@erxes/ui-knowledgebase/src/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import KnowledgeForm from "../../containers/knowledge/KnowledgeForm";
 import { Menu } from "@headlessui/react";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import { __ } from "@erxes/ui/src/utils/core";
 
 type Props = {
   queryParams: any;
@@ -99,10 +100,8 @@ const KnowledgeRow = (props: Props) => {
     return (
       <RowActions>
         <Dropdown
-          // alignRight={true}
           as={DropdownToggle}
           toggleComponent={<Icon icon="cog" size={15} />}
-          // style={{ float: "left" }}
         >
           <ModalTrigger
             title="Manage Knowledge Base"
@@ -118,7 +117,7 @@ const KnowledgeRow = (props: Props) => {
             content={categoryContent}
           />
         </Dropdown>
-        <DropIcon onClick={handleToggle} isOpen={detailed} />
+        <DropIcon onClick={handleToggle} $isOpen={detailed} />
       </RowActions>
     );
   };

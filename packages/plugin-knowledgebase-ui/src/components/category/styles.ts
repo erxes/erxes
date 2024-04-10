@@ -1,5 +1,5 @@
-import { colors } from '@erxes/ui/src/styles';
 import { ActionButtons } from '@erxes/ui-settings/src/styles';
+import { colors } from '@erxes/ui/src/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -11,11 +11,11 @@ const Categories = styled.ul`
 `;
 
 const CategoryItem = styledTS<{
-  isActive: boolean;
-  isChild: boolean | undefined;
+  $isActive: boolean;
+  $isChild: boolean | undefined;
 }>(styled.li)`
   position: relative;
-  background: ${(props) => (props.isActive ? colors.bgActive : colors.bgLight)};
+  background: ${(props) => (props.$isActive ? colors.bgActive : colors.bgLight)};
   border-bottom: 1px solid ${colors.borderPrimary};
   display: flex;
   padding-right: 20px;
@@ -23,7 +23,7 @@ const CategoryItem = styledTS<{
 
   a {
     padding: ${(props) =>
-      props.isChild ? '10px 0 10px 55px' : '10px 0 10px 40px'};
+      props.$isChild ? '10px 0 10px 55px' : '10px 0 10px 40px'};
     white-space: normal;
     display: block;
     color: ${colors.textPrimary};
@@ -59,7 +59,7 @@ const CategoryItem = styledTS<{
 
   &:hover {
     background: ${(props) =>
-      props.isActive ? colors.bgActive : colors.colorWhite};
+      props.$isActive ? colors.bgActive : colors.colorWhite};
     
     a > i {
       display: none;

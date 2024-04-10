@@ -1,4 +1,4 @@
-import { Button, ControlLabel, FormControl, Icon } from '@erxes/ui/src';
+import { Button, ControlLabel, FormControl, Icon } from "@erxes/ui/src";
 import {
   CustomRangeContainer,
   FilterBox,
@@ -6,28 +6,28 @@ import {
   MenuFooter,
   RightMenuContainer,
   TabContent,
-} from '../../styles';
+} from "../../styles";
+import React, { useRef, useState } from "react";
 
-import RTG from 'react-transition-group';
-import React, { useState, useRef } from 'react';
-import { __ } from 'coreui/utils';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { CSSTransition } from "react-transition-group";
+import { __ } from "coreui/utils";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const SelectCompanies = asyncComponent(
   () =>
-    isEnabled('contacts') &&
+    isEnabled("contacts") &&
     import(
-      /* webpackChunkName: "SelectCompanies" */ '@erxes/ui-contacts/src/companies/containers/SelectCompanies'
-    ),
+      /* webpackChunkName: "SelectCompanies" */ "@erxes/ui-contacts/src/companies/containers/SelectCompanies"
+    )
 );
 
 const SelectCustomers = asyncComponent(
   () =>
-    isEnabled('contacts') &&
+    isEnabled("contacts") &&
     import(
-      /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/customers/containers/SelectCustomers'
-    ),
+      /* webpackChunkName: "SelectCustomers" */ "@erxes/ui-contacts/src/customers/containers/SelectCustomers"
+    )
 );
 
 type Props = {
@@ -51,9 +51,9 @@ export default function RightMenu(props: Props) {
   };
 
   const onSearch = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       const target = e.currentTarget;
-      props.onSearch(target.value || '');
+      props.onSearch(target.value || "");
     }
   };
 
@@ -81,8 +81,8 @@ export default function RightMenu(props: Props) {
   const renderDates = () => {
     return (
       <>
-        {renderLink('Only Today', 'payDate', 'today')}
-        {renderLink('Has no contract', 'contractHasnt', 'true')}
+        {renderLink("Only Today", "payDate", "today")}
+        {renderLink("Has no contract", "contractHasnt", "true")}
       </>
     );
   };
@@ -94,15 +94,15 @@ export default function RightMenu(props: Props) {
       <FilterBox>
         <FormControl
           defaultValue={queryParams.search}
-          placeholder={__('Contract Number' + ' ...')}
+          placeholder={__("Contract Number" + " ...")}
           onKeyPress={onSearch}
           autoFocus={true}
         />
 
-        {isEnabled('contacts') && (
+        {isEnabled("contacts") && (
           <>
             <SelectCustomers
-              label={__('Filter by customers')}
+              label={__("Filter by customers")}
               name="customerId"
               queryParams={queryParams}
               onSelect={onSelect}
@@ -128,8 +128,8 @@ export default function RightMenu(props: Props) {
               type="date"
               required={false}
               name="startDate"
-              onChange={onChangeRangeFilter.bind(this, 'startDate')}
-              placeholder={'Start date'}
+              onChange={onChangeRangeFilter.bind(this, "startDate")}
+              placeholder={"Start date"}
             />
           </div>
 
@@ -139,8 +139,8 @@ export default function RightMenu(props: Props) {
               type="date"
               required={false}
               name="endDate"
-              placeholder={'End date'}
-              onChange={onChangeRangeFilter.bind(this, 'endDate')}
+              placeholder={"End date"}
+              onChange={onChangeRangeFilter.bind(this, "endDate")}
             />
           </div>
         </CustomRangeContainer>
@@ -165,7 +165,7 @@ export default function RightMenu(props: Props) {
               onClick={clearFilter}
               icon="times-circle"
             >
-              {__('Clear Filter')}
+              {__("Clear Filter")}
             </Button>
           </MenuFooter>
         )}
@@ -184,7 +184,7 @@ export default function RightMenu(props: Props) {
           uppercase={false}
           onClick={props.clearFilter}
         >
-          {__('Clear Filter')}
+          {__("Clear Filter")}
         </Button>
       )}
       <Button
@@ -193,17 +193,17 @@ export default function RightMenu(props: Props) {
         icon="bars"
         onClick={toggleMenu}
       >
-        {showMenu ? __('Hide Menu') : __('Show Menu')}
+        {showMenu ? __("Hide Menu") : __("Show Menu")}
       </Button>
 
-      <RTG.CSSTransition
+      <CSSTransition
         in={showMenu}
         timeout={300}
         classNames="slide-in-right"
         unmountOnExit={true}
       >
         <RightMenuContainer>{renderTabContent()}</RightMenuContainer>
-      </RTG.CSSTransition>
+      </CSSTransition>
     </div>
   );
 }

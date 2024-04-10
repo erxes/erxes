@@ -1,30 +1,31 @@
-import React from "react";
 import {
-  DateControl,
+  Button,
   Sidebar as CommonSideBar,
   ControlLabel,
+  DateControl,
   FormGroup,
   Icon,
   SelectTeamMembers,
   Tip,
-  __,
   Toggle,
-  Button,
+  __,
 } from "@erxes/ui/src";
 import {
   ClearableBtn,
+  CustomRangeContainer,
+  EndDateContainer,
   Padding,
   SelectBox,
   SelectBoxContainer,
   SidebarHeader,
-  CustomRangeContainer,
-  EndDateContainer,
 } from "../../styles";
 import { removeParams, setParams } from "@erxes/ui/src/utils/router";
-import { responseTypes } from "../../common/constants";
-import { DateContainer } from "@erxes/ui/src/styles/main";
-import { Row } from "../../styles";
 import { useLocation, useNavigate } from "react-router-dom";
+
+import { DateContainer } from "@erxes/ui/src/styles/main";
+import React from "react";
+import { Row } from "../../styles";
+import { responseTypes } from "../../common/constants";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -171,7 +172,7 @@ export default function SideBar({ queryParams }) {
           field="onlyWaitingMe"
           clearable={queryParams?.onlyWaitingMe}
         >
-          <Row spaceBetween>
+          <Row $spaceBetween>
             <ControlLabel>{__("Waiting Me")}</ControlLabel>
             <Toggle
               checked={["true"].includes(queryParams?.onlyWaitingMe)}

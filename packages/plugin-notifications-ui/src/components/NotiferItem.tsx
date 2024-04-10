@@ -1,9 +1,10 @@
-import debounce from 'lodash/debounce';
-import Icon from '@erxes/ui/src/components/Icon';
-import React, { useState, useEffect } from 'react';
-import RTG from 'react-transition-group';
-import styled from 'styled-components';
-import { Item } from '@erxes/ui-notifications/src/components/styles';
+import React, { useEffect, useState } from "react";
+
+import { CSSTransition } from "react-transition-group";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Item } from "@erxes/ui-notifications/src/components/styles";
+import debounce from "lodash/debounce";
+import styled from "styled-components";
 
 const Close = styled.div`
   position: absolute;
@@ -39,7 +40,7 @@ const NotiferItem = (props: Props) => {
   };
 
   return (
-    <RTG.CSSTransition
+    <CSSTransition
       in={show}
       appear={true}
       timeout={500}
@@ -54,7 +55,7 @@ const NotiferItem = (props: Props) => {
         )}
         {children}
       </Item>
-    </RTG.CSSTransition>
+    </CSSTransition>
   );
 };
 

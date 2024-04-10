@@ -1,21 +1,22 @@
-import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
-import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
+import React, { useState } from "react";
+import { __, router } from "@erxes/ui/src/utils/core";
+import { useLocation, useNavigate } from "react-router-dom";
+
 import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Datetime from "@nateradebaugh/react-datetime";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
 import Icon from "@erxes/ui/src/components/Icon";
-import Tip from "@erxes/ui/src/components/Tip";
 import { SidebarList as List } from "@erxes/ui/src/layout";
-import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
-import { router, __ } from "@erxes/ui/src/utils/core";
-import Datetime from "@nateradebaugh/react-datetime";
-import moment from "moment";
-import React, { useState } from "react";
-import { useHistory } from "react-router-dom";
+import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
+import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
 import { SidebarFilters } from "../../styles";
+import Tip from "@erxes/ui/src/components/Tip";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import moment from "moment";
 
 const { Section } = Wrapper.Sidebar;
 
@@ -25,15 +26,17 @@ type Props = {
 
 const LogLeftSidebar = (props: Props) => {
   const { handlePrint } = props;
-  const history = useHistory();
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [filterParams, setFilterParams] = useState<any>({
-    categoryId: router.getParam(history, "categoryId"),
-    productIds: router.getParam(history, "productIds"),
-    branchId: router.getParam(history, "branchId"),
-    departmentId: router.getParam(history, "departmentId"),
-    beginDate: router.getParam(history, "beginDate"),
-    endDate: router.getParam(history, "endDate"),
-    isDetailed: router.getParam(history, "isDetailed"),
+    categoryId: router.getParam(location, "categoryId"),
+    productIds: router.getParam(location, "productIds"),
+    branchId: router.getParam(location, "branchId"),
+    departmentId: router.getParam(location, "departmentId"),
+    beginDate: router.getParam(location, "beginDate"),
+    endDate: router.getParam(location, "endDate"),
+    isDetailed: router.getParam(location, "isDetailed"),
   });
 
   const categoryId = (filterParams || {}).categoryId;
@@ -45,7 +48,7 @@ const LogLeftSidebar = (props: Props) => {
   const isDetailed = (filterParams || {}).isDetailed;
 
   const clearFilter = () => {
-    router.setParams(history, {
+    router.setParams(navigate, location, {
       categoryId: null,
       branchId: null,
       departmentId: null,
@@ -60,7 +63,7 @@ const LogLeftSidebar = (props: Props) => {
   };
 
   const runFilter = () => {
-    router.setParams(history, {
+    router.setParams(navigate, location, {
       ...filterParams,
       isDetailed: filterParams.isDetailed ? true : undefined,
     });

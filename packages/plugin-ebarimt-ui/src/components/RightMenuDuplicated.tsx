@@ -12,9 +12,9 @@ import {
   TabContent,
 } from "../styles";
 
+import { CSSTransition } from "react-transition-group";
 import Datetime from "@nateradebaugh/react-datetime";
 import { IQueryParams } from "@erxes/ui/src/types";
-import RTG from "react-transition-group";
 import React from "react";
 import { __ } from "@erxes/ui/src/utils";
 import dayjs from "dayjs";
@@ -182,14 +182,14 @@ export default class RightMenu extends React.Component<Props, State> {
           {showMenu ? __("Hide Filter") : __("Show Filter")}
         </Button>
 
-        <RTG.CSSTransition
+        <CSSTransition
           in={this.state.showMenu}
           timeout={300}
           classNames="slide-in-right"
           unmountOnExit={true}
         >
           <RightMenuContainer>{this.renderTabContent()}</RightMenuContainer>
-        </RTG.CSSTransition>
+        </CSSTransition>
       </div>
     );
   }

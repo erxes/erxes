@@ -1,6 +1,7 @@
-import React, { useRef, useState } from 'react';
-import RTG from 'react-transition-group';
-import { RightDrawerContainer } from '../styles';
+import React, { useRef, useState } from "react";
+
+import { CSSTransition } from "react-transition-group";
+import { RightDrawerContainer } from "../styles";
 
 type Props = {
   showDrawer: boolean;
@@ -22,14 +23,14 @@ const Form = (props: Props) => {
 
   return (
     <div ref={wrapperRef}>
-      <RTG.CSSTransition
+      <CSSTransition
         in={showDrawer}
         timeout={300}
         classNames="slide-in-right"
         unmountOnExit={true}
       >
         <RightDrawerContainer>{form ? <Form /> : <></>}</RightDrawerContainer>
-      </RTG.CSSTransition>
+      </CSSTransition>
     </div>
   );
 };

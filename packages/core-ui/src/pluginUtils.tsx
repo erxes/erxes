@@ -57,7 +57,7 @@ class CustomComponent extends React.Component<
     }
 
     const { scope, component } = this.props;
-    console.log("hereee", scope, component);
+
     const Component = React.lazy(loadComponent(scope, component));
 
     return (
@@ -142,7 +142,6 @@ const useDynamicScript = (args) => {
 };
 
 export const loadComponent = (scope, module) => {
-  console.log("123123", scope, module);
   return async () => {
     // Initializes the share scope. This fills it with known provided modules from this build and all remotes
     await __webpack_init_sharing__("default");
@@ -155,8 +154,6 @@ export const loadComponent = (scope, module) => {
     } catch (e) {
       console.error("Container initialization error:", e);
     }
-
-    console.log("Container:", container);
 
     try {
       const factory = await window[scope]?.get(module);

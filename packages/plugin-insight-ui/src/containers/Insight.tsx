@@ -1,32 +1,29 @@
 import React, { useEffect } from "react";
-
 import { gql, useQuery } from "@apollo/client";
-
-import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
-import { router } from "@erxes/ui/src/utils";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import Insight from "../components/Insight";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 import { queries } from "../graphql";
-import { useLocation, useNavigate } from "react-router-dom";
+import { router } from "@erxes/ui/src/utils";
 
 const Dashboard = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "InsightList" */ "../containers/dashboard/Dashboard"
+      /* webpackChunkName: "DashboardComponent" */ "../containers/dashboard/Dashboard"
     )
 );
 
 const Goal = asyncComponent(
-  () => import(/* webpackChunkName: "InsightList" */ "../containers/goal/Goal")
+  () => import(/* webpackChunkName: "Goal" */ "../containers/goal/Goal")
 );
 
 const Report = asyncComponent(
-  () =>
-    import(/* webpackChunkName: "InsightList" */ "../containers/report/Report")
+  () => import(/* webpackChunkName: "Report" */ "../containers/report/Report")
 );
 
 const Empty = asyncComponent(
-  () => import(/* webpackChunkName: "InsightList" */ "../components/Empty")
+  () => import(/* webpackChunkName: "Empty" */ "../components/Empty")
 );
 
 type FinalProps = {
