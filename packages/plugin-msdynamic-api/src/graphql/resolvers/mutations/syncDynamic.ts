@@ -1,4 +1,5 @@
-import { IContext } from '../../../messageBroker';
+import { generateModels } from '../../../connectionResolver';
+import { IContext, sendPosMessage } from '../../../messageBroker';
 import {
   consumeCategory,
   consumeCustomers,
@@ -15,7 +16,7 @@ const msdynamicSyncMutations = {
       action,
       products,
     }: { brandId: string; action: string; products: any[] },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -59,7 +60,7 @@ const msdynamicSyncMutations = {
       action,
       prices,
     }: { brandId: string; action: string; prices: any[] },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -103,7 +104,7 @@ const msdynamicSyncMutations = {
       categoryId: string;
       categories: any[];
     },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -117,7 +118,7 @@ const msdynamicSyncMutations = {
               config,
               categoryId,
               category,
-              'create',
+              'create'
             );
           }
           break;
@@ -129,7 +130,7 @@ const msdynamicSyncMutations = {
               config,
               categoryId,
               category,
-              'update',
+              'update'
             );
           }
           break;
@@ -159,7 +160,7 @@ const msdynamicSyncMutations = {
       action,
       customers,
     }: { brandId: string; action: string; customers: any[] },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -194,6 +195,111 @@ const msdynamicSyncMutations = {
     } catch (e) {
       console.log(e, 'error');
     }
+  },
+
+  async toSyncOrders(
+    _root,
+    { orderIds }: { orderIds: string[] },
+    { subdomain, user }: IContext
+  ) {
+    const result: { skipped: string[]; error: string[]; success: string[] } = {
+      skipped: [],
+      error: [],
+      success: [],
+    };
+
+    const orders = await sendPosMessage({
+      subdomain,
+      action: 'orders.find',
+      data: { _id: { $in: orderIds } },
+      isRPC: true,
+      defaultValue: [],
+    });
+
+    const posTokens = [...new Set((orders || []).map((o) => o.posToken))];
+    const models = await generateModels(subdomain);
+    const poss = await sendPosMessage({
+      subdomain,
+      action: 'configs.find',
+      data: { token: { $in: posTokens } },
+      isRPC: true,
+      defaultValue: [],
+    });
+
+    const posByToken = {};
+    for (const pos of poss) {
+      posByToken[pos.token] = pos;
+    }
+
+    const syncLogDoc = {
+      contentType: 'pos:order',
+      createdAt: new Date(),
+      createdBy: user._id,
+    };
+
+    for (const order of orders) {
+      const syncLog = await models.SyncLogs.syncLogsAdd({
+        ...syncLogDoc,
+        contentId: order._id,
+        consumeData: order,
+        consumeStr: JSON.stringify(order),
+      });
+      try {
+        const pos = posByToken[order.posToken];
+
+        // const postData = await getPostDataOrders(subdomain, pos, order);
+        // if (!postData) {
+        //   result.skipped.push(order._id);
+        //   throw new Error('maybe, has not config');
+        // }
+
+        // const response = await sendRPCMessage(
+        //   models,
+        //   syncLog,
+        //   'rpc_queue:erxes-automation-erkhet',
+        //   {
+        //     action: 'get-response-send-order-info',
+        //     isEbarimt: false,
+        //     payload: JSON.stringify(postData),
+        //     thirdService: true,
+        //     isJson: true
+        //   }
+        // );
+
+        // if (response.message || response.error) {
+        //   const txt = JSON.stringify({
+        //     message: response.message,
+        //     error: response.error
+        //   });
+
+        //   await sendPosMessage({
+        //     subdomain,
+        //     action: 'orders.updateOne',
+        //     data: {
+        //       selector: { _id: order._id },
+        //       modifier: {
+        //         $set: { syncErkhetInfo: txt }
+        //       }
+        //     },
+        //     isRPC: true
+        //   });
+        // }
+
+        // if (response.error) {
+        //   result.error.push(order._id);
+        //   continue;
+        // }
+
+        result.success.push(order._id);
+      } catch (e) {
+        await models.SyncLogs.updateOne(
+          { _id: syncLog._id },
+          { $set: { error: e.message } }
+        );
+      }
+    }
+
+    return result;
   },
 };
 

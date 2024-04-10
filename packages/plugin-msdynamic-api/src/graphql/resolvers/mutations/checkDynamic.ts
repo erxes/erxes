@@ -11,7 +11,7 @@ const msdynamicCheckMutations = {
   async toCheckMsdProducts(
     _root,
     { brandId }: { brandId: string },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -62,7 +62,7 @@ const msdynamicCheckMutations = {
           'Content-Type': 'application/x-www-form-urlencoded',
           Accept: 'application/json',
           Authorization: `Basic ${Buffer.from(
-            `${username}:${password}`,
+            `${username}:${password}`
           ).toString('base64')}`,
         },
         timeout: 60000,
@@ -123,7 +123,7 @@ const msdynamicCheckMutations = {
   async toCheckMsdPrices(
     _root,
     { brandId }: { brandId: string },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -173,7 +173,7 @@ const msdynamicCheckMutations = {
           'Content-Type': 'application/x-www-form-urlencoded',
           Accept: 'application/json',
           Authorization: `Basic ${Buffer.from(
-            `${username}:${password}`,
+            `${username}:${password}`
           ).toString('base64')}`,
         },
       }).then((res) => res.json());
@@ -257,7 +257,7 @@ const msdynamicCheckMutations = {
   async toCheckMsdProductCategories(
     _root,
     { brandId, categoryId }: { brandId: string; categoryId: string },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -298,7 +298,7 @@ const msdynamicCheckMutations = {
           'Content-Type': 'application/x-www-form-urlencoded',
           Accept: 'application/json',
           Authorization: `Basic ${Buffer.from(
-            `${username}:${password}`,
+            `${username}:${password}`
           ).toString('base64')}`,
         },
       }).then((res) => res.json());
@@ -356,7 +356,7 @@ const msdynamicCheckMutations = {
   async toCheckMsdCustomers(
     _root,
     { brandId }: { brandId: string },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -397,7 +397,7 @@ const msdynamicCheckMutations = {
           'Content-Type': 'application/x-www-form-urlencoded',
           Accept: 'application/json',
           Authorization: `Basic ${Buffer.from(
-            `${username}:${password}`,
+            `${username}:${password}`
           ).toString('base64')}`,
         },
         timeout: 60000,
@@ -504,6 +504,54 @@ const msdynamicCheckMutations = {
         count: matchedCount,
       },
     };
+  },
+
+  async toCheckSynced(
+    _root,
+    { ids, brandId }: { ids: string[]; brandId: string },
+    { subdomain }: IContext
+  ) {
+    const configs = await getConfig(subdomain, 'DYNAMIC', {});
+    const config = configs[brandId || 'noBrand'];
+
+    if (!config.salesApi || !config.username || !config.password) {
+      throw new Error('MS Dynamic config not found.');
+    }
+
+    const { salesApi, username, password } = config;
+
+    const response = await fetch(
+      `${salesApi}?$filter=(No eq 'MO-155170' or No eq '22-11-0694'`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Basic ${Buffer.from(
+            `${username}:${password}`
+          ).toString('base64')}`,
+        },
+      }
+    ).then((r) => r.json());
+
+    // const result = JSON.parse(response);
+
+    // if (result.status === 'error') {
+    //   throw new Error(result.message);
+    // }
+
+    // const data = result?.data || {};
+    const data = {};
+
+    return (Object.keys(data) || []).map((_id) => {
+      const res: any = data[_id] || {};
+      return {
+        _id,
+        isSynced: res.isSynced,
+        syncedDate: res.date,
+        syncedBillNumber: res.bill_number,
+        syncedCustomer: res.customer,
+      };
+    });
   },
 };
 
