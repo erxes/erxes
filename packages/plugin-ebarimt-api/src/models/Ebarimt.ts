@@ -1,47 +1,45 @@
 import {
-  IPutResponseConfig,
-  IPutResponse,
-  IPutResponseDocument,
-  putResponseSchema
+  IEbarimtConfig,
+  IEbarimt,
+  IEbarimtDocument,
+  ebarimtSchema
 } from './definitions/ebarimt';
 import { PutData, returnBill } from './utils';
 import { Model } from 'mongoose';
 
-export interface IPutResponseModel extends Model<IPutResponseDocument> {
+export interface IPutResponseModel extends Model<IEbarimtDocument> {
   putData(
-    doc: IPutResponse,
-    config: IPutResponseConfig
-  ): Promise<IPutResponseDocument>;
+    doc: IEbarimt,
+    config: IEbarimtConfig
+  ): Promise<IEbarimtDocument>;
   returnBill(
     doc: { contentType: string; contentId: string; number: string },
-    config: IPutResponseConfig
-  ): Promise<IPutResponseDocument[]>;
+    config: IEbarimtConfig
+  ): Promise<IEbarimtDocument[]>;
   putHistory({
     contentType,
-    contentId,
-    taxType
+    contentId
   }: {
     contentType: string;
-    contentId: string;
-    taxType?: string;
-  }): Promise<IPutResponseDocument>;
+    contentId: string
+  }): Promise<IEbarimtDocument>;
   putHistories({
     contentType,
     contentId
   }: {
     contentType: string;
     contentId: string;
-  }): Promise<IPutResponseDocument[]>;
-  createPutResponse(doc: IPutResponse): Promise<IPutResponseDocument>;
+  }): Promise<IEbarimtDocument[]>;
+  createPutResponse(doc: IEbarimt): Promise<IEbarimtDocument>;
   updatePutResponse(
     _id: string,
-    doc: IPutResponse
-  ): Promise<IPutResponseDocument>;
+    doc: IEbarimt
+  ): Promise<IEbarimtDocument>;
 }
 
 export const loadPutResponseClass = models => {
   class PutResponse {
-    public static async putData(doc: IPutResponse, config: IPutResponseConfig) {
+    public static async putData(doc: IEbarimt, config: IEbarimtConfig) {
       const putData = new PutData({ ...doc, config, models });
       return putData.run();
     }
@@ -52,27 +50,17 @@ export const loadPutResponseClass = models => {
 
     public static async putHistory({
       contentType,
-      contentId,
-      taxType
+      contentId
     }: {
       contentType: string;
-      contentId: string;
-      taxType?: string;
+      contentId: string
     }) {
-      let taxTypeFilter: any = {
-        taxType: { $nin: ['2', '3'] }
-      };
-      if (['2', '3'].includes(taxType || '')) {
-        taxTypeFilter = { taxType };
-      }
-
       return await models.PutResponses.findOne({
         contentId,
         contentType,
         status: { $ne: 'inactive' },
         success: true,
         billId: { $nin: ['', null, undefined, 0] },
-        ...taxTypeFilter
       })
         .sort({ createdAt: -1 })
         .lean();
@@ -125,7 +113,7 @@ export const loadPutResponseClass = models => {
     }
   }
 
-  putResponseSchema.loadClass(PutResponse);
+  ebarimtSchema.loadClass(PutResponse);
 
-  return putResponseSchema;
+  return ebarimtSchema;
 };

@@ -42,7 +42,6 @@ class GeneralSettings extends React.Component<Props, State> {
       boardId: '',
       pipelineId: '',
       stageId: '',
-      userEmail: '',
       hasVat: false,
       hasCitytax: false,
       defaultPay: 'debtAmount',

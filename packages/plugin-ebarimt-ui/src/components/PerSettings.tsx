@@ -145,7 +145,6 @@ class PerSettings extends React.Component<Props, State> {
           />
         </FormGroup>
         {this.renderInput('companyName', 'companyName', 'optional')}
-        {this.renderInput('userEmail', 'userEmail', '')}
 
         <FormGroup>
           <ControlLabel>{__('Provice/District')}</ControlLabel>

@@ -1,6 +1,6 @@
 import { DISTRICTS } from './constants';
 import { IModels } from '../connectionResolver';
-import { IPutResponseDocument } from './definitions/ebarimt';
+import { IEbarimtDocument } from './definitions/ebarimt';
 import fetch from 'node-fetch';
 
 const format_number = (num: number) => {
@@ -55,7 +55,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
     this.defaultGScode = this.config.defaultGSCode || '';
   }
 
-  public async run(): Promise<IPutResponseDocument> {
+  public async run(): Promise<IEbarimtDocument> {
     const url = this.config.ebarimtUrl || '';
     this.districtCode = DISTRICTS[this.config.districtName] || '';
     const rd = this.config.companyRD || '';
@@ -68,7 +68,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
 
     this.transactionInfo = await this.generateTransactionInfo();
 
-    const continuePutResponses: IPutResponseDocument[] =
+    const continuePutResponses: IEbarimtDocument[] =
       await this.models.PutResponses.find({
         contentType,
         contentId,
@@ -84,7 +84,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
       }
     }
 
-    const prePutResponse: IPutResponseDocument | undefined =
+    const prePutResponse: IEbarimtDocument | undefined =
       await this.models.PutResponses.putHistory({
         contentType,
         contentId,
@@ -263,23 +263,14 @@ export const returnBill = async (
 
   const resultObjIds: string[] = [];
   for (const prePutResponse of prePutResponses) {
-    let rd = prePutResponse.registerNo;
-    if (!rd) {
-      continue;
-    }
-
-    if (rd.length === 12) {
-      rd = rd.slice(-8);
-    }
-
     const date = prePutResponse.date;
 
-    if (!prePutResponse.billId || !date) {
+    if (!prePutResponse.id || !date) {
       continue;
     }
 
     const data = {
-      returnBillId: prePutResponse.billId,
+      id: prePutResponse.id,
       date: date,
     };
 
@@ -288,7 +279,7 @@ export const returnBill = async (
       contentId,
       contentType,
       number: doc.number,
-      returnBillId: prePutResponse.billId,
+      inactiveId: prePutResponse.id,
     });
 
     const response = await fetch(`${url}/returnBill?lib=${rd}`, {
