@@ -15,6 +15,7 @@ export const packageFields = `
   duration
   createdAt
   modifiedAt
+  profit
 `;
 
 const listParamsDef = `
