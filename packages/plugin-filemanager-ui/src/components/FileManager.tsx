@@ -4,10 +4,12 @@ import {
   LeftActionbar,
   RightMenuContainer,
 } from "../styles";
+import Select, { OnChangeValue } from "react-select";
 
 import { BarItems } from "@erxes/ui/src/layout";
 import BreadCrumb from "@erxes/ui/src/components/breadcrumb/BreadCrumb";
 import Button from "@erxes/ui/src/components/Button";
+import { CSSTransition } from "react-transition-group";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
 import DateControl from "@erxes/ui/src/components/form/DateControl";
@@ -21,9 +23,7 @@ import { IFolder } from "../types";
 import { IOption } from "@erxes/ui/src/types";
 import Label from "@erxes/ui/src/components/Label";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import RTG from "react-transition-group";
 import React from "react";
-import Select, { OnChangeValue } from "react-select";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import ShareForm from "../containers/ShareForm";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
@@ -248,14 +248,14 @@ class FileManager extends React.Component<Props, State> {
           >
             {__("Show Filter")}
           </Button>
-          <RTG.CSSTransition
+          <CSSTransition
             in={showFilter}
             timeout={300}
             classNames="slide-in-right"
             unmountOnExit={true}
           >
             <RightMenuContainer>{this.renderFilters()}</RightMenuContainer>
-          </RTG.CSSTransition>
+          </CSSTransition>
         </BarItems>
       </div>
     );

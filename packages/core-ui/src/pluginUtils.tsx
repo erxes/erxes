@@ -57,7 +57,7 @@ class CustomComponent extends React.Component<
     }
 
     const { scope, component } = this.props;
-    console.log("hereee");
+    console.log("hereee", scope, component);
     const Component = React.lazy(loadComponent(scope, component));
 
     return (
@@ -142,6 +142,7 @@ const useDynamicScript = (args) => {
 };
 
 export const loadComponent = (scope, module) => {
+  console.log("123123", scope, module);
   return async () => {
     // Initializes the share scope. This fills it with known provided modules from this build and all remotes
     await __webpack_init_sharing__("default");
@@ -152,12 +153,33 @@ export const loadComponent = (scope, module) => {
       // Initialize the container, it may provide shared modules
       await container.init(__webpack_share_scopes__.default);
     } catch (e) {
-      // already was initialized
+      console.error("Container initialization error:", e);
     }
-    console.log("here", scope, module, window[scope]);
-    const factory = await window[scope]?.get(module);
-    const Module = factory();
-    return Module;
+
+    console.log("Container:", container);
+
+    try {
+      const factory = await window[scope]?.get(module);
+
+      if (!factory) {
+        throw new Error(`Module '${module}' not found in scope '${scope}'.`);
+      }
+
+      if (typeof factory !== "function") {
+        throw new Error(`Factory is not a function for module '${module}'.`);
+      }
+
+      const Module = factory();
+
+      if (!Module) {
+        throw new Error(`Module '${module}' is not initialized properly.`);
+      }
+
+      return Module;
+    } catch (error) {
+      console.error("Component loading error:", error);
+      throw error; // rethrow the error to let the caller handle it
+    }
   };
 };
 

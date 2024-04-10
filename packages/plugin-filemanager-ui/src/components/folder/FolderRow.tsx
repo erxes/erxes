@@ -1,13 +1,13 @@
-import { ActionButtons } from '@erxes/ui-settings/src/styles';
-import Button from '@erxes/ui/src/components/Button';
-import FolderForm from '../../containers/folder/FolderForm';
-import { FolderItemRow } from './styles';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from 'coreui/utils';
+import { ActionButtons } from "@erxes/ui-settings/src/styles";
+import Button from "@erxes/ui/src/components/Button";
+import FolderForm from "../../containers/folder/FolderForm";
+import { FolderItemRow } from "./styles";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Link } from "react-router-dom";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __ } from "coreui/utils";
 
 type Props = {
   folder;
@@ -26,13 +26,13 @@ class FolderRow extends React.Component<Props> {
   renderEditAction = () => {
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')} placement="bottom">
+        <Tip text={__("Edit")} placement="bottom">
           <Icon icon="edit" />
         </Tip>
       </Button>
     );
 
-    const content = props => (
+    const content = (props) => (
       <FolderForm
         {...props}
         folder={this.props.folder}
@@ -49,7 +49,7 @@ class FolderRow extends React.Component<Props> {
     const { folder, toggleFolder } = this.props;
 
     if (!folder.isParent) {
-      return <span style={{ paddingLeft: '20px' }} />;
+      return <span style={{ paddingLeft: "20px" }} />;
     }
 
     return (
@@ -57,17 +57,17 @@ class FolderRow extends React.Component<Props> {
         className="toggle-icon"
         onClick={toggleFolder.bind(this, folder._id)}
       >
-        <Icon icon={`angle-${folder.isOpen ? 'down' : 'right'}`} size={20} />
+        <Icon icon={`angle-${folder.isOpen ? "down" : "right"}`} size={20} />
       </span>
     );
   }
 
   render() {
-    const { folder, isActive, toggleFolder } = this.props;
-    const dept = folder.order.split('/').length;
+    const { folder, isActive } = this.props;
+    const dept = folder.order.split("/").length;
 
     return (
-      <FolderItemRow key={folder._id} isActive={isActive}>
+      <FolderItemRow key={folder._id} $isActive={isActive}>
         <div style={{ paddingLeft: `${(folder.parentId ? 15 : 0) * dept}px` }}>
           {this.renderArrow()}
 

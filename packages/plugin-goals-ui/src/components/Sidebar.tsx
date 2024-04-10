@@ -1,20 +1,20 @@
-import Button from '@erxes/ui/src/components/Button';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectUnits from '@erxes/ui/src/team/containers/SelectUnits';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import React, { useState } from "react";
+import { __, router } from "@erxes/ui/src/utils";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import { router, __ } from '@erxes/ui/src/utils';
-import dayjs from 'dayjs';
-import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
-import { SidebarFilters } from '../styles';
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Icon from "@erxes/ui/src/components/Icon";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import SelectUnits from "@erxes/ui/src/team/containers/SelectUnits";
+import { SidebarFilters } from "../styles";
+import Tip from "@erxes/ui/src/components/Tip";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import dayjs from "dayjs";
 
 type Props = {
   params: any;
@@ -23,7 +23,8 @@ type Props = {
 const { Section } = Wrapper.Sidebar;
 
 const Sidebar = (props: Props) => {
-  const history = useHistory();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [filters, setFilters] = useState(props.params);
   const { branch, department, unit, startDate, contribution, endDate } =
@@ -32,18 +33,18 @@ const Sidebar = (props: Props) => {
   const clearFilter = () => {
     router.removeParams(
       history,
-      'branch',
-      'department',
-      'unit',
-      'contribution',
-      'startDate',
-      'endDate',
-      'page',
+      "branch",
+      "department",
+      "unit",
+      "contribution",
+      "startDate",
+      "endDate",
+      "page"
     );
   };
 
   const runFilter = () => {
-    router.setParams(history, { ...filters });
+    router.setParams(navigate, location, { ...filters });
   };
 
   const setFilter = (key, value) => {
@@ -53,11 +54,11 @@ const Sidebar = (props: Props) => {
   return (
     <Wrapper.Sidebar hasBorder={true}>
       <Section.Title>
-        {__('Filters')}
+        {__("Filters")}
         <Section.QuickButtons>
           {!!Object.keys(props.params).length && (
             <a href="#cancel" tabIndex={0} onClick={clearFilter}>
-              <Tip text={__('Clear filter')} placement="bottom">
+              <Tip text={__("Clear filter")} placement="bottom">
                 <Icon icon="cancel-1" />
               </Tip>
             </a>
@@ -68,24 +69,24 @@ const Sidebar = (props: Props) => {
         <FormGroup>
           <ControlLabel>Start Date</ControlLabel>
           <DateControl
-            value={startDate || ''}
+            value={startDate || ""}
             name="startDate"
-            placeholder={'Start Date'}
-            dateFormat={'YYYY-MM-DD'}
+            placeholder={"Start Date"}
+            dateFormat={"YYYY-MM-DD"}
             onChange={(startDate: any) =>
-              setFilter('startDate', dayjs(startDate).format('YYYY-MM-DD'))
+              setFilter("startDate", dayjs(startDate).format("YYYY-MM-DD"))
             }
           />
         </FormGroup>
         <FormGroup>
           <ControlLabel>End Date</ControlLabel>
           <DateControl
-            value={endDate || ''}
+            value={endDate || ""}
             name="endDate"
-            placeholder={'End Date'}
-            dateFormat={'YYYY-MM-DD'}
+            placeholder={"End Date"}
+            dateFormat={"YYYY-MM-DD"}
             onChange={(endDate: any) =>
-              setFilter('endDate', dayjs(endDate).format('YYYY-MM-DD'))
+              setFilter("endDate", dayjs(endDate).format("YYYY-MM-DD"))
             }
           />
         </FormGroup>
@@ -94,12 +95,12 @@ const Sidebar = (props: Props) => {
           <SelectBranches
             label="Choose branch"
             name="branch"
-            initialValue={branch || ''}
+            initialValue={branch || ""}
             customOption={{
-              value: '',
-              label: '...Clear branch filter',
+              value: "",
+              label: "...Clear branch filter",
             }}
-            onSelect={(branch) => setFilter('branch', branch)}
+            onSelect={(branch) => setFilter("branch", branch)}
             multi={false}
           />
         </FormGroup>
@@ -108,12 +109,12 @@ const Sidebar = (props: Props) => {
           <SelectDepartments
             label="Choose department"
             name="department"
-            initialValue={department || ''}
+            initialValue={department || ""}
             customOption={{
-              value: '',
-              label: '...Clear department filter',
+              value: "",
+              label: "...Clear department filter",
             }}
-            onSelect={(department) => setFilter('department', department)}
+            onSelect={(department) => setFilter("department", department)}
             multi={false}
           />
         </FormGroup>
@@ -122,12 +123,12 @@ const Sidebar = (props: Props) => {
           <SelectUnits
             label="Choose Units"
             name="unit"
-            initialValue={unit || ''}
+            initialValue={unit || ""}
             customOption={{
-              value: '',
-              label: '...Clear unit filter',
+              value: "",
+              label: "...Clear unit filter",
             }}
-            onSelect={(unit) => setFilter('unit', unit)}
+            onSelect={(unit) => setFilter("unit", unit)}
             multi={false}
           />
         </FormGroup>
@@ -136,12 +137,12 @@ const Sidebar = (props: Props) => {
           <SelectTeamMembers
             label="Choose User"
             name="contribution"
-            initialValue={contribution || ''}
+            initialValue={contribution || ""}
             customOption={{
-              value: '',
-              label: '...Clear user filter',
+              value: "",
+              label: "...Clear user filter",
             }}
-            onSelect={(contribution) => setFilter('contribution', contribution)}
+            onSelect={(contribution) => setFilter("contribution", contribution)}
             multi={false}
           />
         </FormGroup>

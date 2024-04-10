@@ -7,7 +7,11 @@ function Tabs(props: {
   grayBorder?: boolean;
   full?: boolean;
 }) {
-  return <TabContainer $grayBorder={props.grayBorder} $full={props.full} />;
+  return (
+    <TabContainer $grayBorder={props.grayBorder} $full={props.full}>
+      {props.children}
+    </TabContainer>
+  );
 }
 
 type TabTitleProps = {

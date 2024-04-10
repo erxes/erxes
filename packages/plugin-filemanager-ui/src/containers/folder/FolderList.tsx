@@ -1,24 +1,23 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
 import {
   Alert,
   confirm,
   router as routerUtils,
   withProps,
-} from '@erxes/ui/src/utils';
+} from "@erxes/ui/src/utils";
 import {
   FilemanagerFoldersQueryResponse,
   RemoveFilemanagerFolderMutationResponse,
-} from '../../types';
-import { IRouterProps, MutationVariables } from '@erxes/ui/src/types';
-import { mutations, queries } from '../../graphql';
+} from "../../types";
+import { IRouterProps, MutationVariables } from "@erxes/ui/src/types";
+import { mutations, queries } from "../../graphql";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import FolderList from '../../components/folder/FolderList';
-import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-
-// import { withRouter } from 'react-router-dom';
+import FolderList from "../../components/folder/FolderList";
+import React from "react";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
 
 type Props = {
   queryParams: any;
@@ -27,17 +26,17 @@ type Props = {
 type FinalProps = {
   filemanagerFoldersQuery: FilemanagerFoldersQueryResponse;
 } & Props &
-  IRouterProps &
   RemoveFilemanagerFolderMutationResponse;
 
 const FolderListContainer = (props: FinalProps) => {
-  const { removeMutation, filemanagerFoldersQuery, queryParams, history } =
-    props;
+  const { removeMutation, filemanagerFoldersQuery, queryParams } = props;
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const folders = filemanagerFoldersQuery.filemanagerFolders || [];
 
   if (folders.length > 0 && !queryParams._id) {
-    routerUtils.setParams(history, { _id: folders[0]._id });
+    routerUtils.setParams(navigate, location, { _id: folders[0]._id });
   }
 
   // remove action
@@ -47,7 +46,7 @@ const FolderListContainer = (props: FinalProps) => {
         variables: { _id: folderId },
       })
         .then(() => {
-          Alert.success('You successfully deleted a folder.');
+          Alert.success("You successfully deleted a folder.");
         })
         .catch((error) => {
           Alert.error(error.message);
@@ -70,17 +69,17 @@ export default withProps<Props>(
     graphql<Props, FilemanagerFoldersQueryResponse>(
       gql(queries.filemanagerFoldersTree),
       {
-        name: 'filemanagerFoldersQuery',
+        name: "filemanagerFoldersQuery",
         options: () => ({
           variables: { isTree: true },
-          fetchPolicy: 'network-only',
+          fetchPolicy: "network-only",
         }),
-      },
+      }
     ),
     graphql<Props, RemoveFilemanagerFolderMutationResponse, MutationVariables>(
       gql(mutations.filemanagerFolderRemove),
       {
-        name: 'removeMutation',
+        name: "removeMutation",
         options: () => ({
           refetchQueries: [
             {
@@ -91,7 +90,7 @@ export default withProps<Props>(
             },
           ],
         }),
-      },
-    ),
-  )(FolderListContainer),
+      }
+    )
+  )(FolderListContainer)
 );
