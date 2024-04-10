@@ -1,3 +1,4 @@
+import fetch from 'node-fetch';
 import {
   sendContactsMessage,
   sendCoreMessage,
@@ -20,7 +21,7 @@ export const getPostData = async (
   deal,
   dateType = ''
 ) => {
-  let billType = 1;
+  let billType = '1';
   let customerCode = '';
 
   const syncLogDoc = getSyncLogDoc({ type: 'cards:deal', user, object: deal });
@@ -39,16 +40,29 @@ export const getPostData = async (
       action: 'companies.findActiveCompanies',
       data: {
         selector: { _id: { $in: companyIds } },
-        fields: { _id: 1, code: 1 }
+        fields: { _id: 1, code: 1, primaryName: 1 },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
-    customerCode = (companies.find(c => c.code) || {}).code || '';
+    const re = new RegExp('(^[А-ЯЁӨҮ]{2}[0-9]{8}$)|(^\\d{7}$)', 'gui');
+    for (const company of companies) {
+      if (re.test(company.code)) {
+        const checkCompanyRes = await fetch(
+          `https://ebarimt.erkhet.biz/getCompany?regno=${company.code}`
+        ).then((r) => r.json());
+
+        if (checkCompanyRes.found) {
+          billType = '3';
+          customerCode = company.code;
+          continue;
+        }
+      }
+    }
   }
 
-  if (billType === 1) {
+  if (billType === '1') {
     const customerIds = await sendCoreMessage({
       subdomain,
       action: 'conformities.savedConformity',
