@@ -52,9 +52,9 @@ const toSyncPrices = `
   }
 `;
 
-const toCheckSynced = `
-  mutation toCheckSynced($ids: [String]) {
-    toCheckSynced(ids: $ids) {
+const toCheckMsdSynced = `
+  mutation toCheckMsdSynced($ids: [String]) {
+    toCheckMsdSynced(ids: $ids) {
       _id
       isSynced
       syncedDate
@@ -64,9 +64,9 @@ const toCheckSynced = `
   }
 `;
 
-const toSyncOrders = `
-  mutation toSyncOrders($orderIds: [String]) {
-    toSyncOrders(orderIds: $orderIds)
+const toSyncMsdOrders = `
+  mutation toSyncMsdOrders($orderIds: [String]) {
+    toSyncMsdOrders(orderIds: $orderIds)
   }
 `;
 
@@ -80,6 +80,6 @@ export default {
   toSyncCustomers,
   toCheckPrices,
   toSyncPrices,
-  toCheckSynced,
-  toSyncOrders,
+  toCheckMsdSynced,
+  toSyncMsdOrders,
 };

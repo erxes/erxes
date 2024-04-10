@@ -38,7 +38,7 @@ const CheckSyncedOrdersContainer = (props: FinalProps) => {
   const [syncedOrderInfos, setSyncedOrderInfos] = useState({});
 
   const {
-    toCheckSynced,
+    toCheckMsdSynced,
     checkSyncItemsQuery,
     checkSyncedOrdersTotalCountQuery,
     posListQuery,
@@ -46,12 +46,12 @@ const CheckSyncedOrdersContainer = (props: FinalProps) => {
 
   // remove action
   const checkSynced = async ({ orderIds }, emptyBulk) => {
-    await toCheckSynced({
+    await toCheckMsdSynced({
       variables: { ids: orderIds },
     })
       .then((response) => {
         emptyBulk();
-        const statuses = response.data.toCheckSynced;
+        const statuses = response.data.toCheckMsdSynced;
 
         const unSyncedOrderIds = (
           statuses.filter((s) => !s.isSynced) || []
@@ -76,13 +76,13 @@ const CheckSyncedOrdersContainer = (props: FinalProps) => {
       });
   };
 
-  const toSyncOrders = (orderIds) => {
+  const toSyncMsdOrders = (orderIds) => {
     props
-      .toSyncOrders({
+      .toSyncMsdOrders({
         variables: { orderIds },
       })
       .then((response) => {
-        const { skipped, error, success } = response.data.toSyncOrders;
+        const { skipped, error, success } = response.data.toSyncMsdOrders;
         const changed = unSyncedOrderIds.filter((u) => !orderIds.includes(u));
         setUnSyncedOrderIds(changed);
         Alert.success(
@@ -105,7 +105,7 @@ const CheckSyncedOrdersContainer = (props: FinalProps) => {
     checkSynced,
     unSyncedOrderIds: unSyncedOrderIds,
     syncedOrderInfos: syncedOrderInfos,
-    toSyncOrders,
+    toSyncMsdOrders,
     posList: posListQuery.posList,
   };
 
@@ -157,15 +157,15 @@ export default withProps<Props>(
       }
     ),
     graphql<Props, CheckSyncedMutationResponse, { orderIds: string[] }>(
-      gql(mutations.toCheckSynced),
+      gql(mutations.toCheckMsdSynced),
       {
-        name: 'toCheckSynced',
+        name: 'toCheckMsdSynced',
       }
     ),
     graphql<Props, ToSyncOrdersMutationResponse, { orderIds: string[] }>(
-      gql(mutations.toSyncOrders),
+      gql(mutations.toSyncMsdOrders),
       {
-        name: 'toSyncOrders',
+        name: 'toSyncMsdOrders',
       }
     ),
 

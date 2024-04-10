@@ -33,7 +33,7 @@ type Props = {
   toggleAll: (targets: any[], containerId: string) => void;
   unSyncedOrderIds: string[];
   syncedOrderInfos: any;
-  toSyncOrders: (orderIds: string[]) => void;
+  toSyncMsdOrders: (orderIds: string[]) => void;
   posList?: any[];
 };
 
@@ -49,7 +49,7 @@ class CheckSyncedOrders extends React.Component<Props> {
       toggleBulk,
       bulk,
       unSyncedOrderIds,
-      toSyncOrders,
+      toSyncMsdOrders,
       syncedOrderInfos,
     } = this.props;
 
@@ -61,7 +61,7 @@ class CheckSyncedOrders extends React.Component<Props> {
         toggleBulk={toggleBulk}
         isChecked={bulk.includes(order)}
         isUnsynced={unSyncedOrderIds.includes(order._id)}
-        toSync={toSyncOrders}
+        toSync={toSyncMsdOrders}
         syncedInfo={syncedOrderInfos[order._id] || {}}
       />
     ));
@@ -90,7 +90,7 @@ class CheckSyncedOrders extends React.Component<Props> {
       bulk,
       loading,
       unSyncedOrderIds,
-      toSyncOrders,
+      toSyncMsdOrders,
       posList,
       syncedOrderInfos,
     } = this.props;
@@ -147,7 +147,7 @@ class CheckSyncedOrders extends React.Component<Props> {
     const onClickSync = () =>
       confirm()
         .then(() => {
-          toSyncOrders(unSyncedOrderIds);
+          toSyncMsdOrders(unSyncedOrderIds);
         })
         .catch((error) => {
           Alert.error(error.message);

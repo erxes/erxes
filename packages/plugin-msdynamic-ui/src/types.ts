@@ -108,7 +108,9 @@ export type SyncHistoriesCountQueryResponse = {
 };
 
 export type CheckSyncedMutationResponse = {
-  toCheckSynced: (mutation: { variables: { ids: string[] } }) => Promise<any>;
+  toCheckMsdSynced: (mutation: {
+    variables: { ids: string[] };
+  }) => Promise<any>;
 };
 
 export type CheckSyncedOrdersQueryResponse = {
@@ -126,7 +128,7 @@ export type PosListQueryResponse = {
 };
 
 export type ToSyncOrdersMutationResponse = {
-  toSyncOrders: (mutation: {
+  toSyncMsdOrders: (mutation: {
     variables: { orderIds: string[] };
   }) => Promise<any>;
 };
