@@ -57,7 +57,7 @@ class CustomComponent extends React.Component<
     }
 
     const { scope, component } = this.props;
-
+    console.log("hereee");
     const Component = React.lazy(loadComponent(scope, component));
 
     return (
