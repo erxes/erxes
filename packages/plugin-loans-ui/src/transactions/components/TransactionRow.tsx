@@ -1,20 +1,21 @@
 import {
   Button,
   ButtonMutate,
-  formatValue,
   FormControl,
   Icon,
   ModalTrigger,
   Tip,
+  formatValue,
 } from "@erxes/ui/src";
-import _ from "lodash";
-import React from "react";
 import { TrNumberCols, TrRows } from "../../contracts/styles";
+
 import ChangeTrForm from "../containers/ChangeTrForm";
-import TransactionForm from "../containers/TransactionForm";
-import { ITransaction } from "../types";
-import { __ } from "coreui/utils";
 import EBarimtForm from "./EBarimtForm";
+import { ITransaction } from "../types";
+import React from "react";
+import TransactionForm from "../containers/TransactionForm";
+import _ from "lodash";
+import { __ } from "coreui/utils";
 
 type Props = {
   transaction: ITransaction;
@@ -32,11 +33,7 @@ function displayNumber(transaction, name) {
   return Number(String((value || 0).toFixed(2))).toLocaleString();
 }
 
-function TransactionRow({
-  transaction,
-  isChecked,
-  toggleBulk,
-}: Props) {
+function TransactionRow({ transaction, isChecked, toggleBulk }: Props) {
   const onChange = (e) => {
     if (toggleBulk) {
       toggleBulk(transaction, e.target.checked);
@@ -166,7 +163,6 @@ function TransactionRow({
       </TrNumberCols>
       <td key={"manage"}>
         {renderChangeBtn()}
-
         {renderEBarimtBtn(!!transaction.ebarimt)}
         {renderEditBrn()}
       </td>

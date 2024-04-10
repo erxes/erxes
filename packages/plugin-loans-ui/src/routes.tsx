@@ -1,17 +1,12 @@
-import queryString from "query-string";
-import React from "react";
-import {
-  Route,
-  Routes,
-  useLocation,
-  useNavigate,
-  useParams,
-} from "react-router-dom";
-import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
-import Settings from "./settings/containers/Settings";
+import { Route, Routes, useLocation, useParams } from "react-router-dom";
+
 import HolidaySettings from "./settings/components/HolidaySettings";
-import UndueSettings from "./settings/components/UndueSettings";
 import MainSettings from "./settings/components/MainSettings";
+import React from "react";
+import Settings from "./settings/containers/Settings";
+import UndueSettings from "./settings/components/UndueSettings";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
 
 const ContractList = asyncComponent(
   () =>
@@ -76,6 +71,13 @@ const ClassificationList = asyncComponent(
     )
 );
 
+const NonBalanceTransactionList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "NonBalanceTransactionList" */ "./nonBalanceTransaction/containers/NonBalanceTransactionList"
+    )
+);
+
 const ContractLists = () => {
   const location = useLocation();
 
@@ -131,6 +133,16 @@ const ClassificationHistoryList = () => {
 
   return (
     <ClassificationList queryParams={queryString.parse(location.search)} />
+  );
+};
+
+const NonBalanceTransactionLists = () => {
+  const location = useLocation();
+
+  return (
+    <NonBalanceTransactionList
+      queryParams={queryString.parse(location.search)}
+    />
   );
 };
 
@@ -207,6 +219,10 @@ const LoanRoutes = () => {
       <Route
         path="/erxes-plugin-loan/classificationHistory"
         element={<ClassificationHistoryList />}
+      />
+      <Route
+        path="/erxes-plugin-loan/non-balance-transactions"
+        element={<NonBalanceTransactionLists />}
       />
     </Routes>
   );

@@ -9,6 +9,7 @@ import LoanSchedule from './schedule';
 import PeriodLock from './periodLock';
 import LoanTransaction from './transaction';
 import Classification from './classification';
+import LoanNonBalanceTransaction from './nonBalanceTransaction';
 import Mutation from './mutations';
 import Query from './queries';
 
@@ -22,6 +23,7 @@ const resolvers: any = async () => ({
   LoanInvoice,
   LoanSchedule,
   LoanTransaction,
+  LoanNonBalanceTransaction,
   Classification,
   Mutation,
   Query
