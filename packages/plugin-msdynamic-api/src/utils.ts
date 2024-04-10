@@ -2,6 +2,7 @@ import {
   sendContactsMessage,
   sendCoreMessage,
   sendFormsMessage,
+  sendPosMessage,
   sendProductsMessage,
 } from './messageBroker';
 import * as moment from 'moment';
@@ -832,6 +833,18 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
         }).then((res) => res.json());
       }
     }
+
+    await sendPosMessage({
+      subdomain,
+      action: 'orders.updateOne',
+      data: {
+        selector: { _id: params._id },
+        modifier: {
+          $set: { syncErkhetInfo: responseSale.No, syncedErkhet: true },
+        },
+      },
+      isRPC: true,
+    });
 
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
