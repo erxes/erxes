@@ -2,7 +2,7 @@ import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { IModels } from './connectionResolver';
 import { sendInboxMessage } from './messageBroker';
 import { getOrCreateCustomer } from './store';
-import * as moment from 'moment'
+import * as moment from 'moment';
 
 const receiveCall = async (
   models: IModels,
@@ -25,9 +25,9 @@ const receiveCall = async (
   if (!integration) {
     throw new Error('Integration not found');
   }
-const operator = integration.operators.find(
-  (operator) => operator.userId === user?._id,
-);
+  const operator = integration.operators.find(
+    (operator) => operator.userId === user?._id,
+  );
   params.recipientId = integration.phone;
   params.extentionNumber = operator?.gsUsername || '';
   const { primaryPhone, recipientId, direction, callID, extentionNumber } =
@@ -40,28 +40,30 @@ const operator = integration.operators.find(
 
   // Subtract 30 seconds
   const dateBefore30Seconds = now.subtract(5, 'seconds');
-  let conversation = await models.Conversations.findOne({ callerNumber: primaryPhone, status: 'missed', createdAt: {$gte: dateBefore30Seconds.toDate()} });
+  let conversation = await models.Conversations.findOne({
+    callerNumber: primaryPhone,
+    status: 'missed',
+    createdAt: { $gte: dateBefore30Seconds.toDate() },
+  });
 
   if (conversation) {
-    return customer
+    return customer;
   }
-    try {
-      conversation = await models.Conversations.create({
-        callId: callID,
-        callerNumber: primaryPhone,
-        operatorPhone: recipientId,
-        integrationId: inboxIntegration._id,
-        createdAt: new Date(),
-      });
-
-    } catch (e) {
-      throw new Error(
-        e.message.includes('duplicate')
-          ? 'Concurrent request: conversation duplication'
-          : e,
-      );
-    }
-  
+  try {
+    conversation = await models.Conversations.create({
+      callId: callID,
+      callerNumber: primaryPhone,
+      operatorPhone: recipientId,
+      integrationId: inboxIntegration._id,
+      createdAt: new Date(),
+    });
+  } catch (e) {
+    throw new Error(
+      e.message.includes('duplicate')
+        ? 'Concurrent request: conversation duplication'
+        : e,
+    );
+  }
 
   let history = await models.CallHistory.findOne({
     callerNumber: primaryPhone,
@@ -69,34 +71,34 @@ const operator = integration.operators.find(
     createdAt: { $gte: dateBefore30Seconds.toDate() },
   });
   if (history) {
-    return customer
+    return customer;
   }
-  
-    try {
-      const newHistory = new models.CallHistory({
-        sessionId: callID,
-        callerNumber: primaryPhone,
-        receiverNumber: recipientId,
-        callType: direction,
-        createdAt: new Date(),
-        createdBy: user._id,
-        updatedBy: user._id,
-        callDuration: 0,
-        extentionNumber,
-      });
 
-      try {
-        await newHistory.save();
-      } catch (error) {
-        console.error('Error saving call history:', error);
-      }
-    } catch (e) {
-      throw new Error(
-        e.message.includes('duplicate')
-          ? 'Concurrent request: call session duplication'
-          : e,
-      );
+  try {
+    const newHistory = new models.CallHistory({
+      sessionId: callID,
+      callerNumber: primaryPhone,
+      receiverNumber: recipientId,
+      callType: direction,
+      createdAt: new Date(),
+      createdBy: user._id,
+      updatedBy: user._id,
+      callDuration: 0,
+      extentionNumber,
+    });
+
+    try {
+      await newHistory.save();
+    } catch (error) {
+      console.error('Error saving call history:', error);
     }
+  } catch (e) {
+    throw new Error(
+      e.message.includes('duplicate')
+        ? 'Concurrent request: call session duplication'
+        : e,
+    );
+  }
 
   // save on api
   try {
@@ -111,7 +113,6 @@ const operator = integration.operators.find(
           content: direction || '',
           conversationId: conversation.erxesApiId,
           updatedAt: new Date(),
-          owner: user?.details?.operatorPhone || ''
         }),
       },
       isRPC: true,
