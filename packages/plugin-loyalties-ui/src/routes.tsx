@@ -1,14 +1,9 @@
-import queryString from "query-string";
+import { Route, Routes, useLocation } from "react-router-dom";
+
 import React from "react";
 import Settings from "./configs/general/containers/Settings";
-import {
-  Route,
-  Routes,
-  useLocation,
-  useNavigate,
-  useParams,
-} from "react-router-dom";
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
 
 const VoucherCampaigns = asyncComponent(
   () =>

@@ -1,4 +1,5 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
+
 import { SidebarList } from '@erxes/ui/src/layout/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -72,10 +73,10 @@ const ActionButtons = styled.div`
   }
 `;
 
-const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
+const SidebarListItem = styledTS<{ $isActive: boolean }>(styled.li)`
   position: relative;
   border-bottom: 1px solid ${colors.borderPrimary};
-  background: ${props => props.isActive && colors.bgGray};
+  background: ${props => props.$isActive && colors.bgGray};
   overflow: hidden;
   display: flex;
   justify-content: space-between;
@@ -109,7 +110,7 @@ const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
 
   &:hover {
     cursor: pointer;
-    background: ${props => !props.isActive && colors.bgLight};
+    background: ${props => !props.$isActive && colors.bgLight};
 
     ${ActionButtons} {
       width: 35px;

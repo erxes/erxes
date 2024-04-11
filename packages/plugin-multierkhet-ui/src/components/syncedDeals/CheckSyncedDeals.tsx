@@ -111,8 +111,8 @@ const CheckSyncedDeals = (props: Props) => {
               onChange={onChange}
             />
           </th>
-          {tablehead.map((p) => (
-            <th key={p}>{p || ""}</th>
+          {tablehead.map((p, i) => (
+            <th key={i}>{p || ""}</th>
           ))}
         </tr>
       </thead>

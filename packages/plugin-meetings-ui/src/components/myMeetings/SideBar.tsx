@@ -1,17 +1,17 @@
-import { router, __ } from "@erxes/ui/src/utils";
-import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
-import React, { useState } from "react";
-import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import { EndDateContainer, FlexColumnCustom } from "../../styles";
-import { CustomRangeContainer } from "../../styles";
-import DateControl from "@erxes/ui/src/components/form/DateControl";
+import React, { useState } from "react";
+import { __, router } from "@erxes/ui/src/utils";
+import { useLocation, useNavigate } from "react-router-dom";
+
 import Button from "@erxes/ui/src/components/Button";
+import { CustomRangeContainer } from "../../styles";
+import { DateContainer } from "@erxes/ui/src/styles/main";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
 import { IUser } from "@erxes/ui/src/auth/types";
 import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
-
-import { DateContainer } from "@erxes/ui/src/styles/main";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
 import moment from "moment";
-import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   currentUser: IUser;
@@ -76,7 +76,7 @@ const LeftSideBar = (props: Props) => {
 
   return (
     <Sidebar wide={true} hasBorder={true}>
-      <FlexColumnCustom marginNum={20}>
+      <FlexColumnCustom $marginNum={20}>
         <SelectCompanies
           label="Filter by company"
           name="companyId"

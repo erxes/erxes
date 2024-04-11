@@ -5,6 +5,7 @@ import {
 } from "@erxes/ui/src/components/form";
 import { Icon, Tip } from "@erxes/ui/src/components";
 import { __, router } from "@erxes/ui/src/utils";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import React from "react";
 import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
@@ -12,7 +13,6 @@ import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
 import { SidebarFilters } from "../../common/styles";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { useLocation, useNavigate } from "react-router-dom";
 
 const { Section } = Wrapper.Sidebar;
 
@@ -60,23 +60,20 @@ const FilterCampaign = (props: IProps) => {
             <FormControl
               name="status"
               componentclass="select"
-              defaultValue={queryParams.status}
+              defaultValue={queryParams?.status || ""}
               required={false}
               onChange={(e) =>
                 setFilter("status", (e.currentTarget as HTMLInputElement).value)
               }
             >
               <option key={""} value={""}>
-                {" "}
-                {"All status"}{" "}
+                {"All status"}
               </option>
               <option key={"new"} value={"new"}>
-                {" "}
-                {"new"}{" "}
+                {"new"}
               </option>
               <option key={"used"} value={"used"}>
-                {" "}
-                {"used"}{" "}
+                {"used"}
               </option>
             </FormControl>
           </FormGroup>
@@ -85,7 +82,7 @@ const FilterCampaign = (props: IProps) => {
             <FormControl
               name="ownerType"
               componentclass="select"
-              defaultValue={queryParams.ownerType}
+              defaultValue={queryParams?.ownerType || ""}
               required={false}
               onChange={(e) =>
                 setFilter(
@@ -95,20 +92,16 @@ const FilterCampaign = (props: IProps) => {
               }
             >
               <option key={""} value={""}>
-                {" "}
-                {"All types"}{" "}
+                {"All types"}
               </option>
               <option key={"customer"} value={"customer"}>
-                {" "}
-                {"customer"}{" "}
+                {"customer"}
               </option>
               <option key={"user"} value={"user"}>
-                {" "}
-                {"user"}{" "}
+                {"user"}
               </option>
               <option key={"company"} value={"company"}>
-                {" "}
-                {"company"}{" "}
+                {"company"}
               </option>
             </FormControl>
           </FormGroup>
@@ -122,7 +115,7 @@ const FilterCampaign = (props: IProps) => {
               label="Customer"
               name="ownerId"
               multi={false}
-              initialValue={queryParams.ownerId}
+              initialValue={queryParams?.ownerId || ""}
               onSelect={(customerId) => setFilter("ownerId", customerId)}
             />
           </FormGroup>
@@ -136,7 +129,7 @@ const FilterCampaign = (props: IProps) => {
               label="Team member"
               name="ownerId"
               multi={false}
-              initialValue={queryParams.ownerId}
+              initialValue={queryParams?.ownerId || ""}
               onSelect={(userId) => setFilter("ownerId", userId)}
             />
           </FormGroup>

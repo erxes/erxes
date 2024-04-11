@@ -1,29 +1,30 @@
-import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import React, { useState } from 'react';
-import Detail from '../../containers/myCalendar/meeting/Detail';
-import PreviousDetail from '../../containers/myCalendar/meeting/PreviousDetail';
-import { IMeeting, MeetingsQueryResponse } from '../../types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { CalendarContainer } from '../../containers/myCalendar/meeting/Calendar';
+import { IMeeting, MeetingsQueryResponse } from "../../types";
+import React, { useState } from "react";
+import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
+
+import { CalendarContainer } from "../../containers/myCalendar/meeting/Calendar";
+import Detail from "../../containers/myCalendar/meeting/Detail";
+import { IUser } from "@erxes/ui/src/auth/types";
+import PreviousDetail from "../../containers/myCalendar/meeting/PreviousDetail";
 
 type Props = {
   meetings?: IMeeting[];
   queryParams: any;
-  meetingQuery: MeetingsQueryResponse;
+  meetingQuery?: MeetingsQueryResponse;
   currentUser: IUser;
 };
 
 export const MyCalendarList = (props: Props) => {
   const { meetings, queryParams } = props;
   const { meetingId } = queryParams;
-  const [currentTab, setCurrentTab] = useState('This session');
+  const [currentTab, setCurrentTab] = useState("This session");
 
   const companyId =
-    (meetings?.find(meeting => meeting._id === meetingId)
-      ?.companyId as string) || '';
+    (meetings?.find((meeting) => meeting._id === meetingId)
+      ?.companyId as string) || "";
 
   const renderTabContent = () => {
-    if (currentTab === 'Previous session') {
+    if (currentTab === "Previous session") {
       return <PreviousDetail companyId={companyId} queryParams={queryParams} />;
     }
     return <Detail meetingId={meetingId} queryParams={queryParams} />;
@@ -39,16 +40,16 @@ export const MyCalendarList = (props: Props) => {
     <>
       <Tabs full={true}>
         <TabTitle
-          className={currentTab === 'This session' ? 'active' : ''}
-          onClick={() => setCurrentTab('This session')}
+          className={currentTab === "This session" ? "active" : ""}
+          onClick={() => setCurrentTab("This session")}
         >
-          {'This session'}
+          {"This session"}
         </TabTitle>
         <TabTitle
-          className={currentTab === 'Previous session' ? 'active' : ''}
-          onClick={() => setCurrentTab('Previous session')}
+          className={currentTab === "Previous session" ? "active" : ""}
+          onClick={() => setCurrentTab("Previous session")}
         >
-          {'Previous session'}
+          {"Previous session"}
         </TabTitle>
       </Tabs>
       {renderTabContent()}

@@ -1,12 +1,13 @@
-import React from "react";
-import queryString from "query-string";
 import { DataWithLoader, Icon, Tip } from "@erxes/ui/src/components";
-import { __, router } from "@erxes/ui/src/utils";
 import { Sidebar, Wrapper } from "@erxes/ui/src/layout";
+import { __, router } from "@erxes/ui/src/utils";
+import { useLocation, useNavigate } from "react-router-dom";
+
 import { ILotteryCampaign } from "../../../configs/lotteryCampaign/types";
 import { Link } from "react-router-dom";
+import React from "react";
 import { SidebarListItem } from "../../common/styles";
-import { useLocation, useNavigate } from "react-router-dom";
+import queryString from "query-string";
 
 const { Section } = Wrapper.Sidebar;
 
@@ -47,7 +48,7 @@ const List = (props: IProps) => {
       const name = `${campaign.title} (${campaign.lotteriesCount})`;
 
       result.push(
-        <SidebarListItem key={campaign._id} isActive={isActive(campaign._id)}>
+        <SidebarListItem key={campaign._id} $isActive={isActive(campaign._id)}>
           <Link to={`?${qryString}&campaignId=${campaign._id}`}>{name}</Link>
         </SidebarListItem>
       );

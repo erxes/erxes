@@ -1,7 +1,7 @@
+import { Menu } from "@headlessui/react";
+import { PlaceholderWrapper } from "./styles";
 import React from "react";
 import { useRichTextEditorContext } from "../RichTextEditor.context";
-import { PlaceholderWrapper } from "./styles";
-import { Menu } from "@headlessui/react";
 
 export const RichTextEditorPlaceholderControl = ({
   placeholderProp,
@@ -14,7 +14,7 @@ export const RichTextEditorPlaceholderControl = ({
   };
 
   return (
-    <PlaceholderWrapper $toolbarPlacement={toolbarPlacement}>
+    <Menu as={PlaceholderWrapper} $toolbarPlacement={toolbarPlacement}>
       <Menu.Button
         id="dropdown-item-button"
         title={placeholderProp?.title}
@@ -35,6 +35,6 @@ export const RichTextEditorPlaceholderControl = ({
           );
         })}
       </Menu.Button>
-    </PlaceholderWrapper>
+    </Menu>
   );
 };

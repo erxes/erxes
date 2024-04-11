@@ -141,7 +141,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
             {__("Learn more about Amazon SES configuration")}
           </a>
         </Info>
-        <FlexRow alignItems="flex-start" justifyContent="space-between">
+        <FlexRow $alignItems="flex-start" $justifyContent="space-between">
           <FormGroup>
             <ControlLabel>AWS SES Access key ID</ControlLabel>
             <FormControl
@@ -162,7 +162,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
             />
           </FormGroup>
         </FlexRow>
-        <FlexRow alignItems="flex-start" justifyContent="space-between">
+        <FlexRow $alignItems="flex-start" $justifyContent="space-between">
           <FormGroup>
             <ControlLabel>AWS SES Region</ControlLabel>
             <FormControl
@@ -193,7 +193,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
             defaultValue={configsMap.unverifiedEmailsLimit || 100}
           />
         </FormGroup>
-        <FlexRow alignItems="flex-start" justifyContent="space-between">
+        <FlexRow $alignItems="flex-start" $justifyContent="space-between">
           <FormGroup>
             <ControlLabel>Allowed email skip limit</ControlLabel>
             <p>
@@ -274,7 +274,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
           transparent={true}
           title={__("Send your first testing email")}
         >
-          <FlexRow alignItems="flex-start" justifyContent="space-between">
+          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
             <FormGroup>
               <ControlLabel>From</ControlLabel>
               <FormControl

@@ -1,7 +1,8 @@
+import { colors, dimensions, typography } from '@erxes/ui/src/styles';
+
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-import { colors, dimensions, typography } from '@erxes/ui/src/styles';
 export const MeetingListSearch = styled.div`
   padding: 0 ${dimensions.coreSpacing}px;
   margin-bottom: ${dimensions.coreSpacing}px;
@@ -79,11 +80,11 @@ export const FeatureRowItem = styled.div`
 `;
 
 export const FlexColumnCustom = styledTS<{
-  marginNum: number;
+  $marginNum: number;
 }>(styled.div)`
   display: flex;
   flex-direction: column;
-  gap: ${props => props.marginNum}px
+  gap: ${props => props.$marginNum}px
   margin: 20px 20px
 
   div:first-child {
