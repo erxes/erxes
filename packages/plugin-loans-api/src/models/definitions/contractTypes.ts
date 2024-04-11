@@ -1,6 +1,15 @@
 import { LEASE_TYPES } from './constants';
 import { schemaHooksWrapper, field } from './utils';
 import { Schema, Document } from 'mongoose';
+
+export interface ICustomField {
+  field: string;
+  value: any;
+  stringValue?: string;
+  numberValue?: number;
+  dateValue?: Date;
+}
+
 export interface IContractConfig {
   receivable: string;
   temp: string;
@@ -44,6 +53,7 @@ export interface IContractConfig {
   doubtExpirationDay: number;
   negativeExpirationDay: number;
   badExpirationDay: number;
+  customFieldsData?: ICustomField[];
 }
 
 export interface IContractType {
@@ -75,6 +85,17 @@ export interface IContractType {
 export interface IContractTypeDocument extends IContractType, Document {
   _id: string;
 }
+
+export const customFieldSchema = new Schema(
+  {
+    field: field({ type: 'String' }),
+    value: field({ type: Schema.Types.Mixed }),
+    stringValue: field({ type: 'String', optional: true }),
+    numberValue: field({ type: 'Number', optional: true }),
+    dateValue: field({ type: 'Date', optional: true })
+  },
+  { _id: false }
+);
 
 export const contractTypeSchema = schemaHooksWrapper(
   new Schema({
@@ -166,7 +187,12 @@ export const contractTypeSchema = schemaHooksWrapper(
     invoiceDay: field({
       type: String,
       label: 'invoiceDay'
-    })
+    }),
+    customFieldsData: field({
+      type: [customFieldSchema],
+      optional: true,
+      label: 'Custom fields data',
+    }),
   }),
   'erxes_contractTypeSchema'
 );

@@ -101,7 +101,7 @@ const queryParams = `
 export const queries = `
   savingsContractsMain(${queryParams}): SavingContractsListResponse
   savingsContracts(${queryParams}): [SavingContract]
-  clientSavingsContracts(${queryParams}): [LoanContract]
+  clientSavingsContracts(${queryParams}): [SavingContract]
   savingsContractDetail(_id: String!): SavingContract
   savingsCloseInfo(contractId: String, date: Date): SavingCloseInfo
   savingsContractsAlert(date: Date): [SavingAlert]
