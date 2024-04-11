@@ -1,9 +1,3 @@
-import { jsPlumb } from "jsplumb";
-import jquery from "jquery";
-import RTG from "react-transition-group";
-import React from "react";
-import { AutomationConstants } from "../../types";
-import { IAction } from "@erxes/ui-automations/src/types";
 import {
   ActionBarButtonsWrapper,
   AutomationFormContainer,
@@ -15,9 +9,8 @@ import {
   ZoomActions,
   ZoomIcon,
 } from "../../styles";
-import { BackButton, BackIcon } from "@erxes/ui-automations/src/styles";
-import { ScrolledContent } from "@erxes/ui-automations/src/styles";
 import { Alert, __ } from "coreui/utils";
+import { BackButton, BackIcon } from "@erxes/ui-automations/src/styles";
 import { BarItems, HeightedWrapper } from "@erxes/ui/src/layout/styles";
 import { IAutomation, IAutomationNote, ITrigger } from "../../types";
 import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
@@ -36,25 +29,32 @@ import {
   yesEndPoint,
 } from "../../utils";
 
-import TemplateForm from "../../containers/forms/TemplateForm";
 import ActionDetailForm from "./actions/ActionDetailForm";
 import ActionsForm from "../../containers/forms/actions/ActionsForm";
+import { AutomationConstants } from "../../types";
 import Button from "@erxes/ui/src/components/Button";
+import { CSSTransition } from "react-transition-group";
 import Confirmation from "../../containers/forms/Confirmation";
+import Dialog from "@erxes/ui/src/components/Dialog";
 import { FlexContent } from "@erxes/ui-log/src/activityLogs/styles";
 import Form from "@erxes/ui/src/components/form/Form";
 import { FormControl } from "@erxes/ui/src/components/form";
 import Histories from "../../components/histories/Wrapper";
+import { IAction } from "@erxes/ui-automations/src/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import { Link } from "react-router-dom";
-import Dialog from "@erxes/ui/src/components/Dialog";
 import NoteFormContainer from "../../containers/forms/NoteForm";
 import PageContent from "@erxes/ui/src/layout/components/PageContent";
+import React from "react";
+import { ScrolledContent } from "@erxes/ui-automations/src/styles";
+import TemplateForm from "../../containers/forms/TemplateForm";
 import Toggle from "@erxes/ui/src/components/Toggle";
+import { Transition } from "@headlessui/react";
 import TriggerDetailForm from "./triggers/TriggerDetailForm";
 import TriggerForm from "../../containers/forms/triggers/TriggerForm";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { Transition } from "@headlessui/react";
+import jquery from "jquery";
+import { jsPlumb } from "jsplumb";
 
 const plumb: any = jsPlumb;
 let instance;

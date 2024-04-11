@@ -152,12 +152,31 @@ export const loadComponent = (scope, module) => {
       // Initialize the container, it may provide shared modules
       await container.init(__webpack_share_scopes__.default);
     } catch (e) {
-      // already was initialized
+      console.error("Container initialization error:", e);
     }
-    console.log("here", scope, module, window[scope]);
-    const factory = await window[scope]?.get(module);
-    const Module = factory();
-    return Module;
+
+    try {
+      const factory = await window[scope]?.get(module);
+
+      if (!factory) {
+        throw new Error(`Module '${module}' not found in scope '${scope}'.`);
+      }
+
+      if (typeof factory !== "function") {
+        throw new Error(`Factory is not a function for module '${module}'.`);
+      }
+
+      const Module = factory();
+
+      if (!Module) {
+        throw new Error(`Module '${module}' is not initialized properly.`);
+      }
+
+      return Module;
+    } catch (error) {
+      console.error("Component loading error:", error);
+      throw error; // rethrow the error to let the caller handle it
+    }
   };
 };
 

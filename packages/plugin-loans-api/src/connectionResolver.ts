@@ -46,6 +46,8 @@ import {
 import { IStoredInterestDocument } from './models/definitions/storedInterest';
 import { IPurposeDocument } from './models/definitions/loanPurpose';
 import { IPurposeTypeDocument } from './models/definitions/loanPurposeType';
+import { INonBalanceTransactionModel, loadNonBalanceTransactionClass } from './models/nonBalanceTransactions';
+import { INonBalanceTransactionDocument } from './models/definitions/nonBalanceTransactions';
 //#endregion
 
 export interface IModels {
@@ -63,6 +65,7 @@ export interface IModels {
   StoredInterest: IStoredInterestModel;
   LoanPurposeType: IPurposeTypeModel;
   LoanPurpose: IPurposeModel;
+  NonBalanceTransactions: INonBalanceTransactionModel;
 }
 
 export interface IContext extends IMainContext {
@@ -149,6 +152,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadPurposeTypeClass(models),
   ) as IPurposeTypeModel;
 
+  models.NonBalanceTransactions = db.model<INonBalanceTransactionDocument, INonBalanceTransactionModel>(
+    'loan_non_balance_transactions',
+    loadNonBalanceTransactionClass(models),
+  ) as INonBalanceTransactionModel;
+  
   return models;
 };
 

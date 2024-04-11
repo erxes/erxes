@@ -1,20 +1,20 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { Alert, withProps } from '@erxes/ui/src/utils';
+import { Alert, withProps } from "@erxes/ui/src/utils";
 import {
   AssignMutationResponse,
   AssignMutationVariables,
   IConversation,
   UnAssignMutationResponse,
   UnAssignMutationVariables,
-} from '@erxes/ui-inbox/src/inbox/types';
+} from "@erxes/ui-inbox/src/inbox/types";
 
-import AssignBox from '../components/AssignBox';
-import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { mutations } from '@erxes/ui-inbox/src/inbox/graphql';
-import { refetchSidebarConversationsOptions } from '@erxes/ui-inbox/src/inbox/utils';
+import AssignBox from "../components/AssignBox";
+import React from "react";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { mutations } from "@erxes/ui-inbox/src/inbox/graphql";
+import { refetchSidebarConversationsOptions } from "@erxes/ui-inbox/src/inbox/utils";
 
 type Props = {
   targets: IConversation[];
@@ -32,7 +32,7 @@ const AssignBoxContainer = (props: FinalProps) => {
       conversationIds,
       assignedUserId,
     }: { conversationIds?: string[]; assignedUserId: string },
-    callback: (e) => void,
+    callback: (e) => void
   ) => {
     assignMutation({
       variables: {
@@ -41,8 +41,7 @@ const AssignBoxContainer = (props: FinalProps) => {
       },
     })
       .then(() => {
-        console.log('kkk');
-        Alert.success('The conversation Assignee has been renewed.');
+        Alert.success("The conversation Assignee has been renewed.");
       })
       .catch((e) => {
         callback(e);
@@ -57,7 +56,7 @@ const AssignBoxContainer = (props: FinalProps) => {
       },
     })
       .then(() => {
-        Alert.success('The conversation Assignee removed');
+        Alert.success("The conversation Assignee removed");
       })
       .catch((e) => {
         Alert.error(e.message);
@@ -78,16 +77,16 @@ export default withProps<Props>(
     graphql<Props, AssignMutationResponse, AssignMutationVariables>(
       gql(mutations.conversationsAssign),
       {
-        name: 'assignMutation',
+        name: "assignMutation",
         options: () => refetchSidebarConversationsOptions(),
-      },
+      }
     ),
     graphql<Props, UnAssignMutationResponse, UnAssignMutationVariables>(
       gql(mutations.conversationsUnassign),
       {
-        name: 'conversationsUnassign',
+        name: "conversationsUnassign",
         options: () => refetchSidebarConversationsOptions(),
-      },
-    ),
-  )(AssignBoxContainer),
+      }
+    )
+  )(AssignBoxContainer)
 );

@@ -1,22 +1,22 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
 import {
   AddIntegrationMutationResponse,
   AddIntegrationMutationVariables,
-} from '@erxes/ui-inbox/src/settings/integrations/types';
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import React, { useState } from 'react';
-import { mutations, queries } from '@erxes/ui-leads/src/graphql';
+} from "@erxes/ui-inbox/src/settings/integrations/types";
+import { Alert, withProps } from "@erxes/ui/src/utils";
+import React, { useState } from "react";
+import { mutations, queries } from "@erxes/ui-leads/src/graphql";
 
-import { AddFieldsMutationResponse } from '@erxes/ui-forms/src/settings/properties/types';
-import { ConfigsQueryResponse } from '@erxes/ui-settings/src/general/types';
-import { ILeadData } from '@erxes/ui-leads/src/types';
-import Lead from '../components/Lead';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { queries as settingsQueries } from '@erxes/ui-settings/src/general/graphql';
-import { useNavigate } from 'react-router-dom';
+import { AddFieldsMutationResponse } from "@erxes/ui-forms/src/settings/properties/types";
+import { ConfigsQueryResponse } from "@erxes/ui-settings/src/general/types";
+import { ILeadData } from "@erxes/ui-leads/src/types";
+import Lead from "../components/Lead";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { queries as settingsQueries } from "@erxes/ui-settings/src/general/graphql";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   emailTemplatesQuery: any /*change type*/;
@@ -64,7 +64,7 @@ const CreateLeadContainer: React.FC<Props> = (props) => {
 
     if (canClose) {
       navigate({
-        pathname: '/forms',
+        pathname: "/forms",
         search: `?popUpRefetchList=true&showInstallCode=${state.integrationId}`,
       });
     }
@@ -75,7 +75,7 @@ const CreateLeadContainer: React.FC<Props> = (props) => {
 
     if (state.doc) {
       const { leadData, brandId, name, languageCode, channelIds } = state.doc;
-      console.log('heree');
+
       props
         .addIntegrationMutation({
           variables: {
@@ -98,10 +98,10 @@ const CreateLeadContainer: React.FC<Props> = (props) => {
               integrationId: _id,
               isIntegrationSubmitted: true,
             });
-            Alert.success('You successfully added a form');
+            Alert.success("You successfully added a form");
 
             redirect();
-          },
+          }
         )
         .catch((error) => {
           Alert.error(error.message);
@@ -151,32 +151,32 @@ const CreateLeadContainer: React.FC<Props> = (props) => {
 const withTemplatesQuery = withProps<Props>(
   compose(
     graphql<Props>(gql(queries.emailTemplates), {
-      name: 'emailTemplatesQuery',
+      name: "emailTemplatesQuery",
       options: ({ emailTemplatesTotalCountQuery }) => ({
         variables: {
           perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount,
         },
       }),
-      skip: !isEnabled('engages') ? true : false,
-    }),
-  )(CreateLeadContainer),
+      skip: !isEnabled("engages") ? true : false,
+    })
+  )(CreateLeadContainer)
 );
 
 export default withProps<Props>(
   compose(
     graphql(gql(queries.templateTotalCount), {
-      name: 'emailTemplatesTotalCountQuery',
-      skip: !isEnabled('engages') ? true : false,
+      name: "emailTemplatesTotalCountQuery",
+      skip: !isEnabled("engages") ? true : false,
     }),
     graphql<{}, ConfigsQueryResponse>(gql(settingsQueries.configs), {
-      name: 'configsQuery',
+      name: "configsQuery",
     }),
     graphql<
       {},
       AddIntegrationMutationResponse,
       AddIntegrationMutationVariables
     >(gql(mutations.integrationsCreateLeadIntegration), {
-      name: 'addIntegrationMutation',
-    }),
-  )(withTemplatesQuery),
+      name: "addIntegrationMutation",
+    })
+  )(withTemplatesQuery)
 );

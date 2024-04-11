@@ -1,24 +1,23 @@
+import { IDashboard, ISection } from "../../types";
 import React, { useRef, useState } from "react";
-import RTG from "react-transition-group";
-import Dropdown from "@erxes/ui/src/components/Dropdown";
+import { useLocation, useNavigate } from "react-router-dom";
 
+import Box from "@erxes/ui/src/components/Box";
+import Button from "@erxes/ui/src/components/Button";
+import { CSSTransition } from "react-transition-group";
 import CollapsibleList from "@erxes/ui/src/components/collapsibleList/CollapsibleList";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
-import Spinner from "@erxes/ui/src/components/Spinner";
-import Button from "@erxes/ui/src/components/Button";
+import FormContainer from "../../containers/dashboard/Form";
 import Icon from "@erxes/ui/src/components/Icon";
+import { RightDrawerContainer } from "../../styles";
+import SectionList from "../../containers/section/List";
+import { SidebarList } from "@erxes/ui/src/layout/styles";
+import Spinner from "@erxes/ui/src/components/Spinner";
 import Tip from "@erxes/ui/src/components/Tip";
-import Box from "@erxes/ui/src/components/Box";
 import { __ } from "@erxes/ui/src/utils/index";
 import { router } from "@erxes/ui/src/utils";
-import { SidebarList } from "@erxes/ui/src/layout/styles";
-
-import FormContainer from "../../containers/dashboard/Form";
-import SectionList from "../../containers/section/List";
-import { RightDrawerContainer } from "../../styles";
-import { IDashboard, ISection } from "../../types";
-import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
@@ -171,7 +170,7 @@ const DashboardSection = (props: Props) => {
       </Box>
 
       <div ref={wrapperRef}>
-        <RTG.CSSTransition
+        <CSSTransition
           in={showDrawer}
           timeout={300}
           classNames="slide-in-right"
@@ -186,7 +185,7 @@ const DashboardSection = (props: Props) => {
               />
             }
           </RightDrawerContainer>
-        </RTG.CSSTransition>
+        </CSSTransition>
       </div>
     </>
   );

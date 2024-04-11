@@ -266,7 +266,7 @@ const ActivityContent = styledTS<{ $isEmpty: boolean }>(styled.div)`
   height: ${(props) => props.$isEmpty && '360px'};
 `;
 
-const DropIcon = styledTS<{ isOpen: boolean }>(styled.span)`
+const DropIcon = styledTS<{ $isOpen: boolean }>(styled.span)`
   font-size: 18px;
   line-height: 22px;
 
@@ -277,7 +277,7 @@ const DropIcon = styledTS<{ isOpen: boolean }>(styled.span)`
     float: right;
     transition: all ease 0.3s;
     margin-left: ${dimensions.unitSpacing - 2}px;
-    transform: ${(props) => props.isOpen && `rotate(180deg)`};
+    transform: ${(props) => props.$isOpen && `rotate(180deg)`};
   }
 `;
 

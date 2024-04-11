@@ -1,23 +1,21 @@
-import React, { useRef, useState } from "react";
-
-import Dropdown from "@erxes/ui/src/components/Dropdown";
-import RTG from "react-transition-group";
-import { capitalize } from "lodash";
-
-import CollapsibleList from "@erxes/ui/src/components/collapsibleList/CollapsibleList";
-import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
-import Tip from "@erxes/ui/src/components/Tip";
-import Button from "@erxes/ui/src/components/Button";
-import Box from "@erxes/ui/src/components/Box";
-import Icon from "@erxes/ui/src/components/Icon";
-import { SidebarList } from "@erxes/ui/src/layout/styles";
-import { __ } from "@erxes/ui/src/utils/index";
-import { router } from "@erxes/ui/src/utils";
-
-import FormContainer from "../../containers/goal/Form";
-import { RightDrawerContainer } from "../../styles";
 import { IGoalType, ISection } from "../../types";
+import React, { useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+
+import Box from "@erxes/ui/src/components/Box";
+import Button from "@erxes/ui/src/components/Button";
+import { CSSTransition } from "react-transition-group";
+import CollapsibleList from "@erxes/ui/src/components/collapsibleList/CollapsibleList";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import FormContainer from "../../containers/goal/Form";
+import Icon from "@erxes/ui/src/components/Icon";
+import { RightDrawerContainer } from "../../styles";
+import { SidebarList } from "@erxes/ui/src/layout/styles";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __ } from "@erxes/ui/src/utils/index";
+import { capitalize } from "lodash";
+import { router } from "@erxes/ui/src/utils";
 
 type Props = {
   queryParams: any;
@@ -132,7 +130,7 @@ const GoalSection = (props: Props) => {
       </Box>
 
       <div ref={wrapperRef}>
-        <RTG.CSSTransition
+        <CSSTransition
           in={showDrawer}
           timeout={300}
           classNames="slide-in-right"
@@ -147,7 +145,7 @@ const GoalSection = (props: Props) => {
               />
             }
           </RightDrawerContainer>
-        </RTG.CSSTransition>
+        </CSSTransition>
       </div>
     </>
   );

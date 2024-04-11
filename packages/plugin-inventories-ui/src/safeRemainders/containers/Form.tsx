@@ -1,21 +1,21 @@
-import React from 'react';
-import { useHistory } from 'react-router-dom';
 // erxes
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
 // local
-import FormComponent from '../components/Form';
-import { mutations } from '../graphql';
+import FormComponent from "../components/Form";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import React from "react";
+import { mutations } from "../graphql";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   closeModal: () => void;
 };
 
 function FormContainer(props: Props) {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const getRefetchQueries = () => {
-    return ['safeRemainders'];
+    return ["safeRemainders"];
   };
 
   const renderButton = ({
@@ -29,8 +29,8 @@ function FormContainer(props: Props) {
         callback(data);
       }
 
-      history.push(
-        `/inventories/safe-remainders/details/${data.safeRemainderAdd._id}`,
+      navigate(
+        `/inventories/safe-remainders/details/${data.safeRemainderAdd._id}`
       );
     };
 

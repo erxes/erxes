@@ -1,6 +1,3 @@
-import EmptyState from "@erxes/ui/src/components/EmptyState";
-import React, { useEffect, useState } from "react";
-import RTG from "react-transition-group";
 import {
   ActionFooter,
   Description,
@@ -11,23 +8,25 @@ import {
   RightDrawerContainer,
   ScrolledContent,
 } from "../../styles";
-
+import ChartFormField, {
+  IFilterType,
+} from "../../containers/chart/ChartFormField";
 import {
   ControlLabel,
   FormControl,
   FormGroup,
 } from "@erxes/ui/src/components/form";
-import Select from "react-select";
+import React, { useEffect, useState } from "react";
+import { __, router } from "@erxes/ui/src/utils";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import Button from "@erxes/ui/src/components/Button";
-import { ModalFooter } from "@erxes/ui/src/styles/main";
-import { __, router } from "@erxes/ui/src/utils";
+import { CSSTransition } from "react-transition-group";
 import ChartRenderer from "../../containers/chart/ChartRenderer";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
 import { IChart } from "../../types";
-import ChartFormField, {
-  IFilterType,
-} from "../../containers/chart/ChartFormField";
-import { useLocation, useNavigate } from "react-router-dom";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import Select from "react-select";
 
 const DIMENSION_OPTIONS = [
   { label: "Team members", value: "teamMember" },
@@ -201,7 +200,7 @@ const ChartForm = (props: Props) => {
   return (
     <FormContainer>
       <FormChart>
-        <RTG.CSSTransition
+        <CSSTransition
           in={showChartForm}
           timeout={300}
           classNames="slide-in-right"
@@ -221,7 +220,7 @@ const ChartForm = (props: Props) => {
               image="/images/actions/21.svg"
             />
           )}
-        </RTG.CSSTransition>
+        </CSSTransition>
       </FormChart>
       <div>
         <RightDrawerContainer>
