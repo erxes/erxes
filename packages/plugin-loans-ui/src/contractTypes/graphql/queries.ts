@@ -24,6 +24,7 @@ export const contractTypeFields = `
   savingUpperPercent
   usePrePayment
   invoiceDay
+  customFieldsData
 `;
 
 const listParamsDef = `
