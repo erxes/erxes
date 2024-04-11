@@ -254,30 +254,11 @@ const msdynamicSyncMutations = {
         }
       ).then((r) => r.json());
 
-      if (response.message || response.error) {
-        const txt = JSON.stringify({
-          message: response.message,
-          error: response.error,
-        });
+      if (response.value.length === 0) {
+        result.error.push(order._id);
+      }
 
-        //   await sendPosMessage({
-        //     subdomain,
-        //     action: 'orders.updateOne',
-        //     data: {
-        //       selector: { _id: order._id },
-        //       modifier: {
-        //         $set: { syncErkhetInfo: txt }
-        //       }
-        //     },
-        //     isRPC: true
-        //   });
-        // }
-
-        // if (response.error) {
-        //   result.error.push(order._id);
-        //   continue;
-        // }
-
+      if (response.value.length > 0) {
         result.success.push(order._id);
       }
     } catch (e) {
