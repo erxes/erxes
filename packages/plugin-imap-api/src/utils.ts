@@ -6,7 +6,7 @@ import { IModels, generateModels } from './connectionResolver';
 import {
   sendContactsMessage,
   sendImapMessage,
-  sendInboxMessage,
+  sendInboxMessage
 } from './messageBroker';
 import { IIntegrationDocument } from './models';
 import { throttle } from 'lodash';
@@ -44,7 +44,7 @@ export const createImap = (integration: IIntegrationDocument): Imap => {
     host: integration.host,
     keepalive: { forceNoop: true },
     port: 993,
-    tls: true,
+    tls: true
   });
 };
 
@@ -104,12 +104,12 @@ const saveMessages = async (
   imap: Imap,
   integration: IIntegrationDocument,
   criteria,
-  models: IModels,
+  models: IModels
 ) => {
   const msgs: any = await searchMessages(imap, criteria);
 
   console.log(`======== found ${msgs.length} messages`);
-
+  console.log(msgs, 'asopdkasopdkpasd');
   for (const msg of msgs) {
     if (
       msg.to &&
@@ -121,7 +121,7 @@ const saveMessages = async (
     }
 
     const message = await models.Messages.findOne({
-      messageId: msg.messageId,
+      messageId: msg.messageId
     });
 
     if (message) {
@@ -138,9 +138,9 @@ const saveMessages = async (
         subdomain,
         action: 'customers.findOne',
         data: {
-          customerPrimaryEmail: from,
+          customerPrimaryEmail: from
         },
-        isRPC: true,
+        isRPC: true
       });
 
       if (customer) {
@@ -151,9 +151,9 @@ const saveMessages = async (
           action: 'customers.createCustomer',
           data: {
             integrationId: integration.inboxId,
-            primaryEmail: from,
+            primaryEmail: from
           },
-          isRPC: true,
+          isRPC: true
         });
 
         customerId = apiCustomerResponse._id;
@@ -162,7 +162,7 @@ const saveMessages = async (
       await models.Customers.create({
         inboxIntegrationId: integration.inboxId,
         contactsId: customerId,
-        email: from,
+        email: from
       });
     } else {
       customerId = prev.contactsId;
@@ -172,7 +172,7 @@ const saveMessages = async (
 
     const $or: any[] = [
       { references: { $in: [msg.messageId] } },
-      { messageId: { $in: msg.references || [] } },
+      { messageId: { $in: msg.references || [] } }
     ];
 
     if (msg.inReplyTo) {
@@ -181,7 +181,7 @@ const saveMessages = async (
     }
 
     const relatedMessage = await models.Messages.findOne({
-      $or,
+      $or
     });
 
     if (relatedMessage) {
@@ -196,15 +196,15 @@ const saveMessages = async (
             integrationId: integration.inboxId,
             customerId,
             createdAt: msg.date,
-            content: msg.subject,
-          }),
+            content: msg.subject
+          })
         },
-        isRPC: true,
+        isRPC: true
       });
 
       conversationId = _id;
     }
-
+    const msgBody = msg.html === false ? '' : msg.html;
     const conversationMessage = await models.Messages.create({
       inboxIntegrationId: integration.inboxId,
       inboxConversationId: conversationId,
@@ -213,7 +213,7 @@ const saveMessages = async (
       inReplyTo: msg.inReplyTo,
       references: msg.references,
       subject: msg.subject,
-      body: msg.html,
+      body: msgBody,
       to: msg.to && msg.to.value,
       cc: msg.cc && msg.cc.value,
       bcc: msg.bcc && msg.bcc.value,
@@ -221,9 +221,9 @@ const saveMessages = async (
       attachments: msg.attachments.map(({ filename, contentType, size }) => ({
         filename,
         type: contentType,
-        size,
+        size
       })),
-      type: 'INBOX',
+      type: 'INBOX'
     });
 
     await sendInboxMessage({
@@ -232,8 +232,8 @@ const saveMessages = async (
       data: {
         _id: conversationMessage._id,
         content: msg.html,
-        conversationId,
-      },
+        conversationId
+      }
     });
   }
 };
@@ -241,7 +241,7 @@ const saveMessages = async (
 export const listenIntegration = async (
   subdomain: string,
   integration: IIntegrationDocument,
-  models: IModels,
+  models: IModels
 ) => {
   interface ListenResult {
     reconnect: boolean;
@@ -260,26 +260,26 @@ export const listenIntegration = async (
       try {
         lock = await redlock.lock(
           `${subdomain}:imap:integration:${integration._id}`,
-          60000,
+          60000
         );
       } catch (e) {
         // 1 other pod or container is already listening on it
         return resolve({
           reconnect: false,
-          result: `Integration ${integration._id} is already being listened to`,
+          result: `Integration ${integration._id} is already being listened to`
         });
       }
 
       await lock.extend(60000);
 
       const updatedIntegration = await models.Integrations.findById(
-        integration._id,
+        integration._id
       );
 
       if (!updatedIntegration) {
         return resolve({
           reconnect: false,
-          error: new Error(`Integration ${integration._id} not found`),
+          error: new Error(`Integration ${integration._id} not found`)
         });
       }
 
@@ -296,7 +296,7 @@ export const listenIntegration = async (
         try {
           const criteria: any = [
             'UNSEEN',
-            ['SINCE', lastFetchDate.toISOString()],
+            ['SINCE', lastFetchDate.toISOString()]
           ];
           const nextLastFetchDate = new Date();
           await saveMessages(
@@ -304,13 +304,13 @@ export const listenIntegration = async (
             imap,
             updatedIntegration,
             criteria,
-            models,
+            models
           );
           lastFetchDate = nextLastFetchDate;
 
           await models.Integrations.updateOne(
             { _id: updatedIntegration._id },
-            { $set: { lastFetchDate } },
+            { $set: { lastFetchDate } }
           );
         } catch (e) {
           error = e;
@@ -318,7 +318,7 @@ export const listenIntegration = async (
           await models.Logs.createLog({
             type: 'error',
             message: 'syncEmail error:' + e.message,
-            errorStack: e.stack,
+            errorStack: e.stack
           });
           imap.end();
         }
@@ -334,7 +334,7 @@ export const listenIntegration = async (
             await models.Logs.createLog({
               type: 'error',
               message: 'openBox error:' + e.message,
-              errorStack: e.stack,
+              errorStack: e.stack
             });
             return imap.end();
           }
@@ -358,15 +358,15 @@ export const listenIntegration = async (
             {
               $set: {
                 healthStatus: 'unHealthy',
-                error: `${e.message}`,
-              },
-            },
+                error: `${e.message}`
+              }
+            }
           );
         }
         await models.Logs.createLog({
           type: 'error',
           message: 'error event: ' + e.message,
-          errorStack: e.stack,
+          errorStack: e.stack
         });
         imap.end();
       });
@@ -387,7 +387,7 @@ export const listenIntegration = async (
         return resolve({
           reconnect,
           error,
-          result,
+          result
         });
       };
 
@@ -449,11 +449,11 @@ const startDistributingJobs = async (subdomain: string) => {
     try {
       await models.Logs.createLog({
         type: 'info',
-        message: `Distributing imap sync jobs`,
+        message: `Distributing imap sync jobs`
       });
 
       const integrations = await models.Integrations.find({
-        healthStatus: 'healthy',
+        healthStatus: 'healthy'
       });
 
       for (const integration of integrations) {
@@ -461,8 +461,8 @@ const startDistributingJobs = async (subdomain: string) => {
           subdomain,
           action: 'listen',
           data: {
-            _id: integration._id,
-          },
+            _id: integration._id
+          }
         });
       }
     } catch (e) {
