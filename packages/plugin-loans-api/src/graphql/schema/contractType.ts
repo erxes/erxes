@@ -18,6 +18,7 @@ export const types = () => `
     commitmentInterest: Float
     createdAt: Date
     productCategoryIds: [String]
+    productId: String
     config: JSON
     
 
@@ -44,6 +45,8 @@ const queryParams = `
   searchValue: String
   sortField: String
   sortDirection: Int
+  productId:String
+  productType:String
 `;
 
 export const queries = `
@@ -70,6 +73,7 @@ const commonFields = `
   commitmentInterest: Float
   createdAt: Date
   productCategoryIds: [String]
+  productId: String
   config: JSON
   currency:String
   productType:String

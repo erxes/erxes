@@ -26,6 +26,7 @@ const commonFields = `
   $usePrePayment:Boolean
   $invoiceDay:String
   $customFieldsData: JSON
+  $productId: String
 `;
 
 const commonVariables = `
@@ -52,8 +53,9 @@ const commonVariables = `
   savingPlusLoanInterest: $savingPlusLoanInterest,
   savingUpperPercent: $savingUpperPercent,
   usePrePayment: $usePrePayment,
-  invoiceDay: $invoiceDay
-  customFieldsData: $customFieldsData
+  invoiceDay: $invoiceDay,
+  customFieldsData: $customFieldsData,
+  productId: $productId
 `;
 
 const contractTypesAdd = `

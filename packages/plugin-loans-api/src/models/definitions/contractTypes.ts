@@ -54,6 +54,7 @@ export interface IContractConfig {
   negativeExpirationDay: number;
   badExpirationDay: number;
   customFieldsData?: ICustomField[];
+  productId: string
 }
 
 export interface IContractType {
@@ -192,6 +193,10 @@ export const contractTypeSchema = schemaHooksWrapper(
       type: [customFieldSchema],
       optional: true,
       label: 'Custom fields data',
+    }),
+    productId:field({
+      type: String,
+      label: 'product'
     }),
   }),
   'erxes_contractTypeSchema'
