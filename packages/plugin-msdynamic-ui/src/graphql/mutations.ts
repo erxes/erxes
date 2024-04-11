@@ -70,6 +70,18 @@ const toSyncMsdOrders = `
   }
 `;
 
+const toSendMsdOrders = `
+  mutation toSendMsdOrders($orderIds: [String]) {
+    toSendMsdOrders(orderIds: $orderIds) {
+      _id
+      isSynced
+      syncedDate
+      syncedBillNumber
+      syncedCustomer
+    }
+  }
+`;
+
 export default {
   updateConfigs,
   toCheckProducts,
@@ -82,4 +94,5 @@ export default {
   toSyncPrices,
   toCheckMsdSynced,
   toSyncMsdOrders,
+  toSendMsdOrders,
 };

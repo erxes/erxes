@@ -133,6 +133,12 @@ export type ToSyncOrdersMutationResponse = {
   }) => Promise<any>;
 };
 
+export type ToSendOrdersMutationResponse = {
+  toSendMsdOrders: (mutation: {
+    variables: { orderIds: string[] };
+  }) => Promise<any>;
+};
+
 export type OrderDetailQueryResponse = {
   posOrderDetail: any;
   loading: boolean;

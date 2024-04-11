@@ -13,12 +13,20 @@ type Props = {
   isUnsynced: boolean;
   toggleBulk: (order: any, isChecked?: boolean) => void;
   toSync: (orderIds: string[]) => void;
+  toSend: (orderIds: string[]) => void;
   syncedInfo: any;
 };
 
 const Row = (props: Props) => {
-  const { order, toggleBulk, isChecked, isUnsynced, syncedInfo, toSync } =
-    props;
+  const {
+    order,
+    toggleBulk,
+    isChecked,
+    isUnsynced,
+    syncedInfo,
+    toSync,
+    toSend,
+  } = props;
 
   const modalContent = (_props) => {
     return <Detail order={order} />;
@@ -39,6 +47,11 @@ const Row = (props: Props) => {
     toSync([order._id]);
   };
 
+  const onClickSend = (e) => {
+    e.stopPropagation();
+    toSend([order._id]);
+  };
+
   const onTrClick = () => {};
 
   const { number, createdAt, totalAmount, paidDate } = order;
@@ -56,15 +69,6 @@ const Row = (props: Props) => {
       <td>{totalAmount.toLocaleString()}</td>
       <td>{dayjs(createdAt).format('lll')}</td>
       <td>{dayjs(paidDate).format('lll')}</td>
-      <td onClick={onClick}>
-        {isUnsynced && (
-          <FormControl
-            checked={isUnsynced}
-            componentClass="checkbox"
-            onChange={onChange}
-          />
-        )}
-      </td>
       <td>
         {syncedInfo?.syncedDate &&
           dayjs(syncedInfo?.syncedDate || '').format('ll')}
@@ -77,11 +81,22 @@ const Row = (props: Props) => {
             <Button btnStyle="link" onClick={onClickSync} icon="sync" />
           </Tip>
         )}
+
         {isUnsynced === false && syncedInfo.syncedDate && (
           <Tip text="ReSync">
             <Button
               btnStyle="link"
               onClick={onClickSync}
+              icon="sync-exclamation"
+            />
+          </Tip>
+        )}
+
+        {isUnsynced === false && Object.keys(syncedInfo).length === 0 && (
+          <Tip text="ReSend">
+            <Button
+              btnStyle="link"
+              onClick={onClickSend}
               icon="sync-exclamation"
             />
           </Tip>

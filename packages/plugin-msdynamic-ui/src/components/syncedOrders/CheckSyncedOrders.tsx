@@ -15,7 +15,6 @@ import { Alert, confirm } from '@erxes/ui/src/utils';
 
 import { menuDynamic } from '../../constants';
 import { Title } from '@erxes/ui-settings/src/styles';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 
 type Props = {
   totalCount: number;
@@ -35,6 +34,7 @@ type Props = {
   unSyncedOrderIds: string[];
   syncedOrderInfos: any;
   toSyncMsdOrders: (orderIds: string[]) => void;
+  toSendMsdOrders: (orderIds: string[]) => void;
 };
 
 class CheckSyncedOrders extends React.Component<Props> {
@@ -50,6 +50,7 @@ class CheckSyncedOrders extends React.Component<Props> {
       bulk,
       unSyncedOrderIds,
       toSyncMsdOrders,
+      toSendMsdOrders,
       syncedOrderInfos,
     } = this.props;
 
@@ -62,6 +63,7 @@ class CheckSyncedOrders extends React.Component<Props> {
         isChecked={bulk.includes(order)}
         isUnsynced={unSyncedOrderIds.includes(order._id)}
         toSync={toSyncMsdOrders}
+        toSend={toSendMsdOrders}
         syncedInfo={syncedOrderInfos[order._id] || {}}
       />
     ));
@@ -98,7 +100,6 @@ class CheckSyncedOrders extends React.Component<Props> {
       'Total Amount',
       'Created At',
       'Paid At',
-      'Synced',
       'Synced Date',
       'Synced bill Number',
       'Synced customer',

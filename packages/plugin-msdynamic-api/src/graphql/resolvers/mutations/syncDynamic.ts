@@ -6,6 +6,7 @@ import {
   consumeCustomers,
   consumeInventory,
   consumePrice,
+  dealToDynamic,
   getConfig,
 } from '../../../utils';
 
@@ -269,6 +270,53 @@ const msdynamicSyncMutations = {
     }
 
     return result;
+  },
+
+  async toSendMsdOrders(
+    _root,
+    { orderIds }: { orderIds: string[] },
+    { subdomain, user }: IContext
+  ) {
+    let response = {} as any;
+    const order = await sendPosMessage({
+      subdomain,
+      action: 'orders.findOne',
+      data: { _id: { $in: orderIds } },
+      isRPC: true,
+      defaultValue: [],
+    });
+
+    const syncLogDoc = {
+      contentType: 'pos:order',
+      createdAt: new Date(),
+      createdBy: user._id,
+    };
+
+    const models = await generateModels(subdomain);
+
+    const syncLog = await models.SyncLogs.syncLogsAdd({
+      ...syncLogDoc,
+      contentId: order._id,
+      consumeData: order,
+      consumeStr: JSON.stringify(order),
+    });
+
+    try {
+      response = await dealToDynamic(subdomain, syncLog, order, models);
+    } catch (e) {
+      await models.SyncLogs.updateOne(
+        { _id: syncLog._id },
+        { $set: { error: e.message } }
+      );
+    }
+
+    return {
+      _id: order._id,
+      isSynced: true,
+      syncedDate: response.Order_Date,
+      syncedBillNumber: response.Bill_to_Contact_No,
+      syncedCustomer: response.Sell_to_Customer_No,
+    };
   },
 };
 

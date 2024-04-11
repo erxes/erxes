@@ -6,6 +6,7 @@ import {
   CheckSyncedOrdersTotalCountQueryResponse,
   PosListQueryResponse,
   ToSyncOrdersMutationResponse,
+  ToSendOrdersMutationResponse,
 } from '../types';
 import { mutations, queries } from '../graphql';
 import { router, withProps } from '@erxes/ui/src/utils/core';
@@ -31,7 +32,8 @@ type FinalProps = {
 } & Props &
   IRouterProps &
   CheckSyncedMutationResponse &
-  ToSyncOrdersMutationResponse;
+  ToSyncOrdersMutationResponse &
+  ToSendOrdersMutationResponse;
 
 const CheckSyncedOrdersContainer = (props: FinalProps) => {
   const [unSyncedOrderIds, setUnSyncedOrderIds] = useState([]);
@@ -94,6 +96,34 @@ const CheckSyncedOrdersContainer = (props: FinalProps) => {
       });
   };
 
+  const toSendMsdOrders = (orderIds) => {
+    props
+      .toSendMsdOrders({
+        variables: { orderIds },
+      })
+      .then((response) => {
+        const { _id, syncedBillNumber, syncedDate, syncedCustomer } =
+          response.data.toSendMsdOrders;
+
+        const syncedOrderInfos = {};
+
+        syncedOrderInfos[_id] = {
+          syncedBillNumber: syncedBillNumber || '',
+          syncedDate: syncedDate || '',
+          syncedCustomer: syncedCustomer || '',
+        };
+
+        console.log(syncedOrderInfos);
+
+        setSyncedOrderInfos(syncedOrderInfos);
+
+        Alert.success('Successful');
+      })
+      .catch((e) => {
+        Alert.error(e.message);
+      });
+  };
+
   const orders = checkSyncItemsQuery.posOrders || [];
   const totalCount = checkSyncedOrdersTotalCountQuery.posOrdersTotalCount || 0;
 
@@ -106,6 +136,7 @@ const CheckSyncedOrdersContainer = (props: FinalProps) => {
     unSyncedOrderIds: unSyncedOrderIds,
     syncedOrderInfos: syncedOrderInfos,
     toSyncMsdOrders,
+    toSendMsdOrders,
     posList: posListQuery.posList,
   };
 
@@ -165,6 +196,12 @@ export default withProps<Props>(
       gql(mutations.toSyncMsdOrders),
       {
         name: 'toSyncMsdOrders',
+      }
+    ),
+    graphql<Props, ToSendOrdersMutationResponse, { orderIds: string[] }>(
+      gql(mutations.toSendMsdOrders),
+      {
+        name: 'toSendMsdOrders',
       }
     ),
 

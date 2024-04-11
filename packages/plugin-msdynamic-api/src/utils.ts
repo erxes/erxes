@@ -855,6 +855,8 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
         },
       }
     );
+
+    return responseSale;
   } catch (e) {
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
