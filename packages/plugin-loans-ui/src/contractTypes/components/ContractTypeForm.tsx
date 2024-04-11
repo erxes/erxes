@@ -209,11 +209,9 @@ class ContractTypeForm extends React.Component<Props, State> {
                     placeholder={__('Select product categories')}
                     value={this.state.productId}
                     onChange={onSelectProduct}
-                    options={this.props.products.map((category) => ({
-                      value: category._id,
-                      label: `${'\u00A0  '.repeat(
-                        (category.name.match(/[/]/gi) || []).length,
-                      )}${category.code} - ${category.name}`,
+                    options={this.props.products.map((product) => ({
+                      value: product._id,
+                      label: `${product.code} - ${product.name}`,
                     }))}
                   />
                 </FormGroup>
