@@ -1,3 +1,4 @@
+import fetch from 'node-fetch';
 import { generateModels } from '../../../connectionResolver';
 import { IContext, sendPosMessage } from '../../../messageBroker';
 import {
@@ -197,7 +198,7 @@ const msdynamicSyncMutations = {
     }
   },
 
-  async toSyncOrders(
+  async toSyncMsdOrders(
     _root,
     { orderIds }: { orderIds: string[] },
     { subdomain, user }: IContext
@@ -208,69 +209,56 @@ const msdynamicSyncMutations = {
       success: [],
     };
 
-    const orders = await sendPosMessage({
+    const order = await sendPosMessage({
       subdomain,
-      action: 'orders.find',
+      action: 'orders.findOne',
       data: { _id: { $in: orderIds } },
       isRPC: true,
       defaultValue: [],
     });
 
-    const posTokens = [...new Set((orders || []).map((o) => o.posToken))];
-    const models = await generateModels(subdomain);
-    const poss = await sendPosMessage({
-      subdomain,
-      action: 'configs.find',
-      data: { token: { $in: posTokens } },
-      isRPC: true,
-      defaultValue: [],
-    });
+    const configs = await getConfig(subdomain, 'DYNAMIC', {});
+    const config = configs[order.scopeBrandIds[0] || 'noBrand'];
 
-    const posByToken = {};
-    for (const pos of poss) {
-      posByToken[pos.token] = pos;
+    if (!config.salesApi || !config.username || !config.password) {
+      throw new Error('MS Dynamic config not found.');
     }
+
+    const { salesApi, username, password } = config;
 
     const syncLogDoc = {
       contentType: 'pos:order',
       createdAt: new Date(),
       createdBy: user._id,
     };
+    const models = await generateModels(subdomain);
 
-    for (const order of orders) {
-      const syncLog = await models.SyncLogs.syncLogsAdd({
-        ...syncLogDoc,
-        contentId: order._id,
-        consumeData: order,
-        consumeStr: JSON.stringify(order),
-      });
-      try {
-        const pos = posByToken[order.posToken];
+    const syncLog = await models.SyncLogs.syncLogsAdd({
+      ...syncLogDoc,
+      contentId: order._id,
+      consumeData: order,
+      consumeStr: JSON.stringify(order),
+    });
+    try {
+      const response = await fetch(
+        `${salesApi}?$filter=No eq '${order.syncErkhetInfo}'`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            Authorization: `Basic ${Buffer.from(
+              `${username}:${password}`
+            ).toString('base64')}`,
+          },
+          timeout: 60000,
+        }
+      ).then((r) => r.json());
 
-        // const postData = await getPostDataOrders(subdomain, pos, order);
-        // if (!postData) {
-        //   result.skipped.push(order._id);
-        //   throw new Error('maybe, has not config');
-        // }
-
-        // const response = await sendRPCMessage(
-        //   models,
-        //   syncLog,
-        //   'rpc_queue:erxes-automation-erkhet',
-        //   {
-        //     action: 'get-response-send-order-info',
-        //     isEbarimt: false,
-        //     payload: JSON.stringify(postData),
-        //     thirdService: true,
-        //     isJson: true
-        //   }
-        // );
-
-        // if (response.message || response.error) {
-        //   const txt = JSON.stringify({
-        //     message: response.message,
-        //     error: response.error
-        //   });
+      if (response.message || response.error) {
+        const txt = JSON.stringify({
+          message: response.message,
+          error: response.error,
+        });
 
         //   await sendPosMessage({
         //     subdomain,
@@ -291,12 +279,12 @@ const msdynamicSyncMutations = {
         // }
 
         result.success.push(order._id);
-      } catch (e) {
-        await models.SyncLogs.updateOne(
-          { _id: syncLog._id },
-          { $set: { error: e.message } }
-        );
       }
+    } catch (e) {
+      await models.SyncLogs.updateOne(
+        { _id: syncLog._id },
+        { $set: { error: e.message } }
+      );
     }
 
     return result;

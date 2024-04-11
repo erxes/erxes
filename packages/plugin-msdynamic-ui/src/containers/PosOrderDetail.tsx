@@ -7,6 +7,7 @@ import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../graphql';
 import { withProps } from '@erxes/ui/src';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
   order: any;
@@ -18,6 +19,10 @@ type FinalProps = {
 
 const OrdersDetailContainer = (props: FinalProps) => {
   const { orderDetailQuery } = props;
+
+  if (orderDetailQuery.loading) {
+    return <Spinner />;
+  }
 
   const order = orderDetailQuery.posOrderDetail;
 
