@@ -38,9 +38,6 @@ const CustomersContainer = (props: FinalProps) => {
   }
 
   const setSyncStatusTrue = (data: any, customers: any, action: string) => {
-    console.log(data[action].items, 'data[action].items');
-    console.log(customers, 'customers');
-
     data[action].items = data[action].items.map((i) => {
       if (customers.find((c) => c.No === i.No)) {
         const temp = i;
@@ -129,13 +126,13 @@ export default withProps<Props>(
       gql(mutations.toCheckCustomers),
       {
         name: 'toCheckMsdCustomers',
-      },
+      }
     ),
     graphql<Props, ToSyncCustomersMutationResponse, {}>(
       gql(mutations.toSyncCustomers),
       {
         name: 'toSyncMsdCustomers',
-      },
-    ),
-  )(CustomersContainer),
+      }
+    )
+  )(CustomersContainer)
 );
