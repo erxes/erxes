@@ -19,7 +19,6 @@ function ActionFilter({ queryParams }: Props) {
 
   const onClick = (action) => {
     router.setParams(navigate, location, { action: action.value });
-    router.removeParams(navigate, location, "page");
   };
 
   const content = (

@@ -37,7 +37,6 @@ function Users({ users = [], loading, loadMore, all, queryParams }: IProps) {
 
   const onClick = (userId) => {
     router.setParams(navigate, location, { userId });
-    router.removeParams(navigate, location, "page");
   };
 
   const search = (e) => {

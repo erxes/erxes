@@ -32,7 +32,7 @@ class Sidebar extends React.Component<Props> {
     const { loadingMainQuery, type } = this.props;
 
     return (
-      <Wrapper.Sidebar $hasBorder={true}>
+      <Wrapper.Sidebar hasBorder={true}>
         {isEnabled('segments') && (
           <SegmentFilter
             type={type}

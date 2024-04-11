@@ -22,7 +22,6 @@ function DateFilter({ queryParams }: Props) {
       const cDate = dayjs(date).format("YYYY-MM-DD HH:mm");
 
       router.setParams(navigate, location, { [kind]: cDate });
-      router.removeParams(navigate, location, "page");
     }
   };
 

@@ -253,7 +253,7 @@ class ConfirmDialog extends React.Component<Props, State> {
           </Transition.Child>
           <DialogWrapper>
             <DialogContent>
-              <Dialog.Panel className={`dialog-size-sm`}>
+              <Dialog.Panel className={`dialog-size-xs`}>
                 <Transition.Child>
                   <ModalBody>
                     <IconWrapper>

@@ -54,7 +54,7 @@ export default function Home(props: Props) {
     totalCount,
   } = props;
   const [searchValue, setSearchValue] = useState("");
-  const [active, setActive] = useState(true);
+  const [active, setActive] = useState(queryParams.isActive || true);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -82,7 +82,7 @@ export default function Home(props: Props) {
     status: OnChangeValue<{ label: string; value: boolean }, false>
   ) => {
     router.setParams(navigate, location, { isActive: status?.value });
-    setActive(status?.value || true);
+    setActive(status?.value && (!status?.value ? status?.value : true));
   };
 
   const renderBrandChooser = () => {
@@ -168,7 +168,8 @@ export default function Home(props: Props) {
             <Select
               placeholder={__("Choose status")}
               value={statusOptions.find(
-                (o) => o.value === (queryParams.isActive || true)
+                (o) =>
+                  o.value === (queryParams.isActive === "false" ? false : true)
               )}
               onChange={onStatusChange}
               isClearable={false}
