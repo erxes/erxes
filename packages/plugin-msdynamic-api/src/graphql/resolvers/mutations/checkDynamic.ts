@@ -563,7 +563,7 @@ const msdynamicCheckMutations = {
       timeout: 60000,
     }).then((r) => r.json());
 
-    const datas = response?.value || {};
+    const datas = response?.value;
 
     return (datas || []).map((data) => {
       const key = data.No;
