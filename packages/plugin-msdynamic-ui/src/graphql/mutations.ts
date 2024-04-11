@@ -53,8 +53,8 @@ const toSyncPrices = `
 `;
 
 const toCheckMsdSynced = `
-  mutation toCheckMsdSynced($ids: [String]) {
-    toCheckMsdSynced(ids: $ids) {
+  mutation toCheckMsdSynced($ids: [String], $brandId: String) {
+    toCheckMsdSynced(ids: $ids, brandId: $brandId) {
       _id
       isSynced
       syncedDate

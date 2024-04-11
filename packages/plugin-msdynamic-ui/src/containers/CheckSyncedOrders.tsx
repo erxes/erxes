@@ -47,7 +47,7 @@ const CheckSyncedOrdersContainer = (props: FinalProps) => {
   // remove action
   const checkSynced = async ({ orderIds }, emptyBulk) => {
     await toCheckMsdSynced({
-      variables: { ids: orderIds },
+      variables: { ids: orderIds, brandId: props.queryParams.brandId },
     })
       .then((response) => {
         emptyBulk();
