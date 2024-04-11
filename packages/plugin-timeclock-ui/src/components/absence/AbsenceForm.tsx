@@ -1,11 +1,6 @@
-import Button from "@erxes/ui/src/components/Button";
+import * as dayjs from "dayjs";
+
 import { Alert, __ } from "@erxes/ui/src/utils";
-import React, { useState } from "react";
-import Select from "react-select";
-import { FormControl } from "@erxes/ui/src/components/form";
-import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
-import { IAbsenceType } from "../../types";
-import Uploader from "@erxes/ui/src/components/Uploader";
 import {
   CustomRangeContainer,
   FlexCenter,
@@ -15,20 +10,27 @@ import {
   MarginY,
   ToggleDisplay,
 } from "../../styles";
-import { IAttachment } from "@erxes/ui/src/types";
-import DateControl from "@erxes/ui/src/components/form/DateControl";
-import Datetime from "@nateradebaugh/react-datetime";
-import Popover from "@erxes/ui/src/components/Popover";
-import { PopoverButton } from "@erxes/ui/src/styles/main";
-import Icon from "@erxes/ui/src/components/Icon";
-import { dateFormat } from "../../constants";
-import * as dayjs from "dayjs";
+import { IBranch, IDepartment } from "@erxes/ui/src/team/types";
+import React, { useState } from "react";
 import {
   compareStartAndEndTimeOfSingleDate,
   prepareCurrentUserOption,
 } from "../../utils";
+
+import Button from "@erxes/ui/src/components/Button";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import Datetime from "@nateradebaugh/react-datetime";
+import { FormControl } from "@erxes/ui/src/components/form";
+import { IAbsenceType } from "../../types";
+import { IAttachment } from "@erxes/ui/src/types";
 import { IUser } from "@erxes/ui/src/auth/types";
-import { IBranch, IDepartment } from "@erxes/ui/src/team/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import Popover from "@erxes/ui/src/components/Popover";
+import { PopoverButton } from "@erxes/ui/src/styles/main";
+import Select from "react-select";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import Uploader from "@erxes/ui/src/components/Uploader";
+import { dateFormat } from "../../constants";
 
 type Props = {
   currentUser: IUser;
@@ -242,7 +244,7 @@ export default (props: Props) => {
       value: ipt,
     }));
     return (
-      <FlexColumn marginNum={10}>
+      <FlexColumn $marginNum={10}>
         <Select
           value={options.find((o) => o.value === checkInOutType)}
           onChange={(e: any) => setCheckInOutType(e.value)}
@@ -416,7 +418,7 @@ export default (props: Props) => {
 
   const renderDateAndTimeSelection = (
     <FlexRowEven>
-      <FlexColumn marginNum={2}>
+      <FlexColumn $marginNum={2}>
         <div>Date:</div>
         <Datetime
           value={request.byTime.date}
@@ -425,7 +427,7 @@ export default (props: Props) => {
         />
       </FlexColumn>
 
-      <FlexColumn marginNum={2}>
+      <FlexColumn $marginNum={2}>
         <div>From:</div>
         <Datetime
           value={request.byTime.startTime}
@@ -437,7 +439,7 @@ export default (props: Props) => {
           onChange={(val) => onTimeChange(val, "start")}
         />
       </FlexColumn>
-      <FlexColumn marginNum={2}>
+      <FlexColumn $marginNum={2}>
         <div>To:</div>
         <Datetime
           value={request.byTime.endTime}
@@ -458,11 +460,11 @@ export default (props: Props) => {
     if (requestTimeByDay) {
       return (
         <FlexRow>
-          <FlexColumn marginNum={2}>
+          <FlexColumn $marginNum={2}>
             <div>Total days :</div>
             <div>Total hours :</div>
           </FlexColumn>
-          <FlexColumn marginNum={2}>
+          <FlexColumn $marginNum={2}>
             <div>{totalRequestedDays}</div>
             <div>{calculateTotalHoursOfAbsence()}</div>
           </FlexColumn>
@@ -487,7 +489,7 @@ export default (props: Props) => {
     }));
 
   return (
-    <FlexColumn marginNum={10}>
+    <FlexColumn $marginNum={10}>
       <ToggleDisplay display={requestTimeByDay}>
         <Popover
           placement="left-start"

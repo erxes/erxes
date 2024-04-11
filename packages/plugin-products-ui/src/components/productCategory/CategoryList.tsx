@@ -97,7 +97,7 @@ const List: React.FC<IProps> = (props) => {
         queryParams={queryParams}
         treeView={
           !["disabled", "archived"].includes(
-            router.getParam(history, ["status"])
+            router.getParam(location, ["status"])
           )
         }
         keyCount="productCount"

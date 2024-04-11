@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { __, router } from "@erxes/ui/src/utils";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { BarItems } from "@erxes/ui/src/layout/styles";
 import Button from "@erxes/ui/src/components/Button";
@@ -16,21 +17,18 @@ import { Title } from "@erxes/ui-settings/src/styles";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 import withTableWrapper from "@erxes/ui/src/components/table/withTableWrapper";
-import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   reports: IReport[];
   renderButton?: (props: IButtonMutateProps) => JSX.Element;
-  removeReports: (reportIds: string[], callback: any) => void;
+  removeReports: (reportIds: string[], callback?: any) => void;
   editReport?: (report: IReport) => void;
   loading: boolean;
 
   queryParams: any;
 };
 
-type FinalProps = Props;
-
-function List(props: FinalProps) {
+function List(props: Props) {
   const { reports, loading, queryParams, removeReports } = props;
   const [searchValue, setSearchvalue] = useState(queryParams.searchValue || "");
   const [chosenReportIds, setChosenReportIds] = useState<any>([]);
@@ -135,8 +133,6 @@ function List(props: FinalProps) {
     setChosenReportIds([]);
   };
 
-  const LeftSidebar = <SideBar {...props} />;
-
   const breadcrumb = [
     { title: __("Settings"), link: "/settings" },
     { title: __("Reports"), link: "/reports" },
@@ -205,7 +201,7 @@ function List(props: FinalProps) {
         />
       }
       transparent={true}
-      leftSidebar={LeftSidebar}
+      leftSidebar={<SideBar />}
       hasBorder
     />
   );

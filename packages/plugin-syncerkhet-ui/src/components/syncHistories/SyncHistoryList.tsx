@@ -8,8 +8,8 @@ import {
   Wrapper,
   __,
 } from "@erxes/ui/src";
-import { IQueryParams } from "@erxes/ui/src/types";
 
+import { IQueryParams } from "@erxes/ui/src/types";
 import React from "react";
 import SyncHistorySidebar from "./syncHistorySidebar";
 import { Title } from "@erxes/ui-settings/src/styles";
@@ -47,8 +47,7 @@ class SyncHistoryList extends React.Component<IProps, {}> {
   };
 
   render() {
-    const {  syncHistories, totalCount, loading, queryParams } =
-      this.props;
+    const { syncHistories, totalCount, loading, queryParams } = this.props;
 
     const tablehead = ["Date", "User", "Content Type", "Content", "Error"];
 
@@ -56,15 +55,16 @@ class SyncHistoryList extends React.Component<IProps, {}> {
       <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
         <thead>
           <tr>
-            {tablehead.map((p) => (
-              <th key={p}>{p || ""}</th>
+            {tablehead.map((p, i) => (
+              <th key={i}>{p || ""}</th>
             ))}
           </tr>
         </thead>
         <tbody id="orders">
-          {(syncHistories || []).map((item) => (
+          {(syncHistories || []).map((item, i) => (
             // tslint:disable-next-line:jsx-key
             <ModalTrigger
+              key={i}
               title="Sync erkhet information"
               trigger={
                 <tr key={item._id}>
@@ -109,10 +109,7 @@ class SyncHistoryList extends React.Component<IProps, {}> {
           />
         }
         leftSidebar={
-          <SyncHistorySidebar
-            queryParams={queryParams}
-            loading={loading}
-          />
+          <SyncHistorySidebar queryParams={queryParams} loading={loading} />
         }
         actionBar={
           <Wrapper.ActionBar

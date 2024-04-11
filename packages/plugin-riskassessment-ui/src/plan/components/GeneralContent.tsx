@@ -1,4 +1,5 @@
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import { CARDTYPES, STRUCTURETYPES } from "../common/constants";
+import { Column, DateContainer } from "@erxes/ui/src/styles/main";
 import {
   ControlLabel,
   DateControl,
@@ -6,15 +7,15 @@ import {
   FormGroup,
   __,
 } from "@erxes/ui/src";
+
+import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
 import { Columns } from "@erxes/ui/src/styles/chooser";
-import { Column, DateContainer } from "@erxes/ui/src/styles/main";
+import { FormContainer } from "../../styles";
 import React from "react";
 import Select from "react-select";
-import { FormContainer } from "../../styles";
-import { CARDTYPES, STRUCTURETYPES } from "../common/constants";
 import { SelectStructure } from "../common/utils";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 import { SelectTags } from "../../indicator/common/utils";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 type Props = {
   onChange: (value, name) => void;
   plan: any;
@@ -49,7 +50,7 @@ class GeneralConfig extends React.Component<Props, State> {
     };
 
     return (
-      <FormContainer padding="15px" column>
+      <FormContainer padding="15px" $column>
         <FormGroup>
           <ControlLabel required>{__("Name")}</ControlLabel>
           <FormControl

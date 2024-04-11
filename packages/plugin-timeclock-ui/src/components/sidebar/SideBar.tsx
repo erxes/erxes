@@ -1,7 +1,3 @@
-import { router, __ } from "@erxes/ui/src/utils";
-import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
-import React, { useState } from "react";
-import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import {
   FlexColumnCustom,
   FlexRow,
@@ -9,15 +5,20 @@ import {
   SidebarHeader,
   Trigger,
 } from "../../styles";
+import { IBranch, IDepartment } from "@erxes/ui/src/team/types";
+import React, { useState } from "react";
+import { __, router } from "@erxes/ui/src/utils";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
 import { CustomRangeContainer } from "../../styles";
 import DateControl from "@erxes/ui/src/components/form/DateControl";
-import Button from "@erxes/ui/src/components/Button";
-import Select from "react-select";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import { IBranch, IDepartment } from "@erxes/ui/src/team/types";
 import { IUser } from "@erxes/ui/src/auth/types";
+import Select from "react-select";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
 import { prepareCurrentUserOption } from "../../utils";
-import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   currentUser: IUser;
@@ -267,7 +268,7 @@ const LeftSideBar = (props: Props) => {
     return (
       <Trigger
         type="trigger"
-        isHoverActionBar={isHovered}
+        $isHoverActionBar={isHovered}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
       >
@@ -288,7 +289,7 @@ const LeftSideBar = (props: Props) => {
 
   return (
     <Sidebar wide={true} hasBorder={true} header={renderSidebarHeader()}>
-      <FlexColumnCustom marginNum={20}>
+      <FlexColumnCustom $marginNum={20}>
         {renderDateFilterMenu()}
         <div>
           <ControlLabel>Departments</ControlLabel>

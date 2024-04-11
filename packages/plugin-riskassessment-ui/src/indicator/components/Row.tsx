@@ -64,7 +64,7 @@ const TableRow = (props: IProps) => {
       <td>{name}</td>
       {isEnabled("tags") && (
         <td>
-          <FormContainer gapBetween={5} row maxItemsRow={3}>
+          <FormContainer $gapBetween={5} $row $maxItemsRow={3}>
             {(tags || []).map((tag) => (
               <Label key={tag._id} lblColor={tag.colorCode}>
                 {tag.name}

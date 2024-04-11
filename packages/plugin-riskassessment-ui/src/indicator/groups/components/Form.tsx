@@ -91,7 +91,7 @@ class Form extends React.Component<Props, State> {
     };
 
     return (
-      <FormContainer column gap>
+      <FormContainer $column $gap>
         <FormGroup>
           <ControlLabel>{__("Name")}</ControlLabel>
           <FormControl

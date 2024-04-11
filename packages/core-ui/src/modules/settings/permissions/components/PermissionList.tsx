@@ -8,9 +8,10 @@ import { __, router } from "modules/common/utils";
 import {
   correctValue,
   filterActions,
-  generatedList,
   generateModuleParams,
+  generatedList,
 } from "./utils";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import Button from "modules/common/components/Button";
 import DataWithLoader from "modules/common/components/DataWithLoader";
@@ -23,13 +24,12 @@ import PermissionFixer from "./PermissionFixer";
 import PermissionForm from "./PermissionForm";
 import PermissionRow from "./PermissionRow";
 import React from "react";
+import Select from "react-select";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import Table from "modules/common/components/table";
 import { Title } from "@erxes/ui-settings/src/styles";
 import Wrapper from "modules/layout/components/Wrapper";
-import Select from "react-select";
 import { isObject } from "util";
-import { useLocation } from "react-router-dom";
 
 type Props = {
   history: any;
@@ -50,12 +50,11 @@ type commonProps = {
 };
 
 const PermissionList = (props: Props) => {
+  const navigate = useNavigate();
   const location = useLocation();
 
   const setFilter = (name: string, item: generatedList) => {
-    const { history } = props;
-
-    router.setParams(history, location, {
+    router.setParams(navigate, location, {
       [name]: isObject(item) ? correctValue(item) : item,
       page: null,
       perPage: null,

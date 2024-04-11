@@ -1,18 +1,18 @@
-import { Alert, EmptyState, Spinner } from '@erxes/ui/src';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { gql } from '@apollo/client';
-import React from 'react';
-// import { withRouter } from 'react-router-dom';
-import ContractTypeDetails from '../components/ContractTypeDetails';
-import { mutations, queries } from '../graphql';
+import { Alert, EmptyState, Spinner } from "@erxes/ui/src";
 import {
   DetailQueryResponse,
   EditMutationResponse,
   IContractType,
   RemoveMutationResponse,
-} from '../types';
-import { useQuery, useMutation } from '@apollo/client';
+} from "../types";
+import { mutations, queries } from "../graphql";
+import { useMutation, useQuery } from "@apollo/client";
+
+import ContractTypeDetails from "../components/ContractTypeDetails";
+import { IUser } from "@erxes/ui/src/auth/types";
+import React from "react";
+import { gql } from "@apollo/client";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   id: string;
@@ -20,11 +20,11 @@ type Props = {
 
 type FinalProps = {
   currentUser: IUser;
-} & Props &
-  IRouterProps;
+} & Props;
 
 const ContractTypeDetailsContainer = (props: FinalProps) => {
-  const { id, currentUser, history } = props;
+  const { id, currentUser } = props;
+  const navigate = useNavigate();
 
   const contractTypeDetailQuery = useQuery<DetailQueryResponse>(
     gql(queries.contractTypeDetail),
@@ -32,22 +32,22 @@ const ContractTypeDetailsContainer = (props: FinalProps) => {
       variables: {
         _id: id,
       },
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
 
   const [contractTypesEdit] = useMutation<EditMutationResponse>(
     gql(mutations.contractTypesEdit),
     {
-      refetchQueries: ['savingsContractTypeDetail'],
-    },
+      refetchQueries: ["savingsContractTypeDetail"],
+    }
   );
 
   const [contractTypesRemove] = useMutation<RemoveMutationResponse>(
     gql(mutations.contractTypesRemove),
     {
-      refetchQueries: ['savingsContractTypesMain'],
-    },
+      refetchQueries: ["savingsContractTypesMain"],
+    }
   );
 
   const saveItem = (doc: IContractType, callback: (item) => void) => {
@@ -56,7 +56,7 @@ const ContractTypeDetailsContainer = (props: FinalProps) => {
         if (callback) {
           callback((data || {}).contractTypesEdit);
         }
-        Alert.success('You successfully updated contract type');
+        Alert.success("You successfully updated contract type");
       })
       .catch((error) => {
         Alert.error(error.message);
@@ -66,8 +66,8 @@ const ContractTypeDetailsContainer = (props: FinalProps) => {
   const remove = () => {
     contractTypesRemove({ variables: { contractTypeIds: [id] } })
       .then(() => {
-        Alert.success('You successfully deleted a contract');
-        history.push('/erxes-plugin-saving/contract-types');
+        Alert.success("You successfully deleted a contract");
+        navigate("/erxes-plugin-saving/contract-types");
       })
       .catch((e) => {
         Alert.error(e.message);

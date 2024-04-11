@@ -1,13 +1,3 @@
-import Attachment from "@erxes/ui/src/components/Attachment";
-import Button from "@erxes/ui/src/components/Button";
-import CollapseContent from "@erxes/ui/src/components/CollapseContent";
-import Icon from "@erxes/ui/src/components/Icon";
-import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
-import Table from "@erxes/ui/src/components/table";
-import { Tabs, TabTitle } from "@erxes/ui/src/components/tabs";
-import colors from "@erxes/ui/src/styles/colors";
-import { __ } from "@erxes/ui/src/utils/core";
-import React, { useState } from "react";
 import {
   CardBox,
   ColorBox,
@@ -17,10 +7,20 @@ import {
   TableRow,
   TriggerTabs,
 } from "../../styles";
-
+import React, { useState } from "react";
+import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
 import { removeParams, setParams } from "@erxes/ui/src/utils/router";
-import { DetailPopOver } from "../common/utils";
 import { useLocation, useNavigate } from "react-router-dom";
+
+import Attachment from "@erxes/ui/src/components/Attachment";
+import Button from "@erxes/ui/src/components/Button";
+import CollapseContent from "@erxes/ui/src/components/CollapseContent";
+import { DetailPopOver } from "../common/utils";
+import Icon from "@erxes/ui/src/components/Icon";
+import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
+import Table from "@erxes/ui/src/components/table";
+import { __ } from "@erxes/ui/src/utils/core";
+import colors from "@erxes/ui/src/styles/colors";
 
 type Props = {
   riskAssessment: any;
@@ -125,7 +125,7 @@ const Detail = (props: Props) => {
       >
         {assignedUsers.map((user) => (
           <div key={user._id}>
-            <FormContainer row spaceBetween>
+            <FormContainer $row $spaceBetween>
               <NameCard user={user} />
               {renderStatus(user?.submitStatus || "")}
             </FormContainer>
@@ -148,7 +148,7 @@ const Detail = (props: Props) => {
   const renderTable = ({ score, status, color }) => {
     return (
       <FormContent>
-        <FormContainer column>
+        <FormContainer $column>
           <Table>
             <thead>
               <TableRow>
@@ -318,9 +318,9 @@ const Detail = (props: Props) => {
   };
 
   return (
-    <FormContainer column gap>
-      <FormContainer row gap spaceBetween>
-        <FormContainer row gap>
+    <FormContainer $column $gap>
+      <FormContainer $row $gap $spaceBetween>
+        <FormContainer $row $gap>
           {renderCard({
             title: "Score",
             content: <h4>{detail.resultScore}</h4>,

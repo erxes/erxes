@@ -1,21 +1,21 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
+import { Alert, confirm, withProps } from "@erxes/ui/src/utils";
 import {
   ProductCategoriesCountQueryResponse,
   ProductCategoryRemoveMutationResponse,
-} from '../../types';
-import { mutations, queries } from '../../graphql';
+} from "../../types";
+import { mutations, queries } from "../../graphql";
 
-import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
-import List from '../../components/productCategory/CategoryList';
-import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
-import React from 'react';
-import { queries as brandQueries } from '@erxes/ui/src/brands/graphql';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
+import { BrandsQueryResponse } from "@erxes/ui/src/brands/types";
+import List from "../../components/productCategory/CategoryList";
+import { ProductCategoriesQueryResponse } from "@erxes/ui-products/src/types";
+import React from "react";
+import { queries as brandQueries } from "@erxes/ui/src/brands/graphql";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
 
-type Props = { history: any; queryParams: any };
+type Props = { queryParams: any };
 
 type FinalProps = {
   productCategoriesQuery: ProductCategoriesQueryResponse;
@@ -41,7 +41,7 @@ class ProductListContainer extends React.Component<FinalProps> {
             productCategoriesCountQuery.refetch();
 
             Alert.success(
-              `You successfully deleted a product & service category`,
+              `You successfully deleted a product & service category`
             );
           })
           .catch((error) => {
@@ -72,7 +72,7 @@ class ProductListContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return ['productCategories', 'productCategoriesTotalCount', 'products'];
+  return ["productCategories", "productCategoriesTotalCount", "products"];
 };
 
 const options = () => ({
@@ -84,7 +84,7 @@ export default withProps<Props>(
     graphql<Props, ProductCategoriesQueryResponse, { parentId: string }>(
       gql(queries.productCategories),
       {
-        name: 'productCategoriesQuery',
+        name: "productCategoriesQuery",
         options: ({ queryParams }) => ({
           variables: {
             status: queryParams.status,
@@ -92,25 +92,25 @@ export default withProps<Props>(
             parentId: queryParams.parentId,
           },
           refetchQueries: getRefetchQueries(),
-          fetchPolicy: 'network-only',
+          fetchPolicy: "network-only",
         }),
-      },
+      }
     ),
     graphql<Props, ProductCategoriesCountQueryResponse>(
       gql(queries.productCategoriesCount),
       {
-        name: 'productCategoriesCountQuery',
-      },
+        name: "productCategoriesCountQuery",
+      }
     ),
     graphql<Props, ProductCategoryRemoveMutationResponse, { _id: string }>(
       gql(mutations.productCategoryRemove),
       {
-        name: 'productCategoryRemove',
+        name: "productCategoryRemove",
         options,
-      },
+      }
     ),
     graphql<Props, BrandsQueryResponse, {}>(gql(brandQueries.brands), {
-      name: 'brandsQuery',
-    }),
-  )(ProductListContainer),
+      name: "brandsQuery",
+    })
+  )(ProductListContainer)
 );

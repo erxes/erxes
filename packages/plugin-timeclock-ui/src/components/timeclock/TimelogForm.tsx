@@ -1,5 +1,3 @@
-import React, { useState } from "react";
-import Select from "react-select";
 import { ControlLabel, FormControl } from "@erxes/ui/src/components/form";
 import {
   CustomRangeContainer,
@@ -10,13 +8,16 @@ import {
   ToggleDisplay,
 } from "../../styles";
 import { ITimeclock, ITimelog } from "../../types";
+import React, { useState } from "react";
+
+import { Alert } from "@erxes/ui/src/utils";
+import Button from "@erxes/ui/src/components/Button";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import Form from "@erxes/ui/src/components/form/Form";
+import { IFormProps } from "@erxes/ui/src/types";
+import Select from "react-select";
 import { dateAndTimeFormat } from "../../constants";
 import dayjs from "dayjs";
-import { IFormProps } from "@erxes/ui/src/types";
-import DateControl from "@erxes/ui/src/components/form/DateControl";
-import { Alert } from "@erxes/ui/src/utils";
-import Form from "@erxes/ui/src/components/form/Form";
-import Button from "@erxes/ui/src/components/Button";
 
 type Props = {
   timeclock: ITimeclock;
@@ -173,7 +174,7 @@ export const TimelogForm = (props: Props) => {
 
   const renderTimelogForm = (formProps: IFormProps) => {
     return (
-      <FlexColumn marginNum={20}>
+      <FlexColumn $marginNum={20}>
         <div>
           {timeclock.user &&
             timeclock.user.details &&

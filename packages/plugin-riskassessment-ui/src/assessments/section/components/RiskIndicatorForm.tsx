@@ -240,7 +240,7 @@ class IndicatorForm extends React.Component<Props, State> {
           operationId={operationId}
           setHistory={setHistory}
         />
-        <Padding horizontal>
+        <Padding $horizontal>
           {(fields || []).map((field) => (
             <>
               {this.renderField(field)}

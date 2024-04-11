@@ -1,9 +1,4 @@
-import React, { useState } from "react";
-import Dialog from "@erxes/ui/src/components/Dialog";
-import DateControl from "@erxes/ui/src/components/form/DateControl";
 import { ControlLabel, FormControl } from "@erxes/ui/src/components/form";
-import Button from "@erxes/ui/src/components/Button";
-import { Alert } from "@erxes/ui/src/utils";
 import {
   CustomRangeContainer,
   FlexCenter,
@@ -11,6 +6,12 @@ import {
   FlexRow,
   FlexRowEven,
 } from "../../styles";
+import React, { useState } from "react";
+
+import { Alert } from "@erxes/ui/src/utils";
+import Button from "@erxes/ui/src/components/Button";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import Dialog from "@erxes/ui/src/components/Dialog";
 
 type Props = {
   timeclock: any;
@@ -111,7 +112,7 @@ const TimeclockEditForm = ({
       closeModal={() => setShowModal(false)}
       title="Edit Timeclock"
     >
-      <FlexColumn marginNum={20}>
+      <FlexColumn $marginNum={20}>
         <FlexRow>
           <ControlLabel>In Device</ControlLabel>
           <ControlLabel>Location</ControlLabel>

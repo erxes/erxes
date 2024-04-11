@@ -1,6 +1,3 @@
-import React, { useState } from "react";
-import { DefaultWrapper, SelectCustomFields } from "../../common/utils";
-import { cardTypes, subMenu } from "../../common/constants";
 import {
   BarItems,
   Button,
@@ -15,13 +12,17 @@ import {
   __,
   confirm,
 } from "@erxes/ui/src";
+import { DefaultWrapper, SelectCustomFields } from "../../common/utils";
+import { Padding, SidebarHeader } from "../../styles";
+import React, { useState } from "react";
+import { cardTypes, subMenu } from "../../common/constants";
+import { removeParams, setParams } from "@erxes/ui/src/utils/router";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
 import Form from "../containers/Form";
 import Row from "./Row";
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
-import { removeParams, setParams } from "@erxes/ui/src/utils/router";
 import Select from "react-select";
-import { SidebarHeader, Padding } from "../../styles";
-import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
@@ -142,7 +143,7 @@ const List = (props: Props) => {
       full
       header={<SidebarHeader>{__("Addition Filters")}</SidebarHeader>}
     >
-      <Padding horizontal>
+      <Padding $horizontal>
         <FormGroup>
           <ControlLabel>{__("Type")}</ControlLabel>
           <Select

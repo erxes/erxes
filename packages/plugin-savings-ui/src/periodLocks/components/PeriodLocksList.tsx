@@ -22,8 +22,8 @@ import { PeriodLocksTableWrapper } from "../styles";
 import { __ } from "coreui/utils";
 import { can } from "@erxes/ui/src/utils/core";
 import { menuContracts } from "../../constants";
-import withConsumer from "../../withConsumer";
 import { useNavigate } from "react-router-dom";
+import withConsumer from "../../withConsumer";
 
 interface IProps {
   periodLocks: IPeriodLock[];
@@ -124,7 +124,6 @@ const PeriodLocksList = (props: IProps) => {
               periodLock={periodLock}
               isChecked={bulk.includes(periodLock)}
               key={periodLock._id}
-              history={history}
               toggleBulk={toggleBulk}
             />
           ))}

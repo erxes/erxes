@@ -131,7 +131,7 @@ const ReportFormModal = (props: Props) => {
           />
         </div>
 
-        <FlexRow justifyContent="space-between">
+        <FlexRow $justifyContent="space-between">
           <ControlLabel>Visibility</ControlLabel>
           <CenterBar>
             <Tabs full={true}>
@@ -164,7 +164,7 @@ const ReportFormModal = (props: Props) => {
               return (
                 <FlexRow
                   key={chartTemplate.templateType}
-                  justifyContent="space-between"
+                  $justifyContent="space-between"
                 >
                   <ControlLabel>{chartTemplate.name}</ControlLabel>
                   <FormControl

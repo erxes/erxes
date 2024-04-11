@@ -123,7 +123,6 @@ const ContractTypesList = (props: IProps) => {
               contractType={contractType}
               isChecked={bulk.includes(contractType)}
               key={contractType._id}
-              history={history}
               toggleBulk={toggleBulk}
             />
           ))}

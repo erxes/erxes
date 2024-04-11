@@ -1,19 +1,20 @@
-import { ICommonFormProps } from "@erxes/ui-settings/src/common/types";
-import { EmptyState } from "@erxes/ui/src";
-import { Alert, confirm } from "@erxes/ui/src/utils";
-import { withProps } from "@erxes/ui/src/utils/core";
-import { gql } from "@apollo/client";
 import * as compose from "lodash.flowright";
-import React from "react";
-import { graphql } from "@apollo/client/react/hoc";
-import { ICommonListProps } from "../../common/types";
+
+import { Alert, confirm } from "@erxes/ui/src/utils";
 import {
   RiskIndicatorsListQueryResponse,
   RiskIndicatorsTotalCountQueryResponse,
 } from "../common/types";
-import { generateParams } from "../common/utils";
-import List from "../components/List";
 import { mutations, queries } from "../graphql";
+
+import { ICommonFormProps } from "@erxes/ui-settings/src/common/types";
+import { ICommonListProps } from "../../common/types";
+import List from "../components/List";
+import React from "react";
+import { generateParams } from "../common/utils";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { withProps } from "@erxes/ui/src/utils/core";
 
 type Props = {
   queryParams: any;
@@ -32,11 +33,7 @@ class ListContainer extends React.Component<FinalProps> {
     const { removeMutation, duplicateMutation, listQuery, totalCountQuery } =
       this.props;
 
-    const { riskIndicators, loading, error } = listQuery;
-
-    if (error) {
-      return <EmptyState icon="info-circle" text={error} />;
-    }
+    const { riskIndicators, loading } = listQuery;
 
     const remove = (_ids: string[]) => {
       confirm("Are you sure?").then(() => {

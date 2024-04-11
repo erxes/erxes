@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import { ControlLabel, FormControl } from "@erxes/ui/src/components/form";
 import {
   CustomRangeContainer,
@@ -7,12 +6,14 @@ import {
   FlexRow,
   FlexRowEven,
 } from "../../styles";
-import { ITimeclock } from "../../types";
-import { IFormProps } from "@erxes/ui/src/types";
-import DateControl from "@erxes/ui/src/components/form/DateControl";
+import React, { useState } from "react";
+
 import { Alert } from "@erxes/ui/src/utils";
-import Form from "@erxes/ui/src/components/form/Form";
 import Button from "@erxes/ui/src/components/Button";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import Form from "@erxes/ui/src/components/form/Form";
+import { IFormProps } from "@erxes/ui/src/types";
+import { ITimeclock } from "../../types";
 
 type Props = {
   timeclock: ITimeclock;
@@ -105,7 +106,7 @@ export const TimeEditForm = (props: Props) => {
 
   const renderTimelogForm = (formProps: IFormProps) => {
     return (
-      <FlexColumn marginNum={20}>
+      <FlexColumn $marginNum={20}>
         <div>
           {timeclock.user &&
             timeclock.user.details &&

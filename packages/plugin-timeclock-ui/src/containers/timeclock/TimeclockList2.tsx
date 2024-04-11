@@ -1,19 +1,21 @@
-import React from 'react';
+import * as compose from "lodash.flowright";
 
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { withProps } from '@erxes/ui/src/utils/core';
-import * as compose from 'lodash.flowright';
-import TimeclockList from '../../components/timeclock/TimeclockList2';
-import { queries, mutations } from '../../graphql';
 import {
   ReportByUsersQueryResponse,
   TimeClockMutationResponse,
-} from '../../types';
-import { generateParams } from '../../utils';
-import { Alert } from '@erxes/ui/src/utils';
-import { IUser } from '@erxes/ui/src/auth/types';
+} from "../../types";
+import { mutations, queries } from "../../graphql";
+
+import { Alert } from "@erxes/ui/src/utils";
+import { IUser } from "@erxes/ui/src/auth/types";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import TimeclockList from "../../components/timeclock/TimeclockList2";
+import { generateParams } from "../../utils";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { withProps } from "@erxes/ui/src/utils/core";
+
 type Props = {
   currentUser: IUser;
   queryParams: any;
@@ -49,12 +51,12 @@ const TimeclockContainer = (props: FinalProps) => {
 
   const timeclockEdit = (variables: any) => {
     timeclockEditMutation({ variables })
-      .then(() => Alert.success('Successfully edited timeclock'))
+      .then(() => Alert.success("Successfully edited timeclock"))
       .catch((err) => Alert.error(err.message));
   };
 
   const { list = [], totalCount } =
-    listReportByUsersQuery?.timeclockReportByUsers;
+    listReportByUsersQuery?.timeclockReportByUsers || {};
 
   return (
     <TimeclockList
@@ -75,7 +77,7 @@ const TimeclockContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql<any>(gql(queries.timeclockReportByUsers), {
-      name: 'listReportByUsersQuery',
+      name: "listReportByUsersQuery",
       options: ({ queryParams, isCurrentUserAdmin }) => ({
         variables: {
           ...generateParams(queryParams),
@@ -84,10 +86,10 @@ export default withProps<Props>(
       }),
     }),
     graphql<Props>(gql(mutations.timeclockEdit), {
-      name: 'timeclockEditMutation',
+      name: "timeclockEditMutation",
       options: {
-        refetchQueries: ['timeclocksMain', 'timeclockReportByUsers'],
+        refetchQueries: ["timeclocksMain", "timeclockReportByUsers"],
       },
-    }),
-  )(TimeclockContainer),
+    })
+  )(TimeclockContainer)
 );

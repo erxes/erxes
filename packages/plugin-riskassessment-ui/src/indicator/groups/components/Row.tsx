@@ -5,6 +5,7 @@ import { FormContainer } from "../../../styles";
 import { IIndicatorsGroups } from "../common/types";
 import React from "react";
 import moment from "moment";
+
 type Props = {
   indicatorsGroups: IIndicatorsGroups;
   selectedItems: string[];
@@ -36,7 +37,7 @@ class Row extends React.Component<Props> {
         </td>
         <td>{__(indicatorsGroups.name)}</td>
         <td>
-          <FormContainer gapBetween={5} row maxItemsRow={3}>
+          <FormContainer $gapBetween={5} $row $maxItemsRow={3}>
             {(indicatorsGroups?.tags || []).map((tag) => (
               <Label key={tag._id} lblColor={tag.colorCode}>
                 {tag.name}

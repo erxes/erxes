@@ -1,13 +1,13 @@
-import { Button, formatValue, FormControl, ModalTrigger } from "@erxes/ui/src";
-import _ from "lodash";
-import React from "react";
+import { Button, FormControl, ModalTrigger, formatValue } from "@erxes/ui/src";
 
 import ContractTypeForm from "../containers/ContractTypeForm";
 import { IContractType } from "../types";
+import React from "react";
+import _ from "lodash";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   contractType: IContractType;
-  history: any;
   isChecked: boolean;
   toggleBulk: (contractType: IContractType, isChecked?: boolean) => void;
 };
@@ -47,9 +47,11 @@ function renderEditAction(contractType: IContractType) {
 }
 
 function ContractTypeRow(
-  { contractType, history, isChecked, toggleBulk }: Props,
+  { contractType, isChecked, toggleBulk }: Props,
   { showModal }: State
 ) {
+  const navigate = useNavigate();
+
   const onChange = (e) => {
     if (toggleBulk) {
       toggleBulk(contractType, e.target.checked);
@@ -61,9 +63,7 @@ function ContractTypeRow(
   };
 
   const onTrClick = () => {
-    history.push(
-      `/erxes-plugin-saving/contract-type-details/${contractType._id}`
-    );
+    navigate(`/erxes-plugin-saving/contract-type-details/${contractType._id}`);
   };
 
   return (

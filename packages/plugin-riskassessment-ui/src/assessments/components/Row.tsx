@@ -17,7 +17,7 @@ import moment from "moment";
 
 type Props = {
   item: any;
-  selecteAssessmentIds: string[];
+  selectedAssessmentIds: string[];
   handleSelect: (id: string) => void;
   queryParams: any;
 };
@@ -30,11 +30,11 @@ class Row extends React.Component<Props> {
   renderPopOver(title, contents, group) {
     return (
       <DetailPopOver title={title} icon="downarrow-2" withoutPopoverTitle>
-        <FormContainer column>
+        <FormContainer $column>
           {group && (
             <ControlLabel>{`Group Name: ${group?.name || ""}`}</ControlLabel>
           )}
-          <FormContainer gapBetween={5}>
+          <FormContainer $gapBetween={5}>
             {(contents || []).map((item) => (
               <Label key={item?._id}>{__(item?.name)}</Label>
             ))}
@@ -45,17 +45,12 @@ class Row extends React.Component<Props> {
   }
 
   render() {
-    const { item, selecteAssessmentIds, handleSelect, queryParams } =
+    const { item, selectedAssessmentIds, handleSelect, queryParams } =
       this.props;
 
     const renderDetail = (item) => {
       const content = () => {
-        return (
-          <Detail
-            riskAssessment={item}
-            queryParams={queryParams}
-          />
-        );
+        return <Detail riskAssessment={item} queryParams={queryParams} />;
       };
 
       const trigger = (
@@ -86,7 +81,7 @@ class Row extends React.Component<Props> {
         <td onClick={onclick}>
           <FormControl
             componentclass="checkbox"
-            checked={selecteAssessmentIds.includes(item?._id)}
+            checked={selectedAssessmentIds.includes(item?._id)}
             onChange={() => handleSelect(item?._id)}
           />
         </td>

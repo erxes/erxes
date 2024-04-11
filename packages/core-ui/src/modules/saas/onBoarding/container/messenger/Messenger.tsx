@@ -1,18 +1,20 @@
-import React from 'react';
+import * as compose from "lodash.flowright";
 
-import * as compose from 'lodash.flowright';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { Alert, router } from 'modules/common/utils';
-import Messenger from 'modules/saas/onBoarding/components/messenger/Messenger';
 import {
   AddIntegrationMutationResponse,
   AddIntegrationMutationVariables,
   EditIntegrationMutationResponse,
   EditIntegrationMutationVariables,
-} from 'modules/saas/onBoarding/types';
-import { mutations } from 'modules/saas/onBoarding/graphql';
-import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
+} from "modules/saas/onBoarding/types";
+import { Alert, router } from "modules/common/utils";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import { IIntegration } from "@erxes/ui-inbox/src/settings/integrations/types";
+import Messenger from "modules/saas/onBoarding/components/messenger/Messenger";
+import React from "react";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { mutations } from "modules/saas/onBoarding/graphql";
 
 type Props = {
   history: any;
@@ -28,16 +30,15 @@ type FinalProps = {} & Props &
   EditIntegrationMutationResponse;
 
 function MessengerContainer(props: FinalProps) {
-  const {
-    addIntegrationMutation,
-    editIntegrationMutation,
-    integration,
-    history,
-  } = props;
+  const { addIntegrationMutation, editIntegrationMutation, integration } =
+    props;
+
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const integrationSave = (doc: any, _id?: string) => {
     if (!doc.brandName) {
-      Alert.error('BrandName can not be empty');
+      Alert.error("BrandName can not be empty");
     }
 
     if (_id) {
@@ -45,7 +46,7 @@ function MessengerContainer(props: FinalProps) {
         variables: { _id, ...doc },
       })
         .then(() => {
-          router.setParams(history, { steps: 3 });
+          router.setParams(navigate, location, { steps: 3 });
         })
         .catch((e) => {
           Alert.error(e.message);
@@ -55,12 +56,12 @@ function MessengerContainer(props: FinalProps) {
     if (!_id) {
       addIntegrationMutation({
         variables: {
-          languageCode: 'en',
+          languageCode: "en",
           ...doc,
         },
       })
         .then(() => {
-          router.setParams(history, { steps: 3 });
+          router.setParams(navigate, location, { steps: 3 });
         })
 
         .catch((error) => {
@@ -84,14 +85,14 @@ export default compose(
     AddIntegrationMutationResponse,
     AddIntegrationMutationVariables
   >(gql(mutations.addMessengerOnboarding), {
-    name: 'addIntegrationMutation',
-    options: { refetchQueries: ['integrations'] },
+    name: "addIntegrationMutation",
+    options: { refetchQueries: ["integrations"] },
   }),
   graphql<
     Props,
     EditIntegrationMutationResponse,
     EditIntegrationMutationVariables
   >(gql(mutations.editMessengerOnboarding), {
-    name: 'editIntegrationMutation',
-  }),
+    name: "editIntegrationMutation",
+  })
 )(MessengerContainer);

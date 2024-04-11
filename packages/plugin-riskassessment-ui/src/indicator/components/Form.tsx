@@ -1,4 +1,3 @@
-import { gql } from "@apollo/client";
 import {
   BarItems,
   Button,
@@ -15,37 +14,39 @@ import {
   __,
   confirm,
 } from "@erxes/ui/src";
-import client from "@erxes/ui/src/apolloClient";
-import {
-  ControlWrapper,
-  StepWrapper,
-} from "@erxes/ui/src/components/step/styles";
+import { COLORS, calculateMethods } from "../../common/constants";
 import {
   ColorPick,
   ColorPicker,
   FormColumn,
   FormWrapper,
 } from "@erxes/ui/src/styles/main";
-import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
-import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
-import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-import { isEnabled } from "@erxes/ui/src/utils/core";
-import React from "react";
-import Popover from "@erxes/ui/src/components/Popover";
-import TwitterPicker from "react-color/lib/Twitter";
-import Select from "react-select";
-import { COLORS, calculateMethods } from "../../common/constants";
-import { SelectOperations } from "../../common/utils";
 import {
   CommonFormContainer,
   FormContainer,
   FormContent,
   Header,
 } from "../../styles";
+import {
+  ControlWrapper,
+  StepWrapper,
+} from "@erxes/ui/src/components/step/styles";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import { RiskCalculateLogicType, RiskIndicatorsType } from "../common/types";
-import { SelectTags } from "../common/utils";
-import { mutations } from "../graphql";
+
 import FormItem from "./FormItem";
+import Popover from "@erxes/ui/src/components/Popover";
+import React from "react";
+import Select from "react-select";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import { SelectOperations } from "../../common/utils";
+import { SelectTags } from "../common/utils";
+import TwitterPicker from "react-color/lib/Twitter";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { mutations } from "../graphql";
 
 type Props = {
   detail?: RiskIndicatorsType;
@@ -241,7 +242,7 @@ class Form extends React.Component<Props, State> {
           </FormControl>
         </FormColumn>
         <FormColumn>
-          <FormContainer row gap align="center">
+          <FormContainer $row $gap align="center">
             <FormControl
               name="value"
               type="number"
@@ -412,7 +413,7 @@ class Form extends React.Component<Props, State> {
     };
 
     return (
-      <FormContainer column gap style={{ padding: 10 }}>
+      <FormContainer $column $gap style={{ padding: 10 }}>
         <FormGroup>
           <ControlLabel required>{__("Name")}</ControlLabel>
           <FormControl
@@ -448,7 +449,7 @@ class Form extends React.Component<Props, State> {
           </FormGroup>
         )}
 
-        <FormContainer row flex gap>
+        <FormContainer $row $flex $gap>
           <FormGroup>
             <ControlLabel>{__("Branches")}</ControlLabel>
             <SelectBranches
@@ -510,10 +511,10 @@ class Form extends React.Component<Props, State> {
     };
 
     return (
-      <FormContainer column gap style={{ padding: 10 }}>
+      <FormContainer $column $gap style={{ padding: 10 }}>
         {this.renderGeneralFormsLogics(formProps)}
         <FormWrapper>
-          <FormContainer row gap align="center">
+          <FormContainer $row $gap align="center">
             <Toggle
               onChange={toggleWithDescription}
               checked={riskIndicator?.isWithDescription}

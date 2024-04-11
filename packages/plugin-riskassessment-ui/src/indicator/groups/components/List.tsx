@@ -9,15 +9,15 @@ import {
   router,
 } from "@erxes/ui/src";
 import { FlexRow, HeaderContent } from "../../../styles";
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { DefaultWrapper } from "../../../common/utils";
 import Form from "../containers/Form";
 import { IIndicatorsGroups } from "../common/types";
-import React, { useState } from "react";
 import Row from "./Row";
 import Sidebar from "../../components/SideBar";
 import { subMenu } from "../../../common/constants";
-import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
@@ -96,7 +96,7 @@ const List = (props: Props) => {
 
     const selectAll = () => {
       if (!selectedItems.length) {
-        const ids = list.map((item) => item._id);
+        const ids = (list || []).map((item) => item._id);
         return setSelectedItems(ids);
       }
 
@@ -126,7 +126,7 @@ const List = (props: Props) => {
           </tr>
         </thead>
         <tbody>
-          {list.map((item) => (
+          {(list || []).map((item) => (
             <Row
               key={item._id}
               indicatorsGroups={item}

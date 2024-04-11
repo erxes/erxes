@@ -96,7 +96,7 @@ class Form extends React.Component<Props, State> {
       <ListItem key={item._id}>
         <Columns>
           <Column>
-            <FormContainer row gap flex>
+            <FormContainer $row $gap $flex>
               <FormGroup>
                 <ControlLabel>{__("Branches")}</ControlLabel>
                 <SelectBranches
@@ -151,7 +151,7 @@ class Form extends React.Component<Props, State> {
               )}
             </FormGroup>
             {this.renderSplitAssignedUsers(item)}
-            <FormContainer row>
+            <FormContainer $row>
               <FormGroup>
                 <FormControl
                   name="useIndicator"

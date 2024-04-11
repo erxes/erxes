@@ -1,13 +1,4 @@
-import Button from "@erxes/ui/src/components/Button";
-import { ITimeclock } from "../../types";
-import Row from "./TimeclockRow";
 import { Alert, __ } from "@erxes/ui/src/utils";
-import React, { useState } from "react";
-import { Title } from "@erxes/ui-settings/src/styles";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import Table from "@erxes/ui/src/components/table";
-import TimeForm from "../../containers/timeclock/TimeFormList";
 import {
   CustomRangeContainer,
   FlexCenter,
@@ -19,15 +10,25 @@ import {
   ToggleButton,
   ToggleDisplay,
 } from "../../styles";
-import DateControl from "@erxes/ui/src/components/form/DateControl";
-import { ControlLabel } from "@erxes/ui/src/components/form";
-import Pagination from "@erxes/ui/src/components/pagination/Pagination";
-import { isEnabled, loadDynamicComponent } from "@erxes/ui/src/utils/core";
-import { IUser } from "@erxes/ui/src/auth/types";
 import { IBranch, IDepartment } from "@erxes/ui/src/team/types";
+import React, { useState } from "react";
+import { isEnabled, loadDynamicComponent } from "@erxes/ui/src/utils/core";
+
+import Button from "@erxes/ui/src/components/Button";
+import { ControlLabel } from "@erxes/ui/src/components/form";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import { ITimeclock } from "../../types";
+import { IUser } from "@erxes/ui/src/auth/types";
 import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import Row from "./TimeclockRow";
 import Select from "react-select";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import Table from "@erxes/ui/src/components/table";
+import TimeForm from "../../containers/timeclock/TimeFormList";
+import { Title } from "@erxes/ui-settings/src/styles";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { prepareCurrentUserOption } from "../../utils";
 
 type Props = {
@@ -211,7 +212,7 @@ function List(props: Props) {
     })
   );
   const extractContent = (contentProps) => (
-    <FlexColumnCustom marginNum={10}>
+    <FlexColumnCustom $marginNum={10}>
       <div>
         <ControlLabel>Select Date Range</ControlLabel>
         <CustomRangeContainer>
@@ -305,7 +306,7 @@ function List(props: Props) {
     <FlexRowLeft>
       <ToggleButton
         id="btn-inbox-channel-visible"
-        isActive={isSideBarOpen}
+        $isActive={isSideBarOpen}
         onClick={onToggleSidebar}
       >
         <Icon icon="subject" />

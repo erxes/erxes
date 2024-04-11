@@ -1,43 +1,42 @@
-import Button from "@erxes/ui/src/components/Button";
-import React, { useState, useEffect } from "react";
-import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
-import DateRange from "../datepicker/DateRange";
-import dayjs from "dayjs";
-import DatePicker from "../datepicker/DatePicker";
+import * as icons from "react-bootstrap-icons";
+
+import { Alert, __ } from "@erxes/ui/src/utils";
 import {
-  IScheduleForm,
-  IScheduleConfig,
-  IScheduleConfigOrder,
-  ISchedule,
-} from "../../types";
-import Select from "react-select";
-import SelectDepartments from "@erxes/ui-settings/src/departments/containers/SelectDepartments";
-import {
+  CustomContainer,
   FlexCenter,
   FlexColumn,
   FlexRow,
   MarginX,
   MarginY,
   SortItem,
-  CustomContainer,
 } from "../../styles";
+import { IBranch, IDepartment } from "@erxes/ui/src/team/types";
+import {
+  ISchedule,
+  IScheduleConfig,
+  IScheduleConfigOrder,
+  IScheduleForm,
+} from "../../types";
+import React, { useEffect, useState } from "react";
+import { compareStartAndEndTime, prepareCurrentUserOption } from "../../utils";
+import { dateFormat, timeFormat } from "../../constants";
 
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import DatePicker from "../datepicker/DatePicker";
+import DateRange from "../datepicker/DateRange";
+import Datetime from "@nateradebaugh/react-datetime";
+import { FormControl } from "@erxes/ui/src/components/form";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Icon from "@erxes/ui/src/components/Icon";
 import Popover from "@erxes/ui/src/components/Popover";
 import { PopoverButton } from "@erxes/ui/src/styles/main";
-import Icon from "@erxes/ui/src/components/Icon";
-
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
 import { Row } from "../../styles";
-import { IBranch, IDepartment } from "@erxes/ui/src/team/types";
-import { Alert, __ } from "@erxes/ui/src/utils";
-import { compareStartAndEndTime, prepareCurrentUserOption } from "../../utils";
-import Datetime from "@nateradebaugh/react-datetime";
-import { dateFormat, timeFormat } from "../../constants";
-import { IUser } from "@erxes/ui/src/auth/types";
-import { FormControl } from "@erxes/ui/src/components/form";
-
-import * as icons from "react-bootstrap-icons";
+import Select from "react-select";
+import SelectDepartments from "@erxes/ui-settings/src/departments/containers/SelectDepartments";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import dayjs from "dayjs";
 
 type Props = {
   currentUser: IUser;
@@ -535,7 +534,7 @@ function ScheduleForm(props: Props) {
 
   const renderWeekDays = () => {
     return (
-      <FlexColumn marginNum={5}>
+      <FlexColumn $marginNum={5}>
         {Object.keys(scheduleDates).map((i) => {
           return (
             <DatePicker
@@ -581,7 +580,7 @@ function ScheduleForm(props: Props) {
   };
 
   const dateSelection = () => (
-    <FlexColumn marginNum={20}>
+    <FlexColumn $marginNum={20}>
       <FlexRow>
         <div style={{ width: "60%" }}>
           <Popover
@@ -602,7 +601,7 @@ function ScheduleForm(props: Props) {
   );
 
   const modalContent = () => (
-    <FlexColumn marginNum={10}>
+    <FlexColumn $marginNum={10}>
       <SelectTeamMembers
         customField="employeeId"
         filterParams={filterParams}
@@ -645,13 +644,13 @@ function ScheduleForm(props: Props) {
         <div style={{ width: "35%" }}>
           <FlexRow>
             <MarginX margin={20}>
-              <FlexColumn marginNum={0}>
+              <FlexColumn $marginNum={0}>
                 <div>Total days :</div>
                 <div>Total hours :</div>
                 <div>Total break:</div>
               </FlexColumn>
             </MarginX>
-            <FlexColumn marginNum={0}>
+            <FlexColumn $marginNum={0}>
               <div>{calculateScheduledDaysAndHours()[0]}</div>
               <div>{calculateScheduledDaysAndHours()[1]}</div>
               <div>{(totalBreakMins / 60).toFixed(1)}</div>
@@ -792,7 +791,7 @@ function ScheduleForm(props: Props) {
     );
 
     return (
-      <FlexColumn marginNum={10}>
+      <FlexColumn $marginNum={10}>
         <div style={{ marginBottom: "0" }}>
           <SelectDepartments
             disabled={scheduleId ? true : false}
@@ -953,7 +952,7 @@ function ScheduleForm(props: Props) {
   );
   const adminConfigByDateRange = () => {
     return (
-      <FlexColumn marginNum={20}>
+      <FlexColumn $marginNum={20}>
         <FlexRow>
           <div style={{ width: "60%" }}>
             <DateRange
@@ -1077,7 +1076,7 @@ function ScheduleForm(props: Props) {
   };
 
   const adminConfigBySelect = () => (
-    <FlexColumn marginNum={20}>
+    <FlexColumn $marginNum={20}>
       <FlexRow>
         <div style={{ width: "60%" }}>
           <Popover

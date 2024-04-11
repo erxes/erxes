@@ -1,18 +1,19 @@
-import Assignees from '@erxes/ui-cards/src/boards/components/Assignees';
-import { ActivityDate } from '@erxes/ui-log/src/activityLogs/styles';
 import {
   BarItems,
   Button,
   ModalTrigger,
   Tip,
   Wrapper,
-  __
-} from '@erxes/ui/src';
-import dayjs from 'dayjs';
-import React from 'react';
-import { FormContainer, ScheduleCard } from '../../styles';
-import { Config, IPLan, ISchedule } from '../common/types';
-import ScheduleForm from './ScheduleForm';
+  __,
+} from "@erxes/ui/src";
+import { Config, IPLan, ISchedule } from "../common/types";
+import { FormContainer, ScheduleCard } from "../../styles";
+
+import { ActivityDate } from "@erxes/ui-log/src/activityLogs/styles";
+import Assignees from "@erxes/ui-cards/src/boards/components/Assignees";
+import React from "react";
+import ScheduleForm from "./ScheduleForm";
+import dayjs from "dayjs";
 
 type Props = {
   removeSchedule: (_id) => void;
@@ -27,13 +28,13 @@ class SchedulesConfig extends React.Component<Props> {
   }
 
   renderDuplicateForm(props) {
-    const onClick = e => {
+    const onClick = (e) => {
       e.stopPropagation();
     };
 
     const trigger = (
       <Button btnStyle="link" onClick={onClick} icon="files-landscapes-alt">
-        {__('Duplicate')}
+        {__("Duplicate")}
       </Button>
     );
 
@@ -41,7 +42,7 @@ class SchedulesConfig extends React.Component<Props> {
       const updatedProps = {
         ...props,
         closeModal,
-        duplicate: true
+        duplicate: true,
       };
 
       return <ScheduleForm {...updatedProps} />;
@@ -60,13 +61,13 @@ class SchedulesConfig extends React.Component<Props> {
   renderEditForm(props) {
     const trigger = (
       <Button btnStyle="link" icon="file-edit-alt">
-        {__('Edit')}
+        {__("Edit")}
       </Button>
     );
     const content = ({ closeModal }) => {
       const updatedProps = {
         ...props,
-        closeModal
+        closeModal,
       };
       return <ScheduleForm {...updatedProps} />;
     };
@@ -85,11 +86,11 @@ class SchedulesConfig extends React.Component<Props> {
     const { plan, refetch } = this.props;
     const { configs, status } = plan;
 
-    if (plan.status === 'archived') {
+    if (plan.status === "archived") {
       return null;
     }
 
-    const trigger = <Button btnStyle="success">{__('Add')}</Button>;
+    const trigger = <Button btnStyle="success">{__("Add")}</Button>;
 
     const content = ({ closeModal }) => {
       const updatedProps = {
@@ -97,7 +98,7 @@ class SchedulesConfig extends React.Component<Props> {
         closeModal,
         cardType: configs?.cardType,
         pipelineId: configs.pipelineId,
-        refetch
+        refetch,
       };
 
       return <ScheduleForm {...updatedProps} />;
@@ -117,7 +118,7 @@ class SchedulesConfig extends React.Component<Props> {
     const { removeSchedule, plan, refetch } = this.props;
     const { configs = {} as Config } = plan;
 
-    const handleRemomve = e => {
+    const handleRemomve = (e) => {
       e.stopPropagation();
       removeSchedule(schedule._id);
     };
@@ -127,13 +128,13 @@ class SchedulesConfig extends React.Component<Props> {
       cardType: configs.cardType,
       pipelineId: configs.pipelineId,
       schedule: schedule,
-      refetch
+      refetch,
     };
 
-    if (plan.status === 'archived') {
+    if (plan.status === "archived") {
       const trigger = (
         <Button icon="eye" btnStyle="link">
-          {__('View')}
+          {__("View")}
         </Button>
       );
 
@@ -157,7 +158,7 @@ class SchedulesConfig extends React.Component<Props> {
         {this.renderDuplicateForm(updatedProps)}
 
         <Button btnStyle="link" onClick={handleRemomve} icon="times-circle">
-          {__('Remove')}
+          {__("Remove")}
         </Button>
       </BarItems>
     );
@@ -166,20 +167,20 @@ class SchedulesConfig extends React.Component<Props> {
   renderSchedule(schedule: ISchedule) {
     return (
       <ScheduleCard key={schedule._id}>
-        <FormContainer padding="0 0 10px 0" width="100%" column>
+        <FormContainer padding="0 0 10px 0" width="100%" $column>
           <h4>{schedule.name}</h4>
-          <FormContainer row spaceBetween>
+          <FormContainer $row $spaceBetween>
             <Tip
               text={
                 schedule?.createdAt
-                  ? dayjs(schedule?.createdAt).format('llll')
-                  : ''
+                  ? dayjs(schedule?.createdAt).format("llll")
+                  : ""
               }
             >
               <ActivityDate>
                 {schedule?.createdAt
-                  ? dayjs(schedule?.createdAt).format('MMM D, h:mm A')
-                  : ''}
+                  ? dayjs(schedule?.createdAt).format("MMM D, h:mm A")
+                  : ""}
               </ActivityDate>
             </Tip>
             <Assignees users={schedule?.assignedUsers || []} />
@@ -196,8 +197,8 @@ class SchedulesConfig extends React.Component<Props> {
     return (
       <>
         <Wrapper.ActionBar right={this.renderAddForm()} />
-        <FormContainer row gap padding="25px">
-          {list.map(schedule => this.renderSchedule(schedule))}
+        <FormContainer $row $gap padding="25px">
+          {list.map((schedule) => this.renderSchedule(schedule))}
         </FormContainer>
       </>
     );

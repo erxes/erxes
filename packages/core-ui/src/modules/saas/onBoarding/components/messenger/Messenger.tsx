@@ -1,18 +1,19 @@
-import React, { useState } from 'react';
-import Icon from 'modules/common/components/Icon';
-import Form from 'react-bootstrap/Form';
-import TwitterPicker from 'react-color/lib/Twitter';
-import Button from 'modules/common/components/Button';
 import {
   ButtonContainer,
   ColorChooserWrapper,
   SidebarContent,
-} from 'modules/saas/onBoarding/styles';
-import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
-import { router } from 'modules/common/utils';
+} from "modules/saas/onBoarding/styles";
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import Button from "modules/common/components/Button";
+import Form from "react-bootstrap/Form";
+import { IIntegration } from "@erxes/ui-inbox/src/settings/integrations/types";
+import Icon from "modules/common/components/Icon";
+import TwitterPicker from "react-color/lib/Twitter";
+import { router } from "modules/common/utils";
 
 type Props = {
-  history: any;
   integration: IIntegration;
   integrationSave: (doc: any, _id?: string) => void;
   brandName: string;
@@ -23,7 +24,6 @@ type Props = {
 
 function Messenger(props: Props) {
   const {
-    history,
     integrationSave,
     integration,
     brandName,
@@ -31,6 +31,8 @@ function Messenger(props: Props) {
     color,
     setColor,
   } = props;
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [active, setActive] = useState(brandName ? true : false);
 
@@ -43,7 +45,7 @@ function Messenger(props: Props) {
     if (integration && integration._id) {
       return integrationSave(
         { brandId: integration.brandId, ...doc },
-        integration._id,
+        integration._id
       );
     }
 
@@ -51,13 +53,13 @@ function Messenger(props: Props) {
   };
 
   const onChangeStep = () => {
-    router.setParams(history, { steps: 1 });
+    router.setParams(navigate, location, { steps: 1 });
   };
 
   return (
     <>
       <SidebarContent>
-        <Form.Group className={active ? 'active' : ''} controlId="messenger">
+        <Form.Group className={active ? "active" : ""} controlId="messenger">
           <Form.Label>Brand name</Form.Label>
           <Form.Control
             defaultValue={brandName}

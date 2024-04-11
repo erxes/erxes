@@ -1,22 +1,23 @@
-import React, { useState } from "react";
-import Select from "react-select";
 import { ControlLabel, FormControl } from "@erxes/ui/src/components/form";
-import DateControl from "@erxes/ui/src/components/form/DateControl";
 import {
+  CustomRangeContainer,
   CustomWidthDiv,
   FlexCenter,
   FlexColumn,
   FlexRow,
-  ToggleDisplay,
   FlexRowEven,
   TextAlignRight,
-  CustomRangeContainer,
+  ToggleDisplay,
 } from "../../styles";
 import { IAbsence, ITimeclock, ITimelog } from "../../types";
-import dayjs from "dayjs";
+import React, { useState } from "react";
 import { dateDayFormat, dateFormat } from "../../constants";
-import Button from "@erxes/ui/src/components/Button";
+
 import { Alert } from "@erxes/ui/src/utils";
+import Button from "@erxes/ui/src/components/Button";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import Select from "react-select";
+import dayjs from "dayjs";
 import { timeFormat } from "../../constants";
 
 type Props = {
@@ -238,7 +239,7 @@ function CheckoutForm(props: Props) {
   };
 
   return (
-    <FlexColumn marginNum={20}>
+    <FlexColumn $marginNum={20}>
       <div style={{ fontSize: "14px" }}>
         {returnAbsenceRequestTimeFormatted()}
       </div>

@@ -1,15 +1,16 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { Counts, IRouterProps } from '@erxes/ui/src/types';
-import { router, withProps } from '@erxes/ui/src/utils';
+import { Counts, IRouterProps } from "@erxes/ui/src/types";
+import { router, withProps } from "@erxes/ui/src/utils";
+import { useLocation, useNavigate } from "react-router-dom";
 
 // import { withRouter } from 'react-router-dom';
-import Filter from '../components/SidebarFilter';
-import React from 'react';
-import { SegmentsQueryResponse } from '../types';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '../graphql';
+import Filter from "../components/SidebarFilter";
+import React from "react";
+import { SegmentsQueryResponse } from "../types";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries } from "../graphql";
 
 type Props = {
   contentType: string;
@@ -23,17 +24,20 @@ type FinalProps = {
   IRouterProps;
 
 const FilterContainer = (props: FinalProps) => {
-  const { segmentsQuery, history } = props;
+  const { segmentsQuery } = props;
 
-  const currentSegment = router.getParam(history, 'segment');
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const currentSegment = router.getParam(location, "segment");
 
   const setSegment = (segment) => {
-    router.setParams(history, { segment });
-    router.removeParams(history, 'page');
+    router.setParams(navigate, location, { segment });
+    router.removeParams(history, "page");
   };
 
   const removeSegment = () => {
-    router.removeParams(history, 'segment');
+    router.removeParams(history, "segment");
   };
 
   const extendedProps = {
@@ -52,10 +56,10 @@ const FilterContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql(gql(queries.segments), {
-      name: 'segmentsQuery',
+      name: "segmentsQuery",
       options: ({ contentType, config }: Props) => ({
         variables: { contentTypes: [contentType], config },
       }),
-    }),
-  )(FilterContainer),
+    })
+  )(FilterContainer)
 );

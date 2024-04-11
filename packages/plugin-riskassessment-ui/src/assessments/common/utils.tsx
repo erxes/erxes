@@ -1,4 +1,3 @@
-import { Attributes } from "@erxes/ui-automations/src//components/forms/actions/styles";
 import {
   Button,
   ControlLabel,
@@ -9,16 +8,18 @@ import {
   __,
   dimensions,
 } from "@erxes/ui/src";
+import { ClearableBtn, FormContainer } from "../../styles";
+import React, { useEffect, useState } from "react";
+import { removeParams, setParams } from "@erxes/ui/src/utils/router";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import { Attributes } from "@erxes/ui-automations/src//components/forms/actions/styles";
+import { CARD_FILTER_ATTRIBUTES } from "./constants";
+import Popover from "@erxes/ui/src/components/Popover";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
-import { removeParams, setParams } from "@erxes/ui/src/utils/router";
-import React, { useEffect, useState } from "react";
-import Popover from "@erxes/ui/src/components/Popover";
-import styled from "styled-components";
 import { generateParamsIds } from "../../common/utils";
-import { ClearableBtn, FormContainer } from "../../styles";
-import { CARD_FILTER_ATTRIBUTES } from "./constants";
-import { useLocation, useNavigate } from "react-router-dom";
+import styled from "styled-components";
 
 type Props = {
   title?: string;
@@ -92,7 +93,7 @@ export class DetailPopOver extends React.Component<Props> {
     return (
       <Popover
         trigger={
-          <FormContainer row flex gapBetween={5} align="center">
+          <FormContainer $row $flex $gapBetween={5} align="center">
             {this.renderContent()}
           </FormContainer>
         }
@@ -201,7 +202,7 @@ export const CardFilter = ({
 
   return (
     <FormGroup>
-      <FormContainer row spaceBetween>
+      <FormContainer $row $spaceBetween>
         <DetailPopOver
           title="Attribution"
           withoutPopoverTitle

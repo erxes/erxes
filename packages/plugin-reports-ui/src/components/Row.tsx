@@ -1,5 +1,5 @@
-import React from "react";
-import { IReport } from "../types";
+import * as dayjs from "dayjs";
+
 import {
   ActionButtons,
   Button,
@@ -9,17 +9,19 @@ import {
   Tags,
   Tip,
 } from "@erxes/ui/src/components";
+
 import { FlexCenter } from "@erxes/ui/src/styles/main";
-import { __ } from "@erxes/ui/src/utils";
+import { IReport } from "../types";
 import { Link } from "react-router-dom";
-import * as dayjs from "dayjs";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   report: IReport;
   navigate: any;
   isChecked: boolean;
   toggleReport: (reportId: string, isChecked?: boolean) => void;
-  removeReports: (reportIds: string[]) => void;
+  removeReports: (reportIds: string[], callback?: any) => void;
 };
 
 const Row = (props: Props) => {

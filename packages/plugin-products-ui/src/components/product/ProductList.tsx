@@ -71,9 +71,9 @@ const List: React.FC<IProps> = (props) => {
   useEffect(() => {
     if (checked && !(bulk || []).length) {
       setChecked(false);
-      router.removeParams(history, "page", "ids");
+      router.removeParams(navigate, location, "page", "ids");
     }
-  }, [checked, bulk, history]);
+  }, [checked, bulk]);
 
   const renderRow = () => {
     return products.map((product) => (
@@ -336,7 +336,7 @@ const List: React.FC<IProps> = (props) => {
       actionBar={
         <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight()} />
       }
-      leftSidebar={<CategoryList queryParams={queryParams} history={history} />}
+      leftSidebar={<CategoryList queryParams={queryParams} />}
       footer={<Pagination count={productsCount} />}
       content={renderContent()}
       transparent={true}

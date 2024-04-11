@@ -2,21 +2,22 @@ import {
   Button,
   ModalTrigger,
   NameCard,
-  Tabs,
   TabTitle,
+  Tabs,
   TextInfo,
   Tip,
-  __
-} from '@erxes/ui/src';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import moment from 'moment';
-import React from 'react';
-import { ColorBox, FormContainer, TriggerTabs } from '../../../styles';
+  __,
+} from "@erxes/ui/src";
+import { ColorBox, FormContainer, TriggerTabs } from "../../../styles";
 import {
   IndicatorAssessmentHistory,
-  IndicatorSubmissions
-} from '../../common/types';
-import { renderSubmission } from '../../components/Detail';
+  IndicatorSubmissions,
+} from "../../common/types";
+
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import React from "react";
+import moment from "moment";
+import { renderSubmission } from "../../components/Detail";
 
 type Props = {
   assessmentsHistory: IndicatorAssessmentHistory[];
@@ -32,19 +33,19 @@ class AssessmentHistory extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      currentUserId: ''
+      currentUserId: "",
     };
   }
 
   renderContent({
     closeModal,
-    submissions
+    submissions,
   }: {
     closeModal: () => void;
     submissions: IndicatorSubmissions[];
   }) {
     const { currentUserId } = this.state;
-    const handleSelect = _id => {
+    const handleSelect = (_id) => {
       this.setState({ currentUserId: _id });
     };
 
@@ -60,7 +61,7 @@ class AssessmentHistory extends React.Component<Props, State> {
       for (const field of fields || []) {
         doc[field.fieldId] = {
           value: field.value,
-          description: field.description
+          description: field.description,
         };
       }
 
@@ -72,10 +73,10 @@ class AssessmentHistory extends React.Component<Props, State> {
       <>
         <TriggerTabs>
           <Tabs full>
-            {(submissions || []).map(submission => (
+            {(submissions || []).map((submission) => (
               <TabTitle
                 key={submission._id}
-                className={currentUserId ? 'active' : ''}
+                className={currentUserId ? "active" : ""}
                 onClick={handleSelect.bind(this, submission._id)}
               >
                 <NameCard user={submission.user} />
@@ -91,11 +92,11 @@ class AssessmentHistory extends React.Component<Props, State> {
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal}>
-            {__('Cancel')}
+            {__("Cancel")}
           </Button>
           {currentUserId && (
             <Button btnStyle="success" onClick={onClick}>
-              {'Use this indicator submit history'}
+              {"Use this indicator submit history"}
             </Button>
           )}
         </ModalFooter>
@@ -108,32 +109,32 @@ class AssessmentHistory extends React.Component<Props, State> {
       <div key={assessmentHistory._id}>
         <Tip
           text={
-            <FormContainer column gapBetween={5}>
+            <FormContainer $column $gapBetween={5}>
               <TextInfo $textStyle="simple">
                 {`Started At: ${moment(assessmentHistory.createdAt).format(
-                  'll HH:mm'
+                  "ll HH:mm"
                 )}`}
               </TextInfo>
               <TextInfo $textStyle="simple">
                 {`End At: ${moment(assessmentHistory.closedAt).format(
-                  'll HH:mm'
+                  "ll HH:mm"
                 )}`}
               </TextInfo>
             </FormContainer>
           }
         >
           <ColorBox
-            color={assessmentHistory.statusColor || ''}
+            color={assessmentHistory.statusColor || ""}
             pointer={true}
           />
         </Tip>
       </div>
     );
 
-    const content = props =>
+    const content = (props) =>
       this.renderContent({
         ...props,
-        submissions: assessmentHistory.submissions
+        submissions: assessmentHistory.submissions,
       });
 
     return (
@@ -150,10 +151,10 @@ class AssessmentHistory extends React.Component<Props, State> {
     const { assessmentsHistory } = this.props;
 
     return (
-      <FormContainer row gap>
-        <h4>{assessmentsHistory[0]?.indicator?.name || ''}</h4>
-        <FormContainer row gapBetween={5} padding={'15px 0'}>
-          {(assessmentsHistory || []).map(assessmentHistory =>
+      <FormContainer $row $gap>
+        <h4>{assessmentsHistory[0]?.indicator?.name || ""}</h4>
+        <FormContainer $row $gapBetween={5} padding={"15px 0"}>
+          {(assessmentsHistory || []).map((assessmentHistory) =>
             this.renderItem(assessmentHistory)
           )}
         </FormContainer>

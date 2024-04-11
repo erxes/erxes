@@ -1,17 +1,18 @@
-import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { loadDynamicComponent, router, __ } from "@erxes/ui/src/utils";
-import React, { useState } from "react";
-import Table from "@erxes/ui/src/components/table";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import Select from "react-select";
-import Button from "@erxes/ui/src/components/Button";
-import ReportRow from "./ReportRow";
-import { IReport } from "../../types";
 import { FilterItem, FlexRow, FlexRowEven, ToggleButton } from "../../styles";
-import Pagination from "@erxes/ui/src/components/pagination/Pagination";
-import Icon from "@erxes/ui/src/components/Icon";
+import React, { useState } from "react";
+import { __, loadDynamicComponent, router } from "@erxes/ui/src/utils";
 import { useLocation, useNavigate } from "react-router-dom";
+
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IReport } from "../../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import ReportRow from "./ReportRow";
+import Select from "react-select";
+import Table from "@erxes/ui/src/components/table";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 
 type Props = {
   queryParams: any;
@@ -224,7 +225,7 @@ function ReportList(props: Props) {
         <FlexRowEven>
           <ToggleButton
             id="btn-inbox-channel-visible"
-            isActive={isSideBarOpen}
+            $isActive={isSideBarOpen}
             onClick={onToggleSidebar}
           >
             <Icon icon="subject" />
@@ -233,14 +234,14 @@ function ReportList(props: Props) {
             <>
               <ToggleButton
                 style={{ width: "auto" }}
-                isActive={showDepartment}
+                $isActive={showDepartment}
                 onClick={toggleShowDepartment}
               >
                 <ControlLabel>{__("Department")}</ControlLabel>
               </ToggleButton>
               <ToggleButton
                 style={{ width: "auto" }}
-                isActive={showBranch}
+                $isActive={showBranch}
                 onClick={toggleShowBranch}
               >
                 <ControlLabel>{__("Branch")}</ControlLabel>

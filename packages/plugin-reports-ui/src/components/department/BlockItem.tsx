@@ -1,12 +1,12 @@
-import * as routerUtils from '@erxes/ui/src/utils/router';
+import * as routerUtils from "@erxes/ui/src/utils/router";
 
-import { IRouterProps } from '@erxes/ui/src/types';
-// import { withRouter } from 'react-router-dom';
-import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
-import { SideList } from '../../styles';
-import { __ } from '@erxes/ui/src/utils';
-import queryString from 'query-string';
+import { useLocation, useNavigate } from "react-router-dom";
+
+import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
+import { SideList } from "../../styles";
+import { __ } from "@erxes/ui/src/utils";
+import queryString from "query-string";
 
 type Props = {
   item: any;
@@ -16,28 +16,29 @@ type Props = {
   queryParamName: string;
 };
 
-type FinalProps = Props & IRouterProps;
+type FinalProps = Props;
 
-function BlockItem({
-  item,
-  title,
-  icon,
-  queryParamName,
-  level,
-  history,
-  location,
-}: FinalProps) {
+function BlockItem({ item, icon, queryParamName, level }: FinalProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const onClick = (_id) => {
-    routerUtils.removeParams(history, 'branchId', 'unitId', 'departmentId');
+    routerUtils.removeParams(
+      navigate,
+      location,
+      "branchId",
+      "unitId",
+      "departmentId"
+    );
 
-    routerUtils.setParams(history, { [queryParamName]: _id });
+    routerUtils.setParams(navigate, location, { [queryParamName]: _id });
   };
 
   const queryParams = queryString.parse(location.search);
 
   return (
     <SideList
-      isActive={queryParams[queryParamName] === item._id}
+      $isActive={queryParams[queryParamName] === item._id}
       key={item._id}
       level={level}
     >

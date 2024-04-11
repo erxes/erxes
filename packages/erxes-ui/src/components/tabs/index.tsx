@@ -8,11 +8,9 @@ function Tabs(props: {
   full?: boolean;
 }) {
   return (
-    <TabContainer
-      {...props}
-      $grayBorder={props.grayBorder}
-      $full={props.full}
-    />
+    <TabContainer $grayBorder={props.grayBorder} $full={props.full}>
+      {props.children}
+    </TabContainer>
   );
 }
 

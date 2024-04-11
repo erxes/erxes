@@ -1,9 +1,4 @@
-import Button from "@erxes/ui/src/components/Button";
-import { __ } from "@erxes/ui/src/utils";
-import React, { useState, useEffect } from "react";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import Tip from "@erxes/ui/src/components/Tip";
-import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { ControlLabel, FormGroup } from "@erxes/ui/src/components/form";
 import {
   FilterItem,
   FlexRow,
@@ -11,27 +6,32 @@ import {
   SchedulesTableWrapper,
   ToggleButton,
 } from "../../styles";
-
 import { IBranch, IDepartment } from "@erxes/ui/src/team/types";
-import ScheduleForm from "../../containers/schedule/ScheduleForm";
 import { ISchedule, IScheduleConfig, IShift } from "../../types";
-import dayjs from "dayjs";
+import React, { useEffect, useState } from "react";
 import {
   dateFormat,
   dateOfTheMonthFormat,
   dayOfTheWeekFormat,
   timeFormat,
 } from "../../constants";
-import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 import { isEnabled, router } from "@erxes/ui/src/utils/core";
-import Table from "@erxes/ui/src/components/table";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import Button from "@erxes/ui/src/components/Button";
 import { IUser } from "@erxes/ui/src/auth/types";
 import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import ScheduleForm from "../../containers/schedule/ScheduleForm";
 import Select from "react-select";
+import Table from "@erxes/ui/src/components/table";
+import Tip from "@erxes/ui/src/components/Tip";
 import { Title } from "@erxes/ui-settings/src/styles";
-import { ControlLabel, FormGroup } from "@erxes/ui/src/components/form";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "@erxes/ui/src/utils";
 import { confirm } from "@erxes/ui/src/utils";
-import { useLocation, useNavigate } from "react-router-dom";
+import dayjs from "dayjs";
 
 type Props = {
   currentUser: IUser;
@@ -251,7 +251,7 @@ function ScheduleList(props: Props) {
     <FlexRowLeft>
       <ToggleButton
         id="btn-inbox-channel-visible"
-        isActive={isSideBarOpen}
+        $isActive={isSideBarOpen}
         onClick={onToggleSidebar}
       >
         <Icon icon="subject" />

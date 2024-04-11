@@ -1,6 +1,7 @@
-import { colors, dimensions, typography } from '@erxes/ui/src/styles';
 import { DateContainer, SimpleButton } from '@erxes/ui/src/styles/main';
+import { colors, dimensions, typography } from '@erxes/ui/src/styles';
 import styled, { css } from 'styled-components';
+
 import styledTS from 'styled-components-ts';
 
 const FilterWrapper = styled.div`
@@ -17,7 +18,7 @@ const FilterWrapper = styled.div`
   }
 `;
 
-export const Trigger = styledTS<{ type: string; isHoverActionBar?: boolean }>(
+export const Trigger = styledTS<{ type: string; $isHoverActionBar?: boolean }>(
   styled.div,
 )`
   cursor: pointer;
@@ -303,28 +304,28 @@ const CustomFlexRow = styled.div`
 `;
 
 const FlexColumn = styledTS<{
-  marginNum: number;
+  $marginNum: number;
 }>(styled.div)`
   display: flex;
   flex-direction: column;
-  gap:${(props) => props.marginNum}px;
+  gap:${(props) => props.$marginNum}px;
 `;
 
 const FlexColumnMargined = styledTS<{
-  marginNum: number;
+  $marginNum: number;
 }>(styled.div)`
   display: flex;
   flex-direction: column;
-  gap: ${(props) => props.marginNum}px
-  margin-top:${(props) => props.marginNum * 2}px;
+  gap: ${(props) => props.$marginNum}px
+  margin-top:${(props) => props.$marginNum * 2}px;
 `;
 
 const FlexColumnCustom = styledTS<{
-  marginNum: number;
+  $marginNum: number;
 }>(styled.div)`
   display: flex;
   flex-direction: column;
-  gap: ${(props) => props.marginNum}px
+  gap: ${(props) => props.$marginNum}px
   margin: 20px 20px
 
   div:first-child {

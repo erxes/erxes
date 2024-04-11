@@ -1,9 +1,9 @@
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import { Block, Features, FormContainer, Header, ListItem } from "../../styles";
 import {
   Button,
+  Form as CommonForm,
   ControlLabel,
   EmptyState,
-  Form as CommonForm,
   FormGroup,
   Toggle,
   __,
@@ -14,15 +14,16 @@ import {
   ModalFooter,
 } from "@erxes/ui/src/styles/main";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-import React from "react";
-import Select from "react-select";
-import { cardTypes } from "../../common/constants";
 import {
   SelectCustomFields,
   SelectIndicatorGroups,
   SelectIndicators,
 } from "../../common/utils";
-import { Block, Features, FormContainer, Header, ListItem } from "../../styles";
+
+import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import React from "react";
+import Select from "react-select";
+import { cardTypes } from "../../common/constants";
 type Props = {
   queryParams: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -322,7 +323,7 @@ class Form extends React.Component<Props, State> {
               <FormColumn>
                 <Header>{__("Configration")}</Header>
               </FormColumn>
-              <FormContainer row align="center" gap>
+              <FormContainer $row align="center" $gap>
                 <ControlLabel>{__("Use Custom field")}</ControlLabel>
                 <Toggle
                   name="useCustomFields"

@@ -1,22 +1,17 @@
-import SideBarComponent from "../components/SideBar";
 import {
   EditTypeMutationResponse,
   RemoveTypeMutationResponse,
   TypeQueryResponse,
 } from "../types";
+
 import React from "react";
+import SideBarComponent from "../components/SideBar";
 
 type Props = {
   currentTypeId?: string;
 };
 
-type FinalProps = {
-  listReportsTypeQuery?: TypeQueryResponse;
-} & Props &
-  RemoveTypeMutationResponse &
-  EditTypeMutationResponse;
-
-const SideBar = (props: FinalProps) => {
+const SideBar = (props: Props) => {
   const updatedProps = {
     ...props,
   };

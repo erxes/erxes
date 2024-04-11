@@ -1,20 +1,16 @@
-import { formatValue, FormControl, Icon, ModalTrigger } from "@erxes/ui/src";
-import _ from "lodash";
-import React from "react";
+import { FormControl, Icon, ModalTrigger, formatValue } from "@erxes/ui/src";
 
-import PeriodLockForm from "../containers/PeriodLockForm";
-import { IPeriodLock } from "../types";
 import { ActionButton } from "@erxes/ui/src/components/ActionButtons";
+import { IPeriodLock } from "../types";
+import PeriodLockForm from "../containers/PeriodLockForm";
+import React from "react";
+import _ from "lodash";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   periodLock: IPeriodLock;
-  history: any;
   isChecked: boolean;
   toggleBulk: (periodLock: IPeriodLock, isChecked?: boolean) => void;
-};
-
-type State = {
-  showModal: boolean;
 };
 
 function displayValue(periodLock, name) {
@@ -44,7 +40,9 @@ function renderEditAction(periodLock: IPeriodLock) {
   return renderFormTrigger(trigger, periodLock);
 }
 
-function PeriodLockRow({ periodLock, history, isChecked, toggleBulk }: Props) {
+function PeriodLockRow({ periodLock, isChecked, toggleBulk }: Props) {
+  const navigate = useNavigate();
+
   const onChange = (e) => {
     if (toggleBulk) {
       toggleBulk(periodLock, e.target.checked);
@@ -56,7 +54,7 @@ function PeriodLockRow({ periodLock, history, isChecked, toggleBulk }: Props) {
   };
 
   const onTrClick = () => {
-    history.push(`/erxes-plugin-saving/periodLock-details/${periodLock._id}`);
+    navigate(`/erxes-plugin-saving/periodLock-details/${periodLock._id}`);
   };
 
   return (

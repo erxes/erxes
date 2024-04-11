@@ -1,7 +1,5 @@
-import { gql, useQuery } from "@apollo/client";
-import { graphql } from "@apollo/client/react/hoc";
-import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
-import { SidebarListItem } from "@erxes/ui-settings/src/styles";
+import * as compose from "lodash.flowright";
+
 import {
   BarItems,
   Box,
@@ -21,34 +19,38 @@ import {
   __,
   generateTree,
 } from "@erxes/ui/src";
+import { COLORS, calculateMethods } from "./constants";
 import {
   ColorPick,
   ColorPicker,
   FormColumn,
   FormWrapper,
 } from "@erxes/ui/src/styles/main";
+import { FormContainer, FormGroupRow } from "../styles";
 import { IFormProps, IOption, IQueryParams } from "@erxes/ui/src/types";
-import { isEnabled, withProps } from "@erxes/ui/src/utils/core";
-import { removeParams, setParams } from "@erxes/ui/src/utils/router";
-import * as compose from "lodash.flowright";
-import React from "react";
-import Popover from "@erxes/ui/src/components/Popover";
-import TwitterPicker from "react-color/lib/Twitter";
-import { Link } from "react-router-dom";
-import Select from "react-select";
-import { tags as tagsQuery } from "../common/graphql";
 import {
   RiskCalculateLogicType,
   RiskIndicatorsType,
 } from "../indicator/common/types";
+import { gql, useQuery } from "@apollo/client";
+import { isEnabled, withProps } from "@erxes/ui/src/utils/core";
+import { removeParams, setParams } from "@erxes/ui/src/utils/router";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import { CustomFormGroupProps } from "./types";
+import { Link } from "react-router-dom";
+import { OperationTypes } from "../operations/common/types";
+import Popover from "@erxes/ui/src/components/Popover";
+import React from "react";
+import Select from "react-select";
+import { SidebarListItem } from "@erxes/ui-settings/src/styles";
+import TwitterPicker from "react-color/lib/Twitter";
+import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries as operationQueries } from "../operations/graphql";
 import { queries as riskIndicatorQueries } from "../indicator/graphql";
 import { queries as riskIndicatorsGroupQueries } from "../indicator/groups/graphql";
-import { OperationTypes } from "../operations/common/types";
-import { queries as operationQueries } from "../operations/graphql";
-import { FormContainer, FormGroupRow } from "../styles";
-import { COLORS, calculateMethods } from "./constants";
-import { CustomFormGroupProps } from "./types";
-import { useLocation, useNavigate } from "react-router-dom";
+import { tags as tagsQuery } from "../common/graphql";
 
 export const DefaultWrapper = ({
   title,
@@ -103,7 +105,7 @@ export const CustomFormGroup = ({
   spaceBetween,
 }: CustomFormGroupProps) => {
   return (
-    <FormGroupRow horizontal={row} spaceBetween={spaceBetween}>
+    <FormGroupRow $horizontal={row} $spaceBetween={spaceBetween}>
       <ControlLabel required={required}>{label}</ControlLabel>
       {children}
     </FormGroupRow>
@@ -522,7 +524,7 @@ export class CommonCalculateFields extends React.Component<Props, State> {
           </FormControl>
         </FormColumn>
         <FormColumn>
-          <FormContainer row gap align="center">
+          <FormContainer $row $gap align="center">
             <FormControl
               {...formProps}
               name="value"

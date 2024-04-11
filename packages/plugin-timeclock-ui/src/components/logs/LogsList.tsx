@@ -1,18 +1,19 @@
-import React, { useState } from 'react';
-import { ITimelog } from '../../types';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Button from '@erxes/ui/src/components/Button';
-import { FlexRowLeft, ToggleButton } from '../../styles';
-import Table from '@erxes/ui/src/components/table';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils';
-import { dateFormat, timeFormat } from '../../constants';
-import dayjs from 'dayjs';
-import Tip from '@erxes/ui/src/components/Tip';
-import Icon from '@erxes/ui/src/components/Icon';
-import ExtractForm from './LogsExtractForm';
-import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
+import { FlexRowLeft, ToggleButton } from "../../styles";
+import { IBranch, IDepartment } from "@erxes/ui/src/team/types";
+import React, { useState } from "react";
+import { dateFormat, timeFormat } from "../../constants";
+
+import Button from "@erxes/ui/src/components/Button";
+import ExtractForm from "./LogsExtractForm";
+import { ITimelog } from "../../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import Table from "@erxes/ui/src/components/table";
+import Tip from "@erxes/ui/src/components/Tip";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "@erxes/ui/src/utils";
+import dayjs from "dayjs";
 
 type Props = {
   queryParams: any;
@@ -49,24 +50,24 @@ function ReportList(props: Props) {
     showSideBar,
     getActionBar,
     createTimeclockFromLog,
-    isCurrentUserAdmin
+    isCurrentUserAdmin,
   } = props;
 
   const [isSideBarOpen, setIsOpen] = useState(
-    localStorage.getItem('isSideBarOpen') === 'true' ? true : false
+    localStorage.getItem("isSideBarOpen") === "true" ? true : false
   );
 
   const [startDate, setStartDate] = useState(
-    new Date(localStorage.getItem('startDate') || Date.now())
+    new Date(localStorage.getItem("startDate") || Date.now())
   );
   const [endDate, setEndDate] = useState(
-    new Date(localStorage.getItem('endDate') || Date.now())
+    new Date(localStorage.getItem("endDate") || Date.now())
   );
 
   const onToggleSidebar = () => {
     const toggleIsOpen = !isSideBarOpen;
     setIsOpen(toggleIsOpen);
-    localStorage.setItem('isSideBarOpen', toggleIsOpen.toString());
+    localStorage.setItem("isSideBarOpen", toggleIsOpen.toString());
   };
 
   const extractTrigger = isCurrentUserAdmin ? (
@@ -83,7 +84,7 @@ function ReportList(props: Props) {
     <FlexRowLeft>
       <ToggleButton
         id="btn-inbox-channel-visible"
-        isActive={isSideBarOpen}
+        $isActive={isSideBarOpen}
         onClick={onToggleSidebar}
       >
         <Icon icon="subject" />
@@ -94,7 +95,7 @@ function ReportList(props: Props) {
   const actionBarRight = (
     <>
       <ModalTrigger
-        title={__('Extract time logs')}
+        title={__("Extract time logs")}
         trigger={extractTrigger}
         content={extractContent}
       />
@@ -114,16 +115,16 @@ function ReportList(props: Props) {
     <Table>
       <thead>
         <tr>
-          <th>{__('Employee Id')}</th>
-          <th>{__('Team member')}</th>
-          <th>{__('Date')}</th>
-          <th>{__('Time')}</th>
-          <th>{__('Device')}</th>
-          <th>{__('Action')}</th>
+          <th>{__("Employee Id")}</th>
+          <th>{__("Team member")}</th>
+          <th>{__("Date")}</th>
+          <th>{__("Time")}</th>
+          <th>{__("Device")}</th>
+          <th>{__("Action")}</th>
         </tr>
       </thead>
       <tbody>
-        {timelogs.map(timelog => {
+        {timelogs.map((timelog) => {
           return (
             <tr key={timelog._id}>
               <td>{timelog.user && timelog.user.employeeId}</td>
@@ -137,7 +138,7 @@ function ReportList(props: Props) {
               <td>{dayjs(timelog.timelog).format(timeFormat)}</td>
               <td>{timelog.deviceName}</td>
               <td>
-                <Tip text={__('Create Timeclock')} placement="top">
+                <Tip text={__("Create Timeclock")} placement="top">
                   <Button
                     btnStyle="link"
                     onClick={() =>

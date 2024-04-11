@@ -1,29 +1,30 @@
-import { __ } from "@erxes/ui/src/utils";
-import React, { useState } from "react";
-import Select from "react-select";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
 import {
+  ConfigFormWrapper,
   CustomRangeContainer,
-  FlexRow,
+  FlexCenter,
   FlexColumn,
   FlexColumnMargined,
-  FlexCenter,
-  ConfigFormWrapper,
+  FlexRow,
   ToggleDisplay,
 } from "../../styles";
-import DateControl from "@erxes/ui/src/components/form/DateControl";
-import Form from "@erxes/ui/src/components/form/Form";
-import FormControl from "@erxes/ui/src/components/form/Control";
 import {
   IAbsence,
   IAbsenceType,
   IDeviceConfig,
   IPayDates,
-  IScheduleForm,
   IScheduleConfig,
+  IScheduleForm,
 } from "../../types";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import React, { useState } from "react";
+
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
 import DateTimePicker from "../datepicker/DateTimePicker";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Select from "react-select";
+import { __ } from "@erxes/ui/src/utils";
 import { compareStartAndEndTime } from "../../utils";
 import dayjs from "dayjs";
 
@@ -304,7 +305,7 @@ function ConfigForm(props: Props) {
     const { values, isSubmitted } = formProps;
 
     return (
-      <FlexColumn marginNum={20}>
+      <FlexColumn $marginNum={20}>
         <ControlLabel required={true}>Device Name</ControlLabel>
         <FormControl
           {...formProps}
@@ -364,7 +365,7 @@ function ConfigForm(props: Props) {
 
     return (
       <ConfigFormWrapper>
-        <FlexColumn marginNum={30}>
+        <FlexColumn $marginNum={30}>
           <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
             {...formProps}
@@ -443,7 +444,7 @@ function ConfigForm(props: Props) {
   const renderPayDateContent = (formProps: IFormProps) => {
     const { isSubmitted, values } = formProps;
     return (
-      <FlexColumn marginNum={10}>
+      <FlexColumn $marginNum={10}>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <ControlLabel>Pay period</ControlLabel>
           <div
@@ -509,7 +510,7 @@ function ConfigForm(props: Props) {
   const renderScheduleContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
     return (
-      <FlexColumn marginNum={20}>
+      <FlexColumn $marginNum={20}>
         <ControlLabel required={true}>
           <strong>Name</strong>
         </ControlLabel>
@@ -521,7 +522,7 @@ function ConfigForm(props: Props) {
           autoFocus={true}
         />
 
-        <FlexColumnMargined marginNum={10}>
+        <FlexColumnMargined $marginNum={10}>
           {renderConfigTime(formProps)}
         </FlexColumnMargined>
 
@@ -541,7 +542,7 @@ function ConfigForm(props: Props) {
   const renderHolidayContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
     return (
-      <FlexColumn marginNum={20}>
+      <FlexColumn $marginNum={20}>
         <ControlLabel required={true}>Holiday Name</ControlLabel>
         <FormControl
           {...formProps}

@@ -1,7 +1,8 @@
+import { Route, Routes, useLocation, useParams } from "react-router-dom";
+
+import React from "react";
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 import queryString from "query-string";
-import React from "react";
-import { Route, Routes, useLocation, useParams } from "react-router-dom";
 
 const RiskIndicators = asyncComponent(
   () =>
@@ -42,11 +43,11 @@ const Groups = asyncComponent(
     )
 );
 const Plans = asyncComponent(
-  () => import(/* webpackChunkName: "List - Groups" */ "./plan/containers/List")
+  () => import(/* webpackChunkName: "List - Plans" */ "./plan/containers/List")
 );
 
 const PlanForm = asyncComponent(
-  () => import(/* webpackChunkName: "List - Groups" */ "./plan/containers/Form")
+  () => import(/* webpackChunkName: "List - Forms" */ "./plan/containers/Form")
 );
 
 const RiskIndicatorsComponent = () => {
@@ -71,6 +72,7 @@ const ConfigsComponent = () => {
 const RiskAssessmentsComponent = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
+
   return <RiskAssessments queryParams={queryParams} />;
 };
 const OperationsComponent = () => {

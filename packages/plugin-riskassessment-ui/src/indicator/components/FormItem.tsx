@@ -1,7 +1,3 @@
-import { gql } from "@apollo/client";
-import CreateForm from "@erxes/ui-forms/src/forms/containers/CreateForm";
-import EditForm from "@erxes/ui-forms/src/forms/containers/EditForm";
-import { ShowPreview } from "@erxes/ui-forms/src/forms/styles";
 import {
   Button,
   Form as CommonForm,
@@ -15,7 +11,7 @@ import {
   colors,
   confirm,
 } from "@erxes/ui/src";
-import client from "@erxes/ui/src/apolloClient";
+import { COLORS, calculateMethods } from "../../common/constants";
 import {
   ColorPick,
   ColorPicker,
@@ -23,12 +19,6 @@ import {
   FormWrapper,
   ModalFooter,
 } from "@erxes/ui/src/styles/main";
-import { IField, IFormProps } from "@erxes/ui/src/types";
-import React from "react";
-import Popover from "@erxes/ui/src/components/Popover";
-import TwitterPicker from "react-color/lib/Twitter";
-import Select from "react-select";
-import { COLORS, calculateMethods } from "../../common/constants";
 import {
   ContentWrapper,
   FormContainer,
@@ -36,7 +26,18 @@ import {
   PreviewWrapper,
   RemoveRow,
 } from "../../styles";
+import { IField, IFormProps } from "@erxes/ui/src/types";
+
+import CreateForm from "@erxes/ui-forms/src/forms/containers/CreateForm";
+import EditForm from "@erxes/ui-forms/src/forms/containers/EditForm";
+import Popover from "@erxes/ui/src/components/Popover";
+import React from "react";
 import { RiskCalculateLogicType } from "../common/types";
+import Select from "react-select";
+import { ShowPreview } from "@erxes/ui-forms/src/forms/styles";
+import TwitterPicker from "react-color/lib/Twitter";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
 import { mutations } from "../graphql";
 
 type Props = {
@@ -257,7 +258,7 @@ class Item extends React.Component<Props, State> {
           </FormControl>
         </FormColumn>
         <FormColumn>
-          <FormContainer row gap align="center">
+          <FormContainer $row $gap align="center">
             <FormControl
               {...formProps}
               name="value"

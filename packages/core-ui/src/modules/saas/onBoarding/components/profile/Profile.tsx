@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
-import Icon from 'modules/common/components/Icon';
-import Form from 'react-bootstrap/Form';
-import Button from 'modules/common/components/Button';
 import {
+  AvatarWrapper,
   ButtonContainer,
   SidebarContent,
-  AvatarWrapper,
-} from 'modules/saas/onBoarding/styles';
-import { IUser } from '@erxes/ui/src/auth/types';
-import AvatarUpload from '@erxes/ui/src/components/AvatarUpload';
-import { router } from 'modules/common/utils';
+} from "modules/saas/onBoarding/styles";
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import AvatarUpload from "@erxes/ui/src/components/AvatarUpload";
+import Button from "modules/common/components/Button";
+import Form from "react-bootstrap/Form";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Icon from "modules/common/components/Icon";
+import { router } from "modules/common/utils";
 
 type Props = {
   history: any;
@@ -43,6 +45,8 @@ function Profile(props: Props) {
   const [activeFirst, setActiveFirst] = useState(firstName ? true : false);
   const [activeLast, setActiveLast] = useState(lastName ? true : false);
   const [activeEmail, setActiveLastEmail] = useState(email ? true : false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const onSubmit = () => {
     const details = {
@@ -60,7 +64,7 @@ function Profile(props: Props) {
   };
 
   const onChangeStep = () => {
-    router.setParams(history, { steps: 0 });
+    router.setParams(navigate, location, { steps: 0 });
   };
 
   const onAvatarUpload = (url) => {
@@ -75,7 +79,7 @@ function Profile(props: Props) {
         </AvatarWrapper>
 
         <Form.Group
-          className={activeFirst ? 'active' : ''}
+          className={activeFirst ? "active" : ""}
           controlId="firstName"
         >
           <Form.Label>First Name</Form.Label>
@@ -88,7 +92,7 @@ function Profile(props: Props) {
           />
         </Form.Group>
 
-        <Form.Group className={activeLast ? 'active' : ''} controlId="lastName">
+        <Form.Group className={activeLast ? "active" : ""} controlId="lastName">
           <Form.Label>Last Name</Form.Label>
           <Form.Control
             defaultValue={lastName}
@@ -100,7 +104,7 @@ function Profile(props: Props) {
         </Form.Group>
 
         <Form.Group
-          className={`disabled ${activeEmail ? 'active' : ''}`}
+          className={`disabled ${activeEmail ? "active" : ""}`}
           controlId="email"
         >
           <Form.Label>Email</Form.Label>

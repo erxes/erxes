@@ -1,6 +1,4 @@
-import Button from "@erxes/ui/src/components/Button";
 import { Alert, __ } from "@erxes/ui/src/utils";
-import React, { useState } from "react";
 import {
   CustomRangeContainer,
   FlexCenter,
@@ -8,9 +6,12 @@ import {
   MarginY,
   ToggleDisplay,
 } from "../../styles";
-import DateControl from "@erxes/ui/src/components/form/DateControl";
-import { ControlLabel } from "@erxes/ui/src/components/form";
 import { IBranch, IDepartment } from "@erxes/ui/src/team/types";
+import React, { useState } from "react";
+
+import Button from "@erxes/ui/src/components/Button";
+import { ControlLabel } from "@erxes/ui/src/components/form";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
 import Select from "react-select";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 
@@ -115,7 +116,7 @@ const extractForm = (props: Props) => {
   );
 
   const extractContent = () => (
-    <FlexColumnCustom marginNum={10}>
+    <FlexColumnCustom $marginNum={10}>
       <div>
         <ControlLabel>Select Date Range</ControlLabel>
         <CustomRangeContainer>
