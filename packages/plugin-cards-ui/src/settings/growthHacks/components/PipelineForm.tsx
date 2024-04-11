@@ -257,7 +257,7 @@ class PipelineForm extends React.Component<Props, State> {
     const onClick = () => this.onChangeValue("hackScoringType", type);
 
     return (
-      <Box selected={this.state.hackScoringType === type} onClick={onClick}>
+      <Box $selected={this.state.hackScoringType === type} onClick={onClick}>
         <b>{__(type)}</b>
         <p>
           {__(desc)} <strong>{formula}</strong>

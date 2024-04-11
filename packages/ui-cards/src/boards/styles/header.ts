@@ -32,7 +32,6 @@ export const ButtonGroup = styled.div`
     &.active {
       color: ${colors.colorCoreDarkGray};
       background: ${colors.colorWhite};
-      box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.08);
       i {
         color: ${colors.colorSecondary};
       }

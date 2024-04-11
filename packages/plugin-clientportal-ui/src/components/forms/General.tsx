@@ -120,11 +120,13 @@ function General({
     stageId,
     boardId,
     pipelineId,
+    toggle,
   }: {
     type: string;
     stageId?: string;
     boardId?: string;
     pipelineId?: string;
+    toggle?: boolean;
   }) {
     const onChangeStage = (stgId) => handleFormChange(`${type}StageId`, stgId);
     const onChangePipeline = (plId) =>
@@ -133,6 +135,7 @@ function General({
 
     return isEnabled("cards") ? (
       <BoardSelect
+        isRequired={toggle}
         type={type}
         stageId={stageId}
         boardId={boardId || ""}
@@ -431,6 +434,7 @@ function General({
                 stageId: ticketStageId,
                 pipelineId: ticketPipelineId,
                 boardId: ticketBoardId,
+                toggle: ticketToggle || false,
               })}
             </>,
             "ticketToggle",

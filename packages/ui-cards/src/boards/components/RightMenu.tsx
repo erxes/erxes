@@ -434,7 +434,7 @@ export default class RightMenu extends React.Component<Props, State> {
           {showMenu ? __("Hide Menu") : __("Show Menu")}
         </Button>
 
-        <Transition show={this.state.showMenu} unmount={true} as={Fragment}>
+        <Transition show={showMenu} unmount={true} as={Fragment}>
           <Transition.Child as={Fragment}>
             <RightMenuContainer>
               <Tabs full={true}>

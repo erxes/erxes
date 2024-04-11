@@ -52,7 +52,7 @@ class FormBuilder extends React.Component<
           <Button
             btnStyle="success"
             type="button"
-            icon="cancel-1"
+            icon="check-circle"
             onClick={this.saveForm}
           >
             Save

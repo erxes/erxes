@@ -296,10 +296,10 @@ a:hover {
   border: none;
   font-size: ${typography.fontSizeBody}px;
   color: ${colors.textPrimary};
-  min-width: 100%;
+  // min-width: 100%;
   box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.15);
   z-index: 1000;
-  right: 0;
+  // right: 0;
   float: left;
   background: ${colors.colorWhite};
   border-radius: 4px;
@@ -317,6 +317,7 @@ a:hover {
   white-space: nowrap;
   float: none;
   margin: 0;
+  width: 100%;
 }
 
 [id^="headlessui-menu-items-"] > a {
@@ -381,11 +382,16 @@ a:hover {
 }
 
 .dialog-size-lg {
-  min-width: 800px;
+  max-width: 800px;
 }
 
 .dialog-size-xl {
-  min-width: 1150px;
+  max-width: 1150px;
+}
+
+.dialog-size-xs {
+  max-width: 300px;
+  min-width: 300px;
 }
 
 /* tooltip */
@@ -456,6 +462,13 @@ a:hover {
   background: none;
   border: 0;
   outline: 0;
+}
+
+[id^="headlessui-menu-items-"] li {
+  display: flex;
+  &::marker {
+    display: none;
+  }
 }
 
 [id^="headlessui-listbox-options-"] {
@@ -685,6 +698,7 @@ a:hover {
   margin-right: 5px !important;
   position: relative;
   padding-right: 20px;
+  padding-left: 10px;
 }
 
 .css-wsp0cs-MultiValueGeneric {

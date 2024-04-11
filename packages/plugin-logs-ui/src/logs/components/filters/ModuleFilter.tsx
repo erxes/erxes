@@ -113,7 +113,6 @@ function ModuleFilter({ queryParams }: Props) {
 
   const onClick = (module: { value: string; label: string }) => {
     router.setParams(navigate, location, { type: module.value });
-    router.removeParams(navigate, location, "page");
   };
 
   const searchModule = (e) => {

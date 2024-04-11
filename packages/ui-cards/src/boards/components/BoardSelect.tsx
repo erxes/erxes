@@ -19,6 +19,7 @@ type Props = {
   onChangeStage: (value: string, callback?: () => void) => void;
   callback?: () => void;
   translator?: (key: string, options?: any) => string;
+  isRequired?: boolean;
 };
 
 class BoardSelect extends React.Component<Props> {
@@ -41,7 +42,7 @@ class BoardSelect extends React.Component<Props> {
 
     return (
       <Select
-        required={true}
+        required={!this.props.isRequired ? this.props.isRequired : true}
         placeholder={placeholder}
         value={options.find((o) => value === o.value)}
         onChange={onChange}

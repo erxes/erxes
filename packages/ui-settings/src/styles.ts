@@ -263,6 +263,11 @@ const FlexItem = styled(DateContainer)`
   &:first-child {
     margin-left: 0;
   }
+
+  .css-13cymwt-control, .css-t3ipsp-control { 
+    background: transparent !important;
+    border-width: 0 !important;
+  }
 `;
 
 const BackgroundSelector = styled.div`

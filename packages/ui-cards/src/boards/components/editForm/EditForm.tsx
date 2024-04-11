@@ -4,7 +4,6 @@ import { __, router as routerUtils } from '@erxes/ui/src/utils';
 import { ArchiveStatus } from '../../styles/item';
 import { CloseModal } from '@erxes/ui/src/styles/main';
 import Icon from '@erxes/ui/src/components/Icon';
-// import { withRouter } from 'react-router-dom';
 import React, { useState, useEffect, Fragment } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Dialog, Transition } from '@headlessui/react';
