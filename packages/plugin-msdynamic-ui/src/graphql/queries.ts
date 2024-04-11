@@ -45,6 +45,7 @@ const commonOrderParams = `
   $paidEndDate: Date,
   $createdStartDate: Date,
   $createdEndDate: Date,
+  $brandId: String,
 `;
 
 const commonOrderParamDefs = `
@@ -60,6 +61,7 @@ const commonOrderParamDefs = `
   createdEndDate: $createdEndDate,
   paidStartDate: $paidStartDate,
   paidEndDate: $paidEndDate,
+  brandId: $brandId
 `;
 
 const syncMsdHistories = `

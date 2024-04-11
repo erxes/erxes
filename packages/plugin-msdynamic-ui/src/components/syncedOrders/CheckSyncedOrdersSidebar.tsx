@@ -5,12 +5,13 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import React from 'react';
 import { Wrapper } from '@erxes/ui/src/layout';
-import { __, router } from '@erxes/ui/src/utils';
+import { Alert, __, router } from '@erxes/ui/src/utils';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { CustomRangeContainer, FilterContainer } from '../../styles';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import { EndDateContainer } from '@erxes/ui-forms/src/forms/styles';
+import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -21,14 +22,13 @@ interface IProps {
 }
 
 interface State {
-  posToken: string;
   paidStartDate: Date;
   paidEndDate: Date;
   createdStartDate: Date;
   createdEndDate: Date;
   search: string;
   userId: string;
-  posId: string;
+  brandId: string;
 }
 
 class CheckerSidebar extends React.Component<IProps, State> {
@@ -37,39 +37,40 @@ class CheckerSidebar extends React.Component<IProps, State> {
 
     const { queryParams } = this.props;
     this.state = {
-      posToken: queryParams.posToken,
       search: queryParams.search,
       paidStartDate: queryParams.paidStartDate,
       paidEndDate: queryParams.paidEndDate,
       createdStartDate: queryParams.createdStartDate,
       createdEndDate: queryParams.createdEndDate,
       userId: queryParams.user,
-      posId: queryParams.pos,
+      brandId: queryParams.brandId,
     };
   }
 
   onFilter = () => {
     const {
-      posToken,
       search,
-      posId,
       userId,
       paidStartDate,
       paidEndDate,
       createdStartDate,
       createdEndDate,
+      brandId,
     } = this.state;
+
+    if (!brandId) {
+      return Alert.error('Choose brandId');
+    }
 
     router.setParams(this.props.history, {
       page: 1,
-      posToken,
       search,
-      pos: posId,
       user: userId,
       paidStartDate,
       paidEndDate,
       createdStartDate,
       createdEndDate,
+      brandId,
     });
   };
 
@@ -122,12 +123,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
   }
 
   render() {
-    const { posList } = this.props;
-    const { posToken, search, userId, posId } = this.state;
-    const onChangePosToken = (e: any) => {
-      const token = e.target?.value;
-      this.setState({ posToken: token });
-    };
+    const { search, userId, brandId } = this.state;
 
     const onChangeInput = (e: React.FormEvent<HTMLElement>) => {
       const value = (e.currentTarget as HTMLInputElement).value;
@@ -139,20 +135,29 @@ class CheckerSidebar extends React.Component<IProps, State> {
       this.setState({ userId });
     };
 
+    const onBrandChange = (brandId) => {
+      this.setState({ brandId });
+    };
+
     return (
       <Wrapper.Sidebar hasBorder={true}>
         <Section.Title>{__('Filters')}</Section.Title>
         <FilterContainer>
           <FormGroup>
-            <ControlLabel>Enter POS token</ControlLabel>
-            <FormControl
-              type="text"
-              placeholder={__('POS token')}
-              onChange={onChangePosToken}
-              defaultValue={posToken}
-              autoFocus={true}
+            <ControlLabel>Brand</ControlLabel>
+            <SelectBrands
+              label={__('Choose brands')}
+              onSelect={onBrandChange}
+              initialValue={brandId}
+              multi={false}
+              name="selectedBrands"
+              customOption={{
+                label: 'No Brand (noBrand)',
+                value: '',
+              }}
             />
           </FormGroup>
+
           <FormGroup>
             <ControlLabel>Created by</ControlLabel>
             <SelectTeamMembers
@@ -164,25 +169,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
               multi={false}
             />
           </FormGroup>
-          <FormGroup>
-            <ControlLabel>POS</ControlLabel>
-            <FormControl
-              name={'posId'}
-              componentClass="select"
-              defaultValue={posId}
-              onChange={onChangeInput}
-            >
-              <option value="">{__('All')}</option>
-              {posList &&
-                Array.isArray(posList) &&
-                (posList || []).map((pos) => (
-                  <option
-                    key={pos._id}
-                    value={pos._id}
-                  >{`${pos.name} - ${pos.description}`}</option>
-                ))}
-            </FormControl>
-          </FormGroup>
+
           <FormGroup>
             <ControlLabel>Number</ControlLabel>
             <FormControl

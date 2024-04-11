@@ -509,11 +509,11 @@ const msdynamicCheckMutations = {
 
   async toCheckMsdSynced(
     _root,
-    { ids, brandId }: { ids: string[]; brandId: string },
+    { ids }: { ids: string[] },
     { subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
-    const config = configs[brandId || 'noBrand'];
+    const config = configs['brandId' || 'noBrand'];
 
     if (!config.salesApi || !config.username || !config.password) {
       throw new Error('MS Dynamic config not found.');

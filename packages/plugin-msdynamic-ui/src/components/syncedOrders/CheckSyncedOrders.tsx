@@ -20,7 +20,6 @@ import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 type Props = {
   totalCount: number;
   loading: boolean;
-  setBrand: (brandId: string) => void;
   orders: any[];
   history: any;
   queryParams: any;
@@ -36,7 +35,6 @@ type Props = {
   unSyncedOrderIds: string[];
   syncedOrderInfos: any;
   toSyncMsdOrders: (orderIds: string[]) => void;
-  posList?: any[];
 };
 
 class CheckSyncedOrders extends React.Component<Props> {
@@ -93,8 +91,6 @@ class CheckSyncedOrders extends React.Component<Props> {
       loading,
       unSyncedOrderIds,
       toSyncMsdOrders,
-      posList,
-      setBrand,
       syncedOrderInfos,
     } = this.props;
     const tablehead = [
@@ -130,7 +126,6 @@ class CheckSyncedOrders extends React.Component<Props> {
       <CheckSyncedOrdersSidebar
         queryParams={queryParams}
         history={this.props.history}
-        posList={posList}
       />
     );
 
@@ -158,17 +153,6 @@ class CheckSyncedOrders extends React.Component<Props> {
 
     const actionBarRight = (
       <BarItems>
-        <SelectBrands
-          label={__('Choose brands')}
-          onSelect={(brand) => setBrand(brand as string)}
-          initialValue={queryParams.brandId}
-          multi={false}
-          name="selectedBrands"
-          customOption={{
-            label: 'No Brand (noBrand)',
-            value: '',
-          }}
-        />
         {bulk.length > 0 && (
           <Button btnStyle="success" icon="check-circle" onClick={onClickCheck}>
             Check

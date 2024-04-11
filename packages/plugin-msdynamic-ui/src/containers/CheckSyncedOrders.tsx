@@ -36,12 +36,6 @@ type FinalProps = {
 const CheckSyncedOrdersContainer = (props: FinalProps) => {
   const [unSyncedOrderIds, setUnSyncedOrderIds] = useState([]);
   const [syncedOrderInfos, setSyncedOrderInfos] = useState({});
-  const brandId = props.queryParams.brandId || 'noBrand';
-
-  const setBrand = (brandId: string) => {
-    router.setParams(props.history, { brandId: brandId });
-    return router;
-  };
 
   const {
     toCheckMsdSynced,
@@ -53,7 +47,7 @@ const CheckSyncedOrdersContainer = (props: FinalProps) => {
   // remove action
   const checkSynced = async ({ orderIds }, emptyBulk) => {
     await toCheckMsdSynced({
-      variables: { ids: orderIds, brandId },
+      variables: { ids: orderIds },
     })
       .then((response) => {
         emptyBulk();
@@ -109,7 +103,6 @@ const CheckSyncedOrdersContainer = (props: FinalProps) => {
     orders,
     totalCount,
     checkSynced,
-    setBrand,
     unSyncedOrderIds: unSyncedOrderIds,
     syncedOrderInfos: syncedOrderInfos,
     toSyncMsdOrders,
@@ -129,9 +122,8 @@ const generateParams = ({ queryParams }) => {
     paidEndDate: queryParams.paidEndDate,
     createdStartDate: queryParams.createdStartDate,
     createdEndDate: queryParams.createdEndDate,
-    posToken: queryParams.posToken,
     userId: queryParams.user,
-    posId: queryParams.pos,
+    brandId: queryParams.brandId,
     search: queryParams.search,
     sortField: queryParams.sortField,
     sortDirection: Number(queryParams.sortDirection) || undefined,

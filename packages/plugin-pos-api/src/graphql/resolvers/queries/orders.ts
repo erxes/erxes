@@ -19,7 +19,7 @@ export const paginate = (
     page?: number;
     perPage?: number;
     excludeIds?: boolean;
-  },
+  }
 ) => {
   const { page = 0, perPage = 0, ids, excludeIds } = params || { ids: null };
 
@@ -41,7 +41,7 @@ const generateFilterPosQuery = async (
   models,
   params,
   commonQuerySelector,
-  currentUserId,
+  currentUserId
 ) => {
   const query: any = commonQuerySelector;
   const {
@@ -60,6 +60,7 @@ const generateFilterPosQuery = async (
     statuses,
     excludeStatuses,
     hasPaidDate,
+    brandId,
   } = params;
 
   if (search) {
@@ -91,6 +92,10 @@ const generateFilterPosQuery = async (
   if (posId) {
     const pos = await models.Pos.findOne({ _id: posId }).lean();
     query.posToken = pos.token;
+  }
+
+  if (brandId) {
+    query.scopeBrandIds = { $in: [brandId] };
   }
 
   if (posToken) {
@@ -156,13 +161,13 @@ export const posOrderRecordsQuery = async (
   models,
   params,
   commonQuerySelector,
-  user?,
+  user?
 ) => {
   const query = await generateFilterPosQuery(
     models,
     params,
     commonQuerySelector,
-    user?._id,
+    user?._id
   );
 
   const { perPage = 20, page = 1 } = params;
@@ -229,7 +234,7 @@ export const posOrderRecordsQuery = async (
 
   const customerIds = orders
     .filter(
-      (o) => o.customerType || ('customer' === 'customer' && o.customerId),
+      (o) => o.customerType || ('customer' === 'customer' && o.customerId)
     )
     .map((o) => o.customerId);
   const companyIds = orders
@@ -240,7 +245,7 @@ export const posOrderRecordsQuery = async (
     .concat(
       orders
         .filter((o) => o.customerType === 'user' && o.customerId)
-        .map((o) => o.customerId),
+        .map((o) => o.customerId)
     );
 
   const customerById = {};
@@ -305,7 +310,7 @@ export const posOrderRecordsQuery = async (
       productCategoryById[perProduct.categoryId || ''];
     order.items.manufactured = order.items.manufacturedDate
       ? new Date(
-          Number(shortStrToDate(order.items.manufacturedDate, 92, 'h', 'n')),
+          Number(shortStrToDate(order.items.manufacturedDate, 92, 'h', 'n'))
         )
       : '';
     order.user = userById[order.userId];
@@ -362,13 +367,13 @@ export const posOrderRecordsCountQuery = async (
   models: IModels,
   params: any,
   commonQuerySelector: any,
-  user?,
+  user?
 ) => {
   const query = await generateFilterPosQuery(
     models,
     params,
     commonQuerySelector,
-    user?._id,
+    user?._id
   );
 
   const orders = await models.PosOrders.aggregate([
@@ -384,13 +389,13 @@ const queries = {
   posOrders: async (
     _root,
     params,
-    { models, commonQuerySelector, user }: IContext,
+    { models, commonQuerySelector, user }: IContext
   ) => {
     const query = await generateFilterPosQuery(
       models,
       params,
       commonQuerySelector,
-      user._id,
+      user._id
     );
 
     let sort: any = { number: 1 };
@@ -409,13 +414,13 @@ const queries = {
   posOrdersTotalCount: async (
     _root,
     params,
-    { models, commonQuerySelector, user }: IContext,
+    { models, commonQuerySelector, user }: IContext
   ) => {
     const query = await generateFilterPosQuery(
       models,
       params,
       commonQuerySelector,
-      user._id,
+      user._id
     );
     return models.PosOrders.find(query).count();
   },
@@ -451,13 +456,13 @@ const queries = {
   posOrdersSummary: async (
     _root,
     params,
-    { models, commonQuerySelector, user }: IContext,
+    { models, commonQuerySelector, user }: IContext
   ) => {
     const query = await generateFilterPosQuery(
       models,
       params,
       commonQuerySelector,
-      user._id,
+      user._id
     );
 
     const res = await models.PosOrders.aggregate([
@@ -539,13 +544,13 @@ const queries = {
   posOrdersGroupSummary: async (
     _root,
     params,
-    { models, commonQuerySelector, user }: IContext,
+    { models, commonQuerySelector, user }: IContext
   ) => {
     const query = await generateFilterPosQuery(
       models,
       params,
       commonQuerySelector,
-      user._id,
+      user._id
     );
 
     let idGroup: any = {};
@@ -671,13 +676,13 @@ const queries = {
   posProducts: async (
     _root,
     params,
-    { models, commonQuerySelector, user, subdomain }: IContext,
+    { models, commonQuerySelector, user, subdomain }: IContext
   ) => {
     const orderQuery = await generateFilterPosQuery(
       models,
       params,
       commonQuerySelector,
-      user._id,
+      user._id
     );
     const query: any = {};
 
@@ -798,7 +803,7 @@ const queries = {
     return {
       totalCount,
       products: products.filter(
-        (p) => !(p.status === 'deleted' && !p.count && !p.amount),
+        (p) => !(p.status === 'deleted' && !p.count && !p.amount)
       ),
     };
   },
@@ -806,21 +811,21 @@ const queries = {
   posOrderRecords: async (
     _root,
     params,
-    { subdomain, models, commonQuerySelector, user }: IContext,
+    { subdomain, models, commonQuerySelector, user }: IContext
   ) => {
     return posOrderRecordsQuery(
       subdomain,
       models,
       params,
       commonQuerySelector,
-      user,
+      user
     );
   },
 
   posOrderRecordsCount: async (
     _root,
     params,
-    { subdomain, models, commonQuerySelector, user }: IContext,
+    { subdomain, models, commonQuerySelector, user }: IContext
   ) => {
     return posOrderRecordsCountQuery(models, params, commonQuerySelector, user);
   },
