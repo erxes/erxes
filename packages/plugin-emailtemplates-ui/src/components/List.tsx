@@ -5,7 +5,7 @@ import {
   TemplateBox,
   TemplateBoxInfo,
   TemplateInfo,
-  Templates,
+  Templates
 } from '@erxes/ui-emailtemplates/src/styles';
 import { FilterContainer, InputBar } from '@erxes/ui-settings/src/styles';
 
@@ -32,7 +32,12 @@ type Props = {
 
 class EmailTemplateList extends React.Component<Props> {
   renderForm = (props) => {
-    return <Form {...props} renderButton={this.props.renderButton} />;
+    return (
+      <Form
+        {...props}
+        renderButton={this.props.renderButton}
+      />
+    );
   };
 
   removeTemplate = (object) => {
@@ -53,11 +58,11 @@ class EmailTemplateList extends React.Component<Props> {
     return (
       <ModalTrigger
         enforceFocus={false}
-        title="Edit"
-        size="lg"
+        title='Edit'
+        size='lg'
         trigger={
           <div>
-            <Icon icon="edit" /> Edit
+            <Icon icon='edit' /> Edit
           </div>
         }
         content={content}
@@ -68,7 +73,7 @@ class EmailTemplateList extends React.Component<Props> {
   renderDuplicateAction(object) {
     return (
       <div onClick={this.duplicateTemplate.bind(this, object._id)}>
-        <Icon icon="copy-1" />
+        <Icon icon='copy-1' />
         Duplicate
       </div>
     );
@@ -92,17 +97,22 @@ class EmailTemplateList extends React.Component<Props> {
         object || {};
 
       return (
-        <Template key={index} isLongName={name.length > 46}>
+        <Template
+          key={index}
+          isLongName={name.length > 46}>
           <TemplateBox>
             <Actions>
               {this.renderEditAction(object)}
               <div onClick={this.removeTemplate.bind(this, object)}>
-                <Icon icon="cancel-1" /> Delete
+                <Icon icon='cancel-1' /> Delete
               </div>
               {this.renderDuplicateAction(object)}
             </Actions>
             <IframePreview>
-              <iframe title="content-iframe" srcDoc={content} />
+              <iframe
+                title='content-iframe'
+                srcDoc={content}
+              />
             </IframePreview>
           </TemplateBox>
           <TemplateBoxInfo>
@@ -142,10 +152,13 @@ class EmailTemplateList extends React.Component<Props> {
   renderSearch = () => {
     return (
       <FilterContainer marginRight={true}>
-        <InputBar type="searchBar">
-          <Icon icon="search-1" size={20} />
+        <InputBar type='searchBar'>
+          <Icon
+            icon='search-1'
+            size={20}
+          />
           <FormControl
-            type="text"
+            type='text'
             placeholder={__('Type to search')}
             onChange={this.searchHandler}
             value={router.getParam(this.props.history, 'searchValue')}
@@ -159,23 +172,23 @@ class EmailTemplateList extends React.Component<Props> {
   render() {
     return (
       <List
-        formTitle="New email template"
-        size="lg"
+        formTitle='New email template'
+        size='lg'
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
-          { title: __('Email templates') },
+          { title: __('Email templates') }
         ]}
         title={__('Email templates')}
         leftActionBar={
           <HeaderDescription
-            icon="/images/actions/22.svg"
-            title="Email templates"
+            icon='/images/actions/22.svg'
+            title='Email templates'
             description={`${__(
-              `It's all about thinking ahead for your customers`,
+              `It's all about thinking ahead for your customers`
             )}.${__(
-              'Team members will be able to choose from email templates and send out one message to multiple recipients',
+              'Team members will be able to choose from email templates and send out one message to multiple recipients'
             )}.${__(
-              'You can use the email templates to send out a Mass email for leads/customers or you can send to other team members',
+              'You can use the email templates to send out a Mass email for leads/customers or you can send to other team members'
             )}`}
           />
         }
