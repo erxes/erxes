@@ -18,21 +18,18 @@ const loginMiddleware = async (req, res) => {
     'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content'
   );
 
-  const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
+  const DOMAIN = 'https://dd1f-202-21-104-34.ngrok-free.app';
+  const API_DOMAIN = DOMAIN.includes('ngrok') ? DOMAIN : `${DOMAIN}/gateway`;
   const INSTAGRAM_LOGIN_REDIRECT_URL = await getConfig(
     models,
     'INSTAGRAM_LOGIN_REDIRECT_URL',
-    `${DOMAIN}/pl:instagram/iglogin`
+    `${API_DOMAIN}/pl:instagram/iglogin`
   );
-  //     scope: `${INSTAGRAM_PERMISSIONS},instagram_basic,instagram_manage_messages,business_management,instagram_content_publish,instagram_manage_comments,ads_management,pages_read_engagement,instagram_manage_insights,pages_show_list,pages_manage_posts,instagram_manage_events,instagram_graph_user_media
-
-  // `,
   const conf = {
     client_id: INSTAGRAM_APP_ID,
     client_secret: INSTAGRAM_APP_SECRET,
 
-    scope: `${INSTAGRAM_PERMISSIONS},pages_show_list,instagram_basic,instagram_manage_insights,instagram_manage_comments,instagram_manage_messages,business_management,instagram_content_publish,`,
-
+    scope: `${INSTAGRAM_PERMISSIONS},instagram_manage_comments,instagram_basic,instagram_manage_messages,business_management`,
     redirect_uri: INSTAGRAM_LOGIN_REDIRECT_URL
   };
   debugRequest(debugFacebook, req);
@@ -43,7 +40,7 @@ const loginMiddleware = async (req, res) => {
       client_id: conf.client_id,
       redirect_uri: conf.redirect_uri,
       scope: conf.scope,
-      state: `${DOMAIN}/gateway/pl:instagram`
+      state: `${API_DOMAIN}/pl:instagram`
     });
 
     // checks whether a user denied the app facebook login/permissions
@@ -113,7 +110,7 @@ const loginMiddleware = async (req, res) => {
       });
     }
 
-    const url = `${DOMAIN}/settings/ig-authorization?igAuthorized=true`;
+    const url = `${API_DOMAIN}/settings/ig-authorization?igAuthorized=true`;
 
     debugResponse(debugFacebook, req, url);
 
