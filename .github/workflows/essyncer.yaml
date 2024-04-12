@@ -6,6 +6,7 @@ on:
       - master
       - rc
       - dev
+      - test-update-package
     paths:
       - 'essyncer/**'
       - '.github/workflows/essyncer.yaml'
@@ -15,6 +16,7 @@ on:
       - master
       - rc
       - dev
+      - test-update-package
     paths:
       - 'essyncer/**'
       - '.github/workflows/essyncer.yaml'

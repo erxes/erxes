@@ -6,7 +6,7 @@ on:
       - dev
       - master
       - rc
-      - staging
+      - test-update-package
       - exm-improve
     paths:
       - 'exm-web/**'
@@ -17,7 +17,7 @@ on:
       - dev
       - master
       - rc
-      - staging
+      - test-update-package
       - exm-improve
     paths:
       - 'exm-web/**'
@@ -43,7 +43,7 @@ jobs:
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/exm-improve')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/test-update-package')
         run: |
           cd exm-web
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
