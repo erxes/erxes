@@ -95,7 +95,10 @@ const generateFilterPosQuery = async (
   }
 
   if (brandId) {
-    query.scopeBrandIds = { $in: [brandId] };
+    const pos = await models.Pos.findOne({
+      scopeBrandIds: { $in: [brandId] },
+    }).lean();
+    query.posToken = pos.token;
   }
 
   if (posToken) {

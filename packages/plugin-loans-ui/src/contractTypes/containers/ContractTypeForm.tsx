@@ -2,7 +2,7 @@ import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { ButtonMutate, withCurrentUser, withProps } from '@erxes/ui/src';
 import productCategoryQueries from '@erxes/ui-products/src/graphql/queries';
-import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
+import { ProductCategoriesQueryResponse ,ProductsQueryResponse} from '@erxes/ui-products/src/types';
 import { IUser, UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import * as compose from 'lodash.flowright';
@@ -21,6 +21,7 @@ type Props = {
 type FinalProps = {
   usersQuery: UsersQueryResponse;
   productCategoriesQuery: ProductCategoriesQueryResponse;
+  productsQuery:ProductsQueryResponse;
   currentUser: IUser;
 } & Props;
 
@@ -66,12 +67,21 @@ class ContractTypeFromContainer extends React.Component<FinalProps> {
       return null;
     }
 
+    const { productsQuery } = this.props;
+    if (productsQuery.loading) {
+      return null;
+    }
+
+    
+
     const productCategories = productCategoriesQuery.productCategories || [];
+    const products = productsQuery.products || [];
 
     const updatedProps = {
       ...this.props,
       renderButton,
-      productCategories
+      productCategories,
+      products
     };
     return <ContractTypeForm {...updatedProps} />;
   }
@@ -89,7 +99,14 @@ export default withCurrentUser(
         {
           name: 'productCategoriesQuery'
         }
-      )
+      ),
+      graphql<Props, ProductCategoriesQueryResponse>(
+        gql(productCategoryQueries.products),
+        {
+          name: 'productsQuery'
+        }
+      ),
+      
     )(ContractTypeFromContainer)
   )
 );

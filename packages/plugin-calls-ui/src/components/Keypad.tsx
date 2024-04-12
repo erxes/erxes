@@ -85,7 +85,7 @@ const KeyPad = (props: Props, context) => {
     call?.startTime ? calculateTimeElapsed(call.startTime) : 0
   );
   const formatedPhone = formatPhone(number);
-  const ourPhone = callUserIntegrations?.map((user) => ({
+  const ourPhone = callUserIntegrations?.map(user => ({
     value: user.phone,
     label: user.phone,
   }));
@@ -111,7 +111,7 @@ const KeyPad = (props: Props, context) => {
       .then(() => {
         setHasMicrophone(true);
       })
-      .catch((error) => {
+      .catch(error => {
         const errorMessage = error
           ?.toString()
           .replace('DOMException:', '')
@@ -170,7 +170,7 @@ const KeyPad = (props: Props, context) => {
     const isConnected = status === 'connect';
 
     const integration = callUserIntegrations?.find(
-      (userIntegration) => userIntegration.phone === callFrom
+      userIntegration => userIntegration.phone === callFrom
     );
     localStorage.setItem(
       'config:call_integrations',
@@ -203,7 +203,7 @@ const KeyPad = (props: Props, context) => {
       );
   };
 
-  const handNumPad = (e) => {
+  const handNumPad = e => {
     let num = number;
     let dialNumber = dialCode;
 
@@ -236,15 +236,12 @@ const KeyPad = (props: Props, context) => {
       }
     }
   };
-  const handleKeyDown = (event) => {
+  const handleKeyDown = event => {
     const keyValue = event.key;
-<<<<<<< HEAD
     const input = inputRef.current;
 
-=======
->>>>>>> 13861340920ded6914fbdc6ea3b5f100f24276de
     if (/^[0-9]$/.test(keyValue)) {
-      setNumber((prevNumber) => prevNumber + keyValue);
+      setNumber(prevNumber => prevNumber + keyValue);
     } else if (
       (keyValue === 'Delete' || keyValue === 'Backspace') &&
       input.selectionStart === 0 &&
@@ -255,14 +252,14 @@ const KeyPad = (props: Props, context) => {
       (keyValue === 'Delete' || keyValue === 'Backspace') &&
       number.length > 0
     ) {
-      setNumber((prevNumber) => prevNumber.slice(0, -1));
+      setNumber(prevNumber => prevNumber.slice(0, -1));
     }
 
     if (keyValue === 'Enter') {
       handleCall();
     }
   };
-  const handlePaste = (event) => {
+  const handlePaste = event => {
     const pastedText = event.clipboardData?.getData('text');
     const maxLength = 10;
     const truncatedText = pastedText?.substring(0, maxLength);
@@ -270,15 +267,15 @@ const KeyPad = (props: Props, context) => {
   };
 
   const onBack = () => setShowTrigger(false);
-  const search = (e) => {
+  const search = e => {
     const inputValue = e.target.value;
     setSearchValue(inputValue);
   };
-  const onStatusChange = (status) => {
+  const onStatusChange = status => {
     setCallFrom(status.value);
 
     const integration = callUserIntegrations?.find(
-      (userIntegration) => userIntegration.phone === status.value
+      userIntegration => userIntegration.phone === status.value
     );
     localStorage.setItem(
       'config:call_integrations',
