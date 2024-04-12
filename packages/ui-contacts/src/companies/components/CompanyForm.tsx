@@ -77,7 +77,7 @@ class CompanyForm extends React.Component<Props, State> {
       isSubscribed: company.isSubscribed || "Yes",
       users: [],
       avatar: company.avatar,
-      industry: company.industry || "",
+      industry: company.industry || null,
       businessType: company.businessType || "",
       location: company.location || "",
     };
