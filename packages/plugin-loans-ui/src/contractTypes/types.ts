@@ -81,6 +81,7 @@ export interface IContractTypeDoc {
 export interface IContractType extends IContractTypeDoc {
   _id: string;
   productType?: any;
+  productId?: string;
 }
 
 export interface IContractTypeDetail extends IContractType {
