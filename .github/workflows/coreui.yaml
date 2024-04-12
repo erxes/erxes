@@ -7,7 +7,7 @@ on:
       - master
       - rc
       - staging
-      - build-test
+      - test-update-package
     paths:
       - 'packages/erxes-ui/**'
       - 'packages/core-ui/**'
