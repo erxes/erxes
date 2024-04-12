@@ -41,7 +41,7 @@ export interface ICallConversation {
   operatorPhone: string;
   integrationId: string;
   callId: string;
-  id: string;
+  _id: string;
 }
 export interface IHistoryDoc {
   receiverNumber: string;

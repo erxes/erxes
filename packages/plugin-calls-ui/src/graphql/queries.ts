@@ -130,6 +130,7 @@ const callHistories = `
     createdBy
     modifiedBy
     extentionNumber
+    conversationId
     customer {
       _id
       avatar

@@ -40,7 +40,7 @@ export const loadCallHistoryClass = (models: IModels) => {
         ...selector,
         receiverNumber: integration.phone,
       })
-        .sort({ updatedAt: -1 })
+        .sort({ modifiedAt: -1 })
         .skip(selector.skip || 0)
         .limit(selector.limit || 20);
 

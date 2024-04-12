@@ -73,7 +73,7 @@ export const callActions = (
   handleAudioToggle,
   isHolded,
   handleHold,
-  endCall
+  endCall,
 ) => {
   const isHold = isHolded().localHold;
 
@@ -121,11 +121,11 @@ export const setLocalStorage = (isRegistered, isAvailable) => {
     'callInfo',
     JSON.stringify({
       isRegistered,
-    })
+    }),
   );
 
   const callConfig = JSON.parse(
-    localStorage.getItem('config:call_integrations') || '{}'
+    localStorage.getItem('config:call_integrations') || '{}',
   );
 
   callConfig &&
@@ -138,7 +138,7 @@ export const setLocalStorage = (isRegistered, isAvailable) => {
         token: callConfig.token,
         operators: callConfig.operators,
         isAvailable,
-      })
+      }),
     );
 };
 
@@ -152,4 +152,13 @@ export const extractPhoneNumberFromCounterpart = (counterpart) => {
   const endIndex = counterpart.indexOf('@');
   if (startIndex >= endIndex || startIndex === -1 || endIndex === -1) return '';
   return counterpart.slice(startIndex, endIndex);
+};
+
+export const removeConversationIdFromStorage = (sessionId) => {
+  console.log(sessionId);
+  const callConversationId = localStorage.getItem('callConversationId');
+  if (callConversationId) {
+    console.log(sessionId, 'removed');
+    localStorage.removeItem('callConversationId');
+  }
 };

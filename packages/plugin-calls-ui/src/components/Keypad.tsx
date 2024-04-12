@@ -25,7 +25,7 @@ import {
   SIP_STATUS_ERROR,
   SIP_STATUS_REGISTERED,
 } from '../lib/enums';
-import { ICallConversation, ICustomer } from '../types';
+import { ICustomer } from '../types';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   calculateTimeElapsed,
@@ -44,10 +44,6 @@ type Props = {
   callUserIntegrations: any;
   setConfig: any;
   customer: ICustomer;
-  toggleSectionWithPhone: (phoneNumber: string) => void;
-  taggerRefetchQueries: any;
-  conversation: ICallConversation;
-  addNote: (conversationId: string, content: string) => void;
   disconnectCall: () => void;
   phoneNumber: string;
 };
@@ -60,7 +56,6 @@ const KeyPad = (props: Props, context) => {
     callUserIntegrations,
     setConfig,
     customer,
-    conversation,
     phoneNumber,
   } = props;
 
@@ -89,13 +84,7 @@ const KeyPad = (props: Props, context) => {
     value: user.phone,
     label: user.phone,
   }));
-  let conversationDetail;
-  if (conversation) {
-    conversationDetail = {
-      ...conversation,
-      _id: conversation.erxesApiId,
-    };
-  }
+
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
@@ -238,22 +227,6 @@ const KeyPad = (props: Props, context) => {
   };
   const handleKeyDown = event => {
     const keyValue = event.key;
-    const input = inputRef.current;
-
-    if (/^[0-9]$/.test(keyValue)) {
-      setNumber(prevNumber => prevNumber + keyValue);
-    } else if (
-      (keyValue === 'Delete' || keyValue === 'Backspace') &&
-      input.selectionStart === 0 &&
-      input.selectionEnd === number.length
-    ) {
-      setNumber('');
-    } else if (
-      (keyValue === 'Delete' || keyValue === 'Backspace') &&
-      number.length > 0
-    ) {
-      setNumber(prevNumber => prevNumber.slice(0, -1));
-    }
 
     if (keyValue === 'Enter') {
       handleCall();
@@ -434,10 +407,11 @@ const KeyPad = (props: Props, context) => {
             value={number}
             onKeyDown={handleKeyDown}
             autoFocus={true}
-            defaultValue={number}
             ref={inputRef}
             onPaste={handlePaste}
             autoComplete="off"
+            onChange={e=>setNumber(e.target.value)}
+            type='number'
           />
         </InputBar>
         {renderKeyPad(handNumPad)}

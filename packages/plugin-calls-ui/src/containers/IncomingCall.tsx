@@ -6,10 +6,11 @@ import { ICustomer } from '../types';
 import IncomingCall from '../components/IncomingCall';
 import { __ } from '@erxes/ui/src/utils/core';
 import { callPropType } from '../lib/types';
-import client from '@erxes/ui/src/apolloClient';
 import { mutations } from '../graphql';
-import queries from '../graphql/queries';
-import { extractPhoneNumberFromCounterpart } from '../utils';
+import {
+  extractPhoneNumberFromCounterpart,
+  removeConversationIdFromStorage,
+} from '../utils';
 
 interface IProps {
   closeModal?: () => void;
@@ -18,7 +19,8 @@ interface IProps {
 
 const IncomingCallContainer = (props: IProps, context) => {
   const [customer, setCustomer] = useState<any>({} as ICustomer);
-  const [conversation, setConversation] = useState<any>(undefined);
+  const [channels, setChannels] = useState<any>();
+
   const [hasMicrophone, setHasMicrophone] = useState(false);
 
   const { callUserIntegrations } = props;
@@ -38,6 +40,8 @@ const IncomingCallContainer = (props: IProps, context) => {
   const [addInternalNotes] = useMutation(gql(mutations.conversationMessageAdd));
 
   useEffect(() => {
+    removeConversationIdFromStorage('12');
+
     navigator.mediaDevices
       .getUserMedia({ audio: true })
       .then(() => {
@@ -65,7 +69,7 @@ const IncomingCallContainer = (props: IProps, context) => {
       })
         .then(({ data }: any) => {
           setCustomer(data.callAddCustomer?.customer);
-          setConversation(data.callAddCustomer?.conversation);
+          setChannels(data.callAddCustomer?.channels);
         })
         .catch((e) => {
           Alert.error(e.message);
@@ -88,48 +92,10 @@ const IncomingCallContainer = (props: IProps, context) => {
         Alert.error(e.message);
       });
   };
-
-  const getCustomerDetail = (phone?: string) => {
-    if (!phone) {
-      return null;
-    }
-
-    client
-      .query({
-        query: gql(queries.callCustomerDetail),
-        fetchPolicy: 'network-only',
-        variables: { callerNumber: phone },
-      })
-      .then(({ data }: { data: any }) => {
-        if (data && data.callsCustomerDetail) {
-          setCustomer(data.callsCustomerDetail);
-        }
-      })
-      .catch((error) => {
-        console.log(error.message); // tslint:disable-line
-      });
-
-    return;
-  };
-
-  const toggleSection = (phone): void => {
-    getCustomerDetail(phone);
-  };
-
-  const taggerRefetchQueries = [
-    {
-      query: gql(queries.callCustomerDetail),
-      variables: { callerNumber: customer?.primaryPhone },
-      skip: !customer?.primaryPhone,
-    },
-  ];
-
   return (
     <IncomingCall
       customer={customer}
-      toggleSectionWithPhone={toggleSection}
-      taggerRefetchQueries={taggerRefetchQueries}
-      conversation={conversation}
+      channels={channels}
       hasMicrophone={hasMicrophone}
       addNote={addNote}
       phoneNumber={phoneNumber}

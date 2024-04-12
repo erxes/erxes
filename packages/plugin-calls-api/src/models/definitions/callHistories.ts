@@ -10,10 +10,12 @@ export interface ICallHistory {
   callType: string;
   callStatus: string;
   sessionId: string;
-  updatedAt: Date;
+  modifiedAt: Date;
   createdAt: Date;
   createdBy: string;
-  updatedBy: string;
+  modifiedBy: string;
+  conversationId: string;
+  acceptedUserId: string;
 }
 
 export interface ICallHistoryDocument extends ICallHistory, Document {}
@@ -32,13 +34,18 @@ export const callHistorySchema = new Schema({
   callStatus: field({
     type: String,
     label: 'status',
-    enum: ['missed', 'connected', 'rejected', 'cancelled'],
+    enum: ['missed', 'connected', 'rejected', 'cancelled', 'active'],
     default: 'missed',
   }),
+  acceptedUserId: field({
+    type: String,
+    label: 'call accepted operator id',
+  }),
   sessionId: field({ type: String, label: 'call session id' }),
-  updatedAt: field({ type: Date, label: 'modified date' }),
+  modifiedAt: field({ type: Date, label: 'modified date' }),
   createdAt: field({ type: Date, label: 'created date', default: new Date() }),
   createdBy: field({ type: String, label: 'created By' }),
-  updatedBy: field({ type: String, label: 'updated By' }),
+  modifiedBy: field({ type: String, label: 'updated By' }),
   extentionNumber: field({ type: String, label: 'extention number' }),
+  conversationId: field({ type: String, label: 'erxes conversation id' }),
 });

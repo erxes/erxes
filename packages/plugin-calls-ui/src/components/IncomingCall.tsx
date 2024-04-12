@@ -24,9 +24,7 @@ import { renderFullName } from '@erxes/ui/src/utils/core';
 
 type Props = {
   customer: ICustomer;
-  conversation: ICallConversation;
-  toggleSectionWithPhone: (phoneNumber: string) => void;
-  taggerRefetchQueries: any;
+  channels: any;
   hasMicrophone: boolean;
   addNote: (conversationId: string, content: string) => void;
   phoneNumber: string;
@@ -62,7 +60,7 @@ const formatNumber = (n: number) => {
 const IncomingCall = (props: Props, context) => {
   const Sip = context;
   const { mute, unmute, isMuted, isHolded, hold, unhold } = Sip;
-  const { customer, conversation, hasMicrophone, phoneNumber } = props;
+  const { customer, hasMicrophone, phoneNumber, channels } = props;
   const primaryPhone = customer?.primaryPhone || '';
 
   const [haveIncomingCall, setHaveIncomingCall] = useState(
@@ -73,12 +71,13 @@ const IncomingCall = (props: Props, context) => {
 
   let conversationDetail;
 
-  if (conversation) {
-    conversationDetail = {
-      ...conversation,
-      _id: conversation.erxesApiId,
-    };
-  }
+  // if (conversation) {
+  //   console.log(conversation._id, 'conversation');
+  //   localStorage.setItem('callConversationId', conversation._id);
+  //   conversationDetail = {
+  //     ...conversation,
+  //   };
+  // }
   const audioRef = useRef<HTMLAudioElement | null>(null);
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -158,8 +157,8 @@ const IncomingCall = (props: Props, context) => {
 
   const renderUserInfo = (type?: string) => {
     const inCall = type === 'incall' ? true : false;
-    const hasChannel = conversationDetail?.channels?.length > 0;
-    const channelName = conversationDetail?.channels?.[0]?.name || '';
+    const hasChannel = channels?.length > 0;
+    const channelName = channels?.[0]?.name || '';
     const fullName = renderFullName(customer || '', false);
 
     return (
@@ -216,26 +215,26 @@ const IncomingCall = (props: Props, context) => {
       audioRef.current.pause();
       audioRef.current.src = '';
     }
-    return (
-      hasMicrophone && (
-        <IncomingCallNav>
-          <IncomingContainer>
-            <IncomingContent>
-              {renderUserInfo('incall')}
-              <p>
-                {__('Call duration:')} <b>{getSpentTime(timeSpent)}</b>
-              </p>
-              {callActions(
-                isMuted,
-                handleAudioToggle,
-                isHolded,
-                handleHold,
-                endCall,
-              )}
-            </IncomingContent>
-          </IncomingContainer>
-        </IncomingCallNav>
-      )
+    return hasMicrophone ? (
+      <IncomingCallNav>
+        <IncomingContainer>
+          <IncomingContent>
+            {renderUserInfo('incall')}
+            <p>
+              {__('Call duration:')} <b>{getSpentTime(timeSpent)}</b>
+            </p>
+            {callActions(
+              isMuted,
+              handleAudioToggle,
+              isHolded,
+              handleHold,
+              endCall,
+            )}
+          </IncomingContent>
+        </IncomingContainer>
+      </IncomingCallNav>
+    ) : (
+      <h3>Check your microphone</h3>
     );
   }
 

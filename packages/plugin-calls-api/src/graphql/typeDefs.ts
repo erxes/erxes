@@ -53,7 +53,7 @@ const types = `
 
   type CallConversationDetail {
     customer: Customer
-    conversation: CallConversation
+    channels: [CallChannel]
   }
   type CallActiveSession {
     _id: String
@@ -76,6 +76,7 @@ const types = `
     modifiedBy: String
     customer: Customer
     extentionNumber: String
+    conversationId: String
   }
 `;
 
@@ -94,6 +95,7 @@ const commonHistoryFields = `
   createdAt: Date
   createdBy: String
   modifiedBy: String
+  conversationId: String
 `;
 
 const mutationFilterParams = `
@@ -120,12 +122,13 @@ const queries = `
 
 const mutations = `
   callsIntegrationUpdate(configs: CallIntegrationConfigs): JSON
-  callAddCustomer(inboxIntegrationId: String, primaryPhone: String, direction: String, callID: String): CallConversationDetail
+  callAddCustomer(inboxIntegrationId: String, primaryPhone: String): CallConversationDetail
   callUpdateActiveSession: JSON
   callTerminateSession: JSON
   callDisconnect: String
   callHistoryAdd(${commonHistoryFields}): CallHistory
-  callHistoryEdit(${commonHistoryFields}): CallHistory
+  callHistoryEdit(${commonHistoryFields}): String
+  callHistoryEditStatus(callStatus: String, conversationId: String): String
   callHistoryRemove(_id: String!): JSON
   callsUpdateConfigs(configsMap: JSON!): JSON
 `;

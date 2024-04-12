@@ -11,7 +11,6 @@ import IncomingCallContainer from './IncomingCall';
 import { ModalTrigger } from '@erxes/ui/src/components';
 import SipProvider from '../components/SipProvider';
 import WidgetContainer from './Widget';
-import { getSubdomain } from '@erxes/ui/src/utils/core';
 import { setLocalStorage } from '../utils';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 
@@ -30,10 +29,10 @@ const SipProviderContainer = (props) => {
   );
 
   const [createActiveSession] = useMutation(gql(mutations.addActiveSession));
-  const [removeActiveSession] = useMutation(
-    gql(mutations.callTerminateSession),
-  );
   const [updateHistoryMutation] = useMutation(gql(mutations.callHistoryEdit));
+  const [updateStatusHistoryMutation] = useMutation(
+    gql(mutations.callHistoryEditStatus),
+  );
 
   useSubscription(gql(subscriptions.sessionTerminateRequested), {
     variables: { userId: props.currentUser._id },
@@ -76,31 +75,12 @@ const SipProviderContainer = (props) => {
       });
   };
 
-  const removeSession = () => {
-    removeActiveSession()
-      .then(() => {
-        if (config) {
-          setConfig({
-            inboxId: config.inboxId,
-            phone: config.phone,
-            wsServer: config.wsServer,
-            token: config.token,
-            operators: config.operators,
-            isAvailable: true,
-          });
-          setLocalStorage(true, true);
-        }
-      })
-      .catch((e) => {
-        Alert.error(e.message);
-      });
-  };
-
   const updateHistory = (
     sessionId: string,
     callStartTime: Date,
     callEndTime: Date,
     callStatus: string,
+    conversationId: string,
   ) => {
     let duration = 0;
     if (callStartTime && callEndTime) {
@@ -116,10 +96,25 @@ const SipProviderContainer = (props) => {
         callEndTime,
         callDuration: duration,
         callStatus,
+        conversationId: conversationId || '',
       },
       refetchQueries: ['callHistories'],
     })
       .then()
+      .catch((e) => {
+        Alert.error(e.message);
+      });
+  };
+  const updateStatusHistory = (callStatus: string, conversationId: string) => {
+    updateStatusHistoryMutation({
+      variables: {
+        callStatus,
+        conversationId: conversationId || '',
+      },
+    })
+      .then(() => {
+        Alert.success('Successfully updated status');
+      })
       .catch((e) => {
         Alert.error(e.message);
       });
@@ -217,6 +212,7 @@ const SipProviderContainer = (props) => {
       {...sipConfig}
       createSession={createSession}
       updateHistory={updateHistory}
+      updateStatusHistory={updateStatusHistory}
       callUserIntegration={filteredIntegration}
     >
       {(state) => (
