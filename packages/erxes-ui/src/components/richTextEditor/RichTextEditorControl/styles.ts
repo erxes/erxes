@@ -393,7 +393,7 @@ const RichTextEditorMenuPopoverWrapper = styled.div`
   }
   .popover {
     box-shadow: 0 2px 6px 2px rgba(60, 64, 67, 0.15);
-    z-index: 100;
+    z-index: 999;
   }
 `;
 

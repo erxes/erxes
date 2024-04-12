@@ -1,19 +1,22 @@
+import { FunctionComponent } from "react"
+import { Metadata } from "next"
 import dynamic from "next/dynamic"
-import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Feed',
-  description: 'Employee Experience Management - Feed',
+  title: "Feed",
+  description: "Employee Experience Management - Feed",
 }
 
 const Feed = dynamic(() => import("@/modules/feed/component/Feed"))
 
-export default function IndexPage() {
+interface FeedPageProps {}
+
+const FeedPage: FunctionComponent<FeedPageProps> = () => {
   return (
-    <>
-      <div className="flex h-full w-[calc(100%-230px)] flex-col shrink-0">
-        <Feed />
-      </div>
-    </>
+    <div className="mx-auto max-w-[1607px] w-full">
+      <Feed />
+    </div>
   )
 }
+
+export default FeedPage

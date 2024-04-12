@@ -46,6 +46,11 @@ import {
   queries as classificationQueries,
   types as classificationTypes
 } from './classification';
+import {
+  mutations as nonBalanceTransactionMutations,
+  queries as nonBalanceTransactionQueries,
+  types as nonBalanceTransactionTypes
+} from './nonBalanceTransaction';
 
 export const types = `
   ${attachmentType}
@@ -76,6 +81,7 @@ export const types = `
   ${transactionTypes},
   ${scheduleTypes()},
   ${classificationTypes()},
+  ${nonBalanceTransactionTypes},
 `;
 
 export const queries = `
@@ -88,6 +94,7 @@ export const queries = `
   ${scheduleQueries},
   ${transactionQueries},
   ${classificationQueries},
+  ${nonBalanceTransactionQueries},
 `;
 
 export const mutations = `
@@ -99,4 +106,5 @@ export const mutations = `
   ${scheduleMutations},
   ${transactionMutations},
   ${classificationMutations},
+  ${nonBalanceTransactionMutations}
 `;
