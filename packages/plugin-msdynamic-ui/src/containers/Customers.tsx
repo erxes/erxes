@@ -1,19 +1,21 @@
-import { gql } from "@apollo/client";
 import * as compose from "lodash.flowright";
-import { graphql } from "@apollo/client/react/hoc";
-import { withProps } from "@erxes/ui/src/utils";
+
+import React, { useState } from "react";
 import {
   ToCheckCustomersMutationResponse,
   ToSyncCustomersMutationResponse,
 } from "../types";
-import { router } from "@erxes/ui/src";
-import { Bulk } from "@erxes/ui/src/components";
+import { useLocation, useNavigate } from "react-router-dom";
+
 import Alert from "@erxes/ui/src/utils/Alert";
-import { mutations } from "../graphql";
-import React, { useState } from "react";
+import { Bulk } from "@erxes/ui/src/components";
 import Customers from "../components/customers/Customers";
 import Spinner from "@erxes/ui/src/components/Spinner";
-import { useLocation, useNavigate } from "react-router-dom";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { mutations } from "../graphql";
+import { router } from "@erxes/ui/src";
+import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   queryParams: any;
@@ -40,9 +42,6 @@ const CustomersContainer = (props: FinalProps) => {
   }
 
   const setSyncStatusTrue = (data: any, customers: any, action: string) => {
-    console.log(data[action].items, "data[action].items");
-    console.log(customers, "customers");
-
     data[action].items = data[action].items.map((i) => {
       if (customers.find((c) => c.No === i.No)) {
         const temp = i;

@@ -117,7 +117,7 @@ class ScoreLogsListComponent extends React.Component<IProps> {
               <td>{name(p.ownerType, p.owner)}</td>
               <td>{p.ownerType}</td>
               <td>{p.changeScore}</td>
-              <td>{p.owner.score}</td>
+              <td>{p.owner?.score}</td>
               <td>{dayjs(p.createdAt).format('lll')}</td>
             </tr>
           ))}

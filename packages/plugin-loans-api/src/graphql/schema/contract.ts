@@ -176,6 +176,7 @@ const queryParams = `
 export const queries = `
   contractsMain(${queryParams}): ContractsListResponse
   contracts(${queryParams}): [LoanContract]
+  clientLoansContracts(${queryParams}): [LoanContract]
   contractDetail(_id: String!): LoanContract
   cpContracts(cpUserType: String cpUserEmail: String cpUserPhone: String): [LoanContract]
   cpContractDetail(_id: String!): LoanContract

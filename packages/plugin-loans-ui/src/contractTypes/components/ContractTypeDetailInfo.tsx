@@ -1,21 +1,23 @@
+import { Action, Name } from "../../contracts/styles";
+import { SidebarCounter, SidebarList } from "@erxes/ui/src/layout/styles";
+
 import Alert from "@erxes/ui/src/utils/Alert";
 import Button from "@erxes/ui/src/components/Button";
-import confirm from "@erxes/ui/src/utils/confirmation/confirm";
+import ContractTypeForm from "../containers/ContractTypeForm";
+import ContractTypesCustomFields from "./ContractTypesCustomFields";
+import { Description } from "../../contracts/styles";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 import { FieldStyle } from "@erxes/ui/src/layout/styles";
+import { IContractTypeDetail } from "../types";
 import Icon from "@erxes/ui/src/components/Icon";
 import { MainStyleInfoWrapper as InfoWrapper } from "@erxes/ui/src/styles/eindex";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
-import { SidebarCounter, SidebarList } from "@erxes/ui/src/layout/styles";
-import { __ } from "coreui/utils";
-import Dropdown from "@erxes/ui/src/components/Dropdown";
-import { Action, Name } from "../../contracts/styles";
 import React from "react";
-
-import { Description } from "../../contracts/styles";
-import ContractTypeForm from "../containers/ContractTypeForm";
-import { IContractTypeDetail } from "../types";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import { __ } from "coreui/utils";
+import confirm from "@erxes/ui/src/utils/confirmation/confirm";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   contractType: IContractTypeDetail;
@@ -133,6 +135,9 @@ const DetailInfo = (props: Props) => {
           </SidebarList>
         </Section>
       </Sidebar.Section>
+      {isEnabled("forms") && (
+        <ContractTypesCustomFields contractType={props.contractType} isDetail />
+      )}
     </Sidebar>
   );
 };

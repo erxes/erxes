@@ -1,6 +1,7 @@
-import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
-import React from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
+
+import React from "react";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 import queryString from "query-string";
 
 const GeneralSettings = asyncComponent(
@@ -42,6 +43,13 @@ const Customers = asyncComponent(
     import(/* webpackChunkName: "InventoryProducts" */ "./containers/Customers")
 );
 
+const CheckSyncedOrders = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "CheckSyncedOrders" */ "./containers/CheckSyncedOrders"
+    )
+);
+
 const Msdynamics = () => {
   return <GeneralSettings />;
 };
@@ -76,6 +84,17 @@ const InventoryPriceList = () => {
   return <InventoryPrices queryParams={queryString.parse(location.search)} />;
 };
 
+const CheckSyncedOrderList = () => {
+  const location = useLocation();
+
+  return (
+    <CheckSyncedOrders
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
 const routes = () => {
   return (
     <Routes>
@@ -104,6 +123,11 @@ const routes = () => {
         key="/msdynamic-price"
         path="/msdynamic-price"
         element={<InventoryPriceList />}
+      />
+      <Route
+        key="/msdynamic-sync-orders"
+        path="/check-sync-orders"
+        element={<CheckSyncedOrderList />}
       />
     </Routes>
   );
