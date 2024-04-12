@@ -573,7 +573,7 @@ const msdynamicCheckMutations = {
         _id: valueObject[key],
         isSynced: true,
         syncedDate: data.Order_Date,
-        syncedBillNumber: data.Bill_to_Contact_No,
+        syncedBillNumber: data.No,
         syncedCustomer: data.Sell_to_Customer_No,
       };
     });
