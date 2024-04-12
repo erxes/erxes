@@ -95,7 +95,9 @@ const generateFilterPosQuery = async (
   }
 
   if (brandId) {
-    const pos = await models.Pos.findOne({ scopeBrandIds: { $in: [brandId] } }).lean();
+    const pos = await models.Pos.findOne({
+      scopeBrandIds: { $in: [brandId] },
+    }).lean();
     query.posToken = pos.token;
   }
 
@@ -311,8 +313,8 @@ export const posOrderRecordsQuery = async (
       productCategoryById[perProduct.categoryId || ''];
     order.items.manufactured = order.items.manufacturedDate
       ? new Date(
-        Number(shortStrToDate(order.items.manufacturedDate, 92, 'h', 'n'))
-      )
+          Number(shortStrToDate(order.items.manufacturedDate, 92, 'h', 'n'))
+        )
       : '';
     order.user = userById[order.userId];
     order.posName = posByToken[order.posToken].name;
