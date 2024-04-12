@@ -155,7 +155,7 @@ function CollapseContent({
   const hasImage = image ? true : false;
 
   return (
-    <Disclosure as={Container} id={id} $transparent={transparent}>
+    <Disclosure as={Container} id={id} $transparent={transparent} defaultOpen={open}>
       <Disclosure.Button
         as={Title}
         href={contendId && `#${contendId}`}

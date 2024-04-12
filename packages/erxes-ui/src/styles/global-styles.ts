@@ -381,17 +381,27 @@ a:hover {
   margin: 0;
 }
 
-.dialog-size-lg {
-  max-width: 800px;
+@media (min-width: 992px){
+  .dialog-size-lg {
+    width: 800px;
+  }
+  .dialog-size-xl {
+    width: 800px;
+  }
 }
-
-.dialog-size-xl {
-  max-width: 1150px;
+@media (max-width: 576px) {
+  .dialog-size-lg, .dialog-size-xl {
+    width: 95%;
+  }
+}
+@media (min-width: 1200px){
+  .dialog-size-xl {
+    width: 1150px;
+  }
 }
 
 .dialog-size-xs {
-  max-width: 300px;
-  min-width: 300px;
+  width: 300px;
 }
 
 /* tooltip */
