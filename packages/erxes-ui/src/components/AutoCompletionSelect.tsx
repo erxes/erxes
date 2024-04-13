@@ -1,13 +1,12 @@
-import { Alert, __ } from '../utils';
-import React, { useCallback, useEffect, useState } from 'react';
+import { Alert, __ } from "../utils";
+import React, { useCallback, useEffect, useState } from "react";
 
-import Button from './Button';
-import Icon from './Icon';
-import client from '../apolloClient';
-import debounce from 'lodash/debounce';
-import { gql } from '@apollo/client';
-import Select from 'react-select';
-import styled from 'styled-components';
+import Icon from "./Icon";
+import client from "../apolloClient";
+import debounce from "lodash/debounce";
+import { gql } from "@apollo/client";
+import CreatableSelect from "react-select/creatable";
+import styled from "styled-components";
 
 const Wrapper = styled.div`
   display: flex;
@@ -64,7 +63,7 @@ function Option(props: {
     return (
       <OptionWrapper>
         <FillContent>{option.label}</FillContent>
-        <small>({__('Already exist')})</small>
+        <small>({__("Already exist")})</small>
       </OptionWrapper>
     );
   }
@@ -73,7 +72,7 @@ function Option(props: {
     <OptionWrapper onClick={onClick}>
       <FillContent>{option.label}</FillContent>
       <Icon
-        style={{ float: 'right' }}
+        style={{ float: "right" }}
         icon="times-circle"
         onClick={onRemoveClick}
       />
@@ -122,12 +121,12 @@ function AutoCompletionSelect({
     const addedOptions = currentFields.added.options;
 
     const filteredOptions = addedOptions.filter(
-      (option) => option.value !== value,
+      (option) => option.value !== value
     );
 
     currentFields.added.options = filteredOptions;
 
-    setSearchValue('');
+    setSearchValue("");
     setSelectedValue(null);
     setFields(currentFields);
 
@@ -147,15 +146,15 @@ function AutoCompletionSelect({
       })),
     },
     search: {
-      label: __('Search result'),
+      label: __("Search result"),
       options: [],
     },
   });
 
   const [selectedValue, setSelectedValue] = useState<Option | null>(
-    defaultValue ? { label: defaultValue, value: defaultValue } : null,
+    defaultValue ? { label: defaultValue, value: defaultValue } : null
   );
-  const [searchValue, setSearchValue] = useState<string>('');
+  const [searchValue, setSearchValue] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
   const generateOptions = useCallback(
@@ -173,13 +172,13 @@ function AutoCompletionSelect({
         value: item,
       }));
     },
-    [autoCompletionType],
+    [autoCompletionType]
   );
 
   const setFetchResult = useCallback(
     (list) => {
       const options = generateOptions(list).filter(
-        (item) => item.label !== defaultValue,
+        (item) => item.label !== defaultValue
       );
 
       const currentFields = { ...fields };
@@ -189,7 +188,7 @@ function AutoCompletionSelect({
       setLoading(false);
       setFields(currentFields);
     },
-    [defaultValue, fields, generateOptions],
+    [defaultValue, fields, generateOptions]
   );
 
   const fetch = useCallback(() => {
@@ -218,7 +217,7 @@ function AutoCompletionSelect({
   }, [searchValue, fetch]);
 
   const handleChange = (option) => {
-    setSearchValue('');
+    setSearchValue("");
     setSelectedValue(option);
 
     if (option) {
@@ -236,7 +235,7 @@ function AutoCompletionSelect({
   };
 
   const handleSave = () => {
-    setSearchValue('');
+    setSearchValue("");
 
     const newItem = {
       label: searchValue,
@@ -279,7 +278,7 @@ function AutoCompletionSelect({
         return handleSave();
       }
 
-      return Alert.error('Invalid format');
+      return Alert.error("Invalid format");
     }
 
     return handleSave();
@@ -302,47 +301,20 @@ function AutoCompletionSelect({
     }
   };
 
-  function renderNoResult() {
-    if (searchValue.length === 0) {
-      return 'Type to search';
-    }
-
-    return (
-      <Button
-        btnStyle="link"
-        uppercase={false}
-        onClick={handleAdd}
-        block={true}
-        icon="plus-circle"
-      >
-        Add {autoCompletionType}
-      </Button>
-    );
-  }
-
-  const inputRenderer = (props) => {
-    return <input {...props} value={searchValue} />;
-  };
-
   return (
     <Wrapper>
       <FillContent>
-        <Select
+        <CreatableSelect
           // ref={selectRef}
-          isLoading={loading}
+          // isLoading={loading}
           required={required}
           placeholder={placeholder}
-          // inputRenderer={inputRenderer}
           value={selectedValue}
           options={[fields.added, fields.search]}
-          // onSelectResetsInput={true}
-          // onBlurResetsInput={true}
           onBlur={handleOnBlur}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           onInputChange={handleInput}
-          // optionComponent={Option}
-          // noResultsText={renderNoResult()}
         />
       </FillContent>
     </Wrapper>
