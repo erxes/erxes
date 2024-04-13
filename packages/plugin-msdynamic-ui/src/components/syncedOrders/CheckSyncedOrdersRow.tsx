@@ -82,7 +82,7 @@ const Row = (props: Props) => {
           </Tip>
         )}
 
-        {isUnsynced === false && syncedInfo.syncedDate && (
+        {isUnsynced === false && syncedInfo.syncedDate ? (
           <Tip text="ReSync">
             <Button
               btnStyle="link"
@@ -90,9 +90,7 @@ const Row = (props: Props) => {
               icon="sync-exclamation"
             />
           </Tip>
-        )}
-
-        {isUnsynced === false && Object.keys(syncedInfo).length === 0 && (
+        ) : (
           <Tip text="ReSend">
             <Button
               btnStyle="link"
