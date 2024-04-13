@@ -162,8 +162,8 @@ export const afterMutationHandlers = async (subdomain, params) => {
             continue;
           }
           configs[brandId] = {
-            ...mainConfigs[brandId],
-            ...brandRules[brandId],
+            ...mainConfig,
+            ...saleConfig,
             hasPayment: saleConfigs[destinationStageId].hasPayment,
           };
         }

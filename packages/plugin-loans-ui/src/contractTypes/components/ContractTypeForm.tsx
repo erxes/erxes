@@ -7,6 +7,7 @@ import {
 } from "@erxes/ui/src/styles/eindex";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import { IContractType, IContractTypeDoc } from "../types";
+import { IProduct, IProductCategory } from "@erxes/ui-products/src/types";
 import React, { useState } from "react";
 
 import Button from "@erxes/ui/src/components/Button";
@@ -14,7 +15,6 @@ import ControlLabel from "@erxes/ui/src/components/form/Label";
 import Form from "@erxes/ui/src/components/form/Form";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
-import { IProductCategory } from "@erxes/ui-products/src/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import { ORGANIZATION_TYPE } from "../../constants";
 import Select from "react-select";
@@ -23,6 +23,7 @@ import { __ } from "coreui/utils";
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   productCategories: IProductCategory[];
+  products: IProduct[];
   contractType: IContractType;
   closeModal: () => void;
   currentUser: IUser;
@@ -66,6 +67,7 @@ const ContractTypeForm = (props: Props) => {
     contractType.savingUpperPercent
   );
   const [invoiceDay, setInvoiceDay] = useState(contractType.invoiceDay);
+  const [productId, setProductId] = useState(contractType?.productId);
 
   const generateDoc = (values: { _id: string } & IContractTypeDoc) => {
     const finalValues = values;
@@ -98,6 +100,7 @@ const ContractTypeForm = (props: Props) => {
       useManualNumbering,
       useFee,
       collateralType,
+      productId,
     };
   };
 
@@ -163,6 +166,10 @@ const ContractTypeForm = (props: Props) => {
         (category.order.match(/[/]/gi) || []).length
       )}${category.code} - ${category.name}`,
     }));
+
+    const onSelectProduct = (data) => {
+      setProductId(data.value);
+    };
 
     return (
       <>

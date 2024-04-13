@@ -11,7 +11,6 @@ import EmptyState from "@erxes/ui/src/components/EmptyState";
 import Form from "@erxes/ui-products/src/containers/ProductForm";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
-import { IRouterProps } from "@erxes/ui/src/types";
 import { Icon } from "@erxes/ui/src";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
@@ -245,6 +244,19 @@ const List: React.FC<IProps> = (props) => {
             onChange={onChangeChecked}
             checked={checked}
           />
+          <InputBar type="searchBar">
+            <Icon icon="search-1" size={20} />
+            <FlexItem>
+              <FormControl
+                type="text"
+                placeholder={__("Type to search")}
+                onChange={search}
+                value={searchValue}
+                autoFocus={true}
+                onFocus={moveCursorAtTheEnd}
+              />
+            </FlexItem>
+          </InputBar>
           {bulk.length === 2 && (
             <ModalTrigger
               title="Merge Product"
@@ -272,6 +284,12 @@ const List: React.FC<IProps> = (props) => {
         </BarItems>
       );
     }
+
+    const actionBarLeft = (
+      <Title>{`${
+        currentCategory.name || "All products"
+      } (${productsCount})`}</Title>
+    );
 
     return (
       <BarItems>

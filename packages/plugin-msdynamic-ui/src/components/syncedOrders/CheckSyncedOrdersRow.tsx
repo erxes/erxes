@@ -1,0 +1,119 @@
+import * as dayjs from "dayjs";
+
+import Button from "@erxes/ui/src/components/Button";
+import Detail from "../../containers/PosOrderDetail";
+import { FormControl } from "@erxes/ui/src/components/form";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import Tip from "@erxes/ui/src/components/Tip";
+
+type Props = {
+  order: any;
+  isChecked: boolean;
+  isUnsynced: boolean;
+  toggleBulk: (order: any, isChecked?: boolean) => void;
+  toSync: (orderIds: string[]) => void;
+  toSend: (orderIds: string[]) => void;
+  syncedInfo: any;
+};
+
+const Row = (props: Props) => {
+  const {
+    order,
+    toggleBulk,
+    isChecked,
+    isUnsynced,
+    syncedInfo,
+    toSync,
+    toSend,
+  } = props;
+
+  const modalContent = (_props) => {
+    return <Detail order={order} />;
+  };
+
+  const onChange = (e) => {
+    if (toggleBulk) {
+      toggleBulk(order, e.target.checked);
+    }
+  };
+
+  const onClick = (e) => {
+    e.stopPropagation();
+  };
+
+  const onClickSync = (e) => {
+    e.stopPropagation();
+    toSync([order._id]);
+  };
+
+  const onClickSend = (e) => {
+    e.stopPropagation();
+    toSend([order._id]);
+  };
+
+  const onTrClick = () => {};
+
+  const { number, createdAt, totalAmount, paidDate } = order;
+
+  const trigger = (
+    <tr onClick={onTrClick}>
+      <td onClick={onClick}>
+        <FormControl
+          checked={isChecked}
+          componentclass="checkbox"
+          onChange={onChange}
+        />
+      </td>
+      <td>{number}</td>
+      <td>{totalAmount.toLocaleString()}</td>
+      <td>{dayjs(createdAt).format("lll")}</td>
+      <td>{dayjs(paidDate).format("lll")}</td>
+      <td>
+        {syncedInfo?.syncedDate &&
+          dayjs(syncedInfo?.syncedDate || "").format("ll")}
+      </td>
+      <td>{syncedInfo?.syncedBillNumber || ""}</td>
+      <td>{syncedInfo?.syncedCustomer || ""}</td>
+      <td>
+        {isUnsynced && (
+          <Tip text="Sync">
+            <Button btnStyle="link" onClick={onClickSync} icon="sync" />
+          </Tip>
+        )}
+
+        {isUnsynced === false && syncedInfo.syncedDate && (
+          <Tip text="ReSync">
+            <Button
+              btnStyle="link"
+              onClick={onClickSync}
+              icon="sync-exclamation"
+            />
+          </Tip>
+        )}
+
+        {isUnsynced === false && Object.keys(syncedInfo).length === 0 && (
+          <Tip text="ReSend">
+            <Button
+              btnStyle="link"
+              onClick={onClickSend}
+              icon="sync-exclamation"
+            />
+          </Tip>
+        )}
+      </td>
+    </tr>
+  );
+
+  return (
+    <ModalTrigger
+      title={`Order detail`}
+      trigger={trigger}
+      autoOpenKey="showProductModal"
+      content={modalContent}
+      size={"lg"}
+    />
+  );
+};
+
+export default Row;

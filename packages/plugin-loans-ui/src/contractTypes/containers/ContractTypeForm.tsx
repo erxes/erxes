@@ -1,16 +1,19 @@
-import { gql } from '@apollo/client';
-import { ButtonMutate, withCurrentUser } from '@erxes/ui/src';
-import productCategoryQueries from '@erxes/ui-products/src/graphql/queries';
-import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import React from 'react';
+import { ButtonMutate, withCurrentUser } from "@erxes/ui/src";
+import { IUser, UsersQueryResponse } from "@erxes/ui/src/auth/types";
+import {
+  ProductCategoriesQueryResponse,
+  ProductsQueryResponse,
+} from "@erxes/ui-products/src/types";
 
-import ContractTypeForm from '../components/ContractTypeForm';
-import { mutations } from '../graphql';
-import { IContractType } from '../types';
-import { __ } from 'coreui/utils';
-import { useQuery } from '@apollo/client';
+import ContractTypeForm from "../components/ContractTypeForm";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { IContractType } from "../types";
+import React from "react";
+import { __ } from "coreui/utils";
+import { gql } from "@apollo/client";
+import { mutations } from "../graphql";
+import productCategoryQueries from "@erxes/ui-products/src/graphql/queries";
+import { useQuery } from "@apollo/client";
 
 type Props = {
   contractType: IContractType;
@@ -24,8 +27,10 @@ type FinalProps = {
 
 const ContractTypeFromContainer = (props: FinalProps) => {
   const productCategoriesQuery = useQuery<ProductCategoriesQueryResponse>(
-    gql(productCategoryQueries.productCategories),
+    gql(productCategoryQueries.productCategories)
   );
+
+  const productsQuery = useQuery(gql(productCategoryQueries.products));
 
   const { closeModal, getAssociatedContractType } = props;
   const renderButton = ({
@@ -53,15 +58,15 @@ const ContractTypeFromContainer = (props: FinalProps) => {
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
-          object ? 'updated' : 'added'
+          object ? "updated" : "added"
         } a ${name}`}
       >
-        {__('Save')}
+        {__("Save")}
       </ButtonMutate>
     );
   };
 
-  if (productCategoriesQuery.loading) {
+  if (productCategoriesQuery.loading || productsQuery.loading) {
     return null;
   }
 
@@ -72,12 +77,13 @@ const ContractTypeFromContainer = (props: FinalProps) => {
     ...props,
     renderButton,
     productCategories,
+    products: productsQuery?.data?.products || [],
   };
   return <ContractTypeForm {...updatedProps} />;
 };
 
 const getRefetchQueries = () => {
-  return ['contractTypesMain', 'contractTypeDetail', 'contractTypes'];
+  return ["contractTypesMain", "contractTypeDetail", "contractTypes"];
 };
 
 export default withCurrentUser(ContractTypeFromContainer);
