@@ -2,86 +2,97 @@ import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
 
 export interface IEbarimtConfig {
+  companyName: string;
   ebarimtUrl: string;
-  districtName: string;
-  companyRD: string;
-  vatPercent: string;
-  cityTaxPercent: string;
-  defaultGSCode: string;
+  getTinUrl: string,
+  getInfoUrl: string
+
+  merchantTin: string;
+  companyRD: string,
+  districtCode: string;
+  posNo: string;
+  branchNo: string;
+
+  hasVat: true,
+  hasCitytax: false,
+  districtName: string,
+  defaultGSCode: string,
+  vatPercent: number,
+  cityTaxPercent: number,
+  skipPutData: false
 }
 
 export interface IItem {
-  _id: string;
-  id: string;
+  _id?: string;
+  id?: string;
   name: string;
-  barCode: string;
-  barCodeType: string;
-  classificationCode: string;
-  taxProducCode: string;
-  measureUnit: string;
+  barCode?: string;
+  barCodeType?: string;
+  classificationCode?: string;
+  taxProducCode?: string;
+  measureUnit?: string;
   qty: number;
   unitPrice: number;
-  totalBonus: number;
-  totalVAT: number;
-  totalCityTax: number;
+  totalBonus?: number;
+  totalVAT?: number;
+  totalCityTax?: number;
   totalAmount: number;
-  data: any;
+  data?: any;
 }
 
 export interface IReceipt {
-  _id: string;
-  id: string;
+  _id?: string;
+  id?: string;
   totalAmount: number;
-  totalVAT: number;
-  totalCityTax: number;
+  totalVAT?: number;
+  totalCityTax?: number;
   taxType: string;
   merchantTin: string;
-  bankAccountNo: string;
-  data: any;
+  bankAccountNo?: string;
+  data?: any;
   items: IItem[];
 }
 
 export interface IPayment {
-  _id: string;
+  _id?: string;
   code: string;
-  exchangeCode: string;
+  exchangeCode?: string;
   status: string;
   paidAmount: number;
-  data: any;
+  data?: any;
 }
 
 export interface IEbarimt {
-  createdAt: Date;
-  modifiedAt: Date;
   number: string;
 
   // Холбогдох обьект
   contentType: string;
   contentId: string;
-  posToken: string;
+  posToken?: string;
 
-  totalAmount: number;
-  totalVAT: number;
-  totalCityTax: number;
-  districtCode: string;
-  merchantTin: string;
-  posNo: string;
-  customerTin: string;
-  consumerNo: string;
-  type: string;
-  inactiveId: string;
-  invoiceId: string;
-  reportMonth: string;
-  data: any;
-  receipts: IReceipt[];
-  payments: IPayment[];
+  totalAmount?: number;
+  totalVAT?: number;
+  totalCityTax?: number;
+  districtCode?: string;
+  branchNo?: string;
+  merchantTin?: string;
+  posNo?: string;
+  customerTin?: string;
+  consumerNo?: string;
+  type?: string;
+  inactiveId?: string;
+  invoiceId?: string;
+  reportMonth?: string;
+  data?: any;
+  receipts?: IReceipt[];
+  payments?: IPayment[];
 
-  easy: boolean;
+  easy?: boolean;
 
   // billType == 1 and lottery is null or '' then save
-  getInformation: string;
+  getInformation?: string;
   // Ебаримт руу илгээсэн мэдээлэл
-  sendInfo: any
+  sendInfo?: any
 }
 
 export interface IEbarimtDocument extends Document, IEbarimt {
@@ -159,12 +170,14 @@ export const ebarimtSchema = schemaHooksWrapper(
     // Холбогдох обьект
     contentType: field({ type: String, label: 'Content Type' }),
     contentId: field({ type: String, label: 'Content', index: true }),
+    oldTaxType: field({ type: String, label: 'Old Tax Type', index: true }),
     posToken: field({ type: String, optional: true }),
 
     totalAmount: field({ type: Number, label: 'totalAmount' }),
     totalVAT: field({ type: Number, label: 'totalVAT' }),
     totalCityTax: field({ type: Number, label: 'totalCityTax' }),
     districtCode: field({ type: String, label: 'districtCode' }),
+    branchNo: field({ type: String, label: 'branchNo' }),
     merchantTin: field({ type: String, label: 'merchantTin' }),
     posNo: field({ type: String, label: 'posNo' }),
     customerTin: field({ type: String, label: 'customerTin' }),

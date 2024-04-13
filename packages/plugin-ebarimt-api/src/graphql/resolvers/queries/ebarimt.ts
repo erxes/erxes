@@ -6,7 +6,7 @@ import {
   sendPosMessage,
 } from '../../../messageBroker';
 import { IContext } from '../../../connectionResolver';
-import { getCompany } from '../../../utils';
+import { getCompanyInfo, getConfig } from '../../../utils';
 
 const generateFilter = async (subdomain, params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
@@ -171,7 +171,7 @@ const genDuplicatedFilter = async (params) => {
   const ced = new Date(endDate);
   if (
     ((ced ? ced.getTime() : 0) - (csd ? csd.getTime() : 0)) /
-      (1000 * 60 * 60 * 24) >
+    (1000 * 60 * 60 * 24) >
     32
   ) {
     throw new Error('The date range exceeds one month');
@@ -257,7 +257,7 @@ const queries = {
     const ced = new Date(createdEndDate);
     if (
       ((ced ? ced.getTime() : 0) - (csd ? csd.getTime() : 0)) /
-        (1000 * 60 * 60 * 24) >
+      (1000 * 60 * 60 * 24) >
       32
     ) {
       throw new Error('The date range exceeds one month');
@@ -283,9 +283,9 @@ const queries = {
       }
 
       result[dateStr].counter += 1;
-      result[dateStr].vat += Number(res.vat) || 0;
-      result[dateStr].cityTax += Number(res.cityTax) || 0;
-      result[dateStr].amount += Number(res.amount) || 0;
+      result[dateStr].vat += Number(res.totalVAT) || 0;
+      result[dateStr].cityTax += Number(res.totalCityTax) || 0;
+      result[dateStr].amount += Number(res.totalAmount) || 0;
     }
 
     const dates = Object.keys(result).reverse();
@@ -306,7 +306,8 @@ const queries = {
     { companyRD }: { companyRD: string },
     { subdomain },
   ) => {
-    return getCompany(subdomain, companyRD);
+    const config = await getConfig(subdomain, 'EBARIMT')
+    return getCompanyInfo({ getTinUrl: config.getTinUrl, getInfoUrl: config.getInfoUrl, rd: companyRD });
   },
 
   putResponsesDuplicated: async (_root, params, { models }) => {

@@ -1,11 +1,13 @@
+import fetch from 'node-fetch';
 import {
   IEbarimtConfig,
   IEbarimt,
   IEbarimtDocument,
   ebarimtSchema
 } from './definitions/ebarimt';
-import { PutData, returnBill } from './utils';
+import { IDoc, getEbarimtData } from './utils';
 import { Model } from 'mongoose';
+import { stat } from 'fs';
 
 export interface IPutResponseModel extends Model<IEbarimtDocument> {
   putData(
@@ -39,13 +41,153 @@ export interface IPutResponseModel extends Model<IEbarimtDocument> {
 
 export const loadPutResponseClass = models => {
   class PutResponse {
-    public static async putData(doc: IEbarimt, config: IEbarimtConfig) {
-      const putData = new PutData({ ...doc, config, models });
-      return putData.run();
+    public static async putData(doc: IDoc, config: IEbarimtConfig) {
+      // check previously post
+      const { contentId, contentType } = doc;
+      const continuePutResponses: IEbarimtDocument[] =
+        await models.PutResponses.find({
+          contentType,
+          contentId,
+          modifiedAt: { $exists: false }
+        }).lean();
+
+      if (continuePutResponses.length) {
+        for (const cpr of continuePutResponses) {
+          if ((new Date().getTime() - new Date(cpr.createdAt).getTime()) / 1000 < 10) {
+            throw new Error('The previously submitted data has not yet been processed');
+          }
+        }
+      }
+
+      const ebarimtData = await getEbarimtData({ config, doc });
+      const { status, msg, data } = ebarimtData;
+      if (status === 'err') {
+        throw new Error(msg)
+      }
+
+      if (status !== 'ok' || !data) {
+        throw new Error(msg)
+      }
+
+      const prePutResponse: IEbarimtDocument | undefined =
+        await models.PutResponses.putHistory({
+          contentType,
+          contentId,
+        });
+
+      if (prePutResponse) {
+        // prePutResponse has not updated then not rePutData
+        if (
+          prePutResponse.totalAmount === data.totalAmount &&
+          prePutResponse.totalVAT === data.totalVAT &&
+          prePutResponse.totalCityTax === data.totalCityTax &&
+          prePutResponse.receipts &&
+          prePutResponse.receipts.length === data.receipts?.length &&
+          (prePutResponse.type || 'B2C_RECEIPT') ===
+          (data.type || 'B2C_RECEIPT')
+        ) {
+          return models.PutResponses.findOne({
+            _id: prePutResponse._id,
+          }).lean() as any;
+        }
+
+        data.inactiveId = prePutResponse.id;
+      }
+
+      const resObj = await models.PutResponses.createPutResponse({
+        sendInfo: { ...data },
+        contentId,
+        contentType,
+        number: doc.number
+      });
+
+      const response = await fetch(
+        `${config.ebarimtUrl}/rest/receipt?`,
+        {
+          method: 'POST',
+          body: JSON.stringify({ ...ebarimtData.data }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          timeout: 10000
+        },
+      )
+        .then((r) => r.json())
+        .catch((err) => {
+          throw new Error(err.message);
+        });
+
+      if (prePutResponse && response.stataus === 'SUCCESS') {
+        await models.PutResponses.updateOne(
+          { _id: prePutResponse._id },
+          { $set: { status: 'inactive' } },
+        );
+      }
+
+      await models.PutResponses.updatePutResponse(resObj._id, {
+        ...response,
+        // customerName: params.customerName,
+      });
+
+      return models.PutResponses.findOne({ _id: resObj._id }).lean() as any;
+
     }
 
     public static async returnBill(doc, config) {
-      return returnBill(models, doc, config);
+      const url = config.ebarimtUrl || '';
+      const { contentType, contentId } = doc;
+
+      const prePutResponses = await models.PutResponses.putHistories({
+        contentType,
+        contentId,
+      });
+
+      if (!prePutResponses.length) {
+        return {
+          error: 'Буцаалт гүйцэтгэх шаардлагагүй баримт байна.',
+        };
+      }
+
+      const resultObjIds: string[] = [];
+      for (const prePutResponse of prePutResponses) {
+        const date = prePutResponse.date;
+
+        if (!prePutResponse.id || !date) {
+          continue;
+        }
+
+        const data = {
+          id: prePutResponse.id,
+          date: date,
+        };
+
+        const resObj = await models.PutResponses.createPutResponse({
+          sendInfo: { ...data },
+          contentId,
+          contentType,
+          number: doc.number,
+          inactiveId: prePutResponse.id,
+        });
+
+        const response = await fetch(`${url}/rest/receipt`, {
+          method: 'DELETE',
+          body: JSON.stringify({ data }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }).then(async () => {
+          await models.PutResponses.updateOne(
+            { _id: prePutResponse._id },
+            { $set: { status: 'inactive' } },
+          );
+        });
+
+        resultObjIds.push(resObj._id);
+      }
+
+      return models.PutResponses.find({ _id: { $in: resultObjIds } })
+        .sort({ createdAt: -1 })
+        .lean();
     }
 
     public static async putHistory({

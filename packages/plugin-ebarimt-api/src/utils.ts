@@ -1,10 +1,12 @@
 import fetch from 'node-fetch';
+import { nanoid } from 'nanoid';
 import {
   sendCoreMessage,
   sendNotificationsMessage,
   sendContactsMessage,
   sendProductsMessage,
 } from './messageBroker';
+import { IEbarimt, IEbarimtConfig } from './models/definitions/ebarimt';
 
 export const sendNotification = (subdomain: string, data) => {
   return sendNotificationsMessage({ subdomain, action: 'send', data });
@@ -27,8 +29,8 @@ export const validCompanyCode = async (config, companyCode) => {
   if (re.test(companyCode)) {
     const response = await fetch(
       config.checkCompanyUrl +
-        '?' +
-        new URLSearchParams({ regno: companyCode }),
+      '?' +
+      new URLSearchParams({ regno: companyCode }),
     ).then((r) => r.json());
 
     if (response.found) {
@@ -74,117 +76,6 @@ export const validConfigMsg = async (config) => {
   return '';
 };
 
-export const isValidBarcode = (barcode: string): boolean => {
-  // check length
-  if (
-    barcode.length < 8 ||
-    barcode.length > 18 ||
-    (barcode.length != 8 &&
-      barcode.length != 12 &&
-      barcode.length != 13 &&
-      barcode.length != 14 &&
-      barcode.length != 18)
-  ) {
-    return false;
-  }
-
-  const lastDigit = Number(barcode.substring(barcode.length - 1));
-  let checkSum = 0;
-  if (isNaN(lastDigit)) {
-    return false;
-  } // not a valid upc/ean
-
-  const arr: any = barcode
-    .substring(0, barcode.length - 1)
-    .split('')
-    .reverse();
-  let oddTotal = 0,
-    evenTotal = 0;
-
-  for (var i = 0; i < arr.length; i++) {
-    if (isNaN(arr[i])) {
-      return false;
-    } // can't be a valid upc/ean we're checking for
-
-    if (i % 2 == 0) {
-      oddTotal += Number(arr[i]) * 3;
-    } else {
-      evenTotal += Number(arr[i]);
-    }
-  }
-  checkSum = (10 - ((evenTotal + oddTotal) % 10)) % 10;
-
-  // true if they are equal
-  return checkSum == lastDigit;
-};
-
-const arrangeTaxType = async (deal, productsById, billType) => {
-  const details: any[] = [];
-  const detailsFree: any[] = [];
-  const details0: any[] = [];
-  const detailsInner: any[] = [];
-  let amount = 0;
-  let amountFree = 0;
-  let amount0 = 0;
-  let amountInner = 0;
-
-  for (const productData of deal.productsData) {
-    // not tickUsed product not sent
-    if (!productData.tickUsed) {
-      continue;
-    }
-
-    const product = productsById[productData.productId];
-
-    // if wrong productId then not sent
-    if (!product) {
-      continue;
-    }
-
-    const stock = {
-      count: productData.quantity,
-      amount: productData.amount,
-      discount: productData.discount,
-      productCode: product.code,
-      productName: product.name,
-      uom: product.uom || 'ш',
-      productId: productData.productId,
-    };
-
-    if (product.taxType === '2') {
-      detailsFree.push({ ...stock, barcode: product.taxCode });
-      amountFree += productData.amount;
-    } else if (product.taxType === '3' && billType === '3') {
-      details0.push({ ...stock, barcode: product.taxCode });
-      amount0 += productData.amount;
-    } else if (product.taxType === '5') {
-      detailsInner.push({ ...stock });
-      amountInner += product.amount;
-    } else {
-      let trueBarcode = '';
-      for (const barcode of product.barcodes || []) {
-        if (isValidBarcode(barcode)) {
-          trueBarcode = barcode;
-          continue;
-        }
-      }
-      details.push({ ...stock, barcode: trueBarcode });
-      amount += productData.amount;
-    }
-  }
-
-  return {
-    details,
-    detailsFree,
-    details0,
-    detailsInner,
-    amount,
-    amountFree,
-    amount0,
-    amountInner,
-  };
-};
-
 const getCustomerName = (customer) => {
   if (!customer) {
     return '';
@@ -214,7 +105,7 @@ const getCustomerName = (customer) => {
 };
 
 export const getPostData = async (subdomain, config, deal) => {
-  let billType = '1';
+  let billType = 'B2C_RECEIPT';
   let customerCode = '';
   let customerName = '';
 
@@ -243,12 +134,12 @@ export const getPostData = async (subdomain, config, deal) => {
       if (re.test(company.code)) {
         const checkCompanyRes = await fetch(
           config.checkCompanyUrl +
-            '?' +
-            new URLSearchParams({ regno: company.code }),
+          '?' +
+          new URLSearchParams({ regno: company.code }),
         ).then((r) => r.json());
 
         if (checkCompanyRes.found) {
-          billType = '3';
+          billType = 'B2B_RECEIPT';
           customerCode = company.code;
           customerName = company.primaryName;
           continue;
@@ -257,7 +148,7 @@ export const getPostData = async (subdomain, config, deal) => {
     }
   }
 
-  if (billType === '1') {
+  if (billType === 'B2C_RECEIPT') {
     const customerIds = await sendCoreMessage({
       subdomain,
       action: 'conformities.savedConformity',
@@ -313,122 +204,67 @@ export const getPostData = async (subdomain, config, deal) => {
     productsById[product._id] = product;
   }
 
-  const {
-    details,
-    detailsFree,
-    details0,
-    detailsInner,
-    amount,
-    amountFree,
-    amount0,
-    amountInner,
-  } = await arrangeTaxType(deal, productsById, billType);
-
-  const date = new Date();
-  const commonOderInfo = {
-    number: deal.number,
-    date:
-      date.toISOString().split('T')[0] +
-      ' ' +
-      date.toTimeString().split(' ')[0],
-    orderId: deal._id,
-    hasVat: config.hasVat || false,
-    hasCitytax: config.hasCitytax || false,
-    billType,
-    customerCode,
-    customerName,
-    description: deal.name,
-    ebarimtResponse: {},
+  return {
     contentType: 'deal',
     contentId: deal._id,
-  };
+    number: deal.number,
 
-  const result: any[] = [];
-  let calcCashAmount = (deal.paymentsData || {}).cashAmount || 0;
-  let cashAmount = 0;
+    date: new Date(),
+    billType,
 
-  if (detailsFree && detailsFree.length) {
-    if (calcCashAmount > amountFree) {
-      cashAmount = amountFree;
-      calcCashAmount -= amountFree;
-    } else {
-      cashAmount = calcCashAmount;
-      calcCashAmount = 0;
-    }
-    result.push({
-      ...commonOderInfo,
-      hasVat: false,
-      taxType: '2',
-      details: detailsFree,
-      cashAmount,
-      nonCashAmount: amountFree - cashAmount,
-    });
+    customerRD: customerCode,
+    customerName,
+    // consumerNo?: string;
+
+    details: deal.productsData.filter(prData => prData.tickUsed).map(prData => {
+      const product = productsById[prData.productId];
+      if (!product) {
+        return;
+      }
+      return {
+        product,
+        quantity: prData.quantity,
+        unitPrice: prData.unitPrice,
+        totalDiscount: prData.discount,
+        totalAmount: prData.totalAmount
+      }
+    }),
+    nonCashAmounts: Object.keys(deal.paymentsData || {}).map(pay => ({ amount: deal.paymentsData[pay].amount }))
   }
-
-  if (details0 && details0.length) {
-    if (calcCashAmount > amount0) {
-      cashAmount = amount0;
-      calcCashAmount -= amount0;
-    } else {
-      cashAmount = calcCashAmount;
-      calcCashAmount = 0;
-    }
-    result.push({
-      ...commonOderInfo,
-      hasVat: false,
-      taxType: '3',
-      details: details0,
-      cashAmount,
-      nonCashAmount: amount0 - cashAmount,
-    });
-  }
-
-  if (detailsInner && detailsInner.length) {
-    if (calcCashAmount > amountInner) {
-      cashAmount = amountInner;
-      calcCashAmount -= amountInner;
-    } else {
-      cashAmount = calcCashAmount;
-      calcCashAmount = 0;
-    }
-    result.push({
-      ...commonOderInfo,
-      inner: true,
-      hasVat: false,
-      hasCitytax: false,
-      details: detailsInner,
-      cashAmount,
-      nonCashAmount: amountInner - cashAmount,
-    });
-  }
-
-  if (details && details.length) {
-    if (calcCashAmount > amount) {
-      cashAmount = amount;
-    } else {
-      cashAmount = calcCashAmount;
-    }
-    result.push({
-      ...commonOderInfo,
-      details,
-      cashAmount,
-      nonCashAmount: amount - cashAmount,
-    });
-  }
-  return result;
 };
 
-export const getCompany = async (subdomain, companyRD) => {
-  const config = await getConfig(subdomain, 'EBARIMT', {});
+export const getCompanyInfo = async ({ getTinUrl, getInfoUrl, tin, rd }: { getTinUrl: string, getInfoUrl: string, tin?: string, rd?: string }) => {
+  const tinre = new RegExp('(^[0-9]{11}$)|(^[0-9]{14}$)', 'gui');
+  if (tin && tinre.test(tin)) {
+    const result = await fetch(
+      // `https://api.ebarimt.mn/api/info/check/getInfo?tin=${tinNo}`
+      `${getInfoUrl}?tin=${tin}`
+    ).then((r) => r.json());
+
+    return { status: 'checked', result, tin };
+  }
+
   const re = new RegExp('(^[А-ЯЁӨҮ]{2}[0-9]{8}$)|(^\\d{7}$)', 'gui');
 
-  if (!re.test(companyRD)) {
+  if (!rd || !re.test(rd)) {
     return { status: 'notValid' };
   }
 
   const info = await fetch(
-    config.checkCompanyUrl + '?' + new URLSearchParams({ regno: companyRD }),
+    // `https://api.ebarimt.mn/api/info/check/getTinInfo?regNo=${rd}`
+    `${getTinUrl}?regNo=${rd}`
   ).then((r) => r.json());
 
-  return { status: 'checked', info };
+  if (info.status !== 200) {
+    return { status: 'notValid' };
+  }
+
+  const tinNo = info.data;
+
+  const result = await fetch(
+    // `https://api.ebarimt.mn/api/info/check/getInfo?tin=${tinNo}`
+    `${getInfoUrl}?tin=${tinNo}`
+  ).then((r) => r.json());
+
+  return { status: 'checked', result, tin: tinNo };
 };

@@ -1,5 +1,5 @@
 import { sendProductsMessage } from './messageBroker';
-import { isValidBarcode } from './utils';
+import { isValidBarcode } from './models/utils';
 
 const arrangeTaxType = async (orderInfo, productsById, billType) => {
   const details: any[] = [];

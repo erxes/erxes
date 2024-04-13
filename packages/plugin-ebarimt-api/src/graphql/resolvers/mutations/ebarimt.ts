@@ -42,7 +42,7 @@ const ebarimtMutations = {
       contentId: putResponse.contentId,
       contentType: putResponse.contentType,
       number: putResponse.number,
-      returnBillId: billId,
+      inactiveId: billId,
     });
 
     const response = await fetch(`${url}/returnBill?lib=${rd}`, {
