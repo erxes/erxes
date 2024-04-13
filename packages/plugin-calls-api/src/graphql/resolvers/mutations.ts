@@ -1,7 +1,7 @@
 import { generateToken } from '../../utils';
 import { IContext, IModels } from '../../connectionResolver';
 
-import receiveCall from '../../receiveCall';
+import acceptCall from '../../acceptCall';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { ICallHistory } from '../../models/definitions/callHistories';
@@ -36,7 +36,6 @@ const callsMutations = {
     if (!integration) {
       throw new Error('Integration not found');
     }
-    args.recipientId = integration.phone;
     const customer = await getOrCreateCustomer(models, subdomain, args);
 
     const channels = await sendInboxMessage({
@@ -123,7 +122,7 @@ const callsMutations = {
     //   createdBy: user._id,
     //   updatedBy: user._id,
     // });
-    const history = await receiveCall(
+    const history = await acceptCall(
       models,
       subdomain,
       doc,

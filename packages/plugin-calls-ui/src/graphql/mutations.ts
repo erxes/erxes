@@ -121,9 +121,31 @@ const callDisconnect = `
   }
 `;
 
+const callHistoryAdd = `
+  mutation CallHistoryAdd($receiverNumber: String, $callerNumber: String, $callDuration: Int, $callStartTime: Date, $callEndTime: Date, $callStatus: String, $callType: String, $sessionId: String,  $conversationId: String) {
+  callHistoryAdd(receiverNumber: $receiverNumber, callerNumber: $callerNumber, callDuration: $callDuration, callStartTime: $callStartTime, callEndTime: $callEndTime, callStatus: $callStatus, callType: $callType, sessionId: $sessionId, conversationId: $conversationId) {
+    _id
+    receiverNumber
+    callerNumber
+    callDuration
+    callStartTime
+    callEndTime
+    callType
+    callStatus
+    sessionId
+    modifiedAt
+    createdAt
+    createdBy
+    modifiedBy
+    extentionNumber
+    conversationId
+  }
+}
+`
+
 const callHistoryEdit = `
-  mutation CallHistoryEdit($receiverNumber: String, $callerNumber: String, $callDuration: Int, $callStartTime: Date, $callEndTime: Date, $callType: String, $callStatus: String, $sessionId: String, $modifiedAt: Date, $createdAt: Date, $createdBy: String, $modifiedBy: String, $conversationId: String) {
-    callHistoryEdit(receiverNumber: $receiverNumber, callerNumber: $callerNumber, callDuration: $callDuration, callStartTime: $callStartTime, callEndTime: $callEndTime, callType: $callType, callStatus: $callStatus, sessionId: $sessionId, modifiedAt: $modifiedAt, createdAt: $createdAt, createdBy: $createdBy, modifiedBy: $modifiedBy, conversationId: $conversationId) 
+  mutation CallHistoryEdit($receiverNumber: String, $callerNumber: String, $callDuration: Int, $callStartTime: Date, $callEndTime: Date, $callType: String, $callStatus: String, $sessionId: String, $conversationId: String) {
+    callHistoryEdit(receiverNumber: $receiverNumber, callerNumber: $callerNumber, callDuration: $callDuration, callStartTime: $callStartTime, callEndTime: $callEndTime, callType: $callType, callStatus: $callStatus, sessionId: $sessionId, conversationId: $conversationId) 
 }`;
 
 const callHistoryEditStatus = ` 
@@ -150,6 +172,7 @@ export default {
   callTerminateSession,
   callDisconnect,
   callHistoryEdit,
+  callHistoryAdd,
   callHistoryRemove,
   callsUpdateConfigs,
   callHistoryEditStatus,

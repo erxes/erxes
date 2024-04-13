@@ -26,7 +26,7 @@ type Props = {
   customer: ICustomer;
   channels: any;
   hasMicrophone: boolean;
-  addNote: (conversationId: string, content: string) => void;
+  addHistory: (conversationId: string, content: string) => void;
   phoneNumber: string;
 };
 

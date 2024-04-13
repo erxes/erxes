@@ -2,7 +2,7 @@ import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { IModels } from './connectionResolver';
 import { sendInboxMessage } from './messageBroker';
 
-const receiveCall = async (
+const acceptCall = async (
   models: IModels,
   subdomain: string,
   params,
@@ -27,7 +27,7 @@ const receiveCall = async (
   const operator = integration.operators.find(
     (operator) => operator.userId === user?._id,
   );
-  params.recipientId = integration.phone;
+  params.operatorPhone = integration.phone;
   params.extentionNumber = operator?.gsUsername || '';
   const { primaryPhone, direction, extentionNumber } = params;
 
@@ -48,6 +48,10 @@ const receiveCall = async (
     // callDuration: 0,
     // extentionNumber,
     // conversationId: '',
+    console.log(
+      ...docModifier({ ...params }),
+      '...docModifier({ ...params }),',
+    );
     history = new models.CallHistory({
       ...docModifier({ ...params }),
       createdAt: new Date(),
@@ -127,4 +131,4 @@ const receiveCall = async (
   return history;
 };
 
-export default receiveCall;
+export default acceptCall;

@@ -38,7 +38,7 @@ export const loadCallHistoryClass = (models: IModels) => {
       }
       const histories = await models.CallHistory.find({
         ...selector,
-        receiverNumber: integration.phone,
+        operatorPhone: integration.phone,
       })
         .sort({ modifiedAt: -1 })
         .skip(selector.skip || 0)

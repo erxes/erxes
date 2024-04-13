@@ -35,9 +35,12 @@ const IncomingCallContainer = (props: IProps, context) => {
   const inboxId =
     JSON.parse(defaultCallIntegration)?.inboxId ||
     callUserIntegrations?.[0]?.inboxId;
+  const operatorPhone =
+    JSON.parse(defaultCallIntegration)?.phone ||
+    callUserIntegrations?.[0]?.phone;
 
   const [createCustomerMutation] = useMutation(gql(mutations.customersAdd));
-  const [addInternalNotes] = useMutation(gql(mutations.conversationMessageAdd));
+  const [addHistoryMutation] = useMutation(gql(mutations.callHistoryAdd));
 
   useEffect(() => {
     removeConversationIdFromStorage('12');
@@ -77,16 +80,26 @@ const IncomingCallContainer = (props: IProps, context) => {
     }
   }, [phoneNumber, call?.id]);
 
-  const addNote = (conversationId: string, content: any) => {
-    addInternalNotes({
+  const addHistory = (sessionId: string, callStartTime: string) => {
+    //$callDuration: Int,
+    //$callStartTime: Date,
+    //$callEndTime: Date,
+    //$callStatus: String,
+    //$callType: String,
+    //$sessionId: String,
+    //$conversationId: String
+    addHistoryMutation({
       variables: {
-        content,
-        conversationId,
-        internal: true,
+        operatorPhone,
+        customerPhoneNumber: phoneNumber,
+        callStatus: 'active',
+        callType: 'incoming',
+        sessionId,
+        callStartTime,
       },
     })
       .then(() => {
-        Alert.success('Successfully added note');
+        Alert.success('Successfully added history');
       })
       .catch((e) => {
         Alert.error(e.message);
@@ -97,8 +110,8 @@ const IncomingCallContainer = (props: IProps, context) => {
       customer={customer}
       channels={channels}
       hasMicrophone={hasMicrophone}
-      addNote={addNote}
       phoneNumber={phoneNumber}
+      addHistory={addHistory}
     />
   );
 };

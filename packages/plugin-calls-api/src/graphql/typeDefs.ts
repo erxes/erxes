@@ -45,7 +45,7 @@ const types = `
     _id: String 
     erxesApiId: String
     integrationId: String
-    callerNumber: String
+    customerPhone: String
     operatorPhone: String
     callId: String
     channels: [CallChannel]
@@ -62,8 +62,8 @@ const types = `
   }
    type CallHistory {
     _id: String
-    receiverNumber: String
-    callerNumber: String
+    operatorPhone: String
+    customerPhone: String
     callDuration: Int
     callStartTime: Date
     callEndTime: Date
@@ -83,18 +83,14 @@ const types = `
 export const subscriptions = `sessionTerminateRequested(userId: String): JSON`;
 
 const commonHistoryFields = `
-  receiverNumber: String
-  callerNumber: String
+  operatorNumber: String
+  customerPhone: String
   callDuration: Int
   callStartTime: Date
   callEndTime: Date
   callType: String
   callStatus: String
   sessionId: String
-  modifiedAt: Date
-  createdAt: Date
-  createdBy: String
-  modifiedBy: String
   conversationId: String
 `;
 

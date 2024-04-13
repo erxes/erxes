@@ -117,6 +117,8 @@ export const setupMessageConsumers = async () => {
       const models = await generateModels(subdomain);
 
       await models.Integrations.deleteOne({ inboxId: integrationId });
+      await models.Conversations.deleteMany({integrationId});
+      await models.Customers.deleteMany({ inboxIntegrationId: integrationId });
 
       return {
         status: 'success',

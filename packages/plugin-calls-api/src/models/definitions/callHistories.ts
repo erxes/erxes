@@ -2,8 +2,8 @@ import { Schema, Document } from 'mongoose';
 import { field } from './utils';
 
 export interface ICallHistory {
-  receiverNumber: string;
-  callerNumber: string;
+  operatorPhone: string;
+  customerPhone: string;
   callDuration: number;
   callStartTime: Date;
   callEndTime: Date;
@@ -21,8 +21,8 @@ export interface ICallHistory {
 export interface ICallHistoryDocument extends ICallHistory, Document {}
 
 export const callHistorySchema = new Schema({
-  receiverNumber: field({ type: String, label: 'reciever number' }),
-  callerNumber: field({ type: String, label: 'caller number' }),
+  operatorPhone: field({ type: String, label: 'operator number' }),
+  customerPhone: field({ type: String, label: 'customer number' }),
   callDuration: field({ type: Number, label: 'duration' }),
   callStartTime: field({ type: Date, label: 'call start time' }),
   callEndTime: field({ type: Date, label: 'call end time' }),
