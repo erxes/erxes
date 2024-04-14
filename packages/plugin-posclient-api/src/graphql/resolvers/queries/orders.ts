@@ -212,7 +212,7 @@ const orderQueries = {
       throw new Error('Company register number required for checking');
     }
     const url =
-      config && config.ebarimtConfig && config.ebarimtConfig.checkCompanyUrl;
+      config && config.ebarimtConfig && config.ebarimtConfig.getTinUrl;
 
     if (url) {
       const response = await fetch(

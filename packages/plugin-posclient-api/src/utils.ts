@@ -1,4 +1,4 @@
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 import * as _ from 'underscore';
 import { IModels } from './connectionResolver';
 import {
@@ -12,11 +12,9 @@ import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 import { BILL_TYPES } from './models/definitions/constants';
 import {
   checkOrderStatus,
-  getDistrictName,
   prepareEbarimtData,
   validateOrderPayment,
 } from './graphql/utils/orderUtils';
-import { PutData } from './models/PutData';
 import {
   ISettlePaymentParams,
   getStatus,
@@ -362,65 +360,59 @@ export const prepareSettlePayment = async (
     const ebarimtResponses: any[] = [];
 
     if (billType !== BILL_TYPES.INNER) {
-      const ebarimtDatas = await prepareEbarimtData(
+      const ebarimtData = await prepareEbarimtData(
         models,
         order,
         ebarimtConfig,
         items,
         billType,
-        registerNumber,
-        config.paymentTypes,
+        registerNumber
       );
 
-      ebarimtConfig.districtName = getDistrictName(
-        (ebarimtConfig && ebarimtConfig.districtCode) || '',
-      );
 
-      for (const data of ebarimtDatas) {
-        let response;
+      let response;
 
-        if (data.inner) {
-          const putData = new PutData({
-            ...config,
-            ...data,
-            config,
-            models,
-          });
+      // if (data.inner) {
+      //   const putData = new PutData({
+      //     ...config,
+      //     ...data,
+      //     config,
+      //     models,
+      //   });
 
-          response = {
-            _id: Math.random(),
-            billId: 'Түр баримт',
-            ...(await putData.generateTransactionInfo()),
-            registerNo: ebarimtConfig.companyRD || '',
-            success: 'true',
-          };
-          ebarimtResponses.push(response);
+      //   response = {
+      //     _id: Math.random(),
+      //     billId: 'Түр баримт',
+      //     ...(await putData.generateTransactionInfo()),
+      //     registerNo: ebarimtConfig.companyRD || '',
+      //     success: 'true',
+      //   };
+      //   ebarimtResponses.push(response);
 
-          await models.OrderItems.updateOne(
-            { _id: { $in: data.itemIds } },
-            { $set: { isInner: true } },
-          );
+      //   await models.OrderItems.updateOne(
+      //     { _id: { $in: data.itemIds } },
+      //     { $set: { isInner: true } },
+      //   );
 
-          continue;
+      //   continue;
+      // }
+
+      try {
+        response = await models.PutResponses.putData(
+          { ...ebarimtData },
+          ebarimtConfig,
+        );
+      } catch (e) {
+        response = {
+          _id: `Err${Math.random()}`,
+          billId: 'Error',
+          success: 'false',
+          message: e.message
         }
-
-        try {
-          response = await models.PutResponses.putData({
-            ...data,
-            config: ebarimtConfig,
-            models,
-          });
-        } catch (e) {
-          response = {
-            _id: `Err${Math.random()}`,
-            billId: 'Error',
-            success: 'false',
-            message: e.message
-          }
-        }
-        
-        ebarimtResponses.push(response);
       }
+
+      ebarimtResponses.push(response);
+
     }
 
     if (

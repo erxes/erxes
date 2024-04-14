@@ -32,11 +32,11 @@ export const ORDER_TYPES = {
 
 // НӨАТ-н баримтын төрөл
 export const BILL_TYPES = {
-  CITIZEN: '1', // иргэнд өгөх баримт
-  ENTITY: '3', // байгууллагад өгөх баримт
-  INVOICE: '5', // нэхэмжлэхээр өгөх баримт
+  CITIZEN: 'B2C_RECEIPT', // иргэнд өгөх баримт
+  ENTITY: 'B2B_RECEIPT', // байгууллагад өгөх баримт
+  // INVOICE: '5', // нэхэмжлэхээр өгөх баримт
   INNER: '9', // дотоод буюу түр
-  ALL: ['1', '3', '5', '9', null],
+  ALL: ['1', '3', '9', null],
 };
 
 export const ORDER_RETURN_TYPES = {

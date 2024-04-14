@@ -2,16 +2,18 @@ import * as moment from 'moment';
 import { IContext } from '../../connectionResolver';
 import { IOrderDocument } from '../../models/definitions/orders';
 import { IOrderItem } from '../../models/definitions/orderItems';
-import { IPutResponseDocument } from '../../models/definitions/putResponses';
+import { IEbarimtDocument } from '../../models/definitions/putResponses';
 import {
   sendCardsMessage,
   sendContactsMessage,
   sendCoreMessage
 } from '../../messageBroker';
-import { PutData } from '../../models/PutData';
+import { getEbarimtData } from '../../models/PutData';
+import { prepareEbarimtData } from '../utils/orderUtils';
+import { IEbarimtConfig } from '../../models/definitions/configs';
 
 export default {
-  async items(order: IOrderDocument, {}, { models }: IContext) {
+  async items(order: IOrderDocument, { }, { models }: IContext) {
     return await models.OrderItems.find({ orderId: order._id }).lean();
   },
 
@@ -76,11 +78,11 @@ export default {
     };
   },
 
-  user(order: IOrderDocument, {}, { models }: IContext) {
+  user(order: IOrderDocument, { }, { models }: IContext) {
     return models.PosUsers.findOne({ _id: order.userId });
   },
 
-  async putResponses(order: IOrderDocument, {}, { models, config }: IContext) {
+  async putResponses(order: IOrderDocument, { }, { models, config }: IContext) {
     if (order.billType === '9') {
       const items: IOrderItem[] =
         (await models.OrderItems.find({ orderId: order._id }).lean()) || [];
@@ -136,7 +138,7 @@ export default {
       ];
     }
 
-    const putResponses: IPutResponseDocument[] = await models.PutResponses.find(
+    const putResponses: IEbarimtDocument[] = await models.PutResponses.find(
       {
         contentType: 'pos',
         contentId: order._id,
@@ -151,8 +153,8 @@ export default {
     }
 
     const excludeIds: string[] = [];
-    for (const falsePR of putResponses.filter(pr => pr.success === 'false')) {
-      for (const truePR of putResponses.filter(pr => pr.success === 'true')) {
+    for (const falsePR of putResponses.filter(pr => pr.status === 'ERROR')) {
+      for (const truePR of putResponses.filter(pr => pr.status === 'SUCCESS')) {
         if (
           falsePR.sendInfo &&
           truePR.sendInfo &&
@@ -178,28 +180,17 @@ export default {
       for (const product of products) {
         productsById[product._id] = product;
       }
-      const putData = new PutData({
-        ...config,
-        ...order,
-        date: new Date().toISOString().slice(0, 10),
-        orderId: order._id,
-        number: order.number,
-        hasVat: false,
-        hasCitytax: false,
-        description: order.number,
-        ebarimtResponse: {},
-        productsById,
-        contentType: 'pos',
-        contentId: order._id,
-        details: innerItems.map(i => ({ ...i, amount: i.count * i.unitPrice })),
-        config,
-        models
-      });
+      const putData = await prepareEbarimtData(
+        models,
+        order,
+        {
+          ...config.ebarimtConfig as IEbarimtConfig
+        });
 
       const response = {
         _id: Math.random(),
         billId: 'Түр баримт',
-        ...(await putData.generateTransactionInfo()),
+        ...(putData),
         registerNo: config.ebarimtConfig?.companyRD || ''
       };
 
@@ -209,7 +200,7 @@ export default {
     return putResponses.filter(pr => !excludeIds.includes(pr._id));
   },
 
-  async deal(order: IOrderDocument, {}, { subdomain }: IContext) {
+  async deal(order: IOrderDocument, { }, { subdomain }: IContext) {
     if (!order.convertDealId) {
       return null;
     }
@@ -221,7 +212,7 @@ export default {
     });
   },
 
-  async dealLink(order: IOrderDocument, {}, { subdomain }: IContext) {
+  async dealLink(order: IOrderDocument, { }, { subdomain }: IContext) {
     if (!order.convertDealId) {
       return null;
     }

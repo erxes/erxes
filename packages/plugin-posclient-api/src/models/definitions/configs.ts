@@ -4,16 +4,21 @@ import { field, getDateFieldDefinition } from './utils';
 export interface IEbarimtConfig {
   companyName: string;
   ebarimtUrl: string;
-  checkCompanyUrl: string;
+  getTinUrl: string;
+  getInfoUrl: string;
+
+  merchantTin: string;
+  companyRD: string,
+  districtCode: string;
+  posNo: string;
+  branchNo: string;
+
   hasVat: boolean;
   hasCitytax: boolean;
-  districtCode: string;
-  companyRD: string;
-  defaultGSCode: string;
-  vatPercent: number;
-  cityTaxPercent: number;
-  footerText: string;
-  hasCopy?: boolean;
+  defaultGSCode: string,
+  vatPercent: number,
+  cityTaxPercent: number,
+  skipPutData: boolean;
 }
 
 interface IConfigColors {
