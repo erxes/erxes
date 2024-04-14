@@ -7,7 +7,6 @@ import {
 } from './definitions/ebarimt';
 import { IDoc, getEbarimtData } from './utils';
 import { Model } from 'mongoose';
-import { stat } from 'fs';
 
 export interface IPutResponseModel extends Model<IEbarimtDocument> {
   putData(

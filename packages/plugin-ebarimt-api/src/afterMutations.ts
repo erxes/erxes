@@ -1,8 +1,9 @@
-import * as moment from 'moment';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import * as moment from 'moment';
+import { nanoid } from 'nanoid';
 import { IModels } from './connectionResolver';
-import { getConfig, getPostData } from './utils';
 import { IDoc, getEbarimtData } from './models/utils';
+import { getConfig, getPostData } from './utils';
 
 export default {
   'cards:deal': ['update'],
@@ -87,14 +88,14 @@ export const afterMutationHandlers = async (
 
         if (status === 'err' || (status !== 'ok' || !data)) {
           ebarimtResponse = {
-            _id: Math.random(),
+            _id: nanoid(),
             id: 'Error',
             status: 'ERROR',
             message: msg
           }
         } else {
           ebarimtResponse = {
-            _id: Math.random(),
+            _id: nanoid(),
             ...data,
             id: 'Түр баримт',
             status: 'SUCCESS',
@@ -111,7 +112,7 @@ export const afterMutationHandlers = async (
           );
         } catch (e) {
           ebarimtResponse = {
-            _id: Math.random(),
+            _id: nanoid(),
             id: 'Error',
             status: 'ERROR',
             message: e.message
@@ -120,7 +121,6 @@ export const afterMutationHandlers = async (
       }
 
       try {
-        console.log('ddddddddddd', ebarimtResponse, 'kkkkkkkkkkk')
         if (ebarimtResponse) {
           await graphqlPubsub.publish(`automationResponded:${user._id}`, {
             automationResponded: {
