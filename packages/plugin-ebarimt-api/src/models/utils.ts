@@ -1,8 +1,5 @@
 import * as moment from 'moment';
-import { DISTRICTS } from './constants';
-import { IModels } from '../connectionResolver';
-import { IEbarimt, IEbarimtConfig, IEbarimtDocument } from './definitions/ebarimt';
-import fetch from 'node-fetch';
+import { IEbarimt, IEbarimtConfig } from './definitions/ebarimt';
 import { getCompanyInfo } from '../utils';
 
 export interface IDoc {
@@ -11,7 +8,7 @@ export interface IDoc {
   number: string;
 
   date?: Date;
-  billType?: 'B2C_RECEIPT' | 'B2B_RECEIPT';
+  type: 'B2C_RECEIPT' | 'B2B_RECEIPT';
 
   customerRD?: string;
   customerTin?: string;
@@ -96,11 +93,11 @@ export const isValidBarcode = (barcode: string): boolean => {
 
 export const getEbarimtData = async (params: IPutDataArgs) => {
   const { config, doc } = params;
-  const billType = doc.billType || 'B2C_RECEIPT';
+  const type = doc.type || 'B2C_RECEIPT';
   let customerTin;
   let consumerNo;
 
-  if (billType === 'B2B_RECEIPT') {
+  if (type === 'B2B_RECEIPT') {
     const resp = await getCompanyInfo({ getTinUrl: config.getTinUrl, getInfoUrl: config.getInfoUrl, tin: doc.customerTin || '', rd: doc.customerRD });
     if (resp.status === 'checked') {
       customerTin = resp.tin;
@@ -166,7 +163,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     if (product.taxType === '2') {
       detailsFree.push({ ...stock });
       freeAmount += detail.totalAmount;
-    } else if (product.taxType === '3' && billType === 'B2B_RECEIPT') {
+    } else if (product.taxType === '3' && type === 'B2B_RECEIPT') {
       details0.push({ ...stock });
       zeroAmount += detail.totalAmount;
     } else if (product.taxType === '5') {
@@ -195,7 +192,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     branchNo: config.branchNo,
     merchantTin: config.merchantTin,
     posNo: config.posNo,
-    type: doc.billType,
+    type: doc.type,
     reportMonth,
     data: {},
     customerTin,

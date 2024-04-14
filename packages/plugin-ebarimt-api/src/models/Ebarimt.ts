@@ -129,8 +129,7 @@ export const loadPutResponseClass = models => {
         // customerName: params.customerName,
       });
 
-      return models.PutResponses.findOne({ _id: resObj._id }).lean() as any;
-
+      return models.PutResponses.findOne({ _id: resObj._id }).lean();
     }
 
     public static async returnBill(doc, config) {

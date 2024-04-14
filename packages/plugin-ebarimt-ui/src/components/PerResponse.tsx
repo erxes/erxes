@@ -14,7 +14,7 @@ const getRows = receipts => {
   for (const receipt of receipts) {
     if (subChecker) {
       res = res.concat(`<tr>
-        <td colspan="4">ДДТД: ${receipt.id}</td>
+        <td colspan="4">ДДТД: ${receipt.id || ''}</td>
       </tr>`)
     }
     for (const item of receipt.items) {

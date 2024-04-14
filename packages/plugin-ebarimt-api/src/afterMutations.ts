@@ -1,6 +1,8 @@
+import * as moment from 'moment';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { IModels } from './connectionResolver';
 import { getConfig, getPostData } from './utils';
+import { IDoc, getEbarimtData } from './models/utils';
 
 export default {
   'cards:deal': ['update'],
@@ -75,40 +77,50 @@ export const afterMutationHandlers = async (
         ...configs[destinationStageId],
       };
 
-      const ebarimtData = await getPostData(subdomain, config, deal);
+      const ebarimtData: IDoc = await getPostData(subdomain, config, deal);
 
       let ebarimtResponse;
 
-      // if (config.skipPutData || ebarimtData.inner) {
-      //   const putData = new PutData({
-      //     ...config,
-      //     ...ebarimtData,
-      //     config,
-      //     models,
-      //   });
-      //   ebarimtResponse = {
-      //     _id: Math.random(),
-      //     billId: 'Түр баримт',
-      //     ...(await putData.generateTransactionInfo()),
-      //     registerNo: config.companyRD || '',
-      //   };
-      // } else {
-      try {
-        ebarimtResponse = await models.PutResponses.putData(
-          ebarimtData,
-          config,
-        );
-      } catch (e) {
-        ebarimtResponse = {
-          _id: `Err${Math.random()}`,
-          billId: 'Error',
-          success: 'false',
-          message: e.message
+      if (config.skipPutData) {
+        const eData = await getEbarimtData({ config, doc: ebarimtData });
+        const { status, msg, data } = eData;
+
+        if (status === 'err' || (status !== 'ok' || !data)) {
+          ebarimtResponse = {
+            _id: `Err${Math.random()}`,
+            id: 'Error',
+            status: 'ERROR',
+            message: msg
+          }
+        } else {
+          ebarimtResponse = {
+            _id: Math.random(),
+            ...data,
+            id: 'Түр баримт',
+            status: 'SUCCESS',
+            date: moment(new Date).format('"yyyy-MM-dd HH:mm:ss'),
+            registerNo: config.companyRD || '',
+          };
+        }
+
+      } else {
+        try {
+          ebarimtResponse = await models.PutResponses.putData(
+            ebarimtData,
+            config,
+          );
+        } catch (e) {
+          ebarimtResponse = {
+            _id: `Err${Math.random()}`,
+            id: 'Error',
+            status: 'ERROR',
+            message: e.message
+          }
         }
       }
 
-      // }
       try {
+        console.log('ddddddddddd', ebarimtResponse, 'kkkkkkkkkkk')
         if (ebarimtResponse) {
           await graphqlPubsub.publish(`automationResponded:${user._id}`, {
             automationResponded: {

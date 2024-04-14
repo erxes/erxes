@@ -1,12 +1,10 @@
 import fetch from 'node-fetch';
-import { nanoid } from 'nanoid';
 import {
   sendCoreMessage,
   sendNotificationsMessage,
   sendContactsMessage,
   sendProductsMessage,
 } from './messageBroker';
-import { IEbarimt, IEbarimtConfig } from './models/definitions/ebarimt';
 
 export const sendNotification = (subdomain: string, data) => {
   return sendNotificationsMessage({ subdomain, action: 'send', data });
@@ -105,7 +103,7 @@ const getCustomerName = (customer) => {
 };
 
 export const getPostData = async (subdomain, config, deal) => {
-  let billType = 'B2C_RECEIPT';
+  let type: 'B2C_RECEIPT' | 'B2B_RECEIPT' = 'B2C_RECEIPT';
   let customerCode = '';
   let customerName = '';
 
@@ -139,7 +137,7 @@ export const getPostData = async (subdomain, config, deal) => {
         ).then((r) => r.json());
 
         if (checkCompanyRes.found) {
-          billType = 'B2B_RECEIPT';
+          type = 'B2B_RECEIPT';
           customerCode = company.code;
           customerName = company.primaryName;
           continue;
@@ -148,7 +146,7 @@ export const getPostData = async (subdomain, config, deal) => {
     }
   }
 
-  if (billType === 'B2C_RECEIPT') {
+  if (type === 'B2C_RECEIPT') {
     const customerIds = await sendCoreMessage({
       subdomain,
       action: 'conformities.savedConformity',
@@ -210,7 +208,7 @@ export const getPostData = async (subdomain, config, deal) => {
     number: deal.number,
 
     date: new Date(),
-    billType,
+    type,
 
     customerRD: customerCode,
     customerName,
