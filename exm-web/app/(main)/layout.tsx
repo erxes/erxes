@@ -25,7 +25,7 @@ export default function RootLayout({ children }: ILayoutProps) {
               <Sidebar />
             </div>
 
-            <div className="flex-1">
+            <div className="flex-1 relative overflow-auto">
               <TopNavbar />
 
               <div className="pt-[67px]">

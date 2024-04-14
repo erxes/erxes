@@ -1,6 +1,8 @@
 import ApolloProvider from "@/modules/ApolloProvider"
 
 import "@/styles/globals.css"
+import "react-date-range/dist/styles.css"
+import "react-date-range/dist/theme/default.css"
 import { Metadata } from "next"
 import Script from "next/script"
 import JotaiProvider from "@/modules/JotaiProvider"

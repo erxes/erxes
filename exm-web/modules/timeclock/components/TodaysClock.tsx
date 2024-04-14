@@ -1,13 +1,13 @@
 import { FunctionComponent } from "react"
 import { Timer } from "lucide-react"
 
-import { Button } from "./ui/button"
+import { Button } from "../../../components/ui/button"
 
 interface TodaysClockProps {}
 
 const TodaysClock: FunctionComponent<TodaysClockProps> = () => {
   return (
-    <div className="p-4 flex items-center flex-col gap-4 bg-white rounded-2xl">
+    <div className="p-4 flex items-center flex-col gap-4 bg-white rounded-2xl border">
       <div className="flex items-center w-full">
         <h3 className="text-2xl font-bold">Today's clock</h3>
 
@@ -17,11 +17,11 @@ const TodaysClock: FunctionComponent<TodaysClockProps> = () => {
         </div>
       </div>
 
-      <div className="w-[198px] h-[198px] rounded-full bg-primary flex flex-col items-center gap-4 justify-center text-white text-xl">
+      <Button className="w-[198px] h-[198px] bg-primary rounded-full flex flex-col items-center gap-4 justify-center text-white text-xl">
         <Timer size={66} />
 
         <b>Clock in</b>
-      </div>
+      </Button>
     </div>
   )
 }

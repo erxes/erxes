@@ -1,12 +1,12 @@
 import { FunctionComponent } from "react"
 import { PlusIcon, SunriseIcon } from "lucide-react"
 
-import { Button } from "./ui/button"
-import { Card, CardContent, CardFooter, CardHeader } from "./ui/card"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 
-interface YourRequestsProps {}
+interface TimeRequestsProps {}
 
-const YourRequests: FunctionComponent<YourRequestsProps> = () => {
+const TimeRequests: FunctionComponent<TimeRequestsProps> = () => {
   return (
     <Card className="w-[417px] border rounded-2xl flex flex-col">
       <CardHeader>
@@ -32,4 +32,4 @@ const YourRequests: FunctionComponent<YourRequestsProps> = () => {
   )
 }
 
-export default YourRequests
+export default TimeRequests
