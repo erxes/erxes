@@ -13,28 +13,28 @@ const generateFilter = async (subdomain, params, commonQuerySelector) => {
 
   if (params.search) {
     filter.$or = [
-      { billId: new RegExp(`.*${params.search}.*`, 'i') },
-      { returnBillId: new RegExp(`.*${params.search}.*`, 'i') },
+      { id: new RegExp(`.*${params.search}.*`, 'i') },
+      { inactiveId: new RegExp(`.*${params.search}.*`, 'i') },
       { number: new RegExp(`.*${params.search}.*`, 'i') },
     ];
   }
 
   if (params.billIdRule) {
     if (params.billIdRule === '00') {
-      filter.billId = { $in: ['', null] };
-      filter.returnBillId = { $in: ['', null] };
+      filter.id = { $in: ['', null] };
+      filter.inactiveId = { $in: ['', null] };
     }
     if (params.billIdRule === '01') {
-      filter.billId = { $in: ['', null] };
-      filter.returnBillId = { $nin: ['', null] };
+      filter.id = { $in: ['', null] };
+      filter.inactiveId = { $nin: ['', null] };
     }
     if (params.billIdRule === '10') {
-      filter.billId = { $nin: ['', null] };
-      filter.returnBillId = { $in: ['', null] };
+      filter.id = { $nin: ['', null] };
+      filter.inactiveId = { $in: ['', null] };
     }
     if (params.billIdRule === '11') {
-      filter.billId = { $nin: ['', null] };
-      filter.returnBillId = { $nin: ['', null] };
+      filter.id = { $nin: ['', null] };
+      filter.inactiveId = { $nin: ['', null] };
     }
   }
 
@@ -116,7 +116,7 @@ const generateFilter = async (subdomain, params, commonQuerySelector) => {
   }
 
   if (params.success) {
-    filter.success = params.success;
+    filter.status = params.success;
   }
 
   if (params.billType) {
@@ -143,7 +143,7 @@ const generateFilter = async (subdomain, params, commonQuerySelector) => {
   }
 
   if (params.isLast) {
-    filter.status = { $ne: 'inactive' };
+    filter.state = { $ne: 'inactive' };
   }
 
   return filter;
@@ -231,8 +231,8 @@ const queries = {
     const filter = await generateFilter(subdomain, params, commonQuerySelector);
     const res = await models.PutResponses.aggregate([
       { $match: filter },
-      { $project: { _id: 1, amount: 1 } },
-      { $group: { _id: '', amount: { $sum: { $toDecimal: '$amount' } } } },
+      { $project: { _id: 1, totalAmount: 1 } },
+      { $group: { _id: '', amount: { $sum: { $toDecimal: '$totalAmount' } } } },
     ]);
 
     if (!res || !res.length) {
@@ -320,8 +320,8 @@ const queries = {
         $match: {
           ...filter,
           success: 'true',
-          $or: [{ returnBillId: { $exists: false } }, { returnBillId: '' }],
-          status: { $ne: 'inactive' },
+          $or: [{ inactiveId: { $exists: false } }, { inactiveId: '' }],
+          state: { $ne: 'inactive' },
         },
       },
       {
@@ -346,8 +346,8 @@ const queries = {
         $match: {
           ...filter,
           success: 'true',
-          $or: [{ returnBillId: { $exists: false } }, { returnBillId: '' }],
-          status: { $ne: 'inactive' },
+          $or: [{ inactiveId: { $exists: false } }, { inactiveId: '' }],
+          state: { $ne: 'inactive' },
         },
       },
       {

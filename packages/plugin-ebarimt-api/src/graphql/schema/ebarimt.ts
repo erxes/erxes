@@ -5,37 +5,47 @@ export const types = `
     userId: String
     sessionCode: String
   }
+
   type PutResponse {
     _id: String
-    createdAt: Date
-    modifiedAt: Date
+    number: String
+
     contentType: String
     contentId: String
-    number: String
-    success: String
-    billId: String
-    date: String
-    macAddress: String
-    internalCode: String
-    billType: String
-    lotteryWarningMsg: String
-    errorCode: String
-    message: String
+
+    totalAmount: Float
+    totalVAT: Float
+    totalCityTax: Float
+    districtCode: String
+    branchNo: String
+    merchantTin: String
+    posNo: String
+    customerTin: String
+    consumerNo: String
+    type: String
+    inactiveId: String
+    invoiceId: String
+    reportMonth: String
+    data: JSON
+    receipts: JSON
+    payments: JSON
+
+    easy: Boolean
+
     getInformation: String
-    taxType: String
+    sendInfo: JSON
+    state: String
+
+    createdAt: Date
+    modifiedAt: Date
+
+    id: String
+    posId: Float
+    status: String
+    message: String
     qrData: String
     lottery: String
-    amount: String
-    cityTax: String
-    vat: String
-    cashAmount: String
-    nonCashAmount: String
-    returnBillId: String
-    sendInfo: JSON
-    stocks: JSON
-    registerNo: String
-    customerNo: String
-    customerName: String
+    date: String
   }
 `;
 

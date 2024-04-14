@@ -301,7 +301,7 @@ export default class RightMenu extends React.Component<Props, State> {
         {this.renderContentType()}
 
         <FormGroup>
-          <ControlLabel>{`Success`}</ControlLabel>
+          <ControlLabel>{`Status`}</ControlLabel>
           <FormControl
             name={'success'}
             componentClass="select"
@@ -309,8 +309,8 @@ export default class RightMenu extends React.Component<Props, State> {
             onChange={this.onChangeInput}
           >
             <option value="">{__('All')}</option>
-            <option value="true">{__('true')}</option>
-            <option value="false">{__('false')}</option>
+            <option value="SUCCESS">{__('SUCCESS')}</option>
+            <option value="ERROR">{__('ERROR')}</option>
           </FormControl>
         </FormGroup>
 
@@ -323,8 +323,8 @@ export default class RightMenu extends React.Component<Props, State> {
             onChange={this.onChangeInput}
           >
             <option value="">{__('All')}</option>
-            <option value="1">{__('1')}</option>
-            <option value="3">{__('3')}</option>
+            <option value="B2C_RECEIPT">{__('B2C_RECEIPT')}</option>
+            <option value="B2B_RECEIPT">{__('B2B_RECEIPT')}</option>
           </FormControl>
         </FormGroup>
 

@@ -100,16 +100,16 @@ class PutResponses extends React.Component<IProps, State> {
                 <SortHandler sortField={'date'} label={__('Date')} />
               </th>
               <th>
-                <SortHandler sortField={'success'} label={__('Success')} />
+                <SortHandler sortField={'status'} label={__('Status')} />
               </th>
               <th>
-                <SortHandler sortField={'billType'} label={__('Bill Type')} />
+                <SortHandler sortField={'type'} label={__('Bill Type')} />
               </th>
               <th>
-                <SortHandler sortField={'taxType'} label={__('Tax Type')} />
+                <SortHandler label={__('receipts')} />
               </th>
               <th>
-                <SortHandler sortField={'amount'} label={__('Amount')} />
+                <SortHandler sortField={'totalAmount'} label={__('Amount')} />
               </th>
               <th>
                 <SortHandler sortField={'message'} label={__('Message')} />
