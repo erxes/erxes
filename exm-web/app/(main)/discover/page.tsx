@@ -1,9 +1,11 @@
 import { FunctionComponent } from "react"
 
+import DiscoverBoard from "@/components/discover/DiscoverBoard"
+
 interface DiscoverPageProps {}
 
 const DiscoverPage: FunctionComponent<DiscoverPageProps> = () => {
-  return <div>DiscoverPage</div>
+  return <DiscoverBoard />
 }
 
 export default DiscoverPage

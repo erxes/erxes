@@ -1,9 +1,11 @@
 import { FunctionComponent } from "react"
 
+import LearnBoard from "@/components/learn/LearnBoard"
+
 interface LearnPageProps {}
 
 const LearnPage: FunctionComponent<LearnPageProps> = () => {
-  return <div>LearnPage</div>
+  return <LearnBoard />
 }
 
 export default LearnPage
