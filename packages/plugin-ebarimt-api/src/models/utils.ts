@@ -147,11 +147,11 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     const barCodeType = isValidBarcode(barCode) ? 'GS1' : 'UNDEFINED'
 
     const stock = {
-      name: product.name,
+      name: product.shortName ? product.shortName : `${product.code} - ${product.name}`,
       barCode,
       barCodeType,
       classificationCode: config.defaultGSCode,
-      taxProducCode: product.taxCode,
+      taxProductCode: product.taxCode,
       measureUnit: product.uom || 'ш',
       qty: detail.quantity,
       unitPrice: detail.unitPrice,

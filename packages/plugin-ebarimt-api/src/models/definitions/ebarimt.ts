@@ -28,7 +28,7 @@ export interface IItem {
   barCode?: string;
   barCodeType?: string;
   classificationCode?: string;
-  taxProducCode?: string;
+  taxProductCode?: string;
   measureUnit?: string;
   qty: number;
   unitPrice: number;
@@ -117,7 +117,7 @@ export const itemsSchema = schemaHooksWrapper(
     barCode: field({ type: String, label: 'barCode' }),
     barCodeType: field({ type: String, label: 'barCodeType' }),
     classificationCode: field({ type: String, label: 'classificationCode' }),
-    taxProducCode: field({ type: String, label: 'taxProducCode' }),
+    taxProductCode: field({ type: String, label: 'taxProductCode' }),
     measureUnit: field({ type: String, label: 'measureUnit' }),
     qty: field({ type: Number, label: 'qty' }),
     unitPrice: field({ type: Number, label: 'unitPrice' }),

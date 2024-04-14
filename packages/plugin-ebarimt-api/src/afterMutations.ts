@@ -115,7 +115,7 @@ export const afterMutationHandlers = async (
               userId: user._id,
               responseId: ebarimtResponse.id,
               sessionCode: user.sessionCode || '',
-              content: { ...config, ...ebarimtResponse },
+              content: [{ ...config, ...ebarimtResponse }],
             },
           });
         }
