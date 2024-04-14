@@ -351,14 +351,6 @@ const CustomersList: React.FC<IProps> = (props) => {
     );
   };
 
-  const MenuButton = React.forwardRef(function (props, ref) {
-    return (
-      <Button btnStyle="simple" size="small">
-        {__("Customize ")} <Icon icon="angle-down" />
-      </Button>
-    );
-  });
-
   const actionBarRight = (
     <BarItems>
       <FormControl
@@ -379,7 +371,11 @@ const CustomersList: React.FC<IProps> = (props) => {
       )}
 
       <Menu as="div" className="relative">
-        <Menu.Button as={MenuButton} />
+        <Menu.Button>
+          <Button btnStyle="simple" size="small">
+            {__("Customize ")} <Icon icon="angle-down" />
+          </Button>
+        </Menu.Button>
         <Menu.Items className="absolute">
           <Menu.Item>
             <ModalTrigger

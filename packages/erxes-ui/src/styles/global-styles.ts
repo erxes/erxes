@@ -296,10 +296,10 @@ a:hover {
   border: none;
   font-size: ${typography.fontSizeBody}px;
   color: ${colors.textPrimary};
-  // min-width: 100%;
+  min-width: 100%;
   box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.15);
   z-index: 1000;
-  // right: 0;
+  right: 0;
   float: left;
   background: ${colors.colorWhite};
   border-radius: 4px;
