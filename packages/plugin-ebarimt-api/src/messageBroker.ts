@@ -8,7 +8,6 @@ import type {
 import { afterMutationHandlers } from './afterMutations';
 import { beforeResolverHandlers } from './beforeResolvers';
 import { getCompanyInfo, getConfig } from './utils';
-import { getPostDataCommon } from './commonUtils';
 import {
   consumeQueue,
   consumeRPCQueue,
@@ -45,10 +44,10 @@ export const setupMessageConsumers = async () => {
   );
 
   consumeRPCQueue(
-    'ebarimt:putresponses.putData',
+    'ebarimt:putresponses.putDatas',
     async ({
       subdomain,
-      data: { contentType, contentId, productsById, orderInfo, config },
+      data: { contentType, contentId, orderInfo, config },
     }) => {
       const models = await generateModels(subdomain);
 
@@ -57,68 +56,11 @@ export const setupMessageConsumers = async () => {
         data: await models.PutResponses.putData(
           {
             ...orderInfo,
-            productsById,
             contentType,
             contentId,
           },
           { ...(await getConfig(subdomain, 'EBARIMT', {})), ...config },
         ),
-      };
-    },
-  );
-
-  consumeRPCQueue(
-    'ebarimt:putresponses.putDatas',
-    async ({
-      subdomain,
-      data: { contentType, contentId, orderInfo, config },
-    }) => {
-      const models = await generateModels(subdomain);
-      
-      const mainConfig = {
-        ...config,
-        ...(await getConfig(subdomain, 'EBARIMT', {})),
-      };
-
-      const ebarimtDatas = await getPostDataCommon(
-        subdomain,
-        mainConfig,
-        contentType,
-        contentId,
-        orderInfo,
-      );
-      const ebarimtResponses: any[] = [];
-
-      for (const ebarimtData of ebarimtDatas) {
-        let ebarimtResponse;
-
-        // if (config.skipPutData || ebarimtData.inner) {
-        //   const putData = new PutData({
-        //     ...mainConfig,
-        //     ...ebarimtData,
-        //     config,
-        //     models,
-        //   });
-        //   ebarimtResponse = {
-        //     _id: Math.random(),
-        //     billId: 'Түр баримт',
-        //     ...(await putData.generateTransactionInfo()),
-        //     registerNo: mainConfig.companyRD || '',
-        //   };
-        // } else {
-        ebarimtResponse = await models.PutResponses.putData(
-          ebarimtData,
-          mainConfig,
-        );
-        // }
-        // if (ebarimtResponse._id) {
-        //   ebarimtResponses.push(ebarimtResponse);
-        // }
-      }
-
-      return {
-        status: 'success',
-        data: ebarimtResponses,
       };
     },
   );
