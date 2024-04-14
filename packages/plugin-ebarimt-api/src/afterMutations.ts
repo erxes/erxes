@@ -87,7 +87,7 @@ export const afterMutationHandlers = async (
 
         if (status === 'err' || (status !== 'ok' || !data)) {
           ebarimtResponse = {
-            _id: `Err${Math.random()}`,
+            _id: Math.random(),
             id: 'Error',
             status: 'ERROR',
             message: msg
@@ -111,7 +111,7 @@ export const afterMutationHandlers = async (
           );
         } catch (e) {
           ebarimtResponse = {
-            _id: `Err${Math.random()}`,
+            _id: Math.random(),
             id: 'Error',
             status: 'ERROR',
             message: e.message
