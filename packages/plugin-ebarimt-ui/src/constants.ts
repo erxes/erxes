@@ -7,7 +7,9 @@ export const SUB_MENUS = [
 export const KEY_LABELS = {
   companyName: 'company name',
   checkCompanyUrl: 'check Company url',
-  ebarimtUrl: 'ebarimt Url'
+  ebarimtUrl: 'ebarimt Url',
+  getTinUrl: 'get Tin Url',
+  getInfoUrl: 'get Info Url',
 };
 
 export const FILTER_PARAMS = [

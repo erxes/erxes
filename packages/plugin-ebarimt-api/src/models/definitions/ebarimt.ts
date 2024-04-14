@@ -4,8 +4,8 @@ import { field, schemaHooksWrapper } from './utils';
 export interface IEbarimtConfig {
   companyName: string;
   ebarimtUrl: string;
-  getTinUrl: string,
-  getInfoUrl: string
+  getTinUrl: string;
+  getInfoUrl: string;
 
   merchantTin: string;
   companyRD: string,
@@ -15,7 +15,6 @@ export interface IEbarimtConfig {
 
   hasVat: true,
   hasCitytax: false,
-  districtName: string,
   defaultGSCode: string,
   vatPercent: number,
   cityTaxPercent: number,
@@ -93,6 +92,7 @@ export interface IEbarimt {
   getInformation?: string;
   // Ебаримт руу илгээсэн мэдээлэл
   sendInfo?: any
+  state?: string;
 }
 
 export interface IEbarimtDocument extends Document, IEbarimt {
@@ -204,10 +204,11 @@ export const ebarimtSchema = schemaHooksWrapper(
     getInformation: field({ type: String, label: '' }),
     // Ебаримт руу илгээсэн мэдээлэл
     sendInfo: field({ type: Object, label: '' }),
+    state: field({ type: String, optional: true, label: '' })
   }),
 
   'erxes_ebarimt'
 );
 
-ebarimtSchema.index({ contentType: 1, contentId: 1, status: 1 });
-ebarimtSchema.index({ contentType: 1, contentId: 1, taxType: 1, status: 1 });
+ebarimtSchema.index({ contentType: 1, contentId: 1, state: 1 });
+ebarimtSchema.index({ contentType: 1, contentId: 1, taxType: 1, state: 1 });

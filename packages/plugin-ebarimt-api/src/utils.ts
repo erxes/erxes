@@ -226,7 +226,7 @@ export const getPostData = async (subdomain, config, deal) => {
         quantity: prData.quantity,
         unitPrice: prData.unitPrice,
         totalDiscount: prData.discount,
-        totalAmount: prData.totalAmount
+        totalAmount: prData.amount
       }
     }),
     nonCashAmounts: Object.keys(deal.paymentsData || {}).map(pay => ({ amount: deal.paymentsData[pay].amount }))

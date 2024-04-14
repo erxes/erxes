@@ -56,7 +56,7 @@ const ebarimtMutations = {
     if (['true', true].includes(response.success)) {
       await models.PutResponses.updateOne(
         { _id: putResponse._id },
-        { $set: { status: 'inactive' } },
+        { $set: { state: 'inactive' } },
       );
     }
 

@@ -96,7 +96,8 @@ class GeneralSettings extends React.Component<Props, State> {
         >
           {this.renderItem('companyName')}
           {this.renderItem('ebarimtUrl')}
-          {this.renderItem('checkCompanyUrl')}
+          {this.renderItem('getTinUrl')}
+          {this.renderItem('getInfoUrl')}
         </CollapseContent>
       </ContentBox>
     );

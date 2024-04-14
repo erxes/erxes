@@ -117,10 +117,10 @@ export const loadPutResponseClass = models => {
           throw new Error(err.message);
         });
 
-      if (prePutResponse && response.stataus === 'SUCCESS') {
+      if (prePutResponse && response.status === 'SUCCESS') {
         await models.PutResponses.updateOne(
           { _id: prePutResponse._id },
-          { $set: { status: 'inactive' } },
+          { $set: { state: 'inactive' } },
         );
       }
 
@@ -178,7 +178,7 @@ export const loadPutResponseClass = models => {
         }).then(async () => {
           await models.PutResponses.updateOne(
             { _id: prePutResponse._id },
-            { $set: { status: 'inactive' } },
+            { $set: { state: 'inactive' } },
           );
         });
 
@@ -200,9 +200,9 @@ export const loadPutResponseClass = models => {
       return await models.PutResponses.findOne({
         contentId,
         contentType,
-        status: { $ne: 'inactive' },
-        success: true,
-        billId: { $nin: ['', null, undefined, 0] },
+        state: { $ne: 'inactive' },
+        status: 'SUCCESS',
+        id: { $nin: ['', null, undefined, 0] },
       })
         .sort({ createdAt: -1 })
         .lean();
@@ -218,9 +218,9 @@ export const loadPutResponseClass = models => {
       return await models.PutResponses.find({
         contentId,
         contentType,
-        status: { $ne: 'inactive' },
-        success: true,
-        billId: { $nin: ['', null, undefined, 0] }
+        state: { $ne: 'inactive' },
+        status: 'SUCCESS',
+        id: { $nin: ['', null, undefined, 0] }
       })
         .sort({ createdAt: -1 })
         .lean();

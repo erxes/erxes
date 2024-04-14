@@ -51,37 +51,6 @@ export const setupMessageConsumers = async () => {
       data: { contentType, contentId, productsById, orderInfo, config },
     }) => {
       const models = await generateModels(subdomain);
-      // orderInfo = {
-      //   number: string /unique in day/,
-      //   date:
-      //     date.toISOString().split('T')[0] +
-      //     ' ' +
-      //     date.toTimeString().split(' ')[0],
-      //   orderId: =contentId,
-      //   hasVat: boolean,
-      //   hasCitytax: boolean,
-      //   billType: 1 | 3,
-      //   customerCode: string [7],
-      //   customerName: string,
-      //   description: string,
-      //   details: [{
-      //     productId: string
-      //     amount: number,
-      //     count: number,
-      //     inventoryCode: string,
-      //     discount?: number
-      //   }],
-      //   cashAmount: number,
-      //   nonCashAmount: number
-      // };
-
-      // config = {
-      //   districtName: string,
-      //   vatPercent?: number,
-      //   cityTaxPercent?: number
-      //   defaultGSCode?: string *
-      //   companyRD: string
-      // }
 
       return {
         status: 'success',
@@ -105,36 +74,7 @@ export const setupMessageConsumers = async () => {
       data: { contentType, contentId, orderInfo, config },
     }) => {
       const models = await generateModels(subdomain);
-      // orderInfo = {
-      //   number: string /unique in day/,
-      //   date:
-      //     date.toISOString().split('T')[0] +
-      //     ' ' +
-      //     date.toTimeString().split(' ')[0],
-      //   orderId: =contentId,
-      //   billType: '1' | '3',
-      //   customerCode?: string [7],
-      //   customerName?: string,
-      //   description: string,
-      //   details: [{
-      //     productId: string
-      //     amount: number,
-      //     count: number,
-      //     discount?: number
-      //   }],
-      //   cashAmount: number,
-      //   nonCashAmount: number
-      // };
-
-      // config = {
-      //   districtName: string,
-      //   hasVat: boolean;
-      //   vatPercent?: number,
-      //   hasCitytax: boolean
-      //   cityTaxPercent?: number
-      //   defaultGSCode?: string *
-      //   companyRD: string
-      // }
+      
       const mainConfig = {
         ...config,
         ...(await getConfig(subdomain, 'EBARIMT', {})),

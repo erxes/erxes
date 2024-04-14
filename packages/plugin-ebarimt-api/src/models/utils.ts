@@ -113,6 +113,11 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     }
   }
 
+  let reportMonth: string | undefined = undefined;
+  if (doc.date && doc.date.getMonth() !== (new Date()).getMonth()) {
+    reportMonth = moment(doc.date).format('YYYY-MM-DD')
+  }
+
   const details: any[] = [];
   const detailsFree: any[] = [];
   const details0: any[] = [];
@@ -191,7 +196,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     merchantTin: config.merchantTin,
     posNo: config.posNo,
     type: doc.billType,
-    reportMonth: moment(doc.date).format('YYYY-MM-DD'),
+    reportMonth,
     data: {},
     customerTin,
     consumerNo,

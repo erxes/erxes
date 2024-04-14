@@ -76,6 +76,7 @@ export const afterMutationHandlers = async (
       };
 
       const ebarimtData = await getPostData(subdomain, config, deal);
+
       let ebarimtResponse;
 
       // if (config.skipPutData || ebarimtData.inner) {
@@ -107,7 +108,6 @@ export const afterMutationHandlers = async (
       }
 
       // }
-
       try {
         if (ebarimtResponse) {
           await graphqlPubsub.publish(`automationResponded:${user._id}`, {
