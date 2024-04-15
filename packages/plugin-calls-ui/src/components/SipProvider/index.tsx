@@ -35,7 +35,10 @@ import { ICallConfigDoc } from '../../types';
 
 import React from 'react';
 import dummyLogger from '../../lib/dummyLogger';
-import { removeConversationIdFromStorage, setLocalStorage } from '../../utils';
+import {
+  extractPhoneNumberFromCounterpart,
+  setLocalStorage,
+} from '../../utils';
 
 export default class SipProvider extends React.Component<
   {
@@ -59,9 +62,16 @@ export default class SipProvider extends React.Component<
       callStartTime: Date,
       callEndTime: Date,
       callStatus: string,
-      conversationId: string,
+      direction: string,
+      customerPhone: string,
     ) => void;
-    updateStatusHistory: (callStatus: string, conversationId: string) => void;
+    addHistory: (
+      callStatus: string,
+      sessionId: string,
+      direction: string,
+      customerPhone: string,
+      callStartTime: Date,
+    ) => void;
   },
   {
     sipStatus: SipStatus;
@@ -539,7 +549,6 @@ export default class SipProvider extends React.Component<
         if (!this || this.ua !== ua) {
           return;
         }
-        console.log('rtcRequest:', rtcRequest);
         // identify call direction
         if (originator === 'local') {
           const foundUri = rtcRequest.to.toString();
@@ -563,6 +572,8 @@ export default class SipProvider extends React.Component<
 
         const { rtcSession: rtcSessionInState } = this.state;
 
+        let direction = 'OUTGOING';
+        let customerPhone = '';
         // Avoid if busy or other incoming
         if (rtcSessionInState) {
           this.logger.debug('incoming call replied with 486 "Busy Here"');
@@ -585,17 +596,23 @@ export default class SipProvider extends React.Component<
           const { updateHistory } = this.props;
           const { rtcSession: session } = this.state;
 
+          if (this.state.callDirection) {
+            direction = this.state.callDirection.split('/')[1];
+            direction = direction?.toLowerCase();
+          }
+          if (this.state.callCounterpart) {
+            customerPhone = extractPhoneNumberFromCounterpart(
+              this.state.callCounterpart,
+            );
+          }
           if (updateHistory && session) {
-            const conversationId =
-              localStorage.getItem('callConversationId') || '';
-            removeConversationIdFromStorage(session._id);
-
             updateHistory(
               session._id,
               session.start_time,
               session.end_time,
               'cancelled',
-              conversationId,
+              direction,
+              customerPhone,
             );
           }
           this.setState({
@@ -621,17 +638,24 @@ export default class SipProvider extends React.Component<
           console.log('ended:', data);
           const { updateHistory } = this.props;
           const { rtcSession: session } = this.state;
-          const conversationId =
-            localStorage.getItem('callConversationId') || '';
-          removeConversationIdFromStorage(session._id);
 
+          if (this.state.callDirection) {
+            direction = this.state.callDirection.split('/')[1];
+            direction = direction?.toLowerCase();
+          }
+          if (this.state.callCounterpart) {
+            customerPhone = extractPhoneNumberFromCounterpart(
+              this.state.callCounterpart,
+            );
+          }
           if (updateHistory && session) {
             updateHistory(
               session._id,
               session.start_time,
               session.end_time,
               'connected',
-              conversationId,
+              direction,
+              customerPhone,
             );
           }
           this.setState({
@@ -666,9 +690,6 @@ export default class SipProvider extends React.Component<
           }
           const { updateHistory } = this.props;
           const { rtcSession: session } = this.state;
-          const conversationId =
-            localStorage.getItem('callConversationId') || '';
-          removeConversationIdFromStorage(session._id);
 
           if (updateHistory && session) {
             updateHistory(
@@ -676,7 +697,6 @@ export default class SipProvider extends React.Component<
               session.start_time,
               session.end_time,
               'rejected',
-              conversationId,
             );
           }
 
@@ -693,14 +713,26 @@ export default class SipProvider extends React.Component<
           if (this.ua !== ua) {
             return;
           }
-          const { updateStatusHistory } = this.props;
-          const conversationId =
-            localStorage.getItem('callConversationId') || '';
-          console.log('conversationId called', conversationId);
+          const { addHistory } = this.props;
 
-          if (updateStatusHistory && conversationId !== '') {
-            console.log('updateStatusHistory called');
-            updateStatusHistory('active', conversationId);
+          if (this.state.callDirection) {
+            direction = this.state.callDirection.split('/')[1];
+            direction = direction?.toLowerCase();
+          }
+          if (this.state.callCounterpart) {
+            customerPhone = extractPhoneNumberFromCounterpart(
+              this.state.callCounterpart,
+            );
+          }
+
+          if (addHistory) {
+            addHistory(
+              'active',
+              this.state.rtcSession._id,
+              direction,
+              customerPhone,
+              this.state.rtcSession.start_time,
+            );
           }
           [this.remoteAudio.srcObject] =
             rtcSession.connection.getRemoteStreams();

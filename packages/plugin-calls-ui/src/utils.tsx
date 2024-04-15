@@ -154,11 +154,9 @@ export const extractPhoneNumberFromCounterpart = (counterpart) => {
   return counterpart.slice(startIndex, endIndex);
 };
 
-export const removeConversationIdFromStorage = (sessionId) => {
-  console.log(sessionId);
-  const callConversationId = localStorage.getItem('callConversationId');
-  if (callConversationId) {
-    console.log(sessionId, 'removed');
-    localStorage.removeItem('callConversationId');
+export const removeHistoryIdFromStorage = () => {
+  const callHistoryId = localStorage.getItem('callHistoryId');
+  if (callHistoryId) {
+    localStorage.removeItem('callHistoryId');
   }
 };

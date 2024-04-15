@@ -7,10 +7,7 @@ import IncomingCall from '../components/IncomingCall';
 import { __ } from '@erxes/ui/src/utils/core';
 import { callPropType } from '../lib/types';
 import { mutations } from '../graphql';
-import {
-  extractPhoneNumberFromCounterpart,
-  removeConversationIdFromStorage,
-} from '../utils';
+import { extractPhoneNumberFromCounterpart } from '../utils';
 
 interface IProps {
   closeModal?: () => void;
@@ -43,8 +40,6 @@ const IncomingCallContainer = (props: IProps, context) => {
   const [addHistoryMutation] = useMutation(gql(mutations.callHistoryAdd));
 
   useEffect(() => {
-    removeConversationIdFromStorage('12');
-
     navigator.mediaDevices
       .getUserMedia({ audio: true })
       .then(() => {
@@ -66,8 +61,6 @@ const IncomingCallContainer = (props: IProps, context) => {
         variables: {
           inboxIntegrationId: inboxId,
           primaryPhone: phoneNumber,
-          direction: 'incoming',
-          callID: call?.id,
         },
       })
         .then(({ data }: any) => {
@@ -111,7 +104,6 @@ const IncomingCallContainer = (props: IProps, context) => {
       channels={channels}
       hasMicrophone={hasMicrophone}
       phoneNumber={phoneNumber}
-      addHistory={addHistory}
     />
   );
 };

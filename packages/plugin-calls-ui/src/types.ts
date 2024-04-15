@@ -35,17 +35,9 @@ export interface ITag {
   totalObjectCount?: number;
 }
 
-export interface ICallConversation {
-  erxesApiId?: string;
-  callerNumber: string;
-  operatorPhone: string;
-  integrationId: string;
-  callId: string;
-  _id: string;
-}
 export interface IHistoryDoc {
-  receiverNumber: string;
-  callerNumber: string;
+  operatorPhone: string;
+  customerPhone: string;
   callDuration: number;
   callStartTime: Date;
   callEndTime: Date;

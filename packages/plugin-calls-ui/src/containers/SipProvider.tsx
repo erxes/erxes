@@ -22,6 +22,7 @@ const SipProviderContainer = (props) => {
   const isConnectCallRequested = JSON.parse(
     localStorage.getItem('isConnectCallRequested') || '{}',
   );
+  const [historyId, setHistoryId] = useState('');
 
   const { data, loading, error } = useQuery(gql(queries.callUserIntegrations));
   const { data: callConfigData, loading: callConfigLoading } = useQuery(
@@ -30,9 +31,7 @@ const SipProviderContainer = (props) => {
 
   const [createActiveSession] = useMutation(gql(mutations.addActiveSession));
   const [updateHistoryMutation] = useMutation(gql(mutations.callHistoryEdit));
-  const [updateStatusHistoryMutation] = useMutation(
-    gql(mutations.callHistoryEditStatus),
-  );
+  const [addHistoryMutation] = useMutation(gql(mutations.callHistoryAdd));
 
   useSubscription(gql(subscriptions.sessionTerminateRequested), {
     variables: { userId: props.currentUser._id },
@@ -66,7 +65,6 @@ const SipProviderContainer = (props) => {
       }
     },
   });
-
   const createSession = () => {
     createActiveSession()
       .then(() => {})
@@ -74,13 +72,13 @@ const SipProviderContainer = (props) => {
         Alert.error(e.message);
       });
   };
-
   const updateHistory = (
     sessionId: string,
     callStartTime: Date,
     callEndTime: Date,
     callStatus: string,
-    conversationId: string,
+    direction: string,
+    customerPhone: string,
   ) => {
     let duration = 0;
     if (callStartTime && callEndTime) {
@@ -88,31 +86,67 @@ const SipProviderContainer = (props) => {
       const endedMoment = moment(callEndTime);
       duration = endedMoment.diff(startedMoment, 'seconds');
     }
-
-    updateHistoryMutation({
-      variables: {
-        sessionId,
-        callStartTime,
-        callEndTime,
-        callDuration: duration,
-        callStatus,
-        conversationId: conversationId || '',
-      },
-      refetchQueries: ['callHistories'],
-    })
-      .then()
-      .catch((e) => {
-        Alert.error(e.message);
-      });
+    if (historyId) {
+      updateHistoryMutation({
+        variables: {
+          id: historyId,
+          sessionId,
+          callStartTime,
+          callEndTime,
+          callDuration: duration,
+          callStatus,
+          callType: direction,
+        },
+        refetchQueries: ['callHistories'],
+      })
+        .then()
+        .catch((e) => {
+          Alert.error(e.message);
+        });
+    } else {
+      if (callStatus === 'cancelled') {
+        updateHistoryMutation({
+          variables: {
+            sessionId,
+            callStartTime,
+            callEndTime,
+            callDuration: duration,
+            callStatus,
+            inboxIntegrationId: config?.inboxId || '',
+            customerPhone,
+            callType: direction,
+          },
+          refetchQueries: ['callHistories'],
+        })
+          .then()
+          .catch((e) => {
+            Alert.error(e.message);
+          });
+      } else {
+        Alert.error('History id not found');
+      }
+    }
   };
-  const updateStatusHistory = (callStatus: string, conversationId: string) => {
-    updateStatusHistoryMutation({
+  const addHistory = (
+    callStatus: string,
+    sessionId: string,
+    direction: string,
+    customerPhone: string,
+    callStartTime: Date,
+  ) => {
+    addHistoryMutation({
       variables: {
+        sessionId: sessionId || '',
+        callType: direction,
         callStatus,
-        conversationId: conversationId || '',
+        customerPhone,
+        inboxIntegrationId: config?.inboxId || '',
+        callStartTime,
       },
     })
-      .then(() => {
+      .then(({ data }: any) => {
+        const callHistoryId = data?.callHistoryAdd?._id;
+        setHistoryId(callHistoryId);
         Alert.success('Successfully updated status');
       })
       .catch((e) => {
@@ -212,7 +246,7 @@ const SipProviderContainer = (props) => {
       {...sipConfig}
       createSession={createSession}
       updateHistory={updateHistory}
-      updateStatusHistory={updateStatusHistory}
+      addHistory={addHistory}
       callUserIntegration={filteredIntegration}
     >
       {(state) => (

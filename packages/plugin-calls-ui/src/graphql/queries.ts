@@ -27,8 +27,8 @@ const callUserIntegrations: any = `
 `;
 
 const callCustomerDetail: string = `
-  query callsCustomerDetail($callerNumber: String) {
-    callsCustomerDetail(callerNumber: $callerNumber){
+  query callsCustomerDetail($customerPhone: String) {
+    callsCustomerDetail(customerPhone: $customerPhone){
       _id
       firstName
       primaryPhone
@@ -117,8 +117,8 @@ const callHistories = `
   query CallHistories($limit: Int, $callStatus: String, $callType: String, $startDate: String, $endDate: String, $skip: Int) {
     callHistories(limit: $limit, callStatus: $callStatus, callType: $callType, startDate: $startDate, endDate: $endDate, skip: $skip) {
       _id
-    receiverNumber
-    callerNumber
+    operatorPhone
+    customerPhone
     callDuration
     callStartTime
     callEndTime

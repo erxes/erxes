@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { gql, useMutation } from '@apollo/client';
-import { mutations, queries } from '../graphql';
+import { mutations } from '../graphql';
 
 import { Alert } from '@erxes/ui/src/utils';
 import KeyPad from '../components/Keypad';
-import client from '@erxes/ui/src/apolloClient';
 
 type IProps = {
   callUserIntegrations: any;
@@ -19,27 +18,19 @@ const KeyPadContainer = (props: IProps) => {
   const [createCustomerMutation] = useMutation(gql(mutations.customersAdd));
   const [disconnectCall] = useMutation(gql(mutations.callDisconnect));
 
-  const createCustomer = (
-    inboxIntegrationId: string,
-    primaryPhone: string,
-    callID: string,
-  ) => {
-    if (callID) {
-      createCustomerMutation({
-        variables: {
-          inboxIntegrationId,
-          primaryPhone,
-          direction: 'outgoing',
-          callID,
-        },
+  const createCustomer = (inboxIntegrationId: string, primaryPhone: string) => {
+    createCustomerMutation({
+      variables: {
+        inboxIntegrationId,
+        primaryPhone,
+      },
+    })
+      .then(({ data }: any) => {
+        setCustomer(data.callAddCustomer.customer);
       })
-        .then(({ data }: any) => {
-          setCustomer(data.callAddCustomer.customer);
-        })
-        .catch((e) => {
-          Alert.error(e.message);
-        });
-    }
+      .catch((e) => {
+        Alert.error(e.message);
+      });
   };
 
   return (

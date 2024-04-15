@@ -42,11 +42,10 @@ const callsMutations = {
       subdomain,
       action: 'channels.find',
       data: {
-        integrationIds: { $in: [integration._id] },
+        integrationIds: { $in: [integration.inboxId] },
       },
       isRPC: true,
     });
-
     return {
       customer: customer?.erxesApiId && {
         __typename: 'Customer',
@@ -114,21 +113,9 @@ const callsMutations = {
   async callHistoryAdd(
     _root,
     doc: ICallHistory,
-    { user, docModifier, models, subdomain }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
-    // const history = await models.CallHistory.create({
-    //   ...docModifier({ ...doc }),
-    //   createdAt: new Date(),
-    //   createdBy: user._id,
-    //   updatedBy: user._id,
-    // });
-    const history = await acceptCall(
-      models,
-      subdomain,
-      doc,
-      user,
-      docModifier,
-    );
+    const history = await acceptCall(models, subdomain, doc, user);
     return models.CallHistory.getCallHistory(history.sessionId);
   },
 
@@ -137,54 +124,48 @@ const callsMutations = {
    */
   async callHistoryEdit(
     _root,
-    { ...doc }: ICallHistoryEdit,
-    { user, models }: IContext,
+    { ...doc }: ICallHistoryEdit & { inboxIntegrationId: string },
+    { user, models, subdomain }: IContext,
   ) {
-    const { conversationId } = doc;
-    if (conversationId && conversationId !== '') {
-      const history = await models.CallHistory.findOne({
-        conversationId: doc.conversationId,
-      });
+    const { _id, callStatus } = doc;
+    const history = await models.CallHistory.findOne({
+      _id,
+    });
 
-      if (
-        history &&
-        history.callStatus === 'active' &&
-        history.acceptedUserId === user._id
-      ) {
-        await models.CallHistory.updateOne(
-          { conversationId: doc.conversationId },
-          { $set: { ...doc, modifiedAt: new Date(), modifiedBy: user._id } },
-        );
-        return 'success';
-      }
+    if (history && history.callStatus === 'active') {
+      await models.CallHistory.updateOne(
+        { _id },
+        { $set: { ...doc, modifiedAt: new Date(), modifiedBy: user._id } },
+      );
+      return 'success';
+    }
+    if (!history && (callStatus === 'cancelled' || callStatus === 'rejected')) {
+      await acceptCall(models, subdomain, doc, user);
+      return 'Call cancelled';
+    } else {
       throw new Error(`You cannot edit`);
     }
-    throw new Error(`Cannot found conversation Id`);
   },
 
   async callHistoryEditStatus(
     _root,
-    {
-      callStatus,
-      conversationId,
-    }: { callStatus: String; conversationId: String },
+    { callStatus, sessionId }: { callStatus: String; sessionId: String },
     { user, models }: IContext,
   ) {
-    if (conversationId && conversationId !== '') {
+    if (sessionId && sessionId !== '') {
       await models.CallHistory.updateOne(
-        { conversationId },
+        { sessionId },
         {
           $set: {
             callStatus,
             modifiedAt: new Date(),
             modifiedBy: user._id,
-            acceptedUserId: user._id,
           },
         },
       );
       return 'success';
     }
-    throw new Error(`Cannot found conversation Id`);
+    throw new Error(`Cannot found session id`);
   },
 
   async callHistoryRemove(

@@ -2,7 +2,6 @@ import * as PropTypes from 'prop-types';
 
 import { Alert, __ } from '@erxes/ui/src/utils';
 import {
-  CallButton,
   IncomingActionButton,
   IncomingButtonContainer,
   IncomingCallNav,
@@ -11,7 +10,7 @@ import {
   NameCardContainer,
   PhoneNumber,
 } from '../styles';
-import { ICallConversation, ICustomer } from '../types';
+import { ICustomer } from '../types';
 import React, { useEffect, useRef, useState } from 'react';
 import { callPropType, sipPropType } from '../lib/types';
 
@@ -26,7 +25,6 @@ type Props = {
   customer: ICustomer;
   channels: any;
   hasMicrophone: boolean;
-  addHistory: (conversationId: string, content: string) => void;
   phoneNumber: string;
 };
 
@@ -69,15 +67,6 @@ const IncomingCall = (props: Props, context) => {
   const [timeSpent, setTimeSpent] = useState(0);
   const [status, setStatus] = useState('pending');
 
-  let conversationDetail;
-
-  // if (conversation) {
-  //   console.log(conversation._id, 'conversation');
-  //   localStorage.setItem('callConversationId', conversation._id);
-  //   conversationDetail = {
-  //     ...conversation,
-  //   };
-  // }
   const audioRef = useRef<HTMLAudioElement | null>(null);
   useEffect(() => {
     let timer: NodeJS.Timeout;

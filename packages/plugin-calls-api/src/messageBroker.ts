@@ -117,7 +117,6 @@ export const setupMessageConsumers = async () => {
       const models = await generateModels(subdomain);
 
       await models.Integrations.deleteOne({ inboxId: integrationId });
-      await models.Conversations.deleteMany({integrationId});
       await models.Customers.deleteMany({ inboxIntegrationId: integrationId });
 
       return {
@@ -174,19 +173,9 @@ export const setupMessageConsumers = async () => {
           };
         }
 
-        const conversation = await models.Conversations.findOne({
-          erxesApiId: erxesApiConversationId,
+        const history = await models.CallHistory.findOne({
+          conversationId: erxesApiConversationId,
         });
-
-        if (!conversation) {
-          return {
-            status: 'error',
-            errorMessage: 'Conversation  not found.',
-          };
-        }
-
-        const sessionId = conversation.callId || '';
-        const history = await models.CallHistory.findOne({ sessionId });
         return {
           status: 'success',
           data: history,

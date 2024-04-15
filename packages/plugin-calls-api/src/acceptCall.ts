@@ -2,13 +2,7 @@ import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { IModels } from './connectionResolver';
 import { sendInboxMessage } from './messageBroker';
 
-const acceptCall = async (
-  models: IModels,
-  subdomain: string,
-  params,
-  user,
-  docModifier,
-) => {
+const acceptCall = async (models: IModels, subdomain: string, params, user) => {
   const integration = await models.Integrations.findOne({
     inboxId: params.inboxIntegrationId,
   }).lean();
@@ -29,31 +23,33 @@ const acceptCall = async (
   );
   params.operatorPhone = integration.phone;
   params.extentionNumber = operator?.gsUsername || '';
-  const { primaryPhone, direction, extentionNumber } = params;
+  const {
+    extentionNumber,
+    operatorPhone,
+    customerPhone,
+    callStartTime,
+    callType,
+    callStatus,
+    sessionId,
+    inboxIntegrationId,
+  } = params;
 
   let customer = await models.Customers.findOne({
-    primaryPhone,
+    primaryPhone: customerPhone,
     status: 'completed',
   });
 
   let history;
   try {
-    // sessionId: callID,
-    // callerNumber: primaryPhone,
-    // receiverNumber: recipientId,
-    // callType: direction,
-    // createdAt: new Date(),
-    // createdBy: user._id,
-    // updatedBy: user._id,
-    // callDuration: 0,
-    // extentionNumber,
-    // conversationId: '',
-    console.log(
-      ...docModifier({ ...params }),
-      '...docModifier({ ...params }),',
-    );
+    console.log(params, '...docModifier({ ...params }),');
     history = new models.CallHistory({
-      ...docModifier({ ...params }),
+      operatorPhone,
+      customerPhone,
+      callStartTime,
+      callType,
+      callStatus,
+      sessionId,
+      inboxIntegrationId,
       createdAt: new Date(),
       createdBy: user._id,
       updatedBy: user._id,
@@ -85,7 +81,7 @@ const acceptCall = async (
         payload: JSON.stringify({
           customerId: customer?.erxesApiId,
           integrationId: integration.inboxId,
-          content: direction || '',
+          content: params.callType || '',
           conversationId: history.conversationId,
           updatedAt: new Date(),
         }),
@@ -112,6 +108,7 @@ const acceptCall = async (
 
   for (const channel of channels) {
     for (const userId of channel.memberIds || []) {
+      console.log(userId, 'userId');
       graphqlPubsub.publish(
         `conversationClientMessageInserted:${subdomain}:${userId}`,
         {

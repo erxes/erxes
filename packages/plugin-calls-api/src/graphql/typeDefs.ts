@@ -83,7 +83,7 @@ const types = `
 export const subscriptions = `sessionTerminateRequested(userId: String): JSON`;
 
 const commonHistoryFields = `
-  operatorNumber: String
+  operatorPhone: String
   customerPhone: String
   callDuration: Int
   callStartTime: Date
@@ -91,7 +91,7 @@ const commonHistoryFields = `
   callType: String
   callStatus: String
   sessionId: String
-  conversationId: String
+  inboxIntegrationId: String
 `;
 
 const mutationFilterParams = `
@@ -109,7 +109,7 @@ const filterParams = `
 const queries = `
   callsIntegrationDetail(integrationId: String!): CallsIntegrationDetailResponse
   callUserIntegrations: [CallsIntegrationDetailResponse]
-  callsCustomerDetail(callerNumber: String): Customer
+  callsCustomerDetail(customerPhone: String): Customer
   callsActiveSession: CallActiveSession
   callHistories(${filterParams}, skip: Int): [CallHistory]
   callsGetConfigs: JSON
@@ -123,7 +123,7 @@ const mutations = `
   callTerminateSession: JSON
   callDisconnect: String
   callHistoryAdd(${commonHistoryFields}): CallHistory
-  callHistoryEdit(${commonHistoryFields}): String
+  callHistoryEdit(_id: String,${commonHistoryFields}): String
   callHistoryEditStatus(callStatus: String, conversationId: String): String
   callHistoryRemove(_id: String!): JSON
   callsUpdateConfigs(configsMap: JSON!): JSON

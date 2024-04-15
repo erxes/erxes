@@ -40,7 +40,7 @@ import { FormControl } from '@erxes/ui/src/components/form';
 import Select from 'react-select-plus';
 import { renderFullName } from '@erxes/ui/src/utils/core';
 type Props = {
-  addCustomer: (firstName: string, phoneNumber: string, callID: string) => void;
+  addCustomer: (firstName: string, phoneNumber: string) => void;
   callUserIntegrations: any;
   setConfig: any;
   customer: ICustomer;
@@ -60,7 +60,7 @@ const KeyPad = (props: Props, context) => {
   } = props;
 
   const defaultCallIntegration = localStorage.getItem(
-    'config:call_integrations'
+    'config:call_integrations',
   );
 
   const [shrink, setShrink] = useState(customer ? true : false);
@@ -73,14 +73,14 @@ const KeyPad = (props: Props, context) => {
   const [callFrom, setCallFrom] = useState(
     JSON.parse(defaultCallIntegration || '{}')?.phone ||
       callUserIntegrations?.[0]?.phone ||
-      ''
+      '',
   );
   const [hasMicrophone, setHasMicrophone] = useState(false);
   const [timeSpent, setTimeSpent] = useState(
-    call?.startTime ? calculateTimeElapsed(call.startTime) : 0
+    call?.startTime ? calculateTimeElapsed(call.startTime) : 0,
   );
   const formatedPhone = formatPhone(number);
-  const ourPhone = callUserIntegrations?.map(user => ({
+  const ourPhone = callUserIntegrations?.map((user) => ({
     value: user.phone,
     label: user.phone,
   }));
@@ -100,7 +100,7 @@ const KeyPad = (props: Props, context) => {
       .then(() => {
         setHasMicrophone(true);
       })
-      .catch(error => {
+      .catch((error) => {
         const errorMessage = error
           ?.toString()
           .replace('DOMException:', '')
@@ -117,7 +117,7 @@ const KeyPad = (props: Props, context) => {
         JSON.parse(defaultCallIntegration || '{}')?.inboxId ||
         callUserIntegrations?.[0]?.inboxId;
 
-      addCustomer(inboxId, formatedPhone, call?.id);
+      addCustomer(inboxId, formatedPhone);
     }
     if (call?.status === CALL_STATUS_ACTIVE) {
       const { startTime } = call;
@@ -159,7 +159,7 @@ const KeyPad = (props: Props, context) => {
     const isConnected = status === 'connect';
 
     const integration = callUserIntegrations?.find(
-      userIntegration => userIntegration.phone === callFrom
+      (userIntegration) => userIntegration.phone === callFrom,
     );
     localStorage.setItem(
       'config:call_integrations',
@@ -170,7 +170,7 @@ const KeyPad = (props: Props, context) => {
         token: integration?.token,
         operators: integration?.operators,
         isAvailable: isConnected ? true : false,
-      })
+      }),
     );
     setConfig({
       inboxId: integration?.inboxId,
@@ -182,17 +182,17 @@ const KeyPad = (props: Props, context) => {
     });
     localStorage.setItem(
       'isConnectCallRequested',
-      isConnected ? 'true' : 'false'
+      isConnected ? 'true' : 'false',
     ),
       localStorage.setItem(
         'callInfo',
         JSON.stringify({
           isUnRegistered: isConnected ? true : false,
-        })
+        }),
       );
   };
 
-  const handNumPad = e => {
+  const handNumPad = (e) => {
     let num = number;
     let dialNumber = dialCode;
 
@@ -225,14 +225,14 @@ const KeyPad = (props: Props, context) => {
       }
     }
   };
-  const handleKeyDown = event => {
+  const handleKeyDown = (event) => {
     const keyValue = event.key;
 
     if (keyValue === 'Enter') {
       handleCall();
     }
   };
-  const handlePaste = event => {
+  const handlePaste = (event) => {
     const pastedText = event.clipboardData?.getData('text');
     const maxLength = 10;
     const truncatedText = pastedText?.substring(0, maxLength);
@@ -240,15 +240,15 @@ const KeyPad = (props: Props, context) => {
   };
 
   const onBack = () => setShowTrigger(false);
-  const search = e => {
+  const search = (e) => {
     const inputValue = e.target.value;
     setSearchValue(inputValue);
   };
-  const onStatusChange = status => {
+  const onStatusChange = (status) => {
     setCallFrom(status.value);
 
     const integration = callUserIntegrations?.find(
-      userIntegration => userIntegration.phone === status.value
+      (userIntegration) => userIntegration.phone === status.value,
     );
     localStorage.setItem(
       'config:call_integrations',
@@ -259,7 +259,7 @@ const KeyPad = (props: Props, context) => {
         token: integration?.token,
         operators: integration?.operators,
         isAvailable: true,
-      })
+      }),
     );
 
     setConfig({
@@ -346,7 +346,7 @@ const KeyPad = (props: Props, context) => {
               handleAudioToggle,
               isHolded,
               handleHold,
-              handleCallStop
+              handleCallStop,
             )}
           </IncomingContent>
         </IncomingContainer>
@@ -370,7 +370,7 @@ const KeyPad = (props: Props, context) => {
               handleAudioToggle,
               isHolded,
               handleHold,
-              handleCallStop
+              handleCallStop,
             )}
           </IncomingContent>
         </IncomingContainer>
@@ -410,8 +410,8 @@ const KeyPad = (props: Props, context) => {
             ref={inputRef}
             onPaste={handlePaste}
             autoComplete="off"
-            onChange={e=>setNumber(e.target.value)}
-            type='number'
+            onChange={(e) => setNumber(e.target.value)}
+            type="number"
           />
         </InputBar>
         {renderKeyPad(handNumPad)}
