@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.7.7](https://github.com/erxes/erxes/compare/1.7.6...1.7.7) (2024-04-15)
+
+
+### Bug Fixes
+
+* **broadcast:** fix client portal user middleware ([34c93a9](https://github.com/erxes/erxes/commit/34c93a9ead011410232b1d1c8597b5c5d8c579f0))
+* **forms:**  ensure default value is an Array if property type is file ([1d94a61](https://github.com/erxes/erxes/commit/1d94a616c3f365551ba0b615ff5e2d53c1884ff8))
+* **instagram:** fix get config function ([0cb94c7](https://github.com/erxes/erxes/commit/0cb94c7372616c8f344a128438758d10e3cadef5))
+* multierkhet billtype for company ([fbc57fb](https://github.com/erxes/erxes/commit/fbc57fb5016bcb6ea1135803e40609582fc780df))
+* **payment:** updated invoice query contentType to handle 'cards' contentType ([af4a287](https://github.com/erxes/erxes/commit/af4a287f322263cc6997822cb23f7b86a4b01e88))
+* products search input ([d6457be](https://github.com/erxes/erxes/commit/d6457be80e65ef696a29d9bc6372d609486b13e7))
+* save convertDealId when pos order sync ([f5c8dfd](https://github.com/erxes/erxes/commit/f5c8dfd0e328002fbda532434fd986e4a6507dd7))
+
 ## [1.7.6](https://github.com/erxes/erxes/compare/1.7.5...1.7.6) (2024-04-05)
 
 
