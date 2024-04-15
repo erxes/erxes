@@ -117,7 +117,7 @@ export default class AppForm extends React.Component<Props, State> {
           <ControlLabel>{__("Expire date")}</ControlLabel>
           <Datetime
             // inputProps={{ placeholder: __("Click to select a date") }}
-            dateFormat="yyyy/mm/dd"
+            dateFormat={true}
             timeFormat={false}
             value={expireDate}
             // closeOnSelect={true}
