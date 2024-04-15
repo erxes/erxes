@@ -6,6 +6,7 @@ import {
 } from "@erxes/ui-settings/src/styles";
 import { IUnit, UnitsMainQueryResponse } from "@erxes/ui/src/team/types";
 import { __, router } from "@erxes/ui/src/utils";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import ActionButtons from "@erxes/ui/src/components/ActionButtons";
 import { BarItems } from "modules/layout/styles";
@@ -17,7 +18,7 @@ import Icon from "@erxes/ui/src/components/Icon";
 import LeftSidebar from "@erxes/ui/src/layout/components/Sidebar";
 import ModalTrigger from "modules/common/components/ModalTrigger";
 import Pagination from "modules/common/components/pagination/Pagination";
-import React from "react";
+import React, { useState } from "react";
 import SettingsSideBar from "../../containers/common/SettingSideBar";
 import SidebarHeader from "@erxes/ui-settings/src/common/components/SidebarHeader";
 import Table from "modules/common/components/table";
@@ -28,36 +29,26 @@ type Props = {
   listQuery: UnitsMainQueryResponse;
   deleteUnits: (ids: string[], callback: () => void) => void;
   queryParams: any;
-  history: any;
 };
 
-type State = {
-  selectedItems: string[];
-  searchValue: string;
-};
+const MainList = (props: Props) => {
+  let timer;
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [searchValue, setSearchValue] = useState(
+    props.queryParams.searchValue || ""
+  );
 
-class MainList extends React.Component<Props, State> {
-  private timer?: NodeJS.Timer;
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      selectedItems: [],
-      searchValue: props.queryParams.searchValue || "",
-    };
-  }
-
-  remove = (_id?: string) => {
+  const remove = (_id?: string) => {
     if (_id) {
-      this.props.deleteUnits([_id], () => this.setState({ selectedItems: [] }));
+      props.deleteUnits([_id], () => setSelectedItems([]));
     } else {
-      this.props.deleteUnits(this.state.selectedItems, () =>
-        this.setState({ selectedItems: [] })
-      );
+      props.deleteUnits(selectedItems, () => setSelectedItems([]));
     }
   };
 
-  renderForm() {
+  const renderForm = () => {
     const trigger = (
       <Button btnStyle="success" icon="plus-circle">
         {__("Add Unit")}
@@ -71,22 +62,21 @@ class MainList extends React.Component<Props, State> {
     return (
       <ModalTrigger title="Add Unit" content={content} trigger={trigger} />
     );
-  }
+  };
 
-  renderSearch() {
+  const renderSearch = () => {
     const search = (e) => {
-      if (this.timer) {
-        clearTimeout(this.timer);
+      if (timer) {
+        clearTimeout(timer);
       }
 
-      const { history } = this.props;
       const searchValue = e.target.value;
 
-      this.setState({ searchValue });
+      setSearchValue(searchValue);
 
-      this.timer = setTimeout(() => {
-        router.removeParams(history, "page");
-        router.setParams(history, { searchValue });
+      timer = setTimeout(() => {
+        router.removeParams(navigate, location, "page");
+        router.setParams(navigate, location, { searchValue });
       }, 500);
     };
 
@@ -98,33 +88,31 @@ class MainList extends React.Component<Props, State> {
     };
 
     return (
-      <FilterContainer marginRight={true}>
+      <FilterContainer $marginRight={true}>
         <InputBar type="searchBar">
           <Icon icon="search-1" size={20} />
           <FormControl
             type="text"
             placeholder={__("Type to search")}
             onChange={search}
-            value={this.state.searchValue}
+            value={searchValue}
             autoFocus={true}
             onFocus={moveCursorAtTheEnd}
           />
         </InputBar>
       </FilterContainer>
     );
-  }
+  };
 
-  renderRow(unit: IUnit) {
-    const { selectedItems } = this.state;
-
+  const renderRow = (unit: IUnit) => {
     const handleSelect = () => {
       if (selectedItems.includes(unit._id)) {
         const removedSelectedItems = selectedItems.filter(
           (selectItem) => selectItem !== unit._id
         );
-        return this.setState({ selectedItems: removedSelectedItems });
+        return setSelectedItems(removedSelectedItems);
       }
-      this.setState({ selectedItems: [...selectedItems, unit._id] });
+      setSelectedItems([...selectedItems, unit._id]);
     };
 
     const onclick = (e) => {
@@ -167,7 +155,7 @@ class MainList extends React.Component<Props, State> {
             <Tip text={__("Delete")} placement="top">
               <Button
                 btnStyle="link"
-                onClick={() => this.remove(unit._id)}
+                onClick={() => remove(unit._id)}
                 icon="times-circle"
               />
             </Tip>
@@ -175,22 +163,20 @@ class MainList extends React.Component<Props, State> {
         </td>
       </tr>
     );
-  }
+  };
 
-  renderContent() {
-    const { listQuery } = this.props;
+  const renderContent = () => {
+    const { listQuery } = props;
 
     const units = listQuery.unitsMain.list || [];
-
-    const { selectedItems } = this.state;
 
     const handleSelectAll = () => {
       if (!selectedItems.length) {
         const unitIds = units.map((unit) => unit._id);
-        return this.setState({ selectedItems: unitIds });
+        return setSelectedItems(unitIds);
       }
 
-      this.setState({ selectedItems: [] });
+      setSelectedItems([]);
     };
 
     return (
@@ -212,79 +198,74 @@ class MainList extends React.Component<Props, State> {
             <th>{__("Actions")}</th>
           </tr>
         </thead>
-        <tbody>{(units || []).map((unit) => this.renderRow(unit))}</tbody>
+        <tbody>{(units || []).map((unit) => renderRow(unit))}</tbody>
       </Table>
     );
-  }
-  render() {
-    const { listQuery } = this.props;
+  };
+  const { listQuery } = props;
+  const { totalCount } = listQuery.unitsMain;
 
-    const { totalCount } = listQuery.unitsMain;
+  const rightActionBar = (
+    <BarItems>
+      {renderSearch()}
+      {renderForm()}
+    </BarItems>
+  );
 
-    const { selectedItems } = this.state;
+  const leftActionBar = selectedItems.length > 0 && (
+    <Button
+      btnStyle="danger"
+      size="small"
+      icon="times-circle"
+      onClick={() => remove()}
+    >
+      Remove
+    </Button>
+  );
 
-    const rightActionBar = (
-      <BarItems>
-        {this.renderSearch()}
-        {this.renderForm()}
-      </BarItems>
-    );
-
-    const leftActionBar = selectedItems.length > 0 && (
-      <Button
-        btnStyle="danger"
-        size="small"
-        icon="times-circle"
-        onClick={() => this.remove()}
-      >
-        Remove
-      </Button>
-    );
-
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title="Units"
-            breadcrumb={[
-              { title: __("Settings"), link: "/settings" },
-              { title: __("Units") },
-            ]}
-          />
-        }
-        actionBar={
-          <Wrapper.ActionBar
-            right={rightActionBar}
-            left={
-              <LeftActionBar>
-                <Title $capitalize={true}>
-                  {__("Units")}&nbsp;
-                  {`(${totalCount || 0})`}
-                </Title>
-                {leftActionBar}
-              </LeftActionBar>
-            }
-          />
-        }
-        content={
-          <DataWithLoader
-            loading={listQuery.loading}
-            count={totalCount}
-            data={this.renderContent()}
-            emptyImage="/images/actions/25.svg"
-            emptyText="No Units"
-          />
-        }
-        leftSidebar={
-          <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
-            <SettingsSideBar />
-          </LeftSidebar>
-        }
-        footer={<Pagination count={totalCount} />}
-        hasBorder={true}
-      />
-    );
-  }
-}
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title="Units"
+          breadcrumb={[
+            { title: __("Settings"), link: "/settings" },
+            { title: __("Units") },
+          ]}
+        />
+      }
+      actionBar={
+        <Wrapper.ActionBar
+          right={rightActionBar}
+          left={
+            <LeftActionBar>
+              <Title $capitalize={true}>
+                {__("Units")}&nbsp;
+                {`(${totalCount || 0})`}
+              </Title>
+              {leftActionBar}
+            </LeftActionBar>
+          }
+        />
+      }
+      content={
+        <DataWithLoader
+          loading={listQuery.loading}
+          count={totalCount}
+          data={renderContent()}
+          emptyImage="/images/actions/25.svg"
+          emptyText="No Units"
+        />
+      }
+      leftSidebar={
+        <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
+          <SettingsSideBar />
+        </LeftSidebar>
+      }
+      footer={<Pagination count={totalCount} />}
+      hasBorder={true}
+    />
+  );
+};
 
 export default MainList;
