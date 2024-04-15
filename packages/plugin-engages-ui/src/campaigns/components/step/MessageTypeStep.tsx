@@ -53,7 +53,7 @@ class MessageTypeStep extends React.Component<Props, State> {
       messageType = CAMPAIGN_TARGET_TYPES.TAG;
     }
 
-    this.state = { messageType, segmentType };
+    this.state = { messageType, segmentType: segmentType || "contacts:lead" };
   }
 
   onChange = (key, e: React.FormEvent<HTMLElement>) => {

@@ -29,7 +29,7 @@ class ChooseType extends React.Component<Props, {}> {
     const onClick = () => this.onChange(value);
 
     return (
-      <Box selected={this.props.type === value} onClick={onClick}>
+      <Box $selected={this.props.type === value} onClick={onClick}>
         <Icon icon={icon} />
         <span>{__(name)}</span>
       </Box>

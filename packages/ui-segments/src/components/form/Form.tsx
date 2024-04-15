@@ -523,7 +523,6 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     }
 
     if (chosenSegment && state === "propertyForm") {
-      console.log("gsgsg", chosenSegment, state);
       return (
         <PropertyCondition
           key={Math.random()}
