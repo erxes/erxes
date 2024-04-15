@@ -48,7 +48,7 @@ const SelectMenu = (props) => {
     // const { name, icon, desc, path } = args;
     return (
       <Box
-        selected={true}
+        $selected={true}
         onClick={() => {
           navigate(path);
         }}

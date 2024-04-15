@@ -32,9 +32,7 @@ const GeneralSettings: React.FC<Props> = ({ save, configsMap }: Props) => {
   };
 
   const onChangeConfig = (code: string, value) => {
-    currentMap[code] = value;
-
-    setCurrentMap(currentMap);
+    setCurrentMap({...currentMap, [code]: value});
   };
 
   const onChangeInput = (code: string, e) => {

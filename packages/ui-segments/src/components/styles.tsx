@@ -218,6 +218,14 @@ const PropertyText = styled.span`
 const ConditionGroup = styled(GroupWrapper)`
   padding: 10px 10px 10px 0;
   margin-bottom: ${dimensions.headerSpacing}px;
+
+  .headlessui-popover-tooltip > button {
+    position: absolute;
+    padding: 5px 8px;
+    top: -5px;
+    right: -10px;
+    background: rgb(240, 240, 240) !important;
+  }
 `;
 
 const Count = styled.div`

@@ -7,19 +7,21 @@ import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { INotification } from "@erxes/ui-notifications/src/types";
 import React, { useState } from "react";
-// import { withRouter } from 'react-router-dom';
-import { IRouterProps } from "@erxes/ui/src/types";
 import { NotifList } from "@erxes/ui-notifications/src/components/styles";
+import { useNavigate, useLocation } from "react-router-dom";
 
 type Props = {
   notifications: INotification[];
   markAsRead: (notificationIds?: string[]) => void;
   loading: boolean;
   count: number;
-} & IRouterProps;
+};
 
 const NotificationList = (props: Props) => {
-  const { notifications, markAsRead, loading, count, history } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const { notifications, markAsRead, loading, count } = props;
 
   const [filterByUnread, setFilterByUnread] = useState<boolean>(true);
 
@@ -46,7 +48,7 @@ const NotificationList = (props: Props) => {
 
   const handleFilterByUnread = () => {
     setFilterByUnread(!filterByUnread);
-    router.setParams(history, { requireRead: filterByUnread });
+    router.setParams(navigate, location, { requireRead: filterByUnread });
   };
 
   const renderContent = () => {
