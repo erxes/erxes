@@ -36,9 +36,9 @@ type Props = {
   removeApp: (_id: string) => void;
 };
 
-export default class AppList extends React.Component<Props> {
-  renderObjects() {
-    const { apps, editApp, removeApp, userGroups } = this.props;
+export default function AppList(props: Props) {
+  const renderObjects = () => {
+    const { apps, editApp, removeApp, userGroups } = props;
     const rows: JSX.Element[] = [];
 
     if (!apps) {
@@ -58,9 +58,9 @@ export default class AppList extends React.Component<Props> {
     }
 
     return rows;
-  }
+  };
 
-  renderContent() {
+  const renderContent = () => {
     return (
       <FixedTable $whiteSpace="wrap" $bordered={true} $condensed={true}>
         <thead>
@@ -73,76 +73,73 @@ export default class AppList extends React.Component<Props> {
             <th>{__("Action")}</th>
           </tr>
         </thead>
-        <tbody>{this.renderObjects()}</tbody>
+        <tbody>{renderObjects()}</tbody>
       </FixedTable>
     );
-  }
+  };
 
-  render() {
-    const { isLoading, count, errorMessage, userGroups, addApp, editApp } =
-      this.props;
+  const { isLoading, count, errorMessage, userGroups, addApp, editApp } = props;
 
-    if (errorMessage.indexOf("Permission required") !== -1) {
-      return (
-        <EmptyState
-          text={__("Permission denied")}
-          image="/images/actions/21.svg"
-        />
-      );
-    }
-
-    const trigger = (
-      <Button
-        id={"new-app-btn"}
-        btnStyle="success"
-        block={true}
-        icon="plus-circle"
-      >
-        Add New App
-      </Button>
-    );
-
-    const content = (props) => (
-      <AppForm
-        {...props}
-        extended={true}
-        userGroups={userGroups}
-        addApp={addApp}
-        editApp={editApp}
-      />
-    );
-
-    const righActionBar = (
-      <ModalTrigger
-        size="lg"
-        title="New App"
-        autoOpenKey="showAppAddModal"
-        trigger={trigger}
-        content={content}
-      />
-    );
-
+  if (errorMessage.indexOf("Permission required") !== -1) {
     return (
-      <Wrapper
-        header={<Wrapper.Header title={__("Apps")} breadcrumb={breadcrumb} />}
-        footer={<Pagination count={count} />}
-        actionBar={
-          <Wrapper.ActionBar
-            left={<Title>{__("Apps")}</Title>}
-            right={righActionBar}
-          />
-        }
-        content={
-          <DataWithLoader
-            data={this.renderContent()}
-            loading={isLoading}
-            count={count}
-            emptyText={__("There are no apps")}
-            emptyImage="/images/actions/21.svg"
-          />
-        }
-        hasBorder={true}
+      <EmptyState
+        text={__("Permission denied")}
+        image="/images/actions/21.svg"
       />
     );
   }
+
+  const trigger = (
+    <Button
+      id={"new-app-btn"}
+      btnStyle="success"
+      block={true}
+      icon="plus-circle"
+    >
+      Add New App
+    </Button>
+  );
+
+  const content = (props) => (
+    <AppForm
+      {...props}
+      extended={true}
+      userGroups={userGroups}
+      addApp={addApp}
+      editApp={editApp}
+    />
+  );
+
+  const righActionBar = (
+    <ModalTrigger
+      size="lg"
+      title="New App"
+      autoOpenKey="showAppAddModal"
+      trigger={trigger}
+      content={content}
+    />
+  );
+
+  return (
+    <Wrapper
+      header={<Wrapper.Header title={__("Apps")} breadcrumb={breadcrumb} />}
+      footer={<Pagination count={count} />}
+      actionBar={
+        <Wrapper.ActionBar
+          left={<Title>{__("Apps")}</Title>}
+          right={righActionBar}
+        />
+      }
+      content={
+        <DataWithLoader
+          data={renderContent()}
+          loading={isLoading}
+          count={count}
+          emptyText={__("There are no apps")}
+          emptyImage="/images/actions/21.svg"
+        />
+      }
+      hasBorder={true}
+    />
+  );
 }

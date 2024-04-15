@@ -4,6 +4,7 @@ import colors from '../styles/colors';
 
 export const ActionButton = styled.div`
   display: inline-flex;
+  margin-right: 30px;
 
   * {
     padding: 0;
