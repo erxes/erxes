@@ -1,7 +1,7 @@
 import React from 'react';
 
 const getNum = (n) => {
-  return n.toLocaleString(undefined, {
+  return (n || 0).toLocaleString(undefined, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })

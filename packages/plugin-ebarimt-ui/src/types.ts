@@ -51,6 +51,7 @@ export type IPutResponse = {
   createdAt: Date;
   modifiedAt: Date;
 
+  _id: string;
   id: string;
   posId: number;
   status: string;
