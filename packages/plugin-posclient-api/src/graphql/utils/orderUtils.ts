@@ -274,7 +274,8 @@ export const prepareEbarimtData = async (
   orderBillType?: string,
   registerNumber?: string
 ) => {
-  let type: string = orderBillType || order.billType || BILL_TYPES.CITIZEN;
+  const billType = orderBillType || order.billType || BILL_TYPES.CITIZEN;
+  let type: string = billType === '3' ? 'B2B_RECEIPT' : 'B2C_RECEIPT';
   let customerCode = '';
   let customerName = '';
 
