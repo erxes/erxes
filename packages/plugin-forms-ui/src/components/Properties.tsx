@@ -6,6 +6,7 @@ import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
 import { IField } from "@erxes/ui/src/types";
 import { IFieldGroup } from "@erxes/ui-forms/src/settings/properties/types";
 import Icon from "@erxes/ui/src/components/Icon";
+import { Menu } from "@headlessui/react";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import PropertyForm from "@erxes/ui-forms/src/settings/properties/containers/PropertyForm";
 import PropertyGroupForm from "@erxes/ui-forms/src/settings/properties/containers/PropertyGroupForm";
@@ -17,7 +18,6 @@ import SortableList from "@erxes/ui/src/components/SortableList";
 import { Title } from "@erxes/ui-settings/src/styles";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { __ } from "@erxes/ui/src/utils";
-import { Menu } from "@headlessui/react";
 
 // Props
 type Props = {
@@ -171,8 +171,8 @@ class Properties extends React.Component<
       size = "lg";
     }
 
-    const addGroup = <Menu.Item>{__("Add Group")}</Menu.Item>;
-    const addField = <Menu.Item>{__("Add Property")}</Menu.Item>;
+    const addGroup = <a href="#group">{__("Add Group")}</a>;
+    const addField = <a href="#property">{__("Add Property")}</a>;
 
     const groupContent = (props) => (
       <PropertyGroupForm {...props} queryParams={queryParams} />
@@ -201,20 +201,23 @@ class Properties extends React.Component<
             <Icon icon="angle-down" />
           </Button>
         }
-        // alignRight={true}
       >
-        <ModalTrigger
-          title={__("Add Group")}
-          size={size}
-          trigger={addGroup}
-          autoOpenKey={`showProperty${currentType}Modal`}
-          content={groupContent}
-        />
-        <ModalTrigger
-          title={__("Add Property")}
-          trigger={addField}
-          content={propertyContent}
-        />
+        <Menu.Item>
+          <ModalTrigger
+            title={__("Add Group")}
+            size={size}
+            trigger={addGroup}
+            autoOpenKey={`showProperty${currentType}Modal`}
+            content={groupContent}
+          />
+        </Menu.Item>
+        <Menu.Item>
+          <ModalTrigger
+            title={__("Add Property")}
+            trigger={addField}
+            content={propertyContent}
+          />
+        </Menu.Item>
       </Dropdown>
     );
   };

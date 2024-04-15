@@ -5,6 +5,7 @@ import { createGlobalStyle } from 'styled-components';
 const style = `
 html {
   height: 100%;
+  overflow: hidden;
 }
 
 body {
@@ -356,8 +357,8 @@ a:hover {
   text-align: left;
   background: ${colors.colorWhite};
   border-radius: 8px;
-  overflow: hidden;
-  min-width: 500px;
+  width: 500px;
+  margin: 50px auto;
 }
 
 [id^="headlessui-dialog-title-"] {
@@ -609,8 +610,9 @@ a:hover {
 }
 
 .notification-popover {
-  right: 15px;
-  max-width: 360px;
+  right: 15px !important;
+  width: 360px !important;
+  max-width: 360px !important; 
 }
 
 .call-popover {
@@ -711,6 +713,22 @@ a:hover {
   padding-left: 10px;
 }
 
+.css-1nmdiq5-menu {
+  .active {
+    background-color: ${colors.colorSecondary} !important;
+  }
+}
+
+.css-b62m3t-container {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.css-1jqq78o-placeholder {
+  color: #aaa;
+}
+
 .css-wsp0cs-MultiValueGeneric {
   color: ${colors.colorWhite} !important;
   padding: 2px !important;
@@ -735,8 +753,8 @@ a:hover {
 .css-12a83d4-MultiValueRemove:hover,
 .css-12a83d4-MultiValueRemove:focus,
 .css-12a83d4-MultiValueRemove:active {
-  background-color: rgba(0, 0, 0, 0.2);
-  color: ${colors.colorWhite};
+  background-color: rgba(0, 0, 0, 0.2) !important;
+  color: ${colors.colorWhite} !important;
 }
 
 .Select--multi .Select-value-label {
@@ -830,6 +848,8 @@ a:hover {
   border-left-width: 0 !important;
   border-radius: 0 !important;
   box-shadow: none !important;
+  cursor: pointer !important;
+  border-color: rgb(221, 221, 221) !important;
 }
 
 .css-13cymwt-control > div, .css-t3ipsp-control > div {

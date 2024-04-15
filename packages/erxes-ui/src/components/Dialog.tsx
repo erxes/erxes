@@ -1,10 +1,11 @@
-import React, { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import {
   DialogContent,
   DialogWrapper,
   ModalOverlay,
 } from "@erxes/ui/src/styles/main";
+import React, { Fragment } from "react";
+
 import Icon from "@erxes/ui/src/components/Icon";
 
 function DialogComponent({
@@ -14,6 +15,7 @@ function DialogComponent({
   children,
   size,
   className,
+  hideHeader,
 }: {
   show: boolean;
   closeModal: () => void;
@@ -21,6 +23,7 @@ function DialogComponent({
   children: any;
   size?: string;
   className?: string;
+  hideHeader?: boolean;
 }) {
   return (
     <Transition appear show={show} as={Fragment}>
@@ -38,11 +41,13 @@ function DialogComponent({
         </Transition.Child>
         <DialogWrapper>
           <DialogContent>
-            <Dialog.Panel className={`dialog-size-${size ? size : 'lg'}`}>
-              <Dialog.Title as="h3">
-                {title}
-                <Icon icon="times" size={24} onClick={closeModal} />
-              </Dialog.Title>
+            <Dialog.Panel className={`dialog-size-${size ? size : "lg"}`}>
+              {!hideHeader && (
+                <Dialog.Title as="h3">
+                  {title}
+                  <Icon icon="times" size={24} onClick={closeModal} />
+                </Dialog.Title>
+              )}
               <Transition.Child>
                 <div className={`dialog-description ${className}`}>
                   {children}

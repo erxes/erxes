@@ -769,9 +769,15 @@ const GotoItem = styled.div`
 `;
 
 const GotoModal = styled(Dialog)`
+  padding: 0 !important;
+  
   & > div {
     border-radius: 10px;
     overflow: hidden;
+
+    input {
+      background: none;
+    }
   }
 `;
 

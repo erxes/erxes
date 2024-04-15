@@ -4,9 +4,9 @@ import { IActions, IModule } from "../types";
 import {
   correctValue,
   filterActions,
-  generatedList,
   generateListParams,
   generateModuleParams,
+  generatedList,
 } from "./utils";
 
 import Button from "modules/common/components/Button";
@@ -18,9 +18,9 @@ import { IUserGroup } from "@erxes/ui-settings/src/permissions/types";
 import Info from "modules/common/components/Info";
 import { ModalFooter } from "modules/common/styles/main";
 import React from "react";
+import Select from "react-select";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import TextInfo from "modules/common/components/TextInfo";
-import Select from "react-select";
 import { mutations } from "../graphql";
 
 type Props = {
@@ -28,6 +28,7 @@ type Props = {
   actions: IActions[];
   groups: IUserGroup[];
   refetchQueries: any;
+  isLoading: boolean;
   closeModal: () => void;
 };
 

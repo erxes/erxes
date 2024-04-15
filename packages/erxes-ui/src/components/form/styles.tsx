@@ -137,6 +137,7 @@ const Select = styled(styled.select(Input as any))`
   padding: 0;
   width: calc(100% + ${dimensions.coreSpacing}px);
   -webkit-appearance: none;
+  outline-: 0;
 `;
 
 const TextArea = styledTS<{

@@ -11,7 +11,10 @@ import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 import queryString from "query-string";
 
 const CreateLead = asyncComponent(
-  () => import(/* webpackChunkName: "CreateLead" */ "./containers/CreateLead")
+  () =>
+    import(
+      /* webpackChunkName: "Forms - CreateLead" */ "./containers/CreateLead"
+    )
 );
 
 const EditLead = asyncComponent(
@@ -67,25 +70,24 @@ const ResponseListComponent = () => {
 const routes = () => {
   return (
     <Routes>
-      <Route path="/forms" element={<Forms />}>
-        <Route
-          key="/forms/create"
-          path="/forms/create"
-          element={<CreateLead />}
-        />
+      <Route path="/forms" element={<Forms />} />
+      <Route
+        key="/forms/create"
+        path="/forms/create"
+        element={<CreateLead />}
+      />
 
-        <Route
-          key="/forms/edit/:contentTypeId?/:formId?"
-          path="/forms/edit/:contentTypeId/:formId?"
-          element={<EditLeadComponent />}
-        />
+      <Route
+        key="/forms/edit/:contentTypeId?/:formId?"
+        path="/forms/edit/:contentTypeId/:formId?"
+        element={<EditLeadComponent />}
+      />
 
-        <Route
-          key="/forms/responses/:integrationId?/:formId?"
-          path="/forms/responses/:integrationId?/:formId?"
-          element={<ResponseListComponent />}
-        />
-      </Route>
+      <Route
+        key="/forms/responses/:integrationId?/:formId?"
+        path="/forms/responses/:integrationId?/:formId?"
+        element={<ResponseListComponent />}
+      />
     </Routes>
   );
 };

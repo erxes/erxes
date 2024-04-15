@@ -82,9 +82,7 @@ type Props = {
   }) => void;
   verifiedImapEmails: string[];
   verifiedEngageEmails: string[];
-  messages: string[];
   detailQuery: string[];
-  history: any;
   shrink?: boolean;
   clear?: boolean;
   conversationStatus?: string;

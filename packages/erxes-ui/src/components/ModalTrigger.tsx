@@ -7,7 +7,7 @@ import {
   ModalOverlay,
 } from "../styles/main";
 import { Dialog, Transition } from "@headlessui/react";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, forwardRef, useEffect, useState } from "react";
 import { __, router } from "../utils/core";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -19,7 +19,7 @@ type Props = {
   as?: string | any;
   trigger?: React.ReactNode;
   autoOpenKey?: string;
-  content: ({ closeModal }: { closeModal: () => void }) => React.ReactNode;
+  content: any;
   size?: "xs" | "sm" | "lg" | "xl";
   ignoreTrans?: boolean;
   dialogClassName?: string;
@@ -34,125 +34,132 @@ type Props = {
   isAnimate?: boolean;
 };
 
-const ModalTrigger: React.FC<Props> = ({
-  title,
-  trigger,
-  autoOpenKey,
-  content,
-  as = "div",
-  size = "sm",
-  dialogClassName,
-  enforceFocus,
-  hideHeader,
-  isOpen,
-  addisOpenToQueryParam,
-  paddingContent,
-  onExit,
-  ignoreTrans,
-}) => {
-  const navigate = useNavigate();
-  const location = useLocation();
+const ModalTrigger: React.FC<Props> = forwardRef(
+  (
+    {
+      title,
+      trigger,
+      autoOpenKey,
+      content,
+      as = "div",
+      size = "sm",
+      dialogClassName,
+      enforceFocus,
+      hideHeader,
+      isOpen,
+      addisOpenToQueryParam,
+      paddingContent = "less-padding",
+      onExit,
+      ignoreTrans,
+    },
+    ref
+  ) => {
+    const navigate = useNavigate();
+    const location = useLocation();
 
-  const [isOpenTrigger, setIsOpen] = useState(isOpen || false);
-  const [autoOpenKeyState, setAutoOpenKey] = useState("");
+    const [isOpenTrigger, setIsOpen] = useState(isOpen || false);
+    const [autoOpenKeyState, setAutoOpenKey] = useState("");
 
-  // const { isOpen: urlIsOpen } = useParams<{ isOpen?: string }>();
+    // const { isOpen: urlIsOpen } = useParams<{ isOpen?: string }>();
 
-  useEffect(() => {
-    if (autoOpenKey !== autoOpenKeyState) {
-      if (routerUtils.checkHashKeyInURL({ location }, autoOpenKey)) {
-        setIsOpen(true);
-        setAutoOpenKey(autoOpenKey || "");
+    useEffect(() => {
+      if (autoOpenKey !== autoOpenKeyState) {
+        if (routerUtils.checkHashKeyInURL({ location }, autoOpenKey)) {
+          setIsOpen(true);
+          setAutoOpenKey(autoOpenKey || "");
+        }
       }
-    }
-  }, [autoOpenKey, autoOpenKeyState]);
+    }, [autoOpenKey, autoOpenKeyState]);
 
-  useEffect(() => {
-    const queryParams = queryString.parse(window.location.search);
+    useEffect(() => {
+      const queryParams = queryString.parse(window.location.search);
 
-    if (addisOpenToQueryParam) {
-      if (isOpenTrigger && !queryParams.isOpen) {
-        router.setParams(navigate, location, {
-          isModalOpen: isOpenTrigger,
-        });
+      if (addisOpenToQueryParam) {
+        if (isOpenTrigger && !queryParams.isOpen) {
+          router.setParams(navigate, location, {
+            isModalOpen: isOpenTrigger,
+          });
+        }
+
+        if (queryParams.isModalOpen) {
+          router.removeParams(navigate, location, "isModalOpen");
+        }
+      }
+    }, [addisOpenToQueryParam, isOpen]);
+
+    const openModal = () => {
+      setIsOpen(true);
+    };
+
+    const closeModal = () => {
+      setIsOpen(false);
+    };
+
+    const renderHeader = () => {
+      if (hideHeader) {
+        return (
+          <CloseModal onClick={closeModal}>
+            <Icon icon="times" />
+          </CloseModal>
+        );
       }
 
-      if (queryParams.isModalOpen) {
-        router.removeParams(navigate, location, "isModalOpen");
-      }
-    }
-  }, [addisOpenToQueryParam, isOpen]);
-
-  const openModal = () => {
-    setIsOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsOpen(false);
-  };
-
-  const renderHeader = () => {
-    if (hideHeader) {
       return (
-        <CloseModal onClick={closeModal}>
-          <Icon icon="times" />
-        </CloseModal>
+        <Dialog.Title as="h3">
+          {ignoreTrans ? title : __(title)}
+          <Icon icon="times" size={24} onClick={closeModal} />
+        </Dialog.Title>
       );
-    }
+    };
+
+    // add onclick event to the trigger component
+    const triggerComponent = trigger
+      ? React.cloneElement(trigger as React.ReactElement<any>, {
+          onClick: openModal,
+        })
+      : null;
 
     return (
-      <Dialog.Title as="h3">
-        {ignoreTrans ? title : __(title)}
-        <Icon icon="times" size={24} onClick={closeModal} />
-      </Dialog.Title>
-    );
-  };
+      <>
+        {triggerComponent}
 
-  // add onclick event to the trigger component
-  const triggerComponent = trigger
-    ? React.cloneElement(trigger as React.ReactElement<any>, {
-        onClick: openModal,
-      })
-    : null;
-
-  return (
-    <>
-      {triggerComponent}
-
-      {isOpenTrigger && (
-        <Dialog
-          open={true}
-          as={as ? as : "div"}
-          onClose={closeModal}
-          className={`${dialogClassName} relative z-10`}
-          initialFocus={(enforceFocus as any) || false}
-        >
-          <Transition
-            as={Fragment}
-            show={isOpenTrigger}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
+        {isOpenTrigger && (
+          <Dialog
+            open={true}
+            as={as ? as : "div"}
+            onClose={closeModal}
+            className={`${dialogClassName} relative z-10`}
+            initialFocus={(enforceFocus as any) || false}
           >
-            <ModalOverlay />
-          </Transition>
-          <DialogWrapper>
-            <DialogContent>
-              <Dialog.Panel className={`${paddingContent} dialog-size-${size}`}>
-                {renderHeader()}
-                <div className="dialog-description">
-                  {content({ closeModal })}
-                </div>
-              </Dialog.Panel>
-            </DialogContent>
-          </DialogWrapper>
-        </Dialog>
-      )}
-    </>
-  );
-};
+            <Transition
+              as={Fragment}
+              show={isOpenTrigger}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <ModalOverlay />
+            </Transition>
+            <DialogWrapper>
+              <DialogContent>
+                <Dialog.Panel
+                  className={`${paddingContent} dialog-size-${size}`}
+                >
+                  {renderHeader()}
+                  <div className="dialog-description">
+                    {content({ closeModal }, ref)}
+                  </div>
+                </Dialog.Panel>
+              </DialogContent>
+            </DialogWrapper>
+          </Dialog>
+        )}
+      </>
+    );
+  }
+);
 
 export default ModalTrigger;

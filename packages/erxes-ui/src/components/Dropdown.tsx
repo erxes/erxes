@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { forwardRef, useEffect, useRef, useState } from "react";
 
 import { Menu } from "@headlessui/react";
 
@@ -11,26 +11,42 @@ type Props = {
   disabled?: boolean;
 };
 
-const Dropdown: React.FC<Props> = ({ children, as, drop, toggleComponent }) => {
-  const [height, setHeight] = useState(0);
-  const buttonRef = useRef({} as any);
+const Dropdown: React.FC<Props> = forwardRef<HTMLDivElement, Props>(
+  ({ children, as, drop, toggleComponent }, ref) => {
+    const [height, setHeight] = useState(0);
+    const [width, setWidth] = useState(0);
+    const buttonRef = useRef<HTMLButtonElement>({} as any);
 
-  useEffect(() => {
-    if (buttonRef.current && buttonRef.current.clientHeight) {
-      setHeight(buttonRef.current.clientHeight);
-    }
-  }, [buttonRef.current, buttonRef.current.clientHeight]);
+    useEffect(() => {
+      if (buttonRef.current) {
+        setHeight(buttonRef.current.clientHeight);
+        setWidth(buttonRef.current.clientWidth);
+      }
+    }, [buttonRef.current]);
 
-  const style = drop === "up" ? { bottom: height + 5 } : {};
+    const style =
+      drop === "up" ? { bottom: height + 5 } : width !== 0 ? { width } : {};
 
-  return (
-    <Menu as={as || "div"} className="relative dropdown-btn">
-      <Menu.Button ref={buttonRef}>{toggleComponent}</Menu.Button>
-      <Menu.Items className={`absolute`} style={style}>
-        {children}
-      </Menu.Items>
-    </Menu>
-  );
-};
+    // const MenuButton = React.forwardRef(function (props, ref) {
+    //   return toggleComponent;
+    // });
+
+    return (
+      <Menu as={as || "div"} className="relative dropdown-btn">
+        {({ open }) => (
+          <>
+            <Menu.Button ref={buttonRef}>{toggleComponent}</Menu.Button>
+            {/* <Menu.Button ref={buttonRef} as={MenuButton} /> */}
+            {open && (
+              <Menu.Items ref={ref} className={`absolute`} style={style}>
+                {children}
+              </Menu.Items>
+            )}
+          </>
+        )}
+      </Menu>
+    );
+  }
+);
 
 export default Dropdown;

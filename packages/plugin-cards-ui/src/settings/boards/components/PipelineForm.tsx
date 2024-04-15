@@ -1,12 +1,19 @@
 import { ColorPick, ColorPicker } from "@erxes/ui/src/styles/main";
+import { Dialog, Transition } from "@headlessui/react";
+import {
+  DialogContent,
+  DialogWrapper,
+  ModalFooter,
+  ModalOverlay,
+} from "@erxes/ui/src/styles/main";
 import { FlexContent, FlexItem } from "@erxes/ui/src/layout/styles";
 import { IBoard, IPipeline, IStage } from "@erxes/ui-cards/src/boards/types";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import React, { Fragment } from "react";
 import { __, generateTree } from "coreui/utils";
 
 import BoardNumberConfigs from "./numberConfig/BoardNumberConfigs";
 import Button from "@erxes/ui/src/components/Button";
-import Icon from "@erxes/ui/src/components/Icon";
 import { COLORS } from "@erxes/ui/src/constants/colors";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import { ExpandWrapper } from "@erxes/ui-settings/src/styles";
@@ -17,21 +24,14 @@ import FormGroup from "@erxes/ui/src/components/form/Group";
 import { IDepartment } from "@erxes/ui/src/team/types";
 import { IOption } from "../types";
 import { ITag } from "@erxes/ui-tags/src/types";
+import Icon from "@erxes/ui/src/components/Icon";
 import Popover from "@erxes/ui/src/components/Popover";
-import React, { Fragment } from "react";
 import Select from "react-select";
 import { SelectMemberStyled } from "@erxes/ui-cards/src/settings/boards/styles";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import Stages from "./Stages";
 import TwitterPicker from "react-color/lib/Twitter";
 import { colors } from "@erxes/ui/src/styles";
-import {
-  ModalFooter,
-  DialogContent,
-  DialogWrapper,
-  ModalOverlay,
-} from "@erxes/ui/src/styles/main";
-import { Dialog, Transition } from "@headlessui/react";
 
 type Props = {
   type: string;
@@ -528,7 +528,7 @@ class PipelineForm extends React.Component<Props, State> {
           </Transition.Child>
           <DialogWrapper>
             <DialogContent>
-              <Dialog.Panel className={` dialog-size-lg`}>
+              <Dialog.Panel className={`dialog-size-xl`}>
                 <Dialog.Title as="h3">
                   {pipeline ? `Edit ${pipelineName}` : `Add ${pipelineName}`}
                   <Icon icon="times" size={24} onClick={closeModal} />

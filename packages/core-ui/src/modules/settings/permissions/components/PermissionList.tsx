@@ -29,10 +29,8 @@ import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import Table from "modules/common/components/table";
 import { Title } from "@erxes/ui-settings/src/styles";
 import Wrapper from "modules/layout/components/Wrapper";
-import { isObject } from "util";
 
 type Props = {
-  history: any;
   queryParams: any;
   isLoading: boolean;
   totalCount: number;
@@ -55,7 +53,7 @@ const PermissionList = (props: Props) => {
 
   const setFilter = (name: string, item: generatedList) => {
     router.setParams(navigate, location, {
-      [name]: isObject(item) ? correctValue(item) : item,
+      [name]: typeof item === "object" ? correctValue(item) : item,
       page: null,
       perPage: null,
     });
@@ -158,14 +156,15 @@ const PermissionList = (props: Props) => {
     );
   };
 
-  const renderForm = (props) => {
-    const { modules, actions, groups, refetchQueries } = props;
+  const renderForm = (moduleProps) => {
+    const { modules, actions, groups, refetchQueries, isLoading } = props;
 
     const extendedProps = {
-      ...props,
+      ...moduleProps,
       modules,
       actions,
       groups,
+      isLoading,
       refetchQueries,
     };
 

@@ -109,7 +109,7 @@ const Widget: React.FC<Props> = (props) => {
       return (
         <Link onClick={() => showWidget()}>
           {emailTo}
-          {emailStatus && emailStatus()}
+          {(emailStatus && emailStatus()) || null}
         </Link>
       );
     }

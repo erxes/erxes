@@ -21,7 +21,7 @@ export default function Collapse({
       leaveTo="opacity-0"
       unmount={unmount}
     >
-      {(ref) => <div ref={ref}>{show && children}</div>}
+      {show && children}
     </Transition>
   );
 }

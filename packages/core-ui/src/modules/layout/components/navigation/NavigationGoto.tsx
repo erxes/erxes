@@ -360,7 +360,12 @@ export default class NavigationGoto extends React.Component<Props, State> {
           </Tip>
         </NavItem>
 
-        <GotoModal show={show} closeModal={this.handleShow} size="lg">
+        <GotoModal
+          show={show}
+          closeModal={this.handleShow}
+          size="lg"
+          hideHeader={true}
+        >
           <GotoFormWrapper>
             <Icon icon="search-1" size={16} />
             <input

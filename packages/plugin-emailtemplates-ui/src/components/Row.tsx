@@ -1,7 +1,3 @@
-import React from 'react';
-
-import dayjs from 'dayjs';
-
 import {
   Actions,
   IframePreview,
@@ -9,12 +5,14 @@ import {
   TemplateBox,
   TemplateBoxInfo,
   TemplateInfo,
-} from '@erxes/ui-emailtemplates/src/styles';
-import Form from '@erxes/ui-emailtemplates/src/containers/Form';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+} from "@erxes/ui-emailtemplates/src/styles";
 
-import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
+import Form from "@erxes/ui-emailtemplates/src/containers/Form";
+import { ICommonListProps } from "@erxes/ui-settings/src/common/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import dayjs from "dayjs";
 
 type Props = {
   object: any;
@@ -70,13 +68,13 @@ const Row = (props: Props) => {
   const renderDate = (createdAt, modifiedAt) => {
     if (createdAt === modifiedAt) {
       if (createdAt === null) {
-        return '-';
+        return "-";
       }
 
-      return dayjs(createdAt).format('DD MMM YYYY');
+      return dayjs(createdAt).format("DD MMM YYYY");
     }
 
-    return dayjs(modifiedAt).format('DD MMM YYYY');
+    return dayjs(modifiedAt).format("DD MMM YYYY");
   };
 
   return (
@@ -103,8 +101,8 @@ const Row = (props: Props) => {
           <TemplateInfo>
             <p>Created by</p>
             {createdUser ? (
-              createdUser.details.fullName && (
-                <p>{createdUser.details.fullName}</p>
+              createdUser?.details?.fullName && (
+                <p>{createdUser?.details?.fullName}</p>
               )
             ) : (
               <p>erxes Inc</p>
