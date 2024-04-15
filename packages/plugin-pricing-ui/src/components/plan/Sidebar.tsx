@@ -15,7 +15,7 @@ import { SidebarFilters } from "../../styles";
 import Tip from "@erxes/ui/src/components/Tip";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import dayjs from "dayjs";
-import { useHistory } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 type Props = {
   params: any;
@@ -24,7 +24,8 @@ type Props = {
 const { Section } = Wrapper.Sidebar;
 
 export default function Sidebar(props: Props) {
-  const history = useHistory();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [filters, setFilters] = useState(props.params);
   const {
@@ -42,7 +43,8 @@ export default function Sidebar(props: Props) {
 
   const clearFilter = () => {
     router.removeParams(
-      history,
+      navigate,
+      location,
       "productId",
       "branchId",
       "departmentId",
@@ -58,7 +60,7 @@ export default function Sidebar(props: Props) {
   };
 
   const runFilter = () => {
-    router.setParams(history, { ...filters });
+    router.setParams(navigate, location, { ...filters });
   };
 
   const setFilter = (key, value) => {

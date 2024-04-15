@@ -1,26 +1,28 @@
-import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
-import { __, router } from '@erxes/ui/src/utils';
+import { FieldStyle, SidebarList } from "@erxes/ui/src/layout/styles";
+import { __, router } from "@erxes/ui/src/utils";
 
-import Box from '@erxes/ui/src/components/Box';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-// import { withRouter } from 'react-router-dom';
-import { categoryApprovalStates } from '../../constants';
+import Box from "@erxes/ui/src/components/Box";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import React from "react";
+import { categoryApprovalStates } from "../../constants";
+import { useNavigate, useLocation } from "react-router-dom";
 
-interface IProps extends IRouterProps {
+interface IProps {
   emptyText?: string;
 }
 
-function CategoryApprovalStateFilter({ history, emptyText }: IProps) {
+function CategoryApprovalStateFilter({ emptyText }: IProps) {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const data = (
     <SidebarList>
       {categoryApprovalStates.map((categoryApprovalState, index) => {
         const onClick = () => {
-          router.setParams(history, {
+          router.setParams(navigate, location, {
             categoryApprovalState: categoryApprovalState.key,
           });
-          router.removeParams(history, 'page');
+          router.removeParams(navigate, location, "page");
         };
 
         return (
@@ -29,10 +31,10 @@ function CategoryApprovalStateFilter({ history, emptyText }: IProps) {
               href="#filter"
               tabIndex={0}
               className={
-                router.getParam(history, 'categoryApprovalState') ===
+                router.getParam(location, "categoryApprovalState") ===
                 categoryApprovalState.key
-                  ? 'active'
-                  : ''
+                  ? "active"
+                  : ""
               }
               onClick={onClick}
             >
@@ -46,7 +48,7 @@ function CategoryApprovalStateFilter({ history, emptyText }: IProps) {
 
   return (
     <Box
-      title={__('Filter by Approval State')}
+      title={__("Filter by Approval State")}
       collapsible={categoryApprovalStates.length > 5}
       name="showFilterBycategoryApprovalState"
     >
@@ -54,7 +56,7 @@ function CategoryApprovalStateFilter({ history, emptyText }: IProps) {
         data={data}
         loading={false}
         count={categoryApprovalStates.length}
-        emptyText={emptyText ? emptyText : 'Loading'}
+        emptyText={emptyText ? emptyText : "Loading"}
         emptyIcon="leaf"
         size="small"
         objective={true}

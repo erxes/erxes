@@ -8,20 +8,20 @@ import {
   Tip,
   Wrapper,
   SidebarList,
-} from '@erxes/ui/src';
-import { Header } from '@erxes/ui-settings/src/styles';
+} from "@erxes/ui/src";
+import { Header } from "@erxes/ui-settings/src/styles";
 
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import React from 'react';
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import React from "react";
 
-import CategoryForm from '../../containers/carCategory/CategoryForm';
-import SegmentFilter from '../../containers/SegmentFilter';
-import TagFilter from '../../containers/TagFilter';
-import { ICarCategory } from '../../types';
-import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
+import CategoryForm from "../../containers/carCategory/CategoryForm";
+import SegmentFilter from "../../containers/SegmentFilter";
+import TagFilter from "../../containers/TagFilter";
+import { ICarCategory } from "../../types";
+import CollapsibleList from "@erxes/ui/src/components/collapsibleList/CollapsibleList";
+import { useNavigate, useLocation } from "react-router-dom";
 
 type Props = {
-  history: any;
   queryParams: any;
   refetch: any;
   remove: (carCategoryId: string) => void;
@@ -33,16 +33,17 @@ type Props = {
 const { Section } = Wrapper.Sidebar;
 
 const CategoryList = (props: Props) => {
-  const { history, queryParams, remove, carCategories, totalCount, loading } =
-    props;
+  const { queryParams, remove, carCategories, totalCount, loading } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const clearCategoryFilter = () => {
-    router.setParams(history, { categoryId: null });
+    router.setParams(navigate, location, { categoryId: null });
   };
 
   const renderFormTrigger = (
     trigger: React.ReactNode,
-    category?: ICarCategory,
+    category?: ICarCategory
   ) => {
     const content = (props) => (
       <CategoryForm {...props} category={category} categories={carCategories} />
@@ -56,7 +57,7 @@ const CategoryList = (props: Props) => {
   const renderEditAction = (category: ICarCategory) => {
     const trigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')} placement="bottom">
+        <Tip text={__("Edit")} placement="bottom">
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -68,7 +69,7 @@ const CategoryList = (props: Props) => {
   const renderRemoveAction = (category: ICarCategory) => {
     return (
       <Button btnStyle="link" onClick={remove.bind(null, category._id)}>
-        <Tip text={__('Remove')} placement="bottom">
+        <Tip text={__("Remove")} placement="bottom">
           <Icon icon="cancel-1" />
         </Tip>
       </Button>
@@ -76,8 +77,8 @@ const CategoryList = (props: Props) => {
   };
 
   const handleClick = (categoryId) => {
-    router.setParams(history, { categoryId: categoryId });
-    router.removeParams(history, 'page');
+    router.setParams(navigate, location, { categoryId: categoryId });
+    router.removeParams(navigate, location, "page");
   };
 
   const renderContent = () => {
@@ -127,11 +128,11 @@ const CategoryList = (props: Props) => {
       <>
         <Header>{renderFormTrigger(trigger)}</Header>
         <Section.Title>
-          {__('Categories')}
+          {__("Categories")}
           <Section.QuickButtons>
-            {router.getParam(history, 'categoryId') && (
+            {router.getParam(location, "categoryId") && (
               <a href="#cancel" tabIndex={0} onClick={clearCategoryFilter}>
-                <Tip text={__('Clear filter')} placement="bottom">
+                <Tip text={__("Clear filter")} placement="bottom">
                   <Icon icon="times-circle" />
                 </Tip>
               </a>
@@ -146,8 +147,8 @@ const CategoryList = (props: Props) => {
     <>
       {renderCategoryHeader()}
       {renderCategoryList()}
-      {isEnabled('segments') && <SegmentFilter loadingMainQuery={loading} />}
-      {isEnabled('tags') && <TagFilter />}
+      {isEnabled("segments") && <SegmentFilter loadingMainQuery={loading} />}
+      {isEnabled("tags") && <TagFilter />}
     </>
   );
 };

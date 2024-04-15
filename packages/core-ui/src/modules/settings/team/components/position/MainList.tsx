@@ -30,17 +30,18 @@ import { generatePaginationParams } from "@erxes/ui/src/utils/router";
 import { generateTree } from "../../utils";
 import { gql } from "@apollo/client";
 import { queries } from "@erxes/ui/src/team/graphql";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   listQuery: PositionsMainQueryResponse;
   deletePositions: (ids: string[], callback: () => void) => void;
   queryParams: any;
-  history: any;
 };
 
 const MainList = (props: Props) => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const { queryParams, listQuery, deletePositions } = props;
-
   const positions = listQuery?.positionsMain?.list || [];
 
   const { totalCount } = listQuery.positionsMain;
@@ -204,14 +205,13 @@ const MainList = (props: Props) => {
 
       e.preventDefault();
 
-      const { history } = props;
       const searchValue = e.target.value;
 
       setSearchValue(searchValue);
 
       timer = setTimeout(() => {
-        router.removeParams(history, "page");
-        router.setParams(history, { searchValue });
+        router.removeParams(navigate, location, "page");
+        router.setParams(navigate, location, { searchValue });
       }, 500);
     };
 
@@ -223,7 +223,7 @@ const MainList = (props: Props) => {
     };
 
     return (
-      <FilterContainer marginRight={true}>
+      <FilterContainer $marginRight={true}>
         <InputBar type="searchBar">
           <Icon icon="search-1" size={20} />
           <FormControl

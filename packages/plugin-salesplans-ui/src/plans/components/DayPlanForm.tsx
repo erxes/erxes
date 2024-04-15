@@ -1,33 +1,35 @@
-import React, { useState } from 'react';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
-import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
-import { __, router } from '@erxes/ui/src/utils';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { IDayPlanParams } from '../types';
+import React, { useState } from "react";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
+import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
+import { __, router } from "@erxes/ui/src/utils";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { IDayPlanParams } from "../types";
 import {
   Button,
   ControlLabel,
   DateControl,
   Form as CommonForm,
   FormGroup,
-} from '@erxes/ui/src/components';
+} from "@erxes/ui/src/components";
 import {
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
-} from '@erxes/ui/src/styles/eindex';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import moment from 'moment';
+} from "@erxes/ui/src/styles/eindex";
+import { DateContainer } from "@erxes/ui/src/styles/main";
+import moment from "moment";
+import { useNavigate, useLocation } from "react-router-dom";
 
 type Props = {
-  history: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
 const DayPlanForm = (props: Props) => {
-  const { history, renderButton, closeModal } = props;
+  const { renderButton, closeModal } = props;
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [dayPlanParams, setDayPlanParams] = useState<IDayPlanParams>({
     date: new Date(),
@@ -36,7 +38,7 @@ const DayPlanForm = (props: Props) => {
   const generateDoc = (values: { _id?: string }) => {
     const finalValues = values;
 
-    const strVal = moment(dayPlanParams.date).format('YYYY/MM/DD');
+    const strVal = moment(dayPlanParams.date).format("YYYY/MM/DD");
 
     return {
       ...finalValues,
@@ -60,15 +62,15 @@ const DayPlanForm = (props: Props) => {
   const onSelectDate = (value) => {
     setDayPlanParams((prevState) => ({
       ...prevState,
-      date: new Date(moment(value).format('YYYY/MM/DD')),
+      date: new Date(moment(value).format("YYYY/MM/DD")),
     }));
   };
 
   const onAfterSave = () => {
-    router.removeParams(history, 'page');
-    router.setParams(history, {
+    router.removeParams(navigate, location, "page");
+    router.setParams(navigate, location, {
       ...dayPlanParams,
-      date: moment(dayPlanParams.date).format('YYYY/MM/DD'),
+      date: moment(dayPlanParams.date).format("YYYY/MM/DD"),
     });
     closeModal();
   };
@@ -86,7 +88,7 @@ const DayPlanForm = (props: Props) => {
               placeholder="Choose date"
               value={
                 dayPlanParams.date ||
-                new Date(moment(new Date()).format('YYYY/MM/DD'))
+                new Date(moment(new Date()).format("YYYY/MM/DD"))
               }
               onChange={onSelectDate}
             />
@@ -97,8 +99,8 @@ const DayPlanForm = (props: Props) => {
           <SelectBranches
             label="Choose branch"
             name="selectedBranchId"
-            initialValue={''}
-            onSelect={(branchId) => onSelectChange('branchId', branchId)}
+            initialValue={""}
+            onSelect={(branchId) => onSelectChange("branchId", branchId)}
             multi={false}
           />
         </FormGroup>
@@ -107,9 +109,9 @@ const DayPlanForm = (props: Props) => {
           <SelectDepartments
             label="Choose department"
             name="selectedDepartmentId"
-            initialValue={''}
+            initialValue={""}
             onSelect={(departmentId) =>
-              onSelectChange('departmentId', departmentId)
+              onSelectChange("departmentId", departmentId)
             }
             multi={false}
           />
@@ -119,9 +121,9 @@ const DayPlanForm = (props: Props) => {
           <SelectProductCategory
             label="Choose product category"
             name="productCategoryId"
-            initialValue={''}
+            initialValue={""}
             onSelect={(categoryId) =>
-              onSelectChange('productCategoryId', categoryId)
+              onSelectChange("productCategoryId", categoryId)
             }
             multi={false}
           />
@@ -131,8 +133,8 @@ const DayPlanForm = (props: Props) => {
           <SelectProducts
             label="Choose product"
             name="productId"
-            initialValue={''}
-            onSelect={(productId) => onSelectChange('productId', productId)}
+            initialValue={""}
+            onSelect={(productId) => onSelectChange("productId", productId)}
             multi={false}
           />
         </FormGroup>

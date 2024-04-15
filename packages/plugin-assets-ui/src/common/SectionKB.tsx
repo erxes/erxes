@@ -9,14 +9,16 @@ import { checkKnowledge } from "./constant";
 import client from "@erxes/ui/src/apolloClient";
 import { generateParamsIds } from "./utils";
 import { queries } from "../asset/graphql";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 const SelectKbArticles = (props: Props) => {
-  const { queryParams, history } = props;
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { queryParams } = props;
 
   const [topicsToShow, setTopicsToShow] = useState<string[]>([]);
   const [categoriesToShow, setCategoriesToShow] = useState<string[]>([]);
@@ -35,12 +37,12 @@ const SelectKbArticles = (props: Props) => {
 
     const handleSelect = (articleId) => {
       if (articleIds.includes(articleId)) {
-        return setParams(history, {
+        return setParams(navigate, location, {
           articleIds: (articleIds || []).filter((id) => id !== articleId),
         });
       }
 
-      setParams(history, { articleIds: [...articleIds, articleId] });
+      setParams(navigate, location, { articleIds: [...articleIds, articleId] });
     };
 
     return articles
@@ -85,9 +87,9 @@ const SelectKbArticles = (props: Props) => {
           (queryParams?.articleIds || []).includes(articleId)
         )
       ) {
-        return removeParams(history, "articleIds");
+        return removeParams(navigate, location, "articleIds");
       }
-      setParams(history, { articleIds });
+      setParams(navigate, location, { articleIds });
     };
 
     return (
@@ -145,21 +147,21 @@ const SelectKbArticles = (props: Props) => {
   };
 
   const clearParams = () => {
-    removeParams(history, "articleIds", "withKnowledge");
+    removeParams(navigate, location, "articleIds", "withKnowledge");
   };
 
   const handleWithKnowledge = (type) => {
     if (type === "Assigned") {
       if (queryParams?.withKnowledge === "true") {
-        return removeParams(history, "withKnowledge");
+        return removeParams(navigate, location, "withKnowledge");
       }
-      setParams(history, { withKnowledge: true });
+      setParams(navigate, location, { withKnowledge: true });
     }
     if (type === "Designated") {
       if (queryParams?.withKnowledge === "false") {
-        return removeParams(history, "withKnowledge");
+        return removeParams(navigate, location, "withKnowledge");
       }
-      setParams(history, { withKnowledge: false });
+      setParams(navigate, location, { withKnowledge: false });
     }
   };
 

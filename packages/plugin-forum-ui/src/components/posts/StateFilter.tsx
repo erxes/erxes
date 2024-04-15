@@ -1,24 +1,26 @@
-import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
-import { __, router } from '@erxes/ui/src/utils';
+import { FieldStyle, SidebarList } from "@erxes/ui/src/layout/styles";
+import { __, router } from "@erxes/ui/src/utils";
 
-import Box from '@erxes/ui/src/components/Box';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-// import { withRouter } from 'react-router-dom';
-import { stateFilters } from '../../constants';
+import Box from "@erxes/ui/src/components/Box";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import React from "react";
+import { stateFilters } from "../../constants";
+import { useNavigate, useLocation } from "react-router-dom";
 
-interface IProps extends IRouterProps {
+interface IProps {
   emptyText?: string;
 }
 
-function StateFilter({ history, emptyText }: IProps) {
+function StateFilter({ emptyText }: IProps) {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const data = (
     <SidebarList>
       {stateFilters.map((state, index) => {
         const onClick = () => {
-          router.setParams(history, { state: state.key });
-          router.removeParams(history, 'page');
+          router.setParams(navigate, location, { state: state.key });
+          router.removeParams(navigate, location, "page");
         };
 
         return (
@@ -27,7 +29,7 @@ function StateFilter({ history, emptyText }: IProps) {
               href="#filter"
               tabIndex={0}
               className={
-                router.getParam(history, 'state') === state.key ? 'active' : ''
+                router.getParam(location, "state") === state.key ? "active" : ""
               }
               onClick={onClick}
             >
@@ -41,7 +43,7 @@ function StateFilter({ history, emptyText }: IProps) {
 
   return (
     <Box
-      title={__('Filter by state')}
+      title={__("Filter by state")}
       collapsible={stateFilters.length > 5}
       name="showFilterByState"
     >
@@ -49,7 +51,7 @@ function StateFilter({ history, emptyText }: IProps) {
         data={data}
         loading={false}
         count={stateFilters.length}
-        emptyText={emptyText ? emptyText : 'Loading'}
+        emptyText={emptyText ? emptyText : "Loading"}
         emptyIcon="leaf"
         size="small"
         objective={true}

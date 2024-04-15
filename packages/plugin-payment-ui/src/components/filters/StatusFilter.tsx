@@ -1,29 +1,31 @@
-import { Counts, IRouterProps } from '@erxes/ui/src/types';
+import { Counts } from "@erxes/ui/src/types";
 import {
   FieldStyle,
   SidebarCounter,
   SidebarList,
-} from '@erxes/ui/src/layout/styles';
-import { __, router } from '@erxes/ui/src/utils';
+} from "@erxes/ui/src/layout/styles";
+import { __, router } from "@erxes/ui/src/utils";
 
-import Box from '@erxes/ui/src/components/Box';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { PAYMENT_STATUS } from '../../components/constants';
-import React from 'react';
-// import { withRouter } from 'react-router-dom';
+import Box from "@erxes/ui/src/components/Box";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import { PAYMENT_STATUS } from "../../components/constants";
+import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
-interface IProps extends IRouterProps {
+interface IProps {
   counts: Counts;
   emptyText?: string;
 }
 
-function StatusFilter({ history, counts, emptyText }: IProps) {
+function StatusFilter({ counts, emptyText }: IProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
   const data = (
     <SidebarList>
       {PAYMENT_STATUS.ALL.map((status, index) => {
         const onClick = () => {
-          router.setParams(history, { status });
-          router.removeParams(history, 'page');
+          router.setParams(navigate, location, { status });
+          router.removeParams(navigate, location, "page");
         };
 
         return (
@@ -32,7 +34,7 @@ function StatusFilter({ history, counts, emptyText }: IProps) {
               href="#filter"
               tabIndex={0}
               className={
-                router.getParam(history, 'status') === status ? 'active' : ''
+                router.getParam(location, "status") === status ? "active" : ""
               }
               onClick={onClick}
             >
@@ -47,7 +49,7 @@ function StatusFilter({ history, counts, emptyText }: IProps) {
 
   return (
     <Box
-      title={__('Filter by status')}
+      title={__("Filter by status")}
       collapsible={PAYMENT_STATUS.ALL.length > 5}
       name="showFilterByStatus"
     >
@@ -55,7 +57,7 @@ function StatusFilter({ history, counts, emptyText }: IProps) {
         data={data}
         loading={false}
         count={PAYMENT_STATUS.ALL.length}
-        emptyText={emptyText ? emptyText : 'Loading'}
+        emptyText={emptyText ? emptyText : "Loading"}
         emptyIcon="leaf"
         size="small"
         objective={true}

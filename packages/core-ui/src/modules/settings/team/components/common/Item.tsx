@@ -1,16 +1,15 @@
-import * as routerUtils from '@erxes/ui/src/utils/router';
+import * as routerUtils from "@erxes/ui/src/utils/router";
 
-import { ActionButtons } from '@erxes/ui-settings/src/styles';
-import Button from '@erxes/ui/src/components/Button';
-import { IRouterProps } from '@erxes/ui/src/types';
-// import { withRouter } from 'react-router-dom';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import { SideList } from '../../styles';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from 'modules/common/utils';
-import queryString from 'query-string';
+import { ActionButtons } from "@erxes/ui-settings/src/styles";
+import Button from "@erxes/ui/src/components/Button";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import { SideList } from "../../styles";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __ } from "modules/common/utils";
+import queryString from "query-string";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   item: any;
@@ -23,8 +22,6 @@ type Props = {
   queryParamName: string;
 };
 
-type FinalProps = Props & IRouterProps;
-
 function BlockItem({
   item,
   title,
@@ -34,12 +31,13 @@ function BlockItem({
   deleteItem,
   renderForm,
   level,
-  history,
-  location,
-}: FinalProps) {
+}: Props) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const trigger = (
     <Button btnStyle="link">
-      <Tip text={__('Edit')} placement="bottom">
+      <Tip text={__("Edit")} placement="bottom">
         <Icon icon="edit" />
       </Tip>
     </Button>
@@ -54,9 +52,9 @@ function BlockItem({
   );
 
   const onClick = (_id) => {
-    routerUtils.removeParams(history, 'page');
+    routerUtils.removeParams(navigate, location, "page");
 
-    routerUtils.setParams(history, { [queryParamName]: _id });
+    routerUtils.setParams(navigate, location, { [queryParamName]: _id });
   };
 
   const queryParams = queryString.parse(location.search);
