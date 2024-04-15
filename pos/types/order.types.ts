@@ -70,24 +70,79 @@ export interface IOrderUpdate extends IOrderCreate {
   _id: string
 }
 
+export interface IItem {
+  _id?: string;
+  id?: string;
+  name: string;
+  barCode?: string;
+  barCodeType?: string;
+  classificationCode?: string;
+  taxProductCode?: string;
+  measureUnit?: string;
+  qty: number;
+  unitPrice: number;
+  totalBonus?: number;
+  totalVAT?: number;
+  totalCityTax?: number;
+  totalAmount: number;
+  data?: any;
+}
+
+export interface IReceipt {
+  _id?: string;
+  id?: string;
+  totalAmount: number;
+  totalVAT?: number;
+  totalCityTax?: number;
+  taxType: string;
+  merchantTin: string;
+  bankAccountNo?: string;
+  data?: any;
+  items: IItem[];
+}
+
 export interface IPutResponse {
-  date?: string
-  vat?: string
-  cityTax?: string
-  registerNo?: string
-  billId?: string
-  lottery?: string
-  qrData?: string
-  success?: string
-  lotteryWarningMsg?: string
-  errorCode?: string
-  message?: string
-  getInformation?: string
-  returnBillId?: string
-  billType?: IBillType
-  taxType?: string
-  stocks?: any
-  amount?: number
+  number: string;
+
+  // Холбогдох обьект
+  contentType: string;
+  contentId: string;
+  posToken?: string;
+
+  totalAmount?: number;
+  totalVAT?: number;
+  totalCityTax?: number;
+  districtCode?: string;
+  branchNo?: string;
+  merchantTin?: string;
+  posNo?: string;
+  customerTin?: string;
+  consumerNo?: string;
+  type: string;
+  inactiveId?: string;
+  invoiceId?: string;
+  reportMonth?: string;
+  data?: any;
+  receipts?: IReceipt[];
+  payments?: any[];
+
+  easy?: boolean;
+
+  // Ебаримт руу илгээсэн мэдээлэл
+  sendInfo?: any
+  state?: string;
+
+  _id: string;
+  createdAt: Date;
+  modifiedAt: Date;
+
+  id?: string;
+  posId?: number;
+  status?: string;
+  message?: string;
+  qrData?: string;
+  lottery?: string;
+  date?: string;
 }
 export interface IOrderUser {
   _id: string

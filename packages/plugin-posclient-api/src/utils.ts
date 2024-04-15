@@ -418,7 +418,7 @@ export const prepareSettlePayment = async (
     if (
       billType === BILL_TYPES.INNER ||
       (ebarimtResponses.length &&
-        !ebarimtResponses.filter((er) => er.success !== 'true').length)
+        !ebarimtResponses.filter((er) => er.status !== 'SUCCESS').length)
     ) {
       await models.Orders.updateOne(
         { _id },

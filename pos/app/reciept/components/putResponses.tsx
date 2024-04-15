@@ -9,10 +9,9 @@ import Error from "./Error"
 import Stocks from "./Stocks"
 
 export const PutResponse = ({
-  taxType,
-  billId,
-  stocks,
-  errorCode,
+  id,
+  receipts,
+  status,
   message,
   ...rest
 }: IPutResponse) => {
@@ -22,11 +21,14 @@ export const PutResponse = ({
       {!type && (
         <div className="flex items-center">
           <p className="w-10 font-semibold">ДДТД:</p>
-          <p>{billId}</p>
+          <p>{id}</p>
         </div>
       )}
-      <Stocks stocks={stocks} />
-      <Error errorCode={errorCode} message={message} />
+      <Stocks receipts={receipts || []} />
+      {
+        status !== 'SUCCESS' && <Error message={message} />
+      }
+
       <Ebarimt {...rest} />
     </div>
   )
@@ -37,7 +39,7 @@ const PutResponses = () => {
   return (
     <>
       {(putResponses || []).map((putResponse) => (
-        <PutResponse {...putResponse} key={putResponse.billId} />
+        <PutResponse {...putResponse} key={putResponse.id} />
       ))}
     </>
   )
