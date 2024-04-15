@@ -18,20 +18,20 @@ class EbarimtConfig extends React.Component<Props, { config: any }> {
       props.pos && props.pos.ebarimtConfig
         ? props.pos.ebarimtConfig
         : {
-            companyName: '',
-            ebarimtUrl: '',
-            checkCompanyUrl: '',
-            hasVat: false,
-            hasCitytax: false,
-            defaultPay: 'debtAmount',
-            districtCode: '',
-            companyRD: '',
-            defaultGSCode: '',
-            vatPercent: 0,
-            cityTaxPercent: 0,
-            footerText: '',
-            hasCopy: false
-          };
+          companyName: '',
+          ebarimtUrl: '',
+          checkCompanyUrl: '',
+          hasVat: false,
+          hasCitytax: false,
+          defaultPay: 'debtAmount',
+          districtCode: '',
+          companyRD: '',
+          defaultGSCode: '',
+          vatPercent: 0,
+          cityTaxPercent: 0,
+          footerText: '',
+          hasCopy: false
+        };
 
     this.state = {
       config
@@ -100,34 +100,24 @@ class EbarimtConfig extends React.Component<Props, { config: any }> {
             <Block>
               <h4>{__('Main')}</h4>
               <BlockRow>
-                {this.renderInput('companyName', 'Company name', '')}
-                {this.renderInput('ebarimtUrl', 'E-barimt URL', '')}
-                {this.renderInput('checkCompanyUrl', 'Company check URL', '')}
+                {this.renderInput('companyName', 'company Name')}
+                {this.renderInput('ebarimtUrl', 'ebarimt Url')}
+                {this.renderInput('getTinUrl', 'Tin Url')}
+                {this.renderInput('getInfoUrl', 'Info Url')}
               </BlockRow>
             </Block>
 
             <Block>
               <h4>{__('Other')}</h4>
               <BlockRow>
-                <FormGroup>
-                  <ControlLabel>{__('Provice/District')}</ControlLabel>
-                  <FormControl
-                    componentClass="select"
-                    defaultValue={this.state.config.districtCode}
-                    options={[
-                      { value: '', label: 'Choose District' },
-                      ...DISTRICTS
-                    ]}
-                    onChange={this.onChangeInput.bind(this, 'districtCode')}
-                    required={true}
-                  />
-                </FormGroup>
-                {this.renderInput('companyRD', 'Company register number', '')}
-                {this.renderInput(
-                  'defaultGSCode',
-                  'default GSCode',
-                  'https://ebarimt.mn/img/buteegdehuun%20uilchilgeenii%20negdsen%20angilal.pdf'
-                )}
+                {this.renderInput('companyRD', 'companyRD', '')}
+                {this.renderInput('merchantTin', 'merchantTin', '')}
+                {this.renderInput('posNo', 'posNo', '')}
+              </BlockRow>
+              <BlockRow>
+                {this.renderInput('districtCode', 'districtCode', '')}
+                {this.renderInput('branchNo', 'branchNo', '')}
+                {this.renderInput('defaultGSCode', 'defaultGSCode', '')}
               </BlockRow>
             </Block>
 
