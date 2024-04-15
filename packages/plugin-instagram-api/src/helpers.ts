@@ -33,34 +33,36 @@ export const removeIntegration = async (
 
   const selector = { integrationId: _id };
 
-  if (kind.includes('facebook')) {
+  if (kind.includes('instagram')) {
     debugInstagram('Removing entries');
 
     if (!account) {
       throw new Error('Account not found');
     }
 
-    for (const pageId of integration.facebookPageId || '') {
-      let pageTokenResponse;
+    let pageTokenResponse;
+    let pageId = integration.facebookPageId;
 
-      try {
-        pageTokenResponse = await getPageAccessToken(pageId, account.token);
-      } catch (e) {
-        debugError(
-          `Error ocurred while trying to get page access token with ${e.message}`
-        );
-      }
+    if (!pageId) {
+      throw new Error('Page ID not found');
+    }
+    try {
+      pageTokenResponse = await getPageAccessToken(pageId, account.token);
+    } catch (e) {
+      debugError(
+        `Error ocurred while trying to get page access token with ${e.message}`
+      );
+    }
 
-      await models.PostConversations.deleteMany({ recipientId: pageId });
-      await models.CommentConversation.deleteMany({ recipientId: pageId });
+    await models.PostConversations.deleteMany({ recipientId: pageId });
+    await models.CommentConversation.deleteMany({ recipientId: pageId });
 
-      try {
-        await unsubscribePage(pageId, pageTokenResponse);
-      } catch (e) {
-        debugError(
-          `Error occured while trying to unsubscribe page pageId: ${pageId}`
-        );
-      }
+    try {
+      await unsubscribePage(pageId, pageTokenResponse);
+    } catch (e) {
+      debugError(
+        `Error occured while trying to unsubscribe page pageId: ${pageId}`
+      );
     }
 
     integrationRemoveBy = { igPageId: integration.facebookPageId };
@@ -235,7 +237,6 @@ export const instagramCreateIntegration = async (
   models: IModels,
   { accountId, integrationId, data, kind }
 ): Promise<RPSuccess> => {
-  console.log(data, 'datashdee');
   const account = await models.Accounts.getAccount({ _id: accountId });
   const instagramPageId = JSON.parse(data).pageIds;
   const getInstagramPageId = instagramPageId[0].replace(/'/g, '');

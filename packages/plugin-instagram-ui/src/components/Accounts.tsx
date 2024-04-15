@@ -64,7 +64,7 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
       return (
         <FacebookButton onClick={onAdd}>
           <Icon icon='instagram-official' />
-          {__('Continue with instagram')}
+          {__('Continue with facebook')}
         </FacebookButton>
       );
     }

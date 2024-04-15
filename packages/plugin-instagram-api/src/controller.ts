@@ -76,7 +76,6 @@ const init = async (app) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
     const data = req.body;
-    // console.log(data, 'data');
     if (data.object !== 'instagram') {
       return;
     }
@@ -104,33 +103,11 @@ const init = async (app) => {
               debugInstagram(
                 `Successfully saved  ${JSON.stringify(event.value)}`
               );
-              // console.log(JSON.stringify(event.value), 'Comment');
               return res.end('success');
             } catch (e) {
               debugError(`Error processing comment: ${e.message}`);
               return res.end('success');
             }
-          }
-
-          if (INSTAGRAM_POST_TYPES.includes(event.value.item)) {
-            // console.log(event.value.item, 'event.value.item');
-            try {
-              debugInstagram(
-                `Received post data ${JSON.stringify(event.value)}`
-              );
-              //  await receivePost(models, subdomain, event.value, entry.id);
-              debugInstagram(
-                `Successfully saved post ${JSON.stringify(event.value)}`
-              );
-              // console.log(JSON.stringify(event.value), 'POST');
-
-              return res.end('success');
-            } catch (e) {
-              debugError(`Error processing post: ${e.message}`);
-              return res.end('success');
-            }
-          } else {
-            return res.end('success');
           }
         }
       }

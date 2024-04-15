@@ -272,7 +272,7 @@ class Instagram extends React.Component<Props, State> {
                   <p>{description}</p>
                   <img
                     alt={title}
-                    src='/images/previews/instagram.png'
+                    src='/images/previews/facebook.png'
                   />
                 </TextWrapper>
               </ImageWrapper>

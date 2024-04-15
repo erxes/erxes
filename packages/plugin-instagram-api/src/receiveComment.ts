@@ -15,7 +15,6 @@ const receiveComment = async (
 ) => {
   const userId = params.from.id;
   const postId = params.media.id;
-
   const integration = await models.Integrations.findOne({
     $and: [
       { instagramPageId: { $in: pageId } },

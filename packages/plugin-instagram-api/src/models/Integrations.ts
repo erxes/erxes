@@ -51,7 +51,7 @@ export const loadIntegrationClass = (models: IModels) => {
 
       const integration = await models.Integrations.findOne();
       if (!integration) {
-        throw new Error('Integration not found asdasdas');
+        throw new Error('Instagram Integration not found ');
       }
 
       return integration;

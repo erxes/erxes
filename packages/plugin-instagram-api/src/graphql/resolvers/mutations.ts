@@ -57,14 +57,12 @@ const instagramMutations = {
     const { commentId, content, attachments, conversationId } = params;
 
     const comment = await models.CommentConversation.findOne({ commentId });
-
     const post = await models.PostConversations.findOne({
       $or: [
         { erxesApiId: conversationId },
         { postId: comment ? comment.postId : '' }
       ]
     });
-
     if (!post) {
       throw new Error('Post not found');
     }

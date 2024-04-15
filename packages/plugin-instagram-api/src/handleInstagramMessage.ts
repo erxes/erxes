@@ -14,7 +14,6 @@ export const handleInstagramMessage = async (
   subdomain
 ) => {
   const { action, payload } = msg;
-  console.log('sdaaaa');
   const doc = JSON.parse(payload || '{}');
   if (doc.internal) {
     const conversation = await models.Conversations.getConversation({
@@ -73,33 +72,25 @@ export const handleInstagramMessage = async (
       parentId: comment_id
     });
 
-    let attachment: {
-      url?: string;
-      type?: string;
-      payload?: { url: string };
-    } = {};
-
-    if (attachments && attachments.length > 0) {
-      attachment = {
-        type: 'file',
-        payload: {
-          url: attachments[0].url
-        }
-      };
+    let attachment_url = undefined;
+    if (doc.attachments && doc.attachments.length > 0) {
+      attachment_url = doc.attachments[0].url;
     }
+
     let data = {
       message: strippedContent,
-      attachment_url: attachment.payload ? attachment.payload.url : undefined
+      attachment_url: attachment_url || undefined
     };
     const id = commentConversationResult
       ? commentConversationResult.comment_id
       : post.postId;
     if (commentConversationResult && commentConversationResult.comment_id) {
       data = {
-        message: ` @[${commentConversationResult.senderId}] ${strippedContent}`,
-        attachment_url: attachment.url
+        message: ` ${strippedContent}`,
+        attachment_url: attachment_url
       };
     }
+    console.log(data, 'data');
     try {
       const inboxConversation = await sendInboxMessage({
         isRPC: true,
@@ -109,7 +100,7 @@ export const handleInstagramMessage = async (
       });
       await sendReply(
         models,
-        `${id}/comments`,
+        `${id}/replies`,
         data,
         recipientId,
         inboxConversation && inboxConversation.integrationId

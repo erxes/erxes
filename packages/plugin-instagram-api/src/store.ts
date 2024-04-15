@@ -41,7 +41,7 @@ export const getOrCreatePostConversation = async (
       content: getPostDetail.caption,
       recipientId: getPostDetail.ig_id,
       senderId: getPostDetail.ig_id,
-      permalink_url: getPostDetail.permalink_url,
+      permalink_url: getPostDetail.permalink,
       timestamp: getPostDetail.timestamp
     };
     postConversation = await models.PostConversations.create(instagramPost);
@@ -103,8 +103,6 @@ export const getOrCreateComment = async (
       },
       isRPC: true
     });
-    console.log(conversation, 'conversation');
-    console.log(apiConversationResponse, 'apiConversationResponse');
     conversation.erxesApiId = apiConversationResponse?._id;
     await conversation.save();
   } catch (error) {
@@ -114,30 +112,29 @@ export const getOrCreateComment = async (
     throw new Error(error.message);
   }
 
-  console.log(conversation, 'conversation2');
-  // try {
-  //   await sendInboxMessage({
-  //     subdomain,
-  //     action: 'conversationClientMessageInserted',
-  //     data: {
-  //       ...conversation?.toObject(),
-  //       conversationId: conversation.erxesApiId
-  //     }
-  //   });
-  //   graphqlPubsub.publish(
-  //     `conversationMessageInserted:${conversation.erxesApiId}`,
-  //     {
-  //       conversationMessageInserted: {
-  //         ...conversation?.toObject(),
-  //         conversationId: conversation.erxesApiId
-  //       }
-  //     }
-  //   );
-  // } catch {
-  //   throw new Error(
-  //     `Failed to update the database with the Erxes API response for this conversation.`
-  //   );
-  // }
+  try {
+    await sendInboxMessage({
+      subdomain,
+      action: 'conversationClientMessageInserted',
+      data: {
+        ...conversation?.toObject(),
+        conversationId: conversation.erxesApiId
+      }
+    });
+    graphqlPubsub.publish(
+      `conversationMessageInserted:${conversation.erxesApiId}`,
+      {
+        conversationMessageInserted: {
+          ...conversation?.toObject(),
+          conversationId: conversation.erxesApiId
+        }
+      }
+    );
+  } catch {
+    throw new Error(
+      `Failed to update the database with the Erxes API response for this conversation.`
+    );
+  }
 };
 
 export const getOrCreateCustomer = async (

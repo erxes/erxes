@@ -11,7 +11,7 @@ export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
     // set access token
     graph.setAccessToken(accessToken);
-    graph.setVersion('18.0');
+    graph.setVersion('19.0');
 
     return new Promise((resolve, reject) => {
       graph[method](path, ...otherParams, (error, response) => {
@@ -63,12 +63,10 @@ export const getPostDetails = async (
 };
 export const getPostLink = async (accessToken: string, post_id: string) => {
   try {
-    console.log(post_id, 'post_id');
     const response = await graphRequest.get(
       `${post_id}/?fields=permalink,caption,media_url,media_type,comments,username,comments_count,id,ig_id,timestamp`,
       accessToken
     );
-
     return response;
   } catch (e) {
     debugError(`Error occurred while getting facebook post: ${e.message}`);
@@ -237,17 +235,25 @@ export const sendReply = async (
   recipientId: string,
   integrationId: string
 ) => {
-  const integration = await models.Integrations.getIntegration({
-    erxesApiId: integrationId
-  });
+  let integration;
+  try {
+    integration = await models.Integrations.getIntegration({
+      erxesApiId: integrationId
+    });
 
-  const { facebookPageTokensMap = {} } = integration;
+    // Continue with the code assuming the integration was successfully retrieved
+  } catch (error) {
+    // Handle the error
+    throw new Error(error);
+  }
+
+  const { facebookPageTokensMap = {}, facebookPageId } = integration;
 
   let pageAccessToken;
 
   try {
     pageAccessToken = getPageAccessTokenFromMap(
-      recipientId,
+      facebookPageId,
       facebookPageTokensMap
     );
   } catch (e) {
@@ -262,12 +268,12 @@ export const sendReply = async (
       ...data
     });
     debugInstagram(
-      `Successfully sent data to instagram ${JSON.stringify(data)}`
+      `Successfully sent data to Instagram ${JSON.stringify(data)}`
     );
     return response;
   } catch (e) {
     debugError(
-      `Error ocurred while trying to send post request to instagram ${
+      `Error ocurred while trying to send post request to facebook ${
         e.message
       } data: ${JSON.stringify(data)}`
     );
@@ -283,7 +289,6 @@ export const sendReply = async (
         { $set: { healthStatus: 'account-token', error: `${e.message}` } }
       );
     }
-
     if (e.message.includes('does not exist')) {
       throw new Error('Comment has been deleted by the customer');
     }
@@ -291,6 +296,68 @@ export const sendReply = async (
     throw new Error(e.message);
   }
 };
+
+// export const sendReply = async (
+//   models: IModels,
+//   url: string,
+//   data: any,
+//   recipientId: string,
+//   integrationId: string
+// ) => {
+//   const integration = await models.Integrations.getIntegration({
+//     erxesApiId: integrationId
+//   });
+
+//   const { facebookPageTokensMap = {} } = integration;
+
+//   let pageAccessToken;
+
+//   try {
+//     pageAccessToken = getPageAccessTokenFromMap(
+//       recipientId,
+//       facebookPageTokensMap
+//     );
+//   } catch (e) {
+//     debugError(
+//       `Error ocurred while trying to get page access token with ${e.message}`
+//     );
+//     return e;
+//   }
+
+//   try {
+//     const response = await graphRequest.post(`${url}`, pageAccessToken, {
+//       ...data
+//     });
+//     debugInstagram(
+//       `Successfully sent data to instagram ${JSON.stringify(data)}`
+//     );
+//     return response;
+//   } catch (e) {
+//     debugError(
+//       `Error ocurred while trying to send post request to instagram ${
+//         e.message
+//       } data: ${JSON.stringify(data)}`
+//     );
+
+//     if (e.message.includes('access token')) {
+//       await models.Integrations.updateOne(
+//         { _id: integration._id },
+//         { $set: { healthStatus: 'page-token', error: `${e.message}` } }
+//       );
+//     } else if (e.code !== 10) {
+//       await models.Integrations.updateOne(
+//         { _id: integration._id },
+//         { $set: { healthStatus: 'account-token', error: `${e.message}` } }
+//       );
+//     }
+
+//     if (e.message.includes('does not exist')) {
+//       throw new Error('Comment has been deleted by the customer');
+//     }
+
+//     throw new Error(e.message);
+//   }
+// };
 
 export const generateAttachmentMessages = (
   subdomain: string,
