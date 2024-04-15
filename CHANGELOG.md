@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0-rc.3](https://github.com/erxes/erxes/compare/1.8.0-rc.2...1.8.0-rc.3) (2024-04-15)
+
+
+### Bug Fixes
+
+* fix company filter, custom field chart & filter ([297108b](https://github.com/erxes/erxes/commit/297108b342e8941e6062677339e5dcc24a636858))
+
 ## [1.8.0-rc.2](https://github.com/erxes/erxes/compare/1.8.0-rc.1...1.8.0-rc.2) (2024-04-15)
 
 
