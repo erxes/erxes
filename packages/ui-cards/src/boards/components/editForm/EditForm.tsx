@@ -151,7 +151,7 @@ function EditForm(props: Props) {
         </Transition.Child>
         <DialogWrapper>
           <DialogContent>
-            <Dialog.Panel className={` dialog-size-lg`}>
+            <Dialog.Panel className={` dialog-size-xl`}>
               {renderArchiveStatus()}
               {renderHeader()}
 

@@ -52,19 +52,19 @@ class StartDate extends React.Component<Props, State> {
     this.overlay.hide();
   };
 
-  onSave = () => {
+  onSave = (close) => {
     const { startDate } = this.state;
 
     this.props.onChangeField("startDate", startDate);
-    this.hideContent();
+    close();
   };
 
-  remove = () => {
+  remove = (close) => {
     this.props.onChangeField("startDate", null);
-    this.hideContent();
+    close();
   };
 
-  renderContent() {
+  renderContent = (close) => {
     const { startDate } = this.state;
 
     const day = dayjs(startDate).format("YYYY-MM-DD");
@@ -121,16 +121,16 @@ class StartDate extends React.Component<Props, State> {
           />
         </CalenderWrapper>
         <DateGrid>
-          <Button colorname="red" onClick={this.remove}>
+          <Button colorname="red" onClick={() => this.remove(close)}>
             Remove
           </Button>
-          <Button colorname="green" onClick={this.onSave}>
+          <Button colorname="green" onClick={() => this.onSave(close)}>
             Save
           </Button>
         </DateGrid>
       </CloseDateContent>
     );
-  }
+  };
 
   render() {
     const { startDate } = this.props;
@@ -146,8 +146,12 @@ class StartDate extends React.Component<Props, State> {
 
     return (
       <CloseDateWrapper ref={this.ref}>
-        <Popover placement="bottom-end" trigger={trigger}>
-          {this.renderContent()}
+        <Popover
+          placement="bottom-end"
+          trigger={trigger}
+          closeAfterSelect={true}
+        >
+          {this.renderContent}
         </Popover>
       </CloseDateWrapper>
     );
