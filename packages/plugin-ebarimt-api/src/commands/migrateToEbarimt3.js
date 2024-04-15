@@ -47,9 +47,10 @@ const command = async () => {
 
   console.log('connected...');
 
-  const PutResponses = db.collection('put_responses');
+  const OldPutResponses = db.collection('put_responses');
+  const PutResponses = db.collection('putresponses');
 
-  const putResponses = await PutResponses.find({ $or: [{ id: { $exists: false, } }, { inactiveId: { $exists: false } }] }).toArray();
+  const putResponses = await OldPutResponses.find({ $or: [{ id: { $exists: false, } }, { inactiveId: { $exists: false } }] }).toArray();
   for (const putRes of putResponses) {
     const doc = { ...putRes };
 
@@ -93,7 +94,7 @@ const command = async () => {
         customerTin: doc.billType === '3' ? await getTinNo(doc.customerNo) : '',
         consumerNo: ''
       }
-    })
+    }, { upsert: true });
   }
 
   console.log(`Process finished at: ${new Date()}`);

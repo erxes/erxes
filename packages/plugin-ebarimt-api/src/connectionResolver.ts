@@ -16,7 +16,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   const models = {} as IModels;
 
   models.PutResponses = db.model<IEbarimtDocument, IPutResponseModel>(
-    'put_responses',
+    'putresponses',
     loadPutResponseClass(models),
   );
 
