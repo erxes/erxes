@@ -189,7 +189,7 @@ class CloseDate extends React.Component<Props, State> {
     );
 
     return (
-      <CloseDateWrapper innerRef={this.ref}>
+      <CloseDateWrapper ref={this.ref}>
         <Popover placement="bottom-end" trigger={trigger}>
           {this.renderContent()}
         </Popover>

@@ -1,19 +1,20 @@
-import BoardSelect from '../../containers/BoardSelect';
+import { IItem, IOptions } from "../../types";
 import {
   MoveContainer,
-  MoveFormContainer,
   MoveContainerWidth,
+  MoveFormContainer,
   PipelineName,
   PipelinePopoverContent,
   StageItem,
   Stages,
-} from '../../styles/item';
-import { IStage } from '../../types';
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
-import React from 'react';
-import { IItem, IOptions } from '../../types';
-import Popover from '@erxes/ui/src/components/Popover';
+} from "../../styles/item";
+
+import BoardSelect from "../../containers/BoardSelect";
+import { IStage } from "../../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import Popover from "@erxes/ui/src/components/Popover";
+import React from "react";
+import Tip from "@erxes/ui/src/components/Tip";
 
 type Props = {
   item?: IItem;
@@ -83,7 +84,7 @@ class Move extends React.Component<Props, State> {
             <StageItem key={s._id} $isPass={isPass}>
               <Tip text={s.name} placement="top">
                 <span onClick={onClick}>
-                  <Icon icon={isPass ? 'check-circle' : 'circle'} />
+                  <Icon icon={isPass ? "check-circle" : "circle"} />
                 </span>
               </Tip>
             </StageItem>
@@ -129,7 +130,7 @@ class Move extends React.Component<Props, State> {
     const { pipeline } = item;
 
     return (
-      <MoveFormContainer innerRef={this.ref}>
+      <MoveFormContainer ref={this.ref}>
         <Popover
           placement="bottom-start"
           trigger={

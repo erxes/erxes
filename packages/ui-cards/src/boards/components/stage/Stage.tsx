@@ -4,6 +4,7 @@ import {
   AddNew,
   Body,
   Container,
+  Divider,
   Header,
   Indicator,
   IndicatorItem,
@@ -11,21 +12,20 @@ import {
   StageFooter,
   StageRoot,
   StageTitle,
-  Divider,
-} from '../../styles/stage';
-import { IItem, IOptions, IStage } from '../../types';
+} from "../../styles/stage";
+import { IItem, IOptions, IStage } from "../../types";
+import { __, isEnabled } from "@erxes/ui/src/utils/core";
 
-import { AddForm } from '../../containers/portable';
-import { Draggable } from 'react-beautiful-dnd';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Icon from '@erxes/ui/src/components/Icon';
-import ItemList from '../stage/ItemList';
-import ItemProductProbabilities from '../../../deals/components/ItemProductProbabilities';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import { __, isEnabled } from '@erxes/ui/src/utils/core';
-import StageModal from './StageModal';
-import Popover from '@erxes/ui/src/components/Popover';
+import { AddForm } from "../../containers/portable";
+import { Draggable } from "react-beautiful-dnd";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Icon from "@erxes/ui/src/components/Icon";
+import ItemList from "../stage/ItemList";
+import ItemProductProbabilities from "../../../deals/components/ItemProductProbabilities";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Popover from "@erxes/ui/src/components/Popover";
+import React from "react";
+import StageModal from "./StageModal";
 
 type Props = {
   loadingItems: () => boolean;
@@ -91,11 +91,11 @@ export default class Stage extends React.Component<Props, State> {
       }
     }, 1000);
 
-    window.addEventListener('storageChange', this.handleStorageChange);
+    window.addEventListener("storageChange", this.handleStorageChange);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('storageChange', this.handleStorageChange);
+    window.removeEventListener("storageChange", this.handleStorageChange);
   }
 
   handleStorageChange = () => {
@@ -163,19 +163,19 @@ export default class Stage extends React.Component<Props, State> {
         ) : (
           <>
             <li onClick={archiveItems} key="archive-items">
-              {__('Archive All Cards in This List')}
+              {__("Archive All Cards in This List")}
             </li>
             <li onClick={archiveList} key="archive-list">
-              {__('Archive This List')}
+              {__("Archive This List")}
             </li>
             <li onClick={removeStage} key="remove-stage">
-              {__('Remove stage')}
+              {__("Remove stage")}
             </li>
             <Divider />
-            <li onClick={this.toggleSortOptions}>{__('Sort By')}</li>
-            {isEnabled('documents') && options.type === 'deal' && (
+            <li onClick={this.toggleSortOptions}>{__("Sort By")}</li>
+            {isEnabled("documents") && options.type === "deal" && (
               <li>
-                <a onClick={this.toggleModal}>{__('Print document')}</a>
+                <a onClick={this.toggleModal}>{__("Print document")}</a>
               </li>
             )}
           </>
@@ -220,8 +220,8 @@ export default class Stage extends React.Component<Props, State> {
         <li
           onClick={sortItems.bind(
             this,
-            'created-desc',
-            'date created (newest first)',
+            "created-desc",
+            "date created (newest first)"
           )}
         >
           Date created (Newest first)
@@ -229,8 +229,8 @@ export default class Stage extends React.Component<Props, State> {
         <li
           onClick={sortItems.bind(
             this,
-            'created-asc',
-            'date created (oldest first)',
+            "created-asc",
+            "date created (oldest first)"
           )}
         >
           Date created (Oldest first)
@@ -238,8 +238,8 @@ export default class Stage extends React.Component<Props, State> {
         <li
           onClick={sortItems.bind(
             this,
-            'modified-desc',
-            'date modified (newest first)',
+            "modified-desc",
+            "date modified (newest first)"
           )}
         >
           Date modified (Newest first)
@@ -247,8 +247,8 @@ export default class Stage extends React.Component<Props, State> {
         <li
           onClick={sortItems.bind(
             this,
-            'modified-asc',
-            'date modified (oldest first)',
+            "modified-asc",
+            "date modified (oldest first)"
           )}
         >
           Date modified (Oldest first)
@@ -256,8 +256,8 @@ export default class Stage extends React.Component<Props, State> {
         <li
           onClick={sortItems.bind(
             this,
-            'close-asc',
-            'date assigned (Earliest first)',
+            "close-asc",
+            "date assigned (Earliest first)"
           )}
         >
           Date assigned (Earliest first)
@@ -265,14 +265,14 @@ export default class Stage extends React.Component<Props, State> {
         <li
           onClick={sortItems.bind(
             this,
-            'close-desc',
-            'date assigned (Latest first)',
+            "close-desc",
+            "date assigned (Latest first)"
           )}
         >
           Date assigned (Latest first)
         </li>
         <li
-          onClick={sortItems.bind(this, 'alphabetically-asc', 'alphabetically')}
+          onClick={sortItems.bind(this, "alphabetically-asc", "alphabetically")}
         >
           Alphabetically
         </li>
@@ -309,7 +309,7 @@ export default class Stage extends React.Component<Props, State> {
       callback: (item: IItem) => onAddItem(stage._id, item),
       stageId: stage._id,
       pipelineId: stage.pipelineId,
-      aboveItemId: '',
+      aboveItemId: "",
     };
 
     const content = (props) => <AddForm {...props} {...formProps} />;
@@ -371,7 +371,7 @@ export default class Stage extends React.Component<Props, State> {
     }
 
     const renderDetail = () => {
-      if (window.location.pathname.includes('deal')) {
+      if (window.location.pathname.includes("deal")) {
         return (
           <ItemProductProbabilities
             totalAmount={stage.amount}
@@ -387,7 +387,11 @@ export default class Stage extends React.Component<Props, State> {
     return (
       <Draggable draggableId={stage._id} index={index}>
         {(provided, snapshot) => (
-          <Container innerRef={provided.innerRef} {...provided.draggableProps}>
+          <Container
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+          >
             <StageRoot $isDragging={snapshot.isDragging}>
               <Header {...provided.dragHandleProps}>
                 <StageTitle>
@@ -401,7 +405,7 @@ export default class Stage extends React.Component<Props, State> {
 
                 <Indicator>{this.renderIndicator()}</Indicator>
               </Header>
-              <Body innerRef={this.bodyRef} onScroll={this.onScroll}>
+              <Body ref={this.bodyRef} onScroll={this.onScroll}>
                 {this.renderItemList()}
                 {this.renderTriggerModal()}
               </Body>

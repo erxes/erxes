@@ -1,23 +1,24 @@
-import Datetime from '@nateradebaugh/react-datetime';
-import dayjs from 'dayjs';
 import {
   Button,
   CalenderWrapper,
   CloseDateContent,
   CloseDateWrapper,
   DateGrid,
-} from '../../styles/popup';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import React from 'react';
-import { generateButtonStart } from '../../utils';
-import Popover from '@erxes/ui/src/components/Popover';
+} from "../../styles/popup";
+
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Datetime from "@nateradebaugh/react-datetime";
+import Popover from "@erxes/ui/src/components/Popover";
+import React from "react";
+import dayjs from "dayjs";
+import { generateButtonStart } from "../../utils";
 
 type Props = {
   startDate: Date;
   reminderMinute: number;
   onChangeField: (
-    name: 'startDate' | 'reminderMinute' | 'isComplete',
-    value: any,
+    name: "startDate" | "reminderMinute" | "isComplete",
+    value: any
   ) => void;
 };
 
@@ -54,35 +55,35 @@ class StartDate extends React.Component<Props, State> {
   onSave = () => {
     const { startDate } = this.state;
 
-    this.props.onChangeField('startDate', startDate);
+    this.props.onChangeField("startDate", startDate);
     this.hideContent();
   };
 
   remove = () => {
-    this.props.onChangeField('startDate', null);
+    this.props.onChangeField("startDate", null);
     this.hideContent();
   };
 
   renderContent() {
     const { startDate } = this.state;
 
-    const day = dayjs(startDate).format('YYYY-MM-DD');
-    const time = dayjs(startDate).format('HH:mm');
+    const day = dayjs(startDate).format("YYYY-MM-DD");
+    const time = dayjs(startDate).format("HH:mm");
 
     const onChangeDateTime = (e) => {
       const type = e.target.type;
       const value = e.target.value;
 
-      const oldDay = dayjs(startDate).format('YYYY/MM/DD');
-      const oldTime = dayjs(startDate).format('HH:mm');
+      const oldDay = dayjs(startDate).format("YYYY/MM/DD");
+      const oldTime = dayjs(startDate).format("HH:mm");
       let newDate = startDate;
 
-      if (type === 'date') {
-        newDate = new Date(value.concat(' ', oldTime));
+      if (type === "date") {
+        newDate = new Date(value.concat(" ", oldTime));
       }
 
-      if (type === 'time') {
-        newDate = new Date(oldDay.concat(' ', value));
+      if (type === "time") {
+        newDate = new Date(oldDay.concat(" ", value));
       }
 
       this.setState({ startDate: newDate });
@@ -105,7 +106,7 @@ class StartDate extends React.Component<Props, State> {
 
         <CalenderWrapper>
           <Datetime
-            inputProps={{ placeholder: 'Click to select a date' }}
+            inputProps={{ placeholder: "Click to select a date" }}
             dateFormat="YYYY/MM/DD"
             timeFormat="HH:mm"
             value={startDate}
@@ -114,9 +115,9 @@ class StartDate extends React.Component<Props, State> {
             input={false}
             onChange={this.dateOnChange}
             defaultValue={dayjs()
-              .startOf('day')
-              .add(12, 'hour')
-              .format('YYYY-MM-DD HH:mm:ss')}
+              .startOf("day")
+              .add(12, "hour")
+              .format("YYYY-MM-DD HH:mm:ss")}
           />
         </CalenderWrapper>
         <DateGrid>
@@ -133,18 +134,18 @@ class StartDate extends React.Component<Props, State> {
 
   render() {
     const { startDate } = this.props;
-    const time = dayjs(startDate).format('HH:mm');
+    const time = dayjs(startDate).format("HH:mm");
 
     const trigger = (
       <Button colorname={generateButtonStart(startDate)}>
         {startDate
-          ? `${dayjs(startDate).format('MMM DD')} at ${time}`
-          : 'Start date'}
+          ? `${dayjs(startDate).format("MMM DD")} at ${time}`
+          : "Start date"}
       </Button>
     );
 
     return (
-      <CloseDateWrapper innerRef={this.ref}>
+      <CloseDateWrapper ref={this.ref}>
         <Popover placement="bottom-end" trigger={trigger}>
           {this.renderContent()}
         </Popover>

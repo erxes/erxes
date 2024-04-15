@@ -1,6 +1,6 @@
-import * as routerUtils from '@erxes/ui/src/utils/router';
+import * as routerUtils from "@erxes/ui/src/utils/router";
 
-import { Draggable, Droppable } from 'react-beautiful-dnd';
+import { Draggable, Droppable } from "react-beautiful-dnd";
 // import { withRouter } from 'react-router-dom';
 import {
   DropZone,
@@ -8,18 +8,18 @@ import {
   ItemContainer,
   NotifiedContainer,
   Wrapper,
-} from '../../styles/common';
-import { IItem, IOptions } from '../../types';
+} from "../../styles/common";
+import { IItem, IOptions } from "../../types";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Icon from '@erxes/ui/src/components/Icon';
-import Item from './Item';
-import React, { useState, useEffect } from 'react';
-import client from '@erxes/ui/src/apolloClient';
-import dayjs from 'dayjs';
-import { gql } from '@apollo/client';
-import { mutations } from '@erxes/ui-notifications/src/graphql';
-import { useLocation, useNavigate } from 'react-router-dom';
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Icon from "@erxes/ui/src/components/Icon";
+import Item from "./Item";
+import client from "@erxes/ui/src/apolloClient";
+import dayjs from "dayjs";
+import { gql } from "@apollo/client";
+import { mutations } from "@erxes/ui-notifications/src/graphql";
 
 type Props = {
   listId: string;
@@ -46,21 +46,21 @@ type DraggableContainerProps = {
 function DraggableContainer(props: DraggableContainerProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const itemIdQueryParam = routerUtils.getParam(location, 'itemId');
+  const itemIdQueryParam = routerUtils.getParam(location, "itemId");
   const { stageId, item, index, options, stageAge } = props;
 
   const [isDragDisabled, setIsDragDisabled] = useState<boolean>(
-    Boolean(itemIdQueryParam),
+    Boolean(itemIdQueryParam)
   );
   const [hasNotified, setHasNotified] = useState(
-    item.hasNotified === false ? false : true,
+    item.hasNotified === false ? false : true
   );
 
   useEffect(() => {
     if (isDragDisabled) {
       routerUtils.setParams(navigate, location, {
         itemId: item._id,
-        key: '',
+        key: "",
       });
     }
   }, [isDragDisabled]);
@@ -81,7 +81,7 @@ function DraggableContainer(props: DraggableContainerProps) {
   const beforePopupClose = () => {
     const { onRemoveItem } = props;
 
-    if (item.status === 'archived') {
+    if (item.status === "archived") {
       onRemoveItem(item._id, item.stageId);
     }
 
@@ -104,7 +104,7 @@ function DraggableContainer(props: DraggableContainerProps) {
   const now = dayjs(new Date());
   const createdAt = dayjs(item.createdAt);
   const isOld =
-    !stageAge || stageAge <= 0 ? false : now.diff(createdAt, 'day') > stageAge;
+    !stageAge || stageAge <= 0 ? false : now.diff(createdAt, "day") > stageAge;
 
   return (
     <Draggable
@@ -117,7 +117,7 @@ function DraggableContainer(props: DraggableContainerProps) {
         <ItemContainer
           $isDragging={dragSnapshot.isDragging}
           $isOld={isOld}
-          innerRef={dragProvided.innerRef}
+          ref={dragProvided.innerRef}
           {...dragProvided.draggableProps}
           {...dragProvided.dragHandleProps}
         >
@@ -178,14 +178,14 @@ class InnerList extends React.PureComponent<InnerListProps> {
 
     if (items.length === 0) {
       return (
-        <EmptyContainer innerRef={dropProvided.innerRef}>
+        <EmptyContainer ref={dropProvided.innerRef}>
           <EmptyState icon="postcard" text="No item" size="small" />
         </EmptyContainer>
       );
     }
 
     return (
-      <DropZone innerRef={dropProvided.innerRef}>
+      <DropZone ref={dropProvided.innerRef}>
         <InnerItemList
           onRemoveItem={onRemoveItem}
           stageId={stageId}
@@ -201,7 +201,7 @@ class InnerList extends React.PureComponent<InnerListProps> {
 
 export default class ItemList extends React.Component<Props> {
   static defaultProps = {
-    listId: 'LIST',
+    listId: "LIST",
   };
 
   render() {

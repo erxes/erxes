@@ -68,7 +68,7 @@
     "lodash.flowright": "^3.5.0",
     "query-string": "^5.0.0",
     "react": "^18.1.0",
-    "react-beautiful-dnd": "13.0.0",
+    "react-beautiful-dnd": "13.1.1",
     "react-bootstrap": "^2.9.2",
     "react-color": "^2.19.3",
     "react-dom": "^18.1.0",

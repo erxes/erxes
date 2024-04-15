@@ -1,26 +1,25 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import {
   IItemMap,
   IOptions,
   IPipeline,
   IStageMap,
   StagesQueryResponse,
-} from '../types';
-import { PipelineConsumer, PipelineProvider } from './PipelineContext';
-import React, { Component } from 'react';
+} from "../types";
+import { PipelineConsumer, PipelineProvider } from "./PipelineContext";
+import React, { Component } from "react";
 
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { IRouterProps } from '@erxes/ui/src/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import Stage from './Stage';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '../graphql';
-// import { withRouter } from 'react-router-dom';
-import styled from 'styled-components';
-import { withProps } from '@erxes/ui/src/utils';
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { IRouterProps } from "@erxes/ui/src/types";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import Stage from "./Stage";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries } from "../graphql";
+import styled from "styled-components";
+import { withProps } from "@erxes/ui/src/utils";
 
 const Container = styled.div`
   height: 100%;
@@ -114,7 +113,7 @@ class WithStages extends Component<WithStagesQueryProps> {
               >
                 {(provided) => (
                   <Container
-                    innerRef={provided.innerRef}
+                    ref={provided.innerRef}
                     {...provided.droppableProps}
                   >
                     {stageIds.map((stageId, index) => {
@@ -185,7 +184,7 @@ type WithQueryProps = Props & { abortController };
 const WithQuery = withProps<WithQueryProps>(
   compose(
     graphql<WithQueryProps, StagesQueryResponse>(gql(queries.stages), {
-      name: 'stagesQuery',
+      name: "stagesQuery",
       options: ({
         pipeline,
         queryParams,
@@ -212,8 +211,8 @@ const WithQuery = withProps<WithQueryProps>(
           fetchOptions: { signal: abortController && abortController.signal },
         },
       }),
-    }),
-  )(WithStagesQuery),
+    })
+  )(WithStagesQuery)
 );
 
 class WithData extends React.Component<Props> {
