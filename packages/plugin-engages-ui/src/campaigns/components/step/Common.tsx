@@ -38,6 +38,7 @@ type Props<Target, OnSubmit> = {
   }) => React.ReactNode;
   icons?: React.ReactNode[];
   loadingCount: boolean;
+  loading: boolean;
 };
 
 type State = {
@@ -140,6 +141,7 @@ class Common<Target, OnSubmit> extends React.Component<
       onSubmit,
       icons,
       loadingCount,
+      loading,
     } = this.props;
 
     if (this.state.show) {
@@ -164,6 +166,7 @@ class Common<Target, OnSubmit> extends React.Component<
         onChangeStep={this.onChangeStep}
         icons={icons}
         loadingCount={loadingCount}
+        loading={loading}
       />
     );
   }

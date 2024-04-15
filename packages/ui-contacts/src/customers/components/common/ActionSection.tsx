@@ -132,7 +132,7 @@ class ActionSection extends React.Component<
       <Box
         id="customerChangeStateBox"
         key={index}
-        selected={this.state.customerState === type}
+        $selected={this.state.customerState === type}
         onClick={onClick}
       >
         <b>{type}</b>
