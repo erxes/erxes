@@ -89,8 +89,6 @@ export const handleInstagramMessage = async (
         message: ` ${strippedContent}`,
         attachment_url: attachment_url
       };
-    }
-    console.log(data, 'data');
     try {
       const inboxConversation = await sendInboxMessage({
         isRPC: true,
