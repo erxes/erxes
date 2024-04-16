@@ -709,8 +709,13 @@ a:hover {
   margin-left: 0 !important;
   margin-right: 5px !important;
   position: relative;
-  padding-right: 20px;
-  padding-left: 10px;
+  padding-right: 0px !important;
+  padding-left: 0px !important;
+}
+
+.css-9jq23d {
+  color: ${colors.colorWhite} !important;
+  padding: 2px 10px 2px 2px !important;
 }
 
 .css-1nmdiq5-menu {
@@ -755,6 +760,11 @@ a:hover {
 .css-12a83d4-MultiValueRemove:active {
   background-color: rgba(0, 0, 0, 0.2) !important;
   color: ${colors.colorWhite} !important;
+}
+
+.css-v7duua {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
 }
 
 .Select--multi .Select-value-label {
