@@ -28,7 +28,7 @@ type State = {
   payment: number;
   interestEve: number;
   interestNonce: number;
-  undue: number;
+  loss: number;
   insurance: number;
   debt: number;
   futureDebt: number;
@@ -48,7 +48,7 @@ class TransactionForm extends React.Component<Props, State> {
       payment: transaction.payment || 0,
       interestEve: transaction.interestEve || 0,
       interestNonce: transaction.interestNonce || 0,
-      undue: transaction.undue || 0,
+      loss: transaction.loss || 0,
       insurance: transaction.insurance || 0,
       debt: transaction.debt || 0,
       futureDebt: transaction.futureDebt || 0,
@@ -76,7 +76,7 @@ class TransactionForm extends React.Component<Props, State> {
       payment: Number(this.state.payment || 0),
       interestEve: Number(this.state.interestEve || 0),
       interestNonce: Number(this.state.interestNonce || 0),
-      undue: Number(this.state.undue || 0),
+      loss: Number(this.state.loss || 0),
       insurance: Number(this.state.insurance || 0),
       debt: Number(this.state.debt || 0),
       futureDebt: Number(this.state.futureDebt || 0),
@@ -93,7 +93,7 @@ class TransactionForm extends React.Component<Props, State> {
       payment,
       interestEve,
       interestNonce,
-      undue,
+      loss,
       insurance,
       debt,
       maxTotal,
@@ -106,7 +106,7 @@ class TransactionForm extends React.Component<Props, State> {
       Number(payment) +
       Number(interestEve) +
       Number(interestNonce) +
-      Number(undue) +
+      Number(loss) +
       Number(insurance) +
       Number(debt);
 
@@ -150,7 +150,7 @@ class TransactionForm extends React.Component<Props, State> {
         payment,
         interestEve,
         interestNonce,
-        undue,
+        loss,
         insurance,
         debt,
         futureDebt
@@ -159,7 +159,7 @@ class TransactionForm extends React.Component<Props, State> {
         Number(payment) +
         Number(interestEve) +
         Number(interestNonce) +
-        Number(undue) +
+        Number(loss) +
         Number(insurance) +
         Number(debt);
 
@@ -246,7 +246,7 @@ class TransactionForm extends React.Component<Props, State> {
         {this.renderRow(formProps, 'payment', 'payment')}
         {this.renderRow(formProps, 'interest eve', 'interestEve')}
         {this.renderRow(formProps, 'interest nonce', 'interestNonce')}
-        {this.renderRow(formProps, 'undue', 'undue')}
+        {this.renderRow(formProps, 'loss', 'loss')}
         {this.renderRow(formProps, 'insurance', 'insurance')}
         {this.renderRow(formProps, 'debt', 'debt')}
       </>

@@ -15,6 +15,15 @@ export const setupMessageConsumers = async () => {
     };
   });
 
+  consumeRPCQueue('loans:contracts.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Contracts.findOne(data).lean(),
+    };
+  });
+
   consumeRPCQueue('loans:firstLoanSchedules.findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -170,7 +179,7 @@ export const sendCommonMessage = async (
 };
 
 export const getConfig = async (
-  code: string,
+  code: 'loansConfig' | 'holidayConfig' | 'MESSAGE_PRO_API_KEY' | 'MESSAGE_PRO_PHONE_NUMBER',
   subdomain: string,
   defaultValue?: string,
 ) => {

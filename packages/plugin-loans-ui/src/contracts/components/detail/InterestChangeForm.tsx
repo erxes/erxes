@@ -119,7 +119,7 @@ class InterestChangeForm extends React.Component<Props, State> {
       <>
         {this.renderRow('Payment', 'payment')}
         {this.renderRow('Interest', 'storedInterest')}
-        {this.renderRow('Loss', 'undue')}
+        {this.renderRow('Loss', 'loss')}
       </>
     );
   };

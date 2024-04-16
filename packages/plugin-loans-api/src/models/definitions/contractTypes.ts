@@ -34,11 +34,11 @@ export interface IContractConfig {
   insuranceReceivable: string;
   insuranceGiving: string;
 
-  undueStock: string;
-  undueUserEmail: string;
-  undueHasVat: string;
-  undueHasCitytax: string;
-  undueIsEbarimt: string;
+  lossStock: string;
+  lossUserEmail: string;
+  lossHasVat: string;
+  lossHasCitytax: string;
+  lossIsEbarimt: string;
 
   otherReceivable: string;
   feeIncome: string;
@@ -64,8 +64,8 @@ export interface IContractType {
   status: string;
   number: string;
   vacancy: number;
-  unduePercent: number;
-  undueCalcType: string;
+  lossPercent: number;
+  lossCalcType: string;
   useMargin: boolean;
   useSkipInterest: boolean;
   useDebt: boolean;
@@ -113,16 +113,16 @@ export const contractTypeSchema = schemaHooksWrapper(
       label: 'Vacancy',
       required: true
     }),
-    unduePercent: field({
+    lossPercent: field({
       type: Number,
       min: 0,
       max: 100,
-      label: 'Undue Percent',
+      label: 'Loss Percent',
       optional: true
     }),
-    undueCalcType: field({
+    lossCalcType: field({
       type: String,
-      label: 'Undue Calc Type',
+      label: 'Loss Calc Type',
       optional: true
     }),
     useDebt: field({

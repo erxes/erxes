@@ -33,7 +33,7 @@ type Props = {
 type State = {
   productCategoryIds: string[];
   leaseType: string;
-  undueCalcType: string;
+  lossCalcType: string;
   useMargin: boolean;
   useDebt: boolean;
   useSkipInterest: boolean;
@@ -56,7 +56,7 @@ class ContractTypeForm extends React.Component<Props, State> {
     const { contractType = {} } = props;
 
     this.state = {
-      undueCalcType: contractType.undueCalcType || 'fromInterest',
+      lossCalcType: contractType.lossCalcType || 'fromInterest',
       productCategoryIds: contractType.productCategoryIds,
       leaseType: contractType.leaseType || 'finance',
       useMargin: contractType.useMargin,
@@ -93,8 +93,8 @@ class ContractTypeForm extends React.Component<Props, State> {
       name: finalValues.name,
       number: finalValues.number,
       vacancy: Number(finalValues.vacancy),
-      unduePercent: Number(finalValues.unduePercent),
-      undueCalcType: finalValues.undueCalcType,
+      lossPercent: Number(finalValues.lossPercent),
+      lossCalcType: finalValues.lossCalcType,
       useMargin: this.state.useMargin,
       useDebt: this.state.useDebt,
       useSkipInterest: this.state.useSkipInterest,
@@ -239,8 +239,8 @@ class ContractTypeForm extends React.Component<Props, State> {
             <FormColumn>
               {this.renderFormGroup('Loss Percent', {
                 ...formProps,
-                name: 'unduePercent',
-                defaultValue: contractType.unduePercent || '',
+                name: 'lossPercent',
+                defaultValue: contractType.lossPercent || '',
                 type: 'number',
               })}
 
@@ -335,9 +335,9 @@ class ContractTypeForm extends React.Component<Props, State> {
                   </ControlLabel>
                   <FormControl
                     {...formProps}
-                    name="undueCalcType"
+                    name="lossCalcType"
                     componentClass="select"
-                    value={this.state.undueCalcType}
+                    value={this.state.lossCalcType}
                     required={true}
                     onChange={this.onChangeField}
                   >

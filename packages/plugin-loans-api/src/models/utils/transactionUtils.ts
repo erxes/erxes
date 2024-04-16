@@ -1,32 +1,23 @@
+/* transaction logic */
 //#region  import
+import BigNumber from 'bignumber.js';
 import { IModels } from '../../connectionResolver';
 import {
   INVOICE_STATUS,
   LEASE_TYPES,
-  SCHEDULE_STATUS,
-  UNDUE_CALC_TYPE
+  SCHEDULE_STATUS
 } from '../definitions/constants';
 import { IContractDocument } from '../definitions/contracts';
-import { IScheduleDocument } from '../definitions/schedules';
+import { ISchedule, IScheduleDocument } from '../definitions/schedules';
 import {
   ICalcDivideParams,
   ICalcTrParams,
   ITransactionDocument
 } from '../definitions/transactions';
-import {
-  afterNextScheduled,
-  betweenScheduled,
-  onNextScheduled,
-  onPreScheduled
-} from './scheduleUtils';
-import { addMonths } from './utils';
-import {
-  calcInterest,
-  getUnduePercent,
-  getDiffDay,
-  getFullDate,
-  getDatesDiffMonth
-} from './utils';
+import { calcInterest } from './utils';
+import { getDiffDay, getFullDate, getDatesDiffMonth } from './utils';
+import { IConfig } from '../../interfaces/config';
+import { getConfig } from '../../messageBroker';
 //#endregion
 
 /**
@@ -71,49 +62,10 @@ export const getAOESchedules = async (
 /**
  * @param preSchedule must pay default schedule
  * @param contract
- * @param unduePercent
+ * @param lossPercent
  * @param diff
- * @returns calculatedUndue
+ * @returns calculatedLoss
  */
-export const calcUndue = async (
-  preSchedule: IScheduleDocument,
-  contract: IContractDocument,
-  unduePercent,
-  diff: number
-): Promise<number> => {
-  let result = 0;
-
-  switch (contract.undueCalcType) {
-    case UNDUE_CALC_TYPE.FROMAMOUNT:
-      result = Math.round((preSchedule.payment || 0) * unduePercent * diff);
-      break;
-
-    case UNDUE_CALC_TYPE.FROMINTEREST:
-      result = Math.round(
-        ((preSchedule.balance * contract.interestRate) / 100 / 365) *
-          unduePercent *
-          diff
-      );
-      break;
-
-    case UNDUE_CALC_TYPE.FROMENDAMOUNT:
-      result = Math.round(preSchedule.balance * unduePercent * diff);
-      break;
-
-    case UNDUE_CALC_TYPE.FROMTOTALPAYMENT:
-      result = Math.round(preSchedule.total * unduePercent * diff);
-      break;
-
-    default:
-      result = Math.round(
-        ((preSchedule.balance * contract.interestRate) / 100 / 365) *
-          unduePercent *
-          diff
-      );
-      break;
-  }
-  return result;
-};
 
 async function fillCommitmentInterest(
   contract: IContractDocument,
@@ -163,45 +115,36 @@ async function fillCommitmentInterest(
  * @param models
  * @param subdomain
  * @param doc
- * @returns {undue: number; interestEve: number;   interestNonce: number;   total: number;   insurance: number;   debt: number;   payment: number;   preSchedule: any;}
+ * @returns {loss: number; interestEve: number;   interestNonce: number;   total: number;   insurance: number;   debt: number;   payment: number;   preSchedule: any;}
  */
 export const getCalcedAmounts = async (
   models: IModels,
   subdomain: string,
-  doc: ICalcDivideParams
+  doc: ICalcDivideParams,
+  config: IConfig
 ) => {
   let result: {
-    undue: number;
-    interestEve: number;
-    interestNonce: number;
+    loss: number;
     total: number;
     insurance: number;
     debt: number;
     payment: number;
-    preSchedule: any;
     balance: number;
     unUsedBalance: number;
     storedInterest: number;
     commitmentInterest: number;
-    commitmentInterestEve: number;
-    commitmentInterestNonce: number;
     calcInterest: number;
     closeAmount: number;
   } = {
-    undue: 0,
-    interestEve: 0,
-    interestNonce: 0,
+    loss: 0,
     insurance: 0,
     debt: 0,
     payment: 0,
     total: 0,
-    preSchedule: undefined,
     balance: 0,
     unUsedBalance: 0,
     storedInterest: 0,
     commitmentInterest: 0,
-    commitmentInterestEve: 0,
-    commitmentInterestNonce: 0,
     calcInterest: 0,
     closeAmount: 0
   };
@@ -219,338 +162,37 @@ export const getCalcedAmounts = async (
    * @property preSchedule /schedule of done or less payed/
    * @property nextSchedule /schedule of pending/
    */
-
+  result.balance = contract.loanBalanceAmount;
   result.storedInterest = contract.storedInterest;
 
-  let { preSchedule, nextSchedule } = await getAOESchedules(
-    models,
-    contract,
-    trDate
-  );
-
-  if (!preSchedule && !nextSchedule) {
-    return result;
-  }
-
-  const startDate = getFullDate(contract.startDate);
-  startDate.setDate(startDate.getDate() + 1);
-
-  const skipInterestCalcDate = addMonths(
-    new Date(startDate),
-    contract.skipInterestCalcMonth || 0
-  );
-
-  const isSkipInterestCalc = getDiffDay(trDate, skipInterestCalcDate) >= 0;
-
-  if (trDate < startDate) {
-    return result;
-  }
-
-  //there will be first payment
-  if (!preSchedule) {
-    preSchedule = {
-      balance: contract.leaseAmount,
-      payDate: startDate,
-      insurance: nextSchedule.insurance,
-      debt: nextSchedule.debt
-    };
-  }
-
-  const prePayDate = getFullDate(preSchedule.payDate);
-
-  result.preSchedule = preSchedule;
-  result.balance = preSchedule.balance;
-  result.unUsedBalance = contract.leaseAmount - preSchedule.balance;
-
-  // closed contract
-  if (!nextSchedule) {
-    const unduePercent = await getUnduePercent(
-      models,
-      subdomain,
-      preSchedule.payDate,
-      contract
-    );
-
-    result.undue =
-      (preSchedule.undue || 0) -
-      (preSchedule.didUndue || 0) +
-      (await calcUndue(
-        preSchedule,
-        contract,
-        unduePercent,
-        getDiffDay(prePayDate, trDate)
-      ));
-
-    if (isSkipInterestCalc) {
-      result.interestEve = 0;
-      result.interestNonce = 0;
-    } else {
-      const { diffEve, diffNonce } = getDatesDiffMonth(prePayDate, trDate);
-      result.interestEve =
-        (preSchedule.interestEve || 0) -
-        (preSchedule.didInterestEve || 0) +
-        calcInterest({
-          balance: preSchedule.balance,
-          interestRate: contract.interestRate,
-          dayOfMonth: diffEve
-        });
-      result.interestNonce =
-        (preSchedule.interestNonce || 0) -
-        (preSchedule.didInterestNonce || 0) +
-        calcInterest({
-          balance: preSchedule.balance,
-          interestRate: contract.interestRate,
-          dayOfMonth: diffNonce
-        });
-
-      //commitment interest calculation
-      if (
-        contract.leaseType === LEASE_TYPES.LINEAR &&
-        contract.commitmentInterest > 0
-      ) {
-        result = await fillCommitmentInterest(contract, result, models);
-      }
-    }
-
-    result.insurance = preSchedule.insurance;
-    result.payment = preSchedule.balance;
-    return result;
-  }
-
-  // correct run
-  if (trDate < prePayDate) {
-    return result;
-  }
-
-  // one day two pay
-  if (getDiffDay(trDate, prePayDate) === 0) {
-    //when less payed prev schedule there will be must add amount's of
-    if (
-      preSchedule.status === SCHEDULE_STATUS.LESS ||
-      preSchedule.status === SCHEDULE_STATUS.PRE
-    ) {
-      result.undue = (preSchedule.undue || 0) - (preSchedule.didUndue || 0);
-      result.interestEve =
-        (preSchedule.interestEve || 0) - (preSchedule.didInterestEve || 0);
-      result.interestNonce =
-        (preSchedule.interestNonce || 0) - (preSchedule.didInterestNonce || 0);
-      result.insurance =
-        (preSchedule.insurance || 0) - (preSchedule.didInsurance || 0);
-      result.payment =
-        (preSchedule.payment || 0) - (preSchedule.didPayment || 0);
-      result.debt = (preSchedule.debt || 0) - (preSchedule.didDebt || 0);
-    }
-
-    if (result.undue < 0) {
-      result.interestEve = result.interestEve + result.undue;
-      result.undue = 0;
-    }
-
-    if (result.interestEve < 0) {
-      result.interestNonce = result.payment + result.interestEve;
-      result.interestEve = 0;
-    }
-
-    if (result.interestNonce < 0) {
-      result.payment = result.payment + result.interestNonce;
-      result.interestNonce = 0;
-    }
-
-    if (result.payment < 0) {
-      result.insurance = result.insurance + result.payment;
-      result.payment = 0;
-    }
-
-    if (result.insurance < 0) {
-      result.debt = result.debt + result.insurance;
-      result.insurance = 0;
-    }
-
-    if (result.debt < 0) {
-      result.debt = 0;
-    }
-
-    return result;
-  }
-
-  const nextPayDate = getFullDate(nextSchedule.payDate);
-
-  // between prepay
-  if (trDate < nextPayDate) {
-    if (trDate > prePayDate && startDate < prePayDate) {
-      result.interestEve =
-        (preSchedule.interestEve || 0) - (preSchedule.didInterestEve || 0);
-
-      result.interestNonce =
-        (preSchedule.interestNonce || 0) - (preSchedule.didInterestNonce || 0);
-
-      result.payment =
-        (preSchedule.payment || 0) - (preSchedule.didPayment || 0);
-
-      if (result.payment < 0) result.payment = 0;
-
-      result.debt = (preSchedule.debt || 0) - (preSchedule.didDebt || 0);
-    }
-
-    if (!preSchedule) result.debt += nextSchedule.debt;
-
-    /** calculating interest eve and nonce from prev date to transaction date */
-
-    if (isSkipInterestCalc) {
-      result.interestEve = 0;
-      result.interestNonce = 0;
-    } else {
-      const { diffEve, diffNonce } = getDatesDiffMonth(prePayDate, trDate);
-
-      result.interestEve += calcInterest({
-        balance: preSchedule.balance,
-        interestRate: contract.interestRate,
-        dayOfMonth: diffEve
-      });
-
-      result.interestNonce += calcInterest({
-        balance: preSchedule.balance,
-        interestRate: contract.interestRate,
-        dayOfMonth: diffNonce
-      });
-
-      //commitment interest calculation
-      if (
-        contract.leaseType === LEASE_TYPES.LINEAR &&
-        contract.commitmentInterest > 0
-      ) {
-        result = await fillCommitmentInterest(contract, result, models);
-      }
-    }
-
-    if (preSchedule.status === SCHEDULE_STATUS.LESS) {
-      result.undue = (preSchedule.undue || 0) - (preSchedule.didUndue || 0);
-      const unduePercent = await getUnduePercent(
-        models,
-        subdomain,
-        preSchedule.payDate,
-        contract
-      );
-
-      result.undue += await calcUndue(
-        preSchedule,
-        contract,
-        unduePercent,
-        getDiffDay(prePayDate, trDate)
-      );
-    }
-    return result;
-  }
-
-  // scheduled
-  if (getDiffDay(trDate, nextPayDate) === 0) {
-    if (trDate > prePayDate && startDate < prePayDate) {
-      result.interestEve =
-        (preSchedule.interestEve || 0) - (preSchedule.didInterestEve || 0);
-
-      result.interestNonce =
-        (preSchedule.interestNonce || 0) - (preSchedule.didInterestNonce || 0);
-
-      result.debt = (preSchedule.debt || 0) - (preSchedule.didDebt || 0);
-
-      result.payment =
-        (preSchedule.payment || 0) - (preSchedule.didPayment || 0);
-
-      if (result.payment < 0) result.payment = 0;
-    }
-
-    result.interestEve += nextSchedule.interestEve || 0;
-
-    result.interestNonce += nextSchedule.interestNonce || 0;
-    result.insurance = nextSchedule.insurance || 0;
-
-    result.debt += nextSchedule.debt || 0;
-
-    result.payment += nextSchedule.payment || 0;
-
-    if (preSchedule.status === SCHEDULE_STATUS.LESS) {
-      result.undue = (preSchedule.undue || 0) - (preSchedule.didUndue || 0);
-      const unduePercent = await getUnduePercent(
-        models,
-        subdomain,
-        preSchedule.payDate,
-        contract
-      );
-
-      result.undue += await calcUndue(
-        preSchedule,
-        contract,
-        unduePercent,
-        getDiffDay(prePayDate, trDate)
-      );
-    }
-
-    if (result.payment < 0) result.payment = 0;
-
-    return result;
-  }
-
-  // after
-  const unduePercent = await getUnduePercent(
-    models,
-    subdomain,
-    preSchedule.payDate,
-    contract
-  );
-
-  result.undue = await calcUndue(
-    preSchedule,
-    contract,
-    unduePercent,
-    getDiffDay(prePayDate, trDate)
-  );
-
-  if (isSkipInterestCalc) {
-    result.interestEve = 0;
-    result.interestNonce = 0;
-  } else {
-    const { diffEve, diffNonce } = getDatesDiffMonth(prePayDate, trDate);
-
-    result.interestEve = calcInterest({
-      balance: preSchedule.balance,
-      interestRate: contract.interestRate,
-      dayOfMonth: diffEve
-    });
-    result.interestNonce = calcInterest({
-      balance: preSchedule.balance,
-      interestRate: contract.interestRate,
-      dayOfMonth: diffNonce
-    });
-
-    //commitment interest calculation
-    if (
-      contract.leaseType === LEASE_TYPES.LINEAR &&
-      contract.commitmentInterest > 0
-    ) {
-      result = await fillCommitmentInterest(contract, result, models);
-    }
-  }
-
-  result.insurance = nextSchedule.insurance;
-  //result.payment = nextSchedule.payment;
-  if (nextSchedule.status === SCHEDULE_STATUS.LESS) {
-    result.payment = (preSchedule.payment || 0) - (preSchedule.didPayment || 0);
-    if (result.payment < 0) result.payment = 0;
-  }
-  const doubleSkipped = await models.Schedules.find({
-    _id: { $ne: nextSchedule },
+  let schedules = await models.Schedules.find({
     contractId: contract._id,
-    $and: [
-      { payDate: { $gte: nextSchedule.payDate } },
-      { payDate: { $lte: trDate } }
-    ]
+    status:{$ne:'give'},
+    payDate: {
+      $lte: trDate
+    }
   });
-  if (!doubleSkipped) return result;
 
-  for (const sch of doubleSkipped) {
-    result.insurance += sch.insurance || 0;
-    result.payment += sch.payment || 0;
-  }
+  schedules.forEach((row) => {
+    result.payment = new BigNumber(result.payment)
+      .plus(row.payment || 0)
+      .minus(row.didPayment || 0)
+      .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
+      .toNumber();
+  });
+
+  if (result.payment < 0) result.payment = 0;
+
+  const diffDay = getDiffDay(contract.lastStoredDate, trDate);
+
+  result.calcInterest = calcInterest({
+    balance: contract.loanBalanceAmount,
+    interestRate: contract.interestRate,
+    dayOfMonth: diffDay,
+    fixed: config.calculationFixed
+  });
+
+  result.storedInterest = contract.storedInterest;
 
   return result;
 };
@@ -571,7 +213,7 @@ export const transactionRule = async (
     payment: number;
     insurance: number;
     debt: number;
-    undue: number;
+    loss: number;
     interestEve: number;
     interestNonce: number;
     surplus: number;
@@ -583,7 +225,7 @@ export const transactionRule = async (
 ) => {
   result = {
     payment: 0,
-    undue: 0,
+    loss: 0,
     interestEve: 0,
     interestNonce: 0,
     insurance: 0,
@@ -599,14 +241,21 @@ export const transactionRule = async (
     return result;
   }
 
-  result.calcedInfo = await getCalcedAmounts(models, subdomain, {
-    contractId: doc.contractId,
-    payDate: doc.payDate
-  });
+  const config = await getConfig('loansConfig', subdomain);
+
+  result.calcedInfo = await getCalcedAmounts(
+    models,
+    subdomain,
+    {
+      contractId: doc.contractId,
+      payDate: doc.payDate
+    },
+    config
+  );
 
   const {
     payment = 0,
-    undue = 0,
+    loss = 0,
     interestEve = 0,
     interestNonce = 0,
     insurance = 0,
@@ -616,7 +265,7 @@ export const transactionRule = async (
   } = result.calcedInfo;
   result.calcedInfo.total =
     payment +
-    undue +
+    loss +
     interestEve +
     interestNonce +
     insurance +
@@ -634,13 +283,13 @@ export const transactionRule = async (
 
   result.debt = debt;
   mainAmount = mainAmount - debt;
-  if (undue > mainAmount) {
-    result.undue = mainAmount;
+  if (loss > mainAmount) {
+    result.loss = mainAmount;
     return result;
   }
 
-  result.undue = undue;
-  mainAmount = mainAmount - undue;
+  result.loss = loss;
+  mainAmount = mainAmount - loss;
   if (commitmentInterest > mainAmount) {
     result.commitmentInterest = mainAmount;
     return result;
@@ -679,7 +328,7 @@ export const transactionRule = async (
   result.payment = result.payment + mainAmount;
 
   // TODO check payment > remiander condition
-  if (preSchedule.balance < result.payment) {
+  if (preSchedule?.balance < result.payment) {
     result.payment = preSchedule.balance;
     result.surplus = result.payment - preSchedule.balance;
   }
@@ -706,88 +355,48 @@ export const trAfterSchedule = async (
   });
 
   // with skipped of done
-  let preSchedule = await models.Schedules.findOne({
+  let schedule = await models.Schedules.findOne({
     contractId: contract._id,
-    status: {
-      $in: [SCHEDULE_STATUS.DONE, SCHEDULE_STATUS.LESS, SCHEDULE_STATUS.PRE]
-    }
-  })
-    .sort({ payDate: -1 })
-    .lean();
+    payDate: trDate
+  });
 
-  const pendingSchedules = await models.Schedules.find({
-    contractId: contract._id,
-    status: SCHEDULE_STATUS.PENDING
-  })
-    .sort({ payDate: 1 })
-    .lean();
-
-  // hasn't schedule
-  if ((!pendingSchedules || !pendingSchedules.length) && !preSchedule) {
-    // reschedule
-  }
-
-  // closed contract
-  if (!pendingSchedules || !pendingSchedules.length) {
-    await betweenScheduled(models, contract, tr, preSchedule, pendingSchedules);
-    return;
-  }
-
-  const nextSchedule = pendingSchedules[0];
-  const nextPayDate = getFullDate(nextSchedule.payDate);
-
-  // first pay
-  // in this case if this contract get first payment this will be in to the loan schedule then it's used on calculation
-  if (!preSchedule) {
-    preSchedule = {
-      payDate: contract.startDate,
-      contractId: contract._id,
-      debt: contract.debt,
-      balance: contract.leaseAmount
-    };
-  }
-
-  const prePayDate = preSchedule.payDate;
-
-  // wrong date
-  if (trDate < prePayDate) {
-    throw new Error('transaction is not valid date');
-  }
-
-  // one day multi pay
-  if (getDiffDay(trDate, prePayDate) === 0) {
-    await onPreScheduled(models, contract, tr, preSchedule, pendingSchedules);
-    return;
-  }
-
-  // between
-  if (trDate < nextPayDate) {
-    await betweenScheduled(models, contract, tr, preSchedule, pendingSchedules);
-    return;
-  }
-
-  // on schedule
-  if (getDiffDay(trDate, nextPayDate) === 0) {
-    await onNextScheduled(
-      models,
-      contract,
-      tr,
-      preSchedule,
-      nextSchedule,
-      pendingSchedules
+  if (schedule) {
+    await models.Schedules.updateOne(
+      { _id: schedule._id },
+      {
+        $inc: {
+          didPayment: tr.payment ?? 0,
+          didStoredInterest: tr.storedInterest ?? 0,
+          didLoss: tr.loss ?? 0,
+          didDebt: tr.debt ?? 0,
+          didCommitmentInterest: tr.commitmentInterest ?? 0,
+          didTotal: tr.total ?? 0
+        }
+      }
     );
-    return;
+  } else {
+    const schedule: ISchedule = {
+      balance: contract.loanBalanceAmount,
+      contractId: contract._id,
+      isDefault: false,
+      payDate: trDate,
+      transactionIds: [tr._id],
+      didPayment: tr.payment ?? 0,
+      didStoredInterest: tr.storedInterest ?? 0,
+      didLoss: tr.loss ?? 0,
+      didDebt: tr.debt ?? 0,
+      didCommitmentInterest: tr.commitmentInterest ?? 0,
+      didTotal: tr.total ?? 0,
+      total: tr.total,
+      version: '',
+      createdAt: new Date(),
+      status: 'done',
+      unUsedBalance: 0
+    };
+
+    await models.Schedules.create(schedule);
   }
 
-  // delayed
-  await afterNextScheduled(
-    models,
-    contract,
-    tr,
-    preSchedule,
-    nextSchedule,
-    pendingSchedules
-  );
   return;
 };
 
