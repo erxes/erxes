@@ -57,7 +57,7 @@ function AssetForm({
   const [assetCount, setAssetCount] = React.useState<number>(0);
   const [minimiumCount, setMinimiumCount] = React.useState<number>(0);
   const [attachment, setAttachment] = React.useState<IAttachment | undefined>(
-    undefined,
+    undefined
   );
   const [attachmentMore, setAttachmentMore] = React.useState<
     IAttachment[] | undefined
@@ -281,7 +281,6 @@ function AssetForm({
                 type="number"
                 name="unitPrice"
                 defaultValue={object.unitPrice}
-                required={true}
                 min={0}
               />
             </FormGroup>

@@ -117,8 +117,11 @@ function UserDetails({
       };
 
       const generateDoc = () => {
-        user.details && delete user.details['__typename'];
-        return { ...user, [`${key}Ids`]: ids };
+        return {
+          ...user,
+          details: { ...(user.details || {}), __typename: undefined },
+          [`${key}Ids`]: ids
+        };
       };
 
       const movementForm = () => {

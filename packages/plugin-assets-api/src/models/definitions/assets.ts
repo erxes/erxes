@@ -44,7 +44,12 @@ export const assetSchema = schemaWrapper(
     categoryId: field({ type: String, optional: true, label: 'Category' }),
     parentId: field({ type: String, optional: true, label: 'Parent' }),
     description: field({ type: String, optional: true, label: 'Description' }),
-    unitPrice: field({ type: Number, optional: true, label: 'Unit price' }),
+    unitPrice: field({
+      type: Number,
+      optional: true,
+      label: 'Unit price',
+      default: 0
+    }),
     customFieldsData: field({
       type: [customFieldSchema],
       optional: true,
