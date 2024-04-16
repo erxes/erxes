@@ -8,10 +8,11 @@ import { IModels, generateModels } from '../connectionResolver';
 export default async function cpUserMiddleware(
   req: Request & { cpUser?: any },
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) {
   if (
     req.path === '/subscriptionPlugin.js' ||
+    req.path.startsWith('/rpc') ||
     req.body?.operationName === 'SubgraphIntrospectQuery' ||
     req.body?.operationName === 'IntrospectionQuery'
   ) {
@@ -21,7 +22,7 @@ export default async function cpUserMiddleware(
   const subdomain = getSubdomain(req);
   let models: IModels;
   try {
-    models =  await generateModels(subdomain);
+    models = await generateModels(subdomain);
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
@@ -47,7 +48,7 @@ export default async function cpUserMiddleware(
       'clientPortalVerifyOTP',
       'clientPortalRefreshToken',
       'clientPortalGetConfigByDomain',
-      'clientPortalKnowledgeBaseTopicDetail',
+      'clientPortalKnowledgeBaseTopicDetail'
     ].includes(operationName)
   ) {
     return next();
@@ -63,7 +64,7 @@ export default async function cpUserMiddleware(
     // verify user token and retrieve stored user information
     const verifyResult: any = jwt.verify(
       token,
-      process.env.JWT_TOKEN_SECRET || '',
+      process.env.JWT_TOKEN_SECRET || ''
     );
 
     const { userId } = verifyResult;

@@ -100,6 +100,7 @@ const generate = async () => {
     jwt_token_secret: generatePass(),
     image_tag: "dev",
     db_server_address: "",
+    secondary_server_address: "",
     domain,
     main_api_domain: `${domain}/gateway`,
     redis: {
@@ -126,7 +127,12 @@ const generate = async () => {
       { name: "tags" },
       { name: "internalnotes" },
       { name: "integrations" },
-      { name: "contacts" }
+      { name: "contacts" },
+      { name: "cards" },
+      { name: "segments" },
+      { name: "automations" },
+      { name: "inbox" },
+      { name: "engages" }
     ],
   };
 

@@ -26,13 +26,14 @@ const ProseMirrorWrapper = styled.div<{
   $height?: string;
   $minHeight: string;
   $maxHeight: string;
+  $autoGrow?: boolean;
 }>`
    {
     overflow-y: auto;
     height: ${(props) => (props.$height ? props.$height : 'unset')};
     min-height: ${(props) => (props.$minHeight ? props.$minHeight : 'unset')};
     max-height: ${(props) => (props.$maxHeight ? props.$maxHeight : 'unset')};
-    resize: vertical;
+    ${({ $autoGrow }) => $autoGrow && `resize: vertical;`}
   }
 `;
 

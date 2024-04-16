@@ -1,5 +1,6 @@
 export const menuDynamic = [
   { title: 'Sync History', link: '/sync-msdynamic-history' },
+  { title: 'Check orders', link: '/check-sync-orders' },
   { title: 'Check Categories', link: '/msdynamic-category' },
   { title: 'Check Products', link: '/msdynamic-products' },
   { title: 'Check Price', link: '/msdynamic-price' },
