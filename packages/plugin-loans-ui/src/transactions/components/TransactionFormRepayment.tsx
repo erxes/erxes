@@ -61,8 +61,11 @@ const getValue = (mustPay, value) => {
 function TransactionFormNew(props: Props) {
   const [paymentInfo, setPaymentInfo] = useState<PaymentInfo | undefined>();
   const [contract, setContract] = useState({});
+  
   const [contractId, setContractId] = useState<string>();
+  const [isPrePayment, setIsPrePayment] = useState<boolean>();
   const [payDate, setPayDate] = useState(new Date());
+  const [calcDate, setCalcDate] = useState(new Date());
   const [description, setDescription] = useState<string>('');
 
   const [total, setTotal] = useState(0);
@@ -79,13 +82,13 @@ function TransactionFormNew(props: Props) {
           mutation: gql(queries.getPaymentInfo),
           variables: {
             id: contractId,
-            payDate: dayjs(payDate).format('YYYY-MM-DD')
+            payDate: dayjs(calcDate).format('YYYY-MM-DD')
           }
         })
         .then(({ data }) => {
           setPaymentInfo({ ...data.getPaymentInfo });
         });
-  }, [contractId, payDate]);
+  }, [contractId, calcDate]);
 
   const onChangeValue = (key: string, value: number, setValue: any) => {
     switch (key) {
@@ -221,6 +224,30 @@ function TransactionFormNew(props: Props) {
                     />
                   </DateContainer>
                 </FormGroup>
+                <FormGroup>
+                  <ControlLabel>{__('Is Pre Payment')}</ControlLabel>
+                  <FormControl
+                    type={'checkbox'}
+                    componentClass="checkbox"
+                    useNumberFormat
+                    fixed={0}
+                    name="isPrePayment"
+                    value={isPrePayment}
+                    onChange={(e:any)=>setIsPrePayment(e.target.checked)}
+                  />
+                </FormGroup>
+                {isPrePayment && <FormGroup>
+                  <ControlLabel>{__('Calc Date')}</ControlLabel>
+                  <DateContainer>
+                    <DateControl
+                      required={false}
+                      name="payDate"
+                      dateFormat="YYYY/MM/DD"
+                      value={calcDate}
+                      onChange={(value:any)=>setCalcDate(value)}
+                    />
+                  </DateContainer>
+                </FormGroup>}
                 <FormGroup>
                   <ControlLabel>{__('Contract')}</ControlLabel>
                   <SelectContracts

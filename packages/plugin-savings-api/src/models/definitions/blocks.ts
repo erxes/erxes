@@ -10,6 +10,11 @@ export interface IBlock {
   description?: string;
   payDate: Date;
   amount: number;
+  didAmount: number;
+  status: string;
+  currency: string;
+  scheduleDate: Date;
+  contractReaction?: any;
 }
 
 export interface IBlockDocument extends IBlock, Document {
@@ -18,7 +23,7 @@ export interface IBlockDocument extends IBlock, Document {
   createdBy?: string;
 }
 
-export const contractSchema = schemaHooksWrapper(
+export const blockSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     contractId: field({
@@ -38,6 +43,18 @@ export const contractSchema = schemaHooksWrapper(
       default: 0,
       index: true
     }),
+    didAmount: field({
+      type: Number,
+      label: 'Amount',
+      default: 0,
+      index: true
+    }),
+    status: field({
+      type: String,
+      label: 'Status',
+      optional: true,
+      index: true
+    }),
     currency: field({
       type: String,
       label: 'Currency',
@@ -54,6 +71,7 @@ export const contractSchema = schemaHooksWrapper(
       default: () => new Date(),
       label: 'Created at'
     }),
+    contractReaction: field({ type: Object, label: 'Contract reaction' })
   }),
   'erxes_contractSchema'
 );

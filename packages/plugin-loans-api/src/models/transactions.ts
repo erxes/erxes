@@ -20,10 +20,13 @@ import { IContractDocument } from './definitions/contracts';
 import { getPureDate } from '@erxes/api-utils/src';
 import { createEbarimt } from './utils/ebarimtUtils';
 import { getFullDate } from './utils/utils';
-import { getConfig } from '../messageBroker';
+import { getConfig, sendMessageBroker } from '../messageBroker';
 import BigNumber from 'bignumber.js';
 import { IConfig } from '../interfaces/config';
-import { scheduleFixAfterCurrent, scheduleFixCurrent } from './utils/scheduleFixUtils';
+import {
+  scheduleFixAfterCurrent,
+  scheduleFixCurrent
+} from './utils/scheduleFixUtils';
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(selector: FilterQuery<ITransactionDocument>);
@@ -125,51 +128,72 @@ export const loadTransactionClass = (models: IModels) => {
           { $inc: { givenAmount: doc.total, loanBalanceAmount: doc.total } }
         );
 
-     
-          const schedules = [
-            {
-              contractId: contract._id,
-              status: SCHEDULE_STATUS.GIVE,
-              payDate: getFullDate(doc.payDate),
-              balance: new BigNumber(doc.total || 0).plus(contract?.loanBalanceAmount || 0).toNumber(),
-              interestNonce: 0,
-              payment: doc.total,
-              total: doc.total
-            }
-          ];
+        const schedules = [
+          {
+            contractId: contract._id,
+            status: SCHEDULE_STATUS.GIVE,
+            payDate: getFullDate(doc.payDate),
+            balance: new BigNumber(doc.total || 0)
+              .plus(contract?.loanBalanceAmount || 0)
+              .toNumber(),
+            interestNonce: 0,
+            payment: doc.total,
+            total: doc.total
+          }
+        ];
 
-          await models.Schedules.insertMany(schedules);
+        await models.Schedules.insertMany(schedules);
         return tr;
       }
 
-      const config:IConfig = await getConfig('loansConfig',subdomain)
+      const config: IConfig = await getConfig('loansConfig', subdomain);
 
       doc.payDate = getFullDate(doc.payDate);
-      doc.contractReaction = contract
+      doc.contractReaction = contract;
 
       const tr = await models.Transactions.create({ ...doc });
 
-      await scheduleFixCurrent(contract,tr.payDate,tr,models,config)
-      await scheduleFixAfterCurrent(contract,tr.payDate,models,config)
+      await sendMessageBroker(
+        {
+          action: 'block.create',
+          subdomain,
+          data: {
+            customerId: contract.customerId,
+            description: 'interest payment',
+            blockType: 'scheduleTransaction',
+            amount: tr.calcInterest,
+            scheduleDate: tr.payDate,
+            payDate: tr.payDate
+          },
+          isRPC:true
+        },
+        'savings'
+      );
+
+      await scheduleFixCurrent(contract, tr.payDate, tr, models, config);
+      //await scheduleFixAfterCurrent(contract,tr.payDate,models,config)
 
       const contractType = await models.ContractTypes.findOne({
         _id: contract.contractTypeId
       });
 
-      let updateContractInc = {}
+      let updateContractInc = {};
 
       if (doc.storedInterest && doc.storedInterest > 0)
-        updateContractInc = {storedInterest: doc.storedInterest * -1}
-      
-      if(doc.payment && doc.payment > 0)
-        updateContractInc = {...updateContractInc,loanBalanceAmount: doc.payment * -1}
-      
-        await models.Contracts.updateOne(
-          {
-            _id: tr.contractId
-          },
-          { $inc: updateContractInc}
-        );
+        updateContractInc = { storedInterest: doc.storedInterest * -1 };
+
+      if (doc.payment && doc.payment > 0)
+        updateContractInc = {
+          ...updateContractInc,
+          loanBalanceAmount: doc.payment * -1
+        };
+
+      await models.Contracts.updateOne(
+        {
+          _id: tr.contractId
+        },
+        { $inc: updateContractInc }
+      );
 
       if (
         contractType?.config?.isAutoSendEBarimt === true ||

@@ -135,7 +135,8 @@ export const sendMessageBroker = async (
     | 'clientportal'
     | 'syncerkhet'
     | 'ebarimt'
-    | 'syncpolaris',
+    | 'syncpolaris'
+    | 'savings',
 ): Promise<any> => {
   return sendMessage({
     serviceName: name,

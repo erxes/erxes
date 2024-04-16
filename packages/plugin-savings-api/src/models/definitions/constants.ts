@@ -41,6 +41,11 @@ export const INTEREST_RESULT_TYPE = {
 };
 
 export const BLOCK_TYPE = {
-  LOAN_PAYMENT:'loanPayment',
-  SCHEDULE_TRANSACTION:"scheduleTransaction",
-}
+  LOAN_PAYMENT: 'loanPayment',
+  SCHEDULE_TRANSACTION: 'scheduleTransaction'
+};
+
+export const BLOCK_STATUS = {
+  PENDING: 'pending',
+  DONE: 'done'
+};

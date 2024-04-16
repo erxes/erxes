@@ -146,7 +146,6 @@ function TransactionFormGive(props: Props) {
                   {renderRowTr('Given amount', 'givenAmount')}
                   {renderRowTr('must give amount', 'mustGive',maxAmount)}
                 </>}
-                <TextDivider text="Олголтын дүн"  date={new Date()}/>
                 <FormColumn>
                   <ControlLabel>{__('Transaction amount')}</ControlLabel>
                   <FormControl
