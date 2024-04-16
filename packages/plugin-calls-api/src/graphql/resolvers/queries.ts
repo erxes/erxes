@@ -1,5 +1,6 @@
 import { IContext } from '../../connectionResolver';
 import { sendCommonMessage } from '../../messageBroker';
+import { getRecordUrl } from '../../utils';
 export interface IHistoryArgs {
   limit?: number;
   callStatus?: string;
@@ -50,6 +51,10 @@ const callsQueries = {
 
   async callsGetConfigs(_root, _args, { models }: IContext) {
     return models.Configs.find({}).lean();
+  },
+
+  async callRecordUrl(_root, _args, { models }: IContext) {
+    return await getRecordUrl();
   },
 };
 

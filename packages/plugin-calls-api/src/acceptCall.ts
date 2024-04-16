@@ -2,7 +2,13 @@ import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { IModels } from './connectionResolver';
 import { sendInboxMessage } from './messageBroker';
 
-const acceptCall = async (models: IModels, subdomain: string, params, user) => {
+const acceptCall = async (
+  models: IModels,
+  subdomain: string,
+  params,
+  user,
+  type?: string,
+) => {
   const integration = await models.Integrations.findOne({
     inboxId: params.inboxIntegrationId,
   }).lean();
@@ -84,6 +90,7 @@ const acceptCall = async (models: IModels, subdomain: string, params, user) => {
           content: params.callType || '',
           conversationId: history.conversationId,
           updatedAt: new Date(),
+          owner: type === 'addHistory' ? user._id : '',
         }),
       },
       isRPC: true,

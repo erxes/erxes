@@ -115,7 +115,13 @@ const callsMutations = {
     doc: ICallHistory,
     { user, models, subdomain }: IContext,
   ) {
-    const history = await acceptCall(models, subdomain, doc, user);
+    const history = await acceptCall(
+      models,
+      subdomain,
+      doc,
+      user,
+      'addHistory',
+    );
     return models.CallHistory.getCallHistory(history.sessionId);
   },
 
