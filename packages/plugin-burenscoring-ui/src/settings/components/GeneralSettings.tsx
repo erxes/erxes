@@ -4,15 +4,16 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  MainStyleModalFooter as ModalFooter,
-  __
-} from '@erxes/ui/src';
-import React from 'react';
+} from '@erxes/ui/src/components';
+
 import { IConfigsMap } from '../types';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 
 type Props = {
-  configsMap: IConfigsMap;
   save: (configsMap: IConfigsMap) => void;
+  configsMap: IConfigsMap;
 };
 
 type State = {
@@ -23,16 +24,16 @@ type State = {
   branchId: string;
 };
 
-class MainConfig extends React.Component<Props, State> {
+class GeneralSettings extends React.Component<Props, State> {
   constructor(props: Props) {
+   
     super(props);
-    this.state = props.configsMap?.zmsConfig || {};
+    this.state = props.configsMap?.burenScoringConfig || {};
   }
-
   onSave = e => {
     e.preventDefault();
     const { configsMap } = this.props;
-    configsMap.zmsConfig = this.state;
+    configsMap.burenScoringConfig = this.state;
     this.props.save(configsMap);
   };
 
@@ -44,10 +45,11 @@ class MainConfig extends React.Component<Props, State> {
     this.onChangeConfig(code, e.target.value);
   };
 
+
   render() {
-    const config = this.state;
+    const config = this.state
     return (
-      <CollapseContent title={__(config.title)} open>
+      <CollapseContent title={__('Buren Scoring config')} open>
         <FormGroup>
           <ControlLabel>{__('client_id')}</ControlLabel>
           <FormControl
@@ -104,7 +106,8 @@ class MainConfig extends React.Component<Props, State> {
           </Button>
         </ModalFooter>
       </CollapseContent>
-    );
+    )
   }
 }
-export default MainConfig;
+
+export default GeneralSettings;
