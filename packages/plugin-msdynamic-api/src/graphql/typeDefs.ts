@@ -19,6 +19,14 @@ const types = `
     content: String
     createdUser: JSON
   }
+
+  type CheckResponse {
+    _id: String
+    isSynced: Boolean
+    syncedDate: Date
+    syncedBillNumber: String
+    syncedCustomer: String
+  }
 `;
 
 const typeDefs = async () => {

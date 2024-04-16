@@ -256,6 +256,19 @@ class List extends React.Component<IProps, State> {
               onChange={this.onChangeChecked}
               checked={this.state.checked}
             />
+            <InputBar type="searchBar">
+              <Icon icon="search-1" size={20} />
+              <FlexItem>
+                <FormControl
+                  type="text"
+                  placeholder={__('Type to search')}
+                  onChange={this.search}
+                  value={this.state.searchValue}
+                  autoFocus={true}
+                  onFocus={this.moveCursorAtTheEnd}
+                />
+              </FlexItem>
+            </InputBar>
             {(bulk || []).length === 2 && (
               <ModalTrigger
                 title="Merge Product"
@@ -322,9 +335,8 @@ class List extends React.Component<IProps, State> {
     };
 
     const actionBarLeft = (
-      <Title>{`${
-        currentCategory.name || 'All products'
-      } (${productsCount})`}</Title>
+      <Title>{`${currentCategory.name || 'All products'
+        } (${productsCount})`}</Title>
     );
 
     return (

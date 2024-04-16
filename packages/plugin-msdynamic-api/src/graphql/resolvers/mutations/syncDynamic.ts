@@ -1,9 +1,12 @@
-import { IContext } from '../../../messageBroker';
+import fetch from 'node-fetch';
+import { generateModels } from '../../../connectionResolver';
+import { IContext, sendPosMessage } from '../../../messageBroker';
 import {
   consumeCategory,
   consumeCustomers,
   consumeInventory,
   consumePrice,
+  dealToDynamic,
   getConfig,
 } from '../../../utils';
 
@@ -15,7 +18,7 @@ const msdynamicSyncMutations = {
       action,
       products,
     }: { brandId: string; action: string; products: any[] },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -59,7 +62,7 @@ const msdynamicSyncMutations = {
       action,
       prices,
     }: { brandId: string; action: string; prices: any[] },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -103,7 +106,7 @@ const msdynamicSyncMutations = {
       categoryId: string;
       categories: any[];
     },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -117,7 +120,7 @@ const msdynamicSyncMutations = {
               config,
               categoryId,
               category,
-              'create',
+              'create'
             );
           }
           break;
@@ -129,7 +132,7 @@ const msdynamicSyncMutations = {
               config,
               categoryId,
               category,
-              'update',
+              'update'
             );
           }
           break;
@@ -159,7 +162,7 @@ const msdynamicSyncMutations = {
       action,
       customers,
     }: { brandId: string; action: string; customers: any[] },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -194,6 +197,126 @@ const msdynamicSyncMutations = {
     } catch (e) {
       console.log(e, 'error');
     }
+  },
+
+  async toSyncMsdOrders(
+    _root,
+    { orderIds }: { orderIds: string[] },
+    { subdomain, user }: IContext
+  ) {
+    const result: { skipped: string[]; error: string[]; success: string[] } = {
+      skipped: [],
+      error: [],
+      success: [],
+    };
+
+    const order = await sendPosMessage({
+      subdomain,
+      action: 'orders.findOne',
+      data: { _id: { $in: orderIds } },
+      isRPC: true,
+      defaultValue: [],
+    });
+
+    const configs = await getConfig(subdomain, 'DYNAMIC', {});
+    const config = configs[order.scopeBrandIds[0] || 'noBrand'];
+
+    if (!config.salesApi || !config.username || !config.password) {
+      throw new Error('MS Dynamic config not found.');
+    }
+
+    const { salesApi, username, password } = config;
+
+    const syncLogDoc = {
+      contentType: 'pos:order',
+      createdAt: new Date(),
+      createdBy: user._id,
+    };
+    const models = await generateModels(subdomain);
+
+    const syncLog = await models.SyncLogs.syncLogsAdd({
+      ...syncLogDoc,
+      contentId: order._id,
+      consumeData: order,
+      consumeStr: JSON.stringify(order),
+    });
+    try {
+      const response = await fetch(
+        `${salesApi}?$filter=No eq '${order.syncErkhetInfo}'`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            Authorization: `Basic ${Buffer.from(
+              `${username}:${password}`
+            ).toString('base64')}`,
+          },
+          timeout: 60000,
+        }
+      ).then((r) => r.json());
+
+      if (response.value.length === 0) {
+        result.error.push(order._id);
+      }
+
+      if (response.value.length > 0) {
+        result.success.push(order._id);
+      }
+    } catch (e) {
+      await models.SyncLogs.updateOne(
+        { _id: syncLog._id },
+        { $set: { error: e.message } }
+      );
+    }
+
+    return result;
+  },
+
+  async toSendMsdOrders(
+    _root,
+    { orderIds }: { orderIds: string[] },
+    { subdomain, user }: IContext
+  ) {
+    let response = {} as any;
+    const order = await sendPosMessage({
+      subdomain,
+      action: 'orders.findOne',
+      data: { _id: { $in: orderIds } },
+      isRPC: true,
+      defaultValue: [],
+    });
+
+    const syncLogDoc = {
+      contentType: 'pos:order',
+      createdAt: new Date(),
+      createdBy: user._id,
+    };
+
+    const models = await generateModels(subdomain);
+
+    const syncLog = await models.SyncLogs.syncLogsAdd({
+      ...syncLogDoc,
+      contentId: order._id,
+      consumeData: order,
+      consumeStr: JSON.stringify(order),
+    });
+
+    try {
+      response = await dealToDynamic(subdomain, syncLog, order, models);
+    } catch (e) {
+      await models.SyncLogs.updateOne(
+        { _id: syncLog._id },
+        { $set: { error: e.message } }
+      );
+    }
+
+    return {
+      _id: order._id,
+      isSynced: true,
+      syncedDate: response.Order_Date,
+      syncedBillNumber: response.No,
+      syncedCustomer: response.Sell_to_Customer_No,
+    };
   },
 };
 
