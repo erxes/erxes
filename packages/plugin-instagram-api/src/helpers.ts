@@ -159,16 +159,25 @@ export const repairIntegrations = async (
     throw new Error('Integration not found');
   }
 
-  for (const pageId of integration.instagramPageId || '') {
+  let pageId = integration.facebookPageId;
+
+  if (!pageId) {
+    throw new Error('Page ID not found');
+  }
+
+  try {
+    // pageTokenResponse = await getPageAccessToken(pageId, account.token);
     const pageTokens = await refreshPageAccesToken(models, pageId, integration);
-
     await subscribePage(pageId, pageTokens[pageId]);
-
     await models.Integrations.remove({
       erxesApiId: { $ne: integrationId },
-      instagramPageId: pageId,
+      facebookPageIds: pageId,
       kind: integration.kind
     });
+  } catch (e) {
+    debugError(
+      `Error ocurred while trying to get page access token with ${e.message}`
+    );
   }
 
   await models.Integrations.updateOne(
