@@ -25,7 +25,7 @@ import {
   SIP_STATUS_ERROR,
   SIP_STATUS_REGISTERED,
 } from '../lib/enums';
-import { ICallConversation, ICustomer } from '../types';
+import { ICustomer } from '../types';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   calculateTimeElapsed,
@@ -40,14 +40,10 @@ import { FormControl } from '@erxes/ui/src/components/form';
 import Select from 'react-select-plus';
 import { renderFullName } from '@erxes/ui/src/utils/core';
 type Props = {
-  addCustomer: (firstName: string, phoneNumber: string, callID: string) => void;
+  addCustomer: (firstName: string, phoneNumber: string) => void;
   callUserIntegrations: any;
   setConfig: any;
   customer: ICustomer;
-  toggleSectionWithPhone: (phoneNumber: string) => void;
-  taggerRefetchQueries: any;
-  conversation: ICallConversation;
-  addNote: (conversationId: string, content: string) => void;
   disconnectCall: () => void;
   phoneNumber: string;
 };
@@ -60,7 +56,6 @@ const KeyPad = (props: Props, context) => {
     callUserIntegrations,
     setConfig,
     customer,
-    conversation,
     phoneNumber,
   } = props;
 
@@ -89,13 +84,7 @@ const KeyPad = (props: Props, context) => {
     value: user.phone,
     label: user.phone,
   }));
-  let conversationDetail;
-  if (conversation) {
-    conversationDetail = {
-      ...conversation,
-      _id: conversation.erxesApiId,
-    };
-  }
+
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
@@ -128,7 +117,7 @@ const KeyPad = (props: Props, context) => {
         JSON.parse(defaultCallIntegration || '{}')?.inboxId ||
         callUserIntegrations?.[0]?.inboxId;
 
-      addCustomer(inboxId, formatedPhone, call?.id);
+      addCustomer(inboxId, formatedPhone);
     }
     if (call?.status === CALL_STATUS_ACTIVE) {
       const { startTime } = call;
@@ -440,10 +429,11 @@ const KeyPad = (props: Props, context) => {
             value={number}
             onKeyDown={handleKeyDown}
             autoFocus={true}
-            defaultValue={number}
             ref={inputRef}
             onPaste={handlePaste}
             autoComplete="off"
+            onChange={(e) => setNumber(e.target.value)}
+            type="number"
           />
         </InputBar>
         {renderKeyPad(handNumPad)}

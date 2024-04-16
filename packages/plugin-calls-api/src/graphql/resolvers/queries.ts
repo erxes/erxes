@@ -24,14 +24,14 @@ const callsQueries = {
     return res;
   },
 
-  async callsCustomerDetail(_root, { callerNumber }, { subdomain }: IContext) {
+  async callsCustomerDetail(_root, { customerPhone }, { subdomain }: IContext) {
     let customer = await sendCommonMessage({
       subdomain,
       isRPC: true,
       serviceName: 'contacts',
       action: 'customers.findOne',
       data: {
-        primaryPhone: callerNumber,
+        primaryPhone: customerPhone,
       },
       defaultValue: null,
     });
