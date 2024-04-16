@@ -109,8 +109,13 @@ const params = `
   teamGoalType:String
 `;
 
+const paramsTest = `
+   name: String
+`;
+
 export const mutations = `
   goalsAdd(${params}): Goal
+  testAdd(${paramsTest}): JSON
   goalsEdit(_id: String!, ${params}): Goal
   goalsRemove(goalTypeIds: [String]): [String]
 `;
