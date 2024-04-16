@@ -1,43 +1,43 @@
-import { Route, useLocation, Routes } from 'react-router-dom';
-import { Navigate } from 'react-router-dom';
+import { Route, Routes, useLocation } from "react-router-dom";
 
-import React from 'react';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { getDefaultBoardAndPipelines } from '@erxes/ui-cards/src/boards/utils';
-import queryString from 'query-string';
+import { Navigate } from "react-router-dom";
+import React from "react";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import { getDefaultBoardAndPipelines } from "@erxes/ui-cards/src/boards/utils";
+import queryString from "query-string";
 
 const Calendar = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Calendar" */ '@erxes/ui-cards/src/boards/components/Calendar'
-    ),
+      /* webpackChunkName: "Calendar" */ "@erxes/ui-cards/src/boards/components/Calendar"
+    )
 );
 
 const DealColumn = asyncComponent(
   () =>
-    import(/* webpackChunkName: "DealColumn" */ './containers/CalendarColumn'),
+    import(/* webpackChunkName: "DealColumn" */ "./containers/CalendarColumn")
 );
 
 const DealMainActionBar = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "DealMainActionbar" */ './components/DealMainActionBar'
-    ),
+      /* webpackChunkName: "DealMainActionbar" */ "./components/DealMainActionBar"
+    )
 );
 
 const DealBoard = asyncComponent(
-  () => import(/* webpackChunkName: "DealBoard" */ './components/DealBoard'),
+  () => import(/* webpackChunkName: "DealBoard" */ "./components/DealBoard")
 );
 
 const Conversation = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Conversion" */ './components/conversion/Conversion'
-    ),
+      /* webpackChunkName: "Conversion" */ "./components/conversion/Conversion"
+    )
 );
 
 const Deals = () => {
-  let view = localStorage.getItem('dealView') || 'board';
+  let view = localStorage.getItem("dealView") || "board";
   let dealsLink = `/deal/${view}`;
 
   const { defaultBoards, defaultPipelines } = getDefaultBoardAndPipelines();
@@ -123,7 +123,7 @@ const routes = () => {
     <Routes>
       <Route key="deals" path="/deal" element={<Deals />} />
 
-      <Route key="deals/board" path="/deal/board" element={<Boards />} />
+      <Route key="deals/board" path="/deal/board/*" element={<Boards />} />
 
       <Route
         key="deals/calendar"

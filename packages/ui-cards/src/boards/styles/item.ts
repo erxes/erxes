@@ -4,10 +4,10 @@ import styled, { css } from 'styled-components';
 import Button from '@erxes/ui/src/components/Button';
 import { Flex } from '@erxes/ui/src/styles/main';
 import { FormContainer } from '../styles/common';
+import { StageInfo } from './stage';
 import { borderRadius } from './common';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styledTS from 'styled-components-ts';
-import { StageInfo } from './stage';
 
 const buttonColor = '#0a1e3c';
 
@@ -323,7 +323,7 @@ export const MoveContainer = styled(Flex)`
 `;
 
 export const MoveContainerWidth = styled(Flex)`
-  width: 600px;
+  width: 720px;
 `;
 
 export const ActionContainer = styled(MoveContainer)`

@@ -111,6 +111,7 @@ class PermissionForm extends React.Component<Props, State> {
   };
 
   changeModule = (item: generatedList) => {
+    console.log(item);
     const selectedModule = correctValue(item);
 
     this.setState({
@@ -134,7 +135,7 @@ class PermissionForm extends React.Component<Props, State> {
     } = this.state;
 
     const usersOnChange = (users) => this.select("selectedUserIds", users);
-
+    console.log(this.state.selectedModule, this.isModuleSelected());
     return (
       <>
         <Info>
@@ -160,7 +161,7 @@ class PermissionForm extends React.Component<Props, State> {
         <StepItem>
           <StepHeader
             number="1"
-            isDone={this.isModuleSelected() && this.hasItems(selectedActions)}
+            $isDone={this.isModuleSelected() && this.hasItems(selectedActions)}
           >
             {__("What action can do")}
           </StepHeader>

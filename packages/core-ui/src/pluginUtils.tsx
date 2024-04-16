@@ -189,6 +189,8 @@ const renderPluginSidebar = (itemName: string, type: string, object: any) => {
       plugins={plugins}
       callBack={(_plugin, sections) => {
         return (sections || []).map((section) => {
+          console.log("kkk", section.scope, window[section.scope]);
+
           if (!window[section.scope]) {
             return null;
           }
