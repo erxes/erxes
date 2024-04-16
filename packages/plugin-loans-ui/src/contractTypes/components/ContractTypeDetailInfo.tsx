@@ -16,6 +16,8 @@ import React from 'react';
 import { Description } from '../../contracts/styles';
 import ContractTypeForm from '../containers/ContractTypeForm';
 import { IContractTypeDetail } from '../types';
+import ContractTypesCustomFields from './ContractTypesCustomFields';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   contractType: IContractTypeDetail;
@@ -135,8 +137,10 @@ class DetailInfo extends React.Component<Props> {
                 }}
               />
             </SidebarList>
+            
           </Section>
         </Sidebar.Section>
+        {isEnabled('forms') && <ContractTypesCustomFields contractType={this.props.contractType} isDetail/>}
       </Sidebar>
     );
   }

@@ -59,6 +59,15 @@ module.exports = {
       scope: 'loans',
       location: 'transaction-list',
       permissions: ['showTransactions']
+    },
+    {
+      text: 'nonBalanceTransaction',
+      image: '/images/icons/erxes-16.svg',
+      to: '/erxes-plugin-loan/non-balance-transactions',
+      action: 'nonBalanceTransaction',
+      scope: 'loans',
+      location: 'non-balance-transactions',
+      permissions: ['showNonBalanceTransactions']
     }
   ],
   customerRightSidebarSection: [

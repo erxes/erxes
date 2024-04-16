@@ -45,8 +45,8 @@ const types = `
     _id: String 
     erxesApiId: String
     integrationId: String
-    senderPhoneNumber: String
-    recipientPhoneNumber: String
+    callerNumber: String
+    operatorPhone: String
     callId: String
     channels: [CallChannel]
   }
@@ -75,6 +75,7 @@ const types = `
     createdBy: String
     modifiedBy: String
     customer: Customer
+    extentionNumber: String
   }
 `;
 
@@ -113,6 +114,8 @@ const queries = `
   callsCustomerDetail(callerNumber: String): Customer
   callsActiveSession: CallActiveSession
   callHistories(${filterParams}, skip: Int): [CallHistory]
+  callsGetConfigs: JSON
+
 `;
 
 const mutations = `
@@ -124,6 +127,7 @@ const mutations = `
   callHistoryAdd(${commonHistoryFields}): CallHistory
   callHistoryEdit(${commonHistoryFields}): CallHistory
   callHistoryRemove(_id: String!): JSON
+  callsUpdateConfigs(configsMap: JSON!): JSON
 `;
 
 const typeDefs = async () => {

@@ -5,7 +5,8 @@ import {
   FormControl,
   Icon,
   ModalTrigger,
-  Tip
+  Tip,
+  __
 } from '@erxes/ui/src';
 import _ from 'lodash';
 import React from 'react';
@@ -13,7 +14,6 @@ import { TrNumberCols, TrRows } from '../../contracts/styles';
 import ChangeTrForm from '../containers/ChangeTrForm';
 import TransactionForm from '../containers/TransactionForm';
 import { ITransaction } from '../types';
-import { __ } from 'coreui/utils';
 import EBarimtForm from './EBarimtForm';
 type Props = {
   transaction: ITransaction;
@@ -167,7 +167,6 @@ function TransactionRow({
       </TrNumberCols>
       <td key={'manage'}>
         {renderChangeBtn()}
-
         {renderEBarimtBtn(!!transaction.ebarimt)}
         {renderEditBrn()}
       </td>

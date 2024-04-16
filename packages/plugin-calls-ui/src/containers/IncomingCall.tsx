@@ -9,6 +9,7 @@ import { callPropType } from '../lib/types';
 import client from '@erxes/ui/src/apolloClient';
 import { mutations } from '../graphql';
 import queries from '../graphql/queries';
+import { extractPhoneNumberFromCounterpart } from '../utils';
 
 interface IProps {
   closeModal?: () => void;
@@ -23,9 +24,8 @@ const IncomingCallContainer = (props: IProps, context) => {
   const { callUserIntegrations } = props;
   const { call } = context;
 
-  const phoneNumber = context?.call?.counterpart?.slice(
-    context.call.counterpart.indexOf(':') + 1,
-    context.call.counterpart.indexOf('@'),
+  const phoneNumber = extractPhoneNumberFromCounterpart(
+    context?.call?.counterpart,
   );
 
   const defaultCallIntegration =
@@ -132,6 +132,7 @@ const IncomingCallContainer = (props: IProps, context) => {
       conversation={conversation}
       hasMicrophone={hasMicrophone}
       addNote={addNote}
+      phoneNumber={phoneNumber}
     />
   );
 };

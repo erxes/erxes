@@ -114,7 +114,7 @@ class History extends React.Component<Props, State> {
               <Icon size={12} icon={'outgoing-call'} />
             )}
             <PhoneNumber shrink={true}>
-              {renderFullName(item.customer, true)}
+              {renderFullName(item.customer, false)}
             </PhoneNumber>
           </div>
           <AdditionalDetail>

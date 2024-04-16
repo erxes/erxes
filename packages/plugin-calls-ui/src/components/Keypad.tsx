@@ -27,13 +27,18 @@ import {
 } from '../lib/enums';
 import { ICallConversation, ICustomer } from '../types';
 import React, { useEffect, useRef, useState } from 'react';
-import { callActions, formatPhone, getSpentTime, renderKeyPad } from '../utils';
+import {
+  calculateTimeElapsed,
+  callActions,
+  formatPhone,
+  getSpentTime,
+  renderKeyPad,
+} from '../utils';
 import { callPropType, sipPropType } from '../lib/types';
 
 import { FormControl } from '@erxes/ui/src/components/form';
 import Select from 'react-select-plus';
 import { renderFullName } from '@erxes/ui/src/utils/core';
-
 type Props = {
   addCustomer: (firstName: string, phoneNumber: string, callID: string) => void;
   callUserIntegrations: any;
@@ -46,7 +51,6 @@ type Props = {
   disconnectCall: () => void;
   phoneNumber: string;
 };
-
 const KeyPad = (props: Props, context) => {
   const Sip = context;
   const inputRef = useRef<any>(null);
@@ -61,7 +65,7 @@ const KeyPad = (props: Props, context) => {
   } = props;
 
   const defaultCallIntegration = localStorage.getItem(
-    'config:call_integrations',
+    'config:call_integrations'
   );
 
   const [shrink, setShrink] = useState(customer ? true : false);
@@ -74,44 +78,40 @@ const KeyPad = (props: Props, context) => {
   const [callFrom, setCallFrom] = useState(
     JSON.parse(defaultCallIntegration || '{}')?.phone ||
       callUserIntegrations?.[0]?.phone ||
-      '',
+      ''
   );
   const [hasMicrophone, setHasMicrophone] = useState(false);
-  const [timeSpent, setTimeSpent] = useState(0);
+  const [timeSpent, setTimeSpent] = useState(
+    call?.startTime ? calculateTimeElapsed(call.startTime) : 0
+  );
   const formatedPhone = formatPhone(number);
-
-  const ourPhone = callUserIntegrations?.map((user) => ({
+  const ourPhone = callUserIntegrations?.map(user => ({
     value: user.phone,
     label: user.phone,
   }));
   let conversationDetail;
-
   if (conversation) {
     conversationDetail = {
       ...conversation,
       _id: conversation.erxesApiId,
     };
   }
-
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
   }, [selectFocus]);
-
   useEffect(() => {
     setNumber(phoneNumber);
   }, [phoneNumber]);
-
   useEffect(() => {
     let timer;
-
     navigator.mediaDevices
       .getUserMedia({ audio: true })
       .then(() => {
         setHasMicrophone(true);
       })
-      .catch((error) => {
+      .catch(error => {
         const errorMessage = error
           ?.toString()
           .replace('DOMException:', '')
@@ -119,7 +119,6 @@ const KeyPad = (props: Props, context) => {
         setHasMicrophone(false);
         return Alert.error(errorMessage);
       });
-
     if (
       (call?.direction === CALL_DIRECTION_OUTGOING && call?.status) ===
         CALL_STATUS_STARTING &&
@@ -132,16 +131,18 @@ const KeyPad = (props: Props, context) => {
       addCustomer(inboxId, formatedPhone, call?.id);
     }
     if (call?.status === CALL_STATUS_ACTIVE) {
-      timer = setInterval(() => {
-        setTimeSpent((prevTimeSpent) => prevTimeSpent + 1);
-      }, 1000);
+      const { startTime } = call;
+      if (startTime) {
+        timer = setInterval(() => {
+          const diff = calculateTimeElapsed(startTime);
+          setTimeSpent(diff);
+        }, 1000);
+      }
     }
-
     return () => {
       clearInterval(timer);
     };
   }, [call?.status]);
-
   const handleCall = () => {
     if (!hasMicrophone) {
       return Alert.error('Check your microphone');
@@ -153,17 +154,13 @@ const KeyPad = (props: Props, context) => {
     if (Sip.call?.status !== CALL_STATUS_IDLE) {
       return;
     }
-
     const { startCall } = context;
-
     if (startCall && hasMicrophone) {
       startCall(formatedPhone);
     }
   };
-
   const handleCallStop = () => {
     const { stopCall } = context;
-
     if (stopCall) {
       stopCall();
     }
@@ -173,7 +170,7 @@ const KeyPad = (props: Props, context) => {
     const isConnected = status === 'connect';
 
     const integration = callUserIntegrations?.find(
-      (userIntegration) => userIntegration.phone === callFrom,
+      userIntegration => userIntegration.phone === callFrom
     );
     localStorage.setItem(
       'config:call_integrations',
@@ -184,7 +181,7 @@ const KeyPad = (props: Props, context) => {
         token: integration?.token,
         operators: integration?.operators,
         isAvailable: isConnected ? true : false,
-      }),
+      })
     );
     setConfig({
       inboxId: integration?.inboxId,
@@ -194,20 +191,19 @@ const KeyPad = (props: Props, context) => {
       operators: integration?.operators,
       isAvailable: isConnected ? true : false,
     });
-
     localStorage.setItem(
       'isConnectCallRequested',
-      isConnected ? 'true' : 'false',
+      isConnected ? 'true' : 'false'
     ),
       localStorage.setItem(
         'callInfo',
         JSON.stringify({
           isUnRegistered: isConnected ? true : false,
-        }),
+        })
       );
   };
 
-  const handNumPad = (e) => {
+  const handNumPad = e => {
     let num = number;
     let dialNumber = dialCode;
 
@@ -227,7 +223,6 @@ const KeyPad = (props: Props, context) => {
       audio.play();
 
       num += e;
-
       if (Sip.call?.status === CALL_STATUS_ACTIVE) {
         dialNumber += e;
 
@@ -241,36 +236,46 @@ const KeyPad = (props: Props, context) => {
       }
     }
   };
-
-  const handleKeyDown = (event) => {
+  const handleKeyDown = event => {
     const keyValue = event.key;
+    const input = inputRef.current;
 
     if (/^[0-9]$/.test(keyValue)) {
-      setNumber((prevNumber) => prevNumber + keyValue);
+      setNumber(prevNumber => prevNumber + keyValue);
+    } else if (
+      (keyValue === 'Delete' || keyValue === 'Backspace') &&
+      input.selectionStart === 0 &&
+      input.selectionEnd === number.length
+    ) {
+      setNumber('');
     } else if (
       (keyValue === 'Delete' || keyValue === 'Backspace') &&
       number.length > 0
     ) {
-      setNumber((prevNumber) => prevNumber.slice(0, -1));
+      setNumber(prevNumber => prevNumber.slice(0, -1));
     }
 
     if (keyValue === 'Enter') {
       handleCall();
     }
   };
+  const handlePaste = event => {
+    const pastedText = event.clipboardData?.getData('text');
+    const maxLength = 10;
+    const truncatedText = pastedText?.substring(0, maxLength);
+    setNumber(truncatedText || '');
+  };
 
   const onBack = () => setShowTrigger(false);
-
-  const search = (e) => {
+  const search = e => {
     const inputValue = e.target.value;
     setSearchValue(inputValue);
   };
-
-  const onStatusChange = (status) => {
+  const onStatusChange = status => {
     setCallFrom(status.value);
 
     const integration = callUserIntegrations?.find(
-      (userIntegration) => userIntegration.phone === status.value,
+      userIntegration => userIntegration.phone === status.value
     );
     localStorage.setItem(
       'config:call_integrations',
@@ -281,7 +286,7 @@ const KeyPad = (props: Props, context) => {
         token: integration?.token,
         operators: integration?.operators,
         isAvailable: true,
-      }),
+      })
     );
 
     setConfig({
@@ -293,7 +298,6 @@ const KeyPad = (props: Props, context) => {
       isAvailable: true,
     });
   };
-
   if (showTrigger) {
     return (
       <ChooseCountry>
@@ -313,7 +317,6 @@ const KeyPad = (props: Props, context) => {
       </ChooseCountry>
     );
   }
-
   const handleAudioToggle = () => {
     if (!isMuted()) {
       mute();
@@ -321,7 +324,6 @@ const KeyPad = (props: Props, context) => {
       unmute();
     }
   };
-
   const handleHold = () => {
     if (!isHolded().localHold) {
       hold();
@@ -329,7 +331,6 @@ const KeyPad = (props: Props, context) => {
       unhold();
     }
   };
-
   const renderCallerInfo = () => {
     if (!formatedPhone) {
       return null;
@@ -338,7 +339,6 @@ const KeyPad = (props: Props, context) => {
     if (Sip.call?.status === CALL_STATUS_ACTIVE && dialCode) {
       showNumber = dialCode;
     }
-
     if (!shrink) {
       return (
         <>
@@ -347,15 +347,12 @@ const KeyPad = (props: Props, context) => {
         </>
       );
     }
-
     return <PhoneNumber shrink={shrink}>{showNumber}</PhoneNumber>;
   };
-
   const isConnected =
     !Sip.call ||
     Sip.sip?.status === SIP_STATUS_ERROR ||
     Sip.sip?.status === SIP_STATUS_DISCONNECTED;
-
   if (
     Sip.call?.direction === CALL_DIRECTION_OUTGOING &&
     Sip.call?.status === CALL_STATUS_STARTING
@@ -376,14 +373,13 @@ const KeyPad = (props: Props, context) => {
               handleAudioToggle,
               isHolded,
               handleHold,
-              handleCallStop,
+              handleCallStop
             )}
           </IncomingContent>
         </IncomingContainer>
       </IncomingCallNav>
     );
   }
-
   if (Sip.call?.status === CALL_STATUS_ACTIVE) {
     return (
       <IncomingCallNav type="outgoing">
@@ -401,14 +397,13 @@ const KeyPad = (props: Props, context) => {
               handleAudioToggle,
               isHolded,
               handleHold,
-              handleCallStop,
+              handleCallStop
             )}
           </IncomingContent>
         </IncomingContainer>
       </IncomingCallNav>
     );
   }
-
   if (Sip.call?.direction !== CALL_DIRECTION_INCOMING) {
     return (
       <NumberInput>
@@ -441,6 +436,8 @@ const KeyPad = (props: Props, context) => {
             autoFocus={true}
             defaultValue={number}
             ref={inputRef}
+            onPaste={handlePaste}
+            autoComplete="off"
           />
         </InputBar>
         {renderKeyPad(handNumPad)}
@@ -466,7 +463,7 @@ const KeyPad = (props: Props, context) => {
                   ? 'Call'
                   : Sip.call?.status === CALL_STATUS_STARTING
                     ? 'Calling'
-                    : 'aa'}
+                    : 'Stopping'}
               </Button>
             </>
           )}
@@ -474,10 +471,8 @@ const KeyPad = (props: Props, context) => {
       </NumberInput>
     );
   }
-
   return null;
 };
-
 KeyPad.contextTypes = {
   sip: sipPropType,
   call: callPropType,
@@ -492,5 +487,4 @@ KeyPad.contextTypes = {
   isHolded: PropTypes.func,
   sendDtmf: PropTypes.func,
 };
-
 export default KeyPad;

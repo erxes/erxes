@@ -34,17 +34,21 @@ export default {
         const { _id, copies, width, itemId } = req.query;
         const subdomain = getSubdomain(req);
         const models = await generateModels(subdomain);
-        const document = await models.Documents.findOne({ _id });
+
+        let document;
+        try {
+          document = await models.Documents.findOne({
+            $or: [{ _id }, { code: _id }],
+          });
+        } catch (e) {
+          document = await models.Documents.findOne({ code: _id });
+        }
 
         if (!document) {
           return res.send('Not found');
         }
 
         const userId = req.headers.userid;
-
-        if (!document) {
-          return res.send('Not found');
-        }
 
         if (!userId) {
           return next(new Error('Permission denied'));
@@ -95,30 +99,30 @@ export default {
           content = content.replace(/{{ email }}/g, user.email);
           content = content.replace(
             /{{ details.firstName }}/g,
-            details.firstName,
+            details.firstName
           );
           content = content.replace(
             /{{ details.lastName }}/g,
-            details.lastName,
+            details.lastName
           );
           content = content.replace(
             /{{ details.middleName }}/g,
-            details.middleName,
+            details.middleName
           );
           content = content.replace(
             /{{ details.position }}/g,
-            details.position,
+            details.position
           );
           content = content.replace(/{{ details.avatar }}/g, details.avatar);
           content = content.replace(
             /{{ details.description }}/g,
-            details.description,
+            details.description
           );
 
           for (const data of user.customFieldsData || []) {
             const regex = new RegExp(
               `{{ customFieldsData.${data.field} }}`,
-              'g',
+              'g'
             );
             content = content.replace(regex, data.stringValue);
           }
@@ -129,7 +133,7 @@ export default {
             const serviceName = document.contentType.includes(':')
               ? document.contentType.substring(
                   0,
-                  document.contentType.indexOf(':'),
+                  document.contentType.indexOf(':')
                 )
               : document.contentType;
 
