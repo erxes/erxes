@@ -1,8 +1,8 @@
 import { FunctionComponent } from "react"
 import { GlassesIcon } from "lucide-react"
 
-import Banner from "../Banner"
-import DiscoverTabs from "./DiscoverTabs"
+import Banner from "../sharing/Banner"
+import CategoryTabsList from "../sharing/CategoryTabsList"
 
 interface DiscoverBoardProps {}
 
@@ -22,7 +22,7 @@ const DiscoverBoard: FunctionComponent<DiscoverBoardProps> = () => {
         }
       />
 
-      <DiscoverTabs />
+      <CategoryTabsList topics={[]} path="discover" />
     </div>
   )
 }

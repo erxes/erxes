@@ -1,8 +1,8 @@
 import { FunctionComponent } from "react"
 import { BookOpenIcon, GlassesIcon, TrophyIcon } from "lucide-react"
 
-import Banner from "../Banner"
-import LearnTabs from "./LearnTabs"
+import Banner from "../sharing/Banner"
+import CategoryTabsList from "../sharing/CategoryTabsList"
 
 interface LearnBoardProps {}
 
@@ -23,7 +23,7 @@ const LearnBoard: FunctionComponent<LearnBoardProps> = () => {
         }
       />
 
-      <LearnTabs />
+      <CategoryTabsList path="learn" topics={[]} />
     </div>
   )
 }

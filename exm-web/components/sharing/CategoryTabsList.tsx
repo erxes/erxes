@@ -8,26 +8,30 @@ import KnowledgebaseHeader from "@/modules/discover/components/knowledgebase/Kno
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-interface LearnTabsProps {}
+interface CategoryTabsListProps {
+  topics: any
+  path: string
+}
 
-const LearnTabs: FunctionComponent<LearnTabsProps> = () => {
+const CategoryTabsList: FunctionComponent<CategoryTabsListProps> = (props) => {
+  const { topics, path } = props
+
   const router = useRouter()
   const searchParams = useSearchParams()
 
   const tab = searchParams.get("tab")
 
   const handleClick = (tabType: string) => {
-    router.push(`/learn?tab=${tabType}`)
+    router.push(`/${path}?tab=${tabType}`)
   }
 
   return (
-    <div className="w-full mt-10 flex flex-col items-center justify-center gap-4">
-      <b className="text-3xl">Popular Courses</b>
-
-      <Tabs defaultValue={tab || "all"} className="w-full">
+    <div className="w-full mt-10">
+      <Tabs defaultValue={tab || "all"}>
         <TabsList className="flex w-full bg-white rounded-2xl p-5">
-          {LEARN_TABS_TRIGGER.map((item) => (
+          {topics.map((item: any, index: number) => (
             <TabsTrigger
+              key={index}
               className="text-[#1D2939] font-medium data-[state=active]:bg-[#6569DF] data-[state=active]:text-white rounded-xl hover:text-[#A1A1A1]"
               value={item.value}
               onClick={() => handleClick(item.value)}
@@ -50,27 +54,4 @@ const LearnTabs: FunctionComponent<LearnTabsProps> = () => {
   )
 }
 
-const LEARN_TABS_TRIGGER = [
-  {
-    value: "all",
-    text: "Бүгд",
-  },
-  {
-    value: "business",
-    text: "Business",
-  },
-  {
-    value: "technology",
-    text: "Technology",
-  },
-  {
-    value: "art-design",
-    text: "Art&Design",
-  },
-  {
-    value: "languages",
-    text: "Languages",
-  },
-]
-
-export default LearnTabs
+export default CategoryTabsList

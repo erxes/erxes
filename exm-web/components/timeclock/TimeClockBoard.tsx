@@ -1,10 +1,11 @@
 import { FunctionComponent } from "react"
-import { TableOfTimeClock } from "@/modules/timeclock/components/TableOfTimeClock"
-import TimeExport from "@/modules/timeclock/components/TimeExport"
-import TimeRequests from "@/modules/timeclock/components/TimeRequests"
-import TimeSheet from "@/modules/timeclock/components/TimeSheet"
-import TodaysClock from "@/modules/timeclock/components/TodaysClock"
-import TotalHours from "@/modules/timeclock/components/TotalHours"
+
+import { TableOfTimeClock } from "@/components/timeclock/TableOfTimeClock"
+import TimeExport from "@/components/timeclock/TimeExport"
+import TimeRequests from "@/components/timeclock/TimeRequests"
+import TimeSheet from "@/components/timeclock/TimeSheet"
+import TodaysClock from "@/components/timeclock/TodaysClock"
+import TotalHours from "@/components/timeclock/TotalHours"
 
 interface TimeClockBoardProps {}
 

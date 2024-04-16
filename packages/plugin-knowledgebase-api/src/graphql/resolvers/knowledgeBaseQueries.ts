@@ -11,7 +11,7 @@ const buildQuery = (args: any) => {
 
   const keys = ['codes', 'categoryIds', 'articleIds', 'topicIds'];
 
-  keys.forEach((key) => {
+  keys.forEach(key => {
     if (args[key] && args[key].length > 0) {
       const field = key.replace('s', '');
       qry[field] = { $in: args[key] };
@@ -22,7 +22,7 @@ const buildQuery = (args: any) => {
     qry.$or = [
       { title: { $regex: `.*${args.searchValue.trim()}.*`, $options: 'i' } },
       { content: { $regex: `.*${args.searchValue.trim()}.*`, $options: 'i' } },
-      { summary: { $regex: `.*${args.searchValue.trim()}.*`, $options: 'i' } },
+      { summary: { $regex: `.*${args.searchValue.trim()}.*`, $options: 'i' } }
     ];
   }
 
@@ -56,7 +56,7 @@ const knowledgeBaseQueries = {
 
     if (args.topicIds && args.topicIds.length > 0) {
       const categoryIds = await models.KnowledgeBaseCategories.find({
-        topicId: { $in: args.topicIds },
+        topicId: { $in: args.topicIds }
       }).distinct('_id');
 
       selector.categoryId = { $in: categoryIds };
@@ -65,7 +65,7 @@ const knowledgeBaseQueries = {
     }
 
     const articles = models.KnowledgeBaseArticles.find(selector).sort({
-      createdDate: -1,
+      createdDate: -1
     });
 
     return paginate(articles, pageArgs);
@@ -126,7 +126,7 @@ const knowledgeBaseQueries = {
     const qry: any = buildQuery(args);
 
     const categories = models.KnowledgeBaseCategories.find(qry).sort({
-      title: 1,
+      title: 1
     });
 
     const { page, perPage } = args;
@@ -171,7 +171,7 @@ const knowledgeBaseQueries = {
     { commonQuerySelector, models }: IContext
   ) {
     return models.KnowledgeBaseCategories.findOne(commonQuerySelector).sort({
-      createdDate: -1,
+      createdDate: -1
     });
   },
 
@@ -187,7 +187,7 @@ const knowledgeBaseQueries = {
 
     const topics = models.KnowledgeBaseTopics.find({
       ...qry,
-      ...commonQuerySelector,
+      ...commonQuerySelector
     }).sort({ modifiedDate: -1 });
 
     return paginate(topics, args);
@@ -215,13 +215,13 @@ const knowledgeBaseQueries = {
     return models.KnowledgeBaseTopics.find(
       commonQuerySelector
     ).countDocuments();
-  },
+  }
 };
 
-requireLogin(knowledgeBaseQueries, 'knowledgeBaseArticlesTotalCount');
-requireLogin(knowledgeBaseQueries, 'knowledgeBaseTopicsTotalCount');
-requireLogin(knowledgeBaseQueries, 'knowledgeBaseCategoriesGetLast');
-requireLogin(knowledgeBaseQueries, 'knowledgeBaseCategoriesTotalCount');
+// requireLogin(knowledgeBaseQueries, 'knowledgeBaseArticlesTotalCount');
+// requireLogin(knowledgeBaseQueries, 'knowledgeBaseTopicsTotalCount');
+// requireLogin(knowledgeBaseQueries, 'knowledgeBaseCategoriesGetLast');
+// requireLogin(knowledgeBaseQueries, 'knowledgeBaseCategoriesTotalCount');
 
 checkPermission(
   knowledgeBaseQueries,

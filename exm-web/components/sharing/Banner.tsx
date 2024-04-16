@@ -1,6 +1,6 @@
 import { FunctionComponent } from "react"
 
-import { Card, CardContent, CardHeader } from "./ui/card"
+import { Card, CardContent, CardHeader } from "../ui/card"
 
 interface BannerProps {
   title: string
