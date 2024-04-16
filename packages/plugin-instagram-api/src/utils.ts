@@ -297,68 +297,6 @@ export const sendReply = async (
   }
 };
 
-// export const sendReply = async (
-//   models: IModels,
-//   url: string,
-//   data: any,
-//   recipientId: string,
-//   integrationId: string
-// ) => {
-//   const integration = await models.Integrations.getIntegration({
-//     erxesApiId: integrationId
-//   });
-
-//   const { facebookPageTokensMap = {} } = integration;
-
-//   let pageAccessToken;
-
-//   try {
-//     pageAccessToken = getPageAccessTokenFromMap(
-//       recipientId,
-//       facebookPageTokensMap
-//     );
-//   } catch (e) {
-//     debugError(
-//       `Error ocurred while trying to get page access token with ${e.message}`
-//     );
-//     return e;
-//   }
-
-//   try {
-//     const response = await graphRequest.post(`${url}`, pageAccessToken, {
-//       ...data
-//     });
-//     debugInstagram(
-//       `Successfully sent data to instagram ${JSON.stringify(data)}`
-//     );
-//     return response;
-//   } catch (e) {
-//     debugError(
-//       `Error ocurred while trying to send post request to instagram ${
-//         e.message
-//       } data: ${JSON.stringify(data)}`
-//     );
-
-//     if (e.message.includes('access token')) {
-//       await models.Integrations.updateOne(
-//         { _id: integration._id },
-//         { $set: { healthStatus: 'page-token', error: `${e.message}` } }
-//       );
-//     } else if (e.code !== 10) {
-//       await models.Integrations.updateOne(
-//         { _id: integration._id },
-//         { $set: { healthStatus: 'account-token', error: `${e.message}` } }
-//       );
-//     }
-
-//     if (e.message.includes('does not exist')) {
-//       throw new Error('Comment has been deleted by the customer');
-//     }
-
-//     throw new Error(e.message);
-//   }
-// };
-
 export const generateAttachmentMessages = (
   subdomain: string,
   attachments: IAttachment[]

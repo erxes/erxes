@@ -18,7 +18,7 @@ const loginMiddleware = async (req, res) => {
     'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content'
   );
 
-  const DOMAIN = 'https://360b-202-21-104-34.ngrok-free.app';
+  const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
   const API_DOMAIN = DOMAIN.includes('ngrok') ? DOMAIN : `${DOMAIN}/gateway`;
   const INSTAGRAM_LOGIN_REDIRECT_URL = await getConfig(
     models,
@@ -33,7 +33,6 @@ const loginMiddleware = async (req, res) => {
     redirect_uri: INSTAGRAM_LOGIN_REDIRECT_URL
   };
 
-  // scope: `${INSTAGRAM_PERMISSIONS},instagram_content_publish,ads_management,pages_read_engagement,instagram_manage_comments,instagram_basic,instagram_manage_messages,business_management`,
   debugRequest(debugFacebook, req);
   // we don't have a code yet
   // so we'll redirect to the oauth dialog
