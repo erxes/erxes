@@ -1,11 +1,16 @@
+"use client"
+
 import { FunctionComponent } from "react"
 import { Timer } from "lucide-react"
 
 import { Button } from "../ui/button"
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 
 interface TodaysClockProps {}
 
 const TodaysClock: FunctionComponent<TodaysClockProps> = () => {
+  const onClick = () => {}
+
   return (
     <div className="p-4 flex items-center flex-col gap-4 bg-white rounded-2xl border">
       <div className="flex items-center w-full">
@@ -17,11 +22,19 @@ const TodaysClock: FunctionComponent<TodaysClockProps> = () => {
         </div>
       </div>
 
-      <Button className="w-[198px] h-[198px] bg-primary rounded-full flex flex-col items-center gap-4 justify-center text-white text-xl">
-        <Timer size={66} />
+      <Popover>
+        <PopoverTrigger>
+          <Button
+            className="w-[198px] h-[198px] bg-primary rounded-full flex flex-col items-center gap-4 justify-center text-white text-xl"
+            onClick={onClick}
+          >
+            <Timer size={66} />
 
-        <b>Clock in</b>
-      </Button>
+            <b>Clock in</b>
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent>hello</PopoverContent>
+      </Popover>
     </div>
   )
 }
