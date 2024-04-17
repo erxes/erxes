@@ -214,7 +214,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
   if (detailsFree && detailsFree.length) {
     mainData.receipts?.push({
       ...commonOderInfo,
-      totalAmount: detailsFree.reduce((total, cur) => total + (cur.totalAmount || 0), 0) || 0,
+      totalAmount: freeAmount,
       taxType: 'VAT_FREE',
       items: detailsFree,
     });
@@ -223,7 +223,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
   if (details0 && details0.length) {
     mainData.receipts?.push({
       ...commonOderInfo,
-      totalAmount: details0.reduce((total, cur) => total + (cur.totalAmount || 0), 0) || 0,
+      totalAmount: zeroAmount,
       taxType: 'VAT_ZERO',
       items: details0,
     });
@@ -233,7 +233,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     mainData.receipts?.push({
       ...commonOderInfo,
       // inner: true, // TODO: check
-      totalAmount: detailsInner.reduce((total, cur) => total + (cur.totalAmount || 0), 0) || 0,
+      totalAmount: innerAmount,
       taxType: 'NO_VAT',
       items: detailsInner,
     });
@@ -242,7 +242,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
   if (details && details.length) {
     mainData.receipts?.push({
       ...commonOderInfo,
-      totalAmount: details.reduce((total, cur) => total + (cur.totalAmount || 0), 0) || 0,
+      totalAmount: ableAmount,
       totalVAT: ableVATAmount,
       totalCityTax: ableCityTaxAmount,
       taxType: 'VAT_ABLE',
