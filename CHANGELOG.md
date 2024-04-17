@@ -1,5 +1,67 @@
 # Changelog
 
+## [1.9.0-rc.0](https://github.com/erxes/erxes/compare/1.8.0-rc.3...1.9.0-rc.0) (2024-04-17)
+
+
+### Features
+
+* **cars:** Cars improvement ([#5120](https://github.com/erxes/erxes/issues/5120)) ([0aded13](https://github.com/erxes/erxes/commit/0aded133515f4b76c0de8790ce9ae980d74e2196))
+* **loans:** contractType with product and customField, and clientQuery ([#5128](https://github.com/erxes/erxes/issues/5128)) ([e1bd7ff](https://github.com/erxes/erxes/commit/e1bd7fffc34d39eb5b5a1a0648b7a6dfc3b0ff4a))
+* msdynamics check synced sale orders ([#5123](https://github.com/erxes/erxes/issues/5123)) ([d807efa](https://github.com/erxes/erxes/commit/d807efa350d496b7dd023e8f6da2fb8ce007cf87))
+* **syncpolaris:** non balance transaction && polaris fix ([#5121](https://github.com/erxes/erxes/issues/5121)) ([7272785](https://github.com/erxes/erxes/commit/727278541706bf827ba6312f5665c9e3bb6d41d7))
+* **timeclock:** schedule config update ([2faf6cb](https://github.com/erxes/erxes/commit/2faf6cb74c4f179d932dc2f632989e95f0023079))
+
+
+### Bug Fixes
+
+* **calls:** fix duplicated conversations ([05680c2](https://github.com/erxes/erxes/commit/05680c28c440991797e5460afb9a5217d31cef88))
+* **emailtemplates:** fix email templates ([6c39314](https://github.com/erxes/erxes/commit/6c3931468f8f27dfa41d92f6573320b552807e91))
+* fix inbox report ([a8f54b3](https://github.com/erxes/erxes/commit/a8f54b3961ee51d12ad52995edf4f29a04e838ff))
+* **imap:**  message false showed ([0fa0993](https://github.com/erxes/erxes/commit/0fa09936e712b2bb8f73fefc08d3c4944f76ed6c))
+* **inbox:** RTE internal notes error fix  ([5ad0b5e](https://github.com/erxes/erxes/commit/5ad0b5eddc430d936366f4851360a2365558553b))
+* insight report bugs ([a2253e7](https://github.com/erxes/erxes/commit/a2253e78be17a1bd0c335843a43a6557ef0b3163))
+* posclient login or currentConfig conflict ([d41eac0](https://github.com/erxes/erxes/commit/d41eac090d417044e02a1847f6c15bcf7fd7f425))
+* with team member restrictions filter ([a396257](https://github.com/erxes/erxes/commit/a396257d0f60106b49f00b3082afb742ad8aa98a))
+
+* Merge pull request #5146 from erxes/fix-some-report (b2ffcadea9)
+* chore: remove duplicated import (a99bf9b42e)
+* Merge pull request #5144 from erxes/fix-some-report (f4e04a0b77)
+* Merge branch 'dev' of github.com:erxes/erxes into fix-some-report (5b11a1f04c)
+* Merge branch 'rc' of github.com:erxes/erxes into dev (6037e3ce07)
+* Merge branch 'master' of github.com:erxes/erxes into rc (a2351f03c0)
+* chore: pull from rc (dc701baa86)
+* fix(inbox): RTE internal notes error fix (5ad0b5eddc)
+* fix: insight report bugs (a2253e78be)
+* fix(calls): fix duplicated conversations (05680c28c4)
+* Feat(cars): Cars improvement (#5120) (0aded13351)
+* Merge pull request #5141 from erxes/fix-inbox-report (60dbe85721)
+* fix: fix inbox report (a8f54b3961)
+* fix: posclient login or currentConfig conflict (d41eac090d)
+* fix(imap):  message false showed (0fa09936e7)
+* feat(timeclock): schedule config update (2faf6cb74c)
+* Merge branch 'dev' of github.com:erxes/erxes into dev (ea2fcf447c)
+* chore: update branches on team member (a924bf3a20)
+* fix: with team member restrictions filter (a396257d0f)
+* Merge branch 'dev' of github.com:erxes/erxes into dev (65c253bef5)
+* update(asset): removed unitprice as required in asset form (a885dec2e3)
+* chore: little (7f0d3e7540)
+* Update README.md (9a0f97e123)
+* chore: Msdynamic sync billNo (#5135) (4e874dd1c3)
+* Merge branch 'master' into dev (178e1d3a1c)
+* Merge branch 'dev' of github.com:erxes/erxes into dev (eac011337e)
+* Merge branch 'rc' of github.com:erxes/erxes into dev (ba08a2acc5)
+* chore: little bug (20c41a705b)
+* Merge branch 'rc' of github.com:erxes/erxes into dev (431182b9e5)
+* chore: msdynamics check synced sale orders refactor (2cc435bc34)
+* feat: msdynamics check synced sale orders (#5123) (d807efa350)
+* feat(loans): contractType with product and customField, and clientQuery (#5128) (e1bd7fffc3)
+* fix(emailtemplates): fix email templates (6c3931468f)
+* ggpushMerge branch 'master' of github.com:erxes/erxes into dev (ef2f5ab9f3)
+* Merge branch 'dev' of github.com:erxes/erxes into dev (d789c6e6be)
+* Merge branch 'master' of github.com:erxes/erxes into dev (2b5c8e8599)
+* feat(syncpolaris): non balance transaction && polaris fix (#5121) (7272785417)
+* Merge branch 'master' into dev (38bd336b1e)
+
 ## [1.8.0-rc.3](https://github.com/erxes/erxes/compare/1.8.0-rc.2...1.8.0-rc.3) (2024-04-15)
 
 
