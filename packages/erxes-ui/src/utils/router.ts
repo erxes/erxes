@@ -62,13 +62,13 @@ const removeParams = (
 /*
  * @param {Object} query
  */
-const refetchIfUpdated = (history: any, query: any) => {
-  if (history.location.search.includes('updated')) {
+const refetchIfUpdated = ( navigate: any, location: any, query: any) => {
+  if (location.search.includes('updated')) {
     // refetch query if path has refetch param
     query.refetch();
 
     // clear refetch param
-    removeParams(history, 'updated');
+    removeParams(navigate,location, 'updated');
   }
 };
 

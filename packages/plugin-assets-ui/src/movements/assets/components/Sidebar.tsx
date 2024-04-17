@@ -71,11 +71,11 @@ const Sidebar = (props: Props) => {
     if (Array.isArray(field)) {
       field.forEach((name) => {
         // this.setState({ [name]: undefined });
-        return router.removeParams(history, name);
+        return router.removeParams(navigate, location, name);
       });
     }
     // this.setState({ [field]: undefined });
-    router.removeParams(history, field);
+    router.removeParams(navigate, location, field);
   };
 
   const FormGroup = ({

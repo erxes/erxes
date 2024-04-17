@@ -73,7 +73,7 @@ function DateFilters(props: IProps) {
       dateFilters: JSON.stringify(filterParams),
     });
 
-    router.removeParams(location, 'page');
+    router.removeParams(navigate, location, 'page');
   };
 
   const data = (

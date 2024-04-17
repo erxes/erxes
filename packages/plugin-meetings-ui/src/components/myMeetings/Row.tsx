@@ -5,14 +5,14 @@ import React from 'react';
 import { IMeeting } from '../../types';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Form from '../../containers/myCalendar/meeting/Form';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 type Props = {
   meeting: IMeeting;
   remove: () => void;
 };
 export const Row = (props: Props) => {
   const { meeting, remove } = props;
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const editTrigger = (
     <Button btnStyle="link">
@@ -35,7 +35,7 @@ export const Row = (props: Props) => {
   );
 
   const onTrClick = () => {
-    history.push(`/meetings/myCalendar?meetingId=${meeting._id}`);
+    navigate(`/meetings/myCalendar?meetingId=${meeting._id}`);
   };
 
   const onClick = e => {

@@ -763,8 +763,8 @@ a:hover {
 }
 
 .css-v7duua {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.1) !important;
+  border-radius: 50% !important;
 }
 
 .Select--multi .Select-value-label {

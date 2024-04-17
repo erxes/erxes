@@ -48,9 +48,9 @@ const LeftSideBar = (props: Props) => {
 
   const [currUserIds, setUserIds] = useState(queryParams.userIds);
 
-  const [selectedBranches, setBranches] = useState(queryParams.branchIds);
+  const [selectedBranches, setBranches] = useState(queryParams.branchIds || '');
   const [selectedDepartments, setDepartments] = useState(
-    queryParams.departmentIds
+    queryParams.departmentIds || ''
   );
 
   const [isHovered, setIsHovered] = useState(false);

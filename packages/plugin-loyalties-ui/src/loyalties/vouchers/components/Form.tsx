@@ -40,7 +40,7 @@ class VoucherForm extends React.Component<Props, State> {
 
     const { voucher = {} as IVoucher, queryParams } = this.props;
 
-    if (!voucher.campaignId && queryParams.campaignId) {
+    if (!voucher.campaignId && queryParams && queryParams.campaignId) {
       voucher.campaignId = queryParams.campaignId;
     }
 

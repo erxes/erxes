@@ -62,7 +62,7 @@ const PutResponsesContainer: React.FC<Props> = (props) => {
 
   const onSelect = (values: string[] | string, key: string) => {
     const params = generateQueryParams(location);
-    router.removeParams(location, "page");
+    router.removeParams(navigate, location, "page");
 
     if (params[key] === values) {
       return router.removeParams(navigate, location, key);

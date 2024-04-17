@@ -9,6 +9,7 @@ import { INotification } from "@erxes/ui-notifications/src/types";
 import React, { useState } from "react";
 import { NotifList } from "@erxes/ui-notifications/src/components/styles";
 import { useNavigate, useLocation } from "react-router-dom";
+import NotificationRow from "@erxes/ui-notifications/src/components/NotificationRow";
 
 type Props = {
   notifications: INotification[];

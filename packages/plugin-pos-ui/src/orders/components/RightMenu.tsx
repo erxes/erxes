@@ -217,9 +217,11 @@ const RightMenu = (props: Props) => {
           name={"types"}
           isMulti={true}
           placeholder={__("Choose types")}
-          value={ALLOW_TYPES.filter((o) =>
-            filterParams.types.includes(o.value)
-          )}
+          value={
+            filterParams.types
+              ? ALLOW_TYPES.filter((o) => filterParams.types.includes(o.value))
+              : null
+          }
           onChange={(types) => {
             handleSelect(
               (types || []).map((t) => t.value),
@@ -233,9 +235,13 @@ const RightMenu = (props: Props) => {
           name={"statuses"}
           isMulti={true}
           placeholder={__("Choose status")}
-          value={ALLOW_STATUSES.filter((o) =>
-            filterParams.statuses.includes(o.value)
-          )}
+          value={
+            filterParams.statuses
+              ? ALLOW_STATUSES.filter((o) =>
+                  filterParams.statuses.includes(o.value)
+                )
+              : null
+          }
           onChange={(statuses) => {
             handleSelect(
               (statuses || []).map((t) => t.value),
@@ -249,9 +255,13 @@ const RightMenu = (props: Props) => {
           name={"excludeStatuses"}
           isMulti={true}
           placeholder={__("Exclude status")}
-          value={ALLOW_STATUSES.filter((o) =>
-            filterParams.excludeStatuses.includes(o.value)
-          )}
+          value={
+            filterParams.excludeStatuses
+              ? ALLOW_STATUSES.filter((o) =>
+                  filterParams.excludeStatuses.includes(o.value)
+                )
+              : null
+          }
           onChange={(statuses) => {
             handleSelect(
               (statuses || []).map((t) => t.value),

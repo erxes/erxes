@@ -33,11 +33,11 @@ const FilterContainer = (props: FinalProps) => {
 
   const setSegment = (segment) => {
     router.setParams(navigate, location, { segment });
-    router.removeParams(history, "page");
+    router.removeParams(navigate, location, "page");
   };
 
   const removeSegment = () => {
-    router.removeParams(history, "segment");
+    router.removeParams(navigate, location, "segment");
   };
 
   const extendedProps = {

@@ -10,7 +10,7 @@ import { ControlLabel } from "@erxes/ui/src/components/form";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import Icon from "@erxes/ui/src/components/Icon";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
 import React from "react";
@@ -37,6 +37,7 @@ type FinalProps = ICommonListProps &
 
 const UserList = (props: FinalProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const onAvatarClick = (object) => {
     return navigate(`details/${object._id}`);
@@ -44,8 +45,8 @@ const UserList = (props: FinalProps) => {
 
   const removeUserQueryParams = () => {
     const { queryParams } = props;
-    if (queryParams && history && queryParams.positionIds) {
-      router.removeParams(history, "positionIds");
+    if (queryParams && queryParams.positionIds) {
+      router.removeParams(navigate, location, "positionIds");
     }
   };
 
@@ -59,7 +60,6 @@ const UserList = (props: FinalProps) => {
       <UserForm
         {...props}
         closeModal={onCloseModal}
-        history={props.history}
         queryParams={props.queryParams}
         renderButton={props.renderButton}
       />

@@ -93,7 +93,7 @@ const List = (props: Props) => {
         type="text"
         placeholder={__("Type to search")}
         onChange={searchHandler}
-        value={routerUtils.getParam(history, "search")}
+        value={routerUtils.getParam(location, "search")}
       />
       &nbsp;&nbsp;
       <ModalTrigger

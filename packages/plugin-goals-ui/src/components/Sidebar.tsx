@@ -32,7 +32,8 @@ const Sidebar = (props: Props) => {
 
   const clearFilter = () => {
     router.removeParams(
-      history,
+      navigate,
+      location,
       "branch",
       "department",
       "unit",
