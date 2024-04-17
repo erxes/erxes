@@ -1,8 +1,22 @@
 # Changelog
 
-## [1.8.0-rc.1](https://github.com/erxes/erxes/compare/1.8.0-rc.0...1.8.0-rc.1) (2024-04-05)
+## [1.8.0-rc.3](https://github.com/erxes/erxes/compare/1.8.0-rc.2...1.8.0-rc.3) (2024-04-15)
 
-## [1.8.0-rc.0](https://github.com/erxes/erxes/compare/1.8.0-rc.0...1.8.0-rc.1) (2024-04-03)
+
+### Bug Fixes
+
+* fix company filter, custom field chart & filter ([297108b](https://github.com/erxes/erxes/commit/297108b342e8941e6062677339e5dcc24a636858))
+
+## [1.8.0-rc.2](https://github.com/erxes/erxes/compare/1.8.0-rc.1...1.8.0-rc.2) (2024-04-15)
+
+
+### Bug Fixes
+
+* **calls:** remove conversation owner ([9a30663](https://github.com/erxes/erxes/commit/9a306638797b500be018fece488fba57ec541a9d))
+
+## [1.8.0-rc.1](https://github.com/erxes/erxes/compare/1.8.0-rc.1...1.8.0-rc.2) (2024-04-05)
+
+## [1.8.0-rc.0](https://github.com/erxes/erxes/compare/1.8.0-rc.1...1.8.0-rc.2) (2024-04-03)
 
 
 ### Features
@@ -25,12 +39,65 @@
 * **products:** filter segment data for tag and category options ([7d1cbbb](https://github.com/erxes/erxes/commit/7d1cbbbdbfdd37c608ae49ec0a80e607473546fc))
 * **widgets:** fix country code select of phone input ([afce6e1](https://github.com/erxes/erxes/commit/afce6e134b025de1e54a87ab8e8972b2e59e42bd))
 
-## [1.7.6](https://github.com/erxes/erxes/compare/1.8.0-rc.0...1.8.0-rc.1) (2024-04-05)
+## [1.7.7](https://github.com/erxes/erxes/compare/1.8.0-rc.1...1.8.0-rc.2) (2024-04-15)
 
 
 ### Bug Fixes
 
-* **editor:** RTE related issues ([#5116](https://github.com/erxes/erxes/issues/5116)) ([7b580b8](https://github.com/erxes/erxes/commit/7b580b84100b6a6f6485510f441bfe542e3a7d7d))
+* **broadcast:** fix client portal user middleware ([34c93a9](https://github.com/erxes/erxes/commit/34c93a9ead011410232b1d1c8597b5c5d8c579f0))
+* **forms:**  ensure default value is an Array if property type is file ([1d94a61](https://github.com/erxes/erxes/commit/1d94a616c3f365551ba0b615ff5e2d53c1884ff8))
+* **instagram:** fix get config function ([0cb94c7](https://github.com/erxes/erxes/commit/0cb94c7372616c8f344a128438758d10e3cadef5))
+* multierkhet billtype for company ([fbc57fb](https://github.com/erxes/erxes/commit/fbc57fb5016bcb6ea1135803e40609582fc780df))
+* **payment:** updated invoice query contentType to handle 'cards' contentType ([af4a287](https://github.com/erxes/erxes/commit/af4a287f322263cc6997822cb23f7b86a4b01e88))
+* products search input ([d6457be](https://github.com/erxes/erxes/commit/d6457be80e65ef696a29d9bc6372d609486b13e7))
+* save convertDealId when pos order sync ([f5c8dfd](https://github.com/erxes/erxes/commit/f5c8dfd0e328002fbda532434fd986e4a6507dd7))
+
+## [1.8.0-rc.1](https://github.com/erxes/erxes/compare/1.8.0-rc.0...1.8.0-rc.1) (2024-04-05)
+
+## [1.8.0-rc.0](https://github.com/erxes/erxes/compare/1.8.0-rc.0...1.8.0-rc.1) (2024-04-03)
+
+### Features
+
+- **forms:** introduce new type 'Team members' as a new custom property option ([c992c1d](https://github.com/erxes/erxes/commit/c992c1d535886c973db280ec24914d2346fb7cb7))
+- msDynamics get products remainder ([#5032](https://github.com/erxes/erxes/issues/5032)) ([fc09bc1](https://github.com/erxes/erxes/commit/fc09bc15a1f099e41d296cc7e001a66a76adcf40))
+
+## [1.7.7](https://github.com/erxes/erxes/compare/1.7.6...1.7.7) (2024-04-15)
+
+### Bug Fixes
+
+<<<<<<< HEAD
+
+- **calls:** add input action and fix many conversations and fix incoming call user ([9c41263](https://github.com/erxes/erxes/commit/9c4126335e315c79193458399643a5f64bfd1214))
+- **ebarimt:** previously submitted ebarimt data has not yet been processed ([228164d](https://github.com/erxes/erxes/commit/228164d5031e3fa8b4f87f85c85212af3fb65386))
+- **facebook:** fix login reload ([4e36459](https://github.com/erxes/erxes/commit/4e364595a0306d0d5456b5eb3a0530430749cc88))
+- **instagram:** add reload ([7cbe389](https://github.com/erxes/erxes/commit/7cbe3897c64561134d48c5cb173ab91dd51aefe7))
+- **instagram:** instagram reload ([adae6b9](https://github.com/erxes/erxes/commit/adae6b92dfddc44b6000684f7ce670803d0e1a37))
+- internalnotes remove from main content remove ([cc4e452](https://github.com/erxes/erxes/commit/cc4e452df7d34c9566b6a43b5e4ffcf16e09f22b))
+- multierkhet check deals render multi row ([66ef9a1](https://github.com/erxes/erxes/commit/66ef9a1537bd0d66689a12ffe3e2359a87954a6a))
+- **posclient:** ebarimt waiting previous sending data ([9b9de6d](https://github.com/erxes/erxes/commit/9b9de6da56fd74b9132c06f4b5eac9af0fa9b7c4))
+- products export filter by status ([955e8ba](https://github.com/erxes/erxes/commit/955e8bab01a96f564754d4a4b1d75b8ec14da071))
+- **products:** filter segment data for tag and category options ([7d1cbbb](https://github.com/erxes/erxes/commit/7d1cbbbdbfdd37c608ae49ec0a80e607473546fc))
+- **widgets:** fix country code select of phone input ([afce6e1](https://github.com/erxes/erxes/commit/afce6e134b025de1e54a87ab8e8972b2e59e42bd))
+
+## [1.7.6](https://github.com/erxes/erxes/compare/1.8.0-rc.0...1.8.0-rc.1) (2024-04-05)
+
+=======
+
+- **broadcast:** fix client portal user middleware ([34c93a9](https://github.com/erxes/erxes/commit/34c93a9ead011410232b1d1c8597b5c5d8c579f0))
+- **forms:** ensure default value is an Array if property type is file ([1d94a61](https://github.com/erxes/erxes/commit/1d94a616c3f365551ba0b615ff5e2d53c1884ff8))
+- **instagram:** fix get config function ([0cb94c7](https://github.com/erxes/erxes/commit/0cb94c7372616c8f344a128438758d10e3cadef5))
+- multierkhet billtype for company ([fbc57fb](https://github.com/erxes/erxes/commit/fbc57fb5016bcb6ea1135803e40609582fc780df))
+- **payment:** updated invoice query contentType to handle 'cards' contentType ([af4a287](https://github.com/erxes/erxes/commit/af4a287f322263cc6997822cb23f7b86a4b01e88))
+- products search input ([d6457be](https://github.com/erxes/erxes/commit/d6457be80e65ef696a29d9bc6372d609486b13e7))
+- save convertDealId when pos order sync ([f5c8dfd](https://github.com/erxes/erxes/commit/f5c8dfd0e328002fbda532434fd986e4a6507dd7))
+
+## [1.7.6](https://github.com/erxes/erxes/compare/1.7.5...1.7.6) (2024-04-05)
+
+> > > > > > > b1b966d1ea004d1f477b56264841174499005257
+
+### Bug Fixes
+
+- **editor:** RTE related issues ([#5116](https://github.com/erxes/erxes/issues/5116)) ([7b580b8](https://github.com/erxes/erxes/commit/7b580b84100b6a6f6485510f441bfe542e3a7d7d))
 
 ## [1.8.0-rc.0](https://github.com/erxes/erxes/compare/1.7.5...1.8.0-rc.0) (2024-04-03)
 
