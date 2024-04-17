@@ -43,7 +43,7 @@ class ManageDataForm extends React.Component<Props, State> {
     const percententage = (100 * loopCount) / carsQuery.carsMain.totalCount;
     const MIGRATE_TYPES = [
       { label: 'Car', value: 'car' },
-      { label: 'Contacts', value: 'contact' }
+      { label: 'Contacts', value: 'contact' },
     ];
     return (
       <>
@@ -61,8 +61,12 @@ class ManageDataForm extends React.Component<Props, State> {
             placeholder={__('Choose type')}
           />
         </FormGroup> */}
-        <span>{percententage?.toFixed(0)}%</span>
-        <ProgressBar percentage={percententage} height="10px" color={'red'} />
+        <span>{percententage?.toFixed(0) || 0 % 101}%</span>
+        <ProgressBar
+          percentage={percententage % 101}
+          height="10px"
+          color={'red'}
+        />
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">

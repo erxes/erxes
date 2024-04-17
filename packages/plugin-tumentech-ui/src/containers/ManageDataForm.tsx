@@ -12,7 +12,7 @@ import {
   CarCategoriesQueryResponse,
   ICar,
   MainQueryResponse,
-  XypRequestQueryResponse
+  XypRequestQueryResponse,
 } from '../types';
 import ManageDataForm from '../components/list/ManageDataForm';
 
@@ -41,10 +41,11 @@ const ManageDataFormContainer = (props: FinalProps) => {
 
   const loadManageMethod = async () => {
     let page = 1;
+    if (loopCount > 0) return;
 
     while (true) {
       const carlist = await loadCarList({
-        variables: { page, perPage: 50 }
+        variables: { page, perPage: 50 },
       });
       const length = carlist.data?.carsMain?.list?.length;
       for (const s of carlist.data?.carsMain?.list) {
@@ -53,9 +54,9 @@ const ManageDataFormContainer = (props: FinalProps) => {
             variables: {
               wsOperationName: 'WS100401_getVehicleInfo',
               params: {
-                plateNumber: s.plateNumber
-              }
-            }
+                plateNumber: s.plateNumber,
+              },
+            },
           });
 
           if (response.data?.xypRequest?.return?.resultCode === 0) {
@@ -63,30 +64,30 @@ const ManageDataFormContainer = (props: FinalProps) => {
               serviceName: 'WS100401_getVehicleInfo',
               serviceDescription:
                 'Тээврийн хэрэгслийн мэдээлэл дамжуулах сервис',
-              data: response.data?.xypRequest?.return?.response
+              data: response.data?.xypRequest?.return?.response,
             };
 
             const response2 = await addOrEdit({
               variables: {
                 contentType: 'tumentech:car',
                 contentTypeId: s._id,
-                data: xypData
-              }
+                data: xypData,
+              },
             });
             if (response2?.data?.xypDataCreateOrUpdate?._id) {
               const response3 = await carLoadXyp({
                 variables: {
-                  _id: s._id
-                }
+                  _id: s._id,
+                },
               });
               if (response3.data?.carLoadXyp?._id) {
-                setSuccessCount(v => v + 1);
+                setSuccessCount((v) => v + 1);
               }
             }
           }
-          setLoopCount(v => v + 1);
+          setLoopCount((v) => v + 1);
         } catch (e) {
-          setLoopCount(v => v + 1);
+          setLoopCount((v) => v + 1);
 
           console.log('error data manage');
           console.log(e);
@@ -109,7 +110,7 @@ const ManageDataFormContainer = (props: FinalProps) => {
     carsQuery: carsMainQuery,
     successCount,
     loopCount,
-    loadManageMethod
+    loadManageMethod,
   };
   return <ManageDataForm {...updatedProps} />;
 };
@@ -121,14 +122,14 @@ const getRefetchQueries = () => {
     'cars',
     'carCounts',
     'carCategories',
-    'carCategoriesTotalCount'
+    'carCategoriesTotalCount',
   ];
 };
 
 export default withProps<Props>(
   compose(
     graphql<Props, MainQueryResponse>(gql(queries.carsMain), {
-      name: 'carsMainQuery'
-    })
-  )(ManageDataFormContainer)
+      name: 'carsMainQuery',
+    }),
+  )(ManageDataFormContainer),
 );

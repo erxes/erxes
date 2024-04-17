@@ -17,7 +17,7 @@ class Row extends React.Component<Props> {
   renderAction() {
     const { participant, onChangeStatus } = this.props;
 
-    const onChange = e => {
+    const onChange = (e) => {
       onChangeStatus(participant._id, e.target.checked);
     };
 
@@ -32,7 +32,7 @@ class Row extends React.Component<Props> {
           checked={checked}
           icons={{
             checked: <span>Yes</span>,
-            unchecked: <span>No</span>
+            unchecked: <span>No</span>,
           }}
         />
       </div>
@@ -53,12 +53,15 @@ class Row extends React.Component<Props> {
         <td>
           <TextInfo ignoreTrans={true}>
             {participant.cars.length
-              ? `${participant.cars.map(c => carInfo(c))}`
+              ? `${participant.cars.map((c) => carInfo(c))}`
               : 'undefined'}
           </TextInfo>
         </td>
         <td>
-          <TextInfo ignoreTrans={true}>{participant.route.name || ''}</TextInfo>
+          <TextInfo ignoreTrans={true}>
+            {/* {participant?.route?.name || ''} */}
+            ''
+          </TextInfo>
         </td>
         <td>
           <TextInfo ignoreTrans={true}>{detail.price}</TextInfo>
