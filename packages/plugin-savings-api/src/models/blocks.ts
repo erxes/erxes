@@ -1,7 +1,5 @@
-import { IBlock, blockSchema } from './definitions/blocks';
-import { findContractOfTr } from './utils/findUtils';
+import { IBlock, blockSchema ,IBlockDocument} from './definitions/blocks';
 import { Model } from 'mongoose';
-import { IBlockDocument } from './definitions/blocks';
 import { IModels } from '../connectionResolver';
 import { FilterQuery } from 'mongodb';
 import { IContractDocument } from './definitions/contracts';

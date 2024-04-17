@@ -15,12 +15,9 @@ import Form from '@erxes/ui/src/components/form/Form';
 
 import { Amount } from '../../contracts/styles';
 import { DateContainer } from '@erxes/ui/src/styles/main';
-import { IInvoice } from '../../invoices/types';
 import React, { useEffect, useMemo, useState } from 'react';
 import { __ } from 'coreui/utils';
-import SelectContracts, {
-  Contracts
-} from '../../contracts/components/common/SelectContract';
+import SelectContracts from '../../contracts/components/common/SelectContract';
 import dayjs from 'dayjs';
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
@@ -29,10 +26,8 @@ import { queries } from '../graphql';
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   transaction: ITransaction;
-  invoice?: IInvoice;
   type: string;
   closeModal: () => void;
-  contractId?: string;
 };
 
 type PaymentInfo = {
@@ -60,7 +55,6 @@ const getValue = (mustPay, value) => {
 
 function TransactionFormNew(props: Props) {
   const [paymentInfo, setPaymentInfo] = useState<PaymentInfo | undefined>();
-  const [contract, setContract] = useState({});
   
   const [contractId, setContractId] = useState<string>();
   const [isPrePayment, setIsPrePayment] = useState<boolean>();
@@ -257,7 +251,6 @@ function TransactionFormNew(props: Props) {
                     onSelect={(v) => {
                       if (typeof v === 'string') {
                         setContractId(v);
-                        setContract(Contracts[v]);
                       }
                     }}
                     multi={false}

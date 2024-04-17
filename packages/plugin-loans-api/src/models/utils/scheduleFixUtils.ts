@@ -14,31 +14,30 @@ export async function getMustPayDate(
   nextSchedule?: IScheduleDocument | null
 ) {
   let totalPayedAmount = scheduleList.reduce(
-    (a, b) => new BigNumber(a).plus(b.didPayment || 0).toNumber(),
+    (a, b) => new BigNumber(a).plus(b.didPayment ?? 0).toNumber(),
     0
   );
 
   let totalPayedInterest = scheduleList.reduce(
     (a, b) =>
       new BigNumber(a)
-        .plus(b.didInterestEve || 0)
-        .plus(b.didInterestNonce || 0)
+        .plus(b.didInterestEve ?? 0)
+        .plus(b.didInterestNonce ?? 0)
         .toNumber(),
     0
   );
 
   let mustPayDate = lastMustPayDate;
 
-  for (let index = 0; index < scheduleList.length; index++) {
-    const schedule = scheduleList[index];
+  for (let schedule of scheduleList) {
     if (totalPayedAmount > 0 && totalPayedInterest > 0) {
       totalPayedAmount = new BigNumber(totalPayedAmount)
-        .minus(schedule.payment || 0)
+        .minus(schedule.payment ?? 0)
         .toNumber();
 
       totalPayedInterest = new BigNumber(totalPayedInterest)
-        .minus(schedule.interestEve || 0)
-        .minus(schedule.interestNonce || 0)
+        .minus(schedule.interestEve ?? 0)
+        .minus(schedule.interestNonce ?? 0)
         .toNumber();
     } else if (schedule.isDefault) {
       mustPayDate = schedule.payDate;
@@ -78,18 +77,18 @@ export async function getCurrentData(
   for await (let schedule of scheduleList) {
     if (lastDefaultSchedule.payDate <= schedule.payDate) {
       totalMustPay = new BigNumber(totalMustPay)
-        .plus(schedule.payment || 0)
-        .plus(schedule.interestEve || 0)
-        .plus(schedule.interestNonce || 0)
-        .plus(schedule.loss || 0)
+        .plus(schedule.payment ?? 0)
+        .plus(schedule.interestEve ?? 0)
+        .plus(schedule.interestNonce ?? 0)
+        .plus(schedule.loss ?? 0)
         .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
         .toNumber();
 
       totalPayed = new BigNumber(totalPayed)
-        .plus(schedule.didPayment || 0)
-        .plus(schedule.didInterestEve || 0)
-        .plus(schedule.didInterestNonce || 0)
-        .plus(schedule.didLoss || 0)
+        .plus(schedule.didPayment ?? 0)
+        .plus(schedule.didInterestEve ?? 0)
+        .plus(schedule.didInterestNonce ?? 0)
+        .plus(schedule.didLoss ?? 0)
         .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
         .toNumber();
     }
@@ -102,21 +101,21 @@ export async function getCurrentData(
       continue;
     } else {
       totalPaymentAmount = new BigNumber(totalPaymentAmount)
-        .plus(schedule.payment || 0)
-        .minus(schedule.didPayment || 0)
+        .plus(schedule.payment ?? 0)
+        .minus(schedule.didPayment ?? 0)
         .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
         .toNumber();
 
       totalInterestAmount = new BigNumber(totalInterestAmount)
-        .plus(schedule.interestEve || 0)
-        .plus(schedule.interestNonce || 0)
-        .minus(schedule.didInterestEve || 0)
-        .minus(schedule.didInterestNonce || 0)
+        .plus(schedule.interestEve ?? 0)
+        .plus(schedule.interestNonce ?? 0)
+        .minus(schedule.didInterestEve ?? 0)
+        .minus(schedule.didInterestNonce ?? 0)
         .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
         .toNumber();
 
       balance = new BigNumber(balance)
-        .minus(schedule.didPayment || 0)
+        .minus(schedule.didPayment ?? 0)
         .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
         .toNumber();
     }
@@ -132,14 +131,14 @@ export async function getCurrentData(
 
   if (expiredPayment > 0) {
     const diff = getDiffDay(
-      preSchedule?.payDate || contract.firstPayDate,
+      preSchedule?.payDate ?? contract.firstPayDate,
       currentDate
     );
     if (diff > 0)
       loss = await calcLoss(
         contract,
         {
-          balance: preSchedule?.balance || 0,
+          balance: preSchedule?.balance ?? 0,
           payment: totalPaymentAmount,
           interest: totalInterestAmount
         },
@@ -155,7 +154,7 @@ export async function getCurrentData(
 
   const { interestEve, interestNonce } = await getInterest(
     contract,
-    preSchedule?.payDate || contract.startDate,
+    preSchedule?.payDate ?? contract.startDate,
     currentDate,
     balance,
     config
@@ -223,16 +222,16 @@ export async function scheduleFixAfterCurrent(
   let totalPayedAmount = scheduleList.reduce(
     (a, b) =>
       new BigNumber(a)
-        .plus(b.didPayment || 0)
-        .plus(b.didStoredInterest || 0)
-        .plus(b.didLoss || 0)
+        .plus(b.didPayment ?? 0)
+        .plus(b.didStoredInterest ?? 0)
+        .plus(b.didLoss ?? 0)
         .toNumber(),
     0
   );
 
   for await (let schedule of scheduleList) {
     if (schedule.status === 'give') {
-      balance = new BigNumber(schedule.total || 0)
+      balance = new BigNumber(schedule.total ?? 0)
         .plus(balance)
         .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
         .toNumber();
@@ -240,16 +239,16 @@ export async function scheduleFixAfterCurrent(
     }
 
     totalMustPay = new BigNumber(totalMustPay)
-      .plus(schedule.payment || 0)
-      .plus(schedule.storedInterest || 0)
-      .plus(schedule.loss || 0)
+      .plus(schedule.payment ?? 0)
+      .plus(schedule.storedInterest ?? 0)
+      .plus(schedule.loss ?? 0)
       .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
       .toNumber();
 
     totalPayed = new BigNumber(totalPayed)
-      .plus(schedule.didPayment || 0)
-      .plus(schedule.didStoredInterest || 0)
-      .plus(schedule.didLoss || 0)
+      .plus(schedule.didPayment ?? 0)
+      .plus(schedule.didStoredInterest ?? 0)
+      .plus(schedule.didLoss ?? 0)
       .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
       .toNumber();
 
@@ -262,7 +261,7 @@ export async function scheduleFixAfterCurrent(
         config
       );
       if (
-        schedule.interestEve !== interestEve ||
+        schedule.interestEve !== interestEve ??
         schedule.interestNonce !== interestNonce
       ) {
         updateBulks.push({
@@ -286,9 +285,9 @@ export async function scheduleFixAfterCurrent(
     }
 
     totalPayedAmount = new BigNumber(totalPayedAmount)
-      .minus(schedule.payment || 0)
-      .minus(schedule.storedInterest || 0)
-      .minus(schedule.loss || 0)
+      .minus(schedule.payment ?? 0)
+      .minus(schedule.storedInterest ?? 0)
+      .minus(schedule.loss ?? 0)
       .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
       .toNumber();
 
@@ -342,7 +341,7 @@ export async function createTransactionSchedule(
           didCommitmentInterest: tr.commitmentInterest,
           didInterestEve: tr.storedInterest,
           didInterestNonce: tr.calcInterest,
-          balance: (tr.payment || 0) * -1
+          balance: (tr.payment ?? 0) * -1
         },
         $push: {
           transactionIds: tr._id
@@ -364,7 +363,7 @@ export async function createTransactionSchedule(
       contractId: contract._id,
       version: '0',
       payDate: currentDate,
-      balance: new BigNumber(balance).minus(tr.payment || 0).toNumber(),
+      balance: new BigNumber(balance).minus(tr.payment ?? 0).toNumber(),
       payment: 0,
       interestEve: interestEve,
       interestNonce: interestNonce,
@@ -377,11 +376,11 @@ export async function createTransactionSchedule(
       didCommitmentInterest: tr.commitmentInterest,
       didInterestEve: tr.storedInterest,
       didInterestNonce: tr.calcInterest,
-      didTotal: new BigNumber(tr.calcInterest || 0)
-        .plus(tr.storedInterest || 0)
-        .plus(tr.payment || 0)
-        .plus(tr.loss || 0)
-        .plus(tr.commitmentInterest || 0)
+      didTotal: new BigNumber(tr.calcInterest ?? 0)
+        .plus(tr.storedInterest ?? 0)
+        .plus(tr.payment ?? 0)
+        .plus(tr.loss ?? 0)
+        .plus(tr.commitmentInterest ?? 0)
         .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
         .toNumber()
     });

@@ -64,7 +64,7 @@ class BlockForm extends React.Component<Props, State> {
       contractId: finalValues._id,
       customerId:contract.customerId,
       ...this.state,
-      amount:new Number(this.state.amount),
+      amount:Number(this.state.amount),
       description: this.state.description,
     };
   };

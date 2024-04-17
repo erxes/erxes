@@ -14,8 +14,7 @@ import {
   ICalcTrParams,
   ITransactionDocument
 } from '../definitions/transactions';
-import { calcInterest } from './utils';
-import { getDiffDay, getFullDate, getDatesDiffMonth } from './utils';
+import { getDiffDay, getFullDate, getDatesDiffMonth,calcInterest } from './utils';
 import { IConfig } from '../../interfaces/config';
 import { getConfig } from '../../messageBroker';
 import { scheduleFixAfterCurrent } from './scheduleFixUtils';
@@ -182,9 +181,9 @@ export const getCalcedAmounts = async (
       .toNumber();
   });
 
-  if (result.payment < 0) result.payment = 0;
+  result.payment = Math.max(0, result.payment)
 
-  const diffDay = getDiffDay(contract.lastStoredDate, trDate);
+  const diffDay = contract.lastStoredDate ? getDiffDay(contract.lastStoredDate, trDate) : 0;  
 
   result.calcInterest = calcInterest({
     balance: contract.loanBalanceAmount,

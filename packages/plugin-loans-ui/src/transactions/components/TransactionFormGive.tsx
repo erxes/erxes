@@ -30,28 +30,8 @@ import { IContract } from '../../contracts/types';
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   transaction: ITransaction;
-  invoice?: IInvoice;
   type: string;
   closeModal: () => void;
-  contractId?: string;
-};
-
-type State = {
-  contractId: string;
-  companyId: string;
-  customerId: string;
-  invoiceId: string;
-  invoice?: IInvoice;
-  payDate: Date;
-  description: string;
-  total: number;
-  paymentInfo: any;
-  isGetEBarimt?: boolean;
-  isOrganization?: boolean;
-  organizationRegister?: string;
-  organizationName?: string;
-  storedInterest: number;
-  isPrePayment?: boolean;
 };
 
 function TransactionFormGive(props: Props) {
