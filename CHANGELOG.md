@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/erxes/erxes/compare/1.8.0-rc.3...1.8.0) (2024-04-17)
+
+
+### Bug Fixes
+
+* **inbox:** RTE internal notes error fix  ([5ad0b5e](https://github.com/erxes/erxes/commit/5ad0b5eddc430d936366f4851360a2365558553b))
+
 ## [1.8.0-rc.3](https://github.com/erxes/erxes/compare/1.8.0-rc.2...1.8.0-rc.3) (2024-04-15)
 
 
