@@ -6,7 +6,6 @@ import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 
 import DateRange from '../utils/DateRange';
 import { MarginY } from '../../styles';
