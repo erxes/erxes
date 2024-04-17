@@ -73,7 +73,7 @@ class GeneralSettings extends React.Component<Props, State> {
     return Object.keys(configs).map(key => {
       return (
         <PerSettings
-          key={`Loss${key}${Math.random()}`}
+          key={`Loss${key}`}
           configsMap={this.state.configsMap}
           config={configs[key]}
           currentConfigKey={key}
