@@ -378,7 +378,7 @@ export const getLossPercent = async (
       'core'
     )) || {};
 
-  const ruledLossConfigs = Object.values<{
+  const lossConfigs = Object.values<{
     startDate: Date;
     endDate: Date;
     percent: number;
@@ -394,8 +394,8 @@ export const getLossPercent = async (
         : -1
     );
 
-  if (ruledLossConfigs && ruledLossConfigs.length) {
-    return ruledLossConfigs[0].percent;
+  if (lossConfigs && lossConfigs.length) {
+    return lossConfigs[0].percent;
   }
 
   if (contract.lossPercent > 0) return contract.lossPercent / 100;

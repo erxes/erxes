@@ -26,6 +26,43 @@ function isDoPeriod(date: Date, config: IConfig, exactTime: string) {
   return false;
 }
 
+async function checkContractAction(
+  subdomain,
+  contract,
+  today,
+  models,
+  periodLock,
+  config
+) {
+  if (config.isStoreInterest)
+    await storeInterestContract(
+      contract,
+      today,
+      models,
+      periodLock._id,
+      config
+    );
+
+  if (config.isChangeClassification)
+    await changeClassificationOneContract(contract, today, models, config);
+
+  await scheduleFixCurrent(contract, today, models, config);
+
+  const schedule = await checkCurrentDateSchedule(
+    contract,
+    today,
+    models,
+    config
+  );
+
+  if (!schedule) return;
+  if (config.isCreateInvoice && schedule.status === SCHEDULE_STATUS.PENDING) {
+    const invoice = await createInvoice(contract, today, models);
+
+    if (invoice.total > 0) await sendNotification(subdomain, contract, invoice);
+  }
+}
+
 export async function checkContractPeriod(subdomain: string) {
   const models: IModels = await generateModels(subdomain);
   const now = new Date();
@@ -47,37 +84,14 @@ export async function checkContractPeriod(subdomain: string) {
     const periodLock = await createPeriodLock(periodDate, [], models);
 
     for await (let contract of loanContracts) {
-      if (config.isStoreInterest)
-        await storeInterestContract(
-          contract,
-          today,
-          models,
-          periodLock._id,
-          config
-        );
-
-      if (config.isChangeClassification)
-        await changeClassificationOneContract(contract, today, models, config);
-
-      await scheduleFixCurrent(contract, today, models, config);
-
-      const schedule = await checkCurrentDateSchedule(
+      await checkContractAction(
+        subdomain,
         contract,
         today,
         models,
+        periodLock,
         config
       );
-
-      if (!schedule) return;
-      if (
-        config.isCreateInvoice &&
-        schedule.status === SCHEDULE_STATUS.PENDING
-      ) {
-        const invoice = await createInvoice(contract, today, models);
-
-        if (invoice.total > 0)
-          await sendNotification(subdomain, contract, invoice);
-      }
     }
   }
 }

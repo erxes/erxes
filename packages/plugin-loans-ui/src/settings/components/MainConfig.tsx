@@ -122,7 +122,7 @@ class MainConfig extends React.Component<Props, State> {
               onChange={this.onChangeInput.bind(this, 'periodLockType')}
             >
               {['daily', 'endOfMonth','manual'].map((typeName, index) => (
-                <option key={index} value={typeName}>
+                <option key={typeName} value={typeName}>
                   {__(typeName)}
                 </option>
               ))}

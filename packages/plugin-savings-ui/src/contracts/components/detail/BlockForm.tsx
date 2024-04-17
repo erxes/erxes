@@ -104,7 +104,7 @@ class BlockForm extends React.Component<Props, State> {
                 >
                   {['scheduleTransaction', 'loanPayment'].map(
                     (typeName, index) => (
-                      <option key={index} value={typeName}>
+                      <option key={typeName} value={typeName}>
                         {__(typeName)}
                       </option>
                     ),

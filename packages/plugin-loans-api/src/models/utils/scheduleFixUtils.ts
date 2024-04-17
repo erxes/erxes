@@ -51,6 +51,36 @@ export async function getMustPayDate(
   return mustPayDate;
 }
 
+function calcTotalMustPay(totalMustPay, schedule, config) {
+  return new BigNumber(totalMustPay)
+    .plus(schedule.payment ?? 0)
+    .plus(schedule.interestEve ?? 0)
+    .plus(schedule.interestNonce ?? 0)
+    .plus(schedule.loss ?? 0)
+    .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
+    .toNumber();
+}
+
+function calcTotalPayed(totalPayed, schedule, config) {
+  return new BigNumber(totalPayed)
+    .plus(schedule.didPayment ?? 0)
+    .plus(schedule.didInterestEve ?? 0)
+    .plus(schedule.didInterestNonce ?? 0)
+    .plus(schedule.didLoss ?? 0)
+    .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
+    .toNumber();
+}
+
+function calcTotalInterestAmount(totalInterestAmount, schedule, config) {
+  return new BigNumber(totalInterestAmount)
+    .plus(schedule.interestEve ?? 0)
+    .plus(schedule.interestNonce ?? 0)
+    .minus(schedule.didInterestEve ?? 0)
+    .minus(schedule.didInterestNonce ?? 0)
+    .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
+    .toNumber();
+}
+
 export async function getCurrentData(
   contract: IContractDocument,
   currentDate: Date,
@@ -76,21 +106,9 @@ export async function getCurrentData(
 
   for await (let schedule of scheduleList) {
     if (lastDefaultSchedule.payDate <= schedule.payDate) {
-      totalMustPay = new BigNumber(totalMustPay)
-        .plus(schedule.payment ?? 0)
-        .plus(schedule.interestEve ?? 0)
-        .plus(schedule.interestNonce ?? 0)
-        .plus(schedule.loss ?? 0)
-        .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
-        .toNumber();
+      totalMustPay = calcTotalMustPay(totalMustPay, schedule, config);
 
-      totalPayed = new BigNumber(totalPayed)
-        .plus(schedule.didPayment ?? 0)
-        .plus(schedule.didInterestEve ?? 0)
-        .plus(schedule.didInterestNonce ?? 0)
-        .plus(schedule.didLoss ?? 0)
-        .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
-        .toNumber();
+      totalPayed = calcTotalPayed(totalPayed, schedule, config);
     }
 
     if (schedule.status === 'give') {
@@ -105,13 +123,11 @@ export async function getCurrentData(
         .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
         .toNumber();
 
-      totalInterestAmount = new BigNumber(totalInterestAmount)
-        .plus(schedule.interestEve ?? 0)
-        .plus(schedule.interestNonce ?? 0)
-        .minus(schedule.didInterestEve ?? 0)
-        .minus(schedule.didInterestNonce ?? 0)
-        .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
-        .toNumber();
+      totalInterestAmount = calcTotalInterestAmount(
+        totalInterestAmount,
+        schedule,
+        config
+      );
 
       balance = new BigNumber(balance)
         .minus(schedule.didPayment ?? 0)
@@ -188,8 +204,12 @@ export async function scheduleFixCurrent(
   });
 
   if (currentSchedule) {
-    const { interestEve, interestNonce, loss } =
-      await getCurrentData(contract, currentDate, models, config);
+    const { interestEve, interestNonce, loss } = await getCurrentData(
+      contract,
+      currentDate,
+      models,
+      config
+    );
 
     await models.Schedules.updateOne(
       { _id: currentSchedule._id },
@@ -237,19 +257,9 @@ export async function scheduleFixAfterCurrent(
       continue;
     }
 
-    totalMustPay = new BigNumber(totalMustPay)
-      .plus(schedule.payment ?? 0)
-      .plus(schedule.storedInterest ?? 0)
-      .plus(schedule.loss ?? 0)
-      .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
-      .toNumber();
+    totalMustPay = calcTotalMustPay(totalMustPay, schedule, config);
 
-    totalPayed = new BigNumber(totalPayed)
-      .plus(schedule.didPayment ?? 0)
-      .plus(schedule.didStoredInterest ?? 0)
-      .plus(schedule.didLoss ?? 0)
-      .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
-      .toNumber();
+    totalPayed = calcTotalPayed(totalPayed, schedule, config);
 
     if (schedule.payDate > currentDate && preSchedule) {
       const { interestEve, interestNonce } = await getInterest(
@@ -298,9 +308,8 @@ export async function scheduleFixAfterCurrent(
         .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
         .toNumber();
   }
-  
-  if(updateBulks.length>0)
-  await models.Schedules.bulkWrite(updateBulks);
+
+  if (updateBulks.length > 0) await models.Schedules.bulkWrite(updateBulks);
 }
 
 export async function createTransactionSchedule(
@@ -387,7 +396,7 @@ export async function createTransactionSchedule(
       { _id: tr._id },
       {
         $set: {
-          reactions:[{scheduleId: schedule._id}]
+          reactions: [{ scheduleId: schedule._id }]
         }
       }
     );

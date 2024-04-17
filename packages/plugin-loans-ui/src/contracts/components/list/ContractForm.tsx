@@ -1008,7 +1008,7 @@ class ContractForm extends React.Component<Props, State> {
                   onChange={this.onChangeField}
                 >
                   {['before', 'exact', 'after'].map((typeName, index) => (
-                    <option key={index} value={typeName}>
+                    <option key={typeName} value={typeName}>
                       {__(typeName + 'Method')}
                     </option>
                   ))}
