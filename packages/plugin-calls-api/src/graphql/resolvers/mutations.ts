@@ -131,7 +131,7 @@ const callsMutations = {
   async callHistoryEdit(
     _root,
     { ...doc }: ICallHistoryEdit & { inboxIntegrationId: string },
-    { user, models, subdomain }: IContext,
+    { user, models }: IContext,
   ) {
     const { _id, callStatus } = doc;
     const history = await models.CallHistory.findOne({
@@ -144,10 +144,6 @@ const callsMutations = {
         { $set: { ...doc, modifiedAt: new Date(), modifiedBy: user._id } },
       );
       return 'success';
-    }
-    if (!history && (callStatus === 'cancelled' || callStatus === 'rejected')) {
-      await acceptCall(models, subdomain, doc, user);
-      return 'Call cancelled';
     } else {
       throw new Error(`You cannot edit`);
     }
