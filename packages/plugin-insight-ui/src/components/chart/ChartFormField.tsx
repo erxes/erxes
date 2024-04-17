@@ -57,7 +57,7 @@ const ChartFormField = (props: Props) => {
   } = filterType;
 
   useEffect(() => {
-    if (fieldDefaultValue) {
+    if (!fieldValue && fieldDefaultValue) {
       setFieldValue(fieldDefaultValue);
       onChange(fieldDefaultValue);
     }
