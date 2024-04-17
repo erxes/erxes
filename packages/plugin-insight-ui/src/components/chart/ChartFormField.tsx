@@ -16,6 +16,7 @@ import { SelectWithAssets } from '../utils/SelectAssets';
 import SelectLeads from '../utils/SelectLeads';
 import { IFilterType } from '../../containers/chart/ChartFormField';
 import SelectClientPortal from '../utils/SelectClientPortal';
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 
 type Props = {
   fieldType: string;
