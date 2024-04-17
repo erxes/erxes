@@ -166,7 +166,7 @@ class ContractForm extends React.Component<Props, State> {
       commitmentInterest: contract.commitmentInterest,
       savingContractId: contract.savingContractId,
       firstPayDate: contract.firstPayDate,
-      holidayType: contract.holidayType,
+      holidayType: contract.holidayType || 'before',
       schedule:
         contract.repayment === 'custom'
           ? generateCustomGraphic({

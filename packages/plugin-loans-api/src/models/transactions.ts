@@ -24,9 +24,12 @@ import { getConfig, sendMessageBroker } from '../messageBroker';
 import BigNumber from 'bignumber.js';
 import { IConfig } from '../interfaces/config';
 import {
+  createTransactionSchedule,
   scheduleFixAfterCurrent,
   scheduleFixCurrent
 } from './utils/scheduleFixUtils';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import { config } from 'process';
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(selector: FilterQuery<ITransactionDocument>);
@@ -35,8 +38,8 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
     doc: ITransaction
   ): Promise<ITransactionDocument>;
   updateTransaction(subdomain: any, _id: string, doc: ITransaction);
-  changeTransaction(_id: string, doc: ITransaction);
-  removeTransactions(_ids: string[]);
+  changeTransaction(_id: string, doc: ITransaction, subdomain: any);
+  removeTransactions(_ids: string[], subdomain: any);
   getPaymentInfo(
     id: string,
     payDate: Date,
@@ -121,28 +124,32 @@ export const loadTransactionClass = (models: IModels) => {
       if (doc.transactionType === 'give') {
         doc.give = doc.total;
         doc.contractReaction = contract;
-        const tr = await models.Transactions.create({ ...doc });
+
+        const schedule = await models.Schedules.create({
+          contractId: contract._id,
+          status: SCHEDULE_STATUS.GIVE,
+          payDate: getFullDate(doc.payDate),
+          balance: new BigNumber(doc.total || 0)
+            .plus(contract?.loanBalanceAmount || 0)
+            .toNumber(),
+          interestNonce: 0,
+          payment: 0,
+          total: doc.total
+        });
 
         await models.Contracts.updateOne(
           { _id: contract._id },
           { $inc: { givenAmount: doc.total, loanBalanceAmount: doc.total } }
         );
 
-        const schedules = [
+        doc.reactions = [
           {
-            contractId: contract._id,
-            status: SCHEDULE_STATUS.GIVE,
-            payDate: getFullDate(doc.payDate),
-            balance: new BigNumber(doc.total || 0)
-              .plus(contract?.loanBalanceAmount || 0)
-              .toNumber(),
-            interestNonce: 0,
-            payment: doc.total,
-            total: doc.total
+            scheduleId: schedule._id
           }
         ];
 
-        await models.Schedules.insertMany(schedules);
+        const tr = await models.Transactions.create({ ...doc });
+
         return tr;
       }
 
@@ -153,25 +160,26 @@ export const loadTransactionClass = (models: IModels) => {
 
       const tr = await models.Transactions.create({ ...doc });
 
-      await sendMessageBroker(
-        {
-          action: 'block.create',
-          subdomain,
-          data: {
-            customerId: contract.customerId,
-            description: 'interest payment',
-            blockType: 'scheduleTransaction',
-            amount: tr.calcInterest,
-            scheduleDate: tr.payDate,
-            payDate: tr.payDate
+      if ((tr.calcInterest || 0) > 0 && isEnabled('savings'))
+        await sendMessageBroker(
+          {
+            action: 'block.create',
+            subdomain,
+            data: {
+              customerId: contract.customerId,
+              description: 'interest payment',
+              blockType: 'scheduleTransaction',
+              amount: tr.calcInterest,
+              scheduleDate: tr.payDate,
+              payDate: tr.payDate
+            },
+            isRPC: true
           },
-          isRPC:true
-        },
-        'savings'
-      );
+          'savings'
+        );
 
-      await scheduleFixCurrent(contract, tr.payDate, tr, models, config);
-      //await scheduleFixAfterCurrent(contract,tr.payDate,models,config)
+      await createTransactionSchedule(contract, tr.payDate, tr, models, config);
+      await scheduleFixAfterCurrent(contract, tr.payDate, models, config);
 
       const contractType = await models.ContractTypes.findOne({
         _id: contract.contractTypeId
@@ -236,6 +244,8 @@ export const loadTransactionClass = (models: IModels) => {
         _id
       });
 
+      const config: IConfig = await getConfig('loansConfig', subdomain);
+
       const contract = await models.Contracts.findOne({
         _id: doc.contractId
       }).lean();
@@ -244,7 +254,7 @@ export const loadTransactionClass = (models: IModels) => {
         return models.Transactions.getTransaction({ _id });
       }
 
-      await removeTrAfterSchedule(models, oldTr);
+      await removeTrAfterSchedule(models, oldTr, config);
 
       if (doc.invoiceId) {
         const invoiceData: any = {
@@ -271,7 +281,7 @@ export const loadTransactionClass = (models: IModels) => {
     /**
      * ReConfig amounts or change Transaction
      */
-    public static async changeTransaction(_id: string, doc) {
+    public static async changeTransaction(_id: string, doc, subdomain) {
       const oldTr = await models.Transactions.getTransaction({
         _id
       });
@@ -317,7 +327,9 @@ export const loadTransactionClass = (models: IModels) => {
         noDeleteSchIds.includes(item.scheduleId)
       );
 
-      await removeTrAfterSchedule(models, oldTr, noDeleteSchIds);
+      const config: IConfig = await getConfig('loansConfig', subdomain);
+
+      await removeTrAfterSchedule(models, oldTr, config, noDeleteSchIds);
 
       const newTotal =
         (doc.payment || 0) +
@@ -443,11 +455,13 @@ export const loadTransactionClass = (models: IModels) => {
     /**
      * Remove Transaction
      */
-    public static async removeTransactions(_ids) {
+    public static async removeTransactions(_ids, subdomain) {
       const transactions: ITransactionDocument[] =
         await models.Transactions.find({ _id: _ids })
           .sort({ payDate: -1 })
           .lean();
+
+      const config: IConfig = await getConfig('loansConfig', subdomain);
 
       for await (const oldTr of transactions) {
         if (oldTr) {
@@ -464,8 +478,9 @@ export const loadTransactionClass = (models: IModels) => {
             throw new Error(
               'At this moment transaction can not been created because this date closed'
             );
-          oldTr.transactionType !== 'give' &&
-            (await removeTrAfterSchedule(models, oldTr));
+
+          await removeTrAfterSchedule(models, oldTr, config);
+
           oldTr.contractId &&
             (await models.Contracts.updateOne(
               { _id: oldTr.contractId },

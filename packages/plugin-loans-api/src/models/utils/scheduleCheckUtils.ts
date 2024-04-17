@@ -23,8 +23,6 @@ export async function checkCurrentDateSchedule(
 
   const diff = getDiffDay(lastSchedule.payDate, currentDate);
 
-
-
   if (
     diff > 0 &&
     lastSchedule.isDefault === true &&

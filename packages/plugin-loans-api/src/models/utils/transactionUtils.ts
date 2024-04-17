@@ -18,6 +18,7 @@ import { calcInterest } from './utils';
 import { getDiffDay, getFullDate, getDatesDiffMonth } from './utils';
 import { IConfig } from '../../interfaces/config';
 import { getConfig } from '../../messageBroker';
+import { scheduleFixAfterCurrent } from './scheduleFixUtils';
 //#endregion
 
 /**
@@ -410,8 +411,10 @@ export const trAfterSchedule = async (
 export const removeTrAfterSchedule = async (
   models: IModels,
   tr: ITransactionDocument,
+  config:IConfig,
   noDeleteSchIds: any[] = []
 ) => {
+  console.log('tr',tr)
   if (!Object.keys(tr.reactions || {}).length) {
     return;
   }
@@ -459,11 +462,13 @@ export const removeTrAfterSchedule = async (
   if (bulkOps && bulkOps.length) {
     await models.Schedules.bulkWrite(bulkOps);
   }
-
+  console.log('delIds',delIds)
   if (delIds.length) {
     await models.Schedules.deleteMany({
       _id: { $in: delIds },
       isDefault: { $ne: true }
     });
   }
+
+  await scheduleFixAfterCurrent(tr.contractReaction,tr.payDate,models,config)
 };

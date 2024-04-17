@@ -13,6 +13,7 @@ import { createInvoice } from '../models/utils/invoiceUtils';
 import { changeClassificationOneContract } from '../models/utils/changeClassificationUtils';
 import { getConfig } from '../messageBroker';
 import { IConfig } from '../interfaces/config';
+import { scheduleFixCurrent } from '../models/utils/scheduleFixUtils';
 
 function isDoPeriod(date: Date, config: IConfig, exactTime: string) {
   if (
@@ -63,6 +64,8 @@ export async function checkContractPeriod(subdomain: string) {
             models,
             config
           );
+
+        await scheduleFixCurrent(contract, today, models, config);
 
         const schedule = await checkCurrentDateSchedule(
           contract,

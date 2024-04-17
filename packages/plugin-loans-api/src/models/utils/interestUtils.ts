@@ -5,7 +5,7 @@ import { calcInterest, getDatesDiffMonth, getDiffDay } from "./utils";
 
 
 export async function getInterest(contract:IContractDocument,fromDate:Date,toDate:Date,balance:number,config:IConfig) {
-    const diffDay = getDiffDay(fromDate,toDate)
+  const diffDay = getDiffDay(fromDate,toDate)
     const { diffEve } = getDatesDiffMonth(
         fromDate,
         toDate
