@@ -34,7 +34,6 @@ const loginMiddleware = async (req, res) => {
     scope: FACEBOOK_PERMISSIONS,
     redirect_uri: FACEBOOK_LOGIN_REDIRECT_URL
   };
-
   debugRequest(debugFacebook, req);
 
   // we don't have a code yet
