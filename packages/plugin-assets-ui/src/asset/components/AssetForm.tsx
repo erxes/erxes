@@ -279,7 +279,6 @@ function AssetForm({
                 type="number"
                 name="unitPrice"
                 defaultValue={object.unitPrice}
-                required={true}
                 min={0}
               />
             </FormGroup>

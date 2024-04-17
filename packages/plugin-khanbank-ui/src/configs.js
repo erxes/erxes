@@ -1,7 +1,7 @@
 module.exports = {
   srcDir: __dirname,
   name: "khanbank",
-  port: 3120,
+  port: 3127,
   scope: "khanbank",
   exposes: {
     "./routes": "./src/routes.tsx",
@@ -9,7 +9,7 @@ module.exports = {
   },
   widget: "./widget",
   routes: {
-    url: "http://localhost:3120/remoteEntry.js",
+    url: "http://localhost:3127/remoteEntry.js",
     scope: "khanbank",
     module: "./routes",
   },
