@@ -6,6 +6,7 @@ import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 
 import DateRange from '../utils/DateRange';
 import { MarginY } from '../../styles';
@@ -67,7 +68,7 @@ const ChartFormField = (props: Props) => {
 
   const onSelect = (selectedOption) => {
 
-    if (!selectedOption) {
+    if (selectedOption === undefined || selectedOption === null) {
       setFieldValue('');
       onChange('');
     }
@@ -204,6 +205,19 @@ const ChartFormField = (props: Props) => {
           />
         </div>
       );
+    case 'companies':
+      return (
+        <div>
+          <ControlLabel> {fieldLabel}</ControlLabel>
+          <SelectCompanies
+            label="Select companies"
+            name="companyId"
+            multi={multi}
+            initialValue={fieldValue}
+            onSelect={onChange}
+          />
+        </div>
+      )
     case 'date':
       return (
         <>
