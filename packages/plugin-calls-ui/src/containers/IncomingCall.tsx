@@ -9,6 +9,7 @@ import { callPropType } from '../lib/types';
 import client from '@erxes/ui/src/apolloClient';
 import { mutations } from '../graphql';
 import queries from '../graphql/queries';
+import { extractPhoneNumberFromCounterpart } from '../utils';
 
 interface IProps {
   closeModal?: () => void;
@@ -16,22 +17,15 @@ interface IProps {
 }
 
 const IncomingCallContainer = (props: IProps, context) => {
-  const [customer, setCustomer] = useState<any>({
-    firstName: 'Anu-Ujin',
-    middleName: '',
-    lastName: 'B',
-    phones: ['343443', '344334'],
-    primaryPhone: '99123569',
-  } as ICustomer);
+  const [customer, setCustomer] = useState<any>({} as ICustomer);
   const [conversation, setConversation] = useState<any>(undefined);
   const [hasMicrophone, setHasMicrophone] = useState(false);
 
   const { callUserIntegrations } = props;
   const { call } = context;
 
-  const phoneNumber = context?.call?.counterpart?.slice(
-    context.call.counterpart.indexOf(':') + 1,
-    context.call.counterpart.indexOf('@'),
+  const phoneNumber = extractPhoneNumberFromCounterpart(
+    context?.call?.counterpart,
   );
 
   const defaultCallIntegration =
@@ -66,7 +60,7 @@ const IncomingCallContainer = (props: IProps, context) => {
           inboxIntegrationId: inboxId,
           primaryPhone: phoneNumber,
           direction: 'incoming',
-          callID: call.id,
+          callID: call?.id,
         },
       })
         .then(({ data }: any) => {
@@ -138,6 +132,7 @@ const IncomingCallContainer = (props: IProps, context) => {
       conversation={conversation}
       hasMicrophone={hasMicrophone}
       addNote={addNote}
+      phoneNumber={phoneNumber}
     />
   );
 };

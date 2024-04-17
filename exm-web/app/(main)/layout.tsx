@@ -33,7 +33,7 @@ export default function RootLayout({ children }: ILayoutProps) {
             </section>
             <section className="flex flex-auto items-stretch bg-white">
               <Sidebar />
-              {children}
+              <div className="bg-[#FAFAFA] w-full">{children}</div>
             </section>
           </div>
         </ExmProvider>

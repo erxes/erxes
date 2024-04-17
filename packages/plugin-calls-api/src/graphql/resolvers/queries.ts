@@ -18,7 +18,6 @@ const callsQueries = {
   },
 
   async callUserIntegrations(_root, _args, { models, user }: IContext) {
-    console.log('user', user);
     const res = models.Integrations.getIntegrations(user._id);
 
     return res;
@@ -47,6 +46,10 @@ const callsQueries = {
     const activeSession = models.CallHistory.getCallHistories(params, user);
 
     return activeSession;
+  },
+
+  async callsGetConfigs(_root, _args, { models }: IContext) {
+    return models.Configs.find({}).lean();
   },
 };
 

@@ -321,8 +321,8 @@ export const getUsageByPluginType = async (args: {
       totalUsage = await sendCommonMessage({
         subdomain,
         serviceName: 'segments',
-        action: 'find.count',
-        data: {}
+        action: 'count',
+        data: {},
       });
     }
   }

@@ -25,7 +25,7 @@ export const Authorization = (props: Props) => {
     }
     window.close();
   }
-
+  window.location.reload();
   return (
     <Wrapper>
       {queryParams.igAuthorized ? (

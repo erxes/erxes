@@ -1,4 +1,4 @@
-const posOrderFields = contactsEnabled => `
+const posOrderFields = (contactsEnabled) => `
   _id: String,
   createdAt: Date,
   status: String,
@@ -117,7 +117,8 @@ const queryParams = `
   types: [String]
   statuses: [String]
   excludeStatuses: [String] 
-  hasPaidDate: Boolean 
+  hasPaidDate: Boolean
+  brandId: String
 `;
 
 const groupParams = `

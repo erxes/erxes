@@ -9,7 +9,7 @@ import {
   SpaceBetweenRow,
   ToolBar,
   UploaderWrapper,
-  EditorFooterGroup
+  EditorFooterGroup,
 } from './styles';
 import { FlexRow, Subject } from './styles';
 import { IEmail, IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
@@ -18,7 +18,7 @@ import {
   formatObj,
   formatStr,
   generateForwardMailContent,
-  generatePreviousContents
+  generatePreviousContents,
 } from '../../containers/utils';
 import { isEnabled, readFile } from '@erxes/ui/src/utils/core';
 
@@ -75,14 +75,14 @@ type Props = {
   loading?: boolean;
   sendMail: ({
     variables,
-    callback
+    callback,
   }: {
     variables: any;
     callback: () => void;
   }) => void;
   verifiedImapEmails: string[];
   verifiedEngageEmails: string[];
-  messages: string[];
+  detailQuery: string[];
   history: any;
   shrink?: boolean;
   clear?: boolean;
@@ -194,7 +194,7 @@ class MailForm extends React.Component<Props, State> {
       name: `mail_${mailKey}`,
       showReply: `reply_${mailKey}`,
 
-      isRepliesRetrieved: false
+      isRepliesRetrieved: false,
     };
   }
 
@@ -244,7 +244,7 @@ class MailForm extends React.Component<Props, State> {
       bcc,
       subject,
       content,
-      attachments
+      attachments,
     };
 
     localStorage.setItem('emailWidgetData', JSON.stringify(variables));
@@ -263,7 +263,7 @@ class MailForm extends React.Component<Props, State> {
       cc = [],
       bcc = [],
       subject = '',
-      body = ''
+      body = '',
     } = mailData;
 
     const [{ email: fromEmail }] = from;
@@ -276,7 +276,7 @@ class MailForm extends React.Component<Props, State> {
       bcc,
       subject,
       body,
-      emailSignature
+      emailSignature,
     });
   }
 
@@ -310,7 +310,7 @@ class MailForm extends React.Component<Props, State> {
         return {
           fromEmail: email,
           body: mail.mailData.body,
-          date: dayjs(mail.createdAt).format('lll')
+          date: dayjs(mail.createdAt).format('lll'),
         };
       })
       .filter((mail) => mail);
@@ -332,7 +332,7 @@ class MailForm extends React.Component<Props, State> {
       bcc: '',
       subject: '',
       content: '',
-      attachments: []
+      attachments: [],
     });
 
     this.prepareData();
@@ -344,7 +344,7 @@ class MailForm extends React.Component<Props, State> {
     this.setState(
       {
         showPrevEmails: true,
-        content: this.getReplies(messageId)
+        content: this.getReplies(messageId),
       },
       () => {
         localStorage.setItem(this.state.showReply, 'true');
@@ -361,7 +361,7 @@ class MailForm extends React.Component<Props, State> {
       isForward,
       clearOnSubmit,
       messageId,
-      conversationStatus
+      conversationStatus,
     } = this.props;
 
     const mailData = this.props.mailData || ({} as IMail);
@@ -374,7 +374,7 @@ class MailForm extends React.Component<Props, State> {
       bcc,
       subject,
       kind,
-      isRepliesRetrieved
+      isRepliesRetrieved,
     } = this.state;
 
     if (!to) {
@@ -424,7 +424,7 @@ class MailForm extends React.Component<Props, State> {
       subject:
         isForward && !subjectValue.includes('Fw:')
           ? `Fw: ${subjectValue}`
-          : subjectValue
+          : subjectValue,
     };
 
     return sendMail({
@@ -443,7 +443,7 @@ class MailForm extends React.Component<Props, State> {
         } else {
           return closeModal && closeModal();
         }
-      }
+      },
     });
   };
 
@@ -475,7 +475,7 @@ class MailForm extends React.Component<Props, State> {
     this.setState({
       attachments: attachments.filter(
         (item) => item.filename !== attachment.filename
-      )
+      ),
     });
   };
 
@@ -543,7 +543,8 @@ class MailForm extends React.Component<Props, State> {
   };
 
   renderFromValue = () => {
-    const { verifiedImapEmails, verifiedEngageEmails, messages } = this.props;
+    const { verifiedImapEmails, verifiedEngageEmails, detailQuery } =
+      this.props;
 
     const onChangeMail = (from: string) => {
       this.setState({ from });
@@ -558,7 +559,7 @@ class MailForm extends React.Component<Props, State> {
         selectedItem={this.state.from}
         verifiedImapEmails={verifiedImapEmails}
         verifiedEngageEmails={verifiedEngageEmails}
-        messages={messages}
+        detailQuery={detailQuery}
       />
     );
   };
@@ -566,7 +567,7 @@ class MailForm extends React.Component<Props, State> {
   renderFrom() {
     return (
       <FlexRow isEmail={true}>
-        <label className='from'>From:</label>
+        <label className="from">From:</label>
         {this.renderFromValue()}
       </FlexRow>
     );
@@ -580,7 +581,7 @@ class MailForm extends React.Component<Props, State> {
           autoFocus={this.props.isForward}
           value={this.state.to}
           onChange={this.onSelectChange.bind(this, 'to')}
-          name='to'
+          name="to"
           required={true}
         />
         {this.renderRightSide()}
@@ -600,9 +601,9 @@ class MailForm extends React.Component<Props, State> {
         <label>Cc:</label>
         <FormControl
           autoFocus={true}
-          componentClass='textarea'
+          componentClass="textarea"
           onChange={this.onSelectChange.bind(this, 'cc')}
-          name='cc'
+          name="cc"
           value={cc}
         />
       </FlexRow>
@@ -622,8 +623,8 @@ class MailForm extends React.Component<Props, State> {
         <FormControl
           autoFocus={true}
           onChange={this.onSelectChange.bind(this, 'bcc')}
-          componentClass='textarea'
-          name='bcc'
+          componentClass="textarea"
+          name="bcc"
           value={bcc}
         />
       </FlexRow>
@@ -642,7 +643,7 @@ class MailForm extends React.Component<Props, State> {
         <FlexRow>
           <label>Subject:</label>
           <FormControl
-            name='subject'
+            name="subject"
             onChange={this.handleInputChange}
             required={true}
             value={subject}
@@ -657,7 +658,7 @@ class MailForm extends React.Component<Props, State> {
     text,
     icon,
     element,
-    onClick
+    onClick,
   }: {
     text: string;
     icon: string;
@@ -669,14 +670,9 @@ class MailForm extends React.Component<Props, State> {
     }
 
     return (
-      <Tip
-        text={__(text)}
-        placement='top'>
+      <Tip text={__(text)} placement="top">
         <Label>
-          <Icon
-            icon={icon}
-            onClick={onClick}
-          />
+          <Icon icon={icon} onClick={onClick} />
           {element}
         </Label>
       </Tip>
@@ -698,9 +694,10 @@ class MailForm extends React.Component<Props, State> {
       <Button
         onClick={onClick}
         btnStyle={type}
-        size='small'
+        size="small"
         icon={isLoading ? undefined : icon}
-        disabled={isLoading}>
+        disabled={isLoading}
+      >
         {isLoading && <SmallLoader />}
         {label}
       </Button>
@@ -722,7 +719,7 @@ class MailForm extends React.Component<Props, State> {
       conversationStatus,
       emailSignatures,
       brands,
-      loading
+      loading,
     } = this.props;
 
     const onSubmitResolve = (e) => this.onSubmit(e, true);
@@ -776,7 +773,7 @@ class MailForm extends React.Component<Props, State> {
               <Uploader
                 defaultFileList={this.state.attachments || []}
                 onChange={onChangeAttachment}
-                icon='attach'
+                icon="attach"
                 showOnlyIcon={true}
                 noPreview={true}
               />
@@ -806,7 +803,7 @@ class MailForm extends React.Component<Props, State> {
             {this.renderIcon({
               text: 'Delete',
               icon: 'trash-alt',
-              onClick: toggleReply
+              onClick: toggleReply,
             })}
           </ToolBar>
         </EditorFooter>
@@ -823,7 +820,7 @@ class MailForm extends React.Component<Props, State> {
 
     return (
       <ShowReplyButtonWrapper>
-        <Tip text='Show trimmed content'>
+        <Tip text="Show trimmed content">
           <ShowReplies onClick={this.onShowReplies}>
             <span />
             <span />
@@ -839,10 +836,9 @@ class MailForm extends React.Component<Props, State> {
       <MailEditorWrapper>
         {this.renderShowReplies()}
         <RichTextEditor
-          toolbarLocation='bottom'
+          toolbarLocation="bottom"
           content={this.state.content}
           onChange={this.onEditorChange}
-          autoGrow={true}
           toolbar={[
             'bold',
             'italic',
@@ -857,7 +853,7 @@ class MailForm extends React.Component<Props, State> {
             { items: ['h1', 'h2', 'h3'] },
             '|',
             {
-              items: ['alignLeft', 'alignRight', 'alignCenter', 'alignJustify']
+              items: ['alignLeft', 'alignRight', 'alignCenter', 'alignJustify'],
             },
             '|',
             { items: ['orderedList', 'bulletList'] },
@@ -869,13 +865,12 @@ class MailForm extends React.Component<Props, State> {
                 'link',
                 'unlink',
                 'image',
-                'table'
+                'table',
               ],
-              isMoreControl: true
-            }
+              isMoreControl: true,
+            },
           ]}
-          autoGrowMinHeight={300}
-          autoGrowMaxHeight={300}
+          height={300}
         />
       </MailEditorWrapper>
     );
@@ -901,19 +896,13 @@ class MailForm extends React.Component<Props, State> {
 
     return (
       <>
-        <Resipients
-          onClick={onClickHasCc}
-          isActive={hasCc}>
+        <Resipients onClick={onClickHasCc} isActive={hasCc}>
           Cc
         </Resipients>
-        <Resipients
-          onClick={onClickHasBCC}
-          isActive={hasBcc}>
+        <Resipients onClick={onClickHasBCC} isActive={hasBcc}>
           Bcc
         </Resipients>
-        <Resipients
-          onClick={onClickSubject}
-          isActive={hasSubject}>
+        <Resipients onClick={onClickSubject} isActive={hasSubject}>
           Subject
         </Resipients>
       </>

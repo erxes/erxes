@@ -117,7 +117,7 @@ export default class SipProvider extends React.Component<
     autoRegister: true,
     autoAnswer: false,
     iceRestart: true,
-    sessionTimersExpires: 120,
+    sessionTimersExpires: 3600,
     extraHeaders: { register: [], invite: [] },
     iceServers: [],
     debug: false,
@@ -157,6 +157,7 @@ export default class SipProvider extends React.Component<
         status: this.state.callStatus,
         direction: this.state.callDirection,
         counterpart: this.state.callCounterpart,
+        startTime: this.state.rtcSession?._start_time?.toString(),
       },
       registerSip: this.registerSip,
       unregisterSip: this.unregisterSip,
@@ -372,6 +373,8 @@ export default class SipProvider extends React.Component<
         iceServers,
       },
       sessionTimersExpires,
+      no_answer_timeout: 3600,
+      session_timers: true,
     };
 
     this.ua.call(destination, options);
@@ -465,13 +468,13 @@ export default class SipProvider extends React.Component<
       });
     });
 
-    ua.on('disconnected', () => {
+    ua.on('disconnected', (e) => {
       this.logger.debug('UA "disconnected" event');
       if (this.ua !== ua) {
         return;
       }
       setLocalStorage(false, false);
-
+      console.log('disconnected:', e);
       this.setState({
         sipStatus: SIP_STATUS_ERROR,
         sipErrorType: SIP_ERROR_TYPE_CONNECTION,
@@ -514,7 +517,7 @@ export default class SipProvider extends React.Component<
 
     ua.on('registrationFailed', (data) => {
       this.logger.debug('UA "registrationFailed" event');
-
+      console.log('registrationfailed:', data);
       if (this.ua !== ua) {
         return;
       }

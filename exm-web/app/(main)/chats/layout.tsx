@@ -1,16 +1,19 @@
+import { FunctionComponent } from "react"
+import type { Metadata } from "next"
 import ChatList from "@/modules/chat/component/ChatList"
-import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Chats',
-  description: 'Employee Experience Management - Chats',
+  title: "Chats",
+  description: "Employee Experience Management - Chats",
 }
 
-interface ILayoutProps {
+interface ChatLayoutProps {
   children: React.ReactNode
 }
 
-export default function ChatLayout({ children }: ILayoutProps) {
+const ChatLayout: FunctionComponent<ChatLayoutProps> = (props) => {
+  const { children } = props
+
   return (
     <>
       <div className="flex h-full w-1/5 flex-col border-r shrink-0">
@@ -20,3 +23,5 @@ export default function ChatLayout({ children }: ILayoutProps) {
     </>
   )
 }
+
+export default ChatLayout
