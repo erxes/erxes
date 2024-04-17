@@ -153,10 +153,3 @@ export const extractPhoneNumberFromCounterpart = (counterpart) => {
   if (startIndex >= endIndex || startIndex === -1 || endIndex === -1) return '';
   return counterpart.slice(startIndex, endIndex);
 };
-
-export const removeHistoryIdFromStorage = () => {
-  const callHistoryId = localStorage.getItem('callHistoryId');
-  if (callHistoryId) {
-    localStorage.removeItem('callHistoryId');
-  }
-};

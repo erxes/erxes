@@ -32,12 +32,8 @@ const IncomingCallContainer = (props: IProps, context) => {
   const inboxId =
     JSON.parse(defaultCallIntegration)?.inboxId ||
     callUserIntegrations?.[0]?.inboxId;
-  const operatorPhone =
-    JSON.parse(defaultCallIntegration)?.phone ||
-    callUserIntegrations?.[0]?.phone;
 
   const [createCustomerMutation] = useMutation(gql(mutations.customersAdd));
-  const [addHistoryMutation] = useMutation(gql(mutations.callHistoryAdd));
 
   useEffect(() => {
     navigator.mediaDevices
@@ -73,31 +69,6 @@ const IncomingCallContainer = (props: IProps, context) => {
     }
   }, [phoneNumber, call?.id]);
 
-  const addHistory = (sessionId: string, callStartTime: string) => {
-    //$callDuration: Int,
-    //$callStartTime: Date,
-    //$callEndTime: Date,
-    //$callStatus: String,
-    //$callType: String,
-    //$sessionId: String,
-    //$conversationId: String
-    addHistoryMutation({
-      variables: {
-        operatorPhone,
-        customerPhoneNumber: phoneNumber,
-        callStatus: 'active',
-        callType: 'incoming',
-        sessionId,
-        callStartTime,
-      },
-    })
-      .then(() => {
-        Alert.success('Successfully added history');
-      })
-      .catch((e) => {
-        Alert.error(e.message);
-      });
-  };
   return (
     <IncomingCall
       customer={customer}

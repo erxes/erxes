@@ -1,6 +1,5 @@
 import { IContext } from '../../connectionResolver';
 import { sendCommonMessage } from '../../messageBroker';
-import { getRecordUrl } from '../../utils';
 export interface IHistoryArgs {
   limit?: number;
   callStatus?: string;

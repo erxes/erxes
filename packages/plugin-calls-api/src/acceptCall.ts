@@ -47,7 +47,6 @@ const acceptCall = async (
 
   let history;
   try {
-    console.log(params, '...docModifier({ ...params }),');
     history = new models.CallHistory({
       operatorPhone,
       customerPhone,
@@ -90,7 +89,7 @@ const acceptCall = async (
           content: params.callType || '',
           conversationId: history.conversationId,
           updatedAt: new Date(),
-          owner: type === 'addHistory' ? user._id : '',
+          owner: type === 'addHistory' ? user?.details?.operatorPhone : '',
         }),
       },
       isRPC: true,
@@ -115,7 +114,6 @@ const acceptCall = async (
 
   for (const channel of channels) {
     for (const userId of channel.memberIds || []) {
-      console.log(userId, 'userId');
       graphqlPubsub.publish(
         `conversationClientMessageInserted:${subdomain}:${userId}`,
         {
