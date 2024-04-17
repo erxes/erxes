@@ -1,5 +1,3 @@
-import * as path from 'path';
-
 import {
   Button,
   ControlLabel,
@@ -17,13 +15,11 @@ import { ITransaction } from '../types';
 
 import { Amount } from '../../contracts/styles';
 import { DateContainer } from '@erxes/ui/src/styles/main';
-import { IInvoice } from '../../invoices/types';
 import React, { useMemo, useState } from 'react';
 import { __ } from 'coreui/utils';
 import SelectContracts, {
   Contracts
 } from '../../contracts/components/common/SelectContract';
-import TextDivider from "@erxes/ui/src/components/TextDivider";
 
 import { IContract } from '../../contracts/types';
 

@@ -31,7 +31,7 @@ const transactionMutations = {
     { transactionIds }: { transactionIds: string[] },
     { models, user, subdomain }: IContext
   ) => {
-    // TODO: contracts check
+    
     const blocks = await models.Block.find({
       _id: { $in: transactionIds },
       isManual: true

@@ -66,29 +66,29 @@ const fillAmounts = async (
   isSetAmount: boolean = false
 ) => {
   if (isSetAmount) {
-    doc.loss = tr?.calcedInfo?.loss || 0;
-    doc.interestEve = tr?.calcedInfo?.interestEve || 0;
-    doc.interestNonce = tr?.calcedInfo?.interestNonce || 0;
-    doc.payment = tr?.calcedInfo?.payment || 0;
-    doc.insurance = tr?.calcedInfo?.insurance || 0;
-    doc.debt = tr?.calcedInfo?.debt || 0;
-    doc.total = tr?.calcedInfo?.total || 0;
-    doc.commitmentInterest = tr?.calcedInfo?.commitmentInterest || 0;
+    doc.loss = tr?.calcedInfo?.loss ?? 0;
+    doc.interestEve = tr?.calcedInfo?.interestEve ?? 0;
+    doc.interestNonce = tr?.calcedInfo?.interestNonce ?? 0;
+    doc.payment = tr?.calcedInfo?.payment ?? 0;
+    doc.insurance = tr?.calcedInfo?.insurance ?? 0;
+    doc.debt = tr?.calcedInfo?.debt ?? 0;
+    doc.total = tr?.calcedInfo?.total ?? 0;
+    doc.commitmentInterest = tr?.calcedInfo?.commitmentInterest ?? 0;
   }
 
-  doc.loss = doc.loss || 0;
-  doc.didLoss = (doc.didLoss || 0) + (tr.loss || 0);
-  doc.didInterestEve = (doc.didInterestEve || 0) + (tr.interestEve || 0);
-  doc.didInterestNonce = (doc.didInterestNonce || 0) + (tr.interestNonce || 0);
+  doc.loss = doc.loss ?? 0;
+  doc.didLoss = (doc.didLoss ?? 0) + (tr.loss ?? 0);
+  doc.didInterestEve = (doc.didInterestEve ?? 0) + (tr.interestEve ?? 0);
+  doc.didInterestNonce = (doc.didInterestNonce ?? 0) + (tr.interestNonce ?? 0);
   doc.didCommitmentInterest =
-    (doc.didCommitmentInterest || 0) + (tr.commitmentInterest || 0);
-  doc.didPayment = (doc.didPayment || 0) + (tr.payment || 0);
-  doc.didInsurance = (doc.didInsurance || 0) + (tr.insurance || 0);
-  doc.didDebt = (doc.didDebt || 0) + (tr.debt || 0);
-  doc.didTotal = (doc.didTotal || 0) + (tr.total || 0);
-  doc.surplus = (doc.surplus || 0) + (tr.surplus || 0);
+    (doc.didCommitmentInterest ?? 0) + (tr.commitmentInterest ?? 0);
+  doc.didPayment = (doc.didPayment ?? 0) + (tr.payment ?? 0);
+  doc.didInsurance = (doc.didInsurance ?? 0) + (tr.insurance ?? 0);
+  doc.didDebt = (doc.didDebt ?? 0) + (tr.debt ?? 0);
+  doc.didTotal = (doc.didTotal ?? 0) + (tr.total ?? 0);
+  doc.surplus = (doc.surplus ?? 0) + (tr.surplus ?? 0);
 
-  doc.balance = (preSchedule.balance || 0) - (tr.payment || 0);
+  doc.balance = (preSchedule.balance ?? 0) - (tr.payment ?? 0);
 
   doc.payDate = tr.payDate;
   doc.transactionIds = doc.transactionIds
@@ -162,14 +162,14 @@ export const scheduleHelper = async (
   }
   let currentDate = getFullDate(moment(startDate).add(-1,'day').toDate());
 
-  var skipInterestCalcDate = addMonths(
+  let skipInterestCalcDate = addMonths(
     new Date(currentDate),
     contract.skipInterestCalcMonth || 0
   );
 
-  var endDate = addMonths(new Date(startDate), contract.tenor);
+  let endDate = addMonths(new Date(startDate), contract.tenor);
 
-  var dateRanges: Date[] = generateDates(contract)
+  let dateRanges: Date[] = generateDates(contract)
 
   const paymentDates = dateRanges.filter(date => {
     if (

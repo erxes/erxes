@@ -1,6 +1,5 @@
 import BigNumber from 'bignumber.js';
 import { IModels } from '../../connectionResolver';
-import { IBlockDocument } from '../definitions/blocks';
 import {
   BLOCK_STATUS,
   BLOCK_TYPE,

@@ -98,7 +98,6 @@ export async function getCurrentData(
         .plus(balance)
         .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
         .toNumber();
-      continue;
     } else {
       totalPaymentAmount = new BigNumber(totalPaymentAmount)
         .plus(schedule.payment ?? 0)
@@ -189,7 +188,7 @@ export async function scheduleFixCurrent(
   });
 
   if (currentSchedule) {
-    const { interestEve, interestNonce, loss, mustPayDate } =
+    const { interestEve, interestNonce, loss } =
       await getCurrentData(contract, currentDate, models, config);
 
     await models.Schedules.updateOne(
@@ -261,7 +260,7 @@ export async function scheduleFixAfterCurrent(
         config
       );
       if (
-        schedule.interestEve !== interestEve ??
+        schedule.interestEve !== interestEve ||
         schedule.interestNonce !== interestNonce
       ) {
         updateBulks.push({
@@ -299,7 +298,7 @@ export async function scheduleFixAfterCurrent(
         .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
         .toNumber();
   }
-  console.log(updateBulks,'updateBulks')
+  
   if(updateBulks.length>0)
   await models.Schedules.bulkWrite(updateBulks);
 }

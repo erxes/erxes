@@ -69,29 +69,14 @@ class BlockForm extends React.Component<Props, State> {
     };
   };
 
-  renderFormGroup = (label, props) => {
-    return (
-      <FormGroup>
-        <ControlLabel required={!label.includes('Amount')}>
-          {label}
-        </ControlLabel>
-        <FormControl {...props} />
-      </FormGroup>
-    );
-  };
-
   onChangeField = e => {
     const name = (e.target as HTMLInputElement).name;
     const value = (e.target as HTMLInputElement).value;
     this.setState({ [name]: value } as any);
   };
 
-  onFieldClick = e => {
-    e.target.select();
-  };
-
   renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton, onChangeDate } = this.props;
+    const { closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
 
     const onChangePayDate = value => {
