@@ -35,7 +35,7 @@ const buildSelector = async (conversationId: string, model: any) => {
   const query = { conversationId: '' };
 
   const conversation = await model.findOne({
-    erxesApiId: conversationId
+    erxesApiId: conversationId,
   });
 
   if (conversation) {
@@ -57,7 +57,7 @@ const instagramQueries = {
   instagramGetIntegrationDetail(
     _root,
     { erxesApiId }: IDetailParams,
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Integrations.findOne({ erxesApiId });
   },
@@ -69,17 +69,17 @@ const instagramQueries = {
   async instagramGetComments(
     _root,
     args: ICommentsParams,
-    { models }: IContext
+    { models }: IContext,
   ) {
     const {
       conversationId,
       isResolved,
       commentId,
       senderId,
-      limit = 10
+      limit = 10,
     } = args;
     const post = await models.PostConversations.findOne({
-      erxesApiId: conversationId
+      erxesApiId: conversationId,
     });
 
     const query: {
@@ -89,7 +89,7 @@ const instagramQueries = {
       senderId?: string;
     } = {
       postId: post ? post.postId || '' : '',
-      isResolved: isResolved === true
+      isResolved: isResolved === true,
     };
 
     if (senderId && senderId !== 'undefined') {
@@ -104,55 +104,55 @@ const instagramQueries = {
 
     const result = await models.CommentConversation.aggregate([
       {
-        $match: query
+        $match: query,
       },
       {
         $lookup: {
           from: 'customers_instagrams',
           localField: 'senderId',
           foreignField: 'userId',
-          as: 'customer'
-        }
+          as: 'customer',
+        },
       },
       {
         $unwind: {
           path: '$customer',
-          preserveNullAndEmptyArrays: true
-        }
+          preserveNullAndEmptyArrays: true,
+        },
       },
       {
         $lookup: {
           from: 'posts_conversations_instagrams',
           localField: 'postId',
           foreignField: 'postId',
-          as: 'post'
-        }
+          as: 'post',
+        },
       },
       {
         $unwind: {
           path: '$post',
-          preserveNullAndEmptyArrays: true
-        }
+          preserveNullAndEmptyArrays: true,
+        },
       },
       {
         $lookup: {
           from: 'comments_instagrams',
           localField: 'commentId',
           foreignField: 'parentId',
-          as: 'replies'
-        }
+          as: 'replies',
+        },
       },
       {
         $addFields: {
           commentCount: { $size: '$replies' },
           'customer.avatar': '$customer.profilePic',
           'customer._id': '$customer.erxesApiId',
-          conversationId: '$post.erxesApiId'
-        }
+          conversationId: '$post.erxesApiId',
+        },
       },
 
       { $sort: { timestamp: -1 } },
-      { $limit: limit }
+      { $limit: limit },
     ]);
 
     return result.reverse();
@@ -162,32 +162,32 @@ const instagramQueries = {
     const { conversationId, isResolved = false } = args;
 
     const commentCount = await models.CommentConversation.countDocuments({
-      erxesApiId: conversationId
+      erxesApiId: conversationId,
     });
 
     const comments = await models.CommentConversation.find({
-      erxesApiId: conversationId
+      erxesApiId: conversationId,
     });
     // Extracting comment_ids from the comments array
     const comment_ids = comments?.map((item) => item.comment_id);
 
     // Using the extracted comment_ids to search for matching comments
     const search = await models.CommentConversation.find({
-      comment_id: { $in: comment_ids } // Using $in to find documents with comment_ids in the extracted array
+      comment_id: { $in: comment_ids }, // Using $in to find documents with comment_ids in the extracted array
     });
 
     if (search.length > 0) {
       // Returning the count of matching comments
       return {
         commentCount: commentCount,
-        searchCount: search.length
+        searchCount: search.length,
       };
     }
 
     // If no matching comments are found, return only the commentCount
     return {
       commentCount: commentCount,
-      searchCount: 0
+      searchCount: 0,
     };
   },
 
@@ -203,7 +203,7 @@ const instagramQueries = {
       if (!e.message.includes('Application request limit reached')) {
         await models.Integrations.updateOne(
           { accountId },
-          { $set: { healthStatus: 'account-token', error: `${e.message}` } }
+          { $set: { healthStatus: 'account-token', error: `${e.message}` } },
         );
       }
     }
@@ -214,7 +214,7 @@ const instagramQueries = {
   instagramConversationDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     let conversation = models.Conversations.findOne({ _id }) as any;
     if (!conversation) {
@@ -226,12 +226,12 @@ const instagramQueries = {
   async instagramConversationMessages(
     _root,
     args: IMessagesParams,
-    { models }: IContext
+    { models }: IContext,
   ) {
     const { conversationId, limit, skip, getFirst } = args;
 
     const conversation = await models.Conversations.findOne({
-      erxesApiId: conversationId
+      erxesApiId: conversationId,
     });
     let messages: IConversationMessageDocument[] = [];
     const query = await buildSelector(conversationId, models.Conversations);
@@ -256,24 +256,23 @@ const instagramQueries = {
       let comment: any[] = [];
       const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
       comment = await models.CommentConversation.find({
-        erxesApiId: conversationId
+        erxesApiId: conversationId,
       })
         .sort(sort)
         .skip(skip || 0);
 
       const comment_ids = comment?.map((item) => item.comment_id);
       const search = await models.CommentConversationReply.find({
-        parentId: comment_ids
+        parentId: comment_ids,
       })
         .sort(sort)
         .skip(skip || 0);
 
       if (search.length > 0) {
         // Combine the arrays and sort by createdAt in ascending order
-        const combinedResult = [...comment, ...search].sort((a, b) =>
-          a.createdAt > b.createdAt ? 1 : -1
+        return [...comment, ...search].sort((a, b) =>
+          a.createdAt > b.createdAt ? 1 : -1,
         );
-        return combinedResult;
       } else {
         return comment;
       }
@@ -285,7 +284,7 @@ const instagramQueries = {
   async instagramConversationMessagesCount(
     _root,
     { conversationId }: { conversationId: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const selector = await buildSelector(conversationId, models.Conversations);
 
@@ -295,18 +294,16 @@ const instagramQueries = {
   async instagramGetPost(
     _root,
     { erxesApiId }: IDetailParams,
-    { models }: IContext
+    { models }: IContext,
   ) {
     const comment = await models.CommentConversation.findOne({
-      erxesApiId: erxesApiId
+      erxesApiId: erxesApiId,
     });
 
     if (comment) {
-      const postConversation = await models.PostConversations.findOne({
-        postId: comment.postId
+      return await models.PostConversations.findOne({
+        postId: comment.postId,
       });
-
-      return postConversation; // Return the postConversation when comment is found
     }
 
     // Return null or some appropriate value when comment is not found
@@ -316,13 +313,13 @@ const instagramQueries = {
   async instagramHasTaggedMessages(
     _root,
     { conversationId }: IConversationId,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const commonParams = { isRPC: true, subdomain };
     const inboxConversation = await sendInboxMessage({
       ...commonParams,
       action: 'conversations.findOne',
-      data: { query: { _id: conversationId } }
+      data: { query: { _id: conversationId } },
     });
 
     let integration;
@@ -331,7 +328,7 @@ const instagramQueries = {
       integration = await sendInboxMessage({
         ...commonParams,
         action: 'integrations.findOne',
-        data: { _id: inboxConversation.integrationId }
+        data: { _id: inboxConversation.integrationId },
       });
     }
 
@@ -344,7 +341,7 @@ const instagramQueries = {
     const messages = await models.ConversationMessages.find({
       ...query,
       customerId: { $exists: true },
-      createdAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+      createdAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) },
     })
       .limit(2)
       .lean();
@@ -358,7 +355,7 @@ const instagramQueries = {
   async instagramPostMessages(
     _root,
     args: IMessagesParams,
-    { models }: IContext
+    { models }: IContext,
   ) {
     const { conversationId, limit, skip, getFirst } = args;
     let messages: any[] = [];
@@ -380,7 +377,7 @@ const instagramQueries = {
       .limit(50);
 
     return messages.reverse();
-  }
+  },
 };
 
 export default instagramQueries;
