@@ -317,10 +317,6 @@ export const loadTransactionClass = (models: IModels) => {
         .map((item) => item._id)
         .concat([oldSchedule._id]);
 
-      let trReaction = oldTr.reactions.filter((item) =>
-        noDeleteSchIds.includes(item.scheduleId)
-      );
-
       const config: IConfig = await getConfig('loansConfig', subdomain);
 
       await removeTrAfterSchedule(models, oldTr, config, noDeleteSchIds);

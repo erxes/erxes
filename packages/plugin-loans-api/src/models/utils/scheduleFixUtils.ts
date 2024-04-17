@@ -236,17 +236,6 @@ export async function scheduleFixAfterCurrent(
 
   let balance = 0;
   let preSchedule: any = undefined;
-  let totalMustPay = 0;
-  let totalPayed = 0;
-  let totalPayedAmount = scheduleList.reduce(
-    (a, b) =>
-      new BigNumber(a)
-        .plus(b.didPayment ?? 0)
-        .plus(b.didStoredInterest ?? 0)
-        .plus(b.didLoss ?? 0)
-        .toNumber(),
-    0
-  );
 
   for await (let schedule of scheduleList) {
     if (schedule.status === 'give') {
@@ -256,10 +245,6 @@ export async function scheduleFixAfterCurrent(
         .toNumber();
       continue;
     }
-
-    totalMustPay = calcTotalMustPay(totalMustPay, schedule, config);
-
-    totalPayed = calcTotalPayed(totalPayed, schedule, config);
 
     if (schedule.payDate > currentDate && preSchedule) {
       const { interestEve, interestNonce } = await getInterest(
@@ -293,13 +278,6 @@ export async function scheduleFixAfterCurrent(
         .toNumber();
     }
 
-    totalPayedAmount = new BigNumber(totalPayedAmount)
-      .minus(schedule.payment ?? 0)
-      .minus(schedule.storedInterest ?? 0)
-      .minus(schedule.loss ?? 0)
-      .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
-      .toNumber();
-
     preSchedule = { ...schedule };
 
     if (schedule.didPayment && schedule.didPayment > 0)
@@ -309,7 +287,11 @@ export async function scheduleFixAfterCurrent(
         .toNumber();
   }
 
+  
+
   if (updateBulks.length > 0) await models.Schedules.bulkWrite(updateBulks);
+  let mustPayDate = await getMustPayDate(scheduleList,contract.mustPayDate)
+  await models.Contracts.updateOne({_id:contract._id},{$set:{mustPayDate:mustPayDate}})
 }
 
 export async function createTransactionSchedule(
