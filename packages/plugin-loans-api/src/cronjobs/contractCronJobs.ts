@@ -46,49 +46,38 @@ export async function checkContractPeriod(subdomain: string) {
 
     const periodLock = await createPeriodLock(periodDate, [], models);
 
-    try {
-      for await (let contract of loanContracts) {
-        if (config.isStoreInterest)
-          await storeInterestContract(
-            contract,
-            today,
-            models,
-            periodLock._id,
-            config
-          );
-
-        if (config.isChangeClassification)
-          await changeClassificationOneContract(
-            contract,
-            today,
-            models,
-            config
-          );
-
-        await scheduleFixCurrent(contract, today, models, config);
-
-        const schedule = await checkCurrentDateSchedule(
+    for await (let contract of loanContracts) {
+      if (config.isStoreInterest)
+        await storeInterestContract(
           contract,
           today,
           models,
+          periodLock._id,
           config
         );
 
-        if (!schedule) return;
-        if (
-          (config.isCreateInvoice &&
-            schedule.status === SCHEDULE_STATUS.PENDING) ||
-          schedule.status === SCHEDULE_STATUS.EXPIRED ||
-          schedule.status === SCHEDULE_STATUS.LESS
-        ) {
-          const invoice = await createInvoice(contract, today, models);
+      if (config.isChangeClassification)
+        await changeClassificationOneContract(contract, today, models, config);
 
-          if (invoice.total > 0)
-            await sendNotification(subdomain, contract, invoice);
-        }
+      await scheduleFixCurrent(contract, today, models, config);
+
+      const schedule = await checkCurrentDateSchedule(
+        contract,
+        today,
+        models,
+        config
+      );
+
+      if (!schedule) return;
+      if (
+        config.isCreateInvoice &&
+        schedule.status === SCHEDULE_STATUS.PENDING
+      ) {
+        const invoice = await createInvoice(contract, today, models);
+
+        if (invoice.total > 0)
+          await sendNotification(subdomain, contract, invoice);
       }
-    } catch (error) {
-      console.log('error', error);
     }
   }
 }

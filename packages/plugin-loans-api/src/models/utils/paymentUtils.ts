@@ -6,7 +6,6 @@ import { IStoredInterestDocument } from '../definitions/storedInterest';
 import { calcInterest, getDiffDay } from '../utils/utils';
 import { calcLoss } from './lossUtils';
 import BigNumber from 'bignumber.js';
-import { IConfig } from '../../interfaces/config';
 
 export interface IPaymentInfo {
   interestEve: number;

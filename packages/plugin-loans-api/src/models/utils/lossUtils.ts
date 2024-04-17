@@ -35,14 +35,6 @@ export const calcLoss = async (
         .toNumber();
       break;
 
-    case LOSS_CALC_TYPE.FROMENDAMOUNT:
-      result = new BigNumber(paymentInfo.balance)
-        .multipliedBy(new BigNumber(lossPercent).div(100))
-        .multipliedBy(diff)
-        .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
-        .toNumber();
-      break;
-
     case LOSS_CALC_TYPE.FROMTOTALPAYMENT:
       result = new BigNumber(
         new BigNumber(paymentInfo.payment).plus(paymentInfo.interest)

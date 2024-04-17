@@ -1,9 +1,5 @@
 import { ITransaction, transactionSchema } from './definitions/transactions';
-import {
-  INVOICE_STATUS,
-  LEASE_TYPES,
-  SCHEDULE_STATUS
-} from './definitions/constants';
+import { INVOICE_STATUS, SCHEDULE_STATUS } from './definitions/constants';
 import { findContractOfTr } from './utils/findUtils';
 import { generatePendingSchedules } from './utils/scheduleUtils';
 import {
@@ -25,11 +21,9 @@ import BigNumber from 'bignumber.js';
 import { IConfig } from '../interfaces/config';
 import {
   createTransactionSchedule,
-  scheduleFixAfterCurrent,
-  scheduleFixCurrent
+  scheduleFixAfterCurrent
 } from './utils/scheduleFixUtils';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
-import { config } from 'process';
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(selector: FilterQuery<ITransactionDocument>);
@@ -331,18 +325,18 @@ export const loadTransactionClass = (models: IModels) => {
 
       await removeTrAfterSchedule(models, oldTr, config, noDeleteSchIds);
 
-      const newTotal =
-        (doc.payment || 0) +
-        (doc.interestEve || 0) +
-        (doc.interestNonce || 0) +
-        (doc.loss || 0) +
-        (doc.insurance || 0) +
-        (doc.debt || 0);
+      const newTotal = new BigNumber(doc.payment ?? 0)
+        .plus(doc.interestEve ?? 0)
+        .plus(doc.interestNonce ?? 0)
+        .plus(doc.loss ?? 0)
+        .plus(doc.insurance ?? 0)
+        .plus(doc.debt ?? 0);
 
       await models.Transactions.updateOne(
         { _id },
         { $set: { ...doc, total: newTotal } }
       );
+      
       let newTr = await models.Transactions.getTransaction({ _id });
 
       const newBalance =

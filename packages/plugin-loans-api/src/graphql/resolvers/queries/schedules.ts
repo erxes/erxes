@@ -45,10 +45,10 @@ const scheduleQueries = {
     })
       .sort({ payDate: -1 })
       .lean();
-    console.log('lastTransaction',lastTransaction)
-    // if (!!lastTransaction) {
-    //   filter.payDate = { $lte: lastTransaction.payDate };
-    // } else filter.payDate = { $lte: new Date() };
+    
+    if (!!lastTransaction) {
+      filter.payDate = { $lte: lastTransaction.payDate };
+    } else filter.payDate = { $lte: new Date() };
 
     return models.Schedules.find(filter).sort({ payDate: 1 });
   },

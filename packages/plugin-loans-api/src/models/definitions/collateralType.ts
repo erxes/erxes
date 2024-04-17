@@ -1,6 +1,5 @@
 import { schemaHooksWrapper, field } from './utils';
 import { Schema, Document } from 'mongoose';
-import {COLLATERAL_TYPE} from './constants'
 
 export interface ICollateralTypeConfig {
   minPercent: number;

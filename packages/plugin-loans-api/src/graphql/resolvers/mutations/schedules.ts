@@ -46,23 +46,22 @@ const scheduleMutations = {
 
     await reGenerateSchedules(models, contract, perHolidays,loansConfig);
 
-    // if (isEnabled('syncpolaris')) {
-    //   const schedules = await models.Schedules.find({
-    //     contractId,
-    //   }).lean();
-    //   console.log('schedules', schedules);
-    //   if (schedules?.length > 0) {
-    //     await sendMessageBroker(
-    //       { action: 'changeSchedule', subdomain, data: contract, isRPC: true },
-    //       'syncpolaris',
-    //     );
-    //   } else {
-    //     await sendMessageBroker(
-    //       { action: 'createSchedule', subdomain, data: contract, isRPC: true },
-    //       'syncpolaris',
-    //     );
-    //   }
-    // }
+    if (isEnabled('syncpolaris')) {
+      const schedules = await models.Schedules.find({
+        contractId,
+      }).lean();
+      if (schedules?.length > 0) {
+        await sendMessageBroker(
+          { action: 'changeSchedule', subdomain, data: contract, isRPC: true },
+          'syncpolaris',
+        );
+      } else {
+        await sendMessageBroker(
+          { action: 'createSchedule', subdomain, data: contract, isRPC: true },
+          'syncpolaris',
+        );
+      }
+    }
 
     return 'ok';
   },
