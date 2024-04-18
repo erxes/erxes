@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { customFieldSchema } from '@erxes/api-utils/src/types';
+import { IAttachment, attachmentSchema, customFieldSchema } from '@erxes/api-utils/src/types';
 import { field } from './utils';
 
 export interface IInsuranceItem {
@@ -20,6 +20,8 @@ export interface IInsuranceItem {
   totalFee?: number;
 
   customerIds?: string[];
+
+  contracts?: IAttachment[];
 }
 
 export interface IInsuranceItemDocument extends IInsuranceItem, Document {
@@ -59,6 +61,7 @@ export const itemSchema = new Schema({
   feePercent: field({ type: Number }),
   totalFee: field({ type: Number }),
   createdAt: field({ type: Date, default: Date.now }),
+  contracts: field({ type: [Object] }),
 
   searchDictionary: field({ type: searchShema }),
 });

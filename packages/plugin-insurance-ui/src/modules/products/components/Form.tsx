@@ -183,7 +183,8 @@ const ProductForm = (props: Props) => {
         return null;
       }
 
-      if (category.code === '2') {
+   
+      if (category.code.includes('travel')) {
         return null;
       }
 
@@ -217,7 +218,7 @@ const ProductForm = (props: Props) => {
       if (!product.categoryId) {
         return null;
       }
-      if (category.code === '2') {
+      if (category.code.includes('travel')) {
         return null;
       }
 
@@ -296,7 +297,7 @@ const ProductForm = (props: Props) => {
         return null;
       }
 
-      if (category.code !== '2') {
+      if (!category.code.includes('travel') || category.code !== 'travel') {
         return null;
       }
 

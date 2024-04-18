@@ -7,7 +7,7 @@ import * as cookieParser from 'cookie-parser';
 import { generateModels } from './connectionResolver';
 import documents from './documents';
 import forms from './forms';
-import { buildFile } from './graphql/resolvers/utils';
+import userMiddleware, { buildFile, buildFileMain } from './graphql/resolvers/utils';
 import { setupMessageConsumers } from './messageBroker';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import payment from './payment';
@@ -41,12 +41,13 @@ export default {
 
     return context;
   },
-  middlewares: [cookieParser(), cpUserMiddleware],
+  middlewares: [cookieParser(), cpUserMiddleware, userMiddleware],
 
   onServerInit: async () => {
     app.get('/export', async (req: any, res) => {
-      const { cpUser } = req;
-      if (!cpUser) {
+      const { cpUser, user } = req;
+      console.log('user', user);
+      if (!cpUser && !user) {
         return res.status(401).send('Unauthorized');
       }
 
@@ -55,6 +56,14 @@ export default {
       const subdomain = getSubdomain(req);
 
       const models = await generateModels(subdomain);
+
+      if (user) {
+        const result = await buildFileMain(models, subdomain, query);
+
+        res.attachment(`${result.name}.xlsx`);
+
+        return res.send(result.response);
+      }
 
       const result = await buildFile(models, subdomain, cpUser, query);
 
