@@ -12,6 +12,7 @@ export interface ISyncLog {
   sendStr?: string;
   responseData?: any;
   responseStr?: string;
+  responseSales?: string;
   error?: string;
 }
 
@@ -28,7 +29,7 @@ export const syncLogSchema = schemaWrapper(
       type: Date,
       default: new Date(),
       label: 'Created at',
-      index: true
+      index: true,
     }),
     createdBy: field({ type: String, optional: true, label: 'Created by' }),
     consumeData: field({ type: Object }),
@@ -37,6 +38,7 @@ export const syncLogSchema = schemaWrapper(
     sendStr: field({ type: String, optional: true }),
     responseData: field({ type: Object, optional: true }),
     responseStr: field({ type: String, optional: true }),
-    error: field({ type: String, optional: true })
+    responseSales: field({ type: [Object], optional: true }),
+    error: field({ type: String, optional: true }),
   })
 );

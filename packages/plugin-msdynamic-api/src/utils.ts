@@ -804,24 +804,47 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
     }).then((res) => res.json());
 
     if (order && order.items.length > 0 && responseSale) {
+      const products = await sendProductsMessage({
+        subdomain,
+        action: 'find',
+        data: { _id: { $in: order.items.map((item) => item.productId) } },
+        isRPC: true,
+      });
+
+      const productById = {};
+
+      for (const product of products) {
+        productById[product._id] = product;
+      }
+
       for (const item of order.items) {
-        const product = await sendProductsMessage({
-          subdomain,
-          action: 'findOne',
-          data: { _id: item.productId },
-          isRPC: true,
-        });
+        const product = productById[item.productId];
+
+        if (!product) {
+          await models.SyncLogs.updateOne(
+            { _id: syncLog._id },
+            {
+              $set: {
+                error: `not found product ${product._id}`,
+              },
+            }
+          );
+
+          continue;
+        }
 
         const sendSalesLine: any = {
           Document_No: responseSale.No,
           Type: 'Item',
-          No: product ? product.code : '',
+          No: productById[item.productId]
+            ? productById[item.productId].code
+            : '',
           Quantity: item.count || 0,
           Unit_Price: item.unitPrice || 0,
           Location_Code: config.locationCode || 'BEV-01',
         };
 
-        await fetch(`${salesLineApi}`, {
+        const responseSaleLine = await fetch(`${salesLineApi}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -831,6 +854,15 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
           },
           body: JSON.stringify(sendSalesLine),
         }).then((res) => res.json());
+
+        await models.SyncLogs.updateOne(
+          { _id: syncLog._id },
+          {
+            $push: {
+              responseSales: JSON.stringify(responseSaleLine),
+            },
+          }
+        );
       }
     }
 
