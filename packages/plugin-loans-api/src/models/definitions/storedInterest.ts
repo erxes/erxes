@@ -7,7 +7,9 @@ export interface IStoredInterest {
   prevStoredDate: Date;
   amount: number;
   commitmentInterest: number;
+  periodLockId:string;
   contractId: string;
+  number:string;
   type: string;
 }
 
@@ -26,7 +28,7 @@ export const storedInterestSchema = schemaHooksWrapper(
       index: true
     }),
     description: field({ type: String, optional: true, label: 'Description' }),
-    type: field({ type: String, optional: true, label: 'Description' }),
+    type: field({ type: String, optional: true, label: 'Type' }),
     invDate: field({
       type: Date,
       default: new Date(),

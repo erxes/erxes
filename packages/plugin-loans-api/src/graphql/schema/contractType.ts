@@ -7,8 +7,8 @@ export const types = () => `
     status: String
     number: String
     vacancy: Float
-    unduePercent: Float
-    undueCalcType: String
+    lossPercent: Float
+    lossCalcType: String
     useMargin: Boolean
     useSkipInterest: Boolean
     useDebt: Boolean
@@ -62,8 +62,8 @@ const commonFields = `
   status: String
   number: String
   vacancy: Float
-  unduePercent: Float 
-  undueCalcType: String
+  lossPercent: Float 
+  lossCalcType: String
   useMargin: Boolean
   useSkipInterest: Boolean
   useManualNumbering: Boolean

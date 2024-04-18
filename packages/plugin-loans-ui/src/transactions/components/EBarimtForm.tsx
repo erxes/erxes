@@ -167,7 +167,7 @@ class EBarimtForm extends React.Component<Props, State> {
           {this.renderRowTr('Payment', 'payment')}
           {this.renderRowTr('Interest Eve', 'interestEve')}
           {this.renderRowTr('Interest Nonce', 'interestNonce')}
-          {this.renderRowTr('Loss', 'undue')}
+          {this.renderRowTr('Loss', 'loss')}
           {this.renderRowTr('Insurance', 'insurance')}
           {this.renderRowTr('Debt', 'debt')}
         </>
@@ -194,7 +194,7 @@ class EBarimtForm extends React.Component<Props, State> {
         {this.renderRow('payment', 'payment')}
         {this.renderRow('interest eve', 'interestEve')}
         {this.renderRow('interest nonce', 'interestNonce')}
-        {this.renderRow('undue', 'undue')}
+        {this.renderRow('loss', 'loss')}
         {this.renderRow('insurance', 'insurance')}
         {this.renderRow('debt', 'debt')}
       </>

@@ -37,6 +37,7 @@ import { LEASE_TYPES } from '../../../contractTypes/constants';
 import SelectSavingContract, {
   Contracts,
 } from '../collaterals/SelectSavingContract';
+import moment from 'moment'
 
 const onFieldClick = (e) => {
   e.target.select();
@@ -129,8 +130,8 @@ class ContractForm extends React.Component<Props, State> {
       leaseAmount: contract.leaseAmount || 0,
       feeAmount: contract.feeAmount || 0,
       tenor: contract.tenor || 0,
-      unduePercent: contract.unduePercent || 0,
-      undueCalcType: contract.undueCalcType,
+      lossPercent: contract.lossPercent || 0,
+      lossCalcType: contract.lossCalcType,
       interestRate: contract.interestRate || 0,
       interestMonth: (contract.interestRate || 0) / 12,
       repayment: contract.repayment || 'fixed',
@@ -164,6 +165,8 @@ class ContractForm extends React.Component<Props, State> {
       useManualNumbering: contract.useManualNumbering,
       commitmentInterest: contract.commitmentInterest,
       savingContractId: contract.savingContractId,
+      firstPayDate: contract.firstPayDate,
+      holidayType: contract.holidayType || 'before',
       schedule:
         contract.repayment === 'custom'
           ? generateCustomGraphic({
@@ -176,6 +179,7 @@ class ContractForm extends React.Component<Props, State> {
               skipAmountCalcMonth: contract.skipAmountCalcMonth,
               customPayment: contract.customPayment,
               customInterest: contract.customInterest,
+              firstPayDate:contract.firstPayDate
             })
           : [],
     };
@@ -209,14 +213,14 @@ class ContractForm extends React.Component<Props, State> {
       leaseAmount: Number(this.state.leaseAmount),
       feeAmount: Number(this.state.feeAmount),
       tenor: Number(this.state.tenor),
-      unduePercent: Number(this.state.unduePercent),
+      lossPercent: Number(this.state.lossPercent),
       interestRate: Number(this.state.interestRate),
       skipInterestCalcMonth: Number(this.state.skipInterestCalcMonth),
       skipAmountCalcMonth: Number(this.state.skipAmountCalcMonth),
       customPayment: Number(this.state.customPayment),
       customInterest: Number(this.state.customInterest),
       repayment: this.state.repayment,
-      undueCalcType: this.state.undueCalcType || 'fromInterest',
+      lossCalcType: this.state.lossCalcType || 'fromInterest',
       startDate: this.state.startDate,
       scheduleDays: this.state.scheduleDays,
       debt: Number(this.state.debt),
@@ -247,6 +251,7 @@ class ContractForm extends React.Component<Props, State> {
       loanPurpose: this.state.loanPurpose,
       endDate: this.state.endDate,
       loanDestination: this.state.loanDestination,
+      holidayType: this.state.holidayType,
     };
 
     if (this.state.leaseType === 'salvage') {
@@ -306,6 +311,7 @@ class ContractForm extends React.Component<Props, State> {
           name === 'isPayFirstMonth' ||
           name === 'interestRate' ||
           name === 'startDate')) ||
+          name === 'firstPayDate' ||
       name === 'skipAmountCalcMonth'
     ) {
       const tenor = Number(this.getMainValue('tenor', name, value));
@@ -320,6 +326,7 @@ class ContractForm extends React.Component<Props, State> {
       const interestRate = this.getMainValue('interestRate', name, value);
       const startDate = this.getMainValue('startDate', name, value);
       const scheduleDays = this.getMainValue('scheduleDays', name, value);
+      const firstPayDate = this.getMainValue('firstPayDate', name, value);
       const skipAmountCalcMonth = this.getMainValue(
         'skipAmountCalcMonth',
         name,
@@ -336,6 +343,7 @@ class ContractForm extends React.Component<Props, State> {
         customPayment,
         isPayFirstMonth,
         skipAmountCalcMonth,
+        firstPayDate
       });
       this.setState({ schedule: schedules });
     }
@@ -373,11 +381,11 @@ class ContractForm extends React.Component<Props, State> {
       changingStateValue['scheduleDays'] = [contractTypeObj.invoiceDay];
     }
 
-    if (!this.state.unduePercent) {
-      changingStateValue['unduePercent'] = contractTypeObj?.unduePercent;
+    if (!this.state.lossPercent) {
+      changingStateValue['lossPercent'] = contractTypeObj?.lossPercent;
     }
-    if (!this.state.undueCalcType) {
-      changingStateValue['undueCalcType'] = contractTypeObj?.undueCalcType;
+    if (!this.state.lossCalcType) {
+      changingStateValue['lossCalcType'] = contractTypeObj?.lossCalcType;
     }
     if (!this.state.interestMonth && contractTypeObj?.config?.defaultInterest) {
       changingStateValue['interestMonth'] = Number(
@@ -787,6 +795,12 @@ class ContractForm extends React.Component<Props, State> {
       this.setState({ startDate: value });
     };
 
+    const onChangeFirstPayDate = (value) => {
+      this.setState({ firstPayDate: value });
+    };
+
+    
+
     const onSelectScheduleDays = (values) => {
       this.onChangeField({
         target: { name: 'scheduleDays', value: values.map((val) => val.value) },
@@ -860,6 +874,29 @@ class ContractForm extends React.Component<Props, State> {
                 })}
             </FormColumn>
             <FormColumn>
+              <FormGroup>
+                <ControlLabel required={true}>{__('First Pay Date')}</ControlLabel>
+                <DateContainer>
+                  <DateControl
+                    {...formProps}
+                    required={false}
+                    name="firstPayDate"
+                    dateFormat="YYYY/MM/DD"
+                    value={this.state.firstPayDate}
+                    onChange={onChangeFirstPayDate}
+                    isValidDate={(date)=>{
+                      const startDate = new Date(this.state.startDate)
+                      const maxDate = moment(startDate).add(45,'day').toDate()
+
+                      if(date > maxDate)
+                        return false
+                      if(startDate > date)
+                        return false
+                      return true
+                    }}
+                  />
+                </DateContainer>
+              </FormGroup>
               {this.state.leaseType === LEASE_TYPES.FINANCE && (
                 <FormGroup>
                   <ControlLabel required={true}>{__('Repayment')}</ControlLabel>
@@ -961,6 +998,22 @@ class ContractForm extends React.Component<Props, State> {
                 onChange: this.onChangeField,
                 onClick: onFieldClick,
               })}
+              <FormGroup>
+                <ControlLabel required={true}>{__('Holiday type')}</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="holidayType"
+                  componentClass="select"
+                  value={this.state.holidayType}
+                  onChange={this.onChangeField}
+                >
+                  {['before', 'exact', 'after'].map((typeName, index) => (
+                    <option key={typeName} value={typeName}>
+                      {__(typeName + 'Method')}
+                    </option>
+                  ))}
+                </FormControl>
+              </FormGroup>
               {this.state.repayment === 'custom' &&
                 this.renderFormGroup('Custom Interest', {
                   ...formProps,
@@ -971,15 +1024,6 @@ class ContractForm extends React.Component<Props, State> {
                   value: this.state.customInterest || 0,
                   onChange: this.onChangeField,
                   onClick: onFieldClick,
-                })}
-              {this.state.leaseType === LEASE_TYPES.FINANCE &&
-                this.renderFormGroup('Is Pay First Month', {
-                  className: 'flex-item',
-                  type: 'checkbox',
-                  componentClass: 'checkbox',
-                  name: 'isPayFirstMonth',
-                  checked: this.state.isPayFirstMonth || false,
-                  onChange: this.onChangeField,
                 })}
             </FormColumn>
           </FormWrapper>

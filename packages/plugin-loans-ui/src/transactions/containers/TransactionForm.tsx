@@ -4,7 +4,8 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import { IInvoice } from '../../invoices/types';
-import TransactionForm from '../components/TransactionForm';
+import LoanRepayment from '../components/TransactionFormRepayment';
+import LoanGive from '../components/TransactionFormGive';
 import { mutations } from '../graphql';
 import { ITransaction } from '../types';
 import { __ } from 'coreui/utils';
@@ -32,6 +33,7 @@ class TransactionFromContainer extends React.Component<FinalProps> {
       isSubmitted,
       object
     }: IButtonMutateProps) => {
+
       const { closeModal, getAssociatedTransaction } = this.props;
 
       const afterSave = data => {
@@ -71,7 +73,10 @@ class TransactionFromContainer extends React.Component<FinalProps> {
       // invoice,
       transaction: { ...transaction }
     };
-    return <TransactionForm {...updatedProps} />;
+
+    if(this.props.type === 'give')
+      return <LoanGive {...updatedProps}/>
+    return <LoanRepayment {...updatedProps} />;
   }
 }
 

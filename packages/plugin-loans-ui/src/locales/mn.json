@@ -93,7 +93,7 @@
   "Year Percents": "Жилийн хүү",
   "Add insuranceType": "Даатгалын төрөл нэмэх",
   "New insuranceType": "Шинэ даатгалын төрөл",
-  "Loan not calc undue settings": "Гэрээнд алданги тооцохгүй үеүдийг тохируулах тохиргооны хэсэг",
+  "Loan not calc loss settings": "Гэрээнд алданги тооцохгүй үеүдийг тохируулах тохиргооны хэсэг",
   "Loss percent": "Нэмэгдүүлсэн хүүгийн хувь",
   "Loss configs": "Нэмэгдүүлсэн хүүгийн тохиргоо",
   "New config": "Шинэ тохиргоо",

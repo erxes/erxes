@@ -24,7 +24,7 @@ function ScheduleRow({ schedule }: Props) {
       <td>{dayjs(schedule.payDate).format('ll')}</td>
       <td>{renderCell('payment')}</td>
       <td>{renderCell('storedInterest')}</td>
-      <td>{renderCell('undue')}</td>
+      <td>{renderCell('loss')}</td>
       <td>{renderCell('total')}</td>
     </ExtraRow>
   );
