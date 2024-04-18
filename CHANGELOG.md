@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.1](https://github.com/erxes/erxes/compare/1.8.0...1.8.1) (2024-04-18)
+
+
+### Bug Fixes
+
+* **custom domain:** fix saas custom domain config ([f74c50d](https://github.com/erxes/erxes/commit/f74c50dca9b97369a040879f8c12fa00d620cda5))
+
 ## [1.8.0](https://github.com/erxes/erxes/compare/1.8.0-rc.3...1.8.0) (2024-04-17)
 
 
