@@ -46,7 +46,10 @@ class TopBar extends React.Component<Props> {
   renderIcons(icon: string, left?: boolean, size?: number) {
     return (
       <TopBarIcon isLeft={left || false}>
-        <Icon icon={icon} size={size || 24} />
+        <Icon
+          icon={icon}
+          size={size || 24}
+        />
       </TopBarIcon>
     );
   }
@@ -57,8 +60,11 @@ class TopBar extends React.Component<Props> {
     }
 
     return (
-      <a href="#icon">
-        <Icon icon={icon} size={18} />
+      <a href='#icon'>
+        <Icon
+          icon={icon}
+          size={18}
+        />
       </a>
     );
   }
@@ -106,7 +112,7 @@ class TopBar extends React.Component<Props> {
     const { brands = [], brandId } = this.props;
     let currentBrand = {} as IBrand;
 
-    brands.map(brand => {
+    brands.map((brand) => {
       if (brand._id !== brandId) {
         return null;
       }
@@ -181,14 +187,13 @@ class TopBar extends React.Component<Props> {
 
   renderGreetingTopbar() {
     const { facebook, instagram, twitter, youtube } = this.props;
-
     return (
       <>
         <ErxesGreeting>
           <Links>
             <Socials>
               {this.renderLink(facebook, 'facebook-official')}
-              {this.renderLink(instagram, 'instagram')}
+              {this.renderLink(instagram, 'instagram-official')}
               {this.renderLink(twitter, 'twitter')}
               {this.renderLink(youtube, 'youtube-play')}
             </Socials>

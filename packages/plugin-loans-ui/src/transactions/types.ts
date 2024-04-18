@@ -21,7 +21,7 @@ export interface ITransactionDoc {
   payment: number;
   interestEve: number;
   interestNonce: number;
-  undue: number;
+  loss: number;
   insurance: number;
   debt: number;
   total: number;

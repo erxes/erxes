@@ -10,6 +10,7 @@ type Params = {
   dateRange: number[];
   startDate: Date;
   skipAmountCalcMonth: number;
+  firstPayDate: Date;
 };
 
 export const getDiffDay = (fromDate: Date, toDate: Date) => {
@@ -28,6 +29,7 @@ export function generateCustomGraphic({
   customPayment,
   isPayFirstMonth,
   skipAmountCalcMonth,
+  firstPayDate
 }: Params) {
   let schedules: LoanSchedule[] = [];
   let payment =
@@ -51,6 +53,10 @@ export function generateCustomGraphic({
 
       if (isPayFirstMonth === true && mainDate < startDate) {
         return;
+      }
+
+      if(index == 0 && mainDate !== firstPayDate){
+        mainDate = firstPayDate
       }
 
       let amount = skipAmountCalcMonth > index ? 0 : payment;
