@@ -13,7 +13,6 @@ import { useMutation } from "@apollo/client";
 
 import BasicInfoSection from "../../components/detail/BasicInfoSection";
 import { mutations } from "../../graphql";
-// import { withRouter } from 'react-router-dom';
 
 type Props = {
   clientPortalUser: IClientPortalUser;
@@ -56,5 +55,3 @@ const BasicInfoContainer = (props: FinalProps) => {
 };
 
 export default withCurrentUser(BasicInfoContainer);
-
-// export default withRouter<FinalProps>(BasicInfoContainer);

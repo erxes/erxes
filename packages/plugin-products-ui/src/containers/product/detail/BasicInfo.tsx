@@ -58,4 +58,3 @@ const generateOptions = () => ({
 });
 
 export default BasicInfoContainer;
-// export default withRouter<FinalProps>(BasicInfoContainer);

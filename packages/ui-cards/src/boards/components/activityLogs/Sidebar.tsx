@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { __, router } from "@erxes/ui/src/utils";
 import { useLocation, useNavigate } from "react-router-dom";
 
-// import { withRouter } from 'react-router-dom';
 import FormControl from "@erxes/ui/src/components/form/Control";
 import Icon from "@erxes/ui/src/components/Icon";
 import { SEARCH_ACTIVITY_CHECKBOX } from "../../constants";

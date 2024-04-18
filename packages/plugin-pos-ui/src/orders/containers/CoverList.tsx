@@ -152,5 +152,3 @@ const generateParams = ({ queryParams }) => ({
 });
 
 export default CoverListContainer;
-
-// export default withRouter<Props>(CoverListContainer);

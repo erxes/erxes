@@ -135,5 +135,3 @@ const NotificationRow = (props: Props) => {
 };
 
 export default NotificationRow;
-
-// export default withRouter<Props>(NotificationRow);

@@ -10,7 +10,6 @@ import Box from '@erxes/ui/src/components/Box';
 import { Counts } from '@erxes/ui/src/types';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import React from 'react';
-// import { withRouter } from "react-router-dom";
 import { statusFilters } from '../constants';
 
 interface IProps {

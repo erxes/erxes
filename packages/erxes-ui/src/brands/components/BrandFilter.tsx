@@ -5,7 +5,6 @@ import Box from '../../components/Box';
 import DataWithLoader from '../../components/DataWithLoader';
 import { IBrand } from '../../brands/types';
 import React, { useEffect } from 'react';
-// import { withRouter } from 'react-router-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 interface IProps {

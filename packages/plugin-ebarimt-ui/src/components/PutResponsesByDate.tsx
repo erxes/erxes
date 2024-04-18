@@ -10,8 +10,6 @@ import { SUB_MENUS } from "../constants";
 import { TableWrapper } from "../styles";
 import { __ } from "@erxes/ui/src/utils";
 
-// import { withRouter } from 'react-router-dom';
-
 interface IProps {
   errorMsg: string;
   putResponses: IPutResponse[];

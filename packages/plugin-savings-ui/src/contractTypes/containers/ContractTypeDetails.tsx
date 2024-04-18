@@ -100,4 +100,3 @@ const ContractTypeDetailsContainer = (props: FinalProps) => {
 };
 
 export default ContractTypeDetailsContainer;
-// export default withRouter<FinalProps>(ContractTypeDetailsContainer);

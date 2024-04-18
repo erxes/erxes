@@ -10,7 +10,6 @@ import Box from '@erxes/ui/src/components/Box';
 import Button from '@erxes/ui/src/components/Button';
 import { CustomPadding } from '@erxes/ui-contacts/src/customers/styles';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-// import { withRouter } from 'react-router-dom';
 import { FormControl } from '@erxes/ui/src/components/form';
 import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { useLocation, useNavigate } from 'react-router-dom';

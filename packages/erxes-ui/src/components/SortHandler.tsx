@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { colors } from '../styles';
 import { router } from '../utils/core';
-// import { withRouter } from 'react-router-dom';
 import styled from 'styled-components';
 import { useLocation, useNavigate } from 'react-router-dom';
 

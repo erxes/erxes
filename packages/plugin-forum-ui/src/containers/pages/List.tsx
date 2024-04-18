@@ -7,7 +7,6 @@ import { mutations, queries } from '../../graphql';
 import Bulk from '@erxes/ui/src/components/Bulk';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-// import { withRouter } from 'react-router-dom';
 import { IPage } from '../../types';
 import PageList from '../../components/pages/PageList';
 import React from 'react';

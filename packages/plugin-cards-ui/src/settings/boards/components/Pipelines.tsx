@@ -5,7 +5,6 @@ import {
 } from '@erxes/ui-settings/src/constants';
 import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-// import { withRouter } from 'react-router-dom';
 import { __, router } from 'coreui/utils';
 import { useLocation, useNavigate } from 'react-router-dom';
 

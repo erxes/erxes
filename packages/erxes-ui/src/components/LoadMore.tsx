@@ -1,7 +1,6 @@
 import Button from "./Button";
 import React from "react";
 import { router } from "../utils/core";
-// import { withRouter } from 'react-router-dom';
 import { useLocation, useNavigate } from "react-router-dom";
 
 interface IProps {

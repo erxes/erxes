@@ -1,5 +1,4 @@
 import Button from "@erxes/ui/src/components/Button";
-// import { withRouter } from 'react-router-dom';
 import Icon from "@erxes/ui/src/components/Icon";
 import React from "react";
 import { router as routerUtils } from "@erxes/ui/src/utils";

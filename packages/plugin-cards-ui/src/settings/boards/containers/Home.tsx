@@ -15,8 +15,6 @@ import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '@erxes/ui-cards/src/settings/boards/graphql';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-// import { withRouter } from 'react-router-dom';
-
 type HomeContainerProps = {
   boardId: string;
 };

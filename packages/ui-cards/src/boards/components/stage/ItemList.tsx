@@ -1,7 +1,6 @@
 import * as routerUtils from "@erxes/ui/src/utils/router";
 
 import { Draggable, Droppable } from "react-beautiful-dnd";
-// import { withRouter } from 'react-router-dom';
 import {
   DropZone,
   EmptyContainer,

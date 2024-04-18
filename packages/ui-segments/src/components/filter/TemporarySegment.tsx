@@ -18,8 +18,6 @@ import { gql } from '@apollo/client';
 import styled from 'styled-components';
 import { Transition } from '@headlessui/react';
 
-// import { withRouter } from 'react-router-dom';
-
 export const RightMenuContainer = styled.div`
   position: fixed;
   z-index: 2;

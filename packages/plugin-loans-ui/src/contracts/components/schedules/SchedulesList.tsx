@@ -4,7 +4,6 @@ import { __ } from 'coreui/utils';
 import React from 'react';
 import Button from '@erxes/ui/src/components/Button';
 import ScheduleRow from './ScheduleRow';
-// import { withRouter } from 'react-router-dom';
 import { ScheduleYears } from '../../styles';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import Table from '@erxes/ui/src/components/table';

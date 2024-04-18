@@ -12,8 +12,6 @@ import mutations from '@erxes/ui-cards/src/settings/boards/graphql/mutations';
 import { queries } from '@erxes/ui-cards/src/boards/graphql';
 import { withProps } from '@erxes/ui/src/utils';
 
-// import { withRouter } from 'react-router-dom';
-
 type Props = { queryParams: any };
 
 type FinalProps = {

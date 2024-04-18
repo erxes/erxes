@@ -52,4 +52,3 @@ const BasicInfoContainer = (props: FinalProps) => {
 };
 
 export default BasicInfoContainer;
-// export default withRouter<FinalProps>(BasicInfoContainer);

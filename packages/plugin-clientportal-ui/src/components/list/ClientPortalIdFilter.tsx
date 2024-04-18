@@ -10,7 +10,6 @@ import { ClientPortalConfig } from "../../types";
 import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
 import Icon from "@erxes/ui/src/components/Icon";
 import React from "react";
-// import { withRouter } from 'react-router-dom';
 import { useLocation, useNavigate } from "react-router-dom";
 
 interface IProps {

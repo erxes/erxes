@@ -101,4 +101,3 @@ const PeriodLockDetailsContainer = (props: FinalProps) => {
 };
 
 export default PeriodLockDetailsContainer;
-// export default withRouter<FinalProps>(PeriodLockDetailsContainer);

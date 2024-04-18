@@ -5,7 +5,6 @@ import {
   BoardsGetLastQueryResponse,
   BoardsQueryResponse,
 } from '../types';
-// import { withRouter } from 'react-router-dom';
 import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from '../constants';
 import { router as routerUtils, withProps } from '@erxes/ui/src/utils';
 

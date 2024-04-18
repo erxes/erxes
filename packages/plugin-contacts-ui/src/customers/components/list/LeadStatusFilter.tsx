@@ -13,8 +13,6 @@ import React from 'react';
 import { leadStatusChoices } from '../../utils';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-// import { withRouter } from 'react-router-dom';
-
 interface IProps {
   counts: { [key: string]: number };
   loading: boolean;

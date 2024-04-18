@@ -7,7 +7,6 @@ import { __ } from '../../utils/core';
 import { cleanIntegrationKind } from '../../utils';
 import createChipText from './createChipText';
 import { gql } from '@apollo/client';
-// import { withRouter } from 'react-router-dom';
 import styled from 'styled-components';
 
 interface IProps {

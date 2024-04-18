@@ -14,8 +14,6 @@ import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { useQuery } from '@apollo/client';
 
-// import { withRouter } from 'react-router-dom';
-
 type FinalProps = {
   queryParams: any;
 } & RemoveMutationResponse;

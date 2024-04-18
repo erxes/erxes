@@ -8,7 +8,6 @@ import { Link } from 'react-router-dom';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-// import { withRouter } from 'react-router-dom';
 
 interface IProps {
   tags: ITag[];

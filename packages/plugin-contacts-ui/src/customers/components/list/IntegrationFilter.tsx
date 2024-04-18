@@ -9,7 +9,6 @@ import Box from '@erxes/ui/src/components/Box';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import React, { useEffect } from 'react';
-// import { withRouter } from 'react-router-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 interface IProps {
