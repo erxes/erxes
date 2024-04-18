@@ -7,6 +7,7 @@ import {
   getFullDate,
   updateContract,
   getProduct,
+  sendMessageBrokerData,
 } from '../utils';
 import { activeLoan } from './activeLoan';
 import { createSavingLoan } from './createSavingLoan';
@@ -19,13 +20,29 @@ export const createLoan = async (subdomain, params) => {
 
   const loanData = await customFieldToObject(subdomain, 'loans:contract', loan);
 
-  const customer = await getCustomer(subdomain, loan.customerId);
+  const customer = await sendMessageBrokerData(subdomain,'contacts','customers.findOne', {_id:loan.customerId});
 
-  const loanProduct = await getProduct(subdomain, loan.contractTypeId, 'loans');
+  const loanProduct = await sendMessageBrokerData(subdomain,'loans','contractType.findOne', {_id:loan.contractTypeId});
 
   const leasingExpert = await getUser(subdomain, loan.leasingExpertId);
 
   const branch = await getBranch(subdomain, loan.branchId);
+  
+  console.log('start--loanData----------------------------')
+  console.log(loanData)
+  console.log('end------------------------------')
+  console.log('start--customer----------------------------')
+  console.log(customer)
+  console.log('end------------------------------')
+  console.log('start--loanProduct----------------------------')
+  console.log(loanProduct)
+  console.log('end------------------------------')
+  console.log('start--leasingExpert----------------------------')
+  console.log(leasingExpert)
+  console.log('end------------------------------')
+  console.log('start--branch----------------------------')
+  console.log(branch)
+  console.log('end------------------------------')
 
   let sendData: any = {
     custCode: customer.code,
