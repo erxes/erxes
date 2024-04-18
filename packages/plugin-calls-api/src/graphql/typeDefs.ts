@@ -115,7 +115,11 @@ const queries = `
   callsActiveSession: CallActiveSession
   callHistories(${filterParams}, skip: Int): [CallHistory]
   callsGetConfigs: JSON
+<<<<<<< Updated upstream
 
+=======
+  callRecordUrl: String
+>>>>>>> Stashed changes
 `;
 
 const mutations = `
