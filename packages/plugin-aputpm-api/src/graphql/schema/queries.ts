@@ -59,6 +59,7 @@ const commonParams = `
   closedAt:DateFilter,
   pipelineIds:[String],
   boardId:String,
+  createdUserId:String,
 `;
 
 const commonUserParams = `
