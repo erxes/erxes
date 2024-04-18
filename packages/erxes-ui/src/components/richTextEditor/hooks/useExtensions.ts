@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Document } from '@tiptap/extension-document';
-import { EditorOptions } from '@tiptap/core';
+import { EditorOptions, JSONContent } from '@tiptap/core';
 import { Blockquote } from '@tiptap/extension-blockquote';
 import { Bold } from '@tiptap/extension-bold';
 import { BulletList } from '@tiptap/extension-bullet-list';
@@ -45,7 +45,7 @@ import {
   MentionSuggestionParams,
   getMentionSuggestions,
 } from '../utils/getMentionSuggestions';
-import { generateJSON } from '@tiptap/html';
+import { generateJSON, generateHTML as generateHTMLTiptap } from '@tiptap/html';
 export type UseExtensionsOptions = {
   /** Placeholder hint to show in the text input area before a user types a message. */
   placeholder?: string;
@@ -132,13 +132,13 @@ export default function useExtensions({
       History,
       ...(showMentions && mentionSuggestion
         ? [
-            Mention.configure({
-              HTMLAttributes: {
-                class: 'mention',
-              },
-              suggestion: getMentionSuggestions(mentionSuggestion),
-            }),
-          ]
+          Mention.configure({
+            HTMLAttributes: {
+              class: 'mention',
+            },
+            suggestion: getMentionSuggestions(mentionSuggestion),
+          }),
+        ]
         : []),
       CharacterCount.configure({
         limit,
@@ -153,42 +153,158 @@ export default function useExtensions({
 }
 export function useGenerateJSON(html: string) {
   return generateJSON(html, [
-    TableImproved,
-    TableRow,
-    TableHeader,
-    TableCell,
     Document,
+    Paragraph.extend({
+      addAttributes() {
+        return {
+          style: {
+            parseHTML: (element) => element.getAttribute('style'),
+          },
+        };
+      },
+    }),
+    Text,
+    Heading.extend({
+      addAttributes() {
+        return {
+          style: {
+            parseHTML: (element) => element.getAttribute('style'),
+          },
+        };
+      },
+    }),
+    DivNode,
+    SpanMark,
+    Link,
+    FontSize,
+    FontFamily,
+    TableImproved,
+    TableCell,
+    TableHeader,
+    TableRow,
     BulletList,
     CodeBlock,
-    HardBreak,
+    HardBreak.extend({
+      addKeyboardShortcuts() {
+        return {
+          // ctrl + enter [Win] = cmd + enter [macOS]
+          'Shift-Enter': () => this.editor.commands.setHardBreak(),
+          'Mod-Enter': () => false,
+          'Control-Enter': () => false,
+        };
+      },
+    }),
     ListItem,
     OrderedList,
-    Paragraph,
     Subscript,
     Superscript,
-    Text,
     Bold,
     Blockquote,
     Code,
     Italic,
     Underline,
-    ImageResize,
+    ImageResize.configure({
+      inline: true,
+      allowBase64: true,
+    }),
     Strike,
-    Link,
     Gapcursor,
-    TextAlign,
+    TextAlign.configure({
+      types: ['heading', 'paragraph', 'image'],
+    }),
     Color,
-    FontFamily,
-    Highlight,
+    Highlight.configure({ multicolor: true }),
     HorizontalRule,
     Dropcursor,
-    Heading,
     History,
-    FontSize,
-    DivNode,
-    Mention,
-    SpanMark,
+    Mention.configure({
+      HTMLAttributes: {
+        class: 'mention',
+      },
+
+    })
+    ,
     CharacterCount,
     Placeholder,
+    GlobalAttributes,
   ]);
+}
+
+export function generateHTML(json: JSONContent) {
+  return generateHTMLTiptap(json, [
+    Document,
+    Paragraph.extend({
+      addAttributes() {
+        return {
+          style: {
+            parseHTML: (element) => element.getAttribute('style'),
+          },
+        };
+      },
+    }),
+    Text,
+    Heading.extend({
+      addAttributes() {
+        return {
+          style: {
+            parseHTML: (element) => element.getAttribute('style'),
+          },
+        };
+      },
+    }),
+    DivNode,
+    SpanMark,
+    Link,
+    FontSize,
+    FontFamily,
+    TableImproved,
+    TableCell,
+    TableHeader,
+    TableRow,
+    BulletList,
+    CodeBlock,
+    HardBreak.extend({
+      addKeyboardShortcuts() {
+        return {
+          // ctrl + enter [Win] = cmd + enter [macOS]
+          'Shift-Enter': () => this.editor.commands.setHardBreak(),
+          'Mod-Enter': () => false,
+          'Control-Enter': () => false,
+        };
+      },
+    }),
+    ListItem,
+    OrderedList,
+    Subscript,
+    Superscript,
+    Bold,
+    Blockquote,
+    Code,
+    Italic,
+    Underline,
+    ImageResize.configure({
+      inline: true,
+      allowBase64: true,
+    }),
+    Strike,
+    Gapcursor,
+    TextAlign.configure({
+      types: ['heading', 'paragraph', 'image'],
+    }),
+    Color,
+    Highlight.configure({ multicolor: true }),
+    HorizontalRule,
+    Dropcursor,
+    History,
+    Mention.configure({
+      HTMLAttributes: {
+        class: 'mention',
+      },
+
+    })
+    ,
+    CharacterCount,
+    Placeholder,
+    GlobalAttributes,
+  ])
 }
