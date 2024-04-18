@@ -23,7 +23,7 @@ const getItem = async (subdomain, _id) => {
 
   const category = await models.Categories.findById(product.categoryId).lean();
 
-  const risks = await models.Risks.find({ productId: product._id }).lean();
+  const risks = await models.Risks.find({ _id: { $in: category.riskIds } }).lean();
 
   return { item, product, category, risks };
 };

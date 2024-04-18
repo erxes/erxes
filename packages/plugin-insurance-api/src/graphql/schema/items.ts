@@ -1,4 +1,13 @@
+import {
+  attachmentInput,
+  attachmentType,
+} from '@erxes/api-utils/src/commonTypeDefs';
+
 export const types = ({ contacts, clientportal }) => `
+
+${attachmentType}
+${attachmentInput}
+
 extend type Deal @key(fields: "_id") {
   _id: String! @external
 }
@@ -26,6 +35,8 @@ type InsuranceItem @key(fields: "_id") @cacheControl(maxAge: 3) {
 
     feePercent: Float
     totalFee: Float
+
+    contracts: [JSON]
   }
   
   input InsuranceItemInput {
@@ -68,6 +79,9 @@ export const queries = `
       searchField: SearchField
       searchValue: JSON): [InsuranceItem]
     insuranceItemList(
+      category: ID
+      product: ID
+      vendor: ID
       page: Int
       perPage: Int
       sortField: String
@@ -106,6 +120,7 @@ export const queries = `
 `;
 
 export const mutations = `
-    vendorAddInsuranceItem(doc: InsuranceItemInput): InsuranceItem
+    vendorAddInsuranceItem(doc: InsuranceItemInput): String
     vendorEditInsuranceItem(_id: ID!, firstName: String, lastName: String, customFieldsData: JSON ): InsuranceItem
+    insuranceItemEdit(_id: ID!, doc: InsuranceItemInput): InsuranceItem
 `;
