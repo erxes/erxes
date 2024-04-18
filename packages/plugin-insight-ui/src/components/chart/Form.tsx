@@ -25,18 +25,6 @@ import {
 } from '../../styles';
 import { IChart } from '../../types';
 
-const DIMENSION_OPTIONS = [
-  { label: 'Team members', value: 'teamMember' },
-  { label: 'Departments', value: 'department' },
-  { label: 'Branches', value: 'branch' },
-  { label: 'Source/Channel', value: 'source' },
-  { label: 'Brands', value: 'brand' },
-  { label: 'Tags', value: 'tag' },
-  { label: 'Labels', value: 'label' },
-  { label: 'Frequency (day, week, month)', value: 'frequency' },
-  { label: 'Status', value: 'status' },
-];
-
 type Props = {
   history: any;
   queryParams: any;
@@ -149,7 +137,7 @@ const Form = (props: Props) => {
   };
 
   const setFilter = (fieldName: string, value: any) => {
-    if (!value) {
+    if (value === undefined || value === null) {
       delete filters[fieldName];
       setFilters({ ...filters });
       return;

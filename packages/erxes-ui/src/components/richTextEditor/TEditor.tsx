@@ -33,7 +33,8 @@ import { RichTextEditorProvider } from './RichTextEditor.context';
 import { RichTextEditorToolbar } from './RichTextEditorToolbar/RichTextEditorToolbar';
 import { RichTextEditorWrapper } from './styles';
 import { Editor, useEditor } from '@tiptap/react';
-import useExtensions from './hooks/useExtensions';
+import useExtensions, { generateHTML, useGenerateJSON } from './hooks/useExtensions';
+import { replaceMentionsWithText, replaceSpanWithMention } from './utils/replaceMentionNode';
 const POSITION_TOP = 'top';
 const POSITION_BOTTOM = 'bottom';
 type toolbarLocationOption = 'bottom' | 'top';
@@ -72,7 +73,7 @@ const RichTextEditor = forwardRef(function RichTextEditor(
   ref: React.ForwardedRef<EditorMethods>
 ) {
   const {
-    placeholder,
+    placeholder='',
     content = '',
     onChange,
     labels,
@@ -101,10 +102,11 @@ const RichTextEditor = forwardRef(function RichTextEditor(
   const wrapperRef = useRef<HTMLDivElement>(null);
   const codeMirrorRef = useRef<ReactCodeMirrorRef>(null);
   const [isSourceEnabled, setIsSourceEnabled] = useState(false);
+  const [showMention, setShowMention] = useState(false);
   const extensions = useExtensions({
-    placeholder: placeholder ?? '',
+    placeholder,
     showMentions,
-    mentionSuggestion: showMentions ? mentionSuggestion : undefined,
+    mentionSuggestion ,
     limit,
   });
   const editor = useEditor(
@@ -112,13 +114,21 @@ const RichTextEditor = forwardRef(function RichTextEditor(
       extensions,
       parseOptions: { preserveWhitespace: true },
       autofocus: autoFocus,
-    },
-    [showMentions]
+    }
   );
 
   useEffect(() => {
+    setShowMention(showMentions);
+    
+    if (editor && !showMentions) {
+      //** If editor had mention node and mention is not allowed, clear mention nodes */
+      editor.commands.setContent(replaceMentionsWithText(editor.getJSON()))  
+    }
+  }, [showMentions]);
+
+  useEffect(() => {
     const handleEditorChange = ({ editor }) => {
-      const editorContent = editor.getHTML();
+      const editorContent = editor.getHTML(); 
       onChange && onChange(editorContent);
       if (name) {
         localStorage.setItem(name, editorContent);
@@ -136,7 +146,6 @@ const RichTextEditor = forwardRef(function RichTextEditor(
       const { from, to } = editor.state.selection;
 
       if (editorHTML !== content) {
-        setTimeout(() => {
           editor
             .chain()
             .setContent(content, false, {
@@ -144,32 +153,42 @@ const RichTextEditor = forwardRef(function RichTextEditor(
             })
             .setTextSelection({ from, to })
             .run();
-        });
       }
 
       onChange && onChange(content);
     }
   }, [editor, content]);
+
   useEffect(() => {
     if (editor && name) {
       const storedContent = localStorage.getItem(name);
+  
       if (!storedContent) {
         return;
       }
-      setTimeout(() => {
-        editor.commands.setContent(storedContent, false, {
-          preserveWhitespace: true,
-        });
+  
+      // Convert stored content to JSON format
+      const storedContentAsJson = useGenerateJSON(storedContent);
+  
+      // Regenerate content: When reloading, mention nodes might become spanMarks, so convert them back to mention node
+      const regeneratedContent = replaceSpanWithMention(storedContentAsJson);
+  
+      // Set the regenerated content to the editor
+      editor.commands.setContent(regeneratedContent, false, {
+        preserveWhitespace: true,
       });
-
-      onChange && onChange(storedContent);
+  
+      // If onChange function is provided, generate HTML from the content and call onChange
+      onChange && onChange(generateHTML(regeneratedContent));
     }
   }, [editor, name]);
+
   useEffect(() => {
     if (name && isSubmitted) {
       localStorage.removeItem(name);
     }
   }, [name, isSubmitted]);
+
   useImperativeHandle(
     ref,
     () => ({
@@ -315,6 +334,7 @@ const RichTextEditor = forwardRef(function RichTextEditor(
         isSourceEnabled,
         toggleSourceView,
         codeMirrorRef,
+        showMention 
       }}
     >
       <RichTextEditorWrapper innerRef={wrapperRef} $position={toolbarLocation}>

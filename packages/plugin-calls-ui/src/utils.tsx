@@ -73,7 +73,7 @@ export const callActions = (
   handleAudioToggle,
   isHolded,
   handleHold,
-  endCall
+  endCall,
 ) => {
   const isHold = isHolded().localHold;
 
@@ -121,11 +121,11 @@ export const setLocalStorage = (isRegistered, isAvailable) => {
     'callInfo',
     JSON.stringify({
       isRegistered,
-    })
+    }),
   );
 
   const callConfig = JSON.parse(
-    localStorage.getItem('config:call_integrations') || '{}'
+    localStorage.getItem('config:call_integrations') || '{}',
   );
 
   callConfig &&
@@ -138,7 +138,7 @@ export const setLocalStorage = (isRegistered, isAvailable) => {
         token: callConfig.token,
         operators: callConfig.operators,
         isAvailable,
-      })
+      }),
     );
 };
 

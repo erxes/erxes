@@ -314,7 +314,7 @@ const msdynamicSyncMutations = {
       _id: order._id,
       isSynced: true,
       syncedDate: response.Order_Date,
-      syncedBillNumber: response.Bill_to_Contact_No,
+      syncedBillNumber: response.No,
       syncedCustomer: response.Sell_to_Customer_No,
     };
   },
