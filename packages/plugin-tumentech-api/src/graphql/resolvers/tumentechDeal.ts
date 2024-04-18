@@ -2,7 +2,7 @@ import { IContext, models } from '../../connectionResolver';
 import { ITracking, ITrackingItem } from '../../models/definitions/trips';
 import {
   ITumentechDeal,
-  ITrackingData
+  ITrackingData,
 } from '../../models/definitions/tumentechDeal';
 import { sendContactsMessage } from '../../messageBroker';
 
@@ -15,14 +15,14 @@ const TumentechDeal = {
 
     return {
       __typename: 'Deal',
-      _id: dealId
+      _id: dealId,
     };
   },
 
   async startPlace(
     tumentechDeal: ITumentechDeal,
     _params,
-    { models: { Places } }: IContext
+    { models: { Places } }: IContext,
   ) {
     const { startPlaceId } = tumentechDeal;
 
@@ -36,7 +36,7 @@ const TumentechDeal = {
   async endPlace(
     tumentechDeal: ITumentechDeal,
     _params,
-    { models: { Places } }: IContext
+    { models: { Places } }: IContext,
   ) {
     const { endPlaceId } = tumentechDeal;
 
@@ -47,18 +47,19 @@ const TumentechDeal = {
     return Places.getPlace({ _id: endPlaceId });
   },
 
-  async trackingData(tumentechDeal, _params, { models: { Cars } }: IContext) {
+  async trackingData(tumentechDeal, _params, { models }: IContext) {
+    const { Cars } = models;
     const trackingDatas: ITracking[] = await models.Tracking.find({
-      dealId: tumentechDeal.dealId
+      dealId: tumentechDeal.dealId,
     });
 
     const sortList = (trackingData: ITrackingItem[]) => {
       const sorted = trackingData.sort((a, b) => a[2] - b[2]);
 
-      return sorted.map(t => ({
+      return sorted.map((t) => ({
         lat: t[0],
         lng: t[1],
-        trackedDate: new Date(t[2] * 1000)
+        trackedDate: new Date(t[2] * 1000),
       }));
     };
 
@@ -71,7 +72,7 @@ const TumentechDeal = {
         carId: trackingData.carId,
         car,
         dealId: tumentechDeal.dealId,
-        list: sortList(trackingData.trackingData)
+        list: sortList(trackingData.trackingData),
       };
 
       sortedData.push(obj);
@@ -83,7 +84,7 @@ const TumentechDeal = {
   async warehouseUserToLoad(
     tumentechDeal: ITumentechDeal,
     _params,
-    { subdomain }: IContext
+    { subdomain }: IContext,
   ) {
     const { warehouseUserIdToLoad } = tumentechDeal;
 
@@ -95,10 +96,10 @@ const TumentechDeal = {
       subdomain,
       action: 'customers.findOne',
       data: {
-        _id: warehouseUserIdToLoad
+        _id: warehouseUserIdToLoad,
       },
       isRPC: true,
-      defaultValue: undefined
+      defaultValue: undefined,
     });
     if (!customer) {
       return null;
@@ -110,7 +111,7 @@ const TumentechDeal = {
   async warehouseUserToUnload(
     tumentechDeal: ITumentechDeal,
     _params,
-    { subdomain }: IContext
+    { subdomain }: IContext,
   ) {
     const { warehouseUserIdToUnload } = tumentechDeal;
 
@@ -122,17 +123,17 @@ const TumentechDeal = {
       subdomain,
       action: 'customers.findOne',
       data: {
-        _id: warehouseUserIdToUnload
+        _id: warehouseUserIdToUnload,
       },
       isRPC: true,
-      defaultValue: undefined
+      defaultValue: undefined,
     });
     if (!customer) {
       return null;
     }
 
     return customer;
-  }
+  },
 };
 
 export { TumentechDeal };
