@@ -315,7 +315,7 @@ const KnowledgeForm = (props: Props) => {
           <FormControl
             {...formProps}
             name="code"
-            defaultValue={topic.code || ""}
+            defaultValue={topic ? topic.code : ""}
           />
         </FormGroup>
 

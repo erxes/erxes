@@ -257,7 +257,7 @@ const ToggleButton = styled(SimpleButton)`
 const FlexRow = styledTS<{
   gapPx?: number;
 }>(styled.div)`
-  gap: ${props => (props.gapPx ? `${props.gapPx}px` : 'auto')}
+  gap: ${props => (props.gapPx ? `${props.gapPx}px` : 'auto')};
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -616,7 +616,7 @@ const TimeclockTableWrapper = styled.div`
     position: sticky;
     left: 0;
     background: #fff;
-    z-index: 99;
+    z-index: 10;
   }
 `;
 

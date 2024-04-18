@@ -48,8 +48,8 @@ const ArticleForm = (props: Props) => {
 
   const articleD = article || ({ content: "" } as IArticle);
   const attachmentsD =
-    (article.attachments && extractAttachment(article.attachments)) || [];
-  const imageD = article.image ? extractAttachment([article.image])[0] : null;
+    (article && article.attachments && extractAttachment(article.attachments)) || [];
+  const imageD = article && article.image ? extractAttachment([article.image])[0] : null;
 
   const [content, setContent] = useState<string>(articleD.content);
   const [reactionChoices, setReactionChoices] = useState<string[]>(
@@ -135,7 +135,7 @@ const ArticleForm = (props: Props) => {
   };
 
   const handleContentChange = (e) => {
-    setContent(e.editor.getData());
+    setContent(e);
   };
 
   const handleReactionsChange = (options: OnChangeValue<IOption, true>) => {
@@ -385,7 +385,7 @@ const ArticleForm = (props: Props) => {
               />
             </FormGroup>
           </FlexItem>
-          <FlexItem count={2} hasSpace={true}>
+          <FlexItem count={2} $hasSpace={true}>
             <FormGroup>
               <ControlLabel required={true}>{__("Status")}</ControlLabel>
               <Select
@@ -412,7 +412,7 @@ const ArticleForm = (props: Props) => {
 
         <FlexContent>
           <FlexItem count={3}>{renderTopics(formProps)}</FlexItem>
-          <FlexItem count={3} hasSpace={true}>
+          <FlexItem count={3} $hasSpace={true}>
             {renderCategories(formProps)}
           </FlexItem>
         </FlexContent>
@@ -436,7 +436,7 @@ const ArticleForm = (props: Props) => {
         </FormGroup>
 
         <FlexContent>
-          <FlexItem count={2} hasSpace={true}>
+          <FlexItem count={2} $hasSpace={true}>
             <FormGroup>
               <ControlLabel>{__("File url")}</ControlLabel>
               <FormControl
@@ -458,7 +458,7 @@ const ArticleForm = (props: Props) => {
               />
             </FormGroup>
           </FlexItem>
-          <FlexItem count={2} hasSpace={true}>
+          <FlexItem count={2} $hasSpace={true}>
             <FormGroup>
               <ControlLabel>{__("File size (byte)")}</ControlLabel>
               <FormControl
@@ -485,7 +485,7 @@ const ArticleForm = (props: Props) => {
               />
             </FormGroup>
           </FlexItem>
-          <FlexItem count={2} hasSpace={true}>
+          <FlexItem count={2} $hasSpace={true}>
             <FormGroup>
               <ControlLabel>{__("File duration (sec)")}</ControlLabel>
               <FormControl
