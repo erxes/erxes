@@ -3,18 +3,18 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import FormControl from '@erxes/ui/src/components/form/Control';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import { LinkButton } from '@erxes/ui/src/styles/main';
-import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
+import { IQueryParams, IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
-import { withRouter } from 'react-router-dom';
 import Modal from 'react-bootstrap/Modal';
+import { withRouter } from 'react-router-dom';
 import OSMBuildings from '../../../common/OSMBuildings';
 import OSMap from '../../../common/OSMap';
 import { ICoordinates } from '../../../types';
@@ -58,14 +58,14 @@ const List = (props: Props) => {
 
   const [map, setMap] = useState<any>(null);
   const [buildings, setBuildings] = useState<IBuilding[]>(
-    props.buildings || [],
+    props.buildings || []
   );
 
   const [currentOsmBuilding, setCurrentOsmBuilding] = useState<
     IOSMBuilding | undefined
   >(undefined);
   const [currentBuilding, setCurrentBuilding] = useState<IBuilding | undefined>(
-    undefined,
+    undefined
   );
   const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>();
@@ -81,38 +81,21 @@ const List = (props: Props) => {
     }
 
     if (buildings.length > 0 && map) {
-      map.highlight((feature: { id: string }) => {
-        console.log('feature  ', feature.id);
-        const foundBuilding = buildings.find((b) => b.osmbId === feature.id);
-        console.log('foundBuilding  ', foundBuilding);
-        const current = currentOsmBuilding?.id === feature.id;
-        if (foundBuilding && foundBuilding?.serviceStatus === 'active') {
-          return '#ff0000';
-        }
-        if (foundBuilding && foundBuilding?.serviceStatus === 'inactive') {
-          return '#00bbff';
-        }
-        if (foundBuilding && foundBuilding?.serviceStatus === 'inprogress') {
-          return '#ffcc00';
-        }
-        if (foundBuilding && foundBuilding?.serviceStatus === 'unavailable') {
-          return '#00ff00';
-        }
-
-        if (current) {
-          return '#00bbff';
+      map.highlight((feature: any) => {
+        const serviceStatus = feature.properties?.serviceStatus || 'inactive';
+        switch (serviceStatus) {
+          case 'active':
+            return '#ff0000';
+          case 'inactive':
+            return '#00bbff';
+          case 'inprogress':
+            return '#ffcc00';
+          case 'unavailable':
+            return '#00ff00';
+          default:
+            return '#00bbff';
         }
       });
-    }
-
-    if (currentOsmBuilding) {
-      const foundBuilding = buildings.find(
-        (b) => b.osmbId === currentOsmBuilding.id,
-      );
-
-      if (foundBuilding) {
-        return history.push(`/mobinet/building/details/${foundBuilding._id}`);
-      }
     }
   }, [map, props.buildings, buildings, isFormOpen, currentOsmBuilding]);
 
@@ -139,6 +122,13 @@ const List = (props: Props) => {
 
   const onChangeBuilding = (e) => {
     const buildingId = e.id;
+
+    const { properties } = e;
+
+    if (properties._id) {
+      history.push(`/mobinet/building/details/${properties._id}`);
+      return;
+    }
 
     if (!buildingId) {
       setIsFormOpen(false);

@@ -67,7 +67,7 @@ const Row = (props: Props) => {
         id="duration"
         componentClass="select"
         placeholder="Duration"
-        value={config.duration}
+        value={config.duration || 4}
         onChange={onChangeInput}
       >
         {DURATION_OPTIONS.map((option) => (
@@ -81,7 +81,7 @@ const Row = (props: Props) => {
         id="numberOfPeople"
         componentClass="select"
         placeholder="Number of people in a group"
-        value={config.numberOfPeople}
+        value={config.numberOfPeople || '1'}
         onChange={onChangeInput}
       >
         {GROUP_OPTIONS.map((option) => (

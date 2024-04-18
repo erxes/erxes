@@ -34,3 +34,22 @@ export const CustomRangeContainer = styled.div`
     }
   }
 `;
+
+export const FinanceAmount = styled.div`
+  float: right;
+`;
+
+export const FlexRow = styled.div`
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+
+  > div:first-child {
+    padding-right: ${dimensions.coreSpacing}px;
+  }
+`;
+
+export const DetailRow = styled(FlexRow)`
+  justify-content: space-around;
+`;

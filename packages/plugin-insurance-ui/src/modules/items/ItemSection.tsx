@@ -49,7 +49,6 @@ export default ({ id }: { id: string }) => {
   const item = data.insuranceItemByDealId;
 
 
-  console.log(item);
 
   //   const extraButtons = (
   //     <>

@@ -8,6 +8,7 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 import React from 'react';
 
 import { mutations, queries } from '../graphql';
+import { filterFieldGroups } from '../../../utils';
 
 type Props = {
   isDetail: boolean;
@@ -63,17 +64,10 @@ const CustomFieldsSection = (props: Props) => {
 
   let fieldsGroups = fieldsGroupsQuery.data.fieldsGroups || [];
 
-  const codeMap = {
-    1: 'vehicle',
-    2: 'citizen',
-  };
-
   const categoryCode = props.categoryCode;
 
   if (categoryCode) {
-    fieldsGroups = fieldsGroups.filter(
-      (group) => group.code === codeMap[categoryCode] || group.parentId,
-    );
+    fieldsGroups = filterFieldGroups(fieldsGroups, categoryCode);
   }
 
   const onValuesChange = (data) => {

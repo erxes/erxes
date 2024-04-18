@@ -25,16 +25,11 @@ const formatNumber = (n: number) => {
     useGrouping: false,
   });
 };
-
 export const getSpentTime = (seconds: number) => {
   const hours = Math.floor(seconds / 3600);
-
   seconds -= hours * 3600;
-
   const minutes = Math.floor(seconds / 60);
-
   seconds -= minutes * 60;
-
   return (
     <>
       {hours !== 0 && formatNumber(hours)}
@@ -45,7 +40,6 @@ export const getSpentTime = (seconds: number) => {
     </>
   );
 };
-
 export const renderKeyPad = (handNumPad) => {
   return (
     <Keypad>
@@ -74,7 +68,6 @@ export const renderKeyPad = (handNumPad) => {
     </Keypad>
   );
 };
-
 export const callActions = (
   isMuted,
   handleAudioToggle,
@@ -153,7 +146,6 @@ export const calculateTimeElapsed = (startedMoment) => {
   const now = moment(new Date());
   return now.diff(startedMoment, 'seconds');
 };
-
 export const extractPhoneNumberFromCounterpart = (counterpart) => {
   if (!counterpart) return '';
   const startIndex = counterpart.indexOf(':') + 1;

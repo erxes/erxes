@@ -13,6 +13,8 @@ type Props = {
   changeEndTime: (day_key: string, time: Date) => void;
   removeDate?: (day_key: string) => void;
   timeOnly?: boolean;
+
+  flexitbleTime?: boolean;
 };
 
 const DateTimePicker = (props: Props) => {
@@ -26,7 +28,8 @@ const DateTimePicker = (props: Props) => {
     startDate,
     overnightShift,
     startTime_value,
-    endTime_value
+    endTime_value,
+    flexitbleTime
   } = props;
 
   const onDateChange = val => {
@@ -83,8 +86,7 @@ const DateTimePicker = (props: Props) => {
         gap: '10px',
         alignItems: 'center'
       }}
-      key={curr_day_key}
-    >
+      key={curr_day_key}>
       {!timeOnly && (
         <Datetime
           value={startDate}
@@ -92,21 +94,36 @@ const DateTimePicker = (props: Props) => {
           onChange={onDateChange}
         />
       )}
-      <Datetime
-        value={startTime_value}
-        dateFormat={false}
-        timeFormat="HH:mm"
-        timeConstraints={{
-          hours: { min: 0, max: 24, step: 1 }
-        }}
-        onChange={val => onTimeChange(val, 'start')}
-      />
-      <Datetime
-        value={endTime_value}
-        dateFormat={false}
-        timeFormat="HH:mm"
-        onChange={val => onTimeChange(val, 'end')}
-      />
+      {flexitbleTime ? (
+        <>
+          <Datetime
+            value={startTime_value}
+            dateFormat={false}
+            timeFormat='HH:mm'
+            timeConstraints={{
+              hours: { min: 0, max: 24, step: 1 }
+            }}
+            onChange={val => onTimeChange(val, 'start')}
+          />
+          <Datetime
+            value={endTime_value}
+            dateFormat={false}
+            timeFormat='HH:mm'
+            onChange={val => onTimeChange(val, 'end')}
+          />
+        </>
+      ) : (
+        <Datetime
+          value={startTime_value}
+          dateFormat={false}
+          timeFormat='HH:mm'
+          timeConstraints={{
+            hours: { min: 0, max: 24, step: 1 }
+          }}
+          onChange={val => onTimeChange(val, 'start')}
+        />
+      )}
+
       {overnightShift ? 'Overnight' : ''}
     </div>
   );

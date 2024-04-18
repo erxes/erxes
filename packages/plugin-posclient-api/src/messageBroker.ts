@@ -112,11 +112,11 @@ export const setupMessageConsumers = async () => {
     `posclient:updateSynced${channelToken}`,
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
-      const { responseIds, orderId } = data;
+      const { responseIds, orderId, convertDealId } = data;
 
       await models.Orders.updateOne(
         { _id: orderId },
-        { $set: { synced: true } },
+        { $set: { synced: true, convertDealId } },
       );
       await models.PutResponses.updateMany(
         { _id: { $in: responseIds } },
