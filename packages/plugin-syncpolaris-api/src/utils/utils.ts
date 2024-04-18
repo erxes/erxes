@@ -52,7 +52,7 @@ export const fetchPolaris = async (args: IParams) => {
 export const sendMessageBrokerData = async (
   subdomain,
   serviceName: 'contacts' | 'savings' | 'core' | 'forms' | 'loans',
-  action: 'getConfig' | 'customers.findOne' | 'contractType.findOne',
+  action: 'getConfig' | 'customers.findOne' | 'contractType.findOne' | 'contracts.findOne',
   data
 ) => {
   return await sendCommonMessage({
