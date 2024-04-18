@@ -1,5 +1,5 @@
 import { IContext } from '../../../connectionResolver';
-import { sendKbMessage } from '../../../messageBroker';
+import { sendCommonMessage, sendKbMessage } from '../../../messageBroker';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
@@ -25,5 +25,20 @@ export default {
           defaultValue: null
         })
       : null;
+  },
+
+  async grant({ _id }, {}, { subdomain }: IContext) {
+    return await sendCommonMessage({
+      serviceName: 'grants',
+      subdomain,
+      action: 'requests.findOne',
+      data: {
+        contentType: 'ticket',
+        contentTypeId: _id,
+        scope: 'cards'
+      },
+      isRPC: true,
+      defaultValue: null
+    });
   }
 };
