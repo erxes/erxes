@@ -12,20 +12,16 @@ export default {
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers()
+      resolvers: await resolvers(),
     };
   },
   meta: {
     inboxIntegrations: [
       {
         kind: INTEGRATION_KINDS.MESSENGER,
-        label: 'Instagram messenger'
+        label: 'Instagram messenger',
       },
-      {
-        kind: INTEGRATION_KINDS.POST,
-        label: 'Instagram post'
-      }
-    ]
+    ],
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
@@ -38,7 +34,7 @@ export default {
   },
 
   onServerInit: async () => {
-    await initApp();
+    initApp();
   },
-  setupMessageConsumers
+  setupMessageConsumers,
 };

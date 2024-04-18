@@ -5,14 +5,14 @@ import {
   getOrgPromoCodes,
   getOrganizationDetail,
   getPlugins,
-  removeOrgsCache
+  removeOrgsCache,
 } from './saas';
 import { IOrganization } from './types';
 
 const sendCommonMessage = async ({ serviceName, action, subdomain, data }) => {
   return sendRPCMessage(serviceName + ':' + action, {
     subdomain,
-    data
+    data,
   });
 };
 
@@ -46,12 +46,6 @@ export const getUsageByPluginType = async (args: {
 
       case 'facebook-messenger':
         pluginType = 'facebookMessenger';
-
-      case 'instagram-post':
-        pluginType = 'instagramPost';
-
-      case 'instagram-messenger':
-        pluginType = 'instagramMessenger';
     }
   }
 
@@ -117,7 +111,7 @@ export const getUsageByPluginType = async (args: {
         subdomain,
         serviceName: 'contacts',
         action: 'customers.count',
-        data: {}
+        data: {},
       });
     }
   }
@@ -132,24 +126,11 @@ export const getUsageByPluginType = async (args: {
         subdomain,
         serviceName: 'inbox',
         action: 'integrations.count',
-        data: { selector }
+        data: { selector },
       });
     }
   }
-  if (pluginType === 'instagramPost') {
-    const selector = { kind: 'instagram-post' };
 
-    if (models) {
-      totalUsage = await models.Integrations.find(selector).count();
-    } else {
-      totalUsage = await sendCommonMessage({
-        subdomain,
-        serviceName: 'inbox',
-        action: 'integrations.count',
-        data: { selector }
-      });
-    }
-  }
   if (pluginType === 'facebookMessenger') {
     const selector = { kind: 'facebook-messenger' };
 
@@ -160,24 +141,11 @@ export const getUsageByPluginType = async (args: {
         subdomain,
         serviceName: 'inbox',
         action: 'integrations.count',
-        data: { selector }
+        data: { selector },
       });
     }
   }
-  if (pluginType === 'instagramMessenger') {
-    const selector = { kind: 'instagram-messenger' };
 
-    if (models) {
-      totalUsage = await models.Integrations.find(selector).count();
-    } else {
-      totalUsage = await sendCommonMessage({
-        subdomain,
-        serviceName: 'inbox',
-        action: 'integrations.count',
-        data: { selector }
-      });
-    }
-  }
   if (pluginType === 'cards:tickets') {
     if (models) {
       totalUsage = await models.Boards.find({ type: 'ticket' }).count();
@@ -186,7 +154,7 @@ export const getUsageByPluginType = async (args: {
         subdomain,
         serviceName: 'cards',
         action: 'boards.count',
-        data: { selector: { type: 'ticket' } }
+        data: { selector: { type: 'ticket' } },
       });
     }
   }
@@ -199,7 +167,7 @@ export const getUsageByPluginType = async (args: {
         subdomain,
         serviceName: 'cards',
         action: 'boards.count',
-        data: { selector: { type: 'task' } }
+        data: { selector: { type: 'task' } },
       });
     }
   }
@@ -212,7 +180,7 @@ export const getUsageByPluginType = async (args: {
         subdomain,
         serviceName: 'cards',
         action: 'boards.count',
-        data: { selector: { type: 'deal' } }
+        data: { selector: { type: 'deal' } },
       });
     }
   }
@@ -225,7 +193,7 @@ export const getUsageByPluginType = async (args: {
         subdomain,
         serviceName: 'cards',
         action: 'boards.count',
-        data: { selector: { type: 'growthHack' } }
+        data: { selector: { type: 'growthHack' } },
       });
     }
   }
@@ -240,7 +208,7 @@ export const getUsageByPluginType = async (args: {
         subdomain,
         serviceName: 'inbox',
         action: 'integrations.count',
-        data: { selector }
+        data: { selector },
       });
     }
   }
@@ -255,7 +223,7 @@ export const getUsageByPluginType = async (args: {
         subdomain,
         serviceName: 'inbox',
         action: 'integrations.count',
-        data: { selector }
+        data: { selector },
       });
     }
   }
@@ -270,7 +238,7 @@ export const getUsageByPluginType = async (args: {
         subdomain,
         serviceName: 'inbox',
         action: 'integrations.count',
-        data: { selector }
+        data: { selector },
       });
     }
   }
@@ -283,7 +251,7 @@ export const getUsageByPluginType = async (args: {
         subdomain,
         serviceName: 'knowledgebase',
         action: 'topics.count',
-        data: {}
+        data: {},
       });
     }
   }
@@ -296,7 +264,7 @@ export const getUsageByPluginType = async (args: {
         subdomain,
         serviceName: 'clientportal',
         action: 'clientPortals.count',
-        data: {}
+        data: {},
       });
     }
   }
@@ -309,7 +277,7 @@ export const getUsageByPluginType = async (args: {
         subdomain,
         serviceName: 'automations',
         action: 'find.count',
-        data: {}
+        data: {},
       });
     }
   }
@@ -335,7 +303,7 @@ export const getUsageByPluginType = async (args: {
         subdomain,
         serviceName: 'core',
         action: 'users.getCount',
-        data: {}
+        data: {},
       });
     }
   }
@@ -359,7 +327,7 @@ export const checkOrganizationCharge = async (args: {
     methodName,
     actionName,
     aboutToAddAmout,
-    params
+    params,
   } = args;
   const { models, subdomain } = context;
 
@@ -373,7 +341,7 @@ export const checkOrganizationCharge = async (args: {
     methodName,
     actionName,
     models,
-    params
+    params,
   });
 
   if (!pluginType) {
@@ -388,7 +356,7 @@ export const checkOrganizationCharge = async (args: {
     organization,
     donotCalcUsed,
     orgPromoCodes,
-    params
+    params,
   });
 
   if (usedAmount + (aboutToAddAmout || 0) >= totalAmount) {
@@ -410,7 +378,7 @@ export const calcUsage = async (args: {
     pluginType,
     organization,
     orgPromoCodes,
-    params
+    params,
   } = args;
 
   const plugins = await getPlugins({});
@@ -426,7 +394,7 @@ export const calcUsage = async (args: {
       purchasedAmount: 0,
       totalAmount: 0,
       usedAmount: 0,
-      remainingAmount: 0
+      remainingAmount: 0,
     };
   }
 
@@ -444,7 +412,7 @@ export const calcUsage = async (args: {
     const usageResponse = await getUsageByPluginType({
       pluginType,
       subdomain,
-      params
+      params,
     });
     totalUsage = usageResponse.totalUsage;
   }
@@ -482,7 +450,7 @@ export const calcUsage = async (args: {
     promoCodeAmount: isNaN(promoCodeAmount) ? 0 : promoCodeAmount,
     totalAmount,
     usedAmount: totalUsage,
-    remainingAmount
+    remainingAmount,
   };
 };
 
@@ -503,7 +471,7 @@ export const updateUsageCharge = async (args: {
   await coreModelOrganizations.updateOne(
     { _id: organization._id },
     { $set: { [`charge.${plType}.used`]: totalUsage + amount } },
-    { upsert: true }
+    { upsert: true },
   );
 
   await removeOrgsCache('updateOrganization');

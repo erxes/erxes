@@ -19,20 +19,19 @@ const loginMiddleware = async (req, res) => {
   );
 
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
-  const API_DOMAIN = DOMAIN.includes('ngrok') ? DOMAIN : `${DOMAIN}/gateway`;
+
   const INSTAGRAM_LOGIN_REDIRECT_URL = await getConfig(
     models,
     'INSTAGRAM_LOGIN_REDIRECT_URL',
-    `${API_DOMAIN}/pl:instagram/iglogin`
+    `${DOMAIN}/gateway/pl:instagram/iglogin`
   );
+
   const conf = {
     client_id: INSTAGRAM_APP_ID,
     client_secret: INSTAGRAM_APP_SECRET,
-
-    scope: `${INSTAGRAM_PERMISSIONS},instagram_manage_comments,instagram_basic,instagram_manage_messages,business_management`,
+    scope: `${INSTAGRAM_PERMISSIONS},instagram_basic,instagram_manage_messages,business_management`,
     redirect_uri: INSTAGRAM_LOGIN_REDIRECT_URL
   };
-
   debugRequest(debugFacebook, req);
   // we don't have a code yet
   // so we'll redirect to the oauth dialog
@@ -41,7 +40,7 @@ const loginMiddleware = async (req, res) => {
       client_id: conf.client_id,
       redirect_uri: conf.redirect_uri,
       scope: conf.scope,
-      state: `${API_DOMAIN}/pl:instagram`
+      state: `${DOMAIN}/gateway/pl:instagram`
     });
 
     // checks whether a user denied the app facebook login/permissions
@@ -111,7 +110,7 @@ const loginMiddleware = async (req, res) => {
       });
     }
 
-    const url = `${API_DOMAIN}/settings/ig-authorization?igAuthorized=true`;
+    const url = `${DOMAIN}/settings/ig-authorization?igAuthorized=true`;
 
     debugResponse(debugFacebook, req, url);
 

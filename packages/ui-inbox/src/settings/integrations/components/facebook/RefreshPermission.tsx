@@ -23,7 +23,7 @@ type Props = {
   webhookData: any;
   onSubmit: (
     id: string,
-    { name, brandId, channelIds }: IntegrationMutationVariables,
+    { name, brandId, channelIds, data }: IntegrationMutationVariables,
   ) => void;
   closeModal: () => void;
 };
@@ -85,7 +85,7 @@ class RefreshPermissionForm extends React.PureComponent<Props, CommonTypes> {
       <>
         <Info>
           {__(
-            'Instagram Page permissions can be dropped by Messenger platform if the admin of the page changes their account password or due to some other unexpected reason. In case of any trouble with message sending, or in using some other service, please refresh your permissions using the below button.',
+            'Page permissions can be dropped by Messenger platform if the admin of the page changes their account password or due to some other unexpected reason. In case of any trouble with message sending, or in using some other service, please refresh your permissions using the below button.',
           )}
           <RefreshPermission onClick={onClick}>
             Refresh permissions

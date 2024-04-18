@@ -1,7 +1,6 @@
 import Spinner from '@erxes/ui/src/components/Spinner';
 import React from 'react';
 import styled from 'styled-components';
-import { __ } from '@erxes/ui/src/utils/core';
 
 const Wrapper = styled.div`
   position: fixed;
@@ -29,7 +28,7 @@ export const Authorization = (props: Props) => {
   return (
     <Wrapper>
       {queryParams.igAuthorized ? (
-        <p>{__('Instagram authorized, You can close this window')}</p>
+        <p>__('Instagram authorized, You can close this window') </p>
       ) : (
         <Spinner />
       )}

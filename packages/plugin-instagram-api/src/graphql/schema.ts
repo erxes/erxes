@@ -62,32 +62,16 @@ export const types = `
     isCustomerRead: Boolean
     mid: String
     internal: Boolean
-    permalink_url:String
-    postContent: String
+    
     customer: Customer
     user: User
   }
-
-  type InstagramPostMessage {
-    _id: String!
-    ${commonCommentAndMessageFields}
-    attachments: [Attachment]
-    customerId: String
-    userId: String
-    createdAt: Date
-    commentId: String
-
-    customer: Customer
-    user: User
-  }
-
 
   type InstagramPost @key(fields: "_id") {
     _id: String!
     ${commonPostAndCommentFields}
     content:String
   }
-
 `;
 
 export const queries = `
@@ -95,21 +79,14 @@ export const queries = `
   instagramGetIntegrations(kind: String): JSON
   instagramGetIntegrationDetail(erxesApiId: String): JSON 
   instagramGetConfigs: JSON
-  instagramGetComments(conversationId: String!, getFirst: Boolean, ${pageParams}): [InstagramPostMessage]
-  instagramGetCommentCount(${commentQueryParamDefs}): JSON
   instagramGetPages(accountId: String! kind: String!): JSON
-  instagramConversationDetail(_id: String!): JSON
   instagramConversationMessages(conversationId: String! getFirst: Boolean, ${pageParams}): [InstagramConversationMessage]
   instagramConversationMessagesCount(conversationId: String!): Int
-  instagramGetPost(erxesApiId: String): InstagramPost
   instagramHasTaggedMessages(conversationId: String!): Boolean
-  instagramPostMessages(conversationId: String! getFirst: Boolean, ${pageParams}): [InstagramPostMessage]
-  instagramPostMessagesCount(conversationId: String!): Int
 `;
 
 export const mutations = `
   instagramUpdateConfigs(configsMap: JSON!): JSON
   instagramRepair(_id: String!): JSON
-  instagramChangeCommentStatus(commentId: String): InstagramComment
-  instagramReplyToComment(conversationId: String, commentId: String, content: String): InstagramComment
+
 `;

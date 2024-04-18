@@ -47,29 +47,23 @@ type Props = {
 };
 
 type State = {
-  selectedPages: string[];
+  selectedPages: string;
   channelIds: string[];
 };
 
 class Instagram extends React.Component<Props, State> {
   constructor(props) {
     super(props);
-
     this.state = {
-      selectedPages: [],
+      selectedPages: '',
       channelIds: []
     };
   }
 
   onSelectPages = (pageId: string) => {
-    const { selectedPages } = this.state;
-    if (selectedPages.includes(pageId)) {
-      return this.setState({
-        selectedPages: selectedPages.filter((item) => item !== pageId)
-      });
-    }
-
-    this.setState({ selectedPages: [...selectedPages, pageId] });
+    this.setState({
+      selectedPages: pageId
+    });
   };
 
   generateDoc = (values: {
@@ -86,7 +80,7 @@ class Instagram extends React.Component<Props, State> {
       accountId: accountId ? accountId : values.accountId,
       channelIds: this.state.channelIds,
       data: {
-        pageIds: this.state.selectedPages
+        pageId: this.state.selectedPages
       }
     };
   };
@@ -99,12 +93,7 @@ class Instagram extends React.Component<Props, State> {
     }
 
     if (pages.length === 0) {
-      return (
-        <EmptyState
-          icon='folder-2'
-          text={__('There is no pages')}
-        />
-      );
+      return <EmptyState icon="folder-2" text={__('There is no pages')} />;
     }
 
     return (
@@ -112,10 +101,9 @@ class Instagram extends React.Component<Props, State> {
         <LeftItem>
           <AccountBox>
             <AccountTitle>{__('Instagram Pages')}</AccountTitle>
-            {pages.map((page) => (
+            {pages.map(page => (
               <AccountItem key={page.id}>
                 {page.name}
-
                 <Button
                   disabled={page.isUsed}
                   btnStyle={
@@ -123,7 +111,8 @@ class Instagram extends React.Component<Props, State> {
                       ? 'primary'
                       : 'simple'
                   }
-                  onClick={this.onSelectPages.bind(this, page.id)}>
+                  onClick={this.onSelectPages.bind(this, page.id)}
+                >
                   {this.state.selectedPages.includes(page.id)
                     ? __('Selected')
                     : __('Select')}
@@ -137,7 +126,7 @@ class Instagram extends React.Component<Props, State> {
   }
 
   onChange = <T extends keyof State>(key: T, value: State[T]) => {
-    this.setState({ [key]: value } as Pick<State, keyof State>);
+    this.setState(({ [key]: value } as unknown) as Pick<State, keyof State>);
   };
 
   channelOnChange = (values: string[]) => this.onChange('channelIds', values);
@@ -150,13 +139,11 @@ class Instagram extends React.Component<Props, State> {
     return (
       <>
         <Steps active={1}>
-          <Step
-            img='/images/icons/erxes-01.svg'
-            title='Connect Account'>
+          <Step img="/images/icons/erxes-01.svg" title="Connect Account">
             <FlexItem>
               <LeftItem>
                 <Accounts
-                  kind='instagram'
+                  kind="instagram"
                   onSelect={onAccountSelect}
                   onRemove={onRemoveAccount}
                 />
@@ -164,16 +151,15 @@ class Instagram extends React.Component<Props, State> {
             </FlexItem>
           </Step>
 
-          <Step
-            img='/images/icons/erxes-04.svg'
-            title='Connect Your Pages'>
+          <Step img="/images/icons/erxes-04.svg" title="Connect Your Pages">
             {this.renderPages()}
           </Step>
 
           <Step
-            img='/images/icons/erxes-16.svg'
-            title='Integration Setup'
-            noButton={true}>
+            img="/images/icons/erxes-16.svg"
+            title="Integration Setup"
+            noButton={true}
+          >
             <FlexItem>
               <LeftItem>
                 <FormGroup>
@@ -183,7 +169,7 @@ class Instagram extends React.Component<Props, State> {
                   </p>
                   <FormControl
                     {...formProps}
-                    name='messengerName'
+                    name="messengerName"
                     required={true}
                   />
                 </FormGroup>
@@ -211,10 +197,8 @@ class Instagram extends React.Component<Props, State> {
             <strong> {this.props.kind}</strong> {__('integration')}
           </Indicator>
           <Button.Group>
-            <Link to='/settings/integrations'>
-              <Button
-                btnStyle='simple'
-                icon='times-circle'>
+            <Link to="/settings/integrations">
+              <Button btnStyle="simple" icon="times-circle">
                 Cancel
               </Button>
             </Link>
@@ -235,10 +219,8 @@ class Instagram extends React.Component<Props, State> {
   };
 
   render() {
-    let title = __('Instagram Posts');
-    let description = __(
-      'Connect your Instagram Posts to start receiving Instagram post and comments in your team inbox'
-    );
+    let title;
+    let description;
 
     if (this.props.kind === INTEGRATION_KINDS.INSTAGRAM_MESSENGER) {
       title = __('Instagram Messenger');
@@ -255,10 +237,7 @@ class Instagram extends React.Component<Props, State> {
 
     return (
       <StepWrapper>
-        <Wrapper.Header
-          title={title}
-          breadcrumb={breadcrumb}
-        />
+        <Wrapper.Header title={title} breadcrumb={breadcrumb} />
         <Content>
           {this.renderForm()}
 
@@ -270,10 +249,7 @@ class Instagram extends React.Component<Props, State> {
                     {__('Connect your')} {title}
                   </h1>
                   <p>{description}</p>
-                  <img
-                    alt={title}
-                    src='/images/previews/facebook.png'
-                  />
+                  <img alt={title} src="/images/previews/facebook.png" />
                 </TextWrapper>
               </ImageWrapper>
             </Preview>

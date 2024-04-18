@@ -41,7 +41,7 @@ export default class TagMessage extends React.Component<Props, State> {
       <Mask id="mask">
         <MaskText>
           {__(
-            'Your last interaction with this contact was more than 24 hours ago. Only Tagged Messages are allowed outside the standard messaging window'
+            'Your last interaction with this contact was more than 24 hours ago. Only Tagged Messages are allowed outside the standard messaging window',
           )}
           <FacebookTaggedMessage>
             <TaggedMessageModal

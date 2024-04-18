@@ -9,21 +9,20 @@ import styledTS from 'styled-components-ts';
 const RoundedBackground = styledTS<{ type: string; size?: number }>(
   styled.span
 )`
-  width: ${(props) => (props.size ? `${props.size}px` : '20px')};
-  height: ${(props) => (props.size ? `${props.size}px` : '20px')};
-  border-radius: ${(props) => (props.size ? `${props.size / 2}px` : '11px')};
+  width: ${props => (props.size ? `${props.size}px` : '20px')};
+  height: ${props => (props.size ? `${props.size}px` : '20px')};
+  border-radius: ${props => (props.size ? `${props.size / 2}px` : '11px')};
   text-align: center;
   display: flex;
   justify-content: center;
-  line-height: ${(props) => (props.size ? `${props.size - 1}px` : '20px')};
-  background: ${(props) =>
+  line-height: ${props => (props.size ? `${props.size - 1}px` : '20px')};
+  background: ${props =>
     (props.type === 'lead' && darken(colors.colorCoreYellow, 32)) ||
     (props.type === 'messenger' && colors.colorCoreBlue) ||
     (props.type === 'twitter-dm' && colors.socialTwitter) ||
     (props.type === 'facebook-post' && colors.socialFacebook) ||
     (props.type === 'facebook-messenger' && colors.socialFacebookMessenger) ||
     (props.type === 'instagram-messenger' && colors.socialInstagramMessenger) ||
-    (props.type === 'instagram-post' && colors.socialInstagramMessenger) ||
     (props.type === 'gmail' && colors.socialGmail) ||
     (props.type === 'whatsapp' && colors.socialWhatsApp) ||
     (props.type.includes('nylas') && colors.socialGmail) ||
@@ -34,7 +33,7 @@ const RoundedBackground = styledTS<{ type: string; size?: number }>(
     colors.colorCoreRed};
   i {
     color: ${colors.colorWhite};
-    font-size: ${(props) => (props.size ? `${props.size / 2}px` : '11px')};
+    font-size: ${props => (props.size ? `${props.size / 2}px` : '11px')};
   }
   img {
     max-width: 65%;
@@ -61,9 +60,6 @@ class IntegrationIcon extends React.PureComponent<Props> {
       case 'instagram-messenger':
         icon = 'instagram';
         break;
-      case 'instagram-post':
-        icon = 'instagram';
-        break;
       case 'messenger':
         icon = 'comment';
         break;
@@ -83,9 +79,7 @@ class IntegrationIcon extends React.PureComponent<Props> {
     const { integration, size } = this.props;
 
     return (
-      <RoundedBackground
-        type={integration.kind}
-        size={size}>
+      <RoundedBackground type={integration.kind} size={size}>
         <Icon icon={this.getIcon()} />
       </RoundedBackground>
     );

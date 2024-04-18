@@ -16,10 +16,7 @@ import {
   FlexCenterContent,
   Header
 } from '@erxes/ui-log/src/activityLogs/styles';
-import {
-  Comment,
-  PostContainer
-} from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/styles';
+import { Comment } from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/styles';
 import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
 import { __, renderFullName } from '@erxes/ui/src/utils';
 import {
@@ -31,7 +28,6 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Message from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/Message';
 import Tip from '@erxes/ui/src/components/Tip';
 import UserName from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/UserName';
-
 import { IConversationMessage, IInstagramComment } from '../types';
 
 type Props = {
@@ -51,7 +47,11 @@ class ActivityLogs extends React.Component<Props, { toggleMessage: boolean }> {
   }
 
   onCollapse = () => {
-    this.setState({ toggleMessage: !this.state.toggleMessage });
+    this.setState(prevState => {
+      return {
+        toggleMessage: !prevState.toggleMessage
+      };
+    });
   };
 
   renderComments() {
@@ -61,13 +61,12 @@ class ActivityLogs extends React.Component<Props, { toggleMessage: boolean }> {
       return null;
     }
 
-    return comments.map((comment) => (
+    return comments.map(comment => (
       <div key={comment.commentId}>
         <Comment>
           <UserName
-            username={`${comment.customer.firstName} ${
-              comment.customer.lastName || ''
-            }`}
+            username={`${comment.customer.firstName} ${comment.customer
+              .lastName || ''}`}
           />
           <p
             dangerouslySetInnerHTML={{
@@ -81,25 +80,15 @@ class ActivityLogs extends React.Component<Props, { toggleMessage: boolean }> {
 
   renderMessages() {
     const { conversation, messages } = this.props;
+
     if (!conversation) {
       return null;
-    }
-
-    const { kind } = conversation.integration;
-
-    if (kind === 'instagram-post') {
-      return (
-        <>
-          <PostContainer>{conversation.content}</PostContainer>
-          {this.renderComments()}
-        </>
-      );
     }
 
     const rows: React.ReactNode[] = [];
     let tempId;
 
-    messages.forEach((message) => {
+    messages.forEach(message => {
       tempId = message.userId ? message.userId : message.customerId;
 
       rows.push(
@@ -120,7 +109,7 @@ class ActivityLogs extends React.Component<Props, { toggleMessage: boolean }> {
         {rows}
         <CenterText>
           <Link to={`/inbox/index?_id=${conversation._id}`}>
-            {__('See full conversation')} <Icon icon='angle-double-right' />
+            {__('See full conversation')} <Icon icon="angle-double-right" />
           </Link>
         </CenterText>
       </>
@@ -150,11 +139,6 @@ class ActivityLogs extends React.Component<Props, { toggleMessage: boolean }> {
         action = '';
         kind = 'commented';
         item = `on ${renderFullName(customer)}'s instagram post`;
-        break;
-      case 'instagram-post':
-        action = 'wrote a Instagram';
-        kind = 'Post';
-        item = '';
         break;
       case 'instagram-messenger':
         kind = 'message';
@@ -245,12 +229,8 @@ class ActivityLogs extends React.Component<Props, { toggleMessage: boolean }> {
     const iconAndColor = getIconAndColor(condition);
 
     return (
-      <ActivityRow
-        key={Math.random()}
-        isConversation={true}>
-        <Tip
-          text={formatText(condition)}
-          placement='top'>
+      <ActivityRow key={Math.random()} isConversation={true}>
+        <Tip text={formatText(condition)} placement="top">
           <ActivityIcon color={iconAndColor.color}>
             <Icon icon={iconAndColor.icon} />
           </ActivityIcon>

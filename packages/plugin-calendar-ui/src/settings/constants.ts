@@ -38,31 +38,6 @@ export const INTEGRATIONS = [
       'All integrations, For support teams, Messaging, Social media, Conversation'
   },
   {
-    name: 'Instagram Post',
-    description: 'Connect to Instagram posts right from your Team Inbox',
-    inMessenger: false,
-    isAvailable: true,
-    kind: 'instagram-post',
-    logo: '/images/integrations/instagram.png',
-    createModal: 'instagram-post',
-    createUrl: '/settings/add-ons/createInstagram',
-    category:
-      'All integrations, For support teams, Marketing automation, Social media'
-  },
-  {
-    name: 'Instagram Messenger',
-    description:
-      'Connect and manage Instagram Messages right from your Team Inbox',
-    inMessenger: false,
-    isAvailable: true,
-    kind: 'instagram-messenger',
-    logo: '/images/integrations/instagram.png',
-    createModal: 'instagram-messenger',
-    createUrl: '/settings/add-ons/createInstagram',
-    category:
-      'All integrations, For support teams, Messaging, Social media, Conversation'
-  },
-  {
     name: 'Messenger',
     description: 'See and reply to Messenger messages in your Team Inbox',
     inMessenger: false,

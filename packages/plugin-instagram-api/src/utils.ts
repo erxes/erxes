@@ -5,13 +5,12 @@ import { debugBase, debugError, debugInstagram } from './debuggers';
 import { generateAttachmentUrl, getConfig } from './commonUtils';
 import { IAttachment, IAttachmentMessage } from './types';
 import { IIntegrationDocument } from './models/Integrations';
-import { FacebookAdapter } from 'botbuilder-adapter-facebook-erxes';
 
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
     // set access token
     graph.setAccessToken(accessToken);
-    graph.setVersion('19.0');
+    graph.setVersion('12.0');
 
     return new Promise((resolve, reject) => {
       graph[method](path, ...otherParams, (error, response) => {
@@ -34,45 +33,6 @@ export const graphRequest = {
     return this.base('del', ...args);
   },
 };
-
-export const getPostDetails = async (
-  pageId: string,
-  pageTokens: { [key: string]: string },
-  postId: string,
-) => {
-  let pageAccessToken;
-
-  try {
-    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
-  } catch (e) {
-    debugError(`Error occurred while getting page access token: ${e.message}`);
-    throw new Error();
-  }
-
-  try {
-    const response: any = await graphRequest.get(
-      `/${postId}?fields=permalink_url,message,created_time`,
-      pageAccessToken,
-    );
-
-    return response;
-  } catch (e) {
-    debugError(`Error occurred while getting facebook post: ${e.message}`);
-    return null;
-  }
-};
-export const getPostLink = async (accessToken: string, post_id: string) => {
-  try {
-    const response = await graphRequest.get(
-      `${post_id}/?fields=permalink,caption,media_url,media_type,comments,username,comments_count,id,ig_id,timestamp`,
-      accessToken,
-    );
-    return response;
-  } catch (e) {
-    debugError(`Error occurred while getting facebook post: ${e.message}`);
-    return null;
-  }
-};
 export const getFacebookPageIdsForInsta = async (
   accessToken: string,
   instagramPageId: string,
@@ -91,6 +51,7 @@ export const getFacebookPageIdsForInsta = async (
     }
   }
 
+  // Return null if no matching page is found
   return null;
 };
 
@@ -183,7 +144,7 @@ export const getPageList = async (
       pages.push({
         id: accounInfo.id,
         name: accounInfo.username,
-        isUsed: !!integration,
+        isUsed: integration ? true : false,
       });
     }
   }
@@ -214,7 +175,13 @@ export const getInstagramUser = async (
     );
 
     return accounInfo;
+    // Rest of the function logic
   } else {
+    // Handle the case where facebookPageTokensMap is undefined, for example:
+    // You can return a default value
+    // return someDefaultValue;
+
+    // Or throw an error
     throw new Error(
       'facebookPageTokensMap is undefined. Unable to get Instagram user.',
     );
@@ -225,7 +192,6 @@ export const sendReply = async (
   models: IModels,
   url: string,
   data: any,
-  recipientId: string,
   integrationId: string,
 ) => {
   let integration;
@@ -233,7 +199,10 @@ export const sendReply = async (
     integration = await models.Integrations.getIntegration({
       erxesApiId: integrationId,
     });
+
+    // Continue with the code assuming the integration was successfully retrieved
   } catch (error) {
+    // Handle the error
     throw new Error(error);
   }
 
@@ -267,22 +236,6 @@ export const sendReply = async (
         e.message
       } data: ${JSON.stringify(data)}`,
     );
-
-    if (e.message.includes('access token')) {
-      await models.Integrations.updateOne(
-        { _id: integration._id },
-        { $set: { healthStatus: 'page-token', error: `${e.message}` } },
-      );
-    } else if (e.code !== 10) {
-      await models.Integrations.updateOne(
-        { _id: integration._id },
-        { $set: { healthStatus: 'account-token', error: `${e.message}` } },
-      );
-    }
-    if (e.message.includes('does not exist')) {
-      throw new Error('Comment has been deleted by the customer');
-    }
-
     throw new Error(e.message);
   }
 };
