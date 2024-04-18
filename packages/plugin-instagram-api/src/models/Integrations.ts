@@ -47,10 +47,11 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
 export const loadIntegrationClass = (models: IModels) => {
   class Integration {
     public static async getIntegration(selector) {
-      const integration = await models.Integrations.findOne(selector);
+      // const integration = await models.Integrations.findOne(selector);
 
+      const integration = await models.Integrations.findOne();
       if (!integration) {
-        throw new Error('Integration not found');
+        throw new Error('Instagram Integration not found ');
       }
 
       return integration;
