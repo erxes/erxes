@@ -15,12 +15,11 @@ import {
 } from '../../../flow/graphql';
 
 import FlowForm from '../../components/forms/FlowForm';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-// import { withRouter } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
   id: string;
@@ -33,11 +32,11 @@ type FinalProps = {
   saveAsTemplateMutation: any;
 } & Props &
   FlowsEditMutationResponse &
-  IRouterProps &
   FlowsAddMutationResponse;
 
 const FlowDetailsContainer = (props: FinalProps) => {
-  const { flowDetailQuery, currentUser, history, flowsEdit, flowsAdd } = props;
+  const navigate = useNavigate();
+  const { flowDetailQuery, currentUser, flowsEdit, flowsAdd } = props;
   let flowDetail: IFlowDocument;
 
   const [saveLoading, setLoading] = useState(false);
@@ -52,7 +51,7 @@ const FlowDetailsContainer = (props: FinalProps) => {
       variables,
     })
       .then((data) => {
-        history.push({
+        navigate({
           pathname: `/processes/flows/details/${data.data.flowsAdd._id}`,
           search: '?isCreate=true',
         });

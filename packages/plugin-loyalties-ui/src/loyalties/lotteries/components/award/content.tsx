@@ -9,7 +9,6 @@ import {
 import { AwardContainer, Card } from "../../../../styles";
 
 import AwardList from "./list";
-import { IRouterProps } from "@erxes/ui/src/types";
 import React from "react";
 
 type State = {
@@ -18,7 +17,7 @@ type State = {
   isOpenInput: boolean;
 };
 
-interface IProps extends IRouterProps {
+interface IProps {
   loading: boolean;
   queryParams: any;
   currentTab: any;

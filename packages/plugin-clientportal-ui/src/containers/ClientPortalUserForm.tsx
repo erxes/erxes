@@ -3,7 +3,6 @@ import { IUser, UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import {
   IButtonMutateProps,
   IQueryParams,
-  IRouterProps,
 } from '@erxes/ui/src/types';
 import { gql } from '@apollo/client';
 import React from 'react';
@@ -24,8 +23,7 @@ type FinalProps = {
   usersQuery: UsersQueryResponse;
   currentUser: IUser;
   clientPortalConfigsQuery: ClientPortalConfigsQueryResponse;
-} & Props &
-  IRouterProps;
+} & Props;
 
 const ClientPortalUserFormContainer: React.FC<FinalProps> = (
   props: FinalProps,

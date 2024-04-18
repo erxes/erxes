@@ -13,7 +13,6 @@ import {
 import React, { useRef, useState } from "react";
 
 import { IInsuranceType } from "../types";
-import { IRouterProps } from "@erxes/ui/src/types";
 import InsuranceTypeForm from "../containers/InsuranceTypeForm";
 import InsuranceTypeRow from "./InsuranceTypeRow";
 import { InsuranceTypesTableWrapper } from "../styles";
@@ -21,7 +20,7 @@ import { __ } from "coreui/utils";
 import confirm from "@erxes/ui/src/utils/confirmation/confirm";
 import { useNavigate } from 'react-router-dom';
 
-interface IProps extends IRouterProps {
+interface IProps {
   insuranceTypes: IInsuranceType[];
   loading: boolean;
   searchValue: string;

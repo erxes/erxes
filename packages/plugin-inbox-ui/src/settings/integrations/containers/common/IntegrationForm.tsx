@@ -1,4 +1,4 @@
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import CallPro from '../../components/callpro/Form';
@@ -6,7 +6,6 @@ import OutgoingWebHookFrom from '../../components/outgoing-webhook/Form';
 import React from 'react';
 import WebHookForm from '../../components/webhook/Form';
 import { getRefetchQueries } from '@erxes/ui-inbox/src/settings/integrations/containers/utils';
-// import { withRouter } from 'react-router-dom';
 import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
 import { mutations } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 
@@ -19,7 +18,7 @@ type State = {
   channelIds: string[];
 };
 
-type FinalProps = {} & IRouterProps & Props;
+type FinalProps = {} & Props;
 
 const INTEGRATION_FORM = {
   callpro: CallPro,

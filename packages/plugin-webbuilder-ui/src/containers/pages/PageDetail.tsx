@@ -11,19 +11,16 @@ import {
 } from '../../types';
 import { mutations, queries } from '../../graphql';
 
-import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import SiteForm from '../../components/sites/SiteForm';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 
-// import { withRouter } from 'react-router-dom';
-
 type Props = {
   _id: string;
   queryParams: any;
-} & IRouterProps;
+};
 
 type FinalProps = Props & {
   pageDetailQuery?: PageDetailQueryResponse;
@@ -34,7 +31,7 @@ type FinalProps = Props & {
   PagesRemoveMutationResponse;
 
 const PageDetailContainer = (props: FinalProps) => {
-  const { pageDetailQuery, history, pagesMainQuery, typesQuery } = props;
+  const { pageDetailQuery, pagesMainQuery, typesQuery } = props;
 
   if (
     (pageDetailQuery && pageDetailQuery.loading) ||

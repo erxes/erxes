@@ -11,25 +11,24 @@ import {
 import { mutations, queries } from '../../graphql';
 
 import ActionSection from '@erxes/ui-contacts/src/customers/components/common/ActionSection';
-import { IRouterProps } from '@erxes/ui/src/types';
-// import { withRouter } from 'react-router-dom';
 import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
   company: ICompany;
 };
 
 type FinalProps = { currentUser: IUser } & Props &
-  IRouterProps &
   RemoveMutationResponse &
   MergeMutationResponse;
 
 const BasicInfoContainer = (props: FinalProps) => {
-  const { company, companiesRemove, companiesMerge, history } = props;
+  const navigate = useNavigate();
+  const { company, companiesRemove, companiesMerge } = props;
 
   const { _id } = company;
 
@@ -37,7 +36,7 @@ const BasicInfoContainer = (props: FinalProps) => {
     companiesRemove({ variables: { companyIds: [_id] } })
       .then(() => {
         Alert.success('You successfully deleted a company');
-        history('/companies');
+        navigate('/companies');
       })
       .catch((e) => {
         Alert.error(e.message);
@@ -53,7 +52,7 @@ const BasicInfoContainer = (props: FinalProps) => {
     })
       .then((response) => {
         Alert.success('You successfully merged companies');
-        history(`/companies/details/${response.data.companiesMerge._id}`);
+        navigate(`/companies/details/${response.data.companiesMerge._id}`);
       })
       .catch((e) => {
         Alert.error(e.message);

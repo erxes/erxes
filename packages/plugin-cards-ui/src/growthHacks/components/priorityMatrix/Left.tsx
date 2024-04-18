@@ -1,15 +1,13 @@
 import { LeftContent, ScrollContent } from '../../styles';
 
-// import { withRouter } from 'react-router-dom';
 import GrowthHackAddTrigger from '../GrowthHackAddTrigger';
 import { IGrowthHackParams } from '../../types';
-import { IRouterProps } from '@erxes/ui/src/types';
 import LoadMore from '@erxes/ui/src/components/LoadMore';
 import React from 'react';
 import Table from '@erxes/ui/src/components/table';
 import { __ } from '@erxes/ui/src/utils/core';
 
-interface IProps extends IRouterProps {
+interface IProps {
   queryParams: any;
   growthHacks: any[];
   totalCount: number;
@@ -32,7 +30,7 @@ class Left extends React.Component<IProps> {
     return (
       <LeftContent>
         <ScrollContent>
-          <Table hover={true}>
+          <Table $hover={true}>
             <thead>
               <tr>
                 <th>{__('Experiment name')}</th>

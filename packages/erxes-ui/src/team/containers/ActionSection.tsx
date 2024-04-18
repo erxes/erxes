@@ -4,8 +4,6 @@ import { Alert, withProps } from '@erxes/ui/src/utils';
 import { mutations, queries } from '../graphql';
 
 import ActionSection from '../components/detail/ActionSection';
-// import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
 import client from '@erxes/ui/src/apolloClient';
@@ -24,7 +22,7 @@ type Props = {
   }) => React.ReactNode;
 };
 
-type FinalProps = Props & { statusChangedMutation: any } & IRouterProps;
+type FinalProps = Props & { statusChangedMutation: any };
 
 const ActionSectionContainer = (props: FinalProps) => {
   const { user, renderEditForm, isSmall } = props;

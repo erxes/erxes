@@ -16,7 +16,6 @@ import {
 
 import Dropdown from "@erxes/ui/src/components/Dropdown";
 import { INonBalanceTransaction } from "../types";
-import { IRouterProps } from "@erxes/ui/src/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import NonBalanceTransactionForm from "../containers/Form";
 import NonBalanceTransactionRow from "./NonBalanceTransactionRow";
@@ -26,7 +25,7 @@ import { can } from "@erxes/ui/src/utils/core";
 import { menuContracts } from "../../constants";
 import withConsumer from "../../withConsumer";
 
-interface IProps extends IRouterProps {
+interface IProps {
   nonBalanceTransactions: INonBalanceTransaction[];
   loading: boolean;
   totalCount: number;

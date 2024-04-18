@@ -1,10 +1,9 @@
 import * as compose from "lodash.flowright";
 
-import { Counts, IRouterProps } from "@erxes/ui/src/types";
+import { Counts } from "@erxes/ui/src/types";
 import { router, withProps } from "@erxes/ui/src/utils";
 import { useLocation, useNavigate } from "react-router-dom";
 
-// import { withRouter } from 'react-router-dom';
 import Filter from "../components/SidebarFilter";
 import React from "react";
 import { SegmentsQueryResponse } from "../types";
@@ -20,8 +19,7 @@ type Props = {
 
 type FinalProps = {
   segmentsQuery: SegmentsQueryResponse;
-} & Props &
-  IRouterProps;
+} & Props;
 
 const FilterContainer = (props: FinalProps) => {
   const { segmentsQuery } = props;

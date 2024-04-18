@@ -3,12 +3,10 @@ import * as compose from 'lodash.flowright';
 import { FlowsQueryResponse, IJob } from '../../../types';
 import React, { useState } from 'react';
 
-import { IRouterProps } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { JobRefersQueryResponse } from '../../../../job/types';
 import JobStatus from '../../../components/forms/jobs/JobStatus';
 import { ProductsQueryResponse } from '@erxes/ui-products/src/types';
-// import { withRouter } from 'react-router-dom';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { queries as flowsQueries } from '../../../graphql';
 import { gql } from '@apollo/client';
@@ -29,8 +27,7 @@ type FinalProps = {
   subFlowsQuery: FlowsQueryResponse;
   productsQuery: ProductsQueryResponse;
   currentUser: IUser;
-} & Props &
-  IRouterProps;
+} & Props;
 
 const FlowJobStatusContainer = (props: FinalProps) => {
   const { currentUser, jobRefersQuery, productsQuery, subFlowsQuery } = props;

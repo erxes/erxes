@@ -7,10 +7,8 @@ import {
 import React, { useState } from 'react';
 
 import EndPointForm from '../../../../components/forms/jobs/subForms/EndPointForm';
-// import { withRouter } from 'react-router-dom';
 import { FLOWJOB_TYPES } from '../../../../constants';
 import { IJob } from '../../../../types';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import JobForm from '../../../../components/forms/jobs/subForms/JobForm';
 import Spinner from '@erxes/ui/src/components/Spinner';
@@ -35,8 +33,7 @@ type Props = {
 type FinalProps = {
   jobReferDetailQuery: JobReferDetailQueryResponse;
   currentUser: IUser;
-} & Props &
-  IRouterProps;
+} & Props;
 
 const JobFormContainer = (props: FinalProps) => {
   const { currentUser, jobReferDetailQuery, activeFlowJob } = props;

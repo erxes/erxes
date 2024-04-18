@@ -1,5 +1,5 @@
 import { IBoard, ICalendar, IGroup } from "../types";
-import { IButtonMutateProps, IRouterProps } from "@erxes/ui/src/types";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
 
 import Button from "@erxes/ui/src/components/Button";
 import { CALENDAR_INTEGRATIONS } from "../constants";
@@ -28,7 +28,8 @@ type Props = {
   customLink: (kind: string) => void;
   removeCalendar: (calendar: ICalendar) => void;
   renderCalendarButton: (props: IButtonMutateProps) => JSX.Element;
-} & IRouterProps;
+  location: any;
+};
 
 type State = {
   showModal: boolean;
@@ -40,10 +41,8 @@ class Groups extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { history } = props;
-
     const showCalendarModal =
-      history.location.hash.includes("showCalendarModal");
+      props.location.hash.includes("showCalendarModal");
 
     this.state = {
       showModal: false,

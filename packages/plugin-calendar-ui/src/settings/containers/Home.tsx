@@ -6,7 +6,6 @@ import { BoardGetLastQueryResponse } from "../types";
 import { useLocation, useNavigate } from "react-router-dom";
 import Home from "../components/Home";
 import { IBoard } from "../../calendar/types";
-import { IRouterProps } from "@erxes/ui/src/types";
 import React, { useEffect } from "react";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import { gql } from "@apollo/client";
@@ -56,7 +55,7 @@ const LastBoard = (props: LastBoardProps) => {
   return <HomeContainer {...extendedProps} />;
 };
 
-type HomerProps = { queryParams: any } & IRouterProps;
+type HomerProps = { queryParams: any };
 
 const LastBoardContainer = withProps<MainProps>(
   compose(

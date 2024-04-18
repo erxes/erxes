@@ -125,4 +125,3 @@ const InventoryCategoryContainer = (props: FinalProps) => {
 };
 
 export default InventoryCategoryContainer;
-// export default withRouter<IRouterProps>(InventoryCategoryContainer);

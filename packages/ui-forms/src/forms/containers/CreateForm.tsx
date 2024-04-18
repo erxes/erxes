@@ -8,7 +8,7 @@ import {
   IFormData,
 } from '../types';
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import { IField, IRouterProps } from '@erxes/ui/src/types';
+import { IField } from '@erxes/ui/src/types';
 
 import { ConfigsQueryResponse } from '@erxes/ui-settings/src/general/types';
 import Form from '../components/Form';
@@ -18,8 +18,6 @@ import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { mutations } from '../graphql';
 import { queries } from '@erxes/ui-settings/src/general/graphql';
-
-// import { withRouter } from 'react-router-dom';
 
 type Props = {
   afterDbSave: (formId: string) => void;
@@ -35,7 +33,6 @@ type Props = {
 type FinalProps = {
   configsQuery: ConfigsQueryResponse;
 } & Props &
-  IRouterProps &
   AddFormMutationResponse &
   FieldsBulkAddAndEditMutationResponse;
 

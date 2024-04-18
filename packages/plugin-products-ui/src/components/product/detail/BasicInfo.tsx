@@ -19,7 +19,7 @@ import ProductForm from "@erxes/ui-products/src/containers/ProductForm";
 import { IProduct } from "../../../types";
 import React from "react";
 import Dropdown from "@erxes/ui/src/components/Dropdown";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import xss from "xss";
 import { ProductBarcodeContent, ProductContent } from "../../../styles";
 import { isValidBarcode } from "../../../utils";
@@ -28,11 +28,11 @@ import { Tip } from "@erxes/ui/src";
 type Props = {
   product: IProduct;
   remove: () => void;
-  history: any;
 };
 
 const BasicInfo: React.FC<Props> = (props) => {
-  const { history, product, remove } = props;
+  const navigate = useNavigate();
+  const { product, remove } = props;
 
   const renderVendor = (vendor) => {
     if (!vendor) {
@@ -49,7 +49,7 @@ const BasicInfo: React.FC<Props> = (props) => {
         <FieldStyle>{__(`Vendor`)}</FieldStyle>
         <SidebarCounter>{vendor.primaryName || ""}</SidebarCounter>
         <Button
-          onClick={() => history.push(`/companies/details/${vendor._id}`)}
+          onClick={() => navigate(`/companies/details/${vendor._id}`)}
           btnStyle="link"
           style={{ padding: "0", paddingLeft: "8px" }}
         >

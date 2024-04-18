@@ -1,4 +1,4 @@
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import CallPro from '../../components/callpro/Form';
@@ -13,8 +13,6 @@ import Whatsapp from '../../components/whatsapp/Whatsapp';
 import { getRefetchQueries } from '../utils';
 import { mutations } from '../../graphql';
 
-// import { withRouter } from 'react-router-dom';
-
 type Props = {
   type: string;
   closeModal: () => void;
@@ -24,7 +22,7 @@ type State = {
   channelIds: string[];
 };
 
-type FinalProps = {} & IRouterProps & Props;
+type FinalProps = {} & Props;
 
 const INTEGRATION_FORM = {
   callpro: CallPro,

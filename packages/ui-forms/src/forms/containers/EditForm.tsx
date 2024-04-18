@@ -12,7 +12,7 @@ import {
   RemoveFieldMutationResponse,
   RemoveFieldMutationVariables,
 } from '../types';
-import { IField, IRouterProps } from '@erxes/ui/src/types';
+import { IField } from '@erxes/ui/src/types';
 import { mutations, queries } from '../graphql';
 
 import { ConfigsQueryResponse } from '@erxes/ui-settings/src/general/types';
@@ -23,8 +23,6 @@ import React from 'react';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries as settingsQueries } from '@erxes/ui-settings/src/general/graphql';
-
-// import { withRouter } from 'react-router-dom';
 
 type Props = {
   afterDbSave: (formId: string) => void;
@@ -45,8 +43,7 @@ type FinalProps = {
 } & Props &
   EditFormMutationResponse &
   RemoveFieldMutationResponse &
-  FieldsBulkAddAndEditMutationResponse &
-  IRouterProps;
+  FieldsBulkAddAndEditMutationResponse;
 
 class EditFormContainer extends React.Component<FinalProps> {
   static defaultProps = {

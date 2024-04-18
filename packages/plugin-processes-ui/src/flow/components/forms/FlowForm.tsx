@@ -58,7 +58,6 @@ type Props = {
   copyFlow: (params: any) => void;
   saveLoading: boolean;
   id: string;
-  history: any;
   queryParams: any;
 };
 
@@ -731,7 +730,7 @@ class FlowForm extends React.Component<Props, State> {
   }
 
   renderConfirmation() {
-    const { id, queryParams, history, saveLoading, flow } = this.props;
+    const { id, queryParams, saveLoading, flow } = this.props;
     const { flowJobs, name } = this.state;
 
     if (saveLoading) {
@@ -749,7 +748,6 @@ class FlowForm extends React.Component<Props, State> {
         id={id}
         name={name}
         save={this.handleSubmit}
-        history={history}
         queryParams={queryParams}
       />
     );

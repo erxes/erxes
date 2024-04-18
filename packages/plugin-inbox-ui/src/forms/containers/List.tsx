@@ -8,7 +8,7 @@ import {
   LeadIntegrationsQueryResponse,
   RemoveMutationResponse,
 } from '@erxes/ui-leads/src/types';
-import { IRouterProps, MutationVariables } from '@erxes/ui/src/types';
+import { MutationVariables } from '@erxes/ui/src/types';
 import { mutations, queries } from '@erxes/ui-leads/src/graphql';
 
 import { ArchiveIntegrationResponse } from '@erxes/ui-inbox/src/settings/integrations/types';
@@ -23,6 +23,8 @@ import { mutations as integrationMutations } from '@erxes/ui-inbox/src/settings/
 
 type Props = {
   queryParams: any;
+  location?: any;
+  navigate?: any;
 };
 
 type FinalProps = {
@@ -30,7 +32,6 @@ type FinalProps = {
   integrationsTotalCountQuery: CountQueryResponse;
 } & RemoveMutationResponse &
   ArchiveIntegrationResponse &
-  IRouterProps &
   CopyMutationResponse &
   Props;
 

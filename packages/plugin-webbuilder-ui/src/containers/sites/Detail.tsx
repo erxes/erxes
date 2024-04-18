@@ -12,14 +12,11 @@ import {
 import { mutations, queries } from '../../graphql';
 
 import Detail from '../../components/sites/Detail';
-import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-
-// import { withRouter } from 'react-router-dom';
 
 type Props = {
   _id: string;
@@ -31,7 +28,7 @@ type Props = {
   type: string;
   showDarkMode: boolean;
   handleItemSettings: (item: any, type: string) => void;
-} & IRouterProps;
+};
 
 type FinalProps = Props & {
   pageDetailQuery?: PageDetailQueryResponse;

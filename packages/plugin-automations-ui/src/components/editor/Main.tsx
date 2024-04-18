@@ -26,7 +26,6 @@ import Form from "@erxes/ui/src/components/form/Form";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import Histories from "../histories/Wrapper";
 import { IAction } from "@erxes/ui-automations/src/types";
-import { IRouterProps } from "@erxes/ui/src/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import { Link } from "react-router-dom";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
@@ -48,8 +47,10 @@ type Props = {
   saveLoading: boolean;
   id: string;
   queryParams: any;
+  navigate: any;
+  location: any;
   constants: AutomationConstants;
-} & IRouterProps;
+};
 
 type State = {
   name: string;

@@ -15,7 +15,6 @@ import { router, withProps } from "@erxes/ui/src/utils/core";
 import Alert from "@erxes/ui/src/utils/Alert";
 import { Bulk } from "@erxes/ui/src/components";
 import CheckSyncedOrders from "../components/syncedOrders/CheckSyncedOrders";
-import { IRouterProps } from "@erxes/ui/src/types";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 
@@ -28,7 +27,6 @@ type FinalProps = {
   checkSyncedOrdersTotalCountQuery: CheckSyncedOrdersTotalCountQueryResponse;
   posListQuery: PosListQueryResponse;
 } & Props &
-  IRouterProps &
   CheckSyncedMutationResponse &
   ToSyncOrdersMutationResponse &
   ToSendOrdersMutationResponse;

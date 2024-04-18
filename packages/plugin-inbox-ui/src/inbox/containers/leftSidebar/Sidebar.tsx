@@ -16,18 +16,15 @@ import { AppConsumer } from 'coreui/appContext';
 import Bulk from '@erxes/ui/src/components/Bulk';
 import DumbSidebar from '../../components/leftSidebar/Sidebar';
 import { IBulkContentProps } from '@erxes/ui/src/components/Bulk';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { InboxManagementActionConsumer } from '../InboxCore';
 import React from 'react';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 
-// import { withRouter } from 'react-router-dom';
-
 type Props = {
   queryParams: any;
   currentConversationId?: string;
-} & IRouterProps;
+};
 
 type FinalProps = Props & ResolveAllMutationResponse;
 
@@ -74,7 +71,7 @@ class Sidebar extends React.Component<FinalProps> {
       });
     }
 
-    const { currentConversationId, queryParams, history } = this.props;
+    const { currentConversationId, queryParams } = this.props;
     const content = ({ bulk, toggleBulk, emptyBulk }: IBulkContentProps) => {
       return (
         <AppConsumer>
@@ -85,7 +82,6 @@ class Sidebar extends React.Component<FinalProps> {
                   currentUser={currentUser}
                   currentConversationId={currentConversationId}
                   queryParams={queryParams}
-                  history={history}
                   bulk={bulk}
                   emptyBulk={emptyBulk}
                   toggleBulk={toggleBulk}

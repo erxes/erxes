@@ -12,7 +12,6 @@ import { PipelineConsumer, PipelineProvider } from "./PipelineContext";
 import React, { Component } from "react";
 
 import EmptyState from "@erxes/ui/src/components/EmptyState";
-import { IRouterProps } from "@erxes/ui/src/types";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import Stage from "./Stage";
 import { gql } from "@apollo/client";
@@ -156,7 +155,7 @@ class WithStages extends Component<WithStagesQueryProps> {
 
 type WithStagesQueryProps = {
   stagesQuery: StagesQueryResponse;
-} & IRouterProps &
+} &
   Props;
 
 const WithStagesQuery = (props: WithStagesQueryProps) => {

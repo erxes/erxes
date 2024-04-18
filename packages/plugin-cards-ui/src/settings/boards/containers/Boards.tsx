@@ -2,7 +2,7 @@ import * as compose from 'lodash.flowright';
 import * as routerUtils from '@erxes/ui/src/utils/router';
 
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IOption, RemoveBoardMutationResponse } from '../types';
 import {
   mutations,
@@ -19,7 +19,6 @@ import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { useLocation, useNavigate } from 'react-router-dom';
-// import { withRouter } from 'react-router-dom';
 
 type Props = {
   currentBoardId?: string;

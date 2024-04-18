@@ -1,4 +1,4 @@
-import { Counts, IRouterProps } from "@erxes/ui/src/types";
+import { Counts } from "@erxes/ui/src/types";
 import {
   FieldStyle,
   SidebarCounter,
@@ -8,7 +8,6 @@ import { __, router } from "@erxes/ui/src/utils";
 
 import Box from "@erxes/ui/src/components/Box";
 import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
-// import { withRouter } from 'react-router-dom';
 import Icon from "@erxes/ui/src/components/Icon";
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -18,7 +17,7 @@ const TYPES = [
   { value: "company", label: "Company" },
 ];
 
-interface IProps extends IRouterProps {
+interface IProps {
   counts: Counts;
   emptyText?: string;
 }

@@ -1,14 +1,12 @@
-// import { withRouter } from 'react-router-dom';
 import { Badge, TableContainer } from '../../../../styles';
 
 import { ILottery } from '../../types';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { Link } from 'react-router-dom';
 import React from 'react';
 import { Table } from '@erxes/ui/src/';
 import { colors } from '@erxes/ui/src/styles/';
 
-interface IProps extends IRouterProps {
+interface IProps {
   lotteries: ILottery[];
   loading: boolean;
   totalCount: number;

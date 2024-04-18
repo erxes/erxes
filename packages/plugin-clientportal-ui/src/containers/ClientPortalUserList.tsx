@@ -9,7 +9,6 @@ import { mutations, queries } from '../graphql';
 
 import Bulk from '@erxes/ui/src/components/Bulk';
 import ClientPortalUserList from '../components/list/ClientPortalUserList';
-import { IRouterProps } from '@erxes/ui/src/types';
 import React, { useState } from 'react';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import { gql } from '@apollo/client';
@@ -22,8 +21,7 @@ type Props = {
 
 type FinalProps = Props &
   ClientPortalUserRemoveMutationResponse &
-  ClientPortalVerifyUsersMutationResponse &
-  IRouterProps;
+  ClientPortalVerifyUsersMutationResponse;
 
 const ClientportalUserListContainer: React.FC<FinalProps> = (
   props: FinalProps,

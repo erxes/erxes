@@ -10,20 +10,17 @@ import { mutations, queries } from '../../graphql';
 
 import { Alert } from '@erxes/ui/src';
 import EntryForm from '../../components/entries/EntryForm';
-import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-
-// import { withRouter } from 'react-router-dom';
 
 type Props = {
   _id?: string;
   contentTypeId: string;
   queryParams: any;
   closeModal: () => void;
-} & IRouterProps;
+};
 
 type FinalProps = Props & {
   entryDetailQuery?: EntryDetailQueryResponse;

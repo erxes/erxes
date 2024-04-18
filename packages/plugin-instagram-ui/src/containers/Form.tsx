@@ -1,4 +1,4 @@
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 
 import { Alert } from '@erxes/ui/src/utils';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
@@ -10,7 +10,6 @@ import { getRefetchQueries } from '@erxes/ui-inbox/src/settings/integrations/con
 import { gql } from '@apollo/client';
 import { mutations as inboxMutations } from '@erxes/ui-inbox/src/settings/integrations/graphql/index';
 import { queries } from '../graphql';
-// import { withRouter } from 'react-router-dom';
 
 type Props = {
   kind: string;
@@ -18,7 +17,7 @@ type Props = {
   callBack: () => void;
 };
 
-type FinalProps = {} & IRouterProps & Props;
+type FinalProps = {} & Props;
 
 type State = {
   pages: IPages[];

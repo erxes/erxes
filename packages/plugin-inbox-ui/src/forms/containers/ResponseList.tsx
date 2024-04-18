@@ -1,22 +1,21 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
 import {
   FormSubmissionsQueryResponse,
-  FormSubmissionsTotalCountQueryResponse
-} from '@erxes/ui-forms/src/forms/types';
+  FormSubmissionsTotalCountQueryResponse,
+} from "@erxes/ui-forms/src/forms/types";
 
-import { FieldsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { IntegrationDetailQueryResponse } from '@erxes/ui-inbox/src/settings/integrations/types';
-import { LeadIntegrationDetailQueryResponse } from '@erxes/ui-inbox/src/settings/integrations/types';
-import React from 'react';
-import ResponseList from '../components/ResponseList';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries as integrationQueries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
-import { queries } from '@erxes/ui-forms/src/forms/graphql';
-import { withProps } from '@erxes/ui/src/utils';
+import { FieldsQueryResponse } from "@erxes/ui-forms/src/settings/properties/types";
+import { IntegrationDetailQueryResponse } from "@erxes/ui-inbox/src/settings/integrations/types";
+import { LeadIntegrationDetailQueryResponse } from "@erxes/ui-inbox/src/settings/integrations/types";
+import React from "react";
+import ResponseList from "../components/ResponseList";
+import { generatePaginationParams } from "@erxes/ui/src/utils/router";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries as integrationQueries } from "@erxes/ui-inbox/src/settings/integrations/graphql";
+import { queries } from "@erxes/ui-forms/src/forms/graphql";
+import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   queryParams: any;
@@ -27,8 +26,7 @@ type FinalProps = {
   formSubmissionsQuery: FormSubmissionsQueryResponse;
   fieldsQuery: FieldsQueryResponse;
   formSubmissionTotalCountQuery: FormSubmissionsTotalCountQueryResponse;
-} & IRouterProps &
-  Props;
+} & Props;
 
 class ListContainer extends React.Component<FinalProps> {
   render() {
@@ -36,7 +34,7 @@ class ListContainer extends React.Component<FinalProps> {
       integrationDetailQuery,
       formSubmissionsQuery,
       fieldsQuery,
-      formSubmissionTotalCountQuery
+      formSubmissionTotalCountQuery,
     } = this.props;
 
     const integrationDetail: any =
@@ -55,7 +53,7 @@ class ListContainer extends React.Component<FinalProps> {
       formSubmissions,
       loading: integrationDetailQuery.loading,
       totalCount,
-      fields
+      fields,
     };
 
     return <ResponseList {...updatedProps} />;
@@ -67,43 +65,43 @@ export default withProps<Props>(
     graphql<Props, IntegrationDetailQueryResponse>(
       gql(integrationQueries.integrationDetail),
       {
-        name: 'integrationDetailQuery',
+        name: "integrationDetailQuery",
         options: ({ queryParams }) => ({
           variables: {
-            _id: queryParams.integrationId || ''
+            _id: queryParams.integrationId || "",
           },
-          fetchPolicy: 'network-only'
-        })
+          fetchPolicy: "network-only",
+        }),
       }
     ),
     graphql<Props, FieldsQueryResponse>(gql(queries.fields), {
-      name: 'fieldsQuery',
+      name: "fieldsQuery",
       options: ({ queryParams }) => ({
         variables: {
-          contentType: 'form',
-          contentTypeId: queryParams.formId
-        }
-      })
+          contentType: "form",
+          contentTypeId: queryParams.formId,
+        },
+      }),
     }),
     graphql<Props, FormSubmissionsQueryResponse>(gql(queries.formSubmissions), {
-      name: 'formSubmissionsQuery',
+      name: "formSubmissionsQuery",
       options: ({ queryParams }) => ({
         variables: {
           ...generatePaginationParams(queryParams),
-          formId: queryParams.formId
+          formId: queryParams.formId,
         },
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: "network-only",
+      }),
     }),
     graphql<Props, FormSubmissionsTotalCountQueryResponse>(
       gql(queries.formSubmissionTotalCount),
       {
-        name: 'formSubmissionTotalCountQuery',
+        name: "formSubmissionTotalCountQuery",
         options: ({ queryParams }) => ({
           variables: {
-            formId: queryParams.formId
-          }
-        })
+            formId: queryParams.formId,
+          },
+        }),
       }
     )
   )(ListContainer)

@@ -13,7 +13,6 @@ import { mutations, queries } from "../../graphql";
 
 import AutomationForm from "../../components/editor/Main";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
-import { IRouterProps } from "@erxes/ui/src/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import { gql } from "@apollo/client";
@@ -22,6 +21,8 @@ import { graphql } from "@apollo/client/react/hoc";
 type Props = {
   id: string;
   queryParams: any;
+  navigate: any;
+  location: any;
 };
 
 type FinalProps = {
@@ -31,8 +32,7 @@ type FinalProps = {
   currentUser: IUser;
   saveAsTemplateMutation: any;
 } & Props &
-  EditMutationResponse &
-  IRouterProps;
+  EditMutationResponse;
 
 const AutomationDetailsContainer = (props: FinalProps) => {
   const {

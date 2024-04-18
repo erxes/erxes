@@ -16,7 +16,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 type Props = {
   pages: IPage[];
   calendars: ICalendar[];
-  history: any;
   queryParams: { accountId?: string };
   remove: (pageId: string) => void;
 };

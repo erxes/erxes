@@ -21,7 +21,6 @@ import {
 } from "../utils";
 import { mutations, queries, subscriptions } from "../graphql";
 
-import { IRouterProps } from "@erxes/ui/src/types";
 import InvisibleItemInUrl from "./InvisibleItemInUrl";
 import React from "react";
 import { UserDetailQueryResponse } from "@erxes/ui/src/auth/types";

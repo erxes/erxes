@@ -1,13 +1,12 @@
 import * as compose from 'lodash.flowright';
 
 import { ChartBack, RootBack, ScrolledContent } from '../styles/common';
-// import { withRouter } from 'react-router-dom';
 import {
   EMPTY_CONTENT_DEAL,
   EMPTY_CONTENT_PURCHASE,
   EMPTY_CONTENT_TASK,
 } from '../constants';
-import { IDateColumn, IRouterProps } from '@erxes/ui/src/types';
+import { IDateColumn } from '@erxes/ui/src/types';
 import { IOptions, PipelineDetailQueryResponse } from '../types';
 
 import ChartStack from './chart/ChartRenderer';
@@ -27,8 +26,7 @@ import { withProps } from '@erxes/ui/src/utils';
 type Props = {
   pipelineDetailQuery: PipelineDetailQueryResponse;
   date: IDateColumn;
-} & WrapperProps &
-  IRouterProps;
+} & WrapperProps;
 
 class Board extends React.Component<Props> {
   render() {

@@ -2,11 +2,9 @@ import * as compose from 'lodash.flowright';
 
 import React, { useState } from 'react';
 
-// import { withRouter } from 'react-router-dom';
 import { DetailQueryResponse } from '@erxes/ui-products/src/types';
 import { FLOWJOB_TYPES } from '../../../../constants';
 import { IJob } from '../../../../types';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import SingleIncome from '../../../../components/forms/jobs/subForms/SingleIncome';
 import SingleMove from '../../../../components/forms/jobs/subForms/SingleMove';
@@ -31,8 +29,7 @@ type Props = {
 type FinalProps = {
   productDetailQuery: DetailQueryResponse;
   currentUser: IUser;
-} & Props &
-  IRouterProps;
+} & Props;
 
 const EndPointFormContainer = (props: FinalProps) => {
   const { type, currentUser, productDetailQuery } = props;

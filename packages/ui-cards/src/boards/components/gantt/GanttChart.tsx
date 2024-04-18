@@ -5,7 +5,6 @@ import {
   TimelineContainer,
 } from '../../styles/view';
 import { BoardItemArgs, GanttLink } from '../../containers/gantt/GanttChart';
-// import { withRouter } from 'react-router-dom';
 import { IItem, IOptions } from '../../types';
 import React, { useCallback, useEffect, useState } from 'react';
 import { callback, generateName } from '../../components/gantt/utils';
@@ -13,7 +12,6 @@ import { callback, generateName } from '../../components/gantt/utils';
 import Assignees from '../../components/Assignees';
 import ContextMenu from '@erxes/ui/src/components/ContextMenu';
 import { EditForm } from '../../containers/editForm';
-import { IRouterProps } from '@erxes/ui/src/types';
 import TimeLine from 'react-gantt-timeline';
 import { colors } from '@erxes/ui/src/styles';
 import { getColors } from '../../utils';
@@ -36,7 +34,7 @@ type Props = {
 };
 
 type FinalProps = Props &
-  IRouterProps & { data: GanttData[]; links: GanttLink[] };
+  { data: GanttData[]; links: GanttLink[] };
 
 const GanttChart = (props: FinalProps) => {
   const config = {

@@ -18,7 +18,6 @@ import {
 
 import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
 import Form from '../../components/messenger/Form';
-import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
@@ -28,8 +27,7 @@ import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { integrationsListParams } from '@erxes/ui-inbox/src/settings/integrations/containers/utils';
 import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
-
-// import { withRouter } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
@@ -41,15 +39,14 @@ type FinalProps = {
   brandsQuery: BrandsQueryResponse;
   knowledgeBaseTopicsQuery: TopicsQueryResponse;
 } & Props &
-  IRouterProps &
   SaveMessengerMutationResponse &
   SaveMessengerConfigsMutationResponse &
   SaveMessengerAppsMutationResponse &
   SaveMessengerAppearanceMutationResponse;
 
 const CreateMessenger = (props: FinalProps) => {
+  const navigate = useNavigate();
   const {
-    history,
     usersQuery,
     brandsQuery,
     saveMessengerMutation,
@@ -109,7 +106,7 @@ const CreateMessenger = (props: FinalProps) => {
       })
       .then(() => {
         Alert.success('You successfully added an integration');
-        history.push(
+        navigate(
           `/settings/integrations?refetch=true&_id=${id}&kind=messenger`,
         );
       })

@@ -5,7 +5,7 @@ import {
   EngageConfigQueryResponse,
   EngageVerifiedEmailsQueryResponse,
 } from '@erxes/ui-engage/src/types';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import {
   mutations as engageMutations,
   queries as engageQueries,
@@ -17,7 +17,6 @@ import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-// import { withRouter } from 'react-router-dom';
 
 type Props = {
   engagesConfigDetailQuery: EngageConfigQueryResponse;
@@ -25,7 +24,7 @@ type Props = {
   engagesVerifyEmailMutation;
   engagesRemoveVerifiedEmailMutation;
   engagesSendTestEmailMutation;
-} & IRouterProps;
+};
 
 class SettingsContainer extends React.Component<Props> {
   render() {

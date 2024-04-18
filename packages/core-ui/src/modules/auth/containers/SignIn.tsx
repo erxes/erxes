@@ -1,24 +1,24 @@
-// import { withRouter } from 'react-router-dom';
-import ButtonMutate from '../../common/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import SignIn from '../components/SignIn';
-import { __ } from 'modules/common/utils';
-import apolloClient from 'apolloClient';
-import { mutations } from '../graphql';
+import ButtonMutate from "../../common/components/ButtonMutate";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import React from "react";
+import SignIn from "../components/SignIn";
+import { __ } from "modules/common/utils";
+import apolloClient from "apolloClient";
+import { mutations } from "../graphql";
+import { useLocation, useNavigate } from "react-router-dom";
 
-const SignInContainer = (props: IRouterProps) => {
-  const { history, location } = props;
+const SignInContainer = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
     const callbackResponse = () => {
       apolloClient.resetStore();
 
-      history.push(
-        (!location.pathname.includes('sign-in') &&
+      navigate(
+        (!location.pathname.includes("sign-in") &&
           `${location.pathname}${location.search}`) ||
-          '/?signedIn=true',
+          "/?signedIn=true"
       );
 
       window.location.reload();
@@ -35,13 +35,12 @@ const SignInContainer = (props: IRouterProps) => {
         block={true}
         icon="none"
       >
-        {__('Sign in')}
+        {__("Sign in")}
       </ButtonMutate>
     );
   };
 
   const updatedProps = {
-    ...props,
     renderButton,
   };
 

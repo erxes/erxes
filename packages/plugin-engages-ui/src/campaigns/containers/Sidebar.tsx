@@ -1,6 +1,6 @@
 import * as compose from 'lodash.flowright';
 
-import { Counts, IRouterProps } from '@erxes/ui/src/types';
+import { Counts } from '@erxes/ui/src/types';
 
 import { CountQueryResponse } from '@erxes/ui-engage/src/types';
 import React from 'react';
@@ -13,7 +13,6 @@ import { queries } from '@erxes/ui-engage/src/graphql';
 import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
 import { withProps } from '@erxes/ui/src/utils';
 
-// import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
@@ -24,7 +23,7 @@ type FinalProps = {
   statusCountsQuery: CountQueryResponse;
   tagsQuery: TagsQueryResponse;
   tagCountsQuery: Counts;
-} & IRouterProps;
+};
 
 const SidebarContainer = (props: FinalProps) => {
   const { kindCountsQuery, statusCountsQuery, tagsQuery, tagCountsQuery } =

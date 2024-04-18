@@ -10,7 +10,7 @@ import {
   FilemanagerFoldersQueryResponse,
   RemoveFilemanagerFolderMutationResponse,
 } from "../../types";
-import { IRouterProps, MutationVariables } from "@erxes/ui/src/types";
+import { MutationVariables } from "@erxes/ui/src/types";
 import { mutations, queries } from "../../graphql";
 import { useLocation, useNavigate } from "react-router-dom";
 

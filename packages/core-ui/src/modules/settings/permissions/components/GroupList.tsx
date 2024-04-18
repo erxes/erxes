@@ -5,7 +5,6 @@ import Button from "modules/common/components/Button";
 import DataWithLoader from "modules/common/components/DataWithLoader";
 import GroupForm from "./GroupForm";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
-import { IRouterProps } from "@erxes/ui/src/types";
 import { IUserGroup } from "@erxes/ui-settings/src/permissions/types";
 import { IUserGroupDocument } from "../types";
 import Icon from "modules/common/components/Icon";
@@ -22,7 +21,7 @@ import { __ } from "modules/common/utils";
 
 const { Section } = Wrapper.Sidebar;
 
-interface IProps extends IRouterProps {
+interface IProps {
   queryParams: any;
   refetch: any;
   totalCount: number;

@@ -4,7 +4,6 @@ import { FlowDetailQueryResponse, IFlow } from '../../../../types';
 import React, { useState } from 'react';
 
 import { IJob } from '../../../../types';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import SubFlowForm from '../../../../components/forms/jobs/subForms/SubFlowForm';
@@ -12,7 +11,6 @@ import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../../../../graphql';
 import { withProps } from '@erxes/ui/src/utils';
-// import { withRouter } from 'react-router-dom';
 
 type Props = {
   id: string;
@@ -30,8 +28,7 @@ type Props = {
 type FinalProps = {
   flowDetailQuery: FlowDetailQueryResponse;
   currentUser: IUser;
-} & Props &
-  IRouterProps;
+} & Props;
 
 const SubFlowFormContainer = (props: FinalProps) => {
   const { currentUser, flowDetailQuery, activeFlowJob } = props;

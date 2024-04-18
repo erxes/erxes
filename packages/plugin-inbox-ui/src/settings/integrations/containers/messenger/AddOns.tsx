@@ -10,7 +10,6 @@ import {
 import { graphql, withApollo } from '@apollo/client/react/hoc';
 
 import AddOns from '../../components/messenger/steps/AddOns';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { ITopic } from '@erxes/ui-knowledgebase/src/types';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
@@ -19,8 +18,6 @@ import { gql } from '@apollo/client';
 import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
 import { queries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 import { withProps } from '@erxes/ui/src/utils';
-
-// import { withRouter } from 'react-router-dom';
 
 type Props = {
   selectedBrand?: string;
@@ -34,8 +31,7 @@ type FinalProps = {
   knowledgeBaseTopicsQuery: TopicsQueryResponse;
   leadIntegrationsQuery: IntegrationsQueryResponse;
   leadIntegrationsTotalCountQuery: any;
-} & IRouterProps &
-  Props;
+} & Props;
 
 class KnowledgeBaseContainer extends React.Component<FinalProps> {
   render() {

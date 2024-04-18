@@ -1,59 +1,56 @@
-import * as compose from 'lodash.flowright';
-import * as routerUtils from '@erxes/ui/src/utils/router';
+import * as compose from "lodash.flowright";
+import * as routerUtils from "@erxes/ui/src/utils/router";
 
-import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import { BoardsQueryResponse, RemoveBoardMutationResponse } from '../types';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { mutations, queries } from '../graphql';
+import { Alert, confirm, withProps } from "@erxes/ui/src/utils";
+import { BoardsQueryResponse, RemoveBoardMutationResponse } from "../types";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { mutations, queries } from "../graphql";
 
-import Boards from '../components/Boards';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import React from 'react';
-// import { withRouter } from 'react-router-dom';
-import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
+import Boards from "../components/Boards";
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import React from "react";
+import { getWarningMessage } from "@erxes/ui-cards/src/boards/utils";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
 
 type Props = {
-  history?: any;
+  navigate?: any;
+  location?: any;
   currentBoardId: string;
 };
 
 type FinalProps = {
   boardsQuery: BoardsQueryResponse;
 } & Props &
-  IRouterProps &
   RemoveBoardMutationResponse;
 
 class BoardsContainer extends React.Component<FinalProps> {
   render() {
-    const { history, boardsQuery, removeMutation } = this.props;
+    const { navigate, location, boardsQuery, removeMutation } = this.props;
 
     const boards = boardsQuery.calendarBoards || [];
 
     const removeHash = () => {
-      const { location } = history;
-
-      if (location.hash.includes('showBoardModal')) {
-        routerUtils.removeHash(history, 'showBoardModal');
+      if (location.hash.includes("showBoardModal")) {
+        routerUtils.removeHash(navigate, location, "showBoardModal");
       }
     };
 
     // remove action
     const remove = (boardId) => {
-      confirm(getWarningMessage('Board'), { hasDeleteConfirm: true }).then(
+      confirm(getWarningMessage("Board"), { hasDeleteConfirm: true }).then(
         () => {
           removeMutation({
             variables: { _id: boardId },
             refetchQueries: getRefetchQueries(),
           })
             .then(() => {
-              Alert.success('You successfully deleted a board');
+              Alert.success("You successfully deleted a board");
             })
             .catch((error) => {
               Alert.error(error.message);
             });
-        },
+        }
       );
     };
 
@@ -74,7 +71,7 @@ class BoardsContainer extends React.Component<FinalProps> {
           type="submit"
           beforeSubmit={removeHash}
           successMessage={`You successfully ${
-            object ? 'updated' : 'added'
+            object ? "updated" : "added"
           } a ${name}`}
         />
       );
@@ -94,7 +91,7 @@ class BoardsContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return ['calendarBoards', 'calendarBoardGetLast'];
+  return ["calendarBoards", "calendarBoardGetLast"];
 };
 
 const generateOptions = () => ({
@@ -104,7 +101,7 @@ const generateOptions = () => ({
 export default withProps<Props>(
   compose(
     graphql<Props, BoardsQueryResponse, {}>(gql(queries.boards), {
-      name: 'boardsQuery',
+      name: "boardsQuery",
       options: () => ({
         variables: {},
       }),
@@ -112,9 +109,9 @@ export default withProps<Props>(
     graphql<Props, RemoveBoardMutationResponse, {}>(
       gql(mutations.boardRemove),
       {
-        name: 'removeMutation',
+        name: "removeMutation",
         options: generateOptions(),
-      },
-    ),
-  )(BoardsContainer),
+      }
+    )
+  )(BoardsContainer)
 );

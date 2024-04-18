@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import Form from '../../components/mail/Form';
@@ -9,15 +9,13 @@ import { __ } from 'coreui/utils';
 import { getRefetchQueries } from '../utils';
 import { mutations } from '../../graphql';
 
-// import { withRouter } from 'react-router-dom';
-
 type Props = {
   type?: string;
   kind: IntegrationTypes;
   closeModal: () => void;
 };
 
-type FinalProps = {} & IRouterProps & Props;
+type FinalProps = {} & Props;
 
 type State = {
   accountId: string;

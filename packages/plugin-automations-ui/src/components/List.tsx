@@ -6,7 +6,6 @@ import Button from "@erxes/ui/src/components/Button";
 import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
 import { EmptyContent } from "../styles";
 import FormControl from "@erxes/ui/src/components/form/Control";
-import { IRouterProps } from "@erxes/ui/src/types";
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 import React from "react";
 import Row from "./Row";
@@ -18,9 +17,11 @@ import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 import withTableWrapper from "@erxes/ui/src/components/table/withTableWrapper";
 
-interface IProps extends IRouterProps {
+interface IProps {
   automations: IAutomation[];
   loading: boolean;
+  navigate: any;
+  location: any;
   searchValue: string;
   totalCount: number;
   toggleBulk: () => void;

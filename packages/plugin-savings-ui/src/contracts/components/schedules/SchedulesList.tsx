@@ -1,12 +1,10 @@
 import { Spinner, Table } from '@erxes/ui/src';
 
 import { ContractsTableWrapper } from '../../styles';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { ITransaction } from '../../../transactions/types';
 import React from 'react';
 import ScheduleRow from './ScheduleRow';
 import { __ } from 'coreui/utils';
-// import { withRouter } from 'react-router-dom';
 
 interface IProps {
   contractId: string;

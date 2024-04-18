@@ -64,7 +64,6 @@ type Props = {
   currentUser?: IUser;
   currentConversationId?: string;
   queryParams: any;
-  history: any;
   bulk: IConversation[];
   toggleBulk: (target: IConversation[], toggleAdd: boolean) => void;
   emptyBulk: () => void;
@@ -77,7 +76,6 @@ const LeftSidebar: React.FC<Props> = (props) => {
   const {
     currentUser,
     currentConversationId,
-    history,
     queryParams,
     bulk,
     toggleBulk,
@@ -305,7 +303,6 @@ const LeftSidebar: React.FC<Props> = (props) => {
         <ConversationList
           currentUser={currentUser}
           currentConversationId={currentConversationId}
-          history={history}
           queryParams={queryParams}
           toggleRowCheckbox={toggleBulk}
           selectedConversations={bulk}

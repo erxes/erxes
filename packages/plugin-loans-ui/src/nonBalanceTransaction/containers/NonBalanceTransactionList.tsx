@@ -9,7 +9,6 @@ import {
 } from "../types";
 import { mutations, queries } from "../graphql";
 
-import { IRouterProps } from "@erxes/ui/src/types";
 import List from "../components/List";
 import React from "react";
 import { gql } from "@apollo/client";
@@ -23,7 +22,6 @@ type Props = {
 type FinalProps = {
   nonBalanceTransactionsMainQuery: MainQueryResponse;
 } & Props &
-  IRouterProps &
   RemoveMutationResponse;
 
 type State = {

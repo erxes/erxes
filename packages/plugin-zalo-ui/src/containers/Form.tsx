@@ -1,24 +1,23 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-// import { withRouter } from 'react-router-dom';
+import { IButtonMutateProps } from "@erxes/ui/src/types";
 import {
   mutations,
   queries,
-} from '@erxes/ui-inbox/src/settings/integrations/graphql';
+} from "@erxes/ui-inbox/src/settings/integrations/graphql";
 
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import Form from '../components/Form';
-import { gql } from '@apollo/client';
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import Form from "../components/Form";
+import { gql } from "@apollo/client";
+import { useNavigate } from "react-router-dom";
 
-type Props = {} & IRouterProps;
+type Props = {};
 
 const ZaloContainer = (props: Props) => {
+  const navigate = useNavigate();
   const renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
-    const { history } = props;
-
     const callback = () => {
-      history.push('/settings/integrations');
+      navigate("/settings/integrations");
     };
 
     return (
@@ -27,7 +26,7 @@ const ZaloContainer = (props: Props) => {
         variables={values}
         callback={callback}
         isSubmitted={isSubmitted}
-        refetchQueries={getRefetchQueries('zalo')}
+        refetchQueries={getRefetchQueries("zalo")}
         type="submit"
         successMessage={`You successfully added a zalo`}
       />

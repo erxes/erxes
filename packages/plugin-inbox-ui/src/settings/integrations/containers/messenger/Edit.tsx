@@ -20,7 +20,6 @@ import {
 
 import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
 import Form from '../../components/messenger/Form';
-import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
@@ -28,8 +27,7 @@ import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
-
-// import { withRouter } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
   integrationId: string;
@@ -45,12 +43,11 @@ type FinalProps = {
   SaveMessengerConfigsMutationResponse &
   SaveMessengerAppearanceMutationResponse &
   SaveMessengerAppsMutationResponse &
-  EditMessengerMutationResponse &
-  IRouterProps;
+  EditMessengerMutationResponse;
 
 const EditMessenger = (props: FinalProps) => {
+  const navigate = useNavigate();
   const {
-    history,
     integrationId,
     usersQuery,
     brandsQuery,
@@ -137,7 +134,7 @@ const EditMessenger = (props: FinalProps) => {
       .then(() => {
         Alert.success('You successfully updated a messenger');
 
-        history.push('/settings/integrations?refetch=true');
+        navigate('/settings/integrations?refetch=true');
       })
       .catch((error) => {
         if (error.message.includes('Duplicated messenger for single brand')) {

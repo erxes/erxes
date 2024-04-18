@@ -11,13 +11,10 @@ import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
-import { IRouterProps } from '@erxes/ui/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import dayjs from 'dayjs';
 import queryString from 'query-string';
 import { useLocation, useNavigate } from 'react-router-dom';
-
-// import { withRouter } from 'react-router-dom';
 
 interface IProps {
   counts: { [key: string]: number };

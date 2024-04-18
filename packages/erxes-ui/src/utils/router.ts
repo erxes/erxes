@@ -142,9 +142,7 @@ const checkHashKeyInURL = ({ location }, hashKey?: string): boolean => {
  * @param {Object} history - location
  * @param {String} hashKey
  */
-const removeHash = (history: any, hashKey?: string) => {
-  const location = Object.assign({}, history.location);
-
+const removeHash = (navigate: any,location: any, hashKey?: string) => {
   // convert to {hashKey: value}
   const parsedHash = queryString.parse(location.hash);
 
@@ -154,7 +152,7 @@ const removeHash = (history: any, hashKey?: string) => {
   // convert back to hashKey=value
   const stringified = queryString.stringify(parsedHash);
 
-  history.push(`${location.pathname}?${stringified}`);
+  navigate(`${location.pathname}?${stringified}`);
 };
 
 export {
