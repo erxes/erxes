@@ -13,7 +13,7 @@ import React, { useState } from 'react';
 interface IProps {
   closeModal?: () => void;
   data: any;
-  callData?: { callerNumber: string };
+  callData?: { customerPhone: string };
   setConfig?: any;
 }
 

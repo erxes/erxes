@@ -1,8 +1,7 @@
 import React, { memo, useEffect, useRef } from 'react';
-import { ChartType, Colors } from 'chart.js';
+import { ChartType, Colors, Tooltip } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import Chart from 'chart.js/auto';
-
 import Spinner from '@erxes/ui/src/components/Spinner';
 
 import {
@@ -11,8 +10,13 @@ import {
   DEFAULT_DATA_PER_CHART,
   DEFAULT_LABELS_PER_CHART,
 } from './utils';
+import {
+  commarizeNumbers,
+  formatNumbers,
+} from '../../utils';
 
-Chart.register(Colors);
+
+Chart.register([Colors, ChartDataLabels, Tooltip]); 
 
 interface IChartProps {
   datasets?: any;
@@ -25,7 +29,7 @@ interface IChartProps {
   name?: string;
   title?: string;
   loading?: boolean;
-
+  chartVariables?: any
   chartHeight?: number;
 }
 
@@ -39,13 +43,17 @@ const ChartRenderer = (props: IChartProps) => {
     loading,
     chartHeight,
     options,
+    chartVariables
   } = props;
+
+  const { templateType } = chartVariables
 
   if (loading) {
     return <Spinner />;
   }
 
   const chartRef = useRef<HTMLCanvasElement>(null);
+  const formatType = templateType.toLowerCase().includes('time') ? 'time' : undefined
 
   const chartData = {
     labels: labels,
@@ -60,12 +68,35 @@ const ChartRenderer = (props: IChartProps) => {
     ],
   };
 
-  if (chartType === 'pie') {
-    Chart.register(ChartDataLabels);
-  }
-
   let plugins: any = {
-    datalabels: { color: 'white', formatter: (value, ctx) => value },
+    datalabels: {
+      display: 'auto',
+      color: 'white', formatter: (value, ctx) => {
+        return formatNumbers(value, 'y', formatType)
+      }
+    },
+    tooltip: {
+      enabled: true,
+      displayColors: false,
+      callbacks: {
+        label: function (context) {
+          let label = context.dataset.label || '';
+          let value = context.parsed.y
+
+          if (label) {
+            label += ': ';
+          }
+
+          if (formatType === 'time') {
+            return formatNumbers(value, 'x', formatType)
+          }
+
+          label += commarizeNumbers(value);
+
+          return label;
+        }
+      }
+    }
   };
 
   if (!datasets) {
@@ -79,12 +110,24 @@ const ChartRenderer = (props: IChartProps) => {
     type: chartType,
     data: chartData,
     plugins: [ChartDataLabels],
-    options: { ...options, plugins },
+    // options: { ...options, plugins },
+    options: {
+      scales: {
+        y: {
+          ticks: {
+            callback: ((context, index) => {
+              return formatNumbers(context, 'y', formatType)
+            })
+          }
+        }
+      },
+      ...options, plugins
+    }
   };
 
   useEffect(() => {
     if (chartRef.current) {
-      const chart = new Chart(chartRef.current, DEFAULT_CONFIG);
+      const chart: any = new Chart(chartRef.current, DEFAULT_CONFIG);
       return () => {
         chart.destroy();
       };
