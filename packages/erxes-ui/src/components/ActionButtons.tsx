@@ -9,9 +9,11 @@ export const ActionButton = styled.div`
   * {
     padding: 0;
     margin-left: 8px;
+    margin-right: 0;
 
     &:first-child {
       margin-left: 0;
+      padding: 0;
     }
   }
 
