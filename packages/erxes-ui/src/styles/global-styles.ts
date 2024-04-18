@@ -755,6 +755,9 @@ a:hover {
   padding: 0;
 }
 
+.css-v7duua:hover,
+.css-v7duua:focus,
+.css-v7duua:active,
 .css-12a83d4-MultiValueRemove:hover,
 .css-12a83d4-MultiValueRemove:focus,
 .css-12a83d4-MultiValueRemove:active {

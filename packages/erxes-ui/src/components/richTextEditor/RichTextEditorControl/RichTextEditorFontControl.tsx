@@ -101,6 +101,7 @@ export const RichTextEditorFontControl = ({ toolbarPlacement }) => {
         onChange={(val: any) => setSize(val.value)}
         options={options}
         isDisabled={isSourceEnabled}
+        isSearchable={false}
       />
     </FontSelectWrapper>
   );

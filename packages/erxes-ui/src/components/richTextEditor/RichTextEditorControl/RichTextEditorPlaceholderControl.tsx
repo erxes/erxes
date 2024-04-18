@@ -20,9 +20,16 @@ export const RichTextEditorPlaceholderControl = ({
         title={placeholderProp?.title}
         disabled={isSourceEnabled}
       >
+        Attributes
+      </Menu.Button>
+      <Menu.Items>
         {placeholderProp?.items?.map((item: any) => {
           if (!item?.value) {
-            return <div key={item?.name}>{item?.name}</div>;
+            return (
+              <div className="dropdown-header" key={item?.name}>
+                {item?.name}
+              </div>
+            );
           }
           return (
             <Menu.Item
@@ -34,7 +41,7 @@ export const RichTextEditorPlaceholderControl = ({
             </Menu.Item>
           );
         })}
-      </Menu.Button>
+      </Menu.Items>
     </Menu>
   );
 };
