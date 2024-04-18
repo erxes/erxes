@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/erxes/erxes/compare/1.8.0-rc.3...1.8.0) (2024-04-17)
+
+
+### Bug Fixes
+
+* **inbox:** RTE internal notes error fix  ([5ad0b5e](https://github.com/erxes/erxes/commit/5ad0b5eddc430d936366f4851360a2365558553b))
+
 ## [1.8.0-rc.3](https://github.com/erxes/erxes/compare/1.8.0-rc.2...1.8.0-rc.3) (2024-04-15)
 
 
@@ -65,8 +72,6 @@
 
 ### Bug Fixes
 
-<<<<<<< HEAD
-
 - **calls:** add input action and fix many conversations and fix incoming call user ([9c41263](https://github.com/erxes/erxes/commit/9c4126335e315c79193458399643a5f64bfd1214))
 - **ebarimt:** previously submitted ebarimt data has not yet been processed ([228164d](https://github.com/erxes/erxes/commit/228164d5031e3fa8b4f87f85c85212af3fb65386))
 - **facebook:** fix login reload ([4e36459](https://github.com/erxes/erxes/commit/4e364595a0306d0d5456b5eb3a0530430749cc88))
@@ -81,8 +86,6 @@
 
 ## [1.7.6](https://github.com/erxes/erxes/compare/1.8.0-rc.0...1.8.0-rc.1) (2024-04-05)
 
-=======
-
 - **broadcast:** fix client portal user middleware ([34c93a9](https://github.com/erxes/erxes/commit/34c93a9ead011410232b1d1c8597b5c5d8c579f0))
 - **forms:** ensure default value is an Array if property type is file ([1d94a61](https://github.com/erxes/erxes/commit/1d94a616c3f365551ba0b615ff5e2d53c1884ff8))
 - **instagram:** fix get config function ([0cb94c7](https://github.com/erxes/erxes/commit/0cb94c7372616c8f344a128438758d10e3cadef5))
@@ -92,8 +95,6 @@
 - save convertDealId when pos order sync ([f5c8dfd](https://github.com/erxes/erxes/commit/f5c8dfd0e328002fbda532434fd986e4a6507dd7))
 
 ## [1.7.6](https://github.com/erxes/erxes/compare/1.7.5...1.7.6) (2024-04-05)
-
-> > > > > > > b1b966d1ea004d1f477b56264841174499005257
 
 ### Bug Fixes
 

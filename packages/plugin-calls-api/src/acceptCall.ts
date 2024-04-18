@@ -42,7 +42,6 @@ const acceptCall = async (
 
   let customer = await models.Customers.findOne({
     primaryPhone: customerPhone,
-    status: 'completed',
   });
 
   let history;

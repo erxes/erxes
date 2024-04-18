@@ -17,8 +17,14 @@ import {
   getEqualPay,
   getFullDate,
   getNextMonthDay,
-  IPerHoliday
+  IPerHoliday,
+  isWeekend,
+  nextOffWeekend,
+  preOffWeekend
 } from './utils';
+import * as moment from 'moment'
+import {BigNumber} from 'bignumber.js'
+import { IConfig } from '../../interfaces/config';
 //#endregion
 
 const insuranceHelper = (
@@ -60,29 +66,29 @@ const fillAmounts = async (
   isSetAmount: boolean = false
 ) => {
   if (isSetAmount) {
-    doc.undue = tr?.calcedInfo?.undue || 0;
-    doc.interestEve = tr?.calcedInfo?.interestEve || 0;
-    doc.interestNonce = tr?.calcedInfo?.interestNonce || 0;
-    doc.payment = tr?.calcedInfo?.payment || 0;
-    doc.insurance = tr?.calcedInfo?.insurance || 0;
-    doc.debt = tr?.calcedInfo?.debt || 0;
-    doc.total = tr?.calcedInfo?.total || 0;
-    doc.commitmentInterest = tr?.calcedInfo?.commitmentInterest || 0;
+    doc.loss = tr?.calcedInfo?.loss ?? 0;
+    doc.interestEve = tr?.calcedInfo?.interestEve ?? 0;
+    doc.interestNonce = tr?.calcedInfo?.interestNonce ?? 0;
+    doc.payment = tr?.calcedInfo?.payment ?? 0;
+    doc.insurance = tr?.calcedInfo?.insurance ?? 0;
+    doc.debt = tr?.calcedInfo?.debt ?? 0;
+    doc.total = tr?.calcedInfo?.total ?? 0;
+    doc.commitmentInterest = tr?.calcedInfo?.commitmentInterest ?? 0;
   }
 
-  doc.undue = doc.undue || 0;
-  doc.didUndue = (doc.didUndue || 0) + (tr.undue || 0);
-  doc.didInterestEve = (doc.didInterestEve || 0) + (tr.interestEve || 0);
-  doc.didInterestNonce = (doc.didInterestNonce || 0) + (tr.interestNonce || 0);
+  doc.loss = doc.loss ?? 0;
+  doc.didLoss = (doc.didLoss ?? 0) + (tr.loss ?? 0);
+  doc.didInterestEve = (doc.didInterestEve ?? 0) + (tr.interestEve ?? 0);
+  doc.didInterestNonce = (doc.didInterestNonce ?? 0) + (tr.interestNonce ?? 0);
   doc.didCommitmentInterest =
-    (doc.didCommitmentInterest || 0) + (tr.commitmentInterest || 0);
-  doc.didPayment = (doc.didPayment || 0) + (tr.payment || 0);
-  doc.didInsurance = (doc.didInsurance || 0) + (tr.insurance || 0);
-  doc.didDebt = (doc.didDebt || 0) + (tr.debt || 0);
-  doc.didTotal = (doc.didTotal || 0) + (tr.total || 0);
-  doc.surplus = (doc.surplus || 0) + (tr.surplus || 0);
+    (doc.didCommitmentInterest ?? 0) + (tr.commitmentInterest ?? 0);
+  doc.didPayment = (doc.didPayment ?? 0) + (tr.payment ?? 0);
+  doc.didInsurance = (doc.didInsurance ?? 0) + (tr.insurance ?? 0);
+  doc.didDebt = (doc.didDebt ?? 0) + (tr.debt ?? 0);
+  doc.didTotal = (doc.didTotal ?? 0) + (tr.total ?? 0);
+  doc.surplus = (doc.surplus ?? 0) + (tr.surplus ?? 0);
 
-  doc.balance = (preSchedule.balance || 0) - (tr.payment || 0);
+  doc.balance = (preSchedule.balance ?? 0) - (tr.payment ?? 0);
 
   doc.payDate = tr.payDate;
   doc.transactionIds = doc.transactionIds
@@ -101,6 +107,44 @@ const fillAmounts = async (
   return doc;
 };
 
+export const generateDates = (contract:IContractDocument,) => {
+  let mainDate = contract.firstPayDate
+
+  var dateRanges: Date[] = [];
+
+  const dateRange = contract.scheduleDays.sort((a, b) => a - b);
+
+  for (let index = 0; index < contract.tenor + 2; index++) {
+    dateRange.forEach((day, i) => {
+      const ndate = getFullDate(new Date(mainDate));
+      const year = ndate.getFullYear();
+      const month = i === 0 && index !== 0 ? ndate.getMonth() + 1 : ndate.getMonth();
+
+      if (day > 28 && new Date(year, month, day).getDate() !== day)
+        mainDate = new Date(year, month + 1, 0);
+      else mainDate = new Date(year, month, day);
+      
+      if(isWeekend(mainDate)){
+        switch (contract.holidayType) {
+          case 'before':
+            mainDate = preOffWeekend(mainDate)
+            break;
+          case 'after':
+            mainDate = nextOffWeekend(mainDate)
+            break;
+        
+          default:
+            break;
+        }
+      }
+
+      dateRanges.push(mainDate);
+    });
+  }
+
+  return dateRanges
+}
+
 export const scheduleHelper = async (
   contract: IContractDocument,
   bulkEntries: any[],
@@ -110,66 +154,36 @@ export const scheduleHelper = async (
   salvageAmount: number,
   salvageTenor: number,
   nextDate: Date,
-  perHolidays: IPerHoliday[]
+  perHolidays: IPerHoliday[],
+  calculationFixed: number = 2
 ) => {
   if (tenor === 0) {
     return bulkEntries;
   }
-  let currentDate = getFullDate(startDate);
+  let currentDate = getFullDate(moment(startDate).add(-1,'day').toDate());
 
-  const dateRange = contract.scheduleDays.sort((a, b) => a - b);
-  var mainDate = new Date(startDate);
-
-  var skipInterestCalcDate = addMonths(
+  let skipInterestCalcDate = addMonths(
     new Date(currentDate),
     contract.skipInterestCalcMonth || 0
   );
 
-  var endDate = addMonths(new Date(startDate), contract.tenor);
+  let endDate = addMonths(new Date(startDate), contract.tenor);
 
-  var dateRanges: Date[] = [];
-
-  for (let index = 0; index < contract.tenor + 2; index++) {
-    dateRange.forEach((day, i) => {
-      const ndate = getFullDate(new Date(mainDate));
-      const year = ndate.getFullYear();
-      const month = i === 0 ? ndate.getMonth() + 1 : ndate.getMonth();
-
-      if (day > 28 && new Date(year, month, day).getDate() !== day)
-        mainDate = new Date(year, month + 1, 0);
-      else mainDate = new Date(year, month, day);
-      dateRanges.push(mainDate);
-    });
-  }
+  let dateRanges: Date[] = generateDates(contract)
 
   const paymentDates = dateRanges.filter(date => {
-    const diffDay =
-      date.getMonth() === startDate.getMonth() && getDiffDay(startDate, date);
-
-    date = checkNextDay(
-      date,
-      contract.weekends,
-      contract.useHoliday,
-      perHolidays
-    );
-
     if (
-      date < startDate ||
-      (diffDay && diffDay < 10 && date.getMonth() === startDate.getMonth()) ||
-      date > endDate
+      date < startDate || date >= endDate
     )
       return false;
     return true;
   });
 
-  if (paymentDates.length === 0) paymentDates.push(endDate);
-
   if (contract.repayment === 'equal') {
-    const payment = Math.round(
-      (balance - (salvageAmount || 0)) / paymentDates.length
-    );
+    const payment = new BigNumber(balance - (salvageAmount || 0)).div(paymentDates.length).dp(calculationFixed,BigNumber.ROUND_HALF_UP).toNumber()
 
     for (let i = 0; i < paymentDates.length; i++) {
+
       const perMonth = await calcPerMonthEqual(
         contract,
         balance,
@@ -177,8 +191,10 @@ export const scheduleHelper = async (
         payment,
         perHolidays,
         paymentDates[i],
-        skipInterestCalcDate
+        skipInterestCalcDate,
+        calculationFixed
       );
+
       currentDate = perMonth.date;
       balance = perMonth.loanBalance;
 
@@ -206,7 +222,8 @@ export const scheduleHelper = async (
       useHoliday: contract.useHoliday,
       perHolidays,
       paymentDates,
-      skipInterestCalcDate
+      skipInterestCalcDate,
+      calculationFixed
     });
 
     for (let i = 0; i < paymentDates.length - salvageTenor; i++) {
@@ -250,7 +267,8 @@ export const scheduleHelper = async (
 export const reGenerateSchedules = async (
   models: IModels,
   contract: IContractDocument,
-  perHolidays: IPerHoliday[]
+  perHolidays: IPerHoliday[],
+  loansConfig:IConfig
 ) => {
   if (!contract.collateralsData) {
     return;
@@ -271,29 +289,9 @@ export const reGenerateSchedules = async (
 
   startDate.setDate(startDate.getDate() + 1);
 
-  const firstNextDate = getNextMonthDay(
-    contract.startDate,
-    contract.scheduleDays
-  );
-
-  const diffDay = getDiffDay(contract.startDate, firstNextDate);
-
   // diff from startDate to nextDate valid: max 42 min 10 day, IsValid then undefined or equal nextMonthDay
-  let nextDate: any = undefined;
+  let nextDate: any = contract.firstPayDate;
 
-  if (diffDay > 42 || contract.isPayFirstMonth) {
-    nextDate = new Date(
-      contract.startDate.getFullYear(),
-      contract.startDate.getMonth(),
-      contract.scheduleDays?.[0] || 1
-    );
-  } else if (diffDay < 10) {
-    nextDate = new Date(
-      firstNextDate.getFullYear(),
-      firstNextDate.getMonth() + 1,
-      contract.scheduleDays?.[0] || 1
-    );
-  }
 
   bulkEntries = await scheduleHelper(
     contract,
@@ -304,7 +302,8 @@ export const reGenerateSchedules = async (
     contract.salvageAmount || 0,
     contract.salvageTenor || 0,
     nextDate,
-    perHolidays
+    perHolidays,
+    loansConfig.calculationFixed
   );
 
   if (bulkEntries.length) {
@@ -599,11 +598,11 @@ export const generatePendingSchedules = async (
     return;
   }
 
-  // if undue payed less than must pay undue then this section will be true
+  // if loss payed less than must pay loss then this section will be true
   if (
-    !!updatedSchedule.didUndue &&
-    !!updatedSchedule.undue &&
-    updatedSchedule.didUndue < updatedSchedule.undue
+    !!updatedSchedule.didLoss &&
+    !!updatedSchedule.loss &&
+    updatedSchedule.didLoss < updatedSchedule.loss
   ) {
     // allowLess is forever false
     trReaction.push({
@@ -1153,7 +1152,7 @@ export const onPreScheduled = async (
     preSchedule,
     false
   );
-  doc.status = SCHEDULE_STATUS.DONE;
+  doc.status = 'done';
 
   let updatedSchedule: any = undefined;
   if (preSchedule._id) {
@@ -1224,9 +1223,9 @@ export const betweenScheduled = async (
     diff > 0
       ? preMainSchedule?.status === SCHEDULE_STATUS.DONE ||
         preMainSchedule === null
-        ? SCHEDULE_STATUS.PRE
-        : SCHEDULE_STATUS.LESS
-      : SCHEDULE_STATUS.DONE;
+        ? 'pre'
+        : 'less'
+      : 'done';
 
   const updatedSchedule: any = await models.Schedules.create({
     ...doc,
@@ -1263,7 +1262,7 @@ export const onNextScheduled = async (
     preSchedule,
     true
   );
-  doc.status = SCHEDULE_STATUS.DONE;
+  doc.status = 'done';
 
   trReaction.push({
     scheduleId: nextSchedule._id,

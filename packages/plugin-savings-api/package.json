@@ -7,12 +7,6 @@
   },
   "dependencies": {
     "@erxes/api-utils": "*",
-    "@types/body-parser": "^1.17.0",
-    "aws-sdk": "^2.493.0",
-    "body-parser": "^1.17.1",
-    "nodemailer": "^6.2.1"
-  },
-  "peerOptionalDependencies": {
-    "kerberos": "^1.0.0"
+    "bignumber.js": "^9.1.2"
   }
 }

@@ -4,7 +4,8 @@ import {
   getBranch,
   getCustomer,
   getProduct,
-  updateContract,
+  sendMessageBrokerData,
+  updateContract
 } from '../utils';
 import { IPolarisDeposit } from './types';
 import { validateDepositObject } from './validator';
@@ -15,18 +16,25 @@ export const createDeposit = async (subdomain: string, params) => {
   const objectDeposit = await customFieldToObject(
     subdomain,
     'savings:contract',
-    deposit,
+    deposit
   );
-  const savingProduct = await getProduct(
+
+  const savingProduct = await sendMessageBrokerData(
     subdomain,
-    deposit.contractTypeId,
     'savings',
+    'contractType.findOne',
+    { _id: deposit.contractTypeId }
   );
 
   const branch = await getBranch(subdomain, deposit.branchId);
 
-  const customer = await getCustomer(subdomain, deposit.customerId);
-
+  const customer = await sendMessageBrokerData(
+    subdomain,
+    'contacts',
+    'customers.findOne',
+    { _id: deposit.customerId }
+  );
+  
   let sendData: IPolarisDeposit = {
     acntType: 'CA',
     prodCode: savingProduct.code,
@@ -47,7 +55,7 @@ export const createDeposit = async (subdomain: string, params) => {
     capMethod: '0',
     segCode: '81',
     paymtDefault: '',
-    odType: 'NON',
+    odType: 'NON'
   };
 
   await validateDepositObject(sendData);
@@ -55,15 +63,17 @@ export const createDeposit = async (subdomain: string, params) => {
   const depositCode = await fetchPolaris({
     subdomain,
     op: '13610020',
-    data: [sendData],
+    data: [sendData]
   });
+
+  console.log('depositCode', depositCode);
 
   if (typeof depositCode === 'string') {
     await updateContract(
       subdomain,
       { _id: deposit._id },
       { $set: { number: JSON.parse(depositCode) } },
-      'savings',
+      'savings'
     );
   }
 

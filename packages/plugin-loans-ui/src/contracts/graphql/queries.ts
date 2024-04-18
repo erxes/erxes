@@ -15,11 +15,12 @@ const contractFields = `
   leaseAmount
   feeAmount
   tenor
-  unduePercent
-  undueCalcType
+  lossPercent
+  lossCalcType
   interestRate
   repayment
   startDate
+  firstPayDate
   scheduleDays
   debt
   debtTenor
@@ -278,6 +279,7 @@ export const contractDetailFields = `
   nextPayment
   customFieldsData
   savingContractId
+  holidayType
 `;
 
 export const contractDetail = `
@@ -300,7 +302,7 @@ export const schedules = `
       payDate
 
       balance
-      undue
+      loss
       interest
       interestEve
       interestNonce
@@ -310,7 +312,7 @@ export const schedules = `
       debt
       total
 
-      didUndue
+      didLoss
       didInterest
       didInterestEve
       didInterestNonce
@@ -339,7 +341,7 @@ export const closeInfo = `
   query closeInfo($contractId: String, $date: Date) {
     closeInfo(contractId: $contractId, date: $date) {
       balance
-      undue
+      loss
       interest
       interestEve
       interestNonce
