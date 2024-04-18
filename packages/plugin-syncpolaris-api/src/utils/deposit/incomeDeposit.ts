@@ -1,4 +1,4 @@
-import { fetchPolaris, getContract, sendMessageBrokerData } from '../utils';
+import { fetchPolaris, sendMessageBrokerData } from '../utils';
 
 export const incomeDeposit = async (subdomain, params) => {
   const transaction = params.object;
