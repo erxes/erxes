@@ -35,6 +35,7 @@ function TransactionFormGive(props: Props) {
   const [contractId, setContractId] = useState<string>();
   const [payDate, setPayDate] = useState(new Date());
   const [description, setDescription] = useState<string>('');
+  const [bankAccount, setBankAccount] = useState<string>('');
   const [total, setTotal] = useState(0);
 
   const maxAmount = useMemo(()=>{
@@ -49,13 +50,15 @@ function TransactionFormGive(props: Props) {
       payDate,
       total,
       contractId,
+      bankAccount
     };
   }, [
     contract,
     total,
     description,
     contractId,
-    payDate
+    payDate,
+    bankAccount
   ]);
 
   const renderRowTr = (label, key, value?:any) => {
@@ -135,6 +138,30 @@ function TransactionFormGive(props: Props) {
                     onDoubleClick={()=>setTotal(maxAmount)}
                   />
                 </FormColumn>
+                <FormGroup>
+                  <ControlLabel>{__('Transaction Bank Type')}</ControlLabel>
+                  <FormControl
+                    name="bank"
+                    componentClass="select"
+                  >
+                    {['khanbank', 'golomt'].map((typeName, index) => (
+                      <option key={index} value={typeName}>
+                        {__(typeName)}
+                      </option>
+                    ))}
+                  </FormControl>
+                </FormGroup>
+                <FormGroup>
+                  <ControlLabel>{__('Bank Account')}</ControlLabel>
+                  <DateContainer>
+                    <FormControl
+                      required={false}
+                      name="bankAccount"
+                      value={bankAccount}
+                      onChange={(e:any) => setBankAccount(e.target.value)}
+                    />
+                  </DateContainer>
+                </FormGroup>
                 <FormGroup>
                   <ControlLabel>{__('Description')}</ControlLabel>
                   <DateContainer>
