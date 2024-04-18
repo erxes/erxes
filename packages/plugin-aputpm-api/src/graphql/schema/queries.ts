@@ -57,14 +57,15 @@ const commonParams = `
   createdAt:DateFilter,
   startedAt:DateFilter,
   closedAt:DateFilter,
-
+  pipelineIds:[String],
+  boardId:String,
+  createdUserId:String,
 `;
 
 const commonUserParams = `
   ${commonParams}
   cardType:String,
-  pipelineIds:[String],
-  boardId:String,
+
   withoutUserFilter:Boolean
 `;
 

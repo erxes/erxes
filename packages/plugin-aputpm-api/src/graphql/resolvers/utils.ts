@@ -1,6 +1,6 @@
 import { sendCardsMessage, sendCoreMessage } from '../../messageBroker';
 
-const generateDateFilter = value => {
+const generateDateFilter = (value) => {
   let filter: any = {};
   if (value?.from) {
     filter = { $gte: new Date(value.from) };
@@ -11,7 +11,12 @@ const generateDateFilter = value => {
   return filter;
 };
 
-export const generateChildrenIds = async ({ subdomain, action, query, type }) => {
+export const generateChildrenIds = async ({
+  subdomain,
+  action,
+  query,
+  type
+}) => {
   const parentFilter = type === 'branch' ? { query } : query;
 
   const orders = (
@@ -22,7 +27,7 @@ export const generateChildrenIds = async ({ subdomain, action, query, type }) =>
       isRPC: true,
       defaultValue: []
     })
-  ).map(item => item.order);
+  ).map((item) => item.order);
 
   const childrenFilter = { order: { $regex: orders.join('|'), $options: 'i' } };
 
@@ -39,7 +44,7 @@ export const generateChildrenIds = async ({ subdomain, action, query, type }) =>
       isRPC: true,
       defaultValue: []
     })
-  ).map(item => item._id);
+  ).map((item) => item._id);
 
   return ids;
 };
@@ -59,7 +64,8 @@ export const queryBuilderCards = async ({ subdomain, params }) => {
     startedAt,
     closedAt,
     pipelineIds,
-    boardId
+    boardId,
+    createdUserId
   } = params || {};
 
   if (boardId) {
@@ -77,13 +83,13 @@ export const queryBuilderCards = async ({ subdomain, params }) => {
       subdomain,
       action: 'stages.find',
       data: {
-        pipelineId: { $in: pipelines.map(pipeline => pipeline._id) }
+        pipelineId: { $in: pipelines.map((pipeline) => pipeline._id) }
       },
       isRPC: true,
       defaultValue: null
     });
 
-    filter.stageId = { $in: stages.map(stage => stage._id) };
+    filter.stageId = { $in: stages.map((stage) => stage._id) };
   }
 
   if (!!pipelineIds?.length) {
@@ -97,7 +103,7 @@ export const queryBuilderCards = async ({ subdomain, params }) => {
       defaultValue: null
     });
 
-    const stageIds = stages.map(stage => stage._id);
+    const stageIds = stages.map((stage) => stage._id);
     filter.stageId = { $in: stageIds };
   }
 
@@ -116,7 +122,7 @@ export const queryBuilderCards = async ({ subdomain, params }) => {
       defaultValue: []
     });
 
-    filter.stageId = { $in: stages.map(stage => stage._id) };
+    filter.stageId = { $in: stages.map((stage) => stage._id) };
   }
 
   if (!!branchIds?.length) {
@@ -128,6 +134,10 @@ export const queryBuilderCards = async ({ subdomain, params }) => {
         type: 'branch'
       })
     };
+  }
+
+  if (createdUserId) {
+    filter.userId = createdUserId;
   }
 
   if (!!departmentIds?.length) {
@@ -201,7 +211,7 @@ const queryBuilderUsers = async ({ subdomain, params }) => {
   return filter;
 };
 
-const getCardsTypeMBAction = cardType => {
+const getCardsTypeMBAction = (cardType) => {
   let action = `tickets.find`;
 
   if (cardType === 'tickets') return action;
@@ -228,10 +238,10 @@ export const generateUsersCards = async ({ subdomain, params, fieldName }) => {
   });
 
   const userIds = cards
-    .map(card => {
+    .map((card) => {
       if (fieldName.includes('customFieldsData')) {
         const customFieldData = card.customFieldsData.find(
-          cfData => cfData.field === params.fieldId
+          (cfData) => cfData.field === params.fieldId
         );
 
         if (customFieldData) {
@@ -243,7 +253,7 @@ export const generateUsersCards = async ({ subdomain, params, fieldName }) => {
 
       return card[fieldName];
     })
-    .filter(id => id)
+    .filter((id) => id)
     .flat();
 
   const users = await sendCoreMessage({
