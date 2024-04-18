@@ -87,20 +87,18 @@ export const afterDealCreate = async (subdomain, params) => {
     });
 
     const driverIds = drivers.map((driver) => driver._id);
-    console.log('driverIds', driverIds);
+
     const cpUsers = await sendClientPortalMessage({
       subdomain,
       action: 'clientPortalUsers.find',
       data: {
         erxesCustomerId: { $in: driverIds },
-        clientPortalId: process.env.MOBILE_CP_ID || '',
+        // clientPortalId: process.env.MOBILE_CP_ID || '',
       },
       isRPC: true,
       defaultValue: [],
     });
-    console.log('cpUsers', cpUsers);
     const cpUsersIds = cpUsers.map((cpUser) => cpUser._id);
-    console.log('cpUsersIds', cpUsersIds);
 
     const notifData: any = {
       title: 'Шинэ захиалга ирлээ',
