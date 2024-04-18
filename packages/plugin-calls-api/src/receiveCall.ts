@@ -1,35 +1,35 @@
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
-import { IModels } from './connectionResolver';
-import { sendInboxMessage } from './messageBroker';
-import { getOrCreateCustomer } from './store';
-import * as moment from 'moment'
+import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
+import { IModels } from "./connectionResolver";
+import { sendInboxMessage } from "./messageBroker";
+import { getOrCreateCustomer } from "./store";
+import * as moment from "moment";
 
 const receiveCall = async (
   models: IModels,
   subdomain: string,
   params,
-  user,
+  user
 ) => {
   const integration = await models.Integrations.findOne({
-    inboxId: params.inboxIntegrationId,
+    inboxId: params.inboxIntegrationId
   }).lean();
 
   const inboxIntegration = await sendInboxMessage({
     subdomain,
-    action: 'integrations.findOne',
+    action: "integrations.findOne",
     data: { _id: integration?.inboxId },
     isRPC: true,
-    defaultValue: null,
+    defaultValue: null
   });
 
   if (!integration) {
-    throw new Error('Integration not found');
+    throw new Error("Integration not found");
   }
-const operator = integration.operators.find(
-  (operator) => operator.userId === user?._id,
-);
+  const operator = integration.operators.find(
+    operator => operator.userId === user?._id
+  );
   params.recipientId = integration.phone;
-  params.extentionNumber = operator?.gsUsername || '';
+  params.extentionNumber = operator?.gsUsername || "";
   const { primaryPhone, recipientId, direction, callID, extentionNumber } =
     params;
 
@@ -39,82 +39,83 @@ const operator = integration.operators.find(
   const now = moment();
 
   // Subtract 30 seconds
-  const dateBefore30Seconds = now.subtract(5, 'seconds');
-  let conversation = await models.Conversations.findOne({ callerNumber: primaryPhone, status: 'missed', createdAt: {$gte: dateBefore30Seconds.toDate()} });
+  const dateBefore30Seconds = now.subtract(5, "seconds");
+  let conversation = await models.Conversations.findOne({
+    callerNumber: primaryPhone,
+    status: "missed",
+    createdAt: { $gte: dateBefore30Seconds.toDate() }
+  });
 
   if (conversation) {
-    return customer
+    return customer;
   }
-    try {
-      conversation = await models.Conversations.create({
-        callId: callID,
-        callerNumber: primaryPhone,
-        operatorPhone: recipientId,
-        integrationId: inboxIntegration._id,
-        createdAt: new Date(),
-      });
-
-    } catch (e) {
-      throw new Error(
-        e.message.includes('duplicate')
-          ? 'Concurrent request: conversation duplication'
-          : e,
-      );
-    }
-  
+  try {
+    conversation = await models.Conversations.create({
+      callId: callID,
+      callerNumber: primaryPhone,
+      operatorPhone: recipientId,
+      integrationId: inboxIntegration._id,
+      createdAt: new Date()
+    });
+  } catch (e) {
+    throw new Error(
+      e.message.includes("duplicate")
+        ? "Concurrent request: conversation duplication"
+        : e
+    );
+  }
 
   let history = await models.CallHistory.findOne({
     callerNumber: primaryPhone,
-    status: 'missed',
-    createdAt: { $gte: dateBefore30Seconds.toDate() },
+    status: "missed",
+    createdAt: { $gte: dateBefore30Seconds.toDate() }
   });
   if (history) {
-    return customer
+    return customer;
   }
-  
-    try {
-      const newHistory = new models.CallHistory({
-        sessionId: callID,
-        callerNumber: primaryPhone,
-        receiverNumber: recipientId,
-        callType: direction,
-        createdAt: new Date(),
-        createdBy: user._id,
-        updatedBy: user._id,
-        callDuration: 0,
-        extentionNumber,
-      });
 
-      try {
-        await newHistory.save();
-      } catch (error) {
-        console.error('Error saving call history:', error);
-      }
-    } catch (e) {
-      throw new Error(
-        e.message.includes('duplicate')
-          ? 'Concurrent request: call session duplication'
-          : e,
-      );
+  try {
+    const newHistory = new models.CallHistory({
+      sessionId: callID,
+      callerNumber: primaryPhone,
+      receiverNumber: recipientId,
+      callType: direction,
+      createdAt: new Date(),
+      createdBy: user._id,
+      updatedBy: user._id,
+      callDuration: 0,
+      extentionNumber
+    });
+
+    try {
+      await newHistory.save();
+    } catch (error) {
+      console.error("Error saving call history:", error);
     }
+  } catch (e) {
+    throw new Error(
+      e.message.includes("duplicate")
+        ? "Concurrent request: call session duplication"
+        : e
+    );
+  }
 
   // save on api
   try {
     const apiConversationResponse = await sendInboxMessage({
       subdomain,
-      action: 'integrations.receive',
+      action: "integrations.receive",
       data: {
-        action: 'create-or-update-conversation',
+        action: "create-or-update-conversation",
         payload: JSON.stringify({
           customerId: customer.erxesApiId,
           integrationId: integration.inboxId,
-          content: direction || '',
+          content: direction || "",
           conversationId: conversation.erxesApiId,
-          updatedAt: new Date(),
-          owner: user?.details?.operatorPhone || ''
-        }),
+          updatedAt: new Date()
+        })
       },
-      isRPC: true,
+      isRPC: true
     });
 
     conversation.erxesApiId = apiConversationResponse._id;
@@ -127,11 +128,11 @@ const operator = integration.operators.find(
 
   const channels = await sendInboxMessage({
     subdomain,
-    action: 'channels.find',
+    action: "channels.find",
     data: {
-      integrationIds: { $in: [inboxIntegration._id] },
+      integrationIds: { $in: [inboxIntegration._id] }
     },
-    isRPC: true,
+    isRPC: true
   });
 
   for (const channel of channels) {
@@ -141,14 +142,14 @@ const operator = integration.operators.find(
         {
           conversationClientMessageInserted: {
             _id: Math.random().toString(),
-            content: 'new grandstream message',
+            content: "new grandstream message",
             createdAt: new Date(),
             customerId: customer.erxesApiId,
-            conversationId: conversation.erxesApiId,
+            conversationId: conversation.erxesApiId
           },
           conversation,
-          integration: inboxIntegration,
-        },
+          integration: inboxIntegration
+        }
       );
     }
   }

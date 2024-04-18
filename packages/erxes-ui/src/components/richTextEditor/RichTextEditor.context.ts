@@ -8,6 +8,7 @@ interface IRichTextEditorContext {
   isSourceEnabled: boolean;
   toggleSourceView: () => void;
   codeMirrorRef?: React.RefObject<ReactCodeMirrorRef>;
+  showMention?: boolean;
 }
 
 export const [RichTextEditorProvider, useRichTextEditorContext] =

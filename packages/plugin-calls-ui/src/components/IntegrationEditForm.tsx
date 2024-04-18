@@ -31,15 +31,16 @@ const IntegrationEditForm = (props: IProps) => {
   const onChangeOperatorDetails = (
     name: string,
     value: string,
-    index: number
+    index: number,
   ) => {
-    const currentOperator = operators.find((l, i) => i === index);
+    const currentOperator = operators.find((_, i) => i === index);
 
     if (currentOperator) {
-      currentOperator[name] = value;
+      const updatedOperator = { ...currentOperator, [name]: value };
+      const updatedOperators = [...operators];
+      updatedOperators[index] = updatedOperator;
+      setOperators(updatedOperators);
     }
-
-    setOperators([...currentOperator]);
   };
 
   const onChangeOperators = (index: number, value: any) => {
