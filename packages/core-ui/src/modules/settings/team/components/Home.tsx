@@ -13,7 +13,7 @@ import { IUserGroup } from "@erxes/ui-settings/src/permissions/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import Pagination from "modules/common/components/pagination/Pagination";
-import Select, { OnChangeValue } from "react-select";
+import Select, { OnChangeValue, StylesConfig } from "react-select";
 import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
 import Sidebar from "./Sidebar";
 import UserInvitationForm from "../containers/UserInvitationForm";
@@ -145,6 +145,32 @@ export default function Home(props: Props) {
     },
   ];
 
+  const colourStyles: StylesConfig = {
+    option: (styles, { data, isDisabled, isFocused, isSelected }) => {
+      return {
+        ...styles,
+        backgroundColor: isDisabled
+          ? undefined
+          : isSelected
+            ? "rgb(237, 242, 250)"
+            : isFocused
+              ? "#f0f0f0"
+              : undefined,
+        color: isDisabled ? "#ccc" : "#333",
+        cursor: isDisabled ? "not-allowed" : "default",
+
+        ":active": {
+          ...styles[":active"],
+          backgroundColor: !isDisabled
+            ? isSelected
+              ? "rgb(237, 242, 250)"
+              : "#f0f0f0"
+            : undefined,
+        },
+      };
+    },
+  };
+
   const righActionBar = (
     <FilterContainer>
       <FlexRow>
@@ -174,6 +200,9 @@ export default function Home(props: Props) {
               onChange={onStatusChange}
               isClearable={false}
               options={statusOptions}
+              className="basic-multi-select"
+              isSearchable={false}
+              styles={colourStyles}
             />
           </FlexItem>
         </InputBar>
