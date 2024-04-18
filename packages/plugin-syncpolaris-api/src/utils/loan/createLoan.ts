@@ -28,22 +28,6 @@ export const createLoan = async (subdomain, params) => {
 
   const branch = await getBranch(subdomain, loan.branchId);
   
-  console.log('start--loanData----------------------------')
-  console.log(loanData)
-  console.log('end------------------------------')
-  console.log('start--customer----------------------------')
-  console.log(customer)
-  console.log('end------------------------------')
-  console.log('start--loanProduct----------------------------')
-  console.log(loanProduct)
-  console.log('end------------------------------')
-  console.log('start--leasingExpert----------------------------')
-  console.log(leasingExpert)
-  console.log('end------------------------------')
-  console.log('start--branch----------------------------')
-  console.log(branch)
-  console.log('end------------------------------')
-
   let sendData: any = {
     custCode: customer.code,
     name: `${customer.code} ${customer.firstName} ${customer.code} ${customer.lastName}`,

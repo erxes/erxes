@@ -44,13 +44,11 @@ const scheduleMutations = {
       _id: contractId,
     });
 
-    await reGenerateSchedules(models, contract, perHolidays,loansConfig);
-
     if (isEnabled('syncpolaris')) {
-      const schedules = await models.Schedules.find({
+      const schedules = await models.FirstSchedules.find({
         contractId,
       }).lean();
-      if (schedules?.length > 0) {
+      if (schedules.length > 0) {
         await sendMessageBroker(
           { action: 'changeSchedule', subdomain, data: contract, isRPC: true },
           'syncpolaris',
@@ -62,6 +60,8 @@ const scheduleMutations = {
         );
       }
     }
+    
+    await reGenerateSchedules(models, contract, perHolidays,loansConfig);
 
     return 'ok';
   },
