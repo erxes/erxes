@@ -2,7 +2,6 @@ import {
     customFieldToObject,
     fetchPolaris,
     getBranch,
-    getCustomer,
     sendMessageBrokerData,
   } from '../utils';
 import { integrateCollateralToLoan } from './integrateCollateralToLoan';
