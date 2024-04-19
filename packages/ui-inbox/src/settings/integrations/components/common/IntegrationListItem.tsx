@@ -38,6 +38,7 @@ type Props = {
   editIntegration: (
     id: string,
     { name, brandId, channelIds, details }: IntegrationMutationVariables,
+    callback: () => void
   ) => void;
   showExternalInfoColumn: () => void;
   showExternalInfo: boolean;

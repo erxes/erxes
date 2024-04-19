@@ -117,9 +117,7 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
     };
 
     const onDetailsChange = (key: string, value: any) => {
-      details[key] = value;
-
-      this.setState({ details: { ...details } });
+      this.setState({ details: { ...details, [key]: value } });
     };
 
     const onNameBlur = (e) => {
