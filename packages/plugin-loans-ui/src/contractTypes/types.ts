@@ -49,6 +49,7 @@ export interface IContractConfig {
   districtName?: any;
   isAmountUseEBarimt?: any;
   isInterestUseEBarimt?: any;
+  isLossUseEBarimt?: any;
 }
 
 export interface IContractTypeDoc {
