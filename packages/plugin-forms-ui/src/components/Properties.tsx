@@ -195,6 +195,7 @@ class Properties extends React.Component<
     return (
       <Dropdown
         as={DropdownToggle}
+        isMenuWidthFit={true}
         toggleComponent={
           <Button btnStyle="success" icon="plus-circle">
             {__("Add Group & Field ")}

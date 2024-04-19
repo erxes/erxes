@@ -9,10 +9,11 @@ type Props = {
   drop?: string;
   active?: boolean;
   disabled?: boolean;
+  isMenuWidthFit?: boolean;
 };
 
 const Dropdown: React.FC<Props> = forwardRef<HTMLDivElement, Props>(
-  ({ children, as, drop, toggleComponent }, ref) => {
+  ({ children, as, drop, toggleComponent, isMenuWidthFit }, ref) => {
     const [height, setHeight] = useState(0);
     const [width, setWidth] = useState(0);
     const buttonRef = useRef<HTMLButtonElement>({} as any);
@@ -38,7 +39,7 @@ const Dropdown: React.FC<Props> = forwardRef<HTMLDivElement, Props>(
             <Menu.Button ref={buttonRef}>{toggleComponent}</Menu.Button>
             {/* <Menu.Button ref={buttonRef} as={MenuButton} /> */}
             {open && (
-              <Menu.Items ref={ref} className={`absolute`} style={style}>
+              <Menu.Items ref={ref} className={`absolute ${isMenuWidthFit && 'menuWidthFit'}`} style={style}>
                 {children}
               </Menu.Items>
             )}
