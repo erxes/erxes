@@ -16,6 +16,8 @@ import React from 'react';
 import { Description } from '../../contracts/styles';
 import ContractTypeForm from '../containers/ContractTypeForm';
 import { IContractTypeDetail } from '../types';
+import ContractTypesCustomFields from './ContractTypesCustomFields';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   contractType: IContractTypeDetail;
@@ -97,9 +99,9 @@ class DetailInfo extends React.Component<Props> {
               )}
               {this.renderRow(
                 'Loss percent',
-                (contractType.unduePercent || 0).toLocaleString()
+                (contractType.lossPercent || 0).toLocaleString()
               )}
-              {this.renderRow('Loss calc type', contractType.undueCalcType)}
+              {this.renderRow('Loss calc type', contractType.lossCalcType)}
               {this.renderRow(
                 'Is use debt',
                 __(contractType.useDebt ? 'Yes' : 'No')
@@ -135,8 +137,10 @@ class DetailInfo extends React.Component<Props> {
                 }}
               />
             </SidebarList>
+            
           </Section>
         </Sidebar.Section>
+        {isEnabled('forms') && <ContractTypesCustomFields contractType={this.props.contractType} isDetail/>}
       </Sidebar>
     );
   }

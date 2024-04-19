@@ -5,7 +5,7 @@ export const invoicePreInfo = `
   payment
   interestEve
   interestNonce
-  undue
+  loss
   insurance
   debt
   total
@@ -22,7 +22,7 @@ export const invoiceFields = `
     payment
     interestEve
     interestNonce
-    undue
+    loss
     insurance
     total
   }

@@ -435,7 +435,7 @@ const integrationMutations = {
     if (kind === 'facebook-messenger' || kind === 'facebook-post') {
       kind = 'facebook';
     }
-    if (kind === 'instagram') {
+    if (kind === 'instagram-messenger' || kind === 'instagram-post') {
       kind = 'instagram';
     }
     await models.Integrations.updateOne({ _id }, { $set: doc });

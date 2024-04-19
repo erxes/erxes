@@ -108,6 +108,14 @@ const msdynamicQueries = {
       timeout: 60000,
     }).then((res) => res.json());
 
+    if (response.value.length > 0) {
+      return response.value || [];
+    }
+
+    if (response.value.length === 0) {
+      return [];
+    }
+
     if (!(response.value || []).length) {
       return [];
     }

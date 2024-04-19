@@ -38,16 +38,16 @@ export const types = () => `
     givenAmount: Float
     feeAmount: Float
     tenor: Float
-    unduePercent: Float
-    undueCalcType: String
+    lossPercent: Float
+    lossCalcType: String
     interestRate: Float
     skipInterestCalcMonth: Float
     repayment: String
     startDate: Date
+    firstPayDate: Date
     scheduleDays: [Float]
     customerId: String
     customerType: String
-
     debt: Float
     debtTenor: Float
     debtLimit: Float
@@ -112,6 +112,7 @@ export const types = () => `
     endDate:Date
     customFieldsData: JSON
     savingContractId: String
+    holidayType: String
   }
 
 
@@ -121,7 +122,7 @@ export const types = () => `
 
   type CloseInfo {
     balance: Float,
-    undue: Float,
+    loss: Float,
     interest: Float,
     interestEve: Float,
     interestNonce: Float,
@@ -131,10 +132,12 @@ export const types = () => `
     total: Float,
     storedInterest: Float,
   }
+
   type ContractsListResponse {
     list: [LoanContract],
     totalCount: Float,
   }
+
   type LoanAlert {
     name: String,
     count: Float,
@@ -176,6 +179,7 @@ const queryParams = `
 export const queries = `
   contractsMain(${queryParams}): ContractsListResponse
   contracts(${queryParams}): [LoanContract]
+  clientLoansContracts(${queryParams}): [LoanContract]
   contractDetail(_id: String!): LoanContract
   cpContracts(cpUserType: String cpUserEmail: String cpUserPhone: String): [LoanContract]
   cpContractDetail(_id: String!): LoanContract
@@ -197,11 +201,12 @@ const commonFields = `
   givenAmount: Float
   feeAmount: Float
   tenor: Float
-  unduePercent: Float
-  undueCalcType: String
+  lossPercent: Float
+  lossCalcType: String
   interestRate: Float
   repayment: String
   startDate: Date
+  firstPayDate: Date
   scheduleDays: [Float]
   insurancesData: JSON
   schedule: JSON
@@ -240,6 +245,7 @@ const commonFields = `
   endDate: Date
   savingContractId: String
   customFieldsData: JSON
+  holidayType: String
 `;
 
 const interestCorrectionFields = `
