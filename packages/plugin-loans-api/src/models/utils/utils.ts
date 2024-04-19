@@ -2,18 +2,43 @@ import { IContractDocument } from '../definitions/contracts';
 import { IDefaultScheduleParam } from '../definitions/schedules';
 import { IModels } from '../../connectionResolver';
 import { sendMessageBroker } from '../../messageBroker';
-
+import {BigNumber} from 'bignumber.js'
+import * as moment from 'moment'
 export const calcInterest = ({
   balance,
   interestRate,
-  dayOfMonth = 30
+  dayOfMonth = 30,
+  fixed = 2
 }: {
   balance: number;
   interestRate: number;
+  fixed?:number;
   dayOfMonth?: number;
 }): number => {
-  return Math.round((((balance / 100) * interestRate) / 365) * dayOfMonth);
+  const interest = new BigNumber(interestRate).div(100).div(365)
+  return new BigNumber(balance).multipliedBy(interest).multipliedBy(dayOfMonth).dp(fixed,BigNumber.ROUND_HALF_UP).toNumber()
 };
+
+export function isWeekend(date: Date) {
+  const dayOfWeek = date.getDay();
+  return dayOfWeek === 0 || dayOfWeek === 6; // Sunday is 0, Saturday is 6
+}
+
+export function nextOffWeekend(date: Date) {
+  let nextDate = moment(date).add(1, 'day'); // Start with the next day
+  while (isWeekend(nextDate.toDate())) {
+    nextDate = nextDate.add(1, 'day'); // Increment until we find a non-weekend day
+  }
+  return nextDate.toDate();
+}
+
+export function preOffWeekend(date: Date) {
+  let nextDate = moment(date).add(-1, 'day'); // Start with the next day
+  while (isWeekend(nextDate.toDate())) {
+    nextDate = nextDate.add(-1, 'day'); // Increment until we find a non-weekend day
+  }
+  return nextDate.toDate();
+}
 
 export const calcPerVirtual = (doc: IDefaultScheduleParam) => {
   const loanPayment = doc.leaseAmount / doc.tenor;
@@ -138,13 +163,14 @@ export const calcPerMonthEqual = async (
   payment: number,
   perHolidays: IPerHoliday[],
   nextDate: Date,
-  skipInterestCalcDate: Date
+  skipInterestCalcDate: Date,
+  calculationFixed:number
 ) => {
   let nextDay = nextDate;
   nextDay = checkNextDay(nextDay, doc.weekends, doc.useHoliday, perHolidays);
 
   if (getDiffDay(nextDate, skipInterestCalcDate) >= 0) {
-    const loanBalance = balance - payment;
+    const loanBalance = new BigNumber(balance).minus(payment).dp(calculationFixed,BigNumber.ROUND_HALF_UP).toNumber();
     const totalPayment = payment;
 
     return {
@@ -156,22 +182,30 @@ export const calcPerMonthEqual = async (
     };
   }
 
-  const { diffEve, diffNonce } = getDatesDiffMonth(currentDate, nextDay);
+
+  const diffDay = getDiffDay(currentDate, nextDay)
+
+  const interest = calcInterest({
+    balance,
+    interestRate: doc.interestRate,
+    dayOfMonth: diffDay,
+    fixed:calculationFixed
+  });
+
+  const { diffEve } = getDatesDiffMonth(currentDate, nextDay);
 
   const calcedInterestEve = calcInterest({
     balance,
     interestRate: doc.interestRate,
-    dayOfMonth: diffEve
+    dayOfMonth: diffEve,
+    fixed:calculationFixed
   });
 
-  const calcedInterestNonce = calcInterest({
-    balance,
-    interestRate: doc.interestRate,
-    dayOfMonth: diffNonce
-  });
+  const calcedInterestNonce = new BigNumber(interest).minus(calcedInterestEve).dp(calculationFixed,BigNumber.ROUND_HALF_UP).toNumber()
 
-  const loanBalance = balance - payment;
-  const totalPayment = payment + calcedInterestEve + calcedInterestNonce;
+  const loanBalance = new BigNumber(balance).minus(payment).dp(calculationFixed,BigNumber.ROUND_HALF_UP).toNumber()
+
+  const totalPayment = new BigNumber(payment).plus(calcedInterestEve).plus(calcedInterestNonce).toNumber();
 
   return {
     date: nextDay,
@@ -186,12 +220,8 @@ export const getEqualPay = async ({
   startDate,
   interestRate,
   leaseAmount,
-  salvage,
-  weekends,
-  useHoliday,
-  perHolidays,
   paymentDates,
-  skipInterestCalcDate
+  calculationFixed
 }: {
   startDate: Date;
   interestRate: number;
@@ -203,29 +233,26 @@ export const getEqualPay = async ({
   nextDate?: Date;
   paymentDates: Date[];
   skipInterestCalcDate: Date;
+  calculationFixed:number
 }) => {
   if (!leaseAmount) {
     return 0;
   }
 
-  let currentDate = getFullDate(startDate);
-  let mainRatio = 0;
+  let currentDate = getFullDate(moment(startDate).add(-1,'day').toDate());
+  let mainRatio = new BigNumber(0);
   let ratio = 1;
-
   for (let i = 0; i < paymentDates.length; i++) {
     let nextDay = paymentDates[i];
-    nextDay = checkNextDay(nextDay, weekends, useHoliday, perHolidays);
     const dayOfMonth = getDiffDay(currentDate, nextDay);
-    const isSkipCalc = getDiffDay(nextDay, skipInterestCalcDate) >= 0;
-    const newRatio = isSkipCalc
-      ? 1
-      : ratio / (1 + (dayOfMonth * (interestRate / 100)) / 365);
-    mainRatio = mainRatio + newRatio;
-    currentDate = nextDay;
+    let ratioDivider = new BigNumber(dayOfMonth).multipliedBy(new BigNumber(interestRate).dividedBy(100)).dividedBy(365).plus(1)
+    const newRatio =  new BigNumber(ratio).dividedBy(ratioDivider).toNumber() ;
+    mainRatio = mainRatio.plus(newRatio);
+    currentDate = getFullDate(nextDay);
     ratio = newRatio;
   }
 
-  return Math.round((leaseAmount - (salvage || 0) * ratio) / mainRatio);
+  return new BigNumber(leaseAmount).div(mainRatio).dp(calculationFixed,BigNumber.ROUND_HALF_UP).toNumber()
 };
 
 export const calcPerMonthFixed = async (
@@ -242,7 +269,7 @@ export const calcPerMonthFixed = async (
 
   if (getDiffDay(nextDate, skipInterestCalcDate) >= 0) {
     const loanPayment = total;
-    const loanBalance = balance - loanPayment;
+    const loanBalance = new BigNumber(balance).minus(loanPayment).dp(2,BigNumber.ROUND_HALF_UP).toNumber() ;
 
     return {
       date: nextDay,
@@ -252,22 +279,24 @@ export const calcPerMonthFixed = async (
       calcedInterestNonce: 0
     };
   }
+  const diffDay = getDiffDay(currentDate, nextDay)
+  const interest = calcInterest({
+    balance,
+    interestRate: doc.interestRate,
+    dayOfMonth: diffDay
+  });
 
   const { diffEve, diffNonce } = getDatesDiffMonth(currentDate, nextDay);
-
   const calcedInterestEve = calcInterest({
     balance,
     interestRate: doc.interestRate,
     dayOfMonth: diffEve
   });
-  const calcedInterestNonce = calcInterest({
-    balance,
-    interestRate: doc.interestRate,
-    dayOfMonth: diffNonce
-  });
 
-  const loanPayment = total - calcedInterestEve - calcedInterestNonce;
-  const loanBalance = balance - loanPayment;
+  const calcedInterestNonce = new BigNumber(interest).minus(calcedInterestEve).dp(2,BigNumber.ROUND_HALF_UP).toNumber()
+
+  const loanPayment = new BigNumber(total).minus(calcedInterestEve).minus(calcedInterestNonce).toNumber()
+  const loanBalance = new BigNumber(balance).minus(loanPayment).dp(2,BigNumber.ROUND_HALF_UP).toNumber() ;;
 
   return {
     date: nextDay,
@@ -327,7 +356,7 @@ export const getNumber = async (models: IModels, contractTypeId: string) => {
   return `${type.number}${'0'.repeat(lessLen)}${preInt + 1}`;
 };
 
-export const getUnduePercent = async (
+export const getLossPercent = async (
   models: IModels,
   subdomain: string,
   date: Date,
@@ -340,7 +369,7 @@ export const getUnduePercent = async (
         action: 'configs.findOne',
         data: {
           query: {
-            code: 'undueConfig'
+            code: 'lossConfig'
           }
         },
         isRPC: true,
@@ -349,7 +378,7 @@ export const getUnduePercent = async (
       'core'
     )) || {};
 
-  const ruledUndueConfigs = Object.values<{
+  const lossConfigs = Object.values<{
     startDate: Date;
     endDate: Date;
     percent: number;
@@ -365,17 +394,17 @@ export const getUnduePercent = async (
         : -1
     );
 
-  if (ruledUndueConfigs && ruledUndueConfigs.length) {
-    return ruledUndueConfigs[0].percent;
+  if (lossConfigs && lossConfigs.length) {
+    return lossConfigs[0].percent;
   }
 
-  if (contract.unduePercent > 0) return contract.unduePercent / 100;
+  if (contract.lossPercent > 0) return contract.lossPercent / 100;
 
   const contractType = await models.ContractTypes.findOne({
     _id: contract.contractTypeId
   }).lean();
 
-  if (contractType?.unduePercent > 0) return contractType?.unduePercent / 100;
+  if (contractType?.lossPercent > 0) return contractType?.lossPercent / 100;
 
   return 0;
 };

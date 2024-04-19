@@ -98,9 +98,9 @@ const DetailInfo = (props: Props) => {
             )}
             {renderRow(
               "Loss percent",
-              (contractType.unduePercent || 0).toLocaleString()
+              (contractType.lossPercent || 0).toLocaleString()
             )}
-            {renderRow("Loss calc type", contractType.undueCalcType)}
+            {renderRow("Loss calc type", contractType.lossCalcType)}
             {renderRow("Is use debt", __(contractType.useDebt ? "Yes" : "No"))}
             {renderRow(
               "Is use margin",

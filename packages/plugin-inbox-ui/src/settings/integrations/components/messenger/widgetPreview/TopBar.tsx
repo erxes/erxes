@@ -181,14 +181,13 @@ class TopBar extends React.Component<Props> {
 
   renderGreetingTopbar() {
     const { facebook, instagram, twitter, youtube } = this.props;
-
     return (
       <>
         <ErxesGreeting>
           <Links>
             <Socials>
               {this.renderLink(facebook, "facebook-official")}
-              {this.renderLink(instagram, "instagram")}
+              {this.renderLink(instagram, "instagram-official")}
               {this.renderLink(twitter, "twitter")}
               {this.renderLink(youtube, "youtube-play")}
             </Socials>

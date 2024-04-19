@@ -26,6 +26,24 @@ export const setupMessageConsumers = async () => {
     };
   });
 
+  consumeRPCQueue('savings:block.create', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    console.log('data',data)
+
+    const deposit = await models.Contracts.findOne({customerId:data.customerId,isDeposit:true})
+    
+    if(!deposit)
+      throw new Error('contract not found')
+    
+    data.contractId = deposit._id
+
+    return {
+      status: 'success',
+      data: await models.Block.createBlock(data),
+    };
+  });
+
   consumeRPCQueue(
     'savings:contracts.getDepositAccount',
     async ({ subdomain, data }) => {

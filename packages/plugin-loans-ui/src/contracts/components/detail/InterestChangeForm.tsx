@@ -4,23 +4,22 @@ import {
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
 } from "@erxes/ui/src/styles/eindex";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { ICloseInfo, IContract, IContractDoc } from "../../types";
+import React, { useState } from "react";
+
 import Button from "@erxes/ui/src/components/Button";
+import { ChangeAmount } from "../../styles";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { DateContainer } from "@erxes/ui/src/styles/main";
 import DateControl from "@erxes/ui/src/components/form/DateControl";
 import Form from "@erxes/ui/src/components/form/Form";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
-
-import { DateContainer } from "@erxes/ui/src/styles/main";
-import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-import React, { useState } from "react";
-import { ChangeAmount } from "../../styles";
-import { ICloseInfo, IContract, IContractDoc } from "../../types";
-import { __ } from "coreui/utils";
 import SelectContracts from "../common/SelectContract";
-
-import dayjs from "dayjs";
+import { __ } from "coreui/utils";
 import client from "@erxes/ui/src/apolloClient";
+import dayjs from "dayjs";
 import { gql } from "@apollo/client";
 import { queries } from "../../../transactions/graphql";
 
@@ -101,7 +100,7 @@ const InterestChangeForm = (props: Props) => {
       <>
         {renderRow("Payment", "payment")}
         {renderRow("Interest", "storedInterest")}
-        {renderRow("Loss", "undue")}
+        {renderRow("Loss", "loss")}
       </>
     );
   };

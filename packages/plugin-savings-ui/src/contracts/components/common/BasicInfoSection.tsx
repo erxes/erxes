@@ -1,30 +1,31 @@
+import { Action, Name } from "../../styles";
 import {
   Alert,
   Button,
-  confirm,
   DropdownToggle,
   Icon,
   MainStyleInfoWrapper as InfoWrapper,
   ModalTrigger,
   Sidebar,
+  confirm,
 } from "@erxes/ui/src";
-import { __ } from "coreui/utils";
 import React, { useState } from "react";
-import Dropdown from "@erxes/ui/src/components/Dropdown";
+import { can, isEnabled } from "@erxes/ui/src/utils/core";
 
-import ContractForm from "../../containers/ContractForm";
+import BlockForm from "../../containers/detail/BlockForm";
 import CloseForm from "../../containers/detail/CloseForm";
-import { Action, Name } from "../../styles";
-import { IContract } from "../../types";
+import ContractForm from "../../containers/ContractForm";
 import DetailInfo from "./DetailInfo";
-import { getEnv } from "@erxes/ui/src/utils";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import { IContract } from "../../types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import InterestChange from "../../containers/detail/InterestChange";
+import { __ } from "coreui/utils";
 import client from "@erxes/ui/src/apolloClient";
+import { getEnv } from "@erxes/ui/src/utils";
 import { gql } from "@apollo/client";
 import { queries } from "../../graphql";
-import { can, isEnabled } from "@erxes/ui/src/utils/core";
 import withConsumer from "../../../withConsumer";
-import { IUser } from "@erxes/ui/src/auth/types";
-import ExpandForm from "../../containers/detail/ExpandForm";
 
 type Props = {
   contract: IContract;
@@ -72,7 +73,9 @@ const BasicInfoSection = (props: Props) => {
 
     const closeForm = (props) => <CloseForm {...props} contract={contract} />;
 
-    const expandForm = (props) => <ExpandForm {...props} contract={contract} />;
+    const interestChangeForm = (props) => (
+      <InterestChange {...props} contract={contract} />
+    );
 
     const contractForm = (props) => (
       <ContractForm change {...props} contract={contract} />
@@ -109,12 +112,19 @@ const BasicInfoSection = (props: Props) => {
               />
             </li>
           )}
+          {can("contractsRemove", currentUser) && (
+            <li>
+              <a href="#delete" onClick={onDelete}>
+                {__("Delete")}
+              </a>
+            </li>
+          )}
           <li>
             <ModalTrigger
-              title={__("Expand Contract")}
-              trigger={<a href="#toClose">{__("Expand Contract")}</a>}
+              title={__("Interest correction")}
+              trigger={<a href="#toClose">{__("Interest correction")}</a>}
               size="lg"
-              content={expandForm}
+              content={interestChangeForm}
             />
           </li>
           <li>
@@ -125,14 +135,6 @@ const BasicInfoSection = (props: Props) => {
               content={contractForm}
             />
           </li>
-
-          {can("contractsRemove", currentUser) && (
-            <li>
-              <a href="#delete" onClick={onDelete}>
-                {__("Delete")}
-              </a>
-            </li>
-          )}
         </Dropdown>
       </Action>
     );

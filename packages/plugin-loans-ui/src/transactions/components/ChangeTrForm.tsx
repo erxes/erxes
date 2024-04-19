@@ -1,20 +1,19 @@
 import {
-  __,
   Alert,
   Button,
   ControlLabel,
   Form,
-  FormControl,
   MainStyleFormColumn as FormColumn,
+  FormControl,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
-} from '@erxes/ui/src';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React, { useState } from 'react';
-
-import { ChangeAmount, ExtraDebtSection } from '../../contracts/styles';
-import { ITransaction, ITransactionDoc } from '../types';
+  __,
+} from "@erxes/ui/src";
+import { ChangeAmount, ExtraDebtSection } from "../../contracts/styles";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { ITransaction, ITransactionDoc } from "../types";
+import React, { useState } from "react";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -29,18 +28,18 @@ const TransactionForm = (props: Props) => {
   const [payment, setPayment] = useState(transaction.payment || 0);
   const [interestEve, setInterestEve] = useState(transaction.interestEve || 0);
   const [interestNonce, setInterestNonce] = useState(
-    transaction.interestNonce || 0,
+    transaction.interestNonce || 0
   );
-  const [undue, setUndue] = useState(transaction.undue || 0);
+  const [loss, setLoss] = useState(transaction.loss || 0);
   const [insurance, setInsurance] = useState(transaction.insurance || 0);
   const [debt, setDebt] = useState(transaction.debt || 0);
   const [futureDebt, setFutureDebt] = useState(transaction.futureDebt || 0);
   const [debtTenor, setDebtTenor] = useState(transaction.debtTenor || 0);
   const [maxTotal, setMaxTotal] = useState(
-    Math.max(transaction.calcedInfo.total || 0, transaction.total || 0),
+    Math.max(transaction.calcedInfo.total || 0, transaction.total || 0)
   );
   const [firstTotal, setFirstTotal] = useState(
-    (transaction.total || 0) - (transaction.futureDebt || 0),
+    (transaction.total || 0) - (transaction.futureDebt || 0)
   );
 
   const generateDoc = (values: { _id: string } & ITransactionDoc) => {
@@ -55,7 +54,7 @@ const TransactionForm = (props: Props) => {
       payment: Number(payment || 0),
       interestEve: Number(interestEve || 0),
       interestNonce: Number(interestNonce || 0),
-      undue: Number(undue || 0),
+      loss: Number(loss || 0),
       insurance: Number(insurance || 0),
       debt: Number(debt || 0),
       futureDebt: Number(futureDebt || 0),
@@ -72,7 +71,7 @@ const TransactionForm = (props: Props) => {
       Number(payment) +
       Number(interestEve) +
       Number(interestNonce) +
-      Number(undue) +
+      Number(loss) +
       Number(insurance) +
       Number(debt);
 
@@ -92,7 +91,7 @@ const TransactionForm = (props: Props) => {
       return `must fill debt Tenor when Future debt`;
     }
 
-    return '';
+    return "";
   };
 
   const onChangeField = (e) => {
@@ -104,21 +103,21 @@ const TransactionForm = (props: Props) => {
     }
 
     const setHandler =
-      name === 'total'
+      name === "total"
         ? setTotal
-        : name === 'payment'
+        : name === "payment"
           ? setPayment
-          : name === 'interestEve'
+          : name === "interestEve"
             ? setInterestEve
-            : name === 'interestNonce'
+            : name === "interestNonce"
               ? setInterestNonce
-              : name === 'undue'
-                ? setUndue
-                : name === 'insurance'
+              : name === "loss"
+                ? setLoss
+                : name === "insurance"
                   ? setInsurance
-                  : name === 'insurance'
+                  : name === "insurance"
                     ? setDebt
-                    : name === ' futureDebt'
+                    : name === " futureDebt"
                       ? setFutureDebt
                       : setDebtTenor;
 
@@ -134,13 +133,13 @@ const TransactionForm = (props: Props) => {
         Number(payment) +
         Number(interestEve) +
         Number(interestNonce) +
-        Number(undue) +
+        Number(loss) +
         Number(insurance) +
         Number(debt);
 
       setTotal(total);
 
-      if (name !== 'futureDebt') {
+      if (name !== "futureDebt") {
         setFutureDebt(total - firstTotal);
       }
       if (!futureDebt) {
@@ -154,17 +153,17 @@ const TransactionForm = (props: Props) => {
     const trCalcedVal = trCalcedInfo[fieldName] || 0;
     const trVal = transaction[fieldName] || 0;
     const val =
-      fieldName === 'total'
+      fieldName === "total"
         ? total
-        : fieldName === 'payment'
+        : fieldName === "payment"
           ? payment
-          : fieldName === 'interestEve'
+          : fieldName === "interestEve"
             ? interestEve
-            : fieldName === 'interestNonce'
+            : fieldName === "interestNonce"
               ? interestNonce
-              : fieldName === 'undue'
-                ? undue
-                : fieldName === 'insurance'
+              : fieldName === "loss"
+                ? loss
+                : fieldName === "insurance"
                   ? insurance
                   : debt;
 
@@ -184,7 +183,7 @@ const TransactionForm = (props: Props) => {
         <FormColumn>
           <FormControl
             {...formProps}
-            type={'number'}
+            type={"number"}
             name={fieldName}
             min={0}
             value={val}
@@ -221,13 +220,13 @@ const TransactionForm = (props: Props) => {
             <ControlLabel>{__(`Odd`)}</ControlLabel>
           </FormColumn>
         </FormWrapper>
-        {renderRow(formProps, 'total', 'total')}
-        {renderRow(formProps, 'payment', 'payment')}
-        {renderRow(formProps, 'interest eve', 'interestEve')}
-        {renderRow(formProps, 'interest nonce', 'interestNonce')}
-        {renderRow(formProps, 'undue', 'undue')}
-        {renderRow(formProps, 'insurance', 'insurance')}
-        {renderRow(formProps, 'debt', 'debt')}
+        {renderRow(formProps, "total", "total")}
+        {renderRow(formProps, "payment", "payment")}
+        {renderRow(formProps, "interest eve", "interestEve")}
+        {renderRow(formProps, "interest nonce", "interestNonce")}
+        {renderRow(formProps, "loss", "loss")}
+        {renderRow(formProps, "insurance", "insurance")}
+        {renderRow(formProps, "debt", "debt")}
       </>
     );
   };
@@ -247,8 +246,8 @@ const TransactionForm = (props: Props) => {
           </FormColumn>
           <FormColumn>
             <FormControl
-              type={'number'}
-              name={'futureDebt'}
+              type={"number"}
+              name={"futureDebt"}
               min={0}
               value={futureDebt}
               onChange={onChangeField}
@@ -269,8 +268,8 @@ const TransactionForm = (props: Props) => {
           </FormColumn>
           <FormColumn>
             <FormControl
-              type={'number'}
-              name={'debtTenor'}
+              type={"number"}
+              name={"debtTenor"}
               min={1}
               value={Math.round(debtTenor)}
               onChange={onChangeField}
@@ -298,7 +297,7 @@ const TransactionForm = (props: Props) => {
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
-            {__('Close')}
+            {__("Close")}
           </Button>
           {renderButton({
             values: generateDoc(values),

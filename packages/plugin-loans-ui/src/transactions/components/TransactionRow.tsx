@@ -152,8 +152,8 @@ function TransactionRow({ transaction, isChecked, toggleBulk }: Props) {
       <TrNumberCols key={"calcInterest"}>
         {displayNumber(transaction, "calcInterest")}
       </TrNumberCols>
-      <TrNumberCols key={"undue"}>
-        {displayNumber(transaction, "undue")}
+      <TrNumberCols key={"loss"}>
+        {displayNumber(transaction, "loss")}
       </TrNumberCols>
       <TrNumberCols key={"insurance"}>
         {displayNumber(transaction, "insurance")}

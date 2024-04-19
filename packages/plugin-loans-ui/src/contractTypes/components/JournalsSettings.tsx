@@ -219,8 +219,8 @@ const GeneralSettings = (props: Props) => {
         </CollapseContent>
 
         <CollapseContent title={__("Loss")}>
-          {renderItem("undueAccount")}
-          {renderCheckbox("undueHasEBarimt")}
+          {renderItem("lossAccount")}
+          {renderCheckbox("lossHasEBarimt")}
         </CollapseContent>
 
         <CollapseContent title={__("Other")}>
@@ -270,28 +270,11 @@ const GeneralSettings = (props: Props) => {
               marginTop: 10,
             }}
           >
-            {renderCheckbox("isInterestUseEBarimt")}
-            {currentMap?.isInterestUseEBarimt && (
+            {renderCheckbox("isLossUseEBarimt")}
+            {currentMap?.isLossUseEBarimt && (
               <FormGroup>
                 <ControlLabel>{__("Product")}</ControlLabel>
-                {renderProductModal("interestEBarimtProduct")}
-              </FormGroup>
-            )}
-          </div>
-          <div
-            style={{
-              boxShadow: "1px 0px 5px rgba(0,0,0,0.1)",
-              padding: 20,
-              paddingBottom: 10,
-              borderRadius: 10,
-              marginTop: 10,
-            }}
-          >
-            {renderCheckbox("isUndueUseEBarimt")}
-            {currentMap?.isUndueUseEBarimt && (
-              <FormGroup>
-                <ControlLabel>{__("Product")}</ControlLabel>
-                {renderProductModal("undueEBarimtProduct")}
+                {renderProductModal("lossEBarimtProduct")}
               </FormGroup>
             )}
           </div>

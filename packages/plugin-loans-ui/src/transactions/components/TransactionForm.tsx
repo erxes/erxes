@@ -12,17 +12,17 @@ import {
 } from "@erxes/ui/src";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import { ITransaction, ITransactionDoc } from "../types";
+import React, { useState } from "react";
+import SelectContracts, {
+  Contracts,
+} from "../../contracts/components/common/SelectContract";
 
 import { Amount } from "../../contracts/styles";
 import { DateContainer } from "@erxes/ui/src/styles/main";
 import { IInvoice } from "../../invoices/types";
-import React, { useState } from "react";
 import { __ } from "coreui/utils";
-import SelectContracts, {
-  Contracts,
-} from "../../contracts/components/common/SelectContract";
-import dayjs from "dayjs";
 import client from "@erxes/ui/src/apolloClient";
+import dayjs from "dayjs";
 import { gql } from "@apollo/client";
 import { queries } from "../graphql";
 
@@ -71,6 +71,7 @@ const TransactionForm = (props: Props) => {
   const [organizationRegister, setOrganizationRegister] = useState("");
   const [organizationName, setOrganizationName] = useState("");
   const [storedInterest, setStoredInterest] = useState(0);
+  const [isPrePayment, setIsPrePayment] = useState(false);
 
   const generateDoc = (values: { _id: string } & ITransactionDoc) => {
     const { transaction, type } = props;
@@ -145,6 +146,17 @@ const TransactionForm = (props: Props) => {
         <FormColumn>
           <Amount>{Number(trVal).toLocaleString()}</Amount>
         </FormColumn>
+        <FormColumn>
+          <FormControl
+            type={"number"}
+            useNumberFormat
+            fixed={2}
+            name="total"
+            max={paymentInfo?.closeAmount}
+            value={total}
+            onClick={onFieldClick}
+          />
+        </FormColumn>
       </FormWrapper>
     );
   };
@@ -160,15 +172,18 @@ const TransactionForm = (props: Props) => {
             <FormColumn>
               <ControlLabel>Transaction</ControlLabel>
             </FormColumn>
+            <FormColumn>
+              <ControlLabel>Amount</ControlLabel>
+            </FormColumn>
           </FormWrapper>
-          {renderRowTr("Total must pay", "total")}
           {renderRowTr("Payment", "payment")}
           {renderRowTr("Stored Interest", "storedInterest")}
           {renderRowTr("Interest Nonce", "calcInterest")}
           {renderRowTr("Commitment interest", "commitmentInterest")}
-          {renderRowTr("Loss", "undue")}
+          {renderRowTr("Loss", "loss")}
           {renderRowTr("Insurance", "insurance")}
           {renderRowTr("Debt", "debt")}
+          {renderRowTr("Total must pay", "total")}
         </>
       );
     }
@@ -189,15 +204,20 @@ const TransactionForm = (props: Props) => {
             <ControlLabel>Change</ControlLabel>
           </FormColumn>
         </FormWrapper>
-        {renderRow("total", "total")}
         {renderRow("payment", "payment")}
         {renderRow("interest eve", "storedInterest")}
         {renderRow("interest nonce", "calcInterest")}
         {renderRow("Commitment interest", "commitmentInterest")}
 
-        {renderRow("undue", "undue")}
+        {renderRow("loss", "loss")}
         {renderRow("insurance", "insurance")}
         {renderRow("debt", "debt")}
+        <FormWrapper>
+          <FormColumn></FormColumn>
+          <FormColumn></FormColumn>
+          <FormColumn></FormColumn>
+        </FormWrapper>
+        {renderRow("total", "total")}
       </>
     );
   };
@@ -358,6 +378,22 @@ const TransactionForm = (props: Props) => {
                 />
               </FormGroup>
               {renderRowTr("Total", "total", true)}
+              {type !== "give" && (
+                <FormGroup>
+                  <ControlLabel>{__("Is Pre Payment")}</ControlLabel>
+                  <FormControl
+                    {...formProps}
+                    type={"checkbox"}
+                    componentclass="checkbox"
+                    useNumberFormat
+                    fixed={0}
+                    name="isPrePayment"
+                    value={isPrePayment}
+                    onChange={onChangeField}
+                    onClick={onFieldClick}
+                  />
+                </FormGroup>
+              )}
               {type !== "give" && (
                 <FormGroup>
                   <ControlLabel>{__("Is get E-Barimt")}</ControlLabel>

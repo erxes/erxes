@@ -50,6 +50,7 @@ type Props = {
   align?: string;
   useNumberFormat?: boolean;
   fixed?: number; // useNumberFormat is true then used
+  onDoubleClick?: (e: React.FormEvent<HTMLElement>) => void;
 };
 
 const renderElement = (Element, attributes, type, child) => {
@@ -120,6 +121,7 @@ class FormControl extends React.Component<Props> {
       maxLength: props.maxLength,
       color: props.color,
       align: props.align,
+      onDoubleClick: props.onDoubleClick,
     };
 
     if (elementType === "select") {

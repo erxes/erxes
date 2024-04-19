@@ -1,11 +1,12 @@
-import { ButtonMutate } from '@erxes/ui/src';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { IInvoice } from '../../invoices/types';
-import TransactionForm from '../components/TransactionForm';
-import { mutations } from '../graphql';
-import { ITransaction } from '../types';
-import { __ } from 'coreui/utils';
+import { ButtonMutate } from "@erxes/ui/src";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { IInvoice } from "../../invoices/types";
+import { ITransaction } from "../types";
+import LoanGive from "../components/TransactionFormGive";
+import LoanRepayment from "../components/TransactionFormRepayment";
+import React from "react";
+import { __ } from "coreui/utils";
+import { mutations } from "../graphql";
 
 type Props = {
   contractId?: string;
@@ -46,10 +47,10 @@ const TransactionFromContainer = (props: Props) => {
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
-          object ? 'updated' : 'added'
+          object ? "updated" : "added"
         } a ${name}`}
       >
-        {__('Save')}
+        {__("Save")}
       </ButtonMutate>
     );
   };
@@ -62,11 +63,13 @@ const TransactionFromContainer = (props: Props) => {
     // invoice,
     transaction: { ...transaction },
   };
-  return <TransactionForm {...updatedProps} />;
+
+  if (props.type === "give") return <LoanGive {...updatedProps} />;
+  return <LoanRepayment {...updatedProps} />;
 };
 
 const getRefetchQueries = () => {
-  return ['activityLogs', 'schedules', 'transactionsMain'];
+  return ["activityLogs", "schedules", "transactionsMain"];
 };
 
 export default TransactionFromContainer;

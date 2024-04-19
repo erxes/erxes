@@ -21,11 +21,11 @@ export interface IContractConfig {
   insuranceReceivable: string;
   insuranceGiving: string;
 
-  undueStock: string;
-  undueUserEmail: string;
-  undueHasVat: string;
-  undueHasCitytax: string;
-  undueIsEbarimt: string;
+  lossStock: string;
+  lossUserEmail: string;
+  lossHasVat: string;
+  lossHasCitytax: string;
+  lossIsEbarimt: string;
 
   otherReceivable: string;
   feeIncome: string;
@@ -63,8 +63,8 @@ export interface IContractTypeDoc {
   createdAt: Date;
   productCategoryIds: string[];
   config: IContractConfig;
-  unduePercent: number;
-  undueCalcType: string;
+  lossPercent: number;
+  lossCalcType: string;
   useMargin: boolean;
   useDebt: boolean;
   useSkipInterest: boolean;
