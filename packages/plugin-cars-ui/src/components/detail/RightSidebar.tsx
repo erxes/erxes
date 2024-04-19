@@ -1,27 +1,35 @@
-import Box from '@erxes/ui/src/components/Box';
-import { ICar } from '../../types';
-import { List } from '../../styles';
-import React from 'react';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { __ } from '@erxes/ui/src';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import dayjs from 'dayjs';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import Box from "@erxes/ui/src/components/Box";
+import { ICar } from "../../types";
+import { List } from "../../styles";
+import React from "react";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import { __ } from "@erxes/ui/src";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import dayjs from "dayjs";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const CompanySection = asyncComponent(
   () =>
-    isEnabled('contacts') &&
+    isEnabled("contacts") &&
     import(
-      /* webpackChunkName: "CompanySection" */ '@erxes/ui-contacts/src/companies/components/CompanySection'
-    ),
+      /* webpackChunkName: "CompanySection" */ "@erxes/ui-contacts/src/companies/components/CompanySection"
+    )
 );
 
 const CustomerSection = asyncComponent(
   () =>
-    isEnabled('contacts') &&
+    isEnabled("contacts") &&
     import(
-      /* webpackChunkName: "CustomerSection" */ '@erxes/ui-contacts/src/customers/components/CustomerSection'
-    ),
+      /* webpackChunkName: "CustomerSection" */ "@erxes/ui-contacts/src/customers/components/CustomerSection"
+    )
+);
+
+const DealSection = asyncComponent(
+  () =>
+    isEnabled("cards") &&
+    import(
+      /* webpackChunkName: "CustomerSection" */ "@erxes/ui-cards/src/deals/components/PortableDeals"
+    )
 );
 
 type Props = {
@@ -29,41 +37,47 @@ type Props = {
 };
 
 const RightSidebar = (props: Props) => {
-  const { car } = props;
-
-  const renderPlan = () => {
+  const renderPlan = (car) => {
     if (!car.plan) {
       return null;
     }
 
     return (
       <li>
-        <div>{__('Plan')}: </div>
+        <div>{__("Plan")}: </div>
         <span>{car.plan}</span>
       </li>
     );
   };
 
+  const { car } = props;
+
   return (
     <Sidebar>
-      {isEnabled('contacts') && (
+      {isEnabled("contacts") && (
         <>
           <CustomerSection mainType="car" mainTypeId={car._id} />
           <CompanySection mainType="car" mainTypeId={car._id} />
         </>
       )}
 
-      <Box title={__('Other')} name="showOthers">
+      {isEnabled("cards") && (
+        <>
+          <DealSection mainType="car" mainTypeId={car._id} />
+        </>
+      )}
+
+      <Box title={__("Other")} name="showOthers">
         <List>
           <li>
-            <div>{__('Created at')}: </div>{' '}
-            <span>{dayjs(car.createdAt).format('lll')}</span>
+            <div>{__("Created at")}: </div>{" "}
+            <span>{dayjs(car.createdAt).format("lll")}</span>
           </li>
           <li>
-            <div>{__('Modified at')}: </div>{' '}
-            <span>{dayjs(car.modifiedAt).format('lll')}</span>
+            <div>{__("Modified at")}: </div>{" "}
+            <span>{dayjs(car.modifiedAt).format("lll")}</span>
           </li>
-          {renderPlan()}
+          {renderPlan(car)}
         </List>
       </Box>
     </Sidebar>

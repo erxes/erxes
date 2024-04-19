@@ -9,10 +9,12 @@ import Select from "react-select";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
 import SelectClientPortal from "../utils/SelectClientPortal";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 import SelectLeads from "../utils/SelectLeads";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import { SelectWithAssets } from "../utils/SelectAssets";
+import { stringify } from "querystring";
 
 type Props = {
   fieldType: string;
@@ -52,7 +54,7 @@ const ChartFormField = (props: Props) => {
     filterType;
 
   useEffect(() => {
-    if (fieldDefaultValue) {
+    if (!fieldValue && fieldDefaultValue) {
       setFieldValue(fieldDefaultValue);
       onChange(fieldDefaultValue);
     }
@@ -61,7 +63,7 @@ const ChartFormField = (props: Props) => {
   const [fieldValue, setFieldValue] = useState(initialValue);
 
   const onSelect = (selectedOption) => {
-    if (!selectedOption) {
+    if (selectedOption === undefined || selectedOption === null) {
       setFieldValue("");
       onChange("");
     }
@@ -200,6 +202,19 @@ const ChartFormField = (props: Props) => {
           <SelectWithAssets
             label="Choose Asset"
             name="assets"
+            multi={multi}
+            initialValue={fieldValue}
+            onSelect={onChange}
+          />
+        </div>
+      );
+    case "companies":
+      return (
+        <div>
+          <ControlLabel> {fieldLabel}</ControlLabel>
+          <SelectCompanies
+            label="Select companies"
+            name="companyId"
             multi={multi}
             initialValue={fieldValue}
             onSelect={onChange}

@@ -1,10 +1,10 @@
 import { Route, Routes, useLocation, useParams } from "react-router-dom";
 
 import HolidaySettings from "./settings/components/HolidaySettings";
+import LossSettings from "./settings/components/LossSettings";
 import MainSettings from "./settings/components/MainSettings";
 import React from "react";
 import Settings from "./settings/containers/Settings";
-import UndueSettings from "./settings/components/UndueSettings";
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 import queryString from "query-string";
 
@@ -152,8 +152,8 @@ const ContractTypeDetail = () => {
   return <ContractTypeDetails id={id} />;
 };
 
-const UndueSettingsComponent = () => {
-  return <Settings components={UndueSettings}></Settings>;
+const LossSettingsComponent = () => {
+  return <Settings components={LossSettings}></Settings>;
 };
 
 const MainSettingsComponent = () => {
@@ -197,8 +197,8 @@ const LoanRoutes = () => {
         element={<ContractTypeDetail />}
       />
       <Route
-        path="/erxes-plugin-loan/undue-settings"
-        element={<UndueSettingsComponent />}
+        path="/erxes-plugin-loan/loss-settings"
+        element={<LossSettingsComponent />}
       />
       <Route
         path="/erxes-plugin-loan/holiday-settings"

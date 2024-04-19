@@ -130,7 +130,7 @@ const TransactionsList = (props: IProps) => {
               />
             </th>
             <th>
-              <SortHandler sortField={"undue"} label={__("Loss")} />
+              <SortHandler sortField={"loss"} label={__("Loss")} />
             </th>
             <th>
               <SortHandler sortField={"insurance"} label={__("Insurance")} />

@@ -15,12 +15,13 @@ export type LoanContract = {
   skipInterestCalcMonth: number;
   repayment: string;
   startDate: Date;
+  firstPayDate: Date;
   scheduleDays: number[];
   customerId: string;
   customerType: string;
   branchId: string;
-  unduePercent: number;
-  undueCalcType: string;
+  lossPercent: number;
+  lossCalcType: string;
   currency: string;
   debt: number;
   debtTenor: number;
@@ -49,6 +50,7 @@ export type LoanContract = {
   commitmentInterest: number;
   savingContractId: string;
   endDate: Date;
+  holidayType: string;
 };
 
 export type LoanSchedule = {
@@ -63,14 +65,14 @@ export type LoanSchedule = {
   status?: string;
   payDate: Date;
 
-  undue?: number;
+  loss?: number;
   interestEve?: number;
   interestNonce?: number;
   insurance?: number;
   debt?: number;
   total: number;
 
-  didUndue?: number;
+  didLoss?: number;
   didInterestEve?: number;
   didInterestNonce?: number;
   didPayment?: number;

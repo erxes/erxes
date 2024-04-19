@@ -32,8 +32,8 @@ type Props = {
 const ContractTypeForm = (props: Props) => {
   const { contractType = {} as IContractType } = props;
 
-  const [undueCalcType, setUndueCalcType] = useState(
-    contractType.undueCalcType || "fromInterest"
+  const [lossCalcType, setLossCalcType] = useState(
+    contractType.lossCalcType || "fromInterest"
   );
   const [productCategoryIds, setProductCategoryIds] = useState(
     contractType.productCategoryIds
@@ -82,8 +82,8 @@ const ContractTypeForm = (props: Props) => {
       name: finalValues.name,
       number: finalValues.number,
       vacancy: Number(finalValues.vacancy),
-      unduePercent: Number(finalValues.unduePercent),
-      undueCalcType: finalValues.undueCalcType,
+      lossPercent: Number(finalValues.lossPercent),
+      lossCalcType: finalValues.lossCalcType,
       useMargin,
       useDebt,
       useSkipInterest,
@@ -137,8 +137,8 @@ const ContractTypeForm = (props: Props) => {
               ? setCollateralType
               : name === "invoiceDay"
                 ? setInvoiceDay
-                : name === "undueCalcType"
-                  ? setUndueCalcType
+                : name === "lossCalcType"
+                  ? setLossCalcType
                   : name === "useDebt"
                     ? setUseDebt
                     : name === "useMargin"
@@ -241,8 +241,8 @@ const ContractTypeForm = (props: Props) => {
             <FormColumn>
               {renderFormGroup("Loss Percent", {
                 ...formProps,
-                name: "unduePercent",
-                defaultValue: contractType.unduePercent || "",
+                name: "lossPercent",
+                defaultValue: contractType.lossPercent || "",
                 type: "number",
               })}
 
@@ -337,9 +337,9 @@ const ContractTypeForm = (props: Props) => {
                   </ControlLabel>
                   <FormControl
                     {...formProps}
-                    name="undueCalcType"
+                    name="lossCalcType"
                     componentclass="select"
-                    value={undueCalcType}
+                    value={lossCalcType}
                     required={true}
                     onChange={onChangeField}
                   >

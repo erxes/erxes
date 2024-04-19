@@ -4,18 +4,18 @@ import {
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
 } from "@erxes/ui/src/styles/eindex";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { ICloseInfo, IContract, IContractDoc } from "../../types";
+import React, { useState } from "react";
+
 import Button from "@erxes/ui/src/components/Button";
+import { ChangeAmount } from "../../styles";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { DateContainer } from "@erxes/ui/src/styles/main";
 import DateControl from "@erxes/ui/src/components/form/DateControl";
 import Form from "@erxes/ui/src/components/form/Form";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-
-import { DateContainer } from "@erxes/ui/src/styles/main";
-import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-import React, { useState } from "react";
-import { ChangeAmount } from "../../styles";
-import { ICloseInfo, IContract, IContractDoc } from "../../types";
 import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
 import { __ } from "coreui/utils";
 
 type Props = {
@@ -80,7 +80,7 @@ const CloseForm = (props: Props) => {
         {renderRow("Total", "total")}
         {renderRow("Payment", "payment")}
         {renderRow("Interest", "interest")}
-        {renderRow("Loss", "undue")}
+        {renderRow("Loss", "loss")}
         {renderRow("Insurance", "insurance")}
         {renderRow("Debt", "debt")}
       </>

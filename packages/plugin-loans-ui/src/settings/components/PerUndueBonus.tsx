@@ -1,17 +1,18 @@
 import {
   Button,
-  DateControl,
   CollapseContent,
   ControlLabel,
+  DateControl,
   FormControl,
   FormGroup,
   MainStyleModalFooter as ModalFooter,
-} from '@erxes/ui/src';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import React, { useEffect, useState } from 'react';
-import { IConfigsMap } from '../types';
-import { __ } from 'coreui/utils';
-import dayjs from 'dayjs';
+} from "@erxes/ui/src";
+import React, { useEffect, useState } from "react";
+
+import { DateContainer } from "@erxes/ui/src/styles/main";
+import { IConfigsMap } from "../types";
+import { __ } from "coreui/utils";
+import dayjs from "dayjs";
 
 type Props = {
   configsMap: IConfigsMap;
@@ -29,8 +30,8 @@ const PerSettings = (props: Props) => {
     e.preventDefault();
     const key = Math.floor(Math.random() * 1000000000000000);
 
-    delete configsMap.undueConfig[currentConfigKey];
-    configsMap.undueConfig[key] = config;
+    delete configsMap.lossConfig[currentConfigKey];
+    configsMap.lossConfig[key] = config;
     props.save(configsMap);
   };
 
@@ -50,54 +51,54 @@ const PerSettings = (props: Props) => {
   };
 
   const onChangeDate = (code: string, value) => {
-    onChangeConfig(code, dayjs(value).format('YYYY-MM-DDTHH:mm:ssZ[Z]'));
+    onChangeConfig(code, dayjs(value).format("YYYY-MM-DDTHH:mm:ssZ[Z]"));
   };
 
   return (
     <CollapseContent
       title={__(config.title)}
-      open={props.currentConfigKey === 'newEbarimtConfig' ? true : false}
+      open={props.currentConfigKey === "newEbarimtConfig" ? true : false}
     >
       <FormGroup>
-        <ControlLabel>{__('Title')}</ControlLabel>
+        <ControlLabel>{__("Title")}</ControlLabel>
         <FormControl
-          defaultValue={config['title']}
-          onChange={onChangeInput.bind(this, 'title')}
+          defaultValue={config["title"]}
+          onChange={onChangeInput.bind(this, "title")}
           required={true}
           autoFocus={true}
         />
       </FormGroup>
       <FormGroup>
-        <ControlLabel>{__('Start Date')}</ControlLabel>
+        <ControlLabel>{__("Start Date")}</ControlLabel>
         <DateContainer>
           <DateControl
             name="startDate"
             dateFormat="YYYY/MM/DD"
-            value={config['startDate']}
-            onChange={(e) => onChangeDate('startDate', e)}
+            value={config["startDate"]}
+            onChange={(e) => onChangeDate("startDate", e)}
           />
         </DateContainer>
       </FormGroup>
       <FormGroup>
-        <ControlLabel>{__('End Date')}</ControlLabel>
+        <ControlLabel>{__("End Date")}</ControlLabel>
         <DateContainer>
           <DateControl
             name="endDate"
             dateFormat="YYYY/MM/DD"
-            value={config['endDate']}
-            onChange={onChangeDate.bind(this, 'endDate')}
+            value={config["endDate"]}
+            onChange={onChangeDate.bind(this, "endDate")}
           />
         </DateContainer>
       </FormGroup>
 
       <FormGroup>
-        <ControlLabel>{__('Percent')}</ControlLabel>
+        <ControlLabel>{__("Percent")}</ControlLabel>
         <FormControl
-          defaultValue={config['percent']}
+          defaultValue={config["percent"]}
           type="number"
           min={0}
           max={100}
-          onChange={onChangeInput.bind(this, 'percent')}
+          onChange={onChangeInput.bind(this, "percent")}
           required={true}
         />
       </FormGroup>
@@ -109,7 +110,7 @@ const PerSettings = (props: Props) => {
           onClick={onDelete}
           uppercase={false}
         >
-          {__('Delete')}
+          {__("Delete")}
         </Button>
 
         <Button
@@ -118,7 +119,7 @@ const PerSettings = (props: Props) => {
           onClick={onSave}
           uppercase={false}
         >
-          {__('Save')}
+          {__("Save")}
         </Button>
       </ModalFooter>
     </CollapseContent>

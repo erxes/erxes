@@ -40,11 +40,12 @@ const scheduleQueries = {
     }
 
     const lastTransaction = await models.Transactions.findOne({
-      contractId: params.contractId
+      contractId: params.contractId,
+      transactionType:{$ne:'give'}
     })
       .sort({ payDate: -1 })
       .lean();
-
+    
     if (!!lastTransaction) {
       filter.payDate = { $lte: lastTransaction.payDate };
     } else filter.payDate = { $lte: new Date() };

@@ -9,35 +9,35 @@ import {
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
-} from '@erxes/ui/src';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { IInvoice, IInvoiceDoc } from '../types';
+} from "@erxes/ui/src";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { IInvoice, IInvoiceDoc } from "../types";
+import React, { useState } from "react";
 
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import { ICompany } from '@erxes/ui-contacts/src/companies/types';
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-import React, { useState } from 'react';
-import { __ } from 'coreui/utils';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { queries } from '../graphql';
+import { DateContainer } from "@erxes/ui/src/styles/main";
+import { ICompany } from "@erxes/ui-contacts/src/companies/types";
+import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
+import { __ } from "coreui/utils";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { queries } from "../graphql";
 
 const SelectCompanies = asyncComponent(
   () =>
-    isEnabled('contacts') &&
+    isEnabled("contacts") &&
     import(
-      /* webpackChunkName: "SelectCompanies" */ '@erxes/ui-contacts/src/companies/containers/SelectCompanies'
-    ),
+      /* webpackChunkName: "SelectCompanies" */ "@erxes/ui-contacts/src/companies/containers/SelectCompanies"
+    )
 );
 
 const SelectCustomers = asyncComponent(
   () =>
-    isEnabled('contacts') &&
+    isEnabled("contacts") &&
     import(
-      /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/customers/containers/SelectCustomers'
-    ),
+      /* webpackChunkName: "SelectCustomers" */ "@erxes/ui-contacts/src/customers/containers/SelectCustomers"
+    )
 );
 
 type Props = {
@@ -51,24 +51,23 @@ type Props = {
 const InvoiceForm = (props: Props) => {
   const { invoice = {} as IInvoice, companies, customers } = props;
 
-  const [number, setNumber] = useState(invoice.number || '');
-  const [payDate, setPayDate] = useState(invoice.payDate || '');
+  const [number, setNumber] = useState(invoice.number || "");
+  const [payDate, setPayDate] = useState(invoice.payDate || "");
   const [payment, setPayment] = useState(invoice.payment || 0);
   const [interestEve, setInterestEve] = useState(invoice.interestEve || 0);
   const [interestNonce, setInterestNonce] = useState(
-    invoice.interestNonce || 0,
+    invoice.interestNonce || 0
   );
-  const [undue, setUndue] = useState(invoice.undue || 0);
+  const [loss, setLoss] = useState(invoice.loss || 0);
   const [insurance, setInsurance] = useState(invoice.insurance || 0);
   const [debt, setDebt] = useState(invoice.debt || 0);
   const [total, setTotal] = useState(invoice.total || 0);
   const [companyId, setCompanyId] = useState(
-    invoice.companyId ||
-      (companies && companies.length ? companies[0]._id : ''),
+    invoice.companyId || (companies && companies.length ? companies[0]._id : "")
   );
   const [customerId, setCustomerId] = useState(
     invoice.customerId ||
-      (customers && customers.length ? customers[0]._id : ''),
+      (customers && customers.length ? customers[0]._id : "")
   );
 
   const generateDoc = (values: { _id: string } & IInvoiceDoc) => {
@@ -88,7 +87,7 @@ const InvoiceForm = (props: Props) => {
       payment: Number(payment),
       interestEve: Number(interestEve),
       interestNonce: Number(interestNonce),
-      undue: Number(undue),
+      loss: Number(loss),
       insurance: Number(insurance),
       debt: Number(debt),
       total: Number(total),
@@ -109,10 +108,10 @@ const InvoiceForm = (props: Props) => {
     const { values, isSubmitted } = formProps;
 
     const onSelect = (value, name) => {
-      if (name === 'companyId') {
+      if (name === "companyId") {
         setCompanyId(value);
       }
-      if (name === 'customerId') {
+      if (name === "customerId") {
         setCustomerId(value);
       }
     };
@@ -120,25 +119,25 @@ const InvoiceForm = (props: Props) => {
     const onChangeField = (e) => {
       const name = (e.target as HTMLInputElement).name;
       const value = (e.target as HTMLInputElement).value;
-      if (name === 'number') {
+      if (name === "number") {
         setNumber(value as any);
       }
-      if (name === 'payment') {
+      if (name === "payment") {
         setPayment(value as any);
       }
-      if (name === 'interestEve') {
+      if (name === "interestEve") {
         setInterestEve(value as any);
       }
-      if (name === 'interestNonce') {
+      if (name === "interestNonce") {
         setInterestNonce(value as any);
       }
-      if (name === 'undue') {
-        setUndue(value as any);
+      if (name === "loss") {
+        setLoss(value as any);
       }
-      if (name === 'insurance') {
+      if (name === "insurance") {
         setInsurance(value as any);
       }
-      if (name === 'debt') {
+      if (name === "debt") {
         setDebt(value as any);
       }
 
@@ -147,7 +146,7 @@ const InvoiceForm = (props: Props) => {
           Number(payment) +
           Number(interestEve) +
           Number(interestNonce) +
-          Number(undue) +
+          Number(loss) +
           Number(insurance);
         setTotal(total);
       }, 100);
@@ -157,7 +156,7 @@ const InvoiceForm = (props: Props) => {
       client
         .query({
           query: gql(queries.getInvoicePreInfo),
-          fetchPolicy: 'network-only',
+          fetchPolicy: "network-only",
           variables: { contractId: invoice.contractId, payDate: value },
         })
         .then(({ data }) => {
@@ -166,7 +165,7 @@ const InvoiceForm = (props: Props) => {
           setPayment(invoiceInfo.payment);
           setInterestEve(invoiceInfo.interestEve);
           setInterestNonce(invoiceInfo.interestNonce);
-          setUndue(invoiceInfo.undue);
+          setLoss(invoiceInfo.loss);
           setInsurance(invoiceInfo.insurance);
           setDebt(invoiceInfo.debt);
           setTotal(invoiceInfo.total);
@@ -179,11 +178,11 @@ const InvoiceForm = (props: Props) => {
         <ScrollWrapper>
           <FormWrapper>
             <FormColumn>
-              {renderFormGroup('Number', {
+              {renderFormGroup("Number", {
                 ...formProps,
-                name: 'number',
+                name: "number",
                 onChange: onChangeField,
-                value: number || '',
+                value: number || "",
               })}
 
               <FormGroup>
@@ -200,7 +199,7 @@ const InvoiceForm = (props: Props) => {
                 </DateContainer>
               </FormGroup>
 
-              {isEnabled('contacts') && (
+              {isEnabled("contacts") && (
                 <>
                   <FormGroup>
                     <ControlLabel>Company</ControlLabel>
@@ -227,58 +226,58 @@ const InvoiceForm = (props: Props) => {
               )}
             </FormColumn>
             <FormColumn>
-              {renderFormGroup('payment', {
+              {renderFormGroup("payment", {
                 ...formProps,
-                name: 'payment',
-                type: 'number',
+                name: "payment",
+                type: "number",
                 onChange: onChangeField,
                 value: payment || 0,
               })}
 
-              {renderFormGroup('interest eve', {
+              {renderFormGroup("interest eve", {
                 ...formProps,
-                name: 'interestEve',
-                type: 'number',
+                name: "interestEve",
+                type: "number",
                 onChange: onChangeField,
                 value: interestEve || 0,
               })}
 
-              {renderFormGroup('interest nonce', {
+              {renderFormGroup("interest nonce", {
                 ...formProps,
-                name: 'interestNonce',
-                type: 'number',
+                name: "interestNonce",
+                type: "number",
                 onChange: onChangeField,
                 value: interestNonce || 0,
               })}
 
-              {renderFormGroup('undue', {
+              {renderFormGroup("loss", {
                 ...formProps,
-                name: 'undue',
-                type: 'number',
+                name: "loss",
+                type: "number",
                 onChange: onChangeField,
-                value: undue || 0,
+                value: loss || 0,
               })}
 
-              {renderFormGroup('insurance', {
+              {renderFormGroup("insurance", {
                 ...formProps,
-                name: 'insurance',
-                type: 'number',
+                name: "insurance",
+                type: "number",
                 onChange: onChangeField,
                 value: insurance || 0,
               })}
 
-              {renderFormGroup('debt', {
+              {renderFormGroup("debt", {
                 ...formProps,
-                name: 'debt',
-                type: 'number',
+                name: "debt",
+                type: "number",
                 onChange: onChangeField,
                 value: debt || 0,
               })}
 
-              {renderFormGroup('total', {
+              {renderFormGroup("total", {
                 ...formProps,
-                name: 'total',
-                type: 'number',
+                name: "total",
+                type: "number",
                 value: total || 0,
                 required: true,
               })}
@@ -288,11 +287,11 @@ const InvoiceForm = (props: Props) => {
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
-            {__('Close')}
+            {__("Close")}
           </Button>
 
           {renderButton({
-            name: 'invoice',
+            name: "invoice",
             values: generateDoc(values),
             isSubmitted,
             object: props.invoice,

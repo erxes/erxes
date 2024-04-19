@@ -1,3 +1,4 @@
+import { NodeViewProps, NodeViewWrapper } from "@tiptap/react";
 import React, {
   forwardRef,
   useEffect,
@@ -5,16 +6,17 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { NodeViewProps, NodeViewWrapper } from "@tiptap/react";
 import { SuggestionOptions, SuggestionProps } from "@tiptap/suggestion";
-import Popover from "@erxes/ui/src/components/Popover";
 import {
   VariableLabel,
   VariableListBtn,
   VariableListWrapper,
   VariableWrapper,
 } from "../styles";
+
 import { FlexCenter } from "../../../styles/main";
+import Popover from "@erxes/ui/src/components/Popover";
+import { useRichTextEditorContext } from "../RichTextEditor.context";
 
 export type SuggestionListRef = {
   // For convenience using this SuggestionList from within the
@@ -44,9 +46,12 @@ export type SuggestionListProps = SuggestionProps<MentionNodeAttrs>;
 
 export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
   ({ items = [], command }, ref) => {
+    const { showMention } = useRichTextEditorContext();
     const [selectedIndex, setSelectedIndex] = useState(0);
 
     const selectItem = (index: number) => {
+      if (!showMention) return;
+
       if (index >= items.length) {
         // Make sure we actually have enough items to select the given index. For
         // instance, if a user presses "Enter" when there are no options, the index will
@@ -78,10 +83,17 @@ export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
       selectItem(selectedIndex);
     };
 
-    useEffect(() => setSelectedIndex(0), [items]);
+    useEffect(() => {
+      if (!showMention) return;
+      setSelectedIndex(0);
+    }, [items]);
 
     useImperativeHandle(ref, () => ({
       onKeyDown: ({ event }) => {
+        if (!showMention) {
+          return false;
+        }
+
         if (event.key === "ArrowUp") {
           upHandler();
           return true;
@@ -102,6 +114,8 @@ export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
     }));
 
     const renderList = () => {
+      if (!showMention) return null;
+
       if (!items?.length) {
         return <VariableListBtn>No result</VariableListBtn>;
       }
@@ -138,7 +152,11 @@ export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
       });
     };
 
-    return <VariableListWrapper>{renderList()}</VariableListWrapper>;
+    return (
+      <VariableListWrapper $hide={!showMention}>
+        {renderList()}
+      </VariableListWrapper>
+    );
   }
 );
 
@@ -200,11 +218,7 @@ export function VariableComponent(props: NodeViewProps) {
     >
       <Popover
         trigger={
-          <VariableWrapper
-            innerRef={variableRef}
-            tabIndex={-1}
-            itemType="button"
-          >
+          <VariableWrapper ref={variableRef} tabIndex={-1} itemType="button">
             {id}
           </VariableWrapper>
         }

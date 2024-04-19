@@ -1,41 +1,28 @@
-import React, { useEffect, useState } from "react";
-import Select from "react-select";
-
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import Button from "@erxes/ui/src/components/Button";
-import ChartRenderer from "../../containers/chart/ChartRenderer";
-import { Form as CommonForm } from "@erxes/ui/src/components/form";
-import { FormColumn } from "@erxes/ui/src/styles/main";
-import { __ } from "@erxes/ui/src/utils";
 import ChartFormField, {
   IFilterType,
 } from "../../containers/chart/ChartFormField";
-import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-
 import {
   Description,
+  DragField,
   FlexColumn,
   FormChart,
   FormContent,
   FormFooter,
   FormWrapper,
-  DragField,
 } from "../../styles";
-import { IChart } from "../../types";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import React, { useEffect, useState } from "react";
 
-const DIMENSION_OPTIONS = [
-  { label: "Team members", value: "teamMember" },
-  { label: "Departments", value: "department" },
-  { label: "Branches", value: "branch" },
-  { label: "Source/Channel", value: "source" },
-  { label: "Brands", value: "brand" },
-  { label: "Tags", value: "tag" },
-  { label: "Labels", value: "label" },
-  { label: "Frequency (day, week, month)", value: "frequency" },
-  { label: "Status", value: "status" },
-];
+import Button from "@erxes/ui/src/components/Button";
+import ChartRenderer from "../../containers/chart/ChartRenderer";
+import { Form as CommonForm } from "@erxes/ui/src/components/form";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { FormColumn } from "@erxes/ui/src/styles/main";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IChart } from "../../types";
+import Select from "react-select";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   queryParams: any;
@@ -143,7 +130,7 @@ const Form = (props: Props) => {
   };
 
   const setFilter = (fieldName: string, value: any) => {
-    if (!value) {
+    if (value === undefined || value === null) {
       delete filters[fieldName];
       setFilters({ ...filters });
       return;

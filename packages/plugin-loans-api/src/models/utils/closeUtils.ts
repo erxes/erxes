@@ -1,7 +1,7 @@
 import { IModels } from '../../connectionResolver';
+import { getConfig } from '../../messageBroker';
 import { SCHEDULE_STATUS } from '../definitions/constants';
 import { IContractDocument } from '../definitions/contracts';
-import { ISchedule } from '../definitions/schedules';
 import { getCalcedAmounts } from './transactionUtils';
 import { getFullDate } from './utils';
 
@@ -13,6 +13,7 @@ export const getCloseInfo = async (
 ) => {
   const closeDate = getFullDate(date);
   const contractId = contract._id;
+  const config = await getConfig('loansConfig',subdomain)
 
   let lastPaySchedule = await models.Schedules.findOne({
     contractId,
@@ -32,46 +33,10 @@ export const getCloseInfo = async (
     throw new Error(`Wrong date: min date is ${lastPaySchedule.payDate}`);
   }
 
-  const {
-    undue,
-    interestEve,
-    interestNonce,
-    insurance
-  } = (await getCalcedAmounts(models, subdomain, {
+  const paymentInfo = await getCalcedAmounts(models, subdomain, {
     contractId,
     payDate: closeDate
-  })) as any;
+  },config)
 
-  const pendingSchedules = await models.Schedules.find({
-    contractId,
-    payDate: { $gt: lastPaySchedule.payDate },
-    debt: { $exists: true }
-  });
-
-  const debt = pendingSchedules.length
-    ? pendingSchedules.reduce((a: number, c: ISchedule) => {
-        return (a || 0) + (c.debt || 0);
-      }, 0)
-    : 0;
-
-  const result = {
-    balance: lastPaySchedule.balance,
-    undue,
-    interest: (interestEve || 0) + (interestNonce || 0),
-    interestEve,
-    interestNonce,
-    insurance,
-    payment: lastPaySchedule.balance,
-    debt,
-    storedInterest: contract.storedInterest,
-    total:
-      lastPaySchedule.balance +
-      (undue || 0) +
-      (interestEve || 0) +
-      (interestNonce || 0) +
-      (insurance || 0) +
-      debt
-  };
-
-  return result;
+  return paymentInfo;
 };

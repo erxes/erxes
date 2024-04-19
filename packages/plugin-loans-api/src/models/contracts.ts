@@ -77,6 +77,8 @@ export const loadContractClass = (models: IModels) => {
     }: IContract & { schedule: any }): Promise<IContractDocument> {
       doc.startDate = getFullDate(doc.startDate || new Date());
       doc.lastStoredDate = getFullDate(doc.startDate || new Date());
+      doc.firstPayDate = getFullDate(doc.firstPayDate);
+      doc.mustPayDate = getFullDate(doc.firstPayDate);
       doc.lastStoredDate.setDate(doc.lastStoredDate.getDate() + 1);
       doc.endDate =
         doc.endDate ?? addMonths(new Date(doc.startDate), doc.tenor);
@@ -160,14 +162,17 @@ export const loadContractClass = (models: IModels) => {
       if (!doc.collateralsData) {
         doc.collateralsData = oldContract.collateralsData;
       }
-
+      
       doc.startDate = getFullDate(doc.startDate || new Date());
+      doc.firstPayDate = getFullDate(doc.firstPayDate);
+      doc.mustPayDate = getFullDate(doc.firstPayDate);
       doc.endDate =
         doc.endDate ?? addMonths(new Date(doc.startDate), doc.tenor);
       doc.insuranceAmount = getInsurancAmount(
         doc.insurancesData || [],
         doc.collateralsData || [],
       );
+      console.log('doc',doc)
       await models.Contracts.updateOne({ _id }, { $set: doc });
       const transactions = await models.Transactions.find({
         contractId: _id,

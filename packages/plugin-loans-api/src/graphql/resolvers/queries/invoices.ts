@@ -2,6 +2,7 @@ import { getFullDate, getRandomNumber } from '../../../models/utils/utils';
 import { getCalcedAmounts } from '../../../models/utils/transactionUtils';
 import { checkPermission, paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
+import { getConfig } from '../../../messageBroker';
 
 const generateFilter = async (params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
@@ -108,33 +109,34 @@ const invoiceQueries = {
     { models, subdomain }: IContext
   ) => {
     const currentDate = getFullDate(payDate);
+    const config = await getConfig('loansConfig',subdomain)
     const {
       payment,
-      undue,
-      interestEve,
-      interestNonce,
+      loss,
+      storedInterest,
+      calcInterest,
       insurance,
       debt
-    } = (await getCalcedAmounts(models, subdomain, {
+    } = await getCalcedAmounts(models, subdomain, {
       contractId,
       payDate: currentDate
-    })) as any;
+    },config)
 
     return {
       contractId: contractId,
       number: getRandomNumber(),
       payDate: currentDate,
       payment,
-      interestEve,
-      interestNonce,
-      undue,
+      storedInterest,
+      calcInterest,
+      loss,
       debt,
       insurance,
       total:
         (payment || 0) +
-        (interestEve || 0) +
-        (interestNonce || 0) +
-        (undue || 0) +
+        (storedInterest || 0) +
+        (calcInterest || 0) +
+        (loss || 0) +
         (insurance || 0) +
         (debt || 0)
     };

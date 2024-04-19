@@ -40,6 +40,13 @@ const Post = asyncComponent(
     ),
   { height: "22px", width: "71px" }
 );
+const PostInstagram = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName:"Inbox-ConvertTo" */ "../../../containers/conversationDetail/workarea/PostIg"
+    ),
+  { height: "22px", width: "71px" }
+);
 type Props = {
   currentConversation: IConversation;
 };
@@ -69,14 +76,10 @@ export default class ActionBar extends React.Component<Props> {
         {assignedUser && assignedUser._id ? (
           <AvatarImg src={getUserAvatar(assignedUser)} />
         ) : (
-          <div
-            id="conversationAssignTo"
-            // btnStyle="simple"
-            // size="small"
-          >
+          <Button id="conversationAssignTo" btnStyle="simple" size="small">
             {__("Member")}
             <Icon icon="angle-down" />
-          </div>
+          </Button>
         )}
       </AssignTrigger>
     );
@@ -107,6 +110,9 @@ export default class ActionBar extends React.Component<Props> {
         })}
         {kind === "facebook-post" && (
           <Post conversation={currentConversation} />
+        )}
+        {kind === "instagram-post" && (
+          <PostInstagram conversation={currentConversation} />
         )}
       </ActionBarLeft>
     );

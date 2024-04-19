@@ -47,6 +47,7 @@ export interface IContract {
   interestNounce?: any;
   customFieldsData?: any;
   isDeposit?: boolean;
+  blockAmount: number
 }
 
 export interface IContractDoc extends IContract {

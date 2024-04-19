@@ -10,16 +10,16 @@ import {
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
 } from "@erxes/ui/src";
-import { IFormProps } from "@erxes/ui/src/types";
 import { ITransaction, ITransactionDoc } from "../types";
+import React, { useState } from "react";
+import { mutations, queries } from "../graphql";
 
 import { Amount } from "../../contracts/styles";
+import { IFormProps } from "@erxes/ui/src/types";
 import { IInvoice } from "../../invoices/types";
-import React, { useState } from "react";
 import { __ } from "coreui/utils";
 import client from "@erxes/ui/src/apolloClient";
 import { gql } from "@apollo/client";
-import { mutations, queries } from "../graphql";
 
 type Props = {
   transaction: ITransaction;
@@ -174,7 +174,7 @@ const EBarimtForm = (props: Props) => {
           {renderRowTr("Payment", "payment")}
           {renderRowTr("Interest Eve", "interestEve")}
           {renderRowTr("Interest Nonce", "interestNonce")}
-          {renderRowTr("Loss", "undue")}
+          {renderRowTr("Loss", "loss")}
           {renderRowTr("Insurance", "insurance")}
           {renderRowTr("Debt", "debt")}
         </>
@@ -201,7 +201,7 @@ const EBarimtForm = (props: Props) => {
         {renderRow("payment", "payment")}
         {renderRow("interest eve", "interestEve")}
         {renderRow("interest nonce", "interestNonce")}
-        {renderRow("undue", "undue")}
+        {renderRow("loss", "loss")}
         {renderRow("insurance", "insurance")}
         {renderRow("debt", "debt")}
       </>

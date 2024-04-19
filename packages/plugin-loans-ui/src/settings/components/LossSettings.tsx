@@ -1,22 +1,22 @@
 import {
   Button,
+  HeaderDescription,
   MainStyleTitle as Title,
   Wrapper,
-  HeaderDescription,
-} from '@erxes/ui/src';
-import React, { useState } from 'react';
+} from "@erxes/ui/src";
+import React, { useState } from "react";
 
-import { ContentBox } from '../styles';
-import { IConfigsMap } from '../types';
-import PerSettings from './PerUndueBonus';
-import Sidebar from './Sidebar';
-import { __ } from 'coreui/utils';
+import { ContentBox } from "../styles";
+import { IConfigsMap } from "../types";
+import PerSettings from "./PerUndueBonus";
+import Sidebar from "./Sidebar";
+import { __ } from "coreui/utils";
 
 function Header() {
   return (
     <HeaderDescription
       icon="/images/actions/25.svg"
-      title={__('Loan not calc undue settings')}
+      title={__("Loan not calc loss settings")}
       description=""
     />
   );
@@ -33,13 +33,13 @@ const GeneralSettings = (props: Props) => {
   const add = (e) => {
     e.preventDefault();
 
-    if (!configsMap.undueConfig) {
-      configsMap.undueConfig = {};
+    if (!configsMap.lossConfig) {
+      configsMap.lossConfig = {};
     }
 
     // must save prev item saved then new item
-    const newUndueConfig = {
-      title: 'New Loss Config',
+    configsMap.lossConfig.newUndueConfig = {
+      title: "New Loss Config",
       startDate: new Date(),
       endDate: new Date(),
       percent: 0,
@@ -47,29 +47,23 @@ const GeneralSettings = (props: Props) => {
 
     setConfigsMap((prevConfigsMap) => ({
       ...prevConfigsMap,
-      undueConfig: {
-        ...prevConfigsMap.undueConfig,
-        newUndueConfig,
-      },
+      configsMap,
     }));
   };
 
   const deleteHandler = (currentConfigKey: string) => {
-    const updated = Object.fromEntries(
-      Object.entries(configsMap.undueConfig).filter(
-        ([key]) => key !== (currentConfigKey || 'newUndueConfig'),
-      ),
-    );
-    setConfigsMap({ ...configsMap, undueConfig: updated });
+    delete configsMap.lossConfig[currentConfigKey];
+    delete configsMap.lossConfig["newUndueConfig"];
 
-    props.save({ ...configsMap, undueConfig: updated });
+    setConfigsMap(configsMap);
+    props.save(configsMap);
   };
 
   const renderConfigs = (configs) => {
     return Object.keys(configs).map((key) => {
       return (
         <PerSettings
-          key={Math.random()}
+          key={`Loss${key}`}
           configsMap={configsMap}
           config={configs[key]}
           currentConfigKey={key}
@@ -81,33 +75,33 @@ const GeneralSettings = (props: Props) => {
   };
 
   const renderContent = () => {
-    const configs = configsMap.undueConfig || {};
+    const configs = configsMap.lossConfig || {};
 
     return (
-      <ContentBox id={'UndueSettingsMenu'}>{renderConfigs(configs)}</ContentBox>
+      <ContentBox id={"UndueSettingsMenu"}>{renderConfigs(configs)}</ContentBox>
     );
   };
 
   const breadcrumb = [
-    { title: __('Settings'), link: '/settings' },
-    { title: __('Loan config') },
+    { title: __("Settings"), link: "/settings" },
+    { title: __("Loan config") },
   ];
 
   const actionButtons = (
     <Button btnStyle="primary" onClick={add} icon="plus" uppercase={false}>
-      {__('New config')}
+      {__("New config")}
     </Button>
   );
 
   return (
     <Wrapper
       header={
-        <Wrapper.Header title={__('Loss configs')} breadcrumb={breadcrumb} />
+        <Wrapper.Header title={__("Loss configs")} breadcrumb={breadcrumb} />
       }
       mainHead={<Header />}
       actionBar={
         <Wrapper.ActionBar
-          left={<Title>{__('Loss configs')}</Title>}
+          left={<Title>{__("Loss configs")}</Title>}
           right={actionButtons}
         />
       }

@@ -236,6 +236,7 @@ const Report = (props: Props) => {
             rowHeight={160}
             containerPadding={[30, 30]}
             useCSSTransforms={true}
+            resizeHandles={["s", "w", "e", "n", "sw", "nw", "se", "ne"]}
           >
             {charts?.map(deserializeItem).map(renderChart)}
           </DragField>

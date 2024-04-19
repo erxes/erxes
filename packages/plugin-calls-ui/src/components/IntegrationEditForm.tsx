@@ -33,11 +33,14 @@ const IntegrationEditForm = (props: IProps) => {
     value: string,
     index: number
   ) => {
-    const currentOperator = operators.find((l, i) => i === index);
-    let newOperators = [...operators];
-    newOperators.splice(index, 1, { ...currentOperator, [name]: value });
+    const currentOperator = operators.find((_, i) => i === index);
 
-    setOperators(newOperators);
+    if (currentOperator) {
+      const updatedOperator = { ...currentOperator, [name]: value };
+      let newOperators = [...operators];
+      newOperators.splice(index, 1, updatedOperator);
+      setOperators(newOperators);
+    }
   };
 
   const onChangeOperators = (index: number, value: any) => {

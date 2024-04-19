@@ -30,6 +30,7 @@ export interface IUserDetails {
 
 export interface IUserLinks {
   facebook?: string;
+  instagram?: string;
   twitter?: string;
   linkedIn?: string;
   youtube?: string;

@@ -14,7 +14,7 @@ import { __ } from "@erxes/ui/src/utils";
 interface IProps {
   closeModal?: () => void;
   data: any;
-  callData?: { callerNumber: string };
+  callData?: { customerPhone: string };
   setConfig?: any;
 }
 

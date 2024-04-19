@@ -47,23 +47,29 @@ type Props = {
 };
 
 type State = {
-  selectedPages: string;
+  selectedPages: string[];
   channelIds: string[];
 };
 
 class Instagram extends React.Component<Props, State> {
   constructor(props) {
     super(props);
+
     this.state = {
-      selectedPages: "",
+      selectedPages: [],
       channelIds: [],
     };
   }
 
   onSelectPages = (pageId: string) => {
-    this.setState({
-      selectedPages: pageId,
-    });
+    const { selectedPages } = this.state;
+    if (selectedPages.includes(pageId)) {
+      return this.setState({
+        selectedPages: selectedPages.filter((item) => item !== pageId),
+      });
+    }
+
+    this.setState({ selectedPages: [...selectedPages, pageId] });
   };
 
   generateDoc = (values: {
@@ -80,7 +86,7 @@ class Instagram extends React.Component<Props, State> {
       accountId: accountId ? accountId : values.accountId,
       channelIds: this.state.channelIds,
       data: {
-        pageId: this.state.selectedPages,
+        pageIds: this.state.selectedPages,
       },
     };
   };
@@ -104,6 +110,7 @@ class Instagram extends React.Component<Props, State> {
             {pages.map((page) => (
               <AccountItem key={page.id}>
                 {page.name}
+
                 <Button
                   disabled={page.isUsed}
                   btnStyle={
@@ -126,7 +133,7 @@ class Instagram extends React.Component<Props, State> {
   }
 
   onChange = <T extends keyof State>(key: T, value: State[T]) => {
-    this.setState({ [key]: value } as unknown as Pick<State, keyof State>);
+    this.setState({ [key]: value } as Pick<State, keyof State>);
   };
 
   channelOnChange = (values: string[]) => this.onChange("channelIds", values);
@@ -219,8 +226,10 @@ class Instagram extends React.Component<Props, State> {
   };
 
   render() {
-    let title;
-    let description;
+    let title = __("Instagram Posts");
+    let description = __(
+      "Connect your Instagram Posts to start receiving Instagram post and comments in your team inbox"
+    );
 
     if (this.props.kind === INTEGRATION_KINDS.INSTAGRAM_MESSENGER) {
       title = __("Instagram Messenger");

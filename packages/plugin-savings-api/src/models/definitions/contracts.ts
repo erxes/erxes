@@ -15,6 +15,7 @@ export interface IContract {
   createdBy: string;
   createdAt: Date;
   savingAmount: number;
+  blockAmount:number;
   startDate: Date;
   duration: number;
   endDate: Date;
@@ -89,6 +90,12 @@ export const contractSchema = schemaHooksWrapper(
       default: 0,
       optional: true,
       label: 'Saving amount',
+    }),
+    blockAmount: field({
+      type: Number,
+      default: 0,
+      optional: true,
+      label: 'Block amount',
     }),
     duration: field({
       type: Number,
