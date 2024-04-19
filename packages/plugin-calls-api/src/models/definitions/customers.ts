@@ -5,6 +5,7 @@ export interface ICustomer {
   inboxIntegrationId: string;
   primaryPhone: string | number;
   erxesApiId?: string;
+  status: string;
 }
 
 export interface ICustomerDocument extends ICustomer, Document {}
@@ -15,7 +16,8 @@ export const customerSchema: Schema<ICustomer> = new Schema<ICustomer>({
   primaryPhone: {
     type: String,
     unique: true,
-    label: 'Call primary phone'
+    label: 'Call primary phone',
   },
-  inboxIntegrationId: { type: String, label: 'Inbox integration id' }
+  inboxIntegrationId: { type: String, label: 'Inbox integration id' },
+  status: { type: String, label: 'status' },
 });

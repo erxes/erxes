@@ -4,7 +4,7 @@
  <img src="https://github.com/erxes/erxes/assets/1748857/53a70732-7385-475d-9cb5-efd0ec801db5" alt="erxes logo" width="20%" />
 </p>
 
-<p align="center">Welcome to erxes, the source available experience management infrastructure. Pioneering the future of experiences through XOS (Experience Operating System), a term coined by us. erxes serves as an alternative to the combined functionalities of Hubspot (CRM & Marketing automation) and Qualitics (Experience management)</p>
+<p align="center">Welcome to erxes, the source available experience management infrastructure. Pioneering the future of experiences through XOS (Experience Operating System), a term coined by us. erxes serves as an alternative to the combined functionalities of Hubspot (CRM & Marketing automation) and Qualtrics (Experience management)</p>
 
 <p align="center">
   <a href="https://erxes.io/resource-center">Docs</a>

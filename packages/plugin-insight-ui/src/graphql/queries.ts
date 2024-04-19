@@ -519,8 +519,8 @@ const pipelineLabels = `
 `;
 
 const fields = `
-  query fields($contentType: String!, $groupIds: [String]) {
-    fields(contentType: $contentType, groupIds: $groupIds) {
+  query fields($contentType: String!, $isVisible: Boolean, $groupIds: [String]) {
+    fields(contentType: $contentType, isVisible: $isVisible, groupIds: $groupIds) {
       _id
       text
       groupId

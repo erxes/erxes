@@ -1,23 +1,19 @@
+import BigNumber from 'bignumber.js';
 import { IModels } from '../../connectionResolver';
 import { IContractDocument } from '../definitions/contracts';
-import { IScheduleDocument } from '../definitions/schedules';
-import { IStoredInterestDocument } from '../definitions/storedInterest';
+import { IStoredInterest, IStoredInterestDocument } from '../definitions/storedInterest';
 import { calcInterest, getDiffDay, getFullDate } from './utils';
+import { IConfig } from '../../interfaces/config';
 
 export async function storeInterestContract(
   contract: IContractDocument,
   storeDate: Date,
   models: IModels,
-  periodLockId: string
+  periodLockId: string,
+  config:IConfig
 ) {
   const beginDate = getFullDate(contract.lastStoredDate);
   const invDate = getFullDate(storeDate);
-
-  const lastSchedule = await models.Schedules.findOne({
-    payDate: { $lte: invDate }
-  })
-    .sort({ payDate: -1 })
-    .lean<IScheduleDocument>();
 
   const lastStoredInterest = await models.StoredInterest.findOne({
     invDate: { $lte: invDate }
@@ -27,27 +23,34 @@ export async function storeInterestContract(
 
   if (invDate === lastStoredInterest?.invDate) return;
 
-  if (!lastSchedule) return;
+  if (!contract.loanBalanceAmount) return;
 
   const diffDay = getDiffDay(beginDate, invDate);
 
   const storeInterestAmount = calcInterest({
-    balance: lastSchedule.balance,
+    balance: contract.loanBalanceAmount,
     interestRate: contract.interestRate,
-    dayOfMonth: diffDay
+    dayOfMonth: diffDay,
+    fixed:config.calculationFixed
   });
 
   if (storeInterestAmount > 0) {
-    await models.StoredInterest.create({
-      amount: storeInterestAmount,
+
+    const storeInterest:IStoredInterest = {
+      amount:storeInterestAmount,
       contractId: contract._id,
       invDate: invDate,
       prevStoredDate: contract.lastStoredDate,
+      commitmentInterest:0,
       periodLockId,
-      number: contract.number
-    });
+      number: contract.number,
+      description:'',
+      type:''
+    }
 
-    if (Number.isInteger(contract.storedInterest))
+    await models.StoredInterest.create(storeInterest);
+
+    if (new BigNumber(contract.storedInterest).isGreaterThan(0))
       await models.Contracts.updateOne(
         { _id: contract._id },
         {

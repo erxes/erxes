@@ -44,6 +44,7 @@ export interface IContract {
   loansOfForeclosed?: any;
   customFieldsData?: any;
   isDeposit?: boolean;
+  blockAmount: number
 }
 
 export interface IContractDoc extends IContract {

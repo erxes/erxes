@@ -14,6 +14,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 
 import ContractForm from '../../containers/ContractForm';
 import CloseForm from '../../containers/detail/CloseForm';
+import BlockForm from '../../containers/detail/BlockForm';
 import { Action, Name } from '../../styles';
 import { IContract } from '../../types';
 import DetailInfo from './DetailInfo';
@@ -83,6 +84,8 @@ class BasicInfoSection extends React.Component<Props, State> {
 
     const closeForm = props => <CloseForm {...props} contract={contract} />;
 
+    const blockForm = props => <BlockForm {...props} contract={contract} />;
+
     const expandForm = props => <ExpandForm {...props} contract={contract} />;
 
     const contractForm = props => (
@@ -119,6 +122,14 @@ class BasicInfoSection extends React.Component<Props, State> {
                 />
               </li>
             )}
+            <li>
+                <ModalTrigger
+                  title={__('To Block Contract Amount')}
+                  trigger={<a href="#toClose">{__('To Block Contract Amount')}</a>}
+                  size="lg"
+                  content={blockForm}
+                />
+              </li>
             <li>
               <ModalTrigger
                 title={__('Expand Contract')}

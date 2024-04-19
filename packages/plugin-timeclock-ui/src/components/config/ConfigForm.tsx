@@ -1,31 +1,33 @@
-import { __ } from '@erxes/ui/src/utils';
-import React, { useState } from 'react';
-import Select from 'react-select-plus';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import {
-  CustomRangeContainer,
-  FlexRow,
-  FlexColumn,
-  FlexColumnMargined,
-  FlexCenter,
-  ConfigFormWrapper,
-  ToggleDisplay
-} from '../../styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils';
+import dayjs from 'dayjs';
+import React, { useState } from 'react';
+import Select from 'react-select-plus';
+import {
+  ConfigFormWrapper,
+  CustomRangeContainer,
+  FlexCenter,
+  FlexColumn,
+  FlexColumnMargined,
+  FlexRow,
+  FlexRowJustifyStart,
+  ToggleDisplay,
+  Trigger
+} from '../../styles';
 import {
   IAbsence,
   IAbsenceType,
   IDeviceConfig,
   IPayDates,
-  IScheduleForm,
-  IScheduleConfig
+  IScheduleConfig,
+  IScheduleForm
 } from '../../types';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import DateTimePicker from '../datepicker/DateTimePicker';
 import { compareStartAndEndTime } from '../../utils';
-import dayjs from 'dayjs';
+import DateTimePicker from '../datepicker/DateTimePicker';
 
 type Props = {
   history?: any;
@@ -60,6 +62,19 @@ function ConfigForm(props: Props) {
   const [explanationRequired, setExplRequired] = useState(
     (absenceType && absenceType.explRequired) || false
   );
+
+  const [scheduleStartFlexible, setScheduleStartFlexible] = useState(
+    (absenceType && absenceType.explRequired) || false
+  );
+
+  const [scheduleEndFlexible, setScheduleEndFlexible] = useState(
+    (absenceType && absenceType.explRequired) || false
+  );
+
+  const [scheduleOvertimeExists, setScheduleOverTimeExists] = useState(
+    (absenceType && absenceType.explRequired) || false
+  );
+
   const [attachmentRequired, setAttachRequired] = useState(
     (absenceType && absenceType.attachRequired) || false
   );
@@ -67,6 +82,9 @@ function ConfigForm(props: Props) {
   const [deviceExtractRequired, setDeviceExtractRequired] = useState(
     (deviceConfig && deviceConfig.extractRequired) || false
   );
+
+  const [numberOfLocations, setNumberOfLocations] = useState(0);
+  const [numberOfLocationsArr, setNumberOfLocationsArr] = useState<any[]>([]);
 
   const defaultStartTime = new Date(
     new Date().toLocaleDateString() + ' 08:30:00'
@@ -128,6 +146,8 @@ function ConfigForm(props: Props) {
     date2: new Date()
   });
 
+  const [isHovered, setIsHovered] = useState(false);
+
   const { afterSave, closeModal } = props;
 
   const toggleRequestType = e => {
@@ -163,6 +183,56 @@ function ConfigForm(props: Props) {
     setHolidayDates({ ...holidayDates, endingDate: newEndDate });
   };
 
+  const addLocationClick = () => {
+    const nextNum = numberOfLocations + 1;
+    setNumberOfLocations(nextNum);
+    setNumberOfLocationsArr([...numberOfLocationsArr, nextNum]);
+  };
+
+  const onMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const onMouseLeave = () => {
+    setIsHovered(false);
+  };
+
+  const checkLocationsInput = (input: string) => {
+    const pattern = /[+-]?[0-9]*\.?[0-9]+/;
+
+    return input.match(pattern);
+  };
+
+  const renderLocationsForm = () => {
+    return (
+      <>
+        {numberOfLocationsArr.map(num => (
+          <FlexRow style={{ margin: '25px' }}>
+            <ControlLabel>{num} . </ControlLabel>
+            <ControlLabel>Location Name </ControlLabel>
+            <div style={{ marginLeft: '1rem' }}>
+              <FormControl type='text' />
+            </div>
+
+            <FlexColumn marginNum={25}>
+              <FlexColumn marginNum={10}>
+                <ControlLabel>Longitude:</ControlLabel>
+                <div style={{ marginLeft: '1rem' }}>
+                  <FormControl type='text' />
+                </div>
+              </FlexColumn>
+              <FlexColumn marginNum={10}>
+                <ControlLabel>Lattitude:</ControlLabel>
+                <div style={{ marginLeft: '1rem' }}>
+                  <FormControl type='text' />
+                </div>
+              </FlexColumn>
+            </FlexColumn>
+          </FlexRow>
+        ))}
+      </>
+    );
+  };
   const generateDoc = (
     values: {
       _id?: string;
@@ -309,7 +379,7 @@ function ConfigForm(props: Props) {
         <ControlLabel required={true}>Device Name</ControlLabel>
         <FormControl
           {...formProps}
-          name="deviceName"
+          name='deviceName'
           defaultValue={deviceConfig && deviceConfig.deviceName}
           required={true}
           autoFocus={true}
@@ -318,7 +388,7 @@ function ConfigForm(props: Props) {
         <ControlLabel required={true}>Serial No.</ControlLabel>
         <FormControl
           {...formProps}
-          name="serialNo"
+          name='serialNo'
           defaultValue={deviceConfig && deviceConfig.serialNo}
           required={true}
         />
@@ -326,9 +396,9 @@ function ConfigForm(props: Props) {
         <FlexRow>
           <ControlLabel>Extract from device</ControlLabel>
           <FormControl
-            name="extractRequired"
+            name='extractRequired'
             defaultChecked={deviceExtractRequired}
-            componentClass="checkbox"
+            componentClass='checkbox'
             onChange={toggleDeviceExtractRequired}
           />
         </FlexRow>
@@ -355,7 +425,7 @@ function ConfigForm(props: Props) {
           <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
             {...formProps}
-            name="absenceName"
+            name='absenceName'
             defaultValue={absenceType && absenceType.name}
             required={true}
             autoFocus={true}
@@ -366,7 +436,7 @@ function ConfigForm(props: Props) {
           <Select
             value={requestType}
             onChange={toggleRequestType}
-            placeholder="Select type"
+            placeholder='Select type'
             multi={false}
             options={['shift request', 'paid absence', 'unpaid absence'].map(
               ipt => ({
@@ -381,7 +451,7 @@ function ConfigForm(props: Props) {
           <Select
             value={requestTime}
             onChange={toggleRequestTime}
-            placeholder="Select type"
+            placeholder='Select type'
             multi={false}
             options={['by day', 'by hour'].map(ipt => ({
               value: ipt,
@@ -393,9 +463,9 @@ function ConfigForm(props: Props) {
               <ControlLabel>Hour(s) per day</ControlLabel>
               <div style={{ width: '20%' }}>
                 <FormControl
-                  type="number"
+                  type='number'
                   inline={true}
-                  align="center"
+                  align='center'
                   value={hoursPerDay}
                   onChange={onAbsenceHoursPerDay}
                 />
@@ -406,8 +476,8 @@ function ConfigForm(props: Props) {
           <FlexRow>
             <ControlLabel>Explanation Required</ControlLabel>
             <FormControl
-              name="explRequired"
-              componentClass="checkbox"
+              name='explRequired'
+              componentClass='checkbox'
               defaultChecked={explanationRequired}
               onChange={toggleExplRequired}
             />
@@ -415,8 +485,8 @@ function ConfigForm(props: Props) {
           <FlexRow>
             <ControlLabel>Attachment Required</ControlLabel>
             <FormControl
-              name="attachRequired"
-              componentClass="checkbox"
+              name='attachRequired'
+              componentClass='checkbox'
               defaultChecked={attachmentRequired}
               onChange={toggleAttachRequired}
             />
@@ -446,13 +516,12 @@ function ConfigForm(props: Props) {
               display: 'flex',
               justifyContent: 'space-around',
               gap: '10px'
-            }}
-          >
+            }}>
             <div>Once</div>
             <FormControl
               rows={2}
-              name="payPeriod"
-              componentClass="radio"
+              name='payPeriod'
+              componentClass='radio'
               options={['once', 'twice'].map(el => ({
                 value: el
               }))}
@@ -511,12 +580,12 @@ function ConfigForm(props: Props) {
         <FormControl
           {...formProps}
           defaultValue={scheduleConfig?.scheduleName}
-          name="scheduleName"
+          name='scheduleName'
           required={true}
           autoFocus={true}
         />
 
-        <FlexColumnMargined marginNum={10}>
+        <FlexColumnMargined marginNum={25}>
           {renderConfigTime(formProps)}
         </FlexColumnMargined>
 
@@ -540,7 +609,7 @@ function ConfigForm(props: Props) {
         <ControlLabel required={true}>Holiday Name</ControlLabel>
         <FormControl
           {...formProps}
-          name="holidayName"
+          name='holidayName'
           defaultValue={holiday && holiday.holidayName}
           required={true}
           autoFocus={true}
@@ -576,11 +645,8 @@ function ConfigForm(props: Props) {
 
   const onStartTimeChange = (day_key, time_val) => {
     const newShift = configDays[day_key];
-    const [
-      getCorrectStartTime,
-      getCorrectEndTime,
-      overnight
-    ] = compareStartAndEndTime(configDays, day_key, time_val, null);
+    const [getCorrectStartTime, getCorrectEndTime, overnight] =
+      compareStartAndEndTime(configDays, day_key, time_val, null);
 
     newShift.shiftStart = getCorrectStartTime;
     newShift.overnightShift = overnight;
@@ -592,11 +658,8 @@ function ConfigForm(props: Props) {
 
   const onEndTimeChange = (day_key, time_val) => {
     const newShift = configDays[day_key];
-    const [
-      getCorrectStartTime,
-      getCorrectEndTime,
-      overnight
-    ] = compareStartAndEndTime(configDays, day_key, null, time_val);
+    const [getCorrectStartTime, getCorrectEndTime, overnight] =
+      compareStartAndEndTime(configDays, day_key, null, time_val);
 
     newShift.shiftStart = getCorrectStartTime;
     newShift.overnightShift = overnight;
@@ -610,82 +673,119 @@ function ConfigForm(props: Props) {
     return (
       <>
         <FlexRow>
-          <ControlLabel>Check in / Check out</ControlLabel>
-          <DateTimePicker
-            curr_day_key={'configTime'}
-            startDate={configDays.configTime.shiftStart}
-            startTime_value={configDays.configTime.shiftStart}
-            endTime_value={configDays.configTime.shiftEnd}
-            overnightShift={configDays.configTime.overnightShift}
-            changeEndTime={onEndTimeChange}
-            changeStartTime={onStartTimeChange}
-            timeOnly={true}
-          />
+          <ControlLabel>Check in</ControlLabel>
+          <FlexRowJustifyStart widthPercent={50}>
+            <ControlLabel>Flexible</ControlLabel>
+            <FormControl
+              name='scheduleStartFlexible'
+              componentClass='checkbox'
+              defaultChecked={scheduleStartFlexible}
+              onChange={() => setScheduleStartFlexible(!scheduleStartFlexible)}
+            />
+
+            <DateTimePicker
+              curr_day_key={'configTime'}
+              startDate={configDays.configTime.shiftStart}
+              startTime_value={configDays.configTime.shiftStart}
+              endTime_value={configDays.configTime.shiftEnd}
+              overnightShift={configDays.configTime.overnightShift}
+              changeEndTime={onEndTimeChange}
+              changeStartTime={onStartTimeChange}
+              timeOnly={true}
+              flexitbleTime={scheduleStartFlexible}
+            />
+          </FlexRowJustifyStart>
+        </FlexRow>
+        <FlexRow>
+          <ControlLabel> Check out</ControlLabel>
+
+          <FlexRowJustifyStart widthPercent={50}>
+            <ControlLabel>Flexible</ControlLabel>
+            <FormControl
+              name='scheduleEndFlexible'
+              componentClass='checkbox'
+              defaultChecked={scheduleEndFlexible}
+              onChange={() => setScheduleEndFlexible(!scheduleEndFlexible)}
+            />
+
+            <DateTimePicker
+              curr_day_key={'configTime'}
+              startDate={configDays.configTime.shiftStart}
+              startTime_value={configDays.configTime.shiftStart}
+              endTime_value={configDays.configTime.shiftEnd}
+              overnightShift={configDays.configTime.overnightShift}
+              changeEndTime={onEndTimeChange}
+              changeStartTime={onStartTimeChange}
+              timeOnly={true}
+              flexitbleTime={scheduleEndFlexible}
+            />
+          </FlexRowJustifyStart>
         </FlexRow>
 
         <FlexRow>
           <ControlLabel>Lunch break</ControlLabel>
 
-          <div
-            style={{
-              display: 'flex',
-              width: '67%',
-              alignItems: 'center'
-            }}
-          >
-            <div style={{ width: '10%' }}>
+          <FlexRowJustifyStart widthPercent={50}>
+            <div style={{ width: '10%', textAlign: 'center' }}>
               <FormControl
                 {...formProps}
                 defaultValue={
                   scheduleConfig ? scheduleConfig?.lunchBreakInMins : 30
                 }
-                align="center"
-                name="lunchBreak"
-                type="number"
+                align='center'
+                name='lunchBreak'
+                type='number'
                 required={true}
               />
             </div>
-            <div style={{ width: '80%' }}>minutes</div>
-          </div>
+            <div>minutes</div>
+          </FlexRowJustifyStart>
         </FlexRow>
+
         <FlexRow>
-          <ControlLabel>Valid Check-In</ControlLabel>
-          <DateTimePicker
-            curr_day_key={'validCheckIn'}
-            startDate={configDays.validCheckIn.shiftStart}
-            startTime_value={configDays.validCheckIn.shiftStart}
-            endTime_value={configDays.validCheckIn.shiftEnd}
-            overnightShift={configDays.validCheckIn.overnightShift}
-            changeEndTime={onEndTimeChange}
-            changeStartTime={onStartTimeChange}
-            timeOnly={true}
-          />
+          <FlexRow gapPx={16}>
+            <ControlLabel>Overtime</ControlLabel>
+            <FormControl
+              name='scheduleOvertimeExists'
+              componentClass='checkbox'
+              defaultChecked={scheduleOvertimeExists}
+              onChange={() =>
+                setScheduleOverTimeExists(!scheduleOvertimeExists)
+              }
+            />
+          </FlexRow>
+          <FlexRowJustifyStart widthPercent={50}>
+            {scheduleOvertimeExists && (
+              <DateTimePicker
+                curr_day_key={'overtime'}
+                startDate={configDays.overtime.shiftStart}
+                startTime_value={configDays.overtime.shiftStart}
+                endTime_value={configDays.overtime.shiftEnd}
+                changeEndTime={onEndTimeChange}
+                changeStartTime={onStartTimeChange}
+                timeOnly={true}
+                flexitbleTime={scheduleOvertimeExists}
+              />
+            )}
+          </FlexRowJustifyStart>
         </FlexRow>
+
         <FlexRow>
-          <ControlLabel>Valid Check-Out</ControlLabel>
-          <DateTimePicker
-            curr_day_key={'validCheckout'}
-            startDate={configDays.validCheckout.shiftStart}
-            startTime_value={configDays.validCheckout.shiftStart}
-            endTime_value={configDays.validCheckout.shiftEnd}
-            overnightShift={configDays.validCheckout.overnightShift}
-            changeEndTime={onEndTimeChange}
-            changeStartTime={onStartTimeChange}
-            timeOnly={true}
-          />
+          <Trigger
+            type='trigger'
+            isHoverActionBar={isHovered}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}>
+            <div
+              onClick={addLocationClick}
+              className='passive'
+              style={{ width: '100%' }}>
+              Add locations
+            </div>
+          </Trigger>
+          {/* <Button btnStyle='primary' onClick={addLocationClick}></Button> */}
         </FlexRow>
-        <FlexRow>
-          <ControlLabel>Overtime</ControlLabel>
-          <DateTimePicker
-            curr_day_key={'overtime'}
-            startDate={configDays.overtime.shiftStart}
-            startTime_value={configDays.overtime.shiftStart}
-            endTime_value={configDays.overtime.shiftEnd}
-            changeEndTime={onEndTimeChange}
-            changeStartTime={onStartTimeChange}
-            timeOnly={true}
-          />
-        </FlexRow>
+        {renderLocationsForm()}
       </>
     );
   };

@@ -14,7 +14,6 @@ export default async function userMiddleware(
   res: Response,
   next: NextFunction,
 ) {
-  sanitizeHeaders(req.headers);
   const url = req.headers['erxes-core-website-url'];
   const erxesCoreToken = req.headers['erxes-core-token'];
 
