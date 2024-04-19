@@ -7,6 +7,7 @@ import { fetchSegment, sendSegmentsMessage } from '../../../messageBroker';
 import { IContext, IModels } from '../../../connectionResolver';
 import { escapeRegExp, getConfig, paginate } from '../../utils';
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 
 export class Builder {
   public params: { segment?: string; segmentData?: string };
@@ -179,6 +180,7 @@ const queryBuilder = async (
   models: IModels,
   params: IListArgs,
   subdomain: string,
+  user: IUserDocument
 ) => {
   const {
     searchValue,
@@ -201,6 +203,8 @@ const queryBuilder = async (
   const selector: any = {
     isActive,
   };
+
+  let andCondition: any[] = [];
 
   if (searchValue) {
     const fields = [
@@ -258,18 +262,36 @@ const queryBuilder = async (
       undefined,
       models,
     );
-    if (checker) {
-      const oldOr = selector.$or || [];
-      oldOr.push({
-        branchIds: { $in: await getChildIds(models.Branches, branchIds) },
-      });
-      oldOr.push({
-        departmentIds: {
-          $in: await getChildIds(models.Departments, departmentIds),
-        },
-      });
 
-      selector.$or = oldOr;
+    if (checker) {
+      const customCond: any[] = [];
+
+      const branchUserIds = await getConfig(
+        'BRANCHES_MASTER_TEAM_MEMBERS_IDS',
+        undefined,
+        models,
+      );
+      const departmentUserIds = await getConfig(
+        'DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS',
+        undefined,
+        models,
+      );
+
+      if (!branchUserIds || !branchUserIds.length || !branchUserIds.includes(user._id)) {
+        customCond.push({
+          branchIds: { $in: await getChildIds(models.Branches, branchIds) },
+        });
+      }
+
+      if (!departmentUserIds || !departmentUserIds.length || !departmentUserIds.includes(user._id)) {
+        customCond.push({
+          departmentIds: {
+            $in: await getChildIds(models.Departments, departmentIds),
+          },
+        });
+      }
+
+      andCondition = customCond.length ? [{ $or: customCond }] : [];
     }
   } else {
     if (branchIds && branchIds.length) {
@@ -305,6 +327,10 @@ const queryBuilder = async (
     selector._id = { $in: list.map((l) => l._id) };
   }
 
+  if (andCondition.length) {
+    return { $and: [{ ...selector }, ...andCondition] }
+  }
+
   return selector;
 };
 
@@ -315,11 +341,11 @@ const userQueries = {
   async users(
     _root,
     args: IListArgs,
-    { userBrandIdsSelector, models, subdomain }: IContext,
+    { userBrandIdsSelector, models, subdomain, user }: IContext,
   ) {
     const selector = {
       ...userBrandIdsSelector,
-      ...(await queryBuilder(models, args, subdomain)),
+      ...(await queryBuilder(models, args, subdomain, user)),
       ...NORMAL_USER_SELECTOR,
     };
 
@@ -375,11 +401,11 @@ const userQueries = {
   async usersTotalCount(
     _root,
     args: IListArgs,
-    { userBrandIdsSelector, models, subdomain }: IContext,
+    { userBrandIdsSelector, models, subdomain, user }: IContext,
   ) {
     const selector = {
       ...userBrandIdsSelector,
-      ...(await queryBuilder(models, args, subdomain)),
+      ...(await queryBuilder(models, args, subdomain, user)),
       ...NORMAL_USER_SELECTOR,
     };
 

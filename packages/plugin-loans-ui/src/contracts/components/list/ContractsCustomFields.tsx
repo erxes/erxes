@@ -37,8 +37,6 @@ const ContractFieldsSection = (props: FinalProps) => {
     collapseCallback,
   } = props;
 
-  console.log('ref', ref);
-
   if (fieldsGroupsQuery && fieldsGroupsQuery.loading) {
     return (
       <Sidebar full={true}>

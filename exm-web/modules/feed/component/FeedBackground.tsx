@@ -29,7 +29,7 @@ export default function FeedBackground({
   const style =
     "h-[450px] w-full flex items-center justify-center mt-[12px] font-bold"
 
-  if (bg.color.includes("#")) {
+  if (bg.color && bg.color.includes("#")) {
     textColor = isBrightColor(bg.color) ? "text-black" : "text-white"
     return (
       <div className={style} style={{ background: bg.color }}>

@@ -5,7 +5,7 @@ const typeFields = `
   payment: Float,
   interestEve: Float,
   interestNonce: Float,
-  undue: Float,
+  loss: Float,
   insurance: Float,
   debt: Float,
   total: Float,
@@ -24,7 +24,7 @@ export const types = `
     payment: Float,
     interestEve: Float,
     interestNonce: Float,
-    undue: Float,
+    loss: Float,
     insurance: Float,
     debt: Float,
     total: Float,
@@ -94,20 +94,23 @@ const commonFields = `
   payment: Float,
   interestEve: Float,
   interestNonce: Float,
-  undue: Float,
+  loss: Float,
   insurance: Float,
   debt: Float,
   currency:String,
   isGetEBarimt: Boolean,
   isOrganization: Boolean,
   organizationRegister: String,
+  storedInterest: Float,
+  calcInterest: Float,
+  commitmentInterest: Float
 `;
 
 const changeFields = `
   payment: Float,
   interestEve: Float,
   interestNonce: Float,
-  undue: Float,
+  loss: Float,
   insurance: Float,
   debt: Float,
   futureDebt: Float

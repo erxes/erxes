@@ -103,7 +103,7 @@ class CloseForm extends React.Component<Props, State> {
         {this.renderRow('Total', 'total')}
         {this.renderRow('Payment', 'payment')}
         {this.renderRow('Interest', 'interest')}
-        {this.renderRow('Loss', 'undue')}
+        {this.renderRow('Loss', 'loss')}
         {this.renderRow('Insurance', 'insurance')}
         {this.renderRow('Debt', 'debt')}
       </>

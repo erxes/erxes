@@ -52,6 +52,36 @@ const toSyncPrices = `
   }
 `;
 
+const toCheckMsdSynced = `
+  mutation toCheckMsdSynced($ids: [String], $brandId: String) {
+    toCheckMsdSynced(ids: $ids, brandId: $brandId) {
+      _id
+      isSynced
+      syncedDate
+      syncedBillNumber
+      syncedCustomer
+    }
+  }
+`;
+
+const toSyncMsdOrders = `
+  mutation toSyncMsdOrders($orderIds: [String]) {
+    toSyncMsdOrders(orderIds: $orderIds)
+  }
+`;
+
+const toSendMsdOrders = `
+  mutation toSendMsdOrders($orderIds: [String]) {
+    toSendMsdOrders(orderIds: $orderIds) {
+      _id
+      isSynced
+      syncedDate
+      syncedBillNumber
+      syncedCustomer
+    }
+  }
+`;
+
 export default {
   updateConfigs,
   toCheckProducts,
@@ -62,4 +92,7 @@ export default {
   toSyncCustomers,
   toCheckPrices,
   toSyncPrices,
+  toCheckMsdSynced,
+  toSyncMsdOrders,
+  toSendMsdOrders,
 };

@@ -18,6 +18,8 @@ import {
   savingStoredInterestClass,
 } from './models/storedInterest';
 import { IStoredInterestDocument } from './models/definitions/storedInterest';
+import { IBlockModel, loadBlockClass } from './models/blocks';
+import { IBlockDocument } from './models/definitions/blocks';
 
 export interface IModels {
   PeriodLocks: IPeriodLockModel;
@@ -25,6 +27,7 @@ export interface IModels {
   ContractTypes: IContractTypeModel;
   Transactions: ITransactionModel;
   StoredInterest: IStoredInterestModel;
+  Block:IBlockModel
 }
 
 export interface IContext extends IMainContext {
@@ -54,6 +57,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'saving_transactions',
     loadTransactionClass(models),
   ) as ITransactionModel;
+
+  models.Block = db.model<IBlockDocument, IBlockModel>(
+    'saving_blocks',
+    loadBlockClass(models),
+  ) as IBlockModel;
 
   models.StoredInterest = db.model<
     IStoredInterestDocument,

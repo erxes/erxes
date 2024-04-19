@@ -23,6 +23,14 @@ export const loadCallHistoryClass = (models: IModels) => {
       if (!integration) {
         throw new Error('Integration not found');
       }
+      const operator = integration.operators.find(
+        (operator) => operator.userId === user?._id,
+      );
+      if(!operator){
+         throw new Error('Operator not found');
+      }
+      selector.extentionNumber = operator.gsUsername
+
       if (selector?.callStatus === 'missed') {
         selector.callStatus = { $ne: 'connected' };
       } else {
@@ -30,9 +38,9 @@ export const loadCallHistoryClass = (models: IModels) => {
       }
       const histories = await models.CallHistory.find({
         ...selector,
-        receiverNumber: integration.phone,
+        operatorPhone: integration.phone,
       })
-        .sort({ updatedAt: -1 })
+        .sort({ modifiedAt: -1 })
         .skip(selector.skip || 0)
         .limit(selector.limit || 20);
 

@@ -19,7 +19,7 @@ const fields = [
   { value: 'feeAmount', name: 'Fee Amount', isAmount: true },
   { value: 'tenor', name: 'Tenor' },
   { value: 'interestRate', name: 'interestRate' },
-  { value: 'unduePercent', name: 'unduePercent' },
+  { value: 'lossPercent', name: 'lossPercent' },
   { value: 'repayment', name: 'repayment' },
   { value: 'startDate', name: 'startDate' },
   { value: 'scheduleDays', name: 'scheduleDays' },

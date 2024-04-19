@@ -17,6 +17,12 @@ const generateFilter = async (params, commonQuerySelector) => {
   //   filter._id = { $in: params.ids };
   // }
 
+  if(params.productId)
+    filter.productId = params.productId
+
+  if(params.productType)
+    filter.productType = params.productType
+
   return filter;
 };
 

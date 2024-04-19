@@ -7,20 +7,12 @@ mutation CallsIntegrationUpdate($configs: CallIntegrationConfigs) {
 `;
 
 const customersAdd = `
-  mutation CallAddCustomer($inboxIntegrationId: String, $primaryPhone: String, $direction: String, $callID: String!) {
-    callAddCustomer(inboxIntegrationId: $inboxIntegrationId, primaryPhone: $primaryPhone, direction: $direction, callID: $callID) {
-      conversation {
-          _id
-          erxesApiId
-          integrationId
-          senderPhoneNumber
-          recipientPhoneNumber
-          callId
-          channels {
-            _id
-            name
-          }
-        }
+  mutation CallAddCustomer($inboxIntegrationId: String, $primaryPhone: String) {
+    callAddCustomer(inboxIntegrationId: $inboxIntegrationId, primaryPhone: $primaryPhone) {
+      channels {
+        _id
+        name
+      }
       customer {
         _id
         avatar
@@ -130,23 +122,23 @@ const callDisconnect = `
   }
 `;
 
+const callHistoryAdd = `
+  mutation CallHistoryAdd($inboxIntegrationId: String,$customerPhone: String, $callStartTime: Date ,$callStatus: String, $callType: String, $sessionId: String) {
+  callHistoryAdd(inboxIntegrationId: $inboxIntegrationId,  customerPhone: $customerPhone, callStartTime: $callStartTime, callStatus: $callStatus, callType: $callType, sessionId: $sessionId) {
+    _id
+    sessionId
+  }
+}
+`;
+
 const callHistoryEdit = `
-  mutation CallHistoryEdit($receiverNumber: String, $callerNumber: String, $callDuration: Int, $callStartTime: Date, $callEndTime: Date, $callType: String, $callStatus: String, $sessionId: String, $modifiedAt: Date, $createdAt: Date, $createdBy: String, $modifiedBy: String) {
-    callHistoryEdit(receiverNumber: $receiverNumber, callerNumber: $callerNumber, callDuration: $callDuration, callStartTime: $callStartTime, callEndTime: $callEndTime, callType: $callType, callStatus: $callStatus, sessionId: $sessionId, modifiedAt: $modifiedAt, createdAt: $createdAt, createdBy: $createdBy, modifiedBy: $modifiedBy) {
-      _id
-      receiverNumber
-      callerNumber
-      callDuration
-      callStartTime
-      callEndTime
-      callType
-      callStatus
-      sessionId
-      modifiedAt
-      createdAt
-      createdBy
-      modifiedBy
-    }
+  mutation CallHistoryEdit($id: String, $inboxIntegrationId: String, $customerPhone: String, $callDuration: Int, $callStartTime: Date, $callEndTime: Date, $callType: String, $callStatus: String, $sessionId: String) {
+    callHistoryEdit(_id: $id, inboxIntegrationId: $inboxIntegrationId, customerPhone: $customerPhone, callDuration: $callDuration, callStartTime: $callStartTime, callEndTime: $callEndTime, callType: $callType, callStatus: $callStatus, sessionId: $sessionId) 
+}`;
+
+const callHistoryEditStatus = ` 
+  mutation CallHistoryEditStatus($callStatus: String, $sessionId: String) {
+    callHistoryEditStatus(callStatus: $callStatus, sessionId: $sessionId)
 }`;
 
 const callHistoryRemove = ` 
@@ -168,6 +160,8 @@ export default {
   callTerminateSession,
   callDisconnect,
   callHistoryEdit,
+  callHistoryAdd,
   callHistoryRemove,
   callsUpdateConfigs,
+  callHistoryEditStatus,
 };

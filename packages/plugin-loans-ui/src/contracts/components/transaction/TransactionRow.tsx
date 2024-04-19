@@ -20,7 +20,7 @@ function TransactionRow({ transaction }: Props) {
       <td>{__(`Loan ${transaction.transactionType}`)}</td>
       <td>{renderCell('payment')}</td>
       <td>{renderCell('interestEve')}</td>
-      <td>{renderCell('undue')}</td>
+      <td>{renderCell('loss')}</td>
       <td>{renderCell('total')}</td>
     </ExtraRow>
   );

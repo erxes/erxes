@@ -434,8 +434,21 @@ const integrations = `
     integrations(kind: $kind, brandId: $brandId) {
       _id
       name
+      form {
+        _id
+        title
+      }
     }
   }
+`;
+
+const channels = `
+    query channels {
+        channels {
+            _id
+            name
+        }
+    }
 `;
 
 const tags = `  
@@ -445,6 +458,7 @@ const tags = `
       name
       parentId
       colorCode
+      type
     }
   }
 `;
@@ -500,6 +514,16 @@ const pipelineLabels = `
   query pipelineLabels($pipelineId: String, $pipelineIds: [String]) {
     pipelineLabels(pipelineId: $pipelineId, pipelineIds: $pipelineIds) {
       ${pipelineLabelFields}
+    }
+  }
+`;
+
+const fields = `
+  query fields($contentType: String!, $isVisible: Boolean, $groupIds: [String]) {
+    fields(contentType: $contentType, isVisible: $isVisible, groupIds: $groupIds) {
+      _id
+      text
+      groupId
     }
   }
 `;
@@ -745,12 +769,14 @@ export default {
   integrations,
 
   tags,
+  channels,
   assets,
   boards,
   stages,
   pipelines,
   pipelineLabels,
 
+  fields,
   fieldsGroups,
 
   pipelineDetail,
