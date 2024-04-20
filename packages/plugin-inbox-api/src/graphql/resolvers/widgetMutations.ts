@@ -580,6 +580,7 @@ const widgetMutations = {
           code,
         },
         isRPC: true,
+        defaultValue: null,
       });
 
       console.log('111111111111111111 ', customer);
