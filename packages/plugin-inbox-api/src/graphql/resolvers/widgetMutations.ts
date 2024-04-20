@@ -55,13 +55,13 @@ interface IWidgetEmailParams {
 export const pConversationClientMessageInserted = async (
   models,
   subdomain,
-  message: { _id: string; [other: string]: any }
+  message: { _id: string; [other: string]: any },
 ) => {
   const conversation = await models.Conversations.findOne(
     {
       _id: message.conversationId,
     },
-    { integrationId: 1 }
+    { integrationId: 1 },
   );
 
   let integration;
@@ -71,7 +71,7 @@ export const pConversationClientMessageInserted = async (
       {
         _id: conversation.integrationId,
       },
-      { _id: 1, name: 1 }
+      { _id: 1, name: 1 },
     );
   }
 
@@ -82,7 +82,7 @@ export const pConversationClientMessageInserted = async (
       {
         integrationIds: { $in: [integration._id] },
       },
-      { _id: 1, memberIds: 1 }
+      { _id: 1, memberIds: 1 },
     );
 
     for (const channel of channels) {
@@ -105,7 +105,7 @@ export const pConversationClientMessageInserted = async (
         subdomain,
         conversation,
         integration,
-      }
+      },
     );
   }
 
@@ -128,7 +128,7 @@ export const pConversationClientMessageInserted = async (
 
 export const getMessengerData = async (
   models: IModels,
-  integration: IIntegrationDocument
+  integration: IIntegrationDocument,
 ) => {
   let messagesByLanguage: IMessengerDataMessagesItem | null = null;
   let messengerData = integration.messengerData;
@@ -230,7 +230,7 @@ const createFormConversation = async (
     conversation?: any;
     message: any;
   },
-  type?: string
+  type?: string,
 ) => {
   const { integrationId, formId, submissions } = args;
 
@@ -287,7 +287,7 @@ const createFormConversation = async (
     `conversationMessageInserted:${message.conversationId}`,
     {
       conversationMessageInserted: message,
-    }
+    },
   );
 
   if (type === 'lead') {
@@ -385,7 +385,7 @@ const widgetMutations = {
   async widgetsLeadConnect(
     _root,
     args: { brandCode: string; formCode: string; cachedCustomerId?: string },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const brand = await sendCoreMessage({
       subdomain,
@@ -470,7 +470,7 @@ const widgetMutations = {
       cachedCustomerId?: string;
       userId?: string;
     },
-    { models, subdomain, user }: IContext
+    { models, subdomain, user }: IContext,
   ) {
     const { submissions } = args;
 
@@ -491,14 +491,14 @@ const widgetMutations = {
           },
         };
       },
-      'lead'
+      'lead',
     );
   },
 
   widgetsLeadIncreaseViewCount(
     _root,
     { formId }: { formId: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Integrations.increaseViewCount(formId);
   },
@@ -521,7 +521,7 @@ const widgetMutations = {
       deviceToken?: string;
       visitorId?: string;
     },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const {
       brandCode,
@@ -580,10 +580,7 @@ const widgetMutations = {
           code,
         },
         isRPC: true,
-        defaultValue: null,
       });
-
-      console.log('111111111111111111 ', customer);
 
       const doc = {
         integrationId: integration._id,
@@ -595,31 +592,26 @@ const widgetMutations = {
         scopeBrandIds: [brand._id],
       };
 
-      console.log('doc, ======== ', doc);
-
-      if (customer) {
-        customer = await sendContactsMessage({
-          subdomain,
-          action: 'customers.updateMessengerCustomer',
-          data: {
-            _id: customer._id,
-            doc,
-            customData,
-          },
-          isRPC: true,
-        });
-      } else {
-        customer = await sendContactsMessage({
-          subdomain,
-          action: 'customers.createMessengerCustomer',
-          data: {
-            doc,
-            customData,
-          },
-          isRPC: true,
-        });
-      }
-      console.log('222222222222', customer);
+      customer = customer
+        ? await sendContactsMessage({
+            subdomain,
+            action: 'customers.updateMessengerCustomer',
+            data: {
+              _id: customer._id,
+              doc,
+              customData,
+            },
+            isRPC: true,
+          })
+        : await sendContactsMessage({
+            subdomain,
+            action: 'customers.createMessengerCustomer',
+            data: {
+              doc,
+              customData,
+            },
+            isRPC: true,
+          });
     }
 
     if (visitorId) {
@@ -700,7 +692,7 @@ const widgetMutations = {
     if (!integration.isConnected) {
       await models.Integrations.updateOne(
         { _id: integration._id },
-        { $set: { isConnected: true } }
+        { $set: { isConnected: true } },
       );
     }
 
@@ -729,7 +721,7 @@ const widgetMutations = {
       attachments?: any[];
       contentType: string;
     },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const {
       integrationId,
@@ -744,12 +736,12 @@ const widgetMutations = {
     if (contentType === MESSAGE_TYPES.VIDEO_CALL_REQUEST) {
       const videoCallRequestMessage = await models.ConversationMessages.findOne(
         { conversationId, contentType },
-        { createdAt: 1 }
+        { createdAt: 1 },
       ).sort({ createdAt: -1 });
 
       if (videoCallRequestMessage) {
         const messageTime = new Date(
-          videoCallRequestMessage.createdAt
+          videoCallRequestMessage.createdAt,
         ).getTime();
 
         const nowTime = new Date().getTime();
@@ -770,7 +762,7 @@ const widgetMutations = {
         }
 
         const timeDelay = integrationConfigs.find(
-          (config) => config.code === 'VIDEO_CALL_TIME_DELAY_BETWEEN_REQUESTS'
+          (config) => config.code === 'VIDEO_CALL_TIME_DELAY_BETWEEN_REQUESTS',
         ) || { value: '0' };
 
         const timeDelayIntValue = parseInt(timeDelay.value || '0', 10);
@@ -781,7 +773,7 @@ const widgetMutations = {
           const defaultValue = 'Video call request has already sent';
 
           const messageForDelay = integrationConfigs.find(
-            (config) => config.code === 'VIDEO_CALL_MESSAGE_FOR_TIME_DELAY'
+            (config) => config.code === 'VIDEO_CALL_MESSAGE_FOR_TIME_DELAY',
           ) || { value: defaultValue };
 
           throw new Error(messageForDelay.value || defaultValue);
@@ -825,7 +817,7 @@ const widgetMutations = {
           // reopen this conversation if it's closed
           status: CONVERSATION_STATUSES.OPEN,
         },
-        { new: true }
+        { new: true },
       );
       // create conversation
     } else {
@@ -869,7 +861,7 @@ const widgetMutations = {
           // clear visitorId
           visitorId: '',
         },
-      }
+      },
     );
 
     // mark customer as active
@@ -901,7 +893,7 @@ const widgetMutations = {
             conversationId: msg.conversationId,
             typing: true,
           },
-        }
+        },
       );
 
       try {
@@ -914,7 +906,7 @@ const widgetMutations = {
               text: message,
             }),
             headers: { 'Content-Type': 'application/json' },
-          }
+          },
         ).then((r) => r.json());
 
         const { responses } = botRequest;
@@ -943,14 +935,14 @@ const widgetMutations = {
               conversationId: msg.conversationId,
               typing: false,
             },
-          }
+          },
         );
 
         graphqlPubsub.publish(
           `conversationMessageInserted:${botMessage.conversationId}`,
           {
             conversationMessageInserted: botMessage,
-          }
+          },
         );
       } catch (e) {
         debugError(`Failed to connect to BOTPRESS: ${e.message}`);
@@ -968,7 +960,7 @@ const widgetMutations = {
         await models.Conversations.changeCustomerStatus(
           'joined',
           customerId,
-          conversation.integrationId
+          conversation.integrationId,
         );
 
       for (const mg of conversationMessages) {
@@ -976,7 +968,7 @@ const widgetMutations = {
           `conversationMessageInserted:${mg.conversationId}`,
           {
             conversationMessageInserted: mg,
-          }
+          },
         );
       }
 
@@ -1007,7 +999,7 @@ const widgetMutations = {
   async widgetsReadConversationMessages(
     _root,
     args: { conversationId: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     await models.ConversationMessages.updateMany(
       {
@@ -1016,7 +1008,7 @@ const widgetMutations = {
         isCustomerRead: { $ne: true },
       },
       { isCustomerRead: true },
-      { multi: true }
+      { multi: true },
     );
 
     return args.conversationId;
@@ -1025,7 +1017,7 @@ const widgetMutations = {
   async widgetsSaveCustomerGetNotified(
     _root,
     args,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const { visitorId, customerId } = args;
 
@@ -1035,13 +1027,13 @@ const widgetMutations = {
 
       await models.ConversationMessages.updateVisitorEngageMessages(
         visitorId,
-        customer._id
+        customer._id,
       );
       await models.Conversations.updateMany(
         {
           visitorId,
         },
-        { $set: { customerId: customer._id, visitorId: '' } }
+        { $set: { customerId: customer._id, visitorId: '' } },
       );
     }
 
@@ -1063,7 +1055,7 @@ const widgetMutations = {
       customerId,
       browserInfo,
     }: { visitorId?: string; customerId?: string; browserInfo: IBrowserInfo },
-    { subdomain }: IContext
+    { subdomain }: IContext,
   ) {
     // update location
 
@@ -1108,7 +1100,7 @@ const widgetMutations = {
     } catch (e) {
       /* istanbul ignore next */
       debugError(
-        `Error occurred during widgets save browser info ${e.message}`
+        `Error occurred during widgets save browser info ${e.message}`,
       );
     }
 
@@ -1117,13 +1109,13 @@ const widgetMutations = {
 
   widgetsSendTypingInfo(
     _root,
-    args: { conversationId: string; text?: string }
+    args: { conversationId: string; text?: string },
   ) {
     graphqlPubsub.publish(
       `conversationClientTypingStatusChanged:${args.conversationId}`,
       {
         conversationClientTypingStatusChanged: args,
-      }
+      },
     );
 
     return 'ok';
@@ -1132,7 +1124,7 @@ const widgetMutations = {
   async widgetsSendEmail(
     _root,
     args: IWidgetEmailParams,
-    { subdomain, models }: IContext
+    { subdomain, models }: IContext,
   ) {
     const { toEmails, fromEmail, title, content, customerId, formId } = args;
 
@@ -1161,7 +1153,7 @@ const widgetMutations = {
       const replacedContent = await new EditorAttributeUtil(
         `${process.env.DOMAIN}/gateway/pl:core`,
         await getServices(),
-        subdomain
+        subdomain,
       ).replaceAttributes({
         content,
         customer,
@@ -1212,7 +1204,7 @@ const widgetMutations = {
             email,
             formId,
             customerId,
-          })
+          }),
         ).toString('base64');
 
         const emailValidationUrl = `${domain}/pl:contacts/verify?p=${params}`;
@@ -1272,7 +1264,7 @@ const widgetMutations = {
       payload: string;
       type: string;
     },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const integration =
       (await models.Integrations.findOne({ _id: integrationId })) ||
@@ -1288,7 +1280,7 @@ const widgetMutations = {
 
     if (!conversationId) {
       sessionId = await redis.get(
-        `bot_initial_message_session_id_${integrationId}`
+        `bot_initial_message_session_id_${integrationId}`,
       );
 
       const conversation = await models.Conversations.createConversation({
@@ -1301,7 +1293,7 @@ const widgetMutations = {
       conversationId = conversation._id;
 
       const initialMessageBotData = await redis.get(
-        `bot_initial_message_${integrationId}`
+        `bot_initial_message_${integrationId}`,
       );
 
       await models.ConversationMessages.createMessage({
@@ -1366,7 +1358,7 @@ const widgetMutations = {
       `conversationMessageInserted:${botMessage.conversationId}`,
       {
         conversationMessageInserted: botMessage,
-      }
+      },
     );
 
     return botMessage;
@@ -1375,13 +1367,13 @@ const widgetMutations = {
   async widgetGetBotInitialMessage(
     _root,
     { integrationId }: { integrationId: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const sessionId = `_${Math.random().toString(36).substr(2, 9)}`;
 
     await redis.set(
       `bot_initial_message_session_id_${integrationId}`,
-      sessionId
+      sessionId,
     );
 
     const integration =
@@ -1400,7 +1392,7 @@ const widgetMutations = {
 
     await redis.set(
       `bot_initial_message_${integrationId}`,
-      JSON.stringify(botRequest.responses)
+      JSON.stringify(botRequest.responses),
     );
 
     return { botData: botRequest.responses };
@@ -1409,7 +1401,7 @@ const widgetMutations = {
   async widgetsBookingConnect(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const integration = await models.Integrations.getIntegration({
       _id,
@@ -1433,7 +1425,7 @@ const widgetMutations = {
       cachedCustomerId?: string;
       productId: string;
     },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const { submissions, productId } = args;
 
@@ -1467,7 +1459,7 @@ const widgetMutations = {
           },
         };
       },
-      'booking'
+      'booking',
     );
   },
 };
