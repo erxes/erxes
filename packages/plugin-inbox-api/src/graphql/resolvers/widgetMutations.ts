@@ -582,6 +582,8 @@ const widgetMutations = {
         isRPC: true,
       });
 
+      console.log("111111111111111111 ",customer)
+
       const doc = {
         integrationId: integration._id,
         email,
@@ -612,6 +614,8 @@ const widgetMutations = {
             },
             isRPC: true,
           });
+
+        console.log("222222222222", customer)
     }
 
     if (visitorId) {
