@@ -91,9 +91,15 @@ const SidebarFooter = styled.div`
 
 const SelectInput = styled.div`
   margin-bottom: 5px;
+  display: flex;
+  align-items: center;
 
-  label {
-    margin-right: 5px;
+  > div {
+    flex: 0;
+  }
+
+  span {
+    margin-left: 5px;
   }
 `;
 

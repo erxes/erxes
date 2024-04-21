@@ -46,7 +46,7 @@ class SelectItem extends React.Component<IProps> {
     const onChangeItem = (value: string) => onChange(value);
 
     return (
-      <Dropdown as={DropdownToggle} toggleComponent={trigger}>
+      <Dropdown as={DropdownToggle} toggleComponent={trigger} isMenuWidthFit={true}>
         {items.map((item) => (
           <li key={item}>
             <ActionItem onClick={onChangeItem.bind(this, item)}>

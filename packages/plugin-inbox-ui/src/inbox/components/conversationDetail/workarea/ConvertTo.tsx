@@ -61,6 +61,7 @@ export default function ConvertTo(props: Props) {
     <Container>
       <Dropdown
         as={DropdownToggle}
+        isMenuWidthFit={true}
         toggleComponent={
           <Button size="small" btnStyle="simple">
             {__("Convert")} <Icon icon="angle-down" />

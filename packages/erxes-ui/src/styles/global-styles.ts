@@ -306,6 +306,11 @@ a:hover {
   border-radius: 4px;
 }
 
+[id^="headlessui-menu-items-"].menuWidthFit {
+  min-width: fit-content;
+  right: unset;
+}
+
 .dropdown-menu > span {
   display: block;
 }
