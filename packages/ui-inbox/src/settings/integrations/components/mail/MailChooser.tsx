@@ -13,7 +13,7 @@ const Wrapper = styled.div`
   > div {
     margin-bottom: 5px;
 
-    .Select-control {
+    .css-13cymwt-control {
       border: 0;
     }
   }

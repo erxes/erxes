@@ -12,6 +12,8 @@ import {
 import { IMail, IMessage } from "../../../../types";
 import React, { useState } from "react";
 
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 import { Flex } from "@erxes/ui/src/styles/main";
 import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
 import Icon from "@erxes/ui/src/components/Icon";
@@ -81,6 +83,10 @@ const MailHeader: React.FC<MailHeaderProps> = ({
     const onToggleForward = (event: React.MouseEvent) =>
       onToggleMailFormFunction({ event, isForward: true });
 
+    // const MenuButton = React.forwardRef(function (props, ref) {
+    //   return <ActionButton />;
+    // });
+
     return (
       <>
         <Tip text={__("Reply")} placement="bottom">
@@ -88,24 +94,26 @@ const MailHeader: React.FC<MailHeaderProps> = ({
             <Icon icon="reply" />
           </ActionButton>
         </Tip>
-        <Menu as="div" className="relative">
-          <Menu.Button>
-            <ActionButton>
-              <Icon icon="ellipsis-v" />
-            </ActionButton>
-          </Menu.Button>
-          <Menu.Items className="absolute">
-            <Menu.Item>
-              <a onClick={onToggleReply}>Reply</a>
-            </Menu.Item>
-            <Menu.Item>
-              <a onClick={onToggleReplyAll}>Reply all</a>
-            </Menu.Item>
-            <Menu.Item>
-              <a onClick={onToggleForward}>Forward</a>
-            </Menu.Item>
-          </Menu.Items>
-        </Menu>
+        <Dropdown
+          as={DropdownToggle}
+          toggleComponent={
+            <Menu.Button>
+              <ActionButton>
+                <Icon icon="ellipsis-v" />
+              </ActionButton>
+            </Menu.Button>
+          }
+        >
+          <Menu.Item>
+            <a onClick={onToggleReply}>Reply</a>
+          </Menu.Item>
+          <Menu.Item>
+            <a onClick={onToggleReplyAll}>Reply all</a>
+          </Menu.Item>
+          <Menu.Item>
+            <a onClick={onToggleForward}>Forward</a>
+          </Menu.Item>
+        </Dropdown>
       </>
     );
   };

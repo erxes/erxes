@@ -150,6 +150,7 @@ const ToolBar = styled.div`
     margin-bottom: 0 !important;
     margin-top: 0 !important;
     padding: 0 !important;
+    display: block;
 
     &:hover {
       cursor: pointer;
