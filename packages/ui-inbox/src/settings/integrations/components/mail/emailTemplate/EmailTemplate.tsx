@@ -136,7 +136,7 @@ class EmailTemplate extends React.Component<Props, State> {
       <EmailTemplateStyled>
         <Popover className="relative">
           <Popover.Button>
-            <Tip text={__("Email template")}>
+            <Tip text={__("Email template")} placement="top">
               <Icon icon="file-bookmark-alt" />
             </Tip>
           </Popover.Button>

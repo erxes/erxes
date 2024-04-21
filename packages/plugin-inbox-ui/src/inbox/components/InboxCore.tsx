@@ -1,40 +1,39 @@
-import { Contents, HeightedWrapper } from '@erxes/ui/src/layout/styles';
+import { Contents, HeightedWrapper } from "@erxes/ui/src/layout/styles";
 
-import ConversationDetail from '../containers/conversationDetail/ConversationDetail';
-import Header from '@erxes/ui/src/layout/components/Header';
-import React from 'react';
-import { __ } from 'coreui/utils';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
+import ConversationDetail from "../containers/conversationDetail/ConversationDetail";
+import Header from "@erxes/ui/src/layout/components/Header";
+import React from "react";
+import { __ } from "coreui/utils";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import { loadDynamicComponent } from "@erxes/ui/src/utils/core";
 
 const Sidebar = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Inbox-Sidebar" */ '../containers/leftSidebar/Sidebar'
-    ),
+      /* webpackChunkName:"Inbox-Sidebar" */ "../containers/leftSidebar/Sidebar"
+    )
 );
 
 type Props = {
   queryParams: any;
-  history?: any;
   currentConversationId: string;
 };
 class Inbox extends React.Component<Props> {
   render() {
     const { currentConversationId, queryParams } = this.props;
 
-    const menuInbox = [{ title: 'Team Inbox', link: '/inbox/index' }];
+    const menuInbox = [{ title: "Team Inbox", link: "/inbox/index" }];
 
-    const ReportsFormButton = loadDynamicComponent('reportsCommonFormButton', {
-      serviceName: 'inbox',
-      reportTemplateType: 'inbox',
+    const ReportsFormButton = loadDynamicComponent("reportsCommonFormButton", {
+      serviceName: "inbox",
+      reportTemplateType: "inbox",
       ...this.props,
     });
 
     return (
       <HeightedWrapper>
         <Header
-          title={'Conversation'}
+          title={"Conversation"}
           queryParams={queryParams}
           submenu={menuInbox}
         />

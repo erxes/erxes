@@ -1,14 +1,12 @@
-import * as compose from 'lodash.flowright';
+import React, { useMemo } from "react";
+import { gql, useQuery } from "@apollo/client";
 
-import { IField } from '@erxes/ui/src/types';
-import { IFieldsVisibility } from './types';
-import { InboxFieldsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { IField } from "@erxes/ui/src/types";
+import { IFieldsVisibility } from "./types";
+import { InboxFieldsQueryResponse } from "@erxes/ui-forms/src/settings/properties/types";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { queries as fieldQueries } from "@erxes/ui-forms/src/settings/properties/graphql";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 interface IStore {
   deviceFields: IField[];
@@ -18,8 +16,8 @@ interface IStore {
   deviceVisibility: (key: string) => IFieldsVisibility;
 }
 
-type FinalProps = {
-  fieldsInboxQuery: InboxFieldsQueryResponse;
+type Props = {
+  children: any;
 };
 
 const PropertyContext = React.createContext({} as IStore);
@@ -32,47 +30,57 @@ const isVisible = (fields: IField[]) => {
 
     for (const field of fields || []) {
       if (field[key]) {
-        data[field.type] = field.text || '';
+        data[field.type] = field.text || "";
       }
     }
     return data;
   };
 };
 
-class Provider extends React.Component<FinalProps> {
-  public render() {
-    const { fieldsInboxQuery } = this.props;
-
-    if (fieldsInboxQuery && fieldsInboxQuery.loading) {
-      return <Spinner />;
+const usePropertyData = () => {
+  const { loading, data } = useQuery<{ inboxFields: InboxFieldsQueryResponse }>(
+    gql(fieldQueries.inboxFields),
+    {
+      skip: !isEnabled("inbox"),
     }
+  );
 
-    const inboxFields =
-      (fieldsInboxQuery && fieldsInboxQuery.inboxFields) || ({} as any);
+  const inboxFields = data?.inboxFields || {
+    device: [],
+    conversation: [],
+    customer: [],
+  };
+  const { device = [], conversation = [], customer = [] } = inboxFields as any;
 
-    const customerVisibility = isVisible(inboxFields.customer || []);
+  const customerVisibility = useMemo(() => isVisible(customer), [customer]);
+  const deviceVisibility = useMemo(() => isVisible(device), [device]);
 
-    const deviceVisibility = isVisible(inboxFields.device || []);
+  const value: IStore = useMemo(
+    () => ({
+      deviceFields: device,
+      conversationFields: conversation,
+      customerFields: customer,
+      customerVisibility,
+      deviceVisibility,
+    }),
+    [device, conversation, customer, customerVisibility, deviceVisibility]
+  );
 
-    return (
-      <PropertyContext.Provider
-        value={{
-          deviceFields: inboxFields.device,
-          conversationFields: inboxFields.conversation,
-          customerFields: inboxFields.customer,
-          customerVisibility,
-          deviceVisibility
-        }}
-      >
-        {this.props.children}
-      </PropertyContext.Provider>
-    );
+  return { loading, value };
+};
+
+const PropertyProvider: React.FC<Props> = ({ children }) => {
+  const { loading, value } = usePropertyData();
+
+  if (loading) {
+    return <Spinner />;
   }
-}
 
-export const PropertyProvider = compose(
-  graphql(gql(fieldQueries.inboxFields), {
-    name: 'fieldsInboxQuery',
-    skip: !isEnabled('inbox')
-  })
-)(Provider);
+  return (
+    <PropertyContext.Provider value={value}>
+      {children}
+    </PropertyContext.Provider>
+  );
+};
+
+export default PropertyProvider;

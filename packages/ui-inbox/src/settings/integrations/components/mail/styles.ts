@@ -355,12 +355,12 @@ const Link = styled.a`
 `;
 
 const SignatureChooserFooter = styledTS<{
-  noSignatures: boolean;
+  $noSignatures: boolean;
 }>(styled.div)`
   display: flex;
   width: 100%;
-  justify-content: ${({ noSignatures }) =>
-    noSignatures ? 'flex-end' : 'space-between'};
+  justify-content: ${({ $noSignatures }) =>
+    $noSignatures ? 'flex-end' : 'space-between'};
   align-items: center;
   padding: 0;
   padding-left: 1rem;

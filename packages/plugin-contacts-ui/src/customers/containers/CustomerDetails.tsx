@@ -1,50 +1,53 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { withProps } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import CustomerDetails from '../components/detail/CustomerDetails';
-import { queries } from '@erxes/ui-contacts/src/customers/graphql';
-import { CustomerDetailQueryResponse } from '@erxes/ui-contacts/src/customers/types';
-import {
+import PropertyProvider, {
   PropertyConsumer,
-  PropertyProvider
-} from '@erxes/ui-contacts/src/customers/propertyContext';
+} from "@erxes/ui-contacts/src/customers/propertyContext";
+import { gql, useQuery } from "@apollo/client";
+
+import { CustomerDetailQueryResponse } from "@erxes/ui-contacts/src/customers/types";
+import CustomerDetails from "../components/detail/CustomerDetails";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { queries } from "@erxes/ui-contacts/src/customers/graphql";
+import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   id: string;
 };
 
-type FinalProps = {
-  customerDetailQuery: CustomerDetailQueryResponse;
-} & Props;
+function CustomerDetailsContainer(props: Props) {
+  const { id } = props;
 
-function CustomerDetailsContainer(props: FinalProps) {
-  const { id, customerDetailQuery } = props;
+  const { loading, error, data } = useQuery<CustomerDetailQueryResponse>(
+    gql(queries.customerDetail),
+    {
+      variables: { _id: id },
+    }
+  );
 
-  if (customerDetailQuery.loading) {
+  if (loading) {
     return <Spinner objective={true} />;
   }
 
-  if (!customerDetailQuery.customerDetail) {
+  if (!data || !data.customerDetail) {
     return (
       <EmptyState text="Customer not found" image="/images/actions/17.svg" />
     );
   }
 
+  const { customerDetail } = data;
+
   const taggerRefetchQueries = [
     {
       query: gql(queries.customerDetail),
-      variables: { _id: id }
-    }
+      variables: { _id: id },
+    },
   ];
 
   const updatedProps = {
     ...props,
-    customer: customerDetailQuery.customerDetail || ({} as any),
-    taggerRefetchQueries
+    customer: customerDetail || ({} as any),
+    taggerRefetchQueries,
   };
 
   return (
@@ -54,8 +57,9 @@ function CustomerDetailsContainer(props: FinalProps) {
           deviceFields,
           customerVisibility,
           deviceVisibility,
-          customerFields
+          customerFields,
         }) => {
+          console.log("in here");
           return (
             <CustomerDetails
               {...updatedProps}
@@ -71,18 +75,4 @@ function CustomerDetailsContainer(props: FinalProps) {
   );
 }
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, CustomerDetailQueryResponse, { _id: string }>(
-      gql(queries.customerDetail),
-      {
-        name: 'customerDetailQuery',
-        options: ({ id }) => ({
-          variables: {
-            _id: id
-          }
-        })
-      }
-    )
-  )(CustomerDetailsContainer)
-);
+export default CustomerDetailsContainer;

@@ -19,7 +19,7 @@ module.exports = {
 
   customerRightSidebarSection: [
     {
-      text: "Xyp Section",
+      text: "customerRightSidebarSection",
       component: "./customerSidebar",
       scope: "xyp",
     },
