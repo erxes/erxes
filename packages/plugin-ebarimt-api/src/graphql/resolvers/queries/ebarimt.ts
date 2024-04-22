@@ -7,6 +7,7 @@ import {
 } from '../../../messageBroker';
 import { IContext } from '../../../connectionResolver';
 import { getCompany } from '../../../utils';
+import { SortOrder } from 'mongoose';
 
 const generateFilter = async (subdomain, params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
@@ -149,7 +150,7 @@ const generateFilter = async (subdomain, params, commonQuerySelector) => {
   return filter;
 };
 
-export const sortBuilder = (params) => {
+export const sortBuilder = (params): { [key: string]: SortOrder } => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
