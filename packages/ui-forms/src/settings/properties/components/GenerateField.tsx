@@ -3,7 +3,12 @@ import {
   COMPANY_INDUSTRY_TYPES,
   COUNTRIES,
 } from '@erxes/ui-contacts/src/companies/constants';
-import { Button, ControlLabel, FormGroup, Icon } from '@erxes/ui/src/components';
+import {
+  Button,
+  ControlLabel,
+  FormGroup,
+  Icon,
+} from '@erxes/ui/src/components';
 import { IAttachment, IField, ILocationOption } from '@erxes/ui/src/types';
 import {
   RenderDynamicComponent,
@@ -51,6 +56,7 @@ type State = {
   checkBoxValues: any[];
   errorCounter: number;
   currentLocation?: ILocationOption;
+  errorMessage?: string;
 };
 
 export default class GenerateField extends React.Component<Props, State> {
@@ -143,7 +149,7 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderInput(attrs, hasError?: boolean) {
-    let { value, errorCounter } = this.state;
+    let { value, errorCounter, errorMessage } = this.state;
     let checkBoxValues = this.state.checkBoxValues || [];
     const { type } = this.props.field;
     let { validation } = this.props.field;
@@ -155,6 +161,14 @@ export default class GenerateField extends React.Component<Props, State> {
     }
 
     attrs.type = 'text';
+    const errorObject: any = {};
+
+    // attrs.errors =
+
+    if (errorMessage) {
+      errorObject[attrs.name] = errorMessage;
+      attrs.errors = errorObject;
+    }
 
     attrs.onChange = (e) => {
       this.setState({ value: e.target.value });
@@ -590,7 +604,7 @@ export default class GenerateField extends React.Component<Props, State> {
    */
   onChange = (e, optionValue) => {
     const { field, onValueChange } = this.props;
-    const { validation, type } = field;
+    const { validation, type, regexValidation } = field;
 
     if (!e.target && !optionValue) {
       return;
@@ -618,6 +632,17 @@ export default class GenerateField extends React.Component<Props, State> {
       this.setState({ checkBoxValues });
 
       value = checkBoxValues;
+    }
+
+    if (validation === 'regex' && regexValidation?.length) {
+      const regex = new RegExp(regexValidation);
+
+      if (!regex.test(value)) {
+        this.setState({ errorMessage: 'Invalid value' });
+        return;
+      }
+
+      this.setState({ errorMessage: undefined });
     }
 
     if (onValueChange) {

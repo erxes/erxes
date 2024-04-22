@@ -22,6 +22,7 @@ const commonFields = `
   
   canHide
   validation
+  regexValidation
   options
   isVisibleToCreate
   locationOptions{
