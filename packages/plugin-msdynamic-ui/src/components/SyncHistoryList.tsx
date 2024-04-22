@@ -31,6 +31,9 @@ const SyncHistoryList = ({
   const tablehead = ['Date', 'User', 'Content Type', 'Content', 'Error'];
 
   const rowContent = (props, item) => {
+    const { No, Sell_to_Customer_No, Sell_to_Customer_Name, error } =
+      item.responseData;
+
     if (item?.responseSales && item.responseSales.length > 0) {
       const renderSales = () => {
         return (item?.responseSales || []).map((listItem, index: number) => {
@@ -41,23 +44,44 @@ const SyncHistoryList = ({
       };
 
       return (
-        <Table striped bordered responsive key={item._id}>
-          <thead>
-            <tr>
-              <th>{__('Error')}</th>
-              <th>{__('Order No')}</th>
-              <th>{__('Product Name')}</th>
-              <th>{__('Product No')}</th>
-              <th>{__('Price')}</th>
-              <th>{__('Quantity')}</th>
-            </tr>
-          </thead>
-          <tbody id="hurData">{renderSales()}</tbody>
-        </Table>
+        <>
+          <Table striped bordered responsive>
+            <thead>
+              <tr>
+                <th>{__('Error')}</th>
+                <th>{__('Order No')}</th>
+                <th>{__('Customer no')}</th>
+                <th>{__('Customer Name')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {' '}
+              <tr>
+                <td>{error?.message || ''}</td>
+                <td>{No || ''}</td>
+                <td>{Sell_to_Customer_No || ''}</td>
+                <td>{Sell_to_Customer_Name || ''}</td>
+              </tr>
+            </tbody>
+          </Table>
+          <Table striped bordered responsive key={item._id}>
+            <thead>
+              <tr>
+                <th>{__('Error')}</th>
+                <th>{__('Order No')}</th>
+                <th>{__('Product Name')}</th>
+                <th>{__('Product No')}</th>
+                <th>{__('Price')}</th>
+                <th>{__('Quantity')}</th>
+              </tr>
+            </thead>
+            <tbody id="hurData">{renderSales()}</tbody>
+          </Table>
+        </>
       );
     }
 
-    return <>{item.responseSales[1]}</>;
+    return <>{item.responseStr}</>;
   };
 
   const mainContent = (
