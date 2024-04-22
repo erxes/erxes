@@ -121,7 +121,7 @@ const mutations = {
           isRPC: true,
         });
 
-        const doc: ICallRecord = {
+        const doc = {
           contentTypeId,
           contentType,
           roomName: response.name,

@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, HydratedDocument } from 'mongoose';
 
 export interface IRecording {
   id: string;
@@ -7,6 +7,7 @@ export interface IRecording {
 }
 
 export interface ICallRecord {
+  kind?: string;
   contentType: string;
   contentTypeId: string;
   messageId: string;
@@ -16,18 +17,21 @@ export interface ICallRecord {
   token: string;
 
   recordings?: IRecording[];
+  createdAt: Date;
 }
 
 const recordingSchema = new Schema(
   {
     id: String,
     url: String,
-    expires: Number
+    expires: Number,
   },
   {
-    _id: false
-  }
+    _id: false,
+  },
 );
+
+export type ICallRecordDocument = HydratedDocument<ICallRecord>;
 
 export const recordSchema: Schema<ICallRecord> = new Schema<ICallRecord>({
   contentType: String,
@@ -37,7 +41,7 @@ export const recordSchema: Schema<ICallRecord> = new Schema<ICallRecord>({
   privacy: String,
   status: {
     type: String,
-    default: 'ongoing'
+    default: 'ongoing',
   },
   token: String,
   kind: String,
@@ -45,8 +49,8 @@ export const recordSchema: Schema<ICallRecord> = new Schema<ICallRecord>({
   recordings: [recordingSchema],
   createdAt: {
     type: Date,
-    default: new Date()
-  }
+    default: () => new Date(),
+  },
 });
 
 export const loadRecordClass = () => {
