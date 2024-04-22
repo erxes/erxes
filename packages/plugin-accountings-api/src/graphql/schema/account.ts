@@ -24,10 +24,13 @@ export const types = () => `
     journal: String
     description: String
     categoryId: String
+    branchId: String
+    departmentId: String
+    isOutBalance: Boolean
     parentId: String
     createdAt: Date
     scopeBrandIds: [String]
-
+    
     category: AccountCategory
   }
 `;
@@ -41,6 +44,9 @@ const accountParams = `
   kind: String,
   journal: String,
   description: String,
+  branchId: String,
+  departmentId: String,
+  isOutBalance: Boolean,
   scopeBrandIds: [String]
 `;
 
@@ -56,13 +62,17 @@ const accountCategoryParams = `
 `;
 
 const accountsQueryParams = `
-  type: String,
   status: String,
   categoryId: String,
   searchValue: String,
   brand: String
   ids: [String],
   excludeIds: Boolean,
+  isOutBalance: Boolean,
+  branchId: String
+  departmentId: String
+  currency: String
+
 `;
 
 export const queries = `
