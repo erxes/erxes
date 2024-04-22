@@ -24,6 +24,6 @@ export const putCreateLog = async (
   await commonPutCreateLog(
     subdomain,
     { ...logDoc, description, extraDesc, type: `facebook:${logDoc.type}` },
-    customer,
+    customer as any, // FIXME: This should be user, not customer
   );
 };

@@ -23,7 +23,7 @@ const init = async (app) => {
 
     const { erxesApiId } = req.query;
 
-    const post = await models.PostConversations.findOne({ erxesApiId }, true);
+    const post = await models.PostConversations.findOne({ erxesApiId });
 
     return res.json({ ...post });
   });

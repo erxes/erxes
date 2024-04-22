@@ -5,6 +5,7 @@ import { sendCoreMessage } from '../messageBroker';
 
 export interface IExm {
   name: string;
+  scoringConfig?: ScoringConfig[];
 }
 
 export interface IExmDocument extends IExm, Document {
@@ -18,7 +19,7 @@ const featureSchema = new Schema({
   description: { type: String },
   contentType: { type: String },
   contentId: { type: String },
-  subContentId: { type: String }
+  subContentId: { type: String },
 });
 
 const appearanceSchema = new Schema(
@@ -27,17 +28,22 @@ const appearanceSchema = new Schema(
     secondaryColor: { type: String },
     bodyColor: { type: String },
     headerColor: { type: String },
-    footerColor: { type: String }
+    footerColor: { type: String },
   },
-  { _id: false }
+  { _id: false },
 );
+
+export interface ScoringConfig {
+  action?: string;
+  score?: string;
+}
 
 const scoringConfigSchema = new Schema(
   {
     action: { type: String },
-    score: { type: String }
+    score: { type: String },
   },
-  { _id: false }
+  { _id: false },
 );
 
 // Mongoose schemas =======================
@@ -62,7 +68,7 @@ export const exmSchema = new Schema({
   appearance: { type: appearanceSchema },
   scoringConfig: { type: [scoringConfigSchema] },
   createdBy: { type: String, label: 'Created by' },
-  createdAt: { type: Date, label: 'Created at' }
+  createdAt: { type: Date, label: 'Created at' },
 });
 
 export interface IExmModel extends Model<IExmDocument> {
@@ -89,7 +95,7 @@ export const loadExmClass = (models: IModels, subdomain: string) => {
       const exm = await models.Exms.create({
         createdBy: user._id,
         createdAt: new Date(),
-        ...doc
+        ...doc,
       });
 
       return exm;
@@ -108,16 +114,16 @@ export const loadExmClass = (models: IModels, subdomain: string) => {
      * Remove exm
      */
     public static async removeExm(_id: string) {
-      const exmObj = await models.Exms.getExm(_id);
+      const exmObj = await models.Exms.findOneAndDelete({ _id });
 
-      return exmObj.remove();
+      return exmObj;
     }
 
     public static async useScoring(user, action) {
       const exmObj = await models.Exms.findOne().lean();
 
-      const scoringConfig = (exmObj.scoringConfig || []).find(
-        config => config.action === action
+      const scoringConfig = (exmObj?.scoringConfig || []).find(
+        (config) => config.action === action,
       ) || { score: 0 };
 
       const score = scoringConfig.score || 0;
@@ -127,13 +133,13 @@ export const loadExmClass = (models: IModels, subdomain: string) => {
         action: 'users.updateOne',
         data: {
           selector: {
-            _id: user._id
+            _id: user._id,
           },
           modifier: {
-            $inc: { score }
-          }
+            $inc: { score },
+          },
         },
-        isRPC: true
+        isRPC: true,
       });
 
       return score;
