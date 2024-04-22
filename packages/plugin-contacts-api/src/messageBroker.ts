@@ -91,7 +91,7 @@ export const setupMessageConsumers = () => {
 
       return {
         status: 'success',
-        data: await models.Customers.count(selector),
+        data: await models.Customers.countDocuments(selector),
       };
     },
   );
@@ -341,9 +341,9 @@ export const setupMessageConsumers = () => {
     'contacts:customers.createMessengerCustomer',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
-  
+
       const customer = await models.Customers.createMessengerCustomer(data);
-      
+
       return {
         status: 'success',
         data: customer,

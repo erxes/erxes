@@ -6,7 +6,7 @@ import {
   sendCoreMessage,
   sendFormsMessage,
   sendInboxMessage,
-  sendTagsMessage
+  sendTagsMessage,
 } from './messageBroker';
 import { ICompanyDocument } from './models/definitions/companies';
 import { ICustomerDocument } from './models/definitions/customers';
@@ -15,7 +15,7 @@ import * as moment from 'moment';
 const prepareData = async (
   models: IModels,
   subdomain: string,
-  query: any
+  query: any,
 ): Promise<any[]> => {
   const { contentType, segmentData, page, perPage } = query;
 
@@ -31,7 +31,7 @@ const prepareData = async (
       subdomain,
       '',
       { page, perPage },
-      segmentData
+      segmentData,
     );
 
     contactsFilter._id = { $in: itemIds };
@@ -90,7 +90,7 @@ const prepareData = async (
 const prepareDataCount = async (
   models: IModels,
   subdomain: string,
-  query: any
+  query: any,
 ): Promise<any> => {
   const { contentType, segmentData } = query;
 
@@ -105,7 +105,7 @@ const prepareDataCount = async (
       subdomain,
       '',
       { scroll: true, page: 1, perPage: 10000 },
-      segmentData
+      segmentData,
     );
 
     contactsFilter._id = { $in: itemIds };
@@ -113,19 +113,19 @@ const prepareDataCount = async (
 
   switch (type) {
     case MODULE_NAMES.COMPANY:
-      data = await models.Companies.find(contactsFilter).count();
+      data = await models.Companies.find(contactsFilter).countDocuments();
 
       break;
     case 'lead':
-      data = await models.Customers.find(contactsFilter).count();
+      data = await models.Customers.find(contactsFilter).countDocuments();
 
       break;
     case 'visitor':
-      data = await models.Customers.find(contactsFilter).count();
+      data = await models.Customers.find(contactsFilter).countDocuments();
 
       break;
     case MODULE_NAMES.CUSTOMER:
-      data = await models.Customers.find(contactsFilter).count();
+      data = await models.Customers.find(contactsFilter).countDocuments();
       break;
   }
 
@@ -176,7 +176,7 @@ export const fillValue = async (
   models: IModels,
   subdomain: string,
   column: string,
-  item: any
+  item: any,
 ): Promise<string> => {
   let value = item[column];
 
@@ -201,12 +201,12 @@ export const fillValue = async (
     case 'mergedIds':
       const customers: ICustomerDocument[] | null = await models.Customers.find(
         {
-          _id: { $in: item.mergedIds || [] }
-        }
+          _id: { $in: item.mergedIds || [] },
+        },
       );
 
       value = customers
-        .map(cus => cus.firstName || cus.primaryEmail)
+        .map((cus) => cus.firstName || cus.primaryEmail)
         .join(', ');
 
       break;
@@ -217,7 +217,7 @@ export const fillValue = async (
       break;
     case 'parentCompanyId':
       const parent: ICompanyDocument | null = await models.Companies.findOne({
-        _id: item.parentCompanyId
+        _id: item.parentCompanyId,
       });
 
       value = parent ? parent.primaryName : '';
@@ -229,10 +229,10 @@ export const fillValue = async (
         subdomain,
         action: 'find',
         data: {
-          _id: { $in: item.tagIds || [] }
+          _id: { $in: item.tagIds || [] },
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       let tagNames = '';
@@ -251,7 +251,7 @@ export const fillValue = async (
         action: 'integrations.findOne',
         data: { _id: item.integrationId || [] },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       value = integration ? integration.name : '-';
@@ -263,9 +263,9 @@ export const fillValue = async (
         subdomain,
         action: 'users.findOne',
         data: {
-          _id: item.ownerId
+          _id: item.ownerId,
         },
-        isRPC: true
+        isRPC: true,
       });
 
       value = owner ? owner.email : '-';
@@ -304,10 +304,10 @@ export default {
             action: 'fields.findOne',
             data: {
               query: {
-                _id: fieldId
-              }
+                _id: fieldId,
+              },
             },
-            isRPC: true
+            isRPC: true,
           });
 
           headers.push(`customFieldsData.${field.text}.${fieldId}`);
@@ -325,7 +325,7 @@ export default {
       }
     } catch (e) {
       return {
-        error: e.message
+        error: e.message,
       };
     }
     return { totalCount, excelHeader };
@@ -349,9 +349,9 @@ export default {
             subdomain,
             action: 'fields.findOne',
             data: {
-              query: { _id: fieldId }
+              query: { _id: fieldId },
             },
-            isRPC: true
+            isRPC: true,
           });
 
           headers.push(`customFieldsData.${field.text}.${fieldId}`);
@@ -398,5 +398,5 @@ export default {
       return { error: e.message };
     }
     return { docs };
-  }
+  },
 };
