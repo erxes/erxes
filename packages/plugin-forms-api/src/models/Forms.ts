@@ -8,7 +8,7 @@ import {
   IForm,
   IFormDocument,
   IFormSubmission,
-  IFormSubmissionDocument
+  IFormSubmissionDocument,
 } from './definitions/forms';
 
 interface ISubmission {
@@ -24,20 +24,27 @@ interface IError {
   text: string;
 }
 
-export interface IFormModel extends Model<IFormDocument> {
+export interface IFormModel extends Model<IForm> {
   getForm(_id: string): Promise<IFormDocument>;
   generateCode(): string;
-  createForm(doc: IForm, createdUserId: string): Promise<IFormDocument>;
+  createForm(
+    doc: Omit<IForm, '_id' | 'createdUserId' | 'createdDate'>,
+    createdUserId: string,
+  ): Promise<IFormDocument>;
 
   updateForm(
     _id,
-    { title, description, buttonText }: IForm
+    {
+      title,
+      description,
+      buttonText,
+    }: Pick<IForm, 'title' | 'description' | 'buttonText'>,
   ): Promise<IFormDocument>;
 
   removeForm(_id: string): void;
   duplicate(_id: string): Promise<IFormDocument>;
 
-  validate(formId: string, submissions: ISubmission[]): Promise<IError[]>;
+  validateForm(formId: string, submissions: ISubmission[]): Promise<IError[]>;
 }
 
 export const loadFormClass = (models: IModels) => {
@@ -69,24 +76,30 @@ export const loadFormClass = (models: IModels) => {
     /**
      * Creates a form document
      */
-    public static async createForm(doc: IForm, createdUserId: string) {
+    public static async createForm(
+      doc: Omit<IForm, '_id' | 'createdUserId' | 'createdDate'>,
+      createdUserId: string,
+    ) {
       doc.code = await this.generateCode();
 
       return models.Forms.create({
         ...doc,
         createdDate: new Date(),
-        createdUserId
+        createdUserId,
       });
     }
 
     /**
      * Updates a form document
      */
-    public static async updateForm(_id: string, doc: IForm) {
+    public static async updateForm(
+      _id: string,
+      doc: Pick<IForm, 'title' | 'description' | 'buttonText'>,
+    ) {
       await models.Forms.updateOne(
         { _id },
         { $set: doc },
-        { runValidators: true }
+        { runValidators: true },
       );
 
       return models.Forms.findOne({ _id });
@@ -99,7 +112,7 @@ export const loadFormClass = (models: IModels) => {
       // remove fields
       await models.Fields.deleteMany({
         contentType: 'form',
-        contentTypeId: _id
+        contentTypeId: _id,
       });
 
       return models.Forms.deleteOne({ _id });
@@ -116,9 +129,9 @@ export const loadFormClass = (models: IModels) => {
         {
           title: `${form.title} duplicated`,
           description: form.description,
-          type: form.type
+          type: form.type,
         },
-        form.createdUserId
+        form.createdUserId,
       );
 
       // duplicate fields ===================
@@ -135,20 +148,23 @@ export const loadFormClass = (models: IModels) => {
           options: field.options,
           isRequired: field.isRequired,
           order: field.order,
-          optionsValues: field?.optionsValues
+          optionsValues: field?.optionsValues,
         });
       }
 
       return newForm;
     }
 
-    public static async validate(formId: string, submissions: ISubmission[]) {
+    public static async validateForm(
+      formId: string,
+      submissions: ISubmission[],
+    ) {
       const fields = await models.Fields.find({ contentTypeId: formId });
       const errors: Array<{ fieldId: string; code: string; text: string }> = [];
 
       for (const field of fields) {
         // find submission object by _id
-        const submission = submissions.find(sub => sub._id === field._id);
+        const submission = submissions.find((sub) => sub._id === field._id);
 
         if (!submission) {
           continue;
@@ -164,7 +180,7 @@ export const loadFormClass = (models: IModels) => {
           errors.push({
             fieldId: field._id,
             code: 'required',
-            text: 'Required'
+            text: 'Required',
           });
         }
 
@@ -177,7 +193,7 @@ export const loadFormClass = (models: IModels) => {
             errors.push({
               fieldId: field._id,
               code: 'invalidEmail',
-              text: 'Invalid email'
+              text: 'Invalid email',
             });
           }
 
@@ -189,7 +205,7 @@ export const loadFormClass = (models: IModels) => {
             errors.push({
               fieldId: field._id,
               code: 'invalidPhone',
-              text: 'Invalid phone'
+              text: 'Invalid phone',
             });
           }
 
@@ -201,7 +217,7 @@ export const loadFormClass = (models: IModels) => {
             errors.push({
               fieldId: field._id,
               code: 'invalidNumber',
-              text: 'Invalid number'
+              text: 'Invalid number',
             });
           }
 
@@ -210,7 +226,7 @@ export const loadFormClass = (models: IModels) => {
             errors.push({
               fieldId: field._id,
               code: 'invalidDate',
-              text: 'Invalid Date'
+              text: 'Invalid Date',
             });
           }
 
@@ -222,7 +238,7 @@ export const loadFormClass = (models: IModels) => {
               errors.push({
                 fieldId: field._id,
                 code: 'invalidRegex',
-                text: 'Invalid value'
+                text: 'Invalid value',
               });
             }
           }

@@ -29,7 +29,7 @@ const folderSchema = new Schema({
   parentId: { type: String },
 
   permissionUserIds: { type: [String] },
-  permissionUnitId: { type: String }
+  permissionUnitId: { type: String },
 });
 
 export interface IFolderModel extends Model<IFolderDocument> {
@@ -56,7 +56,7 @@ export const loadFolderClass = (models: IModels) => {
 
     public static async saveFolder({ _id, doc }) {
       if (_id) {
-        await models.Folders.update({ _id }, { $set: doc });
+        await models.Folders.updateOne({ _id }, { $set: doc });
         return models.Folders.findOne({ _id });
       }
 
@@ -125,7 +125,7 @@ const fileSchema = new Schema({
   relatedFileIds: { type: [String], index: true },
 
   permissionUserIds: { type: [String], index: true },
-  permissionUnitId: { type: String, index: true }
+  permissionUnitId: { type: String, index: true },
 });
 
 export interface IFileModel extends Model<IFileDocument> {
@@ -133,7 +133,7 @@ export interface IFileModel extends Model<IFileDocument> {
   getFile(selector): IFileDocument;
 }
 
-export const loadFileClass = models => {
+export const loadFileClass = (models) => {
   class File {
     public static async saveFile({ _id, doc }) {
       if (_id) {
@@ -180,14 +180,14 @@ const logSchema = new Schema({
   contentTypeId: { type: String },
   createdAt: { type: Date },
   userId: { type: String },
-  description: { type: String }
+  description: { type: String },
 });
 
 export interface ILogModel extends Model<ILogDocument> {
   createLog(doc): void;
 }
 
-export const loadLogClass = models => {
+export const loadLogClass = (models) => {
   class Log {
     public static async createLog(doc) {
       doc.createdAt = new Date();
@@ -221,14 +221,14 @@ const ackRequestSchema = new Schema({
   toUserId: { type: String },
   status: { type: String },
   fileId: { type: String },
-  description: { type: String }
+  description: { type: String },
 });
 
 export interface IAckRequestModel extends Model<IAckRequestDocument> {
   createRequest(doc): IAckRequestDocument;
 }
 
-export const loadAckRequestClass = models => {
+export const loadAckRequestClass = (models) => {
   class AckRequest {
     public static async createRequest(doc) {
       doc.createdAt = new Date();
@@ -260,14 +260,14 @@ const accessRequestSchema = new Schema({
   fromUserId: { type: String },
   status: { type: String },
   fileId: { type: String },
-  description: { type: String }
+  description: { type: String },
 });
 
 export interface IAccessRequestModel extends Model<IAccessRequestDocument> {
   createRequest(doc): IAckRequestDocument;
 }
 
-export const loadAccessRequestClass = models => {
+export const loadAccessRequestClass = (models) => {
   class AccessRequest {
     public static async createRequest(doc) {
       doc.createdAt = new Date();
@@ -295,14 +295,14 @@ export interface IRelationDocument extends IRelation, Document {
 const relationSchema = new Schema({
   contentType: { type: String },
   contentTypeId: { type: String },
-  fileIds: { type: [String] }
+  fileIds: { type: [String] },
 });
 
 export interface IRelationModel extends Model<IRelationDocument> {
   relate(doc): IRelationDocument;
 }
 
-export const loadRelationClass = models => {
+export const loadRelationClass = (models) => {
   class Relation {
     public static async relate(doc) {
       return models.Relations.create(doc);

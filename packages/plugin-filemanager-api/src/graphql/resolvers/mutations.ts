@@ -16,14 +16,14 @@ const mutations = {
 
     const result = await models.Folders.saveFolder({
       _id,
-      doc: { ...doc, createdUserId: user._id }
+      doc: { ...doc, createdUserId: user._id },
     });
 
     await models.Logs.createLog({
       contentType: 'folder',
       contentTypeId: result._id,
       userId: user._id,
-      description: 'Created'
+      description: 'Created',
     });
 
     return result;
@@ -36,15 +36,17 @@ const mutations = {
       throw new Error('Access denied');
     }
 
-    const filesCount = await models.Files.find({ folderId: _id }).count();
+    const filesCount = await models.Files.find({
+      folderId: _id,
+    }).countDocuments();
 
     if (filesCount > 0) {
       throw new Error('This folder contains files');
     }
 
     const subFoldersCount = await models.Folders.find({
-      parentId: _id
-    }).count();
+      parentId: _id,
+    }).countDocuments();
 
     if (subFoldersCount > 0) {
       throw new Error('This folder contains folders');
@@ -55,14 +57,14 @@ const mutations = {
 
   async filemanagerFileCreate(_root, doc, { models, user }: IContext) {
     const result = await models.Files.saveFile({
-      doc: { ...doc, createdUserId: user._id }
+      doc: { ...doc, createdUserId: user._id },
     });
 
     await models.Logs.createLog({
       contentType: 'file',
       contentTypeId: result._id,
       userId: user._id,
-      description: 'Created'
+      description: 'Created',
     });
 
     return result;
@@ -81,7 +83,7 @@ const mutations = {
   async filemanagerChangePermission(
     _root,
     { type, _id, userIds, unitId },
-    { models, subdomain, user }: IContext
+    { models, subdomain, user }: IContext,
   ) {
     let collection: any = models.Folders;
 
@@ -102,9 +104,9 @@ const mutations = {
         subdomain,
         action: 'units.findOne',
         data: {
-          _id: unitId
+          _id: unitId,
         },
-        isRPC: true
+        isRPC: true,
       });
 
       sharedUserIds = [...sharedUserIds, ...(unit.userIds || [])];
@@ -115,10 +117,10 @@ const mutations = {
       action: 'users.find',
       data: {
         query: {
-          _id: { $in: sharedUserIds }
-        }
+          _id: { $in: sharedUserIds },
+        },
       },
-      isRPC: true
+      isRPC: true,
     });
 
     await models.Logs.createLog({
@@ -126,20 +128,20 @@ const mutations = {
       contentTypeId: _id,
       userId: user._id,
       description: `Shared with ${sharedUsers
-        .map(u => u.username || u.email)
-        .join(' ')}`
+        .map((u) => u.username || u.email)
+        .join(' ')}`,
     });
 
     return collection.update(
       { _id },
-      { $set: { permissionUserIds: userIds, permissionUnitId: unitId } }
+      { $set: { permissionUserIds: userIds, permissionUnitId: unitId } },
     );
   },
 
   async filemanagerRequestAcks(
     _root,
     { fileId, description },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const file = await models.Files.getFile({ _id: fileId });
 
@@ -147,14 +149,14 @@ const mutations = {
       subdomain,
       action: 'units.find',
       data: {
-        _id: file.permissionUnitId
+        _id: file.permissionUnitId,
       },
-      isRPC: true
+      isRPC: true,
     });
 
     const totalUserIds = [
       ...(file.permissionUserIds || []),
-      ...(unit.memberIds || [])
+      ...(unit.memberIds || []),
     ];
 
     for (const userId of totalUserIds) {
@@ -165,7 +167,7 @@ const mutations = {
 
       const request = await models.AckRequests.findOne({
         fileId,
-        toUserId: userId
+        toUserId: userId,
       });
 
       if (request) {
@@ -177,7 +179,7 @@ const mutations = {
         fromUserId: user._id,
         toUserId: userId,
         description,
-        status: 'requested'
+        status: 'requested',
       });
     }
 
@@ -185,7 +187,7 @@ const mutations = {
       contentType: 'file',
       contentTypeId: file._id,
       userId: user._id,
-      description: 'Requested acknowledgement'
+      description: 'Requested acknowledgement',
     });
 
     return 'ok';
@@ -198,16 +200,16 @@ const mutations = {
       throw new Error('Permission denied');
     }
 
-    const response = await models.AckRequests.update(
+    const response = await models.AckRequests.updateOne(
       { _id },
-      { $set: { status: 'acked' } }
+      { $set: { status: 'acked' } },
     );
 
     await models.Logs.createLog({
       contentType: 'file',
       contentTypeId: request.fileId,
       userId: user._id,
-      description: `Acknowledged`
+      description: `Acknowledged`,
     });
 
     return response;
@@ -216,11 +218,11 @@ const mutations = {
   async filemanagerRequestAccess(
     _root,
     { fileId, description },
-    { user, models }: IContext
+    { user, models }: IContext,
   ) {
     const request = await models.AccessRequests.findOne({
       fileId,
-      fromUserId: user._id
+      fromUserId: user._id,
     });
 
     if (request) {
@@ -231,14 +233,14 @@ const mutations = {
       fileId,
       fromUserId: user._id,
       description,
-      status: 'requested'
+      status: 'requested',
     });
 
     await models.Logs.createLog({
       contentType: 'file',
       contentTypeId: fileId,
       userId: user._id,
-      description: 'Access request created'
+      description: 'Access request created',
     });
 
     return 'ok';
@@ -247,7 +249,7 @@ const mutations = {
   async filemanagerConfirmAccessRequest(
     _root,
     { requestId },
-    { user, models }: IContext
+    { user, models }: IContext,
   ) {
     const request = await models.AccessRequests.findOne({ _id: requestId });
 
@@ -265,14 +267,14 @@ const mutations = {
       contentType: 'file',
       contentTypeId: file._id,
       userId: user._id,
-      description: 'Access request confirmed'
+      description: 'Access request confirmed',
     });
 
-    await models.Files.update(
+    await models.Files.updateOne(
       { _id: file._id },
-      { $push: { permissionUserIds: request.fromUserId } }
+      { $push: { permissionUserIds: request.fromUserId } },
     );
-    await models.AccessRequests.remove({ _id: requestId });
+    await models.AccessRequests.deleteOne({ _id: requestId });
 
     return 'ok';
   },
@@ -280,7 +282,7 @@ const mutations = {
   async filemanagerRelateFiles(
     _root,
     { sourceId, targetIds },
-    { user, models }: IContext
+    { user, models }: IContext,
   ) {
     const file = await models.Files.getFile({ _id: sourceId });
 
@@ -288,9 +290,9 @@ const mutations = {
       throw new Error('Permission denied');
     }
 
-    await models.Files.update(
+    await models.Files.updateOne(
       { _id: sourceId },
-      { $set: { relatedFileIds: targetIds } }
+      { $set: { relatedFileIds: targetIds } },
     );
 
     return 'ok';
@@ -299,7 +301,7 @@ const mutations = {
   async filemanagerRemoveRelatedFiles(
     _root,
     { sourceId, targetIds },
-    { user, models }: IContext
+    { user, models }: IContext,
   ) {
     const file = await models.Files.getFile({ _id: sourceId });
 
@@ -308,9 +310,9 @@ const mutations = {
     }
 
     for (const targetId of targetIds) {
-      await models.Files.update(
+      await models.Files.updateOne(
         { _id: sourceId },
-        { $pull: { relatedFileIds: targetId } }
+        { $pull: { relatedFileIds: targetId } },
       );
     }
 
@@ -320,24 +322,24 @@ const mutations = {
   async filemanagerRelateFilesContentType(
     _root,
     { contentType, contentTypeId, fileIds },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const prevRelation = await models.Relations.findOne({
       contentType,
-      contentTypeId
+      contentTypeId,
     });
 
     if (prevRelation) {
-      await models.Relations.update(
+      await models.Relations.updateOne(
         { _id: prevRelation._id },
-        { $set: { fileIds } }
+        { $set: { fileIds } },
       );
     } else {
       await models.Relations.relate({ contentType, contentTypeId, fileIds });
     }
 
     return 'ok';
-  }
+  },
 };
 
 checkPermission(mutations, 'filemanagerFolderSave', 'filemanagerFolderSave');

@@ -1,7 +1,10 @@
-import { Document, Schema } from "mongoose";
-import { field, schemaWrapper } from "./utils";
+import { Document, Schema, HydratedDocument } from 'mongoose';
+import { field, schemaWrapper } from './utils';
 
 export interface IForm {
+  _id: string;
+  createdUserId: string;
+  createdDate: Date;
   title: string;
   code?: string;
   type: string;
@@ -16,36 +19,32 @@ export interface IFormSubmissionFilter {
   formFieldId: string;
 }
 
-export interface IFormDocument extends IForm, Document {
-  _id: string;
-  createdUserId: string;
-  createdDate: Date;
-}
+export type IFormDocument = HydratedDocument<IForm>;
 
 // schema for form document
 export const formSchema = schemaWrapper(
-  new Schema({
+  new Schema<IForm>({
     _id: field({ pkey: true }),
     title: field({ type: String, optional: true }),
     type: field({ type: String, required: true }),
     description: field({
       type: String,
-      optional: true
+      optional: true,
     }),
     buttonText: field({ type: String, optional: true }),
     code: field({ type: String }),
     createdUserId: field({ type: String }),
     createdDate: field({
       type: Date,
-      default: Date.now
+      default: Date.now,
     }),
 
     numberOfPages: field({
       type: Number,
       optional: true,
-      min: 1
-    })
-  })
+      min: 1,
+    }),
+  }),
 );
 
 export interface IFormSubmission {
@@ -74,6 +73,6 @@ export const formSubmissionSchema = schemaWrapper(
     value: field({ type: Object, optional: true }),
     submittedAt: field({ type: Date, default: Date.now }),
     formId: field({ type: String, optional: true }),
-    formFieldId: field({ type: String, optional: true })
-  })
+    formFieldId: field({ type: String, optional: true }),
+  }),
 );

@@ -5,7 +5,7 @@ import {
   IAckRequestDocument,
   IFileDocument,
   IFolderDocument,
-  IRelationDocument
+  IRelationDocument,
 } from '../../models';
 
 const sharedUsers = async (root, _args, { models, subdomain }: IContext) => {
@@ -16,9 +16,9 @@ const sharedUsers = async (root, _args, { models, subdomain }: IContext) => {
       subdomain,
       action: 'units.findOne',
       data: {
-        _id: root.permissionUnitId
+        _id: root.permissionUnitId,
       },
-      isRPC: true
+      isRPC: true,
     });
 
     sharedUsers = [...sharedUsers, ...(unit.userIds || [])];
@@ -29,10 +29,10 @@ const sharedUsers = async (root, _args, { models, subdomain }: IContext) => {
     action: 'users.find',
     data: {
       query: {
-        _id: { $in: sharedUsers }
-      }
+        _id: { $in: sharedUsers },
+      },
     },
-    isRPC: true
+    isRPC: true,
   });
 
   return users;
@@ -48,12 +48,14 @@ export const folder = {
   },
 
   async hasChild(root: IFolderDocument, _args, { models }: IContext) {
-    const count = await models.Folders.find({ parentId: root._id }).count();
+    const count = await models.Folders.find({
+      parentId: root._id,
+    }).countDocuments();
 
     return count > 0;
   },
 
-  sharedUsers
+  sharedUsers,
 };
 
 export const file = {
@@ -63,10 +65,10 @@ export const file = {
     return models.Files.find({
       $or: [
         { _id: root.relatedFileIds || [] },
-        { relatedFileIds: { $in: [root._id] } }
-      ]
+        { relatedFileIds: { $in: [root._id] } },
+      ],
     });
-  }
+  },
 };
 
 export const accessRequest = {
@@ -78,10 +80,10 @@ export const accessRequest = {
     return (
       root.fromUserId && {
         __typename: 'User',
-        _id: root.fromUserId
+        _id: root.fromUserId,
       }
     );
-  }
+  },
 };
 
 export const ackRequest = {
@@ -93,7 +95,7 @@ export const ackRequest = {
     return (
       root.fromUserId && {
         __typename: 'User',
-        _id: root.fromUserId
+        _id: root.fromUserId,
       }
     );
   },
@@ -102,10 +104,10 @@ export const ackRequest = {
     return (
       root.toUserId && {
         __typename: 'User',
-        _id: root.toUserId
+        _id: root.toUserId,
       }
     );
-  }
+  },
 };
 
 export const log = {
@@ -113,14 +115,14 @@ export const log = {
     return (
       root.userId && {
         __typename: 'User',
-        _id: root.userId
+        _id: root.userId,
       }
     );
-  }
+  },
 };
 
 export const relation = {
   async files(root: IRelationDocument, _args, { models }: IContext) {
     return models.Files.find({ _id: { $in: root.fileIds || [] } });
-  }
+  },
 };

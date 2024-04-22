@@ -40,19 +40,19 @@ const formMutations = {
       contentTypeId,
       contentType,
       formSubmissions,
-      userId
+      userId,
     }: IFormSubmission,
-    { models }: IContext
+    { models }: IContext,
   ) {
     const cleanedFormSubmissions = await models.Fields.cleanMulti(
-      formSubmissions || {}
+      formSubmissions || {},
     );
 
     for (const formFieldId of Object.keys(cleanedFormSubmissions)) {
       const formSubmission = await models.FormSubmissions.findOne({
         contentTypeId,
         contentType,
-        formFieldId
+        formFieldId,
       });
 
       if (formSubmission) {
@@ -66,7 +66,7 @@ const formMutations = {
           formFieldId,
           formId,
           userId,
-          value: formSubmissions[formFieldId]
+          value: formSubmissions[formFieldId],
         };
 
         models.FormSubmissions.createFormSubmission(doc);
@@ -79,7 +79,7 @@ const formMutations = {
   formSubmissionsEdit: async (
     _root,
     params,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     const { contentTypeId, customerId, submissions } = params;
 
@@ -88,10 +88,10 @@ const formMutations = {
       action: 'findOne',
       data: {
         _id: contentTypeId,
-        customerId
+        customerId,
       },
       isRPC: true,
-      defaultValue: null
+      defaultValue: null,
     });
 
     if (!conversation) {
@@ -104,32 +104,32 @@ const formMutations = {
     }
 
     const formSubmissions = await models.FormSubmissions.find({
-      contentTypeId
+      contentTypeId,
     }).lean();
 
     return {
       ...conversation,
       contentTypeId: conversation._id,
-      submissions: formSubmissions
+      submissions: formSubmissions,
     };
   },
 
   formSubmissionsRemove: async (
     _root,
     params,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     const { customerId, contentTypeId } = params;
     sendInboxMessage({
       subdomain,
       action: 'removeConversation',
       data: {
-        _id: contentTypeId
-      }
+        _id: contentTypeId,
+      },
     });
 
-    return models.FormSubmissions.remove({ customerId, contentTypeId });
-  }
+    return models.FormSubmissions.deleteMany({ customerId, contentTypeId });
+  },
 };
 
 checkPermission(formMutations, 'formsAdd', 'manageForms');

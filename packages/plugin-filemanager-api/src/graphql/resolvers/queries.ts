@@ -10,28 +10,26 @@ const queries = {
     {
       limit,
       parentId,
-      isTree
+      isTree,
     }: { limit: number; parentId: string; isTree: boolean },
-    { models }: IContext
+    { models }: IContext,
   ) {
     if (isTree) {
       return models.Folders.find({}).sort({ order: 1 });
     }
 
     const selector: any = {
-      parentId: ''
+      parentId: '',
     };
 
-    const sort = { createdAt: -1 };
+    const sort: any = { createdAt: -1 };
 
     if (parentId) {
       selector.parentId = parentId;
     }
 
     if (limit) {
-      return models.Folders.find(selector)
-        .sort(sort)
-        .limit(limit);
+      return models.Folders.find(selector).sort(sort).limit(limit);
     }
 
     return paginate(models.Folders.find(selector), {}).sort(sort);
@@ -40,7 +38,7 @@ const queries = {
   async filemanagerFolderDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Folders.findOne({ _id });
   },
@@ -56,7 +54,7 @@ const queries = {
       createdAtFrom,
       createdAtTo,
       sortField,
-      sortDirection
+      sortDirection,
     }: {
       folderId: string;
       search?: string;
@@ -69,10 +67,10 @@ const queries = {
       sortDirection?: number;
     },
 
-    { models }: IContext
+    { models }: IContext,
   ) {
     const selector: any = {
-      folderId
+      folderId,
     };
 
     if (search) {
@@ -104,14 +102,14 @@ const queries = {
     }
 
     return models.Files.find(selector).sort({
-      [sortField ? sortField : 'createdAt']: sortDirection || -1
-    });
+      [sortField ? sortField : 'createdAt']: sortDirection || -1,
+    } as any);
   },
 
   async filemanagerFileDetail(
     _root,
     { _id }: { _id: string },
-    { models, subdomain, user }: IContext
+    { models, subdomain, user }: IContext,
   ) {
     const file = await models.Files.getFile({ _id });
 
@@ -121,7 +119,7 @@ const queries = {
   async filemanagerLogs(
     _root,
     { contentTypeId }: { contentTypeId: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Logs.find({ contentTypeId }).sort({ createdAt: -1 });
   },
@@ -129,7 +127,7 @@ const queries = {
   async filemanagerGetAckRequestByUser(
     _root,
     { fileId }: { fileId: string },
-    { models, user }: IContext
+    { models, user }: IContext,
   ) {
     return models.AckRequests.findOne({ fileId, toUserId: user._id });
   },
@@ -137,7 +135,7 @@ const queries = {
   async filemanagerGetAckRequests(
     _root,
     { fileId }: { fileId: string },
-    { models, user }: IContext
+    { models, user }: IContext,
   ) {
     return models.AckRequests.find({ fileId });
   },
@@ -145,7 +143,7 @@ const queries = {
   async filemanagerGetAccessRequests(
     _root,
     { fileId }: { fileId: string },
-    { models, user }: IContext
+    { models, user }: IContext,
   ) {
     const file = await models.Files.getFile({ _id: fileId });
 
@@ -160,12 +158,12 @@ const queries = {
     _root,
     {
       contentType,
-      contentTypeId
+      contentTypeId,
     }: { contentType: string; contentTypeId: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Relations.find({ contentType, contentTypeId });
-  }
+  },
 };
 
 checkPermission(queries, 'filemanagerFolders', 'showFilemanager', []);
