@@ -3,7 +3,7 @@ import { IModels } from '../connectionResolver';
 import {
   IWishlist,
   IWishlistDocument,
-  wishlistSchema
+  wishlistSchema,
 } from './definitions/wishlist';
 
 export interface IWishlistModel extends Model<IWishlistDocument> {
@@ -22,7 +22,7 @@ export const loadWishlistClass = (models: IModels, subdomain: string) => {
       const review = await models.Wishlist.create({
         ...doc,
         createdAt: new Date(),
-        modifiedAt: new Date()
+        modifiedAt: new Date(),
       });
       return review;
     }
@@ -31,13 +31,13 @@ export const loadWishlistClass = (models: IModels, subdomain: string) => {
       if (current) {
         await models.Wishlist.updateOne(
           { _id },
-          { $set: { ...doc, modifiedAt: new Date() } }
+          { $set: { ...doc, modifiedAt: new Date() } },
         );
       }
       return models.Wishlist.findOne({ _id });
     }
     public static async removeWishlist(_id: string) {
-      return models.Wishlist.findOneAndRemove({ _id });
+      return models.Wishlist.findOneAndDelete({ _id });
     }
   }
   wishlistSchema.loadClass(Wishlist);

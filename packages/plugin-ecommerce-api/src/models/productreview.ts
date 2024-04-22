@@ -1,7 +1,7 @@
 import {
   productreviewSchema,
   IProductreview,
-  IProductreviewDocument
+  IProductreviewDocument,
 } from './definitions/productreview';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
@@ -13,7 +13,7 @@ export interface IProductReviewModel extends Model<IProductreviewDocument> {
   createProductReview(doc: IProductreview): Promise<IProductreviewDocument>;
   updateProductReview(
     _id: string,
-    doc: IProductreview
+    doc: IProductreview,
   ): Promise<IProductreviewDocument>;
   removeProductReview(_id: string): Promise<IProductreviewDocument>;
 }
@@ -33,7 +33,7 @@ export const loadProductReviewClass = (models: IModels, subdomain: string) => {
       const review = await models.ProductReview.create({
         ...doc,
         createdAt: new Date(),
-        modifiedAt: new Date()
+        modifiedAt: new Date(),
       });
       return review;
     }
@@ -42,13 +42,13 @@ export const loadProductReviewClass = (models: IModels, subdomain: string) => {
       if (current) {
         await models.ProductReview.updateOne(
           { _id },
-          { $set: { ...doc, modifiedAt: new Date() } }
+          { $set: { ...doc, modifiedAt: new Date() } },
         );
       }
       return models.ProductReview.findOne({ _id });
     }
     public static async removeProductReview(_id: string) {
-      return models.ProductReview.findOneAndRemove({ _id });
+      return models.ProductReview.findOneAndDelete({ _id });
     }
   }
   productreviewSchema.loadClass(ProductReview);

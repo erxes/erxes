@@ -24,7 +24,7 @@ export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
 
   updateEngageMessage(
     _id: string,
-    doc: IEngageMessage
+    doc: IEngageMessage,
   ): Promise<IEngageMessageDocument>;
 
   engageMessageSetLive(_id: string): Promise<IEngageMessageDocument>;
@@ -33,14 +33,14 @@ export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
   setCustomersCount(
     _id: string,
     type: string,
-    count: number
+    count: number,
   ): Promise<IEngageMessageDocument>;
   changeCustomer(
     newCustomerId: string,
-    customerIds: string[]
+    customerIds: string[],
   ): Promise<IEngageMessageDocument>;
   removeCustomersEngages(
-    customerIds: string[]
+    customerIds: string[],
   ): Promise<{ n: number; ok: number }>;
 
   createOrUpdateConversationAndMessages(args: {
@@ -101,7 +101,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
     public static async engageMessageSetLive(_id: string) {
       await models.EngageMessages.updateOne(
         { _id },
-        { $set: { isLive: true, isDraft: false } }
+        { $set: { isLive: true, isDraft: false } },
       );
 
       return models.EngageMessages.findOne({ _id });
@@ -113,7 +113,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
     public static async engageMessageSetPause(_id: string) {
       await models.EngageMessages.updateOne(
         { _id },
-        { $set: { isLive: false } }
+        { $set: { isLive: false } },
       );
 
       return models.EngageMessages.findOne({ _id });
@@ -123,15 +123,13 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
      * Remove engage message
      */
     public static async removeEngageMessage(_id: string) {
-      const message = await models.EngageMessages.findOne({ _id });
+      const message = await models.EngageMessages.findOneAndDelete({ _id });
 
       if (!message) {
         throw new Error(`Campaign not found with id ${_id}`);
       }
 
-      // await removeEngageConversations(_id);
-
-      return message.remove();
+      return message;
     }
 
     /**
@@ -140,11 +138,11 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
     public static async setCustomersCount(
       _id: string,
       type: string,
-      count: number
+      count: number,
     ) {
       await models.EngageMessages.updateOne(
         { _id },
-        { $set: { [type]: count } }
+        { $set: { [type]: count } },
       );
 
       return models.EngageMessages.findOne({ _id });
@@ -155,29 +153,29 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
      */
     public static async changeCustomer(
       newCustomerId: string,
-      customerIds: string[]
+      customerIds: string[],
     ) {
       for (const customerId of customerIds) {
         // Updating every engage messages of customer
         await models.EngageMessages.updateMany(
           { customerIds: { $in: [customerId] } },
-          { $push: { customerIds: newCustomerId } }
+          { $push: { customerIds: newCustomerId } },
         );
 
         await models.EngageMessages.updateMany(
           { customerIds: { $in: [customerId] } },
-          { $pull: { customerIds: customerId } }
+          { $pull: { customerIds: customerId } },
         );
 
         // updating every engage messages of customer participated in
         await models.EngageMessages.updateMany(
           { messengerReceivedCustomerIds: { $in: [customerId] } },
-          { $push: { messengerReceivedCustomerIds: newCustomerId } }
+          { $push: { messengerReceivedCustomerIds: newCustomerId } },
         );
 
         await models.EngageMessages.updateMany(
           { messengerReceivedCustomerIds: { $in: [customerId] } },
-          { $pull: { messengerReceivedCustomerIds: customerId } }
+          { $pull: { messengerReceivedCustomerIds: customerId } },
         );
       }
 
@@ -191,12 +189,12 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
       // Removing customer from engage messages
       await models.EngageMessages.updateMany(
         { messengerReceivedCustomerIds: { $in: customerIds } },
-        { $pull: { messengerReceivedCustomerIds: { $in: customerIds } } }
+        { $pull: { messengerReceivedCustomerIds: { $in: customerIds } } },
       );
 
       return models.EngageMessages.updateMany(
         { customerIds },
-        { $pull: { customerIds } }
+        { $pull: { customerIds } },
       );
     }
 
@@ -340,7 +338,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
             ) {
               await models.EngageMessages.updateOne(
                 { _id: message._id },
-                { $push: { customerIds: customer._id } }
+                { $push: { customerIds: customer._id } },
               );
             }
           }
@@ -383,7 +381,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
                 { match: customerId ? { customerId } : { visitorId } },
               ],
             },
-          }
+          },
         );
 
         prevMessage = null;

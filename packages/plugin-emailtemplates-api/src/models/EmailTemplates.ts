@@ -3,7 +3,7 @@ import { IModels } from '../connectionResolver';
 import {
   emailTemplateSchema,
   IEmailTemplate,
-  IEmailTemplateDocument
+  IEmailTemplateDocument,
 } from './definitions/emailTemplates';
 
 export interface IEmailTemplateModel extends Model<IEmailTemplateDocument> {
@@ -11,7 +11,7 @@ export interface IEmailTemplateModel extends Model<IEmailTemplateDocument> {
   createEmailTemplate(doc: IEmailTemplate, user?: any): IEmailTemplateDocument;
   updateEmailTemplate(
     _id: string,
-    fields: IEmailTemplate
+    fields: IEmailTemplate,
   ): IEmailTemplateDocument;
   removeEmailTemplate(_id: string): void;
   duplicateEmailTemplate(_id: string, user: any): IEmailTemplateDocument;
@@ -41,7 +41,7 @@ export const loadEmailTemplateClass = (models: IModels) => {
         createdAt: new Date(),
         modifiedAt: new Date(),
         createdBy: user._id,
-        status: 'active'
+        status: 'active',
       });
 
       return models.EmailTemplates.getEmailTemplate(template._id);
@@ -52,11 +52,11 @@ export const loadEmailTemplateClass = (models: IModels) => {
      */
     public static async updateEmailTemplate(
       _id: string,
-      fields: IEmailTemplate
+      fields: IEmailTemplate,
     ) {
       await models.EmailTemplates.updateOne(
         { _id },
-        { $set: { ...fields, modifiedAt: new Date() } }
+        { $set: { ...fields, modifiedAt: new Date() } },
       );
 
       return models.EmailTemplates.findOne({ _id });
@@ -71,8 +71,8 @@ export const loadEmailTemplateClass = (models: IModels) => {
       if (!emailTemplateObj) {
         throw new Error(`Email template not found with id ${_id}`);
       }
-
-      return emailTemplateObj.remove();
+      await emailTemplateObj.deleteOne();
+      return emailTemplateObj;
     }
 
     /**
@@ -85,9 +85,9 @@ export const loadEmailTemplateClass = (models: IModels) => {
         {
           name: `${template.name} copied`,
           content: template.content,
-          scopeBrandIds: template.scopeBrandIds
+          scopeBrandIds: template.scopeBrandIds,
         },
-        user
+        user,
       );
     }
   }
