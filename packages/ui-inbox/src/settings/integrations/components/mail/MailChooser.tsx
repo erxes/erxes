@@ -13,8 +13,10 @@ const Wrapper = styled.div`
   > div {
     margin-bottom: 5px;
 
-    .Select-control {
+    .css-13cymwt-control, .css-t3ipsp-control {
       border: 0;
+      height: 27px;
+      min-height: unset;
     }
   }
 `;
