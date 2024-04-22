@@ -23,15 +23,10 @@ const getWorkerFile = () => {
 export const receiveExportCreate = async (
   content: any,
   models: IModels,
-  subdomain: string
+  subdomain: string,
 ) => {
-  const {
-    contentType,
-    user,
-    columnsConfig,
-    exportHistoryId,
-    segmentData
-  } = content;
+  const { contentType, user, columnsConfig, exportHistoryId, segmentData } =
+    content;
 
   debugWorkers(`Export called`);
 
@@ -50,12 +45,12 @@ export const receiveExportCreate = async (
       columnsConfig,
       segmentData,
       user,
-      subdomain
+      subdomain,
     });
   } catch (e) {
-    await models.ExportHistory.update(
+    await models.ExportHistory.updateOne(
       { _id: exportHistoryId },
-      { error: e.message }
+      { error: e.message },
     );
   }
   return { id: exportHistoryId };
@@ -65,7 +60,7 @@ export const receiveExportCreate = async (
  * Read file from Local
  */
 export const readFileRequest = async ({
-  key
+  key,
 }: {
   key: string;
 }): Promise<any> => {

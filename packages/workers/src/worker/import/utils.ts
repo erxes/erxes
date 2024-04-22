@@ -147,7 +147,7 @@ const importBulkStream = ({
     rowIndex: number,
     rows: any,
     contentType: string,
-  ) => Promise<void>;
+  ) => Promise<any>;
   associateContentType?: string;
   associateField?: string;
   mainAssociateField?: string;
@@ -428,7 +428,7 @@ export const receiveImportCreate = async (
     rowIndex: number,
     rows: any,
     contentType: string,
-  ) => {
+  ): Promise<any> => {
     if (rows.length === 0) {
       return debugWorkers('Please import at least one row of data');
     }
