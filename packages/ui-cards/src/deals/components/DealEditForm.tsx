@@ -241,7 +241,7 @@ export default class DealEditForm extends React.Component<Props, State> {
         <PortableTickets mainType="deal" mainTypeId={item._id} />
         <PortableTasks mainType="deal" mainTypeId={item._id} />
         <PortablePurchase mainType="deal" mainTypeId={item._id} />
-        {pluginsOfItemSidebar(item, "deal")}
+        {/* {pluginsOfItemSidebar(item, "deal")} */}
       </>
     );
   };
