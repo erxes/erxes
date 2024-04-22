@@ -321,7 +321,7 @@ const queries = {
 
     const userIds = users.map((u: any) => u._id);
 
-    const categories = await models.Categories.find({});
+    const categories = await models.Categories.find({companyIds: company._id});
     const totalItemsCountOfCompany = await models.Items.find({
       vendorUserId: { $in: userIds }
     }).countDocuments();
