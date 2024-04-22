@@ -54,6 +54,7 @@ const queryParams = `
 export const queries = `
   savingsTransactionsMain(${queryParams}): SavingTransactionsListResponse
   savingsTransactions(${queryParams}): [SavingTransaction]
+  clientSavingsTransactions(${queryParams}): [SavingTransaction]
   savingsTransactionDetail(_id: String!): SavingTransaction
 `;
 
