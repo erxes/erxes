@@ -343,18 +343,7 @@ export const setupMessageConsumers = () => {
       const models = await generateModels(subdomain);
 
       const customer = await models.Customers.createMessengerCustomer(data);
-
-      await putCreateLog(
-        models,
-        subdomain,
-        {
-          type: MODULE_NAMES.CUSTOMER,
-          newData: customer,
-          object: customer,
-        },
-        null,
-      );
-
+      
       return {
         status: 'success',
         data: customer,
