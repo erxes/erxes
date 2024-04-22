@@ -131,7 +131,11 @@ const BasicInfoSection: React.FC<Props> = ({
     };
 
     return (
-      <Dropdown as={DropdownToggle} toggleComponent={renderButton()}>
+      <Dropdown
+        as={DropdownToggle}
+        unmount={false}
+        toggleComponent={renderButton()}
+      >
         {renderEditButton()}
         {isEnabled("forum") && (
           <ModalTrigger

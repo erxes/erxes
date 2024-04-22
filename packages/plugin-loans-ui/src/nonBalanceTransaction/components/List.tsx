@@ -159,6 +159,7 @@ class List extends React.Component<IProps> {
       <BarItems>
         {can("manageTransactions", currentUser) && (
           <Dropdown
+            unmount={false}
             toggleComponent={
               <Button btnStyle="success" size="medium" icon="add">
                 {__("Add Non Balance")}

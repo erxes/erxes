@@ -220,6 +220,7 @@ const TransactionsList = (props: IProps) => {
               <Icon icon="angle-down" />
             </Button>
           }
+          unmount={false}
         >
           <li>
             <ModalTrigger

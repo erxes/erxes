@@ -10,10 +10,11 @@ type Props = {
   active?: boolean;
   disabled?: boolean;
   isMenuWidthFit?: boolean;
+  unmount?: boolean;
 };
 
 const Dropdown: React.FC<Props> = forwardRef<HTMLDivElement, Props>(
-  ({ children, as, drop, toggleComponent, isMenuWidthFit }, ref) => {
+  ({ children, as, drop, toggleComponent, isMenuWidthFit, unmount }, ref) => {
     const [height, setHeight] = useState(0);
     const [width, setWidth] = useState(0);
     const buttonRef = useRef<HTMLButtonElement>({} as any);
@@ -38,17 +39,16 @@ const Dropdown: React.FC<Props> = forwardRef<HTMLDivElement, Props>(
 
     return (
       <Menu as={as || "div"} className="relative dropdown-btn">
-        {({ open }) => (
-          <>
-            <Menu.Button ref={buttonRef}>{toggleComponent}</Menu.Button>
-            {/* <Menu.Button ref={buttonRef} as={MenuButton} /> */}
-            {open && (
-              <Menu.Items ref={ref} className={`absolute ${isMenuWidthFit && 'menuWidthFit'}`} style={style}>
-                {children}
-              </Menu.Items>
-            )}
-          </>
-        )}
+        <Menu.Button ref={buttonRef}>{toggleComponent}</Menu.Button>
+        {/* <Menu.Button ref={buttonRef} as={MenuButton} /> */}
+        <Menu.Items
+          ref={ref}
+          className={`absolute ${isMenuWidthFit && "menuWidthFit"}`}
+          style={style}
+          unmount={unmount}
+        >
+          {children}
+        </Menu.Items>
       </Menu>
     );
   }

@@ -65,6 +65,7 @@ const BasicInfoSection = (props: Props) => {
     return (
       <Action>
         <Dropdown
+          unmount={false}
           as={DropdownToggle}
           toggleComponent={
             <Button btnStyle="simple" size="medium">
