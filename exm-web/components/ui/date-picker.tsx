@@ -36,11 +36,13 @@ export function DatePicker({
           disabled={typeof disabled === "boolean" ? true : false}
         >
           {date ? (
-            format(new Date(date), "yyyy-MM-dd")
+            format(new Date(date), "dd/MM/yyyy")
           ) : (
-            <span>Pick a date</span>
+            <>
+              <CalendarIcon className="ml-2 h-4 w-4" />
+              <span>Pick a date</span>
+            </>
           )}
-          <CalendarIcon className="ml-2 h-4 w-4" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">

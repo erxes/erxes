@@ -12,9 +12,7 @@ const TimeSheet: FunctionComponent<TimeSheetProps> = () => {
     <div className="flex gap-4 items-center">
       <h3 className="text-2xl font-bold">Timesheet</h3>
 
-      <div className="border rounded-md">
-        <DatePickerWithRange />
-      </div>
+      <DatePickerWithRange />
     </div>
   )
 }

@@ -1,5 +1,4 @@
 import { queries } from "@/common/team/graphql"
-import { IUser } from "@/modules/auth/types"
 import { IBranch } from "@/modules/feed/types"
 import { useQuery } from "@apollo/client"
 

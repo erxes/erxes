@@ -7,19 +7,10 @@ export interface TextareaProps
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, ...props }, ref) => {
-    const value = props.value || (" " as any)
-
-    const textareaStyle = {
-      minHeight: "50px",
-      height: `${Math.max(50, value.split("\n").length * 20)}px`,
-      maxHeight: "300px",
-    }
-
     return (
       <textarea
-        style={textareaStyle}
         className={cn(
-          "flex h-10 w-full resize-none rounded-md border border-input bg-transparent px-3 py-2  ring-offset-background file:border-0 file:bg-transparent file:font-medium placeholder:text-muted-foreground  disabled:cursor-not-allowed disabled:opacity-50",
+          "flex min-h-[80px] w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm placeholder:text-slate-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-950  dark:placeholder:text-slate-400 ",
           className
         )}
         ref={ref}

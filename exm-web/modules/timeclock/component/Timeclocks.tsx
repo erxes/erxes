@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import dynamic from "next/dynamic"
 import { useRouter, useSearchParams } from "next/navigation"
 import { currentUserAtom } from "@/modules/JotaiProvider"
