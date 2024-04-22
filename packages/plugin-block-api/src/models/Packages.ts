@@ -4,7 +4,7 @@ import { IModels } from '../connectionResolver';
 import {
   IPackage,
   IPackageDocument,
-  packageSchema
+  packageSchema,
 } from './definitions/packages';
 
 export interface IPackageModel extends Model<IPackageDocument> {
@@ -18,23 +18,23 @@ export const loadPackageClass = (models: IModels) => {
     public static async createPackage(doc: IPackage) {
       return models.Packages.create({
         ...doc,
-        createdAt: new Date()
+        createdAt: new Date(),
       });
     }
 
     public static async updatePackage(_id, doc: IPackage) {
       await models.Packages.updateOne(
         {
-          _id
+          _id,
         },
-        { $set: { ...doc, modifiedAt: new Date() } }
+        { $set: { ...doc, modifiedAt: new Date() } },
       );
 
       return models.Packages.findOne({ _id });
     }
 
     public static async removePackage(_id) {
-      return models.Packages.remove({ _id });
+      return models.Packages.deleteOne({ _id });
     }
   }
 

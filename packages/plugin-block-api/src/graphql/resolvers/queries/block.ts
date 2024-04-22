@@ -21,10 +21,10 @@ const blockQueries = {
           $group: {
             _id: null,
             total: {
-              $sum: '$amount'
-            }
-          }
-        }
+              $sum: '$amount',
+            },
+          },
+        },
       ])) || [];
 
     const amount = total[0] ? total[0].total || 0 : 0;
@@ -33,7 +33,7 @@ const blockQueries = {
   },
 
   async totalInvestmentCount(_root, _arg, { models }: IContext) {
-    const total = await models.Investments.find({}).count();
+    const total = await models.Investments.find({}).countDocuments();
 
     return total;
   },
@@ -52,7 +52,7 @@ const blockQueries = {
     }
 
     return isVerified;
-  }
+  },
 };
 
 export default blockQueries;
