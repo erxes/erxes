@@ -1,21 +1,21 @@
-import * as AWS from 'aws-sdk';
-import * as nodemailer from 'nodemailer';
+import * as AWS from "aws-sdk";
+import * as nodemailer from "nodemailer";
 
-import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
+import EditorAttributeUtil from "@erxes/api-utils/src/editorAttributeUtils";
 
-import { SES_DELIVERY_STATUSES } from './constants';
-import { debugInfo, debugError } from '@erxes/api-utils/src/debuggers';
-import { sendContactsMessage } from './messageBroker';
-import { ISESConfig } from './models/Configs';
-import { getServices } from '@erxes/api-utils/src/serviceDiscovery';
-import { getApi } from './trackers/engageTracker';
-import { ICampaign, ICustomer } from './types';
-import { IModels } from './connectionResolver';
+import { SES_DELIVERY_STATUSES } from "./constants";
+import { debugInfo, debugError } from "@erxes/api-utils/src/debuggers";
+import { sendContactsMessage } from "./messageBroker";
+import { ISESConfig } from "./models/Configs";
+import { getServices } from "@erxes/api-utils/src/serviceDiscovery";
+import { getApi } from "./trackers/engageTracker";
+import { ICampaign, ICustomer } from "./types";
+import { IModels } from "./connectionResolver";
 
 export const isUsingElk = () => {
-  const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
+  const ELK_SYNCER = getEnv({ name: "ELK_SYNCER", defaultValue: "true" });
 
-  return ELK_SYNCER === 'false' ? false : true;
+  return ELK_SYNCER === "false" ? false : true;
 };
 
 export const createTransporter = async (models: IModels) => {
@@ -25,7 +25,7 @@ export const createTransporter = async (models: IModels) => {
     AWS.config.update(config);
 
     return nodemailer.createTransport({
-      SES: new AWS.SES({ apiVersion: '2010-12-01' }),
+      SES: new AWS.SES({ apiVersion: "2010-12-01" })
     });
   } catch (error) {
     debugError(`Error during create transporter: ${error.message}`);
@@ -46,14 +46,14 @@ interface ICustomerAnalyzeParams {
 
 export const getEnv = ({
   name,
-  defaultValue,
+  defaultValue
 }: {
   name: string;
   defaultValue?: string;
 }): string => {
   const value = process.env[name];
 
-  if (!value && typeof defaultValue !== 'undefined') {
+  if (!value && typeof defaultValue !== "undefined") {
     return defaultValue;
   }
 
@@ -61,41 +61,41 @@ export const getEnv = ({
     debugInfo(`Missing environment variable configuration for ${name}`);
   }
 
-  return value || '';
+  return value || "";
 };
 
 export const subscribeEngage = (models: IModels) => {
   return new Promise(async (resolve, reject) => {
-    const snsApi = await getApi(models, 'sns');
-    const sesApi = await getApi(models, 'ses');
-    const configSet = await getConfig(models, 'configSet', 'erxes');
+    const snsApi = await getApi(models, "sns");
+    const sesApi = await getApi(models, "ses");
+    const configSet = await getConfig(models, "configSet", "erxes");
 
-    const DOMAIN = getEnv({ name: 'DOMAIN' });
+    const DOMAIN = getEnv({ name: "DOMAIN" });
 
     const topicArn = await snsApi
       .createTopic({ Name: configSet })
       .promise()
-      .catch((e) => {
+      .catch(e => {
         debugError(e.message);
 
         return reject(e.message);
       });
 
     if (!topicArn) {
-      return reject('Error occured');
+      return reject("Error occured");
     }
 
     await snsApi
       .subscribe({
         TopicArn: topicArn.TopicArn,
-        Protocol: 'https',
-        Endpoint: `${DOMAIN}/gateway/pl:engages/service/engage/tracker`,
+        Protocol: "https",
+        Endpoint: `${DOMAIN}/gateway/pl:engages/service/engage/tracker`
       })
       .promise()
-      .then((response) => {
+      .then(response => {
         debugInfo(response);
       })
-      .catch((e) => {
+      .catch(e => {
         debugError(e.message);
 
         return reject(e.message);
@@ -104,14 +104,14 @@ export const subscribeEngage = (models: IModels) => {
     await sesApi
       .createConfigurationSet({
         ConfigurationSet: {
-          Name: configSet,
-        },
+          Name: configSet
+        }
       })
       .promise()
-      .catch((e) => {
+      .catch(e => {
         debugError(e.message);
 
-        if (e.message.includes('already exists')) {
+        if (e.message.includes("already exists")) {
           return;
         }
 
@@ -123,27 +123,27 @@ export const subscribeEngage = (models: IModels) => {
         ConfigurationSetName: configSet,
         EventDestination: {
           MatchingEventTypes: [
-            'send',
-            'reject',
-            'bounce',
-            'complaint',
-            'delivery',
-            'open',
-            'click',
-            'renderingFailure',
+            "send",
+            "reject",
+            "bounce",
+            "complaint",
+            "delivery",
+            "open",
+            "click",
+            "renderingFailure"
           ],
           Name: configSet,
           Enabled: true,
           SNSDestination: {
-            TopicARN: topicArn.TopicArn,
-          },
-        },
+            TopicARN: topicArn.TopicArn
+          }
+        }
       })
       .promise()
-      .catch((e) => {
+      .catch(e => {
         debugError(e.message);
 
-        if (e.message.includes('already exists')) {
+        if (e.message.includes("already exists")) {
           return;
         }
 
@@ -154,7 +154,18 @@ export const subscribeEngage = (models: IModels) => {
   });
 };
 
-export const getValueAsString = async (models: IModels, name: string) => {
+export const getValueAsString = async (
+  models: IModels,
+  name: string,
+  envKey: string,
+  defaultValue?: string
+) => {
+  const VERSION = getEnv({ name: "VERSION" });
+
+  if (VERSION && VERSION === "saas") {
+    return getEnv({ name: envKey, defaultValue });
+  }
+
   const entry = await models.Configs.getConfig(name);
 
   if (entry.value) {
@@ -166,7 +177,7 @@ export const getValueAsString = async (models: IModels, name: string) => {
 
 export const updateConfigs = async (
   models: IModels,
-  configsMap,
+  configsMap
 ): Promise<void> => {
   const prevSESConfigs = await models.Configs.getSESConfigs();
 
@@ -203,15 +214,15 @@ export const getConfig = async (models: IModels, code, defaultValue?) => {
 export const cleanIgnoredCustomers = async (
   subdomain: string,
   models: IModels,
-  { customers, engageMessageId }: ICustomerAnalyzeParams,
+  { customers, engageMessageId }: ICustomerAnalyzeParams
 ) => {
-  const customerIds = customers.map((c) => c._id);
+  const customerIds = customers.map(c => c._id);
   const ignoredCustomerIds: string[] = [];
 
   const allowedEmailSkipLimit = await getConfig(
     models,
-    'allowedEmailSkipLimit',
-    '5',
+    "allowedEmailSkipLimit",
+    "5"
   );
 
   /**
@@ -229,14 +240,14 @@ export const cleanIgnoredCustomers = async (
             SES_DELIVERY_STATUSES.CLICK,
             SES_DELIVERY_STATUSES.RENDERING_FAILURE,
             SES_DELIVERY_STATUSES.REJECT,
-            SES_DELIVERY_STATUSES.COMPLAINT,
-          ],
-        },
-      },
+            SES_DELIVERY_STATUSES.COMPLAINT
+          ]
+        }
+      }
     },
     {
-      $group: { _id: '$customerId', count: { $sum: 1 } },
-    },
+      $group: { _id: "$customerId", count: { $sum: 1 } }
+    }
   ]);
 
   for (const delivery of deliveries) {
@@ -249,15 +260,15 @@ export const cleanIgnoredCustomers = async (
     sendContactsMessage({
       subdomain,
       isRPC: false,
-      action: 'customers.setUnsubscribed',
-      data: { customerIds: ignoredCustomerIds },
+      action: "customers.setUnsubscribed",
+      data: { customerIds: ignoredCustomerIds }
     });
 
     return {
       customers: customers.filter(
-        (c) => ignoredCustomerIds.indexOf(c._id) === -1,
+        c => ignoredCustomerIds.indexOf(c._id) === -1
       ),
-      ignoredCustomerIds,
+      ignoredCustomerIds
     };
   }
 
@@ -267,44 +278,44 @@ export const cleanIgnoredCustomers = async (
 const getAvgCondition = (fieldName: string) => ({
   $cond: [
     { $gt: [`$${fieldName}`, 0] },
-    { $divide: [{ $multiply: [`$${fieldName}`, 100] }, '$total'] },
-    0,
-  ],
+    { $divide: [{ $multiply: [`$${fieldName}`, 100] }, "$total"] },
+    0
+  ]
 });
 
 // Prepares average engage stats of email delivery stats
 export const prepareAvgStats = (models: IModels) => {
   return models.Stats.aggregate([
     {
-      $match: { total: { $gt: 0 } },
+      $match: { total: { $gt: 0 } }
     },
     {
       $project: {
-        createdAt: '$createdAt',
-        engageMessageId: '$engageMessageId',
-        pctBounce: getAvgCondition('bounce'),
-        pctClick: getAvgCondition('click'),
-        pctComplaint: getAvgCondition('complaint'),
-        pctDelivery: getAvgCondition('delivery'),
-        pctOpen: getAvgCondition('open'),
-        pctReject: getAvgCondition('reject'),
-        pctRenderingFailure: getAvgCondition('renderingfailure'),
-        pctSend: getAvgCondition('send'),
-      },
+        createdAt: "$createdAt",
+        engageMessageId: "$engageMessageId",
+        pctBounce: getAvgCondition("bounce"),
+        pctClick: getAvgCondition("click"),
+        pctComplaint: getAvgCondition("complaint"),
+        pctDelivery: getAvgCondition("delivery"),
+        pctOpen: getAvgCondition("open"),
+        pctReject: getAvgCondition("reject"),
+        pctRenderingFailure: getAvgCondition("renderingfailure"),
+        pctSend: getAvgCondition("send")
+      }
     },
     {
       $group: {
         _id: null,
-        avgBouncePercent: { $avg: '$pctBounce' },
-        avgComplaintPercent: { $avg: '$pctComplaint' },
-        avgClickPercent: { $avg: '$pctClick' },
-        avgDeliveryPercent: { $avg: '$pctDelivery' },
-        avgOpenPercent: { $avg: '$pctOpen' },
-        avgRejectPercent: { $avg: '$pctReject' },
-        avgRenderingFailurePercent: { $avg: '$pctRenderingFailure' },
-        avgSendPercent: { $avg: '$pctSend' },
-      },
-    },
+        avgBouncePercent: { $avg: "$pctBounce" },
+        avgComplaintPercent: { $avg: "$pctComplaint" },
+        avgClickPercent: { $avg: "$pctClick" },
+        avgDeliveryPercent: { $avg: "$pctDelivery" },
+        avgOpenPercent: { $avg: "$pctOpen" },
+        avgRejectPercent: { $avg: "$pctReject" },
+        avgRenderingFailurePercent: { $avg: "$pctRenderingFailure" },
+        avgSendPercent: { $avg: "$pctSend" }
+      }
+    }
   ]);
 };
 
@@ -340,10 +351,10 @@ export const setCampaignCount = async (models: IModels, data: ICampaign) => {
           // valid count must never exceed total count
           validCustomersCount:
             validSum > totalCustomersCount ? totalCustomersCount : validSum,
-          lastRunAt: new Date(),
+          lastRunAt: new Date()
         },
-        $inc: { runCount: 1 },
-      },
+        $inc: { runCount: 1 }
+      }
     );
   }
 };
@@ -353,7 +364,7 @@ export const getEditorAttributeUtil = async (subdomain: string) => {
   const editor = await new EditorAttributeUtil(
     `${process.env.DOMAIN}/gateway/pl:core`,
     services,
-    subdomain,
+    subdomain
   );
 
   return editor;
