@@ -855,6 +855,23 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
           body: JSON.stringify(sendSalesLine),
         }).then((res) => res.json());
 
+        if (responseSaleLine?.error && responseSaleLine?.error?.message) {
+          const foundSyncLog = await models.SyncLogs.findOne({
+            _id: syncLog._id,
+          });
+
+          await models.SyncLogs.updateOne(
+            { _id: syncLog._id },
+            {
+              $set: {
+                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${
+                  responseSaleLine.error.message
+                }`,
+              },
+            }
+          );
+        }
+
         await models.SyncLogs.updateOne(
           { _id: syncLog._id },
           {
