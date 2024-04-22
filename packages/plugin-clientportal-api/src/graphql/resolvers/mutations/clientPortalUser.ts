@@ -1104,7 +1104,7 @@ const clientPortalUserMutations = {
         _id: cpUser.clientPortalId,
       }).lean();
 
-      if (cp || cp.kind === 'vendor') {
+      if (cp?.kind === 'vendor') {
         await models.Companies.createOrUpdateCompany({
           erxesCompanyId,
           clientPortalId: cp._id,
@@ -1136,7 +1136,7 @@ const clientPortalUserMutations = {
       }
     }
 
-    await models.ClientPortalUsers.update({ _id }, { $set: doc });
+    await models.ClientPortalUsers.updateOne({ _id }, { $set: doc });
 
     return models.ClientPortalUsers.findOne({ _id });
   },

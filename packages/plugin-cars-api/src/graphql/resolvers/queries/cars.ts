@@ -1,7 +1,7 @@
 import { paginate } from '@erxes/api-utils/src/core';
 import {
   checkPermission,
-  requireLogin
+  requireLogin,
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { sendCoreMessage, sendTagsMessage } from '../../../messageBroker';
@@ -11,7 +11,7 @@ const generateFilter = async (
   subdomain: string,
   params,
   commonQuerySelector,
-  models
+  models,
 ) => {
   const { tag, segment, segmentData } = params;
 
@@ -43,11 +43,11 @@ const generateFilter = async (
         data: {
           mainType: params.conformityMainType,
           mainTypeId: params.conformityMainTypeId,
-          relTypes: ['car']
+          relTypes: ['car'],
         },
         isRPC: true,
-        defaultValue: []
-      })
+        defaultValue: [],
+      }),
     };
   }
 
@@ -63,11 +63,11 @@ const generateFilter = async (
         data: {
           mainType: params.conformityMainType,
           mainTypeId: params.conformityMainTypeId,
-          relType: 'car'
+          relType: 'car',
         },
         isRPC: true,
-        defaultValue: []
-      })
+        defaultValue: [],
+      }),
     };
   }
 
@@ -82,13 +82,13 @@ const generateFilter = async (
 
     const { list } = await qb.runQueries();
 
-    filter._id = { $in: list.map(l => l._id) };
+    filter._id = { $in: list.map((l) => l._id) };
   }
 
   return filter;
 };
 
-export const sortBuilder = params => {
+export const sortBuilder = (params) => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -103,37 +103,37 @@ const carQueries = {
   cars: async (
     _root,
     params,
-    { subdomain, commonQuerySelector, models }: IContext
+    { subdomain, commonQuerySelector, models }: IContext,
   ) => {
     return paginate(
       models.Cars.find(
-        await generateFilter(subdomain, params, commonQuerySelector, models)
+        await generateFilter(subdomain, params, commonQuerySelector, models),
       ),
       {
         page: params.page,
-        perPage: params.perPage
-      }
+        perPage: params.perPage,
+      },
     );
   },
 
   carsMain: async (
     _root,
     params,
-    { subdomain, commonQuerySelector, models }: IContext
+    { subdomain, commonQuerySelector, models }: IContext,
   ) => {
     const filter = await generateFilter(
       subdomain,
       params,
       commonQuerySelector,
-      models
+      models,
     );
 
     return {
       list: paginate(models.Cars.find(filter).sort(sortBuilder(params)), {
         page: params.page,
-        perPage: params.perPage
+        perPage: params.perPage,
       }),
-      totalCount: models.Cars.find(filter).count()
+      totalCount: models.Cars.find(filter).countDocuments(),
     };
   },
 
@@ -144,7 +144,7 @@ const carQueries = {
   carCategories: async (
     _root,
     { parentId, searchValue },
-    { commonQuerySelector, models }: IContext
+    { commonQuerySelector, models }: IContext,
   ) => {
     const filter: any = commonQuerySelector;
 
@@ -170,18 +170,23 @@ const carQueries = {
   carCounts: async (
     _root,
     params,
-    { commonQuerySelector, commonQuerySelectorElk, models, subdomain }: IContext
+    {
+      commonQuerySelector,
+      commonQuerySelectorElk,
+      models,
+      subdomain,
+    }: IContext,
   ) => {
     const counts = {
       bySegment: {},
-      byTag: {}
+      byTag: {},
     };
 
     const { only } = params;
 
     const qb = new Builder(models, subdomain, params, {
       commonQuerySelector,
-      commonQuerySelectorElk
+      commonQuerySelectorElk,
     });
 
     switch (only) {
@@ -201,16 +206,16 @@ const carQueries = {
       subdomain,
       action: 'find',
       data: {
-        type: 'cars:car'
+        type: 'cars:car',
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     for (const tag of tags) {
       counts[tag._id] = await models.Cars.find({
         tagIds: tag._id,
-        status: { $ne: 'Deleted' }
+        status: { $ne: 'Deleted' },
       }).countDocuments();
     }
 
@@ -224,7 +229,7 @@ const carQueries = {
   cpCarCategories: async (
     _root,
     { parentId, searchValue },
-    { commonQuerySelector, models }: IContext
+    { commonQuerySelector, models }: IContext,
   ) => {
     const filter: any = commonQuerySelector;
 
@@ -245,7 +250,7 @@ const carQueries = {
 
   cpCarCategoryDetail: async (_root, { _id }, { models }: IContext) => {
     return models.CarCategories.findOne({ _id });
-  }
+  },
 };
 
 requireLogin(carQueries, 'carDetail');

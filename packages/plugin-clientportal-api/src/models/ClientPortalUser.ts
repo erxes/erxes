@@ -489,7 +489,10 @@ export const loadClientPortalUserClass = (models: IModels) => {
       }
 
       // check current password ============
-      const valid = await this.comparePassword(currentPassword, user.password);
+      const valid = await this.comparePassword(
+        currentPassword,
+        user.password || '',
+      );
 
       if (!valid) {
         throw new Error('Incorrect current password');
