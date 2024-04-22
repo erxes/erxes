@@ -213,6 +213,19 @@ export const loadFormClass = (models: IModels) => {
               text: 'Invalid Date'
             });
           }
+
+          // regex
+          if (validation === 'regex') {
+            const regex = new RegExp(field.regexValidation || '');
+
+            if (!regex.test(value)) {
+              errors.push({
+                fieldId: field._id,
+                code: 'invalidRegex',
+                text: 'Invalid value'
+              });
+            }
+          }
         }
       }
 
