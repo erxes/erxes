@@ -171,7 +171,7 @@ const ChartFormFieldList = (props: Props) => {
     switch (fieldType) {
       case 'select':
         const value =
-          !input.value ||
+          input.value !== undefined || input.value !== null ||
           fieldQuery?.includes('user') ||
           fieldQuery?.includes('department') ||
           fieldQuery?.includes('branch') ||

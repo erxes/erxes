@@ -16,7 +16,7 @@ function Header() {
   return (
     <HeaderDescription
       icon="/images/actions/25.svg"
-      title={__('Loan not calc undue settings')}
+      title={__('Loan not calc loss settings')}
       description=""
     />
   );
@@ -44,12 +44,12 @@ class GeneralSettings extends React.Component<Props, State> {
     e.preventDefault();
     const { configsMap } = this.state;
 
-    if (!configsMap.undueConfig) {
-      configsMap.undueConfig = {};
+    if (!configsMap.lossConfig) {
+      configsMap.lossConfig = {};
     }
 
     // must save prev item saved then new item
-    configsMap.undueConfig.newUndueConfig = {
+    configsMap.lossConfig.newUndueConfig = {
       title: 'New Loss Config',
       startDate: new Date(),
       endDate: new Date(),
@@ -61,8 +61,8 @@ class GeneralSettings extends React.Component<Props, State> {
 
   delete = (currentConfigKey: string) => {
     const { configsMap } = this.state;
-    delete configsMap.undueConfig[currentConfigKey];
-    delete configsMap.undueConfig['newUndueConfig'];
+    delete configsMap.lossConfig[currentConfigKey];
+    delete configsMap.lossConfig['newUndueConfig'];
 
     this.setState({ configsMap });
 
@@ -73,7 +73,7 @@ class GeneralSettings extends React.Component<Props, State> {
     return Object.keys(configs).map(key => {
       return (
         <PerSettings
-          key={Math.random()}
+          key={`Loss${key}`}
           configsMap={this.state.configsMap}
           config={configs[key]}
           currentConfigKey={key}
@@ -86,7 +86,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
   renderContent() {
     const { configsMap } = this.state;
-    const configs = configsMap.undueConfig || {};
+    const configs = configsMap.lossConfig || {};
 
     return (
       <ContentBox id={'UndueSettingsMenu'}>

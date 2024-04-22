@@ -39,3 +39,13 @@ export const INTEREST_RESULT_TYPE = {
   CURRENT_ACCOUNT: 'currentAccount',
   DEPOSIT_ACCOUNT: 'depositAccount'
 };
+
+export const BLOCK_TYPE = {
+  LOAN_PAYMENT: 'loanPayment',
+  SCHEDULE_TRANSACTION: 'scheduleTransaction'
+};
+
+export const BLOCK_STATUS = {
+  PENDING: 'pending',
+  DONE: 'done'
+};

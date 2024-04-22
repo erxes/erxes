@@ -15,6 +15,7 @@ import { SelectWithAssets } from '../utils/SelectAssets';
 import SelectLeads from '../utils/SelectLeads';
 import { IFilterType } from '../../containers/chart/ChartFormField';
 import SelectClientPortal from '../utils/SelectClientPortal';
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 
 type Props = {
   fieldType: string;
@@ -57,7 +58,7 @@ const ChartFormField = (props: Props) => {
   } = filterType;
 
   useEffect(() => {
-    if (fieldDefaultValue) {
+    if (!fieldValue && fieldDefaultValue) {
       setFieldValue(fieldDefaultValue);
       onChange(fieldDefaultValue);
     }
@@ -67,7 +68,7 @@ const ChartFormField = (props: Props) => {
 
   const onSelect = (selectedOption) => {
 
-    if (!selectedOption) {
+    if (selectedOption === undefined || selectedOption === null) {
       setFieldValue('');
       onChange('');
     }
@@ -204,6 +205,19 @@ const ChartFormField = (props: Props) => {
           />
         </div>
       );
+    case 'companies':
+      return (
+        <div>
+          <ControlLabel> {fieldLabel}</ControlLabel>
+          <SelectCompanies
+            label="Select companies"
+            name="companyId"
+            multi={multi}
+            initialValue={fieldValue}
+            onSelect={onChange}
+          />
+        </div>
+      )
     case 'date':
       return (
         <>

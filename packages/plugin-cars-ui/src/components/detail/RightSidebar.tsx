@@ -26,6 +26,14 @@ const CustomerSection = asyncComponent(
     )
 );
 
+const DealSection = asyncComponent(
+  () =>
+    isEnabled('cards') &&
+    import(
+      /* webpackChunkName: "CustomerSection" */ '@erxes/ui-cards/src/deals/components/PortableDeals'
+    )
+);
+
 type Props = {
   car: ICar;
 };
@@ -53,6 +61,12 @@ export default class RightSidebar extends React.Component<Props> {
           <>
             <CustomerSection mainType="car" mainTypeId={car._id} />
             <CompanySection mainType="car" mainTypeId={car._id} />
+          </>
+        )}
+
+        {isEnabled('cards') && (
+          <>
+            <DealSection mainType="car" mainTypeId={car._id} />
           </>
         )}
 

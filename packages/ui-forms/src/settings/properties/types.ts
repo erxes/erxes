@@ -54,6 +54,7 @@ export interface IFieldGroup {
 export type FieldsMutationVariables = {
   type?: string;
   validation?: string;
+  regexValidation?: string;
   text?: string;
   description?: string;
   options?: any[];

@@ -51,20 +51,20 @@ export async function createEbarimt(
     else throw new Error('Interest EBarimt config not found');
   }
 
-  //undue config check
+  //loss config check
   if (
-    transaction?.undue &&
-    transaction.undue > 0 &&
-    ebarimtConfig.isUndueUseEBarimt
+    transaction?.loss &&
+    transaction.loss > 0 &&
+    ebarimtConfig.isLossUseEBarimt
   ) {
-    if (ebarimtConfig.undueEBarimtProduct)
+    if (ebarimtConfig.lossEBarimtProduct)
       details.push({
-        productId: ebarimtConfig.undueEBarimtProduct._id,
-        amount: transaction.undue,
+        productId: ebarimtConfig.lossEBarimtProduct._id,
+        amount: transaction.loss,
         count: 1,
         discount: 0
       });
-    else throw new Error('Undue EBarimt config not found');
+    else throw new Error('Loss EBarimt config not found');
   }
 
   const sumAmount = details.reduce((v, r) => v + r.amount, 0);

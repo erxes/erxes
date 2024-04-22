@@ -15,7 +15,7 @@ export interface IInvoiceDoc {
   payment: number;
   interestEve: number;
   interestNonce: number;
-  undue: number;
+  loss: number;
   insurance: number;
   debt: number;
   total: number;
@@ -36,7 +36,7 @@ export interface IInvoicePreInfo {
   payment: number;
   interestEve: number;
   interestNonce: number;
-  undue: number;
+  loss: number;
   insurance: number;
   debt: number;
   total: number;
