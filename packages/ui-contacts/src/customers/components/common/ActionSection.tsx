@@ -224,7 +224,7 @@ class ActionSection extends React.Component<
             </>
           )}
         </Menu.Button>
-        <Menu.Items className="absolute">
+        <Menu.Items className="absolute" unmount={false}>
           {this.renderEditButton()}
           <Menu.Item>
             <TargetMerge

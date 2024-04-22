@@ -67,6 +67,7 @@ export default function ConvertTo(props: Props) {
             {__("Convert")} <Icon icon="angle-down" />
           </Button>
         }
+        unmount={false}
       >
         <li key="ticket">
           <TicketConvertTrigger

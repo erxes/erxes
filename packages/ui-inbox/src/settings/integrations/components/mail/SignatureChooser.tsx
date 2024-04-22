@@ -145,7 +145,7 @@ const SignatureChooser = ({
     const noSignatures = !signatures?.length;
 
     return (
-      <SignatureChooserFooter $noSignatures={noSignatures}>
+      <SignatureChooserFooter noSignatures={noSignatures}>
         {!noSignatures && (
           <SignatureHiderButton onClick={() => handleSignatureHide()}>
             Hide Signature
@@ -174,7 +174,7 @@ const SignatureChooser = ({
         {renderIcon({ text: "Insert signature", icon: "edit-alt" })}
       </Menu.Button>
 
-      <Menu.Items className="absolute">
+      <Menu.Items className="absolute" unmount={false}>
         {renderSignatures()}
         <Menu.Item>{renderSignatureFooter()}</Menu.Item>
       </Menu.Items>
