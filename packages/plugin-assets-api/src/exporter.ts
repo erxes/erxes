@@ -5,7 +5,7 @@ import * as moment from 'moment';
 const prepareData = async (
   models: IModels,
   _subdomain: string,
-  query: any
+  query: any,
 ): Promise<any[]> => {
   const { page, perPage } = query;
 
@@ -26,13 +26,13 @@ const prepareData = async (
 const prepareDataCount = async (
   models: IModels,
   _subdomain: string,
-  _query: any
+  _query: any,
 ): Promise<any> => {
   let data = 0;
 
   const assetsFilter: any = {};
 
-  data = await models.Assets.find(assetsFilter).count();
+  data = await models.Assets.find(assetsFilter).countDocuments();
 
   return data;
 };
@@ -61,7 +61,7 @@ export const fillValue = async (
   models: IModels,
   subdomain: string,
   column: string,
-  item: any
+  item: any,
 ): Promise<string> => {
   let value = item[column];
 
@@ -72,7 +72,7 @@ export const fillValue = async (
 
     case 'categoryName':
       const category = await models.AssetCategories.findOne({
-        _id: item.categoryId
+        _id: item.categoryId,
       }).lean();
 
       value = category?.name || '-';
@@ -80,7 +80,7 @@ export const fillValue = async (
       break;
     case 'parentName':
       const parent = await models.Assets.findOne({
-        _id: item.parentId
+        _id: item.parentId,
       }).lean();
 
       value = parent?.name || '-';
@@ -99,13 +99,13 @@ export const IMPORT_EXPORT_TYPES = [
     text: 'Assets',
     contentType: 'asset',
     icon: 'piggy-bank',
-    skipFilter: true
+    skipFilter: true,
   },
   {
     text: 'Assets Movement',
     contentType: 'assets-movement',
-    icon: 'piggy-bank'
-  }
+    icon: 'piggy-bank',
+  },
 ];
 
 export default {
@@ -133,10 +133,10 @@ export default {
             action: 'fields.findOne',
             data: {
               query: {
-                _id: fieldId
-              }
+                _id: fieldId,
+              },
             },
-            isRPC: true
+            isRPC: true,
           });
 
           headers.push(`customFieldsData.${field.text}.${fieldId}`);
@@ -154,7 +154,7 @@ export default {
       }
     } catch (e) {
       return {
-        error: e.message
+        error: e.message,
       };
     }
     return { totalCount, excelHeader };
@@ -178,9 +178,9 @@ export default {
             subdomain,
             action: 'fields.findOne',
             data: {
-              query: { _id: fieldId }
+              query: { _id: fieldId },
             },
-            isRPC: true
+            isRPC: true,
           });
 
           headers.push(`customFieldsData.${field.text}.${fieldId}`);
@@ -213,5 +213,5 @@ export default {
       return { error: e.message };
     }
     return { docs };
-  }
+  },
 };

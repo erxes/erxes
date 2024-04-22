@@ -30,22 +30,22 @@ export const loadMovementClass = (models: IModels) => {
       }
 
       const addedAssets = await models.MovementItems.movementItemsAdd(
-        doc.items
+        doc.items,
       );
 
-      const movementItemIds = addedAssets.map(asset => asset._id);
+      const movementItemIds = addedAssets.map((asset) => asset._id);
 
       const movement = await models.Movements.create({
         movedAt: doc.movedAt,
         description: doc.description,
         userId,
         createdAt: new Date(),
-        modifiedAt: new Date()
+        modifiedAt: new Date(),
       });
 
       await models.MovementItems.updateMany(
         { _id: { $in: movementItemIds } },
-        { $set: { movementId: movement._id } }
+        { $set: { movementId: movement._id } },
       );
 
       return movement;
@@ -62,15 +62,15 @@ export const loadMovementClass = (models: IModels) => {
       }
 
       await models.MovementItems.movementItemsEdit(_id, doc.items);
-      await models.Movements.update(
+      await models.Movements.updateOne(
         { _id },
         {
           $set: {
             movedAt: doc.movedAt,
             description: doc.description,
-            modifiedAt: new Date()
-          }
-        }
+            modifiedAt: new Date(),
+          },
+        },
       );
       return 'updated';
     }
@@ -88,7 +88,7 @@ export const loadMovementClass = (models: IModels) => {
 
         await models.MovementItems.deleteMany({ movementId: { $in: ids } });
 
-        await models.Movements.remove({ _id: { $in: ids } });
+        await models.Movements.deleteMany({ _id: { $in: ids } });
       } catch (error) {
         throw new Error(error.message);
       }

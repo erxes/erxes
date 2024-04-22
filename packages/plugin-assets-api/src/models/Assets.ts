@@ -6,7 +6,7 @@ import { IModels } from '../connectionResolver';
 import {
   sendCardsMessage,
   sendContactsMessage,
-  sendFormsMessage
+  sendFormsMessage,
 } from '../messageBroker';
 import { assetSchema } from './definitions/assets';
 export interface IAssetModel extends Model<IAssetDocument> {
@@ -42,14 +42,18 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
       }
 
       const parentAsset = await models.Assets.findOne({
-        _id: doc.parentId
+        _id: doc.parentId,
       }).lean();
+
+      if (!parentAsset) {
+        throw new Error(`Assets with _id = ${doc.parentId} not found`);
+      }
 
       doc.order = await this.generateOrder(parentAsset, doc);
 
       if (doc.categoryCode) {
         const category = await models.AssetCategories.getAssetCategory({
-          code: doc.categoryCode
+          code: doc.categoryCode,
         });
         doc.categoryId = category._id;
       }
@@ -63,10 +67,10 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
               { code: doc.vendorCode },
               { primaryEmail: doc.vendorCode },
               { primaryPhone: doc.vendorCode },
-              { primaryName: doc.vendorCode }
-            ]
+              { primaryName: doc.vendorCode },
+            ],
           },
-          isRPC: true
+          isRPC: true,
         });
 
         doc.vendorId = vendor?._id;
@@ -76,7 +80,7 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
         subdomain,
         action: 'fields.prepareCustomFieldsData',
         data: doc.customFieldsData,
-        isRPC: true
+        isRPC: true,
       });
 
       return models.Assets.create(doc);
@@ -101,13 +105,17 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
           subdomain,
           action: 'fields.prepareCustomFieldsData',
           data: doc.customFieldsData,
-          isRPC: true
+          isRPC: true,
         });
       }
 
       const parentAsset = await models.Assets.findOne({
-        _id: doc.parentId
+        _id: doc.parentId,
       }).lean();
+
+      if (!parentAsset) {
+        throw new Error(`Asset with _id = ${doc.parentId} not found`);
+      }
 
       doc.order = await this.generateOrder(parentAsset, doc);
 
@@ -135,36 +143,36 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
         await models.Assets.updateMany(
           { _id: { $in: usedIds } },
           {
-            $set: { status: ASSET_STATUSES.DELETED }
-          }
+            $set: { status: ASSET_STATUSES.DELETED },
+          },
         );
         response = 'updated';
       }
 
       const assets = await models.Assets.find({ _id: { $in: unUsedIds } });
-      const orders = assets.map(asset =>
-        asset.order.match(/\\/) ? asset.order : new RegExp(asset.order)
+      const orders = assets.map((asset) =>
+        asset.order.match(/\\/) ? asset.order : new RegExp(asset.order),
       );
 
       const child_assets = await models.Assets.find({ order: { $in: orders } });
 
-      const child_assets_ids = child_assets.map(asset => asset._id);
+      const child_assets_ids = child_assets.map((asset) => asset._id);
 
       const movementItems = await models.MovementItems.find({
-        assetId: { $in: [...unUsedIds, ...child_assets_ids] }
+        assetId: { $in: [...unUsedIds, ...child_assets_ids] },
       });
       const movement_ids = movementItems.map(
-        movementItem => movementItem.movementId
+        (movementItem) => movementItem.movementId,
       );
       const movement_items_ids = movementItems.map(
-        movementItem => movementItem._id
+        (movementItem) => movementItem._id,
       );
 
       await models.Movements.deleteMany({
-        _id: { $in: [...new Set(movement_ids)] }
+        _id: { $in: [...new Set(movement_ids)] },
       });
       await models.MovementItems.deleteMany({
-        _id: { $in: movement_items_ids }
+        _id: { $in: movement_items_ids },
       });
 
       await models.Assets.deleteMany({ _id: { $in: child_assets_ids } });
@@ -182,9 +190,9 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      if (!checkParent.find(i => i)) {
+      if (!checkParent.find((i) => i)) {
         throw new Error(
-          `Can not merge assets. Must choose Parent or Category field`
+          `Can not merge assets. Must choose Parent or Category field`,
         );
       }
 
@@ -202,16 +210,14 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
         // merge custom fields data
         customFieldsData = [
           ...customFieldsData,
-          ...(assetObj.customFieldsData || [])
+          ...(assetObj.customFieldsData || []),
         ];
 
         await models.Assets.findByIdAndUpdate(assetId, {
           $set: {
             status: ASSET_STATUSES.DELETED,
-            code: Math.random()
-              .toString()
-              .concat('^', assetObj.code)
-          }
+            code: Math.random().toString().concat('^', assetObj.code),
+          },
         });
       }
 
@@ -224,16 +230,16 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
         description,
         categoryId,
         parentId,
-        vendorId
+        vendorId,
       });
 
       const dealProductIds = await sendCardsMessage({
         subdomain,
         action: 'findDealProductIds',
         data: {
-          _ids: assetIds
+          _ids: assetIds,
         },
-        isRPC: true
+        isRPC: true,
       });
 
       for (const deal of dealProductIds) {
@@ -247,13 +253,13 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
         action: 'deals.updateMany',
         data: {
           selector: {
-            'assetsData.assetId': { $in: usedIds }
+            'assetsData.assetId': { $in: usedIds },
           },
           modifier: {
-            $set: { 'assetsData.$.assetId': asset._id }
-          }
+            $set: { 'assetsData.$.assetId': asset._id },
+          },
         },
-        isRPC: true
+        isRPC: true,
       });
 
       return asset;

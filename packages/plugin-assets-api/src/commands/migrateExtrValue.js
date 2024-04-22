@@ -32,22 +32,22 @@ const command = async () => {
   const modelsMap = [
     {
       type: 'ticket',
-      collection: Tickets
+      collection: Tickets,
     },
     {
       type: 'task',
-      collection: Tasks
+      collection: Tasks,
     },
     {
       type: 'deal',
-      collection: Deals
-    }
+      collection: Deals,
+    },
   ];
   try {
     console.log('starting fetch asset ids');
 
     const assets = await Assets.find().toArray();
-    const assetIds = assets.map(asset => asset._id);
+    const assetIds = assets.map((asset) => asset._id);
 
     console.log(`fetched ${assetIds?.length || 0} assets`);
 
@@ -60,18 +60,22 @@ const command = async () => {
 
       console.log(`Found ${itemsWithAssets?.length || 0} items`);
 
-      let bulkOps = itemsWithAssets.map(item => {
-        const field = (item?.customFieldsData || []).find(customFieldData =>
-          assetIds.includes(customFieldData.value)
+      let bulkOps = itemsWithAssets.map((item) => {
+        const field = (item?.customFieldsData || []).find((customFieldData) =>
+          assetIds.includes(customFieldData.value),
         );
 
-        const asset = assets.find(asset => asset._id === field.value);
+        const asset = assets.find((asset) => asset._id === field.value);
+
+        if (!asset) {
+          throw new Error(`Asset with _id = ${field.value} not found`);
+        }
 
         return {
           updateOne: {
             filter: { _id: item._id, 'customFieldsData.field': field.field },
-            update: { $set: { 'customFieldsData.$.extraValue': asset.name } }
-          }
+            update: { $set: { 'customFieldsData.$.extraValue': asset.name } },
+          },
         };
       });
 

@@ -5,14 +5,14 @@ import { assetCategoriesSchema } from './definitions/assets';
 import { ASSET_STATUSES } from '../common/constant/asset';
 import {
   IAssetCategories,
-  IAssetCategoriesDocument
+  IAssetCategoriesDocument,
 } from '../common/types/asset';
 export interface IAssetCategoriesModel extends Model<IAssetCategoriesDocument> {
   assetCategoryAdd(doc: IAssetCategories): Promise<IAssetCategoriesDocument>;
   getAssetCategory(selector: any): Promise<IAssetCategoriesDocument>;
   updateAssetCategory(
     _id: string,
-    doc: IAssetCategories
+    doc: IAssetCategories,
   ): Promise<IAssetCategoriesDocument>;
   assetCategoryRemove(_id: string): void;
 }
@@ -33,8 +33,12 @@ export const loadAssetCategoriesClass = (models: IModels) => {
       await this.checkCodeDuplication(doc.code);
 
       const parentCategory = await models.AssetCategories.findOne({
-        _id: doc.parentId
+        _id: doc.parentId,
       }).lean();
+
+      if (!parentCategory) {
+        throw new Error(`AssetCategory with _id = ${doc.parentId} not found`);
+      }
 
       // Generatingg order
       doc.order = await this.generateOrder(parentCategory, doc);
@@ -44,10 +48,10 @@ export const loadAssetCategoriesClass = (models: IModels) => {
 
     public static async updateAssetCategory(
       _id: string,
-      doc: IAssetCategories
+      doc: IAssetCategories,
     ) {
       const category = await models.AssetCategories.getAssetCategory({
-        _id
+        _id,
       });
 
       if (category.code !== doc.code) {
@@ -55,38 +59,42 @@ export const loadAssetCategoriesClass = (models: IModels) => {
       }
 
       const parentCategory = await models.AssetCategories.findOne({
-        _id: doc.parentId
+        _id: doc.parentId,
       }).lean();
 
       if (parentCategory && parentCategory.parentId === _id) {
         throw new Error('Cannot change category');
       }
 
+      if (!parentCategory) {
+        throw new Error(`AssetCategory with _id = ${doc.parentId} not found`);
+      }
+
       // Generatingg  order
       doc.order = await this.generateOrder(parentCategory, doc);
 
       const assetCategories = await models.AssetCategories.getAssetCategory({
-        _id
+        _id,
       });
 
       const childCategories = await models.AssetCategories.find({
         $and: [
           { order: { $regex: new RegExp(assetCategories.order, 'i') } },
-          { _id: { $ne: _id } }
-        ]
+          { _id: { $ne: _id } },
+        ],
       });
 
       await models.AssetCategories.updateOne({ _id }, { $set: doc });
 
       // updating child categories order
-      childCategories.forEach(async childCategory => {
+      childCategories.forEach(async (childCategory) => {
         let order = childCategory.order;
 
         order = order.replace(assetCategories.order, doc.order);
 
         await models.AssetCategories.updateOne(
           { _id: childCategory._id },
-          { $set: { order } }
+          { $set: { order } },
         );
       });
 
@@ -98,7 +106,7 @@ export const loadAssetCategoriesClass = (models: IModels) => {
 
       let count = await models.Assets.countDocuments({
         categoryId: _id,
-        status: { $ne: ASSET_STATUSES.DELETED }
+        status: { $ne: ASSET_STATUSES.DELETED },
       });
       count += await models.AssetCategories.countDocuments({ parentId: _id });
 
@@ -115,7 +123,7 @@ export const loadAssetCategoriesClass = (models: IModels) => {
       }
 
       const category = await models.AssetCategories.findOne({
-        code
+        code,
       });
 
       if (category) {
@@ -124,7 +132,7 @@ export const loadAssetCategoriesClass = (models: IModels) => {
     }
     public static async generateOrder(
       parentCategory: IAssetCategories,
-      doc: IAssetCategories
+      doc: IAssetCategories,
     ) {
       const order = parentCategory
         ? `${parentCategory.order}/${doc.code}`
