@@ -3,8 +3,9 @@ import { SCHEDULE_STATUS } from '../definitions/constants';
 import { IContractDocument } from '../definitions/contracts';
 import { IScheduleDocument } from '../definitions/schedules';
 import { IStoredInterestDocument } from '../definitions/storedInterest';
-import { calcUndue } from '../utils/transactionUtils';
 import { calcInterest, getDiffDay } from '../utils/utils';
+import { calcLoss } from './lossUtils';
+import BigNumber from 'bignumber.js';
 
 export interface IPaymentInfo {
   interestEve: number;
@@ -12,7 +13,7 @@ export interface IPaymentInfo {
   payment: number;
   calcInterest: number;
   storedInterest: number;
-  undue: number;
+  loss: number;
   debt: number;
   insurance: number;
   commitmentInterest: number;
@@ -37,8 +38,8 @@ function getDiffFromLast(
   paymentInfo['storedInterest'] =
     getValue(lastSchedule.storedInterest, 0) -
     getValue(lastSchedule.didStoredInterest, 0);
-  paymentInfo['undue'] =
-    getValue(lastSchedule.undue, 0) - getValue(lastSchedule.didUndue, 0);
+  paymentInfo['loss'] =
+    getValue(lastSchedule.loss, 0) - getValue(lastSchedule.didLoss, 0);
   paymentInfo['insurance'] =
     getValue(lastSchedule.insurance, 0) -
     getValue(lastSchedule.didInsurance, 0);
@@ -60,7 +61,8 @@ function getDiffFromLast(
 export async function getPaymentInfo(
   contract: IContractDocument,
   payDate: Date = new Date(),
-  models: IModels
+  models: IModels,
+  config?:any
 ): Promise<IPaymentInfo> {
   let paymentInfo: IPaymentInfo = {
     payment: 0,
@@ -68,7 +70,7 @@ export async function getPaymentInfo(
     storedInterest: 0,
     interestEve: 0,
     interestNonce: 0,
-    undue: 0,
+    loss: 0,
     insurance: 0,
     debt: 0,
     commitmentInterest: 0,
@@ -118,18 +120,19 @@ export async function getPaymentInfo(
   //loss calculation from expiration
   if (
     lastSchedule.status === SCHEDULE_STATUS.EXPIRED &&
-    contract.unduePercent > 0
+    contract.lossPercent > 0
   ) {
     paymentInfo.expiredDay = diffDay;
 
-    const loss = await calcUndue(
-      lastSchedule,
+    const loss = await calcLoss(
       contract,
-      contract.unduePercent,
-      diffDay
+      {balance:contract.loanBalanceAmount,interest:new BigNumber(lastSchedule.interestEve ?? 0).plus(lastSchedule.interestEve ?? 0).toNumber(),payment:lastSchedule.payment ?? 0},
+      contract.lossPercent,
+      diffDay,
+      config
     );
 
-    if (loss > 0) paymentInfo.undue += loss;
+    if (loss > 0) paymentInfo.loss += loss;
   }
 
   if (contract.commitmentInterest > 0) {
@@ -158,7 +161,7 @@ export async function getPaymentInfo(
     paymentInfo.payment +
     paymentInfo.storedInterest +
     paymentInfo.calcInterest +
-    paymentInfo.undue +
+    paymentInfo.loss +
     paymentInfo.insurance +
     paymentInfo.debt;
 
@@ -166,7 +169,7 @@ export async function getPaymentInfo(
     paymentInfo.balance +
     paymentInfo.storedInterest +
     paymentInfo.calcInterest +
-    paymentInfo.undue +
+    paymentInfo.loss +
     paymentInfo.insurance +
     paymentInfo.debt;
 
@@ -196,8 +199,8 @@ export async function doPayment(
     lastSchedule.didCommitmentInterest =
       getValue(lastSchedule.didCommitmentInterest, 0) +
       getValue(didPayment.commitmentInterest, 0);
-    lastSchedule.didUndue =
-      getValue(lastSchedule.didUndue, 0) + getValue(didPayment.undue, 0);
+    lastSchedule.didLoss =
+      getValue(lastSchedule.didLoss, 0) + getValue(didPayment.loss, 0);
 
     await models.Schedules.updateOne(
       { _id: lastSchedule._id },
@@ -209,7 +212,7 @@ export async function doPayment(
   const paymentInfo = await getPaymentInfo(
     contract,
     didPayment.payDate,
-    models
+    models,
   );
 
   const scheduleValue = {
@@ -218,7 +221,7 @@ export async function doPayment(
     didStoredInterest: getValue(didPayment.storedInterest, 0),
     didInterestEve: getValue(didPayment.calcInterest, 0),
     didCommitmentInterest: getValue(didPayment.commitmentInterest, 0),
-    didUndue: getValue(didPayment.undue, 0)
+    didLoss: getValue(didPayment.loss, 0)
   };
 
   await models.Schedules.create(scheduleValue);

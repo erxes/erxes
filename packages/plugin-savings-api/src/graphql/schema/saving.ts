@@ -24,6 +24,12 @@ import {
   types as transactionTypes
 } from './transaction';
 
+import {
+  mutations as blockMutations,
+  queries as blockQueries,
+  types as blockTypes
+} from './block';
+
 export const types = `
   ${attachmentType}
   ${attachmentInput}
@@ -42,6 +48,7 @@ export const types = `
   ${contractTypes()},
   ${contractTypeTypes()},
   ${transactionTypes},
+  ${blockTypes},
 `;
 
 export const queries = `
@@ -49,11 +56,13 @@ export const queries = `
   ${contractQueries},
   ${contractTypeQueries},
   ${transactionQueries},
+  ${blockQueries},
 `;
 
 export const mutations = `
-  ${periodLockMutations}
+  ${periodLockMutations},
   ${contractMutations},
   ${contractTypeMutations},
   ${transactionMutations},
+  ${blockMutations},
 `;

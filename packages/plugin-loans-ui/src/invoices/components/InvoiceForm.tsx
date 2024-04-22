@@ -60,7 +60,7 @@ type State = {
   payment: number;
   interestEve: number;
   interestNonce: number;
-  undue: number;
+  loss: number;
   insurance: number;
   debt: number;
   total: number;
@@ -78,7 +78,7 @@ class InvoiceForm extends React.Component<Props, State> {
       payment: invoice.payment || 0,
       interestEve: invoice.interestEve || 0,
       interestNonce: invoice.interestNonce || 0,
-      undue: invoice.undue || 0,
+      loss: invoice.loss || 0,
       insurance: invoice.insurance || 0,
       debt: invoice.debt || 0,
       total: invoice.total || 0,
@@ -109,7 +109,7 @@ class InvoiceForm extends React.Component<Props, State> {
       payment: Number(this.state.payment),
       interestEve: Number(this.state.interestEve),
       interestNonce: Number(this.state.interestNonce),
-      undue: Number(this.state.undue),
+      loss: Number(this.state.loss),
       insurance: Number(this.state.insurance),
       debt: Number(this.state.debt),
       total: Number(this.state.total)
@@ -145,14 +145,14 @@ class InvoiceForm extends React.Component<Props, State> {
           payment,
           interestEve,
           interestNonce,
-          undue,
+          loss,
           insurance
         } = this.state;
         const total =
           Number(payment) +
           Number(interestEve) +
           Number(interestNonce) +
-          Number(undue) +
+          Number(loss) +
           Number(insurance);
         this.setState({ total });
       }, 100);
@@ -172,7 +172,7 @@ class InvoiceForm extends React.Component<Props, State> {
             payment: invoiceInfo.payment,
             interestEve: invoiceInfo.interestEve,
             interestNonce: invoiceInfo.interestNonce,
-            undue: invoiceInfo.undue,
+            loss: invoiceInfo.loss,
             insurance: invoiceInfo.insurance,
             debt: invoiceInfo.debt,
             total: invoiceInfo.total
@@ -258,12 +258,12 @@ class InvoiceForm extends React.Component<Props, State> {
                 value: this.state.interestNonce || 0
               })}
 
-              {this.renderFormGroup('undue', {
+              {this.renderFormGroup('loss', {
                 ...formProps,
-                name: 'undue',
+                name: 'loss',
                 type: 'number',
                 onChange: onChangeField,
-                value: this.state.undue || 0
+                value: this.state.loss || 0
               })}
 
               {this.renderFormGroup('insurance', {

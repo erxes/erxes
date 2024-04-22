@@ -6,6 +6,7 @@ import { FilterQuery } from 'mongodb';
 import { CONTRACT_STATUS, LEASE_TYPES } from './definitions/constants';
 import { getFullDate } from './utils/utils';
 import { getCalcedAmounts } from './utils/transactionUtils';
+import { getConfig } from '../messageBroker';
 export interface IInvoiceModel extends Model<IInvoiceDocument> {
   getInvoice(selector: FilterQuery<IInvoiceDocument>);
   createCreditMassInvoice(subdomain, date);
@@ -39,7 +40,7 @@ export const loadInvoiceClass = (models: IModels) => {
         (doc.interestEve || 0) +
         (doc.interestNonce || 0) +
         (doc.insurance || 0) +
-        (doc.undue || 0) +
+        (doc.loss || 0) +
         (doc.debt || 0);
       return models.Invoices.create(doc);
     }
@@ -53,6 +54,8 @@ export const loadInvoiceClass = (models: IModels) => {
         status: CONTRACT_STATUS.NORMAL
       });
       const nowDate = getFullDate(date);
+
+      const config = await getConfig('loansConfig',subdomain)
 
       for await (let contract of contracts) {
         const lastSchedule = await models.Schedules.findOne({
@@ -82,7 +85,7 @@ export const loadInvoiceClass = (models: IModels) => {
         const calcInfo: any = getCalcedAmounts(models, subdomain, {
           contractId: contract._id,
           payDate: nowDate
-        });
+        },config);
         calcInfo.payment = payAmount;
         calcInfo.payDate = invoiceDate;
         calcInfo.interestEve = contract.storedInterest;
@@ -90,7 +93,7 @@ export const loadInvoiceClass = (models: IModels) => {
         calcInfo.contractId = contract._id;
         calcInfo.total =
           (calcInfo.payment || 0) +
-          (calcInfo.undue || 0) +
+          (calcInfo.loss || 0) +
           (calcInfo.interestEve || 0) +
           (calcInfo.interestNonce || 0);
 

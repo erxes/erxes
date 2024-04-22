@@ -22,7 +22,7 @@ const Participators = asyncComponent(
     import(
       /* webpackChunkName:"Inbox-Participators" */ '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/Participators'
     ),
-  { height: '30px', width: '30px', round: true },
+  { height: '30px', width: '30px', round: true }
 );
 
 const ConvertTo = asyncComponent(
@@ -30,7 +30,7 @@ const ConvertTo = asyncComponent(
     import(
       /* webpackChunkName:"Inbox-ConvertTo" */ '../../../containers/conversationDetail/workarea/ConvertTo'
     ),
-  { height: '22px', width: '71px' },
+  { height: '22px', width: '71px' }
 );
 
 const Post = asyncComponent(
@@ -38,7 +38,14 @@ const Post = asyncComponent(
     import(
       /* webpackChunkName:"Inbox-ConvertTo" */ '../../../containers/conversationDetail/workarea/Post'
     ),
-  { height: '22px', width: '71px' },
+  { height: '22px', width: '71px' }
+);
+const PostInstagram = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName:"Inbox-ConvertTo" */ '../../../containers/conversationDetail/workarea/PostIg'
+    ),
+  { height: '22px', width: '71px' }
 );
 type Props = {
   currentConversation: IConversation;
@@ -54,24 +61,30 @@ export default class ActionBar extends React.Component<Props> {
     const participatedUsers = currentConversation.participatedUsers || [];
 
     const tagTrigger = (
-      <PopoverButton id="conversationTags">
+      <PopoverButton id='conversationTags'>
         {tags.length ? (
-          <Tags tags={tags} limit={1} />
+          <Tags
+            tags={tags}
+            limit={1}
+          />
         ) : (
-          <Label lblStyle="default">No tags</Label>
+          <Label lblStyle='default'>No tags</Label>
         )}
-        <Icon icon="angle-down" />
+        <Icon icon='angle-down' />
       </PopoverButton>
     );
 
     const assignTrigger = (
-      <AssignTrigger id="conversationAssignTrigger">
+      <AssignTrigger id='conversationAssignTrigger'>
         {assignedUser && assignedUser._id ? (
           <AvatarImg src={getUserAvatar(assignedUser)} />
         ) : (
-          <Button id="conversationAssignTo" btnStyle="simple" size="small">
+          <Button
+            id='conversationAssignTo'
+            btnStyle='simple'
+            size='small'>
             {__('Member')}
-            <Icon icon="angle-down" />
+            <Icon icon='angle-down' />
           </Button>
         )}
       </AssignTrigger>
@@ -80,7 +93,10 @@ export default class ActionBar extends React.Component<Props> {
     const actionBarRight = (
       <BarItems>
         {isEnabled('tags') && (
-          <Tagger targets={[currentConversation]} trigger={tagTrigger} />
+          <Tagger
+            targets={[currentConversation]}
+            trigger={tagTrigger}
+          />
         )}
         {isEnabled('cards') && <ConvertTo conversation={currentConversation} />}
 
@@ -96,13 +112,19 @@ export default class ActionBar extends React.Component<Props> {
           trigger={assignTrigger}
         />
         {participatedUsers && (
-          <Participators participatedUsers={participatedUsers} limit={3} />
+          <Participators
+            participatedUsers={participatedUsers}
+            limit={3}
+          />
         )}
         {loadDynamicComponent('inboxConversationDetailActionBar', {
-          conversation: currentConversation,
+          conversation: currentConversation
         })}
         {kind === 'facebook-post' && (
           <Post conversation={currentConversation} />
+        )}
+        {kind === 'instagram-post' && (
+          <PostInstagram conversation={currentConversation} />
         )}
       </ActionBarLeft>
     );
@@ -111,7 +133,7 @@ export default class ActionBar extends React.Component<Props> {
       <Wrapper.ActionBar
         right={actionBarRight}
         left={actionBarLeft}
-        background="colorWhite"
+        background='colorWhite'
       />
     );
   }
