@@ -66,6 +66,6 @@ export default {
     return await models.Users.find({
       positionIds: { $in: [position._id, ...allChildrenIds] },
       isActive: true,
-    }).count();
+    }).countDocuments();
   },
 };

@@ -52,7 +52,7 @@ export const loadBrandClass = (models: IModels) => {
         emailConfig:
           Object.keys(doc.emailConfig || {}).length > 0
             ? doc.emailConfig
-            : { type: 'simple' }
+            : { type: 'simple' },
       });
     }
 
@@ -62,13 +62,12 @@ export const loadBrandClass = (models: IModels) => {
     }
 
     public static async removeBrand(_id) {
-      const brandObj = await models.Brands.findOne({ _id });
+      const brandObj = await models.Brands.findByIdAndDelete(_id);
 
       if (!brandObj) {
         throw new Error(`Brand not found with id ${_id}`);
       }
-
-      return brandObj.remove();
+      return brandObj;
     }
   }
 

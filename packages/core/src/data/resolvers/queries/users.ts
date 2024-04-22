@@ -180,7 +180,7 @@ const queryBuilder = async (
   models: IModels,
   params: IListArgs,
   subdomain: string,
-  user: IUserDocument
+  user: IUserDocument,
 ) => {
   const {
     searchValue,
@@ -277,13 +277,21 @@ const queryBuilder = async (
         models,
       );
 
-      if (!branchUserIds || !branchUserIds.length || !branchUserIds.includes(user._id)) {
+      if (
+        !branchUserIds ||
+        !branchUserIds.length ||
+        !branchUserIds.includes(user._id)
+      ) {
         customCond.push({
           branchIds: { $in: await getChildIds(models.Branches, branchIds) },
         });
       }
 
-      if (!departmentUserIds || !departmentUserIds.length || !departmentUserIds.includes(user._id)) {
+      if (
+        !departmentUserIds ||
+        !departmentUserIds.length ||
+        !departmentUserIds.includes(user._id)
+      ) {
         customCond.push({
           departmentIds: {
             $in: await getChildIds(models.Departments, departmentIds),
@@ -328,7 +336,7 @@ const queryBuilder = async (
   }
 
   if (andCondition.length) {
-    return { $and: [{ ...selector }, ...andCondition] }
+    return { $and: [{ ...selector }, ...andCondition] };
   }
 
   return selector;
@@ -351,7 +359,7 @@ const userQueries = {
 
     const { sortField, sortDirection } = args;
 
-    const sort =
+    const sort: any =
       sortField && sortDirection
         ? { [sortField]: sortDirection }
         : { username: 1 };

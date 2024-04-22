@@ -2,7 +2,7 @@ import { Model } from 'mongoose';
 import { IModels } from '../../connectionResolver';
 import {
   getPermissionActionsMap,
-  IActionsMap
+  IActionsMap,
 } from '../../data/permissions/utils';
 import {
   IPermission,
@@ -11,7 +11,7 @@ import {
   IUserGroup,
   IUserGroupDocument,
   permissionSchema,
-  userGroupSchema
+  userGroupSchema,
 } from './definitions/permissions';
 
 export interface IPermissionModel extends Model<IPermissionDocument> {
@@ -24,17 +24,17 @@ export interface IUserGroupModel extends Model<IUserGroupDocument> {
   getGroup(_id: string): Promise<IUserGroupDocument>;
   createGroup(
     doc: IUserGroup,
-    memberIds?: string[]
+    memberIds?: string[],
   ): Promise<IUserGroupDocument>;
   updateGroup(
     _id: string,
     doc: IUserGroup,
-    memberIds?: string[]
+    memberIds?: string[],
   ): Promise<IUserGroupDocument>;
   removeGroup(_id: string): Promise<IUserGroupDocument>;
   copyGroup(
     sourceGroupId: string,
-    memberIds?: string[]
+    memberIds?: string[],
   ): Promise<IUserGroupDocument>;
 }
 
@@ -59,7 +59,7 @@ export const loadPermissionClass = (models: IModels) => {
           action,
           module: doc.module,
           allowed: doc.allowed || false,
-          requiredActions: []
+          requiredActions: [],
         };
 
         actionObj = actionsMap[action];
@@ -77,7 +77,7 @@ export const loadPermissionClass = (models: IModels) => {
             if (!entryObj) {
               const newEntry = await models.Permissions.create({
                 ...entry,
-                userId
+                userId,
               });
               permissions.push(newEntry);
             }
@@ -93,7 +93,7 @@ export const loadPermissionClass = (models: IModels) => {
             if (!entryObj) {
               const newEntry = await models.Permissions.create({
                 ...entry,
-                groupId
+                groupId,
               });
               permissions.push(newEntry);
             }
@@ -111,7 +111,7 @@ export const loadPermissionClass = (models: IModels) => {
      */
     public static async removePermission(ids: string[]) {
       const count = await models.Permissions.find({
-        _id: { $in: ids }
+        _id: { $in: ids },
       }).countDocuments();
 
       if (count !== ids.length) {
@@ -157,7 +157,7 @@ export const loadUserGroupClass = (models: IModels) => {
 
       await models.Users.updateMany(
         { _id: { $in: memberIds || [] } },
-        { $push: { groupIds: group._id } }
+        { $push: { groupIds: group._id } },
       );
 
       return group;
@@ -169,12 +169,12 @@ export const loadUserGroupClass = (models: IModels) => {
     public static async updateGroup(
       _id: string,
       doc: IUserGroup,
-      memberIds?: string[]
+      memberIds?: string[],
     ) {
       // remove groupId from old members
       await models.Users.updateMany(
         { groupIds: { $in: [_id] } },
-        { $pull: { groupIds: { $in: [_id] } } }
+        { $pull: { groupIds: { $in: [_id] } } },
       );
 
       await models.UsersGroups.updateOne({ _id }, { $set: doc });
@@ -182,7 +182,7 @@ export const loadUserGroupClass = (models: IModels) => {
       // add groupId to new members
       await models.Users.updateMany(
         { _id: { $in: memberIds || [] } },
-        { $push: { groupIds: _id } }
+        { $push: { groupIds: _id } },
       );
 
       return models.UsersGroups.findOne({ _id });
@@ -202,31 +202,31 @@ export const loadUserGroupClass = (models: IModels) => {
 
       await models.Users.updateMany(
         { groupIds: { $in: [_id] } },
-        { $pull: { groupIds: { $in: [_id] } } }
+        { $pull: { groupIds: { $in: [_id] } } },
       );
 
       await models.Permissions.deleteMany({ groupId: groupObj._id });
-
-      return groupObj.remove();
+      await groupObj.deleteOne();
+      return groupObj;
     }
 
     public static async copyGroup(sourceGroupId: string, memberIds?: string[]) {
       const sourceGroup = await models.UsersGroups.getGroup(sourceGroupId);
 
       const nameCount = await models.UsersGroups.countDocuments({
-        name: new RegExp(`${sourceGroup.name}`, 'i')
+        name: new RegExp(`${sourceGroup.name}`, 'i'),
       });
 
       const clone = await models.UsersGroups.createGroup(
         {
           name: `${sourceGroup.name}-copied-${nameCount}`,
-          description: `${sourceGroup.description}-copied`
+          description: `${sourceGroup.description}-copied`,
         },
-        memberIds
+        memberIds,
       );
 
       const permissions = await models.Permissions.find({
-        groupId: sourceGroupId
+        groupId: sourceGroupId,
       });
 
       for (const perm of permissions) {
@@ -235,7 +235,7 @@ export const loadUserGroupClass = (models: IModels) => {
           action: perm.action,
           module: perm.module,
           requiredActions: perm.requiredActions,
-          allowed: perm.allowed
+          allowed: perm.allowed,
         });
       }
 

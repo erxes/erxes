@@ -26,7 +26,7 @@ const command = async () => {
 
   await Users.updateMany(
     { role: { $exists: false } },
-    { $set: { role: 'user' } }
+    { $set: { role: 'user' } },
   );
 
   const apps = await Apps.find({}).toArray();
@@ -35,12 +35,12 @@ const command = async () => {
     const user = await Users.findOne({ appId: app._id });
 
     if (!user) {
-      await Users.insert({
+      await Users.insertOne({
         role: 'system',
         appId: app._id,
         username: app.name,
         groupIds: [app.userGroupId],
-        email: `${app.name}@domain.com`
+        email: `${app.name}@domain.com`,
       });
     }
   }

@@ -23,7 +23,7 @@ const command = async () => {
   SegmentsCollections = db.collection('segments');
 
   const segments1 = await SegmentsCollections.find({
-    name: { $exists: true }
+    name: { $exists: true },
   }).toArray();
 
   for (const segment1 of segments1) {
@@ -32,15 +32,15 @@ const command = async () => {
 
       await SegmentsCollections.updateMany(
         {
-          subOf: segment1._id
+          subOf: segment1._id,
         },
-        { $set: { subOf: subSegmentId } }
+        { $set: { subOf: subSegmentId } },
       );
     }
   }
 
   const segments2 = await SegmentsCollections.find({
-    name: { $exists: true }
+    name: { $exists: true },
   }).toArray();
 
   for (const segment2 of segments2) {
@@ -56,10 +56,10 @@ const command = async () => {
         subOf: segment2.subOf,
         color: segment2.color,
         boardId: segment2.boardId,
-        pipelineId: segment2.pipelineId
+        pipelineId: segment2.pipelineId,
       };
 
-      await SegmentsCollections.remove({ _id: segment2._id });
+      await SegmentsCollections.deleteOne({ _id: segment2._id });
 
       await SegmentsCollections.updateOne({ _id: subSegmentId }, { $set: doc });
     }

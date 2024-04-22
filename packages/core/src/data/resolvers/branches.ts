@@ -4,7 +4,7 @@ import { IBranchDocument } from '../../db/models/definitions/structures';
 const getAllChildrenIds = async (models: IModels, parentId: string) => {
   const pipeline = [
     {
-      $match: { parentId } // Match the starting parent
+      $match: { parentId }, // Match the starting parent
     },
     {
       $graphLookup: {
@@ -13,14 +13,14 @@ const getAllChildrenIds = async (models: IModels, parentId: string) => {
         connectFromField: '_id',
         connectToField: 'parentId',
         as: 'descendants',
-        depthField: 'depth'
-      }
-    }
+        depthField: 'depth',
+      },
+    },
   ];
 
   const result = await models.Branches.aggregate(pipeline).exec();
 
-  return result.map(r => r._id);
+  return result.map((r) => r._id);
 };
 
 export default {
@@ -33,7 +33,7 @@ export default {
 
     return models.Users.findUsers({
       branchIds: { $in: [branch._id, ...allChildrenIds] },
-      isActive: true
+      isActive: true,
     });
   },
 
@@ -54,10 +54,10 @@ export default {
 
     const branchUsers = await models.Users.findUsers({
       branchIds: { $in: [branch._id, ...allChildrenIds] },
-      isActive: true
+      isActive: true,
     });
 
-    const userIds = branchUsers.map(user => user._id);
+    const userIds = branchUsers.map((user) => user._id);
     return userIds;
   },
   async userCount(branch: IBranchDocument, _args, { models }: IContext) {
@@ -65,7 +65,7 @@ export default {
 
     return await models.Users.find({
       branchIds: { $in: [branch._id, ...allChildrenIds] },
-      isActive: true
-    }).count();
-  }
+      isActive: true,
+    }).countDocuments();
+  },
 };

@@ -4,7 +4,7 @@ import {
   IOnboardingHistoryDocument,
   IRobotEntryDocument,
   onboardingHistorySchema,
-  robotEntrySchema
+  robotEntrySchema,
 } from './definitions/robot';
 import { IUserDocument } from './definitions/users';
 
@@ -19,45 +19,58 @@ export const loadRobotClass = (models: IModels) => {
   class RobotEntry {
     public static async updateOrCreate(
       action: string,
-      data
+      data,
     ): Promise<IRobotEntryDocument> {
       return models.RobotEntries.findOneAndUpdate(
         { action, data },
         { isNotified: false },
-        { new: true, upsert: true }
+        { new: true, upsert: true },
       );
     }
 
     public static async markAsNotified(
-      _id: string
+      _id: string,
     ): Promise<IRobotEntryDocument> {
-      return models.RobotEntries.updateOne({ _id }, { $set: { isNotified: true } });
+      const entry = await models.RobotEntries.findOneAndUpdate(
+        { _id },
+        { $set: { isNotified: true } },
+        { new: true },
+      );
+
+      if (!entry) {
+        throw new Error(`Robot entry with _id=${_id} not found`);
+      }
+
+      return entry;
     }
 
     public static async createEntry(
-      data
+      data,
     ): Promise<IRobotEntryDocument | undefined> {
       if (data.action === 'channelsWithoutIntegration') {
-        return models.RobotEntries.updateOrCreate('channelsWithoutIntegration', {
-          channelIds: data.channelIds
-        });
+        return models.RobotEntries.updateOrCreate(
+          'channelsWithoutIntegration',
+          {
+            channelIds: data.channelIds,
+          },
+        );
       }
 
       if (data.action === 'channelsWithoutMembers') {
         return models.RobotEntries.updateOrCreate('channelsWithoutMembers', {
-          channelIds: data.channelIds
+          channelIds: data.channelIds,
         });
       }
 
       if (data.action === 'brandsWithoutIntegration') {
         return models.RobotEntries.updateOrCreate('brandsWithoutIntegration', {
-          brandIds: data.brandIds
+          brandIds: data.brandIds,
         });
       }
 
       if (data.action === 'featureSuggestion') {
         return models.RobotEntries.updateOrCreate('featureSuggestion', {
-          message: data.message
+          message: data.message,
         });
       }
     }
@@ -88,7 +101,7 @@ export interface IOnboardingHistoryModel
   getOrCreate(doc: IGetOrCreateDoc): Promise<IGetOrCreateResponse>;
   stepsCompletness(
     steps: string[],
-    user: IUserDocument
+    user: IUserDocument,
   ): IStepsCompletenessResponse;
   completeShowStep(step: string, userId: string): void;
   forceComplete(userId: string): void;
@@ -99,14 +112,16 @@ export const loadOnboardingHistoryClass = (models: IModels) => {
   class OnboardingHistory {
     public static async getOrCreate({
       type,
-      user
+      user,
     }: IGetOrCreateDoc): Promise<IGetOrCreateResponse> {
-      const prevEntry = await models.OnboardingHistories.findOne({ userId: user._id });
+      const prevEntry = await models.OnboardingHistories.findOne({
+        userId: user._id,
+      });
 
       if (!prevEntry) {
         const entry = await models.OnboardingHistories.create({
           userId: user._id,
-          completedSteps: [type]
+          completedSteps: [type],
         });
         return { status: 'created', entry };
       }
@@ -115,31 +130,39 @@ export const loadOnboardingHistoryClass = (models: IModels) => {
         return { status: 'prev', entry: prevEntry };
       }
 
-      const updatedEntry = await models.OnboardingHistories.updateOne(
+      const updatedEntry = await models.OnboardingHistories.findOneAndUpdate(
         { userId: user._id },
-        { $push: { completedSteps: type } }
+        { $push: { completedSteps: type } },
+        { new: true },
       );
+
+      if (!updatedEntry) {
+        throw new Error(
+          `OnboardingHistories entry with userId = ${user._id} not found`,
+        );
+      }
 
       return { status: 'created', entry: updatedEntry };
     }
 
     public static async stepsCompletness(
       steps: string[],
-      user: IUserDocument
+      user: IUserDocument,
     ): Promise<IStepsCompletenessResponse> {
       const result: IStepsCompletenessResponse = {};
 
       for (const step of steps) {
         const selector = { userId: user._id, completedSteps: { $in: [step] } };
         result[step] =
-          (await models.OnboardingHistories.find(selector).countDocuments()) > 0;
+          (await models.OnboardingHistories.find(selector).countDocuments()) >
+          0;
       }
 
       return result;
     }
 
     public static async forceComplete(
-      userId: string
+      userId: string,
     ): Promise<IOnboardingHistoryDocument> {
       const entry = await models.OnboardingHistories.findOne({ userId });
 
@@ -147,26 +170,27 @@ export const loadOnboardingHistoryClass = (models: IModels) => {
         return models.OnboardingHistories.create({ userId, isCompleted: true });
       }
 
-      return models.OnboardingHistories.updateOne(
+      return (await models.OnboardingHistories.findOneAndUpdate(
         { userId },
-        { $set: { isCompleted: true } }
-      );
+        { $set: { isCompleted: true } },
+        { new: true },
+      ))!;
     }
 
     public static async completeShowStep(
       step: string,
-      userId: string
+      userId: string,
     ): Promise<void> {
-      return models.OnboardingHistories.updateOne(
+      return models.OnboardingHistories.findOneAndUpdate(
         { userId },
         { $push: { completedSteps: step } },
-        { upsert: true }
+        { upsert: true, new: true },
       );
     }
 
     public static async userStatus(userId: string): Promise<string> {
       const entries = await models.OnboardingHistories.find({ userId });
-      const completed = entries.find(item => item.isCompleted);
+      const completed = entries.find((item) => item.isCompleted);
 
       if (completed) {
         return 'completed';
