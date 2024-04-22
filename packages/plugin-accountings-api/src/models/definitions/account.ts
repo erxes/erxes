@@ -16,6 +16,7 @@ export interface IAccount {
   departmentId?: string;
   scopeBrandIds?: string[];
   status: string;
+  isOutBalance: boolean;
   mergedIds?: string[];
 }
 
@@ -58,6 +59,7 @@ export const accountSchema = schemaWrapper(
       esType: 'keyword',
       index: true,
     }),
+    isOutBalance: field({ type: Boolean, default: false }),
     mergedIds: field({ type: [String], optional: true }),
   }),
 );
