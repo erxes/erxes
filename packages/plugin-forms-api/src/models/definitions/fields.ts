@@ -13,6 +13,8 @@ export interface ISubmission {
   groupId?: string;
   column?: number;
   productId?: string;
+
+  regexValidation?: string;
 }
 
 export interface ILogic {
@@ -64,6 +66,7 @@ export interface IField extends IVisibility {
   contentTypeId?: string;
   type?: string;
   validation?: string;
+  regexValidation?: string;
   text: string;
   content?: string;
   description?: string;
@@ -135,6 +138,11 @@ export const fieldSchema = schemaWrapper(
       type: String,
       optional: true,
       label: 'Validation'
+    }),
+    regexValidation: field({
+      type: String,
+      optional: true,
+      label: 'Regex validation'
     }),
     text: field({ type: String, label: 'Text' }),
     field: field({ type: String, optional: true, label: 'Field identifier' }),

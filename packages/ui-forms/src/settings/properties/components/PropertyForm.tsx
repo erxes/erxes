@@ -50,6 +50,8 @@ type State = {
   logics?: IFieldLogic[];
   logicAction?: string;
   isSubmitted?: boolean;
+  validation?: string;
+  regexValidation?: string;
 };
 
 class PropertyForm extends React.Component<Props, State> {
@@ -64,6 +66,8 @@ class PropertyForm extends React.Component<Props, State> {
       hasOptions: false,
       searchable: false,
       showInCard: false,
+      validation: '',
+      regexValidation: '',
     };
 
     if (props.field) {
@@ -74,6 +78,8 @@ class PropertyForm extends React.Component<Props, State> {
         objectListConfigs,
         searchable = false,
         showInCard = false,
+        validation,
+        regexValidation,
       } = props.field;
 
       doc = {
@@ -81,6 +87,8 @@ class PropertyForm extends React.Component<Props, State> {
         type,
         searchable,
         showInCard,
+        validation,
+        regexValidation,
       };
 
       if (
@@ -135,7 +143,6 @@ class PropertyForm extends React.Component<Props, State> {
   generateDoc = (values: {
     _id?: string;
     groupId: string;
-    validation: string;
     text: string;
     description: string;
     logicAction: string;
@@ -151,6 +158,8 @@ class PropertyForm extends React.Component<Props, State> {
       searchable,
       logicAction,
       logics,
+      validation,
+      regexValidation,
     } = this.state;
 
     const finalValues = values;
@@ -176,6 +185,8 @@ class PropertyForm extends React.Component<Props, State> {
       showInCard,
       logicAction,
       logics,
+      validation,
+      regexValidation,
     };
   };
 
@@ -298,7 +309,7 @@ class PropertyForm extends React.Component<Props, State> {
 
     if (
       !['cards:deal', 'cards:ticket', 'cards:task', 'cards:purchase'].includes(
-        type,
+        type
       )
     ) {
       return null;
@@ -339,7 +350,7 @@ class PropertyForm extends React.Component<Props, State> {
     const object = field || ({} as IField);
 
     const { values, isSubmitted } = formProps;
-    const { type, searchable } = this.state;
+    const { type, searchable, validation, regexValidation } = this.state;
 
     return (
       <>
@@ -426,19 +437,40 @@ class PropertyForm extends React.Component<Props, State> {
         {type === 'input' && (
           <FormGroup>
             <ControlLabel>Validation:</ControlLabel>
-
             <FormControl
               {...formProps}
               componentClass="select"
               name="validation"
-              defaultValue={object.validation || ''}
+              defaultValue={validation || ''}
+              onChange={(e: any) => {
+                this.setState({ validation: e.target.value });
+              }}
             >
               <option />
               <option value="email">Email</option>
               <option value="number">Number</option>
               <option value="date">Date</option>
               <option value="datetime">Date Time</option>
+              <option value="regex">Regular Expression</option>
             </FormControl>
+          </FormGroup>
+        )}
+
+        {validation === 'regex' && (
+          <FormGroup>
+            <ControlLabel htmlFor="validation">
+              Regular Expression:
+            </ControlLabel>
+            <p>{__('Setup regular expression')}</p>
+            <FormControl
+              {...formProps}
+              componentClass="input"
+              name="regexValidation"
+              defaultValue={regexValidation || ''}
+              onChange={(e: any) => {
+                this.setState({ regexValidation: e.target.value });
+              }}
+            />
           </FormGroup>
         )}
 

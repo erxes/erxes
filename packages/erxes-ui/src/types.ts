@@ -87,6 +87,7 @@ export interface IField {
   contentTypeId?: string;
   type: string;
   validation?: string;
+  regexValidation?: string;
   field?: string;
   text?: string;
   code?: string;
