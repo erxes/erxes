@@ -1,5 +1,6 @@
-import PropertyProvider, {
+import {
   PropertyConsumer,
+  PropertyProvider,
 } from "@erxes/ui-contacts/src/customers/propertyContext";
 import { gql, useQuery } from "@apollo/client";
 
