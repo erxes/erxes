@@ -6,11 +6,12 @@ import {
   DataWithLoader,
   ModalTrigger,
   Pagination,
-  Table
+  Table,
 } from '@erxes/ui/src/components';
 import { menuDynamic } from '../constants';
 import { Title } from '@erxes/ui-settings/src/styles';
 import dayjs from 'dayjs';
+import ChargeItem from './ChargeItem';
 
 type Props = {
   history: any;
@@ -25,26 +26,50 @@ const SyncHistoryList = ({
   queryParams,
   syncHistories,
   totalCount,
-  loading
+  loading,
 }: Props) => {
   const tablehead = ['Date', 'User', 'Content Type', 'Content', 'Error'];
 
   const rowContent = (props, item) => {
-    return <>{item.responseStr}</>;
+    if (item?.responseSales && item.responseSales.length > 0) {
+      const renderSales = () => {
+        return (item?.responseSales || []).map((listItem, index: number) => {
+          const jsonObject = JSON.parse(listItem);
+
+          return <ChargeItem key={index} item={jsonObject} />;
+        });
+      };
+
+      return (
+        <Table striped bordered responsive key={item._id}>
+          <thead>
+            <tr>
+              <th>{__('Error')}</th>
+              <th>{__('Order No')}</th>
+              <th>{__('Product Name')}</th>
+              <th>{__('Product No')}</th>
+              <th>{__('Quantity')}</th>
+            </tr>
+          </thead>
+          <tbody id="hurData">{renderSales()}</tbody>
+        </Table>
+      );
+    }
+
+    return <>{item.responseSales[1]}</>;
   };
 
   const mainContent = (
     <Table whiteSpace="nowrap" bordered={true} hover={true}>
       <thead>
         <tr>
-          {tablehead.map(p => (
+          {tablehead.map((p) => (
             <th key={p}>{p || ''}</th>
           ))}
         </tr>
       </thead>
       <tbody id="orders">
-        {(syncHistories || []).map(item => (
-          // tslint:disable-next-line:jsx-key
+        {(syncHistories || []).map((item) => (
           <ModalTrigger
             title="Sync erkhet information"
             trigger={
@@ -57,7 +82,8 @@ const SyncHistoryList = ({
               </tr>
             }
             size="xl"
-            content={props => rowContent(props, item)}
+            content={(props) => rowContent(props, item)}
+            key={item?._id}
           />
         ))}
       </tbody>
