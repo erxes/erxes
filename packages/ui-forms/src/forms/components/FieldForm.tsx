@@ -181,10 +181,6 @@ class FieldForm extends React.Component<Props, State> {
 
     const validation = (e) => {
       const value = (e.currentTarget as HTMLInputElement).value;
-
-      if (value === 'regex') {
-      }
-
       this.onFieldChange(
         'validation',
         (e.currentTarget as HTMLInputElement).value
@@ -212,8 +208,7 @@ class FieldForm extends React.Component<Props, State> {
 
         {field.validation === 'regex' && (
           <>
-            <ControlLabel htmlFor="validation">Validation:</ControlLabel>
-            <p>{__('Write your own regular expression')}</p>
+            <p>{__('Setup regular expression')}</p>
             <FormControl
               id="regex"
               componentClass="input"
