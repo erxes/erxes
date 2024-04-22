@@ -8,56 +8,56 @@ import {
   SidebarActions,
   SidebarContent,
   ToggleButton,
-} from './styles';
-import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+} from "./styles";
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import Button from '@erxes/ui/src/components/Button';
-import { CONVERSATION_STATUSES } from '../../constants';
-import FilterToggler from '../../containers/leftSidebar/FilterToggler';
-import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { InboxManagementActionConsumer } from '../../containers/InboxCore';
-import { PopoverButton } from '@erxes/ui-inbox/src/inbox/styles';
-import Resolver from '../../containers/Resolver';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { StatusFilterPopover } from '../../containers/leftSidebar';
-import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
-import Tagger from '../../containers/Tagger';
-import { Transition } from 'react-transition-group';
-import { __ } from 'coreui/utils';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
+import Button from "@erxes/ui/src/components/Button";
+import { CONVERSATION_STATUSES } from "../../constants";
+import FilterToggler from "../../containers/leftSidebar/FilterToggler";
+import { IConversation } from "@erxes/ui-inbox/src/inbox/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { InboxManagementActionConsumer } from "../../containers/InboxCore";
+import { PopoverButton } from "@erxes/ui-inbox/src/inbox/styles";
+import Resolver from "../../containers/Resolver";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import { StatusFilterPopover } from "../../containers/leftSidebar";
+import { TAG_TYPES } from "@erxes/ui-tags/src/constants";
+import Tagger from "../../containers/Tagger";
+import { Transition } from "react-transition-group";
+import { __ } from "coreui/utils";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { queries } from "@erxes/ui-inbox/src/inbox/graphql";
 
 const DateFilter = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Inbox-DateFilter" */ '@erxes/ui/src/components/DateFilter'
+      /* webpackChunkName:"Inbox-DateFilter" */ "@erxes/ui/src/components/DateFilter"
     ),
-  { height: '15px', width: '70px' },
+  { height: "15px", width: "70px" }
 );
 
 const AssignBoxPopover = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Inbox-AssignBoxPopover" */ '../assignBox/AssignBoxPopover'
-    ),
+      /* webpackChunkName:"Inbox-AssignBoxPopover" */ "../assignBox/AssignBoxPopover"
+    )
 );
 
 const ConversationList = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Inbox-ConversationList" */ '../../containers/leftSidebar/ConversationList'
-    ),
+      /* webpackChunkName:"Inbox-ConversationList" */ "../../containers/leftSidebar/ConversationList"
+    )
 );
 
 const FilterList = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Inbox-FilterList" */ '../../containers/leftSidebar/FilterList'
-    ),
+      /* webpackChunkName: "Inbox-FilterList" */ "../../containers/leftSidebar/FilterList"
+    )
 );
 
 type Props = {
@@ -73,13 +73,8 @@ type Props = {
 };
 
 const LeftSidebar: React.FC<Props> = (props) => {
-  const {
-    currentUser,
-    currentConversationId,
-    queryParams,
-    bulk,
-    toggleBulk,
-  } = props;
+  const { currentUser, currentConversationId, queryParams, bulk, toggleBulk } =
+    props;
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -112,10 +107,10 @@ const LeftSidebar: React.FC<Props> = (props) => {
           <RightItems>
             <AssignBoxPopover
               targets={bulk}
-              trigger={renderTrigger('Assign')}
+              trigger={renderTrigger("Assign")}
             />
 
-            <Tagger targets={bulk} trigger={renderTrigger('Tag')} />
+            <Tagger targets={bulk} trigger={renderTrigger("Tag")} />
           </RightItems>
         </Sidebar.Header>
       );
@@ -171,7 +166,7 @@ const LeftSidebar: React.FC<Props> = (props) => {
         in={isOpen}
         appear={true}
         timeout={300}
-        classNames="fade-in"
+        // classNames="fade-in"
         unmountOnExit={true}
       >
         <SidebarContent>
@@ -183,9 +178,9 @@ const LeftSidebar: React.FC<Props> = (props) => {
             >
               <FilterList
                 query={{
-                  queryName: 'channelsByMembers',
+                  queryName: "channelsByMembers",
                   variables: { memberIds: [currentUser._id] },
-                  dataName: 'channelsByMembers',
+                  dataName: "channelsByMembers",
                 }}
                 counts="byChannels"
                 paramKey="channelId"
@@ -195,7 +190,7 @@ const LeftSidebar: React.FC<Props> = (props) => {
               />
             </FilterToggler>
 
-            {isEnabled('segments') && (
+            {isEnabled("segments") && (
               <FilterToggler
                 groupText="Segments"
                 toggleName="showSegments"
@@ -203,8 +198,8 @@ const LeftSidebar: React.FC<Props> = (props) => {
               >
                 <FilterList
                   query={{
-                    queryName: 'segmentList',
-                    dataName: 'segments',
+                    queryName: "segmentList",
+                    dataName: "segments",
                     variables: {
                       contentTypes: [TAG_TYPES.CONVERSATION],
                     },
@@ -226,7 +221,7 @@ const LeftSidebar: React.FC<Props> = (props) => {
               manageUrl="/settings/brands"
             >
               <FilterList
-                query={{ queryName: 'allBrands', dataName: 'allBrands' }}
+                query={{ queryName: "allBrands", dataName: "allBrands" }}
                 counts="byBrands"
                 queryParams={queryParams}
                 paramKey="brandId"
@@ -242,8 +237,8 @@ const LeftSidebar: React.FC<Props> = (props) => {
             >
               <FilterList
                 query={{
-                  queryName: 'integrationsGetUsedTypes',
-                  dataName: 'integrationsGetUsedTypes',
+                  queryName: "integrationsGetUsedTypes",
+                  dataName: "integrationsGetUsedTypes",
                 }}
                 queryParams={queryParams}
                 counts="byIntegrationTypes"
@@ -253,7 +248,7 @@ const LeftSidebar: React.FC<Props> = (props) => {
               />
             </FilterToggler>
 
-            {isEnabled('tags') && (
+            {isEnabled("tags") && (
               <FilterToggler
                 groupText="Tags"
                 toggleName="showTags"
@@ -261,8 +256,8 @@ const LeftSidebar: React.FC<Props> = (props) => {
               >
                 <FilterList
                   query={{
-                    queryName: 'tagList',
-                    dataName: 'tags',
+                    queryName: "tagList",
+                    dataName: "tags",
                     variables: {
                       type: TAG_TYPES.CONVERSATION,
                       perPage: 100,

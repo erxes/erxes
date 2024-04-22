@@ -26,7 +26,11 @@ const Dropdown: React.FC<Props> = forwardRef<HTMLDivElement, Props>(
     }, [buttonRef.current]);
 
     const style =
-      drop === "up" ? { bottom: height + 5 } : width !== 0 ? { width } : {};
+      drop === "up"
+        ? { bottom: height + 5 }
+        : width !== 0
+          ? { minWidth: width }
+          : {};
 
     // const MenuButton = React.forwardRef(function (props, ref) {
     //   return toggleComponent;

@@ -1,25 +1,25 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
+import { Alert, confirm, withProps } from "@erxes/ui/src/utils";
 import {
   ResolveAllMutationResponse,
   ResolveAllMutationVariables,
-} from '@erxes/ui-inbox/src/inbox/types';
+} from "@erxes/ui-inbox/src/inbox/types";
 import {
   getConfig,
   refetchSidebarConversationsOptions,
   setConfig,
-} from '@erxes/ui-inbox/src/inbox/utils';
-import { mutations, queries } from '@erxes/ui-inbox/src/inbox/graphql';
+} from "@erxes/ui-inbox/src/inbox/utils";
+import { mutations, queries } from "@erxes/ui-inbox/src/inbox/graphql";
 
-import { AppConsumer } from 'coreui/appContext';
-import Bulk from '@erxes/ui/src/components/Bulk';
-import DumbSidebar from '../../components/leftSidebar/Sidebar';
-import { IBulkContentProps } from '@erxes/ui/src/components/Bulk';
-import { InboxManagementActionConsumer } from '../InboxCore';
-import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
+import { AppConsumer } from "coreui/appContext";
+import Bulk from "@erxes/ui/src/components/Bulk";
+import DumbSidebar from "../../components/leftSidebar/Sidebar";
+import { IBulkContentProps } from "@erxes/ui/src/components/Bulk";
+import { InboxManagementActionConsumer } from "../InboxCore";
+import React from "react";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
 
 type Props = {
   queryParams: any;
@@ -28,7 +28,7 @@ type Props = {
 
 type FinalProps = Props & ResolveAllMutationResponse;
 
-const STORAGE_KEY = 'erxes_additional_sidebar_config';
+const STORAGE_KEY = "erxes_additional_sidebar_config";
 
 class Sidebar extends React.Component<FinalProps> {
   toggle = ({ isOpen }: { isOpen: boolean }) => {
@@ -41,7 +41,7 @@ class Sidebar extends React.Component<FinalProps> {
 
   // resolve all conversation
   resolveAll = (notifyHandler) => () => {
-    const message = 'Are you sure you want to resolve all conversations?';
+    const message = "Are you sure you want to resolve all conversations?";
 
     confirm(message).then(() => {
       this.props
@@ -51,7 +51,7 @@ class Sidebar extends React.Component<FinalProps> {
             notifyHandler();
           }
 
-          Alert.success('The conversation has been resolved!');
+          Alert.success("The conversation has been resolved!");
         })
         .catch((e) => {
           Alert.error(e.message);
@@ -88,7 +88,7 @@ class Sidebar extends React.Component<FinalProps> {
                   config={getConfig(STORAGE_KEY)}
                   toggleSidebar={this.toggle}
                   resolveAll={this.resolveAll(
-                    notifyConsumersOfManagementAction,
+                    notifyConsumersOfManagementAction
                   )}
                 />
               )}
@@ -107,9 +107,9 @@ export default withProps<Props>(
     graphql<Props, ResolveAllMutationResponse, ResolveAllMutationVariables>(
       gql(mutations.resolveAll),
       {
-        name: 'resolveAllMutation',
+        name: "resolveAllMutation",
         options: () => refetchSidebarConversationsOptions(),
-      },
-    ),
-  )(Sidebar),
+      }
+    )
+  )(Sidebar)
 );

@@ -26,7 +26,8 @@ const Inbox = () => {
 
   return (
     <InboxComponent
-      history={navigate}
+      navigate={navigate}
+      location={location}
       queryParams={queryString.parse(location.search)}
     />
   );
@@ -35,8 +36,8 @@ const Inbox = () => {
 const routes = () => {
   return (
     <Routes>
-      <Route path="/inbox" key="inbox" element={<Index />} />
       <Route path="/inbox/index" key="inbox/index" element={<Inbox />} />
+      <Route path="/inbox" key="inbox" element={<Index />} />
     </Routes>
   );
 };

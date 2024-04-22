@@ -107,7 +107,7 @@ export default class RightSidebar extends React.Component<Props> {
           </>
         )}
 
-        {pluginsOfCustomerSidebar(customer)}
+        {/* {pluginsOfCustomerSidebar(customer)} */}
 
         {this.renderOther()}
       </Sidebar>
