@@ -29,6 +29,7 @@ import FieldPreview from './FieldPreview';
 import LocationOptions from './LocationOptions';
 import ObjectListConfigs from './ObjectListConfigs';
 import GroupedField from './GroupedField';
+import { stringToRegex } from '../../settings/properties/utils';
 
 type Props = {
   onSubmit: (field: IField) => void;
@@ -153,6 +154,27 @@ class FieldForm extends React.Component<Props, State> {
     });
   };
 
+  onRegexChange = (e: any) => {
+    if (e.target.value.length === 0) {
+      this.setState({
+        field: {
+          ...this.state.field,
+          regexValidation: '',
+        },
+      });
+      return;
+    }
+
+    const regexPattern = stringToRegex(e.target.value);
+
+    this.setState({
+      field: {
+        ...this.state.field,
+        regexValidation: regexPattern,
+      },
+    });
+  };
+
   onSubmit = (e) => {
     e.persist();
 
@@ -208,18 +230,15 @@ class FieldForm extends React.Component<Props, State> {
 
         {field.validation === 'regex' && (
           <>
-            <p>{__('Setup regular expression')}</p>
             <FormControl
               id="regex"
+              placeholder="enter sample text here"
               componentClass="input"
-              value={field.regexValidation || ''}
-              onChange={(e) =>
-                this.onFieldChange(
-                  'regexValidation',
-                  (e.currentTarget as HTMLInputElement).value
-                )
-              }
+              onChange={this.onRegexChange}
             />
+            {field.regexValidation && (
+              <p>RegexPattern: {field.regexValidation || ''}</p>
+            )}
           </>
         )}
       </FormGroup>
