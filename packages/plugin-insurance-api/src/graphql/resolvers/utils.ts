@@ -811,14 +811,12 @@ const generatePdf = async (subdomain, content, dealNumber) => {
   const uploadUrl = DOMAIN.includes('https')
     ? `${DOMAIN}/gateway/pl:core/upload-file`
     : `${DOMAIN}/pl:core/upload-file`;
-  console.log('uploadUrl', uploadUrl);
+
   const form = new FormData();
 
   //write buffer to tmp
   const tmpFile = tmp.fileSync({ postfix: '.pdf', name: `${dealNumber}.pdf` });
   fs.writeFileSync(tmpFile.name, buffer);
-
-  console.log('tmpFile', tmpFile);
 
   const fileStream = fs.createReadStream(tmpFile.name);
   const fileSize = fs.statSync(tmpFile.name).size;
@@ -830,9 +828,7 @@ const generatePdf = async (subdomain, content, dealNumber) => {
   });
 
   const result = await response.text();
-
-  console.log('result', result);
-
+  
   tmp.setGracefulCleanup();
   fs.unlinkSync(tmpFile.name);
 
