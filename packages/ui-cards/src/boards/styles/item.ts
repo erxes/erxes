@@ -409,7 +409,7 @@ export const StageItem = styledTS<{ $isPass: boolean }>(styled.li)`
     position: relative;
     z-index: 10;
     cursor: pointer;
-    background: ${colors.bgLight};
+    background: ${colors.colorWhite};
     display: inline-block;
   }
   
