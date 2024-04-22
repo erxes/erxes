@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import { connectionOptions, getEnv } from '../core';
+import { getEnv } from '../core';
 import {
   addonSchema,
   bundleSchema,
@@ -13,6 +13,7 @@ import {
 } from './definition';
 import { IOrganization } from './types';
 import redis from '../redis';
+import { connectionOptions } from '../mongo-connection';
 
 export let coreModelOrganizations;
 export let coreModelAddons;

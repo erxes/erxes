@@ -1,7 +1,7 @@
 import { Document, Schema } from 'mongoose';
 import { customFieldSchema, ICustomField, ILink } from '../types';
 import { IPermissionDocument } from './permissions';
-import { field, schemaWrapper } from './utils';
+import { field, nonEmptyString, schemaWrapper } from './utils';
 import { USER_ROLES } from '../constants';
 
 export interface IEmailSignature {
@@ -211,10 +211,9 @@ export const userSchema = schemaWrapper(
       optional: true,
       sparse: true,
     }),
-    chatStatus: field({
-      type: IUserChatStatus,
-      optional: true,
-      label: 'User chat status /used for exm/',
-    }),
+    chatStatus: {
+      type: String,
+      enum: ['online', 'offline'],
+    },
   }),
 );

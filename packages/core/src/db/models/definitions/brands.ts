@@ -1,6 +1,9 @@
 import { Document, Schema } from 'mongoose';
-import { field, schemaWrapper } from './utils';
-
+import {
+  stringId,
+  field,
+  schemaWrapper,
+} from '@erxes/api-utils/src/definitions/utils';
 export interface IBrandEmailConfig {
   email?: string;
   type?: string;
@@ -24,36 +27,32 @@ export interface IBrandDocument extends IBrand, Document {
 // Mongoose schemas ===========
 export const brandEmailConfigSchema = new Schema(
   {
-    type: field({
-      type: String,
-      enum: ['simple', 'custom'],
-      label: 'Type'
-    }),
+    type: stringId,
     template: field({ type: String, label: 'Template', optional: true }),
     email: field({
       type: String,
       label: 'Email',
-      optional: true
-    })
+      optional: true,
+    }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const brandSchema = schemaWrapper(
   new Schema({
-    _id: field({ pkey: true }),
+    _id: stringId,
     code: field({ type: String, label: 'Code' }),
     name: field({ type: String, label: 'Name' }),
     description: field({
       type: String,
       optional: true,
-      label: 'Description'
+      label: 'Description',
     }),
     userId: field({ type: String, label: 'Created by' }),
     createdAt: field({ type: Date, label: 'Created at' }),
     emailConfig: field({
       type: brandEmailConfigSchema,
-      label: 'Email config'
-    })
-  })
+      label: 'Email config',
+    }),
+  }),
 );

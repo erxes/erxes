@@ -354,13 +354,6 @@ export const getSubdomain = (req): string => {
   return subdomain;
 };
 
-export const connectionOptions: mongoose.ConnectionOptions = {
-  useNewUrlParser: true,
-  useCreateIndex: true,
-  useFindAndModify: false,
-  family: 4,
-};
-
 export const createGenerateModels = <IModels>(
   loadClasses: (
     db: mongoose.Connection,
