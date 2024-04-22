@@ -1,9 +1,8 @@
-import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import { TYPES, WEEKS } from '../constants';
-import EventForm from '../containers/EventForm';
+import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
+import Popover from "@erxes/ui/src/components/Popover";
+import { TYPES, WEEKS } from "../constants";
+import EventForm from "../containers/EventForm";
 import {
   AddEventBtn,
   CalendarWrapper,
@@ -23,9 +22,9 @@ import {
   WeekContainer,
   WeekData,
   WeekHours,
-  WeekWrapper
-} from '../styles';
-import { IAccount, IEvent } from '../types';
+  WeekWrapper,
+} from "../styles";
+import { IAccount, IEvent } from "../types";
 import {
   calcRowCount,
   extractDate,
@@ -34,9 +33,9 @@ import {
   isCurrentDate,
   isSameMonth,
   milliseconds,
-  timeConvert
-} from '../utils';
-import Detail from './Detail';
+  timeConvert,
+} from "../utils";
+import Detail from "./Detail";
 
 type Props = {
   currentDate: Date;
@@ -70,7 +69,7 @@ class Event extends React.Component<Props, State> {
     this.state = {
       isPopupVisible: false,
       selectedDate: new Date(),
-      cellHeight: 0
+      cellHeight: 0,
     };
   }
 
@@ -91,13 +90,13 @@ class Event extends React.Component<Props, State> {
   componentDidMount() {
     if (this.props.type === TYPES.MONTH) {
       this.updateCellHeight();
-      window.addEventListener('resize', this.handleResize);
+      window.addEventListener("resize", this.handleResize);
     }
   }
 
   componentWillUnmount() {
     if (this.props.type === TYPES.MONTH) {
-      window.removeEventListener('resize', this.handleResize);
+      window.removeEventListener("resize", this.handleResize);
     }
   }
 
@@ -110,7 +109,7 @@ class Event extends React.Component<Props, State> {
       isPopupVisible: !this.state.isPopupVisible,
       selectedDate: date,
       event: {} as IEvent,
-      account: {} as IAccount
+      account: {} as IAccount,
     });
   };
 
@@ -162,7 +161,7 @@ class Event extends React.Component<Props, State> {
       return date.getHours() + date.getMinutes() / 60;
     };
 
-    const calculateStartTime = startTime => {
+    const calculateStartTime = (startTime) => {
       const st = milliseconds(startTime);
       const sd = new Date(st);
       const start = calculate(sd);
@@ -172,7 +171,7 @@ class Event extends React.Component<Props, State> {
     if (showHour) {
       counts = {};
 
-      events.forEach(event => {
+      events.forEach((event) => {
         const el = calculateStartTime(event.when.start_time);
         counts[el] = (counts[el] || 0) + 1;
       });
@@ -226,28 +225,17 @@ class Event extends React.Component<Props, State> {
     const rowCount = calcRowCount(cellHeight, 24);
 
     if (rowCount > 1) {
-      const content = (
-        <Popover id="calendar-popover">
+      return (
+        <Popover
+          placement="auto"
+          trigger={<SeeAll>{events.length - (rowCount - 1)} more</SeeAll>}
+        >
           <PopoverCell>
             <Icon icon="times" onClick={this.onClosePopover} size={18} />
             <h5>{day.getDate()}</h5>
             {this.renderEvents(events, false)}
           </PopoverCell>
         </Popover>
-      );
-
-      return (
-        <OverlayTrigger
-          ref={overlayTrigger => {
-            this.overlayTrigger = overlayTrigger;
-          }}
-          trigger="click"
-          placement="auto"
-          rootClose={false}
-          overlay={content}
-        >
-          <SeeAll>{events.length - (rowCount - 1)} more</SeeAll>
-        </OverlayTrigger>
       );
     }
 

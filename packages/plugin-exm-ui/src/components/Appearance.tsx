@@ -5,26 +5,25 @@ import {
   FeatureRowItem,
   GeneralWrapper,
   Logos,
-  TeamPortal
-} from '../styles';
-import { ColorPick, ColorPicker } from '../styles';
-import React, { useState } from 'react';
-import Select from 'react-select-plus';
+  TeamPortal,
+} from "../styles";
+import { ColorPick, ColorPicker } from "../styles";
+import React, { useState } from "react";
+import Select, { OnChangeValue } from "react-select";
 
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FormControl } from '@erxes/ui/src/components/form';
-import { IButtonMutateProps, ISelectedOption } from '@erxes/ui/src/types';
-import { IExm } from '../types';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import TwitterPicker from 'react-color/lib/Twitter';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import VisionStructureForm from './VisionStructureForm';
-import { __ } from '@erxes/ui/src/utils';
-import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
-import { ITopic } from '@erxes/ui-knowledgebase/src/types';
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { FormControl } from "@erxes/ui/src/components/form";
+import { IButtonMutateProps, ISelectedOption } from "@erxes/ui/src/types";
+import { IExm } from "../types";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Popover from "@erxes/ui/src/components/Popover";
+import TwitterPicker from "react-color/lib/Twitter";
+import Uploader from "@erxes/ui/src/components/Uploader";
+import VisionStructureForm from "./VisionStructureForm";
+import { __ } from "@erxes/ui/src/utils";
+import { IBoard, IPipeline } from "@erxes/ui-cards/src/boards/types";
+import { ITopic } from "@erxes/ui-knowledgebase/src/types";
 
 type Props = {
   exm: IExm;
@@ -44,7 +43,7 @@ export default function Appearance(props: Props) {
     pipelines,
     edit,
     fetchPipelines,
-    renderButton
+    renderButton,
   } = props;
 
   const exmLogo = exm.logo;
@@ -52,46 +51,46 @@ export default function Appearance(props: Props) {
   const exmAppearance = exm.appearance;
   const [logo, setLogo] = useState(exmLogo);
   const [favicon, setFavicon] = useState(exmFavicon);
-  const [url, setUrl] = useState(exm.url || '');
-  const [webName, setWebName] = useState(exm.webName || '');
+  const [url, setUrl] = useState(exm.url || "");
+  const [webName, setWebName] = useState(exm.webName || "");
   const [webDescription, setWebDescription] = useState(
-    exm.webDescription || ''
+    exm.webDescription || ""
   );
   const [knowledgeBaseLabel, setKnowledgeBaseLabel] = useState(
-    exm.knowledgeBaseLabel || ''
+    exm.knowledgeBaseLabel || ""
   );
   const [knowledgeBaseTopicId, setKnowledgeBaseTopicId] = useState(
-    exm.knowledgeBaseTopicId || ''
+    exm.knowledgeBaseTopicId || ""
   );
-  const [ticketLabel, setTicketLabel] = useState(exm.ticketLabel || '');
+  const [ticketLabel, setTicketLabel] = useState(exm.ticketLabel || "");
   const [ticketPipelineId, setTicketPipelineId] = useState(
-    exm.ticketPipelineId || ''
+    exm.ticketPipelineId || ""
   );
-  const [ticketBoardId, setTicketBoardId] = useState(exm.ticketBoardId || '');
+  const [ticketBoardId, setTicketBoardId] = useState(exm.ticketBoardId || "");
 
   const [appearance, setAppearance] = useState(
     exmAppearance
       ? {
           primaryColor: exmAppearance.primaryColor
             ? exmAppearance.primaryColor
-            : '',
+            : "",
           secondaryColor: exmAppearance.secondaryColor
             ? exmAppearance.secondaryColor
-            : '',
-          bodyColor: exmAppearance.bodyColor ? exmAppearance.bodyColor : '',
+            : "",
+          bodyColor: exmAppearance.bodyColor ? exmAppearance.bodyColor : "",
           headerColor: exmAppearance.headerColor
             ? exmAppearance.headerColor
-            : '',
+            : "",
           footerColor: exmAppearance.footerColor
             ? exmAppearance.footerColor
-            : ''
+            : "",
         }
       : {
-          primaryColor: 'red',
-          secondaryColor: 'green',
-          bodyColor: '',
-          headerColor: '',
-          footerColor: ''
+          primaryColor: "red",
+          secondaryColor: "green",
+          bodyColor: "",
+          headerColor: "",
+          footerColor: "",
         }
   );
 
@@ -103,7 +102,7 @@ export default function Appearance(props: Props) {
             name: logo.name,
             url: logo.url,
             size: logo.size,
-            type: logo.type
+            type: logo.type,
           }
         : undefined,
       appearance,
@@ -120,9 +119,9 @@ export default function Appearance(props: Props) {
             name: favicon.name,
             url: favicon.url,
             size: favicon.size,
-            type: favicon.type
+            type: favicon.type,
           }
-        : undefined
+        : undefined,
     });
   };
 
@@ -134,8 +133,8 @@ export default function Appearance(props: Props) {
     setLogo(e);
   };
 
-  const handleSelectBoard = (option: ISelectedOption) => {
-    const value = option ? option.value : '';
+  const handleSelectBoard = (option: OnChangeValue<ISelectedOption, false>) => {
+    const value = option ? option.value : "";
 
     if (value) {
       fetchPipelines(value);
@@ -145,46 +144,40 @@ export default function Appearance(props: Props) {
   };
 
   const getContentValues = (contentType: string) => {
-    if (contentType === 'knowledgebase') {
-      return kbTopics.map(c => ({ value: c._id, label: c.title }));
+    if (contentType === "knowledgebase") {
+      return kbTopics.map((c) => ({ value: c._id, label: c.title }));
     }
 
-    if (contentType === 'boards') {
-      return boards.map(c => ({ value: c._id, label: c.name }));
+    if (contentType === "boards") {
+      return boards.map((c) => ({ value: c._id, label: c.name }));
     }
 
-    if (contentType === 'pipeline') {
-      return pipelines.map(c => ({ value: c._id, label: c.name }));
+    if (contentType === "pipeline") {
+      return pipelines.map((c) => ({ value: c._id, label: c.name }));
     }
   };
 
   const renderColorSelect = (item, color) => {
-    const popoverBottom = (
-      <Popover id="color-picker">
+    return (
+      <Popover
+        placement="bottom-start"
+        trigger={
+          <ColorPick>
+            <ColorPicker
+              style={{
+                backgroundColor: color,
+              }}
+            />
+          </ColorPick>
+        }
+      >
         <TwitterPicker
           width="266px"
           triangle="hide"
           color={color}
-          onChange={e => onChangeColor(item, e.hex)}
+          onChange={(e) => onChangeColor(item, e.hex)}
         />
       </Popover>
-    );
-
-    return (
-      <OverlayTrigger
-        trigger="click"
-        rootClose={true}
-        placement="bottom-start"
-        overlay={popoverBottom}
-      >
-        <ColorPick>
-          <ColorPicker
-            style={{
-              backgroundColor: color
-            }}
-          />
-        </ColorPick>
-      </OverlayTrigger>
     );
   };
 
@@ -195,7 +188,7 @@ export default function Appearance(props: Props) {
           <p>EXM Web Appearance</p>
           <FeatureRow>
             <FeatureRowItem>
-              <ControlLabel>{__('Name your exm')}</ControlLabel>
+              <ControlLabel>{__("Name your exm")}</ControlLabel>
               <FormControl
                 value={webName}
                 placeholder="Name"
@@ -203,7 +196,7 @@ export default function Appearance(props: Props) {
               />
             </FeatureRowItem>
             <FeatureRowItem>
-              <ControlLabel>{__('Describe your team portal')}</ControlLabel>
+              <ControlLabel>{__("Describe your team portal")}</ControlLabel>
               <FormControl
                 value={webDescription}
                 placeholder="Description"
@@ -213,7 +206,7 @@ export default function Appearance(props: Props) {
           </FeatureRow>
           <FeatureRow>
             <FeatureRowItem>
-              <ControlLabel>{__('Website')}</ControlLabel>
+              <ControlLabel>{__("Website")}</ControlLabel>
               <FormControl
                 value={url}
                 placeholder="website"
@@ -228,7 +221,7 @@ export default function Appearance(props: Props) {
 
           <FeatureRow>
             <FeatureRowItem>
-              <ControlLabel>{__('Knowledge Base Name')}</ControlLabel>
+              <ControlLabel>{__("Knowledge Base Name")}</ControlLabel>
               <FormControl
                 value={knowledgeBaseLabel}
                 placeholder="Knowledge Base Name"
@@ -236,15 +229,17 @@ export default function Appearance(props: Props) {
               />
             </FeatureRowItem>
             <FeatureRowItem>
-              <ControlLabel>{__('Knowledge base topic in EXM ')}</ControlLabel>
+              <ControlLabel>{__("Knowledge base topic in EXM ")}</ControlLabel>
               <Select
-                placeholder={__('Select a knowledge base topic')}
-                value={knowledgeBaseTopicId}
-                options={getContentValues('knowledgebase')}
+                placeholder={__("Select a knowledge base topic")}
+                value={(getContentValues("knowledgebase") || []).find(
+                  (o) => o.value === knowledgeBaseTopicId
+                )}
+                options={getContentValues("knowledgebase")}
                 onChange={(e: any) => {
                   setKnowledgeBaseTopicId(e.value);
                 }}
-                clearable={false}
+                isClearable={false}
               />
             </FeatureRowItem>
           </FeatureRow>
@@ -255,7 +250,7 @@ export default function Appearance(props: Props) {
 
           <FeatureRow>
             <FeatureRowItem>
-              <ControlLabel>{__('Ticket Name')}</ControlLabel>
+              <ControlLabel>{__("Ticket Name")}</ControlLabel>
               <FormControl
                 value={ticketLabel}
                 placeholder="Ticket Name"
@@ -263,25 +258,29 @@ export default function Appearance(props: Props) {
               />
             </FeatureRowItem>
             <FeatureRowItem>
-              <ControlLabel>{__('Ticket Board in EXM')}</ControlLabel>
+              <ControlLabel>{__("Ticket Board in EXM")}</ControlLabel>
               <Select
-                placeholder={__('Select a ticket board')}
-                value={ticketBoardId}
-                options={getContentValues('boards')}
+                placeholder={__("Select a ticket board")}
+                value={(getContentValues("boards") || []).find(
+                  (o) => o.value === ticketBoardId
+                )}
+                options={getContentValues("boards")}
                 onChange={handleSelectBoard}
-                clearable={false}
+                isClearable={false}
               />
             </FeatureRowItem>
             <FeatureRowItem>
-              <ControlLabel>{__('Ticket pipeline in EXM')}</ControlLabel>
+              <ControlLabel>{__("Ticket pipeline in EXM")}</ControlLabel>
               <Select
-                placeholder={__('Select a ticket pipeline')}
-                value={ticketPipelineId}
-                options={getContentValues('pipeline')}
+                placeholder={__("Select a ticket pipeline")}
+                value={(getContentValues("pipeline") || []).find(
+                  (o) => o.value === ticketPipelineId
+                )}
+                options={getContentValues("pipeline")}
                 onChange={(e: any) => {
                   setTicketPipelineId(e.value);
                 }}
-                clearable={false}
+                isClearable={false}
               />
             </FeatureRowItem>
           </FeatureRow>
@@ -293,14 +292,14 @@ export default function Appearance(props: Props) {
             <FeatureRowItem>
               <p>Vision</p>
               <ModalTrigger
-                title={exm.vision ? 'Edit Vision' : 'Add Vision'}
+                title={exm.vision ? "Edit Vision" : "Add Vision"}
                 size="lg"
                 trigger={
                   <Button btnStyle="simple">
-                    {__(exm.vision ? 'Edit Vision' : 'Add Vision')}
+                    {__(exm.vision ? "Edit Vision" : "Add Vision")}
                   </Button>
                 }
-                content={modalProps => (
+                content={(modalProps) => (
                   <VisionStructureForm
                     {...modalProps}
                     object={exm}
@@ -313,14 +312,14 @@ export default function Appearance(props: Props) {
             <FeatureRowItem>
               <p>Structure</p>
               <ModalTrigger
-                title={exm.structure ? 'Edit Structure' : 'Add Structure'}
+                title={exm.structure ? "Edit Structure" : "Add Structure"}
                 size="lg"
                 trigger={
                   <Button btnStyle="simple">
-                    {__(exm.structure ? 'Edit Structure' : 'Add Structure')}
+                    {__(exm.structure ? "Edit Structure" : "Add Structure")}
                   </Button>
                 }
-                content={modalProps => (
+                content={(modalProps) => (
                   <VisionStructureForm
                     {...modalProps}
                     object={exm}
@@ -337,7 +336,7 @@ export default function Appearance(props: Props) {
           <FeatureRow>
             <FeatureRowItem>
               <p>Logos</p>
-              <ControlLabel>{__('Logo 128x128 or 256x256')}</ControlLabel>
+              <ControlLabel>{__("Logo 128x128 or 256x256")}</ControlLabel>
               <Uploader
                 defaultFileList={logo ? [logo] : []}
                 onChange={(e: any) =>
@@ -348,7 +347,7 @@ export default function Appearance(props: Props) {
             </FeatureRowItem>
             <FeatureRowItem>
               <p>Favicon</p>
-              <ControlLabel>{__('Logo 128x128 or 256x256')}</ControlLabel>
+              <ControlLabel>{__("Logo 128x128 or 256x256")}</ControlLabel>
               <Uploader
                 defaultFileList={favicon ? [favicon] : []}
                 onChange={(e: any) => setFavicon(e.length ? e[0] : null)}
@@ -361,24 +360,24 @@ export default function Appearance(props: Props) {
         <Colors>
           <p>Colors</p>
           <div>
-            <ControlLabel>{__('Primary color')}</ControlLabel>
-            {renderColorSelect('primaryColor', appearance.primaryColor)}
+            <ControlLabel>{__("Primary color")}</ControlLabel>
+            {renderColorSelect("primaryColor", appearance.primaryColor)}
           </div>
           <div>
-            <ControlLabel>{__('Secondary color')}</ControlLabel>
-            {renderColorSelect('secondaryColor', appearance.secondaryColor)}
+            <ControlLabel>{__("Secondary color")}</ControlLabel>
+            {renderColorSelect("secondaryColor", appearance.secondaryColor)}
           </div>
           <div>
-            <ControlLabel>{__('Body color')}</ControlLabel>
-            {renderColorSelect('bodyColor', appearance.bodyColor)}
+            <ControlLabel>{__("Body color")}</ControlLabel>
+            {renderColorSelect("bodyColor", appearance.bodyColor)}
           </div>
           <div>
-            <ControlLabel>{__('Header color')}</ControlLabel>
-            {renderColorSelect('headerColor', appearance.headerColor)}
+            <ControlLabel>{__("Header color")}</ControlLabel>
+            {renderColorSelect("headerColor", appearance.headerColor)}
           </div>
           <div>
-            <ControlLabel>{__('Footer color')}</ControlLabel>
-            {renderColorSelect('footerColor', appearance.footerColor)}
+            <ControlLabel>{__("Footer color")}</ControlLabel>
+            {renderColorSelect("footerColor", appearance.footerColor)}
           </div>
         </Colors>
         <Button btnStyle="success" onClick={onSave}>

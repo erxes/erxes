@@ -1,31 +1,31 @@
-import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
-import { FlexRow, Forms, ReactionItem } from './styles';
+import { FlexContent, FlexItem } from "@erxes/ui/src/layout/styles";
+import { FlexRow, Forms, ReactionItem } from "./styles";
 import {
   IArticle,
   IErxesForm,
   ITopic,
-} from '@erxes/ui-knowledgeBase/src/types';
+} from "@erxes/ui-knowledgebase/src/types";
 import {
   IAttachment,
   IButtonMutateProps,
   IFormProps,
   IOption,
-} from '@erxes/ui/src/types';
-import { __, extractAttachment } from 'coreui/utils';
+} from "@erxes/ui/src/types";
+import React, { useEffect, useState } from "react";
+import { __, extractAttachment } from "@erxes/ui/src/utils";
 
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
-import { FILE_MIME_TYPES } from '@erxes/ui-settings/src/general/constants';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Icon from '@erxes/ui/src/components/Icon';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import React from 'react';
-import Select from 'react-select-plus';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import { articleReactions } from '../../icons.constant';
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { FILE_MIME_TYPES } from "@erxes/ui-settings/src/general/constants";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Icon from "@erxes/ui/src/components/Icon";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
+import Select, { OnChangeValue, components } from "react-select";
+import Uploader from "@erxes/ui/src/components/Uploader";
+import { articleReactions } from "../../icons.constant";
 
 type Props = {
   article: IArticle;
@@ -36,75 +36,75 @@ type Props = {
   topicId?: string;
 };
 
-type State = {
-  content: string;
-  reactionChoices: string[];
-  topicId?: string;
-  categoryId: string;
-  attachments: IAttachment[];
-  image: IAttachment | null;
-  erxesForms: IErxesForm[];
-  isPrivate: boolean;
-};
+const ArticleForm = (props: Props) => {
+  const {
+    article,
+    topics,
+    topicId: currentTopicId,
+    currentCategoryId,
+    renderButton,
+    closeModal,
+  } = props;
 
-class ArticleForm extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+  const articleD = article || ({ content: "" } as IArticle);
+  const attachmentsD =
+    (article && article.attachments && extractAttachment(article.attachments)) || [];
+  const imageD = article && article.image ? extractAttachment([article.image])[0] : null;
 
-    const article = props.article || ({ content: '' } as IArticle);
-    const attachments =
-      (article.attachments && extractAttachment(article.attachments)) || [];
-    const image = article.image ? extractAttachment([article.image])[0] : null;
+  const [content, setContent] = useState<string>(articleD.content);
+  const [reactionChoices, setReactionChoices] = useState<string[]>(
+    articleD.reactionChoices || []
+  );
+  const [status, setStatus] = useState<string>("draft");
+  const [topicId, setTopicId] = useState<string | undefined>(articleD.topicId);
+  const [categoryId, setCategoryId] = useState<string>(articleD.categoryId);
+  const [attachments, setAttachments] = useState<IAttachment[]>(attachmentsD);
+  const [image, setImage] = useState<IAttachment | null>(imageD);
+  const [erxesForms, setErxesForms] = useState<IErxesForm[]>([]);
+  const [isPrivate, setIsPrivate] = useState<boolean>(
+    articleD.isPrivate || false
+  );
 
-    this.state = {
-      content: article.content,
-      reactionChoices: article.reactionChoices || [],
-      topicId: article.topicId,
-      categoryId: article.categoryId,
-      erxesForms: article.forms || [],
-      image,
-      attachments,
-      isPrivate: article.isPrivate || false,
-    };
-  }
-
-  componentDidUpdate(prevProps) {
-    const { topics, currentCategoryId } = this.props;
-    const self = this;
-
-    if (!this.state.topicId && topics && topics.length > 0) {
-      this.setState({
-        topicId: self.props.topicId,
-        categoryId: currentCategoryId,
-      });
+  useEffect(() => {
+    if (!topicId && topics && topics.length > 0) {
+      setTopicId(props.topicId);
+      setCategoryId(props.currentCategoryId);
     }
-  }
+  }, [topicId, topics.length]);
 
-  getFirstAttachment = () => {
-    const { attachments } = this.state;
+  useEffect(() => {
+    if (article) {
+      const currentArticle = article || ({ content: "" } as IArticle);
+      const attachments =
+        (currentArticle.attachments &&
+          extractAttachment(currentArticle.attachments)) ||
+        [];
+      const image = currentArticle.image
+        ? extractAttachment([currentArticle.image])[0]
+        : null;
 
+      setContent(article.content);
+      setReactionChoices(article.reactionChoices || []);
+      setStatus(article.status);
+      setTopicId(article.topicId);
+      setCategoryId(article.categoryId);
+      setErxesForms(article.forms || []);
+      setAttachments(attachments);
+      setImage(image);
+    }
+  }, [article]);
+
+  const getFirstAttachment = () => {
     return attachments.length > 0 ? attachments[0] : ({} as IAttachment);
   };
 
-  generateDoc = (values: {
+  const generateDoc = (values: {
     _id?: string;
     title: string;
     summary: string;
     status: string;
     code?: string;
   }) => {
-    const { article, currentCategoryId } = this.props;
-    const {
-      attachments,
-      content,
-      reactionChoices,
-      topicId,
-      categoryId,
-      image,
-      erxesForms,
-      isPrivate,
-    } = this.state;
-
     const finalValues = values;
 
     if (article) {
@@ -134,73 +134,44 @@ class ArticleForm extends React.Component<Props, State> {
     };
   };
 
-  onChange = (content: string) => {
-    this.setState({ content });
+  const handleContentChange = (e) => {
+    setContent(e);
   };
 
-  onChangeReactions = (options: IOption[]) => {
-    this.setState({ reactionChoices: options.map((option) => option.value) });
+  const handleReactionsChange = (options: OnChangeValue<IOption, true>) => {
+    setReactionChoices(options.map((option) => option.value));
   };
 
-  onChangeAttachments = (attachments: IAttachment[]) =>
-    this.setState({ attachments });
+  const handleStatusChange = (option: OnChangeValue<IOption, false>) => {
+    setStatus(option?.value || "");
+  };
 
-  onChangeImage = (images: IAttachment[]) => {
+  const handleAttachmentsChange = (attachments: IAttachment[]) =>
+    setAttachments(attachments);
+
+  const handleImageChange = (images: IAttachment[]) => {
     if (images && images.length > 0) {
-      this.setState({ image: images[0] });
+      setImage(images[0]);
     } else {
-      this.setState({ image: null });
+      setImage(null);
     }
   };
 
-  onChangeIsCheckDate = (e) => {
+  const handleAttachmentChange = (key: string, value: string | number) => {
+    setAttachments([
+      {
+        ...getFirstAttachment(),
+        [key]: value,
+      },
+    ]);
+  };
+
+  const onChangeIsCheckDate = (e) => {
     const isChecked = (e.currentTarget as HTMLInputElement).checked;
-    this.setState({ isPrivate: isChecked });
+    setIsPrivate(isChecked);
   };
 
-  onChangeAttachment = (key: string, value: string | number) => {
-    this.setState({
-      attachments: [
-        {
-          ...this.getFirstAttachment(),
-          [key]: value,
-        },
-      ],
-    });
-  };
-
-  onChangeForm = (formId: string, key: string, value: string | number) => {
-    const erxesForms = this.state.erxesForms;
-
-    // find current editing one
-    const erxesForm = erxesForms.find((form) => form.formId === formId) || [];
-
-    // set new value
-    erxesForm[key] = value;
-
-    this.setState({ erxesForms });
-  };
-
-  addErxesForm = () => {
-    const erxesForms = this.state.erxesForms.slice();
-
-    erxesForms.push({
-      brandId: '',
-      formId: '',
-    });
-
-    this.setState({ erxesForms });
-  };
-
-  removeForm = (formId) => {
-    let erxesForms = this.state.erxesForms;
-
-    erxesForms = erxesForms.filter((form) => form.formId !== formId);
-
-    this.setState({ erxesForms });
-  };
-
-  renderOption = (option) => {
+  const renderOption = (option) => {
     return (
       <ReactionItem>
         <img src={option.value} alt={option.label} />
@@ -209,125 +180,152 @@ class ArticleForm extends React.Component<Props, State> {
     );
   };
 
-  generateOptions = (options) => {
+  const Option = (props) => {
+    return (
+      <components.Option {...props}>
+        {renderOption(props.data)}
+      </components.Option>
+    );
+  };
+
+  const MultiValue = (props) => (
+    <components.MultiValue {...props}>
+      {renderOption(props.data)}
+    </components.MultiValue>
+  );
+
+  const generateOptions = (options) => {
     return options.map((option) => ({
       value: option._id,
       label: option.title,
     }));
   };
 
-  renderTopics(formProps: IFormProps) {
-    const self = this;
-    const { topics } = this.props;
+  const handleTopicChange = (selectedTopic) => {
+    const selectedTopicId = selectedTopic.value;
 
-    const onChange = (e) => {
-      e.preventDefault();
+    const topic = topics.find((t) => t._id === selectedTopicId);
+    const categories = topic ? topic.categories || [] : [];
 
-      const selectedTopicId = e.target.value;
+    setTopicId(selectedTopicId);
+    setCategoryId(categories.length > 0 ? categories[0]._id : "");
+  };
 
-      const topic = topics.find((t) => t._id === selectedTopicId);
-      const categories = topic ? topic.categories || [] : [];
-
-      self.setState({
-        topicId: selectedTopicId,
-        categoryId: categories.length > 0 ? categories[0]._id : '',
-      });
-    };
-
+  const renderTopics = (formProps: IFormProps) => {
     return (
       <FormGroup>
         <ControlLabel required={true}>Choose the knowledgebase</ControlLabel>
         <br />
 
-        <FormControl
+        <Select
           {...formProps}
-          name="topicId"
-          componentClass="select"
-          required={true}
-          placeholder={__('Choose knowledgebase')}
-          value={self.state.topicId}
-          options={self.generateOptions(topics)}
-          onChange={onChange}
+          placeholder={__("Choose knowledgebase")}
+          value={generateOptions(topics).find((o) => o.value === topicId)}
+          options={generateOptions(topics)}
+          onChange={handleTopicChange}
+          isClearable={false}
         />
       </FormGroup>
     );
-  }
+  };
 
-  renderCategories(formProps: IFormProps) {
-    const self = this;
-    const topic = this.props.topics.find((t) => t._id === self.state.topicId);
+  const handleCategoryChange = (selectedCategory) => {
+    setCategoryId(selectedCategory.value);
+  };
+
+  const renderCategories = (formProps: IFormProps) => {
+    const topic = topics.find((t) => t._id === topicId);
+
     const categories = topic ? topic.categories || [] : [];
-
-    const onChange = (e) => {
-      e.preventDefault();
-
-      self.setState({ categoryId: e.target.value });
-    };
 
     return (
       <FormGroup>
         <ControlLabel required={true}>Choose the category</ControlLabel>
         <br />
 
-        <FormControl
+        <Select
           {...formProps}
-          name="categoryId"
-          componentClass="select"
-          placeholder={__('Choose category')}
-          value={self.state.categoryId}
-          options={self.generateOptions(categories)}
-          onChange={onChange}
-          required={true}
+          placeholder={__("Choose category")}
+          value={generateOptions(categories).find(
+            (o) => o.value === categoryId
+          )}
+          options={generateOptions(categories)}
+          onChange={handleCategoryChange}
+          isClearable={false}
         />
       </FormGroup>
     );
-  }
+  };
 
-  renderErxesForm = (form: IErxesForm, formProps: IFormProps) => {
-    const remove = () => {
-      this.removeForm(form.formId);
-    };
+  const handleErxesFormChange = (
+    index: number,
+    key: string,
+    value: string | number
+  ) => {
+    const updatedErxesForms = [...erxesForms];
+    updatedErxesForms[index][key] = value;
+    setErxesForms(updatedErxesForms);
+  };
 
+  const addErxesForm = () => {
+    setErxesForms((prevForms) => [
+      ...prevForms,
+      {
+        brandId: "",
+        formId: "",
+      },
+    ]);
+  };
+
+  const removeErxesForm = (index: number) => () => {
+    const updatedErxesForms = [...erxesForms];
+    updatedErxesForms.splice(index, 1);
+
+    setErxesForms(updatedErxesForms);
+  };
+
+  const renderErxesForm = (
+    index: number,
+    form: IErxesForm,
+    formProps: IFormProps
+  ) => {
     return (
-      <FlexRow key={form.formId}>
+      <FlexRow key={index}>
         <FormGroup>
-          <ControlLabel required={true}>{__('Brand id')}</ControlLabel>
+          <ControlLabel required={true}>{__("Brand id")}</ControlLabel>
           <FormControl
             {...formProps}
             name="brandId"
             required={true}
-            defaultValue={form.brandId}
+            value={form.brandId}
             onChange={(e: any) =>
-              this.onChangeForm(form.formId, 'brandId', e.target.value)
+              handleErxesFormChange(index, "brandId", e.target.value)
             }
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel required={true}>{__('Form id')}</ControlLabel>
+          <ControlLabel required={true}>{__("Form id")}</ControlLabel>
           <FormControl
             {...formProps}
             name="formId"
             required={true}
-            defaultValue={form.formId}
+            value={form.formId}
             onChange={(e: any) =>
-              this.onChangeForm(form.formId, 'formId', e.target.value)
+              handleErxesFormChange(index, "formId", e.target.value)
             }
           />
         </FormGroup>
 
-        <Button size="small" btnStyle="danger" onClick={remove}>
+        <Button size="small" btnStyle="danger" onClick={removeErxesForm(index)}>
           <Icon icon="cancel-1" />
         </Button>
       </FlexRow>
     );
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { article, renderButton, closeModal } = this.props;
-    const { attachments, reactionChoices, content, image, isPrivate } =
-      this.state;
-    const attachment = this.getFirstAttachment();
+  const renderContent = (formProps: IFormProps) => {
+    const attachment = getFirstAttachment();
 
     const mimeTypeOptions = FILE_MIME_TYPES.map((item) => ({
       value: item.value,
@@ -338,10 +336,17 @@ class ArticleForm extends React.Component<Props, State> {
 
     const object = article || ({} as IArticle);
 
+    const statusOptions = [{ value: "draft" }, { value: "publish" }].map(
+      (option) => ({
+        value: option.value,
+        label: option.value,
+      })
+    );
+
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>{__('Title')}</ControlLabel>
+          <ControlLabel required={true}>{__("Title")}</ControlLabel>
           <FormControl
             {...formProps}
             name="title"
@@ -351,16 +356,12 @@ class ArticleForm extends React.Component<Props, State> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Code')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="code"
-            defaultValue={object.code}
-          />
+          <ControlLabel>{__("Code")}</ControlLabel>
+          <FormControl {...formProps} name="code" defaultValue={object.code} />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__('Summary')}</ControlLabel>
+          <ControlLabel>{__("Summary")}</ControlLabel>
           <FormControl
             {...formProps}
             name="summary"
@@ -371,132 +372,129 @@ class ArticleForm extends React.Component<Props, State> {
         <FlexContent>
           <FlexItem count={4}>
             <FormGroup>
-              <ControlLabel required={true}>{__('Reactions')}</ControlLabel>
+              <ControlLabel required={true}>{__("Reactions")}</ControlLabel>
               <Select
-                multi={true}
-                value={reactionChoices}
+                isMulti={true}
+                value={articleReactions.filter((o) =>
+                  reactionChoices.includes(o.value)
+                )}
                 options={articleReactions}
-                onChange={this.onChangeReactions}
-                optionRenderer={this.renderOption}
-                valueRenderer={this.renderOption}
-                placeholder={__('Select')}
+                onChange={handleReactionsChange}
+                components={{ Option, MultiValue }}
+                placeholder={__("Select")}
               />
             </FormGroup>
           </FlexItem>
-          <FlexItem count={2} hasSpace={true}>
+          <FlexItem count={2} $hasSpace={true}>
             <FormGroup>
-              <ControlLabel required={true}>{__('Status')}</ControlLabel>
-              <FormControl
+              <ControlLabel required={true}>{__("Status")}</ControlLabel>
+              <Select
                 {...formProps}
-                name="status"
-                componentClass="select"
-                placeholder={__('Select')}
-                defaultValue={object.status || 'draft'}
-                required={true}
-              >
-                {[{ value: 'draft' }, { value: 'publish' }].map((op) => (
-                  <option key={op.value} value={op.value}>
-                    {op.value}
-                  </option>
-                ))}
-              </FormControl>
+                placeholder={__("Choose knowledgebase")}
+                value={statusOptions.find(
+                  (o) => o.value === (status || "draft")
+                )}
+                options={statusOptions}
+                onChange={handleStatusChange}
+                isClearable={false}
+              />
             </FormGroup>
             <FormGroup>
-              <ControlLabel required={true}>{__('isPrivate')}</ControlLabel>
+              <ControlLabel required={true}>{__("isPrivate")}</ControlLabel>
               <FormControl
-                componentClass="checkbox"
+                componentclass="checkbox"
                 checked={isPrivate}
-                onChange={this.onChangeIsCheckDate}
+                onChange={onChangeIsCheckDate}
               />
             </FormGroup>
           </FlexItem>
         </FlexContent>
 
         <FlexContent>
-          <FlexItem count={3}>{this.renderTopics(formProps)}</FlexItem>
-          <FlexItem count={3} hasSpace={true}>
-            {this.renderCategories(formProps)}
+          <FlexItem count={3}>{renderTopics(formProps)}</FlexItem>
+          <FlexItem count={3} $hasSpace={true}>
+            {renderCategories(formProps)}
           </FlexItem>
         </FlexContent>
 
         <FormGroup>
-          <ControlLabel>{__('Image')}</ControlLabel>
+          <ControlLabel>{__("Image")}</ControlLabel>
           <Uploader
             defaultFileList={image ? [image] : []}
-            onChange={this.onChangeImage}
+            onChange={handleImageChange}
             single={true}
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__('Attachment')}</ControlLabel>
+          <ControlLabel>{__("Attachment")}</ControlLabel>
           <Uploader
             defaultFileList={attachments}
-            onChange={this.onChangeAttachments}
+            onChange={handleAttachmentsChange}
             single={true}
           />
         </FormGroup>
 
         <FlexContent>
-          <FlexItem count={2} hasSpace={true}>
+          <FlexItem count={2} $hasSpace={true}>
             <FormGroup>
-              <ControlLabel>{__('File url')}</ControlLabel>
+              <ControlLabel>{__("File url")}</ControlLabel>
               <FormControl
                 placeholder="Url"
-                value={attachment.url || ''}
+                value={attachment.url || ""}
                 onChange={(e: any) =>
-                  this.onChangeAttachment('url', e.target.value)
+                  handleAttachmentChange("url", e.target.value)
                 }
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel>{__('File name')}</ControlLabel>
+              <ControlLabel>{__("File name")}</ControlLabel>
               <FormControl
                 placeholder="Name"
-                value={attachment.name || ''}
+                value={attachment.name || ""}
                 onChange={(e: any) =>
-                  this.onChangeAttachment('name', e.target.value)
+                  handleAttachmentChange("name", e.target.value)
                 }
               />
             </FormGroup>
           </FlexItem>
-          <FlexItem count={2} hasSpace={true}>
+          <FlexItem count={2} $hasSpace={true}>
             <FormGroup>
-              <ControlLabel>{__('File size (byte)')}</ControlLabel>
+              <ControlLabel>{__("File size (byte)")}</ControlLabel>
               <FormControl
                 placeholder="Size (byte)"
-                value={attachment.size || ''}
+                value={attachment.size || ""}
                 type="number"
                 onChange={(e: any) =>
-                  this.onChangeAttachment('size', parseInt(e.target.value, 10))
+                  handleAttachmentChange("size", parseInt(e.target.value, 10))
                 }
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel>{__('File type')}</ControlLabel>
+              <ControlLabel>{__("File type")}</ControlLabel>
               <FormControl
-                componentClass="select"
-                value={attachment.type || ''}
+                componentclass="select"
+                value={attachment.type || ""}
                 onChange={(e: any) =>
-                  this.onChangeAttachment('type', e.target.value)
+                  handleAttachmentChange("type", e.target.value)
                 }
                 options={[
-                  { value: '', label: 'Select type' },
+                  { value: "", label: "Select type" },
                   ...mimeTypeOptions,
                 ]}
               />
             </FormGroup>
           </FlexItem>
-          <FlexItem count={2} hasSpace={true}>
+          <FlexItem count={2} $hasSpace={true}>
             <FormGroup>
-              <ControlLabel>{__('File duration (sec)')}</ControlLabel>
+              <ControlLabel>{__("File duration (sec)")}</ControlLabel>
               <FormControl
                 placeholder="Duration"
                 value={attachment.duration || 0}
                 onChange={(e: any) =>
-                  this.onChangeAttachment(
-                    'duration',
-                    parseInt(e.target.value, 10),
+                  handleAttachmentChange(
+                    "duration",
+                    parseInt(e.target.value, 10)
                   )
                 }
               />
@@ -505,17 +503,17 @@ class ArticleForm extends React.Component<Props, State> {
         </FlexContent>
 
         <FormGroup>
-          <ControlLabel>{__('erxes forms')}</ControlLabel>
+          <ControlLabel>{__("erxes forms")}</ControlLabel>
           <Forms>
-            {this.state.erxesForms.map((form) =>
-              this.renderErxesForm(form, formProps),
+            {erxesForms.map((form, index) =>
+              renderErxesForm(index, form, formProps)
             )}
           </Forms>
 
           <Button
             btnStyle="simple"
             size="small"
-            onClick={this.addErxesForm}
+            onClick={addErxesForm}
             icon="add"
           >
             Add another form
@@ -523,13 +521,13 @@ class ArticleForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel required={true}>{__('Content')}</ControlLabel>
+          <ControlLabel required={true}>{__("Content")}</ControlLabel>
           <RichTextEditor
             content={content}
-            onChange={this.onChange}
+            onChange={handleContentChange}
             isSubmitted={isSubmitted}
             height={300}
-            name={`knowledgeBase_${article ? article._id : 'create'}`}
+            name={`knowledgeBase_${article ? article._id : "create"}`}
           />
         </FormGroup>
 
@@ -537,15 +535,15 @@ class ArticleForm extends React.Component<Props, State> {
           <Button
             btnStyle="simple"
             type="button"
-            onClick={this.props.closeModal}
+            onClick={closeModal}
             icon="times-circle"
           >
-            {__('Cancel')}
+            {__("Cancel")}
           </Button>
 
           {renderButton({
-            passedName: 'article',
-            values: this.generateDoc(values),
+            passedName: "article",
+            values: generateDoc(values),
             isSubmitted,
             callback: closeModal,
             object: article,
@@ -555,9 +553,7 @@ class ArticleForm extends React.Component<Props, State> {
     );
   };
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default ArticleForm;

@@ -13,11 +13,11 @@ import {
   Tabs,
   Toggle,
   __,
-  colors
+  colors,
 } from '@erxes/ui/src';
 import { Columns } from '@erxes/ui/src/styles/chooser';
 import { Column } from '@erxes/ui/src/styles/main';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Padding, TopContainer } from '../styles';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 
@@ -28,71 +28,52 @@ type Props = {
   addAction: (action: IAction, actionId?: string, config?: any) => void;
 };
 
-type State = {
-  config: any;
-  currentTab: string;
-  useCustomConfig: boolean;
-};
+const sendNotifcation = (props: Props) => {
+  const { activeAction, triggerType, closeModal, addAction } = props;
 
-class SendNotification extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+  const [config, setConfig] = useState<any>();
+  const [currentTab, setCurrentTab] = useState<string>('');
+  const [useCustomConfig, setUseCustomConfig] = useState<boolean>();
 
-    const config = props?.activeAction?.config;
+  useEffect(() => {
+    const config = activeAction?.config;
     const isStatic =
       !!config?.teamMemberIds?.length || !!config?.customerIds?.length;
+    const customConfig = !!config?.customConfig || false;
 
-    this.state = {
-      config: config || {},
-      currentTab: isStatic ? 'static' : 'general',
-      useCustomConfig: !!config?.customConfig || false
-    };
+    setConfig(config || {});
+    setCurrentTab(isStatic ? 'static' : 'general');
+    setUseCustomConfig(customConfig);
+  }, [config]);
 
-    this.onChange = this.onChange.bind(this);
-  }
+  const handleTab = (value) => () => {
+    const { sendTo, teamMemberIds, customerIds, ...obj } = config;
 
-  onChange(config) {
-    this.setState({ config });
-  }
+    setConfig({ ...obj });
+    setCurrentTab(value);
+  };
 
-  renderStatic() {
-    const onSelect = (value, name) => {
-      this.onChange({ ...this.state.config, [name]: value });
-    };
+  const isActiveTab = (value) => {
+    return currentTab === value ? 'active' : '';
+  };
 
-    return (
-      <Padding>
-        <FormGroup>
-          <ControlLabel>{__('Team Members')}</ControlLabel>
-          <SelectTeamMembers
-            name="teamMemberIds"
-            label="select team members"
-            multi
-            onSelect={onSelect}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('Customers')}</ControlLabel>
-          <SelectCustomers
-            name="customerIds"
-            label="select customers"
-            multi
-            onSelect={onSelect}
-          />
-        </FormGroup>
-      </Padding>
-    );
-  }
+  const handleOnChange = (config) => {
+    setConfig(config);
+  };
 
-  renderSettings() {
-    const { useCustomConfig, config } = this.state;
+  const handleOnSelect = (value, name) => {
+    handleOnChange({ ...config, [name]: value });
+  };
 
-    const handleChange = e => {
-      const { value } = e.currentTarget as HTMLInputElement;
+  const handleSettingOnChange = (e) => {
+    const { value } = e.currentTarget as HTMLInputElement;
 
-      this.setState({ config: { ...config, customConfig: value } });
-    };
+    setConfig((prevConfig) => {
+      return { ...prevConfig, customConfig: value };
+    });
+  };
 
+  const renderSettings = () => {
     const trigger = (
       <Button
         icon="settings"
@@ -112,9 +93,7 @@ class SendNotification extends React.Component<Props, State> {
             </Column>
             <Toggle
               checked={useCustomConfig}
-              onChange={() =>
-                this.setState({ useCustomConfig: !useCustomConfig })
-              }
+              onChange={() => setUseCustomConfig(!useCustomConfig)}
             />
           </Columns>
           {useCustomConfig && (
@@ -125,7 +104,7 @@ class SendNotification extends React.Component<Props, State> {
               <p>{__('Firebase config for notifications')}</p>
               <FormControl
                 placeholder="paste a config"
-                onChange={handleChange}
+                onChange={handleSettingOnChange}
                 value={config?.customConfig}
               />
             </FormGroup>
@@ -137,13 +116,36 @@ class SendNotification extends React.Component<Props, State> {
     return (
       <ModalTrigger trigger={trigger} content={content} hideHeader title="" />
     );
-  }
+  };
 
-  renderGeneral() {
-    const { triggerType } = this.props;
-    const { config } = this.state;
-    const isAviableTriggerExcutor = ['contacts', 'user'].some(c =>
-      triggerType.includes(c)
+  const renderStatic = () => {
+    return (
+      <Padding>
+        <FormGroup>
+          <ControlLabel>{__('Team Members')}</ControlLabel>
+          <SelectTeamMembers
+            name="teamMemberIds"
+            label="select team members"
+            multi
+            onSelect={handleOnSelect}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Customers')}</ControlLabel>
+          <SelectCustomers
+            name="customerIds"
+            label="select customers"
+            multi
+            onSelect={handleOnSelect}
+          />
+        </FormGroup>
+      </Padding>
+    );
+  };
+
+  const renderGeneral = () => {
+    const isAviableTriggerExcutor = ['contacts', 'user'].some((c) =>
+      triggerType.includes(c),
     );
 
     const customAttributions = isAviableTriggerExcutor
@@ -152,51 +154,44 @@ class SendNotification extends React.Component<Props, State> {
             _id: String(Math.random()),
             label: 'Trigger Executor',
             name: 'triggerExecutor',
-            type: 'segment'
-          }
+            type: 'segment',
+          },
         ]
       : [];
 
     return (
-      <>
-        <PlaceHolderInput
-          triggerType={triggerType}
-          config={config}
-          inputName="sendTo"
-          attrTypes={['user', 'contact', 'segment']}
-          label="Send To"
-          onChange={this.onChange}
-          customAttributions={customAttributions}
-          required
-        />
-      </>
+      <PlaceHolderInput
+        triggerType={triggerType}
+        config={config}
+        inputName="sendTo"
+        attrTypes={['user', 'contact', 'segment']}
+        label="Send To"
+        onChange={handleOnChange}
+        customAttributions={customAttributions}
+        required
+      />
     );
-  }
+  };
 
-  renderTabContent() {
-    const { currentTab } = this.state;
-
+  const renderTabContent = () => {
     switch (currentTab) {
       case 'general':
-        return this.renderGeneral();
+        return renderGeneral();
       case 'static':
-        return this.renderStatic();
+        return renderStatic();
       default:
         return null;
     }
-  }
+  };
 
-  renderMainContent() {
-    const { triggerType } = this.props;
-    const { config } = this.state;
-
+  const renderMainContent = () => {
     return (
       <>
         <PlaceHolderInput
           inputName="subject"
           label="Subject"
           config={config}
-          onChange={this.onChange}
+          onChange={handleOnChange}
           triggerType={triggerType}
           required
         />
@@ -204,60 +199,42 @@ class SendNotification extends React.Component<Props, State> {
           inputName="body"
           label="Body"
           config={config}
-          onChange={this.onChange}
+          onChange={handleOnChange}
           triggerType={triggerType}
           required
         />
       </>
     );
-  }
+  };
 
-  render() {
-    const { closeModal, addAction, activeAction } = this.props;
-    const { config, currentTab } = this.state;
+  return (
+    <DrawerDetail>
+      <Common
+        closeModal={closeModal}
+        addAction={addAction}
+        activeAction={activeAction}
+        config={config}
+      >
+        <TopContainer>{renderSettings()}</TopContainer>
+        <Tabs full>
+          <TabTitle
+            className={isActiveTab('general')}
+            onClick={handleTab('general')}
+          >
+            {__('General')}
+          </TabTitle>
+          <TabTitle
+            className={isActiveTab('static')}
+            onClick={handleTab('static')}
+          >
+            {__('Static')}
+          </TabTitle>
+        </Tabs>
+        <Padding>{renderTabContent()}</Padding>
+        <Padding>{renderMainContent()}</Padding>
+      </Common>
+    </DrawerDetail>
+  );
+};
 
-    const handleTab = value => {
-      const { sendTo, teamMemberIds, customerIds, ...obj } = config;
-
-      this.setState({
-        config: { ...obj },
-        currentTab: value
-      });
-    };
-
-    const isActiveTab = value => {
-      return currentTab === value ? 'active' : '';
-    };
-
-    return (
-      <DrawerDetail>
-        <Common
-          closeModal={closeModal}
-          addAction={addAction}
-          activeAction={activeAction}
-          config={config}
-        >
-          <TopContainer>{this.renderSettings()}</TopContainer>
-          <Tabs full>
-            <TabTitle
-              className={isActiveTab('general')}
-              onClick={handleTab.bind(this, 'general')}
-            >
-              {__('General')}
-            </TabTitle>
-            <TabTitle
-              className={isActiveTab('static')}
-              onClick={handleTab.bind(this, 'static')}
-            >
-              {__('Static')}
-            </TabTitle>
-          </Tabs>
-          <Padding>{this.renderTabContent()}</Padding>
-          <Padding>{this.renderMainContent()}</Padding>
-        </Common>
-      </DrawerDetail>
-    );
-  }
-}
-
-export default SendNotification;
+export default sendNotifcation;

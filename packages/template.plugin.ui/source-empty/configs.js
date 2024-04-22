@@ -1,15 +1,15 @@
 module.exports = {
   srcDir: __dirname,
-  name: '{name}',
-  port: 3017,
-  scope: '{name}',
+  name: "{name}",
+  port: 3128,
+  scope: "{name}",
   exposes: {
-    './routes': './src/routes.tsx'
+    "./routes": "./src/routes.tsx",
   },
   routes: {
-    url: 'http://localhost:3017/remoteEntry.js',
-    scope: '{name}',
-    module: './routes'
+    url: "http://localhost:3128/remoteEntry.js",
+    scope: "{name}",
+    module: "./routes",
   },
-  menus: []
+  menus: [],
 };

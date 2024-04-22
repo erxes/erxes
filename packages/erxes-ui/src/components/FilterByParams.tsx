@@ -1,18 +1,19 @@
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { getParam, removeParams, setParams } from '../utils/router';
+import { ChildList, PopoverContent, ToggleIcon } from './filterableList/styles';
 import { FieldStyle, SidebarCounter, SidebarList } from '../layout/styles';
-import { IRouterProps } from '../types';
+import { getParam, removeParams, setParams } from '../utils/router';
+
 import DataWithLoader from './DataWithLoader';
 import EmptyState from './EmptyState';
 import Filter from './filterableList/Filter';
 import Icon from './Icon';
-import { PopoverContent, ChildList, ToggleIcon } from './filterableList/styles';
+import React from 'react';
 
-interface IProps extends IRouterProps {
+interface IProps {
   fields: any[];
   counts: any;
   paramKey: string;
+  location: any;
+  navigate: any;
   icon?: string;
   loading: boolean;
   searchable?: boolean;
@@ -32,11 +33,11 @@ class FilterByParams extends React.Component<IProps, State> {
 
     this.state = {
       key: '',
-      parentFieldIds: {}
+      parentFieldIds: {},
     };
   }
 
-  filterItems = e => {
+  filterItems = (e) => {
     this.setState({ key: e.target.value });
 
     const { update } = this.props;
@@ -46,14 +47,14 @@ class FilterByParams extends React.Component<IProps, State> {
     }
   };
 
-  onClick = (id: string) => {
-    const { history, paramKey, multiple } = this.props;
+  onClick = async (id: string) => {
+    const { paramKey, multiple, location, navigate } = this.props;
 
     if (!multiple) {
-      setParams(history, { [paramKey]: id });
+      await setParams(navigate, location, { [paramKey]: id });
     } else {
       // multi select
-      const value = getParam(history, [paramKey]);
+      const value = getParam(location, [paramKey]);
       const params = value ? value.split(',') : [];
 
       if (params.includes(id)) {
@@ -64,10 +65,16 @@ class FilterByParams extends React.Component<IProps, State> {
         params.push(id);
       }
 
-      setParams(history, { [paramKey]: params.toString() });
+      await setParams(navigate, location, { [paramKey]: params.toString() });
     }
 
-    removeParams(history, 'page');
+    // Schedule the removal of "page" parameter after 30 seconds
+    const timeoutId = setTimeout(() => {
+      removeParams(navigate, location, 'page');
+    }, 30000); // 30 seconds in milliseconds
+
+    // Clean up the timeout to avoid side effects when the component unmounts
+    return () => clearTimeout(timeoutId);
   };
 
   groupByParent = (array: any[]) => {
@@ -107,15 +114,8 @@ class FilterByParams extends React.Component<IProps, State> {
   }
 
   renderItems() {
-    const {
-      history,
-      fields,
-      paramKey,
-      icon,
-      searchable,
-      multiple,
-      treeView
-    } = this.props;
+    const { fields, paramKey, icon, searchable, multiple, treeView, location } =
+      this.props;
     const { key } = this.state;
 
     if (fields.length === 0) {
@@ -134,7 +134,7 @@ class FilterByParams extends React.Component<IProps, State> {
 
       let className = '';
       const _id = field._id;
-      const value = getParam(history, [paramKey]);
+      const value = getParam(location, [paramKey]);
 
       if (value === _id) {
         className = 'active';
@@ -162,17 +162,17 @@ class FilterByParams extends React.Component<IProps, State> {
 
     const renderContent = () => {
       if (!treeView) {
-        return fields.map(field => {
+        return fields.map((field) => {
           return renderFieldItem(field);
         });
       }
 
-      const subFields = fields.filter(f => f.parentId);
-      const parents = fields.filter(f => !f.parentId);
+      const subFields = fields.filter((f) => f.parentId);
+      const parents = fields.filter((f) => !f.parentId);
 
       const groupByParent = this.groupByParent(subFields);
 
-      const renderTree = field => {
+      const renderTree = (field) => {
         const childrens = groupByParent[field._id];
 
         if (childrens) {
@@ -190,7 +190,7 @@ class FilterByParams extends React.Component<IProps, State> {
 
                 {renderFieldItem(field, isOpen)}
                 {isOpen &&
-                  childrens.map(childField => {
+                  childrens.map((childField) => {
                     return renderTree(childField);
                   })}
               </ChildList>
@@ -201,7 +201,7 @@ class FilterByParams extends React.Component<IProps, State> {
         return renderFieldItem(field);
       };
 
-      return parents.map(field => {
+      return parents.map((field) => {
         return renderTree(field);
       });
     };
@@ -232,4 +232,4 @@ class FilterByParams extends React.Component<IProps, State> {
   }
 }
 
-export default withRouter<IProps>(FilterByParams);
+export default FilterByParams;

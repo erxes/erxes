@@ -2,20 +2,19 @@ import {
   SignatureChooserFooter,
   SignatureDropdownWrapper,
   SignatureHiderButton,
-  SignatureOptionWrapper
-} from './styles';
+  SignatureOptionWrapper,
+} from "./styles";
 
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { IBrand } from '@erxes/ui/src/brands/types';
-import { IEmailSignature } from '@erxes/ui-settings/src/email/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Label } from '@erxes/ui/src/components/form/styles';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { IBrand } from "@erxes/ui/src/brands/types";
+import { IEmailSignature } from "@erxes/ui-settings/src/email/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Label } from "@erxes/ui/src/components/form/styles";
+import { Menu } from "@headlessui/react";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   signatureContent: any;
@@ -36,17 +35,17 @@ const SignatureChooser = ({
   brands,
   emailContent,
   onContentChange,
-  onSignatureChange
+  onSignatureChange,
 }: Props) => {
   const removeSignature = ({
-    openingTag = '<data>',
-    closingTag = '</data>',
-    content
+    openingTag = "<data>",
+    closingTag = "</data>",
+    content,
   }) => {
     const closingTagLength = closingTag.length + 1;
     const firstIndexOfSignature = content.indexOf(openingTag);
     const lastIndexOfSignature = content.indexOf(closingTag) + closingTagLength;
-    let contentWithoutSignature = '';
+    let contentWithoutSignature = "";
     // If tag is found removing it and appending new signature value to the editor content /
     if (firstIndexOfSignature > -1) {
       contentWithoutSignature = content
@@ -71,7 +70,7 @@ const SignatureChooser = ({
 
   const handleSignatureHide = () => {
     onContentChange(removeSignature({ content: emailContent }));
-    onSignatureChange('');
+    onSignatureChange("");
   };
 
   const handleSignatureSelection = (val: string) => {
@@ -86,7 +85,7 @@ const SignatureChooser = ({
 
     /** If selected brand exists */
     if (brandSignature) {
-      const signatureString = brandSignature.signature || '';
+      const signatureString = brandSignature.signature || "";
 
       onContentChange(
         removeSignature({ content: emailContent }).concat(
@@ -101,18 +100,18 @@ const SignatureChooser = ({
   const renderSignatureDropdownItem = (signature: IEmailSignature) => {
     const brandName =
       brands.find((brand: IBrand) => brand._id === signature.brandId)?.name ||
-      '';
+      "";
 
     return (
       <React.Fragment key={`${signature.brandId}-${signature.signature}`}>
         <SignatureDropdownWrapper>
-          <Dropdown.Item
+          <Menu.Item
             as="button"
-            onClick={() => handleSignatureSelection(signature.brandId || '')}
-            active={emailSignature === signature.brandId}
+            onClick={() => handleSignatureSelection(signature.brandId || "")}
+            // active={emailSignature === signature.brandId}
           >
             <SignatureOptionWrapper>{brandName}</SignatureOptionWrapper>
-          </Dropdown.Item>
+          </Menu.Item>
         </SignatureDropdownWrapper>
       </React.Fragment>
     );
@@ -146,19 +145,19 @@ const SignatureChooser = ({
     const noSignatures = !signatures?.length;
 
     return (
-      <SignatureChooserFooter noSignatures={noSignatures}>
+      <SignatureChooserFooter $noSignatures={noSignatures}>
         {!noSignatures && (
           <SignatureHiderButton onClick={() => handleSignatureHide()}>
             Hide Signature
           </SignatureHiderButton>
         )}
         <ModalTrigger
-          title={__('Email signatures')}
+          title={__("Email signatures")}
           trigger={
-            <div role="button" aria-label={__('Signature settings')}>
-              <Tip text={__('Signature settings')} placement="top">
+            <div role="button" aria-label={__("Signature settings")}>
+              <Tip text={__("Signature settings")} placement="top">
                 <Label>
-                  <Icon icon={'settings'} />
+                  <Icon icon={"settings"} />
                 </Label>
               </Tip>
             </div>
@@ -170,16 +169,16 @@ const SignatureChooser = ({
   };
 
   return (
-    <Dropdown>
-      <Dropdown.Toggle as={DropdownToggle} id="signature-dropdown">
-        {renderIcon({ text: 'Insert signature', icon: 'edit-alt' })}
-      </Dropdown.Toggle>
+    <Menu as="div" className="relative">
+      <Menu.Button>
+        {renderIcon({ text: "Insert signature", icon: "edit-alt" })}
+      </Menu.Button>
 
-      <Dropdown.Menu style={{ overflow: 'auto', maxHeight: 500 }}>
+      <Menu.Items className="absolute">
         {renderSignatures()}
-        {renderSignatureFooter()}
-      </Dropdown.Menu>
-    </Dropdown>
+        <Menu.Item>{renderSignatureFooter()}</Menu.Item>
+      </Menu.Items>
+    </Menu>
   );
 };
 

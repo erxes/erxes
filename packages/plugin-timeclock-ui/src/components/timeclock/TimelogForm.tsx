@@ -1,22 +1,23 @@
-import React, { useState } from 'react';
-import Select from 'react-select-plus';
-import { ControlLabel, FormControl } from '@erxes/ui/src/components/form';
+import { ControlLabel, FormControl } from "@erxes/ui/src/components/form";
 import {
   CustomRangeContainer,
   FlexCenter,
   FlexColumn,
   FlexRow,
   FlexRowEven,
-  ToggleDisplay
-} from '../../styles';
-import { ITimeclock, ITimelog } from '../../types';
-import { dateAndTimeFormat } from '../../constants';
-import dayjs from 'dayjs';
-import { IFormProps } from '@erxes/ui/src/types';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import { Alert } from '@erxes/ui/src/utils';
-import Form from '@erxes/ui/src/components/form/Form';
-import Button from '@erxes/ui/src/components/Button';
+  ToggleDisplay,
+} from "../../styles";
+import { ITimeclock, ITimelog } from "../../types";
+import React, { useState } from "react";
+
+import { Alert } from "@erxes/ui/src/utils";
+import Button from "@erxes/ui/src/components/Button";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import Form from "@erxes/ui/src/components/form/Form";
+import { IFormProps } from "@erxes/ui/src/types";
+import Select from "react-select";
+import { dateAndTimeFormat } from "../../constants";
+import dayjs from "dayjs";
 
 type Props = {
   timeclock: ITimeclock;
@@ -45,44 +46,44 @@ export const TimelogForm = (props: Props) => {
   );
 
   const [shiftEnded, setShiftEnded] = useState(!timeclock.shiftActive);
-  const [shiftStartInput, setShiftStartInput] = useState('');
-  const [shiftEndInput, setShiftEndInput] = useState('');
+  const [shiftStartInput, setShiftStartInput] = useState("");
+  const [shiftEndInput, setShiftEndInput] = useState("");
 
-  const onShiftStartChange = selectedTime => {
+  const onShiftStartChange = (selectedTime) => {
     setInDevice(selectedTime.deviceName);
     setShiftStart(selectedTime.value);
   };
 
-  const onShiftStartInsertChange = date => {
+  const onShiftStartInsertChange = (date) => {
     setShiftStartInsert(date);
   };
 
-  const onShiftEndInsertChange = date => {
+  const onShiftEndInsertChange = (date) => {
     setShiftEndInsert(date);
   };
 
-  const onShiftEndChange = selectedTime => {
+  const onShiftEndChange = (selectedTime) => {
     setOutDevice(selectedTime.deviceName);
     setShiftEnd(selectedTime.value);
   };
 
   const generateSelectOptions = () => {
-    return timelogsPerUser.map(timelog => ({
+    return timelogsPerUser.map((timelog) => ({
       value: timelog.timelog,
       label: dayjs(timelog.timelog).format(dateAndTimeFormat),
-      deviceName: timelog.deviceName
+      deviceName: timelog.deviceName,
     }));
   };
 
-  const toggleShiftStartInput = e => {
+  const toggleShiftStartInput = (e) => {
     setShiftStartInput(e.target.value);
   };
 
-  const toggleShiftEndInput = e => {
+  const toggleShiftEndInput = (e) => {
     setShiftEndInput(e.target.value);
   };
 
-  const toggleShiftActive = e => {
+  const toggleShiftActive = (e) => {
     setShiftEnded(e.target.checked);
   };
 
@@ -97,7 +98,7 @@ export const TimelogForm = (props: Props) => {
   const generateDoc = () => {
     checkInput();
     const getShiftStart =
-      (shiftStartInput === 'pick' ? shiftStart : shiftStartInsert) ||
+      (shiftStartInput === "pick" ? shiftStart : shiftStartInsert) ||
       timeclock.shiftStart;
 
     let outDeviceType;
@@ -110,7 +111,7 @@ export const TimelogForm = (props: Props) => {
       shiftStart !== timeclock.shiftStart ||
       shiftStartInsert !== timeclock.shiftStart
     ) {
-      inDeviceType = shiftStartInput === 'pick' ? 'log' : 'insert';
+      inDeviceType = shiftStartInput === "pick" ? "log" : "insert";
       inDeviceName = inDevice;
     }
 
@@ -120,7 +121,7 @@ export const TimelogForm = (props: Props) => {
         shiftStart: getShiftStart,
         shiftActive: true,
         inDevice: inDeviceName,
-        inDeviceType
+        inDeviceType,
       };
     }
 
@@ -128,43 +129,43 @@ export const TimelogForm = (props: Props) => {
       shiftEnd !== timeclock.shiftEnd ||
       shiftEndInsert !== timeclock.shiftEnd
     ) {
-      outDeviceType = shiftEndInput === 'pick' ? 'log' : 'insert';
+      outDeviceType = shiftEndInput === "pick" ? "log" : "insert";
       outDeviceName = outDevice;
     }
 
     return {
       _id: timeclock._id,
       shiftStart: getShiftStart,
-      shiftEnd: shiftEndInput === 'pick' ? shiftEnd : shiftEndInsert,
+      shiftEnd: shiftEndInput === "pick" ? shiftEnd : shiftEndInsert,
       shiftActive: !shiftEnded,
       inDeviceType,
       inDevice: inDeviceName,
       outDeviceType,
-      outDevice: outDeviceName
+      outDevice: outDeviceName,
     };
   };
 
   const checkInput = () => {
     const getShiftStart = dayjs(
-      (shiftStartInput === 'pick' ? shiftStart : shiftStartInsert) ||
+      (shiftStartInput === "pick" ? shiftStart : shiftStartInsert) ||
         timeclock.shiftStart
     );
 
     const getShiftEnd = dayjs(
-      shiftEndInput === 'pick' ? shiftEnd : shiftEndInsert
+      shiftEndInput === "pick" ? shiftEnd : shiftEndInsert
     );
 
-    if (shiftStartInput === 'insert' && !getShiftStart) {
-      Alert.error('Please insert shift start');
+    if (shiftStartInput === "insert" && !getShiftStart) {
+      Alert.error("Please insert shift start");
       return false;
     }
-    if (shiftEndInput === 'insert' && !getShiftEnd) {
-      Alert.error('Please insert shift end');
+    if (shiftEndInput === "insert" && !getShiftEnd) {
+      Alert.error("Please insert shift end");
       return false;
     }
 
     if (getShiftStart && getShiftEnd && getShiftEnd < getShiftStart) {
-      Alert.error('Shift end can not be sooner than shift start');
+      Alert.error("Shift end can not be sooner than shift start");
       return false;
     }
 
@@ -173,7 +174,7 @@ export const TimelogForm = (props: Props) => {
 
   const renderTimelogForm = (formProps: IFormProps) => {
     return (
-      <FlexColumn marginNum={20}>
+      <FlexColumn $marginNum={20}>
         <div>
           {timeclock.user &&
             timeclock.user.details &&
@@ -186,9 +187,9 @@ export const TimelogForm = (props: Props) => {
             <FormControl
               rows={2}
               name="shiftStartInput"
-              componentClass="radio"
-              options={['pick', 'insert'].map(el => ({
-                value: el
+              componentclass="radio"
+              options={["pick", "insert"].map((el) => ({
+                value: el,
               }))}
               inline={true}
               onChange={toggleShiftStartInput}
@@ -197,22 +198,25 @@ export const TimelogForm = (props: Props) => {
           </FlexRowEven>
         </FlexRow>
 
-        <ToggleDisplay display={shiftStartInput === 'pick'}>
+        <ToggleDisplay display={shiftStartInput === "pick"}>
           <Select
             placeholder="Shift start"
             onChange={onShiftStartChange}
-            value={shiftStart}
+            value={
+              timelogsPerUser &&
+              generateSelectOptions().find((o) => o.value === shiftStart)
+            }
             options={timelogsPerUser && generateSelectOptions()}
           />
         </ToggleDisplay>
-        <ToggleDisplay display={shiftStartInput === 'insert'}>
+        <ToggleDisplay display={shiftStartInput === "insert"}>
           <CustomRangeContainer>
             <DateControl
               value={shiftStartInsert}
               name="startDate"
-              placeholder={'Starting date'}
-              dateFormat={'YYYY-MM-DD'}
-              timeFormat={'HH:mm'}
+              placeholder={"Starting date"}
+              dateFormat={"YYYY-MM-DD"}
+              timeFormat={"HH:mm"}
               onChange={onShiftStartInsertChange}
             />
           </CustomRangeContainer>
@@ -224,7 +228,7 @@ export const TimelogForm = (props: Props) => {
             <FormControl
               name="shiftActive"
               defaultChecked={shiftEnded}
-              componentClass="checkbox"
+              componentclass="checkbox"
               onChange={toggleShiftActive}
             />
             <div>Ended</div>
@@ -239,9 +243,9 @@ export const TimelogForm = (props: Props) => {
               <FormControl
                 rows={2}
                 name="shiftEndInput"
-                componentClass="radio"
-                options={['pick', 'insert'].map(el => ({
-                  value: el
+                componentclass="radio"
+                options={["pick", "insert"].map((el) => ({
+                  value: el,
                 }))}
                 inline={true}
                 onChange={toggleShiftEndInput}
@@ -250,29 +254,32 @@ export const TimelogForm = (props: Props) => {
             </FlexRowEven>
           </FlexRow>
 
-          <ToggleDisplay display={shiftEndInput === 'pick'}>
+          <ToggleDisplay display={shiftEndInput === "pick"}>
             <Select
               placeholder="Shift end"
               onChange={onShiftEndChange}
-              value={shiftEnd}
+              value={
+                timelogsPerUser &&
+                generateSelectOptions().find((o) => o.value === shiftEnd)
+              }
               options={timelogsPerUser && generateSelectOptions()}
             />
           </ToggleDisplay>
-          <ToggleDisplay display={shiftEndInput === 'insert'}>
+          <ToggleDisplay display={shiftEndInput === "insert"}>
             <CustomRangeContainer>
               <DateControl
                 value={shiftEndInsert}
                 name="startDate"
-                placeholder={'Starting date'}
-                dateFormat={'YYYY-MM-DD'}
-                timeFormat={'HH:mm'}
+                placeholder={"Starting date"}
+                dateFormat={"YYYY-MM-DD"}
+                timeFormat={"HH:mm"}
                 onChange={onShiftEndInsertChange}
               />
             </CustomRangeContainer>
           </ToggleDisplay>
         </ToggleDisplay>
 
-        <FlexCenter style={{ marginTop: '10px' }}>
+        <FlexCenter style={{ marginTop: "10px" }}>
           <Button btnStyle="primary" onClick={editTimeClock}>
             Save
           </Button>

@@ -18,8 +18,6 @@ import Watch from '../../containers/editForm/Watch';
 import Comment from '../../../comment/containers/Comment';
 import { loadDynamicComponent, __ } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import PrintActionButton from './PrintDocumentBtn';
-import { Button } from 'react-bootstrap';
 
 type Props = {
   item: IItem;

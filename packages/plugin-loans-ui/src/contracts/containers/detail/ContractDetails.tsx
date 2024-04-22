@@ -1,58 +1,80 @@
 import Alert from '@erxes/ui/src/utils/Alert';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { withProps } from '@erxes/ui/src/utils/core';
 
 import { IUser } from '@erxes/ui/src/auth/types';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
 import ContractDetails from '../../components/detail/ContractDetails';
 import { mutations, queries } from '../../graphql';
 import {
   DetailQueryResponse,
   EditMutationResponse,
   IContractDoc,
-  RegenSchedulesMutationResponse
+  RegenSchedulesMutationResponse,
 } from '../../types';
+import { useMutation, useQuery } from '@apollo/client';
 
 type Props = {
   id: string;
 };
 
 type FinalProps = {
-  contractDetailQuery: DetailQueryResponse;
   currentUser: IUser;
-} & Props &
-  EditMutationResponse &
-  RegenSchedulesMutationResponse;
+} & Props;
 
 const ContractDetailsContainer = (props: FinalProps) => {
-  const { contractDetailQuery, currentUser } = props;
+  const { currentUser, id } = props;
+  const contractDetailQuery = useQuery<DetailQueryResponse>(
+    gql(queries.contractDetail),
+    {
+      variables: {
+        _id: id,
+      },
+    },
+  );
+
+  const [contractsEdit] = useMutation<EditMutationResponse>(
+    gql(mutations.contractsEdit),
+    {
+      refetchQueries: ['contractDetail'],
+    },
+  );
+
+  const [regenSchedules] = useMutation<RegenSchedulesMutationResponse>(
+    gql(mutations.regenSchedules),
+    {
+      refetchQueries: ['schedules', 'scheduleYears'],
+    },
+  );
+
+  const [fixSchedules] = useMutation<RegenSchedulesMutationResponse>(
+    gql(mutations.fixSchedules),
+    {
+      refetchQueries: ['schedules', 'scheduleYears'],
+    },
+  );
 
   const saveItem = (doc: IContractDoc, callback: (item) => void) => {
-    const { contractsEdit } = props;
-
     contractsEdit({ variables: { ...doc } })
       .then(({ data }) => {
         if (callback) {
-          callback(data.contractsEdit);
+          callback((data || {}).contractsEdit);
         }
       })
-      .catch(error => {
+      .catch((error) => {
         Alert.error(error.message);
       });
   };
 
-  const regenSchedules = (contractId: string) => {
-    props.regenSchedules({ variables: { contractId } }).catch(error => {
+  const regenSchedulesHandler = (contractId: string) => {
+    regenSchedules({ variables: { contractId } }).catch((error) => {
       Alert.error(error.message);
     });
   };
 
-  const fixSchedules = (contractId: string) => {
-    props.fixSchedules({ variables: { contractId } }).catch(error => {
+  const fixSchedulesHandler = (contractId: string) => {
+    fixSchedules({ variables: { contractId } }).catch((error) => {
       Alert.error(error.message);
     });
   };
@@ -61,13 +83,13 @@ const ContractDetailsContainer = (props: FinalProps) => {
     return <Spinner objective={true} />;
   }
 
-  if (!contractDetailQuery.contractDetail) {
+  if (!contractDetailQuery?.data?.contractDetail) {
     return (
       <EmptyState text="Contract not found" image="/images/actions/24.svg" />
     );
   }
 
-  const contractDetail = contractDetailQuery.contractDetail;
+  const contractDetail = contractDetailQuery?.data?.contractDetail;
 
   const updatedProps: any = {
     ...props,
@@ -75,54 +97,11 @@ const ContractDetailsContainer = (props: FinalProps) => {
     contract: contractDetail,
     currentUser,
     saveItem,
-    regenSchedules,
-    fixSchedules
+    regenSchedules: regenSchedulesHandler,
+    fixSchedules: fixSchedulesHandler,
   };
 
   return <ContractDetails {...updatedProps} />;
 };
 
-const generateOptions = () => ({
-  refetchQueries: ['contractDetail']
-});
-
-export default withProps<Props>(
-  compose(
-    graphql<Props, DetailQueryResponse, { _id: string }>(
-      gql(queries.contractDetail),
-      {
-        name: 'contractDetailQuery',
-        options: ({ id }) => ({
-          variables: {
-            _id: id
-          }
-        })
-      }
-    ),
-    graphql<{}, EditMutationResponse, IContractDoc>(
-      gql(mutations.contractsEdit),
-      {
-        name: 'contractsEdit',
-        options: generateOptions
-      }
-    ),
-    graphql<{}, RegenSchedulesMutationResponse, { contractId: string }>(
-      gql(mutations.regenSchedules),
-      {
-        name: 'regenSchedules',
-        options: {
-          refetchQueries: ['schedules', 'scheduleYears']
-        }
-      }
-    ),
-    graphql<{}, RegenSchedulesMutationResponse, { contractId: string }>(
-      gql(mutations.fixSchedules),
-      {
-        name: 'fixSchedules',
-        options: {
-          refetchQueries: ['schedules', 'scheduleYears']
-        }
-      }
-    )
-  )(ContractDetailsContainer)
-);
+export default ContractDetailsContainer;

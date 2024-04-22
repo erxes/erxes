@@ -1,30 +1,33 @@
-import { Description, SidebarListItem } from '@erxes/ui-settings/src/styles';
-import { FieldStyle } from '@erxes/ui/src/layout/styles';
-import { IRouterProps } from '@erxes/ui/src/types';
-import * as routerUtils from '@erxes/ui/src/utils/router';
-import WithPermission from 'coreui/withPermission';
-import React from 'react';
-import { Link, withRouter } from 'react-router-dom';
+import * as routerUtils from "@erxes/ui/src/utils/router";
 
-import { IKhanbankAccount } from '../types';
+import { Description, SidebarListItem } from "@erxes/ui-settings/src/styles";
+
+import { FieldStyle } from "@erxes/ui/src/layout/styles";
+import { IKhanbankAccount } from "../types";
+import { Link } from "react-router-dom";
+import React from "react";
+import WithPermission from "coreui/withPermission";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
   configId: string;
   accounts: IKhanbankAccount[];
-} & IRouterProps;
+};
 
 const List = (props: any) => {
-  const { queryParams, accounts, history } = props;
+  const { queryParams, accounts } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const onClickRow = e => {
-    routerUtils.setParams(history, {
+  const onClickRow = (e) => {
+    routerUtils.setParams(navigate, location, {
       _id: props.configId,
-      account: e.currentTarget.id
+      account: e.currentTarget.id,
     });
   };
 
-  return (accounts || []).map(account => (
+  return (accounts || []).map((account) => (
     <>
       <WithPermission action="khanbankAccounts">
         <SidebarListItem
@@ -45,4 +48,4 @@ const List = (props: any) => {
   ));
 };
 
-export default withRouter<Props>(List);
+export default List;

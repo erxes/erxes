@@ -1,40 +1,40 @@
-import Attachment from '@erxes/ui/src/components/Attachment';
-import Button from '@erxes/ui/src/components/Button';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { Actions, InfoWrapper } from '@erxes/ui/src/styles/main';
-import { IAttachment } from '@erxes/ui/src/types';
-import { __, Alert, confirm } from '@erxes/ui/src/utils';
+import Attachment from "@erxes/ui/src/components/Attachment";
+import Button from "@erxes/ui/src/components/Button";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import { Actions, InfoWrapper } from "@erxes/ui/src/styles/main";
+import { IAttachment } from "@erxes/ui/src/types";
+import { __, Alert, confirm } from "@erxes/ui/src/utils";
 
-import { Action, Name } from '@erxes/ui-contacts/src/customers/styles';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import { Name } from "@erxes/ui-contacts/src/customers/styles";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
 import {
   FieldStyle,
   SidebarCounter,
   SidebarFlexRow,
-  SidebarList
-} from '@erxes/ui/src/layout/styles';
-import ProductForm from '@erxes/ui-products/src/containers/ProductForm';
-import { IProduct } from '../../../types';
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { Link } from 'react-router-dom';
-import xss from 'xss';
-import { ProductBarcodeContent, ProductContent } from '../../../styles';
-import { isValidBarcode } from '../../../utils';
-import { Tip } from '@erxes/ui/src';
+  SidebarList,
+} from "@erxes/ui/src/layout/styles";
+import ProductForm from "@erxes/ui-products/src/containers/ProductForm";
+import { IProduct } from "../../../types";
+import React from "react";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import { Link, useNavigate } from "react-router-dom";
+import xss from "xss";
+import { ProductBarcodeContent, ProductContent } from "../../../styles";
+import { isValidBarcode } from "../../../utils";
+import { Tip } from "@erxes/ui/src";
 
 type Props = {
   product: IProduct;
   remove: () => void;
-  history: any;
 };
 
-class BasicInfo extends React.Component<Props> {
-  renderVendor = vendor => {
-    const { history } = this.props;
+const BasicInfo: React.FC<Props> = (props) => {
+  const navigate = useNavigate();
+  const { product, remove } = props;
 
+  const renderVendor = (vendor) => {
     if (!vendor) {
       return (
         <li>
@@ -47,11 +47,11 @@ class BasicInfo extends React.Component<Props> {
     return (
       <li>
         <FieldStyle>{__(`Vendor`)}</FieldStyle>
-        <SidebarCounter>{vendor.primaryName || ''}</SidebarCounter>
+        <SidebarCounter>{vendor.primaryName || ""}</SidebarCounter>
         <Button
-          onClick={() => history.push(`/companies/details/${vendor._id}`)}
+          onClick={() => navigate(`/companies/details/${vendor._id}`)}
           btnStyle="link"
-          style={{ padding: '0', paddingLeft: '8px' }}
+          style={{ padding: "0", paddingLeft: "8px" }}
         >
           <Tip text="See Vendor Detail" placement="bottom">
             <Icon icon="rightarrow" />
@@ -61,7 +61,7 @@ class BasicInfo extends React.Component<Props> {
     );
   };
 
-  renderBarcodes = barcodes => {
+  const renderBarcodes = (barcodes) => {
     return (
       <>
         <li>
@@ -70,7 +70,7 @@ class BasicInfo extends React.Component<Props> {
         {(barcodes || []).map((item: string, iteration: number) => (
           <ProductBarcodeContent key={iteration} isValid={isValidBarcode(item)}>
             <Link
-              to={`/settings/barcode-generator/${this.props.product._id}?barcode=${item}`}
+              to={`/settings/barcode-generator/${product._id}?barcode=${item}`}
             >
               <Icon icon="print" />
               {item}
@@ -81,8 +81,8 @@ class BasicInfo extends React.Component<Props> {
     );
   };
 
-  renderView = (name, variable) => {
-    const defaultName = name.includes('count') ? 0 : '-';
+  const renderView = (name, variable) => {
+    const defaultName = name.includes("count") ? 0 : "-";
 
     return (
       <li>
@@ -92,56 +92,53 @@ class BasicInfo extends React.Component<Props> {
     );
   };
 
-  renderEdit() {
-    const { product } = this.props;
-    const content = props => <ProductForm {...props} product={product} />;
+  const renderEdit = () => {
+    const content = (props) => <ProductForm {...props} product={product} />;
     return (
       <ModalTrigger
         title="Edit basic info"
         trigger={
           <li>
-            <a href="#edit">{__('Edit')}</a>
+            <a href="#edit">{__("Edit")}</a>
           </li>
         }
         size="xl"
         content={content}
       />
     );
-  }
+  };
 
-  renderAction() {
-    const { remove } = this.props;
-
+  const renderAction = () => {
     const onDelete = () =>
       confirm()
         .then(() => remove())
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
 
     return (
       <Actions>
-        <Dropdown>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
+        <Dropdown
+          as={DropdownToggle}
+          toggleComponent={
             <Button btnStyle="simple" size="medium">
-              {__('Action')}
+              {__("Action")}
               <Icon icon="angle-down" />
             </Button>
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            {this.renderEdit()}
-            <li>
-              <a href="#delete" onClick={onDelete}>
-                {__('Delete')}
-              </a>
-            </li>
-          </Dropdown.Menu>
+          }
+        >
+          {renderEdit()}
+          <li>
+            <a href="#delete" onClick={onDelete}>
+              {__("Delete")}
+            </a>
+          </li>
         </Dropdown>
       </Actions>
     );
-  }
+  };
 
-  renderImage = (item: IAttachment) => {
+  const renderImage = (item: IAttachment) => {
     if (!item) {
       return null;
     }
@@ -149,9 +146,7 @@ class BasicInfo extends React.Component<Props> {
     return <Attachment attachment={item} />;
   };
 
-  renderProductContent = () => {
-    const { product } = this.props;
-
+  const renderProductContent = () => {
     if (!product.description) {
       return null;
     }
@@ -159,15 +154,13 @@ class BasicInfo extends React.Component<Props> {
     return (
       <ProductContent
         dangerouslySetInnerHTML={{
-          __html: xss(product.description)
+          __html: xss(product.description),
         }}
       />
     );
   };
 
-  renderInfo() {
-    const { product } = this.props;
-
+  const renderInfo = () => {
     const {
       code,
       name,
@@ -176,34 +169,32 @@ class BasicInfo extends React.Component<Props> {
       unitPrice,
       barcodes,
       attachment,
-      vendor
+      vendor,
     } = product;
 
     return (
       <Sidebar.Section>
         <InfoWrapper>
           <Name>{name}</Name>
-          {this.renderAction()}
+          {renderAction()}
         </InfoWrapper>
 
-        {this.renderImage(attachment)}
+        {renderImage(attachment)}
         <SidebarList className="no-link">
-          {this.renderView('Code', code)}
-          {this.renderView('Type', type)}
-          {this.renderView('Category', category ? category.name : '')}
-          {this.renderView('Unit price', (unitPrice || 0).toLocaleString())}
-          {this.renderBarcodes(barcodes)}
-          {this.renderVendor(vendor)}
+          {renderView("Code", code)}
+          {renderView("Type", type)}
+          {renderView("Category", category ? category.name : "")}
+          {renderView("Unit price", (unitPrice || 0).toLocaleString())}
+          {renderBarcodes(barcodes)}
+          {renderVendor(vendor)}
           <SidebarFlexRow>{__(`Description`)}</SidebarFlexRow>
         </SidebarList>
-        {this.renderProductContent()}
+        {renderProductContent()}
       </Sidebar.Section>
     );
-  }
+  };
 
-  render() {
-    return this.renderInfo();
-  }
-}
+  return renderInfo();
+};
 
 export default BasicInfo;

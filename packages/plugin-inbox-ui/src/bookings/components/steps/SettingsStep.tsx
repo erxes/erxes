@@ -1,16 +1,16 @@
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { Description } from '@erxes/ui-settings/src/styles';
-import { FlexHeight as FlexItemContainer } from '@erxes/ui/src/styles/main';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import React from 'react';
-import Select from 'react-select-plus';
-import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
-import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { Description } from "@erxes/ui-settings/src/styles";
+import { FlexHeight as FlexItemContainer } from "@erxes/ui/src/styles/main";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { LANGUAGES } from "@erxes/ui-settings/src/general/constants";
+import { LeftItem } from "@erxes/ui/src/components/step/styles";
+import React from "react";
+import Select from "react-select";
+import SelectBrand from "@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand";
+import SelectChannels from "@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels";
 
-type Name = 'languageCode';
+type Name = "languageCode";
 
 type Props = {
   onChange: (name: string, value: any) => void;
@@ -25,7 +25,7 @@ function SettingsStep({
   title,
   brandId,
   channelIds,
-  languageCode
+  languageCode,
 }: Props) {
   const onChangeSelect = (key: Name, e: any) => {
     let value = e;
@@ -35,6 +35,11 @@ function SettingsStep({
     }
     onChange(key, value);
   };
+
+  const options = LANGUAGES.map((el) => ({
+    label: el.label,
+    value: el.value,
+  }));
 
   return (
     <FlexItemContainer>
@@ -46,7 +51,7 @@ function SettingsStep({
           </Description>
           <FormControl
             type="text"
-            onChange={(e: any) => onChange('title', e.target.value)}
+            onChange={(e: any) => onChange("title", e.target.value)}
             defaultValue={title}
           />
         </FormGroup>
@@ -55,14 +60,14 @@ function SettingsStep({
           <SelectBrand
             isRequired={true}
             defaultValue={brandId}
-            onChange={(e: any) => onChange('brandId', e.target.value)}
+            onChange={(e: any) => onChange("brandId", e.target.value)}
           />
         </FormGroup>
 
         <FormGroup>
           <SelectChannels
             defaultValue={channelIds}
-            onChange={e => onChange('channelIds', e)}
+            onChange={(e) => onChange("channelIds", e)}
           />
         </FormGroup>
 
@@ -70,12 +75,9 @@ function SettingsStep({
           <ControlLabel required={true}>Language</ControlLabel>
           <Select
             placeholder="Choose language"
-            options={LANGUAGES.map(el => ({
-              label: el.label,
-              value: el.value
-            }))}
-            value={languageCode}
-            onChange={e => onChangeSelect('languageCode', e)}
+            options={options}
+            value={options.find((option) => option.value === languageCode)}
+            onChange={(e) => onChangeSelect("languageCode", e)}
           />
         </FormGroup>
       </LeftItem>

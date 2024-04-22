@@ -1,5 +1,5 @@
 import React from 'react';
-import Select from 'react-select-plus';
+import Select from 'react-select';
 import styled from 'styled-components';
 
 const Container = styled.div`
@@ -13,16 +13,16 @@ type Props = {
 };
 
 class FormList extends React.Component<Props, {}> {
-  generateForms = forms =>
-    forms.map(form => ({
+  generateForms = (forms) =>
+    forms.map((form) => ({
       value: form._id,
-      label: form.title
+      label: form.title,
     }));
 
   render() {
     const { forms, stage, onChangeForm } = this.props;
 
-    const onChange = form => {
+    const onChange = (form) => {
       let value = '';
 
       if (form) {
@@ -37,7 +37,7 @@ class FormList extends React.Component<Props, {}> {
         <Select
           placeholder="Forms"
           onChange={onChange}
-          value={stage.formId}
+          value={this.generateForms(forms).find((o) => o.value === stage.formId)}
           options={this.generateForms(forms)}
         />
       </Container>

@@ -111,12 +111,6 @@ export type PosRemoveMutationResponse = {
   removePos: (mutation: { variables: { _id: string } }) => Promise<any>;
 };
 
-export interface IRouterProps {
-  history: any;
-  location: any;
-  match: any;
-}
-
 export type Counts = {
   [key: string]: number;
 };

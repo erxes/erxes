@@ -1,11 +1,6 @@
-import Button from '@erxes/ui/src/components/Button';
-import { Alert, __ } from '@erxes/ui/src/utils';
-import React, { useState } from 'react';
-import Select from 'react-select-plus';
-import { FormControl } from '@erxes/ui/src/components/form';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { IAbsenceType } from '../../types';
-import Uploader from '@erxes/ui/src/components/Uploader';
+import * as dayjs from "dayjs";
+
+import { Alert, __ } from "@erxes/ui/src/utils";
 import {
   CustomRangeContainer,
   FlexCenter,
@@ -13,23 +8,29 @@ import {
   FlexRow,
   FlexRowEven,
   MarginY,
-  ToggleDisplay
-} from '../../styles';
-import { IAttachment } from '@erxes/ui/src/types';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import Datetime from '@nateradebaugh/react-datetime';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import { PopoverButton } from '@erxes/ui/src/styles/main';
-import Icon from '@erxes/ui/src/components/Icon';
-import { dateFormat } from '../../constants';
-import * as dayjs from 'dayjs';
+  ToggleDisplay,
+} from "../../styles";
+import { IBranch, IDepartment } from "@erxes/ui/src/team/types";
+import React, { useState } from "react";
 import {
   compareStartAndEndTimeOfSingleDate,
-  prepareCurrentUserOption
-} from '../../utils';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
+  prepareCurrentUserOption,
+} from "../../utils";
+
+import Button from "@erxes/ui/src/components/Button";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import Datetime from "@nateradebaugh/react-datetime";
+import { FormControl } from "@erxes/ui/src/components/form";
+import { IAbsenceType } from "../../types";
+import { IAttachment } from "@erxes/ui/src/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import Popover from "@erxes/ui/src/components/Popover";
+import { PopoverButton } from "@erxes/ui/src/styles/main";
+import Select from "react-select";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import Uploader from "@erxes/ui/src/components/Uploader";
+import { dateFormat } from "../../constants";
 
 type Props = {
   currentUser: IUser;
@@ -39,7 +40,6 @@ type Props = {
   isCurrentUserAdmin: boolean;
 
   absenceTypes: IAbsenceType[];
-  history: any;
   queryParams: any;
 
   submitCheckInOut: (type: string, userId: string, dateVal: Date) => void;
@@ -81,7 +81,7 @@ export default (props: Props) => {
     checkInOutRequest,
     submitCheckInOut,
 
-    isCurrentUserAdmin
+    isCurrentUserAdmin,
   } = props;
 
   type RequestByTime = {
@@ -123,21 +123,21 @@ export default (props: Props) => {
 
   const [request, setRequest] = useState<Request>({
     byDay: { requestDates: [] },
-    byTime: { date: new Date(), startTime: new Date(), endTime: new Date() }
+    byTime: { date: new Date(), startTime: new Date(), endTime: new Date() },
   });
 
-  const [checkInOutType, setCheckInOutType] = useState('Check in');
+  const [checkInOutType, setCheckInOutType] = useState("Check in");
   const [checkInOutDate, setCheckInOutDate] = useState(new Date());
 
-  const [explanation, setExplanation] = useState('');
+  const [explanation, setExplanation] = useState("");
   const [attachment, setAttachment] = useState<IAttachment>({
-    name: ' ',
-    type: '',
-    url: ''
+    name: " ",
+    type: "",
+    url: "",
   });
 
   const checkAbsenceIdx = parseInt(
-    localStorage.getItem('absenceIdx') || '0',
+    localStorage.getItem("absenceIdx") || "0",
     10
   );
 
@@ -145,18 +145,18 @@ export default (props: Props) => {
     checkAbsenceIdx < absenceTypes.length ? checkAbsenceIdx : 0
   );
 
-  const [userId, setUserId] = useState('');
+  const [userId, setUserId] = useState("");
 
-  const checkInput = selectedUser => {
-    if (selectedUser === '') {
-      Alert.error('No user was selected');
+  const checkInput = (selectedUser) => {
+    if (selectedUser === "") {
+      Alert.error("No user was selected");
     } else if (
       absenceTypes[absenceIdx].attachRequired &&
-      attachment.url === ''
+      attachment.url === ""
     ) {
-      Alert.error('No attachment was uploaded');
-    } else if (absenceTypes[absenceIdx].explRequired && explanation === '') {
-      Alert.error('No explanation was given');
+      Alert.error("No attachment was uploaded");
+    } else if (absenceTypes[absenceIdx].explRequired && explanation === "") {
+      Alert.error("No explanation was given");
     } else {
       return true;
     }
@@ -165,7 +165,7 @@ export default (props: Props) => {
   const calculateTotalHoursOfAbsence = () => {
     const absenceTimeType = absenceTypes[absenceIdx].requestTimeType;
 
-    if (absenceTimeType === 'by day') {
+    if (absenceTimeType === "by day") {
       const totalRequestedDays = request.byDay.requestDates.length;
 
       const totalRequestedDaysTime =
@@ -185,11 +185,11 @@ export default (props: Props) => {
     if (validInput) {
       const absenceTimeType = absenceTypes[absenceIdx].requestTimeType;
       const submitTime =
-        absenceTimeType === 'by day'
+        absenceTimeType === "by day"
           ? request.byDay
           : {
               startTime: request.byTime.startTime,
-              endTime: request.byTime.endTime
+              endTime: request.byTime.endTime,
             };
 
       submitRequest(
@@ -206,15 +206,15 @@ export default (props: Props) => {
     }
   };
 
-  const setInputValue = e => {
+  const setInputValue = (e) => {
     setExplanation(e.target.value);
   };
 
-  const onUserSelect = usrId => {
+  const onUserSelect = (usrId) => {
     setUserId(usrId);
   };
 
-  const onReasonSelect = reason => {
+  const onReasonSelect = (reason) => {
     setAbsenceArrIdx(reason.arrayIdx);
   };
 
@@ -222,7 +222,7 @@ export default (props: Props) => {
     setAttachment(files[0]);
   };
 
-  const onCheckInDateChange = date => {
+  const onCheckInDateChange = (date) => {
     setCheckInOutDate(date);
   };
 
@@ -235,19 +235,20 @@ export default (props: Props) => {
     ? {}
     : {
         ids: returnTotalUserOptions(),
-        excludeIds: false
+        excludeIds: false,
       };
 
   if (checkInOutRequest) {
+    const options = ["Check in", "Check out"].map((ipt) => ({
+      label: ipt,
+      value: ipt,
+    }));
     return (
-      <FlexColumn marginNum={10}>
+      <FlexColumn $marginNum={10}>
         <Select
-          value={checkInOutType}
-          onChange={e => setCheckInOutType(e.value)}
-          options={['Check in', 'Check out'].map(ipt => ({
-            label: ipt,
-            value: ipt
-          }))}
+          value={options.find((o) => o.value === checkInOutType)}
+          onChange={(e: any) => setCheckInOutType(e.value)}
+          options={options}
         />
 
         <SelectTeamMembers
@@ -255,7 +256,7 @@ export default (props: Props) => {
           filterParams={filterParams}
           customOption={prepareCurrentUserOption(currentUser)}
           customField="employeeId"
-          label={'Team member'}
+          label={"Team member"}
           onSelect={onUserSelect}
           multi={false}
           name="userId"
@@ -266,10 +267,10 @@ export default (props: Props) => {
             required={false}
             value={checkInOutDate}
             name="startDate"
-            placeholder={'Starting date'}
+            placeholder={"Starting date"}
             dateFormat="YYYY-MM-DD"
             timeFormat="HH:mm"
-            onChange={val => onCheckInDateChange(val)}
+            onChange={(val) => onCheckInDateChange(val)}
           />
         </CustomRangeContainer>
 
@@ -288,12 +289,12 @@ export default (props: Props) => {
     }
   };
 
-  const onDateSelectChange = date => {
+  const onDateSelectChange = (date) => {
     if (date) {
       // handle click on a different month
       if (
-        JSON.stringify(date).split('-')[1] !==
-        JSON.stringify(lastSelectedDate).split('-')[1]
+        JSON.stringify(date).split("-")[1] !==
+        JSON.stringify(lastSelectedDate).split("-")[1]
       ) {
         setlastSelectedDate(new Date(date));
       }
@@ -326,94 +327,64 @@ export default (props: Props) => {
     return (
       <td
         {...dateTimeProps}
-        className={`rdtDay ${isSelected ? 'rdtActive' : ''}`}
+        className={`rdtDay ${isSelected ? "rdtActive" : ""}`}
       >
         {new Date(currentDate).getDate()}
       </td>
     );
   };
 
-  const renderDateSelection = () => {
-    return (
-      <Popover id="schedule-date-select-popover" content={true}>
-        <div style={{ position: 'relative' }}>
-          <Datetime
-            open={true}
-            input={false}
-            renderDay={renderDay}
-            value={lastSelectedDate}
-            closeOnSelect={false}
-            timeFormat={false}
-            onChange={onDateSelectChange}
-            inputProps={{ required: false }}
-          />
-          <FlexCenter>
-            <MarginY margin={10}>
-              <Button onClick={closePopover}>Close</Button>
-            </MarginY>
-          </FlexCenter>
-        </div>
-      </Popover>
-    );
-  };
-
-  const onDateChange = selectedDate => {
-    const [
-      getCorrectStartTime,
-      getCorrectEndTime
-    ] = compareStartAndEndTimeOfSingleDate(
-      request.byTime.startTime,
-      request.byTime.endTime,
-      selectedDate
-    );
+  const onDateChange = (selectedDate) => {
+    const [getCorrectStartTime, getCorrectEndTime] =
+      compareStartAndEndTimeOfSingleDate(
+        request.byTime.startTime,
+        request.byTime.endTime,
+        selectedDate
+      );
 
     setRequest({
       ...request,
       byTime: {
         date: new Date(selectedDate),
         endTime: getCorrectEndTime,
-        startTime: getCorrectStartTime
-      }
+        startTime: getCorrectStartTime,
+      },
     });
   };
 
-  const onChangeStartTime = starTimeValue => {
-    const [
-      getCorrectStartTime,
-      getCorrectEndTime
-    ] = compareStartAndEndTimeOfSingleDate(
-      starTimeValue,
-      request.byTime.endTime,
-      request.byTime.date
-    );
+  const onChangeStartTime = (starTimeValue) => {
+    const [getCorrectStartTime, getCorrectEndTime] =
+      compareStartAndEndTimeOfSingleDate(
+        starTimeValue,
+        request.byTime.endTime,
+        request.byTime.date
+      );
 
     setRequest({
       ...request,
       byTime: {
         ...request.byTime,
         endTime: getCorrectEndTime,
-        startTime: getCorrectStartTime
-      }
+        startTime: getCorrectStartTime,
+      },
     });
   };
 
-  const onChangeEndTime = endTimeValue => {
-    const [
-      getCorrectStartTime,
-      getCorrectEndTime
-    ] = compareStartAndEndTimeOfSingleDate(
-      request.byTime.startTime,
-      endTimeValue,
-      request.byTime.date
-    );
+  const onChangeEndTime = (endTimeValue) => {
+    const [getCorrectStartTime, getCorrectEndTime] =
+      compareStartAndEndTimeOfSingleDate(
+        request.byTime.startTime,
+        endTimeValue,
+        request.byTime.date
+      );
 
     setRequest({
       ...request,
       byTime: {
         ...request.byTime,
         endTime: getCorrectEndTime,
-        startTime: getCorrectStartTime
-      }
+        startTime: getCorrectStartTime,
+      },
     });
   };
 
@@ -423,13 +394,13 @@ export default (props: Props) => {
     const getDate = startDate
       ? startDate.toLocaleDateString()
       : new Date().toLocaleDateString();
-    const validateInput = dayjs(getDate + ' ' + input).toDate();
+    const validateInput = dayjs(getDate + " " + input).toDate();
 
     if (
       input instanceof Date &&
       startDate?.getUTCFullYear() === input.getUTCFullYear()
     ) {
-      if (type === 'start') {
+      if (type === "start") {
         onChangeStartTime(input);
       } else {
         onChangeEndTime(input);
@@ -437,7 +408,7 @@ export default (props: Props) => {
     }
 
     if (!isNaN(validateInput.getTime())) {
-      if (type === 'start') {
+      if (type === "start") {
         onChangeStartTime(validateInput);
       } else {
         onChangeEndTime(validateInput);
@@ -447,7 +418,7 @@ export default (props: Props) => {
 
   const renderDateAndTimeSelection = (
     <FlexRowEven>
-      <FlexColumn marginNum={2}>
+      <FlexColumn $marginNum={2}>
         <div>Date:</div>
         <Datetime
           value={request.byTime.date}
@@ -456,32 +427,32 @@ export default (props: Props) => {
         />
       </FlexColumn>
 
-      <FlexColumn marginNum={2}>
+      <FlexColumn $marginNum={2}>
         <div>From:</div>
         <Datetime
           value={request.byTime.startTime}
           dateFormat={false}
           timeFormat="HH:mm"
           timeConstraints={{
-            hours: { min: 0, max: 24, step: 1 }
+            hours: { min: 0, max: 24, step: 1 },
           }}
-          onChange={val => onTimeChange(val, 'start')}
+          onChange={(val) => onTimeChange(val, "start")}
         />
       </FlexColumn>
-      <FlexColumn marginNum={2}>
+      <FlexColumn $marginNum={2}>
         <div>To:</div>
         <Datetime
           value={request.byTime.endTime}
           dateFormat={false}
           timeFormat="HH:mm"
-          onChange={val => onTimeChange(val, 'end')}
+          onChange={(val) => onTimeChange(val, "end")}
         />
       </FlexColumn>
     </FlexRowEven>
   );
 
   const requestTimeByDay =
-    absenceTypes[absenceIdx].requestTimeType === 'by day';
+    absenceTypes[absenceIdx].requestTimeType === "by day";
 
   const renderTotalRequestTime = () => {
     const totalRequestedDays = request.byDay.requestDates.length;
@@ -489,11 +460,11 @@ export default (props: Props) => {
     if (requestTimeByDay) {
       return (
         <FlexRow>
-          <FlexColumn marginNum={2}>
+          <FlexColumn $marginNum={2}>
             <div>Total days :</div>
             <div>Total hours :</div>
           </FlexColumn>
-          <FlexColumn marginNum={2}>
+          <FlexColumn $marginNum={2}>
             <div>{totalRequestedDays}</div>
             <div>{calculateTotalHoursOfAbsence()}</div>
           </FlexColumn>
@@ -509,22 +480,44 @@ export default (props: Props) => {
     );
   };
 
+  const reasonOptions =
+    absenceTypes &&
+    absenceTypes.map((absenceType, idx) => ({
+      value: absenceType.name,
+      label: absenceType.name,
+      arrayIdx: idx,
+    }));
+
   return (
-    <FlexColumn marginNum={10}>
+    <FlexColumn $marginNum={10}>
       <ToggleDisplay display={requestTimeByDay}>
-        <OverlayTrigger
-          ref={overlay => setOverlayTrigger(overlay)}
+        <Popover
           placement="left-start"
-          trigger="click"
-          overlay={renderDateSelection()}
-          container={this}
-          rootClose={this}
+          trigger={
+            <PopoverButton>
+              {__("Please select date")}
+              <Icon icon="angle-down" />
+            </PopoverButton>
+          }
         >
-          <PopoverButton>
-            {__('Please select date')}
-            <Icon icon="angle-down" />
-          </PopoverButton>
-        </OverlayTrigger>
+          <div style={{ position: "relative" }}>
+            <Datetime
+              open={true}
+              input={false}
+              renderDay={renderDay}
+              value={lastSelectedDate}
+              closeOnSelect={false}
+              timeFormat={false}
+              onChange={onDateSelectChange}
+              inputProps={{ required: false }}
+            />
+            <FlexCenter>
+              <MarginY margin={10}>
+                <Button onClick={closePopover}>Close</Button>
+              </MarginY>
+            </FlexCenter>
+          </div>
+        </Popover>
       </ToggleDisplay>
 
       <ToggleDisplay display={!requestTimeByDay}>
@@ -533,7 +526,7 @@ export default (props: Props) => {
 
       <MarginY margin={15}>
         <FlexCenter>
-          <div style={{ fontSize: '14px', width: '30%' }}>
+          <div style={{ fontSize: "14px", width: "30%" }}>
             {renderTotalRequestTime()}
           </div>
         </FlexCenter>
@@ -543,24 +536,21 @@ export default (props: Props) => {
         filterParams={filterParams}
         customOption={prepareCurrentUserOption(currentUser)}
         queryParams={queryParams}
-        label={'Team member'}
+        label={"Team member"}
         onSelect={onUserSelect}
         multi={false}
         name="userId"
       />
 
       <Select
-        placeholder={__('Reason')}
+        placeholder={__("Reason")}
         onChange={onReasonSelect}
-        value={absenceTypes.length > 0 && absenceTypes[absenceIdx].name}
-        options={
-          absenceTypes &&
-          absenceTypes.map((absenceType, idx) => ({
-            value: absenceType.name,
-            label: absenceType.name,
-            arrayIdx: idx
-          }))
-        }
+        value={reasonOptions.find(
+          (o) =>
+            o.value ===
+            (absenceTypes.length > 0 && absenceTypes[absenceIdx].name)
+        )}
+        options={reasonOptions}
       />
       {absenceTypes.length > 0 && absenceTypes[absenceIdx].explRequired ? (
         <FormControl
@@ -577,7 +567,7 @@ export default (props: Props) => {
       {absenceTypes.length > 0 && absenceTypes[absenceIdx].attachRequired ? (
         <Uploader
           text={`Choose a file to upload`}
-          warningText={'Only .jpg or jpeg file is supported.'}
+          warningText={"Only .jpg or jpeg file is supported."}
           single={true}
           defaultFileList={[]}
           onChange={onChangeAttachment}
@@ -587,7 +577,7 @@ export default (props: Props) => {
       )}
       <FlexCenter>
         <Button style={{ marginTop: 10 }} onClick={onSubmitClick}>
-          {'Submit'}
+          {"Submit"}
         </Button>
       </FlexCenter>
     </FlexColumn>

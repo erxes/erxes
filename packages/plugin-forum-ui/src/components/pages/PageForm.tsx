@@ -1,15 +1,16 @@
-import React from 'react';
-import { IPage } from '../../types';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
-import Button from '@erxes/ui/src/components/Button';
-import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { FlexContent, FlexItem } from "@erxes/ui/src/layout/styles";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IPage } from "../../types";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import React from "react";
+import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   page?: IPage;
@@ -29,8 +30,8 @@ class PageForm extends React.Component<Props, State> {
     const page = props.page || ({} as IPage);
 
     this.state = {
-      content: page.content ?? '',
-      title: page.title ?? '',
+      content: page.content ?? "",
+      title: page.title ?? "",
     };
   }
 
@@ -77,7 +78,7 @@ class PageForm extends React.Component<Props, State> {
         <FlexContent>
           <FlexItem count={4}>
             <FormGroup>
-              <ControlLabel required={true}>{__('Title')}</ControlLabel>
+              <ControlLabel required={true}>{__("Title")}</ControlLabel>
               <FormControl
                 {...formProps}
                 name="title"
@@ -89,7 +90,7 @@ class PageForm extends React.Component<Props, State> {
           </FlexItem>
           <FlexItem count={2} hasSpace={true}>
             <FormGroup>
-              <ControlLabel>{__('Code')}</ControlLabel>
+              <ControlLabel>{__("Code")}</ControlLabel>
               <FormControl
                 {...formProps}
                 name="code"
@@ -101,7 +102,7 @@ class PageForm extends React.Component<Props, State> {
         <FlexContent>
           <FlexItem count={4}>
             <FormGroup>
-              <ControlLabel>{__('Thumbnail')}</ControlLabel>
+              <ControlLabel>{__("Thumbnail")}</ControlLabel>
               <FormControl
                 {...formProps}
                 name="thumbnail"
@@ -111,7 +112,7 @@ class PageForm extends React.Component<Props, State> {
           </FlexItem>
           <FlexItem count={2} hasSpace={true}>
             <FormGroup>
-              <ControlLabel>{__('List Order')}</ControlLabel>
+              <ControlLabel>{__("List Order")}</ControlLabel>
               <FormControl
                 {...formProps}
                 name="listOrder"
@@ -123,23 +124,23 @@ class PageForm extends React.Component<Props, State> {
         </FlexContent>
 
         <FormGroup>
-          <ControlLabel>{__('Description')}</ControlLabel>
+          <ControlLabel>{__("Description")}</ControlLabel>
           <FormControl
             {...formProps}
             name="description"
-            componentClass="textarea"
+            componentclass="textarea"
             defaultValue={object.description}
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel required={true}>{__('Content')}</ControlLabel>
+          <ControlLabel required={true}>{__("Content")}</ControlLabel>
           <RichTextEditor
             content={content}
             onChange={this.onChange}
             isSubmitted={isSubmitted}
             height={300}
-            name={`page_${page ? page._id : 'create'}`}
+            name={`page_${page ? page._id : "create"}`}
           />
         </FormGroup>
 
@@ -150,11 +151,11 @@ class PageForm extends React.Component<Props, State> {
             onClick={this.props.closeModal}
             icon="times-circle"
           >
-            {__('Cancel')}
+            {__("Cancel")}
           </Button>
 
           {renderButton({
-            passedName: 'page',
+            passedName: "page",
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,

@@ -1,13 +1,13 @@
-import Box from '@erxes/ui/src/components/Box';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Icon from '@erxes/ui/src/components/Icon';
-import Label from '@erxes/ui/src/components/Label';
-import Table from '@erxes/ui/src/components/table';
-import { __ } from '@erxes/ui/src/utils/core';
-import React from 'react';
-import Modal from 'react-bootstrap/Modal';
-import InvoiceDetail from '../../containers/invoice/Detail';
-import { IInvoice } from '../../types';
+import Box from "@erxes/ui/src/components/Box";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Icon from "@erxes/ui/src/components/Icon";
+import Label from "@erxes/ui/src/components/Label";
+import Table from "@erxes/ui/src/components/table";
+import { __ } from "@erxes/ui/src/utils/core";
+import React from "react";
+import Dialog from "@erxes/ui/src/components/Dialog";
+import InvoiceDetail from "../../containers/invoice/Detail";
+import { IInvoice } from "../../types";
 
 export type Props = {
   invoices: IInvoice[];
@@ -36,18 +36,18 @@ export default function Component(props: Props) {
       return <EmptyState icon="user-6" text="No data" />;
     }
 
-    const renderStatus = status => {
-      let labelStyle = 'error';
+    const renderStatus = (status) => {
+      let labelStyle = "error";
 
       switch (status) {
-        case 'paid':
-          labelStyle = 'success';
+        case "paid":
+          labelStyle = "success";
           break;
-        case 'pending':
-          labelStyle = 'warning';
+        case "pending":
+          labelStyle = "warning";
           break;
         default:
-          labelStyle = 'error';
+          labelStyle = "error";
       }
 
       return (
@@ -62,9 +62,9 @@ export default function Component(props: Props) {
         <Table hover={true}>
           <thead>
             <tr>
-              <th>{__('Kind')}</th>
-              <th>{__('Amount')}</th>
-              <th>{__('Status')}</th>
+              <th>{__("Kind")}</th>
+              <th>{__("Amount")}</th>
+              <th>{__("Status")}</th>
             </tr>
           </thead>
           <tbody>
@@ -84,21 +84,21 @@ export default function Component(props: Props) {
           </tbody>
         </Table>
 
-        <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
-          <Modal.Header closeButton={true}>
-            <Modal.Title>{__('Invoice detail')}</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <InvoiceDetail id={currentInvoiceId || ''} />
-          </Modal.Body>
-        </Modal>
+        <Dialog
+          show={showModal}
+          closeModal={() => setShowModal(false)}
+          size="lg"
+          title={__("Invoice detail")}
+        >
+          <InvoiceDetail id={currentInvoiceId || ""} />
+        </Dialog>
       </div>
     );
   };
 
   return (
     <Box
-      title={__('Invoices')}
+      title={__("Invoices")}
       extraButtons={reload}
       isOpen={true}
       name="invoiceList"

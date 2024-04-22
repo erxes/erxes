@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   ControlLabel,
   FormControl,
@@ -6,40 +6,40 @@ import {
   SelectTeamMembers,
   TabTitle,
   Tabs,
-  __
-} from '@erxes/ui/src';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
-import Select from 'react-select-plus';
-import PlaceHolderInput from '@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput';
-import { IAction } from '@erxes/ui-automations/src/types';
-import { DrawerDetail } from '@erxes/ui-automations/src/styles';
-import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
-import { PaddingTop } from '../../styles';
+  __,
+} from "@erxes/ui/src";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
+import Select from "react-select";
+import PlaceHolderInput from "@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput";
+import { IAction } from "@erxes/ui-automations/src/types";
+import { DrawerDetail } from "@erxes/ui-automations/src/styles";
+import Common from "@erxes/ui-automations/src/components/forms/actions/Common";
+import { PaddingTop } from "../../styles";
 
 const OWNER_TYPE_COMPONENTS = {
   customer: SelectCustomers,
   company: SelectCompanies,
-  teamMember: SelectTeamMembers
+  teamMember: SelectTeamMembers,
 };
 
 const OWNER_TYPES = [
   {
-    value: '',
-    label: 'Select Choose'
+    value: "",
+    label: "Select Choose",
   },
   {
-    value: 'customer',
-    label: 'Customers'
+    value: "customer",
+    label: "Customers",
   },
   {
-    value: 'company',
-    label: 'Companies'
+    value: "company",
+    label: "Companies",
   },
   {
-    value: 'teamMember',
-    label: 'Team Members'
-  }
+    value: "teamMember",
+    label: "Team Members",
+  },
 ];
 
 type Props = {
@@ -63,7 +63,7 @@ export default class ScoreForm extends React.Component<Props, State> {
 
     this.state = {
       config: props?.activeAction?.config || null,
-      currentTab: ''
+      currentTab: "",
     };
   }
 
@@ -76,11 +76,11 @@ export default class ScoreForm extends React.Component<Props, State> {
 
     let Component = OWNER_TYPE_COMPONENTS[config?.ownerType];
     const { label } =
-      OWNER_TYPES.find(ot => ot.value === config?.ownerType) || {};
+      OWNER_TYPES.find((ot) => ot.value === config?.ownerType) || {};
 
     return (
       <FormGroup>
-        <ControlLabel>{__(label || '')}</ControlLabel>
+        <ControlLabel>{__(label || "")}</ControlLabel>
         <Component
           label={`Select ${label}`}
           name="ownerIds"
@@ -94,14 +94,14 @@ export default class ScoreForm extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel>{__('Owner Type')}</ControlLabel>
+          <ControlLabel>{__("Owner Type")}</ControlLabel>
           <Select
-            placeholder={__('Select Owner Type')}
+            placeholder={__("Select Owner Type")}
             name="ownerType"
-            value={config?.ownerType}
+            value={OWNER_TYPES.find((o) => o.value === config?.ownerType)}
             options={OWNER_TYPES}
-            multi={false}
-            onChange={({ value }) => handleChange(value, 'ownerType')}
+            isMulti={false}
+            onChange={({ value }: any) => handleChange(value, "ownerType")}
           />
         </FormGroup>
         {this.renderOwnerTypeComponent(handleChange)}
@@ -112,18 +112,16 @@ export default class ScoreForm extends React.Component<Props, State> {
   renderDefaultContent(config, handleChange) {
     const { triggerType } = this.props;
 
-    const additionalAttributes: any[] = [
-      'contacts',
-      'user',
-      'posOrder'
-    ].some(c => triggerType.includes(c))
+    const additionalAttributes: any[] = ["contacts", "user", "posOrder"].some(
+      (c) => triggerType.includes(c)
+    )
       ? [
           {
             _id: String(Math.random()),
-            label: 'Trigger Executor',
-            name: 'triggerExecutor',
-            type: 'custom'
-          }
+            label: "Trigger Executor",
+            name: "triggerExecutor",
+            type: "custom",
+          },
         ]
       : [];
 
@@ -134,8 +132,8 @@ export default class ScoreForm extends React.Component<Props, State> {
           triggerType={triggerType}
           inputName="attribution"
           label="Attribution"
-          attrTypes={['user', 'contact', 'custom']}
-          onChange={config => this.setState({ config })}
+          attrTypes={["user", "contact", "custom"]}
+          onChange={(config) => this.setState({ config })}
           customAttributions={additionalAttributes}
         />
 
@@ -144,8 +142,8 @@ export default class ScoreForm extends React.Component<Props, State> {
           triggerType={triggerType}
           inputName="scoreString"
           label="Score"
-          attrTypes={['Number']}
-          onChange={config => this.setState({ config })}
+          attrTypes={["Number"]}
+          onChange={(config) => this.setState({ config })}
         />
       </>
     );
@@ -156,10 +154,10 @@ export default class ScoreForm extends React.Component<Props, State> {
       this.setState({ config: { ...config, [name]: value } });
     };
 
-    if (['', 'default'].includes(currentTab)) {
+    if (["", "default"].includes(currentTab)) {
       return this.renderDefaultContent(config, handleChange);
     }
-    if ('static' === currentTab) {
+    if ("static" === currentTab) {
       return this.renderStaticContent(config, handleChange);
     }
     return null;
@@ -169,7 +167,7 @@ export default class ScoreForm extends React.Component<Props, State> {
     const { activeAction, closeModal, addAction } = this.props;
     const { config, currentTab } = this.state;
 
-    const handleTabChange = tab => {
+    const handleTabChange = (tab) => {
       this.setState({ currentTab: tab, config: null });
     };
 
@@ -183,16 +181,16 @@ export default class ScoreForm extends React.Component<Props, State> {
         >
           <Tabs full>
             <TabTitle
-              onClick={handleTabChange.bind(this, 'default')}
-              className={['', 'default'].includes(currentTab) ? 'active' : ''}
+              onClick={handleTabChange.bind(this, "default")}
+              className={["", "default"].includes(currentTab) ? "active" : ""}
             >
-              {__('Default')}
+              {__("Default")}
             </TabTitle>
             <TabTitle
-              onClick={handleTabChange.bind(this, 'static')}
-              className={currentTab === 'static' ? 'active' : ''}
+              onClick={handleTabChange.bind(this, "static")}
+              className={currentTab === "static" ? "active" : ""}
             >
-              {'Static'}
+              {"Static"}
             </TabTitle>
           </Tabs>
           <PaddingTop>{this.renderTabContent(currentTab, config)}</PaddingTop>

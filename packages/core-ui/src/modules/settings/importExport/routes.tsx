@@ -1,55 +1,65 @@
-import asyncComponent from 'modules/common/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Routes, useLocation } from "react-router-dom";
 
-const Import = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Form container" */ './import/containers/FormContainer'
-  )
-);
+import React from "react";
+import asyncComponent from "modules/common/components/AsyncComponent";
+import queryString from "query-string";
 
-const Export = asyncComponent(() =>
-  import(/* webpackChunkName: "Form container" */ './export/containers/Form')
+const Import = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Form container" */ "./import/containers/FormContainer"
+    )
 );
 
-const ImportHistories = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings Import Histories" */ './import/containers/list/Histories'
-  )
-);
-const ExportHistories = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings Export Histories" */ './export/containers/Histories'
-  )
-);
-const Menu = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings Menu" */ './SelectMenu')
+const Export = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "Form container" */ "./export/containers/Form")
 );
 
-const importForm = ({ location }) => {
+const ImportHistories = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings Import Histories" */ "./import/containers/list/Histories"
+    )
+);
+const ExportHistories = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings Export Histories" */ "./export/containers/Histories"
+    )
+);
+const Menu = asyncComponent(
+  () => import(/* webpackChunkName: "Settings Menu" */ "./SelectMenu")
+);
+
+const ImportForm = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <Import contentType={queryParams.type} />;
 };
-const exportForm = ({ location }) => {
+const ExportForm = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <Export contentType={queryParams.type} />;
 };
 
-const importHistories = ({ location }) => {
+const ImportHistoriesComponent = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return <ImportHistories queryParams={queryParams} />;
+  return <ImportHistories queryParams={queryParams} location={location} />;
 };
-const exportHistories = ({ location }) => {
+const ExportHistoriesComponent = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return <ExportHistories queryParams={queryParams} />;
+  return <ExportHistories queryParams={queryParams} location={location} />;
 };
 
-const selectMenu = ({ location }) => {
+const SelectMenu = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <Menu queryParams={queryParams} />;
@@ -57,22 +67,28 @@ const selectMenu = ({ location }) => {
 
 const routes = () => {
   return (
-    <React.Fragment>
+    <Routes>
       <Route
         key="/settings/import"
         path="/settings/import"
-        component={importForm}
+        element={<ImportForm />}
       />
       <Route
         key="/settings/export"
         path="/settings/export"
-        component={exportForm}
+        element={<ExportForm />}
       />
 
-      <Route path="/settings/importHistories/" component={importHistories} />
-      <Route path="/settings/selectMenu/" component={selectMenu} />
-      <Route path="/settings/exportHistories" component={exportHistories} />
-    </React.Fragment>
+      <Route
+        path="/settings/importHistories/"
+        element={<ImportHistoriesComponent />}
+      />
+      <Route path="/settings/selectMenu/" element={<SelectMenu />} />
+      <Route
+        path="/settings/exportHistories"
+        element={<ExportHistoriesComponent />}
+      />
+    </Routes>
   );
 };
 

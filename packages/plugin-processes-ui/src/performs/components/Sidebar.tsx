@@ -1,69 +1,64 @@
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Icon from '@erxes/ui/src/components/Icon';
-import moment from 'moment';
-import queryString from 'query-string';
-import React from 'react';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
-import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
-import Tip from '@erxes/ui/src/components/Tip';
-import { router } from '@erxes/ui/src/utils';
-import { __ } from 'coreui/utils';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import { MenuFooter, SidebarFilters } from '../../styles';
-import { SidebarList as List } from '@erxes/ui/src/layout';
-import { Wrapper } from '@erxes/ui/src/layout';
-import { IQueryParams } from '@erxes/ui/src/types';
-import SelectJobRefer from '../../job/containers/refer/SelectJobRefer';
-import { JOB_TYPE_CHOISES, PERFORM_STATUSES } from '../../constants';
-import Button from '@erxes/ui/src/components/Button';
-import { ScrolledContent } from '../../flow/styles';
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Icon from "@erxes/ui/src/components/Icon";
+import moment from "moment";
+import queryString from "query-string";
+import React, { useState } from "react";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
+import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
+import Tip from "@erxes/ui/src/components/Tip";
+import { router } from "@erxes/ui/src/utils";
+import { __ } from "coreui/utils";
+import { DateContainer } from "@erxes/ui/src/styles/main";
+import { MenuFooter, SidebarFilters } from "../../styles";
+import { SidebarList as List } from "@erxes/ui/src/layout";
+import { Wrapper } from "@erxes/ui/src/layout";
+import { IQueryParams } from "@erxes/ui/src/types";
+import SelectJobRefer from "../../job/containers/refer/SelectJobRefer";
+import { JOB_TYPE_CHOISES, PERFORM_STATUSES } from "../../constants";
+import Button from "@erxes/ui/src/components/Button";
+import { ScrolledContent } from "../../flow/styles";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface Props {
-  history: any;
   queryParams: any;
 }
 
-type State = {
-  filterParams: IQueryParams;
-};
-
 const { Section } = Wrapper.Sidebar;
 
-const generateQueryParams = ({ location }) => {
+const generateQueryParams = () => {
+  const location = useLocation();
   return queryString.parse(location.search);
 };
 
-class PerformSidebar extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+const PerformSidebar = (props: Props) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [filterParams, setFilterParams] = useState<IQueryParams>(
+    props.queryParams
+  );
 
-    this.state = {
-      filterParams: this.props.queryParams
-    };
-  }
-
-  isFiltered = (): boolean => {
-    const params = generateQueryParams(this.props.history);
+  const isFiltered = (): boolean => {
+    const params = generateQueryParams();
 
     for (const param in params) {
       if (
         [
-          'type',
-          'startDate',
-          'endDate',
-          'jobReferId',
-          'jobCategoryId',
-          'productIds',
-          'productCategoryId',
-          'inBranchId',
-          'inDepartmentId',
-          'outBranchId',
-          'outDepartmentId'
+          "type",
+          "startDate",
+          "endDate",
+          "jobReferId",
+          "jobCategoryId",
+          "productIds",
+          "productCategoryId",
+          "inBranchId",
+          "inDepartmentId",
+          "outBranchId",
+          "outDepartmentId",
         ].includes(param)
       ) {
         return true;
@@ -73,94 +68,86 @@ class PerformSidebar extends React.Component<Props, State> {
     return false;
   };
 
-  gotoBack = () => {
-    this.props.history.push(
+  const gotoBack = () => {
+    navigate(
       `/processes/overallWorks?${queryString.stringify({
-        ...this.props.queryParams
+        ...props.queryParams,
       })}`
     );
   };
-  clearFilter = () => {
-    const params = generateQueryParams(this.props.history);
-    router.removeParams(this.props.history, ...Object.keys(params));
+  const clearFilter = () => {
+    const params = generateQueryParams();
+    router.removeParams(navigate, location, ...Object.keys(params));
   };
 
-  setFilter = (name, value) => {
-    const { filterParams } = this.state;
-    this.setState({ filterParams: { ...filterParams, [name]: value } });
+  const setFilter = (name, value) => {
+    setFilterParams({ ...filterParams, [name]: value });
   };
 
-  onchangeType = e => {
-    const { filterParams } = this.state;
+  const onchangeType = (e) => {
     const value = (e.currentTarget as HTMLInputElement).value;
 
     const filters: IQueryParams = {
       ...filterParams,
-      type: value
+      type: value,
     };
 
     delete filters.jobReferId;
     delete filters.productIds;
     delete filters.productCategoryId;
 
-    this.setState({
-      filterParams: filters
-    });
+    setFilterParams(filters);
   };
 
-  onSelectDate = (value, name) => {
-    const strVal = moment(value).format('YYYY-MM-DD HH:mm');
-    this.setFilter(name, strVal);
+  const onSelectDate = (value, name) => {
+    const strVal = moment(value).format("YYYY-MM-DD HH:mm");
+    setFilter(name, strVal);
   };
 
-  runFilter = () => {
-    const { filterParams } = this.state;
-
-    router.setParams(this.props.history, { ...filterParams, page: 1 });
+  const runFilter = () => {
+    router.setParams(navigate, location, { ...filterParams, page: 1 });
   };
 
-  renderSpec() {
-    const { filterParams } = this.state;
-
+  const renderSpec = () => {
     if (!filterParams.type) {
-      return '';
+      return "";
     }
 
-    if (filterParams.type === 'job') {
+    if (filterParams.type === "job") {
       return (
         <FormGroup>
           <ControlLabel>Job Refer</ControlLabel>
           <SelectJobRefer
-            key={'jobReferJobs'}
+            key={"jobReferJobs"}
             label="Choose jobRefer"
             name="jobReferId"
-            initialValue={filterParams.jobReferId || ''}
+            initialValue={filterParams.jobReferId || ""}
             customOption={{
-              value: '',
-              label: '...Clear jobRefer filter'
+              value: "",
+              label: "...Clear jobRefer filter",
             }}
-            onSelect={jobReferId => this.setFilter('jobReferId', jobReferId)}
-            filterParams={{ types: ['job'] }}
+            onSelect={(jobReferId) => setFilter("jobReferId", jobReferId)}
+            filterParams={{ types: ["job"] }}
             multi={false}
           />
         </FormGroup>
       );
     }
-    if (filterParams.type === 'end') {
+    if (filterParams.type === "end") {
       return (
         <FormGroup>
           <ControlLabel>Job Refer</ControlLabel>
           <SelectJobRefer
-            key={'jobReferEnds'}
+            key={"jobReferEnds"}
             label="Choose jobRefer"
             name="jobReferId"
-            initialValue={filterParams.jobReferId || ''}
+            initialValue={filterParams.jobReferId || ""}
             customOption={{
-              value: '',
-              label: '...Clear jobRefer filter'
+              value: "",
+              label: "...Clear jobRefer filter",
             }}
-            onSelect={jobReferId => this.setFilter('jobReferId', jobReferId)}
-            filterParams={{ types: ['end'] }}
+            onSelect={(jobReferId) => setFilter("jobReferId", jobReferId)}
+            filterParams={{ types: ["end"] }}
             multi={false}
           />
         </FormGroup>
@@ -170,198 +157,192 @@ class PerformSidebar extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel>{__('Product Category')}</ControlLabel>
+          <ControlLabel>{__("Product Category")}</ControlLabel>
           <SelectProductCategory
             label="Choose product category"
             name="productCategoryId"
-            initialValue={filterParams.productCategoryId || ''}
+            initialValue={filterParams.productCategoryId || ""}
             customOption={{
-              value: '',
-              label: '...Clear product category filter'
+              value: "",
+              label: "...Clear product category filter",
             }}
-            onSelect={categoryId =>
-              this.setFilter('productCategoryId', categoryId)
+            onSelect={(categoryId) =>
+              setFilter("productCategoryId", categoryId)
             }
             multi={false}
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Product')}</ControlLabel>
+          <ControlLabel>{__("Product")}</ControlLabel>
           <SelectProducts
             label="Choose product"
             name="productIds"
-            initialValue={filterParams.productIds || ''}
+            initialValue={filterParams.productIds || ""}
             customOption={{
-              value: '',
-              label: '...Clear product filter'
+              value: "",
+              label: "...Clear product filter",
             }}
-            onSelect={productIds => this.setFilter('productIds', productIds)}
+            onSelect={(productIds) => setFilter("productIds", productIds)}
             multi={true}
           />
         </FormGroup>
       </>
     );
-  }
+  };
 
-  render() {
-    const { filterParams } = this.state;
-
-    return (
-      <Wrapper.Sidebar hasBorder>
-        <ScrolledContent>
-          <Section.Title>
-            {__('Filters')}
-            <Section.QuickButtons>
-              {this.isFiltered() && (
-                <a href="#cancel" tabIndex={0} onClick={this.clearFilter}>
-                  <Tip text={__('Clear filter')} placement="bottom">
-                    <Icon icon="cancel-1" />
-                  </Tip>
-                </a>
-              )}
-            </Section.QuickButtons>
-          </Section.Title>
-          <SidebarFilters>
-            <List id="SettingsSidebar">
-              <FormGroup>
-                <ControlLabel>Type</ControlLabel>
-                <FormControl
-                  name="type"
-                  componentClass="select"
-                  value={filterParams.type}
-                  required={false}
-                  onChange={this.onchangeType}
-                >
-                  <option value="">All type</option>
-                  {Object.keys(JOB_TYPE_CHOISES).map(jt => (
-                    <option value={jt} key={Math.random()}>
-                      {JOB_TYPE_CHOISES[jt]}
-                    </option>
-                  ))}
-                </FormControl>
-              </FormGroup>
-              {this.renderSpec()}
-              <FormGroup>
-                <ControlLabel>{__('Spend Branch')}</ControlLabel>
-                <SelectBranches
-                  label="Choose branch"
-                  name="inBranchId"
-                  initialValue={filterParams.inBranchId || ''}
-                  customOption={{
-                    value: '',
-                    label: '...Clear branch filter'
-                  }}
-                  onSelect={branchId => this.setFilter('inBranchId', branchId)}
-                  multi={false}
-                />
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel>{__('Spend Department')}</ControlLabel>
-                <SelectDepartments
-                  label="Choose department"
-                  name="inDepartmentId"
-                  initialValue={filterParams.inDepartmentId || ''}
-                  customOption={{
-                    value: '',
-                    label: '...Clear department filter'
-                  }}
-                  onSelect={departmentId =>
-                    this.setFilter('inDepartmentId', departmentId)
-                  }
-                  multi={false}
-                />
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel>{__('Receipt Branch')}</ControlLabel>
-                <SelectBranches
-                  label="Choose branch"
-                  name="outBranchId"
-                  initialValue={filterParams.outBranchId || ''}
-                  customOption={{
-                    value: '',
-                    label: '...Clear branch filter'
-                  }}
-                  onSelect={branchId => this.setFilter('outBranchId', branchId)}
-                  multi={false}
-                />
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel>{__('Receipt Department')}</ControlLabel>
-                <SelectDepartments
-                  label="Choose department"
-                  name="outDepartmentId"
-                  initialValue={filterParams.outDepartmentId || ''}
-                  customOption={{
-                    value: '',
-                    label: '...Clear department filter'
-                  }}
-                  onSelect={departmentId =>
-                    this.setFilter('outDepartmentId', departmentId)
-                  }
-                  multi={false}
-                />
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel>Status</ControlLabel>
-                <FormControl
-                  name="status"
-                  componentClass="select"
-                  value={filterParams.status}
-                  required={false}
-                  onChange={e =>
-                    this.setFilter('status', (e.target as any).value)
-                  }
-                >
-                  {Object.keys(PERFORM_STATUSES).map(key => (
-                    <option value={key} key={Math.random()}>
-                      {PERFORM_STATUSES[key]}
-                    </option>
-                  ))}
-                </FormControl>
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel required={true}>{__(`Start Date`)}</ControlLabel>
-                <DateContainer>
-                  <DateControl
-                    name="startDate"
-                    dateFormat="YYYY/MM/DD"
-                    timeFormat={true}
-                    placeholder="Choose date"
-                    value={filterParams.startDate || ''}
-                    onChange={value => this.onSelectDate(value, 'startDate')}
-                  />
-                </DateContainer>
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel required={true}>{__(`End Date`)}</ControlLabel>
-                <DateContainer>
-                  <DateControl
-                    name="endDate"
-                    dateFormat="YYYY/MM/DD"
-                    timeFormat={true}
-                    placeholder="Choose date"
-                    value={filterParams.endDate || ''}
-                    onChange={value => this.onSelectDate(value, 'endDate')}
-                  />
-                </DateContainer>
-              </FormGroup>
-            </List>
-            <MenuFooter>
-              <Button
-                block={true}
-                btnStyle="success"
-                uppercase={false}
-                onClick={this.runFilter}
-                icon="filter"
+  return (
+    <Wrapper.Sidebar hasBorder>
+      <ScrolledContent>
+        <Section.Title>
+          {__("Filters")}
+          <Section.QuickButtons>
+            {isFiltered() && (
+              <a href="#cancel" tabIndex={0} onClick={clearFilter}>
+                <Tip text={__("Clear filter")} placement="bottom">
+                  <Icon icon="cancel-1" />
+                </Tip>
+              </a>
+            )}
+          </Section.QuickButtons>
+        </Section.Title>
+        <SidebarFilters>
+          <List id="SettingsSidebar">
+            <FormGroup>
+              <ControlLabel>Type</ControlLabel>
+              <FormControl
+                name="type"
+                componentclass="select"
+                value={filterParams.type}
+                required={false}
+                onChange={onchangeType}
               >
-                {__('Filter')}
-              </Button>
-            </MenuFooter>
-          </SidebarFilters>
-        </ScrolledContent>
-      </Wrapper.Sidebar>
-    );
-  }
-}
+                <option value="">All type</option>
+                {Object.keys(JOB_TYPE_CHOISES).map((jt) => (
+                  <option value={jt} key={Math.random()}>
+                    {JOB_TYPE_CHOISES[jt]}
+                  </option>
+                ))}
+              </FormControl>
+            </FormGroup>
+            {renderSpec()}
+            <FormGroup>
+              <ControlLabel>{__("Spend Branch")}</ControlLabel>
+              <SelectBranches
+                label="Choose branch"
+                name="inBranchId"
+                initialValue={filterParams.inBranchId || ""}
+                customOption={{
+                  value: "",
+                  label: "...Clear branch filter",
+                }}
+                onSelect={(branchId) => setFilter("inBranchId", branchId)}
+                multi={false}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{__("Spend Department")}</ControlLabel>
+              <SelectDepartments
+                label="Choose department"
+                name="inDepartmentId"
+                initialValue={filterParams.inDepartmentId || ""}
+                customOption={{
+                  value: "",
+                  label: "...Clear department filter",
+                }}
+                onSelect={(departmentId) =>
+                  setFilter("inDepartmentId", departmentId)
+                }
+                multi={false}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{__("Receipt Branch")}</ControlLabel>
+              <SelectBranches
+                label="Choose branch"
+                name="outBranchId"
+                initialValue={filterParams.outBranchId || ""}
+                customOption={{
+                  value: "",
+                  label: "...Clear branch filter",
+                }}
+                onSelect={(branchId) => setFilter("outBranchId", branchId)}
+                multi={false}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{__("Receipt Department")}</ControlLabel>
+              <SelectDepartments
+                label="Choose department"
+                name="outDepartmentId"
+                initialValue={filterParams.outDepartmentId || ""}
+                customOption={{
+                  value: "",
+                  label: "...Clear department filter",
+                }}
+                onSelect={(departmentId) =>
+                  setFilter("outDepartmentId", departmentId)
+                }
+                multi={false}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Status</ControlLabel>
+              <FormControl
+                name="status"
+                componentclass="select"
+                value={filterParams.status}
+                required={false}
+                onChange={(e) => setFilter("status", (e.target as any).value)}
+              >
+                {Object.keys(PERFORM_STATUSES).map((key) => (
+                  <option value={key} key={Math.random()}>
+                    {PERFORM_STATUSES[key]}
+                  </option>
+                ))}
+              </FormControl>
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel required={true}>{__(`Start Date`)}</ControlLabel>
+              <DateContainer>
+                <DateControl
+                  name="startDate"
+                  dateFormat="YYYY/MM/DD"
+                  timeFormat={true}
+                  placeholder="Choose date"
+                  value={filterParams.startDate || ""}
+                  onChange={(value) => onSelectDate(value, "startDate")}
+                />
+              </DateContainer>
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel required={true}>{__(`End Date`)}</ControlLabel>
+              <DateContainer>
+                <DateControl
+                  name="endDate"
+                  dateFormat="YYYY/MM/DD"
+                  timeFormat={true}
+                  placeholder="Choose date"
+                  value={filterParams.endDate || ""}
+                  onChange={(value) => onSelectDate(value, "endDate")}
+                />
+              </DateContainer>
+            </FormGroup>
+          </List>
+          <MenuFooter>
+            <Button
+              block={true}
+              btnStyle="success"
+              uppercase={false}
+              onClick={runFilter}
+              icon="filter"
+            >
+              {__("Filter")}
+            </Button>
+          </MenuFooter>
+        </SidebarFilters>
+      </ScrolledContent>
+    </Wrapper.Sidebar>
+  );
+};
 
 export default PerformSidebar;

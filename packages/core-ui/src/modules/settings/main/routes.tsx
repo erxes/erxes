@@ -1,13 +1,16 @@
-import asyncComponent from 'modules/common/components/AsyncComponent';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Routes } from "react-router-dom";
 
-const Settings = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings" */ './components/Settings')
+import React from "react";
+import asyncComponent from "modules/common/components/AsyncComponent";
+
+const Settings = asyncComponent(
+  () => import(/* webpackChunkName: "Settings" */ "./components/Settings")
 );
 
 const routes = () => (
-  <Route exact={true} path="/settings" component={Settings} />
+  <Routes>
+    <Route path="/settings" element={<Settings />} />
+  </Routes>
 );
 
 export default routes;

@@ -1,33 +1,34 @@
-import { IFormData } from '@erxes/ui-forms/src/forms/types';
-import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
-import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
-import SelectDepartments from '@erxes/ui-settings/src/departments/containers/SelectDepartments';
-import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
-import { Description } from '@erxes/ui-settings/src/styles';
-import { IBrand } from '@erxes/ui/src/brands/types';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FlexItem } from '@erxes/ui/src/components/step/style';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { IField } from '@erxes/ui/src/types';
-import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
-import { __ } from 'coreui/utils';
-import React, { useCallback } from 'react';
-import Select from 'react-select-plus';
+import React, { useCallback } from "react";
+import { isEnabled, loadDynamicComponent } from "@erxes/ui/src/utils/core";
+
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { Description } from "@erxes/ui-settings/src/styles";
+import { FlexItem } from "@erxes/ui/src/components/step/style";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IBrand } from "@erxes/ui/src/brands/types";
+import { IField } from "@erxes/ui/src/types";
+import { IFormData } from "@erxes/ui-forms/src/forms/types";
+import { LANGUAGES } from "@erxes/ui-settings/src/general/constants";
+import { LeftItem } from "@erxes/ui/src/components/step/styles";
+import SelectBrand from "@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand";
+import SelectChannels from "@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels";
+import SelectDepartments from "@erxes/ui-settings/src/departments/containers/SelectDepartments";
+import Toggle from "@erxes/ui/src/components/Toggle";
+import { __ } from "coreui/utils";
+import Select from "react-select";
 
 type Props = {
   onChange: (
     name:
-      | 'brand'
-      | 'language'
-      | 'isRequireOnce'
-      | 'channelIds'
-      | 'theme'
-      | 'saveAsCustomer'
-      | 'visibility'
-      | 'departmentIds',
+      | "brand"
+      | "language"
+      | "isRequireOnce"
+      | "channelIds"
+      | "theme"
+      | "saveAsCustomer"
+      | "visibility"
+      | "departmentIds",
     value: any
   ) => void;
   type: string;
@@ -57,7 +58,7 @@ const OptionStep = (props: Props) => {
   }, []);
 
   const onSelectChange = useCallback((e, key) => {
-    let value = '';
+    let value = "";
 
     if (e) {
       value = e.value;
@@ -66,19 +67,19 @@ const OptionStep = (props: Props) => {
     props.onChange(key, value);
   }, []);
 
-  const onChangeTitle = useCallback(e => {
-    onChangeFunction('title', (e.currentTarget as HTMLInputElement).value);
+  const onChangeTitle = useCallback((e) => {
+    onChangeFunction("title", (e.currentTarget as HTMLInputElement).value);
   }, []);
 
   const renderDepartments = () => {
     const { visibility, departmentIds } = props;
 
-    if (visibility === 'public') {
+    if (visibility === "public") {
       return;
     }
 
     const departmentOnChange = (values: string[]) => {
-      onChangeFunction('departmentIds', values);
+      onChangeFunction("departmentIds", values);
     };
 
     return (
@@ -94,31 +95,32 @@ const OptionStep = (props: Props) => {
 
   const { language, brand, isRequireOnce, saveAsCustomer } = props;
 
-  const onChange = e => {
-    onChangeFunction('brand', (e.currentTarget as HTMLInputElement).value);
+  const onChange = (e) => {
+    onChangeFunction("brand", (e.currentTarget as HTMLInputElement).value);
   };
 
   const channelOnChange = (values: string[]) => {
-    onChangeFunction('channelIds', values);
+    onChangeFunction("channelIds", values);
   };
 
-  const onChangeLanguage = e => onSelectChange(e, 'language');
+  const onChangeLanguage = (e) => onSelectChange(e, "language");
 
-  const onSwitchHandler = e => {
+  const onSwitchHandler = (e) => {
     onChangeFunction(e.target.id, e.target.checked);
   };
 
   const onChangeVisibility = (e: React.FormEvent<HTMLElement>) => {
     const visibility = (e.currentTarget as HTMLInputElement).value;
-    onChangeFunction('visibility', visibility);
+    onChangeFunction("visibility", visibility);
   };
 
   React.useEffect(() => {
     const { fields } = props.formData;
     if (fields && fields.length > 0) {
       if (
-        fields.findIndex(f => f.type === 'productCategory' && f.isRequired) !==
-        -1
+        fields.findIndex(
+          (f) => f.type === "productCategory" && f.isRequired
+        ) !== -1
       ) {
         setRenderPayments(true);
         if (props.waitUntilFinish) {
@@ -133,7 +135,7 @@ const OptionStep = (props: Props) => {
       }
     }
 
-    if (!isEnabled('payment')) {
+    if (!isEnabled("payment")) {
       setRenderPayments(false);
 
       if (props.waitUntilFinish) {
@@ -143,7 +145,7 @@ const OptionStep = (props: Props) => {
   }, [props.formData.fields]);
 
   const renderPaymentsComponent = () => {
-    if (!isEnabled('payment')) {
+    if (!isEnabled("payment")) {
       return null;
     }
 
@@ -153,8 +155,8 @@ const OptionStep = (props: Props) => {
 
     return (
       <>
-        {loadDynamicComponent('paymentConfig', {
-          contentType: 'inbox:integrations',
+        {loadDynamicComponent("paymentConfig", {
+          contentType: "inbox:integrations",
           contentTypeId: props.integrationId,
           isSubmitted: props.isIntegrationSubmitted,
           description: __(
@@ -162,9 +164,9 @@ const OptionStep = (props: Props) => {
           ),
           afterSave: () => {
             if (props.onChildProcessFinished) {
-              props.onChildProcessFinished('optionsStep');
+              props.onChildProcessFinished("optionsStep");
             }
-          }
+          },
         })}
       </>
     );
@@ -176,11 +178,11 @@ const OptionStep = (props: Props) => {
         <FormGroup>
           <ControlLabel required={true}>Form Name</ControlLabel>
           <p>
-            {__('Name this form to differentiate from the rest internally')}
+            {__("Name this form to differentiate from the rest internally")}
           </p>
 
           <FormControl
-            id={'popupName'}
+            id={"popupName"}
             required={true}
             onChange={onChangeTitle}
             value={props.title}
@@ -191,7 +193,7 @@ const OptionStep = (props: Props) => {
           <SelectBrand
             isRequired={true}
             onChange={onChange}
-            defaultValue={brand ? brand._id : ' '}
+            defaultValue={brand ? brand._id : " "}
           />
         </FormGroup>
 
@@ -206,12 +208,12 @@ const OptionStep = (props: Props) => {
           <ControlLabel required={true}>Visibility</ControlLabel>
           <FormControl
             name="visibility"
-            componentClass="select"
+            componentclass="select"
             value={props.visibility}
             onChange={onChangeVisibility}
           >
-            <option value="public">{__('Public')}</option>
-            <option value="private">{__('Private')}</option>
+            <option value="public">{__("Public")}</option>
+            <option value="private">{__("Private")}</option>
           </FormControl>
         </FormGroup>
 
@@ -221,10 +223,10 @@ const OptionStep = (props: Props) => {
           <ControlLabel>Language</ControlLabel>
           <Select
             id="language"
-            value={language}
+            value={LANGUAGES.find((o) => o.value === language)}
             options={LANGUAGES}
             onChange={onChangeLanguage}
-            clearable={false}
+            isClearable={false}
           />
         </FormGroup>
 
@@ -241,7 +243,7 @@ const OptionStep = (props: Props) => {
               onChange={onSwitchHandler}
               icons={{
                 checked: <span>Yes</span>,
-                unchecked: <span>No</span>
+                unchecked: <span>No</span>,
               }}
             />
           </div>
@@ -257,7 +259,7 @@ const OptionStep = (props: Props) => {
               onChange={onSwitchHandler}
               icons={{
                 checked: <span>Yes</span>,
-                unchecked: <span>No</span>
+                unchecked: <span>No</span>,
               }}
             />
           </div>

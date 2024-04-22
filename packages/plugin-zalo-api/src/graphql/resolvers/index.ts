@@ -7,11 +7,11 @@ const resolvers: any = async () => ({
   ...customScalars,
   ZaloConversationMessage,
   Mutation: {
-    ...mutations
+    ...mutations,
   },
   Query: {
-    ...queries
-  }
+    ...queries,
+  },
 });
 
 export default resolvers;

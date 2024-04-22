@@ -1,25 +1,26 @@
-import EditForm from '../../boards/components/editForm/EditForm';
-import Left from '../../boards/components/editForm/Left';
-import Sidebar from '../../boards/components/editForm/Sidebar';
-import Top from '../../boards/components/editForm/Top';
-import { Flex } from '@erxes/ui/src/styles/main';
-import { IEditFormContent, IOptions } from '../../boards/types';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { ISelectedOption } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
-import PortableDeals from '../../deals/components/PortableDeals';
-import PortablePurchase from '../../purchases/components/PortablePurchases';
-import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
-import { Capitalize } from '@erxes/ui-settings/src/permissions/styles';
-import PortableTasks from '../../tasks/components/PortableTasks';
-import React, { useEffect, useState } from 'react';
-import Select from 'react-select-plus';
-import { ITicket, ITicketParams } from '../types';
-import { pluginsOfItemSidebar } from 'coreui/pluginUtils';
-import queryString from 'query-string';
-import ChildrenSection from '../../boards/containers/editForm/ChildrenSection';
-import { IUser } from '@erxes/ui/src/auth/types';
+import { IEditFormContent, IOptions } from "../../boards/types";
+import Select, { components } from "react-select";
+import { ITicket, ITicketParams } from "../types";
+import React, { useEffect, useState } from "react";
+
+import { Capitalize } from "@erxes/ui-settings/src/permissions/styles";
+import ChildrenSection from "../../boards/containers/editForm/ChildrenSection";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import EditForm from "../../boards/components/editForm/EditForm";
+import { Flex } from "@erxes/ui/src/styles/main";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { INTEGRATION_KINDS } from "@erxes/ui/src/constants/integrations";
+import { ISelectedOption } from "@erxes/ui/src/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Left from "../../boards/components/editForm/Left";
+import PortableDeals from "../../deals/components/PortableDeals";
+import PortablePurchase from "../../purchases/components/PortablePurchases";
+import PortableTasks from "../../tasks/components/PortableTasks";
+import Sidebar from "../../boards/components/editForm/Sidebar";
+import Top from "../../boards/components/editForm/Top";
+import { __ } from "@erxes/ui/src/utils";
+import { pluginsOfItemSidebar } from "coreui/pluginUtils";
+import queryString from "query-string";
 
 type Props = {
   options: IOptions;
@@ -35,7 +36,7 @@ type Props = {
     {
       _id,
       status,
-      timeSpent
+      timeSpent,
     }: { _id: string; status: string; timeSpent: number; startDate?: string },
     callback?: () => void
   ) => void;
@@ -53,22 +54,22 @@ export default function TicketEditForm(props: Props) {
   }, [item.source]);
 
   function renderSidebarFields(saveItem) {
-    const sourceValues = INTEGRATION_KINDS.ALL.map(kind => ({
+    const sourceValues = INTEGRATION_KINDS.ALL.map((kind) => ({
       label: __(kind.text),
-      value: kind.value
+      value: kind.value,
     }));
 
     sourceValues.push({
-      label: __('Other'),
-      value: 'other'
+      label: __("Other"),
+      value: "other",
     });
 
     const sourceValueRenderer = (option: ISelectedOption): React.ReactNode => (
       <Capitalize>{option.label}</Capitalize>
     );
 
-    const onSourceChange = option => {
-      const value = option ? option.value : '';
+    const onSourceChange = (option) => {
+      const value = option ? option.value : "";
 
       setSource(value);
 
@@ -77,16 +78,31 @@ export default function TicketEditForm(props: Props) {
       }
     };
 
+    const Option = (props) => {
+      return (
+        <components.Option {...props}>
+          {sourceValueRenderer(props.data)}
+        </components.Option>
+      );
+    };
+
+    const SingleValue = (props) => {
+      return (
+        <components.SingleValue {...props}>
+          {sourceValueRenderer(props.data)}
+        </components.SingleValue>
+      );
+    };
+
     return (
       <FormGroup>
         <ControlLabel>Source</ControlLabel>
         <Select
-          placeholder={__('Select a source')}
-          value={source}
+          placeholder={__("Select a source")}
+          value={sourceValues.find((s) => s.value === source)}
           options={sourceValues}
           onChange={onSourceChange}
-          optionRenderer={sourceValueRenderer}
-          valueRenderer={sourceValueRenderer}
+          components={{ Option, SingleValue }}
         />
       </FormGroup>
     );
@@ -98,7 +114,7 @@ export default function TicketEditForm(props: Props) {
         <PortableDeals mainType="ticket" mainTypeId={props.item._id} />
         <PortableTasks mainType="ticket" mainTypeId={props.item._id} />
         <PortablePurchase mainType="ticket" mainTypeId={props.item._id} />
-        {pluginsOfItemSidebar(props.item, 'ticket')}
+        {pluginsOfItemSidebar(props.item, "ticket")}
       </>
     );
   }
@@ -108,12 +124,12 @@ export default function TicketEditForm(props: Props) {
 
     const updatedProps = {
       ...props,
-      type: 'ticket',
+      type: "ticket",
       itemId: item._id,
       stageId: item.stageId,
       pipelineId: item.pipeline._id,
       options,
-      queryParams: queryString.parse(window.location.search) || {}
+      queryParams: queryString.parse(window.location.search) || {},
     };
 
     return <ChildrenSection {...updatedProps} />;
@@ -124,7 +140,7 @@ export default function TicketEditForm(props: Props) {
     copy,
     remove,
     saveItem,
-    onChangeStage
+    onChangeStage,
   }: IEditFormContent) {
     const {
       options,
@@ -132,7 +148,7 @@ export default function TicketEditForm(props: Props) {
       addItem,
       sendToBoard,
       updateTimeTrack,
-      currentUser
+      currentUser,
     } = props;
 
     const renderSidebar = () => renderSidebarFields(saveItem);
@@ -180,7 +196,7 @@ export default function TicketEditForm(props: Props) {
     ...props,
     formContent: renderFormContent,
     extraFields: { source },
-    refresh
+    refresh,
   };
 
   return <EditForm {...extendedProps} />;

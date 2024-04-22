@@ -1,123 +1,124 @@
 import { ITag, ITagTypes } from '../types';
-
 import Button from '@erxes/ui/src/components/Button';
 import FilterableList from '@erxes/ui/src/components/filterableList/FilterableList';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { __ } from '@erxes/ui/src/utils';
 
-type Props = {
+type TaggerProps = {
   type: ITagTypes | string;
   // targets can be conversation, customer, company etc ...
   targets?: any[];
   event?: 'onClick' | 'onExit';
   className?: string;
   disableTreeView?: boolean;
-  // from container
   loading: boolean;
   tags: ITag[];
-  tag: (tags: ITag[]) => void;
+  tag: (tags: string[]) => void;
   totalCount: number;
   singleSelect?: boolean;
   onLoadMore?: (page: number) => void;
 };
 
-type State = {
+type TaggerState = {
   tagsForList: any[];
-  keysPressed: any;
   cursor: number;
   page: number;
 };
 
-class Tagger extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+const Tagger: React.FC<TaggerProps> = (props) => {
+  const {
+    type,
+    targets,
+    event,
+    className,
+    disableTreeView,
+    loading,
+    tags,
+    tag,
+    totalCount,
+    singleSelect,
+    onLoadMore,
+  } = props;
 
-    this.state = {
-      tagsForList: this.generateTagsParams(props.tags, props.targets),
-      keysPressed: {},
-      cursor: 0,
-      page: 1
+  const [state, setState] = useState<TaggerState>({
+    tagsForList: [],
+    cursor: 0,
+    page: 1,
+  });
+
+  useEffect(() => {
+    setState((prevState) => ({
+      ...prevState,
+      tagsForList: generateTagsParams(tags, targets),
+    }));
+  }, [tags, targets]);
+
+  useEffect(() => {
+    const handleArrowSelection = (event: any) => {
+      const { cursor, tagsForList } = state;
+      const maxCursor: number = tagsForList.length;
+
+      switch (event.keyCode) {
+        case 13:
+          const element = document.getElementsByClassName(
+            'tag-' + cursor,
+          )[0] as HTMLElement;
+          const showTags = document.getElementById('conversationTags');
+
+          if (element && showTags) {
+            element.click();
+            tagger(state.tagsForList);
+            showTags.click();
+          }
+          break;
+        case 38:
+          // Arrow move up
+          if (cursor > 0) {
+            setState((prevState) => ({ ...prevState, cursor: cursor - 1 }));
+          }
+          if (cursor === 0) {
+            setState((prevState) => ({ ...prevState, cursor: maxCursor - 1 }));
+          }
+          break;
+        case 40:
+          // Arrow move down
+          if (cursor < maxCursor - 1) {
+            setState((prevState) => ({ ...prevState, cursor: cursor + 1 }));
+          } else {
+            setState((prevState) => ({ ...prevState, cursor: 0 }));
+          }
+          break;
+        default:
+          break;
+      }
     };
-  }
 
-  componentWillReceiveProps(nextProps) {
-    this.setState({
-      tagsForList: this.generateTagsParams(nextProps.tags, nextProps.targets)
-    });
-  }
-
-  componentDidMount() {
-    if (this.props.type === 'inbox:conversation') {
-      document.addEventListener('keydown', this.handleArrowSelection);
+    if (type === 'inbox:conversation') {
+      document.addEventListener('keydown', handleArrowSelection);
     }
-  }
 
-  componentWillUnmount() {
-    if (this.props.type === 'inbox:conversation') {
-      document.removeEventListener('keydown', this.handleArrowSelection);
-    }
-  }
+    return () => {
+      if (type === 'inbox:conversation') {
+        document.removeEventListener('keydown', handleArrowSelection);
+      }
+    };
+  }, [state.cursor, state.tagsForList, type]);
 
-  handleArrowSelection = (event: any) => {
-    const { cursor } = this.state;
-
-    const maxCursor: number = this.state.tagsForList.length;
-
-    switch (event.keyCode) {
-      case 13:
-        const element = document.getElementsByClassName(
-          'tag-' + cursor
-        )[0] as HTMLElement;
-        const showTags = document.getElementById('conversationTags');
-
-        if (element && showTags) {
-          element.click();
-
-          this.tag(this.state.tagsForList);
-          showTags.click();
-        }
-        break;
-      case 38:
-        // Arrow move up
-        if (cursor > 0) {
-          this.setState({ cursor: cursor - 1 });
-        }
-        if (cursor === 0) {
-          this.setState({ cursor: maxCursor - 1 });
-        }
-        break;
-      case 40:
-        // Arrow move down
-        if (cursor < maxCursor - 1) {
-          this.setState({ cursor: cursor + 1 });
-        } else {
-          this.setState({ cursor: 0 });
-        }
-        break;
-      default:
-        break;
-    }
-  };
-
-  /**
-   * Returns array of tags object
-   */
-  generateTagsParams(tags: ITag[] = [], targets: any[] = []) {
+  const generateTagsParams = (tags: ITag[] = [], targets: any[] = []) => {
     return tags.map(({ _id, name, colorCode, parentId }, i) => {
-      // Current tag's selection state (all, some or none)
       const count = targets.reduce(
         (memo, target) => memo + ((target.tagIds || []).includes(_id) ? 1 : 0),
-        0
+        0,
       );
 
-      let state = 'none';
+      let tagState = 'none';
 
       if (count > 0) {
         if (count === targets.length) {
-          state = 'all';
+          tagState = 'all';
         } else if (count < targets.length) {
-          state = 'some';
+          tagState = 'some';
         }
       }
 
@@ -127,54 +128,41 @@ class Tagger extends React.Component<Props, State> {
         iconClass: 'icon-tag-alt',
         iconColor: colorCode,
         parentId,
-        selectedBy: state,
-        itemClassName:
-          this.props.type === 'inbox:conversation' && this.state
-            ? `tag-${i}`
-            : '',
+        selectedBy: tagState,
+        itemClassName: type === 'inbox:conversation' && state ? `tag-${i}` : '',
         itemActiveClass:
-          this.props.type === 'inbox:conversation' &&
-          this.state &&
-          this.state.cursor === i &&
-          'active'
+          type === 'inbox:conversation' &&
+          state &&
+          state.cursor === i &&
+          'active',
       };
     });
-  }
-
-  onLoad = () => {
-    this.setState(
-      {
-        page: this.state.page + 1
-      },
-      () => {
-        // tslint:disable-next-line:no-unused-expression
-        this.props.onLoadMore && this.props.onLoadMore(this.state.page);
-      }
-    );
   };
 
-  tag = tags => {
-    const { tag } = this.props;
+  const onLoad = () => {
+    setState((prevState) => ({
+      ...prevState,
+      page: prevState.page + 1,
+    }));
 
-    // detect changes
-    const { tagsForList } = this.state;
+    onLoadMore && onLoadMore(state.page + 1);
+  };
+
+  const tagger = (tags: ITag[]) => {
+    const { tagsForList } = state;
 
     const unchanged = tagsForList.reduce(
       (prev, current, index) =>
         prev && current.selectedBy === tags[index].selectedBy,
-      true
+      true,
     );
 
-    if (unchanged) {
-      return;
+    if (!unchanged) {
+      tag(tags.filter((t) => t.selectedBy === 'all').map((t) => t._id));
     }
-
-    tag(tags.filter(t => t.selectedBy === 'all').map(t => t._id));
   };
 
-  renderLoadMore = () => {
-    const { loading, tags, totalCount = 0 } = this.props;
-
+  const renderLoadMore = () => {
     if (tags.length >= totalCount) {
       return null;
     }
@@ -183,7 +171,7 @@ class Tagger extends React.Component<Props, State> {
       <Button
         block={true}
         btnStyle="link"
-        onClick={() => this.onLoad()}
+        onClick={() => onLoad()}
         icon="redo"
         uppercase={false}
       >
@@ -192,37 +180,33 @@ class Tagger extends React.Component<Props, State> {
     );
   };
 
-  render() {
-    const { className, event, type, loading, disableTreeView } = this.props;
+  const links = [
+    {
+      title: __('Manage tags'),
+      href: `/settings/tags/${type}`,
+    },
+  ];
 
-    if (loading) {
-      return <Spinner objective={true} />;
-    }
+  const listProps = {
+    className,
+    links,
+    selectable: true,
+    treeView: disableTreeView ? false : true,
+    items: JSON.parse(JSON.stringify(state.tagsForList)),
+    isIndented: false,
+    singleSelect,
+    renderLoadMore,
+  };
 
-    const links = [
-      {
-        title: __('Manage tags'),
-        href: `/settings/tags/${type}`
-      }
-    ];
-
-    const props = {
-      className,
-      links,
-      selectable: true,
-      treeView: disableTreeView ? false : true,
-      items: JSON.parse(JSON.stringify(this.state.tagsForList)),
-      isIndented: false,
-      singleSelect: this.props.singleSelect,
-      renderLoadMore: this.renderLoadMore
-    };
-
-    if (event) {
-      props[event] = this.tag;
-    }
-
-    return <FilterableList {...props} />;
+  if (loading) {
+    return <Spinner objective={true} />;
   }
-}
+
+  if (event) {
+    listProps[event] = tagger;
+  }
+
+  return <FilterableList {...listProps} />;
+};
 
 export default Tagger;

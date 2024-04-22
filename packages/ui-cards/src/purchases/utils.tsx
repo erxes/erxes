@@ -8,12 +8,12 @@ type Options = {
   itemId?: string;
 };
 
-// get options for react-select-plus
+// get options for react-select
 export function selectOptions(array: Options[] = []) {
   return array.map(item => ({ value: item._id, label: item.name }));
 }
 
-// get config options for react-select-plus
+// get config options for react-select
 export function selectConfigOptions(array: string[] = [], CONSTANT: any) {
   return array.map(item => ({
     value: item,
@@ -21,7 +21,7 @@ export function selectConfigOptions(array: string[] = [], CONSTANT: any) {
   }));
 }
 
-// get user options for react-select-plus
+// get user options for react-select
 export function selectUserOptions(array: IUser[] = []) {
   return array.map(item => {
     const user = item || ({} as IUser);

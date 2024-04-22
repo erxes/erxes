@@ -1,28 +1,25 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
 import {
   CheckSyncedMutationResponse,
   CheckSyncedOrdersQueryResponse,
   CheckSyncedOrdersTotalCountQueryResponse,
   PosListQueryResponse,
-  ToSyncOrdersMutationResponse,
   ToSendOrdersMutationResponse,
-} from '../types';
-import { mutations, queries } from '../graphql';
-import { router, withProps } from '@erxes/ui/src/utils/core';
+  ToSyncOrdersMutationResponse,
+} from "../types";
+import React, { useState } from "react";
+import { mutations, queries } from "../graphql";
+import { router, withProps } from "@erxes/ui/src/utils/core";
 
-import Alert from '@erxes/ui/src/utils/Alert';
-import { Bulk } from '@erxes/ui/src/components';
-import CheckSyncedOrders from '../components/syncedOrders/CheckSyncedOrders';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React, { useState } from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
+import Alert from "@erxes/ui/src/utils/Alert";
+import { Bulk } from "@erxes/ui/src/components";
+import CheckSyncedOrders from "../components/syncedOrders/CheckSyncedOrders";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 type FinalProps = {
@@ -30,7 +27,6 @@ type FinalProps = {
   checkSyncedOrdersTotalCountQuery: CheckSyncedOrdersTotalCountQueryResponse;
   posListQuery: PosListQueryResponse;
 } & Props &
-  IRouterProps &
   CheckSyncedMutationResponse &
   ToSyncOrdersMutationResponse &
   ToSendOrdersMutationResponse;
@@ -63,15 +59,15 @@ const CheckSyncedOrdersContainer = (props: FinalProps) => {
 
         syncedOrders.forEach((item) => {
           syncedOrderInfos[item._id] = {
-            syncedBillNumber: item.syncedBillNumber || '',
-            syncedDate: item.syncedDate || '',
-            syncedCustomer: item.syncedCustomer || '',
+            syncedBillNumber: item.syncedBillNumber || "",
+            syncedDate: item.syncedDate || "",
+            syncedCustomer: item.syncedCustomer || "",
           };
         });
 
         setUnSyncedOrderIds(unSyncedOrderIds);
         setSyncedOrderInfos(syncedOrderInfos);
-        Alert.success('Check finished');
+        Alert.success("Check finished");
       })
       .catch((e) => {
         Alert.error(e.message);
@@ -108,16 +104,16 @@ const CheckSyncedOrdersContainer = (props: FinalProps) => {
         const syncedOrderInfos = {};
 
         syncedOrderInfos[_id] = {
-          syncedBillNumber: syncedBillNumber || '',
-          syncedDate: syncedDate || '',
-          syncedCustomer: syncedCustomer || '',
+          syncedBillNumber: syncedBillNumber || "",
+          syncedDate: syncedDate || "",
+          syncedCustomer: syncedCustomer || "",
         };
 
         console.log(syncedOrderInfos);
 
         setSyncedOrderInfos(syncedOrderInfos);
 
-        Alert.success('Successful');
+        Alert.success("Successful");
       })
       .catch((e) => {
         Alert.error(e.message);
@@ -168,10 +164,10 @@ export default withProps<Props>(
     graphql<{ queryParams: any }, CheckSyncedOrdersQueryResponse>(
       gql(queries.checkSyncOrders),
       {
-        name: 'checkSyncItemsQuery',
+        name: "checkSyncItemsQuery",
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only',
+          fetchPolicy: "network-only",
         }),
       }
     ),
@@ -179,29 +175,29 @@ export default withProps<Props>(
     graphql<{ queryParams: any }, CheckSyncedOrdersTotalCountQueryResponse>(
       gql(queries.checkSyncOrdersTotalCount),
       {
-        name: 'checkSyncedOrdersTotalCountQuery',
+        name: "checkSyncedOrdersTotalCountQuery",
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only',
+          fetchPolicy: "network-only",
         }),
       }
     ),
     graphql<Props, CheckSyncedMutationResponse, { orderIds: string[] }>(
       gql(mutations.toCheckMsdSynced),
       {
-        name: 'toCheckMsdSynced',
+        name: "toCheckMsdSynced",
       }
     ),
     graphql<Props, ToSyncOrdersMutationResponse, { orderIds: string[] }>(
       gql(mutations.toSyncMsdOrders),
       {
-        name: 'toSyncMsdOrders',
+        name: "toSyncMsdOrders",
       }
     ),
     graphql<Props, ToSendOrdersMutationResponse, { orderIds: string[] }>(
       gql(mutations.toSendMsdOrders),
       {
-        name: 'toSendMsdOrders',
+        name: "toSendMsdOrders",
       }
     ),
 
@@ -214,8 +210,8 @@ export default withProps<Props>(
         }
       }`),
       {
-        name: 'posListQuery',
+        name: "posListQuery",
       }
     )
-  )(withRouter<IRouterProps>(CheckSyncedOrdersContainer))
+  )(CheckSyncedOrdersContainer)
 );

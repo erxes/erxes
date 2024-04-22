@@ -1,40 +1,46 @@
+import {
+  FieldStyle,
+  SidebarCounter,
+  SidebarList,
+} from '@erxes/ui/src/layout/styles';
+import { __, router } from 'coreui/utils';
+
 import Box from '@erxes/ui/src/components/Box';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { __, router } from 'coreui/utils';
-import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
 import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-interface IProps extends IRouterProps {
+interface IProps {
   counts: { [key: string]: number };
   integrationsGetUsedTypes: Array<{ _id: string; name: string }>;
 }
 
-function IntegrationFilter({
-  history,
-  counts,
-  integrationsGetUsedTypes
-}: IProps) {
-  const onClick = kind => {
-    router.setParams(history, { integrationType: kind });
-    router.removeParams(history, 'page');
+function IntegrationFilter({ counts, integrationsGetUsedTypes }: IProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    router.removeParams(navigate, location, 'page');
+  }, [location.search]);
+
+  const onClick = (kind) => {
+    router.setParams(navigate, location, { integrationType: kind });
   };
 
   const data = (
     <SidebarList capitalize={true}>
-      {integrationsGetUsedTypes.map(kind => (
-        <li key={kind._id}>
+      {integrationsGetUsedTypes.map((kind) => (
+        <li key={Math.random()}>
           <a
             href="#filter"
             tabIndex={0}
             className={
-              router.getParam(history, 'integrationType') === kind._id
+              router.getParam(location, 'integrationType') === kind._id
                 ? 'active'
                 : ''
             }
-            onClick={onClick.bind(null, kind._id)}
+            onClick={() => onClick(kind._id)}
           >
             <FieldStyle>{kind.name}</FieldStyle>
             <SidebarCounter>{counts[kind._id] || 0}</SidebarCounter>
@@ -63,4 +69,4 @@ function IntegrationFilter({
   );
 }
 
-export default withRouter<IProps>(IntegrationFilter);
+export default IntegrationFilter;

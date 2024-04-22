@@ -13,7 +13,6 @@ import Form from '../containers/WorkForm';
 type Props = {
   work: IWorkDocument;
   removeWork: (id: string) => void;
-  history: any;
 };
 
 class Row extends React.Component<Props> {

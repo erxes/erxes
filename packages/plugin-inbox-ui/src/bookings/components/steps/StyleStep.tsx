@@ -1,24 +1,21 @@
-import { FlexHeight as FlexItemContainer } from '@erxes/ui/src/styles/main';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import { FlexItem } from '@erxes/ui/src/layout/styles';
-import { COLORS } from '@erxes/ui/src/constants/colors';
-import Popover from 'react-bootstrap/Popover';
-import TwitterPicker from 'react-color/lib/Twitter';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Select from 'react-select-plus';
-import {
-  SubHeading,
-  WidgetBackgrounds
-} from '@erxes/ui-settings/src/styles';
-import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import React from 'react';
-import { BOOKING_ITEM_SHAPE } from '../../constants';
-import { Flex } from '@erxes/ui/src/styles/main';
-import { FONTS } from '@erxes/ui-settings/src/constants';
+import { ColorPick, ColorPicker } from "@erxes/ui/src/styles/main";
+import Select from "react-select";
+import { SubHeading, WidgetBackgrounds } from "@erxes/ui-settings/src/styles";
 
-type Name = 'itemShape' | 'widgetColor' | 'productAvailable' | 'baseFont';
+import { BOOKING_ITEM_SHAPE } from "../../constants";
+import { COLORS } from "@erxes/ui/src/constants/colors";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { FONTS } from "@erxes/ui-settings/src/constants";
+import { Flex } from "@erxes/ui/src/styles/main";
+import { FlexItem } from "@erxes/ui/src/layout/styles";
+import { FlexHeight as FlexItemContainer } from "@erxes/ui/src/styles/main";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { LeftItem } from "@erxes/ui/src/components/step/styles";
+import Popover from "@erxes/ui/src/components/Popover";
+import React from "react";
+import TwitterPicker from "react-color/lib/Twitter";
+
+type Name = "itemShape" | "widgetColor" | "productAvailable" | "baseFont";
 
 type Props = {
   onChangeBooking: (name: Name, value: any) => void;
@@ -33,34 +30,38 @@ function Style({
   itemShape,
   widgetColor,
   productAvailable,
-  baseFont
+  baseFont,
 }: Props) {
   const renderColorSelect = (item, color) => {
-    const popoverBottom = (
-      <Popover id='color-picker'>
+    return (
+      <Popover
+        trigger={
+          <ColorPick>
+            <ColorPicker style={{ backgroundColor: color }} />
+          </ColorPick>
+        }
+        placement="bottom-start"
+      >
         <TwitterPicker
-          width='266px'
-          triangle='hide'
+          width="266px"
+          triangle="hide"
           color={color}
-          onChange={e => onChangeBooking(item, e.hex)}
+          onChange={(e) => onChangeBooking(item, e.hex)}
           colors={COLORS}
         />
       </Popover>
     );
-
-    return (
-      <OverlayTrigger
-        trigger='click'
-        rootClose={true}
-        placement='bottom-start'
-        overlay={popoverBottom}
-      >
-        <ColorPick>
-          <ColorPicker style={{ backgroundColor: color }} />
-        </ColorPick>
-      </OverlayTrigger>
-    );
   };
+
+  const itemOptions = BOOKING_ITEM_SHAPE.ALL_LIST.map((e) => ({
+    value: e.value,
+    label: e.label,
+  }));
+
+  const fontOptions = FONTS.map((item) => ({
+    label: item.label,
+    value: item.value,
+  }));
 
   return (
     <FlexItemContainer>
@@ -70,13 +71,10 @@ function Style({
             <FormGroup>
               <ControlLabel required={true}>Item Shape</ControlLabel>
               <Select
-                clearable={false}
-                value={itemShape}
-                onChange={(e: any) => onChangeBooking('itemShape', e.value)}
-                options={BOOKING_ITEM_SHAPE.ALL_LIST.map(e => ({
-                  value: e.value,
-                  label: e.label
-                }))}
+                isClearable={false}
+                value={itemOptions.find((option) => option.value === itemShape)}
+                onChange={(e: any) => onChangeBooking("itemShape", e.value)}
+                options={itemOptions}
               />
             </FormGroup>
           </FlexItem>
@@ -87,14 +85,11 @@ function Style({
             <FormGroup>
               <ControlLabel>Base Font</ControlLabel>
               <Select
-                placeholder='Please select a font'
-                value={baseFont}
-                options={FONTS.map(item => ({
-                  label: item.label,
-                  value: item.value
-                }))}
+                placeholder="Please select a font"
+                value={fontOptions.find((option) => option.value === baseFont)}
+                options={fontOptions}
                 onChange={(e: any) =>
-                  onChangeBooking('baseFont', e ? e.value : null)
+                  onChangeBooking("baseFont", e ? e.value : null)
                 }
               />
             </FormGroup>
@@ -111,7 +106,7 @@ function Style({
             <FormGroup>
               <ControlLabel>Main Widget Color</ControlLabel>
               <WidgetBackgrounds>
-                {renderColorSelect('widgetColor', widgetColor)}
+                {renderColorSelect("widgetColor", widgetColor)}
               </WidgetBackgrounds>
             </FormGroup>
           </FlexItem>
@@ -119,7 +114,7 @@ function Style({
           <FlexItem>
             <ControlLabel>Available Product Color</ControlLabel>
             <WidgetBackgrounds>
-              {renderColorSelect('productAvailable', productAvailable)}
+              {renderColorSelect("productAvailable", productAvailable)}
             </WidgetBackgrounds>
           </FlexItem>
         </Flex>

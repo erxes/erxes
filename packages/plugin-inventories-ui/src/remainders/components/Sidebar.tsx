@@ -1,49 +1,51 @@
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
-import Tip from '@erxes/ui/src/components/Tip';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __, router } from '@erxes/ui/src/utils/core';
-import { SidebarFilters } from '../../styles';
-import { SidebarList as List } from '@erxes/ui/src/layout';
-import { useHistory } from 'react-router-dom';
+import { __, router } from "@erxes/ui/src/utils/core";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Icon from "@erxes/ui/src/components/Icon";
+import { SidebarList as List } from "@erxes/ui/src/layout";
+import React from "react";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
+import { SidebarFilters } from "../../styles";
+import Tip from "@erxes/ui/src/components/Tip";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 
 const { Section } = Wrapper.Sidebar;
 
 export default function Sidebar() {
-  const history = useHistory();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const categoryId = router.getParam(history, 'categoryId');
-  const branchId = router.getParam(history, 'branchId');
-  const departmentId = router.getParam(history, 'departmentId');
+  const categoryId = router.getParam(location, "categoryId");
+  const branchId = router.getParam(location, "branchId");
+  const departmentId = router.getParam(location, "departmentId");
 
   const clearFilter = () => {
-    router.setParams(history, {
+    router.setParams(navigate, location, {
       categoryId: null,
       branchId: null,
       departmentId: null,
       beginDate: null,
       endDate: null,
-      productIds: null
+      productIds: null,
     });
   };
 
   const setFilter = (key, value) => {
-    router.setParams(history, { [key]: value, page: 1 });
+    router.setParams(navigate, location, { [key]: value, page: 1 });
   };
 
   return (
     <Wrapper.Sidebar>
       <Section.Title>
-        {__('Filters')}
+        {__("Filters")}
         <Section.QuickButtons>
           {(branchId || departmentId || categoryId) && (
             <a href="#cancel" tabIndex={0} onClick={clearFilter}>
-              <Tip text={__('Clear filter')} placement="bottom">
+              <Tip text={__("Clear filter")} placement="bottom">
                 <Icon icon="cancel-1" />
               </Tip>
             </a>
@@ -57,12 +59,12 @@ export default function Sidebar() {
             <SelectBranches
               label="Choose branch"
               name="branchId"
-              initialValue={branchId || ''}
+              initialValue={branchId || ""}
               customOption={{
-                value: '',
-                label: '...Clear branch filter'
+                value: "",
+                label: "...Clear branch filter",
               }}
-              onSelect={branchId => setFilter('branchId', branchId)}
+              onSelect={(branchId) => setFilter("branchId", branchId)}
               multi={false}
             />
           </FormGroup>
@@ -71,12 +73,14 @@ export default function Sidebar() {
             <SelectDepartments
               label="Choose department"
               name="departmentId"
-              initialValue={departmentId || ''}
+              initialValue={departmentId || ""}
               customOption={{
-                value: '',
-                label: '...Clear department filter'
+                value: "",
+                label: "...Clear department filter",
               }}
-              onSelect={departmentId => setFilter('departmentId', departmentId)}
+              onSelect={(departmentId) =>
+                setFilter("departmentId", departmentId)
+              }
               multi={false}
             />
           </FormGroup>
@@ -85,12 +89,12 @@ export default function Sidebar() {
             <SelectProductCategory
               label="Choose product category"
               name="categoryId"
-              initialValue={categoryId || ''}
+              initialValue={categoryId || ""}
               customOption={{
-                value: '',
-                label: '...Clear product category filter'
+                value: "",
+                label: "...Clear product category filter",
               }}
-              onSelect={categoryId => setFilter('categoryId', categoryId)}
+              onSelect={(categoryId) => setFilter("categoryId", categoryId)}
               multi={false}
             />
           </FormGroup>

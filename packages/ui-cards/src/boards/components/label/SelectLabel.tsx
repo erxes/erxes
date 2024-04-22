@@ -4,7 +4,7 @@ import React from 'react';
 import { queries } from '../../graphql/index';
 import { IPipelineLabel } from '../../types';
 
-// get user options for react-select-plus
+// get user options for react-select
 export function generateLabelOptions(array: IPipelineLabel[] = []): IOption[] {
   return array.map(item => {
     const label = item || ({} as IPipelineLabel);

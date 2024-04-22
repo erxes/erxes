@@ -3,7 +3,6 @@ import * as compose from 'lodash.flowright';
 import { mutations, queries } from '../graphql';
 
 import { Alert } from '@erxes/ui/src/utils';
-import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import ShareForm from '../components/ShareForm';
 import Spinner from '@erxes/ui/src/components/Spinner';
@@ -18,8 +17,7 @@ type Props = {
 type FinalProps = {
   unitsQuery: any;
   shareMutation: any;
-} & Props &
-  IRouterProps;
+} & Props;
 
 const ShareFormContainer = (props: FinalProps) => {
   const { unitsQuery, shareMutation, closeModal } = props;

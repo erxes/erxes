@@ -1,29 +1,27 @@
-import { ActionButtons, Header } from '@erxes/ui-settings/src/styles';
-import { FieldStyle, SidebarList } from 'modules/layout/styles';
-import { __, router } from 'modules/common/utils';
+import { ActionButtons, Header } from "@erxes/ui-settings/src/styles";
+import { FieldStyle, SidebarList } from "modules/layout/styles";
 
-import Button from 'modules/common/components/Button';
-import DataWithLoader from 'modules/common/components/DataWithLoader';
-import GroupForm from './GroupForm';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
-import { IUserGroupDocument } from '../types';
-import Icon from 'modules/common/components/Icon';
-import { Link } from 'react-router-dom';
-import LoadMore from 'modules/common/components/LoadMore';
-import MemberAvatars from '@erxes/ui/src/components/MemberAvatars';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import React from 'react';
-import Sidebar from 'modules/layout/components/Sidebar';
-import { SidebarItem } from '../styles';
-import Tip from 'modules/common/components/Tip';
-import Wrapper from 'modules/layout/components/Wrapper';
-import { withRouter } from 'react-router-dom';
+import Button from "modules/common/components/Button";
+import DataWithLoader from "modules/common/components/DataWithLoader";
+import GroupForm from "./GroupForm";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { IUserGroup } from "@erxes/ui-settings/src/permissions/types";
+import { IUserGroupDocument } from "../types";
+import Icon from "modules/common/components/Icon";
+import { Link } from "react-router-dom";
+import LoadMore from "modules/common/components/LoadMore";
+import MemberAvatars from "@erxes/ui/src/components/MemberAvatars";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import React from "react";
+import Sidebar from "modules/layout/components/Sidebar";
+import { SidebarItem } from "../styles";
+import Tip from "modules/common/components/Tip";
+import Wrapper from "modules/layout/components/Wrapper";
+import { __ } from "modules/common/utils";
 
 const { Section } = Wrapper.Sidebar;
 
-interface IProps extends IRouterProps {
+interface IProps {
   queryParams: any;
   refetch: any;
   totalCount: number;
@@ -36,19 +34,19 @@ interface IProps extends IRouterProps {
 
 class GroupList extends React.Component<IProps> {
   renderFormTrigger(trigger: React.ReactNode, object?: IUserGroup) {
-    const content = props => this.renderForm({ ...props, object });
+    const content = (props) => this.renderForm({ ...props, object });
 
     return (
       <ModalTrigger
         title="New Group"
-        autoOpenKey={object ? 'newUserGroup' : 'showUserGroupAddModal'}
+        autoOpenKey={object ? "newUserGroup" : "showUserGroupAddModal"}
         trigger={trigger}
         content={content}
       />
     );
   }
 
-  renderForm = props => {
+  renderForm = (props) => {
     const { refetch, renderButton } = this.props;
 
     const extendedProps = { ...props, refetch };
@@ -58,7 +56,7 @@ class GroupList extends React.Component<IProps> {
 
   isActive = (id: string) => {
     const { queryParams } = this.props;
-    const currentGroup = queryParams.groupId || '';
+    const currentGroup = queryParams.groupId || "";
 
     return currentGroup === id;
   };
@@ -66,7 +64,7 @@ class GroupList extends React.Component<IProps> {
   renderEditAction(object: IUserGroupDocument) {
     const trigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')} placement="bottom">
+        <Tip text={__("Edit")} placement="bottom">
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -80,7 +78,7 @@ class GroupList extends React.Component<IProps> {
 
     return (
       <Button btnStyle="link" onClick={remove.bind(null, object._id)}>
-        <Tip text={__('Remove')} placement="bottom">
+        <Tip text={__("Remove")} placement="bottom">
           <Icon icon="cancel-1" />
         </Tip>
       </Button>
@@ -89,9 +87,9 @@ class GroupList extends React.Component<IProps> {
 
   renderCopyAction(object: IUserGroupDocument) {
     const onCopy = () =>
-      this.props.copyItem(object._id, 'memberIds', object.memberIds || []);
+      this.props.copyItem(object._id, "memberIds", object.memberIds || []);
 
-    const tipText = 'Copies user group along with the permissions & users';
+    const tipText = "Copies user group along with the permissions & users";
 
     return (
       <Button btnStyle="link" onClick={onCopy}>
@@ -103,8 +101,8 @@ class GroupList extends React.Component<IProps> {
   }
 
   renderObjects(objects: IUserGroupDocument[]) {
-    return objects.map(object => (
-      <SidebarItem key={object._id} isActive={this.isActive(object._id)}>
+    return objects.map((object) => (
+      <SidebarItem key={object._id} $isActive={this.isActive(object._id)}>
         <Link to={`?groupId=${object._id}`}>
           <FieldStyle>
             {object.name}
@@ -127,7 +125,7 @@ class GroupList extends React.Component<IProps> {
     const { objects } = this.props;
 
     return (
-      <SidebarList noBackground={true} noTextColor={true}>
+      <SidebarList $noBackground={true} $noTextColor={true}>
         {this.renderObjects(objects)}
       </SidebarList>
     );
@@ -148,7 +146,7 @@ class GroupList extends React.Component<IProps> {
     return (
       <>
         <Header>{this.renderFormTrigger(trigger)}</Header>
-        <Section.Title>{__('User groups')}</Section.Title>
+        <Section.Title>{__("User groups")}</Section.Title>
       </>
     );
   }
@@ -171,4 +169,4 @@ class GroupList extends React.Component<IProps> {
   }
 }
 
-export default withRouter<IProps>(GroupList);
+export default GroupList;

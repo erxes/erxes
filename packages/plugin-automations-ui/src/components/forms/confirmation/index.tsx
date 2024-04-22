@@ -1,10 +1,11 @@
-import React from 'react';
-import Alert from '@erxes/ui/src/utils/Alert';
+import Alert from "@erxes/ui/src/utils/Alert";
+import React from "react";
 
 type Props = {
   when: boolean;
   children: any;
-  history: any;
+  location: any;
+  navigate: any;
   queryParams: any;
   id: string;
   name: string;
@@ -24,18 +25,18 @@ class Confirmation extends React.Component<Props, State> {
     this.state = {
       nextLocation: {},
       showModal: false,
-      isConfirm: false
+      isConfirm: false,
     };
   }
 
   componentDidUpdate() {
-    const { history, when } = this.props;
+    const { navigate, location, when } = this.props;
 
-    this.blockRoute = history.block(nextLocation => {
-      if (when && nextLocation.pathname !== history.location.pathname) {
+    this.blockRoute = navigate((nextLocation) => {
+      if (when && nextLocation.pathname !== location.pathname) {
         this.setState({
           showModal: true,
-          nextLocation
+          nextLocation,
         });
       }
 
@@ -63,8 +64,8 @@ class Confirmation extends React.Component<Props, State> {
   onConfirm = () => {
     const { name } = this.props;
 
-    if (!name || name === 'Your automation title') {
-      Alert.error('Enter an Automation title');
+    if (!name || name === "Your automation title") {
+      Alert.error("Enter an Automation title");
 
       return this.setState({ showModal: false });
     }
@@ -75,7 +76,7 @@ class Confirmation extends React.Component<Props, State> {
   };
 
   navigateToNextLocation = () => {
-    const { save, history, queryParams, name } = this.props;
+    const { save, navigate, queryParams, name } = this.props;
 
     if (queryParams.isCreate && this.state.isConfirm && name) {
       save();
@@ -87,7 +88,7 @@ class Confirmation extends React.Component<Props, State> {
 
     this.blockRoute();
 
-    history.push(this.state.nextLocation.pathname);
+    navigate(this.state.nextLocation.pathname);
   };
 
   blockRoute = () => null;

@@ -1,16 +1,16 @@
 import Button from 'modules/common/components/Button';
+import ControlLabel from 'modules/common/components/form/Label';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
 import React from 'react';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   save: ({
     currentPassword,
     newPassword,
-    confirmation
+    confirmation,
   }: {
     currentPassword: string;
     newPassword: string;
@@ -22,18 +22,18 @@ type Props = {
 class ChangePassword extends React.Component<Props> {
   generateDoc = () => {
     return {
-      currentPassword: (document.getElementById(
-        'current-password'
-      ) as HTMLInputElement).value,
+      currentPassword: (
+        document.getElementById('current-password') as HTMLInputElement
+      ).value,
       newPassword: (document.getElementById('new-password') as HTMLInputElement)
         .value,
-      confirmation: (document.getElementById(
-        'new-password-confirmation'
-      ) as HTMLInputElement).value
+      confirmation: (
+        document.getElementById('new-password-confirmation') as HTMLInputElement
+      ).value,
     };
   };
 
-  handleSubmit = e => {
+  handleSubmit = (e) => {
     e.preventDefault();
 
     this.props.save(this.generateDoc());

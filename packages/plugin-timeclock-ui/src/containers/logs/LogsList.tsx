@@ -18,7 +18,6 @@ import { Alert, confirm } from '@erxes/ui/src/utils';
 import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 
 type Props = {
-  history: any;
   queryParams: any;
   searchValue?: string;
 

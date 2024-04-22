@@ -1,15 +1,15 @@
-import React from 'react';
-import * as compose from 'lodash.flowright';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '../../bots/graphql';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { QueryResponse } from '@erxes/ui/src/types';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { ListItem } from '../../styles';
-import colors from '@erxes/ui/src/styles/colors';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
+import React from "react";
+import * as compose from "lodash.flowright";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries } from "../../bots/graphql";
+import { withProps } from "@erxes/ui/src/utils/core";
+import { QueryResponse } from "@erxes/ui/src/types";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { ListItem } from "../../styles";
+import colors from "@erxes/ui/src/styles/colors";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
 
 type Props = {
   botId?: string;
@@ -28,7 +28,7 @@ const renderSelectedMenus = (persistentMenus: any[], ids: string[]) => {
       {persistentMenus
         .filter((menu) => ids.includes(menu._id))
         .map((persistentMenu) => persistentMenu.text)
-        .join(',')}
+        .join(",")}
     </span>
   );
 };
@@ -56,7 +56,7 @@ function PersistentMenuSelector({
       ? persistentMenuIds.filter((id) => id !== _id)
       : [...persistentMenuIds, _id];
 
-    onChange('persistentMenuIds', updatedMenuIds);
+    onChange("persistentMenuIds", updatedMenuIds);
   };
 
   if (persistentMenus.length) {
@@ -71,28 +71,28 @@ function PersistentMenuSelector({
 
   return persistentMenus.map(
     ({ _id, text, type }) =>
-      type !== 'link' && (
+      type !== "link" && (
         <ListItem key={_id}>
           <FormControl
-            componentClass="radio"
+            componentclass="radio"
             color={colors.colorCoreBlue}
             checked={persistentMenuIds?.includes(_id)}
             onClick={() => onCheck(_id)}
           />
           <span>{text}</span>
         </ListItem>
-      ),
+      )
   );
 }
 
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.detail), {
-      name: 'botQueryResponse',
+      name: "botQueryResponse",
       options: ({ botId }) => ({
         variables: { _id: botId },
       }),
       skip: ({ botId }) => !botId,
-    }),
-  )(PersistentMenuSelector),
+    })
+  )(PersistentMenuSelector)
 );

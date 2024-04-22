@@ -1,9 +1,9 @@
 import {
   MainStyleTitle as Title,
   Wrapper,
-  HeaderDescription
+  HeaderDescription,
 } from '@erxes/ui/src';
-import React from 'react';
+import React, { useState } from 'react';
 
 import { ContentBox } from '../styles';
 import { IConfigsMap } from '../types';
@@ -26,21 +26,10 @@ type Props = {
   configsMap: IConfigsMap;
 };
 
-type State = {
-  configsMap: IConfigsMap;
-};
+const MainSettings = (props: Props) => {
+  const [configsMap, setConfigsMap] = useState<IConfigsMap>(props.configsMap);
 
-class MainSettings extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      configsMap: props.configsMap
-    };
-  }
-
-  renderConfigs(configs) {
-    const { configsMap } = this.state;
+  const renderConfigs = (configs) => {
     return (
       <div>
         <MainConfig
@@ -48,44 +37,38 @@ class MainSettings extends React.Component<Props, State> {
           configsMap={configsMap}
           currentConfigKey="loansConfig"
           config={{ title: 'main config', ...configs }}
-          save={this.props.save}
+          save={props.save}
         />
       </div>
     );
-  }
+  };
 
-  renderContent() {
-    const { configsMap } = this.state;
-
+  const renderContent = () => {
     const configs = configsMap?.loansConfig || {};
 
     return (
-      <ContentBox id={'MainSettingsMenu'}>
-        {this.renderConfigs(configs)}
-      </ContentBox>
+      <ContentBox id={'MainSettingsMenu'}>{renderConfigs(configs)}</ContentBox>
     );
-  }
+  };
 
-  render() {
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Loan config') }
-    ];
+  const breadcrumb = [
+    { title: __('Settings'), link: '/settings' },
+    { title: __('Loan config') },
+  ];
 
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header title={__('Main configs')} breadcrumb={breadcrumb} />
-        }
-        mainHead={<Header />}
-        actionBar={
-          <Wrapper.ActionBar left={<Title>{__('Main configs')}</Title>} />
-        }
-        leftSidebar={<Sidebar />}
-        content={this.renderContent()}
-      />
-    );
-  }
-}
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header title={__('Main configs')} breadcrumb={breadcrumb} />
+      }
+      mainHead={<Header />}
+      actionBar={
+        <Wrapper.ActionBar left={<Title>{__('Main configs')}</Title>} />
+      }
+      leftSidebar={<Sidebar />}
+      content={renderContent()}
+    />
+  );
+};
 
 export default MainSettings;

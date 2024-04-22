@@ -1,14 +1,14 @@
-import Form from '@erxes/ui/src/components/form/Form';
-import Icon from '@erxes/ui/src/components/Icon';
-import { ITimeclock } from '../../types';
-import { __ } from '@erxes/ui/src/utils';
-import Button from '@erxes/ui/src/components/Button';
-import React, { useEffect, useState } from 'react';
-import { ControlLabel, FormGroup } from '@erxes/ui/src/components/form';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { prepareCurrentUserOption } from '../../utils';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
+import Form from "@erxes/ui/src/components/form/Form";
+import Icon from "@erxes/ui/src/components/Icon";
+import { ITimeclock } from "../../types";
+import { __ } from "@erxes/ui/src/utils";
+import Button from "@erxes/ui/src/components/Button";
+import React, { useEffect, useState } from "react";
+import { ControlLabel, FormGroup } from "@erxes/ui/src/components/form";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import { prepareCurrentUserOption } from "../../utils";
+import { IUser } from "@erxes/ui/src/auth/types";
+import { IBranch, IDepartment } from "@erxes/ui/src/team/types";
 
 type Props = {
   currentUser: IUser;
@@ -38,17 +38,21 @@ const FormComponent = ({
   selectedUserId,
   shiftId,
   shiftStarted,
-  closeModal
+  closeModal,
 }: Props) => {
   const returnTotalUserOptions = () => {
     const totalUserOptions: string[] = [];
 
-    for (const dept of departments) {
-      totalUserOptions.push(...dept.userIds);
+    if (departments) {
+      for (const dept of departments) {
+        totalUserOptions.push(...dept.userIds);
+      }
     }
 
-    for (const branch of branches) {
-      totalUserOptions.push(...branch.userIds);
+    if (branches) {
+      for (const branch of branches) {
+        totalUserOptions.push(...branch.userIds);
+      }
     }
 
     if (currentUser) {
@@ -62,11 +66,11 @@ const FormComponent = ({
     ? {}
     : {
         ids: returnTotalUserOptions(),
-        excludeIds: false
+        excludeIds: false,
       };
 
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [userId, setUserId] = useState(selectedUserId);
+  const [userId, setUserId] = useState(selectedUserId || "");
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -77,7 +81,7 @@ const FormComponent = ({
     };
   });
 
-  const onTeamMemberSelect = memberId => {
+  const onTeamMemberSelect = (memberId) => {
     setUserId(memberId);
   };
 
@@ -95,27 +99,27 @@ const FormComponent = ({
     return (
       <div
         style={{
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: '20px'
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: "20px",
         }}
       >
-        <div style={{ display: 'block', fontSize: '26px', fontWeight: 500 }}>
+        <div style={{ display: "block", fontSize: "26px", fontWeight: 500 }}>
           {currentTime.toLocaleTimeString()}
         </div>
-        <div style={{ display: 'block', fontSize: '26px', fontWeight: 500 }}>
+        <div style={{ display: "block", fontSize: "26px", fontWeight: 500 }}>
           <Button
             btnStyle="primary"
             onClick={shiftStarted ? stopClock : startClock}
           >
-            <Icon icon="clock" style={{ display: 'block' }} />
-            {shiftStarted ? 'Clock out' : 'Clock in'}
+            <Icon icon="clock" style={{ display: "block" }} />
+            {shiftStarted ? "Clock out" : "Clock in"}
           </Button>
         </div>
 
-        <div style={{ width: '60%' }}>
+        <div style={{ width: "60%" }}>
           <FormGroup>
             <ControlLabel>Team member</ControlLabel>
             <SelectTeamMembers

@@ -1,12 +1,12 @@
-import React, { useEffect, useState, memo } from 'react';
+import React, { useEffect, useState, memo } from "react";
 
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
 
-import ChartLoader from './ChartLoader';
-import { FlexRow } from '../../styles';
-import { IDashboard, IReport, IReportTemplate } from '../../types';
+import ChartLoader from "./ChartLoader";
+import { FlexRow } from "../../styles";
+import { IDashboard, IReport, IReportTemplate } from "../../types";
 
 type Props = {
   report?: any;
@@ -46,7 +46,7 @@ const ChartTemplates = (props: Props) => {
     setTemplate(newTemplates);
 
     const trueTemplates = Object.keys(newTemplates).filter(
-      (key) => newTemplates[key],
+      (key) => newTemplates[key]
     );
     setTemplateCharts([...templateCharts, ...trueTemplates]);
   }, [chartTemplates.length]);
@@ -61,7 +61,7 @@ const ChartTemplates = (props: Props) => {
 
     const updated = !v.target.checked
       ? templateCharts.filter(
-          (template) => template !== chartTemplate.templateType,
+          (template) => template !== chartTemplate.templateType
         )
       : [...templateCharts, chartTemplate.templateType];
     setTemplateCharts(updated);
@@ -76,7 +76,7 @@ const ChartTemplates = (props: Props) => {
             <FlexRow key={chartTemplate.templateType}>
               <ControlLabel>{chartTemplate.name}</ControlLabel>
               <FormControl
-                componentClass="checkbox"
+                componentclass="checkbox"
                 name={chartTemplate.templateType}
                 checked={templates[chartTemplate.templateType]}
                 key={chartTemplate.name}

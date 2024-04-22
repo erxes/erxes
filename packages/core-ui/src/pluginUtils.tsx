@@ -2,33 +2,33 @@ declare var __webpack_init_sharing__;
 declare var __webpack_share_scopes__;
 declare var window;
 
-import { ApolloProvider } from '@apollo/client';
-import { AppProvider } from './appContext';
-import { BrowserRouter } from 'react-router-dom';
-import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
-import { IUser } from 'modules/auth/types';
-import { NavItem } from 'modules/layout/components/QuickNavigation';
-import React from 'react';
-import { __ } from 'modules/common/utils';
-import apolloClient from '@erxes/ui/src/apolloClient';
-import { render } from 'react-dom';
+import { ApolloProvider } from "@apollo/client";
+import { AppProvider } from "./appContext";
+import { BrowserRouter } from "react-router-dom";
+import ErrorBoundary from "@erxes/ui/src/components/ErrorBoundary";
+import { IUser } from "modules/auth/types";
+import { NavItem } from "modules/layout/components/QuickNavigation";
+import React from "react";
+import { __ } from "modules/common/utils";
+import apolloClient from "@erxes/ui/src/apolloClient";
+import { createRoot } from "react-dom/client";
 
 const PLUGIN_LABEL_COLORS: string[] = [
-  '',
-  '#63D2D6', // CYAN
-  '#E91E63', // PINK
-  '#9C27B0', // PURPLE
-  '#673AB7', // DEEP PURPLE
-  '#3F51B5', // INDIGO
-  '#2196F3', // BLUE
-  '#00BCD4', // CYAN
-  '#009688', // TEAL
-  '#4CAF50', // GREEN
-  '#8BC34A', // LIGHT GREEN
-  '#CDDC39', // LIME
-  '#FFC107', // AMBER
-  '#FF9800', // ORANGE
-  '#FF5722', // DEEP ORANGE
+  "",
+  "#63D2D6", // CYAN
+  "#E91E63", // PINK
+  "#9C27B0", // PURPLE
+  "#673AB7", // DEEP PURPLE
+  "#3F51B5", // INDIGO
+  "#2196F3", // BLUE
+  "#00BCD4", // CYAN
+  "#009688", // TEAL
+  "#4CAF50", // GREEN
+  "#8BC34A", // LIGHT GREEN
+  "#CDDC39", // LIME
+  "#FFC107", // AMBER
+  "#FF9800", // ORANGE
+  "#FF5722", // DEEP ORANGE
 ];
 
 class CustomComponent extends React.Component<
@@ -105,12 +105,12 @@ const useDynamicScript = (args) => {
       return;
     }
 
-    const element = document.createElement('script');
+    const element = document.createElement("script");
     const id = `dynamic-script-${args.scope}`;
 
     element.src = args.url;
     element.id = id;
-    element.type = 'text/javascript';
+    element.type = "text/javascript";
     element.async = true;
 
     setReady(false);
@@ -144,7 +144,7 @@ const useDynamicScript = (args) => {
 export const loadComponent = (scope, module) => {
   return async () => {
     // Initializes the share scope. This fills it with known provided modules from this build and all remotes
-    await __webpack_init_sharing__('default');
+    await __webpack_init_sharing__("default");
 
     const container = window[scope]; // or get the container somewhere else
 
@@ -152,12 +152,31 @@ export const loadComponent = (scope, module) => {
       // Initialize the container, it may provide shared modules
       await container.init(__webpack_share_scopes__.default);
     } catch (e) {
-      // already was initialized
+      console.error("Container initialization error:", e);
     }
 
-    const factory = await window[scope].get(module);
-    const Module = factory();
-    return Module;
+    try {
+      const factory = await window[scope]?.get(module);
+
+      if (!factory) {
+        throw new Error(`Module '${module}' not found in scope '${scope}'.`);
+      }
+
+      if (typeof factory !== "function") {
+        throw new Error(`Factory is not a function for module '${module}'.`);
+      }
+
+      const Module = factory();
+
+      if (!Module) {
+        throw new Error(`Module '${module}' is not initialized properly.`);
+      }
+
+      return Module;
+    } catch (error) {
+      console.error("Component loading error:", error);
+      throw error; // rethrow the error to let the caller handle it
+    }
   };
 };
 
@@ -170,12 +189,14 @@ const renderPluginSidebar = (itemName: string, type: string, object: any) => {
       plugins={plugins}
       callBack={(_plugin, sections) => {
         return (sections || []).map((section) => {
+          console.log("kkk", section.scope, window[section.scope]);
+
           if (!window[section.scope]) {
             return null;
           }
 
           const Component = React.lazy(
-            loadComponent(section.scope, section.component),
+            loadComponent(section.scope, section.component)
           );
 
           const updatedProps = {
@@ -186,7 +207,7 @@ const renderPluginSidebar = (itemName: string, type: string, object: any) => {
           };
 
           if (section?.withDetail) {
-            updatedProps['object'] = object;
+            updatedProps["object"] = object;
           }
 
           return <Component {...updatedProps} />;
@@ -209,7 +230,7 @@ const System = (props) => {
   }
 
   const Component = React.lazy(
-    loadComponent(props.system.scope, props.system.module),
+    loadComponent(props.system.scope, props.system.module)
   );
 
   return (
@@ -234,7 +255,7 @@ const SystemWithApolloProvider = (props) => {
   }
 
   const Component = React.lazy(
-    loadComponent(props.system.scope, props.system.module),
+    loadComponent(props.system.scope, props.system.module)
   );
 
   return (
@@ -287,7 +308,7 @@ class SettingsCustomBox extends React.Component<any, any> {
       settingsNav.action,
       settingsNav.permissions,
       settingsNav.scope,
-      color,
+      color
     );
 
     if (settingsNav.component && hasComponent) {
@@ -310,8 +331,8 @@ export const pluginsSettingsNavigations = (
     to: string,
     action: string,
     permissions?: string[],
-    type?: string,
-  ) => React.ReactNode,
+    type?: string
+  ) => React.ReactNode
 ) => {
   const plugins: any[] = (window as any).plugins || [];
   const navigationMenus: any[] = [];
@@ -323,10 +344,10 @@ export const pluginsSettingsNavigations = (
       plugins[i].color = PLUGIN_LABEL_COLORS[i];
     }
 
-    const hasComponent = Object.keys(plugins[i].exposes).includes('./settings');
+    const hasComponent = Object.keys(plugins[i].exposes).includes("./settings");
 
     for (const menu of plugins[i].menus || []) {
-      if (menu.location === 'settings') {
+      if (menu.location === "settings") {
         navigationMenus.push(
           <React.Fragment key={menu.text}>
             <SettingsCustomBox
@@ -335,7 +356,7 @@ export const pluginsSettingsNavigations = (
               renderBox={renderBox}
               hasComponent={hasComponent}
             />
-          </React.Fragment>,
+          </React.Fragment>
         );
       }
     }
@@ -350,7 +371,7 @@ export const pluginsOfTopNavigations = () => {
 
   for (const plugin of plugins) {
     for (const menu of plugin.menus || []) {
-      if (menu.location === 'topNavigation') {
+      if (menu.location === "topNavigation") {
         topNavigationMenus.push(
           <React.Fragment key={menu.text}>
             <CustomComponent
@@ -358,7 +379,7 @@ export const pluginsOfTopNavigations = () => {
               component={menu.component}
               isTopNav={true}
             />
-          </React.Fragment>,
+          </React.Fragment>
         );
       }
     }
@@ -380,7 +401,7 @@ export const pluginLayouts = (currentUser: IUser) => {
           system={plugin.layout}
           currentUser={currentUser}
           pluginName={plugin.name}
-        />,
+        />
       );
     }
   }
@@ -390,10 +411,10 @@ export const pluginLayouts = (currentUser: IUser) => {
 
 export const pluginsInnerWidgets = () => {
   const plugins: any[] = (window as any).plugins || [];
-  const rootDiv = document.getElementById('root');
-  const newDiv = document.createElement('div');
+  const rootDiv = document.getElementById("root");
+  const newDiv = document.createElement("div");
   newDiv.style.cssText =
-    'position:absolute;width:72px;z-index:999999;height:72px;display:flex;align-items:center;justify-content:center;';
+    "position:absolute;width:72px;z-index:999999;height:72px;display:flex;align-items:center;justify-content:center;";
 
   for (const plugin of plugins) {
     if (!plugin.innerWidget) {
@@ -401,9 +422,9 @@ export const pluginsInnerWidgets = () => {
     }
 
     newDiv.style.cssText =
-      newDiv.style.cssText + (plugin.innerWidget.style || '');
+      newDiv.style.cssText + (plugin.innerWidget.style || "");
 
-    render(
+    createRoot(newDiv).render(
       <BrowserRouter>
         <SystemWithApolloProvider
           key={Math.random()}
@@ -411,8 +432,7 @@ export const pluginsInnerWidgets = () => {
           system={plugin.innerWidget}
           pluginName={plugin.name}
         />
-      </BrowserRouter>,
-      newDiv,
+      </BrowserRouter>
     );
   }
 
@@ -435,7 +455,7 @@ export const pluginRouters = () => {
           loadScript={true}
           system={plugin.routes}
           pluginName={plugin.name}
-        />,
+        />
       );
     }
   }
@@ -446,15 +466,15 @@ export const pluginRouters = () => {
 export const pluginsOfCustomerSidebar = (customer: any) => {
   // check - ICustomer
   return renderPluginSidebar(
-    'customerRightSidebarSection',
-    'customer',
-    customer,
+    "customerRightSidebarSection",
+    "customer",
+    customer
   );
 };
 
 export const pluginsOfCompanySidebar = (company: any) => {
   // check - ICompany
-  return renderPluginSidebar('companyRightSidebarSection', 'company', company);
+  return renderPluginSidebar("companyRightSidebarSection", "company", company);
 };
 
 export const pluginsOfItemSidebar = (item: any, type: string) => {
@@ -462,13 +482,13 @@ export const pluginsOfItemSidebar = (item: any, type: string) => {
 };
 
 export const pluginsOfPaymentForm = (
-  renderPaymentsByType: (type) => JSX.Element,
+  renderPaymentsByType: (type) => JSX.Element
 ) => {
   const plugins: any[] = (window as any).plugins || [];
 
   return (
     <PluginsWrapper
-      itemName={'payments'}
+      itemName={"payments"}
       plugins={plugins}
       callBack={(_plugin, payments) => {
         const paymentsTypes: JSX.Element[] = [];
@@ -491,11 +511,11 @@ export const pluginsOfProductCategoryActions = (category: any) => {
   return (
     <PluginsWrapper
       plugins={plugins}
-      itemName={'productCategoryActions'}
+      itemName={"productCategoryActions"}
       callBack={(_plugin, actions) => {
         return actions.map((action) => {
           const Component = React.lazy(
-            loadComponent(action.scope, action.component),
+            loadComponent(action.scope, action.component)
           );
 
           return <Component key={Math.random()} productCategory={category} />;
@@ -514,7 +534,7 @@ export const customNavigationLabel = () => {
       customLabels.push(
         <React.Fragment key={lbl.text}>
           <CustomComponent scope={lbl.scope} component={lbl.component} />
-        </React.Fragment>,
+        </React.Fragment>
       );
     }
   }
@@ -528,11 +548,11 @@ export const pluginsOfJobCategoryActions = (productCategoryId: string) => {
   return (
     <PluginsWrapper
       plugins={plugins}
-      itemName={'jobCategoryActions'}
+      itemName={"jobCategoryActions"}
       callBack={(_plugin, actions) => {
         return actions.map((action) => {
           const Component = React.lazy(
-            loadComponent(action.scope, action.component),
+            loadComponent(action.scope, action.component)
           );
 
           return (

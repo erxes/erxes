@@ -162,4 +162,4 @@ export const INTEGRATIONS = [
   }
 ];
 
-export const WEBHOOK_DOC_URL = 'https://docs.erxes.io/';
+export const WEBHOOK_DOC_URL = 'https://docs.erxes.io/webhooks';

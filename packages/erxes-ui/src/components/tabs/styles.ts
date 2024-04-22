@@ -1,17 +1,18 @@
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
 import { colors, dimensions, typography } from '../../styles';
 
-const TabContainer = styledTS<{ grayBorder?: boolean; full?: boolean }>(
-  styled.div
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
+
+const TabContainer = styledTS<{ $grayBorder?: boolean; $full?: boolean }>(
+  styled.div,
 )`
   border-bottom: 1px solid
-    ${props => (props.grayBorder ? colors.borderDarker : colors.borderPrimary)};
+    ${(props) => (props.$grayBorder ? colors.borderDarker : colors.borderPrimary)};
   margin-bottom: -1px;
   position: relative;
   z-index: 2;
   display: flex;
-  justify-content: ${props => props.full && 'space-evenly'};
+  justify-content: ${(props) => props.$full && 'space-evenly'};
   flex-shrink: 0;
   height: ${dimensions.headerSpacing}px;
 `;

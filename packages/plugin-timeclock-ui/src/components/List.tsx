@@ -25,7 +25,6 @@ type Props = {
 
   currentDate?: string;
   queryParams: any;
-  history: any;
   route?: string;
   startTime?: Date;
   loading: boolean;
@@ -34,7 +33,7 @@ type Props = {
 };
 
 function List(props: Props) {
-  const { queryParams, isCurrentUserAdmin, history, route, searchFilter } =
+  const { queryParams, isCurrentUserAdmin, route, searchFilter } =
     props;
 
   const [showSideBar, setShowSideBar] = useState(true);
@@ -54,7 +53,6 @@ function List(props: Props) {
               showSideBar={setShowSideBar}
               getActionBar={setRightActionBar}
               queryParams={queryParams}
-              history={history}
             />,
           );
         }
@@ -69,7 +67,6 @@ function List(props: Props) {
             getActionBar={setRightActionBar}
             queryParams={queryParams}
             getPagination={setPagination}
-            history={history}
           />,
         );
         setLoading(false);
@@ -82,7 +79,6 @@ function List(props: Props) {
             getPagination={setPagination}
             getActionBar={setRightActionBar}
             queryParams={queryParams}
-            history={history}
           />,
         );
         setLoading(false);
@@ -95,7 +91,6 @@ function List(props: Props) {
             getPagination={setPagination}
             getActionBar={setRightActionBar}
             queryParams={queryParams}
-            history={history}
           />,
         );
         setLoading(false);
@@ -109,7 +104,6 @@ function List(props: Props) {
               getPagination={setPagination}
               getActionBar={setRightActionBar}
               queryParams={queryParams}
-              history={history}
             />,
           );
         }
@@ -122,7 +116,6 @@ function List(props: Props) {
             showSideBar={setShowSideBar}
             getActionBar={setRightActionBar}
             getPagination={setPagination}
-            history={history}
             queryParams={queryParams}
           />,
         );
@@ -150,7 +143,7 @@ function List(props: Props) {
       }
       leftSidebar={
         showSideBar && (
-          <SideBarList {...props} queryParams={queryParams} history={history} />
+          <SideBarList {...props} queryParams={queryParams} />
         )
       }
       transparent={true}

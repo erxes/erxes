@@ -40,7 +40,7 @@ export default (props: {
     } = props;
     const defaultValue = queryParams ? queryParams[name] : initialValue;
 
-    // get user options for react-select-plus
+    // get user options for react-select
     function generateUserOptions(integrations: IIntegration[] = []): IOption[] {
 
         const options = integrations.map(integration => {

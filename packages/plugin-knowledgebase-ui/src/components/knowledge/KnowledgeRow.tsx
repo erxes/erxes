@@ -1,21 +1,23 @@
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { DropIcon } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import CategoryForm from '../../containers/category/CategoryForm';
-import CategoryList from '../../containers/category/CategoryList';
-import KnowledgeForm from '../../containers/knowledge/KnowledgeForm';
-import { ITopic } from '@erxes/ui-knowledgeBase/src/types';
 import {
   KnowledgeBaseRow,
   RowActions,
   SectionHead,
-  SectionTitle
-} from './styles';
+  SectionTitle,
+} from "./styles";
+import React, { useEffect, useState } from "react";
+
+import CategoryForm from "../../containers/category/CategoryForm";
+import CategoryList from "../../containers/category/CategoryList";
+import { DropIcon } from "@erxes/ui/src/styles/main";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { ITopic } from "@erxes/ui-knowledgebase/src/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import KnowledgeForm from "../../containers/knowledge/KnowledgeForm";
+import { Menu } from "@headlessui/react";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import { __ } from "@erxes/ui/src/utils/core";
 
 type Props = {
   queryParams: any;
@@ -25,10 +27,6 @@ type Props = {
   remove: (knowledgeBaseId: string) => void;
   refetchTopics: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-};
-
-type State = {
-  detailed: boolean;
 };
 
 const STORAGE_KEY = `erxes_knowledgebase_accordion`;
@@ -43,7 +41,7 @@ const collapse = (id: string, click?: boolean, isCurrent?: boolean) => {
 
   if (click) {
     values.includes(id)
-      ? (values = values.filter(key => key !== id))
+      ? (values = values.filter((key) => key !== id))
       : values.push(id);
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(values));
@@ -52,109 +50,96 @@ const collapse = (id: string, click?: boolean, isCurrent?: boolean) => {
   return isCurrent ? true : values.includes(id);
 };
 
-class KnowledgeRow extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+const KnowledgeRow = (props: Props) => {
+  const {
+    topic,
+    currentCategoryId,
+    queryParams,
+    renderButton,
+    remove,
+    refetchTopics,
+  } = props;
 
-    this.state = { detailed: collapse(props.topic._id) };
-  }
+  const [detailed, setDetailed] = useState<boolean>(collapse(props.topic._id));
 
-  toggle = () => {
-    const { topic } = this.props;
+  useEffect(() => {
+    const { categories } = topic;
 
-    this.setState({ detailed: collapse(topic._id, true) });
+    if (categories.some((category) => category._id === currentCategoryId)) {
+      setDetailed(collapse("", false, true));
+    }
+  }, [currentCategoryId]);
+
+  const handleToggle = () => {
+    setDetailed(collapse(topic._id, true));
   };
 
-  componentWillReceiveProps(nextProps) {
-    const { categories } = this.props.topic;
+  const content = (formProps) => (
+    <KnowledgeForm
+      {...formProps}
+      renderButton={renderButton}
+      topic={topic}
+      remove={remove}
+    />
+  );
 
-    if (categories.includes(nextProps.currentCategoryId)) {
-      this.setState({ detailed: collapse('', false, true) });
-    }
-  }
+  const categoryContent = (formProps) => (
+    <CategoryForm
+      {...formProps}
+      queryParams={queryParams}
+      topicId={topic._id}
+      refetchTopics={refetchTopics}
+    />
+  );
 
-  renderManage() {
-    const {
-      topic,
-      renderButton,
-      remove,
-      refetchTopics,
-      queryParams
-    } = this.props;
+  const renderManage = () => {
+    const addCategory = <Menu.Item>{__("Add category")}</Menu.Item>;
 
-    const addCategory = <Dropdown.Item>{__('Add category')}</Dropdown.Item>;
-    const manageTopic = (
-      <Dropdown.Item>{__('Edit Knowledge Base')}</Dropdown.Item>
-    );
-
-    const content = props => (
-      <KnowledgeForm
-        {...props}
-        renderButton={renderButton}
-        topic={topic}
-        remove={remove}
-      />
-    );
-
-    const categoryContent = props => (
-      <CategoryForm
-        {...props}
-        queryParams={queryParams}
-        topicId={topic._id}
-        refetchTopics={refetchTopics}
-      />
-    );
+    const manageTopic = <Menu.Item>{__("Edit Knowledge Base")}</Menu.Item>;
 
     return (
       <RowActions>
-        <Dropdown alignRight={true} style={{ float: 'left' }}>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-knowledgebase">
-            <Icon icon="cog" size={15} />
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <ModalTrigger
-              title="Manage Knowledge Base"
-              trigger={manageTopic}
-              content={content}
-              enforceFocus={false}
-              size="lg"
-            />
-            <ModalTrigger
-              title="Add Category"
-              trigger={addCategory}
-              autoOpenKey="showKBAddCategoryModal"
-              content={categoryContent}
-            />
-          </Dropdown.Menu>
+        <Dropdown
+          as={DropdownToggle}
+          toggleComponent={<Icon icon="cog" size={15} />}
+        >
+          <ModalTrigger
+            title="Manage Knowledge Base"
+            trigger={manageTopic}
+            content={content}
+            enforceFocus={false}
+            size="lg"
+          />
+          <ModalTrigger
+            title="Add Category"
+            trigger={addCategory}
+            autoOpenKey="showKBAddCategoryModal"
+            content={categoryContent}
+          />
         </Dropdown>
-        <DropIcon onClick={this.toggle} isOpen={this.state.detailed} />
+        <DropIcon onClick={handleToggle} $isOpen={detailed} />
       </RowActions>
     );
-  }
+  };
 
-  render() {
-    const { topic, currentCategoryId, queryParams, articlesCount } = this.props;
-
-    return (
-      <KnowledgeBaseRow key={topic._id}>
-        <SectionHead>
-          <SectionTitle onClick={this.toggle}>
-            {topic.title} ({topic.categories.length})
-            <span>{topic.description}</span>
-          </SectionTitle>
-          {this.renderManage()}
-        </SectionHead>
-        {this.state.detailed && (
-          <CategoryList
-            currentCategoryId={currentCategoryId}
-            articlesCount={articlesCount}
-            topicId={topic._id}
-            queryParams={queryParams}
-          />
-        )}
-      </KnowledgeBaseRow>
-    );
-  }
-}
+  return (
+    <KnowledgeBaseRow key={topic._id}>
+      <SectionHead>
+        <SectionTitle onClick={handleToggle}>
+          {topic.title} ({topic.categories.length})
+          <span>{topic.description}</span>
+        </SectionTitle>
+        {renderManage()}
+      </SectionHead>
+      {detailed && (
+        <CategoryList
+          currentCategoryId={currentCategoryId}
+          topicId={topic._id}
+          queryParams={queryParams}
+        />
+      )}
+    </KnowledgeBaseRow>
+  );
+};
 
 export default KnowledgeRow;

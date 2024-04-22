@@ -4,14 +4,14 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-} from '@erxes/ui/src/components';
+} from "@erxes/ui/src/components";
 
-import RichTextEditor from '../containers/RichTextEditor';
-import { IFormProps } from '@erxes/ui/src/types';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import React from 'react';
-import { __ } from 'coreui/utils';
-import styled from 'styled-components';
+import { IFormProps } from "@erxes/ui/src/types";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import React from "react";
+import RichTextEditor from "../containers/RichTextEditor";
+import { __ } from "coreui/utils";
+import styled from "styled-components";
 
 type Props = {
   contentType: string;
@@ -35,7 +35,12 @@ class Form extends React.Component<Props, State> {
 
     const { obj } = props;
 
-    this.state = { name: obj.name, content: obj.content, subType: obj.subType, code: obj.code};
+    this.state = {
+      name: obj.name,
+      content: obj.content,
+      subType: obj.subType,
+      code: obj.code,
+    };
   }
 
   onContentChange = (content: string) => {
@@ -72,7 +77,7 @@ class Form extends React.Component<Props, State> {
             required={true}
             autoFocus={true}
             defaultValue={obj.name}
-            onChange={this.onChangeField.bind(this, 'name')}
+            onChange={this.onChangeField.bind(this, "name")}
             {...formProps}
           />
         </FormGroup>
@@ -85,13 +90,13 @@ class Form extends React.Component<Props, State> {
             required={false}
             autoFocus={true}
             defaultValue={obj.code}
-            onChange={this.onChangeField.bind(this, 'code')}
+            onChange={this.onChangeField.bind(this, "code")}
             {...formProps}
           />
         </FormGroup>
 
         <FormGroup>
-          <div style={{ float: 'left', width: '100%' }}>
+          <div style={{ float: "left", width: "100%" }}>
             <RichTextEditor
               contentType={obj.contentType || contentType}
               content={obj.content}
@@ -101,18 +106,18 @@ class Form extends React.Component<Props, State> {
             />
           </div>
 
-          <div style={{ clear: 'both' }} />
+          <div style={{ clear: "both" }} />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel required={true}>Replacer</ControlLabel>
 
           <FormControl
-            componentClass="textarea"
+            componentclass="textarea"
             name="name"
             required={true}
             defaultValue={obj.replacer}
-            onChange={this.onChangeField.bind(this, 'replacer')}
+            onChange={this.onChangeField.bind(this, "replacer")}
             {...formProps}
           />
         </FormGroup>
@@ -120,10 +125,10 @@ class Form extends React.Component<Props, State> {
           <ControlLabel required={true}>Sub Type</ControlLabel>
 
           <FormControl
-            componentClass="select"
+            componentclass="select"
             name="subType"
             value={subType}
-            onChange={this.onChangeField.bind(this, 'subType')}
+            onChange={this.onChangeField.bind(this, "subType")}
             {...formProps}
           >
             <option key="" value="" />
@@ -137,11 +142,11 @@ class Form extends React.Component<Props, State> {
 
         <ModalFooter>
           <Button btnStyle="simple" type="button" onClick={closeModal}>
-            {__('Cancel')}
+            {__("Cancel")}
           </Button>
 
           <Button onClick={this.onSave} btnStyle="success" type="button">
-            {__('Save')}
+            {__("Save")}
           </Button>
         </ModalFooter>
       </>

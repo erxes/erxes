@@ -1,48 +1,35 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { withProps } from '@erxes/ui/src';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import List from '../components/CategoryList';
-import { queries } from '../graphql';
-import { ProductCategoriesQueryResponse } from '../../types';
+import { gql, useQuery } from "@apollo/client";
+import React from "react";
+import List from "../components/CategoryList";
+import { queries } from "../graphql";
+import { ProductCategoriesQueryResponse } from "../../types";
 
-type Props = { history: any; queryParams: any };
+type Props = { queryParams: any };
 
-type FinalProps = {
-  productCategoriesQuery: ProductCategoriesQueryResponse;
-} & Props;
+const CategoryListContainer = (props: Props) => {
+  const { queryParams } = props;
 
-class ProductListContainer extends React.Component<FinalProps> {
-  render() {
-    const { productCategoriesQuery } = this.props;
+  const productCategoriesQuery = useQuery<ProductCategoriesQueryResponse>(
+    gql(queries.productCategories),
+    {
+      variables: {
+        status: queryParams.status,
+        parentId: queryParams.parentId,
+      },
+      fetchPolicy: "network-only",
+    }
+  );
 
-    const productCategories = productCategoriesQuery.productCategories || [];
+  const productCategories =
+    productCategoriesQuery?.data?.productCategories || [];
 
-    const updatedProps = {
-      ...this.props,
-      productCategories,
-      loading: productCategoriesQuery.loading
-    };
+  const updatedProps = {
+    ...props,
+    productCategories,
+    loading: productCategoriesQuery.loading,
+  };
 
-    return <List {...updatedProps} />;
-  }
-}
+  return <List {...updatedProps} />;
+};
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, ProductCategoriesQueryResponse, { parentId: string }>(
-      gql(queries.productCategories),
-      {
-        name: 'productCategoriesQuery',
-        options: ({ queryParams }) => ({
-          variables: {
-            status: queryParams.status,
-            parentId: queryParams.parentId
-          },
-          fetchPolicy: 'network-only'
-        })
-      }
-    )
-  )(ProductListContainer)
-);
+export default CategoryListContainer;

@@ -1,31 +1,31 @@
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import { Block, Features, FormContainer, Header, ListItem } from "../../styles";
 import {
   Button,
+  Form as CommonForm,
   ControlLabel,
   EmptyState,
-  Form as CommonForm,
   FormGroup,
   Toggle,
-  __
-} from '@erxes/ui/src';
+  __,
+} from "@erxes/ui/src";
 import {
   FormColumn,
   FormWrapper,
-  ModalFooter
-} from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
-import Select from 'react-select-plus';
-import { cardTypes } from '../../common/constants';
+  ModalFooter,
+} from "@erxes/ui/src/styles/main";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import {
   SelectCustomFields,
   SelectIndicatorGroups,
-  SelectIndicators
-} from '../../common/utils';
-import { Block, Features, FormContainer, Header, ListItem } from '../../styles';
+  SelectIndicators,
+} from "../../common/utils";
+
+import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import React from "react";
+import Select from "react-select";
+import { cardTypes } from "../../common/constants";
 type Props = {
   queryParams: any;
-  history: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   config?: any;
@@ -57,9 +57,9 @@ class Form extends React.Component<Props, State> {
     let useMultipleIndicators = false;
     if (useCustomFields) {
       useMultipleIndicators = props.config.configs.every(
-        config => !!config?.indicatorIds?.length
+        (config) => !!config?.indicatorIds?.length
       );
-      useGroups = props?.config?.configs.every(config => config.groupId);
+      useGroups = props?.config?.configs.every((config) => config.groupId);
     }
 
     if (props.config?.configs?.indicatorIds) {
@@ -70,18 +70,18 @@ class Form extends React.Component<Props, State> {
     }
 
     this.state = {
-      cardType: props?.config?.cardType || '',
-      boardId: props?.config?.boardId || '',
-      pipelineId: props?.config?.pipelineId || '',
-      stageId: props?.config?.stageId || '',
+      cardType: props?.config?.cardType || "",
+      boardId: props?.config?.boardId || "",
+      pipelineId: props?.config?.pipelineId || "",
+      stageId: props?.config?.stageId || "",
       customFieldId: props?.config?.customFieldId || null,
       configs: props?.config?.configs || [],
       useCustomFields,
       useGroups,
       useMultipleIndicators,
-      indicatorId: props?.config?.indicatorId || '',
+      indicatorId: props?.config?.indicatorId || "",
       indicatorIds: props?.config?.indicatorIds || [],
-      groupId: props?.config?.groupId || ''
+      groupId: props?.config?.groupId || "",
     };
 
     this.renderForm = this.renderForm.bind(this);
@@ -97,7 +97,7 @@ class Form extends React.Component<Props, State> {
       customFieldId,
       configs,
       indicatorId,
-      groupId
+      groupId,
     } = this.state;
 
     const doc = {
@@ -108,7 +108,7 @@ class Form extends React.Component<Props, State> {
       customFieldId,
       configs,
       indicatorId,
-      groupId
+      groupId,
     };
 
     if (config) {
@@ -126,13 +126,13 @@ class Form extends React.Component<Props, State> {
       pipelineId,
       cardType,
       useGroups,
-      useMultipleIndicators
+      useMultipleIndicators,
     } = this.state;
     const onChangeCustomFields = ({ value, _id }) => {
       this.setState({ customFieldId: _id, configs: value });
     };
     const onChangeConfig = (value, name, field) => {
-      const updatedFieldConfig = configs.map(fieldConfig =>
+      const updatedFieldConfig = configs.map((fieldConfig) =>
         fieldConfig.value === field.value
           ? { ...fieldConfig, [name]: value }
           : fieldConfig
@@ -144,14 +144,14 @@ class Form extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel>{__('Choose Field')}</ControlLabel>
+          <ControlLabel>{__("Choose Field")}</ControlLabel>
           <SelectCustomFields
             label="Choose custom field"
             name="customField"
             configs={configs}
             initialValue={customFieldId}
             onSelect={onChangeCustomFields}
-            type={!!boardId && !!pipelineId ? cardType : ''}
+            type={!!boardId && !!pipelineId ? cardType : ""}
           />
         </FormGroup>
         <h5>Selections</h5>
@@ -170,9 +170,9 @@ class Form extends React.Component<Props, State> {
                 />
               ) : (
                 <SelectIndicators
-                  name={useMultipleIndicators ? 'indicatorIds' : 'indicatorId'}
+                  name={useMultipleIndicators ? "indicatorIds" : "indicatorId"}
                   label={`Select risk indicator${
-                    useMultipleIndicators ? 's' : ''
+                    useMultipleIndicators ? "s" : ""
                   }`}
                   initialValue={
                     useMultipleIndicators
@@ -201,7 +201,7 @@ class Form extends React.Component<Props, State> {
       useMultipleIndicators,
       indicatorId,
       indicatorIds,
-      groupId
+      groupId,
     } = this.state;
 
     if (useCustomFields) {
@@ -215,7 +215,7 @@ class Form extends React.Component<Props, State> {
     if (useGroups) {
       return (
         <FormGroup>
-          <ControlLabel>{'Selec Indicators Group'}</ControlLabel>
+          <ControlLabel>{"Selec Indicators Group"}</ControlLabel>
           <SelectIndicatorGroups
             name="groupId"
             label="Select indicators group"
@@ -228,9 +228,9 @@ class Form extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel>{__('Select indicator')}</ControlLabel>
+        <ControlLabel>{__("Select indicator")}</ControlLabel>
         <SelectIndicators
-          name={useMultipleIndicators ? 'indicatorIds' : 'indicatorId'}
+          name={useMultipleIndicators ? "indicatorIds" : "indicatorId"}
           label="Select indicator"
           initialValue={useMultipleIndicators ? indicatorIds : indicatorId}
           onSelect={handleChange}
@@ -248,59 +248,59 @@ class Form extends React.Component<Props, State> {
       stageId,
       useCustomFields,
       useGroups,
-      useMultipleIndicators
+      useMultipleIndicators,
     } = this.state;
     const { renderButton, closeModal } = this.props;
     const { isSubmitted } = formProps;
 
-    const onChangeCardType = e => {
+    const onChangeCardType = (e) => {
       this.setState({ cardType: e.value });
     };
 
-    const onChangeBoard = e => {
+    const onChangeBoard = (e) => {
       this.setState({ boardId: e });
     };
-    const onChangePipeline = e => {
+    const onChangePipeline = (e) => {
       this.setState({ pipelineId: e });
     };
-    const onChangeStage = e => {
+    const onChangeStage = (e) => {
       this.setState({ stageId: e });
     };
 
-    const toggleChange = e => {
+    const toggleChange = (e) => {
       const { name } = e.currentTarget as HTMLInputElement;
       const { configs } = this.state;
       const { config } = this.props;
 
       const isOpen = e.target.checked;
 
-      if (name === 'useMultipleIndicators') {
-        return this.setState(prev => ({
+      if (name === "useMultipleIndicators") {
+        return this.setState((prev) => ({
           useMultipleIndicators: isOpen,
-          indicatorIds: [prev.indicatorId].filter(i => i),
-          indicatorId: ''
+          indicatorIds: [prev.indicatorId].filter((i) => i),
+          indicatorId: "",
         }));
       }
 
       this.setState({
         [name]: isOpen,
-        configs: name === 'useGroups' ? configs : [],
-        indicatorId: config?.indicatorId || '',
+        configs: name === "useGroups" ? configs : [],
+        indicatorId: config?.indicatorId || "",
         indicatorIds: config?.indicatorIds || [],
-        groupId: config?.groupId || ''
+        groupId: config?.groupId || "",
       } as any);
     };
     return (
       <>
         <Block>
-          <h4>{__('Stage')}</h4>
+          <h4>{__("Stage")}</h4>
           <FormGroup>
-            <ControlLabel>{__('Type')}</ControlLabel>
+            <ControlLabel>{__("Type")}</ControlLabel>
             <Select
-              placeholder={__('Select Type')}
-              value={cardType}
+              placeholder={__("Select Type")}
+              value={cardTypes.find((o) => o.value === cardType)}
               options={cardTypes}
-              multi={false}
+              isMulti={false}
               onChange={onChangeCardType}
             />
           </FormGroup>
@@ -321,16 +321,16 @@ class Form extends React.Component<Props, State> {
           <Block>
             <FormWrapper>
               <FormColumn>
-                <Header>{__('Configration')}</Header>
+                <Header>{__("Configration")}</Header>
               </FormColumn>
-              <FormContainer row align="center" gap>
-                <ControlLabel>{__('Use Custom field')}</ControlLabel>
+              <FormContainer $row align="center" $gap>
+                <ControlLabel>{__("Use Custom field")}</ControlLabel>
                 <Toggle
                   name="useCustomFields"
                   checked={useCustomFields}
                   onChange={toggleChange}
                 />
-                <ControlLabel>{__('Use Groups')}</ControlLabel>
+                <ControlLabel>{__("Use Groups")}</ControlLabel>
                 <Toggle
                   name="useGroups"
                   checked={useGroups}
@@ -338,7 +338,7 @@ class Form extends React.Component<Props, State> {
                 />
                 {!useGroups && (
                   <>
-                    <ControlLabel>{__('Use Multiple Indicator')}</ControlLabel>
+                    <ControlLabel>{__("Use Multiple Indicator")}</ControlLabel>
                     <Toggle
                       name="useMultipleIndicators"
                       checked={useMultipleIndicators}
@@ -356,11 +356,11 @@ class Form extends React.Component<Props, State> {
             Cancel
           </Button>
           {renderButton({
-            text: 'Risk Indicators config',
+            text: "Risk Indicators config",
             values: this.generateDoc(),
             callback: closeModal,
             isSubmitted,
-            object: this.props.config
+            object: this.props.config,
           })}
         </ModalFooter>
       </>

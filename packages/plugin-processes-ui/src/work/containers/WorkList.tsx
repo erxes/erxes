@@ -1,22 +1,21 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import Bulk from '@erxes/ui/src/components/Bulk';
-import { withProps } from '@erxes/ui/src/utils';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import List from '../components/WorkList';
-import { mutations, queries } from '../graphql';
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import Bulk from "@erxes/ui/src/components/Bulk";
+import { withProps } from "@erxes/ui/src/utils";
+import { generatePaginationParams } from "@erxes/ui/src/utils/router";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import List from "../components/WorkList";
+import { mutations, queries } from "../graphql";
 import {
   WorkRemoveMutationResponse,
   WorksQueryResponse,
-  WorksTotalCountQueryResponse
-} from '../types';
-import Alert from '@erxes/ui/src/utils/Alert';
+  WorksTotalCountQueryResponse,
+} from "../types";
+import Alert from "@erxes/ui/src/utils/Alert";
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 type FinalProps = {
@@ -31,12 +30,8 @@ class WorkListContainer extends React.Component<FinalProps> {
   }
 
   render() {
-    const {
-      worksQuery,
-      worksTotalCountQuery,
-      queryParams,
-      workRemove
-    } = this.props;
+    const { worksQuery, worksTotalCountQuery, queryParams, workRemove } =
+      this.props;
 
     if (worksQuery.loading || worksTotalCountQuery.loading) {
       return false;
@@ -44,19 +39,19 @@ class WorkListContainer extends React.Component<FinalProps> {
 
     const removeWork = (id: string) => {
       workRemove({
-        variables: { _id: id }
+        variables: { _id: id },
       })
         .then(() => {
-          Alert.success('You successfully deleted a work');
+          Alert.success("You successfully deleted a work");
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
 
     const works = worksQuery.works || [];
     const worksCount = worksTotalCountQuery.worksTotalCount || 0;
-    const searchValue = this.props.queryParams.searchValue || '';
+    const searchValue = this.props.queryParams.searchValue || "";
 
     const updatedProps = {
       ...this.props,
@@ -65,10 +60,10 @@ class WorkListContainer extends React.Component<FinalProps> {
       worksCount,
       loading: worksQuery.loading,
       searchValue,
-      removeWork
+      removeWork,
     };
 
-    const workList = props => {
+    const workList = (props) => {
       return <List {...updatedProps} {...props} />;
     };
 
@@ -96,40 +91,40 @@ const generateParams = ({ queryParams }) => ({
   productCategoryId: queryParams.productCategoryId,
   productId: queryParams.productId,
   jobCategoryId: queryParams.jobCategoryId,
-  jobReferId: queryParams.jobReferId
+  jobReferId: queryParams.jobReferId,
 });
 
 export default withProps<Props>(
   compose(
     graphql<Props, WorksQueryResponse, {}>(gql(queries.works), {
-      name: 'worksQuery',
+      name: "worksQuery",
       options: ({ queryParams }) => ({
         variables: {
           ...generateParams({ queryParams }),
-          ...generatePaginationParams(queryParams)
+          ...generatePaginationParams(queryParams),
         },
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: "network-only",
+      }),
     }),
     graphql<Props, WorksTotalCountQueryResponse, {}>(
       gql(queries.worksTotalCount),
       {
-        name: 'worksTotalCountQuery',
+        name: "worksTotalCountQuery",
         options: ({ queryParams }) => ({
           variables: {
-            ...generateParams({ queryParams })
+            ...generateParams({ queryParams }),
           },
-          fetchPolicy: 'network-only'
-        })
+          fetchPolicy: "network-only",
+        }),
       }
     ),
     graphql<Props, WorkRemoveMutationResponse, { workId: string }>(
       gql(mutations.workRemove),
       {
-        name: 'workRemove',
+        name: "workRemove",
         options: {
-          refetchQueries: ['works', 'worksTotalCount']
-        }
+          refetchQueries: ["works", "worksTotalCount"],
+        },
       }
     )
   )(WorkListContainer)

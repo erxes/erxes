@@ -5,11 +5,11 @@ import { rgba } from '../../styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const Item = styledTS<{ isLast?: boolean }>(styled.li)`
+const Item = styledTS<{ $isLast?: boolean }>(styled.li)`
   display: inline-block;
   color: ${rgba(colors.colorCoreDarkGray, 0.9)};
   text-transform: capitalize;
-  padding-right: ${props => (props.isLast ? '10px' : '40px')};
+  padding-right: ${(props) => (props.$isLast ? '10px' : '40px')};
 
   > a {
     text-decoration: none;
@@ -45,8 +45,8 @@ function MenuItem({ to, title, children, isLast, ...props }: Props) {
   const linkProps = { to, title };
 
   return (
-    <Item isLast={isLast}>
-      <NavLink {...props} {...linkProps} exact={true}>
+    <Item $isLast={isLast}>
+      <NavLink {...props} {...linkProps}>
         {children}
       </NavLink>
     </Item>

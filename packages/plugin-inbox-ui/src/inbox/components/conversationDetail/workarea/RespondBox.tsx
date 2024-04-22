@@ -1,9 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
 import {
   AddMessageMutationVariables,
   IConversation,
-} from '@erxes/ui-inbox/src/inbox/types';
-import { Alert, __, readFile, uploadHandler } from 'coreui/utils';
+} from "@erxes/ui-inbox/src/inbox/types";
+import { Alert, __, readFile, uploadHandler } from "coreui/utils";
 import {
   Attachment,
   AttachmentIndicator,
@@ -16,41 +15,42 @@ import {
   PreviewImg,
   RespondBoxStyled,
   SmallEditor,
-} from '@erxes/ui-inbox/src/inbox/styles';
+} from "@erxes/ui-inbox/src/inbox/styles";
+import React, { useEffect, useRef, useState } from "react";
 import {
   getPluginConfig,
   isEnabled,
   loadDynamicComponent,
-} from '@erxes/ui/src/utils/core';
-
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { IAttachmentPreview } from '@erxes/ui/src/types';
-import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
-import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { MentionSuggestionParams } from '@erxes/ui/src/components/richTextEditor/utils/getMentionSuggestions';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import ResponseTemplate from '../../../containers/conversationDetail/responseTemplate/ResponseTemplate';
-import Editor from './Editor';
-import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
-import Tip from '@erxes/ui/src/components/Tip';
-import { deleteHandler } from '@erxes/ui/src/utils/uploadHandler';
-import { getParsedMentions } from '@erxes/ui/src/components/richTextEditor/utils/getParsedMentions';
-import { useGenerateJSON } from '@erxes/ui/src/components/richTextEditor/hooks/useExtensions';
-import { EditorMethods } from '@erxes/ui/src/components/richTextEditor/TEditor';
+} from "@erxes/ui/src/utils/core";
 import {
   useDebounce,
   useDebouncedCallback,
-} from '@erxes/ui/src/components/richTextEditor/hooks';
+} from "@erxes/ui/src/components/richTextEditor/hooks";
+
+import Button from "@erxes/ui/src/components/Button";
+import Editor from "./Editor";
+import { EditorMethods } from "@erxes/ui/src/components/richTextEditor/TEditor";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IAttachmentPreview } from "@erxes/ui/src/types";
+import { IIntegration } from "@erxes/ui-inbox/src/settings/integrations/types";
+import { IResponseTemplate } from "../../../../settings/responseTemplates/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { MentionSuggestionParams } from "@erxes/ui/src/components/richTextEditor/utils/getMentionSuggestions";
+import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
+import ResponseTemplate from "../../../containers/conversationDetail/responseTemplate/ResponseTemplate";
+import { SmallLoader } from "@erxes/ui/src/components/ButtonMutate";
+import Tip from "@erxes/ui/src/components/Tip";
+import { deleteHandler } from "@erxes/ui/src/utils/uploadHandler";
+import { getParsedMentions } from "@erxes/ui/src/components/richTextEditor/utils/getParsedMentions";
+import { useGenerateJSON } from "@erxes/ui/src/components/richTextEditor/hooks/useExtensions";
 
 type Props = {
   conversation: IConversation;
   currentUser: IUser;
   sendMessage: (
     message: AddMessageMutationVariables,
-    callback: (error: Error) => void,
+    callback: (error: Error) => void
   ) => void;
   onSearchChange: (value: string) => void;
   showInternal: boolean;
@@ -84,13 +84,13 @@ const RespondBox = (props: Props) => {
   } = props;
 
   const forwardedRef = useRef<EditorMethods>(null);
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState("");
   const [state, setState] = useState<State>({
     isInactive: !checkIsActive(props.conversation),
     isInternal: props.showInternal || false,
     sending: false,
     attachments: [],
-    responseTemplate: '',
+    responseTemplate: "",
     mentionedUserIds: [],
     loading: {},
   });
@@ -109,13 +109,13 @@ const RespondBox = (props: Props) => {
   }, [props.conversation, props.showInternal]);
 
   useEffect(() => {
-    const textContent = debouncedContent.toLowerCase().replace(/<[^>]+>/g, '');
+    const textContent = debouncedContent.toLowerCase().replace(/<[^>]+>/g, "");
     props.refetchResponseTemplates(textContent);
   }, [debouncedContent]);
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyEvents);
-    return () => window.removeEventListener('keydown', handleKeyEvents);
+    window.addEventListener("keydown", handleKeyEvents);
+    return () => window.removeEventListener("keydown", handleKeyEvents);
   }, [handleKeyEvents]);
 
   function handleKeyEvents(event: KeyboardEvent) {
@@ -123,7 +123,7 @@ const RespondBox = (props: Props) => {
 
     if (!isFocused) return;
 
-    if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+    if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
       addMessage();
     }
   }
@@ -133,19 +133,19 @@ const RespondBox = (props: Props) => {
     (editorContent: string) => {
       setContent(editorContent);
 
-      if (props.conversation.integration.kind === 'telnyx') {
+      if (props.conversation.integration.kind === "telnyx") {
         const characterCount = calcCharacterCount(160);
 
         if (characterCount < 1) {
-          Alert.warning(__('You have reached maximum number of characters'));
+          Alert.warning(__("You have reached maximum number of characters"));
         }
       }
     },
-    200,
+    200
   );
 
   function checkIsActive(conversation: IConversation) {
-    if (conversation.integration.kind === 'messenger') {
+    if (conversation.integration.kind === "messenger") {
       return conversation.customer && conversation.customer.isOnline;
     }
 
@@ -155,7 +155,7 @@ const RespondBox = (props: Props) => {
   const hideMask = () => {
     setState((prevState) => ({ ...prevState, isInactive: false }));
 
-    const element = document.querySelector('.DraftEditor-root') as HTMLElement;
+    const element = document.querySelector(".DraftEditor-root") as HTMLElement;
 
     if (!element) {
       return;
@@ -185,7 +185,7 @@ const RespondBox = (props: Props) => {
   };
 
   const handleDeleteFile = (url: string) => {
-    const urlArray = url.split('/');
+    const urlArray = url.split("/");
 
     // checking whether url is full path or just file name
     const fileName =
@@ -199,9 +199,9 @@ const RespondBox = (props: Props) => {
     deleteHandler({
       fileName,
       afterUpload: ({ status }) => {
-        if (status === 'ok') {
+        if (status === "ok") {
           const remainedAttachments = state.attachments.filter(
-            (a) => a.url !== url,
+            (a) => a.url !== url
           );
 
           setState((prevState) => ({
@@ -209,7 +209,7 @@ const RespondBox = (props: Props) => {
             attachments: remainedAttachments,
           }));
 
-          Alert.success('You successfully deleted a file');
+          Alert.success("You successfully deleted a file");
         } else {
           Alert.error(status);
         }
@@ -256,11 +256,11 @@ const RespondBox = (props: Props) => {
   };
 
   function cleanText(text: string) {
-    return text.replace(/&nbsp;/g, ' ');
+    return text.replace(/&nbsp;/g, " ");
   }
 
   const calcCharacterCount = (maxlength: number) => {
-    const cleanContent = content.replace(/<\/?[^>]+(>|$)/g, '');
+    const cleanContent = content.replace(/<\/?[^>]+(>|$)/g, "");
 
     if (!cleanContent) {
       return maxlength;
@@ -275,9 +275,9 @@ const RespondBox = (props: Props) => {
     const { isInternal, attachments, extraInfo } = state;
     const message = {
       conversationId: conversation._id,
-      content: cleanText(content) || ' ',
+      content: cleanText(content) || " ",
       extraInfo,
-      contentType: 'text',
+      contentType: "text",
       internal: isInternal,
       attachments,
       mentionedUserIds: getParsedMentions(useGenerateJSON(content)),
@@ -297,7 +297,7 @@ const RespondBox = (props: Props) => {
           sending: false,
           mentionedUserIds: [],
         }));
-        setContent('');
+        setContent("");
       });
     }
   };
@@ -307,7 +307,7 @@ const RespondBox = (props: Props) => {
 
     localStorage.setItem(
       `showInternalState-${props.conversation._id}`,
-      String(state.isInternal),
+      String(state.isInternal)
     );
   };
 
@@ -320,7 +320,7 @@ const RespondBox = (props: Props) => {
           {attachments.map((attachment) => (
             <Attachment key={attachment.name}>
               <AttachmentThumb>
-                {attachment.type.startsWith('image') && (
+                {attachment.type.startsWith("image") && (
                   <PreviewImg
                     style={{
                       backgroundImage: `url(${readFile(attachment.url)})`,
@@ -355,7 +355,7 @@ const RespondBox = (props: Props) => {
       return (
         <Mask id="mask" onClick={hideMask}>
           {__(
-            'Customer is offline Click to hide and send messages and they will receive them the next time they are online',
+            "Customer is offline Click to hide and send messages and they will receive them the next time they are online"
           )}
         </Mask>
       );
@@ -367,14 +367,14 @@ const RespondBox = (props: Props) => {
   function renderEditor() {
     const { isInternal } = state;
 
-    let type = 'message';
+    let type = "message";
 
     if (isInternal) {
-      type = 'note';
+      type = "note";
     }
 
     const placeholder = __(
-      `To send your ${type} press Enter and Shift + Enter to add a new line`,
+      `To send your ${type} press Enter and Shift + Enter to add a new line`
     );
 
     return (
@@ -389,7 +389,7 @@ const RespondBox = (props: Props) => {
         mentionSuggestion={props.mentionSuggestion}
         responseTemplates={responseTemplates}
         limit={
-          props.conversation.integration.kind === 'telnyx' ? 160 : undefined
+          props.conversation.integration.kind === "telnyx" ? 160 : undefined
         }
       />
     );
@@ -398,22 +398,22 @@ const RespondBox = (props: Props) => {
   function renderCheckbox(kind: string) {
     const { isInternal } = state;
 
-    if (kind.includes('nylas') || kind === 'gmail') {
+    if (kind.includes("nylas") || kind === "gmail") {
       return null;
     }
 
     return (
       <>
-        {isEnabled('internalnotes') && (
+        {isEnabled("internalnotes") && (
           <FormControl
             id="conversationInternalNote"
             className="toggle-message"
-            componentClass="checkbox"
+            componentclass="checkbox"
             checked={isInternal}
             onChange={toggleForm}
             // disabled={ props.disableInternalState}
           >
-            {__('Internal note')}
+            {__("Internal note")}
           </FormControl>
         )}
       </>
@@ -441,16 +441,16 @@ const RespondBox = (props: Props) => {
   function renderButtons() {
     const integration = conversation.integration || ({} as IIntegration);
     const disabled =
-      integration.kind.includes('nylas') || integration.kind === 'gmail';
+      integration.kind.includes("nylas") || integration.kind === "gmail";
 
     return (
       <EditorActions>
         {renderCheckbox(integration.kind)}
         {/* { renderVideoRoom()} */}
 
-        {loadDynamicComponent('inboxEditorAction', props, true)}
+        {loadDynamicComponent("inboxEditorAction", props, true)}
 
-        <Tip text={__('Attach file')}>
+        <Tip text={__("Attach file")}>
           <label>
             <Icon icon="paperclip" />
             <input type="file" onChange={handleFileInput} multiple={true} />
@@ -465,7 +465,7 @@ const RespondBox = (props: Props) => {
         />
 
         <Button onClick={onSend} btnStyle="success" size="small" icon="message">
-          {!disabled && 'Send'}
+          {!disabled && "Send"}
         </Button>
       </EditorActions>
     );
@@ -491,8 +491,8 @@ const RespondBox = (props: Props) => {
     const { integration } = conversation;
 
     const integrations = getPluginConfig({
-      pluginName: integration.kind.split('-')[0],
-      configName: 'inboxIntegrations',
+      pluginName: integration.kind.split("-")[0],
+      configName: "inboxIntegrations",
     });
 
     let dynamicComponent = null;
@@ -502,7 +502,7 @@ const RespondBox = (props: Props) => {
 
       if (entry && entry.components && entry.components.length > 0) {
         const name = entry.components.find(
-          (el) => el === 'inboxConversationDetailRespondBoxMask',
+          (el) => el === "inboxConversationDetailRespondBoxMask"
         );
 
         if (name) {
@@ -520,7 +520,7 @@ const RespondBox = (props: Props) => {
       <MaskWrapper>
         {renderMask()}
         {dynamicComponent}
-        <RespondBoxStyled isInternal={isInternal} isInactive={isInactive}>
+        <RespondBoxStyled $isInternal={isInternal} $isInactive={isInactive}>
           {renderBody()}
         </RespondBoxStyled>
       </MaskWrapper>
@@ -529,7 +529,7 @@ const RespondBox = (props: Props) => {
 
   function renderMailRespondBox() {
     return (
-      <MailRespondBox isInternal={true}>
+      <MailRespondBox $isInternal={true}>
         <NameCard.Avatar user={currentUser} size={34} />
         <SmallEditor>{renderBody()}</SmallEditor>
       </MailRespondBox>
@@ -539,7 +539,7 @@ const RespondBox = (props: Props) => {
   const integration = conversation.integration || ({} as IIntegration);
   const { kind } = integration;
 
-  const isMail = kind.includes('nylas') || kind === 'gmail';
+  const isMail = kind.includes("nylas") || kind === "gmail";
 
   if (isMail) {
     return renderMailRespondBox();

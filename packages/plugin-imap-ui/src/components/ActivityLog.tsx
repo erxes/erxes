@@ -4,12 +4,12 @@ import {
   ActivityIcon,
   ActivityRow,
   IMapActivityContent,
-  SentWho
+  SentWho,
 } from '../styles';
 
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
+import React, { useState } from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils/core';
 import dayjs from 'dayjs';
@@ -21,39 +21,32 @@ type Props = {
   currentUser: any;
 };
 
-type State = {
-  shrink: boolean;
-};
+const ActivityItem = (props: Props) => {
+  const { activity, currentUser } = props;
 
-class ActivityItem extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+  const { contentTypeDetail = {}, contentType } = activity;
+  const { body, subject, createdAt } = contentTypeDetail;
 
-    const { contentTypeDetail = {} } = props.activity;
+  const [shrink, setShrink] = useState<boolean>(
+    (contentTypeDetail.body || '').length > 380,
+  );
 
-    this.state = {
-      shrink: (contentTypeDetail.body || '').length > 380 ? true : false
-    };
-  }
-
-  renderWhom(contentTypeDetail) {
+  const renderWhom = (contentTypeDetail) => {
     const { from, to } = contentTypeDetail;
 
-    const From = from ? from.map(f => f.name || f.address) : 'unknown';
-    const To = to ? to.map(f => f.name || f.address) : 'unknown';
+    const From = from ? from.map((f) => f.name || f.address) : 'unknown';
+    const To = to ? to.map((f) => f.name || f.address) : 'unknown';
 
     return (
       <SentWho>
-        <strong>{From.map(f => f)}</strong>
+        <strong>{From.map((f) => f)}</strong>
         {__('send email to ')}
-        <strong>{To.map(t => t)}</strong>
+        <strong>{To.map((t) => t)}</strong>
       </SentWho>
     );
-  }
+  };
 
-  renderExpandButton() {
-    const { shrink } = this.state;
-
+  const renderExpandButton = () => {
     if (!shrink) {
       return null;
     }
@@ -62,45 +55,39 @@ class ActivityItem extends React.Component<Props, State> {
       <Button
         size="small"
         btnStyle="warning"
-        onClick={() => this.setState({ shrink: !shrink })}
+        onClick={() => setShrink(!shrink)}
       >
         {shrink ? __('Expand email') : __('Shrink email')}
       </Button>
     );
+  };
+
+  if (contentType && !contentType.includes('imap')) {
+    return null;
   }
 
-  render() {
-    const { activity } = this.props;
-    const { contentTypeDetail, contentType } = activity;
-    const { body, subject, createdAt } = contentTypeDetail;
+  const iconAndColor = getIconAndColor('email');
 
-    if (contentType && !contentType.includes('imap')) {
-      return null;
-    }
+  return (
+    <ActivityRow>
+      <Tip text={'imap email'} placement="top">
+        <ActivityIcon color={iconAndColor.color}>
+          <Icon icon={iconAndColor.icon} />
+        </ActivityIcon>
+      </Tip>
 
-    const iconAndColor = getIconAndColor('email');
+      <AcitivityHeader>
+        <strong>{subject}</strong>
+        <ActivityDate>{dayjs(createdAt).format('lll')}</ActivityDate>
+      </AcitivityHeader>
+      {renderWhom(contentTypeDetail)}
 
-    return (
-      <ActivityRow>
-        <Tip text={'imap email'} placement="top">
-          <ActivityIcon color={iconAndColor.color}>
-            <Icon icon={iconAndColor.icon} />
-          </ActivityIcon>
-        </Tip>
-
-        <AcitivityHeader>
-          <strong>{subject}</strong>
-          <ActivityDate>{dayjs(createdAt).format('lll')}</ActivityDate>
-        </AcitivityHeader>
-        {this.renderWhom(contentTypeDetail)}
-
-        <IMapActivityContent shrink={this.state.shrink}>
-          <div dangerouslySetInnerHTML={{ __html: body }} />
-          {this.renderExpandButton()}
-        </IMapActivityContent>
-      </ActivityRow>
-    );
-  }
-}
+      <IMapActivityContent shrink={shrink}>
+        <div dangerouslySetInnerHTML={{ __html: body }} />
+        {renderExpandButton()}
+      </IMapActivityContent>
+    </ActivityRow>
+  );
+};
 
 export default ActivityItem;

@@ -1,32 +1,34 @@
-import Button from 'modules/common/components/Button';
-import ButtonMutate from 'modules/common/components/ButtonMutate';
-import FormControl from 'modules/common/components/form/Control';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import Info from 'modules/common/components/Info';
-import TextInfo from 'modules/common/components/TextInfo';
-import { ModalFooter } from 'modules/common/styles/main';
-import { __, Alert } from 'modules/common/utils';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import React from 'react';
-import Select from 'react-select-plus';
-import { mutations } from '../graphql';
-import { Divider, StepBody, StepHeader, StepItem } from '../styles';
-import { IActions, IModule } from '../types';
-import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
+import { Alert, __ } from "modules/common/utils";
+import { Divider, StepBody, StepHeader, StepItem } from "../styles";
+import { IActions, IModule } from "../types";
 import {
   correctValue,
   filterActions,
-  generatedList,
   generateListParams,
-  generateModuleParams
-} from './utils';
+  generateModuleParams,
+  generatedList,
+} from "./utils";
+
+import Button from "modules/common/components/Button";
+import ButtonMutate from "modules/common/components/ButtonMutate";
+import ControlLabel from "modules/common/components/form/Label";
+import FormControl from "modules/common/components/form/Control";
+import FormGroup from "modules/common/components/form/Group";
+import { IUserGroup } from "@erxes/ui-settings/src/permissions/types";
+import Info from "modules/common/components/Info";
+import { ModalFooter } from "modules/common/styles/main";
+import React from "react";
+import Select from "react-select";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import TextInfo from "modules/common/components/TextInfo";
+import { mutations } from "../graphql";
 
 type Props = {
   modules: IModule[];
   actions: IActions[];
   groups: IUserGroup[];
   refetchQueries: any;
+  isLoading: boolean;
   closeModal: () => void;
 };
 
@@ -41,34 +43,30 @@ type State = {
 
 class PermissionForm extends React.Component<Props, State> {
   state = {
-    selectedModule: '',
+    selectedModule: "",
     selectedActions: [],
     selectedUserIds: [],
     selectedGroups: [],
     valueChanged: false,
-    isSubmitted: false
+    isSubmitted: false,
   };
 
   save = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const {
-      selectedModule,
-      selectedActions,
-      selectedUserIds,
-      selectedGroups
-    } = this.state;
+    const { selectedModule, selectedActions, selectedUserIds, selectedGroups } =
+      this.state;
 
     if (!selectedModule) {
-      return Alert.error('Please select the module!');
+      return Alert.error("Please select the module!");
     }
 
     if (!this.hasItems(selectedActions)) {
-      return Alert.error('Please select at least one action!');
+      return Alert.error("Please select at least one action!");
     }
 
     if (!this.hasItems(selectedGroups) && !this.hasItems(selectedUserIds)) {
-      return Alert.error('Please select at least one group or user!');
+      return Alert.error("Please select at least one group or user!");
     }
 
     return this.setState({ isSubmitted: true });
@@ -80,7 +78,7 @@ class PermissionForm extends React.Component<Props, State> {
       selectedActions,
       selectedUserIds,
       selectedGroups,
-      valueChanged
+      valueChanged,
     } = this.state;
 
     return {
@@ -88,7 +86,7 @@ class PermissionForm extends React.Component<Props, State> {
       actions: this.collectValues(selectedActions),
       userIds: selectedUserIds,
       groupIds: this.collectValues(selectedGroups),
-      allowed: valueChanged
+      allowed: valueChanged,
     };
   };
 
@@ -113,16 +111,17 @@ class PermissionForm extends React.Component<Props, State> {
   };
 
   changeModule = (item: generatedList) => {
+    console.log(item);
     const selectedModule = correctValue(item);
 
     this.setState({
       selectedModule,
-      selectedActions: []
+      selectedActions: [],
     });
   };
 
   collectValues = (items: generatedList[]) => {
-    return items.map(item => item.value);
+    return items.map((item) => item.value);
   };
 
   renderContent() {
@@ -132,11 +131,11 @@ class PermissionForm extends React.Component<Props, State> {
       selectedActions,
       selectedUserIds,
       selectedGroups,
-      valueChanged
+      valueChanged,
     } = this.state;
 
-    const usersOnChange = users => this.select('selectedUserIds', users);
-
+    const usersOnChange = (users) => this.select("selectedUserIds", users);
+    console.log(this.state.selectedModule, this.isModuleSelected());
     return (
       <>
         <Info>
@@ -146,7 +145,7 @@ class PermissionForm extends React.Component<Props, State> {
             When a team member is part of two or more User Groups with different
             levels of permissions,
           </span>
-          <TextInfo textStyle="danger">
+          <TextInfo $textStyle="danger">
             the negative permission will overrule.
           </TextInfo>
           <br />
@@ -155,37 +154,39 @@ class PermissionForm extends React.Component<Props, State> {
             permissions allowed, but you've included yourself in the "Support
             Group" with fewer permissions,
           </span>
-          <TextInfo textStyle="danger">
+          <TextInfo $textStyle="danger">
             you might not be able to do certain actions.
           </TextInfo>
         </Info>
         <StepItem>
           <StepHeader
             number="1"
-            isDone={this.isModuleSelected() && this.hasItems(selectedActions)}
+            $isDone={this.isModuleSelected() && this.hasItems(selectedActions)}
           >
-            {__('What action can do')}
+            {__("What action can do")}
           </StepHeader>
           <StepBody>
             <FormGroup>
               <ControlLabel required={true}>Choose the module</ControlLabel>
               <Select
-                placeholder={__('Choose module')}
+                placeholder={__("Choose module")}
                 options={generateModuleParams(modules)}
-                value={selectedModule}
-                onChange={this.changeModule}
+                value={generateModuleParams(modules).find(
+                  (o) => o.value === selectedModule
+                )}
+                onChange={() => this.changeModule}
               />
             </FormGroup>
-            <Divider>{__('Then')}</Divider>
+            <Divider>{__("Then")}</Divider>
             <FormGroup>
               <ControlLabel required={true}>Choose the actions</ControlLabel>
               <Select
-                placeholder={__('Choose actions')}
-                options={filterActions(actions, selectedModule)}
+                placeholder={__("Choose actions")}
+                options={filterActions(actions, selectedModule) || []}
                 value={selectedActions}
-                disabled={!this.isModuleSelected()}
-                onChange={this.select.bind(this, 'selectedActions')}
-                multi={true}
+                isDisabled={!this.isModuleSelected()}
+                onChange={this.select.bind(this, "selectedActions")}
+                isMulti={true}
               />
             </FormGroup>
           </StepBody>
@@ -198,20 +199,20 @@ class PermissionForm extends React.Component<Props, State> {
               this.hasItems(selectedGroups) || this.hasItems(selectedUserIds)
             }
           >
-            {__('Who can')}
+            {__("Who can")}
           </StepHeader>
           <StepBody>
             <FormGroup>
               <ControlLabel required={true}>Choose the groups</ControlLabel>
               <Select
-                placeholder={__('Choose groups')}
-                options={generateListParams(groups)}
+                placeholder={__("Choose groups")}
+                options={generateListParams(groups) || []}
                 value={selectedGroups}
-                onChange={this.select.bind(this, 'selectedGroups')}
-                multi={true}
+                onChange={this.select.bind(this, "selectedGroups")}
+                isMulti={true}
               />
             </FormGroup>
-            <Divider>{__('Or')}</Divider>
+            <Divider>{__("Or")}</Divider>
             <FormGroup>
               <ControlLabel required={true}>Choose the users</ControlLabel>
 
@@ -227,19 +228,19 @@ class PermissionForm extends React.Component<Props, State> {
 
         <StepItem>
           <StepHeader number="3" isDone={valueChanged}>
-            {__('Grant permission')}
+            {__("Grant permission")}
           </StepHeader>
           <StepBody>
             <FormGroup>
               <ControlLabel>Allow</ControlLabel>
 
               <FormControl
-                componentClass="checkbox"
+                componentclass="checkbox"
                 defaultChecked={false}
                 id="allowed"
                 onChange={this.onChange}
               />
-              <p>{__('Check if permission is allowed')}</p>
+              <p>{__("Check if permission is allowed")}</p>
             </FormGroup>
           </StepBody>
         </StepItem>
@@ -270,7 +271,7 @@ class PermissionForm extends React.Component<Props, State> {
             refetchQueries={refetchQueries}
             isSubmitted={this.state.isSubmitted}
             type="submit"
-            successMessage={__(`You successfully added a permission`) + '.'}
+            successMessage={__(`You successfully added a permission`) + "."}
           />
         </ModalFooter>
       </form>

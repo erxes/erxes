@@ -11,44 +11,36 @@ type Props = {
   closeModal: () => void;
 };
 
-class CategoryFormContainer extends React.Component<Props> {
-  render() {
-    const renderButton = ({
-      name,
-      values,
-      isSubmitted,
-      callback,
-      object
-    }: IButtonMutateProps) => {
-      return (
-        <ButtonMutate
-          mutation={
-            object ? mutations.carCategoryEdit : mutations.carCategoryAdd
-          }
-          variables={values}
-          callback={callback}
-          refetchQueries={getRefetchQueries()}
-          isSubmitted={isSubmitted}
-          type="submit"
-          uppercase={false}
-          successMessage={`You successfully ${
-            object ? 'updated' : 'added'
-          } a ${name}`}
-        />
-      );
-    };
+const CategoryFormContainer = (props: Props) => {
+  const renderButton = ({
+    name,
+    values,
+    isSubmitted,
+    callback,
+    object,
+  }: IButtonMutateProps) => {
+    return (
+      <ButtonMutate
+        mutation={object ? mutations.carCategoryEdit : mutations.carCategoryAdd}
+        variables={values}
+        callback={callback}
+        refetchQueries={['carCategories', 'carCategoriesTotalCount']}
+        isSubmitted={isSubmitted}
+        type="submit"
+        uppercase={false}
+        successMessage={`You successfully ${
+          object ? 'updated' : 'added'
+        } a ${name}`}
+      />
+    );
+  };
 
-    const updatedProps = {
-      ...this.props,
-      renderButton
-    };
+  const updatedProps = {
+    ...props,
+    renderButton,
+  };
 
-    return <CategoryForm {...updatedProps} />;
-  }
-}
-
-const getRefetchQueries = () => {
-  return ['carCategories', 'carCategoriesTotalCount'];
+  return <CategoryForm {...updatedProps} />;
 };
 
 export default CategoryFormContainer;

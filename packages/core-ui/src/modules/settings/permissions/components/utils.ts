@@ -32,7 +32,7 @@ export const filterActions = (actions: any, moduleName: string) => {
     return [];
   }
 
-  const moduleActions = actions.filter(a => a.module === moduleName);
+  const moduleActions = actions.filter(a => a.module === moduleName) || [];
 
   return generateModuleParams(moduleActions);
 };

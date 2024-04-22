@@ -1,39 +1,38 @@
 import {
-  COMPANY_BUSINESS_TYPES,
-  COMPANY_INDUSTRY_TYPES,
-  COUNTRIES,
-} from '@erxes/ui-contacts/src/companies/constants';
-import {
   Button,
   ControlLabel,
   FormGroup,
   Icon,
-} from '@erxes/ui/src/components';
-import { IAttachment, IField, ILocationOption } from '@erxes/ui/src/types';
+} from "@erxes/ui/src/components";
+import {
+  COMPANY_BUSINESS_TYPES,
+  COMPANY_INDUSTRY_TYPES,
+  COUNTRIES,
+} from "@erxes/ui-contacts/src/companies/constants";
+import { IAttachment, IField, ILocationOption } from "@erxes/ui/src/types";
+import { LogicIndicator, SelectInput } from "../styles";
 import {
   RenderDynamicComponent,
   __,
   isEnabled,
-} from '@erxes/ui/src/utils/core';
-import { LogicIndicator, SelectInput } from '../styles';
+} from "@erxes/ui/src/utils/core";
 
-import { SelectTeamMembers } from '@erxes/ui/src';
-
-import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
-import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
-import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
-import ModifiableList from '@erxes/ui/src/components/ModifiableList';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Map from '@erxes/ui/src/containers/map/Map';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import { IOption } from '@erxes/ui/src/types';
-import Datetime from '@nateradebaugh/react-datetime';
-import React from 'react';
-import Select from 'react-select-plus';
-import SelectProductCategory from '../containers/SelectProductCategory';
-import ObjectList from './ObjectList';
+import Datetime from "@nateradebaugh/react-datetime";
+import ErrorBoundary from "@erxes/ui/src/components/ErrorBoundary";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IOption } from "@erxes/ui/src/types";
+import Map from "@erxes/ui/src/containers/map/Map";
+import ModifiableList from "@erxes/ui/src/components/ModifiableList";
+import ObjectList from "./ObjectList";
+import React from "react";
+import Select, { OnChangeValue } from "react-select";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import SelectProductCategory from "../containers/SelectProductCategory";
+import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
+import { SelectTeamMembers } from "@erxes/ui/src";
+import Uploader from "@erxes/ui/src/components/Uploader";
 
 type Props = {
   field: IField;
@@ -75,7 +74,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
     const state = { value: defaultValue, checkBoxValues: [] };
 
-    if (defaultValue && field.type === 'check') {
+    if (defaultValue && field.type === "check") {
       state.checkBoxValues = defaultValue;
     }
 
@@ -96,8 +95,8 @@ export default class GenerateField extends React.Component<Props, State> {
 
   renderSelect(options: string[] = [], attrs = {}) {
     return (
-      <FormControl componentClass="select" {...attrs}>
-        <option key={''} value="">
+      <FormControl componentclass="select" {...attrs}>
+        <option key={""} value="">
           Choose option
         </option>
         {options.map((option, index) => (
@@ -114,8 +113,8 @@ export default class GenerateField extends React.Component<Props, State> {
     attrs = {}
   ) {
     return (
-      <FormControl componentClass="select" {...attrs}>
-        <option key={''} value="">
+      <FormControl componentclass="select" {...attrs}>
+        <option key={""} value="">
           Choose option
         </option>
         {options.map((option, index) => (
@@ -128,7 +127,7 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderMultiSelect(options: string[] = [], attrs) {
-    const onChange = (ops: IOption[]) => {
+    const onChange = (ops: OnChangeValue<IOption, true>) => {
       const { field, onValueChange } = this.props;
 
       if (onValueChange) {
@@ -138,12 +137,17 @@ export default class GenerateField extends React.Component<Props, State> {
         onValueChange({ _id: field._id, value });
       }
     };
+
+    const selectOptions = options.map((e) => ({ value: e, label: e }));
+
     return (
       <Select
-        value={attrs.value}
-        options={options.map((e) => ({ value: e, label: e }))}
+        value={selectOptions.filter((option) =>
+          (attrs.value || []).includes(option.value)
+        )}
+        options={selectOptions}
         onChange={onChange}
-        multi={true}
+        isMulti={true}
       />
     );
   }
@@ -155,12 +159,12 @@ export default class GenerateField extends React.Component<Props, State> {
     let { validation } = this.props.field;
 
     if (hasError) {
-      value = '';
+      value = "";
       checkBoxValues = [];
       this.setState({ value, checkBoxValues });
     }
 
-    attrs.type = 'text';
+attrs.type = "text";
     const errorObject: any = {};
 
     // attrs.errors =
@@ -175,36 +179,36 @@ export default class GenerateField extends React.Component<Props, State> {
       this.onChange(e, attrs.option);
     };
 
-    if (type === 'radio') {
-      attrs.type = 'radio';
-      attrs.componentClass = 'radio';
+    if (type === "radio") {
+      attrs.type = "radio";
+      attrs.componentClass = "radio";
       attrs.checked = String(value) === attrs.option;
     }
 
-    if (type === 'hasAuthority') {
-      attrs.type = 'radio';
-      attrs.componentClass = 'radio';
+    if (type === "hasAuthority") {
+      attrs.type = "radio";
+      attrs.componentClass = "radio";
       attrs.checked = String(value) === attrs.option;
     }
 
-    if (type && type.includes('isSubscribed')) {
-      attrs.type = 'radio';
-      attrs.componentClass = 'radio';
+    if (type && type.includes("isSubscribed")) {
+      attrs.type = "radio";
+      attrs.componentClass = "radio";
       attrs.checked = String(value) === attrs.option;
     }
 
-    if (type === 'check') {
-      attrs.type = 'checkbox';
-      attrs.componentClass = 'checkbox';
+    if (type === "check") {
+      attrs.type = "checkbox";
+      attrs.componentClass = "checkbox";
       attrs.checked = checkBoxValues.includes(attrs.option);
     }
 
-    if (type === 'birthDate') {
-      validation = 'date';
+    if (type === "birthDate") {
+      validation = "date";
     }
 
-    if (validation === 'datetime') {
-      attrs.max = '9999-12-31';
+    if (validation === "datetime") {
+      attrs.max = "9999-12-31";
 
       // redefine onChange since date chooser returns the value, not event
       attrs.onChange = (val) => {
@@ -223,8 +227,8 @@ export default class GenerateField extends React.Component<Props, State> {
       );
     }
 
-    if (validation === 'date') {
-      attrs.max = '9999-12-31';
+    if (validation === "date") {
+      attrs.max = "9999-12-31";
 
       // redefine onChange since date chooser returns the value, not event
       attrs.onChange = (val) => {
@@ -245,8 +249,8 @@ export default class GenerateField extends React.Component<Props, State> {
       );
     }
 
-    if (validation === 'number') {
-      attrs.type = 'number';
+    if (validation === "number") {
+      attrs.type = "number";
     }
 
     if (hasError && errorCounter < 10) {
@@ -259,7 +263,7 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderTextarea(attrs) {
-    return <FormControl componentClass="textarea" {...attrs} />;
+    return <FormControl componentclass="textarea" {...attrs} />;
   }
 
   renderRadioOrCheckInputs(options, attrs, hasError?: boolean) {
@@ -442,7 +446,7 @@ export default class GenerateField extends React.Component<Props, State> {
     return (
       <div
         dangerouslySetInnerHTML={{
-          __html: content || '',
+          __html: content || "",
         }}
       />
     );
@@ -451,7 +455,7 @@ export default class GenerateField extends React.Component<Props, State> {
   renderList(attrs) {
     let options = [];
     if (attrs.value && attrs.value.length > 0) {
-      options = attrs.value.split(',') || [];
+      options = attrs.value.split(",") || [];
     }
 
     const onChange = (ops) => {
@@ -470,7 +474,7 @@ export default class GenerateField extends React.Component<Props, State> {
       <ModifiableList
         options={options}
         onChangeOption={onChange}
-        addButtonLabel={__('Add a value')}
+        addButtonLabel={__("Add a value")}
         showAddButton={true}
       />
     );
@@ -479,7 +483,7 @@ export default class GenerateField extends React.Component<Props, State> {
   renderObjectList(objectListConfigs, attrs) {
     let { value = [] } = attrs;
 
-    if (typeof value === 'string' && value.length > 0) {
+    if (typeof value === "string" && value.length > 0) {
       try {
         value = JSON.parse(value);
       } catch {
@@ -489,7 +493,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
     const { field, onValueChange, isEditing } = this.props;
 
-    if (field.contentType === 'form') {
+    if (field.contentType === "form") {
       if (!objectListConfigs) {
         return null;
       }
@@ -503,7 +507,7 @@ export default class GenerateField extends React.Component<Props, State> {
               </p>
               <FormControl
                 type="text"
-                componentClass={`${o.type}`}
+                componentclass={`${o.type}`}
                 placeholder={`${o.label}`}
               />
             </React.Fragment>
@@ -577,15 +581,15 @@ export default class GenerateField extends React.Component<Props, State> {
   renderParentField() {
     const { field } = this.props;
 
-    if (field.type !== 'parentField') {
+    if (field.type !== "parentField") {
       return null;
     }
 
     const otherFields = this.props.otherFields || [];
 
     const subFields =
-      otherFields.filter(
-        (otherField) => field.subFieldIds?.includes(otherField._id)
+      otherFields.filter((otherField) =>
+        field.subFieldIds?.includes(otherField._id)
       ) || [];
 
     return (
@@ -612,11 +616,11 @@ export default class GenerateField extends React.Component<Props, State> {
 
     let value = optionValue || e.target.value;
 
-    if (validation === 'number') {
+    if (validation === "number") {
       value = Number(value);
     }
 
-    if (type === 'check') {
+    if (type === "check") {
       let checkBoxValues = this.state.checkBoxValues;
       const isChecked = e.target.checked;
       // if selected value is not already in list then add it
@@ -661,29 +665,29 @@ export default class GenerateField extends React.Component<Props, State> {
       id: field._id,
       value: this.state.value,
       onChange: this.onChange,
-      name: '',
+      name: "",
     };
 
-    const boolOptions = ['Yes', 'No'];
+    const boolOptions = ["Yes", "No"];
 
     switch (type) {
-      case 'select':
+      case "select":
         return this.renderSelect(options, attrs);
 
-      case 'multiSelect':
+      case "multiSelect":
         return this.renderMultiSelect(options, attrs);
 
-      case 'pronoun':
-        return this.renderSelect(['Male', 'Female', 'Not applicable'], attrs);
+      case "pronoun":
+        return this.renderSelect(["Male", "Female", "Not applicable"], attrs);
 
-      case 'check':
+      case "check":
         try {
           return this.renderRadioOrCheckInputs(options, attrs);
         } catch {
           return this.renderRadioOrCheckInputs(options, attrs, true);
         }
 
-      case 'radio':
+      case "radio":
         attrs.name = Math.random().toString();
         try {
           return this.renderRadioOrCheckInputs(options, attrs);
@@ -691,7 +695,7 @@ export default class GenerateField extends React.Component<Props, State> {
           return this.renderRadioOrCheckInputs(options, attrs, true);
         }
 
-      case 'hasAuthority':
+      case "hasAuthority":
         attrs.name = Math.random().toString();
         try {
           return this.renderRadioOrCheckInputs(boolOptions, attrs);
@@ -699,7 +703,7 @@ export default class GenerateField extends React.Component<Props, State> {
           return this.renderRadioOrCheckInputs(boolOptions, attrs, true);
         }
 
-      case 'isSubscribed':
+      case "isSubscribed":
         attrs.name = Math.random().toString();
         try {
           return this.renderRadioOrCheckInputs(boolOptions, attrs);
@@ -707,7 +711,7 @@ export default class GenerateField extends React.Component<Props, State> {
           return this.renderRadioOrCheckInputs(boolOptions, attrs, true);
         }
 
-      case 'company_isSubscribed':
+      case "company_isSubscribed":
         attrs.name = Math.random().toString();
         try {
           return this.renderRadioOrCheckInputs(boolOptions, attrs);
@@ -715,90 +719,90 @@ export default class GenerateField extends React.Component<Props, State> {
           return this.renderRadioOrCheckInputs(boolOptions, attrs, true);
         }
 
-      case 'textarea':
+      case "textarea":
         return this.renderTextarea(attrs);
 
-      case 'description':
+      case "description":
         return this.renderTextarea(attrs);
 
-      case 'company_description':
+      case "company_description":
         return this.renderTextarea(attrs);
 
-      case 'file': {
+      case "file": {
         return this.renderFile(attrs);
       }
 
-      case 'avatar': {
+      case "avatar": {
         return this.renderFile(attrs);
       }
 
-      case 'company_avatar': {
+      case "company_avatar": {
         return this.renderFile(attrs);
       }
 
-      case 'industry': {
+      case "industry": {
         return this.renderSelect(COMPANY_INDUSTRY_TYPES(), attrs);
       }
 
-      case 'location': {
+      case "location": {
         return this.renderSelect(COUNTRIES, attrs);
       }
 
-      case 'businessType': {
+      case "businessType": {
         return this.renderSelect(COMPANY_BUSINESS_TYPES, attrs);
       }
 
-      case 'html': {
+      case "html": {
         return this.renderHtml();
       }
 
-      case 'customer': {
+      case "customer": {
         return this.renderCustomer(attrs);
       }
 
-      case 'users': {
+      case "users": {
         return this.renderUser(attrs);
       }
 
-      case 'product': {
-        if (!isEnabled('products')) {
+      case "product": {
+        if (!isEnabled("products")) {
           return <p>Products service is not enabled</p>;
         }
         return this.renderProduct(attrs);
       }
 
-      case 'branch': {
+      case "branch": {
         return this.renderBranch(attrs);
       }
 
-      case 'department': {
+      case "department": {
         return this.renderDepartment(attrs);
       }
 
-      case 'list': {
+      case "list": {
         return this.renderList(attrs);
       }
 
-      case 'objectList': {
+      case "objectList": {
         return this.renderObjectList(objectListConfigs, attrs);
       }
 
-      case 'map': {
+      case "map": {
         return this.renderMap(attrs);
       }
 
-      case 'selectProductCategory': {
-        if (!isEnabled('products')) {
+      case "selectProductCategory": {
+        if (!isEnabled("products")) {
           return <p>Products service is not enabled</p>;
         }
         return this.renderSelectCategory(attrs);
       }
 
-      case 'parentField': {
+      case "parentField": {
         return this.renderParentField();
       }
 
-      case 'labelSelect': {
+      case "labelSelect": {
         return this.renderLabelSelect(objectListConfigs, attrs);
       }
 
@@ -829,13 +833,13 @@ export default class GenerateField extends React.Component<Props, State> {
     const { field } = this.props;
     const { objectListConfigs = [] } = field;
 
-    if (field.type !== 'objectList' || !field.objectListConfigs) {
+    if (field.type !== "objectList" || !field.objectListConfigs) {
       return null;
     }
 
     const onClick = () => {
       const object = objectListConfigs.reduce((previousValue, currentValue) => {
-        previousValue[`${currentValue.key}`] = '';
+        previousValue[`${currentValue.key}`] = "";
 
         return previousValue;
       }, {});

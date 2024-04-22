@@ -1,17 +1,17 @@
-import { IAttachment, IFormProps } from '@erxes/ui/src/types';
+import { IAttachment, IFormProps } from "@erxes/ui/src/types";
 
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IFile } from '../../types';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import React from 'react';
-import Select from 'react-select-plus';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import { __ } from 'coreui/utils';
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IFile } from "../../types";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import React from "react";
+import Select from "react-select";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import Uploader from "@erxes/ui/src/components/Uploader";
+import { __ } from "coreui/utils";
 
 type Props = {
   file?: IFile;
@@ -32,40 +32,40 @@ class DynamicForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      userId: '',
+      userId: "",
       selectedDocument: {} as any,
-      attachments: []
+      attachments: [],
     };
   }
 
   onChangeAttachments = (attachments: IAttachment[]) =>
     this.setState({ attachments });
 
-  usersOnChange = userId => {
+  usersOnChange = (userId) => {
     this.setState({ userId });
   };
 
-  onSave = values => {
+  onSave = (values) => {
     const { userId, selectedDocument, attachments } = this.state;
     const { queryParams } = this.props;
     const attachment = attachments[0] || ({} as any);
 
     this.props.saveFile({
       name: values.name,
-      type: 'dynamic',
+      type: "dynamic",
       url: attachment.url,
-      contentType: 'teamMember',
+      contentType: "teamMember",
       contentTypeId: userId,
       documentId: selectedDocument.value,
-      folderId: queryParams && queryParams._id ? queryParams._id : '',
-      info: attachment
+      folderId: queryParams && queryParams._id ? queryParams._id : "",
+      info: attachment,
     });
   };
 
-  generateParams = options => {
-    return options.map(option => ({
+  generateParams = (options) => {
+    return options.map((option) => ({
       value: option._id,
-      label: option.name
+      label: option.name,
     }));
   };
 
@@ -73,14 +73,14 @@ class DynamicForm extends React.Component<Props, State> {
     const { file } = this.props;
     const object = file || ({} as IFile);
 
-    const onChange = selectedDocument => {
+    const onChange = (selectedDocument) => {
       this.setState({ selectedDocument });
     };
 
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>{__('Name')}</ControlLabel>
+          <ControlLabel required={true}>{__("Name")}</ControlLabel>
           <FormControl
             {...formProps}
             name="name"
@@ -91,9 +91,9 @@ class DynamicForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__('Team member')}</ControlLabel>
+          <ControlLabel>{__("Team member")}</ControlLabel>
           <SelectTeamMembers
-            label={__('Choose team member')}
+            label={__("Choose team member")}
             name="userId"
             onSelect={this.usersOnChange}
             multi={false}
@@ -101,17 +101,19 @@ class DynamicForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__('Document')}</ControlLabel>
+          <ControlLabel>{__("Document")}</ControlLabel>
           <Select
-            placeholder={__('Choose document')}
-            value={this.state.selectedDocument}
+            placeholder={__("Choose document")}
+            value={this.generateParams(this.props.documents).find(
+              (o) => o.value === this.state.selectedDocument
+            )}
             options={this.generateParams(this.props.documents)}
             onChange={onChange}
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__('Attachment')}</ControlLabel>
+          <ControlLabel>{__("Attachment")}</ControlLabel>
           <Uploader
             defaultFileList={[]}
             onChange={this.onChangeAttachments}
@@ -126,11 +128,11 @@ class DynamicForm extends React.Component<Props, State> {
             onClick={this.props.closeModal}
             icon="times-circle"
           >
-            {__('Cancel')}
+            {__("Cancel")}
           </Button>
 
           <Button type="submit" btnStyle="success" icon="check-circle">
-            {__('Save')}
+            {__("Save")}
           </Button>
         </ModalFooter>
       </>

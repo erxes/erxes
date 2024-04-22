@@ -1,23 +1,24 @@
+import { DropNav, UserHelper } from '../styles';
+import { __, getEnv } from 'modules/common/utils';
+import { colors, dimensions } from 'modules/common/styles';
+
+import BrandChooser from './BrandChooser';
 import { IUser } from 'modules/auth/types';
-import asyncComponent from 'modules/common/components/AsyncComponent';
-import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
+import { Link } from 'react-router-dom';
+import { Menu } from '@headlessui/react';
+import { MenuDivider } from '@erxes/ui/src/styles/main';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import NameCard from 'modules/common/components/nameCard/NameCard';
-import { colors } from 'modules/common/styles';
-import { __, getEnv } from 'modules/common/utils';
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { Link } from 'react-router-dom';
-import styled from 'styled-components';
-import Search from '../containers/Search';
-import { UserHelper, DropNav } from '../styles';
-import BrandChooser from './BrandChooser';
-import { pluginsOfTopNavigations } from 'pluginUtils';
-import { SubMenu } from 'modules/saas/navigation/styles';
 import Organizations from 'modules/saas/navigation/Organizations';
+import React from 'react';
+import Search from '../containers/Search';
+import { SubMenu } from 'modules/saas/navigation/styles';
 import Usage from 'modules/saas/settings/plans/components/Usage';
+import asyncComponent from 'modules/common/components/AsyncComponent';
 import { getVersion } from '@erxes/ui/src/utils/core';
+import { pluginsOfTopNavigations } from 'pluginUtils';
+import styled from 'styled-components';
 
 const Signature = asyncComponent(
   () =>
@@ -49,7 +50,7 @@ const UserInfo = styled.div`
 `;
 
 const NameCardWrapper = styled.div`
-  padding: 10px 20px;
+  padding: 10px 20px 0;
 `;
 
 export const NavItem = styled.div`
@@ -72,16 +73,18 @@ export const NavItem = styled.div`
   }
 `;
 
-const Version = styled.li`
-  padding: 0.25rem 1.5rem;
-
-  span:first-child {
-    font-weight: bold;
-    color: ${colors.colorCoreGray};
-  }
+const Version = styled.div`
+  padding: 0 ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px;
+  float: right;
 
   span {
-    font-weight: bold;
+    background: #f2f2f2;
+    padding: 3px 10px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    font-size: 9px;
+    color: ${colors.colorCoreGray};
+    border: 1px solid ${colors.borderPrimary};
   }
 `;
 
@@ -136,24 +139,24 @@ const QuickNavigation = ({
       </NavItem>
       {pluginsOfTopNavigations()}
       <NavItem>
-        <Dropdown alignRight={true}>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-user">
+        <Menu as="div" className="relative">
+          <Menu.Button>
             <UserHelper>
               <UserInfo>
                 <NameCard.Avatar user={currentUser} size={30} />
                 <Icon icon="angle-down" size={14} />
               </UserInfo>
             </UserHelper>
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
+          </Menu.Button>
+          <Menu.Items className="absolute">
             <NameCardWrapper>
               <NameCard user={currentUser} />
             </NameCardWrapper>
-            <Dropdown.Divider />
-            <li>
+            <MenuDivider />
+            <Menu.Item>
               <Link to="/profile">{__('My Profile')}</Link>
-            </li>
-            <li>
+            </Menu.Item>
+            <Menu.Item>
               <DropNav>
                 {__('Account Settings')}
                 <Icon icon="angle-right" />
@@ -180,14 +183,13 @@ const QuickNavigation = ({
                   />
                 </ul>
               </DropNav>
-            </li>
-            <Dropdown.Divider />
-
+            </Menu.Item>
+            <MenuDivider />
             {VERSION &&
             VERSION === 'saas' &&
             currentUser.currentOrganization ? (
               <>
-                <li>
+                <Menu.Item>
                   <DropNav>
                     {__('Global Profile')} <Icon icon="angle-right" />
                     <ul>
@@ -203,28 +205,31 @@ const QuickNavigation = ({
                       </li>
                     </ul>
                   </DropNav>
-                </li>
+                </Menu.Item>
 
-                <Dropdown.Divider />
+                <MenuDivider />
                 <SubMenu>
-                  <li>
+                  <Menu.Item>
                     <Organizations
                       organizations={currentUser.organizations || []}
                     />
-                  </li>
+                  </Menu.Item>
                 </SubMenu>
                 <Usage />
               </>
             ) : null}
-
-            <Dropdown.Item onClick={logout}>{__('Sign out')}</Dropdown.Item>
+            <Menu.Item>
+              <a onClick={logout}>{__('Sign out')}</a>
+            </Menu.Item>
             {release ? (
               <Version>
-                <span>version</span> <span>{release}</span>
+                <span>
+                  version <b>{release}</b>
+                </span>
               </Version>
             ) : null}
-          </Dropdown.Menu>
-        </Dropdown>
+          </Menu.Items>
+        </Menu>
       </NavItem>
     </nav>
   );

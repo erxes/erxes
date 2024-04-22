@@ -1,16 +1,17 @@
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Icon from '@erxes/ui/src/components/Icon';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
-import Select from 'react-select-plus';
-import { icons } from '../../icons.constant';
-import { ICategory, ITopic } from '@erxes/ui-knowledgeBase/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { ICategory, ITopic } from "@erxes/ui-knowledgebase/src/types";
+import React, { useState } from "react";
+
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Icon from "@erxes/ui/src/components/Icon";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import Select, { components } from "react-select";
+import { __ } from "@erxes/ui/src/utils/core";
+import { icons } from "../../icons.constant";
 
 type Props = {
   currentTopicId: string;
@@ -21,60 +22,35 @@ type Props = {
   queryParams: any;
 };
 
-type State = {
-  selectedIcon: string;
-  topicId: string;
-  parentCategoryId?: string;
-};
+const CategoryForm = (props: Props) => {
+  const {
+    category,
+    currentTopicId,
+    topics,
+    queryParams,
+    closeModal,
+    renderButton,
+  } = props;
 
-class CategoryForm extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+  const [selectedIcon, setSelectedIcon] = useState<string>(
+    category ? category.icon : ""
+  );
+  const [topicId, setTopicId] = useState<string>(currentTopicId);
+  const [parentCategoryId, setParentCategoryId] = useState<string>(
+    category && category.parentCategoryId!
+  );
 
-    const { category, currentTopicId } = props;
-
-    this.state = {
-      selectedIcon: this.getSelectedIcon(),
-      topicId: currentTopicId,
-      parentCategoryId: category && category.parentCategoryId
-    };
-  }
-
-  getSelectedIcon() {
-    const { category } = this.props;
-
-    return category ? category.icon : '';
-  }
-
-  onChangeIcon = obj => {
-    this.setState({
-      selectedIcon: obj ? obj.value : ''
-    });
-  };
-
-  renderOption = option => {
-    return (
-      <div className="icon-option">
-        <Icon icon={option.value} />
-        {option.label}
-      </div>
-    );
-  };
-
-  generateDoc = (values: {
+  const generateDoc = (values: {
     _id?: string;
     title: string;
     description: string;
     code?: string;
   }) => {
-    const { category } = this.props;
     const finalValues = values;
 
     if (category) {
       finalValues._id = category._id;
     }
-
-    const { topicId, parentCategoryId, selectedIcon } = this.state;
 
     return {
       _id: finalValues._id,
@@ -85,37 +61,48 @@ class CategoryForm extends React.Component<Props, State> {
         topicIds: [topicId],
         topicId,
         parentCategoryId,
-        code: finalValues.code
-      }
+        code: finalValues.code,
+      },
     };
   };
 
-  generateOptions = (values: any, selectable?: boolean) => {
+  const generateOptions = (values: any, selectable?: boolean) => {
     const options = selectable
       ? [
           {
             value: null,
-            label: 'Select category'
-          }
+            label: "Select category",
+          },
         ]
       : [];
 
-    values.forEach(option =>
+    values.forEach((option) =>
       options.push({
         value: option._id,
-        label: option.title
+        label: option.title,
       })
     );
 
     return options;
   };
 
-  renderTopics() {
-    const self = this;
-    const { topics } = this.props;
+  const handleIconChange = (obj) => {
+    setSelectedIcon(obj ? obj.value : "");
+  };
 
-    const onChange = selectedTopic => {
-      self.setState({ topicId: selectedTopic.value, parentCategoryId: '' });
+  const renderOption = (option) => {
+    return (
+      <div className="icon-option">
+        <Icon icon={option.value} />
+        {option.label}
+      </div>
+    );
+  };
+
+  const renderTopics = () => {
+    const onChange = (selectedTopic) => {
+      setTopicId(selectedTopic.value);
+      setParentCategoryId("");
     };
 
     return (
@@ -124,35 +111,32 @@ class CategoryForm extends React.Component<Props, State> {
         <br />
 
         <Select
-          placeholder={__('Choose knowledgebase')}
-          value={self.state.topicId}
-          options={self.generateOptions(topics)}
+          placeholder={__("Choose knowledgebase")}
+          value={generateOptions(topics).find((o) => o.value === topicId)}
+          options={generateOptions(topics)}
           onChange={onChange}
         />
       </FormGroup>
     );
-  }
+  };
 
-  renderParentCategories() {
-    const { queryParams, topics } = this.props;
-    const self = this;
-    const topic = topics.find(t => t._id === self.state.topicId);
+  const renderParentCategories = () => {
+    const topic = topics.find((t) => t._id === topicId);
     let categories = topic ? topic.parentCategories : [];
-    const { category, currentTopicId } = self.props;
     const isCurrentCategory = categories.find(
-      cat => cat._id === queryParams.id
+      (cat) => cat._id === queryParams.id
     );
 
-    if (category && currentTopicId === this.state.topicId) {
-      categories = categories.filter(cat => cat._id !== category._id);
+    if (category && currentTopicId === topicId) {
+      categories = categories.filter((cat) => cat._id !== category._id);
     }
 
-    if (!self.state.parentCategoryId && isCurrentCategory) {
-      self.setState({ parentCategoryId: queryParams.id });
+    if (!parentCategoryId && isCurrentCategory) {
+      setParentCategoryId(queryParams.id);
     }
 
-    const onChange = selectedCategory => {
-      self.setState({ parentCategoryId: selectedCategory.value });
+    const onChange = (selectedCategory) => {
+      setParentCategoryId(selectedCategory.value);
     };
 
     return (
@@ -161,18 +145,33 @@ class CategoryForm extends React.Component<Props, State> {
         <br />
 
         <Select
-          placeholder={__('Choose category')}
-          value={self.state.parentCategoryId}
-          options={self.generateOptions(categories, true)}
+          placeholder={__("Choose category")}
+          value={generateOptions(categories, true).find(
+            (o) => o.value === parentCategoryId
+          )}
+          options={generateOptions(categories, true)}
           onChange={onChange}
-          clearable={false}
+          isClearable={false}
         />
       </FormGroup>
     );
-  }
+  };
 
-  renderContent = (formProps: IFormProps) => {
-    const { category, closeModal, renderButton } = this.props;
+  const Option = (props) => {
+    return (
+      <components.Option {...props}>
+        {renderOption(props.data)}
+      </components.Option>
+    );
+  };
+
+  const SingleValue = (props) => (
+    <components.SingleValue {...props}>
+      {renderOption(props.data)}
+    </components.SingleValue>
+  );
+
+  const renderContent = (formProps: IFormProps) => {
     const object = category || ({} as ICategory);
     const { values, isSubmitted } = formProps;
 
@@ -190,11 +189,7 @@ class CategoryForm extends React.Component<Props, State> {
 
         <FormGroup>
           <ControlLabel>Code</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="code"
-            defaultValue={object.code}
-          />
+          <FormControl {...formProps} name="code" defaultValue={object.code} />
         </FormGroup>
 
         <FormGroup>
@@ -210,16 +205,15 @@ class CategoryForm extends React.Component<Props, State> {
           <ControlLabel required={true}>Icon</ControlLabel>
           <Select
             required={true}
-            value={this.state.selectedIcon}
+            value={icons.find((o) => o.value === selectedIcon)}
             options={icons}
-            onChange={this.onChangeIcon}
-            optionRenderer={this.renderOption}
-            valueRenderer={this.renderOption}
+            onChange={handleIconChange}
+            components={{ Option, SingleValue }}
           />
         </FormGroup>
 
-        {this.renderTopics()}
-        {this.renderParentCategories()}
+        {renderTopics()}
+        {renderParentCategories()}
 
         <ModalFooter>
           <Button
@@ -233,20 +227,18 @@ class CategoryForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'category',
-            values: this.generateDoc(values),
+            name: "category",
+            values: generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: category
+            object: category,
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default CategoryForm;
