@@ -78,7 +78,7 @@ class FieldForm extends React.Component<Props, State> {
 
   onFieldChange = (
     name: string,
-    value: string | boolean | number | string[] | number[] | IFieldLogic[],
+    value: string | boolean | number | string[] | number[] | IFieldLogic[]
   ) => {
     this.setFieldAttrChanges(name, value);
   };
@@ -163,7 +163,7 @@ class FieldForm extends React.Component<Props, State> {
 
   setFieldAttrChanges(
     attributeName: string,
-    value: string | boolean | number | string[] | number[] | IFieldLogic[],
+    value: string | boolean | number | string[] | number[] | IFieldLogic[]
   ) {
     const { field } = this.state;
     field[attributeName] = value;
@@ -179,11 +179,17 @@ class FieldForm extends React.Component<Props, State> {
       return null;
     }
 
-    const validation = (e) =>
+    const validation = (e) => {
+      const value = (e.currentTarget as HTMLInputElement).value;
+
+      if (value === 'regex') {
+      }
+
       this.onFieldChange(
         'validation',
-        (e.currentTarget as HTMLInputElement).value,
+        (e.currentTarget as HTMLInputElement).value
       );
+    };
 
     return (
       <FormGroup>
@@ -201,7 +207,26 @@ class FieldForm extends React.Component<Props, State> {
           <option value="datetime">{__('Date Time')}</option>
           <option value="date">{__('Date')}</option>
           <option value="phone">{__('Phone')}</option>
+          <option value="regex">{__('Regular Expression')}</option>
         </FormControl>
+
+        {field.validation === 'regex' && (
+          <>
+            <ControlLabel htmlFor="validation">Validation:</ControlLabel>
+            <p>{__('Write your own regular expression')}</p>
+            <FormControl
+              id="regex"
+              componentClass="input"
+              value={field.regexValidation || ''}
+              onChange={(e) =>
+                this.onFieldChange(
+                  'regexValidation',
+                  (e.currentTarget as HTMLInputElement).value
+                )
+              }
+            />
+          </>
+        )}
       </FormGroup>
     );
   }
@@ -212,7 +237,7 @@ class FieldForm extends React.Component<Props, State> {
     const onChange = (e) =>
       this.onFieldChange(
         'options',
-        (e.currentTarget as HTMLInputElement).value.split('\n'),
+        (e.currentTarget as HTMLInputElement).value.split('\n')
       );
 
     if (!['select', 'check', 'radio', 'multiSelect'].includes(field.type)) {
@@ -407,7 +432,7 @@ class FieldForm extends React.Component<Props, State> {
     const toggle = (e) =>
       this.onFieldChange(
         'isRequired',
-        (e.currentTarget as HTMLInputElement).checked,
+        (e.currentTarget as HTMLInputElement).checked
       );
 
     return (
@@ -502,7 +527,7 @@ class FieldForm extends React.Component<Props, State> {
           <CollapseContent title={__('Logic')} compact={true}>
             <FieldLogics
               fields={fields.filter(
-                (f) => !(field.subFieldIds || []).includes(f._id),
+                (f) => !(field.subFieldIds || []).includes(f._id)
               )}
               currentField={field}
               onFieldChange={this.onFieldChange}
@@ -609,7 +634,7 @@ class FieldForm extends React.Component<Props, State> {
     const onCategoryChange = (e) => {
       this.onFieldChange(
         'productCategoryId',
-        (e.currentTarget as HTMLInputElement).value,
+        (e.currentTarget as HTMLInputElement).value
       );
     };
 
@@ -645,7 +670,7 @@ class FieldForm extends React.Component<Props, State> {
     const onChangeColumn = (e) =>
       this.onFieldChange(
         'column',
-        parseInt((e.currentTarget as HTMLInputElement).value, 10),
+        parseInt((e.currentTarget as HTMLInputElement).value, 10)
       );
 
     return (
@@ -709,7 +734,7 @@ class FieldForm extends React.Component<Props, State> {
     const groupName = (e) =>
       this.onFieldChange(
         'groupName',
-        (e.currentTarget as HTMLInputElement).value,
+        (e.currentTarget as HTMLInputElement).value
       );
     return (
       <FormGroup>
