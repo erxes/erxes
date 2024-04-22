@@ -1,11 +1,9 @@
 import { Model } from 'mongoose';
 import * as _ from 'lodash';
 import { IModels } from '../connectionResolver';
-import {
-  ACCOUNT_STATUSES,
-} from './definitions/account';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { IAccountCategory, IAccountCategoryDocument, accountCategorySchema } from './definitions/accountCategory';
+import { ACCOUNT_STATUSES } from './definitions/constants';
 
 export interface IAccountCategoryModel extends Model<IAccountCategoryDocument> {
   getAccountCategory(selector: any): Promise<IAccountCategoryDocument>;

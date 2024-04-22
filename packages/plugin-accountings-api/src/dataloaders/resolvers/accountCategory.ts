@@ -1,9 +1,7 @@
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { IContext } from '../../connectionResolver';
-import {
-  ACCOUNT_STATUSES,
-} from '../../models/definitions/account';
 import { IAccountCategoryDocument } from '../../models/definitions/accountCategory';
+import { ACCOUNT_STATUSES } from '../../models/definitions/constants';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {

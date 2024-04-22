@@ -3,9 +3,9 @@ import {
   requireLogin,
 } from '@erxes/api-utils/src/permissions';
 import { afterQueryWrapper, paginate } from '@erxes/api-utils/src';
-import { ACCOUNT_STATUSES } from '../../../models/definitions/account';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { IContext, IModels } from '../../../connectionResolver';
+import { ACCOUNT_STATUSES } from '../../../models/definitions/constants';
 
 interface IQueryParams {
   ids?: string[];

@@ -5,11 +5,11 @@ import {
   checkCodeMask,
 } from '../maskUtils';
 import {
-  ACCOUNT_STATUSES,
   IAccount,
   IAccountDocument,
   accountSchema,
 } from './definitions/account';
+import { ACCOUNT_STATUSES } from './definitions/constants';
 
 const checkUsedInTr = (ids: string[]) => {
   
