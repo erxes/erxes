@@ -6,7 +6,8 @@ type Props = {
 };
 
 function ChargeItem(props: Props) {
-  const { error, Document_No, Description, No, Quantity } = props.item;
+  const { error, Document_No, Description, No, Quantity, Unit_Price } =
+    props.item;
 
   return (
     <tr>
@@ -14,6 +15,7 @@ function ChargeItem(props: Props) {
       <td>{Document_No || ''}</td>
       <td>{__(Description || '')}</td>
       <td>{No || ''}</td>
+      <td>{Unit_Price || ''}</td>
       <td>{Quantity || ''}</td>
     </tr>
   );

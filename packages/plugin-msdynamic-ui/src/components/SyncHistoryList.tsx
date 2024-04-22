@@ -48,6 +48,7 @@ const SyncHistoryList = ({
               <th>{__('Order No')}</th>
               <th>{__('Product Name')}</th>
               <th>{__('Product No')}</th>
+              <th>{__('Price')}</th>
               <th>{__('Quantity')}</th>
             </tr>
           </thead>
