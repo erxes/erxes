@@ -1,4 +1,4 @@
-import { Document, Schema } from 'mongoose';
+import { Document, Schema, HydratedDocument } from 'mongoose';
 import { customFieldSchema, ICustomField } from './common';
 import {
   BOARD_STATUSES,
@@ -108,6 +108,7 @@ export interface IPipelineDocument extends IPipeline, Document {
 }
 
 export interface IStage extends ICommonFields {
+  _id: string;
   name?: string;
   probability?: string;
   pipelineId: string;
@@ -123,12 +124,7 @@ export interface IStage extends ICommonFields {
   defaultTick?: boolean;
 }
 
-export interface IStageDocument extends IStage, Document {
-  _id: string;
-}
-
-// Not mongoose document, just stage shaped plain object
-export type IPipelineStage = IStage & { _id: string };
+export type IStageDocument = HydratedDocument<IStage>;
 
 export const attachmentSchema = new Schema(
   {

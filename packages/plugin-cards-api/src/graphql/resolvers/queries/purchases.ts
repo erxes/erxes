@@ -1,6 +1,6 @@
 import {
   checkPermission,
-  moduleRequireLogin
+  moduleRequireLogin,
 } from '@erxes/api-utils/src/permissions';
 import purchaseResolvers from '../customResolvers/purchase';
 import { IListParams } from './boards';
@@ -10,13 +10,13 @@ import {
   checkItemPermByUser,
   generatePurchaseCommonFilters,
   getItemList,
-  IArchiveArgs
+  IArchiveArgs,
 } from './utils';
 import { IContext } from '../../../connectionResolver';
 import {
   sendCoreMessage,
   sendLoyaltiesMessage,
-  sendProductsMessage
+  sendProductsMessage,
 } from '../../../messageBroker';
 
 interface IPurchaseListParams extends IListParams {
@@ -42,20 +42,20 @@ const purchaseQueries = {
   async purchases(
     _root,
     args: IPurchaseListParams,
-    { user, models, subdomain, serverTiming }: IContext
+    { user, models, subdomain, serverTiming }: IContext,
   ) {
     const filter = {
       ...(await generatePurchaseCommonFilters(
         models,
         subdomain,
         user._id,
-        args
-      ))
+        args,
+      )),
     };
 
     const getExtraFields = async (item: any) => ({
       amount: await purchaseResolvers.amount(item),
-      unUsedAmount: await purchaseResolvers.unUsedAmount(item)
+      unUsedAmount: await purchaseResolvers.unUsedAmount(item),
     });
 
     const purchases = await getItemList(
@@ -67,13 +67,13 @@ const purchaseQueries = {
       'purchase',
       { productsData: 1 },
       getExtraFields,
-      serverTiming
+      serverTiming,
     );
 
     // @ts-ignore
-    const purchaseProductIds = purchases.flatMap(purchase => {
+    const purchaseProductIds = purchases.flatMap((purchase) => {
       if (purchase.productsData && purchase.productsData.length > 0) {
-        return purchase.productsData.flatMap(pData => pData.productId || []);
+        return purchase.productsData.flatMap((pData) => pData.productId || []);
       }
 
       return [];
@@ -84,11 +84,11 @@ const purchaseQueries = {
       action: 'find',
       data: {
         query: {
-          _id: { $in: [...new Set(purchaseProductIds)] }
-        }
+          _id: { $in: [...new Set(purchaseProductIds)] },
+        },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     for (const purchase of purchases) {
@@ -110,7 +110,7 @@ const purchaseQueries = {
 
         purchase.products.push({
           ...(typeof pData.toJSON === 'function' ? pData.toJSON() : pData),
-          product: products.find(p => p._id === pData.productId) || {}
+          product: products.find((p) => p._id === pData.productId) || {},
         });
       }
 
@@ -118,8 +118,8 @@ const purchaseQueries = {
       if (purchase.productsData.length > pd.length) {
         purchase.products.push({
           product: {
-            name: '...More'
-          }
+            name: '...More',
+          },
         });
       }
     }
@@ -130,16 +130,16 @@ const purchaseQueries = {
   async purchasesTotalCount(
     _root,
     args: IPurchaseListParams,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const filter = await generatePurchaseCommonFilters(
       models,
       subdomain,
       user._id,
-      args
+      args,
     );
 
-    return models.Purchases.find(filter).count();
+    return models.Purchases.find(filter).countDocuments();
   },
 
   /**
@@ -159,18 +159,18 @@ const purchaseQueries = {
   async purchasesTotalAmounts(
     _root,
     args: IPurchaseListParams,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const filter = await generatePurchaseCommonFilters(
       models,
       subdomain,
       user._id,
-      args
+      args,
     );
 
     const amountList = await models.Purchases.aggregate([
       {
-        $match: filter
+        $match: filter,
       },
       {
         $lookup: {
@@ -180,9 +180,9 @@ const purchaseQueries = {
             {
               $match: {
                 $expr: {
-                  $eq: ['$_id', '$$letStageId']
-                }
-              }
+                  $eq: ['$_id', '$$letStageId'],
+                },
+              },
             },
             {
               $project: {
@@ -191,61 +191,61 @@ const purchaseQueries = {
                     if: {
                       $or: [
                         { $eq: ['$probability', 'Won'] },
-                        { $eq: ['$probability', 'Lost'] }
-                      ]
+                        { $eq: ['$probability', 'Lost'] },
+                      ],
                     },
                     then: '$probability',
-                    else: 'In progress'
-                  }
-                }
-              }
-            }
+                    else: 'In progress',
+                  },
+                },
+              },
+            },
           ],
-          as: 'stageProbability'
-        }
+          as: 'stageProbability',
+        },
       },
       {
-        $unwind: '$productsData'
+        $unwind: '$productsData',
       },
       {
-        $unwind: '$stageProbability'
+        $unwind: '$stageProbability',
       },
       {
         $project: {
           amount: '$productsData.amount',
           currency: '$productsData.currency',
           type: '$stageProbability.probability',
-          tickUsed: '$productsData.tickUsed'
-        }
+          tickUsed: '$productsData.tickUsed',
+        },
       },
       {
-        $match: { tickUsed: true }
+        $match: { tickUsed: true },
       },
       {
         $group: {
           _id: { currency: '$currency', type: '$type' },
 
-          amount: { $sum: '$amount' }
-        }
+          amount: { $sum: '$amount' },
+        },
       },
       {
         $group: {
           _id: '$_id.type',
           currencies: {
-            $push: { amount: '$amount', name: '$_id.currency' }
-          }
-        }
+            $push: { amount: '$amount', name: '$_id.currency' },
+          },
+        },
       },
       {
-        $sort: { _id: -1 }
-      }
+        $sort: { _id: -1 },
+      },
     ]);
 
-    return amountList.map(type => {
+    return amountList.map((type) => {
       return {
         _id: Math.random(),
         name: type._id,
-        currencies: type.currencies
+        currencies: type.currencies,
       };
     });
   },
@@ -256,7 +256,7 @@ const purchaseQueries = {
   async purchaseDetail(
     _root,
     { _id }: { _id: string },
-    { user, models }: IContext
+    { user, models }: IContext,
   ) {
     const purchase = await models.Purchases.getPurchase(_id);
 
@@ -267,12 +267,12 @@ const purchaseQueries = {
     _root,
     {
       _id,
-      products
+      products,
     }: {
       _id: string;
       products: Array<{ productId: string; quantity: number }>;
     },
-    { subdomain }: IContext
+    { subdomain }: IContext,
   ) {
     let ownerId = '';
     let ownerType = '';
@@ -282,10 +282,10 @@ const purchaseQueries = {
       data: {
         mainType: 'purchase',
         mainTypeId: _id,
-        relTypes: ['customer']
+        relTypes: ['customer'],
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     if (customerIds.length) {
@@ -300,10 +300,10 @@ const purchaseQueries = {
         data: {
           mainType: 'purchase',
           mainTypeId: _id,
-          relTypes: ['company']
+          relTypes: ['company'],
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
       if (companyIds.length) {
         ownerId = companyIds[0];
@@ -321,29 +321,29 @@ const purchaseQueries = {
       data: {
         ownerType,
         ownerId,
-        products
+        products,
       },
-      isRPC: true
+      isRPC: true,
     });
   },
 
   async productsPriceLast(
     _root,
     { purchaseId, productIds }: { purchaseId: string; productIds: string[] },
-    { subdomain, models }: IContext
+    { subdomain, models }: IContext,
   ) {
     const result: { productId: string; price: number }[] = [];
     for (const productId of productIds) {
       const lastPurchase = await models.Purchases.findOne({
         'productsData.productId': productIds,
-        _id: { $ne: purchaseId }
+        _id: { $ne: purchaseId },
       }).sort({ modifiedAt: -1 });
       if (!lastPurchase) {
         result.push({ productId, price: 0 });
         continue;
       }
       const productData = (lastPurchase?.productsData || []).find(
-        pd => pd.productId === productId
+        (pd) => pd.productId === productId,
       );
 
       if (!productData) {
@@ -354,7 +354,7 @@ const purchaseQueries = {
       result.push({ productId, price: productData.unitPrice });
     }
     return result;
-  }
+  },
 };
 
 moduleRequireLogin(purchaseQueries);

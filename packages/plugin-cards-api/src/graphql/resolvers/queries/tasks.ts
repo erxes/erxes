@@ -1,6 +1,6 @@
 import {
   checkPermission,
-  moduleRequireLogin
+  moduleRequireLogin,
 } from '@erxes/api-utils/src/permissions';
 import { IListParams } from './boards';
 import {
@@ -9,7 +9,7 @@ import {
   checkItemPermByUser,
   generateTaskCommonFilters,
   getItemList,
-  IArchiveArgs
+  IArchiveArgs,
 } from './utils';
 import { IContext } from '../../../connectionResolver';
 import { sendCoreMessage, sendInboxMessage } from '../../../messageBroker';
@@ -26,7 +26,7 @@ const taskQueries = {
    */
   async tasks(_root, args: IListParams, { user, models, subdomain }: IContext) {
     const filter = {
-      ...(await generateTaskCommonFilters(models, subdomain, user._id, args))
+      ...(await generateTaskCommonFilters(models, subdomain, user._id, args)),
     };
 
     return await getItemList(models, subdomain, filter, args, user, 'task');
@@ -35,13 +35,13 @@ const taskQueries = {
   async tasksTotalCount(
     _root,
     args: IListParams,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const filter = {
-      ...(await generateTaskCommonFilters(models, subdomain, user._id, args))
+      ...(await generateTaskCommonFilters(models, subdomain, user._id, args)),
     };
 
-    return models.Tasks.find(filter).count();
+    return models.Tasks.find(filter).countDocuments();
   },
 
   /**
@@ -61,7 +61,7 @@ const taskQueries = {
   async taskDetail(
     _root,
     { _id, clientPortalCard }: { _id: string; clientPortalCard: boolean },
-    { user, models }: IContext
+    { user, models }: IContext,
   ) {
     const task = await models.Tasks.getTask(_id);
 
@@ -76,7 +76,7 @@ const taskQueries = {
   async tasksAsLogs(
     _root,
     { contentId, contentType }: ITasksAsLogsParams,
-    { models: { Tasks }, subdomain }: IContext
+    { models: { Tasks }, subdomain }: IContext,
   ) {
     let tasks: any[] = [];
 
@@ -86,33 +86,33 @@ const taskQueries = {
       data: {
         mainType: contentType,
         mainTypeId: contentId,
-        relTypes: ['task']
+        relTypes: ['task'],
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     if (contentType !== 'cards:task') {
       tasks = await Tasks.find({
         $and: [
           { _id: { $in: relatedTaskIds } },
-          { status: { $ne: 'archived' } }
-        ]
+          { status: { $ne: 'archived' } },
+        ],
       })
         .sort({ closeDate: 1 })
         .lean();
     }
 
     const contentIds = tasks
-      .filter(activity => activity.action === 'convert')
-      .map(activity => activity.content);
+      .filter((activity) => activity.action === 'convert')
+      .map((activity) => activity.content);
 
     if (Array.isArray(contentIds)) {
       const conversations =
         (await sendInboxMessage({
           subdomain,
           action: 'getConversations',
-          data: { _id: { $in: contentIds } }
+          data: { _id: { $in: contentIds } },
         })) || [];
 
       for (const conv of conversations) {
@@ -120,13 +120,13 @@ const taskQueries = {
           _id: conv._id,
           contentType: 'inbox:conversation',
           contentId,
-          createdAt: conv.createdAt
+          createdAt: conv.createdAt,
         });
       }
     }
 
     return tasks;
-  }
+  },
 };
 
 moduleRequireLogin(taskQueries);

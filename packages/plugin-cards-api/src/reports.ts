@@ -158,7 +158,7 @@ const PROBABILITY_TICKET = [
 
 const ATTACHMENT_TYPES = [
   { label: 'Has attachment', value: true },
-  { label: 'Has no attachment', value: false }
+  { label: 'Has no attachment', value: false },
 ];
 
 const PRIORITY = [
@@ -329,10 +329,12 @@ const chartTemplates = [
           Object.values(tagData);
 
         // Create an array of objects with count and label
-        const dataWithLabels = groupedTagData.filter(tag => tag.name !== null).map((tag) => ({
-          count: tag.count,
-          label: tag.name,
-        }));
+        const dataWithLabels = groupedTagData
+          .filter((tag) => tag.name !== null)
+          .map((tag) => ({
+            count: tag.count,
+            label: tag.name,
+          }));
 
         dataWithLabels.sort((a, b) => a.count - b.count);
 
@@ -508,16 +510,18 @@ const chartTemplates = [
 
           // Count occurrences of labels
           deals.forEach((deal) => {
-            deal.labelIds.forEach((labelId) => {
-              if (!labelData[labelId]) {
-                labelData[labelId] = {
-                  _id: labelId,
-                  count: 0,
-                  name: '',
-                };
-              }
-              labelData[labelId].count++;
-            });
+            if (deal.labelIds) {
+              deal.labelIds.forEach((labelId) => {
+                if (!labelData[labelId]) {
+                  labelData[labelId] = {
+                    _id: labelId,
+                    count: 0,
+                    name: '',
+                  };
+                }
+                labelData[labelId].count++;
+              });
+            }
           });
 
           // Update label names
@@ -695,7 +699,7 @@ const chartTemplates = [
       if (deals) {
         const idCounts = {};
         deals.forEach((dealItem) => {
-          dealItem.customFieldsData.forEach((fieldData) => {
+          dealItem.customFieldsData?.forEach((fieldData) => {
             if (fieldData.value && Array.isArray(fieldData.value)) {
               fieldData.value.forEach((obj) => {
                 const id = Object.keys(obj)[0];
@@ -2570,88 +2574,87 @@ const chartTemplates = [
       subdomain: string,
     ) => {
       const { pipelineId, boardId, stageId, stageType } = filter;
-      const matchedFilter = await filterData(filter, subdomain)
+      const matchedFilter = await filterData(filter, subdomain);
 
       if (boardId || pipelineId || stageId) {
-        const stageIds = await getStageIds(filter, PIPELINE_TYPE_TICKET, models)
-        matchedFilter['stageId'] = { $in: stageIds }
+        const stageIds = await getStageIds(
+          filter,
+          PIPELINE_TYPE_TICKET,
+          models,
+        );
+        matchedFilter['stageId'] = { $in: stageIds };
       }
 
       const pipeline = [
         {
-          $unwind: "$customFieldsData",
+          $unwind: '$customFieldsData',
         },
         {
           $match: {
-            ...matchedFilter
+            ...matchedFilter,
           },
         },
         {
           $lookup: {
-            from: "form_fields",
-            localField: "customFieldsData.field",
-            foreignField: "_id",
-            as: "field",
+            from: 'form_fields',
+            localField: 'customFieldsData.field',
+            foreignField: '_id',
+            as: 'field',
           },
         },
         {
-          $unwind: "$field",
+          $unwind: '$field',
         },
         {
           $group: {
-            _id: "$customFieldsData.field",
-            field: { $first: "$field.text" },
-            fieldType: { $first: "$field.type" },
-            fieldOptions: { $first: "$field.options" },
-            selectedOptions: { $push: "$customFieldsData.value" },
+            _id: '$customFieldsData.field',
+            field: { $first: '$field.text' },
+            fieldType: { $first: '$field.type' },
+            fieldOptions: { $first: '$field.options' },
+            selectedOptions: { $push: '$customFieldsData.value' },
             count: { $sum: 1 },
           },
         },
-      ]
+      ];
 
-      const tickets = await models.Tickets.aggregate(pipeline)
+      const tickets = await models.Tickets.aggregate(pipeline);
 
-      const ticketsCountByPropertiesField = (tickets || []).reduce((acc, {
-        field,
-        fieldType,
-        fieldOptions,
-        selectedOptions,
-        count
-      }) => {
-
-        if (!fieldOptions.length) {
-          acc[field] = count
-          return acc
-        }
-
-        selectedOptions.map(selectedOption => {
-          if (fieldType === 'multiSelect') {
-            const optionArray = selectedOption.split(',');
-            optionArray.forEach(opt => {
-              if (fieldOptions.includes(opt)) {
-                acc[opt.trim()] = (acc[opt.trim()] || 0) + 1;
-              }
-            });
-          } else if (Array.isArray(selectedOption)) {
-            selectedOption.flatMap(option => {
-              if (fieldOptions.includes(option)) {
-                acc[option] = (acc[option] || 0) + 1
-              }
-            })
-          } else if (fieldOptions.includes(selectedOption)) {
-            acc[selectedOption] = (acc[selectedOption] || 0) + 1
+      const ticketsCountByPropertiesField = (tickets || []).reduce(
+        (acc, { field, fieldType, fieldOptions, selectedOptions, count }) => {
+          if (!fieldOptions.length) {
+            acc[field] = count;
+            return acc;
           }
-        })
 
-        return acc
-      }, {})
+          selectedOptions.map((selectedOption) => {
+            if (fieldType === 'multiSelect') {
+              const optionArray = selectedOption.split(',');
+              optionArray.forEach((opt) => {
+                if (fieldOptions.includes(opt)) {
+                  acc[opt.trim()] = (acc[opt.trim()] || 0) + 1;
+                }
+              });
+            } else if (Array.isArray(selectedOption)) {
+              selectedOption.flatMap((option) => {
+                if (fieldOptions.includes(option)) {
+                  acc[option] = (acc[option] || 0) + 1;
+                }
+              });
+            } else if (fieldOptions.includes(selectedOption)) {
+              acc[selectedOption] = (acc[selectedOption] || 0) + 1;
+            }
+          });
+
+          return acc;
+        },
+        {},
+      );
 
       const data = Object.values(ticketsCountByPropertiesField);
       const labels = Object.keys(ticketsCountByPropertiesField);
       const title = 'Ticket Custom Properties';
 
       return { title, data, labels };
-
     },
     filterTypes: [
       {
@@ -2766,7 +2769,7 @@ const chartTemplates = [
         fieldValueVariable: '_id',
         fieldLabelVariable: 'text',
         fieldParentVariable: 'groupId',
-        fieldParentQuery: "fieldsGroups",
+        fieldParentQuery: 'fieldsGroups',
         fieldQueryVariables: `{"contentType": "${CUSTOM_PROPERTIES_TICKET}", "isVisible": true}`,
         logics: [
           {
@@ -2822,7 +2825,7 @@ const chartTemplates = [
       if (task) {
         const idCounts = {};
         task.forEach((ticketItem) => {
-          ticketItem.customFieldsData.forEach((fieldData) => {
+          ticketItem.customFieldsData?.forEach((fieldData) => {
             if (fieldData.value && Array.isArray(fieldData.value)) {
               fieldData.value.forEach((obj) => {
                 const id = Object.keys(obj)[0];
@@ -4151,7 +4154,7 @@ const chartTemplates = [
         }).lean();
         if (taskCount) {
           tasks = taskCount.filter((task) => {
-            return task.assignedUserIds.some((userId) =>
+            return task.assignedUserIds?.some((userId) =>
               selectedUserIds.includes(userId),
             );
           });
@@ -4765,7 +4768,7 @@ const chartTemplates = [
         }).lean();
         if (taskCount) {
           tasks = taskCount.filter((task) => {
-            return task.assignedUserIds.some((userId) =>
+            return task.assignedUserIds?.some((userId) =>
               selectedUserIds.includes(userId),
             );
           });
@@ -6964,45 +6967,45 @@ const chartTemplates = [
 
       const matchedFilter = await filterData(filter, subdomain);
 
-      const boards = await models?.Boards.find()
+      const boards = await models?.Boards.find();
 
-      const boardIds = (boards || []).map(board => board._id)
+      const boardIds = (boards || []).map((board) => board._id);
 
       const pipeline = [
         {
           $match: {
             ...matchedFilter,
-            status: "active",
+            status: 'active',
           },
         },
         {
           $group: {
-            _id: "$stageId",
+            _id: '$stageId',
             count: { $sum: 1 },
           },
         },
         {
           $lookup: {
-            from: "stages",
-            let: { stageId: "$_id" },
+            from: 'stages',
+            let: { stageId: '$_id' },
             pipeline: [
               {
                 $match: {
-                  $expr: { $eq: ["$_id", "$$stageId"] },
+                  $expr: { $eq: ['$_id', '$$stageId'] },
                   type: PIPELINE_TYPE_DEAL,
                   ...(pipelineId ? { pipelineId: pipelineId } : {}),
                 },
               },
               {
                 $lookup: {
-                  from: "pipelines",
-                  let: { pipelineId: "$pipelineId" },
+                  from: 'pipelines',
+                  let: { pipelineId: '$pipelineId' },
                   pipeline: [
                     {
                       $match: {
-                        $expr: { $eq: ["$_id", "$$pipelineId"] },
+                        $expr: { $eq: ['$_id', '$$pipelineId'] },
                         type: PIPELINE_TYPE_DEAL,
-                        status: "active",
+                        status: 'active',
                         boardId: {
                           $in: boardId ? [boardId] : boardIds,
                         },
@@ -7010,38 +7013,41 @@ const chartTemplates = [
                       },
                     },
                   ],
-                  as: "pipeline",
+                  as: 'pipeline',
                 },
               },
-              { $unwind: "$pipeline" },
+              { $unwind: '$pipeline' },
             ],
-            as: "stage",
+            as: 'stage',
           },
         },
-        { $unwind: "$stage" },
+        { $unwind: '$stage' },
         {
           $group: {
-            _id: "$stage.pipeline._id",
-            name: { $first: "$stage.pipeline.name" },
-            count: { $sum: "$count" },
+            _id: '$stage.pipeline._id',
+            name: { $first: '$stage.pipeline.name' },
+            count: { $sum: '$count' },
           },
         },
         {
           $project: {
             _id: 0,
-            pipeline: "$name",
+            pipeline: '$name',
             count: 1,
           },
         },
-      ]
+      ];
 
-      const deals = await models.Deals.aggregate(pipeline)
+      const deals = await models.Deals.aggregate(pipeline);
 
-      const dealCountByPipeline = (deals || []).reduce((acc, { pipeline, count }) => {
-        acc[pipeline] = count
+      const dealCountByPipeline = (deals || []).reduce(
+        (acc, { pipeline, count }) => {
+          acc[pipeline] = count;
 
-        return acc
-      }, {})
+          return acc;
+        },
+        {},
+      );
 
       const getTotalDeals = Object.values(dealCountByPipeline);
       const getTotalIds = Object.keys(dealCountByPipeline);
@@ -7157,45 +7163,45 @@ const chartTemplates = [
 
       const matchedFilter = await filterData(filter, subdomain);
 
-      const boards = await models?.Boards.find()
+      const boards = await models?.Boards.find();
 
-      const boardIds = (boards || []).map(board => board._id)
+      const boardIds = (boards || []).map((board) => board._id);
 
       const pipeline = [
         {
           $match: {
             ...matchedFilter,
-            status: "active",
+            status: 'active',
           },
         },
         {
           $group: {
-            _id: "$stageId",
+            _id: '$stageId',
             count: { $sum: 1 },
           },
         },
         {
           $lookup: {
-            from: "stages",
-            let: { stageId: "$_id" },
+            from: 'stages',
+            let: { stageId: '$_id' },
             pipeline: [
               {
                 $match: {
-                  $expr: { $eq: ["$_id", "$$stageId"] },
+                  $expr: { $eq: ['$_id', '$$stageId'] },
                   type: PIPELINE_TYPE_TASK,
                   ...(pipelineId ? { pipelineId: pipelineId } : {}),
                 },
               },
               {
                 $lookup: {
-                  from: "pipelines",
-                  let: { pipelineId: "$pipelineId" },
+                  from: 'pipelines',
+                  let: { pipelineId: '$pipelineId' },
                   pipeline: [
                     {
                       $match: {
-                        $expr: { $eq: ["$_id", "$$pipelineId"] },
+                        $expr: { $eq: ['$_id', '$$pipelineId'] },
                         type: PIPELINE_TYPE_TASK,
-                        status: "active",
+                        status: 'active',
                         boardId: {
                           $in: boardId ? [boardId] : boardIds,
                         },
@@ -7203,38 +7209,41 @@ const chartTemplates = [
                       },
                     },
                   ],
-                  as: "pipeline",
+                  as: 'pipeline',
                 },
               },
-              { $unwind: "$pipeline" },
+              { $unwind: '$pipeline' },
             ],
-            as: "stage",
+            as: 'stage',
           },
         },
-        { $unwind: "$stage" },
+        { $unwind: '$stage' },
         {
           $group: {
-            _id: "$stage.pipeline._id",
-            name: { $first: "$stage.pipeline.name" },
-            count: { $sum: "$count" },
+            _id: '$stage.pipeline._id',
+            name: { $first: '$stage.pipeline.name' },
+            count: { $sum: '$count' },
           },
         },
         {
           $project: {
             _id: 0,
-            pipeline: "$name",
+            pipeline: '$name',
             count: 1,
           },
         },
-      ]
+      ];
 
-      const tasks = await models.Tasks.aggregate(pipeline)
+      const tasks = await models.Tasks.aggregate(pipeline);
 
-      const taskCountByPipeline = (tasks || []).reduce((acc, { pipeline, count }) => {
-        acc[pipeline] = count
+      const taskCountByPipeline = (tasks || []).reduce(
+        (acc, { pipeline, count }) => {
+          acc[pipeline] = count;
 
-        return acc
-      }, {})
+          return acc;
+        },
+        {},
+      );
 
       const getTotalTasks = Object.values(taskCountByPipeline);
       const getTotalIds = Object.keys(taskCountByPipeline);
@@ -7350,45 +7359,45 @@ const chartTemplates = [
 
       const matchedFilter = await filterData(filter, subdomain);
 
-      const boards = await models?.Boards.find()
+      const boards = await models?.Boards.find();
 
-      const boardIds = (boards || []).map(board => board._id)
+      const boardIds = (boards || []).map((board) => board._id);
 
       const pipeline = [
         {
           $match: {
             ...matchedFilter,
-            status: "active",
+            status: 'active',
           },
         },
         {
           $group: {
-            _id: "$stageId",
+            _id: '$stageId',
             count: { $sum: 1 },
           },
         },
         {
           $lookup: {
-            from: "stages",
-            let: { stageId: "$_id" },
+            from: 'stages',
+            let: { stageId: '$_id' },
             pipeline: [
               {
                 $match: {
-                  $expr: { $eq: ["$_id", "$$stageId"] },
+                  $expr: { $eq: ['$_id', '$$stageId'] },
                   type: PIPELINE_TYPE_TICKET,
                   ...(pipelineId ? { pipelineId: pipelineId } : {}),
                 },
               },
               {
                 $lookup: {
-                  from: "pipelines",
-                  let: { pipelineId: "$pipelineId" },
+                  from: 'pipelines',
+                  let: { pipelineId: '$pipelineId' },
                   pipeline: [
                     {
                       $match: {
-                        $expr: { $eq: ["$_id", "$$pipelineId"] },
+                        $expr: { $eq: ['$_id', '$$pipelineId'] },
                         type: PIPELINE_TYPE_TICKET,
-                        status: "active",
+                        status: 'active',
                         boardId: {
                           $in: boardId ? [boardId] : boardIds,
                         },
@@ -7396,38 +7405,41 @@ const chartTemplates = [
                       },
                     },
                   ],
-                  as: "pipeline",
+                  as: 'pipeline',
                 },
               },
-              { $unwind: "$pipeline" },
+              { $unwind: '$pipeline' },
             ],
-            as: "stage",
+            as: 'stage',
           },
         },
-        { $unwind: "$stage" },
+        { $unwind: '$stage' },
         {
           $group: {
-            _id: "$stage.pipeline._id",
-            name: { $first: "$stage.pipeline.name" },
-            count: { $sum: "$count" },
+            _id: '$stage.pipeline._id',
+            name: { $first: '$stage.pipeline.name' },
+            count: { $sum: '$count' },
           },
         },
         {
           $project: {
             _id: 0,
-            pipeline: "$name",
+            pipeline: '$name',
             count: 1,
           },
         },
-      ]
+      ];
 
-      const tickets = await models.Tickets.aggregate(pipeline)
+      const tickets = await models.Tickets.aggregate(pipeline);
 
-      const ticketCountByPipeline = (tickets || []).reduce((acc, { pipeline, count }) => {
-        acc[pipeline] = count
+      const ticketCountByPipeline = (tickets || []).reduce(
+        (acc, { pipeline, count }) => {
+          acc[pipeline] = count;
 
-        return acc
-      }, {})
+          return acc;
+        },
+        {},
+      );
 
       const getTotalTickets = Object.values(ticketCountByPipeline);
       const getTotalIds = Object.keys(ticketCountByPipeline);
@@ -7544,103 +7556,102 @@ const chartTemplates = [
       const matchedFilter = await filterData(filter, subdomain);
 
       if (boardId || pipelineId || stageId) {
-        const stageIds = await getStageIds(filter, PIPELINE_TYPE_DEAL, models)
-        matchedFilter['stageId'] = { $in: stageIds }
+        const stageIds = await getStageIds(filter, PIPELINE_TYPE_DEAL, models);
+        matchedFilter['stageId'] = { $in: stageIds };
       }
 
       const pipeline = [
         {
-          $match: { ...matchedFilter, status: "active" }
+          $match: { ...matchedFilter, status: 'active' },
         },
         {
           $lookup: {
-            from: "conformities",
-            let: { dealId: "$_id" },
+            from: 'conformities',
+            let: { dealId: '$_id' },
             pipeline: [
               {
                 $match: {
                   $and: [
                     {
                       $expr: {
-                        $eq: ["$mainType", "deal"],
+                        $eq: ['$mainType', 'deal'],
                       },
                     },
                     {
                       $expr: {
-                        $eq: [
-                          "$mainTypeId",
-                          "$$dealId",
-                        ],
+                        $eq: ['$mainTypeId', '$$dealId'],
                       },
                     },
                     {
                       $expr: {
-                        $eq: ["$relType", "company"],
+                        $eq: ['$relType', 'company'],
                       },
                     },
-                    (companyIds && companyIds.length ? {
-                      $expr: {
-                        $in: [
-                          "$relTypeId",
-                          companyIds,
-                        ],
-                      },
-                    } : {})
+                    companyIds && companyIds.length
+                      ? {
+                          $expr: {
+                            $in: ['$relTypeId', companyIds],
+                          },
+                        }
+                      : {},
                   ],
                 },
               },
             ],
-            as: "conformity",
+            as: 'conformity',
           },
         },
         {
-          $unwind: "$conformity",
+          $unwind: '$conformity',
         },
         {
           $group: {
-            _id: "$conformity.relTypeId",
+            _id: '$conformity.relTypeId',
             count: { $sum: 1 },
           },
         },
         {
           $lookup: {
-            from: "companies",
-            let: { companyId: "$_id" },
+            from: 'companies',
+            let: { companyId: '$_id' },
             pipeline: [
               {
                 $match: {
                   $and: [
                     {
                       $expr: {
-                        $eq: ["$_id", "$$companyId"],
+                        $eq: ['$_id', '$$companyId'],
                       },
                     },
                   ],
                 },
               },
             ],
-            as: "company",
+            as: 'company',
           },
         },
         {
-          $unwind: "$company",
+          $unwind: '$company',
         },
         {
           $project: {
             _id: 0,
-            company: "$company.primaryName",
+            company: '$company.primaryName',
             count: 1,
           },
-        }
-      ]
+        },
+      ];
 
-      const deals = await models.Deals.aggregate(pipeline)
+      const deals = await models.Deals.aggregate(pipeline);
 
-      const dealCountByCompany = (deals || []).reduce((acc, { company, count }) => {
-        acc[company] = count
+      const dealCountByCompany = (deals || []).reduce(
+        (acc, { company, count }) => {
+          acc[company] = count;
 
-        return acc
-      }, {})
+          return acc;
+        },
+        {},
+      );
 
       const getTotalDeals = Object.values(dealCountByCompany);
       const getTotalIds = Object.keys(dealCountByCompany);
@@ -7741,7 +7752,6 @@ const chartTemplates = [
         ],
         fieldLabel: 'Select stage',
       },
-
     ],
   },
   {
@@ -7768,103 +7778,102 @@ const chartTemplates = [
       const matchedFilter = await filterData(filter, subdomain);
 
       if (boardId || pipelineId || stageId) {
-        const stageIds = await getStageIds(filter, PIPELINE_TYPE_TASK, models)
-        matchedFilter['stageId'] = { $in: stageIds }
+        const stageIds = await getStageIds(filter, PIPELINE_TYPE_TASK, models);
+        matchedFilter['stageId'] = { $in: stageIds };
       }
 
       const pipeline = [
         {
-          $match: { ...matchedFilter, status: "active" }
+          $match: { ...matchedFilter, status: 'active' },
         },
         {
           $lookup: {
-            from: "conformities",
-            let: { taskId: "$_id" },
+            from: 'conformities',
+            let: { taskId: '$_id' },
             pipeline: [
               {
                 $match: {
                   $and: [
                     {
                       $expr: {
-                        $eq: ["$mainType", "task"],
+                        $eq: ['$mainType', 'task'],
                       },
                     },
                     {
                       $expr: {
-                        $eq: [
-                          "$mainTypeId",
-                          "$$taskId",
-                        ],
+                        $eq: ['$mainTypeId', '$$taskId'],
                       },
                     },
                     {
                       $expr: {
-                        $eq: ["$relType", "company"],
+                        $eq: ['$relType', 'company'],
                       },
                     },
-                    (companyIds && companyIds.length ? {
-                      $expr: {
-                        $in: [
-                          "$relTypeId",
-                          companyIds,
-                        ],
-                      },
-                    } : {})
+                    companyIds && companyIds.length
+                      ? {
+                          $expr: {
+                            $in: ['$relTypeId', companyIds],
+                          },
+                        }
+                      : {},
                   ],
                 },
               },
             ],
-            as: "conformity",
+            as: 'conformity',
           },
         },
         {
-          $unwind: "$conformity",
+          $unwind: '$conformity',
         },
         {
           $group: {
-            _id: "$conformity.relTypeId",
+            _id: '$conformity.relTypeId',
             count: { $sum: 1 },
           },
         },
         {
           $lookup: {
-            from: "companies",
-            let: { companyId: "$_id" },
+            from: 'companies',
+            let: { companyId: '$_id' },
             pipeline: [
               {
                 $match: {
                   $and: [
                     {
                       $expr: {
-                        $eq: ["$_id", "$$companyId"],
+                        $eq: ['$_id', '$$companyId'],
                       },
                     },
                   ],
                 },
               },
             ],
-            as: "company",
+            as: 'company',
           },
         },
         {
-          $unwind: "$company",
+          $unwind: '$company',
         },
         {
           $project: {
             _id: 0,
-            company: "$company.primaryName",
+            company: '$company.primaryName',
             count: 1,
           },
-        }
-      ]
+        },
+      ];
 
-      const tasks = await models.Tasks.aggregate(pipeline)
+      const tasks = await models.Tasks.aggregate(pipeline);
 
-      const taskCountByCompany = (tasks || []).reduce((acc, { company, count }) => {
-        acc[company] = count
+      const taskCountByCompany = (tasks || []).reduce(
+        (acc, { company, count }) => {
+          acc[company] = count;
 
-        return acc
-      }, {})
+          return acc;
+        },
+        {},
+      );
 
       const getTotalTasks = Object.values(taskCountByCompany);
       const getTotalIds = Object.keys(taskCountByCompany);
@@ -7965,7 +7974,6 @@ const chartTemplates = [
         ],
         fieldLabel: 'Select stage',
       },
-
     ],
   },
   {
@@ -7992,96 +8000,99 @@ const chartTemplates = [
       const matchedFilter = await filterData(filter, subdomain);
 
       if (boardId || pipelineId || stageId) {
-        const stageIds = await getStageIds(filter, PIPELINE_TYPE_TICKET, models)
-        matchedFilter['stageId'] = { $in: stageIds }
+        const stageIds = await getStageIds(
+          filter,
+          PIPELINE_TYPE_TICKET,
+          models,
+        );
+        matchedFilter['stageId'] = { $in: stageIds };
       }
 
       const pipeline = [
         {
-          $match: { ...matchedFilter, status: "active" }
+          $match: { ...matchedFilter, status: 'active' },
         },
         {
           $lookup: {
-            from: "conformities",
-            let: { ticketId: "$_id" },
+            from: 'conformities',
+            let: { ticketId: '$_id' },
             pipeline: [
               {
                 $match: {
                   $and: [
                     {
                       $expr: {
-                        $eq: ["$mainType", "ticket"],
+                        $eq: ['$mainType', 'ticket'],
                       },
                     },
                     {
                       $expr: {
-                        $eq: [
-                          "$mainTypeId",
-                          "$$ticketId",
-                        ],
+                        $eq: ['$mainTypeId', '$$ticketId'],
                       },
                     },
                     {
                       $expr: {
-                        $eq: ["$relType", "company"],
+                        $eq: ['$relType', 'company'],
                       },
                     },
-
                   ],
                 },
               },
             ],
-            as: "conformity",
+            as: 'conformity',
           },
         },
         {
-          $unwind: "$conformity",
+          $unwind: '$conformity',
         },
         {
           $group: {
-            _id: "$conformity.relTypeId",
+            _id: '$conformity.relTypeId',
             count: { $sum: 1 },
           },
         },
         {
           $lookup: {
-            from: "companies",
-            let: { companyId: "$_id" },
+            from: 'companies',
+            let: { companyId: '$_id' },
             pipeline: [
               {
                 $match: {
                   $and: [
                     {
                       $expr: {
-                        $eq: ["$_id", "$$companyId"],
+                        $eq: ['$_id', '$$companyId'],
                       },
                     },
                   ],
                 },
               },
             ],
-            as: "company",
+            as: 'company',
           },
         },
         {
-          $unwind: "$company",
+          $unwind: '$company',
         },
         {
           $project: {
             _id: 0,
-            company: "$company.primaryName",
+            company: '$company.primaryName',
             count: 1,
           },
-        }
-      ]
+        },
+      ];
 
-      const tickets = await models.Tickets.aggregate(pipeline)
+      const tickets = await models.Tickets.aggregate(pipeline);
 
-      const ticketCountByCompany = (tickets || []).reduce((acc, { company, count }) => {
-        acc[company] = count
+      const ticketCountByCompany = (tickets || []).reduce(
+        (acc, { company, count }) => {
+          acc[company] = count;
 
-        return acc
-      }, {})
+          return acc;
+        },
+        {},
+      );
 
       const getTotalTicketss = Object.values(ticketCountByCompany);
       const getTotalIds = Object.keys(ticketCountByCompany);
@@ -8182,12 +8193,11 @@ const chartTemplates = [
         ],
         fieldLabel: 'Select stage',
       },
-
     ],
   },
   {
     templateType: 'DealCountInEachStage',
-    name: "Deal Count In Each Stage",
+    name: 'Deal Count In Each Stage',
     chartTypes: [
       'bar',
       'line',
@@ -8208,62 +8218,65 @@ const chartTemplates = [
       const matchedFilter = await filterData(filter, subdomain);
 
       const pipelines = await models.Pipelines.find(
-        boardId ? { boardId: { $eq: boardId } } : {}
-      )
+        boardId ? { boardId: { $eq: boardId } } : {},
+      );
 
-      const pipelineIds = filter.pipelineIds || (pipelines || []).map(pipeline => pipeline._id)
+      const pipelineIds =
+        filter.pipelineIds || (pipelines || []).map((pipeline) => pipeline._id);
 
       const pipeline = [
         {
           $match: {
             ...matchedFilter,
-            status: "active",
+            status: 'active',
           },
         },
         {
           $group: {
-            _id: "$stageId",
-            count: { $sum: 1 }
-          }
+            _id: '$stageId',
+            count: { $sum: 1 },
+          },
         },
         {
           $lookup: {
-            from: "stages",
-            let: { stageId: "$_id" },
+            from: 'stages',
+            let: { stageId: '$_id' },
             pipeline: [
               {
                 $match: {
                   $expr: {
                     $and: [
-                      { $eq: ["$_id", "$$stageId"] },
+                      { $eq: ['$_id', '$$stageId'] },
                       { $eq: ['$type', PIPELINE_TYPE_DEAL] },
-                      ...(pipelineIds && pipelineIds.length ? [{ $in: ["$pipelineId", pipelineIds] }] : []),
-                    ]
-                  }
-                }
-              }
+                      ...(pipelineIds && pipelineIds.length
+                        ? [{ $in: ['$pipelineId', pipelineIds] }]
+                        : []),
+                    ],
+                  },
+                },
+              },
             ],
-            as: "stage"
-          }
+            as: 'stage',
+          },
         },
         {
-          $unwind: "$stage"
+          $unwind: '$stage',
         },
         {
           $project: {
             _id: 0,
-            stage: "$stage.name",
-            count: 1
-          }
-        }
-      ]
+            stage: '$stage.name',
+            count: 1,
+          },
+        },
+      ];
 
-      const deals = await models.Deals.aggregate(pipeline)
+      const deals = await models.Deals.aggregate(pipeline);
 
       const dealCountByStage = (deals || []).reduce((acc, { stage, count }) => {
         acc[stage] = (acc[stage] || 0) + count;
-        return acc
-      }, {})
+        return acc;
+      }, {});
 
       const getTotalDeals = Object.values(dealCountByStage);
       const getTotalIds = Object.keys(dealCountByStage);
@@ -8348,7 +8361,7 @@ const chartTemplates = [
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
         fieldParentVariable: 'pipelineId',
-        fieldParentQuery: "pipelines",
+        fieldParentQuery: 'pipelines',
         logics: [
           {
             logicFieldName: 'pipelineIds',
@@ -8357,11 +8370,11 @@ const chartTemplates = [
         ],
         fieldLabel: 'Select stage',
       },
-    ]
+    ],
   },
   {
     templateType: 'TaskCountInEachStage',
-    name: "Task Count In Each Stage",
+    name: 'Task Count In Each Stage',
     chartTypes: [
       'bar',
       'line',
@@ -8382,62 +8395,65 @@ const chartTemplates = [
       const matchedFilter = await filterData(filter, subdomain);
 
       const pipelines = await models.Pipelines.find(
-        boardId ? { boardId: { $eq: boardId } } : {}
-      )
+        boardId ? { boardId: { $eq: boardId } } : {},
+      );
 
-      const pipelineIds = filter.pipelineIds || (pipelines || []).map(pipeline => pipeline._id)
+      const pipelineIds =
+        filter.pipelineIds || (pipelines || []).map((pipeline) => pipeline._id);
 
       const pipeline = [
         {
           $match: {
             ...matchedFilter,
-            status: "active",
+            status: 'active',
           },
         },
         {
           $group: {
-            _id: "$stageId",
-            count: { $sum: 1 }
-          }
+            _id: '$stageId',
+            count: { $sum: 1 },
+          },
         },
         {
           $lookup: {
-            from: "stages",
-            let: { stageId: "$_id" },
+            from: 'stages',
+            let: { stageId: '$_id' },
             pipeline: [
               {
                 $match: {
                   $expr: {
                     $and: [
-                      { $eq: ["$_id", "$$stageId"] },
+                      { $eq: ['$_id', '$$stageId'] },
                       { $eq: ['$type', PIPELINE_TYPE_TASK] },
-                      ...(pipelineIds && pipelineIds.length ? [{ $in: ["$pipelineId", pipelineIds] }] : []),
-                    ]
-                  }
-                }
-              }
+                      ...(pipelineIds && pipelineIds.length
+                        ? [{ $in: ['$pipelineId', pipelineIds] }]
+                        : []),
+                    ],
+                  },
+                },
+              },
             ],
-            as: "stage"
-          }
+            as: 'stage',
+          },
         },
         {
-          $unwind: "$stage"
+          $unwind: '$stage',
         },
         {
           $project: {
             _id: 0,
-            stage: "$stage.name",
-            count: 1
-          }
-        }
-      ]
+            stage: '$stage.name',
+            count: 1,
+          },
+        },
+      ];
 
-      const tasks = await models.Tasks.aggregate(pipeline)
+      const tasks = await models.Tasks.aggregate(pipeline);
 
       const taskCountByStage = (tasks || []).reduce((acc, { stage, count }) => {
         acc[stage] = (acc[stage] || 0) + count;
-        return acc
-      }, {})
+        return acc;
+      }, {});
 
       const getTotalTasks = Object.values(taskCountByStage);
       const getTotalIds = Object.keys(taskCountByStage);
@@ -8522,7 +8538,7 @@ const chartTemplates = [
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
         fieldParentVariable: 'pipelineId',
-        fieldParentQuery: "pipelines",
+        fieldParentQuery: 'pipelines',
         logics: [
           {
             logicFieldName: 'pipelineIds',
@@ -8531,11 +8547,11 @@ const chartTemplates = [
         ],
         fieldLabel: 'Select stage',
       },
-    ]
+    ],
   },
   {
     templateType: 'TicketCountInEachStage',
-    name: "Ticket Count In Each Stage",
+    name: 'Ticket Count In Each Stage',
     chartTypes: [
       'bar',
       'line',
@@ -8556,62 +8572,68 @@ const chartTemplates = [
       const matchedFilter = await filterData(filter, subdomain);
 
       const pipelines = await models.Pipelines.find(
-        boardId ? { boardId: { $eq: boardId } } : {}
-      )
+        boardId ? { boardId: { $eq: boardId } } : {},
+      );
 
-      const pipelineIds = filter.pipelineIds || (pipelines || []).map(pipeline => pipeline._id)
+      const pipelineIds =
+        filter.pipelineIds || (pipelines || []).map((pipeline) => pipeline._id);
 
       const pipeline = [
         {
           $match: {
             ...matchedFilter,
-            status: "active",
+            status: 'active',
           },
         },
         {
           $group: {
-            _id: "$stageId",
-            count: { $sum: 1 }
-          }
+            _id: '$stageId',
+            count: { $sum: 1 },
+          },
         },
         {
           $lookup: {
-            from: "stages",
-            let: { stageId: "$_id" },
+            from: 'stages',
+            let: { stageId: '$_id' },
             pipeline: [
               {
                 $match: {
                   $expr: {
                     $and: [
-                      { $eq: ["$_id", "$$stageId"] },
+                      { $eq: ['$_id', '$$stageId'] },
                       { $eq: ['$type', PIPELINE_TYPE_TICKET] },
-                      ...(pipelineIds && pipelineIds.length ? [{ $in: ["$pipelineId", pipelineIds] }] : []),
-                    ]
-                  }
-                }
-              }
+                      ...(pipelineIds && pipelineIds.length
+                        ? [{ $in: ['$pipelineId', pipelineIds] }]
+                        : []),
+                    ],
+                  },
+                },
+              },
             ],
-            as: "stage"
-          }
+            as: 'stage',
+          },
         },
         {
-          $unwind: "$stage"
+          $unwind: '$stage',
         },
         {
           $project: {
             _id: 0,
-            stage: "$stage.name",
-            count: 1
-          }
-        }
-      ]
+            stage: '$stage.name',
+            count: 1,
+          },
+        },
+      ];
 
-      const tickets = await models.Tickets.aggregate(pipeline)
+      const tickets = await models.Tickets.aggregate(pipeline);
 
-      const ticketCountByStage = (tickets || []).reduce((acc, { stage, count }) => {
-        acc[stage] = (acc[stage] || 0) + count;
-        return acc
-      }, {})
+      const ticketCountByStage = (tickets || []).reduce(
+        (acc, { stage, count }) => {
+          acc[stage] = (acc[stage] || 0) + count;
+          return acc;
+        },
+        {},
+      );
 
       const getTotalTickets = Object.values(ticketCountByStage);
       const getTotalIds = Object.keys(ticketCountByStage);
@@ -8696,7 +8718,7 @@ const chartTemplates = [
         fieldValueVariable: '_id',
         fieldLabelVariable: 'name',
         fieldParentVariable: 'pipelineId',
-        fieldParentQuery: "pipelines",
+        fieldParentQuery: 'pipelines',
         logics: [
           {
             logicFieldName: 'pipelineIds',
@@ -8705,8 +8727,8 @@ const chartTemplates = [
         ],
         fieldLabel: 'Select stage',
       },
-    ]
-  }
+    ],
+  },
 ];
 
 const getChartResult = async ({ subdomain, data }) => {
@@ -9182,16 +9204,16 @@ async function filterData(filter: any, subdomain: any) {
     groupIds,
     fieldIds,
     priority,
-    attachment
+    attachment,
   } = filter;
   const matchfilter = {};
 
   if (attachment === true) {
-    matchfilter['attachments'] = { '$ne': [] };
+    matchfilter['attachments'] = { $ne: [] };
   }
 
   if (attachment === false) {
-    matchfilter['attachments'] = { '$eq': [] };
+    matchfilter['attachments'] = { $eq: [] };
   }
 
   if (assignedUserIds) {
@@ -9236,14 +9258,14 @@ async function filterData(filter: any, subdomain: any) {
       action: 'fields.find',
       data: {
         query: {
-          groupId: { $in: groupIds }
-        }
+          groupId: { $in: groupIds },
+        },
       },
       isRPC: true,
-      defaultValue: []
-    })
+      defaultValue: [],
+    });
 
-    const fieldIds = (fields || []).map(field => field._id)
+    const fieldIds = (fields || []).map((field) => field._id);
 
     matchfilter['customFieldsData.field'] = { $in: fieldIds };
   }
@@ -9259,14 +9281,14 @@ async function filterData(filter: any, subdomain: any) {
       subdomain,
       action: 'conformities.findConformities',
       data: {
-        relType: "company",
-        relTypeId: { $in: companyIds }
+        relType: 'company',
+        relTypeId: { $in: companyIds },
       },
       isRPC: true,
-      defaultValue: []
-    })
+      defaultValue: [],
+    });
 
-    const mainTypeIds = conformities.map(conformity => conformity.mainTypeId)
+    const mainTypeIds = conformities.map((conformity) => conformity.mainTypeId);
 
     matchfilter['_id'] = { $in: mainTypeIds };
   }
@@ -9274,17 +9296,17 @@ async function filterData(filter: any, subdomain: any) {
   return matchfilter;
 }
 
-async function getStageIds(filter: any, type: string, models: IModels,) {
+async function getStageIds(filter: any, type: string, models: IModels) {
   const { pipelineId, boardId, stageId, stageType } = filter;
 
-  const probability = returnStage(stageType)
+  const probability = returnStage(stageType);
 
   const boards = await models.Boards.find({
     ...(boardId ? { _id: { $in: [boardId] } } : {}),
     type: type,
-  })
+  });
 
-  const getBoardIds = (boards || []).map(board => board._id)
+  const getBoardIds = (boards || []).map((board) => board._id);
 
   const pipelines = await models.Pipelines.find({
     ...(pipelineId ? { _id: { $in: [pipelineId] } } : {}),
@@ -9292,9 +9314,9 @@ async function getStageIds(filter: any, type: string, models: IModels,) {
       $in: getBoardIds,
     },
     type: type,
-  })
+  });
 
-  const getPipelineIds = (pipelines || []).map(pipeline => pipeline._id)
+  const getPipelineIds = (pipelines || []).map((pipeline) => pipeline._id);
 
   const stages = await models.Stages.find({
     ...(stageId ? { _id: { $in: [stageId] } } : {}),
@@ -9303,11 +9325,11 @@ async function getStageIds(filter: any, type: string, models: IModels,) {
       $in: getPipelineIds,
     },
     type: type,
-  })
+  });
 
-  const getStageIds = (stages || []).map(stage => stage._id)
+  const getStageIds = (stages || []).map((stage) => stage._id);
 
-  return getStageIds
+  return getStageIds;
 }
 
 async function pipelineFilterData(
@@ -9387,7 +9409,7 @@ async function pipelineFilterData(
     // Assign totalAmount to each deal
     const groupStage = deals.map((deal) => ({
       ...deal,
-      productCount: deal.productsData.length,
+      productCount: deal.productsData?.length || 0,
       totalAmount: dealAmountMap[deal.stageId],
     }));
     const title = 'Deals sales and average';

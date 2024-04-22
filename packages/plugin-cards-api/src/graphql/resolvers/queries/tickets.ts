@@ -1,6 +1,6 @@
 import {
   checkPermission,
-  moduleRequireLogin
+  moduleRequireLogin,
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { IListParams } from './boards';
@@ -10,7 +10,7 @@ import {
   checkItemPermByUser,
   generateTicketCommonFilters,
   getItemList,
-  IArchiveArgs
+  IArchiveArgs,
 } from './utils';
 
 const ticketQueries = {
@@ -20,10 +20,10 @@ const ticketQueries = {
   async tickets(
     _root,
     args: IListParams,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const filter = {
-      ...(await generateTicketCommonFilters(models, subdomain, user._id, args))
+      ...(await generateTicketCommonFilters(models, subdomain, user._id, args)),
     };
 
     return await getItemList(models, subdomain, filter, args, user, 'ticket');
@@ -32,13 +32,13 @@ const ticketQueries = {
   async ticketsTotalCount(
     _root,
     args: IListParams,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const filter = {
-      ...(await generateTicketCommonFilters(models, subdomain, user._id, args))
+      ...(await generateTicketCommonFilters(models, subdomain, user._id, args)),
     };
 
-    return models.Tickets.find(filter).count();
+    return models.Tickets.find(filter).countDocuments();
   },
 
   /**
@@ -58,12 +58,12 @@ const ticketQueries = {
   async ticketDetail(
     _root,
     { _id }: { _id: string },
-    { user, models }: IContext
+    { user, models }: IContext,
   ) {
     const ticket = await models.Tickets.getTicket(_id);
 
     return checkItemPermByUser(models, user, ticket);
-  }
+  },
 };
 
 moduleRequireLogin(ticketQueries);

@@ -3,14 +3,14 @@ import { IStageDocument } from '../../../models/definitions/boards';
 import {
   BOARD_STATUSES,
   BOARD_TYPES,
-  VISIBLITIES
+  VISIBLITIES,
 } from '../../../models/definitions/constants';
 import {
   generateDealCommonFilters,
   generateGrowthHackCommonFilters,
   generateTaskCommonFilters,
   generateTicketCommonFilters,
-  generatePurchaseCommonFilters
+  generatePurchaseCommonFilters,
 } from '../queries/utils';
 
 const getAmountsMap = async (
@@ -20,7 +20,7 @@ const getAmountsMap = async (
   user,
   args,
   stage,
-  tickUsed = true
+  tickUsed = true,
 ) => {
   const amountsMap = {};
   const filter = await generateDealCommonFilters(
@@ -28,35 +28,35 @@ const getAmountsMap = async (
     subdomain,
     user._id,
     { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
-    args.extraParams
+    args.extraParams,
   );
 
   const amountList = await collection.aggregate([
     {
-      $match: filter
+      $match: filter,
     },
     {
-      $unwind: '$productsData'
+      $unwind: '$productsData',
     },
     {
       $project: {
         amount: '$productsData.amount',
         currency: '$productsData.currency',
-        tickUsed: '$productsData.tickUsed'
-      }
+        tickUsed: '$productsData.tickUsed',
+      },
     },
     {
-      $match: { tickUsed }
+      $match: { tickUsed },
     },
     {
       $group: {
         _id: '$currency',
-        amount: { $sum: '$amount' }
-      }
-    }
+        amount: { $sum: '$amount' },
+      },
+    },
   ]);
 
-  amountList.forEach(item => {
+  amountList.forEach((item) => {
     if (item._id) {
       amountsMap[item._id] = item.amount;
     }
@@ -71,9 +71,9 @@ export default {
 
   members(stage: IStageDocument, {}) {
     if (stage.visibility === VISIBLITIES.PRIVATE && stage.memberIds) {
-      return stage.memberIds.map(memberId => ({
+      return stage.memberIds.map((memberId) => ({
         __typename: 'User',
-        _id: memberId
+        _id: memberId,
       }));
     }
 
@@ -84,7 +84,7 @@ export default {
     stage: IStageDocument,
     _args,
     { user, models, subdomain }: IContext,
-    { variableValues: args }
+    { variableValues: args },
   ) {
     let amountsMap = {};
 
@@ -96,7 +96,7 @@ export default {
         user,
         args,
         stage,
-        false
+        false,
       );
     }
 
@@ -108,7 +108,7 @@ export default {
         user,
         args,
         stage,
-        false
+        false,
       );
     }
 
@@ -119,7 +119,7 @@ export default {
     stage: IStageDocument,
     _args,
     { user, models, subdomain }: IContext,
-    { variableValues: args }
+    { variableValues: args },
   ) {
     let amountsMap = {};
 
@@ -130,7 +130,7 @@ export default {
         models.Deals,
         user,
         args,
-        stage
+        stage,
       );
     }
 
@@ -141,7 +141,7 @@ export default {
         models.Purchases,
         user,
         args,
-        stage
+        stage,
       );
     }
 
@@ -152,7 +152,7 @@ export default {
     stage: IStageDocument,
     _args,
     { user, models, subdomain }: IContext,
-    { variableValues: args }
+    { variableValues: args },
   ) {
     const { Deals, Tickets, Tasks, GrowthHacks, Purchases } = models;
 
@@ -163,10 +163,10 @@ export default {
           subdomain,
           user._id,
           { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
-          args.extraParams
+          args.extraParams,
         );
 
-        return Deals.find(filter).count();
+        return Deals.find(filter).countDocuments();
       }
       case BOARD_TYPES.TICKET: {
         const filter = await generateTicketCommonFilters(
@@ -174,10 +174,10 @@ export default {
           subdomain,
           user._id,
           { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
-          args.extraParams
+          args.extraParams,
         );
 
-        return Tickets.find(filter).count();
+        return Tickets.find(filter).countDocuments();
       }
       case BOARD_TYPES.TASK: {
         const filter = await generateTaskCommonFilters(
@@ -187,12 +187,12 @@ export default {
           {
             ...args,
             stageId: stage._id,
-            pipelineId: stage.pipelineId
+            pipelineId: stage.pipelineId,
           },
-          args.extraParams
+          args.extraParams,
         );
 
-        return Tasks.find(filter).count();
+        return Tasks.find(filter).countDocuments();
       }
       case BOARD_TYPES.GROWTH_HACK: {
         const filter = await generateGrowthHackCommonFilters(
@@ -200,10 +200,10 @@ export default {
           subdomain,
           user._id,
           { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
-          args.extraParams
+          args.extraParams,
         );
 
-        return GrowthHacks.find(filter).count();
+        return GrowthHacks.find(filter).countDocuments();
       }
       case BOARD_TYPES.PURCHASE: {
         const filter = await generatePurchaseCommonFilters(
@@ -211,10 +211,10 @@ export default {
           subdomain,
           user._id,
           { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
-          args.extraParams
+          args.extraParams,
         );
 
-        return Purchases.find(filter).count();
+        return Purchases.find(filter).countDocuments();
       }
     }
   },
@@ -226,17 +226,17 @@ export default {
     stage: IStageDocument,
     _args,
     { user, models, subdomain }: IContext,
-    { variableValues: args }
+    { variableValues: args },
   ) {
     const filter = await generateDealCommonFilters(
       models,
       subdomain,
       user._id,
       { ...args, initialStageId: stage._id },
-      args.extraParams
+      args.extraParams,
     );
 
-    return models.Deals.find(filter).count();
+    return models.Deals.find(filter).countDocuments();
   },
 
   /*
@@ -246,17 +246,17 @@ export default {
     stage: IStageDocument,
     _args,
     { user, models, subdomain }: IContext,
-    { variableValues: args }
+    { variableValues: args },
   ) {
     const filter = await generatePurchaseCommonFilters(
       models,
       subdomain,
       user._id,
       { ...args, initialStageId: stage._id },
-      args.extraParams
+      args.extraParams,
     );
 
-    return models.Purchases.find(filter).count();
+    return models.Purchases.find(filter).countDocuments();
   },
 
   /*
@@ -267,17 +267,17 @@ export default {
   async inProcessDealsTotalCount(
     stage: IStageDocument,
     _args,
-    { models: { Stages } }: IContext
+    { models: { Stages } }: IContext,
   ) {
     const filter = {
       pipelineId: stage.pipelineId,
       probability: { $ne: 'Lost' },
-      _id: { $ne: stage._id }
+      _id: { $ne: stage._id },
     };
 
     const deals = await Stages.aggregate([
       {
-        $match: filter
+        $match: filter,
       },
       {
         $lookup: {
@@ -289,29 +289,29 @@ export default {
                 $expr: {
                   $and: [
                     { $eq: ['$stageId', '$$stageId'] },
-                    { $ne: ['$status', BOARD_STATUSES.ARCHIVED] }
-                  ]
-                }
-              }
-            }
+                    { $ne: ['$status', BOARD_STATUSES.ARCHIVED] },
+                  ],
+                },
+              },
+            },
           ],
-          as: 'deals'
-        }
+          as: 'deals',
+        },
       },
       {
         $project: {
           name: 1,
-          deals: 1
-        }
+          deals: 1,
+        },
       },
       {
-        $unwind: '$deals'
+        $unwind: '$deals',
       },
       {
         $match: {
-          'deals.initialStageId': stage._id
-        }
-      }
+          'deals.initialStageId': stage._id,
+        },
+      },
     ]);
 
     return deals.length;
@@ -325,17 +325,17 @@ export default {
   async inProcessPurchasesTotalCount(
     stage: IStageDocument,
     _args,
-    { models: { Stages } }: IContext
+    { models: { Stages } }: IContext,
   ) {
     const filter = {
       pipelineId: stage.pipelineId,
       probability: { $ne: 'Lost' },
-      _id: { $ne: stage._id }
+      _id: { $ne: stage._id },
     };
 
     const purchases = await Stages.aggregate([
       {
-        $match: filter
+        $match: filter,
       },
       {
         $lookup: {
@@ -347,29 +347,29 @@ export default {
                 $expr: {
                   $and: [
                     { $eq: ['$stageId', '$$stageId'] },
-                    { $ne: ['$status', BOARD_STATUSES.ARCHIVED] }
-                  ]
-                }
-              }
-            }
+                    { $ne: ['$status', BOARD_STATUSES.ARCHIVED] },
+                  ],
+                },
+              },
+            },
           ],
-          as: 'purchases'
-        }
+          as: 'purchases',
+        },
       },
       {
         $project: {
           name: 1,
-          purchases: 1
-        }
+          purchases: 1,
+        },
       },
       {
-        $unwind: '$purchases'
+        $unwind: '$purchases',
       },
       {
         $match: {
-          'purchases.initialStageId': stage._id
-        }
-      }
+          'purchases.initialStageId': stage._id,
+        },
+      },
     ]);
 
     return purchases.length;
@@ -379,7 +379,7 @@ export default {
     stage: IStageDocument,
     _args,
     { user, models, subdomain }: IContext,
-    { variableValues: args }
+    { variableValues: args },
   ) {
     const filter = await generateDealCommonFilters(
       models,
@@ -389,19 +389,19 @@ export default {
         ...args,
         initialStageId: stage._id,
         stageId: stage._id,
-        pipelineId: stage.pipelineId
+        pipelineId: stage.pipelineId,
       },
-      args.extraParams
+      args.extraParams,
     );
 
-    return models.Deals.find(filter).count();
+    return models.Deals.find(filter).countDocuments();
   },
 
   async stayedPurchasesTotalCount(
     stage: IStageDocument,
     _args,
     { user, models, subdomain }: IContext,
-    { variableValues: args }
+    { variableValues: args },
   ) {
     const filter = await generatePurchaseCommonFilters(
       models,
@@ -411,12 +411,12 @@ export default {
         ...args,
         initialStageId: stage._id,
         stageId: stage._id,
-        pipelineId: stage.pipelineId
+        pipelineId: stage.pipelineId,
       },
-      args.extraParams
+      args.extraParams,
     );
 
-    return models.Purchases.find(filter).count();
+    return models.Purchases.find(filter).countDocuments();
   },
 
   /*
@@ -426,7 +426,7 @@ export default {
   async compareNextStage(
     stage: IStageDocument,
     _args,
-    { models: { Stages } }: IContext
+    { models: { Stages } }: IContext,
   ) {
     const result: { count?: number; percent?: number } = {};
 
@@ -435,12 +435,12 @@ export default {
     const filter = {
       order: { $in: [order, order + 1] },
       probability: { $ne: 'Lost' },
-      pipelineId: stage.pipelineId
+      pipelineId: stage.pipelineId,
     };
 
     const stages = await Stages.aggregate([
       {
-        $match: filter
+        $match: filter,
       },
       {
         $lookup: {
@@ -452,14 +452,14 @@ export default {
                 $expr: {
                   $and: [
                     { $eq: ['$stageId', '$$stageId'] },
-                    { $ne: ['$status', BOARD_STATUSES.ARCHIVED] }
-                  ]
-                }
-              }
-            }
+                    { $ne: ['$status', BOARD_STATUSES.ARCHIVED] },
+                  ],
+                },
+              },
+            },
           ],
-          as: 'currentDeals'
-        }
+          as: 'currentDeals',
+        },
       },
       {
         $lookup: {
@@ -471,23 +471,23 @@ export default {
                 $expr: {
                   $and: [
                     { $eq: ['$initialStageId', '$$stageId'] },
-                    { $ne: ['$status', BOARD_STATUSES.ARCHIVED] }
-                  ]
-                }
-              }
-            }
+                    { $ne: ['$status', BOARD_STATUSES.ARCHIVED] },
+                  ],
+                },
+              },
+            },
           ],
-          as: 'initialDeals'
-        }
+          as: 'initialDeals',
+        },
       },
       {
         $project: {
           order: 1,
           currentDealCount: { $size: '$currentDeals' },
-          initialDealCount: { $size: '$initialDeals' }
-        }
+          initialDealCount: { $size: '$initialDeals' },
+        },
       },
-      { $sort: { order: 1 } }
+      { $sort: { order: 1 } },
     ]);
 
     if (stages.length === 2) {
@@ -502,7 +502,7 @@ export default {
   async compareNextStagePurchase(
     stage: IStageDocument,
     _args,
-    { models: { Stages } }: IContext
+    { models: { Stages } }: IContext,
   ) {
     const result: { count?: number; percent?: number } = {};
 
@@ -511,12 +511,12 @@ export default {
     const filter = {
       order: { $in: [order, order + 1] },
       probability: { $ne: 'Lost' },
-      pipelineId: stage.pipelineId
+      pipelineId: stage.pipelineId,
     };
 
     const stages = await Stages.aggregate([
       {
-        $match: filter
+        $match: filter,
       },
       {
         $lookup: {
@@ -528,14 +528,14 @@ export default {
                 $expr: {
                   $and: [
                     { $eq: ['$stageId', '$$stageId'] },
-                    { $ne: ['$status', BOARD_STATUSES.ARCHIVED] }
-                  ]
-                }
-              }
-            }
+                    { $ne: ['$status', BOARD_STATUSES.ARCHIVED] },
+                  ],
+                },
+              },
+            },
           ],
-          as: 'currentPurchases'
-        }
+          as: 'currentPurchases',
+        },
       },
       {
         $lookup: {
@@ -547,23 +547,23 @@ export default {
                 $expr: {
                   $and: [
                     { $eq: ['$initialStageId', '$$stageId'] },
-                    { $ne: ['$status', BOARD_STATUSES.ARCHIVED] }
-                  ]
-                }
-              }
-            }
+                    { $ne: ['$status', BOARD_STATUSES.ARCHIVED] },
+                  ],
+                },
+              },
+            },
           ],
-          as: 'initialPurchases'
-        }
+          as: 'initialPurchases',
+        },
       },
       {
         $project: {
           order: 1,
           currentPurchaseCount: { $size: '$currentPurchases' },
-          initialPurchaseCount: { $size: '$initialPurchases' }
-        }
+          initialPurchaseCount: { $size: '$initialPurchases' },
+        },
       },
-      { $sort: { order: 1 } }
+      { $sort: { order: 1 } },
     ]);
 
     if (stages.length === 2) {
@@ -574,5 +574,5 @@ export default {
     }
 
     return result;
-  }
+  },
 };

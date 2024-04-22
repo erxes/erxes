@@ -9,7 +9,7 @@ const pipelineTemplateQueries = {
   async pipelineTemplates(
     _root,
     { type }: { type: string },
-    { user, subdomain, models, commonQuerySelector }: IContext
+    { user, subdomain, models, commonQuerySelector }: IContext,
   ) {
     await checkPermission(models, subdomain, type, user, 'showTemplates');
 
@@ -24,18 +24,17 @@ const pipelineTemplateQueries = {
   async pipelineTemplateDetail(
     _root,
     { _id }: { _id: string },
-    { user, subdomain, models }: IContext
+    { user, subdomain, models }: IContext,
   ) {
-    const pipelineTemplate = await models.PipelineTemplates.getPipelineTemplate(
-      _id
-    );
+    const pipelineTemplate =
+      await models.PipelineTemplates.getPipelineTemplate(_id);
 
     await checkPermission(
       models,
       subdomain,
       pipelineTemplate.type,
       user,
-      'showTemplates'
+      'showTemplates',
     );
 
     return models.PipelineTemplates.findOne({ _id });
@@ -47,10 +46,10 @@ const pipelineTemplateQueries = {
   pipelineTemplatesTotalCount(
     _root,
     _args,
-    { models: { PipelineTemplates } }: IContext
+    { models: { PipelineTemplates } }: IContext,
   ) {
-    return PipelineTemplates.find().count();
-  }
+    return PipelineTemplates.find().countDocuments();
+  },
 };
 
 moduleRequireLogin(pipelineTemplateQueries);

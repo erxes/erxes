@@ -2,14 +2,14 @@ import { IContext } from '../../../connectionResolver';
 import { IPipelineDocument } from '../../../models/definitions/boards';
 import {
   BOARD_TYPES,
-  VISIBLITIES
+  VISIBLITIES,
 } from '../../../models/definitions/constants';
 import {
   generateDealCommonFilters,
   generatePurchaseCommonFilters,
   generateGrowthHackCommonFilters,
   generateTaskCommonFilters,
-  generateTicketCommonFilters
+  generateTicketCommonFilters,
 } from '../queries/utils';
 
 export default {
@@ -23,9 +23,9 @@ export default {
 
   members(pipeline: IPipelineDocument, {}) {
     if (pipeline.visibility === VISIBLITIES.PRIVATE && pipeline.memberIds) {
-      return pipeline.memberIds.map(memberId => ({
+      return pipeline.memberIds.map((memberId) => ({
         __typename: 'User',
-        _id: memberId
+        _id: memberId,
       }));
     }
 
@@ -64,7 +64,7 @@ export default {
   async itemsTotalCount(
     pipeline: IPipelineDocument,
     _args,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     switch (pipeline.type) {
       case BOARD_TYPES.DEAL: {
@@ -73,11 +73,11 @@ export default {
           subdomain,
           user._id,
           {
-            pipelineId: pipeline._id
-          }
+            pipelineId: pipeline._id,
+          },
         );
 
-        return models.Deals.find(filter).count();
+        return models.Deals.find(filter).countDocuments();
       }
 
       case BOARD_TYPES.PURCHASE: {
@@ -86,11 +86,11 @@ export default {
           subdomain,
           user._id,
           {
-            pipelineId: pipeline._id
-          }
+            pipelineId: pipeline._id,
+          },
         );
 
-        return models.Purchases.find(filter).count();
+        return models.Purchases.find(filter).countDocuments();
       }
 
       case BOARD_TYPES.TICKET: {
@@ -99,11 +99,11 @@ export default {
           subdomain,
           user._id,
           {
-            pipelineId: pipeline._id
-          }
+            pipelineId: pipeline._id,
+          },
         );
 
-        return models.Tickets.find(filter).count();
+        return models.Tickets.find(filter).countDocuments();
       }
       case BOARD_TYPES.TASK: {
         const filter = await generateTaskCommonFilters(
@@ -111,11 +111,11 @@ export default {
           subdomain,
           user._id,
           {
-            pipelineId: pipeline._id
-          }
+            pipelineId: pipeline._id,
+          },
         );
 
-        return models.Tasks.find(filter).count();
+        return models.Tasks.find(filter).countDocuments();
       }
       case BOARD_TYPES.GROWTH_HACK: {
         const filter = await generateGrowthHackCommonFilters(
@@ -123,11 +123,11 @@ export default {
           subdomain,
           user._id,
           {
-            pipelineId: pipeline._id
-          }
+            pipelineId: pipeline._id,
+          },
         );
 
-        return models.GrowthHacks.find(filter).count();
+        return models.GrowthHacks.find(filter).countDocuments();
       }
     }
   },
@@ -136,8 +136,8 @@ export default {
     if (pipeline.tagId) {
       return {
         __typename: 'Tag',
-        _id: pipeline.tagId
+        _id: pipeline.tagId,
       };
     }
-  }
+  },
 };

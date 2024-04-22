@@ -3,7 +3,7 @@ import { getCollection } from './utils';
 import {
   IPipelineLabel,
   IPipelineLabelDocument,
-  pipelineLabelSchema
+  pipelineLabelSchema,
 } from './definitions/pipelineLabels';
 import { IModels } from '../connectionResolver';
 
@@ -22,7 +22,7 @@ export interface IPipelineLabelModel extends Model<IPipelineLabelDocument> {
   createPipelineLabel(doc: IPipelineLabel): Promise<IPipelineLabelDocument>;
   updatePipelineLabel(
     _id: string,
-    doc: IPipelineLabel
+    doc: IPipelineLabel,
   ): Promise<IPipelineLabelDocument>;
   removePipelineLabel(_id: string): void;
   labelsLabel(pipelineId: string, targetId: string, labelIds: string[]): void;
@@ -46,7 +46,7 @@ export const loadPipelineLabelClass = (models: IModels) => {
      */
     public static async validateUniqueness(
       filter: IFilter,
-      _id?: string
+      _id?: string,
     ): Promise<boolean> {
       if (_id) {
         filter._id = { $ne: _id };
@@ -66,11 +66,11 @@ export const loadPipelineLabelClass = (models: IModels) => {
     public static async labelObject({
       labelIds,
       targetId,
-      collection
+      collection,
     }: ILabelObjectParams) {
       const prevLabelsCount = await models.PipelineLabels.find({
-        _id: { $in: labelIds }
-      }).count();
+        _id: { $in: labelIds },
+      }).countDocuments();
 
       if (prevLabelsCount !== labelIds.length) {
         throw new Error('Label not found');
@@ -79,7 +79,7 @@ export const loadPipelineLabelClass = (models: IModels) => {
       await collection.updateMany(
         { _id: targetId },
         { $set: { labelIds } },
-        { multi: true }
+        { multi: true },
       );
     }
 
@@ -90,7 +90,7 @@ export const loadPipelineLabelClass = (models: IModels) => {
       const filter: IFilter = {
         name: doc.name,
         pipelineId: doc.pipelineId,
-        colorCode: doc.colorCode
+        colorCode: doc.colorCode,
       };
 
       const isUnique = await models.PipelineLabels.validateUniqueness(filter);
@@ -108,7 +108,7 @@ export const loadPipelineLabelClass = (models: IModels) => {
     public static async updatePipelineLabel(_id: string, doc: IPipelineLabel) {
       const isUnique = await models.PipelineLabels.validateUniqueness(
         { ...doc },
-        _id
+        _id,
       );
 
       if (!isUnique) {
@@ -131,7 +131,7 @@ export const loadPipelineLabelClass = (models: IModels) => {
       }
 
       const pipeline = await models.Pipelines.getPipeline(
-        pipelineLabel.pipelineId
+        pipelineLabel.pipelineId,
       );
 
       const { collection } = getCollection(models, pipeline.type);
@@ -139,7 +139,7 @@ export const loadPipelineLabelClass = (models: IModels) => {
       // delete labelId from collection that used labelId
       await collection.updateMany(
         { labelIds: { $in: [pipelineLabel._id] } },
-        { $pull: { labelIds: pipelineLabel._id } }
+        { $pull: { labelIds: pipelineLabel._id } },
       );
 
       return models.PipelineLabels.deleteOne({ _id });
@@ -151,7 +151,7 @@ export const loadPipelineLabelClass = (models: IModels) => {
     public static async labelsLabel(
       pipelineId: string,
       targetId: string,
-      labelIds: string[]
+      labelIds: string[],
     ) {
       const pipeline = await models.Pipelines.getPipeline(pipelineId);
 
@@ -160,7 +160,7 @@ export const loadPipelineLabelClass = (models: IModels) => {
       await models.PipelineLabels.labelObject({
         labelIds,
         targetId,
-        collection
+        collection,
       });
     }
   }

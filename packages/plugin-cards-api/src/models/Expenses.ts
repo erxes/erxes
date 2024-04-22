@@ -3,7 +3,7 @@ import { IModels } from '../connectionResolver';
 import {
   IExpense,
   IExpenseDocument,
-  expenseSchema
+  expenseSchema,
 } from './definitions/expenses';
 
 export interface IExpenseModel extends Model<IExpenseDocument> {
@@ -19,7 +19,7 @@ export const loadExpenseClass = (models: IModels, subdomain: string) => {
       return models.Expenses.create({
         ...doc,
         createdDate: new Date(),
-        createdUserId
+        createdUserId,
       });
     }
 
@@ -36,19 +36,19 @@ export const loadExpenseClass = (models: IModels, subdomain: string) => {
       await models.Expenses.updateOne(
         { _id },
         { $set: doc },
-        { runValidators: true }
+        { runValidators: true },
       );
 
       return models.Expenses.findOne({ _id });
     }
 
     public static async removeExpense(_id: string) {
-      const data = await models.Expenses.getExpense(_id);
+      const data = await models.Expenses.findOneAndDelete({ _id });
 
       if (!data) {
         throw new Error(`not found with id ${_id}`);
       }
-      return models.Expenses.remove({ _id });
+      return data;
     }
   }
 

@@ -28,9 +28,9 @@ const ruleSchema = new Schema(
     // is, isNot, startsWith
     condition: { type: String, label: 'Condition' },
 
-    value: { type: String, label: 'Value', optional: true }
+    value: { type: String, label: 'Value', optional: true },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const customFieldSchema = new Schema(
@@ -45,16 +45,15 @@ const customFieldSchema = new Schema(
       type: {
         type: String,
         enum: ['Point'],
-        optional: true
+        optional: true,
       },
       coordinates: {
         type: [Number],
-        optional: true
+        optional: true,
       },
-      required: false
-    }
+    },
   },
-  { _id: false }
+  { _id: false },
 );
 
 customFieldSchema.index({ locationValue: '2dsphere' });
