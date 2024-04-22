@@ -75,7 +75,7 @@ const transactionMutations = {
       _id
     });
 
-    const updated = await models.Transactions.changeTransaction(_id, doc);
+    const updated = await models.Transactions.changeTransaction(_id, doc,subdomain);
 
     const logData = {
       type: 'transaction',
@@ -105,7 +105,7 @@ const transactionMutations = {
       isManual: true
     }).lean();
 
-    await models.Transactions.removeTransactions(transactions.map(a => a._id));
+    await models.Transactions.removeTransactions(transactions.map(a => a._id),subdomain);
 
     for (const transaction of transactions) {
       const logData = {

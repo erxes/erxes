@@ -46,7 +46,7 @@ export interface IContract {
   createdAt: Date;
   marginAmount: number;
   leaseAmount: number;
-  givenAmount?: number;
+  givenAmount: number;
   feeAmount: number;
   tenor: number;
   interestRate: number;
@@ -67,8 +67,8 @@ export interface IContract {
   riskExpertId: string;
   customerId: string;
   customerType: string;
-  unduePercent: number;
-  undueCalcType: string;
+  lossPercent: number;
+  lossCalcType: string;
   leaseType: string;
   commitmentInterest: number;
   storedInterest: number;
@@ -101,7 +101,7 @@ export interface ISchedule {
   payDate: Date;
 
   balance: number;
-  undue?: number;
+  loss?: number;
   interestEve?: number;
   interestNonce?: number;
   payment?: number;
@@ -109,7 +109,7 @@ export interface ISchedule {
   debt?: number;
   total: number;
 
-  didUndue?: number;
+  didLoss?: number;
   didInterestEve?: number;
   didInterestNonce?: number;
   didPayment?: number;
@@ -132,7 +132,7 @@ export interface IInvoice {
   payDate: Date;
 
   balance: number;
-  undue?: number;
+  loss?: number;
   interestEve?: number;
   interestNonce?: number;
   payment?: number;
@@ -143,7 +143,7 @@ export interface IInvoice {
 
 export interface ICloseInfo {
   balance?: number;
-  undue?: number;
+  loss?: number;
   interest?: number;
   interestEve?: number;
   interestNonce?: number;

@@ -15,7 +15,7 @@ function Header() {
   return (
     <HeaderDescription
       icon="/images/actions/25.svg"
-      title={__('Loan not calc undue settings')}
+      title={__('Loan not calc loss settings')}
       description=""
     />
   );

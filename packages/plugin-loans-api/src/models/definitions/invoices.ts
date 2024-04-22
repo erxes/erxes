@@ -16,7 +16,7 @@ export interface IInvoice {
   calcInterest: number;
   storedInterest: number;
   commitmentInterest: number;
-  undue: number;
+  loss: number;
   insurance: number;
   debt: number;
   total: number;
@@ -66,7 +66,7 @@ export const invoiceSchema = schemaHooksWrapper(
     payment: field({ type: Number, min: 0, label: 'payment' }),
     interestEve: field({ type: Number, min: 0, label: 'interest eve' }),
     interestNonce: field({ type: Number, min: 0, label: 'interest nonce' }),
-    undue: field({ type: Number, min: 0, label: 'undue' }),
+    loss: field({ type: Number, min: 0, label: 'loss' }),
     insurance: field({ type: Number, min: 0, label: 'insurance' }),
     debt: field({ type: Number, min: 0, label: 'debt' }),
     total: field({ type: Number, min: 0, label: 'total' }),

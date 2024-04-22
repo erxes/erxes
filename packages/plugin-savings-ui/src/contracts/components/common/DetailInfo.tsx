@@ -85,15 +85,19 @@ class DetailInfo extends React.Component<Props> {
           'Saving Amount',
           (contract.savingAmount || 0).toLocaleString()
         )}
+        {this.renderRow('Block Amount', (contract.blockAmount || 0).toLocaleString())}
         {this.renderRow(
           'Saving stored interest',
           (contract.storedInterest || 0).toLocaleString()
         )}
 
         {this.renderTeamMember('Saving officer', 'createdBy')}
+        
+        
         <li>
           <FieldStyle>{__(`Description`)}</FieldStyle>
         </li>
+        
         <Description
           dangerouslySetInnerHTML={{
             __html: contract.description

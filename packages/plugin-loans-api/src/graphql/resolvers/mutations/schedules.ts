@@ -5,9 +5,10 @@ import {
 } from '../../../models/utils/scheduleUtils';
 import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
-import { sendMessageBroker } from '../../../messageBroker';
+import { getConfig, sendMessageBroker } from '../../../messageBroker';
 import { getFullDate } from '../../../models/utils/utils';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import { IConfig } from '../../../interfaces/config';
 
 const scheduleMutations = {
   regenSchedules: async (
@@ -28,19 +29,9 @@ const scheduleMutations = {
       }
     }
 
-    const holidayConfig: any = await sendMessageBroker(
-      {
-        subdomain,
-        action: 'configs.findOne',
-        data: {
-          query: {
-            code: 'holidayConfig',
-          },
-        },
-        isRPC: true,
-      },
-      'core',
-    );
+    const holidayConfig: any = await getConfig('holidayConfig',subdomain);
+    
+    const loansConfig: IConfig = await getConfig('loansConfig',subdomain);
 
     const perHolidays = !holidayConfig?.value
       ? []
@@ -53,14 +44,24 @@ const scheduleMutations = {
       _id: contractId,
     });
 
-    await reGenerateSchedules(models, contract, perHolidays);
-
     if (isEnabled('syncpolaris')) {
-      await sendMessageBroker(
-        { action: 'createSchedule', subdomain, data: contract, isRPC: true },
-        'syncpolaris',
-      );
+      const schedules = await models.FirstSchedules.find({
+        contractId,
+      }).lean();
+      if (schedules.length > 0) {
+        await sendMessageBroker(
+          { action: 'changeSchedule', subdomain, data: contract, isRPC: true },
+          'syncpolaris',
+        );
+      } else {
+        await sendMessageBroker(
+          { action: 'createSchedule', subdomain, data: contract, isRPC: true },
+          'syncpolaris',
+        );
+      }
     }
+    
+    await reGenerateSchedules(models, contract, perHolidays,loansConfig);
 
     return 'ok';
   },

@@ -3,6 +3,7 @@ const fieldCommonFields = `
   options: [String]
   type: String
   validation: String
+  regexValidation: String
   text: String
   content: String
   isRequired: Boolean
@@ -142,6 +143,7 @@ export const fieldsQueries = `
 const fieldsCommonFields = `
   type: String
   validation: String
+  regexValidation: String
   text: String
   description: String
   code: String

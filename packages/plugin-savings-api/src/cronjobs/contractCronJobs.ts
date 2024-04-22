@@ -15,7 +15,7 @@ export async function storeInterestCron(subdomain: string) {
   const nowDate = getFullDate(now);
   const exactTime = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
 
-  if (exactTime === '00:00:00') {
+  if (exactTime === '0:0') {
     now.setTime(now.getTime() + 2 * 60 * 1000);
     const nextDate = getFullDate(now);
 

@@ -6,6 +6,7 @@ import {
   IPeriodLockDocument
 } from '../../../models/definitions/periodLocks';
 import { createLog, deleteLog, updateLog } from '../../../logUtils';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 const periodLockMutations = {
   periodLocksAdd: async (
@@ -72,15 +73,16 @@ const periodLockMutations = {
     await models.PeriodLocks.removePeriodLocks(periodLockIds);
 
     for (const periodLock of periodLocks) {
-      await sendMessageBroker(
-        {
-          action: 'deleteTransaction',
-          subdomain,
-          data: { orderId: periodLock._id, config: {} },
-          isRPC: true
-        },
-        'syncerkhet'
-      );
+      if(isEnabled('syncerkhet'))
+        await sendMessageBroker(
+          {
+            action: 'deleteTransaction',
+            subdomain,
+            data: { orderId: periodLock._id, config: {} },
+            isRPC: true
+          },
+          'syncerkhet'
+        );
 
       const logData = {
         type: 'periodLock',

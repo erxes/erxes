@@ -1,9 +1,5 @@
 import { ITransaction, transactionSchema } from './definitions/transactions';
-import {
-  INVOICE_STATUS,
-  LEASE_TYPES,
-  SCHEDULE_STATUS
-} from './definitions/constants';
+import { INVOICE_STATUS, SCHEDULE_STATUS } from './definitions/constants';
 import { findContractOfTr } from './utils/findUtils';
 import { generatePendingSchedules } from './utils/scheduleUtils';
 import {
@@ -20,6 +16,14 @@ import { IContractDocument } from './definitions/contracts';
 import { getPureDate } from '@erxes/api-utils/src';
 import { createEbarimt } from './utils/ebarimtUtils';
 import { getFullDate } from './utils/utils';
+import { getConfig, sendMessageBroker } from '../messageBroker';
+import BigNumber from 'bignumber.js';
+import { IConfig } from '../interfaces/config';
+import {
+  createTransactionSchedule,
+  scheduleFixAfterCurrent
+} from './utils/scheduleFixUtils';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(selector: FilterQuery<ITransactionDocument>);
@@ -28,8 +32,8 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
     doc: ITransaction
   ): Promise<ITransactionDocument>;
   updateTransaction(subdomain: any, _id: string, doc: ITransaction);
-  changeTransaction(_id: string, doc: ITransaction);
-  removeTransactions(_ids: string[]);
+  changeTransaction(_id: string, doc: ITransaction, subdomain: any);
+  removeTransactions(_ids: string[], subdomain: any);
   getPaymentInfo(
     id: string,
     payDate: Date,
@@ -75,13 +79,15 @@ export const loadTransactionClass = (models: IModels) => {
         ...doc
       }: ITransaction
     ) {
-      doc = { ...doc, ...(await findContractOfTr(models, doc)) };
-
       const periodLock = await models.PeriodLocks.findOne({
         date: { $gte: doc.payDate }
       })
         .sort({ date: -1 })
         .lean();
+
+      if (!doc.contractId) {
+        throw new Error('Contract not selected');
+      }
 
       if (periodLock && !periodLock?.excludeContracts.includes(doc.contractId))
         throw new Error(
@@ -92,12 +98,12 @@ export const loadTransactionClass = (models: IModels) => {
         _id: doc.contractId
       }).lean<IContractDocument>();
 
-      if (!doc.currency && contract?.currency) {
-        doc.currency = contract?.currency;
+      if (!contract) {
+        throw new Error('Contract not found');
       }
 
-      if (!contract || !contract._id) {
-        return models.Transactions.create({ ...doc });
+      if (!doc.currency && contract?.currency) {
+        doc.currency = contract?.currency;
       }
 
       doc.number = `${contract.number}${new Date().getTime().toString()}`;
@@ -112,86 +118,84 @@ export const loadTransactionClass = (models: IModels) => {
       if (doc.transactionType === 'give') {
         doc.give = doc.total;
         doc.contractReaction = contract;
-        const tr = await models.Transactions.create({ ...doc });
+
+        const schedule = await models.Schedules.create({
+          contractId: contract._id,
+          status: SCHEDULE_STATUS.GIVE,
+          payDate: getFullDate(doc.payDate),
+          balance: new BigNumber(doc.total || 0)
+            .plus(contract?.loanBalanceAmount || 0)
+            .toNumber(),
+          interestNonce: 0,
+          payment: 0,
+          total: doc.total
+        });
+
         await models.Contracts.updateOne(
           { _id: contract._id },
-          { $inc: { givenAmount: doc.give } }
+          { $inc: { givenAmount: doc.total, loanBalanceAmount: doc.total } }
         );
 
-        if (
-          contract.leaseType === LEASE_TYPES.LINEAR ||
-          contract.leaseType === LEASE_TYPES.CREDIT
-        ) {
-          const prevSchedule = await models.Schedules.findOne({
-            payDate: { $lte: getFullDate(doc.payDate) },
-            contractId: contract._id
-          })
-            .sort({ payDate: -1 })
-            .lean();
+        doc.reactions = [
+          {
+            scheduleId: schedule._id
+          }
+        ];
 
-          const schedules = [
-            {
-              contractId: contract._id,
-              status: SCHEDULE_STATUS.PENDING,
-              payDate: getFullDate(doc.payDate),
-              balance: (doc.total || 0) + (prevSchedule?.balance || 0),
-              interestNonce: 0,
-              payment: doc.total,
-              total: doc.total
-            }
-          ];
+        const tr = await models.Transactions.create({ ...doc });
 
-          await models.Schedules.insertMany(schedules);
-        }
         return tr;
       }
 
-      const trInfo = await transactionRule(models, subdomain, {
-        ...doc
-      });
+      const config: IConfig = await getConfig('loansConfig', subdomain);
 
-      trInfo.calcInterest = trInfo.interestEve + trInfo.interestNonce;
+      doc.payDate = getFullDate(doc.payDate);
+      doc.contractReaction = contract;
 
-      if (contract.storedInterest) {
-        let payedInterest = trInfo.interestEve + trInfo.interestNonce;
+      const tr = await models.Transactions.create({ ...doc });
 
-        const mustPayInterst =
-          trInfo.calcedInfo.interestEve + trInfo.calcedInfo.interestNonce;
+      if ((tr.calcInterest || 0) > 0 && isEnabled('savings'))
+        await sendMessageBroker(
+          {
+            action: 'block.create',
+            subdomain,
+            data: {
+              customerId: contract.customerId,
+              description: 'interest payment',
+              blockType: 'scheduleTransaction',
+              amount: tr.calcInterest,
+              scheduleDate: tr.payDate,
+              payDate: tr.payDate
+            },
+            isRPC: true
+          },
+          'savings'
+        );
 
-        if (payedInterest > mustPayInterst) payedInterest = mustPayInterst;
-
-        if (payedInterest > 0) {
-          if (payedInterest > trInfo.calcedInfo.storedInterest) {
-            trInfo.storedInterest = trInfo.calcedInfo.storedInterest;
-            trInfo.calcInterest =
-              payedInterest - trInfo.calcedInfo.storedInterest;
-          } else {
-            trInfo.storedInterest = payedInterest;
-            trInfo.calcInterest = 0;
-          }
-        }
-
-        const interest =
-          trInfo.calcedInfo.interestEve + trInfo.calcedInfo.interestNonce;
-        trInfo.calcedInfo.storedInterest = contract.storedInterest;
-        trInfo.calcedInfo.calcInterest = interest - contract.storedInterest;
-      }
-
-      const tr = await models.Transactions.create({ ...doc, ...trInfo });
-
-      await trAfterSchedule(models, tr);
+      await createTransactionSchedule(contract, tr.payDate, tr, models, config);
+      await scheduleFixAfterCurrent(contract, tr.payDate, models, config);
 
       const contractType = await models.ContractTypes.findOne({
         _id: contract.contractTypeId
       });
 
-      if (trInfo.storedInterest > 0)
-        await models.Contracts.updateOne(
-          {
-            _id: tr.contractId
-          },
-          { $inc: { storedInterest: trInfo.storedInterest * -1 } }
-        );
+      let updateContractInc = {};
+
+      if (doc.storedInterest && doc.storedInterest > 0)
+        updateContractInc = { storedInterest: doc.storedInterest * -1 };
+
+      if (doc.payment && doc.payment > 0)
+        updateContractInc = {
+          ...updateContractInc,
+          loanBalanceAmount: doc.payment * -1
+        };
+
+      await models.Contracts.updateOne(
+        {
+          _id: tr.contractId
+        },
+        { $inc: updateContractInc }
+      );
 
       if (
         contractType?.config?.isAutoSendEBarimt === true ||
@@ -234,6 +238,8 @@ export const loadTransactionClass = (models: IModels) => {
         _id
       });
 
+      const config: IConfig = await getConfig('loansConfig', subdomain);
+
       const contract = await models.Contracts.findOne({
         _id: doc.contractId
       }).lean();
@@ -242,7 +248,7 @@ export const loadTransactionClass = (models: IModels) => {
         return models.Transactions.getTransaction({ _id });
       }
 
-      await removeTrAfterSchedule(models, oldTr);
+      await removeTrAfterSchedule(models, oldTr, config);
 
       if (doc.invoiceId) {
         const invoiceData: any = {
@@ -269,7 +275,7 @@ export const loadTransactionClass = (models: IModels) => {
     /**
      * ReConfig amounts or change Transaction
      */
-    public static async changeTransaction(_id: string, doc) {
+    public static async changeTransaction(_id: string, doc, subdomain) {
       const oldTr = await models.Transactions.getTransaction({
         _id
       });
@@ -308,132 +314,29 @@ export const loadTransactionClass = (models: IModels) => {
       }).lean();
 
       const noDeleteSchIds = preSchedules
-        .map(item => item._id)
+        .map((item) => item._id)
         .concat([oldSchedule._id]);
 
-      let trReaction = oldTr.reactions.filter(item =>
-        noDeleteSchIds.includes(item.scheduleId)
-      );
+      const config: IConfig = await getConfig('loansConfig', subdomain);
 
-      await removeTrAfterSchedule(models, oldTr, noDeleteSchIds);
+      await removeTrAfterSchedule(models, oldTr, config, noDeleteSchIds);
 
-      const newTotal =
-        (doc.payment || 0) +
-        (doc.interestEve || 0) +
-        (doc.interestNonce || 0) +
-        (doc.undue || 0) +
-        (doc.insurance || 0) +
-        (doc.debt || 0);
+      const newTotal = new BigNumber(doc.payment ?? 0)
+        .plus(doc.interestEve ?? 0)
+        .plus(doc.interestNonce ?? 0)
+        .plus(doc.loss ?? 0)
+        .plus(doc.insurance ?? 0)
+        .plus(doc.debt ?? 0);
 
       await models.Transactions.updateOne(
         { _id },
         { $set: { ...doc, total: newTotal } }
       );
+      
       let newTr = await models.Transactions.getTransaction({ _id });
 
-      const newBalance =
-        oldSchedule.balance + oldSchedule.didPayment - doc.payment;
-
-      await models.Schedules.updateOne(
-        { _id: oldSchedule._id },
-        {
-          $set: {
-            payment: doc.payment,
-            interestEve: doc.interestEve,
-            interestNonce: doc.interestNonce,
-            undue: doc.undue,
-            insurance: doc.insurance,
-            debt: doc.debt,
-            total: newTotal,
-
-            didPayment: doc.payment,
-            didInterestEve: doc.interestEve,
-            didInterestNonce: doc.interestNonce,
-            didUndue: doc.undue,
-            didInsurance: doc.insurance,
-            didDebt: doc.debt,
-            didTotal: newTotal,
-
-            balance: newBalance,
-            status: SCHEDULE_STATUS.DONE
-          }
-        }
-      );
-
-      let updatedSchedule = await models.Schedules.findOne({
-        _id: oldSchedule._id
-      }).lean();
-
-      const pendingSchedules = await models.Schedules.find({
-        contractId: contract._id,
-        status: SCHEDULE_STATUS.PENDING
-      })
-        .sort({ payDate: 1 })
-        .lean();
-
-      // changed balance then after schedules are change
-      if (oldSchedule.balance !== newBalance) {
-        await generatePendingSchedules(
-          models,
-          contract,
-          { ...updatedSchedule },
-          pendingSchedules,
-          newTr,
-          trReaction
-        );
-      }
-
-      // after schedules added debt
-      if (doc.futureDebt && doc.debtTenor) {
-        const bulkOps: Array<{
-          updateOne: {
-            filter: { _id: string };
-            update: { $set: any };
-          };
-        }> = [];
-
-        newTr = await models.Transactions.findOne({
-          _id: newTr._id
-        }).lean();
-        trReaction = newTr.reactions;
-
-        const origTenor = Math.min(doc.debtTenor, pendingSchedules.length);
-        const perDebt = Math.round(doc.futureDebt / origTenor);
-        const firstDebt = doc.futureDebt - perDebt * (origTenor - 1);
-        let indexOfMonth = 0;
-        for (const sch of pendingSchedules) {
-          indexOfMonth = indexOfMonth + 1;
-          if (indexOfMonth > origTenor) {
-            break;
-          }
-
-          trReaction.push({
-            scheduleId: sch._id,
-            preData: { debt: sch.debt, total: sch.total }
-          });
-
-          const monthDebt = indexOfMonth === 1 ? firstDebt : perDebt;
-          bulkOps.push({
-            updateOne: {
-              filter: { _id: sch._id },
-              update: {
-                $set: {
-                  debt: (sch.debt || 0) + monthDebt,
-                  total: (sch.total || 0) + monthDebt
-                }
-              }
-            }
-          });
-        }
-
-        await models.Schedules.bulkWrite(bulkOps);
-        await models.Transactions.updateOne(
-          { _id: newTr._id },
-          {
-            $set: { reactions: trReaction }
-          }
-        );
-      }
+      await createTransactionSchedule(contract, newTr.payDate, newTr, models, config);
+      await scheduleFixAfterCurrent(contract, newTr.payDate, models, config);
 
       return newTr;
     }
@@ -441,12 +344,13 @@ export const loadTransactionClass = (models: IModels) => {
     /**
      * Remove Transaction
      */
-    public static async removeTransactions(_ids) {
-      const transactions: ITransactionDocument[] = await models.Transactions.find(
-        { _id: _ids }
-      )
-        .sort({ payDate: -1 })
-        .lean();
+    public static async removeTransactions(_ids, subdomain) {
+      const transactions: ITransactionDocument[] =
+        await models.Transactions.find({ _id: _ids })
+          .sort({ payDate: -1 })
+          .lean();
+
+      const config: IConfig = await getConfig('loansConfig', subdomain);
 
       for await (const oldTr of transactions) {
         if (oldTr) {
@@ -463,8 +367,9 @@ export const loadTransactionClass = (models: IModels) => {
             throw new Error(
               'At this moment transaction can not been created because this date closed'
             );
-          oldTr.transactionType !== 'give' &&
-            (await removeTrAfterSchedule(models, oldTr));
+
+          await removeTrAfterSchedule(models, oldTr, config);
+
           oldTr.contractId &&
             (await models.Contracts.updateOne(
               { _id: oldTr.contractId },
@@ -482,44 +387,49 @@ export const loadTransactionClass = (models: IModels) => {
 
     public static async getPaymentInfo(id, payDate, subdomain) {
       const today = getPureDate(new Date(payDate));
-      const paymentInfo = await getCalcedAmounts(models, subdomain, {
-        contractId: id,
-        payDate: today
-      });
+
+      const config: IConfig = await getConfig('loansConfig', subdomain);
+
+      const paymentInfo = await getCalcedAmounts(
+        models,
+        subdomain,
+        {
+          contractId: id,
+          payDate: today
+        },
+        config
+      );
 
       let {
         payment = 0,
-        undue = 0,
-        interestEve = 0,
-        interestNonce = 0,
+        loss = 0,
         insurance = 0,
         debt = 0,
         balance = 0,
         commitmentInterest = 0,
-        storedInterest = 0
+        storedInterest = 0,
+        calcInterest = 0
       } = paymentInfo;
 
-      if (interestEve + interestNonce > storedInterest)
-        paymentInfo.calcInterest = interestEve + interestNonce - storedInterest;
+      paymentInfo.total = new BigNumber(payment)
+        .plus(loss)
+        .plus(calcInterest)
+        .plus(storedInterest)
+        .plus(insurance)
+        .plus(debt)
+        .plus(commitmentInterest)
+        .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
+        .toNumber();
 
-      paymentInfo.total =
-        payment +
-        undue +
-        paymentInfo.calcInterest +
-        storedInterest +
-        insurance +
-        debt +
-        commitmentInterest;
-
-      paymentInfo.closeAmount =
-        balance +
-        payment +
-        undue +
-        paymentInfo.calcInterest +
-        storedInterest +
-        insurance +
-        commitmentInterest +
-        debt;
+      paymentInfo.closeAmount = new BigNumber(balance)
+        .plus(loss)
+        .plus(calcInterest)
+        .plus(storedInterest)
+        .plus(insurance)
+        .plus(debt)
+        .plus(commitmentInterest)
+        .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
+        .toNumber();
 
       return paymentInfo;
     }

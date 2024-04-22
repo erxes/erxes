@@ -99,9 +99,9 @@ class DetailInfo extends React.Component<Props> {
               )}
               {this.renderRow(
                 'Loss percent',
-                (contractType.unduePercent || 0).toLocaleString()
+                (contractType.lossPercent || 0).toLocaleString()
               )}
-              {this.renderRow('Loss calc type', contractType.undueCalcType)}
+              {this.renderRow('Loss calc type', contractType.lossCalcType)}
               {this.renderRow(
                 'Is use debt',
                 __(contractType.useDebt ? 'Yes' : 'No')
