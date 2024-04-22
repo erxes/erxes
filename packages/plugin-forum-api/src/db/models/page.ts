@@ -19,7 +19,7 @@ export type PageDocument = IPage & Document;
 
 const OMIT_FROM_INPUT = ['_id'] as const;
 
-export type PageCreateInput = Omit<IPage, typeof OMIT_FROM_INPUT[number]>;
+export type PageCreateInput = Omit<IPage, (typeof OMIT_FROM_INPUT)[number]>;
 export type PagePatchInput = PageCreateInput;
 
 export interface IPageModel extends Model<PageDocument> {
@@ -37,14 +37,14 @@ export const pageSchema = new Schema<PageDocument>({
   thumbnail: String,
   custom: Schema.Types.Mixed,
   customIndexed: Schema.Types.Mixed,
-  listOrder: Number
+  listOrder: Number,
 });
 pageSchema.index({ code: 1 });
 
 export const generatePageModel = (
   subdomain: string,
   con: Connection,
-  models: IModels
+  models: IModels,
 ): void => {
   class PageModelStatics {
     public static async findByIdOrThrow(_id: string): Promise<PageDocument> {
@@ -55,18 +55,18 @@ export const generatePageModel = (
       return page;
     }
     public static async createPage(
-      input: PageCreateInput
+      input: PageCreateInput,
     ): Promise<PageDocument> {
       return models.Page.create(input);
     }
     public static async patchPage(
       _id: string,
-      patch: PagePatchInput
+      patch: PagePatchInput,
     ): Promise<PageDocument> {
       const page = await models.Page.findByIdAndUpdate(
         _id,
         { $set: patch },
-        { new: true }
+        { new: true },
       );
 
       if (!page) {
@@ -76,7 +76,7 @@ export const generatePageModel = (
     }
     public static async deletePage(_id: string): Promise<PageDocument> {
       const page = await models.Page.findByIdOrThrow(_id);
-      await page.remove();
+      await page.deleteOne();
       return page;
     }
   }

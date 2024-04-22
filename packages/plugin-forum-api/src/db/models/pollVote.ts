@@ -1,5 +1,12 @@
 import { IUserDocument } from '@erxes/api-utils/src/types';
-import { Document, Schema, Model, Connection, Types } from 'mongoose';
+import {
+  Document,
+  Schema,
+  Model,
+  Connection,
+  Types,
+  HydratedDocument,
+} from 'mongoose';
 import { ICpUser } from '../../graphql';
 import { IModels } from './index';
 import * as _ from 'lodash';
@@ -7,19 +14,19 @@ import { LoginRequiredError } from '../../customErrors';
 import { UserTypes } from '../../consts';
 
 export interface PollVote {
-  _id: any;
-  pollOptionId: string;
+  _id: string;
+  pollOptionId: Types.ObjectId;
   cpUserId: string;
 }
 
 const pollVoteSchema = new Schema<PollVote>({
   pollOptionId: { type: Schema.Types.ObjectId, required: true, index: true },
-  cpUserId: { type: String, required: true }
+  cpUserId: { type: String, required: true },
 });
 
-type PollVoteDocument = PollVote & Document;
+type PollVoteDocument = HydratedDocument<PollVote>;
 
-export interface PollVoteModel extends Model<PollVoteDocument> {
+export interface PollVoteModel extends Model<PollVote> {
   vote(pollOptionId: string, cpUser?: ICpUser): Promise<boolean>;
   unvote(pollOptionId: string, cpUser?: ICpUser): Promise<boolean>;
 }
@@ -27,12 +34,12 @@ export interface PollVoteModel extends Model<PollVoteDocument> {
 export const generatePollVoteModel = (
   subdomain: string,
   con: Connection,
-  models: IModels
+  models: IModels,
 ): void => {
   class PollVoteStatics {
     public static async vote(
       pollOptionId: string,
-      cpUser?: ICpUser
+      cpUser?: ICpUser,
     ): Promise<boolean> {
       if (!cpUser) throw new LoginRequiredError();
       const pollOption = await models.PollOption.findByIdOrThrow(pollOptionId);
@@ -52,40 +59,40 @@ export const generatePollVoteModel = (
 
       const doc = {
         pollOptionId,
-        cpUserId: cpUser.userId
+        cpUserId: cpUser.userId,
       };
 
       if (post.isPollMultiChoice) {
-        await models.PollVote.update(doc, { $set: doc }, { upsert: true });
+        await models.PollVote.updateOne(doc, { $set: doc }, { upsert: true });
         return true;
       }
 
       const allOtherOptions = await models.PollOption.find({
         _id: { $ne: pollOptionId },
-        postId: pollOption.postId
+        postId: pollOption.postId,
       });
 
       // remove existing votes for other options by same user
       await models.PollVote.deleteMany({
         pollOptionId: { $in: allOtherOptions.map(({ _id }) => _id) },
-        cpUserId: cpUser.userId
+        cpUserId: cpUser.userId,
       });
 
       await models.PollVote.updateOne(
         doc,
         {
-          $set: doc
+          $set: doc,
         },
         {
-          upsert: true
-        }
+          upsert: true,
+        },
       );
 
       return true;
     }
     public static async unvote(
       pollOptionId: string,
-      cpUser?: ICpUser
+      cpUser?: ICpUser,
     ): Promise<boolean> {
       if (!cpUser) throw new LoginRequiredError();
 
@@ -106,7 +113,7 @@ export const generatePollVoteModel = (
 
       await models.PollVote.deleteMany({
         pollOptionId,
-        cpUserId: cpUser.userId
+        cpUserId: cpUser.userId,
       });
 
       return true;
@@ -114,8 +121,8 @@ export const generatePollVoteModel = (
   }
   pollVoteSchema.loadClass(PollVoteStatics);
 
-  models.PollVote = con.model<PollVoteDocument, PollVoteModel>(
+  models.PollVote = con.model<PollVote, PollVoteModel>(
     'forum_poll_vote',
-    pollVoteSchema
+    pollVoteSchema,
   );
 };

@@ -8,7 +8,7 @@ import { Types } from 'mongoose';
 export const buildPostsQuery = async (
   { Category }: IModels,
   params: any,
-  user?: IUserDocument | null
+  user?: IUserDocument | null,
 ) => {
   const query: any = {};
 
@@ -20,7 +20,7 @@ export const buildPostsQuery = async (
     'createdById',
     'createdByCpId',
     'categoryApprovalState',
-    'tagIds'
+    'tagIds',
   ]) {
     const param = params[field];
 
@@ -41,7 +41,7 @@ export const buildPostsQuery = async (
     if (params.categoryIncludeDescendants) {
       const descendants =
         (await Category.getDescendantsOf(params.categoryId)) || [];
-      const allIds = [...params.categoryId, ...descendants.map(d => d._id)];
+      const allIds = [...params.categoryId, ...descendants.map((d) => d._id)];
       query.categoryId = { $in: allIds };
     } else {
       query.categoryId = { $in: params.categoryId };
@@ -109,21 +109,21 @@ const PostQueries: IObjectTypeResolver<any, IContext> = {
   async forumLastPublishedFollowingUsers(
     _,
     { categoryId, limit = 0, offset = 0 },
-    { models: { Post, FollowCpUser }, cpUser }
+    { models: { Post, FollowCpUser }, cpUser },
   ) {
     if (!cpUser) throw new LoginRequiredError();
     const follows = await FollowCpUser.find({ followerId: cpUser.userId })
       .select('followeeId')
       .lean();
 
-    const createdByCpIds = follows.map(f => f.followeeId);
+    const createdByCpIds = follows.map((f) => f.followeeId);
 
     const query: any = {
-      createdByCpId: { $in: createdByCpIds }
+      createdByCpId: { $in: createdByCpIds },
     };
 
     if (categoryId) {
-      query.categoryId = Types.ObjectId(categoryId);
+      query.categoryId = new Types.ObjectId(categoryId as string);
     }
 
     const aggregationStates: any[] = [
@@ -132,10 +132,10 @@ const PostQueries: IObjectTypeResolver<any, IContext> = {
       {
         $group: {
           _id: '$createdByCpId',
-          createdByCpId: { $first: '$createdByCpId' }
-        }
+          createdByCpId: { $first: '$createdByCpId' },
+        },
       },
-      { $skip: offset }
+      { $skip: offset },
     ];
 
     if (limit > 0) {
@@ -144,31 +144,31 @@ const PostQueries: IObjectTypeResolver<any, IContext> = {
 
     const result = await Post.aggregate(aggregationStates);
 
-    return result.map(r => ({
+    return result.map((r) => ({
       __typename: 'ClientPortalUser',
-      _id: r.createdByCpId
+      _id: r.createdByCpId,
     }));
   },
   async forumMostPublishedUsers(
     _,
     { limit = 0, offset = 0, categoryId },
-    { models: { Post } }
+    { models: { Post } },
   ) {
     const query: any = {
       state: 'PUBLISHED',
       categoryApprovalState: 'APPROVED',
       $and: [
         {
-          createdByCpId: { $ne: null }
+          createdByCpId: { $ne: null },
         },
         {
-          createdByCpId: { $ne: '' }
-        }
-      ]
+          createdByCpId: { $ne: '' },
+        },
+      ],
     };
 
     if (categoryId) {
-      query.categoryId = Types.ObjectId(categoryId);
+      query.categoryId = new Types.ObjectId(categoryId as string);
     }
 
     const aggregationStates: any[] = [
@@ -178,12 +178,12 @@ const PostQueries: IObjectTypeResolver<any, IContext> = {
         $group: {
           _id: '$createdByCpId',
           count: {
-            $sum: 1
-          }
-        }
+            $sum: 1,
+          },
+        },
       },
       { $sort: { count: -1 } },
-      { $skip: offset }
+      { $skip: offset },
     ];
 
     if (limit > 0) {
@@ -192,11 +192,11 @@ const PostQueries: IObjectTypeResolver<any, IContext> = {
 
     const result = await Post.aggregate(aggregationStates);
 
-    return result.map(r => ({
+    return result.map((r) => ({
       __typename: 'ClientPortalUser',
-      _id: r._id
+      _id: r._id,
     }));
-  }
+  },
 };
 
 export default PostQueries;

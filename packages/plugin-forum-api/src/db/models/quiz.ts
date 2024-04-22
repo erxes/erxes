@@ -1,14 +1,21 @@
-import { Document, Schema, Model, Connection, Types } from 'mongoose';
+import {
+  Document,
+  Schema,
+  Model,
+  Connection,
+  Types,
+  HydratedDocument,
+} from 'mongoose';
 import { IModels } from './index';
 import * as _ from 'lodash';
 import { ICpUser } from '../../graphql';
 import { LoginRequiredError } from '../../customErrors';
 
 export const QUIZ_STATES = ['DRAFT', 'PUBLISHED', 'ARCHIVED'] as const;
-export type QuizState = typeof QUIZ_STATES[number];
+export type QuizState = (typeof QUIZ_STATES)[number];
 
 export interface Quiz {
-  _id: any;
+  _id: string;
 
   postId?: string | null;
   companyId?: string | null;
@@ -23,9 +30,9 @@ export interface Quiz {
   state: QuizState;
 }
 
-export type QuizDocument = Quiz & Document;
+export type QuizDocument = HydratedDocument<Quiz>;
 
-export const quizSchema = new Schema<QuizDocument>({
+export const quizSchema = new Schema<Quiz>({
   postId: { type: Schema.Types.ObjectId, index: true, sparse: true },
   companyId: { type: String, index: true, sparse: true },
   tagIds: [{ type: String, index: true, sparse: true }],
@@ -34,17 +41,17 @@ export const quizSchema = new Schema<QuizDocument>({
   state: { type: String, enum: QUIZ_STATES, default: (): QuizState => 'DRAFT' },
 
   name: String,
-  description: String
+  description: String,
 });
 
 export interface QuizModel extends Model<QuizDocument> {
   findByIdOrThrow(_id: string): Promise<QuizDocument>;
   createQuiz(
-    input: Omit<Quiz, '_id' | 'isLocked' | 'state'>
+    input: Omit<Quiz, '_id' | 'isLocked' | 'state'>,
   ): Promise<QuizDocument>;
   patchQuiz(
     _id: string,
-    patch: Partial<Omit<Quiz, '_id' | 'isLocked'>>
+    patch: Partial<Omit<Quiz, '_id' | 'isLocked'>>,
   ): Promise<QuizDocument>;
   deleteQuiz(_id: string): Promise<QuizDocument>;
 }
@@ -52,7 +59,7 @@ export interface QuizModel extends Model<QuizDocument> {
 const generateQuizModel = (
   subdomain: string,
   con: Connection,
-  models: IModels
+  models: IModels,
 ) => {
   class QuizStatics {
     public static async findByIdOrThrow(_id: string) {
@@ -63,18 +70,18 @@ const generateQuizModel = (
       return quiz;
     }
     public static async createQuiz(
-      input: Omit<Quiz, '_id' | 'isLocked'>
+      input: Omit<Quiz, '_id' | 'isLocked'>,
     ): Promise<QuizDocument> {
       return models.Quiz.create(input);
     }
     public static async patchQuiz(
       _id: string,
-      patch: Partial<Omit<Quiz, '_id' | 'isLocked'>>
+      patch: Partial<Omit<Quiz, '_id' | 'isLocked'>>,
     ): Promise<QuizDocument> {
       const quiz = await models.Quiz.findByIdAndUpdate(
         _id,
         { $set: patch },
-        { new: true }
+        { new: true },
       );
       if (!quiz) {
         throw new Error('Quiz not found');
@@ -85,40 +92,41 @@ const generateQuizModel = (
       const quiz = await models.Quiz.findByIdOrThrow(_id);
       await models.QuizChoice.deleteMany({ quizId: _id });
       await models.QuizQuestion.deleteMany({ quizId: _id });
-      return quiz.remove();
+      quiz.deleteOne();
+      return quiz;
     }
   }
   quizSchema.loadClass(QuizStatics);
-  models.Quiz = con.model<QuizDocument, QuizModel>('forum_quiz', quizSchema);
+  models.Quiz = con.model<Quiz, QuizModel>('forum_quiz', quizSchema);
 };
 
 export interface QuizQuestion {
   _id: any;
-  quizId: string;
+  quizId: Types.ObjectId;
   text?: string | null;
   imageUrl?: string | null;
   isMultipleChoice: boolean;
   listOrder: number;
 }
 
-export type QuizQuestionDocument = QuizQuestion & Document;
+export type QuizQuestionDocument = HydratedDocument<QuizQuestion>;
 
-export const quizQuestionSchema = new Schema<QuizQuestionDocument>({
+export const quizQuestionSchema = new Schema<QuizQuestion>({
   quizId: { type: Schema.Types.ObjectId, index: true, required: true },
   text: String,
   imageUrl: String,
   isMultipleChoice: { type: Boolean, default: false, required: true },
-  listOrder: { type: Number, default: 0, required: true }
+  listOrder: { type: Number, default: 0, required: true },
 });
 
-export interface QuizQuestionModel extends Model<QuizQuestionDocument> {
+export interface QuizQuestionModel extends Model<QuizQuestion> {
   findByIdOrThrow(_id: string): Promise<QuizQuestionDocument>;
   createQuestion(
-    input: Omit<QuizQuestion, '_id'>
+    input: Omit<QuizQuestion, '_id'>,
   ): Promise<QuizQuestionDocument>;
   patchQuestion(
     _id: string,
-    patch: Partial<Omit<QuizQuestion, '_id'>>
+    patch: Partial<Omit<QuizQuestion, '_id'>>,
   ): Promise<QuizQuestionDocument>;
   deleteQuestion(_id: string): Promise<QuizQuestionDocument>;
 }
@@ -126,11 +134,11 @@ export interface QuizQuestionModel extends Model<QuizQuestionDocument> {
 const generateQuizQuestionModel = (
   subdomain: string,
   con: Connection,
-  models: IModels
+  models: IModels,
 ) => {
   class QuizQuestionStatics {
     public static async findByIdOrThrow(
-      _id: string
+      _id: string,
     ): Promise<QuizQuestionDocument> {
       const doc = await models.QuizQuestion.findById(_id);
       if (!doc) {
@@ -139,13 +147,13 @@ const generateQuizQuestionModel = (
       return doc;
     }
     public static async createQuestion(
-      input: Omit<QuizQuestion, '_id'>
+      input: Omit<QuizQuestion, '_id'>,
     ): Promise<QuizQuestionDocument> {
       return models.QuizQuestion.create(input);
     }
     public static async patchQuestion(
       _id: string,
-      patch: Partial<Omit<QuizQuestion, '_id'>>
+      patch: Partial<Omit<QuizQuestion, '_id'>>,
     ): Promise<QuizQuestionDocument> {
       const doc = await models.QuizQuestion.findByIdOrThrow(_id);
       _.merge(doc, patch);
@@ -153,48 +161,48 @@ const generateQuizQuestionModel = (
       return doc;
     }
     public static async deleteQuestion(
-      _id: string
+      _id: string,
     ): Promise<QuizQuestionDocument> {
       const doc = await models.QuizQuestion.findByIdOrThrow(_id);
       await models.QuizChoice.deleteMany({ questionId: doc._id });
-      await doc.remove();
+      await doc.deleteOne();
       return doc;
     }
   }
   quizQuestionSchema.loadClass(QuizQuestionStatics);
-  models.QuizQuestion = con.model<QuizQuestionDocument, QuizQuestionModel>(
+  models.QuizQuestion = con.model<QuizQuestion, QuizQuestionModel>(
     'forum_quiz_question',
-    quizQuestionSchema
+    quizQuestionSchema,
   );
 };
 
 export interface QuizChoice {
   _id: any;
-  quizId: string;
-  questionId: string;
+  quizId: Types.ObjectId;
+  questionId: Types.ObjectId;
   text?: string | null;
   imageUrl?: string | null;
   isCorrect: boolean;
   listOrder: number;
 }
 
-export type QuizChoiceDocument = QuizChoice & Document;
+export type QuizChoiceDocument = HydratedDocument<QuizChoice>;
 
-export const quizChoiceSchema = new Schema<QuizChoiceDocument>({
+export const quizChoiceSchema = new Schema<QuizChoice>({
   quizId: { type: Schema.Types.ObjectId, index: true, required: true },
   questionId: { type: Schema.Types.ObjectId, index: true, required: true },
   text: String,
   imageUrl: String,
   isCorrect: { type: Boolean, default: false, required: true },
-  listOrder: { type: Number, default: 0, required: true }
+  listOrder: { type: Number, default: 0, required: true },
 });
 
-export interface QuizChoiceModel extends Model<QuizChoiceDocument> {
+export interface QuizChoiceModel extends Model<QuizChoice> {
   findByIdOrThrow(_id: string): Promise<QuizChoiceDocument>;
   createChoice(input: Omit<QuizChoice, '_id'>): Promise<QuizChoiceDocument>;
   patchChoice(
     _id: string,
-    patch: Partial<Omit<QuizChoice, '_id' | 'quizId' | 'questionId'>>
+    patch: Partial<Omit<QuizChoice, '_id' | 'quizId' | 'questionId'>>,
   ): Promise<QuizChoiceDocument>;
   deleteChoice(_id): Promise<QuizChoiceDocument>;
 }
@@ -202,11 +210,11 @@ export interface QuizChoiceModel extends Model<QuizChoiceDocument> {
 const genereateQuizChoiceModel = (
   subdomain: string,
   con: Connection,
-  models: IModels
+  models: IModels,
 ) => {
   class QuizChoiceStatics {
     public static async findByIdOrThrow(
-      _id: string
+      _id: string,
     ): Promise<QuizChoiceDocument> {
       const doc = await models.QuizChoice.findById(_id);
       if (!doc) {
@@ -215,14 +223,14 @@ const genereateQuizChoiceModel = (
       return doc;
     }
     public static async createChoice(
-      input: Omit<QuizChoice, '_id'>
+      input: Omit<QuizChoice, '_id'>,
     ): Promise<QuizChoiceDocument> {
       const doc = await models.QuizChoice.create(input);
       return doc;
     }
     public static async patchChoice(
       _id: string,
-      patch: Partial<Omit<QuizChoice, '_id' | 'quizId' | 'questionId'>>
+      patch: Partial<Omit<QuizChoice, '_id' | 'quizId' | 'questionId'>>,
     ): Promise<QuizChoiceDocument> {
       const doc = await models.QuizChoice.findByIdOrThrow(_id);
       _.merge(doc, patch);
@@ -231,22 +239,22 @@ const genereateQuizChoiceModel = (
     }
     public static async deleteChoice(_id): Promise<QuizChoiceDocument> {
       const doc = await models.QuizChoice.findByIdOrThrow(_id);
-      await doc.remove();
+      await doc.deleteOne();
       return doc;
     }
   }
   quizChoiceSchema.loadClass(QuizChoiceStatics);
 
-  models.QuizChoice = con.model<QuizChoiceDocument, QuizChoiceModel>(
+  models.QuizChoice = con.model<QuizChoice, QuizChoiceModel>(
     'forum_quiz_choice',
-    quizChoiceSchema
+    quizChoiceSchema,
   );
 };
 
 export const generateQuizModels = (
   subdomain: string,
   con: Connection,
-  models: IModels
+  models: IModels,
 ): void => {
   generateQuizModel(subdomain, con, models);
   generateQuizQuestionModel(subdomain, con, models);

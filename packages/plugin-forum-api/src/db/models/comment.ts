@@ -1,5 +1,12 @@
 import { IUserDocument } from '@erxes/api-utils/src/types';
-import { Document, Schema, Model, Connection, Types } from 'mongoose';
+import {
+  Document,
+  Schema,
+  Model,
+  Connection,
+  Types,
+  HydratedDocument,
+} from 'mongoose';
 import { cpus } from 'os';
 import { UserTypes, USER_TYPES } from '../../consts';
 import { LoginRequiredError } from '../../customErrors';
@@ -8,8 +15,8 @@ import { IModels } from './index';
 
 export interface IComment {
   _id: any;
-  replyToId?: string;
-  postId: string;
+  replyToId?: Types.ObjectId;
+  postId: Types.ObjectId;
   content: string;
 
   createdUserType: UserTypes;
@@ -32,22 +39,22 @@ const OMIT_FROM_INPUT = [
   'updatedUserType',
   'updatedAt',
   'updatedById',
-  'updatedByCpId'
+  'updatedByCpId',
 ] as const;
 
-type CommentCreateInput = Omit<IComment, typeof OMIT_FROM_INPUT[number]>;
+type CommentCreateInput = Omit<IComment, (typeof OMIT_FROM_INPUT)[number]>;
 
-export type CommentDocument = IComment & Document;
-export interface ICommentModel extends Model<CommentDocument> {
+export type CommentDocument = HydratedDocument<IComment>;
+export interface ICommentModel extends Model<IComment> {
   findByIdOrThrow(_id: string): Promise<CommentDocument>;
   createComment(
     c: CommentCreateInput,
-    user: IUserDocument
+    user: IUserDocument,
   ): Promise<CommentDocument>;
   updateComment(
     _id: string,
     content: string,
-    user: IUserDocument
+    user: IUserDocument,
   ): Promise<CommentDocument>;
   deleteComment(_id: string): Promise<CommentDocument>;
 
@@ -55,21 +62,21 @@ export interface ICommentModel extends Model<CommentDocument> {
   findByIdOrThrowCp(_id: string, cpUser: ICpUser): Promise<CommentDocument>;
   createCommentCp(
     c: CommentCreateInput,
-    cpUser?: ICpUser
+    cpUser?: ICpUser,
   ): Promise<CommentDocument>;
   updateCommentCp(
     _id: string,
     content: string,
-    cpUser?: ICpUser
+    cpUser?: ICpUser,
   ): Promise<CommentDocument>;
   deleteCommentCp(_id: string, cpUser?: ICpUser): Promise<CommentDocument>;
   /* >>> Client portal */
 }
 
-export const commentSchema = new Schema<CommentDocument>(
+export const commentSchema = new Schema<IComment>(
   {
-    replyToId: { type: Types.ObjectId, index: true },
-    postId: { type: Types.ObjectId, index: true },
+    replyToId: { type: Schema.Types.ObjectId, index: true },
+    postId: { type: Schema.Types.ObjectId, index: true },
     content: { type: String, required: true },
 
     createdUserType: { type: String, required: true, enum: USER_TYPES },
@@ -78,17 +85,17 @@ export const commentSchema = new Schema<CommentDocument>(
 
     updatedUserType: { type: String, required: true, enum: USER_TYPES },
     updatedById: String,
-    updatedByCpId: String
+    updatedByCpId: String,
   },
   {
-    timestamps: true
-  }
+    timestamps: true,
+  },
 );
 
 export const generateCommentModel = (
   subdomain: string,
   con: Connection,
-  models: IModels
+  models: IModels,
 ): void => {
   class CommentModel {
     public static async findByIdOrThrow(_id: string): Promise<CommentDocument> {
@@ -100,25 +107,25 @@ export const generateCommentModel = (
     }
     public static async createComment(
       c: Omit<IComment, '_id'>,
-      user: IUserDocument
+      user: IUserDocument,
     ): Promise<CommentDocument> {
       const res = await models.Comment.create({
         ...c,
         createdById: user._id,
         createdUserType: USER_TYPES[0],
         updatedById: user._id,
-        updatedUserType: USER_TYPES[0]
+        updatedUserType: USER_TYPES[0],
       });
       await models.Post.updateOne(
         { _id: c.postId },
-        { $inc: { commentCount: 1 } }
+        { $inc: { commentCount: 1 } },
       );
       return res;
     }
     public static async updateComment(
       _id: string,
       content: string,
-      user: IUserDocument
+      user: IUserDocument,
     ): Promise<CommentDocument> {
       const comment = await models.Comment.findByIdOrThrow(_id);
       comment.content = content;
@@ -139,7 +146,7 @@ export const generateCommentModel = (
     /* <<< Client portal */
     public static async findByIdOrThrowCp(
       _id: string,
-      cpUser: ICpUser
+      cpUser: ICpUser,
     ): Promise<CommentDocument> {
       const comment = await models.Comment.findByIdOrThrow(_id);
       if (comment.createdByCpId !== cpUser.userId)
@@ -148,7 +155,7 @@ export const generateCommentModel = (
     }
     public static async createCommentCp(
       c: Omit<IComment, '_id'>,
-      cpUser?: ICpUser
+      cpUser?: ICpUser,
     ): Promise<CommentDocument> {
       if (!cpUser) throw new LoginRequiredError();
 
@@ -158,7 +165,7 @@ export const generateCommentModel = (
       await models.Category.ensureUserIsAllowed(
         'WRITE_COMMENT',
         category,
-        cpUser
+        cpUser,
       );
 
       const res = await models.Comment.create({
@@ -166,12 +173,12 @@ export const generateCommentModel = (
         createdByCpId: cpUser.userId,
         createdUserType: USER_TYPES[1],
         updatedByCpId: cpUser.userId,
-        updatedUserType: USER_TYPES[1]
+        updatedUserType: USER_TYPES[1],
       });
 
       await models.Post.updateOne(
         { _id: c.postId },
-        { $inc: { commentCount: 1 } }
+        { $inc: { commentCount: 1 } },
       );
 
       return res;
@@ -179,7 +186,7 @@ export const generateCommentModel = (
     public static async updateCommentCp(
       _id: string,
       content: string,
-      cpUser?: ICpUser
+      cpUser?: ICpUser,
     ): Promise<CommentDocument> {
       if (!cpUser) throw new Error('Unauthorized');
 
@@ -193,13 +200,13 @@ export const generateCommentModel = (
 
     public static async deleteCommentCp(
       _id: string,
-      cpUser?: ICpUser
+      cpUser?: ICpUser,
     ): Promise<CommentDocument> {
       if (!cpUser) throw new LoginRequiredError();
 
       const deletedComment = await models.Comment.findByIdOrThrowCp(
         _id,
-        cpUser
+        cpUser,
       );
 
       deleteCommentCommon(models, deletedComment);
@@ -210,43 +217,43 @@ export const generateCommentModel = (
   }
   commentSchema.loadClass(CommentModel);
 
-  models.Comment = con.model<CommentDocument, ICommentModel>(
+  models.Comment = con.model<IComment, ICommentModel>(
     'forum_comments',
-    commentSchema
+    commentSchema,
   );
 };
 
 async function deleteCommentCommon(
   models: IModels,
-  commentToDelete: CommentDocument
+  commentToDelete: CommentDocument,
 ) {
   const idsToDelete = [commentToDelete._id];
   let findRepliesOf = [commentToDelete._id];
 
   while (findRepliesOf?.length) {
     const replies = await models.Comment.find({
-      replyToId: { $in: findRepliesOf }
+      replyToId: { $in: findRepliesOf },
     })
       .select('_id')
       .lean();
-    const replyIds = replies.map(reply => reply._id);
+    const replyIds = replies.map((reply) => reply._id);
     idsToDelete.push(...replyIds);
     findRepliesOf = replyIds;
   }
 
   await models.Comment.deleteMany({
-    _id: { $in: idsToDelete }
+    _id: { $in: idsToDelete },
   });
 
   await models.CommentDownVote.deleteMany({
-    contentId: { $in: idsToDelete }
+    contentId: { $in: idsToDelete },
   });
   await models.CommentUpVote.deleteMany({
-    contentId: { $in: idsToDelete }
+    contentId: { $in: idsToDelete },
   });
 
   await models.Post.updateOne(
     { _id: commentToDelete.postId },
-    { $inc: { commentCount: -idsToDelete.length } }
+    { $inc: { commentCount: -idsToDelete.length } },
   );
 }
