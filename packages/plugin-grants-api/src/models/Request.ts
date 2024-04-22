@@ -6,7 +6,7 @@ import { IModels } from '../connectionResolver';
 import {
   sendCommonMessage,
   sendCoreMessage,
-  sendNotificationsMessage
+  sendNotificationsMessage,
 } from '../messageBroker';
 import { checkConfig, doAction, doLogicAfterAction } from '../utils';
 import { IGrantRequestDocument, grantSchema } from './definitions/grant';
@@ -18,15 +18,15 @@ export interface IRequestsModel extends Model<IGrantRequestDocument> {
   getGrantActions(): Promise<{ label: string; action: string }[]>;
   addGrantRequest(
     doc: any,
-    user: IUserDocument
+    user: IUserDocument,
   ): Promise<IGrantRequestDocument>;
   editGrantRequest(
     doc: any,
-    user: IUserDocument
+    user: IUserDocument,
   ): Promise<IGrantRequestDocument>;
   cancelGrantRequest(
     contentTypeId: string,
-    contentType: string
+    contentType: string,
   ): Promise<IGrantRequestDocument>;
   resolveRequest(requestId: string): Promise<IGrantRequestDocument>;
   removeGrantRequests(ids: string[]): Promise<IGrantRequestDocument>;
@@ -55,30 +55,24 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
     }
 
     public static async addGrantRequest(doc: any, user: IUserDocument) {
-      const {
-        contentTypeId,
-        contentType,
-        userIds,
-        action,
-        scope,
-        params
-      } = doc;
+      const { contentTypeId, contentType, userIds, action, scope, params } =
+        doc;
 
       const config = await checkConfig({
         subdomain,
         action,
         scope,
         contentType,
-        contentTypeId
+        contentTypeId,
       });
 
       const extendedDoc = {
         ...doc,
         params: JSON.stringify({
           sourceType: contentType,
-          ...JSON.parse(params || '{}')
+          ...JSON.parse(params || '{}'),
         }),
-        requesterId: user._id
+        requesterId: user._id,
       };
 
       if (config) {
@@ -86,7 +80,7 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
           type: contentType,
           itemId: contentTypeId,
           sourceType: contentType,
-          ...JSON.parse(config.params || '{}')
+          ...JSON.parse(config.params || '{}'),
         });
       } else {
         try {
@@ -104,7 +98,7 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
         action: 'getLink',
         data: { _id: contentTypeId, type: contentType },
         isRPC: true,
-        defaultValue: null
+        defaultValue: null,
       });
 
       if (!!link) {
@@ -118,19 +112,20 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
             action: 'wants grant',
             content: action,
             notifType: 'plugin',
-            link: link
-          }
+            link: link,
+          },
         });
         sendCoreMessage({
           subdomain: 'os',
           action: 'sendMobileNotification',
           data: {
             title: `Grant`,
-            body: `${user?.details?.fullName ||
-              user?.details?.shortName} wants ${action}`,
+            body: `${
+              user?.details?.fullName || user?.details?.shortName
+            } wants ${action}`,
             receivers: userIds,
-            data: { _id: contentTypeId, type: contentType }
-          }
+            data: { _id: contentTypeId, type: contentType },
+          },
         });
       }
 
@@ -147,7 +142,7 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
 
       const request = await models.Requests.getGrantRequest({
         contentTypeId,
-        contentType
+        contentType,
       });
 
       if (request.action !== action) {
@@ -156,13 +151,13 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
           action,
           scope,
           contentType,
-          contentTypeId
+          contentTypeId,
         });
 
         params = JSON.stringify({
           type: contentType,
           itemId: contentTypeId,
-          ...JSON.parse(config?.params || '{}')
+          ...JSON.parse(config?.params || '{}'),
         });
       }
 
@@ -170,7 +165,7 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
 
       return await models.Requests.updateOne(
         { _id: request._id },
-        { $set: { userIds, action, params, requesterId: user._id } }
+        { $set: { userIds, action, params, requesterId: user._id } },
       );
     }
 
@@ -183,17 +178,17 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
 
       const declinedCount = await models.Responses.countDocuments({
         requestId: request._id,
-        response: 'declined'
+        response: 'declined',
       });
 
       const requester = await sendCoreMessage({
         subdomain,
         action: 'users.findOne',
         data: {
-          _id: request.requesterId
+          _id: request.requesterId,
         },
         isRPC: true,
-        defaultValue: null
+        defaultValue: null,
       });
 
       if (!declinedCount) {
@@ -203,39 +198,39 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
           request.action,
           request._id,
           request.params,
-          requester
+          requester,
         );
         await models.Requests.updateOne(
           { _id: request._id },
-          { status: 'approved', resolvedAt: new Date() }
+          { status: 'approved', resolvedAt: new Date() },
         );
         await doLogicAfterAction(
           subdomain,
           request._id,
           request.params,
-          requester
+          requester,
         );
       } else {
         await models.Requests.updateOne(
           { _id: request._id },
-          { status: 'declined', resolvedAt: new Date() }
+          { status: 'declined', resolvedAt: new Date() },
         );
         await doLogicAfterAction(
           subdomain,
           request._id,
           request.params,
-          requester
+          requester,
         );
       }
     }
 
     public static async cancelGrantRequest(
       contentTypeId: string,
-      contentType: string
+      contentType: string,
     ) {
       const request = await models.Requests.getGrantRequest({
         contentTypeId,
-        contentType
+        contentType,
       });
 
       if (!request) {
@@ -244,20 +239,20 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
 
       if (request.status !== 'waiting') {
         throw new Error(
-          'Cannot cancel request because request is already gotten respond'
+          'Cannot cancel request because request is already gotten respond',
         );
       }
 
       await models.Responses.deleteMany({ requestId: request._id });
 
-      request.remove();
+      request.deleteOne();
       return 'canceled';
     }
 
     public static async changeGrantRequester(
       requestId: string,
       requesterIds: string[],
-      user: IUserDocument
+      user: IUserDocument,
     ) {
       const request = await models.Requests.findOne({ _id: requestId });
 
@@ -266,10 +261,10 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
       }
 
       const newRequesterIds = requesterIds.filter(
-        requesterId => !(request?.userIds || []).includes(requesterId)
+        (requesterId) => !(request?.userIds || []).includes(requesterId),
       );
       const removedRequesterIds = request.userIds.filter(
-        userId => !requesterIds.includes(userId)
+        (userId) => !requesterIds.includes(userId),
       );
 
       if (!!removedRequesterIds?.length || !!newRequesterIds.length) {
@@ -279,27 +274,27 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
           action: 'getLink',
           data: {
             _id: request.contentTypeId,
-            type: request.contentType
+            type: request.contentType,
           },
           isRPC: true,
-          defaultValue: null
+          defaultValue: null,
         });
         if (!!removedRequesterIds?.length) {
           const responses = await models.Responses.find({
             requestId: request._id,
             userId: { $in: removedRequesterIds },
-            status: { $ne: 'waiting' }
+            status: { $ne: 'waiting' },
           });
 
           if (!!responses?.length) {
             throw new Error(
-              'Cannot remove some requesters from request.Because some requesters are already responded'
+              'Cannot remove some requesters from request.Because some requesters are already responded',
             );
           }
 
           await models.Requests.updateOne(
             { _id: request._id },
-            { $pull: { userIds: { $in: removedRequesterIds } } }
+            { $pull: { userIds: { $in: removedRequesterIds } } },
           );
 
           await sendNotificationsMessage({
@@ -311,19 +306,20 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
               title: `Grant`,
               action: 'removed from request',
               content: request.action,
-              notifType: 'plugin'
-            }
+              notifType: 'plugin',
+            },
           });
           sendCoreMessage({
             subdomain: 'os',
             action: 'sendMobileNotification',
             data: {
               title: `Grant`,
-              body: `${user?.details?.fullName ||
-                user?.details?.shortName} removed ${request.action}`,
+              body: `${
+                user?.details?.fullName || user?.details?.shortName
+              } removed ${request.action}`,
               receivers: removedRequesterIds,
-              data: { _id: request.contentTypeId, type: request.contentType }
-            }
+              data: { _id: request.contentTypeId, type: request.contentType },
+            },
           });
         }
 
@@ -338,19 +334,20 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
               action: 'wants grant',
               content: request.action,
               notifType: 'plugin',
-              link: link
-            }
+              link: link,
+            },
           });
           sendCoreMessage({
             subdomain: 'os',
             action: 'sendMobileNotification',
             data: {
               title: `Grant`,
-              body: `${user?.details?.fullName ||
-                user?.details?.shortName} wants ${request.action}`,
+              body: `${
+                user?.details?.fullName || user?.details?.shortName
+              } wants ${request.action}`,
               receivers: newRequesterIds,
-              data: { _id: request.contentTypeId, type: request.contentType }
-            }
+              data: { _id: request.contentTypeId, type: request.contentType },
+            },
           });
         }
       }
@@ -368,14 +365,14 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
           label: 'Change Stage',
           action: 'changeStage',
           scope: 'cards',
-          type: 'card'
+          type: 'card',
         },
         {
           label: 'Create Related Card',
           action: 'createRelatedCard',
           scope: 'cards',
-          type: 'card'
-        }
+          type: 'card',
+        },
       ];
 
       for (const serviceName of services) {
@@ -389,7 +386,7 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
               scope: serviceName,
               label: label,
               action,
-              type
+              type,
             });
           }
         }
@@ -400,7 +397,7 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
     public static async removeGrantRequests(ids: string[]) {
       return await models.Requests.updateMany(
         { _id: { $in: ids } },
-        { activeStatus: 'archived' }
+        { activeStatus: 'archived' },
       );
     }
   }
