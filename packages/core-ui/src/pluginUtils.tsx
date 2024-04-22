@@ -171,7 +171,6 @@ export const loadComponent = (scope, module) => {
       if (!Module) {
         throw new Error(`Module '${module}' is not initialized properly.`);
       }
-
       return Module;
     } catch (error) {
       console.error("Component loading error:", error);
@@ -189,8 +188,6 @@ const renderPluginSidebar = (itemName: string, type: string, object: any) => {
       plugins={plugins}
       callBack={(_plugin, sections) => {
         return (sections || []).map((section) => {
-          console.log("kkk", section.scope, window[section.scope]);
-
           if (!window[section.scope]) {
             return null;
           }
@@ -205,7 +202,7 @@ const renderPluginSidebar = (itemName: string, type: string, object: any) => {
             mainType: type,
             mainTypeId: object._id,
           };
-
+          console.log("waaa", section);
           if (section?.withDetail) {
             updatedProps["object"] = object;
           }
