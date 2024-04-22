@@ -120,7 +120,7 @@ export const queries = `
 `;
 
 export const mutations = `
-    vendorAddInsuranceItem(doc: InsuranceItemInput): String
+    vendorAddInsuranceItem(doc: InsuranceItemInput): JSON
     vendorEditInsuranceItem(_id: ID!, firstName: String, lastName: String, customFieldsData: JSON ): InsuranceItem
     insuranceItemEdit(_id: ID!, doc: InsuranceItemInput): InsuranceItem
 `;
