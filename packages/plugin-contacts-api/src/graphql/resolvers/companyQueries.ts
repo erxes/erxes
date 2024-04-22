@@ -98,7 +98,7 @@ const companyQueries = {
     { _id }: { _id: string },
     { models: { Companies } }: IContext
   ) {
-    return Companies.findOne({ _id });
+    return Companies.findOne({ $or: [{ _id }, { code: _id }] });
   }
 };
 
