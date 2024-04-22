@@ -16,6 +16,7 @@ import {
   __,
   isEnabled,
 } from "@erxes/ui/src/utils/core";
+import Select, { OnChangeValue } from "react-select";
 
 import Datetime from "@nateradebaugh/react-datetime";
 import ErrorBoundary from "@erxes/ui/src/components/ErrorBoundary";
@@ -25,7 +26,6 @@ import Map from "@erxes/ui/src/containers/map/Map";
 import ModifiableList from "@erxes/ui/src/components/ModifiableList";
 import ObjectList from "./ObjectList";
 import React from "react";
-import Select, { OnChangeValue } from "react-select";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
@@ -55,6 +55,7 @@ type State = {
   checkBoxValues: any[];
   errorCounter: number;
   currentLocation?: ILocationOption;
+  errorMessage?: string;
 };
 
 export default class GenerateField extends React.Component<Props, State> {
@@ -152,7 +153,7 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderInput(attrs, hasError?: boolean) {
-    let { value, errorCounter } = this.state;
+    let { value, errorCounter, errorMessage } = this.state;
     let checkBoxValues = this.state.checkBoxValues || [];
     const { type } = this.props.field;
     let { validation } = this.props.field;
@@ -164,6 +165,14 @@ export default class GenerateField extends React.Component<Props, State> {
     }
 
     attrs.type = "text";
+    const errorObject: any = {};
+
+    // attrs.errors =
+
+    if (errorMessage) {
+      errorObject[attrs.name] = errorMessage;
+      attrs.errors = errorObject;
+    }
 
     attrs.onChange = (e) => {
       this.setState({ value: e.target.value });
@@ -599,7 +608,7 @@ export default class GenerateField extends React.Component<Props, State> {
    */
   onChange = (e, optionValue) => {
     const { field, onValueChange } = this.props;
-    const { validation, type } = field;
+    const { validation, type, regexValidation } = field;
 
     if (!e.target && !optionValue) {
       return;
@@ -627,6 +636,17 @@ export default class GenerateField extends React.Component<Props, State> {
       this.setState({ checkBoxValues });
 
       value = checkBoxValues;
+    }
+
+    if (validation === "regex" && regexValidation?.length) {
+      const regex = new RegExp(regexValidation);
+
+      if (!regex.test(value)) {
+        this.setState({ errorMessage: "Invalid value" });
+        return;
+      }
+
+      this.setState({ errorMessage: undefined });
     }
 
     if (onValueChange) {

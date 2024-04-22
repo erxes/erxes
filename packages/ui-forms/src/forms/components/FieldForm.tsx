@@ -34,6 +34,7 @@ import Select from "react-select";
 import SelectProperty from "@erxes/ui-forms/src/settings/properties/containers/SelectProperty";
 import Toggle from "@erxes/ui/src/components/Toggle";
 import { isEnabled } from "@erxes/ui/src/utils/core";
+import { stringToRegex } from "../../settings/properties/utils";
 
 type Props = {
   onSubmit: (field: IField) => void;
@@ -158,6 +159,27 @@ class FieldForm extends React.Component<Props, State> {
     });
   };
 
+  onRegexChange = (e: any) => {
+    if (e.target.value.length === 0) {
+      this.setState({
+        field: {
+          ...this.state.field,
+          regexValidation: "",
+        },
+      });
+      return;
+    }
+
+    const regexPattern = stringToRegex(e.target.value);
+
+    this.setState({
+      field: {
+        ...this.state.field,
+        regexValidation: regexPattern,
+      },
+    });
+  };
+
   onSubmit = (e) => {
     e.persist();
 
@@ -184,11 +206,13 @@ class FieldForm extends React.Component<Props, State> {
       return null;
     }
 
-    const validation = (e) =>
+    const validation = (e) => {
+      const value = (e.currentTarget as HTMLInputElement).value;
       this.onFieldChange(
         "validation",
         (e.currentTarget as HTMLInputElement).value
       );
+    };
 
     return (
       <FormGroup>
@@ -206,7 +230,22 @@ class FieldForm extends React.Component<Props, State> {
           <option value="datetime">{__("Date Time")}</option>
           <option value="date">{__("Date")}</option>
           <option value="phone">{__("Phone")}</option>
+          <option value="regex">{__("Regular Expression")}</option>
         </FormControl>
+
+        {field.validation === "regex" && (
+          <>
+            <FormControl
+              id="regex"
+              placeholder="enter sample text here"
+              componentclass="input"
+              onChange={this.onRegexChange}
+            />
+            {field.regexValidation && (
+              <p>RegexPattern: {field.regexValidation || ""}</p>
+            )}
+          </>
+        )}
       </FormGroup>
     );
   }

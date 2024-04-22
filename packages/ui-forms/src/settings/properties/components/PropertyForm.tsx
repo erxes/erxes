@@ -1,15 +1,3 @@
-import { Row } from "@erxes/ui-inbox/src/settings/integrations/styles";
-import Button from "@erxes/ui/src/components/Button";
-import CollapseContent from "@erxes/ui/src/components/CollapseContent";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import Form from "@erxes/ui/src/components/form/Form";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import ModifiableList from "@erxes/ui/src/components/ModifiableList";
-import Toggle from "@erxes/ui/src/components/Toggle";
-import Map from "@erxes/ui/src/containers/map/Map";
-import { ModalFooter } from "@erxes/ui/src/styles/main";
 import {
   IButtonMutateProps,
   IField,
@@ -19,13 +7,26 @@ import {
   IObjectListConfig,
 } from "@erxes/ui/src/types";
 import { __, loadDynamicComponent } from "@erxes/ui/src/utils/core";
-import React from "react";
 
-import PropertyGroupForm from "../containers/PropertyGroupForm";
-import PropertyLogics from "../containers/PropertyLogics";
+import Button from "@erxes/ui/src/components/Button";
+import CollapseContent from "@erxes/ui/src/components/CollapseContent";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
 import { IFieldGroup } from "../types";
 import LocationOptions from "./LocationOptions";
+import Map from "@erxes/ui/src/containers/map/Map";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import ModifiableList from "@erxes/ui/src/components/ModifiableList";
 import ObjectListConfigs from "./ObjectListConfigs";
+import PropertyGroupForm from "../containers/PropertyGroupForm";
+import PropertyLogics from "../containers/PropertyLogics";
+import React from "react";
+import { Row } from "@erxes/ui-inbox/src/settings/integrations/styles";
+import Toggle from "@erxes/ui/src/components/Toggle";
+import { stringToRegex } from "../utils";
 
 type Props = {
   queryParams: any;
@@ -50,6 +51,8 @@ type State = {
   logics?: IFieldLogic[];
   logicAction?: string;
   isSubmitted?: boolean;
+  validation?: string;
+  regexValidation?: string;
 };
 
 class PropertyForm extends React.Component<Props, State> {
@@ -64,6 +67,8 @@ class PropertyForm extends React.Component<Props, State> {
       hasOptions: false,
       searchable: false,
       showInCard: false,
+      validation: "",
+      regexValidation: "",
     };
 
     if (props.field) {
@@ -74,6 +79,8 @@ class PropertyForm extends React.Component<Props, State> {
         objectListConfigs,
         searchable = false,
         showInCard = false,
+        validation,
+        regexValidation,
       } = props.field;
 
       doc = {
@@ -81,6 +88,8 @@ class PropertyForm extends React.Component<Props, State> {
         type,
         searchable,
         showInCard,
+        validation,
+        regexValidation,
       };
 
       if (
@@ -135,7 +144,6 @@ class PropertyForm extends React.Component<Props, State> {
   generateDoc = (values: {
     _id?: string;
     groupId: string;
-    validation: string;
     text: string;
     description: string;
     logicAction: string;
@@ -151,6 +159,8 @@ class PropertyForm extends React.Component<Props, State> {
       searchable,
       logicAction,
       logics,
+      validation,
+      regexValidation,
     } = this.state;
 
     const finalValues = values;
@@ -176,6 +186,8 @@ class PropertyForm extends React.Component<Props, State> {
       showInCard,
       logicAction,
       logics,
+      validation,
+      regexValidation,
     };
   };
 
@@ -229,6 +241,17 @@ class PropertyForm extends React.Component<Props, State> {
 
   onChangeLogics = (logics) => {
     this.setState({ logics });
+  };
+
+  onRegexChange = (e: any) => {
+    if (e.target.value.length === 0) {
+      this.setState({ regexValidation: "" });
+      return;
+    }
+
+    const regexValidation = stringToRegex(e.target.value);
+
+    this.setState({ regexValidation });
   };
 
   renderOptions = () => {
@@ -339,7 +362,7 @@ class PropertyForm extends React.Component<Props, State> {
     const object = field || ({} as IField);
 
     const { values, isSubmitted } = formProps;
-    const { type, searchable } = this.state;
+    const { type, searchable, validation, regexValidation } = this.state;
 
     return (
       <>
@@ -426,19 +449,39 @@ class PropertyForm extends React.Component<Props, State> {
         {type === "input" && (
           <FormGroup>
             <ControlLabel>Validation:</ControlLabel>
-
             <FormControl
               {...formProps}
               componentclass="select"
               name="validation"
               defaultValue={object.validation || ""}
+              onChange={(e: any) => {
+                this.setState({ validation: e.target.value });
+              }}
             >
               <option />
               <option value="email">Email</option>
               <option value="number">Number</option>
               <option value="date">Date</option>
               <option value="datetime">Date Time</option>
+              <option value="regex">Regular Expression</option>
             </FormControl>
+          </FormGroup>
+        )}
+
+        {validation === "regex" && (
+          <FormGroup>
+            <ControlLabel htmlFor="validation">
+              Regular Expression:
+            </ControlLabel>
+            <p>{__("Setup regular expression")}</p>
+
+            <FormControl
+              id="regex"
+              placeholder="enter sample text here"
+              componentclass="input"
+              onChange={this.onRegexChange}
+            />
+            {regexValidation && <p>RegexPattern: {regexValidation || ""}</p>}
           </FormGroup>
         )}
 

@@ -1,6 +1,6 @@
-import { Document, Model, Schema } from 'mongoose';
-import { IModels } from '../connectionResolver';
-import { getValueAsString } from '../utils';
+import { Document, Model, Schema } from "mongoose";
+import { IModels } from "../connectionResolver";
+import { getValueAsString } from "../utils";
 
 export interface IConfig {
   code: string;
@@ -17,8 +17,8 @@ export interface IConfigDocument extends IConfig, Document {
 }
 
 export const configsSchema = new Schema({
-  code: { type: String, label: 'Code', unique: true },
-  value: { type: String, label: 'Value' }
+  code: { type: String, label: "Code", unique: true },
+  value: { type: String, label: "Value" }
 });
 
 export interface IConfigModel extends Model<IConfigDocument> {
@@ -37,7 +37,7 @@ export const loadConfigClass = (models: IModels) => {
       const config = await models.Configs.findOne({ code });
 
       if (!config) {
-        return { value: '' };
+        return { value: "" };
       }
 
       return config;
@@ -86,12 +86,22 @@ export const loadConfigClass = (models: IModels) => {
      * Get a Config
      */
     public static async getSESConfigs() {
-      const accessKeyId = await getValueAsString(models, 'accessKeyId');
-      const secretAccessKey = await getValueAsString(models, 'secretAccessKey');
-      const region = await getValueAsString(models, 'region');
+      const accessKeyId = await getValueAsString(
+        models,
+        "accessKeyId",
+        "AWS_SES_ACCESS_KEY_ID"
+      );
+      const secretAccessKey = await getValueAsString(
+        models,
+        "secretAccessKey",
+        "AWS_SES_SECRET_ACCESS_KEY"
+      );
+      const region = await getValueAsString(models, "region", "AWS_REGION");
       const unverifiedEmailsLimit = await getValueAsString(
         models,
-        'unverifiedEmailsLimit'
+        "unverifiedEmailsLimit",
+        "EMAILS_LIMIT",
+        "100"
       );
 
       return {
