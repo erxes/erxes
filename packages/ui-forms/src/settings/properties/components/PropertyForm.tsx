@@ -461,7 +461,7 @@ class PropertyForm extends React.Component<Props, State> {
             <ControlLabel htmlFor="validation">
               Regular Expression:
             </ControlLabel>
-            <p>{__('Write your own regular expression')}</p>
+            <p>{__('Setup regular expression')}</p>
             <FormControl
               {...formProps}
               componentClass="input"
