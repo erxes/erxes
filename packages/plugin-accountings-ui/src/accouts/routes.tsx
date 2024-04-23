@@ -7,10 +7,9 @@ const AccountList = asyncComponent(() => import('./containers/AccountList'));
 
 const Accounts = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const queryParams = queryString.parse(location.search);
 
-  return <AccountList navigate={navigate} queryParams={queryParams} />;
+  return <AccountList queryParams={queryParams} />;
 };
 
 const AccountRoutes = () => {
