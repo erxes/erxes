@@ -1,11 +1,14 @@
 import fetch from 'node-fetch';
 import { generateModels } from '../../../connectionResolver';
-import { IContext, sendPosMessage } from '../../../messageBroker';
+import {
+  IContext,
+  sendPosMessage,
+  sendProductsMessage,
+} from '../../../messageBroker';
 import {
   consumeCategory,
   consumeCustomers,
   consumeInventory,
-  consumePrice,
   dealToDynamic,
   getConfig,
 } from '../../../utils';
@@ -57,40 +60,137 @@ const msdynamicSyncMutations = {
 
   async toSyncMsdPrices(
     _root,
-    {
-      brandId,
-      action,
-      prices,
-    }: { brandId: string; action: string; prices: any[] },
+    { brandId }: { brandId: string },
     { subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
 
+    const updatePrices: any = [];
+    const createPrices: any = [];
+    const deletePrices: any = [];
+
+    if (!config.priceApi || !config.username || !config.password) {
+      throw new Error('MS Dynamic config not found.');
+    }
+
+    const { priceApi, username, password } = config;
+
+    const productQry: any = { status: { $ne: 'deleted' } };
+    if (brandId && brandId !== 'noBrand') {
+      productQry.scopeBrandIds = { $in: [brandId] };
+    } else {
+      productQry.$or = [
+        { scopeBrandIds: { $exists: false } },
+        { scopeBrandIds: { $size: 0 } },
+      ];
+    }
+
     try {
-      switch (action) {
-        case 'CREATE': {
-          break;
-        }
-        case 'UPDATE': {
-          for (const price of prices) {
-            await consumePrice(subdomain, config, price, 'update');
+      const productsCount = await sendProductsMessage({
+        subdomain,
+        action: 'count',
+        data: { query: productQry },
+        isRPC: true,
+      });
+
+      const products = await sendProductsMessage({
+        subdomain,
+        action: 'find',
+        data: {
+          query: productQry,
+          limit: productsCount,
+        },
+        isRPC: true,
+      });
+
+      const productCodes = (products || []).map((p) => p.code) || [];
+
+      const response = await fetch(priceApi, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Accept: 'application/json',
+          Authorization: `Basic ${Buffer.from(
+            `${username}:${password}`
+          ).toString('base64')}`,
+        },
+      }).then((res) => res.json());
+
+      const groupedItems = {};
+
+      if (response && response.value.length > 0) {
+        for (const item of response.value) {
+          const { Item_No, Unit_Price } = item;
+
+          if (!groupedItems[Item_No]) {
+            groupedItems[Item_No] = item;
           }
-          break;
+
+          if (groupedItems[Item_No]['Unit_Price'] || 0 > Unit_Price) {
+            groupedItems[Item_No] = item;
+          }
         }
-        case 'DELETE': {
-          break;
-        }
-        default:
-          break;
       }
 
-      return {
-        status: 'success',
-      };
+      // delete price
+      for (const product of products) {
+        if (!groupedItems[product.code]) {
+          deletePrices.push(product);
+        }
+      }
+
+      // update price
+      for (const key in groupedItems) {
+        if (groupedItems.hasOwnProperty(key)) {
+          const resProd = groupedItems[key];
+
+          const updateCode = resProd.Item_No.replace(/\s/g, '');
+          const product = await sendProductsMessage({
+            subdomain,
+            action: 'findOne',
+            data: { code: updateCode },
+            isRPC: true,
+            defaultValue: {},
+          });
+
+          if (productCodes.includes(updateCode)) {
+            updatePrices.push(resProd);
+
+            const document = {
+              unitPrice: resProd?.Unit_Price,
+            };
+
+            if (product) {
+              await sendProductsMessage({
+                subdomain,
+                action: 'updateProduct',
+                data: { _id: product._id, doc: { ...document } },
+                isRPC: true,
+              });
+            }
+          } else {
+            createPrices.push(resProd);
+          }
+        }
+      }
     } catch (e) {
       console.log(e, 'error');
     }
+
+    return {
+      create: {
+        count: createPrices.length,
+        items: createPrices,
+      },
+      update: {
+        count: updatePrices.length,
+        items: updatePrices,
+      },
+      delete: {
+        count: deletePrices.length,
+        items: deletePrices,
+      },
+    };
   },
 
   async toSyncMsdProductCategories(

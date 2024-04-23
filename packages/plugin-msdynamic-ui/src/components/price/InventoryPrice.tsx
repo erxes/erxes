@@ -5,7 +5,7 @@ import {
   CollapseContent,
   DataWithLoader,
   Pagination,
-  Table
+  Table,
 } from '@erxes/ui/src/components';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
@@ -18,8 +18,7 @@ type Props = {
   queryParams: any;
   loading: boolean;
   setBrand: (brandId: string) => void;
-  toCheckPrices: () => void;
-  toSyncPrices: (action: string, prices: any[]) => void;
+  toSyncPrices: () => void;
   items: any;
 };
 
@@ -28,21 +27,20 @@ const InventoryPrice = ({
   loading,
   queryParams,
   setBrand,
-  toCheckPrices,
-  toSyncPrices
+  toSyncPrices,
 }: Props) => {
   const checkButton = (
     <BarItems>
       <span>{items && items.matched && `Matched: ${items.matched.count}`}</span>
       <SelectBrands
         label={__('Choose brands')}
-        onSelect={brand => setBrand(brand as string)}
+        onSelect={(brand) => setBrand(brand as string)}
         initialValue={queryParams.brandId}
         multi={false}
         name="selectedBrands"
         customOption={{
           label: 'No Brand (noBrand)',
-          value: ''
+          value: '',
         }}
       />
 
@@ -50,9 +48,9 @@ const InventoryPrice = ({
         btnStyle="warning"
         size="small"
         icon="check-1"
-        onClick={toCheckPrices}
+        onClick={toSyncPrices}
       >
-        Check
+        Sync
       </Button>
     </BarItems>
   );
@@ -89,43 +87,18 @@ const InventoryPrice = ({
   const renderTable = (data: any, action: string) => {
     data = calculatePagination(data);
 
-    const excludeSyncTrue = (syncData: any) => {
-      return syncData.filter(d => d.syncStatus === false);
-    };
-
-    const onClickSync = () => {
-      data = excludeSyncTrue(data);
-      toSyncPrices(action, data);
-    };
-
     const renderRow = (rowData: any, rowSction: string) => {
       if (rowData.length > 100) {
         rowData = rowData.slice(0, 100);
       }
 
-      return rowData.map(p => (
+      return rowData.map((p) => (
         <Row key={p.code} price={p} action={rowSction} />
       ));
     };
 
-    const syncButton = (
-      <>
-        <Button
-          btnStyle="primary"
-          size="small"
-          icon="check-1"
-          onClick={onClickSync}
-        >
-          Sync
-        </Button>
-      </>
-    );
-
-    const subHeader = <Wrapper.ActionBar right={syncButton} />;
-
     return (
       <>
-        {action === 'UPDATE' && subHeader}
         <Table hover={true}>
           <thead>
             <tr>

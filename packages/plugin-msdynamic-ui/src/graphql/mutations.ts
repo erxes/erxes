@@ -40,15 +40,9 @@ const toSyncCustomers = `
   }
 `;
 
-const toCheckPrices = `
-  mutation toCheckMsdPrices($brandId: String) {
-    toCheckMsdPrices(brandId: $brandId)
-  }
-`;
-
 const toSyncPrices = `
-  mutation toSyncMsdPrices($brandId: String, $action: String, $prices: [JSON]) {
-    toSyncMsdPrices(brandId: $brandId, action: $action, prices: $prices)
+  mutation toSyncMsdPrices($brandId: String) {
+    toSyncMsdPrices(brandId: $brandId)
   }
 `;
 
@@ -90,7 +84,6 @@ export default {
   toSyncCategories,
   toCheckCustomers,
   toSyncCustomers,
-  toCheckPrices,
   toSyncPrices,
   toCheckMsdSynced,
   toSyncMsdOrders,
