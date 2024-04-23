@@ -6,11 +6,9 @@ import List from '../components/List';
 import {
   BurenScoringQueryResponse,
 } from '../types';
-import { mutations, queries } from '../graphql';
+import { queries } from '../graphql';
 import React from 'react';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import Spinner from '@erxes/ui/src/components/Spinner';
+import { IRouterProps } from '@erxes/ui/src/types';
 
 type Props = {
   history: any;
@@ -23,14 +21,7 @@ type FinalProps = {
 IRouterProps 
 
 class ListContainer extends React.Component<FinalProps> {
-
-  constructor(props) {
-    super(props);
-
-  }
- 
   render() {
-
     const { ListMainQuery } = this.props;
     const { list = [], totalCount = 0 } =
     ListMainQuery.burenCustomerScoringsMain || {};
@@ -43,9 +34,6 @@ class ListContainer extends React.Component<FinalProps> {
       loading: ListMainQuery.loading
     };
     return <List {...updatedProps} />;
-
-
-  
 }};
 
 const generateParams = ({ queryParams }) => {

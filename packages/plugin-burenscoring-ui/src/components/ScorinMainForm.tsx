@@ -5,8 +5,6 @@ import {
   FormControl,
   FormGroup,
   MainStyleFormWrapper as FormWrapper,
-  MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
   Table,
   __
 } from '@erxes/ui/src';

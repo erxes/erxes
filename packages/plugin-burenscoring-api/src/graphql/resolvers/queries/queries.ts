@@ -91,7 +91,5 @@ const burenScoringQueries = {
     });
     return scoring;
   }
-
-
 };
 export default burenScoringQueries;

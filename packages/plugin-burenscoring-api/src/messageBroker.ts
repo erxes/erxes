@@ -8,7 +8,6 @@ import {
 export const setupMessageConsumers = async () => {
   consumeQueue('burenscoring:send', async ({ data }) => {
    
-
     return {
       status: 'success',
     };
@@ -20,7 +19,6 @@ export const setupMessageConsumers = async () => {
     };
   });
 };
-
 
 export const getConfig = async (
   code: string,

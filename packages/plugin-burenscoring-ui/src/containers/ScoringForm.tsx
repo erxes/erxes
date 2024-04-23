@@ -1,11 +1,11 @@
 import { ButtonMutate, withProps, __, Alert} from '@erxes/ui/src';
-import { IUser, UsersQueryResponse } from '@erxes/ui/src/auth/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import ScoringForm from '../components/ScorinMainForm';
 import { mutations, queries } from '../graphql';
-import { DetailQueryResponse, ScoringResultResponse, ToFintechScoringResponse } from '../types';
+import { DetailQueryResponse, ScoringResultResponse } from '../types';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 type Props = {

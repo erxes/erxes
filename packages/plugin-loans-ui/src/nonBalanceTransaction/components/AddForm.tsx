@@ -12,7 +12,6 @@ import {
 } from '@erxes/ui/src';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { INonBalanceDetail, INonBalanceTransaction, INonBalanceTransactionDoc } from '../types';
-import { DateContainer } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import SelectContracts, {
   Contracts
@@ -105,7 +104,7 @@ class AddTransactionForm extends React.Component<Props, State> {
       this.setState({ [name]: value } as any);
     };
 
-    const onchangeType= (value, name) => {
+    const onchangeType= (value) => {
       this.setState({ ['detailType']: value.value } as any);
     };
     

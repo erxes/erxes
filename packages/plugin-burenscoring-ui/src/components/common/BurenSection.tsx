@@ -1,16 +1,10 @@
 import Box from '@erxes/ui/src/components/Box';
 import React from 'react';
 import { __ } from '@erxes/ui/src';
-import {  withProps } from '@erxes/ui/src/utils/core';
-import Button from '@erxes/ui/src/components/Button';
-
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-
-import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
-import { Link } from 'react-router-dom';
 import { ButtonRelated } from '@erxes/ui/src/styles/main';
 import ScoringForm from '../../containers/ScoringForm';
-
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 type Props = {
   collapseCallback?: () => void;
   title?: string;
@@ -18,12 +12,12 @@ type Props = {
   mainType?: string;
   mainTypeId?: string;
 };
+
 function Component(
   this: any,
   {
     collapseCallback,
     title,
-    mainType = '',
     mainTypeId = '',
   }: Props
 ) {
@@ -47,6 +41,7 @@ function Component(
   );
   const content = (
     <>
+    <EmptyState icon="building" text="No scoring" />
      {scoringButton}
 
     </>

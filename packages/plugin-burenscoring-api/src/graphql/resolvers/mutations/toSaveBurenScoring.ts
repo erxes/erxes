@@ -9,13 +9,12 @@ const burenScoringMutations = {
   toSaveBurenScoring: async (
     _root,
     doc: IBurenscoring,
-    { user, subdomain }: IContext
+    { subdomain }: IContext
   ) => {
   let data = doc
   if(data?.externalScoringResponse || data?.restInquiryResponse){
     const extRes = doc.externalScoringResponse
     const inquiryRes = doc.restInquiryResponse
-
     data  = {
       externalScoringResponse: {
         data: {
@@ -46,8 +45,6 @@ const burenScoringMutations = {
       { customerId, keyword, reportPurpose }: {customerId: string, keyword: string; reportPurpose: string },
       { subdomain }: IContext
   ) => {
-
-
     const config = await getConfig('burenScoringConfig', subdomain, '' )
     if (!config) {
       throw new Error('Buren scoring config not found.');
@@ -57,6 +54,7 @@ const burenScoringMutations = {
       keyword,
       reportPurpose
     });
+    
     if(scoring.hasOwnProperty('externalScoringResponse') && scoring.hasOwnProperty('restInquiryResponse') ){
      
       const data: IBurenscoring = scoring

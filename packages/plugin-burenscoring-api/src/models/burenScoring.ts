@@ -19,5 +19,6 @@ export const loadBurenScoringClass = (models: IModels) => {
   }
 
   burenscoringSchema.loadClass(BurenScoring);
+  
   return burenscoringSchema;
 };

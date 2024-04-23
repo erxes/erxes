@@ -1,5 +1,4 @@
 import gql from 'graphql-tag';
-
 import {queries, types} from './schema/queries';
 import {mutations} from './schema/mutations';
 

@@ -1,9 +1,6 @@
-import Button from '@erxes/ui/src/components/Button';
 import Row from './Row';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __, Pagination } from '@erxes/ui/src';
 import React from 'react';
-import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Table from '@erxes/ui/src/components/table';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
@@ -47,9 +44,6 @@ function List({
       </tbody>
     </Table>
   );
-
- 
-
   const breadcrumb = [
     { title: __('Settings'), link: '/settings' },
     { title: __('Burenscorings'), link: '/burenscorings' }

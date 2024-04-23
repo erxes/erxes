@@ -1,18 +1,6 @@
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Form from './ScorinMainForm';
 import React from 'react';
-import Button from '@erxes/ui/src/components/Button';
-import Tip from '@erxes/ui/src/components/Tip';
-import Icon from '@erxes/ui/src/components/Icon';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
-import { FormControl } from '@erxes/ui/src/components/form';
-import { colors, dimensions } from '@erxes/ui/src/styles';
-
-
 
 export const BurenscoringWrapper = styledTS<{ space: number }>(
   styled.div
