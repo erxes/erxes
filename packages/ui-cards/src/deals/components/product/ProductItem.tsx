@@ -506,6 +506,7 @@ class ProductItem extends React.Component<Props, State> {
             )}
             onChange={this.currencyOnChange}
             components={{ Option }}
+            isClearable={true}
             options={currencyOptions}
           />
         </td>
@@ -516,6 +517,7 @@ class ProductItem extends React.Component<Props, State> {
             value={uoms.find((uom) => uom.value === productData.uom)}
             onChange={this.uomOnChange}
             components={{ Option }}
+            isClearable={true}
             options={uoms}
           />
         </td>

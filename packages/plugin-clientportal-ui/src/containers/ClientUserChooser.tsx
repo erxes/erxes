@@ -89,6 +89,7 @@ class ClientUserChooser extends React.Component<
           onInputChange={this.onInputChange}
           options={filtered}
           isMulti={false}
+          isClearable={true}
         />
         <div style={{ marginTop: 10 }}></div>
 

@@ -80,6 +80,7 @@ export function SideBar({ queryParams }) {
                 value={cardTypes.find((o) => o.value === queryParams?.cardType)}
                 options={cardTypes}
                 isMulti={false}
+                isClearable={true}
                 onChange={onChangeCardType}
               />
             </CustomForm>

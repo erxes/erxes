@@ -137,6 +137,7 @@ const PerConfigs = (props: Props) => {
           name="deliveryMapField"
           value={mapFieldOptions.find((o) => o.value === config.mapCustomField)}
           onChange={onMapCustomFieldChange}
+          isClearable={true}
           options={mapFieldOptions}
         />
       </FormGroup>

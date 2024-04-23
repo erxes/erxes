@@ -96,6 +96,7 @@ const PermissionList = (props: Props) => {
         <strong>{__("Filters")}:</strong>
         <FilterItem id="permission-choose-module">
           <Select
+            isClearable={true}
             placeholder={__("Choose module")}
             value={generateModuleParams(modules).find(
               (o) => o.value === queryParams.module
@@ -107,6 +108,7 @@ const PermissionList = (props: Props) => {
 
         <FilterItem id="permission-choose-action">
           <Select
+            isClearable={true}
             placeholder={__("Choose action")}
             value={filterActions(actions, queryParams.module).find(
               (o) => o.value === queryParams.action

@@ -148,6 +148,7 @@ const ChartFormField = (props: Props) => {
               value={fieldOptions.find((o) => o.value === fieldValue)}
               onChange={onSelect}
               options={fieldOptions}
+              isClearable={true}
               placeholder={fieldLabel}
             />
           </div>
@@ -178,6 +179,7 @@ const ChartFormField = (props: Props) => {
             isMulti={multi}
             onChange={onSelect}
             options={fieldOptions}
+            isClearable={true}
             placeholder={fieldLabel}
           />
         </div>

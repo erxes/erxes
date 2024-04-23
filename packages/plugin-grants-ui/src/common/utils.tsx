@@ -48,6 +48,7 @@ const SelectActionsComponent: React.FC<Props> = (props) => {
       isMulti={false}
       onChange={handleSelect}
       value={options.find((o) => o.value === initialValue)}
+      isClearable={true}
       isLoading={loading}
       options={options}
     />

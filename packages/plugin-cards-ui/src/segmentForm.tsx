@@ -83,6 +83,7 @@ class Form extends React.Component<any, any, any> {
               <ControlLabel>Board</ControlLabel>
               <Select
                 value={options.find((b) => b.value === config.boardId)}
+                isClearable={true}
                 options={options}
                 onChange={this.onChangeBoard.bind(this, "boardId")}
               />
@@ -94,6 +95,7 @@ class Form extends React.Component<any, any, any> {
                 value={this.generatePipelineOptions(boards).find(
                   (option) => option.value === config.pipelineId
                 )}
+                isClearable={true}
                 onChange={this.onChangePipeLine.bind(this, "pipelineId")}
                 options={this.generatePipelineOptions(boards)}
               />

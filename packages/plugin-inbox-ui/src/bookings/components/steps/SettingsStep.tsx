@@ -77,6 +77,7 @@ function SettingsStep({
             placeholder="Choose language"
             options={options}
             value={options.find((option) => option.value === languageCode)}
+            isClearable={true}
             onChange={(e) => onChangeSelect("languageCode", e)}
           />
         </FormGroup>

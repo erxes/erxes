@@ -195,6 +195,7 @@ const GrowthHackMainActionBar = (props: IProps) => {
         value={sortOptions.find(
           (o) => o.value === `${sortField},${sortDirection}`
         )}
+        isClearable={true}
         placeholder="Sort"
         onChange={onChangeSort}
         options={sortOptions}

@@ -197,6 +197,7 @@ class SetProperty extends React.Component<Props, State> {
             <ControlLabel>Field</ControlLabel>
 
             <Select
+              isClearable={true}
               value={fieldOptions.find((o) => o.value === rule.field)}
               options={fieldOptions}
               onChange={onChangeSelect.bind(this, "field")}
@@ -208,6 +209,7 @@ class SetProperty extends React.Component<Props, State> {
             <ControlLabel>Operator</ControlLabel>
 
             <Select
+              isClearable={true}
               value={operatorOptions.find((o) => o.value === rule.operator)}
               options={operatorOptions}
               onChange={onChangeSelect.bind(this, "operator")}

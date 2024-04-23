@@ -200,6 +200,7 @@ class Form extends React.Component<Props, State> {
             )}
             options={voucherOptions}
             name="voucherCampaignId"
+            isClearable={true}
             onChange={onChangeVoucherCampaign}
             // loadingPlaceholder={__('Loading...')}
           />
@@ -387,6 +388,7 @@ class Form extends React.Component<Props, State> {
                   )}
                   name="perFormatType"
                   onChange={this.onSelectPerFormat}
+                  isClearable={true}
                   placeholder={__("Choose allow chars")}
                 />
               </FormColumn>

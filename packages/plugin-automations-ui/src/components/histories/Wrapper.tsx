@@ -131,6 +131,7 @@ class HistoriesHeader extends React.Component<Props, State> {
               <Icon icon="checked-1" />
               <Select
                 placeholder={__("Filter by Status")}
+                isClearable={true}
                 value={statusOptions.find((o) => o.value === status)}
                 options={statusOptions}
                 onChange={this.onSelect.bind(this, "status")}
@@ -142,6 +143,7 @@ class HistoriesHeader extends React.Component<Props, State> {
               <Icon icon="swatchbook" />
               <Select
                 placeholder={__("Filter by Trigger")}
+                isClearable={true}
                 value={triggerOptions.find((o) => o.value === triggerId)}
                 options={triggerOptions}
                 onChange={this.onSelect.bind(this, "triggerId")}
@@ -153,6 +155,7 @@ class HistoriesHeader extends React.Component<Props, State> {
               <Icon icon="cell" />
               <Select
                 placeholder={__("Filter by Trigger Type")}
+                isClearable={true}
                 value={triggerTypeOptions.find((o) => o.value === triggerType)}
                 options={triggerTypeOptions}
                 onChange={this.onSelect.bind(this, "triggerType")}

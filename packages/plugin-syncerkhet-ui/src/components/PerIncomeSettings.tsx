@@ -343,6 +343,7 @@ class PerSettings extends React.Component<Props, State> {
                   (o) => o.value === config.responseField
                 )}
                 onChange={this.onresponseCustomFieldChange}
+                isClearable={true}
                 options={responseFieldOptions}
               />
             </FormGroup>

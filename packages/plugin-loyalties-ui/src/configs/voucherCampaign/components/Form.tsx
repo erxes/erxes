@@ -199,6 +199,7 @@ class Form extends React.Component<Props, State> {
                 )}
                 options={options}
                 name="lotteryCampaignId"
+                isClearable={true}
                 onChange={this.onChangeCombo.bind(this, "lotteryCampaignId")}
                 // loadingPlaceholder={__('Loading...')}
               />
@@ -239,6 +240,7 @@ class Form extends React.Component<Props, State> {
                 )}
                 options={options}
                 name="spinCampaignId"
+                isClearable={true}
                 onChange={this.onChangeCombo.bind(this, "spinCampaignId")}
                 // loadingPlaceholder={__("Loading...")}
               />
@@ -376,6 +378,7 @@ class Form extends React.Component<Props, State> {
                   )}
                   options={Object.values(VOUCHER_TYPES)}
                   name="voucherType"
+                  isClearable={true}
                   onChange={this.onChangeCombo.bind(this, "voucherType")}
                 />
               </FormGroup>

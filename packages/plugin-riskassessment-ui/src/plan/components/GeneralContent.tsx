@@ -68,6 +68,7 @@ class GeneralConfig extends React.Component<Props, State> {
             value={STRUCTURETYPES.find((o) => o.value === plan?.structureType)}
             options={STRUCTURETYPES}
             isMulti={false}
+            isClearable={true}
             onChange={(props) => onChange(props?.value, "structureType")}
           />
         </FormGroup>
@@ -100,6 +101,7 @@ class GeneralConfig extends React.Component<Props, State> {
                 value={CARDTYPES.find((o) => o.value === configs?.cardType)}
                 options={CARDTYPES}
                 isMulti={false}
+                isClearable={true}
                 onChange={(props) =>
                   onChange({ ...configs, cardType: props?.value }, "configs")
                 }

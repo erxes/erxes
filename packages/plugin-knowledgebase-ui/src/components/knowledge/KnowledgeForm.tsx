@@ -347,6 +347,7 @@ const KnowledgeForm = (props: Props) => {
               value={notificationSegmentOptions.find(
                 (o) => o.value === notificationSegmentId
               )}
+              isClearable={true}
               onChange={onChangeNotificationSegment}
             />
           </FormGroup>

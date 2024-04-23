@@ -337,6 +337,7 @@ class Form extends React.Component<Props, State> {
             )}
             options={calculateMethods}
             isMulti={false}
+            isClearable={true}
             onChange={handleChangeCalculateMethod}
           />
         </FormGroup>

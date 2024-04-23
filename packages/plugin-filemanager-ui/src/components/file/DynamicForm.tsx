@@ -107,6 +107,7 @@ class DynamicForm extends React.Component<Props, State> {
             value={this.generateParams(this.props.documents).find(
               (o) => o.value === this.state.selectedDocument
             )}
+            isClearable={true}
             options={this.generateParams(this.props.documents)}
             onChange={onChange}
           />

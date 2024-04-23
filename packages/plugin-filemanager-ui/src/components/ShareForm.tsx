@@ -89,6 +89,7 @@ class ShareForm extends React.Component<Props, State> {
             value={this.generateParams(this.props.units).find(
               (o) => o.value === this.state.selectedUnit
             )}
+            isClearable={true}
             options={this.generateParams(this.props.units)}
             onChange={onChange}
           />

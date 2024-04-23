@@ -208,6 +208,7 @@ const EditForm = (props: Props) => {
             )}
             options={voucherOptions}
             name="voucherCampaignId"
+            isClearable={true}
             onChange={onChangeVoucherCampaign}
             // loadingPlaceholder={__('Loading...')}
           />

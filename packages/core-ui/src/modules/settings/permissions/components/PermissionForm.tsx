@@ -155,6 +155,7 @@ const PermissionForm = (props: Props) => {
               <ControlLabel required={true}>Choose the module</ControlLabel>
               <Select
                 placeholder={__("Choose module")}
+                isClearable={true}
                 options={generateModuleParams(modules)}
                 value={generateModuleParams(modules).find(
                   (o) => o.value === selectedModule

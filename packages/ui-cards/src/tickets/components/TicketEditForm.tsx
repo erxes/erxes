@@ -102,6 +102,7 @@ export default function TicketEditForm(props: Props) {
           value={sourceValues.find((s) => s.value === source)}
           options={sourceValues}
           onChange={onSourceChange}
+          isClearable={true}
           components={{ Option, SingleValue }}
         />
       </FormGroup>

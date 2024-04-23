@@ -164,6 +164,7 @@ function EmailDelivery({
                   value={STATUS_OPTIONS.find(
                     (option) => option.value === status
                   )}
+                  isClearable={true}
                   options={STATUS_OPTIONS}
                   onChange={handleStatusChange}
                 />

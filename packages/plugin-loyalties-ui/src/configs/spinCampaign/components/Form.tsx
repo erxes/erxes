@@ -186,6 +186,7 @@ class Form extends React.Component<Props, State> {
             )}
             options={voucherOptions}
             name="voucherCampaignId"
+            isClearable={true}
             onChange={onChangeVoucherCampaign}
             // loadingPlaceholder={__('Loading...')}
           />

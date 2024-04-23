@@ -114,6 +114,7 @@ class Availability extends React.Component<Props> {
           <Select
             value={timezones.find((o) => o.value === timezone)}
             options={timezones}
+            isClearable={true}
             onChange={timezoneOnChange}
           />
         </FormGroup>

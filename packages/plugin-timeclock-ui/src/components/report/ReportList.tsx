@@ -257,6 +257,7 @@ function ReportList(props: Props) {
               onChange={onTypeSelect}
               placeholder="Select type"
               isMulti={false}
+              isClearable={true}
               options={selectOptions}
             />
           </FormGroup>

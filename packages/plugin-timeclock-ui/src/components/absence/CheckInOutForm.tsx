@@ -273,6 +273,7 @@ function CheckoutForm(props: Props) {
             ? generateTimeclockSelectOptionsForShiftEnd()
             : generateTimeclockSelectOptionsForShiftStart()
           ).find((o) => o.value === selectedTimeclockId)}
+          isClearable={true}
           options={
             timeclocksPerUser && isCheckOutRequest
               ? generateTimeclockSelectOptionsForShiftEnd()
@@ -312,6 +313,7 @@ function CheckoutForm(props: Props) {
               timelogsPerUser &&
               generateTimelogOptions().find((o) => o.value === shiftStart)
             }
+            isClearable={true}
             options={timelogsPerUser && generateTimelogOptions()}
           />
         </ToggleDisplay>

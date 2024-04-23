@@ -80,6 +80,7 @@ function UserSkillForm({
         <FormGroup>
           <ControlLabel>Skill type</ControlLabel>
           <Select
+            isClearable={true}
             placeholder={__("Choose a skill type")}
             value={type}
             options={generateOptions(skillTypes)}

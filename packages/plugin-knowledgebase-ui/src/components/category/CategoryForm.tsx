@@ -114,6 +114,7 @@ const CategoryForm = (props: Props) => {
           placeholder={__("Choose knowledgebase")}
           value={generateOptions(topics).find((o) => o.value === topicId)}
           options={generateOptions(topics)}
+          isClearable={true}
           onChange={onChange}
         />
       </FormGroup>

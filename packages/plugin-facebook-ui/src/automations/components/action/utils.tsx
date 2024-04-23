@@ -43,6 +43,7 @@ export function TimeSetter({
           <Select
             options={timeTypes}
             value={timeTypes.find((o) => o.value === timeType)}
+            isClearable={true}
             onChange={({ value }: any) => onChange("timeType", value)}
           />
         </Container>

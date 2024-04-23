@@ -230,6 +230,7 @@ const ChartFormField = (props: Props) => {
               value={fieldOptions.find((o) => o.value === fieldValue)}
               onChange={onSelect}
               options={fieldOptions}
+              isClearable={true}
               placeholder={fieldLabel}
             />
           </div>
@@ -259,6 +260,7 @@ const ChartFormField = (props: Props) => {
             value={groupsOptions.map((o) =>
               o.options.find((item) => item.value === fieldValue)
             )}
+            isClearable={true}
             isMulti={multi}
             onChange={onSelect}
             options={groupsOptions}
@@ -272,6 +274,7 @@ const ChartFormField = (props: Props) => {
           <ControlLabel>{fieldLabel}</ControlLabel>
           <Select
             value={fieldOptions.filter((o) => fieldValue.includes(o.value))}
+            isClearable={true}
             isMulti={multi}
             onChange={onSelect}
             options={fieldOptions}

@@ -57,6 +57,7 @@ const TargetMergeModal: React.FC<Props> = ({
         onInputChange={(value) => handleSearch(value)}
         onFocus={() => handleSearch('')}
         onChange={onSelect}
+        isClearable={true}
         options={generateOptions(objects) as any}
       />
     );

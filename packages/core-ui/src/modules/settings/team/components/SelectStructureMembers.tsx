@@ -60,6 +60,7 @@ export default function SelectStructureMembers({
   return (
     <Select
       name={name}
+      isClearable={true}
       isMulti={multi}
       placeholder={placeholder}
       // label={__('Choose team members')}

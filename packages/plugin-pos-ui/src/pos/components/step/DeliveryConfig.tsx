@@ -128,6 +128,7 @@ const DeliveryConfig = (props: Props) => {
                       (o) => o.value === config.mapCustomField
                     )}
                     onChange={onMapCustomFieldChange}
+                    isClearable={true}
                     options={mapFieldOptions}
                   />
                 </FormGroup>
