@@ -2,39 +2,22 @@ import * as _ from 'underscore';
 import { Model } from 'mongoose';
 import { IBurenScoringDocument, IBurenscoring, burenscoringSchema } from './definitions/burenscoring';
 import { IModels } from '../connectionResolver';
-
-
 export interface IBurenScoringModel extends Model<IBurenScoringDocument> {
-  createBurenscoring(doc: any): Promise<IBurenScoringDocument>;
-  updateBurenscoring(_id: string, doc: IBurenscoring): Promise<IBurenScoringDocument>;
-  removeBurenscoring(_ids: string[]): Promise<JSON>;
+  createBurenScoring( subdomain: string, doc:IBurenscoring ): Promise<IBurenScoringDocument>;
 }
-export const loadBurenscoringClass = (models: IModels) => {
+export const loadBurenScoringClass = (models: IModels) => {
   class BurenScoring {
     // create
-    public static async createBurenscoring(doc:IBurenscoring) {
+    public static async createBurenScoring(subdomain: string, doc:IBurenscoring) {
         const result = await models.BurenScorings.create({
           ...doc,
+          subdomain,
           createdAt: new Date()
         })
-        
-        return result
-     
-    }
-    // update
-    public static async updateBurenscoring (_id: string, doc: IBurenscoring) {
-      await models.BurenScorings.updateOne(
-        { _id },
-        { $set: { ...doc } }
-      ).then(err => console.error(err));
-    }
-    // remove
-    public static async removeBurenscoring(_id: string) {
-      return models.BurenScorings.deleteOne({ _id });
+        return result;
     }
   }
 
   burenscoringSchema.loadClass(BurenScoring);
-
   return burenscoringSchema;
 };

@@ -4,7 +4,8 @@ module.exports = {
   port: 3017,
   scope: 'burenscoring',
   exposes: {
-    './routes': './src/routes.tsx'
+    './routes': './src/routes.tsx',
+    './burenSection': './src/components/common/BurenSection.tsx'
   },
   routes: {
     url: 'http://localhost:3017/remoteEntry.js',
@@ -28,8 +29,8 @@ module.exports = {
 customerRightSidebarSection: [
   {
     text: 'customerRightSidebarSection',
-    component: './contractSection',
-    scope: 'loans'
+    component: './burenSection',
+    scope: 'burenscoring'
   }
 ]
 };

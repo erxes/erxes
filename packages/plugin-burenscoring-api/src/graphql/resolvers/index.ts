@@ -1,7 +1,6 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
-
-import mutations from './mutations';
-import queries from './queries';
+import burenScoringQueries from './queries/queries';
+import mutations from './mutations/toSaveBurenScoring';
 
 
 const resolvers: any = async () => ({
@@ -10,8 +9,8 @@ const resolvers: any = async () => ({
     ...mutations
   },
   Query: {
-    ...queries
-  }
+    ...burenScoringQueries,
+  },
 });
 
 export default resolvers;

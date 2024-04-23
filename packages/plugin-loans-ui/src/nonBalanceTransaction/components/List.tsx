@@ -80,15 +80,7 @@ class List extends React.Component<IProps> {
       <TableWrapper>
         <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
           <thead>
-            
           <tr>
-              <th>
-                <FormControl
-                  checked={isAllSelected}
-                  componentClass="checkbox"
-                  onChange={this.onChange}
-                />
-              </th>
                 {tableHeadName.map((head) => (
                   <th key={head}>{head || ''}</th>
                  ))}
@@ -115,35 +107,6 @@ class List extends React.Component<IProps> {
       </TableWrapper>
     );
 
-    let actionBarLeft: React.ReactNode;
-    if (bulk.length > 0) {
-
-      const onClick = () =>
-        confirm()
-          .then(() => {
-            this.removeNonBalanceTransactions(bulk);
-          })
-          .catch(error => {
-            Alert.error(error.message);
-          });
-
-      actionBarLeft = (
-        <BarItems>
-          {
-            can('nonBalanceTransactionsRemove', currentUser) && (
-              <Button
-              btnStyle="danger"
-              size="medium"
-              icon="times-circle"
-              onClick={onClick}
-            >
-              Remove
-            </Button>
-            )}
-        </BarItems>
-      );
-    };
-
   const setType = type => {
     const content = props => {
       return (
@@ -160,7 +123,7 @@ class List extends React.Component<IProps> {
 
     const actionBarRight = (
       <BarItems>
-        {can('manageTransactions', currentUser) && (
+        {can(currentUser) && (
           <Dropdown>
             <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
               <Button btnStyle="success" size="medium" icon="add">
@@ -200,7 +163,7 @@ class List extends React.Component<IProps> {
     );
 
     const actionBar = (
-      <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
+      <Wrapper.ActionBar right={actionBarRight}  />
     );
 
     return (

@@ -1,45 +1,13 @@
 import gql from 'graphql-tag';
 
-const types = `
-  type Burenscoring {
-    _id: String!
-    name: String
-    createdAt:Date
-    expiryDate:Date
-    checked:Boolean
-    typeId: String
-  
-    currentType: BurenscoringType
-  }
-
-  type BurenscoringType {
-    _id: String!
-    name: String
-  }
-`;
-
-const queries = `
-  burenscorings(typeId: String): JSON
-  burenscoringsTotalCount: Int
-`;
-
-const params = `
-externalScoringResponse: JSON,
-restInquiryResponse: JSON
-`;
-
-const mutations = `
-  burenscoringsAdd(_id: String): JSON
-  burenscoringsRemove(_id: String!): JSON
-  burenscoringsEdit(_id:String!, ${params}): Burenscoring
-`;
-
+import {queries, types} from './schema/queries';
+import {mutations} from './schema/mutations';
 
 const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date
-
+    
     ${types}
     
     extend type Query {

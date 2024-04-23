@@ -100,27 +100,32 @@ export interface histories
 {
   requester: string,
   requestedDate: Date,
-  purpose: String
+  purpose: string
 }
 export interface IBurenscoring {
   externalScoringResponse: {
     data: {
       uuid: string,
       requestId: string,
-      detail:detail
+      detail:detail,
     },
-    message: String,
+    message: string,
   },
   restInquiryResponse:{
-    customer: customer
+    customer: customer,
     inquiry: [inquiry],
     groupedPurposes: [groupedPurposes],
     histories: [histories]
   },
-  score: number
+  score: number,
+  customerId: string,
+  reportPurpose: string,
+  keyword: string
 };
 export interface IBurenScoringDocument extends IBurenscoring, Document {
   _id: string;
+  createdBy: string;
+  createdAt: Date;
 }
 export const burenscoringSchema = schemaWrapper(
   new Schema({
@@ -228,58 +233,11 @@ export const burenscoringSchema = schemaWrapper(
       ]
     },
     score: Number,
+    customerId: String,
+    keyword: String,
+    reportPurpose: String,
+    createdBy: String,
     createdAt:Date
   }),
 );
-
-
-export const loadBurenscoringClass = () => {
-  class Burenscoring {
-    public static async getBurenscoring(_id: string) {
-      const burenscoring = await Burenscorings.findOne({ _id });
-
-      if (!burenscoring) {
-        throw new Error('Burenscoring not found');
-      }
-
-      return burenscoring;
-    }
-
-    // create
-    public static async createBurenscoring(doc) {
-   
-      try {
-        console.log('begin')
-        const result = await Burenscorings.create({
-          ...doc,
-          createdAt: new Date()
-        })
-        
-        return result
-      } catch (error) {
-        console.log("result:::",error)
-      }
-    }
-    // update
-    public static async updateBurenscoring (_id: string, doc) {
-      await Burenscorings.updateOne(
-        { _id },
-        { $set: { ...doc } }
-      ).then(err => console.error(err));
-    }
-    // remove
-    public static async removeBurenscoring(_id: string) {
-      return Burenscorings.deleteOne({ _id });
-    }
-  }
-
-burenscoringSchema.loadClass(Burenscoring);
-
-return burenscoringSchema;
-};
-
-loadBurenscoringClass();
-// tslint:disable-next-line
 export const Burenscorings = model<any, any>('burenscorings', burenscoringSchema);
-
-//createGenerateModels

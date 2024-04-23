@@ -27,12 +27,6 @@ export const types = `
     totalCount: Float,
   }
 `;
-const detail = `
-  ktAmount: Float,
-  dtAmount:  Float,
-  type: String,
-  currency: String
-`;
 const commonFields = `
   contractId: String,
   customerId: String,

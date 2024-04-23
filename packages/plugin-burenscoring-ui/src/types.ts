@@ -1,32 +1,27 @@
-export interface IBurenscoring {
-  _id: string;
-  name?: string;
-  createdAt?: Date;
-  expiryDate?: Date;
-  totalObjectCount?: number;
-  checked?: boolean;
-  typeId?: string;
-  currentType?: IType;
-}
-
-export interface IType {
-  _id: string;
-  name: string;
-}
-
 // queries
-export type BurenscoringQueryResponse = {
-  burenscorings: any;
-  refetch: () => void;
-  loading: boolean;
-};
-export type TypeQueryResponse = {
-  burenscoringTypes: IType[];
+  export interface IBurenScoring {
+
+    _id: string;
+    externalScoringResponse: any;
+    score?: string;
+    customerId?: string;
+    reportPurpose?: string;
+    keyword?: string;
+    restInquiryResponse?: any;
+    contractId?: string;
+    createdAt?: Date;
+    createdBy?: string;
+  }
+
+
+export type BurenScoringQueryResponse = {
+  burenCustomerScoringsMain: { list: IBurenScoring[]; totalCount: number };
   refetch: () => void;
   loading: boolean;
 };
 
-// mutations
+//export type
+
 export type MutationVariables = {
   _id?: string;
   name: string;
@@ -35,6 +30,7 @@ export type MutationVariables = {
   checked?: boolean;
   type?: string;
 };
+
 export type AddMutationResponse = {
   addMutation: (params: { variables: MutationVariables }) => Promise<any>;
 };

@@ -5,7 +5,7 @@ import { getAuthHeaders } from '../utils';
 export class BaseApi {
   private config: any;
 
-  constructor(config) { 
+  constructor(config) {
     this.config = config;
   }
 
@@ -25,7 +25,6 @@ export class BaseApi {
   }) {
     const { method, path, params, data } = args;
     const headers = await this.getHeaders();
-
     try {
       const requestOptions: RequestInit & Required<{ headers: HeaderInit }> = {
         method,
@@ -35,8 +34,9 @@ export class BaseApi {
         requestOptions.body = JSON.stringify(data);
         requestOptions.headers['Content-Type'] = 'application/json';
       }
+      return this.apiUrl
       return await fetch(
-        `${this.apiUrl}/${path}?` + new URLSearchParams(params),
+        `${this.apiUrl}/${path}`,
         requestOptions,
       ).then((r) => r.json());
     } catch (e) {

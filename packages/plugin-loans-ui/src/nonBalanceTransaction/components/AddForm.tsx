@@ -182,7 +182,6 @@ class AddTransactionForm extends React.Component<Props, State> {
             </FormGroup>
             <FormGroup>
               <ControlLabel>{__('Description')}</ControlLabel>
-              <DateContainer>
                 <FormControl
                   {...formProps}
                   required={false}
@@ -190,7 +189,6 @@ class AddTransactionForm extends React.Component<Props, State> {
                   value={this.state.description}
                   onChange={onChangeField}
                 />
-              </DateContainer>
             </FormGroup>
             </FormColumn>
           </FormWrapper>

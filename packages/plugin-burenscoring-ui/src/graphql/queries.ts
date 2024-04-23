@@ -1,27 +1,50 @@
-const list = `
-    query listQuery {
-      burenscorings
-    }
-  
+const commonHistoryParams = `
+  $page: Int,
+  $perPage: Int,
+  $sortField: String,
+  $sortDirection: Int,
+  $startDate: Date,
+  $endDate: Date,
+  $customerId: String,
 `;
 
-const listBurenscoringTypes = `
-  query listBurenscoringTypeQuery{
-    burenscoringTypes{
-      _id
-      name
-    }
-  }
+const commonHistoryParamDefs = `
+  page: $page,
+  perPage: $perPage,
+  sortField: $sortField,
+  sortDirection: $sortDirection,
+  startDate: $startDate,
+  endDate: $endDate,
+  customerId: $customerId,
 `;
 
-const totalCount = `
-  query burenscoringsTotalCount{
-    burenscoringsTotalCount
+export const burenCustomerScoringFields = `
+
+  _id
+  externalScoringResponse
+  score
+  customerId
+  reportPurpose
+  keyword
+  restInquiryResponse
+  createdAt
+  createdBy
+`;
+const burenCustomerScoringsMain = `
+  query BurenCustomerScoringsMain(
+    ${commonHistoryParams}
+  ) {
+    burenCustomerScoringsMain (
+      ${commonHistoryParamDefs}
+    ) {
+      list {
+      ${burenCustomerScoringFields}
+      }
+      totalCount
+    }
   }
 `;
 
 export default {
-  list,
-  totalCount,
-  listBurenscoringTypes
+  burenCustomerScoringsMain
 };
