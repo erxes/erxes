@@ -26,7 +26,7 @@ export const fillHeaders = (itemType: string): IColumnLabel[] => {
   return columnNames;
 };
 
-const generateLabel = customer => {
+const generateLabel = (customer) => {
   const { firstName, primaryEmail, primaryPhone, lastName } =
     customer || ({} as any);
 
@@ -53,7 +53,7 @@ const getCellValue = (item, colName, product, customField = '') => {
       return (
         (
           (product.customFieldsData || []).find(
-            cfd => cfd.field === customField
+            (cfd) => cfd.field === customField,
           ) || {}
         ).value || ''
       );
@@ -79,7 +79,7 @@ export const fillCellValue = async (
   colName: string,
   item: any,
   product: any,
-  customField: string
+  customField: string,
 ): Promise<string> => {
   const emptyMsg = '-';
   if (colName.includes('empty')) {
@@ -107,30 +107,28 @@ const generateParams = ({ queryParams }) => ({
   productCategoryIds:
     queryParams.productCategoryIds && queryParams.productCategoryIds.split(','),
   status: queryParams.status,
-  diffType: queryParams.diffType
+  diffType: queryParams.diffType,
 });
 
 // Prepares data depending on module type
 const prepareData = async (
   models: IModels,
   subdomain: string,
-  query: any
+  query: any,
 ): Promise<any[]> => {
   const params = generateParams({ queryParams: query });
   const perPage = params.perPage;
 
   const selector: any = await generateFilterItems(subdomain, params);
-  const count = await models.SafeRemainderItems.find(selector).count();
+  const count = await models.SafeRemainderItems.find(selector).countDocuments();
 
   let datas = [];
   const pageCount = Math.ceil(count / perPage);
 
   for (let page = 1; page <= pageCount; page++) {
     const orders = await paginate(
-      models.SafeRemainderItems.find(query)
-        .sort({ order: 1 })
-        .lean(),
-      { ...params, page }
+      models.SafeRemainderItems.find(query).sort({ order: 1 }).lean(),
+      { ...params, page },
     );
     datas = datas.concat(orders);
   }
@@ -142,7 +140,7 @@ const addCell = (
   value: string,
   sheet: any,
   columnNames: string[],
-  rowIndex: number
+  rowIndex: number,
 ): void => {
   let fixedValue = value;
 
@@ -175,20 +173,20 @@ const headers = [
   { name: 'empty5', label: 'col5' },
   { name: 'location', label: 'Location' },
   { name: 'empty6', label: 'col6' },
-  { name: 'empty7', label: 'col7' }
+  { name: 'empty7', label: 'col7' },
 ];
 
 export const buildFile = async (
   models: IModels,
   subdomain: string,
-  query: any
+  query: any,
 ): Promise<{ name: string; response: string }> => {
   const data = await prepareData(models, subdomain, query);
 
   // Reads default template
   const { workbook, sheet } = await createXlsFile();
 
-  const columnNames: string[] = headers.map(h => h.name);
+  const columnNames: string[] = headers.map((h) => h.name);
   let rowIndex: number = 1;
 
   for (const column of headers) {
@@ -198,14 +196,14 @@ export const buildFile = async (
   const limit = await sendProductsMessage({
     subdomain,
     action: 'count',
-    data: { query: { _id: { $in: data.map(d => d.productId) } } },
-    isRPC: true
+    data: { query: { _id: { $in: data.map((d) => d.productId) } } },
+    isRPC: true,
   });
   const products = await sendProductsMessage({
     subdomain,
     action: 'find',
-    data: { query: { _id: { $in: data.map(d => d.productId) } }, limit },
-    isRPC: true
+    data: { query: { _id: { $in: data.map((d) => d.productId) } }, limit },
+    isRPC: true,
   });
   const customField =
     (await sendFormsMessage({
@@ -213,7 +211,7 @@ export const buildFile = async (
       action: 'fields.findOne',
       data: { query: { code: 'oldCode' } },
       isRPC: true,
-      defaultValue: {}
+      defaultValue: {},
     })) || {};
 
   const productById = {};
@@ -230,7 +228,7 @@ export const buildFile = async (
         column.name,
         item,
         product,
-        customField._id
+        customField._id,
       );
 
       addCell(column, cellValue, sheet, columnNames, rowIndex);
@@ -239,7 +237,7 @@ export const buildFile = async (
 
   return {
     name: `censusJ - ${moment().format('YYYY-MM-DD HH:mm')}`,
-    response: await generateXlsx(workbook)
+    response: await generateXlsx(workbook),
   };
 };
 

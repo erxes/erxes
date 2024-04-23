@@ -1,6 +1,6 @@
 import {
   moduleRequireLogin,
-  moduleCheckPermission
+  moduleCheckPermission,
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { escapeRegExp, paginate } from '@erxes/api-utils/src/core';
@@ -29,7 +29,7 @@ const getGenerateFilter = async (subdomain: string, params: IListArgs) => {
     branchId,
     departmentId,
     productId,
-    productCategoryId
+    productCategoryId,
   } = params;
 
   const filter: any = {};
@@ -51,15 +51,15 @@ const getGenerateFilter = async (subdomain: string, params: IListArgs) => {
       productFilter.query = {
         $or: [
           {
-            name: { $regex: `.*${escapeRegExp(searchValue)}.*` }
+            name: { $regex: `.*${escapeRegExp(searchValue)}.*` },
           },
           {
-            code: { $regex: `.*${escapeRegExp(searchValue)}.*` }
+            code: { $regex: `.*${escapeRegExp(searchValue)}.*` },
           },
           {
-            barcodes: { $regex: `.*${escapeRegExp(searchValue)}.*` }
-          }
-        ]
+            barcodes: { $regex: `.*${escapeRegExp(searchValue)}.*` },
+          },
+        ],
       };
     }
 
@@ -73,10 +73,10 @@ const getGenerateFilter = async (subdomain: string, params: IListArgs) => {
         action: 'count',
         data: {
           ...productFilter,
-          categoryId: productCategoryId
+          categoryId: productCategoryId,
         },
         isRPC: true,
-        defaultValue: 0
+        defaultValue: 0,
       });
 
       const products = await sendProductsMessage({
@@ -84,9 +84,9 @@ const getGenerateFilter = async (subdomain: string, params: IListArgs) => {
         action: 'find',
         data: { ...productFilter, limit, fields: { _id: 1 } },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
-      filter.productId = { $in: products.map(p => p._id) };
+      filter.productId = { $in: products.map((p) => p._id) };
     }
   }
 
@@ -97,25 +97,20 @@ const reserveRemsQueries = {
   reserveRems: async (
     _root: any,
     params: IListArgs,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     const filter = await getGenerateFilter(subdomain, params);
-    return paginate(
-      models.ReserveRems.find(filter)
-        .sort({})
-        .lean(),
-      params
-    );
+    return paginate(models.ReserveRems.find(filter).sort({}).lean(), params);
   },
 
   reserveRemsCount: async (
     _root: any,
     params: IListArgs,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     const filter = await getGenerateFilter(subdomain, params);
-    return await models.ReserveRems.find(filter).count();
-  }
+    return await models.ReserveRems.find(filter).countDocuments();
+  },
 };
 
 moduleRequireLogin(reserveRemsQueries);

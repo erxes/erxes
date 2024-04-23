@@ -1,7 +1,7 @@
 import { paginate } from '@erxes/api-utils/src/core';
 import {
   checkPermission,
-  requireLogin
+  requireLogin,
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { sendProductsMessage } from '../../../messageBroker';
@@ -15,29 +15,29 @@ export const generateFilterItems = async (subdomain: string, params: any) => {
       subdomain,
       action: 'categories.withChilds',
       data: { ids: productCategoryIds },
-      isRPC: true
+      isRPC: true,
     });
 
     const limit = await sendProductsMessage({
       subdomain,
       action: 'count',
-      data: { query: { categoryId: { $in: categories.map(c => c._id) } } },
+      data: { query: { categoryId: { $in: categories.map((c) => c._id) } } },
       isRPC: true,
-      defaultValue: 0
+      defaultValue: 0,
     });
 
     const products = await sendProductsMessage({
       subdomain,
       action: 'find',
       data: {
-        query: { categoryId: { $in: categories.map(c => c._id) } },
-        limit
+        query: { categoryId: { $in: categories.map((c) => c._id) } },
+        limit,
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
-    const productIds = products.map(p => p._id);
+    const productIds = products.map((p) => p._id);
     query.productId = { $in: productIds };
   }
 
@@ -73,25 +73,23 @@ const safeRemainderItemsQueries = {
   safeRemainderItems: async (
     _root: any,
     params: any,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     const query: any = await generateFilterItems(subdomain, params);
     return paginate(
-      models.SafeRemainderItems.find(query)
-        .sort({ order: 1 })
-        .lean(),
-      params
+      models.SafeRemainderItems.find(query).sort({ order: 1 }).lean(),
+      params,
     );
   },
 
   safeRemainderItemsCount: async (
     _root: any,
     params: any,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     const query: any = await generateFilterItems(subdomain, params);
-    return models.SafeRemainderItems.find(query).count();
-  }
+    return models.SafeRemainderItems.find(query).countDocuments();
+  },
 };
 
 requireLogin(safeRemainderItemsQueries, 'tagDetail');
