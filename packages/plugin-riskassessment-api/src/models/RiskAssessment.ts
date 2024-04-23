@@ -20,7 +20,6 @@ export interface IRiskAssessmentsModel extends Model<IRiskAssessmentsDocument> {
     params: any,
     user: IUserDocument,
   ): Promise<any>;
-  riskAssessmentFormSubmissionDetail(parmas): Promise<any>;
   getStatistic(filter: any): Promise<any>;
   editRiskAssessment(_id: string, doc: any): Promise<IRiskAssessmentsDocument>;
   removeRiskAssessment(_id: string);
@@ -631,52 +630,6 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
         assessment.indicatorAssessment = indicatorAssessment;
       }
       return assessment;
-    }
-
-    public static async riskAssessmentFormSubmissionDetail(params) {
-      const { cardId, cardType, riskAssessmentId } = params;
-
-      const riskAssessment = await models.RiskAssessments.findOne({
-        _id: riskAssessmentId,
-      });
-
-      if (!riskAssessment) {
-        throw new Error(`Could not find Risk Assessment`);
-      }
-
-      const { indicatorId, groupId } = riskAssessment;
-
-      if (groupId) {
-        let indicatorIds: string[] = [];
-
-        const indicatorGroup = await models.IndicatorsGroups.findOne({
-          _id: groupId,
-        });
-
-        for (const group of indicatorGroup?.groups || []) {
-          indicatorIds = [...indicatorIds, ...group.indicatorIds];
-        }
-
-        const result = await models.RiskFormSubmissions.aggregate([
-          {
-            $match: {
-              cardId,
-              cardType,
-              assessmentId: riskAssessmentId,
-              indicatorId: { $in: indicatorIds },
-            },
-          },
-          {
-            $group: {
-              // FIXME:
-              indicatorId: '$indicatorId',
-              fields: { $push: '$$ROOT' },
-              count: { $sum: 1 },
-            },
-          },
-        ]);
-        return;
-      }
     }
 
     public static async getStatistic(filter) {

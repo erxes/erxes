@@ -138,13 +138,6 @@ const commonParams = `
     cardFilter:CardFilter
 `;
 
-const commonFormSubmitParams = `
-    cardId:String
-    cardType:String
-    riskAssessmentId:String
-    indicatorId:String
-`;
-
 export const queries = `
     riskAssessments(${commonParams},${commonPaginationParams}):[RiskAssessment]
 
@@ -154,8 +147,6 @@ export const queries = `
 
     riskAssessmentDetail(id:String,showFlagged:Boolean):JSON
 
-    riskAssessmentFormSubmissionDetail(${commonFormSubmitParams}):JSON
-    
     riskAssessment(cardId:String,cardType:String):[RiskAssessment]
 
     riskAssessmentAssignedMembers(cardId:String,cardType:String):[User]
