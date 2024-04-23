@@ -9,7 +9,7 @@ const nylasKinds = [
   'outlook',
   'yahoo',
   'exchange',
-  'imap'
+  'imap',
 ];
 
 /**
@@ -19,9 +19,8 @@ module.exports.up = async () => {
   const mongoClient = await mongoose.createConnection(
     process.env.MONGO_URL || '',
     {
-      useNewUrlParser: true,
-      useCreateIndex: true
-    }
+      family: 4,
+    },
   );
 
   try {
@@ -38,9 +37,9 @@ module.exports.up = async () => {
             nylasToken: account.nylasToken,
             nylasBillingState: account.billingState,
             nylasAccountId: account.uid,
-            emailScope: account.scope
-          }
-        }
+            emailScope: account.scope,
+          },
+        },
       );
     }
   } catch (e) {

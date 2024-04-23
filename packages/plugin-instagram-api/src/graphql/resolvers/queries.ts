@@ -237,7 +237,7 @@ const instagramQueries = {
     const query = await buildSelector(conversationId, models.Conversations);
     if (conversation) {
       if (limit) {
-        const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
+        const sort: any = getFirst ? { createdAt: 1 } : { createdAt: -1 };
 
         messages = await models.ConversationMessages.find(query)
           .sort(sort)
@@ -254,7 +254,7 @@ const instagramQueries = {
       return messages.reverse();
     } else {
       let comment: any[] = [];
-      const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
+      const sort: any = getFirst ? { createdAt: 1 } : { createdAt: -1 };
       comment = await models.CommentConversation.find({
         erxesApiId: conversationId,
       })
@@ -362,7 +362,7 @@ const instagramQueries = {
     const query = await buildSelector(conversationId, models.PostConversations);
 
     if (limit) {
-      const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
+      const sort: any = getFirst ? { createdAt: 1 } : { createdAt: -1 };
 
       messages = await models.CommentConversation.find(query)
         .sort(sort)
