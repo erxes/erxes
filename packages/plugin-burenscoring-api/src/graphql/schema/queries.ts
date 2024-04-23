@@ -33,5 +33,7 @@ const scoringParams = `
 `;
 
 export const queries = `
-burenCustomerScoringsMain(${queryParams}): burenCustomerScoringsMainResponce
+    burenCustomerScoringsMain(${queryParams}): burenCustomerScoringsMainResponce
+    getCustomerScore(customerId: String!): burenCustomerScoring
+    getCustomerScoring(${scoringParams}): JSON
 `;

@@ -1,14 +1,12 @@
 // queries
   export interface IBurenScoring {
-
     _id: string;
     externalScoringResponse: any;
-    score?: string;
+    score?: number;
     customerId?: string;
     reportPurpose?: string;
     keyword?: string;
     restInquiryResponse?: any;
-    contractId?: string;
     createdAt?: Date;
     createdBy?: string;
   }
@@ -49,4 +47,18 @@ export type EditTypeMutationResponse = {
 
 export type RemoveTypeMutationResponse = {
   typesRemove: (params: { variables: { _id: string } }) => Promise<any>;
+};
+
+export type DetailQueryResponse = {
+  getCustomerScore: IBurenScoring;
+  loading: boolean;
+};
+
+export type ScoringResultResponse = {
+  getCustomerScoring: any;
+  loading: boolean;
+};
+
+export type ToFintechScoringResponse = {
+  toFintechScoring: (params: { variables: { reportPurpose: string, keyword: string } }) => Promise<any>;
 };

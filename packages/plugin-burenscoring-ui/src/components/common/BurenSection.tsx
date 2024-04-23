@@ -35,7 +35,7 @@ function Component(
   );
 
   const modalContent = props => {
-    return <ScoringForm {...props} mainTypeId={mainTypeId}  />;
+    return <ScoringForm {...props} customerId={mainTypeId}  />;
   };
   const scoringButton = (
     <ModalTrigger

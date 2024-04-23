@@ -70,6 +70,28 @@ const burenScoringQueries = {
       totalCount: await models.BurenScorings.find(filter).count()
     };
   },
+  getCustomerScore: async (_root, { customerId }, { models }: IContext) => {
+    return models.BurenScorings.findOne({customerId: customerId}).sort({"createdAt": -1}).limit(1);
+  },
+
+   getCustomerScoring: async (
+    _root,
+      {keyword,
+        reportPurpose},
+      { subdomain }: IContext
+  ) => {
+    const config = await getConfig('burenScoringConfig', subdomain, '' )
+    if (!config) {
+      throw new Error('Buren scoring config not found.');
+    }
+    const burenConfig = new BurenScoringApi(config);
+    const scoring = burenConfig.getScoring({
+      keyword,
+      reportPurpose
+    });
+    return scoring;
+  }
+
 
 };
 export default burenScoringQueries;

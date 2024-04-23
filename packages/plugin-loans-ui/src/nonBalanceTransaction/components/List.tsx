@@ -123,7 +123,7 @@ class List extends React.Component<IProps> {
 
     const actionBarRight = (
       <BarItems>
-        {can(currentUser) && (
+      
           <Dropdown>
             <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
               <Button btnStyle="success" size="medium" icon="add">
@@ -158,7 +158,6 @@ class List extends React.Component<IProps> {
               </li>
             </Dropdown.Menu>
           </Dropdown>
-        )}
       </BarItems>
     );
 

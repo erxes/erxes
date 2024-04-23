@@ -1,7 +1,5 @@
 import fetch from 'node-fetch';
 
-import redis from '../redis';
-
 export const getAuthHeaders = async (args: {
   client_id: string;
   secretKey: string;
@@ -9,16 +7,6 @@ export const getAuthHeaders = async (args: {
 }) => {
   const { client_id, secretKey, contentType = 'application/json' } = args;
 
-  const accessToken = await redis.get(`zms_token_${client_id}:${secretKey}`);
-
-  if (accessToken) {
-    return {
-      'Content-Type': contentType,
-      Authorization: `Bearer ${accessToken}`,
-      'X-Username': client_id,
-      'X-Signature': secretKey,
-    };
-  }
 
   const apiUrl = 'https://staging-api.burenscore.mn';
 
@@ -34,13 +22,6 @@ export const getAuthHeaders = async (args: {
         secretKey: secretKey,
       }),
     }).then((res) => res.json());
-
-    await redis.set(
-      `zms_token_${client_id}:${secretKey}`,
-      response.access_token,
-      'EX',
-      60 * 1000 * 5 - 10,
-    );
 
     return {
       'Content-Type': 'application/json',

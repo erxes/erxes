@@ -17,9 +17,16 @@ const commonHistoryParamDefs = `
   endDate: $endDate,
   customerId: $customerId,
 `;
+const fintechParams = `
+  $keyword: String, 
+  $reportPurpose: String
+`;
 
+const fintechParamsDefs = `
+  keyword: $keyword, 
+  reportPurpose: $reportPurpose
+`;
 export const burenCustomerScoringFields = `
-
   _id
   externalScoringResponse
   score
@@ -30,6 +37,7 @@ export const burenCustomerScoringFields = `
   createdAt
   createdBy
 `;
+
 const burenCustomerScoringsMain = `
   query BurenCustomerScoringsMain(
     ${commonHistoryParams}
@@ -45,6 +53,21 @@ const burenCustomerScoringsMain = `
   }
 `;
 
+export const getCustomerScore = `
+    query GetCustomerScore($customerId: String!) {
+      getCustomerScore(customerId: $customerId) {
+        ${burenCustomerScoringFields}
+      }
+    }
+`;
+
+export const getCustomerScoring = `
+query getCustomerScoring(${fintechParams}) {
+  getCustomerScoring(${fintechParamsDefs})
+}
+`;
 export default {
-  burenCustomerScoringsMain
+  burenCustomerScoringsMain,
+  getCustomerScore,
+  getCustomerScoring
 };

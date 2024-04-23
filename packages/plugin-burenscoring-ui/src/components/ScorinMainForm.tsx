@@ -7,15 +7,17 @@ import {
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
+  Table,
   __
 } from '@erxes/ui/src';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
 import Select from 'react-select-plus';
+import { IBurenScoring } from '../types';
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  mainTypeId: string;
-  closeModal: () => void;
+  customerScore: IBurenScoring;
+  loading:boolean
 };
 
 type State = {
@@ -26,39 +28,37 @@ type State = {
 class ScoringMainForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
-    
     this.state = {
-       
-        keyword: '',
-        reportPurpose:  '',
-        reportPurposeList: [
-          {
-            value: 'NEW_LOAN',
-            label: 'NEW_LOAN'
-          },
-          {
-            value: 'LOAN_CHECK',
-            label: 'LOAN_CHECK'
-          }
-          ,
-          {
-            value: 'CITIZEN_REQUEST',
-            label: 'CITIZEN_REQUEST'
-          }
-          ,
-          {
-            value: 'LOAN',
-            label: 'LOAN'
-          }
-      ] 
-      };
+      keyword: '',
+      reportPurpose: '',
+      reportPurposeList: [
+        {
+          value: 'NEW_LOAN',
+          label: 'NEW_LOAN'
+        },
+        {
+          value: 'LOAN_CHECK',
+          label: 'LOAN_CHECK'
+        }
+        ,
+        {
+          value: 'CITIZEN_REQUEST',
+          label: 'CITIZEN_REQUEST'
+        }
+        ,
+        {
+          value: 'LOAN',
+          label: 'LOAN'
+        }
+    ] 
+    };
       
   }
  
-  generateDoc = (values: { _id: string } & JSON) => {
-    
+  generateDoc = (values) => {
     const finalValues = values;
-    let addDetail:any = {};
+    finalValues.keyword = this.state.keyword;
+    finalValues.reportPurpose = this.state.reportPurpose;
     return finalValues
     };
 
@@ -67,14 +67,9 @@ class ScoringMainForm extends React.Component<Props, State> {
   };
   
   renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton} = this.props;
+    const { renderButton,customerScore,loading} = this.props;
     const { values, isSubmitted } = formProps;
-
-    const onSelect = (value, name) => {
-      this.setState({ [name]: value } as any);
-    };
-
-    const onchangeType= (value, name) => {
+    const onchangeType= (value) => {
       this.setState({ ['reportPurpose']: value.value } as any);
     };
    ;
@@ -96,17 +91,19 @@ class ScoringMainForm extends React.Component<Props, State> {
           <FormWrapper>
             <FormColumn>
             <FormGroup>
-              <ControlLabel>{__('Register number')}</ControlLabel>
+              <ControlLabel required={true} >{__('Register number')}</ControlLabel>
               <FormControl
                 {...formProps}
                 type={'text'}
                 name="keyword"
+                value={this.state.keyword}
                 onChange={onChangeField}
                 onClick={this.onFieldClick}
+                required={true}
               />
             </FormGroup>
             <FormGroup>
-                <ControlLabel>{__('Scoring type')}</ControlLabel>
+                <ControlLabel required={true} >{__('Scoring type')}</ControlLabel>
                 <Select
                   {...formProps}
                   placeholder={__('Choose scoring type')}
@@ -115,18 +112,35 @@ class ScoringMainForm extends React.Component<Props, State> {
                   value={this.state.reportPurpose}
                   onChange={onchangeType}
                   multi={false}
-                  required ={true}
+                  required = {true}
                 />
             </FormGroup>
-
-            {renderButton({
-            name: 'burenScoring',
-            values: this.generateDoc(values),
-            isSubmitted,
-            object: {}
-          })}
-            </FormColumn>
-          </FormWrapper>
+        <FormGroup> 
+          <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
+                <thead>
+                  <tr>
+                    <th>{__('Score')}</th>
+                    <th>{__('Type')}</th>
+                    <th>{__('get Date')}</th>
+                  </tr>
+                </thead>
+                <tbody id="detail">
+                  <tr key={customerScore?._id}>
+                    <td >{customerScore?.score}</td>
+                    <td >{customerScore?.reportPurpose}</td>
+                    <td >{customerScore?.createdAt}</td>
+                  </tr>
+                </tbody>
+            </Table>
+        </FormGroup>
+          {renderButton({
+              name: 'Buren Scoring',
+              values: this.generateDoc(values),
+              isSubmitted,
+              object: customerScore
+            })}
+      </FormColumn>
+    </FormWrapper>
       </>
     );
   };

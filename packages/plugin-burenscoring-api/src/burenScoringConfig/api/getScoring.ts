@@ -14,7 +14,7 @@ export class BurenScoringApi extends BaseApi {
           keyword: params.keyword,
           reportPurpose: params.reportPurpose
         }
-      });
+      }).then(r=>r.json());
       return res;
     } catch (e) {
       console.error(e);

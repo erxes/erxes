@@ -34,11 +34,10 @@ export class BaseApi {
         requestOptions.body = JSON.stringify(data);
         requestOptions.headers['Content-Type'] = 'application/json';
       }
-      return this.apiUrl
       return await fetch(
         `${this.apiUrl}/${path}`,
         requestOptions,
-      ).then((r) => r.json());
+      )
     } catch (e) {
       const errorMessage = JSON.parse(e.message).message || e.message;
       throw new Error(errorMessage);

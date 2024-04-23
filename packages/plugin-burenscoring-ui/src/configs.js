@@ -14,7 +14,7 @@ module.exports = {
   },
   menus:[
     {
-      "text":"Burenscorings",
+      "text":"BurenScorings",
       "url":"/burenscorings","icon":"icon-star",
       "location":"mainNavigation"
     },

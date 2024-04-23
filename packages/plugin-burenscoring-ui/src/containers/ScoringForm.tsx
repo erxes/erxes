@@ -1,24 +1,29 @@
-import { ButtonMutate, withProps, __} from '@erxes/ui/src';
+import { ButtonMutate, withProps, __, Alert} from '@erxes/ui/src';
 import { IUser, UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import ScoringForm from '../components/ScorinMainForm';
-import { mutations } from '../graphql';
+import { mutations, queries } from '../graphql';
+import { DetailQueryResponse, ScoringResultResponse, ToFintechScoringResponse } from '../types';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 type Props = {
-  mainTypeId: string;
+  customerId: string;
   closeModal: () => void;
+  reportPurpose: string;
+  keyword: string
 };
 
 type FinalProps = {
-  usersQuery: UsersQueryResponse;
+  detailQuery: DetailQueryResponse;
+  scorinResult: ScoringResultResponse;
   currentUser: IUser;
 } & Props;
 
 class ScoringFormContainer extends React.Component<FinalProps> {
   render() {
-    const { mainTypeId } = this.props;
-
+    const { customerId, detailQuery } = this.props;
     const renderButton = ({
       name,
       values,
@@ -26,36 +31,49 @@ class ScoringFormContainer extends React.Component<FinalProps> {
       object
     }: IButtonMutateProps) => {
       const { closeModal } = this.props;
-
       const afterSave = () => {
         closeModal();
-      };
-
+      }
+      values.customerId = customerId
       return (
         <ButtonMutate
-          
-          mutation={mutations.add}
+        icon="loading"
+          mutation={mutations.toCheckScoring}
           variables={values}
           callback={afterSave}
           refetchQueries={refetch()}
           isSubmitted={isSubmitted}
           type="submit"
-          successMessage={'Scoring successfully '}
-        >
-          {__('Scoring')}
-        </ButtonMutate>
+          uppercase={false}
+          successMessage={`You successfully score
+           a ${name}`}
+        >  {__('Scoring')}</ButtonMutate>
       );
     };
+
+ 
     const updatedProps = {
       ...this.props,
-      renderButton
+      renderButton,
+      customerScore: detailQuery.getCustomerScore || {},
+      loading: detailQuery.loading || false
     };
     return <ScoringForm {...updatedProps} />;
   }
 }
 
 const refetch = () => {
-  return ['burenCustomerScoringsMain'];
+  return ['burenCustomerScoringsMain','getCustomerScore'];
 };
-
-export default withProps<Props>(compose()(ScoringFormContainer));
+export default withProps<Props>(
+  compose(
+    graphql<Props, DetailQueryResponse, { customerId: string }>(gql(queries.getCustomerScore), {
+      name: 'detailQuery',
+      options: ({ customerId }) => {
+        return {
+          variables: {customerId: customerId}
+        };
+      }
+    })
+  )(ScoringFormContainer)
+);
