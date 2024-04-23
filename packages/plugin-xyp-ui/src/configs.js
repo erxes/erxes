@@ -17,12 +17,6 @@ module.exports = {
     module: "./routes",
   },
 
-  customerRightSidebarSection: [
-    {
-      text: "customerRightSidebarSection",
-      component: "./customerSidebar",
-      scope: "xyp",
-    },
-  ],
+  customerRightSidebarSection: "./customerSidebar",
   carRightSidebarSection: "./customerSidebar",
 };
