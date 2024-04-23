@@ -10,7 +10,10 @@ import {
   IUiOptions,
 } from '../../models/definitions/integrations';
 
-import { IExternalIntegrationParams } from '../../models/Integrations';
+import {
+  IExternalIntegrationParams,
+  InputIntegration,
+} from '../../models/Integrations';
 
 import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import {
@@ -28,10 +31,6 @@ import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext, IModels } from '../../connectionResolver';
 import { isServiceRunning } from '../../utils';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
-
-interface IEditIntegration extends IIntegration {
-  _id: string;
-}
 
 interface IArchiveParams {
   _id: string;
@@ -86,7 +85,7 @@ const createIntegration = async (
 
 const editIntegration = async (
   subdomain: string,
-  fields: IIntegration,
+  fields: InputIntegration,
   integration: IIntegrationDocument,
   user,
   updated: IIntegrationDocument,
@@ -270,7 +269,7 @@ const integrationMutations = {
    */
   async integrationsEditMessengerIntegration(
     _root,
-    { _id, ...fields }: IEditIntegration,
+    { _id, ...fields }: IIntegration,
     { user, models, subdomain }: IContext,
   ) {
     const integration = await models.Integrations.getIntegration({ _id });
@@ -332,7 +331,7 @@ const integrationMutations = {
    */
   async integrationsEditLeadIntegration(
     _root,
-    { _id, ...doc }: IEditIntegration,
+    { _id, ...doc }: IIntegration,
     { user, models, subdomain }: IContext,
   ) {
     const integration = await models.Integrations.getIntegration({ _id });
@@ -803,7 +802,7 @@ const integrationMutations = {
    */
   async integrationsEditBookingIntegration(
     _root,
-    { _id, ...doc }: IEditIntegration,
+    { _id, ...doc }: IIntegration,
     { user, models, subdomain }: IContext,
   ) {
     const integration = await models.Integrations.getIntegration({ _id });

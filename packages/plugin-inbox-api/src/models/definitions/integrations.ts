@@ -1,4 +1,4 @@
-import { Document, Schema } from 'mongoose';
+import { Document, Schema, HydratedDocument, Types } from 'mongoose';
 import {
   attachmentSchema,
   IRule,
@@ -170,6 +170,11 @@ export interface IUiOptions {
 export interface IUiOptionsDocument extends IUiOptions, Document {}
 
 export interface IIntegration {
+  _id: string;
+  createdUserId: string;
+  // TODO remove
+  formData?: ILeadData;
+  webhookData?: IWebhookData;
   kind: string;
   name?: string;
   brandId?: string;
@@ -186,18 +191,12 @@ export interface IIntegration {
   departmentIds?: string[];
   visibility?: string;
 }
-
-export interface IIntegrationDocument extends IIntegration, Document {
-  _id: string;
-  createdUserId: string;
-  // TODO remove
-  formData?: ILeadData;
-  leadData?: ILeadDataDocument;
-  messengerData?: IMessengerDataDocument;
-  webhookData?: IWebhookData;
-  uiOptions?: IUiOptionsDocument;
-  bookingData?: IBookingDataDocument;
-}
+export type IIntegrationDocumentProps = {
+  messengerData?: Types.Subdocument<never> & IMessengerData;
+  leadData?: Types.Subdocument<never> & ILeadData;
+};
+export type IIntegrationDocument = HydratedDocument<IIntegration> &
+  IIntegrationDocumentProps;
 
 // subdocument schema for MessengerOnlineHours
 const messengerOnlineHoursSchema = new Schema(

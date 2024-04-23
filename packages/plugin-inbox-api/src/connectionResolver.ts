@@ -24,7 +24,10 @@ import {
   IIntegrationModel,
   loadClass as loadIntegrationClass,
 } from './models/Integrations';
-import { IIntegrationDocument } from './models/definitions/integrations';
+import {
+  IIntegration,
+  IIntegrationDocument,
+} from './models/definitions/integrations';
 import {
   IMessengerAppModel,
   loadClass as loadMessengerAppClass,
@@ -84,7 +87,7 @@ export const loadClasses = (
     IResponseTemplateDocument,
     IResponseTemplateModel
   >('response_templates', loadResponseTemplateClass(models));
-  models.Integrations = db.model<IIntegrationDocument, IIntegrationModel>(
+  models.Integrations = db.model<IIntegration, IIntegrationModel>(
     'integrations',
     loadIntegrationClass(models, subdomain),
   );

@@ -7,7 +7,7 @@ const { MONGO_URL, INTEGRATIONS_MONGO_URL, FB_MONGO_URL } = process.env;
 
 if (!(MONGO_URL && INTEGRATIONS_MONGO_URL && FB_MONGO_URL)) {
   throw new Error(
-    `Environment variables MONGO_URL and INTEGRATIONS_MONGO_URL are not set.`
+    `Environment variables MONGO_URL and INTEGRATIONS_MONGO_URL are not set.`,
   );
 }
 
@@ -47,11 +47,7 @@ let IntConfigs;
 const FB_MSNGR = 'facebook-messenger';
 const FB_POST = 'facebook-post';
 
-const checkAndInsert = async (
-  list,
-  collection,
-  isConvMsg
-) => {
+const checkAndInsert = async (list, collection, isConvMsg) => {
   for (const item of list) {
     let exists = await collection.findOne({ _id: item._id });
 
@@ -88,7 +84,7 @@ const command = async () => {
     // integrations
     IntConversations = intDb.collection('conversations_facebooks');
     IntConversationMessages = intDb.collection(
-      'conversation_messages_facebooks'
+      'conversation_messages_facebooks',
     );
     IntIntegrations = intDb.collection('integrations');
     IntAccounts = intDb.collection('accounts');
@@ -109,26 +105,27 @@ const command = async () => {
 
     /** integrations-api */
     const intIntegrations = await IntIntegrations.find({
-      kind: { $in: [FB_MSNGR, FB_POST] }
+      kind: { $in: [FB_MSNGR, FB_POST] },
     }).toArray();
     await checkAndInsert(intIntegrations, FbIntegrations);
 
     const intConversations = await IntConversations.find({}).toArray();
     await checkAndInsert(intConversations, FbConversations);
 
-    const intConversationMessages = await IntConversationMessages.find().toArray();
+    const intConversationMessages =
+      await IntConversationMessages.find().toArray();
     await checkAndInsert(intConversationMessages, FbConversationMessages, true);
 
     const intAccounts = await IntAccounts.find({ kind: 'facebook' }).toArray();
     await checkAndInsert(intAccounts, FbAccounts);
 
     const inboxIntegrations = await InboxIntegrations.find({
-      kind: { $in: [FB_MSNGR, FB_POST] }
+      kind: { $in: [FB_MSNGR, FB_POST] },
     }).toArray();
 
     for (const i of inboxIntegrations) {
       const customers = await IntCustomers.find({
-        integrationId: i._id
+        integrationId: i._id,
       }).toArray();
 
       await checkAndInsert(customers, FbCustomers);
@@ -141,39 +138,39 @@ const command = async () => {
     await checkAndInsert(intComments, FbComments);
 
     const intConfigs = await IntConfigs.find({
-      code: { $regex: 'facebook_', $options: '$i' }
+      code: { $regex: 'facebook_', $options: '$i' },
     }).toArray();
     await checkAndInsert(intConfigs, FbConfigs);
 
     /** inbox-api */
     const fbMsgIntegrations = await InboxIntegrations.find({
-      kind: FB_MSNGR
+      kind: FB_MSNGR,
     }).toArray();
 
     for (const i of fbMsgIntegrations) {
       const messengerConversations = await InboxConversations.find({
-        integrationId: i._id
+        integrationId: i._id,
       }).toArray();
 
       for (const c of messengerConversations) {
         const inboxMessages = await InboxConversationMessages.find({
-          conversationId: c._id
+          conversationId: c._id,
         }).toArray();
         const oldConv = await FbConversations.findOne({ erxesApiId: c._id });
 
         if (oldConv) {
           const oldMessages = await FbConversationMessages.find({
-            conversationId: oldConv._id
+            conversationId: oldConv._id,
           }).toArray();
 
           for (const msg of inboxMessages) {
+            const { id: _, msgNoId } = msg;
             const exists = oldMessages.find(
-              o => o.content === msg.content && o.conversationId === oldConv._id
+              (o) =>
+                o.content === msg.content && o.conversationId === oldConv._id,
             );
 
-            const doc = { ...msg, conversationId: oldConv._id };
-
-            delete doc._id;
+            const doc = { ...msgNoId, conversationId: oldConv._id };
 
             // merge inbox conv msgs with fb conv msgs since it's a duplicate
             if (exists) {
@@ -183,7 +180,7 @@ const command = async () => {
 
               await FbConversationMessages.updateOne(
                 { _id: exists._id },
-                { $set: { ...updateDoc } }
+                { $set: { ...updateDoc } },
               );
             } else {
               await FbConversationMessages.insertOne({ ...doc });

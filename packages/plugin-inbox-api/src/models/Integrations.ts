@@ -12,6 +12,7 @@ import {
   IBookingData,
   IIntegration,
   IIntegrationDocument,
+  IIntegrationDocumentProps,
   ILeadData,
   IMessengerData,
   integrationSchema,
@@ -81,7 +82,10 @@ export const isTimeInBetween = (
   return now.isBetween(startDate, closeDate);
 };
 
-export interface IIntegrationModel extends Model<IIntegrationDocument> {
+export type InputIntegration = Omit<IIntegration, '_id' | 'createdUserId'>;
+
+export interface IIntegrationModel
+  extends Model<IIntegration, {}, IIntegrationDocumentProps> {
   getIntegration(doc: { [key: string]: any }): IIntegrationDocument;
   findIntegrations(
     query: any,
@@ -96,7 +100,7 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
     args: any,
   ): Query<IIntegrationDocument[], IIntegrationDocument>;
   createIntegration(
-    doc: IIntegration,
+    doc: InputIntegration,
     userId: string,
   ): Promise<IIntegrationDocument>;
   createMessengerIntegration(
@@ -105,7 +109,7 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
   ): Promise<IIntegrationDocument>;
   updateMessengerIntegration(
     _id: string,
-    doc: IIntegration,
+    doc: InputIntegration,
   ): Promise<IIntegrationDocument>;
   saveMessengerAppearanceData(
     _id: string,
@@ -121,7 +125,7 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
   ): Promise<IIntegrationDocument>;
   updateLeadIntegration(
     _id: string,
-    doc: IIntegration,
+    doc: InputIntegration,
   ): Promise<IIntegrationDocument>;
   createExternalIntegration(
     doc: IExternalIntegrationParams,
@@ -146,14 +150,14 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
     formId: string,
     get?: boolean,
   ): Promise<IIntegrationDocument>;
-  isOnline(integration: IIntegrationDocument, userTimezone?: string): boolean;
+  isOnline(integration: IIntegration, userTimezone?: string): boolean;
   createBookingIntegration(
     doc: IIntegration,
     userId: string,
   ): Promise<IIntegrationDocument>;
   updateBookingIntegration(
     _id: string,
-    doc: IIntegration,
+    doc: InputIntegration,
   ): Promise<IIntegrationDocument>;
   increaseBookingViewCount(_id: string): Promise<IIntegrationDocument>;
 }
@@ -243,7 +247,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
     /**
      * Create an integration, intended as a private method
      */
-    public static createIntegration(doc: IIntegration, userId: string) {
+    public static createIntegration(doc: InputIntegration, userId: string) {
       return models.Integrations.create({
         ...doc,
         isActive: true,
@@ -276,7 +280,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
      */
     public static async updateMessengerIntegration(
       _id: string,
-      doc: IMessengerIntegration,
+      doc: InputIntegration,
     ) {
       const integration = await models.Integrations.findOne({
         _id: { $ne: _id },
@@ -355,7 +359,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
      */
     public static async updateLeadIntegration(
       _id: string,
-      { leadData = {}, ...mainDoc }: IIntegration,
+      { leadData = {}, ...mainDoc }: InputIntegration,
     ) {
       const prevEntry = await models.Integrations.getIntegration({ _id });
       const prevLeadData: ILeadData = prevEntry.leadData || {};
@@ -486,10 +490,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       return get ? models.Integrations.findOne({ formId }) : response;
     }
 
-    public static isOnline(
-      integration: IIntegrationDocument,
-      userTimezone?: string,
-    ) {
+    public static isOnline(integration: IIntegration, userTimezone?: string) {
       const now = new Date();
 
       const daysAsString = [
@@ -621,7 +622,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
      */
     public static async updateBookingIntegration(
       _id: string,
-      { bookingData = {}, ...mainDoc }: IIntegration,
+      { bookingData = {}, ...mainDoc }: InputIntegration,
     ) {
       const prevEntry = await models.Integrations.getIntegration({ _id });
       const prevBookingData: IBookingData = prevEntry.bookingData || {};
