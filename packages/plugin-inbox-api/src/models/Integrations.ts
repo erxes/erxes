@@ -5,7 +5,7 @@ import { IModels } from '../connectionResolver';
 import {
   sendContactsMessage,
   sendCoreMessage,
-  sendFormsMessage
+  sendFormsMessage,
 } from '../messageBroker';
 
 import {
@@ -15,7 +15,7 @@ import {
   ILeadData,
   IMessengerData,
   integrationSchema,
-  IUiOptions
+  IUiOptions,
 } from './definitions/integrations';
 
 export interface IMessengerIntegration {
@@ -60,7 +60,7 @@ export const isTimeInBetween = (
   timezone: string,
   date: Date,
   startTime: string,
-  closeTime: string
+  closeTime: string,
 ): boolean => {
   // date of given timezone
   const tz = timezone || momentTz.tz.guess();
@@ -83,68 +83,77 @@ export const isTimeInBetween = (
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
   getIntegration(doc: { [key: string]: any }): IIntegrationDocument;
-  findIntegrations(query: any, options?: any): Query<IIntegrationDocument[]>;
-  findAllIntegrations(query: any, options?: any): Query<IIntegrationDocument[]>;
-  findLeadIntegrations(query: any, args: any): Query<IIntegrationDocument[]>;
+  findIntegrations(
+    query: any,
+    options?: any,
+  ): Query<IIntegrationDocument[], IIntegrationDocument>;
+  findAllIntegrations(
+    query: any,
+    options?: any,
+  ): Query<IIntegrationDocument[], IIntegrationDocument>;
+  findLeadIntegrations(
+    query: any,
+    args: any,
+  ): Query<IIntegrationDocument[], IIntegrationDocument>;
   createIntegration(
     doc: IIntegration,
-    userId: string
+    userId: string,
   ): Promise<IIntegrationDocument>;
   createMessengerIntegration(
     doc: IIntegration,
-    userId: string
+    userId: string,
   ): Promise<IIntegrationDocument>;
   updateMessengerIntegration(
     _id: string,
-    doc: IIntegration
+    doc: IIntegration,
   ): Promise<IIntegrationDocument>;
   saveMessengerAppearanceData(
     _id: string,
-    doc: IUiOptions
+    doc: IUiOptions,
   ): Promise<IIntegrationDocument>;
   saveMessengerConfigs(
     _id: string,
-    messengerData: IMessengerData
+    messengerData: IMessengerData,
   ): Promise<IIntegrationDocument>;
   createLeadIntegration(
     doc: IIntegration,
-    userId: string
+    userId: string,
   ): Promise<IIntegrationDocument>;
   updateLeadIntegration(
     _id: string,
-    doc: IIntegration
+    doc: IIntegration,
   ): Promise<IIntegrationDocument>;
   createExternalIntegration(
     doc: IExternalIntegrationParams,
-    userId: string
+    userId: string,
   ): Promise<IIntegrationDocument>;
   removeIntegration(_id: string): void;
   updateBasicInfo(
     _id: string,
-    doc: IIntegrationBasicInfo
+    doc: IIntegrationBasicInfo,
   ): Promise<IIntegrationDocument>;
 
   getWidgetIntegration(
     brandCode: string,
     kind: string,
-    brandObject?: boolean
+    brandObject?: boolean,
   ): any;
   increaseViewCount(
     formId: string,
-    get?: boolean
+    get?: boolean,
   ): Promise<IIntegrationDocument>;
   increaseContactsGathered(
     formId: string,
-    get?: boolean
+    get?: boolean,
   ): Promise<IIntegrationDocument>;
   isOnline(integration: IIntegrationDocument, userTimezone?: string): boolean;
   createBookingIntegration(
     doc: IIntegration,
-    userId: string
+    userId: string,
   ): Promise<IIntegrationDocument>;
   updateBookingIntegration(
     _id: string,
-    doc: IIntegration
+    doc: IIntegration,
   ): Promise<IIntegrationDocument>;
   increaseBookingViewCount(_id: string): Promise<IIntegrationDocument>;
 }
@@ -170,7 +179,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
     public static findIntegrations(query, options) {
       return models.Integrations.find(
         { ...query, isActive: { $ne: false } },
-        options
+        options,
       );
     }
 
@@ -186,7 +195,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
         sortField = 'createdDate',
         sortDirection = -1,
         page = 1,
-        perPage = 20
+        perPage = 20,
       } = args;
 
       return models.Integrations.aggregate([
@@ -201,8 +210,8 @@ export const loadClass = (models: IModels, subdomain: string) => {
             kind: 1,
             leadData: 1,
             createdUserId: 1,
-            createdDate: '$form.createdDate'
-          }
+            createdDate: '$form.createdDate',
+          },
         },
         {
           $addFields: {
@@ -215,19 +224,19 @@ export const loadClass = (models: IModels, subdomain: string) => {
                     {
                       $divide: [
                         '$leadData.contactsGathered',
-                        '$leadData.viewCount'
-                      ]
-                    }
-                  ]
+                        '$leadData.viewCount',
+                      ],
+                    },
+                  ],
                 },
-                100
-              ]
-            }
-          }
+                100,
+              ],
+            },
+          },
         },
         { $sort: { [sortField]: sortDirection } },
         { $skip: perPage * (page - 1) },
-        { $limit: perPage }
+        { $limit: perPage },
       ]);
     }
 
@@ -239,7 +248,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
         ...doc,
         isActive: true,
         createdUserId: userId,
-        createdAt: new Date()
+        createdAt: new Date(),
       });
     }
 
@@ -248,11 +257,11 @@ export const loadClass = (models: IModels, subdomain: string) => {
      */
     public static async createMessengerIntegration(
       doc: IMessengerIntegration,
-      userId: string
+      userId: string,
     ) {
       const integration = await models.Integrations.findOne({
         kind: 'messenger',
-        brandId: doc.brandId
+        brandId: doc.brandId,
       });
 
       if (integration) {
@@ -267,12 +276,12 @@ export const loadClass = (models: IModels, subdomain: string) => {
      */
     public static async updateMessengerIntegration(
       _id: string,
-      doc: IMessengerIntegration
+      doc: IMessengerIntegration,
     ) {
       const integration = await models.Integrations.findOne({
         _id: { $ne: _id },
         kind: 'messenger',
-        brandId: doc.brandId
+        brandId: doc.brandId,
       });
 
       if (integration) {
@@ -282,7 +291,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       await models.Integrations.updateOne(
         { _id },
         { $set: doc },
-        { runValidators: true }
+        { runValidators: true },
       );
 
       return models.Integrations.findOne({ _id });
@@ -293,12 +302,12 @@ export const loadClass = (models: IModels, subdomain: string) => {
      */
     public static async saveMessengerAppearanceData(
       _id: string,
-      { color, wallpaper, logo, textColor }: IUiOptions
+      { color, wallpaper, logo, textColor }: IUiOptions,
     ) {
       await models.Integrations.updateOne(
         { _id },
         { $set: { uiOptions: { color, wallpaper, logo, textColor } } },
-        { runValdatiors: true }
+        { runValdatiors: true },
       );
 
       return models.Integrations.findOne({ _id });
@@ -309,7 +318,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
      */
     public static async saveMessengerConfigs(
       _id: string,
-      messengerData: IMessengerData
+      messengerData: IMessengerData,
     ) {
       await models.Integrations.updateOne({ _id }, { $set: { messengerData } });
       return models.Integrations.findOne({ _id });
@@ -320,7 +329,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
      */
     public static createLeadIntegration(
       { leadData = {}, ...mainDoc }: IIntegration,
-      userId: string
+      userId: string,
     ) {
       const doc = { ...mainDoc, kind: 'lead', leadData };
 
@@ -336,7 +345,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
      */
     public static createExternalIntegration(
       doc: IExternalIntegrationParams,
-      userId: string
+      userId: string,
     ): Promise<IIntegrationDocument> {
       return models.Integrations.createIntegration(doc, userId);
     }
@@ -346,7 +355,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
      */
     public static async updateLeadIntegration(
       _id: string,
-      { leadData = {}, ...mainDoc }: IIntegration
+      { leadData = {}, ...mainDoc }: IIntegration,
     ) {
       const prevEntry = await models.Integrations.getIntegration({ _id });
       const prevLeadData: ILeadData = prevEntry.leadData || {};
@@ -357,14 +366,14 @@ export const loadClass = (models: IModels, subdomain: string) => {
         leadData: {
           ...leadData,
           viewCount: prevLeadData.viewCount,
-          contactsGathered: prevLeadData.contactsGathered
-        }
+          contactsGathered: prevLeadData.contactsGathered,
+        },
       };
 
       await models.Integrations.updateOne(
         { _id },
         { $set: doc },
-        { runValidators: true }
+        { runValidators: true },
       );
 
       return models.Integrations.findOne({ _id });
@@ -379,12 +388,12 @@ export const loadClass = (models: IModels, subdomain: string) => {
       // remove conversations =================
       const conversations = await models.Conversations.find(
         { integrationId: _id },
-        { _id: true }
+        { _id: true },
       );
-      const conversationIds = conversations.map(conv => conv._id);
+      const conversationIds = conversations.map((conv) => conv._id);
 
       await models.ConversationMessages.deleteMany({
-        conversationId: { $in: conversationIds }
+        conversationId: { $in: conversationIds },
       });
 
       await models.Conversations.deleteMany({ integrationId: _id });
@@ -394,17 +403,17 @@ export const loadClass = (models: IModels, subdomain: string) => {
         subdomain,
         action: 'customers.find',
         data: {
-          integrationId: _id
+          integrationId: _id,
         },
-        isRPC: true
+        isRPC: true,
       });
 
-      const customerIds = customers.map(cus => cus._id);
+      const customerIds = customers.map((cus) => cus._id);
 
       await sendContactsMessage({
         subdomain,
         action: 'customers.removeCustomers',
-        data: { customerIds }
+        data: { customerIds },
       });
 
       // Remove form
@@ -413,7 +422,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
           subdomain,
           action: 'removeForm',
           data: { formId: integration.formId },
-          isRPC: true
+          isRPC: true,
         });
       }
 
@@ -422,7 +431,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
     public static async updateBasicInfo(
       _id: string,
-      doc: IIntegrationBasicInfo
+      doc: IIntegrationBasicInfo,
     ) {
       await models.Integrations.updateOne({ _id }, { $set: doc });
 
@@ -432,23 +441,23 @@ export const loadClass = (models: IModels, subdomain: string) => {
     public static async getWidgetIntegration(
       brandCode: string,
       kind: string,
-      brandObject = false
+      brandObject = false,
     ) {
       const brand = await sendCoreMessage({
         subdomain,
         action: 'brands.findOne',
         data: {
           query: {
-            code: brandCode
-          }
+            code: brandCode,
+          },
         },
         isRPC: true,
-        defaultValue: {}
+        defaultValue: {},
       });
 
       const integration = await models.Integrations.getIntegration({
         brandId: brand._id,
-        kind
+        kind,
       });
 
       if (brandObject) {
@@ -461,7 +470,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
     public static async increaseViewCount(formId: string, get = false) {
       const response = await models.Integrations.updateOne(
         { formId, leadData: { $exists: true } },
-        { $inc: { 'leadData.viewCount': 1 } }
+        { $inc: { 'leadData.viewCount': 1 } },
       );
       return get ? models.Integrations.findOne({ formId }) : response;
     }
@@ -472,14 +481,14 @@ export const loadClass = (models: IModels, subdomain: string) => {
     public static async increaseContactsGathered(formId: string, get = false) {
       const response = await models.Integrations.updateOne(
         { formId, leadData: { $exists: true } },
-        { $inc: { 'leadData.contactsGathered': 1 } }
+        { $inc: { 'leadData.contactsGathered': 1 } },
       );
       return get ? models.Integrations.findOne({ formId }) : response;
     }
 
     public static isOnline(
       integration: IIntegrationDocument,
-      userTimezone?: string
+      userTimezone?: string,
     ) {
       const now = new Date();
 
@@ -490,7 +499,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
         'wednesday',
         'thursday',
         'friday',
-        'saturday'
+        'saturday',
       ];
 
       const isWeekday = (d: string): boolean => {
@@ -499,7 +508,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
           'tuesday',
           'wednesday',
           'thursday',
-          'friday'
+          'friday',
         ].includes(d);
       };
 
@@ -515,7 +524,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       const {
         availabilityMethod,
         onlineHours = [],
-        timezone = ''
+        timezone = '',
       } = messengerData;
       const timezoneString = userTimezone || timezone || momentTz.tz.guess();
 
@@ -532,50 +541,50 @@ export const loadClass = (models: IModels, subdomain: string) => {
       const day = daysAsString[now.getDay()];
 
       // check by everyday config
-      const everydayConf = onlineHours.find(c => c.day === 'everyday');
+      const everydayConf = onlineHours.find((c) => c.day === 'everyday');
 
       if (everydayConf) {
         return isTimeInBetween(
           timezoneString,
           now,
           everydayConf.from || '',
-          everydayConf.to || ''
+          everydayConf.to || '',
         );
       }
 
       // check by weekdays config
-      const weekdaysConf = onlineHours.find(c => c.day === 'weekdays');
+      const weekdaysConf = onlineHours.find((c) => c.day === 'weekdays');
 
       if (weekdaysConf && isWeekday(day)) {
         return isTimeInBetween(
           timezoneString,
           now,
           weekdaysConf.from || '',
-          weekdaysConf.to || ''
+          weekdaysConf.to || '',
         );
       }
 
       // check by weekends config
-      const weekendsConf = onlineHours.find(c => c.day === 'weekends');
+      const weekendsConf = onlineHours.find((c) => c.day === 'weekends');
 
       if (weekendsConf && isWeekend(day)) {
         return isTimeInBetween(
           timezoneString,
           now,
           weekendsConf.from || '',
-          weekendsConf.to || ''
+          weekendsConf.to || '',
         );
       }
 
       // check by regular day config
-      const dayConf = onlineHours.find(c => c.day === day);
+      const dayConf = onlineHours.find((c) => c.day === day);
 
       if (dayConf) {
         return isTimeInBetween(
           timezoneString,
           now,
           dayConf.from || '',
-          dayConf.to || ''
+          dayConf.to || '',
         );
       }
 
@@ -587,11 +596,11 @@ export const loadClass = (models: IModels, subdomain: string) => {
      */
     public static async createBookingIntegration(
       { bookingData = {}, ...mainDoc }: IIntegration,
-      userId: string
+      userId: string,
     ) {
       // check duplication
       const isDuplicated = await models.Integrations.findOne({
-        'bookingData.productCategoryId': bookingData.productCategoryId
+        'bookingData.productCategoryId': bookingData.productCategoryId,
       });
 
       if (isDuplicated) {
@@ -612,7 +621,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
      */
     public static async updateBookingIntegration(
       _id: string,
-      { bookingData = {}, ...mainDoc }: IIntegration
+      { bookingData = {}, ...mainDoc }: IIntegration,
     ) {
       const prevEntry = await models.Integrations.getIntegration({ _id });
       const prevBookingData: IBookingData = prevEntry.bookingData || {};
@@ -620,7 +629,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       // check duplication
       const isDuplicated = await models.Integrations.findOne({
         'bookingData.productCategoryId': bookingData.productCategoryId,
-        _id: { $ne: prevEntry._id }
+        _id: { $ne: prevEntry._id },
       });
 
       if (isDuplicated) {
@@ -632,14 +641,14 @@ export const loadClass = (models: IModels, subdomain: string) => {
         kind: 'booking',
         bookingData: {
           ...bookingData,
-          viewCount: prevBookingData.viewCount
-        }
+          viewCount: prevBookingData.viewCount,
+        },
       };
 
       await models.Integrations.updateOne(
         { _id },
         { $set: doc },
-        { runValidators: true }
+        { runValidators: true },
       );
 
       return models.Integrations.findOne({ _id });
@@ -652,7 +661,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
     public static async increaseBookingViewCount(_id: string) {
       await models.Integrations.updateOne(
         { _id, bookingData: { $exists: true } },
-        { $inc: { 'bookingData.viewCount': 1 } }
+        { $inc: { 'bookingData.viewCount': 1 } },
       );
 
       return models.Integrations.findOne({ _id });

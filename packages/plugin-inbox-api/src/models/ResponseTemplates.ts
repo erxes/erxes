@@ -3,7 +3,7 @@ import { IModels } from '../connectionResolver';
 import {
   IResponseTemplate,
   IResponseTemplateDocument,
-  responseTemplateSchema
+  responseTemplateSchema,
 } from './definitions/responseTemplates';
 
 export interface IResponseTemplateModel
@@ -11,7 +11,7 @@ export interface IResponseTemplateModel
   getResponseTemplate(_id: string): Promise<IResponseTemplateDocument>;
   updateResponseTemplate(
     _id: string,
-    fields: IResponseTemplate
+    fields: IResponseTemplate,
   ): Promise<IResponseTemplateDocument>;
   removeResponseTemplate(_id: string): void;
 }
@@ -35,9 +35,12 @@ export const loadClass = (models: IModels) => {
      */
     public static async updateResponseTemplate(
       _id: string,
-      fields: IResponseTemplate
+      fields: IResponseTemplate,
     ) {
-      await models.ResponseTemplates.updateOne({ _id }, { $set: { ...fields } });
+      await models.ResponseTemplates.updateOne(
+        { _id },
+        { $set: { ...fields } },
+      );
 
       return models.ResponseTemplates.findOne({ _id });
     }
@@ -46,13 +49,15 @@ export const loadClass = (models: IModels) => {
      * Delete response template
      */
     public static async removeResponseTemplate(_id: string) {
-      const responseTemplateObj = await models.ResponseTemplates.findOne({ _id });
+      const responseTemplateObj = await models.ResponseTemplates.findOne({
+        _id,
+      });
 
       if (!responseTemplateObj) {
         throw new Error(`Response template not found with id ${_id}`);
       }
-
-      return responseTemplateObj.remove();
+      await responseTemplateObj.deleteOne();
+      return responseTemplateObj;
     }
   }
 

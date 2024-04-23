@@ -36,7 +36,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       // generate brandCode
       if (fields.messengerId) {
         const messengerIntegration = await models.Integrations.getIntegration({
-          _id: fields.messengerId
+          _id: fields.messengerId,
         });
 
         const brand = await sendCoreMessage({
@@ -44,10 +44,10 @@ export const loadClass = (models: IModels, subdomain: string) => {
           action: 'brands.findOne',
           data: {
             query: {
-              _id: messengerIntegration.brandId || ''
-            }
+              _id: messengerIntegration.brandId || '',
+            },
           },
-          isRPC: true
+          isRPC: true,
         });
 
         autoFields.messengerBrandCode = brand.code;
@@ -56,7 +56,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       // Generate leadCode, brandCode combinations
       if (fields.leadIds) {
         const integrations = await models.Integrations.findIntegrations({
-          _id: { $in: fields.leadIds }
+          _id: { $in: fields.leadIds },
         });
 
         const maps: LeadMaps = [];
@@ -67,19 +67,19 @@ export const loadClass = (models: IModels, subdomain: string) => {
             action: 'brands.findOne',
             data: {
               query: {
-                _id: integration.brandId
-              }
+                _id: integration.brandId,
+              },
             },
-            isRPC: true
+            isRPC: true,
           });
 
           const form = await sendFormsMessage({
             subdomain,
             action: 'findOne',
             data: {
-              _id: integration.formId
+              _id: integration.formId,
             },
-            isRPC: true
+            isRPC: true,
           });
 
           if (!form) {
@@ -88,7 +88,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
           maps.push({
             formCode: form.code,
-            brandCode: brand.code
+            brandCode: brand.code,
           });
         }
 
@@ -106,7 +106,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
       return models.Scripts.create({
         ...fields,
-        ...autoFields
+        ...autoFields,
       });
     }
 
@@ -116,7 +116,10 @@ export const loadClass = (models: IModels, subdomain: string) => {
     public static async updateScript(_id: string, fields: IScript) {
       const autoFields = await Script.calculateAutoFields(fields);
 
-      await models.Scripts.updateOne({ _id }, { $set: { ...fields, ...autoFields } });
+      await models.Scripts.updateOne(
+        { _id },
+        { $set: { ...fields, ...autoFields } },
+      );
 
       return models.Scripts.findOne({ _id });
     }
@@ -130,8 +133,8 @@ export const loadClass = (models: IModels, subdomain: string) => {
       if (!scriptObj) {
         throw new Error(`Script not found with id ${_id}`);
       }
-
-      return scriptObj.remove();
+      await scriptObj.deleteOne();
+      return scriptObj;
     }
   }
 

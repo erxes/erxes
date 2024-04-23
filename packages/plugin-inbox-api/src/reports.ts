@@ -618,8 +618,15 @@ const chartTemplates = [
     templateType: 'averageCloseTime',
     serviceType: 'inbox',
     name: 'Average chat close time by rep in hours',
-    chartTypes: ['bar', 'line',
-      'pie', 'doughnut', 'radar', 'polarArea', 'table'],
+    chartTypes: [
+      'bar',
+      'line',
+      'pie',
+      'doughnut',
+      'radar',
+      'polarArea',
+      'table',
+    ],
     getChartResult: async (
       models: IModels,
       filter: any,
@@ -1475,7 +1482,7 @@ const chartTemplates = [
 
       if (filterStatus === 'unassigned') {
         const totalUnassignedConvosCount =
-          (await models.Conversations.count(matchfilter)) || 0;
+          (await models.Conversations.countDocuments(matchfilter)) || 0;
 
         data.push(totalUnassignedConvosCount);
         labels.push('Total unassigned conversations');
@@ -1894,7 +1901,7 @@ const chartTemplates = [
 
       if (filterStatus === 'unassigned') {
         const totalUnassignedConvosCount =
-          (await models.Conversations.count(matchfilter)) || 0;
+          (await models.Conversations.countDocuments(matchfilter)) || 0;
 
         data.push(totalUnassignedConvosCount);
         labels.push('Total unassigned conversations');
