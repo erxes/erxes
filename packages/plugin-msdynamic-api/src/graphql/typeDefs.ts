@@ -15,6 +15,7 @@ const types = `
     sendStr: String
     responseData: JSON
     responseStr: String
+    responseSales: [String]
     error: String
     content: String
     createdUser: JSON
