@@ -142,6 +142,7 @@ const useDynamicScript = (args) => {
 };
 
 export const loadComponent = (scope, module) => {
+  console.log(scope, module);
   return async () => {
     // Initializes the share scope. This fills it with known provided modules from this build and all remotes
     await __webpack_init_sharing__("default");
@@ -458,15 +459,6 @@ export const pluginRouters = () => {
   }
 
   return pluginRoutes;
-};
-
-export const pluginsOfCustomerSidebar = (customer: any) => {
-  // check - ICustomer
-  return renderPluginSidebar(
-    "customerRightSidebarSection",
-    "customer",
-    customer
-  );
 };
 
 export const pluginsOfCompanySidebar = (company: any) => {

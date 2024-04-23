@@ -31,7 +31,7 @@ const SyncHistoryList = ({
 
   const rowContent = (props, item) => {
     const { No, Sell_to_Customer_No, Sell_to_Customer_Name, error } =
-      item.responseData;
+      item.responseData || {};
 
     if (item?.responseSales && item.responseSales.length > 0) {
       const renderSales = () => {

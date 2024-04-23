@@ -23,11 +23,5 @@ module.exports = {
       location: "settings",
     },
   ],
-  customerRightSidebarSection: [
-    {
-      text: "customerSection",
-      component: "./customerSidebar",
-      scope: "block",
-    },
-  ],
+  customerRightSidebarSection: "./customerSidebar",
 };

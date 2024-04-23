@@ -409,6 +409,15 @@ class Form extends React.Component<Props, State> {
 
       this.showField(field._id);
 
+      const selectFieldTypes = ['select', 'multiSelect', 'pronoun','businessType','location','industry'];
+
+      if(selectFieldTypes.find(t => t === field.type ) ) {
+        
+        if(field.options && field.options.length > 0 && !this.state.doc[field._id].value) {
+          this.state.doc[field._id].value = field.options[0];
+        }
+      }
+
       return (
         <Field
           key={field._id}

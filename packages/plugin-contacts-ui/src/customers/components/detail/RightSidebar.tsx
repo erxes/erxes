@@ -1,3 +1,4 @@
+import { __, loadDynamicComponent } from "coreui/utils";
 import { isEnabled, renderFullName } from "@erxes/ui/src/utils/core";
 
 import Box from "@erxes/ui/src/components/Box";
@@ -13,9 +14,7 @@ import PortableTickets from "@erxes/ui-cards/src/tickets/components/PortableTick
 import React from "react";
 import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
 import Tip from "@erxes/ui/src/components/Tip";
-import { __ } from "coreui/utils";
 import colors from "@erxes/ui/src/styles/colors";
-import { pluginsOfCustomerSidebar } from "coreui/pluginUtils";
 
 type Props = {
   customer: ICustomer;
@@ -107,7 +106,11 @@ export default class RightSidebar extends React.Component<Props> {
           </>
         )}
 
-        {/* {pluginsOfCustomerSidebar(customer)} */}
+        {loadDynamicComponent(
+          "customerRightSidebarSection",
+          { mainType: "customer", id: customer._id },
+          true
+        )}
 
         {this.renderOther()}
       </Sidebar>

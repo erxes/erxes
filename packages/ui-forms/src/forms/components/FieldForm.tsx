@@ -1,3 +1,4 @@
+import { Alert, __, loadDynamicComponent } from "@erxes/ui/src/utils";
 import { Dialog, Transition } from "@headlessui/react";
 import {
   DialogContent,
@@ -13,7 +14,6 @@ import {
   ShowPreview,
 } from "../styles";
 import { IField, IFieldLogic, IOption } from "@erxes/ui/src/types";
-import { __, loadDynamicComponent } from "@erxes/ui/src/utils";
 
 import Button from "@erxes/ui/src/components/Button";
 import CollapseContent from "@erxes/ui/src/components/CollapseContent";
@@ -184,6 +184,10 @@ class FieldForm extends React.Component<Props, State> {
     e.persist();
 
     const { field } = this.state;
+
+    if (field.type !== "html" && !field.text?.length) {
+      return Alert.error(__("Label is required!"));
+    }
 
     this.props.onSubmit(field);
   };
@@ -464,7 +468,10 @@ class FieldForm extends React.Component<Props, State> {
           open={true}
         >
           <FormGroup>
-            <ControlLabel htmlFor="text" required={true}>
+            <ControlLabel
+              htmlFor="text"
+              required={field.type !== "html" ? true : false}
+            >
               Field Label
             </ControlLabel>
 
