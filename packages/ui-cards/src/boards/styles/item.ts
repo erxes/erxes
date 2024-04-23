@@ -323,7 +323,7 @@ export const MoveContainer = styled(Flex)`
 `;
 
 export const MoveContainerWidth = styled(Flex)`
-  width: 720px;
+  @media (min-width: 1200px){width: 720px;}
 `;
 
 export const ActionContainer = styled(MoveContainer)`

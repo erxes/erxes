@@ -387,12 +387,12 @@ a:hover {
   margin: 0;
 }
 
-@media (min-width: 992px){
+@media (min-width: 600px){
   .dialog-size-lg {
-    width: 800px;
+    width: 80%;
   }
   .dialog-size-xl {
-    width: 800px;
+    width: 90%;
   }
 }
 @media (max-width: 576px) {
