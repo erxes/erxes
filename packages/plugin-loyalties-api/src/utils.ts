@@ -13,10 +13,10 @@ export const getChildCategories = async (subdomain: string, categoryIds) => {
     action: 'categories.withChilds',
     data: { ids: categoryIds },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
-  const catIds: string[] = (childs || []).map(ch => ch._id) || [];
+  const catIds: string[] = (childs || []).map((ch) => ch._id) || [];
   return Array.from(new Set(catIds));
 };
 
@@ -25,7 +25,7 @@ export const checkVouchersSale = async (
   subdomain: string,
   ownerType: string,
   ownerId: string,
-  products: IProductD[]
+  products: IProductD[],
 ) => {
   const result = {};
 
@@ -34,7 +34,7 @@ export const checkVouchersSale = async (
   }
 
   const now = new Date();
-  const productsIds = products.map(p => p.productId);
+  const productsIds = products.map((p) => p.productId);
 
   for (const productId of productsIds) {
     if (!Object.keys(result).includes(productId)) {
@@ -43,7 +43,7 @@ export const checkVouchersSale = async (
         voucherId: '',
         potentialBonus: 0,
         discount: 0,
-        sumDiscount: 0
+        sumDiscount: 0,
       };
     }
   }
@@ -57,48 +57,48 @@ export const checkVouchersSale = async (
 
     ownerType: 1,
     ownerId: 1,
-    campaign: { $arrayElemAt: ['$campaign_doc', 0] }
+    campaign: { $arrayElemAt: ['$campaign_doc', 0] },
   };
   const lookup = {
     from: 'voucher_campaigns',
     localField: 'campaignId',
     foreignField: '_id',
-    as: 'campaign_doc'
+    as: 'campaign_doc',
   };
 
   const voucherFilter = { ownerType, ownerId, status: { $in: ['new'] } };
 
   const activeVouchers = await models.Vouchers.find(voucherFilter).lean();
 
-  const activeCampaignIds = activeVouchers.map(v => v.campaignId);
+  const activeCampaignIds = activeVouchers.map((v) => v.campaignId);
 
   const campaignFilter = {
     _id: { $in: activeCampaignIds },
-    finishDateOfUse: { $gte: now }
+    finishDateOfUse: { $gte: now },
   };
 
   // bonus
   const bonusCampaign = await models.VoucherCampaigns.find({
     ...campaignFilter,
-    voucherType: { $in: ['bonus'] }
+    voucherType: { $in: ['bonus'] },
   }).lean();
 
   const bonusVouchers = await models.Vouchers.aggregate([
     {
       $match: {
         ...voucherFilter,
-        campaignId: { $in: bonusCampaign.map(c => c._id) }
-      }
+        campaignId: { $in: bonusCampaign.map((c) => c._id) },
+      },
     },
     {
-      $lookup: lookup
+      $lookup: lookup,
     },
     {
       $project: {
         ...voucherProject,
-        bonusInfo: 1
-      }
-    }
+        bonusInfo: 1,
+      },
+    },
   ]);
 
   for (const bonusVoucher of bonusVouchers) {
@@ -110,7 +110,7 @@ export const checkVouchersSale = async (
           bonusVoucher.campaign.bonusCount -
           (bonusVoucher.bonusInfo || []).reduce(
             (sum, i) => sum + i.usedCount,
-            0
+            0,
           );
         result[productId].type = 'bonus';
         result[productId].discount = 100;
@@ -122,29 +122,29 @@ export const checkVouchersSale = async (
   // discount
   const discountCampaigns = await models.VoucherCampaigns.find({
     ...campaignFilter,
-    voucherType: { $in: ['discount'] }
+    voucherType: { $in: ['discount'] },
   }).lean();
 
   const discountVouchers = await models.Vouchers.aggregate([
     {
       $match: {
         ...voucherFilter,
-        campaignId: { $in: discountCampaigns.map(c => c._id) }
-      }
+        campaignId: { $in: discountCampaigns.map((c) => c._id) },
+      },
     },
     {
-      $lookup: lookup
+      $lookup: lookup,
     },
     {
       $project: {
-        ...voucherProject
-      }
-    }
+        ...voucherProject,
+      },
+    },
   ]);
 
-  const productCatIds = discountCampaigns.reduce(
+  const productCatIds = discountCampaigns.reduce<string[]>(
     (catIds, c) => catIds.concat(c.productCategoryIds),
-    []
+    [],
   );
 
   const categoryIdsByCampaignId = {};
@@ -154,7 +154,7 @@ export const checkVouchersSale = async (
       categoryIdsByCampaignId[campaign._id] = [];
     }
     const catIds = await getChildCategories(subdomain, [
-      ...new Set(productCatIds)
+      ...new Set(productCatIds),
     ]);
     categoryIdsByCampaignId[campaign._id] = catIds;
     allCatIds = allCatIds.concat(catIds);
@@ -164,10 +164,10 @@ export const checkVouchersSale = async (
     subdomain,
     action: 'count',
     data: {
-      query: { categoryId: { $in: allCatIds } }
+      query: { categoryId: { $in: allCatIds } },
     },
     isRPC: true,
-    defaultValue: 0
+    defaultValue: 0,
   });
 
   const catProducts = await sendProductsMessage({
@@ -176,10 +176,10 @@ export const checkVouchersSale = async (
     data: {
       query: { categoryId: { $in: allCatIds } },
       sort: { _id: 1, categoryId: 1 },
-      limit
+      limit,
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: [],
   });
 
   const productIdsByCatId = {};
@@ -210,7 +210,7 @@ export const checkVouchersSale = async (
             voucherId: discountVoucher._id,
             discount: discountVoucher.campaign.discountPercent,
             voucherName: discountVoucher.campaign.title,
-            type: 'discount'
+            type: 'discount',
           };
         }
         result[productId].sumDiscount +=
@@ -229,7 +229,7 @@ export const confirmVoucherSale = async (
       voucherId: string;
       count: number;
     };
-  }
+  },
 ) => {
   for (const productId of Object.keys(checkInfo)) {
     const rule = checkInfo[productId];
@@ -240,14 +240,14 @@ export const confirmVoucherSale = async (
 
     if (rule.count) {
       const voucher = await models.Vouchers.findOne({
-        _id: rule.voucherId
+        _id: rule.voucherId,
       }).lean();
       if (!voucher) {
         continue;
       }
 
       const campaign = await models.VoucherCampaigns.findOne({
-        _id: voucher.campaignId
+        _id: voucher.campaignId,
       });
       if (!campaign) {
         continue;
@@ -255,11 +255,11 @@ export const confirmVoucherSale = async (
 
       const oldBonusCount = (voucher.bonusInfo || []).reduce(
         (sum, i) => sum + i.usedCount,
-        0
+        0,
       );
 
       const updateInfo: any = {
-        $push: { bonusInfo: { usedCount: rule.count } }
+        $push: { bonusInfo: { usedCount: rule.count } },
       };
       if (campaign.bonusCount - oldBonusCount <= rule.count) {
         updateInfo.$set = { status: VOUCHER_STATUS.LOSS };
@@ -273,13 +273,13 @@ export const confirmVoucherSale = async (
 export const isInSegment = async (
   subdomain: string,
   segmentId: string,
-  targetId: string
+  targetId: string,
 ) => {
   const response = await sendSegmentsMessage({
     subdomain,
     action: 'isInSegment',
     data: { segmentId, idToCheck: targetId },
-    isRPC: true
+    isRPC: true,
   });
 
   return response;

@@ -5,13 +5,13 @@ import { IModels } from '../connectionResolver';
 import {
   IScoreLogDocument,
   scoreLogSchema,
-  IScoreLog
+  IScoreLog,
 } from './definitions/scoreLog';
 import {
   sendClientPortalMessage,
   sendCommonMessage,
   sendContactsMessage,
-  sendCoreMessage
+  sendCoreMessage,
 } from '../messageBroker';
 
 import { IScoreParams } from './definitions/common';
@@ -20,16 +20,16 @@ import { paginate } from '@erxes/api-utils/src';
 const OWNER_TYPES = {
   customer: {
     serviceName: 'contacts',
-    contentType: 'customers'
+    contentType: 'customers',
   },
   company: {
     serviceName: 'contacts',
-    contentType: 'companies'
+    contentType: 'companies',
   },
   user: {
     serviceName: 'core',
-    contentType: 'users'
-  }
+    contentType: 'users',
+  },
 };
 
 export interface IScoreLogModel extends Model<IScoreLogDocument> {
@@ -72,10 +72,10 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       const { order, orderType } = doc;
       const filter = generateFilter(doc);
       const list = paginate(
-        models.ScoreLogs.find(filter).sort({ [orderType]: order }),
-        doc
+        models.ScoreLogs.find(filter).sort({ [orderType]: order } as any),
+        doc,
       );
-      const total = await models.ScoreLogs.find(filter).count();
+      const total = await models.ScoreLogs.find(filter).countDocuments();
       return { list, total };
     }
 
@@ -85,7 +85,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         ownerIds,
         changeScore,
         description,
-        createdBy = ''
+        createdBy = '',
       } = doc;
       const { serviceName, contentType } = OWNER_TYPES[ownerType] || {};
 
@@ -101,7 +101,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
             ? { query: { ...ownerFilter } }
             : { ...ownerFilter },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       if (!owners?.length) {
@@ -115,13 +115,13 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           action: `${contentType}.updateMany`,
           data: {
             selector: {
-              _id: { $in: owners.map(owner => owner._id) }
+              _id: { $in: owners.map((owner) => owner._id) },
             },
             modifier: {
-              $inc: { score }
-            }
+              $inc: { score },
+            },
           },
-          isRPC: true
+          isRPC: true,
         });
       } catch (error) {
         throw new Error(error.message);
@@ -132,12 +132,12 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         changeScore: score,
         createdAt: new Date(),
         description,
-        createdBy
+        createdBy,
       };
 
-      const newDatas = owners.map(owner => ({
+      const newDatas = owners.map((owner) => ({
         ownerId: owner._id,
-        ...commonDoc
+        ...commonDoc,
       }));
 
       return await models.ScoreLogs.insertMany(newDatas);
@@ -149,7 +149,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         ownerId,
         changeScore,
         description,
-        createdBy = ''
+        createdBy = '',
       } = doc;
 
       const score = Number(changeScore);
@@ -170,7 +170,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         subdomain,
         ownerId,
         ownerType,
-        newScore
+        newScore,
       });
 
       if (!response || !Object.keys(response || {})?.length) {
@@ -182,7 +182,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         changeScore: score,
         createdAt: new Date(),
         description,
-        createdBy
+        createdBy,
       });
     }
     static async updateOwnerScore({ subdomain, ownerType, ownerId, newScore }) {
@@ -192,10 +192,10 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           action: 'users.updateOne',
           data: {
             selector: { _id: ownerId },
-            modifier: { $set: { score: newScore } }
+            modifier: { $set: { score: newScore } },
           },
           isRPC: true,
-          defaultValue: null
+          defaultValue: null,
         });
       }
       if (ownerType === 'customer') {
@@ -204,10 +204,10 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           action: 'customers.updateOne',
           data: {
             selector: { _id: ownerId },
-            modifier: { $set: { score: newScore } }
+            modifier: { $set: { score: newScore } },
           },
           isRPC: true,
-          defaultValue: null
+          defaultValue: null,
         });
       }
       if (ownerType === 'company') {
@@ -216,10 +216,10 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           action: 'companies.updateCommon',
           data: {
             selector: { _id: ownerId },
-            modifier: { $set: { score: newScore } }
+            modifier: { $set: { score: newScore } },
           },
           isRPC: true,
-          defaultValue: null
+          defaultValue: null,
         });
       }
       if (ownerType === 'cpUser') {
@@ -227,10 +227,10 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           subdomain,
           action: 'clientPortalUsers.findOne',
           data: {
-            _id: ownerId
+            _id: ownerId,
           },
           isRPC: true,
-          defaultValue: null
+          defaultValue: null,
         });
 
         if (!cpUser) {
@@ -241,10 +241,10 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           action: 'customers.updateOne',
           data: {
             selector: { _id: cpUser.erxesCustomerId },
-            modifier: { $set: { score: newScore } }
+            modifier: { $set: { score: newScore } },
           },
           isRPC: true,
-          defaultValue: null
+          defaultValue: null,
         });
       }
     }

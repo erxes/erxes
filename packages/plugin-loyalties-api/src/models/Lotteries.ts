@@ -3,7 +3,7 @@ import { getRandomNumber } from './utils';
 import {
   lotterySchema,
   ILottery,
-  ILotteryDocument
+  ILotteryDocument,
 } from './definitions/lotteries';
 import { Model, model } from 'mongoose';
 import { IModels } from '../connectionResolver';
@@ -36,15 +36,14 @@ export const loadLotteryClass = (models: IModels, subdomain: string) => {
         ownerType,
         ownerId,
         voucherCampaignId = '',
-        userId = ''
+        userId = '',
       } = doc;
       if (!ownerId || !ownerType) {
         throw new Error('Not create lottery, owner is undefined');
       }
 
-      const lotteryCampaign = await models.LotteryCampaigns.getLotteryCampaign(
-        campaignId
-      );
+      const lotteryCampaign =
+        await models.LotteryCampaigns.getLotteryCampaign(campaignId);
 
       const now = new Date();
 
@@ -61,7 +60,7 @@ export const loadLotteryClass = (models: IModels, subdomain: string) => {
         number,
         status: LOTTERY_STATUS.NEW,
         voucherCampaignId,
-        userId
+        userId,
       });
     }
 
@@ -72,6 +71,9 @@ export const loadLotteryClass = (models: IModels, subdomain: string) => {
       }
 
       const spin = await models.Lotteries.findOne({ _id }).lean();
+      if (!spin) {
+        throw new Error(`Lottery with _id = ${_id} not found`);
+      }
       const campaignId = spin.campaignId;
 
       await models.LotteryCampaigns.getLotteryCampaign(campaignId);
@@ -87,9 +89,9 @@ export const loadLotteryClass = (models: IModels, subdomain: string) => {
             ownerId,
             modifiedAt: now,
             status,
-            userId
-          }
-        }
+            userId,
+          },
+        },
       );
     }
 
@@ -100,9 +102,8 @@ export const loadLotteryClass = (models: IModels, subdomain: string) => {
         throw new Error('can not buy lottery, owner is undefined');
       }
 
-      const lotteryCampaign = await models.LotteryCampaigns.getLotteryCampaign(
-        campaignId
-      );
+      const lotteryCampaign =
+        await models.LotteryCampaigns.getLotteryCampaign(campaignId);
 
       if (!lotteryCampaign.buyScore) {
         throw new Error('can not buy this lottery');
@@ -112,7 +113,7 @@ export const loadLotteryClass = (models: IModels, subdomain: string) => {
         ownerType,
         ownerId,
         changeScore: -1 * lotteryCampaign.buyScore * count,
-        description: 'buy lottery'
+        description: 'buy lottery',
       });
 
       return models.Lotteries.createLottery({ campaignId, ownerType, ownerId });

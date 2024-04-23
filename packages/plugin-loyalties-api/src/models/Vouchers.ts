@@ -2,7 +2,7 @@ import * as _ from 'underscore';
 import {
   voucherSchema,
   IVoucher,
-  IVoucherDocument
+  IVoucherDocument,
 } from './definitions/vouchers';
 import { Model, model } from 'mongoose';
 import { IModels } from '../connectionResolver';
@@ -19,7 +19,7 @@ export interface IVoucherModel extends Model<IVoucherDocument> {
   checkVouchersSale({
     ownerType,
     ownerId,
-    products
+    products,
   }: {
     ownerType: string;
     ownerId: string;
@@ -47,9 +47,8 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
         throw new Error('Not create voucher, owner is undefined');
       }
 
-      const voucherCampaign = await models.VoucherCampaigns.getVoucherCampaign(
-        campaignId
-      );
+      const voucherCampaign =
+        await models.VoucherCampaigns.getVoucherCampaign(campaignId);
 
       const now = new Date();
 
@@ -64,7 +63,7 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
             ownerType,
             ownerId,
             voucherCampaignId: campaignId,
-            userId
+            userId,
           });
 
         case 'lottery':
@@ -73,7 +72,7 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
             ownerType,
             ownerId,
             voucherCampaignId: campaignId,
-            userId
+            userId,
           });
 
         case 'score':
@@ -81,7 +80,7 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
             ownerType,
             ownerId,
             changeScore: voucherCampaign.score,
-            description: 'score voucher'
+            description: 'score voucher',
           });
 
         case 'discount':
@@ -94,7 +93,7 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
             ownerId,
             createdAt: now,
             status: VOUCHER_STATUS.NEW,
-            userId
+            userId,
           });
       }
     }
@@ -107,6 +106,9 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
       }
 
       const voucher = await models.Vouchers.findOne({ _id }).lean();
+      if (!voucher) {
+        throw new Error(`Voucher with _id = ${_id} not found`);
+      }
       const campaignId = voucher.campaignId;
 
       await models.VoucherCampaigns.getVoucherCampaign(campaignId);
@@ -122,9 +124,9 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
             ownerId,
             modifiedAt: now,
             status,
-            userId
-          }
-        }
+            userId,
+          },
+        },
       );
     }
 
@@ -134,9 +136,8 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
         throw new Error('can not buy voucher, owner is undefined');
       }
 
-      const voucherCampaign = await models.VoucherCampaigns.getVoucherCampaign(
-        campaignId
-      );
+      const voucherCampaign =
+        await models.VoucherCampaigns.getVoucherCampaign(campaignId);
 
       if (!voucherCampaign.buyScore) {
         throw new Error('can not buy this voucher');
@@ -146,7 +147,7 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
         ownerType,
         ownerId,
         changeScore: -1 * voucherCampaign.buyScore * count,
-        description: 'buy voucher'
+        description: 'buy voucher',
       });
 
       return models.Vouchers.createVoucher({ campaignId, ownerType, ownerId });

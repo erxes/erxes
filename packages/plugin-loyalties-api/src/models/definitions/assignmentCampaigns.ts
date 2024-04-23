@@ -2,7 +2,7 @@ import { Document, Schema } from 'mongoose';
 import {
   commonCampaignSchema,
   ICommonCampaignFields,
-  ICommonCampaignDocument
+  ICommonCampaignDocument,
 } from './common';
 import { field } from './utils';
 
@@ -10,6 +10,7 @@ export interface IAssignmentCampaign extends ICommonCampaignFields {
   segmentIds: string[];
   fieldId: string;
   voucherCampaignId: string;
+  allowMultiWin: any;
 }
 
 export interface IAssignmentCampaignDocument
@@ -26,7 +27,7 @@ export const assignmentCampaignSchema = new Schema({
   allowMultiWin: field({
     type: Boolean,
     label: 'Allow multiple Win',
-    optional: true
+    optional: true,
   }),
-  voucherCampaignId: field({ type: String, label: 'Voucher Campaign Id' })
+  voucherCampaignId: field({ type: String, label: 'Voucher Campaign Id' }),
 });
