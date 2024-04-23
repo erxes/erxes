@@ -161,6 +161,7 @@ class SelectBoards extends React.Component<Props, State> {
           )}
           onChange={onBoardChange}
           options={this.generateBoardOptions(this.props.boards)}
+          isClearable={true}
           isMulti={false}
         />
         <Select

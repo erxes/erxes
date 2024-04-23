@@ -56,6 +56,7 @@ function SegmentFields({
         value={options.find((o) => o.value === assignmentCampaign.fieldId)}
         name="fieldId"
         // loadingPlaceholder={__('Loading...')}
+        isClearable={true}
         onChange={({ value }) => onChange(value, "fieldId")}
       />
     </FormGroup>

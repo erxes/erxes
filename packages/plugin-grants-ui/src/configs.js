@@ -27,28 +27,7 @@ module.exports = {
       scope: "grants",
     },
   ],
-  dealRightSidebarSection: [
-    {
-      text: "grantsSection",
-      component: "./cardSideBarSection",
-      scope: "grants",
-      withDetail: true,
-    },
-  ],
-  ticketRightSidebarSection: [
-    {
-      text: "grantsSection",
-      component: "./cardSideBarSection",
-      scope: "grants",
-      withDetail: true,
-    },
-  ],
-  taskRightSidebarSection: [
-    {
-      text: "grantsSection",
-      component: "./cardSideBarSection",
-      scope: "grants",
-      withDetail: true,
-    },
-  ],
+  dealRightSidebarSection: "./cardSideBarSection",
+  ticketRightSidebarSection: "./cardSideBarSection",
+  taskRightSidebarSection: "./cardSideBarSection",
 };

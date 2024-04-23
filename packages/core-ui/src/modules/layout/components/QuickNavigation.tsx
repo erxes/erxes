@@ -148,7 +148,7 @@ const QuickNavigation = ({
               </UserInfo>
             </UserHelper>
           </Menu.Button>
-          <Menu.Items className="absolute">
+          <Menu.Items className="absolute" unmount={false}>
             <NameCardWrapper>
               <NameCard user={currentUser} />
             </NameCardWrapper>

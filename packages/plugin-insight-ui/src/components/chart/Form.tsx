@@ -181,6 +181,7 @@ const Form = (props: Props) => {
         <Select
           options={dimensions}
           value={dimensions.find((o) => o.value === dimension?.x)}
+          isClearable={true}
           onChange={(sel) => setDimension({ x: sel.value })}
         />
       </>

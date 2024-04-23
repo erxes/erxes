@@ -17,7 +17,7 @@ import FormGroup from "modules/common/components/form/Group";
 import { IUserGroup } from "@erxes/ui-settings/src/permissions/types";
 import Info from "modules/common/components/Info";
 import { ModalFooter } from "modules/common/styles/main";
-import React from "react";
+import React, { useState } from "react";
 import Select from "react-select";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import TextInfo from "modules/common/components/TextInfo";
@@ -41,101 +41,86 @@ type State = {
   isSubmitted: boolean;
 };
 
-class PermissionForm extends React.Component<Props, State> {
-  state = {
-    selectedModule: "",
-    selectedActions: [],
-    selectedUserIds: [],
-    selectedGroups: [],
-    valueChanged: false,
-    isSubmitted: false,
-  };
+const PermissionForm = (props: Props) => {
+  const [selectedModule, setSelectedModule] = useState("");
+  const [selectedActions, setSelectedActions] = useState([]);
+  const [selectedUserIds, setSelectedUserIds] = useState([]);
+  const [selectedGroups, setSelectedGroups] = useState([]);
+  const [valueChanged, setValueChanged] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
-  save = (e: React.FormEvent) => {
+  const save = (e: React.FormEvent) => {
     e.preventDefault();
-
-    const { selectedModule, selectedActions, selectedUserIds, selectedGroups } =
-      this.state;
 
     if (!selectedModule) {
       return Alert.error("Please select the module!");
     }
 
-    if (!this.hasItems(selectedActions)) {
+    if (!hasItems(selectedActions)) {
       return Alert.error("Please select at least one action!");
     }
 
-    if (!this.hasItems(selectedGroups) && !this.hasItems(selectedUserIds)) {
+    if (!hasItems(selectedGroups) && !hasItems(selectedUserIds)) {
       return Alert.error("Please select at least one group or user!");
     }
 
-    return this.setState({ isSubmitted: true });
+    return setIsSubmitted(true );
   };
 
-  getVariables = () => {
-    const {
-      selectedModule,
-      selectedActions,
-      selectedUserIds,
-      selectedGroups,
-      valueChanged,
-    } = this.state;
-
+  const getVariables = () => {
     return {
       module: selectedModule,
-      actions: this.collectValues(selectedActions),
+      actions: collectValues(selectedActions),
       userIds: selectedUserIds,
-      groupIds: this.collectValues(selectedGroups),
+      groupIds: collectValues(selectedGroups),
       allowed: valueChanged,
     };
   };
 
-  onChange = () => {
-    this.setState({ valueChanged: true });
+  const onChange = () => {
+    setValueChanged(true);
   };
 
-  hasItems = (items: string[]) => {
+  const hasItems = (items: string[]) => {
     return items.length > 0 ? true : false;
   };
 
-  isModuleSelected = () => {
-    if (this.state.selectedModule) {
+  const isModuleSelected = () => {
+    if (selectedModule) {
       return true;
     }
 
     return false;
   };
 
-  select = <T extends keyof State>(name: T, value) => {
-    this.setState({ [name]: value } as Pick<State, keyof State>);
+  const select = <T extends keyof State>(name: T, value) => {
+    if(name === 'selectedUserIds'){
+      setSelectedUserIds(value)
+    }
+    if(name === 'selectedActions'){
+      setSelectedActions(value)
+    }
+    if(name === 'selectedGroups'){
+      setSelectedGroups(value)
+    }
   };
 
-  changeModule = (item: generatedList) => {
-    console.log(item);
-    const selectedModule = correctValue(item);
+  const changeModule = (item: generatedList) => {
+    const newSelectedModule = correctValue(item);
 
-    this.setState({
-      selectedModule,
-      selectedActions: [],
-    });
+    setSelectedModule(newSelectedModule)
+    setSelectedActions([])
   };
 
-  collectValues = (items: generatedList[]) => {
+  const collectValues = (items: generatedList[]) => {
     return items.map((item) => item.value);
   };
 
-  renderContent() {
-    const { modules, actions, groups } = this.props;
-    const {
-      selectedModule,
-      selectedActions,
-      selectedUserIds,
-      selectedGroups,
-      valueChanged,
-    } = this.state;
+  const renderContent = () => {
+    const { modules, actions, groups } = props;
 
-    const usersOnChange = (users) => this.select("selectedUserIds", users);
-    console.log(this.state.selectedModule, this.isModuleSelected());
+    const usersOnChange = (users) => select("selectedUserIds", users);
+
     return (
       <>
         <Info>
@@ -161,7 +146,7 @@ class PermissionForm extends React.Component<Props, State> {
         <StepItem>
           <StepHeader
             number="1"
-            $isDone={this.isModuleSelected() && this.hasItems(selectedActions)}
+            $isDone={isModuleSelected() && hasItems(selectedActions)}
           >
             {__("What action can do")}
           </StepHeader>
@@ -170,11 +155,12 @@ class PermissionForm extends React.Component<Props, State> {
               <ControlLabel required={true}>Choose the module</ControlLabel>
               <Select
                 placeholder={__("Choose module")}
+                isClearable={true}
                 options={generateModuleParams(modules)}
                 value={generateModuleParams(modules).find(
                   (o) => o.value === selectedModule
                 )}
-                onChange={() => this.changeModule}
+                onChange={(p) => changeModule(p)}
               />
             </FormGroup>
             <Divider>{__("Then")}</Divider>
@@ -184,8 +170,8 @@ class PermissionForm extends React.Component<Props, State> {
                 placeholder={__("Choose actions")}
                 options={filterActions(actions, selectedModule) || []}
                 value={selectedActions}
-                isDisabled={!this.isModuleSelected()}
-                onChange={this.select.bind(this, "selectedActions")}
+                isDisabled={!selectedModule}
+                onChange={select.bind(this, "selectedActions")}
                 isMulti={true}
               />
             </FormGroup>
@@ -195,9 +181,7 @@ class PermissionForm extends React.Component<Props, State> {
         <StepItem>
           <StepHeader
             number="2"
-            isDone={
-              this.hasItems(selectedGroups) || this.hasItems(selectedUserIds)
-            }
+            isDone={hasItems(selectedGroups) || hasItems(selectedUserIds)}
           >
             {__("Who can")}
           </StepHeader>
@@ -208,7 +192,7 @@ class PermissionForm extends React.Component<Props, State> {
                 placeholder={__("Choose groups")}
                 options={generateListParams(groups) || []}
                 value={selectedGroups}
-                onChange={this.select.bind(this, "selectedGroups")}
+                onChange={select.bind(this, "selectedGroups")}
                 isMulti={true}
               />
             </FormGroup>
@@ -238,7 +222,7 @@ class PermissionForm extends React.Component<Props, State> {
                 componentclass="checkbox"
                 defaultChecked={false}
                 id="allowed"
-                onChange={this.onChange}
+                onChange={onChange}
               />
               <p>{__("Check if permission is allowed")}</p>
             </FormGroup>
@@ -246,37 +230,35 @@ class PermissionForm extends React.Component<Props, State> {
         </StepItem>
       </>
     );
-  }
+  };
 
-  render() {
-    const { closeModal, refetchQueries } = this.props;
+  const { closeModal, refetchQueries } = props;
 
-    return (
-      <form onSubmit={this.save}>
-        {this.renderContent()}
-        <ModalFooter>
-          <Button
-            btnStyle="simple"
-            type="button"
-            onClick={closeModal}
-            icon="cancel-1"
-          >
-            Cancel
-          </Button>
+  return (
+    <form onSubmit={save}>
+      {renderContent()}
+      <ModalFooter>
+        <Button
+          btnStyle="simple"
+          type="button"
+          onClick={closeModal}
+          icon="cancel-1"
+        >
+          Cancel
+        </Button>
 
-          <ButtonMutate
-            mutation={mutations.permissionAdd}
-            variables={this.getVariables()}
-            callback={closeModal}
-            refetchQueries={refetchQueries}
-            isSubmitted={this.state.isSubmitted}
-            type="submit"
-            successMessage={__(`You successfully added a permission`) + "."}
-          />
-        </ModalFooter>
-      </form>
-    );
-  }
-}
+        <ButtonMutate
+          mutation={mutations.permissionAdd}
+          variables={getVariables()}
+          callback={closeModal}
+          refetchQueries={refetchQueries}
+          isSubmitted={isSubmitted}
+          type="submit"
+          successMessage={__(`You successfully added a permission`) + "."}
+        />
+      </ModalFooter>
+    </form>
+  );
+};
 
 export default PermissionForm;

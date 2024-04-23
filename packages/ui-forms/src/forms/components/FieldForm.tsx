@@ -1,3 +1,4 @@
+import { Alert, __, loadDynamicComponent } from "@erxes/ui/src/utils";
 import { Dialog, Transition } from "@headlessui/react";
 import {
   DialogContent,
@@ -13,7 +14,6 @@ import {
   ShowPreview,
 } from "../styles";
 import { IField, IFieldLogic, IOption } from "@erxes/ui/src/types";
-import { __, loadDynamicComponent } from "@erxes/ui/src/utils";
 
 import Button from "@erxes/ui/src/components/Button";
 import CollapseContent from "@erxes/ui/src/components/CollapseContent";
@@ -34,6 +34,7 @@ import Select from "react-select";
 import SelectProperty from "@erxes/ui-forms/src/settings/properties/containers/SelectProperty";
 import Toggle from "@erxes/ui/src/components/Toggle";
 import { isEnabled } from "@erxes/ui/src/utils/core";
+import { stringToRegex } from "../../settings/properties/utils";
 
 type Props = {
   onSubmit: (field: IField) => void;
@@ -158,10 +159,35 @@ class FieldForm extends React.Component<Props, State> {
     });
   };
 
+  onRegexChange = (e: any) => {
+    if (e.target.value.length === 0) {
+      this.setState({
+        field: {
+          ...this.state.field,
+          regexValidation: "",
+        },
+      });
+      return;
+    }
+
+    const regexPattern = stringToRegex(e.target.value);
+
+    this.setState({
+      field: {
+        ...this.state.field,
+        regexValidation: regexPattern,
+      },
+    });
+  };
+
   onSubmit = (e) => {
     e.persist();
 
     const { field } = this.state;
+
+    if (field.type !== "html" && !field.text?.length) {
+      return Alert.error(__("Label is required!"));
+    }
 
     this.props.onSubmit(field);
   };
@@ -213,18 +239,15 @@ class FieldForm extends React.Component<Props, State> {
 
         {field.validation === "regex" && (
           <>
-            <p>{__("Setup regular expression")}</p>
             <FormControl
               id="regex"
-              componentclass="select"
-              value={field.regexValidation || ""}
-              onChange={(e) =>
-                this.onFieldChange(
-                  "regexValidation",
-                  (e.currentTarget as HTMLInputElement).value
-                )
-              }
+              placeholder="enter sample text here"
+              componentclass="input"
+              onChange={this.onRegexChange}
             />
+            {field.regexValidation && (
+              <p>RegexPattern: {field.regexValidation || ""}</p>
+            )}
           </>
         )}
       </FormGroup>
@@ -445,7 +468,10 @@ class FieldForm extends React.Component<Props, State> {
           open={true}
         >
           <FormGroup>
-            <ControlLabel htmlFor="text" required={true}>
+            <ControlLabel
+              htmlFor="text"
+              required={field.type !== "html" ? true : false}
+            >
               Field Label
             </ControlLabel>
 

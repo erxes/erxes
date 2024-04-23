@@ -13,6 +13,8 @@ import { ModalWrapper } from "../styles";
 import Tip from "@erxes/ui/src/components/Tip";
 import { WidgetWrapper } from "@erxes/ui-inbox/src/settings/integrations/components/mail/styles";
 import { __ } from "@erxes/ui/src/utils";
+import { Flex } from "@erxes/ui/src/styles/main";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   disabled?: boolean;
@@ -33,6 +35,8 @@ type State = {
 };
 
 const Widget: React.FC<Props> = (props) => {
+  const messengerDiv = document.getElementById("erxes-messenger-container");
+
   const [state, setState] = useState<State>({
     shrink: localStorage.getItem("emailWidgetShrink") || "false",
     clear: false,
@@ -61,7 +65,8 @@ const Widget: React.FC<Props> = (props) => {
     const storageShow = JSON.parse(
       localStorage.getItem("emailWidgetShow") || "{}"
     );
-    const storageWidgetShow = storageShow ? storageShow.show : false;
+    const storageWidgetShow =
+      Object.keys(storageShow).length > 0 ? storageShow.show : false;
 
     if (storageWidgetShow === false) {
       changeState(true);
@@ -91,17 +96,17 @@ const Widget: React.FC<Props> = (props) => {
 
     if (type === "action" || type === "tab") {
       return (
-        <Button
-          btnStyle={buttonStyle ? buttonStyle : "primary"}
-          onClick={() => showWidget()}
-          disabled={disabled}
-          size={buttonSize}
-        >
-          <Tip text="Send e-mail" placement="top-end">
+        <Tip text="Send e-mail" placement="top-end">
+          <Button
+            btnStyle={buttonStyle ? buttonStyle : "primary"}
+            onClick={() => showWidget()}
+            disabled={disabled}
+            size={buttonSize}
+          >
             <Icon icon="envelope-alt" />
-          </Tip>
-          {buttonText && buttonText}
-        </Button>
+            {buttonText && <> {buttonText}</>}
+          </Button>
+        </Tip>
       );
     }
 
@@ -175,6 +180,7 @@ const Widget: React.FC<Props> = (props) => {
       JSON.parse(localStorage.getItem("emailWidgetShow") || "{}") || {};
 
     const isShrink = shrink === "true" ? true : false;
+    const haveWidgets = messengerDiv || isEnabled("calls") ? true : false;
 
     return (
       <ModalWrapper onClick={() => changeShrink()} $show={isFullscreen}>
@@ -182,13 +188,14 @@ const Widget: React.FC<Props> = (props) => {
           $shrink={isShrink}
           $show={isWidgetShow.show}
           $fullScreen={isFullscreen}
+          $haveWidgets={haveWidgets}
           onClick={(e) => {
             e.stopPropagation();
           }}
         >
           <NewEmailHeader>
             <span onClick={changeShrink}>{__("New Email")}</span>
-            <div>
+            <Flex>
               <Tip text={"Minimize"} placement="top">
                 <Icon
                   size={10}
@@ -209,7 +216,7 @@ const Widget: React.FC<Props> = (props) => {
               <Tip text={"Close"} placement="top">
                 <Icon size={10} icon="cancel" onClick={onClose} />
               </Tip>
-            </div>
+            </Flex>
           </NewEmailHeader>
           <MailForm
             {...props}

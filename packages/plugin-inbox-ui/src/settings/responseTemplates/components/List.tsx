@@ -83,7 +83,8 @@ const ResponseTemplateList: React.FC<Props> = ({
   };
 
   const renderFilters = () => {
-    const brandId = queryParams && queryParams.brandId ? queryParams : "";
+    const brandId =
+      queryParams && queryParams.brandId ? queryParams.brandId : "";
 
     return (
       <FilterContainer $marginRight={true}>

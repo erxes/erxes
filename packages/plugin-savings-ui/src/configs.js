@@ -41,11 +41,5 @@ module.exports = {
       permissions: ["showTransactions"],
     },
   ],
-  customerRightSidebarSection: [
-    {
-      text: "customerRightSidebarSection",
-      component: "./contractSection",
-      scope: "savings",
-    },
-  ],
+  customerRightSidebarSection: "./contractSection",
 };

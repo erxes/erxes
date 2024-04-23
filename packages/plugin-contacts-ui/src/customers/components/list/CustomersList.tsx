@@ -376,7 +376,7 @@ const CustomersList: React.FC<IProps> = (props) => {
             {__("Customize ")} <Icon icon="angle-down" />
           </Button>
         </Menu.Button>
-        <Menu.Items className="absolute">
+        <Menu.Items className="absolute" unmount={false}>
           <Menu.Item>
             <ModalTrigger
               title="Manage Columns"

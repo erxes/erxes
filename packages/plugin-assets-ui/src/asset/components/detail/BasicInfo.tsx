@@ -116,6 +116,7 @@ function BasicInfo({ asset, remove, assignKbArticles }: Props) {
     return (
       <Actions>
         <Dropdown
+          unmount={false}
           toggleComponent={
             <Button btnStyle="simple" size="medium">
               {__("Action")}

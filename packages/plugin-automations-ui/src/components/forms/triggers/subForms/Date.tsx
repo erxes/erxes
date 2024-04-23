@@ -87,6 +87,7 @@ class DateSettings extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>{__("Frequency Type")}</ControlLabel>
           <Select
+            isClearable={true}
             options={frequencyOptions}
             onChange={({ value }: any) => onChangeDate(value, "frequencyType")}
             value={frequencyOptions.find(
@@ -177,6 +178,7 @@ class DateSettings extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>{__("Select Type")}</ControlLabel>
           <Select
+            isClearable={true}
             options={options}
             value={options.find((o) => o.value === selectDateType)}
             onChange={onSelectType}

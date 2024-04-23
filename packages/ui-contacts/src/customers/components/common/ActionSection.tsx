@@ -67,15 +67,15 @@ class ActionSection extends React.Component<
           dialogClassName="middle"
           title={`Send SMS to (${primaryPhone})`}
           trigger={
-            <Button
-              disabled={primaryPhone ? false : true}
-              size="small"
-              btnStyle={primaryPhone ? "primary" : "simple"}
-            >
-              <Tip text="Send SMS" placement="top-end">
+            <Tip text="Send SMS" placement="top-end">
+              <Button
+                disabled={primaryPhone ? false : true}
+                size="small"
+                btnStyle={primaryPhone ? "primary" : "simple"}
+              >
                 <Icon icon="message" />
-              </Tip>
-            </Button>
+              </Button>
+            </Tip>
           }
           content={smsForm}
         />
@@ -224,7 +224,7 @@ class ActionSection extends React.Component<
             </>
           )}
         </Menu.Button>
-        <Menu.Items className="absolute">
+        <Menu.Items className="absolute" unmount={false}>
           {this.renderEditButton()}
           <Menu.Item>
             <TargetMerge

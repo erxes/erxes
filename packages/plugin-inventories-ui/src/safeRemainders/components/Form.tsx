@@ -97,6 +97,7 @@ export default function FormComponent(props: Props) {
           onChange={(option) =>
             setFilterField(!option ? "" : option.value.toString())
           }
+          isClearable={true}
           options={option}
         />
       </FormGroup>

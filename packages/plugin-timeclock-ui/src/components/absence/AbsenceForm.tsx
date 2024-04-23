@@ -248,6 +248,7 @@ export default (props: Props) => {
         <Select
           value={options.find((o) => o.value === checkInOutType)}
           onChange={(e: any) => setCheckInOutType(e.value)}
+          isClearable={true}
           options={options}
         />
 
@@ -550,6 +551,7 @@ export default (props: Props) => {
             o.value ===
             (absenceTypes.length > 0 && absenceTypes[absenceIdx].name)
         )}
+        isClearable={true}
         options={reasonOptions}
       />
       {absenceTypes.length > 0 && absenceTypes[absenceIdx].explRequired ? (

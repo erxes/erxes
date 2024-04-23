@@ -78,6 +78,7 @@ class MailChooser extends React.Component<Props> {
               item.options.find((option) => option.value === email)
             )}
             onChange={onSelectChange}
+            isClearable={true}
             options={options}
           />
         </FormGroup>

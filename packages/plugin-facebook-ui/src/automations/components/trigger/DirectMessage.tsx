@@ -185,6 +185,7 @@ export default function DirectMessageForm({
               onChange={({ value }: any) =>
                 onChangeCondition(_id, "operator", value)
               }
+              isClearable={true}
               options={OPERATOR_TYPES}
             />
           </FormGroup>

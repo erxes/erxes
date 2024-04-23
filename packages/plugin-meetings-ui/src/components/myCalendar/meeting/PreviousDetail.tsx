@@ -43,6 +43,7 @@ class PreviousDetailComponents extends React.Component<Props, State> {
             placeholder={"Choose times"}
             value={selectedValues.find((o) => o.value === selectedMeetingId)}
             options={selectedValues}
+            isClearable={true}
             onChange={onSelect}
           />
         </FeatureRowItem>

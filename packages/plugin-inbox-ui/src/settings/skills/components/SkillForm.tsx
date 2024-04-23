@@ -106,6 +106,7 @@ function SkillForm({
             placeholder={__("Choose a skill type")}
             value={generateSkillTypes().find((o) => o.value === type)}
             options={generateSkillTypes()}
+            isClearable={true}
             onChange={handleTypeSelect}
           />
         </FormGroup>

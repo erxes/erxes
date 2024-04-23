@@ -292,6 +292,7 @@ class SelectCustomFieldsComponent extends React.Component<
         )}
         options={[{ label: "Select custom field", value: "" }, ...options]}
         isMulti={false}
+        isClearable={true}
         onChange={handleChange}
       />
     );
@@ -589,6 +590,7 @@ export class CommonCalculateFields extends React.Component<Props, State> {
             value={calculateMethods.find((o) => o.value === calculateMethod)}
             options={calculateMethods}
             isMulti={false}
+            isClearable={true}
             onChange={handleCalculateMethod}
           />
         </FormGroup>

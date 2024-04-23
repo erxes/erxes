@@ -142,6 +142,7 @@ const useDynamicScript = (args) => {
 };
 
 export const loadComponent = (scope, module) => {
+  console.log(scope, module);
   return async () => {
     // Initializes the share scope. This fills it with known provided modules from this build and all remotes
     await __webpack_init_sharing__("default");
@@ -171,50 +172,12 @@ export const loadComponent = (scope, module) => {
       if (!Module) {
         throw new Error(`Module '${module}' is not initialized properly.`);
       }
-
       return Module;
     } catch (error) {
       console.error("Component loading error:", error);
       throw error; // rethrow the error to let the caller handle it
     }
   };
-};
-
-const renderPluginSidebar = (itemName: string, type: string, object: any) => {
-  const plugins: any[] = (window as any).plugins || [];
-
-  return (
-    <PluginsWrapper
-      itemName={itemName}
-      plugins={plugins}
-      callBack={(_plugin, sections) => {
-        return (sections || []).map((section) => {
-          console.log("kkk", section.scope, window[section.scope]);
-
-          if (!window[section.scope]) {
-            return null;
-          }
-
-          const Component = React.lazy(
-            loadComponent(section.scope, section.component)
-          );
-
-          const updatedProps = {
-            key: Math.random(),
-            id: object._id,
-            mainType: type,
-            mainTypeId: object._id,
-          };
-
-          if (section?.withDetail) {
-            updatedProps["object"] = object;
-          }
-
-          return <Component {...updatedProps} />;
-        });
-      }}
-    />
-  );
 };
 
 const System = (props) => {
@@ -461,24 +424,6 @@ export const pluginRouters = () => {
   }
 
   return pluginRoutes;
-};
-
-export const pluginsOfCustomerSidebar = (customer: any) => {
-  // check - ICustomer
-  return renderPluginSidebar(
-    "customerRightSidebarSection",
-    "customer",
-    customer
-  );
-};
-
-export const pluginsOfCompanySidebar = (company: any) => {
-  // check - ICompany
-  return renderPluginSidebar("companyRightSidebarSection", "company", company);
-};
-
-export const pluginsOfItemSidebar = (item: any, type: string) => {
-  return renderPluginSidebar(`${type}RightSidebarSection`, type, item);
 };
 
 export const pluginsOfPaymentForm = (

@@ -146,6 +146,7 @@ function BuildSkill({
               )}
               isLoading={loading}
               options={generateOptions(skills)}
+              isClearable={true}
               onChange={handleSkillChange}
             />
           </FormGroup>
@@ -226,6 +227,7 @@ function BuildSkill({
                 (o) => o.value === skillType
               )}
               options={generateOptions(skillTypes)}
+              isClearable={true}
               onChange={handleSelectChange}
             />
             {renderAddSkill()}

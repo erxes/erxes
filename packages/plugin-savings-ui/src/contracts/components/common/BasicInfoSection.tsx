@@ -92,6 +92,7 @@ const BasicInfoSection = (props: Props) => {
               <Icon icon="angle-down" />
             </Button>
           }
+          unmount={false}
         >
           {documents?.map((mur) => {
             return (

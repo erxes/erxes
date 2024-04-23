@@ -100,6 +100,7 @@ const KnowledgeRow = (props: Props) => {
     return (
       <RowActions>
         <Dropdown
+          unmount={false}
           as={DropdownToggle}
           toggleComponent={<Icon icon="cog" size={15} />}
         >

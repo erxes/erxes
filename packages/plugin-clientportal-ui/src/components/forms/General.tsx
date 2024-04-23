@@ -216,6 +216,7 @@ function General({
           value={generateOptions(options, "_id", "name").find(
             (o) => o.value === value
           )}
+          isClearable={true}
           onChange={handleSelect}
           options={generateOptions(options, "_id", "name")}
         />
@@ -402,6 +403,7 @@ function General({
                   value={generateOptions(topics, "_id", "title").find(
                     (o) => o.value === knowledgeBaseTopicId
                   )}
+                  isClearable={true}
                   options={generateOptions(topics, "_id", "title")}
                   onChange={handleSelectChange}
                 />

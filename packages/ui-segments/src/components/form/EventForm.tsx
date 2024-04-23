@@ -90,6 +90,7 @@ class EventForm extends React.Component<Props, State> {
               value={options.find(
                 (option) => option.value === eventAttributeFilter.operator
               )}
+              isClearable={true}
               onChange={onChangeSelect}
             />
           </FormGroup>
@@ -204,6 +205,7 @@ class EventForm extends React.Component<Props, State> {
             <Select
               value={eventOptions.find((option) => option.value === eventName)}
               options={eventOptions}
+              isClearable={true}
               onChange={this.onChangeSelect.bind(this, "eventName")}
             />
           </FormGroup>
@@ -215,6 +217,7 @@ class EventForm extends React.Component<Props, State> {
                 (option) => option.value === eventOccurence
               )}
               options={eventOccurenceOptions}
+              isClearable={true}
               onChange={this.onChangeSelect.bind(this, "eventOccurence")}
             />
           </FormGroup>

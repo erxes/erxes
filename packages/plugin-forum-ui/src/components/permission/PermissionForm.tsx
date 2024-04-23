@@ -104,6 +104,7 @@ class PermissionForm extends React.Component<Props, State> {
               value={generateModuleParams(PERMISSIONS).find(
                 (o) => o.value === selectedModule
               )}
+              isClearable={true}
               onChange={this.changeModule}
             />
           </FormGroup>

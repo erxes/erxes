@@ -239,6 +239,7 @@ function List(props: Props) {
         value={extractOptions.find((o) => o.value === extractType)}
         onChange={(el: any) => setExtractType(el.value)}
         placeholder="Select extract type"
+        isClearable={true}
         options={extractOptions}
       />
 

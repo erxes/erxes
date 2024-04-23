@@ -58,7 +58,7 @@ class CustomerDetails extends React.Component<Props> {
 
     if (isEnabled('engages')) {
       return (
-        <>
+        <TabTitle>
           <Widget
             customers={[this.props.customer]}
             modalTrigger={triggerMessenger}
@@ -66,7 +66,7 @@ class CustomerDetails extends React.Component<Props> {
             forceCreateConversation={true}
           />
           {this.renderEmailTab()}
-        </>
+        </TabTitle>
       );
     }
 

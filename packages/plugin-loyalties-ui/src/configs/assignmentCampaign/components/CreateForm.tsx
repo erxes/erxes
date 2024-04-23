@@ -214,6 +214,7 @@ const CreateForm = (props: Props) => {
             value={selectOptions.find(
               (o) => o.value === assignmentCampaign.voucherCampaignId
             )}
+            isClearable={true}
             options={selectOptions}
             name="voucherCampaignId"
             onChange={onChangeVoucherCampaign}

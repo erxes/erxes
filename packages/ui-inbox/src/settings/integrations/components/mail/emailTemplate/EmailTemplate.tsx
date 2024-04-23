@@ -10,7 +10,7 @@ import EmptyState from "@erxes/ui/src/components/EmptyState";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import Icon from "@erxes/ui/src/components/Icon";
 import { Link } from "react-router-dom";
-import { Popover } from "@headlessui/react";
+import Popover from "@erxes/ui/src/components/Popover";
 import { PopoverLinkWrapper } from "../styles";
 import React from "react";
 import { SearchInput } from "../../../styles";
@@ -105,42 +105,42 @@ class EmailTemplate extends React.Component<Props, State> {
   render() {
     const popover = (
       <>
-        <h3>{__("Email Templates")}</h3>
-        <>
-          <PopoverBody>
-            <SearchInput>
-              <FormControl
-                type="text"
-                placeholder={__("Type to search")}
-                onChange={this.onSearch}
-              />
-            </SearchInput>
-            <PopoverList>
-              {this.renderContent()}
-              {this.renderLoadMore()}
-            </PopoverList>
-          </PopoverBody>
-          <PopoverFooter>
-            <PopoverLinkWrapper>
-              <Link to="/settings/email-templates">
-                <Icon icon="cog" />
-                {__("Manage email templates")}
-              </Link>
-            </PopoverLinkWrapper>
-          </PopoverFooter>
-        </>
+        <div className="popover-header">{__("Email Templates")}</div>
+        <PopoverBody>
+          <SearchInput>
+            <FormControl
+              type="text"
+              placeholder={__("Type to search")}
+              onChange={this.onSearch}
+            />
+          </SearchInput>
+          <PopoverList>
+            {this.renderContent()}
+            {this.renderLoadMore()}
+          </PopoverList>
+        </PopoverBody>
+        <PopoverFooter>
+          <PopoverLinkWrapper>
+            <Link to="/settings/email-templates">
+              <Icon icon="cog" size={15} />
+              {__("Manage email templates")}
+            </Link>
+          </PopoverLinkWrapper>
+        </PopoverFooter>
       </>
     );
 
     return (
       <EmailTemplateStyled>
-        <Popover className="relative">
-          <Popover.Button>
+        <Popover
+          className="relative"
+          trigger={
             <Tip text={__("Email template")} placement="top">
               <Icon icon="file-bookmark-alt" />
             </Tip>
-          </Popover.Button>
-          <Popover.Panel className="absolute z-10">{popover}</Popover.Panel>
+          }
+        >
+          {popover}
         </Popover>
       </EmailTemplateStyled>
     );

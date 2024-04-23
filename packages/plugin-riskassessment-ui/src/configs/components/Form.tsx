@@ -301,6 +301,7 @@ class Form extends React.Component<Props, State> {
               value={cardTypes.find((o) => o.value === cardType)}
               options={cardTypes}
               isMulti={false}
+              isClearable={true}
               onChange={onChangeCardType}
             />
           </FormGroup>
