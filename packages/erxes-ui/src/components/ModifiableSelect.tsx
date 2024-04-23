@@ -1,12 +1,12 @@
-import Alert from '../utils/Alert';
-import Button from './Button';
-import FormControl from './form/Control';
-import { IFormProps } from '../types';
-import Icon from './Icon';
-import React from 'react';
-import { __ } from '../utils/core';
-import Select from 'react-select';
-import styled from 'styled-components';
+import Alert from "../utils/Alert";
+import Button from "./Button";
+import FormControl from "./form/Control";
+import { IFormProps } from "../types";
+import Icon from "./Icon";
+import React from "react";
+import { __ } from "../utils/core";
+import Select from "react-select";
+import styled from "styled-components";
 
 const Wrapper = styled.div`
   display: flex;
@@ -58,7 +58,7 @@ class Option extends React.PureComponent<OptionProps> {
       <OptionWrapper onClick={onClick}>
         <FillContent>{option.label}</FillContent>
         <Icon
-          style={{ float: 'right' }}
+          style={{ float: "right" }}
           onClick={onRemoveClick}
           icon="times-circle"
         />
@@ -95,7 +95,7 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
       adding: props.adding || false,
       options: props.options || [],
       selectedOption: props.value,
-      inputValue: '',
+      inputValue: "",
     };
   }
 
@@ -130,10 +130,10 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
     this.setState({ ...state }, () => {
       onChange({ options: this.state.options, selectedOption: updatedOption });
 
-      this.setState({ inputValue: '' });
+      this.setState({ inputValue: "" });
     });
 
-    Alert.success('Successfully added');
+    Alert.success("Successfully added");
   }
 
   handleSave = () => {
@@ -142,7 +142,7 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
 
     if (options.includes(inputValue)) {
       return Alert.error(
-        `${inputValue} is already in the list. Please write a different option.`,
+        `${inputValue} is already in the list. Please write a different option.`
       );
     }
 
@@ -151,7 +151,7 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
         return this.saveValue();
       }
 
-      return Alert.error('Invalid format');
+      return Alert.error("Invalid format");
     }
 
     return this.saveValue();
@@ -172,17 +172,17 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
     this.setState(
       {
         options: options.filter((option) => option !== value),
-        selectedOption: '',
+        selectedOption: "",
       },
       () => {
         onChange({
           options: this.state.options,
           selectedOption: null,
         });
-      },
+      }
     );
 
-    Alert.success('Successfully removed');
+    Alert.success("Successfully removed");
   };
 
   setItem = (option) => {
@@ -208,7 +208,7 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
 
     if (this.state.adding) {
       const onPress = (e) => {
-        if (e.key === 'Enter') {
+        if (e.key === "Enter") {
           e.preventDefault();
           return this.handleSave();
         }
@@ -221,7 +221,7 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
               type={type}
               autoFocus={true}
               onKeyPress={onPress}
-              placeholder={`${__('Add')} ${__(name)}`}
+              placeholder={`${__("Add")} ${__(name)}`}
               onChange={this.handleInputChange}
               required={required}
             />
@@ -256,9 +256,12 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
       <Wrapper>
         <FillContent>
           <Select
-            placeholder={`${__('Choose a Primary')} ${__(name)}`}
+            isClearable={true}
+            placeholder={`${__("Choose a Primary")} ${__(name)}`}
             isSearchable={false}
-            value={this.generateOptions().find(o=>o.value === selectedOption)}
+            value={this.generateOptions().find(
+              (o) => o.value === selectedOption
+            )}
             // valueComponent={this.renderValue}
             onChange={onChange}
             options={this.generateOptions()}
@@ -273,7 +276,7 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
           uppercase={false}
           icon="plus-circle"
         >
-          {`${__('Add')} ${__(name)}`}
+          {`${__("Add")} ${__(name)}`}
         </Button>
       </Wrapper>
     );

@@ -151,6 +151,7 @@ const List = (props: Props) => {
             value={cardTypes.find((o) => o.value === queryParams?.cardType)}
             options={cardTypes}
             isMulti={false}
+            isClearable={true}
             onChange={(e) => handleFilterParams("cardType", e?.value)}
           />
         </FormGroup>

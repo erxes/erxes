@@ -180,6 +180,7 @@ const QuickQrForm = (props: Props) => {
           value={MCC_CODES.find((o) => o.value === state.mccCode)}
           onChange={onChangeMccCode}
           options={MCC_CODES}
+          isClearable={true}
           isMulti={false}
         />
       </FormGroup>

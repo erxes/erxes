@@ -5,7 +5,11 @@ import { __, confirm, readFile, withProps } from "../utils";
 import { IOption } from "../types";
 import Icon from "./Icon";
 import React from "react";
-import Select, { OnChangeValue, components, MultiValueProps } from "react-select";
+import Select, {
+  OnChangeValue,
+  components,
+  MultiValueProps,
+} from "react-select";
 import colors from "../styles/colors";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
@@ -250,7 +254,10 @@ class SelectWithSearch extends React.Component<
       );
     };
 
-    const MultiValue = ({ children, ...props }: MultiValueProps<any, boolean, any>) => (
+    const MultiValue = ({
+      children,
+      ...props
+    }: MultiValueProps<any, boolean, any>) => (
       <components.MultiValue {...props}>
         {selectItemRenderer(props.data, showAvatar, SelectValue)}
       </components.MultiValue>
@@ -258,9 +265,10 @@ class SelectWithSearch extends React.Component<
 
     return (
       <Select
+        isClearable={true}
         placeholder={__(label)}
         value={multi ? selectedOptions : selectedOptions && selectedOptions[0]}
-        loadingMessage={({ inputValue }) => __('Loading...')}
+        loadingMessage={({ inputValue }) => __("Loading...")}
         isLoading={customQuery.loading}
         onMenuOpen={onOpen}
         components={{ Option, MultiValue }}

@@ -144,6 +144,7 @@ const extractForm = (props: Props) => {
         onChange={(el: any) => setExtractType(el.value)}
         placeholder="Select extract type"
         options={extractOptions}
+        isClearable={true}
       />
 
       <ToggleDisplay display={extractType === "Choose team members"}>

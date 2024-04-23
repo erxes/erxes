@@ -339,6 +339,7 @@ export default class RightMenu extends React.Component<Props, State> {
           value={this.dateRangeType() || dateRangeType}
           options={daterangeValues}
           name="daterangeType"
+          isClearable={true}
           onChange={this.onTypeChange}
         />
 

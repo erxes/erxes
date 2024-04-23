@@ -88,6 +88,7 @@ function Style({
                 placeholder="Please select a font"
                 value={fontOptions.find((option) => option.value === baseFont)}
                 options={fontOptions}
+                isClearable={true}
                 onChange={(e: any) =>
                   onChangeBooking("baseFont", e ? e.value : null)
                 }

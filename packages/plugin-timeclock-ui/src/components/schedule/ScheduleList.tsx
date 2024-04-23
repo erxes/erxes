@@ -280,6 +280,7 @@ function ScheduleList(props: Props) {
             onChange={onSelectScheduleStatus}
             placeholder="Select Schedule"
             isMulti={false}
+            isClearable={true}
             options={selectOptions}
           />
         </FormGroup>

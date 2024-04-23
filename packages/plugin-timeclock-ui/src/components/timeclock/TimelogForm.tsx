@@ -201,6 +201,7 @@ export const TimelogForm = (props: Props) => {
         <ToggleDisplay display={shiftStartInput === "pick"}>
           <Select
             placeholder="Shift start"
+            isClearable={true}
             onChange={onShiftStartChange}
             value={
               timelogsPerUser &&
@@ -257,6 +258,7 @@ export const TimelogForm = (props: Props) => {
           <ToggleDisplay display={shiftEndInput === "pick"}>
             <Select
               placeholder="Shift end"
+              isClearable={true}
               onChange={onShiftEndChange}
               value={
                 timelogsPerUser &&

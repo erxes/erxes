@@ -422,7 +422,7 @@ const KeyPad = (props: Props, context) => {
           placeholder={__("Choose phone number")}
           value={callFrom}
           onChange={onStatusChange}
-          // clearable={false}
+          isClearable={false}
           options={ourPhone}
           // scrollMenuIntoView={true}
           onBlur={() => setSelectFocus(!selectFocus)}

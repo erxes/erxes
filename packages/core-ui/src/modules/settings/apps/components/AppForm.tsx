@@ -105,6 +105,7 @@ export default class AppForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>{__("User group")}</ControlLabel>
           <Select
+            isClearable={true}
             placeholder={__("Choose user group")}
             options={options}
             value={options.find(

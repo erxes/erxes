@@ -266,6 +266,7 @@ function General({
                 placeholder="Choose a configuration"
                 value={options.find((o) => o.value === obj.smsTransporterType)}
                 options={options}
+                isClearable={true}
                 name="SMS Configuration"
                 onChange={onChangeConfiguration}
               />

@@ -113,6 +113,7 @@ export default function Sidebar(props: Props) {
               value={statusOptions.find(
                 (o) => o.value === (queryParams.status || "")
               )}
+              isClearable={true}
               onChange={(option: any) => setFilter("status", option.value)}
             />
           </FormGroup>

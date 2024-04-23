@@ -213,6 +213,7 @@ class AddOns extends React.Component<Props, State> {
               )}
               options={this.generateObjectsParams(topics)}
               onChange={this.onChangeKb}
+              isClearable={true}
               components={{ Option }}
             />
           </FormGroup>

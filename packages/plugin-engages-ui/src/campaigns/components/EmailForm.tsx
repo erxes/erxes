@@ -165,6 +165,7 @@ class EmailForm extends React.Component<Props, State> {
         )}
         onChange={onChangeUser}
         components={{ Option }}
+        isClearable={true}
         options={selectOptions()}
       />
     );

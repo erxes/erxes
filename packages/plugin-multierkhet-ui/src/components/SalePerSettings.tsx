@@ -281,6 +281,7 @@ const PerSettings = (props: Props) => {
                 (o) => o.value === config.responseField
               )}
               onChange={onresponseCustomFieldChange}
+              isClearable={true}
               options={responseFieldOptions}
             />
           </FormGroup>
