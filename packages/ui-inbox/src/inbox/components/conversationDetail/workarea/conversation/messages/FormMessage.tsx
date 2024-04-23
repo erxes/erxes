@@ -9,6 +9,7 @@ import {
   FieldWrapper,
   FormMessageInput,
   FormTable,
+  MessageBody,
   ProductItem,
 } from "../styles";
 import ReactToPrint, { PrintContextConsumer } from "react-to-print";
@@ -209,20 +210,25 @@ export default class FormMessage extends React.Component<Props, {}> {
   }
 
   render() {
-    const { formWidgetData, content } = this.props.message;
+    const { formWidgetData, content, createdAt } = this.props.message;
 
     return (
-      <FormTable ref={(el) => (this.componentRef = el)}>
-        <PreviewTitle style={{ backgroundColor: "#6569DF" }}>
-          <div>{content}</div>
-        </PreviewTitle>
-        <PreviewBody embedded="embedded">
-          <BodyContent>
-            {formWidgetData.map((field) => this.renderField(field))}
-          </BodyContent>
-        </PreviewBody>
+      <>
+        <FormTable ref={(el) => (this.componentRef = el)}>
+          <PreviewTitle style={{ backgroundColor: "#6569DF" }}>
+            <div>{content}</div>
+          </PreviewTitle>
+          <PreviewBody embedded="embedded">
+            <BodyContent>
+              {formWidgetData.map((field) => this.renderField(field))}
+            </BodyContent>
+          </PreviewBody>
+          <Tip text={dayjs(createdAt).format("lll")}>
+            <footer>{dayjs(createdAt).format("LT")}</footer>
+          </Tip>
+        </FormTable>
         {this.renderPrintBtn()}
-      </FormTable>
+      </>
     );
   }
 }
