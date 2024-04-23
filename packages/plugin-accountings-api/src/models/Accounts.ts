@@ -5,14 +5,14 @@ import {
   checkCodeMask,
 } from '../maskUtils';
 import {
-  ACCOUNT_STATUSES,
   IAccount,
   IAccountDocument,
   accountSchema,
 } from './definitions/account';
+import { ACCOUNT_STATUSES } from './definitions/constants';
 
 const checkUsedInTr = (ids: string[]) => {
-  
+
 }
 
 export interface IAccountModel extends Model<IAccountDocument> {
@@ -120,6 +120,17 @@ export const loadAccountClass = (models: IModels, subdomain: string) => {
     public static async removeAccounts(_ids: string[]) {
       const usedIds: string[] = [];
       const unUsedIds: string[] = [];
+
+      const usedAccountIds = await models.Transactions.find({ 'details.accountId': { $in: _ids } }).distinct('details.accountId')
+      
+      for (const id of _ids) {
+        if (!usedAccountIds.includes(id)) {
+          unUsedIds.push(id);
+        } else {
+          usedIds.push(id);
+        }
+      }
+
       let response = 'deleted';
 
       // TODO: check records
