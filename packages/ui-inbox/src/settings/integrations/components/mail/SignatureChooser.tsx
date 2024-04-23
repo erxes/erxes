@@ -10,11 +10,11 @@ import { IBrand } from "@erxes/ui/src/brands/types";
 import { IEmailSignature } from "@erxes/ui-settings/src/email/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import { Label } from "@erxes/ui/src/components/form/styles";
-import { Menu } from "@headlessui/react";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import React from "react";
 import Tip from "@erxes/ui/src/components/Tip";
 import { __ } from "@erxes/ui/src/utils";
+import Popover from "@erxes/ui/src/components/Popover";
 
 type Props = {
   signatureContent: any;
@@ -105,13 +105,12 @@ const SignatureChooser = ({
     return (
       <React.Fragment key={`${signature.brandId}-${signature.signature}`}>
         <SignatureDropdownWrapper>
-          <Menu.Item
-            as="button"
+          <button
             onClick={() => handleSignatureSelection(signature.brandId || "")}
             // active={emailSignature === signature.brandId}
           >
             <SignatureOptionWrapper>{brandName}</SignatureOptionWrapper>
-          </Menu.Item>
+          </button>
         </SignatureDropdownWrapper>
       </React.Fragment>
     );
@@ -169,16 +168,13 @@ const SignatureChooser = ({
   };
 
   return (
-    <Menu as="div" className="relative">
-      <Menu.Button>
-        {renderIcon({ text: "Insert signature", icon: "edit-alt" })}
-      </Menu.Button>
-
-      <Menu.Items className="absolute" unmount={false}>
-        {renderSignatures()}
-        <Menu.Item>{renderSignatureFooter()}</Menu.Item>
-      </Menu.Items>
-    </Menu>
+    <Popover
+      trigger={renderIcon({ text: "Insert signature", icon: "edit-alt" })}
+    >
+      <div className="popover-header">{__("Signatures")}</div>
+      {renderSignatures()}
+      {renderSignatureFooter()}
+    </Popover>
   );
 };
 

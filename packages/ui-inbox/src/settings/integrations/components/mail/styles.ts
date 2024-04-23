@@ -363,9 +363,7 @@ const SignatureChooserFooter = styledTS<{
   justify-content: ${({ $noSignatures }) =>
     $noSignatures ? 'flex-end' : 'space-between'};
   align-items: center;
-  padding: 0;
-  padding-left: 1rem;
-  padding-top: 8px;
+  padding: 8px 0 8px 1rem;
   border-top: 1px solid #e9ecef;
 `;
 
@@ -388,21 +386,16 @@ const SignatureHiderButton = styled.button`
 
 // dropdown-item
 const SignatureDropdownWrapper = styled.div`
-  .dropdown-item {
+  button {
     padding: 0.5rem 1rem;
+    border: none;
+    text-align: left;
+    background: transparent;
+
     &:hover {
       cursor: pointer;
-    }
-    &:active {
-      font-weight: bold;
-      color: ${colors.textPrimary};
       background-color: ${rgba(colors.colorSecondary, 0.2)};
     }
-  }
-  .active {
-    font-weight: bold;
-    color: ${colors.textPrimary};
-    background-color: ${rgba(colors.colorSecondary, 0.2)};
   }
 `;
 
