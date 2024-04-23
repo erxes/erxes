@@ -65,13 +65,15 @@ const generateFilter = async (
 
   if (categoryId) {
     const category = await models.ProductCategories.findOne({
-      _id: categoryId
+      _id: categoryId,
     }).lean();
 
-    const productCategoryIds = category ? await models.ProductCategories.find(
-      { order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) } },
-      { _id: 1 },
-    ) : [];
+    const productCategoryIds = category
+      ? await models.ProductCategories.find(
+          { order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) } },
+          { _id: 1 },
+        )
+      : [];
 
     filter.categoryId = { $in: productCategoryIds };
   } else {
@@ -95,12 +97,16 @@ const generateFilter = async (
     const regex = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
 
     let codeFilter = { code: { $in: [regex] } };
-    if (searchValue.includes('.') || searchValue.includes('_') || searchValue.includes('*')) {
+    if (
+      searchValue.includes('.') ||
+      searchValue.includes('_') ||
+      searchValue.includes('*')
+    ) {
       const codeRegex = new RegExp(
         `^${searchValue.replace(/\*/g, '.').replace(/_/g, '.')}$`,
         'igu',
       );
-      codeFilter = { code: { $in: [codeRegex] }, };
+      codeFilter = { code: { $in: [codeRegex] } };
     }
 
     filter.$or = [
@@ -253,7 +259,7 @@ const productQueries = {
       return await getSimilaritiesProductsCount(models, filter, params);
     }
 
-    return models.Products.find(filter).count();
+    return models.Products.find(filter).countDocuments();
   },
 
   /**
@@ -330,7 +336,7 @@ const productQueries = {
           (similarityGroups[cm].rules || [])
             .map((sg) => sg.fieldId)
             .filter((sgf) => customFieldIds.includes(sgf)).length ===
-          (similarityGroups[cm].rules || []).length,
+            (similarityGroups[cm].rules || []).length,
       );
 
       if (!matchedMasks.length) {

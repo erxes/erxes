@@ -5,7 +5,7 @@ import * as moment from 'moment';
 const prepareData = async (
   models: IModels,
   _subdomain: string,
-  _query: any
+  _query: any,
 ): Promise<any[]> => {
   let data: any[] = [];
 
@@ -25,13 +25,13 @@ const prepareData = async (
 const prepareDataCount = async (
   models: IModels,
   _subdomain: string,
-  _query: any
+  _query: any,
 ): Promise<any> => {
   let data = 0;
 
   const productsFilter: any = {};
 
-  data = await models.Products.find(productsFilter).count();
+  data = await models.Products.find(productsFilter).countDocuments();
 
   return data;
 };
@@ -60,7 +60,7 @@ export const fillValue = async (
   models: IModels,
   subdomain: string,
   column: string,
-  item: any
+  item: any,
 ): Promise<string> => {
   let value = item[column];
 
@@ -71,7 +71,7 @@ export const fillValue = async (
 
     case 'categoryName':
       const category = await models.ProductCategories.findOne({
-        _id: item.categoryId
+        _id: item.categoryId,
       }).lean();
 
       value = category?.name || '-';
@@ -83,10 +83,10 @@ export const fillValue = async (
         subdomain,
         action: 'find',
         data: {
-          _id: { $in: item.tagIds || [] }
+          _id: { $in: item.tagIds || [] },
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       let tagNames = '';
@@ -106,7 +106,7 @@ export const fillValue = async (
 
     case 'uom':
       const uom = await models.Uoms.findOne({
-        _id: item.uom
+        _id: item.uom,
       }).lean();
 
       value = uom?.name || '-';
@@ -124,8 +124,8 @@ export const IMPORT_EXPORT_TYPES = [
     text: 'Product & Services',
     contentType: 'product',
     icon: 'server-alt',
-    skipFilter: true
-  }
+    skipFilter: true,
+  },
 ];
 
 const fillProductSubUomValue = async (models: IModels, column, item) => {
@@ -177,9 +177,9 @@ export default {
             subdomain,
             action: 'fields.findOne',
             data: {
-              query: { _id: fieldId }
+              query: { _id: fieldId },
             },
-            isRPC: true
+            isRPC: true,
           });
 
           headers.push(`customFieldsData.${field.text}.${fieldId}`);
@@ -199,7 +199,7 @@ export default {
       }
     } catch (e) {
       return {
-        error: e.message
+        error: e.message,
       };
     }
     return { totalCount, excelHeader };
@@ -223,9 +223,9 @@ export default {
             subdomain,
             action: 'fields.findOne',
             data: {
-              query: { _id: fieldId }
+              query: { _id: fieldId },
             },
-            isRPC: true
+            isRPC: true,
           });
 
           headers.push(`customFieldsData.${field.text}.${fieldId}`);
@@ -251,7 +251,7 @@ export default {
             const { value } = await fillProductSubUomValue(
               models,
               column,
-              item
+              item,
             );
 
             result[column] = value || '-';
@@ -268,5 +268,5 @@ export default {
       return { error: e.message };
     }
     return { docs };
-  }
+  },
 };

@@ -2,7 +2,7 @@ import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { generateSort } from '../../../utils';
 
-const generateFilters = params => {
+const generateFilters = (params) => {
   const filter: any = { status: { $ne: 'archived' } };
 
   if (params.isArchived) {
@@ -44,7 +44,7 @@ const generateFilters = params => {
   if (params.closeDateTo) {
     filter.closeDate = {
       ...filter?.closeDate,
-      $gte: params.closeDateTo
+      $gte: params.closeDateTo,
     };
   }
 
@@ -55,7 +55,7 @@ const generateFilters = params => {
   if (params.createdAtTo) {
     filter.createdAt = {
       ...filter?.createdAt,
-      $gte: params.createdAtTo
+      $gte: params.createdAtTo,
     };
   }
 
@@ -66,7 +66,7 @@ const generateFilters = params => {
   if (params.modifiedAtTo) {
     filter.modifiedAt = {
       ...filter?.modifiedAt,
-      $gte: params.modifiedAtTo
+      $gte: params.modifiedAtTo,
     };
   }
 
@@ -92,7 +92,7 @@ const RiskAssessmentPlansQueries = {
   async riskAssessmentPlansTotalCount(_root, args, { models }: IContext) {
     const filter = generateFilters(args);
 
-    return await models.Plans.find(filter).count();
+    return await models.Plans.find(filter).countDocuments();
   },
   async riskAssessmentPlan(_root, { _id }, { models }: IContext) {
     return await models.Plans.findOne({ _id });
@@ -104,10 +104,10 @@ const RiskAssessmentPlansQueries = {
   async riskAssessmentSchedulesTotalCount(
     _root,
     { planId },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return await models.Schedules.countDocuments({ planId });
-  }
+  },
 };
 
 export default RiskAssessmentPlansQueries;

@@ -34,7 +34,9 @@ const getTags = async (subdomain: string) => {
 };
 
 const getCategories = async (models: IModels) => {
-  const categories = await models.ProductCategories.find({}).sort({ order: 1 }).lean()
+  const categories = await models.ProductCategories.find({})
+    .sort({ order: 1 })
+    .lean();
 
   const selectOptions: Array<{ label: string; value: any }> = [];
 
@@ -55,8 +57,7 @@ const getCategories = async (models: IModels) => {
     type: 'category',
     selectOptions,
   };
-
-}
+};
 
 export default {
   types: [{ description: 'Products & services', type: 'product' }],
@@ -117,9 +118,9 @@ export default {
           _id: Math.random(),
           name: 'categoryName',
           label: 'Category Name',
-          type: 'string'
-        }
-      ]
+          type: 'string',
+        },
+      ];
     }
 
     return fields;
@@ -145,6 +146,10 @@ export default {
     const category = await models.ProductCategories.findOne({
       _id: categoryId,
     }).lean();
+
+    if (!category) {
+      throw new Error(`ProductCategory with _id = ${categoryId} is not found`);
+    }
 
     const categories = await models.ProductCategories.find({
       order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) },
