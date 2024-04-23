@@ -3,7 +3,7 @@ import {
   sendCoreMessage,
   sendProductsMessage,
   fetchSegment,
-  sendContactsMessage
+  sendContactsMessage,
 } from './messageBroker';
 import * as moment from 'moment';
 import { IUserDocument } from '@erxes/api-utils/src/types';
@@ -11,7 +11,7 @@ import { IUserDocument } from '@erxes/api-utils/src/types';
 const prepareData = async (
   models: IModels,
   subdomain: string,
-  query: any
+  query: any,
 ): Promise<any[]> => {
   const { segmentData, page, perPage } = query;
 
@@ -29,10 +29,7 @@ const prepareData = async (
   }
 
   if (!(segmentData && Object.keys(segmentData))) {
-    data = await models.PosOrders.find(filter)
-      .skip(skip)
-      .limit(perPage)
-      .lean();
+    data = await models.PosOrders.find(filter).skip(skip).limit(perPage).lean();
   }
 
   data = await models.PosOrders.find(filter).lean();
@@ -43,7 +40,7 @@ const prepareData = async (
 const prepareDataCount = async (
   models: IModels,
   subdomain: string,
-  query: any
+  query: any,
 ): Promise<any> => {
   const { segmentData } = query;
 
@@ -56,13 +53,13 @@ const prepareDataCount = async (
       subdomain,
       '',
       { scroll: true, page: 1, perPage: 10000 },
-      segmentData
+      segmentData,
     );
 
     filter._id = { $in: itemIds };
   }
 
-  data = await models.PosOrders.find(filter).count();
+  data = await models.PosOrders.find(filter).countDocuments();
 
   return data;
 };
@@ -71,7 +68,7 @@ export const fillValue = async (
   models: IModels,
   subdomain: string,
   column: string,
-  order: any
+  order: any,
 ): Promise<string> => {
   let value = order[column];
 
@@ -84,10 +81,10 @@ export const fillValue = async (
         subdomain,
         action: 'branches.findOne',
         data: {
-          _id: order.branchId || ''
+          _id: order.branchId || '',
         },
         isRPC: true,
-        defaultValue: {}
+        defaultValue: {},
       });
       value = branch ? `${branch.code || ''} - ${branch.title || ''}` : '';
       break;
@@ -97,7 +94,7 @@ export const fillValue = async (
         action: 'departments.findOne',
         data: { _id: order.departmentId || '' },
         isRPC: true,
-        defaultValue: {}
+        defaultValue: {},
       });
       value = department
         ? `${department.code || ''} - ${department.title}`
@@ -112,7 +109,7 @@ export const fillValue = async (
             action: 'companies.findOne',
             data: { _id: order.customerId },
             isRPC: true,
-            defaultValue: {}
+            defaultValue: {},
           });
 
           info = company
@@ -122,7 +119,7 @@ export const fillValue = async (
                 primaryPhone: company.primaryPhone,
                 firstName: company.primaryName,
                 primaryEmail: company.primaryEmail,
-                lastName: ''
+                lastName: '',
               }
             : {};
         } else if (order.customerType === 'user') {
@@ -131,7 +128,7 @@ export const fillValue = async (
             action: 'users.findOne',
             data: { _id: order.customerId },
             isRPC: true,
-            defaultValue: {}
+            defaultValue: {},
           });
           info = user
             ? {
@@ -141,7 +138,7 @@ export const fillValue = async (
                   (user.details && user.details.operatorPhone) || '',
                 firstName: `${user.firstName || ''} ${user.lastName || ''}`,
                 primaryEmail: user.email,
-                lastName: user.username
+                lastName: user.username,
               }
             : {};
         } else {
@@ -150,7 +147,7 @@ export const fillValue = async (
             action: 'customers.findOne',
             data: { _id: order.customerId },
             isRPC: true,
-            defaultValue: {}
+            defaultValue: {},
           });
 
           info = customer
@@ -160,7 +157,7 @@ export const fillValue = async (
                 primaryPhone: customer.primaryPhone,
                 firstName: customer.firstName,
                 primaryEmail: customer.primaryEmail,
-                lastName: customer.lastName
+                lastName: customer.lastName,
               }
             : {};
         }
@@ -193,9 +190,9 @@ export const fillValue = async (
         subdomain,
         action: 'users.findOne',
         data: {
-          _id: order.userId
+          _id: order.userId,
         },
-        isRPC: true
+        isRPC: true,
       });
 
       value = createdUser ? createdUser.username : 'user not found';
@@ -214,12 +211,12 @@ export const fillValue = async (
             [
               ...order.paidAmounts,
               { type: 'cash', amount: order.cashAmount },
-              { type: 'mobile', amount: order.mobileAmount }
+              { type: 'mobile', amount: order.mobileAmount },
             ]
-              .filter(pa => pa.amount > 0)
-              .map(pa => pa.type)
-          )
-        )
+              .filter((pa) => pa.amount > 0)
+              .map((pa) => pa.type),
+          ),
+        ),
       ].join(', ');
       break;
     case 'pos':
@@ -242,17 +239,17 @@ const fillPosOrderItemValue = async (subdomain, column, order) => {
   const productCategoriesById = {};
 
   if (column.includes('items.product')) {
-    const productIds = items.map(i => i.productId);
+    const productIds = items.map((i) => i.productId);
 
     const products = await sendProductsMessage({
       subdomain,
       action: 'find',
       data: {
         query: { _id: { $in: productIds } },
-        limit: productIds.length
+        limit: productIds.length,
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     for (const prod of products) {
@@ -260,15 +257,15 @@ const fillPosOrderItemValue = async (subdomain, column, order) => {
     }
 
     if (column.includes('items.productCategory')) {
-      const categoryIds = products.map(p => p.categoryId);
+      const categoryIds = products.map((p) => p.categoryId);
       const categories = await sendProductsMessage({
         subdomain,
         action: 'categories.find',
         data: {
-          query: { _id: { $in: categoryIds } }
+          query: { _id: { $in: categoryIds } },
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       for (const cat of categories) {
@@ -359,8 +356,8 @@ export const IMPORT_EXPORT_TYPES = [
   {
     text: 'Pos Orders',
     contentType: 'pos',
-    icon: 'server-alt'
-  }
+    icon: 'server-alt',
+  },
 ];
 
 export default {
@@ -393,7 +390,7 @@ export default {
       }
     } catch (e) {
       return {
-        error: e.message
+        error: e.message,
       };
     }
     return { totalCount, excelHeader };
@@ -428,7 +425,7 @@ export default {
             const orderItem = await fillPosOrderItemValue(
               subdomain,
               column,
-              order
+              order,
             );
 
             itemsLen = orderItem.length;
@@ -459,5 +456,5 @@ export default {
     }
 
     return { docs };
-  }
+  },
 };

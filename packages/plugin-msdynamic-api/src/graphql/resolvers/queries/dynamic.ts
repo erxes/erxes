@@ -63,13 +63,13 @@ const msdynamicQueries = {
 
   async syncMsdHistoriesCount(_root, params, { models }: IContext) {
     const selector = generateFilter(params);
-    return models.SyncLogs.find(selector).count();
+    return models.SyncLogs.find(selector).countDocuments();
   },
 
   async msdProductsRemainder(
     _root,
     { brandId, productCodes }: { brandId: string; productCodes: string[] },
-    { subdomain }: IContext
+    { subdomain }: IContext,
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -102,7 +102,7 @@ const msdynamicQueries = {
         'Content-Type': 'application/x-www-form-urlencoded',
         Accept: 'application/json',
         Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
-          'base64'
+          'base64',
         )}`,
       },
       timeout: 60000,

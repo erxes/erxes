@@ -2,7 +2,7 @@ import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src';
 import { escapeRegExp, getPureDate } from '@erxes/api-utils/src/core';
 
-const generateFilter = params => {
+const generateFilter = (params) => {
   const {
     userId,
     startDate,
@@ -12,7 +12,7 @@ const generateFilter = params => {
     searchConsume,
     searchSend,
     searchResponse,
-    searchError
+    searchError,
   } = params;
 
   const query: any = {};
@@ -61,8 +61,8 @@ const erkhetQueries = {
 
   async manySyncHistoriesCount(_root, params, { models }: IContext) {
     const selector = generateFilter(params);
-    return models.SyncLogs.find(selector).count();
-  }
+    return models.SyncLogs.find(selector).countDocuments();
+  },
 };
 
 export default erkhetQueries;

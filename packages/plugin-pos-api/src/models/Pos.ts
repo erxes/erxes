@@ -5,7 +5,7 @@ import {
   IProductGroupDocument,
   IPos,
   posSlotSchema,
-  IPosSlotDocument
+  IPosSlotDocument,
 } from './definitions/pos';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
@@ -34,9 +34,10 @@ export const loadPosClass = (models: IModels, _subdomain) => {
     }
 
     public static generateToken(length: number = 32) {
-      const a = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'.split(
-        ''
-      );
+      const a =
+        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'.split(
+          '',
+        );
       const b = [] as any;
 
       for (let i = 0; i < length; i++) {
@@ -54,11 +55,11 @@ export const loadPosClass = (models: IModels, _subdomain) => {
           ...doc,
           userId: user._id,
           createdAt: new Date(),
-          token: this.generateToken()
+          token: this.generateToken(),
         });
       } catch (e) {
         throw new Error(
-          `Can not create POS integration. Error message: ${e.message}`
+          `Can not create POS integration. Error message: ${e.message}`,
         );
       }
     }
@@ -69,7 +70,7 @@ export const loadPosClass = (models: IModels, _subdomain) => {
       await models.Pos.updateOne(
         { _id },
         { $set: { ...doc } },
-        { runValidators: true }
+        { runValidators: true },
       );
 
       return models.Pos.findOne({ _id }).lean();
@@ -82,8 +83,8 @@ export const loadPosClass = (models: IModels, _subdomain) => {
         throw new Error('This pos used in orders');
       }
 
-      await models.ProductGroups.remove({ posId: pos._id });
-      await models.PosSlots.remove({ posId: pos._id });
+      await models.ProductGroups.deleteMany({ posId: pos._id });
+      await models.PosSlots.deleteMany({ posId: pos._id });
 
       await models.Pos.updateOne({ _id }, { $set: { status: 'deleted' } });
 
@@ -115,7 +116,7 @@ export const loadProductGroupClass = (models, _subdomain) => {
         userId: user._id,
         name,
         description,
-        createdAt: new Date()
+        createdAt: new Date(),
       });
     }
 
@@ -129,8 +130,8 @@ export const loadProductGroupClass = (models, _subdomain) => {
       await models.ProductGroups.updateOne(
         { _id },
         {
-          $set: { ...doc }
-        }
+          $set: { ...doc },
+        },
       );
 
       return await models.ProductGroups.findOne({ _id }).lean();

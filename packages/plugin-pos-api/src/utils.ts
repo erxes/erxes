@@ -289,7 +289,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
         },
         stringValue: `${marker.longitude || marker.lng},${
           marker.latitude || marker.lat
-          }`,
+        }`,
       },
     ];
   }
@@ -487,8 +487,11 @@ const createDealPerOrder = async ({ subdomain, pos, newOrder }) => {
       },
     });
 
-    await newOrder.updateOne({ _id: newOrder._id }, { $set: { convertDealId: cardDeal._id } });
-    return cardDeal._id
+    await newOrder.updateOne(
+      { _id: newOrder._id },
+      { $set: { convertDealId: cardDeal._id } },
+    );
+    return cardDeal._id;
   }
   // end sync cards config then <
   return;
@@ -725,7 +728,12 @@ export const syncOrderFromClient = async ({
         subdomain,
         action: 'erxes-posclient-to-pos-api',
         data: {
-          order: { ...newOrder, convertDealId, posToken, subToken: toPos.token },
+          order: {
+            ...newOrder,
+            convertDealId,
+            posToken,
+            subToken: toPos.token,
+          },
         },
         pos: toPos,
       });
@@ -743,6 +751,9 @@ export const syncOrderFromClient = async ({
       }).lean();
 
       if (toCancelPos) {
+        if (!toPos) {
+          throw new Error(`POS not found`);
+        }
         await sendPosclientMessage({
           subdomain,
           action: 'erxes-posclient-to-pos-api-remove',
@@ -780,7 +791,7 @@ export const syncOrderFromClient = async ({
       posToken,
       responseIds: syncedResponeIds,
       orderId: newOrder._id,
-      convertDealId
+      convertDealId,
     },
     pos,
   });
