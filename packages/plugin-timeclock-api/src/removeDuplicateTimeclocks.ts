@@ -21,35 +21,35 @@ export const removeDuplicates = async () => {
       $group: {
         _id: {
           shiftStart: '$shiftStart',
-          userId: '$userId'
+          userId: '$userId',
           // Add more fields as necessary
         },
         duplicates: {
-          $addToSet: '$_id'
+          $addToSet: '$_id',
         },
         count: {
-          $sum: 1
-        }
-      }
+          $sum: 1,
+        },
+      },
     },
     {
       $match: {
         count: {
-          $gt: 1
-        }
-      }
-    }
+          $gt: 1,
+        },
+      },
+    },
   ]);
 
-  agg.forEach(async group => {
+  for await (const group of agg) {
     const duplicates = group.duplicates;
     const deleteIds = duplicates.slice(1); // Delete all other documents' _ids
-    await db.collection('timeclocks').remove({
+    await db.collection('timeclocks').deleteMany({
       _id: {
-        $in: deleteIds
-      }
+        $in: deleteIds,
+      },
     });
-  });
+  }
 
   return 'success';
 };

@@ -1,5 +1,6 @@
 import { Schema, model, Document, Model } from 'mongoose';
 import { sendInboxMessage } from './messageBroker';
+import { connect } from '@erxes/api-utils/src/mongo-connection';
 
 interface ICustomer {
   inboxIntegrationId: string;
@@ -14,14 +15,14 @@ export const customerSchema: Schema<ICustomer> = new Schema<ICustomer>({
   contactsId: String,
   viberId: String,
   name: String,
-  country: String
+  country: String,
 });
 
 export const loadCustomerClass = () => {
   class Customer {
     static async getOrCreate(
       viberAccount: ICustomer,
-      subdomain: string
+      subdomain: string,
     ): Promise<any> {
       let customer = await Customers.findOne({ viberId: viberAccount.viberId });
 
@@ -31,7 +32,7 @@ export const loadCustomerClass = () => {
           contactsId: null,
           viberId: viberAccount.viberId,
           name: viberAccount.name,
-          country: viberAccount.country
+          country: viberAccount.country,
         });
 
         try {
@@ -45,10 +46,10 @@ export const loadCustomerClass = () => {
                 firstName: viberAccount.name,
                 lastName: null,
                 avatar: null,
-                isUser: true
-              })
+                isUser: true,
+              }),
             },
-            isRPC: true
+            isRPC: true,
           });
 
           customer.contactsId = apiCustomerResponse._id;
@@ -68,13 +69,13 @@ export const loadCustomerClass = () => {
 
 export const Customers = model<any, any>(
   'viber_customers',
-  loadCustomerClass()
+  loadCustomerClass(),
 );
 
 export const integrationSchema: Schema<any> = new Schema({
   inboxId: String,
   accountId: String,
-  token: String
+  token: String,
 });
 
 export const loadIntegrationClass = () => {
@@ -85,7 +86,7 @@ export const loadIntegrationClass = () => {
 
 export const Integrations = model<any, any>(
   'viber_integrations',
-  loadIntegrationClass()
+  loadIntegrationClass(),
 );
 
 export interface IConversation extends Document {
@@ -96,21 +97,20 @@ export interface IConversation extends Document {
   integrationId: string;
 }
 
-export const conversationSchema: Schema<IConversation> = new Schema<
-  IConversation
->({
-  erxesApiId: String,
-  timestamp: Date,
-  senderId: { type: String, index: true },
-  recipientId: { type: String, index: true, required: false },
-  integrationId: String
-});
+export const conversationSchema: Schema<IConversation> =
+  new Schema<IConversation>({
+    erxesApiId: String,
+    timestamp: Date,
+    senderId: { type: String, index: true },
+    recipientId: { type: String, index: true, required: false },
+    integrationId: String,
+  });
 
 conversationSchema.index({ senderId: 1, recipientId: 1 }, { unique: true });
 
 export const Conversations: Model<IConversation, {}> = model<IConversation>(
   'viber_conversation',
-  conversationSchema
+  conversationSchema,
 );
 
 export interface IConversationMessages extends Document {
@@ -123,18 +123,21 @@ export interface IConversationMessages extends Document {
   attachments?: any;
 }
 
-export const conversationMessageSchema: Schema<IConversationMessages> = new Schema<
-  IConversationMessages
->({
-  conversationId: String,
-  userId: String,
-  customerId: String,
-  createdAt: Date,
-  content: String,
-  messageType: String,
-  attachments: Schema.Types.Mixed
-});
+export const conversationMessageSchema: Schema<IConversationMessages> =
+  new Schema<IConversationMessages>({
+    conversationId: String,
+    userId: String,
+    customerId: String,
+    createdAt: Date,
+    content: String,
+    messageType: String,
+    attachments: Schema.Types.Mixed,
+  });
 
-export const ConversationMessages: Model<IConversationMessages, {}> = model<
-  IConversationMessages
->('viber_conversation_messages', conversationMessageSchema);
+export const ConversationMessages: Model<IConversationMessages, {}> =
+  model<IConversationMessages>(
+    'viber_conversation_messages',
+    conversationMessageSchema,
+  );
+
+connect();

@@ -115,7 +115,7 @@ const timeclockQueries = {
       return { list: [], totalCount: 0 };
     }
 
-    const totalCount = models.Timeclocks.count(selector);
+    const totalCount = models.Timeclocks.countDocuments(selector);
 
     const list = paginate(models.Timeclocks.find(selector), {
       perPage: queryParams.perPage,
@@ -155,7 +155,7 @@ const timeclockQueries = {
       'timelog',
       user,
     );
-    const totalCount = models.TimeLogs.count(selector);
+    const totalCount = models.TimeLogs.countDocuments(selector);
 
     // if there's no common user, return empty list
     if (!commonUserFound) {
@@ -203,7 +203,7 @@ const timeclockQueries = {
       return { list: [], totalCount: 0 };
     }
 
-    const totalCount = models.Schedules.count(selector);
+    const totalCount = models.Schedules.countDocuments(selector);
 
     const list = paginate(models.Schedules.find(selector), {
       perPage: queryParams.perPage,
@@ -223,7 +223,7 @@ const timeclockQueries = {
   },
 
   deviceConfigs(_root, queryParams, { models }: IContext) {
-    const totalCount = models.DeviceConfigs.count({});
+    const totalCount = models.DeviceConfigs.countDocuments({});
     const { searchValue } = queryParams;
     const query: any = {};
 
@@ -259,7 +259,7 @@ const timeclockQueries = {
       'absence',
       user,
     );
-    const totalCount = models.Absences.count(selector);
+    const totalCount = models.Absences.countDocuments(selector);
 
     // if there's no common user, return empty list
     if (!commonUserFound) {

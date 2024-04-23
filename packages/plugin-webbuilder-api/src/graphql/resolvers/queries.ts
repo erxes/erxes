@@ -45,7 +45,7 @@ const webbuilderQueries = {
         page,
         perPage,
       }),
-      totalCount: models.Pages.find(filter).count(),
+      totalCount: models.Pages.find(filter).countDocuments(),
     };
   },
 
@@ -86,7 +86,7 @@ const webbuilderQueries = {
           perPage,
         },
       ),
-      totalCount: models.ContentTypes.find(filter).count(),
+      totalCount: models.ContentTypes.find(filter).countDocuments(),
     };
   },
 
@@ -109,7 +109,7 @@ const webbuilderQueries = {
   ) {
     return {
       list: paginate(models.Entries.find({ contentTypeId }), { page, perPage }),
-      totalCount: models.Entries.find({ contentTypeId }).count(),
+      totalCount: models.Entries.find({ contentTypeId }).countDocuments(),
     };
   },
 
@@ -124,7 +124,7 @@ const webbuilderQueries = {
   },
 
   webbuilderTemplatesTotalCount(_root, _args, { models }: IContext) {
-    return models.Templates.find().count();
+    return models.Templates.find().countDocuments();
   },
 
   webbuilderTemplateDetail(
@@ -167,7 +167,7 @@ const webbuilderQueries = {
   },
 
   webbuilderSitesTotalCount(_root, _args, { models }: IContext) {
-    return models.Sites.find().count();
+    return models.Sites.find().countDocuments();
   },
 };
 

@@ -60,7 +60,7 @@ const queries = {
     const query = await buildSelector(conversationId, models);
 
     if (limit) {
-      const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
+      const sort: any = getFirst ? { createdAt: 1 } : { createdAt: -1 };
 
       messages = await models.ConversationMessages.find(query)
         .sort(sort)

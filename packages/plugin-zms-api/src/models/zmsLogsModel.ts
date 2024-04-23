@@ -10,6 +10,7 @@ interface IZmsLog {
   sentDate: Date;
   sentBy: string;
   response: any;
+  sentData: any;
 }
 export const zmsLogSchema = new Schema<IZmsLog>({
   createdAt: Date,
@@ -18,8 +19,7 @@ export const zmsLogSchema = new Schema<IZmsLog>({
   sentData: Schema.Types.Mixed,
   status: String,
   sentDate: Date,
-  sendData: Schema.Types.Mixed,
-  sentBy: String
+  sentBy: String,
   //response: Schema.Types.Mixed
 });
 

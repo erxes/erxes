@@ -629,12 +629,12 @@ const timeclockMutations = {
 
   scheduleRemove(_root, { _id }, { models }: IContext) {
     models.Schedules.removeSchedule(_id);
-    models.Shifts.remove({ scheduleId: _id });
+    models.Shifts.deleteMany({ scheduleId: _id });
     return;
   },
   async scheduleShiftRemove(_root, { _id }, { models }: IContext) {
     const getShift = await models.Shifts.getShift(_id);
-    const getShiftsCount = await models.Shifts.count({
+    const getShiftsCount = await models.Shifts.countDocuments({
       scheduleId: getShift.scheduleId,
     });
     // if it's the only one shift in schedule, remove schedule
