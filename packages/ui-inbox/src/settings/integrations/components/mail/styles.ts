@@ -293,6 +293,7 @@ const WidgetWrapper = styledTS<{
   $show: boolean;
   $shrink: boolean;
   $fullScreen?: boolean;
+  $haveWidgets?: boolean;
 }>(styled.div)`
   position: fixed;
   flex-direction: column;
@@ -301,10 +302,9 @@ const WidgetWrapper = styledTS<{
   align-content: flex-end;
   background: #fff;
   border-radius: 8px;
-  overflow: hidden;
   width: ${({ $fullScreen, $shrink }) =>
     $fullScreen ? '75vw' : $shrink ? '260px' : '600px'};
-  ${({ $fullScreen }) =>
+  ${({ $fullScreen, $haveWidgets }) =>
     $fullScreen
       ? `
     left: 50%;
@@ -314,10 +314,11 @@ const WidgetWrapper = styledTS<{
   `
       : `
     bottom: ${dimensions.unitSpacing}px;
-    right: ${dimensions.coreSpacing}px; 
+    right: ${$haveWidgets ? '90' : dimensions.coreSpacing}px; 
     box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 0px 3px -4px;
   `}
   ${({ $show }) => ($show ? 'display: flex;' : 'display:none;')} 
+  ${({ $shrink }) => ($shrink ? `h5 {border-radius: 8px;}` : 'overflow: hidden;')} 
 
   .Select-arrow-zone {
     padding: 0;

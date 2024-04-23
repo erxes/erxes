@@ -145,7 +145,7 @@ const SignatureChooser = ({
     const noSignatures = !signatures?.length;
 
     return (
-      <SignatureChooserFooter noSignatures={noSignatures}>
+      <SignatureChooserFooter $noSignatures={noSignatures}>
         {!noSignatures && (
           <SignatureHiderButton onClick={() => handleSignatureHide()}>
             Hide Signature
