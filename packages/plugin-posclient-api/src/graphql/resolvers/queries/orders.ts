@@ -149,7 +149,7 @@ const orderQueries = {
     const filter = generateFilter(config, params);
     return await models.Orders.find({
       ...filter,
-    }).count();
+    }).countDocuments();
   },
 
   async fullOrderItems(

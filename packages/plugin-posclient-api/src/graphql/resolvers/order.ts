@@ -6,7 +6,7 @@ import { IPutResponseDocument } from '../../models/definitions/putResponses';
 import {
   sendCardsMessage,
   sendContactsMessage,
-  sendCoreMessage
+  sendCoreMessage,
 } from '../../messageBroker';
 import { PutData } from '../../models/PutData';
 
@@ -26,7 +26,7 @@ export default {
         action: 'companies.findOne',
         data: { _id: order.customerId },
         isRPC: true,
-        defaultValue: {}
+        defaultValue: {},
       });
 
       return {
@@ -35,7 +35,7 @@ export default {
         primaryPhone: company.primaryPhone,
         primaryEmail: company.primaryEmail,
         firstName: company.primaryName,
-        lastName: ''
+        lastName: '',
       };
     }
 
@@ -45,7 +45,7 @@ export default {
         action: 'users.findOne',
         data: { _id: order.customerId },
         isRPC: true,
-        defaultValue: {}
+        defaultValue: {},
       });
 
       return {
@@ -54,7 +54,7 @@ export default {
         primaryPhone: (user.details && user.details.operatorPhone) || '',
         primaryEmail: user.email,
         firstName: `${user.firstName || ''} ${user.lastName || ''}`,
-        lastName: user.username
+        lastName: user.username,
       };
     }
 
@@ -63,7 +63,7 @@ export default {
       action: 'customers.findOne',
       data: { _id: order.customerId },
       isRPC: true,
-      defaultValue: {}
+      defaultValue: {},
     });
 
     return {
@@ -72,7 +72,7 @@ export default {
       primaryPhone: customer.primaryPhone,
       primaryEmail: customer.primaryEmail,
       firstName: customer.firstName,
-      lastName: customer.lastName
+      lastName: customer.lastName,
     };
   },
 
@@ -85,7 +85,7 @@ export default {
       const items: IOrderItem[] =
         (await models.OrderItems.find({ orderId: order._id }).lean()) || [];
       const products = await models.Products.find({
-        _id: { $in: items.map(item => item.productId) }
+        _id: { $in: items.map((item) => item.productId) },
       });
       const productById = {};
       for (const product of products) {
@@ -112,7 +112,7 @@ export default {
           lottery: '',
           sendInfo: {},
           status: '',
-          stocks: items.map(item => ({
+          stocks: items.map((item) => ({
             code: productById[item.productId].code,
             name: productById[item.productId].name,
             shortName: productById[item.productId].shortName,
@@ -122,7 +122,7 @@ export default {
             totalAmount: (item.unitPrice || 0) * item.count,
             vat: '0.00',
             cityTax: '0.00',
-            discount: item.discountAmount
+            discount: item.discountAmount,
           })),
           amount: order.totalAmount,
           vat: 0,
@@ -131,8 +131,8 @@ export default {
           nonCashAmount: order.totalAmount - (order.cashAmount || 0),
           registerNo: '',
           customerNo: '',
-          customerName: ''
-        }
+          customerName: '',
+        },
       ];
     }
 
@@ -140,8 +140,8 @@ export default {
       {
         contentType: 'pos',
         contentId: order._id,
-        status: { $ne: 'inactive' }
-      }
+        status: { $ne: 'inactive' },
+      },
     )
       .sort({ createdAt: -1 })
       .lean();
@@ -151,8 +151,8 @@ export default {
     }
 
     const excludeIds: string[] = [];
-    for (const falsePR of putResponses.filter(pr => pr.success === 'false')) {
-      for (const truePR of putResponses.filter(pr => pr.success === 'true')) {
+    for (const falsePR of putResponses.filter((pr) => pr.success === 'false')) {
+      for (const truePR of putResponses.filter((pr) => pr.success === 'true')) {
         if (
           falsePR.sendInfo &&
           truePR.sendInfo &&
@@ -167,12 +167,12 @@ export default {
 
     const innerItems = await models.OrderItems.find({
       orderId: order._id,
-      isInner: true
+      isInner: true,
     }).lean();
 
     if (innerItems && innerItems.length) {
       const products = await models.Products.find({
-        _id: { $in: innerItems.map(i => i.productId) }
+        _id: { $in: innerItems.map((i) => i.productId) },
       });
       const productsById = {};
       for (const product of products) {
@@ -191,22 +191,25 @@ export default {
         productsById,
         contentType: 'pos',
         contentId: order._id,
-        details: innerItems.map(i => ({ ...i, amount: i.count * i.unitPrice })),
+        details: innerItems.map((i) => ({
+          ...i,
+          amount: i.count * (i.unitPrice || 1),
+        })),
         config,
-        models
+        models,
       });
 
       const response = {
         _id: Math.random(),
         billId: 'Түр баримт',
         ...(await putData.generateTransactionInfo()),
-        registerNo: config.ebarimtConfig?.companyRD || ''
+        registerNo: config.ebarimtConfig?.companyRD || '',
       };
 
       putResponses.push(response as any);
     }
 
-    return putResponses.filter(pr => !excludeIds.includes(pr._id));
+    return putResponses.filter((pr) => !excludeIds.includes(pr._id));
   },
 
   async deal(order: IOrderDocument, {}, { subdomain }: IContext) {
@@ -217,7 +220,7 @@ export default {
     return await sendCardsMessage({
       subdomain,
       action: 'deals.findOne',
-      data: { _id: order.convertDealId }
+      data: { _id: order.convertDealId },
     });
   },
 
@@ -229,7 +232,7 @@ export default {
       subdomain,
       action: 'getLink',
       data: { _id: order.convertDealId, type: 'deal' },
-      isRPC: true
+      isRPC: true,
     });
-  }
+  },
 };

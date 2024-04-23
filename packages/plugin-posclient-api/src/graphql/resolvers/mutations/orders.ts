@@ -692,7 +692,8 @@ const orderMutations = {
           _id: { $in: items.map((i) => i.productId) },
         }).lean();
         for (const item of items) {
-          const product = products.find((p) => p._id === item.productId) || {};
+          const product =
+            products.find((p) => p._id === item.productId) || ({} as any);
           item.productName = `${product.code} - ${product.name}`;
         }
       }

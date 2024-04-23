@@ -7,7 +7,7 @@ import {
   calculateQuantityRule,
   calculateDiscountValue,
   calculateExpiryRule,
-  calculatePriceAdjust
+  calculatePriceAdjust,
 } from './rule';
 import { getAllowedProducts } from './product';
 import { CalculatedRule, OrderItem } from '../types';
@@ -25,55 +25,55 @@ export const getMainConditions: any = (branchId?, departmentId?, date?) => {
         $or: [
           {
             branchIds: { $in: [branchId && branchId] },
-            departmentIds: { $size: 0 }
+            departmentIds: { $size: 0 },
           },
           {
             departmentIds: { $in: [departmentId && departmentId] },
-            branchIds: { $size: 0 }
+            branchIds: { $size: 0 },
           },
           {
             branchIds: { $size: 0 },
-            departmentIds: { $size: 0 }
+            departmentIds: { $size: 0 },
           },
           {
             departmentIds: { $in: [departmentId && departmentId] },
-            branchIds: { $in: [branchId && branchId] }
-          }
-        ]
+            branchIds: { $in: [branchId && branchId] },
+          },
+        ],
       },
       {
         $or: [
           {
             isStartDateEnabled: false,
-            isEndDateEnabled: false
+            isEndDateEnabled: false,
           },
           {
             isStartDateEnabled: true,
             isEndDateEnabled: false,
             startDate: {
-              $lt: nowISO
-            }
+              $lt: nowISO,
+            },
           },
           {
             isStartDateEnabled: false,
             isEndDateEnabled: true,
             endDate: {
-              $gt: nowISO
-            }
+              $gt: nowISO,
+            },
           },
           {
             isStartDateEnabled: true,
             isEndDateEnabled: true,
             startDate: {
-              $lt: nowISO
+              $lt: nowISO,
             },
             endDate: {
-              $gt: nowISO
-            }
-          }
-        ]
-      }
-    ]
+              $gt: nowISO,
+            },
+          },
+        ],
+      },
+    ],
   };
 };
 
@@ -84,9 +84,9 @@ export const checkPricing = async (
   totalAmount: number,
   departmentId: string,
   branchId: string,
-  orderItems: OrderItem[]
+  orderItems: OrderItem[],
 ) => {
-  const productIds: string[] = orderItems.map(p => p.productId);
+  const productIds: string[] = orderItems.map((p) => p.productId);
   const result: object = {};
 
   let allowedProductIds: string[] = [];
@@ -100,9 +100,9 @@ export const checkPricing = async (
     conditions.isPriority = false;
   }
 
-  const sortArgs: object = {
+  const sortArgs: any = {
     isPriority: 1,
-    value: 1
+    value: 1,
   };
 
   // Prepare object to save calculated data
@@ -111,14 +111,13 @@ export const checkPricing = async (
       result[item.itemId] = {
         type: '',
         value: 0,
-        bonusProducts: []
+        bonusProducts: [],
       };
     }
   }
 
-  const plans: IPricingPlanDocument[] = await models.PricingPlans.find(
-    conditions
-  ).sort(sortArgs);
+  const plans: IPricingPlanDocument[] =
+    await models.PricingPlans.find(conditions).sort(sortArgs);
 
   if (plans.length === 0) {
     return;
@@ -130,7 +129,7 @@ export const checkPricing = async (
     allowedProductIds = await getAllowedProducts(
       subdomain,
       plan,
-      productIds || []
+      productIds || [],
     );
 
     // Check repeat rule first
@@ -158,14 +157,14 @@ export const checkPricing = async (
       let defaultValue: number = calculateDiscountValue(
         plan.type,
         plan.value,
-        item.price
+        item.price,
       );
 
       defaultValue = calculatePriceAdjust(
         item.price,
         defaultValue,
         plan.priceAdjustType,
-        plan.priceAdjustFactor
+        plan.priceAdjustFactor,
       );
 
       // Check price rules
@@ -173,21 +172,21 @@ export const checkPricing = async (
         plan,
         item,
         totalAmount,
-        defaultValue
+        defaultValue,
       );
 
       // Check quantity rule
       const quantityRule: CalculatedRule = calculateQuantityRule(
         plan,
         item,
-        defaultValue
+        defaultValue,
       );
 
       // Check expiry rule
       const expiryRule: CalculatedRule = calculateExpiryRule(
         plan,
         item,
-        defaultValue
+        defaultValue,
       );
 
       // Checks if all rules are passed!
@@ -208,7 +207,7 @@ export const checkPricing = async (
           bonusProducts = [
             ...priceRule.bonusProducts,
             ...quantityRule.bonusProducts,
-            ...expiryRule.bonusProducts
+            ...expiryRule.bonusProducts,
           ];
           value = 0;
         }
@@ -261,7 +260,7 @@ export const checkPricing = async (
           if (plan.isPriority) {
             result[item.itemId].bonusProducts = [
               ...result[item.itemId].bonusProducts,
-              ...bonusProducts
+              ...bonusProducts,
             ];
           } else {
             result[item.itemId].bonusProducts = bonusProducts;
@@ -277,7 +276,7 @@ export const checkPricing = async (
       appliedBundleItems.map((item: any) => {
         if (result[item.itemId].type !== 'bonus') {
           result[item.itemId].value = Math.floor(
-            (result[item.itemId].value / item.quantity) * appliedBundleCounts
+            (result[item.itemId].value / item.quantity) * appliedBundleCounts,
           );
         }
       });

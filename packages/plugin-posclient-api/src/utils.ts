@@ -254,7 +254,7 @@ export const updateMobileAmount = async (
   }
 
   let order = await models.Orders.findOne(orderSelector).lean();
-  const sumMobileAmount = (order.mobileAmounts || []).reduce(
+  const sumMobileAmount = (order?.mobileAmounts || []).reduce(
     (sum, i) => sum + i.amount,
     0,
   );
@@ -264,6 +264,10 @@ export const updateMobileAmount = async (
   });
 
   order = await models.Orders.findOne(orderSelector).lean();
+
+  if (!order) {
+    throw new Error(`Order not found`);
+  }
 
   const { billType, totalAmount, registerNumber, _id } = order;
 
@@ -275,7 +279,9 @@ export const updateMobileAmount = async (
     ) {
       const conf = await models.Configs.findOne({ token: posToken });
       if (!conf) {
-        debugError(`Error occurred while sending data to erxes: config not found`);
+        debugError(
+          `Error occurred while sending data to erxes: config not found`,
+        );
         return;
       }
 
@@ -297,7 +303,8 @@ export const updateMobileAmount = async (
         _id: { $in: items.map((i) => i.productId) },
       }).lean();
       for (const item of items) {
-        const product = products.find((p) => p._id === item.productId) || {};
+        const product =
+          products.find((p) => p._id === item.productId) || ({} as any);
         item.productName = `${product.code} - ${product.name}`;
       }
     }
@@ -415,10 +422,10 @@ export const prepareSettlePayment = async (
             _id: `Err${Math.random()}`,
             billId: 'Error',
             success: 'false',
-            message: e.message
-          }
+            message: e.message,
+          };
         }
-        
+
         ebarimtResponses.push(response);
       }
     }
@@ -463,7 +470,8 @@ export const prepareSettlePayment = async (
         _id: { $in: items.map((i) => i.productId) },
       }).lean();
       for (const item of items) {
-        const product = products.find((p) => p._id === item.productId) || {};
+        const product =
+          products.find((p) => p._id === item.productId) || ({} as any);
         item.productName = `${product.code} - ${product.name}`;
       }
     }

@@ -1,5 +1,6 @@
 import { getPureDate, paginate } from '@erxes/api-utils/src/core';
 import { IContext } from '../../../connectionResolver';
+import { ICover, ICoverDocument } from '../../../models/definitions/covers';
 
 const coverQueries = {
   async covers(_root, params, { models, config, posUser }: IContext) {
@@ -30,12 +31,10 @@ const coverQueries = {
     }
 
     return paginate(
-      models.Covers.find(selector)
-        .sort({ createdAt: -1 })
-        .lean(),
+      models.Covers.find(selector).sort({ createdAt: -1 }).lean(),
       {
-        ...params
-      }
+        ...params,
+      },
     );
   },
 
@@ -46,7 +45,7 @@ const coverQueries = {
   async coverAmounts(
     _root,
     { _id, endDate }: { _id: string; endDate: Date },
-    { models, posUser, config }: IContext
+    { models, posUser, config }: IContext,
   ) {
     endDate = getPureDate(endDate);
 
@@ -59,11 +58,9 @@ const coverQueries = {
       filter._id = { $ne: _id };
     }
 
-    let lastCover = await models.Covers.findOne(filter)
-      .sort({ endDate: -1 })
-      .lean();
+    let lastCover = await models.Covers.findOne(filter).sort({ endDate: -1 });
     if (!lastCover) {
-      lastCover = {};
+      lastCover = {} as ICoverDocument;
     }
 
     const startDate = lastCover.endDate;
@@ -94,7 +91,7 @@ const coverQueries = {
     }
 
     return result;
-  }
+  },
 };
 
 export default coverQueries;

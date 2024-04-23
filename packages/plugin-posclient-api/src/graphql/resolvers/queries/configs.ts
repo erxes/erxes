@@ -6,8 +6,8 @@ const configQueries = {
   async currentConfig(_root, _args, { models, config }: IContext) {
     if (!config) {
       const confCount = await models.Configs.find({
-        status: { $ne: 'deleted' }
-      }).count();
+        status: { $ne: 'deleted' },
+      }).countDocuments();
 
       if (!confCount) {
         return {};
@@ -15,7 +15,7 @@ const configQueries = {
 
       if (confCount === 1) {
         return await models.Configs.findOne({
-          status: { $ne: 'deleted' }
+          status: { $ne: 'deleted' },
         }).lean();
       }
 
@@ -39,9 +39,9 @@ const configQueries = {
       action: 'ecommerceGetBranches',
       data: { posToken: config.token || '' },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
-  }
+  },
 };
 
 export default configQueries;

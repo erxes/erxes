@@ -2,7 +2,7 @@ import { IContext } from '../../../connectionResolver';
 import * as dayjs from 'dayjs';
 import {
   moduleCheckPermission,
-  moduleRequireLogin
+  moduleRequireLogin,
 } from '@erxes/api-utils/src/permissions';
 import { paginate } from '@erxes/api-utils/src';
 import { getAllowedProducts } from '../../../utils/product';
@@ -19,7 +19,7 @@ const generateFilter = async (subdomain, models, params) => {
     isQuantityEnabled,
     isPriceEnabled,
     isExpiryEnabled,
-    isRepeatEnabled
+    isRepeatEnabled,
   } = params;
   const filter: any = { status: 'active' };
 
@@ -52,32 +52,32 @@ const generateFilter = async (subdomain, models, params) => {
     filter.$or = [
       {
         isStartDateEnabled: false,
-        isEndDateEnabled: false
+        isEndDateEnabled: false,
       },
       {
         isStartDateEnabled: true,
         isEndDateEnabled: false,
         startDate: {
-          $lt: nowISO
-        }
+          $lt: nowISO,
+        },
       },
       {
         isStartDateEnabled: false,
         isEndDateEnabled: true,
         endDate: {
-          $gt: nowISO
-        }
+          $gt: nowISO,
+        },
       },
       {
         isStartDateEnabled: true,
         isEndDateEnabled: true,
         startDate: {
-          $lt: nowISO
+          $lt: nowISO,
         },
         endDate: {
-          $gt: nowISO
-        }
-      }
+          $gt: nowISO,
+        },
+      },
     ];
   }
 
@@ -90,16 +90,16 @@ const generateFilter = async (subdomain, models, params) => {
   if (productId) {
     const planIds: string[] = [];
     const plans: IPricingPlanDocument[] = await models.PricingPlans.find(
-      filter
+      filter,
     ).sort({
       isPriority: 1,
-      value: 1
+      value: 1,
     });
     let allowedProductIds: string[] = [];
 
     for (const plan of plans) {
       allowedProductIds = await getAllowedProducts(subdomain, plan, [
-        productId
+        productId,
       ]);
 
       if (!allowedProductIds.includes(productId)) {
@@ -119,48 +119,41 @@ const pricingPlanQueries = {
   pricingPlans: async (
     _root: any,
     params: any,
-    { subdomain, models }: IContext
+    { subdomain, models }: IContext,
   ) => {
     const filter = await generateFilter(subdomain, models, params);
 
     const { sortField, sortDirection } = params;
 
-    const sort =
+    const sort: any =
       sortField && sortDirection
         ? { [sortField]: sortDirection }
         : { updatedAt: -1 };
 
     if (params.findOne) {
-      return models.PricingPlans.find(filter)
-        .sort(sort)
-        .limit(1);
+      return models.PricingPlans.find(filter).sort(sort).limit(1);
     }
 
-    return paginate(
-      models.PricingPlans.find(filter)
-        .sort(sort)
-        .lean(),
-      params
-    );
+    return paginate(models.PricingPlans.find(filter).sort(sort).lean(), params);
   },
 
   pricingPlansCount: async (
     _root,
     params: any,
-    { subdomain, models }: IContext
+    { subdomain, models }: IContext,
   ) => {
     const filter = await generateFilter(subdomain, models, params);
 
-    return await models.PricingPlans.find(filter).count();
+    return await models.PricingPlans.find(filter).countDocuments();
   },
 
   pricingPlanDetail: async (
     _root: any,
     { id }: { id: string },
-    { models }: IContext
+    { models }: IContext,
   ) => {
     return await models.PricingPlans.findById(id);
-  }
+  },
 };
 
 moduleRequireLogin(pricingPlanQueries);
