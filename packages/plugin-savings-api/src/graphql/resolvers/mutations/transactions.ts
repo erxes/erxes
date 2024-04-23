@@ -3,7 +3,7 @@ import { IContext } from '../../../connectionResolver';
 import { sendMessageBroker } from '../../../messageBroker';
 import {
   ITransaction,
-  ITransactionDocument
+  ITransactionDocument,
 } from '../../../models/definitions/transactions';
 import { createLog, deleteLog, updateLog } from '../../../logUtils';
 
@@ -11,7 +11,7 @@ const transactionMutations = {
   savingsTransactionsAdd: async (
     _root,
     doc: ITransaction,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) => {
     const transaction = await models.Transactions.createTransaction(doc);
 
@@ -19,7 +19,7 @@ const transactionMutations = {
       type: 'transaction',
       newData: doc,
       object: transaction,
-      extraParams: { models }
+      extraParams: { models },
     };
 
     await createLog(subdomain, user, logData);
@@ -34,10 +34,10 @@ const transactionMutations = {
   savingsTransactionsEdit: async (
     _root,
     { _id, ...doc }: ITransactionDocument,
-    { models, user, subdomain }: IContext
+    { models, user, subdomain }: IContext,
   ) => {
     const transaction = await models.Transactions.getTransaction({
-      _id
+      _id,
     });
 
     const updated = await models.Transactions.updateTransaction(_id, doc);
@@ -47,7 +47,7 @@ const transactionMutations = {
       object: transaction,
       newData: { ...doc },
       updatedDocument: updated,
-      extraParams: { models }
+      extraParams: { models },
     };
 
     await updateLog(subdomain, user, logData);
@@ -62,10 +62,10 @@ const transactionMutations = {
   savingsTransactionsChange: async (
     _root,
     { _id, ...doc }: ITransactionDocument,
-    { models, user, subdomain }: IContext
+    { models, user, subdomain }: IContext,
   ) => {
     const transaction = await models.Transactions.getTransaction({
-      _id
+      _id,
     });
 
     const updated = await models.Transactions.changeTransaction(_id, doc);
@@ -75,7 +75,7 @@ const transactionMutations = {
       object: transaction,
       newData: { ...doc },
       updatedDocument: updated,
-      extraParams: { models }
+      extraParams: { models },
     };
 
     await updateLog(subdomain, user, logData);
@@ -90,23 +90,26 @@ const transactionMutations = {
   savingsTransactionsRemove: async (
     _root,
     { transactionIds }: { transactionIds: string[] },
-    { models, user, subdomain }: IContext
+    { models, user, subdomain }: IContext,
   ) => {
     // TODO: contracts check
     const transactions = await models.Transactions.find({
       _id: { $in: transactionIds },
-      isManual: true
+      isManual: true,
     }).lean();
 
-    await models.Transactions.removeTransactions(transactions.map(a => a._id));
+    await models.Transactions.removeTransactions(
+      transactions.map((a) => a._id),
+    );
 
     for (const transaction of transactions) {
       const logData = {
         type: 'transaction',
         object: transaction,
-        extraParams: { models }
+        extraParams: { models },
       };
 
+      // FIXME:
       if (transaction.ebarimt && transaction.isManual)
         await sendMessageBroker(
           {
@@ -114,30 +117,30 @@ const transactionMutations = {
             data: {
               contentType: 'savings:transaction',
               contentId: transaction._id,
-              number: transaction.number
+              number: transaction.number,
             },
-            subdomain
+            subdomain,
           },
-          'ebarimt'
+          'ebarimt',
         );
 
       await deleteLog(subdomain, user, logData);
     }
 
     return transactionIds;
-  }
+  },
 };
 checkPermission(transactionMutations, 'transactionsAdd', 'manageTransactions');
 checkPermission(transactionMutations, 'transactionsEdit', 'manageTransactions');
 checkPermission(
   transactionMutations,
   'transactionsChange',
-  'manageTransactions'
+  'manageTransactions',
 );
 checkPermission(
   transactionMutations,
   'transactionsRemove',
-  'transactionsRemove'
+  'transactionsRemove',
 );
 
 export default transactionMutations;

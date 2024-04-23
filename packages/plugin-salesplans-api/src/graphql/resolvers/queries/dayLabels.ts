@@ -1,6 +1,6 @@
 import {
   moduleRequireLogin,
-  moduleCheckPermission
+  moduleCheckPermission,
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src/core';
@@ -52,25 +52,23 @@ const labelsQueries = {
   dayLabels: async (
     _root: any,
     params: IListArgs,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     const filter = await getGenerateFilter(subdomain, params);
     return paginate(
-      models.DayLabels.find(filter)
-        .sort({ date: -1 })
-        .lean(),
-      params
+      models.DayLabels.find(filter).sort({ date: -1 }).lean(),
+      params,
     );
   },
 
   dayLabelsCount: async (
     _root: any,
     params: IListArgs,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     const filter = await getGenerateFilter(subdomain, params);
-    return await models.DayLabels.find(filter).count();
-  }
+    return await models.DayLabels.find(filter).countDocuments();
+  },
 };
 
 moduleRequireLogin(labelsQueries);

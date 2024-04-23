@@ -1,7 +1,7 @@
 import { generateModels } from './connectionResolver';
 import { sendMessageBroker } from './messageBroker';
 
-const toMoney = value => {
+const toMoney = (value) => {
   if (!value) {
     return '-';
   }
@@ -19,15 +19,15 @@ const fields = [
   { value: 'startDate', name: 'startDate' },
   { value: 'customerName', name: 'Customer name' },
   { value: 'customerLastName', name: 'Customer last name' },
-  { value: 'closeDate', name: 'closeDate' }
+  { value: 'closeDate', name: 'closeDate' },
 ];
 
 export default {
   types: [
     {
       type: 'savings',
-      label: 'Savings'
-    }
+      label: 'Savings',
+    },
   ],
 
   editorAttributes: async () => {
@@ -36,7 +36,9 @@ export default {
 
   replaceContent: async ({ subdomain, data: { contractId, content } }) => {
     const models = await generateModels(subdomain);
-    const contract = await models.Contracts.findOne({ _id: contractId }).lean();
+    const contract: any = await models.Contracts.findOne({
+      _id: contractId,
+    }).lean();
 
     if (!contract) return content;
 
@@ -46,9 +48,9 @@ export default {
           subdomain,
           action: 'customers.findOne',
           data: { _id: contract.customerId },
-          isRPC: true
+          isRPC: true,
         },
-        'contacts'
+        'contacts',
       );
       contract.customerName = customer.firstName;
       contract.customerLastName = customer.lastName;
@@ -60,9 +62,9 @@ export default {
           subdomain,
           action: 'companies.findOne',
           data: { _id: contract.customerId },
-          isRPC: true
+          isRPC: true,
         },
-        'contacts'
+        'contacts',
       );
 
       contract.customerName = company.primaryName;
@@ -74,10 +76,10 @@ export default {
         RegExp(`{{ ${row.value} }}`, 'g'),
         row.isAmount
           ? toMoney(contract[row.value] || '')
-          : contract[row.value] || ''
+          : contract[row.value] || '',
       );
     }
 
     return printContent;
-  }
+  },
 };

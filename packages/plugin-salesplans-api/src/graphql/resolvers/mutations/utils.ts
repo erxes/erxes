@@ -5,7 +5,7 @@ import { ILabelDocument } from '../../../models/definitions/labels';
 import { IDayLabelDocument } from '../../../models/definitions/dayLabels';
 import { getPureDate } from '@erxes/api-utils/src/core';
 
-const getParentsOrders = order => {
+const getParentsOrders = (order) => {
   const orders: string[] = [];
   const splitOrders = order.split('/');
   let currentOrder = '';
@@ -23,7 +23,7 @@ const getParentsOrders = order => {
 export const getParentCategories = async (
   subdomain: string,
   productId: string,
-  productCategoryId: string
+  productCategoryId: string,
 ) => {
   let categoryId = productCategoryId;
 
@@ -32,7 +32,7 @@ export const getParentCategories = async (
       subdomain,
       action: 'findOne',
       data: { _id: productId },
-      isRPC: true
+      isRPC: true,
     });
 
     categoryId = product.categoryId;
@@ -42,7 +42,7 @@ export const getParentCategories = async (
     subdomain,
     action: 'categories.findOne',
     data: { _id: categoryId },
-    isRPC: true
+    isRPC: true,
   });
 
   if (!category) {
@@ -56,11 +56,14 @@ export const getParentCategories = async (
     action: 'categories.find',
     data: {
       query: {
-        $or: [{ order: { $in: orders } }, { order: { $regex: category.order } }]
+        $or: [
+          { order: { $in: orders } },
+          { order: { $regex: category.order } },
+        ],
       },
-      sort: { order: 1 }
+      sort: { order: 1 },
     },
-    isRPC: true
+    isRPC: true,
   });
 
   return categories;
@@ -69,7 +72,7 @@ export const getParentCategories = async (
 export const getProducts = async (
   subdomain: string,
   productId: string,
-  productCategoryId: string
+  productCategoryId: string,
 ) => {
   let products: any[] = [];
 
@@ -79,10 +82,10 @@ export const getProducts = async (
       action: 'count',
       data: {
         query: { status: { $nin: ['archived', 'deleted'] } },
-        categoryId: productCategoryId
+        categoryId: productCategoryId,
       },
       isRPC: true,
-      defaultValue: 0
+      defaultValue: 0,
     });
 
     products = await sendProductsMessage({
@@ -92,10 +95,10 @@ export const getProducts = async (
         query: { status: { $nin: ['archived', 'deleted'] } },
         categoryId: productCategoryId,
         limit,
-        sort: { code: 1 }
+        sort: { code: 1 },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
   }
 
@@ -105,11 +108,11 @@ export const getProducts = async (
       action: 'find',
       data: { query: { _id: productId } },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
   }
 
-  const productIds = products.map(p => p._id);
+  const productIds = products.map((p) => p._id);
 
   return { products, productIds };
 };
@@ -120,7 +123,7 @@ export const getProductsAndParents = async (
   productId: string,
   productCategoryId: string,
   branchId: string,
-  departmentId: string
+  departmentId: string,
 ) => {
   const parentIdsByProdId = {};
   const timePercentsByProdId = {};
@@ -128,13 +131,13 @@ export const getProductsAndParents = async (
   const categories = await getParentCategories(
     subdomain,
     productId,
-    productCategoryId
+    productCategoryId,
   );
 
   const { products, productIds } = await getProducts(
     subdomain,
     productId,
-    productCategoryId
+    productCategoryId,
   );
 
   const categoryById = {};
@@ -145,7 +148,7 @@ export const getProductsAndParents = async (
   const specTimeFrames = await models.TimeProportions.find({
     branchId,
     departmentId,
-    productCategoryId: { $in: categories.map(c => c._id) }
+    productCategoryId: { $in: categories.map((c) => c._id) },
   }).lean();
 
   for (const product of products) {
@@ -158,14 +161,14 @@ export const getProductsAndParents = async (
     }
 
     parentIdsByProdId[product._id] = parentIdsByProdId[product._id].concat(
-      categories.filter(c => orders.includes(c.order)).map(c => c._id)
+      categories.filter((c) => orders.includes(c.order)).map((c) => c._id),
     );
   }
 
   for (const product of products) {
     const parentIds = parentIdsByProdId[product._id];
-    const productOfspecs = specTimeFrames.filter(tf =>
-      parentIds.includes(tf.productCategoryId)
+    const productOfspecs = specTimeFrames.filter((tf) =>
+      parentIds.includes(tf.productCategoryId),
     );
 
     if (!productOfspecs.length) {
@@ -179,9 +182,9 @@ export const getProductsAndParents = async (
       if (
         !String(
           categoryById[timePercentsByProdId[product._id].productCategoryId]
-            .order
+            .order,
         ).localeCompare(
-          String(categoryById[specTimeFrame.productCategoryId].order)
+          String(categoryById[specTimeFrame.productCategoryId].order),
         )
       ) {
         timePercentsByProdId[product._id] = specTimeFrame;
@@ -193,14 +196,14 @@ export const getProductsAndParents = async (
     products,
     productIds,
     parentIdsByProductId: parentIdsByProdId,
-    timePercentsByProdId
+    timePercentsByProdId,
   };
 };
 
 export const getPublicLabels = async ({
   models,
   year,
-  month
+  month,
 }: {
   models: IModels;
   year: number;
@@ -209,7 +212,7 @@ export const getPublicLabels = async ({
   const dayInMonth = new Date(year, month, 0).getDate();
 
   const publicLabels: ILabelDocument[] = await models.Labels.find({
-    effect: 'public'
+    effect: 'public',
   }).lean();
 
   const rulesByLabelId = {};
@@ -217,18 +220,18 @@ export const getPublicLabels = async ({
     rulesByLabelId[label._id] = label.rules;
   }
 
-  const publicLabelIds = publicLabels.map(pl => pl._id);
+  const publicLabelIds = publicLabels.map((pl) => pl._id);
 
-  const dayLabelsOfMonth = await models.DayLabels.find({
+  const dayLabelsOfMonth: any[] = await models.DayLabels.find({
     date: {
       $gte: new Date(year, month, 1),
-      $lte: new Date(year, month, dayInMonth, 23, 59, 59)
+      $lte: new Date(year, month, dayInMonth, 23, 59, 59),
     },
-    labelIds: { $in: publicLabelIds }
+    labelIds: { $in: publicLabelIds },
   }).lean();
 
   for (const dl of dayLabelsOfMonth) {
-    dl.labels = publicLabels.filter(pl => dl.labelIds.includes(pl._id));
+    dl.labels = publicLabels.filter((pl) => dl.labelIds.includes(pl._id));
   }
 
   return dayLabelsOfMonth;
@@ -238,12 +241,12 @@ export const getLabelsOfDay = async (
   models: IModels,
   date,
   branchId,
-  departmentId
+  departmentId,
 ) => {
   const dayLabel = await models.DayLabels.findOne({
     date,
     departmentId,
-    branchId
+    branchId,
   }).lean();
 
   if (!dayLabel) {
@@ -264,7 +267,7 @@ const getDivederInMonth = async (
   parentIdsByProductId,
   publicLabels: (IDayLabelDocument & { labels: ILabelDocument[] })[],
   year: number,
-  month: number
+  month: number,
 ) => {
   const dayInMonth = new Date(year, month, 0).getDate();
   let divider = dayInMonth;
@@ -272,13 +275,13 @@ const getDivederInMonth = async (
   for (const dayLabel of publicLabels) {
     const categoryIds = parentIdsByProductId[product._id] || [];
     for (const perLabel of dayLabel.labels) {
-      const publicRules = (perLabel.rules || []).filter(rule =>
-        categoryIds.includes(rule.productCategoryId)
+      const publicRules = (perLabel.rules || []).filter((rule) =>
+        categoryIds.includes(rule.productCategoryId),
       );
 
       if (publicRules && publicRules.length) {
         const lastPublicRule = publicRules[publicRules.length - 1];
-        publicRules.map(r => r.multiplier || 0);
+        publicRules.map((r) => r.multiplier || 0);
         divider += (lastPublicRule.multiplier || 1) - 1;
       }
     }
@@ -292,13 +295,13 @@ const getMultiplier = async (product, parentIdsByProductId, dayLabels) => {
   const categoryIds = parentIdsByProductId[product._id] || [];
 
   for (const perLabel of dayLabels) {
-    const rules = (perLabel.rules || []).filter(rule =>
-      categoryIds.includes(rule.productCategoryId)
+    const rules = (perLabel.rules || []).filter((rule) =>
+      categoryIds.includes(rule.productCategoryId),
     );
 
     if (rules && rules.length) {
       multiplier *= rules
-        .map(r => r.multiplier || 0)
+        .map((r) => r.multiplier || 0)
         .reduce((sum, cur) => sum * cur);
     }
   }
@@ -314,7 +317,7 @@ export const getDayPlanValues = async ({
   dayLabels,
   timePercentsByProdId,
   product,
-  timeFrames
+  timeFrames,
 }: {
   date: Date;
   yearPlanByProductId;
@@ -344,7 +347,7 @@ export const getDayPlanValues = async ({
     parentIdsByProductId,
     publicLabels,
     pureDate.getFullYear(),
-    pureDate.getMonth() + 1
+    pureDate.getMonth() + 1,
   );
 
   const dayPlanCount = monthPlanCount / daysInMonth;
@@ -352,15 +355,15 @@ export const getDayPlanValues = async ({
   const multiplier = await getMultiplier(
     product,
     parentIdsByProductId,
-    dayLabels
+    dayLabels,
   );
 
   const dayCalcedCount = dayPlanCount * multiplier;
 
-  let percents = timeFrames.map(tf => ({
+  let percents = timeFrames.map((tf) => ({
     _id: tf._id,
     timeId: tf._id,
-    percent: tf.percent
+    percent: tf.percent,
   }));
   const timePercent = timePercentsByProdId[product._id];
   if (timePercent) {
@@ -368,17 +371,17 @@ export const getDayPlanValues = async ({
   }
 
   const sumPercent = (percents || [])
-    .map(p => p.percent || 0)
+    .map((p) => p.percent || 0)
     .reduce((sum, d) => sum + d);
 
   let planCount = 0;
   for (const timeFrame of percents) {
     const count = Math.round(
-      (dayCalcedCount / sumPercent) * (timeFrame.percent || 1)
+      (dayCalcedCount / sumPercent) * (timeFrame.percent || 1),
     );
     values.push({
       timeId: timeFrame.timeId,
-      count
+      count,
     });
     planCount += count;
   }

@@ -7,9 +7,9 @@ const generateFilter = async (models, params, commonQuerySelector) => {
   if (params.searchValue) {
     const contracts = await models.Contracts.find(
       { number: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
-      { _id: 1 }
+      { _id: 1 },
     );
-    filter.contractId = { $in: contracts.map(item => item._id) };
+    filter.contractId = { $in: contracts.map((item) => item._id) };
   }
 
   if (params.ids) {
@@ -30,13 +30,13 @@ const generateFilter = async (models, params, commonQuerySelector) => {
 
   if (params.startDate) {
     filter.payDate = {
-      $gte: new Date(params.startDate)
+      $gte: new Date(params.startDate),
     };
   }
 
   if (params.endDate) {
     filter.payDate = {
-      $lte: new Date(params.endDate)
+      $lte: new Date(params.endDate),
     };
   }
 
@@ -44,8 +44,8 @@ const generateFilter = async (models, params, commonQuerySelector) => {
     filter.payDate = {
       $and: [
         { $gte: new Date(params.startDate) },
-        { $lte: new Date(params.endDate) }
-      ]
+        { $lte: new Date(params.endDate) },
+      ],
     };
   }
 
@@ -60,7 +60,7 @@ const generateFilter = async (models, params, commonQuerySelector) => {
   return filter;
 };
 
-export const sortBuilder = params => {
+export const sortBuilder = (params) => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -78,16 +78,16 @@ const transactionQueries = {
   savingsTransactions: async (
     _root,
     params,
-    { commonQuerySelector, models }: IContext
+    { commonQuerySelector, models }: IContext,
   ) => {
     return paginate(
       models.Transactions.find(
-        await generateFilter(models, params, commonQuerySelector)
+        await generateFilter(models, params, commonQuerySelector),
       ),
       {
         page: params.page,
-        perPage: params.perPage
-      }
+        perPage: params.perPage,
+      },
     );
   },
 
@@ -98,7 +98,7 @@ const transactionQueries = {
   savingsTransactionsMain: async (
     _root,
     params,
-    { commonQuerySelector, models }: IContext
+    { commonQuerySelector, models }: IContext,
   ) => {
     const filter = await generateFilter(models, params, commonQuerySelector);
 
@@ -107,10 +107,10 @@ const transactionQueries = {
         models.Transactions.find(filter).sort(sortBuilder(params)),
         {
           page: params.page,
-          perPage: params.perPage
-        }
+          perPage: params.perPage,
+        },
       ),
-      totalCount: await models.Transactions.find(filter).count()
+      totalCount: await models.Transactions.find(filter).countDocuments(),
     };
   },
 
@@ -120,7 +120,7 @@ const transactionQueries = {
 
   savingsTransactionDetail: async (_root, { _id }, { models }: IContext) => {
     return models.Transactions.getTransaction({ _id });
-  }
+  },
 };
 
 checkPermission(transactionQueries, 'transactions', 'showTransactions');

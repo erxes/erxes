@@ -5,7 +5,7 @@ import * as moment from 'moment';
 const prepareData = async (
   models: IModels,
   _subdomain: string,
-  query: any
+  query: any,
 ): Promise<any[]> => {
   const { page, perPage } = query;
 
@@ -26,13 +26,13 @@ const prepareData = async (
 const prepareDataCount = async (
   models: IModels,
   _subdomain: string,
-  _query: any
+  _query: any,
 ): Promise<any> => {
   let data = 0;
 
   const productsFilter: any = {};
 
-  data = await models.Contracts.find(productsFilter).count();
+  data = await models.Contracts.find(productsFilter).countDocuments();
 
   return data;
 };
@@ -41,7 +41,7 @@ export const fillValue = async (
   models: IModels,
   subdomain: string,
   column: string,
-  item: any
+  item: any,
 ): Promise<string> => {
   let value = item[column];
 
@@ -83,7 +83,7 @@ export default {
       }
     } catch (e) {
       return {
-        error: e.message
+        error: e.message,
       };
     }
     return { totalCount, excelHeader };
@@ -117,5 +117,5 @@ export default {
       return { error: e.message };
     }
     return { docs };
-  }
+  },
 };

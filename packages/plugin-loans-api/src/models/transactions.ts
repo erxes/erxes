@@ -229,8 +229,8 @@ export const loadTransactionClass = (models: IModels) => {
         .lean();
 
       if (
-        doc.contractId &&
-        !periodLock?.excludeContracts.includes(doc.contractId)
+        periodLock &&
+        !periodLock?.excludeContracts.includes(doc.contractId || 'undefined')
       )
         throw new Error(
           'At this moment transaction can not been created because this date closed',
@@ -373,8 +373,10 @@ export const loadTransactionClass = (models: IModels) => {
             .lean();
 
           if (
-            oldTr.contractId &&
-            !periodLock?.excludeContracts.includes(oldTr.contractId)
+            periodLock &&
+            !periodLock?.excludeContracts.includes(
+              oldTr.contractId || 'undefined',
+            )
           )
             throw new Error(
               'At this moment transaction can not been created because this date closed',

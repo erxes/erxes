@@ -2,7 +2,7 @@ import { escapeRegExp, paginate } from '@erxes/api-utils/src/core';
 import { IContext } from '../../../connectionResolver';
 import {
   moduleCheckPermission,
-  moduleRequireLogin
+  moduleRequireLogin,
 } from '@erxes/api-utils/src/permissions';
 import { MONTHS } from '../../../constants';
 import { sendProductsMessage } from '../../../messageBroker';
@@ -36,7 +36,7 @@ const getGenerateFilter = async (subdomain: string, params: IListArgs) => {
     branchId,
     departmentId,
     productId,
-    productCategoryId
+    productCategoryId,
   } = params;
 
   const filter: any = {};
@@ -64,15 +64,15 @@ const getGenerateFilter = async (subdomain: string, params: IListArgs) => {
       productFilter.query = {
         $or: [
           {
-            name: { $regex: `.*${escapeRegExp(searchValue)}.*` }
+            name: { $regex: `.*${escapeRegExp(searchValue)}.*` },
           },
           {
-            code: { $regex: `.*${escapeRegExp(searchValue)}.*` }
+            code: { $regex: `.*${escapeRegExp(searchValue)}.*` },
           },
           {
-            barcodes: { $regex: `.*${escapeRegExp(searchValue)}.*` }
-          }
-        ]
+            barcodes: { $regex: `.*${escapeRegExp(searchValue)}.*` },
+          },
+        ],
       };
     }
 
@@ -86,10 +86,10 @@ const getGenerateFilter = async (subdomain: string, params: IListArgs) => {
         action: 'count',
         data: {
           ...productFilter,
-          categoryId: productCategoryId
+          categoryId: productCategoryId,
         },
         isRPC: true,
-        defaultValue: 0
+        defaultValue: 0,
       });
 
       const products = await sendProductsMessage({
@@ -97,9 +97,9 @@ const getGenerateFilter = async (subdomain: string, params: IListArgs) => {
         action: 'find',
         data: { ...productFilter, limit, fields: { _id: 1 } },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
-      filter.productId = { $in: products.map(p => p._id) };
+      filter.productId = { $in: products.map((p) => p._id) };
     }
   }
 
@@ -110,45 +110,43 @@ const labelsQueries = {
   yearPlans: async (
     _root: any,
     params: IListArgs,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     const filter = await getGenerateFilter(subdomain, params);
     return paginate(
-      models.YearPlans.find(filter)
-        .sort({ year: -1 })
-        .lean(),
-      params
+      models.YearPlans.find(filter).sort({ year: -1 }).lean(),
+      params,
     );
   },
 
   yearPlansCount: async (
     _root: any,
     params: IListArgs,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     const filter = await getGenerateFilter(subdomain, params);
-    return await models.YearPlans.find(filter).count();
+    return await models.YearPlans.find(filter).countDocuments();
   },
 
   yearPlansSum: async (
     _root: any,
     params: IListArgs,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     const filter = await getGenerateFilter(subdomain, params);
 
     const plans = await models.YearPlans.find(filter, { values: 1 }).lean();
 
     const result: { [key: string]: number } = {};
-    MONTHS.map(m => (result[m] = 0));
+    MONTHS.map((m) => (result[m] = 0));
 
     for (const plan of plans) {
       for (const month of MONTHS) {
-        result[month] += Number(plan.values[month]);
+        result[month] += Number(plan.values?.[month]);
       }
     }
     return result;
-  }
+  },
 };
 
 moduleRequireLogin(labelsQueries);

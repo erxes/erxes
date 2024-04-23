@@ -1,6 +1,6 @@
 import {
   moduleRequireLogin,
-  moduleCheckPermission
+  moduleCheckPermission,
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src/core';
@@ -37,25 +37,23 @@ const timeProportionsQuery = {
   timeProportions: async (
     _root: any,
     params: IListArgs,
-    { models }: IContext
+    { models }: IContext,
   ) => {
     const filter = await getGenerateFilter(params);
     return paginate(
-      models.TimeProportions.find(filter)
-        .sort({ date: -1 })
-        .lean(),
-      params
+      models.TimeProportions.find(filter).sort({ date: -1 }).lean(),
+      params,
     );
   },
 
   timeProportionsCount: async (
     _root: any,
     params: IListArgs,
-    { models }: IContext
+    { models }: IContext,
   ) => {
     const filter = await getGenerateFilter(params);
-    return await models.TimeProportions.find(filter).count();
-  }
+    return await models.TimeProportions.find(filter).countDocuments();
+  },
 };
 
 moduleRequireLogin(timeProportionsQuery);

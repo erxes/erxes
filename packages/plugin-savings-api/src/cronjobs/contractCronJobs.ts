@@ -1,7 +1,7 @@
 import { IModels, generateModels } from '../connectionResolver';
 import {
   CONTRACT_STATUS,
-  STORE_INTEREST_INTERVAL
+  STORE_INTEREST_INTERVAL,
 } from '../models/definitions/constants';
 import { IContractDocument } from '../models/definitions/contracts';
 import { closeOrExtend } from '../models/utils/closeOrExtendUtils';
@@ -22,8 +22,8 @@ export async function storeInterestCron(subdomain: string) {
     const contracts = await models.Contracts.find({
       lastStoredDate: { $lt: nextDate },
       status: CONTRACT_STATUS.NORMAL,
-      interestRate: { $gt: 0 }
-    }).lean<IContractDocument>();
+      interestRate: { $gt: 0 },
+    }).lean();
 
     for await (const contract of contracts) {
       await storeInterestMethod(contract, models, nowDate, nextDate);
@@ -39,7 +39,7 @@ async function storeInterestMethod(
   contract: IContractDocument,
   models: IModels,
   nowDate: Date,
-  nextDate: Date
+  nextDate: Date,
 ) {
   const lastStoredDate = getFullDate(contract.lastStoredDate);
   const diffDay = getDiffDay(lastStoredDate, nextDate);

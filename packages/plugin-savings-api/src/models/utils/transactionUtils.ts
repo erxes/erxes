@@ -1,7 +1,7 @@
 import { IModels } from '../../connectionResolver';
 import {
   ICalcTrParams,
-  ITransactionDocument
+  ITransactionDocument,
 } from '../definitions/transactions';
 
 /**
@@ -16,7 +16,7 @@ export const getCloseInfo = async () => {
 export const transactionIncome = async (
   models: IModels,
   subdomain: string,
-  doc: ICalcTrParams | any
+  doc: ICalcTrParams | any,
 ) => {
   let result = {};
   return result;
@@ -32,7 +32,7 @@ export const transactionOutcome = async () => {
  */
 export const trAfterSchedule = async (
   models: IModels,
-  tr: ITransactionDocument
+  tr: ITransactionDocument,
 ) => {
   if (!tr.contractId) {
     return;
@@ -43,16 +43,16 @@ export const trAfterSchedule = async (
 
 export const removeTrAfterSchedule = async (
   models: IModels,
-  tr: ITransactionDocument
+  tr: ITransactionDocument,
 ) => {
-  const nextTrsCount = await models.Transactions.count({
+  const nextTrsCount = await models.Transactions.countDocuments({
     contractId: tr.contractId,
-    payDate: { $gt: tr.payDate }
+    payDate: { $gt: tr.payDate },
   }).lean();
 
   if (nextTrsCount > 0) {
     throw new Error(
-      'this transaction is not last transaction. Please This contracts last transaction only to change or remove'
+      'this transaction is not last transaction. Please This contracts last transaction only to change or remove',
     );
   }
 

@@ -1,11 +1,11 @@
 import {
   IContractType,
   IContractTypeDocument,
-  contractTypeSchema
+  contractTypeSchema,
 } from './definitions/contractTypes';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { FilterQuery } from 'mongodb';
+import { FilterQuery } from 'mongoose';
 
 export const loadContractTypeClass = (models: IModels) => {
   class ContractType {
@@ -15,7 +15,7 @@ export const loadContractTypeClass = (models: IModels) => {
      */
 
     public static async getContractType(
-      selector: FilterQuery<IContractTypeDocument>
+      selector: FilterQuery<IContractTypeDocument>,
     ) {
       const insuranceType = await models.ContractTypes.findOne(selector);
 

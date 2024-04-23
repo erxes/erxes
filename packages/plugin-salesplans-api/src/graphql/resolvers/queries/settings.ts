@@ -1,6 +1,6 @@
 import {
   moduleRequireLogin,
-  moduleCheckPermission
+  moduleCheckPermission,
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { escapeRegExp, paginate } from '@erxes/api-utils/src/core';
@@ -18,28 +18,23 @@ interface IListArgs {
 }
 
 const getGenerateFilter = (params: IListArgs) => {
-  const {
-    _ids,
-    searchValue,
-    filterStatus,
-    minMultiplier,
-    maxMultiplier
-  } = params;
+  const { _ids, searchValue, filterStatus, minMultiplier, maxMultiplier } =
+    params;
 
   const filter: any = {};
   if (searchValue) {
     filter.$or = [
       {
-        title: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
+        title: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] },
       },
       {
-        effect: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
+        effect: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] },
       },
       {
         description: {
-          $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
-        }
-      }
+          $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')],
+        },
+      },
     ];
   }
 
@@ -71,17 +66,17 @@ const labelsQueries = {
   spLabelsCount: async (
     _root: any,
     params: IListArgs,
-    { models }: IContext
+    { models }: IContext,
   ) => {
     const filter = getGenerateFilter(params);
-    return await models.Labels.find(filter).count();
+    return await models.Labels.find(filter).countDocuments();
   },
 
   timeframes: async (_root: any, _args: any, { models }: IContext) => {
     return await models.Timeframes.find({ status: { $ne: 'deleted' } })
       .sort({ startTime: 1 })
       .lean();
-  }
+  },
 };
 
 moduleRequireLogin(labelsQueries);

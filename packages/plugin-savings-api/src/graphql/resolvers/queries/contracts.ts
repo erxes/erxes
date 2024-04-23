@@ -24,7 +24,7 @@ const generateFilter = async (models, params, commonQuerySelector) => {
     const date = getFullDate(params.closeDate);
     filter.closeDate = {
       $gte: date,
-      $lte: new Date(date.getTime() + 1000 * 3600 * 24)
+      $lte: new Date(date.getTime() + 1000 * 3600 * 24),
     };
   }
 
@@ -37,8 +37,8 @@ const generateFilter = async (models, params, commonQuerySelector) => {
       $in: await models.Conformities.savedConformity({
         mainType: params.conformityMainType,
         mainTypeId: params.conformityMainTypeId,
-        relTypes: ['contract', 'contractSub']
-      })
+        relTypes: ['contract', 'contractSub'],
+      }),
     };
   }
 
@@ -52,15 +52,15 @@ const generateFilter = async (models, params, commonQuerySelector) => {
       await models.Conformities.relatedConformity({
         mainType: params.conformityMainType,
         mainTypeId: params.conformityMainTypeId,
-        relType: 'contract'
-      })
+        relType: 'contract',
+      }),
     );
     ids = ids.concat(
       await models.Conformities.relatedConformity({
         mainType: params.conformityMainType,
         mainTypeId: params.conformityMainTypeId,
-        relType: 'contractSub'
-      })
+        relType: 'contractSub',
+      }),
     );
     filter._id = { $in: ids };
   }
@@ -77,7 +77,7 @@ const generateFilter = async (models, params, commonQuerySelector) => {
     const date = getFullDate(new Date());
     filter.repaymentDate = {
       $gte: date,
-      $lte: new Date(date.getTime() + 1000 * 3600 * 24)
+      $lte: new Date(date.getTime() + 1000 * 3600 * 24),
     };
   }
 
@@ -88,31 +88,31 @@ const generateFilter = async (models, params, commonQuerySelector) => {
         const date = getFullDate(currentDate);
         filter.closeDate = {
           $gte: date,
-          $lte: new Date(date.getTime() + 1000 * 3600 * 24)
+          $lte: new Date(date.getTime() + 1000 * 3600 * 24),
         };
         break;
       case 'thisWeek':
         let firstDayOfWeek = new Date(
-          currentDate.setDate(currentDate.getDate() - currentDate.getDay())
+          currentDate.setDate(currentDate.getDate() - currentDate.getDay()),
         );
         let lastDayOfWeek = new Date(
-          currentDate.setDate(currentDate.getDate() - currentDate.getDay() + 6)
+          currentDate.setDate(currentDate.getDate() - currentDate.getDay() + 6),
         );
         filter.closeDate = {
           $gte: firstDayOfWeek,
-          $lte: lastDayOfWeek
+          $lte: lastDayOfWeek,
         };
         break;
       case 'thisMonth':
         let firstDayOfMonth = new Date(
-          currentDate.setDate(currentDate.getDate() - currentDate.getDay())
+          currentDate.setDate(currentDate.getDate() - currentDate.getDay()),
         );
         let lastDayOfMonth = new Date(
-          currentDate.setDate(currentDate.getDate() - currentDate.getDay() + 6)
+          currentDate.setDate(currentDate.getDate() - currentDate.getDay() + 6),
         );
         filter.closeDate = {
           $gte: firstDayOfMonth,
-          $lte: lastDayOfMonth
+          $lte: lastDayOfMonth,
         };
         break;
 
@@ -126,17 +126,17 @@ const generateFilter = async (models, params, commonQuerySelector) => {
       case 'true-true':
         filter.closeDate = {
           $gte: getFullDate(params.startStartDate),
-          $lte: getFullDate(params.endStartDate)
+          $lte: getFullDate(params.endStartDate),
         };
         break;
       case 'false-true':
         filter.closeDate = {
-          $lte: getFullDate(params.endStartDate)
+          $lte: getFullDate(params.endStartDate),
         };
         break;
       case 'true-false':
         filter.closeDate = {
-          $gte: getFullDate(params.startStartDate)
+          $gte: getFullDate(params.startStartDate),
         };
         break;
       default:
@@ -149,17 +149,17 @@ const generateFilter = async (models, params, commonQuerySelector) => {
       case 'true-true':
         filter.closeDate = {
           $gte: getFullDate(params.startCloseDate),
-          $lte: getFullDate(params.endCloseDate)
+          $lte: getFullDate(params.endCloseDate),
         };
         break;
       case 'false-true':
         filter.closeDate = {
-          $lte: getFullDate(params.endCloseDate)
+          $lte: getFullDate(params.endCloseDate),
         };
         break;
       case 'true-false':
         filter.closeDate = {
-          $gte: getFullDate(params.startCloseDate)
+          $gte: getFullDate(params.startCloseDate),
         };
         break;
       default:
@@ -212,33 +212,33 @@ const contractQueries = {
   savingsContracts: async (
     _root,
     params,
-    { commonQuerySelector, models }: IContext
+    { commonQuerySelector, models }: IContext,
   ) => {
     const loanContractsQuery = await generateFilter(
       models,
       params,
-      commonQuerySelector
+      commonQuerySelector,
     );
     return paginate(models.Contracts.find(loanContractsQuery), {
       page: params.page,
-      perPage: params.perPage
+      perPage: params.perPage,
     });
   },
 
   clientSavingsContracts: async (
     _root,
     params,
-    { commonQuerySelector, models }: IContext
+    { commonQuerySelector, models }: IContext,
   ) => {
     if (!params.customerId) throw new Error('Customer not found');
     const loanContractsQuery = await generateFilter(
       models,
       params,
-      commonQuerySelector
+      commonQuerySelector,
     );
     return paginate(models.Contracts.find(loanContractsQuery), {
       page: params.page,
-      perPage: params.perPage
+      perPage: params.perPage,
     });
   },
 
@@ -249,16 +249,16 @@ const contractQueries = {
   savingsContractsMain: async (
     _root,
     params,
-    { commonQuerySelector, models }: IContext
+    { commonQuerySelector, models }: IContext,
   ) => {
     const filter = await generateFilter(models, params, commonQuerySelector);
 
     return {
       list: paginate(models.Contracts.find(filter).sort(sortBuilder(params)), {
         page: params.page,
-        perPage: params.perPage
+        perPage: params.perPage,
       }),
-      totalCount: models.Contracts.find(filter).count()
+      totalCount: models.Contracts.find(filter).countDocuments(),
     };
   },
 
@@ -275,10 +275,10 @@ const contractQueries = {
   savingsCloseInfo: async (
     _root,
     { contractId, date },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     const contract = await models.Contracts.getContract({
-      _id: contractId
+      _id: contractId,
     });
     return getCloseInfo(models, subdomain, contract, date);
   },
@@ -288,7 +288,7 @@ const contractQueries = {
     const filterDate = getFullDate(new Date(date));
     //expired contracts
     const expiredContracts = await models.Contracts.find({
-      endDate: { $lt: filterDate }
+      endDate: { $lt: filterDate },
     })
       .select({ _id: 1 })
       .lean();
@@ -297,23 +297,23 @@ const contractQueries = {
       alerts.push({
         name: 'End contracts',
         count: expiredContracts.length,
-        filter: expiredContracts.map((a) => a._id)
+        filter: expiredContracts.map((a) => a._id),
       });
     }
 
     return alerts;
-  }
+  },
 };
 
 checkPermission(
   contractQueries,
   'savingsContractsMain',
-  'savingsShowContracts'
+  'savingsShowContracts',
 );
 checkPermission(
   contractQueries,
   'savingsContractDetail',
-  'savingsShowContracts'
+  'savingsShowContracts',
 );
 checkPermission(contractQueries, 'savingsContracts', 'savingsShowContracts');
 
