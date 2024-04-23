@@ -5,7 +5,7 @@ import { IModels } from '../connectionResolver';
 import {
   IPerform,
   IPerformDocument,
-  performSchema
+  performSchema,
 } from './definitions/performs';
 
 export interface IPerformModel extends Model<IPerformDocument> {
@@ -14,7 +14,7 @@ export interface IPerformModel extends Model<IPerformDocument> {
   updatePerform(
     _id: string,
     doc: IPerform,
-    perform?: IPerformDocument
+    perform?: IPerformDocument,
   ): Promise<IPerformDocument>;
   removePerform(_id: string): void;
 }
@@ -55,13 +55,13 @@ export const loadPerformClass = (models: IModels) => {
         perform = await models.Performs.create({
           ...doc,
           createdAt: new Date(),
-          series
+          series,
         });
       } catch (e) {
         if (e.message.includes(`E11000 duplicate key error dup key`)) {
           return await this.createPerform(
             doc,
-            await models.Performs.find({ series }).count()
+            await models.Performs.find({ series }).countDocuments(),
           );
         } else {
           throw new Error(e.message);
@@ -77,7 +77,7 @@ export const loadPerformClass = (models: IModels) => {
       _id: string,
       doc: IPerform,
       perform?: IPerformDocument,
-      len?: number
+      len?: number,
     ) {
       const oldPerform = perform || (await models.Performs.getPerform(_id));
       let series = oldPerform.series;
@@ -100,7 +100,7 @@ export const loadPerformClass = (models: IModels) => {
             _id,
             doc,
             oldPerform,
-            await models.Performs.find({ series }).count()
+            await models.Performs.find({ series }).countDocuments(),
           );
         } else {
           throw new Error(e.message);

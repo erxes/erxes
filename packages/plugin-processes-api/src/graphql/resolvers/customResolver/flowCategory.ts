@@ -8,7 +8,7 @@ export default {
       subdomain,
       action: 'findOne',
       data: { _id },
-      isRPC: true
+      isRPC: true,
     });
   },
 
@@ -24,17 +24,17 @@ export default {
         query: {},
         categoryId: category._id,
         fields: { _id: 1 },
-        limit: 10000
+        limit: 10000,
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
-    const productIds = products.map(p => p._id);
+    const productIds = products.map((p) => p._id);
 
     return await models.Flows.find({
       productId: { $in: productIds },
-      status: { $ne: FLOW_STATUSES.ARCHIVED }
-    }).count();
-  }
+      status: { $ne: FLOW_STATUSES.ARCHIVED },
+    }).countDocuments();
+  },
 };

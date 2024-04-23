@@ -20,11 +20,11 @@ const generateFilter = (params: IParam, commonQuerySelector) => {
   if (searchValue) {
     const fields = [
       {
-        name: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
+        name: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] },
       },
       {
-        code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
-      }
+        code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] },
+      },
     ];
 
     selector.$or = fields;
@@ -48,28 +48,28 @@ const jobReferQueries = {
       page: number;
       perPage: number;
     },
-    { models, commonQuerySelector }: IContext
+    { models, commonQuerySelector }: IContext,
   ) {
     const selector = generateFilter(params, commonQuerySelector);
 
     return paginate(
       models.JobRefers.find(selector)
         .sort({
-          code: 1
+          code: 1,
         })
         .lean(),
-      { ...params }
+      { ...params },
     );
   },
 
   jobReferTotalCount(
     _root,
     params: IParam,
-    { commonQuerySelector, models }: IContext
+    { commonQuerySelector, models }: IContext,
   ) {
     const selector = generateFilter(params, commonQuerySelector);
 
-    return models.JobRefers.find(selector).count();
+    return models.JobRefers.find(selector).countDocuments();
   },
 
   /**
@@ -77,7 +77,7 @@ const jobReferQueries = {
    */
   jobReferDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.JobRefers.findOne({ _id }).lean();
-  }
+  },
 };
 
 // requireLogin(jobReferQueries, 'jobReferDetail');

@@ -25,7 +25,7 @@ interface IParam {
 const generateFilter = async (
   subdomain: string,
   params: IParam,
-  commonQuerySelector
+  commonQuerySelector,
 ) => {
   const {
     search,
@@ -40,7 +40,7 @@ const generateFilter = async (
     jobReferId,
     productCategoryId,
     vendorIds,
-    productIds
+    productIds,
   } = params;
   const selector: any = { ...commonQuerySelector };
 
@@ -84,17 +84,17 @@ const generateFilter = async (
       subdomain,
       action: 'count',
       data: { categoryId: productCategoryId },
-      isRPC: true
+      isRPC: true,
     });
 
     const products = await sendProductsMessage({
       subdomain,
       action: 'find',
       data: { limit, categoryId: productCategoryId, fields: { _id: 1 } },
-      isRPC: true
+      isRPC: true,
     });
 
-    filterProductIds = products.map(pr => pr._id);
+    filterProductIds = products.map((pr) => pr._id);
     hasFilterProductIds = true;
   }
 
@@ -103,7 +103,7 @@ const generateFilter = async (
       subdomain,
       action: 'count',
       data: { query: { vendorId: { $in: vendorIds } } },
-      isRPC: true
+      isRPC: true,
     });
 
     const products = await sendProductsMessage({
@@ -112,19 +112,19 @@ const generateFilter = async (
       data: {
         limit,
         query: { vendorId: { $in: vendorIds } },
-        fields: { _id: 1 }
+        fields: { _id: 1 },
       },
-      isRPC: true
+      isRPC: true,
     });
 
-    filterProductIds = filterProductIds.concat(products.map(pr => pr._id));
+    filterProductIds = filterProductIds.concat(products.map((pr) => pr._id));
     hasFilterProductIds = true;
   }
 
   if (
     productIds &&
     productIds.length &&
-    productIds.filter(p => p !== '').length
+    productIds.filter((p) => p !== '').length
   ) {
     filterProductIds = filterProductIds.concat(productIds);
     hasFilterProductIds = true;
@@ -133,7 +133,7 @@ const generateFilter = async (
   if (hasFilterProductIds) {
     selector.$or = [
       { 'inProducts.productId': { $in: filterProductIds } },
-      { 'outProducts.productId': { $in: filterProductIds } }
+      { 'outProducts.productId': { $in: filterProductIds } },
     ];
   }
 
@@ -151,12 +151,12 @@ const performQueries = {
       page: number;
       perPage: number;
     },
-    { subdomain, models, commonQuerySelector }: IContext
+    { subdomain, models, commonQuerySelector }: IContext,
   ) {
     const selector = await generateFilter(
       subdomain,
       params,
-      commonQuerySelector
+      commonQuerySelector,
     );
 
     return paginate(models.Performs.find(selector).lean(), { ...params });
@@ -165,15 +165,15 @@ const performQueries = {
   async performsCount(
     _root,
     params: IParam,
-    { subdomain, models, commonQuerySelector }: IContext
+    { subdomain, models, commonQuerySelector }: IContext,
   ) {
     const selector = await generateFilter(
       subdomain,
       params,
-      commonQuerySelector
+      commonQuerySelector,
     );
 
-    return models.Performs.find(selector).count();
+    return models.Performs.find(selector).countDocuments();
   },
 
   performDetail(_root, { _id }: { _id: string }, { models }: IContext) {
@@ -198,15 +198,15 @@ const performQueries = {
       page?: number;
       perPage?: number;
     },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const filter: any = {
-      $and: [{ series: { $nin: ['', undefined, null, 0, selfSeries] } }]
+      $and: [{ series: { $nin: ['', undefined, null, 0, selfSeries] } }],
     };
 
     if (ids && ids.length > 0) {
       filter.$and.push({
-        series: { [excludeIds ? '$nin' : '$in']: ids }
+        series: { [excludeIds ? '$nin' : '$in']: ids },
       });
       if (!paginationArgs.page && !paginationArgs.perPage) {
         paginationArgs.page = 1;
@@ -223,24 +223,22 @@ const performQueries = {
     }
 
     const performs = await paginate(
-      models.Performs.find(filter, { series: 1 })
-        .sort({ series: -1 })
-        .lean(),
-      { ...paginationArgs }
+      models.Performs.find(filter, { series: 1 }).sort({ series: -1 }).lean(),
+      { ...paginationArgs },
     );
 
-    const series = performs.map(p => p.series);
+    const series = performs.map((p) => p.series);
 
     let notPerformSeries: string[] = [];
     if (ids && ids.length && !excludeIds) {
-      notPerformSeries = ids.filter(id => !series.includes(id));
+      notPerformSeries = ids.filter((id) => !series.includes(id));
     }
 
-    return series.concat(notPerformSeries).map(ser => ({
+    return series.concat(notPerformSeries).map((ser) => ({
       _id: ser,
-      series: ser
+      series: ser,
     }));
-  }
+  },
 };
 
 // checkPermission(workQueries, 'flows', 'showWorks');

@@ -22,7 +22,7 @@ interface IParam {
 const generateFilter = async (
   subdomain: string,
   params: IParam,
-  commonQuerySelector
+  commonQuerySelector,
 ) => {
   const {
     categoryId,
@@ -33,7 +33,7 @@ const generateFilter = async (
     branchId,
     departmentId,
     status,
-    validation
+    validation,
   } = params;
   const selector: any = { ...commonQuerySelector };
 
@@ -46,10 +46,10 @@ const generateFilter = async (
         action: 'find',
         data: { query: {}, categoryId, fields: { _id: 1 }, limit: 10000 },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
-      const productIds = products.map(p => p._id);
+      const productIds = products.map((p) => p._id);
       selector.productId = { $in: productIds };
     }
   }
@@ -98,21 +98,21 @@ const flowQueries = {
       page: number;
       perPage: number;
     },
-    { models, commonQuerySelector, subdomain }: IContext
+    { models, commonQuerySelector, subdomain }: IContext,
   ) {
     const selector = await generateFilter(
       subdomain,
       params,
-      commonQuerySelector
+      commonQuerySelector,
     );
 
     return paginate(
       models.Flows.find(selector)
         .sort({
-          code: 1
+          code: 1,
         })
         .lean(),
-      { ...params }
+      { ...params },
     );
   },
 
@@ -121,7 +121,7 @@ const flowQueries = {
 
     return models.Flows.find()
       .sort({
-        code: 1
+        code: 1,
       })
       .lean();
   },
@@ -129,15 +129,15 @@ const flowQueries = {
   async flowTotalCount(
     _root,
     params: IParam,
-    { commonQuerySelector, models, subdomain }: IContext
+    { commonQuerySelector, models, subdomain }: IContext,
   ) {
     const selector = await generateFilter(
       subdomain,
       params,
-      commonQuerySelector
+      commonQuerySelector,
     );
 
-    return models.Flows.find(selector).count();
+    return models.Flows.find(selector).countDocuments();
   },
 
   /**
@@ -145,7 +145,7 @@ const flowQueries = {
    */
   flowDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Flows.findOne({ _id });
-  }
+  },
 
   // /**
   //  * Get receive data

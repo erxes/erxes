@@ -7,7 +7,7 @@ const getProductIds = (
   job: IJob,
   jobReferById: any,
   subFlowById: { [key: string]: IFlowDocument },
-  type = 'need'
+  type = 'need',
 ) => {
   const jobConfig = job.config;
   const key = type === 'need' ? 'needProducts' : 'resultProducts';
@@ -16,14 +16,14 @@ const getProductIds = (
   if (jobConfig.jobReferId && JOB_TYPES.JOBS.includes(job.type)) {
     productIds =
       ((jobReferById[jobConfig.jobReferId] || {})[key] || []).map(
-        p => p.productId
+        (p) => p.productId,
       ) || [];
   }
 
   if (jobConfig.subFlowId && JOB_TYPES.FLOW === job.type) {
     productIds =
       ((subFlowById[jobConfig.subFlowId] || {})[fkey] || []).map(
-        p => p.productId
+        (p) => p.productId,
       ) || [];
     console.log(productIds);
   }
@@ -46,7 +46,7 @@ const checkBeforeJobs = (
   job: IJob,
   beforeJobs: IJob[],
   jobReferById: any,
-  subFlowById: any
+  subFlowById: any,
 ) => {
   const label = `${job.label.substring(0, 10)}... `;
   const jobConfig = job.config;
@@ -76,12 +76,12 @@ const checkBeforeJobs = (
     }
 
     beforeResultProductIds = beforeResultProductIds.concat(
-      getProductIds(beforeJob, jobReferById, subFlowById, 'result')
+      getProductIds(beforeJob, jobReferById, subFlowById, 'result'),
     );
   }
 
   const lessNeedProductIds = jobNeedProductIds.filter(
-    np => !beforeResultProductIds.includes(np)
+    (np) => !beforeResultProductIds.includes(np),
   );
 
   if ((lessNeedProductIds || []).length) {
@@ -95,9 +95,9 @@ export const recursiveChecker = (
   job: IJob,
   jobs: IJob[],
   jobReferById,
-  subFlowById
+  subFlowById,
 ) => {
-  const beforeJobs = jobs.filter(j => (j.nextJobIds || []).includes(job.id));
+  const beforeJobs = jobs.filter((j) => (j.nextJobIds || []).includes(job.id));
   const result = checkBeforeJobs(job, beforeJobs, jobReferById, subFlowById);
 
   if (result) {
@@ -110,7 +110,7 @@ export const recursiveChecker = (
         beforeJob,
         jobs,
         jobReferById,
-        subFlowById
+        subFlowById,
       );
       if (results) {
         return results;
@@ -125,7 +125,7 @@ export const getLatestJob = async (models: IModels, jobs: IJob[]) => {
     return;
   }
 
-  const latestJobs = jobs.filter(j => !(j.nextJobIds || []).length) || [];
+  const latestJobs = jobs.filter((j) => !(j.nextJobIds || []).length) || [];
 
   if (latestJobs.length !== 1) {
     return;
@@ -133,12 +133,10 @@ export const getLatestJob = async (models: IModels, jobs: IJob[]) => {
 
   const latestJob = latestJobs[0];
   if (latestJob.type === JOB_TYPES.FLOW && latestJob.config.subFlowId) {
-    const subFlow:
-      | IFlowDocument
-      | undefined
-      | null = await models.Flows.findOne({
-      _id: latestJob.config.subFlowId
-    }).lean();
+    const subFlow: IFlowDocument | undefined | null =
+      await models.Flows.findOne({
+        _id: latestJob.config.subFlowId,
+      }).lean();
     if (!subFlow || subFlow === null) {
       return;
     }
@@ -159,13 +157,13 @@ export const getLatestLocations = (latestJob: IJob) => {
 
   return {
     latestBranchId,
-    latestDepartmentId
+    latestDepartmentId,
   };
 };
 
 export const getResultProductsFromFlow = async (
   models: IModels,
-  latestJob: IJob
+  latestJob: IJob,
 ): Promise<IProductsData[]> => {
   if (!latestJob) {
     return [];
@@ -175,10 +173,10 @@ export const getResultProductsFromFlow = async (
   if ([JOB_TYPES.ENDPOINT, JOB_TYPES.JOB].includes(latestJob.type)) {
     if (config.jobReferId) {
       const jobRefer = await models.JobRefers.findOne({
-        _id: config.jobReferId
+        _id: config.jobReferId,
       }).lean();
       if (jobRefer) {
-        return jobRefer.resultProducts;
+        return jobRefer.resultProducts || [];
       }
     }
   }
@@ -190,8 +188,8 @@ export const getResultProductsFromFlow = async (
           _id: Math.random().toString(),
           productId: config.productId,
           quantity: config.quantity || 1,
-          uom: config.uom || ''
-        }
+          uom: config.uom || '',
+        },
       ];
     }
   }
@@ -204,24 +202,22 @@ export const getBeginJobs = async (models: IModels, jobs: IJob[]) => {
   for (const job of jobs) {
     calledJobIds = calledJobIds.concat(job.nextJobIds);
   }
-  const beginJobs = jobs.filter(j => !calledJobIds.includes(j.id));
+  const beginJobs = jobs.filter((j) => !calledJobIds.includes(j.id));
 
   let filteredJobs: IJob[] = [];
 
   for (const beginJob of beginJobs) {
     if (beginJob.type === JOB_TYPES.FLOW) {
       if (beginJob.config.subFlowId) {
-        const subFlow:
-          | IFlowDocument
-          | undefined
-          | null = await models.Flows.findOne({
-          _id: beginJob.config.subFlowId
-        }).lean();
+        const subFlow: IFlowDocument | undefined | null =
+          await models.Flows.findOne({
+            _id: beginJob.config.subFlowId,
+          }).lean();
         if (!subFlow || subFlow === null) {
           return [];
         }
         filteredJobs = filteredJobs.concat(
-          await getBeginJobs(models, subFlow.jobs || [])
+          await getBeginJobs(models, subFlow.jobs || []),
         );
       }
     } else {
@@ -234,16 +230,16 @@ export const getBeginJobs = async (models: IModels, jobs: IJob[]) => {
 
 export const getNeedProductsFromFlow = async (
   models: IModels,
-  jobs: IJob[]
+  jobs: IJob[],
 ): Promise<IProductsData[]> => {
   const beginJobs = await getBeginJobs(models, jobs);
 
   let needProducts: IProductsData[] = [];
   const jobReferIds = beginJobs
-    .filter(bj => bj.config && bj.config.jobReferId)
-    .map(bj => bj.config.jobReferId);
+    .filter((bj) => bj.config && bj.config.jobReferId)
+    .map((bj) => bj.config.jobReferId);
   const jobRefers = await models.JobRefers.find({
-    _id: { $in: jobReferIds }
+    _id: { $in: jobReferIds },
   }).lean();
   const jobReferById = {};
   for (const jobRefer of jobRefers) {
@@ -268,7 +264,7 @@ export const getNeedProductsFromFlow = async (
           _id: Math.random().toString(),
           productId: config.productId,
           quantity: config.quantity || 1,
-          uom: config.uom || ''
+          uom: config.uom || '',
         });
       }
     }

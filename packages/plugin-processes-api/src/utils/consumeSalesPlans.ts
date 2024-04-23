@@ -1,13 +1,13 @@
 import {
   DURATION_TYPES,
   FLOW_STATUSES,
-  WORK_STATUSES
+  WORK_STATUSES,
 } from '../models/definitions/constants';
 import { IFlowDocument, IJob } from '../models/definitions/flows';
 import {
   IJobReferDocument,
   IProductDocument,
-  IProductsData
+  IProductsData,
 } from '../models/definitions/jobs';
 import { IModels } from '../connectionResolver';
 import { IWork } from '../models/definitions/works';
@@ -27,10 +27,10 @@ const remover = async (models, branchId, departmentId, productId, date) => {
     branchId,
     departmentId,
     productId,
-    date
+    date,
   }).lean();
 
-  const oldProcessIds = oldProcesses.map(p => p._id);
+  const oldProcessIds = oldProcesses.map((p) => p._id);
   await models.Works.deleteMany({ processId: { $in: oldProcessIds } });
   await models.Processes.deleteMany({ _id: { $in: oldProcessIds } });
 };
@@ -66,7 +66,7 @@ export class consumeSalesPlans {
       noFlow: [],
       success: [],
       noLatestJob: [],
-      wrongUom: []
+      wrongUom: [],
     };
   }
 
@@ -76,25 +76,27 @@ export class consumeSalesPlans {
         await sendSalesplansMessage({
           subdomain: this.subdomain,
           action: 'dayPlans.updateStatus',
-          data: { _ids: this.result[key], status: key }
+          data: { _ids: this.result[key], status: key },
         });
       }
     }
   };
 
   private async getFlows() {
-    const productIds = this.dayPlans.map(d => d.productId);
+    const productIds = this.dayPlans.map((d) => d.productId);
     const flows = await this.models.Flows.find({
       status: FLOW_STATUSES.ACTIVE,
       flowValidation: '',
       productId: { $in: productIds },
       latestBranchId: this.branchId,
-      latestDepartmentId: this.departmentId
+      latestDepartmentId: this.departmentId,
     }).lean();
 
     const flowByProducId = {};
     for (const flow of flows) {
-      flowByProducId[flow.productId] = flow;
+      if (flow.productId) {
+        flowByProducId[flow.productId] = flow;
+      }
     }
 
     this.flows = flows;
@@ -125,7 +127,7 @@ export class consumeSalesPlans {
     }
 
     const subFlows = await this.models.Flows.find({
-      _id: { $in: cSubFlowIds }
+      _id: { $in: cSubFlowIds },
     }).lean();
 
     for (const flow of subFlows) {
@@ -142,15 +144,15 @@ export class consumeSalesPlans {
     }
 
     const jobRefers = await this.models.JobRefers.find({
-      _id: { $in: cJobReferIds }
+      _id: { $in: cJobReferIds },
     }).lean();
 
     for (const jobRefer of jobRefers) {
       cProductIds = cProductIds.concat(
-        (jobRefer.needProducts || []).map(pd => pd.productId)
+        (jobRefer.needProducts || []).map((pd) => pd.productId),
       );
       cProductIds = cProductIds.concat(
-        (jobRefer.resultProducts || []).map(pd => pd.productId)
+        (jobRefer.resultProducts || []).map((pd) => pd.productId),
       );
     }
 
@@ -159,7 +161,7 @@ export class consumeSalesPlans {
       action: 'count',
       data: { query: { _id: { $in: cProductIds } } },
       isRPC: true,
-      defaultValue: 0
+      defaultValue: 0,
     });
 
     const products = await sendProductsMessage({
@@ -167,17 +169,17 @@ export class consumeSalesPlans {
       action: 'find',
       data: { query: { _id: { $in: cProductIds } }, limit },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     const jobRefersById = {};
-    jobRefers.forEach(jr => (jobRefersById[jr._id] = jr));
+    jobRefers.forEach((jr) => (jobRefersById[jr._id] = jr));
 
     const subFlowsById = {};
-    subFlows.forEach(sf => (subFlowsById[sf._id] = sf));
+    subFlows.forEach((sf) => (subFlowsById[sf._id] = sf));
 
     const productsById = {};
-    products.forEach(pr => (productsById[pr._id] = pr));
+    products.forEach((pr) => (productsById[pr._id] = pr));
 
     this.jobRefersById = jobRefersById;
     this.subFlowsById = subFlowsById;
@@ -186,34 +188,34 @@ export class consumeSalesPlans {
 
   private async getReferInfos(flow: IFlowDocument) {
     const subFlows = (flow.jobs || [])
-      .filter(j => j.config.subFlowId)
-      .map(j => this.subFlowsById[j.config.subFlowId || '']);
+      .filter((j) => j.config.subFlowId)
+      .map((j) => this.subFlowsById[j.config.subFlowId || '']);
 
     let jobRefers = (flow.jobs || [])
-      .filter(j => j.config.jobReferId)
-      .map(j => this.jobRefersById[j.config.jobReferId || '']);
+      .filter((j) => j.config.jobReferId)
+      .map((j) => this.jobRefersById[j.config.jobReferId || '']);
 
     let products = (flow.jobs || [])
-      .filter(j => j.config.productId)
-      .map(j => this.productsById[j.config.productId || '']);
+      .filter((j) => j.config.productId)
+      .map((j) => this.productsById[j.config.productId || '']);
 
     for (const subFlow of subFlows || []) {
       jobRefers = jobRefers.concat(
         (subFlow.jobs || [])
-          .filter(j => j.config.jobReferId)
-          .map(j => this.jobRefersById[j.config.jobReferId || ''])
+          .filter((j) => j.config.jobReferId)
+          .map((j) => this.jobRefersById[j.config.jobReferId || '']),
       );
 
       products = products.concat(
         (subFlow.jobs || [])
-          .filter(j => j.config.productId)
-          .map(j => this.productsById[j.config.productId || ''])
+          .filter((j) => j.config.productId)
+          .map((j) => this.productsById[j.config.productId || '']),
       );
     }
     return {
       subFlows,
       jobRefers,
-      products
+      products,
     };
   }
 
@@ -222,7 +224,7 @@ export class consumeSalesPlans {
     date: Date,
     productId: string,
     uom: string,
-    referInfos
+    referInfos,
   ) {
     return {
       flowId: flow._id,
@@ -235,7 +237,7 @@ export class consumeSalesPlans {
       status: 'new',
       origin: 'plan',
       isSub: false,
-      referInfos
+      referInfos,
     };
   }
 
@@ -262,9 +264,12 @@ export class consumeSalesPlans {
   private calcUomQuantity(
     product: IProductDocument,
     needData: IProductsData,
-    resultData: IProductsData
+    resultData: IProductsData,
   ) {
-    const allUoms = [...(product.subUoms || []).map(su => su.uom), product.uom];
+    const allUoms = [
+      ...(product.subUoms || []).map((su) => su.uom),
+      product.uom,
+    ];
 
     if (!allUoms.includes(needData.uom) || !allUoms.includes(resultData.uom)) {
       return;
@@ -291,20 +296,20 @@ export class consumeSalesPlans {
     dueDate: Date,
     dayPlan,
     timeId,
-    needDatas: IProductsData[]
+    needDatas: IProductsData[],
   ) {
     const config = job.config;
     const newDueDate = this.calcTimeDiff(
       dueDate,
       config.durationType,
-      config.duration
+      config.duration,
     );
     let calcedNeedDatas = needDatas;
 
     if (job.type === JOB_TYPES.FLOW && config.subFlowId) {
       const subFlow = this.subFlowsById[config.subFlowId || ''];
       const subLatestJob = (subFlow.jobs || []).find(
-        j => !(j.nextJobIds || []).length
+        (j) => !(j.nextJobIds || []).length,
       );
       if (!subLatestJob) {
         this.result.noSubLatestJob.push(dayPlan._id);
@@ -318,7 +323,7 @@ export class consumeSalesPlans {
         dueDate,
         dayPlan,
         timeId,
-        needDatas
+        needDatas,
       );
     } else {
       let needProducts: IProductsData[] = [];
@@ -338,7 +343,7 @@ export class consumeSalesPlans {
 
       if (
         [JOB_TYPES.INCOME, JOB_TYPES.OUTLET, JOB_TYPES.MOVE].includes(
-          job.type
+          job.type,
         ) &&
         config.productId
       ) {
@@ -349,7 +354,7 @@ export class consumeSalesPlans {
           _id: product._id,
           productId: product._id,
           quantity: 1,
-          uom: product.uom || ''
+          uom: product.uom || '',
         };
 
         switch (job.type) {
@@ -369,7 +374,7 @@ export class consumeSalesPlans {
       let calcedCount = 0;
       for (const resultData of resultProducts || []) {
         const needData = needDatas.find(
-          nd => nd.productId === resultData.productId
+          (nd) => nd.productId === resultData.productId,
         );
         if (!needData) {
           continue;
@@ -387,9 +392,9 @@ export class consumeSalesPlans {
         }
       }
 
-      calcedNeedDatas = (needProducts || []).map(snd => ({
+      calcedNeedDatas = (needProducts || []).map((snd) => ({
         ...snd,
-        quantity: snd.quantity * calcedCount
+        quantity: snd.quantity * calcedCount,
       }));
 
       this.bulkCreateWorks.push({
@@ -410,10 +415,10 @@ export class consumeSalesPlans {
         outBranchId: config.outBranchId,
         outDepartmentId: config.outDepartmentId,
         needProducts: calcedNeedDatas,
-        resultProducts: (resultProducts || []).map(rp => ({
+        resultProducts: (resultProducts || []).map((rp) => ({
           ...rp,
-          quantity: rp.quantity * calcedCount
-        }))
+          quantity: rp.quantity * calcedCount,
+        })),
       });
     }
 
@@ -422,8 +427,8 @@ export class consumeSalesPlans {
       this.bulkCreateWorks = [];
     }
 
-    const beforeJobs = (flow.jobs || []).filter(j =>
-      j.nextJobIds.includes(job.id)
+    const beforeJobs = (flow.jobs || []).filter((j) =>
+      j.nextJobIds.includes(job.id),
     );
 
     if (beforeJobs.length) {
@@ -435,14 +440,14 @@ export class consumeSalesPlans {
           newDueDate,
           dayPlan,
           timeId,
-          calcedNeedDatas
+          calcedNeedDatas,
         );
       }
     }
   }
 
   public async run(): Promise<any> {
-    const dayPlanIds = this.dayPlans.map(dp => dp._id);
+    const dayPlanIds = this.dayPlans.map((dp) => dp._id);
 
     await this.getFlows();
     await this.prepareDatas();
@@ -450,7 +455,7 @@ export class consumeSalesPlans {
       subdomain: this.subdomain,
       action: 'timeframes.find',
       data: { branchId: this.branchId, departmentId: this.departmentId },
-      isRPC: true
+      isRPC: true,
     });
 
     if (!timeframes.length) {
@@ -478,10 +483,10 @@ export class consumeSalesPlans {
         this.branchId,
         this.departmentId,
         productId,
-        this.date
+        this.date,
       );
       const process = await this.models.Processes.createProcess(
-        await this.getProcessData(flow, this.date, productId, uom, referInfos)
+        await this.getProcessData(flow, this.date, productId, uom, referInfos),
       );
 
       for (const value of values) {
@@ -499,7 +504,7 @@ export class consumeSalesPlans {
         const dueDate = new Date(new Date(this.date).setHours(time.startTime));
 
         const latestJob = (flow.jobs || []).find(
-          j => !(j.nextJobIds || []).length
+          (j) => !(j.nextJobIds || []).length,
         );
 
         if (!latestJob) {
@@ -512,8 +517,8 @@ export class consumeSalesPlans {
             _id: Math.random().toString(),
             productId,
             quantity: count,
-            uom: dayPlan.uom || this.productsById[productId].uom
-          }
+            uom: dayPlan.uom || this.productsById[productId].uom,
+          },
         ];
 
         await this.createPerWork(
@@ -523,7 +528,7 @@ export class consumeSalesPlans {
           dueDate,
           dayPlan,
           timeId,
-          needDatas
+          needDatas,
         );
       }
 
@@ -542,7 +547,7 @@ export class consumeSalesPlans {
 
 export const removeFromSalesPlans = async (
   models: IModels,
-  dayPlans: any[]
+  dayPlans: any[],
 ) => {
   const result: string[] = [];
   for (const dayPlan of dayPlans) {
@@ -551,7 +556,7 @@ export const removeFromSalesPlans = async (
       dayPlan.branchId,
       dayPlan.departmentId,
       dayPlan.productId,
-      dayPlan.date
+      dayPlan.date,
     );
     result.push(dayPlan._id);
   }
