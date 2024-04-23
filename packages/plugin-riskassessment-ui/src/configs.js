@@ -48,31 +48,7 @@ module.exports = {
       permissions: ["showRiskAssessment", "manageRiskAssessment"],
     },
   ],
-  dealRightSidebarSection: [
-    {
-      text: "riskAssessmentSection",
-      component: "./cardSideBarSection",
-      scope: "riskassessment",
-      action: "riskAssessmentAll",
-      permissions: ["showRiskAssessment", "manageRiskAssessment"],
-    },
-  ],
-  ticketRightSidebarSection: [
-    {
-      text: "riskAssessmentSection",
-      component: "./cardSideBarSection",
-      scope: "riskassessment",
-      action: "riskAssessmentAll",
-      permissions: ["showRiskAssessment", "manageRiskAssessment"],
-    },
-  ],
-  taskRightSidebarSection: [
-    {
-      text: "riskAssessmentSection",
-      component: "./cardSideBarSection",
-      scope: "riskassessment",
-      action: "riskAssessmentAll",
-      permissions: ["showRiskAssessment", "manageRiskAssessment"],
-    },
-  ],
+  dealRightSidebarSection: "./cardSideBarSection",
+  ticketRightSidebarSection: "./cardSideBarSection",
+  taskRightSidebarSection: "./cardSideBarSection",
 };

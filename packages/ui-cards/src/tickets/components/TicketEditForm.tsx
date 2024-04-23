@@ -1,7 +1,8 @@
 import { IEditFormContent, IOptions } from "../../boards/types";
-import Select, { components } from "react-select";
 import { ITicket, ITicketParams } from "../types";
 import React, { useEffect, useState } from "react";
+import Select, { components } from "react-select";
+import { __, loadDynamicComponent } from "@erxes/ui/src/utils";
 
 import { Capitalize } from "@erxes/ui-settings/src/permissions/styles";
 import ChildrenSection from "../../boards/containers/editForm/ChildrenSection";
@@ -18,8 +19,6 @@ import PortablePurchase from "../../purchases/components/PortablePurchases";
 import PortableTasks from "../../tasks/components/PortableTasks";
 import Sidebar from "../../boards/components/editForm/Sidebar";
 import Top from "../../boards/components/editForm/Top";
-import { __ } from "@erxes/ui/src/utils";
-import { pluginsOfItemSidebar } from "coreui/pluginUtils";
 import queryString from "query-string";
 
 type Props = {
@@ -114,7 +113,16 @@ export default function TicketEditForm(props: Props) {
         <PortableDeals mainType="ticket" mainTypeId={props.item._id} />
         <PortableTasks mainType="ticket" mainTypeId={props.item._id} />
         <PortablePurchase mainType="ticket" mainTypeId={props.item._id} />
-        {pluginsOfItemSidebar(props.item, "ticket")}
+        {loadDynamicComponent(
+          "ticketRightSidebarSection",
+          {
+            id: props.item._id,
+            mainType: "ticket",
+            mainTypeId: props.item._id,
+            object: props.item,
+          },
+          true
+        )}
       </>
     );
   }
