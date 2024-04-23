@@ -17,11 +17,11 @@ type State = {
 };
 
 class Callout extends React.Component<Props, State> {
-  private myRef: React.RefObject<HTMLDivElement>;
+  private callOutRef: React.RefObject<HTMLDivElement>;
 
   constructor(props: Props) {
     super(props);
-    this.myRef = React.createRef();
+    this.callOutRef = React.createRef();
     this.state = {
       callOutWidth: 0,
     };
@@ -33,8 +33,8 @@ class Callout extends React.Component<Props, State> {
     }
 
     // calculate width of component
-    if (this.myRef.current) {
-      const width = this.myRef.current.clientWidth;
+    if (this.callOutRef.current) {
+      const width = this.callOutRef.current.clientWidth;
       this.setState({ callOutWidth: width });
     }
   }
@@ -101,7 +101,7 @@ class Callout extends React.Component<Props, State> {
         {this.renderHead(title)}
 
         <div className="erxes-form-content">
-          <div className="erxes-callout-body" ref={this.myRef}>
+          <div className="erxes-callout-body" ref={this.callOutRef}>
             {this.renderFeaturedImage(featuredImage, title, calloutImgSize)}
             {body}
           </div>
