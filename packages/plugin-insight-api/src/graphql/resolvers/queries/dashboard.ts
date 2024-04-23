@@ -48,11 +48,9 @@ const DashboardQueries = {
     params,
     { commonQuerySelector, models }: IContext,
   ) => {
-    const totalCount = models.Dashboards.count({});
-    const filter = await generateFilter(params, commonQuerySelector)
-    const list = await models.Dashboards.find(
-      filter
-    ).sort({ createdAt: -1 })
+    const totalCount = models.Dashboards.countDocuments({});
+    const filter = await generateFilter(params, commonQuerySelector);
+    const list = await models.Dashboards.find(filter).sort({ createdAt: -1 });
 
     return { list, totalCount };
   },
@@ -63,9 +61,7 @@ const DashboardQueries = {
   async dashboardDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     const dashboard = await models.Dashboards.getDashboard(_id);
     return dashboard;
-  }
-
-
+  },
 };
 
 export default DashboardQueries;

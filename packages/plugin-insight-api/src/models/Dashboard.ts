@@ -8,7 +8,7 @@ import {
 
 export interface IDashboardModel extends Model<IDashboardDocument> {
   getDashboard(_id: string): Promise<IDashboardDocument>;
-  createDashboard(doc: IDashboard): Promise<IDashboardDocument>;
+  createDashboard(doc: IDashboard & { _id?: any }): Promise<IDashboardDocument>;
   updateDashboard(_id: string, doc: IDashboard): Promise<IDashboardDocument>;
   removeDashboard(_id: string): Promise<IDashboardDocument>;
 }
@@ -26,7 +26,8 @@ export const loadDashboardClass = (models: IModels, subdomain: string) => {
       return dashboard;
     }
 
-    public static async createDashboard(doc: IDashboard) {
+    public static async createDashboard(doc: IDashboard & { _id?: any }) {
+      delete doc._id;
       return models.Dashboards.create(doc);
     }
 

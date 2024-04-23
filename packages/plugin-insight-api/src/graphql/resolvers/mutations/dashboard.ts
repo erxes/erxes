@@ -143,7 +143,7 @@ const dashboardMutations = {
    */
 
   async dashboardRemove(_root, { _id }: { _id: string }, { models }: IContext) {
-    await models.Charts.remove({ contentId: _id });
+    await models.Charts.deleteMany({ contentId: _id });
     const dashboard = await models.Dashboards.removeDashboard(_id);
     return dashboard;
   },
