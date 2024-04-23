@@ -6,31 +6,29 @@ const queries = {
   async khanbankConfigsList(
     _root,
     { page, perPage }: { page: number; perPage: number },
-    { models }: IContext
+    { models }: IContext,
   ) {
-    const totalCount = await models.KhanbankConfigs.find({}).count();
+    const totalCount = await models.KhanbankConfigs.find({}).countDocuments();
 
     return {
       list: paginate(
-        models.KhanbankConfigs.find({})
-          .sort({ createdAt: -1 })
-          .lean(),
+        models.KhanbankConfigs.find({}).sort({ createdAt: -1 }).lean(),
         {
           page: page || 1,
-          perPage: perPage || 20
-        }
+          perPage: perPage || 20,
+        },
       ),
-      totalCount
+      totalCount,
     };
   },
 
   async khanbankConfigs(
     _root,
     { page, perPage }: { page: number; perPage: number },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const response = await models.KhanbankConfigs.find({}).sort({
-      createdAt: -1
+      createdAt: -1,
     });
 
     return paginate(response, { page: page || 1, perPage: perPage || 20 });
@@ -39,10 +37,10 @@ const queries = {
   async khanbankConfigsDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.KhanbankConfigs.getConfig({ _id });
-  }
+  },
 };
 
 requireLogin(queries, 'khanbankConfigs');

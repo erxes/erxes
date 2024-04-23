@@ -1,11 +1,11 @@
 import {
   IInsuranceType,
-  insuranceTypeSchema
+  insuranceTypeSchema,
 } from './definitions/insuranceTypes';
 import { IInsuranceTypeDocument } from './definitions/insuranceTypes';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { FilterQuery } from 'mongodb';
+import { FilterQuery } from 'mongoose';
 
 export interface IInsuranceTypeModel extends Model<IInsuranceTypeDocument> {
   getInsuranceType(selector: FilterQuery<IInsuranceTypeDocument>);
@@ -22,7 +22,7 @@ export const loadInsuranceTypeClass = (models: IModels) => {
      */
 
     public static async getInsuranceType(
-      selector: FilterQuery<IInsuranceTypeDocument>
+      selector: FilterQuery<IInsuranceTypeDocument>,
     ) {
       const insuranceType = await models.InsuranceTypes.findOne(selector);
 
@@ -46,7 +46,7 @@ export const loadInsuranceTypeClass = (models: IModels) => {
      */
     public static async updateInsuranceType(
       _id: string,
-      doc: IInsuranceTypeDocument
+      doc: IInsuranceTypeDocument,
     ) {
       await models.InsuranceTypes.updateOne({ _id }, { $set: doc });
 

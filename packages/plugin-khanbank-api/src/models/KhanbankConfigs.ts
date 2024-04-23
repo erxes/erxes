@@ -4,7 +4,7 @@ import { IModels } from '../connectionResolver';
 import {
   IKhanbankConfig,
   IKhanbankConfigDocument,
-  khanbankConfigSchema
+  khanbankConfigSchema,
 } from './definitions/khanbankConfigs';
 
 export interface IKhanbankConfigModel extends Model<IKhanbankConfigDocument> {
@@ -19,7 +19,7 @@ export const loadKhanbankConfigClass = (models: IModels) => {
     public static async createConfig(doc: IKhanbankConfig) {
       const khanbankConfig = await models.KhanbankConfigs.findOne({
         consumerKey: doc.consumerKey,
-        secretKey: doc.secretKey
+        secretKey: doc.secretKey,
       });
 
       if (khanbankConfig) {
@@ -32,7 +32,7 @@ export const loadKhanbankConfigClass = (models: IModels) => {
     public static async updateConfig(_id: string, doc: any) {
       const khanbankConfig = await models.KhanbankConfigs.findOne({
         consumerKey: doc.consumerKey,
-        secretKey: doc.secretKey
+        secretKey: doc.secretKey,
       });
 
       if (khanbankConfig && khanbankConfig._id !== _id) {
@@ -45,7 +45,7 @@ export const loadKhanbankConfigClass = (models: IModels) => {
     }
 
     public static async removeConfig(_id: string) {
-      return models.KhanbankConfigs.remove({ _id });
+      return models.KhanbankConfigs.findOneAndDelete({ _id });
     }
 
     public static async getConfig(doc: any) {

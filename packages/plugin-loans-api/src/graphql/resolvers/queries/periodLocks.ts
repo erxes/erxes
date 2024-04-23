@@ -6,20 +6,20 @@ const generateFilter = async (params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
   if (params.startDate) {
     filter.payDate = {
-      $gte: new Date(params.startDate)
+      $gte: new Date(params.startDate),
     };
   }
 
   if (params.endDate) {
     filter.payDate = {
-      $lte: new Date(params.endDate)
+      $lte: new Date(params.endDate),
     };
   }
 
   return filter;
 };
 
-export const sortBuilder = params => {
+export const sortBuilder = (params) => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -38,16 +38,16 @@ const periodLockQueries = {
   periodLocks: async (
     _root,
     params,
-    { commonQuerySelector, models }: IContext
+    { commonQuerySelector, models }: IContext,
   ) => {
     return paginate(
       models.PeriodLocks.find(
-        await generateFilter(params, commonQuerySelector)
+        await generateFilter(params, commonQuerySelector),
       ),
       {
         page: params.page,
-        perPage: params.perPage
-      }
+        perPage: params.perPage,
+      },
     );
   },
 
@@ -58,7 +58,7 @@ const periodLockQueries = {
   periodLocksMain: async (
     _root,
     params,
-    { commonQuerySelector, models }: IContext
+    { commonQuerySelector, models }: IContext,
   ) => {
     const filter = await generateFilter(params, commonQuerySelector);
 
@@ -67,10 +67,10 @@ const periodLockQueries = {
         models.PeriodLocks.find(filter).sort(sortBuilder(params)),
         {
           page: params.page,
-          perPage: params.perPage
-        }
+          perPage: params.perPage,
+        },
       ),
-      totalCount: models.PeriodLocks.find(filter).count()
+      totalCount: models.PeriodLocks.find(filter).countDocuments(),
     };
   },
 
@@ -81,10 +81,10 @@ const periodLockQueries = {
   periodLockDetail: async (
     _root,
     { _id }: IPeriodLockDocument,
-    { models }: IContext
+    { models }: IContext,
   ) => {
     return models.PeriodLocks.getPeriodLock({ _id });
-  }
+  },
 };
 
 checkPermission(periodLockQueries, 'periodLocks', 'showPeriodLocks');

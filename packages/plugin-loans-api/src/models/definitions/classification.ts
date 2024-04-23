@@ -8,6 +8,7 @@ export interface IClassification {
   classification: string;
   newClassification: string;
   contractId: string;
+  dtl?: any;
 }
 
 export interface IClassificationDocument extends IClassification, Document {
@@ -22,13 +23,13 @@ export const classificationSchema = schemaHooksWrapper(
     number: field({
       type: String,
       label: 'Number',
-      index: true
+      index: true,
     }),
     description: field({ type: String, optional: true, label: 'Description' }),
     invDate: field({
       type: Date,
       default: new Date(),
-      label: 'Created at'
+      label: 'Created at',
     }),
     total: field({ type: Number, min: 0, label: 'total' }),
     classification: field({ type: String, label: 'classification' }),
@@ -36,13 +37,13 @@ export const classificationSchema = schemaHooksWrapper(
     createdAt: field({
       type: Date,
       default: () => new Date(),
-      label: 'Created at'
+      label: 'Created at',
     }),
     createdBy: field({ type: String, optional: true, label: 'created member' }),
     contractId: field({
       type: String,
-      label: 'contractId'
-    })
+      label: 'contractId',
+    }),
   }),
-  'erxes_classificationSchema'
+  'erxes_classificationSchema',
 );

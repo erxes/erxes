@@ -20,7 +20,7 @@ import {
 import { Model } from 'mongoose';
 import { IContractDocument } from './definitions/contracts';
 import { IModels } from '../connectionResolver';
-import { FilterQuery } from 'mongodb';
+import { FilterQuery } from 'mongoose';
 import { ITransaction } from './definitions/transactions';
 import { IInsurancesData } from './definitions/contracts';
 import { ICollateralData } from './definitions/contracts';
@@ -162,7 +162,7 @@ export const loadContractClass = (models: IModels) => {
       if (!doc.collateralsData) {
         doc.collateralsData = oldContract.collateralsData;
       }
-      
+
       doc.startDate = getFullDate(doc.startDate || new Date());
       doc.firstPayDate = getFullDate(doc.firstPayDate);
       doc.mustPayDate = getFullDate(doc.firstPayDate);
@@ -172,7 +172,7 @@ export const loadContractClass = (models: IModels) => {
         doc.insurancesData || [],
         doc.collateralsData || [],
       );
-      console.log('doc',doc)
+      console.log('doc', doc);
       await models.Contracts.updateOne({ _id }, { $set: doc });
       const transactions = await models.Transactions.find({
         contractId: _id,
@@ -249,7 +249,7 @@ export const loadContractClass = (models: IModels) => {
      * Remove Contract category
      */
     public static async removeContracts(_ids) {
-      const transactions = await models.Transactions.count({
+      const transactions = await models.Transactions.countDocuments({
         contractId: _ids,
       });
       if (transactions > 0)

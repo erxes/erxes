@@ -16,7 +16,7 @@ const generateFilter = async (params, commonQuerySelector) => {
   return filter;
 };
 
-export const sortBuilder = params => {
+export const sortBuilder = (params) => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -35,16 +35,16 @@ const insuranceTypeQueries = {
   insuranceTypes: async (
     _root,
     params,
-    { commonQuerySelector, models }: IContext
+    { commonQuerySelector, models }: IContext,
   ) => {
     return paginate(
       models.InsuranceTypes.find(
-        await generateFilter(params, commonQuerySelector)
+        await generateFilter(params, commonQuerySelector),
       ),
       {
         page: params.page,
-        perPage: params.perPage
-      }
+        perPage: params.perPage,
+      },
     );
   },
 
@@ -55,7 +55,7 @@ const insuranceTypeQueries = {
   insuranceTypesMain: async (
     _root,
     params,
-    { commonQuerySelector, models }: IContext
+    { commonQuerySelector, models }: IContext,
   ) => {
     const filter = await generateFilter(params, commonQuerySelector);
 
@@ -64,10 +64,10 @@ const insuranceTypeQueries = {
         models.InsuranceTypes.find(filter).sort(sortBuilder(params)),
         {
           page: params.page,
-          perPage: params.perPage
-        }
+          perPage: params.perPage,
+        },
       ),
-      totalCount: models.InsuranceTypes.find(filter).count()
+      totalCount: models.InsuranceTypes.find(filter).countDocuments(),
     };
   },
 
@@ -77,7 +77,7 @@ const insuranceTypeQueries = {
 
   insuranceTypeDetail: async (_root, { _id }, { models }: IContext) => {
     return models.InsuranceTypes.getInsuranceType({ _id });
-  }
+  },
 };
 
 moduleRequireLogin(insuranceTypeQueries);

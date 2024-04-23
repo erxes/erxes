@@ -1,12 +1,13 @@
 import {
+  IPurposeType,
   IPurposeTypeDocument,
-  purposeTypeSchema
+  purposeTypeSchema,
 } from './definitions/loanPurposeType';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { FilterQuery } from 'mongodb';
+import { FilterQuery } from 'mongoose';
 
-export interface IPurposeTypeModel extends Model<IPurposeTypeDocument> {}
+export interface IPurposeTypeModel extends Model<IPurposeType> {}
 
 export const loadPurposeTypeClass = (models: IModels) => {
   class PurposeType {
@@ -15,7 +16,7 @@ export const loadPurposeTypeClass = (models: IModels) => {
      * @returns
      */
     public static async getPurposeType(
-      selector: FilterQuery<IPurposeTypeDocument>
+      selector: FilterQuery<IPurposeType>,
     ): Promise<IPurposeTypeDocument> {
       const purposeType = await models.LoanPurposeType.findOne(selector);
 

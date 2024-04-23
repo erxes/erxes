@@ -20,17 +20,17 @@ import {
   IPerHoliday,
   isWeekend,
   nextOffWeekend,
-  preOffWeekend
+  preOffWeekend,
 } from './utils';
-import * as moment from 'moment'
-import {BigNumber} from 'bignumber.js'
+import * as moment from 'moment';
+import { BigNumber } from 'bignumber.js';
 import { IConfig } from '../../interfaces/config';
 //#endregion
 
 const insuranceHelper = (
   contract: IContractDocument,
   insuranceTypeRulesById: any,
-  currentYear: number
+  currentYear: number,
 ) => {
   let perMonthInsurance = 0;
   let perYearInsurance = 0;
@@ -63,7 +63,7 @@ const fillAmounts = async (
   doc: IScheduleDocument,
   tr: ITransactionDocument,
   preSchedule: IScheduleDocument,
-  isSetAmount: boolean = false
+  isSetAmount: boolean = false,
 ) => {
   if (isSetAmount) {
     doc.loss = tr?.calcedInfo?.loss ?? 0;
@@ -100,15 +100,15 @@ const fillAmounts = async (
     doc.didPayment = (tr?.payment || 0) + doc.balance;
     await models.Transactions.updateOne(
       { _id: tr._id },
-      { $set: { surplus: doc.surplus, payment: doc.didPayment } }
+      { $set: { surplus: doc.surplus, payment: doc.didPayment } },
     );
     doc.balance = 0;
   }
   return doc;
 };
 
-export const generateDates = (contract:IContractDocument,) => {
-  let mainDate = contract.firstPayDate
+export const generateDates = (contract: IContractDocument) => {
+  let mainDate = contract.firstPayDate;
 
   var dateRanges: Date[] = [];
 
@@ -118,21 +118,22 @@ export const generateDates = (contract:IContractDocument,) => {
     dateRange.forEach((day, i) => {
       const ndate = getFullDate(new Date(mainDate));
       const year = ndate.getFullYear();
-      const month = i === 0 && index !== 0 ? ndate.getMonth() + 1 : ndate.getMonth();
+      const month =
+        i === 0 && index !== 0 ? ndate.getMonth() + 1 : ndate.getMonth();
 
       if (day > 28 && new Date(year, month, day).getDate() !== day)
         mainDate = new Date(year, month + 1, 0);
       else mainDate = new Date(year, month, day);
-      
-      if(isWeekend(mainDate)){
+
+      if (isWeekend(mainDate)) {
         switch (contract.holidayType) {
           case 'before':
-            mainDate = preOffWeekend(mainDate)
+            mainDate = preOffWeekend(mainDate);
             break;
           case 'after':
-            mainDate = nextOffWeekend(mainDate)
+            mainDate = nextOffWeekend(mainDate);
             break;
-        
+
           default:
             break;
         }
@@ -142,8 +143,8 @@ export const generateDates = (contract:IContractDocument,) => {
     });
   }
 
-  return dateRanges
-}
+  return dateRanges;
+};
 
 export const scheduleHelper = async (
   contract: IContractDocument,
@@ -155,35 +156,34 @@ export const scheduleHelper = async (
   salvageTenor: number,
   nextDate: Date,
   perHolidays: IPerHoliday[],
-  calculationFixed: number = 2
+  calculationFixed: number = 2,
 ) => {
   if (tenor === 0) {
     return bulkEntries;
   }
-  let currentDate = getFullDate(moment(startDate).add(-1,'day').toDate());
+  let currentDate = getFullDate(moment(startDate).add(-1, 'day').toDate());
 
   let skipInterestCalcDate = addMonths(
     new Date(currentDate),
-    contract.skipInterestCalcMonth || 0
+    contract.skipInterestCalcMonth || 0,
   );
 
   let endDate = addMonths(new Date(startDate), contract.tenor);
 
-  let dateRanges: Date[] = generateDates(contract)
+  let dateRanges: Date[] = generateDates(contract);
 
-  const paymentDates = dateRanges.filter(date => {
-    if (
-      date < startDate || date >= endDate
-    )
-      return false;
+  const paymentDates = dateRanges.filter((date) => {
+    if (date < startDate || date >= endDate) return false;
     return true;
   });
 
   if (contract.repayment === 'equal') {
-    const payment = new BigNumber(balance - (salvageAmount || 0)).div(paymentDates.length).dp(calculationFixed,BigNumber.ROUND_HALF_UP).toNumber()
+    const payment = new BigNumber(balance - (salvageAmount || 0))
+      .div(paymentDates.length)
+      .dp(calculationFixed, BigNumber.ROUND_HALF_UP)
+      .toNumber();
 
     for (let i = 0; i < paymentDates.length; i++) {
-
       const perMonth = await calcPerMonthEqual(
         contract,
         balance,
@@ -192,7 +192,7 @@ export const scheduleHelper = async (
         perHolidays,
         paymentDates[i],
         skipInterestCalcDate,
-        calculationFixed
+        calculationFixed,
       );
 
       currentDate = perMonth.date;
@@ -208,7 +208,7 @@ export const scheduleHelper = async (
         interestEve: perMonth.calcedInterestEve,
         interestNonce: perMonth.calcedInterestNonce,
         total: perMonth.totalPayment,
-        isDefault: true
+        isDefault: true,
       });
     }
   } else {
@@ -223,7 +223,7 @@ export const scheduleHelper = async (
       perHolidays,
       paymentDates,
       skipInterestCalcDate,
-      calculationFixed
+      calculationFixed,
     });
 
     for (let i = 0; i < paymentDates.length - salvageTenor; i++) {
@@ -234,7 +234,7 @@ export const scheduleHelper = async (
         total,
         perHolidays,
         paymentDates[i],
-        skipInterestCalcDate
+        skipInterestCalcDate,
       );
       currentDate = perMonth.date;
       balance = perMonth.loanBalance;
@@ -249,7 +249,7 @@ export const scheduleHelper = async (
         interestEve: perMonth.calcedInterestEve,
         interestNonce: perMonth.calcedInterestNonce,
         total,
-        isDefault: true
+        isDefault: true,
       });
     }
   }
@@ -268,7 +268,7 @@ export const reGenerateSchedules = async (
   models: IModels,
   contract: IContractDocument,
   perHolidays: IPerHoliday[],
-  loansConfig:IConfig
+  loansConfig: IConfig,
 ) => {
   if (!contract.collateralsData) {
     return;
@@ -292,7 +292,6 @@ export const reGenerateSchedules = async (
   // diff from startDate to nextDate valid: max 42 min 10 day, IsValid then undefined or equal nextMonthDay
   let nextDate: any = contract.firstPayDate;
 
-
   bulkEntries = await scheduleHelper(
     contract,
     bulkEntries,
@@ -303,7 +302,7 @@ export const reGenerateSchedules = async (
     contract.salvageTenor || 0,
     nextDate,
     perHolidays,
-    loansConfig.calculationFixed
+    loansConfig.calculationFixed,
   );
 
   if (bulkEntries.length) {
@@ -319,15 +318,15 @@ export const reGenerateSchedules = async (
     0,
     0,
     nextDate,
-    perHolidays
+    perHolidays,
   );
 
   // insurance schedule
   const insuranceTypeIds = contract.collateralsData.map(
-    coll => coll.insuranceTypeId
+    (coll) => coll.insuranceTypeId,
   );
   const insuranceTypes = await models.InsuranceTypes.find({
-    _id: { $in: insuranceTypeIds }
+    _id: { $in: insuranceTypeIds },
   });
   const insuranceTypeRulesById = {};
   for (const insType of insuranceTypes) {
@@ -345,7 +344,7 @@ export const reGenerateSchedules = async (
       const helper = insuranceHelper(
         contract,
         insuranceTypeRulesById,
-        currentYear
+        currentYear,
       );
       first10 = helper.first10;
       on11 = helper.on11;
@@ -388,7 +387,7 @@ export const reGenerateSchedules = async (
 
 export const getGraphicValue = async (
   contract: any,
-  perHolidays: IPerHoliday[]
+  perHolidays: IPerHoliday[],
 ) => {
   let bulkEntries: any[] = [];
   let balance = contract.leaseAmount;
@@ -403,7 +402,7 @@ export const getGraphicValue = async (
 
   const firstNextDate = getNextMonthDay(
     contract.startDate,
-    contract.scheduleDays
+    contract.scheduleDays,
   );
 
   const diffDay = getDiffDay(contract.startDate, firstNextDate);
@@ -415,13 +414,13 @@ export const getGraphicValue = async (
     nextDate = new Date(
       contract.startDate.getFullYear(),
       contract.startDate.getMonth(),
-      contract.scheduleDays?.[0] || 1
+      contract.scheduleDays?.[0] || 1,
     );
   } else if (diffDay < 10) {
     nextDate = new Date(
       firstNextDate.getFullYear(),
       firstNextDate.getMonth() + 1,
-      contract.scheduleDays?.[0] || 1
+      contract.scheduleDays?.[0] || 1,
     );
   }
 
@@ -434,7 +433,7 @@ export const getGraphicValue = async (
     contract.salvageAmount || 0,
     contract.salvageTenor || 0,
     nextDate,
-    perHolidays
+    perHolidays,
   );
 
   if (bulkEntries.length) {
@@ -450,7 +449,7 @@ export const getGraphicValue = async (
     0,
     0,
     nextDate,
-    perHolidays
+    perHolidays,
   );
 
   return bulkEntries;
@@ -459,7 +458,7 @@ export const getGraphicValue = async (
 export const fixSchedules = async (
   models: IModels,
   contractId: string,
-  subdomain: string
+  subdomain: string,
 ) => {
   const contract = await models.Contracts.findOne({ _id: contractId })
     .select('startDate customerId')
@@ -475,11 +474,11 @@ export const fixSchedules = async (
     contractId: contractId,
     payDate: {
       $lte: new Date(today.getTime() + 1000 * 3600 * 24),
-      ...(periodLock?.date ? { $gt: periodLock?.date } : {})
+      ...(periodLock?.date ? { $gt: periodLock?.date } : {}),
     },
     status: SCHEDULE_STATUS.PENDING,
     balance: { $gt: 0 },
-    isDefault: true
+    isDefault: true,
   }).sort({ payDate: 1 });
 
   let prevSchedule: any = null;
@@ -489,8 +488,8 @@ export const fixSchedules = async (
         contractId,
         payDate: {
           $lte: scheduleRow.payDate,
-          $gt: prevSchedule?.payDate || contract?.startDate
-        }
+          $gt: prevSchedule?.payDate || contract?.startDate,
+        },
       })
         .sort({ payDate: 1 })
         .lean();
@@ -502,13 +501,13 @@ export const fixSchedules = async (
 
         await models.Transactions.updateOne(
           { _id },
-          { $set: { ...transaction, ...trInfo } }
+          { $set: { ...transaction, ...trInfo } },
         );
         //now resolve schedules
         await trAfterSchedule(models, { ...transaction, ...trInfo } as any);
       }
 
-      if (transactions.find(a => a.payDate === scheduleRow.payDate)) continue;
+      if (transactions.find((a) => a.payDate === scheduleRow.payDate)) continue;
 
       //create empty row transaction to the schedule
       let doc = {
@@ -516,7 +515,7 @@ export const fixSchedules = async (
         payDate: scheduleRow.payDate,
         description: `schedule correction`,
         total: 0,
-        customerId: contract?.customerId
+        customerId: contract?.customerId,
       };
 
       //create tmp transaction
@@ -528,8 +527,8 @@ export const fixSchedules = async (
   const transactions = await models.Transactions.find({
     contractId,
     payDate: {
-      $gt: prevSchedule?.payDate || contract?.startDate
-    }
+      $gt: prevSchedule?.payDate || contract?.startDate,
+    },
   })
     .sort({ payDate: 1 })
     .lean();
@@ -539,7 +538,7 @@ export const fixSchedules = async (
       const trInfo = await transactionRule(models, subdomain, transaction);
       await models.Transactions.updateOne(
         { _id },
-        { $set: { ...transaction, ...trInfo } }
+        { $set: { ...transaction, ...trInfo } },
       );
       //now resolve schedules
       await trAfterSchedule(models, { ...transaction, ...trInfo } as any);
@@ -553,7 +552,7 @@ export const generatePendingSchedules = async (
   pendingSchedules: IScheduleDocument[],
   tr: ITransactionDocument,
   trReaction,
-  allowLess: boolean = false
+  allowLess: boolean = false,
 ) => {
   let changeDoc = {};
 
@@ -563,7 +562,7 @@ export const generatePendingSchedules = async (
     (await models.Schedules.findOne({
       contractId: contract._id,
       isDefault: true,
-      payDate: { $lt: updatedSchedule.payDate }
+      payDate: { $lt: updatedSchedule.payDate },
     }).sort({ dayDate: -1 }));
 
   /**when didDebt less than debt then only change status */
@@ -574,7 +573,7 @@ export const generatePendingSchedules = async (
   ) {
     trReaction.push({
       scheduleId: updatedSchedule._id,
-      preData: { status: updatedSchedule.status }
+      preData: { status: updatedSchedule.status },
     });
     await models.Schedules.updateOne(
       { _id: updatedSchedule._id },
@@ -584,16 +583,16 @@ export const generatePendingSchedules = async (
             preMainSchedule?.status === SCHEDULE_STATUS.DONE ||
             preMainSchedule === null
               ? SCHEDULE_STATUS.PRE
-              : SCHEDULE_STATUS.LESS
-        }
-      }
+              : SCHEDULE_STATUS.LESS,
+        },
+      },
     );
     tr._id &&
       (await models.Transactions.updateOne(
         { _id: tr._id },
         {
-          $set: { reactions: trReaction }
-        }
+          $set: { reactions: trReaction },
+        },
       ));
     return;
   }
@@ -607,7 +606,7 @@ export const generatePendingSchedules = async (
     // allowLess is forever false
     trReaction.push({
       scheduleId: updatedSchedule._id,
-      preData: { status: updatedSchedule.status }
+      preData: { status: updatedSchedule.status },
     });
     await models.Schedules.updateOne(
       { _id: updatedSchedule._id },
@@ -617,16 +616,16 @@ export const generatePendingSchedules = async (
             preMainSchedule?.status === SCHEDULE_STATUS.DONE ||
             preMainSchedule === null
               ? SCHEDULE_STATUS.PRE
-              : SCHEDULE_STATUS.LESS
-        }
-      }
+              : SCHEDULE_STATUS.LESS,
+        },
+      },
     );
     tr._id &&
       (await models.Transactions.updateOne(
         { _id: tr._id },
         {
-          $set: { reactions: trReaction }
-        }
+          $set: { reactions: trReaction },
+        },
       ));
     return;
   }
@@ -660,7 +659,7 @@ export const generatePendingSchedules = async (
 
   const skipInterestCalcDate = addMonths(
     new Date(getFullDate(contract.startDate)),
-    contract.skipInterestCalcMonth || 0
+    contract.skipInterestCalcMonth || 0,
   );
 
   const isSkipInterestCalc =
@@ -674,7 +673,7 @@ export const generatePendingSchedules = async (
     contractId: contract._id,
     payDate: { $lt: tr.payDate },
     scheduleDidStatus: { $ne: SCHEDULE_STATUS.DONE },
-    isDefault: true
+    isDefault: true,
   })
     .sort({ payDate: 1 })
     .lean();
@@ -684,7 +683,7 @@ export const generatePendingSchedules = async (
       let changeDoc = {
         scheduleDidPayment: schedule.scheduleDidPayment || 0,
         scheduleDidInterest: schedule.scheduleDidInterest || 0,
-        scheduleDidStatus: SCHEDULE_STATUS.PENDING
+        scheduleDidStatus: SCHEDULE_STATUS.PENDING,
       };
 
       let sumPayment =
@@ -718,14 +717,14 @@ export const generatePendingSchedules = async (
 
       updatePrevScheduleReactions.push({
         scheduleId: updatedSchedule._id,
-        preData: { ...getChanged({ ...schedule }, { ...changeDoc }) }
+        preData: { ...getChanged({ ...schedule }, { ...changeDoc }) },
       });
 
       updatePrevSchedulesBulk.push({
         updateOne: {
           filter: { _id: schedule._id },
-          update: { $set: { ...changeDoc } }
-        }
+          update: { $set: { ...changeDoc } },
+        },
       });
     });
   }
@@ -742,7 +741,7 @@ export const generatePendingSchedules = async (
     if (!allowLess) {
       trReaction.push({
         scheduleId: updatedSchedule._id,
-        preData: { status: updatedSchedule.status }
+        preData: { status: updatedSchedule.status },
       });
       await models.Schedules.updateOne(
         { _id: updatedSchedule._id },
@@ -752,16 +751,18 @@ export const generatePendingSchedules = async (
               preMainSchedule?.status === SCHEDULE_STATUS.DONE ||
               preMainSchedule === null
                 ? SCHEDULE_STATUS.PRE
-                : SCHEDULE_STATUS.LESS
-          }
-        }
+                : SCHEDULE_STATUS.LESS,
+          },
+        },
       );
       tr._id &&
         (await models.Transactions.updateOne(
           { _id: tr._id },
           {
-            $set: { reactions: [...trReaction, ...updatePrevScheduleReactions] }
-          }
+            $set: {
+              reactions: [...trReaction, ...updatePrevScheduleReactions],
+            },
+          },
         ));
     }
 
@@ -771,18 +772,18 @@ export const generatePendingSchedules = async (
     } else {
       const { diffEve, diffNonce } = getDatesDiffMonth(
         preSchedule.payDate,
-        schedule.payDate
+        schedule.payDate,
       );
       interestEve = calcInterest({
         balance,
         interestRate: contract.interestRate,
-        dayOfMonth: diffEve
+        dayOfMonth: diffEve,
       });
 
       interestNonce = calcInterest({
         balance,
         interestRate: contract.interestRate,
-        dayOfMonth: diffNonce
+        dayOfMonth: diffNonce,
       });
     }
 
@@ -800,24 +801,24 @@ export const generatePendingSchedules = async (
       interestNonce,
       payment,
       balance,
-      total: payment + interestEve + interestNonce
+      total: payment + interestEve + interestNonce,
     };
 
     trReaction.push({
       scheduleId: schedule._id,
-      preData: { ...getChanged(schedule, changeDoc) }
+      preData: { ...getChanged(schedule, changeDoc) },
     });
 
     await models.Schedules.updateOne(
       { _id: schedule._id },
-      { $set: { ...changeDoc } }
+      { $set: { ...changeDoc } },
     );
     tr._id &&
       (await models.Transactions.updateOne(
         { _id: tr._id },
         {
-          $set: { reactions: [...trReaction, ...updatePrevScheduleReactions] }
-        }
+          $set: { reactions: [...trReaction, ...updatePrevScheduleReactions] },
+        },
       ));
 
     //updatePrevSchedulesBulk this update section must be update schedule Payment is done
@@ -834,24 +835,24 @@ export const generatePendingSchedules = async (
     const insurance = updatedSchedule.insurance - updatedSchedule.didInsurance;
     changeDoc = {
       insurance: (schedule.insurance || 0) + insurance,
-      total: schedule.total + insurance
+      total: schedule.total + insurance,
     };
 
     trReaction.push({
       scheduleId: schedule._id,
-      preData: { ...getChanged(schedule, changeDoc) }
+      preData: { ...getChanged(schedule, changeDoc) },
     });
 
     await models.Schedules.updateOne(
       { _id: schedule._id },
-      { $set: { ...changeDoc } }
+      { $set: { ...changeDoc } },
     );
     tr._id &&
       (await models.Transactions.updateOne(
         { _id: tr._id },
         {
-          $set: { reactions: [...trReaction, ...updatePrevScheduleReactions] }
-        }
+          $set: { reactions: [...trReaction, ...updatePrevScheduleReactions] },
+        },
       ));
 
     return;
@@ -868,20 +869,20 @@ export const generatePendingSchedules = async (
     changeDoc = { debt, total: schedule.total + debt };
     trReaction.push({
       scheduleId: schedule._id,
-      preData: { ...getChanged(schedule, changeDoc) }
+      preData: { ...getChanged(schedule, changeDoc) },
     });
     await models.Schedules.updateOne(
       { _id: schedule._id },
       {
-        $set: { ...changeDoc }
-      }
+        $set: { ...changeDoc },
+      },
     );
     tr._id &&
       (await models.Transactions.updateOne(
         { _id: tr._id },
         {
-          $set: { reactions: [...trReaction, ...updatePrevScheduleReactions] }
-        }
+          $set: { reactions: [...trReaction, ...updatePrevScheduleReactions] },
+        },
       ));
 
     return;
@@ -908,18 +909,18 @@ export const generatePendingSchedules = async (
     } else {
       const { diffEve, diffNonce } = getDatesDiffMonth(
         preSchedule.payDate,
-        schedule.payDate
+        schedule.payDate,
       );
       interestEve = calcInterest({
         balance,
         interestRate: contract.interestRate,
-        dayOfMonth: diffEve
+        dayOfMonth: diffEve,
       });
 
       interestNonce = calcInterest({
         balance,
         interestRate: contract.interestRate,
-        dayOfMonth: diffNonce
+        dayOfMonth: diffNonce,
       });
     }
 
@@ -939,18 +940,18 @@ export const generatePendingSchedules = async (
       interestEve,
       interestNonce,
       balance,
-      total: payment + interestEve + interestNonce + (schedule.insurance || 0)
+      total: payment + interestEve + interestNonce + (schedule.insurance || 0),
     };
     trReaction.push({
       scheduleId: schedule._id,
-      preData: { ...getChanged(schedule, changeDoc) }
+      preData: { ...getChanged(schedule, changeDoc) },
     });
 
     bulkOps.push({
       updateOne: {
         filter: { _id: schedule._id },
-        update: { $set: { ...changeDoc } }
-      }
+        update: { $set: { ...changeDoc } },
+      },
     });
 
     index = index + 1;
@@ -969,17 +970,17 @@ export const generatePendingSchedules = async (
     } else {
       const { diffEve, diffNonce } = getDatesDiffMonth(
         preSchedule.payDate,
-        schedule.payDate
+        schedule.payDate,
       );
       interestEve = calcInterest({
         balance,
         interestRate: contract.interestRate,
-        dayOfMonth: diffEve
+        dayOfMonth: diffEve,
       });
       interestNonce = calcInterest({
         balance,
         interestRate: contract.interestRate,
-        dayOfMonth: diffNonce
+        dayOfMonth: diffNonce,
       });
     }
 
@@ -992,18 +993,18 @@ export const generatePendingSchedules = async (
       interestNonce,
       balance: 0,
       surplus: diff,
-      total: interestEve + interestNonce + diff + (schedule.insurance || 0)
+      total: interestEve + interestNonce + diff + (schedule.insurance || 0),
     };
     trReaction.push({
       scheduleId: schedule._id,
-      preData: { ...getChanged(schedule, changeDoc) }
+      preData: { ...getChanged(schedule, changeDoc) },
     });
 
     bulkOps.push({
       updateOne: {
         filter: { _id: schedule._id },
-        update: { $set: { ...changeDoc } }
-      }
+        update: { $set: { ...changeDoc } },
+      },
     });
   } else {
     if (
@@ -1015,17 +1016,17 @@ export const generatePendingSchedules = async (
     } else {
       const { diffEve, diffNonce } = getDatesDiffMonth(
         preSchedule.payDate,
-        schedule.payDate
+        schedule.payDate,
       );
       interestEve = calcInterest({
         balance,
         interestRate: contract.interestRate,
-        dayOfMonth: diffEve
+        dayOfMonth: diffEve,
       });
       interestNonce = calcInterest({
         balance,
         interestRate: contract.interestRate,
-        dayOfMonth: diffNonce
+        dayOfMonth: diffNonce,
       });
     }
     payment = schedule.payment || 0;
@@ -1040,19 +1041,19 @@ export const generatePendingSchedules = async (
       interestEve,
       interestNonce,
       balance,
-      total: interestEve + interestNonce + payment - (schedule.insurance || 0)
+      total: interestEve + interestNonce + payment - (schedule.insurance || 0),
     };
 
     trReaction.push({
       scheduleId: schedule._id,
-      preData: { ...getChanged(schedule, changeDoc) }
+      preData: { ...getChanged(schedule, changeDoc) },
     });
 
     bulkOps.push({
       updateOne: {
         filter: { _id: schedule._id },
-        update: { $set: { ...changeDoc } }
-      }
+        update: { $set: { ...changeDoc } },
+      },
     });
   }
 
@@ -1073,25 +1074,25 @@ export const generatePendingSchedules = async (
       interestEve = calcInterest({
         balance,
         interestRate: contract.interestRate,
-        dayOfMonth: diffs.diffEve
+        dayOfMonth: diffs.diffEve,
       });
       interestNonce = calcInterest({
         balance,
         interestRate: contract.interestRate,
-        dayOfMonth: diffs.diffNonce
+        dayOfMonth: diffs.diffNonce,
       });
     }
     changeDoc = { interestEve, interestNonce };
     trReaction.push({
       scheduleId: schedule._id,
-      preData: { ...getChanged(schedule, changeDoc) }
+      preData: { ...getChanged(schedule, changeDoc) },
     });
 
     bulkOps.push({
       updateOne: {
         filter: { _id: schedule._id },
-        update: { $set: { ...changeDoc } }
-      }
+        update: { $set: { ...changeDoc } },
+      },
     });
   }
 
@@ -1101,25 +1102,25 @@ export const generatePendingSchedules = async (
 
   if (tr._id) {
     var transactionReaction: any = {
-      reactions: [...trReaction, ...updatePrevScheduleReactions]
+      reactions: [...trReaction, ...updatePrevScheduleReactions],
     };
 
     if (updatedSchedule.balance === 0 && contract._id) {
       transactionReaction.contractReaction = {
         _id: contract._id,
-        status: contract.status
+        status: contract.status,
       };
       await models.Contracts.updateOne(
         { _id: contract._id },
-        { $set: { status: CONTRACT_STATUS.CLOSED } }
+        { $set: { status: CONTRACT_STATUS.CLOSED } },
       );
     }
 
     await models.Transactions.updateOne(
       { _id: tr._id },
       {
-        $set: transactionReaction
-      }
+        $set: transactionReaction,
+      },
     );
   }
 
@@ -1140,7 +1141,7 @@ export const onPreScheduled = async (
   contract: IContractDocument,
   tr: ITransactionDocument,
   preSchedule: IScheduleDocument,
-  pendingSchedules: IScheduleDocument[]
+  pendingSchedules: IScheduleDocument[],
 ) => {
   const trReaction: any[] = [];
 
@@ -1150,7 +1151,7 @@ export const onPreScheduled = async (
     Object.assign({}, preSchedule),
     tr,
     preSchedule,
-    false
+    false,
   );
   doc.status = 'done';
 
@@ -1158,21 +1159,21 @@ export const onPreScheduled = async (
   if (preSchedule._id) {
     trReaction.push({
       scheduleId: preSchedule._id,
-      preData: { ...getChanged(preSchedule, doc) }
+      preData: { ...getChanged(preSchedule, doc) },
     });
     await models.Schedules.updateOne(
       { _id: preSchedule._id },
-      { $set: { ...doc } }
+      { $set: { ...doc } },
     );
     updatedSchedule = await models.Schedules.findOne({
-      _id: preSchedule._id
+      _id: preSchedule._id,
     });
   } else {
     // on contracted date to pay
     updatedSchedule = await models.Schedules.create({
       ...preSchedule,
       ...doc,
-      isDefault: false
+      isDefault: false,
     });
     trReaction.push({ scheduleId: updatedSchedule._id, preData: undefined });
   }
@@ -1183,7 +1184,7 @@ export const onPreScheduled = async (
     { ...updatedSchedule._doc },
     pendingSchedules,
     tr,
-    trReaction
+    trReaction,
   );
 };
 
@@ -1192,7 +1193,7 @@ export const betweenScheduled = async (
   contract: IContractDocument,
   tr: ITransactionDocument,
   preSchedule: IScheduleDocument,
-  pendingSchedules: IScheduleDocument[]
+  pendingSchedules: IScheduleDocument[],
 ) => {
   const trReaction: any = [];
   const doc = await fillAmounts(
@@ -1200,13 +1201,13 @@ export const betweenScheduled = async (
     {} as IScheduleDocument,
     tr,
     preSchedule,
-    true
+    true,
   );
 
   const preMainSchedule: any = await models.Schedules.findOne({
     contractId: contract._id,
     isDefault: true,
-    payDate: { $lt: tr.payDate }
+    payDate: { $lt: tr.payDate },
   }).sort({ dayDate: -1 });
 
   const diff =
@@ -1229,7 +1230,7 @@ export const betweenScheduled = async (
 
   const updatedSchedule: any = await models.Schedules.create({
     ...doc,
-    isDefault: false
+    isDefault: false,
   });
 
   trReaction.push({ scheduleId: updatedSchedule._id, preData: undefined });
@@ -1241,7 +1242,7 @@ export const betweenScheduled = async (
     pendingSchedules,
     tr,
     trReaction,
-    true
+    true,
   );
 };
 
@@ -1251,7 +1252,7 @@ export const onNextScheduled = async (
   tr: ITransactionDocument,
   preSchedule: IScheduleDocument,
   nextSchedule: IScheduleDocument,
-  pendingSchedules: IScheduleDocument[]
+  pendingSchedules: IScheduleDocument[],
 ) => {
   const trReaction: any[] = [];
 
@@ -1260,26 +1261,30 @@ export const onNextScheduled = async (
     Object.assign({}, nextSchedule),
     tr,
     preSchedule,
-    true
+    true,
   );
   doc.status = 'done';
 
   trReaction.push({
     scheduleId: nextSchedule._id,
-    preData: { ...getChanged(nextSchedule, doc) }
+    preData: { ...getChanged(nextSchedule, doc) },
   });
   await models.Schedules.updateOne({ _id: nextSchedule._id }, { $set: doc });
   const updatedSchedule = await models.Schedules.findOne({
-    _id: nextSchedule._id
+    _id: nextSchedule._id,
   }).lean();
+
+  if (!updatedSchedule) {
+    throw new Error(`Schedule with _id = ${nextSchedule._id} not found`);
+  }
 
   await generatePendingSchedules(
     models,
     contract,
     { ...updatedSchedule },
-    pendingSchedules.filter(s => s._id !== nextSchedule._id),
+    pendingSchedules.filter((s) => s._id !== nextSchedule._id),
     tr,
-    trReaction
+    trReaction,
   );
 };
 
@@ -1289,7 +1294,7 @@ export const afterNextScheduled = async (
   tr: ITransactionDocument,
   preSchedule: IScheduleDocument,
   nextSchedule: IScheduleDocument,
-  pendingSchedules: IScheduleDocument[]
+  pendingSchedules: IScheduleDocument[],
 ) => {
   interface ITrReaction {
     scheduleId: string;
@@ -1301,14 +1306,14 @@ export const afterNextScheduled = async (
     Object.assign({}, nextSchedule),
     tr,
     preSchedule,
-    true
+    true,
   );
 
   const updatedSchedule = await models.Schedules.create({
     ...doc,
     _id: undefined,
     isDefault: false,
-    status: SCHEDULE_STATUS.DONE
+    status: SCHEDULE_STATUS.DONE,
   });
 
   trReaction.push({ scheduleId: updatedSchedule._id, preData: undefined });
@@ -1318,17 +1323,17 @@ export const afterNextScheduled = async (
       $and: [
         { payDate: { $gte: nextSchedule.payDate } },
         { payDate: { $lte: updatedSchedule.payDate } },
-        { _id: { $ne: updatedSchedule._id } }
+        { _id: { $ne: updatedSchedule._id } },
       ],
-      contractId: preSchedule.contractId
+      contractId: preSchedule.contractId,
     },
-    { _id: 1 }
+    { _id: 1 },
   ).lean();
 
   for (const skippedSchedule of skippedSchedules) {
     trReaction.push({
-      scheduleId: skippedSchedule._id || 0,
-      preData: { status: SCHEDULE_STATUS.PENDING }
+      scheduleId: skippedSchedule._id || '0',
+      preData: { status: SCHEDULE_STATUS.PENDING },
     });
   }
 
@@ -1337,19 +1342,19 @@ export const afterNextScheduled = async (
       $and: [
         { payDate: { $gte: nextSchedule.payDate } },
         { payDate: { $lte: updatedSchedule.payDate } },
-        { _id: { $ne: updatedSchedule._id } }
+        { _id: { $ne: updatedSchedule._id } },
       ],
-      contractId: preSchedule.contractId
+      contractId: preSchedule.contractId,
     },
-    { $set: { status: SCHEDULE_STATUS.SKIPPED } }
+    { $set: { status: SCHEDULE_STATUS.SKIPPED } },
   );
 
   await generatePendingSchedules(
     models,
     contract,
     updatedSchedule,
-    pendingSchedules.filter(s => s.payDate > updatedSchedule.payDate),
+    pendingSchedules.filter((s) => s.payDate > updatedSchedule.payDate),
     tr,
-    trReaction
+    trReaction,
   );
 };

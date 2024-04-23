@@ -7,14 +7,14 @@ const generateFilter = async (params, commonQuerySelector) => {
 
   if (params.searchValue) {
     filter.$or = [
-      { number: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } }
+      { number: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
     ];
   }
 
   return filter;
 };
 
-export const sortBuilder = params => {
+export const sortBuilder = (params) => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -32,7 +32,7 @@ const classificationsQueries = {
   classifications: async (
     _root,
     params,
-    { commonQuerySelector, models }: IContext
+    { commonQuerySelector, models }: IContext,
   ) => {
     const filter = await generateFilter(params, commonQuerySelector);
 
@@ -41,10 +41,10 @@ const classificationsQueries = {
         models.Classification.find(filter).sort(sortBuilder(params)),
         {
           page: params.page,
-          perPage: params.perPage
-        }
+          perPage: params.perPage,
+        },
       ),
-      totalCount: models.Classification.find(filter).count()
+      totalCount: models.Classification.find(filter).countDocuments(),
     };
   },
 
@@ -54,7 +54,7 @@ const classificationsQueries = {
 
   classificationDetail: async (_root, { _id }, { models }: IContext) => {
     return models.Classification.findOne({ _id });
-  }
+  },
 };
 
 moduleRequireLogin(classificationsQueries);

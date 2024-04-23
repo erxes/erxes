@@ -6,12 +6,11 @@ import {
   getCalcedAmounts,
   removeTrAfterSchedule,
   trAfterSchedule,
-  transactionRule
+  transactionRule,
 } from './utils/transactionUtils';
-import { Model } from 'mongoose';
+import { Model, FilterQuery } from 'mongoose';
 import { ITransactionDocument } from './definitions/transactions';
 import { IModels } from '../connectionResolver';
-import { FilterQuery } from 'mongodb';
 import { IContractDocument } from './definitions/contracts';
 import { getPureDate } from '@erxes/api-utils/src';
 import { createEbarimt } from './utils/ebarimtUtils';
@@ -21,7 +20,7 @@ import BigNumber from 'bignumber.js';
 import { IConfig } from '../interfaces/config';
 import {
   createTransactionSchedule,
-  scheduleFixAfterCurrent
+  scheduleFixAfterCurrent,
 } from './utils/scheduleFixUtils';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
@@ -29,7 +28,7 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(selector: FilterQuery<ITransactionDocument>);
   createTransaction(
     subdomain: string,
-    doc: ITransaction
+    doc: ITransaction,
   ): Promise<ITransactionDocument>;
   updateTransaction(subdomain: any, _id: string, doc: ITransaction);
   changeTransaction(_id: string, doc: ITransaction, subdomain: any);
@@ -38,14 +37,14 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
     id: string,
     payDate: Date,
     subdomain: string,
-    scheduleDate?: Date
+    scheduleDate?: Date,
   );
   createEBarimtOnTransaction(
     subdomain: string,
     id: string,
     isGetEBarimt?: boolean,
     isOrganization?: boolean,
-    organizationRegister?: string
+    organizationRegister?: string,
   );
 }
 export const loadTransactionClass = (models: IModels) => {
@@ -56,7 +55,7 @@ export const loadTransactionClass = (models: IModels) => {
      */
 
     public static async getTransaction(
-      selector: FilterQuery<ITransactionDocument>
+      selector: FilterQuery<ITransactionDocument>,
     ) {
       const transaction = await models.Transactions.findOne(selector);
 
@@ -77,10 +76,10 @@ export const loadTransactionClass = (models: IModels) => {
         isOrganization,
         organizationRegister,
         ...doc
-      }: ITransaction
+      }: ITransaction,
     ) {
       const periodLock = await models.PeriodLocks.findOne({
-        date: { $gte: doc.payDate }
+        date: { $gte: doc.payDate },
       })
         .sort({ date: -1 })
         .lean();
@@ -91,11 +90,11 @@ export const loadTransactionClass = (models: IModels) => {
 
       if (periodLock && !periodLock?.excludeContracts.includes(doc.contractId))
         throw new Error(
-          'At this moment transaction can not been created because this date closed'
+          'At this moment transaction can not been created because this date closed',
         );
 
       const contract = await models.Contracts.findOne({
-        _id: doc.contractId
+        _id: doc.contractId,
       }).lean<IContractDocument>();
 
       if (!contract) {
@@ -110,7 +109,7 @@ export const loadTransactionClass = (models: IModels) => {
 
       if (doc.invoiceId) {
         const invoiceData: any = {
-          status: INVOICE_STATUS.DONE
+          status: INVOICE_STATUS.DONE,
         };
         await models.Invoices.updateInvoice(doc.invoiceId, invoiceData);
       }
@@ -128,18 +127,18 @@ export const loadTransactionClass = (models: IModels) => {
             .toNumber(),
           interestNonce: 0,
           payment: 0,
-          total: doc.total
+          total: doc.total,
         });
 
         await models.Contracts.updateOne(
           { _id: contract._id },
-          { $inc: { givenAmount: doc.total, loanBalanceAmount: doc.total } }
+          { $inc: { givenAmount: doc.total, loanBalanceAmount: doc.total } },
         );
 
         doc.reactions = [
           {
-            scheduleId: schedule._id
-          }
+            scheduleId: schedule._id,
+          },
         ];
 
         const tr = await models.Transactions.create({ ...doc });
@@ -165,18 +164,18 @@ export const loadTransactionClass = (models: IModels) => {
               blockType: 'scheduleTransaction',
               amount: tr.calcInterest,
               scheduleDate: tr.payDate,
-              payDate: tr.payDate
+              payDate: tr.payDate,
             },
-            isRPC: true
+            isRPC: true,
           },
-          'savings'
+          'savings',
         );
 
       await createTransactionSchedule(contract, tr.payDate, tr, models, config);
       await scheduleFixAfterCurrent(contract, tr.payDate, models, config);
 
       const contractType = await models.ContractTypes.findOne({
-        _id: contract.contractTypeId
+        _id: contract.contractTypeId,
       });
 
       let updateContractInc = {};
@@ -187,14 +186,14 @@ export const loadTransactionClass = (models: IModels) => {
       if (doc.payment && doc.payment > 0)
         updateContractInc = {
           ...updateContractInc,
-          loanBalanceAmount: doc.payment * -1
+          loanBalanceAmount: doc.payment * -1,
         };
 
       await models.Contracts.updateOne(
         {
-          _id: tr.contractId
+          _id: tr.contractId,
         },
-        { $inc: updateContractInc }
+        { $inc: updateContractInc },
       );
 
       if (
@@ -207,7 +206,7 @@ export const loadTransactionClass = (models: IModels) => {
           contractType?.config,
           tr,
           contract,
-          { isGetEBarimt, isOrganization, organizationRegister }
+          { isGetEBarimt, isOrganization, organizationRegister },
         );
 
       return tr;
@@ -219,29 +218,32 @@ export const loadTransactionClass = (models: IModels) => {
     public static async updateTransaction(
       subdomain,
       _id: string,
-      doc: ITransaction
+      doc: ITransaction,
     ) {
       doc = { ...doc, ...(await findContractOfTr(models, doc)) };
 
       const periodLock = await models.PeriodLocks.findOne({
-        date: { $gte: doc.payDate }
+        date: { $gte: doc.payDate },
       })
         .sort({ date: -1 })
         .lean();
 
-      if (periodLock && !periodLock?.excludeContracts.includes(doc.contractId))
+      if (
+        doc.contractId &&
+        !periodLock?.excludeContracts.includes(doc.contractId)
+      )
         throw new Error(
-          'At this moment transaction can not been created because this date closed'
+          'At this moment transaction can not been created because this date closed',
         );
 
       const oldTr = await models.Transactions.getTransaction({
-        _id
+        _id,
       });
 
       const config: IConfig = await getConfig('loansConfig', subdomain);
 
       const contract = await models.Contracts.findOne({
-        _id: doc.contractId
+        _id: doc.contractId,
       }).lean();
       if (!contract || !contract._id) {
         await models.Transactions.updateOne({ _id }, { $set: { ...doc } });
@@ -252,7 +254,7 @@ export const loadTransactionClass = (models: IModels) => {
 
       if (doc.invoiceId) {
         const invoiceData: any = {
-          status: INVOICE_STATUS.DONE
+          status: INVOICE_STATUS.DONE,
         };
         await models.Invoices.updateInvoice(doc.invoiceId, invoiceData);
       }
@@ -261,10 +263,10 @@ export const loadTransactionClass = (models: IModels) => {
 
       await models.Transactions.updateOne(
         { _id },
-        { $set: { ...doc, ...trInfo } }
+        { $set: { ...doc, ...trInfo } },
       );
       const newTr = await models.Transactions.getTransaction({
-        _id
+        _id,
       });
 
       await trAfterSchedule(models, newTr);
@@ -277,11 +279,11 @@ export const loadTransactionClass = (models: IModels) => {
      */
     public static async changeTransaction(_id: string, doc, subdomain) {
       const oldTr = await models.Transactions.getTransaction({
-        _id
+        _id,
       });
 
       const periodLock = await models.PeriodLocks.findOne({
-        date: { $gte: oldTr.payDate }
+        date: { $gte: oldTr.payDate },
       })
         .sort({ date: -1 })
         .lean();
@@ -291,11 +293,11 @@ export const loadTransactionClass = (models: IModels) => {
         !periodLock?.excludeContracts.includes(oldTr.contractId)
       )
         throw new Error(
-          'At this moment transaction can not been created because this date closed'
+          'At this moment transaction can not been created because this date closed',
         );
 
       const contract = await models.Contracts.findOne({
-        _id: oldTr.contractId
+        _id: oldTr.contractId,
       }).lean();
 
       if (!contract || !contract._id) {
@@ -305,12 +307,16 @@ export const loadTransactionClass = (models: IModels) => {
 
       const oldSchedule = await models.Schedules.findOne({
         contractId: contract._id,
-        transactionIds: { $in: [_id] }
+        transactionIds: { $in: [_id] },
       }).lean();
+
+      if (!oldSchedule) {
+        throw new Error(`Schedule not found`);
+      }
 
       const preSchedules = await models.Schedules.find({
         contractId: contract._id,
-        payDate: { $lt: oldSchedule.payDate }
+        payDate: { $lt: oldSchedule.payDate },
       }).lean();
 
       const noDeleteSchIds = preSchedules
@@ -330,12 +336,18 @@ export const loadTransactionClass = (models: IModels) => {
 
       await models.Transactions.updateOne(
         { _id },
-        { $set: { ...doc, total: newTotal } }
+        { $set: { ...doc, total: newTotal } },
       );
-      
+
       let newTr = await models.Transactions.getTransaction({ _id });
 
-      await createTransactionSchedule(contract, newTr.payDate, newTr, models, config);
+      await createTransactionSchedule(
+        contract,
+        newTr.payDate,
+        newTr,
+        models,
+        config,
+      );
       await scheduleFixAfterCurrent(contract, newTr.payDate, models, config);
 
       return newTr;
@@ -355,17 +367,17 @@ export const loadTransactionClass = (models: IModels) => {
       for await (const oldTr of transactions) {
         if (oldTr) {
           const periodLock = await models.PeriodLocks.findOne({
-            date: { $gte: oldTr.payDate }
+            date: { $gte: oldTr.payDate },
           })
             .sort({ date: -1 })
             .lean();
 
           if (
-            periodLock &&
+            oldTr.contractId &&
             !periodLock?.excludeContracts.includes(oldTr.contractId)
           )
             throw new Error(
-              'At this moment transaction can not been created because this date closed'
+              'At this moment transaction can not been created because this date closed',
             );
 
           await removeTrAfterSchedule(models, oldTr, config);
@@ -376,9 +388,9 @@ export const loadTransactionClass = (models: IModels) => {
               {
                 $set: {
                   storedInterest: oldTr.calcedInfo?.storedInterest,
-                  givenAmount: oldTr.contractReaction?.givenAmount
-                }
-              }
+                  givenAmount: oldTr.contractReaction?.givenAmount,
+                },
+              },
             ));
           await models.Transactions.deleteOne({ _id: oldTr._id });
         }
@@ -395,9 +407,9 @@ export const loadTransactionClass = (models: IModels) => {
         subdomain,
         {
           contractId: id,
-          payDate: today
+          payDate: today,
         },
-        config
+        config,
       );
 
       let {
@@ -408,7 +420,7 @@ export const loadTransactionClass = (models: IModels) => {
         balance = 0,
         commitmentInterest = 0,
         storedInterest = 0,
-        calcInterest = 0
+        calcInterest = 0,
       } = paymentInfo;
 
       paymentInfo.total = new BigNumber(payment)
@@ -439,14 +451,14 @@ export const loadTransactionClass = (models: IModels) => {
       id: string,
       isGetEBarimt?: boolean,
       isOrganization?: boolean,
-      organizationRegister?: string
+      organizationRegister?: string,
     ) {
       const tr = await models.Transactions.findOne({ _id: id });
       if (!tr) throw new Error('Transaction not found');
       const contract = await models.Contracts.findOne({ _id: tr?.contractId });
       if (!contract) throw new Error('Contract not found');
       const contractType = await models.ContractTypes.findOne({
-        _id: contract?.contractTypeId
+        _id: contract?.contractTypeId,
       });
       if (!contractType) throw new Error('Contract type not found');
       if (isGetEBarimt)
@@ -456,7 +468,7 @@ export const loadTransactionClass = (models: IModels) => {
           contractType?.config,
           tr,
           contract,
-          { isGetEBarimt, isOrganization, organizationRegister }
+          { isGetEBarimt, isOrganization, organizationRegister },
         );
 
       return tr;

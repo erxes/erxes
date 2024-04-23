@@ -2,11 +2,11 @@ import { ISchedule, scheduleSchema } from './definitions/schedules';
 import { IScheduleDocument } from './definitions/schedules';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { FilterQuery } from 'mongodb';
+import { FilterQuery } from 'mongoose';
 export interface IScheduleModel extends Model<IScheduleDocument> {
   getLastSchedule(
     contractId: string,
-    payDate: Date
+    payDate: Date,
   ): Promise<IScheduleDocument>;
   getSchedule(selector: FilterQuery<IScheduleDocument>);
   createSchedule(doc: ISchedule);
@@ -59,7 +59,7 @@ export const loadScheduleClass = (models: IModels) => {
     public static async getLastSchedule(contractId: string, payDate: Date) {
       return models.Schedules.findOne({
         contractId: contractId,
-        payDate: { $lte: payDate }
+        payDate: { $lte: payDate },
       })
         .sort({ payDate: -1 })
         .lean();

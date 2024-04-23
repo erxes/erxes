@@ -29,20 +29,20 @@ const generateFilter = async (params, commonQuerySelector) => {
 
   if (params.payDate1) {
     filter.payDate = {
-      $gte: new Date(params.payDate1)
+      $gte: new Date(params.payDate1),
     };
   }
 
   if (params.payDate2) {
     filter.payDate = {
-      $lte: new Date(params.payDate2)
+      $lte: new Date(params.payDate2),
     };
   }
 
   return filter;
 };
 
-export const sortBuilder = params => {
+export const sortBuilder = (params) => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -61,14 +61,14 @@ const invoiceQueries = {
   handinvoicesler: async (
     _root,
     params,
-    { commonQuerySelector, models }: IContext
+    { commonQuerySelector, models }: IContext,
   ) => {
     return paginate(
       models.Invoices.find(await generateFilter(params, commonQuerySelector)),
       {
         page: params.page,
-        perPage: params.perPage
-      }
+        perPage: params.perPage,
+      },
     );
   },
 
@@ -79,16 +79,16 @@ const invoiceQueries = {
   loanInvoicesMain: async (
     _root,
     params,
-    { commonQuerySelector, models }: IContext
+    { commonQuerySelector, models }: IContext,
   ) => {
     const filter = await generateFilter(params, commonQuerySelector);
 
     return {
       list: paginate(models.Invoices.find(filter).sort(sortBuilder(params)), {
         page: params.page,
-        perPage: params.perPage
+        perPage: params.perPage,
       }),
-      totalCount: models.Invoices.find(filter).count()
+      totalCount: models.Invoices.find(filter).countDocuments(),
     };
   },
 
@@ -106,21 +106,20 @@ const invoiceQueries = {
   getInvoicePreInfo: async (
     _root,
     { contractId, payDate },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) => {
     const currentDate = getFullDate(payDate);
-    const config = await getConfig('loansConfig',subdomain)
-    const {
-      payment,
-      loss,
-      storedInterest,
-      calcInterest,
-      insurance,
-      debt
-    } = await getCalcedAmounts(models, subdomain, {
-      contractId,
-      payDate: currentDate
-    },config)
+    const config = await getConfig('loansConfig', subdomain);
+    const { payment, loss, storedInterest, calcInterest, insurance, debt } =
+      await getCalcedAmounts(
+        models,
+        subdomain,
+        {
+          contractId,
+          payDate: currentDate,
+        },
+        config,
+      );
 
     return {
       contractId: contractId,
@@ -138,9 +137,9 @@ const invoiceQueries = {
         (calcInterest || 0) +
         (loss || 0) +
         (insurance || 0) +
-        (debt || 0)
+        (debt || 0),
     };
-  }
+  },
 };
 
 checkPermission(invoiceQueries, 'handinvoicesler', 'showLoanInvoices');

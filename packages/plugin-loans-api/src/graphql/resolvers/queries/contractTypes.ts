@@ -9,7 +9,7 @@ const generateFilter = async (params, commonQuerySelector) => {
     filter.$or = [
       { name: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
       { code: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
-      { number: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } }
+      { number: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
     ];
   }
 
@@ -17,16 +17,14 @@ const generateFilter = async (params, commonQuerySelector) => {
   //   filter._id = { $in: params.ids };
   // }
 
-  if(params.productId)
-    filter.productId = params.productId
+  if (params.productId) filter.productId = params.productId;
 
-  if(params.productType)
-    filter.productType = params.productType
+  if (params.productType) filter.productType = params.productType;
 
   return filter;
 };
 
-export const sortBuilder = params => {
+export const sortBuilder = (params) => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -44,16 +42,16 @@ const contractTypeQueries = {
   contractTypes: async (
     _root,
     params,
-    { commonQuerySelector, models }: IContext
+    { commonQuerySelector, models }: IContext,
   ) => {
     return paginate(
       models.ContractTypes.find(
-        await generateFilter(params, commonQuerySelector)
+        await generateFilter(params, commonQuerySelector),
       ),
       {
         page: params.page,
-        perPage: params.perPage
-      }
+        perPage: params.perPage,
+      },
     );
   },
 
@@ -64,7 +62,7 @@ const contractTypeQueries = {
   contractTypesMain: async (
     _root,
     params,
-    { commonQuerySelector, models }: IContext
+    { commonQuerySelector, models }: IContext,
   ) => {
     const filter = await generateFilter(params, commonQuerySelector);
 
@@ -73,10 +71,10 @@ const contractTypeQueries = {
         models.ContractTypes.find(filter).sort(sortBuilder(params)),
         {
           page: params.page,
-          perPage: params.perPage
-        }
+          perPage: params.perPage,
+        },
       ),
-      totalCount: models.ContractTypes.find(filter).count()
+      totalCount: models.ContractTypes.find(filter).countDocuments(),
     };
   },
 
@@ -86,7 +84,7 @@ const contractTypeQueries = {
 
   contractTypeDetail: async (_root, { _id }, { models }: IContext) => {
     return models.ContractTypes.getContractType({ _id });
-  }
+  },
 };
 
 moduleRequireLogin(contractTypeQueries);
