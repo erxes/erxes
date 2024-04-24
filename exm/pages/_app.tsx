@@ -15,7 +15,6 @@ type Props = {
   Component: any;
   apolloClient: any;
   router: any;
-  tests?: any;
 };
 
 function MyApp({ Component, pageProps, apolloClient, router }: Props) {
