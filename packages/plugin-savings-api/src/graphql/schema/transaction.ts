@@ -26,7 +26,6 @@ export const types = `
     ${typeFields}
     contract: SavingContract,
     currency:String
-    ebarimt:JSON
   }
 
   type SavingTransactionsListResponse {
