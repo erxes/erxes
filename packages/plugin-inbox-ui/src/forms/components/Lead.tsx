@@ -151,7 +151,7 @@ class Lead extends React.Component<Props, State> {
       isRequireOnce: leadData.isRequireOnce,
       saveAsCustomer: leadData.saveAsCustomer,
       logo: callout.featuredImage,
-      calloutImgSize: callout.imgSize || '50%',
+      calloutImgSize: callout.calloutImgSize || '50%',
       isSkip: callout.skip && true,
       carousel: callout.skip ? 'form' : 'callout',
 
