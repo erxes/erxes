@@ -1,11 +1,14 @@
-import { IPurchase, IPurchaseParams, IPaymentsData } from "../types";
 import { IEditFormContent, IItem, IOptions } from "../../boards/types";
+import { IPaymentsData, IPurchase, IPurchaseParams } from "../types";
+import { __, loadDynamicComponent } from "@erxes/ui/src/utils";
 
+import ChildrenSection from "../../boards/containers/editForm/ChildrenSection";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import EditForm from "../../boards/components/editForm/EditForm";
 import { Flex } from "@erxes/ui/src/styles/main";
 import { HeaderContentSmall } from "../../boards/styles/item";
 import { IProduct } from "@erxes/ui-products/src/types";
+import { IUser } from "@erxes/ui/src/auth/types";
 import Left from "../../boards/components/editForm/Left";
 import PortableDeals from "../../deals/components/PortableDeals";
 import PortableTasks from "../../tasks/components/PortableTasks";
@@ -14,11 +17,7 @@ import ProductSection from "./ProductSection";
 import React from "react";
 import Sidebar from "../../boards/components/editForm/Sidebar";
 import Top from "../../boards/components/editForm/Top";
-import { pluginsOfItemSidebar } from "coreui/pluginUtils";
-import { __ } from "@erxes/ui/src/utils";
-import ChildrenSection from "../../boards/containers/editForm/ChildrenSection";
 import queryString from "query-string";
-import { IUser } from "@erxes/ui/src/auth/types";
 
 type Props = {
   options: IOptions;
@@ -252,7 +251,11 @@ export default class PurchaseEditForm extends React.Component<Props, State> {
         <PortableTickets mainType="purchase" mainTypeId={item._id} />
         <PortableTasks mainType="purchase" mainTypeId={item._id} />
         <PortableDeals mainType="purchase" mainTypeId={item._id} />
-        {pluginsOfItemSidebar(item, "purchase")}
+        {loadDynamicComponent(
+          "purchaseRightSidebarSection",
+          { id: item._id },
+          true
+        )}
       </>
     );
   };

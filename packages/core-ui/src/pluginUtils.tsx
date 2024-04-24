@@ -180,41 +180,6 @@ export const loadComponent = (scope, module) => {
   };
 };
 
-const renderPluginSidebar = (itemName: string, type: string, object: any) => {
-  const plugins: any[] = (window as any).plugins || [];
-
-  return (
-    <PluginsWrapper
-      itemName={itemName}
-      plugins={plugins}
-      callBack={(_plugin, sections) => {
-        return (sections || []).map((section) => {
-          if (!window[section.scope]) {
-            return null;
-          }
-
-          const Component = React.lazy(
-            loadComponent(section.scope, section.component)
-          );
-
-          const updatedProps = {
-            key: Math.random(),
-            id: object._id,
-            mainType: type,
-            mainTypeId: object._id,
-          };
-          console.log("waaa", section);
-          if (section?.withDetail) {
-            updatedProps["object"] = object;
-          }
-
-          return <Component {...updatedProps} />;
-        });
-      }}
-    />
-  );
-};
-
 const System = (props) => {
   if (props.loadScript) {
     const { ready, failed } = useDynamicScript({
@@ -459,15 +424,6 @@ export const pluginRouters = () => {
   }
 
   return pluginRoutes;
-};
-
-export const pluginsOfCompanySidebar = (company: any) => {
-  // check - ICompany
-  return renderPluginSidebar("companyRightSidebarSection", "company", company);
-};
-
-export const pluginsOfItemSidebar = (item: any, type: string) => {
-  return renderPluginSidebar(`${type}RightSidebarSection`, type, item);
 };
 
 export const pluginsOfPaymentForm = (

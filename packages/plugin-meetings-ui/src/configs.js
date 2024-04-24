@@ -20,11 +20,5 @@ module.exports = {
       location: "mainNavigation",
     },
   ],
-  dealRightSidebarSection: [
-    {
-      text: "meetingSection",
-      component: "./meetingSideBarSection",
-      scope: "meetings",
-    },
-  ],
+  dealRightSidebarSection: "./meetingSideBarSection",
 };

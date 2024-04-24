@@ -27,11 +27,5 @@ module.exports = {
   ],
   customerRightSidebarSection: "./customerSidebar",
   companyRightSidebarSection: "./companySidebar",
-  dealRightSidebarSection: [
-    {
-      text: "dealSection",
-      component: "./dealSidebar",
-      scope: "cars",
-    },
-  ],
+  dealRightSidebarSection: "./dealSidebar",
 };

@@ -1,5 +1,6 @@
 import { IDeal, IDealParams, IPaymentsData } from "../types";
 import { IEditFormContent, IItem, IOptions } from "../../boards/types";
+import { __, loadDynamicComponent } from "@erxes/ui/src/utils";
 
 import ChildrenSection from "../../boards/containers/editForm/ChildrenSection";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
@@ -16,8 +17,6 @@ import ProductSection from "./ProductSection";
 import React from "react";
 import Sidebar from "../../boards/components/editForm/Sidebar";
 import Top from "../../boards/components/editForm/Top";
-import { __ } from "@erxes/ui/src/utils";
-import { pluginsOfItemSidebar } from "coreui/pluginUtils";
 import queryString from "query-string";
 
 type Props = {
@@ -242,7 +241,16 @@ export default class DealEditForm extends React.Component<Props, State> {
         <PortableTickets mainType="deal" mainTypeId={item._id} />
         <PortableTasks mainType="deal" mainTypeId={item._id} />
         <PortablePurchase mainType="deal" mainTypeId={item._id} />
-        {/* {pluginsOfItemSidebar(item, "deal")} */}
+        {loadDynamicComponent(
+          "dealRightSidebarSection",
+          {
+            id: item._id,
+            mainType: "deal",
+            mainTypeId: item._id,
+            object: item,
+          },
+          true
+        )}
       </>
     );
   };

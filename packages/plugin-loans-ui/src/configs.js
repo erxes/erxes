@@ -73,11 +73,5 @@ module.exports = {
   ],
   customerRightSidebarSection: "./contractSection",
   companyRightSidebarSection: "./contractSection",
-  dealRightSidebarSection: [
-    {
-      text: "dealRightSidebarSection",
-      component: "./contractSection",
-      scope: "loans",
-    },
-  ],
+  dealRightSidebarSection: "./contractSection",
 };
