@@ -66,9 +66,9 @@ const msdynamicSyncMutations = {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
 
-    const updatePrices: any = [];
-    const createPrices: any = [];
-    const deletePrices: any = [];
+    const updatePrices: any[] = [];
+    const createPrices: any[] = [];
+    const deletePrices: any[] = [];
 
     if (!config.priceApi || !config.username || !config.password) {
       throw new Error('MS Dynamic config not found.');
@@ -126,7 +126,7 @@ const msdynamicSyncMutations = {
             groupedItems[Item_No] = item;
           }
 
-          if (groupedItems[Item_No]['Unit_Price'] || 0 > Unit_Price) {
+          if ((groupedItems[Item_No]['Unit_Price'] || 0) > (Unit_Price || 0)) {
             groupedItems[Item_No] = item;
           }
         }
