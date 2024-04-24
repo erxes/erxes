@@ -20,8 +20,6 @@ type State = {
   title: string;
   client_id: string;
   secretKey: string;
-  organizationId: string;
-  branchId: string;
 };
 
 class GeneralSettings extends React.Component<Props, State> {
@@ -51,18 +49,18 @@ class GeneralSettings extends React.Component<Props, State> {
     return (
       <CollapseContent title={__('Buren Scoring config')} open>
         <FormGroup>
-          <ControlLabel>{__('client_id')}</ControlLabel>
+          <ControlLabel>{__('client id')}</ControlLabel>
           <FormControl
-            defaultValue={config['client_id']}
+            defaultValue={config['client id']}
             type="text"
             min={0}
             max={100}
-            onChange={this.onChangeInput.bind(this, 'client_id')}
+            onChange={this.onChangeInput.bind(this, 'client id')}
             required={true}
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('secretKey')}</ControlLabel>
+          <ControlLabel>{__('secret Key')}</ControlLabel>
           <FormControl
             defaultValue={config['secretKey']}
             type="text"
@@ -72,29 +70,6 @@ class GeneralSettings extends React.Component<Props, State> {
             required={true}
           />
         </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('organization Id')}</ControlLabel>
-          <FormControl
-            defaultValue={config['organizationId']}
-            type="text"
-            min={0}
-            max={100}
-            onChange={this.onChangeInput.bind(this, 'organizationId')}
-            required={true}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('branch Id')}</ControlLabel>
-          <FormControl
-            defaultValue={config['branchId']}
-            type="number"
-            min={0}
-            max={100}
-            onChange={this.onChangeInput.bind(this, 'branchId')}
-            required={true}
-          />
-        </FormGroup>
-
         <ModalFooter>
           <Button
             btnStyle="primary"

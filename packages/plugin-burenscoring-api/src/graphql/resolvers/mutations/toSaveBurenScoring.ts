@@ -1,7 +1,7 @@
 
 import { BurenScoringApi } from "../../../burenScoringConfig/api/getScoring";
 import { generateModels,IContext } from "../../../connectionResolver";
-import { getConfig } from "../../../messageBroker";
+import { getBurenScoringConfig } from "../../../messageBroker";
 import { IBurenscoring } from "../../../models/definitions/burenscoring";
 
 const burenScoringMutations = {
@@ -45,7 +45,7 @@ const burenScoringMutations = {
       { customerId, keyword, reportPurpose }: {customerId: string, keyword: string; reportPurpose: string },
       { subdomain }: IContext
   ) => {
-    const config = await getConfig('burenScoringConfig', subdomain, '' )
+    const config = await getBurenScoringConfig('burenScoringConfig', subdomain)
     if (!config) {
       throw new Error('Buren scoring config not found.');
     }

@@ -1,7 +1,7 @@
 import {  paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { BurenScoringApi } from '../../../burenScoringConfig/api/getScoring';
-import { getConfig } from '../../../messageBroker';
+import { getBurenScoringConfig } from '../../../messageBroker';
 
 const generateFilter = async (params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
@@ -44,7 +44,7 @@ const burenScoringQueries = {
         reportPurpose},
       { subdomain }: IContext
   ) => {
-    const config = await getConfig('burenScoringConfig', subdomain, '' )
+    const config = await getBurenScoringConfig('burenScoringConfig', subdomain )
     if (!config) {
       throw new Error('Buren scoring config not found.');
     }
