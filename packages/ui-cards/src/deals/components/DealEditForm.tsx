@@ -65,7 +65,8 @@ export default class DealEditForm extends React.Component<Props, State> {
       // collecting data for ItemCounter component
       products: item.products
         ? (item.products || []).map((p) => {
-            p.product.quantity = p?.quantity;
+            let newP = {...p.product, quantity: p?.quantity}
+
             if (p.product.uom !== p.uom) {
               p.product.subUoms = Array.from(
                 new Set([
@@ -73,9 +74,9 @@ export default class DealEditForm extends React.Component<Props, State> {
                   { uom: p.product.uom, ratio: 1 },
                 ])
               );
-              p.product.uom = p.uom;
+              newP = {...newP, uom: p?.uom}
             }
-            return p.product;
+            return newP;
           })
         : [],
       paymentsData: item.paymentsData,
