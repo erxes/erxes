@@ -106,6 +106,7 @@ const InventoryPrice = ({
               <th>{__('Unit price')}</th>
               <th>{__('Ending Date')}</th>
               {action === 'UPDATE' ? <th>{__('Update Status')}</th> : <></>}
+              {action === 'MATCH' ? <th>{__('Matched Status')}</th> : <></>}
               {action === 'CREATE' ? <th>{__('Create Status')}</th> : <></>}
               {action === 'DELETE' ? <th>{__('Delete Status')}</th> : <></>}
             </tr>
@@ -138,6 +139,25 @@ const InventoryPrice = ({
             objective={true}
           />
           <Pagination count={items.update?.count || 0} />
+        </>
+      </CollapseContent>
+
+      <CollapseContent
+        title={__(
+          'Matched product price' +
+            (items.match ? ':  ' + items.match.count : '')
+        )}
+      >
+        <>
+          <DataWithLoader
+            data={items.update ? renderTable(items.match?.items, 'MATCH') : []}
+            loading={false}
+            emptyText={'Please check first.'}
+            emptyIcon="leaf"
+            size="large"
+            objective={true}
+          />
+          <Pagination count={items.match?.count || 0} />
         </>
       </CollapseContent>
 

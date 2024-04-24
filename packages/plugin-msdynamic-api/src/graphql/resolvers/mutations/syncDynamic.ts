@@ -69,6 +69,7 @@ const msdynamicSyncMutations = {
     const updatePrices: any[] = [];
     const createPrices: any[] = [];
     const deletePrices: any[] = [];
+    const matchPrices: any[] = [];
 
     if (!config.priceApi || !config.username || !config.password) {
       throw new Error('MS Dynamic config not found.');
@@ -77,6 +78,7 @@ const msdynamicSyncMutations = {
     const { priceApi, username, password } = config;
 
     const productQry: any = { status: { $ne: 'deleted' } };
+
     if (brandId && brandId !== 'noBrand') {
       productQry.scopeBrandIds = { $in: [brandId] };
     } else {
@@ -132,10 +134,13 @@ const msdynamicSyncMutations = {
         }
       }
 
+      const productsByCode = {}
       // delete price
       for (const product of products) {
         if (!groupedItems[product.code]) {
           deletePrices.push(product);
+        } else {
+          productsByCode[product.code] = product
         }
       }
 
@@ -145,29 +150,22 @@ const msdynamicSyncMutations = {
           const resProd = groupedItems[key];
 
           const updateCode = resProd.Item_No.replace(/\s/g, '');
-          const product = await sendProductsMessage({
-            subdomain,
-            action: 'findOne',
-            data: { code: updateCode },
-            isRPC: true,
-            defaultValue: {},
-          });
+          const product = productsByCode[updateCode]
 
-          if (productCodes.includes(updateCode)) {
+          if (product) {
+            if (product.unitPrice === resProd?.Unit_Price) {
+              matchPrices.push(resProd);
+              continue
+            }
+
+            await sendProductsMessage({
+              subdomain,
+              action: 'updateProduct',
+              data: { _id: product._id, doc: { unitPrice: resProd?.Unit_Price || 0 } },
+              isRPC: true,
+            });
             updatePrices.push(resProd);
 
-            const document = {
-              unitPrice: resProd?.Unit_Price,
-            };
-
-            if (product) {
-              await sendProductsMessage({
-                subdomain,
-                action: 'updateProduct',
-                data: { _id: product._id, doc: { ...document } },
-                isRPC: true,
-              });
-            }
           } else {
             createPrices.push(resProd);
           }
@@ -181,6 +179,10 @@ const msdynamicSyncMutations = {
       create: {
         count: createPrices.length,
         items: createPrices,
+      },
+      match: {
+        count: matchPrices.length,
+        items: matchPrices,
       },
       update: {
         count: updatePrices.length,
