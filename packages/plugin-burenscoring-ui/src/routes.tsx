@@ -2,13 +2,13 @@ import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
-import GeneralSettings from './settings/components/GeneralSettings';
+import GeneralSettings from './config/components/Settings';
 const List = asyncComponent(() =>
   import(/* webpackChunkName: "List - Burenscorings" */ './containers/List')
 );
 const Settings = asyncComponent(
   () =>
-    import(/* webpackChunkName: "Settings" */ './settings/containers/Settings'),
+    import(/* webpackChunkName: "Settings" */ './config/containers/Settings'),
 );
 
 const burenscorings = ({ location, history }) => {
