@@ -16,7 +16,10 @@
         "revert",
         "style",
         "test",
-        "setup"
+        "setup",
+        "build",
+        "config",
+        "deps"
       ]
     ]
   }
