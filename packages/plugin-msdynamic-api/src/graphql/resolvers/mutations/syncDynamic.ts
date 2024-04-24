@@ -69,6 +69,7 @@ const msdynamicSyncMutations = {
     const updatePrices: any[] = [];
     const createPrices: any[] = [];
     const deletePrices: any[] = [];
+    const matchPrices: any[] = [];
 
     if (!config.priceApi || !config.username || !config.password) {
       throw new Error('MS Dynamic config not found.');
@@ -154,11 +155,19 @@ const msdynamicSyncMutations = {
           });
 
           if (productCodes.includes(updateCode)) {
-            updatePrices.push(resProd);
+            let document: {} = {} as any;
 
-            const document = {
-              unitPrice: resProd?.Unit_Price,
-            };
+            if (product.unitPrice === resProd?.Unit_Price) {
+              matchPrices.push(resProd);
+            }
+
+            if (product.unitPrice !== resProd?.Unit_Price) {
+              updatePrices.push(resProd);
+
+              document = {
+                unitPrice: resProd?.Unit_Price,
+              };
+            }
 
             if (product) {
               await sendProductsMessage({
@@ -181,6 +190,10 @@ const msdynamicSyncMutations = {
       create: {
         count: createPrices.length,
         items: createPrices,
+      },
+      match: {
+        count: matchPrices.length,
+        items: matchPrices,
       },
       update: {
         count: updatePrices.length,
