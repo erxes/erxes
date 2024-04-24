@@ -8,6 +8,7 @@ import FormGroup from "@erxes/ui/src/components/form/Group";
 import { List } from "../styles";
 import Select from "react-select";
 import { __ } from "coreui/utils";
+import { BoxPadding } from "@erxes/ui-contacts/src/customers/styles";
 
 type Props = {
   id: string;
@@ -62,34 +63,36 @@ function CustomerSideBar({
 
   return (
     <Box title={__("Block")} name="showOthers">
-      <FormGroup>
-        <ControlLabel>{__("Balance")}</ControlLabel>
-        <FormControl
-          type="number"
-          defaultValue={balance}
-          onChange={onChangeBalance}
-        />
-      </FormGroup>
-      <Button btnStyle="success" onClick={handleSubmitBalance}>
-        Submit
-      </Button>
-      <FormGroup>
-        <ControlLabel>{__("Verify")}</ControlLabel>
-        <Select
-          value={options.find((o) => o.value === verify)}
-          onChange={onVerifyChange}
-          options={options}
-          isClearable={false}
-        />
-      </FormGroup>
-      <Button btnStyle="success" onClick={handleSubmitVerify}>
-        Submit
-      </Button>
-      <List>
-        <li>
-          <div>{__("Total Balance")}: </div> <span>{getBalance}</span>
-        </li>
-      </List>
+      <BoxPadding>
+        <FormGroup>
+          <ControlLabel>{__("Balance")}</ControlLabel>
+          <FormControl
+            type="number"
+            defaultValue={balance}
+            onChange={onChangeBalance}
+          />
+        </FormGroup>
+        <Button btnStyle="success" onClick={handleSubmitBalance}>
+          Submit
+        </Button>
+        <FormGroup>
+          <ControlLabel>{__("Verify")}</ControlLabel>
+          <Select
+            value={options.find((o) => o.value === verify)}
+            onChange={onVerifyChange}
+            options={options}
+            isClearable={false}
+          />
+        </FormGroup>
+        <Button btnStyle="success" onClick={handleSubmitVerify}>
+          Submit
+        </Button>
+        <List>
+          <li>
+            <div>{__("Total Balance")}: </div> <span>{getBalance}</span>
+          </li>
+        </List>
+      </BoxPadding>
     </Box>
   );
 }

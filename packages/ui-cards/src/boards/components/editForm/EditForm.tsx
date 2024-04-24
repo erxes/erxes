@@ -160,9 +160,9 @@ function EditForm(props: Props) {
                   {props.formContent({
                     state: { stageId, updatedItem, prevStageId },
                     saveItem: saveItemHandler,
-                    onChangeStage: onChangeStage,
-                    copy: copy,
-                    remove: remove,
+                    onChangeStage,
+                    copy,
+                    remove,
                   })}
                 </div>
               </Transition.Child>

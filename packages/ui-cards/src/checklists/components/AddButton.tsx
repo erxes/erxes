@@ -13,18 +13,12 @@ type Props = {
 };
 
 class ChecklistAdd extends React.Component<Props> {
-  private overlayTrigger;
-
-  hidePopover = () => {
-    this.overlayTrigger.hide();
-  };
-
-  renderForm() {
+  renderForm = (closeAfterSelect) => {
     return (
       <>
         <Title>Add checklist</Title>
         <Wrapper>
-          <AddForm {...this.props} afterSave={this.hidePopover} />
+          <AddForm {...this.props} afterSave={closeAfterSelect} />
         </Wrapper>
       </>
     );
@@ -34,6 +28,7 @@ class ChecklistAdd extends React.Component<Props> {
     return (
       <Popover
         placement="bottom-start"
+        closeAfterSelect={true}
         trigger={
           <ColorButton>
             <Icon icon="check-square" />
@@ -41,7 +36,7 @@ class ChecklistAdd extends React.Component<Props> {
           </ColorButton>
         }
       >
-        {this.renderForm()}
+        {this.renderForm}
       </Popover>
     );
   }
