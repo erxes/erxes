@@ -134,14 +134,19 @@ export const isValidURL = (url: string) => {
  * @param {String} - value
  * @return {String} - URL
  */
-export const readFile = (value: string): string => {
+export const readFile = (value: string, width?: number ): string => {
   const { API_URL } = getEnv();
 
   if (!value || isValidURL(value) || value.includes('http')) {
     return value;
   }
 
-  return `${API_URL}/read-file?key=${value}`;
+  let url = `${API_URL}/read-file?key=${value}`;
+  if (width) {
+    url += `&width=${width}`;
+  }
+
+  return url;
 };
 
 export const checkRule = (rule: IRule, browserInfo: IBrowserInfo) => {
