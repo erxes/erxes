@@ -126,7 +126,7 @@ const msdynamicSyncMutations = {
             groupedItems[Item_No] = item;
           }
 
-          if (groupedItems[Item_No]['Unit_Price'] || 0 > Unit_Price) {
+          if ((groupedItems[Item_No]['Unit_Price'] || 0) > (Unit_Price || 0)) {
             groupedItems[Item_No] = item;
           }
         }
