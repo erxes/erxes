@@ -12,6 +12,7 @@ import * as xlsxPopulate from 'xlsx-populate';
 import { sendCommonMessage } from '../../messageBroker';
 import { query } from './queries/items';
 import * as htmlPdf from 'html-pdf-node';
+import * as puppeteer from 'puppeteer';
 
 export const verifyVendor = async (context) => {
   const { subdomain, cpUser } = context;
@@ -800,8 +801,18 @@ export const generateContract = async (
 };
 
 const generatePdf = async (subdomain, content, dealNumber) => {
-  const buffer = await htmlPdf.generatePdf({content}, {format: 'A4'});
+  // const buffer = await htmlPdf.generatePdf({content}, {format: 'A4'});
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  });
+  
+  const page = await browser.newPage();
 
+  await page.setContent(content);
+  const buffer = await page.pdf({ format: 'A4' });
+
+  await browser.close();
   const DOMAIN = getEnv({
     name: 'DOMAIN',
     subdomain,
