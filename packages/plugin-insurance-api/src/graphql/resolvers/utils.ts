@@ -7,12 +7,11 @@ import * as jwt from 'jsonwebtoken';
 import * as moment from 'moment';
 import fetch from 'node-fetch';
 
+import * as pdf from 'html-pdf';
 import * as tmp from 'tmp';
 import * as xlsxPopulate from 'xlsx-populate';
 import { sendCommonMessage } from '../../messageBroker';
 import { query } from './queries/items';
-import * as htmlPdf from 'html-pdf-node';
-import * as puppeteer from 'puppeteer';
 
 export const verifyVendor = async (context) => {
   const { subdomain, cpUser } = context;
@@ -801,18 +800,20 @@ export const generateContract = async (
 };
 
 const generatePdf = async (subdomain, content, dealNumber) => {
-  // const buffer = await htmlPdf.generatePdf({content}, {format: 'A4'});
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  });
-  
-  const page = await browser.newPage();
+  const createPdfBuffer = (content:any) => {
+    return new Promise((resolve, reject) => {
+      pdf.create(content).toBuffer((err, buffer) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(buffer);
+        }
+      });
+    });
+  }
 
-  await page.setContent(content);
-  const buffer = await page.pdf({ format: 'A4' });
+  const buffer:any = await createPdfBuffer(content);
 
-  await browser.close();
   const DOMAIN = getEnv({
     name: 'DOMAIN',
     subdomain,
@@ -826,6 +827,8 @@ const generatePdf = async (subdomain, content, dealNumber) => {
   const form = new FormData();
 
   //write buffer to tmp
+
+  console.log("buffer", buffer)
   const tmpFile = tmp.fileSync({ postfix: '.pdf', name: `${dealNumber}.pdf` });
   fs.writeFileSync(tmpFile.name, buffer);
 
