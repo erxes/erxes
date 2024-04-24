@@ -24,7 +24,8 @@
     "create-plugins-cis": "node scripts/create-plugins-cis",
     "create-plugin": "node scripts/create-plugin",
     "release": "release-it",
-    "create-release-ci": "node scripts/create-release-ci"
+    "create-release-ci": "node scripts/create-release-ci",
+    "prepare": "husky"
   },
   "devDependencies": {
     "//": "UI development dependencies, since sibling devDependencies are not being installed we moved them from packages/erxes-ui/package.json to here",
@@ -35,6 +36,8 @@
     "@babel/preset-react": "^7.14.5",
     "@babel/preset-typescript": "^7.10.4",
     "@babel/runtime": "^7.11.2",
+    "@commitlint/cli": "^19.3.0",
+    "@commitlint/config-conventional": "^19.2.2",
     "@graphql-codegen/cli": "5.0.0",
     "@graphql-codegen/client-preset": "^4.1.0",
     "@graphql-codegen/near-operation-file-preset": "^3.0.0",
