@@ -31,3 +31,16 @@ export type ScoringResultResponse = {
 export type ToFintechScoringResponse = {
   toFintechScoring: (params: { variables: { reportPurpose: string, keyword: string } }) => Promise<any>;
 };
+export type IConfigsMaps = { [key: string]: any };
+
+export type IBurenConfig = {
+  _id: string;
+  code: string;
+  value: any;
+};
+
+export type ConfigsResponse = {
+  configs: IBurenConfig[];
+  loading: boolean;
+  refetch: () => void;
+};

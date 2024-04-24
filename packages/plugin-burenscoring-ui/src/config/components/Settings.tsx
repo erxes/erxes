@@ -6,14 +6,14 @@ import {
   FormGroup,
 } from '@erxes/ui/src/components';
 
-import { IConfigsMap } from '../types';
+import { IConfigsMaps } from '../../types';
 import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 
 type Props = {
-  save: (configsMap: IConfigsMap) => void;
-  configsMap: IConfigsMap;
+  save: (configsMap: IConfigsMaps) => void;
+  configsMap: IConfigsMaps;
 };
 
 type State = {

@@ -66,8 +66,23 @@ query getCustomerScoring(${fintechParams}) {
   getCustomerScoring(${fintechParamsDefs})
 }
 `;
+
+const BurenConfigs = `
+  query configs {
+    configs {
+      _id
+      code
+      value
+    }
+  }
+`;
 export default {
   burenCustomerScoringsMain,
   getCustomerScore,
-  getCustomerScoring
+  getCustomerScoring,
+  BurenConfigs
 };
+
+
+
+

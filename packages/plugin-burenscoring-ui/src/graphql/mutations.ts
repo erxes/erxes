@@ -15,6 +15,14 @@ mutation toCheckScore(${params}) {
   toCheckScore(${paramsDefs})
   }
 `;
+
+const updateScoringConfigs = `
+  mutation configsUpdate($configsMap: JSON!) {
+    configsUpdate(configsMap: $configsMap)
+  }
+`;
+
 export default {
-  toCheckScoring
+  toCheckScoring,
+  updateScoringConfigs
 };

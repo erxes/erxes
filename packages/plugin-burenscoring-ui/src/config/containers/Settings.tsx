@@ -1,7 +1,7 @@
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import { ConfigsQueryResponse, IConfigsMap } from '../types';
-import { mutations, queries } from '../graphql';
+import { ConfigsResponse, IConfigsMaps } from '../../types';
+import { mutations, queries } from '../../graphql';
 
 import React from 'react';
 import { gql } from '@apollo/client';
@@ -12,8 +12,8 @@ type Props = {
   configCode: string;
 };
 type FinalProps = {
-  configsQuery: ConfigsQueryResponse;
-  updateConfigs: (configsMap: IConfigsMap) => Promise<void>;
+  configsQuery: ConfigsResponse;
+  updateConfigs: (configsMap: IConfigsMaps) => Promise<void>;
 } & Props;
 
 class SettingsContainer extends React.Component<FinalProps> {
@@ -21,7 +21,7 @@ class SettingsContainer extends React.Component<FinalProps> {
     const { updateConfigs, configsQuery } = this.props;
 
     // create or update action
-    const save = (map: IConfigsMap) => {
+    const save = (map: IConfigsMaps) => {
       updateConfigs({
         variables: { configsMap: map },
       })
@@ -58,10 +58,10 @@ class SettingsContainer extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, ConfigsQueryResponse>(gql(queries.configs), {
+    graphql<Props, ConfigsResponse>(gql(queries.BurenConfigs), {
       name: 'configsQuery'
     }),
-    graphql<{}>(gql(mutations.updateConfigs), {
+    graphql<{}>(gql(mutations.updateScoringConfigs), {
       name: 'updateConfigs',
     }),
   )(SettingsContainer),
