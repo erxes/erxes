@@ -8,12 +8,11 @@ export const loadBurenScoringClass = (models: IModels) => {
   class BurenScoring {
     // create
     public static async createBurenScoring(subdomain: string, doc:IBurenscoring) {
-        const result = await models.BurenScorings.create({
+      return await models.BurenScorings.create({
           ...doc,
           subdomain,
           createdAt: new Date()
         })
-        return result;
     }
   }
 

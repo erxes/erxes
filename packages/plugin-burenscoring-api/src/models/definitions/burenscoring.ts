@@ -1,5 +1,6 @@
 import { Schema, Document, model } from 'mongoose';
 import { field, schemaWrapper } from '@erxes/api-utils/src';
+import { IBurenScoringModel } from '../burenScoring';
 
 
 export interface ICreditScore {
@@ -238,4 +239,4 @@ export const burenscoringSchema = schemaWrapper(
     createdAt:Date
   }),
 );
-export const Burenscorings = model<any, any>('burenscorings', burenscoringSchema);
+export const Burenscorings = model<IBurenScoringDocument, IBurenScoringModel>('burenscorings', burenscoringSchema);

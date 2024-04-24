@@ -20,10 +20,9 @@ export const setupMessageConsumers = async () => {
   });
 };
 
-export const getConfig = async (
-  code: string,
-  subdomain: string,
-  defaultValue?: string,
+export const getBurenScoringConfig = async (
+  name: string,
+  subdomain: string
 ) => {
   const configs = await sendCoreMessage({
     subdomain,
@@ -33,11 +32,7 @@ export const getConfig = async (
     defaultValue: [],
   });
 
-  if (!configs[code]) {
-    return defaultValue;
-  }
-
-  return configs[code];
+  return configs[name];
 };
 
 export const sendCoreMessage = async (

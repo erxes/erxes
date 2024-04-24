@@ -65,7 +65,7 @@ const burenScoringMutations = {
       return await models.BurenScorings.createBurenScoring( subdomain, data);
     }
     
-    throw new Error(scoring.message || 'тооцоолол хийгдэх явцад алдаа гарлаа та мэдээллээ шалгана уу !!');
+    throw new Error(scoring.message || ' pleace check data !!');
 
   }
 };

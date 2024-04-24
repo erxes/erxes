@@ -64,7 +64,7 @@ class ScoringMainForm extends React.Component<Props, State> {
   };
   
   renderContent = (formProps: IFormProps) => {
-    const { renderButton,customerScore,loading} = this.props;
+    const { renderButton,customerScore} = this.props;
     const { values, isSubmitted } = formProps;
     const onchangeType= (value) => {
       this.setState({ ['reportPurpose']: value.value } as any);
@@ -84,8 +84,7 @@ class ScoringMainForm extends React.Component<Props, State> {
     };
 
     return (
-      <>
-          <FormWrapper>
+      <FormWrapper>
             <FormColumn>
             <FormGroup>
               <ControlLabel required={true} >{__('Register number')}</ControlLabel>
@@ -112,33 +111,32 @@ class ScoringMainForm extends React.Component<Props, State> {
                   required = {true}
                 />
             </FormGroup>
-        <FormGroup> 
-          <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
-                <thead>
-                  <tr>
-                    <th>{__('Score')}</th>
-                    <th>{__('Type')}</th>
-                    <th>{__('get Date')}</th>
-                  </tr>
-                </thead>
-                <tbody id="detail">
-                  <tr key={customerScore?._id}>
-                    <td >{customerScore?.score}</td>
-                    <td >{customerScore?.reportPurpose}</td>
-                    <td >{customerScore?.createdAt}</td>
-                  </tr>
-                </tbody>
-            </Table>
-        </FormGroup>
-          {renderButton({
-              name: 'Buren Scoring',
-              values: this.generateDoc(values),
-              isSubmitted,
-              object: customerScore
-            })}
-      </FormColumn>
-    </FormWrapper>
-      </>
+            <FormGroup> 
+              <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
+                    <thead>
+                      <tr>
+                        <th>{__('Score')}</th>
+                        <th>{__('Type')}</th>
+                        <th>{__('get Date')}</th>
+                      </tr>
+                    </thead>
+                    <tbody id="detail">
+                      <tr key={customerScore?._id}>
+                        <td >{customerScore?.score}</td>
+                        <td >{customerScore?.reportPurpose}</td>
+                        <td >{customerScore?.createdAt}</td>
+                      </tr>
+                    </tbody>
+                </Table>
+                {renderButton({
+                  name: 'Buren Scoring',
+                  values: this.generateDoc(values),
+                  isSubmitted,
+                  object: customerScore
+                })}
+            </FormGroup>
+          </FormColumn>
+      </FormWrapper>
     );
   };
 

@@ -7,7 +7,7 @@ export class BurenScoringApi extends BaseApi {
     reportPurpose: string;
   }) {
     try {
-      const res = await this.request({
+      return await this.request({
         method: 'POST',
         path: 'api/v1/scoring',
         data: {
@@ -15,7 +15,7 @@ export class BurenScoringApi extends BaseApi {
           reportPurpose: params.reportPurpose
         }
       }).then(r=>r.json());
-      return res;
+     
     } catch (e) {
       console.error(e);
       throw new Error(e.message);
