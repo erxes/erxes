@@ -331,67 +331,6 @@ export const consumeInventory = async (subdomain, config, doc, action) => {
   }
 };
 
-export const consumePrice = async (subdomain, config, doc, action) => {
-  const updateCode = doc.Item_No.replace(/\s/g, '');
-  let document: any = {};
-
-  const product = await sendProductsMessage({
-    subdomain,
-    action: 'findOne',
-    data: { code: updateCode },
-    isRPC: true,
-    defaultValue: {},
-  });
-
-  const brandIds = (product || {}).scopeBrandIds || [];
-
-  if (action === 'update' && doc.Item_No) {
-    if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
-      brandIds.push(config.brandId);
-    }
-
-    const currentDate = moment(new Date()).format('YYYY-MM-DD');
-    const date = moment(doc.Ending_Date).format('YYYY-MM-DD');
-
-    if (product && product.unitPrice === 0) {
-      document = {
-        unitPrice: doc?.Unit_Price,
-      };
-    }
-
-    if (product && product.unitPrice > 0) {
-      document = {
-        unitPrice:
-          product.unitPrice < doc?.Unit_Price
-            ? product.unitPrice
-            : doc?.Unit_Price,
-      };
-    }
-
-    if (doc.Ending_Date === '0001-01-01') {
-      if (product) {
-        await sendProductsMessage({
-          subdomain,
-          action: 'updateProduct',
-          data: { _id: product._id, doc: { ...document } },
-          isRPC: true,
-        });
-      }
-    }
-
-    if (doc.Ending_Date !== '0001-01-01' && moment(date).isAfter(currentDate)) {
-      if (product) {
-        await sendProductsMessage({
-          subdomain,
-          action: 'updateProduct',
-          data: { _id: product._id, doc: { ...document } },
-          isRPC: true,
-        });
-      }
-    }
-  }
-};
-
 export const consumeCategory = async (
   subdomain,
   config,
