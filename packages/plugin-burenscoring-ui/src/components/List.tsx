@@ -8,7 +8,6 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 type Props = {
   burenCustomerScorings: any;
   totalCount: number;
-  refetch: void
   loading: boolean
 };
 
@@ -34,10 +33,8 @@ function List({
         {burenCustomerScorings.map(burenScoring => {
           return (
             <Row
-              space={0}
               key={burenScoring._id}
               burenScoring={burenScoring}
-              burenCustomerScorings={burenCustomerScorings}
             />
           );
         })}

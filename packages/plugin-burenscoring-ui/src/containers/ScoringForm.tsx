@@ -1,4 +1,4 @@
-import { ButtonMutate, withProps, __, Alert} from '@erxes/ui/src';
+import { ButtonMutate, withProps, __} from '@erxes/ui/src';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import * as compose from 'lodash.flowright';
@@ -56,7 +56,6 @@ class ScoringFormContainer extends React.Component<FinalProps> {
       ...this.props,
       renderButton,
       customerScore: detailQuery.getCustomerScore || {},
-      loading: detailQuery.loading || false
     };
     return <ScoringForm {...updatedProps} />;
   }

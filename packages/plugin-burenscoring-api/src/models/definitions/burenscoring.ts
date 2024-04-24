@@ -1,58 +1,56 @@
-import * as _ from 'underscore';
-import { model } from 'mongoose';
-import { Schema, Document } from 'mongoose';
+import { Schema, Document, model } from 'mongoose';
 import { field, schemaWrapper } from '@erxes/api-utils/src';
 
 
-export interface creditScore {
+export interface ICreditScore {
   scoringResult: number,
   badRatio: number,
   odds: number
 }
-export interface monthlyLoanRepayment {
+export interface IMonthlyLoanRepayment {
   userMonthlyRepayment: number,
   lineTotalBaseAmount: number,
   lineTotalRemainAmount: number
 }
-export interface activeLoanInformation {
+export interface IActiveLoanInformation {
   activeLoanRemainPercent: number,
   activeLoanTotalRemainAmount: number
 }
-export interface outstanding {
+export interface IOutstanding {
   normal: number,
   overdue: number,
   bad: number,
   total: number
 }
-export interface closed {
+export interface IClosed {
   normal: number,
   overdue: number,
   bad: number,
   total: number
 }
 
-export interface  total {
+export interface ITotal {
   normal: number,
   overdue: number,
   bad: number,
   total: number
 }
-export interface loanClasses {
-  outstanding: outstanding,
-  closed: closed,
-  total: total
+export interface ILoanClasses {
+  outstanding: IOutstanding,
+  closed: IClosed,
+  total: ITotal
 }
-export interface creditSummary {
-  monthlyLoanRepayment: monthlyLoanRepayment,
-  activeLoanInformation: activeLoanInformation,
-  loanClasses: loanClasses,
+export interface ICreditSummary {
+  monthlyLoanRepayment: IMonthlyLoanRepayment,
+  activeLoanInformation: IActiveLoanInformation,
+  loanClasses: ILoanClasses,
   percentOfOnTimeClosedLoan: number
 }
-export interface detail {
-  creditScore: creditScore,
-  creditSummary?: creditSummary
+export interface IDetail {
+  creditScore: ICreditScore,
+  creditSummary?: ICreditSummary
 }
-export interface customer {
+export interface ICustomer {
   firstname: string,
   lastname: string,
   address: string,
@@ -60,7 +58,7 @@ export interface customer {
   familyname: string,
   nationality: string
 }
-export interface inquiry  {
+export interface Inquiry  {
     ROWNUM: number,
     AA_ORGCODE: string,
     AA_LOANCODE: string,
@@ -89,14 +87,14 @@ export interface inquiry  {
     HAS_CORELATION: string,
     LOAN_CLASS_CHANGED: string
   }
-export interface groupedPurposes
+export interface IGroupedPurposes
 {
   count: number,
   purposeCode: number,
   purpose: string,
   description: string
 }
-export interface histories
+export interface IHistories
 {
   requester: string,
   requestedDate: Date,
@@ -107,15 +105,15 @@ export interface IBurenscoring {
     data: {
       uuid: string,
       requestId: string,
-      detail:detail,
+      detail:IDetail,
     },
     message: string,
   },
   restInquiryResponse:{
-    customer: customer,
-    inquiry: [inquiry],
-    groupedPurposes: [groupedPurposes],
-    histories: [histories]
+    customer: ICustomer,
+    inquiry: [Inquiry],
+    groupedPurposes: [IGroupedPurposes],
+    histories: [IHistories]
   },
   score: number,
   customerId: string,

@@ -1,4 +1,3 @@
-import * as _ from 'underscore';
 import { Model } from 'mongoose';
 import { IBurenScoringDocument, IBurenscoring, burenscoringSchema } from './definitions/burenscoring';
 import { IModels } from '../connectionResolver';

@@ -2,7 +2,7 @@ import * as mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 import { IBurenScoringModel, loadBurenScoringClass} from '././models/burenScoring';
-import { IBurenScoringDocument, IBurenscoring } from './models/definitions/burenscoring';
+import { IBurenScoringDocument } from './models/definitions/burenscoring';
 
 export interface IModels {
   BurenScorings: IBurenScoringModel;

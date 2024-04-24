@@ -15,7 +15,6 @@ import { IBurenScoring } from '../types';
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   customerScore: IBurenScoring;
-  loading:boolean
 };
 
 type State = {

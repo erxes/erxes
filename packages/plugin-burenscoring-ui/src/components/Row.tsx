@@ -12,8 +12,6 @@ export const BurenscoringWrapper = styledTS<{ space: number }>(
 
 type Props = {
   burenScoring: any;
-  space: number;
-  burenCustomerScorings: any;
 };
 
 type State = {

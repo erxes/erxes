@@ -23,7 +23,7 @@ export class BaseApi {
     params?: any;
     data?: any;
   }) {
-    const { method, path, params, data } = args;
+    const { method, path, data } = args;
     const headers = await this.getHeaders();
     try {
       const requestOptions: RequestInit & Required<{ headers: HeaderInit }> = {
