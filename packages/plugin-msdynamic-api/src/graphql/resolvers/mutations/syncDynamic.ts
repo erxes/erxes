@@ -78,6 +78,7 @@ const msdynamicSyncMutations = {
     const { priceApi, username, password } = config;
 
     const productQry: any = { status: { $ne: 'deleted' } };
+
     if (brandId && brandId !== 'noBrand') {
       productQry.scopeBrandIds = { $in: [brandId] };
     } else {
@@ -133,10 +134,13 @@ const msdynamicSyncMutations = {
         }
       }
 
+      const productsByCode = {}
       // delete price
       for (const product of products) {
         if (!groupedItems[product.code]) {
           deletePrices.push(product);
+        } else {
+          productsByCode[product.code] = product
         }
       }
 
@@ -146,37 +150,22 @@ const msdynamicSyncMutations = {
           const resProd = groupedItems[key];
 
           const updateCode = resProd.Item_No.replace(/\s/g, '');
-          const product = await sendProductsMessage({
-            subdomain,
-            action: 'findOne',
-            data: { code: updateCode },
-            isRPC: true,
-            defaultValue: {},
-          });
+          const product = productsByCode[updateCode]
 
-          if (productCodes.includes(updateCode)) {
-            let document: {} = {} as any;
-
+          if (product) {
             if (product.unitPrice === resProd?.Unit_Price) {
               matchPrices.push(resProd);
+              continue
             }
 
-            if (product.unitPrice !== resProd?.Unit_Price) {
-              updatePrices.push(resProd);
+            await sendProductsMessage({
+              subdomain,
+              action: 'updateProduct',
+              data: { _id: product._id, doc: { unitPrice: resProd?.Unit_Price || 0 } },
+              isRPC: true,
+            });
+            updatePrices.push(resProd);
 
-              document = {
-                unitPrice: resProd?.Unit_Price,
-              };
-            }
-
-            if (product) {
-              await sendProductsMessage({
-                subdomain,
-                action: 'updateProduct',
-                data: { _id: product._id, doc: { ...document } },
-                isRPC: true,
-              });
-            }
           } else {
             createPrices.push(resProd);
           }
