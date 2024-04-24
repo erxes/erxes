@@ -93,9 +93,9 @@ const KnowledgeRow = (props: Props) => {
   );
 
   const renderManage = () => {
-    const addCategory = <Menu.Item>{__("Add category")}</Menu.Item>;
+    const addCategory = <a>{__("Add category")}</a>;
 
-    const manageTopic = <Menu.Item>{__("Edit Knowledge Base")}</Menu.Item>;
+    const manageTopic = <a>{__("Edit Knowledge Base")}</a>;
 
     return (
       <RowActions>
@@ -104,19 +104,23 @@ const KnowledgeRow = (props: Props) => {
           as={DropdownToggle}
           toggleComponent={<Icon icon="cog" size={15} />}
         >
-          <ModalTrigger
-            title="Manage Knowledge Base"
-            trigger={manageTopic}
-            content={content}
-            enforceFocus={false}
-            size="lg"
-          />
-          <ModalTrigger
-            title="Add Category"
-            trigger={addCategory}
-            autoOpenKey="showKBAddCategoryModal"
-            content={categoryContent}
-          />
+          <Menu.Item>
+            <ModalTrigger
+              title="Manage Knowledge Base"
+              trigger={manageTopic}
+              content={content}
+              enforceFocus={false}
+              size="lg"
+            />
+          </Menu.Item>
+          <Menu.Item>
+            <ModalTrigger
+              title="Add Category"
+              trigger={addCategory}
+              autoOpenKey="showKBAddCategoryModal"
+              content={categoryContent}
+            />
+          </Menu.Item>
         </Dropdown>
         <DropIcon onClick={handleToggle} $isOpen={detailed} />
       </RowActions>
