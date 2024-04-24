@@ -45,7 +45,7 @@ const Actions = styledTS<{ isSmall?: boolean }>(styled.div)`
     display: ${(props) => (props.isSmall ? 'inline-block' : 'block')};
   }
 
-  > button:first-child {
+  > div:first-child {
     margin: 0;
   }
 `;
