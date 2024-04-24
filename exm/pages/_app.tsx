@@ -1,20 +1,21 @@
-import "react-select-plus/dist/react-select-plus.css";
-import "erxes-icon/css/erxes.min.css";
-import "@nateradebaugh/react-datetime/css/react-datetime.css";
-import "../styles/globals.css";
+import 'react-select-plus/dist/react-select-plus.css';
+import 'erxes-icon/css/erxes.min.css';
+import '@nateradebaugh/react-datetime/css/react-datetime.css';
+import '../styles/globals.css';
 
-import AppProvider, { AppConsumer } from "../modules/appContext";
+import AppProvider, { AppConsumer } from '../modules/appContext';
 
-import { ApolloProvider } from "@apollo/client";
-import MainLayout from "../modules/layout/components/MainLayout";
-import React from "react";
-import withApolloClient from "./api/lib/withApolloClient";
+import { ApolloProvider } from '@apollo/client';
+import MainLayout from '../modules/layout/components/MainLayout';
+import React from 'react';
+import withApolloClient from './api/lib/withApolloClient';
 
 type Props = {
   pageProps: any;
   Component: any;
   apolloClient: any;
   router: any;
+  tests?: any;
 };
 
 function MyApp({ Component, pageProps, apolloClient, router }: Props) {
