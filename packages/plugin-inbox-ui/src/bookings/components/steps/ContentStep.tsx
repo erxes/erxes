@@ -81,8 +81,15 @@ function ContentStep({
     }));
   };
 
-  const images =
-    (image && delete image.__typename && extractAttachment([image])) || [];
+  const images = [] as any;
+
+  if (image && typeof image === "object") {
+    const imageClone = { ...image }; // Create a shallow clone of the object
+    if (imageClone.__typename) {
+      delete imageClone.__typename;
+      images.push(...extractAttachment([imageClone]));
+    }
+  }
 
   const renderGeneralSettings = () => {
     return (
