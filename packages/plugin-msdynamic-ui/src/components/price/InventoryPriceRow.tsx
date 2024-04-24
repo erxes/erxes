@@ -15,7 +15,7 @@ const Row = ({ price, action }: Props) => {
       <td>{parseFloat(action === 'DELETE' ? unitPrice : Unit_Price)}</td>
       <td>{action === 'DELETE' ? '' : Ending_Date}</td>
 
-      {action === 'UPDATE' ? (
+      {action === 'UPDATE' || action === 'MATCH' ? (
         <td>
           <span style={{ color: '#27ae60' }}> Synced </span>
         </td>
