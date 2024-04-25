@@ -25,7 +25,7 @@ import Info from "modules/common/components/Info";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Popover from "react-bootstrap/Popover";
 import React from "react";
-import Select from "react-select-plus";
+import Select from "react-select";
 import { SelectTeamMembers } from "@erxes/ui/src";
 import TwitterPicker from "react-color/lib/Twitter";
 import Wrapper from "modules/layout/components/Wrapper";
@@ -131,9 +131,9 @@ class GeneralSettings extends React.Component<Props, State> {
           value={configsMap[key]}
           options={mimeTypeOptions}
           onChange={this.onChangeMultiCombo.bind(this, key)}
-          multi={true}
+          isMulti={true}
           delimiter=","
-          simpleValue={true}
+          // simpleValue={true}
         />
       </FormGroup>
     );
@@ -231,7 +231,7 @@ class GeneralSettings extends React.Component<Props, State> {
           options={constant}
           value={value}
           onChange={this.onChangeMultiCombo.bind(this, kind)}
-          multi={true}
+          isMulti={true}
         />
       </FormGroup>
     );
@@ -247,15 +247,15 @@ class GeneralSettings extends React.Component<Props, State> {
         description={__("Cloudflare R2 Bucket, Images & Stream CDN configs")}
         beforeTitle={<Icon icon="comment-upload" />}
       >
-        <FlexRow alignItems="flex-start" justifyContent="space-between">
+        <FlexRow $alignItems="flex-start" $justifyContent="space-between">
           {this.renderItem("CLOUDFLARE_ACCOUNT_ID")}
           {this.renderItem("CLOUDFLARE_API_TOKEN")}
         </FlexRow>
-        <FlexRow alignItems="flex-start" justifyContent="space-between">
+        <FlexRow $alignItems="flex-start" $justifyContent="space-between">
           {this.renderItem("CLOUDFLARE_ACCESS_KEY_ID")}
           {this.renderItem("CLOUDFLARE_SECRET_ACCESS_KEY")}
         </FlexRow>
-        <FlexRow alignItems="flex-start" justifyContent="space-between">
+        <FlexRow $alignItems="flex-start" $justifyContent="space-between">
           {this.renderItem("CLOUDFLARE_BUCKET_NAME")}
           {this.renderItem("CLOUDFLARE_ACCOUNT_HASH")}
         </FlexRow>
@@ -304,10 +304,10 @@ class GeneralSettings extends React.Component<Props, State> {
             <ControlLabel>Language</ControlLabel>
             <Select
               options={LANGUAGES}
-              value={language}
+              value={{ value: language, label: language }}
               onChange={this.onLanguageChange}
-              searchable={false}
-              clearable={false}
+              isSearchable={false}
+              isClearable={false}
               placeholder={__("Select")}
             />
           </FormGroup>
@@ -318,7 +318,7 @@ class GeneralSettings extends React.Component<Props, State> {
               options={CURRENCIES}
               value={configsMap.dealCurrency}
               onChange={this.onChangeMultiCombo.bind(this, "dealCurrency")}
-              multi={true}
+              isMulti={true}
             />
           </FormGroup>
 
