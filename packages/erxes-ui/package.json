@@ -7,7 +7,6 @@
     "@nateradebaugh/react-datetime": "4.0.0-rc.10",
     "@popperjs/core": "^2.11.8",
     "@types/styled-components": "^3.0.0",
-    "ckeditor4-react": "^1.0.0",
     "@tiptap/core": "^2.3.0",
     "@tiptap/extension-blockquote": "^2.3.0",
     "@tiptap/extension-bold": "^2.3.0",

@@ -18,10 +18,10 @@ import FormControl from "@erxes/ui/src/components/form/Control";
 import GenerateAddFormFields from "./GenerateAddFormFields";
 import { LogicParams } from "@erxes/ui-forms/src/settings/properties/types";
 import React from "react";
+import Select from "react-select";
 import { checkLogic } from "@erxes/ui-forms/src/settings/properties/utils";
 import { invalidateCache } from "../../utils";
 import { loadDynamicComponent } from "@erxes/ui/src/utils/core";
-import Select from "react-select";
 
 type Props = {
   options: IOptions;
