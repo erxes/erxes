@@ -246,6 +246,54 @@ class MainConfig extends React.Component<Props, State> {
             </Button>
           </ModalFooter>
         </CollapseContent>
+        <CollapseContent
+          title={__("internet bank config")}
+          open={false}
+        >
+          <FormGroup>
+            <ControlLabel>{__('Loan give limit')}</ControlLabel>
+            <FormControl
+              defaultValue={config['loanGiveLimit']}
+              type="number"
+              onChange={this.onChangeInputNumber.bind(this, 'loanGiveLimit')}
+              required={true}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__('Loan give account type')}</ControlLabel>
+            <FormControl
+              name="loanGiveAccountType"
+              componentClass="select"
+              defaultValue={config['loanGiveAccountType']}
+              onChange={this.onChangeInput.bind(this, 'loanGiveAccountType')}
+            >
+              {['khanbank', 'golomt'].map((typeName, index) => (
+                <option key={index} value={typeName}>
+                  {__(typeName)}
+                </option>
+              ))}
+            </FormControl>
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__('Loan give account number')}</ControlLabel>
+            <FormControl
+              defaultValue={config['loanGiveAccountNumber']}
+              type="number"
+              onChange={this.onChangeInputNumber.bind(this, 'loanGiveAccountNumber')}
+              required={true}
+            />
+          </FormGroup>
+          <ModalFooter>
+            <Button
+              btnStyle="primary"
+              icon="check-circle"
+              onClick={this.onSave}
+              uppercase={false}
+            >
+              {__('Save')}
+            </Button>
+          </ModalFooter>
+        </CollapseContent>
       </>
     );
   }

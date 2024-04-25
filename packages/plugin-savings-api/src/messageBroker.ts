@@ -106,6 +106,39 @@ export const setupMessageConsumers = async () => {
       };
     },
   );
+
+  consumeRPCQueue(
+    'savings:transactions.createTransaction',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const transaction = await models.Transactions.createTransaction(data)
+
+      return {
+        status: 'success',
+        data: transaction
+      };
+    },
+  );
+};
+
+export const getConfig = async (
+  code: 'savingConfig',
+  subdomain: string,
+  defaultValue?: string,
+) => {
+  const configs = await sendCoreMessage({
+    subdomain,
+    action: 'getConfigs',
+    data: {},
+    isRPC: true,
+    defaultValue: [],
+  });
+
+  if (!configs[code]) {
+    return defaultValue;
+  }
+
+  return configs[code];
 };
 
 export const sendMessageBroker = async (
@@ -120,7 +153,8 @@ export const sendMessageBroker = async (
     | 'clientportal'
     | 'syncerkhet'
     | 'ebarimt'
-    | 'loans',
+    | 'loans' 
+    | 'khanbank',
 ): Promise<any> => {
   return sendMessage({
     serviceName: name,

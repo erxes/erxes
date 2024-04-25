@@ -85,6 +85,8 @@ export const loadTransactionClass = (models: IModels) => {
         .sort({ date: -1 })
         .lean();
 
+      const config: IConfig = await getConfig('loansConfig', subdomain);
+
       if (!doc.contractId) {
         throw new Error('Contract not selected');
       }
@@ -116,6 +118,11 @@ export const loadTransactionClass = (models: IModels) => {
       }
 
       if (doc.transactionType === 'give') {
+        if(!config.loanGiveLimit)
+            throw new Error('Loan give limit not configured')
+        if(config.loanGiveLimit < doc.total)
+            throw new Error('The limit is exceeded')
+          
         doc.give = doc.total;
         doc.contractReaction = contract;
 
@@ -147,7 +154,7 @@ export const loadTransactionClass = (models: IModels) => {
         return tr;
       }
 
-      const config: IConfig = await getConfig('loansConfig', subdomain);
+      
 
       doc.payDate = getFullDate(doc.payDate);
       doc.contractReaction = contract;

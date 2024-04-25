@@ -1,14 +1,13 @@
 import { Document, Schema } from 'mongoose';
 import { schemaHooksWrapper, field } from './utils';
-export interface ICalcDivideParams {
-  contractId?: string;
-  payDate: Date;
-}
 
-export interface ICalcTrParams {
-  contractId: string;
-  payDate: Date;
-  total: number;
+export interface ITrInfo {
+  dealtType: 'internal' | 'external';
+  accountNumber: string;
+  accountHolderName: string;
+  externalBankName: string;
+  ownBankNumber: string;
+  ownBankType: string;
 }
 
 export interface ITransaction {
@@ -27,6 +26,7 @@ export interface ITransaction {
   contractReaction?: any;
   storeReaction?: any;
   isManual?: boolean;
+  trInfo?:ITrInfo
 }
 
 export interface ITransactionDocument extends ITransaction, Document {

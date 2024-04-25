@@ -1,6 +1,8 @@
 import { IModels } from '../../connectionResolver';
+import { sendMessageBroker } from '../../messageBroker';
+import { TRANSACTION_TYPE } from '../definitions/constants';
 import {
-  ICalcTrParams,
+  ITransaction,
   ITransactionDocument
 } from '../definitions/transactions';
 
@@ -13,32 +15,21 @@ export const getCloseInfo = async () => {
   return result;
 };
 
-export const transactionIncome = async (
+export const transactionDealt = async (
+  doc: ITransaction,
   models: IModels,
-  subdomain: string,
-  doc: ICalcTrParams | any
+  subdomain
 ) => {
-  let result = {};
-  return result;
-};
+  if (doc.trInfo?.dealtType === 'internal') {
+    const contract = await models.Contracts.findOne({
+      number: doc.trInfo?.accountNumber
+    }).lean();
+    if (!contract) throw new Error('Dealt contract not found');
 
-export const transactionOutcome = async () => {
-  const result = {};
-  return result;
-};
-/**
- * when transaction done
- * then schedule must be modified by paid amount
- */
-export const trAfterSchedule = async (
-  models: IModels,
-  tr: ITransactionDocument
-) => {
-  if (!tr.contractId) {
-    return;
-  }
+    doc.transactionType = TRANSACTION_TYPE.INCOME;
 
-  return;
+    await models.Transactions.createTransaction(doc, subdomain);
+  } 
 };
 
 export const removeTrAfterSchedule = async (
