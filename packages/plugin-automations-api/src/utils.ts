@@ -14,8 +14,7 @@ import {
 import { getActionsMap } from './helpers';
 import { sendCommonMessage, sendSegmentsMessage } from './messageBroker';
 
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
-import { generateElkId } from '@erxes/api-utils/src/elasticsearch';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 import { IModels } from './connectionResolver';
 import { handleEmail } from './common/emailUtils';
 import { setActionWait } from './actions/wait';
@@ -51,7 +50,7 @@ export const isInSegment = async (
   const response = await sendSegmentsMessage({
     subdomain,
     action: 'isInSegment',
-    data: { segmentId, idToCheck: generateElkId(targetId, subdomain) },
+    data: { segmentId, idToCheck: targetId },
     isRPC: true,
   });
 

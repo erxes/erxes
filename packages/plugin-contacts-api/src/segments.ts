@@ -69,16 +69,13 @@ export default {
     }
 
     if (propertyType === 'forms:form_submission') {
-      ids = await generateElkIds(
-        await fetchByQuery({
-          subdomain,
-          index: 'form_submissions',
-          _source: 'customerId',
-          positiveQuery,
-          negativeQuery,
-        }),
+      ids = await fetchByQuery({
         subdomain,
-      );
+        index: 'form_submissions',
+        _source: 'customerId',
+        positiveQuery,
+        negativeQuery,
+      });
     } else {
       const serviceName = getServiceName(propertyType);
 
