@@ -28,9 +28,25 @@ const transactionMutations = {
   },
   clientSavingsTransactionsAdd: async (
     _root,
-    doc: ITransaction,
+    doc: ITransaction & {secondaryPassword:string},
     { user, models, subdomain }: IContext
   ) => {
+
+    const validate = await sendMessageBroker(
+      {
+        subdomain,
+        action:'clientPortalUsers.validatePassword',
+        data:{
+          userId:doc.customerId,
+          password:doc.secondaryPassword,
+          secondary:true
+        }
+      },'clientportal'
+    )
+
+    if(validate.status === 'error'){
+      throw new Error(validate.errorMessage)
+    }
 
     const transaction = await models.Transactions.createTransaction(doc,subdomain);
 
