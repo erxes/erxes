@@ -1,8 +1,9 @@
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { dimensions, colors } from '@erxes/ui/src/styles';
+import { colors, dimensions } from '@erxes/ui/src/styles';
+
 import { TriggerBox } from '../../../styles';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 export const ActionFooter = styled.div`
   padding: ${dimensions.unitSpacing}px;
@@ -42,14 +43,14 @@ export const Attributes = styled.ul`
 `;
 
 export const ActionBox = styledTS<{
-  isFavourite: boolean;
-  isAvailable: boolean;
+  $isFavourite: boolean;
+  $isAvailable: boolean;
 }>(styled(TriggerBox))`
     flex-direction: row;
     margin-top: ${dimensions.unitSpacing}px;
     margin-right: 0;
     position: relative;
-    pointer-events: ${props => !props.isAvailable && 'none'};
+    pointer-events: ${props => !props.$isAvailable && 'none'};
 
     > i {
       margin-right: ${dimensions.unitSpacing}px;
@@ -86,7 +87,7 @@ export const ActionBox = styledTS<{
       right: ${dimensions.coreSpacing}px;
 
       > i {
-        color: ${props => props.isFavourite && colors.colorCoreOrange}
+        color: ${props => props.$isFavourite && colors.colorCoreOrange}
       }
     }
   `;
