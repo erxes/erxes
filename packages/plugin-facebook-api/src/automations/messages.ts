@@ -49,7 +49,7 @@ const generateMessages = async (
   const getUrl = (key) => {
     const DOMAIN = getEnv({
       name: 'DOMAIN',
-      subdomain
+      subdomain,
     });
 
     const NODE_ENV = getEnv({ name: 'NODE_ENV' });
@@ -308,7 +308,11 @@ export const actionCreateMessage = async (
       subdomain,
       config,
       conversation,
+<<<<<<< HEAD
       customer
+=======
+      customer,
+>>>>>>> c89679e19305028f422ffb67c7259e6aaa64ce67
     );
 
     if (!messages?.length) {

@@ -1,11 +1,11 @@
-import * as xlsxPopulate from 'xlsx-populate';
-import * as moment from 'moment';
-import * as fs from 'fs';
-import { createAWS, createCFR2, uploadsFolderPath } from '../../data/utils';
-import { getFileUploadConfigs } from '../../messageBroker';
-import { generateModels, IModels } from '../../connectionResolvers';
-import { sendRPCMessage } from '@erxes/api-utils/src/messageBroker';
-import { disconnect } from '@erxes/api-utils/src/mongo-connection';
+import * as xlsxPopulate from "xlsx-populate";
+import * as moment from "moment";
+import * as fs from "fs";
+import { createAWS, createCFR2, uploadsFolderPath } from "../../data/utils";
+import { getFileUploadConfigs } from "../../messageBroker";
+import { generateModels, IModels } from "../../connectionResolvers";
+import { sendRPCMessage } from "@erxes/api-utils/src/messageBroker";
+import { disconnect } from "@erxes/api-utils/src/mongo-connection";
 
 export const createXlsFile = async () => {
   // Generating blank workbook
@@ -22,11 +22,11 @@ export const generateXlsx = async (workbook: any): Promise<string> => {
 };
 
 // tslint:disable-next-line
-const { parentPort, workerData } = require('worker_threads');
+const { parentPort, workerData } = require("worker_threads");
 
 const { subdomain } = workerData;
 
-export const getConfigs = async (models) => {
+export const getConfigs = async models => {
   const configsMap = {};
   const configs = await models.Configs.find({}).lean();
 
@@ -40,7 +40,7 @@ export const getConfigs = async (models) => {
 export const getConfig = async (
   code: string,
   defaultValue?: string,
-  models?: IModels,
+  models?: IModels
 ) => {
   const configs = await getConfigs(models);
 
@@ -57,13 +57,13 @@ export const getConfig = async (
 export const uploadFileLocal = async (
   workbook: any,
   rowIndex: any,
-  type: string,
+  type: string
 ): Promise<{ file: string; rowIndex: number; error: string }> => {
-  const fileName = `${type} - ${moment().format('YYYY-MM-DD HH:mm')}`;
+  const fileName = `${type} - ${moment().format("YYYY-MM-DD HH-mm")}`;
 
   const excelData = await generateXlsx(workbook);
 
-  let error = '';
+  let error = "";
 
   try {
     if (!fs.existsSync(`${uploadsFolderPath}`)) {
@@ -72,7 +72,7 @@ export const uploadFileLocal = async (
 
     await fs.promises.writeFile(
       `${uploadsFolderPath}/${fileName}.xlsx`,
-      excelData,
+      excelData
     );
   } catch (e) {
     error = e.message;
@@ -90,7 +90,7 @@ export const uploadFileAWS = async (
   subdomain: string,
   workbook: any,
   rowIndex: any,
-  type: string,
+  type: string
 ): Promise<{ file: string; rowIndex: number; error: string }> => {
   const { AWS_BUCKET, FILE_SYSTEM_PUBLIC } =
     await getFileUploadConfigs(subdomain);
@@ -100,28 +100,28 @@ export const uploadFileAWS = async (
 
   const excelData = await generateXlsx(workbook);
 
-  const fileName = `${type} - ${moment().format('YYYY-MM-DD HH:mm')}.xlsx`;
+  const fileName = `${type} - ${moment().format("YYYY-MM-DD HH-mm")}.xlsx`;
 
-  const response: any = await new Promise((resolve) => {
+  const response: any = await new Promise(resolve => {
     s3.upload(
       {
         ContentType:
-          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         Bucket: AWS_BUCKET,
         Key: fileName,
         Body: excelData,
-        ACL: FILE_SYSTEM_PUBLIC === 'true' ? 'public-read' : undefined,
+        ACL: FILE_SYSTEM_PUBLIC === "true" ? "public-read" : undefined
       },
       (err, res) => {
         if (err) {
           return resolve({ error: err.message });
         }
         return resolve(res);
-      },
+      }
     );
   });
 
-  const file = FILE_SYSTEM_PUBLIC === 'true' ? response.Location : fileName;
+  const file = FILE_SYSTEM_PUBLIC === "true" ? response.Location : fileName;
   const error = response.error;
 
   return { file, rowIndex, error };
@@ -131,7 +131,7 @@ export const uploadFileCloudflare = async (
   subdomain: string,
   workbook: any,
   rowIndex: any,
-  type: string,
+  type: string
 ): Promise<{ file: string; rowIndex: number; error: string }> => {
   const { CLOUDFLARE_BUCKET_NAME, FILE_SYSTEM_PUBLIC } =
     await getFileUploadConfigs(subdomain);
@@ -141,28 +141,28 @@ export const uploadFileCloudflare = async (
 
   const excelData = await generateXlsx(workbook);
 
-  const fileName = `${type} - ${moment().format('YYYY-MM-DD HH:mm')}.xlsx`;
+  const fileName = `${type} - ${moment().format("YYYY-MM-DD HH-mm")}.xlsx`;
 
-  const response: any = await new Promise((resolve) => {
+  const response: any = await new Promise(resolve => {
     s3.upload(
       {
         ContentType:
-          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         Bucket: CLOUDFLARE_BUCKET_NAME,
         Key: fileName,
         Body: excelData,
-        ACL: FILE_SYSTEM_PUBLIC === 'true' ? 'public-read' : undefined,
+        ACL: FILE_SYSTEM_PUBLIC === "true" ? "public-read" : undefined
       },
       (err, res) => {
         if (err) {
           return resolve({ error: err.message });
         }
         return resolve(res);
-      },
+      }
     );
   });
 
-  const file = FILE_SYSTEM_PUBLIC === 'true' ? response.Location : fileName;
+  const file = FILE_SYSTEM_PUBLIC === "true" ? response.Location : fileName;
   const error = response.error;
 
   return { file, rowIndex, error };
@@ -176,7 +176,7 @@ async function main() {
       contentType,
       exportHistoryId,
       columnsConfig,
-      segmentData,
+      segmentData
     }: {
       contentType: string;
       exportHistoryId: string;
@@ -186,7 +186,7 @@ async function main() {
 
     const models = await generateModels(subdomain);
 
-    const [serviceName, type] = contentType.split(':');
+    const [serviceName, type] = contentType.split(":");
 
     const { totalCount, excelHeader } = await sendRPCMessage(
       `${serviceName}:exporter.prepareExportData`,
@@ -195,10 +195,10 @@ async function main() {
         data: {
           contentType,
           columnsConfig,
-          segmentData,
+          segmentData
         },
-        timeout: 5 * 60 * 1000, // 5 minutes
-      },
+        timeout: 5 * 60 * 1000 // 5 minutes
+      }
     );
 
     const perPage = 10;
@@ -217,19 +217,19 @@ async function main() {
             columnsConfig,
             segmentData,
             page,
-            perPage,
+            perPage
           },
-          timeout: 5 * 60 * 1000, // 5 minutes
-        },
+          timeout: 5 * 60 * 1000 // 5 minutes
+        }
       );
 
       percentage = Number(
-        ((((page - 1) * perPage) / totalCount) * 100).toFixed(2),
+        ((((page - 1) * perPage) / totalCount) * 100).toFixed(2)
       );
 
       await models.ExportHistory.updateOne(
         { _id: exportHistoryId },
-        { $set: { percentage } },
+        { $set: { percentage } }
       );
 
       docs = docs.concat(response ? response.docs || [] : []);
@@ -253,55 +253,55 @@ async function main() {
       for (const header of excelHeader) {
         const value = doc[header];
 
-        sheet.cell(rowIndex, columnIndex + 1).value(value || '-');
+        sheet.cell(rowIndex, columnIndex + 1).value(value || "-");
         columnIndex++;
       }
 
       rowIndex++;
     }
 
-    if (UPLOAD_SERVICE_TYPE === 'AWS') {
+    if (UPLOAD_SERVICE_TYPE === "AWS") {
       result = await uploadFileAWS(subdomain, workbook, rowIndex, type);
     }
 
-    if (UPLOAD_SERVICE_TYPE === 'CLOUDFLARE') {
+    if (UPLOAD_SERVICE_TYPE === "CLOUDFLARE") {
       result = await uploadFileCloudflare(subdomain, workbook, rowIndex, type);
     }
 
-    if (UPLOAD_SERVICE_TYPE === 'local') {
+    if (UPLOAD_SERVICE_TYPE === "local") {
       result = await uploadFileLocal(workbook, rowIndex, type);
     }
 
     let finalResponse = {
       exportLink: result.file,
       total: totalCount,
-      status: 'success',
+      status: "success",
       uploadType: UPLOAD_SERVICE_TYPE,
-      errorMsg: '',
-      percentage: 100,
+      errorMsg: "",
+      percentage: 100
     };
 
     if (result.error) {
       finalResponse = {
         exportLink: result.file,
         total: totalCount,
-        status: 'failed',
+        status: "failed",
         uploadType: UPLOAD_SERVICE_TYPE,
         errorMsg: `Error occurred during uploading ${UPLOAD_SERVICE_TYPE} "${result.error}"`,
-        percentage: 100,
+        percentage: 100
       };
     }
 
     await models.ExportHistory.updateOne(
       { _id: exportHistoryId },
-      finalResponse,
+      finalResponse
     );
 
     console.log(`Worker done`);
 
     parentPort.postMessage({
-      action: 'remove',
-      message: 'Successfully finished the job',
+      action: "remove",
+      message: "Successfully finished the job"
     });
 
     await disconnect();
