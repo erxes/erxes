@@ -1,10 +1,4 @@
-import { IUserDocument } from '@erxes/api-utils/src/types';
-import { sendCoreMessage } from './messageBroker';
-import * as dayjs from 'dayjs';
-import { IModels, generateModels } from './connectionResolver';
-import { loanExpiredReportData } from './reports/loanExpiredReportData';
-
-const NOW = new Date();
+import { generateModels } from './connectionResolver';
 
 const reportTemplates = [
   {
