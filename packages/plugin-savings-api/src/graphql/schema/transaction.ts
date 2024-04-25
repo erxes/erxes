@@ -73,6 +73,9 @@ const commonFields = `
   organizationRegister: String,
   transactionType: String
 `;
+const clientFields = `
+  secondaryPassword: String,
+`;
 
 const changeFields = `
   payment: Float,
@@ -80,6 +83,7 @@ const changeFields = `
 
 export const mutations = `
   savingsTransactionsAdd(${commonFields}): SavingTransaction
+  clientSavingsTransactionsAdd(${commonFields}${clientFields}): SavingTransaction
   savingsTransactionsEdit(_id: String!, ${commonFields}): SavingTransaction
   savingsTransactionsChange(_id: String!, ${changeFields}): SavingTransaction
   savingsTransactionsRemove(transactionIds: [String]): [String]

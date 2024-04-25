@@ -111,7 +111,7 @@ export const setupMessageConsumers = async () => {
     'savings:transactions.createTransaction',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
-      const transaction = await models.Transactions.createTransaction(data)
+      const transaction = await models.Transactions.createTransaction(data,subdomain)
 
       return {
         status: 'success',

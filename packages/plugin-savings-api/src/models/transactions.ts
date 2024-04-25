@@ -17,7 +17,7 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(selector: FilterQuery<ITransactionDocument>);
   createTransaction(
     doc: ITransaction,
-    subdomain: string
+    subdomain?: string
   ): Promise<ITransactionDocument>;
   updateTransaction(_id: string, doc: ITransaction);
   changeTransaction(_id: string, doc: ITransaction);
@@ -47,11 +47,11 @@ export const loadTransactionClass = (models: IModels) => {
      */
     public static async createTransaction(
       doc: ITransaction,
-      subdomain: string
+      subdomain?: string
     ) {
       doc = { ...doc, ...(await findContractOfTr(models, doc)) };
 
-      const config: IConfig = await getConfig('savingConfig', subdomain);
+      
 
       const periodLock = await models.PeriodLocks.findOne({
         date: { $gte: doc.payDate }
@@ -63,7 +63,8 @@ export const loadTransactionClass = (models: IModels) => {
         throw new Error(
           'At this moment transaction can not been created because this date closed'
         );
-      if (doc.transactionType === TRANSACTION_TYPE.OUTCOME) {
+      if (doc.transactionType === TRANSACTION_TYPE.OUTCOME && subdomain) {
+        const config: IConfig = await getConfig('savingConfig', subdomain);
         if (!config.oneTimeTransactionLimit)
           throw new Error('oneTimeTransactionLimit not configured');
         if (config.oneTimeTransactionLimit < doc.total)
