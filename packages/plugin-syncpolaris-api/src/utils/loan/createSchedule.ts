@@ -19,7 +19,7 @@ const getHolidayMethod = (method) => {
     case 'before':
       return '1';
     case 'after':
-      return '2';
+      return '3';
 
     default:
       return '2';
