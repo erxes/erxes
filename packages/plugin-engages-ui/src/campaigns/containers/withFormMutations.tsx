@@ -55,7 +55,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
       const message =
         engageMessageDetailQuery.engageMessageDetail || ({} as IEngageMessage);
       const users = usersQuery.allUsers || [];
-      const verifiedUsers = users.filter((user) => user.username) || [];
+      const verifiedUsers = users.filter(user => user.username) || [];
       const doMutation = (mutation, variables, msg) => {
         this.setState({ isLoading: true });
 
@@ -70,7 +70,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
               search: '?engageRefetchList=true',
             });
           })
-          .catch((error) => {
+          .catch(error => {
             Alert.error(error.message);
 
             this.setState({ isLoading: false });
@@ -78,8 +78,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
       };
 
       // save
-      const save = (doc) => {
-        doc.kind = message.kind ? message.kind : kind;
+      const save = doc => {
         if (messageId) {
           return doMutation(
             editMutation,

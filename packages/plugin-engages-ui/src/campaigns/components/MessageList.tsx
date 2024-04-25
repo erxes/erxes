@@ -46,7 +46,7 @@ class List extends React.Component<Props> {
     const { bulk, emptyBulk } = this.props;
 
     const tagButton = (
-      <Button btnStyle="simple" size="small" icon="tag-alt">
+      <Button btnStyle='simple' size='small' icon='tag-alt'>
         {__('Tag')}
       </Button>
     );
@@ -85,7 +85,7 @@ class List extends React.Component<Props> {
     }
 
     const trigger = (
-      <Button btnStyle="warning" size="small" icon="analysis">
+      <Button btnStyle='warning' size='small' icon='analysis'>
         {__('Email statistics')}
       </Button>
     );
@@ -107,50 +107,50 @@ class List extends React.Component<Props> {
         <ItemWrapper>
           <PercentItem
             color={colors.colorCoreBlue}
-            icon="telegram-alt"
-            name="Sent"
+            icon='telegram-alt'
+            name='Sent'
             percent={avgSendPercent}
           />
           <PercentItem
             color={colors.colorCoreGreen}
-            icon="comment-check"
-            name="Delivered"
+            icon='comment-check'
+            name='Delivered'
             percent={avgDeliveryPercent}
           />
           <PercentItem
             color={colors.colorCoreOrange}
-            icon="envelope-open"
-            name="Opened"
+            icon='envelope-open'
+            name='Opened'
             percent={avgOpenPercent}
           />
           <PercentItem
             color={colors.colorCoreDarkBlue}
-            icon="mouse-alt"
-            name="Clicked"
+            icon='mouse-alt'
+            name='Clicked'
             percent={avgClickPercent}
           />
           <PercentItem
             color={colors.colorCoreTeal}
-            icon="frown"
-            name="Complaint"
+            icon='frown'
+            name='Complaint'
             percent={avgComplaintPercent}
           />
           <PercentItem
             color={colors.colorCoreYellow}
-            icon="arrows-up-right"
-            name="Bounce"
+            icon='arrows-up-right'
+            name='Bounce'
             percent={avgBouncePercent}
           />
           <PercentItem
             color={colors.colorCoreRed}
-            icon="ban"
-            name="Rejected"
+            icon='ban'
+            name='Rejected'
             percent={avgRejectPercent}
           />
           <PercentItem
             color={colors.colorCoreDarkGray}
-            icon="times-circle"
-            name="Rendering failure"
+            icon='times-circle'
+            name='Rendering failure'
             percent={avgRenderingFailurePercent}
           />
         </ItemWrapper>
@@ -159,7 +159,7 @@ class List extends React.Component<Props> {
 
     return (
       <ModalTrigger
-        title="New message"
+        title='New message'
         trigger={trigger}
         content={content}
         hideHeader={true}
@@ -173,8 +173,8 @@ class List extends React.Component<Props> {
     return (
       <>
         {this.renderPercentage()}
-        <Link to="/campaigns/create?kind=manual">
-          <Button btnStyle="success" size="small" icon="plus-circle">
+        <Link to='/campaigns/create'>
+          <Button btnStyle='success' size='small' icon='plus-circle'>
             {__('New broadcast')}
           </Button>
         </Link>
@@ -202,13 +202,13 @@ class List extends React.Component<Props> {
     );
 
     const mainContent = (
-      <Table whiteSpace="nowrap" hover={true} bordered={true}>
+      <Table whiteSpace='nowrap' hover={true} bordered={true}>
         <thead>
           <tr>
             <th style={{ width: 60 }}>
               <FormControl
                 checked={isAllSelected}
-                componentClass="checkbox"
+                componentClass='checkbox'
                 onChange={this.onChange}
               />
             </th>
@@ -224,8 +224,8 @@ class List extends React.Component<Props> {
             <th>{__('Actions')}</th>
           </tr>
         </thead>
-        <tbody id="engageMessages">
-          {messages.map((message) => (
+        <tbody id='engageMessages'>
+          {messages.map(message => (
             <MessageListRow
               isChecked={bulk.includes(message)}
               toggleBulk={toggleBulk}

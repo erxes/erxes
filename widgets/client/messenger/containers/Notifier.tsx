@@ -25,7 +25,6 @@ class Notifier extends React.Component<Props> {
     if (!message || !message._id) {
       return null;
     }
-
     return (
       <AppConsumer>
         {({ readConversation, toggleNotifierFull, toggleNotifier }) => {
@@ -59,8 +58,8 @@ class Notifier extends React.Component<Props> {
 const withPollInterval = compose(
   graphql<Props>(gql(graphqlTypes.getEngageMessage), {
     name: 'engageMessageQuery',
-    skip: !connection.data.customerId || !connection.enabledServices.engage,
-    options: (ownProps) => ({
+    skip: !connection.data.customerId || !connection.enabledServices.engages,
+    options: ownProps => ({
       variables: {
         integrationId: connection.data.integrationId,
         customerId: connection.data.customerId,

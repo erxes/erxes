@@ -67,7 +67,7 @@ export const generateCustomerSelector = async (
       data: { query: { brandId: { $in: brandIds } } },
     });
 
-    customerQuery = { integrationId: { $in: integrations.map((i) => i._id) } };
+    customerQuery = { integrationId: { $in: integrations.map(i => i._id) } };
   }
 
   if (segmentIds.length > 0) {
@@ -224,18 +224,37 @@ export const send = async (
   ) {
     const brandId =
       (engageMessage.messenger && engageMessage.messenger.brandId) || '';
-    const integration = await sendInboxMessage({
+    const integrations = await sendInboxMessage({
       subdomain,
-      action: 'integrations.findOne',
-      data: { brandId },
+      action: 'integrations.find',
+      data: { query: { brandId, kind: 'messenger' } },
       isRPC: true,
       defaultValue: null,
     });
+
+    if (integrations?.length === 0) {
+      throw new Error("The Brand doesn't have Messenger Integration ");
+    }
+
+    if (integrations?.length > 1) {
+      throw new Error('The Brand has multiple integrations');
+    }
+
+    const integration = integrations[0];
+
     if (!integration || !brandId) {
       throw new Error('Integration not found or brandId is not provided');
     }
 
-    for (const customerId of customerIds || []) {
+    const erxesCustomerIds = await sendContactsMessage({
+      subdomain,
+      action: 'customers.getCustomerIds',
+      data: customersSelector,
+      isRPC: true,
+      defaultValue: [],
+    });
+
+    for (const customerId of erxesCustomerIds || []) {
       await models.EngageMessages.createVisitorOrCustomerMessages({
         brandId,
         integrationId: integration._id,
@@ -249,6 +268,19 @@ export const send = async (
         visitorId: undefined,
         browserInfo: {},
       });
+    }
+
+    const receiversLength = erxesCustomerIds?.length || 0;
+
+    if (receiversLength > 0) {
+      await models.EngageMessages.updateOne(
+        { _id: engageMessage._id },
+        {
+          $set: {
+            totalCustomersCount: receiversLength,
+          },
+        }
+      );
     }
   }
 
@@ -475,7 +507,7 @@ export const findElk = async (subdomain: string, index: string, query) => {
     defaultValue: { hits: { hits: [] } },
   });
 
-  return response.hits.hits.map((hit) => {
+  return response.hits.hits.map(hit => {
     return {
       _id: hit._id,
       ...hit._source,
@@ -554,7 +586,7 @@ export const checkCustomerExists = async (
 
     must.push({
       terms: {
-        integrationId: integraiontIds.map((e) => e._id),
+        integrationId: integraiontIds.map(e => e._id),
       },
     });
   }
