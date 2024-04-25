@@ -2,21 +2,22 @@ import SelectProperty from '@erxes/ui-forms/src/settings/properties/containers/S
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import Button from '@erxes/ui/src/components/Button';
 import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import Icon from '@erxes/ui/src/components/Icon';
+import Toggle from '@erxes/ui/src/components/Toggle';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Icon from '@erxes/ui/src/components/Icon';
-import { FlexItem } from '@erxes/ui/src/components/step/styles';
-import Toggle from '@erxes/ui/src/components/Toggle';
 import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
+import { FlexItem } from '@erxes/ui/src/components/step/styles';
 import { IField, IFieldLogic, IOption } from '@erxes/ui/src/types';
-import { loadDynamicComponent, __ } from '@erxes/ui/src/utils';
+import { Alert, __, loadDynamicComponent } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Select from 'react-select-plus';
 
+import { stringToRegex } from '../../settings/properties/utils';
 import {
   FlexRow,
   LeftSection,
@@ -26,10 +27,9 @@ import {
 } from '../styles';
 import FieldLogics from './FieldLogics';
 import FieldPreview from './FieldPreview';
+import GroupedField from './GroupedField';
 import LocationOptions from './LocationOptions';
 import ObjectListConfigs from './ObjectListConfigs';
-import GroupedField from './GroupedField';
-import { stringToRegex } from '../../settings/properties/utils';
 
 type Props = {
   onSubmit: (field: IField) => void;
@@ -179,6 +179,10 @@ class FieldForm extends React.Component<Props, State> {
     e.persist();
 
     const { field } = this.state;
+
+    if (field.type !== 'html' && !field.text?.length) {
+      return Alert.error(__('Label is required!'));
+    }
 
     this.props.onSubmit(field);
   };
@@ -457,7 +461,10 @@ class FieldForm extends React.Component<Props, State> {
           open={true}
         >
           <FormGroup>
-            <ControlLabel htmlFor="text" required={true}>
+            <ControlLabel
+              htmlFor="text"
+              required={field.type !== 'html' ? true : false}
+            >
               Field Label
             </ControlLabel>
 

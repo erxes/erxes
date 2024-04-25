@@ -6,7 +6,6 @@ import {
   sendProductsMessage,
 } from '../../../messageBroker';
 import { getConfig } from '../../../utils';
-import * as moment from 'moment';
 
 const msdynamicCheckMutations = {
   async toCheckMsdProducts(
@@ -87,7 +86,6 @@ const msdynamicCheckMutations = {
 
           if (
             resProd?.Description === product.name &&
-            resProd?.Unit_Price === product.unitPrice &&
             resProd?.Base_Unit_of_Measure === product.uom
           ) {
             matchedCount = matchedCount + 1;
@@ -117,140 +115,6 @@ const msdynamicCheckMutations = {
       },
       matched: {
         count: matchedCount,
-      },
-    };
-  },
-
-  async toCheckMsdPrices(
-    _root,
-    { brandId }: { brandId: string },
-    { subdomain }: IContext
-  ) {
-    const configs = await getConfig(subdomain, 'DYNAMIC', {});
-    const config = configs[brandId || 'noBrand'];
-
-    const updatePrices: any = [];
-    const createPrices: any = [];
-    const deletePrices: any = [];
-
-    if (!config.priceApi || !config.username || !config.password) {
-      throw new Error('MS Dynamic config not found.');
-    }
-
-    const { priceApi, username, password } = config;
-
-    const productQry: any = { status: { $ne: 'deleted' } };
-    if (brandId && brandId !== 'noBrand') {
-      productQry.scopeBrandIds = { $in: [brandId] };
-    } else {
-      productQry.$or = [
-        { scopeBrandIds: { $exists: false } },
-        { scopeBrandIds: { $size: 0 } },
-      ];
-    }
-
-    try {
-      const productsCount = await sendProductsMessage({
-        subdomain,
-        action: 'count',
-        data: { query: productQry },
-        isRPC: true,
-      });
-
-      const products = await sendProductsMessage({
-        subdomain,
-        action: 'find',
-        data: {
-          query: productQry,
-          limit: productsCount,
-        },
-        isRPC: true,
-      });
-
-      const productCodes = (products || []).map((p) => p.code) || [];
-
-      const response = await fetch(priceApi, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          Accept: 'application/json',
-          Authorization: `Basic ${Buffer.from(
-            `${username}:${password}`
-          ).toString('base64')}`,
-        },
-      }).then((res) => res.json());
-
-      const resultCodes =
-        response.value.map((r) => r.Item_No.replace(/\s/g, '')) || [];
-
-      const productByCode = {};
-      for (const product of products) {
-        productByCode[product.code] = product;
-
-        if (!resultCodes.includes(product.code)) {
-          deletePrices.push(product);
-        }
-      }
-
-      for (const resProd of response.value) {
-        const product = await sendProductsMessage({
-          subdomain,
-          action: 'findOne',
-          data: {
-            code: resProd.Item_No,
-          },
-          isRPC: true,
-        });
-
-        const currentDate = moment(new Date()).format('YYYY-MM-DD');
-        const date = moment(resProd.Ending_Date).format('YYYY-MM-DD');
-
-        if (productCodes.includes(resProd.Item_No.replace(/\s/g, ''))) {
-          if (resProd.Ending_Date === '0001-01-01') {
-            if (product && product.unitPrice === 0) {
-              updatePrices.push(resProd);
-            }
-
-            if (product && product.unitPrice > 0) {
-              if (product.unitPrice < resProd?.Unit_Price) {
-                updatePrices.push(resProd);
-              }
-            }
-          }
-
-          if (
-            resProd.Ending_Date !== '0001-01-01' &&
-            moment(date).isAfter(currentDate)
-          ) {
-            if (product && product.unitPrice === 0) {
-              updatePrices.push(resProd);
-            }
-
-            if (product && product.unitPrice > 0) {
-              if (product.unitPrice < resProd?.Unit_Price) {
-                updatePrices.push(resProd);
-              }
-            }
-          }
-        } else {
-          createPrices.push(resProd);
-        }
-      }
-    } catch (e) {
-      console.log(e, 'error');
-    }
-
-    return {
-      create: {
-        count: createPrices.length,
-        items: createPrices,
-      },
-      update: {
-        count: updatePrices.length,
-        items: updatePrices,
-      },
-      delete: {
-        count: deletePrices.length,
-        items: deletePrices,
       },
     };
   },

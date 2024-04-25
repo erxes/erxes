@@ -10,4 +10,5 @@ export interface IConfig {
   classificationDoubt: number;
   classificationNegative: number;
   classificationBad: number;
+  loanGiveLimit:number
 }

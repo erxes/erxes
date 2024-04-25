@@ -32,7 +32,7 @@ class MainConfig extends React.Component<Props, State> {
     };
   }
 
-  onSave = e => {
+  onSave = (e) => {
     e.preventDefault();
     const { config } = this.state;
     const { configsMap } = this.props;
@@ -66,12 +66,11 @@ class MainConfig extends React.Component<Props, State> {
     const { config } = this.state;
     return (
       <>
-        <CollapseContent
-          title={__(config.title)}
-          open={false}
-        >
+        <CollapseContent title={__(config.title)} open={false}>
           <FormGroup>
-            <ControlLabel required={true}>{__('Organization type')}</ControlLabel>
+            <ControlLabel required={true}>
+              {__('Organization type')}
+            </ControlLabel>
             <FormControl
               name="organizationType"
               componentClass="select"
@@ -96,7 +95,7 @@ class MainConfig extends React.Component<Props, State> {
               required={true}
             />
           </FormGroup>
-          
+
           <ModalFooter>
             <Button
               btnStyle="primary"
@@ -109,19 +108,18 @@ class MainConfig extends React.Component<Props, State> {
           </ModalFooter>
         </CollapseContent>
 
-        <CollapseContent
-          title={__("period lock config")}
-          open={false}
-        >
+        <CollapseContent title={__('period lock config')} open={false}>
           <FormGroup>
-            <ControlLabel required={true}>{__('Period lock type')}</ControlLabel>
+            <ControlLabel required={true}>
+              {__('Period lock type')}
+            </ControlLabel>
             <FormControl
               name="periodLockType"
               componentClass="select"
               defaultValue={config['periodLockType']}
               onChange={this.onChangeInput.bind(this, 'periodLockType')}
             >
-              {['daily', 'endOfMonth','manual'].map((typeName, index) => (
+              {['daily', 'endOfMonth', 'manual'].map((typeName, index) => (
                 <option key={typeName} value={typeName}>
                   {__(typeName)}
                 </option>
@@ -131,37 +129,36 @@ class MainConfig extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>{__('Is Store Interest')}</ControlLabel>
             <FormControl
-              className= 'flex-item'
-              type= 'checkbox'
-              componentClass= 'checkbox'
-              name='isStoreInterest'
-              checked= {config['isStoreInterest']}
+              className="flex-item"
+              type="checkbox"
+              componentClass="checkbox"
+              name="isStoreInterest"
+              checked={config['isStoreInterest']}
               onChange={this.onChangeCheck.bind(this, 'isStoreInterest')}
             />
           </FormGroup>
           <FormGroup>
             <ControlLabel>{__('Is Create Invoice')}</ControlLabel>
             <FormControl
-              className= 'flex-item'
-              type= 'checkbox'
-              componentClass= 'checkbox'
-              name='isCreateInvoice'
-              checked= {config['isCreateInvoice']}
+              className="flex-item"
+              type="checkbox"
+              componentClass="checkbox"
+              name="isCreateInvoice"
+              checked={config['isCreateInvoice']}
               onChange={this.onChangeCheck.bind(this, 'isCreateInvoice')}
             />
           </FormGroup>
           <FormGroup>
             <ControlLabel>{__('Is Change Classification')}</ControlLabel>
             <FormControl
-              className= 'flex-item'
-              type= 'checkbox'
-              componentClass= 'checkbox'
-              name='isChangeClassification'
-              checked= {config['isChangeClassification']}
+              className="flex-item"
+              type="checkbox"
+              componentClass="checkbox"
+              name="isChangeClassification"
+              checked={config['isChangeClassification']}
               onChange={this.onChangeCheck.bind(this, 'isChangeClassification')}
             />
           </FormGroup>
-          
 
           <ModalFooter>
             <Button
@@ -175,10 +172,7 @@ class MainConfig extends React.Component<Props, State> {
           </ModalFooter>
         </CollapseContent>
 
-        <CollapseContent
-          title={__("classification config")}
-          open={false}
-        >
+        <CollapseContent title={__('classification config')} open={false}>
           <FormGroup>
             <ControlLabel>{__('Normal /Day/ ')}</ControlLabel>
             <FormControl
@@ -186,7 +180,10 @@ class MainConfig extends React.Component<Props, State> {
               type="number"
               min={0}
               max={100}
-              onChange={this.onChangeInputNumber.bind(this, 'classificationNormal')}
+              onChange={this.onChangeInputNumber.bind(
+                this,
+                'classificationNormal'
+              )}
               required={true}
             />
           </FormGroup>
@@ -197,7 +194,10 @@ class MainConfig extends React.Component<Props, State> {
               type="number"
               min={0}
               max={100}
-              onChange={this.onChangeInputNumber.bind(this, 'classificationExpired')}
+              onChange={this.onChangeInputNumber.bind(
+                this,
+                'classificationExpired'
+              )}
               required={true}
             />
           </FormGroup>
@@ -208,7 +208,10 @@ class MainConfig extends React.Component<Props, State> {
               type="number"
               min={0}
               max={100}
-              onChange={this.onChangeInputNumber.bind(this, 'classificationDoubt')}
+              onChange={this.onChangeInputNumber.bind(
+                this,
+                'classificationDoubt'
+              )}
               required={true}
             />
           </FormGroup>
@@ -219,7 +222,10 @@ class MainConfig extends React.Component<Props, State> {
               type="number"
               min={0}
               max={100}
-              onChange={this.onChangeInputNumber.bind(this, 'classificationNegative')}
+              onChange={this.onChangeInputNumber.bind(
+                this,
+                'classificationNegative'
+              )}
               required={true}
             />
           </FormGroup>
@@ -230,11 +236,62 @@ class MainConfig extends React.Component<Props, State> {
               type="number"
               min={0}
               max={100}
-              onChange={this.onChangeInputNumber.bind(this, 'classificationBad')}
+              onChange={this.onChangeInputNumber.bind(
+                this,
+                'classificationBad'
+              )}
               required={true}
             />
           </FormGroup>
 
+          <ModalFooter>
+            <Button
+              btnStyle="primary"
+              icon="check-circle"
+              onClick={this.onSave}
+              uppercase={false}
+            >
+              {__('Save')}
+            </Button>
+          </ModalFooter>
+        </CollapseContent>
+        <CollapseContent title={__('internet bank config')} open={false}>
+          <FormGroup>
+            <ControlLabel>{__('Loan give limit')}</ControlLabel>
+            <FormControl
+              defaultValue={config['loanGiveLimit']}
+              type="number"
+              onChange={this.onChangeInputNumber.bind(this, 'loanGiveLimit')}
+              required={true}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__('Loan give account type')}</ControlLabel>
+            <FormControl
+              name="loanGiveAccountType"
+              componentClass="select"
+              defaultValue={config['loanGiveAccountType']}
+              onChange={this.onChangeInput.bind(this, 'loanGiveAccountType')}
+            >
+              {['khanbank', 'golomt'].map((typeName, index) => (
+                <option key={typeName} value={typeName}>
+                  {__(typeName)}
+                </option>
+              ))}
+            </FormControl>
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__('Loan give account number')}</ControlLabel>
+            <FormControl
+              defaultValue={config['loanGiveAccountNumber']}
+              type="number"
+              onChange={this.onChangeInputNumber.bind(
+                this,
+                'loanGiveAccountNumber'
+              )}
+              required={true}
+            />
+          </FormGroup>
           <ModalFooter>
             <Button
               btnStyle="primary"

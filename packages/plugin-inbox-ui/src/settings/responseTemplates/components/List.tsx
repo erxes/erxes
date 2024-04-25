@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from "react";
 
 import {
   Actions,
@@ -7,22 +7,22 @@ import {
   TemplateBox,
   TemplateBoxInfo,
   TemplateInfo,
-  Templates
-} from '@erxes/ui-emailtemplates/src/styles';
-import { FlexItem, FlexRow, InputBar } from '@erxes/ui-settings/src/styles';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { __, router } from 'coreui/utils';
+  Templates,
+} from "@erxes/ui-emailtemplates/src/styles";
+import { FlexItem, FlexRow, InputBar } from "@erxes/ui-settings/src/styles";
+import { IButtonMutateProps, IRouterProps } from "@erxes/ui/src/types";
+import { __, router } from "coreui/utils";
 
-import { FilterContainer } from '@erxes/ui-settings/src/styles';
-import Form from '@erxes/ui-inbox/src/settings/responseTemplates/components/Form';
-import { FormControl } from '@erxes/ui/src/components/form';
-import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import List from '@erxes/ui-settings/src/common/components/List';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
-import { withRouter } from 'react-router-dom';
+import { FilterContainer } from "@erxes/ui-settings/src/styles";
+import Form from "@erxes/ui-inbox/src/settings/responseTemplates/components/Form";
+import { FormControl } from "@erxes/ui/src/components/form";
+import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
+import { ICommonListProps } from "@erxes/ui-settings/src/common/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import List from "@erxes/ui-settings/src/common/components/List";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
+import { withRouter } from "react-router-dom";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -43,10 +43,10 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     const { queryParams } = props;
 
     const searchValue =
-      queryParams && queryParams.searchValue ? queryParams.searchValue : '';
+      queryParams && queryParams.searchValue ? queryParams.searchValue : "";
 
     this.state = {
-      searchValue
+      searchValue,
     };
   }
 
@@ -56,14 +56,14 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     this.setState({ searchValue: value });
   };
 
-  renderForm = props => {
+  renderForm = (props) => {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
 
-  renderEditAction = object => {
+  renderEditAction = (object) => {
     const { save } = this.props;
 
-    const content = props => {
+    const content = (props) => {
       return this.renderForm({ ...props, object, save });
     };
 
@@ -83,7 +83,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
   };
 
   handleKeyDown = (e: React.KeyboardEvent<Element>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       const { value, name } = e.currentTarget as HTMLInputElement;
 
       router.setParams(this.props.history, { [name]: value });
@@ -97,8 +97,8 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
   renderFilters = () => {
     const brandId =
       this.props.queryParams && this.props.queryParams.brandId
-        ? this.props.queryParams
-        : '';
+        ? this.props.queryParams.brandId
+        : "";
 
     return (
       <FilterContainer marginRight={true}>
@@ -107,7 +107,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
             <Icon icon="search-1" size={20} />
             <FlexItem>
               <FormControl
-                placeholder={__('Type to search')}
+                placeholder={__("Type to search")}
                 name="searchValue"
                 onChange={this.onChange}
                 value={this.state.searchValue}
@@ -142,8 +142,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
           <Template
             key={index}
             isLongName={object.name > 45}
-            position="flex-start"
-          >
+            position="flex-start">
             <TemplateBox hasPadding={true}>
               <Actions>
                 {this.renderEditAction(object)}
@@ -173,18 +172,18 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
       <List
         formTitle="New response template"
         breadcrumb={[
-          { title: __('Settings'), link: '/settings' },
-          { title: __('Response templates') }
+          { title: __("Settings"), link: "/settings" },
+          { title: __("Response templates") },
         ]}
-        title={__('Response templates')}
+        title={__("Response templates")}
         leftActionBar={
           <HeaderDescription
             icon="/images/actions/24.svg"
             title="Response templates"
             description={`${__(
-              'Make things easy for your team members and add in ready made response templates'
+              "Make things easy for your team members and add in ready made response templates"
             )}.${__(
-              'Manage and edit your response templates according to each situation and respond in a timely manner and without the hassle'
+              "Manage and edit your response templates according to each situation and respond in a timely manner and without the hassle"
             )}`}
           />
         }
