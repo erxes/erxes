@@ -364,7 +364,7 @@ class CompanyForm extends React.Component<Props, State> {
                 })}
 
                 {this.renderFormGroup("Subscribed", {
-                  componentClass: "radio",
+                  componentclass: "radio",
                   options: [
                     {
                       childnode: "Yes",

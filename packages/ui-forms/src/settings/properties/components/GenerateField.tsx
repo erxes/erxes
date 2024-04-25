@@ -181,25 +181,25 @@ export default class GenerateField extends React.Component<Props, State> {
 
     if (type === "radio") {
       attrs.type = "radio";
-      attrs.componentClass = "radio";
+      attrs.componentclass = "radio";
       attrs.checked = String(value) === attrs.option;
     }
 
     if (type === "hasAuthority") {
       attrs.type = "radio";
-      attrs.componentClass = "radio";
+      attrs.componentclass = "radio";
       attrs.checked = String(value) === attrs.option;
     }
 
     if (type && type.includes("isSubscribed")) {
       attrs.type = "radio";
-      attrs.componentClass = "radio";
+      attrs.componentclass = "radio";
       attrs.checked = String(value) === attrs.option;
     }
 
     if (type === "check") {
       attrs.type = "checkbox";
-      attrs.componentClass = "checkbox";
+      attrs.componentclass = "checkbox";
       attrs.checked = checkBoxValues.includes(attrs.option);
     }
 

@@ -174,7 +174,7 @@ class AddTransactionForm extends React.Component<Props, State> {
                 <FormControl
                   {...formProps}
                   type={"checkbox"}
-                  componentClass="checkbox"
+                  componentclass="checkbox"
                   useNumberFormat
                   fixed={0}
                   name="isDedit"
