@@ -13,7 +13,6 @@ import { __ } from 'coreui/utils';
 type Props = {
   configsMap: IConfigsMap;
   config: any;
-  currentConfigKey: string;
   save: (configsMap: IConfigsMap) => void;
 };
 
@@ -56,10 +55,6 @@ class MainConfig extends React.Component<Props, State> {
 
   onChangeCheck = (code: string, e) => {
     this.onChangeConfig(code, e.target.checked);
-  };
-
-  onChangeDate = (code: string, value) => {
-    this.onChangeConfig(code, value);
   };
 
   render() {
