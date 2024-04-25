@@ -1,13 +1,14 @@
-import { __ } from '@erxes/ui/src/utils/core';
-import React from 'react';
-import { TriggerTabs } from '../../../styles';
-import { ScrolledContent } from '@erxes/ui-automations/src/styles';
-import Icon from '@erxes/ui/src/components/Icon';
-import { IAction } from '@erxes/ui-automations/src/types';
-import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
-import Tip from '@erxes/ui/src/components/Tip';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { ActionBox } from './styles';
+import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
+
+import { ActionBox } from "./styles";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { IAction } from "@erxes/ui-automations/src/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
+import { ScrolledContent } from "@erxes/ui-automations/src/styles";
+import Tip from "@erxes/ui/src/components/Tip";
+import { TriggerTabs } from "../../../styles";
+import { __ } from "@erxes/ui/src/utils/core";
 
 type Props = {
   onClickAction: (action: IAction) => void;
@@ -24,8 +25,8 @@ class ActionsForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      currentTab: 'actions',
-      isFavourite: false
+      currentTab: "actions",
+      isFavourite: false,
     };
   }
 
@@ -39,18 +40,18 @@ class ActionsForm extends React.Component<Props, State> {
     this.setState({ isFavourite: !this.state.isFavourite });
 
     const actionsLocalStorage =
-      localStorage.getItem('automations_favourite_actions') || '[]';
+      localStorage.getItem("automations_favourite_actions") || "[]";
 
     let actions = JSON.parse(actionsLocalStorage);
 
-    if (actions.find(item => item.type === action.type)) {
-      actions = actions.filter(item => item.type !== action.type);
+    if (actions.find((item) => item.type === action.type)) {
+      actions = actions.filter((item) => item.type !== action.type);
     } else {
       actions.push(action);
     }
 
     localStorage.setItem(
-      'automations_favourite_actions',
+      "automations_favourite_actions",
       JSON.stringify(actions)
     );
   };
@@ -62,17 +63,17 @@ class ActionsForm extends React.Component<Props, State> {
       <ActionBox
         key={index}
         onClick={onClickAction.bind(this, action)}
-        isFavourite={isFavourite}
-        isAvailable={action.isAvailable}
+        $isFavourite={isFavourite}
+        $isAvailable={action.isAvailable}
       >
         <Icon icon={action.icon} size={30} />
         <div>
           <b>{__(action.label)}</b>
-          {!action.isAvailable && <span>{__('Coming soon')}</span>}
+          {!action.isAvailable && <span>{__("Coming soon")}</span>}
           <p>{__(action.description)}</p>
         </div>
         <Tip
-          text={isFavourite ? __('Unfavourite') : __('Favourite')}
+          text={isFavourite ? __("Unfavourite") : __("Favourite")}
           placement="top"
         >
           <div
@@ -88,11 +89,11 @@ class ActionsForm extends React.Component<Props, State> {
 
   renderContent() {
     const localStorageActions = JSON.parse(
-      localStorage.getItem('automations_favourite_actions') || '[]'
+      localStorage.getItem("automations_favourite_actions") || "[]"
     );
 
     const actions =
-      this.state.currentTab === 'favourite'
+      this.state.currentTab === "favourite"
         ? localStorageActions
         : this.props.actionsConst;
 
@@ -108,7 +109,7 @@ class ActionsForm extends React.Component<Props, State> {
 
     return actions.map((action, index) => {
       const isFavourite = localStorageActions.some(
-        item => item.type === action.type
+        (item) => item.type === action.type
       );
 
       return (
@@ -127,16 +128,16 @@ class ActionsForm extends React.Component<Props, State> {
         <TriggerTabs>
           <Tabs full={true}>
             <TabTitle
-              className={currentTab === 'actions' ? 'active' : ''}
-              onClick={this.tabOnClick.bind(this, 'actions')}
+              className={currentTab === "actions" ? "active" : ""}
+              onClick={this.tabOnClick.bind(this, "actions")}
             >
-              {__('Available actions')}
+              {__("Available actions")}
             </TabTitle>
             <TabTitle
-              className={currentTab === 'favourite' ? 'active' : ''}
-              onClick={this.tabOnClick.bind(this, 'favourite')}
+              className={currentTab === "favourite" ? "active" : ""}
+              onClick={this.tabOnClick.bind(this, "favourite")}
             >
-              {__('Favourite')}
+              {__("Favourite")}
             </TabTitle>
           </Tabs>
         </TriggerTabs>

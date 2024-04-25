@@ -45,10 +45,6 @@ const MainConfig = (props: Props) => {
     onChangeConfig(code, e.target.checked);
   };
 
-  const onChangeDate = (code: string, value) => {
-    onChangeConfig(code, value);
-  };
-
   return (
     <>
       <CollapseContent title={__(config.title)} open={false}>
@@ -210,6 +206,51 @@ const MainConfig = (props: Props) => {
           />
         </FormGroup>
 
+        <ModalFooter>
+          <Button
+            btnStyle="primary"
+            icon="check-circle"
+            onClick={onSave}
+            uppercase={false}
+          >
+            {__("Save")}
+          </Button>
+        </ModalFooter>
+      </CollapseContent>
+      <CollapseContent title={__("internet bank config")} open={false}>
+        <FormGroup>
+          <ControlLabel>{__("Loan give limit")}</ControlLabel>
+          <FormControl
+            defaultValue={config["loanGiveLimit"]}
+            type="number"
+            onChange={onChangeInputNumber.bind(this, "loanGiveLimit")}
+            required={true}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__("Loan give account type")}</ControlLabel>
+          <FormControl
+            name="loanGiveAccountType"
+            componentclass="select"
+            defaultValue={config["loanGiveAccountType"]}
+            onChange={onChangeInput.bind(this, "loanGiveAccountType")}
+          >
+            {["khanbank", "golomt"].map((typeName, index) => (
+              <option key={typeName} value={typeName}>
+                {__(typeName)}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__("Loan give account number")}</ControlLabel>
+          <FormControl
+            defaultValue={config["loanGiveAccountNumber"]}
+            type="number"
+            onChange={onChangeInputNumber.bind(this, "loanGiveAccountNumber")}
+            required={true}
+          />
+        </FormGroup>
         <ModalFooter>
           <Button
             btnStyle="primary"

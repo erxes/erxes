@@ -1,18 +1,17 @@
-import { DrawerDetail } from "@erxes/ui-automations/src/styles";
-import { IAction } from "@erxes/ui-automations/src/types";
 import { Alert, __ } from "@erxes/ui/src";
+import { FormControl, FormGroup } from "@erxes/ui/src/components/form";
 
 import Button from "@erxes/ui/src/components/Button";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import { FieldsCombinedByType } from "@erxes/ui-forms/src/settings/properties/types";
-import { FormGroup, FormControl } from "@erxes/ui/src/components/form";
-import React from "react";
-import Select from "react-select";
-
 import Common from "@erxes/ui-automations/src/components/forms/actions/Common";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { DrawerDetail } from "@erxes/ui-automations/src/styles";
+import { FieldsCombinedByType } from "@erxes/ui-forms/src/settings/properties/types";
+import { GroupWrapper } from "@erxes/ui-segments/src/styles";
+import { IAction } from "@erxes/ui-automations/src/types";
 import { PROPERTY_OPERATOR } from "../constants";
 import PlaceHolderInput from "@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput";
-import { GroupWrapper } from "@erxes/ui-segments/src/styles";
+import React from "react";
+import Select from "react-select";
 import Tip from "@erxes/ui/src/components/Tip";
 import client from "@erxes/ui/src/apolloClient";
 import { excludedNames } from "../../../../containers/forms/actions/subForms/SetProperty";
@@ -70,9 +69,7 @@ class SetProperty extends React.Component<Props, State> {
     this.setState({ config });
   };
 
-  onChangeType = (option: { value: string }) => {
-    const type = !option ? "" : option.value.toString();
-
+  onChangeType = (type) => {
     client
       .query({
         query: gql(formQueries.fieldsCombinedByContentType),
@@ -262,6 +259,7 @@ class SetProperty extends React.Component<Props, State> {
       label: p.label,
       value: p.value,
     }));
+
     return (
       <DrawerDetail>
         <FormGroup>
@@ -269,7 +267,7 @@ class SetProperty extends React.Component<Props, State> {
 
           <Select
             required={true}
-            value={options.find((o) => o.value === (type || ""))}
+            value={{ value: type || "", label: type || "" }}
             options={options}
             onChange={this.onChangeType}
             placeholder={__("Choose type")}
