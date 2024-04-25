@@ -6,11 +6,18 @@ export interface ITrDetail {
   _id: string;
   accountId: string;
   transactionId: string;
+  originId?: string;
+  follows?: {
+    type: string;
+    id: string;
+  }[];
+
   side: string;
   amount: number;
   currency?: string;
   currencyAmount?: number;
   customRate?: number;
+  assignedUserId: string;
 
   productId?: string;
   count?: number;
@@ -26,14 +33,20 @@ export interface ITransaction {
   number?: string;
   journal: string;
   ptrStatus?: string;
+  originId?: string;
+  follows?: {
+    type: string;
+    id: string;
+  }[];
 
   branchId?: string;
   departmentId?: string;
   customerType?: string;
   customerId?: string;
-
+  assignedUserIds: string[];
 
   details: ITrDetail[];
+  shortDetail?: ITrDetail;
   sumDt: number;
   sumCt: number;
   createdBy?: string;
@@ -55,8 +68,16 @@ export interface ITransactionDocument extends ITransaction, Document {
 export const transactionDetailSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    accountId: field({ type: String, label: 'Account' }),
+    accountId: field({ type: String, label: 'Account', index: true }),
     transactionId: field({ type: String, label: 'Transaction' }),
+    originId: field({ type: String, label: 'Group' }),
+    follows: field({
+      type: [{
+        type: String,
+        id: String,
+      }], label: 'Follower transactions'
+    }),
+
     side: field({
       type: String,
       enum: TR_SIDES.ALL,
@@ -68,6 +89,8 @@ export const transactionDetailSchema = schemaWrapper(
     currency: field({ type: String, optional: true, label: 'Currency' }),
     currencyAmount: field({ type: Number, optional: true, label: 'CurrencyAmount' }),
     customRate: field({ type: Number, optional: true, label: 'CustomRate' }),
+
+    assignUserId: field({ type: String, optional: true, esType: 'keyword' }), // AssignUserId
 
     productId: field({ type: String, optional: true, label: 'Product' }),
     count: field({ type: Number, optional: true, label: 'Count' }),
@@ -105,13 +128,22 @@ export const transactionSchema = schemaWrapper(
       optional: true,
       index: true,
     }),
+    originId: field({ type: String, label: 'Group' }),
+    follows: field({
+      type: [{
+        type: String,
+        id: String,
+      }], label: 'Follower transactions'
+    }),
 
     branchId: field({ type: String, optional: true, label: 'Branch' }),
     departmentId: field({ type: String, optional: true, label: 'Department' }),
     customerType: field({ type: String, optional: true, label: 'Customer type' }),
     customerId: field({ type: String, optional: true, label: 'Customer' }),
+    assignedUserIds: field({ type: [String], label: 'Assign Users' }),
 
     details: field({ type: [transactionDetailSchema], label: 'details' }),
+    shortDetail: field({ type: transactionDetailSchema, label: 'short detail' }),
     sumDt: field({ type: Number, label: 'sumDt' }),
     sumCt: field({ type: Number, label: 'sumCt' }),
 
