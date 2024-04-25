@@ -8,6 +8,7 @@ import * as moment from 'moment';
 import fetch from 'node-fetch';
 
 import * as pdf from 'html-pdf';
+import * as HTMLtoDOCX from "html-to-docx";
 import * as tmp from 'tmp';
 import * as xlsxPopulate from 'xlsx-populate';
 import { sendCommonMessage } from '../../messageBroker';
@@ -800,19 +801,21 @@ export const generateContract = async (
 };
 
 const generatePdf = async (subdomain, content, dealNumber) => {
-  const createPdfBuffer = (content:any) => {
-    return new Promise((resolve, reject) => {
-      pdf.create(content).toBuffer((err, buffer) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(buffer);
-        }
-      });
-    });
-  }
+  // const createPdfBuffer = (content:any) => {
+  //   return new Promise((resolve, reject) => {
+  //     pdf.create(content).toBuffer((err, buffer) => {
+  //       if (err) {
+  //         reject(err);
+  //       } else {
+  //         resolve(buffer);
+  //       }
+  //     });
+  //   });
+  // }
 
-  const buffer:any = await createPdfBuffer(content);
+  // const buffer:any = await createPdfBuffer(content);
+  const buffer: any = await HTMLtoDOCX(content)
+
 
   const DOMAIN = getEnv({
     name: 'DOMAIN',
@@ -829,7 +832,7 @@ const generatePdf = async (subdomain, content, dealNumber) => {
   //write buffer to tmp
 
   console.log("buffer", buffer)
-  const tmpFile = tmp.fileSync({ postfix: '.pdf', name: `${dealNumber}.pdf` });
+  const tmpFile = tmp.fileSync({ postfix: '.docx', name: `${dealNumber}.docx` });
   fs.writeFileSync(tmpFile.name, buffer);
 
   const fileStream = fs.createReadStream(tmpFile.name);
