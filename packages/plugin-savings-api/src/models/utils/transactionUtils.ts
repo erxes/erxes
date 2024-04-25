@@ -1,10 +1,25 @@
 import { IModels } from '../../connectionResolver';
-import { sendMessageBroker } from '../../messageBroker';
+import { IConfig } from '../../interfaces/config';
+import { getConfig } from '../../messageBroker';
 import { TRANSACTION_TYPE } from '../definitions/constants';
 import {
   ITransaction,
   ITransactionDocument
 } from '../definitions/transactions';
+
+export async function checkTransactionValidation(periodLock,doc,subdomain) {
+  if (periodLock && !periodLock?.excludeContracts.includes(doc.contractId))
+    throw new Error(
+      'At this moment transaction can not been created because this date closed'
+    );
+  if (doc.transactionType === TRANSACTION_TYPE.OUTCOME && subdomain) {
+    const config: IConfig = await getConfig('savingConfig', subdomain);
+    if (!config.oneTimeTransactionLimit)
+      throw new Error('oneTimeTransactionLimit not configured');
+    if (config.oneTimeTransactionLimit < doc.total)
+      throw new Error('One Time Transaction Limit not configured');
+  }
+}
 
 /**
  * this method generate saving payment data

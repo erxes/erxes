@@ -1,6 +1,7 @@
 import { ITransaction, transactionSchema } from './definitions/transactions';
 import { findContractOfTr } from './utils/findUtils';
 import {
+  checkTransactionValidation,
   removeTrAfterSchedule,
   transactionDealt
 } from './utils/transactionUtils';
@@ -59,17 +60,7 @@ export const loadTransactionClass = (models: IModels) => {
         .sort({ date: -1 })
         .lean();
 
-      if (periodLock && !periodLock?.excludeContracts.includes(doc.contractId))
-        throw new Error(
-          'At this moment transaction can not been created because this date closed'
-        );
-      if (doc.transactionType === TRANSACTION_TYPE.OUTCOME && subdomain) {
-        const config: IConfig = await getConfig('savingConfig', subdomain);
-        if (!config.oneTimeTransactionLimit)
-          throw new Error('oneTimeTransactionLimit not configured');
-        if (config.oneTimeTransactionLimit < doc.total)
-          throw new Error('One Time Transaction Limit not configured');
-      }
+      await checkTransactionValidation(periodLock,doc,subdomain)
 
       const contract = await models.Contracts.findOne({
         _id: doc.contractId

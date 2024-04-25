@@ -78,7 +78,7 @@ class MainConfig extends React.Component<Props, State> {
               defaultValue={config['periodLockType']}
               onChange={this.onChangeInput.bind(this, 'periodLockType')}
             >
-              {['daily', 'endOfMonth','manual'].map((typeName, index) => (
+              {['daily', 'endOfMonth','manual'].map((typeName) => (
                 <option key={typeName} value={typeName}>
                   {__(typeName)}
                 </option>
@@ -129,8 +129,8 @@ class MainConfig extends React.Component<Props, State> {
               defaultValue={config['transactionAccountType']}
               onChange={this.onChangeInput.bind(this, 'transactionAccountType')}
             >
-              {['khanbank', 'golomt'].map((typeName, index) => (
-                <option key={index} value={typeName}>
+              {['khanbank', 'golomt'].map((typeName) => (
+                <option key={`${typeName}bank`} value={typeName}>
                   {__(typeName)}
                 </option>
               ))}
