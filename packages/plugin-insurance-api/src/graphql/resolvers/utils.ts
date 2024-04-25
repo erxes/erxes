@@ -829,9 +829,6 @@ const generatePdf = async (subdomain, content, dealNumber) => {
 
   const form = new FormData();
 
-  //write buffer to tmp
-
-  console.log("buffer", buffer)
   const tmpFile = tmp.fileSync({ postfix: '.docx', name: `${dealNumber}.docx` });
   fs.writeFileSync(tmpFile.name, buffer);
 
