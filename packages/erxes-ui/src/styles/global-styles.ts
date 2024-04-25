@@ -389,15 +389,15 @@ a:hover {
 
 @media (min-width: 600px){
   .dialog-size-lg {
-    width: 80%;
+    width: 800px;
   }
   .dialog-size-xl {
-    width: 90%;
+    width: 80%;
   }
 }
 @media (max-width: 576px) {
   .dialog-size-lg, .dialog-size-xl {
-    width: 95%;
+    width: 90%;
   }
 }
 @media (min-width: 1200px){

@@ -1,11 +1,10 @@
 import { Layout, MainWrapper } from "../styles";
-import React, { useEffect, useState } from "react";
 import { bustIframe, getEnv } from "modules/common/utils";
-import { useLocation, useNavigate } from "react-router-dom";
 
 import DetectBrowser from "./DetectBrowser";
 import { IUser } from "modules/auth/types";
 import Navigation from "./navigation";
+import React from "react";
 import asyncComponent from "modules/common/components/AsyncComponent";
 import dayjs from "dayjs";
 import { getVersion } from "@erxes/ui/src/utils/core";
@@ -23,21 +22,27 @@ interface IProps {
   children: React.ReactNode;
   isShownIndicator: boolean;
   enabledServices: any;
+  navigate: any;
+  location: any;
   closeLoadingBar: () => void;
 }
 
-function MainLayout({
-  currentUser,
-  children,
-  isShownIndicator,
-  enabledServices,
-}: IProps) {
-  const [navCollapse, setNavCollapse] = useState<number>(2);
+type State = {
+  navCollapse: number;
+};
 
-  const location = useLocation();
-  const navigate = useNavigate();
+class MainLayout extends React.Component<IProps, State> {
+  constructor(props) {
+    super(props);
 
-  useEffect(() => {
+    this.state = {
+      navCollapse: 2,
+    };
+  }
+
+  componentDidMount() {
+    const { location, navigate, currentUser, enabledServices } = this.props;
+
     if (location.pathname !== "/reset-password" && !currentUser) {
       navigate("/sign-in");
     }
@@ -160,7 +165,7 @@ function MainLayout({
       }
 
       (window as any).wootricSettings = {
-        email: currentUser.email,
+        email: currentUser.email, // Required to uniquely identify a user. Email is recommended but this can be any unique identifier.
         created_at: Math.floor(
           (currentUser.createdAt
             ? new Date(currentUser.createdAt)
@@ -185,48 +190,57 @@ function MainLayout({
     }
 
     const navNumber = localStorage.getItem("navigationNumber");
-    setNavCollapse(navNumber ? parseInt(navNumber) : 2);
+
+    this.setState({ navCollapse: navNumber ? parseInt(navNumber) : 2 });
 
     // click-jack attack defense
     bustIframe();
-  }, [location.pathname, currentUser, navigate]);
+  }
 
-  const onClickHandleIcon = (type: string) => {
+  onClickHandleIcon = (type: string) => {
     let collapse;
     if (type === "plus") {
-      collapse = navCollapse + 1;
+      collapse = this.state.navCollapse + 1;
     } else {
-      collapse = navCollapse - 1;
+      collapse = this.state.navCollapse - 1;
     }
 
-    setNavCollapse(collapse);
+    this.setState({ navCollapse: collapse });
 
     localStorage.setItem("navigationNumber", collapse.toString());
   };
 
-  if (location.pathname.startsWith("/videoCall")) {
-    return children;
+  getLastImport = () => {
+    return localStorage.getItem("erxes_import_data") || "";
+  };
+
+  render() {
+    const { children, isShownIndicator, location } = this.props;
+
+    if (location.pathname.startsWith("/videoCall")) {
+      return children;
+    }
+
+    return (
+      <>
+        <div id="anti-clickjack" style={{ display: "none" }} />
+
+        <Layout $isSqueezed={isShownIndicator}>
+          <Navigation
+            navCollapse={this.state.navCollapse}
+            onClickHandleIcon={this.onClickHandleIcon}
+          />
+
+          <MainWrapper $navCollapse={this.state.navCollapse}>
+            <MainBar />
+
+            {children}
+          </MainWrapper>
+          <DetectBrowser />
+        </Layout>
+      </>
+    );
   }
-
-  return (
-    <>
-      <div id="anti-clickjack" style={{ display: "none" }} />
-
-      <Layout $isSqueezed={isShownIndicator}>
-        <Navigation
-          navCollapse={navCollapse}
-          onClickHandleIcon={onClickHandleIcon}
-        />
-
-        <MainWrapper $navCollapse={navCollapse}>
-          <MainBar />
-
-          {children}
-        </MainWrapper>
-        <DetectBrowser />
-      </Layout>
-    </>
-  );
 }
 
 export default MainLayout;

@@ -1,22 +1,23 @@
-import { readFile } from "@erxes/ui/src/utils/core";
-import Button from "@erxes/ui/src/components/Button";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import Icon from "@erxes/ui/src/components/Icon";
-import Info from "@erxes/ui/src/components/Info";
-import Spinner from "@erxes/ui/src/components/Spinner";
-import { LeftItem } from "@erxes/ui/src/components/step/styles";
-import { __ } from "@erxes/ui/src/utils/core";
-import { uploadHandler } from "@erxes/ui/src/utils";
-import ActionBar from "@erxes/ui/src/layout/components/ActionBar";
-import React from "react";
 import {
   FlexColumn,
   FlexItem,
   ImagePreview,
   ImageUpload,
 } from "@erxes/ui/src/components/step/style";
+
+import ActionBar from "@erxes/ui/src/layout/components/ActionBar";
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Icon from "@erxes/ui/src/components/Icon";
+import Info from "@erxes/ui/src/components/Info";
+import { LeftItem } from "@erxes/ui/src/components/step/styles";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { __ } from "@erxes/ui/src/utils/core";
+import { readFile } from "@erxes/ui/src/utils/core";
+import { uploadHandler } from "@erxes/ui/src/utils";
 
 const defaultValue = {
   isSkip: false,
@@ -221,7 +222,7 @@ class CallOut extends React.Component<Props, State> {
     return (
       <FlexItem>
         <FlexColumn>
-          <LeftItem deactive={skip}>
+          <LeftItem $deactive={skip}>
             <Info>
               {__(
                 "Call Out is a brief message you wish to display before showing the full form."

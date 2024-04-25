@@ -1,11 +1,11 @@
-import * as gq from '../graphql';
+import * as gq from "../graphql";
 
-import { CurrentUserQueryResponse, IUser } from '../types';
-import { gql, useQuery } from '@apollo/client';
+import { CurrentUserQueryResponse, IUser } from "../types";
+import { gql, useQuery } from "@apollo/client";
 
-import React from 'react';
-import Spinner from '../../components/Spinner';
-import { storeConstantToStore } from '../../utils';
+import React from "react";
+// import Spinner from "../../components/Spinner";
+import { storeConstantToStore } from "../../utils";
 
 type Props = {
   currentUserQuery: CurrentUserQueryResponse;
@@ -13,17 +13,14 @@ type Props = {
 
 const withCurrentUser = (WrappedComponent) => {
   const Container = (props: Props) => {
-    const { loading, data } = useQuery<CurrentUserQueryResponse>(
-      gql(gq.currentUser),
-      {
-        fetchPolicy: 'cache-and-network',
-      },
-    );
+    const { data } = useQuery<CurrentUserQueryResponse>(gql(gq.currentUser), {
+      fetchPolicy: "cache-and-network",
+    });
 
-    if (loading || !data) {
-      // return null;
-      return <Spinner />;
-    }
+    // if (loading || !data) {
+    //   return <div />;
+    //   // return <Spinner />;
+    // }
 
     const currentUser = data ? data.currentUser : ({} as IUser);
 

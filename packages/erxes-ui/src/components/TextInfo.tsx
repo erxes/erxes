@@ -39,11 +39,6 @@ type Props = {
   hugeness?: string;
 };
 
-const defaultProps = {
-  $textStyle: "default",
-  hugeness: "small",
-};
-
 class TextInfo extends React.PureComponent<Props> {
   render() {
     const { ignoreTrans, children, $textStyle, hugeness } = this.props;
@@ -56,11 +51,12 @@ class TextInfo extends React.PureComponent<Props> {
       content = __(children);
     }
 
-    return (
-      <Text {...defaultProps} $textStyle={$textStyle} $hugeness={hugeness}>
-        {content}
-      </Text>
-    );
+    const defaultProps = {
+      $textStyle: $textStyle || "default",
+      hugeness: hugeness || "small",
+    };
+
+    return <Text {...defaultProps}>{content}</Text>;
   }
 }
 

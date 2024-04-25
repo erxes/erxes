@@ -42,6 +42,13 @@ const Forms = () => {
   );
 };
 
+const CreateLeadComponent = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  return <CreateLead location={location} navigate={navigate} />;
+};
+
 const EditLeadComponent = () => {
   const { contentTypeId, formId } = useParams();
   const location = useLocation();
@@ -74,7 +81,7 @@ const routes = () => {
       <Route
         key="/forms/create"
         path="/forms/create"
-        element={<CreateLead />}
+        element={<CreateLeadComponent />}
       />
 
       <Route
