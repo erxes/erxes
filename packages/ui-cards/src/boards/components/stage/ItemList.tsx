@@ -55,17 +55,10 @@ function DraggableContainer(props: DraggableContainerProps) {
     item.hasNotified === false ? false : true
   );
 
-  useEffect(() => {
-    if (isDragDisabled) {
-      routerUtils.setParams(navigate, location, {
-        itemId: item._id,
-        key: "",
-      });
-    }
-  }, [isDragDisabled]);
-
   const onClick = () => {
     setIsDragDisabled(true);
+
+    routerUtils.setParams(navigate, location, { itemId: item._id, key: "" });
 
     if (!hasNotified) {
       client.mutate({
