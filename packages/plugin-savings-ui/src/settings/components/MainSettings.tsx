@@ -44,7 +44,6 @@ class MainSettings extends React.Component<Props, State> {
     return (
       <div>
         <MainConfig
-          key={Math.random()}
           configsMap={configsMap}
           currentConfigKey="savingConfig"
           config={{ title: 'main config', ...configs }}
