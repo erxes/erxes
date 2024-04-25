@@ -84,6 +84,7 @@ export interface ISchedule {
   totalBreakInMins?: number;
   createdByRequest?: boolean;
   shiftIds?: string[];
+  note?: string;
 }
 
 export interface IScheduleDocument extends ISchedule, Document {
@@ -367,6 +368,10 @@ export const scheduleSchema = new Schema({
     label: 'Whether schedule was created by shift request',
     default: false,
     optional: true
+  }),
+  note: field({
+    type: String,
+    label: 'Note'
   })
 });
 
@@ -442,23 +447,6 @@ export const scheduleConfigSchema = new Schema({
   shiftEnd: field({
     type: String,
     label: 'ending time of shift'
-  }),
-  shiftStartFlexible: field({
-    type: Boolean,
-    label: 'Whether schedule start is flexible'
-  }),
-  shiftEndFlexible: field({
-    type: Boolean,
-    label: 'Whether schedule end is flexible'
-  }),
-  hasOvertime: field({
-    type: Boolean,
-    default: false,
-    label: 'whether schedule has overtime '
-  }),
-  locations: field({
-    type: JSON,
-    label: '{longitude: float, lattitude: float}[]'
   })
 });
 
