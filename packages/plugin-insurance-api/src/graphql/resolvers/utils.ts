@@ -7,7 +7,6 @@ import * as jwt from 'jsonwebtoken';
 import * as moment from 'moment';
 import fetch from 'node-fetch';
 
-import * as pdf from 'html-pdf';
 import * as HTMLtoDOCX from "html-to-docx";
 import * as tmp from 'tmp';
 import * as xlsxPopulate from 'xlsx-populate';
