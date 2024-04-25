@@ -1,6 +1,7 @@
 import {
   fetchByQuery,
   fetchByQueryWithScroll,
+  getRealIdFromElk,
 } from '@erxes/api-utils/src/elasticsearch';
 import {
   gatherAssociatedTypes,
@@ -55,7 +56,7 @@ export default {
         action: 'conformities.filterConformity',
         data: {
           mainType: getName(changeType(propertyType)),
-          mainTypeIds,
+          mainTypeIds: mainTypeIds.map((id) => getRealIdFromElk(id)),
           relType: getName(changeType(mainType)),
         },
         isRPC: true,
