@@ -82,6 +82,7 @@ export interface ICallout extends Document {
   buttonText?: string;
   featuredImage?: string;
   skip?: boolean;
+  calloutImgSize?: string;
 }
 
 export interface IAttachment {
@@ -260,6 +261,11 @@ export const calloutSchema = new Schema(
     title: field({ type: String, optional: true, label: 'Title' }),
     body: field({ type: String, optional: true, label: 'Body' }),
     buttonText: field({ type: String, optional: true, label: 'Button text' }),
+    calloutImgSize: field({
+      type: String,
+      optional: true,
+      label: 'Callout image size',
+    }),
     featuredImage: field({
       type: String,
       optional: true,
