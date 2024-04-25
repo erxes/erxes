@@ -1,6 +1,7 @@
 import {
   fetchByQuery,
   fetchByQueryWithScroll,
+  generateElkIds,
   getRealIdFromElk,
 } from '@erxes/api-utils/src/elasticsearch';
 import {
@@ -66,13 +67,16 @@ export default {
     }
 
     if (propertyType === 'forms:form_submission') {
-      ids = await fetchByQuery({
+      ids = await generateElkIds(
+        await fetchByQuery({
+          subdomain,
+          index: 'form_submissions',
+          _source: 'customerId',
+          positiveQuery,
+          negativeQuery,
+        }),
         subdomain,
-        index: 'form_submissions',
-        _source: 'customerId',
-        positiveQuery,
-        negativeQuery,
-      });
+      );
     } else {
       const serviceName = getServiceName(propertyType);
 
