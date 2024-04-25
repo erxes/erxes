@@ -7,17 +7,20 @@ import {
   ITransactionDocument
 } from '../definitions/transactions';
 
-export async function checkTransactionValidation(periodLock,doc,subdomain) {
-  if (periodLock && !periodLock?.excludeContracts.includes(doc.contractId))
+export async function checkTransactionValidation(periodLock, doc, subdomain) {
+  if (periodLock && !periodLock?.excludeContracts.includes(doc.contractId)) {
     throw new Error(
       'At this moment transaction can not been created because this date closed'
     );
+  }
   if (doc.transactionType === TRANSACTION_TYPE.OUTCOME && subdomain) {
     const config: IConfig = await getConfig('savingConfig', subdomain);
-    if (!config.oneTimeTransactionLimit)
+    if (!config.oneTimeTransactionLimit) {
       throw new Error('oneTimeTransactionLimit not configured');
-    if (config.oneTimeTransactionLimit < doc.total)
+    }
+    if (config.oneTimeTransactionLimit < doc.total) {
       throw new Error('One Time Transaction Limit not configured');
+    }
   }
 }
 
@@ -44,7 +47,7 @@ export const transactionDealt = async (
     doc.transactionType = TRANSACTION_TYPE.INCOME;
 
     await models.Transactions.createTransaction(doc, subdomain);
-  } 
+  }
 };
 
 export const removeTrAfterSchedule = async (

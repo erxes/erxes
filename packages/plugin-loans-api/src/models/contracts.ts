@@ -172,7 +172,6 @@ export const loadContractClass = (models: IModels) => {
         doc.insurancesData || [],
         doc.collateralsData || []
       );
-      console.log('doc', doc);
       await models.Contracts.updateOne({ _id }, { $set: doc });
       const transactions = await models.Transactions.find({
         contractId: _id
