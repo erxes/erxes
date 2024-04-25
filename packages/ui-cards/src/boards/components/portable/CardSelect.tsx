@@ -32,6 +32,8 @@ type State = {
 };
 
 class CardSelect extends React.Component<Props, State> {
+  private ref;
+
   constructor(props) {
     super(props);
 
@@ -61,10 +63,20 @@ class CardSelect extends React.Component<Props, State> {
     this.setState({ searchValue });
   };
 
-  handleKeyDown = (event) => {
+  handleKeyDown = (e) => {
     // enter key
-    if (event.keyCode === 13) {
+    if (e.keyCode === 13) {
       this.handleAdd();
+    }
+
+    if (e.keyCode === 32 && this.ref.state.prevProps.inputValue !== "") {
+      e.preventDefault();
+
+      // this.handleInput(this.ref.state.prevProps.inputValue + " ");
+      this.ref.onInputChange(
+        this.ref.state.prevProps.inputValue + " ",
+        "set-value"
+      );
     }
   };
 
@@ -98,6 +110,9 @@ class CardSelect extends React.Component<Props, State> {
       <Wrapper>
         <FillContent>
           <Select
+            ref={(ref) => {
+              this.ref = ref;
+            }}
             placeholder={placeholder}
             options={options}
             value={selectedValue}
@@ -107,7 +122,8 @@ class CardSelect extends React.Component<Props, State> {
             onChange={this.handleChange}
             onInputChange={this.handleInput}
             onKeyDown={this.handleKeyDown}
-            isClearable={false}
+            isClearable={true}
+            isSearchable={true}
           />
         </FillContent>
       </Wrapper>
