@@ -269,7 +269,7 @@ class ContractForm extends React.Component<Props, State> {
                     ...formProps,
                     className: "flex-item",
                     type: "checkbox",
-                    componentClass: "checkbox",
+                    componentclass: "checkbox",
                     name: "customerType",
                     checked: this.state.customerType === "company",
                     onChange: this.onCheckCustomerType,

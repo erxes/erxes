@@ -365,7 +365,7 @@ class CustomerForm extends React.Component<Props, State> {
                 {this.renderFormGroup("Pronoun", {
                   ...formProps,
                   name: "sex",
-                  componentClass: "select",
+                  componentclass: "select",
                   defaultValue: customer.sex || 0,
                   options: genderChoices(__),
                 })}
@@ -381,7 +381,7 @@ class CustomerForm extends React.Component<Props, State> {
                   name: "description",
                   defaultValue: customer.description || "",
                   max: 140,
-                  componentClass: "textarea",
+                  componentclass: "textarea",
                 })}
               </FormColumn>
               <FormColumn>
@@ -441,7 +441,7 @@ class CustomerForm extends React.Component<Props, State> {
                 {this.renderFormGroup("Has Authority", {
                   ...formProps,
                   name: "hasAuthority",
-                  componentClass: "radio",
+                  componentclass: "radio",
                   options: [
                     {
                       childnode: "Yes",
@@ -463,7 +463,7 @@ class CustomerForm extends React.Component<Props, State> {
                 {this.renderFormGroup("Subscribed", {
                   ...formProps,
                   name: "isSubscribed",
-                  componentClass: "radio",
+                  componentclass: "radio",
                   options: [
                     {
                       childnode: "Yes",
