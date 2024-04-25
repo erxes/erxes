@@ -1,12 +1,12 @@
-import React, { useRef } from "react";
-import Popover from "@erxes/ui/src/components/Popover";
-
-import { __ } from "@erxes/ui/src/utils/index";
-
-import SelectMembersBox from "../../containers/utils/SelectMembersBox";
-import { IDashboard, IReport } from "../../types";
 import "../../styles.css";
+
+import { IDashboard, IReport } from "../../types";
+import React, { useRef } from "react";
+
+import Popover from "@erxes/ui/src/components/Popover";
 import { PopoverContent } from "@erxes/ui/src/components/filterableList/styles";
+import SelectMembersBox from "../../containers/utils/SelectMembersBox";
+import { __ } from "@erxes/ui/src/utils/index";
 
 type Props = {
   targets: IReport[] | IDashboard[];
@@ -20,7 +20,7 @@ const SelectMembersPopover = (props: Props) => {
 
   return (
     <Popover
-      ref={overlayTriggerRef.current}
+      innerRef={overlayTriggerRef.current}
       trigger={trigger}
       placement="bottom-end"
       className="custom-popover"

@@ -1,14 +1,15 @@
-import React, { useState } from "react";
-import { BoxArrowUpRight } from "react-bootstrap-icons";
-import { useRichTextEditorContext } from "../RichTextEditor.context";
 import {
   IRichTextEditorControlBaseProps,
   RichTextEditorControlBase,
 } from "./RichTextEditorControl";
-import Tip from "../../Tip";
 import { InputAction, InputWrapper, LinkInput, LinkWrapper } from "./styles";
+import React, { useState } from "react";
+
+import { BoxArrowUpRight } from "react-bootstrap-icons";
 import Icon from "../../Icon";
 import Popover from "../../Popover";
+import Tip from "../../Tip";
+import { useRichTextEditorContext } from "../RichTextEditor.context";
 
 const LinkIcon: IRichTextEditorControlBaseProps["icon"] = () => (
   <Icon icon="link-alt" />
@@ -87,7 +88,7 @@ export const RichTextEditorLinkControl = (
           active={ctx.editor?.isActive("link")}
         />
       }
-      ref={(overlayTrigger) => {
+      innerRef={(overlayTrigger) => {
         overLayRef = overlayTrigger;
       }}
       placement="top"

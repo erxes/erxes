@@ -1,12 +1,12 @@
 import { Attributes } from "../styles";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
 import { FieldsCombinedByType } from "@erxes/ui-forms/src/settings/properties/types";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
 import Icon from "@erxes/ui/src/components/Icon";
 import Popover from "@erxes/ui/src/components/Popover";
 import React from "react";
 import { __ } from "@erxes/ui/src";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
 
 type Props = {
   config: any;
@@ -104,7 +104,7 @@ export default class Attribution extends React.Component<Props, State> {
 
     return (
       <Popover
-        ref={this.overlay}
+        innerRef={this.overlay}
         trigger={
           <span>
             {__("Attribution")} <Icon icon="angle-down" />
