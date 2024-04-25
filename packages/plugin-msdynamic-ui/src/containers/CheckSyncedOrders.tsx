@@ -113,8 +113,6 @@ const CheckSyncedOrdersContainer = (props: FinalProps) => {
           syncedCustomer: syncedCustomer || '',
         };
 
-        console.log(syncedOrderInfos);
-
         setSyncedOrderInfos(syncedOrderInfos);
 
         Alert.success('Successful');
