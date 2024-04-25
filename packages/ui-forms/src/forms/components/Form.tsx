@@ -73,7 +73,7 @@ class Form extends React.Component<Props, State> {
     if (nextProps.isReadyToSave && isReadyToSave !== nextProps.isReadyToSave) {
       saveForm(
         nextProps.formData
-          ? { ...nextProps.formData }
+          ? { ...nextProps.formData, type: nextProps.type }
           : {
               title,
               description,
