@@ -5,7 +5,7 @@ import {
   AddIntegrationMutationVariables,
 } from "@erxes/ui-inbox/src/settings/integrations/types";
 import { Alert, withProps } from "@erxes/ui/src/utils";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { mutations, queries } from "@erxes/ui-leads/src/graphql";
 
 import { AddFieldsMutationResponse } from "@erxes/ui-forms/src/settings/properties/types";
@@ -50,6 +50,13 @@ const CreateLeadContainer: React.FC<Props> = (props) => {
     isIntegrationSubmitted: false,
     mustWait: { optionsStep: false },
   });
+  const [id, setId] = useState('')
+
+  useEffect(() => {
+    if (state.doc && state.isReadyToSaveForm) {
+      afterFormDbSave();
+    }
+  }, [state.doc, state.isReadyToSaveForm]);
 
   const redirect = () => {
     let canClose = true;
@@ -70,7 +77,7 @@ const CreateLeadContainer: React.FC<Props> = (props) => {
     }
   };
 
-  const afterFormDbSave = (id) => {
+  const afterFormDbSave = () => {
     setState({ ...state, isReadyToSaveForm: false });
 
     if (state.doc) {
@@ -117,14 +124,14 @@ const CreateLeadContainer: React.FC<Props> = (props) => {
   };
 
   const save = (doc) => {
-    setState({ ...state, isLoading: true, isReadyToSaveForm: true, doc });
+    setState({ ...state, isLoading: true, isReadyToSaveForm: true, doc: doc });
   };
 
   const updatedProps = {
     ...props,
     fields: [],
     save,
-    afterFormDbSave,
+    afterFormDbSave: id => setId(id),
     waitUntilFinish,
     onChildProcessFinished: (component) => {
       if (state.mustWait.hasOwnProperty(component)) {
