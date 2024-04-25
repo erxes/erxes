@@ -518,7 +518,7 @@ export const generateQueryBySegment = async (
 
         propertiesPositive.push({
           terms: {
-            _id: generateElkIds(
+            _id: await generateElkIds(
               ids.filter((id) => id),
               subdomain,
             ),
