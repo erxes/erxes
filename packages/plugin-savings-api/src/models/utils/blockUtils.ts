@@ -59,7 +59,6 @@ export async function doBlockTransaction({
   if (mustPay > totalAmount) {
     transactionAmount = totalAmount;
   } else {
-    totalAmount = new BigNumber(totalAmount).minus(mustPay).dp(2).toNumber();
     transactionAmount = mustPay;
   }
 

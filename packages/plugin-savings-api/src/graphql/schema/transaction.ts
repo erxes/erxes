@@ -75,6 +75,12 @@ const commonFields = `
 `;
 const clientFields = `
   secondaryPassword: String,
+  dealtType: String,
+  accountNumber: String,
+  accountHolderName: String,
+  externalBankName: String,
+  ownBankNumber: String,
+  ownBankType: String,
 `;
 
 const changeFields = `

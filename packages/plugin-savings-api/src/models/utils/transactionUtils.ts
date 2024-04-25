@@ -38,9 +38,9 @@ export const transactionDealt = async (
   models: IModels,
   subdomain
 ) => {
-  if (doc.trInfo?.dealtType === 'internal') {
+  if (doc?.dealtType === 'internal') {
     const contract = await models.Contracts.findOne({
-      number: doc.trInfo?.accountNumber
+      number: doc?.accountNumber
     }).lean();
     if (!contract) throw new Error('Dealt contract not found');
 

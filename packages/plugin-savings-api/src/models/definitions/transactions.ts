@@ -1,15 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { schemaHooksWrapper, field } from './utils';
 
-export interface ITrInfo {
-  dealtType: 'internal' | 'external';
-  accountNumber: string;
-  accountHolderName: string;
-  externalBankName: string;
-  ownBankNumber: string;
-  ownBankType: string;
-}
-
 export interface ITransaction {
   number?: string;
   contractId?: string;
@@ -26,7 +17,12 @@ export interface ITransaction {
   contractReaction?: any;
   storeReaction?: any;
   isManual?: boolean;
-  trInfo?:ITrInfo
+  dealtType?: 'internal' | 'external';
+  accountNumber?: string;
+  accountHolderName?: string;
+  externalBankName?: string;
+  ownBankNumber?: string;
+  ownBankType?: string;
 }
 
 export interface ITransactionDocument extends ITransaction, Document {
@@ -95,7 +91,13 @@ export const transactionSchema = schemaHooksWrapper(
     }),
     contractReaction: field({ type: Object, label: 'Contract reaction' }),
     storeReaction: field({ type: Object, label: 'Contract reaction' }),
-    isManual: field({ type: Boolean, label: 'Is manual transaction' })
+    isManual: field({ type: Boolean, label: 'Is manual transaction' }),
+    dealtType: field({ type: String, label: 'dealtType' }),
+    accountNumber: field({ type: String, label: 'accountNumber' }),
+    accountHolderName: field({ type: String, label: 'accountHolderName' }),
+    externalBankName: field({ type: String, label: 'externalBankName' }),
+    ownBankNumber: field({ type: String, label: 'ownBankNumber' }),
+    ownBankType: field({ type: String, label: 'ownBankType' })
   }),
   'erxes_transactionSchema'
 );

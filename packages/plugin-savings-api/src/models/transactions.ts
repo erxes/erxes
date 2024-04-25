@@ -89,7 +89,7 @@ export const loadTransactionClass = (models: IModels) => {
             { _id: contract._id },
             { $inc: { savingAmount: (doc.payment || 0) * -1 } }
           );
-          if (doc.trInfo) {
+          if (doc.dealtType) {
             await transactionDealt(doc, models,subdomain);
           }
           break;
