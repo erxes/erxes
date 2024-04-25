@@ -11,8 +11,6 @@ import { IModels } from '../connectionResolver';
 import { FilterQuery } from 'mongodb';
 import { IContractDocument } from './definitions/contracts';
 import { TRANSACTION_TYPE } from './definitions/constants';
-import { getConfig } from '../messageBroker';
-import { IConfig } from '../interfaces/config';
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(selector: FilterQuery<ITransactionDocument>);
