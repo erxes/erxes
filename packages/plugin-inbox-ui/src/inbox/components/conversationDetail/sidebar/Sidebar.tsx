@@ -307,7 +307,7 @@ class RightSidebar extends React.Component<IndexProps, IndexState> {
           <BasicInfo>
             <InfoSection customer={customer} hideForm={true} />
           </BasicInfo>
-          <ActionSection customer={customer} />
+          <ActionSection customer={customer} inInbox={true} />
           <Tabs full={true}>
             <TabTitle
               className={currentSubTab === "details" ? "active" : ""}

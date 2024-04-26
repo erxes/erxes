@@ -450,12 +450,12 @@ const RespondBox = (props: Props) => {
 
         {loadDynamicComponent("inboxEditorAction", props, true)}
 
-        <Tip text={__("Attach file")}>
-          <label>
+        <label>
+          <Tip text={__("Attach file")}>
             <Icon icon="paperclip" />
             <input type="file" onChange={handleFileInput} multiple={true} />
-          </label>
-        </Tip>
+          </Tip>
+        </label>
 
         <ResponseTemplate
           brandId={integration.brandId}

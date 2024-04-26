@@ -22,6 +22,7 @@ import { graphql } from "@apollo/client/react/hoc";
 type Props = {
   customer: ICustomer;
   isSmall?: boolean;
+  inInbox?: boolean;
 };
 
 type FinalProps = Props &
@@ -38,6 +39,7 @@ const ActionSectionContainer = (props: FinalProps) => {
     customersMerge,
     customersChangeState,
     navigate,
+    inInbox
   } = props;
 
   const { _id } = customer;
@@ -113,6 +115,7 @@ const ActionSectionContainer = (props: FinalProps) => {
     merge,
     changeState,
     search: searchCustomer,
+    inInbox,
   };
 
   return <ActionSection {...updatedProps} />;
