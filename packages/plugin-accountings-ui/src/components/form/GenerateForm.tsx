@@ -13,23 +13,52 @@ import { IFormProps } from '@erxes/ui/src/types';
 export interface IField {
   label: string;
   name: string;
-  validate: (v: string) => boolean;
-  type: 'date' | 'input' | 'checkbox' | 'number' | 'select' | 'custom';
+  validate?: (v: string) => boolean;
+  type:
+    | 'date'
+    | 'input'
+    | 'checkbox'
+    | 'number'
+    | 'select'
+    | 'custom'
+    | 'selectWithSearch';
+  required?: boolean;
+  controlProps?: any;
+  selectProps?: {
+    filterParams: any;
+    multi: boolean;
+    queryName: string;
+    generateOptions: Function;
+    customQuery: string;
+  };
 }
 
 interface IProps {
-  fields: IField[] | [IField[]];
+  defaultValue: any;
+  fields: IField[] | IField[][];
   renderButton: (props) => JSX.Element;
   closeModal: () => void;
 }
 
-function renderFormFields(fields: IField[] | [IField[]],values,onChange,formProps) {
+function renderFormFields(
+  fields: IField[] | IField[][],
+  values,
+  onChange,
+  formProps
+) {
   if (Array.isArray(fields[0]))
     return fields.map((columns) => {
       return (
         <FormColumn>
           {columns.map((row) => {
-            return <FieldsGenerate formProps={formProps} value={values[row.key]} onChange={onChange} {...row} />;
+            return (
+              <FieldsGenerate
+                formProps={formProps}
+                value={values[row.name]}
+                onChange={onChange}
+                {...row}
+              />
+            );
           })}
         </FormColumn>
       );
@@ -38,28 +67,41 @@ function renderFormFields(fields: IField[] | [IField[]],values,onChange,formProp
     return (
       <FormColumn>
         {fields.map((row) => {
-          return <FieldsGenerate formProps={formProps} value={values[row.key]} onChange={onChange} {...row} />;
+          return (
+            <FieldsGenerate
+              formProps={formProps}
+              value={values[row.name]}
+              onChange={onChange}
+              {...row}
+            />
+          );
         })}
       </FormColumn>
     );
 }
 
-function GenerateForm({ fields, renderButton, closeModal }: IProps) {
-  const [formValue, setFormValue] = useState<object>({});
-
+function GenerateForm({
+  fields,
+  renderButton,
+  closeModal,
+  defaultValue
+}: IProps) {
+  const [formValue, setFormValue] = useState<object>(defaultValue || {});
   const renderContent = (formProps: IFormProps): React.ReactNode => {
-    const { values, isSubmitted, resetSubmit } = formProps;
+    const { isSubmitted, resetSubmit } = formProps;
 
-    const onChange= (value,key) =>{
-      setFormValue(v=>{
-        return {...v,[key]:value}
-      })
-    }
+    const onChange = (value, key) => {
+      setFormValue((v) => {
+        return { ...v, [key]: value };
+      });
+    };
 
     return (
       <>
         <ScrollWrapper>
-          <FormWrapper>{renderFormFields(fields,values,onChange,formProps)}</FormWrapper>
+          <FormWrapper>
+            {renderFormFields(fields, formValue, onChange, formProps)}
+          </FormWrapper>
         </ScrollWrapper>
         <ModalFooter>
           <Button

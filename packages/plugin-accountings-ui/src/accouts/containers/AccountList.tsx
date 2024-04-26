@@ -9,11 +9,13 @@ import { BarItems } from '@erxes/ui/src/layout/styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Button from '@erxes/ui/src/components/Button';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { Alert, __, confirm, router } from 'coreui/utils';
+import { __, router } from 'coreui/utils';
 import { useNavigate } from 'react-router-dom';
 import { Title } from '@erxes/ui-settings/src/styles';
 import AccountCategoryList from './AccountCategoryList';
 import AccountForm from '../components/AccountForm';
+import { FlexItem, InputBar } from "@erxes/ui-settings/src/styles";
+import { Icon } from "@erxes/ui/src";
 
 interface IProps {
   queryParams: any;
@@ -42,7 +44,7 @@ function AccountList({ queryParams, ...props }: IProps): React.ReactNode {
   );
 
   const variables = useMemo(() => {
-    return {categoryId:queryParams.accountCategoryId};
+    return queryParams;
   }, [queryParams]);
 
   const { data, loading } = useQuery<IAccountsResponse>(
@@ -68,7 +70,7 @@ function AccountList({ queryParams, ...props }: IProps): React.ReactNode {
   };
 
   const addTrigger = (
-    <Button btnStyle="success" size="small" icon="plus-circle">
+    <Button btnStyle="success" icon="plus-circle">
       Add {'account'}
     </Button>
   );
@@ -79,14 +81,19 @@ function AccountList({ queryParams, ...props }: IProps): React.ReactNode {
 
   const actionBarRight = (
     <BarItems>
-      <FormControl
-        type="text"
-        placeholder={__('Type to search')}
-        onChange={search}
-        value={searchValue}
-        autoFocus={true}
-        onFocus={moveCursorAtTheEnd}
-      />
+      <InputBar type="searchBar">
+            <Icon icon="search-1" size={20} />
+            <FlexItem>
+              <FormControl
+                type="text"
+                placeholder={__("Type to search")}
+                onChange={search}
+                value={searchValue}
+                autoFocus={true}
+                onFocus={moveCursorAtTheEnd}
+              />
+            </FlexItem>
+          </InputBar>
       <ModalTrigger
         title="New customer"
         autoOpenKey="showCustomerModal"
@@ -98,7 +105,7 @@ function AccountList({ queryParams, ...props }: IProps): React.ReactNode {
     </BarItems>
   );
 
-  const actionBarLeft = <Title>{`All products`}</Title>;
+  const actionBarLeft = <Title>{`All accounts`}</Title>;
 
   const actionBar = (
     <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />

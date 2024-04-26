@@ -3,11 +3,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { gql, useQuery } from '@apollo/client';
 import Button from "@erxes/ui/src/components/Button";
-import CategoryForm from "@erxes/ui-products/src/containers/CategoryForm";
 import CollapsibleList from "@erxes/ui/src/components/collapsibleList/CollapsibleList";
 import { Header } from "@erxes/ui-settings/src/styles";
-import { IBrand } from "@erxes/ui/src/brands/types";
-import { IProductCategory } from "../../types";
+import CategoryStatusFilter from "./filters/CategoryStatusFilter";
 import Icon from "@erxes/ui/src/components/Icon";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import React from "react";
@@ -17,6 +15,8 @@ import Tip from "@erxes/ui/src/components/Tip";
 import { pluginsOfProductCategoryActions } from "coreui/pluginUtils";
 import { IAccountCategoryResponse, accountQuery } from "../graphql/query";
 import AccountCategoryForm from "../components/AccountCategoryForm";
+import { IAccountCategoryDocument } from "../../types/IAccountCategory";
+import mutation from "../graphql/mutation";
 
 interface IProps {
   queryParams: any;
@@ -33,13 +33,13 @@ const AccountCategoryList: React.FC<IProps> = (props) => {
 
   const renderFormTrigger = (
     trigger: React.ReactNode,
-    category?: IProductCategory
+    category?: IAccountCategoryDocument
   ) => {
     const content = (props) => (
       <AccountCategoryForm
         {...props}
-        category={category}
-        categories={data?.accountCategories}
+        defaultValue={category}
+        mutation={category ? mutation.accountCategoriesEdit : mutation.accountCategoryAdd}
       />
     );
 
@@ -53,7 +53,7 @@ const AccountCategoryList: React.FC<IProps> = (props) => {
     );
   };
 
-  const renderEditAction = (category: IProductCategory) => {
+  const renderEditAction = (category: IAccountCategoryDocument) => {
     const trigger = (
       <Button btnStyle="link">
         <Tip text={__("Edit")} placement="bottom">
@@ -65,7 +65,7 @@ const AccountCategoryList: React.FC<IProps> = (props) => {
     return renderFormTrigger(trigger, category);
   };
 
-  const renderRemoveAction = (category: IProductCategory) => {
+  const renderRemoveAction = (category: IAccountCategoryDocument) => {
     return (
       <Button btnStyle="link" >
         <Tip text={__("Remove")} placement="bottom">
@@ -77,7 +77,7 @@ const AccountCategoryList: React.FC<IProps> = (props) => {
 
   const onClick = (id: string) => {
     router.removeParams(navigate, location, "page");
-    router.setParams(navigate, location, { accountCategoryId: id });
+    router.setParams(navigate, location, { categoryId: id });
   };
 
   const renderContent = () => {
@@ -114,6 +114,7 @@ const AccountCategoryList: React.FC<IProps> = (props) => {
     <Sidebar hasBorder={true}>
       {renderCategoryHeader()}
       <SidebarList>{renderContent()}</SidebarList>
+      <CategoryStatusFilter />
     </Sidebar>
   );
 };

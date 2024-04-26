@@ -2,20 +2,29 @@ import React from 'react';
 import CustomForm from '../../components/form';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
 import mutation from '../graphql/mutation';
 import { accountQuery } from '../graphql/query';
 import { IAccountDocument } from '../../types/IAccount';
 import { IOption } from '@erxes/ui/src/types';
 
-export function generateCategoryOptions(array: IAccountDocument[] = []): IOption[] {
+export function generateCategoryOptions(
+  array: IAccountDocument[] = []
+): IOption[] {
   return array.map((node, level) => ({
     value: node._id,
     label: `${'\u00A0 \u00A0 '.repeat(level)} ${node.code} - ${node.name}`
   }));
 }
 
-function AccountForm(props: any): React.ReactNode {
+interface IProps {
+  mutation: string;
+  defaultValue?: any;
+  closeModal: () => void;
+  queryParams: any;
+  successMessage: string;
+}
+
+function AccountForm(props: IProps): React.ReactNode {
   return (
     <CustomForm
       {...props}
@@ -34,27 +43,26 @@ function AccountForm(props: any): React.ReactNode {
           {
             label: 'category',
             name: 'categoryId',
-            type: 'custom',
-            customField: (p) => {
-              return (
-                <SelectWithSearch
-                  {...p}
-                  filterParams={{}}
-                  multi={false}
-                  queryName="accountCategories"
-                  initialValue={p.value}
-                  generateOptions={generateCategoryOptions}
-                  customQuery={accountQuery.accountCategories}
-                  onSelect={(value) => p.onChange(value, p.name)}
-                />
-              );
+            type: 'selectWithSearch',
+            selectProps: {
+              filterParams: {},
+              multi: false,
+              queryName: 'accountCategories',
+              generateOptions: generateCategoryOptions,
+              customQuery: accountQuery.accountCategories
             }
-
           },
           {
             label: 'parent',
             name: 'parentId',
-            type: 'input'
+            type: 'selectWithSearch',
+            selectProps: {
+              filterParams: {},
+              multi: false,
+              queryName: 'accounts',
+              generateOptions: generateCategoryOptions,
+              customQuery: accountQuery.accounts
+            }
           },
           {
             label: 'currency',
@@ -75,12 +83,29 @@ function AccountForm(props: any): React.ReactNode {
           {
             label: 'journal',
             name: 'journal',
-            type: 'input'
+            type: 'select',
+            controlProps: {
+              options: [
+                { label: 'main', value: 'main' },
+                { label: 'cash', value: 'cash' },
+                { label: 'bank', value: 'bank' },
+                { label: 'debt', value: 'debt' },
+                { label: 'inventory', value: 'inventory' },
+                { label: 'fixedAsset', value: 'fixedAsset' },
+                { label: 'vat', value: 'vat' }
+              ]
+            }
           },
           {
             label: 'kind',
             name: 'kind',
-            type: 'input'
+            type: 'select',
+            controlProps: {
+              options: [
+                { label: 'active', value: 'active' },
+                { label: 'passive', value: 'passive' }
+              ]
+            }
           },
           {
             label: 'Branch',
@@ -96,6 +121,18 @@ function AccountForm(props: any): React.ReactNode {
               );
             }
           },
+          {
+            label: 'Status',
+            name: 'status',
+            type: 'select',
+            controlProps: {
+              options: [
+                { label: 'active', value: 'active' },
+                { label: 'deleted', value: 'deleted' }
+              ]
+            }
+          },
+          
           {
             label: 'Department',
             name: 'departmentId',
@@ -116,7 +153,6 @@ function AccountForm(props: any): React.ReactNode {
           }
         ]
       ]}
-      size="lg"
       mutation={mutation.accountAdd}
       refetchQueries={['accounts']}
     />

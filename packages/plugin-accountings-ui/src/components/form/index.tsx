@@ -7,14 +7,14 @@ import GenerateForm, { IField } from './GenerateForm';
 
 
 interface IProps {
-  fields: IField[] | [IField[]];
+  fields: IField[] | IField[][];
   mutation: string;
   type?: string;
   closeModal: () => void;
   queryParams: IQueryParams;
-  customerVisibilityInDetail: IFieldsVisibility;
   refetchQueries:string[],
-  successMessage:string
+  successMessage:string,
+  defaultValue:any
 }
 
 const CustomForm = (props: IProps) => {

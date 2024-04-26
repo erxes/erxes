@@ -13,10 +13,11 @@ module.exports = {
   },
   menus: [
     {
-      text: 'Accounts',
-      url: '/accountings/accounts',
-      icon: 'icon-piggybank',
-      location: 'mainNavigation',
+      text: 'Accountings',
+      to: '/accountings/accounts',
+      image: '/images/icons/erxes-31.png',
+      location: 'settings',
+      scope: 'accountings',
       action: 'accounts',
     },
     {

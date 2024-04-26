@@ -39,7 +39,27 @@ const accountCategoryAdd = `
   }
 `
 
+const accountCategoriesEdit = `
+  mutation accountCategoriesEdit($id: String!, $name: String!, $code: String!, $description: String, $parentId: String, $scopeBrandIds: [String], $status: String, $maskType: String, $mask: JSON) {
+    accountCategoriesEdit(_id: $id, name: $name, code: $code, description: $description, parentId: $parentId, scopeBrandIds: $scopeBrandIds, status: $status, maskType: $maskType, mask: $mask) {
+      _id
+      name
+      description
+      parentId
+      code
+      order
+      scopeBrandIds
+      status
+      isRoot
+      accountCount
+      maskType
+      mask
+    }
+  }
+`
+
 export default {
     accountAdd,
-    accountCategoryAdd
+    accountCategoryAdd,
+    accountCategoriesEdit
 }

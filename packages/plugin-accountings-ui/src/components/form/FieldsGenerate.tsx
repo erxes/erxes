@@ -1,4 +1,4 @@
-import { Alert, __, getConstantFromStore } from '@erxes/ui/src/utils';
+import { __ } from '@erxes/ui/src/utils';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
@@ -15,7 +15,7 @@ export type IOption = {
 };
 
 interface ISelectProps {
-  query?: string;
+  customQuery?: string;
   queryName?: string;
   generateOptions: (datas: any[]) => IOption[];
   customOption?: {
@@ -30,15 +30,22 @@ interface ISelectProps {
 interface IProps {
   label: string;
   name: string;
-  type: 'date' | 'input' | 'checkbox' | 'number' | 'select' | 'custom';
+  type:
+    | 'date'
+    | 'input'
+    | 'checkbox'
+    | 'number'
+    | 'select'
+    | 'custom'
+    | 'selectWithSearch';
   onChange: Function;
   value: any;
   validate: Function;
   controlProps: any;
   required: boolean;
   selectProps?: ISelectProps;
-  customField?: (props:IProps)=>any;
-  formProps:any
+  customField?: (props: IProps) => any;
+  formProps: any;
 }
 
 function FieldsGenerate(props: IProps) {
@@ -56,6 +63,8 @@ function FieldsGenerate(props: IProps) {
     formProps
   } = props;
 
+  console.log('value',value)
+
   if (type === 'date') {
     return (
       <FormGroup>
@@ -63,6 +72,7 @@ function FieldsGenerate(props: IProps) {
         <DateContainer>
           <DateControl
             {...formProps}
+            required={required}
             value={value}
             onChange={(v) => onChange(v, name)}
             name={name}
@@ -72,39 +82,63 @@ function FieldsGenerate(props: IProps) {
       </FormGroup>
     );
   }
-      if (type === 'checkbox') {
-        return (
-          <FormGroup>
-            <FormControl
-              {...formProps}
-              type='checkbox'
-              componentclass = "checkbox"
-              checked={value}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                onChange(e.target.checked, name)
-              }
-              name={name}
-              {...controlProps}
-            />
-            <ControlLabel required={required}>{label}</ControlLabel>
-          </FormGroup>
-        );
-      }
+  if (type === 'checkbox') {
+    return (
+      <FormGroup>
+        <FormControl
+          {...formProps}
+          required={required}
+          type="checkbox"
+          componentclass="checkbox"
+          checked={value}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            onChange(e.target.checked, name)
+          }
+          name={name}
+          {...controlProps}
+        />
+        <ControlLabel required={required}>{label}</ControlLabel>
+      </FormGroup>
+    );
+  }
+
+  if (type === 'selectWithSearch') {
+    return (
+      <FormGroup>
+        <ControlLabel required={required}>{label}</ControlLabel>
+        <SelectWithSearch
+          required={required}
+          label={label}
+          queryName={selectProps?.queryName || ''}
+          name={name}
+          initialValue={value}
+          generateOptions={selectProps?.generateOptions}
+          onSelect={(v) => onChange(v, name)}
+          customQuery={selectProps?.customQuery}
+          multi={selectProps?.multi}
+          filterParams={selectProps?.filterParams}
+        />
+      </FormGroup>
+    );
+  }
 
   if (type === 'select') {
     return (
-      <SelectWithSearch
-        label={label}
-        queryName={selectProps?.queryName || ''}
-        name={name}
-        initialValue={value}
-        generateOptions={selectProps?.generateOptions as any}
-        onSelect={(v) => onChange(v, name)}
-        customQuery={selectProps?.query}
-        customOption={selectProps?.customOption}
-        multi={selectProps?.multi}
-        filterParams={selectProps?.filterParams}
-      />
+      <FormGroup>
+        <ControlLabel required={required}>{label}</ControlLabel>
+        <FormControl
+          {...formProps}
+          required={required}
+          value={value}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            onChange(e.target.value, name)
+          }
+          name={name}
+          type={'select'}
+          componentclass="select"
+          {...controlProps}
+        />
+      </FormGroup>
     );
   }
 
@@ -114,6 +148,7 @@ function FieldsGenerate(props: IProps) {
         <ControlLabel required={required}>{label}</ControlLabel>
         <FormControl
           {...formProps}
+          required={required}
           value={value}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             onChange(e.target.value, name)
@@ -140,6 +175,7 @@ function FieldsGenerate(props: IProps) {
     <FormGroup>
       <ControlLabel required={required}>{label}</ControlLabel>
       <FormControl
+        required={required}
         {...formProps}
         value={value}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
