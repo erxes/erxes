@@ -2,11 +2,18 @@
 
 import { IContext } from '../../../connectionResolver';
 import { sendCommonMessage } from '../../../messageBroker';
+import { IInsuranceItemDocument } from '../../../models/definitions/item';
 import { IRiskDocument } from '../../../models/definitions/risks';
 import { generateContract, verifyVendor } from '../utils';
 
-
-const createDealAndItem = async (models, subdomain, doc, cpUser, company, stageId) => {
+const createDealAndItem = async (
+  models,
+  subdomain,
+  doc,
+  cpUser,
+  company,
+  stageId
+) => {
   const itemDoc = {
     ...doc,
     vendorUserId: cpUser.userId,
@@ -100,7 +107,7 @@ const createDealAndItem = async (models, subdomain, doc, cpUser, company, stageI
   await generateContract(models, subdomain, insuranceItem, product, company);
 
   return insuranceItem;
-}
+};
 
 const mutations = {
   vendorAddInsuranceItem: async (
@@ -124,20 +131,36 @@ const mutations = {
     }
 
     if (customerIds && customerIds.length) {
-        for (const customerId of customerIds) {
-          doc.customerId = customerId;
-          await createDealAndItem(models, subdomain, doc, cpUser, company, clientportal.dealStageId);
-        }
-      return 'ok';
+      const items: IInsuranceItemDocument[] = []
+      for (const customerId of customerIds) {
+        doc.customerId = customerId;
+        const item = await createDealAndItem(
+          models,
+          subdomain,
+          doc,
+          cpUser,
+          company,
+          clientportal.dealStageId
+        );
+        items.push(item);
+      }
+      return items
     }
 
     if (customerId) {
       doc.customerId = customerId;
     }
 
-    await createDealAndItem(models, subdomain, doc, cpUser, company, clientportal.dealStageId);
+    const item = await createDealAndItem(
+      models,
+      subdomain,
+      doc,
+      cpUser,
+      company,
+      clientportal.dealStageId
+    );
 
-    return 'ok';
+    return item;
   },
 
   vendorEditInsuranceItem: async (
