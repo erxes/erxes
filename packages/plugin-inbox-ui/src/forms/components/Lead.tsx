@@ -4,7 +4,7 @@ import {
   FormStep,
   FullPreview,
   OptionStep,
-  SuccessStep
+  SuccessStep,
 } from './step';
 import { IAttachment, IConditionsRule } from '@erxes/ui/src/types';
 import { ILeadData, ILeadIntegration } from '@erxes/ui-leads/src/types';
@@ -130,7 +130,7 @@ class Lead extends React.Component<Props, State> {
       verifyEmail: leadData.verifyEmail || false,
 
       brand: integration.brandId,
-      channelIds: channels.map(item => item._id) || [],
+      channelIds: channels.map((item) => item._id) || [],
       language: integration.languageCode,
       title: integration.name || 'Create Form',
       calloutTitle: callout.title || 'Call Out Title',
@@ -141,11 +141,13 @@ class Lead extends React.Component<Props, State> {
       defaultValue: {},
       formData: {
         title: form.title || 'Form Title',
-        description: form.description || 'Form Description',
+        description: form.hasOwnProperty('description')
+          ? form.description
+          : 'Form Description',
         buttonText: form.buttonText || 'Send',
         fields: form.fields || [],
         type: form.type || '',
-        numberOfPages: form.numberOfPages || 1
+        numberOfPages: form.numberOfPages || 1,
       },
       theme: leadData.themeColor || '#6569DF',
       isRequireOnce: leadData.isRequireOnce,
@@ -163,7 +165,7 @@ class Lead extends React.Component<Props, State> {
       successImageSize: leadData.successImageSize || '',
       successPreviewStyle: {},
       departmentIds: integration.departmentIds || [],
-      visibility: integration.visibility || 'public'
+      visibility: integration.visibility || 'public',
     };
   }
 
@@ -184,7 +186,7 @@ class Lead extends React.Component<Props, State> {
       formData,
       channelIds,
       departmentIds,
-      visibility
+      visibility,
     } = this.state;
 
     if (!title) {
@@ -227,16 +229,16 @@ class Lead extends React.Component<Props, State> {
           buttonText: this.state.calloutBtnText,
           featuredImage: this.state.logo,
           calloutImgSize: this.state.calloutImgSize,
-          skip: this.state.isSkip
+          skip: this.state.isSkip,
         },
-        rules: (rules || []).filter(rule => rule.condition && rule.value),
+        rules: (rules || []).filter((rule) => rule.condition && rule.value),
         isRequireOnce: this.state.isRequireOnce,
         saveAsCustomer: this.state.saveAsCustomer,
         css: this.state.css,
         successImage: this.state.successImage,
         successImageSize: this.state.successImageSize,
-        verifyEmail: this.state.verifyEmail
-      }
+        verifyEmail: this.state.verifyEmail,
+      },
     };
 
     this.props.save(doc);
@@ -246,7 +248,7 @@ class Lead extends React.Component<Props, State> {
     this.setState({ [key]: value } as any);
   };
 
-  onFormDocChange = formData => {
+  onFormDocChange = (formData) => {
     this.setState({ formData });
   };
 
@@ -261,7 +263,7 @@ class Lead extends React.Component<Props, State> {
     this.setState({ currentMode: 'update', currentField: field });
   };
 
-  onStepClick = currentStepNumber => {
+  onStepClick = (currentStepNumber) => {
     const { isSkip } = this.state;
 
     let carousel = 'form';
@@ -334,7 +336,7 @@ class Lead extends React.Component<Props, State> {
       successImageSize,
       successPreviewStyle,
       departmentIds,
-      visibility
+      visibility,
     } = this.state;
 
     const { integration = {} as any, emailTemplates, configs } = this.props;
