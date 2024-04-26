@@ -3,7 +3,7 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import Settings from './settings/containers/Settings';
-import HolidaySettings from './settings/components/HolidaySettings';
+import MainSettings from './settings/components/MainSettings';
 
 const ContractList = asyncComponent(
   () =>
@@ -116,8 +116,8 @@ const contractTypeDetail = ({ match }) => {
   return <ContractTypeDetails id={id} />;
 };
 
-const holidaySettings = () => {
-  return <Settings components={HolidaySettings}></Settings>;
+const mainSettings = () => {
+  return <Settings components={MainSettings}></Settings>;
 };
 
 const SavingRoutes = () => {
@@ -153,8 +153,8 @@ const SavingRoutes = () => {
       />
 
       <Route
-        path="/erxes-plugin-saving/holiday-settings"
-        component={holidaySettings}
+        path="/erxes-plugin-saving/saving-settings"
+        component={mainSettings}
       />
       <Route
         path="/erxes-plugin-saving/periodLock-list"
