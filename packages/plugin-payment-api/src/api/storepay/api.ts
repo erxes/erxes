@@ -17,7 +17,7 @@ export const storepayCallbackHandler = async (
 
   const invoice = await models.Invoices.getInvoice(
     {
-      'apiResponse.value': id,
+      $or: [{ 'apiResponse.value': id }, { 'apiResponse.value': Number(id) }],
     },
     true,
   );
