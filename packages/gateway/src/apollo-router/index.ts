@@ -126,6 +126,10 @@ const createRouterConfig = async () => {
         NODE_ENV === 'development' ||
         (INTROSPECTION || '').trim().toLowerCase() === 'true',
     },
+    // limits: {
+    //   max_depth: 100,
+    //   max_aliases: 30
+    // }
   };
 
   if (OTEL_EXPORTER_OTLP_ENDPOINT) {
