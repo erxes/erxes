@@ -124,6 +124,12 @@ class FieldForm extends React.Component<Props, State> {
     const { field, group } = this.state;
 
     field.associatedFieldId = selectedField._id;
+    field.associatedField = {
+      _id: selectedField._id,
+      text: selectedField.text || "",
+      contentType: group || "",
+    };
+
     field.validation = selectedField.validation;
     field.options = selectedField.options;
     field.type = selectedField.type;
