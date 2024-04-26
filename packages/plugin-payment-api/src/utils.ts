@@ -21,7 +21,7 @@ export const callbackHandler = async (req, res) => {
   const models = await generateModels(subdomain);
 
   const kind = query.kind || route.path.split('/').slice(-1).pop();
-  console.log('receiving callback request with payment kind: ', kind);
+
   if (!kind) {
     return res.status(400).send('kind is required');
   }
@@ -29,7 +29,7 @@ export const callbackHandler = async (req, res) => {
   let invoiceDoc: any;
 
   const data = { ...body, ...query };
-  console.log('callback data: ', data);
+
   try {
     switch (kind) {
       case PAYMENTS.storepay.kind:
