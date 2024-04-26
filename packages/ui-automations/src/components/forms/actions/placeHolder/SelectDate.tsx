@@ -1,9 +1,9 @@
-import dayjs from "dayjs";
-import Icon from "@erxes/ui/src/components/Icon";
-import React from "react";
-import Popover from "@erxes/ui/src/components/Popover";
 import Datetime from "@nateradebaugh/react-datetime";
+import Icon from "@erxes/ui/src/components/Icon";
+import Popover from "@erxes/ui/src/components/Popover";
+import React from "react";
 import { __ } from "@erxes/ui/src/utils/core";
+import dayjs from "dayjs";
 
 type Props = {
   config: any;
@@ -29,7 +29,7 @@ export default class SelectDate extends React.Component<Props> {
 
     return (
       <Popover
-        ref={this.overlay}
+        innerRef={this.overlay}
         trigger={
           <span>
             {__("Date")} <Icon icon="angle-down" />

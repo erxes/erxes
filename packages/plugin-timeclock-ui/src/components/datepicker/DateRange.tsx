@@ -1,12 +1,14 @@
-import React from "react";
+import * as dayjs from "dayjs";
+
+import { DateName, FlexCenter, FlexRow, MarginY } from "../../styles";
+
+import Button from "@erxes/ui/src/components/Button";
+import Datetime from "@nateradebaugh/react-datetime";
+import Icon from "@erxes/ui/src/components/Icon";
 import Popover from "@erxes/ui/src/components/Popover";
 import { PopoverButton } from "@erxes/ui/src/styles/main";
-import Button from "@erxes/ui/src/components/Button";
-import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
 import { __ } from "@erxes/ui/src/utils";
-import { FlexRow, DateName, FlexCenter, MarginY } from "../../styles";
-import Datetime from "@nateradebaugh/react-datetime";
-import * as dayjs from "dayjs";
 import { dateFormat } from "../../constants";
 
 type Props = {
@@ -94,7 +96,7 @@ const DateRange = (props: Props) => {
 
   return (
     <Popover
-      ref={overlayTrigger}
+      innerRef={overlayTrigger}
       trigger={
         <PopoverButton>
           {__("Select Date Range")}

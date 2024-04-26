@@ -1,15 +1,14 @@
-import React, { useState } from "react";
-
-import Datetime from "@nateradebaugh/react-datetime";
-import Popover from "@erxes/ui/src/components/Popover";
 import * as dayjs from "dayjs";
 
-import Button from "@erxes/ui/src/components/Button";
+import { FlexCenter, FlexRow, MarginY } from "../../styles";
+import React, { useState } from "react";
+
 import Alert from "@erxes/ui/src/utils/Alert/index";
+import Button from "@erxes/ui/src/components/Button";
+import Datetime from "@nateradebaugh/react-datetime";
+import Popover from "@erxes/ui/src/components/Popover";
 import { PopoverButton } from "@erxes/ui/src/styles/main";
 import { __ } from "@erxes/ui/src/utils/index";
-
-import { FlexCenter, FlexRow, MarginY } from "../../styles";
 
 const dateFormat = "MM/DD/YYYY";
 const NOW = new Date();
@@ -118,7 +117,7 @@ const DateRange = (props: Props) => {
   return (
     <FlexRow>
       <Popover
-        ref={overlayTrigger}
+        innerRef={overlayTrigger}
         trigger={
           <PopoverButton>
             <Button btnStyle="primary">{__("Date Range")}</Button>

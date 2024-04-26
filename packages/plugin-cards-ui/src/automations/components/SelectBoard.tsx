@@ -1,13 +1,14 @@
-import client from "@erxes/ui/src/apolloClient";
-import React from "react";
-import Popover from "@erxes/ui/src/components/Popover";
-import BoardSelect from "@erxes/ui-cards/src/boards/containers/BoardSelect";
-import Icon from "@erxes/ui/src/components/Icon";
-import { Attributes } from "@erxes/ui-automations/src/components/forms/actions/styles";
-import { IStage } from "@erxes/ui-cards/src/boards/types";
-import { queries as boardQueries } from "@erxes/ui-cards/src/boards/graphql";
-import { gql } from "@apollo/client";
 import { Alert, __ } from "coreui/utils";
+
+import { Attributes } from "@erxes/ui-automations/src/components/forms/actions/styles";
+import BoardSelect from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import { IStage } from "@erxes/ui-cards/src/boards/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import Popover from "@erxes/ui/src/components/Popover";
+import React from "react";
+import { queries as boardQueries } from "@erxes/ui-cards/src/boards/graphql";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
 
 type Props = {
   config: any;
@@ -98,7 +99,7 @@ export default class SelectBoard extends React.Component<Props, State> {
           </span>
         }
         placement="top"
-        ref={this.overlay}
+        innerRef={this.overlay}
       >
         <Attributes>
           <React.Fragment>

@@ -11,7 +11,7 @@ type Props = {
   style?: object;
   className?: string;
   closeAfterSelect?: boolean;
-  ref?: any;
+  innerRef?: any;
   placement?:
     | "auto-start"
     | "auto"
@@ -31,7 +31,8 @@ type Props = {
 };
 
 const Popover = (props: Props) => {
-  const { trigger, children, closeAfterSelect, className, style, ref } = props;
+  const { trigger, children, closeAfterSelect, className, style, innerRef } =
+    props;
   let [referenceElement, setReferenceElement] =
     useState<HTMLButtonElement | null>(null);
   let [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
@@ -42,7 +43,7 @@ const Popover = (props: Props) => {
   return (
     <PopoverContainer
       style={{ position: "relative", ...style }}
-      ref={ref && ref}
+      ref={innerRef && innerRef}
     >
       {({ close }) => (
         <>

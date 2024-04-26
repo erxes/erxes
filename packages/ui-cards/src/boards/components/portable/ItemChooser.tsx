@@ -67,7 +67,7 @@ class ItemChooser extends React.Component<Props, State> {
     return (
       <div>
         <Popover
-          ref={this.ref}
+          innerRef={this.ref}
           trigger={
             <Select>
               {translator ? translator("Filter") : "Filter"}

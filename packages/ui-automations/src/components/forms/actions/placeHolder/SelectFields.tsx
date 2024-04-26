@@ -1,16 +1,17 @@
-import { FieldsCombinedByType } from "@erxes/ui-forms/src/settings/properties/types";
-import Button from "@erxes/ui/src/components/Button";
-import Icon from "@erxes/ui/src/components/Icon";
-import { __ } from "@erxes/ui/src/utils";
-import React from "react";
-import Popover from "@erxes/ui/src/components/Popover";
-import { Attributes } from "../styles";
-import PlaceHolderInput from "./PlaceHolderInput";
 import {
   ControlLabel,
   FormControl,
   FormGroup,
 } from "@erxes/ui/src/components/form";
+
+import { Attributes } from "../styles";
+import Button from "@erxes/ui/src/components/Button";
+import { FieldsCombinedByType } from "@erxes/ui-forms/src/settings/properties/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import PlaceHolderInput from "./PlaceHolderInput";
+import Popover from "@erxes/ui/src/components/Popover";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   triggerType: string;
@@ -128,7 +129,7 @@ class SelectFields extends React.Component<Props, State> {
       <>
         {this.renderFields()}
         <Popover
-          ref={this.overlay}
+          innerRef={this.overlay}
           trigger={
             <Button btnStyle="simple" block icon="add">
               {__(label || "")}

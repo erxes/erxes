@@ -1,14 +1,15 @@
-import React from "react";
-import Popover from "@erxes/ui/src/components/Popover";
-import Icon from "@erxes/ui/src/components/Icon";
-import { IOption } from "@erxes/ui/src/types";
-import { Attributes } from "../styles";
-import { __ } from "@erxes/ui/src/utils/core";
 import {
   ControlLabel,
   FormControl,
   FormGroup,
 } from "@erxes/ui/src/components/form";
+
+import { Attributes } from "../styles";
+import { IOption } from "@erxes/ui/src/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import Popover from "@erxes/ui/src/components/Popover";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils/core";
 
 type Props = {
   config: any;
@@ -79,7 +80,7 @@ export default class SelectOption extends React.Component<Props, State> {
     }
     return (
       <Popover
-        ref={this.overlay}
+        innerRef={this.overlay}
         trigger={
           <span>
             {__("Options")} <Icon icon="angle-down" />
