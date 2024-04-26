@@ -14,7 +14,6 @@ import Icon from "modules/common/components/Icon";
 import { router } from "modules/common/utils";
 
 type Props = {
-  history: any;
   userEdit: (_id: string, doc: any) => void;
   currentUser: IUser;
   firstName: string;
@@ -29,7 +28,6 @@ type Props = {
 
 function Profile(props: Props) {
   const {
-    history,
     userEdit,
     currentUser,
     firstName,

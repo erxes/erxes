@@ -12,7 +12,6 @@ import React from "react";
 import { router } from "modules/common/utils";
 
 type Props = {
-  history: any;
   integration: IIntegration;
 };
 

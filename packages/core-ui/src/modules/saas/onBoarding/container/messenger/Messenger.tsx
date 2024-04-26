@@ -17,7 +17,6 @@ import { graphql } from "@apollo/client/react/hoc";
 import { mutations } from "modules/saas/onBoarding/graphql";
 
 type Props = {
-  history: any;
   brandName: string;
   setBrandName: (name: string) => void;
   color: string;

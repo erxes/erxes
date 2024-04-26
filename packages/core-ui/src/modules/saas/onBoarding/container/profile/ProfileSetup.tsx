@@ -13,7 +13,6 @@ import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 
 type Props = {
-  history: any;
   currentUser: IUser;
   firstName: string;
   setFirstName: (name: string) => void;
@@ -31,7 +30,7 @@ type FinalProps = {
   EditMutationResponse;
 
 function ProfileContainer(props: FinalProps) {
-  const { usersEdit, currentUser, userDetailQuery, history } = props;
+  const { usersEdit, currentUser, userDetailQuery } = props;
 
   const navigate = useNavigate();
   const location = useLocation();
