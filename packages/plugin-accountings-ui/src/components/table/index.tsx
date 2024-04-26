@@ -20,8 +20,8 @@ function renderRow(
   return (
     <tr>
       {columns.map((row) => {
-        if (row.render) return row.render(data[row.key], data);
-        return data[row.key];
+        if (row.render) return <td>{row.render(data[row.key], data)}</td>;
+        return <td>{data[row.key]}</td>;
       })}
     </tr>
   );

@@ -38,6 +38,7 @@ interface IProps {
   required: boolean;
   selectProps?: ISelectProps;
   customField?: (props:IProps)=>any;
+  formProps:any
 }
 
 function FieldsGenerate(props: IProps) {
@@ -51,7 +52,8 @@ function FieldsGenerate(props: IProps) {
     required,
     name,
     selectProps,
-    customField
+    customField,
+    formProps
   } = props;
 
   if (type === 'date') {
@@ -60,6 +62,7 @@ function FieldsGenerate(props: IProps) {
         <ControlLabel required={required}>{label}</ControlLabel>
         <DateContainer>
           <DateControl
+            {...formProps}
             value={value}
             onChange={(v) => onChange(v, name)}
             name={name}
@@ -73,9 +76,10 @@ function FieldsGenerate(props: IProps) {
         return (
           <FormGroup>
             <FormControl
+              {...formProps}
               type='checkbox'
-              componentClass = "checkbox"
-              value={value}
+              componentclass = "checkbox"
+              checked={value}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 onChange(e.target.checked, name)
               }
@@ -109,6 +113,7 @@ function FieldsGenerate(props: IProps) {
       <FormGroup>
         <ControlLabel required={required}>{label}</ControlLabel>
         <FormControl
+          {...formProps}
           value={value}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             onChange(e.target.value, name)
@@ -135,6 +140,7 @@ function FieldsGenerate(props: IProps) {
     <FormGroup>
       <ControlLabel required={required}>{label}</ControlLabel>
       <FormControl
+        {...formProps}
         value={value}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
           onChange(e.target.value, name)

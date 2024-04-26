@@ -11,10 +11,9 @@ import Button from '@erxes/ui/src/components/Button';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { Alert, __, confirm, router } from 'coreui/utils';
 import { useNavigate } from 'react-router-dom';
-import CustomForm from '../../components/form';
-import mutation from '../graphql/mutation';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import { Title } from '@erxes/ui-settings/src/styles';
+import AccountCategoryList from './AccountCategoryList';
+import AccountForm from '../components/AccountForm';
 
 interface IProps {
   queryParams: any;
@@ -43,7 +42,7 @@ function AccountList({ queryParams, ...props }: IProps): React.ReactNode {
   );
 
   const variables = useMemo(() => {
-    return {};
+    return {categoryId:queryParams.accountCategoryId};
   }, [queryParams]);
 
   const { data, loading } = useQuery<IAccountsResponse>(
@@ -75,96 +74,7 @@ function AccountList({ queryParams, ...props }: IProps): React.ReactNode {
   );
 
   const customerForm = (props) => {
-    return (
-      <CustomForm
-        {...props}
-        fields={[
-          [
-            {
-              label: 'code',
-              name: 'code',
-              type: 'input'
-            },
-            {
-              label: 'name',
-              name: 'name',
-              type: 'input'
-            },
-            {
-              label: 'category',
-              name: 'categoryId',
-              type: 'input'
-            },
-            {
-              label: 'parent',
-              name: 'parentId',
-              type: 'input'
-            },
-            {
-              label: 'currency',
-              name: 'currency',
-              type: 'input'
-            },
-
-            {
-              label: 'description',
-              name: 'description',
-              type: 'input',
-              controlProps:{
-                componentclass:"textarea"
-              }
-            }
-          ],
-          [
-            {
-              label: 'journal',
-              name: 'journal',
-              type: 'input'
-            },
-            {
-              label: 'kind',
-              name: 'kind',
-              type: 'input'
-            },
-            {
-              label: 'Branch',
-              name: 'branchId',
-              type: 'custom',
-              customField: (p) => {
-                return (
-                  <SelectBranches
-                    {...p}
-                    onSelect={(value) => p.onChange(value, p.name)}
-                  />
-                );
-              }
-            },
-            {
-              label: 'Department',
-              name: 'departmentId',
-              type: 'custom',
-              customField: (p) => {
-                return (
-                  <SelectDepartments
-                    {...p}
-                    onSelect={(value) => p.onChange(value, p.name)}
-                  />
-                );
-              }
-            },
-            {
-              label: 'isOutBalance',
-              name: 'isOutBalance',
-              type: 'checkbox'
-            }
-          ]
-        ]}
-        size="lg"
-        mutation={mutation.accountAdd}
-        refetchQueries={['accounts']}
-        queryParams={queryParams}
-      />
-    );
+    return <AccountForm {...props} />;
   };
 
   const actionBarRight = (
@@ -188,7 +98,11 @@ function AccountList({ queryParams, ...props }: IProps): React.ReactNode {
     </BarItems>
   );
 
-  const actionBar = <Wrapper.ActionBar right={actionBarRight} />;
+  const actionBarLeft = <Title>{`All products`}</Title>;
+
+  const actionBar = (
+    <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
+  );
 
   return (
     <Wrapper
@@ -204,7 +118,13 @@ function AccountList({ queryParams, ...props }: IProps): React.ReactNode {
         <DataWithLoader
           data={
             <CustomTable
-              columns={[{ label: 'name', key: 'name' }]}
+              columns={[
+                { label: 'code', key: 'code' },
+                { label: 'name', key: 'name' },
+                { label: 'currency', key: 'currency' },
+                { label: 'kind', key: 'kind' },
+                { label: 'journal', key: 'journal' }
+              ]}
               data={data?.accounts}
             />
           }
@@ -216,6 +136,7 @@ function AccountList({ queryParams, ...props }: IProps): React.ReactNode {
       }
       transparent={true}
       hasBorder={true}
+      leftSidebar={<AccountCategoryList queryParams={queryParams} />}
       footer={<Pagination count={data?.accounts.length} />}
     />
   );

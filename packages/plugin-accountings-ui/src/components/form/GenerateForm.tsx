@@ -8,6 +8,7 @@ import {
 } from '@erxes/ui/src/styles/main';
 import Button from '@erxes/ui/src/components/Button';
 import FieldsGenerate from './FieldsGenerate';
+import { IFormProps } from '@erxes/ui/src/types';
 
 export interface IField {
   label: string;
@@ -22,13 +23,13 @@ interface IProps {
   closeModal: () => void;
 }
 
-function renderFormFields(fields: IField[] | [IField[]],values,onChange) {
+function renderFormFields(fields: IField[] | [IField[]],values,onChange,formProps) {
   if (Array.isArray(fields[0]))
     return fields.map((columns) => {
       return (
         <FormColumn>
           {columns.map((row) => {
-            return <FieldsGenerate value={values[row.key]} onChange={onChange} {...row} />;
+            return <FieldsGenerate formProps={formProps} value={values[row.key]} onChange={onChange} {...row} />;
           })}
         </FormColumn>
       );
@@ -37,7 +38,7 @@ function renderFormFields(fields: IField[] | [IField[]],values,onChange) {
     return (
       <FormColumn>
         {fields.map((row) => {
-          return <FieldsGenerate value={values[row.key]} onChange={onChange} {...row} />;
+          return <FieldsGenerate formProps={formProps} value={values[row.key]} onChange={onChange} {...row} />;
         })}
       </FormColumn>
     );
@@ -46,7 +47,7 @@ function renderFormFields(fields: IField[] | [IField[]],values,onChange) {
 function GenerateForm({ fields, renderButton, closeModal }: IProps) {
   const [formValue, setFormValue] = useState<object>({});
 
-  const renderContent = (formProps: any): React.ReactNode => {
+  const renderContent = (formProps: IFormProps): React.ReactNode => {
     const { values, isSubmitted, resetSubmit } = formProps;
 
     const onChange= (value,key) =>{
@@ -58,7 +59,7 @@ function GenerateForm({ fields, renderButton, closeModal }: IProps) {
     return (
       <>
         <ScrollWrapper>
-          <FormWrapper>{renderFormFields(fields,values,onChange)}</FormWrapper>
+          <FormWrapper>{renderFormFields(fields,values,onChange,formProps)}</FormWrapper>
         </ScrollWrapper>
         <ModalFooter>
           <Button
