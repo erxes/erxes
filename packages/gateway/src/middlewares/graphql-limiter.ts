@@ -72,10 +72,10 @@ export async function applyGraphqlLimiters(app: Express) {
         const document = parse(req.body.query);
         const validationErrors = validate(schema, document);
         if (validationErrors?.length) {
-          return res.status(400).json(validationErrors);
+          return res.status(400).json({ errors: validationErrors });
         }
       } catch (e) {
-        return res.status(400).send(e.message);
+        return res.status(400).json({ errors: [e] });
       }
     }
 
