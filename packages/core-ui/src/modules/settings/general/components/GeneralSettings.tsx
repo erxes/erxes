@@ -98,7 +98,7 @@ class GeneralSettings extends React.Component<Props, State> {
       value = values.map((el) => el.value);
     }
 
-    this.onChangeConfig(code, value);
+    this.onChangeConfig(code, value.toString());
   };
 
   onChangeSingleCombo = (code: string, obj) => {
