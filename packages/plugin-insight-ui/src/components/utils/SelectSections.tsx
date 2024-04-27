@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import Select from "react-select";
+import CreatableSelect from "react-select/creatable";
 
 import Icon from "@erxes/ui/src/components/Icon";
 import { __ } from "@erxes/ui/src/utils/index";
@@ -46,7 +46,7 @@ const SelectSections = (props: Props) => {
   };
 
   return (
-    <Select
+    <CreatableSelect
       placeholder={__("Choose a section")}
       value={generateOptions(sections).find((o) => o.value === sectionId)}
       onChange={(selectedOption) => setSectionId(selectedOption.value)}

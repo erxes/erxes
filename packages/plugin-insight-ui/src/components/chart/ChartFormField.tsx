@@ -16,7 +16,6 @@ import SelectLeads from "../utils/SelectLeads";
 import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import { SelectWithAssets } from "../utils/SelectAssets";
-import { stringify } from "querystring";
 
 type Props = {
   fieldType: string;
@@ -52,8 +51,7 @@ const ChartFormField = (props: Props) => {
     filterType,
   } = props;
 
-  const { fieldValueVariable, fieldLabelVariable, fieldQueryVariables } =
-    filterType;
+  const { fieldQueryVariables } = filterType;
 
   useEffect(() => {
     if (!fieldValue && fieldDefaultValue) {
@@ -98,13 +96,16 @@ const ChartFormField = (props: Props) => {
     }
   };
 
-  const groupsOptions = fieldOptions?.map((group) => ({
-    label: group.label,
-    options: group.value?.map((field) => ({
-      value: field._id,
-      label: field.text,
-    })),
-  }));
+  const groupsOptions =
+    fieldType === "groups"
+      ? fieldOptions?.map((group) => ({
+          label: group.label,
+          options: group.value?.map((field) => ({
+            value: field._id,
+            label: field.text,
+          })),
+        }))
+      : [];
 
   switch (fieldQuery) {
     case "users":
@@ -301,7 +302,12 @@ const ChartFormField = (props: Props) => {
         <div>
           <ControlLabel>{fieldLabel}</ControlLabel>
           <Select
-            value={fieldOptions.filter((o) => fieldValue.includes(o.value))}
+            value={
+              fieldValue &&
+              (multi
+                ? fieldOptions.filter((o) => fieldValue.includes(o.value))
+                : fieldOptions.find((o) => o.value === fieldValue))
+            }
             isClearable={true}
             isMulti={multi}
             onChange={onSelect}

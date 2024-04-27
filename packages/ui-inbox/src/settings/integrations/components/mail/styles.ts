@@ -353,6 +353,8 @@ const WidgetButton = styled.div`
 
 const Link = styled.a`
   cursor: pointer;
+  display: flex;
+  align-items: center;
 `;
 
 const SignatureChooserFooter = styledTS<{

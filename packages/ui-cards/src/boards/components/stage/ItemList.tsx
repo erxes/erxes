@@ -9,7 +9,7 @@ import {
   Wrapper,
 } from "../../styles/common";
 import { IItem, IOptions } from "../../types";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import EmptyState from "@erxes/ui/src/components/EmptyState";
