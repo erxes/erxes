@@ -141,7 +141,9 @@ class Lead extends React.Component<Props, State> {
       defaultValue: {},
       formData: {
         title: form.title || "Form Title",
-        description: form.description || "Form Description",
+        description: form.hasOwnProperty("description")
+          ? form.description
+          : "Form Description",
         buttonText: form.buttonText || "Send",
         fields: form.fields || [],
         type: form.type || "",
