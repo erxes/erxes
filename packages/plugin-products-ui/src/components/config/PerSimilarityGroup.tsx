@@ -247,7 +247,7 @@ class PerSettings extends React.Component<Props, State> {
               <FormControl
                 name={'filterField'}
                 componentClass="select"
-                defaultValue={config['filterField'] || 'code'}
+                value={config['filterField'] || 'code'}
                 onChange={this.onChange}
                 required={true}
                 options={options}

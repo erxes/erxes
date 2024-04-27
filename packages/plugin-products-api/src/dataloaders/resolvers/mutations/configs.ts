@@ -29,23 +29,27 @@ const configMutations = {
         for (const mask of masks) {
           const maskValue = value[mask];
 
-          const codeRegex = new RegExp(
+          const codeRegex = ['*', '.', '_'].includes(mask) ? new RegExp(
             `^${mask
               .replace(/\./g, '\\.')
               .replace(/\*/g, '.')
               .replace(/_/g, '.')}.*`,
             'igu',
+          ) : new RegExp(
+            `.*${mask}.*`,
+            'igu',
           );
+          console.log(maskValue.filterField || 'code', 'zzzzzzzzzzzzz', mask)
           const fieldFilter = (maskValue.filterField || 'code').includes(
             'customFieldsData.',
           )
             ? {
-                'customFieldsData.field': maskValue.filterField.replace(
-                  'customFieldsData.',
-                  '',
-                ),
-                'customFieldsData.stringValue': { $in: [codeRegex] },
-              }
+              'customFieldsData.field': maskValue.filterField.replace(
+                'customFieldsData.',
+                '',
+              ),
+              'customFieldsData.stringValue': { $in: [codeRegex] },
+            }
             : { [maskValue.filterField || 'code']: { $in: [codeRegex] } };
 
           const fieldIds = (maskValue.rules || []).map((r) => r.fieldId);

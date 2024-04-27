@@ -374,12 +374,15 @@ const productQueries = {
 
     if (groupedSimilarity === 'config') {
       const getRegex = str => {
-        return new RegExp(
+        return ['*', '.', '_'].includes(str) ? new RegExp(
           `^${str
             .replace(/\./g, '\\.')
             .replace(/\*/g, '.')
             .replace(/_/g, '.')}.*`,
-          'igu'
+          'igu',
+        ) : new RegExp(
+          `.*${str}.*`,
+          'igu',
         );
       };
 
@@ -407,7 +410,7 @@ const productQueries = {
             return false;
           }
         } else {
-          if (!product[filterFieldDef].match(regexer)) {
+          if (!product[filterFieldDef]?.match(regexer)) {
             return false;
           }
         }
