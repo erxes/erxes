@@ -110,7 +110,7 @@ export const mutations = `
   mainTrEdit(_id: String!, ${mainTrParams}): [MainTransaction]
   mainTrRemove(): String
 
-  ptransactionRemove()
+  ptrRemove(): String
 
   transactionLink(trIds: [String])
 
