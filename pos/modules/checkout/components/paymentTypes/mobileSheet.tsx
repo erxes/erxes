@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import clientMain from "@/modules/apolloClientMain"
 import { queries } from "@/modules/orders/graphql"
 import { currentAmountAtom, invoiceIdAtom, paymentDataAtom } from "@/store"
-import { configAtom, coverConfigAtom } from "@/store/config.store"
+import { configAtom } from "@/store/config.store"
 import {
   activeOrderIdAtom,
   customerAtom,
@@ -29,18 +29,16 @@ import PhoneNumber from "./phoneNumber"
 import QrDetail from "./QrDetail"
 
 const MobileSheet = () => {
-  const config = useAtomValue(configAtom)
+  const { erxesAppToken, paymentIds, token } = useAtomValue(configAtom) || {}
   const context = {
     headers: {
-      "erxes-app-token": config?.erxesAppToken,
+      "erxes-app-token": erxesAppToken,
     },
   }
   const { data, loading, error } = useQuery(queries.payment, {
     client: clientMain,
     context,
   })
-
-  const coverConfig = useAtomValue(coverConfigAtom)
 
   const [createInvoice, { reset, data: invoiceData, loading: loadingInvoice }] =
     useMutation(mutations.createInvoice, {
@@ -70,7 +68,7 @@ const MobileSheet = () => {
   const PHONE_PAYMENTS = ["socialpay", "storepay"]
 
   const payments = (allPayments || []).filter((pm: IPaymentOption) =>
-    coverConfig?.paymentIds.includes(pm._id)
+    (paymentIds || []).includes(pm._id)
   )
 
   const getKindById = (_id: string) =>
@@ -91,7 +89,7 @@ const MobileSheet = () => {
         customerId: customer?._id || "empty",
         customerType: customerType || "customer",
         description: `${activeOrderId} - ${orderNumber}`,
-        data: { posToken: config?.token },
+        data: { posToken: token },
         selectedPaymentId: id,
         phone,
       },
@@ -220,7 +218,6 @@ const Error = () => (
     <div className="relative pb-[56.25%] h-0 mt-2 overflow-hidden rounded-lg">
       <iframe
         src={INSTRUCTIONS.PAYMENT_APP_TOKEN}
-        frameBorder="0"
         allowFullScreen
         className="absolute top-0 left-0 h-full w-full"
       />

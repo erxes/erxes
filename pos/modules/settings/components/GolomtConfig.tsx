@@ -1,4 +1,6 @@
 import { useState } from "react"
+import { paymentTypesAtom } from "@/store/config.store"
+import { useAtomValue } from "jotai"
 
 import { IPaymentType } from "@/types/config.types"
 import { BANK_CARD_TYPES } from "@/lib/constants"
@@ -8,7 +10,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
 
-const GolomtConfig = ({ paymentTypes }: { paymentTypes: IPaymentType[] }) => {
+const GolomtConfig = () => {
+  const paymentTypes = useAtomValue(paymentTypesAtom) || []
   const paymentType = getPaymentType(paymentTypes, BANK_CARD_TYPES.GOLOMT)
   const [terminalID, setTerminalID] = useState(getLocal("golomtId") || "")
 

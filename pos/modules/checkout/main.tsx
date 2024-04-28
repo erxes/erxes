@@ -1,6 +1,5 @@
 "use client"
 
-import CheckoutConfig from "@/modules/auth/checkoutConfig"
 import BuyAction from "@/modules/checkout/components/buyAction/buyAction.main"
 import Cart from "@/modules/checkout/components/cart/cart.main"
 import TotalAmount from "@/modules/checkout/components/totalAmount/totalAmount.main"
@@ -19,7 +18,7 @@ const CheckoutMain = () => {
     useAtom(orderCollapsibleAtom)
   const mode = useAtomValue(modeAtom)
   return (
-    <CheckoutConfig>
+    <>
       <OrderDetail>
         <div className="pb-4 md:p-4">
           <Customer />
@@ -42,7 +41,7 @@ const CheckoutMain = () => {
           </div>
         </Collapsible>
       </OrderDetail>
-    </CheckoutConfig>
+    </>
   )
 }
 

@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
-import { IEbarimtConfig, IPaymentType } from "@/types/config.types"
+import { IPaymentType } from "@/types/config.types"
 import { Customer } from "@/types/customer.types"
 import { ALL_BANK_CARD_TYPES } from "@/lib/constants"
 
@@ -135,7 +135,7 @@ export const formatNum = (num: number | string, splitter?: string): string => {
 
 export const getSumsOfAmount = (
   paidAmounts: { type: string; amount: number }[],
-  paymentTypes?: IEbarimtConfig["paymentTypes"]
+  paymentTypes?: IPaymentType[]
 ) => {
   const result: any = {}
 

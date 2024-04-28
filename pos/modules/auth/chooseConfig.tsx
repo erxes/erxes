@@ -8,12 +8,12 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
 } from "@/components/ui/command"
 import { Label } from "@/components/ui/label"
+import Loader from "@/components/ui/loader"
 import {
   Popover,
   PopoverContent,
@@ -61,14 +61,13 @@ const ChooseConfig = () => {
             {config
               ? (configs || []).find(({ token }) => token === config?.token)
                   ?.name
-              : "Select framework..."}
+              : "Посоо сонгоно уу..."}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-screen max-w-sm p-0">
           <Command>
             <CommandInput placeholder="Пос хайх..." className="h-9" />
-            <CommandEmpty>No framework found.</CommandEmpty>
             <CommandGroup>
               <div className="max-h-[300px] overflow-y-auto">
                 {(configs || []).map((conf) => (
@@ -93,6 +92,7 @@ const ChooseConfig = () => {
           </Command>
         </PopoverContent>
       </Popover>
+      {loading && <Loader className="fixed inset-0 bg-black/10" />}
     </div>
   )
 }

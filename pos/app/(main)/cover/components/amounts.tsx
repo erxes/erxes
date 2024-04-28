@@ -1,4 +1,4 @@
-import { coverConfigAtom } from "@/store/config.store"
+import { paymentTypesAtom } from "@/store/config.store"
 import { isCoverAmountsFetchedAtom } from "@/store/cover.store"
 import { useAtomValue } from "jotai"
 
@@ -16,7 +16,7 @@ const { KHANBANK, GOLOMT, TDB, CAPITRON } = BANK_CARD_TYPES
 
 const Amounts = () => {
   const isFetched = useAtomValue(isCoverAmountsFetchedAtom)
-  const { paymentTypes } = useAtomValue(coverConfigAtom) || {}
+  const paymentTypes = useAtomValue(paymentTypesAtom)
 
   if (!isFetched) return null
 

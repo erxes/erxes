@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
-import useConfig from "@/modules/auth/hooks/useConfig"
 import { queries } from "@/modules/orders/graphql"
 import { modeAtom } from "@/store"
+import { ebarimtConfigAtom } from "@/store/config.store"
 import {
   printTypeAtom,
   putResponsesAtom,
@@ -29,12 +29,11 @@ const Reciept = () => {
   const [type, setType] = useAtom(printTypeAtom)
   const putResponses = useAtomValue(putResponsesAtom)
   const setOrderStates = useSetAtom(setOrderStatesAtom)
-  const { config, loading } = useConfig("ebarimt")
   const { onError } = useToast()
 
-  const { hasCopy } = config.ebarimtConfig || {}
+  const { hasCopy } = useAtomValue(ebarimtConfigAtom) || {}
 
-  const { loading: loadingDetail, data } = useQuery(queries.ebarimtDetail, {
+  const { loading, data } = useQuery(queries.ebarimtDetail, {
     fetchPolicy: "network-only",
     onError,
     skip: !_id,
@@ -76,7 +75,7 @@ const Reciept = () => {
     }
   }, [handleAfterPrint])
 
-  if (loading || loadingDetail) return null
+  if (loading) return null
 
   return (
     <>
