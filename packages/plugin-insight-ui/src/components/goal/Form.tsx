@@ -96,7 +96,7 @@ const Form = (props: Props) => {
   >(goal.specificPeriodGoals || []);
 
   const generateOptions = (options) => {
-    return options.map((option) => ({
+    return (options || []).map((option) => ({
       label: option.name,
       value: option.value,
     }));

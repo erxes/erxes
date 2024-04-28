@@ -133,7 +133,7 @@ const ReportSection = (props: Props) => {
 
     return (
       <SidebarList>
-        {sections.map((section) => (
+        {(sections || []).map((section) => (
           <SectionList
             key={section._id}
             section={section}

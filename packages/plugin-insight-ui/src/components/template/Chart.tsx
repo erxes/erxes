@@ -1,12 +1,11 @@
-import React, { useEffect, useState, memo } from "react";
-
-import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { IDashboard, IReport, IReportTemplate } from "../../types";
+import React, { memo, useEffect, useState } from "react";
 
 import ChartLoader from "./ChartLoader";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
 import { FlexRow } from "../../styles";
-import { IDashboard, IReport, IReportTemplate } from "../../types";
+import FormControl from "@erxes/ui/src/components/form/Control";
 
 type Props = {
   report?: any;
@@ -23,7 +22,7 @@ const ChartTemplates = (props: Props) => {
     report,
     template,
     loading,
-    chartTemplates,
+    chartTemplates = [],
     chartsOfReportTemplate,
     templateCharts,
     setTemplateCharts,
@@ -70,20 +69,21 @@ const ChartTemplates = (props: Props) => {
   const renderContent = () => {
     return (
       <ul>
-        {chartTemplates
-          .filter((c) => c.templateType in templates)
-          .map((chartTemplate) => (
-            <FlexRow key={chartTemplate.templateType}>
-              <ControlLabel>{chartTemplate.name}</ControlLabel>
-              <FormControl
-                componentclass="checkbox"
-                name={chartTemplate.templateType}
-                checked={templates[chartTemplate.templateType]}
-                key={chartTemplate.name}
-                onChange={(v) => handleCheck(v, chartTemplate)}
-              />
-            </FlexRow>
-          ))}
+        {(
+          chartTemplates.filter((c) => c.templateType in templates) ||
+          ([] as any[])
+        ).map((chartTemplate) => (
+          <FlexRow key={chartTemplate.templateType}>
+            <ControlLabel>{chartTemplate.name}</ControlLabel>
+            <FormControl
+              componentclass="checkbox"
+              name={chartTemplate.templateType}
+              checked={templates[chartTemplate.templateType]}
+              key={chartTemplate.name}
+              onChange={(v) => handleCheck(v, chartTemplate)}
+            />
+          </FlexRow>
+        ))}
       </ul>
     );
   };

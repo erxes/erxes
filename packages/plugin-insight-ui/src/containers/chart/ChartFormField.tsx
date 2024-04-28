@@ -1,12 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect } from "react";
+import { gql, useQuery } from "@apollo/client";
 
-import Alert from '@erxes/ui/src/utils/Alert/index';
-import { gql, useQuery } from '@apollo/client';
-
-import ChartFormField from '../../components/chart/ChartFormField';
-import { queries } from '../../graphql';
-import { IFieldLogic } from '../../types';
-import { getValue } from '../../utils';
+import Alert from "@erxes/ui/src/utils/Alert/index";
+import ChartFormField from "../../components/chart/ChartFormField";
+import { IFieldLogic } from "../../types";
+import { getValue } from "../../utils";
+import { queries } from "../../graphql";
 
 export type IFilterType = {
   fieldName: string;
@@ -53,12 +52,10 @@ const ChartFormFieldList = (props: Props) => {
     logics,
   } = filterType;
 
-  let queryData
+  let queryData;
   if (fieldParentQuery && queries[`${fieldParentQuery}`]) {
     const query = useQuery(gql(queries[`${fieldParentQuery}`]), {
-      variables: fieldQueryVariables
-        ? JSON.parse(fieldQueryVariables)
-        : {}
+      variables: fieldQueryVariables ? JSON.parse(fieldQueryVariables) : {},
     });
 
     queryData = query && query.data ? query.data : {};
@@ -70,10 +67,11 @@ const ChartFormFieldList = (props: Props) => {
 
   if (logics) {
     for (const logic of logics) {
-      const { logicFieldName, logicFieldVariable, logicFieldExtraVariable } = logic;
+      const { logicFieldName, logicFieldVariable, logicFieldExtraVariable } =
+        logic;
 
       if (logicFieldExtraVariable) {
-        Object.assign(logicFieldVariables, JSON.parse(logicFieldExtraVariable))
+        Object.assign(logicFieldVariables, JSON.parse(logicFieldExtraVariable));
       }
 
       if (logicFieldVariable) {
@@ -108,8 +106,8 @@ const ChartFormFieldList = (props: Props) => {
       queryData[fieldQuery] &&
       queryData[fieldQuery].length
         ? queryData[fieldQuery].map((d) => ({
-          value: getValue(d, fieldValueVariable),
-          label: getValue(d, fieldLabelVariable),
+            value: getValue(d, fieldValueVariable),
+            label: getValue(d, fieldLabelVariable),
             ...(fieldParentVariable && { parent: d[fieldParentVariable] }),
           }))
         : [];
@@ -117,28 +115,39 @@ const ChartFormFieldList = (props: Props) => {
 
   let fieldParentOptions: any = [];
   if (queryFieldOptions.length && fieldParentVariable) {
-
     if (fieldParentQuery && queries[fieldParentQuery]) {
-      fieldParentOptions = (queryData[fieldParentQuery] || []).reduce((acc, data) => {
-        const options = queryFieldOptions
-          .filter((option) => option?.parent === data._id)
-          .map(({ value, label }) => ({ value, label }));
+      fieldParentOptions = (queryData[fieldParentQuery] || []).reduce(
+        (acc, data) => {
+          const options = (
+            queryFieldOptions.filter((option) => option?.parent === data._id) ||
+            []
+          ).map(({ value, label }) => ({ value, label }));
 
-        if (options.length > 0) {
-          acc.push({ label: data.name, options });
-        }
+          if (options.length > 0) {
+            acc.push({ label: data.name, options });
+          }
 
-        return acc;
-      }, []);
+          return acc;
+        },
+        []
+      );
     } else {
       fieldParentOptions = queryFieldOptions.reduce((acc, option) => {
         const contentType = option.parent.split(":").pop() || option.parent;
-        const existingContentType = acc.find(item => item.label === contentType);
+        const existingContentType = acc.find(
+          (item) => item.label === contentType
+        );
 
         if (existingContentType) {
-          existingContentType.options.push({ label: option.label.trim(), value: option.value });
+          existingContentType.options.push({
+            label: option.label.trim(),
+            value: option.value,
+          });
         } else {
-          acc.push({ label: contentType, options: [{ label: option.label.trim(), value: option.value }] });
+          acc.push({
+            label: contentType,
+            options: [{ label: option.label.trim(), value: option.value }],
+          });
         }
 
         return acc;
@@ -169,19 +178,20 @@ const ChartFormFieldList = (props: Props) => {
   };
   const onChange = (input: any) => {
     switch (fieldType) {
-      case 'select':
+      case "select":
         const value =
-          input.value !== undefined || input.value !== null ||
-          fieldQuery?.includes('user') ||
-          fieldQuery?.includes('department') ||
-          fieldQuery?.includes('branch') ||
-          fieldQuery?.includes('integration')
+          input.value !== undefined ||
+          input.value !== null ||
+          fieldQuery?.includes("user") ||
+          fieldQuery?.includes("department") ||
+          fieldQuery?.includes("branch") ||
+          fieldQuery?.includes("integration")
             ? input
             : input.value;
         setFilter(fieldName, value);
         break;
 
-      case 'groups':
+      case "groups":
         if (Array.isArray(input)) {
           setFilter(fieldName, input);
         }

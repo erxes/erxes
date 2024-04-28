@@ -224,7 +224,7 @@ const Dashboard = (props: Props) => {
       <DataWithLoader
         data={
           <DragField
-            haveChart={charts?.length ? true : false}
+            haveChart={(charts || []).length ? true : false}
             cols={2 * 3}
             margin={[30, 30]}
             onDragStart={() => setIsDragging(true)}
@@ -238,7 +238,7 @@ const Dashboard = (props: Props) => {
             useCSSTransforms={true}
             resizeHandles={["s", "w", "e", "n", "sw", "nw", "se", "ne"]}
           >
-            {charts?.map(deserializeItem).map(renderChart)}
+            {(charts || []).map(deserializeItem).map(renderChart)}
           </DragField>
         }
         loading={loading}
