@@ -1,15 +1,16 @@
-import { ITag, ITagTypes } from '../types';
-import Button from '@erxes/ui/src/components/Button';
-import FilterableList from '@erxes/ui/src/components/filterableList/FilterableList';
-import React, { useEffect, useState } from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { __ } from '@erxes/ui/src/utils';
+import { ITag, ITagTypes } from "../types";
+import React, { useEffect, useState } from "react";
+
+import Button from "@erxes/ui/src/components/Button";
+import FilterableList from "@erxes/ui/src/components/filterableList/FilterableList";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { __ } from "@erxes/ui/src/utils";
 
 type TaggerProps = {
   type: ITagTypes | string;
   // targets can be conversation, customer, company etc ...
   targets?: any[];
-  event?: 'onClick' | 'onExit';
+  event?: "onClick" | "onExit";
   className?: string;
   disableTreeView?: boolean;
   loading: boolean;
@@ -62,9 +63,9 @@ const Tagger: React.FC<TaggerProps> = (props) => {
       switch (event.keyCode) {
         case 13:
           const element = document.getElementsByClassName(
-            'tag-' + cursor,
+            "tag-" + cursor
           )[0] as HTMLElement;
-          const showTags = document.getElementById('conversationTags');
+          const showTags = document.getElementById("conversationTags");
 
           if (element && showTags) {
             element.click();
@@ -94,13 +95,13 @@ const Tagger: React.FC<TaggerProps> = (props) => {
       }
     };
 
-    if (type === 'inbox:conversation') {
-      document.addEventListener('keydown', handleArrowSelection);
+    if (type === "inbox:conversation") {
+      document.addEventListener("keydown", handleArrowSelection);
     }
 
     return () => {
-      if (type === 'inbox:conversation') {
-        document.removeEventListener('keydown', handleArrowSelection);
+      if (type === "inbox:conversation") {
+        document.removeEventListener("keydown", handleArrowSelection);
       }
     };
   }, [state.cursor, state.tagsForList, type]);
@@ -109,32 +110,32 @@ const Tagger: React.FC<TaggerProps> = (props) => {
     return tags.map(({ _id, name, colorCode, parentId }, i) => {
       const count = targets.reduce(
         (memo, target) => memo + ((target.tagIds || []).includes(_id) ? 1 : 0),
-        0,
+        0
       );
 
-      let tagState = 'none';
+      let tagState = "none";
 
       if (count > 0) {
         if (count === targets.length) {
-          tagState = 'all';
+          tagState = "all";
         } else if (count < targets.length) {
-          tagState = 'some';
+          tagState = "some";
         }
       }
 
       return {
         _id,
         title: name,
-        iconClass: 'icon-tag-alt',
+        iconClass: "icon-tag-alt",
         iconColor: colorCode,
         parentId,
         selectedBy: tagState,
-        itemClassName: type === 'inbox:conversation' && state ? `tag-${i}` : '',
+        itemClassName: type === "inbox:conversation" && state ? `tag-${i}` : "",
         itemActiveClass:
-          type === 'inbox:conversation' &&
+          type === "inbox:conversation" &&
           state &&
           state.cursor === i &&
-          'active',
+          "active",
       };
     });
   };
@@ -154,11 +155,11 @@ const Tagger: React.FC<TaggerProps> = (props) => {
     const unchanged = tagsForList.reduce(
       (prev, current, index) =>
         prev && current.selectedBy === tags[index].selectedBy,
-      true,
+      true
     );
 
     if (!unchanged) {
-      tag(tags.filter((t) => t.selectedBy === 'all').map((t) => t._id));
+      tag(tags.filter((t) => t.selectedBy === "all").map((t) => t._id));
     }
   };
 
@@ -175,15 +176,15 @@ const Tagger: React.FC<TaggerProps> = (props) => {
         icon="redo"
         uppercase={false}
       >
-        {loading ? 'Loading...' : 'Load more'}
+        {loading ? "Loading..." : "Load more"}
       </Button>
     );
   };
 
   const links = [
     {
-      title: __('Manage tags'),
-      href: `/settings/tags/${type}`,
+      title: __("Manage tags"),
+      href: `/settings/tags?tagType=${type}`,
     },
   ];
 
