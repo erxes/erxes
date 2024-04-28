@@ -297,7 +297,7 @@ const WidgetWrapper = styledTS<{
 }>(styled.div)`
   position: fixed;
   flex-direction: column;
-  z-index: 300;
+  z-index: 9999;
   justify-content: flex-end;
   align-content: flex-end;
   background: #fff;
