@@ -12,7 +12,7 @@ import { ConfigsQueryResponse } from "@erxes/ui-settings/src/general/types";
 import { ILeadData } from "@erxes/ui-leads/src/types";
 import { ILeadIntegration } from "@erxes/ui-leads/src/types";
 import Lead from "../components/Lead";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 import { isEnabled } from "@erxes/ui/src/utils/core";
@@ -50,6 +50,12 @@ const EditLeadContainer = (props: FinalProps) => {
     departmentIds?: string[];
   }>({} as any);
 
+  useEffect(() => {
+    if (Object.keys(doc).length > 0) {
+      afterFormDbSave();
+    }
+  }, [doc]);
+
   const redirect = () => {
     let canClose = true;
 
@@ -85,8 +91,20 @@ const EditLeadContainer = (props: FinalProps) => {
     integrationDetailQuery.integrationDetail || ({} as ILeadIntegration);
 
   const afterFormDbSave = () => {
-    if (doc) {
-      const {
+    const {
+      leadData,
+      brandId,
+      name,
+      languageCode,
+      channelIds,
+      visibility,
+      departmentIds,
+    } = doc;
+
+    editIntegrationMutation({
+      variables: {
+        _id: integration._id,
+        formId,
         leadData,
         brandId,
         name,
@@ -94,35 +112,21 @@ const EditLeadContainer = (props: FinalProps) => {
         channelIds,
         visibility,
         departmentIds,
-      } = doc;
+      },
+    })
+      .then(() => {
+        Alert.success("You successfully updated a form");
 
-      editIntegrationMutation({
-        variables: {
-          _id: integration._id,
-          formId,
-          leadData,
-          brandId,
-          name,
-          languageCode,
-          channelIds,
-          visibility,
-          departmentIds,
-        },
+        setIsIntegrationSubmitted(true);
+        redirect();
       })
-        .then(() => {
-          Alert.success("You successfully updated a form");
 
-          setIsIntegrationSubmitted(true);
-          redirect();
-        })
+      .catch((error) => {
+        Alert.error(error.message);
 
-        .catch((error) => {
-          Alert.error(error.message);
-
-          setIsReadyToSaveForm(false);
-          setIsLoading(false);
-        });
-    }
+        setIsReadyToSaveForm(false);
+        setIsLoading(false);
+      });
   };
 
   const waitUntilFinish = (obj: any) => {

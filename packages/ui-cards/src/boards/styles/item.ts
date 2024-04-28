@@ -146,7 +146,6 @@ export const AddContent = styled.div`
     box-shadow: none;
     font-size: 13px;
     position: relative;
-    margin-left: 20px;
   }
 
   .dateTime {
