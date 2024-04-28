@@ -1,16 +1,17 @@
+import { ButtonRow, Container, Row } from "../../styles";
+import React, { useEffect, useState } from "react";
+
 import ActionButtons from "@erxes/ui/src/components/ActionButtons";
 import Alert from "@erxes/ui/src/utils/Alert/index";
 import Button from "@erxes/ui/src/components/Button";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import { FormContainer } from "@erxes/ui-cards/src/boards/styles/common";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import Icon from "@erxes/ui/src/components/Icon";
-import { __ } from "@erxes/ui/src/utils/core";
-import React, { useEffect, useState } from "react";
-import { ButtonRow, Container, Row } from "../../styles";
-import Dropdown from "@erxes/ui/src/components/Dropdown";
-import { FormContainer } from "@erxes/ui-cards/src/boards/styles/common";
-import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 import LinkAction from "./LinkAction";
 import { Menu } from "@headlessui/react";
+import { __ } from "@erxes/ui/src/utils/core";
 
 type Props = {
   _id: string;
@@ -183,9 +184,8 @@ function ButtonsGenerator({
                 <Menu.Item
                   // className="dropdown-item"
                   key={type}
-                  // onClick={(e) => handleBtnTypeChange(e, type)}
                 >
-                  <a>{text}</a>
+                  <a onClick={(e) => handleBtnTypeChange(e, type)}>{text}</a>
                 </Menu.Item>
               ))}
             </Container>

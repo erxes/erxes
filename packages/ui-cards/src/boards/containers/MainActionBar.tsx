@@ -1,23 +1,23 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
 import {
   BoardDetailQueryResponse,
   BoardsGetLastQueryResponse,
   BoardsQueryResponse,
-} from '../types';
-import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from '../constants';
-import { router as routerUtils, withProps } from '@erxes/ui/src/utils';
+} from "../types";
+import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from "../constants";
+import { router as routerUtils, withProps } from "@erxes/ui/src/utils";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import { PageHeader } from '../styles/header';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { getDefaultBoardAndPipelines } from '../utils';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '../graphql';
-import queryString from 'query-string';
-import { useLocation, useNavigate } from 'react-router-dom';
-import _ from 'lodash';
+import { PageHeader } from "../styles/header";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import _ from "lodash";
+import { getDefaultBoardAndPipelines } from "../utils";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries } from "../graphql";
+import queryString from "query-string";
 
 type Props = {
   type: string;
@@ -32,29 +32,29 @@ type FinalProps = {
 } & Props;
 
 const FILTER_PARAMS = [
-  'search',
-  'userIds',
-  'branchIds',
-  'departmentIds',
-  'priority',
-  'assignedUserIds',
-  'labelIds',
-  'productIds',
-  'companyIds',
-  'customerIds',
-  'segment',
-  'assignedToMe',
-  'closeDateType',
-  'startDate',
-  'endDate',
-  'createdStartDate',
-  'createdEndDate',
-  'stateChangedStartDate',
-  'stateChangedEndDate',
-  'startDateStartDate',
-  'startDateEndDate',
-  'closeDateStartDate',
-  'closeDateEndDate',
+  "search",
+  "userIds",
+  "branchIds",
+  "departmentIds",
+  "priority",
+  "assignedUserIds",
+  "labelIds",
+  "productIds",
+  "companyIds",
+  "customerIds",
+  "segment",
+  "assignedToMe",
+  "closeDateType",
+  "startDate",
+  "endDate",
+  "createdStartDate",
+  "createdEndDate",
+  "stateChangedStartDate",
+  "stateChangedEndDate",
+  "startDateStartDate",
+  "startDateEndDate",
+  "closeDateStartDate",
+  "closeDateEndDate",
 ];
 
 export const getBoardId = () => {
@@ -62,7 +62,7 @@ export const getBoardId = () => {
   return queryParams.id;
 };
 
-const defaultParams = ['id', 'pipelineId'];
+const defaultParams = ["id", "pipelineId"];
 
 /*
  * Main board component
@@ -81,7 +81,7 @@ function Main(props: FinalProps) {
 
   const onSearch = (search: string) => {
     if (!search) {
-      return routerUtils.removeParams(navigate, location, 'search');
+      return routerUtils.removeParams(navigate, location, "search");
     }
 
     routerUtils.setParams(navigate, location, { search });
@@ -107,7 +107,7 @@ function Main(props: FinalProps) {
 
   const clearFilter = () => {
     const remainedParams = Object.keys(queryParams).filter(
-      (key) => !defaultParams.includes(key),
+      (key) => !defaultParams.includes(key)
     );
 
     routerUtils.removeParams(navigate, location, ...remainedParams);
@@ -129,7 +129,7 @@ function Main(props: FinalProps) {
     localStorage.setItem(STORAGE_BOARD_KEY, JSON.stringify(defaultBoards));
     localStorage.setItem(
       STORAGE_PIPELINE_KEY,
-      JSON.stringify(defaultPipelines),
+      JSON.stringify(defaultPipelines)
     );
   }
 
@@ -151,8 +151,9 @@ function Main(props: FinalProps) {
     defaultBoards[type],
     defaultPipelines[type],
   ];
+  const hasBoardId = queryParams._id || false;
 
-  if (!boardId && defaultBoardId) {
+  if (!boardId && defaultBoardId && !hasBoardId) {
     routerUtils.setParams(navigate, location, {
       id: defaultBoardId,
       pipelineId: defaultPipelineId,
@@ -188,7 +189,7 @@ function Main(props: FinalProps) {
     localStorage.setItem(STORAGE_BOARD_KEY, JSON.stringify(defaultBoards));
     localStorage.setItem(
       STORAGE_PIPELINE_KEY,
-      JSON.stringify(defaultPipelines),
+      JSON.stringify(defaultPipelines)
     );
 
     navigate(`/${type}/board`);
@@ -227,13 +228,13 @@ function Main(props: FinalProps) {
 const MainActionBarContainer = withProps<Props>(
   compose(
     graphql<Props, BoardsQueryResponse>(gql(queries.boards), {
-      name: 'boardsQuery',
+      name: "boardsQuery",
       options: ({ type }) => ({
         variables: { type },
       }),
     }),
     graphql<Props, BoardsGetLastQueryResponse>(gql(queries.boardGetLast), {
-      name: 'boardGetLastQuery',
+      name: "boardGetLastQuery",
       skip: getBoardId,
       options: ({ type }) => ({
         variables: { type },
@@ -242,14 +243,14 @@ const MainActionBarContainer = withProps<Props>(
     graphql<Props, BoardDetailQueryResponse, { _id: string }>(
       gql(queries.boardDetail),
       {
-        name: 'boardDetailQuery',
+        name: "boardDetailQuery",
         skip: () => !getBoardId(),
         options: () => ({
           variables: { _id: getBoardId() },
         }),
-      },
-    ),
-  )(Main),
+      }
+    )
+  )(Main)
 );
 
 export default MainActionBarContainer;

@@ -70,9 +70,12 @@ const Form = (props: Props) => {
     }
   }, [item?.serviceName]);
 
-  const chartTypesOptions = chartTypes.map((c) => ({ label: c, value: c }));
+  const chartTypesOptions = (chartTypes || []).map((c) => ({
+    label: c,
+    value: c,
+  }));
 
-  const chartTemplatesOptions = chartTemplates.map((c) => ({
+  const chartTemplatesOptions = (chartTemplates || []).map((c) => ({
     label: c.name,
     value: c.templateType,
   }));
@@ -155,7 +158,7 @@ const Form = (props: Props) => {
 
     return (
       <FlexColumn style={{ gap: "20px" }}>
-        {filterTypes.map((f: IFilterType) => (
+        {(filterTypes || []).map((f: IFilterType) => (
           <ChartFormField
             initialValue={filters[f.fieldName]}
             filterType={f}
@@ -238,7 +241,7 @@ const Form = (props: Props) => {
   const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
 
-    const serviceOptions = serviceNames.map((st) => {
+    const serviceOptions = (serviceNames || []).map((st) => {
       return {
         label: st,
         value: st,

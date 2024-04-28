@@ -69,7 +69,9 @@ const ChartFormField = (props: Props) => {
     }
 
     if (multi && Array.isArray(selectedOption)) {
-      const selectedValues = selectedOption.map((option) => option.value);
+      const selectedValues = (selectedOption || []).map(
+        (option) => option.value
+      );
       setFieldValue(selectedValues);
 
       onChange(selectedValues);
@@ -98,9 +100,9 @@ const ChartFormField = (props: Props) => {
 
   const groupsOptions =
     fieldType === "groups"
-      ? fieldOptions?.map((group) => ({
+      ? (fieldOptions || []).map((group) => ({
           label: group.label,
-          options: group.value?.map((field) => ({
+          options: (group.value || []).map((field) => ({
             value: field._id,
             label: field.text,
           })),
@@ -286,7 +288,7 @@ const ChartFormField = (props: Props) => {
         <div>
           <ControlLabel>{fieldLabel}</ControlLabel>
           <Select
-            value={groupsOptions.map((o) =>
+            value={(groupsOptions || []).map((o) =>
               o.options.find((item) => item.value === fieldValue)
             )}
             isClearable={true}

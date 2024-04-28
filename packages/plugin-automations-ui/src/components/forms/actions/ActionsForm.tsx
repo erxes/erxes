@@ -66,11 +66,13 @@ class ActionsForm extends React.Component<Props, State> {
         $isFavourite={isFavourite}
         $isAvailable={action.isAvailable}
       >
-        <Icon icon={action.icon} size={30} />
-        <div>
-          <b>{__(action.label)}</b>
-          {!action.isAvailable && <span>{__("Coming soon")}</span>}
-          <p>{__(action.description)}</p>
+        <div className="action-row">
+          <Icon icon={action.icon} size={30} />
+          <div>
+            <b>{__(action.label)}</b>
+            {!action.isAvailable && <span>{__("Coming soon")}</span>}
+            <p>{__(action.description)}</p>
+          </div>
         </div>
         <Tip
           text={isFavourite ? __("Unfavourite") : __("Favourite")}

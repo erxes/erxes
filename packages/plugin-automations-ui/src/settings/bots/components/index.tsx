@@ -8,7 +8,7 @@ import {
 } from "@erxes/ui-inbox/src/settings/integrations/components/store/styles";
 import React, { useState } from "react";
 
-import { Disclosure } from "@headlessui/react";
+import Collapse from "@erxes/ui/src/components/Collapse";
 import ErrorBoundary from "@erxes/ui/src/components/ErrorBoundary";
 import { HeaderDescription } from "@erxes/ui/src/components";
 import { Link } from "react-router-dom";
@@ -105,14 +105,9 @@ function Settings() {
       <IntegrationWrapper>
         <IntegrationRow>{renderBotsByPlatform()}</IntegrationRow>
 
-        <Disclosure
-        // in={!!selectedPlatform}
-        // unmountOnExit={true}
-        >
-          <Disclosure.Panel as={CollapsibleContent}>
-            {renderList()}
-          </Disclosure.Panel>
-        </Disclosure>
+        <Collapse show={!!selectedPlatform} unmount={true}>
+          <CollapsibleContent>{renderList()}</CollapsibleContent>
+        </Collapse>
       </IntegrationWrapper>
     </Content>
   );

@@ -47,44 +47,46 @@ export const ActionBox = styledTS<{
   $isAvailable: boolean;
 }>(styled(TriggerBox))`
     flex-direction: row;
+    justify-content: space-between;
     margin-top: ${dimensions.unitSpacing}px;
     margin-right: 0;
     position: relative;
     pointer-events: ${props => !props.$isAvailable && 'none'};
 
-    > i {
-      margin-right: ${dimensions.unitSpacing}px;
-      background: ${rgba(colors.colorPrimary, 0.12)};
-      border-radius: 4px;
-      width: 45px;
-      height: 45px;
-      line-height: 45px;
-      text-align: center;
-      font-size: 22px;
-      flex-shrink: 0;
-      color: ${colors.textPrimary};
-    }
-
-    > div {
-      b {
+    .action-row {
+      display: flex;
+      
+      > i {
+        margin-right: ${dimensions.unitSpacing}px;
+        background: ${rgba(colors.colorPrimary, 0.12)};
+        border-radius: 4px;
+        width: 45px;
+        height: 45px;
+        line-height: 45px;
+        text-align: center;
+        font-size: 22px;
+        flex-shrink: 0;
         color: ${colors.textPrimary};
       }
-      p {
-        margin: 0;
-        max-width: 350px;
-      }
-      span {
-        padding-left: ${dimensions.unitSpacing}px;
-        color: ${colors.colorCoreOrange};
-        font-weight: 500;
+  
+      > div {
+        b {
+          color: ${colors.textPrimary};
+        }
+        p {
+          margin: 0;
+          max-width: 350px;
+        }
+        span {
+          padding-left: ${dimensions.unitSpacing}px;
+          color: ${colors.colorCoreOrange};
+          font-weight: 500;
+        }
       }
     }
 
     .favourite-action {
-      position: absolute;
       width: 30px;
-      text-align: right;
-      right: ${dimensions.coreSpacing}px;
 
       > i {
         color: ${props => props.$isFavourite && colors.colorCoreOrange}

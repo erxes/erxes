@@ -64,7 +64,7 @@ export function TagsSection({
   };
   const extraButtons = (
     <BarItems>
-      <Link to={`/settings/tags?type=${type}`}>
+      <Link to={`/settings/tags?tagType=${type}`}>
         <button>
           <Icon icon="cog" />
         </button>

@@ -1,19 +1,13 @@
-import * as compose from "lodash.flowright";
-
-import {
-  ExportHistoriesQueryResponse,
-  RemoveMutationResponse,
-} from "../../types";
-import { router, withProps } from "modules/common/utils";
+import React, { useState } from "react";
+import { gql, useQuery } from "@apollo/client";
 
 import { AppConsumer } from "appContext";
 import ExportHistories from "../components/Histories";
-import React, { useState } from "react";
+import { ExportHistoriesQueryResponse } from "../../types";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import { generatePaginationParams } from "modules/common/utils/router";
-import { gql, useQuery } from "@apollo/client";
-import { graphql } from "@apollo/client/react/hoc";
 import { queries } from "../graphql";
+import { router } from "modules/common/utils";
 import { useLocation } from "react-router-dom";
 
 type Props = {

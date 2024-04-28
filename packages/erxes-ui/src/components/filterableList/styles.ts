@@ -8,6 +8,7 @@ const PopoverHeader = styled.div`
 
   input {
     margin-bottom: 0;
+    width: 100% !important;
     padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   }
 `;
