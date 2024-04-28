@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.8.2](https://github.com/erxes/erxes/compare/1.8.1...1.8.2) (2024-04-25)
+
+
+### Bug Fixes
+
+* cancel pos order, use password logic ([4b1ea52](https://github.com/erxes/erxes/commit/4b1ea523a83a3e3d8ff424a846b786950b25b53e))
+* **engages:** fix engages get aws config function (saas) ([ba9ba30](https://github.com/erxes/erxes/commit/ba9ba30803d5774802e7ee66d84bfa114114c382))
+* **inbox:** resolve messenger loading issue for new customers ([716bc04](https://github.com/erxes/erxes/commit/716bc042f0e340c1ee4d3ea2136c284de2d0d975))
+
+## [1.8.1](https://github.com/erxes/erxes/compare/1.8.0...1.8.1) (2024-04-18)
+
+
+### Bug Fixes
+
+* **custom domain:** fix saas custom domain config ([f74c50d](https://github.com/erxes/erxes/commit/f74c50dca9b97369a040879f8c12fa00d620cda5))
+
 ## [1.8.0](https://github.com/erxes/erxes/compare/1.8.0-rc.3...1.8.0) (2024-04-17)
 
 

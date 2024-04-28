@@ -33,6 +33,7 @@ const editForm = `
 const commonFieldParamsDef = `
   $type: String,
   $validation: String,
+  $regexValidation: String,
   $text: String,
   $description: String,
   $options: [String],
@@ -44,6 +45,7 @@ const commonFieldParamsDef = `
 const commonFieldParams = `
   type: $type,
   validation: $validation,
+  regexValidation: $regexValidation,
   text: $text,
   description: $description,
   options: $options,
