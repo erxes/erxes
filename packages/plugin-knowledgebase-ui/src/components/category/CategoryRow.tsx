@@ -41,11 +41,11 @@ const CategoryRow = (props: Props) => {
 
   const renderEditAction = () => {
     const editTrigger = (
-      <Button btnStyle="link">
-        <Tip text={__("Edit")} placement="bottom">
+      <Tip text={__("Edit")} placement="bottom">
+        <Button btnStyle="link">
           <Icon icon="edit" />
-        </Tip>
-      </Button>
+        </Button>
+      </Tip>
     );
 
     const content = (modalProps) => {

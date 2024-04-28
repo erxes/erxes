@@ -19,7 +19,6 @@ const CategoryItem = styledTS<{
   border-bottom: 1px solid ${colors.borderPrimary};
   display: flex;
   padding-right: 20px;
-  overflow: hidden;
 
   a {
     padding: ${(props) =>
