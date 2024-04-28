@@ -1,6 +1,7 @@
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import { ICategory, ITopic } from "@erxes/ui-knowledgebase/src/types";
 import React, { useState } from "react";
+import Select, { components } from "react-select";
 
 import Button from "@erxes/ui/src/components/Button";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
@@ -9,7 +10,6 @@ import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import Icon from "@erxes/ui/src/components/Icon";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
-import Select, { components } from "react-select";
 import { __ } from "@erxes/ui/src/utils/core";
 import { icons } from "../../icons.constant";
 
@@ -173,13 +173,12 @@ const CategoryForm = (props: Props) => {
   );
 
   const renderContent = (formProps: IFormProps) => {
-    const object = category || ({} as ICategory);
     const { values, isSubmitted } = formProps;
-
+    const object = category || ({} as ICategory);
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>Title</ControlLabel>
+          <ControlLabel required={true}>{__("Title")}</ControlLabel>
           <FormControl
             {...formProps}
             name="title"
@@ -189,12 +188,12 @@ const CategoryForm = (props: Props) => {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Code</ControlLabel>
+          <ControlLabel>{__("Code")}</ControlLabel>
           <FormControl {...formProps} name="code" defaultValue={object.code} />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Description</ControlLabel>
+          <ControlLabel>{__("Description")}</ControlLabel>
           <FormControl
             {...formProps}
             name="description"

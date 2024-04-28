@@ -1,11 +1,11 @@
-import { FieldStyle, SidebarCounter, SidebarList } from '../../layout/styles';
-import { __, router } from '../../utils';
+import { FieldStyle, SidebarCounter, SidebarList } from "../../layout/styles";
+import React, { useEffect } from "react";
+import { __, router } from "../../utils";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import Box from '../../components/Box';
-import DataWithLoader from '../../components/DataWithLoader';
-import { IBrand } from '../../brands/types';
-import React, { useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import Box from "../../components/Box";
+import DataWithLoader from "../../components/DataWithLoader";
+import { IBrand } from "../../brands/types";
 
 interface IProps {
   counts: { [key: string]: number };
@@ -18,9 +18,9 @@ function Brands({ counts, brands, loading, emptyText }: IProps) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    router.removeParams(navigate, location, 'page');
-  }, [location.search]);
+  // useEffect(() => {
+  //   router.removeParams(navigate, location, 'page');
+  // }, [location.search]);
 
   const data = (
     <SidebarList>
@@ -35,7 +35,7 @@ function Brands({ counts, brands, loading, emptyText }: IProps) {
               href="#filter"
               tabIndex={0}
               className={
-                router.getParam(location, 'brand') === brand._id ? 'active' : ''
+                router.getParam(location, "brand") === brand._id ? "active" : ""
               }
               onClick={onClick}
             >
@@ -50,16 +50,16 @@ function Brands({ counts, brands, loading, emptyText }: IProps) {
 
   return (
     <Box
-      title={__('Filter by brand')}
+      title={__("Filter by brand")}
       collapsible={brands.length > 5}
       name="showFilterByBrand"
-      isOpen={router.getParam(location, 'brand')}
+      isOpen={router.getParam(location, "brand")}
     >
       <DataWithLoader
         data={data}
         loading={loading}
         count={brands.length}
-        emptyText={emptyText || 'Empty'}
+        emptyText={emptyText || "Empty"}
         emptyIcon="leaf"
         size="small"
         objective={true}

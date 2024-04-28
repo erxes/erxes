@@ -1,9 +1,10 @@
 import { Option, PerPageButton } from "./styles";
 import { __, router } from "../../utils/core";
 import { useLocation, useNavigate } from "react-router-dom";
+
+import Dropdown from "../Dropdown";
 import Icon from "../Icon";
 import React from "react";
-import Dropdown from "../Dropdown";
 
 type Props = {
   count?: number;
@@ -18,8 +19,7 @@ const PerPageChooser = ({ count }: Props) => {
 
   const onClick = (perPage) => {
     if (perPage !== currentPerPage) {
-      router.setParams(navigate, location, { perPage });
-      // router.setParams(navigate, location, { page: 1 });
+      router.setParams(navigate, location, { perPage, page: 1 });
 
       const storageValue = window.localStorage.getItem("pagination:perPage");
 

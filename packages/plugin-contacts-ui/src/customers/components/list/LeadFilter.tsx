@@ -2,17 +2,17 @@ import {
   FieldStyle,
   SidebarCounter,
   SidebarList,
-} from '@erxes/ui/src/layout/styles';
-import React, { useState, useEffect } from 'react';
-import { __, router } from 'coreui/utils';
+} from "@erxes/ui/src/layout/styles";
+import React, { useEffect, useState } from "react";
+import { __, router } from "coreui/utils";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import Box from '@erxes/ui/src/components/Box';
-import Button from '@erxes/ui/src/components/Button';
-import { CustomPadding } from '@erxes/ui-contacts/src/customers/styles';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { FormControl } from '@erxes/ui/src/components/form';
-import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
-import { useLocation, useNavigate } from 'react-router-dom';
+import Box from "@erxes/ui/src/components/Box";
+import Button from "@erxes/ui/src/components/Button";
+import { CustomPadding } from "@erxes/ui-contacts/src/customers/styles";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import { FormControl } from "@erxes/ui/src/components/form";
+import { IIntegration } from "@erxes/ui-inbox/src/settings/integrations/types";
 
 interface IProps {
   counts: { [key: string]: number };
@@ -27,14 +27,14 @@ function Leads({ counts, integrations = [], loading, loadMore, all }: IProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchValue, setSearchValue] = useState(
-    router.getParam(location, 'searchTarget') || '',
+    router.getParam(location, "searchTarget") || ""
   );
 
   const [disableLoadMoreBtn, setDisableLoadMoreBtn] = useState(false);
 
-  useEffect(() => {
-    router.removeParams(navigate, location, 'page');
-  }, [location.search]);
+  // useEffect(() => {
+  //   router.removeParams(navigate, location, 'page');
+  // }, [location.search]);
 
   const onClick = (formId) => {
     router.setParams(navigate, location, { form: formId });
@@ -50,7 +50,7 @@ function Leads({ counts, integrations = [], loading, loadMore, all }: IProps) {
     setSearchValue(inputValue);
     setDisableLoadMoreBtn(true);
 
-    if (inputValue === '') {
+    if (inputValue === "") {
       setDisableLoadMoreBtn(false);
     }
     timer = setTimeout(() => {
@@ -61,7 +61,7 @@ function Leads({ counts, integrations = [], loading, loadMore, all }: IProps) {
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
 
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
@@ -75,9 +75,9 @@ function Leads({ counts, integrations = [], loading, loadMore, all }: IProps) {
             href="#filter"
             tabIndex={0}
             className={
-              router.getParam(location, 'form') === integration.formId
-                ? 'active'
-                : ''
+              router.getParam(location, "form") === integration.formId
+                ? "active"
+                : ""
             }
             onClick={onClick.bind(null, integration.formId)}
           >
@@ -107,12 +107,12 @@ function Leads({ counts, integrations = [], loading, loadMore, all }: IProps) {
   );
 
   return (
-    <Box title={__('Filter by Forms')} name="showFilterByPopUps">
+    <Box title={__("Filter by Forms")} name="showFilterByPopUps">
       <CustomPadding>
         <FormControl
           type="text"
           onChange={search}
-          placeholder={__('Type to search')}
+          placeholder={__("Type to search")}
           value={searchValue}
           onFocus={moveCursorAtTheEnd}
         />
