@@ -78,7 +78,7 @@ const Row = (props: Props) => {
   };
 
   return (
-    <Template isLongName={name.length > 46}>
+    <Template $isLongName={name.length > 46}>
       <TemplateBox>
         <Actions>
           {renderEditAction(object)}
