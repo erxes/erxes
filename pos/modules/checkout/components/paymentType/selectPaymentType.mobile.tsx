@@ -49,14 +49,20 @@ const SelectPaymentType = () => {
             </PaymentType>
           )}
 
-          {mappedPts.map((payment) => (
-            <PaymentType type={payment.type} key={payment.type}>
-              <CoinsIcon />
-              {payment.title}
-            </PaymentType>
-          ))}
-        </RadioGroup>
-      </div>
+            {mappedPts.map((payment) => (
+              <PaymentType type={payment.type} key={payment.type}>
+                <CoinsIcon />
+                {payment.title}
+              </PaymentType>
+            ))}
+          </RadioGroup>
+          {notPaidAmount === 0 && (
+            <Button className="w-full mt-2" onClick={() => setView("billType")}>
+              Баримт хэвлэх
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   )
 }

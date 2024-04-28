@@ -1,8 +1,8 @@
 import useHandlePayment from "@/modules/checkout/hooks/useHandlePayment"
 import usePayByProduct from "@/modules/checkout/hooks/usePayByProduct"
 import usePaymentLabel from "@/modules/checkout/hooks/usePaymentLabel"
-import { currentPaymentTypeAtom } from "@/store"
-import { useAtom } from "jotai"
+import { checkoutModalViewAtom, currentPaymentTypeAtom } from "@/store"
+import { useAtom, useSetAtom } from "jotai"
 
 import { HARD_PAYMENT_TYPES } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
@@ -12,12 +12,11 @@ import PaymentTypeInput from "./paymentTypeInput"
 
 const PaymentType = () => {
   const { getLabel } = usePaymentLabel()
-
   const [paymentTerm] = useAtom(currentPaymentTypeAtom)
-
   const { handlePay, loading, currentAmount, notPaidAmount, type } =
     useHandlePayment()
   const { mergePaid } = usePayByProduct()
+  const setView = useSetAtom(checkoutModalViewAtom)
 
   return (
     <div className="p-3 min-h-[36rem]">
@@ -43,7 +42,12 @@ const PaymentType = () => {
       >
         Гүйлгээ хийх
       </Button>
-      <Button variant="secondary" size="lg" className="mt-2 w-full">
+      <Button
+        variant="secondary"
+        size="lg"
+        className="mt-2 w-full"
+        onClick={() => setView("")}
+      >
         Буцах
       </Button>
     </div>
