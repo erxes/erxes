@@ -5,6 +5,7 @@ import {
   BottomBarContainer,
   ContentWrapper,
   MainContent,
+  PreviewButton,
   Wrapper,
 } from "../../styles";
 import {
@@ -334,7 +335,9 @@ function ReplyFbMessage({
           ))}
         </BottomBarActionsContainer>
         <ModalFooter>
-          <PreviewWidget messages={messages} />
+          <PreviewButton>
+            <PreviewWidget messages={messages} />
+          </PreviewButton>
           <Button btnStyle="success" icon="checked-1" block onClick={onSave}>
             {__("Save")}
           </Button>
