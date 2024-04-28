@@ -9,6 +9,10 @@ export const types = `
       _id: String! @external
   }
 
+  extend type Asset @key(fields: "_id") {
+    _id: String! @external
+  }
+
   type KBCategory {
     _id: String
     title: String
@@ -44,6 +48,11 @@ export const types = `
     regex:Boolean
   }
 
+  type KBConnects {
+    assets:[Asset]
+    safetyTips:[SafetyTip]
+  }
+
 `;
 
 const commonParams = `
@@ -74,4 +83,5 @@ export const queries = `
   getAssignedUsersCards(${commonUserParams}):[User]
   getCustomFieldUsersCards(fieldId:String,${commonUserParams}):[User]
   myStandartKnowledges(customFieldsFilter:[fieldFilter],grantFilters:[fieldFilter],kbFieldId:String!,${commonParams}):[Ticket]
+  myStandartKnowledgeConnects(kbCategoryId:String):KBConnects
 `;
