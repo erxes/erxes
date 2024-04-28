@@ -8,9 +8,8 @@ import {
   Templates,
 } from "@erxes/ui-emailtemplates/src/styles";
 import { FilterContainer, InputBar } from "@erxes/ui-settings/src/styles";
-import { useLocation, useNavigate } from "react-router-dom";
 
-import Form from "@erxes/ui-emailtemplates/src/components/Form";
+import Form from "@erxes/ui-emailtemplates/src/containers/Form";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
