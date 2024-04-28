@@ -102,17 +102,18 @@ class FullPreviewStep extends React.Component<Props, State> {
       };
     } else if (currentMode === 'update') {
       const index = fields.map((e) => e._id).indexOf(field._id);
+      let newFields = [...fields];
       if (index !== -1) {
-        fields[index] = field;
+        newFields.splice(index,1,field);
       }
       selector = {
-        fields,
+        fields: newFields,
         currentField: undefined,
       };
     }
 
     this.setState(selector, () => {
-      this.renderReturnValues(fields);
+      this.renderReturnValues(selector.fields);
     });
   };
 

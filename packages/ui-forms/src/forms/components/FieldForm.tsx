@@ -99,11 +99,7 @@ class FieldForm extends React.Component<Props, State> {
 
   onDescChange = (content: string) => {
     const { field } = this.state;
-    const description = content;
-
-    field.description = description;
-
-    this.setState({ field });
+    this.setState({ field: { ...field, description: content } });
   };
 
   onPropertyGroupChange = (e) => {
@@ -476,7 +472,7 @@ class FieldForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel
               htmlFor="text"
-              required={field.type !== "html" ? true : false}
+              required={(field.type || "") !== "html" ? true : false}
             >
               Field Label
             </ControlLabel>
