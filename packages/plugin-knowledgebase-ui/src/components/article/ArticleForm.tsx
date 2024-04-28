@@ -4,15 +4,15 @@ import {
   IArticle,
   IErxesForm,
   ITopic,
-} from "@erxes/ui-knowledgebase/src/types";
+} from "@erxes/ui-knowledgeBase/src/types";
 import {
   IAttachment,
   IButtonMutateProps,
   IFormProps,
   IOption,
 } from "@erxes/ui/src/types";
-import React, { useEffect, useState } from "react";
-import { __, extractAttachment } from "@erxes/ui/src/utils";
+import Select, { OnChangeValue } from "react-select";
+import { __, extractAttachment } from "coreui/utils";
 
 import Button from "@erxes/ui/src/components/Button";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
@@ -22,8 +22,8 @@ import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import Icon from "@erxes/ui/src/components/Icon";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
+import React from "react";
 import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
-import Select, { OnChangeValue, components } from "react-select";
 import Uploader from "@erxes/ui/src/components/Uploader";
 import { articleReactions } from "../../icons.constant";
 
@@ -36,75 +36,75 @@ type Props = {
   topicId?: string;
 };
 
-const ArticleForm = (props: Props) => {
-  const {
-    article,
-    topics,
-    topicId: currentTopicId,
-    currentCategoryId,
-    renderButton,
-    closeModal,
-  } = props;
+type State = {
+  content: string;
+  reactionChoices: string[];
+  topicId?: string;
+  categoryId: string;
+  attachments: IAttachment[];
+  image: IAttachment | null;
+  erxesForms: IErxesForm[];
+  isPrivate: boolean;
+};
 
-  const articleD = article || ({ content: "" } as IArticle);
-  const attachmentsD =
-    (article && article.attachments && extractAttachment(article.attachments)) || [];
-  const imageD = article && article.image ? extractAttachment([article.image])[0] : null;
+class ArticleForm extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
 
-  const [content, setContent] = useState<string>(articleD.content);
-  const [reactionChoices, setReactionChoices] = useState<string[]>(
-    articleD.reactionChoices || []
-  );
-  const [status, setStatus] = useState<string>("draft");
-  const [topicId, setTopicId] = useState<string | undefined>(articleD.topicId);
-  const [categoryId, setCategoryId] = useState<string>(articleD.categoryId);
-  const [attachments, setAttachments] = useState<IAttachment[]>(attachmentsD);
-  const [image, setImage] = useState<IAttachment | null>(imageD);
-  const [erxesForms, setErxesForms] = useState<IErxesForm[]>([]);
-  const [isPrivate, setIsPrivate] = useState<boolean>(
-    articleD.isPrivate || false
-  );
+    const article = props.article || ({ content: "" } as IArticle);
+    const attachments =
+      (article.attachments && extractAttachment(article.attachments)) || [];
+    const image = article.image ? extractAttachment([article.image])[0] : null;
 
-  useEffect(() => {
-    if (!topicId && topics && topics.length > 0) {
-      setTopicId(props.topicId);
-      setCategoryId(props.currentCategoryId);
+    this.state = {
+      content: article.content,
+      reactionChoices: article.reactionChoices || [],
+      topicId: article.topicId,
+      categoryId: article.categoryId,
+      erxesForms: article.forms || [],
+      image,
+      attachments,
+      isPrivate: article.isPrivate || false,
+    };
+  }
+
+  componentDidUpdate(prevProps) {
+    const { topics, currentCategoryId } = this.props;
+    const self = this;
+
+    if (!this.state.topicId && topics && topics.length > 0) {
+      this.setState({
+        topicId: self.props.topicId,
+        categoryId: currentCategoryId,
+      });
     }
-  }, [topicId, topics.length]);
+  }
 
-  useEffect(() => {
-    if (article) {
-      const currentArticle = article || ({ content: "" } as IArticle);
-      const attachments =
-        (currentArticle.attachments &&
-          extractAttachment(currentArticle.attachments)) ||
-        [];
-      const image = currentArticle.image
-        ? extractAttachment([currentArticle.image])[0]
-        : null;
+  getFirstAttachment = () => {
+    const { attachments } = this.state;
 
-      setContent(article.content);
-      setReactionChoices(article.reactionChoices || []);
-      setStatus(article.status);
-      setTopicId(article.topicId);
-      setCategoryId(article.categoryId);
-      setErxesForms(article.forms || []);
-      setAttachments(attachments);
-      setImage(image);
-    }
-  }, [article]);
-
-  const getFirstAttachment = () => {
     return attachments.length > 0 ? attachments[0] : ({} as IAttachment);
   };
 
-  const generateDoc = (values: {
+  generateDoc = (values: {
     _id?: string;
     title: string;
     summary: string;
     status: string;
     code?: string;
   }) => {
+    const { article, currentCategoryId } = this.props;
+    const {
+      attachments,
+      content,
+      reactionChoices,
+      topicId,
+      categoryId,
+      image,
+      erxesForms,
+      isPrivate,
+    } = this.state;
+
     const finalValues = values;
 
     if (article) {
@@ -134,44 +134,73 @@ const ArticleForm = (props: Props) => {
     };
   };
 
-  const handleContentChange = (e) => {
-    setContent(e);
+  onChange = (content: string) => {
+    this.setState({ content });
   };
 
-  const handleReactionsChange = (options: OnChangeValue<IOption, true>) => {
-    setReactionChoices(options.map((option) => option.value));
+  onChangeReactions = (options: OnChangeValue<IOption, true>) => {
+    this.setState({ reactionChoices: options.map((option) => option.value) });
   };
 
-  const handleStatusChange = (option: OnChangeValue<IOption, false>) => {
-    setStatus(option?.value || "");
-  };
+  onChangeAttachments = (attachments: IAttachment[]) =>
+    this.setState({ attachments });
 
-  const handleAttachmentsChange = (attachments: IAttachment[]) =>
-    setAttachments(attachments);
-
-  const handleImageChange = (images: IAttachment[]) => {
+  onChangeImage = (images: IAttachment[]) => {
     if (images && images.length > 0) {
-      setImage(images[0]);
+      this.setState({ image: images[0] });
     } else {
-      setImage(null);
+      this.setState({ image: null });
     }
   };
 
-  const handleAttachmentChange = (key: string, value: string | number) => {
-    setAttachments([
-      {
-        ...getFirstAttachment(),
-        [key]: value,
-      },
-    ]);
-  };
-
-  const onChangeIsCheckDate = (e) => {
+  onChangeIsCheckDate = (e) => {
     const isChecked = (e.currentTarget as HTMLInputElement).checked;
-    setIsPrivate(isChecked);
+    this.setState({ isPrivate: isChecked });
   };
 
-  const renderOption = (option) => {
+  onChangeAttachment = (key: string, value: string | number) => {
+    this.setState({
+      attachments: [
+        {
+          ...this.getFirstAttachment(),
+          [key]: value,
+        },
+      ],
+    });
+  };
+
+  onChangeForm = (formId: string, key: string, value: string | number) => {
+    const erxesForms = this.state.erxesForms;
+
+    // find current editing one
+    const erxesForm = erxesForms.find((form) => form.formId === formId) || [];
+
+    // set new value
+    erxesForm[key] = value;
+
+    this.setState({ erxesForms });
+  };
+
+  addErxesForm = () => {
+    const erxesForms = this.state.erxesForms.slice();
+
+    erxesForms.push({
+      brandId: "",
+      formId: "",
+    });
+
+    this.setState({ erxesForms });
+  };
+
+  removeForm = (formId) => {
+    let erxesForms = this.state.erxesForms;
+
+    erxesForms = erxesForms.filter((form) => form.formId !== formId);
+
+    this.setState({ erxesForms });
+  };
+
+  renderOption = (option) => {
     return (
       <ReactionItem>
         <img src={option.value} alt={option.label} />
@@ -180,126 +209,96 @@ const ArticleForm = (props: Props) => {
     );
   };
 
-  const Option = (props) => {
-    return (
-      <components.Option {...props}>
-        {renderOption(props.data)}
-      </components.Option>
-    );
-  };
-
-  const MultiValue = (props) => (
-    <components.MultiValue {...props}>
-      {renderOption(props.data)}
-    </components.MultiValue>
-  );
-
-  const generateOptions = (options) => {
+  generateOptions = (options) => {
     return options.map((option) => ({
       value: option._id,
       label: option.title,
     }));
   };
 
-  const handleTopicChange = (selectedTopic) => {
-    const selectedTopicId = selectedTopic.value;
+  renderTopics(formProps: IFormProps) {
+    const self = this;
+    const { topics } = this.props;
 
-    const topic = topics.find((t) => t._id === selectedTopicId);
-    const categories = topic ? topic.categories || [] : [];
+    const onChange = (e) => {
+      e.preventDefault();
 
-    setTopicId(selectedTopicId);
-    setCategoryId(categories.length > 0 ? categories[0]._id : "");
-  };
+      const selectedTopicId = e.target.value;
 
-  const renderTopics = (formProps: IFormProps) => {
+      const topic = topics.find((t) => t._id === selectedTopicId);
+      const categories = topic ? topic.categories || [] : [];
+
+      self.setState({
+        topicId: selectedTopicId,
+        categoryId: categories.length > 0 ? categories[0]._id : "",
+      });
+    };
+
     return (
       <FormGroup>
         <ControlLabel required={true}>Choose the knowledgebase</ControlLabel>
         <br />
 
-        <Select
+        <FormControl
           {...formProps}
+          name="topicId"
+          componentclass="select"
+          required={true}
           placeholder={__("Choose knowledgebase")}
-          value={generateOptions(topics).find((o) => o.value === topicId)}
-          options={generateOptions(topics)}
-          onChange={handleTopicChange}
-          isClearable={false}
+          value={self.state.topicId}
+          options={self.generateOptions(topics)}
+          onChange={onChange}
         />
       </FormGroup>
     );
-  };
+  }
 
-  const handleCategoryChange = (selectedCategory) => {
-    setCategoryId(selectedCategory.value);
-  };
-
-  const renderCategories = (formProps: IFormProps) => {
-    const topic = topics.find((t) => t._id === topicId);
-
+  renderCategories(formProps: IFormProps) {
+    const self = this;
+    const topic = this.props.topics.find((t) => t._id === self.state.topicId);
     const categories = topic ? topic.categories || [] : [];
+
+    const onChange = (e) => {
+      e.preventDefault();
+
+      self.setState({ categoryId: e.target.value });
+    };
 
     return (
       <FormGroup>
         <ControlLabel required={true}>Choose the category</ControlLabel>
         <br />
 
-        <Select
+        <FormControl
           {...formProps}
+          name="categoryId"
+          componentclass="select"
           placeholder={__("Choose category")}
-          value={generateOptions(categories).find(
-            (o) => o.value === categoryId
-          )}
-          options={generateOptions(categories)}
-          onChange={handleCategoryChange}
-          isClearable={false}
+          value={self.state.categoryId}
+          options={self.generateOptions(categories)}
+          onChange={onChange}
+          required={true}
         />
       </FormGroup>
     );
-  };
+  }
 
-  const handleErxesFormChange = (
-    index: number,
-    key: string,
-    value: string | number
-  ) => {
-    const updatedErxesForms = [...erxesForms];
-    updatedErxesForms[index][key] = value;
-    setErxesForms(updatedErxesForms);
-  };
+  renderErxesForm = (form: IErxesForm, formProps: IFormProps) => {
+    const remove = () => {
+      this.removeForm(form.formId);
+    };
 
-  const addErxesForm = () => {
-    setErxesForms((prevForms) => [
-      ...prevForms,
-      {
-        brandId: "",
-        formId: "",
-      },
-    ]);
-  };
-
-  const removeErxesForm = (index: number) => () => {
-    const updatedErxesForms = [...erxesForms];
-    updatedErxesForms.splice(index, 1);
-
-    setErxesForms(updatedErxesForms);
-  };
-
-  const renderErxesForm = (
-    index: number,
-    form: IErxesForm,
-    formProps: IFormProps
-  ) => {
     return (
-      <FlexRow key={index}>
+      <FlexRow key={form.formId}>
         <FormGroup>
           <ControlLabel required={true}>{__("Brand id")}</ControlLabel>
           <FormControl
             {...formProps}
             name="brandId"
             required={true}
-            value={form.brandId}
+            defaultValue={form.brandId}
             onChange={(e: any) =>
-              handleErxesFormChange(index, "brandId", e.target.value)
+              this.onChangeForm(form.formId, "brandId", e.target.value)
             }
           />
         </FormGroup>
@@ -310,22 +309,25 @@ const ArticleForm = (props: Props) => {
             {...formProps}
             name="formId"
             required={true}
-            value={form.formId}
+            defaultValue={form.formId}
             onChange={(e: any) =>
-              handleErxesFormChange(index, "formId", e.target.value)
+              this.onChangeForm(form.formId, "formId", e.target.value)
             }
           />
         </FormGroup>
 
-        <Button size="small" btnStyle="danger" onClick={removeErxesForm(index)}>
+        <Button size="small" btnStyle="danger" onClick={remove}>
           <Icon icon="cancel-1" />
         </Button>
       </FlexRow>
     );
   };
 
-  const renderContent = (formProps: IFormProps) => {
-    const attachment = getFirstAttachment();
+  renderContent = (formProps: IFormProps) => {
+    const { article, renderButton, closeModal } = this.props;
+    const { attachments, reactionChoices, content, image, isPrivate } =
+      this.state;
+    const attachment = this.getFirstAttachment();
 
     const mimeTypeOptions = FILE_MIME_TYPES.map((item) => ({
       value: item.value,
@@ -335,13 +337,6 @@ const ArticleForm = (props: Props) => {
     const { isSubmitted, values } = formProps;
 
     const object = article || ({} as IArticle);
-
-    const statusOptions = [{ value: "draft" }, { value: "publish" }].map(
-      (option) => ({
-        value: option.value,
-        label: option.value,
-      })
-    );
 
     return (
       <>
@@ -379,41 +374,44 @@ const ArticleForm = (props: Props) => {
                   reactionChoices.includes(o.value)
                 )}
                 options={articleReactions}
-                onChange={handleReactionsChange}
-                components={{ Option, MultiValue }}
+                onChange={this.onChangeReactions}
                 placeholder={__("Select")}
               />
             </FormGroup>
           </FlexItem>
-          <FlexItem count={2} $hasSpace={true}>
+          <FlexItem count={2} hasSpace={true}>
             <FormGroup>
               <ControlLabel required={true}>{__("Status")}</ControlLabel>
-              <Select
+              <FormControl
                 {...formProps}
-                placeholder={__("Choose knowledgebase")}
-                value={statusOptions.find(
-                  (o) => o.value === (status || "draft")
-                )}
-                options={statusOptions}
-                onChange={handleStatusChange}
-                isClearable={false}
-              />
+                name="status"
+                componentclass="select"
+                placeholder={__("Select")}
+                defaultValue={object.status || "draft"}
+                required={true}
+              >
+                {[{ value: "draft" }, { value: "publish" }].map((op) => (
+                  <option key={op.value} value={op.value}>
+                    {op.value}
+                  </option>
+                ))}
+              </FormControl>
             </FormGroup>
             <FormGroup>
               <ControlLabel required={true}>{__("isPrivate")}</ControlLabel>
               <FormControl
                 componentclass="checkbox"
                 checked={isPrivate}
-                onChange={onChangeIsCheckDate}
+                onChange={this.onChangeIsCheckDate}
               />
             </FormGroup>
           </FlexItem>
         </FlexContent>
 
         <FlexContent>
-          <FlexItem count={3}>{renderTopics(formProps)}</FlexItem>
-          <FlexItem count={3} $hasSpace={true}>
-            {renderCategories(formProps)}
+          <FlexItem count={3}>{this.renderTopics(formProps)}</FlexItem>
+          <FlexItem count={3} hasSpace={true}>
+            {this.renderCategories(formProps)}
           </FlexItem>
         </FlexContent>
 
@@ -421,7 +419,7 @@ const ArticleForm = (props: Props) => {
           <ControlLabel>{__("Image")}</ControlLabel>
           <Uploader
             defaultFileList={image ? [image] : []}
-            onChange={handleImageChange}
+            onChange={this.onChangeImage}
             single={true}
           />
         </FormGroup>
@@ -430,20 +428,20 @@ const ArticleForm = (props: Props) => {
           <ControlLabel>{__("Attachment")}</ControlLabel>
           <Uploader
             defaultFileList={attachments}
-            onChange={handleAttachmentsChange}
+            onChange={this.onChangeAttachments}
             single={true}
           />
         </FormGroup>
 
         <FlexContent>
-          <FlexItem count={2} $hasSpace={true}>
+          <FlexItem count={2} hasSpace={true}>
             <FormGroup>
               <ControlLabel>{__("File url")}</ControlLabel>
               <FormControl
                 placeholder="Url"
                 value={attachment.url || ""}
                 onChange={(e: any) =>
-                  handleAttachmentChange("url", e.target.value)
+                  this.onChangeAttachment("url", e.target.value)
                 }
               />
             </FormGroup>
@@ -453,12 +451,12 @@ const ArticleForm = (props: Props) => {
                 placeholder="Name"
                 value={attachment.name || ""}
                 onChange={(e: any) =>
-                  handleAttachmentChange("name", e.target.value)
+                  this.onChangeAttachment("name", e.target.value)
                 }
               />
             </FormGroup>
           </FlexItem>
-          <FlexItem count={2} $hasSpace={true}>
+          <FlexItem count={2} hasSpace={true}>
             <FormGroup>
               <ControlLabel>{__("File size (byte)")}</ControlLabel>
               <FormControl
@@ -466,7 +464,7 @@ const ArticleForm = (props: Props) => {
                 value={attachment.size || ""}
                 type="number"
                 onChange={(e: any) =>
-                  handleAttachmentChange("size", parseInt(e.target.value, 10))
+                  this.onChangeAttachment("size", parseInt(e.target.value, 10))
                 }
               />
             </FormGroup>
@@ -476,7 +474,7 @@ const ArticleForm = (props: Props) => {
                 componentclass="select"
                 value={attachment.type || ""}
                 onChange={(e: any) =>
-                  handleAttachmentChange("type", e.target.value)
+                  this.onChangeAttachment("type", e.target.value)
                 }
                 options={[
                   { value: "", label: "Select type" },
@@ -485,14 +483,14 @@ const ArticleForm = (props: Props) => {
               />
             </FormGroup>
           </FlexItem>
-          <FlexItem count={2} $hasSpace={true}>
+          <FlexItem count={2} hasSpace={true}>
             <FormGroup>
               <ControlLabel>{__("File duration (sec)")}</ControlLabel>
               <FormControl
                 placeholder="Duration"
                 value={attachment.duration || 0}
                 onChange={(e: any) =>
-                  handleAttachmentChange(
+                  this.onChangeAttachment(
                     "duration",
                     parseInt(e.target.value, 10)
                   )
@@ -505,15 +503,15 @@ const ArticleForm = (props: Props) => {
         <FormGroup>
           <ControlLabel>{__("erxes forms")}</ControlLabel>
           <Forms>
-            {erxesForms.map((form, index) =>
-              renderErxesForm(index, form, formProps)
+            {this.state.erxesForms.map((form) =>
+              this.renderErxesForm(form, formProps)
             )}
           </Forms>
 
           <Button
             btnStyle="simple"
             size="small"
-            onClick={addErxesForm}
+            onClick={this.addErxesForm}
             icon="add"
           >
             Add another form
@@ -524,7 +522,7 @@ const ArticleForm = (props: Props) => {
           <ControlLabel required={true}>{__("Content")}</ControlLabel>
           <RichTextEditor
             content={content}
-            onChange={handleContentChange}
+            onChange={this.onChange}
             isSubmitted={isSubmitted}
             height={300}
             name={`knowledgeBase_${article ? article._id : "create"}`}
@@ -535,7 +533,7 @@ const ArticleForm = (props: Props) => {
           <Button
             btnStyle="simple"
             type="button"
-            onClick={closeModal}
+            onClick={this.props.closeModal}
             icon="times-circle"
           >
             {__("Cancel")}
@@ -543,7 +541,7 @@ const ArticleForm = (props: Props) => {
 
           {renderButton({
             passedName: "article",
-            values: generateDoc(values),
+            values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
             object: article,
@@ -553,7 +551,9 @@ const ArticleForm = (props: Props) => {
     );
   };
 
-  return <Form renderContent={renderContent} />;
-};
+  render() {
+    return <Form renderContent={this.renderContent} />;
+  }
+}
 
 export default ArticleForm;
