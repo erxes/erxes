@@ -75,6 +75,7 @@ const fieldsGroupsUpdateVisible = `
 const commonVariables = `
   $type: String,
   $validation: String,
+  $regexValidation: String,
   $text: String,
   $description: String,
   $options: [String],
@@ -94,6 +95,7 @@ const commonVariables = `
 const commonParams = `
   type: $type,
   validation: $validation,
+  regexValidation: $regexValidation,
   text: $text,
   description: $description,
   options: $options,

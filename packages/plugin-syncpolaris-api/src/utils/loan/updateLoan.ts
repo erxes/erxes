@@ -1,3 +1,4 @@
+import { createCollateral } from '../collateral/createCollateral';
 import {
   getBranch,
   getCustomer,
@@ -11,6 +12,10 @@ import { changeLoanInterest } from './changeLoanInterest';
 
 export const updateLoan = async (subdomain, params) => {
   const loan = params.updatedDocument || params.object;
+
+  if(JSON.stringify(loan.collateralsData)!== JSON.stringify(params.object.collateralsData)){
+    return createCollateral(subdomain,loan)
+  }
 
   if (params.updatedDocument.leaseAmount !== params.object.leaseAmount) {
     return createChangeLoanAmount(subdomain, {

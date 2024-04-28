@@ -6,7 +6,8 @@ import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as moment from 'moment';
 import fetch from 'node-fetch';
-import * as puppeteer from 'puppeteer';
+
+import * as HTMLtoDOCX from "html-to-docx";
 import * as tmp from 'tmp';
 import * as xlsxPopulate from 'xlsx-populate';
 import { sendCommonMessage } from '../../messageBroker';
@@ -799,13 +800,21 @@ export const generateContract = async (
 };
 
 const generatePdf = async (subdomain, content, dealNumber) => {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
+  // const createPdfBuffer = (content:any) => {
+  //   return new Promise((resolve, reject) => {
+  //     pdf.create(content).toBuffer((err, buffer) => {
+  //       if (err) {
+  //         reject(err);
+  //       } else {
+  //         resolve(buffer);
+  //       }
+  //     });
+  //   });
+  // }
 
-  await page.setContent(content);
-  const buffer = await page.pdf({ format: 'A4' });
+  // const buffer:any = await createPdfBuffer(content);
+  const buffer: any = await HTMLtoDOCX(content)
 
-  await browser.close();
 
   const DOMAIN = getEnv({
     name: 'DOMAIN',
@@ -816,14 +825,11 @@ const generatePdf = async (subdomain, content, dealNumber) => {
   const uploadUrl = DOMAIN.includes('https')
     ? `${DOMAIN}/gateway/pl:core/upload-file`
     : `${DOMAIN}/pl:core/upload-file`;
-  console.log('uploadUrl', uploadUrl);
+
   const form = new FormData();
 
-  //write buffer to tmp
-  const tmpFile = tmp.fileSync({ postfix: '.pdf', name: `${dealNumber}.pdf` });
+  const tmpFile = tmp.fileSync({ postfix: '.docx', name: `${dealNumber}.docx` });
   fs.writeFileSync(tmpFile.name, buffer);
-
-  console.log('tmpFile', tmpFile);
 
   const fileStream = fs.createReadStream(tmpFile.name);
   const fileSize = fs.statSync(tmpFile.name).size;
@@ -835,9 +841,7 @@ const generatePdf = async (subdomain, content, dealNumber) => {
   });
 
   const result = await response.text();
-
-  console.log('result', result);
-
+  
   tmp.setGracefulCleanup();
   fs.unlinkSync(tmpFile.name);
 

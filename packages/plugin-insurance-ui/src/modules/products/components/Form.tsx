@@ -297,7 +297,7 @@ const ProductForm = (props: Props) => {
         return null;
       }
 
-      if (!category.code.includes('travel') || category.code !== 'travel') {
+      if (!category.code.includes('travel')) {
         return null;
       }
 

@@ -193,6 +193,16 @@ const FormTable = styled.div`
   table tr td {
     word-break: break-word;
   }
+
+  footer {
+    flex-shrink: 0;
+    font-size: 11px;
+    float: right;
+    
+    color: ${colors.colorCoreLightGray};
+    margin-left: 10px;
+    cursor: pointer;
+  }
 `;
 
 const CellWrapper = styled.div`

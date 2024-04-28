@@ -166,6 +166,7 @@ const queries = {
   vendorInsuranceItems: async (
     _root,
     {
+      categoryId,
       page,
       perPage,
       sortField,
@@ -175,6 +176,7 @@ const queries = {
       startDate,
       endDate
     }: {
+      categoryId: string;
       page: number;
       perPage: number;
       sortField: string;
@@ -239,6 +241,14 @@ const queries = {
         $gte: new Date(startDate),
         $lt: new Date(endDate)
       };
+    }
+
+    if (categoryId) {
+      const productIds = await models.Products.find({
+        categoryId
+      }).distinct('_id');
+
+      qry.productId = { $in: productIds };
     }
 
     return {
@@ -321,7 +331,7 @@ const queries = {
 
     const userIds = users.map((u: any) => u._id);
 
-    const categories = await models.Categories.find({});
+    const categories = await models.Categories.find({companyIds: company._id});
     const totalItemsCountOfCompany = await models.Items.find({
       vendorUserId: { $in: userIds }
     }).countDocuments();

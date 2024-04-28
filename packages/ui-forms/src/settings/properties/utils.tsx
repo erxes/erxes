@@ -3,7 +3,7 @@ import { LogicParams } from './types';
 const updateCustomFieldsCache = ({
   id,
   type,
-  doc
+  doc,
 }: {
   id?: string;
   type: string;
@@ -26,7 +26,7 @@ const updateCustomFieldsCache = ({
       order: configs.length,
       checked: false,
       name: `customFieldsData.${_id}`,
-      text: doc.text
+      text: doc.text,
     });
 
     return localStorage.setItem(storageKey, JSON.stringify(configs));
@@ -35,8 +35,8 @@ const updateCustomFieldsCache = ({
   const key = `customFieldsData.${id}`;
 
   const items = !doc
-    ? configs.filter(config => config.name !== key)
-    : configs.map(config => {
+    ? configs.filter((config) => config.name !== key)
+    : configs.map((config) => {
         if (config.name === key) {
           return { ...config, label: doc.text };
         }
@@ -51,14 +51,8 @@ const checkLogic = (logics: LogicParams[]) => {
   const values: { [key: string]: boolean } = {};
 
   for (const logic of logics) {
-    const {
-      fieldId,
-      operator,
-      logicValue,
-      fieldValue,
-      validation,
-      type
-    } = logic;
+    const { fieldId, operator, logicValue, fieldValue, validation, type } =
+      logic;
     const key = `${fieldId}_${logicValue}`;
     values[key] = false;
 
@@ -210,11 +204,42 @@ const checkLogic = (logics: LogicParams[]) => {
     result.push(values[key]);
   }
 
-  if (result.filter(val => !val).length === 0) {
+  if (result.filter((val) => !val).length === 0) {
     return true;
   }
 
   return false;
 };
 
-export { updateCustomFieldsCache, checkLogic };
+const stringToRegex = (str) => {
+  const parts = str.match(/(\d+|[a-z]+|[A-Z]+|[а-я]+|[А-Я]+|[$&+,:;=?@#|'<>.^*()%!-]+|\s+)/g)
+    .map((part) => {
+      if (part.match(/^\d+$/)) {
+        // Check if part is all digits
+        return `[0-9]{${part.length}}`;
+      } else if (part.match(/^[a-z]+$/)) {
+        // Check if part is all lowercase letters
+        return `[a-z]{${part.length}}`;
+      } else if (part.match(/^[A-Z]+$/)) {
+        // Check if part is all uppercase letters
+        return `[A-Z]{${part.length}}`;
+      } else if (part.match(/^[а-я]+$/)) {
+        // Check if part is all cyrillic letters
+        return `[а-я]{${part.length}}`;
+      } else if (part.match(/^[А-Я]+$/)) {
+        // Check if part is all cyrillic uppercase letters
+        return `[А-Я]{${part.length}}`;
+      } else if (part.match(/^\s+$/)) {
+        // Check if part is whitespace
+        const spaces = ' '.repeat(part.length);
+        return `[${spaces}]`;
+      } else {
+        return part;
+      }
+    });
+  const regexPattern = `^${parts.join('')}$`;
+
+  return regexPattern;
+};
+
+export { updateCustomFieldsCache, checkLogic, stringToRegex};

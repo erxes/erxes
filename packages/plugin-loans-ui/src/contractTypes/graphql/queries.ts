@@ -8,8 +8,8 @@ export const contractTypeFields = `
   vacancy
   leaseType
   createdAt
-  unduePercent
-  undueCalcType
+  lossPercent
+  lossCalcType
   useMargin
   useSkipInterest
   useDebt
