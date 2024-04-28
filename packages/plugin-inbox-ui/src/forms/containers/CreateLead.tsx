@@ -53,10 +53,10 @@ const CreateLeadContainer: React.FC<Props> = (props) => {
   const [id, setId] = useState('')
 
   useEffect(() => {
-    if (state.doc && state.isReadyToSaveForm) {
+    if (state.doc && state.isReadyToSaveForm && id !== '') {
       afterFormDbSave();
     }
-  }, [state.doc, state.isReadyToSaveForm]);
+  }, [state.doc, state.isReadyToSaveForm, id]);
 
   const redirect = () => {
     let canClose = true;
