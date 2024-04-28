@@ -258,6 +258,9 @@ const generateObjectToWait = ({
     obj.waitingActionId = actionIdIfNotReply;
 
     propertyName = 'botId';
+  }else{
+    obj.startWaitingDate = moment().add(24,'hours').toDate()
+    obj.waitingActionId = null
   }
 
   return {
@@ -308,11 +311,7 @@ export const actionCreateMessage = async (
       subdomain,
       config,
       conversation,
-<<<<<<< HEAD
-      customer
-=======
       customer,
->>>>>>> c89679e19305028f422ffb67c7259e6aaa64ce67
     );
 
     if (!messages?.length) {

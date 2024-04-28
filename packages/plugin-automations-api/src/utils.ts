@@ -14,7 +14,7 @@ import {
 import { getActionsMap } from './helpers';
 import { sendCommonMessage, sendSegmentsMessage } from './messageBroker';
 
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 import { IModels } from './connectionResolver';
 import { handleEmail } from './common/emailUtils';
 import { setActionWait } from './actions/wait';
