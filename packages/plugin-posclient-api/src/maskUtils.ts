@@ -46,20 +46,12 @@ export const groupBySameMasksAggregator = (isCount = false) => {
 
   return [
     ...sameArr,
-    { $sort: { 'product.code': 1 } },
+    { $sort: { 'code': 1 } },
     {
       $group: {
         _id: { sameMasks: '$sameMasks' },
         count: { $sum: 1 },
         product: { $first: '$$ROOT' }
-      }
-    },
-    { $sort: { 'product.code': 1 } },
-    {
-      $group: {
-        _id: { code: '$product.code' },
-        count: { $max: '$count' },
-        product: { $first: '$product' }
       }
     }
   ];
