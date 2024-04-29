@@ -1,3 +1,5 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
 import {
   DocumentNode,
   execute,
@@ -25,7 +27,12 @@ import { maxAliasesPlugin } from '@escape.tech/graphql-armor-max-aliases';
 import { characterLimitPlugin } from '@escape.tech/graphql-armor-character-limit';
 import { maxDepthPlugin } from '@escape.tech/graphql-armor-max-depth';
 
+const { GRAPHQL_LIMITER } = process.env;
+
 export async function applyGraphqlLimiters(app: Express) {
+  if (!GRAPHQL_LIMITER) {
+    return;
+  }
   const supergraph = fs.readFileSync(supergraphPath).toString();
 
   const supergraphTypeDefs = gql(supergraph);
@@ -54,7 +61,7 @@ export async function applyGraphqlLimiters(app: Express) {
         n: 0,
       }),
       maxDepthPlugin({
-        n: 100,
+        n: 50,
         ignoreIntrospection: true,
       }),
     ],
