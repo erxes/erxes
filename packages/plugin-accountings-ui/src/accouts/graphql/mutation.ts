@@ -18,6 +18,59 @@ const accountAdd = `
       scopeBrandIds
     }
   }
+`;
+
+const accountsEdit = `
+  mutation accountsEdit($id: String!, $code: String, $name: String, $categoryId: String, $parentId: String, $kind: String, $currency: String, $journal: String, $description: String, $branchId: String, $departmentId: String, $isOutBalance: Boolean, $scopeBrandIds: [String]) {
+    accountsEdit(_id: $id, code: $code, name: $name, categoryId: $categoryId, parentId: $parentId, kind: $kind, currency: $currency, journal: $journal, description: $description, branchId: $branchId, departmentId: $departmentId, isOutBalance: $isOutBalance, scopeBrandIds: $scopeBrandIds) {
+      _id
+      code
+      name
+      status
+      currency
+      kind
+      journal
+      description
+      categoryId
+      branchId
+      departmentId
+      isOutBalance
+      parentId
+      createdAt
+      scopeBrandIds
+    }
+  }
+`;
+
+const accountsRemove = `
+  mutation accountsRemove($accountIds: [String!]) {
+    accountsRemove(accountIds: $accountIds)
+  }
+`;
+
+const accountsMerge = `
+  mutation accountsMerge($accountIds: [String], $accountFields: JSON) {
+    accountsMerge(accountIds: $accountIds, accountFields: $accountFields) {
+      _id
+      code
+      name
+      status
+      currency
+      kind
+      journal
+      description
+      categoryId
+      branchId
+      departmentId
+      isOutBalance
+      parentId
+      createdAt
+      scopeBrandIds
+      category {
+        
+      }
+    }
+  }
 `
 
 const accountCategoryAdd = `
@@ -37,7 +90,7 @@ const accountCategoryAdd = `
       status
     }
   }
-`
+`;
 
 const accountCategoriesEdit = `
   mutation accountCategoriesEdit($id: String!, $name: String!, $code: String!, $description: String, $parentId: String, $scopeBrandIds: [String], $status: String, $maskType: String, $mask: JSON) {
@@ -56,10 +109,20 @@ const accountCategoriesEdit = `
       mask
     }
   }
-`
+`;
+
+const accountCategoriesRemove = `
+  mutation accountCategoriesRemove($id: String!) {
+    accountCategoriesRemove(_id: $id)
+  }
+`;
 
 export default {
-    accountAdd,
-    accountCategoryAdd,
-    accountCategoriesEdit
-}
+  accountAdd,
+  accountsEdit,
+  accountsRemove,
+  accountsMerge,
+  accountCategoryAdd,
+  accountCategoriesEdit,
+  accountCategoriesRemove
+};

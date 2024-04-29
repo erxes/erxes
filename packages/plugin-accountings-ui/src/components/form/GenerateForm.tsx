@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import Form from '@erxes/ui/src/components/form/Form';
 import {
   FormColumn,
@@ -87,6 +87,9 @@ function GenerateForm({
   defaultValue
 }: IProps) {
   const [formValue, setFormValue] = useState<object>(defaultValue || {});
+  const values = useMemo(()=>{
+    return {id:defaultValue?._id,...formValue}
+  },[formValue])
   const renderContent = (formProps: IFormProps): React.ReactNode => {
     const { isSubmitted, resetSubmit } = formProps;
 
@@ -95,6 +98,8 @@ function GenerateForm({
         return { ...v, [key]: value };
       });
     };
+
+  
 
     return (
       <>
@@ -114,7 +119,7 @@ function GenerateForm({
           </Button>
 
           {renderButton({
-            values: formValue,
+            values: values,
             isSubmitted,
             resetSubmit
           })}

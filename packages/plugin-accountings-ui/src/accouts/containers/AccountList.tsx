@@ -1,5 +1,9 @@
-import { gql, useQuery } from '@apollo/client';
-import { IAccountsResponse, accountQuery } from '../graphql/query';
+import { gql, useQuery, useMutation } from '@apollo/client';
+import {
+  IAccountsResponse,
+  IAccountsTotalCountResponse,
+  accountQuery
+} from '../graphql/query';
 import React, { useMemo, useState } from 'react';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
@@ -14,12 +18,20 @@ import { useNavigate } from 'react-router-dom';
 import { Title } from '@erxes/ui-settings/src/styles';
 import AccountCategoryList from './AccountCategoryList';
 import AccountForm from '../components/AccountForm';
-import { FlexItem, InputBar } from "@erxes/ui-settings/src/styles";
-import { Icon } from "@erxes/ui/src";
+import { FlexItem, InputBar } from '@erxes/ui-settings/src/styles';
+import Icon from '@erxes/ui/src/components/Icon';
+import mutation from '../graphql/mutation';
+import Bulk from '@erxes/ui/src/components/Bulk';
+import { Alert } from '@erxes/ui/src';
 
 interface IProps {
   queryParams: any;
   searchValue: string;
+  toggleBulk: any;
+  bulk: any[];
+  toggleAll: any;
+  emptyBulk: any;
+  isAllSelected: boolean;
 }
 
 let timer;
@@ -36,7 +48,9 @@ const moveCursorAtTheEnd = (e) => {
   e.target.value = tmpValue;
 };
 
-function AccountList({ queryParams, ...props }: IProps): React.ReactNode {
+function List({ queryParams, ...props }: IProps): React.ReactNode {
+  const { toggleBulk, bulk, toggleAll, emptyBulk, isAllSelected } = props;
+
   const navigate = useNavigate();
 
   const [searchValue, setSearchValue] = useState<string | undefined>(
@@ -44,7 +58,7 @@ function AccountList({ queryParams, ...props }: IProps): React.ReactNode {
   );
 
   const variables = useMemo(() => {
-    return queryParams;
+    return { page: Number(queryParams?.page | 1) };
   }, [queryParams]);
 
   const { data, loading } = useQuery<IAccountsResponse>(
@@ -53,6 +67,23 @@ function AccountList({ queryParams, ...props }: IProps): React.ReactNode {
       variables: variables
     }
   );
+
+  const { data: accountsTotal } = useQuery<IAccountsTotalCountResponse>(
+    gql(accountQuery.accountsTotalCount),
+    {
+      variables: variables
+    }
+  );
+
+  const [accountsRemove] = useMutation(gql(mutation.accountsRemove), {
+    onError: (error) => {
+      Alert.error(error.message);
+    },
+    onCompleted: () => {
+      emptyBulk()
+      Alert.success(`You successfully deleted a accounts`);
+    }
+  });
 
   const search = (e) => {
     if (timer) {
@@ -75,31 +106,45 @@ function AccountList({ queryParams, ...props }: IProps): React.ReactNode {
     </Button>
   );
 
-  const customerForm = (props) => {
-    return <AccountForm {...props} />;
+  const accountForm = (props, mutation) => {
+    return <AccountForm {...props} mutation={mutation} />;
+  };
+
+  const onClickRemove = () => {
+    accountsRemove({
+      variables: {
+        accountIds: bulk.map((a) => a._id)
+      },
+      refetchQueries:['accounts','accountsTotalCount']
+    });
   };
 
   const actionBarRight = (
     <BarItems>
+      {bulk?.length > 0 && (
+        <Button btnStyle="danger" icon="cancel-1" onClick={onClickRemove}>
+          Remove
+        </Button>
+      )}
       <InputBar type="searchBar">
-            <Icon icon="search-1" size={20} />
-            <FlexItem>
-              <FormControl
-                type="text"
-                placeholder={__("Type to search")}
-                onChange={search}
-                value={searchValue}
-                autoFocus={true}
-                onFocus={moveCursorAtTheEnd}
-              />
-            </FlexItem>
-          </InputBar>
+        <Icon icon="search-1" size={20} />
+        <FlexItem>
+          <FormControl
+            type="text"
+            placeholder={__('Type to search')}
+            onChange={search}
+            value={searchValue}
+            autoFocus={true}
+            onFocus={moveCursorAtTheEnd}
+          />
+        </FlexItem>
+      </InputBar>
       <ModalTrigger
         title="New customer"
         autoOpenKey="showCustomerModal"
         trigger={addTrigger}
         size="lg"
-        content={customerForm}
+        content={(p) => accountForm(p, mutation.accountAdd)}
         backDrop="static"
       />
     </BarItems>
@@ -133,6 +178,10 @@ function AccountList({ queryParams, ...props }: IProps): React.ReactNode {
                 { label: 'journal', key: 'journal' }
               ]}
               data={data?.accounts}
+              action={{
+                editForm: (p) => accountForm(p, mutation.accountsEdit)
+              }}
+              check={{ toggleBulk, bulk, toggleAll, emptyBulk, isAllSelected }}
             />
           }
           loading={loading}
@@ -144,9 +193,14 @@ function AccountList({ queryParams, ...props }: IProps): React.ReactNode {
       transparent={true}
       hasBorder={true}
       leftSidebar={<AccountCategoryList queryParams={queryParams} />}
-      footer={<Pagination count={data?.accounts.length} />}
+      footer={<Pagination count={accountsTotal?.accountsTotalCount} />}
     />
   );
+}
+
+function AccountList(props) {
+  const renderList = (bulkProps) => <List {...bulkProps} {...props} />;
+  return <Bulk content={renderList} />;
 }
 
 export default AccountList;

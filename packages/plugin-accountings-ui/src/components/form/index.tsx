@@ -1,6 +1,5 @@
 import { IButtonMutateProps, IQueryParams } from '@erxes/ui/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IFieldsVisibility } from '@erxes/ui-contacts/src/customers/types';
 import React from 'react';
 import GenerateForm, { IField } from './GenerateForm';
 

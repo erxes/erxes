@@ -2,7 +2,6 @@ import React from 'react';
 import CustomForm from '../../components/form';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import mutation from '../graphql/mutation';
 import { accountQuery } from '../graphql/query';
 import { IAccountDocument } from '../../types/IAccount';
 import { IOption } from '@erxes/ui/src/types';
@@ -153,7 +152,7 @@ function AccountForm(props: IProps): React.ReactNode {
           }
         ]
       ]}
-      mutation={mutation.accountAdd}
+      mutation={props.mutation}
       refetchQueries={['accounts']}
     />
   );
