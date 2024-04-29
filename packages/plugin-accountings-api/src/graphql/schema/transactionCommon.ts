@@ -114,4 +114,9 @@ export const mutations = `
 
   transactionLink(trIds: [String])
 
+
+  fundTrAdd(${mainTrParams}): [MainTransaction]
+  fundTrEdit(${mainTrParams}): [MainTransaction]
+  debtTrAdd(${mainTrParams}): [MainTransaction]
+  debtTrEdit(${mainTrParams}): [MainTransaction]
 `;
