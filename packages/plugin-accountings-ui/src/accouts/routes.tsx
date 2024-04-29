@@ -1,4 +1,4 @@
-import { Route, useLocation, Routes, useNavigate } from 'react-router-dom';
+import { Route, useLocation, Routes } from 'react-router-dom';
 import React from 'react';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';

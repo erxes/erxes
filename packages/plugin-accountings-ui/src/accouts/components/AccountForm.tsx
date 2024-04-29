@@ -110,16 +110,14 @@ function AccountForm(props: IProps): React.ReactNode {
             label: 'Branch',
             name: 'branchId',
             type: 'custom',
-            customField: (p) => {
-              return (
-                <SelectBranches
-                  {...p}
-                  multi={false}
-                  showAvatar={false}
-                  onSelect={(value) => p.onChange(value, p.name)}
-                />
-              );
-            }
+            customField: (p) => (
+              <SelectBranches
+                {...p}
+                multi={false}
+                showAvatar={false}
+                onSelect={(value) => p.onChange(value, p.name)}
+              />
+            )
           },
           {
             label: 'Status',
@@ -137,14 +135,12 @@ function AccountForm(props: IProps): React.ReactNode {
             label: 'Department',
             name: 'departmentId',
             type: 'custom',
-            customField: (p) => {
-              return (
-                <SelectDepartments
-                  {...p}
-                  onSelect={(value) => p.onChange(value, p.name)}
-                />
-              );
-            }
+            customField: (p) => (
+              <SelectDepartments
+                {...p}
+                onSelect={(value) => p.onChange(value, p.name)}
+              />
+            )
           },
           {
             label: 'isOutBalance',

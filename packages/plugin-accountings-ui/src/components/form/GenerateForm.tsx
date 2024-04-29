@@ -31,7 +31,7 @@ export interface IField {
     generateOptions: Function;
     customQuery: string;
   };
-  customField?:any
+  customField?: any;
 }
 
 interface IProps {
@@ -48,12 +48,13 @@ function renderFormFields(
   formProps
 ) {
   if (Array.isArray(fields[0]))
-    return fields.map((columns) => {
+    return fields.map((columns,index) => {
       return (
-        <FormColumn>
+        <FormColumn key={`column${index}`}>
           {columns.map((row) => {
             return (
               <FieldsGenerate
+                key={row.name}
                 formProps={formProps}
                 value={values[row.name]}
                 onChange={onChange}
@@ -70,6 +71,7 @@ function renderFormFields(
         {fields.map((row) => {
           return (
             <FieldsGenerate
+              key={row.name}
               formProps={formProps}
               value={values[row.name]}
               onChange={onChange}
@@ -88,9 +90,9 @@ function GenerateForm({
   defaultValue
 }: IProps) {
   const [formValue, setFormValue] = useState<object>(defaultValue || {});
-  const values = useMemo(()=>{
-    return {id:defaultValue?._id,...formValue}
-  },[formValue])
+  const values = useMemo(() => {
+    return { id: defaultValue?._id, ...formValue };
+  }, [formValue]);
   const renderContent = (formProps: IFormProps): React.ReactNode => {
     const { isSubmitted, resetSubmit } = formProps;
 
@@ -99,8 +101,6 @@ function GenerateForm({
         return { ...v, [key]: value };
       });
     };
-
-  
 
     return (
       <>

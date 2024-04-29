@@ -1,4 +1,4 @@
-import { __ } from '@erxes/ui/src/utils';
+import { __, router } from '@erxes/ui/src/utils';
 import Table from '@erxes/ui/src/components/table';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import React from 'react';
@@ -8,7 +8,6 @@ import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Tip from '@erxes/ui/src/components/Tip';
 import Icon from '@erxes/ui/src/components/Icon';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { router } from '@erxes/ui/src/utils';
 import { useNavigate } from 'react-router-dom';
 
 type Column = {
@@ -76,8 +75,8 @@ function renderRow(
         </td>
       )}
       {columns.map((row) => {
-        if (row.render) return <td>{row.render(data[row.key], data)}</td>;
-        return <td>{data[row.key]}</td>;
+        if (row.render) return <td key={`${row.key}${data._id}`}>{row.render(data[row.key], data)}</td>;
+        return <td key={`${row.key}${data._id}`}>{data[row.key]}</td>;
       })}
       {action && (
         <td>
@@ -124,15 +123,17 @@ function CustomTable({
     <Table $hover>
       <thead>
         <tr>
-          {check && <td onClick={onClick}>
-            <FormControl
-              checked={check?.isAllSelected}
-              componentclass="checkbox"
-              onChange={onChange}
-            />
-          </td>}
+          {check && (
+            <td onClick={onClick}>
+              <FormControl
+                checked={check?.isAllSelected}
+                componentclass="checkbox"
+                onChange={onChange}
+              />
+            </td>
+          )}
           {columns.map((row) => (
-            <th>{row.label}</th>
+            <th key={`${row.key}`}>{row.label}</th>
           ))}
           {action && <th>ACTIONS</th>}
         </tr>

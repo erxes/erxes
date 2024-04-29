@@ -1,12 +1,6 @@
 import React from 'react';
 import AccountRoutes from './accouts/routes';
 
-
-const routes = () => (
-  <React.Fragment>
-    <AccountRoutes/>
-  </React.Fragment>
-);
+const routes = () => <AccountRoutes />;
 
 export default routes;
-

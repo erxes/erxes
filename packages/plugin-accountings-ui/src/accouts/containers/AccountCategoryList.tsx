@@ -12,7 +12,6 @@ import React from 'react';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
 import Tip from '@erxes/ui/src/components/Tip';
-import { pluginsOfProductCategoryActions } from 'coreui/pluginUtils';
 import { IAccountCategoryResponse, accountQuery } from '../graphql/query';
 import AccountCategoryForm from '../components/AccountCategoryForm';
 import { IAccountCategoryDocument } from '../../types/IAccountCategory';
@@ -111,7 +110,6 @@ const AccountCategoryList: React.FC<IProps> = (props) => {
         items={data?.accountCategories || []}
         editAction={renderEditAction}
         removeAction={renderRemoveAction}
-        additionalActions={pluginsOfProductCategoryActions}
         loading={loading}
         onClick={onClick}
         queryParams={queryParams}

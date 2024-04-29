@@ -1,6 +1,5 @@
 import React from 'react';
 import CustomForm from '../../components/form';
-import mutation from '../graphql/mutation';
 import { accountQuery } from '../graphql/query';
 import { IAccountCategoryDocument } from '../../types/IAccountCategory';
 import { IOption } from '@erxes/ui/src/types';

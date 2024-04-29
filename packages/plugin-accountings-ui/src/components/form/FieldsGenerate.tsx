@@ -1,4 +1,3 @@
-import { __ } from '@erxes/ui/src/utils';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
@@ -40,19 +39,18 @@ interface IProps {
     | 'selectWithSearch';
   onChange: Function;
   value: any;
-  validate: Function;
-  controlProps: any;
-  required: boolean;
+  validate?: Function;
+  controlProps?: any;
+  required?: boolean;
   selectProps?: ISelectProps;
   customField?: (props: IProps) => any;
-  formProps: any;
+  formProps?: any;
 }
 
 function FieldsGenerate(props: IProps) {
   const {
     type,
     onChange,
-    validate,
     value,
     label,
     controlProps,
