@@ -114,6 +114,7 @@ function AccountForm(props: IProps): React.ReactNode {
               return (
                 <SelectBranches
                   {...p}
+                  multi={false}
                   showAvatar={false}
                   onSelect={(value) => p.onChange(value, p.name)}
                 />
@@ -131,7 +132,7 @@ function AccountForm(props: IProps): React.ReactNode {
               ]
             }
           },
-          
+
           {
             label: 'Department',
             name: 'departmentId',
@@ -153,7 +154,7 @@ function AccountForm(props: IProps): React.ReactNode {
         ]
       ]}
       mutation={props.mutation}
-      refetchQueries={['accounts']}
+      refetchQueries={['accounts', 'accountsTotalCount']}
     />
   );
 }

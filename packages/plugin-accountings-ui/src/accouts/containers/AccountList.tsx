@@ -80,7 +80,7 @@ function List({ queryParams, ...props }: IProps): React.ReactNode {
       Alert.error(error.message);
     },
     onCompleted: () => {
-      emptyBulk()
+      emptyBulk();
       Alert.success(`You successfully deleted a accounts`);
     }
   });
@@ -115,7 +115,7 @@ function List({ queryParams, ...props }: IProps): React.ReactNode {
       variables: {
         accountIds: bulk.map((a) => a._id)
       },
-      refetchQueries:['accounts','accountsTotalCount']
+      refetchQueries: ['accounts', 'accountsTotalCount']
     });
   };
 

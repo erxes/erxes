@@ -31,10 +31,11 @@ export interface IField {
     generateOptions: Function;
     customQuery: string;
   };
+  customField?:any
 }
 
 interface IProps {
-  defaultValue: any;
+  defaultValue?: any;
   fields: IField[] | IField[][];
   renderButton: (props) => JSX.Element;
   closeModal: () => void;
