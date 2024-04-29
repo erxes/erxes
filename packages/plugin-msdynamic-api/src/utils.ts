@@ -886,37 +886,55 @@ const getPriceForList = (prods) => {
 };
 
 export const getPrice = async (resProds, pricePriority) => {
-  const sorts = pricePriority.split(',').filter((s) => s);
+  try {
+    const sorts = pricePriority
+      .replace(', ', ',')
+      .split(',')
+      .filter((s) => s);
 
-  const currentDate = new Date();
+    const currentDate = new Date();
 
-  const activeProds = resProds.filter((p) => {
-    if (
-      p.Starting_Date &&
-      p.Starting_Date !== '0001-01-01' &&
-      new Date(p.Starting_Date) > currentDate
-    ) {
-      return false;
+    const activeProds = resProds.filter((p) => {
+      if (
+        p.Starting_Date &&
+        p.Starting_Date !== '0001-01-01' &&
+        new Date(p.Starting_Date) > currentDate
+      ) {
+        return false;
+      }
+
+      if (
+        p.Ending_Date &&
+        p.Ending_Date !== '0001-01-01' &&
+        new Date(p.Ending_Date) < currentDate
+      ) {
+        return false;
+      }
+
+      return true;
+    });
+
+    if (!activeProds.length) {
+      return { resPrice: 0, resProd: {} };
     }
 
-    if (
-      p.Ending_Date &&
-      p.Ending_Date !== '0001-01-01' &&
-      new Date(p.Ending_Date) < currentDate
-    ) {
-      return false;
+    for (const sortStr of sorts) {
+      const onlineProds = activeProds.filter((a) => a.Sales_Code === sortStr);
+
+      if (onlineProds.length) {
+        return getPriceForList(onlineProds);
+      }
     }
 
-    return true;
-  });
+    const otherFilter = resProds.filter((p) => !sorts.includes(p.Sales_Code));
 
-  for (const sortStr of sorts) {
-    const onlineProds = activeProds.filter((a) => a.Sales_Code === sortStr);
-
-    if (onlineProds.length) {
-      return getPriceForList(onlineProds);
+    if (!otherFilter.length) {
+      return { resPrice: 0, resProd: {} };
     }
+
+    return getPriceForList(otherFilter);
+  } catch (e) {
+    console.log(e, 'error');
+    return { resPrice: 0, resProd: {} };
   }
-
-  return getPriceForList(resProds.filter((p) => !sorts.includes(p.Sales_Code)));
 };

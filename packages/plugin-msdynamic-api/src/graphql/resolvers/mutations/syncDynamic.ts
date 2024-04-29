@@ -69,6 +69,7 @@ const msdynamicSyncMutations = {
 
     const updatePrices: any[] = [];
     const createPrices: any[] = [];
+    const error: any[] = [];
     const deletePrices: any[] = [];
     const matchPrices: any[] = [];
 
@@ -107,7 +108,10 @@ const msdynamicSyncMutations = {
         isRPC: true,
       });
 
-      const salesCodeFilter = pricePriority.split(',').filter((p) => p);
+      const salesCodeFilter = pricePriority
+        .replace(', ', ',')
+        .split(',')
+        .filter((p) => p);
 
       let filterSection = '';
 
@@ -158,6 +162,10 @@ const msdynamicSyncMutations = {
 
         const { resPrice, resProd } = await getPrice(resProds, pricePriority);
 
+        if (!resProd || !resProd.Item_No) {
+          error.push(resProds[0]);
+        }
+
         const updateCode = resProd.Item_No.replace(/\s/g, '');
         const foundProduct = productsByCode[updateCode];
         if (foundProduct) {
@@ -187,6 +195,10 @@ const msdynamicSyncMutations = {
       create: {
         count: createPrices.length,
         items: createPrices,
+      },
+      error: {
+        count: error.length,
+        items: error,
       },
       match: {
         count: matchPrices.length,
