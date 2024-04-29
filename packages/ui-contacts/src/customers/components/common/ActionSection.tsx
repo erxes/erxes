@@ -28,7 +28,6 @@ type Props = {
   search: (value: string, callback: (objects: any[]) => void) => void;
   changeState?: (value: string) => void;
   isSmall?: boolean;
-  inInbox?: boolean;
 };
 
 class ActionSection extends React.Component<
@@ -80,18 +79,16 @@ class ActionSection extends React.Component<
           }
           content={smsForm}
         />
-        {!this.props.inInbox && (
+        <Tip text="Call" placement="top-end">
           <Button
             href={primaryPhone && `tel:${primaryPhone}`}
             size="small"
             btnStyle={primaryPhone ? "primary" : "simple"}
             disabled={primaryPhone ? false : true}
           >
-            <Tip text="Call" placement="top-end">
-              <Icon icon="phone" />
-            </Tip>
+            <Icon icon="phone" />
           </Button>
-        )}
+        </Tip>
       </>
     );
   }

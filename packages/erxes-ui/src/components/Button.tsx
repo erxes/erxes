@@ -110,7 +110,8 @@ const ButtonStyled = styledTS<{
 
   & + button,
   + a,
-  + span {
+  + span,
+  + div {
     margin-left: 10px;
   }
 
@@ -122,7 +123,7 @@ const ButtonStyled = styledTS<{
 `;
 
 const ButtonLink = styledTS<{ $disabled?: boolean }>(
-  styled(styled.a(ButtonStyled))
+  styled(ButtonStyled).attrs({ as: 'a' })
 )`
   text-decoration: inherit;
   text-align: center;
