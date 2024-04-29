@@ -52,9 +52,6 @@ const callsQueries = {
   async callsGetConfigs(_root, _args, { models }: IContext) {
     return models.Configs.find({}).lean();
   },
-  async callRecordUrl(_root, args, { models, subdomain }: IContext) {
-    return await getRecordUrl(args, subdomain, '2024-04-22');
-  },
 };
 
 export default callsQueries;

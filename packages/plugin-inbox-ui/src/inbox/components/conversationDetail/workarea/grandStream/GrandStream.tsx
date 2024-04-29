@@ -11,21 +11,21 @@ import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
 import dayjs from 'dayjs';
+import { readFile } from '@erxes/ui/src/utils/core';
 
 type Props = {
   conversation: IConversation;
 };
 
 const GrandStream: React.FC<Props> = ({ conversation }) => {
-  const { callDuration, callStatus, callType, createdAt } =
+  const { callDuration, callStatus, callType, createdAt, recordUrl } =
     conversation.callHistory || ({} as ICallHistory);
-
   const renderAudio = () => {
     return (
       <Audio>
         <span>Recorder</span>
         <audio controls={true}>
-          <source src={conversation.callProAudio} type="audio/ogg" />
+          <source src={readFile(recordUrl)} type="audio/wav" />
         </audio>
       </Audio>
     );
@@ -74,8 +74,7 @@ const GrandStream: React.FC<Props> = ({ conversation }) => {
               <span>Call duration: {callDuration}s</span>
             </div>
           </StatusContent>
-          {conversation.callProAudio ||
-            (callStatus === 'connected' && renderAudio())}
+          {recordUrl && renderAudio()}
         </CallWrapper>
         <Tip text={dayjs(createdAt).format('lll')}>
           <footer>{dayjs(createdAt).format('LT')}</footer>

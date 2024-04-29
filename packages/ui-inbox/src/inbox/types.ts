@@ -24,6 +24,7 @@ export interface ICallHistory {
   createdAt: Date;
   createdBy: string;
   updatedBy: string;
+  recordUrl: string;
 }
 
 export interface IConversation {
