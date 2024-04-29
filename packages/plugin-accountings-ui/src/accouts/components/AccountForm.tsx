@@ -23,6 +23,19 @@ interface IProps {
   successMessage: string;
 }
 
+const customFieldDeportment = (p) => (
+  <SelectDepartments {...p} onSelect={(value) => p.onChange(value, p.name)} />
+);
+
+const customFieldBranch = (p) => (
+  <SelectBranches
+    {...p}
+    multi={false}
+    showAvatar={false}
+    onSelect={(value) => p.onChange(value, p.name)}
+  />
+);
+
 function AccountForm(props: IProps): React.ReactNode {
   return (
     <CustomForm
@@ -110,14 +123,7 @@ function AccountForm(props: IProps): React.ReactNode {
             label: 'Branch',
             name: 'branchId',
             type: 'custom',
-            customField: (p) => (
-              <SelectBranches
-                {...p}
-                multi={false}
-                showAvatar={false}
-                onSelect={(value) => p.onChange(value, p.name)}
-              />
-            )
+            customField: customFieldBranch
           },
           {
             label: 'Status',
@@ -135,12 +141,7 @@ function AccountForm(props: IProps): React.ReactNode {
             label: 'Department',
             name: 'departmentId',
             type: 'custom',
-            customField: (p) => (
-              <SelectDepartments
-                {...p}
-                onSelect={(value) => p.onChange(value, p.name)}
-              />
-            )
+            customField: customFieldDeportment
           },
           {
             label: 'isOutBalance',

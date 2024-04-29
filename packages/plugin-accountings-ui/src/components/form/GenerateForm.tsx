@@ -10,6 +10,24 @@ import Button from '@erxes/ui/src/components/Button';
 import FieldsGenerate from './FieldsGenerate';
 import { IFormProps } from '@erxes/ui/src/types';
 
+const renderColumn = (fields, values, onChange, formProps) => {
+  return (
+    <FormColumn>
+      {fields.map((row) => {
+        return (
+          <FieldsGenerate
+            key={row.name}
+            formProps={formProps}
+            value={values[row.name]}
+            onChange={onChange}
+            {...row}
+          />
+        );
+      })}
+    </FormColumn>
+  );
+};
+
 export interface IField {
   label: string;
   name: string;
@@ -47,40 +65,13 @@ function renderFormFields(
   onChange,
   formProps
 ) {
-  if (Array.isArray(fields[0]))
-    return fields.map((columns,index) => {
-      return (
-        <FormColumn key={`column${index}`}>
-          {columns.map((row) => {
-            return (
-              <FieldsGenerate
-                key={row.name}
-                formProps={formProps}
-                value={values[row.name]}
-                onChange={onChange}
-                {...row}
-              />
-            );
-          })}
-        </FormColumn>
-      );
+  if (Array.isArray(fields[0])) {
+    return fields.map((columns) => {
+      return renderColumn(columns, values, onChange, formProps);
     });
-  else
-    return (
-      <FormColumn>
-        {fields.map((row) => {
-          return (
-            <FieldsGenerate
-              key={row.name}
-              formProps={formProps}
-              value={values[row.name]}
-              onChange={onChange}
-              {...row}
-            />
-          );
-        })}
-      </FormColumn>
-    );
+  } else {
+    return renderColumn(fields, values, onChange, formProps);
+  }
 }
 
 function GenerateForm({

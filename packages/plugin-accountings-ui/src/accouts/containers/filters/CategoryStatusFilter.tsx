@@ -56,10 +56,7 @@ const CategoryStatusFilter: React.FC<Props> = () => {
       >
         <SidebarList>
           {categoryStatusChoises(__).map(
-            (
-              { value, label }: { value: string; label: string },
-              index: number
-            ) =>
+            ({ value, label }, index: number) =>
               value === 'deleted' && (
                 <li key={`${value}${index}`}>
                   <a
