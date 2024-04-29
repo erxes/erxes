@@ -44,8 +44,8 @@ class Sidebar extends React.Component {
       <LeftSidebar full={true} header={this.renderSidebarHeader()}>
         <List id="SettingsSidebar">
           {this.renderListItem(
-            '/erxes-plugin-saving/holiday-settings',
-            __('Holiday configs')
+            '/erxes-plugin-saving/saving-settings',
+            __('Main configs')
           )}
         </List>
       </LeftSidebar>
