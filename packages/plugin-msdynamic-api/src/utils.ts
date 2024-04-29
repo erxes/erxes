@@ -460,10 +460,6 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
     isRPC: true,
   });
 
-  if (brand) {
-    throw new Error('MS Dynamic brand not found');
-  }
-
   const config = configs[brand._id || 'noBrand'];
 
   const customer = params;

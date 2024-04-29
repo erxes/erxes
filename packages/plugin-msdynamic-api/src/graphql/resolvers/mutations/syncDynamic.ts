@@ -106,41 +106,38 @@ const msdynamicSyncMutations = {
         isRPC: true,
       });
 
-      const productCodes = (products || []).map((p) => p.code) || [];
-
-      const response = await fetch(priceApi, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          Accept: 'application/json',
-          Authorization: `Basic ${Buffer.from(
-            `${username}:${password}`
-          ).toString('base64')}`,
-        },
-      }).then((res) => res.json());
+      const response = await fetch(
+        `${priceApi}?$filter=Sales_Code eq 'ONLINE' or Sales_Code eq ''`,
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Accept: 'application/json',
+            Authorization: `Basic ${Buffer.from(
+              `${username}:${password}`
+            ).toString('base64')}`,
+          },
+        }
+      ).then((res) => res.json());
 
       const groupedItems = {};
+      const currentDate = new Date('2023-05-18').getTime();
 
       if (response && response.value.length > 0) {
         for (const item of response.value) {
-          const { Item_No, Unit_Price } = item;
+          const { Item_No } = item;
 
           if (!groupedItems[Item_No]) {
-            groupedItems[Item_No] = item;
+            groupedItems[Item_No] = [];
           }
 
-          if ((groupedItems[Item_No]['Unit_Price'] || 0) > (Unit_Price || 0)) {
-            groupedItems[Item_No] = item;
-          }
+          groupedItems[Item_No].push({ ...item });
         }
       }
 
-      const productsByCode = {}
       // delete price
       for (const product of products) {
         if (!groupedItems[product.code]) {
           deletePrices.push(product);
-        } else {
-          productsByCode[product.code] = product
         }
       }
 
@@ -149,25 +146,48 @@ const msdynamicSyncMutations = {
         if (groupedItems.hasOwnProperty(key)) {
           const resProd = groupedItems[key];
 
-          const updateCode = resProd.Item_No.replace(/\s/g, '');
-          const product = productsByCode[updateCode]
+          for (const prod of resProd) {
+            const { Item_No, Unit_Price, Ending_Date, Starting_Date } =
+              prod as any;
 
-          if (product) {
-            if (product.unitPrice === resProd?.Unit_Price) {
-              matchPrices.push(resProd);
-              continue
+            const startDate = new Date(Starting_Date).getTime();
+            const endDate = new Date(Ending_Date).getTime();
+
+            if (startDate <= currentDate && currentDate <= endDate) {
+              let minPrice = 0;
+
+              const updateCode = Item_No.replace(/\s/g, '');
+
+              if (minPrice === 0) {
+                minPrice = Unit_Price;
+              }
+
+              if (Unit_Price < minPrice) {
+                minPrice = Unit_Price;
+              }
+
+              const foundProduct = products.find(
+                (product) => product.code === updateCode
+              );
+
+              if (foundProduct) {
+                if (foundProduct.unitPrice === minPrice) {
+                  matchPrices.push(prod);
+                }
+                await sendProductsMessage({
+                  subdomain,
+                  action: 'updateProduct',
+                  data: {
+                    _id: foundProduct._id,
+                    doc: { unitPrice: minPrice || 0 },
+                  },
+                  isRPC: true,
+                });
+                updatePrices.push(prod);
+              } else {
+                createPrices.push(prod);
+              }
             }
-
-            await sendProductsMessage({
-              subdomain,
-              action: 'updateProduct',
-              data: { _id: product._id, doc: { unitPrice: resProd?.Unit_Price || 0 } },
-              isRPC: true,
-            });
-            updatePrices.push(resProd);
-
-          } else {
-            createPrices.push(resProd);
           }
         }
       }
