@@ -162,7 +162,7 @@ const msdynamicSyncMutations = {
 
         const { resPrice, resProd } = await getPrice(resProds, pricePriority);
 
-        if (!resProd || !resProd.Item_No) {
+        if (!resProd.Item_No) {
           error.push(resProds[0]);
         }
 
