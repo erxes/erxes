@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.8.3](https://github.com/erxes/erxes/compare/1.8.2...1.8.3) (2024-04-29)
+
+
+### Bug Fixes
+
+* **automations:** generateElkId of idtoCheck in isInSegment ([eb9e023](https://github.com/erxes/erxes/commit/eb9e02339ee7f2f08e7cefcce92cef02ae617fe8))
+* **payment:** update query inside storepayCallbackHandler ([eaaf73a](https://github.com/erxes/erxes/commit/eaaf73a583936f4e86a741aa59e85ab67f4c4168))
+* **segments:** add await generateElkIds in  associationPropertyFilter ([1b8ac09](https://github.com/erxes/erxes/commit/1b8ac0939b623cad9ba3677172d9dba620b41869))
+
 ## [1.8.2](https://github.com/erxes/erxes/compare/1.8.1...1.8.2) (2024-04-25)
 
 
