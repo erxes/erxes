@@ -11,6 +11,7 @@ import {
   consumeInventory,
   dealToDynamic,
   getConfig,
+  getPrice,
 } from '../../../utils';
 
 const msdynamicSyncMutations = {
@@ -75,7 +76,12 @@ const msdynamicSyncMutations = {
       throw new Error('MS Dynamic config not found.');
     }
 
-    const { priceApi, username, password } = config;
+    const {
+      priceApi,
+      username,
+      password,
+      pricePriority = 'ONLINE, ECOMMERCE',
+    } = config;
 
     const productQry: any = { status: { $ne: 'deleted' } };
 
@@ -106,8 +112,16 @@ const msdynamicSyncMutations = {
         isRPC: true,
       });
 
+      const salesCodeFilter = pricePriority.split(',').filter((p) => p);
+
+      let filterSection = '';
+
+      for (const price of salesCodeFilter) {
+        filterSection += `Sales_Code eq '${price}' or `;
+      }
+
       const response = await fetch(
-        `${priceApi}?$filter=Sales_Code eq 'ONLINE' or Sales_Code eq ''`,
+        `${priceApi}?$filter=${filterSection} Sales_Code eq ''`,
         {
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -120,7 +134,6 @@ const msdynamicSyncMutations = {
       ).then((res) => res.json());
 
       const groupedItems = {};
-      const currentDate = new Date('2023-05-18').getTime();
 
       if (response && response.value.length > 0) {
         for (const item of response.value) {
@@ -146,52 +159,29 @@ const msdynamicSyncMutations = {
 
       // update price
       for (const key in groupedItems) {
-        if (groupedItems.hasOwnProperty(key)) {
-          const resProd = groupedItems[key];
+        const resProds = groupedItems[key];
 
-          for (const prod of resProd) {
-            const { Item_No, Unit_Price, Ending_Date, Starting_Date } =
-              prod as any;
+        const { resPrice, resProd } = await getPrice(resProds, pricePriority);
 
-            const startDate = new Date(Starting_Date).getTime();
-            const endDate = new Date(Ending_Date).getTime();
-
-            if (startDate <= currentDate && currentDate <= endDate) {
-              let minPrice = 0;
-
-              const updateCode = Item_No.replace(/\s/g, '');
-
-              if (minPrice === 0) {
-                minPrice = Unit_Price;
-              }
-
-              if (Unit_Price < minPrice) {
-                minPrice = Unit_Price;
-              }
-
-              const foundProduct = products.find(
-                (product) => product.code === updateCode
-              );
-
-              if (foundProduct) {
-                if (foundProduct.unitPrice === minPrice) {
-                  matchPrices.push(prod);
-                }
-                await sendProductsMessage({
-                  subdomain,
-                  action: 'updateProduct',
-                  data: {
-                    _id: foundProduct._id,
-                    doc: { unitPrice: minPrice || 0 },
-                  },
-                  isRPC: true,
-                });
-                updatePrices.push(prod);
-              } else {
-                createPrices.push(prod);
-              }
-            }
+        const updateCode = resProd.Item_No.replace(/\s/g, '');
+        const foundProduct = productsByCode[updateCode];
+        if (foundProduct) {
+          if (foundProduct.unitPrice === resPrice) {
+            matchPrices.push(resProd);
+          } else {
+            await sendProductsMessage({
+              subdomain,
+              action: 'updateProduct',
+              data: {
+                _id: foundProduct._id,
+                doc: { unitPrice: resPrice || 0 },
+              },
+              isRPC: true,
+            });
+            updatePrices.push(resProd);
           }
+        } else {
+          createPrices.push(resProd);
         }
       }
     } catch (e) {
