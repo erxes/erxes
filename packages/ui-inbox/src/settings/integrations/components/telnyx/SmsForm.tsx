@@ -142,6 +142,7 @@ class SmsForm extends React.Component<Props, State> {
             )}
             onChange={onChangeFrom}
             options={this.fromSelectOptions()}
+            isClearable={true}
             components={{ Option }}
           />
         </FormGroup>

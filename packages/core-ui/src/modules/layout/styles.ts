@@ -498,7 +498,7 @@ const DropNav = styled.a`
     background: #fff;
     padding: 0;
     list-style: none;
-    transform: translate(-235px, 0px);
+    transform: translate(-215px, 0px);
     box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.15);
   }
 

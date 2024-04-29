@@ -107,6 +107,7 @@ function ConfigList(props: Props) {
               onChange={onTypeSelect}
               placeholder="Select type"
               isMulti={false}
+              isClearable={true}
               options={options}
             />
           </Row>

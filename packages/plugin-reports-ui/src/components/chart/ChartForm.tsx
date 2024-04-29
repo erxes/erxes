@@ -186,6 +186,7 @@ const ChartForm = (props: Props) => {
     <Select
       options={dimensions}
       value={dimensions.find((o) => o.value === dimension?.x)}
+      isClearable={true}
       onChange={(sel) => setDimension({ x: sel.value })}
     />
   );
@@ -246,6 +247,7 @@ const ChartForm = (props: Props) => {
                   options={serviceOptions}
                   value={serviceOptions.find((o) => o.value === serviceName)}
                   onChange={onServiceNameChange}
+                  isClearable={true}
                   placeholder={__(`Choose service`)}
                 />
               </FormGroup>
@@ -263,6 +265,7 @@ const ChartForm = (props: Props) => {
                         (o) => o.value === templateType
                       )}
                       onChange={onChartTemplateChange}
+                      isClearable={true}
                       placeholder={__(`Choose template`)}
                     />
                   </FormGroup>
@@ -277,6 +280,7 @@ const ChartForm = (props: Props) => {
                         (o) => o.value === chartType
                       )}
                       onChange={onChartTypeChange}
+                      isClearable={true}
                       placeholder={__(`Choose type`)}
                     />
                   </FormGroup>

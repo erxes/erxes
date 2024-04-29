@@ -61,6 +61,7 @@ const PermissionList = (props: Props) => {
               (o) => o.value === queryParams.categoryId
             )}
             options={generateModuleParams(categoryList || [])}
+            isClearable={true}
             onChange={setFilter.bind(this, "categoryId")}
           />
         </FilterItem>
@@ -72,6 +73,7 @@ const PermissionList = (props: Props) => {
               (o) => o.value === queryParams.permission
             )}
             options={generateModuleParams(PERMISSIONS)}
+            isClearable={true}
             onChange={setFilter.bind(this, "permission")}
           />
         </FilterItem>

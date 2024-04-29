@@ -353,6 +353,7 @@ class UserInvitationForm extends React.Component<Props, State> {
 
                 <td>
                   <Select
+                    isClearable={true}
                     value={unitOptions.find(
                       (o) => o.value === entries[i].unitId
                     )}
@@ -364,6 +365,7 @@ class UserInvitationForm extends React.Component<Props, State> {
 
                 <td>
                   <Select
+                    isClearable={true}
                     value={departmentOptions.find(
                       (o) => o.value === entries[i].departmentId
                     )}
@@ -375,6 +377,7 @@ class UserInvitationForm extends React.Component<Props, State> {
 
                 <td>
                   <Select
+                    isClearable={true}
                     value={branchOptions.find(
                       (o) => o.value === entries[i].branchId
                     )}

@@ -89,6 +89,7 @@ function Sidebar({
           onChange={onChangeTag}
           isLoading={props.loading}
           options={operationList}
+          isClearable={true}
           isMulti={false}
         />
         <div style={{ marginTop: 10 }} />

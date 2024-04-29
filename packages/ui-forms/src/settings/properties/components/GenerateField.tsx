@@ -16,6 +16,7 @@ import {
   __,
   isEnabled,
 } from "@erxes/ui/src/utils/core";
+import Select, { OnChangeValue } from "react-select";
 
 import Datetime from "@nateradebaugh/react-datetime";
 import ErrorBoundary from "@erxes/ui/src/components/ErrorBoundary";
@@ -25,7 +26,6 @@ import Map from "@erxes/ui/src/containers/map/Map";
 import ModifiableList from "@erxes/ui/src/components/ModifiableList";
 import ObjectList from "./ObjectList";
 import React from "react";
-import Select, { OnChangeValue } from "react-select";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
@@ -164,7 +164,7 @@ export default class GenerateField extends React.Component<Props, State> {
       this.setState({ value, checkBoxValues });
     }
 
-attrs.type = "text";
+    attrs.type = "text";
     const errorObject: any = {};
 
     // attrs.errors =
@@ -638,11 +638,11 @@ attrs.type = "text";
       value = checkBoxValues;
     }
 
-    if (validation === 'regex' && regexValidation?.length) {
+    if (validation === "regex" && regexValidation?.length) {
       const regex = new RegExp(regexValidation);
 
       if (!regex.test(value)) {
-        this.setState({ errorMessage: 'Invalid value' });
+        this.setState({ errorMessage: "Invalid value" });
         return;
       }
 

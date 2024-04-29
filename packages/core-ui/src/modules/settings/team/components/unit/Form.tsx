@@ -110,6 +110,7 @@ export default function DepartmentForm(props: Props) {
         <FormGroup>
           <ControlLabel>{__("Department")}</ControlLabel>
           <Select
+            isClearable={true}
             placeholder={__("Choose department")}
             value={generateUserOptions(departments).find(
               (o) => o.value === departmentId

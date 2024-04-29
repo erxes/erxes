@@ -169,6 +169,7 @@ class PaymentForm extends React.Component<Props, State> {
             )}
             onChange={currencyOnChange}
             components={{ Option }}
+            isClearable={true}
             options={selectOptions}
           />
         </ContentColumn>

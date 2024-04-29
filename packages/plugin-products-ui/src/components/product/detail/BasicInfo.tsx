@@ -126,6 +126,7 @@ const BasicInfo: React.FC<Props> = (props) => {
               <Icon icon="angle-down" />
             </Button>
           }
+          unmount={false}
         >
           {renderEdit()}
           <li>

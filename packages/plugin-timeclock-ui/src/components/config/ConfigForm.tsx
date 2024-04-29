@@ -25,7 +25,7 @@ import DateControl from "@erxes/ui/src/components/form/DateControl";
 import DateTimePicker from "../datepicker/DateTimePicker";
 import Form from "@erxes/ui/src/components/form/Form";
 import FormControl from "@erxes/ui/src/components/form/Control";
-import Select from "react-select-plus";
+import Select from "react-select";
 import { __ } from "@erxes/ui/src/utils";
 import { compareStartAndEndTime } from "../../utils";
 import dayjs from "dayjs";
@@ -445,7 +445,8 @@ function ConfigForm(props: Props) {
             value={requestOptions.find((o) => o.value === requestType)}
             onChange={toggleRequestType}
             placeholder="Select type"
-            multi={false}
+            isMulti={false}
+            isClearable={true}
             options={["shift request", "paid absence", "unpaid absence"].map(
               (ipt) => ({
                 value: ipt,
@@ -460,7 +461,7 @@ function ConfigForm(props: Props) {
             value={periosOptions.find((o) => o.value === requestTime)}
             onChange={toggleRequestTime}
             placeholder="Select type"
-            multi={false}
+            isMulti={false}
             options={["by day", "by hour"].map((ipt) => ({
               value: ipt,
               label: __(ipt),

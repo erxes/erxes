@@ -170,6 +170,7 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
                   (o) => o.value === logic.logic
                 )}
                 options={generateOptions(logic._id, logicOptions)}
+                isClearable={true}
                 onChange={({ value }) =>
                   onChangeLogic(logic._id, value, "logic")
                 }

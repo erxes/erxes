@@ -116,7 +116,8 @@ const PopoverList = styledTS<{ $selectable?: boolean; $isIndented?: boolean }>(
 const PopoverBody = styled.div`
   ${PopoverList} {
     max-height: 275px;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 
   ul {

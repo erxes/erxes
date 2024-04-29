@@ -34,6 +34,7 @@ function SelectProductCategory(props: Props) {
       options={options}
       onChange={onChange}
       value={options.find((o) => o.value === value)}
+      isClearable={true}
       placeholder={placeholder}
     />
   );

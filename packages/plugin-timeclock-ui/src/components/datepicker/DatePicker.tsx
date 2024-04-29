@@ -129,6 +129,7 @@ const DatePicker = (props: Props) => {
           value={scheduleConfigOptions.find(
             (o) => o.value === selectedScheduleConfigId
           )}
+          isClearable={true}
           isMulti={false}
           // components={{ _Option: CustomOption }}
         />

@@ -1,5 +1,6 @@
-import PropertyProvider, {
+import {
   PropertyConsumer,
+  PropertyProvider,
 } from "@erxes/ui-contacts/src/customers/propertyContext";
 import { gql, useQuery } from "@apollo/client";
 
@@ -9,7 +10,6 @@ import EmptyState from "@erxes/ui/src/components/EmptyState";
 import React from "react";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import { queries } from "@erxes/ui-contacts/src/customers/graphql";
-import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   id: string;

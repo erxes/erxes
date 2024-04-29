@@ -2,10 +2,10 @@ import {
   checkPermission,
   requireLogin,
 } from '@erxes/api-utils/src/permissions';
-import { afterQueryWrapper, paginate } from '@erxes/api-utils/src';
+import { paginate } from '@erxes/api-utils/src';
+
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { IContext, IModels } from '../../../connectionResolver';
-import { ACCOUNT_STATUSES } from '../../../models/definitions/constants';
 
 interface IQueryParams {
   ids?: string[];
@@ -18,10 +18,14 @@ interface IQueryParams {
   perPage?: number;
   sortField?: string;
   sortDirection?: number;
+  isOutBalance?: boolean,
+  branchId: string;
+  departmentId: string;
+  currency: string;
+  journal: string;
 }
 
 const generateFilter = async (
-  subdomain,
   models,
   commonQuerySelector,
   params,
@@ -30,8 +34,12 @@ const generateFilter = async (
     type,
     categoryId,
     searchValue,
-    vendorId,
     brand,
+    isOutBalance,
+    branchId,
+    departmentId,
+    currency,
+    journal,
     ids,
     excludeIds,
   } = params;
@@ -89,12 +97,28 @@ const generateFilter = async (
     ];
   }
 
-  if (vendorId) {
-    filter.vendorId = vendorId;
+  if (currency) {
+    filter.currency = currency;
+  }
+
+  if (journal) {
+    filter.journal = journal;
+  }
+  
+  if (branchId) {
+    filter.branchId = branchId;
+  }
+
+  if (departmentId) {
+    filter.departmentId = departmentId;
   }
 
   if (brand) {
     filter.scopeBrandIds = { $in: [brand] };
+  }
+
+  if (isOutBalance !== undefined) {
+    filter.isOutBalance = isOutBalance
   }
 
   return filter;
@@ -107,10 +131,9 @@ const accountQueries = {
   async accounts(
     _root,
     params: IQueryParams,
-    { commonQuerySelector, models, subdomain, user }: IContext,
+    { commonQuerySelector, models, user }: IContext,
   ) {
     const filter = await generateFilter(
-      subdomain,
       models,
       commonQuerySelector,
       params,
@@ -134,25 +157,18 @@ const accountQueries = {
       sort = { [sortField]: sortDirection || 1 };
     }
 
-    return afterQueryWrapper(
-      subdomain,
-      'accounts',
-      params,
-      await paginate(
-        models.Accounts.find(filter).sort(sort).lean(),
-        pagintationArgs,
-      ),
-      user,
-    );
+    return await paginate(
+      models.Accounts.find(filter).sort(sort).lean(),
+      pagintationArgs,
+    )
   },
 
   async accountsTotalCount(
     _root,
     params: IQueryParams,
-    { commonQuerySelector, models, subdomain }: IContext,
+    { commonQuerySelector, models }: IContext,
   ) {
     const filter = await generateFilter(
-      subdomain,
       models,
       commonQuerySelector,
       params,

@@ -71,25 +71,7 @@ module.exports = {
       permissions: ["showNonBalanceTransactions"],
     },
   ],
-  customerRightSidebarSection: [
-    {
-      text: "customerRightSidebarSection",
-      component: "./contractSection",
-      scope: "loans",
-    },
-  ],
-  companyRightSidebarSection: [
-    {
-      text: "companyRightSidebarSection",
-      component: "./contractSection",
-      scope: "loans",
-    },
-  ],
-  dealRightSidebarSection: [
-    {
-      text: "dealRightSidebarSection",
-      component: "./contractSection",
-      scope: "loans",
-    },
-  ],
+  customerRightSidebarSection: "./contractSection",
+  companyRightSidebarSection: "./contractSection",
+  dealRightSidebarSection: "./contractSection",
 };

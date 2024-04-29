@@ -87,6 +87,7 @@ function CommnetForm({ activeTrigger, addConfig, closeModal }: Props) {
             <Select
               options={POST_TYPE}
               value={POST_TYPE.find((o) => o.value === config?.postType)}
+              isClearable={true}
               onChange={({ value }: any) => handleChange("postType", value)}
             />
           </FormGroup>

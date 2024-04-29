@@ -94,6 +94,7 @@ function Appearance({
           placeholder="Please select a font"
           value={generateOptions().find((o) => o.value === value)}
           options={generateOptions()}
+          isClearable={true}
           onChange={handleSelect}
         />
       </FormGroup>

@@ -620,6 +620,7 @@ function ScheduleForm(props: Props) {
         <Select
           options={renderScheduleConfigOptions()}
           onChange={onScheduleConfigSelectForAll}
+          isClearable={true}
           isMulti={false}
           value={renderScheduleConfigOptions().find(
             (o) => o.value === selectedScheduleConfigId
@@ -844,6 +845,7 @@ function ScheduleForm(props: Props) {
           <Select
             options={renderScheduleConfigOptions()}
             onChange={onScheduleConfigSelectForAll}
+            isClearable={true}
             isMulti={false}
             value={renderScheduleConfigOptions().find(
               (o) => o.value === selectedScheduleConfigId
@@ -868,6 +870,7 @@ function ScheduleForm(props: Props) {
           value={contentTypeOptions.find((o) => o.value === contentType)}
           onChange={onContentTypeSelect}
           placeholder="Select Content Type"
+          isClearable={true}
           options={contentTypeOptions}
         />
 

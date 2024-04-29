@@ -131,7 +131,9 @@ const SelectWrapper = styledTS<{ $hasError?: boolean }>(styled.div)`
   }
 `;
 
-const Select = styled(styled.select(Input as any))`
+const Select = styled(Input).attrs({
+  as: "select",
+})`
   border: none;
   height: ${textInputHeight};
   padding: 0;

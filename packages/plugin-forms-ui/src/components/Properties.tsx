@@ -202,6 +202,7 @@ class Properties extends React.Component<
             <Icon icon="angle-down" />
           </Button>
         }
+        unmount={false}
       >
         <Menu.Item>
           <ModalTrigger

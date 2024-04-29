@@ -178,6 +178,7 @@ class MessengerForm extends React.Component<Props, State> {
               value={this.fromSelectOptions().find(
                 (option) => option.value === fromIntegrationId
               )}
+              isClearable={true}
               onChange={onChangeFrom}
               options={this.fromSelectOptions()}
               components={{ Option }}

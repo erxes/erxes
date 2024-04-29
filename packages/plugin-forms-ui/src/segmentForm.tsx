@@ -50,6 +50,7 @@ class Form extends React.Component<any, any, any> {
           <Select
             value={options.find((option) => option.value === formId)}
             options={options}
+            isClearable={true}
             onChange={this.onChangeForm.bind(this, "formId")}
           />
         </FormGroup>

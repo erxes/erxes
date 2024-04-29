@@ -557,6 +557,7 @@ const Form = (props: Props) => {
                     (option) => option.value === categoryId
                   )}
                   options={generateOptions()}
+                  isClearable={true}
                   onChange={onChangeCateogry}
                 />
                 {renderFormTrigger(trigger)}

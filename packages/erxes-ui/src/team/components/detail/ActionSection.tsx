@@ -138,7 +138,11 @@ class ActionSection extends React.Component<Props> {
 
   renderDropdown() {
     return (
-      <Dropdown as={DropdownToggle} toggleComponent={this.renderButton()}>
+      <Dropdown
+        as={DropdownToggle}
+        toggleComponent={this.renderButton()}
+        unmount={false}
+      >
         {this.renderEditButton()}
         {this.renderResendInvitation()}
         {this.renderResetPassword()}

@@ -152,6 +152,7 @@ function ContentStep({
                 options={options}
                 placeholder="Choose line"
                 value={options.find((option) => option.value === line)}
+                isClearable={true}
                 onChange={(e: any) => onChangeBooking("line", e ? e.value : "")}
               />
             </FormGroup>

@@ -378,6 +378,7 @@ class AddForm extends React.Component<Props, State> {
                 }
                 options={stageValues}
                 name="stage"
+                isClearable={true}
                 onChange={(e) => this.onSelectStage(e)}
               />
             </HeaderContent>

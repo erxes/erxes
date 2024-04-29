@@ -307,6 +307,7 @@ function AutoCompletionSelect({
         <CreatableSelect
           // ref={selectRef}
           // isLoading={loading}
+          isClearable={true}
           required={required}
           placeholder={placeholder}
           value={selectedValue}
