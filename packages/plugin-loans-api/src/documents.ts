@@ -2,7 +2,7 @@ import { generateModels } from './connectionResolver';
 import { sendMessageBroker } from './messageBroker';
 import { ISchedule } from './models/definitions/schedules';
 
-const toMoney = value => {
+const toMoney = (value) => {
   if (!value) {
     return '-';
   }
@@ -107,8 +107,9 @@ export default {
               (row, index) => `
               <tr>
                 <td>${index + 1}</td>
-                <td>${row.payDate.getFullYear()}-${row.payDate.getMonth() +
-                1}-${row.payDate.getDate()}</td>
+                <td>${row.payDate.getFullYear()}-${
+                  row.payDate.getMonth() + 1
+                }-${row.payDate.getDate()}</td>
                 <td>${toMoney(row.balance)}</td>
                 <td>${toMoney(row.payment)}</td>
                 <td>${toMoney(

@@ -2,21 +2,22 @@ import SelectProperty from '@erxes/ui-forms/src/settings/properties/containers/S
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import Button from '@erxes/ui/src/components/Button';
 import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import Icon from '@erxes/ui/src/components/Icon';
+import Toggle from '@erxes/ui/src/components/Toggle';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Icon from '@erxes/ui/src/components/Icon';
-import { FlexItem } from '@erxes/ui/src/components/step/styles';
-import Toggle from '@erxes/ui/src/components/Toggle';
 import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
+import { FlexItem } from '@erxes/ui/src/components/step/styles';
 import { IField, IFieldLogic, IOption } from '@erxes/ui/src/types';
-import { loadDynamicComponent, __ } from '@erxes/ui/src/utils';
+import { Alert, __, loadDynamicComponent } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Select from 'react-select-plus';
 
+import { stringToRegex } from '../../settings/properties/utils';
 import {
   FlexRow,
   LeftSection,
@@ -26,9 +27,9 @@ import {
 } from '../styles';
 import FieldLogics from './FieldLogics';
 import FieldPreview from './FieldPreview';
+import GroupedField from './GroupedField';
 import LocationOptions from './LocationOptions';
 import ObjectListConfigs from './ObjectListConfigs';
-import GroupedField from './GroupedField';
 
 type Props = {
   onSubmit: (field: IField) => void;
@@ -78,7 +79,7 @@ class FieldForm extends React.Component<Props, State> {
 
   onFieldChange = (
     name: string,
-    value: string | boolean | number | string[] | number[] | IFieldLogic[]
+    value: string | boolean | number | string[] | number[] | IFieldLogic[],
   ) => {
     this.setFieldAttrChanges(name, value);
   };
@@ -118,6 +119,12 @@ class FieldForm extends React.Component<Props, State> {
     const { field, group } = this.state;
 
     field.associatedFieldId = selectedField._id;
+    field.associatedField = {
+      _id: selectedField._id,
+      text: selectedField.text || '',
+      contentType: group || '',
+    };
+
     field.validation = selectedField.validation;
     field.options = selectedField.options;
     field.type = selectedField.type;
@@ -153,17 +160,42 @@ class FieldForm extends React.Component<Props, State> {
     });
   };
 
+  onRegexChange = (e: any) => {
+    if (e.target.value.length === 0) {
+      this.setState({
+        field: {
+          ...this.state.field,
+          regexValidation: '',
+        },
+      });
+      return;
+    }
+
+    const regexPattern = stringToRegex(e.target.value);
+
+    this.setState({
+      field: {
+        ...this.state.field,
+        regexValidation: regexPattern,
+      },
+    });
+  };
+
   onSubmit = (e) => {
     e.persist();
 
     const { field } = this.state;
+
+    if (field.type !== 'html' && !field.text?.length) {
+      return Alert.error(__('Label is required!'));
+    }
 
     this.props.onSubmit(field);
   };
 
   setFieldAttrChanges(
     attributeName: string,
-    value: string | boolean | number | string[] | number[] | IFieldLogic[]
+    value: string | boolean | number | string[] | number[] | IFieldLogic[],
   ) {
     const { field } = this.state;
     field[attributeName] = value;
@@ -183,7 +215,7 @@ class FieldForm extends React.Component<Props, State> {
       const value = (e.currentTarget as HTMLInputElement).value;
       this.onFieldChange(
         'validation',
-        (e.currentTarget as HTMLInputElement).value
+        (e.currentTarget as HTMLInputElement).value,
       );
     };
 
@@ -208,18 +240,15 @@ class FieldForm extends React.Component<Props, State> {
 
         {field.validation === 'regex' && (
           <>
-            <p>{__('Setup regular expression')}</p>
             <FormControl
               id="regex"
+              placeholder="enter sample text here"
               componentClass="input"
-              value={field.regexValidation || ''}
-              onChange={(e) =>
-                this.onFieldChange(
-                  'regexValidation',
-                  (e.currentTarget as HTMLInputElement).value
-                )
-              }
+              onChange={this.onRegexChange}
             />
+            {field.regexValidation && (
+              <p>RegexPattern: {field.regexValidation || ''}</p>
+            )}
           </>
         )}
       </FormGroup>
@@ -232,7 +261,7 @@ class FieldForm extends React.Component<Props, State> {
     const onChange = (e) =>
       this.onFieldChange(
         'options',
-        (e.currentTarget as HTMLInputElement).value.split('\n')
+        (e.currentTarget as HTMLInputElement).value.split('\n'),
       );
 
     if (!['select', 'check', 'radio', 'multiSelect'].includes(field.type)) {
@@ -427,7 +456,7 @@ class FieldForm extends React.Component<Props, State> {
     const toggle = (e) =>
       this.onFieldChange(
         'isRequired',
-        (e.currentTarget as HTMLInputElement).checked
+        (e.currentTarget as HTMLInputElement).checked,
       );
 
     return (
@@ -438,7 +467,10 @@ class FieldForm extends React.Component<Props, State> {
           open={true}
         >
           <FormGroup>
-            <ControlLabel htmlFor="text" required={true}>
+            <ControlLabel
+              htmlFor="text"
+              required={field.type !== 'html' ? true : false}
+            >
               Field Label
             </ControlLabel>
 
@@ -522,7 +554,7 @@ class FieldForm extends React.Component<Props, State> {
           <CollapseContent title={__('Logic')} compact={true}>
             <FieldLogics
               fields={fields.filter(
-                (f) => !(field.subFieldIds || []).includes(f._id)
+                (f) => !(field.subFieldIds || []).includes(f._id),
               )}
               currentField={field}
               onFieldChange={this.onFieldChange}
@@ -629,7 +661,7 @@ class FieldForm extends React.Component<Props, State> {
     const onCategoryChange = (e) => {
       this.onFieldChange(
         'productCategoryId',
-        (e.currentTarget as HTMLInputElement).value
+        (e.currentTarget as HTMLInputElement).value,
       );
     };
 
@@ -665,7 +697,7 @@ class FieldForm extends React.Component<Props, State> {
     const onChangeColumn = (e) =>
       this.onFieldChange(
         'column',
-        parseInt((e.currentTarget as HTMLInputElement).value, 10)
+        parseInt((e.currentTarget as HTMLInputElement).value, 10),
       );
 
     return (
@@ -729,7 +761,7 @@ class FieldForm extends React.Component<Props, State> {
     const groupName = (e) =>
       this.onFieldChange(
         'groupName',
-        (e.currentTarget as HTMLInputElement).value
+        (e.currentTarget as HTMLInputElement).value,
       );
     return (
       <FormGroup>

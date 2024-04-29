@@ -9,6 +9,7 @@ import exporter from './exporter';
 import logs from './logUtils';
 import * as permissions from './permissions';
 import payment from './payment';
+import reports from './reports';
 import { checkContractPeriod } from './cronjobs/contractCronJobs';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
@@ -61,6 +62,7 @@ export default {
     cronjobs: {
       handleMinutelyJob: checkContractPeriod,
     },
+    reports,
     documents,
     permissions,
     forms,

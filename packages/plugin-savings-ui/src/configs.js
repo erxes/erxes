@@ -38,7 +38,17 @@ module.exports = {
       scope: 'savings',
       location: 'transaction-list',
       permissions: ['showTransactions']
-    }
+    },
+    {
+      text: 'Saving config',
+      image: '/images/icons/erxes-16.svg',
+      to: '/erxes-plugin-saving/saving-settings/',
+      action: 'savingConfig',
+      scope: 'savings',
+      location: 'settings',
+      permissions: ['savingsManageSavingConfigs'],
+      permission: 'savingsManageSavingConfigs'
+    },
   ],
   customerRightSidebarSection: [
     {

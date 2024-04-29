@@ -68,6 +68,7 @@ export interface IProduct {
   taxType?: string;
   taxCode?: string;
   sameMasks?: string[];
+  sameDefault?: string[];
 }
 
 export interface IProductDocument extends IProduct, Document {
@@ -176,7 +177,8 @@ export const productSchema = schemaWrapper(
     }),
     taxType: field({ type: String, optional: true, label: 'TAX type' }),
     taxCode: field({ type: String, optional: true, label: 'tax type code' }),
-    sameMasks: field({ type: [String] })
+    sameMasks: field({ type: [String] }),
+    sameDefault: field({ type: [String] })
   })
 );
 

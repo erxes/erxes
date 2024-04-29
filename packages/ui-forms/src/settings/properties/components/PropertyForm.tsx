@@ -26,6 +26,7 @@ import PropertyLogics from '../containers/PropertyLogics';
 import { IFieldGroup } from '../types';
 import LocationOptions from './LocationOptions';
 import ObjectListConfigs from './ObjectListConfigs';
+import { stringToRegex } from '../utils';
 
 type Props = {
   queryParams: any;
@@ -240,6 +241,17 @@ class PropertyForm extends React.Component<Props, State> {
 
   onChangeLogics = (logics) => {
     this.setState({ logics });
+  };
+
+  onRegexChange = (e: any) => {
+    if (e.target.value.length === 0) {
+      this.setState({ regexValidation: '' });
+      return;
+    }
+
+    const regexValidation = stringToRegex(e.target.value);
+
+    this.setState({ regexValidation });
   };
 
   renderOptions = () => {
@@ -462,15 +474,14 @@ class PropertyForm extends React.Component<Props, State> {
               Regular Expression:
             </ControlLabel>
             <p>{__('Setup regular expression')}</p>
+
             <FormControl
-              {...formProps}
+              id="regex"
+              placeholder="enter sample text here"
               componentClass="input"
-              name="regexValidation"
-              defaultValue={regexValidation || ''}
-              onChange={(e: any) => {
-                this.setState({ regexValidation: e.target.value });
-              }}
+              onChange={this.onRegexChange}
             />
+            {regexValidation && <p>RegexPattern: {regexValidation || ''}</p>}
           </FormGroup>
         )}
 
