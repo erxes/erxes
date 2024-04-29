@@ -33,12 +33,12 @@ const AccountCategoryList: React.FC<IProps> = (props) => {
   const [accountCategoriesRemoveMutation] = useMutation(
     gql(mutation.accountCategoriesRemove),
     {
-      onError:(error)=> {
+      onError: (error) => {
         Alert.error(error.message);
       },
-      onCompleted:()=> {
+      onCompleted: () => {
         Alert.success(`You successfully deleted a category`);
-      },
+      }
     }
   );
 
@@ -84,8 +84,9 @@ const AccountCategoryList: React.FC<IProps> = (props) => {
     confirm().then(() => {
       accountCategoriesRemoveMutation({
         variables: { id: productId },
-        refetchQueries: ['accountCategories', 'accounts']
-      })
+        refetchQueries: ['accountCategories', 'accounts'],
+        awaitRefetchQueries: false
+      });
     });
   };
 

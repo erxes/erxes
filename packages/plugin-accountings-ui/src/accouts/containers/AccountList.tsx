@@ -117,7 +117,8 @@ function List({ queryParams, ...props }: IProps): React.ReactNode {
       variables: {
         accountIds: bulk.map((a) => a._id)
       },
-      refetchQueries: ['accounts', 'accountsTotalCount']
+      refetchQueries: ['accounts', 'accountsTotalCount'],
+      awaitRefetchQueries:false
     });
   };
 
@@ -187,7 +188,7 @@ function List({ queryParams, ...props }: IProps): React.ReactNode {
             />
           }
           loading={loading}
-          count={data?.accounts.length}
+          count={accountsTotal?.accountsTotalCount}
           emptyText="There is no data"
           emptyImage="/images/actions/5.svg"
         />
