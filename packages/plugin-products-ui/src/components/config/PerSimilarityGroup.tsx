@@ -14,6 +14,7 @@ import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 import { Alert, __, confirm } from '@erxes/ui/src/utils';
 import React from 'react';
 import { IConfigsMap } from '../../types';
+import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 
 type Props = {
   configsMap: IConfigsMap;
@@ -215,16 +216,14 @@ class PerSettings extends React.Component<Props, State> {
         if (field.isDefinedByErxes) {
           options.push({
             value: field.type,
-            label: `${(field.code && `${field.code} - `) || ''}${
-              field.text || ''
-            }`,
+            label: `${(field.code && `${field.code} - `) || ''}${field.text || ''
+              }`,
           });
         } else {
           options.push({
             value: `customFieldsData.${field._id}`,
-            label: `${(field.code && `${field.code} - `) || ''}${
-              field.text || ''
-            }`,
+            label: `${(field.code && `${field.code} - `) || ''}${field.text || ''
+              }`,
           });
         }
       });
@@ -256,6 +255,19 @@ class PerSettings extends React.Component<Props, State> {
           </FormColumn>
           <FormColumn>
             {this.renderInput('codeMask', 'Code Mask', '')}
+          </FormColumn>
+          <FormColumn>
+            <ControlLabel>{'Default Product'}</ControlLabel>
+            <SelectProducts
+              label={__('Default Product')}
+              name="defaultProduct"
+              initialValue={config['defaultProduct']}
+              onSelect={productId =>
+                this.setState({ config: { ...this.state.config, 'defaultProduct': productId } })
+              }
+              multi={false}
+              filterParams={{ searchValue: config['codeMask'] }}
+            />
           </FormColumn>
         </FormWrapper>
         {this.renderRules()}
