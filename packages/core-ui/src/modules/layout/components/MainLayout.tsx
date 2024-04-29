@@ -161,8 +161,9 @@ class MainLayout extends React.Component<IProps, State> {
           const entry = document.getElementsByTagName('script')[0];
           (entry as any).parentNode.insertBefore(script, entry);
         }
-        pluginsInnerWidgets();
       }
+
+      pluginsInnerWidgets();
 
       (window as any).wootricSettings = {
         email: currentUser.email, // Required to uniquely identify a user. Email is recommended but this can be any unique identifier.
