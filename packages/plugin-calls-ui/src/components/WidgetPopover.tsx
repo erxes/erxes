@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Tab, TabContent, TabsContainer } from "../styles";
+import { Tab, TabContent, TabsContainer, TabsWrapper } from "../styles";
 
 import ContactsContainer from "../containers/Contacts";
 import HistoryContainer from "../containers/History";
@@ -66,29 +66,31 @@ const WidgetPopover = (
   return (
     <>
       <TabContent>{renderContent()}</TabContent>
-      <TabsContainer full={true}>
-        <Tab
-          className={currentTab === "History" ? "active" : ""}
-          onClick={historyOnClick}
-        >
-          <Icon icon="history" size={20} />
-          {__("History")}
-        </Tab>
-        <Tab
-          className={currentTab === "Keyboard" ? "active" : ""}
-          onClick={keyboardOnClick}
-        >
-          <Icon icon="keyboard-alt" size={20} />
-          {__("Keyboard")}
-        </Tab>
-        <Tab
-          className={currentTab === "Contact" ? "active" : ""}
-          onClick={contactsOnClick}
-        >
-          <Icon icon="book" size={18} />
-          {__("Contact")}
-        </Tab>
-      </TabsContainer>
+      <TabsWrapper>
+        <TabsContainer full={true}>
+          <Tab
+            className={currentTab === "History" ? "active" : ""}
+            onClick={historyOnClick}
+          >
+            <Icon icon="history" size={20} />
+            {__("History")}
+          </Tab>
+          <Tab
+            className={currentTab === "Keyboard" ? "active" : ""}
+            onClick={keyboardOnClick}
+          >
+            <Icon icon="keyboard-alt" size={20} />
+            {__("Keyboard")}
+          </Tab>
+          <Tab
+            className={currentTab === "Contact" ? "active" : ""}
+            onClick={contactsOnClick}
+          >
+            <Icon icon="book" size={18} />
+            {__("Contact")}
+          </Tab>
+        </TabsContainer>
+      </TabsWrapper>
     </>
   );
 };

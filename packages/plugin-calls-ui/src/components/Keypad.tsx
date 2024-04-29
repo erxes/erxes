@@ -420,11 +420,12 @@ const KeyPad = (props: Props, context) => {
         <p>{__("Calling from your own phone number")}</p>
         <Select
           placeholder={__("Choose phone number")}
-          value={callFrom}
+          value={ourPhone.find(phone => phone.value === callFrom)}
           onChange={onStatusChange}
           isClearable={false}
           options={ourPhone}
           // scrollMenuIntoView={true}
+          menuPlacement='top'
           onBlur={() => setSelectFocus(!selectFocus)}
         />
         <>

@@ -37,8 +37,17 @@ export const TabsContainer = styled(Tabs)`
   background:red;
 `;
 
-export const TabContent = styledTS<{ show?: boolean }>(styled.div)`
+export const TabsWrapper = styled.div `
+  border-top: 1px solid ${colors.borderPrimary};
   margin-bottom: ${dimensions.unitSpacing}px;
+
+  > div{
+    border-bottom: none;
+  }
+`;
+
+export const TabContent = styledTS<{ show?: boolean }>(styled.div)`
+  padding-bottom: ${dimensions.unitSpacing}px;
   border-radius: 10px 10px 0 0;
 `;
 
@@ -208,22 +217,21 @@ export const NumberInput = styled.div`
     color: rgba(0, 0, 0, 0.62);
   }
 
-  .Select {
+  .css-b62m3t-container {
     border: 1px solid ${colors.borderPrimary};
     border-radius: ${dimensions.unitSpacing}px;
     margin: 8px 20px 10px;
-    padding: 10px 20px;
+    padding: 5px 10px;
     font-size: 15px;
   }
-
-  .Select-control {
+  
+  .css-13cymwt-control, .css-t3ipsp-control {
+    min-height: unset;
     border-bottom: none;
   }
-  .Select-menu-outer {
+  .css-14h4o58-menu {
     overflow: auto;
-    position: absolute;
-    top: auto;
-    bottom: 0;
+    width: calc(100% - 20px);
     max-height: 100px;
   }
 `;
@@ -412,7 +420,7 @@ export const CallAction = styledTS<{
   disabled?: boolean;
 }>(styled.div)`
   width: 60px;
-  height: 60px
+  height: 60px;
   border-radius: 60px;
   display: flex;
   align-items: center;
