@@ -30,7 +30,7 @@ const TableList = (props: Props) => {
   const { title, data, labels } = dataset;
 
   const headerTitle = serviceName.charAt(0).toUpperCase() + serviceName.slice(1);
-  const formatType = title.toLowerCase().includes('time') ? 'time' : 'commarize'
+  const formatType = title && title.toLowerCase().includes('time') ? 'time' : 'commarize'
 
   return (
     <ScrollWrapper>

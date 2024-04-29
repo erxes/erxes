@@ -79,7 +79,7 @@ class FieldForm extends React.Component<Props, State> {
 
   onFieldChange = (
     name: string,
-    value: string | boolean | number | string[] | number[] | IFieldLogic[]
+    value: string | boolean | number | string[] | number[] | IFieldLogic[],
   ) => {
     this.setFieldAttrChanges(name, value);
   };
@@ -119,6 +119,12 @@ class FieldForm extends React.Component<Props, State> {
     const { field, group } = this.state;
 
     field.associatedFieldId = selectedField._id;
+    field.associatedField = {
+      _id: selectedField._id,
+      text: selectedField.text || '',
+      contentType: group || '',
+    };
+
     field.validation = selectedField.validation;
     field.options = selectedField.options;
     field.type = selectedField.type;
@@ -189,7 +195,7 @@ class FieldForm extends React.Component<Props, State> {
 
   setFieldAttrChanges(
     attributeName: string,
-    value: string | boolean | number | string[] | number[] | IFieldLogic[]
+    value: string | boolean | number | string[] | number[] | IFieldLogic[],
   ) {
     const { field } = this.state;
     field[attributeName] = value;
@@ -209,7 +215,7 @@ class FieldForm extends React.Component<Props, State> {
       const value = (e.currentTarget as HTMLInputElement).value;
       this.onFieldChange(
         'validation',
-        (e.currentTarget as HTMLInputElement).value
+        (e.currentTarget as HTMLInputElement).value,
       );
     };
 
@@ -255,7 +261,7 @@ class FieldForm extends React.Component<Props, State> {
     const onChange = (e) =>
       this.onFieldChange(
         'options',
-        (e.currentTarget as HTMLInputElement).value.split('\n')
+        (e.currentTarget as HTMLInputElement).value.split('\n'),
       );
 
     if (!['select', 'check', 'radio', 'multiSelect'].includes(field.type)) {
@@ -450,7 +456,7 @@ class FieldForm extends React.Component<Props, State> {
     const toggle = (e) =>
       this.onFieldChange(
         'isRequired',
-        (e.currentTarget as HTMLInputElement).checked
+        (e.currentTarget as HTMLInputElement).checked,
       );
 
     return (
@@ -548,7 +554,7 @@ class FieldForm extends React.Component<Props, State> {
           <CollapseContent title={__('Logic')} compact={true}>
             <FieldLogics
               fields={fields.filter(
-                (f) => !(field.subFieldIds || []).includes(f._id)
+                (f) => !(field.subFieldIds || []).includes(f._id),
               )}
               currentField={field}
               onFieldChange={this.onFieldChange}
@@ -655,7 +661,7 @@ class FieldForm extends React.Component<Props, State> {
     const onCategoryChange = (e) => {
       this.onFieldChange(
         'productCategoryId',
-        (e.currentTarget as HTMLInputElement).value
+        (e.currentTarget as HTMLInputElement).value,
       );
     };
 
@@ -691,7 +697,7 @@ class FieldForm extends React.Component<Props, State> {
     const onChangeColumn = (e) =>
       this.onFieldChange(
         'column',
-        parseInt((e.currentTarget as HTMLInputElement).value, 10)
+        parseInt((e.currentTarget as HTMLInputElement).value, 10),
       );
 
     return (
@@ -755,7 +761,7 @@ class FieldForm extends React.Component<Props, State> {
     const groupName = (e) =>
       this.onFieldChange(
         'groupName',
-        (e.currentTarget as HTMLInputElement).value
+        (e.currentTarget as HTMLInputElement).value,
       );
     return (
       <FormGroup>

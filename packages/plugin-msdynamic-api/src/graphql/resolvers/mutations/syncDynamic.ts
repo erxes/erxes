@@ -134,10 +134,13 @@ const msdynamicSyncMutations = {
         }
       }
 
+      const productsByCode = {};
       // delete price
       for (const product of products) {
         if (!groupedItems[product.code]) {
           deletePrices.push(product);
+        } else {
+          productsByCode[product.code] = product;
         }
       }
 

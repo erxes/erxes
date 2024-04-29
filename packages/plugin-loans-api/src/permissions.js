@@ -51,7 +51,7 @@ module.exports = {
           'manageTransactions',
           'showTransactions',
           'transactionsEdit',
-          'transactionsRemove',
+          'transactionsRemove'
         ]
       },
       {

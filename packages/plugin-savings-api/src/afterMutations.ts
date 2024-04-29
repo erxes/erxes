@@ -19,7 +19,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
   }
 
   if (type === 'savings:transaction')
-    await checkBlock(models,subdomain, params.object);
+    await checkBlock(models, params.object);
 };
 
 export default allowTypes;

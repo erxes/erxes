@@ -2,7 +2,6 @@ import { Alert, Bulk, router, withProps } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import queryString from 'query-string';
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 import List from '../components/List';
@@ -13,7 +12,6 @@ import {
   RemoveMutationResponse,
   RemoveMutationVariables
 } from '../types';
-import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
