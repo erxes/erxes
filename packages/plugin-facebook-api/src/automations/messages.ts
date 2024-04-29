@@ -362,6 +362,7 @@ export const actionCreateMessage = async (
           ...conversationMessage.toObject(),
           conversationId: conversation.erxesApiId,
         },
+        isRPC:true
       });
 
       result.push(conversationMessage);
