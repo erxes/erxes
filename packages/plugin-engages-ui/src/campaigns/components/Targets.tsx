@@ -85,7 +85,7 @@ class Targets<
       const { _id = "" } = target;
 
       return (
-        <ListCounter key={_id} chosen={selectedIds.includes(_id)}>
+        <ListCounter key={_id} $chosen={selectedIds.includes(_id)}>
           <a
             href="#counter"
             tabIndex={0}

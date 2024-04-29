@@ -163,12 +163,12 @@ const WebPreview = styledTS<{ $isEngage?: boolean }>(styled.div)`
   }
 `;
 
-const ListCounter = styledTS<{ chosen: boolean }>(styled.li)`
+const ListCounter = styledTS<{ $chosen: boolean }>(styled.li)`
   list-style-type: none;
   text-align: left;
   display: list-item;
   background-color: ${(props) =>
-    props.chosen ? colors.borderPrimary : "transparent"};
+    props.$chosen ? colors.borderPrimary : "transparent"};
 
   a {
     outline: none;
