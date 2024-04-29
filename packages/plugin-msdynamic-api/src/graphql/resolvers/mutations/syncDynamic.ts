@@ -76,12 +76,7 @@ const msdynamicSyncMutations = {
       throw new Error('MS Dynamic config not found.');
     }
 
-    const {
-      priceApi,
-      username,
-      password,
-      pricePriority = 'ONLINE, ECOMMERCE',
-    } = config;
+    const { priceApi, username, password, pricePriority } = config;
 
     const productQry: any = { status: { $ne: 'deleted' } };
 
