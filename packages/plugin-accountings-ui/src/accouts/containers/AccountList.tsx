@@ -58,7 +58,10 @@ function List({ queryParams, ...props }: IProps): React.ReactNode {
   );
 
   const variables = useMemo(() => {
-    return { page: Number(queryParams?.page | 1) };
+    return {
+      page: Number(queryParams?.page | 1),
+      searchValue: queryParams.searchValue
+    };
   }, [queryParams]);
 
   const { data, loading } = useQuery<IAccountsResponse>(
