@@ -107,6 +107,21 @@ const contractsClose = `
     }
   }
 `;
+const savingsBlockAdd = `
+  mutation savingsBlockAdd($blockType: String, $contractId: String, $customerId: String, $description: String, $payDate: Date, $amount: Float, $status: String, $currency: String, $scheduleDate: Date) {
+    savingsBlockAdd(blockType: $blockType, contractId: $contractId, customerId: $customerId, description: $description, payDate: $payDate, amount: $amount, status: $status, currency: $currency, scheduleDate: $scheduleDate) {
+      amount
+      blockType
+      companyId
+      contractId
+      contractReaction
+      currency
+      description
+      customerId
+      number
+    }
+  }
+`;
 const expandContract = `
   mutation SavingsExpandDuration($id: String!,$contractTypeId: String) {
     savingsExpandDuration(_id: $id,contractTypeId:$contractTypeId) {
@@ -182,4 +197,5 @@ export default {
   interestChange,
   interestReturn,
   expandContract,
+  savingsBlockAdd
 };

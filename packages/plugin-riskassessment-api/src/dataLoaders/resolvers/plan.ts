@@ -96,7 +96,15 @@ export default {
       {
         $group: {
           _id: null,
-          avarangeScore: { $avg: '$resultScore' },
+          avarangeScore: {
+            $avg: {
+              $cond: {
+                if: { $eq: ['$status', 'In Progress'] },
+                then: null,
+                else: '$resultScore'
+              }
+            }
+          },
           submittedAssessmentCount: {
             $sum: { $cond: [{ $ne: ['$status', 'In Progress'] }, 1, 0] }
           }

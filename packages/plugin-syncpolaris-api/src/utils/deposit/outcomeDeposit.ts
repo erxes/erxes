@@ -3,18 +3,15 @@ import {
   fetchPolaris,
   getCustomer,
   getContract,
+  sendMessageBrokerData,
 } from '../utils';
 
 export const outcomeDeposit = async (subdomain, params) => {
   const transaction = params.object;
 
-  const savingContract = await getContract(
-    subdomain,
-    { _id: transaction.contractId },
-    'savings',
-  );
+  const savingContract = await sendMessageBrokerData(subdomain,'savings','contracts.findOne',{_id:transaction.contractId})
 
-  const customer = await getCustomer(subdomain, savingContract.customerId);
+  const customer = await sendMessageBrokerData(subdomain,'contacts','customers.findOne',{_id:savingContract.customerId})
 
   const customerData = await customFieldToObject(
     subdomain,

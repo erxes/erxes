@@ -90,6 +90,23 @@ const transactionQueries = {
       }
     );
   },
+  clientSavingsTransactions: async (
+    _root,
+    params,
+    { commonQuerySelector, models }: IContext
+  ) => {
+    if(!params.contractId && !params.customerId)
+      throw new Error('Customer not found')
+    return paginate(
+      models.Transactions.find(
+        await generateFilter(models, params, commonQuerySelector)
+      ),
+      {
+        page: params.page,
+        perPage: params.perPage
+      }
+    );
+  },
 
   /**
    * Transactions for only main list

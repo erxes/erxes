@@ -48,8 +48,8 @@ class Sidebar extends React.Component {
             __('Loan settings')
           )}
           {this.renderListItem(
-            '/erxes-plugin-loan/undue-settings',
-            __('Loan not calc undue settings')
+            '/erxes-plugin-loan/loss-settings',
+            __('Loan not calc loss settings')
           )}
           {this.renderListItem(
             '/erxes-plugin-loan/holiday-settings',

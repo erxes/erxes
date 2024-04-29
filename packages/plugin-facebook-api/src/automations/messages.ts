@@ -16,7 +16,7 @@ const generateMessages = async (
   subdomain: string,
   config: any,
   conversation: IConversation,
-  customer: ICustomer,
+  customer: ICustomer
 ) => {
   let { messages = [] } = config || {};
 
@@ -258,6 +258,9 @@ const generateObjectToWait = ({
     obj.waitingActionId = actionIdIfNotReply;
 
     propertyName = 'botId';
+  }else{
+    obj.startWaitingDate = moment().add(24,'hours').toDate()
+    obj.waitingActionId = null
   }
 
   return {
