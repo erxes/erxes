@@ -1,4 +1,4 @@
-import { generateToken } from '../../utils';
+import { generateToken, getRecordUrl } from '../../utils';
 import { IContext, IModels } from '../../connectionResolver';
 
 import acceptCall from '../../acceptCall';
