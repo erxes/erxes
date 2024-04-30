@@ -14,11 +14,11 @@ const CallTo = styled.a`
   }
 `;
 
-const Status = styledTS<{ verified: boolean }>(styled.span)`
+const Status = styledTS<{ $verified: boolean }>(styled.span)`
   background: ${props =>
-    props.verified ? colors.colorCoreGreen : colors.bgGray};
+    props.$verified ? colors.colorCoreGreen : colors.bgGray};
   color: ${props =>
-    props.verified ? colors.colorWhite : colors.textSecondary};
+    props.$verified ? colors.colorWhite : colors.textSecondary};
   width: 18px;
   height: 18px;
   text-align: center;
@@ -65,7 +65,7 @@ function PrimaryPhone({ phone, status }: { phone?: string; status?: string }) {
     if (status && statuses[status]) {
       return (
         <Tip text={`Status: ${statuses[status].label}`} placement="top">
-          <Status verified={statuses[status].verified}>
+          <Status $verified={statuses[status].verified}>
             <Icon icon={statuses[status].icon} />
           </Status>
         </Tip>

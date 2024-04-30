@@ -249,6 +249,7 @@ const ChartForm = (props: Props) => {
                   onChange={onServiceNameChange}
                   isClearable={true}
                   placeholder={__(`Choose service`)}
+                  menuPlacement="auto"
                 />
               </FormGroup>
 
@@ -267,6 +268,7 @@ const ChartForm = (props: Props) => {
                       onChange={onChartTemplateChange}
                       isClearable={true}
                       placeholder={__(`Choose template`)}
+                      menuPlacement="auto"
                     />
                   </FormGroup>
                   <FormGroup>
@@ -282,6 +284,7 @@ const ChartForm = (props: Props) => {
                       onChange={onChartTypeChange}
                       isClearable={true}
                       placeholder={__(`Choose type`)}
+                      menuPlacement="auto"
                     />
                   </FormGroup>
                   {dimensions.length ? (
