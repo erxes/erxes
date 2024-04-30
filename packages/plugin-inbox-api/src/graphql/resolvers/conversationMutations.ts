@@ -205,12 +205,20 @@ export const sendNotifications = async (
   }
 ) => {
   for (const conversation of conversations) {
-    if (!conversation || !user) {
-      throw new Error('Error: Conversation or user is undefined');
+    if (!conversation) {
+      throw new Error('Error: Conversation is undefined');
     }
 
-    if (!conversation._id || !user._id) {
-      throw new Error('Error: Conversation ID or user ID is undefined');
+    if (!conversation._id) {
+      throw new Error('Error: Conversation ID is undefined');
+    }
+
+    if (!user) {
+      throw new Error('Error: User is undefined');
+    }
+
+    if (!user._id) {
+      throw new Error('Error: User ID is undefined');
     }
 
     const doc = {
