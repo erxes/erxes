@@ -33,7 +33,7 @@ class Form extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      formValues: props.defaultConfigValues || ({} as ClientPortalConfig)
+      formValues: props.defaultConfigValues || ({} as ClientPortalConfig),
     };
   }
 
@@ -48,6 +48,7 @@ class Form extends React.Component<Props, State> {
 
   handleSubmit = e => {
     e.preventDefault();
+
     const { formValues } = this.state;
 
     if (!formValues.name) {
@@ -100,7 +101,17 @@ class Form extends React.Component<Props, State> {
 
       formValues.otpConfig = removeTypename(formValues.otpConfig);
     }
+    if (formValues.twoFactorConfig) {
+      const { content } = formValues.twoFactorConfig;
 
+      if (!content.match(/{{ code }}/g)) {
+        return Alert.error(
+          'Please add {{ code }} to OTP content to send verification code'
+        );
+      }
+
+      formValues.twoFactorConfig = removeTypename(formValues.twoFactorConfig);
+    }
     if (
       formValues.manualVerificationConfig &&
       !formValues.manualVerificationConfig.userIds.length
@@ -115,15 +126,15 @@ class Form extends React.Component<Props, State> {
     this.setState({
       formValues: {
         ...this.state.formValues,
-        [name]: value
-      }
+        [name]: value,
+      },
     });
   };
 
   renderContent = () => {
     const commonProps = {
       ...this.state.formValues,
-      handleFormChange: this.handleFormChange
+      handleFormChange: this.handleFormChange,
     };
 
     switch (this.props.configType) {
@@ -141,7 +152,7 @@ class Form extends React.Component<Props, State> {
   renderSubmit = () => {
     return (
       <ButtonWrap>
-        <Button btnStyle="success" icon="check-circle" type="submit">
+        <Button btnStyle='success' icon='check-circle' type='submit'>
           Submit
         </Button>
       </ButtonWrap>
