@@ -5,8 +5,7 @@ import {
   IButtonMutateProps,
   IFormProps,
 } from "@erxes/ui/src/types";
-import React, { useEffect, useState } from "react";
-import { __, getEnv } from "@erxes/ui/src/utils";
+import { __, getEnv } from "coreui/utils";
 
 import Button from "@erxes/ui/src/components/Button";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
@@ -17,19 +16,19 @@ import Form from "@erxes/ui/src/components/form/Form";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import { IBrand } from "@erxes/ui/src/brands/types";
-import { ITopic } from "@erxes/ui-knowledgebase/src/types";
+import { ITopic } from "@erxes/ui-knowledgeBase/src/types";
 import Info from "@erxes/ui/src/components/Info";
 import { LANGUAGES } from "@erxes/ui-settings/src/general/constants";
 import Popover from "@erxes/ui/src/components/Popover";
+import React from "react";
 import ReactMarkdown from "react-markdown";
-import Select, { OnChangeValue } from "react-select";
+import Select from "react-select";
 import SelectBrand from "@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand";
 import TwitterPicker from "react-color/lib/Twitter";
 import Uploader from "@erxes/ui/src/components/Uploader";
 import colors from "@erxes/ui/src/styles/colors";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 
-// Define type for component props
 type Props = {
   topic: ITopic;
   brands: IBrand[];
@@ -39,36 +38,19 @@ type Props = {
   closeModal: () => void;
 };
 
-const KnowledgeForm = (props: Props) => {
-  // Destructure props
-  const { topic, segments, closeModal, renderButton, remove } = props;
+type State = {
+  copied: boolean;
+  tagCopied: boolean;
+  code: string;
+  tag: string;
+  color: string;
+  backgroundImage: string;
+  languageCode?: string;
+  notificationSegmentId?: string;
+};
 
-  // State variables
-  const [copied, setCopied] = useState<boolean>(false);
-  const [tagCopied, setTagCopied] = useState<boolean>(false);
-  const [code, setCode] = useState<string>("");
-  const [tag, setTag] = useState<string>("");
-  const [color, setColor] = useState<string>(colors.colorPrimary);
-  const [backgroundImage, setBackgroundImage] = useState<string>("");
-  const [languageCode, setLanguageCode] = useState<string>("");
-  const [notificationSegmentId, setNotificationSegmentId] = useState<
-    string | null
-  >(null);
-
-  // useEffect to set initial values
-  useEffect(() => {
-    if (topic) {
-      setCode(getInstallCode(topic._id));
-      setTag(getInstallTag());
-      setColor(topic.color);
-      setBackgroundImage(topic.backgroundImage);
-      setLanguageCode(topic.languageCode);
-      setNotificationSegmentId(topic.notificationSegmentId);
-    }
-  }, [topic]);
-
-  // Define installCodeIncludeScript function
-  const installCodeIncludeScript = () => {
+class KnowledgeForm extends React.Component<Props, State> {
+  static installCodeIncludeScript() {
     const { REACT_APP_CDN_HOST } = getEnv();
 
     return `
@@ -80,10 +62,9 @@ const KnowledgeForm = (props: Props) => {
         entry.parentNode.insertBefore(script, entry);
       })();
     `;
-  };
+  }
 
-  // Define getInstallCode function
-  const getInstallCode = (topicId: string) => {
+  static getInstallCode(topicId) {
     return `
       <script>
         window.erxesSettings = {
@@ -91,62 +72,87 @@ const KnowledgeForm = (props: Props) => {
             topic_id: "${topicId}"
           },
         };
-        ${installCodeIncludeScript()}
+        ${KnowledgeForm.installCodeIncludeScript()}
       </script>
     `;
-  };
+  }
 
-  // Define getInstallTag function
-  const getInstallTag = () => {
+  static getInstallTag() {
     return `
       <div data-erxes-kbase style="width:900px;height:300px"></div>
     `;
-  };
+  }
 
-  // Handle color change
-  const handleColorChange = (e: { hex: string }) => {
-    setColor(e.hex);
-  };
+  constructor(props: Props) {
+    super(props);
 
-  // Handle copy to clipboard
-  const handleCopy = (name: string) => {
-    if (name === "code") {
-      setCopied(true);
-    } else {
-      setTagCopied(true);
+    let code = "";
+    let tag = "";
+    let color = colors.colorPrimary;
+    let backgroundImage = "";
+
+    const { topic } = props;
+
+    // showed install code automatically in edit mode
+    if (topic) {
+      code = KnowledgeForm.getInstallCode(topic._id);
+      tag = KnowledgeForm.getInstallTag();
+      color = topic.color;
+      backgroundImage = topic.backgroundImage;
     }
+
+    this.state = {
+      copied: false,
+      tagCopied: false,
+      code,
+      tag,
+      color,
+      backgroundImage,
+      languageCode: topic && topic.languageCode,
+      notificationSegmentId: topic && topic.notificationSegmentId,
+    };
+  }
+
+  onColorChange = (e) => {
+    this.setState({ color: e.hex });
   };
 
-  // Handle background image change
-  const onBackgroundImageChange = ([file]: IAttachment[]) => {
-    setBackgroundImage(file ? file.url : "");
+  onCopy = (name: string) => {
+    if (name === "code") {
+      return this.setState({ copied: true });
+    }
+
+    return this.setState({ tagCopied: true });
   };
 
-  // Handle removal of topic
-  const handleRemove = () => {
-    if (remove && topic) {
+  onBackgroundImageChange = ([file]: IAttachment[]) => {
+    this.setState({ backgroundImage: file ? file.url : "" });
+  };
+
+  remove = () => {
+    const { remove, topic } = this.props;
+
+    if (remove) {
       remove(topic._id);
     }
   };
 
-  // Handle simulation
-  const handleSimulate = () => {
+  onSimulate = () => {
     const { REACT_APP_CDN_HOST } = getEnv();
 
     window.open(
-      `${REACT_APP_CDN_HOST}/test?type=kb&topic_id=${topic?._id}`,
+      `${REACT_APP_CDN_HOST}/test?type=kb&topic_id=${this.props.topic._id}`,
       "kbWindow",
       "width=800,height=800"
     );
   };
 
-  // Render copyable script
-  const renderScript = (code: string, copied: boolean, name: string) => {
+  renderScript(code: string, copied: boolean, name: string) {
     return (
       <MarkdownWrapper>
         <ReactMarkdown children={code} />
         {code ? (
-          <CopyToClipboard text={code} onCopy={() => handleCopy(name)}>
+          <CopyToClipboard text={code} onCopy={this.onCopy.bind(this, name)}>
             <Button btnStyle="primary" size="small" icon="copy-1">
               {copied ? "Copied" : "Copy to clipboard"}
             </Button>
@@ -156,16 +162,17 @@ const KnowledgeForm = (props: Props) => {
         )}
       </MarkdownWrapper>
     );
-  };
+  }
 
-  // Render installation code
-  const renderInstallCode = () => {
-    if (topic && topic._id) {
+  renderInstallCode() {
+    if (this.props.topic && this.props.topic._id) {
+      const { code, tag, copied, tagCopied } = this.state;
+
       return (
         <>
           <FormGroup>
             <ControlLabel>Install code</ControlLabel>
-            {renderScript(code, copied, "code")}
+            {this.renderScript(code, copied, "code")}
           </FormGroup>
 
           <FormGroup>
@@ -174,38 +181,37 @@ const KnowledgeForm = (props: Props) => {
                 "Paste the tag below where you want erxes knowledgebase to appear"
               )}
             </Info>
-            {renderScript(tag, tagCopied, "tag")}
+            {this.renderScript(tag, tagCopied, "tag")}
           </FormGroup>
         </>
       );
     }
 
     return null;
-  };
+  }
 
-  // Handle brand change
-  const handleBrandChange = () => {
-    if (topic && topic._id) {
-      const newCode = getInstallCode(topic._id);
-      setCode(newCode);
-      setCopied(false);
+  handleBrandChange = () => {
+    if (this.props.topic && this.props.topic._id) {
+      const code = KnowledgeForm.getInstallCode(this.props.topic._id);
+      this.setState({ code, copied: false });
     }
   };
 
-  // Handle notification segment change
-  const onChangeNotificationSegment = (val: OnChangeValue<{ value: string }, false>) => {
-    setNotificationSegmentId(val?.value || null);
+  onChangeNotificationSegment = (val) => {
+    this.setState({ notificationSegmentId: val?.value || null });
   };
 
-  // Generate document
-  const generateDoc = (values: {
+  generateDoc = (values: {
     _id?: string;
     title: string;
     description: string;
     brandId: string;
     code?: string;
   }) => {
-    const finalValues = { ...values };
+    const { topic } = this.props;
+    const { color, backgroundImage, languageCode, notificationSegmentId } =
+      this.state;
+    const finalValues = values;
 
     if (topic) {
       finalValues._id = topic._id;
@@ -226,29 +232,29 @@ const KnowledgeForm = (props: Props) => {
     };
   };
 
-  // Render form content
-  const renderFormContent = (currentTopic: ITopic, formProps: IFormProps) => {
-    const { brand } = currentTopic;
+  renderFormContent(topic = {} as ITopic, formProps: IFormProps) {
+    const { color, backgroundImage, languageCode, notificationSegmentId } =
+      this.state;
+    const { brand } = topic;
     const brandId = brand != null ? brand._id : "";
 
-    // Handle language change
-    const handleLanguageChange = (selectLanguage: OnChangeValue<{ value: string },false>) => {
-      setLanguageCode(selectLanguage?.value || '');
+    const languageOnChange = (selectLanguage) => {
+      this.setState({ languageCode: selectLanguage.value });
     };
 
-    const notificationSegmentOptions = segments.map((segment) => ({
+    const notificationSegmentOptions = this.props.segments.map((segment) => ({
       label: `${segment.name}`,
       value: segment._id,
     }));
 
     return (
-      <>
+      <React.Fragment>
         <FormGroup>
           <ControlLabel required={true}>Title</ControlLabel>
           <FormControl
             {...formProps}
             name="title"
-            defaultValue={currentTopic.title}
+            defaultValue={topic.title}
             required={true}
             autoFocus={true}
           />
@@ -259,7 +265,7 @@ const KnowledgeForm = (props: Props) => {
           <FormControl
             {...formProps}
             name="description"
-            defaultValue={currentTopic.description}
+            defaultValue={topic.description}
           />
         </FormGroup>
 
@@ -268,7 +274,7 @@ const KnowledgeForm = (props: Props) => {
             isRequired={true}
             defaultValue={brandId}
             formProps={formProps}
-            onChange={handleBrandChange}
+            onChange={this.handleBrandChange}
           />
         </FormGroup>
         <FlexContent>
@@ -281,7 +287,7 @@ const KnowledgeForm = (props: Props) => {
                   (o) => o.value === (languageCode || "en")
                 )}
                 options={LANGUAGES}
-                onChange={handleLanguageChange}
+                onChange={languageOnChange}
                 // formProps={formProps}
                 isClearable={false}
               />
@@ -303,7 +309,7 @@ const KnowledgeForm = (props: Props) => {
                   width="205px"
                   triangle="hide"
                   color={color}
-                  onChange={handleColorChange}
+                  onChange={this.onColorChange}
                 />
               </Popover>
             </div>
@@ -315,7 +321,7 @@ const KnowledgeForm = (props: Props) => {
           <FormControl
             {...formProps}
             name="code"
-            defaultValue={topic ? topic.code : ""}
+            defaultValue={topic.code || ""}
           />
         </FormGroup>
 
@@ -335,7 +341,7 @@ const KnowledgeForm = (props: Props) => {
                   ]
                 : []
             }
-            onChange={onBackgroundImageChange}
+            onChange={this.onBackgroundImageChange}
           />
         </FormGroup>
 
@@ -348,29 +354,30 @@ const KnowledgeForm = (props: Props) => {
                 (o) => o.value === notificationSegmentId
               )}
               isClearable={true}
-              onChange={onChangeNotificationSegment}
+              onChange={this.onChangeNotificationSegment}
             />
           </FormGroup>
         )}
 
-        {renderInstallCode()}
-      </>
+        {this.renderInstallCode()}
+      </React.Fragment>
     );
-  };
+  }
 
-  // Render content
-  const renderContent = (formProps: IFormProps) => {
+  renderContent = (formProps: IFormProps) => {
+    const { topic, closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
 
     return (
       <>
-        {renderFormContent(
-          topic || {
-            title: "",
-            description: "",
-            languageCode: "",
-            brand: { _id: "" },
-          },
+        {this.renderFormContent(
+          topic ||
+            ({
+              title: "",
+              description: "",
+              languageCode: "",
+              brand: { _id: "" },
+            } as ITopic),
           { ...formProps }
         )}
         <ModalFooter>
@@ -388,7 +395,7 @@ const KnowledgeForm = (props: Props) => {
               <Button
                 btnStyle="danger"
                 type="button"
-                onClick={handleRemove}
+                onClick={this.remove}
                 icon="trash"
                 uppercase={false}
               >
@@ -398,7 +405,7 @@ const KnowledgeForm = (props: Props) => {
               <Button
                 btnStyle="primary"
                 icon="plus-circle"
-                onClick={handleSimulate}
+                onClick={this.onSimulate}
               >
                 Simulate
               </Button>
@@ -406,7 +413,7 @@ const KnowledgeForm = (props: Props) => {
           )}
           {renderButton({
             name: "Knowledge Base",
-            values: generateDoc(values),
+            values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
             object: topic,
@@ -416,7 +423,9 @@ const KnowledgeForm = (props: Props) => {
     );
   };
 
-  return <Form renderContent={renderContent} />;
-};
+  render() {
+    return <Form renderContent={this.renderContent} />;
+  }
+}
 
 export default KnowledgeForm;

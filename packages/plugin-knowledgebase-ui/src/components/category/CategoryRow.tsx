@@ -2,7 +2,7 @@ import { ActionButtons } from "@erxes/ui-settings/src/styles";
 import Button from "@erxes/ui/src/components/Button";
 import CategoryForm from "../../containers/category/CategoryForm";
 import { CategoryItem } from "./styles";
-import { ICategory } from "@erxes/ui-knowledgebase/src/types";
+import { ICategory } from "@erxes/ui-knowledgeBase/src/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import { Link } from "react-router-dom";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
@@ -20,41 +20,36 @@ type Props = {
   queryParams?: any;
 };
 
-const CategoryRow = (props: Props) => {
-  const {
-    category,
-    topicId,
-    isActive,
-    isChild,
-    isParent,
-    queryParams,
-    remove,
-  } = props;
+class CategoryRow extends React.Component<Props> {
+  private size;
 
-  const handleRemove = () => {
+  remove = () => {
+    const { remove, category } = this.props;
     remove(category._id);
   };
 
-  const renderEditForm = (formProps) => {
-    return <CategoryForm queryParams={queryParams} {...formProps} />;
-  };
+  renderEditForm(props) {
+    return <CategoryForm queryParams={this.props.queryParams} {...props} />;
+  }
 
-  const renderEditAction = () => {
+  renderEditAction = () => {
+    const { category, topicId } = this.props;
+
     const editTrigger = (
-      <Tip text={__("Edit")} placement="bottom">
-        <Button btnStyle="link">
+      <Button btnStyle="link">
+        <Tip text={__("Edit")} placement="bottom">
           <Icon icon="edit" />
-        </Button>
-      </Tip>
+        </Tip>
+      </Button>
     );
 
-    const content = (modalProps) => {
-      return renderEditForm({ ...modalProps, category, topicId });
+    const content = (props) => {
+      return this.renderEditForm({ ...props, category, topicId });
     };
 
     return (
       <ModalTrigger
-        size="lg"
+        size={this.size}
         title="Edit"
         trigger={editTrigger}
         content={content}
@@ -62,23 +57,27 @@ const CategoryRow = (props: Props) => {
     );
   };
 
-  return (
-    <CategoryItem key={category._id} $isActive={isActive} $isChild={isChild}>
-      <Link to={`?id=${category._id}`}>
-        <div>
-          {category.title}
-          <span>({category.articles.length})</span>
-        </div>
-        {isParent && <Icon icon="angle-down" />}
-      </Link>
-      <ActionButtons>
-        {renderEditAction()}
-        <Tip text={__("Delete")} placement="bottom">
-          <Button btnStyle="link" onClick={handleRemove} icon="cancel-1" />
-        </Tip>
-      </ActionButtons>
-    </CategoryItem>
-  );
-};
+  render() {
+    const { category, isActive, isChild, isParent } = this.props;
+
+    return (
+      <CategoryItem key={category._id} $isActive={isActive} $isChild={isChild}>
+        <Link to={`?id=${category._id}`}>
+          <div>
+            {category.title}
+            <span>({category.articles.length})</span>
+          </div>
+          {isParent && <Icon icon="angle-down" />}
+        </Link>
+        <ActionButtons>
+          {this.renderEditAction()}
+          <Tip text={__("Delete")} placement="bottom">
+            <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
+          </Tip>
+        </ActionButtons>
+      </CategoryItem>
+    );
+  }
+}
 
 export default CategoryRow;

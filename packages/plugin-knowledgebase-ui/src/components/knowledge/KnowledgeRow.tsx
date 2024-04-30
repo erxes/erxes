@@ -4,7 +4,6 @@ import {
   SectionHead,
   SectionTitle,
 } from "./styles";
-import React, { useEffect, useState } from "react";
 
 import CategoryForm from "../../containers/category/CategoryForm";
 import CategoryList from "../../containers/category/CategoryList";
@@ -17,6 +16,7 @@ import Icon from "@erxes/ui/src/components/Icon";
 import KnowledgeForm from "../../containers/knowledge/KnowledgeForm";
 import { Menu } from "@headlessui/react";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
 import { __ } from "@erxes/ui/src/utils/core";
 
 type Props = {
@@ -27,6 +27,10 @@ type Props = {
   remove: (knowledgeBaseId: string) => void;
   refetchTopics: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+};
+
+type State = {
+  detailed: boolean;
 };
 
 const STORAGE_KEY = `erxes_knowledgebase_accordion`;
@@ -50,52 +54,51 @@ const collapse = (id: string, click?: boolean, isCurrent?: boolean) => {
   return isCurrent ? true : values.includes(id);
 };
 
-const KnowledgeRow = (props: Props) => {
-  const {
-    topic,
-    currentCategoryId,
-    queryParams,
-    renderButton,
-    remove,
-    refetchTopics,
-  } = props;
+class KnowledgeRow extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
 
-  const [detailed, setDetailed] = useState<boolean>(collapse(props.topic._id));
+    this.state = { detailed: collapse(props.topic._id) };
+  }
 
-  useEffect(() => {
-    const { categories } = topic;
+  toggle = () => {
+    const { topic } = this.props;
 
-    if (categories.some((category) => category._id === currentCategoryId)) {
-      setDetailed(collapse("", false, true));
-    }
-  }, [currentCategoryId]);
-
-  const handleToggle = () => {
-    setDetailed(collapse(topic._id, true));
+    this.setState({ detailed: collapse(topic._id, true) });
   };
 
-  const content = (formProps) => (
-    <KnowledgeForm
-      {...formProps}
-      renderButton={renderButton}
-      topic={topic}
-      remove={remove}
-    />
-  );
+  componentWillReceiveProps(nextProps) {
+    const { categories } = this.props.topic;
 
-  const categoryContent = (formProps) => (
-    <CategoryForm
-      {...formProps}
-      queryParams={queryParams}
-      topicId={topic._id}
-      refetchTopics={refetchTopics}
-    />
-  );
+    if (categories.includes(nextProps.currentCategoryId)) {
+      this.setState({ detailed: collapse("", false, true) });
+    }
+  }
 
-  const renderManage = () => {
+  renderManage() {
+    const { topic, renderButton, remove, refetchTopics, queryParams } =
+      this.props;
+
     const addCategory = <a>{__("Add category")}</a>;
-
     const manageTopic = <a>{__("Edit Knowledge Base")}</a>;
+
+    const content = (props) => (
+      <KnowledgeForm
+        {...props}
+        renderButton={renderButton}
+        topic={topic}
+        remove={remove}
+      />
+    );
+
+    const categoryContent = (props) => (
+      <CategoryForm
+        {...props}
+        queryParams={queryParams}
+        topicId={topic._id}
+        refetchTopics={refetchTopics}
+      />
+    );
 
     return (
       <RowActions>
@@ -122,29 +125,33 @@ const KnowledgeRow = (props: Props) => {
             />
           </Menu.Item>
         </Dropdown>
-        <DropIcon onClick={handleToggle} $isOpen={detailed} />
+        <DropIcon onClick={this.toggle} $isOpen={this.state.detailed} />
       </RowActions>
     );
-  };
+  }
 
-  return (
-    <KnowledgeBaseRow key={topic._id}>
-      <SectionHead>
-        <SectionTitle onClick={handleToggle}>
-          {topic.title} ({topic.categories.length})
-          <span>{topic.description}</span>
-        </SectionTitle>
-        {renderManage()}
-      </SectionHead>
-      {detailed && (
-        <CategoryList
-          currentCategoryId={currentCategoryId}
-          topicId={topic._id}
-          queryParams={queryParams}
-        />
-      )}
-    </KnowledgeBaseRow>
-  );
-};
+  render() {
+    const { topic, currentCategoryId, queryParams } = this.props;
+
+    return (
+      <KnowledgeBaseRow key={topic._id}>
+        <SectionHead>
+          <SectionTitle onClick={this.toggle}>
+            {topic.title} ({topic.categories.length})
+            <span>{topic.description}</span>
+          </SectionTitle>
+          {this.renderManage()}
+        </SectionHead>
+        {this.state.detailed && (
+          <CategoryList
+            currentCategoryId={currentCategoryId}
+            topicId={topic._id}
+            queryParams={queryParams}
+          />
+        )}
+      </KnowledgeBaseRow>
+    );
+  }
+}
 
 export default KnowledgeRow;
