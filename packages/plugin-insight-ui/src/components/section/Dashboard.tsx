@@ -6,8 +6,6 @@ import Box from "@erxes/ui/src/components/Box";
 import Button from "@erxes/ui/src/components/Button";
 import { CSSTransition } from "react-transition-group";
 import CollapsibleList from "@erxes/ui/src/components/collapsibleList/CollapsibleList";
-import Dropdown from "@erxes/ui/src/components/Dropdown";
-import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
 import FormContainer from "../../containers/dashboard/Form";
 import Icon from "@erxes/ui/src/components/Icon";
@@ -17,7 +15,6 @@ import { SidebarList } from "@erxes/ui/src/layout/styles";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import Tip from "@erxes/ui/src/components/Tip";
 import { __ } from "@erxes/ui/src/utils/index";
-import { router } from "@erxes/ui/src/utils";
 
 type Props = {
   queryParams: any;
@@ -45,28 +42,17 @@ const DashboardSection = (props: Props) => {
   };
 
   const extraButtons = (
-    <Dropdown
-      drop="down"
-      as={DropdownToggle}
-      toggleComponent={<Icon icon="ellipsis-h" size={16} />}
-      // alignRight={true}
-    >
-      <li>
-        {
-          <a
-            href="#addDashboard"
-            onClick={() => {
-              setCurrentDashboard({} as any);
-              setShowDrawer(!showDrawer);
-            }}
-          >
-            <Icon icon="plus-1" />
-
-            {__("Dashboard")}
-          </a>
-        }
-      </li>
-    </Dropdown>
+    <Tip text="Add dashboard">
+      <a
+        href="#addDashboard"
+        onClick={() => {
+          setCurrentDashboard({} as any);
+          setShowDrawer(!showDrawer);
+        }}
+      >
+        <Icon icon="plus-circle" />
+      </a>
+    </Tip>
   );
 
   const renderEditAction = (dashboard: any) => {
@@ -96,8 +82,7 @@ const DashboardSection = (props: Props) => {
   };
 
   const handleClick = (_id) => {
-    router.removeParams(navigate, location, ...Object.keys(queryParams));
-    router.setParams(navigate, location, { dashboardId: _id });
+    navigate(`/insight?dashboardId=${_id}`, { replace: true });
   };
 
   const renderListWithoutSection = () => {
@@ -177,13 +162,11 @@ const DashboardSection = (props: Props) => {
           unmountOnExit={true}
         >
           <RightDrawerContainer>
-            {
-              <FormContainer
-                queryParams={queryParams}
-                dashboardId={currentDashboard._id}
-                closeDrawer={closeDrawer}
-              />
-            }
+            <FormContainer
+              queryParams={queryParams}
+              dashboardId={currentDashboard._id}
+              closeDrawer={closeDrawer}
+            />
           </RightDrawerContainer>
         </CSSTransition>
       </div>
