@@ -30,6 +30,8 @@ import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectC
 import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 
 const TableWrapper = styled.div`
+  overflow: auto;
+
   table thead tr th {
     font-size: 10px;
   }
