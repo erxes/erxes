@@ -40,6 +40,7 @@ function General({
   erxesAppToken,
   otpConfig,
   mailConfig,
+  twoFactorConfig,
   socialpayConfig,
   name,
   manualVerificationConfig,
@@ -61,6 +62,9 @@ function General({
     mailConfig ? true : false
   );
 
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState<boolean>(
+    twoFactorConfig ? true : false
+  );
   const [manualVerificationEnabled, setManualVerificationEnabled] =
     useState<boolean>(manualVerificationConfig ? true : false);
 
@@ -152,6 +156,23 @@ function General({
         verifyCustomer: value,
       });
     }
+
+    if (type === "twoFactorEnabled") {
+      setTwoFactorEnabled(value);
+
+      if (!value) {
+        handleFormChange("twoFactorConfig", null);
+      } else {
+        handleFormChange("twoFactorConfig", {
+          emailSubject: "OTP verification",
+          smsTransporterType: "",
+          codeLength: 4,
+          content: "Your verification code is {{ code }}",
+          expireAfter: 1,
+          loginWithOTP: false,
+        });
+      }
+    }
   };
 
   const onChangeConfiguration = (option) => {
@@ -195,14 +216,17 @@ function General({
   }
 
   const renderOtp = () => {
-    const obj = otpConfig || {
-      emailSubject: "OTP Verification",
-      content: "",
-      codeLength: 4,
-      smsTransporterType: "messagePro",
-      loginWithOTP: false,
-      expireAfter: 1,
+    const obj = {
+      ...(otpConfig || {
+        emailSubject: "OTP Verification",
+        content: "",
+        codeLength: 4,
+        smsTransporterType: "messagePro",
+        loginWithOTP: false,
+        expireAfter: 1,
+      }),
     };
+
     const handleChange = (e) => {
       const key = e.currentTarget.id;
       const value = (e.currentTarget as HTMLInputElement).value;
@@ -265,7 +289,11 @@ function General({
               <Select
                 placeholder="Choose a configuration"
                 value={options.find((o) => o.value === obj.smsTransporterType)}
-                options={options}
+                options={smsConfigs.filter((obj, index) => {
+                  return (
+                    index === smsConfigs.findIndex((o) => obj.value === o.value)
+                  );
+                })}
                 isClearable={true}
                 name="SMS Configuration"
                 onChange={onChangeConfiguration}
@@ -345,7 +373,173 @@ function General({
       </CollapseContent>
     );
   };
+  const renderTwoFactor = () => {
+    const obj = {
+      ...(twoFactorConfig || {
+        emailSubject: "2 Factor Auth",
+        content: "",
+        codeLength: 4,
+        smsTransporterType: "messagePro",
+        enableTwoFactor: false,
+        expireAfter: 1,
+      }),
+    };
+    const handleChange = (e) => {
+      const key = e.currentTarget.id;
+      const value = (e.currentTarget as HTMLInputElement).value;
 
+      obj[key] = value;
+
+      if (key === "content") {
+        let content = value;
+
+        const base = " {{ code }} ";
+        const regex = new RegExp("[sS]*?" + base + "[sS]*?", "i");
+
+        if (!regex.test(value)) {
+          content = content.replace(/{{ code }}/g, base);
+          if (content.search(base) === -1) {
+            content = base;
+          }
+
+          content = content.replace("  ", " ");
+        }
+
+        obj.content = content;
+      }
+
+      if (["codeLength", "expireAfter"].includes(key)) {
+        obj[key] = Number(value);
+      }
+
+      if (key === "enableTwoFactor") {
+        obj[key] = e.currentTarget.checked;
+      }
+
+      handleFormChange("twoFactorConfig", obj);
+    };
+
+    const onChangeConfiguration = (option) => {
+      handleFormChange("twoFactorConfig", {
+        ...twoFactorConfig,
+        smsTransporterType: option.value,
+      });
+    };
+
+    return (
+      <CollapseContent
+        title={__("2 Factor Authentication")}
+        compact={true}
+        open={false}
+      >
+        <ToggleWrap>
+          <FormGroup>
+            <ControlLabel>Enable 2 Factor Authentication config</ControlLabel>
+            <Toggle
+              checked={twoFactorEnabled}
+              onChange={() =>
+                onChangeToggle("twoFactorEnabled", !twoFactorEnabled)
+              }
+              icons={{
+                checked: <span>Yes</span>,
+                unchecked: <span>No</span>,
+              }}
+            />
+          </FormGroup>
+        </ToggleWrap>
+
+        {twoFactorEnabled && (
+          <>
+            <FormGroup>
+              <ControlLabel>2FA Sms Configuration</ControlLabel>
+              <Select
+                placeholder="Choose a configuration"
+                value={smsConfigs.find(
+                  (o) => o.value === obj.smsTransporterType
+                )}
+                options={smsConfigs.filter((obj, index) => {
+                  return (
+                    index === smsConfigs.findIndex((o) => obj.value === o.value)
+                  );
+                })}
+                name="SMS Configuration"
+                onChange={onChangeConfiguration}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>emailSubject</ControlLabel>
+              <p>2FA email subject</p>
+              <FlexContent>
+                <FormControl
+                  id="emailSubject"
+                  name="emailSubject"
+                  value={obj.emailSubject}
+                  onChange={handleChange}
+                />
+              </FlexContent>
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel required={true}>Content</ControlLabel>
+              <p>2FA body</p>
+              <FlexContent>
+                <FormControl
+                  id="content"
+                  name="content"
+                  value={obj.content}
+                  onChange={handleChange}
+                />
+              </FlexContent>
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel required={true}>2FA code length</ControlLabel>
+              <p>2FA code length</p>
+              <FlexContent>
+                <FormControl
+                  id="codeLength"
+                  name="codeLength"
+                  value={obj.codeLength}
+                  onChange={handleChange}
+                  type={"number"}
+                  min={4}
+                />
+              </FlexContent>
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel required={true}>OTP expiry</ControlLabel>
+              <p>{"OTP expiration duration (min)"}</p>
+              <FlexContent>
+                <FormControl
+                  id="expireAfter"
+                  name="expireAfter"
+                  value={obj.expireAfter}
+                  onChange={handleChange}
+                  type={"number"}
+                  min={1}
+                  max={10}
+                />
+              </FlexContent>
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel>2FA enable</ControlLabel>
+              <p>activate 2FA</p>
+              <FlexContent>
+                <FormControl
+                  id="enableTwoFactor"
+                  name="enableTwoFactor"
+                  checked={obj.enableTwoFactor}
+                  onChange={handleChange}
+                  componentclass="checkbox"
+                />
+              </FlexContent>
+            </FormGroup>
+          </>
+        )}
+      </CollapseContent>
+    );
+  };
   const renderSocialPayConfig = () => {
     const config = socialpayConfig || {
       certId: "",
@@ -689,6 +883,7 @@ function General({
         </BlockRow>
       </CollapseContent>
       {renderOtp()}
+      {renderTwoFactor()}
       {renderSocialPayConfig()}
       {renderMailConfig()}
       <PasswordConfig

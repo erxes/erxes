@@ -6,15 +6,15 @@ import { authCookieOptions, getEnv } from '@erxes/api-utils/src/core';
 export const createJwtToken = (payload: any, clientPortal?: IClientPortal) => {
   const { tokenExpiration = 1, refreshTokenExpiration = 7 } = clientPortal || {
     tokenExpiration: 1,
-    refreshTokenExpiration: 7
+    refreshTokenExpiration: 7,
   };
 
   const token = jwt.sign(payload, process.env.JWT_TOKEN_SECRET || '', {
-    expiresIn: `${tokenExpiration}d`
+    expiresIn: `${tokenExpiration}d`,
   });
 
   const refreshToken = jwt.sign(payload, process.env.JWT_TOKEN_SECRET || '', {
-    expiresIn: `${refreshTokenExpiration}d`
+    expiresIn: `${refreshTokenExpiration}d`,
   });
 
   return { token, refreshToken };
@@ -32,10 +32,12 @@ export const verifyJwtToken = token => {
   }
 };
 
+// The variable "isPassed2FA" is True when user approved their otp code
 export const tokenHandler = async (
   user: IUserDocument,
   clientPortal: IClientPortal,
-  res
+  res,
+  isPassed2FA = false
 ) => {
   const cookieOptions: any = {};
 
@@ -46,10 +48,15 @@ export const tokenHandler = async (
   }
 
   const { tokenPassMethod = 'cookie' } = clientPortal;
-  const { token, refreshToken } = createJwtToken(
-    { userId: user._id, type: user.type },
-    clientPortal
-  );
+
+  const payload = {
+    userId: user._id,
+    type: user.type,
+    isEnableTwoFactor: clientPortal.twoFactorConfig?.enableTwoFactor,
+    isPassed2FA,
+  };
+
+  const { token, refreshToken } = createJwtToken(payload, clientPortal);
 
   if (tokenPassMethod === 'header') {
     return { token, refreshToken };
