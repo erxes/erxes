@@ -57,7 +57,7 @@ const msdynamicCheckMutations = {
 
       const productCodes = (products || []).map((p) => p.code) || [];
 
-      const response = await fetch(itemApi, {
+      const response = await fetch(`${itemApi}?$filter=Blocked eq false`, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           Accept: 'application/json',

@@ -54,6 +54,7 @@ class PerSettings extends React.Component<Props, State> {
         brandId: "",
         itemApi: "",
         itemCategoryApi: "",
+        pricePriority: "",
         priceApi: "",
         customerApi: "",
         salesApi: "",
@@ -142,6 +143,7 @@ class PerSettings extends React.Component<Props, State> {
             {this.renderInput("itemApi")}
             {this.renderInput("itemCategoryApi")}
             {this.renderInput("priceApi")}
+            {this.renderInput("pricePriority")}
             {this.renderInput("username")}
           </FormColumn>
 

@@ -15,6 +15,7 @@ import { GroupWrapper } from "@erxes/ui-segments/src/styles";
 import { IConfigsMap } from "../../types";
 import { IFieldGroup } from "@erxes/ui-forms/src/settings/properties/types";
 import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
+import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
 
 type Props = {
   configsMap: IConfigsMap;
@@ -28,7 +29,6 @@ type Props = {
 const PerSettings: React.FC<Props> = (props) => {
   const [config, setConfig] = useState(props.config);
   const [rules, setRules] = useState(props.config.rules || []);
-  const [hasOpen, setHasOpen] = useState(false);
   const { configsMap, currentConfigKey, save, fieldGroups } = props;
 
   const onSave = (e) => {
@@ -230,6 +230,19 @@ const PerSettings: React.FC<Props> = (props) => {
           </FormGroup>
         </FormColumn>
         <FormColumn>{renderInput("codeMask", "Code Mask", "")}</FormColumn>
+        <FormColumn>
+          <ControlLabel>{"Default Product"}</ControlLabel>
+          <SelectProducts
+            label={__("Default Product")}
+            name="defaultProduct"
+            initialValue={config["defaultProduct"]}
+            onSelect={(productId) =>
+              setConfig({ ...config, defaultProduct: productId })
+            }
+            multi={false}
+            filterParams={{ searchValue: config["codeMask"] }}
+          />
+        </FormColumn>
       </FormWrapper>
       {renderRules()}
       <ModalFooter>
@@ -248,6 +261,15 @@ const PerSettings: React.FC<Props> = (props) => {
           uppercase={false}
         >
           Delete
+        </Button>
+        <Button
+          btnStyle="success"
+          icon="check-circle"
+          onClick={onSave}
+          uppercase={false}
+          disabled={config.codeMask ? false : true}
+        >
+          Save
         </Button>
       </ModalFooter>
     </CollapseContent>

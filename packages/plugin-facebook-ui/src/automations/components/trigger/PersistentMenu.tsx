@@ -59,7 +59,7 @@ function PersistentMenuSelector({
     onChange("persistentMenuIds", updatedMenuIds);
   };
 
-  if (persistentMenus.length) {
+  if (!persistentMenus.length) {
     return (
       <EmptyState
         text="No persistent menus in selected bot"
