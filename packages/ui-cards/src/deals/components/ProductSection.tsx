@@ -2,6 +2,7 @@ import { CustomField, ProductName } from "../styles";
 import { IDeal, IPaymentsData, IProductData } from "../types";
 
 import Box from "@erxes/ui/src/components/Box";
+import { BoxPadding } from "@erxes/ui-contacts/src/customers/styles";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
 import { IProduct } from "@erxes/ui-products/src/types";
 import Icon from "@erxes/ui/src/components/Icon";
@@ -12,7 +13,6 @@ import React from "react";
 import { SectionBodyItem } from "@erxes/ui/src/layout/styles";
 import Tip from "@erxes/ui/src/components/Tip";
 import { __ } from "@erxes/ui/src/utils";
-import { BoxPadding } from "@erxes/ui-contacts/src/customers/styles";
 
 type Props = {
   productsData: IProductData[];
@@ -106,7 +106,7 @@ function ProductSection({
   };
 
   const renderProduct = (product: IProduct & { quantity?: number }) => {
-    if (product.customFieldsData && product.customFieldsData.length > 0) {
+    if (product.customFieldsData) {
       return (
         <Tip text={tipItems(product)} placement="bottom">
           {renderProductItem(
