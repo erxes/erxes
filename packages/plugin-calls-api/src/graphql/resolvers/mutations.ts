@@ -1,4 +1,4 @@
-import { generateToken } from '../../utils';
+import { generateToken, getRecordUrl } from '../../utils';
 import { IContext, IModels } from '../../connectionResolver';
 
 import acceptCall from '../../acceptCall';
@@ -131,9 +131,9 @@ const callsMutations = {
   async callHistoryEdit(
     _root,
     { ...doc }: ICallHistoryEdit & { inboxIntegrationId: string },
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
-    const { _id, callStatus } = doc;
+    const { _id } = doc;
     const history = await models.CallHistory.findOne({
       _id,
     });
@@ -143,6 +143,16 @@ const callsMutations = {
         { _id },
         { $set: { ...doc, modifiedAt: new Date(), modifiedBy: user._id } },
       );
+      let callRecordUrl = '';
+      callRecordUrl = await getRecordUrl(doc, user, models, subdomain);
+      if (callRecordUrl) {
+        await models.CallHistory.updateOne(
+          { _id },
+          { $set: { recordUrl: callRecordUrl } },
+        );
+        return callRecordUrl;
+      }
+
       return 'success';
     } else {
       throw new Error(`You cannot edit`);

@@ -1,6 +1,7 @@
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { IModels } from './connectionResolver';
 import { sendInboxMessage } from './messageBroker';
+import { getOrCreateCustomer } from './store';
 
 const acceptCall = async (
   models: IModels,
@@ -74,7 +75,9 @@ const acceptCall = async (
         : e,
     );
   }
-
+  if (!customer || !customer.erxesApiId) {
+    customer = await getOrCreateCustomer(models, subdomain, customerPhone);
+  }
   //save on api
   try {
     const apiConversationResponse = await sendInboxMessage({
