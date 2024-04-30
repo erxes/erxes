@@ -12,6 +12,11 @@ import {
   DialogWrapper,
   ModalOverlay,
 } from '@erxes/ui/src/styles/main';
+import styled from 'styled-components';
+
+const CustomCloseButton = styled(CloseModal)`
+  right: 60px;
+`
 
 type Props = {
   options: IOptions;
@@ -121,9 +126,9 @@ function EditForm(props: Props) {
   const renderHeader = () => {
     if (props.hideHeader) {
       return (
-        <CloseModal onClick={onHideModal}>
+        <CustomCloseButton onClick={onHideModal}>
           <Icon icon="times" />
-        </CloseModal>
+        </CustomCloseButton>
       );
     }
 
