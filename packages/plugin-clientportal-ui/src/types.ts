@@ -11,6 +11,14 @@ export type OTPConfig = {
   loginWithOTP: boolean;
   expireAfter: number;
 };
+export type TwoFactorConfig = {
+  emailSubject?: string;
+  content: string;
+  smsTransporterType?: '' | 'messagePro';
+  codeLength: number;
+  enableTwoFactor: boolean;
+  expireAfter: number;
+};
 
 export type MailConfig = {
   subject: string;
@@ -177,6 +185,7 @@ export type ClientPortalConfig = {
   purchaseToggle?: boolean;
   taskToggle?: boolean;
   otpConfig?: OTPConfig;
+  twoFactorConfig?: TwoFactorConfig;
   mailConfig?: MailConfig;
   manualVerificationConfig?: ManualVerificationConfig;
   passwordVerificationConfig?: PasswordVerificationConfig;
