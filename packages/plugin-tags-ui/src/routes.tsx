@@ -1,4 +1,4 @@
-import { Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 
 import React from "react";
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
@@ -10,9 +10,12 @@ const List = asyncComponent(
 
 const Tags = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const queryParams = queryString.parse(location.search);
 
-  return <List queryParams={queryParams} location={location} />;
+  return (
+    <List queryParams={queryParams} location={location} navigate={navigate} />
+  );
 };
 
 const routes = () => {
