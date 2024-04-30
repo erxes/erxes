@@ -1,20 +1,21 @@
-import { Alert, confirm } from '@erxes/ui/src/utils';
-import { TagsQueryResponse } from '../types';
-import { mutations, queries } from '../graphql';
+import { Alert, confirm } from "@erxes/ui/src/utils";
+import { mutations, queries } from "../graphql";
+import { useMutation, useQuery } from "@apollo/client";
 
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import List from '../components/List';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { __ } from '@erxes/ui/src/utils/core';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { gql } from '@apollo/client';
-import { useQuery, useMutation } from '@apollo/client';
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import List from "../components/List";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { TagsQueryResponse } from "../types";
+import { __ } from "@erxes/ui/src/utils/core";
+import { generatePaginationParams } from "@erxes/ui/src/utils/router";
+import { gql } from "@apollo/client";
 
 type Props = {
-  history: any;
+  location: any;
+  navigate: any;
   queryParams?: any;
 };
 
@@ -28,14 +29,14 @@ const ListContainer = (props: Props) => {
       searchValue: queryParams.searchValue,
       ...generatePaginationParams(queryParams),
     },
-    fetchPolicy: 'network-only',
+    fetchPolicy: "network-only",
   });
   const tagsQueryCount = useQuery(gql(queries.tagsQueryCount), {
     variables: {
       type: queryParams.tagType,
       searchValue: queryParams.searchValue,
     },
-    fetchPolicy: 'network-only',
+    fetchPolicy: "network-only",
   });
 
   const [removeMutation] = useMutation(gql(mutations.remove), {
@@ -45,18 +46,18 @@ const ListContainer = (props: Props) => {
     refetchQueries: getRefetchQueries(queryParams),
   });
 
-  if (tagsGetTypes.loading || tagsQuery.loading || tagsQueryCount.loading) {
+  if (tagsGetTypes.loading) {
     return <Spinner />;
   }
 
-  const tagType = queryParams.tagType || '';
+  const tagType = queryParams.tagType || "";
   const types = (tagsGetTypes.data && tagsGetTypes.data.tagsGetTypes) || [];
 
   if (types.length === 0) {
     return (
       <EmptyState
         image="/images/actions/5.svg"
-        text={__('No taggable plugin found')}
+        text={__("No taggable plugin found")}
         size="full"
       />
     );
@@ -66,7 +67,7 @@ const ListContainer = (props: Props) => {
     return (
       <EmptyState
         image="/images/actions/5.svg"
-        text={__('No taggable plugin found')}
+        text={__("No taggable plugin found")}
         size="full"
       />
     );
@@ -74,12 +75,12 @@ const ListContainer = (props: Props) => {
 
   const remove = (tag) => {
     confirm(
-      `This action will untag all ${tag.type}(s) with this tag and remove the tag. Are you sure?`,
+      `This action will untag all ${tag.type}(s) with this tag and remove the tag. Are you sure?`
     )
       .then(() => {
         removeMutation({ variables: { _id: tag._id } })
           .then(() => {
-            Alert.success('You successfully deleted a tag');
+            Alert.success("You successfully deleted a tag");
             tagsQuery.refetch();
           })
           .catch((e) => {
@@ -95,7 +96,7 @@ const ListContainer = (props: Props) => {
     mergeMutation({ variables: { sourceId, destId } })
       .then(() => {
         callback();
-        Alert.success('You successfully merged tags');
+        Alert.success("You successfully merged tags");
         tagsQuery.refetch();
       })
       .catch((e) => {
@@ -119,7 +120,7 @@ const ListContainer = (props: Props) => {
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
-          object ? 'updated' : 'added'
+          object ? "updated" : "added"
         } a ${name}`}
       />
     );

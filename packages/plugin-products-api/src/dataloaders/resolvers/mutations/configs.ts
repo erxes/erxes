@@ -25,7 +25,7 @@ const configMutations = {
       if (code === 'similarityGroup') {
         const masks = Object.keys(value);
 
-        await models.Products.updateMany({}, { $unset: { sameMasks: '' } });
+        await models.Products.updateMany({}, { $unset: { sameMasks: '', sameDefault: '' } });
         for (const mask of masks) {
           const maskValue = value[mask];
 
@@ -39,7 +39,7 @@ const configMutations = {
             `.*${mask}.*`,
             'igu',
           );
-          console.log(maskValue.filterField || 'code', 'zzzzzzzzzzzzz', mask)
+
           const fieldFilter = (maskValue.filterField || 'code').includes(
             'customFieldsData.',
           )
@@ -62,6 +62,10 @@ const configMutations = {
             },
             { $addToSet: { sameMasks: mask } },
           );
+
+          if (maskValue.defaultProduct) {
+            await models.Products.updateOne({ _id: maskValue.defaultProduct }, { $addToSet: { sameDefault: mask } });
+          }
         }
       }
     }

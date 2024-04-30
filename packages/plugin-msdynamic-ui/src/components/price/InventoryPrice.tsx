@@ -109,6 +109,7 @@ const InventoryPrice = ({
               {action === "MATCH" ? <th>{__("Matched Status")}</th> : <></>}
               {action === "CREATE" ? <th>{__("Create Status")}</th> : <></>}
               {action === "DELETE" ? <th>{__("Delete Status")}</th> : <></>}
+              {action === "ERROR" ? <th>{__("Error Status")}</th> : <></>}
             </tr>
           </thead>
           <tbody>{renderRow(data, action)}</tbody>
@@ -199,6 +200,24 @@ const InventoryPrice = ({
             objective={true}
           />
           <Pagination count={items.delete?.count || 0} />
+        </>
+      </CollapseContent>
+
+      <CollapseContent
+        title={__(
+          "Error product" + (items.error ? ":  " + items.error.count : "")
+        )}
+      >
+        <>
+          <DataWithLoader
+            data={items.delete ? renderTable(items.error?.items, "ERROR") : []}
+            loading={false}
+            emptyText={"Please check first."}
+            emptyIcon="leaf"
+            size="large"
+            objective={true}
+          />
+          <Pagination count={items.error?.count || 0} />
         </>
       </CollapseContent>
     </>
