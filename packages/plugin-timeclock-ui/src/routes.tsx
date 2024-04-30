@@ -34,7 +34,7 @@ const MainContent = () => {
 const routes = () => {
   return (
     <Routes>
-      <Route path="/timeclocks" element={<MainContent />} />
+      <Route path="/timeclocks/*" element={<MainContent />} />
     </Routes>
   );
 };
