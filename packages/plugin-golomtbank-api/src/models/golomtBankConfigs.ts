@@ -10,7 +10,7 @@ import {
 export interface IGolomtBankConfigModel extends Model<IGolomtBankConfigDocument> {
   createConfig(doc: IGolomtBankConfig): Promise<IGolomtBankConfigDocument>;
   updateConfig(_id: string, doc: any): Promise<IGolomtBankConfigDocument>;
-  getConfig(_id: string): Promise<IGolomtBankConfigDocument>;
+  getConfig(doc: any): Promise<IGolomtBankConfigDocument>;
   removeConfig(_id: string): void;
 }
 
