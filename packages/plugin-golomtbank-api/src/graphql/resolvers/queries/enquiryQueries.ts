@@ -86,9 +86,18 @@ const enquiryQueries = {
       const refenence = new GolomtBank(config);
       return refenence.refenenceList({args});
   },
-  // async getAccountInfo(_root, _args , _context: IContext) {
-  //   return Accounts.getAccounts();
-  // },
+  async getAccountInfo( _root,
+    args: {
+      configId: string;
+      accountNumber: string;
+      FinId?: string;
+    },
+    { models }: IContext) {
+      const config = await models.GolomtBankConfig.getConfig({_id: args.configId} );
+      const info = new GolomtBank(config);
+     
+    return Accounts.acntInfo(args);
+  },
   // async getAcntName(_root, _args , _context: IContext) {
   //   return Accounts.getAccounts();
   // },
