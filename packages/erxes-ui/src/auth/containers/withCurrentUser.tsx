@@ -13,14 +13,17 @@ type Props = {
 
 const withCurrentUser = (WrappedComponent) => {
   const Container = (props: Props) => {
-    const { data } = useQuery<CurrentUserQueryResponse>(gql(gq.currentUser), {
-      fetchPolicy: "cache-and-network",
-    });
+    const { loading, data } = useQuery<CurrentUserQueryResponse>(
+      gql(gq.currentUser),
+      {
+        fetchPolicy: "cache-and-network",
+      }
+    );
 
-    // if (loading || !data) {
-    //   return <div />;
-    //   // return <Spinner />;
-    // }
+    if (loading || !data) {
+      return <div />;
+      // return <Spinner />;
+    }
 
     const currentUser = data ? data.currentUser : ({} as IUser);
 

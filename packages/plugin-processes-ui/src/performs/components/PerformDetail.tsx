@@ -1,12 +1,12 @@
-import FormControl from "@erxes/ui/src/components/form/Control";
-import React from "react";
-import { __ } from "coreui/utils";
 import ActionButtons from "@erxes/ui/src/components/ActionButtons";
 import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
 import Icon from "@erxes/ui/src/components/Icon";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
 import SelectSeries from "./../containers/SelectSeries";
+import { __ } from "coreui/utils";
 
 type Props = {
   stateName: "inProducts" | "outProducts";
@@ -135,7 +135,7 @@ class PerformDetail extends React.Component<Props, State> {
 
   render() {
     const { productData, hasCost } = this.props;
-    const { product } = productData;
+    const { product = {} } = productData;
     const productName = product
       ? `${product.code} - ${product.name}`
       : "not name";
@@ -144,7 +144,7 @@ class PerformDetail extends React.Component<Props, State> {
       new Set([
         productData.uom,
         product.uom,
-        ...product.subUoms.map((su) => su.uom),
+        ...(product.subUoms || []).map((su) => su.uom),
       ])
     )
       .filter((u) => u)

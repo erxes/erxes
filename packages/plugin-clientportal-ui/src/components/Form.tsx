@@ -1,14 +1,14 @@
-import { ButtonWrap, Content } from '../styles';
-import { ClientPortalConfig, MailConfig } from '../types';
-import { isEnabled, removeTypename } from '@erxes/ui/src/utils/core';
+import { ButtonWrap, Content } from "../styles";
+import { ClientPortalConfig, MailConfig } from "../types";
+import React, { useEffect, useState } from "react";
+import { isEnabled, removeTypename } from "@erxes/ui/src/utils/core";
 
-import { Alert } from '@erxes/ui/src/utils';
-import Appearance from './forms/Appearance';
-import Button from '@erxes/ui/src/components/Button';
-import { CONFIG_TYPES } from '../constants';
-import Config from './forms/Config';
-import General from '../containers/General';
-import React, { useState, useEffect } from 'react';
+import { Alert } from "@erxes/ui/src/utils";
+import Appearance from "./forms/Appearance";
+import Button from "@erxes/ui/src/components/Button";
+import { CONFIG_TYPES } from "../constants";
+import Config from "./forms/Config";
+import General from "../containers/General";
 
 type Props = {
   configType: string;
@@ -30,7 +30,7 @@ const Form: React.FC<Props> = ({
   handleUpdate,
 }: Props) => {
   const [formValues, setFormValues] = useState<ClientPortalConfig>(
-    defaultConfigValues || ({} as ClientPortalConfig),
+    defaultConfigValues || ({} as ClientPortalConfig)
   );
 
   useEffect(() => {
@@ -43,19 +43,19 @@ const Form: React.FC<Props> = ({
     e.preventDefault();
 
     if (!formValues.name) {
-      return Alert.error('Please enter a client portal name');
+      return Alert.error("Please enter a client portal name");
     }
 
     if (formValues.url && !isUrl(formValues.url)) {
-      return Alert.error('Please enter a valid URL');
+      return Alert.error("Please enter a valid URL");
     }
 
     if (formValues.domain && !isUrl(formValues.domain)) {
-      return Alert.error('Please enter a valid domain');
+      return Alert.error("Please enter a valid domain");
     }
 
-    if (!formValues.knowledgeBaseTopicId && isEnabled('knowledgebase')) {
-      return Alert.error('Please choose a Knowledge base topic');
+    if (!formValues.knowledgeBaseTopicId && isEnabled("knowledgebase")) {
+      return Alert.error("Please choose a Knowledge base topic");
     }
 
     if (formValues.styles) {
@@ -68,13 +68,13 @@ const Form: React.FC<Props> = ({
 
       if (!mailConfig.registrationContent.match(/{{ link }}/g)) {
         return Alert.error(
-          'Please add {{ link }} to registration mail content to send verification link',
+          "Please add {{ link }} to registration mail content to send verification link"
         );
       }
 
       if (!mailConfig.invitationContent.match(/{{ link }}|{{ password }}/g)) {
         return Alert.error(
-          'Please add {{ link }} and {{ password }} to invitation mail content to send verification link and password',
+          "Please add {{ link }} and {{ password }} to invitation mail content to send verification link and password"
         );
       }
 
@@ -86,18 +86,28 @@ const Form: React.FC<Props> = ({
 
       if (!content.match(/{{ code }}/g)) {
         return Alert.error(
-          'Please add {{ code }} to OTP content to send verification code',
+          "Please add {{ code }} to OTP content to send verification code"
         );
       }
 
       formValues.otpConfig = removeTypename(formValues.otpConfig);
     }
+    if (formValues.twoFactorConfig) {
+      const { content } = formValues.twoFactorConfig;
 
+      if (!content.match(/{{ code }}/g)) {
+        return Alert.error(
+          "Please add {{ code }} to OTP content to send verification code"
+        );
+      }
+
+      formValues.twoFactorConfig = removeTypename(formValues.twoFactorConfig);
+    }
     if (
       formValues.manualVerificationConfig &&
       !formValues.manualVerificationConfig.userIds.length
     ) {
-      return Alert.error('Please select at least one user who can verify');
+      return Alert.error("Please select at least one user who can verify");
     }
 
     handleUpdate(formValues);
@@ -113,9 +123,9 @@ const Form: React.FC<Props> = ({
   const renderContent = () => {
     const commonProps = {
       ...formValues,
-      taskPublicPipelineId: formValues.taskPublicPipelineId || '',
-      taskPublicBoardId: formValues.taskPublicBoardId || '',
-      handleFormChange: handleFormChange,
+      taskPublicPipelineId: formValues.taskPublicPipelineId || "",
+      taskPublicBoardId: formValues.taskPublicBoardId || "",
+      handleFormChange,
     };
 
     switch (configType) {
