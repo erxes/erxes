@@ -63,17 +63,18 @@ export default class DealEditForm extends React.Component<Props, State> {
       productsData: item.products ? item.products.map((p) => ({ ...p })) : [],
       products: item.products
         ? item.products.map((p) => {
-            p.product.quantity = p.quantity;
+            const newProduct = { ...p.product };
+            newProduct.quantity = p.quantity;
             if (p.product.uom !== p.uom) {
-              p.product.subUoms = Array.from(
+              newProduct.subUoms = Array.from(
                 new Set([
                   ...(p.product.subUoms || []),
                   { uom: p.product.uom, ratio: 1 },
                 ])
               );
-              p.product.uom = p.uom;
+              newProduct.uom = p.uom;
             }
-            return p.product;
+            return newProduct;
           })
         : [],
 
