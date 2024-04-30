@@ -106,7 +106,7 @@ function ProductSection({
   };
 
   const renderProduct = (product: IProduct & { quantity?: number }) => {
-    if (product.customFieldsData.length > 0) {
+    if (product.customFieldsData && product.customFieldsData.length > 0) {
       return (
         <Tip text={tipItems(product)} placement="bottom">
           {renderProductItem(
