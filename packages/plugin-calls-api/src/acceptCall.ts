@@ -114,23 +114,14 @@ const acceptCall = async (
     isRPC: true,
   });
 
-  for (const channel of channels) {
-    for (const userId of channel.memberIds || []) {
-      graphqlPubsub.publish(
-        `conversationClientMessageInserted:${subdomain}:${userId}`,
-        {
-          conversationClientMessageInserted: {
-            _id: Math.random().toString(),
-            content: 'new grandstream message',
-            createdAt: new Date(),
-            customerId: customer?.erxesApiId,
-            conversationId: history.conversationId,
-          },
-          integration: inboxIntegration,
-        },
-      );
-    }
-  }
+  await sendInboxMessage({
+    subdomain,
+    action: 'conversationClientMessageInserted',
+    data: {
+      ...history?.toObject(),
+      conversationId: history.conversationId,
+    },
+  });
 
   return history;
 };
