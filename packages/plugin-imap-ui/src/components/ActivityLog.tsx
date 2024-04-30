@@ -91,7 +91,7 @@ class ActivityItem extends React.Component<Props, State> {
 
         <CenterText>
           <Link to={`/inbox/index?_id=${inboxConversationId}`}>
-            {__('See full conversation')} <Icon icon="angle-double-right" />
+            {__('See full mail')} <Icon icon="angle-double-right" />
           </Link>
         </CenterText>
         </>
