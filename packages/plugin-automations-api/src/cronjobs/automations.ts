@@ -5,27 +5,24 @@ import { getOrganizations } from '@erxes/api-utils/src/saas/saas';
 export default {
   handleMinutelyJob: async ({ subdomain }) => {
     const VERSION = getEnv({ name: 'VERSION' });
-    const DOMAIN = getEnv({
-      name: 'DOMAIN',
-    });
 
-    if (VERSION === 'saas') {
+    if (VERSION && VERSION === 'saas') {
       const orgs = await getOrganizations();
 
       for (const org of orgs) {
         sendMessage('automations:trigger', {
           subdomain: org?.subdomain,
           data: {
-            actionType: 'waiting',
-          },
+            actionType: 'waiting'
+          }
         });
       }
     } else {
       sendMessage('automations:trigger', {
         subdomain,
         data: {
-          actionType: 'waiting',
-        },
+          actionType: 'waiting'
+        }
       });
     }
   },
