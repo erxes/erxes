@@ -29,8 +29,8 @@ class StageItem extends React.Component<Props> {
     }
 
     const generateValue = () => {
-      const selected = this.props.departments.filter((department) =>
-        departmentIds.includes(department._id)
+      const selected = this.props.departments.filter(
+        (department) => departmentIds.includes(department._id) || []
       );
       return selected.map((s) => ({ value: s._id, label: s.title }));
     };
