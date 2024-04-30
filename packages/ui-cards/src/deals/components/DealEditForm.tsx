@@ -64,16 +64,16 @@ export default class DealEditForm extends React.Component<Props, State> {
       // collecting data for ItemCounter component
       products: item.products
         ? (item.products || []).map((p) => {
-            let newP = {...p.product, quantity: p?.quantity}
+            let newP = { ...p.product, quantity: p?.quantity };
 
             if (p.product.uom !== p.uom) {
-              p.product.subUoms = Array.from(
+              (p.product || {}).subUoms = Array.from(
                 new Set([
-                  ...(p.product.subUoms || []),
-                  { uom: p.product.uom, ratio: 1 },
+                  ...((p.product || {}).subUoms || []),
+                  { uom: (p.product || {}).uom, ratio: 1 },
                 ])
               );
-              newP = {...newP, uom: p?.uom}
+              newP = { ...newP, uom: p?.uom };
             }
             return newP;
           })

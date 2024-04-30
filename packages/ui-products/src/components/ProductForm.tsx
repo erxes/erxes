@@ -221,11 +221,11 @@ const Form = (props: Props) => {
 
   const renderSubUoms = () => {
     const { uoms } = props;
-    const { subUoms } = state;
+    const { subUoms = [] } = state;
 
     return subUoms.map((subUom) => {
       const updateUoms = (key, value) => {
-        const { subUoms } = state;
+        const { subUoms = [] } = state;
         subUom[key] = value;
         setState((prevState) => ({
           ...prevState,
