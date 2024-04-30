@@ -5,7 +5,7 @@ import { IContext } from '../../../connectionResolver';
 import { checkPermission } from '@erxes/api-utils/src';
 import { putActivityLog } from '../../../logUtils';
 import { getUserName } from '../../../utils';
-import { createCard } from '../../../models/utils';
+import { participantEditRelation, createCard } from '../../../models/utils';
 
 export interface IVerificationParams {
   userId: string;
@@ -17,15 +17,15 @@ const clientPortalMutations = {
   async clientPortalConfigUpdate(
     _root,
     { config }: { config: IClientPortal },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     try {
       const cpUser = await models.ClientPortalUsers.findOne({
         $or: [
           { email: { $regex: new RegExp(`^${config?.testUserEmail}$`, 'i') } },
-          { phone: { $regex: new RegExp(`^${config?.testUserPhone}$`, 'i') } }
+          { phone: { $regex: new RegExp(`^${config?.testUserPhone}$`, 'i') } },
         ],
-        clientPortalId: config._id
+        clientPortalId: config._id,
       });
 
       if (!cpUser) {
@@ -46,12 +46,12 @@ const clientPortalMutations = {
             notificationSettings: {
               receiveByEmail: false,
               receiveBySms: false,
-              configs: []
-            }
+              configs: [],
+            },
           };
 
           await models.ClientPortalUsers.createTestUser(subdomain, {
-            ...args
+            ...args,
           });
         }
       }
@@ -69,26 +69,77 @@ const clientPortalMutations = {
   async clientPortalCreateCard(
     _root,
     args,
-    { subdomain, cpUser, models }: IContext
+    { subdomain, cpUser, models }: IContext,
   ) {
     if (!cpUser) {
       throw new Error('You are not logged in');
     }
 
     return createCard(subdomain, models, cpUser, args);
-  }
+  },
+  async clientPortalParticipantRelationEdit(
+    _root,
+    {
+      type,
+      cardId,
+      cpUserIds,
+      oldCpUserIds,
+    }: {
+      type: string;
+      cardId: string;
+      cpUserIds: [string];
+      oldCpUserIds: [string];
+    },
+    { subdomain, cpUser, models }: IContext,
+  ) {
+    return participantEditRelation(
+      subdomain,
+      models,
+      type,
+      cardId,
+      oldCpUserIds,
+      cpUserIds,
+    );
+  },
+
+  async clientPortalParticipantEdit(
+    _root,
+    args: {
+      _id: string;
+      contentType: string;
+      contentTypeId: string;
+      cpUserId: string;
+      status: string;
+      paymentStatus: string;
+      paymentAmount: number;
+      offeredAmount: number;
+      hasVat: Boolean;
+    },
+    { subdomain, cpUser, models }: IContext,
+  ) {
+    const { _id, ...rest } = args;
+    await models.ClientPortalUserCards.updateOne(
+      { _id: args._id },
+      {
+        $set: {
+          ...rest,
+        },
+      },
+    );
+    return models.ClientPortalUserCards.findOne({ _id: args._id });
+  },
 };
 
 checkPermission(
   clientPortalMutations,
   'clientPortalConfigUpdate',
-  'manageClientPortal'
+  'manageClientPortal',
 );
 
 checkPermission(
   clientPortalMutations,
   'clientPortalRemove',
-  'removeClientPortal'
+  'removeClientPortal',
 );
 
 export default clientPortalMutations;

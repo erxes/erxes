@@ -3,15 +3,28 @@ import { GraphQLError } from 'graphql';
 import { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { extractClientportalToken } from '@erxes/api-utils/src/clientportal';
-import { generateModels } from '../connectionResolver';
+import { IModels, generateModels } from '../connectionResolver';
 
 export default async function cpUserMiddleware(
   req: Request & { cpUser?: any },
   res: Response,
   next: NextFunction,
 ) {
+  if (
+    req.path === '/subscriptionPlugin.js' ||
+    req.body?.operationName === 'SubgraphIntrospectQuery' ||
+    req.body?.operationName === 'IntrospectionQuery'
+  ) {
+    return next();
+  }
+
   const subdomain = getSubdomain(req);
-  const models = await generateModels(subdomain);
+  let models: IModels;
+  try {
+    models =  await generateModels(subdomain);
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
+  }
   const { body } = req;
 
   const operationName = body.operationName && body.operationName.split('__')[0];

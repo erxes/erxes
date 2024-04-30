@@ -114,6 +114,18 @@ class MainLayout extends React.Component<IProps, State> {
               'links.website': links.website || '',
               isSubscribed: currentUser.isSubscribed,
             },
+            companyData: {
+              organizationName: name,
+              organizationSubDomain: subdomain,
+              organizationPlan: plan,
+              organizationExpiryDate: expiryDate,
+              organizationCreatedAt: createdAt,
+              isWhiteLabel,
+              organizationIsPaid: isPaid,
+              organizationBundles: bundleNames,
+              organizationExpierence: experienceName,
+              organizationCharges: JSON.stringify(currentOrganization.charge),
+            },
           },
         };
 

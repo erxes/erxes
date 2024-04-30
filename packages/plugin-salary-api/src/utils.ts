@@ -116,7 +116,7 @@ export const handleUpload = async (
   subdomain: string,
   user: any,
   file: any,
-  title: string
+  doc: any
 ) => {
   try {
     const models = await generateModels(subdomain);
@@ -135,8 +135,8 @@ export const handleUpload = async (
       i <= usedRange.endCell().rowNumber();
       i++
     ) {
+      let dbUser;
       const headersRow: string[] = [];
-
       if (i === 1 || i === 2) {
         for (
           let j = usedRange.startCell().columnNumber();
@@ -209,6 +209,8 @@ export const handleUpload = async (
         if (!employee) {
           continue;
         }
+
+        dbUser = employee;
       }
 
       if (
@@ -229,10 +231,14 @@ export const handleUpload = async (
       }
 
       const salaryDoc: any = {
-        title,
+        ...doc,
         createdBy: user._id,
         createdAt: new Date()
       };
+
+      if (dbUser) {
+        salaryDoc['userId'] = dbUser._id;
+      }
 
       for (const [index, value] of row.entries()) {
         if (value && index === 0) {

@@ -280,8 +280,6 @@ const BuildingForm = (props: Props) => {
     return <OSMBuildings {...mapProps} />;
   };
 
-  console.log('form buildingsByBounds');
-  console.log(buildingsByBounds);
   const onChangeCenter = (newCenter: ICoordinates, bounds: ICoordinates[]) => {
     bounds.push(bounds[0]);
     props.getBuildingsWithingBounds(bounds);

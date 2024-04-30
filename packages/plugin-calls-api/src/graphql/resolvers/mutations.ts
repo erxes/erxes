@@ -5,6 +5,8 @@ import receiveCall from '../../receiveCall';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { ICallHistory } from '../../models/definitions/callHistories';
+import { sendInboxMessage } from '../../messageBroker';
+import { updateConfigs } from '../../helpers';
 
 export interface ISession {
   sessionCode: string;
@@ -31,7 +33,24 @@ const callsMutations = {
     if (args.callID) {
       conversation = await models.Conversations.findOne({
         callId: args.callID,
+      }).lean();
+    }
+    if (conversation && conversation.integrationId) {
+      const channels = await sendInboxMessage({
+        subdomain,
+        action: 'channels.find',
+        data: {
+          integrationIds: { $in: [conversation.integrationId] },
+        },
+        isRPC: true,
       });
+
+      if (channels && channels.length > 0) {
+        conversation = {
+          ...conversation,
+          channels: channels,
+        };
+      }
     }
 
     return {
@@ -141,6 +160,12 @@ const callsMutations = {
     }
 
     return history.remove();
+  },
+
+  async callsUpdateConfigs(_root, { configsMap }, { models }: IContext) {
+    await updateConfigs(models, configsMap);
+
+    return { status: 'ok' };
   },
 };
 

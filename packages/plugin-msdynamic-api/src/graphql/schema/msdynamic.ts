@@ -17,6 +17,7 @@ const commonHistoryParams = `
 export const queries = `
   syncMsdHistories(${commonHistoryParams}): [SyncMsdHistory]
   syncMsdHistoriesCount(${commonHistoryParams}): Int
+  msdProductsRemainder(brandId: String, productCodes: [String]): JSON
 `;
 
 export const mutations = `

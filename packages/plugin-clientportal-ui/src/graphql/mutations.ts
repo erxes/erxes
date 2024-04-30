@@ -135,7 +135,16 @@ mutation ClientPortalFieldConfigsEdit($fieldId: String!, $allowedClientPortalIds
   }
 }
 `;
-
+const clientPortalParticipantRelationEdit = `
+mutation clientPortalParticipantRelationEdit($type: String!, $cardId: String!, $cpUserIds: [String],$oldCpUserIds: [String]) {
+  clientPortalParticipantRelationEdit(type: $type, cardId: $cardId, cpUserIds: $cpUserIds,oldCpUserIds: $oldCpUserIds)
+}`;
+const clientPortalParticipantEdit = `
+mutation clientPortalParticipantEdit($id: String!, $contentType: UserCardEnum, $contentTypeId: String, $cpUserId: String, $status: UserCardStatusEnum, $paymentStatus: UserCardPaymentEnum, $paymentAmount: Float, $offeredAmount: Float, $hasVat: Boolean) {
+  clientPortalParticipantEdit(_id: $id, contentType: $contentType, contentTypeId: $contentTypeId, cpUserId: $cpUserId, status: $status, paymentStatus: $paymentStatus, paymentAmount: $paymentAmount, offeredAmount: $offeredAmount, hasVat: $hasVat) {
+    _id
+  }
+}`;
 export default {
   createOrUpdateConfig,
   remove,
@@ -147,5 +156,7 @@ export default {
   clientPortalCommentsRemove,
   changeVerificationStatus,
   editFields,
-  clientPortalUserAssignCompany
+  clientPortalUserAssignCompany,
+  clientPortalParticipantRelationEdit,
+  clientPortalParticipantEdit,
 };

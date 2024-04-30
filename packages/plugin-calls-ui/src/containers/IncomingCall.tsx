@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import IncomingCall from '../components/IncomingCall';
+import { gql, useMutation } from '@apollo/client';
 
+import { Alert } from '@erxes/ui/src/utils';
+import { ICustomer } from '../types';
+import IncomingCall from '../components/IncomingCall';
 import { __ } from '@erxes/ui/src/utils/core';
 import { callPropType } from '../lib/types';
-
-import { gql, useMutation } from '@apollo/client';
-import { mutations } from '../graphql';
-import { Alert } from '@erxes/ui/src/utils';
 import client from '@erxes/ui/src/apolloClient';
+import { mutations } from '../graphql';
 import queries from '../graphql/queries';
+import { extractPhoneNumberFromCounterpart } from '../utils';
 
 interface IProps {
   closeModal?: () => void;
@@ -16,22 +17,19 @@ interface IProps {
 }
 
 const IncomingCallContainer = (props: IProps, context) => {
-  const [customer, setCustomer] = useState<any>(undefined);
+  const [customer, setCustomer] = useState<any>({} as ICustomer);
   const [conversation, setConversation] = useState<any>(undefined);
-
   const [hasMicrophone, setHasMicrophone] = useState(false);
 
   const { callUserIntegrations } = props;
   const { call } = context;
 
-  const phoneNumber = context?.call?.counterpart?.slice(
-    context.call.counterpart.indexOf(':') + 1,
-    context.call.counterpart.indexOf('@'),
+  const phoneNumber = extractPhoneNumberFromCounterpart(
+    context?.call?.counterpart,
   );
 
-  const defaultCallIntegration = localStorage.getItem(
-    'config:call_integrations',
-  );
+  const defaultCallIntegration =
+    localStorage.getItem('config:call_integrations') || '{}';
   const inboxId =
     JSON.parse(defaultCallIntegration)?.inboxId ||
     callUserIntegrations?.[0]?.inboxId;
@@ -62,7 +60,7 @@ const IncomingCallContainer = (props: IProps, context) => {
           inboxIntegrationId: inboxId,
           primaryPhone: phoneNumber,
           direction: 'incoming',
-          callID: call.id,
+          callID: call?.id,
         },
       })
         .then(({ data }: any) => {
@@ -134,6 +132,7 @@ const IncomingCallContainer = (props: IProps, context) => {
       conversation={conversation}
       hasMicrophone={hasMicrophone}
       addNote={addNote}
+      phoneNumber={phoneNumber}
     />
   );
 };

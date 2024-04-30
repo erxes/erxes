@@ -1,7 +1,5 @@
 import * as JsSIP from 'jssip';
 import * as PropTypes from 'prop-types';
-import React from 'react';
-import dummyLogger from '../../lib/dummyLogger';
 
 import {
   CALL_DIRECTION_INCOMING,
@@ -26,14 +24,17 @@ import {
   SipStatus,
 } from '../../lib/enums';
 import {
-  callPropType,
   ExtraHeaders,
-  extraHeadersPropType,
   IceServers,
+  callPropType,
+  extraHeadersPropType,
   iceServersPropType,
   sipPropType,
 } from '../../lib/types';
 import { ICallConfigDoc } from '../../types';
+
+import React from 'react';
+import dummyLogger from '../../lib/dummyLogger';
 import { setLocalStorage } from '../../utils';
 
 export default class SipProvider extends React.Component<
@@ -59,7 +60,6 @@ export default class SipProvider extends React.Component<
       callEndTime: Date,
       callStatus: string,
     ) => void;
-    callsActiveSession: any;
   },
   {
     sipStatus: SipStatus;
@@ -117,7 +117,7 @@ export default class SipProvider extends React.Component<
     autoRegister: true,
     autoAnswer: false,
     iceRestart: true,
-    sessionTimersExpires: 120,
+    sessionTimersExpires: 3600,
     extraHeaders: { register: [], invite: [] },
     iceServers: [],
     debug: false,
@@ -157,6 +157,7 @@ export default class SipProvider extends React.Component<
         status: this.state.callStatus,
         direction: this.state.callDirection,
         counterpart: this.state.callCounterpart,
+        startTime: this.state.rtcSession?._start_time?.toString(),
       },
       registerSip: this.registerSip,
       unregisterSip: this.unregisterSip,
@@ -181,7 +182,7 @@ export default class SipProvider extends React.Component<
     const callConfig = JSON.parse(
       localStorage.getItem('config:call_integrations') || '{}',
     );
-    const callInfo = JSON.parse(localStorage.getItem('callInfo'));
+    const callInfo = JSON.parse(localStorage.getItem('callInfo') || '{}');
 
     if (
       this.state.sipStatus === SIP_STATUS_REGISTERED &&
@@ -300,7 +301,6 @@ export default class SipProvider extends React.Component<
         `Calling answerCall() is not allowed when call status is ${this.state.callStatus} and call direction is ${this.state.callDirection}  (expected ${CALL_STATUS_STARTING} and ${CALL_DIRECTION_INCOMING})`,
       );
     }
-
     this.state.rtcSession.answer({
       mediaConstraints: {
         audio: true,
@@ -373,6 +373,8 @@ export default class SipProvider extends React.Component<
         iceServers,
       },
       sessionTimersExpires,
+      no_answer_timeout: 3600,
+      session_timers: true,
     };
 
     this.ua.call(destination, options);
@@ -466,13 +468,13 @@ export default class SipProvider extends React.Component<
       });
     });
 
-    ua.on('disconnected', () => {
+    ua.on('disconnected', (e) => {
       this.logger.debug('UA "disconnected" event');
       if (this.ua !== ua) {
         return;
       }
       setLocalStorage(false, false);
-
+      console.log('disconnected:', e);
       this.setState({
         sipStatus: SIP_STATUS_ERROR,
         sipErrorType: SIP_ERROR_TYPE_CONNECTION,
@@ -491,10 +493,6 @@ export default class SipProvider extends React.Component<
       });
 
       setLocalStorage(true, true);
-
-      if (!this.props.callsActiveSession) {
-        this.props.createSession();
-      }
     });
 
     ua.on('unregistered', () => {
@@ -519,7 +517,7 @@ export default class SipProvider extends React.Component<
 
     ua.on('registrationFailed', (data) => {
       this.logger.debug('UA "registrationFailed" event');
-
+      console.log('registrationfailed:', data);
       if (this.ua !== ua) {
         return;
       }
@@ -635,6 +633,7 @@ export default class SipProvider extends React.Component<
         });
 
         rtcSession.on('bye', () => {
+          console.log('bye:');
           if (this.ua !== ua) {
             return;
           }
@@ -649,6 +648,7 @@ export default class SipProvider extends React.Component<
         });
 
         rtcSession.on('rejected', function (e) {
+          console.log('rejected:', e);
           if (this.ua !== ua) {
             return;
           }
@@ -676,7 +676,6 @@ export default class SipProvider extends React.Component<
           if (this.ua !== ua) {
             return;
           }
-
           [this.remoteAudio.srcObject] =
             rtcSession.connection.getRemoteStreams();
 
@@ -731,7 +730,7 @@ export default class SipProvider extends React.Component<
   }
 
   public render() {
-    console.log('sip state: ', this.state);
+    console.log(this.state, 'state');
     return this.props.children(this.state);
   }
 }

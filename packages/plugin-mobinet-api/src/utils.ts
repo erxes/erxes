@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 import { generateModels } from './connectionResolver';
 import { generateFieldsFromSchema } from '@erxes/api-utils/src';
+import { GeoJSON } from 'geojson';
 
 const sendSms = async (phone, message) => {
   // check message length and split then send multiple sms
@@ -66,6 +67,72 @@ export const generateFields = async ({ subdomain }) => {
   }
 
   return fields;
+};
+
+// http://localhost:4000/pl:mobinet/buildings?southWest=47.9085481324375,106.91689106245177&northEast=47.9085481324375,106.9313963453378
+
+export const getBuildingsByBounds = async (req, res) => {
+  const { bounds } = req.query;
+  const subdomain = req.subdomain;
+
+  if (!bounds) {
+    return res.status(400).json({ error: 'Bounds are required' });
+  }
+
+  const boundsJson = JSON.parse(bounds);
+
+  const boundsArr = boundsJson.map((bound) => [
+    bound.longitude,
+    bound.latitude,
+  ]);
+
+  boundsArr.push(boundsArr[0]);
+
+  const models = await generateModels(subdomain);
+  const query = {
+    location: {
+      $geoWithin: { $polygon: boundsArr },
+    },
+  };
+
+  const buildings = await models.Buildings.find(query).lean();
+
+  const getCoordinates = (boundingbox) => {
+    if (!boundingbox) {
+      return [];
+    }
+    return [
+      [boundingbox.minLong, boundingbox.minLat],
+      [boundingbox.maxLong, boundingbox.minLat],
+      [boundingbox.maxLong, boundingbox.maxLat],
+      [boundingbox.minLong, boundingbox.maxLat],
+      [boundingbox.minLong, boundingbox.minLat],
+    ];
+  };
+
+  const features: any[] = buildings.map((building) => {
+    return {
+      id: building.osmbId || building._id,
+      type: 'Feature',
+      properties: {
+        ...building,
+        minHeight: 0,
+        height: Number(building.floors * 3),
+        id: building.osmbId || building._id,
+      },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [getCoordinates(building.boundingbox)],
+      },
+    };
+  });
+
+  const geoJson: GeoJSON = {
+    type: 'FeatureCollection',
+    features,
+  };
+
+  return res.json(geoJson);
 };
 
 export { sendSms };

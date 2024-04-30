@@ -30,7 +30,9 @@ const ITEM_QUERY = gql`
         }
       }
       totalFee
-      vendorUser
+      vendorUser {
+        _id
+      }
     }
   }
 `;

@@ -6,11 +6,18 @@ import { gql, useQuery, useMutation, useLazyQuery } from '@apollo/client';
 import { __, Alert, confirm } from '@erxes/ui/src/utils';
 import List from '../components/SalaryList';
 import { queries, mutations } from '../graphql';
+import { generateParams } from '../utils';
 
 type Props = {
   refetch?: () => void;
   history?: any;
   queryParams: any;
+
+  getActionBar: (actionBar: any) => void;
+  showSideBar: (sideBar: boolean) => void;
+  getPagination: (pagination: any) => void;
+  setLoading: (loading: boolean) => void;
+  setEmptyContentButton: (content: any) => void;
 } & IRouterProps;
 
 export default function ListContainer(props: Props) {
@@ -18,7 +25,8 @@ export default function ListContainer(props: Props) {
     props.history.location.pathname === '/profile/salaries';
 
   const variables: any = {
-    ...router.generatePaginationParams(props.queryParams || {})
+    ...router.generatePaginationParams(props.queryParams || {}),
+    ...generateParams(props.queryParams || {})
   };
 
   const salariesQry = useQuery(gql(queries.salaryReport), {
@@ -102,13 +110,13 @@ export default function ListContainer(props: Props) {
   let totalCount = 0;
 
   if (!isEmployeeSalary) {
-    salaries = salariesQry.data.salaryReport.list || [];
-    totalCount = salariesQry.data.salaryReport.totalCount || 0;
+    salaries = salariesQry.data?.salaryReport?.list || [];
+    totalCount = salariesQry.data?.salaryReport?.totalCount || 0;
   }
 
   if (isEmployeeSalary) {
-    salaries = (data && data.bichilSalaryByEmployee.list) || [];
-    totalCount = (data && data.bichilSalaryByEmployee.totalCount) || 0;
+    salaries = (data && data.salaryByEmployee.list) || [];
+    totalCount = (data && data.salaryByEmployee.totalCount) || 0;
 
     if (error) {
       Alert.error(error.message);
@@ -120,6 +128,11 @@ export default function ListContainer(props: Props) {
 
   const extendedProps = {
     ...props,
+    loading:
+      loading ||
+      labelsQuery.loading ||
+      salariesQry.loading ||
+      symbolsQuery.loading,
     labels,
     symbols,
     salaries,

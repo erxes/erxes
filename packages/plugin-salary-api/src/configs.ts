@@ -79,13 +79,17 @@ export default {
             return res.status(200).json({ error: 'File is required' });
           }
 
+          const [startDateString, endDateString] = title.split('-');
+
+          const startDate = new Date(startDateString);
+          const endDate = new Date(endDateString);
+
           try {
-            const message = await handleUpload(
-              subdomain,
-              req.user,
-              file,
-              title
-            );
+            const message = await handleUpload(subdomain, req.user, file, {
+              title,
+              startDate,
+              endDate
+            });
 
             res.status(200).json({ success: true, message });
           } catch (e) {

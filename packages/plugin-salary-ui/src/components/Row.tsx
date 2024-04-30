@@ -23,12 +23,12 @@ const Row = (props: Props) => {
     };
 
     return (
-      <Tip text={__('Delete')} placement="top">
+      <Tip text={__('Delete')} placement='top'>
         <Button
-          id="configDelete"
-          btnStyle="link"
+          id='configDelete'
+          btnStyle='link'
           onClick={onClick}
-          icon="times-circle"
+          icon='times-circle'
         />
       </Tip>
     );
@@ -37,13 +37,8 @@ const Row = (props: Props) => {
   const branches =
     (salary && salary.employee && salary.employee.branches) || [];
 
-  const branchText = branches
-    .map((branch) => branch.name)
-    .join(', ')
-    .slice(0, -1);
-  const position = salary.employee
-    ? salary.employee.details.position?.name
-    : '-';
+  const branchesList = branches.map(branch => <div>{branch.title}</div>);
+  const position = salary.employee ? salary.employee.details.position : '-';
 
   const fullName = salary.employee
     ? salary.employee.details.lastName + ' ' + salary.employee.details.firstName
@@ -51,27 +46,27 @@ const Row = (props: Props) => {
 
   return (
     <tr>
-      <td key={'title'}>
+      <td key={Math.random()}>
         <RowTitle>{salary.title || '-'}</RowTitle>
       </td>
 
-      <td key={'employeeId'}>
+      <td key={salary.employeeId}>
         <RowTitle>{salary.employeeId || '-'}</RowTitle>
       </td>
 
-      <td key={'department'}>
-        <RowTitle>{branchText || '-'}</RowTitle>
+      <td key={Math.random()}>
+        <RowTitle>{branchesList || '-'}</RowTitle>
       </td>
 
-      <td key={'position'}>
+      <td key={position}>
         <RowTitle>{position || '-'}</RowTitle>
       </td>
 
-      <td key={'fullName'}>
+      <td key={fullName}>
         <RowTitle>{fullName || '-'}</RowTitle>
       </td>
 
-      {keys.map((key) => (
+      {keys.map(key => (
         <td key={key}>
           <RowTitle>
             {Number(salary[key]).toLocaleString() + ' ' + symbols[key] || '-'}

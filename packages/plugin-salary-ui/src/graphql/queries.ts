@@ -1,3 +1,27 @@
+const listParamsDef = `
+  $page: Int
+  $perPage: Int
+  $startDate: Date
+  $endDate: Date
+  $userIds: [String]
+  $branchIds: [String]
+  $departmentIds: [String]
+  $employeeId: String
+  $dateFilter: Boolean
+`;
+
+const listParamsValue = `
+  page: $page
+  perPage: $perPage
+  startDate: $startDate
+  endDate: $endDate
+  userIds: $userIds
+  branchIds: $branchIds
+  departmentIds: $departmentIds
+  employeeId: $employeeId
+  dateFilter: $dateFilter
+`;
+
 const labelsQuery = `
   query salaryLabels {
     salaryLabels
@@ -59,8 +83,8 @@ title
 `;
 
 const salaryReport = `
-query salaryReport($page: Int, $perPage: Int) {
-  salaryReport(page: $page, perPage: $perPage) {
+query salaryReport(${listParamsDef}) {
+  salaryReport(${listParamsValue}) {
     list {
       ${salaryFields}
     }
@@ -84,5 +108,5 @@ export default {
   labelsQuery,
   salaryReport,
   salaryByEmployee,
-  symbolsQuery,
+  symbolsQuery
 };

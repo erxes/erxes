@@ -97,6 +97,26 @@ const putResponsesByDate = `
   }
 `;
 
+const putResponsesDuplicated = `
+  query putResponsesDuplicated($billType: String, $startDate: Date, $endDate: Date, $page: Int, $perPage: Int) {
+    putResponsesDuplicated(billType: $billType, startDate: $startDate, endDate: $endDate, page: $page, perPage: $perPage)
+  }
+`;
+
+const putResponsesDuplicatedDetail = `
+  query putResponsesDuplicatedDetail($contentId: String, $taxType: String) {
+    putResponsesDuplicatedDetail(contentId: $contentId, taxType: $taxType) {
+      ${responseFields}
+    }
+  }
+`;
+
+const putResponsesDuplicatedCount = `
+  query putResponsesDuplicatedCount($billType: String, $startDate: Date, $endDate: Date) {
+    putResponsesDuplicatedCount(billType: $billType, startDate: $startDate, endDate: $endDate)
+  }
+`;
+
 const putResponsesCount = `
   query putResponsesCount(${listParamsDef}) {
     putResponsesCount(${listParamsValue})
@@ -120,5 +140,8 @@ export default {
   putResponsesByDate,
   putResponsesCount,
   putResponsesAmount,
-  getDealLink
+  getDealLink,
+  putResponsesDuplicated,
+  putResponsesDuplicatedCount,
+  putResponsesDuplicatedDetail,
 };
