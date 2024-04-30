@@ -6,8 +6,6 @@ import Box from "@erxes/ui/src/components/Box";
 import Button from "@erxes/ui/src/components/Button";
 import { CSSTransition } from "react-transition-group";
 import CollapsibleList from "@erxes/ui/src/components/collapsibleList/CollapsibleList";
-import Dropdown from "@erxes/ui/src/components/Dropdown";
-import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
 import FormContainer from "../../containers/report/Form";
 import Icon from "@erxes/ui/src/components/Icon";
@@ -17,7 +15,6 @@ import { SidebarList } from "@erxes/ui/src/layout/styles";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import Tip from "@erxes/ui/src/components/Tip";
 import { __ } from "@erxes/ui/src/utils/index";
-import { router } from "@erxes/ui/src/utils";
 
 type Props = {
   queryParams: any;
@@ -44,26 +41,17 @@ const ReportSection = (props: Props) => {
   };
 
   const extraButtons = (
-    <Dropdown
-      drop="down"
-      as={DropdownToggle}
-      toggleComponent={<Icon icon="ellipsis-h" size={16} />}
-      // alignRight={true}
-    >
-      <li>
-        <a
-          href="#addReport"
-          onClick={() => {
-            setCurrentReport({} as any);
-            setShowDrawer(!showDrawer);
-          }}
-        >
-          <Icon icon="plus-1" />
-
-          {__("Report")}
-        </a>
-      </li>
-    </Dropdown>
+    <Tip text="Add report">
+      <a
+        href="#addReport"
+        onClick={() => {
+          setCurrentReport({} as any);
+          setShowDrawer(!showDrawer);
+        }}
+      >
+        <Icon icon="plus-circle" />
+      </a>
+    </Tip>
   );
 
   const renderEditAction = (report: any) => {
@@ -93,8 +81,7 @@ const ReportSection = (props: Props) => {
   };
 
   const handleClick = (reportId) => {
-    router.removeParams(navigate, location, ...Object.keys(queryParams));
-    router.setParams(navigate, location, { reportId });
+    navigate(`/insight?reportId=${reportId}`, {replace: true})
   };
 
   const renderListWithoutSection = () => {

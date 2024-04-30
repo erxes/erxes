@@ -25,7 +25,7 @@ const SelectMembersPopover = (props: Props) => {
       placement="bottom-end"
       className="custom-popover"
     >
-      <h3>{__("Choose person")}</h3>
+      <div className="popover-header">{__("Choose person")}</div>
       <PopoverContent>
         <SelectMembersBox targets={targets} type={type} />
       </PopoverContent>

@@ -46,7 +46,7 @@ function MenuItem({ to, title, children, isLast, ...props }: Props) {
 
   return (
     <Item $isLast={isLast}>
-      <NavLink {...props} {...linkProps}>
+      <NavLink {...props} {...linkProps} end>
         {children}
       </NavLink>
     </Item>

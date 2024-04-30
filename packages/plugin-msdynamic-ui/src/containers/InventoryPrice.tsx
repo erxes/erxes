@@ -59,6 +59,7 @@ const InventoryPriceContainer = (props: FinalProps) => {
         setSyncStatus(data, "update");
         setSyncStatus(data, "match");
         setSyncStatus(data, "delete");
+        setSyncStatus(data, "error");
 
         setItems(response.data.toSyncMsdPrices);
         setLoading(false);

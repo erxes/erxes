@@ -1,4 +1,8 @@
 import {
+  ChildList,
+  ToggleIcon,
+} from "@erxes/ui/src/components/filterableList/styles";
+import {
   FieldStyle,
   SidebarCounter,
   SidebarList,
@@ -13,10 +17,6 @@ import Icon from "@erxes/ui/src/components/Icon";
 import { Link } from "react-router-dom";
 import React from "react";
 import { __ } from "@erxes/ui/src/utils";
-import {
-  ChildList,
-  ToggleIcon,
-} from "@erxes/ui/src/components/filterableList/styles";
 
 type Props = {
   currentSegment?: string;
@@ -206,10 +206,6 @@ class Segments extends React.Component<Props, State> {
         collapsible={segments.length > 7}
         isOpen={true}
         name="showFilterBySegments"
-        noShadow={true}
-        noMarginBottom={true}
-        noBackground
-        noSpacing
       >
         <DataWithLoader
           data={this.renderData()}

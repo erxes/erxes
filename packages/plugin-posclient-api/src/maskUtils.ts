@@ -24,7 +24,18 @@ export const groupBySameMasksAggregator = (isCount = false) => {
     },
     {
       $unwind: '$sameMasks'
-    }
+    },
+    {
+      $addFields: {
+        sameSort: {
+          $cond: {
+            if: { $and: [{ $isArray: '$sameDefault' }, { $in: ['$sameMasks', '$sameDefault'] }] },
+            then: '1',
+            else: ''
+          }
+        }
+      }
+    },
   ];
 
   if (isCount) {
@@ -46,7 +57,7 @@ export const groupBySameMasksAggregator = (isCount = false) => {
 
   return [
     ...sameArr,
-    { $sort: { 'code': 1 } },
+    { $sort: { 'sameSort': -1, code: 1 } },
     {
       $group: {
         _id: { sameMasks: '$sameMasks' },

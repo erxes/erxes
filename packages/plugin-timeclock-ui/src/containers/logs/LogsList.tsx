@@ -1,21 +1,21 @@
-import { withProps } from '@erxes/ui/src/utils/core';
-import * as compose from 'lodash.flowright';
-import { graphql } from '@apollo/client/react/hoc';
-import { gql } from '@apollo/client';
-import React, { useState } from 'react';
-import LogsList from '../../components/logs/LogsList';
-import { mutations, queries } from '../../graphql';
+import { withProps } from "@erxes/ui/src/utils/core";
+import * as compose from "lodash.flowright";
+import { graphql } from "@apollo/client/react/hoc";
+import { gql } from "@apollo/client";
+import React, { useState } from "react";
+import LogsList from "../../components/logs/LogsList";
+import { mutations, queries } from "../../graphql";
 import {
   TimeLogsQueryResponse,
   ReportsQueryResponse,
-  TimeLogMutationResponse
-} from '../../types';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { generateParams } from '../../utils';
-import { dateFormat } from '../../constants';
-import dayjs from 'dayjs';
-import { Alert, confirm } from '@erxes/ui/src/utils';
-import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
+  TimeLogMutationResponse,
+} from "../../types";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { generateParams } from "../../utils";
+import { dateFormat } from "../../constants";
+import dayjs from "dayjs";
+import { Alert, confirm } from "@erxes/ui/src/utils";
+import { IBranch, IDepartment } from "@erxes/ui/src/team/types";
 
 type Props = {
   queryParams: any;
@@ -43,7 +43,7 @@ const ListContainer = (props: FinalProps) => {
     listTimelogsQuery,
     queryParams,
     extractTimeLogsFromMsSQLMutation,
-    createTimeClockFromLogMutation
+    createTimeClockFromLogMutation,
   } = props;
 
   const { branchId, deptId } = queryParams;
@@ -53,7 +53,12 @@ const ListContainer = (props: FinalProps) => {
     return <Spinner />;
   }
 
-  const { list = [], totalCount = 0 } = listTimelogsQuery.timelogsMain;
+  const totalCount = listTimelogsQuery.timelogsMain?.totalCount
+    ? listTimelogsQuery.timelogsMain?.totalCount
+    : 0;
+  const list = listTimelogsQuery.timelogsMain?.list
+    ? listTimelogsQuery.timelogsMain?.list
+    : [];
 
   const extractTimeLogsFromMsSQL = (start: Date, end: Date, params: any) => {
     setLoading(true);
@@ -61,15 +66,15 @@ const ListContainer = (props: FinalProps) => {
       variables: {
         startDate: dayjs(start).format(dateFormat),
         endDate: dayjs(end).format(dateFormat),
-        ...params
-      }
+        ...params,
+      },
     })
       .then(() => {
         setLoading(false);
         listTimelogsQuery.refetch();
-        Alert.success('Successfully extracted time logs');
+        Alert.success("Successfully extracted time logs");
       })
-      .catch(e => {
+      .catch((e) => {
         setLoading(false);
         Alert.error(e.message);
       });
@@ -80,12 +85,12 @@ const ListContainer = (props: FinalProps) => {
     timelog: Date,
     inDevice?: string
   ) => {
-    confirm('Are you sure to create timeclock from the log?').then(() =>
+    confirm("Are you sure to create timeclock from the log?").then(() =>
       createTimeClockFromLogMutation({
-        variables: { userId, timelog, inDevice }
+        variables: { userId, timelog, inDevice },
       })
-        .then(() => Alert.success('Successfully created Timeclock'))
-        .catch(e => {
+        .then(() => Alert.success("Successfully created Timeclock"))
+        .catch((e) => {
           Alert.error(e.message);
         })
     );
@@ -98,7 +103,7 @@ const ListContainer = (props: FinalProps) => {
     timelogs: list,
     totalCount,
     branchId,
-    deptId
+    deptId,
   };
 
   return <LogsList {...updatedProps} />;
@@ -107,34 +112,34 @@ const ListContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql<Props, ReportsQueryResponse>(gql(queries.timelogsMain), {
-      name: 'listTimelogsQuery',
+      name: "listTimelogsQuery",
       options: ({ queryParams, reportType, isCurrentUserAdmin }) => ({
         variables: {
           ...generateParams(queryParams),
           isCurrentUserAdmin,
-          reportType
+          reportType,
         },
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: "network-only",
+      }),
     }),
 
     graphql<Props, ReportsQueryResponse>(
       gql(mutations.extractTimeLogsFromMsSql),
       {
-        name: 'extractTimeLogsFromMsSQLMutation',
+        name: "extractTimeLogsFromMsSQLMutation",
         options: {
-          refetchQueries: ['timelogsMain']
-        }
+          refetchQueries: ["timelogsMain"],
+        },
       }
     ),
 
     graphql<Props, ReportsQueryResponse>(
       gql(mutations.createTimeClockFromLog),
       {
-        name: 'createTimeClockFromLogMutation',
+        name: "createTimeClockFromLogMutation",
         options: () => ({
-          refetchQueries: ['timeclocksMain']
-        })
+          refetchQueries: ["timeclocksMain"],
+        }),
       }
     )
   )(ListContainer)

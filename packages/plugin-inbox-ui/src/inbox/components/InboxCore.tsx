@@ -18,35 +18,34 @@ type Props = {
   queryParams: any;
   currentConversationId: string;
 };
-class Inbox extends React.Component<Props> {
-  render() {
-    const { currentConversationId, queryParams } = this.props;
 
-    const menuInbox = [{ title: "Team Inbox", link: "/inbox/index" }];
+const Inbox = (props: Props) => {
+  const { currentConversationId, queryParams } = props;
 
-    const ReportsFormButton = loadDynamicComponent("reportsCommonFormButton", {
-      serviceName: "inbox",
-      reportTemplateType: "inbox",
-      ...this.props,
-    });
+  const menuInbox = [{ title: "Team Inbox", link: "/inbox/index" }];
 
-    return (
-      <HeightedWrapper>
-        <Header
-          title={"Conversation"}
+  const ReportsFormButton = loadDynamicComponent("reportsCommonFormButton", {
+    serviceName: "inbox",
+    reportTemplateType: "inbox",
+    ...props,
+  });
+
+  return (
+    <HeightedWrapper>
+      <Header
+        title={"Conversation"}
+        queryParams={queryParams}
+        submenu={menuInbox}
+      />
+      <Contents>
+        <Sidebar
           queryParams={queryParams}
-          submenu={menuInbox}
+          currentConversationId={currentConversationId}
         />
-        <Contents>
-          <Sidebar
-            queryParams={queryParams}
-            currentConversationId={currentConversationId}
-          />
-          <ConversationDetail currentId={currentConversationId} />
-        </Contents>
-      </HeightedWrapper>
-    );
-  }
-}
+        <ConversationDetail currentId={currentConversationId} />
+      </Contents>
+    </HeightedWrapper>
+  );
+};
 
 export default Inbox;
