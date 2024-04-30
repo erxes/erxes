@@ -1,9 +1,9 @@
 import * as compose from "lodash.flowright";
 
-import { Counts } from "@erxes/ui/src/types";
 import { router, withProps } from "@erxes/ui/src/utils";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
+import { Counts } from "@erxes/ui/src/types";
 import Filter from "../components/SidebarFilter";
 import React from "react";
 import { SegmentsQueryResponse } from "../types";
@@ -26,12 +26,13 @@ const FilterContainer = (props: FinalProps) => {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const currentSegment = router.getParam(location, "segment");
 
   const setSegment = (segment) => {
-    router.setParams(navigate, location, { segment });
-    router.removeParams(navigate, location, "page");
+    setSearchParams({ segment: segment });
+    searchParams.has("page") && searchParams.delete("page");
   };
 
   const removeSegment = () => {
