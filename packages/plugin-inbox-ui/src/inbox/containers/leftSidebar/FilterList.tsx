@@ -1,14 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-
-import { Alert } from '@erxes/ui/src/utils';
-import FilterByParams from '@erxes/ui/src/components/FilterByParams';
-import { NoHeight } from '@erxes/ui-inbox/src/inbox/styles';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import client from '@erxes/ui/src/apolloClient';
-import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
-import { gql } from '@apollo/client';
-import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
+import { Alert } from "@erxes/ui/src/utils";
+import FilterByParams from "@erxes/ui/src/components/FilterByParams";
+import { NoHeight } from "@erxes/ui-inbox/src/inbox/styles";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import client from "@erxes/ui/src/apolloClient";
+import { generateParams } from "@erxes/ui-inbox/src/inbox/utils";
+import { gql } from "@apollo/client";
+import { queries } from "@erxes/ui-inbox/src/inbox/graphql";
 
 type Props = {
   query?: { queryName: string; dataName: string; variables?: any };
@@ -23,29 +21,43 @@ type Props = {
   setCounts?: (counts: any) => void;
 };
 
-const FilterList: React.FC<Props> = (props) => {
-  const {
-    query,
-    counts,
-    queryParams,
-    setCounts,
-    paramKey,
-    icon,
-    multiple,
-    treeView,
-    refetchRequired,
-  } = props;
+type State = {
+  fields: any[];
+  counts: any;
+  loading: boolean;
+};
 
-  const [fields, setFields] = useState<any[]>(props.fields || []);
-  const [countsData, setCountsData] = useState<any>({});
-  const [loading, setLoading] = useState<boolean>(props.fields ? false : true);
+export default class FilterList extends React.PureComponent<Props, State> {
+  mounted: boolean;
 
-  const abortController = new AbortController();
-  let mounted = false;
+  private abortController;
 
-  const fetchData = (ignoreCache = false) => {
-    mounted = true;
+  constructor(props: Props) {
+    super(props);
 
+    this.abortController = new AbortController();
+
+    let loading = true;
+
+    if (props.fields) {
+      loading = false;
+    }
+
+    this.mounted = false;
+
+    this.state = {
+      fields: props.fields || [],
+      counts: {},
+      loading,
+    };
+  }
+
+  fetchData(ignoreCache = false) {
+    const { query, counts, queryParams, setCounts } = this.props;
+
+    this.mounted = true;
+
+    // Fetching filter lists channels, brands, tags etc
     if (query) {
       const { queryName, dataName, variables = {} } = query;
 
@@ -55,9 +67,8 @@ const FilterList: React.FC<Props> = (props) => {
           variables,
         })
         .then(({ data, loading }: any) => {
-          if (mounted) {
-            setFields(data[dataName]);
-            setLoading(loading);
+          if (this.mounted) {
+            this.setState({ fields: data[dataName], loading });
           }
         })
         .catch((e) => {
@@ -65,19 +76,19 @@ const FilterList: React.FC<Props> = (props) => {
         });
     }
 
+    // Fetching count query
     client
       .query({
         query: gql(queries.conversationCounts),
         variables: { ...generateParams({ ...queryParams }), only: counts },
-        fetchPolicy: ignoreCache ? 'network-only' : 'cache-first',
+        fetchPolicy: ignoreCache ? "network-only" : "cache-first",
         // context: {
         //   fetchOptions: { signal: this.abortController.signal }
         // }
       })
       .then(({ data, loading }: { data: any; loading: boolean }) => {
-        if (mounted) {
-          setCountsData(data.conversationCounts[counts]);
-          setLoading(loading);
+        if (this.mounted) {
+          this.setState({ counts: data.conversationCounts[counts], loading });
 
           if (setCounts) {
             setCounts({ [counts]: data.conversationCounts[counts] });
@@ -87,51 +98,52 @@ const FilterList: React.FC<Props> = (props) => {
       .catch((e) => {
         Alert.error(e.message);
       });
-  };
+  }
 
-  useEffect(() => {
-    fetchData();
-    return () => {
-      mounted = false;
-      abortController.abort();
-    };
-  }, []);
+  componentDidMount() {
+    this.fetchData();
+  }
 
-  useEffect(() => {
-    if (queryParams !== props.queryParams) {
-      return fetchData(true);
+  componentWillUnmount() {
+    this.mounted = false;
+    this.abortController.abort();
+  }
+
+  componentDidUpdate(prevProps) {
+    const { queryParams, refetchRequired } = this.props;
+
+    if (prevProps.refetchRequired !== refetchRequired) {
+      return this.fetchData(true);
     }
 
-    if (props.queryParams === queryParams) {
+    if (prevProps.queryParams === queryParams) {
       return;
     }
 
-    return fetchData(true);
-  }, [refetchRequired, queryParams]);
-
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  if (loading) {
-    return <Spinner objective={true} />;
+    return this.fetchData(true);
   }
 
-  return (
-    <NoHeight>
-      <FilterByParams
-        fields={fields}
-        paramKey={paramKey}
-        counts={countsData}
-        icon={icon}
-        loading={false}
-        searchable={false}
-        multiple={multiple}
-        treeView={treeView}
-        location={location}
-        navigate={navigate}
-      />
-    </NoHeight>
-  );
-};
+  render() {
+    const { paramKey, icon, multiple, treeView } = this.props;
+    const { counts, fields, loading } = this.state;
 
-export default FilterList;
+    if (loading) {
+      return <Spinner objective={true} />;
+    }
+
+    return (
+      <NoHeight>
+        <FilterByParams
+          fields={fields}
+          paramKey={paramKey}
+          counts={counts}
+          icon={icon}
+          loading={false}
+          searchable={false}
+          multiple={multiple}
+          treeView={treeView}
+        />
+      </NoHeight>
+    );
+  }
+}
