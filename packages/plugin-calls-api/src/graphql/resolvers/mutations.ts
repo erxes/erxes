@@ -143,8 +143,8 @@ const callsMutations = {
         { _id },
         { $set: { ...doc, modifiedAt: new Date(), modifiedBy: user._id } },
       );
-      let callRecordUrl = '';
-      callRecordUrl = await getRecordUrl(doc, user, models, subdomain);
+
+      const callRecordUrl = await getRecordUrl(doc, user, models, subdomain);
       if (callRecordUrl) {
         await models.CallHistory.updateOne(
           { _id },

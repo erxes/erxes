@@ -101,7 +101,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
 
   const todayCdr = JSON.parse(JSON.stringify(cdr_root));
 
-  const sortedCdr = todayCdr.sort(
+  const sortedCdr = todayCdr?.sort(
     (a, b) => a.createdAt?.getTime() - b.createdAt?.getTime(),
   );
   const lastCreatedObject = sortedCdr[todayCdr.length - 1];
@@ -136,33 +136,44 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
     if (!records.ok) {
       throw new Error(`HTTP error! status: ${records.status}`);
     }
-    const buffer = await records.arrayBuffer();
-    const domain = getEnv({
-      name: 'DOMAIN',
-      subdomain,
-      defaultValue: 'http://localhost:4000',
-    });
-    const uploadUrl = domain.includes('localhost')
-      ? `${domain}/pl:core/upload-file`
-      : `${domain}/gateway/pl:core/upload-file`;
 
-    const formData = new FormData();
-    formData.append('file', Buffer.from(buffer), {
-      filename: fileNameWithoutExtension,
-    });
+    try {
+      const buffer = await records.arrayBuffer();
+      const domain = getEnv({
+        name: 'DOMAIN',
+        subdomain,
+        defaultValue: 'http://localhost:4000',
+      });
+      const uploadUrl = domain.includes('localhost')
+        ? `${domain}/pl:core/upload-file`
+        : `${domain}/gateway/pl:core/upload-file`;
 
-    const rec = await fetch(uploadUrl, {
-      method: 'POST',
-      body: formData,
-    });
-    return await rec.text();
+      const formData = new FormData();
+      formData.append('file', Buffer.from(buffer), {
+        filename: fileNameWithoutExtension,
+      });
+
+      const rec = await fetch(uploadUrl, {
+        method: 'POST',
+        body: formData,
+      });
+      return await rec.text();
+    } catch (error) {
+      console.error('Failed to retrieve array buffer from records:', error);
+      throw new Error(error);
+    }
   }
   return '';
 };
 
 export const getOrSetCallCookie = async (wsServer) => {
-  const user = 'recApi';
-  const pass = 'recApi13';
+  const { CALL_API_USER, CALL_API_PASSWORD } = process.env;
+
+  if (!CALL_API_USER && !CALL_API_PASSWORD) {
+    throw new Error(`Required api credentials!`);
+  }
+
+  const pass = CALL_API_PASSWORD;
 
   const callCookie = await redis.get(`callCookie`);
   if (callCookie) {
@@ -176,7 +187,7 @@ export const getOrSetCallCookie = async (wsServer) => {
     body: JSON.stringify({
       request: {
         action: 'challenge',
-        user,
+        user: CALL_API_USER || '',
         version: '1.2',
       },
     }),
@@ -199,7 +210,7 @@ export const getOrSetCallCookie = async (wsServer) => {
     body: JSON.stringify({
       request: {
         action: 'login',
-        user,
+        user: CALL_API_USER || '',
         token: hashedPassword,
       },
     }),

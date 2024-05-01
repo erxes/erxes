@@ -1,4 +1,3 @@
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { IModels } from './connectionResolver';
 import { sendInboxMessage } from './messageBroker';
 import { getOrCreateCustomer } from './store';
@@ -13,14 +12,6 @@ const acceptCall = async (
   const integration = await models.Integrations.findOne({
     inboxId: params.inboxIntegrationId,
   }).lean();
-
-  const inboxIntegration = await sendInboxMessage({
-    subdomain,
-    action: 'integrations.findOne',
-    data: { _id: integration?.inboxId },
-    isRPC: true,
-    defaultValue: null,
-  });
 
   if (!integration) {
     throw new Error('Integration not found');
@@ -104,15 +95,6 @@ const acceptCall = async (
     await models.CallHistory.deleteOne({ _id: history._id });
     throw new Error(e);
   }
-
-  const channels = await sendInboxMessage({
-    subdomain,
-    action: 'channels.find',
-    data: {
-      integrationIds: { $in: [inboxIntegration._id] },
-    },
-    isRPC: true,
-  });
 
   await sendInboxMessage({
     subdomain,
