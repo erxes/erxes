@@ -11,10 +11,10 @@ const queries = {
       inboxConversationId: conversationId
     });
 
-    const convertEmails = emails =>
-      (emails || []).map(item => ({ name: item.name, email: item.address }));
+    const convertEmails = (emails) =>
+      (emails || []).map((item) => ({ name: item.name, email: item.address }));
 
-    const getNewContentFromMessageBody = html => {
+    const getNewContentFromMessageBody = (html) => {
       const startIndex = html.indexOf('<div dir="ltr">');
 
       if (startIndex !== -1) {
@@ -30,7 +30,7 @@ const queries = {
       }
     };
 
-    const getRepliesFromMessageBody = html => {
+    const getRepliesFromMessageBody = (html) => {
       const startIndex = html.indexOf('<div class="gmail_quote">');
 
       if (startIndex !== -1) {
@@ -43,7 +43,11 @@ const queries = {
       }
     };
 
-    return messages.map(message => {
+    return messages.map((message) => {
+      const msgBody =
+        message.body === '<div dir="ltr">false</div>\n'
+          ? '<div dir="ltr"></div>\n'
+          : message.body;
       return {
         _id: message._id,
         mailData: {
@@ -53,9 +57,9 @@ const queries = {
           cc: convertEmails(message.cc),
           bcc: convertEmails(message.bcc),
           subject: message.subject,
-          body: message.body,
-          newContent: getNewContentFromMessageBody(message.body),
-          replies: getRepliesFromMessageBody(message.body),
+          body: msgBody,
+          newContent: getNewContentFromMessageBody(msgBody),
+          replies: getRepliesFromMessageBody(msgBody),
           attachments: message.attachments
         },
         createdAt: message.createdAt
@@ -68,9 +72,7 @@ const queries = {
   },
 
   async imapLogs(_root, _args, { models }: IContext) {
-    return models.Logs.find()
-      .sort({ date: -1 })
-      .limit(100);
+    return models.Logs.find().sort({ date: -1 }).limit(100);
   }
 };
 

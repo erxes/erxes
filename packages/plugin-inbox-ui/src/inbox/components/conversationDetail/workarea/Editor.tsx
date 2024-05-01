@@ -74,7 +74,7 @@ const Editor = forwardRef(
       const foundTemplates = responseTemplates.filter(
         (template) =>
           template.name.toLowerCase().includes(textContent) ||
-          template.content.toLowerCase().includes(textContent),
+          template.content.toLowerCase().includes(textContent)
       );
 
       if (foundTemplates.length > 0) {
@@ -131,9 +131,7 @@ const Editor = forwardRef(
           placeholder={placeholder}
           integrationKind={integrationKind}
           showMentions={showMentions}
-          {...(showMentions && {
-            mentionSuggestion: mentionSuggestion,
-          })}
+          mentionSuggestion={mentionSuggestion}
           content={content}
           onChange={onChange}
           autoGrow={true}
@@ -143,6 +141,6 @@ const Editor = forwardRef(
         />
       </div>
     );
-  },
+  }
 );
 export default Editor;

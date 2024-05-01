@@ -3,37 +3,50 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
 
-const GeneralSettings = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "List - Msdynamics" */ './containers/GeneralSettings'
-  )
+const GeneralSettings = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "List - Msdynamics" */ './containers/GeneralSettings'
+    )
 );
 
-const SyncHistoryList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "CheckSyncedDeals" */ './containers/SyncHistoryList'
-  )
+const SyncHistoryList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "CheckSyncedDeals" */ './containers/SyncHistoryList'
+    )
 );
 
-const InventoryProducts = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "InventoryProducts" */ './containers/InventoryProducts'
-  )
+const InventoryProducts = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "InventoryProducts" */ './containers/InventoryProducts'
+    )
 );
 
-const InventoryPrices = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "InventoryProducts" */ './containers/InventoryPrice'
-  )
+const InventoryPrices = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "InventoryProducts" */ './containers/InventoryPrice'
+    )
 );
 
-const InventoryCategory = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "InventoryProducts" */ './containers/InventoryCategory'
-  )
+const InventoryCategory = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "InventoryProducts" */ './containers/InventoryCategory'
+    )
 );
-const Customers = asyncComponent(() =>
-  import(/* webpackChunkName: "InventoryProducts" */ './containers/Customers')
+const Customers = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "InventoryProducts" */ './containers/Customers')
+);
+
+const CheckSyncedOrders = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "CheckSyncedOrders" */ './containers/CheckSyncedOrders'
+    )
 );
 
 const msdynamics = ({ history }) => {
@@ -85,6 +98,15 @@ const InventoryPriceList = ({ location, history }) => {
   );
 };
 
+const CheckSyncedOrderList = ({ location, history }) => {
+  return (
+    <CheckSyncedOrders
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
 const routes = () => {
   return (
     <React.Fragment>
@@ -118,6 +140,12 @@ const routes = () => {
         exact={true}
         path="/msdynamic-price"
         component={InventoryPriceList}
+      />
+      <Route
+        key="/msdynamic-sync-orders"
+        exact={true}
+        path="/check-sync-orders"
+        component={CheckSyncedOrderList}
       />
     </React.Fragment>
   );

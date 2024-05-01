@@ -4,6 +4,9 @@ import loginMiddleware from './middlewares/loginMiddleware';
 import receiveMessage from './receiveMessage';
 import { generateModels } from './connectionResolver';
 import { getPageList } from './utils';
+import { INSTAGRAM_POST_TYPES, INTEGRATION_KINDS } from './constants';
+import receiveComment from './receiveComment';
+
 import {
   debugError,
   debugInstagram,
@@ -78,7 +81,7 @@ const init = async (app) => {
     }
     for (const entry of data.entry) {
       // receive chat
-      if (entry.messaging[0]) {
+      if (entry.messaging) {
         const messageData = entry.messaging[0];
         try {
           await receiveMessage(models, subdomain, messageData);
@@ -86,6 +89,26 @@ const init = async (app) => {
           return res.send('success');
         } catch (e) {
           return res.send('success');
+        }
+      }
+
+      if (entry.changes) {
+        for (const event of entry.changes) {
+          if (event.field === 'comments') {
+            debugInstagram(
+              `Received comment data ${JSON.stringify(event.value)}`
+            );
+            try {
+              await receiveComment(models, subdomain, event.value, entry.id);
+              debugInstagram(
+                `Successfully saved  ${JSON.stringify(event.value)}`
+              );
+              return res.end('success');
+            } catch (e) {
+              debugError(`Error processing comment: ${e.message}`);
+              return res.end('success');
+            }
+          }
         }
       }
     }

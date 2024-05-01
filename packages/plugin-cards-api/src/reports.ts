@@ -155,6 +155,12 @@ const PROBABILITY_TICKET = [
   { label: '90%', value: '90' },
   { label: 'Resolved', value: 'Resolved' },
 ];
+
+const ATTACHMENT_TYPES = [
+  { label: 'Has attachment', value: true },
+  { label: 'Has no attachment', value: false }
+];
+
 const PRIORITY = [
   { label: 'Critical', value: 'Critical' },
   { label: 'High', value: 'High' },
@@ -2648,6 +2654,12 @@ const chartTemplates = [
 
     },
     filterTypes: [
+      {
+        fieldName: 'attachment',
+        fieldType: 'select',
+        fieldOptions: ATTACHMENT_TYPES,
+        fieldLabel: 'Select attachment',
+      },
       {
         fieldName: 'dateRange',
         fieldType: 'select',
@@ -7045,6 +7057,12 @@ const chartTemplates = [
     },
     filterTypes: [
       {
+        fieldName: 'attachment',
+        fieldType: 'select',
+        fieldOptions: ATTACHMENT_TYPES,
+        fieldLabel: 'Select attachment',
+      },
+      {
         fieldName: 'assignedUserIds',
         fieldType: 'select',
         multi: true,
@@ -7232,6 +7250,12 @@ const chartTemplates = [
     },
     filterTypes: [
       {
+        fieldName: 'attachment',
+        fieldType: 'select',
+        fieldOptions: ATTACHMENT_TYPES,
+        fieldLabel: 'Select attachment',
+      },
+      {
         fieldName: 'assignedUserIds',
         fieldType: 'select',
         multi: true,
@@ -7418,6 +7442,12 @@ const chartTemplates = [
       return datasets;
     },
     filterTypes: [
+      {
+        fieldName: 'attachment',
+        fieldType: 'select',
+        fieldOptions: ATTACHMENT_TYPES,
+        fieldLabel: 'Select attachment',
+      },
       {
         fieldName: 'assignedUserIds',
         fieldType: 'select',
@@ -7625,6 +7655,12 @@ const chartTemplates = [
       return datasets;
     },
     filterTypes: [
+      {
+        fieldName: 'attachment',
+        fieldType: 'select',
+        fieldOptions: ATTACHMENT_TYPES,
+        fieldLabel: 'Select attachment',
+      },
       {
         fieldName: 'assignedUserIds',
         fieldType: 'select',
@@ -7844,6 +7880,12 @@ const chartTemplates = [
     },
     filterTypes: [
       {
+        fieldName: 'attachment',
+        fieldType: 'select',
+        fieldOptions: ATTACHMENT_TYPES,
+        fieldLabel: 'Select attachment',
+      },
+      {
         fieldName: 'assignedUserIds',
         fieldType: 'select',
         multi: true,
@@ -8055,6 +8097,12 @@ const chartTemplates = [
     },
     filterTypes: [
       {
+        fieldName: 'attachment',
+        fieldType: 'select',
+        fieldOptions: ATTACHMENT_TYPES,
+        fieldLabel: 'Select attachment',
+      },
+      {
         fieldName: 'assignedUserIds',
         fieldType: 'select',
         multi: true,
@@ -8231,6 +8279,12 @@ const chartTemplates = [
     },
     filterTypes: [
       {
+        fieldName: 'attachment',
+        fieldType: 'select',
+        fieldOptions: ATTACHMENT_TYPES,
+        fieldLabel: 'Select attachment',
+      },
+      {
         fieldName: 'assignedUserIds',
         fieldType: 'select',
         multi: true,
@@ -8399,6 +8453,12 @@ const chartTemplates = [
     },
     filterTypes: [
       {
+        fieldName: 'attachment',
+        fieldType: 'select',
+        fieldOptions: ATTACHMENT_TYPES,
+        fieldLabel: 'Select attachment',
+      },
+      {
         fieldName: 'assignedUserIds',
         fieldType: 'select',
         multi: true,
@@ -8566,6 +8626,12 @@ const chartTemplates = [
       return datasets;
     },
     filterTypes: [
+      {
+        fieldName: 'attachment',
+        fieldType: 'select',
+        fieldOptions: ATTACHMENT_TYPES,
+        fieldLabel: 'Select attachment',
+      },
       {
         fieldName: 'assignedUserIds',
         fieldType: 'select',
@@ -9116,8 +9182,17 @@ async function filterData(filter: any, subdomain: any) {
     groupIds,
     fieldIds,
     priority,
+    attachment
   } = filter;
   const matchfilter = {};
+
+  if (attachment === true) {
+    matchfilter['attachments'] = { '$ne': [] };
+  }
+
+  if (attachment === false) {
+    matchfilter['attachments'] = { '$eq': [] };
+  }
 
   if (assignedUserIds) {
     matchfilter['assignedUserIds'] = { $in: assignedUserIds };

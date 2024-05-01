@@ -2,15 +2,18 @@ import { JSONContent } from "@tiptap/core";
 
 
 export function replaceSpanWithMention(doc: JSONContent) {
+
     function replaceMentions(node: JSONContent) {
         if (node.type === 'text' && node.marks) {
             // Filter marks with type spanMark and data-type mention
             const mentionMarks = node.marks.find(mark => mark.type === 'spanMark' && mark.attrs?.['data-type'] === 'mention');
             const id = mentionMarks?.attrs?.['data-id']
             const label = mentionMarks?.attrs?.['data-label']
-            return {
-                type: 'mention',
-                attrs: { id, label }
+            if (id && label) {
+                return {
+                    type: 'mention',
+                    attrs: { id, label }
+                }
             }
         } else if (node.content) {
             // Recursively traverse through the content

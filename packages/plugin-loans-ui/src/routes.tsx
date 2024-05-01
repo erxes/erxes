@@ -60,6 +60,12 @@ const ClassificationList = asyncComponent(() =>
   )
 );
 
+const NonBalanceTransactionList = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "NonBalanceTransactionList" */ './nonBalanceTransaction/containers/NonBalanceTransactionList'
+  )
+);
+
 const contractLists = ({ location, history }) => {
   return (
     <ContractList
@@ -135,6 +141,16 @@ const classificationHistoryList = ({ location, history }) => {
   );
 };
 
+const nonBalanceTransactionLists = ({ location, history }) => {
+  return (
+    <NonBalanceTransactionList
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+
 const contractTypeDetail = ({ match }) => {
   const id = match.params.id;
 
@@ -206,6 +222,10 @@ const LoanRoutes = () => {
       <Route
         path="/erxes-plugin-loan/classificationHistory"
         component={classificationHistoryList}
+      />
+      <Route
+        path="/erxes-plugin-loan/non-balance-transactions"
+        component={nonBalanceTransactionLists}
       />
     </React.Fragment>
   );

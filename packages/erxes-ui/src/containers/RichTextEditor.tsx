@@ -16,6 +16,7 @@ import { RichTextEditor } from '../components/richTextEditor/TEditor';
 interface ITeamMembers {
   id: string;
   username: string;
+  email?: string;
   fullName?: string;
   title?: string;
   avatar?: string;
@@ -37,11 +38,11 @@ const generateAttributes = (combinedFields?: any[], contentType?: string) => {
       (combinedFields || []).map((field) => ({
         value: `${type}.${field.name}`,
         name: field.label,
-      })),
+      }))
     );
   } else {
     (combinedFields || []).forEach((field) =>
-      items.push({ value: `customer.${field.name}`, name: field.label }),
+      items.push({ value: `customer.${field.name}`, name: field.label })
     );
   }
 
@@ -91,6 +92,7 @@ const EditorContainer = (props: FinalProps) => {
       mentionUsers.push({
         id: user._id,
         username: user.username?.trim(),
+        email: user.email?.trim(),
         fullName: user.details && user.details.fullName?.trim(),
         title: user.details && user.details.position,
         avatar:
@@ -135,6 +137,6 @@ export default withProps<IEditorProps>(
         },
       }),
       skip: !isEnabled('segments'),
-    }),
-  )(EditorContainer),
+    })
+  )(EditorContainer)
 );

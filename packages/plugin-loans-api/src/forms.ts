@@ -2,7 +2,7 @@ import { generateFieldsFromSchema } from '@erxes/api-utils/src';
 import { generateModels } from './connectionResolver';
 
 export default {
-  types: [{ description: 'Loan Contact', type: 'contract' }],
+  types: [{ description: 'Loan Contact', type: 'contract' },{ description: 'Loan Contact Type', type: 'contractType' }],
   fields: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
