@@ -41,7 +41,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
   const extentionNumber = operator?.gsUsername || '6500';
 
   let cookie = await getOrSetCallCookie(wsServer);
-  cookie = cookie.toString();
+  cookie = cookie?.toString();
 
   const queueResult = await fetch(`https://${wsServer}/api`, {
     method: 'POST',
@@ -61,7 +61,10 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
 
   const queueData = await queueResult.json();
   const { queue } = queueData?.response;
-  const extension = queue.find(
+  if (!queue) {
+    throw new Error(`Queue not found`);
+  }
+  const extension = queue?.find(
     (queue) =>
       queue.members && queue.members.split(',').includes(extentionNumber),
   )?.extension;
