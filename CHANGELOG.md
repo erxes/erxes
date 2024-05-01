@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.9.0](https://github.com/erxes/erxes/compare/1.9.0-rc.2...1.9.0) (2024-05-01)
+
+
+### Bug Fixes
+
+* generate subdomain in configs ([97bb518](https://github.com/erxes/erxes/commit/97bb518e37a3d7929eca25d5940b0804aaed759c))
+* RTE mention plugin & document editor issue  ([69ac4fd](https://github.com/erxes/erxes/commit/69ac4fdc00379125bd2b3e4ec6bbc18182101019))
+
 ## [1.9.0-rc.2](https://github.com/erxes/erxes/compare/1.9.0-rc.1...1.9.0-rc.2) (2024-04-30)
 
 ## [1.9.0-rc.1](https://github.com/erxes/erxes/compare/1.9.0-rc.1...1.9.0-rc.2) (2024-04-26)
