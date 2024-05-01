@@ -404,14 +404,15 @@ class ProductItem extends React.Component<Props, State> {
       return null;
     }
 
-    const uoms =
-      Array.from(
-        new Set([
-          productData.uom,
-          productData.product.uom,
-          ...(productData.product.subUoms || []).map((su) => su.uom),
-        ])
-      ).filter((u) => u) || [].map((u) => ({ value: u, label: u }));
+    const uoms = Array.from(
+      new Set([
+        productData.uom,
+        productData.product.uom,
+        ...(productData.product.subUoms || []).map((su) => su.uom),
+      ])
+    )
+      .filter((u) => u)
+      .map((u) => ({ value: u, label: u }));
 
     const currencyOptions = selectConfigOptions(currencies, CURRENCIES);
 
