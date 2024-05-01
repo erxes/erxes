@@ -46,6 +46,7 @@ class GeneralSettings extends React.Component<Props, State> {
       brandId: '',
       itemApi: '',
       itemCategoryApi: '',
+      pricePriority: '',
       priceApi: '',
       customerApi: '',
       salesApi: '',

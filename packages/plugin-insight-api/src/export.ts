@@ -37,12 +37,14 @@ const addIntoSheet = async (
   }
 
   r.value(values);
+  r.style({ wrapText: true });
 };
 
 const prepareHeader = async (sheet: any, title: string) => {
   const header = ['Team member', title];
 
   sheet.column('A').width(40);
+  sheet.column('B').width(15);
 
   addIntoSheet([header], 'A1', 'B1', sheet);
 };
@@ -65,11 +67,16 @@ const extractAndAddIntoSheet = async (
   const startRowIdx = 2;
   const endRowIdx = 2 + data.length;
 
+  const sortedData = data.sort((a, b) => Number(b) - Number(a));
+
   if (isArrayPrimitive(data)) {
-    for (let i = 0; i < data.length; i++) {
+    for (let i = 0; i < sortedData.length; i++) {
       extractValuesIntoArr.push([labels[i], data[i]]);
     }
   }
+
+  const dataRange = sheet.range(`A${startRowIdx - 1}:B${endRowIdx - 1}`);
+  dataRange.style({ border: 'thin' });
 
   addIntoSheet(extractValuesIntoArr, `A${startRowIdx}`, `B${endRowIdx}`, sheet);
 };

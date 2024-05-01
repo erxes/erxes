@@ -13,12 +13,15 @@ const commonFields = `
   $payment: Float,
   $interestEve: Float,
   $interestNonce: Float,
-  $undue: Float,
+  $loss: Float,
   $insurance: Float,
   $debt: Float,
   $isGetEBarimt: Boolean,
   $isOrganization: Boolean,
   $organizationRegister: String,
+  $storedInterest: Float,
+  $calcInterest: Float,
+  $commitmentInterest: Float
 `;
 
 const commonVariables = `
@@ -34,19 +37,22 @@ const commonVariables = `
   payment: $payment,
   interestEve: $interestEve,
   interestNonce: $interestNonce,
-  undue: $undue,
+  loss: $loss,
   insurance: $insurance,
   debt: $debt,
   isGetEBarimt: $isGetEBarimt,
   isOrganization: $isOrganization,
   organizationRegister: $organizationRegister,
+  storedInterest: $storedInterest,
+  calcInterest: $calcInterest,
+  commitmentInterest: $commitmentInterest
 `;
 
 const changeFields = `
   $payment: Float,
   $interestEve: Float,
   $interestNonce: Float,
-  $undue: Float,
+  $loss: Float,
   $insurance: Float,
   $debt: Float,
   $futureDebt: Float,
@@ -57,7 +63,7 @@ const changeVariables = `
   payment: $payment,
   interestEve: $interestEve,
   interestNonce: $interestNonce,
-  undue: $undue,
+  loss: $loss,
   insurance: $insurance,
   debt: $debt,
   futureDebt: $futureDebt,

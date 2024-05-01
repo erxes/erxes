@@ -37,7 +37,7 @@ export interface ITransaction {
   give?: number;
   interestEve?: number;
   interestNonce?: number;
-  undue?: number;
+  loss?: number;
   insurance?: number;
   debt?: number;
   storedInterest?: number;
@@ -49,7 +49,7 @@ export interface ITransaction {
     payment?: number;
     interestEve?: number;
     interestNonce?: number;
-    undue?: number;
+    loss?: number;
     insurance?: number;
     debt?: number;
     storedInterest?: number;
@@ -132,7 +132,7 @@ export const transactionSchema = schemaHooksWrapper(
       optional: true,
       label: 'interest nonce month'
     }),
-    undue: field({ type: Number, min: 0, optional: true, label: 'undue' }),
+    loss: field({ type: Number, min: 0, optional: true, label: 'loss' }),
     insurance: field({
       type: Number,
       min: 0,
@@ -153,7 +153,7 @@ export const transactionSchema = schemaHooksWrapper(
         payment: Number,
         interestEve: Number,
         interestNonce: Number,
-        undue: Number,
+        loss: Number,
         insurance: Number,
         storedInterest: Number,
         calcInterest: Number,

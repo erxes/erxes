@@ -1,7 +1,6 @@
 import { IContext } from '../../connectionResolver';
-import { sendCoreMessage, sendMessageBroker } from '../../messageBroker';
+import { getConfig, sendCoreMessage, sendMessageBroker } from '../../messageBroker';
 import {
-  LEASE_TYPES,
   SCHEDULE_STATUS
 } from '../../models/definitions/constants';
 import { IContractDocument } from '../../models/definitions/contracts';
@@ -225,35 +224,6 @@ const Contracts = {
     return days > 0 ? days : 0;
   },
 
-  async loanBalanceAmount(
-    contract: IContractDocument,
-    _,
-    { models }: IContext
-  ) {
-    const today = getFullDate(new Date());
-
-    if (
-      contract.leaseType === LEASE_TYPES.LINEAR ||
-      contract.leaseType === LEASE_TYPES.CREDIT
-    ) {
-      const prevSchedule = await models.Schedules.findOne({
-        contractId: contract._id,
-        payDate: { $lte: today }
-      }).sort({ payDate: -1 });
-      return prevSchedule?.balance || 0;
-    }
-
-    const prevSchedule = await models.Schedules.findOne({
-      contractId: contract._id,
-      payDate: { $lte: today },
-      'transactionIds.0': { $exists: true }
-    }).sort({ payDate: -1 });
-
-    if (!prevSchedule) return contract.leaseAmount;
-
-    return prevSchedule?.balance || 0;
-  },
-
   async payedAmountSum(contract: IContractDocument, _, { models }: IContext) {
     const today = getFullDate(new Date());
     const schedules = await models.Schedules.find({
@@ -279,16 +249,18 @@ const Contracts = {
       .sort({ payDate: 1 })
       .lean();
 
+      const config = await getConfig('loansConfig',subdomain)
+
     const calcedInfo = await getCalcedAmounts(models, subdomain, {
       contractId: contract._id,
       payDate: (nextSchedule && nextSchedule.payDate) || today
-    });
+    },config);
 
     return (
       (calcedInfo.payment || 0) +
-      (calcedInfo.undue || 0) +
-      (calcedInfo.interestEve || 0) +
-      (calcedInfo.interestNonce || 0) +
+      (calcedInfo.loss || 0) +
+      (calcedInfo.storedInterest || 0) +
+      (calcedInfo.calcInterest || 0) +
       (calcedInfo.insurance || 0) +
       (calcedInfo.debt || 0)
     );

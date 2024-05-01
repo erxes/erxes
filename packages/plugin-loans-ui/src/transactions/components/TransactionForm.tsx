@@ -52,6 +52,7 @@ type State = {
   organizationRegister?: string;
   organizationName?: string;
   storedInterest: number;
+  isPrePayment?:boolean;
 };
 
 class TransactionForm extends React.Component<Props, State> {
@@ -136,7 +137,7 @@ class TransactionForm extends React.Component<Props, State> {
     );
   };
 
-  renderRowTr = (label, fieldName, isFromState?: any) => {
+  renderRowTr = (label, fieldName, isFromState?: boolean) => {
     const { transaction } = this.props;
     const { paymentInfo } = this.state;
     let trVal = '';
@@ -155,6 +156,17 @@ class TransactionForm extends React.Component<Props, State> {
         <FormColumn>
           <Amount>{Number(trVal).toLocaleString()}</Amount>
         </FormColumn>
+        <FormColumn>
+          <FormControl
+            type={'number'}
+            useNumberFormat
+            fixed={2}
+            name="total"
+            max={this.state?.paymentInfo?.closeAmount}
+            value={this.state.total}
+            onClick={this.onFieldClick}
+          />
+        </FormColumn>
       </FormWrapper>
     );
   };
@@ -171,15 +183,19 @@ class TransactionForm extends React.Component<Props, State> {
             <FormColumn>
               <ControlLabel>Transaction</ControlLabel>
             </FormColumn>
+            <FormColumn>
+              <ControlLabel>Amount</ControlLabel>
+            </FormColumn>
           </FormWrapper>
-          {this.renderRowTr('Total must pay', 'total')}
+          
           {this.renderRowTr('Payment', 'payment')}
           {this.renderRowTr('Stored Interest', 'storedInterest')}
           {this.renderRowTr('Interest Nonce', 'calcInterest')}
           {this.renderRowTr('Commitment interest', 'commitmentInterest')}
-          {this.renderRowTr('Loss', 'undue')}
+          {this.renderRowTr('Loss', 'loss')}
           {this.renderRowTr('Insurance', 'insurance')}
           {this.renderRowTr('Debt', 'debt')}
+          {this.renderRowTr('Total must pay', 'total')}
         </>
       );
     }
@@ -200,15 +216,24 @@ class TransactionForm extends React.Component<Props, State> {
             <ControlLabel>Change</ControlLabel>
           </FormColumn>
         </FormWrapper>
-        {this.renderRow('total', 'total')}
+        
         {this.renderRow('payment', 'payment')}
         {this.renderRow('interest eve', 'storedInterest')}
         {this.renderRow('interest nonce', 'calcInterest')}
         {this.renderRow('Commitment interest', 'commitmentInterest')}
 
-        {this.renderRow('undue', 'undue')}
+        {this.renderRow('loss', 'loss')}
         {this.renderRow('insurance', 'insurance')}
         {this.renderRow('debt', 'debt')}
+        <FormWrapper>
+        <FormColumn>
+          </FormColumn>
+          <FormColumn>
+          </FormColumn>
+          <FormColumn>
+          </FormColumn>
+        </FormWrapper>
+        {this.renderRow('total', 'total')}
       </>
     );
   };
@@ -356,6 +381,22 @@ class TransactionForm extends React.Component<Props, State> {
                 />
               </FormGroup>
               {this.renderRowTr('Total', 'total', true)}
+              {type !== 'give' && (
+                <FormGroup>
+                  <ControlLabel>{__('Is Pre Payment')}</ControlLabel>
+                  <FormControl
+                    {...formProps}
+                    type={'checkbox'}
+                    componentClass="checkbox"
+                    useNumberFormat
+                    fixed={0}
+                    name="isPrePayment"
+                    value={this.state.isPrePayment}
+                    onChange={onChangeField}
+                    onClick={this.onFieldClick}
+                  />
+                </FormGroup>
+              )}
               {type !== 'give' && (
                 <FormGroup>
                   <ControlLabel>{__('Is get E-Barimt')}</ControlLabel>

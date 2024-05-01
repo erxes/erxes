@@ -341,7 +341,7 @@ export const setupMessageConsumers = () => {
     'contacts:customers.createMessengerCustomer',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
-
+  
       const customer = await models.Customers.createMessengerCustomer(data);
       
       return {

@@ -49,7 +49,7 @@ function ScheduleRow({ schedule, leaseType }: Props) {
       {leaseType === 'linear' && (
         <td>{renderCell('commitmentInterest', 'didCommitmentInterest')}</td>
       )}
-      <td>{renderCell('undue', 'didUndue')}</td>
+      <td>{renderCell('loss', 'didLoss')}</td>
       <td>{renderCell('total', 'didTotal')}</td>
     </ExtraRow>
   );

@@ -230,8 +230,8 @@ class GeneralSettings extends React.Component<Props, State> {
           </CollapseContent>
 
           <CollapseContent title={__('Loss')}>
-            {this.renderItem('undueAccount')}
-            {this.renderCheckbox('undueHasEBarimt')}
+            {this.renderItem('lossAccount')}
+            {this.renderCheckbox('lossHasEBarimt')}
           </CollapseContent>
 
           <CollapseContent title={__('Other')}>
@@ -298,11 +298,11 @@ class GeneralSettings extends React.Component<Props, State> {
                 marginTop: 10
               }}
             >
-              {this.renderCheckbox('isUndueUseEBarimt')}
-              {this.state?.currentMap?.isUndueUseEBarimt && (
+              {this.renderCheckbox('isLossUseEBarimt')}
+              {this.state?.currentMap?.isLossUseEBarimt && (
                 <FormGroup>
                   <ControlLabel>{__('Product')}</ControlLabel>
-                  {this.renderProductModal('undueEBarimtProduct')}
+                  {this.renderProductModal('lossEBarimtProduct')}
                 </FormGroup>
               )}
             </div>

@@ -25,7 +25,7 @@ export default {
             description: `Payment received from customer via ${
               data.paymentKind
             } at ${moment(data.resolvedAt).format('YYYY-MM-DD HH:mm:ss')}`
-          });
+          },subdomain);
         }
         break;
 

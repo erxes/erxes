@@ -5,7 +5,7 @@ import {
   CollapseContent,
   DataWithLoader,
   Pagination,
-  Table
+  Table,
 } from '@erxes/ui/src/components';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
@@ -18,8 +18,7 @@ type Props = {
   queryParams: any;
   loading: boolean;
   setBrand: (brandId: string) => void;
-  toCheckPrices: () => void;
-  toSyncPrices: (action: string, prices: any[]) => void;
+  toSyncPrices: () => void;
   items: any;
 };
 
@@ -28,21 +27,20 @@ const InventoryPrice = ({
   loading,
   queryParams,
   setBrand,
-  toCheckPrices,
-  toSyncPrices
+  toSyncPrices,
 }: Props) => {
   const checkButton = (
     <BarItems>
       <span>{items && items.matched && `Matched: ${items.matched.count}`}</span>
       <SelectBrands
         label={__('Choose brands')}
-        onSelect={brand => setBrand(brand as string)}
+        onSelect={(brand) => setBrand(brand as string)}
         initialValue={queryParams.brandId}
         multi={false}
         name="selectedBrands"
         customOption={{
           label: 'No Brand (noBrand)',
-          value: ''
+          value: '',
         }}
       />
 
@@ -50,9 +48,9 @@ const InventoryPrice = ({
         btnStyle="warning"
         size="small"
         icon="check-1"
-        onClick={toCheckPrices}
+        onClick={toSyncPrices}
       >
-        Check
+        Sync
       </Button>
     </BarItems>
   );
@@ -89,43 +87,18 @@ const InventoryPrice = ({
   const renderTable = (data: any, action: string) => {
     data = calculatePagination(data);
 
-    const excludeSyncTrue = (syncData: any) => {
-      return syncData.filter(d => d.syncStatus === false);
-    };
-
-    const onClickSync = () => {
-      data = excludeSyncTrue(data);
-      toSyncPrices(action, data);
-    };
-
     const renderRow = (rowData: any, rowSction: string) => {
       if (rowData.length > 100) {
         rowData = rowData.slice(0, 100);
       }
 
-      return rowData.map(p => (
+      return rowData.map((p) => (
         <Row key={p.code} price={p} action={rowSction} />
       ));
     };
 
-    const syncButton = (
-      <>
-        <Button
-          btnStyle="primary"
-          size="small"
-          icon="check-1"
-          onClick={onClickSync}
-        >
-          Sync
-        </Button>
-      </>
-    );
-
-    const subHeader = <Wrapper.ActionBar right={syncButton} />;
-
     return (
       <>
-        {action === 'UPDATE' && subHeader}
         <Table hover={true}>
           <thead>
             <tr>
@@ -133,8 +106,10 @@ const InventoryPrice = ({
               <th>{__('Unit price')}</th>
               <th>{__('Ending Date')}</th>
               {action === 'UPDATE' ? <th>{__('Update Status')}</th> : <></>}
+              {action === 'MATCH' ? <th>{__('Matched Status')}</th> : <></>}
               {action === 'CREATE' ? <th>{__('Create Status')}</th> : <></>}
               {action === 'DELETE' ? <th>{__('Delete Status')}</th> : <></>}
+              {action === 'ERROR' ? <th>{__('Error Status')}</th> : <></>}
             </tr>
           </thead>
           <tbody>{renderRow(data, action)}</tbody>
@@ -165,6 +140,25 @@ const InventoryPrice = ({
             objective={true}
           />
           <Pagination count={items.update?.count || 0} />
+        </>
+      </CollapseContent>
+
+      <CollapseContent
+        title={__(
+          'Matched product price' +
+            (items.match ? ':  ' + items.match.count : '')
+        )}
+      >
+        <>
+          <DataWithLoader
+            data={items.update ? renderTable(items.match?.items, 'MATCH') : []}
+            loading={false}
+            emptyText={'Please check first.'}
+            emptyIcon="leaf"
+            size="large"
+            objective={true}
+          />
+          <Pagination count={items.match?.count || 0} />
         </>
       </CollapseContent>
 
@@ -206,6 +200,24 @@ const InventoryPrice = ({
             objective={true}
           />
           <Pagination count={items.delete?.count || 0} />
+        </>
+      </CollapseContent>
+
+      <CollapseContent
+        title={__(
+          'Error product' + (items.error ? ':  ' + items.error.count : '')
+        )}
+      >
+        <>
+          <DataWithLoader
+            data={items.delete ? renderTable(items.error?.items, 'ERROR') : []}
+            loading={false}
+            emptyText={'Please check first.'}
+            emptyIcon="leaf"
+            size="large"
+            objective={true}
+          />
+          <Pagination count={items.error?.count || 0} />
         </>
       </CollapseContent>
     </>

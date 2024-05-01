@@ -1,22 +1,27 @@
 import {
-  getCustomer,
   fetchPolaris,
   getBranch,
   getDepositAccount,
   updateContract,
-  getProduct,
+  sendMessageBrokerData
 } from '../utils';
 
 export const createSaving = async (subdomain: string, params) => {
   const savingContract = params.object;
 
-  const savingProduct = await getProduct(
+  const savingProduct = await sendMessageBrokerData(
     subdomain,
-    savingContract.contractTypeId,
     'savings',
+    'contractType.findOne',
+    { _id: savingContract.contractTypeId }
   );
 
-  const customer = await getCustomer(subdomain, savingContract.customerId);
+  const customer = await sendMessageBrokerData(
+    subdomain,
+    'contacts',
+    'customers.findOne',
+    { _id: savingContract.customerId }
+  );
 
   const branch = await getBranch(subdomain, savingContract.branchId);
 
@@ -49,13 +54,13 @@ export const createSaving = async (subdomain: string, params) => {
     closedBy: '',
     closedDate: '',
     lastCtDate: '',
-    lastDtDate: '',
+    lastDtDate: ''
   };
 
   const savingCode = await fetchPolaris({
     op: '13610120',
     data: [sendData],
-    subdomain,
+    subdomain
   });
 
   if (savingCode) {
@@ -63,7 +68,7 @@ export const createSaving = async (subdomain: string, params) => {
       subdomain,
       { _id: savingContract._id },
       { $set: { number: JSON.parse(savingCode) } },
-      'savings',
+      'savings'
     );
   }
 

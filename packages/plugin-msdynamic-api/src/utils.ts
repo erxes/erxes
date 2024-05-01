@@ -5,7 +5,6 @@ import {
   sendPosMessage,
   sendProductsMessage,
 } from './messageBroker';
-import * as moment from 'moment';
 import fetch from 'node-fetch';
 
 export const getConfig = async (subdomain, code, defaultValue?) => {
@@ -331,67 +330,6 @@ export const consumeInventory = async (subdomain, config, doc, action) => {
   }
 };
 
-export const consumePrice = async (subdomain, config, doc, action) => {
-  const updateCode = doc.Item_No.replace(/\s/g, '');
-  let document: any = {};
-
-  const product = await sendProductsMessage({
-    subdomain,
-    action: 'findOne',
-    data: { code: updateCode },
-    isRPC: true,
-    defaultValue: {},
-  });
-
-  const brandIds = (product || {}).scopeBrandIds || [];
-
-  if (action === 'update' && doc.Item_No) {
-    if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
-      brandIds.push(config.brandId);
-    }
-
-    const currentDate = moment(new Date()).format('YYYY-MM-DD');
-    const date = moment(doc.Ending_Date).format('YYYY-MM-DD');
-
-    if (product && product.unitPrice === 0) {
-      document = {
-        unitPrice: doc?.Unit_Price,
-      };
-    }
-
-    if (product && product.unitPrice > 0) {
-      document = {
-        unitPrice:
-          product.unitPrice < doc?.Unit_Price
-            ? product.unitPrice
-            : doc?.Unit_Price,
-      };
-    }
-
-    if (doc.Ending_Date === '0001-01-01') {
-      if (product) {
-        await sendProductsMessage({
-          subdomain,
-          action: 'updateProduct',
-          data: { _id: product._id, doc: { ...document } },
-          isRPC: true,
-        });
-      }
-    }
-
-    if (doc.Ending_Date !== '0001-01-01' && moment(date).isAfter(currentDate)) {
-      if (product) {
-        await sendProductsMessage({
-          subdomain,
-          action: 'updateProduct',
-          data: { _id: product._id, doc: { ...document } },
-          isRPC: true,
-        });
-      }
-    }
-  }
-};
-
 export const consumeCategory = async (
   subdomain,
   config,
@@ -520,10 +458,6 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
     },
     isRPC: true,
   });
-
-  if (brand) {
-    throw new Error('MS Dynamic brand not found');
-  }
 
   const config = configs[brand._id || 'noBrand'];
 
@@ -804,24 +738,47 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
     }).then((res) => res.json());
 
     if (order && order.items.length > 0 && responseSale) {
+      const products = await sendProductsMessage({
+        subdomain,
+        action: 'find',
+        data: { _id: { $in: order.items.map((item) => item.productId) } },
+        isRPC: true,
+      });
+
+      const productById = {};
+
+      for (const product of products) {
+        productById[product._id] = product;
+      }
+
       for (const item of order.items) {
-        const product = await sendProductsMessage({
-          subdomain,
-          action: 'findOne',
-          data: { _id: item.productId },
-          isRPC: true,
-        });
+        const product = productById[item.productId];
+
+        if (!product) {
+          await models.SyncLogs.updateOne(
+            { _id: syncLog._id },
+            {
+              $set: {
+                error: `not found product ${product._id}`,
+              },
+            }
+          );
+
+          continue;
+        }
 
         const sendSalesLine: any = {
           Document_No: responseSale.No,
           Type: 'Item',
-          No: product ? product.code : '',
+          No: productById[item.productId]
+            ? productById[item.productId].code
+            : '',
           Quantity: item.count || 0,
           Unit_Price: item.unitPrice || 0,
           Location_Code: config.locationCode || 'BEV-01',
         };
 
-        await fetch(`${salesLineApi}`, {
+        const responseSaleLine = await fetch(`${salesLineApi}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -831,6 +788,32 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
           },
           body: JSON.stringify(sendSalesLine),
         }).then((res) => res.json());
+
+        if (responseSaleLine?.error && responseSaleLine?.error?.message) {
+          const foundSyncLog = await models.SyncLogs.findOne({
+            _id: syncLog._id,
+          });
+
+          await models.SyncLogs.updateOne(
+            { _id: syncLog._id },
+            {
+              $set: {
+                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${
+                  responseSaleLine.error.message
+                }`,
+              },
+            }
+          );
+        }
+
+        await models.SyncLogs.updateOne(
+          { _id: syncLog._id },
+          {
+            $push: {
+              responseSales: JSON.stringify(responseSaleLine),
+            },
+          }
+        );
       }
     }
 
@@ -863,5 +846,95 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
       { $set: { error: e.message } }
     );
     console.log(e, 'error');
+  }
+};
+
+const getPriceForList = (prods) => {
+  let resProd = prods[0];
+  let resPrice = prods[0].Unit_Price;
+
+  const hasDateList = prods.filter(
+    (p) => p.Ending_Date && p.Ending_Date !== '0001-01-01'
+  );
+
+  if (hasDateList.length) {
+    resProd = hasDateList[0];
+    resPrice = hasDateList[0].Unit_Price;
+
+    for (const prod of hasDateList) {
+      if (resPrice < prod.Unit_Price) {
+        continue;
+      }
+
+      resPrice = prod.Unit_Price;
+      resProd = prod;
+    }
+
+    return { resPrice, resProd };
+  }
+
+  for (const prod of prods) {
+    if (resPrice < prod.Unit_Price) {
+      continue;
+    }
+
+    resPrice = prod.Unit_Price;
+    resProd = prod;
+  }
+
+  return { resPrice, resProd };
+};
+
+export const getPrice = async (resProds, pricePriority) => {
+  try {
+    const sorts = pricePriority
+      .replace(', ', ',')
+      .split(',')
+      .filter((s) => s);
+
+    const currentDate = new Date();
+
+    const activeProds = resProds.filter((p) => {
+      if (
+        p.Starting_Date &&
+        p.Starting_Date !== '0001-01-01' &&
+        new Date(p.Starting_Date) > currentDate
+      ) {
+        return false;
+      }
+
+      if (
+        p.Ending_Date &&
+        p.Ending_Date !== '0001-01-01' &&
+        new Date(p.Ending_Date) < currentDate
+      ) {
+        return false;
+      }
+
+      return true;
+    });
+
+    if (!activeProds.length) {
+      return { resPrice: 0, resProd: {} };
+    }
+
+    for (const sortStr of sorts) {
+      const onlineProds = activeProds.filter((a) => a.Sales_Code === sortStr);
+
+      if (onlineProds.length) {
+        return getPriceForList(onlineProds);
+      }
+    }
+
+    const otherFilter = resProds.filter((p) => !sorts.includes(p.Sales_Code));
+
+    if (!otherFilter.length) {
+      return { resPrice: 0, resProd: {} };
+    }
+
+    return getPriceForList(otherFilter);
+  } catch (e) {
+    console.log(e, 'error');
+    return { resPrice: 0, resProd: {} };
   }
 };

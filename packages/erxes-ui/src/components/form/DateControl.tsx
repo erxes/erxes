@@ -13,6 +13,7 @@ type Props = {
   required?: boolean;
   timeFormat?: boolean | string;
   registerChild?: (child: any) => void;
+  isValidDate?:(currentDate: any, selectedDate?: Date)=>boolean
 };
 
 class DateControl extends React.Component<Props> {
@@ -36,7 +37,8 @@ class DateControl extends React.Component<Props> {
       placeholder,
       dateFormat,
       timeFormat,
-      required
+      required,
+      isValidDate
     } = this.props;
     const errorMessage = errors && errors[name || ''];
 
@@ -61,7 +63,8 @@ class DateControl extends React.Component<Props> {
       value,
       closeOnSelect: true,
       onChange,
-      utc: true
+      utc: true,
+      isValidDate
     };
 
     return (

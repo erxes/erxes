@@ -141,7 +141,7 @@ function PerInvoice(props: Props) {
           (content.interestEve || 0) + (content.interestNonce || 0)
         ).toLocaleString()
       )}
-      {renderCol('Invoice undue', (content.undue || 0).toLocaleString())}
+      {renderCol('Invoice loss', (content.loss || 0).toLocaleString())}
       {renderCol(
         'Invoice insurance',
         (content.insurance || 0).toLocaleString()
