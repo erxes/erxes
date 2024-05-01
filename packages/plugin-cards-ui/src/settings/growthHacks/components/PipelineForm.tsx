@@ -203,7 +203,7 @@ class PipelineForm extends React.Component<Props, State> {
   renderTemplates() {
     const { templates, templateId } = this.state;
 
-    const templateOptions = templates.map((template) => ({
+    const templateOptions = (templates || []).map((template) => ({
       value: template._id,
       label: template.name,
     }));

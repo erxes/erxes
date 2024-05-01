@@ -272,7 +272,7 @@ class PipelineForm extends React.Component<Props, State> {
   }
 
   renderBoards() {
-    const { boards } = this.props;
+    const { boards = [] } = this.props;
 
     const boardOptions = boards.map((board) => ({
       value: board._id,

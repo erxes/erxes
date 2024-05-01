@@ -6,6 +6,7 @@ import {
   VoucherContainer,
 } from "../../styles";
 import { IDiscountValue, IProductData, IPurchase } from "../../types";
+import Select, { components } from "react-select";
 
 import CURRENCIES from "@erxes/ui/src/constants/currencies";
 import FormControl from "@erxes/ui/src/components/form/Control";
@@ -14,7 +15,6 @@ import Icon from "@erxes/ui/src/components/Icon";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import ProductChooser from "@erxes/ui-products/src/containers/ProductChooser";
 import React from "react";
-import Select, { components } from "react-select";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
@@ -412,15 +412,14 @@ class ProductItem extends React.Component<Props, State> {
       return null;
     }
 
-    const uoms = Array.from(
-      new Set([
-        productData.uom,
-        productData.product.uom,
-        ...(productData.product.subUoms || []).map((su) => su.uom),
-      ])
-    )
-      .filter((u) => u)
-      .map((u) => ({ value: u, label: u }));
+    const uoms =
+      Array.from(
+        new Set([
+          productData.uom,
+          productData.product.uom,
+          ...(productData.product.subUoms || []).map((su) => su.uom),
+        ])
+      ).filter((u) => u) || [].map((u) => ({ value: u, label: u }));
 
     const currencyOptions = selectConfigOptions(currencies, CURRENCIES);
 

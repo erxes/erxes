@@ -2,13 +2,13 @@ import { Amount, HeaderAmount } from "./styles/stage";
 import { ColumnProps, getCommonParams } from "./components/Calendar";
 import { IDraggableLocation, IFilterParams, IItem, IItemMap } from "./types";
 import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from "./constants";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { IDateColumn } from "@erxes/ui/src/types";
 import PriorityIndicator from "./components/editForm/PriorityIndicator";
 import React from "react";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
-import { useNavigate, useLocation } from "react-router-dom";
 
 type Options = {
   _id: string;
@@ -20,7 +20,7 @@ type Options = {
 
 // get options for react-select
 export function selectOptions(array: Options[] = []) {
-  return array.map((item) => ({ value: item._id, label: item.name }));
+  return (array || []).map((item) => ({ value: item._id, label: item.name }));
 }
 
 export function collectOrders(array: Options[] = []) {

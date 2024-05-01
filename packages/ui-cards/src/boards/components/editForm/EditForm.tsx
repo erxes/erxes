@@ -1,17 +1,22 @@
-import { IEditFormContent, IItem, IItemParams, IOptions } from '../../types';
-import { __, router as routerUtils } from '@erxes/ui/src/utils';
+import { IEditFormContent, IItem, IItemParams, IOptions } from "../../types";
+import { __, router as routerUtils } from "@erxes/ui/src/utils";
 
-import { ArchiveStatus } from '../../styles/item';
-import { CloseModal } from '@erxes/ui/src/styles/main';
-import Icon from '@erxes/ui/src/components/Icon';
-import React, { useState, useEffect, Fragment } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Dialog, Transition } from '@headlessui/react';
+import { ArchiveStatus } from "../../styles/item";
+import { CloseModal } from "@erxes/ui/src/styles/main";
+import Icon from "@erxes/ui/src/components/Icon";
+import React, { useState, useEffect, Fragment } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Dialog, Transition } from "@headlessui/react";
 import {
   DialogContent,
   DialogWrapper,
   ModalOverlay,
-} from '@erxes/ui/src/styles/main';
+} from "@erxes/ui/src/styles/main";
+import styled from "styled-components";
+
+const Relative = styled.div`
+  position: relative;
+`;
 
 type Props = {
   options: IOptions;
@@ -43,7 +48,7 @@ function EditForm(props: Props) {
   const navigate = useNavigate();
   const [stageId, setStageId] = useState(item.stageId);
   const [updatedItem, setUpdatedItem] = useState(item);
-  const [prevStageId, setPrevStageId] = useState<string>('');
+  const [prevStageId, setPrevStageId] = useState<string>("");
 
   useEffect(() => {
     if (item.stageId !== stageId) {
@@ -90,7 +95,7 @@ function EditForm(props: Props) {
 
     closeModal(() => {
       if (updatedItem) {
-        const itemName = localStorage.getItem(`${updatedItem._id}Name`) || '';
+        const itemName = localStorage.getItem(`${updatedItem._id}Name`) || "";
 
         if (itemName && updatedItem.name !== itemName) {
           saveItemHandler({ itemName });
@@ -106,11 +111,11 @@ function EditForm(props: Props) {
   };
 
   const renderArchiveStatus = () => {
-    if (item.status === 'archived') {
+    if (item.status === "archived") {
       return (
         <ArchiveStatus>
           <Icon icon="archive-alt" />
-          <span>{__('This card is archived.')}</span>
+          <span>{__("This card is archived.")}</span>
         </ArchiveStatus>
       );
     }
@@ -129,7 +134,7 @@ function EditForm(props: Props) {
 
     return (
       <Dialog.Title as="h3">
-        {__('Edit')}
+        {__("Edit")}
         <Icon icon="times" size={24} onClick={onHideModal} />
       </Dialog.Title>
     );
@@ -153,18 +158,20 @@ function EditForm(props: Props) {
           <DialogContent>
             <Dialog.Panel className={` dialog-size-xl`}>
               {renderArchiveStatus()}
-              {renderHeader()}
 
               <Transition.Child>
-                <div className="dialog-description">
-                  {props.formContent({
-                    state: { stageId, updatedItem, prevStageId },
-                    saveItem: saveItemHandler,
-                    onChangeStage,
-                    copy,
-                    remove,
-                  })}
-                </div>
+                <Relative>
+                  {renderHeader()}
+                  <div className="dialog-description">
+                    {props.formContent({
+                      state: { stageId, updatedItem, prevStageId },
+                      saveItem: saveItemHandler,
+                      onChangeStage,
+                      copy,
+                      remove,
+                    })}
+                  </div>
+                </Relative>
               </Transition.Child>
             </Dialog.Panel>
           </DialogContent>
