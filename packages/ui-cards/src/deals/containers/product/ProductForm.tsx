@@ -44,7 +44,7 @@ class ProductFormContainer extends React.Component<Props> {
             ...this.props,
             categories: categories,
             loading: productCategoriesQuery.loading,
-            currencies: configs.dealCurrency || [],
+            currencies: (configs.dealCurrency || "").split(",") || [],
           };
 
           return <ProductForm {...extendedProps} />;
