@@ -1,6 +1,6 @@
 import * as strip from 'strip';
 
-import { IModels, IContext } from './connectionResolver';
+import { IModels } from './connectionResolver';
 import { generateAttachmentMessages, sendReply } from './utils';
 import { sendInboxMessage } from './messageBroker';
 import { sendCoreMessage } from './messageBroker';
