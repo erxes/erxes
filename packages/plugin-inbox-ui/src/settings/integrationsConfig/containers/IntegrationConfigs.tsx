@@ -9,7 +9,6 @@ import {
 import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
 import IntegrationsConfig from '../components/IntegrationConfigs';
 import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 
@@ -21,10 +20,6 @@ type FinalProps = {
 class ConfigContainer extends React.Component<FinalProps> {
   render() {
     const { updateConfigs, integrationsConfigsQuery } = this.props;
-
-    if (integrationsConfigsQuery.loading) {
-      return <Spinner objective={true} />;
-    }
 
     // create or update action
     const save = (map: IConfigsMap) => {
@@ -50,7 +45,12 @@ class ConfigContainer extends React.Component<FinalProps> {
     }
 
     return (
-      <IntegrationsConfig {...this.props} configsMap={configsMap} save={save} />
+      <IntegrationsConfig
+        {...this.props}
+        configsMap={configsMap}
+        save={save}
+        loading={integrationsConfigsQuery.loading}
+      />
     );
   }
 }

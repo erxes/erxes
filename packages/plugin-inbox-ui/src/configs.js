@@ -10,7 +10,7 @@ module.exports = {
     './unreadCount': './src/inbox/containers/UnreadCount.tsx',
     './actionForms': './src/settings/integrations/containers/ActionForms',
     './emailWidget': './src/inbox/containers/EmailWidget.tsx',
-    './integrationDetailsForm': './src/forms/components/CallproEditForm.tsx',
+    './integrationDetailsForm': './src/forms/components/CallproEditForm.tsx'
   },
   routes: {
     url: 'http://localhost:3009/remoteEntry.js',
@@ -83,17 +83,10 @@ module.exports = {
         'integrationsEditLeadIntegration',
         'integrationsRemove',
         'integrationsArchive',
-        'integrationsEdit'
+        'integrationsEdit',
+        'manageGeneralSettings',
+        'showGeneralSettings'
       ]
-    },
-    {
-      text: 'Integrations config',
-      to: '/settings/integrations-config',
-      image: '/images/icons/erxes-24.svg',
-      location: 'settings',
-      scope: 'inbox',
-      action: 'generalSettingsAll',
-      permissions: ['manageGeneralSettings', 'showGeneralSettings']
     },
     {
       text: 'Responses',
@@ -114,20 +107,20 @@ module.exports = {
       permissions: ['manageScripts', 'showScripts']
     },
     {
-      text: "Send an Email",
-      url: "/emailWidget",
-      icon: "icon-envelope",
-      location: "topNavigation",
-      scope: "inbox",
-      component: "./emailWidget",
+      text: 'Send an Email',
+      url: '/emailWidget',
+      icon: 'icon-envelope',
+      location: 'topNavigation',
+      scope: 'inbox',
+      component: './emailWidget'
     }
   ],
   customNavigationLabel: [
     {
-      text: "unreadCount",
-      component: "./unreadCount",
-      scope: "inbox",
+      text: 'unreadCount',
+      component: './unreadCount',
+      scope: 'inbox'
     }
   ],
-  integrationDetailsForm: './integrationDetailsForm',
+  integrationDetailsForm: './integrationDetailsForm'
 };
