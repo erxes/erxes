@@ -10,20 +10,23 @@ export default {
       action: 'customers.findOne',
       isRPC: true,
       data: {
-        _id: contentId
-      }
+        _id: contentId,
+      },
     });
 
     if (!customer) {
       return {
         status: 'success',
-        data: []
+        data: [],
       };
     }
 
     const models = await generateModels(subdomain);
     const messages = await models.Messages.find({
-      'to.address': customer.primaryEmail
+      $or: [
+        { 'to.address': customer.primaryEmail },
+        { 'from.address': customer.primaryEmail },
+      ],
     });
 
     const results: any = [];
@@ -33,13 +36,13 @@ export default {
         _id: message._id,
         contentType: 'imap:customer',
         createdAt: message.createdAt,
-        contentTypeDetail: message
+        contentTypeDetail: message,
       });
     }
 
     return {
       status: 'success',
-      data: results
+      data: results,
     };
-  }
+  },
 };
