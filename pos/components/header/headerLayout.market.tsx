@@ -1,4 +1,4 @@
-import ActiveOrders from "@/modules/orders/ActiveOrders.market"
+import ActiveOrders from "@/modules/orders/ActiveOrders"
 import { userLabelAtom } from "@/store/config.store"
 import { useAtomValue } from "jotai"
 

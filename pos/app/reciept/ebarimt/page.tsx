@@ -46,7 +46,7 @@ const Reciept = () => {
       if (orderDetail?._id === _id) {
         setOrderStates(orderDetail)
         data.billType === BILL_TYPES.INNER && setType("inner")
-        setTimeout(() => window.print(), 50)
+        mode !== "mobile" && setTimeout(() => window.print(), 50)
       }
     }
   }, [_id, data, setOrderStates, setType])
@@ -85,9 +85,10 @@ const Reciept = () => {
       <Footer />
       <Button
         onClick={handleClick}
-        className="mx-3 w-40 text-xs font-bold print:hidden"
+        className="px-6 text-xs print:hidden w-full"
+        variant="secondary"
       >
-        Print
+        хэвлэх
       </Button>
     </>
   )

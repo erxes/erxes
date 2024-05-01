@@ -31,7 +31,15 @@ const currentConfig = gql`
       kitchenScreen
       erxesAppToken
       orderPassword
-      uiOptions
+      uiOptions {
+        colors
+        logo
+        bgImage
+        favIcon
+        receiptIcon
+        texts
+        kioskHeaderImage
+      }
       allowTypes
       banFractions
       paymentIds

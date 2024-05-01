@@ -1,7 +1,8 @@
 import { useEffect } from "react"
 import dynamic from "next/dynamic"
 import { checkoutDialogOpenAtom, checkoutModalViewAtom } from "@/store"
-import { unPaidAmountAtom } from "@/store/order.store"
+import { totalAmountAtom } from "@/store/cart.store"
+import { orderTotalAmountAtom, unPaidAmountAtom } from "@/store/order.store"
 import { useAtom, useAtomValue } from "jotai"
 
 import { Button } from "@/components/ui/button"
@@ -33,17 +34,25 @@ const BillType = dynamic(
     loading: () => <Loader className="min-h-[15rem]" />,
   }
 )
+
+const Ebarimt = dynamic(
+  () => import("@/modules/checkout/components/ebarimt/ebarimtView.mobile"),
+  {
+    loading: () => <Loader className="min-h-[15rem]" />,
+  }
+)
+
 const HandleOrder = () => {
   const [open, setOpen] = useAtom(checkoutDialogOpenAtom)
   const [view, setView] = useAtom(checkoutModalViewAtom)
+  const totalAmount = useAtomValue(orderTotalAmountAtom)
   const notPaidAmount = useAtomValue(unPaidAmountAtom)
 
   useEffect(() => {
-    if (notPaidAmount === 0) {
-      setView("billType")
+    if (totalAmount > 0 && notPaidAmount === 0) {
+      setView("")
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [notPaidAmount])
+  }, [totalAmount, notPaidAmount])
 
   return (
     <div className="bg-white p-2">
@@ -60,6 +69,7 @@ const HandleOrder = () => {
             {view === "" && <SelectPaymentType />}
             {view === "paymentValue" && <PaymentType />}
             {view === "billType" && <BillType />}
+            {view === "ebarimt" && <Ebarimt />}
           </DrawerContent>
         </Drawer>
       )}

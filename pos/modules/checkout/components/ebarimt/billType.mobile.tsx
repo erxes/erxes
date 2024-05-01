@@ -16,7 +16,7 @@ const CheckRegister = dynamic(() => import("./checkRegister.market"))
 const ChooseBillType = () => {
   const [billType, setBillType] = useAtom(billTypeAtom)
   const { skipEbarimt, allowInnerBill } = useRenderEbarimt()
-  const { printBill, loading } = usePrintBill()
+  const { printBill, loading } = usePrintBill(() => setView("ebarimt"))
 
   const showInner = allowInnerBill || skipEbarimt
   const setView = useSetAtom(checkoutModalViewAtom)
@@ -37,7 +37,15 @@ const ChooseBillType = () => {
         </RadioGroup>
         {billType === "3" && <CheckRegister />}
       </div>
-      <Button className="w-full">Баримт хэвлэх</Button>
+      <Button
+        className="w-full"
+        onClick={() => {
+          printBill()
+        }}
+        loading={loading}
+      >
+        Баримт хэвлэх
+      </Button>
       <Button
         variant="secondary"
         className="mt-2 w-full"

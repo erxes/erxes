@@ -49,20 +49,19 @@ const SelectPaymentType = () => {
             </PaymentType>
           )}
 
-            {mappedPts.map((payment) => (
-              <PaymentType type={payment.type} key={payment.type}>
-                <CoinsIcon />
-                {payment.title}
-              </PaymentType>
-            ))}
-          </RadioGroup>
-          {notPaidAmount === 0 && (
-            <Button className="w-full mt-2" onClick={() => setView("billType")}>
-              Баримт хэвлэх
-            </Button>
-          )}
-        </div>
-      )}
+          {mappedPts.map((payment) => (
+            <PaymentType type={payment.type} key={payment.type}>
+              <CoinsIcon />
+              {payment.title}
+            </PaymentType>
+          ))}
+        </RadioGroup>
+        {notPaidAmount === 0 && (
+          <Button className="w-full mt-2" onClick={() => setView("billType")}>
+            Баримт хэвлэх
+          </Button>
+        )}
+      </div>
     </div>
   )
 }
@@ -78,7 +77,7 @@ const PaymentType = ({
     <Button
       variant="outline"
       size="lg"
-      className="w-full h-20 text-base font-bold capitalize justify-start relative"
+      className="w-full h-20 font-bold capitalize justify-start relative text-sm"
       Component={"div"}
     >
       <RadioGroupItem

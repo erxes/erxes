@@ -52,34 +52,34 @@ const ActiveOrders = () => {
 
   return (
     <Popover open={open} onOpenChange={() => setOpen((prev) => !prev)}>
-      <div className="mr-2 rounded-md bg-gray-100 p-1">
+      <div className="mr-2 rounded-md bg-gray-100 p-1 ml-auto">
         <PopoverTrigger asChild>
           <Button
             className="h-8 bg-white font-black rounded-sm"
             variant="ghost"
           >
-            {activeOrder?.number?.split("_")[1] || "0000"}
+            {activeOrder?.number || "0000"}
           </Button>
         </PopoverTrigger>
       </div>
-      <PopoverContent className="mt-1 w-[50vw] ">
-        <ScrollArea className="h-[50vh] overflow-hidden">
-          <div className="grid grid-cols-5 gap-2">
+      <PopoverContent className="mt-1 w-screen md:w-[50vw] ">
+        <ScrollArea className="h-[80vh] md:h-[50vh] overflow-hidden">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-2 max-w-full">
             {fullOrders.map((fo) => (
               <Button
                 key={fo._id}
                 variant={fo._id !== activeOrderId ? "outline" : undefined}
-                className="font-black"
+                className="font-black whitespace-nowrap"
                 onClick={() => handleChoose(fo._id)}
               >
-                {fo.number?.split("_")[1]}
+                {fo.number}
               </Button>
             ))}
             {totalCount > fullOrders.length && (
               <Button
                 size="sm"
                 loading={loading}
-                className="whitespace-nowrap font-bold my-2 col-span-5"
+                className="whitespace-nowrap font-bold my-2 md:col-span-5"
                 variant={"secondary"}
                 onClick={handleLoadMore}
               >
