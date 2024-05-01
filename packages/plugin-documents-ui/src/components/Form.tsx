@@ -35,7 +35,12 @@ class Form extends React.Component<Props, State> {
 
     const { obj } = props;
 
-    this.state = { name: obj.name, content: obj.content, subType: obj.subType, code: obj.code};
+    this.state = {
+      name: obj.name,
+      content: obj.content,
+      subType: obj.subType,
+      code: obj.code,
+    };
   }
 
   onContentChange = (content: string) => {
@@ -97,7 +102,6 @@ class Form extends React.Component<Props, State> {
               content={obj.content}
               onChange={this.onContentChange}
               height={200}
-              name="document-form"
             />
           </div>
 
