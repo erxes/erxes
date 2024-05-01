@@ -1,21 +1,21 @@
-import typeDefs from './graphql/typeDefs';
-import resolvers from './graphql/resolvers';
+import typeDefs from "./graphql/typeDefs";
+import resolvers from "./graphql/resolvers";
 
-import { setupMessageConsumers } from './messageBroker';
-import { getSubdomain } from '@erxes/api-utils/src/core';
-import { generateModels } from './connectionResolver';
-import initApp from './initApp';
-import { INTEGRATION_KINDS } from './constants';
-import automations from './automations';
-import forms from './forms';
-import segments from './segments';
+import { setupMessageConsumers } from "./messageBroker";
+import { getSubdomain } from "@erxes/api-utils/src/core";
+import { generateModels } from "./connectionResolver";
+import initApp from "./initApp";
+import { INTEGRATION_KINDS } from "./constants";
+import automations from "./automations";
+import forms from "./forms";
+import segments from "./segments";
 
 export default {
-  name: 'facebook',
+  name: "facebook",
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers(),
+      resolvers: await resolvers()
     };
   },
   meta: {
@@ -25,19 +25,19 @@ export default {
     inboxIntegrations: [
       {
         kind: INTEGRATION_KINDS.MESSENGER,
-        label: 'Facebook messenger',
+        label: "Facebook messenger"
       },
       {
         kind: INTEGRATION_KINDS.POST,
-        label: 'Facebook post',
-      },
-    ],
+        label: "Facebook post"
+      }
+    ]
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
-    context.subdomain = req.hostname;
+    context.subdomain = subdomain;
     context.models = models;
 
     return context;
@@ -46,5 +46,5 @@ export default {
   onServerInit: async () => {
     await initApp();
   },
-  setupMessageConsumers,
+  setupMessageConsumers
 };

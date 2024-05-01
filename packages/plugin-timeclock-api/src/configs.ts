@@ -1,37 +1,37 @@
-import typeDefs from './graphql/typeDefs';
-import resolvers from './graphql/resolvers';
+import typeDefs from "./graphql/typeDefs";
+import resolvers from "./graphql/resolvers";
 
-import { setupMessageConsumers } from './messageBroker';
-import { getSubdomain } from '@erxes/api-utils/src/core';
-import { generateModels } from './connectionResolver';
-import cronjobs from './cronjobs/timelock';
-import { routeErrorHandling } from '@erxes/api-utils/src/requests';
-import { buildFile } from './reportExport';
-import * as permissions from './permissions';
-import { removeDuplicates } from './removeDuplicateTimeclocks';
-import app from '@erxes/api-utils/src/app';
-import { buildFile as timeclockBuildFile } from './timeclockExport';
+import { setupMessageConsumers } from "./messageBroker";
+import { getSubdomain } from "@erxes/api-utils/src/core";
+import { generateModels } from "./connectionResolver";
+import cronjobs from "./cronjobs/timelock";
+import { routeErrorHandling } from "@erxes/api-utils/src/requests";
+import { buildFile } from "./reportExport";
+import * as permissions from "./permissions";
+import { removeDuplicates } from "./removeDuplicateTimeclocks";
+import app from "@erxes/api-utils/src/app";
+import { buildFile as timeclockBuildFile } from "./timeclockExport";
 
 export default {
-  name: 'timeclock',
+  name: "timeclock",
   permissions,
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers(),
+      resolvers: await resolvers()
     };
   },
 
   meta: {
     cronjobs,
-    permissions,
+    permissions
   },
 
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
-    context.subdomain = req.hostname;
+    context.subdomain = subdomain;
     context.models = models;
 
     return context;
@@ -39,15 +39,15 @@ export default {
 
   onServerInit: async () => {
     app.get(
-      '/remove-duplicates',
+      "/remove-duplicates",
       routeErrorHandling(async (req: any, res) => {
         const remove = await removeDuplicates();
         return res.send(remove);
-      }),
+      })
     );
 
     app.get(
-      '/report-export',
+      "/report-export",
       routeErrorHandling(async (req: any, res) => {
         const { query } = req;
         const subdomain = getSubdomain(req);
@@ -58,11 +58,11 @@ export default {
         res.attachment(`${result.name}.xlsx`);
 
         return res.send(result.response);
-      }),
+      })
     );
 
     app.get(
-      '/timeclock-export',
+      "/timeclock-export",
       routeErrorHandling(async (req: any, res) => {
         const { query } = req;
 
@@ -74,11 +74,11 @@ export default {
         res.attachment(`${result.name}.xlsx`);
 
         return res.send(result.response);
-      }),
+      })
     );
 
     app.get(
-      '/timeclock-export',
+      "/timeclock-export",
       routeErrorHandling(async (req: any, res) => {
         const { query } = req;
 
@@ -90,8 +90,8 @@ export default {
         res.attachment(`${result.name}.xlsx`);
 
         return res.send(result.response);
-      }),
+      })
     );
   },
-  setupMessageConsumers,
+  setupMessageConsumers
 };
