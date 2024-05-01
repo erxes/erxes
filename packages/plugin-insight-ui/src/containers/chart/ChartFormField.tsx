@@ -96,23 +96,17 @@ const ChartFormFieldList = (props: Props) => {
         : {};
 
     const query = useQuery(gql(queries[`${fieldQuery}`]), {
-      skip: fieldOptions ? true : false,
+      skip: !!fieldOptions,
       variables,
     });
 
     const queryData = query && query.data ? query.data : {};
 
-    queryFieldOptions =
-      fieldValueVariable &&
-      fieldLabelVariable &&
-      queryData[fieldQuery] &&
-      queryData[fieldQuery].length
-        ? queryData[fieldQuery].map((d) => ({
-          value: getValue(d, fieldValueVariable),
-          label: getValue(d, fieldLabelVariable),
-            ...(fieldParentVariable && { parent: d[fieldParentVariable] }),
-          }))
-        : [];
+    queryFieldOptions = queryData[fieldQuery]?.map(d => ({
+      value: getValue(d, fieldValueVariable),
+      label: getValue(d, fieldLabelVariable),
+      ...(fieldParentVariable && { parent: getValue(d, fieldParentVariable) }),
+    })) || [];
   }
 
   let fieldParentOptions: any = [];
@@ -167,24 +161,19 @@ const ChartFormFieldList = (props: Props) => {
 
     return true;
   };
+
+  const selectHandler = (input) => {
+    const value = input?.value || input
+
+    if (value !== undefined || value !== null) {
+      setFilter(fieldName, value);
+    }
+  }
+
   const onChange = (input: any) => {
     switch (fieldType) {
       case 'select':
-        const value =
-          input.value !== undefined || input.value !== null ||
-          fieldQuery?.includes('user') ||
-          fieldQuery?.includes('department') ||
-          fieldQuery?.includes('branch') ||
-          fieldQuery?.includes('integration')
-            ? input
-            : input.value;
-        setFilter(fieldName, value);
-        break;
-
-      case 'groups':
-        if (Array.isArray(input)) {
-          setFilter(fieldName, input);
-        }
+        selectHandler(input)
         break;
 
       default:
@@ -195,18 +184,13 @@ const ChartFormFieldList = (props: Props) => {
   if (!checkLogic()) {
     return <></>;
   }
+
   return (
     <ChartFormField
       fieldType={fieldType}
       fieldQuery={fieldQuery}
       multi={multi}
-      fieldOptions={
-        fieldOptions
-          ? fieldOptions
-          : fieldParentVariable
-            ? fieldParentOptions
-            : queryFieldOptions
-      }
+      fieldOptions={fieldOptions || (fieldParentVariable ? fieldParentOptions : queryFieldOptions)}
       fieldLogics={logics}
       fieldLabel={fieldLabel}
       fieldDefaultValue={fieldDefaultValue}
