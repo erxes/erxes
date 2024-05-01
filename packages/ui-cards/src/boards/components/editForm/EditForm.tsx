@@ -63,7 +63,17 @@ function EditForm(props: Props) {
   }, [stageId]);
 
   const onChangeStage = (stageId: string) => {
-    setStageId(stageId);
+    setStageId(stageId)
+    const { item, saveItem, onUpdate } = props;
+
+    if (item.stageId !== stageId) {
+      setPrevStageId(item.stageId)
+      saveItem({ stageId }, updatedItem => {
+        if (onUpdate) {
+          onUpdate(updatedItem, prevStageId);
+        }
+      });
+    }
   };
 
   const saveItemHandler = (doc: { [key: string]: any }) => {
