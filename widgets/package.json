@@ -60,7 +60,7 @@
     "dayjs": "^1.8.27",
     "dotenv": "^4.0.0",
     "dotenv-webpack": "^1.7.0",
-    "ejs": "^2.5.6",
+    "ejs": "^3.1.10",
     "express": "^4.14.0",
     "fast-equals": "^2.0.4",
     "file-loader": "^1.1.11",
