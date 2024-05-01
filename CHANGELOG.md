@@ -1,5 +1,41 @@
 # Changelog
 
+## [1.10.0-rc.0](https://github.com/erxes/erxes/compare/1.9.0-rc.2...1.10.0-rc.0) (2024-05-01)
+
+
+### Features
+
+* **calls:** add record and fix subscription ([#5175](https://github.com/erxes/erxes/issues/5175)) ([66ba478](https://github.com/erxes/erxes/commit/66ba478538548e044970a986c2649a04217af6de))
+* client saving contract request ([#5172](https://github.com/erxes/erxes/issues/5172)) ([99076a2](https://github.com/erxes/erxes/commit/99076a2dac5f3b566975828a1f43acb106034130))
+* **instagram:** Added post ([6476730](https://github.com/erxes/erxes/commit/6476730ea5cfee5e586087803d7ea1e392f28df4))
+* Loan block and savings block ([#5142](https://github.com/erxes/erxes/issues/5142)) ([98cb5ae](https://github.com/erxes/erxes/commit/98cb5aeb59ea408ef23f0097c427ef90831a3791))
+* **timeclock:** add 'note' field to Schedule schema ([abf023e](https://github.com/erxes/erxes/commit/abf023ef44e273659a69dd94ca43856e9679a9a0))
+
+
+### Bug Fixes
+
+* **calls:** remove receive call and fix call status ([76ac111](https://github.com/erxes/erxes/commit/76ac11167a4697543a1cf7f0d809d720ccd21f01))
+* clientportals notification ([#5151](https://github.com/erxes/erxes/issues/5151)) ([948a0b4](https://github.com/erxes/erxes/commit/948a0b4e721a675b90d4ab9e238e29144889e43f))
+* **dailyco:** fix create room ([aef4968](https://github.com/erxes/erxes/commit/aef4968025608e094a865034437b8500668794a7))
+* **facebook:** send conversationClientMessageInserted as RPC ([a8bd30e](https://github.com/erxes/erxes/commit/a8bd30e2d1cc94e7f04c14bc26055931f49cc483))
+* **forms:** set associatedField when onPropertyChange fired ([035cc88](https://github.com/erxes/erxes/commit/035cc8864babb093919d465133c09b885f13d46e))
+* **forms:** set associatedField when onPropertyChange fired ([eea78df](https://github.com/erxes/erxes/commit/eea78dff750026a35916d90b3bc2a8ca41ff438e))
+* **forms:** show placeholder text on form description unless form object has description property ([b273285](https://github.com/erxes/erxes/commit/b27328535578f99843910f24292ff1faf50c302c))
+* **imap:** fixed action log ([b3e1356](https://github.com/erxes/erxes/commit/b3e13562543363dd993133b61d356c7d7f686ed8))
+* **inbox:** checked user on sendNotifications ([b6e44ae](https://github.com/erxes/erxes/commit/b6e44aef99c6b690e5833b1ebfdb963f799b2760))
+* **inbox:** fix issue with saving image width changes in form callout step ([c7a4a12](https://github.com/erxes/erxes/commit/c7a4a12b1cb3ce135da15862c41efe7cba7199ad))
+* loans and savings  ([#5165](https://github.com/erxes/erxes/issues/5165)) ([b5a6f1d](https://github.com/erxes/erxes/commit/b5a6f1df65f038da6529b259f51b21b09f3b3390))
+* Ms dynamic sync log save for sales line ([#5153](https://github.com/erxes/erxes/issues/5153)) ([8f2533a](https://github.com/erxes/erxes/commit/8f2533a836ec9c80d1470a666ae0f98bb33a55f6))
+* Ms dynamic sync price refactor ([#5167](https://github.com/erxes/erxes/issues/5167)) ([a610dd8](https://github.com/erxes/erxes/commit/a610dd847eddb4681ebbc2a44464e1a6fb867672))
+* Ms dynamic sync price update ([#5161](https://github.com/erxes/erxes/issues/5161)) ([3d94ba9](https://github.com/erxes/erxes/commit/3d94ba971c6a7321b36de04328354b0e4cfcc481))
+* Ms dynamic sync products price update ([#5158](https://github.com/erxes/erxes/issues/5158)) ([b0ffdd0](https://github.com/erxes/erxes/commit/b0ffdd0b4d453627d4fc1b8d395eb1c2bf73305c))
+* products similarity by default ([a8dea91](https://github.com/erxes/erxes/commit/a8dea910a2d60fde2e133ba640da57854ebd2ae4))
+* products similarity refactor ([6d9ce6f](https://github.com/erxes/erxes/commit/6d9ce6f2a118ec502745f2740c3cc513cd0c255a))
+* **response:** refresh edit ([#5157](https://github.com/erxes/erxes/issues/5157)) ([131f776](https://github.com/erxes/erxes/commit/131f776a9a7111fe7bb1cd77707fa061d35a2f97))
+* RTE mention plugin & document editor issue  ([69ac4fd](https://github.com/erxes/erxes/commit/69ac4fdc00379125bd2b3e4ec6bbc18182101019))
+* **widgets:** change call out image width based on calloutImgSize ([6d168bd](https://github.com/erxes/erxes/commit/6d168bd7d3977f1434663475cdcccf29e7b1b595))
+* **widgets:** set defaultValue of select field to first option by default ([657f57e](https://github.com/erxes/erxes/commit/657f57ea4c3f81b35d0a7e186d0c359575bc0848))
+
 ## [1.9.0-rc.2](https://github.com/erxes/erxes/compare/1.9.0-rc.1...1.9.0-rc.2) (2024-04-30)
 
 ## [1.9.0-rc.1](https://github.com/erxes/erxes/compare/1.9.0-rc.1...1.9.0-rc.2) (2024-04-26)
