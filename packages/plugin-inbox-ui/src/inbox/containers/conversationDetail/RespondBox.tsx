@@ -41,6 +41,7 @@ type FinalProps = {
 interface ITeamMembers {
   id: string;
   username: string;
+  email?: string;
   fullName?: string;
   title?: string;
   avatar?: string;
@@ -67,6 +68,7 @@ const RespondBoxContainer = (props: FinalProps) => {
       mentionUsers.push({
         id: user._id,
         username: user.username?.trim(),
+        email: user.email?.trim(),
         fullName: user.details && user.details.fullName?.trim(),
         title: user.details && user.details.position,
         avatar:
@@ -86,7 +88,7 @@ const RespondBoxContainer = (props: FinalProps) => {
 
   const sendMessage = (
     variables: AddMessageMutationVariables,
-    callback: (error: Error) => void,
+    callback: (error: Error) => void
   ) => {
     const { conversationId, content, attachments, internal, contentType } =
       variables;
@@ -157,9 +159,9 @@ const withQuery = () =>
               },
             };
           },
-        },
-      ),
-    )(RespondBoxContainer),
+        }
+      )
+    )(RespondBoxContainer)
   );
 
 class Wrapper extends React.Component<
