@@ -70,7 +70,7 @@ const List = (props: Props) => {
   const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>();
 
-  const changeMapCenter = (center) => {
+  const changeMapCenter = center => {
     if (map) {
       map.setPosition({ latitude: center.lat, longitude: center.lng });
     }
@@ -120,7 +120,7 @@ const List = (props: Props) => {
     setCenter(newCenter);
   };
 
-  const onChangeBuilding = (e) => {
+  const onChangeBuilding = e => {
     const buildingId = e.id;
 
     const { properties } = e;
@@ -136,7 +136,9 @@ const List = (props: Props) => {
     }
 
     setCurrentOsmBuilding(e);
-
+    console.log('eeeeee');
+    console.log(e);
+    // setCurrentBuilding()
     setIsFormOpen(true);
   };
 
@@ -182,6 +184,9 @@ const List = (props: Props) => {
         width={'100%'}
         height={'100%'}
         onChangeCenter={onChangeCenter}
+        onChange={d => {
+          return history.push(`/mobinet/building/details/${d._id}`);
+        }}
         onload={onload}
         center={center}
         buildings={buildings}
@@ -196,7 +201,7 @@ const List = (props: Props) => {
       return null;
     }
     return (
-      <Table whiteSpace="nowrap" hover={true}>
+      <Table whiteSpace='nowrap' hover={true}>
         <thead>
           <tr>
             <th>{'#'}</th>
@@ -218,7 +223,7 @@ const List = (props: Props) => {
     );
   };
 
-  const formContent = (formProps) => (
+  const formContent = formProps => (
     <BuildingForm
       {...formProps}
       refetch={props.refetch}
@@ -243,7 +248,7 @@ const List = (props: Props) => {
     return (
       <Modal
         show={true}
-        size="xl"
+        size='xl'
         onHide={onHide}
         animation={false}
         enforceFocus={false}
@@ -253,7 +258,7 @@ const List = (props: Props) => {
             {currentBuilding ? __('Edit building') : __('Add building')}
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body id="ModalBody" className="md-padding">
+        <Modal.Body id='ModalBody' className='md-padding'>
           {formContent({ closeModal: () => setIsFormOpen(false) })}
         </Modal.Body>
       </Modal>
@@ -261,7 +266,7 @@ const List = (props: Props) => {
   };
 
   const renderViewChooser = () => {
-    const onFilterClick = (e) => {
+    const onFilterClick = e => {
       const type = e.target.id;
 
       router.setParams(history, { viewType: type });
@@ -275,14 +280,14 @@ const List = (props: Props) => {
 
     return (
       <Dropdown>
-        <Dropdown.Toggle as={DropdownToggle} id="dropdown-buildingAction">
-          <Button btnStyle="primary" icon="list-ui-alt">
-            {viewTypes.find((type) => type.value === viewType)?.title}
-            <Icon icon="angle-down" />
+        <Dropdown.Toggle as={DropdownToggle} id='dropdown-buildingAction'>
+          <Button btnStyle='primary' icon='list-ui-alt'>
+            {viewTypes.find(type => type.value === viewType)?.title}
+            <Icon icon='angle-down' />
           </Button>
         </Dropdown.Toggle>
         <Dropdown.Menu>
-          {viewTypes.map((type) => (
+          {viewTypes.map(type => (
             <li key={type.value}>
               <LinkButton id={type.value} onClick={onFilterClick}>
                 {__(type.title)}
@@ -295,11 +300,11 @@ const List = (props: Props) => {
   };
 
   const trigger = (
-    <Button btnStyle="success" size="small" icon="plus-circle">
+    <Button btnStyle='success' size='small' icon='plus-circle'>
       Add building
     </Button>
   );
-  const search = (e) => {
+  const search = e => {
     if (timer) {
       clearTimeout(timer);
     }
@@ -326,7 +331,7 @@ const List = (props: Props) => {
 
     return router;
   };
-  const moveCursorAtTheEnd = (e) => {
+  const moveCursorAtTheEnd = e => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
@@ -340,7 +345,7 @@ const List = (props: Props) => {
   const actionBarRight = (
     <BarItems>
       <FormControl
-        type="text"
+        type='text'
         placeholder={__('Type to search')}
         onChange={search}
         value={searchValue}
@@ -350,7 +355,7 @@ const List = (props: Props) => {
       {renderViewChooser()}
       <FilterMenu {...filterParams} />
       <ModalTrigger
-        size="xl"
+        size='xl'
         title={currentBuilding ? __('Edit building') : __('Add building')}
         trigger={trigger}
         content={formContent}

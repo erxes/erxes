@@ -8,7 +8,7 @@ import {
   TileLayer,
   useMap,
   useMapEvents,
-  Polygon,
+  Polygon
 } from 'react-leaflet';
 
 import Leaflet from 'leaflet';
@@ -29,7 +29,7 @@ type Props = {
   buildings: IBuilding[];
   onChangeZoom?: (zoomLevel: number) => void;
   onChangeCenter?: (center: ICoordinates, bounds: ICoordinates[]) => void;
-  // onChange: (data: any) => void;
+  onChange: (data: any) => void;
   onload?: (bounds: ICoordinates[], mapRef: any) => void;
 };
 let timer;
@@ -48,19 +48,19 @@ const MapComponent = (props: Props) => {
         const bounds: ICoordinates[] = [];
         bounds.push({
           lat: map.getBounds().getNorthEast().lat,
-          lng: map.getBounds().getNorthEast().lng,
+          lng: map.getBounds().getNorthEast().lng
         });
         bounds.push({
           lat: map.getBounds().getSouthEast().lat,
-          lng: map.getBounds().getSouthEast().lng,
+          lng: map.getBounds().getSouthEast().lng
         });
         bounds.push({
           lat: map.getBounds().getSouthWest().lat,
-          lng: map.getBounds().getSouthWest().lng,
+          lng: map.getBounds().getSouthWest().lng
         });
         bounds.push({
           lat: map.getBounds().getNorthWest().lat,
-          lng: map.getBounds().getNorthWest().lng,
+          lng: map.getBounds().getNorthWest().lng
         });
 
         props.onChangeCenter && props.onChangeCenter(map.getCenter(), bounds);
@@ -82,19 +82,19 @@ const MapComponent = (props: Props) => {
           const bounds: ICoordinates[] = [];
           bounds.push({
             lat: map.getBounds().getNorthEast().lat,
-            lng: map.getBounds().getNorthEast().lng,
+            lng: map.getBounds().getNorthEast().lng
           });
           bounds.push({
             lat: map.getBounds().getSouthEast().lat,
-            lng: map.getBounds().getSouthEast().lng,
+            lng: map.getBounds().getSouthEast().lng
           });
           bounds.push({
             lat: map.getBounds().getSouthWest().lat,
-            lng: map.getBounds().getSouthWest().lng,
+            lng: map.getBounds().getSouthWest().lng
           });
           bounds.push({
             lat: map.getBounds().getNorthWest().lat,
-            lng: map.getBounds().getNorthWest().lng,
+            lng: map.getBounds().getNorthWest().lng
           });
 
           props.onChangeCenter && props.onChangeCenter(map.getCenter(), bounds);
@@ -105,7 +105,7 @@ const MapComponent = (props: Props) => {
           clearTimeout(timer);
         };
       }
-    },
+    }
   });
 
   map.setView(props.center || [47.919481, 106.904299], props.zoom || 5);
@@ -120,32 +120,30 @@ const Map = (props: Props) => {
   const [dd, setDD] = useState<IBuilding[]>();
   if (
     props.addMarkerOnCenter &&
-    markers.findIndex((item) => item.id === 'center') === -1
+    markers.findIndex(item => item.id === 'center') === -1
   ) {
     markers.push({
       position: center,
       draggable: true,
       id: 'center',
-      name: 'You are here',
+      name: 'You are here'
     });
   }
 
   useEffect(() => {
-    setCenter(props.center || { lat: 0, lng: 0 });
+    // setCenter(props.center || { lat: 0, lng: 0 });
 
     if (props.addMarkerOnCenter) {
-      const centerMarkerIndex = markers.findIndex(
-        (item) => item.id === 'center',
-      );
+      const centerMarkerIndex = markers.findIndex(item => item.id === 'center');
 
       if (centerMarkerIndex !== -1) {
         markers[centerMarkerIndex].position = center;
         setMarkers([...markers]);
       }
     }
-  }, [props.id, center, zoom, setCenter]);
+  }, [props?.center, center]);
   useEffect(() => {
-    const filter = props.buildings?.filter((d) => d.drawnPoints) || [];
+    const filter = props.buildings?.filter(d => d.drawnPoints) || [];
 
     setDD(filter);
   }, [props.buildings]);
@@ -173,7 +171,7 @@ const Map = (props: Props) => {
     className: 'my-custom-pin',
     iconAnchor: [0, 24],
     popupAnchor: [0, -36],
-    html: `<div style="${markerHtmlStyles}" />`,
+    html: `<div style="${markerHtmlStyles}" />`
   });
 
   return (
@@ -199,15 +197,32 @@ const Map = (props: Props) => {
           <Popup>{marker.name}</Popup>
         </Marker>
       ))}
-      {dd?.map((d) => (
+      {dd?.map(d => (
         <Polygon
           pathOptions={{ color: 'lime' }}
-          positions={d.drawnPoints.map((x) => [x.lat, x.lng])}
-        />
+          positions={d.drawnPoints.map(x => [x.lat, x.lng])}
+        >
+          {d.drawnPoints?.length > 0 && (
+            <Marker
+              icon={icon}
+              position={{
+                lat: d.drawnPoints[0].lat,
+                lng: d.drawnPoints[0].lng
+              }}
+              eventHandlers={{
+                click: e => {
+                  console.log(e);
+                  props.onChange(d);
+                }
+              }}
+              title={''}
+            />
+          )}
+        </Polygon>
       ))}
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
       />
     </MapContainer>
   );
