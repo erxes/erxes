@@ -276,25 +276,6 @@ const ChartFormField = (props: Props) => {
   }
 
   switch (fieldType) {
-    case 'groups':
-      return (
-        <div>
-          <ControlLabel>{fieldLabel}</ControlLabel>
-          <Select
-            value={fieldValue}
-            multi={multi}
-            onChange={onSelect}
-            options={fieldOptions?.map((group) => ({
-              label: group.label,
-              options: group.value?.map((field) => ({
-                value: field._id,
-                label: field.text,
-              })),
-            }))}
-            placeholder={fieldLabel}
-          />
-        </div>
-      );
     case 'select':
       return (
         <div>
