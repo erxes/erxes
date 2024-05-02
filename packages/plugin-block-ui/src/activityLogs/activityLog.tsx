@@ -1,10 +1,10 @@
 import {
   ActivityIcon,
-  ActivityRow
+  ActivityRow,
 } from '@erxes/ui-log/src/activityLogs/styles';
 import {
   formatText,
-  getIconAndColor
+  getIconAndColor,
 } from '@erxes/ui-log/src/activityLogs/utils';
 
 import Icon from '@erxes/ui/src/components/Icon';
@@ -18,8 +18,8 @@ type Props = {
   currentUser: any;
 };
 
-class ActivityItem extends React.Component<Props> {
-  renderDetail(contentType: string, children: React.ReactNode) {
+const ActivityItem: React.FC<Props> = ({ activity, currentUser }: Props) => {
+  const renderDetail = (contentType: string, children: React.ReactNode) => {
     const type = contentType.split(':')[1];
 
     const iconAndColor = getIconAndColor(type || contentType) || {};
@@ -34,35 +34,31 @@ class ActivityItem extends React.Component<Props> {
         {children}
       </ActivityRow>
     );
+  };
+  /* check content type */
+  const { contentType, action, _id, contentId } = activity;
+
+  const type = contentType.split(':')[1];
+
+  const packageId = activity.content ? activity.content.packageId : [];
+
+  const amount = activity.content ? activity.content.amount : [];
+
+  switch ((action && action) || type) {
+    case 'invest':
+      return renderDetail(
+        'invest',
+        <BlockLog
+          contentId={contentId}
+          packageId={packageId}
+          amount={amount}
+          activity={activity}
+        />,
+      );
+
+    default:
+      return <div />;
   }
-
-  render() {
-    const { activity } = this.props;
-
-    const { contentType, action, _id, contentId } = activity;
-
-    const type = contentType.split(':')[1];
-
-    const packageId = activity.content ? activity.content.packageId : [];
-
-    const amount = activity.content ? activity.content.amount : [];
-
-    switch ((action && action) || type) {
-      case 'invest':
-        return this.renderDetail(
-          'invest',
-          <BlockLog
-            contentId={contentId}
-            packageId={packageId}
-            amount={amount}
-            activity={activity}
-          />
-        );
-
-      default:
-        return <div />;
-    }
-  }
-}
+};
 
 export default ActivityItem;

@@ -1,57 +1,63 @@
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Button from '@erxes/ui/src/components/Button';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import { __ } from '@erxes/ui/src/utils';
-import React, { useEffect, useState } from 'react';
-import ArchivedItems from '../containers/ArchivedItems';
-import { HeaderButton } from '../styles/header';
 import {
   ArchiveWrapper,
-  TopBar,
   CustomRangeContainer,
-  FilterBox
-} from '../styles/rightMenu';
-import { IOptions } from '../types';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import Select from 'react-select-plus';
-import SelectLabel from './label/SelectLabel';
-import { PRIORITIES } from '../constants';
-import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
-import dayjs from 'dayjs';
-import { debounce } from 'lodash';
-import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
-import { HACKSTAGES } from '../constants';
+  FilterBox,
+  TopBar,
+} from "../styles/rightMenu";
+import React, { useEffect, useState } from "react";
+
+import ArchivedItems from "../containers/ArchivedItems";
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { HACKSTAGES } from "../constants";
+import { HeaderButton } from "../styles/header";
+import { INTEGRATION_KINDS } from "@erxes/ui/src/constants/integrations";
+import { IOptions } from "../types";
+import { PRIORITIES } from "../constants";
+import Select from "react-select";
+import SelectLabel from "./label/SelectLabel";
+import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import { __ } from "@erxes/ui/src/utils";
+import dayjs from "dayjs";
+import { debounce } from "lodash";
 
 type Props = {
   options: IOptions;
   queryParams: any;
 };
 
-const priorityValues = PRIORITIES.map(p => ({ label: p, value: p }));
+const priorityValues = PRIORITIES.map((p) => ({ label: p, value: p }));
+const sourceOptions = INTEGRATION_KINDS.ALL.map((kind) => ({
+  label: kind.text,
+  value: kind.value,
+}));
+const growthHackOptions = HACKSTAGES.map((hs) => ({ value: hs, label: hs }));
 
 function Archive(props: Props) {
-  const [type, changeType] = useState('item');
-  const [searchValue, setSearchValue] = useState('');
+  const [type, changeType] = useState("item");
+  const [searchValue, setSearchValue] = useState("");
   const { options, queryParams } = props;
 
-  const [searchInputValue, setSearchInputValue] = useState('');
+  const [searchInputValue, setSearchInputValue] = useState("");
   const [userIds, setUserIds] = useState<string[]>([]);
   const [priorities, setPriorities] = useState<string[]>([]);
   const [assignedUserIds, setAssignedUserIds] = useState<string[]>([]);
   const [labelIds, setLabelIds] = useState<string[]>([]);
   const [productIds, setProductIds] = useState<string[]>([]);
   const [sources, setSources] = useState<string[]>([]);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [hackStages, setHackStages] = useState<string[]>([]);
 
   const onChangeRangeFilter = (setterFn, date) => {
-    const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : '';
+    const formattedDate = date ? dayjs(date).format("YYYY-MM-DD") : "";
     setterFn(formattedDate);
   };
 
-  const switchType = (): string => (type === 'list' ? 'item' : 'list');
+  const switchType = (): string => (type === "list" ? "item" : "list");
 
   const toggleType = () => changeType(switchType());
 
@@ -62,7 +68,7 @@ function Archive(props: Props) {
   }, [searchInputValue, debouncedSetSearchValue]);
 
   const isFiltered = (): boolean => {
-    if (type === 'item') {
+    if (type === "item") {
       return !!(
         searchInputValue ||
         // userIds.length ||
@@ -81,14 +87,14 @@ function Archive(props: Props) {
   };
 
   const clearFilters = () => {
-    setSearchInputValue('');
+    setSearchInputValue("");
     // setUserIds([]);
     setPriorities([]);
     // setAssignedUserIds([]);
     // setLabelIds([]);
     // setProductIds([]);
-    setStartDate('');
-    setEndDate('');
+    setStartDate("");
+    setEndDate("");
     setSources([]);
     setHackStages([]);
   };
@@ -99,8 +105,8 @@ function Archive(props: Props) {
         <SelectTeamMembers
           label="Filter by created members"
           name="userIds"
-          onSelect={v => {
-            if (typeof v === 'string') {
+          onSelect={(v) => {
+            if (typeof v === "string") {
               if (!v) {
                 setUserIds([]);
               } else {
@@ -112,20 +118,20 @@ function Archive(props: Props) {
           }}
         />
         <Select
-          placeholder={__('Filter by priority')}
-          value={priorities}
+          placeholder={__("Filter by priority")}
+          value={priorityValues.filter((p) => priorities.includes(p.value))}
           options={priorityValues}
           name="priority"
-          onChange={arr => setPriorities(arr.map(v => v.value))}
-          multi={true}
-          loadingPlaceholder={__('Loading...')}
+          onChange={(arr) => setPriorities(arr.map((v) => v.value))}
+          isMulti={true}
+          // loadingPlaceholder={__('Loading...')}
         />
 
         <SelectTeamMembers
           label="Filter by team members"
           name="assignedUserIds"
-          onSelect={v => {
-            if (typeof v === 'string') {
+          onSelect={(v) => {
+            if (typeof v === "string") {
               if (!v) {
                 setAssignedUserIds([]);
               } else {
@@ -139,8 +145,8 @@ function Archive(props: Props) {
 
         <SelectLabel
           name="labelIds"
-          onSelect={v => {
-            if (typeof v === 'string') {
+          onSelect={(v) => {
+            if (typeof v === "string") {
               if (!v) {
                 setLabelIds([]);
               } else {
@@ -150,16 +156,16 @@ function Archive(props: Props) {
               setLabelIds(v);
             }
           }}
-          filterParams={{ pipelineId: queryParams.pipelineId || '' }}
+          filterParams={{ pipelineId: queryParams.pipelineId || "" }}
           multi={true}
         />
 
-        {options.type === 'deal' && (
+        {options.type === "deal" && (
           <SelectProducts
-            label={__('Filter by products')}
+            label={__("Filter by products")}
             name="productIds"
-            onSelect={v => {
-              if (typeof v === 'string') {
+            onSelect={(v) => {
+              if (typeof v === "string") {
                 if (!v) {
                   setProductIds([]);
                 } else {
@@ -172,12 +178,12 @@ function Archive(props: Props) {
           />
         )}
 
-        {options.type === 'purchase' && (
+        {options.type === "purchase" && (
           <SelectProducts
-            label={__('Filter by products')}
+            label={__("Filter by products")}
             name="productIds"
-            onSelect={v => {
-              if (typeof v === 'string') {
+            onSelect={(v) => {
+              if (typeof v === "string") {
                 if (!v) {
                   setProductIds([]);
                 } else {
@@ -190,30 +196,29 @@ function Archive(props: Props) {
           />
         )}
 
-        {options.type === 'ticket' && (
+        {options.type === "ticket" && (
           <Select
-            placeholder={__('Choose a source')}
-            value={sources}
-            options={INTEGRATION_KINDS.ALL.map(kind => ({
-              label: kind.text,
-              value: kind.value
-            }))}
+            placeholder={__("Choose a source")}
+            value={sourceOptions.filter((o) => sources.includes(o.value))}
+            options={sourceOptions}
             name="source"
-            onChange={xs => setSources(xs.map(x => x.value))}
-            multi={true}
-            loadingPlaceholder={__('Loading...')}
+            onChange={(xs) => setSources(xs.map((x) => x.value))}
+            isMulti={true}
+            // loadingPlaceholder={__('Loading...')}
           />
         )}
 
-        {options.type === 'growthHack' && (
+        {options.type === "growthHack" && (
           <Select
             placeholder="Choose a growth funnel"
-            value={hackStages}
-            options={HACKSTAGES.map(hs => ({ value: hs, label: hs }))}
+            value={growthHackOptions.filter((o) =>
+              hackStages.includes(o.value)
+            )}
+            options={growthHackOptions}
             name="hackStage"
-            onChange={xs => setHackStages(xs.map(x => x.value))}
-            multi={true}
-            loadingPlaceholder={__('Loading...')}
+            onChange={(xs) => setHackStages(xs.map((x) => x.value))}
+            isMulti={true}
+            // loadingPlaceholder={__('Loading...')}
           />
         )}
 
@@ -224,18 +229,18 @@ function Archive(props: Props) {
             value={startDate}
             required={false}
             name="startDate"
-            onChange={date => onChangeRangeFilter(setStartDate, date)}
-            placeholder={'Start date'}
-            dateFormat={'YYYY-MM-DD'}
+            onChange={(date) => onChangeRangeFilter(setStartDate, date)}
+            placeholder={"Start date"}
+            dateFormat={"YYYY-MM-DD"}
           />
 
           <DateControl
             value={endDate}
             required={false}
             name="endDate"
-            placeholder={'End date'}
-            onChange={date => onChangeRangeFilter(setEndDate, date)}
-            dateFormat={'YYYY-MM-DD'}
+            placeholder={"End date"}
+            onChange={(date) => onChangeRangeFilter(setEndDate, date)}
+            dateFormat={"YYYY-MM-DD"}
           />
         </CustomRangeContainer>
       </FilterBox>
@@ -250,17 +255,17 @@ function Archive(props: Props) {
           autoFocus={true}
           placeholder={`Search ${type}...`}
           value={searchInputValue}
-          onChange={e =>
+          onChange={(e) =>
             setSearchInputValue((e.target as HTMLInputElement).value)
           }
         />
-        <HeaderButton hasBackground={true} onClick={toggleType}>
-          {__('Switch To')} {switchType()}
-          {'s'}
+        <HeaderButton $hasBackground={true} onClick={toggleType}>
+          {__("Switch To")} {switchType()}
+          {"s"}
         </HeaderButton>
       </TopBar>
 
-      {type === 'item' && renderItemFilters()}
+      {type === "item" && renderItemFilters()}
 
       {isFiltered() && (
         <Button
@@ -268,9 +273,9 @@ function Archive(props: Props) {
           btnStyle="warning"
           onClick={clearFilters}
           icon="times-circle"
-          style={{ marginBottom: '20px' }}
+          style={{ marginBottom: "20px" }}
         >
-          {__('Clear Filter')}
+          {__("Clear Filter")}
         </Button>
       )}
 
@@ -289,7 +294,7 @@ function Archive(props: Props) {
           startDate,
           endDate,
           sources,
-          hackStages
+          hackStages,
         }}
         type={type}
       />

@@ -51,7 +51,7 @@ class HistoryRow extends React.Component<Props> {
     if (history.error) {
       return (
         <Tip placement="top" text={history.error}>
-          <TextInfo textStyle="warning"> In </TextInfo>
+          <TextInfo $textStyle="warning"> In </TextInfo>
         </Tip>
       );
     }
@@ -76,23 +76,23 @@ class HistoryRow extends React.Component<Props> {
         data.percentage === 100 ||
         data.status === 'success'
       ) {
-        return <TextInfo textStyle="success"> Done </TextInfo>;
+        return <TextInfo $textStyle="success"> Done </TextInfo>;
       }
 
       if (data.value === 'inProcess') {
-        return <TextInfo textStyle="warning"> In Process </TextInfo>;
+        return <TextInfo $textStyle="warning"> In Process </TextInfo>;
       }
 
       if (data.value === 'failed') {
         return (
           <Tip placement="bottom" text={data.errorMsg}>
-            <TextInfo textStyle="danger"> Failed </TextInfo>
+            <TextInfo $textStyle="danger"> Failed </TextInfo>
           </Tip>
         );
       }
 
       return (
-        <TextInfo textStyle="warning">
+        <TextInfo $textStyle="warning">
           {`${data.status}  ${data.percentage}%`}
         </TextInfo>
       );

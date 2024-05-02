@@ -1,29 +1,27 @@
 import {
-  __,
+  BarItems,
   DataWithLoader,
   Pagination,
   SortHandler,
   Table,
   Wrapper,
-  BarItems
-} from '@erxes/ui/src';
-import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { menuPos } from '../../constants';
+  __,
+} from "@erxes/ui/src";
+import { IQueryParams } from "@erxes/ui/src/types";
 
-import { TableWrapper } from '../../styles';
-import { IOrder } from '../types';
-import HeaderDescription from './MainHead';
-import RightMenu from './RightMenu';
-import Row from './Row';
+import { IOrder } from "../types";
+import React from "react";
+import RightMenu from "./RightMenu";
+import Row from "./Row";
+import { TableWrapper } from "../../styles";
+import { Title } from "@erxes/ui-settings/src/styles";
+import { menuPos } from "../../constants";
 
-interface IProps extends IRouterProps {
+type Props = {
   orders: IOrder[];
   loading: boolean;
   bulk: any[];
   isAllSelected: boolean;
-  history: any;
   queryParams: any;
 
   onSearch: (search: string) => void;
@@ -34,44 +32,41 @@ interface IProps extends IRouterProps {
   summary: any;
 
   onReturnBill: (orderId: string) => void;
-}
+};
 
-class Orders extends React.Component<IProps, {}> {
-  private timer?: NodeJS.Timer = undefined;
+const List = (props: Props) => {
+  const {
+    orders,
+    loading,
+    queryParams,
+    onFilter,
+    onSelect,
+    onSearch,
+    isFiltered,
+    clearFilter,
+    summary,
+    onReturnBill,
+  } = props;
 
-  constructor(props) {
-    super(props);
-  }
+  const staticKeys = ["count", "totalAmount", "cashAmount", "mobileAmount"];
 
-  moveCursorAtTheEnd = e => {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
-  render() {
-    const {
-      orders,
-      history,
-      loading,
-      queryParams,
-      onFilter,
-      onSelect,
-      onSearch,
-      isFiltered,
-      clearFilter,
-      summary,
-      onReturnBill
-    } = this.props;
-
+  const renderActionBar = () => {
     const rightMenuProps = {
       onFilter,
       onSelect,
       onSearch,
       isFiltered,
       clearFilter,
-      queryParams
+      queryParams,
     };
+
+    const actionBarLeft = <Title>{__("Pos Orders")}</Title>;
 
     const actionBarRight = (
       <BarItems>
@@ -79,72 +74,64 @@ class Orders extends React.Component<IProps, {}> {
       </BarItems>
     );
 
-    const staticKeys = ['count', 'totalAmount', 'cashAmount', 'mobileAmount'];
+    return <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />;
+  };
+
+  const renderContent = () => {
     const otherPayTitles = (summary ? Object.keys(summary) || [] : [])
-      .filter(a => !['_id'].includes(a))
-      .filter(a => !staticKeys.includes(a))
+      .filter((a) => !["_id"].includes(a))
+      .filter((a) => !staticKeys.includes(a))
       .sort();
 
-    const header = (
-      <HeaderDescription
-        icon="/images/actions/26.svg"
-        title=""
-        summary={summary}
-        staticKeys={staticKeys}
-        actionBar={actionBarRight}
-      />
-    );
-
-    const mainContent = (
+    return (
       <TableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
           <thead>
             <tr>
               <th>
-                <SortHandler sortField={'number'} label={__('Bill number')} />
+                <SortHandler sortField={"number"} label={__("Bill number")} />
               </th>
               <th>
-                <SortHandler sortField={'paidDate'} label={__('Date')} />
+                <SortHandler sortField={"paidDate"} label={__("Date")} />
               </th>
               <th>
                 <SortHandler
-                  sortField={'cashAmount'}
-                  label={__('Cash Amount')}
+                  sortField={"cashAmount"}
+                  label={__("Cash Amount")}
                 />
               </th>
               <th>
                 <SortHandler
-                  sortField={'mobileAmount'}
-                  label={__('Mobile Amount')}
+                  sortField={"mobileAmount"}
+                  label={__("Mobile Amount")}
                 />
               </th>
-              {otherPayTitles.map(key => (
+              {otherPayTitles.map((key) => (
                 <th key={Math.random()}>{__(key)}</th>
               ))}
               <th>
-                <SortHandler sortField={'totalAmount'} label={__('Amount')} />
+                <SortHandler sortField={"totalAmount"} label={__("Amount")} />
               </th>
               <th>
-                <SortHandler sortField={'customerId'} label={__('Customer')} />
+                <SortHandler sortField={"customerId"} label={__("Customer")} />
               </th>
               <th>
-                <SortHandler sortField={'posName'} label={__('Pos')} />
+                <SortHandler sortField={"posName"} label={__("Pos")} />
               </th>
               <th>
-                <SortHandler sortField={'type'} label={__('Type')} />
+                <SortHandler sortField={"type"} label={__("Type")} />
               </th>
               <th>
-                <SortHandler sortField={'user'} label={__('User')} />
+                <SortHandler sortField={"user"} label={__("User")} />
               </th>
               <th>Үйлдлүүд</th>
             </tr>
           </thead>
           <tbody id="orders">
-            {(orders || []).map(order => (
+            {(orders || []).map((order) => (
               <Row
                 order={order}
                 key={order._id}
-                history={history}
                 otherPayTitles={otherPayTitles}
                 onReturnBill={onReturnBill}
               />
@@ -153,30 +140,25 @@ class Orders extends React.Component<IProps, {}> {
         </Table>
       </TableWrapper>
     );
+  };
 
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__(`Pos Orders`)}
-            queryParams={queryParams}
-            submenu={menuPos}
-          />
-        }
-        mainHead={header}
-        footer={<Pagination count={(summary || {}).count} />}
-        content={
-          <DataWithLoader
-            data={mainContent}
-            loading={loading}
-            count={(orders || []).length}
-            emptyText="Add in your first order!"
-            emptyImage="/images/actions/1.svg"
-          />
-        }
-      />
-    );
-  }
-}
+  return (
+    <Wrapper
+      header={<Wrapper.Header title={__(`Pos Orders`)} submenu={menuPos} />}
+      hasBorder={true}
+      actionBar={renderActionBar()}
+      footer={<Pagination count={(summary || {}).count || 0} />}
+      content={
+        <DataWithLoader
+          data={renderContent()}
+          loading={loading}
+          count={(orders || []).length}
+          emptyText="Add in your first order!"
+          emptyImage="/images/actions/1.svg"
+        />
+      }
+    />
+  );
+};
 
-export default withRouter<IRouterProps>(Orders);
+export default List;

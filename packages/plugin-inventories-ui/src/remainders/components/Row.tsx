@@ -1,8 +1,8 @@
-import React from 'react';
 // erxes
-import FormControl from '@erxes/ui/src/components/form/Control';
+import FormControl from "@erxes/ui/src/components/form/Control";
 // local
-import { IRemainderProduct } from '../types';
+import { IRemainderProduct } from "../types";
+import React from "react";
 
 type Props = {
   product: IRemainderProduct;
@@ -14,19 +14,11 @@ export default function Row(props: Props) {
   const {
     product = {} as IRemainderProduct,
     isChecked = false,
-    toggleBulk
+    toggleBulk,
   } = props;
 
-  const {
-    code,
-    name,
-    category,
-    unitPrice,
-    remainder,
-    uom,
-    soonIn,
-    soonOut
-  } = product;
+  const { code, name, category, unitPrice, remainder, uom, soonIn, soonOut } =
+    product;
 
   const handleChange = () => {
     if (toggleBulk) toggleBulk(product, !isChecked);
@@ -36,19 +28,19 @@ export default function Row(props: Props) {
     <tr>
       <td>
         <FormControl
-          componentClass="checkbox"
+          componentclass="checkbox"
           checked={isChecked}
           onChange={handleChange}
         />
       </td>
       <td>{code}</td>
       <td>{name}</td>
-      <td>{category ? category.name : ''}</td>
+      <td>{category ? category.name : ""}</td>
       <td>{(unitPrice || 0).toLocaleString()}</td>
       <td>{(remainder || 0).toLocaleString()}</td>
       <td>{(soonIn || 0).toLocaleString()}</td>
       <td>{(soonOut || 0).toLocaleString()}</td>
-      <td>{uom || ''}</td>
+      <td>{uom || ""}</td>
     </tr>
   );
 }

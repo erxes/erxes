@@ -84,6 +84,8 @@ export interface IClientPortalUser extends IClientPortalUserDoc {
   modifiedAt: Date;
   forumSubscriptionEndsAfter?: string;
   clientPortal: ClientPortalConfig;
+  isSubscribed?: string;
+  hasAuthority?: string;
 }
 
 export type ClientPortalUsersQueryResponse = {
@@ -190,10 +192,10 @@ export type ClientPortalConfig = {
   manualVerificationConfig?: ManualVerificationConfig;
   passwordVerificationConfig?: PasswordVerificationConfig;
 
-  testUserEmail: string;
-  testUserPhone: string;
-  testUserPassword: string;
-  testUserOTP: number;
+  testUserEmail?: string;
+  testUserPhone?: string;
+  testUserPassword?: string;
+  testUserOTP?: number;
 
   tokenExpiration?: number;
   refreshTokenExpiration?: number;

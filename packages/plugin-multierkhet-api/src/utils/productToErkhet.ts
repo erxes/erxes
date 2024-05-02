@@ -1,6 +1,7 @@
+import { getSyncLogDoc, toErkhet } from './utils';
+
 import { IModels } from '../connectionResolver';
 import { sendProductsMessage } from '../messageBroker';
-import { getSyncLogDoc, toErkhet } from './utils';
 
 const productCategorySender = async (
   models,
@@ -154,7 +155,7 @@ const productSender = async (
 
 export const productToErkhet = async (subdomain, models, params, action) => {
   const syncLogDoc = getSyncLogDoc(params);
-  const product = params.updatedDocument || params.object;
+  const product = params.updatedDocument || params.object || {};
   const oldProduct = params.object;
 
   const configs = await models.Configs.getConfig('erkhetConfig', {});

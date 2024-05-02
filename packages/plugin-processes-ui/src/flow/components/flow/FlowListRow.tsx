@@ -1,12 +1,12 @@
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import Label from '@erxes/ui/src/components/Label';
-import React from 'react';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from 'coreui/utils';
-import { FormControl } from '@erxes/ui/src/components/form';
-import { IFlowDocument } from '../../types';
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import Button from "@erxes/ui/src/components/Button";
+import Icon from "@erxes/ui/src/components/Icon";
+import Label from "@erxes/ui/src/components/Label";
+import React from "react";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __ } from "coreui/utils";
+import { FormControl } from "@erxes/ui/src/components/form";
+import { IFlowDocument } from "../../types";
 
 type Props = {
   flow: IFlowDocument;
@@ -19,13 +19,13 @@ class Row extends React.Component<Props> {
   render() {
     const { flow, history, toggleBulk, isChecked } = this.props;
 
-    const onChange = e => {
+    const onChange = (e) => {
       if (toggleBulk) {
         toggleBulk(flow, e.target.checked);
       }
     };
 
-    const onClick = e => {
+    const onClick = (e) => {
       e.stopPropagation();
     };
 
@@ -34,7 +34,7 @@ class Row extends React.Component<Props> {
     };
 
     const onTrClick = () => {
-      history.push(`/processes/flows/details/${flow._id}`);
+      history(`/processes/flows/details/${flow._id}`);
     };
 
     const {
@@ -45,7 +45,7 @@ class Row extends React.Component<Props> {
       product,
       latestBranch,
       latestDepartment,
-      isSub
+      isSub,
     } = flow;
 
     return (
@@ -53,37 +53,38 @@ class Row extends React.Component<Props> {
         <td onClick={onClick}>
           <FormControl
             checked={isChecked}
-            componentClass="checkbox"
+            componentclass="checkbox"
             onChange={onChange}
           />
         </td>
         <td>
-          {(isSub && renderLabelInfo('primary', 'SUB')) ||
-            renderLabelInfo('success', 'Main')}
+          {(isSub && renderLabelInfo("primary", "SUB")) ||
+            renderLabelInfo("success", "Main")}
         </td>
         <td>{name}</td>
-        <td>{(product && `${product.code} - ${product.name}`) || ''}</td>
+        <td>{(product && `${product.code} - ${product.name}`) || ""}</td>
         <td>
           {(latestBranch &&
-            `${latestBranch.code || ''} - ${latestBranch.title || ''}`) ||
-            ''}
+            `${latestBranch.code || ""} - ${latestBranch.title || ""}`) ||
+            ""}
         </td>
         <td>
           {(latestDepartment &&
-            `${latestDepartment.code || ''} - ${latestDepartment.title ||
-              ''}`) ||
-            ''}
+            `${latestDepartment.code || ""} - ${
+              latestDepartment.title || ""
+            }`) ||
+            ""}
         </td>
         <td>{status}</td>
         <td>
-          {flowValidation === '' && renderLabelInfo('success', 'True')}
-          {flowValidation && renderLabelInfo('danger', flowValidation)}
+          {flowValidation === "" && renderLabelInfo("success", "True")}
+          {flowValidation && renderLabelInfo("danger", flowValidation)}
         </td>
         <td>{jobCount || 0}</td>
         <td onClick={onClick}>
           <ActionButtons>
             <Button btnStyle="link" onClick={onTrClick}>
-              <Tip text={__('Edit')} placement="bottom">
+              <Tip text={__("Edit")} placement="bottom">
                 <Icon icon="edit" />
               </Tip>
             </Button>

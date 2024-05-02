@@ -22,7 +22,7 @@ function EditFormContainer(props: Props) {
       .then(() => {
         Alert.success('Successfully edited');
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -31,14 +31,14 @@ function EditFormContainer(props: Props) {
     values,
     isSubmitted,
     callback,
-    object
+    object,
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
-        mutation={mutations.exmsEdit}
+        mutation={object ? mutations.exmsEdit : mutations.exmsAdd}
         variables={values}
         callback={callback}
-        refetchQueries={'exmGet'}
+        refetchQueries={['exmGet']}
         isSubmitted={isSubmitted}
         type="submit"
         icon="check-circle"

@@ -1,23 +1,23 @@
-import { Row } from '@erxes/ui-inbox/src/settings/integrations/styles';
-import Button from '@erxes/ui/src/components/Button';
-import CollapseContent from '@erxes/ui/src/components/CollapseContent';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { Row } from "@erxes/ui-inbox/src/settings/integrations/styles";
+import Button from "@erxes/ui/src/components/Button";
+import CollapseContent from "@erxes/ui/src/components/CollapseContent";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Toggle from "@erxes/ui/src/components/Toggle";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
 import {
   IButtonMutateProps,
   IFieldLogic,
-  IFormProps
-} from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
-import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
-import React from 'react';
+  IFormProps,
+} from "@erxes/ui/src/types";
+import { __ } from "@erxes/ui/src/utils";
+import { RenderDynamicComponent } from "@erxes/ui/src/utils/core";
+import React from "react";
 
-import PropertyLogics from '../containers/PropertyLogics';
-import { IFieldGroup } from '../types';
+import PropertyLogics from "../containers/PropertyLogics";
+import { IFieldGroup } from "../types";
 
 type Props = {
   group?: IFieldGroup;
@@ -61,7 +61,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
       isVisibleInDetail,
       alwaysOpen,
       logics: props.group && props.group.logics ? props.group.logics : [],
-      logicAction: props.group && props.group.logicAction
+      logicAction: props.group && props.group.logicAction,
     };
   }
 
@@ -91,28 +91,28 @@ class PropertyGroupForm extends React.Component<Props, State> {
       alwaysOpen: this.state.alwaysOpen,
       config,
       logicAction,
-      logics
+      logics,
     };
   };
 
-  multipleHandler = e => {
-    if (e.target.id === 'multiple') {
+  multipleHandler = (e) => {
+    if (e.target.id === "multiple") {
       const isMultiple = e.target.checked;
 
       return this.setState({ isMultiple });
     }
   };
 
-  alwaysOpenHandler = e => {
-    if (e.target.id === 'alwaysOpen') {
+  alwaysOpenHandler = (e) => {
+    if (e.target.id === "alwaysOpen") {
       const alwaysOpen = e.target.checked;
 
       return this.setState({ alwaysOpen });
     }
   };
 
-  visibleHandler = e => {
-    if (e.target.id === 'visible') {
+  visibleHandler = (e) => {
+    if (e.target.id === "visible") {
       const isVisible = e.target.checked;
 
       return this.setState({ isVisible });
@@ -161,7 +161,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
             onChange={this.visibleHandler}
             icons={{
               checked: <span>Yes</span>,
-              unchecked: <span>No</span>
+              unchecked: <span>No</span>,
             }}
           />
         </div>
@@ -178,11 +178,11 @@ class PropertyGroupForm extends React.Component<Props, State> {
     this.setState({ config: { boardsPipelines } });
   };
 
-  onChangeLogicAction = value => {
+  onChangeLogicAction = (value) => {
     this.setState({ logicAction: value });
   };
 
-  onChangeLogics = logics => {
+  onChangeLogics = (logics) => {
     this.setState({ logics });
   };
 
@@ -201,7 +201,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
             injectedProps={{
               config,
               type,
-              onChangeItems: this.onChangeItems
+              onChangeItems: this.onChangeItems,
             }}
           />
         );
@@ -251,13 +251,13 @@ class PropertyGroupForm extends React.Component<Props, State> {
             <FormControl
               {...formProps}
               name="parentId"
-              componentClass="select"
+              componentclass="select"
               defaultValue={object.parentId || null}
             >
               <option value="" />
               {groups
-                .filter(e => !e.isDefinedByErxes)
-                .map(g => {
+                .filter((e) => !e.isDefinedByErxes)
+                .map((g) => {
                   return (
                     <option key={g._id} value={g._id}>
                       {g.name}
@@ -271,15 +271,15 @@ class PropertyGroupForm extends React.Component<Props, State> {
         {this.renderFieldVisible()}
         {this.renderExtraContent()}
 
-        {['visitor', 'lead', 'customer'].includes(object.contentType) ? (
+        {["visitor", "lead", "customer"].includes(object.contentType) ? (
           this.renderFieldVisibleInDetail()
         ) : (
           <></>
         )}
 
         <FormGroup>
-          <ControlLabel>{__('Always open')} </ControlLabel>
-          <p>{__('Whether this group is always open in a sidebar')}</p>
+          <ControlLabel>{__("Always open")} </ControlLabel>
+          <p>{__("Whether this group is always open in a sidebar")}</p>
           <div>
             <Toggle
               id="alwaysOpen"
@@ -287,7 +287,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
               onChange={this.alwaysOpenHandler}
               icons={{
                 checked: <span>Checked</span>,
-                unchecked: <span>Unchecked</span>
+                unchecked: <span>Unchecked</span>,
               }}
             />
           </div>
@@ -302,17 +302,17 @@ class PropertyGroupForm extends React.Component<Props, State> {
               onChange={this.multipleHandler}
               icons={{
                 checked: <span>Checked</span>,
-                unchecked: <span>Unchecked</span>
+                unchecked: <span>Unchecked</span>,
               }}
             />
           </div>
         </FormGroup>
 
-        <CollapseContent title={__('Logic')} compact={true}>
+        <CollapseContent title={__("Logic")} compact={true}>
           <PropertyLogics
             contentType={this.props.type}
             logics={this.state.logics || []}
-            action={this.state.logicAction || 'show'}
+            action={this.state.logicAction || "show"}
             onLogicsChange={this.onChangeLogics}
             onActionChange={this.onChangeLogicAction}
           />
@@ -324,11 +324,11 @@ class PropertyGroupForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'property group',
+            name: "property group",
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: group
+            object: group,
           })}
         </ModalFooter>
       </>

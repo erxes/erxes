@@ -1,12 +1,12 @@
 module.exports = {
   srcDir: __dirname,
   name: "syncerkhet",
-  port: 3017,
+  port: 3123,
   exposes: {
     "./routes": "./src/routes.tsx",
   },
   routes: {
-    url: "http://localhost:3017/remoteEntry.js",
+    url: "http://localhost:3123/remoteEntry.js",
     scope: "syncerkhet",
     module: "./routes",
   },

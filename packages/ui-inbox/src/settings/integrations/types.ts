@@ -118,7 +118,7 @@ export type RemoveMutationResponse = {
 };
 
 export type RepairMutationResponse = {
-  repairIntegration: (params: { variables: { _id: string } }) => Promise<any>;
+  repairIntegration: (params: { variables: { _id: string, kind: string } }) => Promise<any>;
 };
 
 export type RemoveAccountMutationResponse = {

@@ -9,22 +9,21 @@ import Reports from '../containers/section/Report';
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 const Sidebar = (props: Props) => {
-  const { queryParams, history } = props;
+  const { queryParams } = props;
 
   const renderDashboard = () => {
-    return <Dashboard queryParams={queryParams} history={history} />;
+    return <Dashboard queryParams={queryParams} />;
   };
 
   const renderGoals = () => {
-    return <Goals queryParams={queryParams} history={history} />;
+    return <Goals queryParams={queryParams} />;
   };
 
   const renderReports = () => {
-    return <Reports queryParams={queryParams} history={history} />;
+    return <Reports queryParams={queryParams} />;
   };
 
   return (

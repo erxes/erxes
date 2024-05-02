@@ -1,12 +1,13 @@
-import Button from 'modules/common/components/Button';
-import { FormControl, FormGroup } from 'modules/common/components/form';
-import Icon from 'modules/common/components/Icon';
-import { __, Alert } from 'modules/common/utils';
-import { PasswordWithEye } from 'modules/layout/styles';
-import React from 'react';
-import { useState } from 'react';
-import { AuthBox } from '../styles';
-import { IOwner } from '../types';
+import { Alert, __ } from "modules/common/utils";
+import { FormControl, FormGroup } from "modules/common/components/form";
+
+import { AuthBox } from "../styles";
+import Button from "modules/common/components/Button";
+import { IOwner } from "../types";
+import Icon from "modules/common/components/Icon";
+import { PasswordWithEye } from "modules/layout/styles";
+import React from "react";
+import { useState } from "react";
 
 type Props = {
   createOwner: (arg: IOwner) => void;
@@ -15,11 +16,11 @@ type Props = {
 export const OwnerDescription = () => {
   return (
     <>
-      <h1>{__('Welcome to erxes')}</h1>
-      <h2>{__('erxes is the partner your website needs for success')}</h2>
+      <h1>{__("Welcome to erxes")}</h1>
+      <h2>{__("erxes is the partner your website needs for success")}</h2>
       <p>
         {__(
-          'You will configure several settings on this page. You will be able to change these settings in the erxes settings tab. You will be creating the top level administrator account profile. Please complete all the data in Initial Configuration Steps.',
+          "You will configure several settings on this page. You will be able to change these settings in the erxes settings tab. You will be creating the top level administrator account profile. Please complete all the data in Initial Configuration Steps."
         )}
       </p>
     </>
@@ -29,11 +30,11 @@ export const OwnerDescription = () => {
 const OwnerSetup = (props: Props) => {
   const { createOwner } = props;
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [purpose, setPurpose] = useState('manage a personal project');
-  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [purpose, setPurpose] = useState("manage a personal project");
+  const [lastName, setLastName] = useState("");
   const [subscribeEmail, setSubscribeEmail] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -42,18 +43,18 @@ const OwnerSetup = (props: Props) => {
 
     if (!firstName) {
       return Alert.error(
-        'We would love your real first name, but you are free to choose any name you want to be called.',
+        "We would love your real first name, but you are free to choose any name you want to be called."
       );
     }
 
     if (!email) {
       return Alert.error(
-        'Your best email address is required. You will want to receive these notifications.',
+        "Your best email address is required. You will want to receive these notifications."
       );
     }
 
     if (!password) {
-      return Alert.error('Your password is required.');
+      return Alert.error("Your password is required.");
     }
 
     createOwner({
@@ -106,9 +107,9 @@ const OwnerSetup = (props: Props) => {
 
   return (
     <AuthBox>
-      <h2>{__('Initial Configuration Steps')}</h2>
+      <h2>{__("Initial Configuration Steps")}</h2>
       <p>
-        {__('Please fill out the following form to complete your installation')}
+        {__("Please fill out the following form to complete your installation")}
         .
       </p>
       <form onSubmit={handleSubmit}>
@@ -131,7 +132,7 @@ const OwnerSetup = (props: Props) => {
         <br />
         <p>
           {__(
-            'Please input the best email address to use as your login and to receive emails from your installation such as notifications, alerts and other messages',
+            "Please input the best email address to use as your login and to receive emails from your installation such as notifications, alerts and other messages"
           )}
           .
         </p>
@@ -149,7 +150,7 @@ const OwnerSetup = (props: Props) => {
           <PasswordWithEye>
             <FormControl
               placeholder="Password"
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? "text" : "password"}
               name="password"
               onChange={handlePassword}
             />
@@ -157,29 +158,29 @@ const OwnerSetup = (props: Props) => {
             <Icon
               onClick={toggleShowPassword}
               size={16}
-              icon={showPassword ? 'eye-slash' : 'eye'}
+              icon={showPassword ? "eye-slash" : "eye"}
             />
           </PasswordWithEye>
         </FormGroup>
 
         <FormGroup>
-          <p>{__('I am planning to use erxes to')}</p>
+          <p>{__("I am planning to use erxes to")}</p>
 
           <FormControl
-            componentClass="select"
+            componentclass="select"
             value={purpose}
             options={[
               {
-                value: 'manage a personal project',
-                label: 'Manage a personal project',
+                value: "manage a personal project",
+                label: "Manage a personal project",
               },
               {
-                value: 'manage an internal company use case',
-                label: 'Manage an internal company use case',
+                value: "manage an internal company use case",
+                label: "Manage an internal company use case",
               },
               {
-                value: 'attract new businesses',
-                label: 'Attract new businesses',
+                value: "attract new businesses",
+                label: "Attract new businesses",
               },
             ]}
             onChange={handlePurpose}
@@ -189,7 +190,7 @@ const OwnerSetup = (props: Props) => {
         <br />
         <p>
           {__(
-            'You must check below to receive information about upgrades and upgrading instructions, new tutorials, occasional requests for feedback and the monthly newsletter',
+            "You must check below to receive information about upgrades and upgrading instructions, new tutorials, occasional requests for feedback and the monthly newsletter"
           )}
           .
         </p>
@@ -197,11 +198,11 @@ const OwnerSetup = (props: Props) => {
         <FormGroup>
           <FormControl
             className="toggle-message"
-            componentClass="checkbox"
+            componentclass="checkbox"
             checked={subscribeEmail}
             onChange={toggleSubscribeEmail}
           >
-            {__('Yes, I want in. I know I can unsubscribe easily at any time')}.
+            {__("Yes, I want in. I know I can unsubscribe easily at any time")}.
           </FormControl>
         </FormGroup>
         <Button

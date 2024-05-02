@@ -13,45 +13,35 @@ type Props = {
   closeModal: () => void;
 };
 
-type FinalProps = {} & Props;
+const DayPlanFormContainer = (props: Props) => {
+  const renderButton = ({
+    values,
+    isSubmitted,
+    callback,
+    object,
+  }: IButtonMutateProps) => {
+    return (
+      <ButtonMutate
+        mutation={mutations.dayPlansAdd}
+        variables={values}
+        callback={callback}
+        refetchQueries={['dayPlans', 'dayPlansCount', 'dayPlansSum']}
+        isSubmitted={isSubmitted}
+        type="submit"
+        uppercase={false}
+        successMessage={`You successfully ${
+          object ? 'updated' : 'added'
+        } year plan`}
+      />
+    );
+  };
 
-class ProductFormContainer extends React.Component<FinalProps> {
-  render() {
-    const {} = this.props;
+  const updatedProps = {
+    ...props,
+    renderButton,
+  };
 
-    const renderButton = ({
-      values,
-      isSubmitted,
-      callback,
-      object
-    }: IButtonMutateProps) => {
-      return (
-        <ButtonMutate
-          mutation={mutations.dayPlansAdd}
-          variables={values}
-          callback={callback}
-          refetchQueries={getRefetchQueries()}
-          isSubmitted={isSubmitted}
-          type="submit"
-          uppercase={false}
-          successMessage={`You successfully ${
-            object ? 'updated' : 'added'
-          } year plan`}
-        />
-      );
-    };
-
-    const updatedProps = {
-      ...this.props,
-      renderButton
-    };
-
-    return <From {...updatedProps} />;
-  }
-}
-
-const getRefetchQueries = () => {
-  return ['dayPlans', 'dayPlansCount', 'dayPlansSum'];
+  return <From {...updatedProps} />;
 };
 
-export default withProps<Props>(compose()(ProductFormContainer));
+export default DayPlanFormContainer;

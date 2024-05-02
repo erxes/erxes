@@ -1,8 +1,6 @@
-import * as compose from 'lodash.flowright';
-
 import {
   IArticle,
-  TopicsQueryResponse
+  TopicsQueryResponse,
 } from '@erxes/ui-knowledgebase/src/types';
 import { mutations, queries } from '@erxes/ui-knowledgebase/src/graphql';
 
@@ -11,8 +9,7 @@ import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
+import { gql, useQuery } from '@apollo/client';
 
 type Props = {
   article: IArticle;
@@ -22,25 +19,22 @@ type Props = {
   closeModal: () => void;
 };
 
-type FinalProps = {
-  topicsQuery: TopicsQueryResponse;
-} & Props;
+const ArticleContainer = (props: Props) => {
+  const { article, queryParams, topicIds, currentCategoryId } = props;
 
-const ArticleContainer = (props: FinalProps) => {
-  const {
-    article,
-    queryParams,
-    topicIds,
-    currentCategoryId,
-    topicsQuery
-  } = props;
+  const topicsQuery = useQuery<TopicsQueryResponse>(
+    gql(queries.knowledgeBaseTopics),
+    {
+      fetchPolicy: 'network-only',
+    },
+  );
 
   const renderButton = ({
     passedName: name,
     values,
     isSubmitted,
     callback,
-    object
+    object,
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
@@ -54,7 +48,7 @@ const ArticleContainer = (props: FinalProps) => {
         refetchQueries={getRefetchQueries(
           queryParams,
           currentCategoryId,
-          topicIds
+          topicIds,
         )}
         type="submit"
         isSubmitted={isSubmitted}
@@ -70,7 +64,7 @@ const ArticleContainer = (props: FinalProps) => {
     renderButton,
     article,
     currentCategoryId,
-    topics: topicsQuery.knowledgeBaseTopics || []
+    topics: topicsQuery?.data?.knowledgeBaseTopics || [],
   };
 
   return <ArticleForm {...extendedProps} />;
@@ -79,32 +73,25 @@ const ArticleContainer = (props: FinalProps) => {
 const getRefetchQueries = (
   queryParams,
   currentCategoryId: string,
-  topicIds: string[]
+  topicIds: string[],
 ) => {
   return [
     {
       query: gql(queries.knowledgeBaseArticles),
       variables: {
         ...generatePaginationParams(queryParams),
-        categoryIds: [currentCategoryId]
-      }
+        categoryIds: [currentCategoryId],
+      },
     },
     {
       query: gql(queries.knowledgeBaseCategories),
-      variables: { topicIds: [topicIds] }
+      variables: { topicIds: [topicIds] },
     },
     {
       query: gql(queries.knowledgeBaseArticlesTotalCount),
-      variables: { categoryIds: [currentCategoryId] }
-    }
+      variables: { categoryIds: [currentCategoryId] },
+    },
   ];
 };
 
-export default compose(
-  graphql<Props, TopicsQueryResponse>(gql(queries.knowledgeBaseTopics), {
-    name: 'topicsQuery',
-    options: () => ({
-      fetchPolicy: 'network-only'
-    })
-  })
-)(ArticleContainer);
+export default ArticleContainer;

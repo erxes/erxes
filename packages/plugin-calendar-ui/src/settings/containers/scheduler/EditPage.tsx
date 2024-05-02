@@ -18,7 +18,7 @@ import { queries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 type Props = {
   pageId: string;
   accountId: string;
-  history: any;
+  navigate: any;
 };
 
 type FinalProps = {
@@ -34,7 +34,7 @@ class EditPageContainer extends React.Component<FinalProps, {}> {
       fetchPageQuery,
       accountId,
       editMutation,
-      history,
+      navigate,
       pageId
     } = this.props;
 
@@ -55,7 +55,7 @@ class EditPageContainer extends React.Component<FinalProps, {}> {
         .then(() => {
           Alert.success('You successfully updated a page');
 
-          history.push('/settings/schedule');
+          navigate('/settings/schedule');
         })
         .catch(error => {
           Alert.error(error.message);

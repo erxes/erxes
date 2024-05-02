@@ -1,15 +1,15 @@
-import FormControl from '@erxes/ui/src/components/form/Control';
-import React from 'react';
-import { __ } from 'coreui/utils';
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import SelectSeries from './../containers/SelectSeries';
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Icon from "@erxes/ui/src/components/Icon";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import SelectSeries from "./../containers/SelectSeries";
+import { __ } from "coreui/utils";
 
 type Props = {
-  stateName: 'inProducts' | 'outProducts';
+  stateName: "inProducts" | "outProducts";
   productData: any;
   productsData: any[];
   hasCost?: boolean;
@@ -28,7 +28,7 @@ class PerformDetail extends React.Component<Props, State> {
     this.state = {};
   }
 
-  onChange = e => {
+  onChange = (e) => {
     const { onChangeState, stateName, productsData, productData } = this.props;
     if (this.timer) {
       clearTimeout(this.timer);
@@ -38,27 +38,27 @@ class PerformDetail extends React.Component<Props, State> {
     const inputName = e.target.name;
 
     this.timer = setTimeout(() => {
-      const newProductsData = productsData.map(pd =>
+      const newProductsData = productsData.map((pd) =>
         pd.productId === productData.productId
           ? { ...pd, [inputName]: inputVal }
           : pd
       );
 
       onChangeState({
-        [stateName]: newProductsData
+        [stateName]: newProductsData,
       } as any);
     }, 5);
   };
 
-  onChangeInput = e => {
+  onChangeInput = (e) => {
     const { stateName, onChangeState, productData, productsData } = this.props;
-    const newProductsData = productsData.map(pd =>
+    const newProductsData = productsData.map((pd) =>
       pd.productId === productData.productId
         ? { ...pd, series: [...(productData.series || []), e.target.value] }
         : pd
     );
     onChangeState({
-      [stateName]: newProductsData
+      [stateName]: newProductsData,
     } as any);
   };
 
@@ -68,18 +68,14 @@ class PerformDetail extends React.Component<Props, State> {
       return <></>;
     }
 
-    const onChangeSeries = series => {
-      const {
-        stateName,
-        onChangeState,
-        productData,
-        productsData
-      } = this.props;
-      const newProductsData = productsData.map(pd =>
+    const onChangeSeries = (series) => {
+      const { stateName, onChangeState, productData, productsData } =
+        this.props;
+      const newProductsData = productsData.map((pd) =>
         pd.productId === productData.productId ? { ...pd, series } : pd
       );
       onChangeState({
-        [stateName]: newProductsData
+        [stateName]: newProductsData,
       } as any);
     };
 
@@ -94,7 +90,7 @@ class PerformDetail extends React.Component<Props, State> {
       return (
         <>
           <SelectSeries
-            label={'Series'}
+            label={"Series"}
             name="seriesReader"
             initialValue={productData.series}
             filterParams={{ productId: productData.productId }}
@@ -117,7 +113,7 @@ class PerformDetail extends React.Component<Props, State> {
 
     return (
       <ModalTrigger
-        title={__('Insert series number')}
+        title={__("Insert series number")}
         size="sm"
         trigger={trigger}
         autoOpenKey="showSeriesReaderModal"
@@ -126,8 +122,8 @@ class PerformDetail extends React.Component<Props, State> {
     );
   }
 
-  onKeyDown = e => {
-    if (e.key === 'Enter') {
+  onKeyDown = (e) => {
+    if (e.key === "Enter") {
       e.preventDefault();
       if (e.shiftKey) {
         this.props.onEnter(-1);
@@ -139,20 +135,20 @@ class PerformDetail extends React.Component<Props, State> {
 
   render() {
     const { productData, hasCost } = this.props;
-    const { product } = productData;
+    const { product = {} } = productData;
     const productName = product
       ? `${product.code} - ${product.name}`
-      : 'not name';
+      : "not name";
 
     const uoms = Array.from(
       new Set([
         productData.uom,
         product.uom,
-        ...product.subUoms.map(su => su.uom)
+        ...(product.subUoms || []).map((su) => su.uom),
       ])
     )
-      .filter(u => u)
-      .map(u => ({ value: u, label: u }));
+      .filter((u) => u)
+      .map((u) => ({ value: u, label: u }));
 
     return (
       <tr>
@@ -160,7 +156,7 @@ class PerformDetail extends React.Component<Props, State> {
         <td>
           <FormControl
             value={productData.uom}
-            componentClass="select"
+            componentclass="select"
             name="uom"
             options={uoms}
             required={true}
@@ -176,7 +172,7 @@ class PerformDetail extends React.Component<Props, State> {
               required={true}
               onChange={this.onChange}
               onKeyDown={this.onKeyDown}
-              onFocus={e => (e.target as any).select()}
+              onFocus={(e) => (e.target as any).select()}
             />
           </div>
         </td>

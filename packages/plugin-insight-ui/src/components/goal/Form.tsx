@@ -1,32 +1,3 @@
-import React, { useState } from 'react';
-import Select from 'react-select-plus';
-
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import SelectSegments from '@erxes/ui-segments/src/containers/SelectSegments';
-import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectUnits from '@erxes/ui/src/team/containers/SelectUnits';
-import Button from '@erxes/ui/src/components/Button';
-import { FilterContainer } from '@erxes/ui-settings/src/styles';
-import { CustomRangeContainer } from '@erxes/ui-cards/src/boards/styles/rightMenu';
-import { EndDateContainer } from '@erxes/ui-forms/src/forms/styles';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { Form as CommonForm } from '@erxes/ui/src/components/form';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { __ } from '@erxes/ui/src/utils';
-import {
-  DateContainer,
-  FormColumn,
-  FormWrapper,
-} from '@erxes/ui/src/styles/main';
-
-import { FormContent, FormFooter } from '../../styles';
-import { IGoalType } from '../../types';
 import {
   CONTRIBUTION,
   ENTITY,
@@ -34,11 +5,38 @@ import {
   GOAL_TYPE,
   METRIC,
   SPECIFIC_PERIOD_GOAL,
-} from '../../constants';
+} from "../../constants";
+import {
+  DateContainer,
+  FormColumn,
+  FormWrapper,
+} from "@erxes/ui/src/styles/main";
+import { FormContent, FormFooter } from "../../styles";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import React, { useState } from "react";
+
+import BoardSelect from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import Button from "@erxes/ui/src/components/Button";
+import { Form as CommonForm } from "@erxes/ui/src/components/form";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { CustomRangeContainer } from "@erxes/ui-cards/src/boards/styles/rightMenu";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import { EndDateContainer } from "@erxes/ui-forms/src/forms/styles";
+import { FilterContainer } from "@erxes/ui-settings/src/styles";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IGoalType } from "../../types";
+import Select from "react-select";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import SelectSegments from "@erxes/ui-segments/src/containers/SelectSegments";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import SelectUnits from "@erxes/ui/src/team/containers/SelectUnits";
+import { __ } from "@erxes/ui/src/utils";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   queryParams: any;
-  history: any;
 
   goal?: IGoalType;
 
@@ -51,13 +49,13 @@ const Form = (props: Props) => {
 
   const [entity, setEntity] = useState<string>(goal.entity || ENTITY[0].value);
   const [stageRadio, setStageRadio] = useState<boolean>(
-    goal.stageRadio || false,
+    goal.stageRadio || false
   );
   const [segmentRadio, setSegmentRadio] = useState<boolean>(
-    goal.segmentRadio || false,
+    goal.segmentRadio || false
   );
   const [segmentIds, setSegmentIds] = useState<string | string[]>(
-    goal.segmentIds || [],
+    goal.segmentIds || []
   );
 
   const [stageId, setstageId] = useState<string>(goal.stageId);
@@ -65,24 +63,24 @@ const Form = (props: Props) => {
   const [boardId, setboardId] = useState<string>(goal.boardId);
 
   const [periodGoal, setPeriodGoal] = useState<string>(
-    goal.periodGoal || SPECIFIC_PERIOD_GOAL[0].value,
+    goal.periodGoal || SPECIFIC_PERIOD_GOAL[0].value
   );
   const [goalTypeChoose, setGoalTypeChoose] = useState<string>(
-    goal.goalTypeChoose || GOAL_TYPE[0].value,
+    goal.goalTypeChoose || GOAL_TYPE[0].value
   );
   const [startDate, setStartDate] = useState<Date>(
-    goal.startDate || new Date(),
+    goal.startDate || new Date()
   );
   const [endDate, setEndDate] = useState<Date>(goal.endDate || new Date());
   const [contribution, setContribution] = useState<string | string[]>(
-    goal.contribution || '',
+    goal.contribution || ""
   );
   const [contributionType, setContributionType] = useState<string>(
-    goal.contributionType || CONTRIBUTION[0].value,
+    goal.contributionType || CONTRIBUTION[0].value
   );
   const [teamGoalType, setTeamGoalType] = useState<string>(goal.teamGoalType);
   const [department, setDepartment] = useState<string | string[]>(
-    goal.department || [],
+    goal.department || []
   );
   const [unit, setUnit] = useState<string | string[]>(goal.unit || []);
   const [branch, setBranch] = useState<string | string[]>(goal.branch || []);
@@ -98,7 +96,7 @@ const Form = (props: Props) => {
   >(goal.specificPeriodGoals || []);
 
   const generateOptions = (options) => {
-    return options.map((option) => ({
+    return (options || []).map((option) => ({
       label: option.name,
       value: option.value,
     }));
@@ -139,17 +137,17 @@ const Form = (props: Props) => {
     const { value } = event.target;
     const parsedValue = parseInt(value);
     const updatedSpecificPeriodGoals = specificPeriodGoals.map((goal) =>
-      goal.addMonthly === date ? { ...goal, addTarget: parsedValue } : goal,
+      goal.addMonthly === date ? { ...goal, addTarget: parsedValue } : goal
     );
 
     const periods =
-      periodGoal === 'Monthly'
+      periodGoal === "Monthly"
         ? mapMonths(startDate, endDate)
         : mapWeeks(startDate, endDate);
 
     periods.forEach((period) => {
       const exists = updatedSpecificPeriodGoals.some(
-        (goal) => goal.addMonthly === period,
+        (goal) => goal.addMonthly === period
       );
       if (!exists) {
         updatedSpecificPeriodGoals.push({
@@ -162,8 +160,8 @@ const Form = (props: Props) => {
 
     const filteredGoals = updatedSpecificPeriodGoals.filter(
       (goal) =>
-        (periodGoal === 'Monthly' && goal.addMonthly.includes('Month')) ||
-        (periodGoal === 'Weekly' && goal.addMonthly.includes('Week')),
+        (periodGoal === "Monthly" && goal.addMonthly.includes("Month")) ||
+        (periodGoal === "Weekly" && goal.addMonthly.includes("Week"))
     );
 
     setspecificPeriodGoals(filteredGoals);
@@ -179,20 +177,20 @@ const Form = (props: Props) => {
       <>
         <FormContent>
           <FormGroup>
-            <ControlLabel>{__('Choose Entity')}</ControlLabel>
+            <ControlLabel>{__("Choose Entity")}</ControlLabel>
             <Select
-              placeholder={__('Choose a entity')}
-              value={entity}
+              placeholder={__("Choose a entity")}
+              value={generateOptions(ENTITY).find((o) => o.value === entity)}
               onChange={(selectedOption) => setEntity(selectedOption.value)}
               options={generateOptions(ENTITY)}
-              clearable={false}
+              isClearable={false}
             />
           </FormGroup>
 
           <FormGroup>
             <FormControl
               {...formProps}
-              componentClass="checkbox"
+              componentclass="checkbox"
               name="stageRadio"
               checked={stageRadio}
               onChange={(e) =>
@@ -200,11 +198,11 @@ const Form = (props: Props) => {
               }
               inline={true}
             >
-              {__('Stage')}
+              {__("Stage")}
             </FormControl>
             <FormControl
               {...formProps}
-              componentClass="checkbox"
+              componentclass="checkbox"
               name="segmentRadio"
               checked={segmentRadio}
               onChange={(e) =>
@@ -212,10 +210,10 @@ const Form = (props: Props) => {
               }
               inline={true}
             />
-            {__('Segment')}
+            {__("Segment")}
           </FormGroup>
 
-          {segmentRadio && isEnabled('segments') && isEnabled('contacts') && (
+          {segmentRadio && isEnabled("segments") && isEnabled("contacts") && (
             <FormGroup>
               <ControlLabel>Segments</ControlLabel>
               <SelectSegments
@@ -229,7 +227,7 @@ const Form = (props: Props) => {
             </FormGroup>
           )}
 
-          {stageRadio && isEnabled('cards') && (
+          {stageRadio && isEnabled("cards") && (
             <FormGroup>
               <BoardSelect
                 type={entity}
@@ -270,68 +268,74 @@ const Form = (props: Props) => {
           </FilterContainer>
 
           <FormGroup>
-            <ControlLabel>{__('Choose goal type')}</ControlLabel>
+            <ControlLabel>{__("Choose goal type")}</ControlLabel>
 
             <Select
-              placeholder={__('Choose goal type')}
-              value={goalTypeChoose}
+              placeholder={__("Choose goal type")}
+              value={generateOptions(GOAL_TYPE).find(
+                (o) => o.value === goalTypeChoose
+              )}
               onChange={(selectedOption) =>
                 setGoalTypeChoose(selectedOption.value)
               }
               options={generateOptions(GOAL_TYPE)}
-              clearable={false}
+              isClearable={false}
             />
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>{__('Contribution type')}</ControlLabel>
+            <ControlLabel>{__("Contribution type")}</ControlLabel>
 
             <Select
-              placeholder={__('Choose a contribution type')}
-              value={contributionType}
+              placeholder={__("Choose a contribution type")}
+              value={generateOptions(CONTRIBUTION).find(
+                (o) => o.value === contributionType
+              )}
               onChange={(selectedOption) =>
                 setContributionType(selectedOption.value)
               }
               options={generateOptions(CONTRIBUTION)}
-              clearable={false}
+              isClearable={false}
             />
           </FormGroup>
 
-          {contributionType === 'person' && (
+          {contributionType === "person" && (
             <FormGroup>
               <ControlLabel>contribution</ControlLabel>
               <SelectTeamMembers
                 label="Choose users"
                 name="userId"
-                customOption={{ label: 'Choose user', value: '' }}
-                initialValue={contribution || ''}
+                customOption={{ label: "Choose user", value: "" }}
+                initialValue={contribution || ""}
                 onSelect={(userId) => setContribution(userId)}
                 multi={false}
               />
             </FormGroup>
           )}
-          {contributionType === 'team' && (
+          {contributionType === "team" && (
             <FormGroup>
-              <ControlLabel>{__('Choose Structure')}</ControlLabel>
+              <ControlLabel>{__("Choose Structure")}</ControlLabel>
 
               <Select
-                placeholder={__('Choose Structure')}
-                value={teamGoalType}
+                placeholder={__("Choose Structure")}
+                value={generateOptions(GOAL_STRUCTURE).find(
+                  (o) => o.value === teamGoalType
+                )}
                 onChange={(selectedOption) =>
                   setTeamGoalType(selectedOption.value)
                 }
                 options={generateOptions(GOAL_STRUCTURE)}
-                clearable={false}
+                isClearable={false}
               />
             </FormGroup>
           )}
 
-          {teamGoalType === 'Departments' && contributionType === 'team' && (
+          {teamGoalType === "Departments" && contributionType === "team" && (
             <FormGroup>
-              <ControlLabel>{__('Departments')}</ControlLabel>
+              <ControlLabel>{__("Departments")}</ControlLabel>
               <SelectDepartments
                 name="branchId"
-                label={__('Choose Departments')}
+                label={__("Choose Departments")}
                 initialValue={department}
                 onSelect={(selectedOption) => setDepartment(selectedOption)}
                 multi={false}
@@ -339,12 +343,12 @@ const Form = (props: Props) => {
             </FormGroup>
           )}
 
-          {teamGoalType === 'Units' && contributionType === 'team' && (
+          {teamGoalType === "Units" && contributionType === "team" && (
             <FormGroup>
-              <ControlLabel>{__('Units')}</ControlLabel>
+              <ControlLabel>{__("Units")}</ControlLabel>
               <SelectUnits
                 name="branchId"
-                label={__('Choose Units')}
+                label={__("Choose Units")}
                 initialValue={unit}
                 onSelect={(selectedOption) => setUnit(selectedOption)}
                 multi={false}
@@ -352,12 +356,12 @@ const Form = (props: Props) => {
             </FormGroup>
           )}
 
-          {teamGoalType === 'Branches' && contributionType === 'team' && (
+          {teamGoalType === "Branches" && contributionType === "team" && (
             <FormGroup>
-              <ControlLabel>{__('Branches')}</ControlLabel>
+              <ControlLabel>{__("Branches")}</ControlLabel>
               <SelectBranches
                 name="branchId"
-                label={__('Choose Branches')}
+                label={__("Choose Branches")}
                 initialValue={branch}
                 onSelect={(selectedOption) => setBranch(selectedOption)}
                 multi={false}
@@ -366,19 +370,19 @@ const Form = (props: Props) => {
           )}
 
           <FormGroup>
-            <ControlLabel>{__('Metric')}:</ControlLabel>
+            <ControlLabel>{__("Metric")}:</ControlLabel>
 
             <Select
-              placeholder={__('choose metric')}
-              value={metric}
+              placeholder={__("choose metric")}
+              value={generateOptions(METRIC).find((o) => o.value === metric)}
               onChange={(selectedOption) => setMetric(selectedOption.value)}
               options={generateOptions(METRIC)}
-              clearable={false}
+              isClearable={false}
             />
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>{__('Target')}</ControlLabel>
+            <ControlLabel>{__("Target")}</ControlLabel>
             <FormGroup>
               <FormControl
                 type="number"
@@ -390,36 +394,38 @@ const Form = (props: Props) => {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>{__('choose specific period goals')}</ControlLabel>
+            <ControlLabel>{__("choose specific period goals")}</ControlLabel>
 
             <Select
-              placeholder={__('choose specific period goals')}
-              value={periodGoal}
+              placeholder={__("choose specific period goals")}
+              value={generateOptions(SPECIFIC_PERIOD_GOAL).find(
+                (o) => o.value === periodGoal
+              )}
               onChange={(selectedOption) => setPeriodGoal(selectedOption.value)}
               options={generateOptions(SPECIFIC_PERIOD_GOAL)}
-              clearable={false}
+              isClearable={false}
             />
           </FormGroup>
 
-          {periodGoal === 'Monthly' && (
+          {periodGoal === "Monthly" && (
             <div>
               {months.map((month) => (
                 <FormWrapper key={month}>
                   <FormColumn>
-                    <ControlLabel>{__('Period (Monthly)')}</ControlLabel>
+                    <ControlLabel>{__("Period (Monthly)")}</ControlLabel>
                     <FormGroup>
                       <DateContainer>{month}</DateContainer>
                     </FormGroup>
                   </FormColumn>
                   <FormColumn>
-                    <ControlLabel>{__('Target')}</ControlLabel>
+                    <ControlLabel>{__("Target")}</ControlLabel>
                     <FormGroup>
                       <FormControl
                         type="number"
                         name="target"
                         value={
                           specificPeriodGoals.find(
-                            (goal) => goal.addMonthly === month,
+                            (goal) => goal.addMonthly === month
                           )?.addTarget || 0
                         }
                         onChange={(event) => onChangeTarget(month, event)}
@@ -430,25 +436,25 @@ const Form = (props: Props) => {
               ))}
             </div>
           )}
-          {periodGoal === 'Weekly' && (
+          {periodGoal === "Weekly" && (
             <div>
               {weeks.map((week) => (
                 <FormWrapper key={week}>
                   <FormColumn>
-                    <ControlLabel>{__('Period (Weekly)')}</ControlLabel>
+                    <ControlLabel>{__("Period (Weekly)")}</ControlLabel>
                     <FormGroup>
                       <DateContainer>{week}</DateContainer>
                     </FormGroup>
                   </FormColumn>
                   <FormColumn>
-                    <ControlLabel>{__('Target')}</ControlLabel>
+                    <ControlLabel>{__("Target")}</ControlLabel>
                     <FormGroup>
                       <FormControl
                         type="number"
                         name="target"
                         value={
                           specificPeriodGoals.find(
-                            (goal) => goal.addMonthly === week,
+                            (goal) => goal.addMonthly === week
                           )?.addTarget || 0
                         }
                         onChange={(event) => onChangeTarget(week, event)}
@@ -463,10 +469,10 @@ const Form = (props: Props) => {
 
         <FormFooter>
           <Button btnStyle="simple" onClick={closeDrawer}>
-            {__('Cancel')}
+            {__("Cancel")}
           </Button>
           {renderButton({
-            name: 'Goal',
+            name: "Goal",
             values: generateDoc(values),
             isSubmitted,
             object: props.goal,
@@ -486,18 +492,18 @@ const mapMonths = (startDate: Date, endDate: Date): string[] => {
   const endMonth = endDateObject.getMonth();
   const year = startDateObject.getFullYear(); //
   const monthNames = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
   const months: string[] = [];
 

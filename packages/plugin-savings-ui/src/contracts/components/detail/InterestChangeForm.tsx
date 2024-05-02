@@ -8,17 +8,17 @@ import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
-} from '@erxes/ui/src';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { ChangeAmount } from '../../styles';
-import { IContract, IContractDoc } from '../../types';
-import { __ } from 'coreui/utils';
+  MainStyleScrollWrapper as ScrollWrapper,
+} from "@erxes/ui/src";
+import { DateContainer } from "@erxes/ui/src/styles/main";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import React, { useState } from "react";
+import { ChangeAmount } from "../../styles";
+import { IContract, IContractDoc } from "../../types";
+import { __ } from "coreui/utils";
 import SelectContracts, {
-  Contracts
-} from '../../../contracts/components/common/SelectContract';
+  Contracts,
+} from "../../../contracts/components/common/SelectContract";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -29,28 +29,15 @@ type Props = {
   type: string;
 };
 
-type State = {
-  type: string;
-  description: string;
-  interestAmount: number;
-  contractId: string;
-  contract?: IContract;
-};
+const InterestChangeForm = (props: Props) => {
+  const [type, setType] = useState(props.type || "interestChange");
+  const [description, setDescription] = useState("");
+  const [interestAmount, setInterestAmount] = useState(0);
+  const [contractId, setContractId] = useState(props.contract?._id);
+  const [contract, setContract] = useState({} as IContract);
 
-class InterestChangeForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      type: props.type || 'interestChange',
-      description: '',
-      interestAmount: 0,
-      contractId: props.contract?._id
-    };
-  }
-
-  generateDoc = (values: { _id: string } & IContractDoc) => {
-    const { contract } = this.props;
+  const generateDoc = (values: { _id: string } & IContractDoc) => {
+    const { contract } = props;
 
     const finalValues = values;
 
@@ -59,37 +46,25 @@ class InterestChangeForm extends React.Component<Props, State> {
     }
 
     return {
-      ...this.state,
-      interestAmount: Number(this.state.interestAmount),
-      description: this.state.description,
-      invDate: this.props.invDate,
-      type: this.state.type
+      interestAmount: Number(interestAmount),
+      description: description,
+      invDate: props.invDate,
+      type: type,
     };
   };
 
-  renderFormGroup = (label, props) => {
-    return (
-      <FormGroup>
-        <ControlLabel required={!label.includes('Amount')}>
-          {label}
-        </ControlLabel>
-        <FormControl {...props} />
-      </FormGroup>
-    );
-  };
-
-  onChangeField = e => {
+  const onChangeField = (e) => {
     const name = (e.target as HTMLInputElement).name;
     const value = (e.target as HTMLInputElement).value;
-    this.setState({ [name]: value } as any);
+    if (name === "interestAmount") {
+      setInterestAmount(value as any);
+    }
+    if (name === "description") {
+      setDescription(value as any);
+    }
   };
 
-  onFieldClick = e => {
-    e.target.select();
-  };
-
-  renderRow = (label, fieldName) => {
-    const { contract } = this.state;
+  const renderRow = (label, fieldName) => {
     if (!contract) return null;
     const value = contract[fieldName] || 0;
     return (
@@ -105,21 +80,21 @@ class InterestChangeForm extends React.Component<Props, State> {
       </FormWrapper>
     );
   };
-  renderCloseInfo = () => {
+  const renderCloseInfo = () => {
     return (
       <>
-        {this.renderRow('Saving Amount', 'savingAmount')}
-        {this.renderRow('Stored Interest', 'storedInterest')}
-        {this.renderRow('Total', 'total')}
+        {renderRow("Saving Amount", "savingAmount")}
+        {renderRow("Stored Interest", "storedInterest")}
+        {renderRow("Total", "total")}
       </>
     );
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton, onChangeDate } = this.props;
+  const renderContent = (formProps: IFormProps) => {
+    const { closeModal, renderButton, onChangeDate } = props;
     const { values, isSubmitted } = formProps;
 
-    const onChangeinvDate = value => {
+    const onChangeinvDate = (value) => {
       onChangeDate(value);
     };
 
@@ -129,14 +104,14 @@ class InterestChangeForm extends React.Component<Props, State> {
           <FormWrapper>
             <FormColumn>
               <FormGroup>
-                <ControlLabel required={true}>{__('Change Date')}</ControlLabel>
+                <ControlLabel required={true}>{__("Change Date")}</ControlLabel>
                 <DateContainer>
                   <DateControl
                     {...formProps}
                     required={false}
                     name="invDate"
                     dateFormat="YYYY/MM/DD"
-                    value={this.props.invDate}
+                    value={props.invDate}
                     onChange={onChangeinvDate}
                   />
                 </DateContainer>
@@ -146,17 +121,15 @@ class InterestChangeForm extends React.Component<Props, State> {
           <FormWrapper>
             <FormColumn>
               <FormGroup>
-                <ControlLabel>{__('Contract')}</ControlLabel>
+                <ControlLabel>{__("Contract")}</ControlLabel>
                 <SelectContracts
-                  label={__('Choose an contract')}
+                  label={__("Choose an contract")}
                   name="contractId"
-                  initialValue={this.state.contractId || ''}
+                  initialValue={contractId || ""}
                   onSelect={(v, n) => {
-                    if (typeof v === 'string') {
-                      this.setState({
-                        contractId: v,
-                        contract: Contracts[v]
-                      });
+                    if (typeof v === "string") {
+                      setContractId(v);
+                      setContract(Contracts[v]);
                     }
                   }}
                   multi={false}
@@ -167,14 +140,14 @@ class InterestChangeForm extends React.Component<Props, State> {
           <FormWrapper>
             <FormColumn>
               <FormGroup>
-                <ControlLabel>{__('Interest Change to')}</ControlLabel>
+                <ControlLabel>{__("Interest Change to")}</ControlLabel>
                 <FormControl
                   {...formProps}
                   name="interestAmount"
                   type="number"
                   useNumberFormat
-                  value={this.state.interestAmount || ''}
-                  onChange={this.onChangeField}
+                  value={interestAmount || ""}
+                  onChange={onChangeField}
                 />
               </FormGroup>
             </FormColumn>
@@ -182,41 +155,39 @@ class InterestChangeForm extends React.Component<Props, State> {
           <FormWrapper>
             <FormColumn>
               <FormGroup>
-                <ControlLabel>{__('Description')}</ControlLabel>
+                <ControlLabel>{__("Description")}</ControlLabel>
                 <FormControl
                   {...formProps}
                   max={140}
                   name="description"
-                  componentClass="textarea"
-                  value={this.state.description || ''}
-                  onChange={this.onChangeField}
+                  componentclass="textarea"
+                  value={description || ""}
+                  onChange={onChangeField}
                 />
               </FormGroup>
             </FormColumn>
           </FormWrapper>
 
-          {this.renderCloseInfo()}
+          {renderCloseInfo()}
         </ScrollWrapper>
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
-            {__('Close')}
+            {__("Close")}
           </Button>
 
           {renderButton({
-            name: 'contract',
-            values: this.generateDoc(values),
+            name: "contract",
+            values: generateDoc(values),
             isSubmitted,
-            object: this.props.contract
+            object: props.contract,
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default InterestChangeForm;

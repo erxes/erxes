@@ -4,21 +4,21 @@ import {
   CreatedUser,
   TicketComment,
   TicketContent,
-  TicketLabel
-} from './styles';
-import { __, readFile } from '@erxes/ui/src/utils';
+  TicketLabel,
+} from "./styles";
+import React, { useState } from "react";
+import { __, readFile } from "@erxes/ui/src/utils";
 
-import Button from '@erxes/ui/src/components/Button';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import { colors } from '@erxes/ui/src/styles';
-import dayjs from 'dayjs';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import Button from "@erxes/ui/src/components/Button";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import { colors } from "@erxes/ui/src/styles";
+import dayjs from "dayjs";
+import { rgba } from "@erxes/ui/src/styles/ecolor";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 type Props = {
   comments: any[];
@@ -32,8 +32,8 @@ const TriggerButton = styledTS<{ color?: string }>(styled.div)`
   font-weight: 500;
   line-height: 25px;
   font-size: 12px;
-  background-color: ${props => rgba(props.color || colors.colorPrimary, 0.1)};
-  color: ${props => props.color || colors.colorPrimaryDark};
+  background-color: ${(props) => rgba(props.color || colors.colorPrimary, 0.1)};
+  color: ${(props) => props.color || colors.colorPrimaryDark};
   padding: 0 10px;
   transition: background 0.3s ease;
   > i {
@@ -44,44 +44,36 @@ const TriggerButton = styledTS<{ color?: string }>(styled.div)`
   }
   &:hover {
     cursor: pointer;
-    background-color: ${props => rgba(props.color || colors.colorPrimary, 0.2)};
+    background-color: ${(props) => rgba(props.color || colors.colorPrimary, 0.2)};
   }
 `;
 
-type State = { content: string };
+const Container: React.FC<Props> = ({
+  comments,
+  handleRemoveComment,
+  handleSubmit,
+}: Props) => {
+  const [content, setContent] = useState("");
 
-export default class Container extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      content: ''
-    };
-  }
-
-  handleChange = e => {
-    this.setState({ content: e.target.value });
+  const handleChange = (e) => {
+    setContent(e.target.value);
   };
 
-  onEditComment = comment => {
-    this.setState({ content: comment.content });
+  const onEditComment = (comment) => {
+    setContent(comment.content);
   };
 
-  createComment = () => {
-    const { handleSubmit } = this.props;
+  const createComment = () => {
+    setContent("");
 
-    this.setState({ content: '' });
-
-    handleSubmit({ content: this.state.content });
+    handleSubmit({ content });
   };
 
-  deleteComment = (commentId: string) => {
-    const { handleRemoveComment } = this.props;
-
+  const deleteComment = (commentId: string) => {
     handleRemoveComment(commentId);
   };
 
-  renderComments(comments) {
+  const renderComments = (comments) => {
     if (!comments.length) {
       return (
         <EmptyState
@@ -94,7 +86,7 @@ export default class Container extends React.Component<Props, State> {
 
     return (
       <CommentWrapper>
-        {comments.map(comment => {
+        {comments.map((comment) => {
           const { createdUser = {} } = comment;
 
           return (
@@ -107,19 +99,17 @@ export default class Container extends React.Component<Props, State> {
                     <div
                       className="comment"
                       dangerouslySetInnerHTML={{
-                        __html: comment.content
+                        __html: comment.content,
                       }}
                     />
                   </CommentContent>
                   <span>
-                    Reported{' '}
-                    {dayjs(comment.createdAt).format('YYYY-MM-DD HH:mm')}
+                    Reported{" "}
+                    {dayjs(comment.createdAt).format("YYYY-MM-DD HH:mm")}
                   </span>
                 </div>
                 <div className="actions">
-                  <span onClick={() => this.deleteComment(comment._id)}>
-                    Delete
-                  </span>
+                  <span onClick={() => deleteComment(comment._id)}>Delete</span>
                 </div>
               </CreatedUser>
             </TicketComment>
@@ -127,57 +117,54 @@ export default class Container extends React.Component<Props, State> {
         })}
       </CommentWrapper>
     );
-  }
+  };
 
-  render() {
-    const { comments } = this.props;
-    const { content } = this.state;
-
-    const renderContent = () => {
-      return (
-        <>
-          <TicketLabel>
-            <Icon icon="comment-1" size={14} />
-            &nbsp; Activity
-          </TicketLabel>
-          <TicketContent>
-            <FormControl
-              value={content}
-              componentClass="textarea"
-              onChange={this.handleChange}
-            />
-            {content.length !== 0 && (
-              <div className="buttons">
-                <Button
-                  btnStyle="success"
-                  size="small"
-                  icon="message"
-                  onClick={this.createComment.bind(this, '')}
-                >
-                  Save
-                </Button>
-              </div>
-            )}
-            {this.renderComments(comments)}
-          </TicketContent>
-        </>
-      );
-    };
-
-    const trigger = (
-      <TriggerButton>
-        <Icon icon="comment-1" />
-        {__('Comments')}
-      </TriggerButton>
-    );
-
+  const renderContent = () => {
     return (
-      <ModalTrigger
-        title="Comments"
-        size="lg"
-        trigger={trigger}
-        content={renderContent}
-      />
+      <>
+        <TicketLabel>
+          <Icon icon="comment-1" size={14} />
+          &nbsp; Activity
+        </TicketLabel>
+        <TicketContent>
+          <FormControl
+            value={content}
+            componentclass="textarea"
+            onChange={handleChange}
+          />
+          {content.length !== 0 && (
+            <div className="buttons">
+              <Button
+                btnStyle="success"
+                size="small"
+                icon="message"
+                onClick={createComment.bind(this, "")}
+              >
+                Save
+              </Button>
+            </div>
+          )}
+          {renderComments(comments)}
+        </TicketContent>
+      </>
     );
-  }
-}
+  };
+
+  const trigger = (
+    <TriggerButton>
+      <Icon icon="comment-1" />
+      {__("Comments")}
+    </TriggerButton>
+  );
+
+  return (
+    <ModalTrigger
+      title="Comments"
+      size="lg"
+      trigger={trigger}
+      content={renderContent}
+    />
+  );
+};
+
+export default Container;

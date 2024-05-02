@@ -1,9 +1,11 @@
+import * as React from 'react';
+
+import { Add, Container, ExistingOrg, List } from './styles';
+
+import Dropdown from 'react-bootstrap/Dropdown';
 import { IUserOrganization } from '@erxes/ui/src/auth/types';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { Add, Container, ExistingOrg, List } from './styles';
 
 type Props = {
   organizations: IUserOrganization[];
@@ -42,7 +44,7 @@ class Organizations extends React.PureComponent<Props> {
 
     return (
       <Container>
-        <ExistingOrg>
+        <ExistingOrg as="div">
           {this.getCurrentOrganizationName()}
           <span>{__('Create or switch organization')}</span>
         </ExistingOrg>
