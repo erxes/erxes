@@ -5,6 +5,7 @@ const commonParamsDef = `
   $name: String!,
   $content: String,
   $replacer: String,
+  $code: String
 `;
 
 const commonParams = `
@@ -14,6 +15,7 @@ const commonParams = `
   name: $name,
   content: $content,
   replacer: $replacer,
+  code: $code
 `;
 
 const documentsSave = `

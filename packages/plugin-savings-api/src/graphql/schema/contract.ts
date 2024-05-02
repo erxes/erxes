@@ -45,6 +45,7 @@ export const types = () => `
     isDeposit: Boolean
     loansOfForeclosed: [SavingLoans]
     customFieldsData: JSON
+    blockAmount: Float
   }
 
   type SavingCloseInfo {
@@ -101,6 +102,7 @@ const queryParams = `
 export const queries = `
   savingsContractsMain(${queryParams}): SavingContractsListResponse
   savingsContracts(${queryParams}): [SavingContract]
+  clientSavingsContracts(${queryParams}): [SavingContract]
   savingsContractDetail(_id: String!): SavingContract
   savingsCloseInfo(contractId: String, date: Date): SavingCloseInfo
   savingsContractsAlert(date: Date): [SavingAlert]

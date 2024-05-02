@@ -2,7 +2,7 @@ import {
   checkPermission,
   requireLogin,
 } from '@erxes/api-utils/src/permissions';
-import { fieldsCombinedByContentType } from '../../../utils';
+import { fieldsCombinedByContentType, getContentTypes } from '../../../utils';
 
 import { fetchService } from '../../../messageBroker';
 import { IContext } from '../../../connectionResolver';
@@ -60,6 +60,7 @@ const fieldQueries = {
       { value: 'file', label: 'File' },
       { value: 'customer', label: 'Customer' },
       { value: 'product', label: 'Product' },
+      { value: 'users', label: 'Team members' },
       { value: 'branch', label: 'Branch' },
       { value: 'department', label: 'Department' },
       { value: 'map', label: 'Location/Map' },
@@ -96,6 +97,7 @@ const fieldQueries = {
       isVisibleToCreate,
       searchable,
       pipelineId,
+      groupIds: inputGroupIds
     }: {
       contentType: string;
       contentTypeId: string;
@@ -103,10 +105,22 @@ const fieldQueries = {
       isVisibleToCreate: boolean;
       searchable: boolean;
       pipelineId: string;
+        groupIds: string[]
     },
     { models }: IContext,
   ) {
     const query: IFieldsQuery = { contentType };
+
+    if (contentType) {
+      const [serviceName, serviceType] = contentType.split(":")
+
+      if (serviceType === "all") {
+        const contentTypes: Array<string> = await getContentTypes(serviceName);
+        query.contentType = { $in: contentTypes } as any;
+      } else {
+        query.contentType = contentType
+      }
+    }
 
     if (contentTypeId) {
       query.contentTypeId = contentTypeId;
@@ -121,6 +135,10 @@ const fieldQueries = {
     }
 
     const groupIds: string[] = [];
+
+    if (inputGroupIds && inputGroupIds.length > 0) {
+      groupIds.push(...inputGroupIds)
+    }
 
     if (isVisibleToCreate !== undefined) {
       query.isVisibleToCreate = isVisibleToCreate;
@@ -271,6 +289,17 @@ const fieldsGroupQueries = {
 
     // querying by content type
     query.contentType = contentType;
+
+    if (contentType) {
+      const [serviceName, serviceType] = contentType.split(":")
+
+      if (serviceType === "all") {
+        const contentTypes: Array<string> = await getContentTypes(serviceName);
+        query.contentType = { $in: contentTypes };
+      } else {
+        query.contentType = contentType
+      }
+    }
 
     if (config) {
       query = await fetchService(

@@ -1,23 +1,23 @@
 "use client"
 
 import dynamic from "next/dynamic"
-import { useRouter, useSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const List = dynamic(() => import("./List"))
-const FeedForm = dynamic(() => import("../component/form/FeedForm"))
 
 const Feed = () => {
   localStorage.getItem("exm_env_REACT_APP_DOMAIN")
 
   const router = useRouter()
   const searchParams = useSearchParams()
+  const pathname = usePathname()
 
   const type = searchParams.get("contentType")
 
   const handleClick = (tabType: string) => {
-    router.push(`/?contentType=${tabType}`)
+    router.push(`${pathname}?contentType=${tabType}`)
   }
 
   const style =

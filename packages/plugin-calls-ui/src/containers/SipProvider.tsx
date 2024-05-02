@@ -1,36 +1,37 @@
-import * as moment from "moment";
+import * as moment from 'moment';
 
-import React, { useState } from "react";
-import { gql, useMutation, useQuery, useSubscription } from "@apollo/client";
-import { mutations, queries, subscriptions } from "../graphql";
+import React, { useState } from 'react';
+import { gql, useMutation, useQuery, useSubscription } from '@apollo/client';
+import { mutations, queries, subscriptions } from '../graphql';
 
-import { Alert } from "@erxes/ui/src/utils";
-import { CALL_DIRECTION_INCOMING } from "../lib/enums";
-import CallIntegrationForm from "../components/Form";
-import IncomingCallContainer from "./IncomingCall";
-import { ModalTrigger } from "@erxes/ui/src/components";
-import SipProvider from "../components/SipProvider";
-import WidgetContainer from "./Widget";
-import { getSubdomain } from "@erxes/ui/src/utils/core";
-import { setLocalStorage } from "../utils";
-import withCurrentUser from "@erxes/ui/src/auth/containers/withCurrentUser";
+import { Alert } from '@erxes/ui/src/utils';
+import { CALL_DIRECTION_INCOMING } from '../lib/enums';
+import CallIntegrationForm from '../components/Form';
+import IncomingCallContainer from './IncomingCall';
+import { ModalTrigger } from '@erxes/ui/src/components';
+import SipProvider from '../components/SipProvider';
+import WidgetContainer from './Widget';
+import { setLocalStorage } from '../utils';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 
 const SipProviderContainer = (props) => {
   const [config, setConfig] = useState(
-    JSON.parse(localStorage.getItem("config:call_integrations") || "{}")
+    JSON.parse(localStorage.getItem('config:call_integrations') || '{}'),
   );
-  const callInfo = JSON.parse(localStorage.getItem("callInfo") || "{}");
+  const callInfo = JSON.parse(localStorage.getItem('callInfo') || '{}');
   const isConnectCallRequested = JSON.parse(
-    localStorage.getItem("isConnectCallRequested") || "{}"
+    localStorage.getItem('isConnectCallRequested') || '{}',
   );
+  const [historyId, setHistoryId] = useState('');
 
   const { data, loading, error } = useQuery(gql(queries.callUserIntegrations));
+  const { data: callConfigData, loading: callConfigLoading } = useQuery(
+    gql(queries.callsGetConfigs),
+  );
 
   const [createActiveSession] = useMutation(gql(mutations.addActiveSession));
-  const [removeActiveSession] = useMutation(
-    gql(mutations.callTerminateSession)
-  );
   const [updateHistoryMutation] = useMutation(gql(mutations.callHistoryEdit));
+  const [addHistoryMutation] = useMutation(gql(mutations.callHistoryAdd));
 
   useSubscription(gql(subscriptions.sessionTerminateRequested), {
     variables: { userId: props.currentUser._id },
@@ -38,7 +39,7 @@ const SipProviderContainer = (props) => {
       if (
         !callInfo?.isRegistered ||
         isConnectCallRequested ||
-        isConnectCallRequested === "true"
+        isConnectCallRequested === 'true'
       ) {
         setConfig({
           inboxId: config?.inboxId,
@@ -49,7 +50,7 @@ const SipProviderContainer = (props) => {
           isAvailable: true,
         });
         setLocalStorage(true, true);
-        localStorage.removeItem("isConnectCallRequested");
+        localStorage.removeItem('isConnectCallRequested');
       } else {
         setConfig({
           inboxId: config?.inboxId,
@@ -60,11 +61,10 @@ const SipProviderContainer = (props) => {
           isAvailable: false,
         });
         setLocalStorage(false, false);
-        localStorage.removeItem("isConnectCallRequested");
+        localStorage.removeItem('isConnectCallRequested');
       }
     },
   });
-
   const createSession = () => {
     createActiveSession()
       .then(() => {})
@@ -72,57 +72,89 @@ const SipProviderContainer = (props) => {
         Alert.error(e.message);
       });
   };
-
-  const removeSession = () => {
-    removeActiveSession()
-      .then(() => {
-        if (config) {
-          setConfig({
-            inboxId: config.inboxId,
-            phone: config.phone,
-            wsServer: config.wsServer,
-            token: config.token,
-            operators: config.operators,
-            isAvailable: true,
+  const updateHistory = (
+    sessionId: string,
+    callStartTime: Date,
+    callEndTime: Date,
+    callStatus: string,
+    direction: string,
+    customerPhone: string,
+  ) => {
+    let duration = 0;
+    if (callStartTime && callEndTime) {
+      const startedMoment = moment(callStartTime);
+      const endedMoment = moment(callEndTime);
+      duration = endedMoment.diff(startedMoment, 'seconds');
+    }
+    if (historyId) {
+      updateHistoryMutation({
+        variables: {
+          id: historyId,
+          sessionId,
+          callStartTime,
+          callEndTime,
+          callDuration: duration,
+          callStatus,
+          callType: direction,
+        },
+        refetchQueries: ['callHistories'],
+      })
+        .then()
+        .catch((e) => {
+          Alert.error(e.message);
+        });
+    } else {
+      if (callStatus === 'cancelled') {
+        updateHistoryMutation({
+          variables: {
+            sessionId,
+            callStartTime,
+            callEndTime,
+            callDuration: duration,
+            callStatus,
+            inboxIntegrationId: config?.inboxId || '',
+            customerPhone,
+            callType: direction,
+          },
+          refetchQueries: ['callHistories'],
+        })
+          .then()
+          .catch((e) => {
+            Alert.error(e.message);
           });
-          setLocalStorage(true, true);
-        }
+      } else {
+        Alert.error('History id not found');
+      }
+    }
+  };
+  const addHistory = (
+    callStatus: string,
+    sessionId: string,
+    direction: string,
+    customerPhone: string,
+    callStartTime: Date,
+  ) => {
+    addHistoryMutation({
+      variables: {
+        sessionId: sessionId || '',
+        callType: direction,
+        callStatus,
+        customerPhone,
+        inboxIntegrationId: config?.inboxId || '',
+        callStartTime,
+      },
+    })
+      .then(({ data }: any) => {
+        const callHistoryId = data?.callHistoryAdd?._id;
+        setHistoryId(callHistoryId);
+        Alert.success('Successfully updated status');
       })
       .catch((e) => {
         Alert.error(e.message);
       });
   };
 
-  const updateHistory = (
-    sessionId: string,
-    callStartTime: Date,
-    callEndTime: Date,
-    callStatus: string
-  ) => {
-    let duration = 0;
-    if (callStartTime && callEndTime) {
-      const startedMoment = moment(callStartTime);
-      const endedMoment = moment(callEndTime);
-      duration = endedMoment.diff(startedMoment, "seconds");
-    }
-
-    updateHistoryMutation({
-      variables: {
-        sessionId,
-        callStartTime,
-        callEndTime,
-        callDuration: duration,
-        callStatus,
-      },
-      refetchQueries: ["callHistories"],
-    })
-      .then()
-      .catch((e) => {
-        Alert.error(e.message);
-      });
-  };
-
-  if (loading) {
+  if (loading || callConfigLoading) {
     return null;
   }
   if (error) {
@@ -130,6 +162,8 @@ const SipProviderContainer = (props) => {
   }
 
   const { callUserIntegrations } = data;
+  const callsGetConfigs = callConfigData.callsGetConfigs;
+
   if (!callUserIntegrations || callUserIntegrations.length === 0) {
     return null;
   }
@@ -165,31 +199,44 @@ const SipProviderContainer = (props) => {
   }
 
   const filteredIntegration = callUserIntegrations.find(
-    (integrationConfig) => integrationConfig.phone === config.phone
+    (integrationConfig) => integrationConfig.phone === config.phone,
   );
   const defaultIntegration = config || filteredIntegration;
 
   const { wsServer, operators } = defaultIntegration || {};
-  const [host, port] = wsServer?.split(":");
+  const [host, port] = wsServer?.split(':');
 
   const operator = operators?.[0];
   const { gsUsername, gsPassword } = operator || {};
 
+  const configsMap = {};
+
+  for (const config of callsGetConfigs) {
+    configsMap[config.code] = config.value;
+  }
+
+  const {
+    STUN_SERVER_URL,
+    TURN_SERVER_URL,
+    TURN_SERVER_USERNAME,
+    TURN_SERVER_CREDENTIAL,
+  } = configsMap as any;
+
   const sipConfig = {
     host,
-    pathname: "/ws",
+    pathname: '/ws',
     user: gsUsername,
     password: gsPassword,
     // autoRegister: true,
-    port: parseInt(port?.toString() || "8089", 10),
+    port: parseInt(port?.toString() || '8089', 10),
     iceServers: [
       {
-        urls: "stun:stun.l.google.com:19302",
+        urls: `stun:${STUN_SERVER_URL}` || '',
       },
       {
-        urls: "turn:relay8.expressturn.com:3478",
-        username: "efVCM7AV4B0436ZEJQ",
-        credential: "PtBTQUgzOtZ1T874",
+        urls: `turn:${TURN_SERVER_URL}` || '',
+        username: TURN_SERVER_USERNAME || '',
+        credential: TURN_SERVER_CREDENTIAL || '',
       },
     ],
   };
@@ -199,6 +246,7 @@ const SipProviderContainer = (props) => {
       {...sipConfig}
       createSession={createSession}
       updateHistory={updateHistory}
+      addHistory={addHistory}
       callUserIntegration={filteredIntegration}
     >
       {(state) => (

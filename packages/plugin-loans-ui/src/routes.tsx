@@ -4,7 +4,7 @@ import { Route } from 'react-router-dom';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import Settings from './settings/containers/Settings';
 import HolidaySettings from './settings/components/HolidaySettings';
-import UndueSettings from './settings/components/UndueSettings';
+import LossSettings from './settings/components/LossSettings';
 import MainSettings from './settings/components/MainSettings';
 
 const ContractList = asyncComponent(() =>
@@ -57,6 +57,12 @@ const ContractTypeDetails = asyncComponent(() =>
 const ClassificationList = asyncComponent(() =>
   import(
     /* webpackChunkName: "ContractTypeDetails" */ './classificationHistory/containers/ClassificationList'
+  )
+);
+
+const NonBalanceTransactionList = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "NonBalanceTransactionList" */ './nonBalanceTransaction/containers/NonBalanceTransactionList'
   )
 );
 
@@ -135,14 +141,24 @@ const classificationHistoryList = ({ location, history }) => {
   );
 };
 
+const nonBalanceTransactionLists = ({ location, history }) => {
+  return (
+    <NonBalanceTransactionList
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+
 const contractTypeDetail = ({ match }) => {
   const id = match.params.id;
 
   return <ContractTypeDetails id={id} />;
 };
 
-const undueSettings = () => {
-  return <Settings components={UndueSettings}></Settings>;
+const lossSettings = () => {
+  return <Settings components={LossSettings}></Settings>;
 };
 
 const mainSettings = () => {
@@ -187,8 +203,8 @@ const LoanRoutes = () => {
         component={contractTypeDetail}
       />
       <Route
-        path="/erxes-plugin-loan/undue-settings"
-        component={undueSettings}
+        path="/erxes-plugin-loan/loss-settings"
+        component={lossSettings}
       />
       <Route
         path="/erxes-plugin-loan/holiday-settings"
@@ -206,6 +222,10 @@ const LoanRoutes = () => {
       <Route
         path="/erxes-plugin-loan/classificationHistory"
         component={classificationHistoryList}
+      />
+      <Route
+        path="/erxes-plugin-loan/non-balance-transactions"
+        component={nonBalanceTransactionLists}
       />
     </React.Fragment>
   );

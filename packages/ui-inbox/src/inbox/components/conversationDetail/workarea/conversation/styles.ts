@@ -5,7 +5,7 @@ import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const MessageContent = styledTS<{ internal?: boolean; staff?: boolean }>(
-  styled.div,
+  styled.div
 )`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   border-radius: 20px;
@@ -43,7 +43,7 @@ const MessageContent = styledTS<{ internal?: boolean; staff?: boolean }>(
     display: block;
   }
 
-  span[data-type="mention"]{
+  .mention {
     font-weight: bold;
     display: inline-block;
   }
@@ -192,6 +192,16 @@ const FormTable = styled.div`
 
   table tr td {
     word-break: break-word;
+  }
+
+  footer {
+    flex-shrink: 0;
+    font-size: 11px;
+    float: right;
+    
+    color: ${colors.colorCoreLightGray};
+    margin-left: 10px;
+    cursor: pointer;
   }
 `;
 

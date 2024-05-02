@@ -30,6 +30,7 @@ function ScheduleSection({
   hasTransaction,
   currentUser,
 }: Props) {
+
   const onRegenSchedules = () =>
     confirm(__('Are you sure Regenerate Schedule?'))
       .then(() => regenSchedules(contractId))
@@ -61,9 +62,7 @@ function ScheduleSection({
       );
 
     return (
-      <button onClick={onRegenSchedules} title="create schedule">
-        <Icon icon="refresh-1" />
-      </button>
+      null
     );
   };
   return (

@@ -1,3 +1,5 @@
+import { QueryResponse } from '@erxes/ui/src/types';
+
 export type IConfigsMap = { [key: string]: any };
 
 export type IConfig = {
@@ -52,15 +54,9 @@ export type ToSyncProductsMutationResponse = {
   }) => Promise<any>;
 };
 
-export type ToCheckPricesMutationResponse = {
-  toCheckMsdPrices: (mutation: {
-    variables: { brandId: string };
-  }) => Promise<any>;
-};
-
 export type ToSyncPricesMutationResponse = {
   toSyncMsdPrices: (mutation: {
-    variables: { brandId: string; action: string; prices: any[] };
+    variables: { brandId: string };
   }) => Promise<any>;
 };
 
@@ -101,6 +97,44 @@ export type SyncHistoriesQueryResponse = {
 
 export type SyncHistoriesCountQueryResponse = {
   syncMsdHistoriesCount: number;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type CheckSyncedMutationResponse = {
+  toCheckMsdSynced: (mutation: {
+    variables: { ids: string[]; brandId: string };
+  }) => Promise<any>;
+};
+
+export type CheckSyncedOrdersQueryResponse = {
+  posOrders: any[];
+} & QueryResponse;
+
+export type CheckSyncedOrdersTotalCountQueryResponse = {
+  posOrdersTotalCount: number;
+} & QueryResponse;
+
+export type PosListQueryResponse = {
+  posList: any[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type ToSyncOrdersMutationResponse = {
+  toSyncMsdOrders: (mutation: {
+    variables: { orderIds: string[] };
+  }) => Promise<any>;
+};
+
+export type ToSendOrdersMutationResponse = {
+  toSendMsdOrders: (mutation: {
+    variables: { orderIds: string[] };
+  }) => Promise<any>;
+};
+
+export type OrderDetailQueryResponse = {
+  posOrderDetail: any;
   loading: boolean;
   refetch: () => void;
 };

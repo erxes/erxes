@@ -25,6 +25,11 @@ export const menuContracts = [
     title: __('Classification History'),
     link: '/erxes-plugin-loan/classificationHistory',
     permission: 'showContracts'
+  },
+  {
+    title: __('Non Balance Transactions'),
+    link: '/erxes-plugin-loan/non-balance-transactions',
+    permission: 'showNonBalanceTransactions'
   }
 ];
 

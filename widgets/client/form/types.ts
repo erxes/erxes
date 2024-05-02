@@ -59,6 +59,7 @@ export interface ICallout {
   buttonText?: string;
   featuredImage?: string;
   skip?: boolean;
+  calloutImgSize?: string;
 }
 
 export interface IForm {

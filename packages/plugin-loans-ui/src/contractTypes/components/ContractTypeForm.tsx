@@ -10,7 +10,7 @@ import {
   MainStyleScrollWrapper as ScrollWrapper,
 } from '@erxes/ui/src/styles/eindex';
 
-import { IProductCategory } from '@erxes/ui-products/src/types';
+import { IProduct, IProductCategory } from '@erxes/ui-products/src/types';
 import Select from 'react-select-plus';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
@@ -24,6 +24,7 @@ import { COLLATERAL_TYPE, LEASE_TYPES } from '../constants';
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   productCategories: IProductCategory[];
+  products: IProduct[];
   contractType: IContractType;
   closeModal: () => void;
   currentUser: IUser;
@@ -32,7 +33,7 @@ type Props = {
 type State = {
   productCategoryIds: string[];
   leaseType: string;
-  undueCalcType: string;
+  lossCalcType: string;
   useMargin: boolean;
   useDebt: boolean;
   useSkipInterest: boolean;
@@ -45,6 +46,7 @@ type State = {
   savingUpperPercent: number;
   usePrePayment: boolean;
   invoiceDay: string;
+  productId: string;
 };
 
 class ContractTypeForm extends React.Component<Props, State> {
@@ -54,7 +56,7 @@ class ContractTypeForm extends React.Component<Props, State> {
     const { contractType = {} } = props;
 
     this.state = {
-      undueCalcType: contractType.undueCalcType || 'fromInterest',
+      lossCalcType: contractType.lossCalcType || 'fromInterest',
       productCategoryIds: contractType.productCategoryIds,
       leaseType: contractType.leaseType || 'finance',
       useMargin: contractType.useMargin,
@@ -71,6 +73,7 @@ class ContractTypeForm extends React.Component<Props, State> {
       savingPlusLoanInterest: contractType.savingPlusLoanInterest,
       savingUpperPercent: contractType.savingUpperPercent,
       invoiceDay: contractType.invoiceDay,
+      productId: contractType.productId
     };
   }
 
@@ -90,8 +93,8 @@ class ContractTypeForm extends React.Component<Props, State> {
       name: finalValues.name,
       number: finalValues.number,
       vacancy: Number(finalValues.vacancy),
-      unduePercent: Number(finalValues.unduePercent),
-      undueCalcType: finalValues.undueCalcType,
+      lossPercent: Number(finalValues.lossPercent),
+      lossCalcType: finalValues.lossCalcType,
       useMargin: this.state.useMargin,
       useDebt: this.state.useDebt,
       useSkipInterest: this.state.useSkipInterest,
@@ -105,6 +108,7 @@ class ContractTypeForm extends React.Component<Props, State> {
       savingUpperPercent: Number(finalValues.savingUpperPercent),
       usePrePayment: this.state.usePrePayment,
       invoiceDay: this.state.invoiceDay,
+      productId: this.state.productId
     };
   };
 
@@ -142,6 +146,10 @@ class ContractTypeForm extends React.Component<Props, State> {
     const onSelectProductCategory = (values) => {
       this.setState({ productCategoryIds: values.map((item) => item.value) });
     };
+
+    const onSelectProduct = (data) => {
+      this.setState({ productId: data.value});
+    }
 
     return (
       <>
@@ -193,6 +201,21 @@ class ContractTypeForm extends React.Component<Props, State> {
                   />
                 </FormGroup>
               )}
+               {this.state.leaseType !== LEASE_TYPES.SAVING && (
+                <FormGroup>
+                  <ControlLabel>{__('Allow Product')}</ControlLabel>
+                  <Select
+                    className="flex-item"
+                    placeholder={__('Select product categories')}
+                    value={this.state.productId}
+                    onChange={onSelectProduct}
+                    options={this.props.products.map((product) => ({
+                      value: product._id,
+                      label: `${product.code} - ${product.name}`,
+                    }))}
+                  />
+                </FormGroup>
+              )}
               <FormGroup>
                 <ControlLabel required={true}>
                   {__('Product Type')}
@@ -216,8 +239,8 @@ class ContractTypeForm extends React.Component<Props, State> {
             <FormColumn>
               {this.renderFormGroup('Loss Percent', {
                 ...formProps,
-                name: 'unduePercent',
-                defaultValue: contractType.unduePercent || '',
+                name: 'lossPercent',
+                defaultValue: contractType.lossPercent || '',
                 type: 'number',
               })}
 
@@ -312,9 +335,9 @@ class ContractTypeForm extends React.Component<Props, State> {
                   </ControlLabel>
                   <FormControl
                     {...formProps}
-                    name="undueCalcType"
+                    name="lossCalcType"
                     componentClass="select"
-                    value={this.state.undueCalcType}
+                    value={this.state.lossCalcType}
                     required={true}
                     onChange={this.onChangeField}
                   >

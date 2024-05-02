@@ -1,31 +1,11 @@
-"use client"
+import { FunctionComponent } from "react"
 
-import dynamic from "next/dynamic"
+import DetailBoard from "@/components/detail/DetailBoard"
 
-const PostItem = dynamic(() => import("@/modules/feed/component/PostItem"))
-const EventItem = dynamic(() => import("@/modules/feed/component/EventItem"))
+interface DetailPageProps {}
 
-export default function Detail() {
-  const queryString = window.location.search
-  const urlParams = new URLSearchParams(queryString)
-  const id = urlParams.get("id")
-  const contentType = urlParams.get("contentType")
-
-  const renderDetail = () => {
-    if(contentType === 'event') {
-      return <EventItem postId={id || ""} />
-    }
-
-    return <PostItem postId={id || ""} />
-  }
-
-  return (
-    <>
-      <div className="flex h-full w-[calc(100%-230px)] flex-col">
-        <div className="h-full px-[25px] pt-4">
-          {renderDetail()}
-        </div>
-      </div>
-    </>
-  )
+const DetailPage: FunctionComponent<DetailPageProps> = () => {
+  return <DetailBoard />
 }
+
+export default DetailPage

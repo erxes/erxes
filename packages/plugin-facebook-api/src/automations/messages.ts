@@ -13,9 +13,10 @@ import * as moment from 'moment';
 import { getEnv } from '../commonUtils';
 
 const generateMessages = async (
+  subdomain: string,
   config: any,
   conversation: IConversation,
-  customer: ICustomer,
+  customer: ICustomer
 ) => {
   let { messages = [] } = config || {};
 
@@ -48,12 +49,18 @@ const generateMessages = async (
   const getUrl = (key) => {
     const DOMAIN = getEnv({
       name: 'DOMAIN',
+      subdomain,
     });
 
     const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+    const VERSION = getEnv({ name: 'VERSION' });
 
     if (NODE_ENV !== 'production') {
       return `${DOMAIN}/read-file?key=${key}`;
+    }
+
+    if (VERSION === 'saas') {
+      return `${DOMAIN}/api/read-file?key=${key}`;
     }
 
     return `${DOMAIN}/gateway/read-file?key=${key}`;
@@ -297,7 +304,16 @@ export const actionCreateMessage = async (
   let result: any[] = [];
 
   try {
-    const messages = await generateMessages(config, conversation, customer);
+    const messages = await generateMessages(
+      subdomain,
+      config,
+      conversation,
+<<<<<<< HEAD
+      customer
+=======
+      customer,
+>>>>>>> c89679e19305028f422ffb67c7259e6aaa64ce67
+    );
 
     if (!messages?.length) {
       return;
