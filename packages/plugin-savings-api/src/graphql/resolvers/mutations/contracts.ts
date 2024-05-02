@@ -37,7 +37,7 @@ const contractMutations = {
     if (!doc.depositAccount) {
       throw new Error('No deposit account linked. Please select a deposit account to proceed with your savings.');
     }
-    }
+    
     doc.savingAmount = 0;
     const contract = await models.Contracts.createContract(doc);
 
