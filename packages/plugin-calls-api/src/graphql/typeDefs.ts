@@ -77,6 +77,7 @@ const types = `
     customer: Customer
     extentionNumber: String
     conversationId: String
+    recordUrl: String
   }
 `;
 
