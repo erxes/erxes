@@ -888,6 +888,9 @@ export const loadUserClass = (models: IModels) => {
         appId: app._id,
         isActive: true,
         email: `${app._id}@domain.com`,
+        details: {
+          fullName: app.name
+        }
       });
     }
 
