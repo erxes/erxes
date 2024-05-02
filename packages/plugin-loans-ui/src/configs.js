@@ -6,10 +6,10 @@ module.exports = {
     "./routes": "./src/routes.tsx",
     // './settings': './src/Settings.tsx',
     "./contractSection":
-      "./src/contracts/components/common/ContractSection.tsx",
+    "./src/contracts/components/common/ContractSection.tsx",
   },
   routes: {
-    url: "http://localhost:3120/remoteEntry.js",
+    url: "http://localhost:3227/remoteEntry.js",
     scope: "loans",
     module: "./routes",
   },
