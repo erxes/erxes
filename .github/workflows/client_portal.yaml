@@ -9,8 +9,8 @@ on:
       - staging
       - build-test
     paths:
-      - "client-portal/**"
-      - ".github/workflows/client_portal.yaml"
+      - 'client-portal/**'
+      - '.github/workflows/client_portal.yaml'
   pull_request:
     branches:
       - master
@@ -19,7 +19,7 @@ on:
       - apm
       - staging
     paths:
-      - "client-portal/**"
+      - 'client-portal/**'
 
 jobs:
   client-portal:

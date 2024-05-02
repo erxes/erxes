@@ -6,20 +6,18 @@ on:
       - master
       - rc
       - dev
-      - build-test
     paths:
-      - "essyncer/**"
-      - ".github/workflows/essyncer.yaml"
+      - 'essyncer/**'
+      - '.github/workflows/essyncer.yaml'
 
   pull_request:
     branches:
       - master
       - rc
       - dev
-      - build-test
     paths:
-      - "essyncer/**"
-      - ".github/workflows/essyncer.yaml"
+      - 'essyncer/**'
+      - '.github/workflows/essyncer.yaml'
 
 jobs:
   essyncer:

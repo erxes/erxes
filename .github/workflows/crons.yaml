@@ -3,15 +3,15 @@ name: Crons CI
 on:
   push:
     branches:
-      - "dev"
+      - 'dev'
       - master
       - rc
-      - "staging"
+      - 'staging'
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/crons/**"
-      - ".github/workflows/crons.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/crons/**'
+      - '.github/workflows/crons.yaml'
 
 jobs:
   crons:
@@ -47,7 +47,7 @@ jobs:
           yarn build crons
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/build-test' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' )
         run: |
           cd dist/erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
