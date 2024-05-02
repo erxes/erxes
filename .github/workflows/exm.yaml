@@ -6,22 +6,22 @@ on:
       - dev
       - master
       - rc
-      - test-update-package
+      - build-test
       - exm-improve
     paths:
-      - 'exm-web/**'
-      - '.github/workflows/exm.yaml'
+      - "exm-web/**"
+      - ".github/workflows/exm.yaml"
 
   pull_request:
     branches:
       - dev
       - master
       - rc
-      - test-update-package
+      - build-test
       - exm-improve
     paths:
-      - 'exm-web/**'
-      - '.github/workflows/exm.yaml'
+      - "exm-web/**"
+      - ".github/workflows/exm.yaml"
 
 jobs:
   exm-ui:
@@ -43,7 +43,7 @@ jobs:
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/test-update-package')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/build-test')
         run: |
           cd exm-web
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

@@ -7,11 +7,11 @@ on:
       - master
       - rc
       - staging
-      - test-update-package
+      - build-test
     paths:
-      - 'packages/api-utils/**'
-      - 'packages/core/**'
-      - '.github/workflows/core.yaml'
+      - "packages/api-utils/**"
+      - "packages/core/**"
+      - ".github/workflows/core.yaml"
 
 jobs:
   core:
@@ -47,7 +47,7 @@ jobs:
           yarn build core
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/test-update-package' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test' )
         run: |
           cd dist/erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

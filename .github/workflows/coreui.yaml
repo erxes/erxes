@@ -7,15 +7,15 @@ on:
       - master
       - rc
       - staging
-      - test-update-package
+      - build-test
     paths:
-      - 'packages/erxes-ui/**'
-      - 'packages/core-ui/**'
-      - '.github/workflows/coreui.yaml'
-      - '!ui/nginx/**'
-      - '!ui/docker-entrypoint.sh'
-      - '!ui/Dockerfile'
-      - '!ui/.dockerignore'
+      - "packages/erxes-ui/**"
+      - "packages/core-ui/**"
+      - ".github/workflows/coreui.yaml"
+      - "!ui/nginx/**"
+      - "!ui/docker-entrypoint.sh"
+      - "!ui/Dockerfile"
+      - "!ui/.dockerignore"
 
 jobs:
   ui:
@@ -49,7 +49,7 @@ jobs:
           yarn build
 
       - name: Configure AWS credentials
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/test-update-package')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/build-test')
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -57,20 +57,20 @@ jobs:
           aws-region: us-west-2
 
       - name: Deploy locales
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/test-update-package')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/build-test')
         run: |
           tar -cf locales.tar --directory=packages/core-ui/public/locales .
           aws s3 cp locales.tar s3://erxes-${GITHUB_REF#refs/heads/}-plugins/locales.tar
 
       - name: Deploy Core UI
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/test-update-package')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/build-test')
         run: |
           tar -czf build.tar --directory=packages/core-ui/dist .
           cp build.tar packages/core-ui/dist
           aws s3 sync packages/core-ui/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/core-ui --delete
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/test-update-package')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/build-test')
         env:
           BASE_IMAGE: erxes/erxes:base-1.18-alpine
         run: |
