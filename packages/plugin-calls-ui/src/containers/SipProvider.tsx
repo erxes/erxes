@@ -101,7 +101,9 @@ const SipProviderContainer = (props) => {
       })
         .then()
         .catch((e) => {
-          Alert.error(e.message);
+          if (e.message !== 'You cannot edit') {
+            Alert.error(e.message);
+          }
         });
     } else {
       if (callStatus === 'cancelled') {
@@ -120,7 +122,9 @@ const SipProviderContainer = (props) => {
         })
           .then()
           .catch((e) => {
-            Alert.error(e.message);
+            if (e.message !== 'You cannot edit') {
+              Alert.error(e.message);
+            }
           });
       } else {
         Alert.error('History id not found');

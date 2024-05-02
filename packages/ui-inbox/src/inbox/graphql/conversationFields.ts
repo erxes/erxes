@@ -99,6 +99,7 @@ export default `
     createdAt
     createdBy
     modifiedBy
+    recordUrl
   }`
         : ''
     }

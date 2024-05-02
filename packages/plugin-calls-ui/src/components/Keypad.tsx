@@ -232,12 +232,6 @@ const KeyPad = (props: Props, context) => {
       handleCall();
     }
   };
-  const handlePaste = (event) => {
-    const pastedText = event.clipboardData?.getData('text');
-    const maxLength = 10;
-    const truncatedText = pastedText?.substring(0, maxLength);
-    setNumber(truncatedText || '');
-  };
 
   const onBack = () => setShowTrigger(false);
   const search = (e) => {
@@ -408,7 +402,6 @@ const KeyPad = (props: Props, context) => {
             onKeyDown={handleKeyDown}
             autoFocus={true}
             ref={inputRef}
-            onPaste={handlePaste}
             autoComplete="off"
             onChange={(e) => setNumber(e.target.value)}
             type="number"
