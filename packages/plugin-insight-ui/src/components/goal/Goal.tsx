@@ -1,31 +1,30 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 
-import Dropdown from 'react-bootstrap/Dropdown';
-import { capitalize } from 'lodash';
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import { capitalize } from "lodash";
 
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import PageContent from '@erxes/ui/src/layout/components/PageContent';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from '@erxes/ui/src/utils/index';
-import { Title } from '@erxes/ui-settings/src/styles';
-import { BarItems } from '@erxes/ui/src';
+import Button from "@erxes/ui/src/components/Button";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import PageContent from "@erxes/ui/src/layout/components/PageContent";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import Icon from "@erxes/ui/src/components/Icon";
+import { __ } from "@erxes/ui/src/utils/index";
+import { Title } from "@erxes/ui-settings/src/styles";
+import { BarItems } from "@erxes/ui/src";
 
-import DetailContainer from '../../containers/goal/Detail';
-import { ContentContainer, DragField } from '../../styles';
-import { IGoalType, ISpecificPeriodGoal } from '../../types';
+import DetailContainer from "../../containers/goal/Detail";
+import { ContentContainer, DragField } from "../../styles";
+import { IGoalType, ISpecificPeriodGoal } from "../../types";
 
 type Props = {
-  history: any;
   queryParams: any;
   goal: IGoalType;
   loading: boolean;
 };
 
 const Goal = (props: Props) => {
-  const { goal, loading, queryParams, history } = props;
+  const { goal, loading, queryParams } = props;
   const [specificPeriodGoals, setSpecificPeriodGoals] = useState<
     ISpecificPeriodGoal[]
   >([]);
@@ -38,32 +37,32 @@ const Goal = (props: Props) => {
 
   const renderActionBar = () => {
     const title =
-      `${capitalize(goal.entity) || ''} ${goal.goalTypeChoose}` || '';
+      `${capitalize(goal.entity) || ""} ${goal.goalTypeChoose}` || "";
 
     const leftActionBar = <Title>{__(`${title} `)}</Title>;
 
     const rightActionBar = (
       <BarItems>
         <Button btnStyle="simple">Add to dashboard</Button>
-        <Dropdown drop="down" alignRight={true}>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
-            <Button icon="ellipsis-h" btnStyle="simple" />
-          </Dropdown.Toggle>
-          <Dropdown.Menu className="dropdown-container">
-            <li>
-              <a href="#duplicate" onClick={() => {}}>
-                <Icon icon="copy" />
-                {__('Duplicate')}
-              </a>
-            </li>
-            <li>
-              <a href="#delete" onClick={() => {}}>
-                <Icon icon="trash-alt" />
+        <Dropdown
+          drop="down"
+          as={DropdownToggle}
+          toggleComponent={<Button icon="ellipsis-h" btnStyle="simple" />}
+          // alignRight={true}
+        >
+          <li>
+            <a href="#duplicate" onClick={() => {}}>
+              <Icon icon="copy" />
+              {__("Duplicate")}
+            </a>
+          </li>
+          <li>
+            <a href="#delete" onClick={() => {}}>
+              <Icon icon="trash-alt" />
 
-                {__('Delete')}
-              </a>
-            </li>
-          </Dropdown.Menu>
+              {__("Delete")}
+            </a>
+          </li>
         </Dropdown>
       </BarItems>
     );
@@ -109,7 +108,7 @@ const Goal = (props: Props) => {
         </DragField>
       }
       loading={loading}
-      emptyText={__('No data for this goal')}
+      emptyText={__("No data for this goal")}
       emptyImage="/images/actions/11.svg"
     />
   );

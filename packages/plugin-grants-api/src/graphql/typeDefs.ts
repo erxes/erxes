@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import {
   mutations as grantMutations,
   queries as grantQueries,
-  types as grantTypes
+  types as grantTypes,
 } from './schema/grants';
 
 const typeDefs = async () => {

@@ -3,13 +3,8 @@ import FilterableList from '@erxes/ui/src/components/filterableList/FilterableLi
 import Icon from '@erxes/ui/src/components/Icon';
 import { __ } from '@erxes/ui/src/utils';
 import * as React from 'react';
-import Popover from 'react-bootstrap/Popover';
 import Form from '../../containers/label/Form';
-import {
-  ButtonContainer,
-  PipelineLabelList,
-  Title
-} from '../../styles/label';
+import { ButtonContainer, PipelineLabelList, Title } from '../../styles/label';
 import { IPipelineLabel } from '../../types';
 import { Wrapper } from '@erxes/ui/src/styles/main';
 
@@ -36,7 +31,7 @@ export default class Overlay extends React.Component<
     super(props);
 
     this.state = {
-      showForm: false
+      showForm: false,
     };
   }
 
@@ -68,15 +63,15 @@ export default class Overlay extends React.Component<
         style: { backgroundColor: colorCode },
         selectedBy: count === 1 ? 'all' : 'none',
         additionalIconOnClick: this.onEdit,
-        additionalIconClass: 'pen-1'
+        additionalIconClass: 'pen-1',
       };
     });
   }
 
-  onLabelClick = labels => {
+  onLabelClick = (labels) => {
     const selectedLabelIds: string[] = labels
-      .filter(t => t.selectedBy === 'all')
-      .map(t => t._id);
+      .filter((t) => t.selectedBy === 'all')
+      .map((t) => t._id);
 
     this.props.onSelectLabels(selectedLabelIds);
   };
@@ -85,7 +80,7 @@ export default class Overlay extends React.Component<
     const props = {
       selectable: true,
       items: this.generateLabelsParams(),
-      onClick: this.onLabelClick
+      onClick: this.onLabelClick,
     };
 
     return (
@@ -112,7 +107,7 @@ export default class Overlay extends React.Component<
       toggleConfirm,
       selectedLabelIds,
       onSelectLabels,
-      onChangeRefresh
+      onChangeRefresh,
     } = this.props;
 
     if (showForm) {
@@ -155,7 +150,7 @@ export default class Overlay extends React.Component<
     const title = labelId ? 'Edit label' : 'Create label';
 
     return (
-      <Popover id="filter-label">
+      <>
         <Title>
           {showForm && <Icon icon="arrow-left" onClick={this.onChangeForm} />}
           {showForm ? __(title) : __('Labels')}
@@ -163,7 +158,7 @@ export default class Overlay extends React.Component<
         </Title>
 
         {this.renderPopover()}
-      </Popover>
+      </>
     );
   }
 }

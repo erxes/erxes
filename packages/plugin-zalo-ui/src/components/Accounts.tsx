@@ -1,12 +1,11 @@
 import {
   AccountBox,
   AccountItem,
-  AccountTitle
+  AccountTitle,
 } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import { CenterText } from '@erxes/ui-log/src/activityLogs/styles';
 import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __, confirm } from '@erxes/ui/src/utils';
 import React from 'react';
@@ -21,26 +20,29 @@ type Props = {
   accountId: string;
 };
 
-class Accounts extends React.Component<Props> {
-  onRemove(accountId: string) {
-    const { removeAccount } = this.props;
-
+const Accounts = (props: Props) => {
+  const {
+    accounts,
+    onSelectAccount,
+    accountId,
+    removeAccount,
+    onAdd,
+    renderButton,
+  } = props;
+  const onRemove = (accountId: string) => {
     confirm().then(() => {
       removeAccount(accountId);
-      this.setState({ accountId: '' });
     });
-  }
+  };
 
-  renderAccountAction() {
-    const { onAdd, renderButton } = this.props;
-
+  const renderAccountAction = () => {
     const AddButton = (
       <Button btnStyle="primary" icon="plus-circle" onClick={onAdd}>
         Add Account
       </Button>
     );
 
-    const content = props => (
+    const content = (props) => (
       <AddAccountForm {...props} renderButton={renderButton} onAdd={onAdd} />
     );
 
@@ -50,18 +52,16 @@ class Accounts extends React.Component<Props> {
       </Button>
       // <ModalTrigger title="Add Account" trigger={AddButton} content={content} />
     );
-  }
+  };
 
-  renderAccounts() {
-    const { accounts, onSelectAccount, accountId } = this.props;
-
+  const renderAccounts = () => {
     if (accounts.length === 0) {
       return (
         <EmptyState icon="user-6" text={__('There is no linked accounts')} />
       );
     }
 
-    return accounts.map(account => (
+    return accounts.map((account) => (
       <AccountItem key={account._id}>
         <span>
           <img src={account.avatar} width="45" height="45" />
@@ -78,29 +78,24 @@ class Accounts extends React.Component<Props> {
               : __('Select This Account')}
           </Button>
 
-          <Button
-            onClick={this.onRemove.bind(this, account._id)}
-            btnStyle="danger"
-          >
+          <Button onClick={onRemove.bind(this, account._id)} btnStyle="danger">
             {__('Remove')}
           </Button>
         </div>
       </AccountItem>
     ));
-  }
+  };
 
-  render() {
-    return (
-      <>
-        <AccountBox>
-          <AccountTitle>{__('Linked OA')}</AccountTitle>
-          {this.renderAccounts()}
-        </AccountBox>
-        <CenterText>{__('OR')}</CenterText>
-        <CenterText>{this.renderAccountAction()}</CenterText>
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <AccountBox>
+        <AccountTitle>{__('Linked OA')}</AccountTitle>
+        {renderAccounts()}
+      </AccountBox>
+      <CenterText>{__('OR')}</CenterText>
+      <CenterText>{renderAccountAction()}</CenterText>
+    </>
+  );
+};
 
 export default Accounts;

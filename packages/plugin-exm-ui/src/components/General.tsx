@@ -1,25 +1,25 @@
-import { ControlLabel, FormControl } from '@erxes/ui/src/components/form';
+import { ControlLabel, FormControl } from "@erxes/ui/src/components/form";
 import {
   FeatureLayout,
   FeatureRow,
   FeatureRowItem,
   GeneralWrapper,
-  TeamPortal
-} from '../styles';
-import React, { useState } from 'react';
-import { generateTree, removeTypename } from '../utils';
+  TeamPortal,
+} from "../styles";
+import React, { useState } from "react";
+import { generateTree, removeTypename } from "../utils";
 
-import Button from '@erxes/ui/src/components/Button';
-import { IExm } from '../types';
-import Select from 'react-select-plus';
-import { __ } from '@erxes/ui/src/utils';
+import Button from "@erxes/ui/src/components/Button";
+import { IExm } from "../types";
+import Select from "react-select";
+import { __ } from "@erxes/ui/src/utils";
 
 const getEmptyFeature = () => ({
   _id: Math.random().toString(),
-  name: '',
-  description: '',
-  contentId: '',
-  subContentId: ''
+  name: "",
+  description: "",
+  contentId: "",
+  subContentId: "",
 });
 
 type Props = {
@@ -34,24 +34,24 @@ export default function General(props: Props) {
   const { kbTopics, exm, edit, getKbCategories, kbCategories } = props;
   const exmFeatures = exm.features || [];
 
-  const [name, setName] = useState(exm.name || '');
-  const [description, setDescription] = useState(exm.description || '');
+  const [name, setName] = useState(exm.name || "");
+  const [description, setDescription] = useState(exm.description || "");
   const [features, setFeatures] = useState(
     exmFeatures.length > 0 ? removeTypename(exmFeatures) : [getEmptyFeature()]
   );
 
   const onChangeFeature = (type: string, _id?: string) => {
-    if (type === 'add') {
+    if (type === "add") {
       setFeatures([...features, getEmptyFeature()]);
     } else {
-      const modifiedFeatures = features.filter(f => f._id !== _id);
+      const modifiedFeatures = features.filter((f) => f._id !== _id);
 
       setFeatures(modifiedFeatures);
     }
   };
 
   const onChangeFeatureItem = (_id: string, key: string, value: any) => {
-    const feature = features.find(f => f._id === _id);
+    const feature = features.find((f) => f._id === _id);
 
     if (feature) {
       feature[key] = value;
@@ -61,7 +61,7 @@ export default function General(props: Props) {
   };
 
   const getContentValues = () => {
-    return kbTopics.map(c => ({ value: c._id, label: c.title }));
+    return kbTopics.map((c) => ({ value: c._id, label: c.title }));
   };
 
   const getCategoryValues = (contentId, categories, parentId) => {
@@ -73,11 +73,11 @@ export default function General(props: Props) {
       return generateTree(
         categories,
         parentId,
-        node => ({
+        (node) => ({
           value: node._id,
-          label: `${node.parentCategoryId ? '---' : ''} ${node.title}`
+          label: `${node.parentCategoryId ? "---" : ""} ${node.title}`,
         }),
-        'parentCategoryId'
+        "parentCategoryId"
       );
     }
   };
@@ -92,7 +92,7 @@ export default function General(props: Props) {
         <p>Team portal</p>
         <FeatureRow>
           <FeatureRowItem>
-            <ControlLabel>{__('Name your team portal')}</ControlLabel>
+            <ControlLabel>{__("Name your team portal")}</ControlLabel>
             <FormControl
               value={name}
               placeholder="Name"
@@ -100,7 +100,7 @@ export default function General(props: Props) {
             />
           </FeatureRowItem>
           <FeatureRowItem>
-            <ControlLabel>{__('Describe your team portal')}</ControlLabel>
+            <ControlLabel>{__("Describe your team portal")}</ControlLabel>
             <FormControl
               value={description}
               placeholder="Description"
@@ -111,7 +111,7 @@ export default function General(props: Props) {
       </TeamPortal>
       <FeatureLayout>
         <p>Features</p>
-        {features.map(feature => (
+        {features.map((feature) => (
           <FeatureRow key={feature._id}>
             <FeatureRowItem>
               <FormControl
@@ -119,7 +119,7 @@ export default function General(props: Props) {
                 placeholder="Name"
                 value={feature.name}
                 onChange={(e: any) =>
-                  onChangeFeatureItem(feature._id, 'name', e.target.value)
+                  onChangeFeatureItem(feature._id, "name", e.target.value)
                 }
               />
             </FeatureRowItem>
@@ -131,7 +131,7 @@ export default function General(props: Props) {
                 onChange={(e: any) =>
                   onChangeFeatureItem(
                     feature._id,
-                    'description',
+                    "description",
                     e.target.value
                   )
                 }
@@ -140,43 +140,48 @@ export default function General(props: Props) {
             <FeatureRowItem>
               <Select
                 placeholder={__(`Choose a knowledge base`)}
-                value={feature.contentId}
+                value={getContentValues().find(
+                  (o) => o.value === feature.contentId
+                )}
                 options={getContentValues()}
-                onChange={item => {
+                onChange={(item: any) => {
                   getKbCategories(item.value);
-
-                  onChangeFeatureItem(feature._id, 'contentId', item.value);
+                  onChangeFeatureItem(feature._id, "contentId", item.value);
                 }}
-                clearable={false}
+                isClearable={false}
               />
             </FeatureRowItem>
 
             <FeatureRowItem>
               <Select
-                placeholder={__('Choose a category')}
-                value={feature.subContentId}
+                placeholder={__("Choose a category")}
+                value={getCategoryValues(
+                  feature.contentId,
+                  kbCategories[feature.contentId],
+                  null
+                ).find((o) => o.value === feature.subContentId)}
                 options={getCategoryValues(
                   feature.contentId,
                   kbCategories[feature.contentId],
                   null
                 )}
-                style={{ width: 200 }}
-                onChange={item =>
-                  onChangeFeatureItem(feature._id, 'subContentId', item.value)
+                // style={{ width: 200 }}
+                onChange={(item) =>
+                  onChangeFeatureItem(feature._id, "subContentId", item.value)
                 }
-                clearable={false}
+                isClearable={false}
               />
             </FeatureRowItem>
 
             <Button
               btnStyle="danger"
-              onClick={() => onChangeFeature('remove', feature._id)}
+              onClick={() => onChangeFeature("remove", feature._id)}
             >
               X
             </Button>
           </FeatureRow>
         ))}
-        <Button onClick={() => onChangeFeature('add')}>+ Add Features</Button>
+        <Button onClick={() => onChangeFeature("add")}>+ Add Features</Button>
       </FeatureLayout>
       <Button btnStyle="success" onClick={onSave}>
         Save

@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-import Select, { Option } from 'react-select-plus';
+import CreatableSelect from "react-select/creatable";
 
-import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from '@erxes/ui/src/utils/index';
+import Icon from "@erxes/ui/src/components/Icon";
+import { __ } from "@erxes/ui/src/utils/index";
 
-import { ISection, SectionMutationVariables } from '../../types';
-import { CustomOption } from '../../styles';
+import { ISection, SectionMutationVariables } from "../../types";
+import { CustomOption } from "../../styles";
 
 type Props = {
-  type: 'dashboard' | 'goal' | 'report';
+  type: "dashboard" | "goal" | "report";
   sections: ISection[];
   sectionId: string;
   setSectionId(value: string): void;
@@ -19,10 +19,10 @@ type Props = {
 const SelectSections = (props: Props) => {
   const { type, sections, sectionId, setSectionId, addSection } = props;
 
-  const [input, setInput] = useState<string>('');
+  const [input, setInput] = useState<string>("");
 
   const handleClick = () => {
-    if (input === '' && input.length < 2) {
+    if (input === "" && input.length < 2) {
       return;
     }
 
@@ -46,13 +46,13 @@ const SelectSections = (props: Props) => {
   };
 
   return (
-    <Select
-      placeholder={__('Choose a section')}
-      value={sectionId}
+    <CreatableSelect
+      placeholder={__("Choose a section")}
+      value={generateOptions(sections).find((o) => o.value === sectionId)}
       onChange={(selectedOption) => setSectionId(selectedOption.value)}
       options={generateOptions(sections)}
-      clearable={false}
-      noResultsText={customOption}
+      isClearable={false}
+      // noResultsText={customOption}
       onInputChange={(value) => setInput(value)}
       required={true}
     />

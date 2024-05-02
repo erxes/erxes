@@ -1,30 +1,37 @@
-import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
-import { IBoard, IPipeline, IStage } from '@erxes/ui-cards/src/boards/types';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __, generateTree } from 'coreui/utils';
-import BoardNumberConfigs from './numberConfig/BoardNumberConfigs';
-import Button from '@erxes/ui/src/components/Button';
-import { COLORS } from '@erxes/ui/src/constants/colors';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { ExpandWrapper } from '@erxes/ui-settings/src/styles';
-import { Flex } from '@erxes/ui/src/styles/main';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IDepartment } from '@erxes/ui/src/team/types';
-import { IOption } from '../types';
-import Modal from 'react-bootstrap/Modal';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import React from 'react';
-import Select from 'react-select-plus';
-import { SelectMemberStyled } from '@erxes/ui-cards/src/settings/boards/styles';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import Stages from './Stages';
-import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
-import { ITag } from '@erxes/ui-tags/src/types';
-import TwitterPicker from 'react-color/lib/Twitter';
-import { colors } from '@erxes/ui/src/styles';
+import { ColorPick, ColorPicker } from "@erxes/ui/src/styles/main";
+import { Dialog, Transition } from "@headlessui/react";
+import {
+  DialogContent,
+  DialogWrapper,
+  ModalFooter,
+  ModalOverlay,
+} from "@erxes/ui/src/styles/main";
+import { FlexContent, FlexItem } from "@erxes/ui/src/layout/styles";
+import { IBoard, IPipeline, IStage } from "@erxes/ui-cards/src/boards/types";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import React, { Fragment } from "react";
+import { __, generateTree } from "coreui/utils";
+
+import BoardNumberConfigs from "./numberConfig/BoardNumberConfigs";
+import Button from "@erxes/ui/src/components/Button";
+import { COLORS } from "@erxes/ui/src/constants/colors";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { ExpandWrapper } from "@erxes/ui-settings/src/styles";
+import { Flex } from "@erxes/ui/src/styles/main";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IDepartment } from "@erxes/ui/src/team/types";
+import { IOption } from "../types";
+import { ITag } from "@erxes/ui-tags/src/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import Popover from "@erxes/ui/src/components/Popover";
+import Select from "react-select";
+import { SelectMemberStyled } from "@erxes/ui-cards/src/settings/boards/styles";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import Stages from "./Stages";
+import TwitterPicker from "react-color/lib/Twitter";
+import { colors } from "@erxes/ui/src/styles";
 
 type Props = {
   type: string;
@@ -66,7 +73,7 @@ class PipelineForm extends React.Component<Props, State> {
 
     this.state = {
       stages: (stages || []).map((stage) => ({ ...stage })),
-      visibility: pipeline ? pipeline.visibility || 'public' : 'public',
+      visibility: pipeline ? pipeline.visibility || "public" : "public",
       selectedMemberIds: pipeline ? pipeline.memberIds || [] : [],
       backgroundColor:
         (pipeline && pipeline.bgColor) || colors.colorPrimaryDark,
@@ -74,10 +81,10 @@ class PipelineForm extends React.Component<Props, State> {
       isCheckUser: pipeline ? pipeline.isCheckUser || false : false,
       isCheckDepartment: pipeline ? pipeline.isCheckDepartment || false : false,
       excludeCheckUserIds: pipeline ? pipeline.excludeCheckUserIds || [] : [],
-      boardId: props.boardId || '',
-      tagId: pipeline ? pipeline.tagId : '',
-      numberConfig: (pipeline && pipeline.numberConfig) || '',
-      numberSize: (pipeline && pipeline.numberSize) || '',
+      boardId: props.boardId || "",
+      tagId: pipeline ? pipeline.tagId : "",
+      numberConfig: (pipeline && pipeline.numberConfig) || "",
+      numberSize: (pipeline && pipeline.numberSize) || "",
       departmentIds: pipeline ? pipeline.departmentIds || [] : [],
     };
   }
@@ -169,8 +176,8 @@ class PipelineForm extends React.Component<Props, State> {
           onChange={(key: string, conf: string) =>
             this.onChangeNumber(key, conf)
           }
-          config={this.state.numberConfig || ''}
-          size={this.state.numberSize || ''}
+          config={this.state.numberConfig || ""}
+          size={this.state.numberSize || ""}
         />
       </FormGroup>
     );
@@ -179,14 +186,23 @@ class PipelineForm extends React.Component<Props, State> {
   renderSelectMembers() {
     const { visibility, selectedMemberIds, departmentIds } = this.state;
 
-    if (visibility === 'public') {
+    if (visibility === "public") {
       return;
     }
+
+    const departmentOptions = generateTree(
+      this.props.departments,
+      null,
+      (node, level) => ({
+        value: node._id,
+        label: `${"---".repeat(level)} ${node.title}`,
+      })
+    );
 
     return (
       <>
         <FormGroup>
-          <SelectMemberStyled zIndex={2003}>
+          <SelectMemberStyled>
             <ControlLabel>Members</ControlLabel>
 
             <SelectTeamMembers
@@ -198,21 +214,16 @@ class PipelineForm extends React.Component<Props, State> {
           </SelectMemberStyled>
         </FormGroup>
         <FormGroup>
-          <SelectMemberStyled zIndex={2002}>
+          <SelectMemberStyled>
             <ControlLabel>Departments</ControlLabel>
             <Select
-              value={departmentIds}
-              options={generateTree(
-                this.props.departments,
-                null,
-                (node, level) => ({
-                  value: node._id,
-                  label: `${'---'.repeat(level)} ${node.title}`,
-                }),
+              value={departmentOptions.filter((option) =>
+                this.state.departmentIds?.includes(option.value)
               )}
+              options={departmentOptions}
               onChange={this.onChangeDepartments.bind(this)}
-              placeholder={__('Choose department ...')}
-              multi={true}
+              placeholder={__("Choose department ...")}
+              isMulti={true}
             />
           </SelectMemberStyled>
         </FormGroup>
@@ -261,24 +272,28 @@ class PipelineForm extends React.Component<Props, State> {
   }
 
   renderBoards() {
-    const { boards } = this.props;
+    const { boards = [] } = this.props;
 
     const boardOptions = boards.map((board) => ({
       value: board._id,
       label: board.name,
     }));
 
-    const onChange = (item) => this.setState({ boardId: item.value });
+    const onChange = (item) => {
+      this.setState({ boardId: item.value });
+    };
 
     return (
       <FormGroup>
         <ControlLabel required={true}>Board</ControlLabel>
         <Select
-          placeholder={__('Choose a board')}
-          value={this.state.boardId}
+          placeholder={__("Choose a board")}
+          value={boardOptions.find(
+            (option) => option.value === this.state.boardId
+          )}
           options={boardOptions}
           onChange={onChange}
-          clearable={false}
+          isClearable={true}
         />
       </FormGroup>
     );
@@ -288,6 +303,10 @@ class PipelineForm extends React.Component<Props, State> {
     const { tags } = this.props;
 
     const filteredTags = tags && tags.filter((tag) => !tag.parentId);
+
+    const onChange = (item) => {
+      this.setState({ tagId: item.value });
+    };
 
     const generateOptions = (items) => {
       if (!items || items.length === 0) {
@@ -302,16 +321,16 @@ class PipelineForm extends React.Component<Props, State> {
       });
     };
 
-    const onChange = (item) => this.setState({ tagId: item.value });
-
     return (
       <FormGroup>
         <ControlLabel>Tags</ControlLabel>
         <Select
-          placeholder={__('Choose a tag')}
-          value={this.state.tagId}
+          placeholder={__("Choose a tag")}
+          value={(generateOptions(filteredTags) || []).find(
+            (option) => option.value === this.state.tagId
+          )}
           options={generateOptions(filteredTags)}
-          clearable={false}
+          isClearable={true}
           onChange={onChange}
         />
       </FormGroup>
@@ -326,193 +345,204 @@ class PipelineForm extends React.Component<Props, State> {
     const pipelineName =
       options && options.pipelineName
         ? options.pipelineName.toLowerCase()
-        : 'pipeline';
-
-    const popoverBottom = (
-      <Popover id="color-picker">
-        <TwitterPicker
-          width="266px"
-          triangle="hide"
-          color={this.state.backgroundColor}
-          onChange={this.onColorChange}
-          colors={COLORS}
-        />
-      </Popover>
-    );
+        : "pipeline";
 
     return (
       <div id="manage-pipeline-modal">
-        <Modal.Header closeButton={true}>
-          <Modal.Title>
-            {pipeline ? `Edit ${pipelineName}` : `Add ${pipelineName}`}
-          </Modal.Title>
-        </Modal.Header>
-
-        <Modal.Body>
-          <FlexContent>
-            <FlexItem count={4}>
-              <FormGroup>
-                <ControlLabel required={true}>Name</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="name"
-                  defaultValue={object.name}
-                  autoFocus={true}
-                  required={true}
-                />
-              </FormGroup>
-            </FlexItem>
-          </FlexContent>
-
-          {renderExtraFields && renderExtraFields(formProps)}
-
-          <Flex>
-            <ExpandWrapper>
-              <FormGroup>
-                <ControlLabel required={true}>Visibility</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="visibility"
-                  componentClass="select"
-                  value={this.state.visibility}
-                  onChange={this.onChangeVisibility}
-                >
-                  <option value="public">{__('Public')}</option>
-                  <option value="private">{__('Private')}</option>
-                </FormControl>
-              </FormGroup>
-            </ExpandWrapper>
+        <FlexContent>
+          <FlexItem count={4}>
             <FormGroup>
-              <ControlLabel>Background</ControlLabel>
-              <div>
-                <OverlayTrigger
-                  trigger="click"
-                  rootClose={true}
-                  placement="bottom"
-                  overlay={popoverBottom}
-                >
+              <ControlLabel required={true}>Name</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="name"
+                defaultValue={object.name}
+                autoFocus={true}
+                required={true}
+              />
+            </FormGroup>
+          </FlexItem>
+        </FlexContent>
+
+        {renderExtraFields && renderExtraFields(formProps)}
+
+        <Flex>
+          <ExpandWrapper>
+            <FormGroup>
+              <ControlLabel required={true}>Visibility</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="visibility"
+                componentclass="select"
+                value={this.state.visibility}
+                onChange={this.onChangeVisibility}
+              >
+                <option value="public">{__("Public")}</option>
+                <option value="private">{__("Private")}</option>
+              </FormControl>
+            </FormGroup>
+          </ExpandWrapper>
+          <FormGroup>
+            <ControlLabel>Background</ControlLabel>
+            <div>
+              <Popover
+                placement="bottom-end"
+                trigger={
                   <ColorPick>
                     <ColorPicker
                       style={{ backgroundColor: this.state.backgroundColor }}
                     />
                   </ColorPick>
-                </OverlayTrigger>
-              </div>
-            </FormGroup>
-          </Flex>
-
-          {this.renderBoards()}
-
-          {this.renderTags()}
-
-          {this.renderSelectMembers()}
-
-          {this.renderNumberInput()}
-
-          <FormGroup>
-            <FlexContent>
-              <FlexItem>
-                <ControlLabel>
-                  {__(`Select the day after the card created date`)}
-                </ControlLabel>
-                <span style={{ marginLeft: '10px' }}>
-                  <FormControl
-                    componentClass="checkbox"
-                    checked={this.state.isCheckDate}
-                    onChange={this.onChangeIsCheckDate}
-                  />
-                </span>
-              </FlexItem>
-            </FlexContent>
-          </FormGroup>
-
-          <FormGroup>
-            <FlexContent>
-              <FlexItem>
-                <ControlLabel>
-                  {__(`Show only the user's assigned(created)`)}{' '}
-                  {this.props.type}
-                </ControlLabel>
-                <span style={{ marginLeft: '10px' }}>
-                  <FormControl
-                    componentClass="checkbox"
-                    checked={this.state.isCheckUser}
-                    onChange={this.onChangeIsCheckUser}
-                  />
-                </span>
-              </FlexItem>
-              <FlexItem>
-                <ControlLabel>
-                  {__(`Show only user’s assigned (created)`)} {this.props.type}{' '}
-                  {__(`by department`)}
-                </ControlLabel>
-                <span style={{ marginLeft: '10px' }}>
-                  <FormControl
-                    componentClass="checkbox"
-                    checked={this.state.isCheckDepartment}
-                    onChange={this.onChangeIsCheckDepartment}
-                  />
-                </span>
-              </FlexItem>
-            </FlexContent>
-          </FormGroup>
-
-          {this.renderDominantUsers()}
-
-          <FormGroup>
-            <ControlLabel>Stages</ControlLabel>
-            <div id="stages-in-pipeline-form">
-              <Stages
-                options={options}
-                type={this.props.type}
-                stages={this.state.stages}
-                onChangeStages={this.onChangeStages}
-                departments={this.props.departments}
-              />
+                }
+              >
+                <TwitterPicker
+                  width="266px"
+                  triangle="hide"
+                  color={this.state.backgroundColor}
+                  onChange={this.onColorChange}
+                  colors={COLORS}
+                />
+              </Popover>
             </div>
           </FormGroup>
+        </Flex>
 
-          <Modal.Footer>
-            <Button
-              btnStyle="simple"
-              type="button"
-              icon="times-circle"
-              onClick={closeModal}
-            >
-              Cancel
-            </Button>
+        {this.renderBoards()}
 
-            {renderButton({
-              name: pipelineName,
-              values: this.generateDoc(values),
-              isSubmitted,
-              callback: closeModal,
-              object: pipeline,
-              confirmationUpdate: true,
-            })}
-          </Modal.Footer>
-        </Modal.Body>
+        {this.renderTags()}
+
+        {this.renderSelectMembers()}
+
+        {this.renderNumberInput()}
+
+        <FormGroup>
+          <FlexContent>
+            <FlexItem>
+              <ControlLabel>
+                {__(`Select the day after the card created date`)}
+              </ControlLabel>
+              <span style={{ marginLeft: "10px" }}>
+                <FormControl
+                  componentclass="checkbox"
+                  checked={this.state.isCheckDate}
+                  onChange={this.onChangeIsCheckDate}
+                />
+              </span>
+            </FlexItem>
+          </FlexContent>
+        </FormGroup>
+
+        <FormGroup>
+          <FlexContent>
+            <FlexItem>
+              <ControlLabel>
+                {__(`Show only the user's assigned(created)`)} {this.props.type}
+              </ControlLabel>
+              <span style={{ marginLeft: "10px" }}>
+                <FormControl
+                  componentclass="checkbox"
+                  checked={this.state.isCheckUser}
+                  onChange={this.onChangeIsCheckUser}
+                />
+              </span>
+            </FlexItem>
+            <FlexItem>
+              <ControlLabel>
+                {__(`Show only user’s assigned (created)`)} {this.props.type}{" "}
+                {__(`by department`)}
+              </ControlLabel>
+              <span style={{ marginLeft: "10px" }}>
+                <FormControl
+                  componentclass="checkbox"
+                  checked={this.state.isCheckDepartment}
+                  onChange={this.onChangeIsCheckDepartment}
+                />
+              </span>
+            </FlexItem>
+          </FlexContent>
+        </FormGroup>
+
+        {this.renderDominantUsers()}
+
+        <FormGroup>
+          <ControlLabel>Stages</ControlLabel>
+          <div id="stages-in-pipeline-form">
+            <Stages
+              options={options}
+              type={this.props.type}
+              stages={this.state.stages}
+              onChangeStages={this.onChangeStages}
+              departments={this.props.departments}
+            />
+          </div>
+        </FormGroup>
+
+        <ModalFooter>
+          <Button
+            btnStyle="simple"
+            type="button"
+            icon="times-circle"
+            onClick={closeModal}
+          >
+            Cancel
+          </Button>
+
+          {renderButton({
+            name: pipelineName,
+            values: this.generateDoc(values),
+            isSubmitted,
+            callback: closeModal,
+            object: pipeline,
+            confirmationUpdate: true,
+          })}
+        </ModalFooter>
       </div>
     );
   };
 
   render() {
-    const { show, closeModal } = this.props;
+    const { show, closeModal, pipeline, options } = this.props;
 
     if (!show) {
       return null;
     }
 
+    const pipelineName =
+      options && options.pipelineName
+        ? options.pipelineName.toLowerCase()
+        : "pipeline";
+
     return (
-      <Modal
-        show={show}
-        onHide={closeModal}
-        enforceFocus={false}
-        animation={false}
-        size="xl"
-      >
-        <Form renderContent={this.renderContent} />
-      </Modal>
+      <Transition appear show={show} as={Fragment}>
+        <Dialog as="div" onClose={closeModal} className={` relative z-10`}>
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <ModalOverlay />
+          </Transition.Child>
+          <DialogWrapper>
+            <DialogContent>
+              <Dialog.Panel className={`dialog-size-xl`}>
+                <Dialog.Title as="h3">
+                  {pipeline ? `Edit ${pipelineName}` : `Add ${pipelineName}`}
+                  <Icon icon="times" size={24} onClick={closeModal} />
+                </Dialog.Title>
+                <Transition.Child>
+                  <div className="dialog-description">
+                    <Form renderContent={this.renderContent} />
+                  </div>
+                </Transition.Child>
+              </Dialog.Panel>
+            </DialogContent>
+          </DialogWrapper>
+        </Dialog>
+      </Transition>
     );
   }
 }

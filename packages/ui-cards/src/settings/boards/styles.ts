@@ -5,7 +5,7 @@ import { SidebarListItem } from '@erxes/ui-settings/src/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const BoardItem = styledTS<{ isActive: boolean }>(styled(SidebarListItem))`
+const BoardItem = styledTS<{ $isActive: boolean }>(styled(SidebarListItem))`
   overflow: hidden;
   
   > button {
@@ -78,7 +78,6 @@ const StageItemContainer = styled.div`
 
 const SelectMemberStyled = styledTS<{ zIndex?: number }>(styled.div)`
   position: relative;
-  z-index: ${props => (props.zIndex ? props.zIndex : '2001')};
 `;
 
 const PipelineCount = styled.div`
@@ -143,5 +142,5 @@ export {
   PipelineCount,
   Attributes,
   BoardHeader,
-  HeaderContent
+  HeaderContent,
 };

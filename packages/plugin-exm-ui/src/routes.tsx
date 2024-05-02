@@ -1,13 +1,15 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import React from "react";
+import { Route, Routes } from "react-router-dom";
 
-const Home = asyncComponent(() =>
-  import(/* webpackChunkName: "Plugin exm" */ './containers/Home')
+const Home = asyncComponent(
+  () => import(/* webpackChunkName: "Plugin exm" */ "./containers/Home")
 );
 
 const ExmRoutes = () => (
-  <Route path="/erxes-plugin-exm/home" component={Home} />
+  <Routes>
+    <Route path="/erxes-plugin-exm/home" element={<Home />} />
+  </Routes>
 );
 
 export default ExmRoutes;

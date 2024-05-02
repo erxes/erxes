@@ -1,23 +1,21 @@
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Table from '@erxes/ui/src/components/table';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
-import React, { useRef, useState } from 'react';
-import Modal from 'react-bootstrap/Modal';
-import InvoiceDetail from '../../containers/invoice/Detail';
-import { withRouter } from 'react-router-dom';
+import { Alert, __, confirm, router } from "@erxes/ui/src/utils";
+import { IInvoice, InvoicesCount } from "../../types";
+import React, { useState } from "react";
 
-import { IInvoice, InvoicesCount } from '../../types';
-import Row from './Row';
-import Sidebar from './SideBar';
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import Button from "@erxes/ui/src/components/Button";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import InvoiceDetail from "../../containers/invoice/Detail";
+import Dialog from "@erxes/ui/src/components/Dialog";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import Row from "./Row";
+import Sidebar from "./SideBar";
+import Table from "@erxes/ui/src/components/table";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { useLocation, useNavigate } from "react-router-dom";
 
-interface IProps extends IRouterProps {
-  history: any;
+interface IProps {
   queryParams: any;
   invoices: IInvoice[];
   isAllSelected: boolean;
@@ -36,24 +34,19 @@ const List = (props: IProps) => {
   const [searchValue, setSearchValue] = useState(props.searchValue);
   const [showModal, setShowModal] = useState(false);
   const [currentInvoiceId, setCurrentInvoiceId] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const {
-    invoices,
-    history,
-    toggleBulk,
-    toggleAll,
-    bulk,
-    isAllSelected,
-    counts
-  } = props;
+  const { invoices, toggleBulk, toggleAll, bulk, isAllSelected, counts } =
+    props;
 
   React.useEffect(() => {
     let timeoutId: any = null;
 
     if (searchValue !== props.searchValue) {
       timeoutId = setTimeout(() => {
-        router.removeParams(history, 'page');
-        router.setParams(history, { searchValue });
+        router.removeParams(navigate, location, "page");
+        router.setParams(navigate, location, { searchValue });
       }, 500);
 
       return () => {
@@ -63,16 +56,15 @@ const List = (props: IProps) => {
   }, [searchValue]);
 
   const renderRow = () => {
-    const onClickRow = invoiceId => {
+    const onClickRow = (invoiceId) => {
       setCurrentInvoiceId(invoiceId);
 
       setShowModal(!showModal);
     };
 
-    return invoices.map(invoice => (
+    return invoices.map((invoice) => (
       <Row
         onClick={onClickRow}
-        history={history}
         key={invoice._id}
         invoice={invoice}
         toggleBulk={toggleBulk}
@@ -83,23 +75,23 @@ const List = (props: IProps) => {
   };
 
   const onChange = () => {
-    toggleAll(invoices, 'invoices');
+    toggleAll(invoices, "invoices");
   };
-  const removeInvoices = ids => {
+  const removeInvoices = (ids) => {
     const invoiceIds: string[] = [];
-    ids.forEach(i => {
+    ids.forEach((i) => {
       invoiceIds.push(i._id);
     });
     props.remove(invoiceIds, props.emptyBulk);
   };
 
-  const search = e => {
-    setSearchValue(e.target.value || '');
+  const search = (e) => {
+    setSearchValue(e.target.value || "");
   };
 
-  const moveCursorAtTheEnd = e => {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
@@ -107,7 +99,7 @@ const List = (props: IProps) => {
     <BarItems>
       <FormControl
         type="text"
-        placeholder={__('Type to search')}
+        placeholder={__("Type to search")}
         onChange={search}
         value={searchValue}
         autoFocus={true}
@@ -117,55 +109,55 @@ const List = (props: IProps) => {
   );
   const content = (
     <>
-      <Table hover={true}>
+      <Table $hover={true}>
         <thead>
           <tr>
             <th
               style={{
-                width: 60
+                width: 60,
               }}
             >
               <FormControl
                 checked={isAllSelected}
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onChange={onChange}
               />
             </th>
-            <th>{__('Payment name')}</th>
-            <th>{__('Kind')}</th>
-            <th>{__('Amount')}</th>
-            <th>{__('Status')}</th>
-            <th>{__('Customer')}</th>
-            <th>{__('Customer Type')}</th>
-            <th>{__('Description')}</th>
-            <th>{__('Created date')}</th>
-            <th>{__('Resolved date')}</th>
-            <th>{__('Actions')}</th>
+            <th>{__("Payment name")}</th>
+            <th>{__("Kind")}</th>
+            <th>{__("Amount")}</th>
+            <th>{__("Status")}</th>
+            <th>{__("Customer")}</th>
+            <th>{__("Customer Type")}</th>
+            <th>{__("Description")}</th>
+            <th>{__("Created date")}</th>
+            <th>{__("Resolved date")}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody>{renderRow()}</tbody>
       </Table>
 
-      <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
-        <Modal.Header closeButton={true}>
-          <Modal.Title>{__('Invoice detail')}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <InvoiceDetail id={currentInvoiceId || ''} />
-        </Modal.Body>
-      </Modal>
+      <Dialog
+        show={showModal}
+        closeModal={() => setShowModal(false)}
+        size="lg"
+        title={__("Invoice detail")}
+      >
+        <InvoiceDetail id={currentInvoiceId || ""} />
+      </Dialog>
     </>
   );
 
   if (bulk.length > 0) {
     const onClick = () =>
       confirm(
-        __('Invoices that are already paid will not be deleted. Are you sure?')
+        __("Invoices that are already paid will not be deleted. Are you sure?")
       )
         .then(() => {
           removeInvoices(bulk);
         })
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
 
@@ -187,11 +179,11 @@ const List = (props: IProps) => {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Invoices')}
+          title={__("Invoices")}
           breadcrumb={[
             {
-              title: __('Invoices')
-            }
+              title: __("Invoices"),
+            },
           ]}
           queryParams={props.queryParams}
         />
@@ -214,4 +206,4 @@ const List = (props: IProps) => {
   );
 };
 
-export default withRouter(List);
+export default List;

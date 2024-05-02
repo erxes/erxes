@@ -51,6 +51,15 @@ const getBrandList = `
   }
 `;
 
+const getSegmentList = `
+query segments($contentTypes: [String]!) {
+  segments(contentTypes: $contentTypes) {
+    _id 
+    name
+  }
+}
+`;
+
 const knowledgeBaseCategories = `
   query objects($page: Int, $perPage: Int, $topicIds: [String]) {
     knowledgeBaseCategories(page: $page, perPage: $perPage, topicIds: $topicIds ) {
@@ -163,6 +172,7 @@ const knowledgeBaseArticlesTotalCount = `
 
 export default {
   getBrandList,
+  getSegmentList,
   categoriesGetLast,
   knowledgeBaseTopics,
   knowledgeBaseTopicsTotalCount,

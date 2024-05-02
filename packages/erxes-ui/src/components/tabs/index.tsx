@@ -1,12 +1,17 @@
-import React from 'react';
-import { TabCaption, TabContainer } from './styles';
+import { TabCaption, TabContainer } from "./styles";
+
+import React from "react";
 
 function Tabs(props: {
   children: React.ReactNode;
   grayBorder?: boolean;
   full?: boolean;
 }) {
-  return <TabContainer {...props} />;
+  return (
+    <TabContainer $grayBorder={props.grayBorder} $full={props.full}>
+      {props.children}
+    </TabContainer>
+  );
 }
 
 type TabTitleProps = {

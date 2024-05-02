@@ -1,78 +1,59 @@
 import React from 'react';
-import { EmptyState, Spinner, withProps } from '@erxes/ui/src';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import * as compose from 'lodash.flowright';
-import { QueryResponse } from '@erxes/ui/src/types';
+
+import { gql, useQuery } from '@apollo/client';
+
+import { EmptyState, Spinner } from '@erxes/ui/src';
+
 import { queries } from '../graphql';
 import EmailTemplatesComponent from '../components/SelectEmailTemplate';
+import {
+  EmailTemplatesQueryResponse,
+  EmailTemplatesTotalCountQueryResponse,
+} from '../types';
+
 type Props = {
   searchValue: string;
   handleSelect: (id: string) => void;
   selectedTemplateId?: string;
 };
 
-type FinalProps = {
-  emailTemplatesQuery: { emailTemplates: any[] } & QueryResponse;
-  totalCountQuery: { emailTemplatesTotalCount: number } & QueryResponse;
-} & Props;
+const SelectEmailTemplate = (props: Props) => {
+  const { searchValue, handleSelect, selectedTemplateId } = props;
 
-class EmailTemplates extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
+  const emailTemplatesQuery = useQuery<EmailTemplatesQueryResponse>(
+    gql(queries.emailTemplates),
+    {
+      variables: { searchValue },
+    },
+  );
+
+  const totalCountQuery = useQuery<EmailTemplatesTotalCountQueryResponse>(
+    gql(queries.totalCount),
+    {
+      variables: { searchValue },
+    },
+  );
+
+  const loading = emailTemplatesQuery.loading || totalCountQuery.loading;
+
+  if (loading) {
+    return <Spinner />;
   }
 
-  render() {
-    const {
-      emailTemplatesQuery,
-      totalCountQuery,
-      handleSelect,
-      selectedTemplateId
-    } = this.props;
-
-    const { emailTemplates, loading } = emailTemplatesQuery;
-    const { emailTemplatesTotalCount } = totalCountQuery;
-
-    if (loading) {
-      return <Spinner />;
-    }
-
-    if (!emailTemplatesTotalCount) {
-      return (
-        <EmptyState
-          size="small"
-          text="Not Found"
-          image="/images/actions/5.svg"
-        />
-      );
-    }
-
-    const updatedProps = {
-      templates: emailTemplates || [],
-      totalCount: emailTemplatesTotalCount || 0,
-      handleSelect,
-      selectedTemplateId
-    };
-
-    return <EmailTemplatesComponent {...updatedProps} />;
+  if (!loading && !totalCountQuery?.data?.emailTemplatesTotalCount) {
+    return (
+      <EmptyState size="small" text="Not Found" image="/images/actions/5.svg" />
+    );
   }
-}
 
-export default withProps<Props>(
-  compose(
-    graphql<Props>(gql(queries.emailTemplates), {
-      name: 'emailTemplatesQuery',
-      options: ({ searchValue }) => ({
-        variables: { searchValue },
-        fetchPolicy: 'network-only'
-      })
-    }),
-    graphql<Props>(gql(queries.totalCount), {
-      name: 'totalCountQuery',
-      options: ({ searchValue }) => ({
-        variables: { searchValue },
-        fetchPolicy: 'network-only'
-      })
-    })
-  )(EmailTemplates)
-);
+  const updatedProps = {
+    templates: emailTemplatesQuery?.data?.emailTemplates || [],
+    totalCount: totalCountQuery?.data?.emailTemplatesTotalCount || 0,
+    handleSelect,
+    selectedTemplateId,
+  };
+
+  return <EmailTemplatesComponent {...updatedProps} />;
+};
+
+export default SelectEmailTemplate;

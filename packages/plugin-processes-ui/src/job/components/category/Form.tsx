@@ -1,25 +1,25 @@
-import React from 'react';
+import React from "react";
 
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import CommonForm from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Uploader from '@erxes/ui/src/components/Uploader';
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import CommonForm from "@erxes/ui/src/components/form/Form";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Uploader from "@erxes/ui/src/components/Uploader";
 import {
   FormColumn,
   FormWrapper,
-  ModalFooter
-} from '@erxes/ui/src/styles/main';
+  ModalFooter,
+} from "@erxes/ui/src/styles/main";
 import {
   IAttachment,
   IButtonMutateProps,
-  IFormProps
-} from '@erxes/ui/src/types';
-import { extractAttachment } from '@erxes/ui/src/utils';
-import { IJobCategory } from '../../types';
-import { ICategory } from '@erxes/ui/src/utils/categories';
-import { PRODUCT_CATEGORY_STATUSES } from '@erxes/ui-products/src/constants';
+  IFormProps,
+} from "@erxes/ui/src/types";
+import { extractAttachment } from "@erxes/ui/src/utils";
+import { IJobCategory } from "../../types";
+import { ICategory } from "@erxes/ui/src/utils/categories";
+import { PRODUCT_CATEGORY_STATUSES } from "@erxes/ui-products/src/constants";
 
 type Props = {
   categories: IJobCategory[];
@@ -40,7 +40,7 @@ class CategoryForm extends React.Component<Props, State> {
     const attachment = category.attachment ? category.attachment : undefined;
 
     this.state = {
-      attachment
+      attachment,
     };
   }
 
@@ -57,7 +57,7 @@ class CategoryForm extends React.Component<Props, State> {
 
     return {
       ...finalValues,
-      attachment
+      attachment,
     };
   };
 
@@ -101,7 +101,7 @@ class CategoryForm extends React.Component<Props, State> {
           <FormControl
             {...formProps}
             name="description"
-            componentClass="textarea"
+            componentclass="textarea"
             rows={5}
             defaultValue={object.description}
           />
@@ -115,7 +115,7 @@ class CategoryForm extends React.Component<Props, State> {
               <FormControl
                 {...formProps}
                 name="status"
-                componentClass="select"
+                componentclass="select"
                 defaultValue={object.status}
                 options={PRODUCT_CATEGORY_STATUSES}
               />
@@ -141,11 +141,11 @@ class CategoryForm extends React.Component<Props, State> {
           <FormControl
             {...formProps}
             name="parentId"
-            componentClass="select"
+            componentclass="select"
             defaultValue={object.parentId}
           >
             <option value="" />
-            {categories.map(categoryMap => (
+            {categories.map((categoryMap) => (
               <option key={categoryMap._id} value={categoryMap._id}>
                 {categoryMap.name}
               </option>
@@ -164,11 +164,11 @@ class CategoryForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'job & category',
+            name: "job & category",
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: category
+            object: category,
           })}
         </ModalFooter>
       </>

@@ -1,16 +1,15 @@
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { roundToTwo } from '@erxes/ui/src/utils';
-import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import { Flex } from '@erxes/ui/src/styles/main';
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { roundToTwo } from "@erxes/ui/src/utils";
+import React from "react";
+import Popover from "@erxes/ui/src/components/Popover";
+import { Flex } from "@erxes/ui/src/styles/main";
 import {
   AmountItem,
   Amounts,
   CalculatedAmount,
   ScoreWrapper,
-  Text
-} from '../styles';
+  Text,
+} from "../styles";
 
 type Props = {
   impact: number;
@@ -26,7 +25,7 @@ function Amount({
   r,
   i,
   c,
-  e
+  e,
 }: {
   type?: string;
   r: number;
@@ -35,7 +34,7 @@ function Amount({
   e: number;
 }) {
   const calculateScore = () => {
-    if (type === 'rice') {
+    if (type === "rice") {
       if (e === 0) {
         return 0;
       }
@@ -43,7 +42,7 @@ function Amount({
       return roundToTwo((r * i * c) / e);
     }
 
-    if (type === 'ice') {
+    if (type === "ice") {
       return i * c * e;
     }
 
@@ -76,44 +75,36 @@ class Score extends React.Component<Props> {
   renderInputs = () => {
     const { reach, impact, confidence, ease, scoringType } = this.props;
 
-    if (scoringType === 'rice') {
+    if (scoringType === "rice") {
       return (
         <Flex>
-          {this.renderInput('Reach', 'reach', reach)}
-          {this.renderInput('Impact', 'impact', impact)}
-          {this.renderInput('Confidence', 'confidence', confidence)}
-          {this.renderInput('Effort', 'ease', ease)}
+          {this.renderInput("Reach", "reach", reach)}
+          {this.renderInput("Impact", "impact", impact)}
+          {this.renderInput("Confidence", "confidence", confidence)}
+          {this.renderInput("Effort", "ease", ease)}
         </Flex>
       );
     }
 
-    if (scoringType === 'ice') {
+    if (scoringType === "ice") {
       return (
         <Flex>
-          {this.renderInput('Impact', 'impact', impact)}
-          {this.renderInput('Confidence', 'confidence', confidence)}
-          {this.renderInput('Ease', 'ease', ease)}
+          {this.renderInput("Impact", "impact", impact)}
+          {this.renderInput("Confidence", "confidence", confidence)}
+          {this.renderInput("Ease", "ease", ease)}
         </Flex>
       );
     }
 
     return (
       <Flex>
-        {this.renderInput('Potential', 'impact', impact)}
-        {this.renderInput('Importance', 'confidence', confidence)}
-        {this.renderInput('Ease', 'ease', ease)}
+        {this.renderInput("Potential", "impact", impact)}
+        {this.renderInput("Importance", "confidence", confidence)}
+        {this.renderInput("Ease", "ease", ease)}
         <AmountItem>
           <Text>3</Text>
         </AmountItem>
       </Flex>
-    );
-  };
-
-  renderPopover = () => {
-    return (
-      <Popover id="score-popover">
-        <Amounts>{this.renderInputs()}</Amounts>
-      </Popover>
     );
   };
 
@@ -122,22 +113,22 @@ class Score extends React.Component<Props> {
 
     return (
       <ScoreWrapper>
-        <OverlayTrigger
-          trigger="click"
+        <Popover
+          trigger={
+            <CalculatedAmount>
+              <Amount
+                type={scoringType}
+                r={reach}
+                i={impact}
+                c={confidence}
+                e={ease}
+              />
+            </CalculatedAmount>
+          }
           placement="bottom-end"
-          rootClose={true}
-          overlay={this.renderPopover()}
         >
-          <CalculatedAmount>
-            <Amount
-              type={scoringType}
-              r={reach}
-              i={impact}
-              c={confidence}
-              e={ease}
-            />
-          </CalculatedAmount>
-        </OverlayTrigger>
+          <Amounts>{this.renderInputs()}</Amounts>
+        </Popover>
       </ScoreWrapper>
     );
   }

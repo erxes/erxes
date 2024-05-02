@@ -1,51 +1,47 @@
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { router, withProps } from 'modules/common/utils';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import Sidebar from '../components/SideBar';
-import { queries } from '../graphql';
+import { gql, useQuery } from "@apollo/client";
+
+import React from "react";
+import Sidebar from "../components/SideBar";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { queries } from "../graphql";
+import { router } from "modules/common/utils";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   currentType: string;
-  history: any;
+  location: any;
   mainType: string;
 };
 
-type State = {};
+const SideBarContainer: React.FC<Props> = ({
+  currentType,
+  location,
+  mainType,
+}) => {
+  const navigate = useNavigate();
 
-type FinalProps = {
-  historyGetTypes: any;
-} & Props;
+  const { loading, data } = useQuery(gql(queries.historyGetTypes), {
+    variables: {
+      type: mainType,
+    },
+  });
 
-class SideBarContainer extends React.Component<FinalProps, State> {
-  render() {
-    const { historyGetTypes, currentType, history } = this.props;
-
-    if (historyGetTypes.loading) {
-      return <Spinner />;
-    }
-
-    const services = historyGetTypes.historyGetTypes || [];
-
-    if (!router.getParam(history, 'type') && services.length !== 0) {
-      router.setParams(history, { type: services[0].contentType }, true);
-    }
-
-    return <Sidebar currentType={currentType} services={services} />;
+  if (loading) {
+    return <Spinner />;
   }
-}
 
-export default withProps<Props>(
-  compose(
-    graphql<Props>(gql(queries.historyGetTypes), {
-      name: 'historyGetTypes',
-      options: props => ({
-        variables: {
-          type: props.mainType
-        }
-      })
-    })
-  )(SideBarContainer)
-);
+  const services = data?.historyGetTypes || [];
+
+  if (!router.getParam(location, "type") && services.length !== 0) {
+    router.setParams(
+      navigate,
+      location,
+      { type: services[0].contentType },
+      true
+    );
+  }
+
+  return <Sidebar currentType={currentType} services={services} />;
+};
+
+export default SideBarContainer;

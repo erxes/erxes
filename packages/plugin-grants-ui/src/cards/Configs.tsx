@@ -4,7 +4,7 @@ import {
   BarItems,
   CollapseContent,
   Icon,
-  __
+  __,
 } from '@erxes/ui/src';
 import { Card } from './styles';
 import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
@@ -18,97 +18,89 @@ type Props = {
   handleSelect: (value: any, name: string) => void;
 };
 
-class Config extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-  }
+const Config: React.FC<Props> = (props: Props) => {
+  const { action, params, config, handleSelect } = props;
 
-  renderActionComponent() {
-    const { action, params, config, handleSelect } = this.props;
-
+  const renderActionComponent = () => {
     if (!config.type) {
-      return;
+      return null;
     }
 
     const updatedProps = {
       action: action,
       initialProps: {
-        ...params
+        ...params,
       },
       source: {
-        ...config
+        ...config,
       },
-      onChange: params => handleSelect(params, 'params')
+      onChange: (params) => handleSelect(params, 'params'),
     };
 
     return (
       <CollapseContent title="Action Configuration">
-        <CardActionComponent {...updatedProps} />;
+        <CardActionComponent {...updatedProps} />
       </CollapseContent>
     );
+  };
+
+  if (!action) {
+    return null;
   }
 
-  render() {
-    const { action, config, handleSelect } = this.props;
+  const options = [
+    { value: 'deal', label: 'Deal', icon: 'piggy-bank' },
+    { value: 'task', label: 'Task', icon: 'file-check-alt' },
+    { value: 'ticket', label: 'Ticket', icon: 'ticket' },
+  ];
 
-    if (!action) {
-      return;
-    }
+  const onChangeBoard = (value, name) => {
+    handleSelect({ ...config, [name]: value }, 'config');
+  };
 
-    const options = [
-      { value: 'deal', label: 'Deal', icon: 'piggy-bank' },
-      { value: 'task', label: 'Task', icon: 'file-check-alt' },
-      { value: 'ticket', label: 'Ticket', icon: 'ticket' }
-    ];
+  let selectCardType = (
+    <>
+      <ControlLabel required>{__('Card Type')}</ControlLabel>
+      <BarItems>
+        {options.map((option) => {
+          return (
+            <Card
+              key={option.value}
+              className={config['type'] === option.value ? 'active' : ''}
+              onClick={() =>
+                handleSelect({ ...config, type: option.value }, 'config')
+              }
+            >
+              <Icon icon={option.icon} />
+              <ControlLabel>{option.label}</ControlLabel>
+            </Card>
+          );
+        })}
+      </BarItems>
+    </>
+  );
 
-    const onChangeBoard = (value, name) => {
-      handleSelect({ ...config, [name]: value }, 'config');
-    };
+  let boardSelect = !!config['type'] && (
+    <BoardSelect
+      type={config['type']}
+      boardId={config?.boardId}
+      pipelineId={config?.pipelineId}
+      stageId={config?.stageId}
+      onChangeBoard={(e) => onChangeBoard(e, 'boardId')}
+      onChangePipeline={(e) => onChangeBoard(e, 'pipelineId')}
+      onChangeStage={(e) => onChangeBoard(e, 'stageId')}
+    />
+  );
 
-    let selectCardType = (
-      <>
-        <ControlLabel required>{__('Card Type')}</ControlLabel>
-        <BarItems>
-          {options.map(option => {
-            return (
-              <Card
-                key={option.value}
-                className={config['type'] === option.value ? 'active' : ''}
-                onClick={() =>
-                  handleSelect({ ...config, type: option.value }, 'config')
-                }
-              >
-                <Icon icon={option.icon} />
-                <ControlLabel>{option.label}</ControlLabel>
-              </Card>
-            );
-          })}
-        </BarItems>
-      </>
-    );
-
-    let boardSelect = !!config['type'] && (
-      <BoardSelect
-        type={config['type']}
-        boardId={config?.boardId}
-        pipelineId={config?.pipelineId}
-        stageId={config?.stageId}
-        onChangeBoard={e => onChangeBoard(e, 'boardId')}
-        onChangePipeline={e => onChangeBoard(e, 'pipelineId')}
-        onChangeStage={e => onChangeBoard(e, 'stageId')}
-      />
-    );
-
-    return (
-      <>
-        <CollapseContent title="Main Configuration">
-          {selectCardType}
-          {boardSelect}
-        </CollapseContent>
-        {this.renderActionComponent()}
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <CollapseContent title="Main Configuration">
+        {selectCardType}
+        {boardSelect}
+      </CollapseContent>
+      {renderActionComponent()}
+    </>
+  );
+};
 
 export default Config;

@@ -9,6 +9,7 @@ const commonFields = `
   $projectId: String
   $price: Float
   $duration: Float
+  $profit: Float
 `;
 
 const commonVariables = `
@@ -20,6 +21,7 @@ const commonVariables = `
   projectId: $projectId 
   price: $price 
   duration: $duration
+  profit: $profit
 `;
 
 const packagesAdd = `

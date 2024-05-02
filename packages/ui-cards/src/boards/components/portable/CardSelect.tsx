@@ -1,6 +1,6 @@
-import React from 'react';
-import Select from 'react-select-plus';
-import styled from 'styled-components';
+import React from "react";
+import Select from "react-select";
+import styled from "styled-components";
 
 const Wrapper = styled.div`
   display: flex;
@@ -28,30 +28,33 @@ type Props = {
 
 type State = {
   searchValue: string;
-  selectedValue?: { label: string; value: string };
+  selectedValue?: { label: string; value: string } | null;
 };
 
 class CardSelect extends React.Component<Props, State> {
+  private ref;
+
   constructor(props) {
     super(props);
 
     this.state = {
-      searchValue: ''
+      searchValue: "",
+      selectedValue: null,
     };
   }
 
-  handleChange = option => {
+  handleChange = (option) => {
     const { onChange } = this.props;
 
     if (option) {
       onChange({
         cardId: option.value,
-        name: option.label
+        name: option.label,
       });
 
       this.setState({
-        searchValue: option.value === 'copiedItem' ? option.label : '',
-        selectedValue: option
+        searchValue: option.value === "copiedItem" ? option.label : "",
+        selectedValue: option,
       });
     }
   };
@@ -60,10 +63,20 @@ class CardSelect extends React.Component<Props, State> {
     this.setState({ searchValue });
   };
 
-  handleKeyDown = event => {
+  handleKeyDown = (e) => {
     // enter key
-    if (event.keyCode === 13) {
+    if (e.keyCode === 13) {
       this.handleAdd();
+    }
+
+    if (e.keyCode === 32 && this.ref.state.prevProps.inputValue !== "") {
+      e.preventDefault();
+
+      // this.handleInput(this.ref.state.prevProps.inputValue + " ");
+      this.ref.onInputChange(
+        this.ref.state.prevProps.inputValue + " ",
+        "set-value"
+      );
     }
   };
 
@@ -72,12 +85,16 @@ class CardSelect extends React.Component<Props, State> {
 
     const { selectedValue } = this.state;
 
-    if (selectedValue && selectedValue.value !== 'copiedItem') {
+    if (selectedValue && selectedValue.value !== "copiedItem") {
       return;
     }
 
+    this.setState({
+      selectedValue: { value: "copiedItem", label: this.state.searchValue },
+    });
+
     onChange({
-      name: this.state.searchValue
+      name: this.state.searchValue,
     });
   };
 
@@ -86,23 +103,27 @@ class CardSelect extends React.Component<Props, State> {
     const { selectedValue } = this.state;
 
     if (additionalValue) {
-      options.push({ value: 'copiedItem', label: additionalValue });
+      options.push({ value: "copiedItem", label: additionalValue });
     }
 
     return (
       <Wrapper>
         <FillContent>
           <Select
+            ref={(ref) => {
+              this.ref = ref;
+            }}
             placeholder={placeholder}
             options={options}
             value={selectedValue}
-            onSelectResetsInput={true}
+            // onSelectResetsInput={true}
             onBlur={this.handleAdd}
-            onBlurResetsInput={false}
+            // onBlurResetsInput={false}
             onChange={this.handleChange}
             onInputChange={this.handleInput}
-            onInputKeyDown={this.handleKeyDown}
-            clearable={false}
+            onKeyDown={this.handleKeyDown}
+            isClearable={true}
+            isSearchable={true}
           />
         </FillContent>
       </Wrapper>

@@ -11,12 +11,10 @@ import {
   PerformsCountQueryResponse,
   PerformRemoveMutationResponse
 } from '../types';
-import { IRouterProps } from '@erxes/ui/src/types';
 
 type Props = {
   queryParams: any;
-  history: any;
-} & IRouterProps;
+};
 
 type FinalProps = {
   performsQuery: PerformsQueryResponse;
