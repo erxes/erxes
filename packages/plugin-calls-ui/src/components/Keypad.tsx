@@ -234,12 +234,6 @@ const KeyPad = (props: Props, context) => {
       handleCall();
     }
   };
-  const handlePaste = (event) => {
-    const pastedText = event.clipboardData?.getData("text");
-    const maxLength = 10;
-    const truncatedText = pastedText?.substring(0, maxLength);
-    setNumber(truncatedText || "");
-  };
 
   const onBack = () => setShowTrigger(false);
   const search = (e) => {
@@ -410,7 +404,6 @@ const KeyPad = (props: Props, context) => {
             onKeyDown={handleKeyDown}
             autoFocus={true}
             ref={inputRef}
-            onPaste={handlePaste}
             autoComplete="off"
             onChange={(e) => setNumber(e.target.value)}
             type="number"
@@ -420,12 +413,12 @@ const KeyPad = (props: Props, context) => {
         <p>{__("Calling from your own phone number")}</p>
         <Select
           placeholder={__("Choose phone number")}
-          value={ourPhone.find(phone => phone.value === callFrom)}
+          value={ourPhone.find((phone) => phone.value === callFrom)}
           onChange={onStatusChange}
           isClearable={false}
           options={ourPhone}
           // scrollMenuIntoView={true}
-          menuPlacement='top'
+          menuPlacement="top"
           onBlur={() => setSelectFocus(!selectFocus)}
         />
         <>

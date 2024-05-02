@@ -1,33 +1,32 @@
-import { Add, FlexRowGap, FooterInfo, FormContainer } from '../../styles';
-import { Alert, __ } from '@erxes/ui/src/utils';
+import { Add, FlexRowGap, FooterInfo, FormContainer } from "../../styles";
+import { Alert, __ } from "@erxes/ui/src/utils";
 import {
   ControlLabel,
   FormGroup,
   ModalTrigger,
-  Table
-} from '@erxes/ui/src/components';
-import { IDeal, IPaymentsData, IProductData } from '../../types';
-import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
+  Table,
+} from "@erxes/ui/src/components";
+import { IDeal, IPaymentsData, IProductData } from "../../types";
+import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
 
-import Button from '@erxes/ui/src/components/Button';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { IProduct } from '@erxes/ui-products/src/types';
-import { IProductCategory } from '@erxes/ui-products/src/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import PaymentForm from './PaymentForm';
-import ProductCategoryChooser from '@erxes/ui-products/src/components/ProductCategoryChooser';
-import ProductItem from '../../containers/product/ProductItem';
-import ProductTotal from './ProductTotal';
-import React from 'react';
-import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
-
-import styled from 'styled-components';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
+import Button from "@erxes/ui/src/components/Button";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IProduct } from "@erxes/ui-products/src/types";
+import { IProductCategory } from "@erxes/ui-products/src/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import PaymentForm from "./PaymentForm";
+import ProductCategoryChooser from "@erxes/ui-products/src/components/ProductCategoryChooser";
+import ProductChooser from "@erxes/ui-products/src/containers/ProductChooser";
+import ProductItem from "../../containers/product/ProductItem";
+import ProductTotal from "./ProductTotal";
+import React from "react";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import styled from "styled-components";
 
 const TableWrapper = styled.div`
   overflow: auto;
@@ -92,12 +91,12 @@ class ProductForm extends React.Component<Props, State> {
       discount: {},
       tax: {},
       vatPercent: 0,
-      currentTab: 'products',
+      currentTab: "products",
       changePayData: {},
-      tempId: '',
+      tempId: "",
       filterValues: JSON.parse(
-        localStorage.getItem('dealProductFormFilter') || '{}'
-      )
+        localStorage.getItem("dealProductFormFilter") || "{}"
+      ),
     };
   }
 
@@ -105,27 +104,27 @@ class ProductForm extends React.Component<Props, State> {
     this.updateTotal();
   }
 
-  duplicateProductItem = _id => {
+  duplicateProductItem = (_id) => {
     const { productsData, onChangeProductsData } = this.props;
 
-    const productData: any = productsData.find(p => p._id === _id);
+    const productData: any = productsData.find((p) => p._id === _id);
 
     productsData.push({
       ...productData,
-      _id: Math.random().toString()
+      _id: Math.random().toString(),
     });
 
     onChangeProductsData(productsData);
 
     for (const productData of productsData) {
-      this.calculatePerProductAmount('discount', productData);
+      this.calculatePerProductAmount("discount", productData);
     }
   };
 
-  removeProductItem = _id => {
+  removeProductItem = (_id) => {
     const { productsData, onChangeProductsData } = this.props;
 
-    const removedProductsData = productsData.filter(p => p._id !== _id);
+    const removedProductsData = productsData.filter((p) => p._id !== _id);
 
     onChangeProductsData(removedProductsData);
 
@@ -135,7 +134,7 @@ class ProductForm extends React.Component<Props, State> {
   setDiscount = (id, discount) => {
     const { productsData, onChangeProductsData } = this.props;
 
-    const discountAdded = productsData.map(p =>
+    const discountAdded = (productsData || []).map((p) =>
       p.product?._id === id ? { ...p, discountPercent: discount } : p
     );
 
@@ -144,7 +143,7 @@ class ProductForm extends React.Component<Props, State> {
     this.updateTotal(discountAdded);
   };
 
-  onChangeVatPercent = e => {
+  onChangeVatPercent = (e) => {
     this.setState({ vatPercent: parseInt(e.currentTarget.value) });
   };
 
@@ -152,7 +151,7 @@ class ProductForm extends React.Component<Props, State> {
     const { productsData, onChangeProductsData } = this.props;
     const { vatPercent } = this.state;
 
-    const updatedData = productsData.map(p => {
+    const updatedData = (productsData || []).map((p) => {
       const pData = {
         ...p,
         isVatApplied: true,
@@ -160,10 +159,10 @@ class ProductForm extends React.Component<Props, State> {
           ? p.unitPrice
           : parseFloat(
               ((p.unitPrice * 100) / (100 + (vatPercent || 0))).toFixed(4)
-            )
+            ),
       };
 
-      this.calculatePerProductAmount('', pData, false);
+      this.calculatePerProductAmount("", pData, false);
 
       return pData;
     });
@@ -180,7 +179,7 @@ class ProductForm extends React.Component<Props, State> {
     const tax = {};
     const discount = {};
 
-    productsData.forEach(p => {
+    productsData.forEach((p) => {
       if (p.currency) {
         if (!bothTotal[p.currency]) {
           bothTotal[p.currency] = 0;
@@ -221,7 +220,7 @@ class ProductForm extends React.Component<Props, State> {
   renderTotal(totalKind, kindTxt) {
     const { productsData, onChangeProductsData } = this.props;
 
-    return Object.keys(totalKind).map(currency => (
+    return (Object.keys(totalKind) || []).map((currency) => (
       <ProductTotal
         key={kindTxt.concat(currency)}
         totalKind={totalKind[currency]}
@@ -235,12 +234,8 @@ class ProductForm extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const {
-      productsData,
-      onChangeProductsData,
-      currentProduct,
-      dealQuery
-    } = this.props;
+    const { productsData, onChangeProductsData, currentProduct, dealQuery } =
+      this.props;
 
     if (productsData.length === 0) {
       return (
@@ -254,7 +249,7 @@ class ProductForm extends React.Component<Props, State> {
 
     if (filterValues.search) {
       filteredProductsData = filteredProductsData.filter(
-        p =>
+        (p) =>
           p.product &&
           (p.product.name.includes(filterValues.search) ||
             p.product.code.includes(filterValues.search))
@@ -263,70 +258,71 @@ class ProductForm extends React.Component<Props, State> {
 
     if (filterValues.categories && filterValues.categories.length) {
       filteredProductsData = filteredProductsData.filter(
-        p => p.product && filterValues.categories.includes(p.product.categoryId)
+        (p) =>
+          p.product && filterValues.categories.includes(p.product.categoryId)
       );
     }
 
     if (filterValues.vendors && filterValues.vendors.length) {
       filteredProductsData = filteredProductsData.filter(
-        p => p.product && filterValues.vendors.includes(p.product.vendorId)
+        (p) => p.product && filterValues.vendors.includes(p.product.vendorId)
       );
     }
 
     if (filterValues.brand) {
       filteredProductsData = filteredProductsData.filter(
-        p =>
+        (p) =>
           p.product &&
-          ((filterValues.brand === 'noBrand' &&
+          ((filterValues.brand === "noBrand" &&
             !p.product.scopeBrandIds.length) ||
             p.product.scopeBrandIds.includes(filterValues.brand))
       );
     }
 
     if (filterValues.branches && filterValues.branches.length) {
-      filteredProductsData = filteredProductsData.filter(p =>
+      filteredProductsData = filteredProductsData.filter((p) =>
         filterValues.branches.includes(p.branchId)
       );
     }
 
     if (filterValues.departments && filterValues.departments.length) {
-      filteredProductsData = filteredProductsData.filter(p =>
+      filteredProductsData = filteredProductsData.filter((p) =>
         filterValues.departments.includes(p.departmentId)
       );
     }
 
     const { advancedView } = this.state;
-    const avStyle = { display: advancedView ? '' : 'none' };
+    const avStyle = { display: advancedView ? "" : "none" };
 
     return (
       <TableWrapper>
         <Table>
           <thead>
             <tr>
-              <th>{__('Type')}</th>
-              <th>{__('Product / Service')}</th>
-              <th style={{ width: '30px' }}>{__('Quantity')}</th>
-              <th>{__('Unit price')}</th>
-              <th style={{ width: '90px' }}>{__('Discount %')}</th>
-              <th>{__('Discount')}</th>
-              <th style={avStyle}>{__('Tax %')}</th>
-              <th style={avStyle}>{__('Tax')}</th>
-              <th>{__('Amount')}</th>
-              <th style={avStyle}>{__('Currency')}</th>
-              <th style={avStyle}>{__('UOM')}</th>
-              <th>{__('Is tick used')}</th>
-              <th>{__('Is vat applied')}</th>
-              <th>{__('Assigned to')}</th>
-              <th style={avStyle}>{__('Branch')}</th>
-              <th style={avStyle}>{__('Department')}</th>
-              <th style={avStyle}>{__('Unit price (global)')}</th>
-              <th style={avStyle}>{__('Unit price percent')}</th>
+              <th>{__("Type")}</th>
+              <th>{__("Product / Service")}</th>
+              <th style={{ width: "30px" }}>{__("Quantity")}</th>
+              <th>{__("Unit price")}</th>
+              <th style={{ width: "90px" }}>{__("Discount %")}</th>
+              <th>{__("Discount")}</th>
+              <th style={avStyle}>{__("Tax %")}</th>
+              <th style={avStyle}>{__("Tax")}</th>
+              <th>{__("Amount")}</th>
+              <th style={avStyle}>{__("Currency")}</th>
+              <th style={avStyle}>{__("UOM")}</th>
+              <th>{__("Is tick used")}</th>
+              <th>{__("Is vat applied")}</th>
+              <th>{__("Assigned to")}</th>
+              <th style={avStyle}>{__("Branch")}</th>
+              <th style={avStyle}>{__("Department")}</th>
+              <th style={avStyle}>{__("Unit price (global)")}</th>
+              <th style={avStyle}>{__("Unit price percent")}</th>
               <th />
               <th />
             </tr>
           </thead>
           <tbody id="products">
-            {filteredProductsData.map(productData => (
+            {(filteredProductsData || []).map((productData) => (
               <ProductItem
                 key={productData._id}
                 advancedView={advancedView}
@@ -356,9 +352,9 @@ class ProductForm extends React.Component<Props, State> {
     const changePayData = Object.assign({}, total);
     const payments = paymentsData || {};
 
-    Object.keys(payments || {}).forEach(key => {
+    Object.keys(payments || {}).forEach((key) => {
       const perPaid = payments[key];
-      const currency = perPaid.currency || '';
+      const currency = perPaid.currency || "";
 
       if (Object.keys(changePayData).includes(currency)) {
         changePayData[currency] =
@@ -381,25 +377,25 @@ class ProductForm extends React.Component<Props, State> {
     if (productsData.length !== 0) {
       for (const data of productsData) {
         if (!data.product) {
-          return Alert.error('Please choose a product');
+          return Alert.error("Please choose a product");
         }
 
         if (!data.unitPrice && data.unitPrice !== 0) {
           return Alert.error(
-            'Please enter an unit price. It should be a number'
+            "Please enter an unit price. It should be a number"
           );
         }
 
         if (!data.currency) {
-          return Alert.error('Please choose a currency');
+          return Alert.error("Please choose a currency");
         }
 
         if (
-          data.product.type === 'service' &&
+          data.product.type === "service" &&
           data.tickUsed &&
           !data.assignUserId
         ) {
-          return Alert.error('Please choose a Assigned to any service');
+          return Alert.error("Please choose a Assigned to any service");
         }
       }
     }
@@ -408,7 +404,7 @@ class ProductForm extends React.Component<Props, State> {
       Object.keys(total).length > 0 &&
       Object.keys(changePayData).length > 0
     ) {
-      let alertMsg = '';
+      let alertMsg = "";
 
       for (const key of Object.keys(changePayData)) {
         // warning greater pay
@@ -425,7 +421,7 @@ class ProductForm extends React.Component<Props, State> {
       }
 
       if (alertMsg) {
-        Alert.warning('Change payment has problem: (' + alertMsg + ')');
+        Alert.warning("Change payment has problem: (" + alertMsg + ")");
       }
     }
 
@@ -442,7 +438,7 @@ class ProductForm extends React.Component<Props, State> {
       }
 
       localStorage.setItem(
-        'dealProductFormFilter',
+        "dealProductFormFilter",
         JSON.stringify({ ...filterValues, [name]: value, ...otherValues })
       );
     });
@@ -456,7 +452,7 @@ class ProductForm extends React.Component<Props, State> {
 
   clearFilter = () => {
     this.setState({ filterValues: {} }, () => {
-      localStorage.removeItem('dealProductFormFilter');
+      localStorage.removeItem("dealProductFormFilter");
     });
   };
 
@@ -468,8 +464,8 @@ class ProductForm extends React.Component<Props, State> {
           <ControlLabel>By product</ControlLabel>
           <FormControl
             type="text"
-            placeholder={__('Type to search')}
-            onChange={(e: any) => this.onFilter('search', e.target.value)}
+            placeholder={__("Type to search")}
+            onChange={(e: any) => this.onFilter("search", e.target.value)}
             value={filterValues.search}
           />
         </FormGroup>
@@ -480,7 +476,7 @@ class ProductForm extends React.Component<Props, State> {
             currentId={filterValues.category}
             onChangeCategory={(categoryId, childIds) =>
               this.onFilter(
-                'category',
+                "category",
                 categoryId,
                 this.onFilterCategory,
                 childIds
@@ -496,7 +492,7 @@ class ProductForm extends React.Component<Props, State> {
             name="branches"
             initialValue={filterValues.branches}
             multi={true}
-            onSelect={branchIds => this.onFilter('branches', branchIds)}
+            onSelect={(branchIds) => this.onFilter("branches", branchIds)}
           />
         </FormGroup>
         <FormGroup>
@@ -506,8 +502,8 @@ class ProductForm extends React.Component<Props, State> {
             name="departments"
             initialValue={filterValues.departments}
             multi={true}
-            onSelect={departmentIds =>
-              this.onFilter('departments', departmentIds)
+            onSelect={(departmentIds) =>
+              this.onFilter("departments", departmentIds)
             }
           />
         </FormGroup>
@@ -518,7 +514,7 @@ class ProductForm extends React.Component<Props, State> {
             name="vendors"
             initialValue={filterValues.vendors}
             multi={true}
-            onSelect={companyIds => this.onFilter('vendors', companyIds)}
+            onSelect={(companyIds) => this.onFilter("vendors", companyIds)}
           />
         </FormGroup>
         <FormGroup>
@@ -528,11 +524,11 @@ class ProductForm extends React.Component<Props, State> {
             name="brands"
             initialValue={filterValues.brands}
             customOption={{
-              label: 'No Brand',
-              value: 'noBrand'
+              label: "No Brand",
+              value: "noBrand",
             }}
             multi={false}
-            onSelect={brandId => this.onFilter('brand', brandId)}
+            onSelect={(brandId) => this.onFilter("brand", brandId)}
           />
         </FormGroup>
         <Button
@@ -555,7 +551,7 @@ class ProductForm extends React.Component<Props, State> {
     const amount = productData.unitPrice * productData.quantity;
 
     if (amount > 0) {
-      if (type === 'discount') {
+      if (type === "discount") {
         productData.discountPercent = (productData.discount * 100) / amount;
       } else {
         productData.discount = (amount * productData.discountPercent) / 100;
@@ -585,7 +581,7 @@ class ProductForm extends React.Component<Props, State> {
       const { onChangeProductsData, currencies } = this.props;
 
       const { tax, discount } = this.state;
-      const currency = currencies ? currencies[0] : '';
+      const currency = currencies ? currencies[0] : "";
 
       for (const product of products) {
         productsData.push({
@@ -606,24 +602,24 @@ class ProductForm extends React.Component<Props, State> {
           unitPrice: product.unitPrice,
           globalUnitPrice: product.unitPrice,
           unitPricePercent: 100,
-          _id: Math.random().toString()
+          _id: Math.random().toString(),
         });
       }
 
       onChangeProductsData(productsData);
 
       for (const productData of productsData) {
-        this.calculatePerProductAmount('discount', productData);
+        this.calculatePerProductAmount("discount", productData);
       }
     };
 
-    const content = props => (
+    const content = (props) => (
       <ProductChooser
         {...props}
         onSelect={productOnChange}
         data={{
-          name: 'Product',
-          products: []
+          name: "Product",
+          products: [],
         }}
       />
     );
@@ -655,10 +651,10 @@ class ProductForm extends React.Component<Props, State> {
       currentTab,
       advancedView,
       unUsedTotal,
-      bothTotal
+      bothTotal,
     } = this.state;
 
-    if (currentTab === 'payments') {
+    if (currentTab === "payments") {
       const { onChangePaymentsData } = this.props;
 
       return (
@@ -673,10 +669,10 @@ class ProductForm extends React.Component<Props, State> {
       );
     }
 
-    const avStyle = { display: advancedView ? 'inherit' : 'none' };
-    let totalContent = this.renderTotal(total, 'total');
+    const avStyle = { display: advancedView ? "inherit" : "none" };
+    let totalContent = this.renderTotal(total, "total");
     if (!Object.keys(totalContent).length) {
-      totalContent = '--' as any;
+      totalContent = "--" as any;
     }
 
     return (
@@ -689,31 +685,31 @@ class ProductForm extends React.Component<Props, State> {
           <table>
             <tbody>
               <tr style={avStyle}>
-                <td>{__('Discount')}:</td>
-                <td>{this.renderTotal(discount, 'discount')}</td>
+                <td>{__("Discount")}:</td>
+                <td>{this.renderTotal(discount, "discount")}</td>
               </tr>
               <tr style={avStyle}>
-                <td>{__('Tax')}:</td>
-                <td>{this.renderTotal(tax, 'tax')}</td>
+                <td>{__("Tax")}:</td>
+                <td>{this.renderTotal(tax, "tax")}</td>
               </tr>
               <tr>
-                <td>{__('Total')}:</td>
+                <td>{__("Total")}:</td>
                 <td>{totalContent}</td>
               </tr>
               {(Object.keys(unUsedTotal).length && (
                 <tr>
-                  <td>{__('Un used Total')}:</td>
-                  <td>{this.renderTotal(unUsedTotal, 'unUsedTotal')}</td>
+                  <td>{__("Un used Total")}:</td>
+                  <td>{this.renderTotal(unUsedTotal, "unUsedTotal")}</td>
                 </tr>
               )) ||
-                ''}
+                ""}
               {(Object.keys(unUsedTotal).length && (
                 <tr>
-                  <td>{__('Both Total')}:</td>
-                  <td>{this.renderTotal(bothTotal, 'bothTotal')}</td>
+                  <td>{__("Both Total")}:</td>
+                  <td>{this.renderTotal(bothTotal, "bothTotal")}</td>
                 </tr>
               )) ||
-                ''}
+                ""}
 
               <tr>
                 <td colSpan={6}>
@@ -758,18 +754,18 @@ class ProductForm extends React.Component<Props, State> {
       <>
         <Tabs grayBorder={true} full={true}>
           <TabTitle
-            className={currentTab === 'products' ? 'active' : ''}
-            onClick={this.onTabClick.bind(this, 'products')}
+            className={currentTab === "products" ? "active" : ""}
+            onClick={this.onTabClick.bind(this, "products")}
           >
             <Icon icon="box" />
-            {__('Products')}
+            {__("Products")}
           </TabTitle>
           <TabTitle
-            className={currentTab === 'payments' ? 'active' : ''}
-            onClick={this.onTabClick.bind(this, 'payments')}
+            className={currentTab === "payments" ? "active" : ""}
+            onClick={this.onTabClick.bind(this, "payments")}
           >
             <Icon icon="atm-card" />
-            {__('Payments')}
+            {__("Payments")}
           </TabTitle>
         </Tabs>
 
@@ -781,7 +777,7 @@ class ProductForm extends React.Component<Props, State> {
             icon="plus-circle"
             onClick={this.toggleAdvancedView}
           >
-            {advancedView ? 'Compact view' : 'Advanced view'}
+            {advancedView ? "Compact view" : "Advanced view"}
           </Button>
 
           <Button

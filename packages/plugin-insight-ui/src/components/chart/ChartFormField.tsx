@@ -283,22 +283,6 @@ const ChartFormField = (props: Props) => {
   }
 
   switch (fieldType) {
-    case "groups":
-      return (
-        <div>
-          <ControlLabel>{fieldLabel}</ControlLabel>
-          <Select
-            value={(groupsOptions || []).map((o) =>
-              o.options.find((item) => item.value === fieldValue)
-            )}
-            isClearable={true}
-            isMulti={multi}
-            onChange={onSelect}
-            options={groupsOptions}
-            placeholder={fieldLabel}
-          />
-        </div>
-      );
     case "select":
       return (
         <div>

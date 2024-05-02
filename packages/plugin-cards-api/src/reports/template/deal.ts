@@ -347,7 +347,7 @@ export const dealCharts = [
 
             const data = Object.values(totalCountByLabel);
             const labels = Object.keys(totalCountByLabel);
-            const title = 'Total Deal Count By Tag';
+            const title = 'Total Deal Count By Label';
 
             return { title, data, labels };
         },
@@ -2822,7 +2822,7 @@ export const dealCharts = [
         templateType: "DealsTotalCount",
         serviceType: 'cards',
         name: 'Total Deals Count',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table', 'number'],
         getChartResult: async (
             models: IModels,
             filter: any,

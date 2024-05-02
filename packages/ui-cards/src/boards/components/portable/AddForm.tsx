@@ -94,7 +94,7 @@ class AddForm extends React.Component<Props, State> {
       fetchCards(String(value), (cards: any) => {
         if (cards) {
           this.setState({
-            cards: cards.map((c) => ({ value: c._id, label: c.name })),
+            cards: (cards || []).map((c) => ({ value: c._id, label: c.name })),
           });
         }
       });
@@ -331,7 +331,7 @@ class AddForm extends React.Component<Props, State> {
     let stageValues: any;
 
     if (stages && stages.length > 0) {
-      stageValues = stages.map((stage) => ({
+      stageValues = (stages || []).map((stage) => ({
         label: stage.name,
         value: stage._id,
       }));

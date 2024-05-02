@@ -4,6 +4,7 @@ import {
   Divider,
   WrongLess,
 } from "../../styles";
+import Select, { components } from "react-select";
 
 import CURRENCIES from "@erxes/ui/src/constants/currencies";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
@@ -12,13 +13,12 @@ import FormControl from "@erxes/ui/src/components/form/Control";
 import { IPaymentsData } from "../../types";
 import { PAYMENT_TYPES } from "../../constants";
 import React from "react";
-import Select, { components } from "react-select";
 import { __ } from "@erxes/ui/src/utils";
 import { pluginsOfPaymentForm } from "coreui/pluginUtils";
 import { selectConfigOptions } from "../../utils";
 
 type Props = {
-  total: { currency?: string; amount?: number };
+  total: { [currency: string]: number };
   payments?: IPaymentsData;
   currencies: string[];
   onChangePaymentsData: (paymentsData: IPaymentsData) => void;

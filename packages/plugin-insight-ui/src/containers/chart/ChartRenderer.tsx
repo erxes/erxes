@@ -6,6 +6,7 @@ import {
 } from "../../components/chart/utils";
 
 import ChartRenderer from "../../components/chart/ChartRenderer";
+import NumberRenderer from "../../components/chart/NumberRenderer";
 import React from "react";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import TableRenderer from "../../components/chart/TableRenderer";
@@ -78,6 +79,7 @@ const ChartRendererList = (props: FinalProps) => {
     chartGetResultQuery?.chartGetResult || {};
 
   const dataset = { data, labels, title };
+
   if (chartType === "table") {
     return (
       <TableRenderer
@@ -86,6 +88,16 @@ const ChartRendererList = (props: FinalProps) => {
       />
     );
   }
+
+  if (chartType === "number") {
+    return (
+      <NumberRenderer
+        dataset={dataset}
+        serviceName={chartVariables.serviceName}
+      />
+    );
+  }
+
   const datasets =
     !data && !labels && !title && chartGetResultQuery.chartGetResult;
 

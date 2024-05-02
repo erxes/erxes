@@ -1,17 +1,18 @@
-import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
-import { IOption, IQueryParams } from '@erxes/ui/src/types';
-import React from 'react';
-import { queries } from '../../graphql/index';
-import { IPipelineLabel } from '../../types';
+import { IOption, IQueryParams } from "@erxes/ui/src/types";
+
+import { IPipelineLabel } from "../../types";
+import React from "react";
+import SelectWithSearch from "@erxes/ui/src/components/SelectWithSearch";
+import { queries } from "../../graphql/index";
 
 // get user options for react-select
 export function generateLabelOptions(array: IPipelineLabel[] = []): IOption[] {
-  return array.map(item => {
+  return (array || []).map((item) => {
     const label = item || ({} as IPipelineLabel);
 
     return {
-      value: label._id || '',
-      label: label.name
+      value: label._id || "",
+      label: label.name,
     };
   });
 }
@@ -33,7 +34,7 @@ export default ({
   filterParams,
   onSelect,
   customOption,
-  multi
+  multi,
 }: ISelectParams) => {
   const defaultValue = queryParams ? queryParams[name] : initialValue;
 
