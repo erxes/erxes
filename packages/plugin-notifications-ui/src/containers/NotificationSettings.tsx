@@ -14,6 +14,7 @@ import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { Alert } from '@erxes/ui/src/utils';
 import { IQueryParams } from '@erxes/ui/src/types';
 import { mutations, queries } from '@erxes/ui-notifications/src/graphql';
+import { currentUser as currentUserQuery } from '@erxes/ui/src/auth/graphql';
 
 type Props = {
   queryParams: IQueryParams;
@@ -49,7 +50,11 @@ const NotificationSettingsContainer = (props: FinalProps) => {
     GetNotificationByEmailMutationResponse,
     GetNotificationByEmailMutationVariables
   >(gql(mutations.configGetNotificationByEmail), {
-    refetchQueries: ['currentUser'],
+    refetchQueries: [
+      {
+        query: gql(currentUserQuery)
+      }
+    ]
   });
 
   const [saveNotificationConfigurationsMutation] = useMutation<
