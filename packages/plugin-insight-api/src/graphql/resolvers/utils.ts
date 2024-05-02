@@ -1,9 +1,11 @@
 import { sendCommonMessage } from '../../messageBroker';
 
 export const chartGetResult = async (
-    { serviceName, templateType, filter },
+    { serviceName, templateType, filter: stringifiedFilter },
     subdomain: any,
 ) => {
+    const filter = JSON.parse(stringifiedFilter)
+
     const chartResult = await sendCommonMessage({
         subdomain,
         serviceName,

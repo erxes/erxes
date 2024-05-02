@@ -10,7 +10,7 @@ const chartTemplates = [
         templateType: 'TotalContactCount',
         serviceType: 'contacts',
         name: 'Total Contact Count',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
         getChartResult: async (
             models: IModels,
             filter: any,
@@ -116,7 +116,7 @@ const chartTemplates = [
         templateType: 'TotalContactCountByYear',
         serviceType: 'contacts',
         name: 'Total Contact Count By Year',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
         getChartResult: async (
             models: IModels,
             filter: any,
@@ -243,7 +243,7 @@ const chartTemplates = [
         templateType: 'TotalContactByState',
         serviceType: 'contacts',
         name: 'Total Contact Count By State',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
         getChartResult: async (
             models: IModels,
             filter: any,
@@ -381,7 +381,7 @@ const chartTemplates = [
         templateType: 'TotalContactBySource',
         serviceType: 'contacts',
         name: 'Total Contact Count By Source',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
         getChartResult: async (
             models: IModels,
             filter: any,
@@ -535,7 +535,7 @@ const chartTemplates = [
         templateType: 'TotalCustomerCount',
         serviceType: 'contacts',
         name: 'Total Customer Count',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
         getChartResult: async (
             models: IModels,
             filter: any,
@@ -652,7 +652,7 @@ const chartTemplates = [
         templateType: 'TotalCustomerByYear',
         serviceType: 'contacts',
         name: 'Total Customer Count By Year',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
         getChartResult: async (
             models: IModels,
             filter: any,
@@ -789,7 +789,7 @@ const chartTemplates = [
         templateType: 'TotalCustomerBySource',
         serviceType: 'contacts',
         name: 'Total Customer Count By Source',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
         getChartResult: async (
             models: IModels,
             filter: any,
@@ -956,7 +956,7 @@ const chartTemplates = [
         templateType: 'TotalCustomerByTag',
         serviceType: 'contacts',
         name: 'Total Customer Count By Tag',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
         getChartResult: async (
             models: IModels,
             filter: any,
@@ -1115,7 +1115,7 @@ const chartTemplates = [
         templateType: 'TotalCustomerByPropertiesField',
         serviceType: 'contacts',
         name: 'Total Customer Count By Properties Field',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
         getChartResult: async (
             models: IModels,
             filter: any,
@@ -1136,50 +1136,62 @@ const chartTemplates = [
                         },
                     },
                     {
-                        $group: {
-                            _id: "$customFieldsData.field",
-                            count: { $sum: 1 }
-                        },
-                    },
-                    {
                         $lookup: {
                             from: "form_fields",
-                            let: { fieldId: "$_id" },
-                            pipeline: [
-                                {
-                                    $match: {
-                                        $expr: {
-                                            $and: [
-                                                {
-                                                    $eq: [
-                                                        "$_id",
-                                                        "$$fieldId",
-                                                    ],
-                                                },
-                                            ],
-                                        },
-                                    },
-                                },
-                            ],
+                            localField: "customFieldsData.field",
+                            foreignField: "_id",
                             as: "field",
                         },
                     },
                     {
-                        $unwind: '$field'
+                        $unwind: "$field",
                     },
                     {
-                        $project: {
-                            _id: 1,
-                            field: "$field.text",
-                            count: 1
-                        }
-                    }
+                        $group: {
+                            _id: "$customFieldsData.field",
+                            field: { $first: "$field.text" },
+                            fieldType: { $first: "$field.type" },
+                            fieldOptions: { $first: "$field.options" },
+                            selectedOptions: {
+                                $push: "$customFieldsData.value",
+                            },
+                            count: { $sum: 1 },
+                        },
+                    },
                 ]
 
             const customersCount = await models.Customers.aggregate(pipeline)
 
-            const totalCountByPropertiesField = (customersCount || []).reduce((acc, { count, field }) => {
-                acc[field] = count;
+            const totalCountByPropertiesField = (customersCount || []).reduce((acc, { field,
+                fieldType,
+                fieldOptions,
+                selectedOptions,
+                count }) => {
+
+                if (!fieldOptions.length) {
+                    acc[field] = count
+                    return acc
+                }
+
+                (selectedOptions || []).map(selectedOption => {
+                    if (fieldType === 'multiSelect') {
+                        const optionArray = (selectedOption || '').split(',');
+                        optionArray.forEach(opt => {
+                            if (fieldOptions.includes(opt)) {
+                                acc[opt.trim()] = (acc[opt.trim()] || 0) + 1;
+                            }
+                        });
+                    } else if (Array.isArray(selectedOption)) {
+                        selectedOption.flatMap(option => {
+                            if (fieldOptions.includes(option)) {
+                                acc[option] = (acc[option] || 0) + 1
+                            }
+                        })
+                    } else if (fieldOptions.includes(selectedOption)) {
+                        acc[selectedOption] = (acc[selectedOption] || 0) + 1
+                    }
+                })
+
                 return acc;
             }, {});
 
@@ -1289,7 +1301,7 @@ const chartTemplates = [
         templateType: 'TotalLeadCount',
         serviceType: 'contacts',
         name: 'Total Lead Count',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
         getChartResult: async (
             models: IModels,
             filter: any,
@@ -1406,7 +1418,7 @@ const chartTemplates = [
         templateType: 'TotalLeadByYear',
         serviceType: 'contacts',
         name: 'Total Lead Count By Year',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
         getChartResult: async (
             models: IModels,
             filter: any,
@@ -1543,7 +1555,7 @@ const chartTemplates = [
         templateType: 'TotalLeadBySource',
         serviceType: 'contacts',
         name: 'Total Lead Count By Source',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
         getChartResult: async (
             models: IModels,
             filter: any,
@@ -1708,7 +1720,7 @@ const chartTemplates = [
         templateType: 'TotalLeadByTag',
         serviceType: 'contacts',
         name: 'Total Lead Count By Tag',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
         getChartResult: async (
             models: IModels,
             filter: any,
@@ -1867,7 +1879,7 @@ const chartTemplates = [
         templateType: 'TotalLeadsByPropertiesField',
         serviceType: 'contacts',
         name: 'Total Lead Count By Properties Field',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
         getChartResult: async (
             models: IModels,
             filter: any,
@@ -1888,50 +1900,62 @@ const chartTemplates = [
                         },
                     },
                     {
-                        $group: {
-                            _id: "$customFieldsData.field",
-                            count: { $sum: 1 }
-                        },
-                    },
-                    {
                         $lookup: {
                             from: "form_fields",
-                            let: { fieldId: "$_id" },
-                            pipeline: [
-                                {
-                                    $match: {
-                                        $expr: {
-                                            $and: [
-                                                {
-                                                    $eq: [
-                                                        "$_id",
-                                                        "$$fieldId",
-                                                    ],
-                                                },
-                                            ],
-                                        },
-                                    },
-                                },
-                            ],
+                            localField: "customFieldsData.field",
+                            foreignField: "_id",
                             as: "field",
                         },
                     },
                     {
-                        $unwind: '$field'
+                        $unwind: "$field",
                     },
                     {
-                        $project: {
-                            _id: 1,
-                            field: "$field.text",
-                            count: 1
-                        }
-                    }
+                        $group: {
+                            _id: "$customFieldsData.field",
+                            field: { $first: "$field.text" },
+                            fieldType: { $first: "$field.type" },
+                            fieldOptions: { $first: "$field.options" },
+                            selectedOptions: {
+                                $push: "$customFieldsData.value",
+                            },
+                            count: { $sum: 1 },
+                        },
+                    },
                 ]
 
             const customersCount = await models.Customers.aggregate(pipeline)
 
-            const totalCountByPropertiesField = (customersCount || []).reduce((acc, { count, field }) => {
-                acc[field] = count;
+            const totalCountByPropertiesField = (customersCount || []).reduce((acc, { field,
+                fieldType,
+                fieldOptions,
+                selectedOptions,
+                count }) => {
+
+                if (!fieldOptions.length) {
+                    acc[field] = count
+                    return acc
+                }
+
+                (selectedOptions || []).map(selectedOption => {
+                    if (fieldType === 'multiSelect') {
+                        const optionArray = (selectedOption || '').split(',');
+                        optionArray.forEach(opt => {
+                            if (fieldOptions.includes(opt)) {
+                                acc[opt.trim()] = (acc[opt.trim()] || 0) + 1;
+                            }
+                        });
+                    } else if (Array.isArray(selectedOption)) {
+                        selectedOption.flatMap(option => {
+                            if (fieldOptions.includes(option)) {
+                                acc[option] = (acc[option] || 0) + 1
+                            }
+                        })
+                    } else if (fieldOptions.includes(selectedOption)) {
+                        acc[selectedOption] = (acc[selectedOption] || 0) + 1
+                    }
+                })
+
                 return acc;
             }, {});
 
@@ -2041,7 +2065,7 @@ const chartTemplates = [
         templateType: 'TotalCompanyCount',
         serviceType: 'contacts',
         name: 'Total Company Count',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
         getChartResult: async (
             models: IModels,
             filter: any,
@@ -2121,7 +2145,7 @@ const chartTemplates = [
         templateType: 'TotalCompanyByYear',
         serviceType: 'contacts',
         name: 'Total Company Count By Year',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
         getChartResult: async (
             models: IModels,
             filter: any,
@@ -2221,7 +2245,7 @@ const chartTemplates = [
         templateType: 'TotalCompanyCountByTag',
         serviceType: 'contacts',
         name: 'Total Company Count By Tag',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
         getChartResult: async (
             models: IModels,
             filter: any,
@@ -2341,7 +2365,7 @@ const chartTemplates = [
         templateType: 'TotalCompanyCountByPropertiesField',
         serviceType: 'contacts',
         name: 'Total Company Count By Properties Field',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
         getChartResult: async (
             models: IModels,
             filter: any,
@@ -2361,50 +2385,62 @@ const chartTemplates = [
                         },
                     },
                     {
-                        $group: {
-                            _id: "$customFieldsData.field",
-                            count: { $sum: 1 }
-                        },
-                    },
-                    {
                         $lookup: {
                             from: "form_fields",
-                            let: { fieldId: "$_id" },
-                            pipeline: [
-                                {
-                                    $match: {
-                                        $expr: {
-                                            $and: [
-                                                {
-                                                    $eq: [
-                                                        "$_id",
-                                                        "$$fieldId",
-                                                    ],
-                                                },
-                                            ],
-                                        },
-                                    },
-                                },
-                            ],
+                            localField: "customFieldsData.field",
+                            foreignField: "_id",
                             as: "field",
                         },
                     },
                     {
-                        $unwind: '$field'
+                        $unwind: "$field",
                     },
                     {
-                        $project: {
-                            _id: 1,
-                            field: "$field.text",
-                            count: 1
-                        }
-                    }
+                        $group: {
+                            _id: "$customFieldsData.field",
+                            field: { $first: "$field.text" },
+                            fieldType: { $first: "$field.type" },
+                            fieldOptions: { $first: "$field.options" },
+                            selectedOptions: {
+                                $push: "$customFieldsData.value",
+                            },
+                            count: { $sum: 1 },
+                        },
+                    },
                 ]
 
             const customersCount = await models.Companies.aggregate(pipeline)
 
-            const totalCountByPropertiesField = (customersCount || []).reduce((acc, { count, field }) => {
-                acc[field] = count;
+            const totalCountByPropertiesField = (customersCount || []).reduce((acc, { field,
+                fieldType,
+                fieldOptions,
+                selectedOptions,
+                count }) => {
+
+                if (!fieldOptions.length) {
+                    acc[field] = count
+                    return acc
+                }
+
+                (selectedOptions || []).map(selectedOption => {
+                    if (fieldType === 'multiSelect') {
+                        const optionArray = (selectedOption || '').split(',');
+                        optionArray.forEach(opt => {
+                            if (fieldOptions.includes(opt)) {
+                                acc[opt.trim()] = (acc[opt.trim()] || 0) + 1;
+                            }
+                        });
+                    } else if (Array.isArray(selectedOption)) {
+                        selectedOption.flatMap(option => {
+                            if (fieldOptions.includes(option)) {
+                                acc[option] = (acc[option] || 0) + 1
+                            }
+                        })
+                    } else if (fieldOptions.includes(selectedOption)) {
+                        acc[selectedOption] = (acc[selectedOption] || 0) + 1
+                    }
+                })
+
                 return acc;
             }, {});
 
@@ -2477,7 +2513,7 @@ const chartTemplates = [
         templateType: 'TotalClientPortalUsersCount',
         serviceType: 'contacts',
         name: 'Total Client Portal Count',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
         getChartResult: async (
             models: IModels,
             filter: any,
@@ -2540,7 +2576,7 @@ const chartTemplates = [
         templateType: 'TotalClientPortalUsersByYear',
         serviceType: 'contacts',
         name: 'Total Client Portal Count By Year',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
         getChartResult: async (
             models: IModels,
             filter: any,
@@ -2610,7 +2646,7 @@ const chartTemplates = [
         templateType: 'TotalVendorPortalUsersCount',
         serviceType: 'contacts',
         name: 'Total Vendor Portal Count',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
         getChartResult: async (
             models: IModels,
             filter: any,
@@ -2673,7 +2709,7 @@ const chartTemplates = [
         templateType: 'TotalVendorPortalUsersByYear',
         serviceType: 'contacts',
         name: 'Total Vendor Portal Count By Year',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
         getChartResult: async (
             models: IModels,
             filter: any,

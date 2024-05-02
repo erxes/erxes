@@ -161,7 +161,12 @@ const Dashboard = (props: Props) => {
   const exportTable = (item: any) => {
     const stringified = queryString.stringify({
       ...item,
+      filter: JSON.stringify(item.filter),
+      dimension: JSON.stringify(item.dimension),
+      layout: JSON.stringify(item.layout),
+      vizState: JSON.stringify(item.vizState)
     });
+
     const { REACT_APP_API_URL } = getEnv();
     window.open(
       `${REACT_APP_API_URL}/pl:insight/chart-table-export?${stringified}`,

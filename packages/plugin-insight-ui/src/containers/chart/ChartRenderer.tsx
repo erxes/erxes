@@ -14,6 +14,7 @@ import {
   DEFAULT_BACKGROUND_COLORS,
   DEFAULT_BORDER_COLORS,
 } from '../../components/chart/utils';
+import NumberRenderer from '../../components/chart/NumberRenderer';
 
 const getRandomNumbers = (num?: number) => {
   const getRandomNumber: number = Math.floor(
@@ -81,14 +82,16 @@ const ChartRendererList = (props: FinalProps) => {
     chartGetResultQuery?.chartGetResult || {};
 
   const dataset = { data, labels, title };
+
   if (chartType === 'table') {
     return <TableRenderer dataset={dataset} serviceName={chartVariables.serviceName} />;
   }
-  const datasets =
-    !data &&
-    !labels &&
-    !title &&
-    chartGetResultQuery.chartGetResult;
+
+  if (chartType === 'number') {
+    return <NumberRenderer dataset={dataset} serviceName={chartVariables.serviceName} />;
+  }
+
+  const datasets = !data && !labels && !title && chartGetResultQuery.chartGetResult;
 
   finalProps = {
     ...props,

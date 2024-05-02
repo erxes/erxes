@@ -172,3 +172,30 @@ export const formatMillisecond = (milliseconds, axis) => {
     return result;
   }
 };
+
+export const generateParentOptionsFromQuery = (queryFieldOptions: any[], parentData: any[] = []) => {
+  return parentData.reduce((acc, data) => {
+    const options = queryFieldOptions
+      .filter(option => option?.parent === data._id)
+      .map(({ value, label }) => ({ value, label }));
+
+    if (options.length > 0) {
+      acc.push({ label: data.name, options });
+    }
+    return acc;
+  }, []);
+}
+
+export const generateParentOptionsFromField = (queryFieldOptions: any[]) => {
+  return queryFieldOptions.reduce((acc, option) => {
+    const contentType = option.parent.split(":").pop() || option.parent;
+    const existingContentType = acc.find(item => item.label === contentType);
+
+    if (existingContentType) {
+      existingContentType.options.push({ label: option.label.trim(), value: option.value });
+    } else {
+      acc.push({ label: contentType, options: [{ label: option.label.trim(), value: option.value }] });
+    }
+    return acc;
+  }, []);
+}

@@ -4,7 +4,7 @@ import {
   ActivityIcon,
   ActivityRow,
   IMapActivityContent,
-  SentWho
+  SentWho,
 } from '../styles';
 
 import Button from '@erxes/ui/src/components/Button';
@@ -14,7 +14,8 @@ import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils/core';
 import dayjs from 'dayjs';
 import { getIconAndColor } from '@erxes/ui-log/src/activityLogs/utils';
-
+import { Link } from 'react-router-dom';
+import { CenterText } from '@erxes/ui-log/src/activityLogs/styles';
 type Props = {
   contentType: string;
   activity: any;
@@ -32,26 +33,26 @@ class ActivityItem extends React.Component<Props, State> {
     const { contentTypeDetail = {} } = props.activity;
 
     this.state = {
-      shrink: (contentTypeDetail.body || '').length > 380 ? true : false
+      shrink: (contentTypeDetail.body || '').length > 380 ? true : false,
     };
   }
 
   renderWhom(contentTypeDetail) {
     const { from, to } = contentTypeDetail;
-
-    const From = from ? from.map(f => f.name || f.address) : 'unknown';
-    const To = to ? to.map(f => f.name || f.address) : 'unknown';
+    const From = from ? from.map((f) => f.name || f.address) : 'unknown';
+    const To = to ? to.map((f) => f.name || f.address) : 'unknown';
 
     return (
       <SentWho>
-        <strong>{From.map(f => f)}</strong>
+        <strong>{From.map((f) => f)}</strong>
         {__('send email to ')}
-        <strong>{To.map(t => t)}</strong>
+        <strong>{To.map((t) => t)}</strong>
       </SentWho>
     );
   }
 
-  renderExpandButton() {
+  renderExpandButton(contentTypeDetail) {
+    const { inboxConversationId } = contentTypeDetail;
     const { shrink } = this.state;
 
     if (!shrink) {
@@ -59,13 +60,21 @@ class ActivityItem extends React.Component<Props, State> {
     }
 
     return (
-      <Button
-        size="small"
-        btnStyle="warning"
-        onClick={() => this.setState({ shrink: !shrink })}
-      >
-        {shrink ? __('Expand email') : __('Shrink email')}
-      </Button>
+      <>
+        <Button
+          size="small"
+          btnStyle="warning"
+          onClick={() => this.setState({ shrink: !shrink })}
+        >
+          {shrink ? __('Expand email') : __('Shrink email')}
+        </Button>
+
+        <CenterText>
+          <Link to={`/inbox/index?_id=${inboxConversationId}`}>
+            {__('See full mail')} <Icon icon="angle-double-right" />
+          </Link>
+        </CenterText>
+      </>
     );
   }
 
@@ -96,7 +105,7 @@ class ActivityItem extends React.Component<Props, State> {
 
         <IMapActivityContent shrink={this.state.shrink}>
           <div dangerouslySetInnerHTML={{ __html: body }} />
-          {this.renderExpandButton()}
+          {this.renderExpandButton(contentTypeDetail)}
         </IMapActivityContent>
       </ActivityRow>
     );

@@ -520,13 +520,14 @@ const chartTemplates = [
             subdomain: string,
         ) => {
 
+            const { dateRangeType = 'closedAt' } = filter
             const matchfilter = await buildMatchFilter(filter, subdomain, models, "closedUserId")
 
             const pipeline = [
                 {
                     $match: {
                         status: "closed",
-                        closedAt: { $exists: true },
+                        [dateRangeType]: { $exists: true },
                         closedUserId: { $exists: true, $ne: null },
                         ...matchfilter
                     },
@@ -710,7 +711,10 @@ const chartTemplates = [
                             {
                                 $match: {
                                     $expr: {
-                                        $eq: ["$_id", "$$tagId"],
+                                        $and: [
+                                            { $eq: ["$_id", "$$tagId"] },
+                                            { $eq: ["$type", "inbox:conversation"] },
+                                        ]
                                     },
                                 },
                             },
