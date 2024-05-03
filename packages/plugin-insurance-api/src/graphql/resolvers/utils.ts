@@ -12,7 +12,7 @@ import * as tmp from 'tmp';
 import * as xlsxPopulate from 'xlsx-populate';
 import { sendCommonMessage } from '../../messageBroker';
 import { query } from './queries/items';
-import * as chromium from 'chromium';
+import chromium from '@sparticuz/chromium';
 
 export const verifyVendor = async (context) => {
   const { subdomain, cpUser } = context;
@@ -95,7 +95,6 @@ export const buildFileMain = async (models, subdomain, args) => {
   const qry: any = query(searchField, searchValue);
 
   qry.productId = { $in: productIDs };
-
 
   let sortOrder = 1;
 
@@ -258,9 +257,7 @@ export const buildFileMain = async (models, subdomain, args) => {
     });
   });
 
-  const name = `items-${moment().format(
-    'YYYY-MM-DD-hh-mm'
-  )}.xlsx`;
+  const name = `items-${moment().format('YYYY-MM-DD-hh-mm')}.xlsx`;
 
   return {
     name,
@@ -796,17 +793,23 @@ export const generateContract = async (
   // push contract to item.contracts
   await models.Items.updateOne(
     { _id: item._id },
-    { $push: { contracts: {...contract, date: new Date()} } }
+    { $push: { contracts: { ...contract, date: new Date() } } }
   );
 };
 
 const generatePdf = async (subdomain, content, dealNumber) => {
+  chromium.setHeadlessMode = true;
+  chromium.setGraphicsMode = false;
+  await chromium.font(
+    'https://raw.githack.com/googlei18n/noto-emoji/master/fonts/NotoColorEmoji.ttf'
+  );
+
   const browser = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    executablePath: chromium.path()
+    headless: chromium.headless,
+    args: [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox'],
+    executablePath: await chromium.executablePath(),
   });
-  
+
   const page = await browser.newPage();
 
   await page.setContent(content);
@@ -816,7 +819,6 @@ const generatePdf = async (subdomain, content, dealNumber) => {
 
   // const buffer:any = await createPdfBuffer(content);
   // const buffer: any = await HTMLtoDOCX(content)
-
 
   const DOMAIN = getEnv({
     name: 'DOMAIN',
@@ -830,7 +832,10 @@ const generatePdf = async (subdomain, content, dealNumber) => {
 
   const form = new FormData();
 
-  const tmpFile = tmp.fileSync({ postfix: '.docx', name: `${dealNumber}.docx` });
+  const tmpFile = tmp.fileSync({
+    postfix: '.docx',
+    name: `${dealNumber}.docx`,
+  });
   fs.writeFileSync(tmpFile.name, buffer);
 
   const fileStream = fs.createReadStream(tmpFile.name);
@@ -843,7 +848,7 @@ const generatePdf = async (subdomain, content, dealNumber) => {
   });
 
   const result = await response.text();
-  
+
   tmp.setGracefulCleanup();
   fs.unlinkSync(tmpFile.name);
 
@@ -855,12 +860,7 @@ const generatePdf = async (subdomain, content, dealNumber) => {
   };
 };
 
-
-export default async function userMiddleware(
-  req: any,
-  _res: any,
-  next: any
-) {
+export default async function userMiddleware(req: any, _res: any, next: any) {
   const subdomain = getSubdomain(req);
 
   if (!req.cookies) {
@@ -878,13 +878,13 @@ export default async function userMiddleware(
     const { user }: any = jwt.verify(token, process.env.JWT_TOKEN_SECRET || '');
 
     const userDoc = await sendCommonMessage({
-      serviceName:"core",
+      serviceName: 'core',
       subdomain,
       action: 'users.findOne',
       data: {
-        _id: user._id
+        _id: user._id,
       },
-      isRPC: true
+      isRPC: true,
     });
 
     if (!userDoc) {
@@ -902,8 +902,6 @@ export default async function userMiddleware(
     req.user = user;
     req.user.loginToken = token;
     req.user.sessionCode = req.headers.sessioncode || '';
-
-   
   } catch (e) {
     console.error(e);
   }
