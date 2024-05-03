@@ -27,12 +27,15 @@ import { IAccountingsConfigDocument } from './models/definitions/config';
 import {
   ITransactionDocument,
 } from './models/definitions/transaction';
+import { IVATRowDocument } from './models/definitions/vatRow';
+import { IVATRowModel, loadVATRowClass } from './models/VATRows';
 
 export interface IModels {
   Accounts: IAccountModel;
   Transactions: ITransactionModel;
   AccountCategories: IAccountCategoryModel;
   AccountingsConfigs: IAccountingsConfigModel;
+  VATRows: IVATRowModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -61,6 +64,11 @@ export const loadClasses = (
   models.Transactions = db.model<ITransactionDocument, ITransactionModel>(
     'transactions',
     loadTransactionClass(models, subdomain),
+  );
+
+  models.VATRows = db.model<IVATRowDocument, IVATRowModel>(
+    'vat_rows',
+    loadVATRowClass(models, subdomain),
   );
 
   return models;

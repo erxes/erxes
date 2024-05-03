@@ -76,6 +76,8 @@ const mainTrParams = `
   amount: Float
   currencyAmount: Float
   customRate: Float
+
+
 `;
 
 
@@ -119,4 +121,5 @@ export const mutations = `
   fundTrEdit(${mainTrParams}): [MainTransaction]
   debtTrAdd(${mainTrParams}): [MainTransaction]
   debtTrEdit(${mainTrParams}): [MainTransaction]
+  
 `;

@@ -5,11 +5,13 @@ import {
   AccountingsConfigs as MutationsAccountingsConfig,
   AccountCategories as MutationsAccountCategory,
   Accounts as MutationsAccount,
+  VATRows as MutationsVatRow,
 } from './mutations';
 import {
   AccountingsConfigs as QueriesAccountingsConfig,
   AccountCategories as QueriesAccountCategory,
   Accounts as QueriesAccount,
+  VATRows as QueriesVATRows
 } from './queries';
 
 const resolvers: any = {
@@ -20,11 +22,13 @@ const resolvers: any = {
     ...MutationsAccountCategory,
     ...MutationsAccount,
     ...MutationsAccountingsConfig,
+    ...MutationsVatRow,
   },
   Query: {
     ...QueriesAccount,
     ...QueriesAccountCategory,
     ...QueriesAccountingsConfig,
+    ...QueriesVATRows,
   },
 };
 

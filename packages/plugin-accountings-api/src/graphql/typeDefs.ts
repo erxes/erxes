@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 
-import { types, queries, mutations } from './schema/account';
-
+import { types as accountTypes, queries as accountQueries, mutations as accountMutations } from './schema/account';
+import { types as vatRowTypes, queries as vatRowQueries, mutations as vatRowMutations } from './schema/vatRow';
 import {
   types as accountingsConfigTypes,
   queries as accountingsConfigQueries,
@@ -29,17 +29,20 @@ const typeDefs = async () => {
       inheritMaxAge: Boolean
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
 
-    ${types()}
+    ${accountTypes()}
+    ${vatRowTypes()}
     ${accountingsConfigTypes}
 
     extend type Query {
-      ${queries}
+      ${accountQueries}
       ${accountingsConfigQueries}
+      ${vatRowQueries}
     }
 
     extend type Mutation {
-      ${mutations}
+      ${accountMutations}
       ${accountingsConfigMutations}
+      ${vatRowMutations}
     }
   `;
 };
