@@ -12,7 +12,9 @@ import * as tmp from 'tmp';
 import * as xlsxPopulate from 'xlsx-populate';
 import { sendCommonMessage } from '../../messageBroker';
 import { query } from './queries/items';
-import chromium from '@sparticuz/chromium';
+import chromium from 'download-chromium';
+
+
 
 export const verifyVendor = async (context) => {
   const { subdomain, cpUser } = context;
@@ -798,16 +800,12 @@ export const generateContract = async (
 };
 
 const generatePdf = async (subdomain, content, dealNumber) => {
-  chromium.setHeadlessMode = true;
-  chromium.setGraphicsMode = false;
-  await chromium.font(
-    'https://raw.githack.com/googlei18n/noto-emoji/master/fonts/NotoColorEmoji.ttf'
-  );
+  const execPath = await chromium();
 
   const browser = await puppeteer.launch({
-    headless: chromium.headless,
-    args: [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox'],
-    executablePath: await chromium.executablePath(),
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    executablePath: execPath,
   });
 
   const page = await browser.newPage();
