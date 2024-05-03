@@ -12,6 +12,8 @@ import { setupMessageConsumers } from './messageBroker';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import payment from './payment';
 import tags from './tags';
+import * as chromium from 'download-chromium';
+import redis from '@erxes/api-utils/src/redis';
 
 export default {
   name: 'insurance',
@@ -69,8 +71,18 @@ export default {
 
       res.attachment(`${result.name}.xlsx`);
 
+      // download chromium
+
+    
+
       return res.send(result.response);
     });
+
+    const execPath = await chromium();
+
+    console.log('chromium path',execPath);
+
+    await redis.set('chromium_exec_path', execPath)
   },
   setupMessageConsumers,
 };

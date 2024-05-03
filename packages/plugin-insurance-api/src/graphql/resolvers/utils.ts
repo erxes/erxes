@@ -12,7 +12,7 @@ import * as tmp from 'tmp';
 import * as xlsxPopulate from 'xlsx-populate';
 import { sendCommonMessage } from '../../messageBroker';
 import { query } from './queries/items';
-import chromium from 'download-chromium';
+import * as chromium from 'download-chromium';
 
 
 
@@ -786,7 +786,7 @@ export const generateContract = async (
     replacedContent = replacedContent.replace(/{{[^}]+}}/g, '');
   }
 
-  const contract: IAttachment = await generatePdf(
+  const contract: IAttachment | any = await generatePdf(
     subdomain,
     replacedContent,
     deal.number
@@ -800,12 +800,13 @@ export const generateContract = async (
 };
 
 const generatePdf = async (subdomain, content, dealNumber) => {
-  const execPath = await chromium();
-
+  const execPath = await redis.get('chromium_exec_path');
+  console.log("found chromium exec path ===== ", execPath)
+  try {
   const browser = await puppeteer.launch({
-    headless: true,
+    headless:true,
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    executablePath: execPath,
+    executablePath: execPath || '',
   });
 
   const page = await browser.newPage();
@@ -856,6 +857,10 @@ const generatePdf = async (subdomain, content, dealNumber) => {
     type: 'application/pdf',
     name: `${dealNumber}.pdf`,
   };
+
+}catch(e) {
+  console.error("eeeee ",e)
+}
 };
 
 export default async function userMiddleware(req: any, _res: any, next: any) {
