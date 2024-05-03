@@ -34,7 +34,6 @@ import { RichTextEditorControlsGroup } from "./RichTextEditorControlsGroup/RichT
 import { RichTextEditorProvider } from "./RichTextEditor.context";
 import { RichTextEditorToolbar } from "./RichTextEditorToolbar/RichTextEditorToolbar";
 import { RichTextEditorWrapper } from "./styles";
-import { Editor, useEditor } from "@tiptap/react";
 import useExtensions, {
   generateHTML,
   useGenerateJSON
