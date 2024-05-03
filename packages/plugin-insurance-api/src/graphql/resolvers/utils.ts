@@ -12,6 +12,7 @@ import * as tmp from 'tmp';
 import * as xlsxPopulate from 'xlsx-populate';
 import { sendCommonMessage } from '../../messageBroker';
 import { query } from './queries/items';
+import * as chromium from 'chromium';
 
 export const verifyVendor = async (context) => {
   const { subdomain, cpUser } = context;
@@ -803,6 +804,7 @@ const generatePdf = async (subdomain, content, dealNumber) => {
   const browser = await puppeteer.launch({
     headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    executablePath: chromium.path()
   });
   
   const page = await browser.newPage();
