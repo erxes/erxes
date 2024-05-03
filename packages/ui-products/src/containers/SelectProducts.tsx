@@ -5,7 +5,7 @@ import { IOption, IQueryParams } from '@erxes/ui/src/types';
 import { queries } from '../graphql';
 import { IProduct } from '../types';
 
-// get config options for react-select-plus
+// get config options for react-select
 export function generateProductOptions(array: IProduct[] = []): IOption[] {
   return array.map(item => {
     const product = item || ({} as IProduct);

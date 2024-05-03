@@ -1,10 +1,11 @@
-import React from 'react';
-import { ColoredSquare, FlexColumn, FlexRowLeft } from '../../styles';
-import { COLORS } from '../../constants';
-import { FlexRow } from '@erxes/ui-settings/src/styles';
-import queryString from 'query-string';
-import { getEnv } from '@erxes/ui/src/utils';
-import Button from '@erxes/ui/src/components/Button';
+import { ColoredSquare, FlexColumn, FlexRowLeft } from "../../styles";
+
+import Button from "@erxes/ui/src/components/Button";
+import { COLORS } from "../../constants";
+import { FlexRow } from "@erxes/ui-settings/src/styles";
+import React from "react";
+import { getEnv } from "@erxes/ui/src/utils";
+import queryString from "query-string";
 
 type Props = {
   queryParams: any;
@@ -26,14 +27,14 @@ const TimeclockActionBarLeft = ({
 
     const { REACT_APP_API_URL } = getEnv();
     window.open(
-      `${REACT_APP_API_URL}/pl:timeclock/timeclock-export?${stringified}`,
+      `${REACT_APP_API_URL}/pl:timeclock/timeclock-export?${stringified}`
     );
   };
 
   return (
-    <FlexRowLeft style={{ gap: '2rem', margin: '0 1rem' }}>
-      <FlexRowLeft style={{ gap: '1rem' }}>
-        <FlexColumn marginNum={10}>
+    <FlexRowLeft style={{ gap: "2rem", margin: "0 1rem" }}>
+      <FlexRowLeft style={{ gap: "1rem" }}>
+        <FlexColumn $marginNum={10}>
           <FlexRow>
             <ColoredSquare color={COLORS.paidAbsence} />
             <div>Paid Absence</div>
@@ -47,7 +48,7 @@ const TimeclockActionBarLeft = ({
             <div>Shift request</div>
           </FlexRow>
         </FlexColumn>
-        <FlexColumn marginNum={10}>
+        <FlexColumn $marginNum={10}>
           <FlexRow>
             <ColoredSquare color={COLORS.absent} />
             <div>Absent</div>

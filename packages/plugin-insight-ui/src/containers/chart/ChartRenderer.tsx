@@ -1,24 +1,23 @@
-import React from 'react';
+import * as compose from "lodash.flowright";
 
-import * as compose from 'lodash.flowright';
-import { graphql } from '@apollo/client/react/hoc';
-import { gql } from '@apollo/client';
-
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { withProps } from '@erxes/ui/src/utils/core';
-
-import ChartRenderer from '../../components/chart/ChartRenderer';
-import TableRenderer from '../../components/chart/TableRenderer';
-import { queries } from '../../graphql';
 import {
   DEFAULT_BACKGROUND_COLORS,
   DEFAULT_BORDER_COLORS,
-} from '../../components/chart/utils';
-import NumberRenderer from '../../components/chart/NumberRenderer';
+} from "../../components/chart/utils";
+
+import ChartRenderer from "../../components/chart/ChartRenderer";
+import NumberRenderer from "../../components/chart/NumberRenderer";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import TableRenderer from "../../components/chart/TableRenderer";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries } from "../../graphql";
+import { withProps } from "@erxes/ui/src/utils/core";
 
 const getRandomNumbers = (num?: number) => {
   const getRandomNumber: number = Math.floor(
-    Math.random() * (DEFAULT_BACKGROUND_COLORS.length - (num || 0) - 1),
+    Math.random() * (DEFAULT_BACKGROUND_COLORS.length - (num || 0) - 1)
   );
 
   if (!num) {
@@ -35,7 +34,6 @@ const getRandomNumbers = (num?: number) => {
 };
 
 type Props = {
-  history: any;
   queryParams: any;
   chartType: string;
 
@@ -49,8 +47,7 @@ type FinalProps = {
   chartGetResultQuery: any;
 } & Props;
 const ChartRendererList = (props: FinalProps) => {
-  const { chartGetResultQuery, chartVariables, filter, chartType } =
-    props;
+  const { chartGetResultQuery, chartVariables, filter, chartType } = props;
 
   if (chartGetResultQuery && chartGetResultQuery.loading) {
     return <Spinner />;
@@ -66,7 +63,7 @@ const ChartRendererList = (props: FinalProps) => {
   if (getResult && Array.isArray(getResult)) {
     const randomNums = getRandomNumbers(getResult.length);
 
-    const datasets = getResult.map((d, index) => ({
+    const datasets = (getResult || []).map((d, index) => ({
       ...d,
       backgroundColor: DEFAULT_BACKGROUND_COLORS[randomNums[index]],
       borderColor: DEFAULT_BORDER_COLORS[randomNums[index]],
@@ -83,15 +80,26 @@ const ChartRendererList = (props: FinalProps) => {
 
   const dataset = { data, labels, title };
 
-  if (chartType === 'table') {
-    return <TableRenderer dataset={dataset} serviceName={chartVariables.serviceName} />;
+  if (chartType === "table") {
+    return (
+      <TableRenderer
+        dataset={dataset}
+        serviceName={chartVariables.serviceName}
+      />
+    );
   }
 
-  if (chartType === 'number') {
-    return <NumberRenderer dataset={dataset} serviceName={chartVariables.serviceName} />;
+  if (chartType === "number") {
+    return (
+      <NumberRenderer
+        dataset={dataset}
+        serviceName={chartVariables.serviceName}
+      />
+    );
   }
 
-  const datasets = !data && !labels && !title && chartGetResultQuery.chartGetResult;
+  const datasets =
+    !data && !labels && !title && chartGetResultQuery.chartGetResult;
 
   finalProps = {
     ...props,
@@ -109,7 +117,7 @@ const ChartRendererList = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql<any>(gql(queries.chartGetResult), {
-      name: 'chartGetResultQuery',
+      name: "chartGetResultQuery",
       options: ({ chartVariables, filter, dimension }) => ({
         variables: {
           serviceName: chartVariables.serviceName,
@@ -117,8 +125,8 @@ export default withProps<Props>(
           filter: { ...filter },
           dimension: { ...dimension },
         },
-        fetchPolicy: 'network-only',
+        fetchPolicy: "network-only",
       }),
-    }),
-  )(ChartRendererList),
+    })
+  )(ChartRendererList)
 );

@@ -1,10 +1,11 @@
-import React from 'react';
-import Select from 'react-select-plus';
-import dayjs from 'dayjs';
-import { FlexRow, ImportColumnRow } from 'modules/settings/importExport/styles';
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from 'modules/common/utils';
+import { FlexRow, ImportColumnRow } from "modules/settings/importExport/styles";
+
+import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __ } from "modules/common/utils";
+import Select from "react-select";
+import dayjs from "dayjs";
 
 type Props = {
   columns: any[];
@@ -21,7 +22,7 @@ class Row extends React.Component<Props, {}> {
 
     const sampleDatas = columns[column];
 
-    return sampleDatas.map(sample => {
+    return sampleDatas.map((sample) => {
       return (
         <span key={Math.random()}>
           <li>{sample}</li>
@@ -37,13 +38,8 @@ class Row extends React.Component<Props, {}> {
   };
 
   renderMatch = () => {
-    const {
-      column,
-      columns,
-      columnWithChosenField,
-      fields,
-      contentType
-    } = this.props;
+    const { column, columns, columnWithChosenField, fields, contentType } =
+      this.props;
 
     if (columnWithChosenField[contentType]) {
       const chosenColumn = columnWithChosenField[contentType][column];
@@ -57,17 +53,17 @@ class Row extends React.Component<Props, {}> {
       const sampleDatas = columns[column];
 
       const chosenField = fields.find(
-        field => field.value === chosenColumn.value
+        (field) => field.value === chosenColumn.value
       );
 
       for (const sample of sampleDatas) {
-        if (chosenField.type === 'date') {
+        if (chosenField.type === "date") {
           if (!dayjs(sample).isValid()) {
             matched = false;
           }
         }
 
-        if (chosenField.label && chosenField.label.includes('Email')) {
+        if (chosenField.label && chosenField.label.includes("Email")) {
           const re = /\S+@\S+\.\S+/;
 
           if (!re.test(sample)) {
@@ -97,14 +93,14 @@ class Row extends React.Component<Props, {}> {
       const chosenField = columnWithChosenField[contentType];
 
       if (!chosenField) {
-        return '';
+        return "";
       }
 
       if (chosenField) {
-        return chosenField[column] ? chosenField[column].value : '';
+        return chosenField[column] && chosenField[column];
       }
 
-      return '';
+      return "";
     };
 
     const renderOptions = () => {
@@ -116,8 +112,8 @@ class Row extends React.Component<Props, {}> {
         return options;
       }
 
-      options.forEach(option => {
-        Object.keys(chosenField).forEach(key => {
+      options.forEach((option) => {
+        Object.keys(chosenField).forEach((key) => {
           if (chosenField[key].value === option.value) {
             option.disabled = true;
           }
@@ -137,10 +133,10 @@ class Row extends React.Component<Props, {}> {
         <td>
           <FlexRow>
             <Select
-              placeholder={__('Choose')}
+              placeholder={__("Choose")}
               options={renderOptions()}
               onChange={this.onChange}
-              clearable={false}
+              isClearable={false}
               value={renderValue()}
             />
           </FlexRow>

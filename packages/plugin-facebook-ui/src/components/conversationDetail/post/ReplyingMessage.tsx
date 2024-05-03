@@ -1,8 +1,8 @@
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import * as React from 'react';
-import { Footer } from './styles';
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import * as React from "react";
+import { Footer } from "./styles";
 
 type Props = {
   replyComment: (
@@ -29,7 +29,7 @@ class ReplyingMessage extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      post: ''
+      post: "",
     };
   }
 
@@ -37,7 +37,7 @@ class ReplyingMessage extends React.Component<Props, State> {
     const postContent = (e.target as HTMLInputElement).value;
 
     this.setState({
-      post: postContent
+      post: postContent,
     });
   };
 
@@ -49,7 +49,7 @@ class ReplyingMessage extends React.Component<Props, State> {
     const replyData = {
       conversationId,
       commentId,
-      content: this.state.post
+      content: this.state.post,
     };
 
     return replyComment(replyData, () => {
@@ -61,7 +61,7 @@ class ReplyingMessage extends React.Component<Props, State> {
   moveCursorAtTheEnd(e) {
     const tmpValue = e.target.value;
 
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   }
 
@@ -71,7 +71,7 @@ class ReplyingMessage extends React.Component<Props, State> {
         <FormGroup>
           <FormControl
             autoFocus={true}
-            componentClass="textarea"
+            componentclass="textarea"
             onChange={this.onContentChange}
             required={true}
             onFocus={this.moveCursorAtTheEnd}

@@ -2,12 +2,10 @@ import ActivityLogsByActionRow from './ActivityLogsByActionRow';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
-import { IRouterProps } from '@erxes/ui/src/types';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import React from 'react';
 import Sidebar from './Sidebar';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
@@ -19,7 +17,7 @@ type commonProps = {
   activityLogsByAction: IActivityLog[];
   count: number;
   refetchQueries: any;
-} & IRouterProps;
+};
 
 class ActivityLogs extends React.Component<Props> {
   renderObjects() {
@@ -41,7 +39,7 @@ class ActivityLogs extends React.Component<Props> {
         <ActivityLogsByActionRow
           key={activityLog._id}
           activityLog={activityLog}
-        />
+        />,
       );
     }
 
@@ -63,4 +61,4 @@ class ActivityLogs extends React.Component<Props> {
   }
 }
 
-export default withRouter(ActivityLogs);
+export default ActivityLogs;

@@ -3,19 +3,20 @@ import {
   FlexWrap,
   PreviewContent,
   SiteBox,
-  SitePreview
-} from './styles';
-import { __, readFile } from '@erxes/ui/src/utils';
+  SitePreview,
+} from "./styles";
+import { __, readFile } from "@erxes/ui/src/utils";
 
-import Button from '@erxes/ui/src/components/Button';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import { ISiteDoc } from '../../types';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import TemplateForm from '../../containers/templates/TemplateForm';
-import { getEnv } from '@erxes/ui/src/utils/core';
+import Button from "@erxes/ui/src/components/Button";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import { ISiteDoc } from "../../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Menu } from "@headlessui/react";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import TemplateForm from "../../containers/templates/TemplateForm";
+import { getEnv } from "@erxes/ui/src/utils/core";
 
 type Props = {
   sites: ISiteDoc[];
@@ -36,7 +37,7 @@ class SiteList extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      currentSite: null
+      currentSite: null,
     };
   }
 
@@ -45,13 +46,13 @@ class SiteList extends React.Component<Props, State> {
 
     const url = `${REACT_APP_API_URL}/pl:webbuilder/${site.name}`;
 
-    window.open(`${url}`, '_blank');
+    window.open(`${url}`, "_blank");
   };
 
   renderEditAction = (site: ISiteDoc) => {
     const trigger = (
       <Button btnStyle="white" icon="edit">
-        {__('Edit site')}
+        {__("Edit site")}
       </Button>
     );
 
@@ -76,7 +77,7 @@ class SiteList extends React.Component<Props, State> {
         <SitePreview>
           <img
             src={
-              readFile(site.coverImage?.url) || '/images/template-preview.png'
+              readFile(site.coverImage?.url) || "/images/template-preview.png"
             }
             alt="site-img"
           />
@@ -87,7 +88,7 @@ class SiteList extends React.Component<Props, State> {
               onClick={() => this.showSite(site)}
               icon="eye"
             >
-              {__('View site')}
+              {__("View site")}
             </Button>
             {this.renderEditAction(site)}
           </PreviewContent>
@@ -95,25 +96,23 @@ class SiteList extends React.Component<Props, State> {
         <Content>
           <div>
             <b>{site.name}</b>
-            <span>{site.domain || __('View site')}</span>
+            <span>{site.domain || __("View site")}</span>
           </div>
-          <Dropdown>
-            <Dropdown.Toggle as={DropdownToggle} id="dropdown-convert-to">
-              <Icon icon="ellipsis-h" size={18} />
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <a href={`/xbuilder/sites/edit/${site._id}`}>
-                <li key="editor">
-                  <Icon icon="edit-3" /> {__('Editor')}
-                </li>
-              </a>
-              <li key="duplicate" onClick={() => duplicate(site._id)}>
-                <Icon icon="copy" /> {__('Duplicate')}
+          <Dropdown
+            as={DropdownToggle}
+            toggleComponent={<Icon icon="ellipsis-h" size={18} />}
+          >
+            <a href={`/xbuilder/sites/edit/${site._id}`}>
+              <li key="editor">
+                <Icon icon="edit-3" /> {__("Editor")}
               </li>
-              <li key="delete" onClick={() => remove(site._id)}>
-                <Icon icon="trash-alt" size={14} /> {__('Delete')}
-              </li>
-            </Dropdown.Menu>
+            </a>
+            <li key="duplicate" onClick={() => duplicate(site._id)}>
+              <Icon icon="copy" /> {__("Duplicate")}
+            </li>
+            <li key="delete" onClick={() => remove(site._id)}>
+              <Icon icon="trash-alt" size={14} /> {__("Delete")}
+            </li>
           </Dropdown>
         </Content>
       </SiteBox>
@@ -123,7 +122,7 @@ class SiteList extends React.Component<Props, State> {
   render() {
     const { sites = [] } = this.props;
 
-    return <FlexWrap>{sites.map(site => this.renderList(site))}</FlexWrap>;
+    return <FlexWrap>{sites.map((site) => this.renderList(site))}</FlexWrap>;
   }
 }
 

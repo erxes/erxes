@@ -1,21 +1,23 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { graphql } from '@apollo/client/react/hoc';
-import { withProps } from '@erxes/ui/src/utils';
+import * as compose from "lodash.flowright";
+
+import React, { useState } from "react";
 import {
   ToCheckCustomersMutationResponse,
   ToSyncCustomersMutationResponse,
-} from '../types';
-import { router } from '@erxes/ui/src';
-import { Bulk } from '@erxes/ui/src/components';
-import Alert from '@erxes/ui/src/utils/Alert';
-import { mutations } from '../graphql';
-import React, { useState } from 'react';
-import Customers from '../components/customers/Customers';
-import Spinner from '@erxes/ui/src/components/Spinner';
+} from "../types";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import Alert from "@erxes/ui/src/utils/Alert";
+import { Bulk } from "@erxes/ui/src/components";
+import Customers from "../components/customers/Customers";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { mutations } from "../graphql";
+import { router } from "@erxes/ui/src";
+import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
-  history: any;
   queryParams: any;
 };
 
@@ -26,10 +28,12 @@ type FinalProps = {} & Props &
 const CustomersContainer = (props: FinalProps) => {
   const [items, setItems] = useState({});
   const [loading, setLoading] = useState(false);
-  const brandId = props.queryParams.brandId || 'noBrand';
+  const brandId = props.queryParams.brandId || "noBrand";
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const setBrand = (brandId: string) => {
-    router.setParams(props.history, { brandId: brandId });
+    router.setParams(navigate, location, { brandId: brandId });
     return router;
   };
 
@@ -67,9 +71,9 @@ const CustomersContainer = (props: FinalProps) => {
       .then((response) => {
         const data = response.data.toCheckMsdCustomers;
 
-        setSyncStatus(data, 'create');
-        setSyncStatus(data, 'update');
-        setSyncStatus(data, 'delete');
+        setSyncStatus(data, "create");
+        setSyncStatus(data, "update");
+        setSyncStatus(data, "delete");
 
         setItems(response.data.toCheckMsdCustomers);
         setLoading(false);
@@ -92,7 +96,7 @@ const CustomersContainer = (props: FinalProps) => {
       })
       .then(() => {
         setLoading(false);
-        Alert.success('Success. Please check again.');
+        Alert.success("Success. Please check again.");
       })
       .finally(() => {
         const data = items;
@@ -125,13 +129,13 @@ export default withProps<Props>(
     graphql<Props, ToCheckCustomersMutationResponse, {}>(
       gql(mutations.toCheckCustomers),
       {
-        name: 'toCheckMsdCustomers',
+        name: "toCheckMsdCustomers",
       }
     ),
     graphql<Props, ToSyncCustomersMutationResponse, {}>(
       gql(mutations.toSyncCustomers),
       {
-        name: 'toSyncMsdCustomers',
+        name: "toSyncMsdCustomers",
       }
     )
   )(CustomersContainer)

@@ -1,23 +1,19 @@
-import { ButtonWrap, Content } from '../styles';
-import { ClientPortalConfig, MailConfig } from '../types';
-import { isEnabled, removeTypename } from '@erxes/ui/src/utils/core';
+import { ButtonWrap, Content } from "../styles";
+import { ClientPortalConfig, MailConfig } from "../types";
+import React, { useEffect, useState } from "react";
+import { isEnabled, removeTypename } from "@erxes/ui/src/utils/core";
 
-import { Alert } from '@erxes/ui/src/utils';
-import Appearance from './forms/Appearance';
-import Button from '@erxes/ui/src/components/Button';
-import { CONFIG_TYPES } from '../constants';
-import Config from './forms/Config';
-import General from '../containers/General';
-import React from 'react';
+import { Alert } from "@erxes/ui/src/utils";
+import Appearance from "./forms/Appearance";
+import Button from "@erxes/ui/src/components/Button";
+import { CONFIG_TYPES } from "../constants";
+import Config from "./forms/Config";
+import General from "../containers/General";
 
 type Props = {
   configType: string;
   defaultConfigValues?: ClientPortalConfig;
   handleUpdate: (doc: ClientPortalConfig) => void;
-};
-
-type State = {
-  formValues: ClientPortalConfig;
 };
 
 const isUrl = (value: string): boolean => {
@@ -28,43 +24,38 @@ const isUrl = (value: string): boolean => {
   }
 };
 
-class Form extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+const Form: React.FC<Props> = ({
+  configType,
+  defaultConfigValues,
+  handleUpdate,
+}: Props) => {
+  const [formValues, setFormValues] = useState<ClientPortalConfig>(
+    defaultConfigValues || ({} as ClientPortalConfig)
+  );
 
-    this.state = {
-      formValues: props.defaultConfigValues || ({} as ClientPortalConfig),
-    };
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (
-      this.props.defaultConfigValues &&
-      nextProps.defaultConfigValues !== this.props.defaultConfigValues
-    ) {
-      this.setState({ formValues: nextProps.defaultConfigValues });
+  useEffect(() => {
+    if (defaultConfigValues) {
+      setFormValues(defaultConfigValues);
     }
-  }
+  }, [defaultConfigValues]);
 
-  handleSubmit = e => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
-    const { formValues } = this.state;
-
     if (!formValues.name) {
-      return Alert.error('Please enter a client portal name');
+      return Alert.error("Please enter a client portal name");
     }
 
     if (formValues.url && !isUrl(formValues.url)) {
-      return Alert.error('Please enter a valid URL');
+      return Alert.error("Please enter a valid URL");
     }
 
     if (formValues.domain && !isUrl(formValues.domain)) {
-      return Alert.error('Please enter a valid domain');
+      return Alert.error("Please enter a valid domain");
     }
 
-    if (!formValues.knowledgeBaseTopicId && isEnabled('knowledgebase')) {
-      return Alert.error('Please choose a Knowledge base topic');
+    if (!formValues.knowledgeBaseTopicId && isEnabled("knowledgebase")) {
+      return Alert.error("Please choose a Knowledge base topic");
     }
 
     if (formValues.styles) {
@@ -77,13 +68,13 @@ class Form extends React.Component<Props, State> {
 
       if (!mailConfig.registrationContent.match(/{{ link }}/g)) {
         return Alert.error(
-          'Please add {{ link }} to registration mail content to send verification link'
+          "Please add {{ link }} to registration mail content to send verification link"
         );
       }
 
       if (!mailConfig.invitationContent.match(/{{ link }}|{{ password }}/g)) {
         return Alert.error(
-          'Please add {{ link }} and {{ password }} to invitation mail content to send verification link and password'
+          "Please add {{ link }} and {{ password }} to invitation mail content to send verification link and password"
         );
       }
 
@@ -95,7 +86,7 @@ class Form extends React.Component<Props, State> {
 
       if (!content.match(/{{ code }}/g)) {
         return Alert.error(
-          'Please add {{ code }} to OTP content to send verification code'
+          "Please add {{ code }} to OTP content to send verification code"
         );
       }
 
@@ -106,7 +97,7 @@ class Form extends React.Component<Props, State> {
 
       if (!content.match(/{{ code }}/g)) {
         return Alert.error(
-          'Please add {{ code }} to OTP content to send verification code'
+          "Please add {{ code }} to OTP content to send verification code"
         );
       }
 
@@ -116,28 +107,28 @@ class Form extends React.Component<Props, State> {
       formValues.manualVerificationConfig &&
       !formValues.manualVerificationConfig.userIds.length
     ) {
-      return Alert.error('Please select at least one user who can verify');
+      return Alert.error("Please select at least one user who can verify");
     }
 
-    this.props.handleUpdate(formValues);
+    handleUpdate(formValues);
   };
 
-  handleFormChange = (name: string, value: string | object | boolean) => {
-    this.setState({
-      formValues: {
-        ...this.state.formValues,
-        [name]: value,
-      },
+  const handleFormChange = (name: string, value: string | object | boolean) => {
+    setFormValues({
+      ...formValues,
+      [name]: value,
     });
   };
 
-  renderContent = () => {
+  const renderContent = () => {
     const commonProps = {
-      ...this.state.formValues,
-      handleFormChange: this.handleFormChange,
+      ...formValues,
+      taskPublicPipelineId: formValues.taskPublicPipelineId || "",
+      taskPublicBoardId: formValues.taskPublicBoardId || "",
+      handleFormChange,
     };
 
-    switch (this.props.configType) {
+    switch (configType) {
       case CONFIG_TYPES.GENERAL.VALUE:
         return <General {...commonProps} />;
       case CONFIG_TYPES.APPEARANCE.VALUE:
@@ -149,26 +140,24 @@ class Form extends React.Component<Props, State> {
     }
   };
 
-  renderSubmit = () => {
+  const renderSubmit = () => {
     return (
       <ButtonWrap>
-        <Button btnStyle='success' icon='check-circle' type='submit'>
+        <Button btnStyle="success" icon="check-circle" type="submit">
           Submit
         </Button>
       </ButtonWrap>
     );
   };
 
-  render() {
-    return (
-      <form onSubmit={this.handleSubmit}>
-        <Content>
-          {this.renderContent()}
-          {this.renderSubmit()}
-        </Content>
-      </form>
-    );
-  }
-}
+  return (
+    <form onSubmit={handleSubmit}>
+      <Content>
+        {renderContent()}
+        {renderSubmit()}
+      </Content>
+    </form>
+  );
+};
 
 export default Form;

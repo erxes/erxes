@@ -1,14 +1,12 @@
-import React from 'react';
-import * as compose from 'lodash.flowright';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils/core';
-import Component from '../components';
-type Props = {} & IRouterProps;
+import Component from "../components";
+import React from "react";
 
-type FinalProps = {} & Props;
+type Props = {
+  queryParams: any;
+};
 
-function Settings({}: FinalProps) {
+function Settings({ queryParams }: Props) {
   return <Component />;
 }
 
-export default withProps<Props>(compose()(Settings));
+export default Settings;

@@ -222,7 +222,7 @@ function TransactionFormNew(props: Props) {
                   <ControlLabel>{__('Is Pre Payment')}</ControlLabel>
                   <FormControl
                     type={'checkbox'}
-                    componentClass="checkbox"
+                    componentclass="checkbox"
                     useNumberFormat
                     fixed={0}
                     name="isPrePayment"

@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { EventClickArg, formatDate } from '@fullcalendar/core';
-import FullCalendar from '@fullcalendar/react';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import interactionPlugin from '@fullcalendar/interaction';
-import { router } from '@erxes/ui/src/utils/core';
-import { useHistory } from 'react-router-dom';
-import MeetingFormContainer from '../../../containers/myCalendar/meeting/Form';
-import { Modal } from 'react-bootstrap';
-import { IMeeting } from '../../../types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { RenderEvent } from '../../../styles';
-import { generateColorCode } from '../../../utils';
+import React, { useEffect, useState } from "react";
+import { EventClickArg, formatDate } from "@fullcalendar/core";
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import interactionPlugin from "@fullcalendar/interaction";
+import { router } from "@erxes/ui/src/utils/core";
+import { useLocation, useNavigate } from "react-router-dom";
+import MeetingFormContainer from "../../../containers/myCalendar/meeting/Form";
+import Dialog from "@erxes/ui/src/components/Dialog";
+import { IMeeting } from "../../../types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import { RenderEvent } from "../../../styles";
+import { generateColorCode } from "../../../utils";
 
 type Props = {
   meetings?: IMeeting[];
@@ -28,10 +28,11 @@ type Props = {
 function CalendarComponent(props: Props) {
   const { queryParams, currentUser, meetings, changeDateMeeting } = props;
   const [showModal, setShowModal] = useState(false);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [updatedMeetings, setMeetings] = useState(meetings);
-  const history = useHistory();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     setShowModal(false);
@@ -44,10 +45,10 @@ function CalendarComponent(props: Props) {
       start: new Date(meeting.startDate), // Year, Month (0-11), Day, Hour, Minute
       end: new Date(meeting.endDate),
       id: meeting._id,
-      color: generateColorCode(meeting.createdBy)
+      color: generateColorCode(meeting.createdBy),
     })) || [];
 
-  const handleDateSelect = selectInfo => {
+  const handleDateSelect = (selectInfo) => {
     let calendarApi = selectInfo.view.calendar;
 
     calendarApi.unselect(); // clear date selection
@@ -57,10 +58,10 @@ function CalendarComponent(props: Props) {
   };
 
   const handleEventClick = ({ event }: EventClickArg) => {
-    router.setParams(history, { meetingId: event.id });
+    router.setParams(navigate, location, { meetingId: event.id });
   };
 
-  const changeEvent = e => {
+  const changeEvent = (e) => {
     const { event, revert } = e;
     const { id, _instance } = event;
     const { range = {} } = _instance;
@@ -73,15 +74,15 @@ function CalendarComponent(props: Props) {
 
   const renderEventContent = ({ event }: EventClickArg) => (
     <RenderEvent backgroundColor={event.backgroundColor}>
-      <span style={{ whiteSpace: 'nowrap', paddingLeft: '15px' }}>
+      <span style={{ whiteSpace: "nowrap", paddingLeft: "15px" }}>
         {event.title}
       </span>
       <span
-        style={{ whiteSpace: 'nowrap', float: 'right', paddingRight: '15px' }}
+        style={{ whiteSpace: "nowrap", float: "right", paddingRight: "15px" }}
       >
         {formatDate(event.startStr!, {
-          hour: '2-digit',
-          minute: '2-digit'
+          hour: "2-digit",
+          minute: "2-digit",
         })}
       </span>
     </RenderEvent>
@@ -89,18 +90,18 @@ function CalendarComponent(props: Props) {
 
   const object = {
     startDate,
-    endDate
+    endDate,
   };
 
   return (
     <>
-      <div style={{ width: '100%' }}>
+      <div style={{ width: "100%" }}>
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           headerToolbar={{
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            left: "prev,next today",
+            center: "title",
+            right: "dayGridMonth,timeGridWeek,timeGridDay",
           }}
           height="80vh"
           initialView="dayGridMonth"
@@ -116,20 +117,20 @@ function CalendarComponent(props: Props) {
           firstDay={1}
         />
       </div>
-      <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
-        <Modal.Header closeButton={true}>
-          <Modal.Title>Create Meeting</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <MeetingFormContainer
-            queryParams={queryParams}
-            refetch={['meetings']}
-            currentUser={currentUser}
-            closeModal={() => setShowModal(false)}
-            calendarDate={object}
-          />
-        </Modal.Body>
-      </Modal>
+      <Dialog
+        title="Create Meeting"
+        show={showModal}
+        closeModal={() => setShowModal(false)}
+        size="lg"
+      >
+        <MeetingFormContainer
+          queryParams={queryParams}
+          refetch={["meetings"]}
+          currentUser={currentUser}
+          closeModal={() => setShowModal(false)}
+          calendarDate={object}
+        />
+      </Dialog>
     </>
   );
 }

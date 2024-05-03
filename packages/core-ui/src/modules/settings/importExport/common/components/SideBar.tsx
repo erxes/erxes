@@ -1,8 +1,8 @@
-import { __ } from 'modules/common/utils';
-import LeftSidebar from 'modules/layout/components/Sidebar';
-import { SidebarList as List } from 'modules/layout/styles';
-import React from 'react';
-import { Link } from 'react-router-dom';
+import LeftSidebar from "modules/layout/components/Sidebar";
+import { Link } from "react-router-dom";
+import { SidebarList as List } from "modules/layout/styles";
+import React from "react";
+import { __ } from "modules/common/utils";
 
 type Props = {
   currentType?: string;
@@ -15,7 +15,7 @@ class Sidebar extends React.Component<Props> {
 
     return (
       <div>
-        <Header uppercase={true}>{__('Filter by content type')}</Header>
+        <Header uppercase={true}>{__("Filter by content type")}</Header>
       </div>
     );
   };
@@ -25,7 +25,7 @@ class Sidebar extends React.Component<Props> {
     const { currentType } = this.props;
 
     const className =
-      currentType && currentType === contentType ? 'active' : '';
+      currentType && currentType === contentType ? "active" : "";
 
     return (
       <li key={Math.random()}>
@@ -37,21 +37,21 @@ class Sidebar extends React.Component<Props> {
   }
 
   renderList() {
-    const { services } = this.props;
+    const { services = [] } = this.props;
 
-    if (services && services.length !== 0) {
+    if (!services || services.length === 0) {
       return (
-        <List id={'ImportExportSidebar'}>
-          {services.map(service => this.renderListItem(service))}
+        <List id={"ImportExportSidebar"}>
+          <li>
+            <Link to="#">{__("No content type found!")}</Link>
+          </li>
         </List>
       );
     }
 
     return (
-      <List id={'ImportExportSidebar'}>
-        <li>
-          <Link to="#">{__('No content type found!')}</Link>
-        </li>
+      <List id={"ImportExportSidebar"}>
+        {services.map((service) => this.renderListItem(service))}
       </List>
     );
   }

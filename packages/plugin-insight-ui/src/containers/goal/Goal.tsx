@@ -7,7 +7,6 @@ import { queries, mutations } from '../../graphql';
 import { GoalTypesQueryResponse } from '../../types';
 
 type Props = {
-  history: any;
   queryParams: any;
 };
 

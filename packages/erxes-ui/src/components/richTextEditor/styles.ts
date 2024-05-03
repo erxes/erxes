@@ -8,6 +8,10 @@ const RichTextEditorWrapper = styled.div<{ $position: string }>`
   display: flex;
   flex-direction: column;
 
+  > div {
+    overflow: auto;
+  }
+
   .cm-editor.cm-focused {
     outline: none;
   }

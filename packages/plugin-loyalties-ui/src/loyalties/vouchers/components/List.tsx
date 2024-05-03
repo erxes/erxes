@@ -1,7 +1,4 @@
-import React from 'react';
-import Sidebar from './Sidebar';
-import VoucherForm from '../containers/Form';
-import VoucherRow from './Row';
+import { Alert, __, confirm, router } from "@erxes/ui/src/utils";
 import {
   Button,
   DataWithLoader,
@@ -9,23 +6,27 @@ import {
   ModalTrigger,
   Pagination,
   SortHandler,
-  Table
-} from '@erxes/ui/src/components';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
-import { BarItems } from '@erxes/ui/src/layout/styles';
+  Table,
+} from "@erxes/ui/src/components";
 import {
   MainStyleCount as Count,
-  MainStyleTitle as Title
-} from '@erxes/ui/src/styles/eindex';
-import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
-import { IVoucher } from '../types';
-import { IVoucherCampaign } from '../../../configs/voucherCampaign/types';
-import { LoyaltiesTableWrapper } from '../../common/styles';
-import { menuLoyalties } from '../../common/constants';
-import { withRouter } from 'react-router-dom';
+  MainStyleTitle as Title,
+} from "@erxes/ui/src/styles/eindex";
+import { IQueryParams } from "@erxes/ui/src/types";
 
-interface IProps extends IRouterProps {
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import { IVoucher } from "../types";
+import { IVoucherCampaign } from "../../../configs/voucherCampaign/types";
+import { LoyaltiesTableWrapper } from "../../common/styles";
+import React, {useState} from "react";
+import Sidebar from "./Sidebar";
+import VoucherForm from "../containers/Form";
+import VoucherRow from "./Row";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { menuLoyalties } from "../../common/constants";
+import { useLocation, useNavigate } from 'react-router-dom';
+
+interface IProps {
   vouchers: IVoucher[];
   currentCampaign?: IVoucherCampaign;
   loading: boolean;
@@ -41,78 +42,65 @@ interface IProps extends IRouterProps {
     doc: { voucherIds: string[] },
     emptyBulk: () => void
   ) => void;
-  history: any;
   queryParams: IQueryParams;
 }
 
-type State = {
-  searchValue?: string;
-};
-
-class VouchersList extends React.Component<IProps, State> {
-  private timer?: NodeJS.Timer = undefined;
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      searchValue: this.props.searchValue
-    };
-  }
-
-  onChange = () => {
-    const { toggleAll, vouchers } = this.props;
-    toggleAll(vouchers, 'vouchers');
+const VouchersList=(props: IProps) => {
+  let timer;
+  const [searchValue, setSearchValue] = useState(props.searchValue)
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  const onChange = () => {
+    const { toggleAll, vouchers } = props;
+    toggleAll(vouchers, "vouchers");
   };
 
-  search = e => {
-    if (this.timer) {
-      clearTimeout(this.timer);
+  const search = (e) => {
+    if (timer) {
+      clearTimeout(timer);
     }
 
-    const { history } = this.props;
     const searchValue = e.target.value;
 
-    this.setState({ searchValue });
-    this.timer = setTimeout(() => {
-      router.removeParams(history, 'page');
-      router.setParams(history, { searchValue });
+    setSearchValue( searchValue );
+    timer = setTimeout(() => {
+      router.removeParams(navigate, location, "page");
+      router.setParams(navigate, location, { searchValue });
     }, 500);
   };
 
-  removeVouchers = vouchers => {
+  const removeVouchers = (vouchers) => {
     const voucherIds: string[] = [];
 
-    vouchers.forEach(voucher => {
+    vouchers.forEach((voucher) => {
       voucherIds.push(voucher._id);
     });
 
-    this.props.removeVouchers({ voucherIds }, this.props.emptyBulk);
+    props.removeVouchers({ voucherIds }, props.emptyBulk);
   };
 
-  moveCursorAtTheEnd = e => {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
-  render() {
     const {
       vouchers,
-      history,
       loading,
       toggleBulk,
       bulk,
       isAllSelected,
       totalCount,
       queryParams,
-      currentCampaign
-    } = this.props;
+      currentCampaign,
+    } = props;
 
     const renderCheckbox = () => {
       if (
         !currentCampaign ||
-        ['spin', 'lottery'].includes(currentCampaign.voucherType)
+        ["spin", "lottery"].includes(currentCampaign.voucherType)
       ) {
         return;
       }
@@ -120,8 +108,8 @@ class VouchersList extends React.Component<IProps, State> {
         <th>
           <FormControl
             checked={isAllSelected}
-            componentClass="checkbox"
-            onChange={this.onChange}
+            componentclass="checkbox"
+            onChange={onChange}
           />
         </th>
       );
@@ -129,32 +117,31 @@ class VouchersList extends React.Component<IProps, State> {
 
     const mainContent = (
       <LoyaltiesTableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
           <thead>
             <tr>
               {renderCheckbox()}
               <th>
-                <SortHandler sortField={'createdAt'} label={__('Created')} />
+                <SortHandler sortField={"createdAt"} label={__("Created")} />
               </th>
               <th>
-                <SortHandler sortField={'ownerType'} label={__('Owner Type')} />
+                <SortHandler sortField={"ownerType"} label={__("Owner Type")} />
               </th>
               <th>
-                <SortHandler sortField={'ownerId'} label={__('Owner')} />
+                <SortHandler sortField={"ownerId"} label={__("Owner")} />
               </th>
               <th>
-                <SortHandler sortField={'status'} label={__('Status')} />
+                <SortHandler sortField={"status"} label={__("Status")} />
               </th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody id="vouchers">
-            {vouchers.map(voucher => (
+            {vouchers.map((voucher) => (
               <VoucherRow
                 voucher={voucher}
                 isChecked={bulk.includes(voucher)}
                 key={voucher._id}
-                history={history}
                 toggleBulk={toggleBulk}
                 currentCampaign={currentCampaign}
                 queryParams={queryParams}
@@ -171,7 +158,7 @@ class VouchersList extends React.Component<IProps, State> {
       </Button>
     );
 
-    const voucherForm = props => {
+    const voucherForm = (props) => {
       return <VoucherForm {...props} queryParams={queryParams} />;
     };
 
@@ -180,9 +167,9 @@ class VouchersList extends React.Component<IProps, State> {
         const onClick = () =>
           confirm()
             .then(() => {
-              this.removeVouchers(bulk);
+              removeVouchers(bulk);
             })
-            .catch(error => {
+            .catch((error) => {
               Alert.error(error.message);
             });
 
@@ -203,11 +190,11 @@ class VouchersList extends React.Component<IProps, State> {
         <BarItems>
           <FormControl
             type="text"
-            placeholder={__('Type to search')}
-            onChange={this.search}
-            value={this.state.searchValue}
+            placeholder={__("Type to search")}
+            onChange={search}
+            value={searchValue}
             autoFocus={true}
-            onFocus={this.moveCursorAtTheEnd}
+            onFocus={moveCursorAtTheEnd}
           />
 
           <ModalTrigger
@@ -225,7 +212,7 @@ class VouchersList extends React.Component<IProps, State> {
       <Title>
         {(currentCampaign &&
           `${currentCampaign.voucherType}: ${currentCampaign.title}`) ||
-          'All voucher campaigns'}{' '}
+          "All voucher campaigns"}{" "}
       </Title>
     );
     const actionBar = (
@@ -246,13 +233,12 @@ class VouchersList extends React.Component<IProps, State> {
           <Sidebar
             loadingMainQuery={loading}
             queryParams={queryParams}
-            history={history}
           />
         }
         content={
           <>
             <Count>
-              {totalCount} voucher{totalCount > 1 && 's'}
+              {totalCount} voucher{totalCount > 1 && "s"}
             </Count>
             <DataWithLoader
               data={mainContent}
@@ -266,7 +252,7 @@ class VouchersList extends React.Component<IProps, State> {
         hasBorder
       />
     );
-  }
+  
 }
 
-export default withRouter<IRouterProps>(VouchersList);
+export default VouchersList;

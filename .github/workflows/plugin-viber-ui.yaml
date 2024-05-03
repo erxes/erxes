@@ -97,4 +97,6 @@ jobs:
         run: |
           tar -cf build.tar --directory=packages/plugin-viber-ui/dist .
           cp build.tar packages/plugin-viber-ui/dist
+
+
           aws s3 sync packages/plugin-viber-ui/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/plugin-viber-ui --delete

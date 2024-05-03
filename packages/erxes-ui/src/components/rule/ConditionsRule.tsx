@@ -1,17 +1,18 @@
-import Button from '../Button';
-import FormControl from '../form/Control';
-import FormGroup from '../form/Group';
-import ControlLabel from '../form/Label';
-import { FlexPad, InlineForm } from '../step/styles';
+import { FlexPad, InlineForm } from "../step/styles";
 import {
   RULE_CONDITIONS,
-  VISITOR_AUDIENCE_RULES
-} from '../../constants/engage';
-import React from 'react';
-import styled from 'styled-components';
-import { IConditionsRule } from '../../types';
-import ModalTrigger from '../ModalTrigger';
-import RuleForm from './RuleForm';
+  VISITOR_AUDIENCE_RULES,
+} from "../../constants/engage";
+
+import Button from "../Button";
+import ControlLabel from "../form/Label";
+import FormControl from "../form/Control";
+import FormGroup from "../form/Group";
+import { IConditionsRule } from "../../types";
+import ModalTrigger from "../ModalTrigger";
+import React from "react";
+import RuleForm from "./RuleForm";
+import styled from "styled-components";
 
 const RuleDescription = styled.p`
   text-transform: initial;
@@ -19,7 +20,7 @@ const RuleDescription = styled.p`
 
 type Props = {
   rules: IConditionsRule[];
-  onChange: (name: 'rules', rules: IConditionsRule[]) => void;
+  onChange: (name: "rules", rules: IConditionsRule[]) => void;
   description?: string;
 };
 
@@ -32,11 +33,11 @@ class ConditionsRule extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      rules: props.rules || []
+      rules: props.rules || [],
     };
   }
 
-  addRule = e => {
+  addRule = (e) => {
     const rules = this.state.rules;
     const selectedOption = e.target.options[e.target.selectedIndex];
 
@@ -45,8 +46,8 @@ class ConditionsRule extends React.Component<Props, State> {
         _id: Math.random().toString(),
         kind: selectedOption.value,
         text: selectedOption.text,
-        condition: '',
-        value: ''
+        condition: "",
+        value: "",
       });
 
       this.setState({ rules });
@@ -57,24 +58,24 @@ class ConditionsRule extends React.Component<Props, State> {
     let description;
 
     switch (rule.kind) {
-      case 'browserLanguage':
+      case "browserLanguage":
         description =
-          'Recognizes which language is set for visitor’s browser. Insert only Language codes in value field as appointed in ISO-639, i.e “en” for English, “fr” for French, “de” for German etc.';
+          "Recognizes which language is set for visitor’s browser. Insert only Language codes in value field as appointed in ISO-639, i.e “en” for English, “fr” for French, “de” for German etc.";
         break;
-      case 'currentPageUrl':
+      case "currentPageUrl":
         description =
-          'Write your desired page URL, excluding domain name. For example: If you want to place your engagement message on https://office.erxes.io/pricing - then write /pricing';
+          "Write your desired page URL, excluding domain name. For example: If you want to place your engagement message on https://office.erxes.io/pricing - then write /pricing";
         break;
-      case 'country':
+      case "country":
         description =
-          'Locates visitor’s physical location in country  resolution. Insert only Country codes in value field as appointed in ISO-3166 standard, i.e “gb” for Great Britain, “fr” for French, “de” for German, “jp” for Japanese etc.';
+          "Locates visitor’s physical location in country  resolution. Insert only Country codes in value field as appointed in ISO-3166 standard, i.e “gb” for Great Britain, “fr” for French, “de” for German, “jp” for Japanese etc.";
         break;
-      case 'city':
+      case "city":
         description =
-          'Locates visitor’s physical location in city resolution. Write a name of the City in value field. If Country’s not set, every city with same name will meet the criteria.';
+          "Locates visitor’s physical location in city resolution. Write a name of the City in value field. If Country’s not set, every city with same name will meet the criteria.";
         break;
       default:
-        description = 'Counts individual visitor’s visitting number.';
+        description = "Counts individual visitor’s visitting number.";
         break;
     }
 
@@ -85,17 +86,17 @@ class ConditionsRule extends React.Component<Props, State> {
     const remove = () => {
       let rules = this.state.rules;
 
-      rules = rules.filter(r => r._id !== rule._id);
+      rules = rules.filter((r) => r._id !== rule._id);
 
       this.setState({ rules });
-      this.props.onChange('rules', rules);
+      this.props.onChange("rules", rules);
     };
 
     const changeProp = (name, value) => {
       const rules = this.state.rules;
 
       // find current editing one
-      const currentRule = rules.find(r => r._id === rule._id);
+      const currentRule = rules.find((r) => r._id === rule._id);
 
       // set new value
       if (currentRule) {
@@ -103,15 +104,15 @@ class ConditionsRule extends React.Component<Props, State> {
       }
 
       this.setState({ rules });
-      this.props.onChange('rules', rules);
+      this.props.onChange("rules", rules);
     };
 
-    const onChangeValue = e => {
-      changeProp('value', e.target.value);
+    const onChangeValue = (e) => {
+      changeProp("value", e.target.value);
     };
 
-    const onChangeCondition = e => {
-      changeProp('condition', e.target.value);
+    const onChangeCondition = (e) => {
+      changeProp("condition", e.target.value);
     };
 
     return (
@@ -122,7 +123,7 @@ class ConditionsRule extends React.Component<Props, State> {
         </ControlLabel>
         <InlineForm>
           <FormControl
-            componentClass="select"
+            componentclass="select"
             defaultValue={rule.condition}
             onChange={onChangeCondition}
           >
@@ -156,7 +157,7 @@ class ConditionsRule extends React.Component<Props, State> {
       </Button>
     );
 
-    const content = props => <RuleForm {...props} onChange={this.addRule} />;
+    const content = (props) => <RuleForm {...props} onChange={this.addRule} />;
 
     return (
       <ModalTrigger title="Add rule" trigger={trigger} content={content} />
@@ -172,9 +173,9 @@ class ConditionsRule extends React.Component<Props, State> {
           <ControlLabel>Add rules</ControlLabel>
           <RuleDescription>
             {description ||
-              'Rules are used when you wish to target the audience of the form according to custom rules. For example, you can show the form only if a visitor views the webpage more than 5 times.'}
+              "Rules are used when you wish to target the audience of the form according to custom rules. For example, you can show the form only if a visitor views the webpage more than 5 times."}
           </RuleDescription>
-          <FormControl componentClass="select" onChange={this.addRule}>
+          <FormControl componentclass="select" onChange={this.addRule}>
             {VISITOR_AUDIENCE_RULES.map((rule, index) => (
               <option key={index} value={rule.value}>
                 {rule.text}
@@ -184,7 +185,7 @@ class ConditionsRule extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          {this.state.rules.map(rule => this.renderRule(rule))}
+          {this.state.rules.map((rule) => this.renderRule(rule))}
         </FormGroup>
 
         <FormGroup>{this.renderAddRule()}</FormGroup>

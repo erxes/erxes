@@ -5,16 +5,16 @@ import {
   FormControl,
   FormGroup,
   HeaderDescription,
-  Icon
-} from '@erxes/ui/src/components';
+  Icon,
+} from "@erxes/ui/src/components";
 
-import { ContentBox } from '../../../styles';
-import { IConfigsMap } from '../types';
-import React from 'react';
-import Sidebar from './Sidebar';
-import { Title } from '@erxes/ui-settings/src/styles';
-import { Wrapper } from '@erxes/ui/src/layout';
-import { __ } from '@erxes/ui/src/utils';
+import { ContentBox } from "../../../styles";
+import { IConfigsMap } from "../types";
+import React from "react";
+import Sidebar from "./Sidebar";
+import { Title } from "@erxes/ui-settings/src/styles";
+import { Wrapper } from "@erxes/ui/src/layout";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
@@ -30,11 +30,11 @@ class GeneralSettings extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      configsMap: props.configsMap
+      configsMap: props.configsMap,
     };
   }
 
-  save = e => {
+  save = (e) => {
     e.preventDefault();
 
     const { configsMap } = this.state;
@@ -71,12 +71,12 @@ class GeneralSettings extends React.Component<Props, State> {
 
   render() {
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
+      { title: __("Settings"), link: "/settings" },
       {
-        title: __('Loyalties config'),
-        link: '/erxes-plugin-loyalty/settings/general'
+        title: __("Loyalties config"),
+        link: "/erxes-plugin-loyalty/settings/general",
       },
-      { title: __('General config') }
+      { title: __("General config") },
     ];
 
     const header = (
@@ -99,21 +99,21 @@ class GeneralSettings extends React.Component<Props, State> {
     );
 
     const content = (
-      <ContentBox id={'GeneralSettingsMenu'}>
+      <ContentBox id={"GeneralSettingsMenu"}>
         <CollapseContent
           transparent={true}
           beforeTitle={<Icon icon="settings" />}
-          title={__('General settings')}
+          title={__("General settings")}
         >
-          {this.renderItem('LoyaltyRatioCurrency', 'Loyalty ratio currency')}
+          {this.renderItem("LoyaltyRatioCurrency", "Loyalty ratio currency")}
         </CollapseContent>
 
         <CollapseContent
-          title={__('Share settings')}
+          title={__("Share settings")}
           transparent={true}
           beforeTitle={<Icon icon="share-alt" />}
         >
-          {this.renderItem('ShareScoreFee', 'Fee for score sharing')}
+          {this.renderItem("ShareScoreFee", "Fee for score sharing")}
         </CollapseContent>
       </ContentBox>
     );
@@ -122,14 +122,14 @@ class GeneralSettings extends React.Component<Props, State> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('General Config')}
+            title={__("General Config")}
             breadcrumb={breadcrumb}
           />
         }
         mainHead={header}
         actionBar={
           <Wrapper.ActionBar
-            left={<Title capitalize={true}>{__('Loyalty config')}</Title>}
+            left={<Title $capitalize={true}>{__("Loyalty config")}</Title>}
             right={actionButtons}
             wideSpacing={true}
           />

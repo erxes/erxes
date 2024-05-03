@@ -1,15 +1,15 @@
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
-import { IntegrationMutationVariables } from '../../types';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import React from 'react';
-import SelectBrand from '../../containers/SelectBrand';
-import SelectChannels from '../../containers/SelectChannels';
-import { __ } from '@erxes/ui/src/utils';
-import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { INTEGRATION_KINDS } from "@erxes/ui/src/constants/integrations";
+import { IntegrationMutationVariables } from "../../types";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import React from "react";
+import SelectBrand from "../../containers/SelectBrand";
+import SelectChannels from "../../containers/SelectChannels";
+import { __ } from "@erxes/ui/src/utils";
+import { loadDynamicComponent } from "@erxes/ui/src/utils/core";
 
 type CommonTypes = {
   name: string;
@@ -41,12 +41,12 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
     super(props);
 
     this.state = {
-      name: props.name || '',
-      brandId: props.brandId || '',
+      name: props.name || "",
+      brandId: props.brandId || "",
       channelIds: props.channelIds || [],
       webhookData: props.webhookData || {},
       details: props.details || {},
-      isSubmitted: false
+      isSubmitted: false,
     };
   }
 
@@ -59,10 +59,10 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
 
     const { webhookData } = this.state;
 
-    const onChangeWebhookData = e => {
+    const onChangeWebhookData = (e) => {
       webhookData[e.target.name] = e.target.value;
       this.setState({
-        webhookData: { ...webhookData }
+        webhookData: { ...webhookData },
       });
     };
 
@@ -91,10 +91,10 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel required={false}>{__('Script')}</ControlLabel>
+          <ControlLabel required={false}>{__("Script")}</ControlLabel>
           <FormControl
             name="script"
-            componentClass="textarea"
+            componentclass="textarea"
             required={true}
             defaultValue={webhookData.script}
             onChange={onChangeWebhookData}
@@ -108,7 +108,7 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
     const { integrationId, onSubmit, closeModal } = this.props;
     const { name, brandId, channelIds, webhookData, details } = this.state;
 
-    const onBrandChange = e => {
+    const onBrandChange = (e) => {
       this.setState({ brandId: e.target.value });
     };
 
@@ -117,16 +117,14 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
     };
 
     const onDetailsChange = (key: string, value: any) => {
-      details[key] = value;
-
-      this.setState({ details: { ...details } });
+      this.setState({ details: { ...details, [key]: value } });
     };
 
-    const onNameBlur = e => {
+    const onNameBlur = (e) => {
       this.setState({ name: e.target.value });
     };
 
-    const saveIntegration = e => {
+    const saveIntegration = (e) => {
       e.preventDefault();
 
       this.setState({ isSubmitted: true });
@@ -134,7 +132,7 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
       let data: any;
 
       switch (this.props.integrationKind) {
-        case 'webhook': {
+        case "webhook": {
           data = webhookData;
           break;
         }
@@ -149,7 +147,7 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>{__('Name')}</ControlLabel>
+          <ControlLabel required={true}>{__("Name")}</ControlLabel>
           <FormControl
             required={true}
             defaultValue={name}
@@ -161,11 +159,11 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
         {this.renderScript()}
 
         {loadDynamicComponent(
-          'integrationDetailsForm',
+          "integrationDetailsForm",
           {
             integrationKind: this.props.integrationKind,
             details: this.state.details,
-            onChange: onDetailsChange
+            onChange: onDetailsChange,
           },
           true
         )}
@@ -175,7 +173,7 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
           defaultValue={brandId}
           onChange={onBrandChange}
           description={__(
-            'Which specific Brand does this integration belong to?'
+            "Which specific Brand does this integration belong to?"
           )}
         />
         <SelectChannels
@@ -199,7 +197,7 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
             btnStyle="success"
             icon="check-circle"
           >
-            {__('Save')}
+            {__("Save")}
           </Button>
         </ModalFooter>
       </>

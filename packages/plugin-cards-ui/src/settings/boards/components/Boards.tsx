@@ -26,7 +26,7 @@ class Boards extends React.Component<Props, {}> {
   renderItems = () => {
     const { type, boards, remove, renderButton, currentBoardId } = this.props;
 
-    return boards.map(board => (
+    return boards.map((board) => (
       <BoardRow
         type={type}
         key={board._id}
@@ -53,7 +53,7 @@ class Boards extends React.Component<Props, {}> {
       </Button>
     );
 
-    const content = props => {
+    const content = (props) => {
       return this.renderBoardForm({ ...props, renderButton, type });
     };
 
@@ -76,10 +76,10 @@ class Boards extends React.Component<Props, {}> {
       options && options.boardName ? options.boardName.toLowerCase() : 'board';
 
     return (
-      <Sidebar wide header={this.renderSidebarHeader()} hasBorder>
+      <Sidebar wide header={this.renderSidebarHeader()} $hasBorder={true}>
         <DataWithLoader
           data={
-            <List noTextColor noBackground>
+            <List $noTextColor={true} $noBackground={true}>
               {this.renderItems()}
             </List>
           }

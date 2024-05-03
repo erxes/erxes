@@ -1,6 +1,6 @@
-import styled from 'styled-components';
 import { colors } from '../../../styles';
 import { rgba } from '../../../styles/ecolor';
+import styled from 'styled-components';
 // color: ${colors.colorSecondary};
 //     background-color: ${rgba(colors.colorSecondary, 0.05)};
 
@@ -69,6 +69,20 @@ const ControlsGroupWrapper = styled.div<{
     button {
       border: none;
       height: 1.6125rem;
+    }
+  }
+
+  #color-picker {
+    button > span {
+      border-right: 0;
+      border-bottom-right-radius: 0;
+      border-top-right-radius: 0;
+    }
+  }
+  #background-color-picker {
+    button > span {
+      border-bottom-left-radius: 0;
+      border-top-left-radius: 0;
     }
   }
 

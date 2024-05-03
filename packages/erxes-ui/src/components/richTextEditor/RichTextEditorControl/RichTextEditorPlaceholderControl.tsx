@@ -1,8 +1,7 @@
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownButton from 'react-bootstrap/DropdownButton';
-import { useRichTextEditorContext } from '../RichTextEditor.context';
-import { PlaceholderWrapper } from './styles';
+import { Menu } from "@headlessui/react";
+import { PlaceholderWrapper } from "./styles";
+import React from "react";
+import { useRichTextEditorContext } from "../RichTextEditor.context";
 
 export const RichTextEditorPlaceholderControl = ({
   placeholderProp,
@@ -15,29 +14,34 @@ export const RichTextEditorPlaceholderControl = ({
   };
 
   return (
-    <PlaceholderWrapper $toolbarPlacement={toolbarPlacement}>
-      <DropdownButton
+    <Menu as={PlaceholderWrapper} $toolbarPlacement={toolbarPlacement}>
+      <Menu.Button
         id="dropdown-item-button"
         title={placeholderProp?.title}
         disabled={isSourceEnabled}
       >
+        Attributes
+      </Menu.Button>
+      <Menu.Items>
         {placeholderProp?.items?.map((item: any) => {
           if (!item?.value) {
             return (
-              <Dropdown.Header key={item?.name}>{item?.name}</Dropdown.Header>
+              <div className="dropdown-header" key={item?.name}>
+                {item?.name}
+              </div>
             );
           }
           return (
-            <Dropdown.Item
+            <Menu.Item
               as="button"
               key={item?.value}
               onClick={() => handlePlaceholder(item?.value)}
             >
               {item?.name}
-            </Dropdown.Item>
+            </Menu.Item>
           );
         })}
-      </DropdownButton>
-    </PlaceholderWrapper>
+      </Menu.Items>
+    </Menu>
   );
 };

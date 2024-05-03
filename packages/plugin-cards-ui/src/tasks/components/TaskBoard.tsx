@@ -33,7 +33,7 @@ class TaskBoard extends React.Component<Props> {
     return (
       <BoardContainer>
         <Header title={__('Task')} breadcrumb={breadcrumb} />
-        <BoardContent transparent={true}>
+        <BoardContent $transparent={true}>
           {this.renderActionBar()}
           {this.renderContent()}
         </BoardContent>

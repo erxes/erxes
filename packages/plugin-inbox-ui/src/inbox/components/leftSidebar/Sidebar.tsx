@@ -7,60 +7,63 @@ import {
   ScrollContent,
   SidebarActions,
   SidebarContent,
-  ToggleButton
-} from './styles';
+  ToggleButton,
+} from "./styles";
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import Button from '@erxes/ui/src/components/Button';
-import { CONVERSATION_STATUSES } from '../../constants';
-import FilterToggler from '../../containers/leftSidebar/FilterToggler';
-import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { InboxManagementActionConsumer } from '../../containers/InboxCore';
-import { PopoverButton } from '@erxes/ui-inbox/src/inbox/styles';
-import RTG from 'react-transition-group';
-import React from 'react';
-import Resolver from '../../containers/Resolver';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { StatusFilterPopover } from '../../containers/leftSidebar';
-import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
-import Tagger from '../../containers/Tagger';
-import { __ } from 'coreui/utils';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
+import Button from "@erxes/ui/src/components/Button";
+import { CONVERSATION_STATUSES } from "../../constants";
+import FilterToggler from "../../containers/leftSidebar/FilterToggler";
+import { IConversation } from "@erxes/ui-inbox/src/inbox/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { InboxManagementActionConsumer } from "../../containers/InboxCore";
+import { PopoverButton } from "@erxes/ui-inbox/src/inbox/styles";
+import Resolver from "../../containers/Resolver";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import { StatusFilterPopover } from "../../containers/leftSidebar";
+import { TAG_TYPES } from "@erxes/ui-tags/src/constants";
+import Tagger from "../../containers/Tagger";
+import { Transition } from "react-transition-group";
+import { __ } from "coreui/utils";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { queries } from "@erxes/ui-inbox/src/inbox/graphql";
 
 const DateFilter = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Inbox-DateFilter" */ '@erxes/ui/src/components/DateFilter'
+      /* webpackChunkName:"Inbox-DateFilter" */ "@erxes/ui/src/components/DateFilter"
     ),
-  { height: '15px', width: '70px' }
+  { height: "15px", width: "70px" }
 );
 
-const AssignBoxPopover = asyncComponent(() =>
-  import(
-    /* webpackChunkName:"Inbox-AssignBoxPopover" */ '../assignBox/AssignBoxPopover'
-  )
+const AssignBoxPopover = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName:"Inbox-AssignBoxPopover" */ "../assignBox/AssignBoxPopover"
+    )
 );
 
-const ConversationList = asyncComponent(() =>
-  import(
-    /* webpackChunkName:"Inbox-ConversationList" */ '../../containers/leftSidebar/ConversationList'
-  )
+const ConversationList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName:"Inbox-ConversationList" */ "../../containers/leftSidebar/ConversationList"
+    )
 );
 
-const FilterList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Inbox-FilterList" */ '../../containers/leftSidebar/FilterList'
-  )
+const FilterList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Inbox-FilterList" */ "../../containers/leftSidebar/FilterList"
+    )
 );
 
 type Props = {
   currentUser?: IUser;
   currentConversationId?: string;
   queryParams: any;
-  history: any;
   bulk: IConversation[];
   toggleBulk: (target: IConversation[], toggleAdd: boolean) => void;
   emptyBulk: () => void;
@@ -69,39 +72,33 @@ type Props = {
   resolveAll: () => void;
 };
 
-type State = {
-  isOpen: boolean;
-  counts?: any;
-};
+const LeftSidebar: React.FC<Props> = (props) => {
+  const { currentUser, currentConversationId, queryParams, bulk, toggleBulk } =
+    props;
 
-class LeftSidebar extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-    this.state = {
-      isOpen: props.config.showAddition,
-      counts: {}
-    };
-  }
+  const [isOpen, setIsOpen] = useState<boolean>(props.config.showAddition);
+  const [counts, setItemCounts] = useState<any>({});
 
-  renderTrigger(text: string) {
+  const renderTrigger = (text: string) => {
     return (
       <PopoverButton>
         {__(text)} <Icon icon="angle-down" />
       </PopoverButton>
     );
-  }
+  };
 
-  onToggleSidebar = () => {
-    const { toggleSidebar } = this.props;
-    const { isOpen } = this.state;
+  const onToggleSidebar = () => {
+    const { toggleSidebar } = props;
 
-    this.setState({ isOpen: !isOpen });
+    setIsOpen(!isOpen);
     toggleSidebar({ isOpen: !isOpen });
   };
 
-  renderSidebarActions() {
-    const { queryParams, history, bulk, emptyBulk } = this.props;
+  const renderSidebarActions = () => {
+    const { queryParams, bulk, emptyBulk } = props;
 
     if (bulk.length > 0) {
       return (
@@ -110,10 +107,10 @@ class LeftSidebar extends React.Component<Props, State> {
           <RightItems>
             <AssignBoxPopover
               targets={bulk}
-              trigger={this.renderTrigger('Assign')}
+              trigger={renderTrigger("Assign")}
             />
 
-            <Tagger targets={bulk} trigger={this.renderTrigger('Tag')} />
+            <Tagger targets={bulk} trigger={renderTrigger("Tag")} />
           </RightItems>
         </Sidebar.Header>
       );
@@ -124,17 +121,13 @@ class LeftSidebar extends React.Component<Props, State> {
         <FlexCenter>
           <ToggleButton
             id="btn-inbox-channel-visible"
-            isActive={this.state.isOpen}
-            onClick={this.onToggleSidebar}
+            $isActive={isOpen}
+            onClick={onToggleSidebar}
           >
             <Icon icon="subject" />
           </ToggleButton>
           {queryParams.status !== CONVERSATION_STATUSES.CLOSED && (
-            <Button
-              size="small"
-              btnStyle="simple"
-              onClick={this.props.resolveAll}
-            >
+            <Button size="small" btnStyle="simple" onClick={props.resolveAll}>
               Resolve all
             </Button>
           )}
@@ -142,39 +135,38 @@ class LeftSidebar extends React.Component<Props, State> {
         <DropdownWrapper>
           <DateFilter
             queryParams={queryParams}
-            history={history}
             countQuery={queries.totalConversationsCount}
             countQueryParam="conversationsTotalCount"
           />
-          <StatusFilterPopover queryParams={queryParams} history={history} />
+          <StatusFilterPopover queryParams={queryParams} />
         </DropdownWrapper>
       </Sidebar.Header>
     );
-  }
+  };
 
-  renderSidebarHeader() {
-    return <SidebarActions>{this.renderSidebarActions()}</SidebarActions>;
-  }
+  const renderSidebarHeader = () => {
+    return <SidebarActions>{renderSidebarActions()}</SidebarActions>;
+  };
 
-  renderAdditionalSidebar(refetchRequired: string) {
-    const { queryParams, currentUser } = this.props;
+  const renderAdditionalSidebar = (refetchRequired: string) => {
+    const { queryParams, currentUser } = props;
 
     if (!currentUser) {
       return null;
     }
 
     const setCounts = (counts: any) => {
-      const current = { ...this.state.counts };
+      const current = { ...counts };
 
-      this.setState({ counts: { ...current, ...counts } });
+      setItemCounts({ ...current, ...counts });
     };
 
     return (
-      <RTG.CSSTransition
-        in={this.state.isOpen}
+      <Transition
+        in={isOpen}
         appear={true}
         timeout={300}
-        classNames="fade-in"
+        // classNames="fade-in"
         unmountOnExit={true}
       >
         <SidebarContent>
@@ -186,9 +178,9 @@ class LeftSidebar extends React.Component<Props, State> {
             >
               <FilterList
                 query={{
-                  queryName: 'channelsByMembers',
+                  queryName: "channelsByMembers",
                   variables: { memberIds: [currentUser._id] },
-                  dataName: 'channelsByMembers'
+                  dataName: "channelsByMembers",
                 }}
                 counts="byChannels"
                 paramKey="channelId"
@@ -198,7 +190,7 @@ class LeftSidebar extends React.Component<Props, State> {
               />
             </FilterToggler>
 
-            {isEnabled('segments') && (
+            {isEnabled("segments") && (
               <FilterToggler
                 groupText="Segments"
                 toggleName="showSegments"
@@ -206,11 +198,11 @@ class LeftSidebar extends React.Component<Props, State> {
               >
                 <FilterList
                   query={{
-                    queryName: 'segmentList',
-                    dataName: 'segments',
+                    queryName: "segmentList",
+                    dataName: "segments",
                     variables: {
-                      contentTypes: [TAG_TYPES.CONVERSATION]
-                    }
+                      contentTypes: [TAG_TYPES.CONVERSATION],
+                    },
                   }}
                   queryParams={queryParams}
                   counts="bySegment"
@@ -229,7 +221,7 @@ class LeftSidebar extends React.Component<Props, State> {
               manageUrl="/settings/brands"
             >
               <FilterList
-                query={{ queryName: 'allBrands', dataName: 'allBrands' }}
+                query={{ queryName: "allBrands", dataName: "allBrands" }}
                 counts="byBrands"
                 queryParams={queryParams}
                 paramKey="brandId"
@@ -245,8 +237,8 @@ class LeftSidebar extends React.Component<Props, State> {
             >
               <FilterList
                 query={{
-                  queryName: 'integrationsGetUsedTypes',
-                  dataName: 'integrationsGetUsedTypes'
+                  queryName: "integrationsGetUsedTypes",
+                  dataName: "integrationsGetUsedTypes",
                 }}
                 queryParams={queryParams}
                 counts="byIntegrationTypes"
@@ -256,7 +248,7 @@ class LeftSidebar extends React.Component<Props, State> {
               />
             </FilterToggler>
 
-            {isEnabled('tags') && (
+            {isEnabled("tags") && (
               <FilterToggler
                 groupText="Tags"
                 toggleName="showTags"
@@ -264,12 +256,12 @@ class LeftSidebar extends React.Component<Props, State> {
               >
                 <FilterList
                   query={{
-                    queryName: 'tagList',
-                    dataName: 'tags',
+                    queryName: "tagList",
+                    dataName: "tags",
                     variables: {
                       type: TAG_TYPES.CONVERSATION,
-                      perPage: 100
-                    }
+                      perPage: 100,
+                    },
                   }}
                   queryParams={queryParams}
                   counts="byTags"
@@ -284,48 +276,38 @@ class LeftSidebar extends React.Component<Props, State> {
             )}
           </ScrollContent>
         </SidebarContent>
-      </RTG.CSSTransition>
+      </Transition>
     );
-  }
+  };
 
-  render() {
-    const {
-      currentUser,
-      currentConversationId,
-      history,
-      queryParams,
-      bulk,
-      toggleBulk
-    } = this.props;
-
-    return (
-      <LeftContent isOpen={this.state.isOpen}>
-        <InboxManagementActionConsumer>
-          {({ refetchRequired }) => (
-            <AdditionalSidebar>
-              {this.renderAdditionalSidebar(refetchRequired)}
-            </AdditionalSidebar>
-          )}
-        </InboxManagementActionConsumer>
-        <Sidebar
-          wide={true}
-          full={true}
-          header={this.renderSidebarHeader()}
-          hasBorder={true}
-        >
-          <ConversationList
-            currentUser={currentUser}
-            currentConversationId={currentConversationId}
-            history={history}
-            queryParams={queryParams}
-            toggleRowCheckbox={toggleBulk}
-            selectedConversations={bulk}
-            counts={this.state.counts}
-          />
-        </Sidebar>
-      </LeftContent>
-    );
-  }
-}
+  return (
+    <LeftContent $isOpen={isOpen}>
+      <InboxManagementActionConsumer>
+        {({ refetchRequired }) => (
+          <AdditionalSidebar>
+            {renderAdditionalSidebar(refetchRequired)}
+          </AdditionalSidebar>
+        )}
+      </InboxManagementActionConsumer>
+      <Sidebar
+        wide={true}
+        full={true}
+        header={renderSidebarHeader()}
+        hasBorder={true}
+      >
+        <ConversationList
+          currentUser={currentUser}
+          currentConversationId={currentConversationId}
+          queryParams={queryParams}
+          toggleRowCheckbox={toggleBulk}
+          selectedConversations={bulk}
+          counts={counts}
+          location={location}
+          navigate={navigate}
+        />
+      </Sidebar>
+    </LeftContent>
+  );
+};
 
 export default LeftSidebar;

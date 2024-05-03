@@ -37,6 +37,7 @@ export interface ITransaction extends ITransactionDoc {
   invoice?: IInvoiceDoc;
   ebarimt?: any;
   calcedInfo?: any;
+  invoiceId?: any;
 }
 
 // mutation types
