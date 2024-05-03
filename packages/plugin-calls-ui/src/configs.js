@@ -23,6 +23,14 @@ module.exports = {
     module: "./call",
     style: "bottom: 80px;right: 12px",
   },
+  menus: [
+    {
+      text: 'Call Center',
+      url: '/calls/switchboard',
+      icon: 'icon-call',
+      location: 'mainNavigation',
+      // permission: 'showDashboard'
+    }],
   inboxIntegrationForm: "./inboxIntegrationForm",
   invoiceDetailRightSection: "./invoiceDetailRightSection",
   integrationDetailsForm: "./integrationDetailsForm",

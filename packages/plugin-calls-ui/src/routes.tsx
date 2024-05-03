@@ -4,11 +4,22 @@ import queryString from 'query-string';
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
+import List from './components/statistics/List';
+import ListContainer from './containers/switchboard/List';
 
 const SipProvider = asyncComponent(
   () =>
     import(/* webpackChunkName: "Widget - Calls" */ './containers/SipProvider'),
 );
+
+const Dashboard = asyncComponent(
+  () =>
+    import(
+       './components/dashboard'
+    ),
+);
+
+const Statistics = asyncComponent(() => import('./components/statistics/List'));
 
 const CreateConnection = () => {
   const location = useLocation();
@@ -20,13 +31,25 @@ const CreateConnection = () => {
   );
 };
 
+const ShowDashboard = () => {
+  const location = useLocation();
+  const queryParams = queryString.parse(location.search);
+
+  return <Dashboard queryParams={queryParams} />;
+};
+const ShowStatistics = () => {
+  const location = useLocation();
+  const queryParams = queryString.parse(location.search);
+
+  return <Statistics queryParams={queryParams} />;
+};
+
 const routes = () => {
   return (
     <Routes>
-      <Route
-        path="/calls/"
-        element={<CreateConnection />}
-      />
+      <Route path="/calls/" element={<CreateConnection />} />
+      <Route path="/calls/switchboard" element={<ShowDashboard />} />
+      <Route path="/calls/statistics" element={<ShowStatistics />} />
     </Routes>
   );
 };

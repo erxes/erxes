@@ -707,3 +707,103 @@ export const IncomingCalls = styled.div`
 export const ActiveCalls = styled.div`
   background: ${colors.colorWhite};
 `;
+
+export const FlexWrap = styledTS(styled.div)`
+  display: flex;
+  flex-wrap: wrap;
+  padding: '0 20px 20px 20px';
+
+  > a,
+  > div {
+    flex-basis: 240px;
+    display: flex;
+    flex-shrink: 0;
+
+    @media (min-width: 480px) {
+      flex-basis: 33.3333333%;
+    }
+
+    @media (min-width: 768px) {
+      flex-basis: 25%;
+    }
+
+    @media (min-width: 1170px) {
+      flex-basis: 20%;
+    }
+
+    @media (min-width: 1400px) {
+      flex-basis: 240px;
+    }
+  }
+`;
+
+export const SiteBox = styledTS<{ nowrap?: boolean }>(styled.div)`
+  flex-basis: 250px;
+  margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  flex: ${(props) => !props.nowrap && 1};
+  min-height: 200px;
+  transition: all ease 0.3s;
+
+  h5 {
+    margin: ${dimensions.unitSpacing}px 0 15px;
+    font-size: 18px;
+    font-weight: bold;
+    text-transform: capitalize;
+  }
+
+  &:hover {
+    box-shadow: 0px 16px 24px rgb(0 0 0 / 6%), 0px 2px 6px rgb(0 0 0 / 4%),
+      0px 0px 1px rgb(0 0 0 / 4%);
+  }
+`;
+
+export const PreviewContent = styled.div`
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  padding: ${dimensions.headerSpacing}px;
+  transition: all ease 0.3s;
+
+  > button {
+    margin: 0 0 ${dimensions.unitSpacing}px 0 !important;
+    min-width: 140px;
+  }
+`;
+
+export const SitePreview = styled.div`
+  width: 100%;
+  height: 800px;
+  border-radius: ${dimensions.unitSpacing - 2}px ${dimensions.unitSpacing - 2}px
+    ${dimensions.unitSpacing - 2}px ${dimensions.unitSpacing - 2}px;
+  border: 1px solid ${colors.borderPrimary};
+  background: #fefefe;
+  overflow: hidden;
+  position: relative;
+
+  > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &:hover {
+    ${PreviewContent} {
+      opacity: 1;
+    }
+  }
+`;
+
+export const Container = styled.div`
+  position: relative;
+`;

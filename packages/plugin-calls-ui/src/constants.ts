@@ -206,3 +206,13 @@ export const symbols = [
   { symbol: '*', class: 'star', toShow: '✳' },
   { symbol: '#', class: 'hashtag' }
 ];
+
+
+export const menuCall = () => {
+  const navigationMenu = [
+    { title: ('Call Switchboard'), link: `/calls/switchboard`},
+    { title: ('Call Statistics'), link: `/calls/statistics` },
+  ];
+
+  return navigationMenu;
+};
