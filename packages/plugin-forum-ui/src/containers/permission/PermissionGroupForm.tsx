@@ -2,7 +2,6 @@ import { Alert, __ } from '@erxes/ui/src/utils';
 import { mutations, queries } from '../../graphql';
 import { useQuery, useMutation } from '@apollo/client';
 
-import { IRouterProps } from '@erxes/ui/src/types';
 import { IUserGroupDocument } from '../../types';
 import PermissionForm from '../../components/permission/PermissionGroupForm';
 import React from 'react';
@@ -11,7 +10,7 @@ import { gql } from '@apollo/client';
 type Props = {
   group?: IUserGroupDocument;
   closeModal: () => void;
-} & IRouterProps;
+};
 
 function PermissionGroupFormContainer({ closeModal, group }: Props) {
   const allUsers = useQuery(gql(queries.clientPortalUsers), {

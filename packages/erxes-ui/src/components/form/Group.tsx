@@ -1,14 +1,14 @@
-import React from 'react';
-import { Formgroup } from './styles';
+import { Formgroup } from "./styles";
+import React from "react";
 
 function FormGroup({
   children,
-  horizontal
+  horizontal,
 }: {
   children: React.ReactNode;
   horizontal?: boolean;
 }) {
-  return <Formgroup horizontal={horizontal}>{children}</Formgroup>;
+  return <Formgroup $horizontal={horizontal}>{children}</Formgroup>;
 }
 
 export default FormGroup;

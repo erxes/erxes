@@ -1,9 +1,9 @@
 import { DrawerDetail } from '@erxes/ui-automations/src/styles';
 import Icon from '@erxes/ui/src/components/Icon';
 import colors from '@erxes/ui/src/styles/colors';
-import typography from '@erxes/ui/src/styles/typography';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import typography from '@erxes/ui/src/styles/typography';
 
 export const Container = styled.div`
   padding: 10px 0;
@@ -386,4 +386,9 @@ export const ListItem = styled.div`
     font-weight: ${typography.fontWeightMedium};
     margin-bottom:10px;
 }
+`;
+
+export const PreviewButton = styled.div`
+  flex-shrink: 0;
+  margin-right: 30px;
 `;

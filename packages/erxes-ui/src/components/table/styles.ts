@@ -7,22 +7,22 @@ import styledTS from 'styled-components-ts';
 const tableHoverColor = '#f5f5f5';
 
 const StyledTable = styledTS<{
-  whiteSpace?: string;
-  alignTop?: boolean;
-  hover?: boolean;
-  bordered?: boolean;
-  striped?: boolean;
-  wideHeader?: boolean;
+  $whiteSpace?: string;
+  $alignTop?: boolean;
+  $hover?: boolean;
+  $bordered?: boolean;
+  $striped?: boolean;
+  $wideHeader?: boolean;
 }>(styled.table)`
-  ${props => css`
+  ${(props) => css`
     width: 100%;
     max-width: 100%;
     border-spacing: 0;
     border-collapse: collapse;
-    white-space: ${props.whiteSpace || ''};
+    white-space: ${props.$whiteSpace || ''};
 
     tr {
-      margin: 0 20px
+      margin: 0 20px;
     }
 
     th,
@@ -31,7 +31,7 @@ const StyledTable = styledTS<{
       color: ${colors.textPrimary};
       padding: ${dimensions.unitSpacing - 2}px;
       display: table-cell;
-      vertical-align: ${props.alignTop && 'top'};
+      vertical-align: ${props.$alignTop && 'top'};
 
       & ${FormLabel}, & ${Input} {
         margin: 0px;
@@ -40,7 +40,6 @@ const StyledTable = styledTS<{
       &:first-child {
         padding-left: 0;
       }
-
     }
 
     thead {
@@ -59,19 +58,13 @@ const StyledTable = styledTS<{
       }
     }
 
-    ${
-      props.hover
-        ? `tr:hover td { background-color: ${tableHoverColor}; }`
-        : null
-    } ${
-    props.bordered
+    ${props.$hover
+      ? `tr:hover td { background-color: ${tableHoverColor}; }`
+      : null} ${props.$bordered
       ? `th, td { border-bottom: 1px solid ${colors.borderPrimary}; }`
-      : null
-  } ${
-    props.striped
+      : null} ${props.$striped
       ? `tr:nth-of-type(odd) td { background-color: ${colors.bgLightPurple}; }`
-      : null
-  } th {
+      : null} th {
       border-top: none;
     }
 
@@ -103,10 +96,10 @@ const StyledTable = styledTS<{
     @media (min-width: 1170px) {
       th,
       td {
-        padding: ${props =>
-          props.wideHeader
-            ? `${dimensions.unitSpacing + 2}px`
-            : `${dimensions.unitSpacing - 2}`} ${dimensions.coreSpacing - 2}px;
+        padding: ${props.$wideHeader
+              ? `${dimensions.unitSpacing + 2}px`
+              : `${dimensions.unitSpacing - 2}`}
+          ${dimensions.coreSpacing - 2}px;
       }
     }
   `};

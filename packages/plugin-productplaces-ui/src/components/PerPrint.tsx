@@ -4,12 +4,12 @@ import {
   CollapseContent,
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
 } from '@erxes/ui/src/components';
 import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
+import React, { useState } from 'react';
 import { IConfigsMap } from '../types';
 import PerPrintConditions from './PerPrintConditions';
 
@@ -21,90 +21,73 @@ type Props = {
   delete: (currentConfigKey: string) => void;
 };
 
-type State = {
-  config: any;
-  hasOpen: boolean;
-  conditions: any[];
-};
+const PerPrintSettings = (props: Props) => {
+  const { configsMap, currentConfigKey, save } = props;
+  const [config, setConfig] = useState(props.config);
+  const [conditions, setconditions] = useState(props.config.conditions || []);
 
-class PerPrintSettings extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      config: props.config,
-      hasOpen: false,
-      conditions: props.config.conditions || []
-    };
-  }
-
-  onChangeBoard = (boardId: string) => {
-    this.setState({ config: { ...this.state.config, boardId } });
+  const onChangeBoard = (boardId: string) => {
+    setConfig({ ...config, boardId });
   };
 
-  onChangePipeline = (pipelineId: string) => {
-    this.setState({ config: { ...this.state.config, pipelineId } });
+  const onChangePipeline = (pipelineId: string) => {
+    setConfig({ ...config, pipelineId });
   };
 
-  onChangeStage = (stageId: string) => {
-    this.setState({ config: { ...this.state.config, stageId } });
+  const onChangeStage = (stageId: string) => {
+    setConfig({ ...config, stageId });
   };
 
-  onSave = e => {
+  const onSave = (e) => {
     e.preventDefault();
-    const { configsMap, currentConfigKey } = this.props;
-    const { config } = this.state;
     const key = config.stageId;
 
     delete configsMap.dealsProductsDataPrint[currentConfigKey];
     configsMap.dealsProductsDataPrint[key] = config;
-    this.props.save(configsMap);
+    save(configsMap);
   };
 
-  onDelete = e => {
+  const onDelete = (e) => {
     e.preventDefault();
 
-    this.props.delete(this.props.currentConfigKey);
+    props.delete(currentConfigKey);
   };
 
-  onChangeConfig = (code: string, value) => {
-    const { config } = this.state;
+  const onChangeConfig = (code: string, value) => {
     config[code] = value;
-    this.setState({ config });
+    setConfig({ ...config });
   };
 
-  onChangeInput = (code: string, e) => {
-    this.onChangeConfig(code, e.target.value);
+  const onChangeInput = (code: string, e) => {
+    onChangeConfig(code, e.target.value);
   };
 
-  onChangeCheckbox = (code: string, e) => {
-    this.onChangeConfig(code, e.target.checked);
-  };
-
-  addCondition = () => {
-    const { conditions } = this.state;
+  const addCondition = () => {
     conditions.push({
-      id: Math.random().toString()
+      id: Math.random().toString(),
     });
-    this.setState({ conditions });
+    setconditions(conditions);
+    onChangeConfig('conditions', conditions);
   };
 
-  renderConditions = () => {
-    const { conditions } = this.state;
-    const remove = id => {
-      this.setState({ conditions: conditions.filter(c => c.id !== id) });
+  const renderConditions = () => {
+    const remove = (id) => {
+      setconditions(conditions.filter((c) => c.id !== id));
+      onChangeConfig(
+        'conditions',
+        conditions.filter((c) => c.id !== id),
+      );
     };
 
     const editCondition = (id, condition) => {
-      const updated = (conditions || []).map(c =>
-        c.id === id ? condition : c
+      const updated = (conditions || []).map((c) =>
+        c.id === id ? condition : c,
       );
-      this.setState({ conditions: updated }, () => {
-        this.onChangeConfig('conditions', updated);
-      });
+      setconditions(updated);
+      onChangeConfig('conditions', updated);
     };
 
-    return (conditions || []).map(c => (
+    return (conditions || []).map((c) => (
       <PerPrintConditions
         key={c.id}
         condition={c}
@@ -114,70 +97,67 @@ class PerPrintSettings extends React.Component<Props, State> {
     ));
   };
 
-  render() {
-    const { config } = this.state;
-    return (
-      <CollapseContent
-        title={__(config.title)}
-        open={this.props.currentConfigKey === 'newPrintConfig' ? true : false}
-      >
-        <FormGroup>
-          <ControlLabel>{'Title'}</ControlLabel>
-          <FormControl
-            defaultValue={config['title']}
-            onChange={this.onChangeInput.bind(this, 'title')}
-            required={true}
-            autoFocus={true}
-          />
-        </FormGroup>
-        <FormWrapper>
-          <FormColumn>
-            <FormGroup>
-              <BoardSelectContainer
-                type="deal"
-                autoSelectStage={false}
-                boardId={config.boardId}
-                pipelineId={config.pipelineId}
-                stageId={config.stageId}
-                onChangeBoard={this.onChangeBoard}
-                onChangePipeline={this.onChangePipeline}
-                onChangeStage={this.onChangeStage}
-              />
-            </FormGroup>
-          </FormColumn>
-        </FormWrapper>
+  return (
+    <CollapseContent
+      title={__(config.title)}
+      open={currentConfigKey === 'newPrintConfig' ? true : false}
+    >
+      <FormGroup>
+        <ControlLabel>{'Title'}</ControlLabel>
+        <FormControl
+          defaultValue={config['title']}
+          onChange={onChangeInput.bind(this, 'title')}
+          required={true}
+          autoFocus={true}
+        />
+      </FormGroup>
+      <FormWrapper>
+        <FormColumn>
+          <FormGroup>
+            <BoardSelectContainer
+              type="deal"
+              autoSelectStage={false}
+              boardId={config.boardId}
+              pipelineId={config.pipelineId}
+              stageId={config.stageId}
+              onChangeBoard={onChangeBoard}
+              onChangePipeline={onChangePipeline}
+              onChangeStage={onChangeStage}
+            />
+          </FormGroup>
+        </FormColumn>
+      </FormWrapper>
 
-        {this.renderConditions()}
-        <ModalFooter>
-          <Button
-            btnStyle="primary"
-            onClick={this.addCondition}
-            icon="plus"
-            uppercase={false}
-          >
-            Add condition
-          </Button>
-          <Button
-            btnStyle="simple"
-            icon="cancel-1"
-            onClick={this.onDelete}
-            uppercase={false}
-          >
-            Delete
-          </Button>
+      {renderConditions()}
+      <ModalFooter>
+        <Button
+          btnStyle="primary"
+          onClick={addCondition}
+          icon="plus"
+          uppercase={false}
+        >
+          Add condition
+        </Button>
+        <Button
+          btnStyle="simple"
+          icon="cancel-1"
+          onClick={onDelete}
+          uppercase={false}
+        >
+          Delete
+        </Button>
 
-          <Button
-            btnStyle="primary"
-            icon="check-circle"
-            onClick={this.onSave}
-            uppercase={false}
-            disabled={config.stageId ? false : true}
-          >
-            Save
-          </Button>
-        </ModalFooter>
-      </CollapseContent>
-    );
-  }
-}
+        <Button
+          btnStyle="primary"
+          icon="check-circle"
+          onClick={onSave}
+          uppercase={false}
+          disabled={config.stageId ? false : true}
+        >
+          Save
+        </Button>
+      </ModalFooter>
+    </CollapseContent>
+  );
+};
 export default PerPrintSettings;

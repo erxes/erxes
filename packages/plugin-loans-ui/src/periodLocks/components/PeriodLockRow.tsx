@@ -1,17 +1,17 @@
-import _ from 'lodash';
-import React from 'react';
+import _ from "lodash";
+import React from "react";
 
-import PeriodLockForm from '../containers/PeriodLockForm';
-import { IPeriodLock } from '../types';
-import { ActionButton } from '@erxes/ui/src/components/ActionButtons';
-import Icon from '@erxes/ui/src/components/Icon';
-import { formatValue } from '@erxes/ui/src/utils/core';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import PeriodLockForm from "../containers/PeriodLockForm";
+import { IPeriodLock } from "../types";
+import { ActionButton } from "@erxes/ui/src/components/ActionButtons";
+import Icon from "@erxes/ui/src/components/Icon";
+import { formatValue } from "@erxes/ui/src/utils/core";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
   periodLock: IPeriodLock;
-  history: any;
   isChecked: boolean;
   toggleBulk: (periodLock: IPeriodLock, isChecked?: boolean) => void;
 };
@@ -23,7 +23,7 @@ function displayValue(periodLock, name) {
 }
 
 function renderFormTrigger(trigger: React.ReactNode, periodLock: IPeriodLock) {
-  const content = props => (
+  const content = (props) => (
     <PeriodLockForm {...props} periodLock={periodLock} />
   );
 
@@ -35,7 +35,7 @@ function renderFormTrigger(trigger: React.ReactNode, periodLock: IPeriodLock) {
 function renderEditAction(periodLock: IPeriodLock) {
   const trigger = (
     <ActionButton
-      style={{ cursor: 'pointer' }}
+      style={{ cursor: "pointer" }}
       children={<Icon icon="edit-1" />}
     />
   );
@@ -43,19 +43,20 @@ function renderEditAction(periodLock: IPeriodLock) {
   return renderFormTrigger(trigger, periodLock);
 }
 
-function PeriodLockRow({ periodLock, history, isChecked, toggleBulk }: Props) {
-  const onChange = e => {
+function PeriodLockRow({ periodLock, isChecked, toggleBulk }: Props) {
+  const navigate = useNavigate()
+  const onChange = (e) => {
     if (toggleBulk) {
       toggleBulk(periodLock, e.target.checked);
     }
   };
 
-  const onClick = e => {
+  const onClick = (e) => {
     e.stopPropagation();
   };
 
   const onTrClick = () => {
-    history.push(`/erxes-plugin-loan/periodLock-details/${periodLock._id}`);
+    navigate(`/erxes-plugin-loan/periodLock-details/${periodLock._id}`);
   };
 
   return (
@@ -63,12 +64,12 @@ function PeriodLockRow({ periodLock, history, isChecked, toggleBulk }: Props) {
       <td onClick={onClick}>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={onChange}
         />
       </td>
 
-      <td key={'code'}>{displayValue(periodLock, 'date')}</td>
+      <td key={"code"}>{displayValue(periodLock, "date")}</td>
 
       <td onClick={onClick}>{renderEditAction(periodLock)}</td>
     </tr>

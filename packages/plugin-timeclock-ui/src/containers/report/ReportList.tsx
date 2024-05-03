@@ -12,7 +12,6 @@ import { generateParams } from '../../utils';
 import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
-  history: any;
   queryParams: any;
   searchValue?: string;
   isCurrentUserAdmin: boolean;

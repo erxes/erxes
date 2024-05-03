@@ -6,7 +6,7 @@ import {
   PreviewContent,
   SiteBox,
   SitePreview,
-  Tag
+  Tag,
 } from '../sites/styles';
 import { ModalFooter, Title } from '@erxes/ui/src/styles/main';
 import React, { useState } from 'react';
@@ -19,7 +19,6 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { HeaderContent } from './styles';
 import { IAttachment } from '@erxes/ui/src/types';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { ITemplateDoc } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Label } from '@erxes/ui/src/components/form/styles';
@@ -28,25 +27,28 @@ import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import TemplateForm from '../../containers/templates/TemplateForm';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { withRouter } from 'react-router-dom';
+import { useNavigate, useLocation } from "react-router-dom";
+
 
 type Props = {
   templates: ITemplateDoc[];
   templatesCount: number;
   // use: (_id: string, name: string, coverImage: any) => void;
   queryParams: any;
-} & IRouterProps;
+};
 
 function List(props: Props) {
   let timer;
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [name, setName] = useState('');
   const [coverImage, setCoverImage] = useState<IAttachment | undefined>(
-    undefined
+    undefined,
   );
   const [category, setCategory] = useState('');
 
-  const { templates, templatesCount, use, queryParams } = props;
+  const { templates, templatesCount, queryParams } = props;
 
   const [search, setSearch] = useState(queryParams.searchValue);
 
@@ -69,8 +71,8 @@ function List(props: Props) {
       return templates;
     }
 
-    return templates.filter(template =>
-      (template.categories || '').includes(category)
+    return templates.filter((template) =>
+      (template.categories || '').includes(category),
     );
   };
 
@@ -101,7 +103,7 @@ function List(props: Props) {
     );
   };
 
-  const renderUseAction = template => {
+  const renderUseAction = (template) => {
     const trigger = <Button btnStyle="white">{__('Use')}</Button>;
     const site = localStorage.getItem('webbuilderSiteId') || '';
 
@@ -157,15 +159,14 @@ function List(props: Props) {
       clearTimeout(timer);
     }
 
-    const { history } = props;
 
     const value = e.target.value;
 
     setSearch(value);
 
     timer = setTimeout(() => {
-      router.removeParams(history, 'page');
-      router.setParams(history, { searchValue: value });
+      router.removeParams(navigate,location, 'page');
+      router.setParams(navigate,location, { searchValue: value });
     }, 500);
   };
 
@@ -188,7 +189,7 @@ function List(props: Props) {
           title={__('X Builder Workspace')}
           breadcrumb={[
             { title: 'X Builder', link: '/xbuilder' },
-            { title: __('New website') }
+            { title: __('New website') },
           ]}
         />
       }
@@ -218,14 +219,14 @@ function List(props: Props) {
                     name: 'Blank Site',
                     html: '',
                     image: '/images/previews/blank.png',
-                    categories: ''
+                    categories: '',
                   },
-                  0
+                  0,
                 )}
                 {/* {templates.map((template, index) =>
                   renderRow(template, index + 1) */}
                 {filterTemplates().map((template, index) =>
-                  renderRow(template, index)
+                  renderRow(template, index),
                 )}
               </FlexWrap>
             </>
@@ -242,4 +243,4 @@ function List(props: Props) {
   );
 }
 
-export default withRouter<Props>(List);
+export default List;

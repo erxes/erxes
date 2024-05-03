@@ -1,11 +1,11 @@
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
-import React from 'react';
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { FlexItem, LeftItem } from "@erxes/ui/src/components/step/styles";
+import React from "react";
 
 type Props = {
-  onChange: (name: 'confirmationMethod', value: string) => void;
+  onChange: (name: "confirmationMethod", value: string) => void;
   confirmationMethod?: string;
 };
 
@@ -16,9 +16,9 @@ class BookingFlow extends React.Component<Props> {
   };
 
   render() {
-    const onChange = e =>
+    const onChange = (e) =>
       this.onChangeFunction(
-        'confirmationMethod',
+        "confirmationMethod",
         (e.currentTarget as HTMLInputElement).value
       );
 
@@ -32,8 +32,8 @@ class BookingFlow extends React.Component<Props> {
             <br />
             <FormControl
               value="automatic"
-              componentClass="radio"
-              checked={this.props.confirmationMethod === 'automatic'}
+              componentclass="radio"
+              checked={this.props.confirmationMethod === "automatic"}
               onChange={onChange}
             >
               Automatic
@@ -46,8 +46,8 @@ class BookingFlow extends React.Component<Props> {
             <br />
             <FormControl
               value="manual"
-              componentClass="radio"
-              checked={this.props.confirmationMethod === 'manual'}
+              componentclass="radio"
+              checked={this.props.confirmationMethod === "manual"}
               onChange={onChange}
             >
               Manual

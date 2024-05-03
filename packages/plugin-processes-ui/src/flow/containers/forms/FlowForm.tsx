@@ -1,24 +1,25 @@
 import * as compose from 'lodash.flowright';
-import FlowForm from '../../components/forms/FlowForm';
-import { gql } from '@apollo/client';
-import React, { useState } from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
+
 import { Alert, router, withProps } from '@erxes/ui/src/utils';
 import {
   FlowDetailQueryResponse,
   FlowsAddMutationResponse,
   FlowsEditMutationResponse,
   IFlow,
-  IFlowDocument
+  IFlowDocument,
 } from '../../../flow/types';
-import { graphql } from '@apollo/client/react/hoc';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
+import React, { useState } from 'react';
 import {
   mutations as flowMutations,
-  queries as flowQueries
+  queries as flowQueries,
 } from '../../../flow/graphql';
-import { withRouter } from 'react-router-dom';
+
+import FlowForm from '../../components/forms/FlowForm';
+import { IUser } from '@erxes/ui/src/auth/types';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
   id: string;
@@ -31,11 +32,11 @@ type FinalProps = {
   saveAsTemplateMutation: any;
 } & Props &
   FlowsEditMutationResponse &
-  IRouterProps &
   FlowsAddMutationResponse;
 
 const FlowDetailsContainer = (props: FinalProps) => {
-  const { flowDetailQuery, currentUser, history, flowsEdit, flowsAdd } = props;
+  const navigate = useNavigate();
+  const { flowDetailQuery, currentUser, flowsEdit, flowsAdd } = props;
   let flowDetail: IFlowDocument;
 
   const [saveLoading, setLoading] = useState(false);
@@ -47,16 +48,16 @@ const FlowDetailsContainer = (props: FinalProps) => {
     variables.status = 'draft';
 
     flowsAdd({
-      variables
+      variables,
     })
-      .then(data => {
-        history.push({
+      .then((data) => {
+        navigate({
           pathname: `/processes/flows/details/${data.data.flowsAdd._id}`,
-          search: '?isCreate=true'
+          search: '?isCreate=true',
         });
       })
 
-      .catch(error => {
+      .catch((error) => {
         Alert.error(error.message);
       });
   };
@@ -66,10 +67,10 @@ const FlowDetailsContainer = (props: FinalProps) => {
 
     flowsEdit({
       variables: {
-        ...doc
-      }
+        ...doc,
+      },
     })
-      .then(data => {
+      .then((data) => {
         router.removeParams(history, 'isCreate');
 
         setTimeout(() => {
@@ -80,7 +81,7 @@ const FlowDetailsContainer = (props: FinalProps) => {
         flowDetail = data.data.flowsEdit;
       })
 
-      .catch(error => {
+      .catch((error) => {
         Alert.error(error.message);
       });
   };
@@ -97,7 +98,7 @@ const FlowDetailsContainer = (props: FinalProps) => {
     currentUser,
     save,
     copyFlow,
-    saveLoading
+    saveLoading,
   };
 
   return <FlowForm {...updatedProps} />;
@@ -113,28 +114,28 @@ export default withProps<Props>(
         name: 'flowDetailQuery',
         options: ({ id }) => ({
           variables: {
-            _id: id
-          }
-        })
-      }
+            _id: id,
+          },
+        }),
+      },
     ),
     graphql<{}, FlowsEditMutationResponse, IFlowDocument>(
       gql(flowMutations.flowsEdit),
       {
         name: 'flowsEdit',
         options: () => ({
-          refetchQueries
-        })
-      }
+          refetchQueries,
+        }),
+      },
     ),
     graphql<{}, FlowsAddMutationResponse, IFlowDocument>(
       gql(flowMutations.flowsAdd),
       {
         name: 'flowsAdd',
         options: () => ({
-          refetchQueries: ['flows', 'flowDetail']
-        })
-      }
-    )
-  )(withRouter<FinalProps>(FlowDetailsContainer))
+          refetchQueries: ['flows', 'flowDetail'],
+        }),
+      },
+    ),
+  )(FlowDetailsContainer),
 );

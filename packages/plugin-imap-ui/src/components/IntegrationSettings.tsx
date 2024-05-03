@@ -4,7 +4,7 @@ import CollapseContent from '@erxes/ui/src/components/CollapseContent';
 import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
 import { __ } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../graphql';
 import styled from 'styled-components';
@@ -74,7 +74,10 @@ const Shell = styled.div`
     list-style: none;
     background: #141414;
     color: #45d40c;
-    font: 0.8em 'Andale Mono', Consolas, 'Courier New';
+    font:
+      0.8em 'Andale Mono',
+      Consolas,
+      'Courier New';
     line-height: 1.6em;
 
     -webkit-border-bottom-right-radius: 3px;
@@ -99,45 +102,42 @@ const Shell = styled.div`
   }
 `;
 
-class Logs extends React.Component<any> {
-  render() {
-    const { logsQuery } = this.props;
+type Props = {
+  currentId: string;
+};
 
-    const logs = logsQuery.imapLogs || [];
+const Logs = (props: Props) => {
+  const { currentId } = props;
 
-    return (
-      <CollapseContent
-        title="IMAP"
-        beforeTitle={<Icon icon="envelope-edit" />}
-        transparent={true}
-      >
-        <Shell>
-          <div className="shell-wrap">
-            <p className="shell-top-bar">{__('Log messages')}</p>
-            <ul className="shell-body">
-              {logs.map((log, index) => (
-                <li key={index}>
-                  ${log.date}: {log.message}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </Shell>
-      </CollapseContent>
-    );
-  }
-}
+  const logsQuery = useQuery(gql(queries.logs), {
+    variables: {
+      conversationId: currentId,
+    },
+    fetchPolicy: 'network-only',
+  });
 
-export default compose(
-  graphql<any>(gql(queries.logs), {
-    name: 'logsQuery',
-    options: ({ currentId }) => {
-      return {
-        variables: {
-          conversationId: currentId
-        },
-        fetchPolicy: 'network-only'
-      };
-    }
-  })
-)(Logs);
+  const logs = logsQuery?.data?.imapLogs || [];
+
+  return (
+    <CollapseContent
+      title="IMAP"
+      beforeTitle={<Icon icon="envelope-edit" />}
+      transparent={true}
+    >
+      <Shell>
+        <div className="shell-wrap">
+          <p className="shell-top-bar">{__('Log messages')}</p>
+          <ul className="shell-body">
+            {logs.map((log, index) => (
+              <li key={index}>
+                ${log.date}: {log.message}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </Shell>
+    </CollapseContent>
+  );
+};
+
+export default Logs;

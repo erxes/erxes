@@ -1,21 +1,21 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { graphql } from '@apollo/client/react/hoc';
-import { withProps } from '@erxes/ui/src/utils';
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import { graphql } from "@apollo/client/react/hoc";
+import { withProps } from "@erxes/ui/src/utils";
 import {
   ToCheckCategoriesMutationResponse,
   ToSyncCategoriesMutationResponse,
-} from '../types';
-import { router } from '@erxes/ui/src';
-import { Bulk } from '@erxes/ui/src/components';
-import Alert from '@erxes/ui/src/utils/Alert';
-import { mutations, queries } from '../graphql';
-import React, { useState } from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import InventoryCategory from '../components/category/InventoryCategory';
+} from "../types";
+import { router } from "@erxes/ui/src";
+import { Bulk } from "@erxes/ui/src/components";
+import Alert from "@erxes/ui/src/utils/Alert";
+import { mutations } from "../graphql";
+import React, { useState } from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import InventoryCategory from "../components/category/InventoryCategory";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
-  history: any;
   queryParams: any;
 };
 
@@ -26,16 +26,18 @@ type FinalProps = {} & Props &
 const InventoryCategoryContainer = (props: FinalProps) => {
   const [items, setItems] = useState({});
   const [loading, setLoading] = useState(false);
-  const brandId = props.queryParams.brandId || 'noBrand';
-  const categoryId = props.queryParams.categoryId || 'noCategory';
+  const brandId = props.queryParams.brandId || "noBrand";
+  const categoryId = props.queryParams.categoryId || "noCategory";
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const setBrand = (brandId: string) => {
-    router.setParams(props.history, { brandId: brandId });
+    router.setParams(navigate, location, { brandId: brandId });
     return router;
   };
 
   const setCategory = (categoryId: string) => {
-    router.setParams(props.history, { categoryId: categoryId });
+    router.setParams(navigate, location, { categoryId: categoryId });
     return router;
   };
 
@@ -74,9 +76,9 @@ const InventoryCategoryContainer = (props: FinalProps) => {
       .then((response) => {
         const data = response.data.toCheckMsdProductCategories;
 
-        setSyncStatus(data, 'create');
-        setSyncStatus(data, 'update');
-        setSyncStatus(data, 'delete');
+        setSyncStatus(data, "create");
+        setSyncStatus(data, "update");
+        setSyncStatus(data, "delete");
 
         setItems(response.data.toCheckMsdProductCategories);
         setLoading(false);
@@ -100,7 +102,7 @@ const InventoryCategoryContainer = (props: FinalProps) => {
       })
       .then(() => {
         setLoading(false);
-        Alert.success('Success. Please check again.');
+        Alert.success("Success. Please check again.");
       })
       .finally(() => {
         const data = items;
@@ -134,14 +136,14 @@ export default withProps<Props>(
     graphql<Props, ToCheckCategoriesMutationResponse, {}>(
       gql(mutations.toCheckCategories),
       {
-        name: 'toCheckMsdProductCategories',
-      },
+        name: "toCheckMsdProductCategories",
+      }
     ),
     graphql<Props, ToSyncCategoriesMutationResponse, {}>(
       gql(mutations.toSyncCategories),
       {
-        name: 'toSyncMsdProductCategories',
-      },
-    ),
-  )(InventoryCategoryContainer),
+        name: "toSyncMsdProductCategories",
+      }
+    )
+  )(InventoryCategoryContainer)
 );

@@ -16,6 +16,7 @@ export interface ICallHistory {
   modifiedBy: string;
   conversationId: string;
   acceptedUserId: string;
+  recordUrl: string;
 }
 
 export interface ICallHistoryDocument extends ICallHistory, Document {}
@@ -48,4 +49,6 @@ export const callHistorySchema = new Schema({
   modifiedBy: field({ type: String, label: 'updated By' }),
   extentionNumber: field({ type: String, label: 'extention number' }),
   conversationId: field({ type: String, label: 'erxes conversation id' }),
+  inboxIntegrationId: field({ type: String, label: 'erxes integration id' }),
+  recordUrl: field({ type: String, label: 'record url' }),
 });

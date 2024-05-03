@@ -1,28 +1,28 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
 import {
   PropertyConsumer,
-  PropertyProvider
-} from '@erxes/ui-contacts/src/customers/propertyContext';
+  PropertyProvider,
+} from "@erxes/ui-contacts/src/customers/propertyContext";
 
-import { CustomerDetailQueryResponse } from '@erxes/ui-contacts/src/customers/types';
-import DumbSidebar from '../../components/conversationDetail/sidebar/Sidebar';
-import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-import { IField } from '@erxes/ui/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import React from 'react';
-import client from '@erxes/ui/src/apolloClient';
-import { getConfig } from '@erxes/ui-inbox/src/inbox/utils';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
-import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
-import { withProps } from '@erxes/ui/src/utils';
+import { CustomerDetailQueryResponse } from "@erxes/ui-contacts/src/customers/types";
+import DumbSidebar from "../../components/conversationDetail/sidebar/Sidebar";
+import { IConversation } from "@erxes/ui-inbox/src/inbox/types";
+import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
+import { IField } from "@erxes/ui/src/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import React from "react";
+import client from "@erxes/ui/src/apolloClient";
+import { getConfig } from "@erxes/ui-inbox/src/inbox/utils";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries } from "@erxes/ui-inbox/src/inbox/graphql";
+import withCurrentUser from "@erxes/ui/src/auth/containers/withCurrentUser";
+import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   conversation: IConversation;
-  conversationFields: IField[];
+  conversationFields?: IField[];
 };
 
 type FinalProps = {
@@ -43,7 +43,7 @@ class Sidebar extends React.Component<FinalProps, State> {
 
     this.state = {
       customer: {} as ICustomer,
-      loading: false
+      loading: true,
     };
   }
 
@@ -67,7 +67,7 @@ class Sidebar extends React.Component<FinalProps, State> {
     const config = getConfig(STORAGE_KEY) || {};
 
     return Object.entries(config)?.reduce((result, [key, value]) => {
-      const keys = key.replace(/[0-9]+$/, '');
+      const keys = key.replace(/[0-9]+$/, "");
       result[keys] = keys in result ? result[keys] || value : value;
 
       return result;
@@ -84,15 +84,15 @@ class Sidebar extends React.Component<FinalProps, State> {
     client
       .query({
         query: gql(queries.generateCustomerDetailQuery(this.mergeProperties())),
-        fetchPolicy: 'network-only',
-        variables: { _id: customerId }
+        fetchPolicy: "network-only",
+        variables: { _id: customerId },
       })
       .then(({ data }: { data: any }) => {
         if (data && data.customerDetail) {
           this.setState({ customer: data.customerDetail, loading: false });
         }
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error.message); // tslint:disable-line
       });
 
@@ -113,8 +113,8 @@ class Sidebar extends React.Component<FinalProps, State> {
     const taggerRefetchQueries = [
       {
         query: gql(queries.generateCustomerDetailQuery(mergedProperties)),
-        variables: { _id: customer._id }
-      }
+        variables: { _id: customer._id },
+      },
     ];
 
     return (
@@ -125,7 +125,7 @@ class Sidebar extends React.Component<FinalProps, State> {
             customerFields,
             conversationFields,
             customerVisibility,
-            deviceVisibility
+            deviceVisibility,
           }) => {
             const updatedProps = {
               ...this.props,
@@ -137,7 +137,7 @@ class Sidebar extends React.Component<FinalProps, State> {
               deviceFields,
               customerFields,
               customerVisibility,
-              deviceVisibility
+              deviceVisibility,
             };
 
             return <DumbSidebar {...updatedProps} />;
@@ -153,12 +153,12 @@ export default withProps<Props>(
     graphql<Props, CustomerDetailQueryResponse, { _id?: string }>(
       gql(queries.generateCustomerDetailQuery(getConfig(STORAGE_KEY))),
       {
-        name: 'customerDetailQuery',
+        name: "customerDetailQuery",
         options: ({ conversation }) => ({
           variables: {
-            _id: conversation.customerId
-          }
-        })
+            _id: conversation.customerId,
+          },
+        }),
       }
     )
   )(withCurrentUser(Sidebar))

@@ -1,31 +1,31 @@
-import React, { useState } from 'react';
-import Attachment from '@erxes/ui/src/components/Attachment';
-import Button from '@erxes/ui/src/components/Button';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { Actions, InfoWrapper } from '@erxes/ui/src/styles/main';
-import { IAttachment } from '@erxes/ui/src/types';
-import { Alert, confirm, __ } from '@erxes/ui/src/utils';
-
-import { Name } from '@erxes/ui-contacts/src/customers/styles';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import { Actions, InfoWrapper } from "@erxes/ui/src/styles/main";
+import { Alert, __, confirm } from "@erxes/ui/src/utils";
+import { AssetContent, ContainerBox } from "../../../style";
 import {
   FieldStyle,
   SidebarCounter,
   SidebarFlexRow,
   SidebarList,
-} from '@erxes/ui/src/layout/styles';
-import moment from 'moment';
-import Dropdown from 'react-bootstrap/Dropdown';
-import xss from 'xss';
-import { IAsset } from '../../../common/types';
-import { AssetContent, ContainerBox } from '../../../style';
-import { Tip } from '@erxes/ui/src';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import AssetForm from '../../containers/AssetForm';
-import AssignArticles from '../../containers/actions/Assign';
-import KnowledgeBase from '../../containers/detail/KnowledgeBase';
+} from "@erxes/ui/src/layout/styles";
+import React, { useState } from "react";
+
+import AssetForm from "../../containers/AssetForm";
+import AssignArticles from "../../containers/actions/Assign";
+import Attachment from "@erxes/ui/src/components/Attachment";
+import Button from "@erxes/ui/src/components/Button";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import { IAsset } from "../../../common/types";
+import { IAttachment } from "@erxes/ui/src/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import KnowledgeBase from "../../containers/detail/KnowledgeBase";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import { Name } from "@erxes/ui-contacts/src/customers/styles";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import { Tip } from "@erxes/ui/src";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import moment from "moment";
+import { useNavigate } from "react-router-dom";
+import xss from "xss";
 
 type Props = {
   asset: IAsset;
@@ -35,11 +35,11 @@ type Props = {
     data: any;
     callback: () => void;
   }) => void;
-  history: any;
 };
 
-function BasicInfo({ asset, remove, assignKbArticles, history }: Props) {
+function BasicInfo({ asset, remove, assignKbArticles }: Props) {
   const [showKnowledgeBase, setShowKnowledgeBase] = useState(false);
+  const navigate = useNavigate();
 
   const renderVendor = (vendor) => {
     if (!vendor) {
@@ -54,11 +54,11 @@ function BasicInfo({ asset, remove, assignKbArticles, history }: Props) {
     return (
       <li>
         <FieldStyle>{__(`Vendor`)}</FieldStyle>
-        <SidebarCounter>{vendor.primaryName || ''}</SidebarCounter>
+        <SidebarCounter>{vendor.primaryName || ""}</SidebarCounter>
         <Button
-          onClick={() => history.push(`/companies/detail/${vendor._id}`)}
+          onClick={() => navigate(`/companies/detail/${vendor._id}`)}
           btnStyle="link"
-          style={{ padding: '0', paddingLeft: '8px' }}
+          style={{ padding: "0", paddingLeft: "8px" }}
         >
           <Tip text="See Vendor Detail" placement="bottom">
             <Icon icon="rightarrow" />
@@ -69,7 +69,7 @@ function BasicInfo({ asset, remove, assignKbArticles, history }: Props) {
   };
 
   const renderView = (name, variable, extraField?: any) => {
-    const defaultName = name.includes('count') ? 0 : '-';
+    const defaultName = name.includes("count") ? 0 : "-";
 
     return (
       <li>
@@ -98,7 +98,7 @@ function BasicInfo({ asset, remove, assignKbArticles, history }: Props) {
         size="xl"
         trigger={
           <li>
-            <a href="#assign">{__('Assign')}</a>
+            <a href="#assign">{__("Assign")}</a>
           </li>
         }
       />
@@ -115,22 +115,22 @@ function BasicInfo({ asset, remove, assignKbArticles, history }: Props) {
 
     return (
       <Actions>
-        <Dropdown>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
+        <Dropdown
+          unmount={false}
+          toggleComponent={
             <Button btnStyle="simple" size="medium">
-              {__('Action')}
+              {__("Action")}
               <Icon icon="angle-down" />
             </Button>
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <li>
-              <a href="#delete" onClick={onDelete}>
-                {__('Delete')}
-              </a>
-            </li>
-            {renderEditForm()}
-            {isEnabled('knowledgebase') && renderKbDetail()}
-          </Dropdown.Menu>
+          }
+        >
+          <li>
+            <a href="#delete" onClick={onDelete}>
+              {__("Delete")}
+            </a>
+          </li>
+          {renderEditForm()}
+          {isEnabled("knowledgebase") && renderKbDetail()}
         </Dropdown>
       </Actions>
     );
@@ -152,7 +152,7 @@ function BasicInfo({ asset, remove, assignKbArticles, history }: Props) {
         title="Edit basic info"
         trigger={
           <li>
-            <a href="#edit">{__('Edit')}</a>
+            <a href="#edit">{__("Edit")}</a>
           </li>
         }
         size="lg"
@@ -164,11 +164,9 @@ function BasicInfo({ asset, remove, assignKbArticles, history }: Props) {
   const changeAssetDetail = () => {
     return (
       <Button
-        onClick={() =>
-          history.push(`/settings/asset/detail/${asset.parent._id}`)
-        }
+        onClick={() => navigate(`/settings/asset/detail/${asset.parent._id}`)}
         btnStyle="link"
-        style={{ padding: '0', paddingLeft: '8px' }}
+        style={{ padding: "0", paddingLeft: "8px" }}
       >
         <Tip text="See Parent Asset Detail" placement="bottom">
           <Icon icon="rightarrow" />
@@ -200,26 +198,26 @@ function BasicInfo({ asset, remove, assignKbArticles, history }: Props) {
 
       {renderImage(asset.attachment)}
       <SidebarList className="no-link">
-        {renderView('Code', asset.code)}
-        {renderView('Type', asset.type)}
-        {renderView('Category', asset.category ? asset.category.name : '')}
+        {renderView("Code", asset.code)}
+        {renderView("Type", asset.type)}
+        {renderView("Category", asset.category ? asset.category.name : "")}
         {renderView(
-          'Parent',
-          asset.parent ? asset.parent.name : '',
-          asset.parent && changeAssetDetail(),
+          "Parent",
+          asset.parent ? asset.parent.name : "",
+          asset.parent && changeAssetDetail()
         )}
-        {renderView('Unit price', (asset.unitPrice || 0).toLocaleString())}
+        {renderView("Unit price", (asset.unitPrice || 0).toLocaleString())}
         {renderVendor(asset.vendor)}
         {renderView(
-          'Create At',
-          moment(asset.createdAt).format('YYYY-MM-DD HH:mm'),
+          "Create At",
+          moment(asset.createdAt).format("YYYY-MM-DD HH:mm")
         )}
         {renderView(
-          'Knowledge Base',
+          "Knowledge Base",
           <Icon
-            icon={showKnowledgeBase ? 'uparrow' : 'downarrow-2'}
+            icon={showKnowledgeBase ? "uparrow" : "downarrow-2"}
             onClick={() => setShowKnowledgeBase(!showKnowledgeBase)}
-          />,
+          />
         )}
         {showKnowledgeBase && (
           <KnowledgeBase asset={asset} kbArticleIds={asset.kbArticleIds} />

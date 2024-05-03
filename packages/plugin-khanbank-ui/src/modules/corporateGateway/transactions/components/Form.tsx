@@ -1,17 +1,17 @@
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { IFormProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
-import React, { useState } from 'react';
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import { IFormProps } from "@erxes/ui/src/types";
+import { __ } from "@erxes/ui/src/utils/core";
+import React, { useState } from "react";
 
-import { BANK_CODES, TRANSACTION_TYPES } from '../../../../constants';
-import { IAccountHolder, IKhanbankAccount } from '../../accounts/types';
-import { IKhanbankTransactionInput } from '../types';
+import { BANK_CODES, TRANSACTION_TYPES } from "../../../../constants";
+import { IAccountHolder, IKhanbankAccount } from "../../accounts/types";
+import { IKhanbankTransactionInput } from "../types";
 
 type Props = {
   configId: string;
@@ -30,21 +30,21 @@ const TransactionForm = (props: Props) => {
 
   const [transaction, setTransaction] = useState<IKhanbankTransactionInput>({
     fromAccount:
-      props.accountNumber || (accounts.length && accounts[0].number) || '',
-    toAccount: props.accountHolder.number || '',
+      props.accountNumber || (accounts.length && accounts[0].number) || "",
+    toAccount: props.accountHolder.number || "",
     toAccountName:
       `${props.accountHolder.custFirstName} ${props.accountHolder.custLastName}` ||
-      '',
+      "",
     amount: 0,
     currency:
-      accounts.find(a => a.number === props.accountNumber)?.currency || 'MNT',
-    transferid: '',
-    toBank: '050000',
-    toCurrency: props.accountHolder.currency || 'MNT',
-    description: '',
-    password: '',
-    loginName: '',
-    type: 'domestic'
+      accounts.find((a) => a.number === props.accountNumber)?.currency || "MNT",
+    transferid: "",
+    toBank: "050000",
+    toCurrency: props.accountHolder.currency || "MNT",
+    description: "",
+    password: "",
+    loginName: "",
+    type: "domestic",
   });
 
   React.useEffect(() => {
@@ -53,53 +53,54 @@ const TransactionForm = (props: Props) => {
         ...transaction,
         fromAccount: props.accountNumber,
         currency:
-          accounts.find(a => a.number === props.accountNumber)?.currency ||
-          'MNT'
+          accounts.find((a) => a.number === props.accountNumber)?.currency ||
+          "MNT",
       });
     }
 
     if (props.accountHolder) {
-      const toAccountName = `${props.accountHolder.custFirstName || ''} ${props
-        .accountHolder.custLastName || ''}`;
+      const toAccountName = `${props.accountHolder.custFirstName || ""} ${
+        props.accountHolder.custLastName || ""
+      }`;
 
       setTransaction({
         ...transaction,
-        toAccount: props.accountHolder.number || transaction.toAccount || '',
+        toAccount: props.accountHolder.number || transaction.toAccount || "",
         toAccountName: !toAccountName.length
           ? transaction.toAccountName
           : toAccountName,
-        toCurrency: props.accountHolder.currency || 'MNT'
+        toCurrency: props.accountHolder.currency || "MNT",
       });
     }
   }, [props.accountHolder, props.accountNumber]);
 
-  const onChangeType = e => {
+  const onChangeType = (e) => {
     const { value } = e.currentTarget;
 
     if (value === 3) {
       setTransaction({
         ...transaction,
-        type: 'interbank',
-        toAccount: '',
-        toAccountName: '',
-        toBank: ''
+        type: "interbank",
+        toAccount: "",
+        toAccountName: "",
+        toBank: "",
       });
     } else {
       setTransaction({
         ...transaction,
-        type: 'domestic',
-        toBank: '050000',
-        toAccount: '',
-        toAccountName: ''
+        type: "domestic",
+        toBank: "050000",
+        toAccount: "",
+        toAccountName: "",
       });
 
       setTransactionType(Number(value));
     }
 
-    setTransaction({ ...transaction, toAccount: '', toAccountName: '' });
+    setTransaction({ ...transaction, toAccount: "", toAccountName: "" });
   };
 
-  const onChangeInput = e => {
+  const onChangeInput = (e) => {
     const { id, value } = e.target;
 
     setTransaction({ ...transaction, [id]: value });
@@ -124,7 +125,7 @@ const TransactionForm = (props: Props) => {
     );
   };
 
-  const renderAccountInput = formProps => {
+  const renderAccountInput = (formProps) => {
     if (transactionType === 2) {
       return null;
     }
@@ -142,16 +143,16 @@ const TransactionForm = (props: Props) => {
       min: 999999999,
       max: 9999999999,
       required: true,
-      onBlur
+      onBlur,
     };
 
     return (
       <>
         {renderInput(
           accountHolderProps,
-          'Recipient account',
-          'toAccount',
-          'number',
+          "Recipient account",
+          "toAccount",
+          "number",
           transaction.toAccount
         )}
         {renderInput(
@@ -161,24 +162,24 @@ const TransactionForm = (props: Props) => {
             disabled: transactionType !== 3,
             value: transaction.toAccountName,
             onFocus: () => {
-              if (transaction.toAccountName === ' ') {
-                setTransaction({ ...transaction, toAccountName: '' });
+              if (transaction.toAccountName === " ") {
+                setTransaction({ ...transaction, toAccountName: "" });
               }
-            }
+            },
           },
-          'Recipient name',
-          'toAccountName',
-          'string',
+          "Recipient name",
+          "toAccountName",
+          "string",
           transaction.toAccountName,
           transactionType === 3
             ? "check the recipient's name before making a transfer"
-            : ''
+            : ""
         )}
       </>
     );
   };
 
-  const renderBankSelect = formProps => {
+  const renderBankSelect = (formProps) => {
     if (transactionType !== 3) {
       return null;
     }
@@ -190,14 +191,14 @@ const TransactionForm = (props: Props) => {
           {...formProps}
           id="toBank"
           name="toBank"
-          componentClass="select"
+          componentclass="select"
           required={true}
           defaultValue={transaction.toBank}
           onChange={onChangeInput}
           errors={formProps.errors}
         >
           <option value="">Select bank</option>
-          {BANK_CODES.map(bank => (
+          {BANK_CODES.map((bank) => (
             <option key={bank.value} value={bank.value}>
               {bank.label}
             </option>
@@ -207,12 +208,14 @@ const TransactionForm = (props: Props) => {
     );
   };
 
-  const renderAccountSelect = formProps => {
+  const renderAccountSelect = (formProps) => {
     if (transactionType !== 2) {
       return null;
     }
 
-    const options = accounts.filter(a => a.number !== transaction.fromAccount);
+    const options = accounts.filter(
+      (a) => a.number !== transaction.fromAccount
+    );
 
     return (
       <FormGroup>
@@ -223,14 +226,14 @@ const TransactionForm = (props: Props) => {
           {...formProps}
           id="toAccount"
           name="toAccount"
-          componentClass="select"
+          componentclass="select"
           required={true}
           defaultValue={transaction.toAccount}
           onChange={onChangeInput}
           errors={formProps.errors}
         >
           <option value="">Select account</option>
-          {options.map(account => (
+          {options.map((account) => (
             <option key={account.number} value={account.number}>
               {account.number} - {account.currency}
             </option>
@@ -244,12 +247,12 @@ const TransactionForm = (props: Props) => {
     const { closeModal } = props;
     const { isSubmitted } = formProps;
 
-    const content = p => {
+    const content = (p) => {
       return (
         <>
           <FormGroup>
-            <ControlLabel>{__('Login name')}</ControlLabel>
-            <p>{__('internet bank login name')}</p>
+            <ControlLabel>{__("Login name")}</ControlLabel>
+            <p>{__("internet bank login name")}</p>
             <FormControl
               {...p}
               id="loginName"
@@ -263,8 +266,8 @@ const TransactionForm = (props: Props) => {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>{__('Password')}</ControlLabel>
-            <p>{__('internet bank password')}</p>
+            <ControlLabel>{__("Password")}</ControlLabel>
+            <p>{__("internet bank password")}</p>
             <FormControl
               {...p}
               id="password"
@@ -285,11 +288,11 @@ const TransactionForm = (props: Props) => {
               onClick={() => {
                 props.submit({
                   ...transaction,
-                  amount: Number(transaction.amount)
+                  amount: Number(transaction.amount),
                 });
               }}
             >
-              Submit{' '}
+              Submit{" "}
             </Button>
           </ModalFooter>
         </>
@@ -299,12 +302,12 @@ const TransactionForm = (props: Props) => {
     const authModal = () => {
       return (
         <ModalTrigger
-          title={'Confirmation'}
-          size={'sm'}
+          title={"Confirmation"}
+          size={"sm"}
           enforceFocus={false}
           trigger={
             <Button btnStyle="success" icon="">
-              Transfer{' '}
+              Transfer{" "}
             </Button>
           }
           autoOpenKey="showListFormModal"
@@ -317,14 +320,14 @@ const TransactionForm = (props: Props) => {
     return (
       <>
         <FormGroup>
-          <ControlLabel>{__('Transaction type')}</ControlLabel>
+          <ControlLabel>{__("Transaction type")}</ControlLabel>
           <FormControl
             id="type"
-            componentClass="select"
+            componentclass="select"
             value={transactionType}
             onChange={onChangeType}
           >
-            {TRANSACTION_TYPES.map(e => (
+            {TRANSACTION_TYPES.map((e) => (
               <option key={e.value} value={e.value}>
                 {e.label}
               </option>
@@ -333,14 +336,14 @@ const TransactionForm = (props: Props) => {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel required={true}>{__('Account')}</ControlLabel>
+          <ControlLabel required={true}>{__("Account")}</ControlLabel>
           <FormControl
             id="fromAccount"
-            componentClass="select"
+            componentclass="select"
             value={transaction.fromAccount}
             onChange={onChangeInput}
           >
-            {accounts.map(e => (
+            {accounts.map((e) => (
               <option key={e.number} value={e.number}>
                 {e.number} - {e.name} - {e.balance.toLocaleString()}
               </option>
@@ -354,22 +357,22 @@ const TransactionForm = (props: Props) => {
 
         {renderInput(
           { ...formProps, min: 0, required: true },
-          'Transaction amount',
-          'amount',
-          'number',
+          "Transaction amount",
+          "amount",
+          "number",
           transaction.amount.toLocaleString()
         )}
         {renderInput(
           { ...formProps, required: true },
-          'Description',
-          'description',
-          'string',
+          "Description",
+          "description",
+          "string",
           transaction.description
         )}
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
-            Cancel{' '}
+            Cancel{" "}
           </Button>
 
           {authModal()}

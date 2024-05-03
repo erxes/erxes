@@ -31,7 +31,7 @@ const MessageFormContainer = (props: FinalProps) => {
   let segmentType = 'contacts:lead';
 
   if (message && message.segments && message.segments.length > 0) {
-    const segment = message.segments.pop();
+    const segment = message.segments[message.segments.length - 1];
     segmentType = segment ? segment.contentType : '';
   }
 

@@ -18,7 +18,6 @@ import { IOverallWorkDet } from '../../overallWork/types';
 
 type Props = {
   closeModal: () => void;
-  history: any;
   overallWorkDetail?: IOverallWorkDet;
   perform?: IPerform;
   max: number;

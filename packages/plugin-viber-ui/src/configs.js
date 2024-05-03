@@ -2,7 +2,7 @@ module.exports = {
   srcDir: __dirname,
   name: "viber",
   scope: "viber",
-  port: 3024,
+  port: 3214,
   exposes: {
     "./routes": "./src/routes.tsx",
     "./inboxIntegrationForm": "./src/components/IntegrationForm.tsx",
@@ -10,7 +10,7 @@ module.exports = {
     "./integrationDetailsForm": "./src/components/IntegrationEditForm.tsx",
   },
   routes: {
-    url: "http://localhost:3024/remoteEntry.js",
+    url: "http://localhost:3214/remoteEntry.js",
     scope: "viber",
     module: "./routes",
   },

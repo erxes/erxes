@@ -20,14 +20,14 @@ class DueDateLabel extends React.Component<IProps> {
     return (
       <>
         {startDate && (
-          <StartDateLabel colorName={generateButtonStart(startDate)}>
+          <StartDateLabel colorname={generateButtonStart(startDate)}>
             <Icon icon="clock-eight" /> {startDay}
           </StartDateLabel>
         )}
 
         {closeDate && (
           <CloseDateLabel
-            colorName={generateButtonClass(closeDate, isComplete)}
+            colorname={generateButtonClass(closeDate, isComplete)}
           >
             <Icon icon="clock-eight" /> {day}
           </CloseDateLabel>

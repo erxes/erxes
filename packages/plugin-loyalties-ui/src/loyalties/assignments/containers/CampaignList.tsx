@@ -12,7 +12,7 @@ import {
   AssignmentCampaignQueryResponse
 } from '../../../configs/assignmentCampaign/types';
 
-type Props = { history: any; queryParams: any };
+type Props = { queryParams: any };
 
 type FinalProps = {
   assignmentCampaignQuery: AssignmentCampaignQueryResponse;

@@ -1,23 +1,24 @@
-import dayjs from 'dayjs';
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Icon from '@erxes/ui/src/components/Icon';
-import { IRouterProps } from '@erxes/ui/src/types';
-import * as routerUtils from '@erxes/ui/src/utils/router';
-import { mutations } from '@erxes/ui-notifications/src/graphql';
-import React from 'react';
-import { Draggable, Droppable } from 'react-beautiful-dnd';
-import { withRouter } from 'react-router-dom';
+import * as routerUtils from "@erxes/ui/src/utils/router";
+
+import { Draggable, Droppable } from "react-beautiful-dnd";
 import {
   DropZone,
   EmptyContainer,
   ItemContainer,
   NotifiedContainer,
-  Wrapper
-} from '../../styles/common';
-import { IItem, IOptions } from '../../types';
-import Item from './Item';
+  Wrapper,
+} from "../../styles/common";
+import { IItem, IOptions } from "../../types";
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Icon from "@erxes/ui/src/components/Icon";
+import Item from "./Item";
+import client from "@erxes/ui/src/apolloClient";
+import dayjs from "dayjs";
+import { gql } from "@apollo/client";
+import { mutations } from "@erxes/ui-notifications/src/graphql";
 
 type Props = {
   listId: string;
@@ -39,53 +40,49 @@ type DraggableContainerProps = {
   index: number;
   options: IOptions;
   onRemoveItem: (itemId: string, stageId: string) => void;
-} & IRouterProps;
+};
 
-class DraggableContainer extends React.Component<
-  DraggableContainerProps,
-  { isDragDisabled: boolean; hasNotified: boolean }
-> {
-  constructor(props: DraggableContainerProps) {
-    super(props);
+function DraggableContainer(props: DraggableContainerProps) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const itemIdQueryParam = routerUtils.getParam(location, "itemId");
+  const { stageId, item, index, options, stageAge } = props;
 
-    // if popup shows, draggable will disable
-    const itemIdQueryParam = routerUtils.getParam(props.history, 'itemId');
+  const [isDragDisabled, setIsDragDisabled] = useState<boolean>(
+    Boolean(itemIdQueryParam)
+  );
+  const [hasNotified, setHasNotified] = useState(
+    item.hasNotified === false ? false : true
+  );
 
-    this.state = {
-      isDragDisabled: Boolean(itemIdQueryParam),
-      hasNotified: props.item.hasNotified === false ? false : true
-    };
-  }
+  const onClick = () => {
+    setIsDragDisabled(true);
 
-  onClick = () => {
-    const { item, history } = this.props;
+    routerUtils.setParams(navigate, location, { itemId: item._id, key: "" });
 
-    this.setState({ isDragDisabled: true }, () => {
-      routerUtils.setParams(history, { itemId: item._id, key: '' });
-    });
-
-    if (!this.state.hasNotified) {
+    if (!hasNotified) {
       client.mutate({
         mutation: gql(mutations.markAsRead),
         variables: {
-          contentTypeId: item._id
-        }
+          contentTypeId: item._id,
+        },
       });
     }
   };
 
-  beforePopupClose = () => {
-    const { item, onRemoveItem } = this.props;
+  const beforePopupClose = () => {
+    const { onRemoveItem } = props;
 
-    if (item.status === 'archived') {
+    if (item.status === "archived") {
       onRemoveItem(item._id, item.stageId);
     }
 
-    this.setState({ isDragDisabled: false, hasNotified: true });
+    setIsDragDisabled(false);
+    setHasNotified(true);
   };
 
-  renderHasNotified() {
-    if (this.state.hasNotified) {
+  const renderHasNotified = () => {
+    if (hasNotified) {
       return null;
     }
 
@@ -94,53 +91,44 @@ class DraggableContainer extends React.Component<
         <Icon icon="bell" size={14} />
       </NotifiedContainer>
     );
-  }
+  };
 
-  render() {
-    const { stageId, item, index, options, stageAge } = this.props;
-    const { isDragDisabled } = this.state;
+  const now = dayjs(new Date());
+  const createdAt = dayjs(item.createdAt);
+  const isOld =
+    !stageAge || stageAge <= 0 ? false : now.diff(createdAt, "day") > stageAge;
 
-    const now = dayjs(new Date());
-    const createdAt = dayjs(item.createdAt);
-    const isOld =
-      !stageAge || stageAge <= 0
-        ? false
-        : now.diff(createdAt, 'day') > stageAge;
-
-    return (
-      <Draggable
-        key={item._id}
-        draggableId={item._id}
-        index={index}
-        isDragDisabled={isDragDisabled}
-      >
-        {(dragProvided, dragSnapshot) => (
-          <ItemContainer
-            isDragging={dragSnapshot.isDragging}
-            isOld={isOld}
-            innerRef={dragProvided.innerRef}
-            {...dragProvided.draggableProps}
-            {...dragProvided.dragHandleProps}
-          >
-            {this.renderHasNotified()}
-            <Item
-              key={item._id}
-              stageId={stageId}
-              item={item}
-              onClick={this.onClick}
-              beforePopupClose={this.beforePopupClose}
-              options={options}
-            />
-          </ItemContainer>
-        )}
-      </Draggable>
-    );
-  }
+  return (
+    <Draggable
+      key={item._id}
+      draggableId={item._id}
+      index={index}
+      isDragDisabled={isDragDisabled}
+    >
+      {(dragProvided, dragSnapshot) => (
+        <ItemContainer
+          $isDragging={dragSnapshot.isDragging}
+          $isOld={isOld}
+          ref={dragProvided.innerRef}
+          {...dragProvided.draggableProps}
+          {...dragProvided.dragHandleProps}
+        >
+          {renderHasNotified()}
+          <Item
+            key={item._id}
+            stageId={stageId}
+            item={item}
+            onClick={onClick}
+            beforePopupClose={beforePopupClose}
+            options={options}
+          />
+        </ItemContainer>
+      )}
+    </Draggable>
+  );
 }
 
-const DraggableContainerWithRouter = withRouter<DraggableContainerProps>(
-  DraggableContainer
-);
+const DraggableContainerWithRouter = DraggableContainer;
 
 class InnerItemList extends React.PureComponent<{
   stageId: string;
@@ -177,25 +165,19 @@ type InnerListProps = {
 
 class InnerList extends React.PureComponent<InnerListProps> {
   render() {
-    const {
-      stageId,
-      stageAge,
-      items,
-      dropProvided,
-      options,
-      onRemoveItem
-    } = this.props;
+    const { stageId, stageAge, items, dropProvided, options, onRemoveItem } =
+      this.props;
 
     if (items.length === 0) {
       return (
-        <EmptyContainer innerRef={dropProvided.innerRef}>
+        <EmptyContainer ref={dropProvided.innerRef}>
           <EmptyState icon="postcard" text="No item" size="small" />
         </EmptyContainer>
       );
     }
 
     return (
-      <DropZone innerRef={dropProvided.innerRef}>
+      <DropZone ref={dropProvided.innerRef}>
         <InnerItemList
           onRemoveItem={onRemoveItem}
           stageId={stageId}
@@ -211,7 +193,7 @@ class InnerList extends React.PureComponent<InnerListProps> {
 
 export default class ItemList extends React.Component<Props> {
   static defaultProps = {
-    listId: 'LIST'
+    listId: "LIST",
   };
 
   render() {
@@ -223,7 +205,7 @@ export default class ItemList extends React.Component<Props> {
       stageAge,
       items,
       options,
-      onRemoveItem
+      onRemoveItem,
     } = this.props;
 
     return (
@@ -234,7 +216,7 @@ export default class ItemList extends React.Component<Props> {
         {(dropProvided, dropSnapshot) => (
           <Wrapper
             style={style}
-            isDraggingOver={dropSnapshot.isDraggingOver}
+            $isDraggingOver={dropSnapshot.isDraggingOver}
             {...dropProvided.droppableProps}
           >
             <InnerList

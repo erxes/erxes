@@ -1,167 +1,141 @@
+import DateControl from '@erxes/ui/src/components/form/DateControl';
+import React, { useState } from 'react';
 import Label from '@erxes/ui/src/components/Label';
-import React from 'react';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import { Alert, __ } from '@erxes/ui/src/utils';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { IDayLabelParams } from '../types';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
+import SelectLabels from '../../settings/containers/SelectLabels';
+import { __ } from '@erxes/ui/src/utils';
+import dayjs from 'dayjs';
 import {
   Button,
   ControlLabel,
   Form as CommonForm,
-  FormGroup
+  FormGroup,
 } from '@erxes/ui/src/components';
+import { DateContainer } from '@erxes/ui/src/styles/main';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { IDayLabel, IDayLabelParams } from '../types';
 import {
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
+  MainStyleScrollWrapper as ScrollWrapper,
 } from '@erxes/ui/src/styles/eindex';
-import moment from 'moment';
-import SelectLabels from '../../settings/containers/SelectLabels';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
-type State = {
-  dayLabelParams: IDayLabelParams;
-};
+const Form = (props: Props) => {
+  const { renderButton, closeModal } = props;
 
-class Form extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+  const [dayLabelParams, setDayLabelParams] = useState<IDayLabelParams>({
+    dates: [],
+  });
 
-    this.state = {
-      dayLabelParams: {
-        dates: []
-      }
-    };
-  }
-
-  generateDoc = (values: { _id?: string }) => {
+  const generateDoc = (values: { _id?: string }) => {
     const finalValues = values;
-    const { dayLabelParams } = this.state;
 
     return {
       ...finalValues,
       ...dayLabelParams,
-      dates: (dayLabelParams.dates || []).map(d => new Date(d))
+      dates: (dayLabelParams.dates || []).map((d) => new Date(d)),
     };
   };
 
-  onInputChange = e => {
+  const onInputChange = (e) => {
     e.preventDefault();
     const value = e.target.value;
     const name = e.target.name;
 
-    this.setState({
-      dayLabelParams: { ...this.state.dayLabelParams, [name]: value }
-    });
+    setDayLabelParams({ ...dayLabelParams, [name]: value });
   };
 
-  onSelectChange = (name, value) => {
-    this.setState({
-      dayLabelParams: { ...this.state.dayLabelParams, [name]: value }
-    });
+  const onSelectChange = (name, value) => {
+    setDayLabelParams((prevState) => ({ ...prevState, [name]: value }));
   };
 
-  onSelectDate = value => {
-    const { dayLabelParams } = this.state;
+  const removeDate = (date, e) => {
+    const newDayLabelParam = { ...dayLabelParams };
+    newDayLabelParam.dates = (newDayLabelParam.dates || []).filter(
+      (d) => d !== date,
+    );
+    setDayLabelParams(newDayLabelParam);
+  };
 
-    const strVal = moment(value).format('YYYY/MM/DD');
+  const onSelectDate = (value) => {
+    const newDayLabelParam = { ...dayLabelParams };
 
-    if (strVal === 'Invalid date') {
+    const strVal = dayjs(value).format('YYYY/MM/DD');
+
+    if (strVal === 'Invalid Date') {
       return;
     }
 
-    if (!(dayLabelParams.dates || []).includes(strVal)) {
-      (dayLabelParams.dates || []).push(strVal);
+    if (!(newDayLabelParam.dates || []).includes(strVal)) {
+      (newDayLabelParam.dates || []).push(strVal);
     }
 
-    this.setState({
-      dayLabelParams: { ...dayLabelParams }
-    });
+    setDayLabelParams(newDayLabelParam);
   };
 
-  removeDate = (date, e) => {
-    const { dayLabelParams } = this.state;
-    dayLabelParams.dates = (dayLabelParams.dates || []).filter(d => d !== date);
-    this.setState({
-      dayLabelParams: { ...dayLabelParams }
-    });
-  };
-
-  onAfterSave = () => {
-    this.props.closeModal();
-  };
-
-  renderContent = (formProps: IFormProps) => {
-    const { renderButton, closeModal } = this.props;
+  const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
-
-    const { dayLabelParams } = this.state;
 
     return (
       <>
-        <ScrollWrapper>
-          {(dayLabelParams.dates || []).map(d => (
-            <span key={Math.random()} onClick={this.removeDate.bind(this, d)}>
-              <Label children={d} />
-              &nbsp;
-            </span>
-          ))}
-          <FormGroup>
-            <ControlLabel required={true}>{__(`Date`)}</ControlLabel>
-            <DateContainer>
-              <DateControl
-                name="createdAtFrom"
-                placeholder="Choose date"
-                defaultValue={
-                  dayLabelParams.dates && dayLabelParams.dates.length
-                    ? dayLabelParams.dates[dayLabelParams.dates.length - 1]
-                    : new Date()
-                }
-                onChange={this.onSelectDate}
-              />
-            </DateContainer>
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Branch</ControlLabel>
-            <SelectBranches
-              label="Choose branch"
-              name="branchIds"
-              initialValue={''}
-              onSelect={branchIds =>
-                this.onSelectChange('branchIds', branchIds)
+        {(dayLabelParams.dates || []).map((d) => (
+          <span key={Math.random()} onClick={removeDate.bind(this, d)}>
+            <Label children={d} />
+            &nbsp;
+          </span>
+        ))}
+        <FormGroup>
+          <ControlLabel required={true}>{__(`Date`)}</ControlLabel>
+          <DateContainer>
+            <DateControl
+              name="createdAtFrom"
+              placeholder="Choose date"
+              defaultValue={
+                dayLabelParams.dates && dayLabelParams.dates.length
+                  ? dayLabelParams.dates[dayLabelParams.dates.length - 1]
+                  : new Date()
               }
-              multi={true}
+              onChange={onSelectDate}
             />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Department</ControlLabel>
-            <SelectDepartments
-              label="Choose department"
-              name="departmentIds"
-              initialValue={''}
-              onSelect={departmentIds =>
-                this.onSelectChange('departmentIds', departmentIds)
-              }
-              multi={true}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel required={true}>Labels</ControlLabel>
-            <SelectLabels
-              label="Choose label"
-              name="labelIds"
-              initialValue={''}
-              onSelect={labelIds => this.onSelectChange('labelIds', labelIds)}
-              multi={true}
-            />
-          </FormGroup>
-        </ScrollWrapper>
+          </DateContainer>
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Branch</ControlLabel>
+          <SelectBranches
+            label="Choose branch"
+            name="branchIds"
+            initialValue={''}
+            onSelect={(branchIds) => onSelectChange('branchIds', branchIds)}
+            multi={true}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Department</ControlLabel>
+          <SelectDepartments
+            label="Choose department"
+            name="departmentIds"
+            initialValue={''}
+            onSelect={(departmentIds) =>
+              onSelectChange('departmentIds', departmentIds)
+            }
+            multi={true}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel required={true}>Labels</ControlLabel>
+          <SelectLabels
+            label="Choose label"
+            name="labelIds"
+            initialValue={''}
+            onSelect={(labelIds) => onSelectChange('labelIds', labelIds)}
+            multi={true}
+          />
+        </FormGroup>
         <ModalFooter>
           <Button
             btnStyle="simple"
@@ -173,19 +147,17 @@ class Form extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            values: this.generateDoc(values),
+            values: generateDoc(values),
             isSubmitted,
-            callback: this.onAfterSave,
-            object: dayLabelParams
+            callback: closeModal,
+            object: dayLabelParams,
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <CommonForm renderContent={this.renderContent} />;
-  }
-}
+  return <CommonForm renderContent={renderContent} />;
+};
 
 export default Form;

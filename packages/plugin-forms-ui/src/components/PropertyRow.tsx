@@ -20,7 +20,7 @@ import Toggle from '@erxes/ui/src/components/Toggle';
 import { IField } from '@erxes/ui/src/types';
 import { __, Alert, confirm } from '@erxes/ui/src/utils';
 import React from 'react';
-import Collapse from 'react-bootstrap/Collapse';
+import Collapse from '@erxes/ui/src/components/Collapse';
 
 type Props = {
   group: IFieldGroup;
@@ -402,9 +402,9 @@ class PropertyRow extends React.Component<Props, State> {
 
     return (
       <li key={group._id}>
-        <CollapseRow isChild={!!group.parentId}>
+        <CollapseRow $isChild={!!group.parentId}>
           <div style={{ flex: 1 }} onClick={this.handleCollapse}>
-            <DropIcon isOpen={this.state.collapse} />
+            <DropIcon $isOpen={this.state.collapse} />
             {group.name}
           </div>
           {this.renderActionButtons(
@@ -420,7 +420,7 @@ class PropertyRow extends React.Component<Props, State> {
             true
           )}
         </CollapseRow>
-        <Collapse in={this.state.collapse}>
+        <Collapse show={this.state.collapse}>
           <div>
             {this.renderTable(fields, group.contentType)}
             {this.renderChildGroupsTable()}

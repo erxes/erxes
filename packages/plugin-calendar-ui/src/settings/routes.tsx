@@ -1,82 +1,84 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
+import React from "react";
+import { Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 
-const Home = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings - Calendar Home" */ './containers/Home')
+const Home = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings - Calendar Home" */ "./containers/Home"
+    )
 );
 
-const Calendar = ({ location, history }) => {
+const Calendar = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <Home queryParams={queryParams} history={history} />;
 };
 
-const ScheduleBase = asyncComponent(() =>
-  import(/* webpackChunkName: "Schedule" */ './containers/scheduler/Base')
+const ScheduleBase = asyncComponent(
+  () => import(/* webpackChunkName: "Schedule" */ "./containers/scheduler/Base")
 );
 
-const schedule = ({ history, location }) => {
-  return (
-    <ScheduleBase
-      history={history}
-      queryParams={queryString.parse(location.search)}
-    />
-  );
+const Schedule = () => {
+  const location = useLocation();
+
+  return <ScheduleBase queryParams={queryString.parse(location.search)} />;
 };
 
-const CreateSchedulePage = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings CreateSchedulePage" */ './containers/scheduler/CreatePage'
-  )
+const CreateSchedulePage = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings CreateSchedulePage" */ "./containers/scheduler/CreatePage"
+    )
 );
 
-const createPage = ({ history, match }) => {
-  return (
-    <CreateSchedulePage history={history} accountId={match.params.accountId} />
-  );
+const CreatePage = () => {
+  const { accountId } = useParams();
+  const navigate = useNavigate();
+  
+  return <CreateSchedulePage accountId={accountId} navigate={navigate} />;
 };
 
-const EditSchedulePage = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings CreateSchedulePage" */ './containers/scheduler/EditPage'
-  )
+const EditSchedulePage = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings CreateSchedulePage" */ "./containers/scheduler/EditPage"
+    )
 );
 
-const editPage = ({ history, match }) => {
-  const { id, accountId } = match.params;
+const EditPage = () => {
+  const { id, accountId } = useParams();
+  const navigate = useNavigate();
 
   return (
-    <EditSchedulePage history={history} pageId={id} accountId={accountId} />
+    <EditSchedulePage pageId={id} accountId={accountId} navigate={navigate} />
   );
 };
 
 const routes = () => (
-  <React.Fragment>
-    <Route path="/settings/calendars" component={Calendar} />
+  <Routes>
+    <Route path="/settings/calendars" element={<Calendar />} />
 
     <Route
       path="/settings/schedule"
-      exact={true}
       key="/settings/schedule"
-      component={schedule}
+      element={<Schedule />}
     />
 
     <Route
       path="/settings/schedule/create/:accountId"
-      exact={true}
       key="/settings/schedule/create/:accountId"
-      component={createPage}
+      element={<CreatePage />}
     />
 
     <Route
       path="/settings/schedule/edit/:accountId/:id"
-      exact={true}
       key="/settings/schedule/edit:id"
-      component={editPage}
+      element={<EditPage />}
     />
-  </React.Fragment>
+  </Routes>
 );
 
 export default routes;

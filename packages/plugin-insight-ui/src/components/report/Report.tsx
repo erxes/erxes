@@ -1,37 +1,35 @@
-import React, { useRef, useState } from 'react';
-import RTG from 'react-transition-group';
-import Dropdown from 'react-bootstrap/Dropdown';
-import queryString from 'query-string';
-
-import PageContent from '@erxes/ui/src/layout/components/PageContent';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import confirm from '@erxes/ui/src/utils/confirmation/confirm';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Title } from '@erxes/ui-settings/src/styles';
-import { getEnv } from '@erxes/ui/src/utils/index';
-import { __ } from '@erxes/ui/src/utils/index';
-import { BarItems } from '@erxes/ui/src';
-
-import ChartRenderer from '../../containers/chart/ChartRenderer';
-import Participators from '../utils/Participators';
-import Form from '../../containers/chart/Form';
-import SelectMembersPopover from '../utils/SelectMembersPopover';
-import SelectDashboard from '../../containers/utils/SelectDashboard';
-import { defaultLayout, deserializeItem } from '../../utils';
-import { IReport } from '../../types';
 import {
   ChartTitle,
-  DragField,
   ContentContainer,
+  DragField,
   RightDrawerContainer,
-} from '../../styles';
+} from "../../styles";
+import React, { useRef, useState } from "react";
+import { defaultLayout, deserializeItem } from "../../utils";
+
+import { BarItems } from "@erxes/ui/src";
+import Button from "@erxes/ui/src/components/Button";
+import { CSSTransition } from "react-transition-group";
+import ChartRenderer from "../../containers/chart/ChartRenderer";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import Form from "../../containers/chart/Form";
+import { IReport } from "../../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import PageContent from "@erxes/ui/src/layout/components/PageContent";
+import Participators from "../utils/Participators";
+import SelectDashboard from "../../containers/utils/SelectDashboard";
+import SelectMembersPopover from "../utils/SelectMembersPopover";
+import { Title } from "@erxes/ui-settings/src/styles";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "@erxes/ui/src/utils/index";
+import confirm from "@erxes/ui/src/utils/confirmation/confirm";
+import { getEnv } from "@erxes/ui/src/utils/index";
+import queryString from "query-string";
 
 type Props = {
   queryParams: any;
-  history: any;
 
   report: IReport;
   loading: boolean;
@@ -45,7 +43,6 @@ type Props = {
 const Report = (props: Props) => {
   const {
     queryParams,
-    history,
     report,
     loading,
     reportChartsRemove,
@@ -66,7 +63,7 @@ const Report = (props: Props) => {
   };
 
   const renderActionBar = () => {
-    const leftActionBar = <Title>{__(`${report.name || ''}`)}</Title>;
+    const leftActionBar = <Title>{__(`${report.name || ""}`)}</Title>;
 
     const trigger = (
       <div>
@@ -82,7 +79,7 @@ const Report = (props: Props) => {
 
     const rightActionBar = (
       <BarItems>
-        {report.visibility === 'private' && (
+        {report.visibility === "private" && (
           <SelectMembersPopover
             targets={[report]}
             trigger={trigger}
@@ -98,39 +95,35 @@ const Report = (props: Props) => {
         >
           Add Chart
         </Button>
-        <SelectDashboard
-          queryParams={queryParams}
-          history={history}
-          data={report}
-        />
-        <Dropdown drop="down" alignRight={true}>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
-            <Button btnStyle="simple" icon="ellipsis-h" />
-          </Dropdown.Toggle>
-          <Dropdown.Menu className="dropdown-container">
-            <li>
-              <a
-                href="#duplicate"
-                onClick={() => {
-                  reportDuplicate(report._id);
-                }}
-              >
-                <Icon icon="copy" />
-                {__('Duplicate')}
-              </a>
-            </li>
-            <li>
-              <a
-                href="#delete"
-                onClick={() => {
-                  reportRemove([report._id]);
-                }}
-              >
-                <Icon icon="trash-alt" />
-                {__('Delete')}
-              </a>
-            </li>
-          </Dropdown.Menu>
+        <SelectDashboard queryParams={queryParams} data={report} />
+        <Dropdown
+          drop="down"
+          as={DropdownToggle}
+          toggleComponent={<Button btnStyle="simple" icon="ellipsis-h" />}
+          // alignRight={true}
+        >
+          <li>
+            <a
+              href="#duplicate"
+              onClick={() => {
+                reportDuplicate(report._id);
+              }}
+            >
+              <Icon icon="copy" />
+              {__("Duplicate")}
+            </a>
+          </li>
+          <li>
+            <a
+              href="#delete"
+              onClick={() => {
+                reportRemove([report._id]);
+              }}
+            >
+              <Icon icon="trash-alt" />
+              {__("Delete")}
+            </a>
+          </li>
         </Dropdown>
       </BarItems>
     );
@@ -139,7 +132,7 @@ const Report = (props: Props) => {
   };
 
   const handleChartDelete = (_id: string) => {
-    confirm('Are you sure to delete this chart').then(() => {
+    confirm("Are you sure to delete this chart").then(() => {
       reportChartsRemove(_id);
     });
   };
@@ -165,10 +158,15 @@ const Report = (props: Props) => {
   const exportTable = (item: any) => {
     const stringified = queryString.stringify({
       ...item,
+      filter: JSON.stringify(item.filter),
+      dimension: JSON.stringify(item.dimension),
+      layout: JSON.stringify(item.layout),
+      vizState: JSON.stringify(item.vizState)
     });
+
     const { REACT_APP_API_URL } = getEnv();
     window.open(
-      `${REACT_APP_API_URL}/pl:insight/chart-table-export?${stringified}`,
+      `${REACT_APP_API_URL}/pl:insight/chart-table-export?${stringified}`
     );
   };
 
@@ -183,11 +181,11 @@ const Report = (props: Props) => {
       <div
         key={chart._id || Math.random()}
         data-grid={defaultLayout(chart, index)}
-        style={{ overflow: 'hidden' }}
+        style={{ overflow: "hidden" }}
       >
         <ChartTitle>
           <div>{chart.name}</div>
-          {chartType && chartType === 'table' && (
+          {chartType && chartType === "table" && (
             <span
               className="db-chart-action"
               onClick={() => exportTable(chart)}
@@ -212,7 +210,6 @@ const Report = (props: Props) => {
           </span>
         </ChartTitle>
         <ChartRenderer
-          history={history}
           queryParams={queryParams}
           chartType={chart.chartType}
           chartHeight={defaultLayout(chart, index).h * 160}
@@ -232,7 +229,7 @@ const Report = (props: Props) => {
       <DataWithLoader
         data={
           <DragField
-            haveChart={charts?.length ? true : false}
+            haveChart={(charts || []).length ? true : false}
             cols={2 * 3}
             margin={[30, 30]}
             onDragStart={() => setIsDragging(true)}
@@ -246,11 +243,11 @@ const Report = (props: Props) => {
             useCSSTransforms={true}
             resizeHandles={["s", "w", "e", "n", "sw", "nw", "se", "ne"]}
           >
-            {charts?.map(deserializeItem).map(renderChart)}
+            {(charts || []).map(deserializeItem).map(renderChart)}
           </DragField>
         }
         loading={loading}
-        emptyText={__('No data for this report')}
+        emptyText={__("No data for this report")}
         emptyImage="/images/actions/11.svg"
       />
     );
@@ -262,7 +259,7 @@ const Report = (props: Props) => {
         {renderContent()}
 
         <div ref={wrapperRef}>
-          <RTG.CSSTransition
+          <CSSTransition
             in={showDrawer}
             timeout={300}
             classNames="slide-in-right"
@@ -271,7 +268,6 @@ const Report = (props: Props) => {
             <RightDrawerContainer width={100}>
               {
                 <Form
-                  history={history}
                   queryParams={queryParams}
                   chart={currentChart}
                   item={report}
@@ -280,7 +276,7 @@ const Report = (props: Props) => {
                 />
               }
             </RightDrawerContainer>
-          </RTG.CSSTransition>
+          </CSSTransition>
         </div>
       </PageContent>
     </ContentContainer>

@@ -14,14 +14,16 @@ type Props = {
   categories: IAssetCategoryTypes[];
 };
 
-function CategoryFormContainer({ closeModal, category, categories }: Props) {
+const CategoryFormContainer = (props: Props) => {
+  const { category, categories, closeModal } = props;
+
   const renderButton = ({
     text,
     values,
     isSubmitted,
     callback,
     confirmationUpdate,
-    object
+    object,
   }: IButtonMutateProps) => {
     let mutation = mutations.assetCategoryAdd;
 
@@ -50,10 +52,10 @@ function CategoryFormContainer({ closeModal, category, categories }: Props) {
     renderButton,
     closeModal,
     category,
-    categories
+    categories,
   };
 
   return <CategoryForm {...updatedProps} />;
-}
+};
 
-export default withProps<Props>(compose()(CategoryFormContainer));
+export default CategoryFormContainer;

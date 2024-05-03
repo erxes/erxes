@@ -1,19 +1,24 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
+import React from "react";
+import { Route, Routes } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
-const SegmentsList = asyncComponent(() =>
-  import(/* webpackChunkName: "SegmentsList" */ './containers/SegmentsList')
+const SegmentsList = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "SegmentsList" */ "./containers/SegmentsList")
 );
 
-const SegmentsForm = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "SegmentsForm" */ '@erxes/ui-segments/src/containers/form/SegmentsForm'
-  )
+const SegmentsForm = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "SegmentsForm" */ "@erxes/ui-segments/src/containers/form/SegmentsForm"
+    )
 );
 
-const segments = ({ location, history }) => {
+const Segments = () => {
+  const location = useLocation();
+
   const queryParams = queryString.parse(location.search);
 
   const { contentType } = queryParams;
@@ -22,51 +27,49 @@ const segments = ({ location, history }) => {
     <SegmentsList
       queryParams={queryParams}
       contentType={contentType}
-      history={history}
     />
   );
 };
 
-const segmentsForm = ({ location, history }) => {
+const SegmentsFormComponent = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const queryParams = queryString.parse(location.search);
 
   const { contentType } = queryParams;
 
-  return <SegmentsForm history={history} contentType={contentType} />;
+  return <SegmentsForm history={navigate} contentType={contentType} />;
 };
 
-const segmentsEditForm = ({ location, history }) => {
+const SegmentsEditForm = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const queryParams = queryString.parse(location.search);
 
   const { contentType, id } = queryParams;
 
-  return <SegmentsForm id={id} history={history} contentType={contentType} />;
+  return <SegmentsForm id={id} history={navigate} contentType={contentType} />;
 };
 
 const routes = () => {
   return (
-    <React.Fragment>
-      <Route
-        key="/segments/"
-        exact={true}
-        path="/segments/"
-        component={segments}
-      />
+    <Routes>
+      <Route key="/segments/" path="/segments/" element={<Segments />} />
 
       <Route
         key="/segments/new/"
-        exact={true}
         path="/segments/new/"
-        component={segmentsForm}
+        element={<SegmentsFormComponent />}
       />
 
       <Route
         key="/segments/edit/"
-        exact={true}
         path="/segments/edit/"
-        component={segmentsEditForm}
+        element={<SegmentsEditForm />}
       />
-    </React.Fragment>
+    </Routes>
   );
 };
 

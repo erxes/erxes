@@ -1,10 +1,10 @@
-import { __ } from '@erxes/ui/src/utils/core';
 import AssignBox from '@erxes/ui-inbox/src/inbox/containers/AssignBox';
-import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import { InboxManagementActionConsumer } from '../../containers/InboxCore';
 import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
+import { InboxManagementActionConsumer } from '../../containers/InboxCore';
+import { Popover } from '@headlessui/react';
+import { PopoverHeader } from '@erxes/ui/src/styles/eindex';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   targets: IConversation[];
@@ -15,9 +15,7 @@ type Props = {
 };
 
 class AssignBoxPopover extends React.Component<Props> {
-  private overlayTrigger;
-
-  hidePopover = () => {
+  hidePopover = (closePopover) => {
     const { afterSave, notifyHandler } = this.props;
 
     if (afterSave) {
@@ -28,42 +26,37 @@ class AssignBoxPopover extends React.Component<Props> {
       notifyHandler();
     }
 
-    this.overlayTrigger.hide();
+    closePopover();
   };
 
   render() {
-    const { targets, trigger, container } = this.props;
-    const popover = (
-      <Popover id="assign-popover">
-        <Popover.Title as="h3">{__('Choose person')}</Popover.Title>
-        <Popover.Content>
+    const { targets, trigger } = this.props;
+
+    const popover = (close) => (
+      <>
+        <PopoverHeader>{__('Choose person')}</PopoverHeader>
+        <div className="popover-content">
           <AssignBox
             targets={targets}
             event="onClick"
-            afterSave={this.hidePopover}
+            afterSave={() => this.hidePopover(close)}
           />
-        </Popover.Content>
-      </Popover>
+        </div>
+      </>
     );
 
     return (
-      <OverlayTrigger
-        ref={overlayTrigger => {
-          this.overlayTrigger = overlayTrigger;
-        }}
-        trigger="click"
-        placement="bottom-start"
-        overlay={popover}
-        container={container}
-        rootClose={true}
-      >
-        {trigger}
-      </OverlayTrigger>
+      <Popover className="relative">
+        <Popover.Button>{trigger}</Popover.Button>
+        <Popover.Panel className="assign-popover">
+          {({ close }) => popover(close)}
+        </Popover.Panel>
+      </Popover>
     );
   }
 }
 
-export default props => (
+export default (props) => (
   <InboxManagementActionConsumer>
     {({ notifyConsumersOfManagementAction }) => (
       <AssignBoxPopover

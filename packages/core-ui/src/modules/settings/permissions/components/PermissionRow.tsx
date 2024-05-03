@@ -39,9 +39,9 @@ class PermissionRow extends React.Component<Props> {
         <td>{permission.group ? permission.group.name : ''}</td>
         <td>
           {permission.allowed ? (
-            <TextInfo textStyle="success">{__('Allowed')}</TextInfo>
+            <TextInfo $textStyle="success">{__('Allowed')}</TextInfo>
           ) : (
-            <TextInfo textStyle="danger">{__('Not Allowed')}</TextInfo>
+            <TextInfo $textStyle="danger">{__('Not Allowed')}</TextInfo>
           )}
         </td>
         <td>
