@@ -6,8 +6,8 @@ import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as moment from 'moment';
 import fetch from 'node-fetch';
+import * as puppeteer from 'puppeteer';
 
-import * as HTMLtoDOCX from "html-to-docx";
 import * as tmp from 'tmp';
 import * as xlsxPopulate from 'xlsx-populate';
 import { sendCommonMessage } from '../../messageBroker';
@@ -800,20 +800,20 @@ export const generateContract = async (
 };
 
 const generatePdf = async (subdomain, content, dealNumber) => {
-  // const createPdfBuffer = (content:any) => {
-  //   return new Promise((resolve, reject) => {
-  //     pdf.create(content).toBuffer((err, buffer) => {
-  //       if (err) {
-  //         reject(err);
-  //       } else {
-  //         resolve(buffer);
-  //       }
-  //     });
-  //   });
-  // }
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  });
+  
+  const page = await browser.newPage();
+
+  await page.setContent(content);
+  const buffer = await page.pdf({ format: 'A4' });
+
+  await browser.close();
 
   // const buffer:any = await createPdfBuffer(content);
-  const buffer: any = await HTMLtoDOCX(content)
+  // const buffer: any = await HTMLtoDOCX(content)
 
 
   const DOMAIN = getEnv({
