@@ -1,27 +1,26 @@
-import { IBoardCount } from '@erxes/ui-cards/src/boards/types';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import { __ } from '@erxes/ui/src/utils/core';
-import { GROWTHHACK_STATES } from '../../constants';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { IBoardCount } from "@erxes/ui-cards/src/boards/types";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Tabs, TabTitle } from "@erxes/ui/src/components/tabs";
+import { __ } from "@erxes/ui/src/utils/core";
+import { GROWTHHACK_STATES } from "../../constants";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import {
   FieldStyle,
   SidebarCounter,
-  SidebarList
-} from '@erxes/ui/src/layout/styles';
-import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import { Link } from 'react-router-dom';
-import PipelineList from '../../containers/home/PipelineList';
+  SidebarList,
+} from "@erxes/ui/src/layout/styles";
+import React from "react";
+import Popover from "@erxes/ui/src/components/Popover";
+import { Link } from "react-router-dom";
+import PipelineList from "../../containers/home/PipelineList";
 import {
   BoxContainer,
   CountItem,
   FilterButton,
   FilterWrapper,
-  HelperButtons
-} from './styles';
+  HelperButtons,
+} from "./styles";
 
 type Props = {
   queryParams: any;
@@ -33,16 +32,16 @@ class Home extends React.Component<Props> {
   renderBoards() {
     const { queryParams, boardsWithCount } = this.props;
 
-    const { id = '', state = '' } = queryParams;
+    const { id = "", state = "" } = queryParams;
 
     if (boardsWithCount.length === 0) {
       return <EmptyState text="There is no campaign" icon="folder-2" />;
     }
 
-    return boardsWithCount.map(board => (
+    return boardsWithCount.map((board) => (
       <li key={board._id}>
         <Link
-          className={id === board._id ? 'active' : ''}
+          className={id === board._id ? "active" : ""}
           to={`/growthHack/home?id=${board._id}&state=${state}`}
         >
           <FieldStyle>{board.name}</FieldStyle>
@@ -52,78 +51,70 @@ class Home extends React.Component<Props> {
     ));
   }
 
-  renderPopover() {
-    return (
-      <Popover id="score-popover">
-        <Popover.Title as="h3">
-          {__('Marketing campaigns')}
-          <Link to="/settings/boards/growthHack">
-            <Icon icon="cog" size={14} />
-          </Link>
-        </Popover.Title>
-        <Popover.Content>
-          <SidebarList>{this.renderBoards()}</SidebarList>
-        </Popover.Content>
-      </Popover>
-    );
-  }
-
   renderFilter = () => {
     const { queryParams } = this.props;
-    const { state, id = '' } = queryParams;
+    const { state, id = "" } = queryParams;
 
     return (
       <FilterWrapper>
         <Tabs grayBorder={true}>
           <Link to={`/growthHack/home?id=${id}`}>
-            <TabTitle className={!state ? 'active' : ''}>{__('All')}</TabTitle>
+            <TabTitle className={!state ? "active" : ""}>{__("All")}</TabTitle>
           </Link>
           <Link to={`/growthHack/home?id=${id}&state=In progress`}>
-            <TabTitle className={state === 'In progress' ? 'active' : ''}>
-              {__('In progress')}
+            <TabTitle className={state === "In progress" ? "active" : ""}>
+              {__("In progress")}
             </TabTitle>
           </Link>
           <Link to={`/growthHack/home?id=${id}&state=Not started`}>
-            <TabTitle className={state === 'Not started' ? 'active' : ''}>
-              {__('Not started')}
+            <TabTitle className={state === "Not started" ? "active" : ""}>
+              {__("Not started")}
             </TabTitle>
           </Link>
           <Link to={`/growthHack/home?id=${id}&state=Completed`}>
-            <TabTitle className={state === 'Completed' ? 'active' : ''}>
-              {__('Completed')}
+            <TabTitle className={state === "Completed" ? "active" : ""}>
+              {__("Completed")}
             </TabTitle>
           </Link>
         </Tabs>
         <HelperButtons>
-          <OverlayTrigger
-            trigger="click"
+          <Popover
             placement="bottom-end"
-            rootClose={true}
-            overlay={this.renderPopover()}
+            trigger={
+              <FilterButton>
+                {__("Filter by campaign")} <Icon icon="angle-down" />
+              </FilterButton>
+            }
           >
-            <FilterButton>
-              {__('Filter by campaign')} <Icon icon="angle-down" />
-            </FilterButton>
-          </OverlayTrigger>
+            <div className="popover-header">
+              {__("Marketing campaigns")}
+              <Link to="/settings/boards/growthHack">
+                <Icon icon="cog" size={14} />
+              </Link>
+            </div>
+            <div className="popover-body">
+              <SidebarList>{this.renderBoards()}</SidebarList>
+            </div>
+          </Popover>
         </HelperButtons>
       </FilterWrapper>
     );
   };
 
   renderCountItem = (state: string) => {
-    let iconContent = 'eabd';
+    let iconContent = "eabd";
 
     switch (state) {
-      case 'In progress':
-        iconContent = 'ecc5';
+      case "In progress":
+        iconContent = "ecc5";
         break;
 
-      case 'Not started':
-        iconContent = 'eb46';
+      case "Not started":
+        iconContent = "eb46";
         break;
 
-      case 'Completed':
-        iconContent = 'ecd7';
+      case "Completed":
+        iconContent = "ecd7";
         break;
     }
 
@@ -136,7 +127,7 @@ class Home extends React.Component<Props> {
   };
 
   renderCounts = () => {
-    return GROWTHHACK_STATES.map(state => this.renderCountItem(state));
+    return GROWTHHACK_STATES.map((state) => this.renderCountItem(state));
   };
 
   renderContent = () => {
@@ -154,8 +145,8 @@ class Home extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={`${'Growth Hacking' || ''}`}
-            breadcrumb={[{ title: __('Growth Hacking') }]}
+            title={`${"Growth Hacking" || ""}`}
+            breadcrumb={[{ title: __("Growth Hacking") }]}
           />
         }
         content={this.renderContent()}

@@ -1,4 +1,3 @@
-import Assignees from '@erxes/ui-cards/src/boards/components/Assignees';
 import {
   ActionButtons,
   Button,
@@ -9,15 +8,16 @@ import {
   Label,
   Tip,
   Toggle,
-  __
-} from '@erxes/ui/src';
-import moment from 'moment';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { IPLan } from '../common/types';
-import { DetailPopoverWrapper } from '../../styles';
+  __,
+} from "@erxes/ui/src";
 
-import { DetailPopOver } from '../../assessments/common/utils';
+import Assignees from "@erxes/ui-cards/src/boards/components/Assignees";
+import { DetailPopOver } from "../../assessments/common/utils";
+import { DetailPopoverWrapper } from "../../styles";
+import { IPLan } from "../common/types";
+import { Link } from "react-router-dom";
+import React from "react";
+import moment from "moment";
 
 type Props = {
   plan: IPLan;
@@ -34,27 +34,22 @@ class Row extends React.Component<Props> {
   }
 
   render() {
-    const {
-      plan,
-      selectedItems,
-      handleSelect,
-      duplicate,
-      changeStatus
-    } = this.props;
+    const { plan, selectedItems, handleSelect, duplicate, changeStatus } =
+      this.props;
 
-    const onClick = e => {
+    const onClick = (e) => {
       e.stopPropagation();
     };
 
     const handleStatus = () => {
-      changeStatus(plan._id, plan.status === 'draft' ? 'active' : 'draft');
+      changeStatus(plan._id, plan.status === "draft" ? "active" : "draft");
     };
 
     return (
       <tr>
         <td onClick={onClick}>
           <FormControl
-            componentClass="checkbox"
+            componentclass="checkbox"
             checked={selectedItems.includes(plan._id)}
             onClick={handleSelect.bind(this, plan._id)}
           />
@@ -70,17 +65,17 @@ class Row extends React.Component<Props> {
               placement="left"
             >
               <FormGroup>
-                <ControlLabel>{__('Change Plan Status')}</ControlLabel>
+                <ControlLabel>{__("Change Plan Status")}</ControlLabel>
                 <Toggle
-                  checked={plan.status === 'active'}
+                  checked={plan.status === "active"}
                   onChange={handleStatus}
                 />
               </FormGroup>
             </DetailPopOver>
           </DetailPopoverWrapper>
         </td>
-        <td>{plan.createdAt ? moment(plan.createdAt).format('lll') : '-'}</td>
-        <td>{plan.modifiedAt ? moment(plan.modifiedAt).format('lll') : '-'}</td>
+        <td>{plan.createdAt ? moment(plan.createdAt).format("lll") : "-"}</td>
+        <td>{plan.modifiedAt ? moment(plan.modifiedAt).format("lll") : "-"}</td>
         <td>
           <ActionButtons>
             <Link to={`/settings/risk-assessment-plans/edit/${plan._id}`}>

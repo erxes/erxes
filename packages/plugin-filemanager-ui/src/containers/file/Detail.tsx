@@ -4,7 +4,6 @@ import { mutations, queries } from '../../graphql';
 
 import Alert from '@erxes/ui/src/utils/Alert';
 import FileDetail from '../../components/file/Detail';
-import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { RequestAckMutationResponse } from '../../types';
 import Spinner from '@erxes/ui/src/components/Spinner';
@@ -21,8 +20,7 @@ type FinalProps = {
   filemanagerDetailQuery: any;
   filemanagerLogsQuery: any;
 } & Props &
-  RequestAckMutationResponse &
-  IRouterProps;
+  RequestAckMutationResponse;
 
 const FileDetailContainer = (props: FinalProps) => {
   const {

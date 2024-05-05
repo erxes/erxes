@@ -17,7 +17,7 @@ import { queries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 
 type Props = {
   accountId: string;
-  history: any;
+  navigate: any;
 };
 
 type FinalProps = {
@@ -31,7 +31,7 @@ class FormContainer extends React.Component<FinalProps, {}> {
       fetchCalendarQuery,
       accountId,
       createMutation,
-      history
+      navigate
     } = this.props;
 
     if (fetchCalendarQuery.loading) {
@@ -51,7 +51,7 @@ class FormContainer extends React.Component<FinalProps, {}> {
       })
         .then(() => {
           Alert.success('You successfully created a page');
-          history.push('/settings/schedule');
+          navigate('/settings/schedule');
         })
         .catch(error => {
           Alert.error(error.message);

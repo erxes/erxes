@@ -1,15 +1,16 @@
-import React from 'react';
-import { WelcomeContainer } from 'modules/saas/onBoarding/styles';
-import Button from 'modules/common/components/Button';
-import { router } from '@erxes/ui/src/utils';
+import { useLocation, useNavigate } from "react-router-dom";
 
-type Props = {
-  history: any;
-};
+import Button from "modules/common/components/Button";
+import React from "react";
+import { WelcomeContainer } from "modules/saas/onBoarding/styles";
+import { router } from "@erxes/ui/src/utils";
 
-const Welcome = ({ history }: Props) => {
+const Welcome = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const onChangeStep = () => {
-    router.setParams(history, { steps: 1 });
+    router.setParams(navigate, location, { steps: 1 });
   };
 
   return (

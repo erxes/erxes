@@ -23,6 +23,7 @@ type Props = {
   onChangeBoard: (boardId: string) => void;
   autoSelectStage?: boolean;
   translator?: (key: string, options?: any) => string;
+  isRequired?: boolean;
 };
 
 type FinalProps = {

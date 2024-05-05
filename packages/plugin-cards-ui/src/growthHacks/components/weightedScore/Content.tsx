@@ -84,7 +84,7 @@ class Content extends React.Component<Props> {
     return (
       <FixedContainer>
         <ScrollContent>
-          <Table hover={true}>
+          <Table $hover={true}>
             <thead>
               <tr>
                 <th>{__('Experiment name')}</th>

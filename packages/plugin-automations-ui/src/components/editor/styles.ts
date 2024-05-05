@@ -1,10 +1,10 @@
 import { colors, dimensions } from '@erxes/ui/src';
+
 import { rgba } from '@erxes/ui/src/styles/ecolor';
+import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-import styled from 'styled-components';
-
-export const Trigger = styledTS<{ type: string; isHoverActionBar?: boolean }>(
+export const Trigger = styledTS<{ type: string; $isHoverActionBar?: boolean }>(
   styled.div,
 )`
   max-width: 300px;
@@ -61,10 +61,10 @@ export const Trigger = styledTS<{ type: string; isHoverActionBar?: boolean }>(
       position: absolute;
       right: 0;
       margin: 0;
-      top: ${({ isHoverActionBar }) =>
-        isHoverActionBar ? '-28' : dimensions.unitSpacing}px;
-      visibility: ${({ isHoverActionBar }) =>
-        isHoverActionBar ? 'visible' : 'hidden'};
+      top: ${({ $isHoverActionBar }) =>
+        $isHoverActionBar ? '-28' : dimensions.unitSpacing}px;
+      visibility: ${({ $isHoverActionBar }) =>
+        $isHoverActionBar ? 'visible' : 'hidden'};
       transition: all 0.2s linear;
 
       i {

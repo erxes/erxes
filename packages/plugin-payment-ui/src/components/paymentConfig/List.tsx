@@ -1,16 +1,15 @@
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Table from '@erxes/ui/src/components/table';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils/core';
-import React from 'react';
-
-import ConfigForm from '../../containers/paymentConfig/Form';
-import { getSubMenu } from '../../containers/utils';
-import { IPaymentConfig } from '../../types';
-import Row from './Row';
+import Button from "@erxes/ui/src/components/Button";
+import ConfigForm from "../../containers/paymentConfig/Form";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import { IPaymentConfig } from "../../types";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import React from "react";
+import Row from "./Row";
+import Table from "@erxes/ui/src/components/table";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "@erxes/ui/src/utils/core";
+import { getSubMenu } from "../../containers/utils";
 
 type Props = {
   configs: IPaymentConfig[];
@@ -25,7 +24,7 @@ const List = (props: Props) => {
   const { totalCount, queryParams, loading, configs, remove } = props;
 
   const renderRow = () => {
-    return configs.map(config => (
+    return configs.map((config) => (
       <Row key={config._id} config={config} remove={remove} />
     ));
   };
@@ -38,8 +37,11 @@ const List = (props: Props) => {
     </Button>
   );
 
-  const formContent = formProps => (
-    <ConfigForm {...formProps} excludeIds={configs.map(c => c.contentTypeId)} />
+  const formContent = (formProps) => (
+    <ConfigForm
+      {...formProps}
+      excludeIds={configs.map((c) => c.contentTypeId)}
+    />
   );
 
   const righActionBar = (
@@ -55,13 +57,13 @@ const List = (props: Props) => {
   const actionBar = <Wrapper.ActionBar right={righActionBar} />;
 
   const content = (
-    <Table whiteSpace="nowrap" hover={true}>
+    <Table $whiteSpace="nowrap" $hover={true}>
       <thead>
         <tr>
-          <th>{__('Type')}</th>
-          <th>{__('Name')}</th>
-          <th>{__('Payments')}</th>
-          <th>{__('Actions')}</th>
+          <th>{__("Type")}</th>
+          <th>{__("Name")}</th>
+          <th>{__("Payments")}</th>
+          <th>{__("Actions")}</th>
         </tr>
       </thead>
       <tbody>{renderRow()}</tbody>
@@ -71,7 +73,7 @@ const List = (props: Props) => {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Configs')}
+          title={__("Configs")}
           queryParams={queryParams}
           submenu={getSubMenu()}
         />
@@ -86,9 +88,9 @@ const List = (props: Props) => {
           emptyContent={
             <h3
               style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center'
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
               }}
             >
               no data

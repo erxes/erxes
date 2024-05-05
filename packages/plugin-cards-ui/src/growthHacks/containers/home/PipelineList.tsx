@@ -1,6 +1,6 @@
 import * as compose from 'lodash.flowright';
 
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import PipelineList from '../../components/home/PipelineList';
@@ -11,9 +11,8 @@ import { graphql } from '@apollo/client/react/hoc';
 import mutations from '@erxes/ui-cards/src/settings/boards/graphql/mutations';
 import { queries } from '@erxes/ui-cards/src/boards/graphql';
 import { withProps } from '@erxes/ui/src/utils';
-import { withRouter } from 'react-router-dom';
 
-type Props = { queryParams: any } & IRouterProps;
+type Props = { queryParams: any };
 
 type FinalProps = {
   pipelinesQuery?: PipelinesQueryResponse;
@@ -27,7 +26,7 @@ class PipelineListContainer extends React.Component<FinalProps> {
 
     if (queryParams.state) {
       pipelines = pipelines.filter(
-        pipeline => pipeline.state === queryParams.state
+        (pipeline) => pipeline.state === queryParams.state,
       );
     }
 
@@ -36,7 +35,7 @@ class PipelineListContainer extends React.Component<FinalProps> {
       values,
       isSubmitted,
       callback,
-      object
+      object,
     }: IButtonMutateProps) => {
       const afterSave = () => {
         if (callback) {
@@ -69,18 +68,16 @@ class PipelineListContainer extends React.Component<FinalProps> {
   }
 }
 
-export default withRouter(
-  withProps<Props>(
-    compose(
-      graphql<Props, PipelinesQueryResponse>(gql(queries.pipelines), {
-        name: 'pipelinesQuery',
-        options: ({ queryParams: { id } }) => ({
-          variables: {
-            boardId: id || '',
-            type: 'growthHack'
-          }
-        })
-      })
-    )(PipelineListContainer)
-  )
+export default withProps<Props>(
+  compose(
+    graphql<Props, PipelinesQueryResponse>(gql(queries.pipelines), {
+      name: 'pipelinesQuery',
+      options: ({ queryParams: { id } }) => ({
+        variables: {
+          boardId: id || '',
+          type: 'growthHack',
+        },
+      }),
+    }),
+  )(PipelineListContainer),
 );

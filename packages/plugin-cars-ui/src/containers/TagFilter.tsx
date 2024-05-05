@@ -1,25 +1,27 @@
-import * as compose from 'lodash.flowright';
-
-import { CountByTagsQueryResponse, CountQueryResponse } from '../types';
+import { CountByTagsQueryResponse } from '../types';
+import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
 import CountsByTag from '@erxes/ui/src/components/CountsByTag';
 import React from 'react';
-import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
+import { gql, useQuery } from '@apollo/client';
 import { queries } from '../graphql';
 import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
 
-const TagFilterContainer = (props: {
-  countByTagsQuery: CountByTagsQueryResponse;
-  tagsQuery?: TagsQueryResponse;
-}) => {
-  const { countByTagsQuery, tagsQuery } = props;
+const TagFilterContainer = () => {
+  const countByTagsQuery = useQuery<CountByTagsQueryResponse>(
+    gql(queries.carCountByTags),
+  );
 
-  const counts = countByTagsQuery.carCountByTags || {};
+  const tagsQuery = useQuery<TagsQueryResponse>(gql(tagQueries.tags), {
+    variables: {
+      type: 'cars:car',
+    },
+  });
+
+  const counts = countByTagsQuery?.data?.carCountByTags || {};
 
   return (
     <CountsByTag
-      tags={(tagsQuery ? tagsQuery.tags : null) || []}
+      tags={(tagsQuery ? tagsQuery?.data?.tags : null) || []}
       counts={counts}
       manageUrl="/settings/tags?type=products:product"
       loading={(tagsQuery ? tagsQuery.loading : null) || false}
@@ -27,17 +29,4 @@ const TagFilterContainer = (props: {
   );
 };
 
-export default compose(
-  graphql<{}, CountByTagsQueryResponse, {}>(gql(queries.carCountByTags), {
-    name: 'countByTagsQuery'
-  }),
-
-  graphql<{}, TagsQueryResponse, { type: string }>(gql(tagQueries.tags), {
-    name: 'tagsQuery',
-    options: () => ({
-      variables: {
-        type: 'cars:car'
-      }
-    })
-  })
-)(TagFilterContainer);
+export default TagFilterContainer;

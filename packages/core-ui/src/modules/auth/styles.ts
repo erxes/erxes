@@ -1,4 +1,5 @@
 import { colors, dimensions, typography } from 'modules/common/styles';
+
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -40,8 +41,8 @@ const AuthBox = styledTS<{ backgroundColor?: string }>(styled.div)`
     font-size: 14px;
     outline: 0;
     border-radius: 8px;
-    background-color: ${colors.bgLight}
-    border: 1.1px solid ${colors.bgLight}
+    background-color: ${colors.bgLight};
+    border: 1.1px solid ${colors.bgLight};
 
     &:focus {
       outline: 0;

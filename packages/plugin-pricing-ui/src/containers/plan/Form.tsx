@@ -1,5 +1,5 @@
 import React from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client';
 import { gql } from '@apollo/client';
 // erxes
@@ -11,7 +11,7 @@ import FormComponent from '../../components/plan/Form';
 
 const FormContainer = () => {
   // Hooks
-  const history = useHistory();
+  const navigate = useNavigate();
   const { id } = useParams();
   const [add] = useMutation(gql(mutations.pricingPlanAdd));
   const [edit] = useMutation(gql(mutations.pricingPlanEdit));
@@ -35,7 +35,7 @@ const FormContainer = () => {
     add({ variables: { doc: data } })
       .then(() => {
         Alert.success('Request successful!');
-        history.push('/pricing/plans');
+        navigate('/pricing/plans');
       })
       .catch((error: any) => {
         Alert.error(error.message);
@@ -46,7 +46,7 @@ const FormContainer = () => {
     edit({ variables: { doc: data } })
       .then(() => {
         Alert.success('Request successful!');
-        history.push('/pricing/plans');
+        navigate('/pricing/plans');
       })
       .catch((error: any) => {
         Alert.error(error.message);

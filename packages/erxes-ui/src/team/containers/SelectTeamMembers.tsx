@@ -36,7 +36,7 @@ export default (props: {
   } = props;
   const defaultValue = queryParams ? queryParams[name] : initialValue;
 
-  // get user options for react-select-plus
+  // get user options for react-select
   function generateUserOptions(array: IUser[] = []): IOption[] {
     return array.map(item => {
       const user = item || ({} as IUser);

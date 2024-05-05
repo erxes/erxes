@@ -1,19 +1,22 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { mutations } from '../../graphql';
-import { RemoveMutationResponse, RemoveMutationVariables } from '../../types';
-import { getRefetchQueries } from '../List';
-import Confirmation from '../../components/forms/confirmation';
-import ConfirmationPopup from '../../components/forms/confirmation/popup';
+import * as compose from "lodash.flowright";
+
+import { Alert, withProps } from "@erxes/ui/src/utils";
+import { RemoveMutationResponse, RemoveMutationVariables } from "../../types";
+
+import Confirmation from "../../components/forms/confirmation";
+import ConfirmationPopup from "../../components/forms/confirmation/popup";
+import React from "react";
+import { getRefetchQueries } from "../List";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { mutations } from "../../graphql";
 
 type Props = {
   when: boolean;
   id: string;
   name: string;
-  history: any;
+  location: any;
+  navigate: any;
   queryParams: any;
   save: () => void;
 };
@@ -22,27 +25,27 @@ type FinalProps = {} & Props & RemoveMutationResponse;
 
 class ConfirmationContainer extends React.Component<FinalProps> {
   render() {
-    const { automationsRemove, queryParams, when } = this.props;
+    const { automationsRemove, queryParams } = this.props;
 
     const removeAutomations = ({ automationIds }, navigateToNextLocation) => {
       automationsRemove({
-        variables: { automationIds }
+        variables: { automationIds },
       })
         .then(() => {
           navigateToNextLocation();
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
 
     const updatedProps = {
       ...this.props,
-      removeAutomations
+      removeAutomations,
     };
 
     return (
-      <Confirmation when={when} {...updatedProps}>
+      <Confirmation {...updatedProps}>
         {(isOpen, onConfirm, onCancel) => (
           <ConfirmationPopup
             isOpen={isOpen}
@@ -61,10 +64,10 @@ export default withProps<Props>(
     graphql<Props, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.automationsRemove),
       {
-        name: 'automationsRemove',
+        name: "automationsRemove",
         options: ({ queryParams }) => ({
-          refetchQueries: getRefetchQueries(queryParams)
-        })
+          refetchQueries: getRefetchQueries(queryParams),
+        }),
       }
     )
   )(ConfirmationContainer)

@@ -1,27 +1,25 @@
 import * as compose from 'lodash.flowright';
-import { gql } from '@apollo/client';
-import List from '../components/List';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { IRouterProps } from '@erxes/ui/src/types';
+
 import {
   OverallWorksCountQueryResponse,
-  OverallWorksQueryResponse
+  OverallWorksQueryResponse,
 } from '../types';
+import { Spinner, router, withProps } from '@erxes/ui/src';
+
+import List from '../components/List';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../graphql';
-import { withRouter } from 'react-router-dom';
-import { withProps, router, Spinner } from '@erxes/ui/src';
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 type FinalProps = {
   overallWorksQuery: OverallWorksQueryResponse;
   overallWorksCountQuery: OverallWorksCountQueryResponse;
-} & Props &
-  IRouterProps;
+} & Props ;
 
 class OverallWorksContainer extends React.Component<FinalProps> {
   constructor(props) {
@@ -42,7 +40,7 @@ class OverallWorksContainer extends React.Component<FinalProps> {
     const updatedProps = {
       ...this.props,
       overallWorks,
-      totalCount
+      totalCount,
     };
 
     return <List {...updatedProps} />;
@@ -66,7 +64,7 @@ const generateParams = ({ queryParams }) => ({
   productIds: queryParams.productIds,
   vendorIds: queryParams.vendorIds,
   jobCategoryId: queryParams.jobCategoryId,
-  jobReferId: queryParams.jobReferId
+  jobReferId: queryParams.jobReferId,
 });
 
 export default withProps<Props>(
@@ -77,9 +75,9 @@ export default withProps<Props>(
         name: 'overallWorksQuery',
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
+          fetchPolicy: 'network-only',
+        }),
+      },
     ),
     graphql<{ queryParams: any }, OverallWorksCountQueryResponse, {}>(
       gql(queries.overallWorksCount),
@@ -87,9 +85,9 @@ export default withProps<Props>(
         name: 'overallWorksCountQuery',
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
-    )
-  )(withRouter<IRouterProps>(OverallWorksContainer))
+          fetchPolicy: 'network-only',
+        }),
+      },
+    ),
+  )(OverallWorksContainer),
 );

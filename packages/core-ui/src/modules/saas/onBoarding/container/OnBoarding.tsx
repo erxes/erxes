@@ -12,7 +12,6 @@ type Props = {
   currentUser: IUser;
   onBoardingStepsQuery: any;
   queryParams: any;
-  history: any;
 };
 
 type FinalProps = {

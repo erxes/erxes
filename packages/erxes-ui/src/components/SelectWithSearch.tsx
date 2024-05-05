@@ -1,21 +1,25 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { __, confirm, readFile, withProps } from '../utils';
+import { __, confirm, readFile, withProps } from "../utils";
 
-import { IOption } from '../types';
-import Icon from './Icon';
-import React from 'react';
-import Select from 'react-select-plus';
-import colors from '../styles/colors';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import styled from 'styled-components';
+import { IOption } from "../types";
+import Icon from "./Icon";
+import React from "react";
+import Select, {
+  OnChangeValue,
+  components,
+  MultiValueProps,
+} from "react-select";
+import colors from "../styles/colors";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import styled from "styled-components";
 
 export const SelectValue = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-left: -7px;
+  margin-left: -2px;
   padding-left: 25px;
 
   img {
@@ -31,8 +35,8 @@ const SelectOption = styled.div`
 `;
 
 export const Avatar = styled.img`
-  width: 20px;
-  height: 20px;
+  width: 20px !important;
+  height: 20px !important;
   border-radius: 10px;
   background: ${colors.bgActive};
   object-fit: cover;
@@ -79,7 +83,7 @@ const content = (option: IOption): React.ReactNode => (
       src={
         option.avatar
           ? readFile(option.avatar, 40)
-          : '/images/avatar-colored.svg'
+          : "/images/avatar-colored.svg"
       }
     />
     {option.label}
@@ -114,21 +118,17 @@ class SelectWithSearch extends React.Component<
 
     this.state = {
       selectedValues: props.initialValues,
-      searchValue: '',
+      searchValue: "",
       selectedOptions: undefined,
-      totalOptions: undefined
+      totalOptions: undefined,
     };
 
     this.timer = 0;
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    const {
-      queryName,
-      customQuery,
-      initialValues,
-      generateOptions
-    } = nextProps;
+    const { queryName, customQuery, initialValues, generateOptions } =
+      nextProps;
 
     const { initialValuesProvided } = this.props;
     const { selectedValues } = this.state;
@@ -146,20 +146,20 @@ class SelectWithSearch extends React.Component<
       const datas = customQuery[queryName] || [];
 
       const totalOptions = this.state.totalOptions || ([] as IOption[]);
-      const totalOptionsValues = totalOptions.map(option => option.value);
+      const totalOptionsValues = totalOptions.map((option) => option.value);
 
       const uniqueLoadedOptions = generateOptions(
-        datas.filter(data => !totalOptionsValues.includes(data._id))
+        datas.filter((data) => !totalOptionsValues.includes(data._id))
       );
       const updatedTotalOptions = [...totalOptions, ...uniqueLoadedOptions];
 
-      const selectedOptions = updatedTotalOptions.filter(option =>
+      const selectedOptions = updatedTotalOptions.filter((option) =>
         selectedValues.includes(option.value)
       );
 
       this.setState({
         totalOptions: updatedTotalOptions,
-        selectedOptions
+        selectedOptions,
       });
     }
   }
@@ -182,7 +182,7 @@ class SelectWithSearch extends React.Component<
     return null;
   };
 
-  onClear = e => {
+  onClear = (e) => {
     confirm().then(() => {
       this.props.onSelect([], this.props.name);
       this.setState({ selectedValues: [], selectedOptions: [] });
@@ -198,30 +198,31 @@ class SelectWithSearch extends React.Component<
       search,
       multi,
       customOption,
-      showAvatar = true
+      showAvatar = true,
     } = this.props;
 
-    const { totalOptions, selectedValues } = this.state;
+    const { totalOptions, selectedOptions } = this.state;
 
-    const selectMultiple = (ops: IOption[]) => {
-      const selectedOptionsValues = ops.map(option => option.value);
+    const selectMultiple = (ops: OnChangeValue<IOption, true>) => {
+      const selectedOptionsValues = ops.map((option) => option.value);
 
       onSelect(selectedOptionsValues, name);
 
       this.setState({
         selectedValues: selectedOptionsValues,
-        selectedOptions: [...ops]
+        selectedOptions: [...ops],
       });
     };
 
-    const selectSingle = (option: IOption) => {
-      const selectedOptionValue = option ? option.value : '';
+    const selectSingle = (option: OnChangeValue<IOption, false>) => {
+      const selectedOptionValue = option ? option.value : "";
+      const selectedOption = option ? option : { value: "", label: "" };
 
       onSelect(selectedOptionValue, name, option?.extraValue);
 
       this.setState({
         selectedValues: [selectedOptionValue],
-        selectedOptions: [{ ...option }]
+        selectedOptions: [{ ...selectedOption }],
       });
     };
 
@@ -237,7 +238,7 @@ class SelectWithSearch extends React.Component<
       }, 1000);
     };
 
-    const onOpen = () => search('reload');
+    const onOpen = () => search("reload");
 
     const selectOptions = [...(totalOptions || [])];
 
@@ -245,34 +246,38 @@ class SelectWithSearch extends React.Component<
       selectOptions.unshift(customOption);
     }
 
-    let optionRenderer;
-    let valueRenderer;
+    const Option = (props) => {
+      return (
+        <components.Option {...props}>
+          {selectItemRenderer(props.data, showAvatar, SelectOption)}
+        </components.Option>
+      );
+    };
 
-    if (multi) {
-      valueRenderer = (option: IOption) =>
-        selectItemRenderer(option, showAvatar, SelectValue);
-
-      optionRenderer = (option: IOption) =>
-        selectItemRenderer(option, showAvatar, SelectOption);
-    }
+    const MultiValue = ({
+      children,
+      ...props
+    }: MultiValueProps<any, boolean, any>) => (
+      <components.MultiValue {...props}>
+        {selectItemRenderer(props.data, showAvatar, SelectValue)}
+      </components.MultiValue>
+    );
 
     return (
-      <SelectWrapper>
-        <Select
-          placeholder={__(label)}
-          value={multi ? selectedValues : selectedValues[0]}
-          loadingPlaceholder={__('Loading...')}
-          isLoading={customQuery.loading}
-          onOpen={onOpen}
-          onChange={onChange}
-          optionRenderer={optionRenderer}
-          valueRenderer={valueRenderer}
-          onInputChange={onSearch}
-          options={selectOptions}
-          multi={multi}
-        />
-        {this.renderClearButton()}
-      </SelectWrapper>
+      <Select
+        isClearable={true}
+        placeholder={__(label)}
+        value={multi ? selectedOptions : selectedOptions && selectedOptions[0]}
+        loadingMessage={({ inputValue }) => __("Loading...")}
+        isLoading={customQuery.loading}
+        onMenuOpen={onOpen}
+        components={{ Option, MultiValue }}
+        onChange={(options: any) => onChange(options)}
+        openMenuOnClick={true}
+        onInputChange={onSearch}
+        options={selectOptions}
+        isMulti={multi}
+      />
     );
   }
 }
@@ -285,25 +290,25 @@ const withQuery = ({ customQuery }) =>
         {},
         { searchValue?: string; ids?: string[]; filterParams?: any }
       >(gql(customQuery), {
-        name: 'customQuery',
+        name: "customQuery",
         options: ({
           searchValue,
           filterParams,
           initialValues,
-          abortController
+          abortController,
         }) => {
           const context = { fetchOptions: { signal: abortController.signal } };
 
-          if (searchValue === 'reload') {
+          if (searchValue === "reload") {
             return {
               context,
               variables: {
                 ids: initialValues,
                 excludeIds: true,
-                ...filterParams
+                ...filterParams,
               },
-              fetchPolicy: 'network-only',
-              notifyOnNetworkStatusChange: true
+              fetchPolicy: "network-only",
+              notifyOnNetworkStatusChange: true,
             };
           }
 
@@ -313,13 +318,13 @@ const withQuery = ({ customQuery }) =>
 
           return {
             context,
-            fetchPolicy: 'network-only',
+            fetchPolicy: "network-only",
             variables: {
               ids: initialValues,
-              ...filterParams
-            }
+              ...filterParams,
+            },
           };
-        }
+        },
       })
     )(SelectWithSearch)
   );
@@ -361,7 +366,7 @@ class Wrapper extends React.Component<
 
     this.withQuery = withQuery({ customQuery: this.props.customQuery });
 
-    this.state = { searchValue: '', abortController: new AbortController() };
+    this.state = { searchValue: "", abortController: new AbortController() };
   }
 
   search = (searchValue: string) => {
@@ -384,7 +389,7 @@ class Wrapper extends React.Component<
 
     if (initialValue) {
       initialValues =
-        typeof initialValue === 'string' ? [initialValue] : initialValue;
+        typeof initialValue === "string" ? [initialValue] : initialValue;
     }
 
     return (

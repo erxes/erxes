@@ -17,7 +17,6 @@ import {
 } from '../../types';
 
 type Props = {
-  history: any;
   queryParams: any;
   chart?: any;
   item: any;

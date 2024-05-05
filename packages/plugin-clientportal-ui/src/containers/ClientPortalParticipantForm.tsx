@@ -3,7 +3,6 @@ import { IUser, UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import {
   IButtonMutateProps,
   IQueryParams,
-  IRouterProps,
 } from '@erxes/ui/src/types';
 import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
@@ -33,8 +32,7 @@ type FinalProps = {
   currentUser: IUser;
   clientPortalConfigsQuery: ClientPortalConfigsQueryResponse;
   clientPortalParticipantDetail: ClientPortalParticipantDetailQueryResponse;
-} & Props &
-  IRouterProps;
+} & Props;
 
 class ClientPortalParticipantFormContainer extends React.Component<FinalProps> {
   render() {

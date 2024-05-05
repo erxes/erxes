@@ -1,15 +1,15 @@
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import colors from '@erxes/ui/src/styles/colors';
-import { ISelectedOption } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
-import { IIntegrationWithPhone } from '@erxes/ui-engage/src/types';
-import React from 'react';
-import Select from 'react-select-plus';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IIntegrationWithPhone } from "@erxes/ui-engage/src/types";
+import { ISelectedOption } from "@erxes/ui/src/types";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils";
+import colors from "@erxes/ui/src/styles/colors";
+import Select, { components } from "react-select";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 const SMSInfo = styled.div`
   display: flex;
@@ -18,7 +18,7 @@ const SMSInfo = styled.div`
 `;
 
 const Char = styledTS<{ count: number }>(styled.div)`
-  color: ${props =>
+  color: ${(props) =>
     props.count > 10
       ? props.count < 30 && colors.colorCoreOrange
       : colors.colorCoreRed};
@@ -47,8 +47,8 @@ class SmsForm extends React.Component<Props, State> {
 
     this.state = {
       characterCount: 160,
-      message: '',
-      integrationId: ''
+      message: "",
+      integrationId: "",
     };
   }
 
@@ -63,18 +63,18 @@ class SmsForm extends React.Component<Props, State> {
     const { integrations } = this.props;
     const options: any[] = [];
 
-    integrations.map(i =>
+    integrations.map((i) =>
       options.push({
         value: i._id,
         label: `${i.name} (${i.phoneNumber})`,
-        disabled: !i.isActive
+        disabled: !i.isActive,
       })
     );
 
     return options;
   };
 
-  fromOptionRenderer = option => (
+  fromOptionRenderer = (option) => (
     <div>
       <strong>{option.name}</strong> <i>{option.label}</i>
     </div>
@@ -94,9 +94,9 @@ class SmsForm extends React.Component<Props, State> {
           btnStyle="primary"
           size="small"
           icon="message"
-          disabled={hasContent === '' || !primaryPhone}
+          disabled={hasContent === "" || !primaryPhone}
         >
-          {__('Send')}
+          {__("Send")}
         </Button>
       </ButtonWrapper>
     );
@@ -105,22 +105,30 @@ class SmsForm extends React.Component<Props, State> {
   render() {
     const { characterCount } = this.state;
 
-    const onChangeContent = e =>
+    const onChangeContent = (e) =>
       this.setState({ message: (e.target as HTMLInputElement).value });
 
     const onChangeFrom = (value: ISelectedOption) => {
-      const userId = value ? value.value : '';
+      const userId = value ? value.value : "";
 
       this.setState({ integrationId: userId });
     };
 
-    const onChangeSmsContent = e => {
+    const onChangeSmsContent = (e) => {
       const content = (e.target as HTMLInputElement).value;
 
       this.setState({
         message: content,
-        characterCount: this.calcCharacterCount(160, content)
+        characterCount: this.calcCharacterCount(160, content),
       });
+    };
+
+    const Option = (props) => {
+      return (
+        <components.Option {...props}>
+          {this.fromOptionRenderer(props.data)}
+        </components.Option>
+      );
     };
 
     return (
@@ -128,20 +136,23 @@ class SmsForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>From:</ControlLabel>
           <Select
-            placeholder={__('Choose phone number')}
-            value={this.state.integrationId}
+            placeholder={__("Choose phone number")}
+            value={this.fromSelectOptions().find(
+              (o) => o.value === this.state.integrationId
+            )}
             onChange={onChangeFrom}
             options={this.fromSelectOptions()}
-            optionRenderer={this.fromOptionRenderer}
+            isClearable={true}
+            components={{ Option }}
           />
         </FormGroup>
         <FormGroup>
           <SMSInfo>
-            <ControlLabel>{__('SMS content')}:</ControlLabel>
+            <ControlLabel>{__("SMS content")}:</ControlLabel>
             <Char count={characterCount}>{characterCount}</Char>
           </SMSInfo>
           <FormControl
-            componentClass="textarea"
+            componentclass="textarea"
             defaultValue={this.state.message}
             onBlur={onChangeContent}
             onChange={onChangeSmsContent}

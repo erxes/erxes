@@ -1,12 +1,12 @@
-import { LeftContent, Row } from '../../styles';
+import { LeftContent, Row } from "../../styles";
 
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IDepartment } from '../types';
-import { IOption } from '@erxes/ui/src/types';
-import React from 'react';
-import Select from 'react-select-plus';
-import { __ } from '@erxes/ui/src/utils/core';
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IDepartment } from "../types";
+import { IOption } from "@erxes/ui/src/types";
+import React from "react";
+import Select from "react-select";
+import { __ } from "@erxes/ui/src/utils/core";
 
 type Props = {
   departments: IDepartment[];
@@ -18,19 +18,19 @@ type Props = {
 
 class SelectDepartments extends React.Component<Props, {}> {
   generateUserOptions(array: IDepartment[] = []): IOption[] {
-    return array.map(item => {
+    return array.map((item) => {
       const department = item || ({} as IDepartment);
 
       return {
         value: department._id,
-        label: department.title
+        label: department.title,
       };
     });
   }
 
-  onChangeChannel = values => {
+  onChangeChannel = (values) => {
     if (this.props.onChange) {
-      this.props.onChange(values.map(item => item.value) || []);
+      this.props.onChange(values.map((item) => item.value) || []);
     }
   };
 
@@ -43,11 +43,13 @@ class SelectDepartments extends React.Component<Props, {}> {
         <Row>
           <LeftContent>
             <Select
-              placeholder={__('Select departments')}
-              value={defaultValue}
+              placeholder={__("Select departments")}
+              value={this.generateUserOptions(departments).filter((o) =>
+                defaultValue?.includes(o.value)
+              )}
               onChange={this.onChangeChannel}
               options={this.generateUserOptions(departments)}
-              multi={true}
+              isMulti={true}
             />
           </LeftContent>
         </Row>

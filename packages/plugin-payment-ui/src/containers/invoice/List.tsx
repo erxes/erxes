@@ -1,18 +1,17 @@
-import { useMutation, useQuery } from '@apollo/client';
-import { __, router } from '@erxes/ui/src';
-import Bulk from '@erxes/ui/src/components/Bulk';
-import React from 'react';
-import List from '../../components/invoice/List';
-import { mutations, queries } from '../../graphql';
+import { useMutation, useQuery } from "@apollo/client";
+import { __, router } from "@erxes/ui/src";
+import Bulk from "@erxes/ui/src/components/Bulk";
+import React from "react";
+import List from "../../components/invoice/List";
+import { mutations, queries } from "../../graphql";
 import {
   InvoicesQueryResponse,
-  InvoicesTotalCountQueryResponse
-} from '../../types';
-import Alert from '@erxes/ui/src/utils/Alert';
+  InvoicesTotalCountQueryResponse,
+} from "../../types";
+import Alert from "@erxes/ui/src/utils/Alert";
 
 type Props = {
   queryParams: any;
-  history: any;
   type?: string;
 };
 
@@ -24,9 +23,9 @@ const InvoiceListContainer = (props: Props) => {
       ...router.generatePaginationParams(props.queryParams || {}),
       searchValue: queryParams.searchValue,
       kind: queryParams.kind,
-      status: queryParams.status
+      status: queryParams.status,
     },
-    fetchPolicy: 'network-only'
+    fetchPolicy: "network-only",
   });
 
   const invoicesTotalCountQuery = useQuery<InvoicesTotalCountQueryResponse>(
@@ -35,9 +34,9 @@ const InvoiceListContainer = (props: Props) => {
       variables: {
         searchValue: queryParams.searchValue,
         kind: queryParams.kind,
-        status: queryParams.status
+        status: queryParams.status,
       },
-      fetchPolicy: 'network-only'
+      fetchPolicy: "network-only",
     }
   );
 
@@ -46,10 +45,10 @@ const InvoiceListContainer = (props: Props) => {
       {
         query: queries.invoices,
         variables: {
-          ...router.generatePaginationParams(props.queryParams || {})
-        }
-      }
-    ]
+          ...router.generatePaginationParams(props.queryParams || {}),
+        },
+      },
+    ],
   });
 
   const [invoicesRemove] = useMutation(mutations.removeInvoices, {
@@ -57,34 +56,34 @@ const InvoiceListContainer = (props: Props) => {
       {
         query: queries.invoices,
         variables: {
-          ...router.generatePaginationParams(props.queryParams || {})
-        }
+          ...router.generatePaginationParams(props.queryParams || {}),
+        },
       },
       {
         query: queries.invoicesTotalCount,
         variables: {
           searchValue: queryParams.searchValue,
           kind: queryParams.kind,
-          status: queryParams.status
-        }
-      }
-    ]
+          status: queryParams.status,
+        },
+      },
+    ],
   });
 
   const checkInvoice = (invoiceId: string) => {
     invoiceCheck({
       variables: {
-        _id: invoiceId
-      }
+        _id: invoiceId,
+      },
     })
       .then(({ data }) => {
-        if (data.invoicesCheck === 'paid') {
-          return Alert.success(__('Invoice is paid'));
+        if (data.invoicesCheck === "paid") {
+          return Alert.success(__("Invoice is paid"));
         }
 
         Alert.warning(data.invoicesCheck);
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -92,8 +91,8 @@ const InvoiceListContainer = (props: Props) => {
   const removeInvoices = (_ids: string[]) => {
     invoicesRemove({
       variables: {
-        _ids
-      }
+        _ids,
+      },
     });
   };
 
@@ -105,7 +104,7 @@ const InvoiceListContainer = (props: Props) => {
 
   const counts = (invoicesTotalCountQuery.data &&
     invoicesTotalCountQuery.data.invoicesTotalCount) || {
-    total: 0
+    total: 0,
   };
 
   const updatedProps = {
@@ -113,13 +112,13 @@ const InvoiceListContainer = (props: Props) => {
     queryParams,
     invoices,
     loading: invoicesQuery.loading,
-    searchValue: props.queryParams.searchValue || '',
+    searchValue: props.queryParams.searchValue || "",
     check: checkInvoice,
     remove: removeInvoices,
-    counts
+    counts,
   };
 
-  const invoiceList = listProps => {
+  const invoiceList = (listProps) => {
     return <List {...updatedProps} {...listProps} />;
   };
 

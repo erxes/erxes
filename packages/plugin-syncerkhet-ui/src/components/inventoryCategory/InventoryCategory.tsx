@@ -1,18 +1,17 @@
-import { CollapseContent, Pagination } from '@erxes/ui/src/components';
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import Table from '@erxes/ui/src/components/table';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils/core';
-import React from 'react';
-import Row from './InventoryCategoryRow';
-import { menuSyncerkhet } from '../../constants';
-import { Title } from '@erxes/ui-settings/src/styles';
-import { ContentBox } from '../../styles';
+import { CollapseContent, Pagination } from "@erxes/ui/src/components";
+import Button from "@erxes/ui/src/components/Button";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import Table from "@erxes/ui/src/components/table";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "@erxes/ui/src/utils/core";
+import React from "react";
+import Row from "./InventoryCategoryRow";
+import { menuSyncerkhet } from "../../constants";
+import { Title } from "@erxes/ui-settings/src/styles";
+import { ContentBox } from "../../styles";
 
 type Props = {
   loading: boolean;
-  history: any;
   queryParams: any;
   toCheckCategories: () => void;
   toSyncCategories: (action: string, categories: any[]) => void;
@@ -29,12 +28,12 @@ class InventoryCategory extends React.Component<Props, State> {
     super(props);
     this.state = {
       openCollapse: -1,
-      loading: false
+      loading: false,
     };
   }
 
   renderRow = (data: any, action: string) => {
-    return data.map(c => <Row key={c.code} category={c} action={action} />);
+    return data.map((c) => <Row key={c.code} category={c} action={action} />);
   };
   calculatePagination = (data: any) => {
     const { queryParams } = this.props;
@@ -66,7 +65,7 @@ class InventoryCategory extends React.Component<Props, State> {
   };
 
   excludeSyncTrue = (data: any) => {
-    return data.filter(d => d.syncStatus === false);
+    return data.filter((d) => d.syncStatus === false);
   };
 
   renderTable = (data: any, action: string) => {
@@ -94,14 +93,14 @@ class InventoryCategory extends React.Component<Props, State> {
     );
 
     const content = (
-      <Table hover={true}>
+      <Table $hover={true}>
         <thead>
           <tr>
-            <th>{__('Code')}</th>
-            <th>{__('Name')}</th>
-            {action === 'UPDATE' ? <th>{__('Update Status')}</th> : <></>}
-            {action === 'CREATE' ? <th>{__('Create Status')}</th> : <></>}
-            {action === 'DELETE' ? <th>{__('Delete Status')}</th> : <></>}
+            <th>{__("Code")}</th>
+            <th>{__("Name")}</th>
+            {action === "UPDATE" ? <th>{__("Update Status")}</th> : <></>}
+            {action === "CREATE" ? <th>{__("Create Status")}</th> : <></>}
+            {action === "DELETE" ? <th>{__("Delete Status")}</th> : <></>}
           </tr>
         </thead>
         <tbody>{this.renderRow(data, action)}</tbody>
@@ -115,7 +114,7 @@ class InventoryCategory extends React.Component<Props, State> {
           data={content}
           loading={false}
           count={data.length}
-          emptyText={'Please sync again.'}
+          emptyText={"Please sync again."}
           emptyIcon="leaf"
           size="large"
           objective={true}
@@ -157,10 +156,10 @@ class InventoryCategory extends React.Component<Props, State> {
         <br />
         <CollapseContent
           title={__(
-            'Create categories' +
-              (items.create ? ':  ' + items.create.count : '')
+            "Create categories" +
+              (items.create ? ":  " + items.create.count : "")
           )}
-          id={'1'}
+          id={"1"}
           onClick={() => {
             onChangeCollapse(1);
           }}
@@ -170,11 +169,11 @@ class InventoryCategory extends React.Component<Props, State> {
             <DataWithLoader
               data={
                 items.create
-                  ? this.renderTable(items.create?.items, 'CREATE')
+                  ? this.renderTable(items.create?.items, "CREATE")
                   : []
               }
               loading={false}
-              emptyText={'Please check first.'}
+              emptyText={"Please check first."}
               emptyIcon="leaf"
               size="large"
               objective={true}
@@ -184,10 +183,10 @@ class InventoryCategory extends React.Component<Props, State> {
         </CollapseContent>
         <CollapseContent
           title={__(
-            'Update categories' +
-              (items.update ? ':  ' + items.update.count : '')
+            "Update categories" +
+              (items.update ? ":  " + items.update.count : "")
           )}
-          id={'2'}
+          id={"2"}
           onClick={() => {
             onChangeCollapse(2);
           }}
@@ -197,11 +196,11 @@ class InventoryCategory extends React.Component<Props, State> {
             <DataWithLoader
               data={
                 items.update
-                  ? this.renderTable(items.update.items, 'UPDATE')
+                  ? this.renderTable(items.update.items, "UPDATE")
                   : []
               }
               loading={false}
-              emptyText={'Please check first.'}
+              emptyText={"Please check first."}
               emptyIcon="leaf"
               size="large"
               objective={true}
@@ -211,10 +210,10 @@ class InventoryCategory extends React.Component<Props, State> {
         </CollapseContent>
         <CollapseContent
           title={__(
-            'Delete categories' +
-              (items.delete ? ':  ' + items.delete.count : '')
+            "Delete categories" +
+              (items.delete ? ":  " + items.delete.count : "")
           )}
-          id={'3'}
+          id={"3"}
           onClick={() => {
             onChangeCollapse(3);
           }}
@@ -224,11 +223,11 @@ class InventoryCategory extends React.Component<Props, State> {
             <DataWithLoader
               data={
                 items.delete
-                  ? this.renderTable(items.delete.items, 'DELETE')
+                  ? this.renderTable(items.delete.items, "DELETE")
                   : []
               }
               loading={false}
-              emptyText={'Please check first.'}
+              emptyText={"Please check first."}
               emptyIcon="leaf"
               size="large"
               objective={true}

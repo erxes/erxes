@@ -1,11 +1,10 @@
-import colors from '@erxes/ui/src/styles/colors';
-import Icon from '@erxes/ui/src/components/Icon';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import React, { useRef } from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import { PopoverContent } from '@erxes/ui/src/components/filterableList/styles';
-import { Padding } from '../../styles';
+import colors from "@erxes/ui/src/styles/colors";
+import Icon from "@erxes/ui/src/components/Icon";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import React, { useRef } from "react";
+import Popover from "@erxes/ui/src/components/Popover";
+import { PopoverContent } from "@erxes/ui/src/components/filterableList/styles";
+import { Padding } from "../../styles";
 type Props = {
   onChange: (e) => void;
   link?: string;
@@ -15,30 +14,25 @@ type Props = {
 
 function LinkAction({ onChange, link, name, container }: Props) {
   return (
-    <OverlayTrigger
-      trigger="click"
+    <Popover
       placement="top"
-      overlay={
-        <Popover id="link-popover">
-          <PopoverContent>
-            <Padding>
-              <FormControl
-                name={name}
-                onChange={onChange}
-                value={link || ''}
-                placeholder="type or paste link"
-              />
-            </Padding>
-          </PopoverContent>
-        </Popover>
+      trigger={
+        <span>
+          <Icon icon="link" color={link ? colors.colorCoreBlue : ""} />
+        </span>
       }
-      rootClose={true}
-      container={container}
     >
-      <span>
-        <Icon icon="link" color={link ? colors.colorCoreBlue : ''} />
-      </span>
-    </OverlayTrigger>
+      <PopoverContent>
+        <Padding>
+          <FormControl
+            name={name}
+            onChange={onChange}
+            value={link || ""}
+            placeholder="type or paste link"
+          />
+        </Padding>
+      </PopoverContent>
+    </Popover>
   );
 }
 

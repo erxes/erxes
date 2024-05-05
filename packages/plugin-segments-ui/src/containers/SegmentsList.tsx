@@ -1,21 +1,21 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import { confirm } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import SegmentsList from '../components/SegmentsList';
-import { mutations, queries } from '@erxes/ui-segments/src/graphql';
-import { router } from '@erxes/ui/src/utils';
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import { Alert, withProps } from "@erxes/ui/src/utils";
+import { confirm } from "@erxes/ui/src/utils";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import SegmentsList from "../components/SegmentsList";
+import { mutations, queries } from "@erxes/ui-segments/src/graphql";
+import { router } from "@erxes/ui/src/utils";
 import {
   RemoveMutationResponse,
-  SegmentsQueryResponse
-} from '@erxes/ui-segments/src/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
+  SegmentsQueryResponse,
+} from "@erxes/ui-segments/src/types";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   contentType: string;
-  history: any;
 };
 
 type FinalProps = {
@@ -25,7 +25,10 @@ type FinalProps = {
   RemoveMutationResponse;
 
 const SegmentListContainer = (props: FinalProps) => {
-  const { segmentsQuery, getTypesQuery, removeMutation, history } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const { segmentsQuery, getTypesQuery, removeMutation } = props;
 
   if (getTypesQuery.loading) {
     return <Spinner />;
@@ -33,25 +36,26 @@ const SegmentListContainer = (props: FinalProps) => {
 
   const types = getTypesQuery.segmentsGetTypes || [];
 
-  if (!router.getParam(history, 'contentType') || !segmentsQuery) {
+  if (!router.getParam(location, "contentType") || !segmentsQuery) {
     router.setParams(
-      history,
-      { contentType: types[0] ? types[0].contentType.toString() : '' },
+      navigate,
+      location,
+      { contentType: types[0] ? types[0].contentType.toString() : "" },
       true
     );
   }
 
-  const removeSegment = segmentId => {
+  const removeSegment = (segmentId) => {
     confirm().then(() => {
       removeMutation({
-        variables: { _id: segmentId }
+        variables: { _id: segmentId },
       })
         .then(() => {
           segmentsQuery.refetch();
 
-          Alert.success('You successfully deleted a segment');
+          Alert.success("You successfully deleted a segment");
         })
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
     });
@@ -62,7 +66,7 @@ const SegmentListContainer = (props: FinalProps) => {
     types,
     loading: segmentsQuery.loading,
     segments: segmentsQuery.segments || [],
-    removeSegment
+    removeSegment,
   };
 
   return <SegmentsList {...updatedProps} />;
@@ -71,26 +75,26 @@ const SegmentListContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.getTypes), {
-      name: 'getTypesQuery',
+      name: "getTypesQuery",
       options: () => ({
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: "network-only",
+      }),
     }),
     graphql<Props, SegmentsQueryResponse, { contentTypes: string[] }>(
       gql(queries.segments),
       {
-        name: 'segmentsQuery',
+        name: "segmentsQuery",
         options: ({ contentType }) => ({
-          fetchPolicy: 'network-only',
-          variables: { contentTypes: [contentType] }
-        })
+          fetchPolicy: "network-only",
+          variables: { contentTypes: [contentType] },
+        }),
       }
     ),
 
     graphql<Props, RemoveMutationResponse, { _id: string }>(
       gql(mutations.segmentsRemove),
       {
-        name: 'removeMutation'
+        name: "removeMutation",
       }
     )
   )(SegmentListContainer)

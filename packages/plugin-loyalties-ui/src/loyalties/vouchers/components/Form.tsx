@@ -3,25 +3,25 @@ import {
   ControlLabel,
   Form,
   FormControl,
-  FormGroup
-} from '@erxes/ui/src/components';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { IVoucher, IVoucherDoc } from '../types';
+  FormGroup,
+} from "@erxes/ui/src/components";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { IVoucher, IVoucherDoc } from "../types";
 import {
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
-} from '@erxes/ui/src/styles/eindex';
+  MainStyleScrollWrapper as ScrollWrapper,
+} from "@erxes/ui/src/styles/eindex";
 
-import React from 'react';
-import SelectCampaigns from '../../containers/SelectCampaigns';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { __ } from '@erxes/ui/src/utils';
-import { queries as campaignQueries } from '../../../configs/voucherCampaign/graphql';
-import { getOwnerTypes } from '../../common/constants';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import SelectClientPortalUser from '../../../common/SelectClientPortalUsers';
+import React from "react";
+import SelectCampaigns from "../../containers/SelectCampaigns";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import { __ } from "@erxes/ui/src/utils";
+import { queries as campaignQueries } from "../../../configs/voucherCampaign/graphql";
+import { getOwnerTypes } from "../../common/constants";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import SelectClientPortalUser from "../../../common/SelectClientPortalUsers";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -40,16 +40,16 @@ class VoucherForm extends React.Component<Props, State> {
 
     const { voucher = {} as IVoucher, queryParams } = this.props;
 
-    if (!voucher.campaignId && queryParams.campaignId) {
+    if (!voucher.campaignId && queryParams && queryParams.campaignId) {
       voucher.campaignId = queryParams.campaignId;
     }
 
     if (!voucher.ownerType) {
-      voucher.ownerType = 'customer';
+      voucher.ownerType = "customer";
     }
 
     this.state = {
-      voucher
+      voucher,
     };
   }
 
@@ -64,14 +64,14 @@ class VoucherForm extends React.Component<Props, State> {
 
     return {
       _id: finalValues._id,
-      ...this.state.voucher
+      ...this.state.voucher,
     };
   };
 
-  onChangeInput = e => {
+  onChangeInput = (e) => {
     const name = e.target.name;
     let value = e.target.value;
-    if (e.target.type === 'number') {
+    if (e.target.type === "number") {
       value = Number(value);
     }
 
@@ -87,12 +87,12 @@ class VoucherForm extends React.Component<Props, State> {
     );
   };
 
-  onChangeCampaign = value => {
+  onChangeCampaign = (value) => {
     const { voucher } = this.state;
     this.setState({ voucher: { ...voucher, campaignId: value } });
   };
 
-  onChangeSelect = e => {
+  onChangeSelect = (e) => {
     const { voucher } = this.state;
     const target = e.currentTarget as HTMLInputElement;
     const value = target.value;
@@ -101,7 +101,7 @@ class VoucherForm extends React.Component<Props, State> {
     this.setState({ voucher: { ...voucher, [name]: value } });
   };
 
-  onChangeOwnerId = ownerId => {
+  onChangeOwnerId = (ownerId) => {
     const { voucher } = this.state;
     this.setState({ voucher: { ...voucher, ownerId } });
   };
@@ -112,7 +112,7 @@ class VoucherForm extends React.Component<Props, State> {
     const { ownerType } = voucher;
 
     switch (ownerType) {
-      case 'customer':
+      case "customer":
         return (
           <SelectCustomers
             label="Customer"
@@ -122,7 +122,7 @@ class VoucherForm extends React.Component<Props, State> {
             onSelect={this.onChangeOwnerId}
           />
         );
-      case 'user':
+      case "user":
         return (
           <SelectTeamMembers
             label="Team member"
@@ -132,7 +132,7 @@ class VoucherForm extends React.Component<Props, State> {
             onSelect={this.onChangeOwnerId}
           />
         );
-      case 'company':
+      case "company":
         return (
           <SelectCompanies
             label="Company"
@@ -142,9 +142,9 @@ class VoucherForm extends React.Component<Props, State> {
             onSelect={this.onChangeOwnerId}
           />
         );
-      case 'cpUser':
+      case "cpUser":
         return (
-          isEnabled('clientportal') && (
+          isEnabled("clientportal") && (
             <SelectClientPortalUser
               label="Client portal User"
               name="ownerId"
@@ -188,12 +188,12 @@ class VoucherForm extends React.Component<Props, State> {
             <FormControl
               {...formProps}
               name="ownerType"
-              componentClass="select"
+              componentclass="select"
               defaultValue={voucher.ownerType}
               required={true}
               onChange={this.onChangeSelect}
             >
-              {getOwnerTypes().map(ownerType => (
+              {getOwnerTypes().map((ownerType) => (
                 <option key={ownerType.name} value={ownerType.name}>
                   {ownerType.label}
                 </option>
@@ -211,12 +211,12 @@ class VoucherForm extends React.Component<Props, State> {
             <FormControl
               {...formProps}
               name="status"
-              componentClass="select"
+              componentclass="select"
               defaultValue={voucher.status}
               required={true}
               onChange={this.onChangeSelect}
             >
-              {['new', 'status'].map(status => (
+              {["new", "status"].map((status) => (
                 <option key={status} value={status}>
                   {status}
                 </option>
@@ -231,10 +231,10 @@ class VoucherForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'voucher',
+            name: "voucher",
             values: this.generateDoc(values),
             isSubmitted,
-            object: this.props.voucher
+            object: this.props.voucher,
           })}
         </ModalFooter>
       </>

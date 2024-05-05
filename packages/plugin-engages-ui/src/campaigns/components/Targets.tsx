@@ -1,9 +1,10 @@
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
-import React from 'react';
-import { ListCounter } from '@erxes/ui-engage/src/styles';
-import { Wrapper } from '@erxes/ui/src/styles/main';
-import { Counts } from '@erxes/ui/src/types';
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { SidebarCounter, SidebarList } from "@erxes/ui/src/layout/styles";
+import React from "react";
+import { ListCounter } from "@erxes/ui-engage/src/styles";
+import { Wrapper } from "@erxes/ui/src/styles/main";
+import { Counts } from "@erxes/ui/src/types";
+import Spinner from "@erxes/ui/src/components/Spinner";
 
 type Props<Target> = {
   messageType: string;
@@ -14,6 +15,7 @@ type Props<Target> = {
   onChangeStep: (name: string, targetIds: string[]) => void;
   icons?: React.ReactNode[];
   loadingCount: boolean;
+  loading: boolean;
 };
 
 type State = {
@@ -21,7 +23,7 @@ type State = {
 };
 
 class Targets<
-  Target extends { _id?: string; name?: string }
+  Target extends { _id?: string; name?: string },
 > extends React.Component<Props<Target>, State> {
   constructor(props) {
     super(props);
@@ -56,7 +58,7 @@ class Targets<
         this.props.onChangeStep(name, updatedIds);
       });
     } else {
-      const filteredIds = selectedIds.filter(target => target !== targetId);
+      const filteredIds = selectedIds.filter((target) => target !== targetId);
 
       this.setState({ selectedIds: filteredIds }, () => {
         this.props.onChangeStep(name, filteredIds);
@@ -66,7 +68,12 @@ class Targets<
 
   renderTarget(targets: Target[]) {
     const { selectedIds } = this.state;
-    const { targetCount, messageType, name, icons, loadingCount } = this.props;
+    const { targetCount, messageType, name, icons, loadingCount, loading } =
+      this.props;
+
+    if (loading) {
+      return <Spinner objective={true} />;
+    }
 
     if (targets.length === 0) {
       return (
@@ -75,10 +82,10 @@ class Targets<
     }
 
     return targets.map((target, index) => {
-      const { _id = '' } = target;
+      const { _id = "" } = target;
 
       return (
-        <ListCounter key={_id} chosen={selectedIds.includes(_id)}>
+        <ListCounter key={_id} $chosen={selectedIds.includes(_id)}>
           <a
             href="#counter"
             tabIndex={0}
@@ -87,7 +94,7 @@ class Targets<
             {icons && icons[index]}
             {target.name}
             <SidebarCounter>
-              {loadingCount ? '...loading' : targetCount[_id] || 0}
+              {loadingCount ? "...loading" : targetCount[_id] || 0}
             </SidebarCounter>
           </a>
         </ListCounter>

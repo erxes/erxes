@@ -19,6 +19,7 @@ export type IGrantRequest = {
   requester: IUser;
   createdAt: string;
   resolvedAt: string;
+  scope?: string;
 };
 
 export type RequestQueryResponse = {

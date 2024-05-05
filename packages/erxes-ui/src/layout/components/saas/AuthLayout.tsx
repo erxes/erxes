@@ -1,18 +1,19 @@
-import Button from '@erxes/ui/src/components/Button';
-import { __, bustIframe } from '../../../utils';
-import React from 'react';
-import Container from 'react-bootstrap/Container';
-import withCurrentOrganization from '@erxes/ui-settings/src/general/saas/containers/withCurrentOrganization';
 import {
-  AuthWrapper,
   AuthBox,
-  AuthItem,
   AuthContent,
   AuthCustomDescription,
   AuthDescription,
+  AuthItem,
+  AuthWrapper,
   CenterContent,
   MobileRecommend,
 } from '../../styles';
+import { __, bustIframe } from '../../../utils';
+
+import Button from '@erxes/ui/src/components/Button';
+import Container from 'react-bootstrap/Container';
+import React from 'react';
+import withCurrentOrganization from '@erxes/ui-settings/src/general/saas/containers/withCurrentOrganization';
 
 type Props = {
   content: React.ReactNode;

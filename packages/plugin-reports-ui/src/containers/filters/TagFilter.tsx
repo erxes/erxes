@@ -1,26 +1,24 @@
-import * as compose from 'lodash.flowright';
-
-import { CountByTagsQueryResponse } from '../../types';
 import CountsByTag from '@erxes/ui/src/components/CountsByTag';
 import React from 'react';
 import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
-import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
 import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../../graphql';
 import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
+import { useQuery } from '@apollo/client';
 
-const DashboardFilterContainer = (props: {
-  countByTagsQuery?: CountByTagsQueryResponse;
-  tagsQuery?: TagsQueryResponse;
-}) => {
-  const { countByTagsQuery, tagsQuery } = props;
+const DashboardFilterContainer = () => {
+  const countByTagsQuery = useQuery(gql(queries.reportsCountByTags));
+  const tagsQuery = useQuery(gql(tagQueries.tags), {
+    variables: {
+      type: TAG_TYPES.REPORT,
+    },
+  });
 
-  const counts = countByTagsQuery?.reportsCountByTags || {};
+  const counts = countByTagsQuery?.data?.reportsCountByTags || {};
 
   return (
     <CountsByTag
-      tags={(tagsQuery ? tagsQuery.tags : null) || []}
+      tags={(tagsQuery ? tagsQuery.data?.tags : null) || []}
       counts={counts || {}}
       manageUrl="/settings/tags?type=dashboard:dashboard"
       loading={tagsQuery?.loading || false}
@@ -28,16 +26,4 @@ const DashboardFilterContainer = (props: {
   );
 };
 
-export default compose(
-  graphql<{}, CountByTagsQueryResponse, {}>(gql(queries.reportsCountByTags), {
-    name: 'countByTagsQuery'
-  }),
-  graphql<{}, TagsQueryResponse, { type: string }>(gql(tagQueries.tags), {
-    name: 'tagsQuery',
-    options: () => ({
-      variables: {
-        type: TAG_TYPES.REPORT
-      }
-    })
-  })
-)(DashboardFilterContainer);
+export default DashboardFilterContainer;

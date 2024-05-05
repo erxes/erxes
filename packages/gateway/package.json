@@ -6,7 +6,7 @@
     "build": "yarn tsc"
   },
   "dependencies": {
-    "@apollo/client": "~3.7.14",
+    "@apollo/client": "^3.9.5",
     "@envelop/core": "^5.0.0",
     "@erxes/api-utils": "*",
     "@escape.tech/graphql-armor-character-limit": "^2.1.0",

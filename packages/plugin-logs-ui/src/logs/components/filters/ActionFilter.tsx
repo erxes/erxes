@@ -1,33 +1,35 @@
-import { __, router } from 'coreui/utils';
-import { FieldStyle, SidebarList, Box, DataWithLoader } from '@erxes/ui/src';
-import React from 'react';
+import { __, router } from "coreui/utils";
+import { FieldStyle, SidebarList, Box, DataWithLoader } from "@erxes/ui/src";
+import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
-  history: any;
   queryParams: any;
 };
 
 const actionOptions = [
-  { value: 'create', label: __('Create') },
-  { value: 'update', label: __('Update') },
-  { value: 'delete', label: __('Delete') }
+  { value: "create", label: __("Create") },
+  { value: "update", label: __("Update") },
+  { value: "delete", label: __("Delete") },
 ];
 
-function ActionFilter({ history, queryParams }: Props) {
-  const onClick = action => {
-    router.setParams(history, { action: action.value });
-    router.removeParams(history, 'page');
+function ActionFilter({ queryParams }: Props) {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const onClick = (action) => {
+    router.setParams(navigate, location, { action: action.value });
   };
 
   const content = (
     <SidebarList>
-      {actionOptions.map(action => {
+      {actionOptions.map((action) => {
         return (
           <li key={action.value}>
             <a
               href="#filter"
               tabIndex={0}
-              className={queryParams.action === action.value ? 'active' : ''}
+              className={queryParams.action === action.value ? "active" : ""}
               onClick={() => onClick(action)}
             >
               <FieldStyle>{action.label}</FieldStyle>
@@ -40,7 +42,7 @@ function ActionFilter({ history, queryParams }: Props) {
 
   return (
     <Box
-      title={__('Filter by Action')}
+      title={__("Filter by Action")}
       name="showFilterByAction"
       isOpen={queryParams.action}
     >
@@ -48,7 +50,7 @@ function ActionFilter({ history, queryParams }: Props) {
         data={content}
         loading={false}
         count={actionOptions.length}
-        emptyText={'There is no Action'}
+        emptyText={"There is no Action"}
         emptyIcon="leaf"
         size="small"
         objective={true}
