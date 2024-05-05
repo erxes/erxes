@@ -2,7 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { __, router } from '@erxes/ui/src/utils';
 
 import Button from '@erxes/ui/src/components/Button';
-import { Container, FlexWrap, PreviewContent, SiteBox, SitePreview } from '../../styles';
+import {
+  Container,
+  FlexWrap,
+  PreviewContent,
+  SwitchboardRate,
+  SwitchboardBox,
+  SwitchboardPreview,
+} from '../../styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -28,72 +35,69 @@ const Text = styledTS<{ color?: string }>(styled.div)`
   justify-content: center;
   left: 0;
   letter-spacing: 0.025em;
-  margin-bottom: 1rem;
   position: absolute;
+  margin-top: 20px;
   right: 0;
   top: 0;
   width: 100%;
   z-index: 100;
 `;
+const Header = styled.div`
+  align-items: center;
+  justify-content: center;
+`;
 
 function List() {
+  useEffect(() => {}, []);
 
-  useEffect(() => {
-   
-  }, []);
+  const lists = [
+    {
+      name: '6500',
+      abnormalPercentage: '54',
+      Members: 3,
+      TotalCalls: 550,
+      AnsweredCalls: 392,
+      WaitingCalls: 0,
+      AbandonedCalls: 158,
+      AverageWaitTime: '00:00:13',
+      AverageTalkTime: '00:02:52',
+    },
+    {
+      name: 'Company123',
+      abnormalPercentage: 78,
+      Members: 5,
+      TotalCalls: 720,
+      AnsweredCalls: 520,
+      WaitingCalls: 20,
+      AbandonedCalls: 200,
+      AverageWaitTime: '00:01:35',
+      AverageTalkTime: '00:03:20',
+    },
+    {
+      name: 'Company456',
+      abnormalPercentage: 32,
+      Members: 8,
+      TotalCalls: 880,
+      AnsweredCalls: 620,
+      WaitingCalls: 50,
+      AbandonedCalls: 260,
+      AverageWaitTime: '00:00:50',
+      AverageTalkTime: '00:03:10',
+    },
+    {
+      name: 'Company789',
+      abnormalPercentage: 90,
+      Members: 2,
+      TotalCalls: 350,
+      AnsweredCalls: 240,
+      WaitingCalls: 10,
+      AbandonedCalls: 110,
+      AverageWaitTime: '00:02:10',
+      AverageTalkTime: '00:04:05',
+    },
+  ];
 
-const lists = [
-  {
-    name: '6500',
-    abnormalPercentage: '54',
-    Members: 3,
-    TotalCalls: 550,
-    AnsweredCalls: 392,
-    WaitingCalls: 0,
-    AbandonedCalls: 158,
-    AverageWaitTime: '00:00:13',
-    AverageTalkTime: '00:02:52',
-  },
-  {
-    name: 'Company123',
-    abnormalPercentage: 78,
-    Members: 5,
-    TotalCalls: 720,
-    AnsweredCalls: 520,
-    WaitingCalls: 20,
-    AbandonedCalls: 200,
-    AverageWaitTime: '00:01:35',
-    AverageTalkTime: '00:03:20',
-  },
-  {
-    name: 'Company456',
-    abnormalPercentage: 32,
-    Members: 8,
-    TotalCalls: 880,
-    AnsweredCalls: 620,
-    WaitingCalls: 50,
-    AbandonedCalls: 260,
-    AverageWaitTime: '00:00:50',
-    AverageTalkTime: '00:03:10',
-  },
-  {
-    name: 'Company789',
-    abnormalPercentage: 90,
-    Members: 2,
-    TotalCalls: 350,
-    AnsweredCalls: 240,
-    WaitingCalls: 10,
-    AbandonedCalls: 110,
-    AverageWaitTime: '00:02:10',
-    AverageTalkTime: '00:04:05',
-  },
-];
-
-const progressBar = (
-  percentage,
-  color = '#dddeff',
-  height ='300px',
-)=> {
+  const progressBar = (percentage, color = '#7715bd', height = '200px') => {
     const strokeWidth = 3;
     const radius = 100 / 2 - strokeWidth * 2;
     const circumference = radius * 2 * Math.PI;
@@ -125,27 +129,22 @@ const progressBar = (
           />
         </svg>
 
-        <Text color={color} data-testid="progress-bar-text">
-          <span>abandonedRate {percentage}%</span>
-        </Text>
+        <SwitchboardRate color={'#0b6e08'}>{percentage}% </SwitchboardRate>
+        <Text>Abandoned Rate</Text>
       </Container>
     );
- 
-}
+  };
 
- const renderList =(list)=> {
+  const renderList = (list) => {
     // const { remove, duplicate } = this.props;
 
     return (
-      <SiteBox key={list._id}>
-        <SitePreview>
-          <div style={{ textAlign: 'center' }}>
-            <b>{list.name}</b>
-            <br />
-            {progressBar(list.abnormalPercentage, '#dddeff', '300px')}
-            <br />
-            
-          </div>
+      <SwitchboardBox key={list._id}>
+        <SwitchboardPreview>
+          <Header>
+            {list.name}
+            {progressBar(list.abnormalPercentage, '#dddeff', '200px')}
+          </Header>
 
           <PreviewContent>
             <Button
@@ -157,7 +156,7 @@ const progressBar = (
             </Button>
             {/* {this.renderEditAction(list)} */}
           </PreviewContent>
-        </SitePreview>
+        </SwitchboardPreview>
         {/* <Content>
           <div>
             <b>{site.name}</b>
@@ -180,15 +179,15 @@ const progressBar = (
             </li>
           </Dropdown>
         </Content> */}
-      </SiteBox>
+      </SwitchboardBox>
     );
-  }
+  };
 
   return (
-//    <div>{lists.map((list)=>{
+    //    <div>{lists.map((list)=>{
     // return <p>{list.name}</p>
-     <FlexWrap>{lists.map((site) => renderList(site))}</FlexWrap>
-//    })}</div>
+    <FlexWrap>{lists.map((site) => renderList(site))}</FlexWrap>
+    //    })}</div>
   );
 }
 

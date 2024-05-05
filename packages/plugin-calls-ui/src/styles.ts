@@ -34,14 +34,14 @@ export const TabsContainer = styled(Tabs)`
   border-top: 1px solid ${colors.borderPrimary};
   border-radius: 0 0 25px 10px;
   overflow: hidden;
-  background:red;
+  background: red;
 `;
 
-export const TabsWrapper = styled.div `
+export const TabsWrapper = styled.div`
   border-top: 1px solid ${colors.borderPrimary};
   margin-bottom: ${dimensions.unitSpacing}px;
 
-  > div{
+  > div {
     border-bottom: none;
   }
 `;
@@ -224,8 +224,9 @@ export const NumberInput = styled.div`
     padding: 5px 10px;
     font-size: 15px;
   }
-  
-  .css-13cymwt-control, .css-t3ipsp-control {
+
+  .css-13cymwt-control,
+  .css-t3ipsp-control {
     min-height: unset;
     border-bottom: none;
   }
@@ -334,7 +335,9 @@ export const IncomingCallNav = styledTS<{ type?: string }>(styled.div)`
   bottom: ${(props) => (props.type === 'outgoing' ? '0' : '150px')};
   right: ${(props) => (props.type === 'outgoing' ? '0' : '20px')};
   z-index: 999;
-  animation: ${css`${slideRight}`} 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
+  animation: ${css`
+    ${slideRight}
+  `} 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
 
   button {
     height: 30px;
@@ -369,7 +372,9 @@ export const CallButton = styledTS<{
   margin-top: auto;
   margin-bottom: auto;
   margin-left: ${(props) => (props.type === 'decline' ? '0' : '0px')};
-  animation: ${css`${pulse}`} 1.5s infinite alternate;
+  animation: ${css`
+    ${pulse}
+  `} 1.5s infinite alternate;
 `;
 
 export const InCall = styled.div`
@@ -540,7 +545,9 @@ export const WidgetWrapper = styledTS<{ $isConnected?: boolean }>(styled.div)`
   transition:
     box-shadow 0.3s ease-in-out,
     background-image 0.3s ease-in;
-  animation: ${css`${pop}`} 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
+  animation: ${css`
+    ${pop}
+  `} 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -548,7 +555,10 @@ export const WidgetWrapper = styledTS<{ $isConnected?: boolean }>(styled.div)`
 
   &:before {
     animation: ${(props) =>
-      !props.$isConnected && css`${animationPulse} 2s infinite`};
+      !props.$isConnected &&
+      css`
+        ${animationPulse} 2s infinite
+      `};
     border-radius: 50%;
     color: inherit;
     content: '';
@@ -647,7 +657,8 @@ export const NameCardContainer = styled.div`
 
     > i {
       margin-right: 5px;
-      animation: ${css`${pulse}`} 2s infinite;
+      animation: ${css`
+          ${pulse}`} 2s infinite;
     }
   }
 
@@ -715,7 +726,7 @@ export const FlexWrap = styledTS(styled.div)`
 
   > a,
   > div {
-    flex-basis: 240px;
+    flex-basis: 25%;
     display: flex;
     flex-shrink: 0;
 
@@ -737,7 +748,7 @@ export const FlexWrap = styledTS(styled.div)`
   }
 `;
 
-export const SiteBox = styledTS<{ nowrap?: boolean }>(styled.div)`
+export const SwitchboardBox = styledTS<{ nowrap?: boolean }>(styled.div)`
   flex-basis: 250px;
   margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;
   display: flex;
@@ -781,7 +792,7 @@ export const PreviewContent = styled.div`
   }
 `;
 
-export const SitePreview = styled.div`
+export const SwitchboardPreview = styled.div`
   width: 100%;
   height: 800px;
   border-radius: ${dimensions.unitSpacing - 2}px ${dimensions.unitSpacing - 2}px
@@ -790,20 +801,21 @@ export const SitePreview = styled.div`
   background: #fefefe;
   overflow: hidden;
   position: relative;
-
-  > img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  &:hover {
-    ${PreviewContent} {
-      opacity: 1;
-    }
-  }
 `;
 
 export const Container = styled.div`
   position: relative;
+`;
+
+export const SwitchboardRate = styledTS<{ color?: string }>(styled.div)`
+  color: ${(props) => props.color};
+  font-size: 24px;
+  position: absolute;
+  align-items: center;
+  justify-content: center;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  margin-top: 28%;
 `;
