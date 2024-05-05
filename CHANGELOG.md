@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.10.0-rc.1](https://github.com/erxes/erxes/compare/1.10.0-rc.0...1.10.0-rc.1) (2024-05-05)
+
+
+### Bug Fixes
+
+* cards change pipeline ([5b34c6d](https://github.com/erxes/erxes/commit/5b34c6d61b3cf7f15a43cbb3992142519040e890))
+* create user with fullName from erxes app ([0e99624](https://github.com/erxes/erxes/commit/0e9962401bfe38a25d29ce3f8a835bd94a48df1c))
+* reserve remainders permission ([b7cab5c](https://github.com/erxes/erxes/commit/b7cab5c4fc83b0bd29332b2bac63a9400064eb31))
+
+
+### Performance Improvements
+
+* **core:** Convert to react18 ([#5186](https://github.com/erxes/erxes/issues/5186)) ([e08ce55](https://github.com/erxes/erxes/commit/e08ce555a5a2107f1e2250246bb8b5258f04a74b))
+
 ## [1.10.0-rc.0](https://github.com/erxes/erxes/compare/1.9.0-rc.2...1.10.0-rc.0) (2024-05-01)
 
 
