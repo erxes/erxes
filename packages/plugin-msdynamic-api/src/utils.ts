@@ -287,7 +287,7 @@ export const consumeInventory = async (subdomain, config, doc, action) => {
       unitPrice: doc?.Unit_Price || 0,
       code: doc.No,
       uom: doc?.Base_Unit_of_Measure || 'PCS',
-      categoryId: productCategory._id || product?.categoryId, // TODO: if product not exists and productCategory not found then category is null
+      categoryId: productCategory?._id || product?.categoryId, // TODO: if product not exists and productCategory not found then category is null
       scopeBrandIds: brandIds,
       status: 'active',
     };
