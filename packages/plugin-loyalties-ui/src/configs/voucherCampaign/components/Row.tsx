@@ -1,44 +1,44 @@
 import {
   FormControl,
-  TextInfo,
+  Icon,
   ModalTrigger,
-  Icon
-} from '@erxes/ui/src/components';
-import React from 'react';
-import { VOUCHER_TYPES } from '../../../constants';
-import Form from '../containers/Form';
-import { IVoucherCampaign } from '../types';
-import { Link } from 'react-router-dom';
+  TextInfo,
+} from "@erxes/ui/src/components";
+
+import Form from "../containers/Form";
+import { IVoucherCampaign } from "../types";
+import { Link } from "react-router-dom";
+import React from "react";
+import { VOUCHER_TYPES } from "../../../constants";
 
 type Props = {
   voucherCampaign: IVoucherCampaign;
-  history: any;
   isChecked: boolean;
   toggleBulk: (voucherCampaign: IVoucherCampaign, isChecked?: boolean) => void;
 };
 
 class Row extends React.Component<Props> {
-  modalContent = props => {
+  modalContent = (props) => {
     const { voucherCampaign } = this.props;
 
     const updatedProps = {
       ...props,
-      voucherCampaign
+      voucherCampaign,
     };
 
     return <Form {...updatedProps} />;
   };
 
   render() {
-    const { voucherCampaign, history, toggleBulk, isChecked } = this.props;
+    const { voucherCampaign, toggleBulk, isChecked } = this.props;
 
-    const onChange = e => {
+    const onChange = (e) => {
       if (toggleBulk) {
         toggleBulk(voucherCampaign, e.target.checked);
       }
     };
 
-    const onClick = e => {
+    const onClick = (e) => {
       e.stopPropagation();
     };
 
@@ -49,7 +49,7 @@ class Row extends React.Component<Props> {
       startDate,
       endDate,
       finishDateOfUse,
-      status
+      status,
     } = voucherCampaign;
 
     const trigger = (
@@ -57,7 +57,7 @@ class Row extends React.Component<Props> {
         <td onClick={onClick}>
           <FormControl
             checked={isChecked}
-            componentClass="checkbox"
+            componentclass="checkbox"
             onChange={onChange}
           />
         </td>
@@ -79,7 +79,7 @@ class Row extends React.Component<Props> {
 
     return (
       <ModalTrigger
-        size={'lg'}
+        size={"lg"}
         title="Edit voucher campaign"
         trigger={trigger}
         autoOpenKey="showProductModal"

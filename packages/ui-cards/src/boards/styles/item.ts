@@ -4,10 +4,10 @@ import styled, { css } from 'styled-components';
 import Button from '@erxes/ui/src/components/Button';
 import { Flex } from '@erxes/ui/src/styles/main';
 import { FormContainer } from '../styles/common';
+import { StageInfo } from './stage';
 import { borderRadius } from './common';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styledTS from 'styled-components-ts';
-import { StageInfo } from './stage';
 
 const buttonColor = '#0a1e3c';
 
@@ -146,7 +146,6 @@ export const AddContent = styled.div`
     box-shadow: none;
     font-size: 13px;
     position: relative;
-    margin-left: 20px;
   }
 
   .dateTime {
@@ -197,9 +196,9 @@ export const TitleRow = styled.div`
   }
 `;
 
-export const ContentWrapper = styledTS<{ isEditing: boolean }>(styled.div)`
-  ${props =>
-    props.isEditing &&
+export const ContentWrapper = styledTS<{ $isEditing: boolean }>(styled.div)`
+  ${(props) =>
+    props.$isEditing &&
     css`
       margin-bottom: ${dimensions.coreSpacing}px;
       background-color: ${colors.colorWhite};
@@ -251,6 +250,7 @@ export const HeaderContentSmall = styled.div`
 export const FormFooter = styled.div`
   text-align: right;
   margin-top: 20px;
+  width: max-content;
 `;
 
 export const SpaceContent = styled(Flex)`
@@ -261,7 +261,6 @@ export const SpaceContent = styled(Flex)`
 export const LeftContainer = styled.div`
   margin-right: ${dimensions.coreSpacing}px;
   flex: 1;
-  max-width: 620px;
   textarea {
     resize: none;
   }
@@ -323,7 +322,7 @@ export const MoveContainer = styled(Flex)`
 `;
 
 export const MoveContainerWidth = styled(Flex)`
-  width: 600px;
+  @media (min-width: 1200px){width: 720px;}
 `;
 
 export const ActionContainer = styled(MoveContainer)`
@@ -370,7 +369,7 @@ export const Stages = styled.ul`
   padding: 0;
 `;
 
-export const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
+export const StageItem = styledTS<{ $isPass: boolean }>(styled.li)`
   text-align: right;
   position: relative;
   margin-left: 10px;
@@ -395,8 +394,8 @@ export const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
   &:before {
     content: '';
     height: 2px;
-    background: ${props =>
-      props.isPass ? colors.colorSecondary : colors.colorShadowGray};
+    background: ${(props) =>
+      props.$isPass ? colors.colorSecondary : colors.colorShadowGray};
     width: 100%;
     top: 50%;
     margin-top: 0;
@@ -409,15 +408,15 @@ export const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
     position: relative;
     z-index: 10;
     cursor: pointer;
-    background: ${colors.bgLight};
+    background: ${colors.colorWhite};
     display: inline-block;
   }
   
   i {
     font-size: 30px;
     margin: 0 -3px;
-    color: ${props =>
-      props.isPass ? colors.colorSecondary : colors.colorShadowGray};
+    color: ${(props) =>
+      props.$isPass ? colors.colorSecondary : colors.colorShadowGray};
   }
 `;
 

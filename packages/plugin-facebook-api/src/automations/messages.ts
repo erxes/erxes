@@ -49,7 +49,7 @@ const generateMessages = async (
   const getUrl = (key) => {
     const DOMAIN = getEnv({
       name: 'DOMAIN',
-      subdomain
+      subdomain,
     });
 
     const NODE_ENV = getEnv({ name: 'NODE_ENV' });
@@ -258,6 +258,9 @@ const generateObjectToWait = ({
     obj.waitingActionId = actionIdIfNotReply;
 
     propertyName = 'botId';
+  }else{
+    obj.startWaitingDate = moment().add(24,'hours').toDate()
+    obj.waitingActionId = null
   }
 
   return {
@@ -308,7 +311,7 @@ export const actionCreateMessage = async (
       subdomain,
       config,
       conversation,
-      customer
+      customer,
     );
 
     if (!messages?.length) {
@@ -359,6 +362,7 @@ export const actionCreateMessage = async (
           ...conversationMessage.toObject(),
           conversationId: conversation.erxesApiId,
         },
+        isRPC:true
       });
 
       result.push(conversationMessage);

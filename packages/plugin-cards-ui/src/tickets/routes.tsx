@@ -2,29 +2,36 @@ import { getDefaultBoardAndPipelines } from '@erxes/ui-cards/src/boards/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 import React from 'react';
-import { Redirect, Route } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 
-const TicketBoard = asyncComponent(() =>
-  import(/* webpackChunkName: "TicketBoard" */ './components/TicketBoard')
+const TicketBoard = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "TicketBoard" */ './components/TicketBoard'),
 );
 
-const Calendar = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Calendar" */ '@erxes/ui-cards/src/boards/components/Calendar'
-  )
+const Calendar = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Calendar" */ '@erxes/ui-cards/src/boards/components/Calendar'
+    ),
 );
 
-const CalendarColumn = asyncComponent(() =>
-  import(/* webpackChunkName: "CalendarColumn" */ './containers/CalendarColumn')
+const CalendarColumn = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "CalendarColumn" */ './containers/CalendarColumn'
+    ),
 );
 
-const MainActionBar = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "MainActionBar" */ './components/TicketMainActionBar'
-  )
+const MainActionBar = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "MainActionBar" */ './components/TicketMainActionBar'
+    ),
 );
 
-const tickets = () => {
+const Tickets = () => {
   let view = localStorage.getItem('ticketView') || 'board';
   let link = `/ticket/${view}`;
 
@@ -32,23 +39,25 @@ const tickets = () => {
 
   const [defaultBoardId, defaultPipelineId] = [
     defaultBoards.ticket,
-    defaultPipelines.ticket
+    defaultPipelines.ticket,
   ];
 
   if (defaultBoardId && defaultPipelineId) {
     link = `/ticket/${view}?id=${defaultBoardId}&pipelineId=${defaultPipelineId}`;
   }
 
-  return <Redirect to={link} />;
+  return <Navigate replace to={link} />;
 };
 
-const boards = ({ location }) => {
+const Boards = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <TicketBoard viewType="board" queryParams={queryParams} />;
 };
 
-const calendar = ({ location }) => {
+const CalendarComponent = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return (
@@ -62,31 +71,36 @@ const calendar = ({ location }) => {
   );
 };
 
-const list = ({ location }) => {
+const List = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <TicketBoard viewType="list" queryParams={queryParams} />;
 };
 
-const chart = ({ location }) => {
+const Chart = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <TicketBoard viewType="chart" queryParams={queryParams} />;
 };
 
-const gantt = ({ location }) => {
+const Gantt = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <TicketBoard viewType="gantt" queryParams={queryParams} />;
 };
 
-const activity = ({ location }) => {
+const Activity = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <TicketBoard viewType="activity" queryParams={queryParams} />;
 };
 
-const time = ({ location }) => {
+const Time = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <TicketBoard viewType="time" queryParams={queryParams} />;
@@ -94,58 +108,31 @@ const time = ({ location }) => {
 
 const routes = () => {
   return (
-    <>
-      <Route key="/ticket" exact={true} path="/ticket" render={tickets} />
+    <Routes>
+      <Route key="/ticket" path="/ticket" element={<Tickets />} />
 
-      <Route
-        key="/ticket/board"
-        exact={true}
-        path="/ticket/board"
-        component={boards}
-      />
+      <Route key="/ticket/board" path="/ticket/board" element={<Boards />} />
 
       <Route
         key="/ticket/calendar"
-        exact={true}
         path="/ticket/calendar"
-        component={calendar}
+        element={<CalendarComponent />}
       />
 
-      <Route
-        key="ticket/list"
-        exact={true}
-        path="/ticket/list"
-        component={list}
-      />
+      <Route key="ticket/list" path="/ticket/list" element={<List />} />
 
       <Route
         key="ticket/activity"
-        exact={true}
         path="/ticket/activity"
-        component={activity}
+        element={<Activity />}
       />
 
-      <Route
-        key="ticket/chart"
-        exact={true}
-        path="/ticket/chart"
-        component={chart}
-      />
+      <Route key="ticket/chart" path="/ticket/chart" element={<Chart />} />
 
-      <Route
-        key="ticket/gantt"
-        exact={true}
-        path="/ticket/gantt"
-        component={gantt}
-      />
+      <Route key="ticket/gantt" path="/ticket/gantt" element={<Gantt />} />
 
-      <Route
-        key="ticket/time"
-        exact={true}
-        path="/ticket/time"
-        component={time}
-      />
-    </>
+      <Route key="ticket/time" path="/ticket/time" element={<Time />} />
+    </Routes>
   );
 };
 

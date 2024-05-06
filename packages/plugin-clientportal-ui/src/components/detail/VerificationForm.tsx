@@ -1,13 +1,13 @@
-import { ControlLabel, Form, FormControl } from '@erxes/ui/src/components/form';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { IClientPortalUser, IVerificationRequest } from '../../types';
-import React, { useState } from 'react';
+import { ControlLabel, Form, FormControl } from "@erxes/ui/src/components/form";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { IClientPortalUser, IVerificationRequest } from "../../types";
+import React, { useState } from "react";
 
-import AttachmentsGallery from '@erxes/ui/src/components/AttachmentGallery';
-import Button from '@erxes/ui/src/components/Button';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
+import AttachmentsGallery from "@erxes/ui/src/components/AttachmentGallery";
+import Button from "@erxes/ui/src/components/Button";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
 
 type Props = {
   clientPortalUser: IClientPortalUser;
@@ -20,7 +20,7 @@ const VerificationForm = (props: Props) => {
   const { status, attachments } =
     clientPortalUser.verificationRequest || ({} as IVerificationRequest);
 
-  const [vStatus, setStatus] = useState(status ? status : 'notVerified');
+  const [vStatus, setStatus] = useState(status ? status : "notVerified");
 
   const renderFooter = (formProps: IFormProps) => {
     const { isSubmitted } = formProps;
@@ -37,20 +37,20 @@ const VerificationForm = (props: Props) => {
         </Button>
 
         {renderButton({
-          name: 'clientPortalUser',
+          name: "clientPortalUser",
           values: {
             userId: clientPortalUser._id,
-            status: vStatus
+            status: vStatus,
           },
           isSubmitted,
-          callback: closeModal
+          callback: closeModal,
         })}
       </ModalFooter>
     );
   };
 
   const renderContent = (formProps: IFormProps) => {
-    const onChange = e => {
+    const onChange = (e) => {
       setStatus(e.target.value);
     };
 
@@ -73,7 +73,7 @@ const VerificationForm = (props: Props) => {
         <FormGroup>
           <ControlLabel>Verification status</ControlLabel>
           <FormControl
-            componentClass="select"
+            componentclass="select"
             onChange={onChange}
             defaultValue={vStatus}
           >

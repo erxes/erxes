@@ -1,17 +1,17 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+import { FlexContent, FlexItem } from "@erxes/ui/src/layout/styles";
 
-import { BoardsQueryResponse } from '@erxes/ui-cards/src/boards/types';
-import { ControlLabel } from '@erxes/ui/src/components/form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import React from 'react';
-import Select from 'react-select-plus';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '@erxes/ui-cards/src/settings/boards/graphql';
-import { withProps } from '@erxes/ui/src/utils';
+import { BoardsQueryResponse } from "@erxes/ui-cards/src/boards/types";
+import { ControlLabel } from "@erxes/ui/src/components/form";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import React from "react";
+import Select from "react-select";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries } from "@erxes/ui-cards/src/settings/boards/graphql";
+import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   type: string;
@@ -21,26 +21,26 @@ type Props = {
 };
 
 class Form extends React.Component<any, any, any> {
-  generatePipelineOptions = boards => {
+  generatePipelineOptions = (boards) => {
     const config = this.props.config || {};
     const { boardId } = config;
 
-    const board = (boards || []).find(b => b._id === boardId);
+    const board = (boards || []).find((b) => b._id === boardId);
 
     if (!board) {
       return [];
     }
 
-    return (board.pipelines || []).map(p => ({
+    return (board.pipelines || []).map((p) => ({
       value: p._id,
-      label: p.name
+      label: p.name,
     }));
   };
 
   onChangePipeLine = (_key, e) => {
     const config = this.props.config || {};
     const boardId = config.boardId;
-    const pipelineId = e ? e.value : '';
+    const pipelineId = e ? e.value : "";
 
     const result = { boardId, pipelineId };
 
@@ -49,7 +49,7 @@ class Form extends React.Component<any, any, any> {
 
   onChangeBoard = (_key, e) => {
     const config = this.props.config || {};
-    const boardId = e ? e.value : '';
+    const boardId = e ? e.value : "";
 
     const pipelineId = config.pipelineId;
 
@@ -59,13 +59,8 @@ class Form extends React.Component<any, any, any> {
   };
 
   render() {
-    const {
-      boardsQuery,
-      hideDetailForm,
-      propertyType,
-      type,
-      component
-    } = this.props;
+    const { boardsQuery, hideDetailForm, propertyType, type, component } =
+      this.props;
 
     const config = this.props.config || {};
 
@@ -75,6 +70,11 @@ class Form extends React.Component<any, any, any> {
 
     const boards = boardsQuery.boards || [];
 
+    const options = boards.map((b) => ({
+      value: b._id,
+      label: b.name,
+    }));
+
     const content = (
       <>
         <FlexContent>
@@ -82,20 +82,21 @@ class Form extends React.Component<any, any, any> {
             <FormGroup>
               <ControlLabel>Board</ControlLabel>
               <Select
-                value={config.boardId}
-                options={boards.map(b => ({
-                  value: b._id,
-                  label: b.name
-                }))}
-                onChange={this.onChangeBoard.bind(this, 'boardId')}
+                value={options.find((b) => b.value === config.boardId)}
+                isClearable={true}
+                options={options}
+                onChange={this.onChangeBoard.bind(this, "boardId")}
               />
             </FormGroup>
             <FormGroup>
               <ControlLabel>Pipeline</ControlLabel>
 
               <Select
-                value={config.pipelineId}
-                onChange={this.onChangePipeLine.bind(this, 'pipelineId')}
+                value={this.generatePipelineOptions(boards).find(
+                  (option) => option.value === config.pipelineId
+                )}
+                isClearable={true}
+                onChange={this.onChangePipeLine.bind(this, "pipelineId")}
                 options={this.generatePipelineOptions(boards)}
               />
             </FormGroup>
@@ -104,14 +105,14 @@ class Form extends React.Component<any, any, any> {
       </>
     );
 
-    if (component === 'filter') {
+    if (component === "filter") {
       if (
         propertyType &&
         ![
-          'cards:deal',
-          'cards:ticket',
-          'cards:task',
-          'cards:purchase'
+          "cards:deal",
+          "cards:ticket",
+          "cards:task",
+          "cards:purchase",
         ].includes(propertyType)
       ) {
         return null;
@@ -119,7 +120,7 @@ class Form extends React.Component<any, any, any> {
 
       if (
         !hideDetailForm &&
-        ['cards:deal', 'cards:ticket', 'cards:task', 'cards:purchase'].includes(
+        ["cards:deal", "cards:ticket", "cards:task", "cards:purchase"].includes(
           type
         )
       ) {
@@ -128,7 +129,7 @@ class Form extends React.Component<any, any, any> {
 
       return content;
     } else if (
-      ['cards:deal', 'cards:ticket', 'cards:task', 'cards:purchase'].includes(
+      ["cards:deal", "cards:ticket", "cards:task", "cards:purchase"].includes(
         type
       )
     ) {
@@ -139,23 +140,23 @@ class Form extends React.Component<any, any, any> {
 
 const generateVariable = (type, propertyType) => {
   if (
-    ['cards:deal', 'cards:ticket', 'cards:task', 'cards:purchase'].includes(
+    ["cards:deal", "cards:ticket", "cards:task", "cards:purchase"].includes(
       type
     )
   ) {
-    return { type: type.split(':')[1] };
+    return { type: type.split(":")[1] };
   }
 
-  return { type: propertyType.split(':')[1] };
+  return { type: propertyType.split(":")[1] };
 };
 
 export default withProps<Props>(
   compose(
     graphql<Props, BoardsQueryResponse, {}>(gql(queries.boards), {
-      name: 'boardsQuery',
+      name: "boardsQuery",
       options: ({ type, propertyType }) => ({
-        variables: generateVariable(type, propertyType)
-      })
+        variables: generateVariable(type, propertyType),
+      }),
     })
   )(Form)
 );

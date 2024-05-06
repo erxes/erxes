@@ -3,24 +3,24 @@ import {
   ControlLabel,
   Form,
   FormControl,
-  FormGroup
-} from '@erxes/ui/src/components';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { ILottery, ILotteryDoc } from '../types';
+  FormGroup,
+} from "@erxes/ui/src/components";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { ILottery, ILotteryDoc } from "../types";
 import {
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
-} from '@erxes/ui/src/styles/eindex';
+  MainStyleScrollWrapper as ScrollWrapper,
+} from "@erxes/ui/src/styles/eindex";
 
-import React from 'react';
-import SelectCampaigns from '../../containers/SelectCampaigns';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { __ } from '@erxes/ui/src/utils';
-import { isEnabled } from '../../../../../api-utils/src/serviceDiscovery';
-import { queries } from '../../../configs/lotteryCampaign/graphql';
-import { queries as voucherCampaignQueries } from '../../../configs/voucherCampaign/graphql';
+import React from "react";
+import SelectCampaigns from "../../containers/SelectCampaigns";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import { __ } from "@erxes/ui/src/utils";
+import { isEnabled } from "../../../../../api-utils/src/serviceDiscovery";
+import { queries } from "../../../configs/lotteryCampaign/graphql";
+import { queries as voucherCampaignQueries } from "../../../configs/voucherCampaign/graphql";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -44,11 +44,11 @@ class LotteryForm extends React.Component<Props, State> {
     }
 
     if (!lottery.ownerType) {
-      lottery.ownerType = 'customer';
+      lottery.ownerType = "customer";
     }
 
     this.state = {
-      lottery
+      lottery,
     };
   }
 
@@ -63,14 +63,14 @@ class LotteryForm extends React.Component<Props, State> {
 
     return {
       _id: finalValues._id,
-      ...this.state.lottery
+      ...this.state.lottery,
     };
   };
 
-  onChangeInput = e => {
+  onChangeInput = (e) => {
     const name = e.target.name;
     let value = e.target.value;
-    if (e.target.type === 'number') {
+    if (e.target.type === "number") {
       value = Number(value);
     }
 
@@ -86,12 +86,12 @@ class LotteryForm extends React.Component<Props, State> {
     );
   };
 
-  onChangeCampaign = value => {
+  onChangeCampaign = (value) => {
     const { lottery } = this.state;
     this.setState({ lottery: { ...lottery, campaignId: value } });
   };
 
-  onChangeSelect = e => {
+  onChangeSelect = (e) => {
     const { lottery } = this.state;
     const target = e.currentTarget as HTMLInputElement;
     const value = target.value;
@@ -100,14 +100,14 @@ class LotteryForm extends React.Component<Props, State> {
     this.setState({ lottery: { ...lottery, [name]: value } });
   };
 
-  onChangeOwnerId = ownerId => {
+  onChangeOwnerId = (ownerId) => {
     const { lottery } = this.state;
     this.setState({ lottery: { ...lottery, ownerId } });
   };
 
   renderOwner = () => {
     const { lottery } = this.state;
-    if (lottery.ownerType === 'customer') {
+    if (lottery.ownerType === "customer") {
       return (
         <SelectCustomers
           label="Customer"
@@ -119,7 +119,7 @@ class LotteryForm extends React.Component<Props, State> {
       );
     }
 
-    if (lottery.ownerType === 'user') {
+    if (lottery.ownerType === "user") {
       return (
         <SelectTeamMembers
           label="Team member"
@@ -178,22 +178,22 @@ class LotteryForm extends React.Component<Props, State> {
             <FormControl
               {...formProps}
               name="ownerType"
-              componentClass="select"
+              componentclass="select"
               defaultValue={lottery.ownerType}
               required={true}
               onChange={this.onChangeSelect}
             >
-              <option key={'customer'} value={'customer'}>
-                {' '}
-                {'customer'}{' '}
+              <option key={"customer"} value={"customer"}>
+                {" "}
+                {"customer"}{" "}
               </option>
-              <option key={'user'} value={'user'}>
-                {' '}
-                {'user'}{' '}
+              <option key={"user"} value={"user"}>
+                {" "}
+                {"user"}{" "}
               </option>
-              <option key={'company'} value={'company'}>
-                {' '}
-                {'company'}{' '}
+              <option key={"company"} value={"company"}>
+                {" "}
+                {"company"}{" "}
               </option>
             </FormControl>
           </FormGroup>
@@ -208,22 +208,22 @@ class LotteryForm extends React.Component<Props, State> {
             <FormControl
               {...formProps}
               name="status"
-              componentClass="select"
+              componentclass="select"
               defaultValue={lottery.status}
               required={true}
               onChange={this.onChangeSelect}
             >
-              <option key={'new'} value={'new'}>
-                {' '}
-                {'new'}{' '}
+              <option key={"new"} value={"new"}>
+                {" "}
+                {"new"}{" "}
               </option>
-              <option key={'loss'} value={'loss'}>
-                {' '}
-                {'loss'}{' '}
+              <option key={"loss"} value={"loss"}>
+                {" "}
+                {"loss"}{" "}
               </option>
-              <option key={'won'} value={'won'}>
-                {' '}
-                {'won'}{' '}
+              <option key={"won"} value={"won"}>
+                {" "}
+                {"won"}{" "}
               </option>
             </FormControl>
           </FormGroup>
@@ -239,7 +239,7 @@ class LotteryForm extends React.Component<Props, State> {
                 return;
               }}
               initialValue={lottery.voucherCampaignId}
-              filterParams={{ voucherType: 'lottery' }}
+              filterParams={{ voucherType: "lottery" }}
             />
           </FormGroup>
         </ScrollWrapper>
@@ -250,10 +250,10 @@ class LotteryForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'lottery',
+            name: "lottery",
             values: this.generateDoc(values),
             isSubmitted,
-            object: this.props.lottery
+            object: this.props.lottery,
           })}
         </ModalFooter>
       </>

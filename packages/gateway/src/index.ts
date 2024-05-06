@@ -21,6 +21,8 @@ import {
 import { applyInspectorEndpoints } from '@erxes/api-utils/src/inspect';
 import app from '@erxes/api-utils/src/app';
 import { sanitizeHeaders } from '@erxes/api-utils/src/headers';
+import * as express from 'express';
+import { applyGraphqlLimiters } from './middlewares/graphql-limiter';
 
 const { DOMAIN, WIDGETS_DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_ORIGINS, PORT } =
   process.env;
@@ -52,6 +54,7 @@ const { DOMAIN, WIDGETS_DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_ORIGINS, PORT } =
 
   await startRouter(targets);
 
+  applyGraphqlLimiters(app);
   applyProxiesCoreless(app, targets);
 
   const httpServer = http.createServer(app);

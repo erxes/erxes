@@ -5,7 +5,6 @@ import {
   sendPosMessage,
   sendProductsMessage,
 } from './messageBroker';
-import * as moment from 'moment';
 import fetch from 'node-fetch';
 
 export const getConfig = async (subdomain, code, defaultValue?) => {
@@ -356,13 +355,25 @@ export const consumeCategory = async (
     }
 
     const document: any = {
-      name: doc?.Code || 'default',
       code: doc?.Code,
-      description: doc?.Description,
+      name: doc?.Description || 'default',
       scopeBrandIds: brandIds,
       parentId: categoryId,
       status: 'active',
     };
+
+    if (doc.Parent_Category) {
+      const parentCategory = await sendProductsMessage({
+        subdomain,
+        action: 'categories.findOne',
+        data: { code: doc.Parent_Category },
+        isRPC: true,
+      });
+
+      if (parentCategory) {
+        document.parentId = parentCategory._id
+      }
+    }
 
     if (productCategory) {
       await sendProductsMessage({
@@ -459,10 +470,6 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
     },
     isRPC: true,
   });
-
-  if (brand) {
-    throw new Error('MS Dynamic brand not found');
-  }
 
   const config = configs[brand._id || 'noBrand'];
 
@@ -851,5 +858,95 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
       { $set: { error: e.message } }
     );
     console.log(e, 'error');
+  }
+};
+
+const getPriceForList = (prods) => {
+  let resProd = prods[0];
+  let resPrice = prods[0].Unit_Price;
+
+  const hasDateList = prods.filter(
+    (p) => p.Ending_Date && p.Ending_Date !== '0001-01-01'
+  );
+
+  if (hasDateList.length) {
+    resProd = hasDateList[0];
+    resPrice = hasDateList[0].Unit_Price;
+
+    for (const prod of hasDateList) {
+      if (resPrice < prod.Unit_Price) {
+        continue;
+      }
+
+      resPrice = prod.Unit_Price;
+      resProd = prod;
+    }
+
+    return { resPrice, resProd };
+  }
+
+  for (const prod of prods) {
+    if (resPrice < prod.Unit_Price) {
+      continue;
+    }
+
+    resPrice = prod.Unit_Price;
+    resProd = prod;
+  }
+
+  return { resPrice, resProd };
+};
+
+export const getPrice = async (resProds, pricePriority) => {
+  try {
+    const sorts = pricePriority
+      .replace(', ', ',')
+      .split(',')
+      .filter((s) => s);
+
+    const currentDate = new Date();
+
+    const activeProds = resProds.filter((p) => {
+      if (
+        p.Starting_Date &&
+        p.Starting_Date !== '0001-01-01' &&
+        new Date(p.Starting_Date) > currentDate
+      ) {
+        return false;
+      }
+
+      if (
+        p.Ending_Date &&
+        p.Ending_Date !== '0001-01-01' &&
+        new Date(p.Ending_Date) < currentDate
+      ) {
+        return false;
+      }
+
+      return true;
+    });
+
+    if (!activeProds.length) {
+      return { resPrice: 0, resProd: {} };
+    }
+
+    for (const sortStr of sorts) {
+      const onlineProds = activeProds.filter((a) => a.Sales_Code === sortStr);
+
+      if (onlineProds.length) {
+        return getPriceForList(onlineProds);
+      }
+    }
+
+    const otherFilter = resProds.filter((p) => !sorts.includes(p.Sales_Code));
+
+    if (!otherFilter.length) {
+      return { resPrice: 0, resProd: {} };
+    }
+
+    return getPriceForList(otherFilter);
+  } catch (e) {
+    console.log(e, 'error');
+    return { resPrice: 0, resProd: {} };
   }
 };

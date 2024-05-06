@@ -1,15 +1,11 @@
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { ButtonMutate, Spinner, withProps } from '@erxes/ui/src';
-import { IUser, UsersQueryResponse } from '@erxes/ui/src/auth/types';
+import { gql, useQuery } from '@apollo/client';
+import { ButtonMutate, Spinner, __ } from '@erxes/ui/src';
 import {
   BranchesMainQueryResponse,
   DepartmentsMainQueryResponse,
-  UnitsMainQueryResponse
+  UnitsMainQueryResponse,
 } from '@erxes/ui/src/team/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
-import * as compose from 'lodash.flowright';
 import React from 'react';
 import GoalTypeForm from '../components/goalForm';
 import { mutations, queries } from '../graphql';
@@ -21,93 +17,79 @@ type Props = {
   closeModal: () => void;
 };
 
-type FinalProps = {
-  usersQuery: UsersQueryResponse;
-  currentUser: IUser;
-  branchListQuery: BranchesMainQueryResponse;
-  unitListQuery: UnitsMainQueryResponse;
-  departmentListQuery: DepartmentsMainQueryResponse;
-} & Props;
+const goalForm = (props: Props) => {
+  const { closeModal, getAssociatedGoalType } = props;
 
-class GoalTypeFromContainer extends React.Component<FinalProps> {
-  render() {
-    const { branchListQuery, unitListQuery, departmentListQuery } = this.props;
+  const branchListQuery = useQuery<BranchesMainQueryResponse>(
+    gql(queries.branchesMain),
+    {
+      variables: {
+        withoutUserFilter: true,
+      },
+    },
+  );
 
-    if (
-      branchListQuery.loading ||
-      unitListQuery.loading ||
-      departmentListQuery.loading
-    ) {
-      return <Spinner />;
-    }
+  const unitListQuery = useQuery<UnitsMainQueryResponse>(
+    gql(queries.unitsMain),
+    {
+      variables: {
+        withoutUserFilter: true,
+      },
+    },
+  );
 
-    const renderButton = ({
-      name,
-      values,
-      isSubmitted,
-      object
-    }: IButtonMutateProps) => {
-      const { closeModal, getAssociatedGoalType } = this.props;
-      const afterSave = data => {
-        closeModal();
+  const departmentListQuery = useQuery<DepartmentsMainQueryResponse>(
+    gql(queries.departmentsMain),
+    {
+      variables: {
+        withoutUserFilter: true,
+      },
+    },
+  );
 
-        if (getAssociatedGoalType) {
-          getAssociatedGoalType(data.goalTypesAdd);
-        }
-      };
-      return (
-        <ButtonMutate
-          mutation={object ? mutations.goalTypesEdit : mutations.goalTypesAdd}
-          variables={values}
-          callback={afterSave}
-          refetchQueries={getRefetchQueries()}
-          isSubmitted={isSubmitted}
-          type="submit"
-          successMessage={`You successfully ${
-            object ? 'updated' : 'added'
-          } a ${name}`}
-        >
-          {__('Save')}
-        </ButtonMutate>
-      );
-    };
-
-    const updatedProps = {
-      ...this.props,
-      renderButton
-    };
-    return <GoalTypeForm segmentIds={[]} {...updatedProps} />;
+  if (
+    branchListQuery.loading ||
+    unitListQuery.loading ||
+    departmentListQuery.loading
+  ) {
+    return <Spinner />;
   }
-}
 
-const getRefetchQueries = () => {
-  return ['goalTypesMain', 'goalTypeDetail', 'goalTypes'];
+  const renderButton = ({
+    name,
+    values,
+    isSubmitted,
+    object,
+  }: IButtonMutateProps) => {
+    const afterSave = (data) => {
+      closeModal();
+
+      if (getAssociatedGoalType) {
+        getAssociatedGoalType(data.goalTypesAdd);
+      }
+    };
+    return (
+      <ButtonMutate
+        mutation={object ? mutations.goalTypesEdit : mutations.goalTypesAdd}
+        variables={values}
+        callback={afterSave}
+        refetchQueries={['goalTypesMain', 'goalTypeDetail', 'goalTypes']}
+        isSubmitted={isSubmitted}
+        type="submit"
+        successMessage={`You successfully ${
+          object ? 'updated' : 'added'
+        } a ${name}`}
+      >
+        {__('Save')}
+      </ButtonMutate>
+    );
+  };
+
+  const updatedProps = {
+    ...props,
+    renderButton,
+  };
+  return <GoalTypeForm segmentIds={[]} {...updatedProps} />;
 };
-export default withProps<{}>(
-  compose(
-    graphql<{}>(gql(queries.branchesMain), {
-      name: 'branchListQuery',
-      options: () => ({
-        variables: {
-          withoutUserFilter: true
-        }
-      })
-    }),
-    graphql<{}>(gql(queries.unitsMain), {
-      name: 'unitListQuery',
-      options: () => ({
-        variables: {
-          withoutUserFilter: true
-        }
-      })
-    }),
-    graphql<{}>(gql(queries.departmentsMain), {
-      name: 'departmentListQuery',
-      options: () => ({
-        variables: {
-          withoutUserFilter: true
-        }
-      })
-    })
-  )(GoalTypeFromContainer)
-);
+
+export default goalForm;

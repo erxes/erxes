@@ -21,11 +21,11 @@ const resolvers: any = async () => ({
   ScheduleConfig,
   Timelog,
   Mutation: {
-    ...mutations
+    ...mutations,
   },
   Query: {
-    ...queries
-  }
+    ...queries,
+  },
 });
 
 export default resolvers;

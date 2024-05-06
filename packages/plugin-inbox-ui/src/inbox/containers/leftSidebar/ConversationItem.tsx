@@ -1,6 +1,6 @@
 import ConversationItem from '../../components/leftSidebar/ConversationItem';
-import React from 'react';
 import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
+import React from 'react';
 
 type Props = {
   conversation: IConversation;
@@ -10,15 +10,15 @@ type Props = {
   selectedIds?: string[];
 };
 
-export default class ConversationItemContainer extends React.Component<Props> {
-  render() {
-    const { conversation, currentConversationId } = this.props;
+const ConversationItemContainer: React.FC<Props> = (props) => {
+  const { conversation, currentConversationId } = props;
 
-    const updatedProps = {
-      ...this.props,
-      isActive: conversation._id === currentConversationId
-    };
+  const updatedProps = {
+    ...props,
+    isActive: conversation._id === currentConversationId,
+  };
 
-    return <ConversationItem {...updatedProps} />;
-  }
-}
+  return <ConversationItem {...updatedProps} />;
+};
+
+export default ConversationItemContainer;

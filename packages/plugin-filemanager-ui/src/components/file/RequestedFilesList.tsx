@@ -1,16 +1,16 @@
-import { IAccessRequests, IFile } from '../../types';
-import { __, renderUserFullName } from '@erxes/ui/src/utils/core';
+import { IAccessRequests, IFile } from "../../types";
+import { __, renderUserFullName } from "@erxes/ui/src/utils/core";
 
-import Button from '@erxes/ui/src/components/Button';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { ItemName } from '../../styles';
-import Label from '@erxes/ui/src/components/Label';
-import React from 'react';
-import Table from '@erxes/ui/src/components/table';
-import Tip from '@erxes/ui/src/components/Tip';
-import dayjs from 'dayjs';
-import { renderFileIcon } from '../../utils';
-import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
+import Button from "@erxes/ui/src/components/Button";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { ItemName } from "../../styles";
+import Label from "@erxes/ui/src/components/Label";
+import React from "react";
+import Table from "@erxes/ui/src/components/table";
+import Tip from "@erxes/ui/src/components/Tip";
+import dayjs from "dayjs";
+import { renderFileIcon } from "../../utils";
+import withTableWrapper from "@erxes/ui/src/components/table/withTableWrapper";
 
 type Props = {
   requests: IAccessRequests[];
@@ -35,56 +35,60 @@ class RequestedFileList extends React.Component<Props> {
     return (
       <withTableWrapper.Wrapper>
         <Table
-          whiteSpace="nowrap"
-          hover={true}
-          bordered={true}
-          responsive={true}
-          wideHeader={true}
+          $whiteSpace="nowrap"
+          $hover={true}
+          $bordered={true}
+          $responsive={true}
+          $wideHeader={true}
         >
           <thead>
             <tr>
-              <th style={{ paddingLeft: '0' }}>
-                <ItemName>{__('Name')}</ItemName>
+              <th style={{ paddingLeft: "0" }}>
+                <ItemName>{__("Name")}</ItemName>
               </th>
               <th>
-                <ItemName>{__('Size')}</ItemName>
+                <ItemName>{__("Size")}</ItemName>
               </th>
               <th>
-                <ItemName>{__('Type')}</ItemName>
+                <ItemName>{__("Type")}</ItemName>
               </th>
               <th>
-                <ItemName>{__('Status')}</ItemName>
+                <ItemName>{__("Status")}</ItemName>
               </th>
               <th>
-                <ItemName>{__('Description')}</ItemName>
+                <ItemName>{__("Description")}</ItemName>
               </th>
               <th>
                 <ItemName>
-                  {hideActions ? __('User') : __('Requested user')}
+                  {hideActions ? __("User") : __("Requested user")}
                 </ItemName>
               </th>
               <th>
-                <ItemName>{__('Created Date')}</ItemName>
+                <ItemName>{__("Created Date")}</ItemName>
               </th>
               {!hideActions && (
                 <th>
-                  <ItemName>{__('Actions')}</ItemName>
+                  <ItemName>{__("Actions")}</ItemName>
                 </th>
               )}
             </tr>
           </thead>
           <tbody id="fileManagerfiles">
-            {requests.map(item => {
-              const { type, name, contentType, info = {} as any } =
-                item && item.file ? item.file : ({} as IFile);
+            {requests.map((item) => {
+              const {
+                type,
+                name,
+                contentType,
+                info = {} as any,
+              } = item && item.file ? item.file : ({} as IFile);
 
               return (
                 <tr key={item._id} className="crow">
-                  <td style={{ paddingLeft: '0' }}>
+                  <td style={{ paddingLeft: "0" }}>
                     <ItemName>
                       <a>
                         {renderFileIcon(
-                          type === 'dynamic' ? 'aaa.dynamic' : info.name
+                          type === "dynamic" ? "aaa.dynamic" : info.name
                         )}
                         {contentType ? name : info.name}
                       </a>
@@ -95,13 +99,13 @@ class RequestedFileList extends React.Component<Props> {
                   <td>
                     <Label ignoreTrans={true}>{item.status}</Label>
                   </td>
-                  <td>{item.description || '-'}</td>
+                  <td>{item.description || "-"}</td>
                   <td>
                     {renderUserFullName(
                       hideActions ? item.toUser || {} : item.fromUser || {}
                     )}
                   </td>
-                  <td>{dayjs(item.createdAt).format('MMMM D, YYYY h:mm A')}</td>
+                  <td>{dayjs(item.createdAt).format("MMMM D, YYYY h:mm A")}</td>
                   {!hideActions && (
                     <td>
                       <Button
@@ -111,8 +115,8 @@ class RequestedFileList extends React.Component<Props> {
                         onClick={() => onConfirm(item._id)}
                       >
                         {this.props.type
-                          ? 'Acknowledge request'
-                          : 'Confirm request'}
+                          ? "Acknowledge request"
+                          : "Confirm request"}
                       </Button>
                     </td>
                   )}

@@ -5,14 +5,13 @@ import {
   ControlLabel,
   Form,
   FormControl,
-  FormGroup,
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
+  MainStyleScrollWrapper as ScrollWrapper,
 } from '@erxes/ui/src';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
+import React, { useState } from 'react';
 
 import { ChangeAmount, ExtraDebtSection } from '../../contracts/styles';
 import { ITransaction, ITransactionDoc } from '../types';
@@ -23,31 +22,16 @@ type Props = {
   closeModal: () => void;
 };
 
-type State = {
-  total: number;
-  payment: number;
-  maxTotal: number;
-  firstTotal: number;
-};
+const TransactionForm = (props: Props) => {
+  const { transaction } = props;
+  const [total, setTotal] = useState(transaction.total || 0);
+  const [payment, setPayment] = useState(transaction.payment || 0);
+  const [maxTotal, setMaxTotal] = useState(Math.max(transaction.total || 0));
+  const [firstTotal, setFirstTotal] = useState(
+    (transaction.total || 0) - (transaction.futureDebt || 0),
+  );
 
-class TransactionForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    const { transaction = {}, invoice } = props;
-
-    this.state = {
-      total: transaction.total || 0,
-      payment: transaction.payment || 0,
-
-      maxTotal: Math.max(transaction.total || 0),
-      firstTotal: (transaction.total || 0) - (transaction.futureDebt || 0)
-    };
-  }
-
-  generateDoc = (values: { _id: string } & ITransactionDoc) => {
-    const { transaction } = this.props;
-
+  const generateDoc = (values: { _id: string } & ITransactionDoc) => {
     const finalValues = values;
 
     if (transaction && transaction._id) {
@@ -56,16 +40,15 @@ class TransactionForm extends React.Component<Props, State> {
 
     return {
       _id: finalValues._id,
-      payment: Number(this.state.payment || 0)
+      payment: Number(payment || 0),
     };
   };
 
-  onFieldClick = e => {
+  const onFieldClick = (e) => {
     e.target.select();
   };
 
-  checkValid = () => {
-    const { payment, maxTotal, firstTotal } = this.state;
+  const checkValid = () => {
     const total = Number(payment);
 
     if (total > maxTotal) {
@@ -79,7 +62,7 @@ class TransactionForm extends React.Component<Props, State> {
     return '';
   };
 
-  onChangeField = e => {
+  const onChangeField = (e) => {
     const name = (e.target as HTMLInputElement).name;
     let value = Number((e.target as HTMLInputElement).value);
 
@@ -87,33 +70,28 @@ class TransactionForm extends React.Component<Props, State> {
       value = 0;
     }
 
-    this.setState({ [name]: value } as any);
+    if (name === 'total') {
+      setTotal(value as any);
+    }
+    if (name === 'payment') {
+      setPayment(value as any);
+    }
 
     setTimeout(() => {
-      const validErr = this.checkValid();
+      const validErr = checkValid();
       if (validErr) {
         Alert.error(validErr);
       }
 
-      const { payment } = this.state;
       const total = Number(payment);
 
-      this.setState({ total });
+      setTotal(total);
     }, 300);
   };
 
-  renderFormGroup = (label, props) => {
-    return (
-      <FormGroup>
-        <ControlLabel>{label}</ControlLabel>
-        <FormControl {...props} />
-      </FormGroup>
-    );
-  };
-
-  renderRow = (formProps: IFormProps, label, fieldName) => {
-    const { transaction } = this.props;
+  const renderRow = (formProps: IFormProps, label, fieldName) => {
     const trVal = transaction[fieldName] || 0;
+    const val = fieldName === 'total' ? total : payment;
 
     return (
       <FormWrapper>
@@ -131,16 +109,16 @@ class TransactionForm extends React.Component<Props, State> {
             type={'number'}
             name={fieldName}
             min={0}
-            value={this.state[fieldName]}
-            onChange={this.onChangeField}
-            onClick={this.onFieldClick}
+            value={val}
+            onChange={onChangeField}
+            onClick={onFieldClick}
           />
         </FormColumn>
       </FormWrapper>
     );
   };
 
-  renderInfo = (formProps: IFormProps) => {
+  const renderInfo = (formProps: IFormProps) => {
     return (
       <>
         <FormWrapper>
@@ -160,13 +138,13 @@ class TransactionForm extends React.Component<Props, State> {
             <ControlLabel>{__(`Odd`)}</ControlLabel>
           </FormColumn>
         </FormWrapper>
-        {this.renderRow(formProps, 'total', 'total')}
-        {this.renderRow(formProps, 'payment', 'payment')}
+        {renderRow(formProps, 'total', 'total')}
+        {renderRow(formProps, 'payment', 'payment')}
       </>
     );
   };
 
-  renderExtraDebt = () => {
+  const renderExtraDebt = () => {
     return (
       <ExtraDebtSection>
         <FormWrapper>
@@ -186,18 +164,17 @@ class TransactionForm extends React.Component<Props, State> {
     );
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { transaction } = this.props;
-    const { closeModal, renderButton } = this.props;
+  const renderContent = (formProps: IFormProps) => {
+    const { closeModal, renderButton } = props;
     const { values, isSubmitted } = formProps;
 
     return (
       <>
         <ScrollWrapper>
           <FormWrapper>
-            <FormColumn>{this.renderInfo(formProps)}</FormColumn>
+            <FormColumn>{renderInfo(formProps)}</FormColumn>
           </FormWrapper>
-          {this.renderExtraDebt()}
+          {renderExtraDebt()}
         </ScrollWrapper>
 
         <ModalFooter>
@@ -205,18 +182,16 @@ class TransactionForm extends React.Component<Props, State> {
             {__('Close')}
           </Button>
           {renderButton({
-            values: this.generateDoc(values),
+            values: generateDoc(values),
             isSubmitted,
-            disableLoading: Boolean(this.checkValid())
+            disableLoading: Boolean(checkValid()),
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default TransactionForm;

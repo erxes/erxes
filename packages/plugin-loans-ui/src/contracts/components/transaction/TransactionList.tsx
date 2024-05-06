@@ -9,39 +9,31 @@ interface IProps {
   transactions: ITransaction[];
 }
 
-class TransactionList extends React.Component<IProps> {
-  constructor(props) {
-    super(props);
+const TransactionList = (props: IProps) => {
+  const { transactions } = props;
 
-    this.state = {};
-  }
-
-  render() {
-    const { transactions } = this.props;
-
-    return (
-      <Table striped>
-        <thead>
-          <tr>
-            <th>{__('Date')}</th>
-            <th>{__('Type')}</th>
-            <th>{__('Loan Payment')}</th>
-            <th>{__('Interest')}</th>
-            <th>{__('Loss')}</th>
-            <th>{__('Total')}</th>
-          </tr>
-        </thead>
-        <tbody id="schedules">
-          {transactions.map(transaction => (
-            <TransactionRow
-              transaction={transaction}
-              key={transaction._id}
-            ></TransactionRow>
-          ))}
-        </tbody>
-      </Table>
-    );
-  }
-}
+  return (
+    <Table striped>
+      <thead>
+        <tr>
+          <th>{__('Date')}</th>
+          <th>{__('Type')}</th>
+          <th>{__('Loan Payment')}</th>
+          <th>{__('Interest')}</th>
+          <th>{__('Loss')}</th>
+          <th>{__('Total')}</th>
+        </tr>
+      </thead>
+      <tbody id="schedules">
+        {transactions.map((transaction) => (
+          <TransactionRow
+            transaction={transaction}
+            key={transaction._id}
+          ></TransactionRow>
+        ))}
+      </tbody>
+    </Table>
+  );
+};
 
 export default TransactionList;

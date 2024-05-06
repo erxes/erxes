@@ -1,30 +1,26 @@
+import { BarItems, Wrapper } from "@erxes/ui/src/layout";
 import {
   DataWithLoader,
   ModalTrigger,
   Pagination,
   Table,
-} from '@erxes/ui/src/components';
-import { __ } from '@erxes/ui/src/utils';
-import { Wrapper, BarItems } from '@erxes/ui/src/layout';
-import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
+} from "@erxes/ui/src/components";
+import { IQueryParams } from "@erxes/ui/src/types";
 
-import { TableWrapper } from '../styles';
-import { IPutResponse } from '../types';
-import RightMenu from './RightMenuDuplicated';
-import { SUB_MENUS } from '../constants';
-import DetailDuplicated from '../containers/DetailDuplicated';
+import DetailDuplicated from "../containers/DetailDuplicated";
+import { IPutResponse } from "../types";
+import React from "react";
+import RightMenu from "./RightMenuDuplicated";
+import { SUB_MENUS } from "../constants";
+import { TableWrapper } from "../styles";
+import { __ } from "@erxes/ui/src/utils";
 
-interface IProps extends IRouterProps {
+interface IProps {
   errorMsg: string;
   putResponsesDuplicated: IPutResponse[];
   loading: boolean;
   totalCount: number;
-  sumAmount: number;
-  bulk: any[];
-  isAllSelected: boolean;
-  history: any;
+  sumAmount?: number;
   queryParams: any;
 
   onFilter: (filterParams: IQueryParams) => void;
@@ -32,9 +28,7 @@ interface IProps extends IRouterProps {
   clearFilter: () => void;
 }
 
-type State = {};
-
-class PutResponsesDuplicated extends React.Component<IProps, State> {
+class PutResponsesDuplicated extends React.Component<IProps> {
   renderRow(putResponse, index) {
     const { _id, date, number, count } = putResponse;
 
@@ -61,7 +55,7 @@ class PutResponsesDuplicated extends React.Component<IProps, State> {
         autoOpenKey="showProductModal"
         paddingContent="less-padding"
         content={modalContent}
-        size={'xl'}
+        size={"xl"}
       />
     );
   }
@@ -81,18 +75,18 @@ class PutResponsesDuplicated extends React.Component<IProps, State> {
 
     const mainContent = (
       <TableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
           <thead>
             <tr>
-              <th>{__('№')}</th>
-              <th>{__('Date')}</th>
-              <th>{__('Number')}</th>
-              <th>{__('Count')}</th>
+              <th>{__("№")}</th>
+              <th>{__("Date")}</th>
+              <th>{__("Number")}</th>
+              <th>{__("Count")}</th>
             </tr>
           </thead>
           <tbody id="putResponses">
             {(putResponsesDuplicated || []).map((putResponse, index) =>
-              this.renderRow(putResponse, index),
+              this.renderRow(putResponse, index)
             )}
           </tbody>
         </Table>
@@ -139,8 +133,8 @@ class PutResponsesDuplicated extends React.Component<IProps, State> {
             loading={loading}
             count={totalCount}
             emptyText={
-              errorMsg.replace('GraphQL error: ', '') ||
-              'not found duplicated putResponse!'
+              errorMsg.replace("GraphQL error: ", "") ||
+              "not found duplicated putResponse!"
             }
             emptyImage="/images/actions/1.svg"
           />
@@ -150,4 +144,4 @@ class PutResponsesDuplicated extends React.Component<IProps, State> {
   }
 }
 
-export default withRouter<IRouterProps>(PutResponsesDuplicated);
+export default PutResponsesDuplicated;

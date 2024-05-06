@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Button,
   ControlLabel,
@@ -7,24 +7,24 @@ import {
   FormGroup,
   DateControl,
   Uploader,
-} from '@erxes/ui/src/components';
-import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
+} from "@erxes/ui/src/components";
+import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
 import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
   MainStyleDateContainer as DateContainer,
-} from '@erxes/ui/src/styles/eindex';
+} from "@erxes/ui/src/styles/eindex";
 import {
   IAttachment,
   IButtonMutateProps,
   IFormProps,
-} from '@erxes/ui/src/types';
-import { ISpinCampaign, ISpinCampaignAward } from '../types';
-import Select from 'react-select-plus';
-import { extractAttachment, __ } from '@erxes/ui/src/utils';
-import { IVoucherCampaign } from '../../voucherCampaign/types';
+} from "@erxes/ui/src/types";
+import { ISpinCampaign, ISpinCampaignAward } from "../types";
+import Select from "react-select";
+import { extractAttachment, __ } from "@erxes/ui/src/utils";
+import { IVoucherCampaign } from "../../voucherCampaign/types";
 
 type Props = {
   spinCampaign?: ISpinCampaign;
@@ -65,7 +65,7 @@ class Form extends React.Component<Props, State> {
       awards:
         (spinCampaign.awards &&
           spinCampaign.awards.sort(
-            (a, b) => (a.probability || 0) - (b.probability || 0),
+            (a, b) => (a.probability || 0) - (b.probability || 0)
           )) ||
         [],
     };
@@ -122,9 +122,9 @@ class Form extends React.Component<Props, State> {
     const { awards = [] } = spinCampaign;
     awards.push({
       _id: Math.random().toString(),
-      name: '',
+      name: "",
       probability: 0,
-      voucherCampaignId: '',
+      voucherCampaignId: "",
     });
     spinCampaign.awards = awards;
     this.setState({ spinCampaign });
@@ -142,25 +142,30 @@ class Form extends React.Component<Props, State> {
       const { spinCampaign } = this.state;
 
       const awards = (spinCampaign.awards || []).map(
-        (a) => (a._id === award._id && { ...award, [key]: value }) || a,
+        (a) => (a._id === award._id && { ...award, [key]: value }) || a
       );
       this.setState({ spinCampaign: { ...spinCampaign, awards } });
     };
     const onChangeName = (e) => {
       e.preventDefault();
       const value = e.target.value;
-      changeAward('name', value);
+      changeAward("name", value);
     };
     const onChangeProbability = (e) => {
       e.preventDefault();
       const value = e.target.value;
-      changeAward('probability', value);
+      changeAward("probability", value);
     };
 
     const onChangeVoucherCampaign = (selected) => {
       const value = (selected || {}).value;
-      changeAward('voucherCampaignId', value);
+      changeAward("voucherCampaignId", value);
     };
+
+    const voucherOptions = this.props.voucherCampaigns.map((voucher) => ({
+      label: `${voucher.title}`,
+      value: voucher._id,
+    }));
 
     return (
       <FormWrapper key={award._id}>
@@ -175,15 +180,15 @@ class Form extends React.Component<Props, State> {
         </FormColumn>
         <FormColumn>
           <Select
-            placeholder={__('Choose voucher')}
-            value={award.voucherCampaignId}
-            options={this.props.voucherCampaigns.map((voucher) => ({
-              label: `${voucher.title}`,
-              value: voucher._id,
-            }))}
+            placeholder={__("Choose voucher")}
+            value={voucherOptions.find(
+              (o) => o.value === award.voucherCampaignId
+            )}
+            options={voucherOptions}
             name="voucherCampaignId"
+            isClearable={true}
             onChange={onChangeVoucherCampaign}
-            loadingPlaceholder={__('Loading...')}
+            // loadingPlaceholder={__('Loading...')}
           />
         </FormColumn>
         <FormColumn>
@@ -212,7 +217,7 @@ class Form extends React.Component<Props, State> {
 
   renderAwards = (formProps) => {
     return (this.state.spinCampaign.awards || []).map((award) =>
-      this.renderAward(award, formProps),
+      this.renderAward(award, formProps)
     );
   };
 
@@ -257,9 +262,9 @@ class Form extends React.Component<Props, State> {
                     {...formProps}
                     required={true}
                     name="startDate"
-                    placeholder={__('Start date')}
+                    placeholder={__("Start date")}
                     value={spinCampaign.startDate}
-                    onChange={this.onDateInputChange.bind(this, 'startDate')}
+                    onChange={this.onDateInputChange.bind(this, "startDate")}
                   />
                 </DateContainer>
               </FormGroup>
@@ -273,9 +278,9 @@ class Form extends React.Component<Props, State> {
                     {...formProps}
                     required={true}
                     name="endDate"
-                    placeholder={__('End date')}
+                    placeholder={__("End date")}
                     value={spinCampaign.endDate}
-                    onChange={this.onDateInputChange.bind(this, 'endDate')}
+                    onChange={this.onDateInputChange.bind(this, "endDate")}
                   />
                 </DateContainer>
               </FormGroup>
@@ -289,11 +294,11 @@ class Form extends React.Component<Props, State> {
                     {...formProps}
                     required={true}
                     name="finishDateOfUse"
-                    placeholder={__('Finish Date of Use')}
+                    placeholder={__("Finish Date of Use")}
                     value={spinCampaign.finishDateOfUse}
                     onChange={this.onDateInputChange.bind(
                       this,
-                      'finishDateOfUse',
+                      "finishDateOfUse"
                     )}
                   />
                 </DateContainer>
@@ -329,7 +334,7 @@ class Form extends React.Component<Props, State> {
               <ControlLabel required={true}>Probability</ControlLabel>
             </FormColumn>
             <Button btnStyle="simple" icon="add" onClick={this.onAddAward}>
-              {__('Add level')}
+              {__("Add level")}
             </Button>
           </FormWrapper>
           {this.renderAwards(formProps)}
@@ -338,20 +343,20 @@ class Form extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Description</ControlLabel>
             <RichTextEditor
-              content={spinCampaign.description || ''}
+              content={spinCampaign.description || ""}
               onChange={this.onChangeDescription}
               height={150}
               isSubmitted={formProps.isSaved}
               name={`spinCampaign_description_${spinCampaign.description}`}
               toolbar={[
-                'bold',
-                'italic',
-                'orderedList',
-                'bulletList',
-                'link',
-                'unlink',
-                '|',
-                'image',
+                "bold",
+                "italic",
+                "orderedList",
+                "bulletList",
+                "link",
+                "unlink",
+                "|",
+                "image",
               ]}
             />
           </FormGroup>
@@ -378,7 +383,7 @@ class Form extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'spin Campaign',
+            name: "spin Campaign",
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,

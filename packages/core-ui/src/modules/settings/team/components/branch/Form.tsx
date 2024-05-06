@@ -1,15 +1,15 @@
-import { FormControl, FormGroup } from '@erxes/ui/src/components/form';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React, { useState } from 'react';
+import { FormControl, FormGroup } from "@erxes/ui/src/components/form";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import React, { useState } from "react";
 
-import Button from '@erxes/ui/src/components/Button';
-import ContactInfoForm from '../common/ContactInfoForm';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Form from '@erxes/ui/src/components/form/Form';
-import { IBranch } from '@erxes/ui/src/team/types';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { __ } from 'modules/common/utils';
+import Button from "@erxes/ui/src/components/Button";
+import ContactInfoForm from "../common/ContactInfoForm";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Form from "@erxes/ui/src/components/form/Form";
+import { IBranch } from "@erxes/ui/src/team/types";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import { __ } from "modules/common/utils";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -23,7 +23,7 @@ export default function BranchForm(props: Props) {
   const object = item || ({} as IBranch);
 
   const [userIds, setUserIds] = useState(
-    (object.users || []).map(user => user._id)
+    (object.users || []).map((user) => user._id)
   );
   const [parentId, setParentId] = useState(object.parentId || null);
   const [links, setLinks] = useState(object.links || {});
@@ -33,11 +33,11 @@ export default function BranchForm(props: Props) {
   const coordinateObj = object.coordinate || {};
 
   const [coordinate, setCoordinate] = useState({
-    longitude: coordinateObj.longitude || '',
-    latitude: coordinateObj.latitude || ''
+    longitude: coordinateObj.longitude || "",
+    latitude: coordinateObj.latitude || "",
   });
 
-  const generateDoc = values => {
+  const generateDoc = (values) => {
     const finalValues = values;
 
     if (object) {
@@ -52,7 +52,7 @@ export default function BranchForm(props: Props) {
       supervisorId,
       image,
       ...finalValues,
-      radius: Number(finalValues.radius)
+      radius: Number(finalValues.radius),
     };
   };
 
@@ -68,7 +68,7 @@ export default function BranchForm(props: Props) {
     setUserIds(ids);
   };
 
-  const onSelectSupervisor = value => {
+  const onSelectSupervisor = (value) => {
     setSupervisorId(value);
   };
 
@@ -76,7 +76,7 @@ export default function BranchForm(props: Props) {
     const { values, isSubmitted } = formProps;
 
     const generateOptions = () => {
-      return items.map(branch => (
+      return items.map((branch) => (
         <option key={branch._id} value={branch._id}>
           {branch.title}
         </option>
@@ -86,7 +86,7 @@ export default function BranchForm(props: Props) {
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>{__('Title')}</ControlLabel>
+          <ControlLabel required={true}>{__("Title")}</ControlLabel>
           <FormControl
             {...formProps}
             name="title"
@@ -96,17 +96,17 @@ export default function BranchForm(props: Props) {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel required={true}>{__('Address')}</ControlLabel>
+          <ControlLabel required={true}>{__("Address")}</ControlLabel>
           <FormControl
             {...formProps}
             required={true}
             name="address"
             defaultValue={object.address}
-            componentClass="textarea"
+            componentclass="textarea"
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel required={true}>{__('Code')}</ControlLabel>
+          <ControlLabel required={true}>{__("Code")}</ControlLabel>
           <FormControl
             {...formProps}
             required={true}
@@ -115,7 +115,7 @@ export default function BranchForm(props: Props) {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Supervisor')}</ControlLabel>
+          <ControlLabel>{__("Supervisor")}</ControlLabel>
 
           <SelectTeamMembers
             label="Choose supervisor"
@@ -127,11 +127,11 @@ export default function BranchForm(props: Props) {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__('Parent')}</ControlLabel>
+          <ControlLabel>{__("Parent")}</ControlLabel>
           <FormControl
             {...formProps}
             name="parentId"
-            componentClass="select"
+            componentclass="select"
             defaultValue={parentId || null}
             onChange={onChangeParent}
           >
@@ -140,7 +140,7 @@ export default function BranchForm(props: Props) {
           </FormControl>
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Team Members')}</ControlLabel>
+          <ControlLabel>{__("Team Members")}</ControlLabel>
 
           <SelectTeamMembers
             label="Choose team members"
@@ -161,7 +161,7 @@ export default function BranchForm(props: Props) {
           image={image}
         />
         <FormGroup>
-          <ControlLabel>{__('Radius')}</ControlLabel>
+          <ControlLabel>{__("Radius")}</ControlLabel>
           <FormControl
             {...formProps}
             name="radius"
@@ -183,7 +183,7 @@ export default function BranchForm(props: Props) {
             values: generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object
+            object,
           })}
         </ModalFooter>
       </>

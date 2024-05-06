@@ -6,8 +6,12 @@
     "build": "yarn tsc"
   },
   "dependencies": {
-    "@apollo/client": "~3.7.14",
+    "@apollo/client": "^3.9.5",
+    "@envelop/core": "^5.0.0",
     "@erxes/api-utils": "*",
+    "@escape.tech/graphql-armor-character-limit": "^2.1.0",
+    "@escape.tech/graphql-armor-max-aliases": "^2.3.0",
+    "@escape.tech/graphql-armor-max-depth": "^2.2.0",
     "@graphql-tools/schema": "^9.0.16",
     "agentkeepalive": "^4.3.0",
     "cookie-parser": "^1.4.6",

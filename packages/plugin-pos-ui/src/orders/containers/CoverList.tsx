@@ -1,97 +1,84 @@
-import * as compose from 'lodash.flowright';
-import { gql } from '@apollo/client';
-import List from '../components/CoverList';
-import queryString from 'query-string';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { IRouterProps } from '@erxes/ui/src/types';
+import { Alert, Bulk, Spinner, confirm, router } from "@erxes/ui/src";
 import {
-  ListQueryVariables,
+  CoversCountQueryResponse,
   CoversQueryResponse,
   RemoveCoverMutationResponse,
-  CoversCountQueryResponse
-} from '../types';
-import { mutations, queries } from '../graphql';
-import { withRouter } from 'react-router-dom';
-import {
-  Alert,
-  confirm,
-  withProps,
-  Bulk,
-  router,
-  Spinner
-} from '@erxes/ui/src';
-import { FILTER_PARAMS } from '../../constants';
-import { IQueryParams } from '@erxes/ui/src/types';
+} from "../types";
+import { mutations, queries } from "../graphql";
+
+import { FILTER_PARAMS } from "../../constants";
+import { IQueryParams } from "@erxes/ui/src/types";
+import List from "../components/CoverList";
+import React from "react";
+import { gql, useQuery, useMutation } from "@apollo/client";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
-type FinalProps = {
-  coversQuery: CoversQueryResponse;
-  coversCountQuery: CoversCountQueryResponse;
-} & Props &
-  RemoveCoverMutationResponse &
-  IRouterProps;
+const CoverListContainer = (props: Props) => {
+  const { queryParams } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
-type State = {
-  loading: boolean;
-};
+  const coversQuery = useQuery<CoversQueryResponse>(gql(queries.covers), {
+    variables: generateParams({ queryParams } || {}),
+    fetchPolicy: "network-only",
+  });
 
-const generateQueryParams = ({ location }) => {
-  return queryString.parse(location.search);
-};
+  const coversCountQuery = useQuery<CoversCountQueryResponse>(
+    gql(queries.coversCount),
+    {
+      variables: generateParams({ queryParams } || {}),
+      fetchPolicy: "network-only",
+    }
+  );
 
-class OrdersContainer extends React.Component<FinalProps, State> {
-  constructor(props) {
-    super(props);
+  const [removeCover] = useMutation<RemoveCoverMutationResponse>(
+    gql(mutations.coversRemove)
+  );
 
-    this.state = {
-      loading: false
-    };
+  if (coversQuery.loading || coversCountQuery.loading) {
+    return <Spinner />;
   }
 
-  onSearch = (search: string) => {
-    router.removeParams(this.props.history, 'page');
+  const onSearch = (search: string) => {
+    router.removeParams(navigate, location, "page");
 
     if (!search) {
-      return router.removeParams(this.props.history, 'search');
+      return router.removeParams(navigate, location, "search");
     }
 
-    router.setParams(this.props.history, { search });
+    router.setParams(navigate, location, { search });
   };
 
-  onSelect = (values: string[] | string, key: string) => {
-    const params = generateQueryParams(this.props.history);
-    router.removeParams(this.props.history, 'page');
+  const onSelect = (values: string[] | string, key: string) => {
+    router.removeParams(navigate, location, "page");
 
-    if (params[key] === values) {
-      return router.removeParams(this.props.history, key);
+    if (queryParams.params[key] === values) {
+      return router.removeParams(navigate, location, key);
     }
 
-    return router.setParams(this.props.history, { [key]: values });
+    return router.setParams(navigate, location, { [key]: values });
   };
 
-  onFilter = (filterParams: IQueryParams) => {
-    router.removeParams(this.props.history, 'page');
+  const onFilter = (filterParams: IQueryParams) => {
+    router.removeParams(navigate, location, "page");
 
     for (const key of Object.keys(filterParams)) {
       if (filterParams[key]) {
-        router.setParams(this.props.history, { [key]: filterParams[key] });
+        router.setParams(navigate, location, { [key]: filterParams[key] });
       } else {
-        router.removeParams(this.props.history, key);
+        router.removeParams(navigate, location, key);
       }
     }
 
     return router;
   };
 
-  isFiltered = (): boolean => {
-    const params = generateQueryParams(this.props.history);
-
-    for (const param in params) {
+  const isFiltered = (): boolean => {
+    for (const param in queryParams) {
       if (FILTER_PARAMS.includes(param)) {
         return true;
       }
@@ -100,63 +87,56 @@ class OrdersContainer extends React.Component<FinalProps, State> {
     return false;
   };
 
-  clearFilter = () => {
-    const params = generateQueryParams(this.props.history);
-    router.removeParams(this.props.history, ...Object.keys(params));
+  const clearFilter = () => {
+    router.removeParams(navigate, location, ...Object.keys(queryParams));
   };
 
-  render() {
-    const { coversQuery, coversCountQuery, removeCover } = this.props;
+  const remove = (_id: string) => {
+    const message = "Are you sure?";
 
-    if (coversQuery.loading || coversCountQuery.loading) {
-      return <Spinner />;
-    }
+    confirm(message).then(() => {
+      removeCover({
+        variables: { _id },
+      })
+        .then(() => {
+          // refresh queries
+          coversQuery.refetch();
 
-    const remove = (_id: string) => {
-      const message = 'Are you sure?';
-
-      confirm(message).then(() => {
-        removeCover({
-          variables: { _id }
+          Alert.success("You successfully deleted a pos.");
         })
-          .then(() => {
-            // refresh queries
-            coversQuery.refetch();
+        .catch((e) => {
+          Alert.error(e.message);
+        });
+    });
+  };
 
-            Alert.success('You successfully deleted a pos.');
-          })
-          .catch(e => {
-            Alert.error(e.message);
-          });
-      });
-    };
-
-    const covers = coversQuery.posCovers || [];
-    const coversCount = coversCountQuery.posCoversCount || [];
+  const ordersList = (bulkProps) => {
+    const covers = coversQuery?.data?.posCovers || [];
+    const coversCount = coversCountQuery?.data?.posCoversCount || 0;
+    const loading = coversQuery.loading || coversCountQuery.loading;
 
     const updatedProps = {
-      ...this.props,
+      ...props,
       covers,
-      onFilter: this.onFilter,
-      onSelect: this.onSelect,
-      onSearch: this.onSearch,
-      isFiltered: this.isFiltered(),
-      clearFilter: this.clearFilter,
+      onFilter,
+      onSelect,
+      onSearch,
+      isFiltered: isFiltered(),
+      clearFilter,
       remove,
-      coversCount
+      coversCount,
+      loading,
     };
 
-    const ordersList = props => {
-      return <List {...updatedProps} {...props} />;
-    };
+    return <List {...updatedProps} {...bulkProps} />;
+  };
 
-    const refetch = () => {
-      this.props.coversQuery.refetch();
-    };
+  const refetch = () => {
+    coversQuery.refetch();
+  };
 
-    return <Bulk content={ordersList} refetch={refetch} />;
-  }
-}
+  return <Bulk content={ordersList} refetch={refetch} />;
+};
 
 const generateParams = ({ queryParams }) => ({
   ...router.generatePaginationParams(queryParams || {}),
@@ -168,36 +148,7 @@ const generateParams = ({ queryParams }) => ({
   endDate: queryParams.endDate,
   userId: queryParams.userId,
   posId: queryParams.posId,
-  posToken: queryParams.posToken
+  posToken: queryParams.posToken,
 });
 
-export default withProps<Props>(
-  compose(
-    graphql<{ queryParams: any }, CoversQueryResponse, ListQueryVariables>(
-      gql(queries.covers),
-      {
-        name: 'coversQuery',
-        options: ({ queryParams }) => ({
-          variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
-    graphql<{ queryParams: any }, CoversCountQueryResponse, ListQueryVariables>(
-      gql(queries.coversCount),
-      {
-        name: 'coversCountQuery',
-        options: ({ queryParams }) => ({
-          variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
-    graphql<Props, RemoveCoverMutationResponse, { _id: string }>(
-      gql(mutations.coversRemove),
-      {
-        name: 'removeCover'
-      }
-    )
-  )(withRouter<IRouterProps>(OrdersContainer))
-);
+export default CoverListContainer;

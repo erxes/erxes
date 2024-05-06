@@ -21,7 +21,8 @@ type Props = {
   kind?: string | null;
   editIntegration: (
     id: string,
-    { name, brandId, channelIds }: IntegrationMutationVariables
+    { name, brandId, channelIds, details }: IntegrationMutationVariables,
+    callback: () => void
   ) => void;
   queryParams: any;
   disableAction?: boolean;

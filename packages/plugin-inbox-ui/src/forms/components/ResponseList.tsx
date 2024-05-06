@@ -1,16 +1,16 @@
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { IField } from '@erxes/ui/src/types';
-import { IFormResponse } from '@erxes/ui-forms/src/forms/types';
-import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import React from 'react';
-import ResponseRow from './ResponseRow';
-import { SortHandler } from '@erxes/ui/src';
-import Table from '@erxes/ui/src/components/table';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils';
-import { getEnv } from 'coreui/utils';
+import Button from "@erxes/ui/src/components/Button";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import { IField } from "@erxes/ui/src/types";
+import { IFormResponse } from "@erxes/ui-forms/src/forms/types";
+import { IIntegration } from "@erxes/ui-inbox/src/settings/integrations/types";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import React from "react";
+import ResponseRow from "./ResponseRow";
+import { SortHandler } from "@erxes/ui/src";
+import Table from "@erxes/ui/src/components/table";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "@erxes/ui/src/utils";
+import { getEnv } from "coreui/utils";
 
 type Props = {
   integrationDetail: IIntegration;
@@ -24,8 +24,8 @@ type Props = {
 class List extends React.Component<Props, {}> {
   renderRow() {
     const { formSubmissions } = this.props;
-    const fieldIds = this.props.fields.map(f => f._id);
-    return formSubmissions.map(e => (
+    const fieldIds = this.props.fields.map((f) => f._id);
+    return formSubmissions.map((e) => (
       <ResponseRow
         key={e.contentTypeId}
         formSubmission={e}
@@ -41,7 +41,7 @@ class List extends React.Component<Props, {}> {
       loading,
       fields,
       formSubmissions,
-      integrationDetail
+      integrationDetail,
     } = this.props;
 
     queryParams.loadingMainQuery = loading;
@@ -50,7 +50,7 @@ class List extends React.Component<Props, {}> {
     const onClick = () => {
       window.open(
         `${REACT_APP_API_URL}/pl:contacts/file-export?type=customer&popupData=true&form=${integrationDetail.formId}`,
-        '_blank'
+        "_blank"
       );
     };
 
@@ -68,17 +68,17 @@ class List extends React.Component<Props, {}> {
     const actionBar = <Wrapper.ActionBar right={actionBarRight} />;
 
     const content = (
-      <Table whiteSpace="nowrap" hover={true}>
+      <Table $whiteSpace="nowrap" $hover={true}>
         <thead>
           <tr>
-            {fields.map(e => {
+            {fields.map((e) => {
               return (
                 <th key={e._id} id={e._id}>
                   <SortHandler sortField={e.text} label={e.text} />
                 </th>
               );
             })}
-            <th>{__('Submitted at')}</th>
+            <th>{__("Submitted at")}</th>
           </tr>
         </thead>
         <tbody>{this.renderRow()}</tbody>
@@ -89,8 +89,8 @@ class List extends React.Component<Props, {}> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Form responses')}
-            breadcrumb={[{ title: __('Responses') }]}
+            title={__("Form responses")}
+            breadcrumb={[{ title: __("Responses") }]}
             queryParams={queryParams}
           />
         }
@@ -101,7 +101,7 @@ class List extends React.Component<Props, {}> {
             data={content}
             loading={loading}
             count={formSubmissions.length}
-            emptyContent={'no responses'}
+            emptyContent={"no responses"}
           />
         }
       />

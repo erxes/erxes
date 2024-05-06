@@ -1,5 +1,3 @@
-import * as path from 'path';
-
 import BasicInfo from '../../containers/details/BasicInfo';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { IClientPortalUser } from '../../types';
@@ -19,17 +17,18 @@ const ActivityInputs = asyncComponent(
     isEnabled('logs') &&
     import(
       /* webpackChunkName: "ActivityInputs" */ '@erxes/ui-log/src/activityLogs/components/ActivityInputs'
-    )
+    ),
 );
 
 type Props = {
   clientPortalUser: IClientPortalUser;
   currentUser: IUser;
-  history: any;
 };
 
-class ClientPortalCompanyDetails extends React.Component<Props> {
-  renderContent(content) {
+const ClientPortalCompanyDetails: React.FC<Props> = (props: Props) => {
+  const { clientPortalUser } = props;
+
+  const renderContent = (content) => {
     if (isEnabled('logs')) {
       return content;
     }
@@ -41,48 +40,44 @@ class ClientPortalCompanyDetails extends React.Component<Props> {
         size="full"
       />
     );
-  }
+  };
 
-  render() {
-    const { clientPortalUser } = this.props;
+  const title = clientPortalUser.companyName || 'Unknown';
 
-    const title = clientPortalUser.companyName || 'Unknown';
+  const breadcrumb = [
+    {
+      title: __('ClientPortal Companies'),
+      link: '/settings/client-portal/user',
+    },
+    { title },
+  ];
 
-    const breadcrumb = [
-      {
-        title: __('ClientPortal Companies'),
-        link: '/settings/client-portal/user'
-      },
-      { title }
-    ];
-
-    const content = (
-      <>
-        <ActivityInputs
-          contentTypeId={clientPortalUser._id}
-          contentType="clientPortalUser"
-          showEmail={false}
-        />
-      </>
-    );
-
-    return (
-      <Wrapper
-        header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
-        mainHead={
-          <UserHeader>
-            <InfoSection clientPortalUser={clientPortalUser}>
-              <BasicInfo clientPortalUser={clientPortalUser} />
-            </InfoSection>
-          </UserHeader>
-        }
-        leftSidebar={<LeftSidebar {...this.props} />}
-        rightSidebar={<RightSidebar clientPortalUser={clientPortalUser} />}
-        content={this.renderContent(content)}
-        transparent={true}
+  const content = (
+    <>
+      <ActivityInputs
+        contentTypeId={clientPortalUser._id}
+        contentType="clientPortalUser"
+        showEmail={false}
       />
-    );
-  }
-}
+    </>
+  );
+
+  return (
+    <Wrapper
+      header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
+      mainHead={
+        <UserHeader>
+          <InfoSection clientPortalUser={clientPortalUser}>
+            <BasicInfo clientPortalUser={clientPortalUser} />
+          </InfoSection>
+        </UserHeader>
+      }
+      leftSidebar={<LeftSidebar {...props} />}
+      rightSidebar={<RightSidebar clientPortalUser={clientPortalUser} />}
+      content={renderContent(content)}
+      transparent={true}
+    />
+  );
+};
 
 export default ClientPortalCompanyDetails;

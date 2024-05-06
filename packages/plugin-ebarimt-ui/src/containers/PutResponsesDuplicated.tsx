@@ -1,80 +1,66 @@
-import * as compose from 'lodash.flowright';
-import { gql } from '@apollo/client';
-import PutResponseDuplicated from '../components/PutResponsesDuplicated';
-import queryString from 'query-string';
-import React from 'react';
-import { Spinner } from '@erxes/ui/src/components';
-import { router, withProps } from '@erxes/ui/src/utils';
-import { graphql } from '@apollo/client/react/hoc';
-import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
+import * as compose from "lodash.flowright";
+import { gql } from "@apollo/client";
+import PutResponseDuplicated from "../components/PutResponsesDuplicated";
+import queryString from "query-string";
+import React from "react";
+import { Spinner } from "@erxes/ui/src/components";
+import { router, withProps } from "@erxes/ui/src/utils";
+import { graphql } from "@apollo/client/react/hoc";
+import { IQueryParams } from "@erxes/ui/src/types";
 import {
   ListDuplicatedQueryVariables,
   PutResponsesDuplicatedCountQueryResponse,
   PutResponsesDuplicatedDetailQueryResponse,
   PutResponsesDuplicatedQueryResponse,
-} from '../types';
-import { queries } from '../graphql';
-import { withRouter } from 'react-router-dom';
-import { FILTER_PARAMS } from '../constants';
+} from "../types";
+import { queries } from "../graphql";
+import { FILTER_PARAMS } from "../constants";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 type FinalProps = {
   PutResponsesDuplicatedQuery: PutResponsesDuplicatedQueryResponse;
   PutResponsesDuplicatedCountQuery: PutResponsesDuplicatedCountQueryResponse;
   PutResponsesDuplicatedDetailQuery: PutResponsesDuplicatedDetailQueryResponse;
-} & Props &
-  IRouterProps;
+} & Props;
 
-type State = {
-  loading: boolean;
-};
-
-const generateQueryParams = ({ location }) => {
+const generateQueryParams = (location) => {
   return queryString.parse(location.search);
 };
 
-class PutResponsesDuplicatedContainer extends React.Component<
-  FinalProps,
-  State
-> {
-  constructor(props) {
-    super(props);
+const PutResponsesDuplicatedContainer = (props: FinalProps) => {
+  const location = useLocation();
+  const navigate = useNavigate();
 
-    this.state = {
-      loading: false,
-    };
-  }
-
-  onSearch = (search: string, key?: string) => {
-    router.removeParams(this.props.history, 'page');
+  const onSearch = (search: string, key?: string) => {
+    router.removeParams(navigate, location, "page");
 
     if (!search) {
-      return router.removeParams(this.props.history, key || 'search');
+      return router.removeParams(navigate, location, key || "search");
     }
 
-    router.setParams(this.props.history, { [key || 'search']: search });
+    router.setParams(navigate, location, { [key || "search"]: search });
   };
 
-  onFilter = (filterParams: IQueryParams) => {
-    router.removeParams(this.props.history, 'page');
+  const onFilter = (filterParams: IQueryParams) => {
+    router.removeParams(navigate, location, "page");
 
     for (const key of Object.keys(filterParams)) {
       if (filterParams[key]) {
-        router.setParams(this.props.history, { [key]: filterParams[key] });
+        router.setParams(navigate, location, { [key]: filterParams[key] });
       } else {
-        router.removeParams(this.props.history, key);
+        router.removeParams(navigate, location, key);
       }
     }
 
     return router;
   };
 
-  isFiltered = (): boolean => {
-    const params = generateQueryParams(this.props.history);
+  const isFiltered = (): boolean => {
+    const params = generateQueryParams(location);
 
     for (const param in params) {
       if (FILTER_PARAMS.includes(param)) {
@@ -85,48 +71,46 @@ class PutResponsesDuplicatedContainer extends React.Component<
     return false;
   };
 
-  clearFilter = () => {
-    const params = generateQueryParams(this.props.history);
-    router.removeParams(this.props.history, ...Object.keys(params));
+  const clearFilter = () => {
+    const params = generateQueryParams(location);
+    router.removeParams(navigate, location, ...Object.keys(params));
   };
 
-  render() {
-    const { PutResponsesDuplicatedQuery, PutResponsesDuplicatedCountQuery } =
-      this.props;
+  const { PutResponsesDuplicatedQuery, PutResponsesDuplicatedCountQuery } =
+    props;
 
-    if (
-      PutResponsesDuplicatedQuery.loading ||
-      PutResponsesDuplicatedCountQuery.loading
-    ) {
-      return <Spinner />;
-    }
-
-    let errorMsg: string = '';
-    if (PutResponsesDuplicatedQuery.error) {
-      errorMsg = PutResponsesDuplicatedQuery.error.message;
-    }
-
-    const putResponsesDuplicated =
-      PutResponsesDuplicatedQuery.putResponsesDuplicated || [];
-    const putResponsesDuplicatedCount =
-      PutResponsesDuplicatedCountQuery.putResponsesDuplicatedCount || 0;
-
-    const updatedProps = {
-      ...this.props,
-      errorMsg,
-      putResponsesDuplicated,
-      totalCount: putResponsesDuplicatedCount,
-      loading: PutResponsesDuplicatedQuery.loading,
-
-      onFilter: this.onFilter,
-      onSearch: this.onSearch,
-      isFiltered: this.isFiltered(),
-      clearFilter: this.clearFilter,
-    };
-
-    return <PutResponseDuplicated {...updatedProps} />;
+  if (
+    PutResponsesDuplicatedQuery.loading ||
+    PutResponsesDuplicatedCountQuery.loading
+  ) {
+    return <Spinner />;
   }
-}
+
+  let errorMsg: string = "";
+  if (PutResponsesDuplicatedQuery.error) {
+    errorMsg = PutResponsesDuplicatedQuery.error.message;
+  }
+
+  const putResponsesDuplicated =
+    PutResponsesDuplicatedQuery.putResponsesDuplicated || [];
+  const putResponsesDuplicatedCount =
+    PutResponsesDuplicatedCountQuery.putResponsesDuplicatedCount || 0;
+
+  const updatedProps = {
+    ...props,
+    errorMsg,
+    putResponsesDuplicated,
+    totalCount: putResponsesDuplicatedCount,
+    loading: PutResponsesDuplicatedQuery.loading,
+
+    onFilter,
+    onSearch,
+    isFiltered: isFiltered(),
+    clearFilter,
+  };
+
+  return <PutResponseDuplicated {...updatedProps} />;
+};
 
 const generateParams = ({ queryParams }) => ({
   ...router.generatePaginationParams(queryParams || {}),
@@ -142,10 +126,10 @@ export default withProps<Props>(
       PutResponsesDuplicatedQueryResponse,
       ListDuplicatedQueryVariables
     >(gql(queries.putResponsesDuplicated), {
-      name: 'PutResponsesDuplicatedQuery',
+      name: "PutResponsesDuplicatedQuery",
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams }),
-        fetchPolicy: 'network-only',
+        fetchPolicy: "network-only",
       }),
     }),
     graphql<
@@ -153,11 +137,11 @@ export default withProps<Props>(
       PutResponsesDuplicatedCountQueryResponse,
       ListDuplicatedQueryVariables
     >(gql(queries.putResponsesDuplicatedCount), {
-      name: 'PutResponsesDuplicatedCountQuery',
+      name: "PutResponsesDuplicatedCountQuery",
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams }),
-        fetchPolicy: 'network-only',
+        fetchPolicy: "network-only",
       }),
-    }),
-  )(withRouter<IRouterProps>(PutResponsesDuplicatedContainer)),
+    })
+  )(PutResponsesDuplicatedContainer)
 );

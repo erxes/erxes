@@ -11,6 +11,7 @@ import {
   consumeInventory,
   dealToDynamic,
   getConfig,
+  getPrice,
 } from '../../../utils';
 
 const msdynamicSyncMutations = {
@@ -68,6 +69,7 @@ const msdynamicSyncMutations = {
 
     const updatePrices: any[] = [];
     const createPrices: any[] = [];
+    const error: any[] = [];
     const deletePrices: any[] = [];
     const matchPrices: any[] = [];
 
@@ -75,7 +77,7 @@ const msdynamicSyncMutations = {
       throw new Error('MS Dynamic config not found.');
     }
 
-    const { priceApi, username, password } = config;
+    const { priceApi, username, password, pricePriority } = config;
 
     const productQry: any = { status: { $ne: 'deleted' } };
 
@@ -106,69 +108,83 @@ const msdynamicSyncMutations = {
         isRPC: true,
       });
 
-      const productCodes = (products || []).map((p) => p.code) || [];
+      const salesCodeFilter = pricePriority
+        .replace(', ', ',')
+        .split(',')
+        .filter((p) => p);
 
-      const response = await fetch(priceApi, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          Accept: 'application/json',
-          Authorization: `Basic ${Buffer.from(
-            `${username}:${password}`
-          ).toString('base64')}`,
-        },
-      }).then((res) => res.json());
+      let filterSection = '';
+
+      for (const price of salesCodeFilter) {
+        filterSection += `Sales_Code eq '${price}' or `;
+      }
+
+      const response = await fetch(
+        `${priceApi}?$filter=${filterSection} Sales_Code eq ''`,
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Accept: 'application/json',
+            Authorization: `Basic ${Buffer.from(
+              `${username}:${password}`
+            ).toString('base64')}`,
+          },
+        }
+      ).then((res) => res.json());
 
       const groupedItems = {};
 
       if (response && response.value.length > 0) {
         for (const item of response.value) {
-          const { Item_No, Unit_Price } = item;
+          const { Item_No } = item;
 
           if (!groupedItems[Item_No]) {
-            groupedItems[Item_No] = item;
+            groupedItems[Item_No] = [];
           }
 
-          if ((groupedItems[Item_No]['Unit_Price'] || 0) > (Unit_Price || 0)) {
-            groupedItems[Item_No] = item;
-          }
+          groupedItems[Item_No].push({ ...item });
         }
       }
 
-      const productsByCode = {}
+      const productsByCode = {};
       // delete price
       for (const product of products) {
         if (!groupedItems[product.code]) {
           deletePrices.push(product);
         } else {
-          productsByCode[product.code] = product
+          productsByCode[product.code] = product;
         }
       }
 
       // update price
       for (const key in groupedItems) {
-        if (groupedItems.hasOwnProperty(key)) {
-          const resProd = groupedItems[key];
+        const resProds = groupedItems[key];
 
-          const updateCode = resProd.Item_No.replace(/\s/g, '');
-          const product = productsByCode[updateCode]
+        const { resPrice, resProd } = await getPrice(resProds, pricePriority);
 
-          if (product) {
-            if (product.unitPrice === resProd?.Unit_Price) {
-              matchPrices.push(resProd);
-              continue
-            }
+        if (!resProd.Item_No) {
+          error.push(resProds[0]);
+        }
 
+        const updateCode = resProd.Item_No.replace(/\s/g, '');
+        const foundProduct = productsByCode[updateCode];
+        if (foundProduct) {
+          if (foundProduct.unitPrice === resPrice) {
+            matchPrices.push(resProd);
+          } else {
             await sendProductsMessage({
               subdomain,
               action: 'updateProduct',
-              data: { _id: product._id, doc: { unitPrice: resProd?.Unit_Price || 0 } },
+              data: {
+                _id: foundProduct._id,
+                doc: { unitPrice: resPrice || 0 },
+              },
               isRPC: true,
             });
             updatePrices.push(resProd);
-
-          } else {
-            createPrices.push(resProd);
           }
+        } else {
+          createPrices.push(resProd);
         }
       }
     } catch (e) {
@@ -179,6 +195,10 @@ const msdynamicSyncMutations = {
       create: {
         count: createPrices.length,
         items: createPrices,
+      },
+      error: {
+        count: error.length,
+        items: error,
       },
       match: {
         count: matchPrices.length,

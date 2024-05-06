@@ -1,11 +1,12 @@
-import Button from '@erxes/ui/src/components/Button';
-import CommonForm from '@erxes/ui/src/components/form/Form';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { ICommonFormProps } from '../types';
-import dayjs from 'dayjs';
-import { CreatedDate } from '../../styles';
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+
+import Button from "@erxes/ui/src/components/Button";
+import CommonForm from "@erxes/ui/src/components/form/Form";
+import { CreatedDate } from "../../styles";
+import { ICommonFormProps } from "../types";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import React from "react";
+import dayjs from "dayjs";
 
 type Props = {
   createdAt?: string;
@@ -22,7 +23,7 @@ class Form extends React.Component<Props, { isCanceled: boolean }> {
     super(props);
 
     this.state = {
-      isCanceled: false
+      isCanceled: false,
     };
   }
 
@@ -34,7 +35,7 @@ class Form extends React.Component<Props, { isCanceled: boolean }> {
       confirmationUpdate,
       object,
       name,
-      createdAt
+      createdAt,
     } = this.props;
     const { values, isSubmitted } = formProps;
     const { isCanceled } = this.state;
@@ -52,7 +53,7 @@ class Form extends React.Component<Props, { isCanceled: boolean }> {
         <ModalFooter>
           {createdAt && (
             <CreatedDate>
-              <p>Created at</p> {dayjs(createdAt).format('lll')}
+              <p>Created at</p> {dayjs(createdAt).format("lll")}
             </CreatedDate>
           )}
           <Button
@@ -66,12 +67,12 @@ class Form extends React.Component<Props, { isCanceled: boolean }> {
 
           {renderButton &&
             renderButton({
-              name: name || '',
+              name: name || "",
               values: this.props.generateDoc(values),
               isSubmitted,
               callback: closeModal,
               object,
-              confirmationUpdate: object ? confirmationUpdate : false
+              confirmationUpdate: object ? confirmationUpdate : false,
             })}
         </ModalFooter>
       </>

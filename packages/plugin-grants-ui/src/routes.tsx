@@ -1,40 +1,38 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import React from 'react';
-import { Route } from 'react-router-dom';
-import queryString from 'query-string';
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import React from "react";
+import { Route, Routes, useLocation } from "react-router-dom";
+import queryString from "query-string";
 
-const GrantRequest = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Request" */ './requests/containers/List')
+const GrantRequest = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "List - Request" */ "./requests/containers/List"
+    )
 );
 
-const GrantConfigs = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Configs" */ './configs/containers/List')
+const GrantConfigs = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "List - Configs" */ "./configs/containers/List")
 );
 
-const requests = ({ history, location }) => {
-  return (
-    <GrantRequest
-      history={history}
-      queryParams={queryString.parse(location.search)}
-    />
-  );
+const Requests = () => {
+  const location = useLocation();
+
+  return <GrantRequest queryParams={queryString.parse(location.search)} />;
 };
 
-const configs = ({ history, location }) => {
-  return (
-    <GrantConfigs
-      history={history}
-      queryParams={queryString.parse(location.search)}
-    />
-  );
+const Configs = () => {
+  const location = useLocation();
+
+  return <GrantConfigs queryParams={queryString.parse(location.search)} />;
 };
 
 const routes = () => {
   return (
-    <React.Fragment>
-      <Route path="/grants/requests" exact component={requests} />
-      <Route path="/settings/grants-configs" exact component={configs} />
-    </React.Fragment>
+    <Routes>
+      <Route path="/grants/requests" element={<Requests />} />
+      <Route path="/settings/grants-configs" element={<Configs />} />
+    </Routes>
   );
 };
 

@@ -271,7 +271,7 @@ export default class WorkArea extends React.Component<Props, State> {
         <ContentBox>
           <ConversationWrapper
             id="conversationWrapper"
-            innerRef={this.node}
+            ref={this.node}
             onScroll={this.onScroll}
           >
             <RenderConversationWrapper>

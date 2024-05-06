@@ -1,9 +1,8 @@
 import { Button, Table } from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { TableContainer } from '../../../../styles';
 import { ILottery } from '../../types';
-interface IProps extends IRouterProps {
+interface IProps {
   lists: ILottery[];
 }
 

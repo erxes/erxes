@@ -1,11 +1,12 @@
-import { USER_ROLES } from '@erxes/api-utils/src/constants';
+import { IContext, IModels } from '../../../connectionResolver';
 import {
   checkPermission,
   requireLogin,
 } from '@erxes/api-utils/src/permissions';
-import { fetchSegment, sendSegmentsMessage } from '../../../messageBroker';
-import { IContext, IModels } from '../../../connectionResolver';
 import { escapeRegExp, getConfig, paginate } from '../../utils';
+import { fetchSegment, sendSegmentsMessage } from '../../../messageBroker';
+
+import { USER_ROLES } from '@erxes/api-utils/src/constants';
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 
@@ -417,9 +418,9 @@ const userQueries = {
    */
   async currentUser(_root, _args, { user, models, subdomain }: IContext) {
     // this check is important for preventing injection attacks
-    if (typeof user?._id !== 'string') {
-      throw new Error(`User _id is not a string. It is ${user?._id} instead.`);
-    }
+    // if (typeof user?._id !== 'string') {
+    //   throw new Error(`User _id is not a string. It is ${user?._id} instead.`);
+    // }
     const result = user
       ? await models.Users.findOne({ _id: user._id, isActive: { $ne: false } })
       : null;

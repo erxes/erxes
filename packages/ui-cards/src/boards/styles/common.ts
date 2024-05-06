@@ -18,12 +18,12 @@ export const BoardContainer = styled(Contents)`
 `;
 
 export const BoardContent = styledTS<{
-  bgColor?: string;
-  transparent?: boolean;
+  bgcolor?: string;
+  $transparent?: boolean;
 }>(styled(MainContent))`
   margin: 0;
-  background-color: ${({ bgColor, transparent }) =>
-    transparent ? 'transparent' : bgColor || colors.colorSecondary};
+  background-color: ${({ bgcolor, $transparent }) =>
+    $transparent ? 'transparent' : bgcolor || colors.colorSecondary};
 `;
 
 export const ScrolledContent = styled.div`
@@ -51,19 +51,19 @@ export const ChartBack = styled(RootBack)`
 export const GroupByContent = styled.div`
   display: flex;
   font-size: 11px;
-  .dropdown {
+  [id^="headlessui-listbox-button-"] {
     padding: 0 8px;
     .menu {
       width: auto;
     }
   }
   > i {
-    padding 5px 0;
+    padding: 5px 0;
     margin-right: 5px;
     color: ${colors.colorCoreGray};
   }
   span {
-    padding 5px 0;
+    padding: 5px 0;
     color: ${colors.colorCoreGray};
   }
 `;
@@ -78,9 +78,9 @@ export const EmptyContainer = styled.div`
   height: 100px;
 `;
 
-export const Wrapper = styledTS<{ isDraggingOver: boolean }>(styled.div)`
-  background-color: ${({ isDraggingOver }) =>
-    isDraggingOver && 'rgba(10, 45, 65, .1)'};
+export const Wrapper = styledTS<{ $isDraggingOver: boolean }>(styled.div)`
+  background-color: ${({ $isDraggingOver }) =>
+    $isDraggingOver && 'rgba(10, 45, 65, .1)'};
   display: flex;
   flex-direction: column;
   padding: 0 4px;
@@ -94,8 +94,8 @@ export const ColorButton = styledTS<{ color?: string }>(styled.div)`
   font-weight: 500;
   line-height: 25px;
   font-size: 12px;
-  background-color: ${props => rgba(props.color || colors.colorPrimary, 0.1)};
-  color: ${props => props.color || colors.colorPrimaryDark};
+  background-color: ${(props) => rgba(props.color || colors.colorPrimary, 0.1)};
+  color: ${(props) => props.color || colors.colorPrimaryDark};
   padding: 0 10px;
   transition: background 0.3s ease;
   > i {
@@ -106,7 +106,7 @@ export const ColorButton = styledTS<{ color?: string }>(styled.div)`
   }
   &:hover {
     cursor: pointer;
-    background-color: ${props => rgba(props.color || colors.colorPrimary, 0.2)};
+    background-color: ${(props) => rgba(props.color || colors.colorPrimary, 0.2)};
   }
 `;
 
@@ -140,15 +140,15 @@ export const DragDisabler = styled.div`
 `;
 
 export const ItemContainer = styledTS<{
-  isDragging?: boolean;
-  isOld?: boolean;
+  $isDragging?: boolean;
+  $isOld?: boolean;
 }>(styled.div)`
   position: relative;
   margin-bottom: 8px;
-  background-color: ${props =>
-    props.isOld ? 'rgb(222, 210, 255)' : 'rgb(255, 255, 255)'};
-  box-shadow: ${props =>
-    props.isDragging
+  background-color: ${(props) =>
+    props.$isOld ? 'rgb(222, 210, 255)' : 'rgb(255, 255, 255)'};
+  box-shadow: ${(props) =>
+    props.$isDragging
       ? 'rgba(0, 0, 0, 0.4) 0px 5px 15px 0px'
       : 'rgba(0, 0, 0, 0.2) 0px 1px 2px 0px'};
   padding: 8px;

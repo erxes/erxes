@@ -3,94 +3,62 @@ import {
   Button,
   FormControl,
   HeaderDescription,
-  ModalTrigger,
   Pagination,
   Table,
   Tip,
   Wrapper,
   __,
-  router
-} from '@erxes/ui/src';
-import { setParams } from '@erxes/ui/src/utils/router';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { TableHead } from '../../assessments/components/ListHead';
-import { subMenu } from '../../common/constants';
-import { FlexRow, HeaderContent } from '../../styles';
-import { headers } from '../common/Headers';
-import Form from '../containers/Form';
-import Row from './Row';
+  router,
+} from "@erxes/ui/src";
+import { FlexRow, HeaderContent } from "../../styles";
+
+import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import Row from "./Row";
+import { TableHead } from "../../assessments/components/ListHead";
+import { headers } from "../common/Headers";
+import { setParams } from "@erxes/ui/src/utils/router";
+import { subMenu } from "../../common/constants";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   list: any[];
   totalCount: number;
   queryParams: any;
-  history: any;
   removePlans: (ids: string[]) => void;
   duplicatePlan: (_id: string) => void;
   changeStatus: (_id: string, status: string) => void;
 };
 
-type State = {
-  selectedItems: string[];
-  showFilters: boolean;
-  searchValue: string;
-};
+const List = (props: Props) => {
+  let timer;
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [searchValue, setSearchValue] = useState(
+    props.queryParams.searchValue || ""
+  );
 
-class List extends React.Component<Props, State> {
-  private timer?: NodeJS.Timer;
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      selectedItems: [],
-      showFilters: false,
-      searchValue: props?.queryParams?.searchValue || ''
-    };
-  }
-
-  renderForm() {
-    const trigger = <Button btnStyle="success">{__('Add Plan')}</Button>;
-
-    const content = () => <Form />;
-
-    return (
-      <ModalTrigger
-        title="Add Plan"
-        size="xl"
-        content={content}
-        trigger={trigger}
-      />
-    );
-  }
-
-  renderContent() {
-    const {
-      queryParams,
-      history,
-      list,
-      duplicatePlan,
-      changeStatus
-    } = this.props;
-    const { selectedItems } = this.state;
+  const renderContent = () => {
+    const { queryParams, list, duplicatePlan, changeStatus } = props;
 
     const handleSelectAll = () => {
       if (!selectedItems.length) {
-        const branchIds = this.props.list.map(branch => branch._id);
-        return this.setState({ selectedItems: branchIds });
+        const branchIds = props.list.map((branch) => branch._id);
+        return setSelectedItems(branchIds);
       }
 
-      this.setState({ selectedItems: [] });
+      setSelectedItems([]);
     };
 
-    const handleSelect = id => {
+    const handleSelect = (id) => {
       if (selectedItems.includes(id)) {
         const removedSelectedItems = selectedItems.filter(
-          selectItem => selectItem !== id
+          (selectItem) => selectItem !== id
         );
-        return this.setState({ selectedItems: removedSelectedItems });
+        return setSelectedItems(removedSelectedItems);
       }
-      this.setState({ selectedItems: [...selectedItems, id] });
+      setSelectedItems([...selectedItems, id]);
     };
 
     return (
@@ -99,28 +67,26 @@ class List extends React.Component<Props, State> {
           <tr>
             <th>
               <FormControl
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onClick={handleSelectAll}
               />
             </th>
-            <th>{__('Name')}</th>
-            {headers(queryParams, history).map(
-              ({ name, label, sort, filter }) => (
-                <TableHead key={name} sort={sort} filter={filter}>
-                  {label}
-                </TableHead>
-              )
-            )}
-            <th>{__('Actions')}</th>
+            <th>{__("Name")}</th>
+            {headers(queryParams).map(({ name, label, sort, filter }) => (
+              <TableHead key={name} sort={sort} filter={filter}>
+                {label}
+              </TableHead>
+            ))}
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody>
-          {list.map(plan => (
+          {list.map((plan) => (
             <Row
               plan={plan}
               selectedItems={selectedItems}
               handleSelect={handleSelect}
-              queryParams={this.props.queryParams}
+              queryParams={props.queryParams}
               duplicate={duplicatePlan}
               changeStatus={changeStatus}
             />
@@ -128,27 +94,26 @@ class List extends React.Component<Props, State> {
         </tbody>
       </Table>
     );
-  }
-  renderSearchField = () => {
-    const search = e => {
-      if (this.timer) {
-        clearTimeout(this.timer);
+  };
+  const renderSearchField = () => {
+    const search = (e) => {
+      if (timer) {
+        clearTimeout(timer);
       }
 
-      const { history } = this.props;
       const searchValue = e.target.value;
 
-      this.setState({ searchValue });
+      setSearchValue(searchValue);
 
-      this.timer = setTimeout(() => {
-        router.removeParams(history, 'page');
-        router.setParams(history, { searchValue });
+      timer = setTimeout(() => {
+        router.removeParams(navigate, location, "page");
+        router.setParams(navigate, location, { searchValue });
       }, 500);
     };
-    const moveCursorAtTheEnd = e => {
+    const moveCursorAtTheEnd = (e) => {
       const tmpValue = e.target.value;
 
-      e.target.value = '';
+      e.target.value = "";
       e.target.value = tmpValue;
     };
     return (
@@ -157,80 +122,75 @@ class List extends React.Component<Props, State> {
         placeholder="type a search"
         onChange={search}
         autoFocus={true}
-        value={this.state.searchValue}
+        value={searchValue}
         onFocus={moveCursorAtTheEnd}
       />
     );
   };
 
-  render() {
-    const { totalCount, removePlans, queryParams, history } = this.props;
-    const { selectedItems } = this.state;
+  const { totalCount, removePlans, queryParams } = props;
 
-    const onSelectFilter = (name, value) => {
-      setParams(history, { [name]: value });
-    };
+  const onSelectFilter = (name, value) => {
+    setParams(navigate, location, { [name]: value });
+  };
 
-    const isArchived = queryParams?.isArchived === 'true';
+  const isArchived = queryParams?.isArchived === "true";
 
-    const handleRemove = () => {
-      removePlans(selectedItems);
-      this.setState({ selectedItems: [] });
-    };
+  const handleRemove = () => {
+    removePlans(selectedItems);
+    setSelectedItems([]);
+  };
 
-    const leftActionBar = (
-      <HeaderDescription
-        title="Plans"
-        icon="/images/actions/16.svg"
-        description=""
-        renderExtra={
-          <FlexRow>
-            <HeaderContent>
-              {__(`Total count`)}
-              <h4>{totalCount || 0}</h4>
-            </HeaderContent>
-          </FlexRow>
-        }
-      />
-    );
+  const leftActionBar = (
+    <HeaderDescription
+      title="Plans"
+      icon="/images/actions/16.svg"
+      description=""
+      renderExtra={
+        <FlexRow>
+          <HeaderContent>
+            {__(`Total count`)}
+            <h4>{totalCount || 0}</h4>
+          </HeaderContent>
+        </FlexRow>
+      }
+    />
+  );
 
-    const rightActionBar = (
-      <BarItems>
-        {this.renderSearchField()}
-        {!!selectedItems.length && (
-          <Button btnStyle="danger" onClick={handleRemove}>
-            {__(`Remove (${selectedItems.length})`)}
-          </Button>
-        )}
-        <Button btnStyle="success">
-          <Link to={`/settings/risk-assessment-plans/add`}>
-            {__('Add Plan')}
-          </Link>
+  const rightActionBar = (
+    <BarItems>
+      {renderSearchField()}
+      {!!selectedItems.length && (
+        <Button btnStyle="danger" onClick={handleRemove}>
+          {__(`Remove (${selectedItems.length})`)}
         </Button>
-        <Tip
-          text={`See ${isArchived ? 'Active' : 'Archived'} Plans`}
-          placement="bottom"
-        >
-          <Button
-            btnStyle="link"
-            icon={isArchived ? 'calendar-alt' : 'archive-alt'}
-            onClick={() => onSelectFilter('isArchived', !isArchived)}
-          />
-        </Tip>
-      </BarItems>
-    );
+      )}
+      <Button btnStyle="success">
+        <Link to={`/settings/risk-assessment-plans/add`}>{__("Add Plan")}</Link>
+      </Button>
+      <Tip
+        text={`See ${isArchived ? "Active" : "Archived"} Plans`}
+        placement="bottom"
+      >
+        <Button
+          btnStyle="link"
+          icon={isArchived ? "calendar-alt" : "archive-alt"}
+          onClick={() => onSelectFilter("isArchived", !isArchived)}
+        />
+      </Tip>
+    </BarItems>
+  );
 
-    return (
-      <Wrapper
-        header={<Wrapper.Header title={'Plans'} submenu={subMenu} />}
-        actionBar={
-          <Wrapper.ActionBar left={leftActionBar} right={rightActionBar} />
-        }
-        content={this.renderContent()}
-        footer={<Pagination count={totalCount} />}
-      />
-    );
-  }
-}
+  return (
+    <Wrapper
+      header={<Wrapper.Header title={"Plans"} submenu={subMenu} />}
+      actionBar={
+        <Wrapper.ActionBar left={leftActionBar} right={rightActionBar} />
+      }
+      content={renderContent()}
+      footer={<Pagination count={totalCount} />}
+    />
+  );
+};
 
 export default List;

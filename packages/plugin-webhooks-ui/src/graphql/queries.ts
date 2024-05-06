@@ -19,16 +19,16 @@ const webhookDetail = `
 `;
 
 const webhooks = `
-  query webhooks {
-    webhooks {
+  query webhooks($page: Int, $perPage: Int, $searchValue: String) {
+    webhooks(page: $page, perPage: $perPage, searchValue: $searchValue) {
       ${webhookResponse}
     }
   }
 `;
 
 const webhooksTotalCount = `
-  query webhooksTotalCount {
-    webhooksTotalCount
+  query webhooksTotalCount($searchValue: String) {
+    webhooksTotalCount(searchValue: $searchValue)
   }
 `;
 
@@ -36,11 +36,11 @@ const webhooksGetActions = `
   query webhooksGetActions {
     webhooksGetActions
   }
-`
+`;
 
 export default {
   webhooks,
   webhookDetail,
   webhooksTotalCount,
-  webhooksGetActions
+  webhooksGetActions,
 };
