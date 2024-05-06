@@ -172,7 +172,7 @@ const msdynamicCheckMutations = {
       const categoryById = {};
       for (const category of categories) {
         categoryByCode[category.code] = category;
-        categoryById[category.id] = category;
+        categoryById[category._id] = category;
 
         if (!resultCodes.includes(category.code)) {
           deleteCategories.push(category);
