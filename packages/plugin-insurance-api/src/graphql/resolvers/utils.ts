@@ -803,7 +803,7 @@ const generatePdf = async (subdomain, content, dealNumber) => {
   const browser = await puppeteer.launch({
     headless: true,
     executablePath:
-      '/home/node/.chromium-cache/chromium-linux-499413/chrome-linux',
+      '/usr/bin/google-chrome',
   });
   const page = await browser.newPage();
 
