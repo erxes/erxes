@@ -156,8 +156,6 @@ const msdynamicCheckMutations = {
         isRPC: true,
       });
 
-      const categoryCodes = (categories || []).map((p) => p.code) || [];
-
       const response = await fetch(itemCategoryApi, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -171,8 +169,10 @@ const msdynamicCheckMutations = {
       const resultCodes = response.value.map((r) => r.Code) || [];
 
       const categoryByCode = {};
+      const categoryById = {};
       for (const category of categories) {
         categoryByCode[category.code] = category;
+        categoryById[category.id] = category;
 
         if (!resultCodes.includes(category.code)) {
           deleteCategories.push(category);
@@ -180,12 +180,12 @@ const msdynamicCheckMutations = {
       }
 
       for (const resProd of response.value) {
-        if (categoryCodes.includes(resProd.Code)) {
-          const category = categoryByCode[resProd.Code];
-
+        const category = categoryByCode[resProd.Code];
+        if (category) {
           if (
             resProd?.Code === category.code &&
-            categoryId === category?.parentId
+            (categoryId === category?.parentId || ((categoryById[category.parentId] || {}).code || '') === resProd.Parent_Category) &&
+            category.name === resProd.Description
           ) {
             matchedCount = matchedCount + 1;
           } else {
