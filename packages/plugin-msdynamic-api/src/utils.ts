@@ -272,7 +272,7 @@ export const consumeInventory = async (subdomain, config, doc, action) => {
     const productCategory = await sendProductsMessage({
       subdomain,
       action: 'categories.findOne',
-      data: { name: doc.Item_Category_Code },
+      data: { code: doc.Item_Category_Code },
       isRPC: true,
     });
 
@@ -287,7 +287,7 @@ export const consumeInventory = async (subdomain, config, doc, action) => {
       unitPrice: doc?.Unit_Price || 0,
       code: doc.No,
       uom: doc?.Base_Unit_of_Measure || 'PCS',
-      categoryId: productCategory ? productCategory._id : product.categoryId,
+      categoryId: productCategory._id || product?.categoryId, // TODO: if product not exists and productCategory not found then category is null
       scopeBrandIds: brandIds,
       status: 'active',
     };
@@ -355,13 +355,25 @@ export const consumeCategory = async (
     }
 
     const document: any = {
-      name: doc?.Code || 'default',
       code: doc?.Code,
-      description: doc?.Description,
+      name: doc?.Description || 'default',
       scopeBrandIds: brandIds,
       parentId: categoryId,
       status: 'active',
     };
+
+    if (doc.Parent_Category) {
+      const parentCategory = await sendProductsMessage({
+        subdomain,
+        action: 'categories.findOne',
+        data: { code: doc.Parent_Category },
+        isRPC: true,
+      });
+
+      if (parentCategory) {
+        document.parentId = parentCategory._id
+      }
+    }
 
     if (productCategory) {
       await sendProductsMessage({
