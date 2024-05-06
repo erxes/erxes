@@ -863,7 +863,7 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
 
 const getPriceForList = (prods) => {
   let resProd = prods[0];
-  let resPrice = prods[0].Unit_Price;
+  let resPrice = prods[0].Price_Inc_CityTax_and_VAT || prods[0].Unit_Price;
 
   const hasDateList = prods.filter(
     (p) => p.Ending_Date && p.Ending_Date !== '0001-01-01'
@@ -871,14 +871,14 @@ const getPriceForList = (prods) => {
 
   if (hasDateList.length) {
     resProd = hasDateList[0];
-    resPrice = hasDateList[0].Unit_Price;
+    resPrice = hasDateList[0].Price_Inc_CityTax_and_VAT || hasDateList[0].Unit_Price;
 
     for (const prod of hasDateList) {
-      if (resPrice < prod.Unit_Price) {
+      if (resPrice < (prod.Price_Inc_CityTax_and_VAT || prod.Unit_Price)) {
         continue;
       }
 
-      resPrice = prod.Unit_Price;
+      resPrice = prod.Price_Inc_CityTax_and_VAT || prod.Unit_Price;
       resProd = prod;
     }
 
@@ -886,11 +886,11 @@ const getPriceForList = (prods) => {
   }
 
   for (const prod of prods) {
-    if (resPrice < prod.Unit_Price) {
+    if (resPrice < (prod.Price_Inc_CityTax_and_VAT || prod.Unit_Price)) {
       continue;
     }
 
-    resPrice = prod.Unit_Price;
+    resPrice = prod.Price_Inc_CityTax_and_VAT || prod.Unit_Price;
     resProd = prod;
   }
 
