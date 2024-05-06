@@ -68,7 +68,7 @@ export default {
       const browser = await puppeteer.launch({
         headless: true,
         executablePath:
-          '/Users/soyombobat-erdene/.cache/puppeteer/chrome/mac_arm-121.0.6167.85/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing',
+          '/home/node/.cache/puppeteer/chrome/linux-121.0.6167.85/chrome-linux64/chrome',
       });
       const page = await browser.newPage();
 
