@@ -722,7 +722,7 @@ export const ActiveCalls = styled.div`
 export const FlexWrap = styledTS(styled.div)`
   display: flex;
   flex-wrap: wrap;
-  padding: '0 20px 20px 20px';
+  padding: '20px 20px 20px 20px';
 
   > a,
   > div {
@@ -749,8 +749,8 @@ export const FlexWrap = styledTS(styled.div)`
 `;
 
 export const SwitchboardBox = styledTS<{ nowrap?: boolean }>(styled.div)`
+padding: 20px 20px;
   flex-basis: 250px;
-  margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -794,7 +794,7 @@ export const PreviewContent = styled.div`
 
 export const SwitchboardPreview = styled.div`
   width: 100%;
-  height: 800px;
+  height: 100%;
   border-radius: ${dimensions.unitSpacing - 2}px ${dimensions.unitSpacing - 2}px
     ${dimensions.unitSpacing - 2}px ${dimensions.unitSpacing - 2}px;
   border: 1px solid ${colors.borderPrimary};
@@ -805,6 +805,8 @@ export const SwitchboardPreview = styled.div`
 
 export const Container = styled.div`
   position: relative;
+  margin: 0 auto;
+  width: fit-content;
 `;
 
 export const SwitchboardRate = styledTS<{ color?: string }>(styled.div)`
@@ -817,5 +819,5 @@ export const SwitchboardRate = styledTS<{ color?: string }>(styled.div)`
   bottom: 0;
   right: 0;
   left: 0;
-  margin-top: 28%;
+  margin-top: 25%;
 `;

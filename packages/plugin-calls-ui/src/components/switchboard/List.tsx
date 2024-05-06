@@ -12,6 +12,7 @@ import {
 } from '../../styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import { colors } from '@erxes/ui/src/styles';
 
 const Circle = styled.circle`
   fill: transparent;
@@ -36,15 +37,49 @@ const Text = styledTS<{ color?: string }>(styled.div)`
   left: 0;
   letter-spacing: 0.025em;
   position: absolute;
-  margin-top: 20px;
+  margin-top: 10px;
   right: 0;
   top: 0;
   width: 100%;
   z-index: 100;
 `;
-const Header = styled.div`
-  align-items: center;
+const Header = styledTS<{ fontSize?: string; bottomBorder?: boolean }>(
+  styled.div,
+)`
+  ${(props) =>
+    !props.bottomBorder && 'padding-top: 20px;'}
+  text-align: center;
   justify-content: center;
+  font-weight: bold;
+  font-size: ${(props) => props.fontSize};
+  
+  ${(props) =>
+    props.bottomBorder &&
+    `
+    &:after {
+      content: '';
+      width: 90%;
+      margin: auto;
+      height: 1px;
+      background: #bfbfbf;
+      display: block;
+    }
+  `}
+`;
+const Row = styledTS<{ fontSize?: string; bottomBorder?: boolean }>(
+  styled.div,
+)`
+  text-align: center;
+  font-weight: bold;
+  justify-content: space-between;
+  display: flex;
+`;
+
+const ContainerRow = 
+  styled.div
+`
+  padding: 20px 0px 0px 30px;
+  width: 90%;
 `;
 
 function List() {
@@ -97,7 +132,7 @@ function List() {
     },
   ];
 
-  const progressBar = (percentage, color = '#7715bd', height = '200px') => {
+  const progressBar = (percentage, color = colors.colorPrimary, height = '200px') => {
     const strokeWidth = 3;
     const radius = 100 / 2 - strokeWidth * 2;
     const circumference = radius * 2 * Math.PI;
@@ -105,7 +140,7 @@ function List() {
     return (
       <Container>
         <svg
-          aria-valuemax={100}
+          aria-valuemax={0}
           aria-valuemin={0}
           aria-valuenow={percentage}
           height={height}
@@ -129,7 +164,7 @@ function List() {
           />
         </svg>
 
-        <SwitchboardRate color={'#0b6e08'}>{percentage}% </SwitchboardRate>
+        <SwitchboardRate color={'#3FBD68'}>{percentage}% </SwitchboardRate>
         <Text>Abandoned Rate</Text>
       </Container>
     );
@@ -139,46 +174,39 @@ function List() {
     // const { remove, duplicate } = this.props;
 
     return (
-      <SwitchboardBox key={list._id}>
+      <SwitchboardBox
+        key={list._id}
+        onClick={() => `/calls/switchboard/detail?${list._id}`}
+      >
         <SwitchboardPreview>
-          <Header>
-            {list.name}
+          <Header fontSize="18px">{list.name}</Header>
+          <Header bottomBorder={true}>
             {progressBar(list.abnormalPercentage, '#dddeff', '200px')}
           </Header>
-
-          <PreviewContent>
-            <Button
-              btnStyle="white"
-              //   onClick={() => this.showSite(list)}
-              icon="eye"
-            >
-              {__('View site')}
-            </Button>
-            {/* {this.renderEditAction(list)} */}
-          </PreviewContent>
+          <ContainerRow>
+            <Row>
+              <p>Members:</p> <span>{list.Members}</span>
+            </Row>
+            <Row>
+              <p>Total Calls:</p> <span> {list.TotalCalls}</span>
+            </Row>
+            <Row>
+              <p>Answered Calls:</p> <span>{list.AnsweredCalls}</span>
+            </Row>
+            <Row>
+              <p> Waiting Calls:</p> <span> {list.WaitingCalls}</span>
+            </Row>
+            <Row>
+              <p> Abandoned Calls:</p> <span>{list.AbandonedCalls}</span>
+            </Row>
+            <Row>
+              <p>Average Wait time:</p> <span>{list.AverageWaitTime}</span>
+            </Row>
+            <Row>
+              <p>Average Talk time:</p> <span> {list.AverageTalkTime}</span>
+            </Row>
+          </ContainerRow>
         </SwitchboardPreview>
-        {/* <Content>
-          <div>
-            <b>{site.name}</b>
-            <span>{site.domain || __("View site")}</span>
-          </div>
-          <Dropdown
-            as={DropdownToggle}
-            toggleComponent={<Icon icon="ellipsis-h" size={18} />}
-          >
-            <a href={`/xbuilder/sites/edit/${site._id}`}>
-              <li key="editor">
-                <Icon icon="edit-3" /> {__("Editor")}
-              </li>
-            </a>
-            <li key="duplicate" onClick={() => duplicate(site._id)}>
-              <Icon icon="copy" /> {__("Duplicate")}
-            </li>
-            <li key="delete" onClick={() => remove(site._id)}>
-              <Icon icon="trash-alt" size={14} /> {__("Delete")}
-            </li>
-          </Dropdown>
-        </Content> */}
       </SwitchboardBox>
     );
   };
