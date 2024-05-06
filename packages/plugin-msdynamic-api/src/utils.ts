@@ -363,6 +363,19 @@ export const consumeCategory = async (
       status: 'active',
     };
 
+    if (doc.Parent_Categoty) {
+      const parentCategory = await sendProductsMessage({
+        subdomain,
+        action: 'categories.findOne',
+        data: { code: doc.Parent_Categoty },
+        isRPC: true,
+      });
+
+      if (parentCategory) {
+        document.parentId = parentCategory._id
+      }
+    }
+
     if (productCategory) {
       await sendProductsMessage({
         subdomain,
