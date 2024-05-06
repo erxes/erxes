@@ -18,6 +18,7 @@ import tags from './tags';
 import * as chromium from 'download-chromium';
 import redis from '@erxes/api-utils/src/redis';
 import puppeteer from 'puppeteer';
+import { join } from 'path';
 
 export default {
   name: 'insurance',
@@ -68,7 +69,7 @@ export default {
       const browser = await puppeteer.launch({
         headless: true,
         executablePath:
-          '/home/node/.cache/puppeteer/chrome/linux-121.0.6167.85/chrome-linux64/chrome',
+          '/home/node/.chromium-cache/chromium-linux-499413/chrome-linux',
       });
       const page = await browser.newPage();
 
@@ -121,6 +122,8 @@ export default {
     const execPath = await chromium();
 
     console.log('chromium path', execPath);
+
+    console.log('puppeteer cache dir ', join(__dirname, '.cache', 'puppeteer'));
 
     await redis.set('chromium_exec_path', execPath);
   },
