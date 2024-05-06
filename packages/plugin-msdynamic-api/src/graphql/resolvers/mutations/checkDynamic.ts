@@ -172,7 +172,7 @@ const msdynamicCheckMutations = {
       const categoryById = {};
       for (const category of categories) {
         categoryByCode[category.code] = category;
-        categoryById[category.id] = category;
+        categoryById[category._id] = category;
 
         if (!resultCodes.includes(category.code)) {
           deleteCategories.push(category);
@@ -182,7 +182,6 @@ const msdynamicCheckMutations = {
       for (const resProd of response.value) {
         const category = categoryByCode[resProd.Code];
         if (category) {
-          console.log(categoryById[category.parentId]?.code === resProd.Parent_Category, categoryById[category.parentId]?.code, resProd.Parent_Category)
           if (
             resProd.Code === category.code &&
             (categoryId === category.parentId || categoryById[category.parentId]?.code === resProd.Parent_Category) &&
