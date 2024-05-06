@@ -44,6 +44,8 @@ interface ICategoryParams extends ICommonParams {
   excludeEmpty?: boolean;
   meta?: string;
   isKiosk: Boolean;
+  ids?: string[];
+  excludeIds?: boolean;
 }
 
 const generateFilter = async (
@@ -192,7 +194,9 @@ const generateFilterCat = async ({
   searchValue,
   status,
   meta,
-  isKiosk
+  isKiosk,
+  ids,
+  excludeIds
 }) => {
   const { token } = config;
 
@@ -238,6 +242,10 @@ const generateFilterCat = async ({
 
   if (isKiosk) {
     filter._id = { $nin: config.kioskExcludeCategoryIds };
+  }
+
+  if (ids && ids.length > 0) {
+    filter._id = { [excludeIds ? '$nin' : '$in']: ids };    
   }
 
   return filter;
@@ -532,6 +540,8 @@ const productQueries = {
       isKiosk,
       sortDirection,
       sortField,
+      ids,
+      excludeIds,
       ...paginationArgs
     }: ICategoryParams,
     { models, config }: IContext
@@ -544,7 +554,9 @@ const productQueries = {
       searchValue,
       status,
       meta,
-      isKiosk
+      isKiosk,
+      ids,
+      excludeIds
     });
 
     let sortParams: any = { order: 1 };
@@ -587,7 +599,7 @@ const productQueries = {
 
   async poscProductCategoriesTotalCount(
     _root,
-    { parentId, withChild, searchValue, status, meta, isKiosk },
+    { parentId, withChild, searchValue, status, meta, isKiosk, ids, excludeIds },
     { models, config }: IContext
   ) {
     const filter = await generateFilterCat({
@@ -598,7 +610,9 @@ const productQueries = {
       searchValue,
       status,
       meta,
-      isKiosk
+      isKiosk,
+      ids,
+      excludeIds
     });
     return models.ProductCategories.find(filter).countDocuments();
   },
