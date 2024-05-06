@@ -3,4 +3,4 @@ WORKDIR /erxes
 RUN chown -R node:node /erxes
 COPY --chown=node:node . .
 USER node
-ENTRYPOINT ["sh", "./script/puppeteer.sh"]
+ENTRYPOINT ["sh", "./puppeteer.sh"]
