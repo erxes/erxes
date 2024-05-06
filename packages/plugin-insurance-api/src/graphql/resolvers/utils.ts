@@ -14,8 +14,6 @@ import { sendCommonMessage } from '../../messageBroker';
 import { query } from './queries/items';
 import * as chromium from 'download-chromium';
 
-
-
 export const verifyVendor = async (context) => {
   const { subdomain, cpUser } = context;
 
@@ -802,8 +800,8 @@ export const generateContract = async (
 const generatePdf = async (subdomain, content, dealNumber) => {
   const browser = await puppeteer.launch({
     headless: true,
-    executablePath:
-      '/usr/bin/google-chrome',
+    executablePath: '/usr/bin/google-chrome',
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
   });
   const page = await browser.newPage();
 
@@ -858,8 +856,7 @@ const generatePdf = async (subdomain, content, dealNumber) => {
     type: 'application/pdf',
     name: `${dealNumber}.pdf`,
   };
-
-}
+};
 
 export default async function userMiddleware(req: any, _res: any, next: any) {
   const subdomain = getSubdomain(req);
