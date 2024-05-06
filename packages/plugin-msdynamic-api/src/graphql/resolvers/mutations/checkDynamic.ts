@@ -183,8 +183,8 @@ const msdynamicCheckMutations = {
         const category = categoryByCode[resProd.Code];
         if (category) {
           if (
-            resProd?.Code === category.code &&
-            (categoryId === category?.parentId || ((categoryById[category.parentId] || {}).code || '') === resProd.Parent_Category) &&
+            resProd.Code === category.code &&
+            (categoryId === category.parentId || categoryById[category.parentId]?.code === resProd.Parent_Category) &&
             category.name === resProd.Description
           ) {
             matchedCount = matchedCount + 1;

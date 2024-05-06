@@ -355,9 +355,8 @@ export const consumeCategory = async (
     }
 
     const document: any = {
-      name: doc?.Code || 'default',
       code: doc?.Code,
-      description: doc?.Description,
+      name: doc?.Description || 'default',
       scopeBrandIds: brandIds,
       parentId: categoryId,
       status: 'active',
