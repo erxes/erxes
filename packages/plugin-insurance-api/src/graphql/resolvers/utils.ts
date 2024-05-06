@@ -800,19 +800,20 @@ export const generateContract = async (
 };
 
 const generatePdf = async (subdomain, content, dealNumber) => {
-  const execPath = await redis.get('chromium_exec_path');
-  console.log("found chromium exec path ===== ", execPath)
-  try {
   const browser = await puppeteer.launch({
-    headless:true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    executablePath: execPath || '',
+    headless: true,
+    executablePath:
+      '',
   });
-
   const page = await browser.newPage();
 
-  await page.setContent(content);
-  const buffer = await page.pdf({ format: 'A4' });
+  await page.setContent(content, { waitUntil: 'domcontentloaded' });
+  await page.emulateMediaType('screen');
+
+  const pdf = await page.pdf({
+    format: 'A4',
+    printBackground: true,
+  });
 
   await browser.close();
 
@@ -835,7 +836,7 @@ const generatePdf = async (subdomain, content, dealNumber) => {
     postfix: '.docx',
     name: `${dealNumber}.docx`,
   });
-  fs.writeFileSync(tmpFile.name, buffer);
+  fs.writeFileSync(tmpFile.name, pdf);
 
   const fileStream = fs.createReadStream(tmpFile.name);
   const fileSize = fs.statSync(tmpFile.name).size;
@@ -858,10 +859,7 @@ const generatePdf = async (subdomain, content, dealNumber) => {
     name: `${dealNumber}.pdf`,
   };
 
-}catch(e) {
-  console.error("eeeee ",e)
 }
-};
 
 export default async function userMiddleware(req: any, _res: any, next: any) {
   const subdomain = getSubdomain(req);

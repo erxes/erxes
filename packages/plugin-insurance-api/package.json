@@ -18,6 +18,7 @@
     "html-to-docx": "^1.8.0",
     "html-pdf": "^3.0.1",
     "puppeteer": "^22.6.3",
-    "tmp": "^0.2.3" 
+    "tmp": "^0.2.3",
+    "pdf-puppeteer": "^1.1.11"
   }
 }
