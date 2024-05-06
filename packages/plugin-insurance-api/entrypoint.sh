@@ -1,3 +1,3 @@
-node --max-http-header-size=16384 packages/plugin-insurance-api/src/index
+#!/bin/sh
 
-npx puppeteer browsers install chrome
+node --max-http-header-size=16384 packages/plugin-insurance-api/src/index
