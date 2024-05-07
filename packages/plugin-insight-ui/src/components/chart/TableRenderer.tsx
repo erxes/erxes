@@ -1,6 +1,7 @@
 import React from 'react';
 import Table from '@erxes/ui/src/components/table';
 import styled from 'styled-components';
+import { formatNumbers } from '../../utils';
 
 const ScrollWrapper = styled.div`
   height: 50vh;
@@ -29,6 +30,7 @@ const TableList = (props: Props) => {
   const { title, data, labels } = dataset;
 
   const headerTitle = serviceName.charAt(0).toUpperCase() + serviceName.slice(1);
+  const formatType = title && title.toLowerCase().includes('time') ? 'time' : 'commarize'
 
   return (
     <ScrollWrapper>
@@ -48,7 +50,7 @@ const TableList = (props: Props) => {
                 <td>
                   <b>{label}</b>
                 </td>
-                <td>{value}</td>
+                <td>{formatNumbers(value, 'x', formatType)}</td>
               </tr>
             ))}
         </tbody>

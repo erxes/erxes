@@ -38,6 +38,7 @@ interface MentionNodeAttrs {
   label?: string | null;
   avatar?: string;
   username?: string;
+  email?: string;
   fullName?: string;
   title?: string;
 }
@@ -46,11 +47,11 @@ export type SuggestionListProps = SuggestionProps<MentionNodeAttrs>;
 
 export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
   ({ items = [], command }, ref) => {
-    const { showMention } = useRichTextEditorContext()
+    const { showMention } = useRichTextEditorContext();
     const [selectedIndex, setSelectedIndex] = useState(0);
 
     const selectItem = (index: number) => {
-      if(!showMention) return
+      if (!showMention) return;
 
       if (index >= items.length) {
         // Make sure we actually have enough items to select the given index. For
@@ -63,7 +64,12 @@ export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
 
       const mentionItem = {
         id: item.id,
-        label: (item.fullName || item.username || '').trim(),
+        label: (
+          item.fullName ||
+          item.username ||
+          item.email ||
+          'Username not found'
+        ).trim(),
       };
 
       if (item) {
@@ -84,14 +90,14 @@ export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
     };
 
     useEffect(() => {
-      if(!showMention) return 
-      setSelectedIndex(0)
+      if (!showMention) return;
+      setSelectedIndex(0);
     }, [items]);
 
-    useImperativeHandle(ref, () => ({ 
+    useImperativeHandle(ref, () => ({
       onKeyDown: ({ event }) => {
-        if(!showMention) {
-          return false
+        if (!showMention) {
+          return false;
         }
 
         if (event.key === 'ArrowUp') {
@@ -114,15 +120,21 @@ export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
     }));
 
     const renderList = () => {
-      if(!showMention) return null
+      if (!showMention) return null;
 
       if (!items?.length) {
         return <VariableListBtn>No result</VariableListBtn>;
       }
 
       return items.map((item: MentionNodeAttrs, index: number) => {
-        const { id, username = '', fullName = '', title = '' } = item || {};
-
+        const {
+          id,
+          username = '',
+          fullName = '',
+          title = '',
+          email = '',
+        } = item || {};
+        const displayName = (fullName || username || email).trim();
         return (
           <VariableListBtn
             key={id}
@@ -134,16 +146,14 @@ export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
               <div className="mentionSuggestionsEntryContainerLeft">
                 <img
                   src={item.avatar || '/images/avatar-colored.svg'}
-                  alt={username}
-                  title={(fullName || username).trim()}
+                  alt={displayName}
+                  title={displayName}
                   role="presentation"
                   className="mentionSuggestionsEntryAvatar"
                 />
               </div>
               <div className="mentionSuggestionsEntryContainerRight">
-                <div className="mentionSuggestionsEntryText">
-                  {(fullName || username).trim()}
-                </div>
+                <div className="mentionSuggestionsEntryText">{displayName}</div>
                 <div className="mentionSuggestionsEntryTitle">{title}</div>
               </div>
             </FlexCenter>
@@ -152,8 +162,12 @@ export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
       });
     };
 
-    return <VariableListWrapper $hide={!showMention}>{renderList()}</VariableListWrapper>;
-  },
+    return (
+      <VariableListWrapper $hide={!showMention}>
+        {renderList()}
+      </VariableListWrapper>
+    );
+  }
 );
 
 MentionList.displayName = 'MentionList';

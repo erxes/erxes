@@ -1,23 +1,23 @@
-import resolvers from './graphql/resolvers';
-import typeDefs from './graphql/typeDefs';
+import resolvers from "./graphql/resolvers";
+import typeDefs from "./graphql/typeDefs";
 
-import { getSubdomain } from '@erxes/api-utils/src/core';
-import afterMutations from './afterMutations';
-import { generateModels } from './connectionResolver';
-import cronjobs from './cronjobs';
-import { generateAllDataLoaders } from './dataLoaders';
-import { setupMessageConsumers } from './messageBroker';
-import * as permissions from './permissions';
-import tags from './tags';
-import forms from './forms';
+import { getSubdomain } from "@erxes/api-utils/src/core";
+import afterMutations from "./afterMutations";
+import { generateModels } from "./connectionResolver";
+import cronjobs from "./cronjobs";
+import { generateAllDataLoaders } from "./dataLoaders";
+import { setupMessageConsumers } from "./messageBroker";
+import * as permissions from "./permissions";
+import tags from "./tags";
+import forms from "./forms";
 
 export default {
-  name: 'riskassessment',
+  name: "riskassessment",
   permissions,
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers(),
+      resolvers: await resolvers()
     };
   },
   apolloServerContext: async (context, req) => {
@@ -37,6 +37,6 @@ export default {
     afterMutations,
     tags,
     cronjobs,
-    forms,
-  },
+    forms
+  }
 };

@@ -1,14 +1,13 @@
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { IModels } from './connectionResolver';
 import { sendInboxMessage } from './messageBroker';
-import { getOrCreateCustomer } from './store';
-import * as moment from 'moment';
 
-const receiveCall = async (
+const acceptCall = async (
   models: IModels,
   subdomain: string,
   params,
   user,
+  type?: string,
 ) => {
   const integration = await models.Integrations.findOne({
     inboxId: params.inboxIntegrationId,
@@ -28,58 +27,33 @@ const receiveCall = async (
   const operator = integration.operators.find(
     (operator) => operator.userId === user?._id,
   );
-  params.recipientId = integration.phone;
+  params.operatorPhone = integration.phone;
   params.extentionNumber = operator?.gsUsername || '';
-  const { primaryPhone, recipientId, direction, callID, extentionNumber } =
-    params;
+  const {
+    extentionNumber,
+    operatorPhone,
+    customerPhone,
+    callStartTime,
+    callType,
+    callStatus,
+    sessionId,
+    inboxIntegrationId,
+  } = params;
 
-  const customer = await getOrCreateCustomer(models, subdomain, params);
-
-  // get conversation
-  const now = moment();
-
-  // Subtract 30 seconds
-  const dateBefore30Seconds = now.subtract(5, 'seconds');
-  let conversation = await models.Conversations.findOne({
-    callerNumber: primaryPhone,
-    status: 'missed',
-    createdAt: { $gte: dateBefore30Seconds.toDate() },
+  let customer = await models.Customers.findOne({
+    primaryPhone: customerPhone,
   });
 
-  if (conversation) {
-    return customer;
-  }
+  let history;
   try {
-    conversation = await models.Conversations.create({
-      callId: callID,
-      callerNumber: primaryPhone,
-      operatorPhone: recipientId,
-      integrationId: inboxIntegration._id,
-      createdAt: new Date(),
-    });
-  } catch (e) {
-    throw new Error(
-      e.message.includes('duplicate')
-        ? 'Concurrent request: conversation duplication'
-        : e,
-    );
-  }
-
-  let history = await models.CallHistory.findOne({
-    callerNumber: primaryPhone,
-    status: 'missed',
-    createdAt: { $gte: dateBefore30Seconds.toDate() },
-  });
-  if (history) {
-    return customer;
-  }
-
-  try {
-    const newHistory = new models.CallHistory({
-      sessionId: callID,
-      callerNumber: primaryPhone,
-      receiverNumber: recipientId,
-      callType: direction,
+    history = new models.CallHistory({
+      operatorPhone,
+      customerPhone,
+      callStartTime,
+      callType,
+      callStatus,
+      sessionId,
+      inboxIntegrationId,
       createdAt: new Date(),
       createdBy: user._id,
       updatedBy: user._id,
@@ -88,19 +62,20 @@ const receiveCall = async (
     });
 
     try {
-      await newHistory.save();
+      await history.save();
     } catch (error) {
+      await models.CallHistory.deleteOne({ _id: history._id });
       console.error('Error saving call history:', error);
     }
   } catch (e) {
     throw new Error(
       e.message.includes('duplicate')
-        ? 'Concurrent request: call session duplication'
+        ? 'Concurrent request: call history duplication'
         : e,
     );
   }
 
-  // save on api
+  //save on api
   try {
     const apiConversationResponse = await sendInboxMessage({
       subdomain,
@@ -108,21 +83,22 @@ const receiveCall = async (
       data: {
         action: 'create-or-update-conversation',
         payload: JSON.stringify({
-          customerId: customer.erxesApiId,
+          customerId: customer?.erxesApiId,
           integrationId: integration.inboxId,
-          content: direction || '',
-          conversationId: conversation.erxesApiId,
+          content: params.callType || '',
+          conversationId: history.conversationId,
           updatedAt: new Date(),
+          owner: type === 'addHistory' ? user?.details?.operatorPhone : '',
         }),
       },
       isRPC: true,
     });
 
-    conversation.erxesApiId = apiConversationResponse._id;
+    history.conversationId = apiConversationResponse._id;
 
-    await conversation.save();
+    await history.save();
   } catch (e) {
-    await models.Conversations.deleteOne({ _id: conversation._id });
+    await models.CallHistory.deleteOne({ _id: history._id });
     throw new Error(e);
   }
 
@@ -144,17 +120,16 @@ const receiveCall = async (
             _id: Math.random().toString(),
             content: 'new grandstream message',
             createdAt: new Date(),
-            customerId: customer.erxesApiId,
-            conversationId: conversation.erxesApiId,
+            customerId: customer?.erxesApiId,
+            conversationId: history.conversationId,
           },
-          conversation,
           integration: inboxIntegration,
         },
       );
     }
   }
 
-  return customer;
+  return history;
 };
 
-export default receiveCall;
+export default acceptCall;

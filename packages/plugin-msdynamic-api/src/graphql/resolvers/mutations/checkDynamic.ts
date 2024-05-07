@@ -2,6 +2,7 @@ import fetch from 'node-fetch';
 import {
   IContext,
   sendContactsMessage,
+  sendPosMessage,
   sendProductsMessage,
 } from '../../../messageBroker';
 import { getConfig } from '../../../utils';
@@ -11,7 +12,7 @@ const msdynamicCheckMutations = {
   async toCheckMsdProducts(
     _root,
     { brandId }: { brandId: string },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -62,7 +63,7 @@ const msdynamicCheckMutations = {
           'Content-Type': 'application/x-www-form-urlencoded',
           Accept: 'application/json',
           Authorization: `Basic ${Buffer.from(
-            `${username}:${password}`,
+            `${username}:${password}`
           ).toString('base64')}`,
         },
         timeout: 60000,
@@ -123,7 +124,7 @@ const msdynamicCheckMutations = {
   async toCheckMsdPrices(
     _root,
     { brandId }: { brandId: string },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -173,7 +174,7 @@ const msdynamicCheckMutations = {
           'Content-Type': 'application/x-www-form-urlencoded',
           Accept: 'application/json',
           Authorization: `Basic ${Buffer.from(
-            `${username}:${password}`,
+            `${username}:${password}`
           ).toString('base64')}`,
         },
       }).then((res) => res.json());
@@ -257,7 +258,7 @@ const msdynamicCheckMutations = {
   async toCheckMsdProductCategories(
     _root,
     { brandId, categoryId }: { brandId: string; categoryId: string },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -298,7 +299,7 @@ const msdynamicCheckMutations = {
           'Content-Type': 'application/x-www-form-urlencoded',
           Accept: 'application/json',
           Authorization: `Basic ${Buffer.from(
-            `${username}:${password}`,
+            `${username}:${password}`
           ).toString('base64')}`,
         },
       }).then((res) => res.json());
@@ -356,7 +357,7 @@ const msdynamicCheckMutations = {
   async toCheckMsdCustomers(
     _root,
     { brandId }: { brandId: string },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -397,7 +398,7 @@ const msdynamicCheckMutations = {
           'Content-Type': 'application/x-www-form-urlencoded',
           Accept: 'application/json',
           Authorization: `Basic ${Buffer.from(
-            `${username}:${password}`,
+            `${username}:${password}`
           ).toString('base64')}`,
         },
         timeout: 60000,
@@ -504,6 +505,78 @@ const msdynamicCheckMutations = {
         count: matchedCount,
       },
     };
+  },
+
+  async toCheckMsdSynced(
+    _root,
+    { ids, brandId }: { ids: string[]; brandId: string },
+    { subdomain }: IContext
+  ) {
+    const configs = await getConfig(subdomain, 'DYNAMIC', {});
+    const config = configs[brandId || 'noBrand'];
+
+    if (!config.salesApi || !config.username || !config.password) {
+      throw new Error('MS Dynamic config not found.');
+    }
+
+    const { salesApi, username, password } = config;
+
+    let filterSection = '';
+    let dynamicNo = [] as any;
+    let dynamicId = [] as any;
+
+    for (const id of ids) {
+      const order = await sendPosMessage({
+        subdomain,
+        action: 'orders.findOne',
+        data: { _id: id },
+        isRPC: true,
+      });
+
+      if (order && order.syncErkhetInfo) {
+        const obj = {};
+        obj[order.syncErkhetInfo] = id;
+
+        dynamicNo.push(order.syncErkhetInfo);
+        dynamicId.push(obj);
+      }
+    }
+
+    if (dynamicNo) {
+      for (const no of dynamicNo) {
+        filterSection += `No eq '${no}' or `;
+      }
+
+      filterSection = filterSection.slice(0, -4) + '';
+    }
+
+    const url = `${salesApi}?$filter=(${filterSection})`;
+
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
+          'base64'
+        )}`,
+      },
+      timeout: 60000,
+    }).then((r) => r.json());
+
+    const datas = response?.value;
+
+    return (datas || []).map((data) => {
+      const key = data.No;
+      const valueObject = dynamicId.find((obj) => key in obj);
+
+      return {
+        _id: valueObject[key],
+        isSynced: true,
+        syncedDate: data.Order_Date,
+        syncedBillNumber: data.No,
+        syncedCustomer: data.Sell_to_Customer_No,
+      };
+    });
   },
 };
 

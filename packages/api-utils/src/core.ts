@@ -1,34 +1,34 @@
-import * as mongoose from 'mongoose';
-import * as strip from 'strip';
-import { IUserDocument } from './types';
-import { IPermissionDocument } from './definitions/permissions';
-import { randomAlphanumeric } from '@erxes/api-utils/src/random';
-import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
-import * as messageBroker from './messageBroker';
-import type { InterMessage } from './messageBroker';
-import { coreModelOrganizations, getCoreConnection } from './saas/saas';
-import { connect } from './mongo-connection';
+import * as mongoose from "mongoose";
+import * as strip from "strip";
+import { IUserDocument } from "./types";
+import { IPermissionDocument } from "./definitions/permissions";
+import { randomAlphanumeric } from "@erxes/api-utils/src/random";
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
+import * as messageBroker from "./messageBroker";
+import type { InterMessage } from "./messageBroker";
+import { connect } from "./mongo-connection";
+import { coreModelOrganizations, getCoreConnection } from "./saas/saas";
 
 export const getEnv = ({
   name,
   defaultValue,
-  subdomain,
+  subdomain
 }: {
   name: string;
   defaultValue?: string;
   subdomain?: string;
 }): string => {
-  let value = process.env[name] || '';
+  let value = process.env[name] || "";
 
-  if (!value && typeof defaultValue !== 'undefined') {
+  if (!value && typeof defaultValue !== "undefined") {
     return defaultValue;
   }
 
   if (subdomain) {
-    value = value.replace('<subdomain>', subdomain);
+    value = value.replace("<subdomain>", subdomain);
   }
 
-  return value || '';
+  return value || "";
 };
 
 /**
@@ -49,12 +49,12 @@ export const paginate = (
     page?: number;
     perPage?: number;
     excludeIds?: boolean;
-  },
+  }
 ) => {
   const { page = 0, perPage = 0, ids, excludeIds } = params || { ids: null };
 
-  const _page = Number(page || '1');
-  const _limit = Number(perPage || '20');
+  const _page = Number(page || "1");
+  const _limit = Number(perPage || "20");
 
   if (ids && ids.length > 0) {
     return excludeIds ? collection.limit(_limit) : collection;
@@ -64,7 +64,7 @@ export const paginate = (
 };
 
 export const validSearchText = (values: string[]) => {
-  const value = values.join(' ');
+  const value = values.join(" ");
 
   if (value.length < 512) {
     return value;
@@ -74,29 +74,29 @@ export const validSearchText = (values: string[]) => {
 };
 
 const stringToRegex = (value: string) => {
-  const specialChars = '{}[]\\^$.|?*+()'.split('');
-  const val = value.split('');
+  const specialChars = "{}[]\\^$.|?*+()".split("");
+  const val = value.split("");
 
-  const result = val.map((char) =>
-    specialChars.includes(char) ? '.?\\' + char : '.?' + char,
+  const result = val.map(char =>
+    specialChars.includes(char) ? ".?\\" + char : ".?" + char
   );
 
-  return '.*' + result.join('').substring(2) + '.*';
+  return ".*" + result.join("").substring(2) + ".*";
 };
 
 export const regexSearchText = (
   searchValue: string,
-  searchKey = 'searchText',
+  searchKey = "searchText"
 ) => {
   const result: any[] = [];
 
-  searchValue = searchValue.replace(/\s\s+/g, ' ');
+  searchValue = searchValue.replace(/\s\s+/g, " ");
 
-  const words = searchValue.split(' ');
+  const words = searchValue.split(" ");
 
   for (const word of words) {
     result.push({
-      [searchKey]: { $regex: `${stringToRegex(word)}`, $options: 'mui' },
+      [searchKey]: { $regex: `${stringToRegex(word)}`, $options: "mui" }
     });
   }
 
@@ -134,8 +134,8 @@ export const getToday = (date: Date): Date => {
       date.getUTCDate(),
       0,
       0,
-      0,
-    ),
+      0
+    )
   );
 };
 
@@ -170,11 +170,11 @@ export const getNextMonth = (date: Date): { start: number; end: number } => {
  */
 export const checkUserIds = (
   oldUserIds: string[] = [],
-  newUserIds: string[] = [],
+  newUserIds: string[] = []
 ) => {
-  const removedUserIds = oldUserIds.filter((e) => !newUserIds.includes(e));
+  const removedUserIds = oldUserIds.filter(e => !newUserIds.includes(e));
 
-  const addedUserIds = newUserIds.filter((e) => !oldUserIds.includes(e));
+  const addedUserIds = newUserIds.filter(e => !oldUserIds.includes(e));
 
   return { addedUserIds, removedUserIds };
 };
@@ -196,7 +196,7 @@ export const chunkArray = (myArray, chunkSize: number) => {
 };
 
 export const cleanHtml = (content?: string) =>
-  strip(content || '').substring(0, 100);
+  strip(content || "").substring(0, 100);
 
 /**
  * Splits text into chunks of strings limited by given character count
@@ -213,26 +213,26 @@ export const cleanHtml = (content?: string) =>
 export const splitStr = (str: string, size: number): string[] => {
   const cleanStr = strip(str);
 
-  return cleanStr.match(new RegExp(new RegExp(`.{1,${size}}(\s|$)`, 'g')));
+  return cleanStr.match(new RegExp(new RegExp(`.{1,${size}}(\s|$)`, "g")));
 };
 
 const generateRandomEmail = () => {
-  let chars = 'abcdefghijklmnopqrstuvwxyz1234567890';
-  let string = '';
+  let chars = "abcdefghijklmnopqrstuvwxyz1234567890";
+  let string = "";
   for (let ii = 0; ii < 15; ii++) {
     string += chars[Math.floor(Math.random() * chars.length)];
   }
 
-  return string + '@gmail.com';
+  return string + "@gmail.com";
 };
 
 export const getUniqueValue = async (
   collection: any,
-  fieldName: string = 'code',
-  defaultValue?: string,
+  fieldName: string = "code",
+  defaultValue?: string
 ) => {
   const getRandomValue = (type: string) =>
-    type === 'email' ? generateRandomEmail() : randomAlphanumeric();
+    type === "email" ? generateRandomEmail() : randomAlphanumeric();
 
   let uniqueValue = defaultValue || getRandomValue(fieldName);
 
@@ -248,7 +248,7 @@ export const getUniqueValue = async (
 };
 
 export const escapeRegExp = (str: string) => {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 };
 
 export interface MessageArgs extends MessageArgsOmitService {
@@ -270,7 +270,7 @@ export const sendMessage = async (args: MessageArgs): Promise<any> => {
     defaultValue,
     isRPC,
     isMQ,
-    timeout,
+    timeout
   } = args;
 
   if (serviceName && !(await isEnabled(serviceName))) {
@@ -281,16 +281,16 @@ export const sendMessage = async (args: MessageArgs): Promise<any> => {
     }
   }
 
-  const queueName = serviceName + (serviceName ? ':' : '') + action;
+  const queueName = serviceName + (serviceName ? ":" : "") + action;
 
   return messageBroker[
-    isRPC ? (isMQ ? 'sendRPCMessageMq' : 'sendRPCMessage') : 'sendMessage'
+    isRPC ? (isMQ ? "sendRPCMessageMq" : "sendRPCMessage") : "sendMessage"
   ](queueName, {
     subdomain,
     data,
     defaultValue,
     timeout,
-    thirdService: data && data.thirdService,
+    thirdService: data && data.thirdService
   });
 };
 
@@ -301,17 +301,17 @@ interface IActionMap {
 export const userActionsMap = async (
   userPermissions: IPermissionDocument[],
   groupPermissions: IPermissionDocument[],
-  user: any,
+  user: any
 ): Promise<IActionMap> => {
   const totalPermissions: IPermissionDocument[] = [
     ...userPermissions,
     ...groupPermissions,
-    ...(user.customPermissions || []),
+    ...(user.customPermissions || [])
   ];
   const allowedActions: IActionMap = {};
 
   const check = (name: string, allowed: boolean) => {
-    if (typeof allowedActions[name] === 'undefined') {
+    if (typeof allowedActions[name] === "undefined") {
       allowedActions[name] = allowed;
     }
 
@@ -338,9 +338,9 @@ export const userActionsMap = async (
  * Generate url depending on given file upload publicly or not
  */
 export const generateAttachmentUrl = (urlOrName: string) => {
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
+  const DOMAIN = getEnv({ name: "DOMAIN" });
 
-  if (urlOrName.startsWith('http')) {
+  if (urlOrName.startsWith("http")) {
     return urlOrName;
   }
 
@@ -349,8 +349,8 @@ export const generateAttachmentUrl = (urlOrName: string) => {
 
 export const getSubdomain = (req): string => {
   const hostname =
-    req.headers['nginx-hostname'] || req.headers.hostname || req.hostname;
-  const subdomain = hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
+    req.headers["nginx-hostname"] || req.headers.hostname || req.hostname;
+  const subdomain = hostname.replace(/(^\w+:|^)\/\//, "").split(".")[0];
   return subdomain;
 };
 
@@ -358,23 +358,23 @@ export const connectionOptions: mongoose.ConnectionOptions = {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
-  family: 4,
+  family: 4
 };
 
 export const createGenerateModels = <IModels>(
   loadClasses: (
     db: mongoose.Connection,
-    subdomain: string,
-  ) => IModels | Promise<IModels>,
+    subdomain: string
+  ) => IModels | Promise<IModels>
 ): ((hostnameOrSubdomain: string) => Promise<IModels>) => {
-  const VERSION = getEnv({ name: 'VERSION' });
+  const VERSION = getEnv({ name: "VERSION" });
 
   connect();
 
-  if (VERSION && VERSION !== 'saas') {
+  if (VERSION && VERSION !== "saas") {
     let models: IModels | null = null;
     return async function genereteModels(
-      hostnameOrSubdomain: string,
+      hostnameOrSubdomain: string
     ): Promise<IModels> {
       if (models) {
         return models;
@@ -386,12 +386,12 @@ export const createGenerateModels = <IModels>(
     };
   } else {
     return async function genereteModels(
-      hostnameOrSubdomain: string = '',
+      hostnameOrSubdomain: string = ""
     ): Promise<IModels> {
       let subdomain: string = hostnameOrSubdomain;
 
       // means hostname
-      if (subdomain && subdomain.includes('.')) {
+      if (subdomain && subdomain.includes(".")) {
         subdomain = getSubdomain(hostnameOrSubdomain);
       }
 
@@ -405,21 +405,21 @@ export const createGenerateModels = <IModels>(
 
       if (!organization) {
         throw new Error(
-          `Organization with subdomain = ${subdomain} is not found`,
+          `Organization with subdomain = ${subdomain} is not found`
         );
       }
 
-      const DB_NAME = getEnv({ name: 'DB_NAME' });
-      const GE_MONGO_URL = (DB_NAME || 'erxes_<organizationId>').replace(
-        '<organizationId>',
-        organization._id,
+      const DB_NAME = getEnv({ name: "DB_NAME" });
+      const GE_MONGO_URL = (DB_NAME || "erxes_<organizationId>").replace(
+        "<organizationId>",
+        organization._id
       );
 
       // @ts-ignore
       const tenantCon = mongoose.connection.useDb(GE_MONGO_URL, {
         // so that conn.model method can use cached connection
         useCache: true,
-        noListener: true,
+        noListener: true
       });
 
       return await loadClasses(tenantCon, subdomain);
@@ -428,10 +428,10 @@ export const createGenerateModels = <IModels>(
 };
 
 export const authCookieOptions = (options: any = {}) => {
-  const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+  const NODE_ENV = getEnv({ name: "NODE_ENV" });
   const maxAge = options.expires || 14 * 24 * 60 * 60 * 1000;
 
-  const secure = !['test', 'development'].includes(NODE_ENV);
+  const secure = !["test", "development"].includes(NODE_ENV);
 
   if (!secure && options.sameSite) {
     delete options.sameSite;
@@ -442,19 +442,19 @@ export const authCookieOptions = (options: any = {}) => {
     expires: new Date(Date.now() + maxAge),
     maxAge,
     secure,
-    ...options,
+    ...options
   };
 
   return cookieOptions;
 };
 
 export const stripHtml = (string: any) => {
-  if (typeof string === 'undefined' || string === null) {
+  if (typeof string === "undefined" || string === null) {
     return;
   } else {
     const regex = /(&nbsp;|<([^>]+)>)/gi;
-    let result = string.replace(regex, '');
-    result = result.replace(/&#[0-9][0-9][0-9][0-9];/gi, ' ');
+    let result = string.replace(regex, "");
+    result = result.replace(/&#[0-9][0-9][0-9][0-9];/gi, " ");
     const cut = result.slice(0, 70);
     return cut;
   }
@@ -465,7 +465,7 @@ const DATE_OPTIONS = {
   h: 1000 * 60 * 60,
   m: 1000 * 60,
   s: 1000,
-  ms: 1,
+  ms: 1
 };
 
 const CHARACTERS =
@@ -476,7 +476,7 @@ const BEGIN_DIFF = 1577836800000; // new Date('2020-01-01').getTime();
 export const dateToShortStr = (
   date?: Date | string | number,
   scale?: 10 | 16 | 62 | 92 | number,
-  kind?: 'd' | 'h' | 'm' | 's' | 'ms',
+  kind?: "d" | "h" | "m" | "s" | "ms"
 ) => {
   date = new Date(date || new Date());
 
@@ -484,7 +484,7 @@ export const dateToShortStr = (
     scale = 62;
   }
   if (!kind) {
-    kind = 'd';
+    kind = "d";
   }
 
   const divider = DATE_OPTIONS[kind];
@@ -492,7 +492,7 @@ export const dateToShortStr = (
 
   let intgr = Math.round((date.getTime() - BEGIN_DIFF) / divider);
 
-  let short = '';
+  let short = "";
 
   while (intgr > 0) {
     const preInt = intgr;
@@ -507,8 +507,8 @@ export const dateToShortStr = (
 export const shortStrToDate = (
   shortStr: string,
   scale?: 10 | 16 | 62 | 92 | number,
-  kind?: 'd' | 'h' | 'm' | 's' | 'ms',
-  resultType?: 'd' | 'n',
+  kind?: "d" | "h" | "m" | "s" | "ms",
+  resultType?: "d" | "n"
 ) => {
   if (!shortStr) return;
 
@@ -516,7 +516,7 @@ export const shortStrToDate = (
     scale = 62;
   }
   if (!kind) {
-    kind = 'd';
+    kind = "d";
   }
   const chars = CHARACTERS.substring(0, scale);
   const multiplier = DATE_OPTIONS[kind];
@@ -532,7 +532,7 @@ export const shortStrToDate = (
 
   intgr = intgr * multiplier + BEGIN_DIFF;
 
-  if (resultType === 'd') return new Date(intgr);
+  if (resultType === "d") return new Date(intgr);
 
   return intgr;
 };

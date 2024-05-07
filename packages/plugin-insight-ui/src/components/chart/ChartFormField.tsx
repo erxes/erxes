@@ -16,6 +16,8 @@ import SelectLeads from '../utils/SelectLeads';
 import { IFilterType } from '../../containers/chart/ChartFormField';
 import SelectClientPortal from '../utils/SelectClientPortal';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
+import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 
 type Props = {
   fieldType: string;
@@ -58,7 +60,7 @@ const ChartFormField = (props: Props) => {
   } = filterType;
 
   useEffect(() => {
-    if (fieldDefaultValue) {
+    if (!fieldValue && fieldDefaultValue) {
       setFieldValue(fieldDefaultValue);
       onChange(fieldDefaultValue);
     }
@@ -68,7 +70,7 @@ const ChartFormField = (props: Props) => {
 
   const onSelect = (selectedOption) => {
 
-    if (!selectedOption) {
+    if (selectedOption === undefined || selectedOption === null) {
       setFieldValue('');
       onChange('');
     }
@@ -212,6 +214,32 @@ const ChartFormField = (props: Props) => {
           <SelectCompanies
             label="Select companies"
             name="companyId"
+            multi={multi}
+            initialValue={fieldValue}
+            onSelect={onChange}
+          />
+        </div>
+      )
+    case 'customers':
+      return (
+        <div>
+          <ControlLabel> {fieldLabel}</ControlLabel>
+          <SelectCustomers
+            label="Select customers"
+            name="customerId"
+            multi={multi}
+            initialValue={fieldValue}
+            onSelect={onChange}
+          />
+        </div>
+      )
+    case 'products':
+      return (
+        <div>
+          <ControlLabel> {fieldLabel}</ControlLabel>
+          <SelectProducts
+            label="Select products"
+            name="productId"
             multi={multi}
             initialValue={fieldValue}
             onSelect={onChange}
