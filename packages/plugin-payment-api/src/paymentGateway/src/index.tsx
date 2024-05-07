@@ -7,9 +7,9 @@ import { parse } from 'query-string';
 import { client } from './apolloClient';
 import Payments from './containers/Payments';
 import Modal from 'react-modal';
+import './common/newstyles.css';
+
 // import './common/styles.css';
-
-
 
 const App = () => {
   const pathname = window.location.pathname;
@@ -20,7 +20,7 @@ const App = () => {
 
   const invoiceId = (window as any).invoiceId;
   if (!invoiceId) {
-    return <div>Bad request</div>;
+    return <div className="py-12 text-center">Bad request</div>;
   }
 
   // children = <div>Hello world</div>;

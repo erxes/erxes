@@ -2,6 +2,7 @@ import React from 'react';
 import { useQuery, useMutation, gql, useSubscription } from '@apollo/client';
 import Spinner from '../common/Spinner';
 import Component from '../components/Payments';
+import Loader from '../common/Loader';
 
 const INVOICE_SUBSCRIPTION = gql`
   subscription invoiceUpdated($invoiceId: String!) {
@@ -96,15 +97,15 @@ const Payments = (props: Props) => {
   const [addTransaction, addTransactionResponse] = useMutation(ADD_TRANSACTION);
 
   const invoiceSubscription = useSubscription(INVOICE_SUBSCRIPTION, {
-    variables: { invoiceId },
+    variables: { invoiceId }
   });
 
   const transactionSubscription = useSubscription(TRANSACTION_SUBSCRIPTION, {
-    variables: { invoiceId },
+    variables: { invoiceId }
   });
 
   const invoiceDetailQuery = useQuery(INVOICE, {
-    variables: { id: invoiceId },
+    variables: { id: invoiceId }
   });
 
   React.useEffect(() => {
@@ -115,7 +116,7 @@ const Payments = (props: Props) => {
         invoiceId,
         invoice: invoiceSubscription.data.invoiceUpdated,
         contentType: invoiceDetail.contentType,
-        contentTypeId: invoiceDetail.contentTypeId,
+        contentTypeId: invoiceDetail.contentTypeId
       };
 
       // check invoice status
@@ -135,7 +136,11 @@ const Payments = (props: Props) => {
   }, [invoiceSubscription.data, transactionSubscription.data]);
 
   if (loading || invoiceDetailQuery.loading) {
-    return <Spinner />;
+    return (
+      <div className="py-12 flex items-center justify-center">
+        <Loader />
+      </div>
+    );
   }
 
   if (invoiceDetailQuery.error) {
@@ -152,8 +157,8 @@ const Payments = (props: Props) => {
         invoiceId,
         paymentId,
         details,
-        amount: invoiceDetail.amount,
-      },
+        amount: invoiceDetail.amount
+      }
     }).then(() => {
       invoiceDetailQuery.refetch();
     });
@@ -161,7 +166,7 @@ const Payments = (props: Props) => {
 
   const checkInvoiceHandler = (id: string) => {
     checkInvoice({ variables: { id } })
-      .catch((e) => {
+      .catch(e => {
         console.log(e);
       })
       .then((res: any) => {
@@ -177,7 +182,7 @@ const Payments = (props: Props) => {
             invoiceId,
             invoice: invoiceDetail,
             contentType: invoiceDetail.contentType,
-            contentTypeId: invoiceDetail.contentTypeId,
+            contentTypeId: invoiceDetail.contentTypeId
           };
           postMessage(message);
         }
@@ -195,11 +200,12 @@ const Payments = (props: Props) => {
   };
 
   const newTransaction =
-    addTransactionResponse.data && addTransactionResponse.data.paymentTransactionsAdd;
+    addTransactionResponse.data &&
+    addTransactionResponse.data.paymentTransactionsAdd;
   let payments = data.paymentsPublic || [];
 
   // if invoice amount is less than 100000, hide storepay
-  if (invoiceDetail && invoiceDetail.amount < 100000) {
+  if (invoiceDetail && invoiceDetail.amount < 100) {
     payments = payments.filter((p: any) => p.kind !== 'storepay');
   }
 
@@ -212,7 +218,7 @@ const Payments = (props: Props) => {
       invoiceId,
       invoice: invoiceDetail,
       contentType: invoiceDetail.contentType,
-      contentTypeId: invoiceDetail.contentTypeId,
+      contentTypeId: invoiceDetail.contentTypeId
     });
 
     return <div>Payment has been successfully processed. Thank you! </div>;
@@ -225,7 +231,7 @@ const Payments = (props: Props) => {
     newTransaction,
     requestNewTransaction,
     checkInvoiceHandler,
-    transactionLoading: addTransactionResponse.loading,
+    transactionLoading: addTransactionResponse.loading
   };
 
   return <Component {...updatedProps} />;

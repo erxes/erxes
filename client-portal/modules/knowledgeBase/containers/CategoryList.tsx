@@ -40,40 +40,40 @@ const MUTATION = gql`
 `;
 
 function CategoriesContainer() {
-  const { REACT_APP_TOKEN = '' } = getEnv();
+  const {
+    REACT_APP_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHAiOnsiY3JlYXRlZEF0IjoiMjAyMy0xMi0yMVQwMDo1NDozNS44MDZaIiwibmFtZSI6InBvcyBwYXltZW50IiwidXNlckdyb3VwSWQiOiJuUmhodEdEVHN6OGRLdkpzOERyQ1UiLCJleHBpcmVEYXRlIjoiMjAyNC0wMS0yMFQwNTo1MDowMC43MDJaIiwiYWxsb3dBbGxQZXJtaXNzaW9uIjpmYWxzZSwibm9FeHBpcmUiOnRydWUsIl9pZCI6ImFMOTE2eEplekowM2hHQ2ZpeWwzYSIsIl9fdiI6MH0sImlhdCI6MTcwMzEzNzgwOX0.65yETqkDew7NWZRAIHOcpdmQnOzKhr9qy3ugrR8DH-Q'
+  } = getEnv();
 
   console.log('REACT_APP_TOKEN', REACT_APP_TOKEN);
 
   const router = useRouter();
 
   if (typeof window !== 'undefined') {
-    
-  window.addEventListener('message', (event) => {
-    const { fromPayment, message, invoice } = event.data;
+    window.addEventListener('message', event => {
+      const { fromPayment, message, invoice } = event.data;
 
-    if (fromPayment) {
-      if (message === 'paymentSuccessfull') {
-        console.log('paymentSuccessfull', invoice);
+      if (fromPayment) {
+        if (message === 'paymentSuccessfull') {
+          console.log('paymentSuccessfull', invoice);
 
-        const pendingInvoices = sessionStorage.getItem('pendingInvoices');
+          const pendingInvoices = sessionStorage.getItem('pendingInvoices');
 
-        const parsed = pendingInvoices ? JSON.parse(pendingInvoices) : [];
+          const parsed = pendingInvoices ? JSON.parse(pendingInvoices) : [];
 
-        // remove invoice from pending invoices
-        const filtered = parsed.filter((p) => p._id !== invoice._id);
+          // remove invoice from pending invoices
+          const filtered = parsed.filter(p => p._id !== invoice._id);
 
-        sessionStorage.setItem('pendingInvoices', JSON.stringify(filtered));
+          sessionStorage.setItem('pendingInvoices', JSON.stringify(filtered));
+        }
       }
-    }
-  });
+    });
   }
-
 
   const { searchValue } = router.query;
 
   const [invoiceCreate] = useMutation(MUTATION);
 
-  const renderContent = (props) => {
+  const renderContent = props => {
     if (searchValue) {
       return (
         <ArticleListContainer
@@ -94,9 +94,7 @@ function CategoriesContainer() {
 
     const parsed = pendingInvoices ? JSON.parse(pendingInvoices) : [];
 
-    const previousInvoice = parsed.find(
-      (p) => p.contentTypeId === contentTypeId
-    );
+    const previousInvoice = parsed.find(p => p.contentTypeId === contentTypeId);
 
     if (previousInvoice) {
       const url = `http://localhost:4000/pl:payment/invoice/${previousInvoice._id}`;
@@ -110,14 +108,15 @@ function CategoriesContainer() {
         amount: 1000,
         phone: '12345678',
         contentType: 'cards:deal',
-        contentTypeId,
+        contentTypeId
       },
       context: {
         headers: {
-          'erxes-app-token': REACT_APP_TOKEN,
-        },
-      },
-    }).then((res) => {
+          'erxes-app-token':
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHAiOnsiY3JlYXRlZEF0IjoiMjAyMy0xMi0yMVQwMDo1NDozNS44MDZaIiwibmFtZSI6InBvcyBwYXltZW50IiwidXNlckdyb3VwSWQiOiJuUmhodEdEVHN6OGRLdkpzOERyQ1UiLCJleHBpcmVEYXRlIjoiMjAyNC0wMS0yMFQwNTo1MDowMC43MDJaIiwiYWxsb3dBbGxQZXJtaXNzaW9uIjpmYWxzZSwibm9FeHBpcmUiOnRydWUsIl9pZCI6ImFMOTE2eEplekowM2hHQ2ZpeWwzYSIsIl9fdiI6MH0sImlhdCI6MTcwMzEzNzgwOX0.65yETqkDew7NWZRAIHOcpdmQnOzKhr9qy3ugrR8DH-Q'
+        }
+      }
+    }).then(res => {
       const inv = res.data.invoiceCreate;
 
       const url = `http://localhost:4000/pl:payment/invoice/${inv._id}`;
@@ -127,7 +126,7 @@ function CategoriesContainer() {
         amount: inv.amount,
         status: inv.status,
         contentTypeId,
-        contentType: 'cards:deal',
+        contentType: 'cards:deal'
       };
 
       if (pendingInvoices) {
@@ -153,7 +152,7 @@ function CategoriesContainer() {
     position: 'absolute',
     // top: '10%',
     left: '50%',
-    transform: 'translate(-50%, -50%)',
+    transform: 'translate(-50%, -50%)'
   };
 
   return (
@@ -163,7 +162,7 @@ function CategoriesContainer() {
           position: 'absolute',
           top: '10%',
           left: '50%',
-          transform: 'translate(-50%, -50%)',
+          transform: 'translate(-50%, -50%)'
         }}
         onClick={() => {
           createInvoice();
