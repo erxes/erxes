@@ -85,6 +85,7 @@ export const single = async (email: string, hostname: string) => {
       },
     });
   } catch (e) {
+    console.error('Error has occured: ', e);
     response.status = 'failed';
   }
 
