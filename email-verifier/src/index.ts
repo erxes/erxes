@@ -7,7 +7,6 @@ import { connect } from './connection';
 import './cronJobs/verifier';
 import { initRedis } from './redisClient';
 import { debugBase, debugCrons, debugRequest } from './utils';
-import fetch from 'node-fetch';
 
 // load environment variables
 dotenv.config();
