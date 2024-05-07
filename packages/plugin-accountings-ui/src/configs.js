@@ -13,7 +13,7 @@ module.exports = {
   },
   menus: [
     {
-      text: 'Accountings',
+      text: 'Accounts',
       to: '/accountings/accounts',
       image: '/images/icons/erxes-31.png',
       location: 'settings',
@@ -22,7 +22,7 @@ module.exports = {
       permissions: ["showAccounts", "manageAccounts"],
     },
     {
-      text: 'Accountings',
+      text: 'Configs of Accountings',
       to: '/accountings/accounts',
       image: '/images/icons/erxes-31.png',
       location: 'settings',
