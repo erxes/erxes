@@ -10,7 +10,8 @@ import fetch from 'node-fetch';
 
 dotenv.config();
 
-const { REACHER_HOST, REACHER_PORT } = process.env;
+const { REACHER_HOST = 'http://localhost', REACHER_PORT = '8080' } =
+  process.env;
 
 const REDIS_QUEUE_KEY = 'emailVerificationQueue';
 
@@ -44,7 +45,7 @@ export const single = async (email: string, hostname: string) => {
     },
     body: JSON.stringify(data),
   };
-
+  console.log(url);
   console.log(options);
 
   try {
