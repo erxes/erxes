@@ -1,4 +1,4 @@
-import * as EmailValidator from 'email-deep-validator';
+import * as dotenv from 'dotenv';
 import {
   EMAIL_VALIDATION_SOURCES,
   EMAIL_VALIDATION_STATUSES,
@@ -6,11 +6,11 @@ import {
 } from './models';
 import { popFromQueue, pushToQueue } from './redisClient';
 import { debugBase, debugError, isEmailValid, sendRequest } from './utils';
-import * as dotenv from 'dotenv';
+import fetch from 'node-fetch';
 
 dotenv.config();
 
-const { SENDGRID_API_KEY } = process.env;
+const { REACHER_HOST, REACHER_PORT } = process.env;
 
 const REDIS_QUEUE_KEY = 'emailVerificationQueue';
 
@@ -31,75 +31,64 @@ export const single = async (email: string, hostname: string) => {
     });
   }
 
-  const emailValidator = new EmailValidator();
-  const { validDomain, validMailbox } = await emailValidator.verify(email);
-
-  if (validDomain && validMailbox) {
-    return sendRequest({
-      url: `${hostname}/verifier/webhook`,
-      method: 'POST',
-      body: {
-        email: { email, status: EMAIL_VALIDATION_STATUSES.VALID },
-        source: EMAIL_VALIDATION_SOURCES.ERXES,
-      },
-    });
-  }
-
   let response: { status?: string; verdict?: string } = {};
 
-  const client = require('@sendgrid/client');
-
-  client.setApiKey(SENDGRID_API_KEY);
-
-  const request = {
+  const url = `${REACHER_HOST}:${REACHER_PORT}/v0/check_email`;
+  const data = {
+    to_email: email,
+  };
+  const options = {
     method: 'POST',
-    url: '/v3/validations/email',
-    body: { email },
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
   };
 
-  console.log('verifying email on sendgrid', email);
+  console.log(options);
 
   try {
-    const [body] = await client.request(request);
-    const { statusCode } = body;
-    if (statusCode !== 200) {
-      throw new Error(`Sendgrid returned status code ${statusCode}`);
+    const result = await fetch(url, options).then((r) => r.json());
+
+    console.log(result);
+    const doc = {
+      status: 'unknown',
+      email,
+    };
+
+    switch (result.is_reachable.toLowerCase()) {
+      case 'safe':
+        doc.status = EMAIL_VALIDATION_STATUSES.VALID;
+        break;
+      case 'invalid':
+        doc.status = EMAIL_VALIDATION_STATUSES.INVALID;
+        break;
+      case 'unknown':
+        doc.status = EMAIL_VALIDATION_STATUSES.UNKNOWN;
+        break;
+      case 'risky':
+        doc.status = EMAIL_VALIDATION_STATUSES.RISKY;
+        break;
+      default:
+        doc.status = EMAIL_VALIDATION_STATUSES.UNKNOWN;
+        break;
     }
 
-    response = body.body.result;
-    response.status = 'success';
-  } catch (e) {
-    debugError(`Error occured during single sendgrid validation ${e.message}`);
-    console.error('email', email);
-    throw e;
-  }
-
-  console.log('email has been verified on sendgrid', email, response);
-
-  if (response.status === 'success') {
-    const doc = { email, status: response.verdict.toLowerCase() };
-
-    if (
-      doc.status === EMAIL_VALIDATION_STATUSES.VALID ||
-      doc.status === EMAIL_VALIDATION_STATUSES.INVALID
-    ) {
-      await Emails.createEmail(doc);
-    }
-
-    debugBase(
-      `Sending single email validation status to `,
-      `${hostname}/verifier/webhook`,
-    );
+    await Emails.createEmail(doc);
 
     return sendRequest({
       url: `${hostname}/verifier/webhook`,
       method: 'POST',
       body: {
         email: doc,
-        source: EMAIL_VALIDATION_SOURCES.SENDGRID,
+        source: EMAIL_VALIDATION_SOURCES.REACHER,
       },
     });
+  } catch (e) {
+    response.status = 'failed';
   }
+
+  console.log('email has been verified on sendgrid', email, response);
 
   // if status is not success
   return sendRequest({
@@ -107,7 +96,7 @@ export const single = async (email: string, hostname: string) => {
     method: 'POST',
     body: {
       email: { email, status: EMAIL_VALIDATION_STATUSES.UNKNOWN },
-      source: EMAIL_VALIDATION_SOURCES.SENDGRID,
+      source: EMAIL_VALIDATION_SOURCES.REACHER,
     },
   });
 };
