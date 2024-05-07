@@ -16,7 +16,7 @@ const generateMessages = async (
   subdomain: string,
   config: any,
   conversation: IConversation,
-  customer: ICustomer
+  customer: ICustomer,
 ) => {
   let { messages = [] } = config || {};
 
@@ -258,9 +258,9 @@ const generateObjectToWait = ({
     obj.waitingActionId = actionIdIfNotReply;
 
     propertyName = 'botId';
-  }else{
-    obj.startWaitingDate = moment().add(24,'hours').toDate()
-    obj.waitingActionId = null
+  } else {
+    obj.startWaitingDate = moment().add(24, 'hours').toDate();
+    obj.waitingActionId = null;
   }
 
   return {
@@ -336,10 +336,13 @@ export const actionCreateMessage = async (
         {
           recipient: { id: senderId },
           message,
+          sender_action: 'typing_on',
         },
         recipientId,
         integration.erxesApiId,
-      );
+      ).catch((error) => {
+        throw new Error(error);
+      });
 
       if (!resp) {
         return;
@@ -362,7 +365,8 @@ export const actionCreateMessage = async (
           ...conversationMessage.toObject(),
           conversationId: conversation.erxesApiId,
         },
-        isRPC:true
+      }).catch((error) => {
+        debugError(error.message);
       });
 
       result.push(conversationMessage);
@@ -384,5 +388,6 @@ export const actionCreateMessage = async (
     };
   } catch (error) {
     debugError(error.message);
+    throw new Error(error.message);
   }
 };
