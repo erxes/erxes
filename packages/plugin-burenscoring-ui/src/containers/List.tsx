@@ -8,17 +8,14 @@ import {
 } from '../types';
 import { queries } from '../graphql';
 import React from 'react';
-import { IRouterProps } from '@erxes/ui/src/types';
 
 type Props = {
-  history: any;
   queryParams: any;
 };
 
 type FinalProps = {
   ListMainQuery: BurenScoringQueryResponse;
-} & Props & 
-IRouterProps 
+} & Props
 
 class ListContainer extends React.Component<FinalProps> {
   render() {

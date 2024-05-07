@@ -17,7 +17,7 @@ function List({
   totalCount
 }: Props) {
   const content = (
-    <Table  whiteSpace="nowrap" bordered={true} hover={true} striped>
+    <Table  $whiteSpace="nowrap" $bordered={true} $hover={true} $striped>
       <thead>
         <tr>
           <th>{__('score')}</th>

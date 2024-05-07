@@ -11,6 +11,8 @@ import {
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { IBurenScoring } from '../types';
+import Select from 'react-select';
+
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   customerScore: IBurenScoring;
@@ -97,7 +99,7 @@ class ScoringMainForm extends React.Component<Props, State> {
                 required={true}
               />
             </FormGroup>
-            {/* <FormGroup>
+            <FormGroup>
                 <ControlLabel required={true} >{__('Scoring type')}</ControlLabel>
                 <Select
                   {...formProps}
@@ -106,10 +108,10 @@ class ScoringMainForm extends React.Component<Props, State> {
                   options={this.state.reportPurposeList.map((f) => ({ value: f.value, label: f.label }))}
                   value={this.state.reportPurpose}
                   onChange={onchangeType}
-                  multi={false}
+                  isMulti={false}
                   required = {true}
                 />
-            </FormGroup> */}
+            </FormGroup>
             <FormGroup> 
               <Table >
                     <thead>

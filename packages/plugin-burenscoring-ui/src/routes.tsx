@@ -1,8 +1,9 @@
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
 import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import GeneralSettings from './config/components/Settings';
+import queryString from 'query-string'
+
 const List = asyncComponent(() =>
   import(/* webpackChunkName: "List - Burenscorings" */ './containers/List')
 );
@@ -10,12 +11,10 @@ const Settings = asyncComponent(
   () =>
     import(/* webpackChunkName: "Settings" */ './config/containers/Settings'),
 );
-
-const burenscorings = ({ location, history }) => {
-  const queryParams = queryString.parse(location.search);
-  const { type } = queryParams;
-
-  return <List typeId={type} history={history} />;
+const burenscorings = () => {
+  const location = useLocation();
+  const queryParams = queryString.parse(location.search)
+  return <List queryParams = {queryParams} />;
 };
 
 const GeneralSetting = () => {
@@ -24,16 +23,18 @@ const GeneralSetting = () => {
 
 const routes = () => {
   return (
-    <React.Fragment>
+    <Routes>
       <Route 
-        path="/burenscorings/" 
-        component={burenscorings} 
+        key="/burenscorings" 
+        path="/burenscorings"
+        Component={burenscorings}
         />;
       <Route
+        key="/burenscorings"
         path="/erxes-plugin-burenscoring/config/Settings"
-        component={GeneralSetting}
+        Component = {GeneralSetting}
       />
-    </React.Fragment>
+    </Routes>
   )
 };
 

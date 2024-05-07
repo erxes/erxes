@@ -14,9 +14,9 @@ module.exports = {
   },
   menus:[
     {
-      "text":"BurenScorings",
-      "url":"/burenscorings","icon":"icon-star",
-      "location":"mainNavigation"
+      text:"BurenScorings",
+      url:"/burenscorings","icon":"icon-star",
+      location:"mainNavigation"
     },
     {
       text: 'scoring config',
@@ -26,11 +26,5 @@ module.exports = {
       scope: "burenscoring"
     }
 ],
-customerRightSidebarSection: [
-  {
-    text: 'customerRightSidebarSection',
-    component: './burenSection',
-    scope: 'burenscoring'
-  }
-]
+customerRightSidebarSection: './burenSection'
 };
