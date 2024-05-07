@@ -45,7 +45,7 @@ export const isInSegment = async (
   segmentId: string,
   targetId: string,
 ) => {
-  await delay(10000);
+  await delay(15000);
 
   const response = await sendSegmentsMessage({
     subdomain,
