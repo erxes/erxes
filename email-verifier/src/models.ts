@@ -37,7 +37,8 @@ export const PHONE_VALIDATION_STATUSES = {
 export const EMAIL_VALIDATION_SOURCES = {
   ERXES: 'erxes',
   SENDGRID: 'sendgrid',
-  ALL: ['erxes', 'sendgrid'],
+  REACHER: 'reacher',
+  ALL: ['erxes', 'sendgrid', 'reacher'],
 };
 
 interface IEmail {
