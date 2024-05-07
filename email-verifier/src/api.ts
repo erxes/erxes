@@ -10,7 +10,11 @@ import { debugBase, debugError, isEmailValid, sendRequest } from './utils';
 
 dotenv.config();
 
-const { TRUEMAIL_TOKEN, TRUEMAIL_PORT = '9292' } = process.env;
+const {
+  TRUEMAIL_HOST = 'localhost',
+  TRUEMAIL_TOKEN,
+  TRUEMAIL_PORT = '9292',
+} = process.env;
 
 const REDIS_QUEUE_KEY = 'emailVerificationQueue';
 
@@ -33,7 +37,7 @@ export const single = async (email: string, hostname: string) => {
 
   let response: { status?: string; verdict?: string } = {};
 
-  const url = `http://localhost:${TRUEMAIL_PORT}?email=${email}`;
+  const url = `http://${TRUEMAIL_HOST}:${TRUEMAIL_PORT}?email=${email}`;
 
   const options = {
     method: 'GET',
