@@ -1,4 +1,5 @@
 import * as dotenv from 'dotenv';
+import fetch from 'node-fetch';
 import {
   EMAIL_VALIDATION_SOURCES,
   EMAIL_VALIDATION_STATUSES,
@@ -6,12 +7,10 @@ import {
 } from './models';
 import { popFromQueue, pushToQueue } from './redisClient';
 import { debugBase, debugError, isEmailValid, sendRequest } from './utils';
-import fetch from 'node-fetch';
 
 dotenv.config();
 
-const { REACHER_HOST = 'http://localhost', REACHER_PORT = '8080' } =
-  process.env;
+const { TRUEMAIL_TOKEN, TRUEMAIL_PORT = '9292' } = process.env;
 
 const REDIS_QUEUE_KEY = 'emailVerificationQueue';
 
@@ -34,45 +33,30 @@ export const single = async (email: string, hostname: string) => {
 
   let response: { status?: string; verdict?: string } = {};
 
-  const url = `${REACHER_HOST}:${REACHER_PORT}/v0/check_email`;
-  const data = {
-    to_email: email,
-  };
+  const url = `http://localhost:${TRUEMAIL_PORT}?email=${email}`;
+
   const options = {
-    method: 'POST',
+    method: 'GET',
     headers: {
       'Content-Type': 'application/json',
+      Accept: 'application/json',
+      Authorization: TRUEMAIL_TOKEN,
     },
-    body: JSON.stringify(data),
   };
-  console.log(url);
-  console.log(options);
 
   try {
     const result = await fetch(url, options).then((r) => r.json());
 
-    console.log(result);
+    console.log(JSON.stringify(result, null, 2));
     const doc = {
       status: 'unknown',
       email,
     };
 
-    switch (result.is_reachable.toLowerCase()) {
-      case 'safe':
-        doc.status = EMAIL_VALIDATION_STATUSES.VALID;
-        break;
-      case 'invalid':
-        doc.status = EMAIL_VALIDATION_STATUSES.INVALID;
-        break;
-      case 'unknown':
-        doc.status = EMAIL_VALIDATION_STATUSES.UNKNOWN;
-        break;
-      case 'risky':
-        doc.status = EMAIL_VALIDATION_STATUSES.RISKY;
-        break;
-      default:
-        doc.status = EMAIL_VALIDATION_STATUSES.UNKNOWN;
-        break;
+    if (result.success) {
+      doc.status = EMAIL_VALIDATION_STATUSES.VALID;
+    } else {
+      doc.status = EMAIL_VALIDATION_STATUSES.INVALID;
     }
 
     await Emails.createEmail(doc);
@@ -90,7 +74,7 @@ export const single = async (email: string, hostname: string) => {
     response.status = 'failed';
   }
 
-  console.log('email has been verified on sendgrid', email, response);
+  console.log('email has been verified ', email, response);
 
   // if status is not success
   return sendRequest({
@@ -98,7 +82,7 @@ export const single = async (email: string, hostname: string) => {
     method: 'POST',
     body: {
       email: { email, status: EMAIL_VALIDATION_STATUSES.UNKNOWN },
-      source: EMAIL_VALIDATION_SOURCES.REACHER,
+      source: EMAIL_VALIDATION_SOURCES.TRUEMAIL,
     },
   });
 };
