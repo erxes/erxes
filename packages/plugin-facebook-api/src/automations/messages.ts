@@ -336,7 +336,6 @@ export const actionCreateMessage = async (
         {
           recipient: { id: senderId },
           message,
-          sender_action: 'typing_on',
         },
         recipientId,
         integration.erxesApiId,
