@@ -37,7 +37,7 @@ export const loadDynamicComponent = (
   componentName: string,
   injectedProps?: any,
   multi?: boolean,
-  pluginName?: string
+  pluginName?: string,
 ): any => {
   const plugins: any[] = (window as any).plugins || [];
   const filteredPlugins = plugins.filter((plugin) => plugin[componentName]);
@@ -58,7 +58,7 @@ export const loadDynamicComponent = (
   }
   if (pluginName) {
     const withPluginName = filteredPlugins.filter(
-      (plugin) => plugin.name === pluginName
+      (plugin) => plugin.name === pluginName,
     );
     return renderDynamicComp(withPluginName[0]);
   }
@@ -184,7 +184,7 @@ export const setBadge = (count: number, title: string) => {
 export const reorder = (
   list: string[],
   startIndex: number,
-  endIndex: number
+  endIndex: number,
 ) => {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
@@ -241,7 +241,7 @@ export const __ = (key: string, options?: any) => {
 };
 export const isEnabled = (service: string) => {
   const enabledServices = JSON.parse(
-    localStorage.getItem('enabledServices') || '{}'
+    localStorage.getItem('enabledServices') || '{}',
   );
   return enabledServices[service];
 };
@@ -280,7 +280,7 @@ export const getUserAvatar = (user: IUserDoc, width?: number) => {
   return readFile(details.avatar, width);
 };
 export function withProps<IProps>(
-  Wrapped: new (props: IProps) => React.Component<IProps>
+  Wrapped: new (props: IProps) => React.Component<IProps>,
 ) {
   return class WithProps extends React.Component<IProps, {}> {
     render() {
@@ -290,7 +290,7 @@ export function withProps<IProps>(
 }
 export function renderWithProps<Props>(
   props: Props,
-  Wrapped: new (props: Props) => React.Component<Props>
+  Wrapped: new (props: Props) => React.Component<Props>,
 ) {
   return <Wrapped {...props} />;
 }
@@ -303,14 +303,20 @@ export const isValidDate = (date) => {
   return false;
 };
 export const extractAttachment = (attachments: IAttachment[]) => {
-  return attachments.map((file) => ({
-    name: file.name,
-    type: file.type,
-    url: file.url,
-    size: file.size,
-    duration: file.duration,
-  }));
+  return attachments.map((file) => {
+    if (!file) {
+      return;
+    }
+    return {
+      name: file.name,
+      type: file.type,
+      url: file.url,
+      size: file.size,
+      duration: file.duration,
+    };
+  });
 };
+
 export const setCookie = (cname: string, cvalue: string, exdays = 100) => {
   const d = new Date();
   d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
@@ -508,7 +514,7 @@ export const storeConstantToStore = (key, values) => {
 export const getConstantFromStore = (
   key,
   isMap?: boolean,
-  isFlat?: boolean
+  isFlat?: boolean,
 ) => {
   const constant = JSON.parse(localStorage.getItem(`config:${key}`) || '[]');
 
@@ -588,7 +594,7 @@ export const getEnv = () => {
     .replace('http', 'ws')}/graphql`;
   const CDN_HOST = `${getItem('REACT_APP_CDN_HOST').replace(
     '<subdomain>',
-    subdomain
+    subdomain,
   )}`;
   const result = {
     VERSION,
@@ -603,7 +609,7 @@ export const getEnv = () => {
     REACT_APP_CDN_HOST: CDN_HOST,
     REACT_APP_DASHBOARD_URL: `${getItem('REACT_APP_DASHBOARD_URL').replace(
       '<subdomain>',
-      subdomain
+      subdomain,
     )}`,
   };
   return result;
@@ -635,7 +641,7 @@ export const generateTree = (
   parentId,
   callback,
   level = -1,
-  parentKey = 'parentId'
+  parentKey = 'parentId',
 ) => {
   const filtered = list.filter((c) => c[parentKey] === parentId);
   if (filtered.length > 0) {
@@ -673,7 +679,7 @@ export const publicUrl = (path) => {
 };
 export const getThemeItem = (code) => {
   const configs = JSON.parse(
-    localStorage.getItem('erxes_theme_configs') || '[]'
+    localStorage.getItem('erxes_theme_configs') || '[]',
   );
   const config = configs.find((c) => c.code === `THEME_${code.toUpperCase()}`);
 
@@ -693,7 +699,7 @@ const BEGIN_DIFF = 1577836800000; // new Date('2020-01-01').getTime();
 export const dateToShortStr = (
   date?: Date | string | number,
   scale?: 10 | 16 | 62 | 92 | number,
-  kind?: 'd' | 'h' | 'm' | 's' | 'ms'
+  kind?: 'd' | 'h' | 'm' | 's' | 'ms',
 ) => {
   date = new Date(date || new Date());
   if (!scale) {
@@ -722,7 +728,7 @@ export const shortStrToDate = (
   shortStr: string,
   scale?: 10 | 16 | 62 | 92 | number,
   kind?: 'd' | 'h' | 'm' | 's' | 'ms',
-  resultType?: 'd' | 'n'
+  resultType?: 'd' | 'n',
 ) => {
   if (!scale) {
     scale = 62;
