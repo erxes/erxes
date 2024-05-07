@@ -20,7 +20,7 @@ module.exports = {
     },
     {
       text: 'scoring config',
-      to: '/erxes-plugin-burenscoring/settings/general',
+      to: '/erxes-plugin-burenscoring/config/Settings',
       image: '/images/icons/erxes-04.svg',
       location: "settings",
       scope: "burenscoring"

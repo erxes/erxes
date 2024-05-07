@@ -30,7 +30,7 @@ const routes = () => {
         component={burenscorings} 
         />;
       <Route
-        path="/erxes-plugin-burenscoring/settings/general"
+        path="/erxes-plugin-burenscoring/config/Settings"
         component={GeneralSetting}
       />
     </React.Fragment>

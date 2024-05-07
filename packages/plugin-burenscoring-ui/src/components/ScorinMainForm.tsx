@@ -10,7 +10,6 @@ import {
 } from '@erxes/ui/src';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
-import Select from 'react-select-plus';
 import { IBurenScoring } from '../types';
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -98,7 +97,7 @@ class ScoringMainForm extends React.Component<Props, State> {
                 required={true}
               />
             </FormGroup>
-            <FormGroup>
+            {/* <FormGroup>
                 <ControlLabel required={true} >{__('Scoring type')}</ControlLabel>
                 <Select
                   {...formProps}
@@ -110,9 +109,9 @@ class ScoringMainForm extends React.Component<Props, State> {
                   multi={false}
                   required = {true}
                 />
-            </FormGroup>
+            </FormGroup> */}
             <FormGroup> 
-              <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
+              <Table >
                     <thead>
                       <tr>
                         <th>{__('Score')}</th>
@@ -124,7 +123,7 @@ class ScoringMainForm extends React.Component<Props, State> {
                       <tr key={customerScore?._id}>
                         <td >{customerScore?.score}</td>
                         <td >{customerScore?.reportPurpose}</td>
-                        <td >{customerScore?.createdAt}</td>
+                        
                       </tr>
                     </tbody>
                 </Table>
