@@ -70,7 +70,7 @@ export const single = async (email: string, hostname: string) => {
       method: 'POST',
       body: {
         email: doc,
-        source: EMAIL_VALIDATION_SOURCES.REACHER,
+        source: EMAIL_VALIDATION_SOURCES.TRUEMAIL,
       },
     });
   } catch (e) {
