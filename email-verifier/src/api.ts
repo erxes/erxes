@@ -6,7 +6,7 @@ import {
 } from './models';
 import { popFromQueue, pushToQueue } from './redisClient';
 import { debugBase, debugError, isEmailValid, sendRequest } from './utils';
-import fetch = require('node-fetch');
+import fetch from 'node-fetch';
 
 dotenv.config();
 
