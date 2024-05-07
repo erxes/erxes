@@ -21,11 +21,10 @@ function List(props: IProps) {
   const [component, setComponent] = useState(<div />);
   const [leftSideBar, setLeftSideBar] = useState(<div />);
 
-  const routePath = location.pathname.split('/').slice(-1)[0].toString();
+  const routePath = location?.pathname?.split('/').slice(-1)[0].toString();
   console.log('location.pathname.routePath****', routePath, 'queryParams');
 
 
-  console.log('component****:', component);
   return (
     <Wrapper
       header={

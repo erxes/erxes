@@ -114,6 +114,7 @@ const queries = `
   callsActiveSession: CallActiveSession
   callHistories(${filterParams}, skip: Int): [CallHistory]
   callsGetConfigs: JSON
+  callGetQueues: String
 `;
 
 const mutations = `

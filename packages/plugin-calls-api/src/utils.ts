@@ -225,3 +225,48 @@ export const getOrSetCallCookie = async (wsServer) => {
   redis.set(`callCookie`, cookie, 'EX', 10 * 60);
   return cookie;
 };
+
+export const getCallQueue = async () => {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
+   let cookie = await getOrSetCallCookie('202.179.30.206:8089');
+   cookie = cookie?.toString();
+  console.log('cookie', cookie)
+  //  const queueResult = await fetch(`https://202.179.30.206:8089/api`, {
+  //    method: 'POST',
+  //    headers: {
+  //      'Content-Type': 'application/json',
+  //    },
+  //    body: JSON.stringify({
+  //      request: {
+  //        action: 'queueapi',
+  //        cookie,
+  //        endTime: '2024-05-06',
+  //        startTime: '2024-05-07',
+  //        queue: "6500",
+  //      },
+  //    }),
+  //  });
+  console.log('queueResult');
+    const queueResult = await fetch(`https://202.179.30.206/api`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        request: {
+          action: 'listQueue',
+          cookie,
+          options: 'extension,queue_name,members',
+          sidx: 'extension',
+          sord: 'asc',
+        },
+      }),
+    });
+
+    // const queueData = await queueResult.json();
+    console.log('queueResult:', queueResult);
+   const queueData = await queueResult.json();
+   console.log('queueData:', queueData);
+   return 'queueData';
+}

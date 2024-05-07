@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { __, router } from '@erxes/ui/src/utils';
 
 import Button from '@erxes/ui/src/components/Button';
+import Detail from '../../components/switchboard/Detail';
 
-function Detail() {
+function DetailContainer() {
   useEffect(() => {}, []);
 
-  return <h1>switchboard detail container</h1>;
+  return <Detail/>;
 }
 
-export default Detail;
+export default DetailContainer;

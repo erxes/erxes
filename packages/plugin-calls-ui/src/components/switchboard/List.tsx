@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { __, router } from '@erxes/ui/src/utils';
 
-import Button from '@erxes/ui/src/components/Button';
 import {
   Container,
   FlexWrap,
@@ -13,6 +12,10 @@ import {
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors } from '@erxes/ui/src/styles';
+
+import { can, router as routerUtils } from "@erxes/ui/src/utils";
+import { Link } from 'react-router-dom';
+
 
 const Circle = styled.circle`
   fill: transparent;
@@ -27,9 +30,8 @@ const FilledCircle: any = styledTS<{ color?: string }>(styled(Circle))`
   transition: stroke-dashoffset 0.5s ease-out;
 `;
 
-const Text = styledTS<{ color?: string }>(styled.div)`
+const Text = (styled.div)`
   align-items: center;
-  color: ${(props) => props.color};
   display: flex;
   font-weight: bold;
   height: 100%;
@@ -82,7 +84,14 @@ const ContainerRow =
   width: 90%;
 `;
 
-function List() {
+type IProps = {
+  navigate: any;
+  location: any;
+};
+
+
+function List(props: IProps) {
+  const {location, navigate} = props
   useEffect(() => {}, []);
 
   const lists = [
@@ -153,7 +162,7 @@ function List() {
           <Circle cx="50" cy="50" r={radius} strokeWidth={strokeWidth} />
 
           <FilledCircle
-            color={color}
+            color={'#00a854'}
             cx="50"
             cy="50"
             data-testid="progress-bar-bar"
@@ -164,24 +173,25 @@ function List() {
           />
         </svg>
 
-        <SwitchboardRate color={'#3FBD68'}>{percentage}% </SwitchboardRate>
+        <SwitchboardRate color={'#4c84f3'}>{percentage}% </SwitchboardRate>
         <Text>Abandoned Rate</Text>
       </Container>
     );
   };
 
+  const onClick = (id) =>
+    id && navigate && navigate(`/calls/switchboard/${id}`);
+
   const renderList = (list) => {
     // const { remove, duplicate } = this.props;
 
     return (
-      <SwitchboardBox
-        key={list._id}
-        onClick={() => `/calls/switchboard/detail?${list._id}`}
-      >
+      // <Link to={`/calls/switchboard/${list.name}`}>
+      <SwitchboardBox key={list._id} onClick={() => onClick(list.name)}>
         <SwitchboardPreview>
           <Header fontSize="18px">{list.name}</Header>
           <Header bottomBorder={true}>
-            {progressBar(list.abnormalPercentage, '#dddeff', '200px')}
+            {progressBar(list.abnormalPercentage, '#x', '200px')}
           </Header>
           <ContainerRow>
             <Row>
@@ -208,6 +218,7 @@ function List() {
           </ContainerRow>
         </SwitchboardPreview>
       </SwitchboardBox>
+      // </Link>
     );
   };
 

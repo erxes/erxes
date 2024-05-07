@@ -726,7 +726,7 @@ export const FlexWrap = styledTS(styled.div)`
 
   > a,
   > div {
-    flex-basis: 25%;
+    flex-basis: 240px;
     display: flex;
     flex-shrink: 0;
 
@@ -743,7 +743,7 @@ export const FlexWrap = styledTS(styled.div)`
     }
 
     @media (min-width: 1400px) {
-      flex-basis: 240px;
+      flex-basis: 25%;
     }
   }
 `;

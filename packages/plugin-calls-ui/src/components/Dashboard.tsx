@@ -7,24 +7,26 @@ import { IUser } from '@erxes/ui/src/auth/types';
 
 import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import ListContainer from '../containers/switchboard/List'
+import ListContainer from '../containers/switchboard/List';
 import { menuCall } from '../constants';
 
 type IProps = {
   queryParams: any;
-//   meetingQuery?: MeetingsQueryResponse;
+  navigate: any;
+  location: any;
+  //   meetingQuery?: MeetingsQueryResponse;
 };
 
 function List(props: IProps) {
-  const { queryParams } = props;
+  const { queryParams,  navigate } = props;
 //   const { meetingId } = queryParams;
 
   const [component, setComponent] = useState(<div/>);
   const [leftSideBar, setLeftSideBar] = useState(<div />);
 
-  const routePath = location.pathname.split('/').slice(-1)[0].toString();
-  console.log('location.pathname.routePath****', routePath, 'queryParams');
-
+  // const routePath = location?.pathname?.split('/').slice(-1)[0].toString();
+  //console.log('location.pathname.routePath****', routePath, 'queryParams');
+  let routePath = 's'
   useEffect(() => {
     switch (routePath) {
       case 'statistics':
@@ -34,26 +36,27 @@ function List(props: IProps) {
           setComponent(<div>statistics</div>);
         break;
       default:
-        <ListContainer />;
+        <ListContainer navigate={navigate} location={location}/>;
         break;
     }
   }, [routePath]);
 
-  console.log('component****:', component);
-  return (
+  return ( 
     <Wrapper
-      header={<Wrapper.Header title={__('Call Dashboard')} submenu={menuCall()} />}
+      header={
+        <Wrapper.Header title={__('Call Dashboard')} submenu={menuCall()} />
+      }
       content={
         <DataWithLoader
-          data={<ListContainer/>}
+          data={<ListContainer navigate={navigate} location={location} />}
           loading={false}
           count={1}
           emptyText={__('Theres no calls')}
           emptyImage="/images/actions/8.svg"
         />
       }
-    //   leftSidebar={leftSideBar}
-    //   transparent={true}
+      //   leftSidebar={leftSideBar}
+      //   transparent={true}
       hasBorder
     />
   );
