@@ -134,20 +134,30 @@ const Form = (props: Props) => {
 
   const setFilter = (fieldName: string, value: any) => {
     if (value === undefined || value === null) {
-      delete filters[fieldName];
-      setFilters({ ...filters });
+      const newOne = Object.keys(filters)
+      .filter((a) => a !== fieldName)
+      .reduce((newObj, key) => {
+        newObj[key] = filters[key];
+        return newObj;
+      }, {});
+
+      setFilters({ ...newOne });
       return;
     }
 
     if (Array.isArray(value) && !value.length) {
-      delete filters[fieldName];
-      setFilters({ ...filters });
+      const newOne = Object.keys(filters)
+      .filter((option) => option !== fieldName)
+      .reduce((newObj, key) => {
+        newObj[key] = filters[key];
+        return newObj;
+      }, {});
+
+      setFilters({ ...newOne });
       return;
     }
 
-    filters[fieldName] = value;
-
-    setFilters({ ...filters });
+    setFilters({ ...filters, [fieldName]: value });
     return;
   };
 
