@@ -10,11 +10,13 @@ import { debugBase, debugError, isEmailValid, sendRequest } from './utils';
 
 dotenv.config();
 
-const {
-  TRUEMAIL_HOST = 'localhost',
-  TRUEMAIL_TOKEN,
-  TRUEMAIL_PORT = '9292',
-} = process.env;
+// const {
+//   TRUEMAIL_HOST = 'localhost',
+//   TRUEMAIL_TOKEN,
+//   TRUEMAIL_PORT = '9292',
+// } = process.env;
+
+const { REACHER_HOST, REACHER_PORT } = process.env;
 
 const REDIS_QUEUE_KEY = 'emailVerificationQueue';
 
@@ -37,15 +39,28 @@ export const single = async (email: string, hostname: string) => {
 
   let response: { status?: string; verdict?: string } = {};
 
-  const url = `http://${TRUEMAIL_HOST}:${TRUEMAIL_PORT}?email=${email}`;
+  // const url = `http://${TRUEMAIL_HOST}:${TRUEMAIL_PORT}?email=${email}`;
+  const url = `${REACHER_HOST}:${REACHER_PORT}/v0/check_email`;
+
+  // const options = {
+  //   method: 'GET',
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //     Accept: 'application/json',
+  //     Authorization: TRUEMAIL_TOKEN,
+  //   },
+  // };
+
+  const data = {
+    to_email: email,
+  };
 
   const options = {
-    method: 'GET',
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Accept: 'application/json',
-      Authorization: TRUEMAIL_TOKEN,
     },
+    body: JSON.stringify(data),
   };
 
   try {
@@ -57,11 +72,29 @@ export const single = async (email: string, hostname: string) => {
       email,
     };
 
-    if (result.success) {
-      doc.status = EMAIL_VALIDATION_STATUSES.VALID;
-    } else {
-      doc.status = EMAIL_VALIDATION_STATUSES.INVALID;
+    switch (result.is_reachable.toLowerCase()) {
+      case 'safe':
+        doc.status = EMAIL_VALIDATION_STATUSES.VALID;
+        break;
+      case 'invalid':
+        doc.status = EMAIL_VALIDATION_STATUSES.INVALID;
+        break;
+      case 'unknown':
+        doc.status = EMAIL_VALIDATION_STATUSES.UNKNOWN;
+        break;
+      case 'risky':
+        doc.status = EMAIL_VALIDATION_STATUSES.RISKY;
+        break;
+      default:
+        doc.status = EMAIL_VALIDATION_STATUSES.UNKNOWN;
+        break;
     }
+
+    // if (result.success) {
+    //   doc.status = EMAIL_VALIDATION_STATUSES.VALID;
+    // } else {
+    //   doc.status = EMAIL_VALIDATION_STATUSES.INVALID;
+    // }
 
     await Emails.createEmail(doc);
 
