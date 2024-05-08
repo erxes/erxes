@@ -19,3 +19,5 @@ export const accountingsConfigSchema = new Schema({
   code: field({ type: String, unique: true }),
   value: field({ type: Object }),
 });
+
+// VAT_RULE: string; '' = bagtsan, 'add' = undsen unedeer nemj tootsoh,

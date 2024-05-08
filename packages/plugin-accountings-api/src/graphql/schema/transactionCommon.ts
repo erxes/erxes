@@ -76,8 +76,20 @@ const mainTrParams = `
   amount: Float
   currencyAmount: Float
   customRate: Float
+`;
 
+const taxParams = `
+  hasVat: Boolean;
+  vatRowId: String;
+  afterVat: Boolean;
+  afterVatAccountId: String;
+  isHandleVat: Boolean;
+  vatAmount: Float;
 
+  hasCtax: Boolean;
+  ctaxRowId: String;
+  isHandleCtax: Boolean;
+  ctaxAmount: Float;
 `;
 
 
@@ -117,9 +129,10 @@ export const mutations = `
   transactionLink(trIds: [String])
 
 
-  fundTrAdd(${mainTrParams}): [MainTransaction]
-  fundTrEdit(${mainTrParams}): [MainTransaction]
+  cashTrAdd(${mainTrParams}, ${taxParams}): [MainTransaction]
+  cashTrEdit(_id: String!, ${mainTrParams}, ${taxParams}): [MainTransaction]
+  fundTrAdd(${mainTrParams}, ${taxParams}): [MainTransaction]
+  fundTrEdit(_id: String!, ${mainTrParams}, ${taxParams}): [MainTransaction]
   debtTrAdd(${mainTrParams}): [MainTransaction]
-  debtTrEdit(${mainTrParams}): [MainTransaction]
-  
+  debtTrEdit(_id: String!, ${mainTrParams}, ${taxParams}): [MainTransaction]
 `;

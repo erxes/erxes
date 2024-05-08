@@ -6,24 +6,24 @@ import {
   MODULE_NAMES,
 } from '../../../logUtils';
 import { IContext } from '../../../connectionResolver';
-import { IVatRow } from '../../../models/definitions/vatRow';
+import { ICtaxRow } from '../../../models/definitions/ctaxRow';
 
-interface IVatRowsEdit extends IVatRow {
+interface ICtaxRowsEdit extends ICtaxRow {
   _id: string;
 }
 
-const vatRowsMutations = {
+const ctaxRowsMutations = {
   /**
    * Creates a new account category
    * @param {Object} doc Account category document
    */
-  async vatRowsAdd(
+  async ctaxRowsAdd(
     _root,
-    doc: IVatRow,
+    doc: ICtaxRow,
     { user, docModifier, models, subdomain }: IContext,
   ) {
-    const vatRow =
-      await models.VatRows.createVatRow(docModifier(doc));
+    const ctaxRow =
+      await models.CtaxRows.createCtaxRow(docModifier(doc));
 
     await putCreateLog(
       models,
@@ -31,28 +31,28 @@ const vatRowsMutations = {
       {
         type: MODULE_NAMES.ACCOUNT_CATEGORY,
         newData: { ...doc },
-        object: vatRow,
+        object: ctaxRow,
       },
       user,
     );
 
-    return vatRow;
+    return ctaxRow;
   },
 
   /**
    * Edits a account category
-   * @param {string} param2._id VatRow id
-   * @param {Object} param2.doc VatRow info
+   * @param {string} param2._id CtaxRow id
+   * @param {Object} param2.doc CtaxRow info
    */
-  async vatRowsEdit(
+  async ctaxRowsEdit(
     _root,
-    { _id, ...doc }: IVatRowsEdit,
+    { _id, ...doc }: ICtaxRowsEdit,
     { user, models, subdomain }: IContext,
   ) {
-    const vatRow = await models.VatRows.getVatRow({
+    const ctaxRow = await models.CtaxRows.getCtaxRow({
       _id,
     });
-    const updated = await models.VatRows.updateVatRow(
+    const updated = await models.CtaxRows.updateCtaxRow(
       _id,
       doc,
     );
@@ -62,7 +62,7 @@ const vatRowsMutations = {
       subdomain,
       {
         type: MODULE_NAMES.ACCOUNT_CATEGORY,
-        object: vatRow,
+        object: ctaxRow,
         newData: doc,
         updatedDocument: updated,
       },
@@ -74,22 +74,22 @@ const vatRowsMutations = {
 
   /**
    * Removes a account category
-   * @param {string} param1._id VatRow id
+   * @param {string} param1._id CtaxRow id
    */
-  async vatRowsRemove(
+  async ctaxRowsRemove(
     _root,
     { ids }: { ids: string[] },
     { user, models, subdomain }: IContext,
   ) {
-    const vatRow = await models.VatRows.getVatRow({
+    const ctaxRow = await models.CtaxRows.getCtaxRow({
       ids,
     });
-    const removed = await models.VatRows.removeVatRows(ids);
+    const removed = await models.CtaxRows.removeCtaxRows(ids);
 
     await putDeleteLog(
       models,
       subdomain,
-      { type: MODULE_NAMES.ACCOUNT_CATEGORY, object: vatRow },
+      { type: MODULE_NAMES.ACCOUNT_CATEGORY, object: ctaxRow },
       user,
     );
 
@@ -97,8 +97,8 @@ const vatRowsMutations = {
   },
 };
 
-checkPermission(vatRowsMutations, 'vatRowsAdd', 'manageVatRows');
-checkPermission(vatRowsMutations, 'vatRowsEdit', 'manageVatRows');
-checkPermission(vatRowsMutations, 'vatRowsRemove', 'manageVatRows');
+checkPermission(ctaxRowsMutations, 'ctaxRowsAdd', 'manageCtaxRows');
+checkPermission(ctaxRowsMutations, 'ctaxRowsEdit', 'manageCtaxRows');
+checkPermission(ctaxRowsMutations, 'ctaxRowsRemove', 'manageCtaxRows');
 
-export default vatRowsMutations;
+export default ctaxRowsMutations;

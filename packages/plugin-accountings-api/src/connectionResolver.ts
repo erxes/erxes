@@ -27,15 +27,18 @@ import { IAccountingsConfigDocument } from './models/definitions/config';
 import {
   ITransactionDocument,
 } from './models/definitions/transaction';
-import { IVATRowDocument } from './models/definitions/vatRow';
-import { IVATRowModel, loadVATRowClass } from './models/VATRows';
+import { IVatRowDocument } from './models/definitions/vatRow';
+import { ICtaxRowDocument } from './models/definitions/ctaxRow';
+import { IVatRowModel, loadVatRowClass } from './models/VatRows';
+import { ICtaxRowModel, loadCtaxRowClass } from './models/CtaxRows';
 
 export interface IModels {
   Accounts: IAccountModel;
   Transactions: ITransactionModel;
   AccountCategories: IAccountCategoryModel;
   AccountingsConfigs: IAccountingsConfigModel;
-  VATRows: IVATRowModel;
+  VatRows: IVatRowModel;
+  CtaxRows: ICtaxRowModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -66,9 +69,13 @@ export const loadClasses = (
     loadTransactionClass(models, subdomain),
   );
 
-  models.VATRows = db.model<IVATRowDocument, IVATRowModel>(
+  models.VatRows = db.model<IVatRowDocument, IVatRowModel>(
     'vat_rows',
-    loadVATRowClass(models, subdomain),
+    loadVatRowClass(models, subdomain),
+  );
+  models.CtaxRows = db.model<ICtaxRowDocument, ICtaxRowModel>(
+    'ctax_rows',
+    loadCtaxRowClass(models, subdomain),
   );
 
   return models;

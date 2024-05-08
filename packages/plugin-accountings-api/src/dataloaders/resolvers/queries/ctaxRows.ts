@@ -2,7 +2,7 @@ import {
   checkPermission,
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
-import { VAT_ROW_STATUS } from '../../../models/definitions/vatRow';
+import { CTAX_ROW_STATUS } from '../../../models/definitions/ctaxRow';
 
 const generateFilterCat = async ({
   kinds,
@@ -10,7 +10,7 @@ const generateFilterCat = async ({
   status,
 }) => {
   const filter: any = {};
-  filter.status = { $nin: [VAT_ROW_STATUS.DELETED] };
+  filter.status = { $nin: [CTAX_ROW_STATUS.DELETED] };
 
   if (status && status !== 'active') {
     filter.status = status;
@@ -28,8 +28,8 @@ const generateFilterCat = async ({
   return filter;
 };
 
-const vatRowQueries = {
-  async vatRows(
+const ctaxRowQueries = {
+  async ctaxRows(
     _root,
     { kinds, searchValue, status },
     { models }: IContext,
@@ -42,10 +42,10 @@ const vatRowQueries = {
 
     const sortParams: any = { order: 1 };
 
-    return await models.VatRows.find(filter).sort(sortParams).lean();
+    return await models.CtaxRows.find(filter).sort(sortParams).lean();
   },
 
-  async vatRowsTotalCount(
+  async ctaxRowsTotalCount(
     _root,
     { kinds, searchValue, status },
     { models }: IContext,
@@ -55,14 +55,14 @@ const vatRowQueries = {
       status,
       kinds,
     });
-    return models.VatRows.find(filter).countDocuments();
+    return models.CtaxRows.find(filter).countDocuments();
   },
 
-  vatRowDetail(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.VatRows.findOne({ _id }).lean();
+  ctaxRowDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.CtaxRows.findOne({ _id }).lean();
   },
 };
 
-checkPermission(vatRowQueries, 'vatRows', 'showVatRows', []);
+checkPermission(ctaxRowQueries, 'ctaxRows', 'showCtaxRows', []);
 
-export default vatRowQueries;
+export default ctaxRowQueries;
