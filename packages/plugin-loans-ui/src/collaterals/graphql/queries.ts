@@ -85,6 +85,25 @@ export const collateralsMain = `
   }
 `;
 
+export const collateralTypesMain = `
+  query CollateralTypesMain($page: Int, $perPage: Int) {
+    collateralTypesMain(page: $page, perPage: $perPage) {
+      list {
+        _id
+        code
+        name
+        description
+        type
+        startDate
+        endDate
+        status
+        currency
+      }
+    }
+  }
+`
+
 export default {
-  collateralsMain
+  collateralsMain,
+  collateralTypesMain
 };

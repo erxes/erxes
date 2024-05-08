@@ -36,6 +36,55 @@ export interface ICollateral {
   contractId: string;
 }
 
+export interface ICollateralTypeConfig {
+  minPercent: number;
+  maxPercent: number;
+  defaultPercent: number;
+  riskClosePercent: number;
+  collateralType: string;
+}
+
+export interface ICollateralType {
+  code: string;
+  name: string;
+  description: string;
+  type: string;
+  startDate: Date;
+  endDate: Date;
+  status: string;
+  currency: string;
+  config: ICollateralTypeConfig;
+  property: ICollateralProperty;
+}
+
+export interface ICollateralProperty {
+  sizeSquare: boolean;
+  sizeSquareUnit: boolean;
+  cntRoom: boolean;
+  startDate: boolean;
+  endDate: boolean;
+  quality: boolean;
+  purpose: boolean;
+  mark: boolean;
+  color: boolean;
+  power: boolean;
+  frameNumber: boolean;
+  importedDate: boolean;
+  factoryDate: boolean;
+  courtOrderDate: boolean;
+  mrtConfirmedDate: boolean;
+  cmrtRegisteredDate: boolean;
+  mrtRegisteredDate: boolean;
+  courtOrderNo: boolean;
+  mrtOrg: boolean;
+  registeredToAuthority: boolean;
+  causeToShiftTo: boolean;
+}
+
+export interface ICollateralTypeDocument extends ICollateralType {
+  _id: string;
+}
+
 // query types
 
 export type ListQueryVariables = {
