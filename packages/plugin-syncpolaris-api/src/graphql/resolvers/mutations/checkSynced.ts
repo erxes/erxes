@@ -8,7 +8,7 @@ import {
 } from '../../../utils/toSyncUtils/utils';
 
 const checkMutations = {
-  async toCheck(_root, { type }: { type: string }, { subdomain }: IContext) {
+  async toCheckPolaris(_root, { type }: { type: string }, { subdomain }: IContext) {
     const config = await getConfig(subdomain, 'POLARIS', {});
 
     if (!config.token) {

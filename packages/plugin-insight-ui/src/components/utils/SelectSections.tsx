@@ -42,21 +42,8 @@ const SelectSections = (props: Props) => {
       value: option._id,
     }));
 
-    // optionsWithButton.push({
-    //   label: '',
-    //   value: '',
-    //   disabled: true
-    // });
     return optionsWithButton;
   };
-
-  // const optionRenderer = option => {
-  //   if (option.value === '') {
-  //     return customOption;
-  //   } else {
-  //     return <div>{option.label}</div>;
-  //   }
-  // };
 
   return (
     <Select
@@ -64,7 +51,6 @@ const SelectSections = (props: Props) => {
       value={sectionId}
       onChange={(selectedOption) => setSectionId(selectedOption.value)}
       options={generateOptions(sections)}
-      // optionRenderer={optionRenderer}
       clearable={false}
       noResultsText={customOption}
       onInputChange={(value) => setInput(value)}

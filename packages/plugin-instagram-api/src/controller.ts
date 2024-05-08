@@ -11,8 +11,8 @@ import {
   debugResponse
 } from './debuggers';
 
-const init = async app => {
-  app.get('/instagram/login', loginMiddleware);
+const init = async (app) => {
+  app.get('/iglogin', loginMiddleware);
 
   app.get('/instagram/get-accounts', async (req, res, next) => {
     debugRequest(debugInstagram, req);

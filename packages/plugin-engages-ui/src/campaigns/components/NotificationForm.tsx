@@ -7,12 +7,8 @@ import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import {
-  IEngageScheduleDate,
-  IEngageNotification,
-} from '@erxes/ui-engage/src/types';
-import Scheduler from './Scheduler';
-// import NotificationPreview from './NotificationPreview';
+import { IEngageNotification } from '@erxes/ui-engage/src/types';
+import NotificationPreview from './NotificationPreview';
 
 const FlexInfo = styled.div`
   display: flex;
@@ -30,16 +26,14 @@ const Char = styledTS<{ count: number }>(styled.div)`
 
 type Props = {
   onChange: (
-    name: 'shortMessage' | 'scheduleDate' | 'notification',
-    value?: IEngageNotification | IEngageScheduleDate | IEngageNotification,
+    name: 'shortMessage' | 'notification',
+    value?: IEngageNotification | IEngageNotification
   ) => void;
   messageKind: string;
-  scheduleDate: IEngageScheduleDate;
   notification?: IEngageNotification;
 };
 
 type State = {
-  scheduleDate: IEngageScheduleDate;
   characterCount: number;
   titleCount: number;
   message: string;
@@ -52,7 +46,6 @@ class NotificationForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      scheduleDate: props.scheduleDate,
       characterCount: this.calcCharacterCount(160, this.getContent('content')),
       titleCount: this.calcCharacterCount(15, this.getContent('title')),
       message: this.getContent('content'),
@@ -60,7 +53,6 @@ class NotificationForm extends React.Component<Props, State> {
       isMobile: this.getContent('isMobile') || false,
     };
   }
-
   onChangeNotification = (key: string, value: string | boolean) => {
     const shortMessage = { ...this.props.notification } as IEngageNotification;
     shortMessage[key] = value;
@@ -86,21 +78,6 @@ class NotificationForm extends React.Component<Props, State> {
     return maxChar - character.length;
   }
 
-  renderScheduler() {
-    const { messageKind, onChange } = this.props;
-
-    if (messageKind === 'manual') {
-      return null;
-    }
-
-    return (
-      <Scheduler
-        scheduleDate={this.state.scheduleDate || ({} as IEngageScheduleDate)}
-        onChange={onChange}
-      />
-    );
-  }
-
   render() {
     const { notification } = this.props;
     const { message, title, isMobile, titleCount, characterCount } = this.state;
@@ -111,13 +88,13 @@ class NotificationForm extends React.Component<Props, State> {
     const onChangeContent = (e) =>
       this.onChangeNotification(
         'content',
-        (e.target as HTMLInputElement).value,
+        (e.target as HTMLInputElement).value
       );
 
     const onChangeIsMobile = (e) => {
       this.onChangeNotification(
         'isMobile',
-        (e.target as HTMLInputElement).checked,
+        (e.target as HTMLInputElement).checked
       );
     };
 
@@ -180,16 +157,15 @@ class NotificationForm extends React.Component<Props, State> {
               type="checkbox"
             />
           </FormGroup>
-          {this.renderScheduler()}
         </FlexPad>
 
-        {/* <FlexItem overflow="auto" count="2">
+        <FlexItem overflow="auto" count="2">
           <NotificationPreview
             title={title}
             message={message}
-            isMobile={isMobile}
+            isMobile={this.getContent('isMobile')}
           />
-        </FlexItem> */}
+        </FlexItem>
       </FlexItem>
     );
   }

@@ -1,7 +1,7 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { NodeVM } from 'vm2';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
-import { generateModels } from '../connectionResolver';
+import { IModels, generateModels } from '../connectionResolver';
 import { pConversationClientMessageInserted } from '../graphql/resolvers/widgetMutations';
 import {
   sendContactsMessage,
@@ -119,7 +119,12 @@ const solveCustomFieldsData = (customFieldsData, prevCustomFieldsData) => {
 
 const webhookMiddleware = async (req, res, next) => {
   const subdomain = getSubdomain(req);
-  const models = await generateModels(subdomain);
+  let models: IModels;
+  try {
+    models =  await generateModels(subdomain);
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
+  }
 
   try {
     const integration = await models.Integrations.findOne({

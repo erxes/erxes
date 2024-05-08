@@ -97,6 +97,23 @@ type VerificationRequest {
     totalCount: Float,
   }
 
+  type ClientPortalCompany {
+    _id: String!
+    erxesCompanyId: String
+
+    productCategoryIds: [String]
+    clientPortalId: String
+    createdAt: Date
+
+    ${
+      isContactsEnabled
+        ? `
+        company: Company
+      `
+        : ''
+    }
+  }
+
   enum ClientPortalUserVerificationStatus {
     verified
     notVerified
@@ -137,6 +154,8 @@ export const queries = () => `
   clientPortalUsers(${queryParams}): [ClientPortalUser]
   clientPortalUsersMain(${queryParams}): clientPortalUsersListResponse
   clientPortalUserCounts(type: String): Int
+
+  clientPortalCompanies(clientPortalId: String!): [ClientPortalCompany]
 `;
 
 const userParams = `

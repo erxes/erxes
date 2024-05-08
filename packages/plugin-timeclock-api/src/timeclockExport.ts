@@ -53,7 +53,7 @@ const addIntoSheet = async (
   endRowIdx: string,
   sheet: any,
   merged?: boolean,
-  customStyles?: any,
+  customStyles?: any
 ) => {
   const r = sheet.range(`${startRowIdx}:${endRowIdx}`);
 
@@ -98,7 +98,7 @@ const prepareHeader = async (sheet: any, startDate: Date, endDate: Date) => {
         `${column_start}1`,
         `${column_end}2`,
         sheet,
-        true,
+        true
       );
       column_start = getNextNthColumnChar(column_end, 1);
       continue;
@@ -109,7 +109,7 @@ const prepareHeader = async (sheet: any, startDate: Date, endDate: Date) => {
       `${column_start}1`,
       `${column_end}1`,
       sheet,
-      true,
+      true
     );
     addIntoSheet([header[1]], `${column_start}2`, `${column_end}2`, sheet);
     column_start = getNextNthColumnChar(column_end, 1);
@@ -151,7 +151,7 @@ const changeColumnRangeWidths = async (
   sheet: any,
   colStart: string,
   colEnd: string,
-  width: number,
+  width: number
 ) => {
   let startRange = colStart;
 
@@ -168,7 +168,7 @@ const extractAndAddIntoSheet = async (
   sheet: any,
   empReports: any[],
   teamMembersObj: { [userId: string]: any },
-  total_columns: number,
+  total_columns: number
 ) => {
   const rowStartIdx = 3;
   const colStart = 'A';
@@ -207,7 +207,7 @@ const extractAndAddIntoSheet = async (
 
       for (const scheduleShift of scheduleShifts) {
         const dateField = dayjs(scheduleShift.shiftStart).format(
-          dateOfTheMonthFormat,
+          dateOfTheMonthFormat
         );
 
         scheduleShiftsInfo[dateField] = { scheduled: true };
@@ -225,7 +225,7 @@ const extractAndAddIntoSheet = async (
         }
 
         const dateField = dayjs(timeclock.shiftStart).format(
-          dateOfTheMonthFormat,
+          dateOfTheMonthFormat
         );
 
         const shiftStart = dayjs(timeclock.shiftStart).format(timeFormat);
@@ -284,7 +284,7 @@ const extractAndAddIntoSheet = async (
 
           for (const requestDate of request.requestDates) {
             const date = dayjs(new Date(requestDate)).format(
-              dateOfTheMonthFormat,
+              dateOfTheMonthFormat
             );
 
             // if multiple requests per day
@@ -340,7 +340,7 @@ const extractAndAddIntoSheet = async (
       let emptyCell = true;
 
       const getDate = new Date(
-        new Date(dateField).setFullYear(new Date().getFullYear()),
+        new Date(dateField).setFullYear(new Date().getFullYear())
       );
 
       // absent day
@@ -360,7 +360,7 @@ const extractAndAddIntoSheet = async (
           contentInsideCell.push(
             `${timeclock.shiftStart} ~ ${
               timeclock.shiftActive ? 'A' : timeclock.shiftEnd
-            }`,
+            }`
           );
         }
         emptyCell = false;
@@ -368,9 +368,9 @@ const extractAndAddIntoSheet = async (
 
       // add request content
       if (requestsInfo[dateField]) {
-        requestsInfo[dateField].map((request) => {
+        requestsInfo[dateField].map(request => {
           contentInsideCell.push(
-            `${request.reason}\n${request.absenceDuration}`,
+            `${request.reason}\n${request.absenceDuration}`
           );
         });
         emptyCell = false;
@@ -395,7 +395,7 @@ const extractAndAddIntoSheet = async (
     `${colStart}${rowStartIdx}`,
     `${colEnd}${rowEndIdx}`,
     sheet,
-    false,
+    false
   );
 
   changeColumnRangeWidths(sheet, 'D', colEnd, 20);
@@ -404,7 +404,7 @@ const extractAndAddIntoSheet = async (
 export const buildFile = async (
   models: IModels,
   subdomain: string,
-  params: any,
+  params: any
 ) => {
   const {
     currentUserId,
@@ -449,7 +449,7 @@ export const buildFile = async (
       subdomain,
       userIds,
       branchIds,
-      departmentIds,
+      departmentIds
     );
 
     totalMembers = await findTeamMembers(subdomain, totalTeamMemberIds);
@@ -460,13 +460,13 @@ export const buildFile = async (
       totalTeamMemberIds = await findTimeclockTeamMemberIds(
         models,
         startDate,
-        endDate,
+        endDate
       );
       totalMembers = await findTeamMembers(subdomain, totalTeamMemberIds);
     } else {
       // return supervisod users including current user
       totalMembers = await returnSupervisedUsers(currentUser, subdomain);
-      totalTeamMemberIds = totalMembers.map((usr) => usr._id);
+      totalTeamMemberIds = totalMembers.map(usr => usr._id);
     }
   }
 
@@ -476,7 +476,7 @@ export const buildFile = async (
   const report = await timeclockReportByUsers(
     paginateArray(totalTeamMemberIds, perPage, page),
     models,
-    { startDate, endDate },
+    { startDate, endDate }
   );
 
   const totalColumnsNum = await prepareHeader(sheet, startDate, endDate);
@@ -486,7 +486,7 @@ export const buildFile = async (
     sheet,
     report,
     teamMembersObject,
-    totalColumnsNum,
+    totalColumnsNum
   );
 
   return {

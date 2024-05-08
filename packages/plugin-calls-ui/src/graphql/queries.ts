@@ -129,6 +129,7 @@ const callHistories = `
     createdAt
     createdBy
     modifiedBy
+    extentionNumber
     customer {
       _id
       avatar
@@ -155,6 +156,12 @@ const callHistories = `
     }
 }`;
 
+const callsGetConfigs = `
+  query callsGetConfigs {
+    callsGetConfigs
+  }
+`;
+
 export default {
   callsIntegrationDetail,
   callUserIntegrations,
@@ -162,4 +169,5 @@ export default {
   customers,
   activeSession,
   callHistories,
+  callsGetConfigs,
 };

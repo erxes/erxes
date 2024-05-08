@@ -273,3 +273,40 @@ export const createCard = async (subdomain, models, cpUser, doc) => {
 
   return card;
 };
+
+export const participantEditRelation = async (
+  subdomain,
+  models: IModels,
+  type,
+  cardId,
+  oldCpUserIds,
+  cpUserIds,
+) => {
+  const userCards = await models.ClientPortalUserCards.find({
+    contentType: type,
+    contentTypeId: cardId,
+  });
+  const newCpUsers = cpUserIds.filter(
+    (x) => userCards.findIndex((m) => m.cpUserId === x) === -1,
+  );
+
+  const excludedCpUsers = oldCpUserIds.filter((m) => !cpUserIds.includes(m));
+
+  if (newCpUsers) {
+    const docs = newCpUsers.map((d) => ({
+      contentType: type,
+      contentTypeId: cardId,
+      cpUserId: d,
+    }));
+    await models.ClientPortalUserCards.insertMany(docs);
+  }
+  if (excludedCpUsers) {
+    await models.ClientPortalUserCards.deleteMany({
+      contentType: type,
+      contentTypeId: cardId,
+      cpUserId: { $in: excludedCpUsers },
+    });
+  }
+
+  return 'ok';
+};

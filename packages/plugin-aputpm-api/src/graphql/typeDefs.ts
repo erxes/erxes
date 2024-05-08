@@ -1,9 +1,10 @@
 import gql from 'graphql-tag';
 import { queries, types } from './schema/queries';
+import { mutations } from './schema/mutations';
 import {
   queries as SafetyTipQueries,
   mutations as SafetyTipMutations,
-  types as SafetyTipTypes
+  types as SafetyTipTypes,
 } from './schema/safetyTips';
 
 const typeDefs = async () => {
@@ -20,6 +21,7 @@ const typeDefs = async () => {
     }
 
     extend type Mutation {
+      ${mutations}
       ${SafetyTipMutations}
     }
   `;

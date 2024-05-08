@@ -1,21 +1,16 @@
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { sendCardsMessage, sendSegmentsMessage } from '../messageBroker';
 import {
   chartSchema,
-  dashboardSchema,
   IChart,
   IChartDocument,
   IChartEdit,
-  IDashboard,
-  IDashboardDocument,
-} from './definitions/insight';
-import { CONTRIBUTIONTYPE, TEAMGOALTYPE } from '../constants';
 
+} from './definitions/insight';
 export interface IChartModel extends Model<IChartDocument> {
   getChart(_id: string): Promise<IChartDocument>;
   createChart(doc: IChart): Promise<IChartDocument>;
-  updateChart(_id: string, doc: IChartEdit): Promise<IChartDocument>;
+  updateChart(_id: string, doc: IChart): Promise<IChartDocument>;
   removeChart(_id: string): void;
 }
 

@@ -4,7 +4,7 @@ export const enum ImageDisplay {
   INLINE = 'inline',
   BREAK_TEXT = 'block',
   FLOAT_LEFT = 'left',
-  FLOAT_RIGHT = 'right'
+  FLOAT_RIGHT = 'right',
 }
 
 export interface IImageOptions {
@@ -34,37 +34,40 @@ export const ImageResize = Image.extend<IImageOptions>({
       ...this.parent?.(),
       width: {
         default: null,
-        parseHTML: element => {
+        parseHTML: (element) => {
           const width =
             element.style.width || element.getAttribute('width') || null;
           return width;
         },
-        renderHTML: attributes => {
+        renderHTML: (attributes) => {
           return {
-            width: attributes.width
+            width: attributes.width,
           };
-        }
+        },
       },
       height: {
         default: null,
-        parseHTML: element => {
+        parseHTML: (element) => {
           const height =
             element.style.height || element.getAttribute('height') || null;
           return height;
         },
-        renderHTML: attributes => {
+        renderHTML: (attributes) => {
           return {
-            height: attributes.height
+            height: attributes.height,
           };
-        }
-      }
+        },
+      },
+      style: {
+        parseHTML: (element) => element.getAttribute('style'),
+      },
     };
   },
   parseHTML() {
     return [
       {
-        tag: 'img[src]'
-      }
+        tag: 'img[src]',
+      },
     ];
-  }
+  },
 });

@@ -24,6 +24,6 @@ export const TAG_TYPES = {
     'product',
     'productTemplate',
     'deal',
-    'purchase'
-  ]
+    'purchase',
+  ],
 };
