@@ -10,11 +10,11 @@ import { debugBase, debugError, isEmailValid, sendRequest } from './utils';
 
 dotenv.config();
 
-const {
-  TRUEMAIL_HOST = 'localhost',
-  TRUEMAIL_TOKEN,
-  TRUEMAIL_PORT = '9292',
-} = process.env;
+// const {
+//   TRUEMAIL_HOST = 'localhost',
+//   TRUEMAIL_TOKEN,
+//   TRUEMAIL_PORT = '9292',
+// } = process.env;
 
 const { REACHER_HOST, REACHER_PORT } = process.env;
 
