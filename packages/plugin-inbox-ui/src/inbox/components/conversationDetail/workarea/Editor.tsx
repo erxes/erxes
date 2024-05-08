@@ -131,9 +131,7 @@ const Editor = forwardRef(
           placeholder={placeholder}
           integrationKind={integrationKind}
           showMentions={showMentions}
-          {...(showMentions && {
-            mentionSuggestion: mentionSuggestion,
-          })}
+          mentionSuggestion={mentionSuggestion}
           content={content}
           onChange={onChange}
           autoGrow={true}

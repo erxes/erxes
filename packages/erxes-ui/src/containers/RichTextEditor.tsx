@@ -16,6 +16,7 @@ import { RichTextEditor } from '../components/richTextEditor/TEditor';
 interface ITeamMembers {
   id: string;
   username: string;
+  email?: string;
   fullName?: string;
   title?: string;
   avatar?: string;
@@ -91,6 +92,7 @@ const EditorContainer = (props: FinalProps) => {
       mentionUsers.push({
         id: user._id,
         username: user.username?.trim(),
+        email: user.email?.trim(),
         fullName: user.details && user.details.fullName?.trim(),
         title: user.details && user.details.position,
         avatar:
