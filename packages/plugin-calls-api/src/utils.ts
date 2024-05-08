@@ -86,7 +86,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
     caller = extentionNumber;
     callee = customerPhone;
   }
-  console.log(cookie, caller, callee, startDate, endTime, wsServer);
+
   const cdr = await fetch(`https://${wsServer}/api`, {
     method: 'POST',
     headers: {
