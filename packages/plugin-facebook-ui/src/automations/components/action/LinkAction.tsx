@@ -15,11 +15,9 @@ type Props = {
 function LinkAction({ onChange, link, name, container }: Props) {
   return (
     <Popover
-      placement="top"
+      placement="top-start"
       trigger={
-        <span>
           <Icon icon="link" color={link ? colors.colorCoreBlue : ""} />
-        </span>
       }
     >
       <PopoverContent>

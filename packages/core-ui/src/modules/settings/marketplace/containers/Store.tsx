@@ -1,6 +1,6 @@
-import React from 'react';
-import Spinner from 'modules/common/components/Spinner';
-import Store from '../components/Store';
+import React from "react";
+import Spinner from "modules/common/components/Spinner";
+import Store from "../components/Store";
 
 type Props = {};
 
@@ -13,24 +13,25 @@ class StoreContainer extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      plugins: []
+      plugins: [],
     };
   }
 
   async componentDidMount() {
     const url =
-      process.env.NODE_ENV === 'production'
-        ? 'https://erxes.io/plugins'
-        : 'http://127.0.0.1:3500/plugins';
+      process.env.NODE_ENV === "production"
+        ? "https://erxes.io/api/plugins"
+        : "http://127.0.0.1:3500/api/plugins";
 
     fetch(url)
-      .then(async response => {
+      .then(async (response) => {
+        console.log("ggi", response);
         const plugins = await response.json();
 
         this.setState({ plugins });
       })
-      .catch(e => {
-        console.log(e, 'error');
+      .catch((e) => {
+        console.log(e, "error");
       });
   }
 
