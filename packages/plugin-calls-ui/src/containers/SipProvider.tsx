@@ -96,7 +96,7 @@ const SipProviderContainer = (props) => {
           callDuration: duration,
           callStatus,
           callType: direction,
-          // customerPhone,
+          customerPhone,
         },
         refetchQueries: ['callHistories'],
       })
