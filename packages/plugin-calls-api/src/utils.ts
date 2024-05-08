@@ -42,7 +42,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
 
   let cookie = await getOrSetCallCookie(wsServer);
   cookie = cookie?.toString();
-
+  console.log(wsServer, 'wsServer');
   const queueResult = await fetch(`https://${wsServer}/api`, {
     method: 'POST',
     headers: {
@@ -60,10 +60,35 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
   });
 
   const queueData = await queueResult.json();
+
+  console.log(queueData, 'queueData');
+  if (queueData.status === -6) {
+    console.log('coookie error');
+  }
   const { queue } = queueData?.response;
+
   if (!queue) {
     throw new Error(`Queue not found`);
   }
+
+  // console.log('queue:', queue);
+  // const queueApiResult = await fetch(`https://202.179.30.206:8089/api`, {
+  //   method: 'POST',
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //   },
+  //   body: JSON.stringify({
+  //     request: {
+  //       action: 'queueapi',
+  //       cookie,
+  //       endTime: '2024-05-06',
+  //       startTime: '2024-05-07',
+  //       queue: '6500',
+  //     },
+  //   }),
+  // });
+  // const queueApiData = await queueApiResult.json();
+  // console.log(queueApiData, 'queueApiDataz');
   const extension = queue?.find(
     (queue) =>
       queue.members && queue.members.split(',').includes(extentionNumber),
@@ -78,7 +103,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
     caller = extentionNumber;
     callee = customerPhone;
   }
-
+  console.log(cookie, caller, callee, startDate, endTime, wsServer);
   const cdr = await fetch(`https://${wsServer}/api`, {
     method: 'POST',
     headers: {
@@ -97,13 +122,12 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       },
     }),
   });
-
-  const cdrData = await cdr.json();
-
+  const cdrData = await cdr?.json();
+  console.log(cdrData, 'cdrData');
   const { cdr_root } = cdrData;
-
+  console.log('1', cdr_root);
   const todayCdr = JSON.parse(JSON.stringify(cdr_root));
-
+  console.log('todayCdr:', todayCdr);
   const sortedCdr = todayCdr?.sort(
     (a, b) => a.createdAt?.getTime() - b.createdAt?.getTime(),
   );
@@ -171,7 +195,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
 
 export const getOrSetCallCookie = async (wsServer) => {
   const { CALL_API_USER, CALL_API_PASSWORD } = process.env;
-
+  console.log('wsServer:', wsServer);
   if (!CALL_API_USER && !CALL_API_PASSWORD) {
     throw new Error(`Required api credentials!`);
   }
