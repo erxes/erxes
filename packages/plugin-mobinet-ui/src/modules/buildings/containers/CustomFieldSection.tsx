@@ -1,21 +1,21 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
 // import { AssetEditMutationResponse, IAsset } from '../../../common/types';
 
-import GenerateCustomFields from '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields';
-import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-forms/src/settings/properties/constants';
-import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
-import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { withProps } from '@erxes/ui/src/utils';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { mutations } from '../graphql';
-import { EditMutationResponse } from '../../../types';
-import { IBuilding } from '../types';
+import GenerateCustomFields from "@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields";
+import { FIELDS_GROUPS_CONTENT_TYPES } from "@erxes/ui-forms/src/settings/properties/constants";
+import { queries as fieldQueries } from "@erxes/ui-forms/src/settings/properties/graphql";
+import { FieldsGroupsQueryResponse } from "@erxes/ui-forms/src/settings/properties/types";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import { withProps } from "@erxes/ui/src/utils";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { gql } from "@apollo/client";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import { mutations } from "../graphql";
+import { EditMutationResponse } from "../../../types";
+import { IBuilding } from "../types";
 
 type Props = {
   building: IBuilding;
@@ -49,7 +49,7 @@ const CustomFieldsSection = (props: FinalProps) => {
       .then(() => {
         callback();
       })
-      .catch((e) => {
+      .catch(e => {
         callback(e);
       });
   };
@@ -61,13 +61,14 @@ const CustomFieldsSection = (props: FinalProps) => {
     fieldsGroups: (fieldsGroupsQuery && fieldsGroupsQuery.fieldsGroups) || [],
     isDetail: true,
     collapseCallback,
+    object: building,
   };
 
   return <GenerateCustomFields {...updatedProps} />;
 };
 
 const options = () => ({
-  refetchQueries: ['BuildingDetail'],
+  refetchQueries: ["BuildingDetail"],
 });
 
 export default withProps<Props>(
@@ -75,22 +76,22 @@ export default withProps<Props>(
     graphql<Props, FieldsGroupsQueryResponse, { contentType: string }>(
       gql(fieldQueries.fieldsGroups),
       {
-        name: 'fieldsGroupsQuery',
+        name: "fieldsGroupsQuery",
         options: () => ({
           variables: {
-            contentType: 'mobinet:Building',
+            contentType: "mobinet:Building",
             isDefinedByErxes: false,
           },
         }),
-        skip: !isEnabled('forms'),
-      },
+        skip: !isEnabled("forms"),
+      }
     ),
     graphql<Props, EditMutationResponse, IBuilding>(
       gql(mutations.editMutation),
       {
-        name: 'editMutation',
+        name: "editMutation",
         options,
-      },
-    ),
-  )(CustomFieldsSection),
+      }
+    )
+  )(CustomFieldsSection)
 );

@@ -1,12 +1,82 @@
 import { IContext } from '../../../connectionResolver';
-import { sendCommonMessage } from '../../../messageBroker';
+import {  sendCommonMessage } from '../../../messageBroker';
+import { IBuildingToContactDocument } from '../../../models/definitions/buildingToContact';
 import {
   IBuilding,
+  IBuildingDocument,
   IBuildingEdit,
 } from '../../../models/definitions/buildings';
 import { findCenter } from '../utils';
 
 const mutations = {
+  buildingsChange: async (
+  _root,
+  {_buildingId, customerId,ticketData},
+  { models, subdomain}: IContext,
+) => {
+
+  const building = await models.Buildings.getBuilding({ _id:_buildingId });
+
+  if(building.serviceStatus === "inactive"){
+    throw new Error('шилжүүлэх боломжгүй');
+  }else if(building.serviceStatus === "active"){
+    const quarter = await models.Quarters.getQuarter({ _id: building.quarterId });
+
+    const district = await models.Districts.getDistrict({
+      _id: quarter.districtId,
+    });
+
+    const city = await models.Cities.getCity({ _id: district.cityId });
+
+    const ticketName = ` Хаяг шилжүүлэх ${city.name}, ${district.name}, ${quarter.name}, ${building.name}`;
+    console.log(ticketName);
+    
+    const stage = await sendCommonMessage({
+      serviceName: 'cards',
+      subdomain,
+      action: 'stages.findOne',
+      data: {
+        code:"ADDRESS_MOVE"
+      },
+      isRPC: true,
+      defaultValue: undefined,
+    });
+    if(!stage){
+      throw new Error('Create stage with code ADDRESS_MOVE');
+    }
+    const ticket = await sendCommonMessage({
+      serviceName: 'cards',
+      subdomain,
+      action: 'tickets.create',
+      data: {
+        ...ticketData,
+        createdAt: new Date(),
+        name: ticketName,
+        customers:[customerId],
+        customerId,
+        stageId: stage._id
+      },
+      isRPC: true,
+      defaultValue: undefined,
+    });
+    if (!ticket) {
+      throw new Error('Ticket creation failed');
+    }
+
+    building.installationRequestIds.push(ticket._id);
+
+    await building.save();
+  //}
+  await models.BuildingToContacts.createDoc({
+    buildingId: _buildingId,
+    contactId: customerId,
+    contactType: 'customer',
+  });
+
+  return building;
+  }
+
+},
   buildingsAdd: async (
     _root,
     doc: IBuilding,
@@ -182,7 +252,6 @@ const mutations = {
       customerId = customer?._id || '';
     }
 
-    // const user = { erxesCustomerId: 'hTqM74dJPreqy4K5t' };
     let building = await models.Buildings.findOne({
       $or: [
         { _id },
