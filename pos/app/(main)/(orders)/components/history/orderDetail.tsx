@@ -21,12 +21,14 @@ import {
   TruckIcon,
   User,
   UserCog,
+  XIcon,
 } from "lucide-react"
 
 import { IOrderStatus } from "@/types/order.types"
 import { ORDER_STATUSES } from "@/lib/constants"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Sheet, SheetContent } from "@/components/ui/sheet"
+import { Sheet, SheetClose, SheetContent } from "@/components/ui/sheet"
 
 import Items from "./items"
 import Payment from "./payment"
@@ -83,9 +85,16 @@ const OrderDetail = () => {
   return (
     <Sheet open={!!detailId} onOpenChange={() => setDetailId(null)}>
       <SheetContent className="sm:max-w-3xl w-full p-4 overflow-y-auto">
-        <div className="pb-3 text-sm font-bold">Захиалгын дэлгэрэнгүй</div>
+        <div className="pb-3 text-sm font-bold flex items-start justify-between">
+          Захиалгын дэлгэрэнгүй
+          <SheetClose asChild>
+            <Button variant="ghost" size="icon" className="-mt-2.5">
+              <XIcon className="h-5 w-5" />
+            </Button>
+          </SheetClose>
+        </div>
         <div className="space-y-3">
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid md:grid-cols-3 gap-2">
             <DescriptionCard
               title="Захиалгын дугаар"
               value={number}

@@ -24,7 +24,7 @@ const Amounts = () => {
     paymentTypes?.find((pt) => pt.type === type)
 
   return (
-    <div className="my-4 grid grid-cols-2 gap-2">
+    <div className="my-4 grid md:grid-cols-2 gap-2">
       <div className="space-y-2">
         <CashAmounts />
         <Description />

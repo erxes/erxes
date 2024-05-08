@@ -34,7 +34,7 @@ const Receipt = ({ date, report }: any) => {
 
   const renderAmounts = (amounts: any) => {
     return (
-      <div>
+      <div className="pt-4 md:pt-0">
         <Flex>
           {`Бэлнээр: `}
           <span>{formatNum(amounts.cashAmount)}</span>
