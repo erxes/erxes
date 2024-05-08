@@ -69,7 +69,7 @@ const msdynamicCheckMutations = {
       }).then((res) => res.json());
 
       const resultCodes =
-        response.value.map((r) => r.No.replace(/\s/g, '')) || [];
+        response.value.map((r) => r.No) || [];
 
       const productByCode = {};
       for (const product of products) {
@@ -81,8 +81,8 @@ const msdynamicCheckMutations = {
       }
 
       for (const resProd of response.value) {
-        if (productCodes.includes(resProd.No.replace(/\s/g, ''))) {
-          const product = productByCode[resProd.No.replace(/\s/g, '')];
+        if (productCodes.includes(resProd.No)) {
+          const product = productByCode[resProd.No];
 
           if (
             resProd?.Description === product.name &&
