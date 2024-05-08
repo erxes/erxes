@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.9.1](https://github.com/erxes/erxes/compare/1.9.0...1.9.1) (2024-05-08)
+
+
+### Bug Fixes
+
+* **calls:** fix calls widgets in saas ([d7d462b](https://github.com/erxes/erxes/commit/d7d462b33c774c700aaa5c1e22eb7547d12e8165))
+* **erxes-ui:** remove undefined or null elements from attachments ([dadc273](https://github.com/erxes/erxes/commit/dadc273b42add41b4c8635f18e1526519d020196))
+
+
+### Performance Improvements
+
+* fix context subdomain in saas  ([c1fbdad](https://github.com/erxes/erxes/commit/c1fbdadfd465435cd9a494022cab15111476ba9d))
+
 ## [1.9.0](https://github.com/erxes/erxes/compare/1.9.0-rc.2...1.9.0) (2024-05-01)
 
 
