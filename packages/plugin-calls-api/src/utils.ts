@@ -13,8 +13,18 @@ export const generateToken = async (integrationId, username?, password?) => {
   return token;
 };
 
-export const getRecordUrl = async (params, user, models, subdomain) => {
+export const getRecordUrl = async (
+  params,
+  user,
+  models,
+  subdomain,
+  retryCount = 3,
+) => {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
+  if (retryCount === 0) {
+    throw new Error('Retry limit exceeded. Unable to fetch record URL.');
+  }
 
   const {
     operatorPhone,
@@ -64,7 +74,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
   //if cookie error
   if (queueData.status === -6) {
     await redis.del('callCookie');
-    return await getRecordUrl(params, user, models, subdomain);
+    return await getRecordUrl(params, user, models, subdomain, retryCount - 1);
   }
   const { queue } = queueData?.response;
 
