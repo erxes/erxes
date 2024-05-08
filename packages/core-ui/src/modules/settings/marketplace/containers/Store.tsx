@@ -25,7 +25,6 @@ class StoreContainer extends React.Component<Props, State> {
 
     fetch(url)
       .then(async (response) => {
-        console.log("ggi", response);
         const plugins = await response.json();
 
         this.setState({ plugins });
