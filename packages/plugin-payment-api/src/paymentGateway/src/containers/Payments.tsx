@@ -1,86 +1,15 @@
 import React from 'react';
-import { useQuery, useMutation, gql, useSubscription } from '@apollo/client';
-import Spinner from '../common/Spinner';
+import { useQuery, useMutation, useSubscription } from '@apollo/client';
 import Component from '../components/Payments';
 import Loader from '../common/Loader';
-
-const INVOICE_SUBSCRIPTION = gql`
-  subscription invoiceUpdated($invoiceId: String!) {
-    invoiceUpdated(_id: $invoiceId)
-  }
-`;
-
-const TRANSACTION_SUBSCRIPTION = gql`
-  subscription transactionUpdated($invoiceId: String!) {
-    transactionUpdated(invoiceId: $invoiceId)
-  }
-`;
-
-const PAYMENTS_QRY = gql`
-  query PaymentsPublic($kind: String, $ids: [String]) {
-    paymentsPublic(kind: $kind, _ids: $ids) {
-      _id
-      kind
-      name
-    }
-  }
-`;
-
-const INVOICE = gql`
-  query InvoiceDetail($id: String!) {
-    invoiceDetail(_id: $id) {
-      _id
-      invoiceNumber
-      amount
-      remainingAmount
-      description
-      phone
-      paymentIds
-      email
-      redirectUri
-      status
-      transactions {
-        _id
-        amount
-        paymentId
-        paymentKind
-        response
-        status
-      }
-    }
-  }
-`;
-
-const ADD_TRANSACTION = gql`
-  mutation TransactionsAdd(
-    $invoiceId: String!
-    $paymentId: String!
-    $amount: Float!
-    $details: JSON
-  ) {
-    paymentTransactionsAdd(
-      invoiceId: $invoiceId
-      paymentId: $paymentId
-      amount: $amount
-      details: $details
-    ) {
-      _id
-      amount
-      invoiceId
-      paymentId
-      paymentKind
-      status
-      response
-      details
-    }
-  }
-`;
-
-const CHECK_INVOICE = gql`
-  mutation InvoicesCheck($id: String!) {
-    invoicesCheck(_id: $id)
-  }
-`;
+import {
+  ADD_TRANSACTION,
+  CHECK_INVOICE,
+  INVOICE,
+  INVOICE_SUBSCRIPTION,
+  PAYMENTS_QRY,
+  TRANSACTION_SUBSCRIPTION
+} from '../graphql';
 
 type Props = {
   invoiceId: string;
@@ -92,7 +21,8 @@ const Payments = (props: Props) => {
 
   const { data, loading } = useQuery(PAYMENTS_QRY);
 
-  const [checkInvoice] = useMutation(CHECK_INVOICE);
+  const [checkInvoice, { loading: checkInvoiceLoading }] =
+    useMutation(CHECK_INVOICE);
 
   const [addTransaction, addTransactionResponse] = useMutation(ADD_TRANSACTION);
 
@@ -109,7 +39,7 @@ const Payments = (props: Props) => {
   });
 
   React.useEffect(() => {
-    if (invoiceSubscription.data && invoiceSubscription.data.invoiceUpdated) {
+    if (invoiceSubscription.data?.invoiceUpdated) {
       const message = {
         fromPayment: true,
         message: 'paymentSuccessfull',
@@ -127,10 +57,7 @@ const Payments = (props: Props) => {
       }
     }
 
-    if (
-      transactionSubscription.data &&
-      transactionSubscription.data.transactionUpdated
-    ) {
+    if (transactionSubscription.data?.transactionUpdated) {
       invoiceDetailQuery.refetch();
     }
   }, [invoiceSubscription.data, transactionSubscription.data]);
@@ -147,9 +74,7 @@ const Payments = (props: Props) => {
     return <div>{invoiceDetailQuery.error.message}</div>;
   }
 
-  const invoiceDetail = invoiceDetailQuery.data
-    ? invoiceDetailQuery.data.invoiceDetail
-    : null;
+  const invoiceDetail = invoiceDetailQuery.data?.invoiceDetail || null;
 
   const requestNewTransaction = (paymentId: string, details?: any) => {
     addTransaction({
@@ -169,8 +94,8 @@ const Payments = (props: Props) => {
       .catch(e => {
         console.log(e);
       })
-      .then((res: any) => {
-        const status = res.data && res.data.invoicesCheck;
+      .then(({ data }: any) => {
+        const status = data?.invoicesCheck;
         invoiceDetailQuery.refetch();
         if (status !== 'paid') {
           window.alert('Not paid yet!, Please try again later.');
@@ -199,13 +124,12 @@ const Payments = (props: Props) => {
     }
   };
 
-  const newTransaction =
-    addTransactionResponse.data &&
-    addTransactionResponse.data.paymentTransactionsAdd;
+  const { paymentTransactionsAdd: newTransaction } =
+    addTransactionResponse.data || {};
   let payments = data.paymentsPublic || [];
 
   // if invoice amount is less than 100000, hide storepay
-  if (invoiceDetail && invoiceDetail.amount < 100) {
+  if (invoiceDetail && invoiceDetail.amount < 100000) {
     payments = payments.filter((p: any) => p.kind !== 'storepay');
   }
 
@@ -221,7 +145,11 @@ const Payments = (props: Props) => {
       contentTypeId: invoiceDetail.contentTypeId
     });
 
-    return <div>Payment has been successfully processed. Thank you! </div>;
+    return (
+      <div className="py-12 flex items-center justify-center">
+        Payment has been successfully processed. Thank you!
+      </div>
+    );
   }
 
   const updatedProps = {
@@ -231,7 +159,8 @@ const Payments = (props: Props) => {
     newTransaction,
     requestNewTransaction,
     checkInvoiceHandler,
-    transactionLoading: addTransactionResponse.loading
+    transactionLoading: addTransactionResponse.loading,
+    checkInvoiceLoading
   };
 
   return <Component {...updatedProps} />;

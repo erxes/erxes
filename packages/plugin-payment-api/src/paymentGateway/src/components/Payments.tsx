@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import Modal from './PaymentModal';
 
 import PaymentType from './PaymentType';
@@ -9,9 +9,31 @@ type Props = {
   apiDomain: string;
   newTransaction: any;
   transactionLoading?: boolean;
+  checkInvoiceLoading?: boolean;
   requestNewTransaction: (paymentId: string, details?: any) => void;
   checkInvoiceHandler: (id: string) => void;
 };
+
+type ContextProps = Props & {
+  isOpen: boolean;
+  onClose: () => void;
+  transaction: any;
+  kind: string;
+  paymentId: string;
+  apiResponse?: any;
+};
+
+const PaymentContext = createContext<ContextProps | null>(null);
+
+export function usePayment() {
+  const context = useContext(PaymentContext);
+
+  if (!context) {
+    throw new Error('usePayment must be used within a <PaymentGateway />');
+  }
+
+  return context;
+}
 
 const PaymentGateway = (props: Props) => {
   const { invoiceDetail } = props;
@@ -98,15 +120,19 @@ const PaymentGateway = (props: Props) => {
           </div>
         </div>
       </div>
-      <Modal
-        {...props}
-        isOpen={modalIsOpen}
-        onClose={closeModal}
-        transaction={currentTransaction}
-        kind={kind}
-        paymentId={currentPaymentId}
-        apiDomain={props.apiDomain}
-      />
+      <PaymentContext.Provider
+        value={{
+          ...props,
+          isOpen: modalIsOpen,
+          onClose: closeModal,
+          transaction: currentTransaction,
+          kind: kind.includes('qpay') ? 'qpay' : kind,
+          paymentId: currentPaymentId,
+          apiResponse: currentTransaction?.response
+        }}
+      >
+        <Modal />
+      </PaymentContext.Provider>
     </main>
   );
 };
