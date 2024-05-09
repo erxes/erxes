@@ -26,6 +26,7 @@ import { queries } from '../graphql';
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   transaction: ITransaction;
+  contractId?:string;
   type: string;
   closeModal: () => void;
 };
@@ -56,7 +57,7 @@ const getValue = (mustPay, value) => {
 function TransactionFormNew(props: Props) {
   const [paymentInfo, setPaymentInfo] = useState<PaymentInfo | undefined>();
 
-  const [contractId, setContractId] = useState<string>();
+  const [contractId, setContractId] = useState<string | undefined>(props.contractId);
   const [isPrePayment, setIsPrePayment] = useState<boolean>();
   const [payDate, setPayDate] = useState(new Date());
   const [calcDate, setCalcDate] = useState(new Date());
@@ -70,7 +71,6 @@ function TransactionFormNew(props: Props) {
   const [commitmentInterest, setCommitmentInterest] = useState(0);
 
   useEffect(() => {
-    console.log('contractId', contractId, calcDate);
     contractId &&
       client
         .query({
@@ -228,7 +228,12 @@ function TransactionFormNew(props: Props) {
                     fixed={0}
                     name="isPrePayment"
                     value={isPrePayment}
-                    onChange={(e: any) => setIsPrePayment(e.target.checked)}
+                    onChange={(e: any) => {
+                      setIsPrePayment(e.target.checked)
+                      if(e.target.checked == false){
+                        setCalcDate(payDate)
+                      }
+                    }}
                   />
                 </FormGroup>
                 {isPrePayment && (
@@ -248,7 +253,7 @@ function TransactionFormNew(props: Props) {
                     </DateContainer>
                   </FormGroup>
                 )}
-                <FormGroup>
+                {!props.contractId && <FormGroup>
                   <ControlLabel>{__('Contract')}</ControlLabel>
                   <SelectContracts
                     label={__('Choose an contract')}
@@ -261,7 +266,7 @@ function TransactionFormNew(props: Props) {
                     }}
                     multi={false}
                   />
-                </FormGroup>
+                </FormGroup>}
                 <FormGroup>
                   <ControlLabel>{__('Description')}</ControlLabel>
                   <DateContainer>

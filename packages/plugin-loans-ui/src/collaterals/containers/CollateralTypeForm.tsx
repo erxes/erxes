@@ -6,8 +6,9 @@ import { __ } from '@erxes/ui/src/utils/core';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { mutations } from '../graphql';
+import { mutations, queries } from '../graphql';
 import CollateralTypeForm from '../components/CollateralTypeForm';
+import useDetailQuery from '../../component/hooks/useDetailQuery';
 
 interface IProps {
   data?: ICollateralTypeDocument;
@@ -21,12 +22,13 @@ const renderButton = ({
   values,
   isSubmitted,
   object,
-  disabled,
+  disabled
 }: IButtonMutateProps & { disabled: boolean }) => {
-
   return (
     <ButtonMutate
-      mutation={object ? mutations.collateralTypeEdit : mutations.collateralTypeAdd}
+      mutation={
+        object ? mutations.collateralTypeEdit : mutations.collateralTypeAdd
+      }
       variables={values}
       refetchQueries={['collateralTypesMain']}
       isSubmitted={isSubmitted}
@@ -41,14 +43,24 @@ const renderButton = ({
 };
 
 const CollateralTypeFormContainer = (props: IProps) => {
+  const detailQuery = useDetailQuery<
+    ICollateralTypeDocument,
+    { collateralTypeDetail: any }
+  >(
+    queries.collateralTypeDetail,
+    { variables: { id: props.data?._id } },
+    'collateralTypeDetail'
+  );
+
+  if (props.data?._id && !detailQuery.detail) return null;
 
   const updatedProps = {
     ...props,
-    renderButton,
+    data: detailQuery.detail,
+    renderButton
   };
 
   return <CollateralTypeForm {...updatedProps} />;
 };
 
 export default withCurrentUser(CollateralTypeFormContainer);
-

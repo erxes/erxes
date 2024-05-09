@@ -9,7 +9,7 @@ type ResponseType<T, K> = {
   [Field in keyof K]: { list: T[]; totalCount: number };
 };
 
-function useCustomQuery<T, K>(
+function useListQuery<T, K>(
   query: string,
   options: QueryHookOptions,
   field: keyof K
@@ -26,4 +26,4 @@ function useCustomQuery<T, K>(
   };
 }
 
-export default useCustomQuery;
+export default useListQuery;

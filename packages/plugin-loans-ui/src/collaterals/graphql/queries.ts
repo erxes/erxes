@@ -103,7 +103,54 @@ export const collateralTypesMain = `
   }
 `
 
+export const collateralTypeDetail = `
+query collateralTypeDetail($id: String!) {
+  collateralTypeDetail(_id: $id) {
+    _id
+    code
+    name
+    description
+    type
+    startDate
+    endDate
+    status
+    currency
+    config {
+      collateralType
+      defaultPercent
+      maxPercent
+      minPercent
+      riskClosePercent
+    }
+    property {
+      sizeSquare
+      sizeSquareUnit
+      cntRoom
+      startDate
+      endDate
+      quality
+      purpose
+      mark
+      color
+      power
+      frameNumber
+      importedDate
+      factoryDate
+      courtOrderDate
+      mrtConfirmedDate
+      cmrtRegisteredDate
+      mrtRegisteredDate
+      courtOrderNo
+      mrtOrg
+      registeredToAuthority
+      causeToShiftTo
+    }
+  }
+}
+`
+
 export default {
   collateralsMain,
-  collateralTypesMain
+  collateralTypesMain,
+  collateralTypeDetail
 };

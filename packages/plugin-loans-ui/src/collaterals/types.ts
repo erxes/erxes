@@ -53,8 +53,8 @@ export interface ICollateralType {
   endDate: Date;
   status: string;
   currency: string;
-  config: ICollateralTypeConfig;
-  property: ICollateralProperty;
+  config?: ICollateralTypeConfig;
+  property?: ICollateralProperty;
 }
 
 export interface ICollateralProperty {

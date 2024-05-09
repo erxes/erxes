@@ -36,6 +36,14 @@ const collateralQueries = {
       list,
       totalCount: models.CollateralTypes.find(filter).count()
     }
+  },
+  collateralTypeDetail: async (
+    _root,
+    {_id},
+    { models }: IContext
+  ) => {
+    const collateralType = await models.CollateralTypes.findOne({_id})
+    return collateralType
   }
 };
 

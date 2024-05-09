@@ -2,7 +2,7 @@ import React from 'react';
 
 import List from '../components/CollateralTypeList';
 import queries from '../graphql/queries';
-import useCustomQuery from '../../component/hooks/useQuery';
+import useListQuery from '../../component/hooks/useListQuery';
 import { useMutation, gql } from '@apollo/client';
 import { ICollateralTypeDocument } from '../types';
 import { mutations } from '../graphql';
@@ -11,7 +11,7 @@ import { Alert, confirm } from '@erxes/ui/src';
 type Props = { queryParams: any };
 
 const CollateralTypeListContainer = (props: Props) => {
-  const collateralTypesMainQuery = useCustomQuery<
+  const collateralTypesMainQuery = useListQuery<
     ICollateralTypeDocument,
     { collateralTypesMain: any }
   >(

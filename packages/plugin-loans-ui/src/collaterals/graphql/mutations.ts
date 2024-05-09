@@ -1,6 +1,33 @@
+const commonFields = `
+  $code: String,
+  $name: String,
+  $description: String,
+  $type: String,
+  $startDate: Date,
+  $status: String,
+  $endDate: Date,
+  $currency: String,
+  $config: JSON, 
+  $property: JSON
+`;
+
+const commonVariables = `
+  code: $code,
+  name: $name,
+  description: $description,
+  type: $type,
+  startDate: $startDate,
+  status: $status,
+  endDate: $endDate,
+  currency: $currency,
+  config: $config, 
+  property: $property
+`;
+
+
 export const collateralTypeEdit = `
-  mutation collateralTypeEdit($id: String!, $code: String, $name: String, $description: String, $type: String, $startDate: Date, $status: String, $endDate: Date, $currency: String) {
-    collateralTypeEdit(_id: $id, code: $code, name: $name, description: $description, type: $type, startDate: $startDate, status: $status, endDate: $endDate, currency: $currency) {
+  mutation collateralTypeEdit($id: String!, ${commonFields}) {
+    collateralTypeEdit(_id: $id, ${commonVariables}) {
       code
       currency
       description
@@ -14,8 +41,8 @@ export const collateralTypeEdit = `
 `;
 
 export const collateralTypeAdd = `
-  mutation collateralTypeAdd($code: String, $name: String, $description: String, $type: String, $startDate: Date, $endDate: Date, $status: String, $currency: String) {
-    collateralTypeAdd(code: $code, name: $name, description: $description, type: $type, startDate: $startDate, endDate: $endDate, status: $status, currency: $currency) {
+  mutation collateralTypeAdd(${commonFields}) {
+    collateralTypeAdd(${commonVariables}) {
       code
       currency
       description
