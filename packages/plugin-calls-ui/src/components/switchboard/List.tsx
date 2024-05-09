@@ -13,9 +13,8 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors } from '@erxes/ui/src/styles';
 
-import { can, router as routerUtils } from "@erxes/ui/src/utils";
+import { can, router as routerUtils } from '@erxes/ui/src/utils';
 import { Link } from 'react-router-dom';
-
 
 const Circle = styled.circle`
   fill: transparent;
@@ -30,7 +29,7 @@ const FilledCircle: any = styledTS<{ color?: string }>(styled(Circle))`
   transition: stroke-dashoffset 0.5s ease-out;
 `;
 
-const Text = (styled.div)`
+const Text = styled.div`
   align-items: center;
   display: flex;
   font-weight: bold;
@@ -48,8 +47,7 @@ const Text = (styled.div)`
 const Header = styledTS<{ fontSize?: string; bottomBorder?: boolean }>(
   styled.div,
 )`
-  ${(props) =>
-    !props.bottomBorder && 'padding-top: 20px;'}
+  ${(props) => !props.bottomBorder && 'padding-top: 20px;'}
   text-align: center;
   justify-content: center;
   font-weight: bold;
@@ -68,18 +66,14 @@ const Header = styledTS<{ fontSize?: string; bottomBorder?: boolean }>(
     }
   `}
 `;
-const Row = styledTS<{ fontSize?: string; bottomBorder?: boolean }>(
-  styled.div,
-)`
+const Row = styledTS<{ fontSize?: string; bottomBorder?: boolean }>(styled.div)`
   text-align: center;
   font-weight: bold;
   justify-content: space-between;
   display: flex;
 `;
 
-const ContainerRow = 
-  styled.div
-`
+const ContainerRow = styled.div`
   padding: 20px 0px 0px 30px;
   width: 90%;
 `;
@@ -89,16 +83,15 @@ type IProps = {
   location: any;
 };
 
-
 function List(props: IProps) {
-  const {location, navigate} = props
+  const { location, navigate } = props;
   useEffect(() => {}, []);
 
   const lists = [
     {
       name: '6500',
       abnormalPercentage: '54',
-      Members: 3,
+      Members: '1/3',
       TotalCalls: 550,
       AnsweredCalls: 392,
       WaitingCalls: 0,
@@ -107,9 +100,9 @@ function List(props: IProps) {
       AverageTalkTime: '00:02:52',
     },
     {
-      name: 'Company123',
+      name: '6501',
       abnormalPercentage: 78,
-      Members: 5,
+      Members: '5 / 5',
       TotalCalls: 720,
       AnsweredCalls: 520,
       WaitingCalls: 20,
@@ -118,9 +111,9 @@ function List(props: IProps) {
       AverageTalkTime: '00:03:20',
     },
     {
-      name: 'Company456',
+      name: '6502',
       abnormalPercentage: 32,
-      Members: 8,
+      Members: '5 / 8',
       TotalCalls: 880,
       AnsweredCalls: 620,
       WaitingCalls: 50,
@@ -129,9 +122,9 @@ function List(props: IProps) {
       AverageTalkTime: '00:03:10',
     },
     {
-      name: 'Company789',
+      name: '6503',
       abnormalPercentage: 90,
-      Members: 2,
+      Members: '2 / 2',
       TotalCalls: 350,
       AnsweredCalls: 240,
       WaitingCalls: 10,
@@ -141,7 +134,11 @@ function List(props: IProps) {
     },
   ];
 
-  const progressBar = (percentage, color = colors.colorPrimary, height = '200px') => {
+  const progressBar = (
+    percentage,
+    color = colors.colorPrimary,
+    height = '200px',
+  ) => {
     const strokeWidth = 3;
     const radius = 100 / 2 - strokeWidth * 2;
     const circumference = radius * 2 * Math.PI;
