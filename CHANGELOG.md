@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.10.0-rc.2](https://github.com/erxes/erxes/compare/1.10.0-rc.1...1.10.0-rc.2) (2024-05-09)
+
+
+### Bug Fixes
+
+* **automation:** facebook message won't send ([7e4399c](https://github.com/erxes/erxes/commit/7e4399c4e46169f55f7e30624c52303fdda3e9bb))
+* **insight:** edit error & fix cards sidebar items ([#5193](https://github.com/erxes/erxes/issues/5193)) ([85062e7](https://github.com/erxes/erxes/commit/85062e72ef1878258ff78c908a8c05fb260ae619))
+
 ## [1.10.0-rc.1](https://github.com/erxes/erxes/compare/1.10.0-rc.0...1.10.0-rc.1) (2024-05-05)
 
 
