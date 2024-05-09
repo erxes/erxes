@@ -30,10 +30,10 @@ module.exports = {
       permissions: [],
     },
   ],
-  taskRightSidebarSection: "./clientSection",
+  // taskRightSidebarSection: "./clientSection",
   taskRightSidebarSection: "./vendorSection",
-  ticketRightSidebarSection: "./clientSection",
+  // ticketRightSidebarSection: "./clientSection",
   ticketRightSidebarSection: "./vendorSection",
+  // dealRightSidebarSection: "./clientSection",
   dealRightSidebarSection: "./vendorSection",
-  dealRightSidebarSection: "./clientSection",
 };
