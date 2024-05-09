@@ -68,17 +68,20 @@ export const getRecordUrl = async (
       },
     }),
   });
-
+  console.log('1');
   const queueData = await queueResult.json();
-
+  console.log('2');
   //if cookie error
   if (queueData.status === -6) {
+    console.log('3');
     await redis.del('callCookie');
     return await getRecordUrl(params, user, models, subdomain, retryCount - 1);
   }
   const { queue } = queueData?.response;
-
+  console.log('4');
   if (!queue) {
+    console.log('5');
+
     throw new Error(`Queue not found`);
   }
 
@@ -96,7 +99,8 @@ export const getRecordUrl = async (
     caller = extentionNumber;
     callee = customerPhone;
   }
-
+  console.log('caller: ', caller, callee, startDate, endTime);
+  console.log('now:', new Date());
   const cdr = await fetch(`https://${wsServer}/api`, {
     method: 'POST',
     headers: {
@@ -117,6 +121,8 @@ export const getRecordUrl = async (
   });
   const cdrData = await cdr?.json();
   let cdr_root = '';
+  console.log('cdrData:', cdrData);
+
   if (cdrData && cdrData.response) {
     cdr_root = cdrData.response.cdr_root;
   } else if (cdrData && cdrData.cdr_root) {
@@ -126,19 +132,28 @@ export const getRecordUrl = async (
   const sortedCdr = todayCdr?.sort(
     (a, b) => a.createdAt?.getTime() - b.createdAt?.getTime(),
   );
+
+  console.log('sorted:', sortedCdr);
   const lastCreatedObject = sortedCdr[todayCdr.length - 1];
 
   let fileNameWithoutExtension = '';
+
+  console.log('lastCreatedObject:', lastCreatedObject);
   if (lastCreatedObject && lastCreatedObject.disposition === 'ANSWERED') {
     const { recordfiles = '' } = lastCreatedObject;
-
+    console.log('7');
     if (recordfiles) {
+      console.log('8');
+
       const parts = recordfiles.split('/');
       const fileName = parts[1];
       fileNameWithoutExtension = fileName.split('@')[0];
     }
   }
+  console.log('13');
   if (fileNameWithoutExtension) {
+    console.log('9');
+
     const records = await fetch(`https://${wsServer}/api`, {
       method: 'POST',
       headers: {
@@ -158,6 +173,7 @@ export const getRecordUrl = async (
     if (!records.ok) {
       throw new Error(`HTTP error! status: ${records.status}`);
     }
+    console.log('10');
 
     try {
       const buffer = await records.arrayBuffer();
@@ -179,12 +195,16 @@ export const getRecordUrl = async (
         method: 'POST',
         body: formData,
       });
+      console.log('11');
+
       return await rec.text();
     } catch (error) {
       console.error('Failed to retrieve array buffer from records:', error);
       throw new Error(error);
     }
   }
+  console.log('12');
+
   return '';
 };
 
