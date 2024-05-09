@@ -117,6 +117,25 @@ const queries = {
 
     return models.Buildings.find(qry).lean();
   },
+  buildingsByCustomer: async (
+    _root,
+    { contactId }: { contactId: string },
+    { models }: IContext,
+  ) => {
+
+    const query = {
+      $or: [{ contactId: contactId} ],
+    };
+    const BuildingToContacts = await models.BuildingToContacts.find(query);
+    if (!BuildingToContacts) {
+      throw new Error("BuildingToContacts not found");
+    }
+  
+    const buildingIds = BuildingToContacts.map((item) => item.buildingId);
+    const query1 = { _id: { $in: buildingIds } };
+  
+    return models.Buildings.find(query1);
+  },
 };
 
 export default queries;

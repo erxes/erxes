@@ -393,26 +393,7 @@ const BuildingForm = (props: Props) => {
             ))}
           </FormControl>
         </FormGroup>
-        <FormGroup>
-          <ControlLabel>Type</ControlLabel>
-          <FormControl
-            id={"mapType"}
-            defaultValue={mapType === "Сонгох" ? "Сонгох" : "Зурах"}
-            componentClass='select'
-            name='mapType'
-            onChange={d => {
-              const { value } = d.target as any;
-              console.log(value);
-              setMapType(value);
-            }}
-          >
-            {["Зурах"].map((p, index) => (
-              <option key={index} value={p}>
-                {p}
-              </option>
-            ))}
-          </FormControl>
-        </FormGroup>
+
         {mapType === "Сонгох" ? (
           render3dMap()
         ) : (
