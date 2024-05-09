@@ -13,8 +13,18 @@ export const generateToken = async (integrationId, username?, password?) => {
   return token;
 };
 
-export const getRecordUrl = async (params, user, models, subdomain) => {
+export const getRecordUrl = async (
+  params,
+  user,
+  models,
+  subdomain,
+  retryCount = 3,
+) => {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
+  if (retryCount === 0) {
+    throw new Error('Retry limit exceeded. Unable to fetch record URL.');
+  }
 
   const {
     operatorPhone,
@@ -60,10 +70,18 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
   });
 
   const queueData = await queueResult.json();
+
+  //if cookie error
+  if (queueData.status === -6) {
+    await redis.del('callCookie');
+    return await getRecordUrl(params, user, models, subdomain, retryCount - 1);
+  }
   const { queue } = queueData?.response;
+
   if (!queue) {
     throw new Error(`Queue not found`);
   }
+
   const extension = queue?.find(
     (queue) =>
       queue.members && queue.members.split(',').includes(extentionNumber),
@@ -97,13 +115,14 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       },
     }),
   });
-
-  const cdrData = await cdr.json();
-
-  const { cdr_root } = cdrData;
-
+  const cdrData = await cdr?.json();
+  let cdr_root = '';
+  if (cdrData && cdrData.response) {
+    cdr_root = cdrData.response.cdr_root;
+  } else if (cdrData && cdrData.cdr_root) {
+    cdr_root = cdrData?.cdr_root;
+  }
   const todayCdr = JSON.parse(JSON.stringify(cdr_root));
-
   const sortedCdr = todayCdr?.sort(
     (a, b) => a.createdAt?.getTime() - b.createdAt?.getTime(),
   );
@@ -171,7 +190,6 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
 
 export const getOrSetCallCookie = async (wsServer) => {
   const { CALL_API_USER, CALL_API_PASSWORD } = process.env;
-
   if (!CALL_API_USER && !CALL_API_PASSWORD) {
     throw new Error(`Required api credentials!`);
   }
