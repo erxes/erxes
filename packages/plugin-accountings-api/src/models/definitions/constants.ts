@@ -51,11 +51,10 @@ export const TR_STATUSES = {
 };
 
 export const PTR_STATUSES = {
-  DT: 'dt',
-  CT: 'ct',
   UNKNOWN: 'unknown',
+  DIFF: 'diff',
   OK: 'ok',
-  ALL: ['dt', 'ct', 'unknown', 'ok'],
+  ALL: ['unknown', 'diff', 'ok'],
 };
 
 export const JOURNALS = {

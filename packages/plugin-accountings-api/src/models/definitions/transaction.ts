@@ -2,10 +2,48 @@ import { Schema, Document } from 'mongoose';
 import { field, schemaWrapper } from './utils';
 import { JOURNALS, PTR_STATUSES, TR_SIDES, TR_STATUSES } from './constants';
 
+export interface IMainTrInput {
+  ptrId: string
+  parentId: string
+  number: string
+  date: Date
+  description: string
+  journal: string
+
+  branchId: string
+  departmentId: string
+  customerType: string
+  customerId: string
+  assignedUserIds: [string]
+
+  accountId: string
+  side: string
+  amount: number;
+  currencyAmount: number;
+  customRate: number;
+}
+
+export interface ISingleTrInput extends IMainTrInput {
+  hasVat: boolean;
+  vatRowId: string;
+  afterVat: boolean;
+  afterVatAccountId: string;
+  isHandleVat: boolean;
+  vatAmount: number;
+
+  hasCtax: boolean;
+  ctaxRowId: string;
+  isHandleCtax: boolean;
+  ctaxAmount: number;
+}
+
+export interface ICashTrInput extends ISingleTrInput { }
+export interface IFundTrInput extends ISingleTrInput { }
+export interface IDebtTrInput extends ISingleTrInput { }
+
 export interface ITrDetail {
   _id: string;
   accountId: string;
-  transactionId: string;
   originId?: string;
   follows?: {
     type: string;
@@ -17,7 +55,7 @@ export interface ITrDetail {
   currency?: string;
   currencyAmount?: number;
   customRate?: number;
-  assignedUserId: string;
+  assignedUserId?: string;
 
   productId?: string;
   count?: number;
@@ -27,7 +65,7 @@ export interface ITrDetail {
 export interface ITransaction {
   date: Date;
   description: string;
-  status: string;
+  status?: string;
   ptrId?: string;
   parentId?: string;
   number?: string;
@@ -38,6 +76,7 @@ export interface ITransaction {
     type: string;
     id: string;
   }[];
+  preTrId?: string;
 
   branchId?: string;
   departmentId?: string;
@@ -47,8 +86,6 @@ export interface ITransaction {
 
   details: ITrDetail[];
   shortDetail?: ITrDetail;
-  sumDt: number;
-  sumCt: number;
   createdBy?: string;
   modifiedBy?: string;
 }
@@ -59,18 +96,20 @@ export interface ITransactionDocument extends ITransaction, Document {
   ptrId: string;
   parentId: string;
   number: string;
+  status: string;
   ptrStatus: string;
 
   createdAt: Date;
   modifiedAt?: Date;
+
+  sumDt: number;
+  sumCt: number;
 }
 
 export const transactionDetailSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
     accountId: field({ type: String, label: 'Account', index: true }),
-    transactionId: field({ type: String, label: 'Transaction' }),
-    originId: field({ type: String, label: 'Group' }),
     follows: field({
       type: [{
         type: String,
@@ -98,6 +137,12 @@ export const transactionDetailSchema = schemaWrapper(
   })
 );
 
+export const followInfoSchema = schemaWrapper(
+  new Schema({
+    id: field({ type: String, index: true }),
+    type: field({ type: String }),
+  })
+)
 export const transactionSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
@@ -130,11 +175,9 @@ export const transactionSchema = schemaWrapper(
     }),
     originId: field({ type: String, label: 'Group' }),
     follows: field({
-      type: [{
-        type: String,
-        id: String,
-      }], label: 'Follower transactions'
+      type: [followInfoSchema], label: 'Follower transactions'
     }),
+    preTrId: field({ type: String, optional: true, label: 'previous transaction', index: true }),
 
     branchId: field({ type: String, optional: true, label: 'Branch' }),
     departmentId: field({ type: String, optional: true, label: 'Department' }),

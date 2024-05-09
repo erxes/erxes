@@ -8,12 +8,8 @@ export const getPtrStatus = async (transactions: ITransactionDocument[]) => {
     balance += tr.sumDt - tr.sumCt;
   }
 
-  if (balance > 0.005) {
-    return PTR_STATUSES.DT;
-  }
-
-  if (balance < -0.005) {
-    return PTR_STATUSES.CT;
+  if (balance > 0.005 || balance < -0.005) {
+    return PTR_STATUSES.DIFF;
   }
 
   return PTR_STATUSES.OK;
@@ -22,4 +18,6 @@ export const getPtrStatus = async (transactions: ITransactionDocument[]) => {
 export const setPtrStatus = async (models: IModels, transactions: ITransactionDocument[]) => {
   const status = await getPtrStatus(transactions);
   await models.Transactions.updateMany({ _id: { $in: transactions.map(tr => tr._id) } }, { $set: { ptrStatus: status } });
+  
+  return status;
 }

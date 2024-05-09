@@ -19,12 +19,12 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
   createTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
   updateTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
   removeTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
-  removeTransaction(_ids: string[]): Promise<{ n: number; ok: number }>;
+  removeTransaction(_id: string): Promise<String>;
   removePTransaction(_ids: string[]): Promise<{ n: number; ok: number }>;
 }
 
 export const loadTransactionClass = (models: IModels, subdomain: string) => {
-  class Account {
+  class Transaction {
     /**
      *
      * Get Transaction
@@ -38,6 +38,11 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
       }
 
       return transaction;
+    }
+
+    public static async checkPtr(ptrId: string) {
+      const allTrs = await models.Transactions.find({ ptrId });
+      return setPtrStatus(models, allTrs)
     }
 
     public static async getPTransactions(selector: any) {
@@ -57,6 +62,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
       if (!doc.details?.length) {
         throw new Error('Transactions not created, cause: has not details');
       }
+
       const _id = nanoid();
       const lastDoc = {
         ...doc,
@@ -69,7 +75,36 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
         createdAt: new Date(),
       };
 
-      return models.Transactions.create({ ...lastDoc });
+      const newTr = await models.Transactions.create({ ...lastDoc });
+      newTr.ptrStatus = await this.checkPtr(newTr.ptrId);
+
+      return newTr
+    }
+
+    /**
+     * Update transaction
+     */
+    public static async updateTransaction(_id: string, doc: ITransaction) {
+      const oldTr = await models.Transactions.getTransaction({ _id });
+
+      await models.Transactions.updateOne({ _id }, {
+        $set: {
+          ...doc,
+          parentId: doc.parentId || _id,
+          sumDt: doc.details.filter(d => d.side === TR_SIDES.DEBIT).reduce((sum, cur) => sum + cur.amount, 0),
+          sumCt: doc.details.filter(d => d.side === TR_SIDES.CREDIT).reduce((sum, cur) => sum + cur.amount, 0),
+          modifiedAt: new Date()
+        }
+      });
+      await this.checkPtr(oldTr.ptrId);
+
+      return await models.Transactions.findOne({ _id }).lean();
+    }
+
+    public static async linkTransaction(_ids: string[], ptrId: string) {
+      await models.Transactions.updateMany({ _id: { $in: _ids } }, { $set: { ptrId } });
+      await this.checkPtr(ptrId);
+      return models.Transactions.find({ ptrId })
     }
 
     /**
@@ -114,25 +149,29 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
     }
 
     /**
-     * Update transaction
-     */
-    public static async updateTransaction(_id: string, doc: ITransaction) {
-      const oldAccount = await models.Transactions.getTransaction({ _id });
-
-      await models.Transactions.updateOne({ _id }, { $set: doc });
-
-      return await models.Transactions.findOne({ _id }).lean();
-    }
-
-    /**
      * Remove transaction
      */
-    public static async removeTransactions(_ids: string[]) {
+    public static async removeTransaction(_id: string) {
+      const transaction = await models.Transactions.getTransaction({
+        _id,
+      });
 
+      if (transaction.originId) {
+        throw new Error('cant remove this transaction. Remove the source transaction first')
+      }
+
+
+      if (await models.Transactions.find({ preTrId: _id })) {
+        throw new Error('cant remove this transaction. Remove the dependent transaction first')
+      }
+
+      await models.Transactions.deleteMany({ $or: [{ _id }, { _id: { $in: (transaction.follows || []).map(tr => tr.id) } }] });
+
+      return 'success'
     }
   }
 
-  transactionSchema.loadClass(Account);
+  transactionSchema.loadClass(Transaction);
 
   return transactionSchema;
 };
