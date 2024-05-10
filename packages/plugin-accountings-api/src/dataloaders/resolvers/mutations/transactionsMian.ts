@@ -7,13 +7,13 @@ import {
   MODULE_NAMES,
 } from '../../../logUtils';
 import { IContext } from '../../../connectionResolver';
-import { IMainTrInput, ITransaction } from '../../../models/definitions/transaction';
-
-interface ITransactionsEdit extends ITransaction {
-  _id: string;
-}
+import { IMainTrInput } from '../../../models/definitions/transaction';
 
 const mainTrMutations = {
+  async transactionsLink(_root, doc: { ids: string[], ptrId: string }, { user, models }) {
+    const { ids, ptrId } = doc;
+    return await models.Transactions.linkTransaction(ids, ptrId)
+  },
   /**
    * Creates a new account category
    * @param {Object} doc Account category document

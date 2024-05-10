@@ -4,10 +4,10 @@ dotenv.config();
 
 const configQueries = {
   /**
-   * AccountingsConfig object
+   * AccountingConfig object
    */
-  accountingsConfigs(_root, _args, { models }: IContext) {
-    return models.AccountingsConfigs.find({});
+  accountingConfigs(_root, _args, { models }: IContext) {
+    return models.AccountingConfigs.find({});
   },
 };
 

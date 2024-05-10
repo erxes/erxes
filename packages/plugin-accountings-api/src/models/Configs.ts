@@ -1,28 +1,28 @@
 import { Model, model } from 'mongoose';
 // import { COMPANY_INDUSTRY_TYPES, SEX_OPTIONS, SOCIAL_LINKS } from '@erxes/api-utils/src/constants';
 import {
-  accountingsConfigSchema,
-  IAccountingsConfig,
-  IAccountingsConfigDocument,
+  accountingConfigSchema,
+  IAccountingConfig,
+  IAccountingConfigDocument,
 } from './definitions/config';
 
-export interface IAccountingsConfigModel
-  extends Model<IAccountingsConfigDocument> {
+export interface IAccountingConfigModel
+  extends Model<IAccountingConfigDocument> {
   getConfig(code: string, defaultValue?: string): Promise<any>;
   createOrUpdateConfig({
     code,
     value,
-  }: IAccountingsConfig): IAccountingsConfigDocument;
+  }: IAccountingConfig): IAccountingConfigDocument;
   constants();
 }
 
-export const loadAccountingsConfigClass = (models) => {
-  class AccountingsConfig {
+export const loadAccountingConfigClass = (models) => {
+  class AccountingConfig {
     /*
      * Get a Config
      */
     public static async getConfig(code: string, defaultValue?: any) {
-      const config = await models.AccountingsConfigs.findOne({ code });
+      const config = await models.AccountingConfigs.findOne({ code });
 
       if (!config) {
         return defaultValue || '';
@@ -41,18 +41,18 @@ export const loadAccountingsConfigClass = (models) => {
       code: string;
       value: string[];
     }) {
-      const obj = await models.AccountingsConfigs.findOne({ code });
+      const obj = await models.AccountingConfigs.findOne({ code });
 
       if (obj) {
-        await models.AccountingsConfigs.updateOne(
+        await models.AccountingConfigs.updateOne(
           { _id: obj._id },
           { $set: { value } },
         );
 
-        return models.AccountingsConfigs.findOne({ _id: obj._id });
+        return models.AccountingConfigs.findOne({ _id: obj._id });
       }
 
-      return models.AccountingsConfigs.create({ code, value });
+      return models.AccountingConfigs.create({ code, value });
     }
 
     public static constants() {
@@ -60,7 +60,7 @@ export const loadAccountingsConfigClass = (models) => {
     }
   }
 
-  accountingsConfigSchema.loadClass(AccountingsConfig);
+  accountingConfigSchema.loadClass(AccountingConfig);
 
-  return accountingsConfigSchema;
+  return accountingConfigSchema;
 };

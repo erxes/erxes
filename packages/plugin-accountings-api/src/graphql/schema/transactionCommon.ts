@@ -23,7 +23,7 @@ export const types = () => `
     unitPrice: Float
   }
 
-  type MainTransaction @key(fields: "_id") @cacheControl(maxAge: 3) {
+  type CommonTransaction @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     ptrId: String
     parentId: String
@@ -53,7 +53,7 @@ export const types = () => `
     createdBy: String
     modifiedBy: String
 
-    followTrs: [MainTransaction]
+    followTrs: [CommonTransaction]
   }
 `;
 
@@ -74,8 +74,12 @@ const mainTrParams = `
   accountId: String
   side: String
   amount: Float
+`;
+
+const currencyParams = `
   currencyAmount: Float
   customRate: Float
+  currencyDiffAccountId: String
 `;
 
 const taxParams = `
@@ -113,26 +117,25 @@ export const queries = `
     perPage: Int,
     sortField: String
     sortDirection: Int    
-  ): [MainTransaction]
+  ): [CommonTransaction]
   mainTrTotalCount(${trsQueryParams}): Int
   accountDetail(_id: String): Account
-  oddTransactions(): MainTransaction
+  oddTransactions(): CommonTransaction
 `;
 
 export const mutations = `
-  mainTrAdd(${mainTrParams}): [MainTransaction]
-  mainTrEdit(_id: String!, ${mainTrParams}): [MainTransaction]
+  mainTrAdd(${mainTrParams}): [CommonTransaction]
+  mainTrEdit(_id: String!, ${mainTrParams}): [CommonTransaction]
   mainTrRemove(): String
 
   ptrRemove(): String
 
-  transactionLink(trIds: [String])
+  transactionsLink(trIds: [String], ptrId: String): [CommonTransaction]
 
-
-  cashTrAdd(${mainTrParams}, ${taxParams}): [MainTransaction]
-  cashTrEdit(_id: String!, ${mainTrParams}, ${taxParams}): [MainTransaction]
-  fundTrAdd(${mainTrParams}, ${taxParams}): [MainTransaction]
-  fundTrEdit(_id: String!, ${mainTrParams}, ${taxParams}): [MainTransaction]
-  debtTrAdd(${mainTrParams}): [MainTransaction]
-  debtTrEdit(_id: String!, ${mainTrParams}, ${taxParams}): [MainTransaction]
+  cashTrAdd(${mainTrParams}, ${currencyParams}, ${taxParams}): [CommonTransaction]
+  cashTrEdit(_id: String!, ${mainTrParams}, ${currencyParams}, ${taxParams}): [CommonTransaction]
+  fundTrAdd(${mainTrParams}, ${currencyParams}, ${taxParams}): [CommonTransaction]
+  fundTrEdit(_id: String!, ${mainTrParams}, ${currencyParams}, ${taxParams}): [CommonTransaction]
+  debtTrAdd(${mainTrParams}, ${currencyParams}, ${taxParams}): [CommonTransaction]
+  debtTrEdit(_id: String!, ${mainTrParams}, ${currencyParams}, ${taxParams}): [CommonTransaction]
 `;

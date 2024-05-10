@@ -13,6 +13,7 @@ import { setPtrStatus } from './utils';
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(selector: any): Promise<ITransactionDocument>;
   getPTransactions(selector: any): Promise<ITransactionDocument[]>;
+  linkTransaction(_ids: string[], ptrId?: string): Promise<ITransactionDocument[]>;
   createTransaction(doc: ITransaction): Promise<ITransactionDocument>;
   createPTransaction(docs: ITransaction[]): Promise<ITransactionDocument[]>;
   updateTransaction(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
@@ -101,7 +102,10 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
       return await models.Transactions.findOne({ _id }).lean();
     }
 
-    public static async linkTransaction(_ids: string[], ptrId: string) {
+    public static async linkTransaction(_ids: string[], ptrId?: string) {
+      if (!ptrId) {
+        ptrId = nanoid();
+      }
       await models.Transactions.updateMany({ _id: { $in: _ids } }, { $set: { ptrId } });
       await this.checkPtr(ptrId);
       return models.Transactions.find({ ptrId })
@@ -159,7 +163,6 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
       if (transaction.originId) {
         throw new Error('cant remove this transaction. Remove the source transaction first')
       }
-
 
       if (await models.Transactions.find({ preTrId: _id })) {
         throw new Error('cant remove this transaction. Remove the dependent transaction first')

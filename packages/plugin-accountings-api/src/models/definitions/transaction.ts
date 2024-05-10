@@ -19,11 +19,12 @@ export interface IMainTrInput {
   accountId: string
   side: string
   amount: number;
-  currencyAmount: number;
-  customRate: number;
 }
 
 export interface ISingleTrInput extends IMainTrInput {
+  currencyAmount: number;
+  customRate: number;
+
   hasVat: boolean;
   vatRowId: string;
   afterVat: boolean;

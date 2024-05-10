@@ -10,8 +10,8 @@ import {
   loadAccountClass,
 } from './models/Accounts';
 import {
-  IAccountingsConfigModel,
-  loadAccountingsConfigClass,
+  IAccountingConfigModel,
+  loadAccountingConfigClass,
 } from './models/Configs';
 import {
   ITransactionModel,
@@ -23,7 +23,7 @@ import {
 import {
   IAccountCategoryDocument,
 } from './models/definitions/accountCategory';
-import { IAccountingsConfigDocument } from './models/definitions/config';
+import { IAccountingConfigDocument } from './models/definitions/config';
 import {
   ITransactionDocument,
 } from './models/definitions/transaction';
@@ -33,10 +33,11 @@ import { IVatRowModel, loadVatRowClass } from './models/VatRows';
 import { ICtaxRowModel, loadCtaxRowClass } from './models/CtaxRows';
 
 export interface IModels {
+  Configs: IAccountingConfigModel;
   Accounts: IAccountModel;
   Transactions: ITransactionModel;
   AccountCategories: IAccountCategoryModel;
-  AccountingsConfigs: IAccountingsConfigModel;
+  AccountingConfigs: IAccountingConfigModel;
   VatRows: IVatRowModel;
   CtaxRows: ICtaxRowModel;
 }
@@ -52,20 +53,21 @@ export const loadClasses = (
   const models = {} as IModels;
 
   models.Accounts = db.model<IAccountDocument, IAccountModel>(
-    'accountings',
+    'accounts',
     loadAccountClass(models, subdomain),
   );
-  models.AccountingsConfigs = db.model<
-    IAccountingsConfigDocument,
-    IAccountingsConfigModel
-  >('accountings_configs', loadAccountingsConfigClass(models));
+  models.AccountingConfigs = db.model<
+    IAccountingConfigDocument,
+    IAccountingConfigModel
+  >('accounting_configs', loadAccountingConfigClass(models));
+
   models.AccountCategories = db.model<
     IAccountCategoryDocument,
     IAccountCategoryModel
-  >('accounting_categories', loadAccountCategoryClass(models));
+  >('account_categories', loadAccountCategoryClass(models));
 
   models.Transactions = db.model<ITransactionDocument, ITransactionModel>(
-    'transactions',
+    'accountings_transactions',
     loadTransactionClass(models, subdomain),
   );
 

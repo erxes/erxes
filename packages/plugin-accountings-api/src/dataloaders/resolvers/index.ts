@@ -2,7 +2,7 @@ import customScalars from '@erxes/api-utils/src/customScalars';
 import Account from './account';
 import AccountCategory from './accountCategory';
 import {
-  AccountingsConfigs as MutationsAccountingsConfig,
+  AccountingConfigs as MutationsAccountingConfig,
   AccountCategories as MutationsAccountCategory,
   Accounts as MutationsAccount,
   VatRows as MutationsVatRow,
@@ -10,7 +10,7 @@ import {
   
 } from './mutations';
 import {
-  AccountingsConfigs as QueriesAccountingsConfig,
+  AccountingConfigs as QueriesAccountingConfig,
   AccountCategories as QueriesAccountCategory,
   Accounts as QueriesAccount,
   VatRows as QueriesVatRows,
@@ -24,14 +24,14 @@ const resolvers: any = {
   Mutation: {
     ...MutationsAccountCategory,
     ...MutationsAccount,
-    ...MutationsAccountingsConfig,
+    ...MutationsAccountingConfig,
     ...MutationsVatRow,
     ...MutationsCtaxRow,
   },
   Query: {
     ...QueriesAccount,
     ...QueriesAccountCategory,
-    ...QueriesAccountingsConfig,
+    ...QueriesAccountingConfig,
     ...QueriesVatRows,
     ...QueriesCtaxRows
   },

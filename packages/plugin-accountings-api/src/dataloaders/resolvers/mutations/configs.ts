@@ -5,7 +5,7 @@ const configMutations = {
   /**
    * Create or update config object
    */
-  async accountingsConfigsUpdate(_root, { configsMap }, { models }: IContext) {
+  async accountingConfigsUpdate(_root, { configsMap }, { models }: IContext) {
     const codes = Object.keys(configsMap);
 
     for (const code of codes) {
@@ -16,7 +16,7 @@ const configMutations = {
       const value = configsMap[code];
       const doc = { code, value };
 
-      await models.AccountingsConfigs.createOrUpdateConfig(doc);
+      await models.AccountingConfigs.createOrUpdateConfig(doc);
 
       if (code === 'similarityGroup') {
         const masks = Object.keys(value);
@@ -46,6 +46,6 @@ const configMutations = {
   },
 };
 
-checkPermission(configMutations, 'accountingsConfigsUpdate', 'manageAccounts');
+checkPermission(configMutations, 'accountingConfigsUpdate', 'manageAccounts');
 
 export default configMutations;

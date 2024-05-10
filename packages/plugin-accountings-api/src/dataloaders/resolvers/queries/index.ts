@@ -1,7 +1,7 @@
 import Accounts from './accounts';
 import AccountCategories from './accountCategories';
-import AccountingsConfigs from './configs';
+import AccountingConfigs from './configs';
 import VatRows from './vatRows';
 import CtaxRows from './ctaxRows';
 
-export { Accounts, AccountCategories, AccountingsConfigs, VatRows, CtaxRows };
+export { Accounts, AccountCategories, AccountingConfigs, VatRows, CtaxRows };

@@ -278,7 +278,7 @@ export const setupMessageConsumers = async () => {
 
       return {
         status: 'success',
-        data: await models.AccountingsConfigs.getConfig(code, defaultValue),
+        data: await models.AccountingConfigs.getConfig(code, defaultValue),
       };
     },
   );

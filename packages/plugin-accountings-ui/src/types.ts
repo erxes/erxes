@@ -120,14 +120,14 @@ export type UomsQueryResponse = {
 
 export type IConfigsMap = { [key: string]: any };
 
-export type IAccountingsConfig = {
+export type IAccountingConfig = {
   _id: string;
   code: string;
   value: any;
 };
 
-export type AccountingsConfigsQueryResponse = {
-  accountingsConfigs: IAccountingsConfig[];
+export type AccountingConfigsQueryResponse = {
+  accountingConfigs: IAccountingConfig[];
   loading: boolean;
   refetch: () => void;
 };
