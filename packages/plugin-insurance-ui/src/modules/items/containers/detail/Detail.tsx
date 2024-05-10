@@ -10,7 +10,6 @@ type Props = {
 };
 
 const Detail = (props: Props) => {
-  console.log("detail container")
   const { data, loading } = useQuery(queries.detailQuery, {
     variables: { id: props.dealId },
   });

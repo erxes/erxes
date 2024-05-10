@@ -1,9 +1,10 @@
 import {
-  CustomRangeContainer,
-  EndDateContainer,
-  FilterContainer,
+    CustomRangeContainer,
+    EndDateContainer,
+    FilterContainer,
 } from '@erxes/ui-forms/src/forms/styles';
 import Box from '@erxes/ui/src/components/Box';
+import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
@@ -12,22 +13,20 @@ import DateControl from '@erxes/ui/src/components/form/DateControl';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { __, router } from '@erxes/ui/src/utils/core';
 import dayjs from 'dayjs';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 
-interface IProps {
+interface IProps extends IRouterProps {
   loading: boolean;
   emptyText?: string;
   queryParams: any;
 }
 
 function DateFilters(props: IProps) {
-  const { loading, emptyText } = props;
-  const navigate = useNavigate();
-  const location = useLocation();
+  const { history, loading, emptyText } = props;
 
   const onRemove = () => {
-    router.removeParams(navigate, location, 'startDate');
-    router.removeParams(navigate, location, 'endDate');
+    router.removeParams(history, 'startDate');
+    router.removeParams(history, 'endDate');
   };
 
   const extraButtons = (
@@ -40,8 +39,8 @@ function DateFilters(props: IProps) {
     // </>
 
     <>
-      {(router.getParam(location, 'startDate') ||
-        router.getParam(location, 'endDate')) && (
+      {(router.getParam(history, 'startDate') ||
+        router.getParam(history, 'endDate')) && (
         <a href="#" tabIndex={0} onClick={onRemove}>
           <Icon icon="times-circle" />
         </a>
@@ -52,7 +51,7 @@ function DateFilters(props: IProps) {
   const onChangeRangeFilter = (key: string, date) => {
     const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : '';
 
-    router.setParams(navigate, location, { [key]: formattedDate });
+    router.setParams(history, { [key]: formattedDate });
   };
 
   const data = (
@@ -62,7 +61,7 @@ function DateFilters(props: IProps) {
 
         <CustomRangeContainer id="CustomRangeContainer">
           <DateControl
-            value={router.getParam(location, 'startDate') || ''}
+            value={router.getParam(history, 'startDate') || ''}
             required={false}
             name="startDate"
             onChange={(date) => onChangeRangeFilter('startDate', date)}
@@ -72,7 +71,7 @@ function DateFilters(props: IProps) {
 
           <EndDateContainer>
             <DateControl
-              value={router.getParam(location, 'endDate') || ''}
+              value={router.getParam(history, 'endDate') || ''}
               required={false}
               name="endDate"
               placeholder={'End date'}
@@ -106,4 +105,4 @@ function DateFilters(props: IProps) {
   );
 }
 
-export default DateFilters;
+export default withRouter<IProps>(DateFilters);

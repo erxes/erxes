@@ -9,16 +9,17 @@ import { InputBar } from '@erxes/ui-settings/src/styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Icon from '@erxes/ui/src/components/Icon';
 import { __, router } from '@erxes/ui/src/utils/core';
-
+import { IRouterProps } from '@erxes/ui/src/types';
+import { withRouter } from 'react-router-dom';
 import { FilterContainer } from '../../../styles';
 
-interface IProps {
+interface IProps extends IRouterProps {
   loadingMainQuery: boolean;
   queryParams: any;
 }
 
 const Sidebar = (props: IProps) => {
-  const { loadingMainQuery, queryParams } = props;
+  const { loadingMainQuery, queryParams, history } = props;
   const [abortController] = useState(new AbortController());
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
@@ -106,4 +107,4 @@ const Sidebar = (props: IProps) => {
   );
 };
 
-export default Sidebar;
+export default withRouter<IProps>(Sidebar);

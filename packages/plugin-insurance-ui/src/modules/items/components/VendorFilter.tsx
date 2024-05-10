@@ -1,15 +1,16 @@
 import Box from '@erxes/ui/src/components/Box';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import {
-  SidebarCounter,
-  SidebarList
+    SidebarCounter,
+    SidebarList
 } from '@erxes/ui/src/layout/styles';
+import { IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import { FilterLabel } from '../../../styles';
 
-interface IProps {
+interface IProps extends IRouterProps {
   counts: { [key: string]: number };
   companies: any[];
   loading: boolean;
@@ -17,22 +18,19 @@ interface IProps {
 }
 
 function Companies({
-
+  history,
   counts,
   companies,
   loading,
   emptyText,
 }: IProps) {
-  const navigate = useNavigate();
-  const location = useLocation();
-  
   const data = (
     <SidebarList>
       {companies.map((company) => {
         const erxesCompany = company.company;
         const onClick = () => {
-          router.setParams(navigate, location, { company: erxesCompany._id });
-          router.removeParams(navigate, location, 'page');
+          router.setParams(history, { company: erxesCompany._id });
+          router.removeParams(history, 'page');
         };
 
         return (
@@ -41,7 +39,7 @@ function Companies({
               href="#filter"
               tabIndex={0}
               className={
-                router.getParam(location, 'company') === erxesCompany._id
+                router.getParam(history, 'company') === erxesCompany._id
                   ? 'active'
                   : ''
               }
@@ -76,4 +74,4 @@ function Companies({
   );
 }
 
-export default Companies;
+export default withRouter<IProps>(Companies);

@@ -1,16 +1,18 @@
 import Box from '@erxes/ui/src/components/Box';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import {
+  FieldStyle,
   SidebarCounter,
-  SidebarList
+  SidebarList,
 } from '@erxes/ui/src/layout/styles';
+import { IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import { InsuranceCategory } from '../../../gql/types';
 import { FilterLabel } from '../../../styles';
 
-interface IProps  {
+interface IProps extends IRouterProps {
   counts: { [key: string]: number };
   categories: InsuranceCategory[];
   loading: boolean;
@@ -18,26 +20,27 @@ interface IProps  {
 }
 
 function Categories(props: IProps) {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { counts, categories = [], loading, emptyText } = props;
+  const { history, counts, categories = [], loading, emptyText } = props;
+
 
   React.useEffect(() => {
     if (categories.length > 0) {
       const category = categories[0];
+      router.setParams(history, { category: category._id });
 
-      router.setParams(navigate, location, { category: category._id });
+
     }
-  }, [categories]);
+  }
+  , [categories]);
+
 
   const data = (
     <SidebarList>
       {categories.map((category) => {
         const onClick = () => {
-       
-          router.setParams(navigate, location, { category: category._id });
-          router.removeParams(navigate, location, 'page');
-          router.removeParams(navigate, location, 'product');
+          router.setParams(history, { category: category._id });
+          router.removeParams(history, 'page');
+          router.removeParams(history, 'product');
         };
 
         return (
@@ -46,7 +49,7 @@ function Categories(props: IProps) {
               href="#filter"
               tabIndex={0}
               className={
-                router.getParam(location, 'category') === category._id
+                router.getParam(history, 'category') === category._id
                   ? 'active'
                   : ''
               }
@@ -81,4 +84,4 @@ function Categories(props: IProps) {
   );
 }
 
-export default Categories;
+export default withRouter<IProps>(Categories);

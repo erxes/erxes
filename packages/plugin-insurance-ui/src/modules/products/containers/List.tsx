@@ -16,7 +16,6 @@ type Props = {
 };
 
 export default function ProductsContainer(props: Props) {
-  console.log("props", props)
   const { data, loading, refetch } = useQuery<
     InsuranceProductListQuery,
     InsuranceProductListQueryVariables
