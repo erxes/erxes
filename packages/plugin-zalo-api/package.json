@@ -7,6 +7,6 @@
   },
   "dependencies": {
     "@erxes/api-utils": "*",
-    "axios": "^1.2.2"
+    "axios": "^1.6.0"
   }
 }
