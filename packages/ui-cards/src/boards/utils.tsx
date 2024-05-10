@@ -2,7 +2,6 @@ import { Amount, HeaderAmount } from "./styles/stage";
 import { ColumnProps, getCommonParams } from "./components/Calendar";
 import { IDraggableLocation, IFilterParams, IItem, IItemMap } from "./types";
 import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from "./constants";
-import { useLocation, useNavigate } from "react-router-dom";
 
 import { IDateColumn } from "@erxes/ui/src/types";
 import PriorityIndicator from "./components/editForm/PriorityIndicator";
@@ -286,11 +285,13 @@ export const getColors = (index: number) => {
   return COLORS[index];
 };
 
-export const isRefresh = (queryParams: any, routerUtils: any) => {
+export const isRefresh = (
+  queryParams: any,
+  routerUtils: any,
+  navigate: any,
+  location: any
+) => {
   const keys = Object.keys(queryParams || {});
-
-  const navigate = useNavigate();
-  const location = useLocation();
 
   if (!(keys.length === 2 || (keys.includes("key") && keys.length === 3))) {
     routerUtils.setParams(navigate, location, { key: Math.random() });
