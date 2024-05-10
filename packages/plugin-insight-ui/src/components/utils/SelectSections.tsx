@@ -22,6 +22,10 @@ const SelectSections = (props: Props) => {
   const [input, setInput] = useState<string>("");
 
   const handleClick = (inputValue: string) => {
+    if (inputValue === "" && inputValue.length < 2) {
+      return;
+    }
+
     addSection({ name: inputValue, type });
   };
 
