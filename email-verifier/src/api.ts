@@ -1,5 +1,4 @@
-import * as dotenv from 'dotenv';
-import fetch from 'node-fetch';
+import * as EmailValidator from 'email-deep-validator';
 import {
   EMAIL_VALIDATION_SOURCES,
   EMAIL_VALIDATION_STATUSES,
@@ -7,16 +6,11 @@ import {
 } from './models';
 import { popFromQueue, pushToQueue } from './redisClient';
 import { debugBase, debugError, isEmailValid, sendRequest } from './utils';
+import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-// const {
-//   TRUEMAIL_HOST = 'localhost',
-//   TRUEMAIL_TOKEN,
-//   TRUEMAIL_PORT = '9292',
-// } = process.env;
-
-const { REACHER_HOST, REACHER_PORT } = process.env;
+const { SENDGRID_API_KEY } = process.env;
 
 const REDIS_QUEUE_KEY = 'emailVerificationQueue';
 
@@ -37,81 +31,75 @@ export const single = async (email: string, hostname: string) => {
     });
   }
 
+  const emailValidator = new EmailValidator();
+  const { validDomain, validMailbox } = await emailValidator.verify(email);
+
+  if (validDomain && validMailbox) {
+    return sendRequest({
+      url: `${hostname}/verifier/webhook`,
+      method: 'POST',
+      body: {
+        email: { email, status: EMAIL_VALIDATION_STATUSES.VALID },
+        source: EMAIL_VALIDATION_SOURCES.ERXES,
+      },
+    });
+  }
+
   let response: { status?: string; verdict?: string } = {};
 
-  // const url = `http://${TRUEMAIL_HOST}:${TRUEMAIL_PORT}?email=${email}`;
-  const url = `${REACHER_HOST}:${REACHER_PORT}/v0/check_email`;
+  const client = require('@sendgrid/client');
 
-  // const options = {
-  //   method: 'GET',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //     Accept: 'application/json',
-  //     Authorization: TRUEMAIL_TOKEN,
-  //   },
-  // };
+  client.setApiKey(SENDGRID_API_KEY);
 
-  const data = {
-    to_email: email,
-  };
-
-  const options = {
+  const request = {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
+    url: '/v3/validations/email',
+    body: { email },
   };
+
+  console.log('verifying email on sendgrid', email);
 
   try {
-    const result = await fetch(url, options).then((r) => r.json());
-
-    console.log(JSON.stringify(result, null, 2));
-    const doc = {
-      status: 'unknown',
-      email,
-    };
-
-    switch (result.is_reachable.toLowerCase()) {
-      case 'safe':
-        doc.status = EMAIL_VALIDATION_STATUSES.VALID;
-        break;
-      case 'invalid':
-        doc.status = EMAIL_VALIDATION_STATUSES.INVALID;
-        break;
-      case 'unknown':
-        doc.status = EMAIL_VALIDATION_STATUSES.UNKNOWN;
-        break;
-      case 'risky':
-        doc.status = EMAIL_VALIDATION_STATUSES.RISKY;
-        break;
-      default:
-        doc.status = EMAIL_VALIDATION_STATUSES.UNKNOWN;
-        break;
+    const [body] = await client.request(request);
+    const { statusCode } = body;
+    if (statusCode !== 200) {
+      throw new Error(`Sendgrid returned status code ${statusCode}`);
     }
 
-    // if (result.success) {
-    //   doc.status = EMAIL_VALIDATION_STATUSES.VALID;
-    // } else {
-    //   doc.status = EMAIL_VALIDATION_STATUSES.INVALID;
-    // }
+    response = body.body.result;
+    response.status = 'success';
+  } catch (e) {
+    debugError(`Error occured during single sendgrid validation ${e.message}`);
+    console.error('email', email);
+    throw e;
+  }
 
-    await Emails.createEmail(doc);
+  console.log('email has been verified on sendgrid', email, response);
+
+  if (response.status === 'success') {
+    const doc = { email, status: response.verdict.toLowerCase() };
+
+    if (
+      doc.status === EMAIL_VALIDATION_STATUSES.VALID ||
+      doc.status === EMAIL_VALIDATION_STATUSES.INVALID
+    ) {
+      await Emails.createEmail(doc);
+    }
+
+    debugBase(
+      `Sending single email validation status to `,
+      `${hostname}/verifier/webhook`,
+    );
 
     return sendRequest({
       url: `${hostname}/verifier/webhook`,
       method: 'POST',
       body: {
         email: doc,
-        source: EMAIL_VALIDATION_SOURCES.TRUEMAIL,
+        source: EMAIL_VALIDATION_SOURCES.SENDGRID,
       },
     });
-  } catch (e) {
-    console.error('Error has occured: ', e);
-    response.status = 'failed';
   }
-
-  console.log('email has been verified ', email, response);
 
   // if status is not success
   return sendRequest({
@@ -119,7 +107,7 @@ export const single = async (email: string, hostname: string) => {
     method: 'POST',
     body: {
       email: { email, status: EMAIL_VALIDATION_STATUSES.UNKNOWN },
-      source: EMAIL_VALIDATION_SOURCES.TRUEMAIL,
+      source: EMAIL_VALIDATION_SOURCES.SENDGRID,
     },
   });
 };
