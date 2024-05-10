@@ -2,15 +2,14 @@ import { RowTitle } from '@erxes/ui-engage/src/styles';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import { DateWrapper } from '@erxes/ui/src/styles/main';
-import { __, router } from '@erxes/ui/src/utils/core';
+import { __ } from '@erxes/ui/src/utils/core';
 import dayjs from 'dayjs';
 import React from 'react';
-import { InsuranceCategory, InsuranceProduct, User } from '../../../gql/types';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { User } from '../../../gql/types';
 // import CategoryForm from '../containers/Form';
 
 type Props = {
