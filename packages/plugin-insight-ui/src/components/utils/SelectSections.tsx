@@ -21,20 +21,18 @@ const SelectSections = (props: Props) => {
 
   const [input, setInput] = useState<string>("");
 
-  const handleClick = () => {
-    if (input === "" && input.length < 2) {
-      return;
-    }
-
-    addSection({ name: input, type });
+  const handleClick = (inputValue: string) => {
+    addSection({ name: inputValue, type });
   };
 
-  const customOption = (
-    <CustomOption onClick={handleClick}>
+  const formatCreateLabel = (
+    inputValue: string
+  ) => {
+    return <CustomOption>
       <Icon className="list-icon" icon="plus-1" />
-      <div>Section</div>
+      <div>{inputValue}</div>
     </CustomOption>
-  );
+  };
 
   const generateOptions = (options) => {
     const optionsWithButton = options.map((option) => ({
@@ -52,7 +50,8 @@ const SelectSections = (props: Props) => {
       onChange={(selectedOption) => setSectionId(selectedOption.value)}
       options={generateOptions(sections)}
       isClearable={false}
-      // noResultsText={customOption}
+      onCreateOption={handleClick}
+      formatCreateLabel={formatCreateLabel}
       onInputChange={(value) => setInput(value)}
       required={true}
     />
