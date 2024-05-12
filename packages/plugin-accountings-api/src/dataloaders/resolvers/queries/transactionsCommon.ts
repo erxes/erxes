@@ -3,27 +3,28 @@ import {
   requireLogin,
 } from '@erxes/api-utils/src/permissions';
 import { paginate } from '@erxes/api-utils/src';
-
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { IContext } from '../../../connectionResolver';
-import { ACCOUNT_STATUSES } from '../../../models/definitions/constants';
 
 interface IQueryParams {
   ids?: string[];
   excludeIds?: boolean;
   status?: string;
-  categoryId?: string;
   searchValue?: string;
+  number?: string;
+  accountIds?: string[];
+
   brand?: string;
-  page?: number;
-  perPage?: number;
-  sortField?: string;
-  sortDirection?: number;
   isOutBalance?: boolean,
   branchId: string;
   departmentId: string;
   currency: string;
   journal: string;
+
+  page?: number;
+  perPage?: number;
+  sortField?: string;
+  sortDirection?: number;
 }
 
 const generateFilter = async (
@@ -32,107 +33,44 @@ const generateFilter = async (
   params,
 ) => {
   const {
-    type,
-    categoryId,
+    ids,
+    excludeIds,
     searchValue,
+    number,
+    accountIds,
     brand,
     isOutBalance,
     branchId,
     departmentId,
     currency,
     journal,
-    ids,
-    excludeIds,
   } = params;
   const filter: any = commonQuerySelector;
 
-  filter.status = { $ne: ACCOUNT_STATUSES.DELETED };
-
-  if (params.status) {
-    filter.status = params.status;
-  }
-  if (type) {
-    filter.type = type;
-  }
-
-  if (categoryId) {
-    const category = await models.AccountCategories.getAccountingCategory({
-      _id: categoryId,
-      status: { $in: [null, 'active'] },
-    });
-
-    const accountCategoryIds = await models.AccountCategories.find(
-      { order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) } },
-      { _id: 1 },
-    );
-    filter.categoryId = { $in: accountCategoryIds };
-  } else {
-    const notActiveCategories = await models.AccountCategories.find({
-      status: { $nin: [null, 'active'] },
-    });
-
-    filter.categoryId = { $nin: notActiveCategories.map((e) => e._id) };
-  }
-
-  if (ids && ids.length > 0) {
-    filter._id = { [excludeIds ? '$nin' : '$in']: ids };
-  }
-
-  // search =========
-  if (searchValue) {
-    const regex = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
-    const codeRegex = new RegExp(
-      `^${searchValue
-        .replace(/\./g, '\\.')
-        .replace(/\*/g, '.')
-        .replace(/_/g, '.')}.*`,
-      'igu',
-    );
-
-    filter.$or = [
-      {
-        $or: [{ code: { $in: [regex] } }, { code: { $in: [codeRegex] } }],
-      },
-      { name: { $in: [regex] } },
-      { barcodes: { $in: [searchValue] } },
-    ];
-  }
-
-  if (currency) {
-    filter.currency = currency;
-  }
-
-  if (journal) {
-    filter.journal = journal;
-  }
-  
-  if (branchId) {
-    filter.branchId = branchId;
-  }
-
-  if (departmentId) {
-    filter.departmentId = departmentId;
-  }
-
-  if (brand) {
-    filter.scopeBrandIds = { $in: [brand] };
-  }
-
-  if (isOutBalance !== undefined) {
-    filter.isOutBalance = isOutBalance
-  }
+  filter.status = {};
 
   return filter;
 };
 
 const transactionCommon = {
-  /**
-   * Accounts list
-   */
-  async accounts(
+  async transactionDetail(
     _root,
-    params: IQueryParams,
-    { commonQuerySelector, models, user }: IContext,
+    params: { id: string },
+    { models }: IContext,
+  ) {
+    const { id } = params;
+    let firstTr = await models.Transactions.getTransaction({ _id: id });
+    if (firstTr.originId) {
+      firstTr = await models.Transactions.getTransaction({ _id: firstTr.originId });
+    }
+
+    return await models.Transactions.find({ $or: [{ ptrId: firstTr.ptrId }, { parentId: firstTr.parentId }] })
+  },
+
+  async transactions(
+    _root,
+    params: IQueryParams & { page: number, perPage: number },
+    { commonQuerySelector, models }: IContext,
   ) {
     const filter = await generateFilter(
       models,
@@ -159,31 +97,25 @@ const transactionCommon = {
     }
 
     return await paginate(
-      models.Accounts.find(filter).sort(sort).lean(),
+      models.Transactions.find(filter).sort(sort).lean(),
       pagintationArgs,
     )
   },
 
-  async accountsTotalCount(
+  async transactionsCount(
     _root,
     params: IQueryParams,
     { commonQuerySelector, models }: IContext,
   ) {
+
     const filter = await generateFilter(
       models,
       commonQuerySelector,
       params,
     );
 
-    return models.Accounts.find(filter).count();
-  },
-
-  accountDetail(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.Accounts.findOne({ _id }).lean();
+    return models.Transactions.find(filter).count();
   },
 };
-
-requireLogin(transactionCommon, 'accountsTotalCount');
-checkPermission(transactionCommon, 'accounts', 'showAccounts', []);
 
 export default transactionCommon;

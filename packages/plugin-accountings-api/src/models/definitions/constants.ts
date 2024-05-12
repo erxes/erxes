@@ -6,13 +6,13 @@ export const ACCOUNT_KINDS = {
 
 export const ACCOUNT_JOURNALS = {
   MAIN: 'main',
-  FUND_CASH: 'cash',
-  FUND_BANK: 'bank',
+  CASH: 'cash',
+  FUND: 'fund',
   DEBT: 'debt',
   INVENTORY: 'inventory',
   FIXED_ASSET: 'fixedAsset',
   VAT: 'vat',
-  ALL: ['main', 'cash', 'bank', 'debt', 'inventory', 'fixedAsset', 'vat'],
+  ALL: ['main', 'cash', 'fund', 'debt', 'inventory', 'fixedAsset', 'vat'],
 };
 
 export const ACCOUNT_STATUSES = {
@@ -53,6 +53,7 @@ export const TR_STATUSES = {
 export const PTR_STATUSES = {
   UNKNOWN: 'unknown',
   DIFF: 'diff',
+  ACCOUNT_BALANCE: 'acc',
   OK: 'ok',
   ALL: ['unknown', 'diff', 'ok'],
 };
@@ -60,15 +61,9 @@ export const PTR_STATUSES = {
 export const JOURNALS = {
   MAIN: 'main',
   MAIN_FB: 'main_fb',
-  CASH_IN: 'cash_in',
-  CASH_OUT: 'cash_out',
-  BANK_IN: 'bank_in',
-  BANK_OUT: 'bank_out',
+  CASH: 'cash',
+  FUND_IN: 'bank',
   DEBT: 'debt',
-  PAYABLE_FB: 'payable_fb',
-  PAYABLE: 'payable',
-  RECEIVABLE_FB: 'receivable_fb',
-  RECEIVABLE: 'receivable',
   INV_FB: 'inv_fb',
   INV_INCOME: 'inv_income',
   INV_OUT: 'inv_out',

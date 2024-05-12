@@ -9,6 +9,7 @@ import {
 import { IContext } from '../../../connectionResolver';
 import { ISingleTrInput } from '../../../models/definitions/transaction';
 import { checkValidationCurrency, doCurrencyTr } from '../../../utils/currencyTr';
+import { JOURNALS } from '../../../models/definitions/constants';
 
 const cashTrMutations = {
   /**
@@ -22,6 +23,7 @@ const cashTrMutations = {
   ) {
     const updatedDoc = {
       ...doc,
+      journal: JOURNALS.CASH,
       details: [{
         _id: nanoid(),
         accountId: doc.accountId,
@@ -69,6 +71,7 @@ const cashTrMutations = {
 
     const updatedDoc = {
       ...doc,
+      journal: JOURNALS.CASH,
       details: [{
         _id: nanoid(),
         accountId: doc.accountId,

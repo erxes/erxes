@@ -8,6 +8,7 @@ import {
 } from '../../../logUtils';
 import { IContext } from '../../../connectionResolver';
 import { IMainTrInput } from '../../../models/definitions/transaction';
+import { JOURNALS } from '../../../models/definitions/constants';
 
 const mainTrMutations = {
   async transactionsLink(_root, doc: { ids: string[], ptrId: string }, { user, models }) {
@@ -25,6 +26,7 @@ const mainTrMutations = {
   ) {
     const updatedDoc = {
       ...doc,
+      journal: JOURNALS.MAIN,
       details: [{
         _id: nanoid(),
         accountId: doc.accountId,
@@ -66,6 +68,7 @@ const mainTrMutations = {
 
     const updatedDoc = {
       ...doc,
+      journal: JOURNALS.MAIN,
       details: [{
         _id: nanoid(),
         accountId: doc.accountId,
