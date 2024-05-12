@@ -13,10 +13,13 @@ import {
   IAccountingConfigModel,
   loadAccountingConfigClass,
 } from './models/Configs';
+import { ICtaxRowModel, loadCtaxRowClass } from './models/CtaxRows';
+import { IExchangeRateModel, loadExchangeRateClass } from './models/ExchangeRates';
 import {
   ITransactionModel,
   loadTransactionClass,
 } from './models/Transactions';
+import { IVatRowModel, loadVatRowClass } from './models/VatRows';
 import {
   IAccountDocument,
 } from './models/definitions/account';
@@ -24,13 +27,12 @@ import {
   IAccountCategoryDocument,
 } from './models/definitions/accountCategory';
 import { IAccountingConfigDocument } from './models/definitions/config';
+import { ICtaxRowDocument } from './models/definitions/ctaxRow';
+import { IExchangeRateDocument } from './models/definitions/exchangeRate';
 import {
   ITransactionDocument,
 } from './models/definitions/transaction';
 import { IVatRowDocument } from './models/definitions/vatRow';
-import { ICtaxRowDocument } from './models/definitions/ctaxRow';
-import { IVatRowModel, loadVatRowClass } from './models/VatRows';
-import { ICtaxRowModel, loadCtaxRowClass } from './models/CtaxRows';
 
 export interface IModels {
   Configs: IAccountingConfigModel;
@@ -40,6 +42,7 @@ export interface IModels {
   AccountingConfigs: IAccountingConfigModel;
   VatRows: IVatRowModel;
   CtaxRows: ICtaxRowModel;
+  ExchangeRates: IExchangeRateModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -65,6 +68,11 @@ export const loadClasses = (
     IAccountCategoryDocument,
     IAccountCategoryModel
   >('account_categories', loadAccountCategoryClass(models));
+
+  models.ExchangeRates = db.model<IExchangeRateDocument, IExchangeRateModel>(
+    'accountings_transactions',
+    loadExchangeRateClass(models, subdomain),
+  );
 
   models.Transactions = db.model<ITransactionDocument, ITransactionModel>(
     'accountings_transactions',

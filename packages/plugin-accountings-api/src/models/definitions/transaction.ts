@@ -14,7 +14,7 @@ export interface IMainTrInput {
   departmentId: string
   customerType: string
   customerId: string
-  assignedUserIds: [string]
+  assignedUserIds?: [string]
 
   accountId: string
   side: string
@@ -22,20 +22,21 @@ export interface IMainTrInput {
 }
 
 export interface ISingleTrInput extends IMainTrInput {
-  currencyAmount: number;
-  customRate: number;
+  currencyAmount?: number;
+  customRate?: number;
+  currencyDiffAccountId?: string;
 
   hasVat: boolean;
-  vatRowId: string;
-  afterVat: boolean;
-  afterVatAccountId: string;
-  isHandleVat: boolean;
-  vatAmount: number;
+  vatRowId?: string;
+  afterVat?: boolean;
+  afterVatAccountId?: string;
+  isHandleVat?: boolean;
+  vatAmount?: number;
 
   hasCtax: boolean;
-  ctaxRowId: string;
-  isHandleCtax: boolean;
-  ctaxAmount: number;
+  ctaxRowId?: string;
+  isHandleCtax?: boolean;
+  ctaxAmount?: number;
 }
 
 export interface ICashTrInput extends ISingleTrInput { }
@@ -83,7 +84,7 @@ export interface ITransaction {
   departmentId?: string;
   customerType?: string;
   customerId?: string;
-  assignedUserIds: string[];
+  assignedUserIds?: string[];
 
   details: ITrDetail[];
   shortDetail?: ITrDetail;

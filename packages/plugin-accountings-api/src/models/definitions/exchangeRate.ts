@@ -19,7 +19,7 @@ export interface IExchangeRateDocument
 
 // Mongoose schemas ===========
 
-export const accountingsConfigSchema = new Schema({
+export const exchangeRateSchema = new Schema({
   _id: field({ pkey: true }),
   date: field({ type: Date }),
   mainCurrency: field({ type: String }),

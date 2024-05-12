@@ -8,6 +8,7 @@ import {
 } from '../../../logUtils';
 import { IContext } from '../../../connectionResolver';
 import { ISingleTrInput } from '../../../models/definitions/transaction';
+import { checkValidationCurrency, doCurrencyTr } from '../../../utils/currencyTr';
 
 const cashTrMutations = {
   /**
@@ -19,8 +20,6 @@ const cashTrMutations = {
     doc: ISingleTrInput,
     { user, models, subdomain }: IContext,
   ) {
-    const mainCurrency = await models.AccountingConfigs.getConfig('MainCurrency');
-    
     const updatedDoc = {
       ...doc,
       details: [{
@@ -31,8 +30,12 @@ const cashTrMutations = {
       }]
     };
 
+    const currencyDiffTrDoc = await checkValidationCurrency(models, doc);
+
     const transaction =
       await models.Transactions.createTransaction({ ...updatedDoc });
+
+    await doCurrencyTr(models, transaction, currencyDiffTrDoc )
 
     await putCreateLog(
       models,
@@ -62,6 +65,8 @@ const cashTrMutations = {
       _id,
     });
 
+    const currencyDiffTrDoc = await checkValidationCurrency(models, doc);
+
     const updatedDoc = {
       ...doc,
       details: [{
@@ -76,6 +81,10 @@ const cashTrMutations = {
       _id,
       updatedDoc,
     );
+
+    if (currencyDiffTrDoc) {
+      await doCurrencyTr(models, updated, currencyDiffTrDoc)
+    }
 
     await putUpdateLog(
       models,

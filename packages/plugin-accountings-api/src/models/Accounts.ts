@@ -11,10 +11,6 @@ import {
 } from './definitions/account';
 import { ACCOUNT_STATUSES } from './definitions/constants';
 
-const checkUsedInTr = (ids: string[]) => {
-
-}
-
 export interface IAccountModel extends Model<IAccountDocument> {
   getAccount(selector: any): Promise<IAccountDocument>;
   createAccount(doc: IAccount): Promise<IAccountDocument>;
