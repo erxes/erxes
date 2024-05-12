@@ -4,4 +4,10 @@ import AccountingConfigs from './configs';
 import VatRows from './vatRows';
 import CtaxRows from './ctaxRows';
 
-export { Accounts, AccountCategories, AccountingConfigs, VatRows, CtaxRows };
+export {
+  Accounts,
+  AccountCategories,
+  AccountingConfigs,
+  VatRows,
+  CtaxRows,
+};

@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
 
 import { types as accountTypes, queries as accountQueries, mutations as accountMutations } from './schema/account';
+import { types as transactionTypes, queries as transactionQueries, mutations as transactionMutations } from './schema/transactionCommon';
 import { types as vatRowTypes, queries as vatRowQueries, mutations as vatRowMutations } from './schema/vatRow';
 import { types as ctaxRowTypes, queries as ctaxRowQueries, mutations as ctaxRowMutations } from './schema/ctaxRow';
 import {
@@ -34,12 +35,14 @@ const typeDefs = async () => {
     ${vatRowTypes()}
     ${ctaxRowTypes()}
     ${accountingsConfigTypes}
+    ${transactionTypes()}
 
     extend type Query {
       ${accountQueries}
       ${accountingsConfigQueries}
       ${vatRowQueries}
       ${ctaxRowQueries}
+      ${transactionQueries}
     }
 
     extend type Mutation {
@@ -47,6 +50,7 @@ const typeDefs = async () => {
       ${accountingsConfigMutations}
       ${vatRowMutations}
       ${ctaxRowMutations}
+      ${transactionMutations}
     }
   `;
 };

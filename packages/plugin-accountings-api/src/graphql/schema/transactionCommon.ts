@@ -9,7 +9,7 @@ export const types = () => `
     accountId: String
     transactionId: String
     originId: String
-    follows: [FollowTrType];
+    follows: [FollowTrType]
   
     side: String
     amount: Float
@@ -36,9 +36,8 @@ export const types = () => `
     description: String
     status: String
     journal: String
-    ptrStatus: String
     originId: String
-    follows: [FollowTrType];
+    follows: [FollowTrType]
 
     branchId: String
     departmentId: String
@@ -83,17 +82,17 @@ const currencyParams = `
 `;
 
 const taxParams = `
-  hasVat: Boolean;
-  vatRowId: String;
-  afterVat: Boolean;
-  afterVatAccountId: String;
-  isHandleVat: Boolean;
-  vatAmount: Float;
+  hasVat: Boolean,
+  vatRowId: String,
+  afterVat: Boolean,
+  afterVatAccountId: String,
+  isHandleVat: Boolean,
+  vatAmount: Float,
 
-  hasCtax: Boolean;
-  ctaxRowId: String;
-  isHandleCtax: Boolean;
-  ctaxAmount: Float;
+  hasCtax: Boolean,
+  ctaxRowId: String,
+  isHandleCtax: Boolean,
+  ctaxAmount: Float,
 `;
 
 
@@ -116,19 +115,25 @@ export const queries = `
     page: Int,
     perPage: Int,
     sortField: String
-    sortDirection: Int    
+    sortDirection: Int
   ): [CommonTransaction]
   mainTrTotalCount(${trsQueryParams}): Int
-  accountDetail(_id: String): Account
-  oddTransactions(): CommonTransaction
+  ptrs(
+    ${trsQueryParams},
+    page: Int,
+    perPage: Int,
+    sortField: String
+    sortDirection: Int
+  ): CommonTransaction
+  oddTransactions: CommonTransaction
 `;
 
 export const mutations = `
   mainTrAdd(${mainTrParams}): [CommonTransaction]
   mainTrEdit(_id: String!, ${mainTrParams}): [CommonTransaction]
-  mainTrRemove(): String
+  mainTrRemove(_id: String!): String
 
-  ptrRemove(): String
+  ptrRemove(_id: String!): String
 
   transactionsLink(trIds: [String], ptrId: String): [CommonTransaction]
 
