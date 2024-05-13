@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.10.0-rc.4](https://github.com/erxes/erxes/compare/1.10.0-rc.3...1.10.0-rc.4) (2024-05-13)
+
+
+### Features
+
+* **core:** add 'inline' query parameter to 'read-file' endpoint for direct browser opening instead of download ([d91e895](https://github.com/erxes/erxes/commit/d91e89515126ea69761c03de4c34fbcde7849b5c))
+
+## [1.9.1](https://github.com/erxes/erxes/compare/1.10.0-rc.3...1.10.0-rc.4) (2024-05-08)
+
+
+### Bug Fixes
+
+* **erxes-ui:** remove undefined or null elements from attachments ([dadc273](https://github.com/erxes/erxes/commit/dadc273b42add41b4c8635f18e1526519d020196))
+
+## [1.9.0](https://github.com/erxes/erxes/compare/1.10.0-rc.3...1.10.0-rc.4) (2024-05-01)
+
+
+### Bug Fixes
+
+* **calls:** fix calls widgets in saas ([d7d462b](https://github.com/erxes/erxes/commit/d7d462b33c774c700aaa5c1e22eb7547d12e8165))
+* generate subdomain in configs ([97bb518](https://github.com/erxes/erxes/commit/97bb518e37a3d7929eca25d5940b0804aaed759c))
+
+
+### Performance Improvements
+
+* fix context subdomain in saas  ([c1fbdad](https://github.com/erxes/erxes/commit/c1fbdadfd465435cd9a494022cab15111476ba9d))
+
 ## [1.10.0-rc.3](https://github.com/erxes/erxes/compare/1.10.0-rc.2...1.10.0-rc.3) (2024-05-13)
 
 
