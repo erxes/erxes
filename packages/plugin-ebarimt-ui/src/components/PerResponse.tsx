@@ -10,13 +10,8 @@ const getNum = (n) => {
 const getRows = receipts => {
   let res = '';
   let ind = 0;
-  const subChecker = receipts.length > 1 ? true : false
+
   for (const receipt of receipts) {
-    if (subChecker) {
-      res = res.concat(`<tr>
-        <td colspan="4">ДДТД: ${receipt.id || ''}</td>
-      </tr>`)
-    }
     for (const item of receipt.items) {
       ind += 1;
       res = res.concat(`
@@ -32,13 +27,6 @@ const getRows = receipts => {
         <td class="right">${getNum(item.totalAmount)}</td>
       </tr>
       `);
-    }
-    if (subChecker) {
-      res = res.concat(`<tr>
-        <td class="right" colspan="2">Дэд нийт:</td>
-        <td class="right">${getNum(receipt.totalVAT)}</td>
-        <td class="right">${getNum(receipt.totalAmount)}</td>
-      </tr>`)
     }
   }
   return res;

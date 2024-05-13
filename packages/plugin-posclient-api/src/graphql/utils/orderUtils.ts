@@ -5,7 +5,6 @@ import { IOrderInput, IOrderItemInput } from '../types';
 import { IOrderItemDocument } from '../../models/definitions/orderItems';
 import fetch from 'node-fetch';
 import {
-  DISTRICTS,
   BILL_TYPES,
   ORDER_TYPES,
   ORDER_ITEM_STATUSES
@@ -17,8 +16,7 @@ import {
 } from '../../models/definitions/configs';
 import * as moment from 'moment';
 import { debugError } from '@erxes/api-utils/src/debuggers';
-import { isValidBarcode } from './otherUtils';
-import { IProduct, IProductDocument } from '../../models/definitions/products';
+import { IProductDocument } from '../../models/definitions/products';
 import { checkLoyalties } from './loyalties';
 import { checkPricing } from './pricing';
 import { checkRemainders } from './products';
@@ -258,14 +256,6 @@ export const getTotalAmount = (items: IOrderItemInput[] = []): number => {
   return Number(total.toFixed(2));
 };
 
-export const getDistrictName = (districtCode: string): string => {
-  if (DISTRICTS[districtCode]) {
-    return DISTRICTS[districtCode];
-  }
-
-  return '';
-};
-
 export const prepareEbarimtData = async (
   models: IModels,
   order: IOrderDocument,
@@ -311,7 +301,6 @@ export const prepareEbarimtData = async (
 
     customerRD: customerCode,
     customerName,
-    // consumerNo?: string;
 
     details: items.map(item => {
       const product: IProductDocument = productsById[item.productId];

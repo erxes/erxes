@@ -3,7 +3,6 @@ import { __, ControlLabel, FormControl, FormGroup } from "@erxes/ui/src";
 import { Block, BlockRow, FlexColumn, FlexItem } from "../../../styles";
 import { LeftItem } from "@erxes/ui/src/components/step/styles";
 import { IPos } from "../../../types";
-import { DISTRICTS } from "../../../constants";
 
 type Props = {
   onChange: (name: "ebarimtConfig", value: any) => void;
