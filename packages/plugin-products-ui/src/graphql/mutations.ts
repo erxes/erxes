@@ -1,4 +1,4 @@
-import { mutations as productMutations } from '@erxes/ui-products/src/graphql';
+import { mutations as productMutations } from "@erxes/ui-products/src/graphql";
 
 const productAdd = productMutations.productAdd;
 
@@ -25,9 +25,23 @@ const productsMerge = `
 
 // UOM
 
+const commonUomParams = `
+  $name: String,
+  $code: String
+  $isForSubscription:Boolean
+  $subscriptionConfig:JSON
+`;
+
+const commonUomParamsDef = `
+  name: $name,
+  code: $code,
+  isForSubscription: $isForSubscription,
+  subscriptionConfig:$subscriptionConfig
+`;
+
 const uomsAdd = `
-  mutation uomsAdd($name: String, $code: String) {
-    uomsAdd(name: $name, code: $code) {
+  mutation uomsAdd(${commonUomParams}) {
+    uomsAdd(${commonUomParamsDef}) {
       _id
       name
       code
@@ -37,8 +51,8 @@ const uomsAdd = `
 `;
 
 const uomsEdit = `
-  mutation uomsEdit($id: String!, $name: String, $code: String) {
-    uomsEdit(_id: $id, name: $name, code: $code) {
+  mutation uomsEdit($id: String!,${commonUomParams}) {
+    uomsEdit(_id: $id, ${commonUomParamsDef}) {
       _id
       name
       code
@@ -70,5 +84,5 @@ export default {
   uomsEdit,
   uomsRemove,
 
-  productsConfigsUpdate
+  productsConfigsUpdate,
 };
