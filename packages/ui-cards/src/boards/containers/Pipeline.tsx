@@ -1,24 +1,25 @@
-import * as compose from "lodash.flowright";
+import * as compose from 'lodash.flowright';
 
-import { DragDropContext, Droppable } from "react-beautiful-dnd";
+import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import {
   IItemMap,
   IOptions,
   IPipeline,
   IStageMap,
   StagesQueryResponse,
-} from "../types";
-import { PipelineConsumer, PipelineProvider } from "./PipelineContext";
-import React, { Component } from "react";
+} from '../types';
+import { PipelineConsumer, PipelineProvider } from './PipelineContext';
+import React, { Component } from 'react';
 
-import EmptyState from "@erxes/ui/src/components/EmptyState";
-import Spinner from "@erxes/ui/src/components/Spinner";
-import Stage from "./Stage";
-import { gql } from "@apollo/client";
-import { graphql } from "@apollo/client/react/hoc";
-import { queries } from "../graphql";
-import styled from "styled-components";
-import { withProps } from "@erxes/ui/src/utils";
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import Stage from './Stage';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '../graphql';
+import styled from 'styled-components';
+import { withProps } from '@erxes/ui/src/utils';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const Container = styled.div`
   height: 100%;
@@ -30,6 +31,8 @@ type Props = {
   initialItemMap?: IItemMap;
   stageMap?: IStageMap;
   queryParams: any;
+  navigate: any;
+  location: any;
   options: IOptions;
 };
 
@@ -67,6 +70,8 @@ class WithStages extends Component<WithStagesQueryProps> {
       options,
       queryParams,
       stagesQuery,
+      navigate,
+      location,
     } = this.props;
 
     const stagesCount = this.countStages(stageMap);
@@ -89,6 +94,8 @@ class WithStages extends Component<WithStagesQueryProps> {
         queryParams={queryParams}
         options={options}
         queryParamsChanged={this.queryParamsChanged}
+        navigate={navigate}
+        location={location}
       >
         <PipelineConsumer>
           {({
@@ -155,11 +162,12 @@ class WithStages extends Component<WithStagesQueryProps> {
 
 type WithStagesQueryProps = {
   stagesQuery: StagesQueryResponse;
-} &
-  Props;
+} & Props;
 
 const WithStagesQuery = (props: WithStagesQueryProps) => {
   const { stagesQuery } = props;
+  const navigate = useNavigate();
+  const location = useLocation();
 
   if (stagesQuery.loading) {
     return <Spinner />;
@@ -175,7 +183,15 @@ const WithStagesQuery = (props: WithStagesQueryProps) => {
     stageMap[stage._id] = stage;
   }
 
-  return <WithStages {...props} stageMap={stageMap} initialItemMap={itemMap} />;
+  return (
+    <WithStages
+      {...props}
+      navigate={navigate}
+      location={location}
+      stageMap={stageMap}
+      initialItemMap={itemMap}
+    />
+  );
 };
 
 type WithQueryProps = Props & { abortController };
@@ -183,7 +199,7 @@ type WithQueryProps = Props & { abortController };
 const WithQuery = withProps<WithQueryProps>(
   compose(
     graphql<WithQueryProps, StagesQueryResponse>(gql(queries.stages), {
-      name: "stagesQuery",
+      name: 'stagesQuery',
       options: ({
         pipeline,
         queryParams,
@@ -210,8 +226,8 @@ const WithQuery = withProps<WithQueryProps>(
           fetchOptions: { signal: abortController && abortController.signal },
         },
       }),
-    })
-  )(WithStagesQuery)
+    }),
+  )(WithStagesQuery),
 );
 
 class WithData extends React.Component<Props> {
