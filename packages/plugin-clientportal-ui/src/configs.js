@@ -31,5 +31,4 @@ module.exports = {
   taskRightSidebarSection: './Section',
   ticketRightSidebarSection: './Section',
   dealRightSidebarSection: './Section',
-
 };
