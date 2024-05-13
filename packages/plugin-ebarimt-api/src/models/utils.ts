@@ -47,7 +47,7 @@ export interface IPutDataArgs {
   doc: IDoc
 }
 
-export const isValidBarcode = (barcode: string): boolean => {
+const isValidBarcode = (barcode: string): boolean => {
   // check length
   if (
     barcode.length < 8 ||
