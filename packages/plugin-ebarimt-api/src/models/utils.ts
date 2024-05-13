@@ -115,20 +115,8 @@ const getCustomerInfo = async (type, config, doc) => {
   }
   return { customerTin, consumerNo }
 }
-export const getEbarimtData = async (params: IPutDataArgs) => {
-  const { config, doc } = params;
-  const type = doc.type || 'B2C_RECEIPT';
 
-  const { customerTin, consumerNo, msg } = await getCustomerInfo(type, config, doc);
-  if (msg) {
-    return { status: 'err', msg }
-  }
-
-  let reportMonth: string | undefined = undefined;
-  if (doc.date && doc.date.getMonth() !== (new Date()).getMonth()) {
-    reportMonth = moment(doc.date).format('YYYY-MM-DD')
-  }
-
+const getArrangeProducts = async (config, doc, type) => {
   const details: any[] = [];
   const detailsFree: any[] = [];
   const details0: any[] = [];
@@ -198,6 +186,47 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
 
     details.push({ ...stock, totalVAT, totalCityTax });
   }
+
+  return {
+    details,
+    detailsFree,
+    details0,
+    detailsInner,
+    ableAmount,
+    freeAmount,
+    zeroAmount,
+    innerAmount,
+    ableVATAmount,
+    ableCityTaxAmount,
+  }
+}
+
+export const getEbarimtData = async (params: IPutDataArgs) => {
+  const { config, doc } = params;
+  const type = doc.type || 'B2C_RECEIPT';
+
+  const { customerTin, consumerNo, msg } = await getCustomerInfo(type, config, doc);
+  if (msg) {
+    return { status: 'err', msg }
+  }
+
+  let reportMonth: string | undefined = undefined;
+  if (doc.date && doc.date.getMonth() !== (new Date()).getMonth()) {
+    reportMonth = moment(doc.date).format('YYYY-MM-DD')
+  }
+
+  const {
+    details,
+    detailsFree,
+    details0,
+    detailsInner,
+    ableAmount,
+    freeAmount,
+    zeroAmount,
+    innerAmount,
+    ableVATAmount,
+    ableCityTaxAmount,
+  } = await getArrangeProducts(config, doc, type)
 
   const mainData: IEbarimt = {
     number: doc.number,
