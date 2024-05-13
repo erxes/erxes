@@ -294,7 +294,7 @@ export const prepareEbarimtData = async (
   return {
     contentType: 'pos',
     contentId: order._id,
-    number: order.number || '',
+    number: order.number ?? '',
 
     date: new Date(),
     type,
@@ -310,9 +310,9 @@ export const prepareEbarimtData = async (
       return {
         product,
         quantity: item.count,
-        unitPrice: item.unitPrice || 0,
+        unitPrice: item.unitPrice ?? 0,
         totalDiscount: item.discountAmount,
-        totalAmount: item.count * (item.unitPrice || 0)
+        totalAmount: item.count * (item.unitPrice ?? 0)
       }
     }),
     nonCashAmounts: [...order.paidAmounts || [], ...order.mobileAmounts || []].map(pay => ({ amount: pay.amount }))

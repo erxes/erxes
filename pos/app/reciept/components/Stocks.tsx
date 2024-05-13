@@ -37,8 +37,8 @@ const Stocks = ({ receipts }: { receipts: IReceipt[] }) => {
         {
           len > 1 && <div className="flex items-center whitespace-nowrap border-b  font-medium">
             <div className="w-6/12">НӨАТ / Нийт:</div>
-            <div className="w-3/12 text-right">{formatNum(receipt.totalVAT || 0, '1')}</div>
-            <div className="w-3/12 text-right">{formatNum(receipt.totalAmount || 0)}</div>
+            <div className="w-3/12 text-right">{formatNum(receipt.totalVAT ?? 0, '1')}</div>
+            <div className="w-3/12 text-right">{formatNum(receipt.totalAmount ?? 0)}</div>
           </div>
         }
       </div>

@@ -100,7 +100,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
   let consumerNo;
 
   if (type === 'B2B_RECEIPT') {
-    const resp = await getCompanyInfo({ getTinUrl: config.getTinUrl, getInfoUrl: config.getInfoUrl, tin: doc.customerTin || '', rd: doc.customerRD });
+    const resp = await getCompanyInfo({ getTinUrl: config.getTinUrl, getInfoUrl: config.getInfoUrl, tin: doc.customerTin, rd: doc.customerRD });
     if (resp.status === 'checked') {
       customerTin = resp.tin;
     } else {
@@ -142,7 +142,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
       continue;
     }
 
-    const barCode = detail.barcode || (product.barcodes || [])[0] || '';
+    const barCode = detail.barcode ?? (product.barcodes || [])[0] ?? '';
     const barCodeType = isValidBarcode(barCode) ? 'GS1' : 'UNDEFINED'
 
     const stock = {
@@ -151,7 +151,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
       barCodeType,
       classificationCode: config.defaultGSCode,
       taxProductCode: product.taxCode,
-      measureUnit: product.uom || 'ш',
+      measureUnit: product.uom ?? 'ш',
       qty: detail.quantity,
       unitPrice: detail.unitPrice,
       totalBonus: detail.totalDiscount,
@@ -251,7 +251,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
   }
 
   // payments
-  let cashAmount = mainData.totalAmount || 0;
+  let cashAmount = mainData.totalAmount ?? 0;
   for (const payment of doc.nonCashAmounts) {
     mainData.payments?.push({
       code: 'PAYMENT_CARD',

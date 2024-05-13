@@ -146,7 +146,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
       continue;
     }
 
-    const barCode = detail.barcode || (product.barcodes || [])[0] || '';
+    const barCode = detail.barcode ?? (product.barcodes || [])[0] ?? '';
     const barCodeType = isValidBarcode(barCode) ? 'GS1' : 'UNDEFINED'
 
     const stock = {
@@ -155,7 +155,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
       barCodeType,
       classificationCode: config.defaultGSCode,
       taxProductCode: product.taxCode,
-      measureUnit: product.uom || 'ш',
+      measureUnit: product.uom ?? 'ш',
       qty: detail.quantity,
       unitPrice: detail.unitPrice,
       totalBonus: detail.totalDiscount,
@@ -255,7 +255,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
   }
 
   // payments
-  let cashAmount: number = mainData.totalAmount || 0;
+  let cashAmount: number = mainData.totalAmount ?? 0;
   for (const payment of doc.nonCashAmounts) {
     mainData.payments?.push({
       code: 'PAYMENT_CARD',

@@ -906,7 +906,7 @@ const orderMutations = {
           Pos order:
             paid link: <a href="/pos-orders?posId=${config.posId}&search=${order.number
           }">${order.number}</a> <br />
-            posclient link: <a href="${config.pdomain || '/'}?orderId=${order._id
+            posclient link: <a href="${config.pdomain ?? '/'}?orderId=${order._id
           }">${order.number}</a> <br />
         `,
       },
