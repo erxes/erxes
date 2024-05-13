@@ -33,7 +33,7 @@ const rdMap = {
 
 const getTinNo = async (rd) => {
   const info = await (0, fetch.default)(
-    `https://api.ebarimt.mn/api/info/check/getTinInfo?regNo=${rd}`
+    `https://ebarimt.erkhet.biz/getTinInfo?regNo=${rd}`
   ).then((r) => r.json());
 
   const tinNo = info.data;
