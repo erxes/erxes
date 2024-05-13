@@ -7,10 +7,8 @@ module.exports = {
     "./routes": "./src/routes.tsx",
     "./cardDetailAction": "./src/containers/comments/CardDetailAction.tsx",
     "./fieldConfig": "./src/containers/FieldConfigForm.tsx",
-    "./vendorSection":
+    "./clientPortalSection":
       "./src/containers/cardsRightSidebarSection/VendorSection.tsx",
-    "./clientSection":
-      "./src/containers/cardsRightSidebarSection/ClientSection.tsx",
   },
   cardDetailAction: "./cardDetailAction",
   fieldConfig: "./fieldConfig",
@@ -30,10 +28,7 @@ module.exports = {
       permissions: [],
     },
   ],
-  // taskRightSidebarSection: "./clientSection",
-  taskRightSidebarSection: "./vendorSection",
-  // ticketRightSidebarSection: "./clientSection",
-  ticketRightSidebarSection: "./vendorSection",
-  // dealRightSidebarSection: "./clientSection",
-  dealRightSidebarSection: "./vendorSection",
+  taskRightSidebarSection: "./clientPortalSection",
+  ticketRightSidebarSection: "./clientPortalSection",
+  dealRightSidebarSection: "./clientPortalSection",
 };
