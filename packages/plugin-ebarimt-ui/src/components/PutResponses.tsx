@@ -80,8 +80,8 @@ const PutResponses: React.FC<IProps> = (props: IProps) => {
             </th>
             <th>
               <SortHandler
-                sortField={"returnBillId"}
-                label={__("Return BillID")}
+                sortField={"InactiveId"}
+                label={__("Inactive ID")}
               />
             </th>
             <th>Үйлдлүүд</th>

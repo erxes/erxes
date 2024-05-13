@@ -53,7 +53,7 @@ const PutResponseRow: React.FC<Props> = ({ putResponse, history }: Props) => {
       <td key={'taxType'}>{displayValue(putResponse.receipts, 'length')}</td>
       <td key={'amount'}>{displayValue(putResponse, 'totalAmount')}</td>
       <td key={'message'}>{displayValue(putResponse, 'message')}</td>
-      <td key={'ReturnBillId'}>{putResponse.inactiveId} </td>
+      <td key={'inactiveId'}>{putResponse.inactiveId} </td>
       <td key={"actions"}>
         {putResponse.contentType === "deal" && (
           <Button
