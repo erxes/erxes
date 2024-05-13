@@ -157,34 +157,38 @@ const msdynamicSyncMutations = {
       }
 
       // update price
-      for (const key in groupedItems) {
-        const resProds = groupedItems[key];
+      for (const Item_No in groupedItems) {
+        const resProds = groupedItems[Item_No];
+        try {
 
-        const { resPrice, resProd } = await getPrice(resProds, pricePriority);
+          const { resPrice, resProd } = await getPrice(resProds, pricePriority);
 
-        if (!resProd.Item_No) {
-          error.push(resProds[0]);
-        }
-
-        const updateCode = resProd.Item_No.replace(/\s/g, '');
-        const foundProduct = productsByCode[updateCode];
-        if (foundProduct) {
-          if (foundProduct.unitPrice === resPrice) {
-            matchPrices.push(resProd);
-          } else {
-            await sendProductsMessage({
-              subdomain,
-              action: 'updateProduct',
-              data: {
-                _id: foundProduct._id,
-                doc: { unitPrice: resPrice || 0 },
-              },
-              isRPC: true,
-            });
-            updatePrices.push(resProd);
+          if (!resProd.Item_No) {
+            error.push(resProds[0]);
           }
-        } else {
-          createPrices.push(resProd);
+
+          const foundProduct = productsByCode[Item_No];
+          if (foundProduct) {
+            if (foundProduct.unitPrice === resPrice) {
+              matchPrices.push(resProd);
+            } else {
+              await sendProductsMessage({
+                subdomain,
+                action: 'updateProduct',
+                data: {
+                  _id: foundProduct._id,
+                  doc: { unitPrice: resPrice || 0 },
+                },
+                isRPC: true,
+              });
+              updatePrices.push(resProd);
+            }
+          } else {
+            createPrices.push(resProd);
+          }
+        } catch (e) {
+          console.log(e, 'error');
+          error.push(resProds[0]);
         }
       }
     } catch (e) {

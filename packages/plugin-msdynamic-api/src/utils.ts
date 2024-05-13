@@ -256,7 +256,7 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
 };
 
 export const consumeInventory = async (subdomain, config, doc, action) => {
-  const updateCode = action === 'delete' ? doc.code : doc.No.replace(/\s/g, '');
+  const updateCode = action === 'delete' ? doc.code : doc.No;
 
   const product = await sendProductsMessage({
     subdomain,

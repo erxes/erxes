@@ -114,24 +114,15 @@ const RichTextEditor = forwardRef(function RichTextEditor(
   const [showMention, setShowMention] = useState(false);
   const extensions = useExtensions({
     placeholder,
-    showMentions,
     mentionSuggestion,
     limit,
   });
+
   const editor = useEditor({
     extensions,
     parseOptions: { preserveWhitespace: true },
     autofocus: autoFocus,
   });
-
-  useEffect(() => {
-    setShowMention(showMentions);
-
-    if (editor && !showMentions) {
-      //** If editor had mention node and mention is not allowed, clear mention nodes */
-      editor.commands.setContent(replaceMentionsWithText(editor.getJSON()));
-    }
-  }, [showMentions]);
 
   useEffect(() => {
     const handleEditorChange = ({ editor }) => {
@@ -148,6 +139,30 @@ const RichTextEditor = forwardRef(function RichTextEditor(
   }, [editor, onChange]);
 
   useEffect(() => {
+    setShowMention(showMentions);
+
+    if (editor) {
+      const currentContent = editor.getJSON();
+      //** If editor had mention node and mention is not allowed, clear mention nodes */
+      if (!showMentions) {
+        editor.commands.setContent(replaceMentionsWithText(currentContent));
+        onChange &&
+          onChange(generateHTML(replaceMentionsWithText(currentContent)));
+      } else {
+        // Regenerate content: When reloading, mention nodes might become spanMarks, so convert them back to mention node
+        const regeneratedContent = replaceSpanWithMention(currentContent);
+        // Set the regenerated content to the editor
+        editor.commands.setContent(regeneratedContent, false, {
+          preserveWhitespace: true,
+        });
+
+        // If onChange function is provided, generate HTML from the content and call onChange
+        onChange && onChange(generateHTML(regeneratedContent));
+      }
+    }
+  }, [showMentions]);
+
+  useEffect(() => {
     if (editor) {
       const editorHTML = editor.getHTML();
       const { from, to } = editor.state.selection;
@@ -161,7 +176,6 @@ const RichTextEditor = forwardRef(function RichTextEditor(
           .setTextSelection({ from, to })
           .run();
       }
-
       onChange && onChange(content);
     }
   }, [editor, content]);
@@ -342,6 +356,7 @@ const RichTextEditor = forwardRef(function RichTextEditor(
         toggleSourceView,
         codeMirrorRef,
         showMention,
+        onChange,
       }}
     >
       <RichTextEditorWrapper ref={wrapperRef} $position={toolbarLocation}>
