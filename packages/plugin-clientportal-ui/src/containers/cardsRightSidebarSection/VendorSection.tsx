@@ -1,9 +1,11 @@
-import React from "react";
-import queries from "../../graphql/queries";
-import { useQuery } from "@apollo/client";
-import { gql } from "@apollo/client";
-import VendorSection from "../../components/cardRightSidebarSection/VendorSection";
-import Spinner from "@erxes/ui/src/components/Spinner";
+
+import React from 'react';
+import queries from '../../graphql/queries';
+import { useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
+import Section from '../../components/cardRightSidebarSection/Section';
+import Spinner from '@erxes/ui/src/components/Spinner';
+
 
 type Props = {
   mainType: string;
@@ -39,20 +41,12 @@ const Container = (props: Props) => {
     (vendor && vendor.data && vendor.data.clientPortalParticipants) || [];
 
   return (
-    <>
-      <VendorSection
-        {...props}
-        refetch={vendor.refetch}
-        participants={clientPortalVendorParticipants}
-        kind="vendor"
-      />
-      <VendorSection
-        {...props}
-        refetch={client.refetch}
-        participants={clientPortalClientParticipants}
-        kind="client"
-      />
-    </>
+    <Section
+      {...props}
+      refetch={refetch}
+      participants={clientPortalParticipants}
+      kind='vendor'
+    />
   );
 };
 
