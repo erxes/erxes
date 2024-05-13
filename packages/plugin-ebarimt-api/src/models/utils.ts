@@ -91,9 +91,7 @@ export const isValidBarcode = (barcode: string): boolean => {
   return checkSum == lastDigit;
 };
 
-export const getEbarimtData = async (params: IPutDataArgs) => {
-  const { config, doc } = params;
-  const type = doc.type || 'B2C_RECEIPT';
+const getCustomerInfo = async (type, config, doc) => {
   let customerTin;
   let consumerNo;
 
@@ -108,12 +106,22 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     if (resp.status === 'checked') {
       customerTin = resp.tin;
     } else {
-      return { status: 'err', msg: 'wrong tin number or rd or billType' }
+      return { msg: 'wrong tin number or rd or billType' }
     }
   } else {
     if (doc.consumerNo && new RegExp('^[0-9]{8}$', 'gui').test(doc.consumerNo)) {
       consumerNo = doc.consumerNo;
     }
+  }
+  return { customerTin, consumerNo }
+}
+export const getEbarimtData = async (params: IPutDataArgs) => {
+  const { config, doc } = params;
+  const type = doc.type || 'B2C_RECEIPT';
+
+  const { customerTin, consumerNo, msg } = await getCustomerInfo(type, config, doc);
+  if (msg) {
+    return { status: 'err', msg }
   }
 
   let reportMonth: string | undefined = undefined;
@@ -169,21 +177,26 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     if (product.taxType === '2') {
       detailsFree.push({ ...stock });
       freeAmount += detail.totalAmount;
-    } else if (product.taxType === '3' && type === 'B2B_RECEIPT') {
+      continue
+    }
+    if (product.taxType === '3' && type === 'B2B_RECEIPT') {
       details0.push({ ...stock });
       zeroAmount += detail.totalAmount;
-    } else if (product.taxType === '5') {
+      continue
+    }
+    if (product.taxType === '5') {
       detailsInner.push({ ...stock });
       innerAmount += detail.totalAmount;
-    } else {
-      const totalVAT = detail.totalAmount / totalPercent * vatPercent;
-      const totalCityTax = detail.totalAmount / totalPercent * cityTaxPercent;
-      ableAmount += detail.totalAmount;
-      ableVATAmount += totalVAT;
-      ableCityTaxAmount += totalCityTax;
-
-      details.push({ ...stock, totalVAT, totalCityTax });
+      continue
     }
+
+    const totalVAT = detail.totalAmount / totalPercent * vatPercent;
+    const totalCityTax = detail.totalAmount / totalPercent * cityTaxPercent;
+    ableAmount += detail.totalAmount;
+    ableVATAmount += totalVAT;
+    ableCityTaxAmount += totalCityTax;
+
+    details.push({ ...stock, totalVAT, totalCityTax });
   }
 
   const mainData: IEbarimt = {
