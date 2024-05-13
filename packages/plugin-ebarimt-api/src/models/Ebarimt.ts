@@ -50,20 +50,13 @@ export const loadPutResponseClass = models => {
           modifiedAt: { $exists: false }
         }).lean();
 
-      if (continuePutResponses.length) {
-        for (const cpr of continuePutResponses) {
-          if ((new Date().getTime() - new Date(cpr.createdAt).getTime()) / 1000 < 10) {
-            throw new Error('The previously submitted data has not yet been processed');
-          }
+      for (const cpr of continuePutResponses) {
+        if ((new Date().getTime() - new Date(cpr.createdAt).getTime()) / 1000 < 10) {
+          throw new Error('The previously submitted data has not yet been processed');
         }
       }
 
-      const ebarimtData = await getEbarimtData({ config, doc });
-      const { status, msg, data } = ebarimtData;
-      if (status === 'err') {
-        throw new Error(msg)
-      }
-
+      const { status, msg, data } = await getEbarimtData({ config, doc });
       if (status !== 'ok' || !data) {
         throw new Error(msg)
       }
@@ -104,7 +97,7 @@ export const loadPutResponseClass = models => {
         `${config.ebarimtUrl}/rest/receipt?`,
         {
           method: 'POST',
-          body: JSON.stringify({ ...ebarimtData.data }),
+          body: JSON.stringify({ ...data }),
           headers: {
             'Content-Type': 'application/json',
           },
