@@ -13,8 +13,7 @@ import {
   RightMenuContainer,
   TabContent,
 } from "../styles";
-import React, { ChangeEvent, KeyboardEvent, useRef, useState } from "react";
-
+import React, { useRef, useState } from "react";
 import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
 import { CSSTransition } from "react-transition-group";
 import Datetime from "@nateradebaugh/react-datetime";
