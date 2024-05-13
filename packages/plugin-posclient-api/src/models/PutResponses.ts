@@ -38,7 +38,7 @@ export interface IPutResponseModel extends Model<IEbarimtDocument> {
   ): Promise<IEbarimtDocument>;
 }
 
-const checkContinueslyRequest = async (models, contentType, contentId) => {
+const checkContinuingRequest = async (models, contentType, contentId) => {
   const continuePutResponses: IEbarimtDocument[] =
     await models.PutResponses.find({
       contentType,
@@ -60,7 +60,7 @@ export const loadPutResponseClass = models => {
     public static async putData(doc: IDoc, config: IEbarimtConfig) {
       // check previously post
       const { contentId, contentType } = doc;
-      await checkContinueslyRequest(models, contentType, contentId);
+      await checkContinuingRequest(models, contentType, contentId);
 
       const ebarimtData = await getEbarimtData({ config, doc });
       const { status, msg, data } = ebarimtData;
