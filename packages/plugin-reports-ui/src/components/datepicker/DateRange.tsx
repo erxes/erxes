@@ -1,16 +1,16 @@
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import { PopoverButton } from '@erxes/ui/src/styles/main';
-import { Alert, __ } from '@erxes/ui/src/utils';
-import Datetime from '@nateradebaugh/react-datetime';
-import React, { useState } from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import { FlexCenter, FlexRow, MarginY } from '../../styles';
+import * as dayjs from "dayjs";
 
-import * as dayjs from 'dayjs';
+import { Alert, __ } from "@erxes/ui/src/utils";
+import { FlexCenter, FlexRow, MarginY } from "../../styles";
+import React, { useState } from "react";
 
-const dateFormat = 'MM/DD/YYYY';
+import Button from "@erxes/ui/src/components/Button";
+import Datetime from "@nateradebaugh/react-datetime";
+import Icon from "@erxes/ui/src/components/Icon";
+import Popover from "@erxes/ui/src/components/Popover";
+import { PopoverButton } from "@erxes/ui/src/styles/main";
+
+const dateFormat = "MM/DD/YYYY";
 const NOW = new Date();
 interface DateRange {
   startDate: Date | null;
@@ -28,7 +28,7 @@ const DateRange = (props: Props) => {
   const { showTime, onSaveButton, startDate, endDate } = props;
 
   const [dateRange, setDateRange] = useState<DateRange>({
-    startDate: startDate || dayjs(NOW).add(-7, 'day').toDate(),
+    startDate: startDate || dayjs(NOW).add(-7, "day").toDate(),
     endDate: endDate || NOW,
   });
 
@@ -41,7 +41,7 @@ const DateRange = (props: Props) => {
 
   const onSaveDateButton = () => {
     if (!dateRange.startDate || !dateRange.endDate) {
-      Alert.error('Please select start date and end date');
+      Alert.error("Please select start date and end date");
       return;
     }
 
@@ -97,22 +97,40 @@ const DateRange = (props: Props) => {
     return (
       <td
         {...dateTimeProps}
-        className={`rdtDay ${isSelected ? 'rdtActive' : ''}`}
+        className={`rdtDay ${isSelected ? "rdtActive" : ""}`}
       >
         {new Date(currentDate).getDate()}
       </td>
     );
   };
 
-  const renderPopover = () => {
-    return (
-      <Popover id="date-popover" content={true}>
-        <FlexRow style={{ justifyContent: 'center', margin: '20px auto' }}>
+  const displayDate = () => {
+    const { startDate, endDate } = dateRange;
+
+    if (startDate && endDate) {
+      return `${dayjs(startDate).format(dateFormat)} ~ ${dayjs(endDate).format(
+        dateFormat
+      )}`;
+    }
+    return __("Select a date");
+  };
+  return (
+    <FlexRow>
+      <Popover
+        innerRef={overlayTrigger}
+        trigger={
+          <PopoverButton>
+            <Button btnStyle="primary">{__("Date Range")}</Button>
+          </PopoverButton>
+        }
+        placement="top-start"
+      >
+        <FlexRow style={{ justifyContent: "center", margin: "20px auto" }}>
           <Datetime
             {...props}
             renderDay={renderDay}
             input={false}
-            timeFormat={showTime ? 'HH:mm' : false}
+            timeFormat={showTime ? "HH:mm" : false}
             onChange={handleDateChange}
           />
         </FlexRow>
@@ -129,33 +147,6 @@ const DateRange = (props: Props) => {
           </FlexCenter>
         </MarginY>
       </Popover>
-    );
-  };
-
-  const displayDate = () => {
-    const { startDate, endDate } = dateRange;
-
-    if (startDate && endDate) {
-      return `${dayjs(startDate).format(dateFormat)} ~ ${dayjs(endDate).format(
-        dateFormat,
-      )}`;
-    }
-    return __('Select a date');
-  };
-  return (
-    <FlexRow>
-      <OverlayTrigger
-        ref={(overLay) => (overlayTrigger = overLay)}
-        trigger="click"
-        placement="top-start"
-        overlay={renderPopover()}
-        container={this}
-        rootClose={true}
-      >
-        <PopoverButton>
-          <Button btnStyle="primary">{__('Date Range')}</Button>
-        </PopoverButton>
-      </OverlayTrigger>
       {displayDate()}
     </FlexRow>
   );

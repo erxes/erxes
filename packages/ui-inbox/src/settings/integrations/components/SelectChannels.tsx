@@ -1,15 +1,15 @@
-import { IButtonMutateProps, IOption } from '@erxes/ui/src/types';
-import { LeftContent, Row } from '../styles';
+import { IButtonMutateProps, IOption } from "@erxes/ui/src/types";
+import { LeftContent, Row } from "../styles";
 
-import Button from '@erxes/ui/src/components/Button';
-import ChannelForm from '../../channels/containers/ChannelForm';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IChannel } from '../../channels/types';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import Select from 'react-select-plus';
-import { __ } from '@erxes/ui/src/utils';
+import Button from "@erxes/ui/src/components/Button";
+import ChannelForm from "../../channels/containers/ChannelForm";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IChannel } from "../../channels/types";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import Select from "react-select";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   channels: IChannel[];
@@ -26,11 +26,11 @@ class SelectChannels extends React.Component<Props, {}> {
 
     const trigger = (
       <Button btnStyle="primary" icon="plus-circle">
-        {__('Create channel')}
+        {__("Create channel")}
       </Button>
     );
 
-    const content = props => (
+    const content = (props) => (
       <ChannelForm {...props} renderButton={renderButton} />
     );
 
@@ -44,19 +44,19 @@ class SelectChannels extends React.Component<Props, {}> {
   };
 
   generateUserOptions(array: IChannel[] = []): IOption[] {
-    return array.map(item => {
+    return array.map((item) => {
       const channel = item || ({} as IChannel);
 
       return {
         value: channel._id,
-        label: channel.name
+        label: channel.name,
       };
     });
   }
 
-  onChangeChannel = values => {
+  onChangeChannel = (values) => {
     if (this.props.onChange) {
-      this.props.onChange(values.map(item => item.value) || []);
+      this.props.onChange(values.map((item) => item.value) || []);
     }
   };
 
@@ -66,8 +66,8 @@ class SelectChannels extends React.Component<Props, {}> {
       defaultValue,
       isRequired,
       description = __(
-        'In which Channel(s) do you want to add this integration?'
-      )
+        "In which Channel(s) do you want to add this integration?"
+      ),
     } = this.props;
 
     return (
@@ -77,11 +77,13 @@ class SelectChannels extends React.Component<Props, {}> {
         <Row>
           <LeftContent>
             <Select
-              placeholder={__('Select channel')}
-              value={defaultValue}
+              placeholder={__("Select channel")}
+              value={this.generateUserOptions(channels).filter((o) =>
+                (defaultValue || []).includes(o.value)
+              )}
               onChange={this.onChangeChannel}
               options={this.generateUserOptions(channels)}
-              multi={true}
+              isMulti={true}
             />
           </LeftContent>
           {this.renderAddBrand()}

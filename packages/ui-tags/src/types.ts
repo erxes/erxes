@@ -7,6 +7,7 @@ export interface ITag {
   parentId?: string;
   order?: string;
   totalObjectCount?: number;
+  selectedBy?: any;
 }
 
 export type ITagTypes =

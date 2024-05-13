@@ -2,28 +2,28 @@ import gql from 'graphql-tag';
 
 import {
   mutations as formSubmissionsMutations,
-  types as formSubmissionsType
+  types as formSubmissionsType,
 } from './schema/formSubmissions';
 import {
   mutations as RiskIndicatorsMutations,
   queries as RiskIndicatorsQueries,
-  types as RiskIndicatorsTypes
+  types as RiskIndicatorsTypes,
 } from './schema/riskIndicator';
 
 import {
   mutations as OpearionMutations,
   queries as OpearionQueries,
-  types as OpearionTypes
+  types as OpearionTypes,
 } from './schema/operations';
 import {
   mutations as PlanMutations,
   queries as PlanQueries,
-  types as PlanTypes
+  types as PlanTypes,
 } from './schema/plans';
 import {
   mutations as RiskAsessmentMutations,
   queries as RiskAsessmentQueries,
-  types as RiskAsessmentTypes
+  types as RiskAsessmentTypes,
 } from './schema/riskAssessment';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 

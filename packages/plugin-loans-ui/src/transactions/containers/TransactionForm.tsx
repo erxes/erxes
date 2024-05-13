@@ -1,14 +1,13 @@
-import { ButtonMutate, withProps } from '@erxes/ui/src';
-import { IUser, UsersQueryResponse } from '@erxes/ui/src/auth/types';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { IInvoice } from '../../invoices/types';
-import LoanRepayment from '../components/TransactionFormRepayment';
-import LoanGive from '../components/TransactionFormGive';
-import { mutations } from '../graphql';
-import { ITransaction } from '../types';
-import { __ } from 'coreui/utils';
+import { ButtonMutate } from "@erxes/ui/src";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { IInvoice } from "../../invoices/types";
+import { ITransaction } from "../types";
+import LoanGive from "../components/TransactionFormGive";
+import LoanRepayment from "../components/TransactionFormRepayment";
+import React from "react";
+import { __ } from "coreui/utils";
+import { mutations } from "../graphql";
+
 type Props = {
   contractId?: string;
   transaction: ITransaction;
@@ -18,70 +17,59 @@ type Props = {
   closeModal: () => void;
 };
 
-type FinalProps = {
-  usersQuery: UsersQueryResponse;
-  currentUser: IUser;
-} & Props;
+const TransactionFromContainer = (props: Props) => {
+  const { transaction, closeModal, getAssociatedTransaction } = props;
 
-class TransactionFromContainer extends React.Component<FinalProps> {
-  render() {
-    const { transaction } = this.props;
+  const renderButton = ({
+    name,
+    values,
+    isSubmitted,
+    object,
+  }: IButtonMutateProps) => {
+    const afterSave = (data) => {
+      closeModal();
 
-    const renderButton = ({
-      name,
-      values,
-      isSubmitted,
-      object
-    }: IButtonMutateProps) => {
+      if (getAssociatedTransaction) {
+        getAssociatedTransaction(data.transactionsAdd);
+      }
+    };
 
-      const { closeModal, getAssociatedTransaction } = this.props;
-
-      const afterSave = data => {
-        closeModal();
-
-        if (getAssociatedTransaction) {
-          getAssociatedTransaction(data.transactionsAdd);
+    return (
+      <ButtonMutate
+        mutation={
+          object && object._id
+            ? mutations.transactionsEdit
+            : mutations.transactionsAdd
         }
-      };
+        variables={values}
+        callback={afterSave}
+        refetchQueries={getRefetchQueries()}
+        isSubmitted={isSubmitted}
+        type="submit"
+        successMessage={`You successfully ${
+          object ? "updated" : "added"
+        } a ${name}`}
+      >
+        {__("Save")}
+      </ButtonMutate>
+    );
+  };
 
-      return (
-        <ButtonMutate
-          mutation={
-            object && object._id
-              ? mutations.transactionsEdit
-              : mutations.transactionsAdd
-          }
-          variables={values}
-          callback={afterSave}
-          refetchQueries={getRefetchQueries()}
-          isSubmitted={isSubmitted}
-          type="submit"
-          successMessage={`You successfully ${
-            object ? 'updated' : 'added'
-          } a ${name}`}
-        >
-          {__('Save')}
-        </ButtonMutate>
-      );
-    };
+  // const invoice = invoiceDetailQuery.invoiceDetail;
 
-    // const invoice = invoiceDetailQuery.invoiceDetail;
+  const updatedProps = {
+    ...props,
+    renderButton,
+    // invoice,
+    transaction: { ...transaction },
+  };
 
-    const updatedProps = {
-      ...this.props,
-      renderButton,
-      // invoice,
-      transaction: { ...transaction }
-    };
-
-    if(this.props.type === 'give')
-      return <LoanGive {...updatedProps}/>
-    return <LoanRepayment {...updatedProps} />;
-  }
-}
-
-const getRefetchQueries = () => {
-  return ['activityLogs', 'schedules', 'transactionsMain'];
+  if (props.type === "give") return <LoanGive {...updatedProps} />;
+  return <LoanRepayment {...updatedProps} />;
 };
 
-export default withProps<Props>(compose()(TransactionFromContainer));
+const getRefetchQueries = () => {
+  return ["activityLogs", "schedules", "transactionsMain"];
+};
+
+export default TransactionFromContainer;

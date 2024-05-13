@@ -4,10 +4,10 @@ import {
   ChooserColumns as Columns,
   ChooserTitle as Title,
   Icon,
-  MainStyleModalFooter as ModalFooter
+  MainStyleModalFooter as ModalFooter,
 } from '@erxes/ui/src';
 import { Info, InfoDetail, InfoTitle } from '../../styles';
-import React from 'react';
+import React, { useState } from 'react';
 
 import { CAR_DATAS, CAR_INFO } from '../../constants';
 import { ICar } from '../../types';
@@ -18,127 +18,65 @@ type Props = {
   closeModal: () => void;
 };
 
-type State = {
-  selectedValues: any;
-};
+const CarsMerge = (props: Props) => {
+  const { objects, save, closeModal } = props;
+  const [car1, car2] = objects;
 
-class CarsMerge extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+  const [selectedValues, setSelectedValues] = useState<any>({});
 
-    this.state = {
-      selectedValues: {}
-    };
-  }
-
-  save = e => {
+  const handleSave = (e) => {
     e.preventDefault();
-    const { objects } = this.props;
-    const selectedValues = { ...this.state.selectedValues };
-    const owner = selectedValues.owner;
-    const category = selectedValues.category;
+    const newSelectedValues = { ...selectedValues };
+    const { owner, category } = newSelectedValues;
 
     if (owner) {
-      selectedValues.ownerId = owner._id;
+      newSelectedValues.ownerId = owner._id;
 
-      delete selectedValues.owner;
+      delete newSelectedValues.owner;
     }
 
     if (category) {
-      selectedValues.categoryId = category._id;
+      newSelectedValues.categoryId = category._id;
 
-      delete selectedValues.category;
+      delete newSelectedValues.category;
     }
 
-    this.props.save({
-      ids: objects.map(car => car._id),
-      data: { ...selectedValues },
+    save({
+      ids: objects.map((car) => car._id),
+      data: { ...newSelectedValues },
       callback: () => {
-        this.props.closeModal();
-      }
+        closeModal();
+      },
     });
   };
 
-  handleChange = (type, key, value) => {
-    const selectedValues = { ...this.state.selectedValues };
+  const handleChange = (type, key, value) => () => {
+    const newSelectedValues = { ...selectedValues };
 
     if (type === 'plus-1') {
-      selectedValues[key] = value;
+      newSelectedValues[key] = value;
 
       if (key === 'links') {
-        const links = Object.assign(
-          { ...this.state.selectedValues.links },
-          value
-        );
-        selectedValues[key] = links;
+        const links = Object.assign({ ...selectedValues.links }, value);
+        newSelectedValues[key] = links;
       }
     } else {
-      delete selectedValues[key];
+      delete newSelectedValues[key];
     }
 
-    this.setState({ selectedValues });
+    setSelectedValues(newSelectedValues);
   };
 
-  renderCar = (car, icon) => {
-    const properties = CAR_INFO.ALL.concat(CAR_DATAS.ALL);
-
-    return (
-      <React.Fragment>
-        <Title>{car.primaryName || car.website}</Title>
-        <ul>
-          {properties.map(info => {
-            const key = info.field;
-
-            if (!car[key]) {
-              return null;
-            }
-
-            return this.renderCarProperties(key, car[key], icon);
-          })}
-        </ul>
-      </React.Fragment>
-    );
-  };
-
-  renderCarProperties(key, value, icon) {
-    return (
-      <li key={key} onClick={this.handleChange.bind(this, icon, key, value)}>
-        {this.renderTitle(key)}
-        {this.renderValue(key, value)}
-
-        <Icon icon={icon} />
-      </li>
-    );
-  }
-
-  renderTitle(key) {
-    const title = CAR_INFO[key] || CAR_DATAS[key];
-
-    return <InfoTitle>{title}:</InfoTitle>;
-  }
-
-  renderValue = (field, value) => {
-    switch (field) {
-      case 'owner':
-        return this.renderOwner(value);
-      case 'category':
-        return this.renderCategory(value);
-
-      default:
-        return <InfoDetail>{value}</InfoDetail>;
-    }
-  };
-
-  renderOwner(data) {
+  const renderOwner = (data) => {
     return (
       <Info>
         <InfoTitle>Name: </InfoTitle>
-        <InfoDetail>{data.details.fullName}</InfoDetail>
+        <InfoDetail>{data.details.fullName || data.email}</InfoDetail>
       </Info>
     );
-  }
+  };
 
-  renderCategory(data) {
+  const renderCategory = (data) => {
     return (
       <Info>
         <InfoTitle>Name: </InfoTitle>
@@ -147,34 +85,78 @@ class CarsMerge extends React.Component<Props, State> {
         </InfoDetail>
       </Info>
     );
-  }
+  };
 
-  render() {
-    const { selectedValues } = this.state;
-    const { objects, closeModal } = this.props;
-    const [car1, car2] = objects;
+  const renderTitle = (key) => {
+    const title = CAR_INFO[key] || CAR_DATAS[key];
+
+    return <InfoTitle>{title}:</InfoTitle>;
+  };
+
+  const renderValue = (field, value) => {
+    switch (field) {
+      case 'owner':
+        return renderOwner(value);
+      case 'category':
+        return renderCategory(value);
+
+      default:
+        return <InfoDetail>{value}</InfoDetail>;
+    }
+  };
+
+  const renderCarProperties = (key, value, icon) => {
+    return (
+      <li key={key} onClick={handleChange(icon, key, value)}>
+        {renderTitle(key)}
+        {renderValue(key, value)}
+
+        <Icon icon={icon} />
+      </li>
+    );
+  };
+
+  const renderCar = (car, icon) => {
+    const properties = CAR_INFO.ALL.concat(CAR_DATAS.ALL);
 
     return (
-      <form onSubmit={this.save}>
-        <Columns>
-          <Column className="multiple">{this.renderCar(car1, 'plus-1')}</Column>
+      <React.Fragment>
+        <Title>{car.primaryName || car.website}</Title>
+        <ul>
+          {properties.map((info) => {
+            const key = info.field;
 
-          <Column className="multiple">{this.renderCar(car2, 'plus-1')}</Column>
+            if (!car[key]) {
+              return null;
+            }
 
-          <Column>{this.renderCar(selectedValues, 'times')}</Column>
-        </Columns>
-
-        <ModalFooter>
-          <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
-            Cancel
-          </Button>
-          <Button type="submit" btnStyle="success" icon="checked-1">
-            Save
-          </Button>
-        </ModalFooter>
-      </form>
+            return renderCarProperties(key, car[key], icon);
+          })}
+        </ul>
+      </React.Fragment>
     );
-  }
-}
+  };
+
+  return (
+    <form onSubmit={handleSave}>
+      <Columns>
+        <Column className="multiple">{renderCar(car1, 'plus-1')}</Column>
+
+        <Column className="multiple">{renderCar(car2, 'plus-1')}</Column>
+
+        <Column>{renderCar(selectedValues, 'times')}</Column>
+      </Columns>
+
+      <ModalFooter>
+        <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
+          Cancel
+        </Button>
+        <Button type="submit" btnStyle="success" icon="checked-1">
+          Save
+        </Button>
+      </ModalFooter>
+    </form>
+  );
+};
 
 export default CarsMerge;

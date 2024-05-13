@@ -1,54 +1,45 @@
-import * as compose from 'lodash.flowright';
+import { getEnv, withProps } from "@erxes/ui/src/utils";
 
-import {
-  ByKindTotalCount,
-  IntegrationsCountQueryResponse
-} from '@erxes/ui-inbox/src/settings/integrations/types';
-import { getEnv, withProps } from '@erxes/ui/src/utils';
-
-import Home from '../components/store/Home';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
+import Home from "../components/store/Home";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { gql } from "@apollo/client";
+import { queries } from "@erxes/ui-inbox/src/settings/integrations/graphql";
+import { useQuery } from "@apollo/client";
 
 type Props = {
   queryParams: any;
   history?: any;
 };
 
-type FinalProps = { totalCountQuery: IntegrationsCountQueryResponse } & Props;
+const Store = (props: Props) => {
+  const { loading, error, data } = useQuery(gql(queries.integrationTotalCount));
 
-const Store = (props: FinalProps) => {
-  const { totalCountQuery } = props;
-
-  if (totalCountQuery.loading) {
+  if (loading) {
     return <Spinner />;
+  }
+
+  if (error) {
+    // Handle error, for now just logging it
+    console.error("Error fetching data:", error);
+    return null;
   }
 
   const customLink = (kind: string, addLink: string) => {
     const { REACT_APP_API_URL } = getEnv();
     const url = `${REACT_APP_API_URL}/connect-integration?link=${addLink}&kind=${kind}`;
-
     window.location.replace(url);
   };
 
-  const totalCount =
-    (totalCountQuery.integrationsTotalCount || {}).byKind ||
-    ({} as ByKindTotalCount);
+  const totalCount = data?.integrationsTotalCount?.byKind || {};
 
   const updatedProps = {
     ...props,
     customLink,
-    totalCount
+    totalCount,
   };
 
   return <Home {...updatedProps} />;
 };
 
-export default withProps<Props>(
-  compose(
-    graphql(gql(queries.integrationTotalCount), { name: 'totalCountQuery' })
-  )(Store)
-);
+export default Store;

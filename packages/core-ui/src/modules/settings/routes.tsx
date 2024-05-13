@@ -5,14 +5,13 @@ import ImportHistory from './importExport/routes';
 import MainRoutes from './main/routes';
 import MarketplaceRoutes from './marketplace/routes';
 import PermissionRoutes from './permissions/routes';
+import PlanRoutes from '../saas/settings/plans/routes';
 import ProfileRoutes from './profile/routes';
 import React from 'react';
-import { Route } from 'react-router-dom';
 import TeamRoutes from './team/routes';
-import PlanRoutes from '../saas/settings/plans/routes';
 
-const routes = () => (
-  <React.Fragment>
+const SettingsRoute = () => (
+  <>
     <MainRoutes key="MainRoutes" />
     <BrandsRoutes key="BrandsRoutes" />
     <ProfileRoutes key="profile" />
@@ -23,9 +22,7 @@ const routes = () => (
     <AppRoutes key="AppRoutes" />
     <PlanRoutes key="Plan" />
     <MarketplaceRoutes key="Store" />
-  </React.Fragment>
+  </>
 );
 
-const settingsRoute = () => <Route component={routes} />;
-
-export default settingsRoute;
+export default SettingsRoute;

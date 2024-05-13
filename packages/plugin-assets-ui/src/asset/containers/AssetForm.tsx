@@ -2,15 +2,12 @@ import React from 'react';
 import {
   IAsset,
   IAssetCategoryQeuryResponse,
-  IAssetQueryResponse
+  IAssetQueryResponse,
 } from '../../common/types';
 import { ButtonMutate } from '@erxes/ui/src';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { getRefetchQueries } from '../../common/utils';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { graphql } from '@apollo/client/react/hoc';
+import { gql, useQuery } from '@apollo/client';
 import AssetForm from '../components/AssetForm';
 import { queries, mutations } from '../graphql';
 
@@ -20,27 +17,25 @@ type Props = {
   closeModal: () => void;
 };
 
-type FinalProps = {
-  assetCategories: IAssetCategoryQeuryResponse;
-  assets: IAssetQueryResponse;
-} & Props;
-
-function AssetFormContainer(props: FinalProps) {
-  const { assetCategories, assets } = props;
+const AssetFormContainer = (props: Props) => {
+  const assetsQuery = useQuery<IAssetQueryResponse>(gql(queries.assets));
+  const assetCategoriesQuery = useQuery<IAssetCategoryQeuryResponse>(
+    gql(queries.assetCategory),
+  );
 
   const renderButton = ({
     text,
     values,
     isSubmitted,
     callback,
-    object
+    object,
   }: IButtonMutateProps) => {
     const { unitPrice, assetCount, minimiumCount } = values;
     const attachmentMoreArray: any[] = [];
     const attachment = values.attachment || undefined;
     const attachmentMore = values.attachmentMore || [];
 
-    attachmentMore.map(attach => {
+    attachmentMore.map((attach) => {
       attachmentMoreArray.push({ ...attach, __typename: undefined });
     });
 
@@ -70,22 +65,13 @@ function AssetFormContainer(props: FinalProps) {
 
   const updatedProps = {
     ...props,
-    categories: assetCategories.assetCategories,
-    assets: assets.assets,
+    categories: assetCategoriesQuery?.data?.assetCategories || [],
+    assets: assetsQuery?.data?.assets || [],
     renderButton,
-    loading: assetCategories.loading || assets.loading
+    loading: assetCategoriesQuery.loading || assetsQuery.loading,
   };
 
   return <AssetForm {...updatedProps} />;
-}
+};
 
-export default withProps<Props>(
-  compose(
-    graphql(gql(queries.assetCategory), {
-      name: 'assetCategories'
-    }),
-    graphql(gql(queries.assets), {
-      name: 'assets'
-    })
-  )(AssetFormContainer)
-);
+export default AssetFormContainer;

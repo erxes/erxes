@@ -1,43 +1,38 @@
 import React from 'react';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { graphql } from '@apollo/client/react/hoc';
-import { __ } from 'coreui/utils';
+import { gql, useQuery } from '@apollo/client';
+import { __ } from '@erxes/ui/src';
 import MailConversation from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/mail/MailConversation';
 import { queries } from '../graphql';
+import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
 
-class Detail extends React.Component<any> {
-  render() {
-    const { currentConversation, messagesQuery } = this.props;
+type Props = {
+  currentId: string;
+  currentConversation: IConversation;
+};
 
-    if (messagesQuery.loading) {
-      return null;
-    }
+const Detail = (props: Props) => {
+  const { currentId, currentConversation } = props;
 
-    const messages = messagesQuery.imapConversationDetail || [];
+  const messagesQuery = useQuery(gql(queries.detail), {
+    variables: {
+      conversationId: currentId,
+    },
+    fetchPolicy: 'network-only',
+  });
 
-    return (
-      <MailConversation
-        detailQuery={messagesQuery}
-        conversation={currentConversation}
-        conversationMessages={messages}
-      />
-    );
+  if (messagesQuery.loading) {
+    return null;
   }
-}
 
-const WithQuery = compose(
-  graphql<any>(gql(queries.detail), {
-    name: 'messagesQuery',
-    options: ({ currentId }) => {
-      return {
-        variables: {
-          conversationId: currentId
-        },
-        fetchPolicy: 'network-only'
-      };
-    }
-  })
-)(Detail);
+  const messages = messagesQuery?.data?.imapConversationDetail || [];
 
-export default WithQuery;
+  return (
+    <MailConversation
+      detailQuery={messagesQuery}
+      conversation={currentConversation}
+      conversationMessages={messages}
+    />
+  );
+};
+
+export default Detail;

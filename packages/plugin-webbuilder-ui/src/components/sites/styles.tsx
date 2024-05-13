@@ -277,14 +277,14 @@ export const LeftItem = styled.div`
   border-right: 1px solid rgba(0, 0, 0, 0.25);
 `;
 
-export const SiteFormContainer = styledTS<{ showDarkMode?: boolean }>(
+export const SiteFormContainer = styledTS<{ $showDarkMode?: boolean }>(
   styled.div
 )`
   position: relative;
   height: 100%;
 
   ${(props) =>
-    !props.showDarkMode &&
+    !props.$showDarkMode &&
     css`
       .gjs-one-bg {
         background: ${colors.bgLight};
@@ -331,7 +331,7 @@ export const SiteFormContainer = styledTS<{ showDarkMode?: boolean }>(
     `};
 
     ${(props) =>
-      props.showDarkMode &&
+      props.$showDarkMode &&
       css`
         label,
         input,
@@ -372,7 +372,7 @@ export const CustomButtonWrapper = styled.div`
   top: 7px;
 `;
 
-export const Loader = styledTS<{ showDarkMode?: boolean }>(styled.div)`
+export const Loader = styledTS<{ $showDarkMode?: boolean }>(styled.div)`
   position: absolute;
   left: 0;
   right: 0;
@@ -380,7 +380,7 @@ export const Loader = styledTS<{ showDarkMode?: boolean }>(styled.div)`
   top: 0;
   opacity: .7;
   background: ${(props) =>
-    props.showDarkMode ? colors.colorCoreDarkGray : colors.colorWhite};
+    props.$showDarkMode ? colors.colorCoreDarkGray : colors.colorWhite};
   z-index: 9;
 
   > div {

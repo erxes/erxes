@@ -1,11 +1,28 @@
-import asyncComponent from 'modules/common/components/AsyncComponent';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 
-const Brands = asyncComponent(() =>
-  import(/* webpackChunkName: "Brands - Settings" */ './containers/Brands')
+import React from "react";
+import asyncComponent from "modules/common/components/AsyncComponent";
+import queryString from "query-string";
+
+const Brands = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "Brands - Settings" */ "./containers/Brands")
 );
 
-const routes = () => <Route path="/settings/brands/" component={Brands} />;
+const BrandsComponent = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const queryParams = queryString.parse(location.search);
+
+  return (
+    <Brands location={location} queryParams={queryParams} navigate={navigate} />
+  );
+};
+
+const routes = () => (
+  <Routes>
+    <Route path="/settings/brands/" element={<BrandsComponent />} />
+  </Routes>
+);
 
 export default routes;

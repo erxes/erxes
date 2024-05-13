@@ -1,15 +1,20 @@
-import { gql, useQuery } from '@apollo/client';
-import { Button, formatValue, FormControl, ModalTrigger } from '@erxes/ui/src';
-import _ from 'lodash';
-import React, { useEffect, useState } from 'react';
-import GoalTypeForm from '../containers/goalForm';
-import { queries } from '../graphql';
-import { IGoalType } from '../types';
-import GoalView from './goalView';
+import { gql, useQuery } from "@apollo/client";
+import {
+  ActionButtons,
+  Button,
+  formatValue,
+  FormControl,
+  ModalTrigger,
+} from "@erxes/ui/src";
+import _ from "lodash";
+import React, { useEffect, useState } from "react";
+import GoalTypeForm from "../containers/goalForm";
+import { queries } from "../graphql";
+import { IGoalType } from "../types";
+import GoalView from "./goalView";
 
 type Props = {
   goalType: IGoalType;
-  history: any;
   isChecked: boolean;
   toggleBulk: (goalType: IGoalType, isChecked?: boolean) => void;
 };
@@ -21,7 +26,7 @@ function displayValue(goalType, name) {
 }
 
 function renderFormTrigger(trigger: React.ReactNode, goalType: IGoalType) {
-  const content = props => <GoalTypeForm {...props} goalType={goalType} />;
+  const content = (props) => <GoalTypeForm {...props} goalType={goalType} />;
   return (
     <ModalTrigger
       size="lg"
@@ -39,7 +44,7 @@ function renderFormTViewier(
   stageName: string,
   emailName: string
 ) {
-  const content = props => (
+  const content = (props) => (
     <GoalView
       {...props}
       goalType={goalType}
@@ -62,7 +67,7 @@ function renderFormTViewier(
 }
 
 function renderEditAction(goalType: IGoalType) {
-  const trigger = <Button btnStyle="link" icon="edit-1" />;
+  const trigger = <Button btnStyle="link" icon="edit-3" />;
   return renderFormTrigger(trigger, goalType);
 }
 function renderViewAction(
@@ -84,40 +89,40 @@ function renderViewAction(
 }
 
 function GoalRow({ goalType, isChecked, toggleBulk }: Props) {
-  const onChange = e => {
+  const onChange = (e) => {
     if (toggleBulk) {
       toggleBulk(goalType, e.target.checked);
     }
   };
-  const onClick = e => {
+  const onClick = (e) => {
     e.stopPropagation();
   };
-  const [pipelineName, setPipelineName] = useState('');
-  const [boardName, setBoardName] = useState('');
-  const [stageName, setStageName] = useState('');
-  const [emailName, setEmail] = useState('');
+  const [pipelineName, setPipelineName] = useState("");
+  const [boardName, setBoardName] = useState("");
+  const [stageName, setStageName] = useState("");
+  const [emailName, setEmail] = useState("");
 
   const pipelineDetail = useQuery(gql(queries.pipelineDetail), {
     variables: {
-      _id: goalType.pipelineId
-    }
+      _id: goalType.pipelineId,
+    },
   });
 
   const boardDetail = useQuery(gql(queries.boardDetail), {
     variables: {
-      _id: goalType.boardId
-    }
+      _id: goalType.boardId,
+    },
   });
 
   const stageDetail = useQuery(gql(queries.stageDetail), {
     variables: {
-      _id: goalType.stageId
-    }
+      _id: goalType.stageId,
+    },
   });
   const userDetail = useQuery(gql(queries.userDetail), {
     variables: {
-      _id: goalType.contribution[0]
-    }
+      _id: goalType.contribution[0],
+    },
   });
 
   useEffect(() => {
@@ -137,7 +142,7 @@ function GoalRow({ goalType, isChecked, toggleBulk }: Props) {
     pipelineDetail.data,
     boardDetail.data,
     stageDetail.data,
-    userDetail.data
+    userDetail.data,
   ]);
 
   if (
@@ -154,35 +159,37 @@ function GoalRow({ goalType, isChecked, toggleBulk }: Props) {
       <td onClick={onClick}>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={onChange}
         />
       </td>
-      <td key={'entity'}>{displayValue(goalType, 'entity')}</td>
+      <td key={"entity"}>{displayValue(goalType, "entity")}</td>
       <td>{boardName}</td>
       <td>{pipelineName}</td>
       <td>{stageName}</td>
-      <td key={'contributionType'}>
-        {' '}
-        {displayValue(goalType, 'contributionType')}
+      <td key={"contributionType"}>
+        {" "}
+        {displayValue(goalType, "contributionType")}
       </td>
-      <td key={'metric'}>{displayValue(goalType, 'metric')}</td>
-      <td key={'goalTypeChoose'}>{displayValue(goalType, 'goalTypeChoose')}</td>
-      <td key={'startDate'}>{displayValue(goalType, 'startDate')}</td>
-      <td key={'endDate'}>{displayValue(goalType, 'endDate')}</td>
-      <td key={'current'}>{displayValue(goalType.progress, 'current')}</td>
-      <td key={'target'}>{displayValue(goalType, 'target')}</td>
-      <td key={'progress'}>{displayValue(goalType.progress, 'progress')}</td>
+      <td key={"metric"}>{displayValue(goalType, "metric")}</td>
+      <td key={"goalTypeChoose"}>{displayValue(goalType, "goalTypeChoose")}</td>
+      <td key={"startDate"}>{displayValue(goalType, "startDate")}</td>
+      <td key={"endDate"}>{displayValue(goalType, "endDate")}</td>
+      <td key={"current"}>{displayValue(goalType.progress, "current")}</td>
+      <td key={"target"}>{displayValue(goalType, "target")}</td>
+      <td key={"progress"}>{displayValue(goalType.progress, "progress")}</td>
       <td>
-        {renderViewAction(
-          goalType,
-          boardName,
-          pipelineName,
-          stageName,
-          emailName
-        )}
+        <ActionButtons>
+          {renderViewAction(
+            goalType,
+            boardName,
+            pipelineName,
+            stageName,
+            emailName
+          )}
+          {renderEditAction(goalType)}
+        </ActionButtons>
       </td>
-      <td>{renderEditAction(goalType)}</td>
     </tr>
   );
 }

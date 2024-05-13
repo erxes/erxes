@@ -1,12 +1,12 @@
-import customScalars from "@erxes/api-utils/src/customScalars";
+import customScalars from '@erxes/api-utils/src/customScalars';
 
-import { field as Field, fieldsGroup as FieldsGroup } from "./field";
-import Submission from "./submission";
-import Form from "./forms";
-import { fieldQueries, fieldsGroupQueries } from "./queries/fields";
-import { fieldMutations, fieldsGroupsMutations } from "./mutations/fields";
-import formQueries from "./queries/forms";
-import formMutations from "./mutations/forms";
+import { field as Field, fieldsGroup as FieldsGroup } from './field';
+import Submission from './submission';
+import Form from './forms';
+import { fieldQueries, fieldsGroupQueries } from './queries/fields';
+import { fieldMutations, fieldsGroupsMutations } from './mutations/fields';
+import formQueries from './queries/forms';
+import formMutations from './mutations/forms';
 
 const resolvers = () => ({
   ...customScalars,
@@ -17,13 +17,13 @@ const resolvers = () => ({
   Mutation: {
     ...fieldMutations,
     ...fieldsGroupsMutations,
-    ...formMutations
+    ...formMutations,
   },
   Query: {
     ...fieldQueries,
     ...fieldsGroupQueries,
-    ...formQueries
-  }
+    ...formQueries,
+  },
 });
 
 export default resolvers;

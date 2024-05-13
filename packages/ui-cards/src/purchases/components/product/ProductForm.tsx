@@ -40,6 +40,8 @@ import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectC
 import { queries } from '../../graphql';
 
 const TableWrapper = styled.div`
+  overflow: auto;
+  
   table thead tr th {
     font-size: 10px;
   }

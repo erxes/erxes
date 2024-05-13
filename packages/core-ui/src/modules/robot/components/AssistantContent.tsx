@@ -1,12 +1,13 @@
-import { IUser } from 'modules/auth/types';
-import React from 'react';
-import RTG from 'react-transition-group';
-import { IFeature, IRoleValue } from '../types';
-import { getCurrentUserName } from '../utils';
-import Onboarding from './onboard/Onboarding';
-import Setup from './Setup';
-import { Content } from './styles';
-import Suggestion from './Suggestion';
+import { IFeature, IRoleValue } from "../types";
+
+import { CSSTransition } from "react-transition-group";
+import { Content } from "./styles";
+import { IUser } from "modules/auth/types";
+import Onboarding from "./onboard/Onboarding";
+import React from "react";
+import Setup from "./Setup";
+import Suggestion from "./Suggestion";
+import { getCurrentUserName } from "../utils";
 
 type Props = {
   availableFeatures: IFeature[];
@@ -31,8 +32,8 @@ class AssistantContent extends React.Component<Props, State> {
 
     this.state = {
       welcomeStep: 0,
-      roleValue: { value: 'sales', label: 'Sales' } as IRoleValue,
-      answerOf: {} as IRoleValue
+      roleValue: { value: "sales", label: "Sales" } as IRoleValue,
+      answerOf: {} as IRoleValue,
     };
   }
 
@@ -40,9 +41,9 @@ class AssistantContent extends React.Component<Props, State> {
     this.setState({
       welcomeStep: 1,
       roleValue,
-      answerOf
+      answerOf,
     });
-    this.props.changeRoute('initial');
+    this.props.changeRoute("initial");
   };
 
   renderContent() {
@@ -52,17 +53,17 @@ class AssistantContent extends React.Component<Props, State> {
       currentUser,
       forceComplete,
       savedFeatures,
-      toggleContent
+      toggleContent,
     } = this.props;
 
     const commonProps = {
       forceComplete,
       toggleContent,
-      currentUserName: getCurrentUserName(currentUser)
+      currentUserName: getCurrentUserName(currentUser),
     };
 
     const onClick = () => {
-      changeRoute('setupList');
+      changeRoute("setupList");
     };
 
     const getRoleOptions = (roleValue: IRoleValue) => {
@@ -86,19 +87,19 @@ class AssistantContent extends React.Component<Props, State> {
       />
     );
 
-    if (currentRoute === 'initial') {
+    if (currentRoute === "initial") {
       return onBoarding;
     }
 
-    if (currentRoute === 'inComplete') {
+    if (currentRoute === "inComplete") {
       if (!savedFeatures) {
-        changeRoute('setupList');
+        changeRoute("setupList");
       }
 
       return <Suggestion {...commonProps} onResumeClick={onClick} />;
     }
 
-    if (currentRoute === 'setupList' || currentRoute === 'setupDetail') {
+    if (currentRoute === "setupList" || currentRoute === "setupDetail") {
       return (
         <Setup
           {...this.props}
@@ -116,7 +117,7 @@ class AssistantContent extends React.Component<Props, State> {
     const { showContent } = this.props;
 
     return (
-      <RTG.CSSTransition
+      <CSSTransition
         in={showContent}
         appear={true}
         timeout={600}
@@ -124,7 +125,7 @@ class AssistantContent extends React.Component<Props, State> {
         unmountOnExit={true}
       >
         <Content>{this.renderContent()}</Content>
-      </RTG.CSSTransition>
+      </CSSTransition>
     );
   }
 }

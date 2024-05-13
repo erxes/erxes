@@ -1,22 +1,23 @@
-import Button from '@erxes/ui/src/components/Button';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import { IField } from '@erxes/ui/src/types';
-import { IFieldGroup } from '@erxes/ui-forms/src/settings/properties/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import PropertyForm from '@erxes/ui-forms/src/settings/properties/containers/PropertyForm';
-import PropertyGroupForm from '@erxes/ui-forms/src/settings/properties/containers/PropertyGroupForm';
-import { PropertyList } from '@erxes/ui-forms/src/settings/properties/styles';
-import PropertyRow from './PropertyRow';
-import React from 'react';
-import Sidebar from './Sidebar';
-import SortableList from '@erxes/ui/src/components/SortableList';
-import { Title } from '@erxes/ui-settings/src/styles';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils';
+import Button from "@erxes/ui/src/components/Button";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
+import { IField } from "@erxes/ui/src/types";
+import { IFieldGroup } from "@erxes/ui-forms/src/settings/properties/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Menu } from "@headlessui/react";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import PropertyForm from "@erxes/ui-forms/src/settings/properties/containers/PropertyForm";
+import PropertyGroupForm from "@erxes/ui-forms/src/settings/properties/containers/PropertyGroupForm";
+import { PropertyList } from "@erxes/ui-forms/src/settings/properties/styles";
+import PropertyRow from "./PropertyRow";
+import React from "react";
+import Sidebar from "./Sidebar";
+import SortableList from "@erxes/ui/src/components/SortableList";
+import { Title } from "@erxes/ui-settings/src/styles";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "@erxes/ui/src/utils";
 
 // Props
 type Props = {
@@ -56,11 +57,11 @@ class Properties extends React.Component<
 
     this.state = {
       fieldsGroups: fieldsGroups.filter(
-        gro => !gro.isDefinedByErxes && !gro.parentId
+        (gro) => !gro.isDefinedByErxes && !gro.parentId
       ),
       fieldsGroupsWithParent: fieldsGroups.filter(
-        gro => !gro.isDefinedByErxes && gro.parentId
-      )
+        (gro) => !gro.isDefinedByErxes && gro.parentId
+      ),
     };
   }
 
@@ -68,22 +69,22 @@ class Properties extends React.Component<
     if (this.props.fieldsGroups !== nextProps.fieldsGroups) {
       this.setState({
         fieldsGroups: nextProps.fieldsGroups.filter(
-          gro => !gro.isDefinedByErxes && !gro.parentId
+          (gro) => !gro.isDefinedByErxes && !gro.parentId
         ),
         fieldsGroupsWithParent: nextProps.fieldsGroups.filter(
-          gro => !gro.isDefinedByErxes && gro.parentId
-        )
+          (gro) => !gro.isDefinedByErxes && gro.parentId
+        ),
       });
     }
   }
 
-  onChangeFieldGroups = fieldsGroups => {
+  onChangeFieldGroups = (fieldsGroups) => {
     this.setState({ fieldsGroups }, () => {
       this.props.updateGroupOrder(this.state.fieldsGroups);
     });
   };
 
-  renderRow = group => {
+  renderRow = (group) => {
     const {
       queryParams,
       removePropertyGroup,
@@ -92,7 +93,7 @@ class Properties extends React.Component<
       updatePropertyDetailVisible,
       updatePropertySystemFields,
       updateFieldOrder,
-      updateGroupOrder
+      updateGroupOrder,
     } = this.props;
 
     const { fieldsGroupsWithParent } = this.state;
@@ -124,7 +125,7 @@ class Properties extends React.Component<
     return (
       <SortableList
         fields={fieldsGroups}
-        child={group => this.renderRow(group)}
+        child={(group) => this.renderRow(group)}
         onChangeFields={this.onChangeFieldGroups}
         isModal={true}
         showDragHandler={false}
@@ -145,11 +146,13 @@ class Properties extends React.Component<
       );
     }
 
-    const defaultGroups = fieldsGroups.filter(group => group.isDefinedByErxes);
+    const defaultGroups = fieldsGroups.filter(
+      (group) => group.isDefinedByErxes
+    );
 
     return (
       <PropertyList>
-        {defaultGroups.map(group => this.renderRow(group))}
+        {defaultGroups.map((group) => this.renderRow(group))}
         {this.renderSortableList()}
       </PropertyList>
     );
@@ -158,26 +161,26 @@ class Properties extends React.Component<
   renderActionBar = () => {
     const { queryParams, fieldsGroups, currentType } = this.props;
 
-    if (currentType === 'device') {
+    if (currentType === "device") {
       return null;
     }
 
     let size;
 
-    if (['task', 'deal', 'ticket', 'purchase'].includes(currentType)) {
-      size = 'lg';
+    if (["task", "deal", "ticket", "purchase"].includes(currentType)) {
+      size = "lg";
     }
 
-    const addGroup = <Dropdown.Item>{__('Add Group')}</Dropdown.Item>;
-    const addField = <Dropdown.Item>{__('Add Property')}</Dropdown.Item>;
+    const addGroup = <a href="#group">{__("Add Group")}</a>;
+    const addField = <a href="#property">{__("Add Property")}</a>;
 
-    const groupContent = props => (
+    const groupContent = (props) => (
       <PropertyGroupForm {...props} queryParams={queryParams} />
     );
 
-    const propertyContent = modalProps => {
-      if (fieldsGroups.filter(e => !e.isDefinedByErxes).length === 0) {
-        return <div>{__('Please add property Group first')}!</div>;
+    const propertyContent = (modalProps) => {
+      if (fieldsGroups.filter((e) => !e.isDefinedByErxes).length === 0) {
+        return <div>{__("Please add property Group first")}!</div>;
       }
 
       return (
@@ -190,27 +193,33 @@ class Properties extends React.Component<
     };
 
     return (
-      <Dropdown alignRight={true}>
-        <Dropdown.Toggle as={DropdownToggle} id="dropdown-properties">
+      <Dropdown
+        as={DropdownToggle}
+        isMenuWidthFit={true}
+        toggleComponent={
           <Button btnStyle="success" icon="plus-circle">
-            {__('Add Group & Field ')}
+            {__("Add Group & Field ")}
             <Icon icon="angle-down" />
           </Button>
-        </Dropdown.Toggle>
-        <Dropdown.Menu>
+        }
+        unmount={false}
+      >
+        <Menu.Item>
           <ModalTrigger
-            title={__('Add Group')}
+            title={__("Add Group")}
             size={size}
             trigger={addGroup}
             autoOpenKey={`showProperty${currentType}Modal`}
             content={groupContent}
           />
+        </Menu.Item>
+        <Menu.Item>
           <ModalTrigger
-            title={__('Add Property')}
+            title={__("Add Property")}
             trigger={addField}
             content={propertyContent}
           />
-        </Dropdown.Menu>
+        </Menu.Item>
       </Dropdown>
     );
   };
@@ -219,25 +228,25 @@ class Properties extends React.Component<
     const { currentType, services } = this.props;
 
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Properties'), link: '/settings/properties' },
-      { title: __(`${currentType} properties`) }
+      { title: __("Settings"), link: "/settings" },
+      { title: __("Properties"), link: "/settings/properties" },
+      { title: __(`${currentType} properties`) },
     ];
 
     const title = (
-      <Title capitalize={true}>
-        {currentType} {__('properties')}
+      <Title $capitalize={true}>
+        {currentType} {__("properties")}
       </Title>
     );
 
     const headerDescription = (
       <HeaderDescription
         icon="/images/actions/26.svg"
-        title={__('Properties')}
+        title={__("Properties")}
         description={`${__(
-          'The quick view finder helps you to view basic information on both companies and customers alike'
+          "The quick view finder helps you to view basic information on both companies and customers alike"
         )}.${__(
-          'Add groups and fields of the exact information you want to see'
+          "Add groups and fields of the exact information you want to see"
         )}`}
       />
     );

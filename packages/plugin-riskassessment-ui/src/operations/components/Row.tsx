@@ -1,7 +1,8 @@
-import { FormControl, ModalTrigger, __ } from '@erxes/ui/src';
-import moment from 'moment';
-import React from 'react';
-import Form from '../containers/Form';
+import { FormControl, ModalTrigger, __ } from "@erxes/ui/src";
+
+import Form from "../containers/Form";
+import React from "react";
+import moment from "moment";
 type Props = {
   queryParams: any;
   operation: any;
@@ -22,7 +23,7 @@ class Row extends React.Component<Props> {
       this.props.handleSelect(operation._id);
     };
 
-    const onClick = e => {
+    const onClick = (e) => {
       e.stopPropagation();
     };
 
@@ -30,20 +31,20 @@ class Row extends React.Component<Props> {
       <tr>
         <td onClick={onClick}>
           <FormControl
-            componentClass="checkbox"
+            componentclass="checkbox"
             checked={selectedItems.includes(operation._id)}
             onClick={handleSelect}
           />
         </td>
-        <td>{__(`${'\u00A0 \u00A0 '.repeat(level)} ${operation.code}`)}</td>
+        <td>{__(`${"\u00A0 \u00A0 ".repeat(level)} ${operation.code}`)}</td>
         <td>{__(operation.name)}</td>
-        <td>{moment(operation.createdAt).format('lll')}</td>
-        <td>{moment(operation.modifiedAt).format('lll')}</td>
-        <td>{''}</td>
+        <td>{moment(operation.createdAt).format("lll")}</td>
+        <td>{moment(operation.modifiedAt).format("lll")}</td>
+        <td>{""}</td>
       </tr>
     );
 
-    const content = props => <Form {...props} operation={operation} />;
+    const content = (props) => <Form {...props} operation={operation} />;
 
     return (
       <ModalTrigger

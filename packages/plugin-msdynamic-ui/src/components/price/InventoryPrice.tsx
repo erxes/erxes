@@ -1,20 +1,20 @@
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import { Wrapper } from '@erxes/ui/src/layout';
 import {
   CollapseContent,
   DataWithLoader,
   Pagination,
   Table,
-} from '@erxes/ui/src/components';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import Button from '@erxes/ui/src/components/Button';
-import { menuDynamic } from '../../constants';
-import Row from './InventoryPriceRow';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
+} from "@erxes/ui/src/components";
+
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import Button from "@erxes/ui/src/components/Button";
+import React from "react";
+import Row from "./InventoryPriceRow";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
+import { Wrapper } from "@erxes/ui/src/layout";
+import { __ } from "@erxes/ui/src/utils";
+import { menuDynamic } from "../../constants";
 
 type Props = {
-  history: any;
   queryParams: any;
   loading: boolean;
   setBrand: (brandId: string) => void;
@@ -33,14 +33,14 @@ const InventoryPrice = ({
     <BarItems>
       <span>{items && items.matched && `Matched: ${items.matched.count}`}</span>
       <SelectBrands
-        label={__('Choose brands')}
+        label={__("Choose brands")}
         onSelect={(brand) => setBrand(brand as string)}
         initialValue={queryParams.brandId}
         multi={false}
         name="selectedBrands"
         customOption={{
-          label: 'No Brand (noBrand)',
-          value: '',
+          label: "No Brand (noBrand)",
+          value: "",
         }}
       />
 
@@ -99,16 +99,17 @@ const InventoryPrice = ({
 
     return (
       <>
-        <Table hover={true}>
+        <Table $hover={true}>
           <thead>
             <tr>
-              <th>{__('Code')}</th>
-              <th>{__('Unit price')}</th>
-              <th>{__('Ending Date')}</th>
-              {action === 'UPDATE' ? <th>{__('Update Status')}</th> : <></>}
-              {action === 'MATCH' ? <th>{__('Matched Status')}</th> : <></>}
-              {action === 'CREATE' ? <th>{__('Create Status')}</th> : <></>}
-              {action === 'DELETE' ? <th>{__('Delete Status')}</th> : <></>}
+              <th>{__("Code")}</th>
+              <th>{__("Unit price")}</th>
+              <th>{__("Ending Date")}</th>
+              {action === "UPDATE" ? <th>{__("Update Status")}</th> : <></>}
+              {action === "MATCH" ? <th>{__("Matched Status")}</th> : <></>}
+              {action === "CREATE" ? <th>{__("Create Status")}</th> : <></>}
+              {action === "DELETE" ? <th>{__("Delete Status")}</th> : <></>}
+              {action === "ERROR" ? <th>{__("Error Status")}</th> : <></>}
             </tr>
           </thead>
           <tbody>{renderRow(data, action)}</tbody>
@@ -123,17 +124,17 @@ const InventoryPrice = ({
       <br />
       <CollapseContent
         title={__(
-          'Update product price' +
-            (items.update ? ':  ' + items.update.count : '')
+          "Update product price" +
+            (items.update ? ":  " + items.update.count : "")
         )}
       >
         <>
           <DataWithLoader
             data={
-              items.update ? renderTable(items.update?.items, 'UPDATE') : []
+              items.update ? renderTable(items.update?.items, "UPDATE") : []
             }
             loading={false}
-            emptyText={'Please check first.'}
+            emptyText={"Please check first."}
             emptyIcon="leaf"
             size="large"
             objective={true}
@@ -144,15 +145,15 @@ const InventoryPrice = ({
 
       <CollapseContent
         title={__(
-          'Matched product price' +
-            (items.match ? ':  ' + items.match.count : '')
+          "Matched product price" +
+            (items.match ? ":  " + items.match.count : "")
         )}
       >
         <>
           <DataWithLoader
-            data={items.update ? renderTable(items.match?.items, 'MATCH') : []}
+            data={items.update ? renderTable(items.match?.items, "MATCH") : []}
             loading={false}
-            emptyText={'Please check first.'}
+            emptyText={"Please check first."}
             emptyIcon="leaf"
             size="large"
             objective={true}
@@ -163,17 +164,17 @@ const InventoryPrice = ({
 
       <CollapseContent
         title={__(
-          'Not created product' +
-            (items.create ? ':  ' + items.create.count : '')
+          "Not created product" +
+            (items.create ? ":  " + items.create.count : "")
         )}
       >
         <>
           <DataWithLoader
             data={
-              items.create ? renderTable(items.create?.items, 'CREATE') : []
+              items.create ? renderTable(items.create?.items, "CREATE") : []
             }
             loading={false}
-            emptyText={'Please check first.'}
+            emptyText={"Please check first."}
             emptyIcon="leaf"
             size="large"
             objective={true}
@@ -184,21 +185,39 @@ const InventoryPrice = ({
 
       <CollapseContent
         title={__(
-          'Unmatched product' + (items.delete ? ':  ' + items.delete.count : '')
+          "Unmatched product" + (items.delete ? ":  " + items.delete.count : "")
         )}
       >
         <>
           <DataWithLoader
             data={
-              items.delete ? renderTable(items.delete?.items, 'DELETE') : []
+              items.delete ? renderTable(items.delete?.items, "DELETE") : []
             }
             loading={false}
-            emptyText={'Please check first.'}
+            emptyText={"Please check first."}
             emptyIcon="leaf"
             size="large"
             objective={true}
           />
           <Pagination count={items.delete?.count || 0} />
+        </>
+      </CollapseContent>
+
+      <CollapseContent
+        title={__(
+          "Error product" + (items.error ? ":  " + items.error.count : "")
+        )}
+      >
+        <>
+          <DataWithLoader
+            data={items.delete ? renderTable(items.error?.items, "ERROR") : []}
+            loading={false}
+            emptyText={"Please check first."}
+            emptyIcon="leaf"
+            size="large"
+            objective={true}
+          />
+          <Pagination count={items.error?.count || 0} />
         </>
       </CollapseContent>
     </>
@@ -208,7 +227,7 @@ const InventoryPrice = ({
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Check product price')}
+          title={__("Check product price")}
           queryParams={queryParams}
           submenu={menuDynamic}
         />

@@ -2,7 +2,7 @@ import { ColorButton } from '../../styles/common';
 import Icon from '@erxes/ui/src/components/Icon';
 import { __, Alert } from '@erxes/ui/src/utils';
 import * as React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from '@erxes/ui/src/components/Popover';
 import { ChooseLabelWrapper } from '../../styles/label';
 import { IPipelineLabel } from '../../types';
 import Overlay from './Overlay';
@@ -60,7 +60,7 @@ class ChooseLabel extends React.Component<
       toggleConfirm,
       onClose: this.onOverlayClose,
       onSelectLabels: this.onSelectLabels,
-      onChangeRefresh
+      onChangeRefresh,
     };
 
     return <Overlay {...props} />;
@@ -69,21 +69,17 @@ class ChooseLabel extends React.Component<
   render() {
     return (
       <ChooseLabelWrapper>
-        <OverlayTrigger
-          ref={overlayTrigger => {
-            this.overlayTrigger = overlayTrigger;
-          }}
-          trigger="click"
-          placement="bottom"
-          overlay={this.renderOverlay()}
-          rootClose={!this.props.isConfirmVisible}
-          container={this}
+        <Popover
+          placement="bottom-start"
+          trigger={
+            <ColorButton>
+              <Icon icon="label-alt" />
+              {__('Labels')}
+            </ColorButton>
+          }
         >
-          <ColorButton>
-            <Icon icon="label-alt" />
-            {__('Labels')}
-          </ColorButton>
-        </OverlayTrigger>
+          {this.renderOverlay()}
+        </Popover>
       </ChooseLabelWrapper>
     );
   }

@@ -1,6 +1,5 @@
 import * as compose from "lodash.flowright";
 
-import { IButtonMutateProps, IRouterProps } from "@erxes/ui/src/types";
 import { IConfigsMap, IProduct } from "../types";
 import {
   ProductCategoriesQueryResponse,
@@ -11,11 +10,11 @@ import { mutations, queries } from "../graphql";
 
 import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
 import Form from "../components/ProductForm";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
 import React from "react";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 import { withProps } from "@erxes/ui/src/utils";
-import { withRouter } from "react-router-dom";
 
 type Props = {
   product?: IProduct;
@@ -26,8 +25,7 @@ type FinalProps = {
   productCategoriesQuery: ProductCategoriesQueryResponse;
   productsConfigsQuery: ProductsConfigsQueryResponse;
   uomsQuery: UomsQueryResponse;
-} & Props &
-  IRouterProps;
+} & Props;
 
 const ProductFormContainer = (props: FinalProps) => {
   const { productCategoriesQuery, productsConfigsQuery, uomsQuery } = props;
@@ -124,5 +122,5 @@ export default withProps<Props>(
     graphql<{}, ProductsConfigsQueryResponse>(gql(queries.productsConfigs), {
       name: "productsConfigsQuery",
     })
-  )(withRouter<FinalProps>(ProductFormContainer))
+  )(ProductFormContainer)
 );

@@ -15,7 +15,6 @@ import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
 
 type Props = {
-  history: any;
   queryParams: any;
   loading: boolean;
   setBrand: (brandId: string) => void;
@@ -140,7 +139,7 @@ const InventoryCategory = ({
     return (
       <>
         {subHeader}
-        <Table hover={true}>
+        <Table $hover={true}>
           <thead>
             <tr>
               <th>{__('Code')}</th>

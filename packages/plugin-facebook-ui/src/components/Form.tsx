@@ -5,35 +5,35 @@ import {
   Content,
   ImageWrapper,
   MessengerPreview,
-  TextWrapper
-} from '@erxes/ui-inbox/src/settings/integrations/styles';
+  TextWrapper,
+} from "@erxes/ui-inbox/src/settings/integrations/styles";
 import {
   ControlWrapper,
   FlexItem,
   Indicator,
   LeftItem,
   Preview,
-  StepWrapper
-} from '@erxes/ui/src/components/step/styles';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { Step, Steps } from '@erxes/ui/src/components/step';
+  StepWrapper,
+} from "@erxes/ui/src/components/step/styles";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { Step, Steps } from "@erxes/ui/src/components/step";
 
-import Accounts from '../containers/Accounts';
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
-import { IPages } from '@erxes/ui-inbox/src/settings/integrations/types';
-import { Link } from 'react-router-dom';
-import React from 'react';
-import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
-import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from 'coreui/utils';
+import Accounts from "../containers/Accounts";
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { INTEGRATION_KINDS } from "@erxes/ui/src/constants/integrations";
+import { IPages } from "@erxes/ui-inbox/src/settings/integrations/types";
+import { Link } from "react-router-dom";
+import React from "react";
+import SelectBrand from "@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand";
+import SelectChannels from "@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "coreui/utils";
 
 type Props = {
   kind: string;
@@ -57,7 +57,7 @@ class Facebook extends React.Component<Props, State> {
 
     this.state = {
       selectedPages: [],
-      channelIds: []
+      channelIds: [],
     };
   }
 
@@ -65,7 +65,7 @@ class Facebook extends React.Component<Props, State> {
     const { selectedPages } = this.state;
     if (selectedPages.includes(pageId)) {
       return this.setState({
-        selectedPages: selectedPages.filter(item => item !== pageId)
+        selectedPages: selectedPages.filter((item) => item !== pageId),
       });
     }
 
@@ -86,8 +86,8 @@ class Facebook extends React.Component<Props, State> {
       accountId: accountId ? accountId : values.accountId,
       channelIds: this.state.channelIds,
       data: {
-        pageIds: this.state.selectedPages
-      }
+        pageIds: this.state.selectedPages,
+      },
     };
   };
 
@@ -99,15 +99,15 @@ class Facebook extends React.Component<Props, State> {
     }
 
     if (pages.length === 0) {
-      return <EmptyState icon="folder-2" text={__('There is no pages')} />;
+      return <EmptyState icon="folder-2" text={__("There is no pages")} />;
     }
 
     return (
       <FlexItem>
         <LeftItem>
           <AccountBox>
-            <AccountTitle>{__('Facebook Pages')}</AccountTitle>
-            {pages.map(page => (
+            <AccountTitle>{__("Facebook Pages")}</AccountTitle>
+            {pages.map((page) => (
               <AccountItem key={page.id}>
                 {page.name}
 
@@ -115,14 +115,14 @@ class Facebook extends React.Component<Props, State> {
                   disabled={page.isUsed}
                   btnStyle={
                     this.state.selectedPages.includes(page.id)
-                      ? 'primary'
-                      : 'simple'
+                      ? "primary"
+                      : "simple"
                   }
                   onClick={this.onSelectPages.bind(this, page.id)}
                 >
                   {this.state.selectedPages.includes(page.id)
-                    ? __('Selected')
-                    : __('Select')}
+                    ? __("Selected")
+                    : __("Select")}
                 </Button>
               </AccountItem>
             ))}
@@ -136,7 +136,7 @@ class Facebook extends React.Component<Props, State> {
     this.setState({ [key]: value } as Pick<State, keyof State>);
   };
 
-  channelOnChange = (values: string[]) => this.onChange('channelIds', values);
+  channelOnChange = (values: string[]) => this.onChange("channelIds", values);
 
   renderContent = (formProps: IFormProps) => {
     const { renderButton } = this.props;
@@ -172,7 +172,7 @@ class Facebook extends React.Component<Props, State> {
                 <FormGroup>
                   <ControlLabel required={true}>Integration Name</ControlLabel>
                   <p>
-                    {__('Name this integration to differentiate from the rest')}
+                    {__("Name this integration to differentiate from the rest")}
                   </p>
                   <FormControl
                     {...formProps}
@@ -184,7 +184,7 @@ class Facebook extends React.Component<Props, State> {
                 <SelectBrand
                   isRequired={true}
                   description={__(
-                    'Which specific Brand does this integration belong to?'
+                    "Which specific Brand does this integration belong to?"
                   )}
                   formProps={formProps}
                 />
@@ -200,8 +200,8 @@ class Facebook extends React.Component<Props, State> {
         </Steps>
         <ControlWrapper>
           <Indicator>
-            {__('You are creating')}
-            <strong> {this.props.kind}</strong> {__('integration')}
+            {__("You are creating")}
+            <strong> {this.props.kind}</strong> {__("integration")}
           </Indicator>
           <Button.Group>
             <Link to="/settings/integrations">
@@ -210,10 +210,10 @@ class Facebook extends React.Component<Props, State> {
               </Button>
             </Link>
             {renderButton({
-              passedName: 'integration',
+              passedName: "integration",
               values: this.generateDoc(values),
               isSubmitted,
-              callback: this.props.callBack
+              callback: this.props.callBack,
             })}
           </Button.Group>
         </ControlWrapper>
@@ -226,22 +226,22 @@ class Facebook extends React.Component<Props, State> {
   };
 
   render() {
-    let title = __('Facebook Posts');
+    let title = __("Facebook Posts");
     let description = __(
-      'Connect your Facebook Posts to start receiving Facebook post and comments in your team inbox'
+      "Connect your Facebook Posts to start receiving Facebook post and comments in your team inbox"
     );
 
     if (this.props.kind === INTEGRATION_KINDS.FACEBOOK_MESSENGER) {
-      title = __('Facebook Messenger');
+      title = __("Facebook Messenger");
       description = __(
-        'Connect your Facebook Messenger to start receiving Facebook messages in your team inbox'
+        "Connect your Facebook Messenger to start receiving Facebook messages in your team inbox"
       );
     }
 
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Integrations'), link: '/settings/integrations' },
-      { title }
+      { title: __("Settings"), link: "/settings" },
+      { title: __("Integrations"), link: "/settings/integrations" },
+      { title },
     ];
 
     return (
@@ -251,11 +251,11 @@ class Facebook extends React.Component<Props, State> {
           {this.renderForm()}
 
           <MessengerPreview>
-            <Preview fullHeight={true}>
+            <Preview $fullHeight={true}>
               <ImageWrapper>
                 <TextWrapper>
                   <h1>
-                    {__('Connect your')} {title}
+                    {__("Connect your")} {title}
                   </h1>
                   <p>{description}</p>
                   <img alt={title} src="/images/previews/facebook.png" />

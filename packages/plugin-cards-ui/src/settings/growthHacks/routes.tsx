@@ -1,38 +1,42 @@
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import { options } from './options';
 
-const Home = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings - Board Home" */ '../boards/containers/Home'
-  )
+const Home = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings - Board Home" */ '../boards/containers/Home'
+    ),
 );
 
 const GrowthHackHome = () => {
   return <Home type="growthHack" title="Growth hacking" options={options} />;
 };
 
-const TemplateList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings - List PipelineTemplate" */ './containers/TemplateList'
-  )
+const TemplateList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings - List PipelineTemplate" */ './containers/TemplateList'
+    ),
 );
 
-const pipelineTemplates = ({ location }) => {
+const PipelineTemplates = () => {
+  const location = useLocation();
+
   return <TemplateList queryParams={queryString.parse(location.search)} />;
 };
 
 const routes = () => (
-  <React.Fragment>
-    <Route path="/settings/boards/growthHack" component={GrowthHackHome} />
+  <Routes>
+    <Route path="/settings/boards/growthHack" element={<GrowthHackHome />} />
 
     <Route
       path="/settings/boards/growthHackTemplate"
-      component={pipelineTemplates}
+      element={<PipelineTemplates />}
     />
-  </React.Fragment>
+  </Routes>
 );
 
 export default routes;

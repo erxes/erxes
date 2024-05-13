@@ -4,20 +4,20 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Label from '@erxes/ui/src/components/Label';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __, getUserAvatar } from 'coreui/utils';
 import React from 'react';
 import ArticleForm from '../../containers/article/ArticleForm';
-import { IArticle } from '@erxes/ui-knowledgeBase/src/types';
+import { IArticle } from '@erxes/ui-knowledgebase/src/types';
 import {
   ArticleMeta,
   ArticleTitle,
   AuthorName,
   ReactionCount,
   ReactionCounts,
-  RowArticle
+  RowArticle,
 } from './styles';
 import { ActionButtons } from '@erxes/ui-settings/src/styles';
 import { Column } from '@erxes/ui/src/styles/main';
+import { __, getUserAvatar } from '@erxes/ui/src/utils';
 
 type Props = {
   article: IArticle;
@@ -28,50 +28,44 @@ type Props = {
 };
 
 const ArticleRow = (props: Props) => {
-  const { article } = props;
+  const { article, queryParams, currentCategoryId, topicId, remove } = props;
   const user = article.createdUser;
 
-  const remove = () => {
-    return props.remove(props.article._id);
+  const handleRemove = () => {
+    remove(article._id);
   };
 
   const renderReactions = () => {
-    const reactions = Object.entries(props.article.reactionCounts || {});
+    const reactions = Object.entries(article.reactionCounts || {});
 
-    return reactions.map(([key, value]) => (
-      <ReactionCount key={key}>
-        <img src={key} alt="reaction" /> {value}
-      </ReactionCount>
-    ));
+    return (
+      <ReactionCounts>
+        {reactions.map(([key, value]) => (
+          <ReactionCount key={key}>
+            <img src={key} alt="reaction" /> {value}
+          </ReactionCount>
+        ))}
+      </ReactionCounts>
+    );
   };
 
-  const renderEditAction = editTrigger => {
-    const { queryParams, currentCategoryId, topicId } = props;
+  const renderForm = (formProps) => (
+    <ArticleForm
+      {...formProps}
+      article={article}
+      queryParams={queryParams}
+      currentCategoryId={currentCategoryId}
+      topicId={topicId}
+    />
+  );
 
-    const editButton = (
-      <Button btnStyle="link">
-        <Tip text={__('Edit')}>
-          <Icon icon="edit" />
-        </Tip>
-      </Button>
-    );
-
-    const content = contentProps => (
-      <ArticleForm
-        {...contentProps}
-        article={props.article}
-        queryParams={queryParams}
-        currentCategoryId={currentCategoryId}
-        topicId={topicId}
-      />
-    );
-
+  const renderEditAction = (trigger) => {
     return (
       <ModalTrigger
         size="lg"
         title="Edit"
-        trigger={editTrigger ? editTrigger : editButton}
-        content={content}
+        trigger={trigger}
+        content={renderForm}
         enforceFocus={false}
       />
     );
@@ -84,6 +78,14 @@ const ArticleRow = (props: Props) => {
         <Label lblStyle="simple">{article.status}</Label>
       )}
     </ArticleTitle>
+  );
+
+  const editButton = (
+    <Button btnStyle="link">
+      <Tip text={__('Edit')}>
+        <Icon icon="edit" />
+      </Tip>
+    </Button>
   );
 
   return (
@@ -105,13 +107,13 @@ const ArticleRow = (props: Props) => {
           </AuthorName>
           <Icon icon="clock-eight" /> {__('Created')}{' '}
           {dayjs(article.createdDate).format('ll')}
-          <ReactionCounts>{renderReactions()}</ReactionCounts>
+          {renderReactions()}
         </ArticleMeta>
       </Column>
       <ActionButtons>
-        {renderEditAction('')}
+        {renderEditAction(editButton)}
         <Tip text={__('Delete')}>
-          <Button btnStyle="link" onClick={remove} icon="cancel-1" />
+          <Button btnStyle="link" onClick={handleRemove} icon="cancel-1" />
         </Tip>
       </ActionButtons>
     </RowArticle>

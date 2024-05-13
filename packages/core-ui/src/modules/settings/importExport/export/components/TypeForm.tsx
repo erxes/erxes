@@ -29,7 +29,7 @@ class TypeForm extends React.Component<Props> {
     return (
       <Box
         key={Math.random()}
-        selected={this.props.contentType === contentType}
+        $selected={this.props.contentType === contentType}
         onClick={() => this.props.onChangeContentType(contentType, skipFilter)}
       >
         <Icon icon={icon} />

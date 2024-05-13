@@ -23,7 +23,7 @@ class Sidebar extends React.Component<Props> {
       <li key={service.contentType}>
         <Link to={`?type=${service.contentType}`} className={className}>
           {__(service.description)}
-          <HeaderItems rightAligned={true}>
+          <HeaderItems $rightAligned={true}>
             {this.props.currentType === service.contentType ? (
               <Icon icon="angle-right" />
             ) : null}

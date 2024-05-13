@@ -2,19 +2,19 @@ import {
   Button,
   ControlLabel,
   Form,
+  MainStyleFormColumn as FormColumn,
   FormControl,
   FormGroup,
-  MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
-} from '@erxes/ui/src';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { __ } from 'coreui/utils';
+} from "@erxes/ui/src";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { IContractType, IContractTypeDoc } from "../types";
 
-import { IContractType, IContractTypeDoc } from '../types';
-import { IUser } from '@erxes/ui/src/auth/types';
+import { IUser } from "@erxes/ui/src/auth/types";
+import React from "react";
+import { __ } from "coreui/utils";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -81,7 +81,7 @@ class ContractTypeForm extends React.Component<Props, IContractTypeDoc> {
   };
 
   renderFormGroup = (label, props) => {
-    if (props.type === 'checkbox')
+    if (props.type === "checkbox")
       return (
         <FormGroup>
           <FormControl {...props} />
@@ -99,7 +99,7 @@ class ContractTypeForm extends React.Component<Props, IContractTypeDoc> {
   onChangeField = (e) => {
     const name = (e.target as HTMLInputElement).name;
     const value =
-      e.target.type === 'checkbox'
+      e.target.type === "checkbox"
         ? (e.target as HTMLInputElement).checked
         : (e.target as HTMLInputElement).value;
 
@@ -116,38 +116,38 @@ class ContractTypeForm extends React.Component<Props, IContractTypeDoc> {
         <ScrollWrapper>
           <FormWrapper>
             <FormColumn>
-              {this.renderFormGroup('Code', {
+              {this.renderFormGroup("Code", {
                 ...formProps,
-                name: 'code',
+                name: "code",
                 required: true,
-                defaultValue: contractType.code || '',
+                defaultValue: contractType.code || "",
               })}
-              {this.renderFormGroup('Name', {
+              {this.renderFormGroup("Name", {
                 ...formProps,
-                name: 'name',
+                name: "name",
                 required: true,
-                defaultValue: contractType.name || '',
+                defaultValue: contractType.name || "",
               })}
-              {this.renderFormGroup('Start Number', {
+              {this.renderFormGroup("Start Number", {
                 ...formProps,
-                name: 'number',
+                name: "number",
                 required: true,
-                defaultValue: contractType.number || '',
+                defaultValue: contractType.number || "",
               })}
-              {this.renderFormGroup('After vacancy count', {
+              {this.renderFormGroup("After vacancy count", {
                 ...formProps,
-                name: 'vacancy',
+                name: "vacancy",
                 required: true,
-                type: 'number',
+                type: "number",
                 defaultValue: contractType.vacancy || 1,
                 max: 20,
               })}
               <FormGroup>
-                <ControlLabel required={true}>{__('Currency')}</ControlLabel>
+                <ControlLabel required={true}>{__("Currency")}</ControlLabel>
                 <FormControl
                   {...formProps}
                   name="currency"
-                  componentClass="select"
+                  componentclass="select"
                   value={this.state.currency}
                   required={true}
                   onChange={this.onChangeField}
@@ -157,7 +157,7 @@ class ContractTypeForm extends React.Component<Props, IContractTypeDoc> {
                       <option key={index} value={typeName}>
                         {typeName}
                       </option>
-                    ),
+                    )
                   )}
                 </FormControl>
               </FormGroup>
@@ -165,20 +165,20 @@ class ContractTypeForm extends React.Component<Props, IContractTypeDoc> {
             <FormColumn>
               <FormGroup>
                 <ControlLabel required={true}>
-                  {__('Interest calc type')}
+                  {__("Interest calc type")}
                 </ControlLabel>
                 <FormControl
                   {...formProps}
                   name="interestCalcType"
-                  componentClass="select"
+                  componentclass="select"
                   value={this.state.interestCalcType}
                   required={true}
                   onChange={this.onChangeField}
                 >
                   {[
-                    'Өдөр бүр /ХХОАТ суутгана/',
-                    'Сар бүр /ХХОАТ суутгана/',
-                    'Хугацааны эцэст /ХХОАТ суутгана/',
+                    "Өдөр бүр /ХХОАТ суутгана/",
+                    "Сар бүр /ХХОАТ суутгана/",
+                    "Хугацааны эцэст /ХХОАТ суутгана/",
                   ].map((typeName, index) => (
                     <option key={`interetCalcType${index}`} value={typeName}>
                       {__(typeName)}
@@ -186,49 +186,49 @@ class ContractTypeForm extends React.Component<Props, IContractTypeDoc> {
                   ))}
                 </FormControl>
               </FormGroup>
-              {this.renderFormGroup('Interest Rate', {
+              {this.renderFormGroup("Interest Rate", {
                 ...formProps,
-                className: 'flex-item',
-                type: 'number',
+                className: "flex-item",
+                type: "number",
                 useNumberFormat: true,
-                name: 'interestRate',
+                name: "interestRate",
                 value: this.state.interestRate,
                 onChange: this.onChangeField,
               })}
-              {this.renderFormGroup('Close Interest Rate', {
+              {this.renderFormGroup("Close Interest Rate", {
                 ...formProps,
-                className: 'flex-item',
-                type: 'number',
+                className: "flex-item",
+                type: "number",
                 useNumberFormat: true,
-                name: 'closeInterestRate',
+                name: "closeInterestRate",
                 value: this.state.closeInterestRate,
                 onChange: this.onChangeField,
               })}
-              {this.renderFormGroup('Is allow income', {
+              {this.renderFormGroup("Is allow income", {
                 ...formProps,
-                className: 'flex-item',
-                type: 'checkbox',
-                componentClass: 'checkbox',
-                name: 'isAllowIncome',
+                className: "flex-item",
+                type: "checkbox",
+                componentclass: "checkbox",
+                name: "isAllowIncome",
                 checked: this.state.isAllowIncome,
                 onChange: this.onChangeField,
               })}
-              {this.renderFormGroup('Is Deposit', {
+              {this.renderFormGroup("Is Deposit", {
                 ...formProps,
-                className: 'flex-item',
-                type: 'checkbox',
-                componentClass: 'checkbox',
-                name: 'isDeposit',
+                className: "flex-item",
+                type: "checkbox",
+                componentclass: "checkbox",
+                name: "isDeposit",
                 checked: this.state.isDeposit,
                 onChange: this.onChangeField,
               })}
               {this.state.isDeposit &&
-                this.renderFormGroup('Is allow outcome', {
+                this.renderFormGroup("Is allow outcome", {
                   ...formProps,
-                  className: 'flex-item',
-                  type: 'checkbox',
-                  componentClass: 'checkbox',
-                  name: 'isAllowOutcome',
+                  className: "flex-item",
+                  type: "checkbox",
+                  componentclass: "checkbox",
+                  name: "isAllowOutcome",
                   checked: this.state.isAllowOutcome,
                   onChange: this.onChangeField,
                 })}
@@ -236,12 +236,12 @@ class ContractTypeForm extends React.Component<Props, IContractTypeDoc> {
           </FormWrapper>
           <FormWrapper>
             <FormColumn>
-              {this.renderFormGroup('Description', {
+              {this.renderFormGroup("Description", {
                 ...formProps,
-                name: 'description',
+                name: "description",
                 max: 140,
-                componentClass: 'textarea',
-                defaultValue: contractType.description || '',
+                componentclass: "textarea",
+                defaultValue: contractType.description || "",
               })}
             </FormColumn>
           </FormWrapper>
@@ -249,11 +249,11 @@ class ContractTypeForm extends React.Component<Props, IContractTypeDoc> {
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
-            {__('Close')}
+            {__("Close")}
           </Button>
 
           {renderButton({
-            name: 'contractType',
+            name: "contractType",
             values: this.generateDoc(values),
             isSubmitted,
             object: this.props.contractType,

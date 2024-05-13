@@ -10,6 +10,7 @@ import { ILoginParams } from '../../../models/ClientPortalUser';
 import {
   IInvitiation,
   IUser,
+  ITwoFactorDevice,
 } from '../../../models/definitions/clientPortalUser';
 import redis from '../../../redis';
 import { sendSms } from '../../../utils';
@@ -17,12 +18,14 @@ import { sendCommonMessage } from './../../../messageBroker';
 import * as jwt from 'jsonwebtoken';
 import { fetchUserFromSocialpay } from '../../../socialpayUtils';
 import fetch from 'node-fetch';
+import { TwoFactorConfig } from '../../../models/definitions/clientPortal';
 
 export interface IVerificationParams {
   userId: string;
   emailOtp?: string;
   phoneOtp?: string;
   password?: string;
+  twoFactor?: ITwoFactorDevice;
 }
 
 interface IClientPortalUserEdit extends IUser {
@@ -62,7 +65,7 @@ const clientPortalUserMutations = {
       passwordConfirmation?: string;
       username?: string;
     },
-    { models, subdomain }: IContext,
+    { models, subdomain }: IContext
   ) {
     const user = await models.ClientPortalUsers.confirmInvitation(subdomain, {
       token,
@@ -77,12 +80,12 @@ const clientPortalUserMutations = {
   async clientPortalUsersEdit(
     _root,
     { _id, ...doc }: IClientPortalUserEdit,
-    { models, subdomain }: IContext,
+    { models, subdomain }: IContext
   ) {
     const updated = await models.ClientPortalUsers.updateUser(
       subdomain,
       _id,
-      doc,
+      doc
     );
 
     return updated;
@@ -95,11 +98,11 @@ const clientPortalUserMutations = {
   async clientPortalUsersRemove(
     _root,
     { clientPortalUserIds }: { clientPortalUserIds: string[] },
-    { models, subdomain }: IContext,
+    { models, subdomain }: IContext
   ) {
     const response = await models.ClientPortalUsers.removeUser(
       subdomain,
-      clientPortalUserIds,
+      clientPortalUserIds
     );
 
     return response;
@@ -118,7 +121,7 @@ const clientPortalUserMutations = {
   clientPortalVerifyOTP: async (
     _root,
     args: IVerificationParams,
-    context: IContext,
+    context: IContext
   ) => {
     const { models, res, subdomain } = context;
 
@@ -129,13 +132,13 @@ const clientPortalUserMutations = {
     }
 
     const clientPortal = await models.ClientPortals.getConfig(
-      user.clientPortalId,
+      user.clientPortalId
     );
 
     const optConfig = clientPortal.otpConfig;
 
     if (optConfig && optConfig.loginWithOTP) {
-      return tokenHandler(user, clientPortal, res);
+      return tokenHandler(user, clientPortal, res, false);
     }
 
     return 'verified';
@@ -144,7 +147,7 @@ const clientPortalUserMutations = {
   clientPortalUsersVerify: async (
     _root,
     { userIds, type }: { userIds: string[]; type: string },
-    context: IContext,
+    context: IContext
   ) => {
     const { models, subdomain } = context;
 
@@ -157,17 +160,24 @@ const clientPortalUserMutations = {
   clientPortalLogin: async (
     _root,
     args: ILoginParams,
-    { models, res }: IContext,
+    { models, res }: IContext
   ) => {
-    const { user, clientPortal } = await models.ClientPortalUsers.login(args);
+    const { user, clientPortal, isPassed2FA } =
+      await models.ClientPortalUsers.login(args);
 
-    return tokenHandler(user, clientPortal, res);
+    return tokenHandler(
+      user,
+      clientPortal,
+      res,
+      clientPortal.twoFactorConfig?.enableTwoFactor,
+      isPassed2FA
+    );
   },
 
   clientPortalFacebookAuthentication: async (
     _root,
     args: any,
-    { subdomain, models, res }: IContext,
+    { subdomain, models, res }: IContext
   ) => {
     const { clientPortalId, accessToken } = args;
 
@@ -178,8 +188,8 @@ const clientPortalUserMutations = {
             access_token: accessToken,
             fields:
               'id,name,email,gender,education,work,picture,last_name,first_name',
-          }),
-      ).then((r) => r.json());
+          })
+      ).then(r => r.json());
 
       const { id, name, email, picture, first_name, last_name } =
         response || {};
@@ -241,15 +251,15 @@ const clientPortalUserMutations = {
         user.erxesCustomerId = customer._id;
         await models.ClientPortalUsers.updateOne(
           { _id: user._id },
-          { $set: { erxesCustomerId: customer._id } },
+          { $set: { erxesCustomerId: customer._id } }
         );
       }
 
       const clientPortal = await models.ClientPortals.getConfig(
-        user.clientPortalId,
+        user.clientPortalId
       );
 
-      return tokenHandler(user, clientPortal, res);
+      return tokenHandler(user, clientPortal, res, false);
     } catch (e) {
       throw new Error(e.message);
     }
@@ -258,7 +268,7 @@ const clientPortalUserMutations = {
   clientPortalGoogleAuthentication: async (
     _root,
     args: any,
-    { subdomain, models, requestInfo, res }: IContext,
+    { subdomain, models, requestInfo, res }: IContext
   ) => {
     const { clientPortalId, code } = args;
 
@@ -285,8 +295,8 @@ const clientPortalUserMutations = {
             }),
           {
             method: 'POST',
-          },
-        ).then((r) => r.json());
+          }
+        ).then(r => r.json());
         return authResponse;
       } catch (err) {
         throw new Error(err);
@@ -311,8 +321,8 @@ const clientPortalUserMutations = {
             headers: {
               Authorization: `Bearer ${id_token}`,
             },
-          },
-        ).then((r) => r.json());
+          }
+        ).then(r => r.json());
         return userResponse;
       } catch (err) {
         throw Error(err);
@@ -380,7 +390,7 @@ const clientPortalUserMutations = {
             firstName: given_name,
             isEmailVerified: true,
           },
-        },
+        }
       );
     }
 
@@ -404,15 +414,15 @@ const clientPortalUserMutations = {
       user.erxesCustomerId = customer._id;
       await models.ClientPortalUsers.updateOne(
         { _id: user._id },
-        { $set: { erxesCustomerId: customer._id } },
+        { $set: { erxesCustomerId: customer._id } }
       );
     }
 
     const clientPortal = await models.ClientPortals.getConfig(
-      user.clientPortalId,
+      user.clientPortalId
     );
 
-    return tokenHandler(user, clientPortal, res);
+    return tokenHandler(user, clientPortal, res, false);
   },
 
   /*
@@ -433,7 +443,7 @@ const clientPortalUserMutations = {
     if (cpUser) {
       await models.ClientPortalUsers.updateOne(
         { _id: cpUser._id || '' },
-        { $set: { lastSeenAt: new Date(), isOnline: false } },
+        { $set: { lastSeenAt: new Date(), isOnline: false } }
       );
     }
 
@@ -447,7 +457,7 @@ const clientPortalUserMutations = {
   clientPortalUserChangePassword(
     _root,
     args: { currentPassword: string; newPassword: string },
-    { cpUser, models }: IContext,
+    { cpUser, models }: IContext
   ) {
     return models.ClientPortalUsers.changePassword({
       _id: (cpUser && cpUser._id) || '',
@@ -466,7 +476,7 @@ const clientPortalUserMutations = {
       code: string;
       isSecondary: boolean;
     },
-    { models }: IContext,
+    { models }: IContext
   ) {
     return models.ClientPortalUsers.changePasswordWithCode(args);
   },
@@ -474,7 +484,7 @@ const clientPortalUserMutations = {
   clientPortalResetPassword(
     _root,
     args: { token: string; newPassword: string },
-    { models }: IContext,
+    { models }: IContext
   ) {
     return models.ClientPortalUsers.clientPortalResetPassword(args);
   },
@@ -487,7 +497,7 @@ const clientPortalUserMutations = {
       email: string;
       isSecondary: boolean;
     },
-    { models, subdomain }: IContext,
+    { models, subdomain }: IContext
   ) {
     const { clientPortalId, phone, email, isSecondary = false } = args;
     const query: any = { clientPortalId };
@@ -509,7 +519,7 @@ const clientPortalUserMutations = {
     const { token, phoneCode } = await models.ClientPortalUsers.forgotPassword(
       clientPortal,
       phone,
-      email,
+      email
     );
 
     const passwordVerificationConfig =
@@ -532,7 +542,7 @@ const clientPortalUserMutations = {
       const smsContent = verifyByLink
         ? passwordVerificationConfig.smsContent.replace(
             /{{ link }}/,
-            `${clientPortal.url}/reset-password?token=${token}`,
+            `${clientPortal.url}/reset-password?token=${token}`
           )
         : passwordVerificationConfig.smsContent.replace(/{.*}/, phoneCode);
 
@@ -544,7 +554,7 @@ const clientPortalUserMutations = {
     const emailContent = verifyByLink
       ? passwordVerificationConfig.emailContent.replace(
           /{{ link }}/,
-          `${clientPortal.url}/reset-password?token=${token}`,
+          `${clientPortal.url}/reset-password?token=${token}`
         )
       : passwordVerificationConfig.emailContent.replace(/{.*}/, phoneCode);
 
@@ -569,7 +579,7 @@ const clientPortalUserMutations = {
   clientPortalUsersInvite: async (
     _root,
     args: IInvitiation,
-    context: IContext,
+    context: IContext
   ) => {
     const { models, subdomain } = context;
 
@@ -590,7 +600,7 @@ const clientPortalUserMutations = {
   clientPortalLoginWithPhone: async (
     _root,
     args: { phone: string; clientPortalId: string; deviceToken },
-    { models, subdomain, res }: IContext,
+    { models, subdomain, res }: IContext
   ) => {
     const { phone, clientPortalId, deviceToken } = args;
 
@@ -614,7 +624,7 @@ const clientPortalUserMutations = {
       subdomain,
       clientPortal,
       doc,
-      deviceToken,
+      deviceToken
     );
 
     try {
@@ -633,7 +643,7 @@ const clientPortalUserMutations = {
             config.codeLength !== clientPortal?.testUserOTP?.toString().length
           ) {
             throw new Error(
-              'Client portal otp config and test user otp does not same length!',
+              'Client portal otp config and test user otp does not same length!'
             );
           }
 
@@ -660,7 +670,7 @@ const clientPortalUserMutations = {
                 ? config.smsTransporterType
                 : 'messagePro',
               clientPortal?.testUserPhone,
-              body,
+              body
             );
           }
 
@@ -687,17 +697,225 @@ const clientPortalUserMutations = {
         subdomain,
         config.smsTransporterType ? config.smsTransporterType : 'messagePro',
         phone,
-        body,
+        body
       );
     }
 
     return { userId: user._id, message: 'Sms sent' };
   },
 
+  clientPortal2FAGetCode: async (
+    _root,
+    args: {
+      byPhone: boolean;
+      byEmail: boolean;
+      deviceToken?: string;
+    },
+    { models, subdomain, res, cpUser }: IContext
+  ) => {
+    if (!cpUser) {
+      throw new Error('User is not logged in');
+    }
+    const { byPhone, byEmail, deviceToken } = args;
+
+    const clientPortal = await models.ClientPortals.getConfig(
+      cpUser.clientPortalId
+    );
+
+    const config = clientPortal.twoFactorConfig || {
+      content: '',
+      smsTransporterType: '',
+      codeLength: 4,
+      enableTwoFactor: false,
+      expireAfter: 5,
+    };
+
+    if (!config.enableTwoFactor) {
+      throw new Error('Login with 2FA is not enabled');
+    }
+
+    const doc = { phone: cpUser.phone, email: cpUser.email };
+
+    try {
+      if (clientPortal?.testUserPhone && clientPortal._id) {
+        const cpUser = await models.ClientPortalUsers.findOne({
+          firstName: 'test clientportal user',
+          clientPortalId: clientPortal._id,
+        });
+
+        if (cpUser) {
+          if (!clientPortal?.testUserOTP) {
+            throw new Error('Test user phone otp not provided!');
+          }
+
+          if (
+            config.codeLength !== clientPortal?.testUserOTP?.toString().length
+          ) {
+            throw new Error(
+              'Client portal otp config and test user otp does not same length!'
+            );
+          }
+
+          if (
+            clientPortal?.testUserOTP &&
+            config.codeLength === clientPortal?.testUserOTP?.toString().length
+          ) {
+            const testPhoneCode =
+              await models.ClientPortalUsers.imposeVerificationCode({
+                clientPortalId: clientPortal._id,
+                codeLength: config.codeLength,
+                phone: clientPortal?.testUserPhone,
+                expireAfter: config.expireAfter,
+                testUserOTP: clientPortal?.testUserOTP,
+              });
+
+            const body =
+              config.content.replace(/{.*}/, testPhoneCode) ||
+              `Your verification code is ${testPhoneCode}`;
+
+            await sendSms(
+              subdomain,
+              config.smsTransporterType
+                ? config.smsTransporterType
+                : 'messagePro',
+              clientPortal?.testUserPhone,
+              body
+            );
+          }
+
+          return { userId: cpUser._id, message: 'Sms sent' };
+        }
+      }
+    } catch (e) {
+      console.log(e.message);
+    }
+    if (byPhone) {
+      if (!cpUser.phone) {
+        throw new Error("User doesn't have phone");
+      }
+      const phoneCode = await models.ClientPortalUsers.imposeVerificationCode({
+        clientPortalId: clientPortal._id,
+        codeLength: config.codeLength,
+        phone: cpUser.phone,
+        expireAfter: config.expireAfter,
+      });
+
+      if (phoneCode) {
+        const body =
+          config.content.replace(/{.*}/, phoneCode) ||
+          `Your verification code is ${phoneCode}`;
+
+        await sendSms(
+          subdomain,
+          config.smsTransporterType ? config.smsTransporterType : 'messagePro',
+          cpUser.phone,
+          body
+        );
+      }
+      return { userId: cpUser._id, message: 'Sms sent' };
+    }
+
+    if (cpUser.email && byEmail) {
+      if (!cpUser.email) {
+        throw new Error("User doesn't have email");
+      }
+      const emailCode = await models.ClientPortalUsers.imposeVerificationCode({
+        clientPortalId: clientPortal._id,
+        codeLength: config.codeLength,
+        email: cpUser.email,
+        expireAfter: config.expireAfter,
+      });
+
+      if (emailCode) {
+        const body =
+          config.content.replace(/{.*}/, emailCode) ||
+          `Your OTP is ${emailCode}`;
+
+        await sendCoreMessage({
+          subdomain,
+          action: 'sendEmail',
+          data: {
+            toEmails: [cpUser.email],
+            title: config.emailSubject || 'OTP verification',
+            template: {
+              name: 'base',
+              data: {
+                content: body,
+              },
+            },
+          },
+        });
+      }
+      return { userId: cpUser._id, message: 'Sent' };
+    }
+  },
+
+  clientPortalVerify2FA: async (
+    _root,
+    args: { emailOtp?: string; phoneOtp?: string; twoFactor: ITwoFactorDevice },
+    context: IContext
+  ) => {
+    const { models, res, subdomain, cpUser } = context;
+    if (!cpUser) {
+      throw new Error('User is not logged in');
+    }
+
+    if (!args.twoFactor) {
+      throw new Error('Provide Two Factor Params.');
+    }
+
+    const clientPortal = await models.ClientPortals.getConfig(
+      cpUser.clientPortalId
+    );
+
+    const twoFactorConfig = clientPortal.twoFactorConfig;
+    const user = await models.ClientPortalUsers.verifyUser(subdomain, {
+      emailOtp: args.emailOtp,
+      phoneOtp: args.phoneOtp,
+      twoFactor: args.twoFactor,
+      userId: cpUser.id,
+    });
+
+    if (twoFactorConfig && twoFactorConfig.enableTwoFactor) {
+      const twoFactorDevices: ITwoFactorDevice[] =
+        cpUser.twoFactorDevices || [];
+      if (!twoFactorDevices.includes(args.twoFactor)) {
+        twoFactorDevices.push(args.twoFactor);
+        await cpUser.update({ $set: { twoFactorDevices } });
+      }
+      return tokenHandler(
+        cpUser,
+        clientPortal,
+        res,
+        twoFactorConfig.enableTwoFactor,
+        true
+      );
+    }
+
+    return '2Factor not enabled';
+  },
+
+  clientPortal2FADeleteKey: async (
+    _root,
+    args: { key: string },
+    context: IContext
+  ) => {
+    const { models, res, subdomain, cpUser } = context;
+    if (!cpUser) {
+      throw new Error('User is not logged in');
+    }
+
+    const pull = await models.ClientPortalUsers.updateOne(
+      { _id: cpUser.id },
+      { $pull: { twoFactorDevices: { key: args.key } } }
+    );
+
+    return 'success';
+  },
   clientPortalLoginWithMailOTP: async (
     _root,
     args: { email: string; clientPortalId: string; deviceToken },
-    { models, subdomain, res }: IContext,
+    { models, subdomain, res }: IContext
   ) => {
     const { email, clientPortalId, deviceToken } = args;
     const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
@@ -720,7 +938,7 @@ const clientPortalUserMutations = {
       subdomain,
       clientPortal,
       doc,
-      deviceToken,
+      deviceToken
     );
 
     try {
@@ -738,7 +956,7 @@ const clientPortalUserMutations = {
             config.codeLength !== clientPortal?.testUserOTP?.toString().length
           ) {
             throw new Error(
-              'Client portal otp config and test user otp does not same length!',
+              'Client portal otp config and test user otp does not same length!'
             );
           }
 
@@ -815,7 +1033,7 @@ const clientPortalUserMutations = {
   clientPortalLoginWithSocialPay: async (
     _root,
     args: { token: string; clientPortalId: string },
-    { models, subdomain, res }: IContext,
+    { models, subdomain, res }: IContext
   ) => {
     const { token, clientPortalId } = args;
 
@@ -837,10 +1055,10 @@ const clientPortalUserMutations = {
     const user = await models.ClientPortalUsers.loginWithoutPassword(
       subdomain,
       clientPortal,
-      doc,
+      doc
     );
 
-    return tokenHandler(user, clientPortal, res);
+    return tokenHandler(user, clientPortal, res, false);
   },
 
   clientPortalUsersSendVerificationRequest: async (
@@ -852,7 +1070,7 @@ const clientPortalUserMutations = {
       attachments: IAttachment[];
       description: string;
     },
-    { models, subdomain }: IContext,
+    { models, subdomain }: IContext
   ) => {
     const { login, password, clientPortalId, attachments, description } = args;
 
@@ -871,7 +1089,7 @@ const clientPortalUserMutations = {
 
     const valid = await models.ClientPortalUsers.comparePassword(
       password,
-      cpuser.password || '',
+      cpuser.password || ''
     );
 
     if (!valid) {
@@ -894,7 +1112,7 @@ const clientPortalUserMutations = {
 
     await models.ClientPortalUsers.updateOne(
       { _id: cpuser._id },
-      { $set: { verificationRequest } },
+      { $set: { verificationRequest } }
     );
 
     const createdBy = await sendCoreMessage({
@@ -906,7 +1124,7 @@ const clientPortalUserMutations = {
     });
 
     const { manualVerificationConfig } = await models.ClientPortals.getConfig(
-      cpuser.clientPortalId,
+      cpuser.clientPortalId
     );
 
     await sendCommonMessage({
@@ -933,7 +1151,7 @@ const clientPortalUserMutations = {
   clientPortalUsersChangeVerificationStatus: async (
     _root,
     args: { userId: string; status: string },
-    { models, user }: IContext,
+    { models, user }: IContext
   ) => {
     if (!user) {
       throw new Error('login required');
@@ -944,7 +1162,7 @@ const clientPortalUserMutations = {
     const cpUser = await models.ClientPortalUsers.getUser({ _id: userId });
 
     const { manualVerificationConfig } = await models.ClientPortals.getConfig(
-      cpUser.clientPortalId,
+      cpUser.clientPortalId
     );
 
     if (
@@ -965,7 +1183,7 @@ const clientPortalUserMutations = {
 
     await models.ClientPortalUsers.updateOne(
       { _id: userId },
-      { $set: { verificationRequest } },
+      { $set: { verificationRequest } }
     );
 
     return 'Verification status changed';
@@ -974,7 +1192,7 @@ const clientPortalUserMutations = {
   clientPortalUsersReplacePhone: async (
     _root,
     args: { clientPortalId: string; phone: string },
-    { models, subdomain, cpUser }: IContext,
+    { models, subdomain, cpUser }: IContext
   ) => {
     if (!cpUser) {
       throw new Error('login required');
@@ -989,13 +1207,13 @@ const clientPortalUserMutations = {
 
     if (user && user._id === cpUser._id) {
       throw new Error(
-        'Please enter a different phone number than the current one',
+        'Please enter a different phone number than the current one'
       );
     }
 
     if (user) {
       throw new Error(
-        'The phone number is already registered with another user',
+        'The phone number is already registered with another user'
       );
     }
 
@@ -1016,14 +1234,14 @@ const clientPortalUserMutations = {
       `cpUser:${cpUser._id}`,
       JSON.stringify({ code, phone }),
       'EX',
-      60 * config.expireAfter,
+      60 * config.expireAfter
     );
 
     await sendSms(
       subdomain,
       config.smsTransporterType ? config.smsTransporterType : 'messagePro',
       phone,
-      config.content.replace(/{.*}/, code),
+      config.content.replace(/{.*}/, code)
     );
 
     return 'Confirmation code sent to your phone';
@@ -1032,7 +1250,7 @@ const clientPortalUserMutations = {
   clientPortalUsersVerifyPhone: async (
     _root,
     args: { code: string },
-    { models, cpUser }: IContext,
+    { models, cpUser }: IContext
   ) => {
     if (!cpUser) {
       throw new Error('login required');
@@ -1054,7 +1272,7 @@ const clientPortalUserMutations = {
 
     await models.ClientPortalUsers.updateOne(
       { _id: cpUser._id },
-      { $set: { phoneVerified: true, phone } },
+      { $set: { phoneVerified: true, phone } }
     );
 
     return 'Phone verified';
@@ -1062,7 +1280,7 @@ const clientPortalUserMutations = {
   clientPortalUserAssignCompany: async (
     _root,
     args: { userId: string; erxesCompanyId: string; erxesCustomerId: string },
-    { models, subdomain, cpUser, user }: IContext,
+    { models, subdomain, cpUser, user }: IContext
   ) => {
     if (!cpUser && !user) {
       throw new Error('login required');
@@ -1114,13 +1332,13 @@ const clientPortalUserMutations = {
 
     return models.ClientPortalUsers.updateOne(
       { _id: userId },
-      { $set: setOps },
+      { $set: setOps }
     );
   },
   clientPortalUpdateUser: async (
     _root,
     args: { _id: string; doc },
-    { models }: IContext,
+    { models }: IContext
   ) => {
     const { _id, doc } = args;
 
@@ -1144,7 +1362,7 @@ const clientPortalUserMutations = {
   clientPortalRefreshToken: async (
     _root,
     _args,
-    { models, requestInfo, res }: IContext,
+    { models, requestInfo, res }: IContext
   ) => {
     const authHeader = requestInfo.headers.authorization;
 
@@ -1170,7 +1388,7 @@ const clientPortalUserMutations = {
         }
 
         const clientPortal = await models.ClientPortals.getConfig(
-          user.clientPortalId,
+          user.clientPortalId
         );
 
         const { tokenExpiration = 1 } = clientPortal || {
@@ -1196,13 +1414,13 @@ const clientPortalUserMutations = {
           process.env.JWT_TOKEN_SECRET || '',
           {
             expiresIn: `${tokenExpiration}d`,
-          },
+          }
         );
 
         res.cookie('client-auth-token', token, options);
 
         return token;
-      },
+      }
     );
 
     return newToken;
@@ -1211,7 +1429,7 @@ const clientPortalUserMutations = {
   clientPortalUserSetSecondaryPassword: async (
     _root,
     args: { newPassword: string; oldPassword?: string },
-    { models, cpUser }: IContext,
+    { models, cpUser }: IContext
   ) => {
     if (!cpUser) {
       throw new Error('login required');
@@ -1222,7 +1440,7 @@ const clientPortalUserMutations = {
     return models.ClientPortalUsers.setSecondaryPassword(
       cpUser._id,
       newPassword,
-      oldPassword,
+      oldPassword
     );
   },
 };
@@ -1230,7 +1448,7 @@ const clientPortalUserMutations = {
 checkPermission(
   clientPortalUserMutations,
   'clientPortalUpdateUser',
-  'updateUser',
+  'updateUser'
 );
 
 export default clientPortalUserMutations;

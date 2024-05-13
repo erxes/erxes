@@ -1,48 +1,46 @@
-import { __, DataWithLoader, Pagination, Table, Wrapper } from '@erxes/ui/src';
-import dayjs from 'dayjs';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { menuSyncpolaris } from '../../constants';
-import SyncHistorySidebar from './syncHistorySidebar';
-import { Title } from '@erxes/ui-settings/src/styles';
+import { __, DataWithLoader, Pagination, Table, Wrapper } from "@erxes/ui/src";
+import dayjs from "dayjs";
+import React from "react";
+import { menuSyncpolaris } from "../../constants";
+import SyncHistorySidebar from "./syncHistorySidebar";
+import { Title } from "@erxes/ui-settings/src/styles";
 
-interface IProps extends IRouterProps {
+interface IProps {
   syncHistoriesPolaris: any[];
   loading: boolean;
   totalCount: number;
-  history: any;
   queryParams: any;
 }
 class SyncHistoryList extends React.Component<IProps> {
   render() {
-    const { history, syncHistoriesPolaris, totalCount, loading, queryParams } =
+    const { syncHistoriesPolaris, totalCount, loading, queryParams } =
       this.props;
 
-    const tablehead = ['Date', 'User', 'Content Type', 'Content', 'Error'];
+    const tablehead = ["Date", "User", "Content Type", "Content", "Error"];
 
     const mainContent = (
-      <Table whiteSpace="nowrap" bordered={true} hover={true}>
+      <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
         <thead>
           <tr>
             {tablehead.map((p) => (
-              <th key={p}>{p || ''}</th>
+              <th key={p}>{p || ""}</th>
             ))}
           </tr>
         </thead>
         <tbody id="SyncHistories">
           {(syncHistoriesPolaris || []).map((item) => (
             <tr key={item._id}>
-              <td>{dayjs(item.createdAt).format('lll')}</td>
+              <td>{dayjs(item.createdAt).format("lll")}</td>
               <td>{item.createdUser?.email}</td>
               <td>{item.contentType}</td>
               <td>{item.content}</td>
               <td>
-                {(item.responseStr || '').includes('timedout')
+                {(item.responseStr || "").includes("timedout")
                   ? item.responseStr
                   : `
-                        ${item.responseData?.extra_info?.warnings || ''}
-                        ${item.responseData?.message || ''}
-                        ${item.error || ''}
+                        ${item.responseData?.extra_info?.warnings || ""}
+                        ${item.responseData?.message || ""}
+                        ${item.error || ""}
                         `}
               </td>
             </tr>
@@ -59,9 +57,7 @@ class SyncHistoryList extends React.Component<IProps> {
             submenu={menuSyncpolaris}
           />
         }
-        leftSidebar={
-          <SyncHistorySidebar queryParams={queryParams} history={history} />
-        }
+        leftSidebar={<SyncHistorySidebar queryParams={queryParams} />}
         actionBar={
           <Wrapper.ActionBar
             left={<Title>{__(`DATAS (${totalCount})`)}</Title>}

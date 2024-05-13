@@ -29,7 +29,7 @@ class PriorityMatrix extends React.Component<Props> {
     return (
       <BoardContainer>
         <Header title={__('Growth hacking')} breadcrumb={breadcrumb} />
-        <BoardContent transparent={true}>
+        <BoardContent $transparent={true}>
           {this.renderActionBar()}
           {this.renderContent()}
         </BoardContent>

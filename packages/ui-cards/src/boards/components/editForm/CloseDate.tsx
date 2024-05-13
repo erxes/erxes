@@ -1,6 +1,3 @@
-import Datetime from '@nateradebaugh/react-datetime';
-import dayjs from 'dayjs';
-import { REMINDER_MINUTES } from '../../constants';
 import {
   Button,
   CalenderWrapper,
@@ -8,14 +5,17 @@ import {
   CloseDateContent,
   CloseDateWrapper,
   DateGrid,
-} from '../../styles/popup';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import React, { useState } from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import Select from 'react-select-plus';
-import { generateButtonClass, selectOptions } from '../../utils';
+} from "../../styles/popup";
+import { generateButtonClass, selectOptions } from "../../utils";
+
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Datetime from "@nateradebaugh/react-datetime";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Popover from "@erxes/ui/src/components/Popover";
+import { REMINDER_MINUTES } from "../../constants";
+import React from "react";
+import Select from "react-select";
+import dayjs from "dayjs";
 
 type Props = {
   closeDate: Date;
@@ -24,8 +24,8 @@ type Props = {
   isComplete: boolean;
   reminderMinute: number;
   onChangeField: (
-    name: 'closeDate' | 'reminderMinute' | 'isComplete',
-    value: any,
+    name: "closeDate" | "reminderMinute" | "isComplete",
+    value: any
   ) => void;
 };
 
@@ -51,8 +51,8 @@ class CloseDate extends React.Component<Props, State> {
     this.overlay = overlay;
   };
 
-  minuteOnChange = ({ value }: { value: string }) => {
-    this.props.onChangeField('reminderMinute', parseInt(value, 10));
+  minuteOnChange = ({ value }: any) => {
+    this.props.onChangeField("reminderMinute", parseInt(value, 10));
   };
 
   dateOnChange = (date) => {
@@ -66,12 +66,12 @@ class CloseDate extends React.Component<Props, State> {
   onSave = () => {
     const { dueDate } = this.state;
 
-    this.props.onChangeField('closeDate', dueDate);
+    this.props.onChangeField("closeDate", dueDate);
     this.hideContent();
   };
 
   remove = () => {
-    this.props.onChangeField('closeDate', null);
+    this.props.onChangeField("closeDate", null);
     this.hideContent();
   };
 
@@ -80,17 +80,17 @@ class CloseDate extends React.Component<Props, State> {
     const { dueDate } = this.state;
 
     const checkedDate = new Date(
-      Math.max(new Date(dueDate).getTime(), new Date(createdDate).getTime()),
+      Math.max(new Date(dueDate).getTime(), new Date(createdDate).getTime())
     );
     const day = isCheckDate
-      ? dayjs(checkedDate).format('YYYY-MM-DD')
-      : dayjs(dueDate).format('YYYY-MM-DD');
+      ? dayjs(checkedDate).format("YYYY-MM-DD")
+      : dayjs(dueDate).format("YYYY-MM-DD");
 
-    const time = dayjs(dueDate).format('HH:mm');
+    const time = dayjs(dueDate).format("HH:mm");
 
     const renderValidDate = (current) => {
       return isCheckDate
-        ? dayjs(current).isAfter(dayjs(createdDate).subtract(1, 'day'))
+        ? dayjs(current).isAfter(dayjs(createdDate).subtract(1, "day"))
         : true;
     };
 
@@ -98,115 +98,110 @@ class CloseDate extends React.Component<Props, State> {
       const type = e.target.type;
       const value = e.target.value;
 
-      const oldDay = dayjs(dueDate).format('YYYY/MM/DD');
-      const oldTime = dayjs(dueDate).format('HH:mm');
+      const oldDay = dayjs(dueDate).format("YYYY/MM/DD");
+      const oldTime = dayjs(dueDate).format("HH:mm");
       let newDate = dueDate;
 
-      if (type === 'date') {
-        newDate = new Date(value.concat(' ', oldTime));
+      if (type === "date") {
+        newDate = new Date(value.concat(" ", oldTime));
       }
 
-      if (type === 'time') {
-        newDate = new Date(oldDay.concat(' ', value));
+      if (type === "time") {
+        newDate = new Date(oldDay.concat(" ", value));
       }
 
       this.setState({ dueDate: newDate });
     };
 
     return (
-      <Popover id="pipeline-popover">
-        <CloseDateContent>
-          {dueDate && (
-            <DateGrid>
-              <div>
-                <ControlLabel>Date</ControlLabel>
-                <input type="date" value={day} onChange={onChangeDateTime} />
-              </div>
-              <div>
-                <ControlLabel>Time</ControlLabel>
-                <input type="time" value={time} onChange={onChangeDateTime} />
-              </div>
-            </DateGrid>
-          )}
-
-          <CalenderWrapper>
-            <Datetime
-              inputProps={{ placeholder: 'Click to select a date' }}
-              dateFormat="YYYY/MM/DD"
-              timeFormat="HH:mm"
-              value={dueDate}
-              closeOnSelect={true}
-              utc={true}
-              input={false}
-              isValidDate={renderValidDate}
-              onChange={this.dateOnChange}
-              defaultValue={dayjs()
-                .startOf('day')
-                .add(12, 'hour')
-                .format('YYYY-MM-DD HH:mm:ss')}
-            />
-          </CalenderWrapper>
-
-          <ControlLabel>Set reminder</ControlLabel>
-
-          <Select
-            isRequired={true}
-            value={reminderMinute}
-            onChange={this.minuteOnChange}
-            options={selectOptions(REMINDER_MINUTES)}
-            clearable={false}
-          />
-
+      <CloseDateContent>
+        {dueDate && (
           <DateGrid>
-            <Button colorName="red" onClick={this.remove}>
-              Remove
-            </Button>
-            <Button colorName="green" onClick={this.onSave}>
-              Save
-            </Button>
+            <div>
+              <ControlLabel>Date</ControlLabel>
+              <input type="date" value={day} onChange={onChangeDateTime} />
+            </div>
+            <div>
+              <ControlLabel>Time</ControlLabel>
+              <input type="time" value={time} onChange={onChangeDateTime} />
+            </div>
           </DateGrid>
-        </CloseDateContent>
-      </Popover>
+        )}
+
+        <CalenderWrapper>
+          <Datetime
+            inputProps={{ placeholder: "Click to select a date" }}
+            dateFormat="YYYY/MM/DD"
+            timeFormat="HH:mm"
+            value={dueDate}
+            closeOnSelect={true}
+            utc={true}
+            input={false}
+            isValidDate={renderValidDate}
+            onChange={this.dateOnChange}
+            defaultValue={dayjs()
+              .startOf("day")
+              .add(12, "hour")
+              .format("YYYY-MM-DD HH:mm:ss")}
+          />
+        </CalenderWrapper>
+
+        <ControlLabel>Set reminder</ControlLabel>
+
+        <Select
+          required={true}
+          value={
+            reminderMinute
+              ? selectOptions(REMINDER_MINUTES).filter(
+                  (o) => o.value === reminderMinute.toString()
+                )
+              : null
+          }
+          onChange={this.minuteOnChange}
+          options={selectOptions(REMINDER_MINUTES)}
+          isClearable={false}
+        />
+
+        <DateGrid>
+          <Button colorname="red" onClick={this.remove}>
+            Remove
+          </Button>
+          <Button colorname="green" onClick={this.onSave}>
+            Save
+          </Button>
+        </DateGrid>
+      </CloseDateContent>
     );
   }
 
   render() {
     const { isComplete, onChangeField, closeDate } = this.props;
-    const time = dayjs(closeDate).format('HH:mm');
+    const time = dayjs(closeDate).format("HH:mm");
 
-    const onChange = (e) => onChangeField('isComplete', e.target.checked);
+    const onChange = (e) => onChangeField("isComplete", e.target.checked);
 
     const trigger = (
-      <Button colorName={generateButtonClass(closeDate, isComplete)}>
+      <Button colorname={generateButtonClass(closeDate, isComplete)}>
         {closeDate
-          ? `${dayjs(closeDate).format('MMM DD')} at ${time}`
-          : 'Close date'}
+          ? `${dayjs(closeDate).format("MMM DD")} at ${time}`
+          : "Close date"}
       </Button>
     );
 
     return (
-      <CloseDateWrapper innerRef={this.ref}>
-        <OverlayTrigger
-          ref={this.setOverlay}
-          trigger="click"
-          placement="bottom-end"
-          overlay={this.renderContent()}
-          rootClose={true}
-          container={this.ref.current}
-        >
-          <div>
-            {trigger}
-            {closeDate && (
-              <CheckBoxWrapper>
-                <FormControl
-                  checked={isComplete}
-                  componentClass="checkbox"
-                  onChange={onChange}
-                />
-              </CheckBoxWrapper>
-            )}
-          </div>
-        </OverlayTrigger>
+      <CloseDateWrapper ref={this.ref}>
+        <Popover placement="bottom-end" trigger={trigger}>
+          {this.renderContent()}
+        </Popover>
+        {closeDate && (
+          <CheckBoxWrapper>
+            <FormControl
+              checked={isComplete}
+              componentclass="checkbox"
+              onChange={onChange}
+            />
+          </CheckBoxWrapper>
+        )}
       </CloseDateWrapper>
     );
   }

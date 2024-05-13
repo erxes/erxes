@@ -5,7 +5,6 @@ import {
   sendPosMessage,
   sendProductsMessage,
 } from './messageBroker';
-import * as moment from 'moment';
 import fetch from 'node-fetch';
 
 export const getConfig = async (subdomain, code, defaultValue?) => {
@@ -257,7 +256,7 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
 };
 
 export const consumeInventory = async (subdomain, config, doc, action) => {
-  const updateCode = action === 'delete' ? doc.code : doc.No.replace(/\s/g, '');
+  const updateCode = action === 'delete' ? doc.code : doc.No;
 
   const product = await sendProductsMessage({
     subdomain,
@@ -273,7 +272,7 @@ export const consumeInventory = async (subdomain, config, doc, action) => {
     const productCategory = await sendProductsMessage({
       subdomain,
       action: 'categories.findOne',
-      data: { name: doc.Item_Category_Code },
+      data: { code: doc.Item_Category_Code },
       isRPC: true,
     });
 
@@ -288,7 +287,7 @@ export const consumeInventory = async (subdomain, config, doc, action) => {
       unitPrice: doc?.Unit_Price || 0,
       code: doc.No,
       uom: doc?.Base_Unit_of_Measure || 'PCS',
-      categoryId: productCategory ? productCategory._id : product.categoryId,
+      categoryId: productCategory?._id || product?.categoryId, // TODO: if product not exists and productCategory not found then category is null
       scopeBrandIds: brandIds,
       status: 'active',
     };
@@ -356,13 +355,25 @@ export const consumeCategory = async (
     }
 
     const document: any = {
-      name: doc?.Code || 'default',
       code: doc?.Code,
-      description: doc?.Description,
+      name: doc?.Description || 'default',
       scopeBrandIds: brandIds,
       parentId: categoryId,
       status: 'active',
     };
+
+    if (doc.Parent_Category) {
+      const parentCategory = await sendProductsMessage({
+        subdomain,
+        action: 'categories.findOne',
+        data: { code: doc.Parent_Category },
+        isRPC: true,
+      });
+
+      if (parentCategory) {
+        document.parentId = parentCategory._id
+      }
+    }
 
     if (productCategory) {
       await sendProductsMessage({
@@ -459,10 +470,6 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
     },
     isRPC: true,
   });
-
-  if (brand) {
-    throw new Error('MS Dynamic brand not found');
-  }
 
   const config = configs[brand._id || 'noBrand'];
 
@@ -851,5 +858,95 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
       { $set: { error: e.message } }
     );
     console.log(e, 'error');
+  }
+};
+
+const getPriceForList = (prods) => {
+  let resProd = prods[0];
+  let resPrice = prods[0].Price_Inc_CityTax_and_VAT || prods[0].Unit_Price;
+
+  const hasDateList = prods.filter(
+    (p) => p.Ending_Date && p.Ending_Date !== '0001-01-01'
+  );
+
+  if (hasDateList.length) {
+    resProd = hasDateList[0];
+    resPrice = hasDateList[0].Price_Inc_CityTax_and_VAT || hasDateList[0].Unit_Price;
+
+    for (const prod of hasDateList) {
+      if (resPrice < (prod.Price_Inc_CityTax_and_VAT || prod.Unit_Price)) {
+        continue;
+      }
+
+      resPrice = prod.Price_Inc_CityTax_and_VAT || prod.Unit_Price;
+      resProd = prod;
+    }
+
+    return { resPrice, resProd };
+  }
+
+  for (const prod of prods) {
+    if (resPrice < (prod.Price_Inc_CityTax_and_VAT || prod.Unit_Price)) {
+      continue;
+    }
+
+    resPrice = prod.Price_Inc_CityTax_and_VAT || prod.Unit_Price;
+    resProd = prod;
+  }
+
+  return { resPrice, resProd };
+};
+
+export const getPrice = async (resProds, pricePriority) => {
+  try {
+    const sorts = pricePriority
+      .replace(', ', ',')
+      .split(',')
+      .filter((s) => s);
+
+    const currentDate = new Date();
+
+    const activeProds = resProds.filter((p) => {
+      if (
+        p.Starting_Date &&
+        p.Starting_Date !== '0001-01-01' &&
+        new Date(p.Starting_Date) > currentDate
+      ) {
+        return false;
+      }
+
+      if (
+        p.Ending_Date &&
+        p.Ending_Date !== '0001-01-01' &&
+        new Date(p.Ending_Date) < currentDate
+      ) {
+        return false;
+      }
+
+      return true;
+    });
+
+    if (!activeProds.length) {
+      return { resPrice: 0, resProd: {} };
+    }
+
+    for (const sortStr of sorts) {
+      const onlineProds = activeProds.filter((a) => a.Sales_Code === sortStr);
+
+      if (onlineProds.length) {
+        return getPriceForList(onlineProds);
+      }
+    }
+
+    const otherFilter = resProds.filter((p) => !sorts.includes(p.Sales_Code));
+
+    if (!otherFilter.length) {
+      return { resPrice: 0, resProd: {} };
+    }
+
+    return getPriceForList(otherFilter);
+  } catch (e) {
+    console.log(e, 'error');
+    return { resPrice: 0, resProd: {} };
   }
 };

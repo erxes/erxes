@@ -1,17 +1,17 @@
-import React from 'react';
+import React from "react";
 
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { Flex, FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
-import { IProductCategory } from '../types';
-import { __ } from '@erxes/ui/src/utils/core';
-import { IFieldGroup } from '@erxes/ui-forms/src/settings/properties/types';
-import { TableOver } from '../styles';
-import { ActionButton } from '@erxes/ui/src/components/ActionButtons';
-import Icon from '@erxes/ui/src/components/Icon';
-import { SpaceFormsWrapper } from '@erxes/ui-settings/src/styles';
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { Flex, FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
+import { IProductCategory } from "../types";
+import { __ } from "@erxes/ui/src/utils/core";
+import { IFieldGroup } from "@erxes/ui-forms/src/settings/properties/types";
+import { TableOver } from "../styles";
+import { ActionButton } from "@erxes/ui/src/components/ActionButtons";
+import Icon from "@erxes/ui/src/components/Icon";
+import { SpaceFormsWrapper } from "@erxes/ui-settings/src/styles";
 
 type Props = {
   parentCategory?: IProductCategory;
@@ -37,7 +37,7 @@ class CategoryMask extends React.Component<Props, State> {
     this.state = {
       activePerVal: {},
       currentLen: 1,
-      type: ''
+      type: "",
     };
   }
 
@@ -52,7 +52,7 @@ class CategoryMask extends React.Component<Props, State> {
       const isActive = perVal.id === activePerVal.id;
 
       for (let i = start; i < lim; i++) {
-        tds.push(<td className={isActive ? 'active' : ''}>{i}</td>);
+        tds.push(<td className={isActive ? "active" : ""}>{i}</td>);
       }
       start = lim;
     }
@@ -63,7 +63,7 @@ class CategoryMask extends React.Component<Props, State> {
   renderPerBody(perVal, idEdit) {
     const onDelete = () => {
       const { mask, changeMask } = this.props;
-      const values = (mask?.values || []).filter(v => v.id !== perVal.id);
+      const values = (mask?.values || []).filter((v) => v.id !== perVal.id);
       changeMask({ ...mask, values });
     };
 
@@ -79,7 +79,7 @@ class CategoryMask extends React.Component<Props, State> {
                 <Icon icon="trash" />
               </ActionButton>
             )) ||
-              ''}
+              ""}
             <ActionButton onClick={onEdit}>
               <Icon icon="pencil" />
             </ActionButton>
@@ -89,7 +89,7 @@ class CategoryMask extends React.Component<Props, State> {
     );
   }
 
-  onChangeLen = e => {
+  onChangeLen = (e) => {
     this.setState({ currentLen: e.target.value });
   };
 
@@ -100,9 +100,9 @@ class CategoryMask extends React.Component<Props, State> {
     const values = mask?.values || [];
     values.push({
       id: Math.random().toString(),
-      title: 'None',
-      type: 'char',
-      len: currentLen
+      title: "None",
+      type: "char",
+      len: currentLen,
     });
     changeMask({ ...mask, values });
   };
@@ -115,29 +115,29 @@ class CategoryMask extends React.Component<Props, State> {
       return null;
     }
 
-    const onChange = e => {
+    const onChange = (e) => {
       const name = e.target.name;
       const value = e.target.value;
       this.setState({
         activePerVal: {
           ...activePerVal,
-          matches: { ...(activePerVal.matches || {}), [name]: value }
-        }
+          matches: { ...(activePerVal.matches || {}), [name]: value },
+        },
       });
     };
 
     const field = (
       (
-        (fieldGroups.find(fg => fg._id === activePerVal.fieldGroup) || {})
+        (fieldGroups.find((fg) => fg._id === activePerVal.fieldGroup) || {})
           .fields || []
-      ).filter(f => ['select', 'checkbox'].includes(f.type)) || []
-    ).find(f => f._id === activePerVal.fieldId);
+      ).filter((f) => ["select", "checkbox"].includes(f.type)) || []
+    ).find((f) => f._id === activePerVal.fieldId);
 
     if (!field?.options) {
       return null;
     }
 
-    return field.options.map(o => (
+    return field.options.map((o) => (
       <FormWrapper>
         <FormColumn>
           <ControlLabel>{o}</ControlLabel>
@@ -147,7 +147,7 @@ class CategoryMask extends React.Component<Props, State> {
             name={o}
             disabled={!isEdit}
             maxLength={activePerVal.len}
-            value={matches[o] || ''}
+            value={matches[o] || ""}
             onChange={onChange}
           />
         </FormColumn>
@@ -161,13 +161,13 @@ class CategoryMask extends React.Component<Props, State> {
       return null;
     }
 
-    const onChange = e => {
+    const onChange = (e) => {
       const name = e.target.name;
       const value = e.target.value;
       this.setState({ activePerVal: { ...activePerVal, [name]: value } });
     };
 
-    if (activePerVal.type === 'char') {
+    if (activePerVal.type === "char") {
       return (
         <FormGroup>
           <ControlLabel>Characters</ControlLabel>
@@ -183,7 +183,7 @@ class CategoryMask extends React.Component<Props, State> {
       );
     }
 
-    if (activePerVal.type === 'string') {
+    if (activePerVal.type === "string") {
       return (
         <FormGroup>
           <ControlLabel>Name of String</ControlLabel>
@@ -198,7 +198,7 @@ class CategoryMask extends React.Component<Props, State> {
       );
     }
 
-    if (activePerVal.type === 'customField') {
+    if (activePerVal.type === "customField") {
       const { fieldGroups } = this.props;
       return (
         <>
@@ -207,13 +207,13 @@ class CategoryMask extends React.Component<Props, State> {
             <FormControl
               name="fieldGroup"
               disabled={!isEdit}
-              componentClass="select"
+              componentclass="select"
               options={[
-                { value: '', label: 'Empty' },
-                ...fieldGroups.map(fg => ({
+                { value: "", label: "Empty" },
+                ...fieldGroups.map((fg) => ({
                   value: fg._id,
-                  label: `${fg.code} - ${fg.name}`
-                }))
+                  label: `${fg.code} - ${fg.name}`,
+                })),
               ]}
               value={activePerVal.fieldGroup}
               onChange={onChange}
@@ -224,21 +224,21 @@ class CategoryMask extends React.Component<Props, State> {
             <FormControl
               name="fieldId"
               disabled={!isEdit}
-              componentClass="select"
+              componentclass="select"
               options={[
-                { value: '', label: 'Empty' },
+                { value: "", label: "Empty" },
                 ...(
                   (
                     (
                       fieldGroups.find(
-                        fg => fg._id === activePerVal.fieldGroup
+                        (fg) => fg._id === activePerVal.fieldGroup
                       ) || {}
                     ).fields || []
-                  ).filter(f => ['select', 'checkbox'].includes(f.type)) || []
-                ).map(f => ({
+                  ).filter((f) => ["select", "checkbox"].includes(f.type)) || []
+                ).map((f) => ({
                   value: f._id,
-                  label: `${f.code} - ${f.text}`
-                }))
+                  label: `${f.code} - ${f.text}`,
+                })),
               ]}
               value={activePerVal.fieldId}
               onChange={onChange}
@@ -256,7 +256,7 @@ class CategoryMask extends React.Component<Props, State> {
     const { activePerVal } = this.state;
     const { mask, changeMask } = this.props;
 
-    const values = (mask?.values || []).map(v =>
+    const values = (mask?.values || []).map((v) =>
       v.id === activePerVal.id ? activePerVal : v
     );
 
@@ -270,7 +270,7 @@ class CategoryMask extends React.Component<Props, State> {
       return null;
     }
 
-    const changeType = e => {
+    const changeType = (e) => {
       const value = e.target.value;
       this.setState({ activePerVal: { ...activePerVal, type: value } });
     };
@@ -286,12 +286,12 @@ class CategoryMask extends React.Component<Props, State> {
 
                 <FormControl
                   name="type"
-                  componentClass="select"
+                  componentclass="select"
                   value={this.state.activePerVal?.type}
                   disabled={!isEdit}
                   options={[
-                    { value: 'char', label: 'Characters' },
-                    { value: 'customField', label: 'Custom properties' }
+                    { value: "char", label: "Characters" },
+                    { value: "customField", label: "Custom properties" },
                     // { value: 'string', label: 'Name of section' }
                   ]}
                   onChange={changeType}
@@ -311,7 +311,7 @@ class CategoryMask extends React.Component<Props, State> {
               Save
             </Button>
           )) ||
-            ''}
+            ""}
         </SpaceFormsWrapper>
         _________________________________________________
       </>
@@ -351,10 +351,10 @@ class CategoryMask extends React.Component<Props, State> {
                   </Flex>
                 </td>
               )) ||
-                ''}
+                ""}
             </tr>
 
-            <tr>{(values || []).map(v => this.renderPerBody(v, isEdit))}</tr>
+            <tr>{(values || []).map((v) => this.renderPerBody(v, isEdit))}</tr>
           </TableOver>
 
           {this.renderCurrentConfig(isEdit)}
@@ -366,11 +366,11 @@ class CategoryMask extends React.Component<Props, State> {
   render() {
     const { parentCategory, mask } = this.props;
 
-    if (parentCategory && parentCategory.maskType === 'hard') {
+    if (parentCategory && parentCategory.maskType === "hard") {
       return this.renderConfigMask(parentCategory.mask, false);
     }
 
-    if (parentCategory && parentCategory.maskType === 'soft') {
+    if (parentCategory && parentCategory.maskType === "soft") {
       return (
         (mask.isSimilar && this.renderConfigMask(parentCategory.mask, false)) ||
         this.renderConfigMask(mask)

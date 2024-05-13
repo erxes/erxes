@@ -57,6 +57,7 @@ export const types = ({ tags, forms, contacts, dailyco, calls }) => `
         createdAt: Date
         createdBy: String
         modifiedBy: String
+        recordUrl: String
       }
     `
       : ''

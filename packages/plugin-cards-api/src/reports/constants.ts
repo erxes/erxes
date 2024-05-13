@@ -67,6 +67,16 @@ export const MEASURE_OPTIONS = [
     { label: 'Forecast', value: 'forecast' },
 ];
 
+export const INTEGRATION_OPTIONS = [
+    { label: 'XOS Messenger', value: 'messenger' },
+    { label: 'Email', value: 'email' },
+    { label: 'Call', value: 'calls' },
+    { label: 'Callpro', value: 'callpro' },
+    { label: 'SMS', value: 'sms' },
+    { label: 'Facebook Messenger', value: 'facebook-messenger' },
+    { label: 'Facebook Post', value: 'facebook-post' },
+];
+
 export const USER_TYPES = [
     { label: 'Created By', value: 'userId' },
     { label: 'Modified By', value: 'modifiedBy' },
@@ -165,27 +175,3 @@ export const PRIORITY = [
     { label: 'Medium', value: 'Medium' },
     { label: 'Low', value: 'Low' },
 ];
-
-// ----------------------------------------------------------------
-
-
-export const DATE_RANGE_TYPES = [
-    { label: 'All time', value: 'all' },
-    { label: 'Today', value: 'today' },
-    { label: 'Yesterday', value: 'yesterday' },
-    { label: 'This Week', value: 'thisWeek' },
-    { label: 'Last Week', value: 'lastWeek' },
-    { label: 'This Month', value: 'thisMonth' },
-    { label: 'Last Month', value: 'lastMonth' },
-    { label: 'This Year', value: 'thisYear' },
-    { label: 'Last Year', value: 'lastYear' },
-    { label: 'Custom Date', value: 'customDate' },
-];
-
-export const PIPELINE_TYPE_TICKET = 'ticket';
-export const PIPELINE_TYPE_DEAL = 'deal';
-export const PIPELINE_TYPE_TASK = 'task';
-
-export const CUSTOM_PROPERTIES_DEAL = 'cards:deal';
-export const CUSTOM_PROPERTIES_TICKET = 'cards:ticket';
-export const CUSTOM_PROPERTIES_TASK = 'cards:task';

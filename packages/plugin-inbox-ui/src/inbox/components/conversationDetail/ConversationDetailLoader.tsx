@@ -5,25 +5,25 @@ import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const Line = styledTS<{ width?: string; height?: string; round?: boolean }>(
-  styled(Loader)
+const Line = styledTS<{ width?: string; height?: string; $round?: boolean }>(
+  styled(Loader),
 )`
-  width: ${props => (props.width ? props.width : '100%')};
-  height: ${props => (props.height ? props.height : '10px')};
-  border-radius: ${props => props.round && '8px'};
+  width: ${(props) => (props.width ? props.width : '100%')};
+  height: ${(props) => (props.height ? props.height : '10px')};
+  border-radius: ${(props) => props.$round && '8px'};
   flex-shrink: 0;
 `;
 
 const Round = styledTS<{ volume?: string }>(styled(Loader))`
-  width: ${props => (props.volume ? props.volume : '100%')};
-  height: ${props => (props.volume ? props.volume : '100%')};  
+  width: ${(props) => (props.volume ? props.volume : '100%')};
+  height: ${(props) => (props.volume ? props.volume : '100%')};  
   border-radius: 50%;     
   flex-shrink: 0;
 `;
 
-const FlexRow = styledTS<{ alignItems?: string }>(styled.div)`
+const FlexRow = styledTS<{ $alignItems?: string }>(styled.div)`
   display: flex;
-  align-items: ${props => (props.alignItems ? props.alignItems : 'center')};
+  align-items: ${(props) => (props.$alignItems ? props.$alignItems : 'center')};
 `;
 
 const FlexColumn = styled.div`
@@ -81,11 +81,11 @@ class ConversationDetailLoader extends React.Component<Props> {
             <Round volume="26px" />
           </FlexRow>
           <FlexRow>
-            <Line width="90px" height="27px" round={true} />
+            <Line width="90px" height="27px" $round={true} />
           </FlexRow>
         </TopActionBar>
         <MainContent>
-          <FlexRow alignItems="flex-start">
+          <FlexRow $alignItems="flex-start">
             <Round volume="40px" /> &emsp;
             <FlexColumn>
               <Line width="90%" />
@@ -100,7 +100,7 @@ class ConversationDetailLoader extends React.Component<Props> {
           <EditorContent />
           <TopActionBar>
             <div />
-            <Line width="90px" height="27px" round={true} />
+            <Line width="90px" height="27px" $round={true} />
           </TopActionBar>
         </EditorFooter>
       </>

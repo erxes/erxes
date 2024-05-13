@@ -1,23 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import Select from 'react-select-plus';
+import React, { useEffect, useState } from "react";
 
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-
-import DateRange from '../utils/DateRange';
-import { MarginY } from '../../styles';
-import { IFieldLogic } from '../../types';
-import { stringify } from 'querystring';
-import { SelectWithAssets } from '../utils/SelectAssets';
-import SelectLeads from '../utils/SelectLeads';
-import { IFilterType } from '../../containers/chart/ChartFormField';
-import SelectClientPortal from '../utils/SelectClientPortal';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
-import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import DateRange from "../utils/DateRange";
+import { IFieldLogic } from "../../types";
+import { IFilterType } from "../../containers/chart/ChartFormField";
+import { MarginY } from "../../styles";
+import Select from "react-select";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
+import SelectClientPortal from "../utils/SelectClientPortal";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import SelectLeads from "../utils/SelectLeads";
+import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import { SelectWithAssets } from "../utils/SelectAssets";
 
 type Props = {
   fieldType: string;
@@ -50,14 +48,10 @@ const ChartFormField = (props: Props) => {
     endDate,
     fieldValues,
     fieldDefaultValue,
-    filterType
+    filterType,
   } = props;
 
-  const {
-    fieldValueVariable,
-    fieldLabelVariable,
-    fieldQueryVariables
-  } = filterType;
+  const { fieldQueryVariables } = filterType;
 
   useEffect(() => {
     if (!fieldValue && fieldDefaultValue) {
@@ -69,14 +63,15 @@ const ChartFormField = (props: Props) => {
   const [fieldValue, setFieldValue] = useState(initialValue);
 
   const onSelect = (selectedOption) => {
-
     if (selectedOption === undefined || selectedOption === null) {
-      setFieldValue('');
-      onChange('');
+      setFieldValue("");
+      onChange("");
     }
 
     if (multi && Array.isArray(selectedOption)) {
-      const selectedValues = selectedOption.map((option) => option.value);
+      const selectedValues = (selectedOption || []).map(
+        (option) => option.value
+      );
       setFieldValue(selectedValues);
 
       onChange(selectedValues);
@@ -92,19 +87,30 @@ const ChartFormField = (props: Props) => {
     const { startDate, endDate } = dateRange;
 
     if (setFilter) {
-      setFilter('startDate', startDate);
-      setFilter('endDate', endDate);
+      setFilter("startDate", startDate);
+      setFilter("endDate", endDate);
     }
   };
 
   const OnSaveBrands = (brandIds: string[] | string) => {
     if (setFilter) {
-      setFilter('brandIds', brandIds);
+      setFilter("brandIds", brandIds);
     }
   };
 
+  const groupsOptions =
+    fieldType === "groups"
+      ? (fieldOptions || []).map((group) => ({
+          label: group.label,
+          options: (group.value || []).map((field) => ({
+            value: field._id,
+            label: field.text,
+          })),
+        }))
+      : [];
+
   switch (fieldQuery) {
-    case 'users':
+    case "users":
       return (
         <div>
           <ControlLabel>{fieldLabel}</ControlLabel>
@@ -119,7 +125,7 @@ const ChartFormField = (props: Props) => {
         </div>
       );
 
-    case 'departments':
+    case "departments":
       return (
         <div>
           <ControlLabel>{fieldLabel}</ControlLabel>
@@ -135,7 +141,7 @@ const ChartFormField = (props: Props) => {
         </div>
       );
 
-    case 'branches':
+    case "branches":
       return (
         <div>
           <ControlLabel>{fieldLabel}</ControlLabel>
@@ -151,20 +157,20 @@ const ChartFormField = (props: Props) => {
         </div>
       );
 
-    case 'brands':
+    case "brands":
       return (
         <div>
           <ControlLabel> {fieldLabel}</ControlLabel>
           <SelectBrands
             multi={true}
             name="selectedBrands"
-            label={'Choose brands'}
+            label={"Choose brands"}
             onSelect={OnSaveBrands}
             initialValue={fieldValue}
           />
         </div>
       );
-    case 'forms':
+    case "forms":
       return (
         <div>
           <ControlLabel> {fieldLabel}</ControlLabel>
@@ -172,14 +178,14 @@ const ChartFormField = (props: Props) => {
           <SelectLeads
             multi={true}
             name="selecteForms"
-            label={'Choose forms'}
+            label={"Choose forms"}
             onSelect={onChange}
             initialValue={fieldValue}
             filterParams={JSON.parse(fieldQueryVariables)}
           />
         </div>
       );
-    case 'clientPortalGetConfigs':
+    case "clientPortalGetConfigs":
       return (
         <div>
           <ControlLabel> {fieldLabel}</ControlLabel>
@@ -187,14 +193,14 @@ const ChartFormField = (props: Props) => {
           <SelectClientPortal
             multi={true}
             name="selectePortal"
-            label={'Choose portal'}
+            label={"Choose portal"}
             onSelect={onChange}
             initialValue={fieldValue}
             filterParams={JSON.parse(fieldQueryVariables)}
           />
         </div>
       );
-    case 'assets':
+    case "assets":
       return (
         <div>
           <ControlLabel> {fieldLabel}</ControlLabel>
@@ -207,7 +213,7 @@ const ChartFormField = (props: Props) => {
           />
         </div>
       );
-    case 'companies':
+    case "companies":
       return (
         <div>
           <ControlLabel> {fieldLabel}</ControlLabel>
@@ -219,8 +225,8 @@ const ChartFormField = (props: Props) => {
             onSelect={onChange}
           />
         </div>
-      )
-    case 'customers':
+      );
+    case "customers":
       return (
         <div>
           <ControlLabel> {fieldLabel}</ControlLabel>
@@ -232,8 +238,8 @@ const ChartFormField = (props: Props) => {
             onSelect={onChange}
           />
         </div>
-      )
-    case 'products':
+      );
+    case "products":
       return (
         <div>
           <ControlLabel> {fieldLabel}</ControlLabel>
@@ -245,20 +251,21 @@ const ChartFormField = (props: Props) => {
             onSelect={onChange}
           />
         </div>
-      )
-    case 'date':
+      );
+    case "date":
       return (
         <>
           <div>
             <ControlLabel>{fieldLabel}</ControlLabel>
             <Select
-              value={fieldValue}
+              value={fieldOptions.find((o) => o.value === fieldValue)}
               onChange={onSelect}
               options={fieldOptions}
+              isClearable={true}
               placeholder={fieldLabel}
             />
           </div>
-          {fieldValue === 'customDate' && (
+          {fieldValue === "customDate" && (
             <MarginY margin={15}>
               <DateRange
                 showTime={false}
@@ -276,32 +283,19 @@ const ChartFormField = (props: Props) => {
   }
 
   switch (fieldType) {
-    case 'groups':
+    case "select":
       return (
         <div>
           <ControlLabel>{fieldLabel}</ControlLabel>
           <Select
-            value={fieldValue}
-            multi={multi}
-            onChange={onSelect}
-            options={fieldOptions?.map((group) => ({
-              label: group.label,
-              options: group.value?.map((field) => ({
-                value: field._id,
-                label: field.text,
-              })),
-            }))}
-            placeholder={fieldLabel}
-          />
-        </div>
-      );
-    case 'select':
-      return (
-        <div>
-          <ControlLabel>{fieldLabel}</ControlLabel>
-          <Select
-            value={fieldValue}
-            multi={multi}
+            value={
+              fieldValue &&
+              (multi
+                ? fieldOptions.filter((o) => fieldValue.includes(o.value))
+                : fieldOptions.find((o) => o.value === fieldValue))
+            }
+            isClearable={true}
+            isMulti={multi}
             onChange={onSelect}
             options={fieldOptions}
             placeholder={fieldLabel}

@@ -6,14 +6,14 @@ import CategoryList from '../../containers/carCategory/CategoryList';
 function Sidebar({
   loadingMainQuery,
   history,
-  queryParams
+  queryParams,
 }: {
   loadingMainQuery: boolean;
   history: any;
   queryParams: any;
 }) {
   return (
-    <Wrapper.Sidebar>
+    <Wrapper.Sidebar hasBorder={true}>
       <CategoryList queryParams={queryParams} history={history} />
     </Wrapper.Sidebar>
   );

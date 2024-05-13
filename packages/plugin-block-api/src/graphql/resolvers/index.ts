@@ -8,7 +8,7 @@ const resolvers: any = async () => ({
   ...customScalars,
   Investment,
   Mutation,
-  Query
+  Query,
 });
 
 export default resolvers;

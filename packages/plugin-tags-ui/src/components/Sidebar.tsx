@@ -10,7 +10,7 @@ function ListItem(value, type) {
   const isActive = value.contentType === type;
 
   return (
-    <SidebarListItem key={value.contentType} isActive={isActive}>
+    <SidebarListItem key={value.contentType} $isActive={isActive}>
       <Link to={`/settings/tags?tagType=${value.contentType}`}>
         {__(value.description)}
       </Link>
@@ -21,8 +21,8 @@ function ListItem(value, type) {
 function TagsSidebar({ types, type }: { types: any[]; type: string }) {
   return (
     <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
-      <SidebarList noTextColor={true} noBackground={true} id={'TagsSidebar'}>
-        {types.map(value => {
+      <SidebarList $noTextColor={true} $noBackground={true} id={'TagsSidebar'}>
+        {types.map((value) => {
           return ListItem(value, type);
         })}
       </SidebarList>

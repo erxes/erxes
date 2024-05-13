@@ -2,7 +2,7 @@ import Board from '@erxes/ui-cards/src/boards/containers/Board';
 import MainActionBar from '@erxes/ui-cards/src/boards/containers/MainActionBar';
 import {
   BoardContainer,
-  BoardContent
+  BoardContent,
 } from '@erxes/ui-cards/src/boards/styles/common';
 import { menuDeal } from '@erxes/ui/src/utils/menus';
 import { __ } from '@erxes/ui/src/utils/core';
@@ -33,7 +33,7 @@ class DealBoard extends React.Component<Props> {
     return (
       <BoardContainer>
         <Header title={__('Sales')} submenu={menuDeal} />
-        <BoardContent transparent={true}>
+        <BoardContent $transparent={true}>
           {this.renderActionBar()}
           {this.renderContent()}
         </BoardContent>

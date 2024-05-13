@@ -1,10 +1,11 @@
-import React from 'react';
-import Select from 'react-select-plus';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { IBoard, IPipeline, IStage } from '../types';
-import { selectOptions } from '../utils';
-import { FormContainer } from '../styles/common';
+import { IBoard, IPipeline, IStage } from "../types";
+
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { FormContainer } from "../styles/common";
+import Select, { components } from "react-select";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import React from "react";
+import { selectOptions } from "../utils";
 
 type Props = {
   boards: IBoard[];
@@ -18,10 +19,11 @@ type Props = {
   onChangeStage: (value: string, callback?: () => void) => void;
   callback?: () => void;
   translator?: (key: string, options?: any) => string;
+  isRequired?: boolean;
 };
 
 class BoardSelect extends React.Component<Props> {
-  renderOptions = option => {
+  renderOptions = (option) => {
     return (
       <div className="simple-option">
         <span>{option.label}</span>
@@ -30,15 +32,23 @@ class BoardSelect extends React.Component<Props> {
   };
 
   renderSelect(placeholder, value, onChange, options) {
+    const Option = (props) => {
+      return (
+        <components.Option {...props}>
+          {this.renderOptions(props.data)}
+        </components.Option>
+      );
+    };
+
     return (
       <Select
-        isRequired={true}
+        required={!this.props.isRequired ? this.props.isRequired : true}
         placeholder={placeholder}
-        value={value}
+        value={options.find((o) => value === o.value)}
         onChange={onChange}
-        optionRenderer={this.renderOptions}
+        components={{ Option }}
         options={options}
-        clearable={false}
+        isClearable={false}
       />
     );
   }
@@ -54,7 +64,7 @@ class BoardSelect extends React.Component<Props> {
       onChangeBoard,
       onChangePipeline,
       onChangeStage,
-      callback
+      callback,
     } = this.props;
 
     const __ = (key: string, options?: any) => {
@@ -70,9 +80,9 @@ class BoardSelect extends React.Component<Props> {
         <FormGroup>
           <ControlLabel>Board</ControlLabel>
           {this.renderSelect(
-            __('Choose a board'),
+            __("Choose a board"),
             boardId,
-            board => onChangeBoard(board.value),
+            (board) => onChangeBoard(board.value),
             selectOptions(boards)
           )}
         </FormGroup>
@@ -80,9 +90,9 @@ class BoardSelect extends React.Component<Props> {
         <FormGroup>
           <ControlLabel>Pipeline</ControlLabel>
           {this.renderSelect(
-            __('Choose a pipeline'),
+            __("Choose a pipeline"),
             pipelineId,
-            pipeline => onChangePipeline(pipeline.value),
+            (pipeline) => onChangePipeline(pipeline.value),
             selectOptions(pipelines)
           )}
         </FormGroup>
@@ -90,9 +100,9 @@ class BoardSelect extends React.Component<Props> {
         <FormGroup>
           <ControlLabel>Stage</ControlLabel>
           {this.renderSelect(
-            __('Choose a stage'),
+            __("Choose a stage"),
             stageId,
-            stage => onChangeStage(stage.value, callback),
+            (stage) => onChangeStage(stage.value, callback),
             selectOptions(stages)
           )}
         </FormGroup>

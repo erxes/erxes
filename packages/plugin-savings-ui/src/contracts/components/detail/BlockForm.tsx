@@ -97,7 +97,7 @@ class BlockForm extends React.Component<Props, State> {
                 <FormControl
                   {...this.props}
                   name="blockType"
-                  componentClass="select"
+                  componentclass="select"
                   value={this.state.blockType}
                   required={true}
                   onChange={this.onChangeField}
@@ -189,7 +189,7 @@ class BlockForm extends React.Component<Props, State> {
                   {...formProps}
                   max={140}
                   name="description"
-                  componentClass="textarea"
+                  componentclass="textarea"
                   value={this.state.description || ''}
                   onChange={this.onChangeField}
                 />
