@@ -60,9 +60,6 @@ export const loadPutResponseClass = models => {
 
       const ebarimtData = await getEbarimtData({ config, doc });
       const { status, msg, data } = ebarimtData;
-      if (status === 'err') {
-        throw new Error(msg)
-      }
 
       if (status !== 'ok' || !data) {
         throw new Error(msg)
