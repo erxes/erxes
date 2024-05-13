@@ -101,4 +101,5 @@ const command = async () => {
 
   process.exit();
 };
+
 command();

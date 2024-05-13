@@ -76,7 +76,7 @@ export const isValidBarcode = (barcode: string): boolean => {
   let oddTotal = 0,
     evenTotal = 0;
 
-  for (var i = 0; i < arr.length; i++) {
+  for (let i = 0; i < arr.length; i++) {
     if (isNaN(arr[i])) {
       return false;
     } // can't be a valid upc/ean we're checking for
@@ -142,7 +142,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
       continue;
     }
 
-    const barCode = detail.barcode || (product.barcodes || [])[0];
+    const barCode = detail.barcode || (product.barcodes || [])[0] || '';
     const barCodeType = isValidBarcode(barCode) ? 'GS1' : 'UNDEFINED'
 
     const stock = {
@@ -211,7 +211,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     data: {},
   }
 
-  if (detailsFree && detailsFree.length) {
+  if (detailsFree.length) {
     mainData.receipts?.push({
       ...commonOderInfo,
       totalAmount: freeAmount,
@@ -220,7 +220,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     });
   }
 
-  if (details0 && details0.length) {
+  if (details0.length) {
     mainData.receipts?.push({
       ...commonOderInfo,
       totalAmount: zeroAmount,
@@ -229,7 +229,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     });
   }
 
-  if (detailsInner && detailsInner.length) {
+  if (detailsInner.length) {
     mainData.receipts?.push({
       ...commonOderInfo,
       // inner: true, // TODO: check
@@ -239,7 +239,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     });
   }
 
-  if (details && details.length) {
+  if (details.length) {
     mainData.receipts?.push({
       ...commonOderInfo,
       totalAmount: ableAmount,

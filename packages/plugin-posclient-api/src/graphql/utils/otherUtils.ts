@@ -25,7 +25,7 @@ export const isValidBarcode = (barcode: string): boolean => {
   let oddTotal = 0,
     evenTotal = 0;
 
-  for (var i = 0; i < arr.length; i++) {
+  for (let i = 0; i < arr.length; i++) {
     if (isNaN(arr[i])) {
       return false;
     } // can't be a valid upc/ean we're checking for

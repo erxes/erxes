@@ -80,7 +80,7 @@ export const loadPutResponseClass = models => {
         ) {
           return models.PutResponses.findOne({
             _id: prePutResponse._id,
-          }).lean() as any;
+          }).lean();
         }
 
         data.inactiveId = prePutResponse.id;
@@ -160,7 +160,7 @@ export const loadPutResponseClass = models => {
           inactiveId: prePutResponse.id,
         });
 
-        const response = await fetch(`${url}/rest/receipt`, {
+        await fetch(`${url}/rest/receipt`, {
           method: 'DELETE',
           body: JSON.stringify({ data }),
           headers: {
