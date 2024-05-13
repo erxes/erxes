@@ -38,25 +38,29 @@ export interface IPutResponseModel extends Model<IEbarimtDocument> {
   ): Promise<IEbarimtDocument>;
 }
 
+const checkContinueslyRequest = async (models, contentType, contentId) => {
+  const continuePutResponses: IEbarimtDocument[] =
+    await models.PutResponses.find({
+      contentType,
+      contentId,
+      modifiedAt: { $exists: false }
+    }).lean();
+
+  if (continuePutResponses.length) {
+    for (const cpr of continuePutResponses) {
+      if ((new Date().getTime() - new Date(cpr.createdAt).getTime()) / 1000 < 10) {
+        throw new Error('The previously submitted data has not yet been processed');
+      }
+    }
+  }
+}
+
 export const loadPutResponseClass = models => {
   class PutResponse {
     public static async putData(doc: IDoc, config: IEbarimtConfig) {
       // check previously post
       const { contentId, contentType } = doc;
-      const continuePutResponses: IEbarimtDocument[] =
-        await models.PutResponses.find({
-          contentType,
-          contentId,
-          modifiedAt: { $exists: false }
-        }).lean();
-
-      if (continuePutResponses.length) {
-        for (const cpr of continuePutResponses) {
-          if ((new Date().getTime() - new Date(cpr.createdAt).getTime()) / 1000 < 10) {
-            throw new Error('The previously submitted data has not yet been processed');
-          }
-        }
-      }
+      await checkContinueslyRequest(models, contentType, contentId);
 
       const ebarimtData = await getEbarimtData({ config, doc });
       const { status, msg, data } = ebarimtData;
