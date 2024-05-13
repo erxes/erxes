@@ -209,7 +209,7 @@ const FileInputAction = styled.div`
 `;
 
 const FontSelectWrapper = styled.div<{ $toolbarPlacement: 'top' | 'bottom' }>`
-  .css-13cymwt-control, .css-t3ipsp-control {
+  .css-13cymwt-control, .css-t3ipsp-control, .css-16xfy0z-control {
     border-top-width:0.0625rem !important;
     border-right-width:0.0625rem !important;
     border-left-width:0.0625rem !important;
