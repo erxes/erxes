@@ -27,6 +27,7 @@ module.exports = {
       permissions: [],
     },
   ],
+
   taskRightSidebarSection: './Section',
   ticketRightSidebarSection: './Section',
   dealRightSidebarSection: './Section',
