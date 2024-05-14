@@ -32,6 +32,25 @@ const getRows = receipts => {
   return res;
 };
 
+const customerInfo = (response) => {
+  if (!(response.customerNo || response.customerName)) {
+    return '';
+  }
+  return `
+    <div>
+      <br />
+      <p><strong>Худалдан авагч:</strong></p>
+      ${response.customerNo
+      ? `<p>ТТД: ${response.customerNo}</p>`
+      : ''}
+      ${response.customerName
+      ? `<p>Нэр: ${response.customerName} </p>`
+      : ''}
+      <br />
+    </div>
+  `;
+}
+
 export default (response, counter?) => {
   return `
     <div class="receipt" id="${(response._id || '')
@@ -58,22 +77,7 @@ export default (response, counter?) => {
               ${(response.number && `<p>№: ${response.number}</p>`) || ''}
             </div>
 
-            ${response.customerNo || response.customerName
-        ? `<div>
-                <br />
-                <p><strong>Худалдан авагч:</strong></p>
-                ${response.customerNo
-          ? `<p>ТТД: ${response.customerNo}</p>`
-          : ''
-        }
-                ${response.customerName
-          ? `<p>Нэр: ${response.customerName} </p>`
-          : ''
-        }
-                <br />
-              </div>`
-        : ''
-      }
+            ${customerInfo(response)}
 
             <table class="tb" cellpadding="0" cellspacing="0">
               <thead>
@@ -100,12 +104,12 @@ export default (response, counter?) => {
                 ${response.lottery ? `Сугалаа: ${response.lottery}` : ''}
               </div>
 
-              ${response.qrData
+        ${response.qrData
         ? `
-                    <canvas id="qrcode${(response._id || '')
+              <canvas id="qrcode${(response._id || '')
           .toString()
           .replace('.', '')}"></canvas>
-                  `
+            `
         : ''
       }
 
