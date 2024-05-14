@@ -46,7 +46,7 @@ export const getPostData = async (
       defaultValue: [],
     });
 
-    const re = new RegExp('(^[А-ЯЁӨҮ]{2}[0-9]{8}$)|(^\\d{7}$)', 'gui');
+    const re = new RegExp('(^[А-ЯЁӨҮ]{2}\\d{8}$)|(^\\d{7}$)', 'gui');
     for (const company of companies) {
       if (re.test(company.code)) {
         const checkCompanyRes = await fetch(
