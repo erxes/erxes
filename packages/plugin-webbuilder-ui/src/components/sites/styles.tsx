@@ -1,12 +1,12 @@
-import { colors, dimensions } from '@erxes/ui/src/styles';
-import styled, { css } from 'styled-components';
+import { colors, dimensions } from "@erxes/ui/src/styles";
+import styled, { css } from "styled-components";
 
-import styledTS from 'styled-components-ts';
+import styledTS from "styled-components-ts";
 
 export const FlexWrap = styledTS<{ noPadding?: boolean }>(styled.div)`
   display: flex;
   flex-wrap: wrap;
-  padding: ${props => (props.noPadding ? '0 20px 20px 20px' : '20px')};
+  padding: ${(props) => (props.noPadding ? "0 20px 20px 20px" : "20px")};
 
   > a,
   > div {
@@ -38,7 +38,7 @@ export const SiteBox = styledTS<{ nowrap?: boolean }>(styled.div)`
   display: flex;
   flex-direction: column;
   position: relative;
-  flex: ${props => !props.nowrap && 1};
+  flex: ${(props) => !props.nowrap && 1};
   min-height: 200px;
   transition: all ease 0.3s;
 
@@ -56,12 +56,12 @@ export const SiteBox = styledTS<{ nowrap?: boolean }>(styled.div)`
 `;
 
 export const Tag = styledTS<{ isActive?: boolean }>(styled.span)`
-  background: ${props =>
+  background: ${(props) =>
     props.isActive ? colors.colorSecondary : colors.bgLight};
   padding: 5px ${dimensions.unitSpacing}px;
   border-radius: 6px;
-  color: ${props =>
-    props.isActive ? colors.colorWhite : 'rgba(0, 0, 0, 0.62)'};
+  color: ${(props) =>
+    props.isActive ? colors.colorWhite : "rgba(0, 0, 0, 0.62)"};
   font-weight: 700;
   cursor: pointer;
   font-size: 12px;
@@ -184,9 +184,9 @@ export const FilterContainer = styledTS<{
   width?: number;
 }>(styled.div)`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
-  flex: ${props => !props.width && 1};
+  flex: ${(props) => !props.width && 1};
   position: relative;
-  width: ${props => props.width && `${props.width}px`};
+  width: ${(props) => props.width && `${props.width}px`};
 
   > label {
     margin-right: ${dimensions.coreSpacing}px;
@@ -253,7 +253,7 @@ export const SubTitle = styledTS<{ flexBetween?: boolean }>(styled.div)`
     align-items: center;
   }
 
-  ${props =>
+  ${(props) =>
     props.flexBetween &&
     css`
       display: flex;
@@ -277,14 +277,14 @@ export const LeftItem = styled.div`
   border-right: 1px solid rgba(0, 0, 0, 0.25);
 `;
 
-export const SiteFormContainer = styledTS<{ showDarkMode?: boolean }>(
+export const SiteFormContainer = styledTS<{ $showDarkMode?: boolean }>(
   styled.div
 )`
   position: relative;
   height: 100%;
 
-  ${props =>
-    !props.showDarkMode &&
+  ${(props) =>
+    !props.$showDarkMode &&
     css`
       .gjs-one-bg {
         background: ${colors.bgLight};
@@ -330,8 +330,8 @@ export const SiteFormContainer = styledTS<{ showDarkMode?: boolean }>(
       }
     `};
 
-    ${props =>
-      props.showDarkMode &&
+    ${(props) =>
+      props.$showDarkMode &&
       css`
         label,
         input,
@@ -372,15 +372,15 @@ export const CustomButtonWrapper = styled.div`
   top: 7px;
 `;
 
-export const Loader = styledTS<{ showDarkMode?: boolean }>(styled.div)`
+export const Loader = styledTS<{ $showDarkMode?: boolean }>(styled.div)`
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
   top: 0;
   opacity: .7;
-  background: ${props =>
-    props.showDarkMode ? colors.colorCoreDarkGray : colors.colorWhite};
+  background: ${(props) =>
+    props.$showDarkMode ? colors.colorCoreDarkGray : colors.colorWhite};
   z-index: 9;
 
   > div {

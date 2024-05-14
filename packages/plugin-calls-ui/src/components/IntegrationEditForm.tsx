@@ -1,10 +1,10 @@
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import React, { useState, useEffect } from 'react';
-import OperatorForm from './OperatorForm';
-import Button from '@erxes/ui/src/components/Button';
-import { __ } from '@erxes/ui/src/utils/core';
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import React, { useState, useEffect } from "react";
+import OperatorForm from "./OperatorForm";
+import Button from "@erxes/ui/src/components/Button";
+import { __ } from "@erxes/ui/src/utils/core";
 
 interface IProps {
   integrationKind: string;
@@ -17,10 +17,10 @@ const IntegrationEditForm = (props: IProps) => {
   const [operators, setOperators] = useState<any>(details.operators);
 
   useEffect(() => {
-    props.onChange('operators', operators);
+    props.onChange("operators", operators);
   }, [operators]);
 
-  if (integrationKind !== 'calls') {
+  if (integrationKind !== "calls") {
     return null;
   }
 
@@ -33,27 +33,28 @@ const IntegrationEditForm = (props: IProps) => {
     value: string,
     index: number
   ) => {
-    const currentOperator = operators.find((l, i) => i === index);
+    const currentOperator = operators.find((_, i) => i === index);
 
     if (currentOperator) {
-      currentOperator[name] = value;
+      const updatedOperator = { ...currentOperator, [name]: value };
+      let newOperators = [...operators];
+      newOperators.splice(index, 1, updatedOperator);
+      setOperators(newOperators);
     }
-
-    setOperators([...currentOperator]);
   };
 
   const onChangeOperators = (index: number, value: any) => {
-    operators[index] = value;
+    let newOperators = [...operators];
+    newOperators.splice(index, 1, value);
 
-    setOperators([...operators]);
+    setOperators(newOperators);
   };
 
   const handleAddOperation = () => {
-    const temp = { userId: '', gsUsername: '', gsPassword: '' };
-
-    operators.push(temp);
-
-    setOperators([...operators]);
+    setOperators([
+      ...operators,
+      { userId: "", gsUsername: "", gsPassword: "" },
+    ]);
   };
 
   const handleRemoveOperator = (index: number) => {
@@ -77,13 +78,13 @@ const IntegrationEditForm = (props: IProps) => {
     );
   };
 
-  const keys = ['host', 'smtpHost', 'smtpPort', 'mainUser', 'user', 'password'];
+  const keys = ["host", "smtpHost", "smtpPort", "mainUser", "user", "password"];
 
   return (
     <>
-      {renderInput('phone', 'Phone number', details.phone)}
+      {renderInput("phone", "Phone number", details.phone)}
 
-      {renderInput('wsServer', 'Web socket server', details.wsServer)}
+      {renderInput("wsServer", "Web socket server", details.wsServer)}
 
       <>
         {operators.map((operator, index) => (
@@ -97,14 +98,14 @@ const IntegrationEditForm = (props: IProps) => {
           />
         ))}
         <FormGroup>
-          <div style={{ display: 'flex', justifyContent: 'end' }}>
+          <div style={{ display: "flex", justifyContent: "end" }}>
             <Button
               btnStyle="primary"
               icon="plus"
               size="medium"
               onClick={handleAddOperation}
             >
-              {__('Add Operator')}
+              {__("Add Operator")}
             </Button>
           </div>
         </FormGroup>

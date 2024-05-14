@@ -6,21 +6,19 @@ import { PaddingTop } from '../../../styles';
 
 function Sidebar({
   loadingMainQuery,
-  history,
   queryParams,
   isAward
 }: {
   loadingMainQuery: boolean;
-  history: any;
   queryParams: any;
   isAward: boolean;
 }) {
   return (
     <Wrapper.Sidebar hasBorder>
       <PaddingTop>
-        <CampaignList queryParams={queryParams} history={history} />
+        <CampaignList queryParams={queryParams}  />
         {isAward && (
-          <FilterCampaign queryParams={queryParams} history={history} />
+          <FilterCampaign queryParams={queryParams}  />
         )}
       </PaddingTop>
     </Wrapper.Sidebar>

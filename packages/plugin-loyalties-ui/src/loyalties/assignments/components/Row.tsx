@@ -1,23 +1,24 @@
-import * as dayjs from 'dayjs';
-import _ from 'lodash';
-import Form from '../containers/Form';
-import React from 'react';
-import { FlexItem } from '../../common/styles';
+import * as dayjs from "dayjs";
+
+import { FormControl, ModalTrigger } from "@erxes/ui/src/components";
 import {
   formatValue,
   renderFullName,
-  renderUserFullName
-} from '@erxes/ui/src/utils';
-import { IAssignment } from '../types';
-import { IAssignmentCampaign } from '../../../configs/assignmentCampaign/types';
-import { IQueryParams } from '@erxes/ui/src/types';
-import { Link } from 'react-router-dom';
-import { FormControl, ModalTrigger } from '@erxes/ui/src/components';
+  renderUserFullName,
+} from "@erxes/ui/src/utils";
+
+import { FlexItem } from "../../common/styles";
+import Form from "../containers/Form";
+import { IAssignment } from "../types";
+import { IAssignmentCampaign } from "../../../configs/assignmentCampaign/types";
+import { IQueryParams } from "@erxes/ui/src/types";
+import { Link } from "react-router-dom";
+import React from "react";
+import _ from "lodash";
 
 type Props = {
   assignment: IAssignment;
   currentCampaign?: IAssignmentCampaign;
-  history: any;
   isChecked: boolean;
   toggleBulk: (assignment: IAssignment, isChecked?: boolean) => void;
   queryParams: IQueryParams;
@@ -27,14 +28,14 @@ class AssignmentRow extends React.Component<Props> {
   displayValue(assignment, name) {
     const value = _.get(assignment, name);
 
-    if (name === 'primaryName') {
+    if (name === "primaryName") {
       return <FlexItem>{formatValue(assignment.primaryName)}</FlexItem>;
     }
 
     return formatValue(value);
   }
 
-  onChange = e => {
+  onChange = (e) => {
     const { toggleBulk, assignment } = this.props;
     if (toggleBulk) {
       toggleBulk(assignment, e.target.checked);
@@ -53,12 +54,12 @@ class AssignmentRow extends React.Component<Props> {
     );
   };
 
-  modalContent = props => {
+  modalContent = (props) => {
     const { assignment } = this.props;
 
     const updatedProps = {
       ...props,
-      assignment
+      assignment,
     };
 
     return <Form {...updatedProps} />;
@@ -67,7 +68,7 @@ class AssignmentRow extends React.Component<Props> {
   render() {
     const { assignment, isChecked, currentCampaign } = this.props;
 
-    const onClick = e => {
+    const onClick = (e) => {
       e.stopPropagation();
     };
 
@@ -76,15 +77,15 @@ class AssignmentRow extends React.Component<Props> {
         <td onClick={onClick}>
           <FormControl
             checked={isChecked}
-            componentClass="checkbox"
+            componentclass="checkbox"
             onChange={this.onChange}
           />
         </td>
-        <td key={'createdAt'}>{dayjs(assignment.createdAt).format('lll')} </td>
-        <td key={'ownerId'} onClick={onClick}>
+        <td key={"createdAt"}>{dayjs(assignment.createdAt).format("lll")} </td>
+        <td key={"ownerId"} onClick={onClick}>
           {this.renderOwner()}
         </td>
-        <td key={'actions'} onClick={onClick}>
+        <td key={"actions"} onClick={onClick}>
           .
         </td>
       </tr>

@@ -21,11 +21,11 @@ export interface IContractConfig {
   insuranceReceivable: string;
   insuranceGiving: string;
 
-  undueStock: string;
-  undueUserEmail: string;
-  undueHasVat: string;
-  undueHasCitytax: string;
-  undueIsEbarimt: string;
+  lossStock: string;
+  lossUserEmail: string;
+  lossHasVat: string;
+  lossHasCitytax: string;
+  lossIsEbarimt: string;
 
   otherReceivable: string;
   feeIncome: string;
@@ -45,6 +45,11 @@ export interface IContractConfig {
   badExpirationDay: number;
   minCommitmentInterest: number;
   maxCommitmentInterest: number;
+
+  districtName?: any;
+  isAmountUseEBarimt?: any;
+  isInterestUseEBarimt?: any;
+  isLossUseEBarimt?: any;
 }
 
 export interface IContractTypeDoc {
@@ -59,8 +64,8 @@ export interface IContractTypeDoc {
   createdAt: Date;
   productCategoryIds: string[];
   config: IContractConfig;
-  unduePercent: number;
-  undueCalcType: string;
+  lossPercent: number;
+  lossCalcType: string;
   useMargin: boolean;
   useDebt: boolean;
   useSkipInterest: boolean;
@@ -76,6 +81,8 @@ export interface IContractTypeDoc {
 
 export interface IContractType extends IContractTypeDoc {
   _id: string;
+  productType?: any;
+  productId?: string;
 }
 
 export interface IContractTypeDetail extends IContractType {

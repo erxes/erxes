@@ -1,9 +1,9 @@
 import {
   AWS_EMAIL_DELIVERY_STATUSES,
   METHODS,
-  SMS_DELIVERY_STATUSES,
   NOTIFICATION_DELIVERY_STATUSES,
-} from '@erxes/ui-engage/src/constants';
+  SMS_DELIVERY_STATUSES,
+} from "@erxes/ui-engage/src/constants";
 import {
   FlexContainer,
   Half,
@@ -11,24 +11,24 @@ import {
   PreviewContent,
   RightSection,
   Title,
-} from '@erxes/ui-engage/src/styles';
+} from "@erxes/ui-engage/src/styles";
 import {
   FlexRow,
   Subject,
-} from '@erxes/ui-inbox/src/settings/integrations/components/mail/styles';
+} from "@erxes/ui-inbox/src/settings/integrations/components/mail/styles";
 import {
   IEngageMessage,
   IEngageSmsStats,
   IEngageStats,
-} from '@erxes/ui-engage/src/types';
+} from "@erxes/ui-engage/src/types";
 
-import Attachment from '@erxes/ui/src/components/Attachment';
-import EngageLogsContainer from '../containers/EngageLogsContainer';
-import React from 'react';
-import StatItem from './EngageStatItem';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from 'coreui/utils';
-import dayjs from 'dayjs';
+import Attachment from "@erxes/ui/src/components/Attachment";
+import EngageLogsContainer from "../containers/EngageLogsContainer";
+import React from "react";
+import StatItem from "./EngageStatItem";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "coreui/utils";
+import dayjs from "dayjs";
 
 type Props = {
   message: IEngageMessage;
@@ -110,7 +110,7 @@ class EmailStatistics extends React.Component<Props> {
       return message.notification && message.notification.content;
     }
 
-    return '';
+    return "";
   }
 
   renderNotification() {
@@ -120,34 +120,34 @@ class EmailStatistics extends React.Component<Props> {
       <Half>
         <Subject>
           <FlexRow>
-            <label>{__('Notification title')}:</label>
+            <label>{__("Notification title")}:</label>
             <strong>{notification && notification.title}</strong>
           </FlexRow>
           <FlexRow>
-            <label>{__('Is mobile')}:</label>
+            <label>{__("Is mobile")}:</label>
             <strong>
-              {notification && notification.isMobile ? 'true' : 'false'}
+              {notification && notification.isMobile ? "true" : "false"}
             </strong>
           </FlexRow>
           <FlexRow>
-            <label>{__('Notification content')}:</label>
+            <label>{__("Notification content")}:</label>
             <PreviewContent
-              isFullmessage={false}
-              showOverflow={true}
+              $isFullmessage={false}
+              $showOverflow={true}
               dangerouslySetInnerHTML={{
-                __html: this.getContent() || '',
+                __html: this.getContent() || "",
               }}
             />
           </FlexRow>
           <FlexRow>
-            <label>{__('Recipients')}:</label>
+            <label>{__("Recipients")}:</label>
             <strong>{message.totalCustomersCount}</strong>
           </FlexRow>
           <FlexRow>
-            <label>{__('Created at')}:</label>
+            <label>{__("Created at")}:</label>
             <strong>
-              {' '}
-              {dayjs(message.createdAt).format('DD MMM YYYY, HH:MM')}
+              {" "}
+              {dayjs(message.createdAt).format("DD MMM YYYY, HH:MM")}
             </strong>
           </FlexRow>
         </Subject>
@@ -176,25 +176,25 @@ class EmailStatistics extends React.Component<Props> {
       <Half>
         <Subject>
           <FlexRow>
-            <label>{__('From')}:</label>
+            <label>{__("From")}:</label>
             <strong>{from}</strong>
           </FlexRow>
         </Subject>
         <Subject>
           <FlexRow>
-            <label>{__('Subject')}:</label>
+            <label>{__("Subject")}:</label>
             {this.getSubject()}
           </FlexRow>
         </Subject>
         <Subject noBorder={true}>
           <FlexRow>
-            <label>{__('Content')}:</label>
+            <label>{__("Content")}:</label>
           </FlexRow>
           <PreviewContent
-            isFullmessage={false}
-            showOverflow={true}
+            $isFullmessage={false}
+            $showOverflow={true}
             dangerouslySetInnerHTML={{
-              __html: this.getContent() || '',
+              __html: this.getContent() || "",
             }}
           />
         </Subject>
@@ -352,8 +352,8 @@ class EmailStatistics extends React.Component<Props> {
             </p>
             {message.lastRunAt ? (
               <p>
-                Last run at:{' '}
-                <strong>{dayjs(message.lastRunAt).format('lll')}</strong>
+                Last run at:{" "}
+                <strong>{dayjs(message.lastRunAt).format("lll")}</strong>
               </p>
             ) : null}
           </InfoWrapper>
@@ -371,10 +371,10 @@ class EmailStatistics extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Show statistics')}
+            title={__("Show statistics")}
             breadcrumb={[
-              { title: __('Broadcast'), link: '/campaigns' },
-              { title: __('Show statistics') },
+              { title: __("Broadcast"), link: "/campaigns" },
+              { title: __("Show statistics") },
             ]}
           />
         }

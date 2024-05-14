@@ -2,31 +2,30 @@ import {
   Alert,
   BarItems,
   Button,
-  confirm,
   DataWithLoader,
   FormControl,
   ModalTrigger,
   Pagination,
-  router,
   SortHandler,
   Table,
-  Wrapper
-} from '@erxes/ui/src';
-import { __ } from 'coreui/utils';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { menuContracts } from '../../constants';
+  Wrapper,
+  confirm,
+  router,
+} from "@erxes/ui/src";
+import React, { useRef, useState } from "react";
 
-import PeriodLockForm from '../containers/PeriodLockForm';
-import { PeriodLocksTableWrapper } from '../styles';
-import { IPeriodLock } from '../types';
-import PeriodLockRow from './PeriodLockRow';
-import { can } from '@erxes/ui/src/utils/core';
-import withConsumer from '../../withConsumer';
-import { IUser } from '@erxes/ui/src/auth/types';
+import { IPeriodLock } from "../types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import PeriodLockForm from "../containers/PeriodLockForm";
+import PeriodLockRow from "./PeriodLockRow";
+import { PeriodLocksTableWrapper } from "../styles";
+import { __ } from "coreui/utils";
+import { can } from "@erxes/ui/src/utils/core";
+import { menuContracts } from "../../constants";
+import { useNavigate } from "react-router-dom";
+import withConsumer from "../../withConsumer";
 
-interface IProps extends IRouterProps {
+interface IProps {
   periodLocks: IPeriodLock[];
   loading: boolean;
   searchValue: string;
@@ -41,193 +40,182 @@ interface IProps extends IRouterProps {
     doc: { periodLockIds: string[] },
     emptyBulk: () => void
   ) => void;
-  history: any;
   queryParams: any;
   currentUser: IUser;
 }
 
-type State = {
-  searchValue?: string;
-};
+const PeriodLocksList = (props: IProps) => {
+  const timerRef = useRef<number | null>(null);
+  const {
+    periodLocks,
+    loading,
+    toggleBulk,
+    bulk,
+    isAllSelected,
+    totalCount,
+    queryParams,
+    currentUser,
+    toggleAll,
+  } = props;
+  const navigate = useNavigate();
 
-class PeriodLocksList extends React.Component<IProps, State> {
-  private timer?: NodeJS.Timer = undefined;
+  const [searchValue, setSearchValue] = useState(props.searchValue);
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      searchValue: this.props.searchValue
-    };
-  }
-
-  onChange = () => {
-    const { toggleAll, periodLocks } = this.props;
-    toggleAll(periodLocks, 'periodLocks');
+  const onChange = () => {
+    toggleAll(periodLocks, "periodLocks");
   };
 
-  search = e => {
-    if (this.timer) {
-      clearTimeout(this.timer);
+  const search = (e) => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
     }
 
-    const { history } = this.props;
-    const searchValue = e.target.value;
+    const value = e.target.value;
 
-    this.setState({ searchValue });
-    this.timer = setTimeout(() => {
-      router.removeParams(history, 'page');
-      router.setParams(history, { searchValue });
+    setSearchValue(value);
+
+    timerRef.current = setTimeout(() => {
+      navigate(`/settings/contract-types?searchValue=${value}`);
     }, 500);
   };
 
-  removePeriodLocks = periodLocks => {
+  const removePeriodLocks = (periodLocks) => {
     const periodLockIds: string[] = [];
 
-    periodLocks.forEach(periodLock => {
+    periodLocks.forEach((periodLock) => {
       periodLockIds.push(periodLock._id);
     });
 
-    this.props.removePeriodLocks({ periodLockIds }, this.props.emptyBulk);
+    props.removePeriodLocks({ periodLockIds }, props.emptyBulk);
   };
 
-  moveCursorAtTheEnd = e => {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
-  render() {
-    const {
-      periodLocks,
-      history,
-      loading,
-      toggleBulk,
-      bulk,
-      isAllSelected,
-      totalCount,
-      queryParams,
-      currentUser
-    } = this.props;
-
-    const mainContent = (
-      <PeriodLocksTableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
-          <thead>
-            <tr>
-              <th>
-                <FormControl
-                  checked={isAllSelected}
-                  componentClass="checkbox"
-                  onChange={this.onChange}
-                />
-              </th>
-              <th>
-                <SortHandler sortField={'date'} label={__('Date')} />
-              </th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="periodLocks">
-            {periodLocks.map(periodLock => (
-              <PeriodLockRow
-                periodLock={periodLock}
-                isChecked={bulk.includes(periodLock)}
-                key={periodLock._id}
-                history={history}
-                toggleBulk={toggleBulk}
+  const mainContent = (
+    <PeriodLocksTableWrapper>
+      <Table
+        $whiteSpace="nowrap"
+        $bordered={true}
+        $hover={true}
+        $striped={true}
+      >
+        <thead>
+          <tr>
+            <th>
+              <FormControl
+                checked={isAllSelected}
+                componentclass="checkbox"
+                onChange={onChange}
               />
-            ))}
-          </tbody>
-        </Table>
-      </PeriodLocksTableWrapper>
-    );
+            </th>
+            <th>
+              <SortHandler sortField={"date"} label={__("Date")} />
+            </th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="periodLocks">
+          {periodLocks.map((periodLock) => (
+            <PeriodLockRow
+              periodLock={periodLock}
+              isChecked={bulk.includes(periodLock)}
+              key={periodLock._id}
+              toggleBulk={toggleBulk}
+            />
+          ))}
+        </tbody>
+      </Table>
+    </PeriodLocksTableWrapper>
+  );
 
-    const addTrigger = (
-      <Button btnStyle="success" icon="plus-circle">
-        {__('Add periodLock')}
-      </Button>
-    );
+  const addTrigger = (
+    <Button btnStyle="success" icon="plus-circle">
+      {__("Add periodLock")}
+    </Button>
+  );
 
-    let actionBarLeft: React.ReactNode;
+  let actionBarLeft: React.ReactNode;
 
-    if (bulk.length > 0) {
-      const onClick = () =>
-        confirm()
-          .then(() => {
-            this.removePeriodLocks(bulk);
-          })
-          .catch(error => {
-            Alert.error(error.message);
-          });
+  if (bulk.length > 0) {
+    const onClick = () =>
+      confirm()
+        .then(() => {
+          removePeriodLocks(bulk);
+        })
+        .catch((error) => {
+          Alert.error(error.message);
+        });
 
-      actionBarLeft = (
-        <BarItems>
-          {can('managePeriodLocks', currentUser) && (
-            <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
-              {__('Delete')}
-            </Button>
-          )}
-        </BarItems>
-      );
-    }
-
-    const periodLockForm = props => {
-      return <PeriodLockForm {...props} queryParams={queryParams} />;
-    };
-
-    const actionBarRight = (
+    actionBarLeft = (
       <BarItems>
-        <FormControl
-          type="text"
-          placeholder={__('Type to search')}
-          onChange={this.search}
-          value={this.state.searchValue}
-          autoFocus={true}
-          onFocus={this.moveCursorAtTheEnd}
-        />
-        {can('managePeriodLocks', currentUser) && (
-          <ModalTrigger
-            title={__('New periodLock')}
-            trigger={addTrigger}
-            autoOpenKey="showPeriodLockModal"
-            content={periodLockForm}
-            backDrop="static"
-          />
+        {can("managePeriodLocks", currentUser) && (
+          <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
+            {__("Delete")}
+          </Button>
         )}
       </BarItems>
     );
-
-    const actionBar = (
-      <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
-    );
-
-    return (
-      <Wrapper
-        hasBorder
-        header={
-          <Wrapper.Header
-            title={__(`Period Locks`) + ` (${totalCount})`}
-            queryParams={queryParams}
-            submenu={menuContracts.filter(row =>
-              can(row.permission, currentUser)
-            )}
-          />
-        }
-        actionBar={actionBar}
-        footer={<Pagination count={totalCount} />}
-        content={
-          <DataWithLoader
-            data={mainContent}
-            loading={loading}
-            count={periodLocks.length}
-            emptyText="Add in your first periodLock!"
-            emptyImage="/images/actions/1.svg"
-          />
-        }
-      />
-    );
   }
-}
 
-export default withRouter<IRouterProps>(withConsumer(PeriodLocksList));
+  const periodLockForm = (props) => {
+    return <PeriodLockForm {...props} queryParams={queryParams} />;
+  };
+
+  const actionBarRight = (
+    <BarItems>
+      <FormControl
+        type="text"
+        placeholder={__("Type to search")}
+        onChange={search}
+        value={searchValue}
+        autoFocus={true}
+        onFocus={moveCursorAtTheEnd}
+      />
+      {can("managePeriodLocks", currentUser) && (
+        <ModalTrigger
+          title={__("New periodLock")}
+          trigger={addTrigger}
+          autoOpenKey="showPeriodLockModal"
+          content={periodLockForm}
+          backDrop="static"
+        />
+      )}
+    </BarItems>
+  );
+
+  const actionBar = (
+    <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
+  );
+
+  return (
+    <Wrapper
+      hasBorder
+      header={
+        <Wrapper.Header
+          title={__(`Period Locks`) + ` (${totalCount})`}
+          queryParams={queryParams}
+          submenu={menuContracts.filter((row) =>
+            can(row.permission, currentUser)
+          )}
+        />
+      }
+      actionBar={actionBar}
+      footer={<Pagination count={totalCount} />}
+      content={
+        <DataWithLoader
+          data={mainContent}
+          loading={loading}
+          count={periodLocks.length}
+          emptyText="Add in your first periodLock!"
+          emptyImage="/images/actions/1.svg"
+        />
+      }
+    />
+  );
+};
+
+export default withConsumer(PeriodLocksList);

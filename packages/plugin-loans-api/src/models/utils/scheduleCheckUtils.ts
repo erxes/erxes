@@ -1,4 +1,5 @@
 import { IModels } from '../../connectionResolver';
+import { IConfig } from '../../interfaces/config';
 import { SCHEDULE_STATUS } from '../definitions/constants';
 import { IContractDocument } from '../definitions/contracts';
 import { IScheduleDocument } from '../definitions/schedules';
@@ -7,11 +8,13 @@ import { getDiffDay } from './utils';
 export async function checkCurrentDateSchedule(
   contract: IContractDocument,
   currentDate: Date,
-  models: IModels
+  models: IModels,
+  config:IConfig
 ): Promise<IScheduleDocument | null | undefined> {
+  
   const lastSchedule = await models.Schedules.findOne({
     contractId: contract._id,
-    payDate: { $lte: currentDate }
+    payDate: { $lt: currentDate }
   })
     .sort({ payDate: -1 })
     .lean<IScheduleDocument>();
@@ -27,7 +30,7 @@ export async function checkCurrentDateSchedule(
   ) {
     await models.Schedules.updateOne(
       { _id: lastSchedule._id },
-      { $set: { status: SCHEDULE_STATUS.EXPIRED } }
+      { $set: { status: SCHEDULE_STATUS.EXPIRED ,balance:contract.loanBalanceAmount} }
     );
   }
 

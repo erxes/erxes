@@ -1,3 +1,4 @@
+import { getService } from '@erxes/api-utils/src/serviceDiscovery';
 import { IModels } from './connectionResolver';
 import { fetchService, sendInboxMessage } from './messageBroker';
 import { IFormSubmissionFilter } from './models/definitions/forms';
@@ -227,3 +228,10 @@ export const formSubmissionsQuery = async (
 
   return convsSelector;
 };
+
+export const getContentTypes = async (serviceName) => {
+  const service = await getService(serviceName);
+  const meta = service.config.meta || {};
+  const types = (meta.tags && meta.tags.types) || [];
+  return types.map((type) => `${serviceName}:${type.type}`);
+}

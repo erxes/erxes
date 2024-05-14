@@ -7,7 +7,7 @@ export const transactionPreInfo = `
   payment
   interestEve
   interestNonce
-  undue
+  loss
   insurance
   debt
   total
@@ -64,7 +64,7 @@ export const transactionOtherFields = `
     payment
     interestEve
     interestNonce
-    undue
+    loss
     insurance
     debt
     total
@@ -148,7 +148,7 @@ query GetPaymentInfo($id: String!, $payDate: Date) {
     payment
     interestEve
     interestNonce
-    undue
+    loss
     insurance
     debt
     total

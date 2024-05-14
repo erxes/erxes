@@ -2,9 +2,9 @@ import {
   sendContactsMessage,
   sendCoreMessage,
   sendFormsMessage,
+  sendPosMessage,
   sendProductsMessage,
 } from './messageBroker';
-import * as moment from 'moment';
 import fetch from 'node-fetch';
 
 export const getConfig = async (subdomain, code, defaultValue?) => {
@@ -20,7 +20,7 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
   const company = await sendContactsMessage({
     subdomain,
     action: 'companies.findOne',
-    data: { code: updateCode },
+    data: { $or: [{ code: updateCode }, { primaryName: doc.Name }] },
     isRPC: true,
     defaultValue: {},
   });
@@ -48,10 +48,12 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
         isRPC: true,
       });
 
-      customFieldData.push({
-        field: foundfield._id,
-        value: doc.Post_Code,
-      });
+      if (foundfield) {
+        customFieldData.push({
+          field: foundfield._id,
+          value: doc.Post_Code,
+        });
+      }
     }
 
     if (doc.City) {
@@ -67,10 +69,12 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
         isRPC: true,
       });
 
-      customFieldData.push({
-        field: foundfield._id,
-        value: doc.City,
-      });
+      if (foundfield) {
+        customFieldData.push({
+          field: foundfield._id,
+          value: doc.City,
+        });
+      }
     }
 
     if (doc.VAT_Registration_No) {
@@ -86,10 +90,12 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
         isRPC: true,
       });
 
-      customFieldData.push({
-        field: foundfield._id,
-        value: doc.VAT_Registration_No,
-      });
+      if (foundfield) {
+        customFieldData.push({
+          field: foundfield._id,
+          value: doc.VAT_Registration_No,
+        });
+      }
     }
 
     if (doc.Post_Code || doc.VAT_Registration_No || doc.City) {
@@ -162,10 +168,12 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
         isRPC: true,
       });
 
-      customFieldData.push({
-        field: foundfield._id,
-        value: doc.Post_Code,
-      });
+      if (foundfield) {
+        customFieldData.push({
+          field: foundfield._id,
+          value: doc.Post_Code,
+        });
+      }
     }
 
     if (doc.City) {
@@ -181,10 +189,12 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
         isRPC: true,
       });
 
-      customFieldData.push({
-        field: foundfield._id,
-        value: doc.City,
-      });
+      if (foundfield) {
+        customFieldData.push({
+          field: foundfield._id,
+          value: doc.City,
+        });
+      }
     }
 
     if (doc.VAT_Registration_No) {
@@ -200,10 +210,12 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
         isRPC: true,
       });
 
-      customFieldData.push({
-        field: foundfield._id,
-        value: doc.VAT_Registration_No,
-      });
+      if (foundfield) {
+        customFieldData.push({
+          field: foundfield._id,
+          value: doc.VAT_Registration_No,
+        });
+      }
     }
 
     if (doc.Post_Code || doc.VAT_Registration_No || doc.City) {
@@ -244,7 +256,7 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
 };
 
 export const consumeInventory = async (subdomain, config, doc, action) => {
-  const updateCode = action === 'delete' ? doc.code : doc.No.replace(/\s/g, '');
+  const updateCode = action === 'delete' ? doc.code : doc.No;
 
   const product = await sendProductsMessage({
     subdomain,
@@ -260,7 +272,7 @@ export const consumeInventory = async (subdomain, config, doc, action) => {
     const productCategory = await sendProductsMessage({
       subdomain,
       action: 'categories.findOne',
-      data: { name: doc.Item_Category_Code },
+      data: { code: doc.Item_Category_Code },
       isRPC: true,
     });
 
@@ -275,7 +287,7 @@ export const consumeInventory = async (subdomain, config, doc, action) => {
       unitPrice: doc?.Unit_Price || 0,
       code: doc.No,
       uom: doc?.Base_Unit_of_Measure || 'PCS',
-      categoryId: productCategory ? productCategory._id : product.categoryId,
+      categoryId: productCategory?._id || product?.categoryId, // TODO: if product not exists and productCategory not found then category is null
       scopeBrandIds: brandIds,
       status: 'active',
     };
@@ -318,73 +330,12 @@ export const consumeInventory = async (subdomain, config, doc, action) => {
   }
 };
 
-export const consumePrice = async (subdomain, config, doc, action) => {
-  const updateCode = doc.Item_No.replace(/\s/g, '');
-  let document: any = {};
-
-  const product = await sendProductsMessage({
-    subdomain,
-    action: 'findOne',
-    data: { code: updateCode },
-    isRPC: true,
-    defaultValue: {},
-  });
-
-  const brandIds = (product || {}).scopeBrandIds || [];
-
-  if (action === 'update' && doc.Item_No) {
-    if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
-      brandIds.push(config.brandId);
-    }
-
-    const currentDate = moment(new Date()).format('YYYY-MM-DD');
-    const date = moment(doc.Ending_Date).format('YYYY-MM-DD');
-
-    if (product && product.unitPrice === 0) {
-      document = {
-        unitPrice: doc?.Unit_Price,
-      };
-    }
-
-    if (product && product.unitPrice > 0) {
-      document = {
-        unitPrice:
-          product.unitPrice < doc?.Unit_Price
-            ? product.unitPrice
-            : doc?.Unit_Price,
-      };
-    }
-
-    if (doc.Ending_Date === '0001-01-01') {
-      if (product) {
-        await sendProductsMessage({
-          subdomain,
-          action: 'updateProduct',
-          data: { _id: product._id, doc: { ...document } },
-          isRPC: true,
-        });
-      }
-    }
-
-    if (doc.Ending_Date !== '0001-01-01' && moment(date).isAfter(currentDate)) {
-      if (product) {
-        await sendProductsMessage({
-          subdomain,
-          action: 'updateProduct',
-          data: { _id: product._id, doc: { ...document } },
-          isRPC: true,
-        });
-      }
-    }
-  }
-};
-
 export const consumeCategory = async (
   subdomain,
   config,
   categoryId,
   doc,
-  action,
+  action
 ) => {
   const updateCode = action === 'delete' ? doc.code : doc.Code;
 
@@ -404,13 +355,25 @@ export const consumeCategory = async (
     }
 
     const document: any = {
-      name: doc?.Code || 'default',
       code: doc?.Code,
-      description: doc?.Description,
+      name: doc?.Description || 'default',
       scopeBrandIds: brandIds,
       parentId: categoryId,
       status: 'active',
     };
+
+    if (doc.Parent_Category) {
+      const parentCategory = await sendProductsMessage({
+        subdomain,
+        action: 'categories.findOne',
+        data: { code: doc.Parent_Category },
+        isRPC: true,
+      });
+
+      if (parentCategory) {
+        document.parentId = parentCategory._id
+      }
+    }
 
     if (productCategory) {
       await sendProductsMessage({
@@ -517,6 +480,7 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
   let sendVAT;
   let sendCity;
   let sendPostCode;
+  let getCompanyName;
 
   name =
     name && customer.firstName
@@ -557,15 +521,17 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
     }
   }
 
-  const getCompanyName = await fetch(
-    `https://info.ebarimt.mn/rest/merchant/info?regno=${sendVAT}`,
-    {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    },
-  ).then((r) => r.json());
+  if (sendVAT) {
+    getCompanyName = await fetch(
+      `https://ebarimt.erkhet.biz/getCompany?regno=${sendVAT}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    ).then((r) => r.json());
+  }
 
   const sendData: any = {
     Name: name,
@@ -608,10 +574,10 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
           'Content-Type': 'application/json',
           Accept: 'application/json',
           Authorization: `Basic ${Buffer.from(
-            `${username}:${password}`,
+            `${username}:${password}`
           ).toString('base64')}`,
         },
-      },
+      }
     ).then((r) => r.json());
 
     if (response.value.length === 0) {
@@ -620,7 +586,7 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Basic ${Buffer.from(
-            `${username}:${password}`,
+            `${username}:${password}`
           ).toString('base64')}`,
         },
         body: JSON.stringify(sendData),
@@ -636,12 +602,12 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
           responseData,
           responseStr: JSON.stringify(responseData),
         },
-      },
+      }
     );
   } catch (e) {
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
-      { $set: { error: e.message } },
+      { $set: { error: e.message } }
     );
     console.log(e, 'error');
   }
@@ -697,10 +663,10 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
             'Content-Type': 'application/json',
             Accept: 'application/json',
             Authorization: `Basic ${Buffer.from(
-              `${username}:${password}`,
+              `${username}:${password}`
             ).toString('base64')}`,
           },
-        },
+        }
       ).then((r) => r.json());
 
       if (responseCustomer.value.length === 0) {
@@ -709,7 +675,7 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Basic ${Buffer.from(
-              `${username}:${password}`,
+              `${username}:${password}`
             ).toString('base64')}`,
           },
           body: JSON.stringify('sendData'),
@@ -769,7 +735,7 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
           sendData,
           sendStr: JSON.stringify(sendData),
         },
-      },
+      }
     );
 
     const responseSale = await fetch(`${salesApi}`, {
@@ -777,42 +743,103 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
-          'base64',
+          'base64'
         )}`,
       },
       body: JSON.stringify(sendData),
     }).then((res) => res.json());
 
     if (order && order.items.length > 0 && responseSale) {
+      const products = await sendProductsMessage({
+        subdomain,
+        action: 'find',
+        data: { _id: { $in: order.items.map((item) => item.productId) } },
+        isRPC: true,
+      });
+
+      const productById = {};
+
+      for (const product of products) {
+        productById[product._id] = product;
+      }
+
       for (const item of order.items) {
-        const product = await sendProductsMessage({
-          subdomain,
-          action: 'findOne',
-          data: { _id: item.productId },
-          isRPC: true,
-        });
+        const product = productById[item.productId];
+
+        if (!product) {
+          await models.SyncLogs.updateOne(
+            { _id: syncLog._id },
+            {
+              $set: {
+                error: `not found product ${product._id}`,
+              },
+            }
+          );
+
+          continue;
+        }
 
         const sendSalesLine: any = {
           Document_No: responseSale.No,
           Type: 'Item',
-          No: product ? product.code : '',
+          No: productById[item.productId]
+            ? productById[item.productId].code
+            : '',
           Quantity: item.count || 0,
           Unit_Price: item.unitPrice || 0,
           Location_Code: config.locationCode || 'BEV-01',
         };
 
-        await fetch(`${salesLineApi}`, {
+        const responseSaleLine = await fetch(`${salesLineApi}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Basic ${Buffer.from(
-              `${username}:${password}`,
+              `${username}:${password}`
             ).toString('base64')}`,
           },
           body: JSON.stringify(sendSalesLine),
         }).then((res) => res.json());
+
+        if (responseSaleLine?.error && responseSaleLine?.error?.message) {
+          const foundSyncLog = await models.SyncLogs.findOne({
+            _id: syncLog._id,
+          });
+
+          await models.SyncLogs.updateOne(
+            { _id: syncLog._id },
+            {
+              $set: {
+                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${
+                  responseSaleLine.error.message
+                }`,
+              },
+            }
+          );
+        }
+
+        await models.SyncLogs.updateOne(
+          { _id: syncLog._id },
+          {
+            $push: {
+              responseSales: JSON.stringify(responseSaleLine),
+            },
+          }
+        );
       }
     }
+
+    await sendPosMessage({
+      subdomain,
+      action: 'orders.updateOne',
+      data: {
+        selector: { _id: params._id },
+        modifier: {
+          $set: { syncErkhetInfo: responseSale.No, syncedErkhet: true },
+        },
+      },
+      isRPC: true,
+    });
 
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
@@ -821,13 +848,105 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
           responseData: responseSale,
           responseStr: JSON.stringify(responseSale),
         },
-      },
+      }
     );
+
+    return responseSale;
   } catch (e) {
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
-      { $set: { error: e.message } },
+      { $set: { error: e.message } }
     );
     console.log(e, 'error');
+  }
+};
+
+const getPriceForList = (prods) => {
+  let resProd = prods[0];
+  let resPrice = prods[0].Price_Inc_CityTax_and_VAT || prods[0].Unit_Price;
+
+  const hasDateList = prods.filter(
+    (p) => p.Ending_Date && p.Ending_Date !== '0001-01-01'
+  );
+
+  if (hasDateList.length) {
+    resProd = hasDateList[0];
+    resPrice = hasDateList[0].Price_Inc_CityTax_and_VAT || hasDateList[0].Unit_Price;
+
+    for (const prod of hasDateList) {
+      if (resPrice < (prod.Price_Inc_CityTax_and_VAT || prod.Unit_Price)) {
+        continue;
+      }
+
+      resPrice = prod.Price_Inc_CityTax_and_VAT || prod.Unit_Price;
+      resProd = prod;
+    }
+
+    return { resPrice, resProd };
+  }
+
+  for (const prod of prods) {
+    if (resPrice < (prod.Price_Inc_CityTax_and_VAT || prod.Unit_Price)) {
+      continue;
+    }
+
+    resPrice = prod.Price_Inc_CityTax_and_VAT || prod.Unit_Price;
+    resProd = prod;
+  }
+
+  return { resPrice, resProd };
+};
+
+export const getPrice = async (resProds, pricePriority) => {
+  try {
+    const sorts = pricePriority
+      .replace(', ', ',')
+      .split(',')
+      .filter((s) => s);
+
+    const currentDate = new Date();
+
+    const activeProds = resProds.filter((p) => {
+      if (
+        p.Starting_Date &&
+        p.Starting_Date !== '0001-01-01' &&
+        new Date(p.Starting_Date) > currentDate
+      ) {
+        return false;
+      }
+
+      if (
+        p.Ending_Date &&
+        p.Ending_Date !== '0001-01-01' &&
+        new Date(p.Ending_Date) < currentDate
+      ) {
+        return false;
+      }
+
+      return true;
+    });
+
+    if (!activeProds.length) {
+      return { resPrice: 0, resProd: {} };
+    }
+
+    for (const sortStr of sorts) {
+      const onlineProds = activeProds.filter((a) => a.Sales_Code === sortStr);
+
+      if (onlineProds.length) {
+        return getPriceForList(onlineProds);
+      }
+    }
+
+    const otherFilter = resProds.filter((p) => !sorts.includes(p.Sales_Code));
+
+    if (!otherFilter.length) {
+      return { resPrice: 0, resProd: {} };
+    }
+
+    return getPriceForList(otherFilter);
+  } catch (e) {
+    console.log(e, 'error');
+    return { resPrice: 0, resProd: {} };
   }
 };

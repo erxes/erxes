@@ -6,9 +6,9 @@ import {
   CopyMutationResponse,
   CountQueryResponse,
   LeadIntegrationsQueryResponse,
-  RemoveMutationResponse
+  RemoveMutationResponse,
 } from '@erxes/ui-leads/src/types';
-import { IRouterProps, MutationVariables } from '@erxes/ui/src/types';
+import { MutationVariables } from '@erxes/ui/src/types';
 import { mutations, queries } from '@erxes/ui-leads/src/graphql';
 
 import { ArchiveIntegrationResponse } from '@erxes/ui-inbox/src/settings/integrations/types';
@@ -23,6 +23,8 @@ import { mutations as integrationMutations } from '@erxes/ui-inbox/src/settings/
 
 type Props = {
   queryParams: any;
+  location?: any;
+  navigate?: any;
 };
 
 type FinalProps = {
@@ -30,15 +32,17 @@ type FinalProps = {
   integrationsTotalCountQuery: CountQueryResponse;
 } & RemoveMutationResponse &
   ArchiveIntegrationResponse &
-  IRouterProps &
   CopyMutationResponse &
   Props;
 
 class ListContainer extends React.Component<FinalProps> {
   componentDidMount() {
-    const { history } = this.props;
+    const { location } = this.props;
 
-    const shouldRefetchList = routerUtils.getParam(history, 'popUpRefetchList');
+    const shouldRefetchList = routerUtils.getParam(
+      location,
+      'popUpRefetchList',
+    );
 
     if (shouldRefetchList) {
       this.refetch();
@@ -63,7 +67,7 @@ class ListContainer extends React.Component<FinalProps> {
       integrationsTotalCountQuery,
       removeMutation,
       copyMutation,
-      archiveIntegration
+      archiveIntegration,
     } = this.props;
 
     const integrations = integrationsQuery.integrations || [];
@@ -80,7 +84,7 @@ class ListContainer extends React.Component<FinalProps> {
 
       confirm(message).then(() => {
         removeMutation({
-          variables: { _id: integrationId }
+          variables: { _id: integrationId },
         })
           .then(() => {
             // refresh queries
@@ -88,7 +92,7 @@ class ListContainer extends React.Component<FinalProps> {
 
             Alert.success('You successfully deleted a form.');
           })
-          .catch(e => {
+          .catch((e) => {
             Alert.error(e.message);
           });
       });
@@ -122,7 +126,7 @@ class ListContainer extends React.Component<FinalProps> {
 
     const copy = (integrationId: string) => {
       copyMutation({
-        variables: { _id: integrationId }
+        variables: { _id: integrationId },
       })
         .then(() => {
           // refresh queries
@@ -130,7 +134,7 @@ class ListContainer extends React.Component<FinalProps> {
 
           Alert.success('You successfully copied a form.');
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -144,10 +148,10 @@ class ListContainer extends React.Component<FinalProps> {
       loading: integrationsQuery.loading,
       archive,
       copy,
-      refetch: this.refetch
+      refetch: this.refetch,
     };
 
-    const content = props => {
+    const content = (props) => {
       return <List {...updatedProps} {...props} />;
     };
 
@@ -182,25 +186,25 @@ export default withProps<Props>(
             searchValue: queryParams.searchValue,
             sortDirection: queryParams.sortDirection
               ? parseInt(queryParams.sortDirection, 10)
-              : undefined
-          }
+              : undefined,
+          },
         };
-      }
+      },
     }),
     graphql<Props, RemoveMutationResponse, MutationVariables>(
       gql(mutations.integrationRemove),
       {
-        name: 'removeMutation'
-      }
+        name: 'removeMutation',
+      },
     ),
     graphql<Props, ArchiveIntegrationResponse>(
       gql(integrationMutations.integrationsArchive),
       {
-        name: 'archiveIntegration'
-      }
+        name: 'archiveIntegration',
+      },
     ),
     graphql(gql(mutations.formCopy), {
-      name: 'copyMutation'
+      name: 'copyMutation',
     }),
     graphql<Props, CountQueryResponse>(gql(queries.integrationsTotalCount), {
       name: 'integrationsTotalCountQuery',
@@ -209,9 +213,9 @@ export default withProps<Props>(
           kind: INTEGRATION_KINDS.FORMS,
           tag: queryParams.tag,
           brandId: queryParams.brand,
-          status: queryParams.status
-        }
-      })
-    })
-  )(ListContainer)
+          status: queryParams.status,
+        },
+      }),
+    }),
+  )(ListContainer),
 );

@@ -1,19 +1,19 @@
-import { Alert, withProps } from '@erxes/ui/src';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import Chooser, { CommonProps } from '@erxes/ui/src/components/Chooser';
+import { Alert, withProps } from "@erxes/ui/src";
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import Chooser, { CommonProps } from "@erxes/ui/src/components/Chooser";
 
-import { mutations, queries } from '../graphql';
+import { mutations, queries } from "../graphql";
 import {
   ClientPortalConfigsQueryResponse,
   ClientPortalUsersQueryResponse,
   IClientPortalUser,
   IClientPortalUserDoc,
   ClientPortalParticipantRelationEditMutationResponse,
-} from '../types';
-import Select from 'react-select-plus';
+} from "../types";
+import Select from "react-select";
 
 type Props = {
   search: (value: string, loadMore?: boolean) => void;
@@ -58,15 +58,15 @@ class ClientUserChooser extends React.Component<
     } = this.props;
 
     const renderName = (user: IClientPortalUser) => {
-      return user.phone || user.email || 'Unknown';
+      return user.phone || user.email || "Unknown";
     };
 
     const updatedProps = {
       ...this.props,
       data: { datas: this.props.data.users },
       search,
-      clearState: () => search(''),
-      title: 'Client Portal User',
+      clearState: () => search(""),
+      title: "Client Portal User",
       renderName,
       newItem: this.state.newCPuser,
       resetAssociatedItem: this.resetAssociatedItem,
@@ -77,18 +77,19 @@ class ClientUserChooser extends React.Component<
       (d) => ({
         label: d.name,
         value: d._id,
-      }),
+      })
     );
     return (
       <div>
         <Select
-          placeholder={'Type to search...'}
-          value={this.state.portal?.value}
+          placeholder={"Type to search..."}
+          value={filtered?.find((o) => o.value === this.state.portal?.value)}
           onChange={this.onChangePortal}
           isLoading={false}
           onInputChange={this.onInputChange}
           options={filtered}
-          multi={false}
+          isMulti={false}
+          isClearable={true}
         />
         <div style={{ marginTop: 10 }}></div>
 
@@ -105,11 +106,11 @@ class ClientUserChooser extends React.Component<
               },
             })
               .then(({ data }) => {
-                Alert.success('Successfully edited');
+                Alert.success("Successfully edited");
                 this.props.refetch && this.props.refetch();
               })
               .catch(() => {
-                Alert.error('error');
+                Alert.error("error");
               });
           }}
         />
@@ -125,7 +126,7 @@ const WithQuery = withProps<Props>(
       ClientPortalConfigsQueryResponse,
       { perPage: number }
     >(gql(queries.getConfigs), {
-      name: 'clientPortalGetConfigsQuery',
+      name: "clientPortalGetConfigsQuery",
       options: ({ perPage, data }) => {
         return {
           variables: {
@@ -140,14 +141,14 @@ const WithQuery = withProps<Props>(
       ClientPortalUsersQueryResponse,
       { searchValue: string; perPage: number }
     >(gql(queries.clientPortalUsers), {
-      name: 'clientPortalUsersQuery',
+      name: "clientPortalUsersQuery",
       options: ({ searchValue, perPage, portalId }) => {
         return {
           variables: {
             searchValue,
             perPage,
             cpId: portalId,
-            sortField: 'createdAt',
+            sortField: "createdAt",
             sortDirection: -1,
           },
         };
@@ -157,10 +158,10 @@ const WithQuery = withProps<Props>(
     graphql<{}, {}, IClientPortalUserDoc>(
       gql(mutations.clientPortalParticipantRelationEdit),
       {
-        name: 'clientPortalParticipantRelationEdit',
-      },
-    ),
-  )(ClientUserChooser),
+        name: "clientPortalParticipantRelationEdit",
+      }
+    )
+  )(ClientUserChooser)
 );
 
 type WrapperProps = {
@@ -186,7 +187,7 @@ export default class Wrapper extends React.Component<
   constructor(props) {
     super(props);
 
-    this.state = { perPage: 20, searchValue: '', portalId: undefined };
+    this.state = { perPage: 20, searchValue: "", portalId: undefined };
   }
 
   search = (value, loadmore) => {

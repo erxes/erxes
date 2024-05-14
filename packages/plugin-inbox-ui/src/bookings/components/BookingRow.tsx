@@ -1,22 +1,22 @@
-import React from "react";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import Label from "@erxes/ui/src/components/Label";
-import { __ } from "coreui/utils";
-import Tip from "@erxes/ui/src/components/Tip";
-import Button from "@erxes/ui/src/components/Button";
-import WithPermission from "coreui/withPermission";
-import TextInfo from "@erxes/ui/src/components/TextInfo";
-import { RowTitle } from "@erxes/ui-engage/src/styles";
-import { Link } from "react-router-dom";
 import ActionButtons from "@erxes/ui/src/components/ActionButtons";
-import { IBookingIntegration } from "../types";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import Icon from "@erxes/ui/src/components/Icon";
+import Button from "@erxes/ui/src/components/Button";
 import { Capitalize } from "@erxes/ui-settings/src/permissions/styles";
-import dayjs from "dayjs";
 import { DateWrapper } from "@erxes/ui/src/styles/main";
-import Tags from "@erxes/ui/src/components/Tags";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IBookingIntegration } from "../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import Label from "@erxes/ui/src/components/Label";
+import { Link } from "react-router-dom";
 import Manage from "./Manage";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import { RowTitle } from "@erxes/ui-engage/src/styles";
+import Tags from "@erxes/ui/src/components/Tags";
+import TextInfo from "@erxes/ui/src/components/TextInfo";
+import Tip from "@erxes/ui/src/components/Tip";
+import WithPermission from "coreui/withPermission";
+import { __ } from "coreui/utils";
+import dayjs from "dayjs";
 
 type Props = {
   isChecked: boolean;
@@ -136,7 +136,7 @@ function Row({ isChecked, toggleBulk, integration, remove, archive }: Props) {
       <td>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={onChange}
         />
       </td>

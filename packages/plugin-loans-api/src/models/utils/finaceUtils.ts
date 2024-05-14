@@ -65,7 +65,7 @@ function findAccounts(
 ): {
   paymentAccount: string;
   interestAccount: string;
-  undueAccount: string;
+  lossAccount: string;
   transAccount: string;
   debtAccount: string;
   insuranceAccount: string;
@@ -73,7 +73,7 @@ function findAccounts(
   const accounts = {
     paymentAccount: config?.normalAccount,
     interestAccount: config?.interestAccount,
-    undueAccount: config?.undueAccount,
+    lossAccount: config?.lossAccount,
     transAccount: config?.transAccount,
     debtAccount: config?.debtAccount,
     insuranceAccount: config?.insuranceAccount
@@ -134,11 +134,11 @@ function fillTransaction(
     });
   }
 
-  if (tr.undue && tr.undue > 0) {
+  if (tr.loss && tr.loss > 0) {
     dtl.push({
-      amount: tr.undue,
+      amount: tr.loss,
       side: 'credit',
-      account: account?.undueAccount
+      account: account?.lossAccount
     });
   }
 

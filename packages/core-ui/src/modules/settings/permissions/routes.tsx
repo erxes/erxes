@@ -1,26 +1,30 @@
-import asyncComponent from 'modules/common/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Routes, useLocation } from "react-router-dom";
 
-const PermissionList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings - PermissionList" */ './containers/PermissionList'
-  )
+import React from "react";
+import asyncComponent from "modules/common/components/AsyncComponent";
+import queryString from "query-string";
+
+const PermissionList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings - PermissionList" */ "./containers/PermissionList"
+    )
 );
 
-const permissionList = ({ location, history }) => {
+const PermissionListComponent = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return <PermissionList queryParams={queryParams} history={history} />;
+  return <PermissionList queryParams={queryParams} />;
 };
 
 const routes = () => (
-  <Route
-    exact={true}
-    path="/settings/permissions/"
-    component={permissionList}
-  />
+  <Routes>
+    <Route
+      path="/settings/permissions/"
+      element={<PermissionListComponent />}
+    />
+  </Routes>
 );
 
 export default routes;

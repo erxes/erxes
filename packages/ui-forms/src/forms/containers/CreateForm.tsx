@@ -5,10 +5,10 @@ import {
   AddFormMutationVariables,
   BulkEditAndAddMutationVariables,
   FieldsBulkAddAndEditMutationResponse,
-  IFormData
+  IFormData,
 } from '../types';
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import { IField, IRouterProps } from '@erxes/ui/src/types';
+import { IField } from '@erxes/ui/src/types';
 
 import { ConfigsQueryResponse } from '@erxes/ui-settings/src/general/types';
 import Form from '../components/Form';
@@ -18,7 +18,6 @@ import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { mutations } from '../graphql';
 import { queries } from '@erxes/ui-settings/src/general/graphql';
-import { withRouter } from 'react-router-dom';
 
 type Props = {
   afterDbSave: (formId: string) => void;
@@ -34,13 +33,12 @@ type Props = {
 type FinalProps = {
   configsQuery: ConfigsQueryResponse;
 } & Props &
-  IRouterProps &
   AddFormMutationResponse &
   FieldsBulkAddAndEditMutationResponse;
 
 class CreateFormContainer extends React.Component<FinalProps, {}> {
   static defaultProps = {
-    showMessage: true
+    showMessage: true,
   };
 
   render() {
@@ -49,23 +47,17 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
       afterDbSave,
       fieldsBulkAddAndEditMutation,
       showMessage,
-      configsQuery
+      configsQuery,
     } = this.props;
 
     if (configsQuery.loading) {
       return <Spinner objective={true} />;
     }
 
-    const saveForm = doc => {
+    const saveForm = (doc) => {
       let formId;
-      const {
-        title,
-        description,
-        buttonText,
-        fields,
-        type,
-        numberOfPages
-      } = doc;
+      const { title, description, buttonText, fields, type, numberOfPages } =
+        doc;
 
       addFormMutation({
         variables: {
@@ -73,8 +65,8 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
           description,
           buttonText,
           type,
-          numberOfPages: Number(numberOfPages)
-        }
+          numberOfPages: Number(numberOfPages),
+        },
       })
         .then(({ data }) => {
           formId = data.formsAdd._id;
@@ -83,7 +75,7 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
         })
 
         .then(() => {
-          fields.forEach(f => {
+          fields.forEach((f) => {
             delete f.contentType;
             delete f.__typename;
           });
@@ -94,9 +86,9 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
               contentTypeId: formId,
               addingFields: fields.map(({ _id, ...rest }) => ({
                 tempFieldId: _id,
-                ...rest
-              }))
-            }
+                ...rest,
+              })),
+            },
           });
         })
 
@@ -106,7 +98,7 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
           }
         })
 
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
     };
@@ -115,7 +107,7 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
       ...this.props,
       fields: [],
       configs: configsQuery.configs || [],
-      saveForm
+      saveForm,
     };
 
     return <Form {...updatedProps} />;
@@ -129,19 +121,19 @@ export default withProps<Props>(
       {
         name: 'addFormMutation',
         options: {
-          refetchQueries: ['fields']
-        }
-      }
+          refetchQueries: ['fields'],
+        },
+      },
     ),
     graphql<{}, ConfigsQueryResponse>(gql(queries.configs), {
-      name: 'configsQuery'
+      name: 'configsQuery',
     }),
     graphql<
       Props,
       FieldsBulkAddAndEditMutationResponse,
       BulkEditAndAddMutationVariables
     >(gql(mutations.fieldsBulkAddAndEdit), {
-      name: 'fieldsBulkAddAndEditMutation'
-    })
-  )(withRouter<FinalProps>(CreateFormContainer))
+      name: 'fieldsBulkAddAndEditMutation',
+    }),
+  )(CreateFormContainer),
 );

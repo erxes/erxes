@@ -5,7 +5,7 @@ import React from 'react';
 import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
 import { queries } from '../graphql';
 
-// get config options for react-select-plus
+// get config options for react-select
 export function generateProductOptions(
   array: IProductCategory[] = []
 ): IOption[] {

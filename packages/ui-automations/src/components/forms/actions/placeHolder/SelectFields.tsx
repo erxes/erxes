@@ -1,17 +1,17 @@
-import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import { Attributes } from '../styles';
-import PlaceHolderInput from './PlaceHolderInput';
 import {
   ControlLabel,
   FormControl,
-  FormGroup
-} from '@erxes/ui/src/components/form';
+  FormGroup,
+} from "@erxes/ui/src/components/form";
+
+import { Attributes } from "../styles";
+import Button from "@erxes/ui/src/components/Button";
+import { FieldsCombinedByType } from "@erxes/ui-forms/src/settings/properties/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import PlaceHolderInput from "./PlaceHolderInput";
+import Popover from "@erxes/ui/src/components/Popover";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   triggerType: string;
@@ -40,14 +40,14 @@ class SelectFields extends React.Component<Props, State> {
 
     this.state = {
       fields: [],
-      searchValue: ''
+      searchValue: "",
     };
   }
 
   componentDidMount() {
     const { config = {}, attributions = [] } = this.props;
 
-    const selectedFields = attributions.filter(attribution =>
+    const selectedFields = attributions.filter((attribution) =>
       Object.keys(config).includes(attribution.name)
     );
 
@@ -60,71 +60,17 @@ class SelectFields extends React.Component<Props, State> {
     this.overlay.hide();
   };
 
-  renderContent() {
-    let { attributions, onSelect, config, withDefaultValue } = this.props;
-    const { fields, searchValue } = this.state;
-
-    const onClickField = item => {
-      item?.callback && item?.callback();
-
-      this.setState({ fields: [...fields, item] });
-
-      withDefaultValue &&
-        onSelect({ ...config, [item.name]: `{{ ${item.name} }}` });
-
-      this.hideContent();
-    };
-
-    const onSearch = e => {
-      const { value } = e.currentTarget as HTMLInputElement;
-
-      this.setState({ searchValue: value });
-    };
-
-    if (searchValue) {
-      attributions = attributions.filter(option =>
-        new RegExp(searchValue, 'i').test(option.label)
-      );
-    }
-
-    return (
-      <Popover id="field-popover">
-        <Attributes>
-          <React.Fragment>
-            <FormGroup>
-              <ControlLabel>{__('Search')}</ControlLabel>
-              <FormControl placeholder="type a search" onChange={onSearch} />
-            </FormGroup>
-            <li>
-              <b>{__('Fields')}</b>
-            </li>
-            {attributions
-              .filter(
-                attribution =>
-                  !fields.find(field => field._id === attribution._id)
-              )
-              .map(item => (
-                <li key={item.name} onClick={onClickField.bind(this, item)}>
-                  {__(item.label)}
-                </li>
-              ))}
-          </React.Fragment>
-        </Attributes>
-      </Popover>
-    );
-  }
-
   renderFields() {
     const { triggerType, triggerConfig, config, onSelect } = this.props;
     const { fields } = this.state;
 
     const removeField = ({ _id, name }) => {
-      this.setState({ fields: fields.filter(field => field._id !== _id) });
+      this.setState({ fields: fields.filter((field) => field._id !== _id) });
 
       onSelect({ ...config, [name]: undefined });
     };
 
-    return fields.map(field => (
+    return fields.map((field) => (
       <PlaceHolderInput
         key={field._id}
         inputName={field.name}
@@ -133,9 +79,9 @@ class SelectFields extends React.Component<Props, State> {
         excludeAttr={field.excludeAttr}
         onChange={onSelect}
         triggerType={triggerType}
-        fieldType={field.type === 'Date' ? 'date' : field.type}
+        fieldType={field.type === "Date" ? "date" : field.type}
         options={field.selectOptions || []}
-        optionsAllowedTypes={['contact']}
+        optionsAllowedTypes={["contact"]}
         triggerConfig={triggerConfig}
         attrWithSegmentConfig={!!triggerConfig}
         isMulti={true}
@@ -153,25 +99,66 @@ class SelectFields extends React.Component<Props, State> {
   }
 
   render() {
-    const { label } = this.props;
+    let { attributions, onSelect, config, withDefaultValue, label } =
+      this.props;
+    const { fields, searchValue } = this.state;
 
+    const onClickField = (item) => {
+      item?.callback && item?.callback();
+
+      this.setState({ fields: [...fields, item] });
+
+      withDefaultValue &&
+        onSelect({ ...config, [item.name]: `{{ ${item.name} }}` });
+
+      this.hideContent();
+    };
+
+    const onSearch = (e) => {
+      const { value } = e.currentTarget as HTMLInputElement;
+
+      this.setState({ searchValue: value });
+    };
+
+    if (searchValue) {
+      attributions = attributions.filter((option) =>
+        new RegExp(searchValue, "i").test(option.label)
+      );
+    }
     return (
       <>
         {this.renderFields()}
-        <OverlayTrigger
-          ref={overlay => {
-            this.overlay = overlay;
-          }}
-          trigger="click"
+        <Popover
+          innerRef={this.overlay}
+          trigger={
+            <Button btnStyle="simple" block icon="add">
+              {__(label || "")}
+            </Button>
+          }
           placement="top"
-          overlay={this.renderContent()}
-          rootClose={true}
-          container={this}
         >
-          <Button btnStyle="simple" block icon="add">
-            {__(label || '')}
-          </Button>
-        </OverlayTrigger>
+          <Attributes>
+            <React.Fragment>
+              <FormGroup>
+                <ControlLabel>{__("Search")}</ControlLabel>
+                <FormControl placeholder="type a search" onChange={onSearch} />
+              </FormGroup>
+              <li>
+                <b>{__("Fields")}</b>
+              </li>
+              {attributions
+                .filter(
+                  (attribution) =>
+                    !fields.find((field) => field._id === attribution._id)
+                )
+                .map((item) => (
+                  <li key={item.name} onClick={onClickField.bind(this, item)}>
+                    {__(item.label)}
+                  </li>
+                ))}
+            </React.Fragment>
+          </Attributes>
+        </Popover>
       </>
     );
   }

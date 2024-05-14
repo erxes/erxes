@@ -36,15 +36,7 @@ const generateFilterQuery = (params: IParam) => {
     query.contentType = contentType;
 
     if (contentType.includes('cards')) {
-      const cardType = contentType.split(':')[1];
-
-      const lastCharacter = cardType.charAt(cardType.length - 1);
-
-      if (lastCharacter === 's') {
-        query.contentType = `cards:${cardType.slice(0, -1)}`;
-      } else {
-        query.contentType = `cards:${cardType}`;
-      }
+      query.contentType = { $in: [contentType, contentType.slice(0, -1)] };
     }
   }
 
@@ -64,9 +56,11 @@ const queries = {
       page: number;
       perPage: number;
     },
-    { models }: IContext,
+    { models }: IContext
   ) {
     const selector = generateFilterQuery(params);
+
+    console.log('selector', selector);
 
     return paginate(models.Invoices.find(selector).sort({ createdAt: -1 }), {
       ...params,
@@ -118,7 +112,7 @@ const queries = {
   async invoiceDetailByContent(
     _root,
     { contentType, contentTypeId },
-    { models }: IContext,
+    { models }: IContext
   ) {
     return models.Invoices.find({ contentType, contentTypeId }).lean();
   },

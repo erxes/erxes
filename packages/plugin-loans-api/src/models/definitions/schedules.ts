@@ -13,12 +13,12 @@ export interface ISchedule {
   contractId: string;
   version: string;
   createdAt: Date;
-  status: string;
+  status: 'pending' | 'done' | 'skipped' | 'pre' | 'less' | 'expired' | 'give';
   payDate: Date;
-
+  
   balance: number;
   unUsedBalance: number;
-  undue?: number;
+  loss?: number;
   interestEve?: number;
   interestNonce?: number;
   payment?: number;
@@ -28,7 +28,7 @@ export interface ISchedule {
   commitmentInterest?: number;
   total: number;
 
-  didUndue?: number;
+  didLoss?: number;
   didInterestEve?: number;
   didInterestNonce?: number;
   didCommitmentInterest?: number;
@@ -41,7 +41,7 @@ export interface ISchedule {
 
   scheduleDidPayment?: number;
   scheduleDidInterest?: number;
-  scheduleDidStatus?: 'done' | 'less' | 'pending';
+  scheduleDidStatus?: 'done' | 'less' | 'pending' | 'pre';
 
   transactionIds?: string[];
   isDefault: boolean;
@@ -76,7 +76,7 @@ export const scheduleSchema = schemaHooksWrapper(
 
     balance: field({ type: Number, min: 0, label: 'Loan Balance' }),
     unUsedBalance: field({ type: Number, min: 0, label: 'Un used balance' }),
-    undue: field({ type: Number, min: 0, label: 'Undue', optional: true }),
+    loss: field({ type: Number, min: 0, label: 'Loss', optional: true }),
     interestEve: field({
       type: Number,
       label: 'Loan Interest Eve month',
@@ -112,10 +112,10 @@ export const scheduleSchema = schemaHooksWrapper(
       optional: true
     }),
     total: field({ type: Number, label: 'Total Payment' }),
-    didUndue: field({
+    didLoss: field({
       type: Number,
       min: 0,
-      label: 'Did Undue',
+      label: 'Did Loss',
       optional: true
     }),
     didInterestEve: field({

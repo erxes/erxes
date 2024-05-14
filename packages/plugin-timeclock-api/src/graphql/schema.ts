@@ -1,6 +1,6 @@
 import {
   attachmentType,
-  attachmentInput,
+  attachmentInput
 } from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = `  
@@ -118,6 +118,7 @@ export const types = `
     scheduleChecked: Boolean
     submittedByAdmin: Boolean
     totalBreakInMins: Int
+    note: String
   }
   
   type DuplicateSchedule {
@@ -426,8 +427,8 @@ export const mutations = `
 
   submitCheckInOutRequest(checkType: String,userId: String, checkTime: Date): AbsenceType
   
-  sendScheduleRequest(userId: String, shifts: [ShiftInput], scheduleConfigId: String, totalBreakInMins: Int): Schedule
-  submitSchedule(branchIds:[String],departmentIds:[String], userIds: [String], shifts:[ShiftInput], scheduleConfigId: String, totalBreakInMins: Int): Schedule
+  sendScheduleRequest(userId: String, shifts: [ShiftInput], scheduleConfigId: String, totalBreakInMins: Int, note: String): Schedule
+  submitSchedule(branchIds:[String],departmentIds:[String], userIds: [String], shifts:[ShiftInput], scheduleConfigId: String, totalBreakInMins: Int, note: String): Schedule
   editSchedule(_id: String!, shifts: [ShiftInput]): JSON
   checkDuplicateScheduleShifts(branchIds:[String],departmentIds:[String], userIds: [String], shifts:[ShiftInput], status: String): [DuplicateSchedule]
 

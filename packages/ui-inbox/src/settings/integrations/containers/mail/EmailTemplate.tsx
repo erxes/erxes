@@ -1,20 +1,19 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { Alert } from '@erxes/ui/src/utils';
-import EmailTemplate from '../../components/mail/emailTemplate/EmailTemplate';
-import { IEmailTemplate } from '../../types';
-import client from '@erxes/ui/src/apolloClient';
-import debounce from 'lodash/debounce';
-import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
-import { gql } from '@apollo/client';
-import { queries } from '../../graphql';
+import { Alert } from "@erxes/ui/src/utils";
+import EmailTemplate from "../../components/mail/emailTemplate/EmailTemplate";
+import { IEmailTemplate } from "../../types";
+import client from "@erxes/ui/src/apolloClient";
+import debounce from "lodash/debounce";
+import { generateEmailTemplateParams } from "@erxes/ui-engage/src/utils";
+import { gql } from "@apollo/client";
+import { queries } from "../../graphql";
 
 type Props = {
   fetchMoreEmailTemplates: (page: number) => void;
   targets: Array<{ value: string; label: string }>;
   onSelect: (id: string) => void;
   totalCount?: number;
-  history: any;
   loading?: boolean;
 };
 
@@ -29,14 +28,14 @@ class EmailTemplateContainer extends React.Component<Props, State> {
 
     this.state = {
       totalCount: props.totalCount || 0,
-      filteredEmailTemplates: props.targets || []
+      filteredEmailTemplates: props.targets || [],
     };
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.targets !== this.props.targets) {
       this.setState({
-        filteredEmailTemplates: this.props.targets
+        filteredEmailTemplates: this.props.targets,
       });
     }
   }
@@ -47,8 +46,8 @@ class EmailTemplateContainer extends React.Component<Props, State> {
         .query({
           query: gql(queries.emailTemplates),
           variables: {
-            searchValue
-          }
+            searchValue,
+          },
         })
         .then(
           (response: {
@@ -61,11 +60,11 @@ class EmailTemplateContainer extends React.Component<Props, State> {
               filteredEmailTemplates: generateEmailTemplateParams(
                 filteredEmailTemplates
               ),
-              totalCount: filteredEmailTemplates.length
+              totalCount: filteredEmailTemplates.length,
             });
           }
         )
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
     }, 100)();
@@ -77,7 +76,7 @@ class EmailTemplateContainer extends React.Component<Props, State> {
     const updatedProps = {
       ...this.props,
       emailTemplates: filteredEmailTemplates,
-      onSearch: this.onSearch
+      onSearch: this.onSearch,
     };
 
     return <EmailTemplate {...updatedProps} />;

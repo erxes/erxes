@@ -1,19 +1,18 @@
-import React from 'react';
+import React from "react";
 
-import Button from '@erxes/ui/src/components/Button';
-import { FormControl } from '@erxes/ui/src/components/form';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import TextInfo from '@erxes/ui/src/components/TextInfo';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from 'coreui/utils';
+import Button from "@erxes/ui/src/components/Button";
+import { FormControl } from "@erxes/ui/src/components/form";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import TextInfo from "@erxes/ui/src/components/TextInfo";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __ } from "coreui/utils";
 
-import ProductForm from '../../containers/refer/Form';
-import { IJobRefer } from '../../types';
+import ProductForm from "../../containers/refer/Form";
+import { IJobRefer } from "../../types";
 
 type Props = {
   jobRefer: IJobRefer;
-  history: any;
   isChecked: boolean;
   toggleBulk: (jobRefer: IJobRefer, isChecked?: boolean) => void;
 };
@@ -22,18 +21,18 @@ class Row extends React.Component<Props> {
   render() {
     const { jobRefer, toggleBulk, isChecked } = this.props;
 
-    const onChange = e => {
+    const onChange = (e) => {
       if (toggleBulk) {
         toggleBulk(jobRefer, e.target.checked);
       }
     };
 
-    const onClick = e => {
+    const onClick = (e) => {
       e.stopPropagation();
     };
 
     const renderFormTrigger = (trigger: React.ReactNode, job?: IJobRefer) => {
-      const content = props => <ProductForm {...props} jobRefer={job} />;
+      const content = (props) => <ProductForm {...props} jobRefer={job} />;
 
       return (
         <ModalTrigger
@@ -48,7 +47,7 @@ class Row extends React.Component<Props> {
     const renderEditAction = (job: IJobRefer) => {
       const trigger = (
         <Button btnStyle="link">
-          <Tip text={__('Edit')} placement="bottom">
+          <Tip text={__("Edit")} placement="bottom">
             <Icon icon="edit" />
           </Tip>
         </Button>
@@ -64,7 +63,7 @@ class Row extends React.Component<Props> {
         <td onClick={onClick}>
           <FormControl
             checked={isChecked}
-            componentClass="checkbox"
+            componentclass="checkbox"
             onChange={onChange}
           />
         </td>

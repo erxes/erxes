@@ -19,11 +19,11 @@ export const PageHeader = styled.div`
 `;
 
 export const ButtonGroup = styled.div`
-  display: inline-block;
+  display: inline-flex;
   border-radius: 18px;
   background: rgba(0, 0, 0, 0.04);
   border: 1px solid ${colors.bgActive};
-  > a {
+  a {
     padding: 7px ${dimensions.coreSpacing}px;
     display: inline-block;
     color: ${colors.colorCoreGray};
@@ -32,7 +32,6 @@ export const ButtonGroup = styled.div`
     &.active {
       color: ${colors.colorCoreDarkGray};
       background: ${colors.colorWhite};
-      box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.08);
       i {
         color: ${colors.colorSecondary};
       }
@@ -47,26 +46,26 @@ export const ButtonGroup = styled.div`
 `;
 
 export const HeaderButton = styledTS<{
-  hasBackground?: boolean;
-  rightIconed?: boolean;
-  isActive?: boolean;
+  $hasBackground?: boolean;
+  $rightIconed?: boolean;
+  $isActive?: boolean;
 }>(styled.div)`
   padding: 0 ${dimensions.unitSpacing}px;
   line-height: ${dimensions.coreSpacing + 10}px;
   height: ${dimensions.coreSpacing + 12}px; 
   border-radius: ${dimensions.unitSpacing - 6}px;
   transition: background 0.3s ease;
-  background: ${props => props.hasBackground && 'rgba(0, 0, 0, 0.04)'};
+  background: ${(props) => props.$hasBackground && 'rgba(0, 0, 0, 0.04)'};
   font-weight: ${typography.fontWeightMedium};
   display: inline-block;
   vertical-align: middle;
   font-size: ${typography.fontSizeHeading8}px;
   > i {
-    color: ${props =>
-      props.isActive ? colors.colorCoreLightGray : colors.colorCoreGray};
+    color: ${(props) =>
+      props.$isActive ? colors.colorCoreLightGray : colors.colorCoreGray};
     margin-right: ${dimensions.unitSpacing - 5}px;
-    ${props =>
-      props.rightIconed &&
+    ${(props) =>
+      props.$rightIconed &&
       css`
         margin-right: -3px;
         margin-left: ${dimensions.unitSpacing - 5}px;
@@ -108,11 +107,13 @@ export const HeaderLink = styled(HeaderButton)`
 `;
 
 export const BarItems = styled(BarItemsCommon)`
-  .dropdown-menu {
+  [id^='headlessui-listbox-options-'] {
     max-height: 360px;
     max-height: calc(100vh - 120px);
     overflow: auto;
     background: ${colors.colorWhite};
+    padding: 0.5rem 0;
+
     li {
       display: flex;
       align-items: center;
@@ -123,6 +124,8 @@ export const BarItems = styled(BarItemsCommon)`
       }
       > a {
         flex: 1;
+        padding: 3px 15px;
+        color: inherit;
         &:hover,
         &:focus {
           background: transparent;

@@ -1,16 +1,16 @@
+import React from 'react';
 import {
   ActivityIcon,
-  ActivityRow
+  ActivityRow,
 } from '@erxes/ui-log/src/activityLogs/styles';
 import {
   formatText,
-  getIconAndColor
+  getIconAndColor,
 } from '@erxes/ui-log/src/activityLogs/utils';
 
 import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
-import TaggedLog from './containers/TaggedLog';
 import Tip from '@erxes/ui/src/components/Tip';
+import TaggedLog from './containers/TaggedLog';
 
 type Props = {
   contentType: string;
@@ -18,10 +18,9 @@ type Props = {
   currentUser: any;
 };
 
-class ActivityItem extends React.Component<Props> {
-  renderDetail(contentType: string, children: React.ReactNode) {
+const ActivityItem: React.FC<Props> = ({ contentType, activity }) => {
+  const renderDetail = (children: React.ReactNode) => {
     const type = contentType.split(':')[1];
-
     const iconAndColor = getIconAndColor(type || contentType) || {};
 
     return (
@@ -34,28 +33,18 @@ class ActivityItem extends React.Component<Props> {
         {children}
       </ActivityRow>
     );
+  };
+
+  const { action } = activity;
+  const type = activity.contentType.split(':')[1];
+  const tagIds = activity.content ? activity.content.tagIds : [];
+
+  switch ((action && action) || type) {
+    case 'tagged':
+      return renderDetail(<TaggedLog tagIds={tagIds} activity={activity} />);
+    default:
+      return <div />;
   }
-
-  render() {
-    const { activity } = this.props;
-
-    const { contentType, action, _id } = activity;
-
-    const type = contentType.split(':')[1];
-
-    const tagIds = activity.content ? activity.content.tagIds : [];
-
-    switch ((action && action) || type) {
-      case 'tagged':
-        return this.renderDetail(
-          'tagged',
-          <TaggedLog tagIds={tagIds} activity={activity} />
-        );
-
-      default:
-        return <div />;
-    }
-  }
-}
+};
 
 export default ActivityItem;

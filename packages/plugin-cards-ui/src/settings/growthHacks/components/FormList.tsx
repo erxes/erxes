@@ -1,6 +1,6 @@
-import React from 'react';
-import Select from 'react-select-plus';
-import styled from 'styled-components';
+import React from "react";
+import Select from "react-select";
+import styled from "styled-components";
 
 const Container = styled.div`
   width: 140px;
@@ -13,17 +13,17 @@ type Props = {
 };
 
 class FormList extends React.Component<Props, {}> {
-  generateForms = forms =>
-    forms.map(form => ({
+  generateForms = (forms) =>
+    (forms || []).map((form) => ({
       value: form._id,
-      label: form.title
+      label: form.title,
     }));
 
   render() {
     const { forms, stage, onChangeForm } = this.props;
 
-    const onChange = form => {
-      let value = '';
+    const onChange = (form) => {
+      let value = "";
 
       if (form) {
         value = form.value;
@@ -37,7 +37,10 @@ class FormList extends React.Component<Props, {}> {
         <Select
           placeholder="Forms"
           onChange={onChange}
-          value={stage.formId}
+          isClearable={true}
+          value={this.generateForms(forms).find(
+            (o) => o.value === stage.formId
+          )}
           options={this.generateForms(forms)}
         />
       </Container>

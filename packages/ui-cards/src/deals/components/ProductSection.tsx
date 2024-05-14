@@ -1,17 +1,18 @@
-import { CustomField, ProductName } from '../styles';
-import { IDeal, IPaymentsData, IProductData } from '../types';
+import { CustomField, ProductName } from "../styles";
+import { IDeal, IPaymentsData, IProductData } from "../types";
 
-import Box from '@erxes/ui/src/components/Box';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { IProduct } from '@erxes/ui-products/src/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import ProductForm from '../containers/product/ProductForm';
-import { Quantity } from '../../boards/styles/stage';
-import React from 'react';
-import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
+import Box from "@erxes/ui/src/components/Box";
+import { BoxPadding } from "@erxes/ui-contacts/src/customers/styles";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { IProduct } from "@erxes/ui-products/src/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import ProductForm from "../containers/product/ProductForm";
+import { Quantity } from "../../boards/styles/stage";
+import React from "react";
+import { SectionBodyItem } from "@erxes/ui/src/layout/styles";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   productsData: IProductData[];
@@ -31,10 +32,10 @@ function ProductSection({
   onChangeProductsData,
   onChangePaymentsData,
   saveProductsData,
-  dealQuery
+  dealQuery,
 }: Props) {
   const contentWithId = (productId?: string) => {
-    const content = props => (
+    const content = (props) => (
       <ProductForm
         {...props}
         currentProduct={productId}
@@ -94,7 +95,7 @@ function ProductSection({
           {productName}
           {quantity && (
             <Quantity>
-              ({quantity} {uom ? uom : 'PC'})
+              ({quantity} {uom ? uom : "PC"})
             </Quantity>
           )}
         </div>
@@ -105,13 +106,13 @@ function ProductSection({
   };
 
   const renderProduct = (product: IProduct & { quantity?: number }) => {
-    if (product.customFieldsData) {
+    if (product.customFieldsData && product.customFieldsData.length > 0) {
       return (
         <Tip text={tipItems(product)} placement="bottom">
           {renderProductItem(
             product.name,
             product.quantity || 0,
-            product.uom || '',
+            product.uom || "",
             product._id
           )}
         </Tip>
@@ -121,14 +122,14 @@ function ProductSection({
     return renderProductItem(
       product.name,
       product.quantity || 0,
-      product.uom || '',
+      product.uom || "",
       product._id
     );
   };
 
   return (
     <Box
-      title={__('Product & Service')}
+      title={__("Product & Service")}
       isOpen={products.length > 0}
       extraButtons={renderProductFormModal(
         <button>
@@ -137,14 +138,14 @@ function ProductSection({
       )}
       name="showProductAndService"
     >
-      <div>
+      <BoxPadding>
         {products.map((product, index) => (
           <SectionBodyItem key={index}>
             {renderProduct(product)}
           </SectionBodyItem>
         ))}
         {products.length === 0 && <EmptyState icon="list-ul" text="No items" />}
-      </div>
+      </BoxPadding>
     </Box>
   );
 }

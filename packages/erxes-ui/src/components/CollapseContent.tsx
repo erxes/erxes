@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
-import styled, { css } from 'styled-components';
+import React, { useState } from "react";
+import styled, { css } from "styled-components";
 
-import Collapse from 'react-bootstrap/Collapse';
-import Icon from './Icon';
-import colors from '../styles/colors';
-import { dimensions } from '../styles';
-import { rgba } from '../styles/ecolor';
-import styledTS from 'styled-components-ts';
+import { Disclosure } from "@headlessui/react";
+import Icon from "./Icon";
+import colors from "../styles/colors";
+import { dimensions } from "../styles";
+import { rgba } from "../styles/ecolor";
+import styledTS from "styled-components-ts";
 
 const Title = styledTS<{
-  compact?: boolean;
-  hasImage?: boolean;
-  background?: string;
+  $compact?: boolean;
+  $hasImage?: boolean;
+  $background?: string;
 }>(styled.a)`
-  padding: ${props => (props.compact ? '10px 20px' : '20px')};
+  padding: ${(props) => (props.$compact ? "10px 20px" : "20px")};
   transition: background 0.3s ease;
   display: flex;
   align-items: center;
@@ -28,17 +28,17 @@ const Title = styledTS<{
     font-weight: 400;
   }
 
-  ${props =>
-    props.hasImage &&
+  ${(props) =>
+    props.$hasImage &&
     css`
       &:after {
-        content: '';
+        content: "";
         display: block;
         position: absolute;
         border-radius: 100% 12%;
         width: 300px;
         height: 200%;
-        background-color: ${rgba(props.background, 0.13)};
+        background-color: ${rgba(props.$background, 0.13)};
         right: -40px;
         top: -30px;
       }
@@ -70,18 +70,18 @@ const Left = styled.div`
   }
 `;
 
-const Container = styledTS<{ open: boolean; transparent?: boolean }>(
+const Container = styledTS<{ $open: boolean; $transparent?: boolean }>(
   styled.div
 )`
   margin-bottom: 10px;
-  box-shadow: ${props =>
-    props.transparent ? 'none' : '0 0 6px 1px rgba(0,0,0,0.08)'};
+  box-shadow: ${(props) =>
+    props.$transparent ? "none" : "0 0 6px 1px rgba(0,0,0,0.08)"};
   border-radius: 4px;
-  background: ${props => (props.open ? colors.bgLight : colors.colorWhite)};
-  border-bottom: ${props =>
-    props.transparent && !props.open
+  background: ${(props) => (props.$open ? colors.bgLight : colors.colorWhite)};
+  border-bottom: ${(props) =>
+    props.$transparent && !props.$open
       ? `1px solid ${colors.borderPrimary}`
-      : 'none'};
+      : "none"};
 
   &:last-child {
     margin-bottom: 0;
@@ -90,13 +90,13 @@ const Container = styledTS<{ open: boolean; transparent?: boolean }>(
   > ${Title} i {
     font-size: 20px;
     transition: transform ease 0.3s;
-    transform: ${props => props.open && 'rotate(180deg)'};
+    transform: ${(props) => props.$open && "rotate(180deg)"};
     line-height: ${dimensions.coreSpacing}px;
   }
 `;
 
-const Content = styledTS<{ full: boolean }>(styled.div)`
-  padding: ${props => (props.full ? '0' : '20px')};
+const Content = styledTS<{ $full: boolean }>(styled.div)`
+  padding: ${(props) => (props.$full ? "0" : "20px")};
   border-top: 1px solid ${colors.borderPrimary};
   background: ${colors.colorWhite};
   border-bottom-left-radius: 4px;
@@ -140,7 +140,7 @@ function CollapseContent({
   title,
   full,
   id,
-  children
+  children,
 }: Props) {
   const [toggleOpen, toggleCollapse] = useState<boolean>(open || false);
 
@@ -155,14 +155,15 @@ function CollapseContent({
   const hasImage = image ? true : false;
 
   return (
-    <Container open={toggleOpen} id={id} transparent={transparent}>
-      <Title
+    <Disclosure as={Container} id={id} $transparent={transparent} defaultOpen={open}>
+      <Disclosure.Button
+        as={Title}
         href={contendId && `#${contendId}`}
         id={contendId}
         onClick={onTitleClick}
-        compact={compact}
-        hasImage={hasImage}
-        background={imageBackground}
+        $compact={compact}
+        $hasImage={hasImage}
+        $background={imageBackground}
       >
         <Left>
           {beforeTitle}
@@ -176,13 +177,13 @@ function CollapseContent({
         ) : (
           <Icon icon="angle-down" />
         )}
-      </Title>
-      <Collapse in={toggleOpen}>
+      </Disclosure.Button>
+      <Disclosure.Panel>
         <div>
-          <Content full={hasImage || full || false}>{children}</Content>
+          <Content $full={hasImage || full || false}>{children}</Content>
         </div>
-      </Collapse>
-    </Container>
+      </Disclosure.Panel>
+    </Disclosure>
   );
 }
 

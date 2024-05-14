@@ -1,13 +1,12 @@
-import Icon from '../Icon';
-import { router } from '../../utils/core';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '../../types';
-import { difference, intersection, range, union } from '../../utils/core';
-import PerPageChooser from './PerPageChooser';
-import { PaginationList, PaginationWrapper } from './styles';
+import { PaginationList, PaginationWrapper } from "./styles";
+import React from "react";
+import { difference, intersection, range, union } from "../../utils/core";
+import { useLocation, useNavigate } from "react-router-dom";
 
-// pages calculation
+import Icon from "../Icon";
+import PerPageChooser from "./PerPageChooser";
+import { router } from "../../utils/core";
+
 const generatePages = (pageCount: number, currentPage: number): number[] => {
   const w = 4;
 
@@ -68,153 +67,125 @@ const generatePages = (pageCount: number, currentPage: number): number[] => {
   return pages;
 };
 
-// page chooser component
-class Page extends React.Component<{
-  history: any;
-  page: number;
-  currentPage: number;
-}> {
-  goto(page) {
-    router.setParams(this.props.history, { page });
-  }
+const Page = ({ page, currentPage }: { page: number; currentPage: number }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  onClick = e => {
-    e.preventDefault();
-
-    this.goto(this.props.page);
+  const goto = (page) => {
+    router.setParams(navigate, location, { page });
   };
 
-  render() {
-    const { currentPage, page } = this.props;
+  const onClick = (e) => {
+    e.preventDefault();
+    goto(page);
+  };
 
-    if (page !== -1) {
-      let className = '';
+  if (page !== -1) {
+    let className = "";
 
-      if (page === currentPage) {
-        className += ' active disabled';
-      }
-
-      return (
-        <li className={className} onClick={this.onClick}>
-          <a href="#page">{page}</a>
-        </li>
-      );
+    if (page === currentPage) {
+      className += " active disabled";
     }
 
     return (
-      <li className="disabled">
-        <span>...</span>
+      <li className={className} onClick={onClick}>
+        <a href="#page">{page}</a>
       </li>
     );
   }
-}
 
-interface IPaginationProps extends IRouterProps {
-  totalPagesCount: number;
-  pages?: number[];
-  count?: number;
-  currentPage?: number;
-  isPaginated?: boolean;
-}
+  return (
+    <li className="disabled">
+      <span>...</span>
+    </li>
+  );
+};
 
-// main pagination component
-class Pagination extends React.Component<IPaginationProps> {
-  goto(page) {
-    router.setParams(this.props.history, { page });
-  }
+const Pagination = ({
+  totalPagesCount,
+  pages = [],
+  count,
+  currentPage = 1,
+  isPaginated,
+}) => {
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  onPrev = e => {
+  const goto = (page) => {
+    router.setParams(navigate, location, { page });
+  };
+
+  const onPrev = (e) => {
     e.preventDefault();
 
-    const page = (this.props.currentPage || 1) - 1;
+    const page = (currentPage || 1) - 1;
 
     if (page > 0) {
-      this.goto(page);
+      goto(page);
     }
   };
 
-  onNext = e => {
+  const onNext = (e) => {
     e.preventDefault();
-
-    const { totalPagesCount, currentPage } = this.props;
 
     const page = (currentPage || 1) + 1;
 
     if (page <= totalPagesCount) {
-      this.goto(page);
+      goto(page);
     }
   };
 
-  renderBar() {
-    const {
-      history,
-      totalPagesCount,
-      pages = [],
-      currentPage = 1,
-      isPaginated
-    } = this.props;
-
+  const renderBar = () => {
     if (!isPaginated) {
       return null;
     }
 
-    let prevClass = '';
-    let nextClass = '';
+    let prevClass = "";
+    let nextClass = "";
 
     if (currentPage <= 1) {
-      prevClass = 'disabled';
+      prevClass = "disabled";
     }
 
     if (currentPage >= totalPagesCount) {
-      nextClass = 'disabled';
+      nextClass = "disabled";
     }
 
     return (
       <PaginationList>
         <li className={prevClass}>
-          <a href="#prev" onClick={this.onPrev}>
+          <a href="#prev" onClick={onPrev}>
             <Icon icon="arrow-left" />
           </a>
         </li>
 
         {pages.map((page, index) => (
-          <Page
-            key={index}
-            history={history}
-            currentPage={currentPage}
-            page={page}
-          />
+          <Page key={index} currentPage={currentPage} page={page} />
         ))}
 
         <li className={nextClass}>
-          <a href="#next" onClick={this.onNext}>
+          <a href="#next" onClick={onNext}>
             <Icon icon="arrow-right" />
           </a>
         </li>
 
-        {this.renderPerPageChooser()}
+        {renderPerPageChooser()}
       </PaginationList>
     );
-  }
+  };
 
-  renderPerPageChooser() {
-    return <PerPageChooser count={this.props.count || 0} />;
-  }
+  const renderPerPageChooser = () => {
+    return <PerPageChooser count={count || 0} />;
+  };
 
-  render() {
-    return <PaginationWrapper>{this.renderBar()}</PaginationWrapper>;
-  }
-}
+  return <PaginationWrapper>{renderBar()}</PaginationWrapper>;
+};
 
-interface IPaginationContainerProps extends IRouterProps {
-  count?: number;
-}
+const PaginationContainer = ({ count = 100 }: { count?: number }) => {
+  const location = useLocation();
 
-const PaginationContainer = (props: IPaginationContainerProps) => {
-  const { history, count = 100 } = props;
-
-  const currentPage = Number(router.getParam(history, 'page')) || 1;
-  const perPage = Number(router.getParam(history, 'perPage')) || 20;
+  const currentPage = Number(router.getParam(location, "page")) || 1;
+  const perPage = Number(router.getParam(location, "perPage")) || 20;
 
   let totalPagesCount = parseInt((count / perPage).toString(), 10) + 1;
 
@@ -223,17 +194,17 @@ const PaginationContainer = (props: IPaginationContainerProps) => {
   }
 
   // calculate page numbers
-  const pages = generatePages(totalPagesCount, currentPage);
+  const pages = generatePages(totalPagesCount, currentPage) as any;
 
   const childProps = {
-    ...props,
+    count,
     currentPage,
     isPaginated: totalPagesCount > 1,
     totalPagesCount,
-    pages
+    pages,
   };
 
   return <Pagination {...childProps} />;
 };
 
-export default withRouter<IPaginationContainerProps>(PaginationContainer);
+export default PaginationContainer;

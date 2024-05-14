@@ -87,24 +87,84 @@ const DragField = styledTS<{ haveChart?: boolean } & any>(
     user-select: none;
   }
 
-  .react-grid-item > .react-resizable-handle {
+  // BOTTOM RIGHT
+  .react-grid-item > .react-resizable-handle-se {
     position: absolute;
     width: 20px;
     height: 20px;
     bottom: 0;
     right: 0;
-    cursor: se-resize;
+    cursor: nwse-resize;
   }
 
-  .react-grid-item > .react-resizable-handle::after {
-    content: "";
+  // BOTTOM LEFT
+  .react-grid-item > .react-resizable-handle-sw {
     position: absolute;
-    right: 3px;
-    bottom: 3px;
-    width: 8px;
-    height: 8px;
-    border-right: 2px solid rgba(0, 0, 0, 0.4);
-    border-bottom: 2px solid rgba(0, 0, 0, 0.4);
+    width: 20px;
+    height: 20px;
+    bottom: 0;
+    left: 0;
+    cursor: nesw-resize;
+  }
+
+  // TOP RIGHT
+  .react-grid-item > .react-resizable-handle-ne {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 0;
+    right: 0;
+    cursor: nesw-resize;
+  }
+
+  // TOP LEFT
+  .react-grid-item > .react-resizable-handle-nw {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 0;
+    left: 0;
+    cursor: nwse-resize;
+  }
+
+  // RIGHT
+  .react-grid-item > .react-resizable-handle-e {
+    position: absolute;
+    width: 20px;
+    height: 100%;
+    top: 0;
+    right: 0;
+    cursor: ew-resize;
+  }
+
+  // LEFT
+  .react-grid-item > .react-resizable-handle-w {
+    position: absolute;
+    width: 20px;
+    height: 100%;
+    top: 0;
+    left: 0;
+    cursor: ew-resize;
+  }
+
+  // TOP
+  .react-grid-item > .react-resizable-handle-n {
+    position: absolute;
+    width: 100%;
+    height: 20px;
+    top: 0;
+    left: 0;
+    cursor: ns-resize;
+  }
+
+  // BOTTOM
+  .react-grid-item > .react-resizable-handle-s {
+    position: absolute;
+    width: 100%;
+    height: 20px;
+    bottom: 0;
+    left: 0;
+    cursor: ns-resize;
   }
 
   .react-grid-item:not(.react-grid-placeholder) {

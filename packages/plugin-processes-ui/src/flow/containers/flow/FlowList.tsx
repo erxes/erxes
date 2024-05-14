@@ -1,23 +1,23 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import Bulk from '@erxes/ui/src/components/Bulk';
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import List from '../../components/flow/FlowList';
-import { mutations, queries } from '../../graphql';
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import Bulk from "@erxes/ui/src/components/Bulk";
+import { Alert, withProps } from "@erxes/ui/src/utils";
+import { generatePaginationParams } from "@erxes/ui/src/utils/router";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import List from "../../components/flow/FlowList";
+import { mutations, queries } from "../../graphql";
 import {
   flowsRemoveMutationResponse,
   flowTotalCountQueryResponse,
   FlowsQueryResponse,
   FlowsAddMutationResponse,
-  IFlowDocument
-} from '../../types';
+  IFlowDocument,
+} from "../../types";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
-  history: any;
   type?: string;
 };
 
@@ -28,108 +28,99 @@ type FinalProps = {
   flowsRemoveMutationResponse &
   FlowsAddMutationResponse;
 
-class ProductListContainer extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
+const ProductListContainer = (props: FinalProps) => {
+  const navigate = useNavigate();
 
-    this.state = {
-      mergeProductLoading: false
-    };
+  const {
+    queryParams,
+    flowsQuery,
+    flowTotalCountQuery,
+    flowsRemove,
+    flowsAdd,
+  } = props;
+
+  const addFlow = (isSub?: boolean) => {
+    flowsAdd({
+      variables: {
+        name: "Your flow title",
+        status: "draft",
+        isSub,
+      },
+    })
+      .then((data) => {
+        navigate({
+          pathname: `/processes/flows/details/${data.data.flowsAdd._id}`,
+          search: "?isCreate=true",
+        });
+      })
+
+      .catch((error) => {
+        Alert.error(error.message);
+      });
+  };
+
+  if (flowsQuery.loading) {
+    return false;
   }
 
-  render() {
-    const {
-      queryParams,
-      history,
-      flowsQuery,
-      flowTotalCountQuery,
-      flowsRemove,
-      flowsAdd
-    } = this.props;
+  // remove action
+  const remove = ({ flowIds }, emptyBulk) => {
+    flowsRemove({
+      variables: { flowIds },
+    })
+      .then((removeStatus) => {
+        emptyBulk();
 
-    const addFlow = (isSub?: boolean) => {
-      flowsAdd({
-        variables: {
-          name: 'Your flow title',
-          status: 'draft',
-          isSub
-        }
+        const status = removeStatus.data.flowsRemove;
+        getRefetchQueries();
+
+        status === "deleted"
+          ? Alert.success("You successfully deleted a flow")
+          : Alert.warning("Flow status deleted");
       })
-        .then(data => {
-          history.push({
-            pathname: `/processes/flows/details/${data.data.flowsAdd._id}`,
-            search: '?isCreate=true'
-          });
-        })
+      .catch((e) => {
+        Alert.error(e.message);
+      });
+  };
 
-        .catch(error => {
-          Alert.error(error.message);
-        });
-    };
+  const updatedProps = {
+    ...props,
+    queryParams,
+    flows: flowsQuery.flows || [],
+    remove,
+    addFlow,
+    loading: flowsQuery.loading,
+    searchValue: queryParams.searchValue || "",
+    flowsTotalCount: flowTotalCountQuery.flowTotalCount || 0,
+  };
 
-    if (flowsQuery.loading) {
-      return false;
-    }
+  const flowList = (props) => {
+    return <List {...updatedProps} {...props} />;
+  };
 
-    // remove action
-    const remove = ({ flowIds }, emptyBulk) => {
-      flowsRemove({
-        variables: { flowIds }
-      })
-        .then(removeStatus => {
-          emptyBulk();
+  const refetch = () => {
+    flowsQuery.refetch();
+  };
 
-          const status = removeStatus.data.flowsRemove;
-          getRefetchQueries();
-
-          status === 'deleted'
-            ? Alert.success('You successfully deleted a flow')
-            : Alert.warning('Flow status deleted');
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    };
-
-    const updatedProps = {
-      ...this.props,
-      queryParams,
-      flows: flowsQuery.flows || [],
-      remove,
-      addFlow,
-      loading: flowsQuery.loading,
-      searchValue: this.props.queryParams.searchValue || '',
-      flowsTotalCount: flowTotalCountQuery.flowTotalCount || 0
-    };
-
-    const flowList = props => {
-      return <List {...updatedProps} {...props} />;
-    };
-
-    const refetch = () => {
-      this.props.flowsQuery.refetch();
-    };
-
-    return <Bulk content={flowList} refetch={refetch} />;
-  }
-}
+  return <Bulk content={flowList} refetch={refetch} />;
+};
 
 const getRefetchQueries = () => {
-  return ['flows', 'flowsMain', 'flowCategories', 'flowTotalCount'];
+  return ["flows", "flowsMain", "flowCategories", "flowTotalCount"];
 };
 
 const options = () => ({
-  refetchQueries: getRefetchQueries()
+  refetchQueries: getRefetchQueries(),
 });
 
-const generateFilter = qp => {
+const generateFilter = (qp) => {
   return {
     categoryId: qp.categoryId,
     searchValue: qp.searchValue,
     branchId: qp.branchId,
     departmentId: qp.departmentId,
     status: qp.status,
-    validation: qp.validation
+    validation: qp.validation,
   };
 };
 
@@ -138,39 +129,39 @@ export default withProps<Props>(
     graphql<Props, FlowsQueryResponse, { page: number; perPage: number }>(
       gql(queries.flowsMain),
       {
-        name: 'flowsQuery',
+        name: "flowsQuery",
         options: ({ queryParams }) => ({
           variables: {
             ...generateFilter(queryParams),
-            ...generatePaginationParams(queryParams)
+            ...generatePaginationParams(queryParams),
           },
-          fetchPolicy: 'network-only'
-        })
+          fetchPolicy: "network-only",
+        }),
       }
     ),
     graphql<Props, flowTotalCountQueryResponse>(gql(queries.flowTotalCount), {
-      name: 'flowTotalCountQuery',
+      name: "flowTotalCountQuery",
       options: ({ queryParams }) => ({
         variables: {
-          ...generateFilter(queryParams)
+          ...generateFilter(queryParams),
         },
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: "network-only",
+      }),
     }),
     graphql<Props, flowsRemoveMutationResponse, { flowsIds: string[] }>(
       gql(mutations.flowsRemove),
       {
-        name: 'flowsRemove',
-        options
+        name: "flowsRemove",
+        options,
       }
     ),
     graphql<{}, FlowsAddMutationResponse, IFlowDocument>(
       gql(mutations.flowsAdd),
       {
-        name: 'flowsAdd',
+        name: "flowsAdd",
         options: () => ({
-          refetchQueries: ['flows', 'flowDetail']
-        })
+          refetchQueries: ["flows", "flowDetail"],
+        }),
       }
     )
   )(ProductListContainer)

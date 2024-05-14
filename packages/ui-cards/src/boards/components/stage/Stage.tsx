@@ -4,27 +4,28 @@ import {
   AddNew,
   Body,
   Container,
+  Divider,
   Header,
   Indicator,
   IndicatorItem,
   LoadingContent,
   StageFooter,
   StageRoot,
-  StageTitle
-} from '../../styles/stage';
-import { Dropdown, OverlayTrigger, Popover } from 'react-bootstrap';
-import { IItem, IOptions, IStage } from '../../types';
+  StageTitle,
+} from "../../styles/stage";
+import { IItem, IOptions, IStage } from "../../types";
+import { __, isEnabled } from "@erxes/ui/src/utils/core";
 
-import { AddForm } from '../../containers/portable';
-import { Draggable } from 'react-beautiful-dnd';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Icon from '@erxes/ui/src/components/Icon';
-import ItemList from '../stage/ItemList';
-import ItemProductProbabilities from '../../../deals/components/ItemProductProbabilities';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import { __, isEnabled } from '@erxes/ui/src/utils/core';
-import StageModal from './StageModal';
+import { AddForm } from "../../containers/portable";
+import { Draggable } from "react-beautiful-dnd";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Icon from "@erxes/ui/src/components/Icon";
+import ItemList from "../stage/ItemList";
+import ItemProductProbabilities from "../../../deals/components/ItemProductProbabilities";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Popover from "@erxes/ui/src/components/Popover";
+import React from "react";
+import StageModal from "./StageModal";
 
 type Props = {
   loadingItems: () => boolean;
@@ -59,7 +60,7 @@ export default class Stage extends React.Component<Props, State> {
     this.state = {
       showSortOptions: false,
       renderModal: false,
-      items: []
+      items: [],
     };
   }
 
@@ -90,11 +91,11 @@ export default class Stage extends React.Component<Props, State> {
       }
     }, 1000);
 
-    window.addEventListener('storageChange', this.handleStorageChange);
+    window.addEventListener("storageChange", this.handleStorageChange);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('storageChange', this.handleStorageChange);
+    window.removeEventListener("storageChange", this.handleStorageChange);
   }
 
   handleStorageChange = () => {
@@ -131,8 +132,8 @@ export default class Stage extends React.Component<Props, State> {
   };
 
   toggleModal = () => {
-    this.setState(prevState => ({
-      renderModal: !prevState.renderModal
+    this.setState((prevState) => ({
+      renderModal: !prevState.renderModal,
     }));
     this.onClosePopover();
   };
@@ -156,51 +157,45 @@ export default class Stage extends React.Component<Props, State> {
     };
 
     return (
-      <Popover id="stage-popover">
-        <ActionList>
-          {showSortOptions ? (
-            this.renderSortOptions()
-          ) : (
-            <>
-              <li onClick={archiveItems} key="archive-items">
-                {__('Archive All Cards in This List')}
+      <ActionList>
+        {showSortOptions ? (
+          this.renderSortOptions()
+        ) : (
+          <>
+            <li onClick={archiveItems} key="archive-items">
+              {__("Archive All Cards in This List")}
+            </li>
+            <li onClick={archiveList} key="archive-list">
+              {__("Archive This List")}
+            </li>
+            <li onClick={removeStage} key="remove-stage">
+              {__("Remove stage")}
+            </li>
+            <Divider />
+            <li onClick={this.toggleSortOptions}>{__("Sort By")}</li>
+            {isEnabled("documents") && options.type === "deal" && (
+              <li>
+                <a onClick={this.toggleModal}>{__("Print document")}</a>
               </li>
-              <li onClick={archiveList} key="archive-list">
-                {__('Archive This List')}
-              </li>
-              <li onClick={removeStage} key="remove-stage">
-                {__('Remove stage')}
-              </li>
-              <Dropdown.Divider />
-              <li onClick={this.toggleSortOptions}>{__('Sort By')}</li>
-              {isEnabled('documents') && options.type === 'deal' && (
-                <li>
-                  <a onClick={this.toggleModal}>{__('Print document')}</a>
-                </li>
-              )}
-            </>
-          )}
-        </ActionList>
-      </Popover>
+            )}
+          </>
+        )}
+      </ActionList>
     );
   }
 
   renderCtrl() {
     return (
-      <OverlayTrigger
-        ref={overlayTrigger => {
-          this.overlayTrigger = overlayTrigger;
-        }}
-        trigger="click"
-        placement="bottom-start"
-        rootClose={true}
-        container={this}
-        overlay={this.renderPopover()}
+      <Popover
+        placement="bottom"
+        trigger={
+          <ActionButton>
+            <Icon icon="ellipsis-h" />
+          </ActionButton>
+        }
       >
-        <ActionButton>
-          <Icon icon="ellipsis-h" />
-        </ActionButton>
-      </OverlayTrigger>
+        {this.renderPopover()}
+      </Popover>
     );
   }
 
@@ -220,13 +215,13 @@ export default class Stage extends React.Component<Props, State> {
       <>
         <li onClick={this.toggleSortOptions}>Back</li>
 
-        <Dropdown.Divider />
+        <Divider />
 
         <li
           onClick={sortItems.bind(
             this,
-            'created-desc',
-            'date created (newest first)'
+            "created-desc",
+            "date created (newest first)"
           )}
         >
           Date created (Newest first)
@@ -234,8 +229,8 @@ export default class Stage extends React.Component<Props, State> {
         <li
           onClick={sortItems.bind(
             this,
-            'created-asc',
-            'date created (oldest first)'
+            "created-asc",
+            "date created (oldest first)"
           )}
         >
           Date created (Oldest first)
@@ -243,8 +238,8 @@ export default class Stage extends React.Component<Props, State> {
         <li
           onClick={sortItems.bind(
             this,
-            'modified-desc',
-            'date modified (newest first)'
+            "modified-desc",
+            "date modified (newest first)"
           )}
         >
           Date modified (Newest first)
@@ -252,8 +247,8 @@ export default class Stage extends React.Component<Props, State> {
         <li
           onClick={sortItems.bind(
             this,
-            'modified-asc',
-            'date modified (oldest first)'
+            "modified-asc",
+            "date modified (oldest first)"
           )}
         >
           Date modified (Oldest first)
@@ -261,8 +256,8 @@ export default class Stage extends React.Component<Props, State> {
         <li
           onClick={sortItems.bind(
             this,
-            'close-asc',
-            'date assigned (Earliest first)'
+            "close-asc",
+            "date assigned (Earliest first)"
           )}
         >
           Date assigned (Earliest first)
@@ -270,14 +265,14 @@ export default class Stage extends React.Component<Props, State> {
         <li
           onClick={sortItems.bind(
             this,
-            'close-desc',
-            'date assigned (Latest first)'
+            "close-desc",
+            "date assigned (Latest first)"
           )}
         >
           Date assigned (Latest first)
         </li>
         <li
-          onClick={sortItems.bind(this, 'alphabetically-asc', 'alphabetically')}
+          onClick={sortItems.bind(this, "alphabetically-asc", "alphabetically")}
         >
           Alphabetically
         </li>
@@ -314,10 +309,10 @@ export default class Stage extends React.Component<Props, State> {
       callback: (item: IItem) => onAddItem(stage._id, item),
       stageId: stage._id,
       pipelineId: stage.pipelineId,
-      aboveItemId: ''
+      aboveItemId: "",
     };
 
-    const content = props => <AddForm {...props} {...formProps} />;
+    const content = (props) => <AddForm {...props} {...formProps} />;
 
     return <ModalTrigger title={addText} trigger={trigger} content={content} />;
   }
@@ -329,7 +324,7 @@ export default class Stage extends React.Component<Props, State> {
     const data: any = [];
 
     for (let i = 0; i < length; i++) {
-      data.push(<IndicatorItem isPass={index >= i} key={i} />);
+      data.push(<IndicatorItem $isPass={index >= i} key={i} />);
     }
 
     return data;
@@ -376,7 +371,7 @@ export default class Stage extends React.Component<Props, State> {
     }
 
     const renderDetail = () => {
-      if (window.location.pathname.includes('deal')) {
+      if (window.location.pathname.includes("deal")) {
         return (
           <ItemProductProbabilities
             totalAmount={stage.amount}
@@ -392,8 +387,12 @@ export default class Stage extends React.Component<Props, State> {
     return (
       <Draggable draggableId={stage._id} index={index}>
         {(provided, snapshot) => (
-          <Container innerRef={provided.innerRef} {...provided.draggableProps}>
-            <StageRoot isDragging={snapshot.isDragging}>
+          <Container
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+          >
+            <StageRoot $isDragging={snapshot.isDragging}>
               <Header {...provided.dragHandleProps}>
                 <StageTitle>
                   <div>
@@ -406,9 +405,9 @@ export default class Stage extends React.Component<Props, State> {
 
                 <Indicator>{this.renderIndicator()}</Indicator>
               </Header>
-              <Body innerRef={this.bodyRef} onScroll={this.onScroll}>
+              <Body ref={this.bodyRef} onScroll={this.onScroll}>
                 {this.renderItemList()}
-                {this.renderTriggerModal()},
+                {this.renderTriggerModal()}
               </Body>
               {this.renderAddItemTrigger()}
             </StageRoot>

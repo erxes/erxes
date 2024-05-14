@@ -21,25 +21,7 @@ module.exports = {
       permissions: ["showFileManager"],
     },
   ],
-  dealRightSidebarSection: [
-    {
-      text: "fileChooserSection",
-      component: "./fileChooserSection",
-      scope: "filemanager",
-    },
-  ],
-  ticketRightSidebarSection: [
-    {
-      text: "fileChooserSection",
-      component: "./fileChooserSection",
-      scope: "filemanager",
-    },
-  ],
-  taskRightSidebarSection: [
-    {
-      text: "fileChooserSection",
-      component: "./fileChooserSection",
-      scope: "filemanager",
-    },
-  ],
+  dealRightSidebarSection: "./fileChooserSection",
+  ticketRightSidebarSection: "./fileChooserSection",
+  taskRightSidebarSection: "./fileChooserSection",
 };

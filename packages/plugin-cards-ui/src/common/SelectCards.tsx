@@ -1,13 +1,14 @@
-import { queries } from '@erxes/ui-cards/src/boards/graphql';
-import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
-import { IOption, IQueryParams } from '@erxes/ui/src/types';
-import React from 'react';
+import { IOption, IQueryParams } from "@erxes/ui/src/types";
+
+import React from "react";
+import SelectWithSearch from "@erxes/ui/src/components/SelectWithSearch";
+import { queries } from "@erxes/ui-cards/src/boards/graphql";
 
 function generateCustomerOptions(array: any[] = []): IOption[] {
-  return array.map(item => {
+  return (array || []).map((item) => {
     return {
       value: item._id,
-      label: item.name
+      label: item.name,
     };
   });
 }
@@ -20,7 +21,7 @@ export default ({
   customOption,
   label,
   name,
-  type
+  type,
 }: {
   queryParams?: IQueryParams;
   label: string;
@@ -29,7 +30,7 @@ export default ({
   customOption?: IOption;
   initialValue?: string | string[];
   name: string;
-  type: 'deal' | 'ticket' | 'task' | 'purchase';
+  type: "deal" | "ticket" | "task" | "purchase";
 }) => {
   const defaultValue = queryParams ? queryParams[name] : initialValue;
 

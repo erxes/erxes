@@ -15,9 +15,18 @@ const types = `
     sendStr: String
     responseData: JSON
     responseStr: String
+    responseSales: [String]
     error: String
     content: String
     createdUser: JSON
+  }
+
+  type CheckResponse {
+    _id: String
+    isSynced: Boolean
+    syncedDate: Date
+    syncedBillNumber: String
+    syncedCustomer: String
   }
 `;
 

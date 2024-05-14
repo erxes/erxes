@@ -1,26 +1,23 @@
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import queryString from "query-string";
+import React from "react";
+import { Route, Routes, useLocation } from "react-router-dom";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 
 const Insight = asyncComponent(
-  () => import(/* webpackChunkName: "InsightList" */ './containers/Insight'),
+  () => import(/* webpackChunkName: "InsightList" */ "./containers/Insight")
 );
 
-const InsightList = ({ location, history }) => {
-  return (
-    <Insight
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const InsightList = () => {
+  const location = useLocation();
+
+  return <Insight queryParams={queryString.parse(location.search)} />;
 };
 
 const InsightRoutes = () => {
   return (
-    <React.Fragment>
-      <Route path="/insight" component={InsightList} />
-    </React.Fragment>
+    <Routes>
+      <Route path="/insight" element={<InsightList />} />
+    </Routes>
   );
 };
 

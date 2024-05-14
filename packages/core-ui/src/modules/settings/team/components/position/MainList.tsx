@@ -3,44 +3,45 @@ import {
   InputBar,
   LeftActionBar,
   Title,
-} from '@erxes/ui-settings/src/styles';
+} from "@erxes/ui-settings/src/styles";
 import {
   IPosition,
   PositionsMainQueryResponse,
-} from '@erxes/ui/src/team/types';
-import { __, router } from '@erxes/ui/src/utils';
-import React, { useState } from 'react';
+} from "@erxes/ui/src/team/types";
+import React, { useState } from "react";
+import { __, router } from "@erxes/ui/src/utils";
 
-import { gql } from '@apollo/client';
-import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
-import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { queries } from '@erxes/ui/src/team/graphql';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import Button from 'modules/common/components/Button';
-import DataWithLoader from 'modules/common/components/DataWithLoader';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import FormControl from 'modules/common/components/form/Control';
-import Pagination from 'modules/common/components/pagination/Pagination';
-import Table from 'modules/common/components/table';
-import Wrapper from 'modules/layout/components/Wrapper';
-import { BarItems } from 'modules/layout/styles';
-import Form from '../../containers/common/BlockForm';
-import SettingsSideBar from '../../containers/common/SettingSideBar';
-import { generateTree } from '../../utils';
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import { BarItems } from "modules/layout/styles";
+import Button from "modules/common/components/Button";
+import DataWithLoader from "modules/common/components/DataWithLoader";
+import Form from "../../containers/common/BlockForm";
+import FormControl from "modules/common/components/form/Control";
+import Icon from "@erxes/ui/src/components/Icon";
+import LeftSidebar from "@erxes/ui/src/layout/components/Sidebar";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import Pagination from "modules/common/components/pagination/Pagination";
+import SettingsSideBar from "../../containers/common/SettingSideBar";
+import SidebarHeader from "@erxes/ui-settings/src/common/components/SidebarHeader";
+import Table from "modules/common/components/table";
+import Tip from "@erxes/ui/src/components/Tip";
+import Wrapper from "modules/layout/components/Wrapper";
+import { generatePaginationParams } from "@erxes/ui/src/utils/router";
+import { generateTree } from "../../utils";
+import { gql } from "@apollo/client";
+import { queries } from "@erxes/ui/src/team/graphql";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   listQuery: PositionsMainQueryResponse;
   deletePositions: (ids: string[], callback: () => void) => void;
   queryParams: any;
-  history: any;
 };
 
 const MainList = (props: Props) => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const { queryParams, listQuery, deletePositions } = props;
-
   const positions = listQuery?.positionsMain?.list || [];
 
   const { totalCount } = listQuery.positionsMain;
@@ -73,7 +74,7 @@ const MainList = (props: Props) => {
     const handleSelect = () => {
       if (selectedItems.includes(position._id)) {
         const removedSelectedItems = selectedItems.filter(
-          (selectItem) => selectItem !== position._id,
+          (selectItem) => selectItem !== position._id
         );
         setSelectedItems(removedSelectedItems);
         return;
@@ -88,7 +89,7 @@ const MainList = (props: Props) => {
 
     const trigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')} placement="top">
+        <Tip text={__("Edit")} placement="top">
           <Icon icon="edit-3" />
         </Tip>
       </Button>
@@ -98,14 +99,14 @@ const MainList = (props: Props) => {
       <tr key={position._id}>
         <td onClick={onclick}>
           <FormControl
-            componentClass="checkbox"
+            componentclass="checkbox"
             checked={selectedItems.includes(position._id)}
             onClick={handleSelect}
           />
         </td>
-        <td>{__(`${'\u00A0 \u00A0 '.repeat(level)}  ${position.code}`)}</td>
+        <td>{__(`${"\u00A0 \u00A0 ".repeat(level)}  ${position.code}`)}</td>
         <td>{__(position.title)}</td>
-        <td>{position?.parent?.title || ''}</td>
+        <td>{position?.parent?.title || ""}</td>
         <td>{position.userCount}</td>
         <td>
           <ActionButtons>
@@ -122,7 +123,7 @@ const MainList = (props: Props) => {
               )}
               trigger={trigger}
             />
-            <Tip text={__('Delete')} placement="top">
+            <Tip text={__("Delete")} placement="top">
               <Button
                 btnStyle="link"
                 onClick={() => remove(position._id)}
@@ -149,25 +150,25 @@ const MainList = (props: Props) => {
           <tr>
             <th>
               <FormControl
-                componentClass="checkbox"
+                componentclass="checkbox"
                 checked={positions?.length === selectedItems.length}
                 onClick={handleSelectAll}
               />
             </th>
-            <th>{__('Code')}</th>
-            <th>{__('Title')}</th>
-            <th>{__('Parent')}</th>
-            <th>{__('Team member count')}</th>
-            <th>{__('Actions')}</th>
+            <th>{__("Code")}</th>
+            <th>{__("Title")}</th>
+            <th>{__("Parent")}</th>
+            <th>{__("Team member count")}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody>
           {generateTree(positions, null, (position, level) =>
-            renderRow(position, level),
+            renderRow(position, level)
           )}
 
-          {generateTree(positions, '', (position, level) =>
-            renderRow(position, level),
+          {generateTree(positions, "", (position, level) =>
+            renderRow(position, level)
           )}
 
           {/* {positions.map(p => renderRow(p, 1))} */}
@@ -179,7 +180,7 @@ const MainList = (props: Props) => {
   const renderForm = () => {
     const trigger = (
       <Button btnStyle="success" icon="plus-circle">
-        {__('Add Position')}
+        {__("Add Position")}
       </Button>
     );
 
@@ -204,31 +205,30 @@ const MainList = (props: Props) => {
 
       e.preventDefault();
 
-      const { history } = props;
       const searchValue = e.target.value;
 
       setSearchValue(searchValue);
 
       timer = setTimeout(() => {
-        router.removeParams(history, 'page');
-        router.setParams(history, { searchValue });
+        router.removeParams(navigate, location, "page");
+        router.setParams(navigate, location, { searchValue });
       }, 500);
     };
 
     const moveCursorAtTheEnd = (e) => {
       const tmpValue = e.target.value;
 
-      e.target.value = '';
+      e.target.value = "";
       e.target.value = tmpValue;
     };
 
     return (
-      <FilterContainer marginRight={true}>
+      <FilterContainer $marginRight={true}>
         <InputBar type="searchBar">
           <Icon icon="search-1" size={20} />
           <FormControl
             type="text"
-            placeholder={__('Type to search')}
+            placeholder={__("Type to search")}
             onChange={search}
             value={searchValue}
             autoFocus={true}
@@ -262,8 +262,8 @@ const MainList = (props: Props) => {
         <Wrapper.Header
           title="Positions"
           breadcrumb={[
-            { title: __('Settings'), link: '/settings' },
-            { title: __('Positions') },
+            { title: __("Settings"), link: "/settings" },
+            { title: __("Positions") },
           ]}
         />
       }
@@ -271,8 +271,8 @@ const MainList = (props: Props) => {
         <Wrapper.ActionBar
           left={
             <LeftActionBar>
-              <Title capitalize={true}>
-                {__('Positions')}&nbsp;
+              <Title $capitalize={true}>
+                {__("Positions")}&nbsp;
                 {`(${totalCount || 0})`}
               </Title>
               {leftActionBar}

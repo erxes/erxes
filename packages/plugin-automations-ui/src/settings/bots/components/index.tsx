@@ -5,25 +5,26 @@ import {
   IntegrationItem,
   IntegrationRow,
   IntegrationWrapper,
-} from '@erxes/ui-inbox/src/settings/integrations/components/store/styles';
-import { Title } from '@erxes/ui-settings/src/styles';
-import { HeaderDescription } from '@erxes/ui/src/components';
-import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
-import { Wrapper } from '@erxes/ui/src/layout';
-import { __ } from '@erxes/ui/src/utils';
-import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
-import React, { useState } from 'react';
-import Collapse from 'react-bootstrap/Collapse';
-import { Link } from 'react-router-dom';
-import Sidebar from '../../Sidebar';
+} from "@erxes/ui-inbox/src/settings/integrations/components/store/styles";
+import React, { useState } from "react";
+
+import Collapse from "@erxes/ui/src/components/Collapse";
+import ErrorBoundary from "@erxes/ui/src/components/ErrorBoundary";
+import { HeaderDescription } from "@erxes/ui/src/components";
+import { Link } from "react-router-dom";
+import { RenderDynamicComponent } from "@erxes/ui/src/utils/core";
+import Sidebar from "../../Sidebar";
+import { Title } from "@erxes/ui-settings/src/styles";
+import { Wrapper } from "@erxes/ui/src/layout";
+import { __ } from "@erxes/ui/src/utils";
 
 const breadcrumb = [
-  { title: __('Settings'), link: '/settings' },
+  { title: __("Settings"), link: "/settings" },
   {
-    title: __('Automations config'),
-    link: '/settings/automations/bots',
+    title: __("Automations config"),
+    link: "/settings/automations/bots",
   },
-  { title: __('Bots config') },
+  { title: __("Bots config") },
 ];
 
 const getBotsByPlatform = () => {
@@ -72,13 +73,13 @@ function Settings() {
         key={platform.name}
         onClick={() => handleSelectPlatform(platform)}
       >
-        <Box isInMessenger={false}>
+        <Box $isInMessenger={false}>
           <img alt="logo" src={platform.logo} />
 
           <h5>{platform.label}</h5>
           <p>{__(platform.description)}</p>
         </Box>
-        <Link to={platform.createUrl}>+ {__('Add')}</Link>
+        <Link to={platform.createUrl}>+ {__("Add")}</Link>
       </IntegrationItem>
     ));
   };
@@ -104,7 +105,7 @@ function Settings() {
       <IntegrationWrapper>
         <IntegrationRow>{renderBotsByPlatform()}</IntegrationRow>
 
-        <Collapse in={!!selectedPlatform} unmountOnExit={true}>
+        <Collapse show={!!selectedPlatform} unmount={true}>
           <CollapsibleContent>{renderList()}</CollapsibleContent>
         </Collapse>
       </IntegrationWrapper>
@@ -114,12 +115,12 @@ function Settings() {
   return (
     <Wrapper
       header={
-        <Wrapper.Header title={__('Bots Config')} breadcrumb={breadcrumb} />
+        <Wrapper.Header title={__("Bots Config")} breadcrumb={breadcrumb} />
       }
       mainHead={header}
       actionBar={
         <Wrapper.ActionBar
-          left={<Title capitalize={true}>{__('Bots config')}</Title>}
+          left={<Title $capitalize={true}>{__("Bots config")}</Title>}
           right={actionButtons}
           wideSpacing={true}
         />

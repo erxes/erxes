@@ -1,32 +1,31 @@
 module.exports = {
   srcDir: __dirname,
-  name: 'syncpolaris',
-  port: 3037,
-  scope: 'syncpolaris',
+  name: "syncpolaris",
+  port: 3137,
+  scope: "syncpolaris",
   exposes: {
-    './routes': './src/routes.tsx'
+    "./routes": "./src/routes.tsx",
   },
   routes: {
-    url: 'http://localhost:3037/remoteEntry.js',
-    scope: 'syncpolaris',
-    module: './routes'
+    url: "http://localhost:3137/remoteEntry.js",
+    scope: "syncpolaris",
+    module: "./routes",
   },
-  menus:[
+  menus: [
     {
-      text: 'Sync polaris config',
-      to: '/erxes-plugin-sync-polaris/settings/general',
-      image: '/images/icons/erxes-04.svg',
+      text: "Sync polaris config",
+      to: "/erxes-plugin-sync-polaris/settings/general",
+      image: "/images/icons/erxes-04.svg",
       location: "settings",
       scope: "syncpolaris",
-      action: 'syncPolarisonfig',
+      action: "syncPolarisonfig",
       permission: "syncPolarisConfig",
     },
     {
-      "text":"Sync Polariss",
-      "url":"/sync-polaris-history",
-      "icon":"icon-star",
-      "location":"mainNavigation"
+      text: "Sync Polariss",
+      url: "/sync-polaris-history",
+      icon: "icon-star",
+      location: "mainNavigation",
     },
-    
-  ]
+  ],
 };

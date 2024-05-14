@@ -1,49 +1,53 @@
-import React from 'react';
+import React from "react";
 import {
   __,
   router,
   Box,
   FieldStyle,
   SidebarList,
-  DataWithLoader
-} from '@erxes/ui/src';
-import { generateParamsIds } from '../../../../common/utils';
+  DataWithLoader,
+} from "@erxes/ui/src";
+import { generateParamsIds } from "../../../../common/utils";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   articles: any[];
   queryParams: any;
-  history: any;
   loading: boolean;
 };
 
-function ArticleFilter({ articles, queryParams, history, loading }: Props) {
-  const isActive = articleId => {
+const ArticleFilter = (props: Props) => {
+  const { articles, queryParams } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const isActive = (articleId) => {
     return queryParams.articleIds && queryParams.articleIds.includes(articleId);
   };
 
-  const handleArticleSelect = id => {
+  const handleArticleSelect = (id) => {
     const articleIds = generateParamsIds(queryParams?.articleIds) || [];
 
     if (articleIds.includes(id)) {
-      router.removeParams(history, 'page');
-      router.setParams(history, {
-        articleIds: (articleIds || []).filter(articleId => articleId !== id)
+      router.removeParams(navigate, location, "page");
+      router.setParams(navigate, location, {
+        articleIds: (articleIds || []).filter((articleId) => articleId !== id),
       });
     }
 
-    router.setParams(history, { articleIds: [...articleIds, id] });
-    router.removeParams(history, 'page');
+    router.setParams(navigate, location, { articleIds: [...articleIds, id] });
+    router.removeParams(navigate, location, "page");
   };
 
   const renderArticlesContent = () => {
     return (
       <SidebarList>
-        {articles.map(article => (
-          <li key={Math.random()} style={{ marginBottom: '5px' }}>
+        {articles.map((article) => (
+          <li key={Math.random()} style={{ marginBottom: "5px" }}>
             <a
               href="#filter"
               tabIndex={0}
-              className={isActive(article._id) ? 'active' : ''}
+              className={isActive(article._id) ? "active" : ""}
               onClick={() => handleArticleSelect(article._id)}
             >
               {/* <Icon icon={type.icon} /> */}
@@ -57,7 +61,7 @@ function ArticleFilter({ articles, queryParams, history, loading }: Props) {
 
   return (
     <Box
-      title={__('Filter by Knowledgebase Article')}
+      title={__("Filter by Knowledgebase Article")}
       name="showFilterByKbArticle"
       isOpen={true}
       collapsible={articles.length > 6}
@@ -65,6 +69,6 @@ function ArticleFilter({ articles, queryParams, history, loading }: Props) {
       {renderArticlesContent()}
     </Box>
   );
-}
+};
 
 export default ArticleFilter;

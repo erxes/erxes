@@ -1,31 +1,29 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
+
+import { Alert, router, withProps } from '@erxes/ui/src/utils';
 import { Bulk, Spinner } from '@erxes/ui/src/components';
-import { Alert, withProps, router } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import List from '../components/List';
-import { mutations, queries } from '../graphql';
-import { queries as campaignQueries } from '../../../configs/lotteryCampaign/graphql';
-import { LotteryCampaignDetailQueryResponse } from '../../../configs/lotteryCampaign/types';
 import {
   MainQueryResponse,
   RemoveMutationResponse,
-  RemoveMutationVariables
+  RemoveMutationVariables,
 } from '../types';
+import { mutations, queries } from '../graphql';
+
+import List from '../components/List';
+import { LotteryCampaignDetailQueryResponse } from '../../../configs/lotteryCampaign/types';
+import React from 'react';
+import { queries as campaignQueries } from '../../../configs/lotteryCampaign/graphql';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 type FinalProps = {
   lotteriesMainQuery: MainQueryResponse;
   lotteryCampaignDetailQuery: LotteryCampaignDetailQueryResponse;
-} & Props &
-  IRouterProps &
+} & Props  &
   RemoveMutationResponse;
 
 type State = {
@@ -37,7 +35,7 @@ class LotteryListContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
   }
 
@@ -46,7 +44,6 @@ class LotteryListContainer extends React.Component<FinalProps, State> {
       lotteriesMainQuery,
       lotteryCampaignDetailQuery,
       lotteriesRemove,
-      history
     } = this.props;
 
     if (
@@ -58,13 +55,13 @@ class LotteryListContainer extends React.Component<FinalProps, State> {
 
     const removeLotteries = ({ lotteryIds }, emptyBulk) => {
       lotteriesRemove({
-        variables: { _ids: lotteryIds }
+        variables: { _ids: lotteryIds },
       })
         .then(() => {
           emptyBulk();
           Alert.success('You successfully deleted a lottery');
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -82,10 +79,10 @@ class LotteryListContainer extends React.Component<FinalProps, State> {
       searchValue,
       lotteries: list,
       currentCampaign,
-      removeLotteries
+      removeLotteries,
     };
 
-    const lotteriesList = props => {
+    const lotteriesList = (props) => {
       return <List {...updatedProps} {...props} />;
     };
 
@@ -107,7 +104,7 @@ const generateParams = ({ queryParams }) => ({
   searchValue: queryParams.searchValue,
   sortField: queryParams.sortField,
   sortDirection: Number(queryParams.sortDirection) || undefined,
-  voucherCampaignId: queryParams.voucherCampaignId
+  voucherCampaignId: queryParams.voucherCampaignId,
 });
 
 const generateOptions = () => ({
@@ -115,8 +112,8 @@ const generateOptions = () => ({
     'lotteriesMain',
     'lotteryCounts',
     'lotteryCategories',
-    'lotteryCategoriesTotalCount'
-  ]
+    'lotteryCategoriesTotalCount',
+  ],
 });
 
 export default withProps<Props>(
@@ -127,9 +124,9 @@ export default withProps<Props>(
         name: 'lotteriesMainQuery',
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
+          fetchPolicy: 'network-only',
+        }),
+      },
     ),
     graphql<Props, LotteryCampaignDetailQueryResponse>(
       gql(campaignQueries.lotteryCampaignDetail),
@@ -137,19 +134,19 @@ export default withProps<Props>(
         name: 'lotteryCampaignDetailQuery',
         options: ({ queryParams }) => ({
           variables: {
-            _id: queryParams.campaignId
-          }
+            _id: queryParams.campaignId,
+          },
         }),
-        skip: ({ queryParams }) => !queryParams.campaignId
-      }
+        skip: ({ queryParams }) => !queryParams.campaignId,
+      },
     ),
     // mutations
     graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.lotteriesRemove),
       {
         name: 'lotteriesRemove',
-        options: generateOptions
-      }
-    )
-  )(withRouter<IRouterProps>(LotteryListContainer))
+        options: generateOptions,
+      },
+    ),
+  )(LotteryListContainer),
 );

@@ -1,42 +1,41 @@
-import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { router } from '@erxes/ui/src/utils';
-import queryString from 'query-string';
-import React, { useEffect } from 'react';
-import { Route } from 'react-router-dom';
+import withCurrentUser from "@erxes/ui/src/auth/containers/withCurrentUser";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import { router } from "@erxes/ui/src/utils";
+import queryString from "query-string";
+import React, { useEffect } from "react";
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 
-const List = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Timeclocks" */ './containers/List')
+const List = asyncComponent(
+  () => import(/* webpackChunkName: "List - Timeclocks" */ "./containers/List")
 );
 
-const mainContent = ({ location, history, currentUser }) => {
+const MainContent = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   // Set Approved as default for scheduleStatus
   useEffect(() => {
-    router.setParams(history, { scheduleStatus: 'Approved' });
+    router.setParams(navigate, location, { scheduleStatus: "Approved" });
   }, []);
 
   const queryParams = queryString.parse(location.search);
-  const routePath = location.pathname.split('/').slice(-1)[0];
+  const routePath = location.pathname.split("/").slice(-1)[0];
 
   return (
     <List
       searchFilter={location.search}
-      history={history}
       queryParams={queryParams}
       route={routePath}
-      currentUser={currentUser}
+      location={location}
+      navigate={navigate}
     />
   );
 };
 
-const routes = ({ currentUser }) => {
+const routes = () => {
   return (
-    <>
-      <Route
-        path="/timeclocks"
-        component={props => mainContent({ ...props, currentUser })}
-      />
-    </>
+    <Routes>
+      <Route path="/timeclocks/*" element={<MainContent />} />
+    </Routes>
   );
 };
 

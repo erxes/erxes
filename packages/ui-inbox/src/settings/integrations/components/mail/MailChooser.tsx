@@ -1,10 +1,11 @@
-import * as React from 'react';
+import * as React from "react";
 
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IIntegration } from '../../types';
-import Select from 'react-select-plus';
-import { __ } from '@erxes/ui/src/utils';
-import styled from 'styled-components';
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IIntegration } from "../../types";
+import Select from "react-select";
+import { __ } from "@erxes/ui/src/utils";
+import { dealFields } from "@erxes/ui-cards/src/deals/graphql/queries";
+import styled from "styled-components";
 
 const Wrapper = styled.div`
   flex: 1;
@@ -12,8 +13,10 @@ const Wrapper = styled.div`
   > div {
     margin-bottom: 5px;
 
-    .Select-control {
+    .css-13cymwt-control, .css-t3ipsp-control {
       border: 0;
+      height: 27px;
+      min-height: unset;
     }
   }
 `;
@@ -24,17 +27,17 @@ type Props = {
   integrations: IIntegration[];
   verifiedImapEmails: string[];
   verifiedEngageEmails: string[];
-  messages: any;
+  detailQuery: any;
 };
 
 class MailChooser extends React.Component<Props> {
   render() {
     const {
-      messages = [],
+      detailQuery = [],
       verifiedImapEmails = [],
       verifiedEngageEmails = [],
-      selectedItem = '',
-      onChange
+      selectedItem = "",
+      onChange,
     } = this.props;
 
     const onSelectChange = (val) => {
@@ -43,27 +46,39 @@ class MailChooser extends React.Component<Props> {
 
     const options = [
       {
-        label: 'Shared Emails (IMAP)',
-        options: verifiedImapEmails.map((e) => ({ value: e, label: e }))
+        label: "Shared Emails (IMAP)",
+        options: verifiedImapEmails.map((e) => ({ value: e, label: e })),
       },
       {
-        label: 'Broadcast (Campaign)',
-        options: verifiedEngageEmails.map((e) => ({ value: e, label: e }))
-      }
+        label: "Broadcast (Campaign)",
+        options: verifiedEngageEmails.map((e) => ({ value: e, label: e })),
+      },
     ];
 
-    let defaultEmail = '';
-    if (messages.length > 0 && messages[0].mailData.to.length > 0) {
-      defaultEmail = messages[0].mailData.to[0].email;
+    let defaultEmail = "";
+
+    if (
+      detailQuery.imapConversationDetail?.length > 0 &&
+      detailQuery.imapConversationDetail[0].mailData.to?.length > 0
+    ) {
+      defaultEmail = detailQuery.imapConversationDetail[0].mailData.to[0].email;
+    }
+    let email = "";
+    if (selectedItem) {
+      email = selectedItem;
+    } else {
+      email = defaultEmail;
     }
     return (
       <Wrapper>
         <FormGroup>
           <Select
-            placeholder={__('Choose email to send from')}
-            value={selectedItem}
-            defaultValue={defaultEmail}
+            placeholder={__("Choose email to send from")}
+            value={options.map((item) =>
+              item.options.find((option) => option.value === email)
+            )}
             onChange={onSelectChange}
+            isClearable={true}
             options={options}
           />
         </FormGroup>

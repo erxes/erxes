@@ -1,44 +1,51 @@
-import { ActionBarLeft, AssignText, AssignTrigger } from './styles';
-import { __, getUserAvatar } from 'coreui/utils';
-import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
+import { ActionBarLeft, AssignText, AssignTrigger } from "./styles";
+import { __, getUserAvatar } from "coreui/utils";
+import { isEnabled, loadDynamicComponent } from "@erxes/ui/src/utils/core";
 
-import AssignBoxPopover from '../../assignBox/AssignBoxPopover';
-import { AvatarImg } from '@erxes/ui/src/components/filterableList/styles';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import Button from '@erxes/ui/src/components/Button';
-import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import Label from '@erxes/ui/src/components/Label';
-import { PopoverButton } from '@erxes/ui-inbox/src/inbox/styles';
-import React from 'react';
-import Resolver from '../../../containers/Resolver';
-import Tagger from '../../../containers/Tagger';
-import Tags from '@erxes/ui/src/components/Tags';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import AssignBoxPopover from "../../assignBox/AssignBoxPopover";
+import { AvatarImg } from "@erxes/ui/src/components/filterableList/styles";
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import Button from "@erxes/ui/src/components/Button";
+import { IConversation } from "@erxes/ui-inbox/src/inbox/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import Label from "@erxes/ui/src/components/Label";
+import { PopoverButton } from "@erxes/ui-inbox/src/inbox/styles";
+import React from "react";
+import Resolver from "../../../containers/Resolver";
+import Tagger from "../../../containers/Tagger";
+import Tags from "@erxes/ui/src/components/Tags";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 
 const Participators = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Inbox-Participators" */ '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/Participators'
+      /* webpackChunkName:"Inbox-Participators" */ "@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/Participators"
     ),
-  { height: '30px', width: '30px', round: true },
+  { height: "30px", width: "30px", round: true }
 );
 
 const ConvertTo = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Inbox-ConvertTo" */ '../../../containers/conversationDetail/workarea/ConvertTo'
+      /* webpackChunkName:"Inbox-ConvertTo" */ "../../../containers/conversationDetail/workarea/ConvertTo"
     ),
-  { height: '22px', width: '71px' },
+  { height: "22px", width: "71px" }
 );
 
 const Post = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Inbox-ConvertTo" */ '../../../containers/conversationDetail/workarea/Post'
+      /* webpackChunkName:"Inbox-ConvertTo" */ "../../../containers/conversationDetail/workarea/Post"
     ),
-  { height: '22px', width: '71px' },
+  { height: "22px", width: "71px" }
+);
+const PostInstagram = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName:"Inbox-ConvertTo" */ "../../../containers/conversationDetail/workarea/PostIg"
+    ),
+  { height: "22px", width: "71px" }
 );
 type Props = {
   currentConversation: IConversation;
@@ -70,7 +77,7 @@ export default class ActionBar extends React.Component<Props> {
           <AvatarImg src={getUserAvatar(assignedUser)} />
         ) : (
           <Button id="conversationAssignTo" btnStyle="simple" size="small">
-            {__('Member')}
+            {__("Member")}
             <Icon icon="angle-down" />
           </Button>
         )}
@@ -79,10 +86,10 @@ export default class ActionBar extends React.Component<Props> {
 
     const actionBarRight = (
       <BarItems>
-        {isEnabled('tags') && (
+        {isEnabled("tags") && (
           <Tagger targets={[currentConversation]} trigger={tagTrigger} />
         )}
-        {isEnabled('cards') && <ConvertTo conversation={currentConversation} />}
+        {isEnabled("cards") && <ConvertTo conversation={currentConversation} />}
 
         <Resolver conversations={[currentConversation]} />
       </BarItems>
@@ -90,7 +97,7 @@ export default class ActionBar extends React.Component<Props> {
 
     const actionBarLeft = (
       <ActionBarLeft>
-        <AssignText>{__('Assign to')}:</AssignText>
+        <AssignText>{__("Assign to")}:</AssignText>
         <AssignBoxPopover
           targets={[currentConversation]}
           trigger={assignTrigger}
@@ -98,11 +105,14 @@ export default class ActionBar extends React.Component<Props> {
         {participatedUsers && (
           <Participators participatedUsers={participatedUsers} limit={3} />
         )}
-        {loadDynamicComponent('inboxConversationDetailActionBar', {
+        {loadDynamicComponent("inboxConversationDetailActionBar", {
           conversation: currentConversation,
         })}
-        {kind === 'facebook-post' && (
+        {kind === "facebook-post" && (
           <Post conversation={currentConversation} />
+        )}
+        {kind === "instagram-post" && (
+          <PostInstagram conversation={currentConversation} />
         )}
       </ActionBarLeft>
     );

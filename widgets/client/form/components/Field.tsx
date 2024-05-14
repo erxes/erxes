@@ -64,9 +64,10 @@ export default class Field extends React.Component<Props, State> {
         {...attrs}
         className="form-control"
         id={attrs.multiple ? `_id${attrs.id}` : ''}
+        value={attrs.value || options[0]}
       >
         {options.map((option, index) => (
-          <option key={index} value={option} selected={true}>
+          <option key={index} value={option}>
             {option}
           </option>
         ))}

@@ -14,6 +14,7 @@ import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import _ from 'lodash';
 import { checkLogic } from '../utils';
+import { FlexCenter } from '@erxes/ui/src/styles/main';
 
 declare const navigator: any;
 
@@ -522,7 +523,7 @@ class GenerateGroup extends React.Component<Props, State> {
 
     if (fieldGroup.isMultiple) {
       extraButtons = (
-        <>
+        <FlexCenter>
           {
             <ModalTrigger
               title={fieldGroup.name}
@@ -538,7 +539,7 @@ class GenerateGroup extends React.Component<Props, State> {
               <Icon icon="plus-circle" />
             </button>
           </Tip>
-        </>
+        </FlexCenter>
       );
     }
     if (!fieldGroup.isMultiple) {

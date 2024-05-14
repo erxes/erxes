@@ -29,6 +29,7 @@ export const types = (tagsAvailable) => `
     bubble
     scatter
     table
+    number
   }
 
   type ChartFilter {

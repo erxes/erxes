@@ -46,7 +46,7 @@ export interface IContract {
   createdAt: Date;
   marginAmount: number;
   leaseAmount: number;
-  givenAmount?: number;
+  givenAmount: number;
   feeAmount: number;
   tenor: number;
   interestRate: number;
@@ -67,8 +67,8 @@ export interface IContract {
   riskExpertId: string;
   customerId: string;
   customerType: string;
-  unduePercent: number;
-  undueCalcType: string;
+  lossPercent: number;
+  lossCalcType: string;
   leaseType: string;
   commitmentInterest: number;
   storedInterest: number;
@@ -79,7 +79,28 @@ export interface IContract {
   hasTransaction?: boolean;
   currency: string;
   expiredDays?: number;
-  endDate?: number;
+  endDate?: any;
+  lastStoredDate?: Date;
+  interestNounce?: any;
+  contractDate?: Date;
+  loanPurpose?: any;
+  loanDestination?: any;
+  loanSubPurpose?: any;
+  debtTenor?: number;
+  debtLimit?: number;
+  skipInterestCalcMonth?: number;
+  useDebt?: any;
+  useMargin?: any;
+  useSkipInterest?: any;
+  relContractId?: string;
+  isPayFirstMonth?: boolean;
+  skipAmountCalcMonth?: any;
+  downPayment?: number;
+  customPayment?: number;
+  customInterest?: number;
+  useManualNumbering?: any;
+  useFee?: any;
+  savingContractId?: any;
   customFieldsData?: any;
 }
 
@@ -101,7 +122,7 @@ export interface ISchedule {
   payDate: Date;
 
   balance: number;
-  undue?: number;
+  loss?: number;
   interestEve?: number;
   interestNonce?: number;
   payment?: number;
@@ -109,7 +130,7 @@ export interface ISchedule {
   debt?: number;
   total: number;
 
-  didUndue?: number;
+  didLoss?: number;
   didInterestEve?: number;
   didInterestNonce?: number;
   didPayment?: number;
@@ -132,7 +153,7 @@ export interface IInvoice {
   payDate: Date;
 
   balance: number;
-  undue?: number;
+  loss?: number;
   interestEve?: number;
   interestNonce?: number;
   payment?: number;
@@ -143,7 +164,7 @@ export interface IInvoice {
 
 export interface ICloseInfo {
   balance?: number;
-  undue?: number;
+  loss?: number;
   interest?: number;
   interestEve?: number;
   interestNonce?: number;

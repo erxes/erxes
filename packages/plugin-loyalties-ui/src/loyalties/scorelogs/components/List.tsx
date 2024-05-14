@@ -1,3 +1,5 @@
+import * as dayjs from 'dayjs';
+
 import {
   DataWithLoader,
   FormControl,
@@ -5,24 +7,22 @@ import {
   Pagination,
   Spinner,
   Table,
-  __
+  __,
 } from '@erxes/ui/src';
-import { Wrapper } from '@erxes/ui/src/layout';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter, Link } from 'react-router-dom';
-import { menuLoyalties } from '../../common/constants';
-import Sidebar from '../components/Sidebar';
-import { IScoreLogParams } from '../types';
-import * as dayjs from 'dayjs';
-import ScoreFormContainer from '../containers/Form';
-import { Title } from '@erxes/ui/src/styles/main';
 
-interface IProps extends IRouterProps {
+import { IScoreLogParams } from '../types';
+import { Link } from 'react-router-dom';
+import React from 'react';
+import ScoreFormContainer from '../containers/Form';
+import Sidebar from '../components/Sidebar';
+import { Title } from '@erxes/ui/src/styles/main';
+import { Wrapper } from '@erxes/ui/src/layout';
+import { menuLoyalties } from '../../common/constants';
+
+interface IProps  {
   loading: boolean;
   error: any;
   queryParams: any;
-  history: any;
   scoreLogs: [IScoreLogParams];
   total: number;
   refetch: (variables: any) => void;
@@ -34,15 +34,8 @@ class ScoreLogsListComponent extends React.Component<IProps> {
   }
 
   render() {
-    const {
-      loading,
-      queryParams,
-      history,
-      scoreLogs,
-      total,
-      error,
-      refetch
-    } = this.props;
+    const { loading, queryParams, scoreLogs, total, error, refetch } =
+      this.props;
 
     const tablehead = [
       'Email',
@@ -50,14 +43,14 @@ class ScoreLogsListComponent extends React.Component<IProps> {
       'Owner Type',
       'Changed Score',
       'Total Score',
-      'Created At'
+      'Created At',
     ];
 
     if (loading) {
       return <Spinner />;
     }
 
-    const route = type => {
+    const route = (type) => {
       switch (type) {
         case 'customer':
           return 'contacts';
@@ -108,7 +101,7 @@ class ScoreLogsListComponent extends React.Component<IProps> {
       <Table>
         <thead>
           <tr>
-            {tablehead.map(p => (
+            {tablehead.map((p) => (
               <th key={p}>{p}</th>
             ))}
           </tr>
@@ -124,7 +117,7 @@ class ScoreLogsListComponent extends React.Component<IProps> {
               <td>{name(p.ownerType, p.owner)}</td>
               <td>{p.ownerType}</td>
               <td>{p.changeScore}</td>
-              <td>{p.owner.score}</td>
+              <td>{p.owner?.score}</td>
               <td>{dayjs(p.createdAt).format('lll')}</td>
             </tr>
           ))}
@@ -140,7 +133,6 @@ class ScoreLogsListComponent extends React.Component<IProps> {
       <Sidebar
         loadingMainQuery={loading}
         queryParams={queryParams}
-        history={history}
         refetch={refetch}
       />
     );
@@ -173,4 +165,4 @@ class ScoreLogsListComponent extends React.Component<IProps> {
   }
 }
 
-export default withRouter<IRouterProps>(ScoreLogsListComponent);
+export default ScoreLogsListComponent;

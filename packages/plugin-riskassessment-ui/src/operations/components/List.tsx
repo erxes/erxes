@@ -2,49 +2,42 @@ import {
   BarItems,
   Button,
   FormControl,
-  generateTree,
   HeaderDescription,
   ModalTrigger,
-  router,
   Table,
-  __
-} from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { DefaultWrapper } from '../../common/utils';
-import Form from '../containers/Form';
-import Row from './Row';
+  __,
+  generateTree,
+  router,
+} from "@erxes/ui/src";
+
+import { DefaultWrapper } from "../../common/utils";
+import Form from "../containers/Form";
+import React, { useState } from "react";
+import Row from "./Row";
+import { useLocation, useNavigate } from "react-router-dom";
+
 type Props = {
   queryParams: any;
   list: any[];
   totalCount: number;
   loading: boolean;
   remove: (ids: string[]) => void;
-} & IRouterProps;
-
-type State = {
-  selectedItems: string[];
-  searchValue: string;
-  perPage: number;
 };
 
-class List extends React.Component<Props, State> {
-  private timer?: NodeJS.Timer;
-  constructor(props) {
-    super(props);
+const List = (props: Props) => {
+  let timer;
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [searchValue, setSearchValue] = useState(
+    props.queryParams.searchValue || ""
+  );
 
-    this.state = {
-      selectedItems: [],
-      searchValue: props.queryParams.searchValue || '',
-      perPage: 20
-    };
-  }
+  const renderAddButton = () => {
+    const trigger = <Button btnStyle="success">{__("Add Operation")}</Button>;
 
-  renderAddButton = () => {
-    const trigger = <Button btnStyle="success">{__('Add Operation')}</Button>;
-
-    const content = props => (
-      <Form {...props} queryParams={this.props.queryParams} />
+    const content = (props) => (
+      <Form {...props} queryParams={props.queryParams} />
     );
 
     return (
@@ -52,41 +45,39 @@ class List extends React.Component<Props, State> {
     );
   };
 
-  renderRemoveButton = () => {
+  const renderRemoveButton = () => {
     const handleRemove = () => {
-      const { selectedItems } = this.state;
-      const { remove } = this.props;
+      const { remove } = props;
       remove(selectedItems);
-      this.setState({ selectedItems: [] });
+      setSelectedItems([]);
     };
 
     return (
       <Button btnStyle="danger" onClick={handleRemove}>
-        {__('Remove')}
+        {__("Remove")}
       </Button>
     );
   };
 
-  renderSearchField = () => {
-    const search = e => {
-      if (this.timer) {
-        clearTimeout(this.timer);
+  const renderSearchField = () => {
+    const search = (e) => {
+      if (timer) {
+        clearTimeout(timer);
       }
 
-      const { history } = this.props;
       const searchValue = e.target.value;
 
-      this.setState({ searchValue });
+      setSearchValue(searchValue);
 
-      this.timer = setTimeout(() => {
-        router.removeParams(history, 'page');
-        router.setParams(history, { searchValue });
+      timer = setTimeout(() => {
+        router.removeParams(navigate, location, "page");
+        router.setParams(navigate, location, { searchValue });
       }, 500);
     };
-    const moveCursorAtTheEnd = e => {
+    const moveCursorAtTheEnd = (e) => {
       const tmpValue = e.target.value;
 
-      e.target.value = '';
+      e.target.value = "";
       e.target.value = tmpValue;
     };
     return (
@@ -95,37 +86,36 @@ class List extends React.Component<Props, State> {
         placeholder="type a search"
         onChange={search}
         autoFocus={true}
-        value={this.state.searchValue}
+        value={searchValue}
         onFocus={moveCursorAtTheEnd}
       />
     );
   };
 
-  renderContent() {
-    const { list } = this.props;
-    const { selectedItems } = this.state;
+  const renderContent = () => {
+    const { list } = props;
     const handleSelectAll = () => {
       if (!selectedItems.length) {
-        const branchIds = list.map(branch => branch._id);
-        return this.setState({ selectedItems: branchIds });
+        const branchIds = list.map((branch) => branch._id);
+        return setSelectedItems(branchIds);
       }
 
-      this.setState({ selectedItems: [] });
+      setSelectedItems([]);
     };
 
-    const handleSelect = id => {
+    const handleSelect = (id) => {
       if (selectedItems.includes(id)) {
         const removedSelectedItems = selectedItems.filter(
-          selectItem => selectItem !== id
+          (selectItem) => selectItem !== id
         );
-        return this.setState({ selectedItems: removedSelectedItems });
+        return setSelectedItems(removedSelectedItems);
       }
-      this.setState({ selectedItems: [...selectedItems, id] });
+      setSelectedItems([...selectedItems, id]);
     };
 
     const generateList = () => {
-      return list.map(operation =>
-        !list.find(op => op._id === operation.parentId)
+      return list.map((operation) =>
+        !list.find((op) => op._id === operation.parentId)
           ? { ...operation, parent: null }
           : operation
       );
@@ -137,15 +127,15 @@ class List extends React.Component<Props, State> {
           <tr>
             <th>
               <FormControl
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onClick={handleSelectAll}
               />
             </th>
-            <th>{__('Code')}</th>
-            <th>{__('Name')}</th>
-            <th>{__('Created At')}</th>
-            <th>{__('Modified At')}</th>
-            <th>{__('Actions')}</th>
+            <th>{__("Code")}</th>
+            <th>{__("Name")}</th>
+            <th>{__("Created At")}</th>
+            <th>{__("Modified At")}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody>
@@ -156,45 +146,42 @@ class List extends React.Component<Props, State> {
               level={level}
               selectedItems={selectedItems}
               handleSelect={handleSelect}
-              queryParams={this.props.queryParams}
+              queryParams={props.queryParams}
             />
           ))}
         </tbody>
       </Table>
     );
-  }
+  };
 
-  render() {
-    const { loading, totalCount } = this.props;
-    const { selectedItems } = this.state;
+  const { loading, totalCount } = props;
 
-    const rightActionBar = (
-      <BarItems>
-        {this.renderSearchField()}
-        {!!selectedItems.length && this.renderRemoveButton()}
-        {this.renderAddButton()}
-      </BarItems>
-    );
+  const rightActionBar = (
+    <BarItems>
+      {renderSearchField()}
+      {!!selectedItems.length && renderRemoveButton()}
+      {renderAddButton()}
+    </BarItems>
+  );
 
-    const leftActionBar = (
-      <HeaderDescription
-        title="Operations"
-        description=""
-        icon="/images/actions/16.svg"
-      />
-    );
+  const leftActionBar = (
+    <HeaderDescription
+      title="Operations"
+      description=""
+      icon="/images/actions/16.svg"
+    />
+  );
 
-    const updateProps = {
-      title: 'Operations',
-      leftActionBar,
-      rightActionBar,
-      content: this.renderContent(),
-      loading,
-      totalCount
-    };
+  const updateProps = {
+    title: "Operations",
+    leftActionBar,
+    rightActionBar,
+    content: renderContent(),
+    loading,
+    totalCount,
+  };
 
-    return <DefaultWrapper {...updateProps} />;
-  }
-}
+  return <DefaultWrapper {...updateProps} />;
+};
 
 export default List;

@@ -1,14 +1,12 @@
 import { Layout, MainWrapper } from '../styles';
+import { bustIframe, getEnv } from 'modules/common/utils';
 
 import DetectBrowser from './DetectBrowser';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { IUser } from 'modules/auth/types';
 import Navigation from './navigation';
 import React from 'react';
 import asyncComponent from 'modules/common/components/AsyncComponent';
-import { bustIframe, getEnv } from 'modules/common/utils';
 import dayjs from 'dayjs';
-import { withRouter } from 'react-router-dom';
 import { getVersion } from '@erxes/ui/src/utils/core';
 import { pluginsInnerWidgets } from 'pluginUtils';
 
@@ -19,11 +17,13 @@ const MainBar = asyncComponent(
     ),
 );
 
-interface IProps extends IRouterProps {
+interface IProps {
   currentUser?: IUser;
   children: React.ReactNode;
   isShownIndicator: boolean;
   enabledServices: any;
+  navigate: any;
+  location: any;
   closeLoadingBar: () => void;
 }
 
@@ -41,10 +41,10 @@ class MainLayout extends React.Component<IProps, State> {
   }
 
   componentDidMount() {
-    const { history, currentUser, enabledServices } = this.props;
+    const { location, navigate, currentUser, enabledServices } = this.props;
 
-    if (history.location.pathname !== '/reset-password' && !currentUser) {
-      history.push('/sign-in');
+    if (location.pathname !== '/reset-password' && !currentUser) {
+      navigate('/sign-in');
     }
 
     // if (currentUser && process.env.NODE_ENV === 'production') {
@@ -161,8 +161,9 @@ class MainLayout extends React.Component<IProps, State> {
           const entry = document.getElementsByTagName('script')[0];
           (entry as any).parentNode.insertBefore(script, entry);
         }
-        pluginsInnerWidgets();
       }
+
+      pluginsInnerWidgets();
 
       (window as any).wootricSettings = {
         email: currentUser.email, // Required to uniquely identify a user. Email is recommended but this can be any unique identifier.
@@ -215,9 +216,9 @@ class MainLayout extends React.Component<IProps, State> {
   };
 
   render() {
-    const { children, isShownIndicator, history } = this.props;
+    const { children, isShownIndicator, location } = this.props;
 
-    if (history.location.pathname.startsWith('/videoCall')) {
+    if (location.pathname.startsWith('/videoCall')) {
       return children;
     }
 
@@ -225,13 +226,13 @@ class MainLayout extends React.Component<IProps, State> {
       <>
         <div id="anti-clickjack" style={{ display: 'none' }} />
 
-        <Layout isSqueezed={isShownIndicator}>
+        <Layout $isSqueezed={isShownIndicator}>
           <Navigation
             navCollapse={this.state.navCollapse}
             onClickHandleIcon={this.onClickHandleIcon}
           />
 
-          <MainWrapper navCollapse={this.state.navCollapse}>
+          <MainWrapper $navCollapse={this.state.navCollapse}>
             <MainBar />
 
             {children}
@@ -243,4 +244,4 @@ class MainLayout extends React.Component<IProps, State> {
   }
 }
 
-export default withRouter<IProps>(MainLayout);
+export default MainLayout;

@@ -1,13 +1,13 @@
-import FormGroup from 'modules/common/components/form/Group';
-import _ from 'lodash';
+import { FlexItem, FlexPad } from "modules/common/components/step/styles";
+import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
 
-import React from 'react';
-import { FormControl } from 'modules/common/components/form';
-import { __ } from 'modules/common/utils';
-import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
-import { SubHeading } from '@erxes/ui-settings/src/styles';
-import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
-import { OperatorList } from '../../styles';
+import { FormControl } from "modules/common/components/form";
+import FormGroup from "modules/common/components/form/Group";
+import { OperatorList } from "../../styles";
+import React from "react";
+import { SubHeading } from "@erxes/ui-settings/src/styles";
+import _ from "lodash";
+import { __ } from "modules/common/utils";
 
 type Props = {
   columns: any[];
@@ -26,11 +26,11 @@ class ConfigsForm extends React.Component<Props, State> {
 
     this.state = {
       columns: props.columns || [],
-      searchValue: ''
+      searchValue: "",
     };
   }
 
-  groupByType = results => {
+  groupByType = (results) => {
     return results.reduce((acc, field) => {
       const value = field.name;
       let key;
@@ -39,9 +39,9 @@ class ConfigsForm extends React.Component<Props, State> {
         key = field.group;
       } else {
         key =
-          value && value.includes('.')
-            ? value.substr(0, value.indexOf('.'))
-            : 'general';
+          value && value.includes(".")
+            ? value.substr(0, value.indexOf("."))
+            : "general";
 
         key = _.startCase(key);
       }
@@ -56,8 +56,8 @@ class ConfigsForm extends React.Component<Props, State> {
     }, {});
   };
 
-  renderFields = fields => {
-    const onClickField = field => {
+  renderFields = (fields) => {
+    const onClickField = (field) => {
       const { columns } = this.state;
 
       for (const column of columns) {
@@ -71,13 +71,13 @@ class ConfigsForm extends React.Component<Props, State> {
       this.props.onClickField(columns);
     };
 
-    return fields.map(field => {
+    return fields.map((field) => {
       return (
         <FormControl
           key={Math.random()}
           id={String(fields._id)}
           defaultChecked={fields.checked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={() => onClickField(field)}
           checked={field.checked}
         >
@@ -87,10 +87,10 @@ class ConfigsForm extends React.Component<Props, State> {
     });
   };
 
-  renderOperators = results => {
+  renderOperators = (results) => {
     const objects = this.groupByType(results);
 
-    return Object.keys(objects).map(key => {
+    return Object.keys(objects).map((key) => {
       return (
         <FormColumn key={Math.random()}>
           <OperatorList>
@@ -104,7 +104,7 @@ class ConfigsForm extends React.Component<Props, State> {
     });
   };
 
-  onSearch = e => {
+  onSearch = (e) => {
     const value = e.target.value;
 
     this.setState({ searchValue: value });
@@ -113,9 +113,9 @@ class ConfigsForm extends React.Component<Props, State> {
   render() {
     const { columns, searchValue } = this.state;
 
-    const condition = new RegExp(searchValue, 'i');
+    const condition = new RegExp(searchValue, "i");
 
-    const results = columns.filter(field => {
+    const results = columns.filter((field) => {
       return condition.test(field.label);
     });
 
@@ -123,9 +123,9 @@ class ConfigsForm extends React.Component<Props, State> {
       <FlexItem>
         <FlexPad direction="column" overflow="auto">
           <FormGroup>
-            <SubHeading>{__('Properties to export')}</SubHeading>
+            <SubHeading>{__("Properties to export")}</SubHeading>
 
-            <FormControl placeholder={__('Search')} onChange={this.onSearch} />
+            <FormControl placeholder={__("Search")} onChange={this.onSearch} />
           </FormGroup>
 
           <FormWrapper>{this.renderOperators(results)}</FormWrapper>

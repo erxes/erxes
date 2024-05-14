@@ -10,6 +10,7 @@ const fields = `
       _id
       type
       validation
+      regexValidation
       text
       field
       content

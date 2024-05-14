@@ -17,15 +17,15 @@ type Options = {
   itemId?: string;
 };
 
-// get options for react-select-plus
+// get options for react-select
 export function selectOptions(array: Options[] = []) {
-  return array.map(item => ({ value: item._id, label: item.name }));
+  return (array || []).map((item) => ({ value: item._id, label: item.name }));
 }
 
 export function collectOrders(array: Options[] = []) {
   return array.map((item: Options, index: number) => ({
     _id: item._id,
-    order: index
+    order: index,
   }));
 }
 
@@ -33,7 +33,7 @@ export function collectOrders(array: Options[] = []) {
 export const reorder = (
   list: any[],
   startIndex: number,
-  endIndex: number
+  endIndex: number,
 ): any[] => {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
@@ -52,7 +52,7 @@ type ReorderItemMap = {
 export const updateItemInfo = (state, item) => {
   const { itemMap } = state;
   const items = [...itemMap[item.stageId]];
-  const index = items.findIndex(d => d._id === item._id);
+  const index = items.findIndex((d) => d._id === item._id);
 
   items[index] = item;
 
@@ -62,7 +62,7 @@ export const updateItemInfo = (state, item) => {
 export const reorderItemMap = ({
   itemMap,
   source,
-  destination
+  destination,
 }: ReorderItemMap) => {
   const current = [...itemMap[source.droppableId]];
   const next = [...itemMap[destination.droppableId]];
@@ -92,13 +92,13 @@ export const reorderItemMap = ({
 
     const updateditemMap = {
       ...itemMap,
-      [source.droppableId]: current
+      [source.droppableId]: current,
     };
 
     return {
       itemMap: updateditemMap,
       aboveItem,
-      target
+      target,
     };
   }
 
@@ -117,13 +117,13 @@ export const reorderItemMap = ({
   const result = {
     ...itemMap,
     [source.droppableId]: current,
-    [destination.droppableId]: next
+    [destination.droppableId]: next,
   };
 
   return {
     itemMap: result,
     aboveItem: next[destination.index - 1],
-    target
+    target,
   };
 };
 
@@ -133,7 +133,7 @@ export const getDefaultBoardAndPipelines = () => {
 
   return {
     defaultBoards: JSON.parse(defaultBoards),
-    defaultPipelines: JSON.parse(defaultPipelines)
+    defaultPipelines: JSON.parse(defaultPipelines),
   };
 };
 
@@ -144,8 +144,8 @@ export const renderAmount = (amount = {}, tick = true) => {
 
   return (
     <HeaderAmount>
-      <Amount unUsed={!tick}>
-        {Object.keys(amount || {}).map(key => (
+      <Amount $unUsed={!tick}>
+        {Object.keys(amount || {}).map((key) => (
           <li key={key}>
             {amount[key].toLocaleString()} <span>{key}</span>
           </li>
@@ -162,8 +162,8 @@ export const renderPercentedAmount = (amount = {}, percent, tick = true) => {
 
   return (
     <HeaderAmount>
-      <Amount unUsed={!tick}>
-        {Object.keys(amount || {}).map(key => (
+      <Amount $unUsed={!tick}>
+        {Object.keys(amount || {}).map((key) => (
           <li key={key}>
             {((amount[key] * percent) / 100).toLocaleString()}{' '}
             <span>{key}</span>
@@ -243,9 +243,9 @@ export const onCalendarLoadMore = (fetchMore, queryName, skip: number) => {
       }
 
       return {
-        [queryName]: prevResult[queryName].concat(fetchMoreResult[queryName])
+        [queryName]: prevResult[queryName].concat(fetchMoreResult[queryName]),
       };
-    }
+    },
   });
 };
 
@@ -259,10 +259,10 @@ export const calendarColumnQuery = (query, name) =>
           skip: 0,
           date,
           pipelineId,
-          ...getCommonParams(queryParams)
-        }
+          ...getCommonParams(queryParams),
+        },
       };
-    }
+    },
   });
 
 export const getColors = (index: number) => {
@@ -275,7 +275,7 @@ export const getColors = (index: number) => {
     '#0A1E41',
     '#5629B6',
     '#6569DF',
-    '#888888'
+    '#888888',
   ];
 
   if (index > 9) {
@@ -285,11 +285,16 @@ export const getColors = (index: number) => {
   return COLORS[index];
 };
 
-export const isRefresh = (queryParams: any, routerUtils: any, history: any) => {
+export const isRefresh = (
+  queryParams: any,
+  routerUtils: any,
+  navigate: any,
+  location: any,
+) => {
   const keys = Object.keys(queryParams || {});
 
   if (!(keys.length === 2 || (keys.includes('key') && keys.length === 3))) {
-    routerUtils.setParams(history, { key: Math.random() });
+    routerUtils.setParams(navigate, location, { key: Math.random() });
   }
 };
 
@@ -333,7 +338,7 @@ export const getWarningMessage = (type: string): string => {
 
 export const getFilterParams = (
   queryParams: IFilterParams,
-  getExtraParams: (queryParams) => any
+  getExtraParams: (queryParams) => any,
 ) => {
   if (!queryParams) {
     return {};
@@ -354,7 +359,7 @@ export const getFilterParams = (
     hasStartAndCloseDate: true,
     tagIds: queryParams.tagIds,
     limit: 100,
-    ...getExtraParams(queryParams)
+    ...getExtraParams(queryParams),
   };
 
   return selectType;

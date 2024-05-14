@@ -1,15 +1,17 @@
-import dynamic from "next/dynamic"
-import type { Metadata } from 'next'
+import { FunctionComponent } from "react"
+import type { Metadata } from "next"
+
+import DiscoverBoard from "@/components/discover/DiscoverBoard"
 
 export const metadata: Metadata = {
-  title: 'Discover',
-  description: 'Employee Experience Management - Discover',
+  title: "Discover",
+  description: "Employee Experience Management - Discover",
 }
 
-const Knowledgebase = dynamic(
-  () => import("@/modules/discover/components/knowledgebase/Knowledgebase")
-)
+interface DiscoverPageProps {}
 
-export default function IndexPage() {
-  return <Knowledgebase />
+const DiscoverPage: FunctionComponent<DiscoverPageProps> = () => {
+  return <DiscoverBoard />
 }
+
+export default DiscoverPage

@@ -1,34 +1,33 @@
-import { ColorPick, ColorPicker, ModalFooter } from '@erxes/ui/src/styles/main';
-import { ExpandWrapper, MarkdownWrapper } from '@erxes/ui-settings/src/styles';
+import { ColorPick, ColorPicker, ModalFooter } from "@erxes/ui/src/styles/main";
+import { ExpandWrapper, MarkdownWrapper } from "@erxes/ui-settings/src/styles";
 import {
   IAttachment,
   IButtonMutateProps,
-  IFormProps
-} from '@erxes/ui/src/types';
-import { __, getEnv } from 'coreui/utils';
+  IFormProps,
+} from "@erxes/ui/src/types";
+import { __, getEnv } from "coreui/utils";
 
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import CopyToClipboard from 'react-copy-to-clipboard';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { FlexContent } from '@erxes/ui/src/layout/styles';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IBrand } from '@erxes/ui/src/brands/types';
-import { ITopic } from '@erxes/ui-knowledgeBase/src/types';
-import Info from '@erxes/ui/src/components/Info';
-import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import React from 'react';
-import ReactMarkdown from 'react-markdown';
-import Select from 'react-select-plus';
-import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
-import TwitterPicker from 'react-color/lib/Twitter';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import colors from '@erxes/ui/src/styles/colors';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import CopyToClipboard from "react-copy-to-clipboard";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { FlexContent } from "@erxes/ui/src/layout/styles";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IBrand } from "@erxes/ui/src/brands/types";
+import { ITopic } from "@erxes/ui-knowledgeBase/src/types";
+import Info from "@erxes/ui/src/components/Info";
+import { LANGUAGES } from "@erxes/ui-settings/src/general/constants";
+import Popover from "@erxes/ui/src/components/Popover";
+import React from "react";
+import ReactMarkdown from "react-markdown";
+import Select from "react-select";
+import SelectBrand from "@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand";
+import TwitterPicker from "react-color/lib/Twitter";
+import Uploader from "@erxes/ui/src/components/Uploader";
+import colors from "@erxes/ui/src/styles/colors";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   topic: ITopic;
@@ -87,10 +86,10 @@ class KnowledgeForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    let code = '';
-    let tag = '';
+    let code = "";
+    let tag = "";
     let color = colors.colorPrimary;
-    let backgroundImage = '';
+    let backgroundImage = "";
 
     const { topic } = props;
 
@@ -110,16 +109,16 @@ class KnowledgeForm extends React.Component<Props, State> {
       color,
       backgroundImage,
       languageCode: topic && topic.languageCode,
-      notificationSegmentId: topic && topic.notificationSegmentId
+      notificationSegmentId: topic && topic.notificationSegmentId,
     };
   }
 
-  onColorChange = e => {
+  onColorChange = (e) => {
     this.setState({ color: e.hex });
   };
 
   onCopy = (name: string) => {
-    if (name === 'code') {
+    if (name === "code") {
       return this.setState({ copied: true });
     }
 
@@ -127,7 +126,7 @@ class KnowledgeForm extends React.Component<Props, State> {
   };
 
   onBackgroundImageChange = ([file]: IAttachment[]) => {
-    this.setState({ backgroundImage: file ? file.url : '' });
+    this.setState({ backgroundImage: file ? file.url : "" });
   };
 
   remove = () => {
@@ -143,8 +142,8 @@ class KnowledgeForm extends React.Component<Props, State> {
 
     window.open(
       `${REACT_APP_CDN_HOST}/test?type=kb&topic_id=${this.props.topic._id}`,
-      'kbWindow',
-      'width=800,height=800'
+      "kbWindow",
+      "width=800,height=800"
     );
   };
 
@@ -155,7 +154,7 @@ class KnowledgeForm extends React.Component<Props, State> {
         {code ? (
           <CopyToClipboard text={code} onCopy={this.onCopy.bind(this, name)}>
             <Button btnStyle="primary" size="small" icon="copy-1">
-              {copied ? 'Copied' : 'Copy to clipboard'}
+              {copied ? "Copied" : "Copy to clipboard"}
             </Button>
           </CopyToClipboard>
         ) : (
@@ -173,16 +172,16 @@ class KnowledgeForm extends React.Component<Props, State> {
         <>
           <FormGroup>
             <ControlLabel>Install code</ControlLabel>
-            {this.renderScript(code, copied, 'code')}
+            {this.renderScript(code, copied, "code")}
           </FormGroup>
 
           <FormGroup>
             <Info>
               {__(
-                'Paste the tag below where you want erxes knowledgebase to appear'
+                "Paste the tag below where you want erxes knowledgebase to appear"
               )}
             </Info>
-            {this.renderScript(tag, tagCopied, 'tag')}
+            {this.renderScript(tag, tagCopied, "tag")}
           </FormGroup>
         </>
       );
@@ -198,8 +197,8 @@ class KnowledgeForm extends React.Component<Props, State> {
     }
   };
 
-  onChangeNotificationSegment = ({ value }) => {
-    this.setState({ notificationSegmentId: value });
+  onChangeNotificationSegment = (val) => {
+    this.setState({ notificationSegmentId: val?.value || null });
   };
 
   generateDoc = (values: {
@@ -210,12 +209,8 @@ class KnowledgeForm extends React.Component<Props, State> {
     code?: string;
   }) => {
     const { topic } = this.props;
-    const {
-      color,
-      backgroundImage,
-      languageCode,
-      notificationSegmentId
-    } = this.state;
+    const { color, backgroundImage, languageCode, notificationSegmentId } =
+      this.state;
     const finalValues = values;
 
     if (topic) {
@@ -232,35 +227,25 @@ class KnowledgeForm extends React.Component<Props, State> {
         color,
         backgroundImage,
         notificationSegmentId,
-        code: finalValues.code
-      }
+        code: finalValues.code,
+      },
     };
   };
 
   renderFormContent(topic = {} as ITopic, formProps: IFormProps) {
-    const {
-      color,
-      backgroundImage,
-      languageCode,
-      notificationSegmentId
-    } = this.state;
+    const { color, backgroundImage, languageCode, notificationSegmentId } =
+      this.state;
     const { brand } = topic;
-    const brandId = brand != null ? brand._id : '';
+    const brandId = brand != null ? brand._id : "";
 
-    const languageOnChange = selectLanguage => {
+    const languageOnChange = (selectLanguage) => {
       this.setState({ languageCode: selectLanguage.value });
     };
 
-    const popoverTop = (
-      <Popover id="kb-color-picker">
-        <TwitterPicker
-          width="205px"
-          triangle="hide"
-          color={color}
-          onChange={this.onColorChange}
-        />
-      </Popover>
-    );
+    const notificationSegmentOptions = this.props.segments.map((segment) => ({
+      label: `${segment.name}`,
+      value: segment._id,
+    }));
 
     return (
       <React.Fragment>
@@ -298,11 +283,13 @@ class KnowledgeForm extends React.Component<Props, State> {
               <ControlLabel>Language</ControlLabel>
               <Select
                 id="languageCode"
-                value={languageCode || 'en'}
+                value={LANGUAGES.find(
+                  (o) => o.value === (languageCode || "en")
+                )}
                 options={LANGUAGES}
                 onChange={languageOnChange}
-                formProps={formProps}
-                clearable={false}
+                // formProps={formProps}
+                isClearable={false}
               />
             </FormGroup>
           </ExpandWrapper>
@@ -310,16 +297,21 @@ class KnowledgeForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Custom color</ControlLabel>
             <div>
-              <OverlayTrigger
-                trigger="click"
-                rootClose={true}
+              <Popover
                 placement="bottom"
-                overlay={popoverTop}
+                trigger={
+                  <ColorPick>
+                    <ColorPicker style={{ backgroundColor: color }} />
+                  </ColorPick>
+                }
               >
-                <ColorPick>
-                  <ColorPicker style={{ backgroundColor: color }} />
-                </ColorPick>
-              </OverlayTrigger>
+                <TwitterPicker
+                  width="205px"
+                  triangle="hide"
+                  color={color}
+                  onChange={this.onColorChange}
+                />
+              </Popover>
             </div>
           </FormGroup>
         </FlexContent>
@@ -329,8 +321,7 @@ class KnowledgeForm extends React.Component<Props, State> {
           <FormControl
             {...formProps}
             name="code"
-            defaultValue={topic.code || ''}
-            required={true}
+            defaultValue={topic.code || ""}
           />
         </FormGroup>
 
@@ -343,10 +334,10 @@ class KnowledgeForm extends React.Component<Props, State> {
               backgroundImage
                 ? [
                     {
-                      name: 'backgroundImage',
+                      name: "backgroundImage",
                       url: backgroundImage,
-                      type: 'img'
-                    }
+                      type: "img",
+                    },
                   ]
                 : []
             }
@@ -354,15 +345,15 @@ class KnowledgeForm extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        {isEnabled('segments') && (
+        {isEnabled("segments") && (
           <FormGroup>
             <ControlLabel>Notification segment</ControlLabel>
             <Select
-              options={this.props.segments.map(segment => ({
-                label: `${segment.name}`,
-                value: segment._id
-              }))}
-              value={notificationSegmentId}
+              options={notificationSegmentOptions}
+              value={notificationSegmentOptions.find(
+                (o) => o.value === notificationSegmentId
+              )}
+              isClearable={true}
               onChange={this.onChangeNotificationSegment}
             />
           </FormGroup>
@@ -382,10 +373,10 @@ class KnowledgeForm extends React.Component<Props, State> {
         {this.renderFormContent(
           topic ||
             ({
-              title: '',
-              description: '',
-              languageCode: '',
-              brand: { _id: '' }
+              title: "",
+              description: "",
+              languageCode: "",
+              brand: { _id: "" },
             } as ITopic),
           { ...formProps }
         )}
@@ -421,11 +412,11 @@ class KnowledgeForm extends React.Component<Props, State> {
             </>
           )}
           {renderButton({
-            name: 'Knowledge Base',
+            name: "Knowledge Base",
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: topic
+            object: topic,
           })}
         </ModalFooter>
       </>

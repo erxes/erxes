@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+
 import toggleCheckBoxes from '../utils/toggleCheckBoxes';
 
 export interface IBulkContentProps {
@@ -14,64 +15,47 @@ type Props = {
   refetch?: () => void;
 };
 
-type State = {
-  bulk: string[];
-  isAllSelected: boolean;
-};
+const Bulk: React.FC<Props> = (props) => {
+  const { content, refetch } = props;
+  const [bulk, setBulk] = useState<string[]>([]);
+  const [isAllSelected, setIsAllSelected] = useState<boolean>(false);
 
-export default abstract class Bulk extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = { bulk: [], isAllSelected: false };
-  }
-
-  toggleBulk = (target, toAdd) => {
-    let { bulk } = this.state;
-    // remove old entry
-    bulk = bulk.filter((el: any) => el._id !== target._id);
-
-    if (toAdd) {
-      bulk.push(target);
-    }
-
-    this.setState({ bulk });
+  const toggleBulk = (target: any, toAdd: boolean) => {
+    setBulk((prevBulk) => {
+      let updatedBulk = prevBulk.filter((el: any) => el._id !== target._id);
+      if (toAdd) {
+        updatedBulk.push(target);
+      }
+      return updatedBulk;
+    });
   };
 
-  toggleAll = (targets, containerId) => {
-    if (this.state.isAllSelected) {
-      this.emptyBulk();
+  const toggleAll = (targets: any[], containerId: string) => {
+    if (isAllSelected) {
+      emptyBulk();
     } else {
-      this.setState({ bulk: targets });
+      setBulk(targets);
     }
-
-    const { isAllSelected } = this.state;
 
     toggleCheckBoxes(containerId, !isAllSelected);
-
-    this.setState({ isAllSelected: !isAllSelected });
+    setIsAllSelected(!isAllSelected);
   };
 
-  emptyBulk = () => {
-    const { refetch } = this.props;
-
+  const emptyBulk = () => {
     if (refetch) {
       refetch();
     }
-
-    this.setState({ bulk: [], isAllSelected: false });
+    setBulk([]);
+    setIsAllSelected(false);
   };
 
-  render() {
-    const { toggleBulk, toggleAll, emptyBulk } = this;
-    const { bulk, isAllSelected } = this.state;
+  return content({
+    bulk,
+    isAllSelected,
+    emptyBulk,
+    toggleBulk,
+    toggleAll,
+  });
+};
 
-    return this.props.content({
-      bulk,
-      isAllSelected,
-      emptyBulk,
-      toggleBulk,
-      toggleAll
-    });
-  }
-}
+export default Bulk;

@@ -2,9 +2,9 @@ import { IActivityLogForMonth } from '@erxes/ui-log/src/activityLogs/types';
 import { IUser } from './auth/types';
 
 export interface IRouterProps {
-  history: any;
   location: any;
   match: any;
+  navigate: any;
 }
 
 export interface IAttachment {
@@ -87,6 +87,7 @@ export interface IField {
   contentTypeId?: string;
   type: string;
   validation?: string;
+  regexValidation?: string;
   field?: string;
   text?: string;
   code?: string;
