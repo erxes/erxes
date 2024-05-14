@@ -57,7 +57,7 @@ const msdynamicCheckMutations = {
 
       const productCodes = (products || []).map((p) => p.code) || [];
 
-      const response = await fetch(`${itemApi}?$filter=Item_Category_Code ne '' and Blocked eq false`, {
+      const response = await fetch(`${itemApi}?$filter=Item_Category_Code ne '' and Blocked ne true and Allow_Ecommerce eq true`, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           Accept: 'application/json',
@@ -69,7 +69,7 @@ const msdynamicCheckMutations = {
       }).then((res) => res.json());
 
       const resultCodes =
-        response.value.map((r) => r.No.replace(/\s/g, '')) || [];
+        response.value.map((r) => r.No) || [];
 
       const productByCode = {};
       for (const product of products) {
@@ -81,8 +81,8 @@ const msdynamicCheckMutations = {
       }
 
       for (const resProd of response.value) {
-        if (productCodes.includes(resProd.No.replace(/\s/g, ''))) {
-          const product = productByCode[resProd.No.replace(/\s/g, '')];
+        if (productCodes.includes(resProd.No)) {
+          const product = productByCode[resProd.No];
 
           if (
             resProd?.Description === product.name &&
