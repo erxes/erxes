@@ -165,7 +165,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     if (product.taxType === '2') {
       detailsFree.push({ ...stock });
       freeAmount += detail.totalAmount;
-    } else if (product.taxType === '3' && type === 'B2B_RECEIPT') {
+    } else if (product.taxType === '3') {
       details0.push({ ...stock });
       zeroAmount += detail.totalAmount;
     } else if (product.taxType === '5') {

@@ -128,10 +128,8 @@ const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc, type: strin
   let ableVATAmount = 0;
   let ableCityTaxAmount = 0;
 
-  const vatPercent =
-    (config.hasVat && Number(config.vatPercent)) || 0;
-  const cityTaxPercent =
-    (config.hasCitytax && Number(config.cityTaxPercent)) || 0;
+  const vatPercent = config.hasVat && Number(config.vatPercent) || 0;
+  const cityTaxPercent = config.hasCitytax && Number(config.cityTaxPercent) || 0;
   const totalPercent = vatPercent + cityTaxPercent + 100
 
   for (const detail of (doc.details || []).filter(d => d.product)) {
@@ -162,7 +160,7 @@ const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc, type: strin
       freeAmount += detail.totalAmount;
       continue
     }
-    if (product.taxType === '3' && type === 'B2B_RECEIPT') {
+    if (product.taxType === '3') {
       details0.push({ ...stock });
       zeroAmount += detail.totalAmount;
       continue
