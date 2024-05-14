@@ -102,7 +102,7 @@ export default (response, counter?) => {
             ${response.lottery ? `Сугалаа: ${response.lottery}` : ''}
           </div>
 
-          ${response.qrData ? `<canvas id="qrcode${(response._id || '')}"></canvas>` : ''}
+          ${response.qrData ? `<canvas id="qrcode${response._id || ''}"></canvas>` : ''}
 
           <p>Манайхаар үйлчлүүлсэн танд баярлалаа !!!</p>
         </div>
@@ -119,9 +119,7 @@ export default (response, counter?) => {
       ${response.qrData
       ? `
         // QRCODE
-        var canvas = document.getElementById("qrcode${(
-        response._id || ''
-      )}");
+        var canvas = document.getElementById("qrcode${response._id || ''}");
         var ecl = qrcodegen.QrCode.Ecc.LOW;
         var text = '${response.qrData}';
         var segs = qrcodegen.QrSegment.makeSegments(text);
@@ -130,7 +128,7 @@ export default (response, counter?) => {
         // 4=Scale, 1=border
         qr.drawCanvas(4, 0, canvas);
 
-        $("#qrcode${(response._id || '')}").after('<img src="' + canvas.toDataURL() + '" />')
+        $("#qrcode${response._id || ''}").after('<img src="' + canvas.toDataURL() + '" />')
       `
       : ''
     }
