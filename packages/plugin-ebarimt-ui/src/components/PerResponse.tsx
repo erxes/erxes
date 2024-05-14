@@ -92,8 +92,9 @@ export default (response, counter?) => {
         </table>
 
         <div class="total">
-          <p><label>НӨАТ:</label> ${getNum(response.totalVAT)}</p>
-          <p><label>НХАТ:</label> ${getNum(response.totalCityTax)}</p>
+          
+          ${response.totalVAT > 0 && `<p><label>НӨАТ:</label> ${getNum(response.totalVAT)}</p>` || ''}
+          ${response.totalCityTax > 0 && `<p><label>НХАТ:</label> ${getNum(response.totalCityTax)}</p>` || ''}
           <p><label>Бүгд үнэ:</label> ${getNum(response.totalAmount)}</p>
         </div>
 
@@ -101,9 +102,9 @@ export default (response, counter?) => {
           <div class="lottery">
             ${response.lottery ? `Сугалаа: ${response.lottery}` : ''}
           </div>
-
-            ${response.qrData ? `<canvas id="qrcode${response._id}"></canvas>` : ''}
-
+          <div>
+            ${response.qrData && `<canvas id="qrcode${response._id}"></canvas>` || ''}
+          </div>
           <p>Манайхаар үйлчлүүлсэн танд баярлалаа !!!</p>
         </div>
       ` : `
