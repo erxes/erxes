@@ -11,7 +11,7 @@ const Settings = asyncComponent(
   () =>
     import(/* webpackChunkName: "Settings" */ './config/containers/Settings'),
 );
-const burenscorings = () => {
+const Burenscorings = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search)
   return <List queryParams = {queryParams} />;
@@ -27,7 +27,7 @@ const routes = () => {
       <Route 
         key="/burenscorings" 
         path="/burenscorings"
-        Component={burenscorings}
+        Component={Burenscorings}
         />;
       <Route
         key="/burenscorings"
