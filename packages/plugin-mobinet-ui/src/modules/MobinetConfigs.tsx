@@ -24,7 +24,10 @@ const labels = {
   hbbCatId: 'HBB Category',
   installationTicketsStageId: 'INSTALLATION REQUEST CONFIG',
   repairTicketsStageId: 'REPAIR REQUEST CONFIG',
-  capitalTagId: 'Capital Tag'
+  finishTicketsStageId: 'Хэрэглэгч хүлээж авах STAGE',
+  acceptJobStageId: 'Хэрэглэгч хүлээж авах ,зөвшөөрөх STAGE',
+  denyJobStageId: 'Хэрэглэгч хүлээж авах ,зөвшөөрөхГҮЙ STAGE',
+  capitalTagId: 'Capital Tag',
 };
 
 const MobinetConfigs = (props: Props) => {
@@ -36,7 +39,10 @@ const MobinetConfigs = (props: Props) => {
     suhTagId: '',
     installationTicket: { boardId: '', pipelineId: '', stageId: '' },
     repairTicket: { boardId: '', pipelineId: '', stageId: '' },
-    capitalTagId: ''
+    finishTicket: { boardId: '', pipelineId: '', stageId: '' },
+    acceptJobTicket: { boardId: '', pipelineId: '', stageId: '' },
+    denyJobTicket: { boardId: '', pipelineId: '', stageId: '' },
+    capitalTagId: '',
   };
 
   console.log(configs);
@@ -50,21 +56,21 @@ const MobinetConfigs = (props: Props) => {
 
     props.onChangeConfig('MOBINET_CONFIGS', {
       ...configs,
-      [name]: value
+      [name]: value,
     });
   };
 
   const onChangeTags = (name, option) => {
     props.onChangeConfig('MOBINET_CONFIGS', {
       ...configs,
-      [name]: option.value
+      [name]: option.value,
     });
   };
 
   const onChangeCategory = (name, option) => {
     props.onChangeConfig('MOBINET_CONFIGS', {
       ...configs,
-      [name]: option.value
+      [name]: option.value,
     });
   };
 
@@ -73,7 +79,7 @@ const MobinetConfigs = (props: Props) => {
     console.log(name);
     props.onChangeConfig('MOBINET_CONFIGS', {
       ...configs,
-      [name]: value
+      [name]: value,
     });
   };
 
@@ -101,7 +107,7 @@ const MobinetConfigs = (props: Props) => {
 
   return (
     <>
-      <CollapseContent title="Mobinet">
+      <CollapseContent title='Mobinet'>
         <FormGroup>
           <ControlLabel>{labels.fttbTagId}</ControlLabel>
           <SelectTags
@@ -171,19 +177,19 @@ const MobinetConfigs = (props: Props) => {
             onChangeStage={value => {
               onChangeStage('installationTicket', {
                 ...configs.installationTicket,
-                stageId: value
+                stageId: value,
               });
             }}
             onChangePipeline={value => {
               onChangeStage('installationTicket', {
                 ...configs.installationTicket,
-                pipelineId: value
+                pipelineId: value,
               });
             }}
             onChangeBoard={value => {
               onChangeStage('installationTicket', {
                 ...configs.installationTicket,
-                boardId: value
+                boardId: value,
               });
             }}
           />
@@ -198,19 +204,97 @@ const MobinetConfigs = (props: Props) => {
             onChangeStage={value => {
               onChangeStage('repairTicket', {
                 ...configs.repairTicket,
-                stageId: value
+                stageId: value,
               });
             }}
             onChangePipeline={value => {
               onChangeStage('repairTicket', {
                 ...configs.repairTicket,
-                pipelineId: value
+                pipelineId: value,
               });
             }}
             onChangeBoard={value => {
               onChangeStage('repairTicket', {
                 ...configs.repairTicket,
-                boardId: value
+                boardId: value,
+              });
+            }}
+          />
+        </CollapseContent>
+        <CollapseContent description={labels.finishTicketsStageId} title={''}>
+          <BoardSelect
+            type={'ticket'}
+            stageId={configs.finishTicket?.stageId || ''}
+            boardId={configs.finishTicket?.boardId || ''}
+            pipelineId={configs.finishTicket?.pipelineId || ''}
+            onChangeStage={value => {
+              onChangeStage('finishTicket', {
+                ...configs.finishTicket,
+                stageId: value,
+              });
+            }}
+            onChangePipeline={value => {
+              onChangeStage('finishTicket', {
+                ...configs.finishTicket,
+                pipelineId: value,
+              });
+            }}
+            onChangeBoard={value => {
+              onChangeStage('finishTicket', {
+                ...configs.finishTicket,
+                boardId: value,
+              });
+            }}
+          />
+        </CollapseContent>
+        <CollapseContent description={labels.acceptJobStageId} title={''}>
+          <BoardSelect
+            type={'ticket'}
+            stageId={configs.acceptJobTicket?.stageId || ''}
+            boardId={configs.acceptJobTicket?.boardId || ''}
+            pipelineId={configs.acceptJobTicket?.pipelineId || ''}
+            onChangeStage={value => {
+              onChangeStage('acceptJobTicket', {
+                ...configs.acceptJobTicket,
+                stageId: value,
+              });
+            }}
+            onChangePipeline={value => {
+              onChangeStage('acceptJobTicket', {
+                ...configs.acceptJobTicket,
+                pipelineId: value,
+              });
+            }}
+            onChangeBoard={value => {
+              onChangeStage('acceptJobTicket', {
+                ...configs.acceptJobTicket,
+                boardId: value,
+              });
+            }}
+          />
+        </CollapseContent>
+        <CollapseContent description={labels.denyJobStageId} title={''}>
+          <BoardSelect
+            type={'ticket'}
+            stageId={configs.denyJobTicket?.stageId || ''}
+            boardId={configs.denyJobTicket?.boardId || ''}
+            pipelineId={configs.denyJobTicket?.pipelineId || ''}
+            onChangeStage={value => {
+              onChangeStage('denyJobTicket', {
+                ...configs.denyJobTicket,
+                stageId: value,
+              });
+            }}
+            onChangePipeline={value => {
+              onChangeStage('denyJobTicket', {
+                ...configs.denyJobTicket,
+                pipelineId: value,
+              });
+            }}
+            onChangeBoard={value => {
+              onChangeStage('denyJobTicket', {
+                ...configs.denyJobTicket,
+                boardId: value,
               });
             }}
           />
