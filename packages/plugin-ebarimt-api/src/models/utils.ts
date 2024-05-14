@@ -116,7 +116,7 @@ const getCustomerInfo = async (type, config, doc) => {
   return { customerTin, consumerNo }
 }
 
-const getArrangeProducts = async (config, doc, type) => {
+const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc, type: string) => {
   const details: any[] = [];
   const detailsFree: any[] = [];
   const details0: any[] = [];
@@ -134,15 +134,10 @@ const getArrangeProducts = async (config, doc, type) => {
     (config.hasCitytax && Number(config.cityTaxPercent)) || 0;
   const totalPercent = vatPercent + cityTaxPercent + 100
 
-  for (const detail of doc.details || []) {
+  for (const detail of (doc.details || []).filter(d => d.product)) {
     const product = detail.product;
 
-    // if wrong productId then not sent
-    if (!product) {
-      continue;
-    }
-
-    const barCode = detail.barcode ?? (product.barcodes || [])[0] ?? '';
+    const barCode = detail.barcode || (product.barcodes || [])[0] || '';
     const barCodeType = isValidBarcode(barCode) ? 'GS1' : 'UNDEFINED'
 
     const stock = {
