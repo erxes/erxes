@@ -33,7 +33,7 @@ export function SelectAccountPages({
   });
 
   if (error) {
-    return <EmptyState icon="info-circle" text={error.message} />;
+    return <EmptyState icon='info-circle' text={error.message} />;
   }
 
   if (loading) {

@@ -1,21 +1,21 @@
-import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
-import Icon from "@erxes/ui/src/components/Icon";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
-import DealConvertTrigger from "@erxes/ui-cards/src/deals/components/DealConvertTrigger";
-import TaskConvertTrigger from "@erxes/ui-cards/src/tasks/components/TaskConvertTrigger";
-import PurchaseConvertTrigger from "@erxes/ui-cards/src/purchases/components/PurchaseConvertTrigger";
-import TicketConvertTrigger from "@erxes/ui-cards/src/tickets/components/TicketConvertTrigger";
-import * as React from "react";
-import Dropdown from "@erxes/ui/src/components/Dropdown";
-import styled from "styled-components";
-import { IFacebookComment } from "../../../types";
-import Date from "./Date";
-import FacebookContent from "./FacebookContent";
-import ReplyingMessage from "./ReplyingMessage";
-import { ChildPost, FlexItem, Reply, ShowMore, User } from "./styles";
-import UserName from "@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/UserName";
-import { Comment } from "@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/styles";
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import DealConvertTrigger from '@erxes/ui-cards/src/deals/components/DealConvertTrigger';
+import TaskConvertTrigger from '@erxes/ui-cards/src/tasks/components/TaskConvertTrigger';
+import PurchaseConvertTrigger from '@erxes/ui-cards/src/purchases/components/PurchaseConvertTrigger';
+import TicketConvertTrigger from '@erxes/ui-cards/src/tickets/components/TicketConvertTrigger';
+import * as React from 'react';
+import Dropdown from '@erxes/ui/src/components/Dropdown';
+import styled from 'styled-components';
+import { IFacebookComment } from '../../../types';
+import Date from './Date';
+import FacebookContent from './FacebookContent';
+import ReplyingMessage from './ReplyingMessage';
+import { ChildPost, FlexItem, Reply, ShowMore, User } from './styles';
+import UserName from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/UserName';
+import { Comment } from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/styles';
 
 const Container = styled.div`
   display: inline-block;
@@ -109,11 +109,11 @@ export default class FacebookComment extends React.Component<
       const { attachments } = comment;
 
       attachments.forEach((link, index) => {
-        if (link.includes("fna.fbcdn.net")) {
+        if (link.includes('fna.fbcdn.net')) {
           result.push({
             url: link,
-            name: "attachment",
-            type: "image / jpeg,",
+            name: 'attachment',
+            type: 'image / jpeg,',
           });
         }
       });
@@ -134,14 +134,14 @@ export default class FacebookComment extends React.Component<
     }
 
     const size = comment && comment.parentId ? 20 : 32;
-    const statusText = isResolved ? "Open" : "Resolve";
+    const statusText = isResolved ? 'Open' : 'Resolve';
 
     const content = (props) => (
       <ReplyingMessage
         changeHasReply={this.changeHasReply}
         conversationId={comment.conversationId}
         commentId={comment.commentId}
-        currentUserName={`${customer.firstName} ${customer.lastName || ""}`}
+        currentUserName={`${customer.firstName} ${customer.lastName || ''}`}
         replyComment={replyComment}
         {...props}
       />
@@ -149,7 +149,7 @@ export default class FacebookComment extends React.Component<
 
     const triggerProps = {
       relTypeIds: [customer._id],
-      relType: "customer",
+      relType: 'customer',
       sourceConversationId: comment.commentId,
       refetch,
       description: comment.content,
@@ -165,7 +165,7 @@ export default class FacebookComment extends React.Component<
             <FlexItem>
               <Comment>
                 <UserName
-                  username={`${customer.firstName} ${customer.lastName || ""}`}
+                  username={`${customer.firstName} ${customer.lastName || ''}`}
                 />
                 <FacebookContent
                   content={comment.content}
@@ -175,9 +175,9 @@ export default class FacebookComment extends React.Component<
             </FlexItem>
 
             {!isReply ? (
-              <Reply type="reply">
+              <Reply type='reply'>
                 <ModalTrigger
-                  title="Reply"
+                  title='Reply'
                   trigger={<span>Reply</span>}
                   content={content}
                 />
@@ -187,30 +187,30 @@ export default class FacebookComment extends React.Component<
               <Dropdown
                 as={DropdownToggle}
                 toggleComponent={
-                  <Reply type="convert">
+                  <Reply type='convert'>
                     <span>Convert</span>
                   </Reply>
                 }
               >
-                <li key="ticket">
+                <li key='ticket'>
                   <TicketConvertTrigger
                     {...triggerProps}
                     url={convertToInfo.ticketUrl}
                   />
                 </li>
-                <li key="deal">
+                <li key='deal'>
                   <DealConvertTrigger
                     {...triggerProps}
                     url={convertToInfo.dealUrl}
                   />
                 </li>
-                <li key="task">
+                <li key='task'>
                   <TaskConvertTrigger
                     {...triggerProps}
                     url={convertToInfo.taskUrl}
                   />
                 </li>
-                <li key="purchase">
+                <li key='purchase'>
                   <PurchaseConvertTrigger
                     {...triggerProps}
                     url={convertToInfo.purchaseUrl}
@@ -224,7 +224,7 @@ export default class FacebookComment extends React.Component<
             </Reply>
             <span>
               <Date
-                type="comment"
+                type='comment'
                 timestamp={comment.timestamp}
                 permalink_url={comment.permalink_url}
               />
@@ -236,7 +236,7 @@ export default class FacebookComment extends React.Component<
             onClick={this.fetchReplies.bind(this, comment.commentId)}
             isReply={true}
           >
-            <Icon icon="reply" />
+            <Icon icon='reply' />
             <span>View more replies</span>
           </ShowMore>
         )}

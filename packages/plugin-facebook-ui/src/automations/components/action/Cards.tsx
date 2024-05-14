@@ -89,7 +89,7 @@ function Cards({ cards, onChange }) {
     <div>
       <MainWrapper>
         <LeftButton onClick={handlePrevClick} disabled={currentSlide === 0}>
-          <Icon icon="angle-left" size={20} />
+          <Icon icon='angle-left' size={20} />
         </LeftButton>
         <TabsWrapper>
           <TabContainer
@@ -104,12 +104,12 @@ function Cards({ cards, onChange }) {
                 >
                   <span style={{ whiteSpace: 'nowrap' }}>{__(label)}</span>
                   <TabAction onClick={() => handleRemovePage(_id)}>
-                    <Icon icon="times-circle" />
+                    <Icon icon='times-circle' />
                   </TabAction>
                 </TabTitle>
               ))}
               {cards.length < 10 && (
-                <Button btnStyle="link" icon="focus-add" onClick={addPage} />
+                <Button btnStyle='link' icon='focus-add' onClick={addPage} />
               )}
             </Tabs>
           </TabContainer>
@@ -118,7 +118,7 @@ function Cards({ cards, onChange }) {
           onClick={handleNextClick}
           disabled={totalSlides === currentSlide + 1}
         >
-          <Icon icon="angle-right-b" size={20} />
+          <Icon icon='angle-right-b' size={20} />
         </RighButton>
       </MainWrapper>
 

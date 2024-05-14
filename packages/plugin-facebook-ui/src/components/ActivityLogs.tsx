@@ -120,7 +120,7 @@ class ActivityLogs extends React.Component<Props, { toggleMessage: boolean }> {
         {rows}
         <CenterText>
           <Link to={`/inbox/index?_id=${conversation._id}`}>
-            {__('See full conversation')} <Icon icon="angle-double-right" />
+            {__('See full conversation')} <Icon icon='angle-double-right' />
           </Link>
         </CenterText>
       </>
@@ -246,7 +246,7 @@ class ActivityLogs extends React.Component<Props, { toggleMessage: boolean }> {
 
     return (
       <ActivityRow key={Math.random()} isConversation={true}>
-        <Tip text={formatText(condition)} placement="top">
+        <Tip text={formatText(condition)} placement='top'>
           <ActivityIcon color={iconAndColor.color}>
             <Icon icon={iconAndColor.icon} />
           </ActivityIcon>

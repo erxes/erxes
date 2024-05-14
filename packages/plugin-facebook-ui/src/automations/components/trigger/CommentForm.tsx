@@ -1,8 +1,8 @@
-import { ITrigger } from "@erxes/ui-segments/src/types";
-import React, { useState } from "react";
-import BotSelector from "./BotSelector";
-import Select from "react-select";
-import { Flex } from "@erxes/ui/src/styles/main";
+import { ITrigger } from '@erxes/ui-segments/src/types';
+import React, { useState } from 'react';
+import BotSelector from './BotSelector';
+import Select from 'react-select';
+import { Flex } from '@erxes/ui/src/styles/main';
 import {
   Button,
   ControlLabel,
@@ -10,12 +10,12 @@ import {
   ModalTrigger,
   Toggle,
   __,
-} from "@erxes/ui/src";
-import DirectMessageForm from "./DirectMessage";
-import { DrawerDetail } from "@erxes/ui-automations/src/styles";
-import { Features, Padding } from "../../styles";
-import PostSelector, { Post } from "./PostSelector";
-import Common from "@erxes/ui-automations/src/components/forms/actions/Common";
+} from '@erxes/ui/src';
+import DirectMessageForm from './DirectMessage';
+import { DrawerDetail } from '@erxes/ui-automations/src/styles';
+import { Features, Padding } from '../../styles';
+import PostSelector, { Post } from './PostSelector';
+import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
 
 type Props = {
   activeTrigger: ITrigger;
@@ -26,21 +26,21 @@ type Props = {
 
 const POST_TYPE = [
   {
-    label: "Specific post",
-    value: "specific",
+    label: 'Specific post',
+    value: 'specific',
   },
   {
-    label: "Any post",
-    value: "any",
+    label: 'Any post',
+    value: 'any',
   },
 ];
 
 const postSelector = (botId, onChange, postId?) => {
-  const trigger = <Button block>{__("Select Post")}</Button>;
+  const trigger = <Button block>{__('Select Post')}</Button>;
 
   const content = ({ closeModal }) => {
     const onSelect = (postId) => {
-      onChange("postId", postId);
+      onChange('postId', postId);
       closeModal();
     };
 
@@ -54,8 +54,8 @@ const postSelector = (botId, onChange, postId?) => {
         trigger={trigger}
         content={content}
         hideHeader
-        title=""
-        size="xl"
+        title=''
+        size='xl'
       />
     </>
   );
@@ -63,7 +63,7 @@ const postSelector = (botId, onChange, postId?) => {
 
 function CommnetForm({ activeTrigger, addConfig, closeModal }: Props) {
   const [config, setConfig] = useState(
-    activeTrigger.config || { postType: "specific" }
+    activeTrigger.config || { postType: 'specific' }
   );
 
   const handleChange = (name, value) => {
@@ -80,7 +80,7 @@ function CommnetForm({ activeTrigger, addConfig, closeModal }: Props) {
       >
         <BotSelector
           botId={config.botId}
-          onSelect={(botId) => handleChange("botId", botId)}
+          onSelect={(botId) => handleChange('botId', botId)}
         />
         <Features isToggled={config.botId}>
           <FormGroup>
@@ -88,26 +88,26 @@ function CommnetForm({ activeTrigger, addConfig, closeModal }: Props) {
               options={POST_TYPE}
               value={POST_TYPE.find((o) => o.value === config?.postType)}
               isClearable={true}
-              onChange={({ value }: any) => handleChange("postType", value)}
+              onChange={({ value }: any) => handleChange('postType', value)}
             />
           </FormGroup>
 
-          {config.postType === "specific" &&
+          {config.postType === 'specific' &&
             postSelector(config.botId, handleChange, config.postId)}
 
           <Padding>
-            <Flex style={{ justifyContent: "space-between" }}>
+            <Flex style={{ justifyContent: 'space-between' }}>
               <ControlLabel>
                 {__(
                   `comment contains ${
-                    config?.checkContent ? "specific" : "any"
+                    config?.checkContent ? 'specific' : 'any'
                   } words`
                 )}
               </ControlLabel>
               <Toggle
                 checked={config?.checkContent}
                 onChange={() =>
-                  handleChange("checkContent", !config?.checkContent)
+                  handleChange('checkContent', !config?.checkContent)
                 }
               />
             </Flex>
@@ -116,19 +116,19 @@ function CommnetForm({ activeTrigger, addConfig, closeModal }: Props) {
             <DirectMessageForm
               conditions={config.conditions}
               onChange={handleChange}
-              label="Comment"
+              label='Comment'
             />
           )}
 
           <Padding>
-            <Flex style={{ justifyContent: "space-between" }}>
+            <Flex style={{ justifyContent: 'space-between' }}>
               <ControlLabel>
-                {__("Track first level comments only")}
+                {__('Track first level comments only')}
               </ControlLabel>
               <Toggle
                 checked={config?.onlyFirstLevel}
                 onChange={() =>
-                  handleChange("onlyFirstLevel", !config?.onlyFirstLevel)
+                  handleChange('onlyFirstLevel', !config?.onlyFirstLevel)
                 }
               />
             </Flex>

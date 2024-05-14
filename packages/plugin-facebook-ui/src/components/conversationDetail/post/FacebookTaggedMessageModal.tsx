@@ -1,12 +1,12 @@
-import Button from "@erxes/ui/src/components/Button";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import { ModalFooter } from "@erxes/ui/src/styles/main";
-import { __ } from "@erxes/ui/src/utils/core";
-import React from "react";
-import { FacebookTagText } from "./styles";
+import Button from '@erxes/ui/src/components/Button';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { __ } from '@erxes/ui/src/utils/core';
+import React from 'react';
+import { FacebookTagText } from './styles';
 
 type Props = {
   selectTag: (value: string) => void;
@@ -17,22 +17,22 @@ type Props = {
 class Modal extends React.Component<Props, {}> {
   onSave = () => {
     const tag = (
-      document.getElementById("facebook-message-tag") as HTMLInputElement
+      document.getElementById('facebook-message-tag') as HTMLInputElement
     ).value;
 
     this.props.selectTag(tag);
     this.props.hideMask();
 
-    const element = document.querySelector("button.close") as HTMLElement;
+    const element = document.querySelector('button.close') as HTMLElement;
 
     return element.click();
   };
 
   renderForm = () => {
     const tags = [
-      { label: "Confirmed Event Update", value: "CONFIRMED_EVENT_UPDATE" },
-      { label: "Post-Purchase Update", value: "POST_PURCHASE_UPDATE" },
-      { label: "Account Update", value: "ACCOUNT_UPDATE" },
+      { label: 'Confirmed Event Update', value: 'CONFIRMED_EVENT_UPDATE' },
+      { label: 'Post-Purchase Update', value: 'POST_PURCHASE_UPDATE' },
+      { label: 'Account Update', value: 'ACCOUNT_UPDATE' },
     ];
 
     return (
@@ -45,9 +45,9 @@ class Modal extends React.Component<Props, {}> {
           </p>
           <ControlLabel>Tag</ControlLabel>
           <FormControl
-            id="facebook-message-tag"
-            componentclass="select"
-            placeholder={__("Select Brand") as string}
+            id='facebook-message-tag'
+            componentclass='select'
+            placeholder={__('Select Brand') as string}
             defaultValue={this.props.tag}
           >
             {tags.map((tag) => (
@@ -63,17 +63,17 @@ class Modal extends React.Component<Props, {}> {
             Use of tags outside of the approved use cases may result in
             restrictions on the Page's ability to send messages.
             <a
-              href="https://developers.facebook.com/docs/messenger-platform/send-messages/message-tags/"
-              target="_blank"
-              rel="noopener noreferrer"
+              href='https://developers.facebook.com/docs/messenger-platform/send-messages/message-tags/'
+              target='_blank'
+              rel='noopener noreferrer'
             >
-              {__("Learn more")}
+              {__('Learn more')}
             </a>
           </FacebookTagText>
         </FormGroup>
 
         <ModalFooter>
-          <Button onClick={this.onSave} btnStyle="success">
+          <Button onClick={this.onSave} btnStyle='success'>
             Submit
           </Button>
         </ModalFooter>
@@ -82,11 +82,11 @@ class Modal extends React.Component<Props, {}> {
   };
 
   render() {
-    const trigger = <Button btnStyle="default">{__("Choose tag")}</Button>;
+    const trigger = <Button btnStyle='default'>{__('Choose tag')}</Button>;
 
     return (
       <ModalTrigger
-        title="Choose tag"
+        title='Choose tag'
         trigger={trigger}
         content={this.renderForm}
       />

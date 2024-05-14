@@ -88,13 +88,13 @@ function Form({ renderButton, bot, returnToList }: Props) {
       <>
         <Steps>
           <Step
-            title="Select Account"
-            img="/images/icons/erxes-01.svg"
+            title='Select Account'
+            img='/images/icons/erxes-01.svg'
             onClick={() => setLastStep(false)}
           >
             <Padding>
               <Accounts
-                kind="facebook"
+                kind='facebook'
                 selectedAccountId={doc?.accountId}
                 onRemove={() => null}
                 onSelect={(accountId, account) => {
@@ -104,8 +104,8 @@ function Form({ renderButton, bot, returnToList }: Props) {
             </Padding>
           </Step>
           <Step
-            title="Select Your Page"
-            img="/images/icons/erxes-04.svg"
+            title='Select Your Page'
+            img='/images/icons/erxes-04.svg'
             next={() => setLastStep(true)}
             onClick={() => setLastStep(false)}
           >
@@ -123,8 +123,8 @@ function Form({ renderButton, bot, returnToList }: Props) {
             </Padding>
           </Step>
           <Step
-            title="Bot Setup"
-            img="/images/icons/erxes-24.svg"
+            title='Bot Setup'
+            img='/images/icons/erxes-24.svg'
             noButton
             back={() => setLastStep(false)}
             onClick={() => setLastStep(true)}
@@ -135,19 +135,19 @@ function Form({ renderButton, bot, returnToList }: Props) {
                 <p>{__('Name this bot to differentiate from the rest')}</p>
                 <FormControl
                   {...formProps}
-                  name="name"
+                  name='name'
                   required
                   defaultValue={doc?.name}
                 />
               </FormGroup>
               <ControlLabel>
                 {__('Persistent Menu')}
-                <HelpPopover title="A Persistent Menu is a quick-access toolbar in your chat. Customize it below for easy navigation to key bot features." />
+                <HelpPopover title='A Persistent Menu is a quick-access toolbar in your chat. Customize it below for easy navigation to key bot features.' />
               </ControlLabel>
               <ButtonsGenerator
-                _id=""
+                _id=''
                 buttons={doc.persistentMenus || []}
-                addButtonLabel="Add Persistent Menu"
+                addButtonLabel='Add Persistent Menu'
                 onChange={(_id, _name, values) =>
                   setDoc({ ...doc, persistentMenus: values })
                 }
@@ -157,7 +157,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
         </Steps>
         <ModalFooter>
           <Padding>
-            <Button btnStyle="simple" onClick={returnToList}>
+            <Button btnStyle='simple' onClick={returnToList}>
               {__('Cancel')}
             </Button>
             {renderButton({
@@ -193,10 +193,10 @@ function Form({ renderButton, bot, returnToList }: Props) {
             <Preview fullHeight>
               <EmulatorWrapper>
                 <MobileEmulator disabled={!doc?.pageId} isLastStep={isLastStep}>
-                  <div className="top-bar">
-                    <div className="dynamic-island" />
+                  <div className='top-bar'>
+                    <div className='dynamic-island' />
                   </div>
-                  <div className="profile">
+                  <div className='profile'>
                     <Avatar
                       src={
                         doc?.profileUrl
@@ -208,7 +208,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
                   </div>
                   {!isLastStep ? (
                     <>
-                      <div className="getStarted">
+                      <div className='getStarted'>
                         <span>tap to send</span>
                         <button>Get Started</button>
                       </div>
@@ -220,7 +220,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
                         <br />
                         <a
                           href={`https://www.facebook.com/profile.php?id=${doc?.pageId}#`}
-                          target="_blank"
+                          target='_blank'
                         >
                           Learn about business chats and your privacy.
                         </a>
@@ -228,14 +228,14 @@ function Form({ renderButton, bot, returnToList }: Props) {
                     </>
                   ) : (
                     <>
-                      <div className="content">
-                        <div className="inputField">
-                          <input type="text" />
+                      <div className='content'>
+                        <div className='inputField'>
+                          <input type='text' />
                           <button>
-                            <Icon icon="send" />
+                            <Icon icon='send' />
                           </button>
                         </div>
-                        <div className="message-row">
+                        <div className='message-row'>
                           <Avatar
                             src={
                               doc?.profileUrl
@@ -246,8 +246,8 @@ function Form({ renderButton, bot, returnToList }: Props) {
                           <span>{'Get Started'}</span>
                         </div>
                       </div>
-                      <div className="persistentMenu">
-                        <div className="dragger" />
+                      <div className='persistentMenu'>
+                        <div className='dragger' />
                         <ul>
                           {(doc?.persistentMenus || []).map((menu) => (
                             <li>{menu.text || ''}</li>

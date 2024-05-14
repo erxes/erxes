@@ -38,7 +38,7 @@ export default class TagMessage extends React.Component<Props, State> {
     }
 
     return (
-      <Mask id="mask">
+      <Mask id='mask'>
         <MaskText>
           {__(
             'Your last interaction with this contact was more than 24 hours ago. Only Tagged Messages are allowed outside the standard messaging window'

@@ -1,18 +1,18 @@
-import { DrawerDetail } from "@erxes/ui-automations/src/styles";
-import Button from "@erxes/ui/src/components/Button";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import Icon from "@erxes/ui/src/components/Icon";
-import { __ } from "@erxes/ui/src/utils/core";
-import colors from "@erxes/ui/src/styles/colors";
-import typography from "@erxes/ui/src/styles/typography";
-import { FlexRow } from "@erxes/ui/src/components/filterableList/styles";
-import { Column } from "@erxes/ui/src/styles/main";
-import React, { useState } from "react";
-import Select from "react-select";
-import styled from "styled-components";
-import { ConditionsContainer } from "../../styles";
+import { DrawerDetail } from '@erxes/ui-automations/src/styles';
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import Icon from '@erxes/ui/src/components/Icon';
+import { __ } from '@erxes/ui/src/utils/core';
+import colors from '@erxes/ui/src/styles/colors';
+import typography from '@erxes/ui/src/styles/typography';
+import { FlexRow } from '@erxes/ui/src/components/filterableList/styles';
+import { Column } from '@erxes/ui/src/styles/main';
+import React, { useState } from 'react';
+import Select from 'react-select';
+import styled from 'styled-components';
+import { ConditionsContainer } from '../../styles';
 
 export const CustomChip = styled.span`
   color: ${colors.colorCoreBlack};
@@ -70,12 +70,12 @@ const CondtionContainer = styled.div`
 `;
 
 export const OPERATOR_TYPES = [
-  { label: "Is Equal to", value: "isEqual" },
-  { label: "Is Contains", value: "isContains" },
-  { label: "Is Every keywords includes", value: "every" },
-  { label: "Is Some keywords includes", value: "some" },
-  { label: "Start with", value: "startWith" },
-  { label: "End with", value: "endWith" },
+  { label: 'Is Equal to', value: 'isEqual' },
+  { label: 'Is Contains', value: 'isContains' },
+  { label: 'Is Every keywords includes', value: 'every' },
+  { label: 'Is Some keywords includes', value: 'some' },
+  { label: 'Start with', value: 'startWith' },
+  { label: 'End with', value: 'endWith' },
 ];
 
 type Condtion = {
@@ -98,14 +98,14 @@ export default function DirectMessageForm({
   const [conditions, setConditions] = useState(propCondtions || []);
 
   const handleChangeCondtions = (conditions) => {
-    onChange("conditions", conditions);
+    onChange('conditions', conditions);
     setConditions(conditions);
   };
 
   const addCondition = () =>
     handleChangeCondtions([
       ...conditions,
-      { _id: Math.random().toString(), operator: "", keywords: [] },
+      { _id: Math.random().toString(), operator: '', keywords: [] },
     ]);
 
   const onChangeCondition = (_id: string, name: string, value: any) =>
@@ -122,20 +122,20 @@ export default function DirectMessageForm({
 
   const renderCondition = ({ _id, operator, keywords = [] }: Condtion) => {
     const handleKeyPress = (e, keywords) => {
-      if (e.key === "Enter") {
-        onChangeCondition(_id, "keywords", [
+      if (e.key === 'Enter') {
+        onChangeCondition(_id, 'keywords', [
           ...keywords,
           { _id: Math.random().toString(), text: e.currentTarget.value },
         ]);
 
-        e.currentTarget.value = "";
+        e.currentTarget.value = '';
       }
     };
 
     const clearKeyword = (_id: string) => {
       onChangeCondition(
         _id,
-        "keywords",
+        'keywords',
         keywords.filter((keyword) => keyword._id !== _id)
       );
     };
@@ -143,7 +143,7 @@ export default function DirectMessageForm({
     const onDoubleClick = (keywordId) => {
       onChangeCondition(
         _id,
-        "keywords",
+        'keywords',
         keywords.map((keyword) =>
           keyword._id === keywordId ? { ...keyword, isEditable: true } : keyword
         )
@@ -155,7 +155,7 @@ export default function DirectMessageForm({
 
       onChangeCondition(
         _id,
-        "keywords",
+        'keywords',
         keywords.map((keyword) =>
           keyword._id === id ? { ...keyword, text: value } : keyword
         )
@@ -163,11 +163,11 @@ export default function DirectMessageForm({
     };
 
     const onEnterKeyword = (e) => {
-      if (e.key === "Enter") {
+      if (e.key === 'Enter') {
         const { id } = e.currentTarget as HTMLInputElement;
         onChangeCondition(
           _id,
-          "keywords",
+          'keywords',
           keywords.map((keyword) =>
             keyword._id === id ? { ...keyword, isEditable: false } : keyword
           )
@@ -179,18 +179,18 @@ export default function DirectMessageForm({
       <CondtionContainer>
         <DrawerDetail key={_id}>
           <FormGroup>
-            <ControlLabel>{__(label || "Message")}</ControlLabel>
+            <ControlLabel>{__(label || 'Message')}</ControlLabel>
             <Select
               value={OPERATOR_TYPES.find((o) => o.value === operator)}
               onChange={({ value }: any) =>
-                onChangeCondition(_id, "operator", value)
+                onChangeCondition(_id, 'operator', value)
               }
               isClearable={true}
               options={OPERATOR_TYPES}
             />
           </FormGroup>
           <Column>
-            <ControlLabel>{__("Keywords")}</ControlLabel>
+            <ControlLabel>{__('Keywords')}</ControlLabel>
             <div>
               {keywords.map(({ _id, text, isEditable }) => (
                 <CustomChip key={_id} onClick={() => clearKeyword(_id)}>
@@ -203,21 +203,21 @@ export default function DirectMessageForm({
                     />
                   ) : (
                     <p onDoubleClick={() => onDoubleClick(_id)}>
-                      {text} <Icon icon="times" />
+                      {text} <Icon icon='times' />
                     </p>
                   )}
                 </CustomChip>
               ))}
               <CustomChip>
                 <FormControl
-                  placeholder="+ add keyword"
+                  placeholder='+ add keyword'
                   onKeyPress={(e: any) => handleKeyPress(e, keywords)}
                 />
               </CustomChip>
             </div>
           </Column>
         </DrawerDetail>
-        <Icon icon="times" onClick={() => removeCondition(_id)} />
+        <Icon icon='times' onClick={() => removeCondition(_id)} />
       </CondtionContainer>
     );
   };
@@ -225,14 +225,14 @@ export default function DirectMessageForm({
   return (
     <>
       <FlexRow>
-        <ControlLabel>{__("Conditions")}</ControlLabel>
+        <ControlLabel>{__('Conditions')}</ControlLabel>
         <Button
-          size="small"
+          size='small'
           onClick={addCondition}
-          icon="plus-1"
-          btnStyle="simple"
+          icon='plus-1'
+          btnStyle='simple'
         >
-          {__("Add Conditions")}
+          {__('Add Conditions')}
         </Button>
       </FlexRow>
       <ConditionsContainer>

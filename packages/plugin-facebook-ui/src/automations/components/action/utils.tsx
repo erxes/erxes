@@ -1,14 +1,14 @@
-import FormControl from "@erxes/ui/src/components/form/Control";
-import { Flex, Wrapper, LinkButton } from "@erxes/ui/src/styles/main";
-import React from "react";
-import Select from "react-select";
-import Popover from "@erxes/ui/src/components/Popover";
-import styled from "styled-components";
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { Flex, Wrapper, LinkButton } from '@erxes/ui/src/styles/main';
+import React from 'react';
+import Select from 'react-select';
+import Popover from '@erxes/ui/src/components/Popover';
+import styled from 'styled-components';
 
 const timeTypes = [
-  { label: "Minutes", value: "minutes" },
-  { label: "Hours", value: "hours" },
-  { label: "Minutes", value: "minute" },
+  { label: 'Minutes', value: 'minutes' },
+  { label: 'Hours', value: 'hours' },
+  { label: 'Minutes', value: 'minute' },
 ];
 
 const Container = styled(Flex)`
@@ -19,7 +19,7 @@ const Container = styled(Flex)`
 `;
 
 export function TimeSetter({
-  input: { value, timeType = "minute" },
+  input: { value, timeType = 'minute' },
   onChange,
 }) {
   const selectedTimeType =
@@ -34,17 +34,17 @@ export function TimeSetter({
       <Wrapper>
         <Container>
           <FormControl
-            type="number"
+            type='number'
             defaultValue={value}
             onChange={(e) =>
-              onChange("value", (e.currentTarget as HTMLInputElement).value)
+              onChange('value', (e.currentTarget as HTMLInputElement).value)
             }
           />
           <Select
             options={timeTypes}
             value={timeTypes.find((o) => o.value === timeType)}
             isClearable={true}
-            onChange={({ value }: any) => onChange("timeType", value)}
+            onChange={({ value }: any) => onChange('timeType', value)}
           />
         </Container>
       </Wrapper>

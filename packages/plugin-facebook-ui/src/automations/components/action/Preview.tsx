@@ -1,15 +1,15 @@
-import Button from "@erxes/ui/src/components/Button";
-import Icon from "@erxes/ui/src/components/Icon";
-import { __, readFile } from "@erxes/ui/src/utils/core";
-import React, { useState } from "react";
-import Popover from "@erxes/ui/src/components/Popover";
+import Button from '@erxes/ui/src/components/Button';
+import Icon from '@erxes/ui/src/components/Icon';
+import { __, readFile } from '@erxes/ui/src/utils/core';
+import React, { useState } from 'react';
+import Popover from '@erxes/ui/src/components/Popover';
 import {
   CardContent,
   CardItem,
-} from "@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/bot/styles";
-import { Row } from "@erxes/ui-settings/src/styles";
-import { AvatarImg } from "@erxes/ui/src/components/filterableList/styles";
-import styled from "styled-components";
+} from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/bot/styles';
+import { Row } from '@erxes/ui-settings/src/styles';
+import { AvatarImg } from '@erxes/ui/src/components/filterableList/styles';
+import styled from 'styled-components';
 import {
   CarouselButtonLeft,
   CarouselButtonRight,
@@ -18,7 +18,7 @@ import {
   EmulatorWrapper,
   QuickReplies,
   QuickReply,
-} from "../../styles";
+} from '../../styles';
 
 const PopoverWrapper = (props) => {
   return <Popover {...props} />;
@@ -115,9 +115,9 @@ function Preview({ messages }) {
     const renderButton = (button) => {
       const { type, text, link } = button;
 
-      if (type === "link") {
+      if (type === 'link') {
         return (
-          <MessageLinkButton target="_blank" href={link}>
+          <MessageLinkButton target='_blank' href={link}>
             {text}
           </MessageLinkButton>
         );
@@ -142,9 +142,9 @@ function Preview({ messages }) {
 
     return (
       <MesageRow>
-        {!isCarousel && <AvatarImg src="/images/erxes-bot.svg" />}
+        {!isCarousel && <AvatarImg src='/images/erxes-bot.svg' />}
         <Message>
-          {image && <img alt={image || ""} src={readFile(image)} />}
+          {image && <img alt={image || ''} src={readFile(image)} />}
           <CardContent>
             {text && <h4>{text}</h4>}
             {title && <h4>{title}</h4>}
@@ -174,9 +174,9 @@ function Preview({ messages }) {
     return (
       <CarouselContainer>
         <MesageRow>
-          <AvatarImg src="/images/erxes-bot.svg" />
+          <AvatarImg src='/images/erxes-bot.svg' />
           <CarouselButtonLeft onClick={handlePrevClick}>
-            <Icon icon="angle-left" />
+            <Icon icon='angle-left' />
           </CarouselButtonLeft>
           <CarouselContent
             style={{ transform: `translateX(-${currentSlide * 50}%)` }}
@@ -184,7 +184,7 @@ function Preview({ messages }) {
             {cards.map((card) => renderCard(card, true))}
           </CarouselContent>
           <CarouselButtonRight onClick={handleNextClick}>
-            <Icon icon="angle-right-b" />
+            <Icon icon='angle-right-b' />
           </CarouselButtonRight>
         </MesageRow>
       </CarouselContainer>
@@ -193,13 +193,13 @@ function Preview({ messages }) {
 
   const renderMessage = (message) => {
     switch (message.type) {
-      case "text":
+      case 'text':
         return renderCard(message);
-      case "card":
+      case 'card':
         return renderCards(message.cards || []);
-      case "image":
+      case 'image':
         return renderCard(message);
-      case "quickReplies":
+      case 'quickReplies':
         return renderQuickReplies(message);
       default:
         return;
@@ -207,9 +207,9 @@ function Preview({ messages }) {
   };
 
   return (
-    <Emulator id="call-popover" className="call-popover">
-      <div className="top-bar">
-        <div className="dynamic-island" />
+    <Emulator id='call-popover' className='call-popover'>
+      <div className='top-bar'>
+        <div className='dynamic-island' />
       </div>
       <EmulatorWrapper>
         {messages.map((message) => renderMessage(message))}
@@ -222,8 +222,8 @@ function PreviewWidget({ messages }) {
   return (
     <Popover
       trigger={
-        <Button btnStyle="simple" icon="eye" block>
-          {__("Preview")}
+        <Button btnStyle='simple' icon='eye' block>
+          {__('Preview')}
         </Button>
       }
     >

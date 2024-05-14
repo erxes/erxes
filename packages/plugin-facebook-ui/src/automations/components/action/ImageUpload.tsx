@@ -103,10 +103,10 @@ function ImageUploader({
       <UploadWrapper>
         <label>
           <div>
-            <Icon icon="export" size={30}></Icon>
+            <Icon icon='export' size={30}></Icon>
             <p>{label || 'Upload Image'}</p>
           </div>
-          <input type="file" accept={fileType} onChange={handleImageChange} />
+          <input type='file' accept={fileType} onChange={handleImageChange} />
         </label>
       </UploadWrapper>
     );
@@ -120,14 +120,14 @@ function ImageUploader({
           <p>{previewUrl}</p>
         </div>
       ) : (
-        <img alt="image" style={previewStyle} src={readFile(previewUrl)} />
+        <img alt='image' style={previewStyle} src={readFile(previewUrl)} />
       )}
       <label>
         <div>
-          <Icon icon="export" size={30} />
+          <Icon icon='export' size={30} />
           <p>{label || 'Upload Image'}</p>
         </div>
-        <input type="file" accept={fileType} onChange={handleImageChange} />
+        <input type='file' accept={fileType} onChange={handleImageChange} />
       </label>
       {renderUploadLoader()}
     </ImagePreview>

@@ -74,15 +74,15 @@ export default class UpdateConfigs extends React.Component<Props, State> {
 
     return (
       <CollapseContent
-        beforeTitle={<Icon icon="facebook" />}
+        beforeTitle={<Icon icon='facebook' />}
         transparent={true}
-        title="Facebook"
+        title='Facebook'
       >
         <Info>
           <a
-            target="_blank"
-            href="https://docs.erxes.io/"
-            rel="noopener noreferrer"
+            target='_blank'
+            href='https://docs.erxes.io/'
+            rel='noopener noreferrer'
           >
             {__('Learn how to set Facebook Integration Variables')}
           </a>

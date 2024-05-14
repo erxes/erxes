@@ -113,7 +113,7 @@ function GenerateButtons({
       <li key={button._id} onDoubleClick={onDoubleClick}>
         {button?.isEditing ? (
           <input
-            className="editInput"
+            className='editInput'
             onChange={handleEdit}
             value={button.text}
             onBlur={onSave}
@@ -124,7 +124,7 @@ function GenerateButtons({
         )}
         <ActionButtons>
           {extraActions && extraActions(button)}
-          <Icon icon="cancel-1" onClick={onRemove} />
+          <Icon icon='cancel-1' onClick={onRemove} />
         </ActionButtons>
       </li>
     );
@@ -137,7 +137,7 @@ function GenerateButtons({
       onChangeFields={onChangeButtons}
       isModal={true}
       showDragHandler={false}
-      droppableId="property option fields"
+      droppableId='property option fields'
       emptyMessage={emptyMessage}
     />
   );

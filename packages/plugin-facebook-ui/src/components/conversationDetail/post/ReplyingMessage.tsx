@@ -1,8 +1,8 @@
-import Button from "@erxes/ui/src/components/Button";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import * as React from "react";
-import { Footer } from "./styles";
+import Button from '@erxes/ui/src/components/Button';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import * as React from 'react';
+import { Footer } from './styles';
 
 type Props = {
   replyComment: (
@@ -29,7 +29,7 @@ class ReplyingMessage extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      post: "",
+      post: '',
     };
   }
 
@@ -61,7 +61,7 @@ class ReplyingMessage extends React.Component<Props, State> {
   moveCursorAtTheEnd(e) {
     const tmpValue = e.target.value;
 
-    e.target.value = "";
+    e.target.value = '';
     e.target.value = tmpValue;
   }
 
@@ -71,7 +71,7 @@ class ReplyingMessage extends React.Component<Props, State> {
         <FormGroup>
           <FormControl
             autoFocus={true}
-            componentclass="textarea"
+            componentclass='textarea'
             onChange={this.onContentChange}
             required={true}
             onFocus={this.moveCursorAtTheEnd}
@@ -80,14 +80,14 @@ class ReplyingMessage extends React.Component<Props, State> {
 
         <Footer>
           <Button
-            btnStyle="simple"
+            btnStyle='simple'
             onClick={this.props.closeModal}
-            icon="times-circle"
+            icon='times-circle'
           >
             Close
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="check-circle">
+          <Button btnStyle='success' type='submit' icon='check-circle'>
             Post
           </Button>
         </Footer>

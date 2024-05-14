@@ -21,7 +21,7 @@ function OptionalContent({ action, handle }: Props) {
 
   const renderExtraContent = ({ children, icon }) => {
     return (
-      <Flex className="extraContent">
+      <Flex className='extraContent'>
         <Icon icon={icon} /> {children}
       </Flex>
     );
@@ -58,11 +58,11 @@ function OptionalContent({ action, handle }: Props) {
         <p>{text || title}</p>
         <span>{subtitle}</span>
         {buttons.map(({ _id, text, link }) => (
-          <li key={`${_id}-right`} className="optional-connect">
+          <li key={`${_id}-right`} className='optional-connect'>
             {text}
             {link ? (
-              <LinkIcon href={link} target="_blank">
-                <Icon icon="link" />
+              <LinkIcon href={link} target='_blank'>
+                <Icon icon='link' />
               </LinkIcon>
             ) : (
               handle(_id)

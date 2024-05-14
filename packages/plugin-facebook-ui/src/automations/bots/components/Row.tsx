@@ -19,13 +19,13 @@ function Row({ bot, remove, repair }: Props) {
         <ActionButtons>
           <Button
             href={`/settings/facebook-messenger-bot/edit/${bot._id}`}
-            btnStyle="link"
-            icon="edit-3"
+            btnStyle='link'
+            icon='edit-3'
           />
-          <Button btnStyle="link" icon="redo" onClick={() => repair(bot._id)} />
+          <Button btnStyle='link' icon='redo' onClick={() => repair(bot._id)} />
           <Button
-            btnStyle="link"
-            icon="times"
+            btnStyle='link'
+            icon='times'
             onClick={remove.bind(this, bot._id)}
           />
         </ActionButtons>

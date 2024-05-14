@@ -79,7 +79,7 @@ function renderPost(
           <img src={post?.full_picture} />
         ) : (
           <div>
-            <Icon icon="picture" size={36} />
+            <Icon icon='picture' size={36} />
             <span>{'No Image'}</span>
           </div>
         )}
@@ -95,7 +95,7 @@ function renderPost(
               </ActivityDate>
             </Tip>
           </TemplateInfo>
-          <a href={post.permalink_url} target="_blank">
+          <a href={post.permalink_url} target='_blank'>
             See post in Facebook
           </a>
         </div>
@@ -148,7 +148,7 @@ export function Post({
 
   if (onlyLink) {
     return (
-      <a href={facebookGetBotPost?.permalink_url} target="_blank">
+      <a href={facebookGetBotPost?.permalink_url} target='_blank'>
         See post in Facebook
       </a>
     );

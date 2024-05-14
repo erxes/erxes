@@ -81,7 +81,7 @@ class FacebookContainer extends React.Component<Props, State> {
         callback={callback}
         refetchQueries={getRefetchQueries(kind)}
         isSubmitted={isSubmitted}
-        type="submit"
+        type='submit'
         successMessage={`You successfully added an ${passedName}`}
       />
     );

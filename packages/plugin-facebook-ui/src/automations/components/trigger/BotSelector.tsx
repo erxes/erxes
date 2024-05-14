@@ -58,7 +58,7 @@ function BotSelector({ botId, bots, onSelect }) {
       <ControlLabel>{__('Bots List')}</ControlLabel>
       {bots.map(({ _id, profileUrl, name }) => (
         <BottomBarAction key={_id} onClick={() => handleSelect(_id)}>
-          {selectedBotId === _id && <Icon icon="check-1" />}
+          {selectedBotId === _id && <Icon icon='check-1' />}
           <Avatar src={profileUrl} alt={name} />
           {name}
         </BottomBarAction>

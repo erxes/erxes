@@ -1,4 +1,4 @@
-import { BOTTOM_BAR_ITEMS, INITIAL_OBJ_ACTIONS } from "../../constants";
+import { BOTTOM_BAR_ITEMS, INITIAL_OBJ_ACTIONS } from '../../constants';
 import {
   BottomBarAction,
   BottomBarActionsContainer,
@@ -7,35 +7,35 @@ import {
   MainContent,
   PreviewButton,
   Wrapper,
-} from "../../styles";
+} from '../../styles';
 import {
   Column,
   Flex,
   FlexCenter,
   ModalFooter,
-} from "@erxes/ui/src/styles/main";
-import React, { useState } from "react";
+} from '@erxes/ui/src/styles/main';
+import React, { useState } from 'react';
 
-import Alert from "@erxes/ui/src/utils/Alert/index";
-import Button from "@erxes/ui/src/components/Button";
-import ButtonsGenerator from "./ButtonGenerator";
-import Cards from "./Cards";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import { IAction } from "@erxes/ui-automations/src/types";
-import Icon from "@erxes/ui/src/components/Icon";
-import ImageUploader from "./ImageUpload";
-import { Message } from "./types";
-import PlaceHolderInput from "@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput";
-import PreviewWidget from "./Preview";
-import SortableList from "@erxes/ui/src/components/SortableList";
-import { TimeSetter } from "./utils";
-import Uploader from "@erxes/ui/src/components/Uploader";
-import { __ } from "@erxes/ui/src/utils/core";
-import colors from "@erxes/ui/src/styles/colors";
-import dimensions from "@erxes/ui/src/styles/dimensions";
-import styled from "styled-components";
+import Alert from '@erxes/ui/src/utils/Alert/index';
+import Button from '@erxes/ui/src/components/Button';
+import ButtonsGenerator from './ButtonGenerator';
+import Cards from './Cards';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IAction } from '@erxes/ui-automations/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import ImageUploader from './ImageUpload';
+import { Message } from './types';
+import PlaceHolderInput from '@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput';
+import PreviewWidget from './Preview';
+import SortableList from '@erxes/ui/src/components/SortableList';
+import { TimeSetter } from './utils';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import { __ } from '@erxes/ui/src/utils/core';
+import colors from '@erxes/ui/src/styles/colors';
+import dimensions from '@erxes/ui/src/styles/dimensions';
+import styled from 'styled-components';
 
 export const TabAction = styled.div`
   padding-left: ${dimensions.unitSpacing}px;
@@ -49,16 +49,16 @@ export const TabAction = styled.div`
 
 const checkIsAbleAddMessage = (messages, type) => {
   if (
-    type === "input" &&
-    messages.find((message) => message.type === "input")
+    type === 'input' &&
+    messages.find((message) => message.type === 'input')
   ) {
     throw new Error(
-      "You cannot add multiple input messages on more than one in action"
+      'You cannot add multiple input messages on more than one in action'
     );
   }
 
   if (messages?.length === 5) {
-    throw new Error("You can only 5 messages per action");
+    throw new Error('You can only 5 messages per action');
   }
 };
 
@@ -89,19 +89,19 @@ function ReplyFbMessage({
 
   const renderText = ({ _id, text, buttons }) => {
     const onChange = ({ text }) => {
-      handleChange(_id, "text", text);
+      handleChange(_id, 'text', text);
     };
 
     return (
       <Column>
-        <ControlLabel>{__("Text")}</ControlLabel>
+        <ControlLabel>{__('Text')}</ControlLabel>
         <PlaceHolderInput
           config={{ text }}
           triggerType={triggerType}
-          inputName="text"
-          componentclass="textarea"
-          label=""
-          placeholder="Enter your text..."
+          inputName='text'
+          componentclass='textarea'
+          label=''
+          placeholder='Enter your text...'
           onChange={onChange}
         />
         <ButtonsGenerator _id={_id} buttons={buttons} onChange={handleChange} />
@@ -111,12 +111,12 @@ function ReplyFbMessage({
 
   const renderImage = ({ _id, image }) => {
     const handleUpload = (response) => {
-      handleChange(_id, "image", response);
+      handleChange(_id, 'image', response);
     };
 
     return (
       <div>
-        <ControlLabel>{__("Image")}</ControlLabel>
+        <ControlLabel>{__('Image')}</ControlLabel>
         <ImageUploader src={image} onUpload={handleUpload} />
       </div>
     );
@@ -124,12 +124,12 @@ function ReplyFbMessage({
 
   const renderCards = ({ _id, cards }) => {
     const handleChangeCards = (cards) => {
-      handleChange(_id, "cards", cards);
+      handleChange(_id, 'cards', cards);
     };
 
     return (
       <div>
-        <ControlLabel>{__("Cards")}</ControlLabel>
+        <ControlLabel>{__('Cards')}</ControlLabel>
         <Cards cards={cards} onChange={handleChangeCards} />
       </div>
     );
@@ -137,21 +137,21 @@ function ReplyFbMessage({
 
   const renderQuickReplies = ({ _id, quickReplies, text }) => {
     const handleChangeQuickReplies = (_id, name, value) => {
-      handleChange(_id, "quickReplies", value);
+      handleChange(_id, 'quickReplies', value);
     };
 
     const handleChangeInput = (e) => {
       const { value } = e.currentTarget as HTMLInputElement;
 
-      handleChange(_id, "text", value);
+      handleChange(_id, 'text', value);
     };
 
     return (
       <div>
-        <ControlLabel>{__("Quick Replies")}</ControlLabel>
+        <ControlLabel>{__('Quick Replies')}</ControlLabel>
 
         <FormControl
-          placeholder="enter your text"
+          placeholder='enter your text'
           value={text}
           onChange={handleChangeInput}
         />
@@ -161,7 +161,7 @@ function ReplyFbMessage({
           buttons={quickReplies}
           onChange={handleChangeQuickReplies}
           hideMenu
-          addButtonLabel="Add Quick Reply"
+          addButtonLabel='Add Quick Reply'
         />
       </div>
     );
@@ -169,34 +169,34 @@ function ReplyFbMessage({
 
   const renderAudio = ({ _id, audio }) => {
     const handleUpload = (response) => {
-      handleChange(_id, "audio", response);
+      handleChange(_id, 'audio', response);
     };
     return (
       <div>
         <ImageUploader
           src={audio}
           onUpload={handleUpload}
-          label="Upload Audio"
-          fileType="audio/*"
-          previewIcon="music-1"
-          limit="25MB"
+          label='Upload Audio'
+          fileType='audio/*'
+          previewIcon='music-1'
+          limit='25MB'
         />
       </div>
     );
   };
   const renderVideo = ({ _id, video }) => {
     const handleUpload = (response) => {
-      handleChange(_id, "video", response);
+      handleChange(_id, 'video', response);
     };
     return (
       <div>
         <ImageUploader
           src={video}
           onUpload={handleUpload}
-          label="Upload Video"
-          fileType="video/*"
-          previewIcon="film"
-          limit="25MB"
+          label='Upload Video'
+          fileType='video/*'
+          previewIcon='film'
+          limit='25MB'
         />
       </div>
     );
@@ -207,7 +207,7 @@ function ReplyFbMessage({
         <Uploader
           defaultFileList={attachments || []}
           onChange={(attachments) =>
-            handleChange(_id, "attachments", attachments)
+            handleChange(_id, 'attachments', attachments)
           }
         />
       </div>
@@ -215,23 +215,23 @@ function ReplyFbMessage({
   };
   const renderInput = ({ _id, input }) => {
     const onChange = (name, value) => {
-      handleChange(_id, "input", { ...input, [name]: value });
+      handleChange(_id, 'input', { ...input, [name]: value });
     };
 
     return (
       <div>
         <FormGroup>
-          <ControlLabel>{__("Text")}</ControlLabel>
+          <ControlLabel>{__('Text')}</ControlLabel>
           <FormControl
-            defaultValue={input.text || ""}
+            defaultValue={input.text || ''}
             onChange={(e) =>
-              onChange("text", (e.currentTarget as HTMLInputElement).value)
+              onChange('text', (e.currentTarget as HTMLInputElement).value)
             }
           />
         </FormGroup>
         <Flex>
           <FlexCenter>
-            <ControlLabel>{"User Input expires in:   "}</ControlLabel>
+            <ControlLabel>{'User Input expires in:   '}</ControlLabel>
             <TimeSetter input={input} onChange={onChange} />
           </FlexCenter>
         </Flex>
@@ -241,21 +241,21 @@ function ReplyFbMessage({
 
   const renderComponent = ({ type, ...props }: Message) => {
     switch (type) {
-      case "text":
+      case 'text':
         return renderText(props);
-      case "image":
+      case 'image':
         return renderImage(props);
-      case "card":
+      case 'card':
         return renderCards(props);
-      case "quickReplies":
+      case 'quickReplies':
         return renderQuickReplies(props);
-      case "audio":
+      case 'audio':
         return renderAudio(props);
-      case "video":
+      case 'video':
         return renderVideo(props);
-      case "attachments":
+      case 'attachments':
         return renderAttachements(props);
-      case "input":
+      case 'input':
         return renderInput(props);
       default:
         return null;
@@ -275,7 +275,7 @@ function ReplyFbMessage({
     return (
       <ContentWrapper key={_id}>
         {renderComponent(props)}
-        <Icon icon="cancel" onClick={removeMessage} />
+        <Icon icon='cancel' onClick={removeMessage} />
       </ContentWrapper>
     );
   };
@@ -292,8 +292,8 @@ function ReplyFbMessage({
           child={renderContent}
           onChangeFields={onChangeFields}
           showDragHandler={false}
-          droppableId="property option fields"
-          emptyMessage={"empty"}
+          droppableId='property option fields'
+          emptyMessage={'empty'}
         />
       </div>
     );
@@ -338,8 +338,8 @@ function ReplyFbMessage({
           <PreviewButton>
             <PreviewWidget messages={messages} />
           </PreviewButton>
-          <Button btnStyle="success" icon="checked-1" block onClick={onSave}>
-            {__("Save")}
+          <Button btnStyle='success' icon='checked-1' block onClick={onSave}>
+            {__('Save')}
           </Button>
         </ModalFooter>
       </BottomBarContainer>

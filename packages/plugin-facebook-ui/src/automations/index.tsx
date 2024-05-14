@@ -51,12 +51,12 @@ const Automations = (props) => {
     if (result?.error) {
       return (
         <Tip text={result?.error}>
-          <Label lblStyle="danger">{'Error'}</Label>
+          <Label lblStyle='danger'>{'Error'}</Label>
         </Tip>
       );
     }
 
-    return <Label lblStyle="success">{'Sent'}</Label>;
+    return <Label lblStyle='success'>{'Sent'}</Label>;
   }
   if (componentType === 'historyName') {
     return <>{'-'}</>;
