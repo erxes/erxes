@@ -116,6 +116,28 @@ const getCustomerInfo = async (type, config, doc) => {
   return { customerTin, consumerNo }
 }
 
+const genStock = (detail, product, config) => {
+  const barCode = detail.barcode || (product.barcodes || [])[0] || '';
+  const barCodeType = isValidBarcode(barCode) ? 'GS1' : 'UNDEFINED'
+
+  return {
+    name: product.shortName ? product.shortName : `${product.code} - ${product.name}`,
+    barCode,
+    barCodeType,
+    classificationCode: config.defaultGSCode,
+    taxProductCode: product.taxCode,
+    measureUnit: product.uom ?? 'ш',
+    qty: detail.quantity,
+    unitPrice: detail.unitPrice,
+    totalBonus: detail.totalDiscount,
+    totalAmount: detail.totalAmount,
+    totalVAT: 0,
+    totalCityTax: 0,
+    data: {},
+    productId: product._id,
+  };
+}
+
 const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc, type: string) => {
   const details: any[] = [];
   const detailsFree: any[] = [];
@@ -135,25 +157,7 @@ const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc, type: strin
   for (const detail of (doc.details || []).filter(d => d.product)) {
     const product = detail.product;
 
-    const barCode = detail.barcode || (product.barcodes || [])[0] || '';
-    const barCodeType = isValidBarcode(barCode) ? 'GS1' : 'UNDEFINED'
-
-    const stock = {
-      name: product.shortName ? product.shortName : `${product.code} - ${product.name}`,
-      barCode,
-      barCodeType,
-      classificationCode: config.defaultGSCode,
-      taxProductCode: product.taxCode,
-      measureUnit: product.uom ?? 'ш',
-      qty: detail.quantity,
-      unitPrice: detail.unitPrice,
-      totalBonus: detail.totalDiscount,
-      totalAmount: detail.totalAmount,
-      totalVAT: 0,
-      totalCityTax: 0,
-      data: {},
-      productId: product._id,
-    };
+    const stock = genStock(detail, product, config)
 
     if (product.taxType === '2') {
       detailsFree.push({ ...stock });
