@@ -17,7 +17,9 @@
     "react"
   ],
   "license": "GNU General Public License v3.0 with Commons Clause",
-
+  "lint-staged": {
+    "*.@(js|jsx|ts|tsx|json|css)": "prettier --single-quote --write"
+  },
   "scripts": {
     "create-plugins-cis": "node scripts/create-plugins-cis",
     "create-plugin": "node scripts/create-plugin",
