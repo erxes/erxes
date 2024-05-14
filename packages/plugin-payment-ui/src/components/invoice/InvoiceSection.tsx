@@ -59,7 +59,7 @@ export default function Component(props: Props) {
 
     return (
       <div>
-        <Table hover={true}>
+        <Table $hover={true}>
           <thead>
             <tr>
               <th>{__("Kind")}</th>
