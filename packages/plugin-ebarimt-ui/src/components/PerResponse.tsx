@@ -106,9 +106,8 @@ export default (response, counter?) => {
 
         ${response.qrData
         ? `
-              <canvas id="qrcode${(response._id || '')
-          .toString()
-          .replace('.', '')}"></canvas>
+            <canvas id="qrcode${(response._id || '').toString().replace('.', '')}">
+            </canvas>
             `
         : ''
       }
