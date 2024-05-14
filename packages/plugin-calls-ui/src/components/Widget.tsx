@@ -11,22 +11,29 @@ import { __ } from '@erxes/ui/src/utils';
 type Props = {
   callUserIntegrations: any;
   setConfig: any;
+  callDirection?: string;
+  setHideIncomingCall?: (isHide: boolean) => void;
+  hideIncomingCall?: boolean;
 };
 
 const Widget = (props: Props, context) => {
   const Sip = context;
-
+  const { callDirection } = props;
   const isConnected =
     !Sip.call ||
     Sip.sip?.status === SIP_STATUS_ERROR ||
     Sip.sip?.status === SIP_STATUS_DISCONNECTED;
-  if (context?.call?.direction === 'callDirection/INCOMING') {
-    return;
-  }
+
+  const onClick = () => {
+    const { setHideIncomingCall, hideIncomingCall } = props;
+    if (setHideIncomingCall) {
+      setHideIncomingCall(!hideIncomingCall);
+    }
+  };
   return (
     <Popover
       trigger={
-        <WidgetWrapper $isConnected={isConnected}>
+        <WidgetWrapper $isConnected={isConnected} onClick={onClick}>
           <Icon icon={isConnected ? 'phone-slash' : 'phone'} size={23} />
         </WidgetWrapper>
       }

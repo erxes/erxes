@@ -10,6 +10,7 @@ module.exports = {
     "./integrationDetailsForm": "./src/components/IntegrationEditForm.tsx",
     "./integrationCustomActions": "./src/components/TokenButton.tsx",
     "./inboxIntegrationSettings": "./src/containers/UpdateConfigsContainer.tsx",
+    './activityLog': './src/components/ActivityLog.tsx',
   },
 
   routes: {
@@ -38,4 +39,5 @@ module.exports = {
       createModal: "grandstream",
     },
   ],
+  activityLog: './activityLog',
 };
