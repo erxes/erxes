@@ -106,7 +106,8 @@ const getCustomerInfo = async (type, config, doc) => {
     return { customerTin: resp.tin }
   }
 
-  if (doc.consumerNo && new RegExp('^\\d{8}$', 'gui').test(doc.consumerNo)) {
+  const re = /^\d{8}$/;
+  if (doc.consumerNo && re.test(doc.consumerNo)) {
     return { consumerNo: doc.consumerNo };
   }
   return {}

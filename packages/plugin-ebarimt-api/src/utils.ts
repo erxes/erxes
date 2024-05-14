@@ -22,7 +22,7 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
 export const validCompanyCode = async (config, companyCode) => {
   let result = '';
 
-  const re = new RegExp('(^[А-ЯЁӨҮ]{2}\\d{8}$)|(^\\d{7}$)', 'gui');
+  const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)/gui;
 
   if (re.test(companyCode)) {
     const response = await fetch(
@@ -127,7 +127,7 @@ export const getPostData = async (subdomain, config, deal) => {
       defaultValue: [],
     });
 
-    const re = new RegExp('(^[А-ЯЁӨҮ]{2}\\d{8}$)|(^\\d{7}$)', 'gui');
+    const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)/gui;
     for (const company of companies) {
       if (re.test(company.code)) {
         const checkCompanyRes = await fetch(
@@ -232,7 +232,7 @@ export const getPostData = async (subdomain, config, deal) => {
 };
 
 export const getCompanyInfo = async ({ getTinUrl, getInfoUrl, tin, rd }: { getTinUrl: string, getInfoUrl: string, tin?: string, rd?: string }) => {
-  const tinre = new RegExp('(^\\d{11}$)|(^\\d{14}$)', 'gui');
+  const tinre = /(^\d{11}$)|(^\d{14}$)/;
   if (tin && tinre.test(tin)) {
     const result = await fetch(
       // `https://api.ebarimt.mn/api/info/check/getInfo?tin=${tinNo}`
@@ -242,7 +242,7 @@ export const getCompanyInfo = async ({ getTinUrl, getInfoUrl, tin, rd }: { getTi
     return { status: 'checked', result, tin };
   }
 
-  const re = new RegExp('(^[А-ЯЁӨҮ]{2}\\d{8}$)|(^\\d{7}$)', 'gui');
+  const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)/gui;
 
   if (!rd || !re.test(rd)) {
     return { status: 'notValid' };

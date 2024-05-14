@@ -36,13 +36,13 @@ export const getPostData = async (subdomain, config, deal, dateType = '') => {
       defaultValue: [],
     });
 
-    const re = new RegExp('(^[А-ЯЁӨҮ]{2}\\d{8}$)|(^\\d{7}$)', 'gui');
+    const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)/gui;
     for (const company of companies) {
       if (re.test(company.code)) {
         const checkCompanyRes = await fetch(
           config.checkCompanyUrl +
-            '?' +
-            new URLSearchParams({ regno: company.code }),
+          '?' +
+          new URLSearchParams({ regno: company.code }),
         ).then((res) => res.json());
 
         if (checkCompanyRes.found) {

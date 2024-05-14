@@ -109,7 +109,8 @@ const getCustomerInfo = async (type, config, doc) => {
     return { customerTin: resp.tin }
   };
 
-  if (doc.consumerNo && new RegExp('^\\d{8}$', 'gui').test(doc.consumerNo)) {
+  const re = /^\d{8}$/gui;
+  if (doc.consumerNo && re.test(doc.consumerNo)) {
     return { consumerNo: doc.consumerNo };
   };
 
@@ -316,7 +317,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
 }
 
 export const getCompanyInfo = async ({ getTinUrl, getInfoUrl, tin, rd }: { getTinUrl: string, getInfoUrl: string, tin?: string, rd?: string }) => {
-  const tinre = new RegExp('(^\\d{11}$)|(^\\d{14}$)', 'gui');
+  const tinre = /(^\d{11}$)|(^\d{14}$)/gui;
   if (tin && tinre.test(tin)) {
     const result = await fetch(
       // `https://api.ebarimt.mn/api/info/check/getInfo?tin=${tinNo}`
@@ -326,7 +327,7 @@ export const getCompanyInfo = async ({ getTinUrl, getInfoUrl, tin, rd }: { getTi
     return { status: 'checked', result, tin };
   }
 
-  const re = new RegExp('(^[А-ЯЁӨҮ]{2}\\d{8}$)|(^\\d{7}$)', 'gui');
+  const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)/gui;
 
   if (!rd || !re.test(rd)) {
     return { status: 'notValid' };
