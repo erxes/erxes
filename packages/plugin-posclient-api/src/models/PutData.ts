@@ -93,9 +93,7 @@ const isValidBarcode = (barcode: string): boolean => {
   return checkSum == lastDigit;
 };
 
-export const getEbarimtData = async (params: IPutDataArgs) => {
-  const { config, doc } = params;
-  const type = doc.type || BILL_TYPES.CITIZEN;
+const getCustomerInfo = async (type, config, doc) => {
   let customerTin;
   let consumerNo;
 
@@ -104,7 +102,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     if (resp.status === 'checked') {
       customerTin = resp.tin;
     } else {
-      return { status: 'err', msg: 'wrong tin number or rd or billType' }
+      return { msg: 'wrong tin number or rd or billType' }
     }
   } else {
     if (doc.consumerNo && new RegExp('^[0-9]{8}$', 'gui').test(doc.consumerNo)) {
@@ -112,11 +110,32 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     }
   }
 
-  let reportMonth: string | undefined = undefined;
-  if (doc.date && doc.date.getMonth() !== (new Date()).getMonth()) {
-    reportMonth = moment(doc.date).format('YYYY-MM-DD')
-  }
+  return { customerTin, consumerNo }
+}
 
+const genStock = (detail, product, config) => {
+  const barCode = detail.barcode ?? (product.barcodes || [])[0] ?? '';
+  const barCodeType = isValidBarcode(barCode) ? 'GS1' : 'UNDEFINED'
+
+  return {
+    name: product.shortName ? product.shortName : `${product.code} - ${product.name}`,
+    barCode,
+    barCodeType,
+    classificationCode: config.defaultGSCode,
+    taxProductCode: product.taxCode,
+    measureUnit: product.uom ?? 'ш',
+    qty: detail.quantity,
+    unitPrice: detail.unitPrice,
+    totalBonus: detail.totalDiscount,
+    totalAmount: detail.totalAmount,
+    totalVAT: 0,
+    totalCityTax: 0,
+    data: {},
+    productId: product._id,
+  };
+}
+
+const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc) => {
   const details: any[] = [];
   const detailsFree: any[] = [];
   const details0: any[] = [];
@@ -134,33 +153,10 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     (config.hasCitytax && Number(config.cityTaxPercent)) || 0;
   const totalPercent = vatPercent + cityTaxPercent + 100
 
-  for (const detail of doc.details || []) {
+  for (const detail of (doc.details || []).filter(d => d.product)) {
     const product = detail.product;
 
-    // if wrong productId then not sent
-    if (!product) {
-      continue;
-    }
-
-    const barCode = detail.barcode ?? (product.barcodes || [])[0] ?? '';
-    const barCodeType = isValidBarcode(barCode) ? 'GS1' : 'UNDEFINED'
-
-    const stock = {
-      name: product.shortName ? product.shortName : `${product.code} - ${product.name}`,
-      barCode,
-      barCodeType,
-      classificationCode: config.defaultGSCode,
-      taxProductCode: product.taxCode,
-      measureUnit: product.uom ?? 'ш',
-      qty: detail.quantity,
-      unitPrice: detail.unitPrice,
-      totalBonus: detail.totalDiscount,
-      totalAmount: detail.totalAmount,
-      totalVAT: 0,
-      totalCityTax: 0,
-      data: {},
-      productId: product._id,
-    };
+    const stock = genStock(detail, product, config);
 
     if (product.taxType === '2') {
       detailsFree.push({ ...stock });
@@ -181,6 +177,47 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
       details.push({ ...stock, totalVAT, totalCityTax });
     }
   }
+
+  return {
+    details,
+    detailsFree,
+    details0,
+    detailsInner,
+    ableAmount,
+    freeAmount,
+    zeroAmount,
+    innerAmount,
+    ableVATAmount,
+    ableCityTaxAmount,
+  }
+}
+
+export const getEbarimtData = async (params: IPutDataArgs) => {
+  const { config, doc } = params;
+  const type = doc.type || BILL_TYPES.CITIZEN;
+
+  const { customerTin, consumerNo, msg } = await getCustomerInfo(type, config, doc);
+  if (msg) {
+    return { status: 'err', msg }
+  }
+
+  let reportMonth: string | undefined = undefined;
+  if (doc.date && doc.date.getMonth() !== (new Date()).getMonth()) {
+    reportMonth = moment(doc.date).format('YYYY-MM-DD')
+  }
+
+  const {
+    details,
+    detailsFree,
+    details0,
+    detailsInner,
+    ableAmount,
+    freeAmount,
+    zeroAmount,
+    innerAmount,
+    ableVATAmount,
+    ableCityTaxAmount,
+  } = await getArrangeProducts(config, doc)
 
   const mainData: IEbarimt = {
     number: doc.number,

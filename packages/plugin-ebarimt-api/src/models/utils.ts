@@ -138,7 +138,7 @@ const genStock = (detail, product, config) => {
   };
 }
 
-const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc, type: string) => {
+const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc) => {
   const details: any[] = [];
   const detailsFree: any[] = [];
   const details0: any[] = [];
@@ -223,7 +223,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     innerAmount,
     ableVATAmount,
     ableCityTaxAmount,
-  } = await getArrangeProducts(config, doc, type)
+  } = await getArrangeProducts(config, doc)
 
   const mainData: IEbarimt = {
     number: doc.number,
