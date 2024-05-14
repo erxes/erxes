@@ -62,6 +62,11 @@ const RespondBoxStyled = styledTS<{
       props.$isInternal ? colors.bgInternal : colors.colorWhite};
     transition: background 0.3s ease;
   }
+
+  .css-1nmdiq5-menu > div {
+    height: 100px;
+    overflow: auto;
+  }
 `;
 
 const MailRespondBox = styled(RespondBoxStyled)`
@@ -315,6 +320,11 @@ const SmallEditor = styled.div`
   padding: ${dimensions.unitSpacing - 2}px 110px ${dimensions.unitSpacing - 2}px
     0;
   position: relative;
+
+  .css-1nmdiq5-menu > div {
+    height: 100px;
+    overflow: auto;
+  }
 
   ${RichEditorRoot} {
     padding-top: 0;

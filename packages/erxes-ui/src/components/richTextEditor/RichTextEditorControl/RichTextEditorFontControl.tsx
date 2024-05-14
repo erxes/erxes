@@ -102,6 +102,7 @@ export const RichTextEditorFontControl = ({ toolbarPlacement }) => {
         options={options}
         isDisabled={isSourceEnabled}
         isSearchable={false}
+        menuPlacement={toolbarPlacement === 'bottom' ? 'top': 'bottom'}
       />
     </FontSelectWrapper>
   );
