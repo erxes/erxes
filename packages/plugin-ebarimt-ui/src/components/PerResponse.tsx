@@ -104,10 +104,7 @@ export default (response, counter?) => {
             ${response.lottery ? `Сугалаа: ${response.lottery}` : ''}
           </div>
 
-          ${response.qrData ? `
-            <canvas id="qrcode${(response._id || '').toString().replace('.', '')}">
-            </canvas>
-          ` : ''}
+          ${response.qrData ? `<canvas id="qrcode${(response._id || '').toString().replace('.', '')}"></canvas>` : ''}
 
           <p>Манайхаар үйлчлүүлсэн танд баярлалаа !!!</p>
         </div>
