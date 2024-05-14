@@ -1,112 +1,107 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
-import Settings from './containers/config/Settings';
-import Uom from './containers/config/Uoms';
-import GeneralSettings from './components/config/GeneralSettings';
-import SimilarityGroup from './components/config/SimilarityGroup';
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
+import React from "react";
+import { Route, Routes, useLocation, useParams } from "react-router-dom";
+import Settings from "./containers/config/Settings";
+import Uom from "./containers/config/Uoms";
+import GeneralSettings from "./components/config/GeneralSettings";
+import SimilarityGroup from "./components/config/SimilarityGroup";
 
-const ProductList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings List - ProductService" */ './containers/product/ProductList'
-  )
+const ProductList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings List - ProductService" */ "./containers/product/ProductList"
+    )
 );
 
-const ProductDetails = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings List - ProductService" */ './containers/product/detail/ProductDetails'
-  )
+const ProductDetails = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings List - ProductService" */ "./containers/product/detail/ProductDetails"
+    )
 );
 
-const BarcodeGenerator = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings List - ProductService" */ './containers/barcodeGenerator/BarcodeGenerator'
-  )
+const BarcodeGenerator = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings List - ProductService" */ "./containers/barcodeGenerator/BarcodeGenerator"
+    )
 );
 
-const details = ({ match }) => {
-  const id = match.params.id;
+const Details = () => {
+  const id = useParams();
 
-  return <ProductDetails id={id} />;
+  return <ProductDetails id={id.id} />;
 };
 
-const productService = ({ location, history }) => {
-  return (
-    <ProductList
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const ProductService = () => {
+  const location = useLocation();
+
+  return <ProductList queryParams={queryString.parse(location.search)} />;
 };
 
-const generalSetting = () => {
+const GeneralSetting = () => {
   return <Settings component={GeneralSettings} />;
 };
 
-const similarityGroup = () => {
+const SimilarityGroupComponent = () => {
   return <Settings component={SimilarityGroup} />;
 };
 
-const uomManage = () => {
-  return <Uom history={history} />;
+const UomManage = () => {
+  return <Uom />;
 };
 
-const barcodeGenerator = ({ match, location }) => {
-  const id = match.params.id;
+const BarcodeGeneratorComponent = () => {
+  const id = useParams();
+  const location = useLocation();
 
   return (
     <BarcodeGenerator
-      id={id}
+      id={id.id}
       queryParams={queryString.parse(location.search)}
     />
   );
 };
 
 const routes = () => (
-  <React.Fragment>
+  <Routes>
     <Route
       path="/settings/product-service/details/:id"
-      exact={true}
       key="/settings/product-service/details/:id"
-      component={details}
+      element={<Details />}
     />
 
     <Route
       path="/settings/product-service/"
-      exact={true}
       key="/settings/product-service/"
-      component={productService}
+      element={<ProductService />}
     />
 
     <Route
       path="/settings/products-config/"
-      exact={true}
       key="/settings/products-config/"
-      component={generalSetting}
+      element={<GeneralSetting />}
     />
 
     <Route
       path="/settings/similarity-group/"
-      exact={true}
       key="/settings/similarity-group"
-      component={similarityGroup}
+      element={<SimilarityGroupComponent />}
     />
 
     <Route
       path="/settings/uoms-manage/"
-      exact={true}
       key="/settings/uoms-manage/"
-      component={uomManage}
+      element={<UomManage />}
     />
 
     <Route
       path="/settings/barcode-generator/:id"
-      exact={true}
       key="/settings/barcode-generator/:id"
-      component={barcodeGenerator}
+      element={<BarcodeGeneratorComponent />}
     />
-  </React.Fragment>
+  </Routes>
 );
 
 export default routes;

@@ -2,25 +2,28 @@ import { Schema, Document } from 'mongoose';
 import { field } from './utils';
 
 export interface ICallHistory {
-  receiverNumber: string;
-  callerNumber: string;
+  operatorPhone: string;
+  customerPhone: string;
   callDuration: number;
   callStartTime: Date;
   callEndTime: Date;
   callType: string;
   callStatus: string;
   sessionId: string;
-  updatedAt: Date;
+  modifiedAt: Date;
   createdAt: Date;
   createdBy: string;
-  updatedBy: string;
+  modifiedBy: string;
+  conversationId: string;
+  acceptedUserId: string;
+  recordUrl: string;
 }
 
 export interface ICallHistoryDocument extends ICallHistory, Document {}
 
 export const callHistorySchema = new Schema({
-  receiverNumber: field({ type: String, label: 'reciever number' }),
-  callerNumber: field({ type: String, label: 'caller number' }),
+  operatorPhone: field({ type: String, label: 'operator number' }),
+  customerPhone: field({ type: String, label: 'customer number' }),
   callDuration: field({ type: Number, label: 'duration' }),
   callStartTime: field({ type: Date, label: 'call start time' }),
   callEndTime: field({ type: Date, label: 'call end time' }),
@@ -32,11 +35,20 @@ export const callHistorySchema = new Schema({
   callStatus: field({
     type: String,
     label: 'status',
-    enum: ['missed', 'connected', 'rejected', 'cancelled'],
+    enum: ['missed', 'connected', 'rejected', 'cancelled', 'active'],
+    default: 'missed',
+  }),
+  acceptedUserId: field({
+    type: String,
+    label: 'call accepted operator id',
   }),
   sessionId: field({ type: String, label: 'call session id' }),
-  updatedAt: field({ type: Date, label: 'modified date' }),
-  createdAt: field({ type: Date, label: 'created date' }),
+  modifiedAt: field({ type: Date, label: 'modified date' }),
+  createdAt: field({ type: Date, label: 'created date', default: new Date() }),
   createdBy: field({ type: String, label: 'created By' }),
-  updatedBy: field({ type: String, label: 'updated By' }),
+  modifiedBy: field({ type: String, label: 'updated By' }),
+  extentionNumber: field({ type: String, label: 'extention number' }),
+  conversationId: field({ type: String, label: 'erxes conversation id' }),
+  inboxIntegrationId: field({ type: String, label: 'erxes integration id' }),
+  recordUrl: field({ type: String, label: 'record url' }),
 });

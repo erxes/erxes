@@ -30,29 +30,30 @@ export const cpNotificationSchema = new Schema({
   createdAt: field({
     type: Date,
     default: Date.now,
-    expires: 60 * 60 * 24 * 30, // 30 days
+    expires: 60 * 60 * 24 * 30 // 30 days
   }),
   isRead: field({
     type: Boolean,
-    default: false,
+    default: false
   }),
   notifType: field({
-    type: String,
+    type: String
   }),
   clientPortalId: field({
     type: String,
-    index: true,
+    index: true
   }),
   eventData: field({
     type: Schema.Types.Mixed,
-    optional: true,
+    optional: true
   }),
   groupId: field({
     type: String,
-  }),
+    optional: true
+  })
 });
 
 cpNotificationSchema.index(
   { createdAt: 1, receiver: 1, clientPortalId: 1 },
-  { expireAfterSeconds: 60 * 60 * 24 * 30 },
+  { expireAfterSeconds: 60 * 60 * 24 * 30 }
 );

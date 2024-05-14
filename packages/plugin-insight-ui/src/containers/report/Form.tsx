@@ -1,22 +1,22 @@
-import React from 'react';
+import React from "react";
 
-import { gql, useQuery, useMutation } from '@apollo/client';
+import { gql, useQuery, useMutation } from "@apollo/client";
 
-import Alert from '@erxes/ui/src/utils/Alert/index';
-import Spinner from '@erxes/ui/src/components/Spinner';
+import Alert from "@erxes/ui/src/utils/Alert/index";
+import Spinner from "@erxes/ui/src/components/Spinner";
 
-import Form from '../../components/report/Form';
-import { queries, mutations } from '../../graphql';
+import Form from "../../components/report/Form";
+import { queries, mutations } from "../../graphql";
 import {
   ReportDetailQueryResponse,
   ReportEditMutationResponse,
   ReportFormMutationVariables,
   InsightTemplatesListQueryResponse,
-} from '../../types';
+} from "../../types";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
-  history: any;
 
   reportId?: string;
 
@@ -24,25 +24,26 @@ type Props = {
 };
 
 const FormContainer = (props: Props) => {
-  const { queryParams, reportId, history, closeDrawer } = props;
+  const { queryParams, reportId, closeDrawer } = props;
+  const navigate = useNavigate();
 
   const reportDetailQuery = useQuery<ReportDetailQueryResponse>(
     gql(queries.reportDetail),
     {
       skip: !reportId,
       variables: { reportId },
-    },
+    }
   );
 
   const reportTemplatesListQuery = useQuery<InsightTemplatesListQueryResponse>(
-    gql(queries.insightTemplatesList),
+    gql(queries.insightTemplatesList)
   );
 
   const [reportAddMutation] = useMutation(gql(mutations.reportAdd), {
     refetchQueries: [
       {
         query: gql(queries.sectionList),
-        variables: { type: 'report' },
+        variables: { type: "report" },
       },
       {
         query: gql(queries.reportList),
@@ -50,35 +51,34 @@ const FormContainer = (props: Props) => {
     ],
   });
 
-  const [reportEditMutation] = useMutation(
-    gql(mutations.chartsEditMany),
-    {
-      refetchQueries: [
-        {
-          query: gql(queries.sectionList),
-          variables: { type: 'report' },
+  const [reportEditMutation] = useMutation(gql(mutations.chartsEditMany), {
+    refetchQueries: [
+      {
+        query: gql(queries.sectionList),
+        variables: { type: "report" },
+      },
+      {
+        query: gql(queries.reportList),
+      },
+      {
+        query: gql(queries.reportDetail),
+        variables: {
+          reportId,
         },
-        {
-          query: gql(queries.reportList),
-        },
-        {
-          query: gql(queries.reportDetail),
-          variables: {
-            reportId,
-          },
-        },
-      ],
-    },
-  );
+      },
+    ],
+  });
 
   const handleMutation = (values: ReportFormMutationVariables) => {
     if (reportId) {
-      return reportEditMutation({ variables: { contentId: reportId, contentType: 'report', ...values } })
+      return reportEditMutation({
+        variables: { contentId: reportId, contentType: "report", ...values },
+      })
         .then(() => {
           closeDrawer();
 
-          Alert.success('Successfully edited report');
-          history.push(`/insight?reportId=${reportId}`);
+          Alert.success("Successfully edited report");
+          navigate(`/insight?reportId=${reportId}`);
         })
         .catch((err) => Alert.error(err.message));
     }
@@ -87,10 +87,10 @@ const FormContainer = (props: Props) => {
       .then((res) => {
         closeDrawer();
 
-        Alert.success('Successfully created report');
+        Alert.success("Successfully created report");
         const { _id } = res.data.reportAdd;
         if (_id) {
-          history.push(`/insight?reportId=${_id}`);
+          navigate(`/insight?reportId=${_id}`);
         }
       })
       .catch((err) => {

@@ -2,7 +2,7 @@ import { generateModels } from './connectionResolver';
 import { sendMessageBroker } from './messageBroker';
 import { ISchedule } from './models/definitions/schedules';
 
-const toMoney = value => {
+const toMoney = (value) => {
   if (!value) {
     return '-';
   }
@@ -19,7 +19,7 @@ const fields = [
   { value: 'feeAmount', name: 'Fee Amount', isAmount: true },
   { value: 'tenor', name: 'Tenor' },
   { value: 'interestRate', name: 'interestRate' },
-  { value: 'unduePercent', name: 'unduePercent' },
+  { value: 'lossPercent', name: 'lossPercent' },
   { value: 'repayment', name: 'repayment' },
   { value: 'startDate', name: 'startDate' },
   { value: 'scheduleDays', name: 'scheduleDays' },
@@ -107,8 +107,9 @@ export default {
               (row, index) => `
               <tr>
                 <td>${index + 1}</td>
-                <td>${row.payDate.getFullYear()}-${row.payDate.getMonth() +
-                1}-${row.payDate.getDate()}</td>
+                <td>${row.payDate.getFullYear()}-${
+                  row.payDate.getMonth() + 1
+                }-${row.payDate.getDate()}</td>
                 <td>${toMoney(row.balance)}</td>
                 <td>${toMoney(row.payment)}</td>
                 <td>${toMoney(

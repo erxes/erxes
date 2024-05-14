@@ -22,7 +22,7 @@ export const fetchPolaris = async (args: IParams) => {
     Cookie: `NESSESSION=${config.token}`,
     Company: config.companyCode,
     Role: config.role,
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/json'
   };
 
   try {
@@ -30,7 +30,7 @@ export const fetchPolaris = async (args: IParams) => {
       url: `${config.apiUrl}`,
       method: 'POST',
       headers,
-      body: JSON.stringify(data),
+      body: JSON.stringify(data)
     };
 
     return await fetch(config.apiUrl, requestOptions)
@@ -49,13 +49,28 @@ export const fetchPolaris = async (args: IParams) => {
   }
 };
 
+export const sendMessageBrokerData = async (
+  subdomain,
+  serviceName: 'contacts' | 'savings' | 'core' | 'forms' | 'loans',
+  action: 'getConfig' | 'customers.findOne' | 'contractType.findOne' | 'contracts.findOne',
+  data
+) => {
+  return await sendCommonMessage({
+    subdomain,
+    action,
+    serviceName,
+    data,
+    isRPC: true
+  });
+};
+
 export const getConfig = async (subdomain, code, defaultValue?) => {
   return await sendCommonMessage({
     subdomain,
     action: 'getConfig',
     serviceName: 'core',
     data: { code, defaultValue },
-    isRPC: true,
+    isRPC: true
   });
 };
 
@@ -65,7 +80,7 @@ export const getCustomer = async (subdomain, data) => {
     action: 'customers.find',
     serviceName: 'contacts',
     data: data,
-    isRPC: true,
+    isRPC: true
   });
 };
 
@@ -76,9 +91,9 @@ export const updateCustomer = async (subdomain, query, data) => {
     serviceName: 'contacts',
     data: {
       selector: query,
-      modifier: { $set: data },
+      modifier: { $set: data }
     },
-    isRPC: true,
+    isRPC: true
   });
 };
 
@@ -88,7 +103,7 @@ export const getBranch = async (subdomain, _id) => {
     action: 'branches.findOne',
     serviceName: 'core',
     data: { _id },
-    isRPC: true,
+    isRPC: true
   });
 };
 
@@ -96,7 +111,7 @@ export const updateContract = async (
   subdomain,
   selector,
   updateData,
-  serviceName,
+  serviceName
 ) => {
   return await sendCommonMessage({
     subdomain,
@@ -104,9 +119,9 @@ export const updateContract = async (
     serviceName: serviceName,
     data: {
       selector: selector,
-      modifier: updateData,
+      modifier: updateData
     },
-    isRPC: true,
+    isRPC: true
   });
 };
 
@@ -116,41 +131,41 @@ export const getUser = async (subdomain, id) => {
     action: 'users.findOne',
     serviceName: 'core',
     data: { _id: id },
-    isRPC: true,
+    isRPC: true
   });
 };
 
 export const getCloseInfo = async (
   subdomain: string,
   contractId: string,
-  closeDate: Date,
+  closeDate: Date
 ) => {
   return await sendCommonMessage({
     subdomain,
     action: 'contractType.findOne',
     serviceName: 'loans',
     data: { contractId, closeDate },
-    isRPC: true,
+    isRPC: true
   });
 };
 
 export const getDepositAccount = async (
   subdomain: string,
-  customerId: string,
+  customerId: string
 ) => {
   return await sendCommonMessage({
     subdomain,
     action: 'contracts.getDepositAccount',
     serviceName: 'savings',
     data: { customerId },
-    isRPC: true,
+    isRPC: true
   });
 };
 
 export const customFieldToObject = async (
   subdomain,
   customFieldType: CustomFieldType,
-  object,
+  object
 ) => {
   const fields = await sendCommonMessage({
     subdomain,
@@ -159,16 +174,16 @@ export const customFieldToObject = async (
     data: {
       query: {
         contentType: customFieldType,
-        code: { $exists: true, $ne: '' },
+        code: { $exists: true, $ne: '' }
       },
       projection: {
         groupId: 1,
         code: 1,
-        _id: 1,
-      },
+        _id: 1
+      }
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
   const customFieldsData: any[] = object.customFieldsData || [];
   for (const f of fields) {
@@ -181,7 +196,7 @@ export const customFieldToObject = async (
 
 export const getCustomFields = async (
   subdomain,
-  customFieldType: CustomFieldType,
+  customFieldType: CustomFieldType
 ) => {
   const fields = await sendCommonMessage({
     subdomain,
@@ -190,16 +205,16 @@ export const getCustomFields = async (
     data: {
       query: {
         contentType: customFieldType,
-        code: { $exists: true, $ne: '' },
+        code: { $exists: true, $ne: '' }
       },
       projection: {
         groupId: 1,
         code: 1,
-        _id: 1,
-      },
+        _id: 1
+      }
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
   return fields;
 };
@@ -210,7 +225,7 @@ export const getProduct = async (subdomain, data, serverName) => {
     action: 'contractType.find',
     serviceName: serverName,
     data: { data },
-    isRPC: true,
+    isRPC: true
   });
 };
 
@@ -220,7 +235,7 @@ export const getContract = async (subdomain, data, serviceName) => {
     action: 'contracts.find',
     serviceName: serviceName,
     data: data,
-    isRPC: true,
+    isRPC: true
   });
 };
 

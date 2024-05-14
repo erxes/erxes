@@ -1,10 +1,17 @@
-import { IContext } from '../../../messageBroker';
+import fetch from 'node-fetch';
+import { generateModels } from '../../../connectionResolver';
+import {
+  IContext,
+  sendPosMessage,
+  sendProductsMessage,
+} from '../../../messageBroker';
 import {
   consumeCategory,
   consumeCustomers,
   consumeInventory,
-  consumePrice,
+  dealToDynamic,
   getConfig,
+  getPrice,
 } from '../../../utils';
 
 const msdynamicSyncMutations = {
@@ -15,7 +22,7 @@ const msdynamicSyncMutations = {
       action,
       products,
     }: { brandId: string; action: string; products: any[] },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -54,40 +61,162 @@ const msdynamicSyncMutations = {
 
   async toSyncMsdPrices(
     _root,
-    {
-      brandId,
-      action,
-      prices,
-    }: { brandId: string; action: string; prices: any[] },
-    { subdomain }: IContext,
+    { brandId }: { brandId: string },
+    { subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
 
+    const updatePrices: any[] = [];
+    const createPrices: any[] = [];
+    const error: any[] = [];
+    const deletePrices: any[] = [];
+    const matchPrices: any[] = [];
+
+    if (!config.priceApi || !config.username || !config.password) {
+      throw new Error('MS Dynamic config not found.');
+    }
+
+    const { priceApi, username, password, pricePriority } = config;
+
+    const productQry: any = { status: { $ne: 'deleted' } };
+
+    if (brandId && brandId !== 'noBrand') {
+      productQry.scopeBrandIds = { $in: [brandId] };
+    } else {
+      productQry.$or = [
+        { scopeBrandIds: { $exists: false } },
+        { scopeBrandIds: { $size: 0 } },
+      ];
+    }
+
     try {
-      switch (action) {
-        case 'CREATE': {
-          break;
-        }
-        case 'UPDATE': {
-          for (const price of prices) {
-            await consumePrice(subdomain, config, price, 'update');
-          }
-          break;
-        }
-        case 'DELETE': {
-          break;
-        }
-        default:
-          break;
+      const productsCount = await sendProductsMessage({
+        subdomain,
+        action: 'count',
+        data: { query: productQry },
+        isRPC: true,
+      });
+
+      const products = await sendProductsMessage({
+        subdomain,
+        action: 'find',
+        data: {
+          query: productQry,
+          limit: productsCount,
+        },
+        isRPC: true,
+      });
+
+      const salesCodeFilter = pricePriority
+        .replace(', ', ',')
+        .split(',')
+        .filter((p) => p);
+
+      let filterSection = '';
+
+      for (const price of salesCodeFilter) {
+        filterSection += `Sales_Code eq '${price}' or `;
       }
 
-      return {
-        status: 'success',
-      };
+      const response = await fetch(
+        `${priceApi}?$filter=${filterSection} Sales_Code eq ''`,
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Accept: 'application/json',
+            Authorization: `Basic ${Buffer.from(
+              `${username}:${password}`
+            ).toString('base64')}`,
+          },
+        }
+      ).then((res) => res.json());
+
+      const groupedItems = {};
+
+      if (response && response.value.length > 0) {
+        for (const item of response.value) {
+          const { Item_No } = item;
+
+          if (!groupedItems[Item_No]) {
+            groupedItems[Item_No] = [];
+          }
+
+          groupedItems[Item_No].push({ ...item });
+        }
+      }
+
+      const productsByCode = {};
+      // delete price
+      for (const product of products) {
+        if (!groupedItems[product.code]) {
+          deletePrices.push(product);
+        } else {
+          productsByCode[product.code] = product;
+        }
+      }
+
+      // update price
+      for (const Item_No in groupedItems) {
+        const resProds = groupedItems[Item_No];
+        try {
+
+          const { resPrice, resProd } = await getPrice(resProds, pricePriority);
+
+          if (!resProd.Item_No) {
+            error.push(resProds[0]);
+          }
+
+          const foundProduct = productsByCode[Item_No];
+          if (foundProduct) {
+            if (foundProduct.unitPrice === resPrice) {
+              matchPrices.push(resProd);
+            } else {
+              await sendProductsMessage({
+                subdomain,
+                action: 'updateProduct',
+                data: {
+                  _id: foundProduct._id,
+                  doc: { unitPrice: resPrice || 0 },
+                },
+                isRPC: true,
+              });
+              updatePrices.push(resProd);
+            }
+          } else {
+            createPrices.push(resProd);
+          }
+        } catch (e) {
+          console.log(e, 'error');
+          error.push(resProds[0]);
+        }
+      }
     } catch (e) {
       console.log(e, 'error');
     }
+
+    return {
+      create: {
+        count: createPrices.length,
+        items: createPrices,
+      },
+      error: {
+        count: error.length,
+        items: error,
+      },
+      match: {
+        count: matchPrices.length,
+        items: matchPrices,
+      },
+      update: {
+        count: updatePrices.length,
+        items: updatePrices,
+      },
+      delete: {
+        count: deletePrices.length,
+        items: deletePrices,
+      },
+    };
   },
 
   async toSyncMsdProductCategories(
@@ -103,7 +232,7 @@ const msdynamicSyncMutations = {
       categoryId: string;
       categories: any[];
     },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -117,7 +246,7 @@ const msdynamicSyncMutations = {
               config,
               categoryId,
               category,
-              'create',
+              'create'
             );
           }
           break;
@@ -129,7 +258,7 @@ const msdynamicSyncMutations = {
               config,
               categoryId,
               category,
-              'update',
+              'update'
             );
           }
           break;
@@ -159,7 +288,7 @@ const msdynamicSyncMutations = {
       action,
       customers,
     }: { brandId: string; action: string; customers: any[] },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -194,6 +323,126 @@ const msdynamicSyncMutations = {
     } catch (e) {
       console.log(e, 'error');
     }
+  },
+
+  async toSyncMsdOrders(
+    _root,
+    { orderIds }: { orderIds: string[] },
+    { subdomain, user }: IContext
+  ) {
+    const result: { skipped: string[]; error: string[]; success: string[] } = {
+      skipped: [],
+      error: [],
+      success: [],
+    };
+
+    const order = await sendPosMessage({
+      subdomain,
+      action: 'orders.findOne',
+      data: { _id: { $in: orderIds } },
+      isRPC: true,
+      defaultValue: [],
+    });
+
+    const configs = await getConfig(subdomain, 'DYNAMIC', {});
+    const config = configs[order.scopeBrandIds[0] || 'noBrand'];
+
+    if (!config.salesApi || !config.username || !config.password) {
+      throw new Error('MS Dynamic config not found.');
+    }
+
+    const { salesApi, username, password } = config;
+
+    const syncLogDoc = {
+      contentType: 'pos:order',
+      createdAt: new Date(),
+      createdBy: user._id,
+    };
+    const models = await generateModels(subdomain);
+
+    const syncLog = await models.SyncLogs.syncLogsAdd({
+      ...syncLogDoc,
+      contentId: order._id,
+      consumeData: order,
+      consumeStr: JSON.stringify(order),
+    });
+    try {
+      const response = await fetch(
+        `${salesApi}?$filter=No eq '${order.syncErkhetInfo}'`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            Authorization: `Basic ${Buffer.from(
+              `${username}:${password}`
+            ).toString('base64')}`,
+          },
+          timeout: 60000,
+        }
+      ).then((r) => r.json());
+
+      if (response.value.length === 0) {
+        result.error.push(order._id);
+      }
+
+      if (response.value.length > 0) {
+        result.success.push(order._id);
+      }
+    } catch (e) {
+      await models.SyncLogs.updateOne(
+        { _id: syncLog._id },
+        { $set: { error: e.message } }
+      );
+    }
+
+    return result;
+  },
+
+  async toSendMsdOrders(
+    _root,
+    { orderIds }: { orderIds: string[] },
+    { subdomain, user }: IContext
+  ) {
+    let response = {} as any;
+    const order = await sendPosMessage({
+      subdomain,
+      action: 'orders.findOne',
+      data: { _id: { $in: orderIds } },
+      isRPC: true,
+      defaultValue: [],
+    });
+
+    const syncLogDoc = {
+      contentType: 'pos:order',
+      createdAt: new Date(),
+      createdBy: user._id,
+    };
+
+    const models = await generateModels(subdomain);
+
+    const syncLog = await models.SyncLogs.syncLogsAdd({
+      ...syncLogDoc,
+      contentId: order._id,
+      consumeData: order,
+      consumeStr: JSON.stringify(order),
+    });
+
+    try {
+      response = await dealToDynamic(subdomain, syncLog, order, models);
+    } catch (e) {
+      await models.SyncLogs.updateOne(
+        { _id: syncLog._id },
+        { $set: { error: e.message } }
+      );
+    }
+
+    return {
+      _id: order._id,
+      isSynced: true,
+      syncedDate: response.Order_Date,
+      syncedBillNumber: response.No,
+      syncedCustomer: response.Sell_to_Customer_No,
+    };
   },
 };
 

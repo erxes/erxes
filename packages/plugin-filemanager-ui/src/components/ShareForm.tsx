@@ -1,15 +1,15 @@
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IFormProps } from '@erxes/ui/src/types';
-import Info from '@erxes/ui/src/components/Info';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import React from 'react';
-import Select from 'react-select-plus';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { __ } from 'coreui/utils';
-import { renderUserFullName } from '@erxes/ui/src/utils';
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IFormProps } from "@erxes/ui/src/types";
+import Info from "@erxes/ui/src/components/Info";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import React from "react";
+import Select from "react-select";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import { __ } from "coreui/utils";
+import { renderUserFullName } from "@erxes/ui/src/utils";
 
 type Props = {
   units: any;
@@ -29,35 +29,35 @@ class ShareForm extends React.Component<Props, State> {
 
     this.state = {
       userIds: [],
-      selectedUnit: {} as any
+      selectedUnit: {} as any,
     };
   }
 
-  usersOnChange = userIds => {
+  usersOnChange = (userIds) => {
     this.setState({ userIds });
   };
 
-  onSave = values => {
+  onSave = (values) => {
     const { userIds, selectedUnit } = this.state;
     const { item, shareFile } = this.props;
 
     shareFile({
-      type: item.folderId ? 'file' : 'folder',
+      type: item.folderId ? "file" : "folder",
       _id: item._id,
       userIds,
-      unitId: selectedUnit.value
+      unitId: selectedUnit.value,
     });
   };
 
-  generateParams = options => {
-    return options.map(option => ({
+  generateParams = (options) => {
+    return options.map((option) => ({
       value: option._id,
-      label: option.title
+      label: option.title,
     }));
   };
 
   renderContent = (formProps: IFormProps) => {
-    const onChange = selectedUnit => {
+    const onChange = (selectedUnit) => {
       this.setState({ selectedUnit });
     };
 
@@ -67,15 +67,15 @@ class ShareForm extends React.Component<Props, State> {
       <>
         <Info>
           Shared with {sharedUsers.length || 0} members: &nbsp;
-          {sharedUsers.map(user => (
+          {sharedUsers.map((user) => (
             <small key={user._id}>{renderUserFullName(user)}, &nbsp;</small>
           ))}
         </Info>
 
         <FormGroup>
-          <ControlLabel>{__('Team members')}</ControlLabel>
+          <ControlLabel>{__("Team members")}</ControlLabel>
           <SelectTeamMembers
-            label={__('Choose team members')}
+            label={__("Choose team members")}
             name="userId"
             onSelect={this.usersOnChange}
             multi={true}
@@ -83,10 +83,13 @@ class ShareForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__('Unit')}</ControlLabel>
+          <ControlLabel>{__("Unit")}</ControlLabel>
           <Select
-            placeholder={__('Choose Unit')}
-            value={this.state.selectedUnit}
+            placeholder={__("Choose Unit")}
+            value={this.generateParams(this.props.units).find(
+              (o) => o.value === this.state.selectedUnit
+            )}
+            isClearable={true}
             options={this.generateParams(this.props.units)}
             onChange={onChange}
           />
@@ -99,11 +102,11 @@ class ShareForm extends React.Component<Props, State> {
             onClick={this.props.closeModal}
             icon="times-circle"
           >
-            {__('Cancel')}
+            {__("Cancel")}
           </Button>
 
           <Button type="submit" btnStyle="success" icon="share-alt">
-            {__('Share')}
+            {__("Share")}
           </Button>
         </ModalFooter>
       </>

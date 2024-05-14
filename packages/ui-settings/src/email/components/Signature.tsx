@@ -1,16 +1,16 @@
-import { Alert, __ } from '@erxes/ui/src/utils';
+import { Alert, __ } from "@erxes/ui/src/utils";
 
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
-import { IEmailSignatureWithBrand } from '../types';
-import Info from '@erxes/ui/src/components/Info';
-import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import React from 'react';
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IEmailSignatureWithBrand } from "../types";
+import Info from "@erxes/ui/src/components/Info";
+import { MAIL_TOOLBARS_CONFIG } from "@erxes/ui/src/constants/integrations";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import React from "react";
+import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
 
 type Props = {
   signatures: IEmailSignatureWithBrand[];
@@ -32,7 +32,7 @@ class Signature extends React.Component<Props, State> {
     this.state = {
       signatures: props.signatures,
       currentId: undefined,
-      content: '',
+      content: "",
       isSaved: false,
     };
   }
@@ -51,11 +51,11 @@ class Signature extends React.Component<Props, State> {
 
   getCurrent = (currentId?: string) => {
     if (!currentId) {
-      return { signature: '' };
+      return { signature: "" };
     }
 
     return this.state.signatures.find(
-      (signature) => (signature.brandId || '').toString() === currentId,
+      (signature) => (signature.brandId || "").toString() === currentId
     );
   };
 
@@ -66,7 +66,7 @@ class Signature extends React.Component<Props, State> {
 
     const current = this.getCurrent(currentId);
 
-    return this.setState({ content: (current && current.signature) || '' });
+    return this.setState({ content: (current && current.signature) || "" });
   };
 
   handleSubmit = (e) => {
@@ -75,7 +75,7 @@ class Signature extends React.Component<Props, State> {
     const { save } = this.props;
 
     if (!this.state.currentId) {
-      return Alert.error('Select a brand');
+      return Alert.error("Select a brand");
     }
 
     save(this.state.signatures, this.close);
@@ -99,7 +99,7 @@ class Signature extends React.Component<Props, State> {
         <ControlLabel>Signature</ControlLabel>
         <p>
           {__(
-            'An email signature is an opportunity to share information that helps build recognition and trust.',
+            "An email signature is an opportunity to share information that helps build recognition and trust."
           )}
         </p>
 
@@ -120,13 +120,13 @@ class Signature extends React.Component<Props, State> {
   render() {
     return (
       <div>
-        <Info>{__('You can use Markdown to format your signature.')}</Info>
+        <Info>{__("You can use Markdown to format your signature.")}</Info>
 
         <form id="signature-form" onSubmit={this.handleSubmit}>
           <FormGroup>
             <ControlLabel required={true}>Choose a brand</ControlLabel>
 
-            <FormControl componentClass="select" onChange={this.changeCurrent}>
+            <FormControl componentclass="select" onChange={this.changeCurrent}>
               <option value="">------------</option>
 
               {this.props.signatures.map((signature) => (

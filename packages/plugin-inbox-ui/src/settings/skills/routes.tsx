@@ -1,22 +1,29 @@
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+
+import React from 'react';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
 
-const Skills = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings - SkillTypesList" */ './containers/Skills'
-  )
+const Skills = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings - SkillTypesList" */ './containers/Skills'
+    ),
 );
 
-const skills = ({ location, history }) => {
+const SkillsComponent = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const queryParams = queryString.parse(location.search);
 
-  return <Skills queryParams={queryParams} history={history} />;
+  return <Skills queryParams={queryParams} history={navigate} />;
 };
 
 const routes = () => (
-  <Route exact={true} path='/settings/skills' component={skills} />
+  <Routes>
+    <Route path="/settings/skills" element={<SkillsComponent />} />
+  </Routes>
 );
 
 export default routes;

@@ -1,3 +1,5 @@
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
 const commonHistoryParams = `
   $page: Int,
   $perPage: Int,
@@ -30,6 +32,38 @@ const commonHistoryParamDefs = `
   searchError: $searchError,
 `;
 
+const commonOrderParams = `
+  $page: Int,
+  $perPage: Int,
+  $sortField: String,
+  $sortDirection: Int,
+  $posToken: String,
+  $search: String,
+  $posId: String,
+  $userId: String,
+  $paidStartDate: Date,
+  $paidEndDate: Date,
+  $createdStartDate: Date,
+  $createdEndDate: Date,
+  $brandId: String,
+`;
+
+const commonOrderParamDefs = `
+  page: $page,
+  perPage: $perPage,
+  sortField: $sortField,
+  sortDirection: $sortDirection,
+  posToken: $posToken,
+  search: $search,
+  posId: $posId,
+  userId: $userId,
+  createdStartDate: $createdStartDate,
+  createdEndDate: $createdEndDate,
+  paidStartDate: $paidStartDate,
+  paidEndDate: $paidEndDate,
+  brandId: $brandId
+`;
+
 const syncMsdHistories = `
   query syncMsdHistories(
     ${commonHistoryParams}
@@ -49,6 +83,7 @@ const syncMsdHistories = `
       sendStr
       responseData
       responseStr
+      responseSales
       error
 
       content
@@ -84,9 +119,96 @@ const configs = `
   }
 `;
 
+const checkSyncOrders = `
+  query PosOrders(
+    ${commonOrderParams}
+  ) {
+    posOrders (
+      ${commonOrderParamDefs}
+    ) {
+      _id
+      number
+      createdAt
+      paidDate
+      totalAmount
+    }
+  }
+`;
+
+const checkSyncOrdersTotalCount = `
+  query ordersTotalCount (
+    ${commonOrderParams}
+  ) {
+    posOrdersTotalCount (
+      ${commonOrderParamDefs}
+    )
+  }
+`;
+
+const posOrderDetail = `
+  query posOrderDetail($_id: String) {
+    posOrderDetail(_id: $_id) {
+      _id
+      createdAt
+      status
+      paidDate
+      number
+      customerId
+      customerType
+      cashAmount
+      mobileAmount
+      paidAmounts
+      totalAmount
+      finalAmount
+      shouldPrintEbarimt
+      printedEbarimt
+      billType
+      billId
+      registerNumber
+      oldBillId
+      type
+      userId
+      items
+      posToken
+
+      syncedErkhet
+
+      posName
+      origin
+      user {
+        _id
+        email
+      }
+      convertDealId
+      ${
+        isEnabled('contacts')
+          ? `
+        customer {
+          _id
+          code
+          firstName
+          lastName
+          primaryEmail
+          primaryPhone
+        }
+      `
+          : ``
+      }
+      syncErkhetInfo
+      putResponses
+      deliveryInfo
+      deal
+      dealLink
+    }
+  }
+`;
+
 export default {
   syncMsdHistories,
   syncMsdHistoriesCount,
   dynamicConfigs,
   configs,
+  checkSyncOrders,
+  checkSyncOrdersTotalCount,
+  posOrderDetail,
 };

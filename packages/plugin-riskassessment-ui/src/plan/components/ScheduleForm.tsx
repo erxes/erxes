@@ -1,4 +1,3 @@
-import { gql } from '@apollo/client';
 import {
   Alert,
   Button,
@@ -7,20 +6,21 @@ import {
   FormGroup,
   SelectTeamMembers,
   Toggle,
-  __
-} from '@erxes/ui/src';
-import client from '@erxes/ui/src/apolloClient';
-import { Columns } from '@erxes/ui/src/styles/chooser';
-import { Column, ModalFooter } from '@erxes/ui/src/styles/main';
-import React from 'react';
-import { SelectIndicatorGroups, SelectIndicators } from '../../common/utils';
-import { FormContainer } from '../../styles';
-import { IPLan, ISchedule } from '../common/types';
-import { CardCustomFields, SelectStructure } from '../common/utils';
-import { mutations } from '../graphql';
+  __,
+} from "@erxes/ui/src";
+import { CardCustomFields, SelectStructure } from "../common/utils";
+import { Column, ModalFooter } from "@erxes/ui/src/styles/main";
+import { IPLan, ISchedule } from "../common/types";
+import { SelectIndicatorGroups, SelectIndicators } from "../../common/utils";
+
+import { Columns } from "@erxes/ui/src/styles/chooser";
+import { FormContainer } from "../../styles";
+import React from "react";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
+import { mutations } from "../graphql";
 
 type Props = {
-  history: any;
   schedule?: ISchedule;
   plan: IPLan;
   refetch: () => void;
@@ -42,7 +42,7 @@ class ScheduleForm extends React.Component<Props, State> {
     this.state = {
       doc: props?.schedule || {},
       useGroup: props?.doc?.groupId || false,
-      isDisabled: props?.plan?.status === 'archived'
+      isDisabled: props?.plan?.status === "archived",
     };
   }
 
@@ -54,7 +54,7 @@ class ScheduleForm extends React.Component<Props, State> {
       cardType,
       pipelineId,
       plan,
-      duplicate
+      duplicate,
     } = this.props;
     const { useGroup, doc, isDisabled } = this.state;
     const { structureType, structureDetail } = plan;
@@ -63,7 +63,7 @@ class ScheduleForm extends React.Component<Props, State> {
       this.setState({ doc: { ...doc, [name]: value } });
     };
 
-    const onChange = e => {
+    const onChange = (e) => {
       const { value, name } = e.currentTarget as HTMLInputElement;
 
       handleChange(value, name);
@@ -71,7 +71,7 @@ class ScheduleForm extends React.Component<Props, State> {
 
     const handleSave = () => {
       let mutation = mutations.addSchedule;
-      const isUpdate = typeof schedule?._id === 'string' && !duplicate;
+      const isUpdate = typeof schedule?._id === "string" && !duplicate;
 
       if (isUpdate) {
         mutation = mutations.updateSchedule;
@@ -80,16 +80,16 @@ class ScheduleForm extends React.Component<Props, State> {
       client
         .mutate({
           mutation: gql(mutation),
-          variables: { planId: plan._id, ...doc }
+          variables: { planId: plan._id, ...doc },
         })
         .then(() => {
           refetch && refetch();
           Alert.success(
-            `${isUpdate ? 'Updated' : 'Added'} schedule successfully`
+            `${isUpdate ? "Updated" : "Added"} schedule successfully`
           );
           closeModal();
         })
-        .catch(err => {
+        .catch((err) => {
           Alert.error(err.message);
         });
     };
@@ -97,9 +97,9 @@ class ScheduleForm extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <FormContainer spaceBetween>
+          <FormContainer $spaceBetween>
             <ControlLabel>
-              {__(`Select ${useGroup ? 'Group' : 'Indicator'}`)}
+              {__(`Select ${useGroup ? "Group" : "Indicator"}`)}
             </ControlLabel>
             <Toggle
               checked={useGroup}
@@ -114,7 +114,7 @@ class ScheduleForm extends React.Component<Props, State> {
               onSelect={handleChange}
               filterParams={{
                 tagIds: plan?.tagId ? [plan?.tagId] : undefined,
-                withChilds: true
+                withChilds: true,
               }}
             />
           ) : (
@@ -125,24 +125,24 @@ class ScheduleForm extends React.Component<Props, State> {
               onSelect={handleChange}
               filterParams={{
                 tagIds: plan?.tagId ? [plan?.tagId] : undefined,
-                withChilds: true
+                withChilds: true,
               }}
             />
           )}
         </FormGroup>
-        <Columns style={{ gap: '20px' }}>
+        <Columns style={{ gap: "20px" }}>
           <Column>
             <SelectStructure
               name="structureTypeId"
               structureType={structureType}
               structureTypeId={schedule?.structureTypeId}
               onChange={handleChange}
-              filter={{ searchValue: structureDetail?.code || '' }}
+              filter={{ searchValue: structureDetail?.code || "" }}
             />
           </Column>
           <Column>
             <FormGroup>
-              <ControlLabel>{__('Assign To')}</ControlLabel>
+              <ControlLabel>{__("Assign To")}</ControlLabel>
               <SelectTeamMembers
                 initialValue={doc.assignedUserIds}
                 label="Assign To"
@@ -153,7 +153,7 @@ class ScheduleForm extends React.Component<Props, State> {
           </Column>
         </Columns>
         <FormGroup>
-          <ControlLabel>{__('Name')}</ControlLabel>
+          <ControlLabel>{__("Name")}</ControlLabel>
           <FormControl
             name="name"
             required
@@ -173,10 +173,10 @@ class ScheduleForm extends React.Component<Props, State> {
         {!isDisabled && (
           <ModalFooter>
             <Button btnStyle="simple" onClick={closeModal}>
-              {__('Close')}
+              {__("Close")}
             </Button>
             <Button btnStyle="success" onClick={handleSave}>
-              {__('Save')}
+              {__("Save")}
             </Button>
           </ModalFooter>
         )}

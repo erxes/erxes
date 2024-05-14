@@ -1,16 +1,16 @@
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 
-import CommonForm from '@erxes/ui-settings/src/common/components/Form';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
-import { IScript } from '../types';
-import { ITopic } from '@erxes/ui-knowledgeBase/src/types';
-import React from 'react';
-import Select from 'react-select-plus';
-import { __ } from '@erxes/ui/src/utils';
+import CommonForm from "@erxes/ui-settings/src/common/components/Form";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { ICommonFormProps } from "@erxes/ui-settings/src/common/types";
+import { IIntegration } from "@erxes/ui-inbox/src/settings/integrations/types";
+import { IScript } from "../types";
+import { ITopic } from "@erxes/ui-knowledgeBase/src/types";
+import React from "react";
+import Select from "react-select";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   object?: IScript;
@@ -31,7 +31,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     const object = (props.object || {}) as IScript;
 
     this.state = {
-      leads: this.generateLeadOptions(object.leads || [])
+      leads: this.generateLeadOptions(object.leads || []),
     };
   }
 
@@ -53,18 +53,18 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
       name: finalValues.name,
       messengerId: finalValues.messengerId,
       kbTopicId: finalValues.kbTopicId,
-      leadIds: (this.state.leads || []).map(lead => lead.value)
+      leadIds: (this.state.leads || []).map((lead) => lead.value),
     };
   };
 
-  onChangeLeads = leads => {
+  onChangeLeads = (leads) => {
     this.setState({ leads });
   };
 
   generateLeadOptions = (leads: IIntegration[]) => {
-    return leads.map(lead => ({
+    return leads.map((lead) => ({
       value: lead._id,
-      label: lead.name
+      label: lead.name,
     }));
   };
 
@@ -79,7 +79,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
           <FormControl
             {...formProps}
             name="name"
-            defaultValue={object.name || ''}
+            defaultValue={object.name || ""}
             required={true}
             autoFocus={true}
           />
@@ -91,12 +91,12 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
           <FormControl
             {...formProps}
             name="messengerId"
-            componentClass="select"
-            placeholder={__('Select messenger')}
+            componentclass="select"
+            placeholder={__("Select messenger")}
             defaultValue={object.messengerId}
           >
             <option />
-            {messengers.map(integration => (
+            {messengers.map((integration) => (
               <option key={integration._id} value={integration._id}>
                 {integration.name}
               </option>
@@ -108,11 +108,11 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
           <ControlLabel>Forms</ControlLabel>
 
           <Select
-            placeholder={__('Choose the form to add in the script')}
+            placeholder={__("Choose the form to add in the script")}
             onChange={this.onChangeLeads}
             value={this.state.leads}
             options={this.generateLeadOptions(leads)}
-            multi={true}
+            isMulti={true}
           />
         </FormGroup>
 
@@ -122,12 +122,12 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
           <FormControl
             {...formProps}
             name="kbTopicId"
-            componentClass="select"
-            placeholder={__('Select topic')}
+            componentclass="select"
+            placeholder={__("Select topic")}
             defaultValue={object.kbTopicId}
           >
             <option />
-            {kbTopics.map(topic => (
+            {kbTopics.map((topic) => (
               <option key={topic._id} value={topic._id}>
                 {topic.title}
               </option>

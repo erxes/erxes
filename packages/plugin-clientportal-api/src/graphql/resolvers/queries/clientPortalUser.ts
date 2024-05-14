@@ -141,7 +141,16 @@ const clientPortalUserQueries = {
     }
 
     return models.ClientPortalUsers.find(filter).countDocuments();
+  },
+
+  async clientPortalCompanies(
+    _root,
+    { clientPortalId }: { clientPortalId: string },
+    { models }: IContext
+  ) {
+    return models.Companies.find({ clientPortalId }).lean();
   }
+
 };
 
 export default clientPortalUserQueries;

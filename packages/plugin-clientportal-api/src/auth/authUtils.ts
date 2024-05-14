@@ -1,20 +1,20 @@
-import * as jwt from 'jsonwebtoken';
-import { IClientPortal } from '../models/definitions/clientPortal';
-import { IUserDocument } from '../models/definitions/clientPortalUser';
-import { authCookieOptions, getEnv } from '@erxes/api-utils/src/core';
+import * as jwt from "jsonwebtoken";
+import { IClientPortal } from "../models/definitions/clientPortal";
+import { IUserDocument } from "../models/definitions/clientPortalUser";
+import { authCookieOptions, getEnv } from "@erxes/api-utils/src/core";
 
 export const createJwtToken = (payload: any, clientPortal?: IClientPortal) => {
   const { tokenExpiration = 1, refreshTokenExpiration = 7 } = clientPortal || {
     tokenExpiration: 1,
-    refreshTokenExpiration: 7
+    refreshTokenExpiration: 7,
   };
 
-  const token = jwt.sign(payload, process.env.JWT_TOKEN_SECRET || '', {
-    expiresIn: `${tokenExpiration}d`
+  const token = jwt.sign(payload, process.env.JWT_TOKEN_SECRET || "", {
+    expiresIn: `${tokenExpiration}d`,
   });
 
-  const refreshToken = jwt.sign(payload, process.env.JWT_TOKEN_SECRET || '', {
-    expiresIn: `${refreshTokenExpiration}d`
+  const refreshToken = jwt.sign(payload, process.env.JWT_TOKEN_SECRET || "", {
+    expiresIn: `${refreshTokenExpiration}d`,
   });
 
   return { token, refreshToken };
@@ -24,7 +24,7 @@ export const verifyJwtToken = token => {
   try {
     const { userId }: any = jwt.verify(
       token,
-      process.env.JWT_TOKEN_SECRET || ''
+      process.env.JWT_TOKEN_SECRET || ""
     );
     return userId;
   } catch (err) {
@@ -32,26 +32,34 @@ export const verifyJwtToken = token => {
   }
 };
 
+// The variable "isPassed2FA" is True, when user approved their otp code
 export const tokenHandler = async (
   user: IUserDocument,
   clientPortal: IClientPortal,
-  res
+  res,
+  isEnableTwoFactor = false,
+  isPassed2FA = true
 ) => {
   const cookieOptions: any = {};
 
-  const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+  const NODE_ENV = getEnv({ name: "NODE_ENV" });
 
-  if (!['test', 'development'].includes(NODE_ENV)) {
-    cookieOptions.sameSite = 'none';
+  if (!["test", "development"].includes(NODE_ENV)) {
+    cookieOptions.sameSite = "none";
   }
 
-  const { tokenPassMethod = 'cookie' } = clientPortal;
-  const { token, refreshToken } = createJwtToken(
-    { userId: user._id, type: user.type },
-    clientPortal
-  );
+  const { tokenPassMethod = "cookie" } = clientPortal;
 
-  if (tokenPassMethod === 'header') {
+  const payload = {
+    userId: user._id,
+    type: user.type,
+    isEnableTwoFactor,
+    isPassed2FA,
+  };
+
+  const { token, refreshToken } = createJwtToken(payload, clientPortal);
+
+  if (tokenPassMethod === "header") {
     return { token, refreshToken };
   }
 
@@ -63,7 +71,7 @@ export const tokenHandler = async (
 
   const options = authCookieOptions(cookieOptions);
 
-  res.cookie('client-auth-token', token, options);
+  res.cookie("client-auth-token", token, options);
 
   return { refreshToken };
 };

@@ -1,6 +1,15 @@
 import { LEASE_TYPES } from './constants';
 import { schemaHooksWrapper, field } from './utils';
 import { Schema, Document } from 'mongoose';
+
+export interface ICustomField {
+  field: string;
+  value: any;
+  stringValue?: string;
+  numberValue?: number;
+  dateValue?: Date;
+}
+
 export interface IContractConfig {
   receivable: string;
   temp: string;
@@ -25,11 +34,11 @@ export interface IContractConfig {
   insuranceReceivable: string;
   insuranceGiving: string;
 
-  undueStock: string;
-  undueUserEmail: string;
-  undueHasVat: string;
-  undueHasCitytax: string;
-  undueIsEbarimt: string;
+  lossStock: string;
+  lossUserEmail: string;
+  lossHasVat: string;
+  lossHasCitytax: string;
+  lossIsEbarimt: string;
 
   otherReceivable: string;
   feeIncome: string;
@@ -44,6 +53,8 @@ export interface IContractConfig {
   doubtExpirationDay: number;
   negativeExpirationDay: number;
   badExpirationDay: number;
+  customFieldsData?: ICustomField[];
+  productId: string
 }
 
 export interface IContractType {
@@ -53,8 +64,8 @@ export interface IContractType {
   status: string;
   number: string;
   vacancy: number;
-  unduePercent: number;
-  undueCalcType: string;
+  lossPercent: number;
+  lossCalcType: string;
   useMargin: boolean;
   useSkipInterest: boolean;
   useDebt: boolean;
@@ -76,6 +87,17 @@ export interface IContractTypeDocument extends IContractType, Document {
   _id: string;
 }
 
+export const customFieldSchema = new Schema(
+  {
+    field: field({ type: 'String' }),
+    value: field({ type: Schema.Types.Mixed }),
+    stringValue: field({ type: 'String', optional: true }),
+    numberValue: field({ type: 'Number', optional: true }),
+    dateValue: field({ type: 'Date', optional: true })
+  },
+  { _id: false }
+);
+
 export const contractTypeSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
@@ -91,16 +113,16 @@ export const contractTypeSchema = schemaHooksWrapper(
       label: 'Vacancy',
       required: true
     }),
-    unduePercent: field({
+    lossPercent: field({
       type: Number,
       min: 0,
       max: 100,
-      label: 'Undue Percent',
+      label: 'Loss Percent',
       optional: true
     }),
-    undueCalcType: field({
+    lossCalcType: field({
       type: String,
-      label: 'Undue Calc Type',
+      label: 'Loss Calc Type',
       optional: true
     }),
     useDebt: field({
@@ -166,7 +188,16 @@ export const contractTypeSchema = schemaHooksWrapper(
     invoiceDay: field({
       type: String,
       label: 'invoiceDay'
-    })
+    }),
+    customFieldsData: field({
+      type: [customFieldSchema],
+      optional: true,
+      label: 'Custom fields data',
+    }),
+    productId:field({
+      type: String,
+      label: 'product'
+    }),
   }),
   'erxes_contractTypeSchema'
 );

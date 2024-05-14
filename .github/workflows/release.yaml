@@ -2,7 +2,7 @@ name: Publish Release
 on:
   push:
     tags:
-      - '*'
+      - "*"
 jobs:
   release:
     runs-on: ubuntu-22.04
@@ -140,14 +140,6 @@ jobs:
 
 
           docker buildx imagetools create erxes/plugin-contacts-api:master --tag  erxes/plugin-contacts-api:${GITHUB_REF#refs/tags/}
-
-      - name: plugin-dashboard-api
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-
-          docker buildx imagetools create erxes/plugin-dashboard-api:master --tag  erxes/plugin-dashboard-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-emailtemplates-api
         run: >

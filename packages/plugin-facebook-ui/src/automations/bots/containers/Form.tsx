@@ -1,17 +1,19 @@
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { mutations, queries } from '../graphql';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import FormCompnent from '../components/Form';
-import { withProps } from '@erxes/ui/src/utils/core';
-import * as compose from 'lodash.flowright';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import React from "react";
+import { mutations, queries } from "../graphql";
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import FormCompnent from "../components/Form";
+import { withProps } from "@erxes/ui/src/utils/core";
+import * as compose from "lodash.flowright";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { useNavigate } from "react-router-dom";
+
 type Props = {
   _id?: any;
-} & IRouterProps;
+};
 
 type FinalProps = {
   botDetailQueryResponse: any;
@@ -19,6 +21,7 @@ type FinalProps = {
 
 function Form(props: FinalProps) {
   const { _id, botDetailQueryResponse } = props;
+  const navigate = useNavigate();
 
   const { facebootMessengerBot, loading } = botDetailQueryResponse || {};
 
@@ -31,8 +34,7 @@ function Form(props: FinalProps) {
   }
 
   const returnToList = () => {
-    const { history } = props;
-    history.push(`/settings/automations/bots`);
+    navigate(`/settings/automations/bots`);
   };
 
   const renderButton = ({
@@ -44,11 +46,11 @@ function Form(props: FinalProps) {
     callback,
   }: IButtonMutateProps) => {
     let mutation = mutations.addBot;
-    let successAction = 'added';
+    let successAction = "added";
 
     if (object) {
       mutation = mutations.updateBot;
-      successAction = 'updated';
+      successAction = "updated";
     }
 
     const afterMutate = () => {
@@ -84,11 +86,11 @@ function Form(props: FinalProps) {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.detail), {
-      name: 'botDetailQueryResponse',
+      name: "botDetailQueryResponse",
       skip: ({ _id }) => !_id,
       options: ({ _id }) => ({
         variables: { _id },
       }),
-    }),
-  )(Form),
+    })
+  )(Form)
 );

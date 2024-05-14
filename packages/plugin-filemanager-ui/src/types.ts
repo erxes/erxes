@@ -12,6 +12,8 @@ export interface IFolder {
   createdUserId?: string;
   parentId?: string;
   parent?: IFolder;
+  isOpen?: boolean;
+  isParent?: boolean;
   sharedUsers: IUser[];
 }
 

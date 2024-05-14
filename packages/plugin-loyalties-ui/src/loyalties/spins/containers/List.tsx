@@ -1,31 +1,29 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps, router } from '@erxes/ui/src/utils';
+
+import { Alert, router, withProps } from '@erxes/ui/src/utils';
 import { Bulk, Spinner } from '@erxes/ui/src/components';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import List from '../components/List';
-import { mutations, queries } from '../graphql';
-import { queries as campaignQueries } from '../../../configs/spinCampaign/graphql';
-import { SpinCampaignDetailQueryResponse } from '../../../configs/spinCampaign/types';
 import {
   MainQueryResponse,
   RemoveMutationResponse,
-  RemoveMutationVariables
+  RemoveMutationVariables,
 } from '../types';
+import { mutations, queries } from '../graphql';
+
+import List from '../components/List';
+import React from 'react';
+import { SpinCampaignDetailQueryResponse } from '../../../configs/spinCampaign/types';
+import { queries as campaignQueries } from '../../../configs/spinCampaign/graphql';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 type FinalProps = {
   spinsMainQuery: MainQueryResponse;
   spinCampaignDetailQuery: SpinCampaignDetailQueryResponse;
-} & Props &
-  IRouterProps &
+} & Props  &
   RemoveMutationResponse;
 
 type State = {
@@ -37,17 +35,13 @@ class SpinListContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
   }
 
   render() {
-    const {
-      spinsMainQuery,
-      spinCampaignDetailQuery,
-      spinsRemove,
-      history
-    } = this.props;
+    const { spinsMainQuery, spinCampaignDetailQuery, spinsRemove } =
+      this.props;
 
     if (
       spinsMainQuery.loading ||
@@ -58,13 +52,13 @@ class SpinListContainer extends React.Component<FinalProps, State> {
 
     const removeSpins = ({ spinIds }, emptyBulk) => {
       spinsRemove({
-        variables: { _ids: spinIds }
+        variables: { _ids: spinIds },
       })
         .then(() => {
           emptyBulk();
           Alert.success('You successfully deleted a spin');
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -80,10 +74,10 @@ class SpinListContainer extends React.Component<FinalProps, State> {
       searchValue,
       spins: list,
       currentCampaign,
-      removeSpins
+      removeSpins,
     };
 
-    const spinsList = props => {
+    const spinsList = (props) => {
       return <List {...updatedProps} {...props} />;
     };
 
@@ -105,7 +99,7 @@ const generateParams = ({ queryParams }) => ({
   searchValue: queryParams.searchValue,
   sortField: queryParams.sortField,
   sortDirection: Number(queryParams.sortDirection) || undefined,
-  voucherCampaignId: queryParams.voucherCampaignId
+  voucherCampaignId: queryParams.voucherCampaignId,
 });
 
 const generateOptions = () => ({
@@ -113,8 +107,8 @@ const generateOptions = () => ({
     'spinsMain',
     'spinCounts',
     'spinCategories',
-    'spinCategoriesTotalCount'
-  ]
+    'spinCategoriesTotalCount',
+  ],
 });
 
 export default withProps<Props>(
@@ -123,8 +117,8 @@ export default withProps<Props>(
       name: 'spinsMainQuery',
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams }),
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: 'network-only',
+      }),
     }),
     graphql<Props, SpinCampaignDetailQueryResponse>(
       gql(campaignQueries.spinCampaignDetail),
@@ -132,19 +126,19 @@ export default withProps<Props>(
         name: 'spinCampaignDetailQuery',
         options: ({ queryParams }) => ({
           variables: {
-            _id: queryParams.campaignId
-          }
+            _id: queryParams.campaignId,
+          },
         }),
-        skip: ({ queryParams }) => !queryParams.campaignId
-      }
+        skip: ({ queryParams }) => !queryParams.campaignId,
+      },
     ),
     // mutations
     graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.spinsRemove),
       {
         name: 'spinsRemove',
-        options: generateOptions
-      }
-    )
-  )(withRouter<IRouterProps>(SpinListContainer))
+        options: generateOptions,
+      },
+    ),
+  )(SpinListContainer),
 );

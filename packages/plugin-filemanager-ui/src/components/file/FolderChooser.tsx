@@ -1,9 +1,9 @@
-import { IFolder } from '../../types';
-import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
-import Select from 'react-select-plus';
-import { __ } from '@erxes/ui/src/utils/core';
-import styled from 'styled-components';
+import { IFolder } from "../../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
+import Select, { components } from "react-select";
+import { __ } from "@erxes/ui/src/utils/core";
+import styled from "styled-components";
 
 type Props = {
   folders: IFolder[];
@@ -27,24 +27,24 @@ class FolderChooser extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      folderId: this.props.currentId || ''
+      folderId: this.props.currentId || "",
     };
   }
 
   componentDidUpdate(prevProps: Readonly<Props>): void {
     if (prevProps.currentId) {
-      if (this.props.currentId === '') {
-        this.setState({ folderId: '' });
+      if (this.props.currentId === "") {
+        this.setState({ folderId: "" });
       }
     }
   }
 
   selectOptions(folders: IFolder[]) {
-    return folders.map(item => ({
+    return folders.map((item) => ({
       value: item._id,
       label: item.name,
       order: item.order,
-      isRoot: !item.parentId
+      isRoot: !item.parentId,
     }));
   }
 
@@ -54,15 +54,15 @@ class FolderChooser extends React.Component<Props, State> {
     let childIds: string[] = [];
 
     if (hasChildIds) {
-      const foundFolder = folders.find(c => c._id === folderId);
+      const foundFolder = folders.find((c) => c._id === folderId);
 
       if (foundFolder) {
-        const childs = folders.filter(c =>
+        const childs = folders.filter((c) =>
           c.order.startsWith(foundFolder.order)
         );
 
         if (childs.length) {
-          childIds = childIds.concat(childs.map(ch => ch._id));
+          childIds = childIds.concat(childs.map((ch) => ch._id));
         }
       }
     }
@@ -71,7 +71,7 @@ class FolderChooser extends React.Component<Props, State> {
     this.props.onChangeFolder(folderId, childIds);
   };
 
-  renderOptions = option => {
+  renderOptions = (option) => {
     const name = option.isRoot ? (
       <strong>{option.label}</strong>
     ) : (
@@ -82,10 +82,10 @@ class FolderChooser extends React.Component<Props, State> {
     );
 
     const order = option.order.match(/[/]/gi);
-    let space = '';
+    let space = "";
 
     if (order) {
-      space = '\u00A0 '.repeat(order.length);
+      space = "\u00A0 ".repeat(order.length);
     }
     return (
       <div className="simple-option">
@@ -98,16 +98,26 @@ class FolderChooser extends React.Component<Props, State> {
   };
 
   render() {
+    const Option = (props) => {
+      return (
+        <components.Option {...props}>
+          {this.renderOptions(props.data)}
+        </components.Option>
+      );
+    };
+
     return (
       <FolderChooserWrapper>
         <Select
-          isRequired={true}
-          placeholder={__('Choose a folder')}
-          optionRenderer={this.renderOptions}
+          required={true}
+          placeholder={__("Choose a folder")}
+          components={{ Option }}
           options={this.selectOptions(this.props.folders)}
-          value={this.state.folderId}
-          onChange={option => this.onChange(option?.value)}
-          clearable={false}
+          value={this.selectOptions(this.props.folders).find(
+            (o) => o.value === this.state.folderId
+          )}
+          onChange={(option: any) => this.onChange(option?.value)}
+          isClearable={false}
         />
       </FolderChooserWrapper>
     );

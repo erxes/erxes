@@ -2,7 +2,7 @@ module.exports = {
   inbox: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-inbox-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-inbox-ui/src',
       name: 'inbox',
       scope: 'inbox',
       exposes: {
@@ -342,7 +342,7 @@ module.exports = {
   automations: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-automations-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-automations-ui/src',
       name: 'automations',
       scope: 'automations',
       exposes: {
@@ -401,7 +401,7 @@ module.exports = {
   calendar: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-calendar-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-calendar-ui/src',
       name: 'calendar',
       exposes: {
         './routes': './src/routes.tsx',
@@ -445,7 +445,7 @@ module.exports = {
   calls: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-calls-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-calls-ui/src',
       name: 'calls',
       scope: 'calls',
       exposes: {
@@ -454,6 +454,8 @@ module.exports = {
         './inboxIntegrationForm': './src/components/IntegrationForm.tsx',
         './integrationDetailsForm': './src/components/IntegrationEditForm.tsx',
         './integrationCustomActions': './src/components/TokenButton.tsx',
+        './inboxIntegrationSettings':
+          './src/containers/UpdateConfigsContainer.tsx',
       },
       routes: {
         url: 'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-calls-ui/remoteEntry.js',
@@ -464,12 +466,13 @@ module.exports = {
         url: 'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-calls-ui/remoteEntry.js',
         scope: 'calls',
         module: './call',
-        style: 'bottom: 90px;right: 32px',
+        style: 'bottom: 80px;right: 12px',
       },
       inboxIntegrationForm: './inboxIntegrationForm',
       invoiceDetailRightSection: './invoiceDetailRightSection',
       integrationDetailsForm: './integrationDetailsForm',
       integrationCustomActions: './integrationCustomActions',
+      inboxIntegrationSettings: './inboxIntegrationSettings',
       inboxIntegrations: [
         {
           name: 'Grand stream',
@@ -486,7 +489,7 @@ module.exports = {
   cars: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-cars-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-cars-ui/src',
       name: 'cars',
       scope: 'cars',
       exposes: {
@@ -511,23 +514,9 @@ module.exports = {
           permission: 'showCars',
         },
       ],
-      customerRightSidebarSection: [
-        {
-          text: 'customerSection',
-          component: './customerSidebar',
-          scope: 'cars',
-        },
-      ],
-      companyRightSidebarSection: [
-        {
-          text: 'companySection',
-          component: './companySidebar',
-          scope: 'cars',
-        },
-      ],
-      dealRightSidebarSection: [
-        { text: 'dealSection', component: './dealSidebar', scope: 'cars' },
-      ],
+      customerRightSidebarSection: './customerSidebar',
+      companyRightSidebarSection: './companySidebar',
+      dealRightSidebarSection: './dealSidebar',
       url: 'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-cars-ui/remoteEntry.js',
     },
     api: {
@@ -552,7 +541,7 @@ module.exports = {
   cards: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-cards-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-cards-ui/src',
       name: 'cards',
       scope: 'cards',
       url: 'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-cards-ui/remoteEntry.js',
@@ -1251,17 +1240,15 @@ module.exports = {
   clientportal: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-clientportal-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-clientportal-ui/src',
       name: 'clientportal',
       scope: 'clientportal',
       exposes: {
         './routes': './src/routes.tsx',
         './cardDetailAction': './src/containers/comments/CardDetailAction.tsx',
         './fieldConfig': './src/containers/FieldConfigForm.tsx',
-        './vendorSection':
+        './clientPortalSection':
           './src/containers/cardsRightSidebarSection/VendorSection.tsx',
-        './clientSection':
-          './src/containers/cardsRightSidebarSection/ClientSection.tsx',
       },
       cardDetailAction: './cardDetailAction',
       fieldConfig: './fieldConfig',
@@ -1281,42 +1268,9 @@ module.exports = {
           permissions: [],
         },
       ],
-      ticketRightSidebarSection: [
-        {
-          text: 'vendorSection',
-          component: './vendorSection',
-          scope: 'clientportal',
-        },
-        {
-          text: 'clientSection',
-          component: './clientSection',
-          scope: 'clientportal',
-        },
-      ],
-      taskRightSidebarSection: [
-        {
-          text: 'vendorSection',
-          component: './vendorSection',
-          scope: 'clientportal',
-        },
-        {
-          text: 'clientSection',
-          component: './clientSection',
-          scope: 'clientportal',
-        },
-      ],
-      dealRightSidebarSection: [
-        {
-          text: 'vendorSection',
-          component: './vendorSection',
-          scope: 'clientportal',
-        },
-        {
-          text: 'clientSection',
-          component: './clientSection',
-          scope: 'clientportal',
-        },
-      ],
+      taskRightSidebarSection: './clientPortalSection',
+      ticketRightSidebarSection: './clientPortalSection',
+      dealRightSidebarSection: './clientPortalSection',
       url: 'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-clientportal-ui/remoteEntry.js',
     },
     api: {
@@ -1341,7 +1295,7 @@ module.exports = {
   contacts: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-contacts-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-contacts-ui/src',
       name: 'contacts',
       scope: 'contacts',
       exposes: {
@@ -1452,7 +1406,7 @@ module.exports = {
   ebarimt: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-ebarimt-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-ebarimt-ui/src',
       name: 'ebarimt',
       exposes: {
         './routes': './src/routes.tsx',
@@ -1515,7 +1469,7 @@ module.exports = {
   emailtemplates: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-emailtemplates-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-emailtemplates-ui/src',
       name: 'emailtemplates',
       exposes: { './routes': './src/routes.tsx' },
       routes: {
@@ -1568,7 +1522,7 @@ module.exports = {
   engages: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-engages-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-engages-ui/src',
       name: 'engages',
       exposes: { './routes': './src/routes.tsx' },
       routes: {
@@ -1578,14 +1532,14 @@ module.exports = {
       },
       menus: [
         {
-          text: 'XM Broadcast',
+          text: 'Broadcast',
           url: '/campaigns',
           icon: 'icon-megaphone',
           location: 'mainNavigation',
           permission: 'showEngagesMessages',
         },
         {
-          text: 'XM Broadcast settings',
+          text: 'Broadcast settings',
           to: '/settings/campaign-configs',
           image: '/images/icons/erxes-08.svg',
           location: 'settings',
@@ -1622,7 +1576,7 @@ module.exports = {
             { name: 'engageMessageSetPause', description: 'Pause a broadcast' },
             {
               name: 'engageMessageSetLiveManual',
-              description: 'Set a manual broadcast live',
+              description: 'Set a broadcast live',
             },
             { name: 'engageMessageRemove', description: 'Remove a broadcast' },
             { name: 'engageMessageEdit', description: 'Edit a broadcast' },
@@ -1636,8 +1590,7 @@ module.exports = {
   },
   exm: {
     ui: {
-      srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-exm-ui/src',
+      srcDir: '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-exm-ui/src',
       name: 'exm',
       exposes: { './routes': './src/routes.tsx' },
       routes: {
@@ -1707,7 +1660,7 @@ module.exports = {
   forms: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-forms-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-forms-ui/src',
       name: 'forms',
       scope: 'forms',
       exposes: {
@@ -1776,7 +1729,7 @@ module.exports = {
   knowledgebase: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-knowledgebase-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-knowledgebase-ui/src',
       name: 'knowledgebase',
       exposes: { './routes': './src/routes.tsx' },
       routes: {
@@ -1819,7 +1772,7 @@ module.exports = {
   logs: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-logs-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-logs-ui/src',
       name: 'logs',
       scope: 'logs',
       exposes: {
@@ -1869,7 +1822,7 @@ module.exports = {
   loyalties: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-loyalties-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-loyalties-ui/src',
       name: 'loyalties',
       scope: 'loyalties',
       exposes: {
@@ -1903,20 +1856,8 @@ module.exports = {
           permissions: ['manageLoyalties', 'showLoyalties'],
         },
       ],
-      customerRightSidebarSection: [
-        {
-          text: 'customerSection',
-          component: './customerSidebar',
-          scope: 'loyalties',
-        },
-      ],
-      companyRightSidebarSection: [
-        {
-          text: 'companySection',
-          component: './companySidebar',
-          scope: 'loyalties',
-        },
-      ],
+      customerRightSidebarSection: './customerSidebar',
+      companyRightSidebarSection: './companySidebar',
       userRightSidebarSection: [
         { text: 'userSection', component: './userSidebar', scope: 'loyalties' },
       ],
@@ -1943,7 +1884,7 @@ module.exports = {
   notifications: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-notifications-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-notifications-ui/src',
       name: 'notifications',
       scope: 'notifications',
       exposes: {
@@ -1980,7 +1921,7 @@ module.exports = {
   webhooks: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-webhooks-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-webhooks-ui/src',
       name: 'webhooks',
       scope: 'webhooks',
       exposes: {
@@ -2026,8 +1967,7 @@ module.exports = {
   },
   pos: {
     ui: {
-      srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-pos-ui/src',
+      srcDir: '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-pos-ui/src',
       name: 'pos',
       scope: 'pos',
       exposes: {
@@ -2060,13 +2000,7 @@ module.exports = {
           permissions: ['showPos'],
         },
       ],
-      customerRightSidebarSection: [
-        {
-          text: 'customerSection',
-          component: './customerSidebar',
-          scope: 'pos',
-        },
-      ],
+      customerRightSidebarSection: './customerSidebar',
       url: 'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-pos-ui/remoteEntry.js',
     },
     api: {
@@ -2109,7 +2043,7 @@ module.exports = {
   products: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-products-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-products-ui/src',
       name: 'products',
       scope: 'products',
       exposes: {
@@ -2177,7 +2111,7 @@ module.exports = {
         {
           name: 'products',
           schema:
-            "{ 'code': { 'type': 'keyword' }, 'name': { 'type': 'keyword' }, 'shortName': { 'type': 'keyword' }, 'status': { 'type': 'keyword' }, 'barcodeDescription': { 'type': 'keyword' }, 'order': { 'type': 'keyword' }, 'description': { 'type': 'keyword' }, 'tagIds': { 'type': 'keyword' }, 'categoryId': { 'type': 'keyword' }, 'type': { 'type': 'keyword' }, 'unitPrice': { 'type': 'float' }, 'createdAt': { 'type': 'date' }, 'uom': { 'type': 'keyword' }, 'taxCode': { 'type': 'keyword' }, 'taxType': { 'type': 'keyword' }, 'vendorId': { 'type': 'keyword' }, 'sameMasks': { 'type': 'keyword' }, 'customFieldsData': <nested>, 'attachment': <nested>, 'attachmentMore': <nested>, 'subUoms': <nested>, 'barcodes': { 'type': 'keyword' } }",
+            "{ 'code': { 'type': 'keyword' }, 'name': { 'type': 'keyword' }, 'shortName': { 'type': 'keyword' }, 'status': { 'type': 'keyword' }, 'barcodeDescription': { 'type': 'keyword' }, 'order': { 'type': 'keyword' }, 'description': { 'type': 'keyword' }, 'tagIds': { 'type': 'keyword' }, 'categoryId': { 'type': 'keyword' }, 'type': { 'type': 'keyword' }, 'unitPrice': { 'type': 'float' }, 'createdAt': { 'type': 'date' }, 'uom': { 'type': 'keyword' }, 'taxCode': { 'type': 'keyword' }, 'taxType': { 'type': 'keyword' }, 'vendorId': { 'type': 'keyword' }, 'sameMasks': { 'type': 'keyword' }, 'sameDefault': { 'type': 'keyword' }, 'customFieldsData': <nested>, 'attachment': <nested>, 'attachmentMore': <nested>, 'subUoms': <nested>, 'barcodes': { 'type': 'keyword' } }",
           script:
             "if (ns.indexOf('products') > -1) { if (doc.variants) { delete doc.variants }}",
         },
@@ -2195,7 +2129,7 @@ module.exports = {
   segments: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-segments-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-segments-ui/src',
       name: 'segments',
       scope: 'segments',
       exposes: {
@@ -2242,7 +2176,7 @@ module.exports = {
   syncerkhet: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-syncerkhet-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-syncerkhet-ui/src',
       name: 'syncerkhet',
       exposes: { './routes': './src/routes.tsx' },
       routes: {
@@ -2261,7 +2195,7 @@ module.exports = {
           permission: 'syncErkhetConfig',
         },
         {
-          text: 'Sync Erkhet',
+          text: 'Erkhet Sync',
           url: '/sync-erkhet-history',
           icon: 'icon-file-check-alt',
           location: 'mainNavigation',
@@ -2286,7 +2220,7 @@ module.exports = {
   multierkhet: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-multierkhet-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-multierkhet-ui/src',
       name: 'multierkhet',
       exposes: {
         './routes': './src/routes.tsx',
@@ -2308,9 +2242,9 @@ module.exports = {
           permission: 'multiErkhetConfig',
         },
         {
-          text: 'Sync Multi Erkhet',
+          text: 'Multi Erkhet Sync',
           url: '/multi-erkhet-history',
-          icon: 'icon-file-check-alt',
+          icon: 'book-alt',
           location: 'mainNavigation',
           scope: 'multierkhet',
           permission: 'multiErkhetConfig',
@@ -2341,7 +2275,7 @@ module.exports = {
   tags: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-tags-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-tags-ui/src',
       name: 'tags',
       scope: 'tags',
       exposes: {
@@ -2389,7 +2323,7 @@ module.exports = {
   salesplans: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-salesplans-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-salesplans-ui/src',
       name: 'salesplans',
       exposes: { './routes': './src/routes.tsx' },
       routes: {
@@ -2442,7 +2376,7 @@ module.exports = {
   processes: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-processes-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-processes-ui/src',
       name: 'processes',
       exposes: { './routes': './src/routes.tsx' },
       routes: {
@@ -2494,7 +2428,7 @@ module.exports = {
   inventories: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-inventories-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-inventories-ui/src',
       name: 'inventories',
       exposes: { './routes': './src/routes.tsx' },
       routes: {
@@ -2536,7 +2470,7 @@ module.exports = {
   webbuilder: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-webbuilder-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-webbuilder-ui/src',
       name: 'webbuilder',
       exposes: { './routes': './src/routes.tsx' },
       routes: {
@@ -2576,7 +2510,7 @@ module.exports = {
   payment: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-payment-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-payment-ui/src',
       name: 'payment',
       scope: 'payment',
       exposes: {
@@ -2611,13 +2545,7 @@ module.exports = {
           permissions: ['showPayments'],
         },
       ],
-      dealRightSidebarSection: [
-        {
-          text: 'invoiceSection',
-          component: './invoiceSection',
-          scope: 'payment',
-        },
-      ],
+      dealRightSidebarSection: './invoiceSection',
       url: 'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-payment-ui/remoteEntry.js',
     },
     api: {
@@ -2661,7 +2589,7 @@ module.exports = {
   imap: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-imap-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-imap-ui/src',
       name: 'imap',
       scope: 'imap',
       exposes: {
@@ -2704,7 +2632,7 @@ module.exports = {
   block: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-block-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-block-ui/src',
       name: 'block',
       scope: 'block',
       exposes: {
@@ -2726,20 +2654,14 @@ module.exports = {
           location: 'settings',
         },
       ],
-      customerRightSidebarSection: [
-        {
-          text: 'customerSection',
-          component: './customerSidebar',
-          scope: 'block',
-        },
-      ],
+      customerRightSidebarSection: './customerSidebar',
       url: 'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-block-ui/remoteEntry.js',
     },
   },
   assets: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-assets-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-assets-ui/src',
       name: 'assets',
       scope: 'assets',
       exposes: {
@@ -2805,7 +2727,7 @@ module.exports = {
   riskassessment: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-riskassessment-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-riskassessment-ui/src',
       name: 'riskassessment',
       scope: 'riskassessment',
       exposes: {
@@ -2854,33 +2776,9 @@ module.exports = {
           permissions: ['showRiskAssessment', 'manageRiskAssessment'],
         },
       ],
-      dealRightSidebarSection: [
-        {
-          text: 'riskAssessmentSection',
-          component: './cardSideBarSection',
-          scope: 'riskassessment',
-          action: 'riskAssessmentAll',
-          permissions: ['showRiskAssessment', 'manageRiskAssessment'],
-        },
-      ],
-      ticketRightSidebarSection: [
-        {
-          text: 'riskAssessmentSection',
-          component: './cardSideBarSection',
-          scope: 'riskassessment',
-          action: 'riskAssessmentAll',
-          permissions: ['showRiskAssessment', 'manageRiskAssessment'],
-        },
-      ],
-      taskRightSidebarSection: [
-        {
-          text: 'riskAssessmentSection',
-          component: './cardSideBarSection',
-          scope: 'riskassessment',
-          action: 'riskAssessmentAll',
-          permissions: ['showRiskAssessment', 'manageRiskAssessment'],
-        },
-      ],
+      dealRightSidebarSection: './cardSideBarSection',
+      ticketRightSidebarSection: './cardSideBarSection',
+      taskRightSidebarSection: './cardSideBarSection',
       url: 'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-riskassessment-ui/remoteEntry.js',
     },
     api: {
@@ -2908,7 +2806,7 @@ module.exports = {
   forum: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-forum-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-forum-ui/src',
       name: 'forum',
       scope: 'forum',
       exposes: {
@@ -3053,7 +2951,7 @@ module.exports = {
   documents: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-documents-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-documents-ui/src',
       name: 'documents',
       scope: 'documents',
       exposes: {
@@ -3101,7 +2999,7 @@ module.exports = {
   pricing: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-pricing-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-pricing-ui/src',
       name: 'pricing',
       scope: 'pricing',
       exposes: { './routes': './src/routes.tsx' },
@@ -3148,7 +3046,7 @@ module.exports = {
   timeclock: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-timeclock-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-timeclock-ui/src',
       name: 'timeclock',
       scope: 'timeclock',
       exposes: { './routes': './src/routes.tsx' },
@@ -3188,7 +3086,7 @@ module.exports = {
   zalo: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-zalo-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-zalo-ui/src',
       name: 'zalo',
       scope: 'zalo',
       exposes: {
@@ -3237,7 +3135,7 @@ module.exports = {
   facebook: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-facebook-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-facebook-ui/src',
       name: 'facebook',
       scope: 'facebook',
       exposes: {
@@ -3327,7 +3225,7 @@ module.exports = {
   filemanager: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-filemanager-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-filemanager-ui/src',
       name: 'filemanager',
       scope: 'filemanager',
       exposes: {
@@ -3348,27 +3246,9 @@ module.exports = {
           permissions: ['showFileManager'],
         },
       ],
-      dealRightSidebarSection: [
-        {
-          text: 'fileChooserSection',
-          component: './fileChooserSection',
-          scope: 'filemanager',
-        },
-      ],
-      ticketRightSidebarSection: [
-        {
-          text: 'fileChooserSection',
-          component: './fileChooserSection',
-          scope: 'filemanager',
-        },
-      ],
-      taskRightSidebarSection: [
-        {
-          text: 'fileChooserSection',
-          component: './fileChooserSection',
-          scope: 'filemanager',
-        },
-      ],
+      dealRightSidebarSection: './fileChooserSection',
+      ticketRightSidebarSection: './fileChooserSection',
+      taskRightSidebarSection: './fileChooserSection',
       url: 'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-filemanager-ui/remoteEntry.js',
     },
     api: {
@@ -3388,7 +3268,7 @@ module.exports = {
   khanbank: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-khanbank-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-khanbank-ui/src',
       name: 'khanbank',
       scope: 'khanbank',
       exposes: {
@@ -3494,7 +3374,7 @@ module.exports = {
   productplaces: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-productplaces-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-productplaces-ui/src',
       name: 'productplaces',
       exposes: {
         './routes': './src/routes.tsx',
@@ -3542,7 +3422,7 @@ module.exports = {
   grants: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-grants-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-grants-ui/src',
       name: 'grants',
       scope: 'grants',
       exposes: {
@@ -3569,37 +3449,16 @@ module.exports = {
           scope: 'grants',
         },
       ],
-      dealRightSidebarSection: [
-        {
-          text: 'grantsSection',
-          component: './cardSideBarSection',
-          scope: 'grants',
-          withDetail: true,
-        },
-      ],
-      ticketRightSidebarSection: [
-        {
-          text: 'grantsSection',
-          component: './cardSideBarSection',
-          scope: 'grants',
-          withDetail: true,
-        },
-      ],
-      taskRightSidebarSection: [
-        {
-          text: 'grantsSection',
-          component: './cardSideBarSection',
-          scope: 'grants',
-          withDetail: true,
-        },
-      ],
+      dealRightSidebarSection: './cardSideBarSection',
+      ticketRightSidebarSection: './cardSideBarSection',
+      taskRightSidebarSection: './cardSideBarSection',
       url: 'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-grants-ui/remoteEntry.js',
     },
   },
   loans: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-loans-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-loans-ui/src',
       name: 'loans',
       exposes: {
         './routes': './src/routes.tsx',
@@ -3659,28 +3518,19 @@ module.exports = {
           location: 'transaction-list',
           permissions: ['showTransactions'],
         },
-      ],
-      customerRightSidebarSection: [
         {
-          text: 'customerRightSidebarSection',
-          component: './contractSection',
+          text: 'nonBalanceTransaction',
+          image: '/images/icons/erxes-16.svg',
+          to: '/erxes-plugin-loan/non-balance-transactions',
+          action: 'nonBalanceTransaction',
           scope: 'loans',
+          location: 'non-balance-transactions',
+          permissions: ['showNonBalanceTransactions'],
         },
       ],
-      companyRightSidebarSection: [
-        {
-          text: 'companyRightSidebarSection',
-          component: './contractSection',
-          scope: 'loans',
-        },
-      ],
-      dealRightSidebarSection: [
-        {
-          text: 'dealRightSidebarSection',
-          component: './contractSection',
-          scope: 'loans',
-        },
-      ],
+      customerRightSidebarSection: './contractSection',
+      companyRightSidebarSection: './contractSection',
+      dealRightSidebarSection: './contractSection',
       url: 'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-loans-ui/remoteEntry.js',
     },
     api: {
@@ -3708,8 +3558,10 @@ module.exports = {
                 'showLoanInvoices',
                 'manageTransactions',
                 'showTransactions',
+                'showNonBalanceTransactions',
                 'transactionsEdit',
                 'transactionsRemove',
+                'nonBalanceTransactionsRemove',
                 'showPeriodLocks',
                 'managePeriodLocks',
               ],
@@ -3766,6 +3618,14 @@ module.exports = {
             { name: 'showTransactions', description: 'Show Transactions' },
             { name: 'transactionsEdit', description: 'Edit Transactions' },
             { name: 'transactionsRemove', description: 'Remove Transactions' },
+            {
+              name: 'showNonBalanceTransactions',
+              description: 'Show Non Balance Transactions',
+            },
+            {
+              name: 'nonBalanceTransactionsRemove',
+              description: 'Remove Non Balance Transactions',
+            },
             { name: 'showPeriodLocks', description: 'Show Period Locks' },
             { name: 'managePeriodLocks', description: 'Manage Period Locks' },
           ],
@@ -3776,7 +3636,7 @@ module.exports = {
   viber: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-viber-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-viber-ui/src',
       name: 'viber',
       scope: 'viber',
       exposes: {
@@ -3823,7 +3683,7 @@ module.exports = {
   meetings: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-meetings-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-meetings-ui/src',
       name: 'meetings',
       scope: 'meetings',
       exposes: {
@@ -3843,20 +3703,13 @@ module.exports = {
           location: 'mainNavigation',
         },
       ],
-      dealRightSidebarSection: [
-        {
-          text: 'meetingSection',
-          component: './meetingSideBarSection',
-          scope: 'meetings',
-        },
-      ],
+      dealRightSidebarSection: './meetingSideBarSection',
       url: 'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-meetings-ui/remoteEntry.js',
     },
   },
   xyp: {
     ui: {
-      srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-xyp-ui/src',
+      srcDir: '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-xyp-ui/src',
       name: 'xyp',
       scope: 'xyp',
       exposes: {
@@ -3871,9 +3724,7 @@ module.exports = {
         scope: 'xyp',
         module: './routes',
       },
-      customerRightSidebarSection: [
-        { text: 'Xyp Section', component: './customerSidebar', scope: 'xyp' },
-      ],
+      customerRightSidebarSection: './customerSidebar',
       carRightSidebarSection: './customerSidebar',
       url: 'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-xyp-ui/remoteEntry.js',
     },
@@ -3882,7 +3733,7 @@ module.exports = {
   savings: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-savings-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-savings-ui/src',
       name: 'savings',
       exposes: {
         './routes': './src/routes.tsx',
@@ -3922,14 +3773,18 @@ module.exports = {
           location: 'transaction-list',
           permissions: ['showTransactions'],
         },
-      ],
-      customerRightSidebarSection: [
         {
-          text: 'customerRightSidebarSection',
-          component: './contractSection',
+          text: 'Saving config',
+          image: '/images/icons/erxes-16.svg',
+          to: '/erxes-plugin-saving/saving-settings/',
+          action: 'savingConfig',
           scope: 'savings',
+          location: 'settings',
+          permissions: ['savingsManageSavingConfigs'],
+          permission: 'savingsManageSavingConfigs',
         },
       ],
+      customerRightSidebarSection: './contractSection',
       url: 'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-savings-ui/remoteEntry.js',
     },
     api: {
@@ -4051,7 +3906,7 @@ module.exports = {
   goals: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-goals-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-goals-ui/src',
       name: 'goalType',
       scope: 'goalType',
       exposes: { './routes': './src/routes.tsx' },
@@ -4075,7 +3930,7 @@ module.exports = {
   msdynamic: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-msdynamic-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-msdynamic-ui/src',
       name: 'msdynamic',
       scope: 'msdynamic',
       exposes: { './routes': './src/routes.tsx' },
@@ -4106,7 +3961,7 @@ module.exports = {
   dailyco: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-dailyco-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-dailyco-ui/src',
       name: 'dailyco',
       scope: 'dailyco',
       exposes: {
@@ -4126,8 +3981,7 @@ module.exports = {
   },
   zms: {
     ui: {
-      srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-zms-ui/src',
+      srcDir: '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-zms-ui/src',
       name: 'zms',
       scope: 'zms',
       exposes: { './routes': './src/routes.tsx' },
@@ -4158,7 +4012,7 @@ module.exports = {
   syncpolaris: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-syncpolaris-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-syncpolaris-ui/src',
       name: 'syncpolaris',
       scope: 'syncpolaris',
       exposes: { './routes': './src/routes.tsx' },
@@ -4201,7 +4055,7 @@ module.exports = {
   reports: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-reports-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-reports-ui/src',
       name: 'reports',
       scope: 'reports',
       exposes: {
@@ -4230,7 +4084,7 @@ module.exports = {
   instagram: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-instagram-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-instagram-ui/src',
       name: 'instagram',
       scope: 'instagram',
       exposes: {
@@ -4263,6 +4117,19 @@ module.exports = {
       },
       inboxIntegrations: [
         {
+          name: 'Instagram Post',
+          description: 'Connect to Instagram posts right from your Team Inbox',
+          inMessenger: false,
+          isAvailable: true,
+          kind: 'instagram-post',
+          logo: '/images/integrations/instagram.png',
+          createModal: 'instagram-post',
+          createUrl: '/settings/integrations/createInstagram',
+          category:
+            'All integrations, For support teams, Marketing automation, Social media',
+          components: ['inboxConversationDetailRespondBoxMask'],
+        },
+        {
           name: 'Instagram Messenger',
           description:
             'Connect and manage Instagram Messages right from your Team Inbox',
@@ -4287,7 +4154,7 @@ module.exports = {
   insight: {
     ui: {
       srcDir:
-        '/home/munkhgoy/Documents/work/erxes/erxes/packages/plugin-insight-ui/src',
+        '/Users/macintosh/Desktop/Erxes/erxes/packages/plugin-insight-ui/src',
       name: 'insight',
       scope: 'insight',
       exposes: { './routes': './src/routes.tsx' },

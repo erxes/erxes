@@ -1,10 +1,11 @@
-import Table from '@erxes/ui/src/components/table';
-import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
-import { __ } from '@erxes/ui/src/utils/core';
-import React from 'react';
-import { IAutomationHistory, ITrigger } from '../../types';
-import Row from './Row';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
+import { IAutomationHistory, ITrigger } from "../../types";
+
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import React from "react";
+import Row from "./Row";
+import Table from "@erxes/ui/src/components/table";
+import { __ } from "@erxes/ui/src/utils/core";
+import withTableWrapper from "@erxes/ui/src/components/table/withTableWrapper";
 
 type Props = {
   histories: IAutomationHistory[];
@@ -17,12 +18,12 @@ class Histories extends React.Component<Props> {
     const { histories, triggersConst, actionsConst } = this.props;
 
     const triggersByType = {};
-    triggersConst.forEach(t => {
+    triggersConst.forEach((t) => {
       triggersByType[t.type] = `${t.label} based`;
     });
 
     const actionsByType = {};
-    actionsConst.forEach(a => {
+    actionsConst.forEach((a) => {
       actionsByType[a.type] = a.label;
     });
 
@@ -37,18 +38,18 @@ class Histories extends React.Component<Props> {
 
     return (
       <withTableWrapper.Wrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
           <thead>
             <tr>
-              <th>{__('Title')}</th>
-              <th>{__('Description')}</th>
-              <th>{__('Trigger')}</th>
-              <th>{__('Status')}</th>
-              <th>{__('Time')}</th>
+              <th>{__("Title")}</th>
+              <th>{__("Description")}</th>
+              <th>{__("Trigger")}</th>
+              <th>{__("Status")}</th>
+              <th>{__("Time")}</th>
             </tr>
           </thead>
           <tbody id="automationHistories">
-            {histories.map(history => (
+            {histories.map((history) => (
               <Row
                 key={history._id}
                 history={history}

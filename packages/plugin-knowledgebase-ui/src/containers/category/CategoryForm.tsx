@@ -1,14 +1,12 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import { gql, useQuery } from '@apollo/client';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
 import CategoryForm from '../../components/category/CategoryForm';
 import { mutations, queries } from '@erxes/ui-knowledgebase/src/graphql';
 import {
   ICategory,
-  TopicsQueryResponse
+  TopicsQueryResponse,
 } from '@erxes/ui-knowledgebase/src/types';
 
 type Props = {
@@ -19,19 +17,22 @@ type Props = {
   queryParams: any;
 };
 
-type FinalProps = {
-  topicsQuery: TopicsQueryResponse;
-} & Props;
+const KnowledgeBaseContainer = (props: Props) => {
+  const { category, topicId, closeModal, queryParams } = props;
 
-const KnowledgeBaseContainer = (props: FinalProps) => {
-  const { category, topicId, topicsQuery, closeModal, queryParams } = props;
+  const topicsQuery = useQuery<TopicsQueryResponse>(
+    gql(queries.knowledgeBaseTopics),
+    {
+      fetchPolicy: 'network-only',
+    },
+  );
 
   const renderButton = ({
     name,
     values,
     isSubmitted,
     callback,
-    object
+    object,
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
@@ -58,7 +59,7 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
     currentTopicId: topicId,
     category,
     queryParams,
-    topics: topicsQuery.knowledgeBaseTopics || []
+    topics: topicsQuery?.data?.knowledgeBaseTopics || [],
   };
 
   return <CategoryForm {...extendedProps} />;
@@ -69,22 +70,15 @@ const getRefetchQueries = (topicIds: string[]) => {
     {
       query: gql(queries.knowledgeBaseCategories),
       variables: {
-        topicIds
-      }
+        topicIds,
+      },
     },
     {
       query: gql(queries.knowledgeBaseCategoriesTotalCount),
-      variables: { topicIds }
+      variables: { topicIds },
     },
-    { query: gql(queries.knowledgeBaseTopics) }
+    { query: gql(queries.knowledgeBaseTopics) },
   ];
 };
 
-export default compose(
-  graphql<Props, TopicsQueryResponse>(gql(queries.knowledgeBaseTopics), {
-    name: 'topicsQuery',
-    options: () => ({
-      fetchPolicy: 'network-only'
-    })
-  })
-)(KnowledgeBaseContainer);
+export default KnowledgeBaseContainer;

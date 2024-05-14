@@ -674,7 +674,6 @@ select.form-control:focus,
 .erxes-callout-body img {
   float: left;
   margin-right: 10px;
-  max-width: 30%;
 }
 
 ::-webkit-scrollbar {

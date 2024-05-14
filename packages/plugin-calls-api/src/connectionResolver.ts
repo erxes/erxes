@@ -4,18 +4,10 @@ import { IContext as IMainContext } from '@erxes/api-utils/src/types';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 import { IIntegrationModel, loadIntegrationClass } from './models/Integrations';
 import { IIntegrationDocument } from './models/definitions/integrations';
-import { IConversationDocument } from './models/definitions/conversations';
 import { ICustomerModel, loadCustomerClass } from './models/Customers';
-import {
-  IConversationModel,
-  loadConversationClass,
-} from './models/Conversations';
 
 import { ICustomerDocument } from './models/definitions/customers';
-import {
-  IActiveSessionDocument,
-  IActiveSessions,
-} from './models/definitions/activeSessions';
+import { IActiveSessionDocument } from './models/definitions/activeSessions';
 import {
   IActiveSessionModel,
   loadActiveSessionClass,
@@ -25,13 +17,18 @@ import {
   ICallHistoryModel,
   loadCallHistoryClass,
 } from './models/CallHistories';
+import {
+  IConfigDocument,
+  IConfigModel,
+  loadConfigClass,
+} from './models/Configs';
 
 export interface IModels {
   Integrations: IIntegrationModel;
-  Conversations: IConversationModel;
   Customers: ICustomerModel;
   ActiveSessions: IActiveSessionModel;
   CallHistory: ICallHistoryModel;
+  Configs: IConfigModel;
 }
 
 export interface IContext extends IMainContext {
@@ -46,12 +43,6 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'calls_integrations',
     loadIntegrationClass(models),
   );
-
-  models.Conversations = db.model<IConversationDocument, IConversationModel>(
-    'calls_conversations',
-    loadConversationClass(models),
-  );
-
   models.Customers = db.model<ICustomerDocument, ICustomerModel>(
     'calls_customers',
     loadCustomerClass(models),
@@ -63,6 +54,10 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.CallHistory = db.model<ICallHistoryDocument, ICallHistoryModel>(
     'calls_history',
     loadCallHistoryClass(models),
+  );
+  models.Configs = db.model<IConfigDocument, IConfigModel>(
+    'calls_configs',
+    loadConfigClass(models),
   );
 
   return models;

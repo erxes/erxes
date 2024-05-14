@@ -1,6 +1,7 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
+
 import { Contents } from '@erxes/ui/src/layout/styles';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -25,9 +26,9 @@ const IntegrationRow = styled.div`
   }
 `;
 
-const Box = styledTS<{ isInMessenger: boolean }>(styled.div)`
+const Box = styledTS<{ $isInMessenger: boolean }>(styled.div)`
   padding: 30px;
-  padding-bottom: ${props => props.isInMessenger && '20px'};
+  padding-bottom: ${props => props.$isInMessenger && '20px'};
   border: 1px solid ${colors.borderPrimary};
   border-radius: 2px;
   flex: 1;

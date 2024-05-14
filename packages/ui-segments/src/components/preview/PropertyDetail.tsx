@@ -1,7 +1,8 @@
-import { ISegmentCondition } from '../../types';
-import React from 'react';
-import { DEFAULT_OPERATORS, OPERATORS } from '../constants';
-import { ConditionDetailText, PropertyText } from '../styles';
+import { ConditionDetailText, PropertyText } from "../styles";
+import { DEFAULT_OPERATORS, OPERATORS } from "../constants";
+
+import { ISegmentCondition } from "../../types";
+import React from "react";
 
 type Props = {
   condition: ISegmentCondition;
@@ -23,25 +24,25 @@ class PropertyDetail extends React.Component<Props, {}> {
     const { type } = field;
     const { propertyOperator } = condition;
 
-    const operators = OPERATORS[type || ''] || DEFAULT_OPERATORS;
-    const operator = operators.find(op => {
+    const operators = OPERATORS[type || ""] || DEFAULT_OPERATORS;
+    const operator = (operators || []).find((op) => {
       return op.value === propertyOperator;
     });
 
-    return operator ? operator.name : '';
+    return operator ? operator.name : "";
   };
 
   renderValue = () => {
     const { condition, field } = this.props;
 
     const { selectOptions = [], choiceOptions = [], type } = field;
-    const { propertyValue = '' } = condition;
+    const { propertyValue = "" } = condition;
 
     let text = propertyValue;
 
     if (
-      ['dateigt', 'dateilt', 'drlt', 'drgt'].includes(
-        condition.propertyOperator || ''
+      ["dateigt", "dateilt", "drlt", "drgt"].includes(
+        condition.propertyOperator || ""
       )
     ) {
       text = `${new Date(propertyValue).toDateString()} ${new Date(
@@ -50,15 +51,15 @@ class PropertyDetail extends React.Component<Props, {}> {
     }
 
     if (selectOptions.length > 0) {
-      const option = selectOptions.find(selectOption => {
+      const option = (selectOptions || []).find((selectOption) => {
         return selectOption.value === propertyValue;
       });
 
       text = option ? option.label : text;
     }
 
-    if (type === 'radio' && choiceOptions.length > 0) {
-      const option = choiceOptions.find(choiceOption => {
+    if (type === "radio" && choiceOptions.length > 0) {
+      const option = (choiceOptions || []).find((choiceOption) => {
         return choiceOption === propertyValue;
       });
 
@@ -72,29 +73,29 @@ class PropertyDetail extends React.Component<Props, {}> {
     const { condition, field } = this.props;
 
     const { label, group } = field;
-    const { propertyOperator, propertyType = '' } = condition;
+    const { propertyOperator, propertyType = "" } = condition;
 
     const operator = this.renderOperator();
 
     const value = this.renderValue();
 
-    let propertyTypeText = propertyType.replace('_', ' ');
+    let propertyTypeText = propertyType.replace("_", " ");
     let valueText = <span>{` ${operator} ${value}`}</span>;
 
-    if (propertyType === 'form_submission') {
+    if (propertyType === "form_submission") {
       propertyTypeText = group;
     }
 
     if (
       propertyOperator &&
-      ['is', 'ins', 'it', 'if'].indexOf(propertyOperator) >= 0
+      ["is", "ins", "it", "if"].indexOf(propertyOperator) >= 0
     ) {
       valueText = <span>{` ${operator}`}</span>;
     }
 
     if (
       propertyOperator &&
-      ['wobm', 'woam', 'wobd', 'woad'].indexOf(propertyOperator) >= 0
+      ["wobm", "woam", "wobd", "woad"].indexOf(propertyOperator) >= 0
     ) {
       valueText = <span>{` ${value} ${operator}`}</span>;
     }

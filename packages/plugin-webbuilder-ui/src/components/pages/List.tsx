@@ -1,11 +1,11 @@
-import 'grapesjs/dist/css/grapes.min.css';
+import "grapesjs/dist/css/grapes.min.css";
 
-import { IPageDoc } from '../../types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
-import { List } from './styles';
-import React from 'react';
-import { __ } from '@erxes/ui/src/utils/core';
+import { IPageDoc } from "../../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Link } from "react-router-dom";
+import { List } from "./styles";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils/core";
 
 type Props = {
   siteId?: string;
@@ -21,26 +21,26 @@ class PageList extends React.Component<Props> {
     const {
       pages,
       handleItemSettings,
-      siteId = '',
+      siteId = "",
       pageId,
       onLoad,
-      showDarkMode
+      showDarkMode,
     } = this.props;
 
     return (
-      <List showDarkMode={showDarkMode}>
-        {pages.map(page => {
+      <List $showDarkMode={showDarkMode}>
+        {pages.map((page) => {
           const isActive = pageId === page._id;
 
           const onClick = () => {
             onLoad(true);
-            handleItemSettings(null, '');
+            handleItemSettings(null, "");
           };
 
           return (
             <li key={page._id}>
               <Link
-                className={isActive ? 'active' : ''}
+                className={isActive ? "active" : ""}
                 to={`/xbuilder/sites/edit/${siteId}?pageId=${page._id}`}
                 onClick={onClick}
               >
@@ -50,7 +50,7 @@ class PageList extends React.Component<Props> {
               {isActive && (
                 <Icon
                   icon="settings"
-                  onClick={() => handleItemSettings(page, 'page')}
+                  onClick={() => handleItemSettings(page, "page")}
                 />
               )}
             </li>
@@ -59,12 +59,12 @@ class PageList extends React.Component<Props> {
         <li
           className="link"
           onClick={() =>
-            handleItemSettings({ name: '', description: '' }, 'page')
+            handleItemSettings({ name: "", description: "" }, "page")
           }
         >
           <div>
             <Icon icon="plus-1" /> &nbsp;
-            {__('Create page')}
+            {__("Create page")}
           </div>
         </li>
       </List>

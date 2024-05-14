@@ -10,7 +10,7 @@ import {
   JobCategoriesQueryResponse,
   JobCategoriesRemoveMutationResponse
 } from '../../types';
-type Props = { history: any; queryParams: any };
+type Props = { queryParams: any };
 
 type FinalProps = {
   jobCategoriesCountQuery: JobCategoriesCountQueryResponse;

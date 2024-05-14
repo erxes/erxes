@@ -1,45 +1,49 @@
+import { Route, Routes, useLocation, useParams } from 'react-router-dom';
+
+import React from 'react';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
 
-const CompanyDetails = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "CompanyDetail"  */ './containers/detail/CompanyDetails'
-  )
+const CompanyDetails = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "CompanyDetail"  */ './containers/detail/CompanyDetails'
+    ),
 );
 
-const CompaniesList = asyncComponent(() =>
-  import(/* webpackChunkName: "CompaniesList" */ './containers/CompaniesList')
+const CompaniesList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "CompaniesList" */ './containers/CompaniesList'
+    ),
 );
 
-const details = ({ match }) => {
-  const id = match.params.id;
+const Details = () => {
+  const { id = '' } = useParams();
 
   return <CompanyDetails id={id} />;
 };
 
-const list = ({ location }) => {
+const List = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   localStorage.setItem('erxes_contact_url', 'companies');
-  
+
   return <CompaniesList queryParams={queryParams} />;
 };
 
 const routes = () => {
-
   return (
-    <React.Fragment>
+    <Routes>
       <Route
         path="/companies/details/:id"
-        exact={true}
         key="/companies/details/:id"
-        component={details}
+        element={<Details />}
       />
 
-      <Route path="/companies" exact={true} key="/companies" component={list} />
-    </React.Fragment>
+      <Route path="/companies" key="/companies" element={<List />} />
+    </Routes>
   );
 };
 

@@ -7,6 +7,9 @@ export const Cell = TiptapCell.extend({
       style: {
         parseHTML: (element) => element.getAttribute('style'),
       },
+      align: {
+        parseHTML: (element) => element.getAttribute('align'),
+      },
     };
   },
 });

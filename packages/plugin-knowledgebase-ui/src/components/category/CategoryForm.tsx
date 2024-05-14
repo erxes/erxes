@@ -1,16 +1,17 @@
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Icon from '@erxes/ui/src/components/Icon';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
-import Select from 'react-select-plus';
-import { icons } from '../../icons.constant';
-import { ICategory, ITopic } from '@erxes/ui-knowledgeBase/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { ICategory, ITopic } from "@erxes/ui-knowledgeBase/src/types";
+
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Icon from "@erxes/ui/src/components/Icon";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import React from "react";
+import Select from "react-select";
+import { __ } from "@erxes/ui/src/utils/core";
+import { icons } from "../../icons.constant";
 
 type Props = {
   currentTopicId: string;
@@ -36,23 +37,23 @@ class CategoryForm extends React.Component<Props, State> {
     this.state = {
       selectedIcon: this.getSelectedIcon(),
       topicId: currentTopicId,
-      parentCategoryId: category && category.parentCategoryId
+      parentCategoryId: category && category.parentCategoryId,
     };
   }
 
   getSelectedIcon() {
     const { category } = this.props;
 
-    return category ? category.icon : '';
+    return category ? category.icon : "";
   }
 
-  onChangeIcon = obj => {
+  onChangeIcon = (obj) => {
     this.setState({
-      selectedIcon: obj ? obj.value : ''
+      selectedIcon: obj ? obj.value : "",
     });
   };
 
-  renderOption = option => {
+  renderOption = (option) => {
     return (
       <div className="icon-option">
         <Icon icon={option.value} />
@@ -65,6 +66,7 @@ class CategoryForm extends React.Component<Props, State> {
     _id?: string;
     title: string;
     description: string;
+    code?: string;
   }) => {
     const { category } = this.props;
     const finalValues = values;
@@ -83,8 +85,9 @@ class CategoryForm extends React.Component<Props, State> {
         icon: selectedIcon,
         topicIds: [topicId],
         topicId,
-        parentCategoryId
-      }
+        parentCategoryId,
+        code: finalValues.code,
+      },
     };
   };
 
@@ -93,15 +96,15 @@ class CategoryForm extends React.Component<Props, State> {
       ? [
           {
             value: null,
-            label: 'Select category'
-          }
+            label: "Select category",
+          },
         ]
       : [];
 
-    values.forEach(option =>
+    values.forEach((option) =>
       options.push({
         value: option._id,
-        label: option.title
+        label: option.title,
       })
     );
 
@@ -112,8 +115,8 @@ class CategoryForm extends React.Component<Props, State> {
     const self = this;
     const { topics } = this.props;
 
-    const onChange = selectedTopic => {
-      self.setState({ topicId: selectedTopic.value, parentCategoryId: '' });
+    const onChange = (selectedTopic) => {
+      self.setState({ topicId: selectedTopic.value, parentCategoryId: "" });
     };
 
     return (
@@ -122,9 +125,12 @@ class CategoryForm extends React.Component<Props, State> {
         <br />
 
         <Select
-          placeholder={__('Choose knowledgebase')}
-          value={self.state.topicId}
-          options={self.generateOptions(topics)}
+          placeholder={__("Choose knowledgebase")}
+          value={this.generateOptions(topics).find(
+            (o) => o.value === this.state.topicId
+          )}
+          options={this.generateOptions(topics)}
+          isClearable={true}
           onChange={onChange}
         />
       </FormGroup>
@@ -134,22 +140,22 @@ class CategoryForm extends React.Component<Props, State> {
   renderParentCategories() {
     const { queryParams, topics } = this.props;
     const self = this;
-    const topic = topics.find(t => t._id === self.state.topicId);
+    const topic = topics.find((t) => t._id === self.state.topicId);
     let categories = topic ? topic.parentCategories : [];
     const { category, currentTopicId } = self.props;
     const isCurrentCategory = categories.find(
-      cat => cat._id === queryParams.id
+      (cat) => cat._id === queryParams.id
     );
 
     if (category && currentTopicId === this.state.topicId) {
-      categories = categories.filter(cat => cat._id !== category._id);
+      categories = categories.filter((cat) => cat._id !== category._id);
     }
 
     if (!self.state.parentCategoryId && isCurrentCategory) {
       self.setState({ parentCategoryId: queryParams.id });
     }
 
-    const onChange = selectedCategory => {
+    const onChange = (selectedCategory) => {
       self.setState({ parentCategoryId: selectedCategory.value });
     };
 
@@ -159,11 +165,13 @@ class CategoryForm extends React.Component<Props, State> {
         <br />
 
         <Select
-          placeholder={__('Choose category')}
-          value={self.state.parentCategoryId}
-          options={self.generateOptions(categories, true)}
+          placeholder={__("Choose category")}
+          value={this.generateOptions(categories, true).find(
+            (o) => o.value === this.state.parentCategoryId
+          )}
+          options={this.generateOptions(categories, true)}
           onChange={onChange}
-          clearable={false}
+          isClearable={false}
         />
       </FormGroup>
     );
@@ -187,6 +195,11 @@ class CategoryForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
+          <ControlLabel>Code</ControlLabel>
+          <FormControl {...formProps} name="code" defaultValue={object.code} />
+        </FormGroup>
+
+        <FormGroup>
           <ControlLabel>Description</ControlLabel>
           <FormControl
             {...formProps}
@@ -199,11 +212,10 @@ class CategoryForm extends React.Component<Props, State> {
           <ControlLabel required={true}>Icon</ControlLabel>
           <Select
             required={true}
-            value={this.state.selectedIcon}
+            value={icons.find((o) => o.value === this.state.selectedIcon)}
             options={icons}
             onChange={this.onChangeIcon}
-            optionRenderer={this.renderOption}
-            valueRenderer={this.renderOption}
+            // components={{ Option, SingleValue }}
           />
         </FormGroup>
 
@@ -222,11 +234,11 @@ class CategoryForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'category',
+            name: "category",
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: category
+            object: category,
           })}
         </ModalFooter>
       </>

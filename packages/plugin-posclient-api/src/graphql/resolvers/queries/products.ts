@@ -44,6 +44,8 @@ interface ICategoryParams extends ICommonParams {
   excludeEmpty?: boolean;
   meta?: string;
   isKiosk: Boolean;
+  ids?: string[];
+  excludeIds?: boolean;
 }
 
 const generateFilter = async (
@@ -192,7 +194,9 @@ const generateFilterCat = async ({
   searchValue,
   status,
   meta,
-  isKiosk
+  isKiosk,
+  ids,
+  excludeIds
 }) => {
   const { token } = config;
 
@@ -238,6 +242,10 @@ const generateFilterCat = async ({
 
   if (isKiosk) {
     filter._id = { $nin: config.kioskExcludeCategoryIds };
+  }
+
+  if (ids && ids.length > 0) {
+    filter._id = { [excludeIds ? '$nin' : '$in']: ids };    
   }
 
   return filter;
@@ -374,12 +382,15 @@ const productQueries = {
 
     if (groupedSimilarity === 'config') {
       const getRegex = str => {
-        return new RegExp(
+        return ['*', '.', '_'].includes(str) ? new RegExp(
           `^${str
             .replace(/\./g, '\\.')
             .replace(/\*/g, '.')
             .replace(/_/g, '.')}.*`,
-          'igu'
+          'igu',
+        ) : new RegExp(
+          `.*${str}.*`,
+          'igu',
         );
       };
 
@@ -407,7 +418,7 @@ const productQueries = {
             return false;
           }
         } else {
-          if (!product[filterFieldDef].match(regexer)) {
+          if (!product[filterFieldDef]?.match(regexer)) {
             return false;
           }
         }
@@ -529,6 +540,8 @@ const productQueries = {
       isKiosk,
       sortDirection,
       sortField,
+      ids,
+      excludeIds,
       ...paginationArgs
     }: ICategoryParams,
     { models, config }: IContext
@@ -541,7 +554,9 @@ const productQueries = {
       searchValue,
       status,
       meta,
-      isKiosk
+      isKiosk,
+      ids,
+      excludeIds
     });
 
     let sortParams: any = { order: 1 };
@@ -584,7 +599,7 @@ const productQueries = {
 
   async poscProductCategoriesTotalCount(
     _root,
-    { parentId, withChild, searchValue, status, meta, isKiosk },
+    { parentId, withChild, searchValue, status, meta, isKiosk, ids, excludeIds },
     { models, config }: IContext
   ) {
     const filter = await generateFilterCat({
@@ -595,7 +610,9 @@ const productQueries = {
       searchValue,
       status,
       meta,
-      isKiosk
+      isKiosk,
+      ids,
+      excludeIds
     });
     return models.ProductCategories.find(filter).countDocuments();
   },

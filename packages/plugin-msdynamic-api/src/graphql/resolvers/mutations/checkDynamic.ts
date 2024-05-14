@@ -2,16 +2,16 @@ import fetch from 'node-fetch';
 import {
   IContext,
   sendContactsMessage,
+  sendPosMessage,
   sendProductsMessage,
 } from '../../../messageBroker';
 import { getConfig } from '../../../utils';
-import * as moment from 'moment';
 
 const msdynamicCheckMutations = {
   async toCheckMsdProducts(
     _root,
     { brandId }: { brandId: string },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -57,19 +57,19 @@ const msdynamicCheckMutations = {
 
       const productCodes = (products || []).map((p) => p.code) || [];
 
-      const response = await fetch(itemApi, {
+      const response = await fetch(`${itemApi}?$filter=Item_Category_Code ne '' and Blocked ne true and Allow_Ecommerce eq true`, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           Accept: 'application/json',
           Authorization: `Basic ${Buffer.from(
-            `${username}:${password}`,
+            `${username}:${password}`
           ).toString('base64')}`,
         },
-        timeout: 59000,
+        timeout: 60000,
       }).then((res) => res.json());
 
       const resultCodes =
-        response.value.map((r) => r.No.replace(/\s/g, '')) || [];
+        response.value.map((r) => r.No) || [];
 
       const productByCode = {};
       for (const product of products) {
@@ -81,12 +81,11 @@ const msdynamicCheckMutations = {
       }
 
       for (const resProd of response.value) {
-        if (productCodes.includes(resProd.No.replace(/\s/g, ''))) {
-          const product = productByCode[resProd.No.replace(/\s/g, '')];
+        if (productCodes.includes(resProd.No)) {
+          const product = productByCode[resProd.No];
 
           if (
             resProd?.Description === product.name &&
-            resProd?.Unit_Price === product.unitPrice &&
             resProd?.Base_Unit_of_Measure === product.uom
           ) {
             matchedCount = matchedCount + 1;
@@ -120,144 +119,10 @@ const msdynamicCheckMutations = {
     };
   },
 
-  async toCheckMsdPrices(
-    _root,
-    { brandId }: { brandId: string },
-    { subdomain }: IContext,
-  ) {
-    const configs = await getConfig(subdomain, 'DYNAMIC', {});
-    const config = configs[brandId || 'noBrand'];
-
-    const updatePrices: any = [];
-    const createPrices: any = [];
-    const deletePrices: any = [];
-
-    if (!config.priceApi || !config.username || !config.password) {
-      throw new Error('MS Dynamic config not found.');
-    }
-
-    const { priceApi, username, password } = config;
-
-    const productQry: any = { status: { $ne: 'deleted' } };
-    if (brandId && brandId !== 'noBrand') {
-      productQry.scopeBrandIds = { $in: [brandId] };
-    } else {
-      productQry.$or = [
-        { scopeBrandIds: { $exists: false } },
-        { scopeBrandIds: { $size: 0 } },
-      ];
-    }
-
-    try {
-      const productsCount = await sendProductsMessage({
-        subdomain,
-        action: 'count',
-        data: { query: productQry },
-        isRPC: true,
-      });
-
-      const products = await sendProductsMessage({
-        subdomain,
-        action: 'find',
-        data: {
-          query: productQry,
-          limit: productsCount,
-        },
-        isRPC: true,
-      });
-
-      const productCodes = (products || []).map((p) => p.code) || [];
-
-      const response = await fetch(priceApi, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          Accept: 'application/json',
-          Authorization: `Basic ${Buffer.from(
-            `${username}:${password}`,
-          ).toString('base64')}`,
-        },
-      }).then((res) => res.json());
-
-      const resultCodes =
-        response.value.map((r) => r.Item_No.replace(/\s/g, '')) || [];
-
-      const productByCode = {};
-      for (const product of products) {
-        productByCode[product.code] = product;
-
-        if (!resultCodes.includes(product.code)) {
-          deletePrices.push(product);
-        }
-      }
-
-      for (const resProd of response.value) {
-        const product = await sendProductsMessage({
-          subdomain,
-          action: 'findOne',
-          data: {
-            code: resProd.Item_No,
-          },
-          isRPC: true,
-        });
-
-        const currentDate = moment(new Date()).format('YYYY-MM-DD');
-        const date = moment(resProd.Ending_Date).format('YYYY-MM-DD');
-
-        if (productCodes.includes(resProd.Item_No.replace(/\s/g, ''))) {
-          if (resProd.Ending_Date === '0001-01-01') {
-            if (product && product.unitPrice === 0) {
-              updatePrices.push(resProd);
-            }
-
-            if (product && product.unitPrice > 0) {
-              if (product.unitPrice < resProd?.Unit_Price) {
-                updatePrices.push(resProd);
-              }
-            }
-          }
-
-          if (
-            resProd.Ending_Date !== '0001-01-01' &&
-            moment(date).isAfter(currentDate)
-          ) {
-            if (product && product.unitPrice === 0) {
-              updatePrices.push(resProd);
-            }
-
-            if (product && product.unitPrice > 0) {
-              if (product.unitPrice < resProd?.Unit_Price) {
-                updatePrices.push(resProd);
-              }
-            }
-          }
-        } else {
-          createPrices.push(resProd);
-        }
-      }
-    } catch (e) {
-      console.log(e, 'error');
-    }
-
-    return {
-      create: {
-        count: createPrices.length,
-        items: createPrices,
-      },
-      update: {
-        count: updatePrices.length,
-        items: updatePrices,
-      },
-      delete: {
-        count: deletePrices.length,
-        items: deletePrices,
-      },
-    };
-  },
-
   async toCheckMsdProductCategories(
     _root,
     { brandId, categoryId }: { brandId: string; categoryId: string },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -291,14 +156,12 @@ const msdynamicCheckMutations = {
         isRPC: true,
       });
 
-      const categoryCodes = (categories || []).map((p) => p.code) || [];
-
       const response = await fetch(itemCategoryApi, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           Accept: 'application/json',
           Authorization: `Basic ${Buffer.from(
-            `${username}:${password}`,
+            `${username}:${password}`
           ).toString('base64')}`,
         },
       }).then((res) => res.json());
@@ -306,8 +169,10 @@ const msdynamicCheckMutations = {
       const resultCodes = response.value.map((r) => r.Code) || [];
 
       const categoryByCode = {};
+      const categoryById = {};
       for (const category of categories) {
         categoryByCode[category.code] = category;
+        categoryById[category._id] = category;
 
         if (!resultCodes.includes(category.code)) {
           deleteCategories.push(category);
@@ -315,12 +180,12 @@ const msdynamicCheckMutations = {
       }
 
       for (const resProd of response.value) {
-        if (categoryCodes.includes(resProd.Code)) {
-          const category = categoryByCode[resProd.Code];
-
+        const category = categoryByCode[resProd.Code];
+        if (category) {
           if (
-            resProd?.Code === category.code &&
-            categoryId === category?.parentId
+            resProd.Code === category.code &&
+            (categoryId === category.parentId || categoryById[category.parentId]?.code === resProd.Parent_Category) &&
+            category.name === resProd.Description
           ) {
             matchedCount = matchedCount + 1;
           } else {
@@ -356,7 +221,7 @@ const msdynamicCheckMutations = {
   async toCheckMsdCustomers(
     _root,
     { brandId }: { brandId: string },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     const configs = await getConfig(subdomain, 'DYNAMIC', {});
     const config = configs[brandId || 'noBrand'];
@@ -397,10 +262,10 @@ const msdynamicCheckMutations = {
           'Content-Type': 'application/x-www-form-urlencoded',
           Accept: 'application/json',
           Authorization: `Basic ${Buffer.from(
-            `${username}:${password}`,
+            `${username}:${password}`
           ).toString('base64')}`,
         },
-        timeout: 59000,
+        timeout: 60000,
       }).then((res) => res.json());
 
       const resultCodes =
@@ -504,6 +369,78 @@ const msdynamicCheckMutations = {
         count: matchedCount,
       },
     };
+  },
+
+  async toCheckMsdSynced(
+    _root,
+    { ids, brandId }: { ids: string[]; brandId: string },
+    { subdomain }: IContext
+  ) {
+    const configs = await getConfig(subdomain, 'DYNAMIC', {});
+    const config = configs[brandId || 'noBrand'];
+
+    if (!config.salesApi || !config.username || !config.password) {
+      throw new Error('MS Dynamic config not found.');
+    }
+
+    const { salesApi, username, password } = config;
+
+    let filterSection = '';
+    let dynamicNo = [] as any;
+    let dynamicId = [] as any;
+
+    for (const id of ids) {
+      const order = await sendPosMessage({
+        subdomain,
+        action: 'orders.findOne',
+        data: { _id: id },
+        isRPC: true,
+      });
+
+      if (order && order.syncErkhetInfo) {
+        const obj = {};
+        obj[order.syncErkhetInfo] = id;
+
+        dynamicNo.push(order.syncErkhetInfo);
+        dynamicId.push(obj);
+      }
+    }
+
+    if (dynamicNo) {
+      for (const no of dynamicNo) {
+        filterSection += `No eq '${no}' or `;
+      }
+
+      filterSection = filterSection.slice(0, -4) + '';
+    }
+
+    const url = `${salesApi}?$filter=(${filterSection})`;
+
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
+          'base64'
+        )}`,
+      },
+      timeout: 60000,
+    }).then((r) => r.json());
+
+    const datas = response?.value;
+
+    return (datas || []).map((data) => {
+      const key = data.No;
+      const valueObject = dynamicId.find((obj) => key in obj);
+
+      return {
+        _id: valueObject[key],
+        isSynced: true,
+        syncedDate: data.Order_Date,
+        syncedBillNumber: data.No,
+        syncedCustomer: data.Sell_to_Customer_No,
+      };
+    });
   },
 };
 

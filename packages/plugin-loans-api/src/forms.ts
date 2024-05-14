@@ -2,7 +2,7 @@ import { generateFieldsFromSchema } from '@erxes/api-utils/src';
 import { generateModels } from './connectionResolver';
 
 export default {
-  types: [{ description: 'Loan Contact', type: 'contract' }],
+  types: [{ description: 'Loan Contact', type: 'contract' },{ description: 'Loan Contact Type', type: 'contractType' }],
   fields: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -47,7 +47,7 @@ export default {
       { field: 'leaseAmount', label: 'LeaseAmount' },
       { field: 'tenor', label: 'Tenor' },
       { field: 'interestRate', label: 'Interest rate' },
-      { field: 'unduePercent', label: 'Undue percent' },
+      { field: 'lossPercent', label: 'Loss percent' },
       { field: 'repayment', label: 'Repayment' },
       { field: 'startDate', label: 'Start date' },
       { field: 'scheduleDays', label: 'Schedule days' }

@@ -16,7 +16,7 @@ export const types = () => `
     payDate: Date
     balance: Float
 
-    undue: Float
+    loss: Float
     interest: Float
     interestEve: Float
     interestNonce: Float
@@ -26,7 +26,7 @@ export const types = () => `
     debt: Float
     total: Float
 
-    didUndue: Float
+    didLoss: Float
     didInterest: Float
     didInterestEve: Float
     didInterestNonce: Float

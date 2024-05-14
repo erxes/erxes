@@ -341,20 +341,9 @@ export const setupMessageConsumers = () => {
     'contacts:customers.createMessengerCustomer',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
-
+  
       const customer = await models.Customers.createMessengerCustomer(data);
-
-      await putCreateLog(
-        models,
-        subdomain,
-        {
-          type: MODULE_NAMES.CUSTOMER,
-          newData: customer,
-          object: customer,
-        },
-        null,
-      );
-
+      
       return {
         status: 'success',
         data: customer,
@@ -581,6 +570,13 @@ export const sendIntegrationsMessage = (
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'integrations',
+    ...args,
+  });
+};
+
+export const sendClientPortalMessage = (args: MessageArgsOmitService) => {
+  return sendMessage({
+    serviceName: 'clientportal',
     ...args,
   });
 };

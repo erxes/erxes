@@ -1,15 +1,15 @@
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
-import Label from '@erxes/ui/src/components/Label';
-import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import { INotification } from '../types';
-import NotificationsLatest from './NotificationsLatest';
-import { NotifButton } from './styles';
-import { IUser } from '@erxes/ui/src/auth/types';
+import React, { useState } from "react";
+import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
+
+import { INotification } from "../types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import Label from "@erxes/ui/src/components/Label";
+import { NotifButton } from "./styles";
+import NotificationsLatest from "./NotificationsLatest";
+import Popover from "@erxes/ui/src/components/Popover";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   unreadCount: number;
@@ -20,100 +20,82 @@ type Props = {
   currentUser?: IUser;
 };
 
-type State = {
-  currentTab: string;
-};
+const Widget = (props: Props) => {
+  const {
+    unreadCount,
+    currentUser,
+    notifications,
+    isLoading,
+    showNotifications,
+    markAsRead,
+  } = props;
 
-class Widget extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+  const popoverProps = {
+    notifications,
+    isLoading,
+    markAsRead,
+  };
 
-    this.state = {
-      currentTab: 'Recent'
-    };
-  }
+  const [currentTab, setCurrentTab] = useState("Recent");
 
-  renderUnreadCount() {
-    const { unreadCount, currentUser } = this.props;
+  const renderUnreadCount = () => {
     const user = currentUser || { isShowNotification: false };
 
     if (!user.isShowNotification && unreadCount && unreadCount !== 0) {
       return (
-        <Label shake={true} lblStyle="danger" ignoreTrans={true}>
+        <Label shake={true} ignoreTrans={true}>
           {unreadCount}
         </Label>
       );
     }
 
     return null;
-  }
-
-  onTabClick = currentTab => {
-    this.setState({ currentTab });
   };
 
-  render() {
-    const {
-      notifications,
-      isLoading,
-      showNotifications,
-      markAsRead
-    } = this.props;
+  const onTabClick = (currentTab) => {
+    setCurrentTab(currentTab);
+  };
 
-    const { currentTab } = this.state;
+  const recentOnClick = () => {
+    onTabClick("Recent");
+    showNotifications(false);
+  };
 
-    const popoverProps = {
-      notifications,
-      isLoading,
-      markAsRead
-    };
+  const unreadOnClick = () => {
+    onTabClick("Unread");
+    showNotifications(true);
+  };
 
-    const recentOnClick = () => {
-      this.onTabClick('Recent');
-      showNotifications(false);
-    };
-
-    const unreadOnClick = () => {
-      this.onTabClick('Unread');
-      showNotifications(true);
-    };
-
-    const popoverNotification = (
-      <Popover id="npopover" className="notification-popover">
-        <Tabs full={true}>
-          <TabTitle
-            className={currentTab === 'Recent' ? 'active' : ''}
-            onClick={recentOnClick}
-          >
-            {__('Recent')}
-          </TabTitle>
-          <TabTitle
-            className={currentTab === 'Unread' ? 'active' : ''}
-            onClick={unreadOnClick}
-          >
-            {__('Unread')}
-          </TabTitle>
-        </Tabs>
-        <NotificationsLatest {...popoverProps} />
-      </Popover>
-    );
-
-    return (
-      <OverlayTrigger
-        trigger="click"
-        rootClose={true}
-        placement="bottom"
-        overlay={popoverNotification}
-      >
+  return (
+    <Popover
+      trigger={
         <NotifButton>
-          <Tip text={__('Notifications')} placement="bottom">
+          <Tip text={__("Notifications")} placement="bottom">
             <Icon icon="bell" size={20} />
           </Tip>
-          {this.renderUnreadCount()}
+          {renderUnreadCount()}
         </NotifButton>
-      </OverlayTrigger>
-    );
-  }
-}
+      }
+      placement="bottom"
+      className="notification-popover"
+    >
+      <Tabs full={true}>
+        <TabTitle
+          className={currentTab === "Recent" ? "active" : ""}
+          onClick={recentOnClick}
+        >
+          {__("Recent")}
+        </TabTitle>
+        <TabTitle
+          className={currentTab === "Unread" ? "active" : ""}
+          onClick={unreadOnClick}
+        >
+          {__("Unread")}
+        </TabTitle>
+      </Tabs>
+      <NotificationsLatest {...popoverProps} />
+    </Popover>
+  );
+};
 
 export default Widget;

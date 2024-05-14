@@ -87,7 +87,7 @@ const OrderCancel = ({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
-    if (value === orderPassword) {
+    if (value === orderPassword || !orderPassword) {
       return orderCancel()
     }
     return setError(true)
@@ -112,20 +112,25 @@ const OrderCancel = ({
               устгана
             </AlertDialogDescription>
           </AlertDialogHeader>
+
           <form onSubmit={handleSubmit}>
-            <Label htmlFor="pass">Нууц үг</Label>
-            <Input
-              id="pass"
-              type="password"
-              autoComplete="off"
-              className="block my-1"
-              onChange={(e) => setValue(e.target.value)}
-            />
-            <div
-              className={error ? "text-destructive" : "text-muted-foreground"}
-            >
-              Баталгаажуулах нууц {error && "зөв"} үгээ оруулана уу
+            {orderPassword && <div>
+              <Label htmlFor="pass">Нууц үг</Label>
+              <Input
+                id="pass"
+                type="password"
+                autoComplete="off"
+                className="block my-1"
+                onChange={(e) => setValue(e.target.value)}
+              />
+
+              <div
+                className={error ? "text-destructive" : "text-muted-foreground"}
+              >
+                Баталгаажуулах нууц {error && "зөв"} үгээ оруулана уу
+              </div>
             </div>
+            }
 
             <AlertDialogFooter className="pt-6">
               <AlertDialogCancel>Болих</AlertDialogCancel>

@@ -1,84 +1,94 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import React from 'react';
-import { Route } from 'react-router-dom';
-import queryString from 'query-string';
+import { Route, Routes, useLocation } from "react-router-dom";
 
-const GeneralSettings = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "List - Msdynamics" */ './containers/GeneralSettings'
-  )
+import React from "react";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
+
+const GeneralSettings = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "List - Msdynamics" */ "./containers/GeneralSettings"
+    )
 );
 
-const SyncHistoryList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "CheckSyncedDeals" */ './containers/SyncHistoryList'
-  )
+const SyncHistoryList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "CheckSyncedDeals" */ "./containers/SyncHistoryList"
+    )
 );
 
-const InventoryProducts = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "InventoryProducts" */ './containers/InventoryProducts'
-  )
+const InventoryProducts = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "InventoryProducts" */ "./containers/InventoryProducts"
+    )
 );
 
-const InventoryPrices = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "InventoryProducts" */ './containers/InventoryPrice'
-  )
+const InventoryPrices = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "InventoryProducts" */ "./containers/InventoryPrice"
+    )
 );
 
-const InventoryCategory = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "InventoryProducts" */ './containers/InventoryCategory'
-  )
+const InventoryCategory = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "InventoryProducts" */ "./containers/InventoryCategory"
+    )
 );
-const Customers = asyncComponent(() =>
-  import(/* webpackChunkName: "InventoryProducts" */ './containers/Customers')
+const Customers = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "InventoryProducts" */ "./containers/Customers")
 );
 
-const msdynamics = ({ history }) => {
-  return <GeneralSettings history={history} />;
+const CheckSyncedOrders = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "CheckSyncedOrders" */ "./containers/CheckSyncedOrders"
+    )
+);
+
+const Msdynamics = () => {
+  return <GeneralSettings />;
 };
 
-const syncHistoryList = ({ location, history }) => {
-  return (
-    <SyncHistoryList
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const SyncHistoryListComponent = () => {
+  const location = useLocation();
+
+  return <SyncHistoryList queryParams={queryString.parse(location.search)} />;
 };
 
-const InventoryProductList = ({ location, history }) => {
-  return (
-    <InventoryProducts
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const InventoryProductList = () => {
+  const location = useLocation();
+
+  return <InventoryProducts queryParams={queryString.parse(location.search)} />;
 };
 
-const InventoryCategoryList = ({ location, history }) => {
-  return (
-    <InventoryCategory
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const InventoryCategoryList = () => {
+  const location = useLocation();
+
+  return <InventoryCategory queryParams={queryString.parse(location.search)} />;
 };
 
-const CustomersList = ({ location, history }) => {
-  return (
-    <Customers
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const CustomersList = () => {
+  const location = useLocation();
+
+  return <Customers queryParams={queryString.parse(location.search)} />;
 };
 
-const InventoryPriceList = ({ location, history }) => {
+const InventoryPriceList = () => {
+  const location = useLocation();
+
+  return <InventoryPrices queryParams={queryString.parse(location.search)} />;
+};
+
+const CheckSyncedOrderList = () => {
+  const location = useLocation();
+
   return (
-    <InventoryPrices
+    <CheckSyncedOrders
       queryParams={queryString.parse(location.search)}
       history={history}
     />
@@ -87,39 +97,39 @@ const InventoryPriceList = ({ location, history }) => {
 
 const routes = () => {
   return (
-    <React.Fragment>
-      <Route path="/msdynamics/" component={msdynamics} />
+    <Routes>
+      <Route path="/msdynamics/" element={<Msdynamics />} />
       <Route
         key="/sync-msdynamic-history"
-        exact={true}
         path="/sync-msdynamic-history"
-        component={syncHistoryList}
+        element={<SyncHistoryListComponent />}
       />
       <Route
         key="/msdynamic-products"
-        exact={true}
         path="/msdynamic-products"
-        component={InventoryProductList}
+        element={<InventoryProductList />}
       />
       <Route
         key="/msdynamic-category"
-        exact={true}
         path="/msdynamic-category"
-        component={InventoryCategoryList}
+        element={<InventoryCategoryList />}
       />
       <Route
         key="/msdynamic-customers"
-        exact={true}
         path="/msdynamic-customers"
-        component={CustomersList}
+        element={<CustomersList />}
       />
       <Route
         key="/msdynamic-price"
-        exact={true}
         path="/msdynamic-price"
-        component={InventoryPriceList}
+        element={<InventoryPriceList />}
       />
-    </React.Fragment>
+      <Route
+        key="/msdynamic-sync-orders"
+        path="/check-sync-orders"
+        element={<CheckSyncedOrderList />}
+      />
+    </Routes>
   );
 };
 

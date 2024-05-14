@@ -1,66 +1,75 @@
-import { getDefaultBoardAndPipelines } from '@erxes/ui-cards/src/boards/utils';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Redirect, Route } from 'react-router-dom';
+import { Route, Routes, useLocation } from "react-router-dom";
 
-const Calendar = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Calendar" */ '@erxes/ui-cards/src/boards/components/Calendar'
-  )
+import { Navigate } from "react-router-dom";
+import React from "react";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import { getDefaultBoardAndPipelines } from "@erxes/ui-cards/src/boards/utils";
+import queryString from "query-string";
+
+const Calendar = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Calendar" */ "@erxes/ui-cards/src/boards/components/Calendar"
+    )
 );
 
-const DealColumn = asyncComponent(() =>
-  import(/* webpackChunkName: "DealColumn" */ './containers/CalendarColumn')
+const DealColumn = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "DealColumn" */ "./containers/CalendarColumn")
 );
 
-const DealMainActionBar = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "DealMainActionbar" */ './components/DealMainActionBar'
-  )
+const DealMainActionBar = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "DealMainActionbar" */ "./components/DealMainActionBar"
+    )
 );
 
-const DealBoard = asyncComponent(() =>
-  import(/* webpackChunkName: "DealBoard" */ './components/DealBoard')
+const DealBoard = asyncComponent(
+  () => import(/* webpackChunkName: "DealBoard" */ "./components/DealBoard")
 );
 
-const Conversation = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Conversion" */ './components/conversion/Conversion'
-  )
+const Conversation = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Conversion" */ "./components/conversion/Conversion"
+    )
 );
 
-const deals = () => {
-  let view = localStorage.getItem('dealView') || 'board';
+const Deals = () => {
+  let view = localStorage.getItem("dealView") || "board";
   let dealsLink = `/deal/${view}`;
 
   const { defaultBoards, defaultPipelines } = getDefaultBoardAndPipelines();
 
   const [defaultBoardId, defaultPipelineId] = [
     defaultBoards.deal,
-    defaultPipelines.deal
+    defaultPipelines.deal,
   ];
 
   if (defaultBoardId && defaultPipelineId) {
     dealsLink = `/deal/${view}?id=${defaultBoardId}&pipelineId=${defaultPipelineId}`;
   }
 
-  return <Redirect to={dealsLink} />;
+  return <Navigate replace to={dealsLink} />;
 };
 
-const boards = ({ location }) => {
+const Boards = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <DealBoard viewType="board" queryParams={queryParams} />;
 };
 
-const activity = ({ location }) => {
+const Activity = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <DealBoard viewType="activity" queryParams={queryParams} />;
 };
 
-const calendar = ({ location }) => {
+const CalendarComponent = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return (
@@ -74,31 +83,36 @@ const calendar = ({ location }) => {
   );
 };
 
-const list = ({ location }) => {
+const List = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <DealBoard viewType="list" queryParams={queryParams} />;
 };
 
-const chart = ({ location }) => {
+const Chart = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <DealBoard viewType="chart" queryParams={queryParams} />;
 };
 
-const gantt = ({ location }) => {
+const Gantt = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <DealBoard viewType="gantt" queryParams={queryParams} />;
 };
 
-const conversion = ({ location }) => {
+const Conversion = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <Conversation queryParams={queryParams} />;
 };
 
-const time = ({ location }) => {
+const Time = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <DealBoard viewType="time" queryParams={queryParams} />;
@@ -106,55 +120,37 @@ const time = ({ location }) => {
 
 const routes = () => {
   return (
-    <React.Fragment>
-      <Route key="deals" exact={true} path="/deal" render={deals} />
+    <Routes>
+      <Route key="deals" path="/deal" element={<Deals />} />
 
-      <Route
-        key="deals/board"
-        exact={true}
-        path="/deal/board"
-        component={boards}
-      />
+      <Route key="deals/board" path="/deal/board/*" element={<Boards />} />
 
       <Route
         key="deals/calendar"
-        exact={true}
         path="/deal/calendar"
-        component={calendar}
+        element={<CalendarComponent />}
       />
 
       <Route
         key="deals/conversion"
-        exact={true}
         path="/deal/conversion"
-        component={conversion}
+        element={<Conversion />}
       />
 
       <Route
         key="deals/activity"
-        exact={true}
         path="/deal/activity"
-        component={activity}
+        element={<Activity />}
       />
 
-      <Route key="deals/list" exact={true} path="/deal/list" component={list} />
+      <Route key="deals/list" path="/deal/list" element={<List />} />
 
-      <Route
-        key="deals/chart"
-        exact={true}
-        path="/deal/chart"
-        component={chart}
-      />
+      <Route key="deals/chart" path="/deal/chart" element={<Chart />} />
 
-      <Route
-        key="deals/gantt"
-        exact={true}
-        path="/deal/gantt"
-        component={gantt}
-      />
+      <Route key="deals/gantt" path="/deal/gantt" element={<Gantt />} />
 
-      <Route key="deals/time" exact={true} path="/deal/time" component={time} />
-    </React.Fragment>
+      <Route key="deals/time" path="/deal/time" element={<Time />} />
+    </Routes>
   );
 };
 

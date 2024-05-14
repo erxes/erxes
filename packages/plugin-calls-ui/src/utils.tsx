@@ -1,39 +1,35 @@
-import { Actions, CallAction, InCallFooter, Keypad } from "./styles";
-import { numbers, symbols } from "./constants";
+import { Actions, CallAction, InCallFooter, Keypad } from './styles';
+import { numbers, symbols } from './constants';
 
-import { Icon } from "@erxes/ui/src/components";
-import React from "react";
-import { __ } from "@erxes/ui/src/utils";
+import { Icon } from '@erxes/ui/src/components';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils';
+import moment from 'moment';
 
 export const formatPhone = (phone) => {
   var num;
-  if (phone.indexOf("@")) {
-    num = phone.split("@")[0];
+  if (phone.indexOf('@')) {
+    num = phone.split('@')[0];
   } else {
     num = phone;
   }
   // remove everything but digits & '+' sign
-  num = num.toString().replace(/[^+0-9]/g, "");
+  num = num.toString().replace(/[^+0-9]/g, '');
 
   return num;
 };
 
 const formatNumber = (n: number) => {
-  return n.toLocaleString("en-US", {
+  return n.toLocaleString('en-US', {
     minimumIntegerDigits: 2,
     useGrouping: false,
   });
 };
-
 export const getSpentTime = (seconds: number) => {
   const hours = Math.floor(seconds / 3600);
-
   seconds -= hours * 3600;
-
   const minutes = Math.floor(seconds / 60);
-
   seconds -= minutes * 60;
-
   return (
     <>
       {hours !== 0 && formatNumber(hours)}
@@ -44,7 +40,6 @@ export const getSpentTime = (seconds: number) => {
     </>
   );
 };
-
 export const renderKeyPad = (handNumPad) => {
   return (
     <Keypad>
@@ -67,19 +62,18 @@ export const renderKeyPad = (handNumPad) => {
       <div className="number" onClick={() => handNumPad(0)}>
         0
       </div>
-      <div className="symbols" onClick={() => handNumPad("delete")}>
+      <div className="symbols" onClick={() => handNumPad('delete')}>
         <Icon icon="backspace" />
       </div>
     </Keypad>
   );
 };
-
 export const callActions = (
   isMuted,
   handleAudioToggle,
   isHolded,
   handleHold,
-  endCall
+  endCall,
 ) => {
   const isHold = isHolded().localHold;
 
@@ -88,29 +82,30 @@ export const callActions = (
       <Actions>
         <div>
           <CallAction
-            key={isMuted() ? "UnMute" : "Mute"}
+            key={isMuted() ? 'UnMute' : 'Mute'}
             active={isMuted() ? true : false}
             onClick={handleAudioToggle}
           >
-            <Icon size={20} icon={"phone-times"} />
+            <Icon size={20} icon={'phone-times'} />
           </CallAction>
-          {isMuted() ? __("UnMute") : __("Mute")}
+          {isMuted() ? __('UnMute') : __('Mute')}
         </div>
         <div>
           <CallAction
-            key={isHold ? "UnHold" : "Hold"}
+            key={isHold ? 'UnHold' : 'Hold'}
             active={isHold ? true : false}
             onClick={handleHold}
+            disabled={true}
           >
-            <Icon size={20} icon={"pause-1"} />
+            <Icon size={20} icon={'pause-1'} />
           </CallAction>
-          {isHold ? __("UnHold") : __("Hold")}
+          {isHold ? __('UnHold') : __('Hold')}
         </div>
         <div>
           <CallAction disabled={true}>
-            <Icon size={20} icon={"phone-volume"} />
+            <Icon size={20} icon={'phone-volume'} />
           </CallAction>
-          {__("Transfer")}
+          {__('Transfer')}
           <span className="coming-soon">coming soon</span>
         </div>
         <CallAction onClick={endCall} isDecline={true}>
@@ -123,19 +118,19 @@ export const callActions = (
 
 export const setLocalStorage = (isRegistered, isAvailable) => {
   localStorage.setItem(
-    "callInfo",
+    'callInfo',
     JSON.stringify({
       isRegistered,
-    })
+    }),
   );
 
   const callConfig = JSON.parse(
-    localStorage.getItem("config:call_integrations") || "{}"
+    localStorage.getItem('config:call_integrations') || '{}',
   );
 
   callConfig &&
     localStorage.setItem(
-      "config:call_integrations",
+      'config:call_integrations',
       JSON.stringify({
         inboxId: callConfig.inboxId,
         phone: callConfig.phone,
@@ -143,6 +138,18 @@ export const setLocalStorage = (isRegistered, isAvailable) => {
         token: callConfig.token,
         operators: callConfig.operators,
         isAvailable,
-      })
+      }),
     );
+};
+
+export const calculateTimeElapsed = (startedMoment) => {
+  const now = moment(new Date());
+  return now.diff(startedMoment, 'seconds');
+};
+export const extractPhoneNumberFromCounterpart = (counterpart) => {
+  if (!counterpart) return '';
+  const startIndex = counterpart.indexOf(':') + 1;
+  const endIndex = counterpart.indexOf('@');
+  if (startIndex >= endIndex || startIndex === -1 || endIndex === -1) return '';
+  return counterpart.slice(startIndex, endIndex);
 };

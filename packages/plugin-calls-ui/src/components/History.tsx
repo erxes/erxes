@@ -8,11 +8,10 @@ import { EmptyState, Spinner } from "@erxes/ui/src/components";
 import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
 import { __, renderFullName } from "@erxes/ui/src/utils";
 
-import Dropdown from "react-bootstrap/Dropdown";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 import { IHistory } from "../types";
 import Icon from "@erxes/ui/src/components/Icon";
-import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
 import React from "react";
 import dayjs from "dayjs";
 
@@ -42,12 +41,6 @@ class History extends React.Component<Props, State> {
 
     this.activeItemRef = React.createRef();
   }
-
-  // componentDidUpdate() {
-  //   if (this.activeItemRef && this.activeItemRef.current) {
-  //     this.activeItemRef.current.focus();
-  //   }
-  // }
 
   componentDidMount() {
     document.addEventListener("keydown", this.handleKeyDown);
@@ -107,36 +100,31 @@ class History extends React.Component<Props, State> {
       const isMissedCall =
         callStatus === "missed" || callStatus === "cancelled";
 
-      const secondLine =
-        item.customer !== null ? item.customer.primaryPhone : "unknown user";
-
-      const content = (
+      const content = item.customer && (
         <CallDetail
           isMissedCall={isMissedCall}
           key={i}
           className={this.state.cursor === i ? "active" : ""}
           isIncoming={callType !== "outgoing"}
-          onClick={() => this.onCall(item.customer?.primaryPhone)}
+          onClick={() => this.onCall(item.customer.primaryPhone)}
         >
           <div>
             {callType === "outgoing" && (
               <Icon size={12} icon={"outgoing-call"} />
             )}
             <PhoneNumber shrink={true}>
-              {renderFullName(item.customer, true)}
+              {renderFullName(item.customer, false)}
             </PhoneNumber>
           </div>
           <AdditionalDetail>
             <span>{dayjs(createdAt).format("DD MMM, HH:mm")}</span>
-            <Dropdown>
-              <Dropdown.Toggle as={DropdownToggle} id="dropdown-convert-to">
-                <Icon icon="ellipsis-v" size={18} />
-              </Dropdown.Toggle>
-              <Dropdown.Menu>
-                <li key="delete" onClick={() => this.onRemove(item._id)}>
-                  <Icon icon="trash-alt" size={14} /> {__("Delete")}
-                </li>
-              </Dropdown.Menu>
+            <Dropdown
+              as={DropdownToggle}
+              toggleComponent={<Icon icon="ellipsis-v" size={18} />}
+            >
+              <li key="delete" onClick={() => this.onRemove(item._id)}>
+                <Icon icon="trash-alt" size={14} /> {__("Delete")}
+              </li>
             </Dropdown>
           </AdditionalDetail>
         </CallDetail>

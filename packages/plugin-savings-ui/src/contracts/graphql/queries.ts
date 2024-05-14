@@ -33,6 +33,7 @@ const contractFields = `
   isAllowOutcome
   isDeposit
   customFieldsData
+  blockAmount
 `;
 
 const listParamsDef = `

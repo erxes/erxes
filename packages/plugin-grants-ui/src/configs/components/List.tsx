@@ -6,7 +6,7 @@ import {
   HeaderDescription,
   ModalTrigger,
   Table,
-  __
+  __,
 } from '@erxes/ui/src';
 import Row from './Row';
 import Form from '../containers/Form';
@@ -17,14 +17,10 @@ type Props = {
   remove: (variables: { _id: string }) => void;
 };
 
-class List extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-  }
+const List: React.FC<Props> = (props) => {
+  const { configs, remove, totalCount } = props;
 
-  renderContent() {
-    const { configs, remove } = this.props;
-
+  const renderContent = () => {
     return (
       <Table>
         <thead>
@@ -37,16 +33,16 @@ class List extends React.Component<Props> {
           </tr>
         </thead>
         <tbody>
-          {(configs || []).map(config => (
+          {(configs || []).map((config) => (
             <Row key={config._id} config={config} remove={remove} />
           ))}
         </tbody>
       </Table>
     );
-  }
+  };
 
-  renderForm() {
-    const content = props => <Form {...props} />;
+  const renderForm = () => {
+    const content = (props) => <Form {...props} />;
 
     const trigger = <Button btnStyle="success">{__('Add Config')}</Button>;
 
@@ -58,31 +54,27 @@ class List extends React.Component<Props> {
         size="xl"
       />
     );
-  }
+  };
 
-  render() {
-    const { totalCount } = this.props;
+  const rightActionBar = <BarItems>{renderForm()}</BarItems>;
 
-    const rightActionBar = <BarItems>{this.renderForm()}</BarItems>;
+  const leftActionBar = (
+    <HeaderDescription
+      title="Grants Configurations"
+      icon="/images/actions/25.svg"
+      description=""
+    />
+  );
 
-    const leftActionBar = (
-      <HeaderDescription
-        title="Grants Configurations"
-        icon="/images/actions/25.svg"
-        description=""
-      />
-    );
+  const updatedProps = {
+    title: 'Configs',
+    content: renderContent(),
+    leftActionBar,
+    rightActionBar,
+    totalCount,
+  };
 
-    const updatedProps = {
-      title: 'Configs',
-      content: this.renderContent(),
-      leftActionBar,
-      rightActionBar,
-      totalCount
-    };
-
-    return <DefaultWrapper {...updatedProps} />;
-  }
-}
+  return <DefaultWrapper {...updatedProps} />;
+};
 
 export default List;

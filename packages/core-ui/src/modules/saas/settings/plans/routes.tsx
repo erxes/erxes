@@ -1,5 +1,7 @@
 import * as React from 'react';
-import { Route } from 'react-router-dom';
+
+import { Route, Routes, useLocation } from 'react-router-dom';
+
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 
@@ -10,21 +12,21 @@ const PlansContainer = asyncComponent(
     ),
 );
 
-const plans = ({ location, history }) => {
+const Plans = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return <PlansContainer queryParams={queryParams} history={history} />;
+  return <PlansContainer queryParams={queryParams} />;
 };
 
 const routes = () => (
-  <>
+  <Routes>
     <Route
       key="/settings/organizations/"
-      exact={true}
       path="/settings/organizations/"
-      component={plans}
+      element={<Plans />}
     />
-  </>
+  </Routes>
 );
 
 export default routes;

@@ -26,6 +26,24 @@ export const setupMessageConsumers = async () => {
     };
   });
 
+  consumeRPCQueue('savings:block.create', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    console.log('data',data)
+
+    const deposit = await models.Contracts.findOne({customerId:data.customerId,isDeposit:true})
+    
+    if(!deposit)
+      throw new Error('contract not found')
+    
+    data.contractId = deposit._id
+
+    return {
+      status: 'success',
+      data: await models.Block.createBlock(data),
+    };
+  });
+
   consumeRPCQueue(
     'savings:contracts.getDepositAccount',
     async ({ subdomain, data }) => {
@@ -88,6 +106,39 @@ export const setupMessageConsumers = async () => {
       };
     },
   );
+
+  consumeRPCQueue(
+    'savings:transactions.createTransaction',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const transaction = await models.Transactions.createTransaction(data,subdomain)
+
+      return {
+        status: 'success',
+        data: transaction
+      };
+    },
+  );
+};
+
+export const getConfig = async (
+  code: 'savingConfig',
+  subdomain: string,
+  defaultValue?: string,
+) => {
+  const configs = await sendCoreMessage({
+    subdomain,
+    action: 'getConfigs',
+    data: {},
+    isRPC: true,
+    defaultValue: [],
+  });
+
+  if (!configs[code]) {
+    return defaultValue;
+  }
+
+  return configs[code];
 };
 
 export const sendMessageBroker = async (
@@ -102,7 +153,8 @@ export const sendMessageBroker = async (
     | 'clientportal'
     | 'syncerkhet'
     | 'ebarimt'
-    | 'loans',
+    | 'loans' 
+    | 'khanbank',
 ): Promise<any> => {
   return sendMessage({
     serviceName: name,

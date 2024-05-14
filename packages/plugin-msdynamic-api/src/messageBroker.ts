@@ -29,7 +29,7 @@ export const sendContactsMessage = async (args: MessageArgsOmitService) => {
 };
 
 export const sendProductsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'products',
@@ -37,8 +37,17 @@ export const sendProductsMessage = async (
   });
 };
 
+export const sendPosMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'pos',
+    ...args,
+  });
+};
+
 export const sendFormsMessage = (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',
@@ -47,7 +56,7 @@ export const sendFormsMessage = (
 };
 
 export const sendCoreMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',

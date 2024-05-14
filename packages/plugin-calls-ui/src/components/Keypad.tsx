@@ -25,24 +25,26 @@ import {
   SIP_STATUS_ERROR,
   SIP_STATUS_REGISTERED,
 } from "../lib/enums";
-import { ICallConversation, ICustomer } from "../types";
 import React, { useEffect, useRef, useState } from "react";
-import { callActions, formatPhone, getSpentTime, renderKeyPad } from "../utils";
+import {
+  calculateTimeElapsed,
+  callActions,
+  formatPhone,
+  getSpentTime,
+  renderKeyPad,
+} from "../utils";
 import { callPropType, sipPropType } from "../lib/types";
 
 import { FormControl } from "@erxes/ui/src/components/form";
-import Select from "react-select-plus";
+import { ICustomer } from "../types";
+import Select from "react-select";
 import { renderFullName } from "@erxes/ui/src/utils/core";
 
 type Props = {
-  addCustomer: (firstName: string, phoneNumber: string, callID: string) => void;
+  addCustomer: (firstName: string, phoneNumber: string) => void;
   callUserIntegrations: any;
   setConfig: any;
   customer: ICustomer;
-  toggleSectionWithPhone: (phoneNumber: string) => void;
-  taggerRefetchQueries: any;
-  conversation: ICallConversation;
-  addNote: (conversationId: string, content: string) => void;
   disconnectCall: () => void;
   phoneNumber: string;
 };
@@ -56,7 +58,6 @@ const KeyPad = (props: Props, context) => {
     callUserIntegrations,
     setConfig,
     customer,
-    conversation,
     phoneNumber,
   } = props;
 
@@ -66,7 +67,7 @@ const KeyPad = (props: Props, context) => {
 
   const [shrink, setShrink] = useState(customer ? true : false);
   const [selectFocus, setSelectFocus] = useState(false);
-  const [number, setNumber] = useState(phoneNumber);
+  const [number, setNumber] = useState(phoneNumber || "");
   const [dialCode, setDialCode] = useState("");
 
   const [showTrigger, setShowTrigger] = useState(false);
@@ -77,35 +78,25 @@ const KeyPad = (props: Props, context) => {
       ""
   );
   const [hasMicrophone, setHasMicrophone] = useState(false);
-  const [timeSpent, setTimeSpent] = useState(0);
+  const [timeSpent, setTimeSpent] = useState(
+    call?.startTime ? calculateTimeElapsed(call.startTime) : 0
+  );
   const formatedPhone = formatPhone(number);
-
   const ourPhone = callUserIntegrations?.map((user) => ({
     value: user.phone,
     label: user.phone,
   }));
-  let conversationDetail;
-
-  if (conversation) {
-    conversationDetail = {
-      ...conversation,
-      _id: conversation.erxesApiId,
-    };
-  }
 
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
   }, [selectFocus]);
-
   useEffect(() => {
     setNumber(phoneNumber);
   }, [phoneNumber]);
-
   useEffect(() => {
     let timer;
-
     navigator.mediaDevices
       .getUserMedia({ audio: true })
       .then(() => {
@@ -119,7 +110,6 @@ const KeyPad = (props: Props, context) => {
         setHasMicrophone(false);
         return Alert.error(errorMessage);
       });
-
     if (
       (call?.direction === CALL_DIRECTION_OUTGOING && call?.status) ===
         CALL_STATUS_STARTING &&
@@ -129,19 +119,21 @@ const KeyPad = (props: Props, context) => {
         JSON.parse(defaultCallIntegration || "{}")?.inboxId ||
         callUserIntegrations?.[0]?.inboxId;
 
-      addCustomer(inboxId, formatedPhone, call?.id);
+      addCustomer(inboxId, formatedPhone);
     }
     if (call?.status === CALL_STATUS_ACTIVE) {
-      timer = setInterval(() => {
-        setTimeSpent((prevTimeSpent) => prevTimeSpent + 1);
-      }, 1000);
+      const { startTime } = call;
+      if (startTime) {
+        timer = setInterval(() => {
+          const diff = calculateTimeElapsed(startTime);
+          setTimeSpent(diff);
+        }, 1000);
+      }
     }
-
     return () => {
       clearInterval(timer);
     };
   }, [call?.status]);
-
   const handleCall = () => {
     if (!hasMicrophone) {
       return Alert.error("Check your microphone");
@@ -153,17 +145,13 @@ const KeyPad = (props: Props, context) => {
     if (Sip.call?.status !== CALL_STATUS_IDLE) {
       return;
     }
-
     const { startCall } = context;
-
     if (startCall && hasMicrophone) {
       startCall(formatedPhone);
     }
   };
-
   const handleCallStop = () => {
     const { stopCall } = context;
-
     if (stopCall) {
       stopCall();
     }
@@ -194,7 +182,6 @@ const KeyPad = (props: Props, context) => {
       operators: integration?.operators,
       isAvailable: isConnected ? true : false,
     });
-
     localStorage.setItem(
       "isConnectCallRequested",
       isConnected ? "true" : "false"
@@ -227,7 +214,6 @@ const KeyPad = (props: Props, context) => {
       audio.play();
 
       num += e;
-
       if (Sip.call?.status === CALL_STATUS_ACTIVE) {
         dialNumber += e;
 
@@ -241,18 +227,8 @@ const KeyPad = (props: Props, context) => {
       }
     }
   };
-
   const handleKeyDown = (event) => {
     const keyValue = event.key;
-
-    if (/^[0-9]$/.test(keyValue)) {
-      setNumber((prevNumber) => prevNumber + keyValue);
-    } else if (
-      (keyValue === "Delete" || keyValue === "Backspace") &&
-      number.length > 0
-    ) {
-      setNumber((prevNumber) => prevNumber.slice(0, -1));
-    }
 
     if (keyValue === "Enter") {
       handleCall();
@@ -260,12 +236,10 @@ const KeyPad = (props: Props, context) => {
   };
 
   const onBack = () => setShowTrigger(false);
-
   const search = (e) => {
     const inputValue = e.target.value;
     setSearchValue(inputValue);
   };
-
   const onStatusChange = (status) => {
     setCallFrom(status.value);
 
@@ -293,7 +267,6 @@ const KeyPad = (props: Props, context) => {
       isAvailable: true,
     });
   };
-
   if (showTrigger) {
     return (
       <ChooseCountry>
@@ -313,7 +286,6 @@ const KeyPad = (props: Props, context) => {
       </ChooseCountry>
     );
   }
-
   const handleAudioToggle = () => {
     if (!isMuted()) {
       mute();
@@ -321,7 +293,6 @@ const KeyPad = (props: Props, context) => {
       unmute();
     }
   };
-
   const handleHold = () => {
     if (!isHolded().localHold) {
       hold();
@@ -329,7 +300,6 @@ const KeyPad = (props: Props, context) => {
       unhold();
     }
   };
-
   const renderCallerInfo = () => {
     if (!formatedPhone) {
       return null;
@@ -338,7 +308,6 @@ const KeyPad = (props: Props, context) => {
     if (Sip.call?.status === CALL_STATUS_ACTIVE && dialCode) {
       showNumber = dialCode;
     }
-
     if (!shrink) {
       return (
         <>
@@ -347,15 +316,12 @@ const KeyPad = (props: Props, context) => {
         </>
       );
     }
-
     return <PhoneNumber shrink={shrink}>{showNumber}</PhoneNumber>;
   };
-
   const isConnected =
     !Sip.call ||
     Sip.sip?.status === SIP_STATUS_ERROR ||
     Sip.sip?.status === SIP_STATUS_DISCONNECTED;
-
   if (
     Sip.call?.direction === CALL_DIRECTION_OUTGOING &&
     Sip.call?.status === CALL_STATUS_STARTING
@@ -383,7 +349,6 @@ const KeyPad = (props: Props, context) => {
       </IncomingCallNav>
     );
   }
-
   if (Sip.call?.status === CALL_STATUS_ACTIVE) {
     return (
       <IncomingCallNav type="outgoing">
@@ -408,7 +373,6 @@ const KeyPad = (props: Props, context) => {
       </IncomingCallNav>
     );
   }
-
   if (Sip.call?.direction !== CALL_DIRECTION_INCOMING) {
     return (
       <NumberInput>
@@ -439,19 +403,22 @@ const KeyPad = (props: Props, context) => {
             value={number}
             onKeyDown={handleKeyDown}
             autoFocus={true}
-            defaultValue={number}
             ref={inputRef}
+            autoComplete="off"
+            onChange={(e) => setNumber(e.target.value)}
+            type="number"
           />
         </InputBar>
         {renderKeyPad(handNumPad)}
         <p>{__("Calling from your own phone number")}</p>
         <Select
           placeholder={__("Choose phone number")}
-          value={callFrom}
+          value={ourPhone.find((phone) => phone.value === callFrom)}
           onChange={onStatusChange}
-          clearable={false}
+          isClearable={false}
           options={ourPhone}
-          scrollMenuIntoView={true}
+          // scrollMenuIntoView={true}
+          menuPlacement="top"
           onBlur={() => setSelectFocus(!selectFocus)}
         />
         <>
@@ -466,7 +433,7 @@ const KeyPad = (props: Props, context) => {
                   ? "Call"
                   : Sip.call?.status === CALL_STATUS_STARTING
                     ? "Calling"
-                    : "aa"}
+                    : "Stopping"}
               </Button>
             </>
           )}
@@ -474,7 +441,6 @@ const KeyPad = (props: Props, context) => {
       </NumberInput>
     );
   }
-
   return null;
 };
 

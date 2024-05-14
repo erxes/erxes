@@ -1,14 +1,15 @@
-import { IUser } from '@erxes/ui/src/auth/types';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import React from 'react';
-import strip from 'strip';
-import xss from 'xss';
 import {
   LauncherContainer,
   PreviewContent,
   WebPreview,
-  WidgetPreview
-} from '@erxes/ui-engage/src/styles';
+  WidgetPreview,
+} from "@erxes/ui-engage/src/styles";
+
+import { IUser } from "@erxes/ui/src/auth/types";
+import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
+import React from "react";
+import strip from "strip";
+import xss from "xss";
 
 type Props = {
   content?: string;
@@ -23,17 +24,17 @@ type State = {
 class MessengerPreview extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { fromUser: '' };
+    this.state = { fromUser: "" };
   }
 
   renderNotificationBody = () => {
     const { content, sentAs, user } = this.props;
 
-    const type = sentAs ? sentAs : 'default';
+    const type = sentAs ? sentAs : "default";
     const classNames = `engage-message type-${type}`;
-    const isFullmessage = sentAs === 'fullMessage';
+    const isFullmessage = sentAs === "fullMessage";
 
-    if (sentAs === 'badge') {
+    if (sentAs === "badge") {
       return null;
     }
 
@@ -41,9 +42,9 @@ class MessengerPreview extends React.Component<Props, State> {
       <WidgetPreview className={classNames}>
         {user ? <NameCard user={user} singleLine={true} /> : null}
         <PreviewContent
-          isFullmessage={isFullmessage}
+          $isFullmessage={isFullmessage}
           dangerouslySetInnerHTML={{
-            __html: isFullmessage ? xss(content || '') : xss(strip(content))
+            __html: isFullmessage ? xss(content || "") : xss(strip(content)),
           }}
         />
       </WidgetPreview>
@@ -54,7 +55,7 @@ class MessengerPreview extends React.Component<Props, State> {
     const { sentAs } = this.props;
 
     return (
-      <WebPreview className={`type-${sentAs}`} isEngage={true}>
+      <WebPreview className={`type-${sentAs}`} $isEngage={true}>
         {this.renderNotificationBody()}
 
         <LauncherContainer>

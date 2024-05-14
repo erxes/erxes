@@ -1,15 +1,21 @@
+import BigNumber from 'bignumber.js';
 import { IModels } from '../../connectionResolver';
+
+
 
 export const calcInterest = ({
   balance,
   interestRate,
-  dayOfMonth = 30
+  dayOfMonth = 30,
+  fixed = 2
 }: {
   balance: number;
   interestRate: number;
+  fixed?:number;
   dayOfMonth?: number;
 }): number => {
-  return Math.round((((balance / 100) * interestRate) / 365) * dayOfMonth);
+  const interest = new BigNumber(interestRate).div(100).div(365)
+  return new BigNumber(balance).multipliedBy(interest).multipliedBy(dayOfMonth).dp(fixed,BigNumber.ROUND_HALF_UP).toNumber()
 };
 
 export const getDaysInMonth = (date: Date) => {

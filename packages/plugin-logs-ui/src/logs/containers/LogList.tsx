@@ -29,7 +29,6 @@ const List = (props: FinalProps) => {
 };
 
 type Props = {
-  history: any;
   queryParams: any;
   logsQuery: LogsQueryResponse;
 };

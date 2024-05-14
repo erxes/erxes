@@ -4,9 +4,8 @@ import {
   pop,
   slideRight,
 } from '@erxes/ui/src/utils/animations';
-import styled, { keyframes } from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 
-import { NameCardText } from '@erxes/ui/src/components/nameCard/NameCard';
 import colors from '@erxes/ui/src/styles/colors';
 import { dimensions } from '@erxes/ui/src/styles';
 import styledTS from 'styled-components-ts';
@@ -35,10 +34,20 @@ export const TabsContainer = styled(Tabs)`
   border-top: 1px solid ${colors.borderPrimary};
   border-radius: 0 0 25px 10px;
   overflow: hidden;
+  background:red;
+`;
+
+export const TabsWrapper = styled.div `
+  border-top: 1px solid ${colors.borderPrimary};
+  margin-bottom: ${dimensions.unitSpacing}px;
+
+  > div{
+    border-bottom: none;
+  }
 `;
 
 export const TabContent = styledTS<{ show?: boolean }>(styled.div)`
-  margin-bottom: ${dimensions.unitSpacing}px;
+  padding-bottom: ${dimensions.unitSpacing}px;
   border-radius: 10px 10px 0 0;
 `;
 
@@ -65,12 +74,37 @@ export const Contacts = styled.div`
   }
 `;
 
-export const CallDetail = styledTS<{ isMissedCall: boolean; isIncoming: boolean}>(styled.div)`
+export const PhoneNumber = styledTS<{ shrink?: boolean }>(styled.div)`
+  ${(props) =>
+    props.shrink
+      ? `font-weight: 600;
+    font-size: 15px;`
+      : `font-weight: 500;
+    font-size: 18px;`}
+
+    > h5 {
+      margin: 0;
+    }
+
+    > span {
+      display: block;
+      color: ${colors.bgGray};
+      font-size: 13px;
+      margin-top: -5px;
+      margin-bottom: ${dimensions.unitSpacing}px;
+      font-style: italic;
+    }
+`;
+
+export const CallDetail = styledTS<{
+  isMissedCall: boolean;
+  isIncoming: boolean;
+}>(styled.div)`
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 5px 20px;
-  padding-left: ${props => props.isIncoming && '40px'};
+  padding-left: ${(props) => props.isIncoming && '40px'};
   cursor: pointer;
   transition: all ease .3s;
 
@@ -87,10 +121,9 @@ export const CallDetail = styledTS<{ isMissedCall: boolean; isIncoming: boolean}
       color: #666;
     }
 
-    ${NameCardText} {
-      > div {
-        color: ${props => props.isMissedCall ? colors.colorCoreRed : colors.colorCoreDarkGray};
-      }
+    ${PhoneNumber} {
+        color: ${(props) =>
+          props.isMissedCall ? colors.colorCoreRed : colors.colorCoreDarkGray};
     }
   }
 
@@ -184,22 +217,21 @@ export const NumberInput = styled.div`
     color: rgba(0, 0, 0, 0.62);
   }
 
-  .Select {
+  .css-b62m3t-container {
     border: 1px solid ${colors.borderPrimary};
     border-radius: ${dimensions.unitSpacing}px;
     margin: 8px 20px 10px;
-    padding: 10px 20px;
+    padding: 5px 10px;
     font-size: 15px;
   }
-
-  .Select-control {
+  
+  .css-13cymwt-control, .css-t3ipsp-control {
+    min-height: unset;
     border-bottom: none;
   }
-  .Select-menu-outer {
+  .css-14h4o58-menu {
     overflow: auto;
-    position: absolute;
-    top: auto;
-    bottom: 0;
+    width: calc(100% - 20px);
     max-height: 100px;
   }
 `;
@@ -302,7 +334,7 @@ export const IncomingCallNav = styledTS<{ type?: string }>(styled.div)`
   bottom: ${(props) => (props.type === 'outgoing' ? '0' : '150px')};
   right: ${(props) => (props.type === 'outgoing' ? '0' : '20px')};
   z-index: 999;
-  animation: ${slideRight} 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
+  animation: ${css`${slideRight}`} 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
 
   button {
     height: 30px;
@@ -337,7 +369,7 @@ export const CallButton = styledTS<{
   margin-top: auto;
   margin-bottom: auto;
   margin-left: ${(props) => (props.type === 'decline' ? '0' : '0px')};
-  animation: ${pulse} 1.5s infinite alternate;
+  animation: ${css`${pulse}`} 1.5s infinite alternate;
 `;
 
 export const InCall = styled.div`
@@ -362,19 +394,6 @@ export const CallInfo = styledTS<{ shrink?: boolean }>(styled.div)`
   width: 100%;
 `;
 
-export const PhoneNumber = styledTS<{ shrink?: boolean }>(styled.div)`
-  ${(props) =>
-    props.shrink
-      ? `font-weight: 600;
-    font-size: 15px;`
-      : `font-weight: 500;
-    font-size: 18px;`}
-
-    > h5 {
-      margin: 0;
-    }
-`;
-
 export const Actions = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -390,24 +409,33 @@ export const Actions = styled.div`
       margin-bottom: -10px;
       margin-top: -3px;
       font-size: 10px;
-      color: #ddd;  
+      color: #ddd;
     }
   }
 `;
 
-export const CallAction = styledTS<{ isDecline?: boolean; active?: boolean; disabled?: boolean }>(
-  styled.div,
-)`
+export const CallAction = styledTS<{
+  isDecline?: boolean;
+  active?: boolean;
+  disabled?: boolean;
+}>(styled.div)`
   width: 60px;
-  height: 60px
+  height: 60px;
   border-radius: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   cursor: pointer;
-  color: ${props => props.active ? colors.textPrimary : colors.colorWhite};
-  background: ${(props) => props.disabled ? colors.colorShadowGray : props.isDecline ? colors.colorCoreRed : props.active ? colors.colorWhite  : 'rgba(255, 255, 255, 0.4)'};
+  color: ${(props) => (props.active ? colors.textPrimary : colors.colorWhite)};
+  background: ${(props) =>
+    props.disabled
+      ? colors.colorShadowGray
+      : props.isDecline
+        ? colors.colorCoreRed
+        : props.active
+          ? colors.colorWhite
+          : 'rgba(255, 255, 255, 0.4)'};
   margin-bottom: 5px;
   transition: all ease .3s;
 
@@ -420,7 +448,9 @@ export const CallAction = styledTS<{ isDecline?: boolean; active?: boolean; disa
 
   &:hover {
     background: ${(props) =>
-      props.isDecline ? 'rgba(234, 71, 93, 0.6)' : !props.active && !props.disabled && 'rgba(255, 255, 255, 0.2)'};
+      props.isDecline
+        ? 'rgba(234, 71, 93, 0.6)'
+        : !props.active && !props.disabled && 'rgba(255, 255, 255, 0.2)'};
   }
 `;
 
@@ -497,26 +527,28 @@ export const CallTabContent = styledTS<{ tab: string; show: boolean }>(
   }
 `;
 
-export const WidgetWrapper = styledTS<{ isConnected?: boolean }>(styled.div)`
+export const WidgetWrapper = styledTS<{ $isConnected?: boolean }>(styled.div)`
   cursor: pointer;
   width: 56px;
   height: 56px;
   border-radius: 56px;
-  background: ${props => props.isConnected ? colors.colorCoreRed : colors.colorCoreGreen};
+  background: ${(props) =>
+    props.$isConnected ? colors.colorCoreRed : colors.colorCoreGreen};
   position: relative;
   color: ${colors.colorWhite};
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
   transition:
     box-shadow 0.3s ease-in-out,
     background-image 0.3s ease-in;
-  animation: ${pop} 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
+  animation: ${css`${pop}`} 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
 
   &:before {
-    animation: ${props => !props.isConnected && `${animationPulse} 2s infinite`};
+    animation: ${(props) =>
+      !props.$isConnected && css`${animationPulse} 2s infinite`};
     border-radius: 50%;
     color: inherit;
     content: '';
@@ -615,7 +647,7 @@ export const NameCardContainer = styled.div`
 
     > i {
       margin-right: 5px;
-      animation: ${pulse} 2s infinite;
+      animation: ${css`${pulse}`} 2s infinite;
     }
   }
 

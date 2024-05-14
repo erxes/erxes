@@ -40,15 +40,39 @@ const toSyncCustomers = `
   }
 `;
 
-const toCheckPrices = `
-  mutation toCheckMsdPrices($brandId: String) {
-    toCheckMsdPrices(brandId: $brandId)
+const toSyncPrices = `
+  mutation toSyncMsdPrices($brandId: String) {
+    toSyncMsdPrices(brandId: $brandId)
   }
 `;
 
-const toSyncPrices = `
-  mutation toSyncMsdPrices($brandId: String, $action: String, $prices: [JSON]) {
-    toSyncMsdPrices(brandId: $brandId, action: $action, prices: $prices)
+const toCheckMsdSynced = `
+  mutation toCheckMsdSynced($ids: [String], $brandId: String) {
+    toCheckMsdSynced(ids: $ids, brandId: $brandId) {
+      _id
+      isSynced
+      syncedDate
+      syncedBillNumber
+      syncedCustomer
+    }
+  }
+`;
+
+const toSyncMsdOrders = `
+  mutation toSyncMsdOrders($orderIds: [String]) {
+    toSyncMsdOrders(orderIds: $orderIds)
+  }
+`;
+
+const toSendMsdOrders = `
+  mutation toSendMsdOrders($orderIds: [String]) {
+    toSendMsdOrders(orderIds: $orderIds) {
+      _id
+      isSynced
+      syncedDate
+      syncedBillNumber
+      syncedCustomer
+    }
   }
 `;
 
@@ -60,6 +84,8 @@ export default {
   toSyncCategories,
   toCheckCustomers,
   toSyncCustomers,
-  toCheckPrices,
   toSyncPrices,
+  toCheckMsdSynced,
+  toSyncMsdOrders,
+  toSendMsdOrders,
 };

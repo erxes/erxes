@@ -9,7 +9,7 @@ import { Info, ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
 import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -18,8 +18,10 @@ type Props = {
   channelIds: string[];
 };
 
-class IntegrationForm extends React.Component<Props> {
-  generateDoc = (values: {
+const IntegrationForm = (props: Props) => {
+  const { renderButton, callback, onChannelChange, channelIds } = props;
+
+  const generateDoc = (values: {
     name: string;
     host: string;
     smtpHost: string;
@@ -39,16 +41,16 @@ class IntegrationForm extends React.Component<Props> {
         smtpPort: values.smtpPort,
         mainUser: values.mainUser,
         user: values.user,
-        password: values.password
-      }
+        password: values.password,
+      },
     };
   };
 
-  renderField = ({
+  const renderField = ({
     label,
     name,
     formProps,
-    required = true
+    required = true,
   }: {
     label: string;
     name: string;
@@ -68,8 +70,7 @@ class IntegrationForm extends React.Component<Props> {
     );
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { renderButton, callback, onChannelChange, channelIds } = this.props;
+  const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
 
     return (
@@ -93,28 +94,28 @@ class IntegrationForm extends React.Component<Props> {
           <br />
         </div>
 
-        {this.renderField({ label: 'Name', name: 'name', formProps })}
-        {this.renderField({ label: 'Host', name: 'host', formProps })}
-        {this.renderField({ label: 'Smpt host', name: 'smtpHost', formProps })}
-        {this.renderField({ label: 'Smpt port', name: 'smtpPort', formProps })}
-        {this.renderField({
+        {renderField({ label: 'Name', name: 'name', formProps })}
+        {renderField({ label: 'Host', name: 'host', formProps })}
+        {renderField({ label: 'Smpt host', name: 'smtpHost', formProps })}
+        {renderField({ label: 'Smpt port', name: 'smtpPort', formProps })}
+        {renderField({
           label: 'Main user (for a mail with aliases)',
           name: 'mainUser',
           required: false,
-          formProps
+          formProps,
         })}
-        {this.renderField({
+        {renderField({
           label: 'User',
           name: 'user',
-          formProps
+          formProps,
         })}
-        {this.renderField({ label: 'Password', name: 'password', formProps })}
+        {renderField({ label: 'Password', name: 'password', formProps })}
 
         <SelectBrand
           isRequired={true}
           formProps={formProps}
           description={__(
-            'Which specific Brand does this integration belong to?'
+            'Which specific Brand does this integration belong to?',
           )}
         />
 
@@ -134,18 +135,15 @@ class IntegrationForm extends React.Component<Props> {
             Cancel
           </Button>
           {renderButton({
-            values: this.generateDoc(values),
+            values: generateDoc(values),
             isSubmitted,
-            callback
+            callback,
           })}
         </ModalFooter>
       </>
     );
   };
-
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default IntegrationForm;

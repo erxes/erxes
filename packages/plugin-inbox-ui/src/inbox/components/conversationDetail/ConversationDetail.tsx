@@ -1,10 +1,10 @@
 import { ContentBox, MainContent } from '@erxes/ui/src/layout/styles';
 import DmWorkArea, {
-  resetDmWithQueryCache
+  resetDmWithQueryCache,
 } from '../../containers/conversationDetail/DmWorkArea';
 import {
   getPluginConfig,
-  loadDynamicComponent
+  loadDynamicComponent,
 } from '@erxes/ui/src/utils/core';
 
 import ConversationDetailLoader from './ConversationDetailLoader';
@@ -20,7 +20,7 @@ import WorkArea from './workarea/WorkArea';
 type Props = {
   currentConversation: IConversation;
   loading: boolean;
-  conversationFields: IField[];
+  conversationFields?: IField[];
   refetchDetail: () => void;
 };
 
@@ -88,16 +88,16 @@ export default class ConversationDetail extends React.Component<Props> {
 
       if (
         !['messenger', 'lead', 'booking', 'webhook', 'callpro'].includes(
-          currentConversation.integration.kind
+          currentConversation.integration.kind,
         )
       ) {
         const integrations = getPluginConfig({
           pluginName: kind,
-          configName: 'inboxIntegrations'
+          configName: 'inboxIntegrations',
         });
 
         if (integrations) {
-          const entry = integrations.find(i => i.kind === integration.kind);
+          const entry = integrations.find((i) => i.kind === integration.kind);
           const key = 'inboxConversationDetail';
 
           if (entry && entry.components && entry.components.includes(key)) {
@@ -105,10 +105,10 @@ export default class ConversationDetail extends React.Component<Props> {
               key,
               {
                 ...this.props,
-                conversation: currentConversation
+                conversation: currentConversation,
               },
               false,
-              kind
+              kind,
             );
           }
         }
@@ -129,7 +129,7 @@ export default class ConversationDetail extends React.Component<Props> {
 
       const dmConfig = getPluginConfig({
         pluginName: kind,
-        configName: 'inboxDirectMessage'
+        configName: 'inboxDirectMessage',
       });
 
       if (dmConfig) {

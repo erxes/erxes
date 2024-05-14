@@ -5,7 +5,7 @@ export const posInitialSetup = async (req, res) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
-  const config = await models.Configs.findOne();
+  const config = await models.Configs.findOne({ status: { $ne: 'deleted' } });
 
   if (!config) {
     return res.end('no config found');

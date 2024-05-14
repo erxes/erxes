@@ -1,213 +1,230 @@
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import Settings from './settings/containers/Settings';
-import HolidaySettings from './settings/components/HolidaySettings';
-import UndueSettings from './settings/components/UndueSettings';
-import MainSettings from './settings/components/MainSettings';
+import { Route, Routes, useLocation, useParams } from "react-router-dom";
 
-const ContractList = asyncComponent(() =>
-  import(/* webpackChunkName: "ContractList" */ './contracts/containers/List')
-);
+import HolidaySettings from "./settings/components/HolidaySettings";
+import LossSettings from "./settings/components/LossSettings";
+import MainSettings from "./settings/components/MainSettings";
+import React from "react";
+import Settings from "./settings/containers/Settings";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
 
-const ContractDetails = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "ContractDetails" */ './contracts/containers/detail/ContractDetails'
-  )
-);
-const PeriodLockDetails = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "PeriodLockDetails" */ './periodLocks/containers/PeriodLockDetails'
-  )
+const ContractList = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "ContractList" */ "./contracts/containers/List")
 );
 
-const CollateralList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "CollateralList" */ './collaterals/containers/CollateralsList'
-  )
+const ContractDetails = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "ContractDetails" */ "./contracts/containers/detail/ContractDetails"
+    )
+);
+const PeriodLockDetails = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "PeriodLockDetails" */ "./periodLocks/containers/PeriodLockDetails"
+    )
 );
 
-const TransactionList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "TransactionList" */ './transactions/containers/TransactionsList'
-  )
-);
-const PeriodLockList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "PeriodLockList" */ './periodLocks/containers/PeriodLocksList'
-  )
-);
-const InsuranceTypesList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "InsuranceTypesList" */ './insuranceTypes/containers/InsuranceTypesList'
-  )
-);
-const ContractTypesList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "ContractTypesList" */ './contractTypes/containers/ContractTypesList'
-  )
-);
-const ContractTypeDetails = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "ContractTypeDetails" */ './contractTypes/containers/ContractTypeDetails'
-  )
+const CollateralList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "CollateralList" */ "./collaterals/containers/CollateralsList"
+    )
 );
 
-const ClassificationList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "ContractTypeDetails" */ './classificationHistory/containers/ClassificationList'
-  )
+const TransactionList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "TransactionList" */ "./transactions/containers/TransactionsList"
+    )
+);
+const PeriodLockList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "PeriodLockList" */ "./periodLocks/containers/PeriodLocksList"
+    )
+);
+const InsuranceTypesList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "InsuranceTypesList" */ "./insuranceTypes/containers/InsuranceTypesList"
+    )
+);
+const ContractTypesList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "ContractTypesList" */ "./contractTypes/containers/ContractTypesList"
+    )
+);
+const ContractTypeDetails = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "ContractTypeDetails" */ "./contractTypes/containers/ContractTypeDetails"
+    )
 );
 
-const contractLists = ({ location, history }) => {
-  return (
-    <ContractList
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const ClassificationList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "ContractTypeDetails" */ "./classificationHistory/containers/ClassificationList"
+    )
+);
+
+const NonBalanceTransactionList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "NonBalanceTransactionList" */ "./nonBalanceTransaction/containers/NonBalanceTransactionList"
+    )
+);
+
+const ContractLists = () => {
+  const location = useLocation();
+
+  return <ContractList queryParams={queryString.parse(location.search)} />;
 };
 
-const detailsOfContract = ({ match }) => {
-  const id = match.params.id;
+const DetailsOfContract = () => {
+  const { id } = useParams();
 
   return <ContractDetails id={id} />;
 };
 
-const periodLockDetail = ({ match }) => {
-  const id = match.params.id;
+const PeriodLockDetail = () => {
+  const { id } = useParams();
 
   return <PeriodLockDetails id={id} />;
 };
 
-const collateralLists = ({ location, history }) => {
+const CollateralLists = () => {
+  const location = useLocation();
+
+  return <CollateralList queryParams={queryString.parse(location.search)} />;
+};
+
+const TransactionLists = () => {
+  const location = useLocation();
+
+  return <TransactionList queryParams={queryString.parse(location.search)} />;
+};
+
+const PeriodLockLists = () => {
+  const location = useLocation();
+
+  return <PeriodLockList queryParams={queryString.parse(location.search)} />;
+};
+
+const InsuranceTypesLists = () => {
+  const location = useLocation();
+
   return (
-    <CollateralList
+    <InsuranceTypesList queryParams={queryString.parse(location.search)} />
+  );
+};
+
+const ContractTypesLists = () => {
+  const location = useLocation();
+
+  return <ContractTypesList queryParams={queryString.parse(location.search)} />;
+};
+
+const ClassificationHistoryList = () => {
+  const location = useLocation();
+
+  return (
+    <ClassificationList queryParams={queryString.parse(location.search)} />
+  );
+};
+
+const NonBalanceTransactionLists = () => {
+  const location = useLocation();
+
+  return (
+    <NonBalanceTransactionList
       queryParams={queryString.parse(location.search)}
-      history={history}
     />
   );
 };
 
-const transactionLists = ({ location, history }) => {
-  return (
-    <TransactionList
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
-};
-
-const periodLockLists = ({ location, history }) => {
-  return (
-    <PeriodLockList
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
-};
-
-const insuranceTypesLists = ({ location, history }) => {
-  return (
-    <InsuranceTypesList
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
-};
-
-const contractTypesLists = ({ location, history }) => {
-  return (
-    <ContractTypesList
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
-};
-
-const classificationHistoryList = ({ location, history }) => {
-  return (
-    <ClassificationList
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
-};
-
-const contractTypeDetail = ({ match }) => {
-  const id = match.params.id;
+const ContractTypeDetail = () => {
+  const { id } = useParams();
 
   return <ContractTypeDetails id={id} />;
 };
 
-const undueSettings = () => {
-  return <Settings components={UndueSettings}></Settings>;
+const LossSettingsComponent = () => {
+  return <Settings components={LossSettings}></Settings>;
 };
 
-const mainSettings = () => {
+const MainSettingsComponent = () => {
   return <Settings components={MainSettings} />;
 };
 
-const holidaySettings = () => {
+const HolidaySettingsComponent = () => {
   return <Settings components={HolidaySettings}></Settings>;
 };
 
 const LoanRoutes = () => {
   return (
-    <React.Fragment>
+    <Routes>
       <Route
         key="/erxes-plugin-loan/contract-list"
         path="/erxes-plugin-loan/contract-list"
-        exact={true}
-        component={contractLists}
+        element={<ContractLists />}
       />
       <Route
         path="/erxes-plugin-loan/contract-details/:id"
-        component={detailsOfContract}
+        element={<DetailsOfContract />}
       />
       <Route
         path="/erxes-plugin-loan/collateral-list"
-        component={collateralLists}
+        element={<CollateralLists />}
       />
       <Route
         path="/erxes-plugin-loan/transaction-list"
-        component={transactionLists}
+        element={<TransactionLists />}
       />
       <Route
         path="/erxes-plugin-loan/insurance-types"
-        component={insuranceTypesLists}
+        element={<InsuranceTypesLists />}
       />
       <Route
         path="/erxes-plugin-loan/contract-types"
-        component={contractTypesLists}
+        element={<ContractTypesLists />}
       />
       <Route
         path="/erxes-plugin-loan/contract-type-details/:id"
-        component={contractTypeDetail}
+        element={<ContractTypeDetail />}
       />
       <Route
-        path="/erxes-plugin-loan/undue-settings"
-        component={undueSettings}
+        path="/erxes-plugin-loan/loss-settings"
+        element={<LossSettingsComponent />}
       />
       <Route
         path="/erxes-plugin-loan/holiday-settings"
-        component={holidaySettings}
+        element={<HolidaySettingsComponent />}
       />
-      <Route path="/erxes-plugin-loan/main-settings" component={mainSettings} />
+      <Route
+        path="/erxes-plugin-loan/main-settings"
+        element={<MainSettingsComponent />}
+      />
       <Route
         path="/erxes-plugin-loan/periodLock-list"
-        component={periodLockLists}
+        element={<PeriodLockLists />}
       />
       <Route
         path="/erxes-plugin-loan/periodLock-details/:id"
-        component={periodLockDetail}
+        element={<PeriodLockDetail />}
       />
       <Route
         path="/erxes-plugin-loan/classificationHistory"
-        component={classificationHistoryList}
+        element={<ClassificationHistoryList />}
       />
-    </React.Fragment>
+      <Route
+        path="/erxes-plugin-loan/non-balance-transactions"
+        element={<NonBalanceTransactionLists />}
+      />
+    </Routes>
   );
 };
 

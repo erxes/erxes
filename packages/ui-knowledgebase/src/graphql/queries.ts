@@ -3,6 +3,7 @@ const categoryFields = `
   title
   description
   icon
+  code
 `;
 
 const knowledgeBaseTopics = `
@@ -10,6 +11,7 @@ const knowledgeBaseTopics = `
     knowledgeBaseTopics(page: $page, perPage: $perPage) {
       _id
       title
+      code
       description
       brand {
         _id
@@ -47,6 +49,15 @@ const getBrandList = `
       name
     }
   }
+`;
+
+const getSegmentList = `
+query segments($contentTypes: [String]!) {
+  segments(contentTypes: $contentTypes) {
+    _id 
+    name
+  }
+}
 `;
 
 const knowledgeBaseCategories = `
@@ -108,6 +119,7 @@ const knowledgeBaseArticles = `
   query objects($page: Int, $perPage: Int, $categoryIds: [String]) {
     knowledgeBaseArticles(page: $page, perPage: $perPage, categoryIds: $categoryIds) {
       _id
+      code
       title
       summary
       content
@@ -160,6 +172,7 @@ const knowledgeBaseArticlesTotalCount = `
 
 export default {
   getBrandList,
+  getSegmentList,
   categoriesGetLast,
   knowledgeBaseTopics,
   knowledgeBaseTopicsTotalCount,

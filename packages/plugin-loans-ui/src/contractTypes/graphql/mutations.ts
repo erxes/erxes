@@ -7,8 +7,8 @@ const commonFields = `
   $status: String,
   $number: String,
   $vacancy: Float,
-  $unduePercent: Float,
-  $undueCalcType:String
+  $lossPercent: Float,
+  $lossCalcType:String
   $useMargin: Boolean
   $useDebt: Boolean
   $useSkipInterest:Boolean
@@ -25,6 +25,8 @@ const commonFields = `
   $savingUpperPercent:Float,
   $usePrePayment:Boolean
   $invoiceDay:String
+  $customFieldsData: JSON
+  $productId: String
 `;
 
 const commonVariables = `
@@ -34,8 +36,8 @@ const commonVariables = `
   status: $status,
   number: $number,
   vacancy: $vacancy,
-  unduePercent: $unduePercent
-  undueCalcType: $undueCalcType
+  lossPercent: $lossPercent
+  lossCalcType: $lossCalcType
   useMargin: $useMargin
   useDebt: $useDebt
   useSkipInterest: $useSkipInterest
@@ -51,7 +53,9 @@ const commonVariables = `
   savingPlusLoanInterest: $savingPlusLoanInterest,
   savingUpperPercent: $savingUpperPercent,
   usePrePayment: $usePrePayment,
-  invoiceDay: $invoiceDay
+  invoiceDay: $invoiceDay,
+  customFieldsData: $customFieldsData,
+  productId: $productId
 `;
 
 const contractTypesAdd = `

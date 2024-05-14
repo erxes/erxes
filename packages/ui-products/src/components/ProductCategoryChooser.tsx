@@ -1,11 +1,11 @@
-import React from 'react';
-import Select from 'react-select-plus';
+import React from "react";
+import Select, { components } from "react-select";
 
-import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from '@erxes/ui/src/utils/core';
-import { CategoryContainer } from '../styles';
-import { IProductCategory } from '../types';
-import { IOption } from '@erxes/ui/src/types';
+import Icon from "@erxes/ui/src/components/Icon";
+import { __ } from "@erxes/ui/src/utils/core";
+import { CategoryContainer } from "../styles";
+import { IProductCategory } from "../types";
+import { IOption } from "@erxes/ui/src/types";
 
 type Props = {
   categories: IProductCategory[];
@@ -25,30 +25,30 @@ class ProductCategoryChooser extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      categoryId: this.props.currentId || ''
+      categoryId: this.props.currentId || "",
     };
   }
 
   componentDidUpdate(prevProps: Readonly<Props>): void {
     const { currentId } = this.props;
     if (prevProps.currentId) {
-      if (currentId === '') {
-        this.setState({ categoryId: '' });
+      if (currentId === "") {
+        this.setState({ categoryId: "" });
       }
     }
   }
 
   selectOptions(categories: IProductCategory[]) {
     const { customOption } = this.props;
-    const options = categories.map(item => ({
+    const options = categories.map((item) => ({
       value: item._id,
       label: item.name,
       order: item.order,
-      isRoot: item.isRoot
+      isRoot: item.isRoot,
     }));
 
     if (customOption) {
-      options.unshift({ ...customOption, order: '0', isRoot: true });
+      options.unshift({ ...customOption, order: "0", isRoot: true });
     }
 
     return options;
@@ -60,15 +60,15 @@ class ProductCategoryChooser extends React.Component<Props, State> {
     let childIds: string[] = [];
 
     if (hasChildIds) {
-      const foundCategory = categories.find(c => c._id === categoryId);
+      const foundCategory = categories.find((c) => c._id === categoryId);
 
       if (foundCategory) {
-        const childs = categories.filter(c =>
+        const childs = categories.filter((c) =>
           c.order.startsWith(foundCategory.order)
         );
 
         if (childs.length) {
-          childIds = childIds.concat(childs.map(ch => ch._id));
+          childIds = childIds.concat(childs.map((ch) => ch._id));
         }
       }
     }
@@ -77,7 +77,7 @@ class ProductCategoryChooser extends React.Component<Props, State> {
     this.props.onChangeCategory(categoryId, childIds);
   };
 
-  renderOptions = option => {
+  renderOptions = (option) => {
     const name = option.isRoot ? (
       <strong>{option.label}</strong>
     ) : (
@@ -87,10 +87,10 @@ class ProductCategoryChooser extends React.Component<Props, State> {
       </>
     );
     const order = option.order.match(/[/]/gi);
-    let space = '';
+    let space = "";
 
     if (order) {
-      space = '\u00A0 '.repeat(order.length);
+      space = "\u00A0 ".repeat(order.length);
     }
 
     return (
@@ -105,18 +105,28 @@ class ProductCategoryChooser extends React.Component<Props, State> {
 
   render() {
     const { categories } = this.props;
-    const onChangeCategory = option => this.onChange(option?.value);
+    const onChangeCategory = (option) => this.onChange(option?.value);
+
+    const Option = (props) => {
+      return (
+        <components.Option {...props}>
+          {this.renderOptions(props.data)}
+        </components.Option>
+      );
+    };
 
     return (
       <CategoryContainer>
         <Select
-          isRequired={true}
-          placeholder={__('Choose a category')}
-          optionRenderer={this.renderOptions}
+          required={true}
+          placeholder={__("Choose a category")}
+          components={{ Option }}
           options={this.selectOptions(categories)}
-          value={this.state.categoryId}
+          value={this.selectOptions(categories).find(
+            (option) => option.value === this.state.categoryId
+          )}
           onChange={onChangeCategory}
-          clearable={false}
+          isClearable={false}
         />
       </CategoryContainer>
     );

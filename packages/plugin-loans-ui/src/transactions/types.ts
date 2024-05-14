@@ -21,7 +21,7 @@ export interface ITransactionDoc {
   payment: number;
   interestEve: number;
   interestNonce: number;
-  undue: number;
+  loss: number;
   insurance: number;
   debt: number;
   total: number;
@@ -37,6 +37,7 @@ export interface ITransaction extends ITransactionDoc {
   invoice?: IInvoiceDoc;
   ebarimt?: any;
   calcedInfo?: any;
+  invoiceId?: any;
 }
 
 // mutation types

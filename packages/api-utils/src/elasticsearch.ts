@@ -1,8 +1,9 @@
 import * as elasticsearch from 'elasticsearch';
+
 import { debugError } from './debuggers';
-import { parse } from 'url';
-import { getOrganizationIdBySubdomain } from './saas/saas';
 import { getEnv } from './core';
+import { getOrganizationIdBySubdomain } from './saas/saas';
+import { parse } from 'url';
 
 export interface IFetchEsArgs {
   subdomain: string;
@@ -149,7 +150,7 @@ export const fetchEs = async ({
   } catch (e) {
     if (!ignoreError) {
       debugError(
-        `Error during es query: ${JSON.stringify(body)}: ${e.message}`,
+        `Error during es query: ${JSON.stringify(body)}: ${e.message}`
       );
     }
 
@@ -173,6 +174,12 @@ export const getMappings = async (index: string) => {
 
 export function getDbNameFromConnectionString(connectionString) {
   const parsedUrl = parse(connectionString, true);
+
+  const VERSION = getEnv({ name: 'VERSION' });
+
+  if (VERSION && VERSION === 'saas') {
+    return 'erxes';
+  }
 
   if (parsedUrl.pathname) {
     const dbName = parsedUrl.pathname.substring(1);
