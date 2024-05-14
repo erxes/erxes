@@ -82,6 +82,7 @@ const Image: FC<
       loader={getLoader()}
       onLoad={handleComplete}
       className={cn(className, isImageLoading && "blur-2xl", "text-black")}
+      unoptimized={fromCF}
       sizes={
         sizes ||
         `(max-width: 768px) 20vw,
