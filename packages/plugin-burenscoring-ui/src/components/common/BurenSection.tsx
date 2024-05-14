@@ -8,7 +8,6 @@ import EmptyState from '@erxes/ui/src/components/EmptyState';
 type Props = {
   collapseCallback?: () => void;
   title?: string;
-  
   mainType?: string;
   mainTypeId?: string;
 };
@@ -21,7 +20,7 @@ function Component(
     mainTypeId = '',
   }: Props
 ) {
-  
+
   const trigger = (
     <ButtonRelated>
       <span>{__('See related scoring..')}</span>
@@ -29,7 +28,7 @@ function Component(
   );
 
   const modalContent = props => {
-    return <ScoringForm {...props} customerId={mainTypeId}  />;
+    return <ScoringForm {...props} customerId={mainTypeId} />;
   };
   const scoringButton = (
     <ModalTrigger
@@ -41,9 +40,8 @@ function Component(
   );
   const content = (
     <>
-    <EmptyState icon="building" text="No scoring" />
-     {scoringButton}
-
+      <EmptyState icon="building" text="No scoring" />
+      {scoringButton}
     </>
   );
 

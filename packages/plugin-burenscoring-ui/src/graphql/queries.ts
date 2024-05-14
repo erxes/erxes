@@ -18,12 +18,12 @@ const commonHistoryParamDefs = `
   customerId: $customerId,
 `;
 const fintechParams = `
-  $keyword: String, 
+  $keyword: String,
   $reportPurpose: String
 `;
 
 const fintechParamsDefs = `
-  keyword: $keyword, 
+  keyword: $keyword,
   reportPurpose: $reportPurpose
 `;
 export const burenCustomerScoringFields = `

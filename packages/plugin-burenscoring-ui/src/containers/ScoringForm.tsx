@@ -1,4 +1,4 @@
-import { ButtonMutate, withProps, __} from '@erxes/ui/src';
+import { ButtonMutate, withProps, __ } from '@erxes/ui/src';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import * as compose from 'lodash.flowright';
@@ -37,7 +37,7 @@ class ScoringFormContainer extends React.Component<FinalProps> {
       values.customerId = customerId
       return (
         <ButtonMutate
-        icon="loading"
+          icon="loading"
           mutation={mutations.toCheckScoring}
           variables={values}
           callback={afterSave}
@@ -51,7 +51,7 @@ class ScoringFormContainer extends React.Component<FinalProps> {
       );
     };
 
- 
+
     const updatedProps = {
       ...this.props,
       renderButton,
@@ -62,7 +62,7 @@ class ScoringFormContainer extends React.Component<FinalProps> {
 }
 
 const refetch = () => {
-  return ['burenCustomerScoringsMain','getCustomerScore'];
+  return ['burenCustomerScoringsMain', 'getCustomerScore'];
 };
 export default withProps<Props>(
   compose(
@@ -70,7 +70,7 @@ export default withProps<Props>(
       name: 'detailQuery',
       options: ({ customerId }) => {
         return {
-          variables: {customerId: customerId}
+          variables: { customerId: customerId }
         };
       }
     })

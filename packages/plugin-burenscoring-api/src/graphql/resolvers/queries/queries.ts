@@ -1,4 +1,4 @@
-import {  paginate } from '@erxes/api-utils/src';
+import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { BurenScoringApi } from '../../../burenScoringConfig/api/getScoring';
 import { getBurenScoringConfig } from '../../../messageBroker';
@@ -35,16 +35,16 @@ const burenScoringQueries = {
     };
   },
   getCustomerScore: async (_root, { customerId }, { models }: IContext) => {
-    return models.BurenScorings.findOne({customerId}).sort({"createdAt": -1}).limit(1);
+    return models.BurenScorings.findOne({ customerId }).sort({ "createdAt": -1 }).limit(1);
   },
 
-   getCustomerScoring: async (
+  getCustomerScoring: async (
     _root,
-      {keyword,
-        reportPurpose},
-      { subdomain }: IContext
+    { keyword,
+      reportPurpose },
+    { subdomain }: IContext
   ) => {
-    const config = await getBurenScoringConfig('burenScoringConfig', subdomain )
+    const config = await getBurenScoringConfig('burenScoringConfig', subdomain)
     if (!config) {
       throw new Error('Buren scoring config not found.');
     }

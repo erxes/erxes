@@ -20,7 +20,7 @@ type State = {
 
 class Row extends React.Component<Props, State> {
   render() {
-    const { burenScoring} = this.props;
+    const { burenScoring } = this.props;
     return (
       <tr>
         <th>{burenScoring.score}</th>
@@ -29,7 +29,7 @@ class Row extends React.Component<Props, State> {
         <th>{burenScoring.reportPurpose}</th>
         <th>{burenScoring?.externalScoringResponse?.data?.detail?.creditSummary?.loanClasses?.total?.normal || 0}</th>
         <th>{burenScoring?.externalScoringResponse?.data?.detail?.creditSummary?.loanClasses?.total?.bad || 0}</th>
-        <th>{burenScoring?.restInquiryResponse?.inquiry .lenght|| 0}</th>
+        <th>{burenScoring?.restInquiryResponse?.inquiry.lenght || 0}</th>
         <th>{burenScoring?.externalScoringResponse?.data?.detail?.creditSummary?.loanClasses?.total?.bad || 0}</th>
 
       </tr>

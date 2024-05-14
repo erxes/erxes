@@ -1,5 +1,4 @@
 export const types = `
-
   type burenCustomerScoring {
     _id: String,
     externalScoringResponse: JSON,
@@ -33,7 +32,7 @@ const scoringParams = `
 `;
 
 export const queries = `
-    burenCustomerScoringsMain(${queryParams}): burenCustomerScoringsMainResponce
-    getCustomerScore(customerId: String!): burenCustomerScoring
-    getCustomerScoring(${scoringParams}): JSON
+  burenCustomerScoringsMain(${queryParams}): burenCustomerScoringsMainResponce
+  getCustomerScore(customerId: String!): burenCustomerScoring
+  getCustomerScoring(${scoringParams}): JSON
 `;

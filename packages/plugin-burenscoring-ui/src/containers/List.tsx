@@ -21,7 +21,7 @@ class ListContainer extends React.Component<FinalProps> {
   render() {
     const { ListMainQuery } = this.props;
     const { list = [], totalCount = 0 } =
-    ListMainQuery.burenCustomerScoringsMain || {};
+      ListMainQuery.burenCustomerScoringsMain || {};
 
     const updatedProps = {
       ...this.props,
@@ -31,7 +31,8 @@ class ListContainer extends React.Component<FinalProps> {
       loading: ListMainQuery.loading
     };
     return <List {...updatedProps} />;
-}};
+  }
+};
 
 const generateParams = ({ queryParams }) => {
   const pageInfo = router.generatePaginationParams(queryParams || {});
