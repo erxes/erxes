@@ -11,14 +11,12 @@ import { __ } from '@erxes/ui/src/utils';
 type Props = {
   callUserIntegrations: any;
   setConfig: any;
-  callDirection?: string;
   setHideIncomingCall?: (isHide: boolean) => void;
   hideIncomingCall?: boolean;
 };
 
 const Widget = (props: Props, context) => {
   const Sip = context;
-  const { callDirection } = props;
   const isConnected =
     !Sip.call ||
     Sip.sip?.status === SIP_STATUS_ERROR ||

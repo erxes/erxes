@@ -4,7 +4,6 @@ import Widget from '../components/Widget';
 type Props = {
   callUserIntegrations: any;
   setConfig: any;
-  callDirection?: string;
   setHideIncomingCall?: (isHide: boolean) => void;
   hideIncomingCall?: boolean;
 };

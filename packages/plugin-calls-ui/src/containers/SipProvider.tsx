@@ -268,7 +268,6 @@ const SipProviderContainer = (props) => {
             {...props}
             callUserIntegrations={callUserIntegrations}
             setConfig={handleSetConfig}
-            callDirection={state?.callDirection}
             setHideIncomingCall={setHideIncomingCall}
             hideIncomingCall={hideIncomingCall}
           />
