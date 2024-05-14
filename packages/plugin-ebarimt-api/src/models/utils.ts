@@ -92,9 +92,6 @@ const isValidBarcode = (barcode: string): boolean => {
 };
 
 const getCustomerInfo = async (type, config, doc) => {
-  let customerTin;
-  let consumerNo;
-
   if (type === 'B2B_RECEIPT') {
     const resp = await getCompanyInfo({
       getTinUrl: config.getTinUrl,
@@ -103,17 +100,16 @@ const getCustomerInfo = async (type, config, doc) => {
       rd: doc.customerRD
     });
 
-    if (resp.status === 'checked') {
-      customerTin = resp.tin;
-    } else {
+    if (resp.status !== 'checked') {
       return { msg: 'wrong tin number or rd or billType' }
     }
-  } else {
-    if (doc.consumerNo && new RegExp('^[0-9]{8}$', 'gui').test(doc.consumerNo)) {
-      consumerNo = doc.consumerNo;
-    }
+    return { customerTin: resp.tin }
   }
-  return { customerTin, consumerNo }
+
+  if (doc.consumerNo && new RegExp('^[0-9]{8}$', 'gui').test(doc.consumerNo)) {
+    return { consumerNo: doc.consumerNo };
+  }
+  return {}
 }
 
 const genStock = (detail, product, config) => {
