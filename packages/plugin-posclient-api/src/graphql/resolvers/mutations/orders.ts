@@ -34,7 +34,6 @@ import {
 } from '../../utils/orderUtils';
 import { checkSlotStatus } from '../../utils/slots';
 import { prepareSettlePayment } from '../../../utils';
-import { IDoc } from '../../../models/PutData';
 
 interface IPaymentBase {
   billType: string;
@@ -1094,7 +1093,7 @@ const orderMutations = {
       {
         contentId: _id,
         contentType: 'pos',
-        number: order.number || ''
+        number: order.number ?? ''
       },
       ebarimtConfig,
     )) as any;

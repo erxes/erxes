@@ -88,7 +88,7 @@ export const loadPutResponseClass = models => {
         ) {
           return models.PutResponses.findOne({
             _id: prePutResponse._id,
-          }).lean() as any;
+          }).lean();
         }
 
         data.inactiveId = prePutResponse.id;

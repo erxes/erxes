@@ -8,7 +8,6 @@ import {
   sendContactsMessage,
   sendCoreMessage
 } from '../../messageBroker';
-import { getEbarimtData } from '../../models/PutData';
 import { prepareEbarimtData } from '../utils/orderUtils';
 import { IEbarimtConfig } from '../../models/definitions/configs';
 

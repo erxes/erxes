@@ -30,7 +30,7 @@ const Stocks = ({ receipts }: { receipts: IReceipt[] }) => {
       <div>
         {
           len > 1 && <div className="flex items-center whitespace-nowrap border-b  font-medium">
-            <div className="w-12/12">ДДТД: {receipt.id || ''}</div>
+            <div className="w-12/12">ДДТД: {receipt.id ?? ''}</div>
           </div>
         }
         {(items || []).map((item, idx: number) => renderItem(item, idx))}
