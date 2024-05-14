@@ -12,7 +12,7 @@ import PaymentTypeInput from "./paymentTypeInput"
 
 const PaymentType = () => {
   const { getLabel } = usePaymentLabel()
-  const [paymentTerm] = useAtom(currentPaymentTypeAtom)
+  const [paymentTerm, setPaymentTerm] = useAtom(currentPaymentTypeAtom)
   const { handlePay, loading, currentAmount, notPaidAmount, type } =
     useHandlePayment()
   const { mergePaid } = usePayByProduct()
@@ -46,7 +46,10 @@ const PaymentType = () => {
         variant="secondary"
         size="lg"
         className="mt-2 w-full"
-        onClick={() => setView("")}
+        onClick={() => {
+          setView("")
+          setPaymentTerm("")
+        }}
       >
         Буцах
       </Button>

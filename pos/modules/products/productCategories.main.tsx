@@ -37,6 +37,7 @@ const ProductCategories = () => {
       <SheetContent
         side="left"
         className="sm:max-w-md w-full flex flex-col overflow-hidden h-screen p-4 pr-0"
+        closable={mode === "mobile"}
       >
         {open && <Categories setOpen={setOpen} />}
       </SheetContent>

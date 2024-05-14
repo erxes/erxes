@@ -1,7 +1,6 @@
 import { useEffect } from "react"
 import dynamic from "next/dynamic"
 import { checkoutDialogOpenAtom, checkoutModalViewAtom } from "@/store"
-import { totalAmountAtom } from "@/store/cart.store"
 import { orderTotalAmountAtom, unPaidAmountAtom } from "@/store/order.store"
 import { useAtom, useAtomValue } from "jotai"
 
@@ -52,7 +51,7 @@ const HandleOrder = () => {
     if (totalAmount > 0 && notPaidAmount === 0) {
       setView("")
     }
-  }, [totalAmount, notPaidAmount])
+  }, [totalAmount, notPaidAmount, setView])
 
   return (
     <div className="bg-white p-2">
