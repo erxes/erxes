@@ -53,9 +53,7 @@ const customerInfo = (response) => {
 
 export default (response, counter?) => {
   return `
-    <div class="receipt" id="${(response._id || '')
-      .toString()
-      .replace('.', '')}">
+    <div class="receipt" id="${(response._id || '')}">
       ${(counter > 0 && '<div class="splitter"></div>') || ''}
       <div class="center">
         <img src="https://nmgplugins.s3.us-west-2.amazonaws.com/ebarimt/ebarimt.png">
@@ -104,7 +102,7 @@ export default (response, counter?) => {
             ${response.lottery ? `Сугалаа: ${response.lottery}` : ''}
           </div>
 
-          ${response.qrData ? `<canvas id="qrcode${(response._id || '').toString().replace('.', '')}"></canvas>` : ''}
+          ${response.qrData ? `<canvas id="qrcode${(response._id || '')}"></canvas>` : ''}
 
           <p>Манайхаар үйлчлүүлсэн танд баярлалаа !!!</p>
         </div>
@@ -123,9 +121,7 @@ export default (response, counter?) => {
         // QRCODE
         var canvas = document.getElementById("qrcode${(
         response._id || ''
-      )
-        .toString()
-        .replace('.', '')}");
+      )}");
         var ecl = qrcodegen.QrCode.Ecc.LOW;
         var text = '${response.qrData}';
         var segs = qrcodegen.QrSegment.makeSegments(text);
@@ -134,12 +130,7 @@ export default (response, counter?) => {
         // 4=Scale, 1=border
         qr.drawCanvas(4, 0, canvas);
 
-        $("#qrcode${(response._id || '')
-        .toString()
-        .replace(
-          '.',
-          ''
-        )}").after('<img src="' + canvas.toDataURL() + '" />')
+        $("#qrcode${(response._id || '')}").after('<img src="' + canvas.toDataURL() + '" />')
       `
       : ''
     }
