@@ -5,28 +5,28 @@ import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const Line = styledTS<{ width?: string; height?: string; round?: boolean }>(
-  styled(Loader)
+const Line = styledTS<{ width?: string; height?: string; $round?: boolean }>(
+  styled(Loader),
 )`
-  width: ${props => (props.width ? props.width : '100%')};
-  height: ${props => (props.height ? props.height : '10px')};
-  border-radius: ${props => props.round && '8px'};
+  width: ${(props) => (props.width ? props.width : '100%')};
+  height: ${(props) => (props.height ? props.height : '10px')};
+  border-radius: ${(props) => props.$round && '8px'};
   flex-shrink: 0;
 `;
 
 const Round = styledTS<{ volume?: string }>(styled(Loader))`
-  width: ${props => (props.volume ? props.volume : '100%')};
-  height: ${props => (props.volume ? props.volume : '100%')};  
+  width: ${(props) => (props.volume ? props.volume : '100%')};
+  height: ${(props) => (props.volume ? props.volume : '100%')};  
   border-radius: 50%;     
   flex-shrink: 0;
 `;
 
-const FlexRow = styledTS<{ alignItems?: string; justifyContent?: string }>(
-  styled.div
+const FlexRow = styledTS<{ $alignItems?: string; $justifyContent?: string }>(
+  styled.div,
 )`
   display: flex;
-  align-items: ${props => (props.alignItems ? props.alignItems : 'center')};
-  justify-content: ${props => props.justifyContent && props.justifyContent};
+  align-items: ${(props) => (props.$alignItems ? props.$alignItems : 'center')};
+  justify-content: ${(props) => props.$justifyContent && props.$justifyContent};
 `;
 
 const FlexColumn = styled.div`
@@ -87,11 +87,11 @@ class SidebarLoader extends React.Component<Props> {
             </FlexColumn>
           </FlexRow>
           <Medium>
-            <FlexRow alignItems="flex-start" justifyContent="space-between">
-              <Line width="45px" height="27px" round={true} />
-              <Line width="45px" height="27px" round={true} />
-              <Line width="45px" height="27px" round={true} />
-              <Line width="80px" height="27px" round={true} />
+            <FlexRow $alignItems="flex-start" $justifyContent="space-between">
+              <Line width="45px" height="27px" $round={true} />
+              <Line width="45px" height="27px" $round={true} />
+              <Line width="45px" height="27px" $round={true} />
+              <Line width="80px" height="27px" $round={true} />
             </FlexRow>
           </Medium>
         </MainContent>

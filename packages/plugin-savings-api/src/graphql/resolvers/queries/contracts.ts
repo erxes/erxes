@@ -193,7 +193,7 @@ const generateFilter = async (models, params, commonQuerySelector) => {
   return filter;
 };
 
-export const sortBuilder = params => {
+export const sortBuilder = (params) => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -214,6 +214,23 @@ const contractQueries = {
     params,
     { commonQuerySelector, models }: IContext
   ) => {
+    const loanContractsQuery = await generateFilter(
+      models,
+      params,
+      commonQuerySelector
+    );
+    return paginate(models.Contracts.find(loanContractsQuery), {
+      page: params.page,
+      perPage: params.perPage
+    });
+  },
+
+  clientSavingsContracts: async (
+    _root,
+    params,
+    { commonQuerySelector, models }: IContext
+  ) => {
+    if (!params.customerId) throw new Error('Customer not found');
     const loanContractsQuery = await generateFilter(
       models,
       params,
@@ -280,7 +297,7 @@ const contractQueries = {
       alerts.push({
         name: 'End contracts',
         count: expiredContracts.length,
-        filter: expiredContracts.map(a => a._id)
+        filter: expiredContracts.map((a) => a._id)
       });
     }
 

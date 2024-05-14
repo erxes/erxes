@@ -1,19 +1,19 @@
-import { IButtonMutateProps, IOption } from '@erxes/ui/src/types';
+import { IButtonMutateProps, IOption } from "@erxes/ui/src/types";
 import {
   LeftContent,
-  Row
-} from '@erxes/ui-inbox/src/settings/integrations/styles';
+  Row,
+} from "@erxes/ui-inbox/src/settings/integrations/styles";
 
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IField } from '@erxes/ui/src/types';
-import { IFieldGroup } from '../types';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import PropertyForm from '../containers/PropertyForm';
-import React from 'react';
-import Select from 'react-select-plus';
-import { __ } from '@erxes/ui/src/utils';
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IField } from "@erxes/ui/src/types";
+import { IFieldGroup } from "../types";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import PropertyForm from "../containers/PropertyForm";
+import React from "react";
+import Select from "react-select";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   queryParams: any;
@@ -35,7 +35,7 @@ class SelectProperty extends React.Component<Props, {}> {
       </Button>
     );
 
-    const content = props => (
+    const content = (props) => (
       <PropertyForm
         {...props}
         renderButton={renderButton}
@@ -53,13 +53,13 @@ class SelectProperty extends React.Component<Props, {}> {
   };
 
   generateUserOptions(array: IField[] = []): IOption[] {
-    return array.map(e => ({ label: e.text || '', value: e._id }));
+    return array.map((e) => ({ label: e.text || "", value: e._id }));
   }
 
-  onChangeProperty = option => {
+  onChangeProperty = (option) => {
     if (this.props.onChange) {
       const { properties } = this.props;
-      const customProperty = properties.find(e => e._id === option.value);
+      const customProperty = properties.find((e) => e._id === option.value);
       if (customProperty) {
         this.props.onChange(customProperty);
       }
@@ -76,12 +76,14 @@ class SelectProperty extends React.Component<Props, {}> {
         <Row>
           <LeftContent>
             <Select
-              placeholder={__('Select property')}
-              value={defaultValue}
+              placeholder={__("Select property")}
+              value={this.generateUserOptions(properties).filter((option) =>
+                defaultValue?.includes(option.value)
+              )}
               onChange={this.onChangeProperty}
               options={this.generateUserOptions(properties)}
-              multi={false}
-              clearable={false}
+              isMulti={false}
+              isClearable={false}
             />
           </LeftContent>
           {this.renderAddProperty()}

@@ -283,6 +283,16 @@ const postInfo = `
     }
   }
  `;
+
+const instagramPostInfo = `
+  query instagramGetPost( $erxesApiId: String!){
+    instagramGetPost(erxesApiId: $erxesApiId){
+      _id
+      content
+      permalink_url
+    }
+  }
+ `;
 const responseTemplateList = `
   query responseTemplates($page: Int, $perPage: Int, $searchValue: String, $brandId:String) {
     responseTemplates(page:$page ,perPage: $perPage, searchValue: $searchValue, brandId: $brandId) {
@@ -312,7 +322,7 @@ const generateCustomerDetailQuery = (params) => {
     showCustomFields = false,
     showCompanies = false,
     showTags = false,
-    showSegments = false,
+    showSegments = false
   } = params || {};
 
   let fields = `
@@ -430,4 +440,5 @@ export default {
   generateCustomerDetailQuery,
   convertToInfo,
   postInfo,
+  instagramPostInfo
 };

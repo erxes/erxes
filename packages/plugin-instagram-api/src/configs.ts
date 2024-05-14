@@ -21,20 +21,24 @@ export default {
         kind: INTEGRATION_KINDS.MESSENGER,
         label: 'Instagram messenger',
       },
+      {
+        kind: INTEGRATION_KINDS.POST,
+        label: 'Instagram post',
+      },
     ],
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
-    context.subdomain = req.hostname;
+    context.subdomain = subdomain;
     context.models = models;
 
     return context;
   },
 
   onServerInit: async () => {
-    initApp();
+    await initApp();
   },
   setupMessageConsumers,
 };

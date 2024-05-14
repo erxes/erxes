@@ -3,7 +3,6 @@ import { useLocation, useParams } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import queryString from 'query-string';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
 // local
 import { queries } from '../graphql';
 import Spinner from '@erxes/ui/src/components/Spinner';
@@ -26,7 +25,7 @@ function ListContainer(props: Props) {
    */
   const safeRemainderDetailQuery = useQuery(gql(queries.safeRemainderDetail), {
     notifyOnNetworkStatusChange: true,
-    variables: { _id: id }
+    variables: { _id: id },
   });
 
   const safeRemainderItemsCountQuery = useQuery(
@@ -37,9 +36,9 @@ function ListContainer(props: Props) {
         remainderId: id,
         status: queryParams.status,
         diffType: queryParams.diffType,
-        productCategoryIds: queryParams.productCategoryIds
-      }
-    }
+        productCategoryIds: queryParams.productCategoryIds,
+      },
+    },
   );
 
   const totalCount =
@@ -55,8 +54,8 @@ function ListContainer(props: Props) {
       diffType: queryParams.diffType,
       productCategoryIds: queryParams.productCategoryIds,
       perPage: totalCount,
-      page: 1
-    }
+      page: 1,
+    },
   });
 
   if (safeRemainderItemsQuery.loading) {
@@ -82,12 +81,12 @@ function ListContainer(props: Props) {
 
     const stringified = queryString.stringify({
       remainderId: id,
-      ...params
+      ...params,
     });
 
     window.open(
       `${REACT_APP_API_URL}/pl:inventories/file-export-census?${stringified}`,
-      '_blank'
+      '_blank',
     );
   };
 
@@ -96,11 +95,11 @@ function ListContainer(props: Props) {
     safeRemainder,
     safeRemainderItems,
     totalCount,
-    exportCensus
+    exportCensus,
   };
 
   const Component = props.component;
   return <Component {...componentProps} />;
 }
 
-export default compose()(ListContainer);
+export default ListContainer;

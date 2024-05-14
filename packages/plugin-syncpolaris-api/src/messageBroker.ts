@@ -8,6 +8,7 @@ import {
 import { createLoanSchedule } from './utils/loan/createSchedule';
 import { getDepositBalance } from './utils/deposit/getDepositBalance';
 import { createLoanStoreInterest } from './utils/loan/loanStoreInterest';
+import { changeLoanSchedule } from './utils/loan/changeLoanSchedule';
 
 export const setupMessageConsumers = async () => {
   consumeQueue('syncpolaris:afterMutation', async ({ subdomain, data }) => {
@@ -43,6 +44,13 @@ export const setupMessageConsumers = async () => {
     return {
       status: 'success',
       data: await createLoanSchedule(subdomain, data),
+    };
+  });
+
+  consumeRPCQueue('syncpolaris:changeSchedule', async ({ data, subdomain }) => {
+    return {
+      status: 'success',
+      data: await changeLoanSchedule(subdomain, data),
     };
   });
 

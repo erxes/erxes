@@ -2,7 +2,7 @@ import { colors } from '../../../styles';
 import { rgba } from '../../../styles/ecolor';
 import styled from 'styled-components';
 
-const EditorControl = styled.button`
+const EditorControl = styled.span`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -207,11 +207,22 @@ const FileInputAction = styled.div`
   align-items: center;
   justify-content: center;
 `;
+
 const FontSelectWrapper = styled.div<{ $toolbarPlacement: 'top' | 'bottom' }>`
-  .Select {
-    border: 0.0625rem solid #eee;
-    border-radius: 0.25rem;
+  .css-13cymwt-control, .css-t3ipsp-control {
+    border-top-width:0.0625rem !important;
+    border-right-width:0.0625rem !important;
+    border-left-width:0.0625rem !important;
+    border: 0.0625rem solid #eee !important;
+    border-radius: 0.25rem !important;
     height: 1.75rem;
+    min-height: unset;
+    > div {
+      padding: 0 6px;
+    }
+  }
+  .css-1hb7zxy-IndicatorsContainer {
+    display: none;
   }
   .Select-clear-zone {
     display: none;
@@ -225,7 +236,7 @@ const FontSelectWrapper = styled.div<{ $toolbarPlacement: 'top' | 'bottom' }>`
     .Select-control {
       background-color: unset !important;
     }
-    .Select-placeholder {
+    .css-1jqq78o-placeholder {
       color: #aaa;
       top: -4px;
       left: 9px;
@@ -256,7 +267,7 @@ const FontSelectWrapper = styled.div<{ $toolbarPlacement: 'top' | 'bottom' }>`
       cursor: default;
     }
   }
-  .Select-menu-outer {
+  .css-1nmdiq5-menu {
     z-index: 100;
     width: max-content;
     .Select-menu {
@@ -268,14 +279,14 @@ const FontSelectWrapper = styled.div<{ $toolbarPlacement: 'top' | 'bottom' }>`
   .Select-option {
     padding: 4px 8px;
   }
-  .Select-placeholder {
+  .css-1jqq78o-placeholder {
     color: unset;
     top: -4px;
     left: 9px;
   }
 `;
 
-const MenuItem = styled.button`
+const MenuItem = styled.div`
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -299,7 +310,7 @@ const MenuItem = styled.button`
   }
 `;
 
-const PickerAction = styled.button`
+const PickerAction = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -336,13 +347,19 @@ const ColorPickerWrapper = styled.div`
 `;
 
 const PlaceholderWrapper = styled.div<{ $toolbarPlacement: 'top' | 'bottom' }>`
+  position : relative;
   > div > button {
-    border: 0.0625rem solid #eee;
-    border-radius: 0.25rem;
+    border: none;
     height: 1.75rem;
     background-color: #fff;
+    text-align: left;
   }
-  .dropdown-toggle {
+  #dropdown-item-button {
+    border: 0.0625rem solid rgb(238, 238, 238);
+    border-radius: 0.25rem;
+    height: 1.75rem;
+    background-color: rgb(255, 255, 255);
+
     &:after {
       margin-left: 1rem;
     }
@@ -352,10 +369,14 @@ const PlaceholderWrapper = styled.div<{ $toolbarPlacement: 'top' | 'bottom' }>`
       color: #aaaeb3;
     }
   }
-  .dropdown-menu {
+  [id^="headlessui-menu-items-"] {
     max-height: ${({ $toolbarPlacement }) =>
       $toolbarPlacement === 'top' ? '160px' : '216px'};
     overflow-y: auto;
+    position: absolute;
+    left: 0;
+    right: unset;
+    width: 250px;
     .dropdown-header {
       display: block;
       padding: 0.5rem 0.65rem;
@@ -366,7 +387,7 @@ const PlaceholderWrapper = styled.div<{ $toolbarPlacement: 'top' | 'bottom' }>`
       white-space: nowrap;
     }
   }
-  .dropdown-item {
+  [id^="headlessui-menu-item-"] {
     padding: 0.25rem 0.75rem;
     font-size: 0.75rem;
     &:hover {
@@ -393,7 +414,7 @@ const RichTextEditorMenuPopoverWrapper = styled.div`
   }
   .popover {
     box-shadow: 0 2px 6px 2px rgba(60, 64, 67, 0.15);
-    z-index: 100;
+    z-index: 9999;
   }
 `;
 

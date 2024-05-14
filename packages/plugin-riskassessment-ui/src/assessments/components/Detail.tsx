@@ -1,13 +1,3 @@
-import Attachment from '@erxes/ui/src/components/Attachment';
-import Button from '@erxes/ui/src/components/Button';
-import CollapseContent from '@erxes/ui/src/components/CollapseContent';
-import Icon from '@erxes/ui/src/components/Icon';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import Table from '@erxes/ui/src/components/table';
-import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import colors from '@erxes/ui/src/styles/colors';
-import { __ } from '@erxes/ui/src/utils/core';
-import React from 'react';
 import {
   CardBox,
   ColorBox,
@@ -15,11 +5,22 @@ import {
   FormContainer,
   FormContent,
   TableRow,
-  TriggerTabs
-} from '../../styles';
+  TriggerTabs,
+} from "../../styles";
+import React, { useState } from "react";
+import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
+import { removeParams, setParams } from "@erxes/ui/src/utils/router";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import { removeParams, setParams } from '@erxes/ui/src/utils/router';
-import { DetailPopOver } from '../common/utils';
+import Attachment from "@erxes/ui/src/components/Attachment";
+import Button from "@erxes/ui/src/components/Button";
+import CollapseContent from "@erxes/ui/src/components/CollapseContent";
+import { DetailPopOver } from "../common/utils";
+import Icon from "@erxes/ui/src/components/Icon";
+import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
+import Table from "@erxes/ui/src/components/table";
+import { __ } from "@erxes/ui/src/utils/core";
+import colors from "@erxes/ui/src/styles/colors";
 
 type Props = {
   riskAssessment: any;
@@ -28,7 +29,6 @@ type Props = {
   groupAssessment: any;
   indicatorAssessment: any;
   queryParams: any;
-  history: any;
 };
 
 type State = {
@@ -37,7 +37,7 @@ type State = {
   currentUserId: string;
 };
 
-const isJsonString = value => {
+const isJsonString = (value) => {
   try {
     JSON.parse(value);
   } catch (e) {
@@ -47,11 +47,11 @@ const isJsonString = value => {
 };
 
 export function renderSubmission(fields) {
-  return fields.map(field => {
+  return fields.map((field) => {
     const updateProps: any = {
       key: field.fieldId,
       description: field.description,
-      compact: true
+      compact: true,
     };
 
     let children;
@@ -63,7 +63,7 @@ export function renderSubmission(fields) {
 
       children = (
         <>
-          {attachments.map(attachment => (
+          {attachments.map((attachment) => (
             <Attachment key={Math.random()} attachment={attachment} />
           ))}
         </>
@@ -83,7 +83,7 @@ export function renderSubmission(fields) {
 
       children = (
         <>
-          {(field?.optionsValues?.split('\n') || []).map(value => (
+          {(field?.optionsValues?.split("\n") || []).map((value) => (
             <p key={Math.random()}>{__(value)}</p>
           ))}
         </>
@@ -94,27 +94,23 @@ export function renderSubmission(fields) {
   });
 }
 
-class Detail extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+const Detail = (props: Props) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [currentGroupId, setCurrentGroupId] = useState("");
+  const [currentIndicatorId, setCurrentIndicatorId] = useState("");
+  const [currentUserId, setCurrentUserId] = useState("");
 
-    this.state = {
-      currentGroupId: '',
-      currentIndicatorId: '',
-      currentUserId: ''
-    };
-  }
+  const renderUsers = () => {
+    const { assignedUsers } = props;
 
-  renderUsers() {
-    const { assignedUsers } = this.props;
-
-    const renderStatus = submitStatus => {
+    const renderStatus = (submitStatus) => {
       switch (submitStatus) {
-        case 'inProgress':
+        case "inProgress":
           return <Icon icon="loading" color={colors.colorCoreBlue} />;
-        case 'pending':
+        case "pending":
           return <Icon icon="wallclock" color={colors.colorCoreOrange} />;
-        case 'submitted':
+        case "submitted":
           return <Icon icon="checked" color={colors.colorCoreGreen} />;
         default:
           return;
@@ -127,38 +123,38 @@ class Detail extends React.Component<Props, State> {
         title="Assigned Members"
         icon="downarrow-2"
       >
-        {assignedUsers.map(user => (
+        {assignedUsers.map((user) => (
           <div key={user._id}>
-            <FormContainer row spaceBetween>
+            <FormContainer $row $spaceBetween>
               <NameCard user={user} />
-              {renderStatus(user?.submitStatus || '')}
+              {renderStatus(user?.submitStatus || "")}
             </FormContainer>
             <Divider />
           </div>
         ))}
       </DetailPopOver>
     );
-  }
+  };
 
-  renderCard({ title, content }) {
+  const renderCard = ({ title, content }) => {
     return (
       <CardBox>
         <p>{title}</p>
         {content}
       </CardBox>
     );
-  }
+  };
 
-  renderTable({ score, status, color }) {
+  const renderTable = ({ score, status, color }) => {
     return (
       <FormContent>
-        <FormContainer column>
+        <FormContainer $column>
           <Table>
             <thead>
               <TableRow>
-                <th>{__('Score')}</th>
-                <th>{__('Result')}</th>
-                <th>{__('Status Color')}</th>
+                <th>{__("Score")}</th>
+                <th>{__("Result")}</th>
+                <th>{__("Status Color")}</th>
               </TableRow>
             </thead>
             <tbody>
@@ -166,7 +162,7 @@ class Detail extends React.Component<Props, State> {
                 <td>{score}</td>
                 <td>{status}</td>
                 <td>
-                  <ColorBox color={color} style={{ marginRight: '30px' }} />
+                  <ColorBox color={color} style={{ marginRight: "30px" }} />
                 </td>
               </TableRow>
             </tbody>
@@ -174,11 +170,9 @@ class Detail extends React.Component<Props, State> {
         </FormContainer>
       </FormContent>
     );
-  }
+  };
 
-  renderSubmissions(submissions) {
-    const { currentUserId } = this.state;
-
+  const renderSubmissions = (submissions) => {
     if (!currentUserId) {
       return;
     }
@@ -187,14 +181,13 @@ class Detail extends React.Component<Props, State> {
       submissions.find(({ _id }) => _id === currentUserId)?.fields || [];
 
     return <>{renderSubmission(fields)}</>;
-  }
+  };
 
-  renderAssignedUsers = submissions => {
-    const { assignedUsers } = this.props;
-    const { currentUserId } = this.state;
+  const renderAssignedUsers = (submissions) => {
+    const { assignedUsers } = props;
 
-    const handleSelect = id => {
-      this.setState({ currentUserId: id });
+    const handleSelect = (id) => {
+      setCurrentUserId(id);
     };
 
     return (
@@ -203,7 +196,7 @@ class Detail extends React.Component<Props, State> {
           <Tabs full>
             {(submissions || []).map(({ _id }) => {
               const assignedUser = assignedUsers.find(
-                user => user?._id === _id
+                (user) => user?._id === _id
               );
               if (!assignedUser) {
                 return;
@@ -211,7 +204,7 @@ class Detail extends React.Component<Props, State> {
               return (
                 <TabTitle
                   key={_id}
-                  className={currentUserId === _id ? 'active' : ''}
+                  className={currentUserId === _id ? "active" : ""}
                   onClick={handleSelect.bind(this, _id)}
                 >
                   <NameCard user={assignedUser} />
@@ -220,61 +213,59 @@ class Detail extends React.Component<Props, State> {
             })}
           </Tabs>
         </TriggerTabs>
-        {currentUserId && this.renderSubmissions(submissions)}
+        {currentUserId && renderSubmissions(submissions)}
       </>
     );
   };
 
-  renderIndicator(indicator) {
+  const renderIndicator = (indicator) => {
     if (!indicator) {
       return;
     }
 
     return (
       <>
-        {this.renderTable({
+        {renderTable({
           score: indicator.resultScore,
           status: indicator.status,
-          color: indicator.statusColor
+          color: indicator.statusColor,
         })}
-        {this.renderAssignedUsers(indicator?.submissions)}
+        {renderAssignedUsers(indicator?.submissions)}
       </>
     );
-  }
+  };
 
-  renderIndicators(indicatorsAssessment) {
-    const { currentIndicatorId } = this.state;
-
-    const handleChangeTabs = id => {
-      this.setState({ currentIndicatorId: id });
+  const renderIndicators = (indicatorsAssessment) => {
+    const handleChangeTabs = (id) => {
+      setCurrentIndicatorId(id);
     };
 
     return (
       <>
         <TriggerTabs>
           <Tabs full>
-            {(indicatorsAssessment || []).map(indicator => (
+            {(indicatorsAssessment || []).map((indicator) => (
               <TabTitle
                 key={indicator._id}
                 onClick={handleChangeTabs.bind(this, indicator._id)}
-                className={currentIndicatorId === indicator._id ? 'active' : ''}
+                className={currentIndicatorId === indicator._id ? "active" : ""}
               >{`${indicator?.name}`}</TabTitle>
             ))}
           </Tabs>
         </TriggerTabs>
         {currentIndicatorId &&
-          this.renderIndicator(
+          renderIndicator(
             indicatorsAssessment.find(
-              indicator => indicator._id === currentIndicatorId
+              (indicator) => indicator._id === currentIndicatorId
             )
           )}
       </>
     );
-  }
+  };
 
-  renderGroup(groupId) {
-    const { groupAssessment } = this.props;
-    const group = groupAssessment.find(group => group._id === groupId);
+  const renderGroup = (groupId) => {
+    const { groupAssessment } = props;
+    const group = groupAssessment.find((group) => group._id === groupId);
 
     if (!group) {
       return;
@@ -282,22 +273,21 @@ class Detail extends React.Component<Props, State> {
 
     return (
       <>
-        {this.renderTable({
+        {renderTable({
           score: group.resultScore,
           status: group.status,
-          color: group.statusColor
+          color: group.statusColor,
         })}
-        {this.renderIndicators(group?.indicatorsAssessments)}
+        {renderIndicators(group?.indicatorsAssessments)}
       </>
     );
-  }
+  };
 
-  renderGroups() {
-    const { groupAssessment } = this.props;
-    const { currentGroupId } = this.state;
+  const renderGroups = () => {
+    const { groupAssessment } = props;
 
-    const handleChangeTabs = id => {
-      this.setState({ currentGroupId: id });
+    const handleChangeTabs = (id) => {
+      setCurrentGroupId(id);
     };
 
     return (
@@ -308,67 +298,57 @@ class Detail extends React.Component<Props, State> {
               <TabTitle
                 key={group._id}
                 onClick={handleChangeTabs.bind(this, group._id)}
-                className={currentGroupId === group._id ? 'active' : ''}
+                className={currentGroupId === group._id ? "active" : ""}
               >{`Group ${i + 1}`}</TabTitle>
             ))}
           </Tabs>
         </TriggerTabs>
-        {currentGroupId && this.renderGroup(currentGroupId)}
+        {currentGroupId && renderGroup(currentGroupId)}
       </>
     );
-  }
+  };
 
-  render() {
-    const {
-      detail,
-      groupAssessment,
-      indicatorAssessment,
-      queryParams,
-      history
-    } = this.props;
+  const { detail, groupAssessment, indicatorAssessment, queryParams } = props;
 
-    const handleShowFlagged = () => {
-      if (queryParams.showFlagged) {
-        return removeParams(history, 'showFlagged');
-      }
-      setParams(history, { showFlagged: true });
-    };
+  const handleShowFlagged = () => {
+    if (queryParams.showFlagged) {
+      return removeParams(navigate, location, "showFlagged");
+    }
+    setParams(navigate, location, { showFlagged: true });
+  };
 
-    return (
-      <FormContainer column gap>
-        <FormContainer row gap spaceBetween>
-          <FormContainer row gap>
-            {this.renderCard({
-              title: 'Score',
-              content: <h4>{detail.resultScore}</h4>
-            })}
-            {this.renderCard({
-              title: 'Status',
-              content: (
-                <h4
-                  style={{ display: 'flex', alignItems: 'center', gap: '5px' }}
-                >
-                  {detail?.status}
-                  <ColorBox color={detail?.statusColor} />
-                </h4>
-              )
-            })}
-          </FormContainer>
-          {this.renderUsers()}
+  return (
+    <FormContainer $column $gap>
+      <FormContainer $row $gap $spaceBetween>
+        <FormContainer $row $gap>
+          {renderCard({
+            title: "Score",
+            content: <h4>{detail.resultScore}</h4>,
+          })}
+          {renderCard({
+            title: "Status",
+            content: (
+              <h4 style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                {detail?.status}
+                <ColorBox color={detail?.statusColor} />
+              </h4>
+            ),
+          })}
         </FormContainer>
-        <Button
-          icon={queryParams.showFlagged ? 'eye-slash' : 'eye'}
-          onClick={handleShowFlagged}
-        >
-          {__('Show only flagged')}
-        </Button>
-        {groupAssessment && this.renderGroups()}
-        {!groupAssessment?.length &&
-          indicatorAssessment &&
-          this.renderAssignedUsers(indicatorAssessment?.submissions)}
+        {renderUsers()}
       </FormContainer>
-    );
-  }
-}
+      <Button
+        icon={queryParams.showFlagged ? "eye-slash" : "eye"}
+        onClick={handleShowFlagged}
+      >
+        {__("Show only flagged")}
+      </Button>
+      {groupAssessment && renderGroups()}
+      {!groupAssessment?.length &&
+        indicatorAssessment &&
+        renderAssignedUsers(indicatorAssessment?.submissions)}
+    </FormContainer>
+  );
+};
 
 export default Detail;

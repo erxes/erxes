@@ -94,6 +94,19 @@ module.exports = {
   },
   inboxIntegrations: [
     {
+      name: 'Instagram Post',
+      description: 'Connect to Instagram posts right from your Team Inbox',
+      inMessenger: false,
+      isAvailable: true,
+      kind: 'instagram-post',
+      logo: '/images/integrations/instagram.png',
+      createModal: 'instagram-post',
+      createUrl: '/settings/integrations/createInstagram',
+      category:
+        'All integrations, For support teams, Marketing automation, Social media',
+      components: ['inboxConversationDetailRespondBoxMask']
+    },
+    {
       name: 'Instagram Messenger',
       description:
         'Connect and manage Instagram Messages right from your Team Inbox',

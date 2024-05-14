@@ -26,7 +26,9 @@ jobs:
           docker buildx imagetools create erxes/erxes:master --tag  erxes/erxes:${GITHUB_REF#refs/tags/} 
 
 
-          aws s3 cp s3://erxes-dev-plugins/locales.tar s3://erxes-release-plugins/${GITHUB_REF#refs/tags/}/locales.tar 
+          aws s3 cp s3://erxes-master-plugins/locales.tar s3://erxes-release-plugins/${GITHUB_REF#refs/tags/}/locales.tar
+
+          aws s3 cp s3://erxes-master-plugins/pluginsMap.js s3://erxes-release-plugins/${GITHUB_REF#refs/tags/}/pluginsMap.js
       - name: core
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
@@ -139,14 +141,6 @@ jobs:
 
           docker buildx imagetools create erxes/plugin-contacts-api:master --tag  erxes/plugin-contacts-api:${GITHUB_REF#refs/tags/}
 
-      - name: plugin-dashboard-api
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-
-          docker buildx imagetools create erxes/plugin-dashboard-api:master --tag  erxes/plugin-dashboard-api:${GITHUB_REF#refs/tags/}
-
       - name: plugin-emailtemplates-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
@@ -209,7 +203,7 @@ jobs:
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
 
-          docker buildx imagetools create erxes/plugin-loyalties-api:master --tag  erxes/plugin-loyalties-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-loyalties-api:master --tag  erxes/plugin-loyalties-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-notifications-api
         run: >
@@ -217,7 +211,7 @@ jobs:
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
 
-          docker buildx imagetools create erxes/plugin-notifications-api:master --tag  erxes/plugin-notifications-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-notifications-api:master --tag  erxes/plugin-notifications-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-webhooks-api
         run: >
@@ -225,7 +219,7 @@ jobs:
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
 
-          docker buildx imagetools create erxes/plugin-webhooks-api:master --tag  erxes/plugin-webhooks-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-webhooks-api:master --tag  erxes/plugin-webhooks-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-products-api
         run: >
@@ -233,7 +227,7 @@ jobs:
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
 
-          docker buildx imagetools create erxes/plugin-products-api:master --tag  erxes/plugin-products-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-products-api:master --tag  erxes/plugin-products-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-segments-api
         run: >
@@ -241,7 +235,7 @@ jobs:
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
 
-          docker buildx imagetools create erxes/plugin-segments-api:master --tag  erxes/plugin-segments-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-segments-api:master --tag  erxes/plugin-segments-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-tags-api
         run: >
@@ -249,7 +243,7 @@ jobs:
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
 
-          docker buildx imagetools create erxes/plugin-tags-api:master --tag  erxes/plugin-tags-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-tags-api:master --tag  erxes/plugin-tags-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-webbuilder-api
         run: >
@@ -257,7 +251,7 @@ jobs:
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
 
-          docker buildx imagetools create erxes/plugin-webbuilder-api:master --tag  erxes/plugin-webbuilder-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-webbuilder-api:master --tag  erxes/plugin-webbuilder-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-documents-api
         run: >
@@ -265,7 +259,7 @@ jobs:
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
 
-          docker buildx imagetools create erxes/plugin-documents-api:master --tag  erxes/plugin-documents-api:${GITHUB_REF#refs/tags/} 
+          docker buildx imagetools create erxes/plugin-documents-api:master --tag  erxes/plugin-documents-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-chats-api
         run: >

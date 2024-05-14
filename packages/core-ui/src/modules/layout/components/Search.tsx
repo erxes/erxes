@@ -1,23 +1,24 @@
-import EmptyState from 'modules/common/components/EmptyState';
-import Icon from 'modules/common/components/Icon';
-import Spinner from 'modules/common/components/Spinner';
-import { colors, dimensions } from 'modules/common/styles';
-import { __ } from 'modules/common/utils';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { colors, dimensions } from "modules/common/styles";
 
-const MainContainer = styledTS<{ active?: boolean }>(styled.div)`
+import EmptyState from "modules/common/components/EmptyState";
+import Icon from "modules/common/components/Icon";
+import { Link } from "react-router-dom";
+import React from "react";
+import Spinner from "modules/common/components/Spinner";
+import { __ } from "modules/common/utils";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
+
+const MainContainer = styledTS<{ $active?: boolean }>(styled.div)`
   background-color: ${(props) =>
-    props.active ? colors.colorWhite : colors.bgMain};
+    props.$active ? colors.colorWhite : colors.bgMain};
   border: 1px solid ${(props) =>
-    props.active ? colors.borderDarker : colors.bgMain};
+    props.$active ? colors.borderDarker : colors.bgMain};
   border-radius: 35px;
   height: 32px;
   position: relative;
   transition: .3s all;
-  width: ${(props) => (props.active ? '280px' : '120px')};
+  width: ${(props) => (props.$active ? "280px" : "120px")};
   display: flex;
   padding: 0 ${dimensions.unitSpacing}px;
   align-items: center;
@@ -159,7 +160,7 @@ class Search extends React.Component<
   constructor(props) {
     super(props);
 
-    this.state = { showInput: false, searchValue: '' };
+    this.state = { showInput: false, searchValue: "" };
 
     this.setWrapperRef = this.setWrapperRef.bind(this);
     this.handleClickOutside = this.handleClickOutside.bind(this);
@@ -170,11 +171,11 @@ class Search extends React.Component<
   }
 
   componentDidMount() {
-    document.addEventListener('click', this.handleClickOutside, true);
+    document.addEventListener("click", this.handleClickOutside, true);
   }
 
   componentWillUnmount() {
-    document.removeEventListener('click', this.handleClickOutside, true);
+    document.removeEventListener("click", this.handleClickOutside, true);
   }
 
   handleClickOutside = (event) => {
@@ -186,12 +187,12 @@ class Search extends React.Component<
   renderTitle = (module) => {
     let text = module;
 
-    if (module === 'conversationMessages') {
-      text = 'Conversations';
+    if (module === "conversationMessages") {
+      text = "Conversations";
     }
 
-    if (module === 'engageMessages') {
-      text = 'Broadcast';
+    if (module === "engageMessages") {
+      text = "Broadcast";
     }
 
     return <SearchTitle>{text}</SearchTitle>;
@@ -206,68 +207,68 @@ class Search extends React.Component<
 
       let keyText = key;
 
-      if (keyText === 'firstName') {
-        keyText = 'First name';
+      if (keyText === "firstName") {
+        keyText = "First name";
       }
 
-      if (keyText === 'lastName') {
-        keyText = 'Last name';
+      if (keyText === "lastName") {
+        keyText = "Last name";
       }
 
-      if (keyText === 'middleName') {
-        keyText = 'Middle name';
+      if (keyText === "middleName") {
+        keyText = "Middle name";
       }
 
-      if (keyText === 'primaryPhone') {
-        keyText = 'Primary phone';
+      if (keyText === "primaryPhone") {
+        keyText = "Primary phone";
       }
 
-      if (keyText === 'primaryEmail') {
-        keyText = 'Primary email';
+      if (keyText === "primaryEmail") {
+        keyText = "Primary email";
       }
 
-      if (keyText === 'primaryName') {
-        keyText = 'Primary name';
+      if (keyText === "primaryName") {
+        keyText = "Primary name";
       }
 
-      let href = '#';
+      let href = "#";
 
-      if (module === 'conversationMessages') {
+      if (module === "conversationMessages") {
         href = `/inbox/index?_id=${source.conversationId}`;
       }
 
-      if (module === 'contacts') {
+      if (module === "contacts") {
         href = `/contacts/details/${source._id}`;
       }
 
-      if (module === 'companies') {
+      if (module === "companies") {
         href = `/companies/details/${source._id}`;
       }
 
-      if (module === 'engageMessages') {
+      if (module === "engageMessages") {
         href = `/campaigns/show/${source._id}`;
       }
 
-      if (module === 'deals') {
+      if (module === "deals") {
         href = `/deal/board?id=${source.boardId}&itemId=${source._id}&pipelineId=${source.pipelineId}`;
       }
 
-      if (module === 'tasks') {
+      if (module === "tasks") {
         href = `/task/board?id=${source.boardId}&itemId=${source._id}&pipelineId=${source.pipelineId}`;
       }
 
-      if (module === 'purchases') {
+      if (module === "purchases") {
         href = `/purchase/board?id=${source.boardId}&itemId=${source._id}&pipelineId=${source.pipelineId}`;
       }
 
-      if (module === 'tickets') {
+      if (module === "tickets") {
         href = `/ticket/board?id=${source.boardId}&itemId=${source._id}&pipelineId=${source.pipelineId}`;
       }
 
       return (
         <li key={index}>
           <Link to={href}>
-            <p dangerouslySetInnerHTML={{ __html: highlights[key] || '' }} />
+            <p dangerouslySetInnerHTML={{ __html: highlights[key] || "" }} />
             <small>Found in {keyText}</small>
           </Link>
         </li>
@@ -322,11 +323,11 @@ class Search extends React.Component<
         <Results>
           <EmptyState
             image="/images/actions/5.svg"
-            text={__('No results found')}
+            text={__("No results found")}
             size="full"
             extra={
               <Suggest>
-                {__('It seems we can’t find any results based on your search')}
+                {__("It seems we can’t find any results based on your search")}
               </Suggest>
             }
           />
@@ -347,7 +348,7 @@ class Search extends React.Component<
 
   closeInput = (e) => {
     e.stopPropagation();
-    this.setState({ showInput: false, searchValue: '' });
+    this.setState({ showInput: false, searchValue: "" });
     this.props.clearSearch();
   };
 
@@ -365,7 +366,7 @@ class Search extends React.Component<
         {showInput ? (
           <>
             <input
-              placeholder={__('Search')}
+              placeholder={__("Search")}
               value={searchValue}
               autoFocus={true}
               onKeyDown={onSearch}
@@ -374,7 +375,7 @@ class Search extends React.Component<
             <Icon icon="times" size={18} onClick={this.closeInput} />
           </>
         ) : (
-          <span>{__('Search')}...</span>
+          <span>{__("Search")}...</span>
         )}
       </>
     );
@@ -383,8 +384,8 @@ class Search extends React.Component<
   render() {
     return (
       <MainContainer
-        innerRef={this.setWrapperRef}
-        active={this.state.showInput}
+        ref={this.setWrapperRef}
+        $active={this.state.showInput}
         onClick={this.openInput}
       >
         {this.renderInput()}

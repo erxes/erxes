@@ -1,25 +1,25 @@
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import React from 'react';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { Alert } from '@erxes/ui/src/utils';
-import { __ } from 'coreui/utils';
-import { DrawerDetail } from '../../../styles';
-import { DURATION_TYPES } from '../../../../constants';
-import { FLOWJOB_TYPES } from '../../../constants';
-import { FlowJobFooter } from './styles';
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import React from "react";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { Alert } from "@erxes/ui/src/utils";
+import { __ } from "coreui/utils";
+import { DrawerDetail } from "../../../styles";
+import { DURATION_TYPES } from "../../../../constants";
+import { FLOWJOB_TYPES } from "../../../constants";
+import { FlowJobFooter } from "./styles";
 import {
   FormColumn,
   FormWrapper,
-  ModalFooter
-} from '@erxes/ui/src/styles/main';
-import { IJob } from '../../../types';
-import { IJobRefer } from '../../../../job/types';
-import { ScrolledContent } from '../../../styles';
+  ModalFooter,
+} from "@erxes/ui/src/styles/main";
+import { IJob } from "../../../types";
+import { IJobRefer } from "../../../../job/types";
+import { ScrolledContent } from "../../../styles";
 
 type Props = {
   closeModal: () => void;
@@ -55,10 +55,10 @@ class CommonForm extends React.Component<Props, State> {
         (jobRefer || {}).durationType ||
         DURATION_TYPES.minut,
       duration: config.duration || (jobRefer || {}).duration || 1,
-      inBranchId: config.inBranchId || '',
-      inDepartmentId: config.inDepartmentId || '',
-      outBranchId: config.outBranchId || '',
-      outDepartmentId: config.outDepartmentId || ''
+      inBranchId: config.inBranchId || "",
+      inDepartmentId: config.inDepartmentId || "",
+      outBranchId: config.outBranchId || "",
+      outDepartmentId: config.outDepartmentId || "",
     };
   }
 
@@ -77,7 +77,7 @@ class CommonForm extends React.Component<Props, State> {
             inBranchId: config.inBranchId,
             inDepartmentId: config.inDepartmentId,
             outBranchId: config.outBranchId,
-            outDepartmentId: config.outDepartmentId
+            outDepartmentId: config.outDepartmentId,
           },
           () => {
             if (this.timer) {
@@ -92,25 +92,21 @@ class CommonForm extends React.Component<Props, State> {
   onSave = () => {
     const { activeFlowJob, name, description } = this.props;
     if (!activeFlowJob) {
-      return Alert.error('has not active FlowJob');
+      return Alert.error("has not active FlowJob");
     }
 
-    const {
-      inBranchId,
-      inDepartmentId,
-      outBranchId,
-      outDepartmentId
-    } = this.state;
+    const { inBranchId, inDepartmentId, outBranchId, outDepartmentId } =
+      this.state;
 
     switch (activeFlowJob.type) {
       case FLOWJOB_TYPES.INCOME:
         if (!outBranchId || !outDepartmentId) {
-          return Alert.error('Must fill branch or department');
+          return Alert.error("Must fill branch or department");
         }
         break;
       case FLOWJOB_TYPES.OUTLET:
         if (!inBranchId || !inDepartmentId) {
-          return Alert.error('Must fill branch or department');
+          return Alert.error("Must fill branch or department");
         }
         break;
       case FLOWJOB_TYPES.FLOW:
@@ -122,7 +118,7 @@ class CommonForm extends React.Component<Props, State> {
           !outBranchId ||
           !outDepartmentId
         ) {
-          return Alert.error('Must fill branch or department');
+          return Alert.error("Must fill branch or department");
         }
     }
 
@@ -148,7 +144,7 @@ class CommonForm extends React.Component<Props, State> {
       inBranchId,
       inDepartmentId,
       outBranchId,
-      outDepartmentId
+      outDepartmentId,
     } = this.state;
 
     if (activeFlowJob.type === FLOWJOB_TYPES.FLOW) {
@@ -162,11 +158,11 @@ class CommonForm extends React.Component<Props, State> {
               <ControlLabel required={true}>Duration Type</ControlLabel>
               <FormControl
                 name="durationType"
-                componentClass="select"
+                componentclass="select"
                 value={durationType}
                 required={true}
                 onChange={(e: any) => {
-                  this.onSelect('durationType', e.target.value);
+                  this.onSelect("durationType", e.target.value);
                 }}
               >
                 {Object.keys(DURATION_TYPES).map((typeName, index) => (
@@ -187,7 +183,7 @@ class CommonForm extends React.Component<Props, State> {
                 required={true}
                 type="number"
                 onChange={(e: any) => {
-                  this.onSelect('duration', e.target.value);
+                  this.onSelect("duration", e.target.value);
                 }}
               />
             </FormGroup>
@@ -208,7 +204,9 @@ class CommonForm extends React.Component<Props, State> {
                     label="Choose branch"
                     name="selectedBranchIds"
                     initialValue={inBranchId}
-                    onSelect={branchId => this.onSelect('inBranchId', branchId)}
+                    onSelect={(branchId) =>
+                      this.onSelect("inBranchId", branchId)
+                    }
                     multi={false}
                   />
                 </FormGroup>
@@ -220,8 +218,8 @@ class CommonForm extends React.Component<Props, State> {
                     label="Choose department"
                     name="selectedDepartmentIds"
                     initialValue={inDepartmentId}
-                    onSelect={departmentId =>
-                      this.onSelect('inDepartmentId', departmentId)
+                    onSelect={(departmentId) =>
+                      this.onSelect("inDepartmentId", departmentId)
                     }
                     multi={false}
                   />
@@ -245,8 +243,8 @@ class CommonForm extends React.Component<Props, State> {
                     label="Choose branch"
                     name="selectedBranchIds"
                     initialValue={outBranchId}
-                    onSelect={branchId =>
-                      this.onSelect('outBranchId', branchId)
+                    onSelect={(branchId) =>
+                      this.onSelect("outBranchId", branchId)
                     }
                     multi={false}
                   />
@@ -259,8 +257,8 @@ class CommonForm extends React.Component<Props, State> {
                     label="Choose department"
                     name="selectedDepartmentIds"
                     initialValue={outDepartmentId}
-                    onSelect={departmentId =>
-                      this.onSelect('outDepartmentId', departmentId)
+                    onSelect={(departmentId) =>
+                      this.onSelect("outDepartmentId", departmentId)
                     }
                     multi={false}
                   />
@@ -294,7 +292,7 @@ class CommonForm extends React.Component<Props, State> {
               onClick={closeModal}
               icon="times-circle"
             >
-              {__('Cancel')}
+              {__("Cancel")}
             </Button>
 
             <Button btnStyle="success" icon="checked-1" onClick={this.onSave}>

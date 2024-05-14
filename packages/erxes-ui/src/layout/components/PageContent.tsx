@@ -1,5 +1,6 @@
-import React from 'react';
 import { ContenFooter, ContentBox, MainContent } from '../styles';
+
+import React from 'react';
 
 type Props = {
   actionBar?: React.ReactNode;
@@ -16,12 +17,12 @@ function PageContent({
   children,
   transparent,
   center,
-  initialOverflow
+  initialOverflow,
 }: Props) {
   return (
-    <MainContent transparent={transparent} center={center}>
+    <MainContent $transparent={transparent} $center={center}>
       {actionBar}
-      <ContentBox transparent={transparent} initialOverflow={initialOverflow}>
+      <ContentBox $transparent={transparent} $initialOverflow={initialOverflow}>
         {children}
       </ContentBox>
       {footer && <ContenFooter>{footer}</ContenFooter>}

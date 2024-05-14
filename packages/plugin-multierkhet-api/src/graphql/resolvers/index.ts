@@ -13,14 +13,14 @@ const resolvers: any = async () => ({
   Query: {
     ...configQueries,
     ...erkhetRemainders,
-    ...syncHistories
+    ...syncHistories,
   },
 
   Mutation: {
     ...configMutations,
     ...checkSyncedMutations,
-    ...inventoryMutations
-  }
+    ...inventoryMutations,
+  },
 });
 
 export default resolvers;

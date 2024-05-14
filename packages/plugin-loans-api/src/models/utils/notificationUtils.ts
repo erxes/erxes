@@ -69,7 +69,7 @@ export async function sendNotification(
 }
 
 const generateTemplate = (
-  { total, payment, undue, storedInterest }: IInvoiceDocument,
+  { total, payment, loss, storedInterest }: IInvoiceDocument,
   { interestRate, leaseAmount }: IContractDocument,
 ) => {
   return `
@@ -141,7 +141,7 @@ const generateTemplate = (
               <tr>
                 <td>${leaseAmount}</td>
                 <td>${interestRate}</td>
-                <td>${undue}</td>
+                <td>${loss}</td>
                 <td>${payment}</td>
                 <td>${storedInterest}</td>
                 <td>${total}</td>

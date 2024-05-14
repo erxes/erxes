@@ -12,11 +12,11 @@ import { loadPeriodLockClass, IPeriodLockModel } from './models/periodLock';
 import { loadContractClass, IContractModel } from './models/contracts';
 import {
   loadContractTypeClass,
-  IContractTypeModel,
+  IContractTypeModel
 } from './models/contractTypes';
 import {
   loadInsuranceTypeClass,
-  IInsuranceTypeModel,
+  IInsuranceTypeModel
 } from './models/insuranceTypes';
 import { loadInvoiceClass, IInvoiceModel } from './models/invoices';
 import { loadScheduleClass, IScheduleModel } from './models/schedules';
@@ -25,27 +25,32 @@ import { IGeneralModel, loadGeneralClass } from './models/general';
 import { loadPurposeClass, IPurposeModel } from './models/loanPurpose';
 import {
   loadPurposeTypeClass,
-  IPurposeTypeModel,
+  IPurposeTypeModel
 } from './models/loanPurposeType';
 import { IGeneralDocument } from './models/definitions/general';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 import {
   IClassificationModel,
-  loadClassificationClass,
+  loadClassificationClass
 } from './models/classification';
 import { IClassificationDocument } from './models/definitions/classification';
 import {
   IInterestCorrectionModel,
-  loanInterestCorrectionClass,
+  loanInterestCorrectionClass
 } from './models/interestCorrection';
 import { IInterestCorrectionDocument } from './models/definitions/interestCorrection';
 import {
   IStoredInterestModel,
-  loanStoredInterestClass,
+  loanStoredInterestClass
 } from './models/storedInterest';
 import { IStoredInterestDocument } from './models/definitions/storedInterest';
 import { IPurposeDocument } from './models/definitions/loanPurpose';
 import { IPurposeTypeDocument } from './models/definitions/loanPurposeType';
+import {
+  INonBalanceTransactionModel,
+  loadNonBalanceTransactionClass
+} from './models/nonBalanceTransactions';
+import { INonBalanceTransactionDocument } from './models/definitions/nonBalanceTransactions';
 //#endregion
 
 export interface IModels {
@@ -63,6 +68,7 @@ export interface IModels {
   StoredInterest: IStoredInterestModel;
   LoanPurposeType: IPurposeTypeModel;
   LoanPurpose: IPurposeModel;
+  NonBalanceTransactions: INonBalanceTransactionModel;
 }
 
 export interface IContext extends IMainContext {
@@ -75,7 +81,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   models.PeriodLocks = db.model<IPeriodLockDocument, IPeriodLockModel>(
     'loan_period_locks',
-    loadPeriodLockClass(models),
+    loadPeriodLockClass(models)
   );
 
   models.Classification = db.model<
@@ -85,42 +91,42 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   models.Contracts = db.model<IContractDocument, IContractModel>(
     'loan_contracts',
-    loadContractClass(models),
+    loadContractClass(models)
   );
 
   models.ContractTypes = db.model<IContractTypeDocument, IContractTypeModel>(
     'loan_contract_types',
-    loadContractTypeClass(models),
+    loadContractTypeClass(models)
   );
 
   models.InsuranceTypes = db.model<IInsuranceTypeDocument, IInsuranceTypeModel>(
     'loan_insurance_types',
-    loadInsuranceTypeClass(models),
+    loadInsuranceTypeClass(models)
   );
 
   models.Invoices = db.model<IInvoiceDocument, IInvoiceModel>(
     'loan_invoices',
-    loadInvoiceClass(models),
+    loadInvoiceClass(models)
   );
 
   models.Schedules = db.model<IScheduleDocument, IScheduleModel>(
     'loan_schedules',
-    loadScheduleClass(models),
+    loadScheduleClass(models)
   );
 
   models.FirstSchedules = db.model<IScheduleDocument, IScheduleModel>(
     'loan_first_schedules',
-    loadScheduleClass(models),
+    loadScheduleClass(models)
   );
 
   models.Transactions = db.model<ITransactionDocument, ITransactionModel>(
     'loan_transactions',
-    loadTransactionClass(models),
+    loadTransactionClass(models)
   ) as ITransactionModel;
 
   models.General = db.model<IGeneralDocument, IGeneralModel>(
     'loan_general',
-    loadGeneralClass(models),
+    loadGeneralClass(models)
   ) as IGeneralModel;
 
   models.InterestCorrection = db.model<
@@ -128,7 +134,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     IInterestCorrectionModel
   >(
     'loan_interest_correction',
-    loanInterestCorrectionClass(models),
+    loanInterestCorrectionClass(models)
   ) as IInterestCorrectionModel;
 
   models.StoredInterest = db.model<
@@ -136,18 +142,26 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     IStoredInterestModel
   >(
     'loan_stored_interest',
-    loanStoredInterestClass(models),
+    loanStoredInterestClass(models)
   ) as IStoredInterestModel;
 
   models.LoanPurpose = db.model<IPurposeDocument, IPurposeModel>(
     'loan_purpose',
-    loadPurposeClass(models),
+    loadPurposeClass(models)
   ) as IPurposeModel;
 
   models.LoanPurposeType = db.model<IPurposeTypeDocument, IPurposeTypeModel>(
     'loan_purpose_type',
-    loadPurposeTypeClass(models),
+    loadPurposeTypeClass(models)
   ) as IPurposeTypeModel;
+
+  models.NonBalanceTransactions = db.model<
+    INonBalanceTransactionDocument,
+    INonBalanceTransactionModel
+  >(
+    'loan_non_balance_transactions',
+    loadNonBalanceTransactionClass(models)
+  ) as INonBalanceTransactionModel;
 
   return models;
 };

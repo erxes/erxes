@@ -18,7 +18,6 @@ type Props = {
   user: IUser;
   integration: IIntegration;
   queryParams: any;
-  history: any;
 };
 
 const OnBoarding = ({
@@ -27,7 +26,6 @@ const OnBoarding = ({
   user,
   integration,
   queryParams,
-  history,
 }: Props) => {
   const [activeStep, changeStep] = useState<number>(queryParams.steps || 0);
   const [firstName, setFirstName] = useState(user?.details?.firstName || '');
@@ -136,7 +134,6 @@ const OnBoarding = ({
         currentUser={currentUser}
         integration={integration}
         onboardingSteps={onboardingSteps}
-        history={history}
         {...profileProps}
         {...messengerProps}
       />

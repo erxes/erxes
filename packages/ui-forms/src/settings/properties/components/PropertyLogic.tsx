@@ -1,19 +1,19 @@
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { Column, DateWrapper } from '@erxes/ui/src/styles/main';
-import { IFieldLogic } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { Column, DateWrapper } from "@erxes/ui/src/styles/main";
+import { IFieldLogic } from "@erxes/ui/src/types";
+import { __ } from "@erxes/ui/src/utils";
+import React from "react";
 
 import {
   dateTypeChoices,
   numberTypeChoices,
-  stringTypeChoices
-} from '../../../forms/constants';
-import { LogicItem, LogicRow, RowSmall } from '../../../forms/styles';
-import { FieldsCombinedByType } from '../types';
+  stringTypeChoices,
+} from "../../../forms/constants";
+import { LogicItem, LogicRow, RowSmall } from "../../../forms/styles";
+import { FieldsCombinedByType } from "../types";
 
 type Props = {
   logic: IFieldLogic;
@@ -31,18 +31,18 @@ function PropertyLogic(props: Props) {
   const { fields, logic, onChangeLogic, removeLogic, index } = props;
 
   const getSelectedField = () => {
-    return fields.find(field => field.name.includes(logic.fieldId || ''));
+    return fields.find((field) => field.name.includes(logic.fieldId || ""));
   };
 
   const getOperatorOptions = () => {
     const selectedField = getSelectedField();
 
     if (selectedField && selectedField.validation) {
-      if (selectedField.validation === 'number') {
+      if (selectedField.validation === "number") {
         return numberTypeChoices;
       }
 
-      if (selectedField.validation.includes('date')) {
+      if (selectedField.validation.includes("date")) {
         return dateTypeChoices;
       }
     }
@@ -50,29 +50,29 @@ function PropertyLogic(props: Props) {
     return stringTypeChoices;
   };
 
-  const onChangeFieldId = e => {
+  const onChangeFieldId = (e) => {
     const value = e.target.value;
-    onChangeLogic('fieldId', '', index);
+    onChangeLogic("fieldId", "", index);
     onChangeLogic(
-      value.startsWith('tempId') ? 'tempFieldId' : 'fieldId',
+      value.startsWith("tempId") ? "tempFieldId" : "fieldId",
       value,
       index
     );
 
     const operators = getOperatorOptions();
-    onChangeLogic('logicOperator', operators[1].value, index);
+    onChangeLogic("logicOperator", operators[1].value, index);
   };
 
-  const onChangeLogicOperator = e => {
-    onChangeLogic('logicOperator', e.target.value, index);
+  const onChangeLogicOperator = (e) => {
+    onChangeLogic("logicOperator", e.target.value, index);
   };
 
-  const onChangeLogicValue = e => {
-    onChangeLogic('logicValue', e.target.value, index);
+  const onChangeLogicValue = (e) => {
+    onChangeLogic("logicValue", e.target.value, index);
   };
 
-  const onDateChange = value => {
-    onChangeLogic('logicValue', value, index);
+  const onDateChange = (value) => {
+    onChangeLogic("logicValue", value, index);
   };
 
   const remove = () => {
@@ -89,14 +89,14 @@ function PropertyLogic(props: Props) {
       ) {
         return (
           <FormControl
-            componentClass="select"
+            componentclass="select"
             defaultValue={logic.logicValue}
             name="logicValue"
             onChange={onChangeLogicValue}
           >
             <option value="" />
             {selectedField.selectOptions &&
-              selectedField.selectOptions.map(option => (
+              selectedField.selectOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
@@ -105,14 +105,14 @@ function PropertyLogic(props: Props) {
         );
       }
 
-      if (['date', 'datetime'].includes(selectedField.validation || '')) {
+      if (["date", "datetime"].includes(selectedField.validation || "")) {
         return (
           <DateWrapper>
             <DateControl
-              placeholder={__('pick a date')}
+              placeholder={__("pick a date")}
               value={logic.logicValue}
               timeFormat={
-                selectedField.validation === 'datetime' ? true : false
+                selectedField.validation === "datetime" ? true : false
               }
               onChange={onDateChange}
             />
@@ -120,13 +120,13 @@ function PropertyLogic(props: Props) {
         );
       }
 
-      if (selectedField.validation === 'number') {
+      if (selectedField.validation === "number") {
         return (
           <FormControl
             defaultValue={logic.logicValue}
             name="logicValue"
             onChange={onChangeLogicValue}
-            type={'number'}
+            type={"number"}
           />
         );
       }
@@ -149,13 +149,13 @@ function PropertyLogic(props: Props) {
         <Column>
           <FormGroup>
             <FormControl
-              componentClass="select"
+              componentclass="select"
               value={logic.fieldId}
               name="fieldId"
               onChange={onChangeFieldId}
             >
               <option value="" />
-              {fields.map(field => (
+              {fields.map((field) => (
                 <option key={field.name} value={field.name}>
                   {field.label}
                 </option>
@@ -165,7 +165,7 @@ function PropertyLogic(props: Props) {
           <LogicRow>
             <RowSmall>
               <FormControl
-                componentClass="select"
+                componentclass="select"
                 defaultValue={logic.logicOperator}
                 name="logicOperator"
                 options={getOperatorOptions()}

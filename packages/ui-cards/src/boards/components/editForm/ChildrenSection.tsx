@@ -54,7 +54,7 @@ class ChildrenSection extends React.Component<Props, State> {
     const trigger = (
       <Button btnStyle="link">
         <Tip text={__('Add Child Card')}>
-          <Icon icon="plus-circle" />
+          <Icon icon="plus-circle" size={16} />
         </Tip>
       </Button>
     );

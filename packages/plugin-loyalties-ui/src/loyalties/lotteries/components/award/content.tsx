@@ -4,13 +4,12 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Wrapper
-} from '@erxes/ui/src';
-import { AwardContainer, Card } from '../../../../styles';
+  Wrapper,
+} from "@erxes/ui/src";
+import { AwardContainer, Card } from "../../../../styles";
 
-import AwardList from './list';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
+import AwardList from "./list";
+import React from "react";
 
 type State = {
   multiple: number;
@@ -18,7 +17,7 @@ type State = {
   isOpenInput: boolean;
 };
 
-interface IProps extends IRouterProps {
+interface IProps {
   loading: boolean;
   queryParams: any;
   currentTab: any;
@@ -42,7 +41,7 @@ class AwardContentComponent extends React.Component<IProps, State> {
     this.state = {
       multiple: 0,
       isOpenNextChar: false,
-      isOpenInput: false
+      isOpenInput: false,
     };
   }
 
@@ -59,24 +58,24 @@ class AwardContentComponent extends React.Component<IProps, State> {
       lotteryCampaign,
       multipledoLottery,
       getNextChar,
-      nextChar
+      nextChar,
     } = this.props;
     const { multiple, isOpenNextChar, isOpenInput } = this.state;
 
     const actionbarLotteryRight = () => {
       return (
         <AwardContainer>
-          {CheckBox('Use Next Character', isOpenNextChar, () =>
+          {CheckBox("Use Next Character", isOpenNextChar, () =>
             this.setState({
               isOpenNextChar: !isOpenNextChar,
-              isOpenInput: isOpenInput && false
+              isOpenInput: isOpenInput && false,
             })
           )}
-          {CheckBox('Use  MultiDoLottery', isOpenInput, () =>
+          {CheckBox("Use  MultiDoLottery", isOpenInput, () =>
             this.setState({
               isOpenInput: !isOpenInput,
               isOpenNextChar: isOpenNextChar && false,
-              multiple: 0
+              multiple: 0,
             })
           )}
         </AwardContainer>
@@ -92,7 +91,7 @@ class AwardContentComponent extends React.Component<IProps, State> {
         lotteries: data,
         totalCount: totalCount,
         loading: loading,
-        isWinnerList
+        isWinnerList,
       };
       return <AwardList {...updatedProps} />;
     };
@@ -102,9 +101,9 @@ class AwardContentComponent extends React.Component<IProps, State> {
         .substring(3);
 
       return (
-        <div style={{ display: 'flex', flex: 'row' }}>
+        <div style={{ display: "flex", flex: "row" }}>
           {Array.from(Array(parseInt(numberFormat)), (e, i) => {
-            return <Card key={i}>{nextChar.charAt(i) || ''}</Card>;
+            return <Card key={i}>{nextChar.charAt(i) || ""}</Card>;
           })}
         </div>
       );
@@ -117,14 +116,14 @@ class AwardContentComponent extends React.Component<IProps, State> {
         return getNextChar({
           campaignId: _id,
           awardId: currentTab._id,
-          prevChars: nextChar
+          prevChars: nextChar,
         });
       }
       if (multiple > 1) {
         return multipledoLottery({
           campaignId,
           awardId: currentTab._id,
-          multiple
+          multiple,
         });
       }
       doLotteries({ campaignId, awardId: currentTab._id });
@@ -138,7 +137,7 @@ class AwardContentComponent extends React.Component<IProps, State> {
       const inputMax = currentTab.count - winnersTotalCount;
       const input = inputMax > totalCount ? totalCount : inputMax;
       return (
-        <div style={{ width: '150px', margin: ' 0 15px' }}>
+        <div style={{ width: "150px", margin: " 0 15px" }}>
           <ControlLabel>Enter the number:</ControlLabel>
           <FormControl
             defaultValue={multiple}
@@ -158,7 +157,7 @@ class AwardContentComponent extends React.Component<IProps, State> {
         <FormGroup>
           <ControlLabel>{title}</ControlLabel>
           <FormControl
-            componentClass="checkbox"
+            componentclass="checkbox"
             checked={value}
             onChange={onchange}
           />
@@ -169,11 +168,11 @@ class AwardContentComponent extends React.Component<IProps, State> {
     const BtnText = () => {
       if (isOpenNextChar) {
         if (nextChar.length === 6) {
-          return 'Restart';
+          return "Restart";
         }
-        return 'Next Character';
+        return "Next Character";
       }
-      return 'Start';
+      return "Start";
     };
 
     return (
@@ -193,9 +192,9 @@ class AwardContentComponent extends React.Component<IProps, State> {
         {isOpenNextChar && NextChar()}
         <div
           style={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between'
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
           }}
         >
           {List(list, totalCount, lotteriesCampaignCustomerList.loading, true)}

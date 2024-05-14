@@ -1,5 +1,5 @@
-import { QueryResponse } from '../types';
 import { IBrand } from '../brands/types';
+import { QueryResponse } from '../types';
 
 export interface IOnboardingHistory {
   _id: string;
@@ -30,6 +30,7 @@ export interface IUserDetails {
 
 export interface IUserLinks {
   facebook?: string;
+  instagram?: string;
   twitter?: string;
   linkedIn?: string;
   youtube?: string;
@@ -106,6 +107,8 @@ export declare type IOrganization = {
   expiryDate?: Date;
   bundleNames?: string[];
   experienceName?: string;
+  onboardingDone?: boolean;
+  contactRemaining?: boolean;
 };
 
 export interface IUserOrganization {
@@ -140,6 +143,7 @@ export type AllUsersQueryResponse = {
 export type CurrentUserQueryResponse = {
   currentUser: IUser;
   loading: boolean;
+  error: any;
   subscribeToMore: any;
   refetch: () => void;
 };

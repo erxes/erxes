@@ -1,134 +1,131 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import ListComponentDoc from './safeRemainderDetails/components/PrintDoc';
-import ListComponent from './safeRemainderDetails/components/Print';
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import ListComponentDoc from "./safeRemainderDetails/components/PrintDoc";
+import ListComponent from "./safeRemainderDetails/components/Print";
+import queryString from "query-string";
+import React from "react";
+import { Route, Routes, useParams, useLocation } from "react-router-dom";
 
-const remainders = asyncComponent(() =>
-  import(
-    /* webpackChunkName: 'List - LiveRemainders' */ './remainders/containers/List'
-  )
+const Remainders = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: 'List - LiveRemainders' */ "./remainders/containers/List"
+    )
 );
-const ReserveRems = asyncComponent(() =>
-  import(
-    /* webpackChunkName: 'List - LiveRemainders' */ './reserveRemainders/containers/List'
-  )
-);
-
-const safeRemainders = asyncComponent(() =>
-  import(
-    /* webpackChunkName: 'List - SafeRemainders' */ './safeRemainders/containers/List'
-  )
+const ReserveRems = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: 'List - LiveRemainders' */ "./reserveRemainders/containers/List"
+    )
 );
 
-const safeRemainderDetails = asyncComponent(() =>
-  import(
-    /* webpackChunkName: 'List - SafeRemainders' */ './safeRemainderDetails/containers/List'
-  )
+const SafeRemainders = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: 'List - SafeRemainders' */ "./safeRemainders/containers/List"
+    )
 );
 
-const SafeRemainderDetailsPrint = asyncComponent(() =>
-  import(
-    /* webpackChunkName: 'List - SafeRemainders' */ './safeRemainderDetails/containers/Print'
-  )
+const SafeRemainderDetails = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: 'List - SafeRemainders' */ "./safeRemainderDetails/containers/List"
+    )
 );
 
-const transactions = asyncComponent(() =>
-  import(
-    /* webpackChunkName: 'List - Transactions' */ './transactions/containers/List'
-  )
+const SafeRemainderDetailsPrint = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: 'List - SafeRemainders' */ "./safeRemainderDetails/containers/Print"
+    )
 );
 
-const RemaindersLog = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings List - ProductService" */ './remainders/containers/RemaindersLog'
-  )
+const Transactions = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: 'List - Transactions' */ "./transactions/containers/List"
+    )
 );
 
-const safeRemainderDetailsPrintDoc = () => {
+const RemaindersLog = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings List - ProductService" */ "./remainders/containers/RemaindersLog"
+    )
+);
+
+const SafeRemainderDetailsPrintDoc = () => {
   return <SafeRemainderDetailsPrint component={ListComponentDoc} />;
 };
 
-const safeRemainderDetailsPrint = () => {
+const SafeRemainderDetailsPrintComponent = () => {
   return <SafeRemainderDetailsPrint component={ListComponent} />;
 };
 
-const remaindersLog = ({ match, location }) => {
-  const id = match.params.id;
+const RemaindersLogComponent = () => {
+  const { id } = useParams();
+  const location = useLocation();
 
   return (
     <RemaindersLog id={id} queryParams={queryString.parse(location.search)} />
   );
 };
 
-const reserveRems = ({ location, history }) => {
-  return (
-    <ReserveRems
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const ReserveRemsComponent = () => {
+  const location = useLocation();
+
+  return <ReserveRems queryParams={queryString.parse(location.search)} />;
 };
 
 const routes = () => {
   return (
-    <>
+    <Routes>
       <Route
-        exact={true}
         path="/inventories/remainders/"
         key="/inventories/remainders/"
-        component={remainders}
+        element={<Remainders />}
       />
 
       <Route
-        exact={true}
         path="/inventories/reserve-remainders/"
         key="/inventories/reserve-remainders/"
-        component={reserveRems}
+        element={<ReserveRemsComponent />}
       />
 
       <Route
-        exact={true}
         path="/inventories/safe-remainders/"
         key="/inventories/safe-remainders/"
-        component={safeRemainders}
+        element={<SafeRemainders />}
       />
 
       <Route
-        exact={true}
         path="/inventories/safe-remainders/details/:id"
         key="/inventories/safe-remainders/details/:id"
-        component={safeRemainderDetails}
+        element={<SafeRemainderDetails />}
       />
 
       <Route
-        exact={true}
         path="/inventories/safe-remainders/detailsPrint/:id"
         key="/inventories/safe-remainders/detailsPrint/:id"
-        component={safeRemainderDetailsPrint}
+        element={<SafeRemainderDetailsPrintComponent />}
       />
       <Route
-        exact={true}
         path="/inventories/safe-remainders/detailsPrintDoc/:id"
         key="/inventories/safe-remainders/detailsPrintDoc/:id"
-        component={safeRemainderDetailsPrintDoc}
+        element={<SafeRemainderDetailsPrintDoc />}
       />
 
       <Route
-        exact={true}
         path="/inventories/transactions/"
         key="/inventories/transactions"
-        component={transactions}
+        element={<Transactions />}
       />
 
       <Route
-        exact={true}
         path="/inventories/remainders-log/"
         key="/inventories/remainders-log"
-        component={remaindersLog}
+        element={<RemaindersLogComponent />}
       />
-    </>
+    </Routes>
   );
 };
 

@@ -46,7 +46,7 @@ class ChannelStep extends React.Component<Props> {
     const onClick = () => this.props.onChange('method', name);
 
     return (
-      <Box selected={this.props.method === name} onClick={onClick}>
+      <Box $selected={this.props.method === name} onClick={onClick}>
         <Icon icon={icon} />
         <span>{__(name)}</span>
         <p>{__(desc)}</p>
@@ -56,7 +56,7 @@ class ChannelStep extends React.Component<Props> {
 
   render() {
     return (
-      <FullContent center={true}>
+      <FullContent $center={true}>
         {this.renderBox(
           METHODS.EMAIL,
           'envelope-edit',

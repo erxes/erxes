@@ -55,6 +55,9 @@ const queries = {
   insuranceItemList: async (
     _root,
     {
+      category,
+      product,
+      vendor,
       page,
       perPage,
       sortField,
@@ -64,6 +67,9 @@ const queries = {
       startDate,
       endDate
     }: {
+      category: string;
+      product: string;
+      vendor: string;
       page: number;
       perPage: number;
       sortField: string;
@@ -98,10 +104,54 @@ const queries = {
     };
 
     if (startDate && endDate) {
+      const gte = new Date(startDate).setUTCHours(0, 0, 0, 0);
+      const lt = new Date(endDate).setUTCHours(23, 59, 59, 999);
+
       qry['searchDictionary.dealCreatedAt'] = {
-        $gte: new Date(startDate),
-        $lt: new Date(endDate)
+        $gte: new Date(gte),
+        $lt: new Date(lt)
       };
+    }
+
+    if (startDate && !endDate) {
+      const gte = new Date(startDate).setUTCHours(0, 0, 0, 0);
+      qry['searchDictionary.dealCreatedAt'] = {
+        $gte: new Date(gte),
+      };
+    }
+
+    if (!startDate && endDate) {
+      const lt = new Date(endDate).setUTCHours(23, 59, 59, 999);
+      qry['searchDictionary.dealCreatedAt'] = {
+        $lt: new Date(lt)
+      };
+    }
+
+    if (category) {
+      const productIds = await models.Products.find({
+        categoryId: category
+      }).distinct('_id');
+
+      qry.productId = { $in: productIds };
+    }
+
+    if (product) {
+      qry.productId = product;
+    }
+
+    if (vendor) {
+      const users = await sendCommonMessage({
+        subdomain,
+        action: 'clientPortalUsers.find',
+        serviceName: 'clientportal',
+        isRPC: true,
+        defaultValue: [],
+        data: {
+          erxesCompanyId: vendor
+        }
+      });
+
+      qry.vendorUserId = { $in: users.map((u: any) => u._id) };
     }
 
     return {
@@ -109,13 +159,14 @@ const queries = {
         page,
         perPage
       }),
-      totalCount: models.Products.find(qry).count()
+      totalCount: models.Items.find(qry).count()
     };
   },
 
   vendorInsuranceItems: async (
     _root,
     {
+      categoryId,
       page,
       perPage,
       sortField,
@@ -125,6 +176,7 @@ const queries = {
       startDate,
       endDate
     }: {
+      categoryId: string;
       page: number;
       perPage: number;
       sortField: string;
@@ -189,6 +241,14 @@ const queries = {
         $gte: new Date(startDate),
         $lt: new Date(endDate)
       };
+    }
+
+    if (categoryId) {
+      const productIds = await models.Products.find({
+        categoryId
+      }).distinct('_id');
+
+      qry.productId = { $in: productIds };
     }
 
     return {
@@ -271,7 +331,7 @@ const queries = {
 
     const userIds = users.map((u: any) => u._id);
 
-    const categories = await models.Categories.find({});
+    const categories = await models.Categories.find({companyIds: company._id});
     const totalItemsCountOfCompany = await models.Items.find({
       vendorUserId: { $in: userIds }
     }).countDocuments();

@@ -1,4 +1,9 @@
-import { sendCardsMessage, sendCommonMessage } from '../../messageBroker';
+import { IContext } from '../../connectionResolver';
+import {
+  sendCardsMessage,
+  sendCommonMessage,
+  sendKbMessage,
+} from '../../messageBroker';
 import { generateUsersCards, queryBuilderCards } from './utils';
 
 const generateFiltersFromArr = (obj, { field, value, values, regex }) => {
@@ -18,7 +23,7 @@ const generateFiltersFromArr = (obj, { field, value, values, regex }) => {
 
 const generateSKFilter = async (
   subdomain,
-  { customFieldsFilter, grantFilters }
+  { customFieldsFilter, grantFilters },
 ) => {
   const filter: any = {};
 
@@ -26,7 +31,7 @@ const generateSKFilter = async (
     for (const { field, ...selector } of customFieldsFilter) {
       generateFiltersFromArr(
         filter,
-        { ...selector, field: `customFieldsData.${field}` } || {}
+        { ...selector, field: `customFieldsData.${field}` } || {},
       );
     }
   }
@@ -44,10 +49,10 @@ const generateSKFilter = async (
       action: 'requests.find',
       data: { ...selector },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
-    const ids = grants.map(grant => grant.contentTypeId);
+    const ids = grants.map((grant) => grant.contentTypeId);
 
     filter._id = { $in: ids };
   }
@@ -60,32 +65,32 @@ const aputpmQueries = {
     return await generateUsersCards({
       subdomain,
       params,
-      fieldName: 'userId'
+      fieldName: 'userId',
     });
   },
   async getAssignedUsersCards(_root, params, { subdomain }) {
     return await generateUsersCards({
       subdomain,
       params,
-      fieldName: 'assignedUserIds'
+      fieldName: 'assignedUserIds',
     });
   },
   async getCustomFieldUsersCards(_root, params, { subdomain }) {
     return await generateUsersCards({
       subdomain,
       params,
-      fieldName: 'customFieldsData.value'
+      fieldName: 'customFieldsData.value',
     });
   },
   async myStandartKnowledges(
     _root,
     { customFieldsFilter, grantFilters, ...params },
-    { subdomain }
+    { subdomain },
   ) {
     const cardQuery = await queryBuilderCards({ params, subdomain });
     const filter = await generateSKFilter(subdomain, {
       customFieldsFilter,
-      grantFilters
+      grantFilters,
     });
 
     return await sendCardsMessage({
@@ -93,12 +98,47 @@ const aputpmQueries = {
       action: 'tickets.find',
       data: {
         ...cardQuery,
-        ...filter
+        ...filter,
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
-  }
+  },
+
+  async myStandartKnowledgeConnects(
+    _root,
+    { kbCategoryId },
+    { subdomain, models }: IContext,
+  ) {
+    const articles = await sendKbMessage({
+      subdomain,
+      action: 'articles.find',
+      data: {
+        query: {
+          categoryId: kbCategoryId,
+        },
+      },
+      isRPC: true,
+      defaultValue: [],
+    });
+
+    const articleIds = articles.map(({ _id }) => _id);
+
+    const assets = await sendCommonMessage({
+      serviceName: 'assets',
+      subdomain,
+      action: 'assets.find',
+      data: {
+        kbArticleIds: { $in: articleIds },
+      },
+      isRPC: true,
+      defaultValue: [],
+    });
+
+    const safetyTips = await models.SafetyTips.find({ kbCategoryId });
+
+    return { assets, safetyTips };
+  },
 };
 
 export default aputpmQueries;

@@ -1,30 +1,31 @@
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import { Route, Routes } from "react-router-dom";
 
-const GoalTypesList = asyncComponent(() =>
-  import(/* webpackChunkName: "GoalTypesList" */ './containers/goalTypesList')
+import React from "react";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
+import { useLocation } from "react-router-dom";
+
+const GoalTypesList = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "GoalTypesList" */ "./containers/goalTypesList")
 );
 
-const goalTypesLists = ({ location, history }) => {
-  return (
-    <GoalTypesList
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const GoalTypesLists = () => {
+  const location = useLocation();
+
+  return <GoalTypesList queryParams={queryString.parse(location.search)} />;
 };
 
-const GoalRoutes = () => {
+const routes = () => {
   return (
-    <React.Fragment>
+    <Routes>
       <Route
+        key="/erxes-plugin-goalType/goalType"
         path="/erxes-plugin-goalType/goalType"
-        component={goalTypesLists}
+        element={<GoalTypesLists />}
       />
-    </React.Fragment>
+    </Routes>
   );
 };
 
-export default GoalRoutes;
+export default routes;

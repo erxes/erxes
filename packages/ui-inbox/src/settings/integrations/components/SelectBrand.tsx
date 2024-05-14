@@ -1,15 +1,15 @@
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 
-import BrandForm from '@erxes/ui/src/brands/components/BrandForm';
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IBrand } from '@erxes/ui/src/brands/types';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import { Row } from '../styles';
-import { __ } from '@erxes/ui/src/utils';
+import BrandForm from "@erxes/ui/src/brands/components/BrandForm";
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IBrand } from "@erxes/ui/src/brands/types";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import { Row } from "../styles";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   brands: IBrand[];
@@ -36,7 +36,7 @@ class SelectBrand extends React.Component<Props, {}> {
       </Button>
     );
 
-    const content = props => (
+    const content = (props) => (
       <BrandForm {...props} renderButton={renderButton} />
     );
 
@@ -52,7 +52,7 @@ class SelectBrand extends React.Component<Props, {}> {
       defaultValue,
       formProps,
       isRequired,
-      description
+      description,
     } = this.props;
 
     return (
@@ -63,14 +63,14 @@ class SelectBrand extends React.Component<Props, {}> {
           <FormControl
             {...formProps}
             name="brandId"
-            componentClass="select"
-            placeholder={__('Select Brand')}
+            componentclass="select"
+            placeholder={__("Select Brand")}
             defaultValue={defaultValue}
             onChange={onChange}
             required={isRequired}
           >
             <option />
-            {brands.map(brand => (
+            {brands.map((brand) => (
               <option key={brand._id} value={brand._id}>
                 {brand.name}
               </option>

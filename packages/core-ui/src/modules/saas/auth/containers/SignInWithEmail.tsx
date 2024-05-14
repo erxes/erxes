@@ -3,7 +3,6 @@ import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
 import React from 'react';
-import { withRouter } from 'react-router-dom';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 
 import { Alert, __ } from 'modules/common/utils';
@@ -71,4 +70,4 @@ export default compose(
   graphql(gql(mutations.loginWithGoogle), {
     name: 'loginWithGoogle',
   }),
-)(withRouter<FinalProps>(withCurrentOrganization(SignInWithEmailContainer)));
+)(withCurrentOrganization(SignInWithEmailContainer));

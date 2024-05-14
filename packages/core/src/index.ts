@@ -40,11 +40,7 @@ import logs from './logUtils';
 import init from './startup';
 import forms from './forms';
 import { generateModels } from './connectionResolver';
-import {
-  authCookieOptions,
-  getSubdomain,
-  connectionOptions,
-} from '@erxes/api-utils/src/core';
+import { authCookieOptions, getSubdomain } from '@erxes/api-utils/src/core';
 import segments from './segments';
 import automations from './automations';
 import imports from './imports';
@@ -187,9 +183,7 @@ app.get('/read-file', async (req: any, res, next) => {
   const models = await generateModels(subdomain);
 
   try {
-    const key = req.query.key;
-    const name = req.query.name;
-    const width = req.query.width;
+    const { key, inline, name, width } = req.query;
 
     if (!key) {
       return res.send('Invalid key');
@@ -202,6 +196,14 @@ app.get('/read-file', async (req: any, res, next) => {
       userId: req.headers.userid,
       width,
     });
+
+    if (inline && inline === 'true') {
+      const extension = key.split('.').pop();
+      res.setHeader('Content-disposition', 'inline; filename="' + key + '"');
+      res.setHeader('Content-type', `application/${extension}`);
+
+      return res.send(response);
+    }
 
     res.attachment(name || key);
 
@@ -343,6 +345,9 @@ httpServer.listen(PORT, async () => {
       imports,
       exporter,
       dashboards,
+      cronjobs: {
+        handle10MinutelyJobAvailable: VERSION === 'saas' ? true : false,
+      },
     },
   });
 

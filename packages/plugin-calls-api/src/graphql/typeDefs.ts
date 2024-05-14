@@ -45,7 +45,7 @@ const types = `
     _id: String 
     erxesApiId: String
     integrationId: String
-    callerNumber: String
+    customerPhone: String
     operatorPhone: String
     callId: String
     channels: [CallChannel]
@@ -53,7 +53,7 @@ const types = `
 
   type CallConversationDetail {
     customer: Customer
-    conversation: CallConversation
+    channels: [CallChannel]
   }
   type CallActiveSession {
     _id: String
@@ -62,8 +62,8 @@ const types = `
   }
    type CallHistory {
     _id: String
-    receiverNumber: String
-    callerNumber: String
+    operatorPhone: String
+    customerPhone: String
     callDuration: Int
     callStartTime: Date
     callEndTime: Date
@@ -76,24 +76,23 @@ const types = `
     modifiedBy: String
     customer: Customer
     extentionNumber: String
+    conversationId: String
+    recordUrl: String
   }
 `;
 
 export const subscriptions = `sessionTerminateRequested(userId: String): JSON`;
 
 const commonHistoryFields = `
-  receiverNumber: String
-  callerNumber: String
+  operatorPhone: String
+  customerPhone: String
   callDuration: Int
   callStartTime: Date
   callEndTime: Date
   callType: String
   callStatus: String
   sessionId: String
-  modifiedAt: Date
-  createdAt: Date
-  createdBy: String
-  modifiedBy: String
+  inboxIntegrationId: String
 `;
 
 const mutationFilterParams = `
@@ -111,21 +110,21 @@ const filterParams = `
 const queries = `
   callsIntegrationDetail(integrationId: String!): CallsIntegrationDetailResponse
   callUserIntegrations: [CallsIntegrationDetailResponse]
-  callsCustomerDetail(callerNumber: String): Customer
+  callsCustomerDetail(customerPhone: String): Customer
   callsActiveSession: CallActiveSession
   callHistories(${filterParams}, skip: Int): [CallHistory]
   callsGetConfigs: JSON
-
 `;
 
 const mutations = `
   callsIntegrationUpdate(configs: CallIntegrationConfigs): JSON
-  callAddCustomer(inboxIntegrationId: String, primaryPhone: String, direction: String, callID: String): CallConversationDetail
+  callAddCustomer(inboxIntegrationId: String, primaryPhone: String): CallConversationDetail
   callUpdateActiveSession: JSON
   callTerminateSession: JSON
   callDisconnect: String
   callHistoryAdd(${commonHistoryFields}): CallHistory
-  callHistoryEdit(${commonHistoryFields}): CallHistory
+  callHistoryEdit(_id: String,${commonHistoryFields}): String
+  callHistoryEditStatus(callStatus: String, conversationId: String): String
   callHistoryRemove(_id: String!): JSON
   callsUpdateConfigs(configsMap: JSON!): JSON
 `;

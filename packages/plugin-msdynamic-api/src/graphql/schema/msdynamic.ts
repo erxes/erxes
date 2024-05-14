@@ -23,10 +23,12 @@ export const queries = `
 export const mutations = `
   toCheckMsdProducts(brandId: String): JSON
   toSyncMsdProducts(brandId: String, action: String, products: [JSON]): JSON
-  toCheckMsdPrices(brandId: String): JSON
-  toSyncMsdPrices(brandId: String, action: String, prices: [JSON]): JSON
+  toSyncMsdPrices(brandId: String): JSON
   toCheckMsdProductCategories(brandId: String, categoryId: String): JSON
   toSyncMsdProductCategories(brandId: String, action: String, categoryId: String, categories: [JSON]): JSON
   toCheckMsdCustomers(brandId: String): JSON
   toSyncMsdCustomers(brandId: String, action: String, customers: [JSON]): JSON
+  toCheckMsdSynced(ids: [String], brandId: String): [CheckResponse]
+  toSyncMsdOrders(orderIds: [String]): JSON
+  toSendMsdOrders(orderIds: [String]): CheckResponse
 `;

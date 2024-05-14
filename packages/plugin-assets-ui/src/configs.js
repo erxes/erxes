@@ -1,14 +1,14 @@
 module.exports = {
   srcDir: __dirname,
   name: "assets",
-  port: 3033,
+  port: 3212,
   scope: "assets",
   exposes: {
     "./routes": "./src/routes.tsx",
     "./selectWithAsset": "./src/common/SelectWithAssets.tsx",
   },
   routes: {
-    url: "http://localhost:3033/remoteEntry.js",
+    url: "http://localhost:3212/remoteEntry.js",
     scope: "assets",
     module: "./routes",
   },

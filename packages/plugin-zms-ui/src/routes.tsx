@@ -1,7 +1,7 @@
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 
 const Zms = asyncComponent(() =>
   import(/* webpackChunkName: "List - Zmss" */ './containers/zms/List')
@@ -21,29 +21,31 @@ const MainConfig = asyncComponent(() =>
   )
 );
 
-const dictionary = ({ location, history }) => {
+const DictionaryComponent = () => {
+  const location= useLocation()
   const queryParams = queryString.parse(location.search);
   const { parentId } = queryParams;
-  return <Dictionary parentId={parentId} history={history} />;
+  return <Dictionary parentId={parentId} />;
 };
 
-const zms = ({ location, history }) => {
+const ZmsComponent = () => {
+  const location= useLocation()
   const queryParams = queryString.parse(location.search);
   const { id } = queryParams;
-  return <Zms id={id} history={history} />;
+  return <Zms id={id} />;
 };
 
-const mainSettings = () => {
+const MainSettings = () => {
   return <Settings components={MainConfig}></Settings>;
 };
 
 const routes = () => {
   return (
-    <>
-      <Route path="/plugin-zms/dictionary" component={dictionary} />
-      <Route path="/plugin-zms/zms" component={zms} />
-      <Route path="/plugin-zms/settings" component={mainSettings} />
-    </>
+    <Routes>
+      <Route path="/plugin-zms/dictionary" element={<DictionaryComponent/>} />
+      <Route path="/plugin-zms/zms" element={<ZmsComponent/>} />
+      <Route path="/plugin-zms/settings" element={<MainSettings/>} />
+    </Routes>
   );
 };
 

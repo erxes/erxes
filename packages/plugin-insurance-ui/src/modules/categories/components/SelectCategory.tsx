@@ -1,6 +1,10 @@
 import { __ } from '@erxes/ui/src/utils/core';
 import React, { useEffect, useState } from 'react';
-import Select from 'react-select-plus';
+import Select, {
+  OnChangeValue,
+  components,
+  MultiValueProps,
+} from 'react-select';
 
 import { InsuranceCategory, Risk } from '../../../gql/types';
 
@@ -46,6 +50,11 @@ const SelectCategory: React.FC<Props> = (props) => {
     }
   };
 
+  const options: any = categories.map((cat) => ({
+    value: cat._id,
+    label: cat.name,
+  }));
+
   return (
     <>
       <Select
@@ -55,11 +64,8 @@ const SelectCategory: React.FC<Props> = (props) => {
         onChange={onChangeCategory}
         isLoading={props.loading}
         onInputChange={onInputChange}
-        options={categories.map((cat) => ({
-          value: cat._id,
-          label: cat.name,
-        }))}
-        multi={false}
+        options={options}
+        isMulti={false}
       />
     </>
   );

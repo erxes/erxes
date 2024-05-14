@@ -34,7 +34,7 @@ class LogRow extends React.Component<Props> {
         <td>{renderUserFullName(log.user)}</td>
         <td>{log.contentType}</td>
         <td>
-          <TextInfo textStyle={actionClass}>{log.description}</TextInfo>
+          <TextInfo $textStyle={actionClass}>{log.description}</TextInfo>
         </td>
       </tr>
     );

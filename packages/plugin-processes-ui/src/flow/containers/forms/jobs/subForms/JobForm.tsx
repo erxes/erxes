@@ -1,21 +1,21 @@
 import * as compose from 'lodash.flowright';
-import EndPointForm from '../../../../components/forms/jobs/subForms/EndPointForm';
-import { gql } from '@apollo/client';
-import JobForm from '../../../../components/forms/jobs/subForms/JobForm';
-import React, { useState } from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { graphql } from '@apollo/client/react/hoc';
-import { IJob } from '../../../../types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
+
 import {
+  IJobRefer,
   JobReferDetailQueryResponse,
-  IJobRefer
 } from '../../../../../job/types';
+import React, { useState } from 'react';
+
+import EndPointForm from '../../../../components/forms/jobs/subForms/EndPointForm';
+import { FLOWJOB_TYPES } from '../../../../constants';
+import { IJob } from '../../../../types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import JobForm from '../../../../components/forms/jobs/subForms/JobForm';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../../../../../job/graphql';
 import { withProps } from '@erxes/ui/src/utils';
-import { withRouter } from 'react-router-dom';
-import { FLOWJOB_TYPES } from '../../../../constants';
 
 type Props = {
   id: string;
@@ -33,8 +33,7 @@ type Props = {
 type FinalProps = {
   jobReferDetailQuery: JobReferDetailQueryResponse;
   currentUser: IUser;
-} & Props &
-  IRouterProps;
+} & Props;
 
 const JobFormContainer = (props: FinalProps) => {
   const { currentUser, jobReferDetailQuery, activeFlowJob } = props;
@@ -54,7 +53,7 @@ const JobFormContainer = (props: FinalProps) => {
     ...props,
     currentUser,
     saveLoading,
-    jobRefer
+    jobRefer,
   };
 
   if (props.type === FLOWJOB_TYPES.ENDPOINT) {
@@ -71,9 +70,9 @@ export default withProps<Props>(
       skip: ({ activeFlowJob }) => !activeFlowJob.config.jobReferId,
       options: ({ activeFlowJob }) => ({
         variables: {
-          id: activeFlowJob.config.jobReferId
-        }
-      })
-    })
-  )(withRouter<FinalProps>(JobFormContainer))
+          id: activeFlowJob.config.jobReferId,
+        },
+      }),
+    }),
+  )(JobFormContainer),
 );

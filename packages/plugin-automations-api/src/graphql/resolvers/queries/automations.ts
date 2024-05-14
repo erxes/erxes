@@ -1,13 +1,14 @@
-import { paginate } from '@erxes/api-utils/src';
+import { STATUSES, UI_ACTIONS } from '../../../constants';
 import {
   checkPermission,
   requireLogin,
 } from '@erxes/api-utils/src/permissions';
-import { IContext } from '../../../connectionResolver';
-import { sendSegmentsMessage } from '../../../messageBroker';
-import { ITrigger } from '../../../models/definitions/automaions';
-import { STATUSES, UI_ACTIONS } from '../../../constants';
 import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
+
+import { IContext } from '../../../connectionResolver';
+import { ITrigger } from '../../../models/definitions/automaions';
+import { paginate } from '@erxes/api-utils/src';
+import { sendSegmentsMessage } from '../../../messageBroker';
 
 interface IListArgs {
   status: string;

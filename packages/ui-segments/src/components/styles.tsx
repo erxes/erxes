@@ -21,8 +21,8 @@ const SegmentWrapper = styled.div`
   padding: ${dimensions.unitSpacing}px;
 `;
 
-const ConditionItem = styledTS<{ useMargin: boolean }>(styled.div)`
-  margin-left: ${props => props.useMargin && '30px'};
+const ConditionItem = styledTS<{ $useMargin: boolean }>(styled.div)`
+  margin-left: ${props => props.$useMargin && '30px'};
   
   i{
     cursor: pointer;
@@ -188,10 +188,10 @@ const Condition = styled.div`
   }
 `;
 
-const ButtonWrapper = styledTS<{ hasCondition: boolean }>(styled.div)`
+const ButtonWrapper = styledTS<{ $hasCondition: boolean }>(styled.div)`
   > button {
     margin: ${props =>
-      !props.hasCondition ? '10px 0 10px 40px' : '0 0 10px 10px'};
+      !props.$hasCondition ? '10px 0 10px 40px' : '0 0 10px 10px'};
   }
 `;
 
@@ -218,6 +218,14 @@ const PropertyText = styled.span`
 const ConditionGroup = styled(GroupWrapper)`
   padding: 10px 10px 10px 0;
   margin-bottom: ${dimensions.headerSpacing}px;
+
+  .headlessui-popover-tooltip > button {
+    position: absolute;
+    padding: 5px 8px;
+    top: -5px;
+    right: -10px;
+    background: rgb(240, 240, 240) !important;
+  }
 `;
 
 const Count = styled.div`

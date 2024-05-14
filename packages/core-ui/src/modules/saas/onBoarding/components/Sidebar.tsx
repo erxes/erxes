@@ -10,7 +10,6 @@ import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 import OnBoardingDone from '../container/OnBoardingDone';
 
 type Props = {
-  history: any;
   activeStep: number;
   totalStep: number;
   currentUser: IUser;
@@ -32,7 +31,6 @@ type Props = {
 
 const Sidebar = (props: Props) => {
   const {
-    history,
     activeStep,
     totalStep,
     currentUser,
@@ -53,10 +51,6 @@ const Sidebar = (props: Props) => {
   } = props;
 
   const renderContent = () => {
-    const commonProps = {
-      history,
-    };
-
     const profileProps = {
       firstName,
       lastName,
@@ -76,7 +70,7 @@ const Sidebar = (props: Props) => {
     };
 
     if (activeStep === 0) {
-      return <Welcome {...commonProps} />;
+      return <Welcome />;
     }
 
     if (activeStep === totalStep) {
@@ -88,7 +82,6 @@ const Sidebar = (props: Props) => {
         if (activeStep === 1) {
           return (
             <ProfileSetup
-              {...commonProps}
               currentUser={currentUser}
               {...profileProps}
             />
@@ -100,7 +93,6 @@ const Sidebar = (props: Props) => {
         if (activeStep === 2) {
           return (
             <Messenger
-              {...commonProps}
               {...messengerProps}
               integration={integration}
             />
@@ -108,7 +100,7 @@ const Sidebar = (props: Props) => {
         }
 
         if (activeStep === 3) {
-          return <MessengerScript {...commonProps} integration={integration} />;
+          return <MessengerScript integration={integration} />;
         }
       }
     });

@@ -1,44 +1,30 @@
-import React, { useEffect, useState } from 'react';
-import Select from 'react-select-plus';
-
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Button from '@erxes/ui/src/components/Button';
-import ChartRenderer from '../../containers/chart/ChartRenderer';
-import { Form as CommonForm } from '@erxes/ui/src/components/form';
-import { FormColumn } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
 import ChartFormField, {
   IFilterType,
-} from '../../containers/chart/ChartFormField';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-
+} from "../../containers/chart/ChartFormField";
 import {
   Description,
+  DragField,
   FlexColumn,
   FormChart,
   FormContent,
   FormFooter,
   FormWrapper,
-  DragField,
-} from '../../styles';
-import { IChart } from '../../types';
+} from "../../styles";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import React, { useEffect, useState } from "react";
 
-const DIMENSION_OPTIONS = [
-  { label: 'Team members', value: 'teamMember' },
-  { label: 'Departments', value: 'department' },
-  { label: 'Branches', value: 'branch' },
-  { label: 'Source/Channel', value: 'source' },
-  { label: 'Brands', value: 'brand' },
-  { label: 'Tags', value: 'tag' },
-  { label: 'Labels', value: 'label' },
-  { label: 'Frequency (day, week, month)', value: 'frequency' },
-  { label: 'Status', value: 'status' },
-];
+import Button from "@erxes/ui/src/components/Button";
+import ChartRenderer from "../../containers/chart/ChartRenderer";
+import { Form as CommonForm } from "@erxes/ui/src/components/form";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { FormColumn } from "@erxes/ui/src/styles/main";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IChart } from "../../types";
+import Select from "react-select";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
-  history: any;
   queryParams: any;
 
   chart?: IChart;
@@ -46,7 +32,7 @@ type Props = {
   serviceNames: string[];
 
   item: any;
-  type?: 'dashboard' | 'report';
+  type?: "dashboard" | "report";
 
   closeDrawer(): void;
 
@@ -56,7 +42,6 @@ type Props = {
 
 const Form = (props: Props) => {
   const {
-    history,
     queryParams,
     chart,
     item,
@@ -68,33 +53,36 @@ const Form = (props: Props) => {
     updateServiceName,
   } = props;
 
-  const [name, setName] = useState(chart?.name || '');
+  const [name, setName] = useState(chart?.name || "");
   const [chartTypes, setChartTypes] = useState([]);
-  const [serviceName, setServiceName] = useState(chart?.serviceName || '');
-  const [templateType, setChartTemplate] = useState(chart?.templateType || '');
-  const [chartType, setChartType] = useState<string>(chart?.chartType || 'bar');
+  const [serviceName, setServiceName] = useState(chart?.serviceName || "");
+  const [templateType, setChartTemplate] = useState(chart?.templateType || "");
+  const [chartType, setChartType] = useState<string>(chart?.chartType || "bar");
   const [filterTypes, setFilterTypes] = useState<IFilterType[]>([]);
   const [filters, setFilters] = useState<any>(chart?.filter || {});
   const [dimension, setDimension] = useState<any>(chart?.dimension || {});
   const [dimensions, setDimensions] = useState<any>([]);
 
   useEffect(() => {
-    if (type === 'report' && !chart) {
+    if (type === "report" && !chart) {
       updateServiceName(item?.serviceName || undefined);
-      setServiceName(item?.serviceName || '');
+      setServiceName(item?.serviceName || "");
     }
   }, [item?.serviceName]);
 
-  const chartTypesOptions = chartTypes.map((c) => ({ label: c, value: c }));
+  const chartTypesOptions = (chartTypes || []).map((c) => ({
+    label: c,
+    value: c,
+  }));
 
-  const chartTemplatesOptions = chartTemplates.map((c) => ({
+  const chartTemplatesOptions = (chartTemplates || []).map((c) => ({
     label: c.name,
     value: c.templateType,
   }));
 
   useEffect(() => {
     const findChartTemplate = chartTemplates.find(
-      (t) => t.templateType === templateType,
+      (t) => t.templateType === templateType
     );
 
     if (findChartTemplate) {
@@ -107,7 +95,6 @@ const Form = (props: Props) => {
   }, [[...chartTemplates]]);
 
   const generateDoc = (values) => {
-
     const finalValues = values;
     if (chart) {
       finalValues._id = chart._id;
@@ -128,15 +115,12 @@ const Form = (props: Props) => {
       doc.contentType = type;
     }
 
-
     return doc;
   };
 
   const onServiceNameChange = (selVal) => {
     updateServiceName(selVal.value);
     setServiceName(selVal.value);
-
-
   };
 
   const onChartTemplateChange = (selVal) => {
@@ -149,21 +133,31 @@ const Form = (props: Props) => {
   };
 
   const setFilter = (fieldName: string, value: any) => {
-    if (!value) {
-      delete filters[fieldName];
-      setFilters({ ...filters });
+    if (value === undefined || value === null) {
+      const newOne = Object.keys(filters)
+      .filter((a) => a !== fieldName)
+      .reduce((newObj, key) => {
+        newObj[key] = filters[key];
+        return newObj;
+      }, {});
+
+      setFilters({ ...newOne });
       return;
     }
 
     if (Array.isArray(value) && !value.length) {
-      delete filters[fieldName];
-      setFilters({ ...filters });
+      const newOne = Object.keys(filters)
+      .filter((option) => option !== fieldName)
+      .reduce((newObj, key) => {
+        newObj[key] = filters[key];
+        return newObj;
+      }, {});
+
+      setFilters({ ...newOne });
       return;
     }
 
-    filters[fieldName] = value;
-
-    setFilters({ ...filters });
+    setFilters({ ...filters, [fieldName]: value });
     return;
   };
 
@@ -173,16 +167,16 @@ const Form = (props: Props) => {
     }
 
     return (
-      <FlexColumn style={{ gap: '20px' }}>
-        {filterTypes.map((f: IFilterType) => (
+      <FlexColumn style={{ gap: "20px" }}>
+        {(filterTypes || []).map((f: IFilterType) => (
           <ChartFormField
             initialValue={filters[f.fieldName]}
             filterType={f}
             fieldValues={filters}
             key={f.fieldName}
             setFilter={setFilter}
-            startDate={filters['startDate']}
-            endDate={filters['endDate']}
+            startDate={filters["startDate"]}
+            endDate={filters["endDate"]}
           />
         ))}
       </FlexColumn>
@@ -199,7 +193,8 @@ const Form = (props: Props) => {
         <ControlLabel>Dimension</ControlLabel>
         <Select
           options={dimensions}
-          value={dimension?.x}
+          value={dimensions.find((o) => o.value === dimension?.x)}
+          isClearable={true}
           onChange={(sel) => setDimension({ x: sel.value })}
         />
       </>
@@ -208,14 +203,16 @@ const Form = (props: Props) => {
 
   const renderFields = () => {
     if (!templateType) {
-      return null
+      return null;
     }
 
-    return <>
-      <FormGroup>{renderDimensions()}</FormGroup>
-      <FormGroup>{renderFilterTypeFields()}</FormGroup>
-    </>
-  }
+    return (
+      <>
+        <FormGroup>{renderDimensions()}</FormGroup>
+        <FormGroup>{renderFilterTypeFields()}</FormGroup>
+      </>
+    );
+  };
 
   const renderChartTemplates = () => {
     if (!chartTemplates.length) {
@@ -225,25 +222,25 @@ const Form = (props: Props) => {
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>{__('Chart template')}</ControlLabel>
+          <ControlLabel required={true}>{__("Chart template")}</ControlLabel>
 
           <Select
             options={chartTemplatesOptions}
-            value={templateType}
+            value={chartTemplatesOptions.find((o) => o.value === templateType)}
             onChange={onChartTemplateChange}
             placeholder={__(`Choose template`)}
-            clearable={false}
+            isClearable={false}
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel required={true}>{__('Chart type')}</ControlLabel>
+          <ControlLabel required={true}>{__("Chart type")}</ControlLabel>
 
           <Select
             options={chartTypesOptions}
-            value={chartType}
+            value={chartTypesOptions.find((o) => o.value === chartType)}
             onChange={onChartTypeChange}
             placeholder={__(`Choose type`)}
-            clearable={false}
+            isClearable={false}
           />
         </FormGroup>
         {renderFields()}
@@ -253,6 +250,13 @@ const Form = (props: Props) => {
 
   const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
+
+    const serviceOptions = (serviceNames || []).map((st) => {
+      return {
+        label: st,
+        value: st,
+      };
+    });
 
     return (
       <FormWrapper>
@@ -273,7 +277,6 @@ const Form = (props: Props) => {
                 chartVariables={{ serviceName, templateType }}
                 filter={filters}
                 dimension={dimension}
-                history={history}
                 queryParams={queryParams}
                 chartHeight={800}
               />
@@ -288,7 +291,7 @@ const Form = (props: Props) => {
             </Description>
 
             <FormGroup>
-              <ControlLabel required={true}>{__('Name')}</ControlLabel>
+              <ControlLabel required={true}>{__("Name")}</ControlLabel>
 
               <FormControl
                 type="input"
@@ -297,19 +300,14 @@ const Form = (props: Props) => {
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel required={true}>{__('Service')}</ControlLabel>
+              <ControlLabel required={true}>{__("Service")}</ControlLabel>
 
               <Select
-                options={serviceNames.map((st) => {
-                  return {
-                    label: st,
-                    value: st,
-                  };
-                })}
-                value={serviceName}
+                options={serviceOptions}
+                value={serviceOptions.find((o) => o.value === serviceName)}
                 onChange={onServiceNameChange}
                 placeholder={__(`Choose service`)}
-                clearable={false}
+                isClearable={false}
               />
             </FormGroup>
 
@@ -323,11 +321,11 @@ const Form = (props: Props) => {
               onClick={closeDrawer}
               icon="times-circle"
             >
-              {__('Cancel')}
+              {__("Cancel")}
             </Button>
 
             {renderButton({
-              name: 'Chart',
+              name: "Chart",
               values: generateDoc(values),
               isSubmitted,
               object: props.chart,

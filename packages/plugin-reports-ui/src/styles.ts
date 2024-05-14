@@ -1,11 +1,12 @@
-import RGL, { WidthProvider } from 'react-grid-layout';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { colors, dimensions } from '@erxes/ui/src/styles';
 import { Contents, FlexContent } from '@erxes/ui/src/layout/styles';
-import { lighten } from '@erxes/ui/src/styles/ecolor';
+import RGL, { WidthProvider } from 'react-grid-layout';
+import { colors, dimensions } from '@erxes/ui/src/styles';
+
 import { ActionButtons } from '@erxes/ui-settings/src/styles';
 import { RightMenuContainer } from '@erxes/ui-cards/src/boards/styles/rightMenu';
+import { lighten } from '@erxes/ui/src/styles/ecolor';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const ReactGridLayout = WidthProvider(RGL);
 
@@ -350,7 +351,7 @@ const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
 `;
 
 const SideList = styledTS<{
-  isActive?: boolean;
+  $isActive?: boolean;
   level?: number;
 }>(styled(SidebarListItem))`
   white-space: normal !important;
@@ -360,16 +361,16 @@ const SideList = styledTS<{
   > span {
     width: 90%;
     display: flex;
-    color: ${(props) => props.isActive && colors.colorPrimary};
+    color: ${(props) => props.$isActive && colors.colorPrimary};
 
     &:hover {
-      color: ${(props) => !props.isActive && lighten(colors.textPrimary, 40)};
+      color: ${(props) => !props.$isActive && lighten(colors.textPrimary, 40)};
     }
 
     > i {
       margin-right: 5px;
       color: ${(props) =>
-        props.isActive
+        props.$isActive
           ? colors.colorPrimary
           : !props.level || props.level === 0
             ? colors.colorCoreBlue
@@ -378,7 +379,7 @@ const SideList = styledTS<{
   }
 
   &:hover {
-    background: ${(props) => !props.isActive && colors.bgLight};
+    background: ${(props) => !props.$isActive && colors.bgLight};
   }
 `;
 
