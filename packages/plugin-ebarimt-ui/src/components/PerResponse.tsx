@@ -70,54 +70,50 @@ export default (response, counter?) => {
 
       ${response.id
       ? `
-            <div>
-              <p>ТТД: ${response.merchantTin}</p>
-              ${(response.id && `<p>ДДТД: ${response.id}</p>`) || ''}
-              <p>Огноо: ${response.date}</p>
-              ${(response.number && `<p>№: ${response.number}</p>`) || ''}
-            </div>
+        <div>
+          <p>ТТД: ${response.merchantTin}</p>
+          ${(response.id && `<p>ДДТД: ${response.id}</p>`) || ''}
+          <p>Огноо: ${response.date}</p>
+          ${(response.number && `<p>№: ${response.number}</p>`) || ''}
+        </div>
 
-            ${customerInfo(response)}
+        ${customerInfo(response)}
 
-            <table class="tb" cellpadding="0" cellspacing="0">
-              <thead>
-                <tr class="text-center">
-                  <th>Нэгж үнэ</th>
-                  <th>Тоо</th>
-                  <th>НӨАТ</th>
-                  <th>Нийт үнэ</th>
-                </tr>
-              </thead>
-              <tbody>
-              ${getRows(response.receipts || [])}
-              </tbody>
-            </table>
+        <table class="tb" cellpadding="0" cellspacing="0">
+          <thead>
+            <tr class="text-center">
+              <th>Нэгж үнэ</th>
+              <th>Тоо</th>
+              <th>НӨАТ</th>
+              <th>Нийт үнэ</th>
+            </tr>
+          </thead>
+          <tbody>
+          ${getRows(response.receipts || [])}
+          </tbody>
+        </table>
 
-            <div class="total">
-              <p><label>НӨАТ:</label> ${getNum(response.totalVAT)}</p>
-              <p><label>НХАТ:</label> ${getNum(response.totalCityTax)}</p>
-              <p><label>Бүгд үнэ:</label> ${getNum(response.totalAmount)}</p>
-            </div>
+        <div class="total">
+          <p><label>НӨАТ:</label> ${getNum(response.totalVAT)}</p>
+          <p><label>НХАТ:</label> ${getNum(response.totalCityTax)}</p>
+          <p><label>Бүгд үнэ:</label> ${getNum(response.totalAmount)}</p>
+        </div>
 
-            <div class="center barcode">
-              <div class="lottery">
-                ${response.lottery ? `Сугалаа: ${response.lottery}` : ''}
-              </div>
+        <div class="center barcode">
+          <div class="lottery">
+            ${response.lottery ? `Сугалаа: ${response.lottery}` : ''}
+          </div>
 
-        ${response.qrData
-        ? `
+          ${response.qrData ? `
             <canvas id="qrcode${(response._id || '').toString().replace('.', '')}">
             </canvas>
-            `
-        : ''
-      }
+          ` : ''}
 
-              <p>Манайхаар үйлчлүүлсэн танд баярлалаа !!!</p>
-            </div>
-          `
-      : `
-            Буцаалт амжилттай.
-          `
+          <p>Манайхаар үйлчлүүлсэн танд баярлалаа !!!</p>
+        </div>
+      ` : `
+        Буцаалт амжилттай.
+      `
     }
     </div>
     <script>
