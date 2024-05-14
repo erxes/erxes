@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import Modal from './PaymentModal';
 
-import '../common/styles.css';
+import PaymentType from './PaymentType';
 
 type Props = {
   invoiceDetail: any;
@@ -9,9 +9,31 @@ type Props = {
   apiDomain: string;
   newTransaction: any;
   transactionLoading?: boolean;
+  checkInvoiceLoading?: boolean;
   requestNewTransaction: (paymentId: string, details?: any) => void;
   checkInvoiceHandler: (id: string) => void;
 };
+
+type ContextProps = Props & {
+  isOpen: boolean;
+  onClose: () => void;
+  transaction: any;
+  kind: string;
+  paymentId: string;
+  apiResponse?: any;
+};
+
+const PaymentContext = createContext<ContextProps | null>(null);
+
+export function usePayment() {
+  const context = useContext(PaymentContext);
+
+  if (!context) {
+    throw new Error('usePayment must be used within a <PaymentGateway />');
+  }
+
+  return context;
+}
 
 const PaymentGateway = (props: Props) => {
   const { invoiceDetail } = props;
@@ -22,38 +44,36 @@ const PaymentGateway = (props: Props) => {
   );
 
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [kind, setKind] = useState(props.newTransaction?.paymentKind || 'default');
-  const [currentPaymentId, setCurrentPaymentId] = useState(props.newTransaction?.paymentId || '');
+  const [kind, setKind] = useState(
+    props.newTransaction?.paymentKind || 'default'
+  );
+  const [currentPaymentId, setCurrentPaymentId] = useState(
+    props.newTransaction?.paymentId || ''
+  );
 
-  const openModal = (payment) => {
+  const openModal = payment => {
     setCurrentPaymentId(payment._id);
     setCurrentTransaction(null);
     setKind(payment.kind);
 
-    if (payment.kind === 'storepay') {
-      setModalIsOpen(true);
+    if (payment.kind !== 'storepay') {
+      const pendingTransaction = transactions.find(
+        t => t.paymentId === payment._id && t.status === 'pending'
+      );
 
-      return;
-    }
-
-    const pendingTransaction = transactions.find(
-      (t) => t.paymentId === payment._id && t.status === 'pending'
-    );
-
-    if (pendingTransaction && pendingTransaction.paymentKind === 'minupay') {
-      props.requestNewTransaction(payment._id);
-    } else if (pendingTransaction) {
-      setCurrentTransaction(pendingTransaction);
-    } else {
-      props.requestNewTransaction(payment._id);
+      if (pendingTransaction && pendingTransaction.paymentKind === 'minupay') {
+        props.requestNewTransaction(payment._id);
+      } else if (pendingTransaction) {
+        setCurrentTransaction(pendingTransaction);
+      } else {
+        props.requestNewTransaction(payment._id);
+      }
     }
 
     setModalIsOpen(true);
   };
 
-  const closeModal = () => {
-    setModalIsOpen(false);
-  };
+  const closeModal = () => setModalIsOpen(false);
 
   const { payments } = props;
 
@@ -63,55 +83,57 @@ const PaymentGateway = (props: Props) => {
     }
   }, [transactions, props.newTransaction]);
 
-  const renderPayment = (payment) => {
+  const renderPayment = payment => {
     return (
-      <button
-        key={payment._id}
-        className="button"
-        type="button"
+      <PaymentType
+        key={payment.kind}
+        type={payment.kind}
+        url={`${props.apiDomain}/pl:payment/static/images/payments/${payment.kind}.png`}
+        name={`${payment.kind} - ${payment.name}`}
         onClick={() => {
           openModal(payment);
         }}
-      >
-        <img
-          src={`${props.apiDomain}/pl:payment/static/images/payments/${payment.kind}.png`}
-          alt={payment.kind}
-        />
-        <div className="payment-name">
-          <p>{`${payment.kind} - ${payment.name}`}</p>
-        </div>
-      </button>
+      />
     );
   };
 
   return (
-    <div id="root">
-      <div className="my-layout">
-        <div className="header">
-          Payment methods
-          <h1 style={{ fontSize: '16px', color: 'grey' }}>
-            Choose your payment method
-          </h1>
-        </div>
-        <div className="paymentContainer">
-          {payments.map((payment) => renderPayment(payment))}
-        </div>
-        <div className="block amount">
-          <h4>Payment amount</h4>
-          <h2 className="amount-total" id="payment-amount">
-            {invoiceDetail.amount} ₮
+    <main>
+      <div className="md:fixed md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 p-4 md:px-6 md:border border-neutral-500/10 bg-white md:rounded-lg md:shadow-lg w-full max-w-3xl ">
+        <header className="border-b pb-3 border-dashed">
+          <h2 className="font-semibold text-lg leading-snug">
+            Payment methods
           </h2>
+          <div className="text-xs text-neutral-500">
+            Choose your payment method
+          </div>
+        </header>
+        <div className="min-h-48">
+          <div className="pt-4 pb-8 grid md:grid-cols-2 gap-4 ">
+            {payments.map(payment => renderPayment(payment))}
+          </div>
+        </div>
+        <div className="text-right border-t border-dashed pt-3">
+          <p className="text-neutral-500 text-sm">Payment Amount</p>
+          <div className="font-bold text-2xl">
+            {invoiceDetail.amount.toLocaleString()} ₮
+          </div>
         </div>
       </div>
-      <Modal
-        {...props}
-        isOpen={modalIsOpen}
-        onClose={closeModal}
-        transaction={currentTransaction}
-        kind={kind}
-        paymentId={currentPaymentId}
-      />
-    </div>
+      <PaymentContext.Provider
+        value={{
+          ...props,
+          isOpen: modalIsOpen,
+          onClose: closeModal,
+          transaction: currentTransaction,
+          kind: kind.includes('qpay') ? 'qpay' : kind,
+          paymentId: currentPaymentId,
+          apiResponse: currentTransaction?.response
+        }}
+      >
+        <Modal />
+      </PaymentContext.Provider>
+    </main>
   );
 };
 
