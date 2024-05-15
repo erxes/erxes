@@ -15,7 +15,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { callPropType, sipPropType } from '../lib/types';
 
 import Avatar from '@erxes/ui/src/components/nameCard/Avatar';
-import { CALL_STATUS_IDLE } from '../lib/enums';
+import { CALL_STATUS_IDLE, CALL_STATUS_ACTIVE } from '../lib/enums';
 import Icon from '@erxes/ui/src/components/Icon';
 import { callActions } from '../utils';
 import { caller } from '../constants';
@@ -26,6 +26,7 @@ type Props = {
   channels: any;
   hasMicrophone: boolean;
   phoneNumber: string;
+  hideIncomingCall?: boolean;
 };
 
 const getSpentTime = (seconds: number) => {
@@ -57,15 +58,18 @@ const formatNumber = (n: number) => {
 
 const IncomingCall = (props: Props, context) => {
   const Sip = context;
-  const { mute, unmute, isMuted, isHolded, hold, unhold } = Sip;
-  const { customer, hasMicrophone, phoneNumber, channels } = props;
+  const { mute, unmute, isMuted, isHolded, hold, unhold, call } = Sip;
+  const { customer, hasMicrophone, phoneNumber, channels, hideIncomingCall } =
+    props;
   const primaryPhone = customer?.primaryPhone || '';
 
   const [haveIncomingCall, setHaveIncomingCall] = useState(
     primaryPhone ? true : false,
   );
   const [timeSpent, setTimeSpent] = useState(0);
-  const [status, setStatus] = useState('pending');
+  const [status, setStatus] = useState(
+    call.status === CALL_STATUS_ACTIVE ? 'active' : 'pending',
+  );
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   useEffect(() => {
@@ -199,7 +203,7 @@ const IncomingCall = (props: Props, context) => {
     );
   }
 
-  if (status === 'accepted' && !haveIncomingCall) {
+  if (status === 'accepted' && !haveIncomingCall && !hideIncomingCall) {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.src = '';
