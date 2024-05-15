@@ -22,10 +22,10 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: Use Node.js 18.18.x
+      - name: Use Node.js 18.17.x
         uses: actions/setup-node@v4
         with:
-          node-version: 18.18.x
+          node-version: 18.17.x
 
       - uses: actions/checkout@v4
 
