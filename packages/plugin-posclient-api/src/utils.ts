@@ -372,31 +372,6 @@ export const prepareSettlePayment = async (
 
       let response;
 
-      // if (data.inner) {
-      //   const putData = new PutData({
-      //     ...config,
-      //     ...data,
-      //     config,
-      //     models,
-      //   });
-
-      //   response = {
-      //     _id: Math.random(),
-      //     billId: 'Түр баримт',
-      //     ...(await putData.generateTransactionInfo()),
-      //     registerNo: ebarimtConfig.companyRD || '',
-      //     success: 'true',
-      //   };
-      //   ebarimtResponses.push(response);
-
-      //   await models.OrderItems.updateOne(
-      //     { _id: { $in: data.itemIds } },
-      //     { $set: { isInner: true } },
-      //   );
-
-      //   continue;
-      // }
-
       try {
         response = await models.PutResponses.putData(
           { ...ebarimtData },

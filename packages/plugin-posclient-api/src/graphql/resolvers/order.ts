@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import { IContext } from '../../connectionResolver';
 import { IOrderDocument } from '../../models/definitions/orders';
-import { IOrderItem } from '../../models/definitions/orderItems';
+import { IOrderItemDocument } from '../../models/definitions/orderItems';
 import { IEbarimtDocument } from '../../models/definitions/putResponses';
 import {
   sendCardsMessage,
@@ -83,8 +83,8 @@ export default {
 
   async putResponses(order: IOrderDocument, { }, { models, config }: IContext) {
     if (order.billType === '9') {
-      const items: IOrderItem[] =
-        (await models.OrderItems.find({ orderId: order._id }).lean()) || [];
+      const items: IOrderItemDocument[] = await models.OrderItems.find({ orderId: order._id }).lean();
+
       const products = await models.Products.find({
         _id: { $in: items.map(item => item.productId) }
       });
@@ -95,44 +95,50 @@ export default {
 
       return [
         {
+          id: '',
+          number: order.number,
           contentType: 'pos',
           contentId: order._id,
-          number: order.number,
-          success: 'true',
-          billId: '',
-          date: moment(order.paidDate).format('yyyy-MM-dd hh:mm:ss'),
-          macAddress: '',
-          internalCode: '',
-          billType: '9',
-          lotteryWarningMsg: '',
-          errorCode: '',
-          message: '',
-          getInformation: '',
-          taxType: '1',
+          posToken: config.token,
+          totalAmount: order.totalAmount,
+          totalVAT: 0,
+          totalCityTax: 0,
+          type: '9',
+          status: 'SUCCESS',
           qrData: '',
           lottery: '',
-          sendInfo: {},
-          status: '',
-          stocks: items.map(item => ({
-            code: productById[item.productId].code,
-            name: productById[item.productId].name,
-            shortName: productById[item.productId].shortName,
-            measureUnit: productById[item.productId].uom || 'ш',
-            qty: item.count,
-            unitPrice: item.unitPrice,
-            totalAmount: (item.unitPrice || 0) * item.count,
-            vat: '0.00',
-            cityTax: '0.00',
-            discount: item.discountAmount
-          })),
-          amount: order.totalAmount,
-          vat: 0,
-          cityTax: 0,
+          date: moment(order.paidDate).format('yyyy-MM-dd hh:mm:ss'),
+
           cashAmount: order.cashAmount || 0,
           nonCashAmount: order.totalAmount - (order.cashAmount || 0),
           registerNo: '',
           customerNo: '',
-          customerName: ''
+          customerName: '',
+
+          receipts: [{
+            _id: Math.random(),
+            id: Math.random(),
+            totalAmount: order.totalAmount,
+            totalVAT: 0,
+            totalCityTax: 0,
+            taxType: 'NO_VAT',
+            items: items.map(item => ({
+              _id: item._id,
+              id: item.id,
+              name: productById[item.productId].shortName || productById[item.productId].name,
+              measureUnit: productById[item.productId].uom || 'ш',
+              qty: item.count,
+              unitPrice: item.unitPrice,
+              totalAmount: (item.unitPrice || 0) * item.count,
+              totalVAT: 0,
+              totalCityTax: 0,
+              totalBonus: item.discountAmount,
+            })),
+          }],
+          payments: [
+            {}
+          ],
+
         }
       ];
     }

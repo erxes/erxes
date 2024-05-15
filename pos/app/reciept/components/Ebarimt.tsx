@@ -36,7 +36,7 @@ const Ebarimt = ({
         {Number(totalVAT) > 0 && <p>НӨАТ: {formatNum(Number(totalVAT))}</p>}
         {Number(totalCityTax) > 0 && <p>НXАТ: {formatNum(Number(totalCityTax))}</p>}
         <p>Дүн: {formatNum(totalAmount || 0)}</p>
-        {!printType && (
+        {!printType && !!lottery && (
           <div>
             Сугалаа: <div className="font-semibold">{lottery}</div>
           </div>
