@@ -24,7 +24,6 @@ const GrandStream: React.FC<Props> = ({ conversation }) => {
   const renderAudio = () => {
     return (
       <Audio>
-        <span>Recorder</span>
         <audio controls={true}>
           <source src={readFile(recordUrl)} type="audio/wav" />{' '}
         </audio>

@@ -5,6 +5,7 @@ import { setupMessageConsumers } from './messageBroker';
 import webhookReceiver from './webhook';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
+import logs from './logUtils';
 
 export default {
   name: 'calls',
@@ -28,6 +29,7 @@ export default {
         label: 'Phone call',
       },
     ],
+    logs: { providesActivityLog: true, consumers: logs },
   },
 
   postHandlers: [{ path: '/webhook', method: webhookReceiver }],
@@ -36,7 +38,7 @@ export default {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
-    context.subdomain = req.hostname;
+    context.subdomain = subdomain;
     context.models = models;
 
     return context;

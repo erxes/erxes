@@ -48,7 +48,7 @@ export const getRecordUrl = async (
   const operator = integration.operators.find(
     (operator) => operator.userId === user?._id,
   );
-  const extentionNumber = operator?.gsUsername || '6500';
+  const extentionNumber = operator?.gsUsername || '1001';
 
   let cookie = await getOrSetCallCookie(wsServer);
   cookie = cookie?.toString();
@@ -68,16 +68,13 @@ export const getRecordUrl = async (
       },
     }),
   });
-
   const queueData = await queueResult.json();
-
   //if cookie error
   if (queueData.status === -6) {
     await redis.del('callCookie');
     return await getRecordUrl(params, user, models, subdomain, retryCount - 1);
   }
   const { queue } = queueData?.response;
-
   if (!queue) {
     throw new Error(`Queue not found`);
   }
@@ -96,7 +93,8 @@ export const getRecordUrl = async (
     caller = extentionNumber;
     callee = customerPhone;
   }
-
+  console.log('caller: ', caller, callee, startDate, endTime);
+  console.log('now:', new Date());
   const cdr = await fetch(`https://${wsServer}/api`, {
     method: 'POST',
     headers: {
@@ -117,6 +115,7 @@ export const getRecordUrl = async (
   });
   const cdrData = await cdr?.json();
   let cdr_root = '';
+
   if (cdrData && cdrData.response) {
     cdr_root = cdrData.response.cdr_root;
   } else if (cdrData && cdrData.cdr_root) {
@@ -126,12 +125,13 @@ export const getRecordUrl = async (
   const sortedCdr = todayCdr?.sort(
     (a, b) => a.createdAt?.getTime() - b.createdAt?.getTime(),
   );
+
   const lastCreatedObject = sortedCdr[todayCdr.length - 1];
 
   let fileNameWithoutExtension = '';
+
   if (lastCreatedObject && lastCreatedObject.disposition === 'ANSWERED') {
     const { recordfiles = '' } = lastCreatedObject;
-
     if (recordfiles) {
       const parts = recordfiles.split('/');
       const fileName = parts[1];
@@ -179,12 +179,14 @@ export const getRecordUrl = async (
         method: 'POST',
         body: formData,
       });
+
       return await rec.text();
     } catch (error) {
       console.error('Failed to retrieve array buffer from records:', error);
       throw new Error(error);
     }
   }
+
   return '';
 };
 
