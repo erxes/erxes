@@ -23,27 +23,14 @@ const Stocks = ({ receipts }: { receipts: IReceipt[] }) => {
     )
   }
 
-  const renderReceipt = (receipt: IReceipt, len: number, idx: number) => {
+  const renderReceipt = (receipt: IReceipt, idx: number) => {
     const { items } = receipt
 
     return (
       <div>
-        {
-          len > 1 && <div className="flex items-center whitespace-nowrap border-b  font-medium">
-            <div className="w-12/12">ДДТД: {receipt.id ?? ''}</div>
-          </div>
-        }
         {(items || []).map((item, idx: number) => renderItem(item, idx))}
-        {
-          len > 1 && <div className="flex items-center whitespace-nowrap border-b  font-medium">
-            <div className="w-6/12">НӨАТ / Нийт:</div>
-            <div className="w-3/12 text-right">{formatNum(receipt.totalVAT ?? 0, '1')}</div>
-            <div className="w-3/12 text-right">{formatNum(receipt.totalAmount ?? 0)}</div>
-          </div>
-        }
       </div>
     )
-
   }
 
   return (
@@ -54,7 +41,7 @@ const Stocks = ({ receipts }: { receipts: IReceipt[] }) => {
         <div className="w-3/12 text-right">Нийт үнэ</div>
       </div>
       <div className="space-y-1 py-1">
-        {(receipts || []).map((receipt, idx: number) => renderReceipt(receipt, receipts.length, idx))}
+        {(receipts || []).map((receipt, idx: number) => renderReceipt(receipt, idx))}
       </div>
     </div>
   )
