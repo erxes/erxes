@@ -96,10 +96,8 @@ const isValidBarcode = (barcode: string): boolean => {
 const getCustomerInfo = async (type, config, doc) => {
   if (type === 'B2B_RECEIPT') {
     const resp = await getCompanyInfo({
-      getTinUrl: config.getTinUrl,
-      getInfoUrl: config.getInfoUrl,
-      tin: doc.customerTin,
-      rd: doc.customerRD
+      checkTaxpayerUrl: config.checkTaxpayerUrl,
+      no: doc.customerTin || doc.customerRD,
     });
 
     if (resp.status !== 'checked') {
@@ -198,7 +196,7 @@ const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc) => {
 
 export const getEbarimtData = async (params: IPutDataArgs) => {
   const { config, doc } = params;
-  const type = doc.type || BILL_TYPES.CITIZEN;
+  const type = doc.type || 'B2C_RECEIPT';
 
   const { customerTin, consumerNo, msg } = await getCustomerInfo(type, config, doc);
   if (msg) {
@@ -316,26 +314,26 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
   return { status: 'ok', data: mainData };
 }
 
-export const getCompanyInfo = async ({ getTinUrl, getInfoUrl, tin, rd }: { getTinUrl: string, getInfoUrl: string, tin?: string, rd?: string }) => {
-  const tinre = /(^\d{11}$)|(^\d{14}$)/gui;
-  if (tin && tinre.test(tin)) {
+export const getCompanyInfo = async ({ checkTaxpayerUrl, no }: { checkTaxpayerUrl: string, no: string }) => {
+  const tinre = /(^\d{11}$)|(^\d{12}$)/;
+  if (tinre.test(no)) {
     const result = await fetch(
       // `https://api.ebarimt.mn/api/info/check/getInfo?tin=${tinNo}`
-      `${getInfoUrl}?tin=${tin}`
+      `${checkTaxpayerUrl}/getInfo?tin=${no}`
     ).then((r) => r.json());
 
-    return { status: 'checked', result, tin };
+    return { status: 'checked', result, tin: no };
   }
 
   const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)/gui;
 
-  if (!rd || !re.test(rd)) {
+  if (!re.test(no)) {
     return { status: 'notValid' };
   }
 
   const info = await fetch(
     // `https://api.ebarimt.mn/api/info/check/getTinInfo?regNo=${rd}`
-    `${getTinUrl}?regNo=${rd}`
+    `${checkTaxpayerUrl}/getTinInfo?regNo=${no}`
   ).then((r) => r.json());
 
   if (info.status !== 200) {
@@ -346,7 +344,7 @@ export const getCompanyInfo = async ({ getTinUrl, getInfoUrl, tin, rd }: { getTi
 
   const result = await fetch(
     // `https://api.ebarimt.mn/api/info/check/getInfo?tin=${tinNo}`
-    `${getInfoUrl}?tin=${tinNo}`
+    `${checkTaxpayerUrl}/getInfo?tin=${tinNo}`
   ).then((r) => r.json());
 
   return { status: 'checked', result, tin: tinNo };

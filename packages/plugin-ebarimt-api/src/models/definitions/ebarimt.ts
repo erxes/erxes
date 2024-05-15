@@ -4,8 +4,7 @@ import { field, schemaHooksWrapper } from './utils';
 export interface IEbarimtConfig {
   companyName: string;
   ebarimtUrl: string;
-  getTinUrl: string;
-  getInfoUrl: string;
+  checkTaxpayerUrl: string;
 
   merchantTin: string;
   companyRD: string,

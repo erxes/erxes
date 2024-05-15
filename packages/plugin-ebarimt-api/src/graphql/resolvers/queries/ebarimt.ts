@@ -307,7 +307,7 @@ const queries = {
     { subdomain },
   ) => {
     const config = await getConfig(subdomain, 'EBARIMT')
-    return getCompanyInfo({ getTinUrl: config.getTinUrl, getInfoUrl: config.getInfoUrl, rd: companyRD });
+    return getCompanyInfo({ checkTaxpayerUrl: config.checkTaxpayerUrl, no: companyRD });
   },
 
   putResponsesDuplicated: async (_root, params, { models }) => {

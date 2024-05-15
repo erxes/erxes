@@ -23,6 +23,7 @@ import { checkRemainders } from './products';
 import { getPureDate } from '@erxes/api-utils/src';
 import { checkDirectDiscount } from './directDiscount';
 import { IPosUserDocument } from '../../models/definitions/posUsers';
+import { getCompanyInfo } from '../../models/PutData';
 
 interface IDetailItem {
   count: number;
@@ -270,16 +271,12 @@ export const prepareEbarimtData = async (
   let customerName = '';
 
   if (registerNumber) {
-    const response = await fetch(
-      config.getTinUrl +
-      '?' +
-      new URLSearchParams({ regno: registerNumber })
-    ).then(res => res.json());
+    const resp = await getCompanyInfo({ checkTaxpayerUrl: config.checkTaxpayerUrl, no: registerNumber })
 
-    if (response.found) {
-      type = BILL_TYPES.ENTITY;
+    if (resp.status === 'checked' && resp.tin) {
+      type = 'B2B_RECEIPT';
       customerCode = registerNumber;
-      customerName = response.name;
+      customerName = resp.result?.data?.name;
     }
   }
 

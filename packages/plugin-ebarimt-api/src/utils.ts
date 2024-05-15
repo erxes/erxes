@@ -231,26 +231,26 @@ export const getPostData = async (subdomain, config, deal) => {
   }
 };
 
-export const getCompanyInfo = async ({ getTinUrl, getInfoUrl, tin, rd }: { getTinUrl: string, getInfoUrl: string, tin?: string, rd?: string }) => {
-  const tinre = /(^\d{11}$)|(^\d{14}$)/;
-  if (tin && tinre.test(tin)) {
+export const getCompanyInfo = async ({ checkTaxpayerUrl, no }: { checkTaxpayerUrl: string, no: string }) => {
+  const tinre = /(^\d{11}$)|(^\d{12}$)/;
+  if (tinre.test(no)) {
     const result = await fetch(
       // `https://api.ebarimt.mn/api/info/check/getInfo?tin=${tinNo}`
-      `${getInfoUrl}?tin=${tin}`
+      `${checkTaxpayerUrl}/getInfo?tin=${no}`
     ).then((r) => r.json());
 
-    return { status: 'checked', result, tin };
+    return { status: 'checked', result, tin: no };
   }
 
   const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)/gui;
 
-  if (!rd || !re.test(rd)) {
+  if (!re.test(no)) {
     return { status: 'notValid' };
   }
 
   const info = await fetch(
     // `https://api.ebarimt.mn/api/info/check/getTinInfo?regNo=${rd}`
-    `${getTinUrl}?regNo=${rd}`
+    `${checkTaxpayerUrl}/getTinInfo?regNo=${no}`
   ).then((r) => r.json());
 
   if (info.status !== 200) {
@@ -261,7 +261,7 @@ export const getCompanyInfo = async ({ getTinUrl, getInfoUrl, tin, rd }: { getTi
 
   const result = await fetch(
     // `https://api.ebarimt.mn/api/info/check/getInfo?tin=${tinNo}`
-    `${getInfoUrl}?tin=${tinNo}`
+    `${checkTaxpayerUrl}/getInfo?tin=${tinNo}`
   ).then((r) => r.json());
 
   return { status: 'checked', result, tin: tinNo };

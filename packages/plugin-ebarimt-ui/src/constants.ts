@@ -8,8 +8,7 @@ export const KEY_LABELS = {
   companyName: 'company name',
   checkCompanyUrl: 'check Company url',
   ebarimtUrl: 'ebarimt Url',
-  getTinUrl: 'get Tin Url',
-  getInfoUrl: 'get Info Url',
+  checkTaxpayerUrl: 'check taxpayer url',
 };
 
 export const FILTER_PARAMS = [
