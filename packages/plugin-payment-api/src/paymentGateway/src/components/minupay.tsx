@@ -10,11 +10,11 @@ const Minupay = () => {
   }
 
   return (
-    <div className=" inset-0">
+    <div className="aspect-square">
       <ModalHeader />
       <iframe
         src={apiResponse}
-        className="w-full h-full border-none rounded-lg"
+        className="w-full h-full border-none rounded-lg mb-2"
       />
       <CloseButton />
     </div>

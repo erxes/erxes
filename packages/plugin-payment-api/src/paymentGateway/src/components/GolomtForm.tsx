@@ -8,13 +8,13 @@ const Golomt = () => {
   if (!transaction) {
     return null;
   }
-  //   https://ecommerce.golomtbank.com/payment/mn/645a6b74-c951-4ff8-8057-c8694389b844
+
   return (
-    <div className=" inset-0">
+    <div className="aspect-square">
       <ModalHeader />
       <iframe
         src={`https://ecommerce.golomtbank.com/payment/mn/${apiResponse.invoice}`}
-        className="w-full h-full border-none rounded-lg"
+        className="w-full h-full border-none rounded-lg mb-2"
       />
       <CloseButton />
     </div>
