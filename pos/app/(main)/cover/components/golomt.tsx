@@ -43,7 +43,9 @@ const Golomt = () => {
       })
   }
 
-  if (!golomt) return null
+  if (!golomt) {
+    return null
+  }
 
   return (
     <BankAmountUi

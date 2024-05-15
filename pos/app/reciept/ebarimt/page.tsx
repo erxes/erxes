@@ -75,7 +75,9 @@ const Reciept = () => {
     }
   }, [handleAfterPrint])
 
-  if (loading) return null
+  if (loading) {
+    return null
+  }
 
   return (
     <>

@@ -7,7 +7,9 @@ const Footer = () => {
   const { footerText } = useAtomValue(ebarimtConfigAtom) || {}
   const description = useAtomValue(descriptionAtom)
 
-  if (type === "inner") return null
+  if (type === "inner") {
+    return null
+  }
 
   return (
     <>

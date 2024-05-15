@@ -36,7 +36,9 @@ const Waiting = () => {
 
   if (loading) return <Loader />
 
-  if (!waitingScreen) return null
+  if (!waitingScreen) {
+    return null
+  }
 
   return (
     <ScrollArea>

@@ -15,7 +15,9 @@ const GolomtConfig = () => {
   const paymentType = getPaymentType(paymentTypes, BANK_CARD_TYPES.GOLOMT)
   const [terminalID, setTerminalID] = useState(getLocal("golomtId") || "")
 
-  if (!paymentType) return null
+  if (!paymentType) {
+    return null
+  }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()

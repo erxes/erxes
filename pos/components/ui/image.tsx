@@ -33,7 +33,9 @@ const Image: FC<
   const handleComplete = () => setIsImageLoading(false)
   const fromCF = srcI.includes("https://imagedelivery.net/")
   const getLoader = () => {
-    if (srcI.includes("//:localhost") || srcI.startsWith("/")) return undefined
+    if (srcI.includes("//:localhost") || srcI.startsWith("/")) {
+      return undefined
+    }
     return cloudflareLoader
   }
 

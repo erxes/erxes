@@ -33,7 +33,9 @@ const ControlButton = ({ value }: { value: string | number }) => {
   const { handleValueChange } = useHandlePayment()
   const mode = useAtomValue(modeAtom)
 
-  if (mode === "mobile" && value === "C") return null
+  if (mode === "mobile" && value === "C") {
+    return null
+  }
 
   const handleClick = () => {
     if (value === "C") return handleValueChange("0")

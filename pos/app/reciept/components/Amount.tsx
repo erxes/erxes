@@ -53,7 +53,9 @@ const Field = ({
   val: number
   className?: string
 }) => {
-  if (!val) return null
+  if (!val) {
+    return null
+  }
 
   return (
     <div className={cn("flex items-center justify-between", className)}>

@@ -44,7 +44,9 @@ const ChooseConfig = () => {
     return chooseConfig({ variables: { token } })
   }
 
-  if (!configs || configs.length < 2) return null
+  if (!configs || configs.length < 2) {
+    return null
+  }
 
   return (
     <div className="mb-3 space-y-1">

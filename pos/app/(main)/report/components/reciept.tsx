@@ -20,7 +20,9 @@ const Receipt = ({ date, report }: any) => {
   const paymentTypes = useAtomValue(paymentTypesAtom)
   const reportDate = useAtomValue(reportDateAtom)
 
-  if (!report) return null
+  if (!report) {
+    return null
+  }
 
   const excludeTypes = [
     "_id",

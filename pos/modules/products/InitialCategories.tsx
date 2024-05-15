@@ -5,12 +5,15 @@ import {
   HorizontalScrollMenu,
   ScrollMenuItem,
 } from "@/components/ui/horizontalScrollMenu"
+
 import CategoryItem from "./components/categoryItem/categoryItem.main"
 
 const InitialCategories = () => {
   const initialCategoryIds = useAtomValue(initialCategoryIdsAtom)
 
-  if (!(initialCategoryIds || []).length) return null
+  if (!(initialCategoryIds || []).length) {
+    return null
+  }
 
   return (
     <HorizontalScrollMenu separatorClassName="w-2 flex-none">

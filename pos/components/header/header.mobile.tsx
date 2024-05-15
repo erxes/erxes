@@ -17,7 +17,9 @@ const Header = () => {
 }
 const OrderNumber = () => {
   const orderNumber = useAtomValue(orderNumberAtom)
-  if (!orderNumber) return null
+  if (!orderNumber) {
+    return null
+  }
   return <div className="ml-auto font-bold">#{orderNumber}</div>
 }
 

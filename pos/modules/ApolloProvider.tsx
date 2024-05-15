@@ -39,7 +39,9 @@ const Provider = ({ children }: { children: React.ReactNode }) => {
     setLoading(false)
   }, [])
 
-  if (loading) return null
+  if (loading) {
+    return null
+  }
 
   return <Apollo>{children}</Apollo>
 }

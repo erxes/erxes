@@ -80,7 +80,9 @@ const OrderDetail = () => {
   const formatDate = (date: string) =>
     !!date ? format(new Date(date), "yyyy.MM.dd HH:mm") : ""
 
-  if (loading || !detailId) return null
+  if (loading || !detailId) {
+    return null
+  }
 
   return (
     <Sheet open={!!detailId} onOpenChange={() => setDetailId(null)}>

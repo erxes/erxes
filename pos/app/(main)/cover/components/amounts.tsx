@@ -18,7 +18,9 @@ const Amounts = () => {
   const isFetched = useAtomValue(isCoverAmountsFetchedAtom)
   const paymentTypes = useAtomValue(paymentTypesAtom)
 
-  if (!isFetched) return null
+  if (!isFetched) {
+    return null
+  }
 
   const showBank = (type: string) =>
     paymentTypes?.find((pt) => pt.type === type)
