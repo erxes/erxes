@@ -1,11 +1,11 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { Add, Container, ExistingOrg, List } from './styles';
+import { Add, Container, ExistingOrg, List } from "./styles";
 
-import Dropdown from 'react-bootstrap/Dropdown';
-import { IUserOrganization } from '@erxes/ui/src/auth/types';
-import Icon from 'modules/common/components/Icon';
-import { __ } from 'modules/common/utils';
+import { Divider } from "@erxes/ui-cards/src/boards/styles/stage";
+import { IUserOrganization } from "@erxes/ui/src/auth/types";
+import Icon from "modules/common/components/Icon";
+import { __ } from "modules/common/utils";
 
 type Props = {
   organizations: IUserOrganization[];
@@ -13,7 +13,7 @@ type Props = {
 
 class Organizations extends React.PureComponent<Props> {
   getDomain() {
-    return window.location.host.split('.')[0];
+    return window.location.host.split(".")[0];
   }
 
   createLink(subdomain: string) {
@@ -24,7 +24,7 @@ class Organizations extends React.PureComponent<Props> {
   getCurrentOrganizationName() {
     const { organizations } = this.props;
     const current = organizations.filter(
-      (o) => o.subdomain === this.getDomain(),
+      (o) => o.subdomain === this.getDomain()
     )[0];
 
     return current && current.name;
@@ -36,8 +36,8 @@ class Organizations extends React.PureComponent<Props> {
     if (organizations.length === 0) {
       return (
         <Add href="https://erxes.io/create" target="_blank">
-          {__('Create a new organization')}
-          <span>{__('No organizations')}</span>
+          {__("Create a new organization")}
+          <span>{__("No organizations")}</span>
         </Add>
       );
     }
@@ -46,13 +46,13 @@ class Organizations extends React.PureComponent<Props> {
       <Container>
         <ExistingOrg as="div">
           {this.getCurrentOrganizationName()}
-          <span>{__('Create or switch organization')}</span>
+          <span>{__("Create or switch organization")}</span>
         </ExistingOrg>
         <List>
           {organizations.map((o) => {
             const isCurrent = o.subdomain === this.getDomain();
             return (
-              <li key={Math.random()} className={isCurrent ? 'active' : ''}>
+              <li key={Math.random()} className={isCurrent ? "active" : ""}>
                 <a href={this.createLink(o.subdomain)}>
                   {o.name}
                   {isCurrent && <Icon icon="check-1" size={16} />}
@@ -60,10 +60,10 @@ class Organizations extends React.PureComponent<Props> {
               </li>
             );
           })}
-          <Dropdown.Divider />
+          <Divider />
           <li>
             <a href="https://erxes.io/create">
-              {__('Create a new organization')}
+              {__("Create a new organization")}
             </a>
           </li>
         </List>

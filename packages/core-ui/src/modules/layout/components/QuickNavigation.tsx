@@ -1,37 +1,37 @@
-import { DropNav, UserHelper } from '../styles';
-import { __, getEnv } from 'modules/common/utils';
-import { colors, dimensions } from 'modules/common/styles';
+import { DropNav, UserHelper } from "../styles";
+import { __, getEnv } from "modules/common/utils";
+import { colors, dimensions } from "modules/common/styles";
 
-import BrandChooser from './BrandChooser';
-import { IUser } from 'modules/auth/types';
-import Icon from 'modules/common/components/Icon';
-import { Link } from 'react-router-dom';
-import { Menu } from '@headlessui/react';
-import { MenuDivider } from '@erxes/ui/src/styles/main';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import NameCard from 'modules/common/components/nameCard/NameCard';
-import Organizations from 'modules/saas/navigation/Organizations';
-import React from 'react';
-import Search from '../containers/Search';
-import { SubMenu } from 'modules/saas/navigation/styles';
-import Usage from 'modules/saas/settings/plans/components/Usage';
-import asyncComponent from 'modules/common/components/AsyncComponent';
-import { getVersion } from '@erxes/ui/src/utils/core';
-import { pluginsOfTopNavigations } from 'pluginUtils';
-import styled from 'styled-components';
+import BrandChooser from "./BrandChooser";
+import { IUser } from "modules/auth/types";
+import Icon from "modules/common/components/Icon";
+import { Link } from "react-router-dom";
+import { Menu } from "@headlessui/react";
+import { MenuDivider } from "@erxes/ui/src/styles/main";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import NameCard from "modules/common/components/nameCard/NameCard";
+import Organizations from "modules/saas/navigation/Organizations";
+import React from "react";
+import Search from "../containers/Search";
+import { SubMenu } from "modules/saas/navigation/styles";
+import Usage from "modules/saas/settings/plans/components/Usage";
+import asyncComponent from "modules/common/components/AsyncComponent";
+import { getVersion } from "@erxes/ui/src/utils/core";
+import { pluginsOfTopNavigations } from "pluginUtils";
+import styled from "styled-components";
 
 const Signature = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Signature" */ '@erxes/ui-settings/src/email/containers/Signature'
-    ),
+      /* webpackChunkName:"Signature" */ "@erxes/ui-settings/src/email/containers/Signature"
+    )
 );
 
 const ChangePassword = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"ChangePassword" */ 'modules/settings/profile/containers/ChangePassword'
-    ),
+      /* webpackChunkName:"ChangePassword" */ "modules/settings/profile/containers/ChangePassword"
+    )
 );
 
 const UserInfo = styled.div`
@@ -110,7 +110,7 @@ const QuickNavigation = ({
 
   const brandOptions = brands.map((brand) => ({
     value: brand._id,
-    label: brand.name || '',
+    label: brand.name || "",
   }));
 
   let brandsCombo;
@@ -129,9 +129,12 @@ const QuickNavigation = ({
 
   const { CORE_URL } = getEnv();
   const { VERSION } = getVersion();
-
+  console.log(
+    "currentUser.currentOrganization",
+    currentUser.currentOrganization
+  );
   return (
-    <nav id={'SettingsNav'}>
+    <nav id={"SettingsNav"}>
       {brandsCombo}
 
       <NavItem>
@@ -154,18 +157,18 @@ const QuickNavigation = ({
             </NameCardWrapper>
             <MenuDivider />
             <Menu.Item>
-              <Link to="/profile">{__('My Profile')}</Link>
+              <Link to="/profile">{__("My Profile")}</Link>
             </Menu.Item>
             <Menu.Item>
               <DropNav>
-                {__('Account Settings')}
+                {__("Account Settings")}
                 <Icon icon="angle-right" />
                 <ul>
                   <ModalTrigger
                     title="Change Password"
                     trigger={
                       <li>
-                        <a href="#change-password">{__('Change password')}</a>
+                        <a href="#change-password">{__("Change password")}</a>
                       </li>
                     }
                     content={passContent}
@@ -176,7 +179,7 @@ const QuickNavigation = ({
                     enforceFocus={false}
                     trigger={
                       <li>
-                        <a href="#email">{__('Email signatures')}</a>
+                        <a href="#email">{__("Email signatures")}</a>
                       </li>
                     }
                     content={signatureContent}
@@ -186,21 +189,21 @@ const QuickNavigation = ({
             </Menu.Item>
             <MenuDivider />
             {VERSION &&
-            VERSION === 'saas' &&
+            VERSION === "saas" &&
             currentUser.currentOrganization ? (
               <>
                 <Menu.Item>
                   <DropNav>
-                    {__('Global Profile')} <Icon icon="angle-right" />
+                    {__("Global Profile")} <Icon icon="angle-right" />
                     <ul>
                       <li>
                         <a href={`${CORE_URL}/organizations`}>
-                          {__('Go to Global Profile')}
+                          {__("Go to Global Profile")}
                         </a>
                       </li>
                       <li>
                         <a href={`${CORE_URL}/billing`}>
-                          {__('Go to Billing')}
+                          {__("Go to Billing")}
                         </a>
                       </li>
                     </ul>
@@ -208,18 +211,18 @@ const QuickNavigation = ({
                 </Menu.Item>
 
                 <MenuDivider />
-                <SubMenu>
-                  <Menu.Item>
+                <Menu.Item>
+                  <SubMenu>
                     <Organizations
                       organizations={currentUser.organizations || []}
                     />
-                  </Menu.Item>
-                </SubMenu>
+                  </SubMenu>
+                </Menu.Item>
                 <Usage />
               </>
             ) : null}
             <Menu.Item>
-              <a onClick={logout}>{__('Sign out')}</a>
+              <a onClick={logout}>{__("Sign out")}</a>
             </Menu.Item>
             {release ? (
               <Version>

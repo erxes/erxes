@@ -1,12 +1,14 @@
-import React from 'react';
-import Form from 'react-bootstrap/Form';
+import React from "react";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormLabel from "@erxes/ui/src/components/form/Label";
+import FormGroup from "@erxes/ui/src/components/form/Group";
 import {
   GeneralInformationWrapper,
   GeneralInformationForm,
   ErxesStaffProfile,
-} from 'modules/saas/onBoarding/styles';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { readFile } from 'modules/common/utils';
+} from "modules/saas/onBoarding/styles";
+import { IUser } from "@erxes/ui/src/auth/types";
+import { readFile } from "modules/common/utils";
 
 type Props = {
   currentUser?: IUser;
@@ -21,7 +23,7 @@ function GeneralInformation(props: Props) {
 
   const getUserAvatar = (avatarUrl) => {
     if (!avatar) {
-      return '/images/avatar-colored.svg';
+      return "/images/avatar-colored.svg";
     }
 
     return readFile(avatarUrl);
@@ -32,24 +34,24 @@ function GeneralInformation(props: Props) {
       <GeneralInformationForm>
         <ErxesStaffProfile state={true}>
           <div className="avatar-profile">
-            <img src={getUserAvatar(avatar)} alt={firstName || ''} />
+            <img src={getUserAvatar(avatar)} alt={firstName || ""} />
           </div>
         </ErxesStaffProfile>
 
-        <Form.Group controlId="firstName">
-          <Form.Label>First Name</Form.Label>
-          <Form.Control value={firstName} name="firstName" />
-        </Form.Group>
+        <FormGroup>
+          <FormLabel>First Name</FormLabel>
+          <FormControl value={firstName} name="firstName" />
+        </FormGroup>
 
-        <Form.Group controlId="lastName">
-          <Form.Label>Last Name</Form.Label>
-          <Form.Control value={lastName} name="lastName" />
-        </Form.Group>
+        <FormGroup>
+          <FormLabel>Last Name</FormLabel>
+          <FormControl value={lastName} name="lastName" />
+        </FormGroup>
 
-        <Form.Group controlId="email">
-          <Form.Label>Email</Form.Label>
-          <Form.Control value={email} name="name" />
-        </Form.Group>
+        <FormGroup>
+          <FormLabel>Email</FormLabel>
+          <FormControl value={email} name="name" />
+        </FormGroup>
       </GeneralInformationForm>
     </GeneralInformationWrapper>
   );

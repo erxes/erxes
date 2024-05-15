@@ -11,6 +11,7 @@ import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
+import ErrorBoundary from "@erxes/ui/src/components/ErrorBoundary";
 
 const wenv = (window as any).env || {};
 const getItem = (name) => wenv[name] || process.env[name] || "https://erxes.io";
@@ -63,7 +64,7 @@ const onResponse = (response) => {
 
   const Routes = require("./routes").default;
   const apolloClient = require("./apolloClient").default;
-
+console.log("Routes", Routes)
   if (response.isWhiteLabel) {
     // Save organization info for white label customers
     localStorage.setItem(
@@ -106,9 +107,11 @@ const onResponse = (response) => {
   // }
 
   createRoot(target).render(
-    <ApolloProvider client={apolloClient}>
-      <Routes />
-    </ApolloProvider>
+    <ErrorBoundary pluginName={"fefefe"}>
+      <ApolloProvider client={apolloClient}>
+        <Routes />
+      </ApolloProvider>
+    </ErrorBoundary>
   );
 };
 

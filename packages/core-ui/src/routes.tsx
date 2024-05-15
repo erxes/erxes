@@ -75,7 +75,9 @@ const renderRoutes = (currentUser) => {
       const currentOrganization = currentUser.currentOrganization;
 
       if (currentOrganization) {
+        console.log("1");
         if (!currentOrganization.onboardingDone) {
+          console.log("2");
           return (
             <OnboardingLayout>
               <OnboardingRoutes currentUser={currentUser} />
@@ -84,6 +86,7 @@ const renderRoutes = (currentUser) => {
         }
 
         if (!currentOrganization.contactRemaining) {
+          console.log("3");
           return (
             <>
               <MainLayout currentUser={currentUser}>
@@ -94,12 +97,11 @@ const renderRoutes = (currentUser) => {
         }
       }
     }
-
+    console.log("4");
     return (
-      <>
-        <MainLayout currentUser={currentUser}>
-          <SettingsRoutes />
-          <WelcomeRoutes currentUser={currentUser} />
+      <MainLayout currentUser={currentUser}>
+        <SettingsRoutes />
+        <WelcomeRoutes currentUser={currentUser} />
           {pluginLayouts(currentUser)}
           {pluginRouters()}
           <BrowserRoutes>
@@ -109,8 +111,7 @@ const renderRoutes = (currentUser) => {
               element={<UserConfirmationComponent />}
             />
           </BrowserRoutes>
-        </MainLayout>
-      </>
+      </MainLayout>
     );
   }
 
@@ -129,15 +130,16 @@ const renderRoutes = (currentUser) => {
 };
 
 const Routes = ({ currentUser }: { currentUser: IUser }) => {
+  console.log("fefefefefefe");
   return (
     <Router>
-      <BrowserRoutes>
+      {/* <BrowserRoutes>
         <Route
           key="/unsubscribe"
           path="/unsubscribe"
           element={<UnsubscribeComponent />}
         />
-      </BrowserRoutes>
+      </BrowserRoutes> */}
       {renderRoutes(currentUser)}
     </Router>
   );

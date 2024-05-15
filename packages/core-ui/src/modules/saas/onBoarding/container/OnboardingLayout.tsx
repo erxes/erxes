@@ -1,16 +1,16 @@
 import React from 'react';
-import { Redirect, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
 function OnboardingLayout({ children }) {
-  const index = ({ location }) => {
-    return <Redirect to={`/onboarding`} />;
+  const Index = () => {
+    return <Navigate to={`/onboarding`} />;
   };
 
   return (
-    <>
-      <Route exact={true} path="*" key="root" render={index} />
+    <Routes>
+      <Route path="*" key="root" element={<Index/>} />
       {children}
-    </>
+    </Routes>
   );
 }
 
