@@ -7,28 +7,28 @@ import { getDefaultBoardAndPipelines } from '@erxes/ui-cards/src/boards/utils';
 import queryString from 'query-string';
 
 const TaskBoard = asyncComponent(
-  () => import(/* webpackChunkName: "TaskBoard" */ './components/TaskBoard'),
+  () => import(/* webpackChunkName: "TaskBoard" */ './components/TaskBoard')
 );
 
 const Calendar = asyncComponent(
   () =>
     import(
       /* webpackChunkName: "Calendar" */ '@erxes/ui-cards/src/boards/components/Calendar'
-    ),
+    )
 );
 
 const CalendarColumn = asyncComponent(
   () =>
     import(
       /* webpackChunkName: "CalendarColumn" */ './containers/CalendarColumn'
-    ),
+    )
 );
 
 const MainActionBar = asyncComponent(
   () =>
     import(
       /* webpackChunkName: "MainActionBar" */ './components/TaskMainActionBar'
-    ),
+    )
 );
 
 const Tasks = () => {
@@ -53,28 +53,28 @@ const Charts = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return <TaskBoard viewType="chart" queryParams={queryParams} />;
+  return <TaskBoard viewType='chart' queryParams={queryParams} />;
 };
 
 const Boards = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return <TaskBoard viewType="board" queryParams={queryParams} />;
+  return <TaskBoard viewType='board' queryParams={queryParams} />;
 };
 
 const Activity = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return <TaskBoard viewType="activity" queryParams={queryParams} />;
+  return <TaskBoard viewType='activity' queryParams={queryParams} />;
 };
 
 const Gantt = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return <TaskBoard viewType="gantt" queryParams={queryParams} />;
+  return <TaskBoard viewType='gantt' queryParams={queryParams} />;
 };
 
 const CalendarComponent = () => {
@@ -83,8 +83,8 @@ const CalendarComponent = () => {
 
   return (
     <Calendar
-      type="task"
-      title="Task"
+      type='task'
+      title='Task'
       queryParams={queryParams}
       ItemColumnComponent={CalendarColumn}
       MainActionBarComponent={MainActionBar}
@@ -96,38 +96,38 @@ const List = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return <TaskBoard viewType="list" queryParams={queryParams} />;
+  return <TaskBoard viewType='list' queryParams={queryParams} />;
 };
 
 const Time = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return <TaskBoard viewType="time" queryParams={queryParams} />;
+  return <TaskBoard viewType='time' queryParams={queryParams} />;
 };
 
 const routes = () => {
   return (
     <Routes>
-      <Route key="/task" path="/task" element={<Tasks />} />
+      <Route key='/task' path='/task' element={<Tasks />} />
 
-      <Route key="task/gantt" path="/task/gantt" element={<Gantt />} />
+      <Route key='task/gantt' path='/task/gantt' element={<Gantt />} />
 
-      <Route key="/task/board" path="/task/board" element={<Boards />} />
+      <Route key='/task/board' path='/task/board' element={<Boards />} />
 
       <Route
-        key="task/calendar"
-        path="/task/calendar"
+        key='task/calendar'
+        path='/task/calendar'
         element={<CalendarComponent />}
       />
 
-      <Route key="task/chart" path="/task/chart" element={<Charts />} />
+      <Route key='task/chart' path='/task/chart' element={<Charts />} />
 
-      <Route key="task/activity" path="/task/activity" element={<Activity />} />
+      <Route key='task/activity' path='/task/activity' element={<Activity />} />
 
-      <Route key="task/list" path="/task/list" element={<List />} />
+      <Route key='task/list' path='/task/list' element={<List />} />
 
-      <Route key="task/time" path="/task/time" element={<Time />} />
+      <Route key='task/time' path='/task/time' element={<Time />} />
     </Routes>
   );
 };

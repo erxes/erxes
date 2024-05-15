@@ -1,4 +1,6 @@
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
+import Select from 'react-select';
+
 import { ControlLabel, FormGroup, Sidebar, __ } from '@erxes/ui/src';
 import React from 'react';
 import { IBuilding } from '../../types';
@@ -64,7 +66,7 @@ export default class RightSidebar extends React.Component<Props> {
         <PortableItems
           data={{
             options: { ...options, title },
-            hideExtraButton: true
+            hideExtraButton: true,
           }}
           items={building.tickets}
           onChangeItem={() => {

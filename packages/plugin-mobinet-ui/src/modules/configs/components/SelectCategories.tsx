@@ -1,6 +1,7 @@
 import { __ } from '@erxes/ui/src/utils/core';
 import React, { useEffect, useState } from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
+import Select from 'react-select';
 
 import { ICategory } from '@erxes/ui/src/utils/categories';
 
@@ -53,7 +54,7 @@ const SelectTags: React.FC<Props> = props => {
         onInputChange={onInputChange}
         options={tags.map(tag => ({
           value: tag._id,
-          label: tag.name
+          label: tag.name,
         }))}
         multi={false}
       />

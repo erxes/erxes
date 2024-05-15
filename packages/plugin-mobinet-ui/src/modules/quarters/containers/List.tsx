@@ -20,7 +20,7 @@ export default function QuarterContainer(props: Props) {
         cityId: props.queryParams.city,
       },
       fetchPolicy: 'network-only',
-    },
+    }
   );
 
   const [removeMutation] = useMutation(gql(mutations.removeMutation));
@@ -37,7 +37,7 @@ export default function QuarterContainer(props: Props) {
 
           Alert.success('You successfully deleted a quarter.');
         })
-        .catch((e) => {
+        .catch(e => {
           Alert.error(e.message);
         });
     });

@@ -43,18 +43,18 @@ const List = (props: Props) => {
   let actionBarLeft: React.ReactNode;
 
   const trigger = (
-    <Button btnStyle="success" size="small" icon="plus-circle">
+    <Button btnStyle='success' size='small' icon='plus-circle'>
       Add district
     </Button>
   );
 
-  const formContent = (props) => <DistrictForm {...props} />;
+  const formContent = props => <DistrictForm {...props} />;
 
   const righActionBar = (
     <ModalTrigger
-      size="lg"
-      title="district"
-      autoOpenKey="showAppAddModal"
+      size='lg'
+      title='district'
+      autoOpenKey='showAppAddModal'
       trigger={trigger}
       content={formContent}
     />
@@ -65,7 +65,7 @@ const List = (props: Props) => {
   );
 
   const content = (
-    <Table whiteSpace="nowrap" hover={true}>
+    <Table $whiteSpace='nowrap' $hover={true}>
       <thead>
         <tr>
           <th>{'#'}</th>
