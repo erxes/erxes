@@ -2,10 +2,10 @@ import { ColorButton } from '../../boards/styles/common';
 import Icon from '@erxes/ui/src/components/Icon';
 import { __ } from '@erxes/ui/src/utils';
 import * as React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
+import Popover from '@erxes/ui/src/components/Popover';
 import AddForm from '../containers/AddForm';
 import { Wrapper } from '@erxes/ui/src/styles/main';
+import { Title } from '../../boards/styles/label';
 
 type Props = {
   itemId: string;
@@ -13,41 +13,31 @@ type Props = {
 };
 
 class ChecklistAdd extends React.Component<Props> {
-  private overlayTrigger;
-
-  hidePopover = () => {
-    this.overlayTrigger.hide();
-  };
-
-  renderForm() {
+  renderForm = (closeAfterSelect) => {
     return (
-      <Popover id="checklist-popover">
-        <Popover.Title as="h3">Add checklist</Popover.Title>
-        <Popover.Content>
-          <Wrapper>
-            <AddForm {...this.props} afterSave={this.hidePopover} />
-          </Wrapper>
-        </Popover.Content>
-      </Popover>
+      <>
+        <Title>Add checklist</Title>
+        <Wrapper>
+          <AddForm {...this.props} afterSave={closeAfterSelect} />
+        </Wrapper>
+      </>
     );
   }
 
   render() {
     return (
-      <OverlayTrigger
-        ref={overlayTrigger => {
-          this.overlayTrigger = overlayTrigger;
-        }}
-        trigger="click"
-        placement="bottom"
-        overlay={this.renderForm()}
-        rootClose={true}
+      <Popover
+        placement="bottom-start"
+        closeAfterSelect={true}
+        trigger={
+          <ColorButton>
+            <Icon icon="check-square" />
+            {__('Checklist')}
+          </ColorButton>
+        }
       >
-        <ColorButton>
-          <Icon icon="check-square" />
-          {__('Checklist')}
-        </ColorButton>
-      </OverlayTrigger>
+        {this.renderForm}
+      </Popover>
     );
   }
 }

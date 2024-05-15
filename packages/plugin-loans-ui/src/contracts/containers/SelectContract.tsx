@@ -5,7 +5,7 @@ import React from 'react';
 import { queries } from '../graphql';
 import { IContract } from '../types';
 
-// get contract options for react-select-plus
+// get contract options for react-select
 export function generateContractOptions(
   array: IContract[] = [],
   useFields?: string[]

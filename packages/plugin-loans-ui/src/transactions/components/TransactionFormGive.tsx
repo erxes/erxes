@@ -142,7 +142,7 @@ function TransactionFormGive(props: Props) {
                   <ControlLabel>{__('Transaction Bank Type')}</ControlLabel>
                   <FormControl
                     name="bank"
-                    componentClass="select"
+                    componentclass="select"
                   >
                     {['khanbank', 'golomt'].map((typeName, index) => (
                       <option key={index} value={typeName}>

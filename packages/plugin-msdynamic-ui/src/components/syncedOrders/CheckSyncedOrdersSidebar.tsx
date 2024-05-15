@@ -1,22 +1,23 @@
-import Datetime from '@nateradebaugh/react-datetime';
-import dayjs from 'dayjs';
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import React from 'react';
-import { Wrapper } from '@erxes/ui/src/layout';
-import { Alert, __, router } from '@erxes/ui/src/utils';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { CustomRangeContainer, FilterContainer } from '../../styles';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import { EndDateContainer } from '@erxes/ui-forms/src/forms/styles';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
+import { Alert, __, router } from "@erxes/ui/src/utils";
+import { CustomRangeContainer, FilterContainer } from "../../styles";
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { DateContainer } from "@erxes/ui/src/styles/main";
+import Datetime from "@nateradebaugh/react-datetime";
+import { EndDateContainer } from "@erxes/ui-forms/src/forms/styles";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import { Wrapper } from "@erxes/ui/src/layout";
+import dayjs from "dayjs";
 
 const { Section } = Wrapper.Sidebar;
 
 interface IProps {
-  history: any;
   queryParams: any;
   posList?: any[];
 }
@@ -31,23 +32,20 @@ interface State {
   brandId: string;
 }
 
-class CheckerSidebar extends React.Component<IProps, State> {
-  constructor(props) {
-    super(props);
+const CheckerSidebar = ({ queryParams }: IProps) => {
+  const [state, setState] = useState<State>({
+    search: queryParams.search,
+    paidStartDate: queryParams.paidStartDate,
+    paidEndDate: queryParams.paidEndDate,
+    createdStartDate: queryParams.createdStartDate,
+    createdEndDate: queryParams.createdEndDate,
+    userId: queryParams.user,
+    brandId: queryParams.brandId,
+  });
+  const navigate = useNavigate();
+  const location = useLocation();
 
-    const { queryParams } = this.props;
-    this.state = {
-      search: queryParams.search,
-      paidStartDate: queryParams.paidStartDate,
-      paidEndDate: queryParams.paidEndDate,
-      createdStartDate: queryParams.createdStartDate,
-      createdEndDate: queryParams.createdEndDate,
-      userId: queryParams.user,
-      brandId: queryParams.brandId,
-    };
-  }
-
-  onFilter = () => {
+  const onFilter = () => {
     const {
       search,
       userId,
@@ -56,13 +54,13 @@ class CheckerSidebar extends React.Component<IProps, State> {
       createdStartDate,
       createdEndDate,
       brandId,
-    } = this.state;
+    } = state;
 
     if (!brandId) {
-      return Alert.error('Choose brandId');
+      return Alert.error("Choose brandId");
     }
 
-    router.setParams(this.props.history, {
+    router.setParams(navigate, location, {
       page: 1,
       search,
       user: userId,
@@ -74,12 +72,12 @@ class CheckerSidebar extends React.Component<IProps, State> {
     });
   };
 
-  onChangeRangeFilter = (kind, date) => {
-    const cDate = dayjs(date).format('YYYY-MM-DD HH:mm');
-    this.setState({ [kind]: cDate } as any);
+  const onChangeRangeFilter = (kind, date) => {
+    const cDate = dayjs(date).format("YYYY-MM-DD HH:mm");
+    setState((prevState) => ({ ...prevState, [kind]: cDate }));
   };
 
-  renderRange(dateType: string) {
+  const renderRange = (dateType) => {
     const lblStart = `${dateType}StartDate`;
     const lblEnd = `${dateType}EndDate`;
 
@@ -89,113 +87,111 @@ class CheckerSidebar extends React.Component<IProps, State> {
         <CustomRangeContainer>
           <DateContainer>
             <Datetime
-              inputProps={{ placeholder: __('Choose Date') }}
+              inputProps={{ placeholder: __("Choose Date") }}
               dateFormat="YYYY-MM-DD"
               timeFormat="HH:mm"
-              value={this.state[lblStart] || null}
+              value={state[lblStart] || null}
               closeOnSelect={true}
               utc={true}
               input={true}
-              onChange={this.onChangeRangeFilter.bind(this, lblStart)}
-              viewMode={'days'}
-              className={'filterDate'}
+              onChange={(date) => onChangeRangeFilter(lblStart, date)}
+              viewMode={"days"}
+              className={"filterDate"}
             />
           </DateContainer>
           <EndDateContainer>
             <DateContainer>
               <Datetime
-                inputProps={{ placeholder: __('Choose Date') }}
+                inputProps={{ placeholder: __("Choose Date") }}
                 dateFormat="YYYY-MM-DD"
                 timeFormat="HH:mm"
-                value={this.state[lblEnd]}
+                value={state[lblEnd]}
                 closeOnSelect={true}
                 utc={true}
                 input={true}
-                onChange={this.onChangeRangeFilter.bind(this, lblEnd)}
-                viewMode={'days'}
-                className={'filterDate'}
+                onChange={(date) => onChangeRangeFilter(lblEnd, date)}
+                viewMode={"days"}
+                className={"filterDate"}
               />
             </DateContainer>
           </EndDateContainer>
         </CustomRangeContainer>
       </FormGroup>
     );
-  }
+  };
 
-  render() {
-    const { search, userId, brandId } = this.state;
+  const onChangeInput = (e: React.FormEvent<HTMLElement>) => {
+    const value = (e.currentTarget as HTMLInputElement).value;
+    const name = (e.currentTarget as HTMLInputElement).name;
+    setState((prevState) => ({ ...prevState, [name]: value }) as any);
+  };
 
-    const onChangeInput = (e: React.FormEvent<HTMLElement>) => {
-      const value = (e.currentTarget as HTMLInputElement).value;
-      const name = (e.currentTarget as HTMLInputElement).name;
-      this.setState({ [name]: value } as any);
-    };
+  const onUserChange = (userId) => {
+    setState((prevState) => ({ ...prevState, userId }));
+  };
 
-    const onUserChange = (userId) => {
-      this.setState({ userId });
-    };
+  const onBrandChange = (brandId) => {
+    setState((prevState) => ({ ...prevState, brandId }));
+  };
 
-    const onBrandChange = (brandId) => {
-      this.setState({ brandId });
-    };
+  const { search, userId, brandId } = state;
 
-    return (
-      <Wrapper.Sidebar hasBorder={true}>
-        <Section.Title>{__('Filters')}</Section.Title>
-        <FilterContainer>
-          <FormGroup>
-            <ControlLabel>Brand</ControlLabel>
-            <SelectBrands
-              label={__('Choose brands')}
-              onSelect={onBrandChange}
-              initialValue={brandId}
-              multi={false}
-              name="selectedBrands"
-              customOption={{
-                label: 'No Brand (noBrand)',
-                value: '',
-              }}
-            />
-          </FormGroup>
+  return (
+    <Wrapper.Sidebar hasBorder={true}>
+      <Section.Title>{__("Filters")}</Section.Title>
+      <FilterContainer>
+        <FormGroup>
+          <ControlLabel>Brand</ControlLabel>
+          <SelectBrands
+            label={__("Choose brands")}
+            onSelect={onBrandChange}
+            initialValue={brandId}
+            multi={false}
+            name="selectedBrands"
+            customOption={{
+              label: "No Brand (noBrand)",
+              value: "",
+            }}
+          />
+        </FormGroup>
 
-          <FormGroup>
-            <ControlLabel>Created by</ControlLabel>
-            <SelectTeamMembers
-              label="Choose users"
-              name="userId"
-              customOption={{ label: 'Choose user', value: '' }}
-              initialValue={userId || ''}
-              onSelect={onUserChange}
-              multi={false}
-            />
-          </FormGroup>
+        <FormGroup>
+          <ControlLabel>Created by</ControlLabel>
+          <SelectTeamMembers
+            label="Choose users"
+            name="userId"
+            customOption={{ label: "Choose user", value: "" }}
+            initialValue={userId || ""}
+            onSelect={onUserChange}
+            multi={false}
+          />
+        </FormGroup>
 
-          <FormGroup>
-            <ControlLabel>Number</ControlLabel>
-            <FormControl
-              type="text"
-              name="search"
-              onChange={onChangeInput}
-              defaultValue={search}
-              autoFocus={true}
-            />
-          </FormGroup>
-          {this.renderRange('paid')}
-          {this.renderRange('created')}
+        <FormGroup>
+          <ControlLabel>Number</ControlLabel>
+          <FormControl
+            type="text"
+            name="search"
+            onChange={onChangeInput}
+            value={search}
+            autoFocus={true}
+          />
+        </FormGroup>
+        {renderRange("paid")}
+        {renderRange("created")}
 
-          <Button
-            block={true}
-            btnStyle="success"
-            uppercase={false}
-            onClick={this.onFilter}
-            icon="filter"
-          >
-            {__('Filter')}
-          </Button>
-        </FilterContainer>
-      </Wrapper.Sidebar>
-    );
-  }
-}
+        <Button
+          block={true}
+          btnStyle="success"
+          uppercase={false}
+          onClick={onFilter}
+          icon="filter"
+        >
+          {__("Filter")}
+        </Button>
+      </FilterContainer>
+    </Wrapper.Sidebar>
+  );
+};
 
 export default CheckerSidebar;

@@ -1,5 +1,4 @@
 import { CollapseContent, Spinner, Tip } from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
 import dayjs from 'dayjs';
 import moment from 'moment';
 import React from 'react';
@@ -13,7 +12,7 @@ import {
 
 type State = {};
 
-interface IProps extends IRouterProps {
+interface IProps {
   lotteryCampaign: any;
   data: any;
   loading: boolean;

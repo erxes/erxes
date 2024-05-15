@@ -1,14 +1,14 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { IField } from '@erxes/ui/src/types';
-import { IFieldsVisibility } from './types';
-import { InboxFieldsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { IField } from "@erxes/ui/src/types";
+import { IFieldsVisibility } from "./types";
+import { InboxFieldsQueryResponse } from "@erxes/ui-forms/src/settings/properties/types";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { queries as fieldQueries } from "@erxes/ui-forms/src/settings/properties/graphql";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 interface IStore {
   deviceFields: IField[];
@@ -32,7 +32,7 @@ const isVisible = (fields: IField[]) => {
 
     for (const field of fields || []) {
       if (field[key]) {
-        data[field.type] = field.text || '';
+        data[field.type] = field.text || "";
       }
     }
     return data;
@@ -61,7 +61,7 @@ class Provider extends React.Component<FinalProps> {
           conversationFields: inboxFields.conversation,
           customerFields: inboxFields.customer,
           customerVisibility,
-          deviceVisibility
+          deviceVisibility,
         }}
       >
         {this.props.children}
@@ -72,7 +72,7 @@ class Provider extends React.Component<FinalProps> {
 
 export const PropertyProvider = compose(
   graphql(gql(fieldQueries.inboxFields), {
-    name: 'fieldsInboxQuery',
-    skip: !isEnabled('inbox')
+    name: "fieldsInboxQuery",
+    skip: !isEnabled("inbox"),
   })
 )(Provider);

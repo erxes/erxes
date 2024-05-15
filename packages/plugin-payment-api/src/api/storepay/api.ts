@@ -1,9 +1,9 @@
 import fetch from 'node-fetch';
 import { BaseAPI } from '../../api/base';
 import { IModels } from '../../connectionResolver';
-import { PAYMENTS, PAYMENT_STATUS } from '../constants';
-import { IInvoice, IInvoiceDocument } from '../../models/definitions/invoices';
+import { IInvoiceDocument } from '../../models/definitions/invoices';
 import redis from '../../redis';
+import { PAYMENTS, PAYMENT_STATUS } from '../constants';
 
 export const storepayCallbackHandler = async (
   models: IModels,
@@ -17,7 +17,7 @@ export const storepayCallbackHandler = async (
 
   const invoice = await models.Invoices.getInvoice(
     {
-      'apiResponse.value': id,
+      $or: [{ 'apiResponse.value': id }, { 'apiResponse.value': Number(id) }],
     },
     true,
   );

@@ -4,12 +4,12 @@ import { IModels } from '../connectionResolver';
 import {
   IBuilding,
   IBuildingDocument,
-  buildingSchema,
+  buildingSchema
 } from './definitions/buildings';
 
 import {
   IBuildingToContactDocument,
-  buildingToContactSchema,
+  buildingToContactSchema
 } from './definitions/buildingToContact';
 import { sendMessage } from '@erxes/api-utils/src/messageBroker';
 import { sendCommonMessage } from '../messageBroker';
@@ -28,7 +28,7 @@ export const loadBuildingClass = (models: IModels) => {
         const { lng, lat } = doc.location;
         (doc as any).location = {
           type: 'Point',
-          coordinates: [lng, lat],
+          coordinates: [lng, lat]
         };
       }
       const quarter = await models.Quarters.findById(doc.quarterId);
@@ -40,6 +40,13 @@ export const loadBuildingClass = (models: IModels) => {
 
     public static async updateBuilding(_id: string, doc: IBuilding) {
       await models.Buildings.getBuilding({ _id });
+      if (doc.location) {
+        const { lng, lat } = doc.location;
+        (doc as any).location = {
+          type: 'Point',
+          coordinates: [lng, lat]
+        };
+      }
       const building = await models.Buildings.getBuilding({ _id });
       const quarter = await models.Quarters.findById(building.quarterId);
       const district = await models.Districts.findById(quarter?.districtId);
@@ -47,7 +54,7 @@ export const loadBuildingClass = (models: IModels) => {
       const searchText = `${doc.name} ${quarter?.name}  ${district?.name}  ${city?.name}`;
       await models.Buildings.updateOne(
         { _id },
-        { $set: { ...doc, updatedAt: new Date(), searchText } },
+        { $set: { ...doc, updatedAt: new Date(), searchText } }
       );
 
       return models.Buildings.getBuilding({ _id });

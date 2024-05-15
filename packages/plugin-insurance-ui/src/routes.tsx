@@ -1,8 +1,13 @@
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 import React from 'react';
-import { Route } from 'react-router-dom';
-
+import {
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+  useParams,
+} from 'react-router-dom';
 const RiskList = asyncComponent(
   () =>
     import(
@@ -38,35 +43,47 @@ const ItemDetail = asyncComponent(
     )
 );
 
-const risks = ({ location, history }) => {
+const Risks = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
   const { type } = queryParams;
+  const history = useNavigate();
 
   return <RiskList typeId={type} history={history} />;
 };
 
-const products = ({ location, history }) => {
+const Products = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
   const { type } = queryParams;
+  const history = useNavigate();
 
-  return <ProductList typeId={type} history={history} />;
+  return <ProductList queryParams={queryParams} history={history} />;
 };
 
-const categories = ({ location, history }) => {
+const Categories = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
   const { type } = queryParams;
+  const history = useNavigate();
 
   return <CategoryList typeId={type} history={history} />;
 };
 
-const items = ({ location, history }) => {
+const Items = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
+  const history = useNavigate();
 
   return <ItemList queryParams={queryParams} history={history} />;
 };
 
-export const itemDetail = ({ match }) => {
-  return <ItemDetail dealId={match.params.dealId} />;
+export const Item = () => {
+  console.log("ITEM ")
+  // const { dealId } = useParams();
+  const params = useParams()
+  console.log("params", params)
+  return <ItemDetail dealId={params.dealId} />;
 };
 
 export const menu = [
@@ -76,20 +93,20 @@ export const menu = [
   { title: 'Items', link: '/insurance/items/list' },
 ];
 
+
 const routes = () => {
   return (
-    <React.Fragment>
-      <Route path="/insurance/risks/" component={risks} />
-      <Route path="/insurance/categories/" component={categories} />
-      <Route path="/insurance/products/" component={products} />
-      <Route path="/insurance/items/list" component={items} />
+    <Routes>
+      <Route path="/insurance/risks/" element={<Risks />} />
+      <Route path="/insurance/categories/" element={<Categories />} />
+      <Route path="/insurance/products/" element={<Products />} />
+      <Route path="/insurance/items/list" element={<Items />} />
       <Route
         path="/insurance/items/detail/:dealId"
-        component={itemDetail}
         key={'/insurance/items/detail/:dealId'}
-        exact={true}
+        element={<Item />}
       />
-    </React.Fragment>
+    </Routes>
   );
 };
 

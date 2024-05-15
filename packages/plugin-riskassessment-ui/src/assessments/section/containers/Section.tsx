@@ -1,6 +1,5 @@
 import { Spinner } from '@erxes/ui/src';
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils/core';
 import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
@@ -14,7 +13,7 @@ type Props = {
   queryParams: any;
   mainTypeId: string;
   mainType: string;
-} & IRouterProps;
+};
 
 type FinalProps = {
   riskAssessmentQueryResponse: RiskAssessmentQueryResponse;

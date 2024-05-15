@@ -1,20 +1,11 @@
-import * as compose from 'lodash.flowright';
-
-import {
-  AddMutationResponse,
-  HeadSegmentsQueryResponse,
-  SegmentsQueryResponse
-} from '@erxes/ui-segments/src/types';
-
-import { CountQueryResponse } from '@erxes/ui-contacts/src/customers/types';
-import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
-import React from 'react';
-import SegmentStep from '../components/step/SegmentStep';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '@erxes/ui-engage/src/graphql';
-import { sumCounts } from '@erxes/ui-engage/src/utils';
-import { withProps } from '@erxes/ui/src/utils';
+import React from "react";
+import SegmentStep from "../components/step/SegmentStep";
+import { gql } from "@apollo/client";
+import { queries } from "@erxes/ui-engage/src/graphql";
+import { sumCounts } from "@erxes/ui-engage/src/utils";
+import { useQuery } from "@apollo/client";
+import { SegmentsQueryResponse } from "@erxes/ui-segments/src/types";
+import { CountQueryResponse } from "@erxes/ui-contacts/src/customers/types";
 
 type Props = {
   segmentIds: string[];
@@ -24,7 +15,7 @@ type Props = {
   renderContent: ({
     actionSelector,
     selectedComponent,
-    customerCounts
+    customerCounts,
   }: {
     actionSelector: React.ReactNode;
     selectedComponent: React.ReactNode;
@@ -32,19 +23,27 @@ type Props = {
   }) => React.ReactNode;
 };
 
-type FinalProps = {
-  segmentsQuery: SegmentsQueryResponse;
-  customerCountsQuery: CountQueryResponse;
-  headSegmentsQuery: HeadSegmentsQueryResponse;
-  combinedFieldsQuery: FieldsCombinedByTypeQueryResponse;
-} & AddMutationResponse &
-  Props;
+const SegmentStepContainer = (props: Props) => {
+  const segmentsQuery = useQuery<SegmentsQueryResponse>(gql(queries.segments), {
+    variables: {
+      contentTypes: [props.segmentType],
+    },
+  });
 
-const SegmentStepContainer = (props: FinalProps) => {
-  const { segmentsQuery, customerCountsQuery } = props;
+  const customerCountsQuery = useQuery<CountQueryResponse>(
+    gql(queries.customerCounts),
+    {
+      variables: {
+        only: "bySegment",
+        source: "engages",
+      },
+      fetchPolicy: "network-only",
+    }
+  );
 
-  const customerCounts = customerCountsQuery.customerCounts || {
-    bySegment: {}
+  const customerCounts = (customerCountsQuery.data &&
+    customerCountsQuery.data.customerCounts) || {
+    bySegment: {},
   };
 
   const countValues = customerCounts.bySegment || {};
@@ -61,38 +60,15 @@ const SegmentStepContainer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     afterSave,
-    segments: segmentsQuery.segments || [],
+    segments: (segmentsQuery.data && segmentsQuery.data.segments) || [],
     targetCount: countValues,
     customersCount,
     count,
-    loadingCount: customerCountsQuery.loading
+    loading: segmentsQuery.loading,
+    loadingCount: customerCountsQuery.loading,
   };
 
   return <SegmentStep {...updatedProps} />;
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, SegmentsQueryResponse>(gql(queries.segments), {
-      name: 'segmentsQuery',
-      options: (props: Props) => ({
-        variables: {
-          contentTypes: [props.segmentType]
-        }
-      })
-    }),
-    graphql<Props, CountQueryResponse, { only: string; source: string }>(
-      gql(queries.customerCounts),
-      {
-        name: 'customerCountsQuery',
-        options: {
-          variables: {
-            only: 'bySegment',
-            source: 'engages'
-          },
-          fetchPolicy: 'network-only'
-        }
-      }
-    )
-  )(SegmentStepContainer)
-);
+export default SegmentStepContainer;

@@ -1,8 +1,8 @@
-import * as React from 'react';
-import RTG from 'react-transition-group';
-import { PipelineConsumer } from '../../containers/PipelineContext';
-import { Label, LabelList } from '../../styles/label';
-import { IPipelineLabel } from '../../types';
+import * as React from "react";
+import { PipelineConsumer } from "../../containers/PipelineContext";
+import { Label, LabelList } from "../../styles/label";
+import { IPipelineLabel } from "../../types";
+import { Transition } from "@headlessui/react";
 
 type IProps = {
   labels: IPipelineLabel[];
@@ -14,7 +14,7 @@ class Labels extends React.PureComponent<IProps, { isHover: boolean }> {
     super(props);
 
     this.state = {
-      isHover: false
+      isHover: false,
     };
   }
 
@@ -29,7 +29,7 @@ class Labels extends React.PureComponent<IProps, { isHover: boolean }> {
     return {
       r: parseInt(result[1], 16) * increaseValue,
       g: parseInt(result[2], 16) * increaseValue,
-      b: parseInt(result[3], 16) * increaseValue
+      b: parseInt(result[3], 16) * increaseValue,
     };
   };
 
@@ -57,14 +57,11 @@ class Labels extends React.PureComponent<IProps, { isHover: boolean }> {
           timeout={timeout}
           onClick={toggleLabels}
         >
-          <RTG.CSSTransition
-            in={isShowLabel}
-            appear={isShowLabel}
-            timeout={timeout}
-            classNames="erxes-label"
-          >
-            <span>{label.name}</span>
-          </RTG.CSSTransition>
+          <Transition show={isShowLabel}>
+            <Transition.Child as={React.Fragment}>
+              <span>{label.name}</span>
+            </Transition.Child>
+          </Transition>
         </Label>
       );
     }
@@ -91,7 +88,7 @@ class Labels extends React.PureComponent<IProps, { isHover: boolean }> {
               onMouseEnter={this.hover.bind(null, true)}
               onMouseLeave={this.hover.bind(null, false)}
             >
-              {labels.map(label =>
+              {labels.map((label) =>
                 this.renderContent(label, isShowLabel, toggleLabels)
               )}
             </LabelList>

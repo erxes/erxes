@@ -25,7 +25,7 @@ const Content = styled.div`
   }
 `;
 
-const SmallContent = styledTS<{ toggle?: boolean }>(styled.div)`
+const SmallContent = styledTS(styled.div)`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -48,12 +48,12 @@ const Subject = styled.h2`
   margin: 0 0 ${dimensions.coreSpacing}px;
 `;
 
-const Meta = styledTS<{ toggle?: boolean }>(styled.div)`
+const Meta = styledTS<{ $toggle?: boolean }>(styled.div)`
   padding: ${dimensions.unitSpacing - 2}px ${dimensions.coreSpacing}px;
   display: flex;
   align-items: center;
   border-bottom: ${props =>
-    props.toggle ? 0 : `1px solid ${colors.borderPrimary}`};
+    props.$toggle ? 0 : `1px solid ${colors.borderPrimary}`};
 
 
   &:hover {
@@ -61,14 +61,14 @@ const Meta = styledTS<{ toggle?: boolean }>(styled.div)`
   }
 `;
 
-const Details = styledTS<{ clickable?: boolean }>(styled.div)`
+const Details = styledTS<{ $clickable?: boolean }>(styled.div)`
   margin-left: 7px;
   padding: 2px 7px;
   border-radius: 4px;
   align-self: center;
 
   &:hover {
-    background: ${props => props.clickable && colors.bgActive};
+    background: ${props => props.$clickable && colors.bgActive};
   }
 `;
 
@@ -162,11 +162,11 @@ const AttachmentItem = styled.div`
   }
 `;
 
-const BoxItem = styledTS<{ toggle?: boolean }>(styled(MailBox))`
+const BoxItem = styledTS<{ $toggle?: boolean }>(styled(MailBox))`
   position: relative;
   box-shadow: ${rgba(colors.colorCoreBlack, 0.08)} 0px 1px 6px;
   margin-top: ${dimensions.unitSpacing}px;
-  opacity: ${props => props.toggle && '0.8'};
+  opacity: ${props => props.$toggle && '0.8'};
   border-radius: ${dimensions.coreSpacing - 5}px;
   border: 1px solid ${colors.borderPrimary};
   
@@ -200,9 +200,9 @@ const From = styled.span`
   font-size: 95%;
 `;
 
-const AddressContainer = styledTS<{ isExpanded?: boolean }>(styled.div)`
+const AddressContainer = styledTS<{ $isExpanded?: boolean }>(styled.div)`
   ${props =>
-    !props.isExpanded &&
+    !props.$isExpanded &&
     css`
       ${Flex} {
         margin-right: 5px;

@@ -168,8 +168,8 @@ const mutationParams = `
     customFieldsData: JSON
     drawnPoints: [DrawnPointsInput]
 `;
-
 export const mutations = `
+  buildingsChange(_buildingId: String!, customerId:String!, ticketData: JSON): Building
   buildingsAdd(${mutationParams}): Building
   buildingsEdit(_id: String!, ${mutationParams}): Building
   buildingsRemove(_ids: [String]): JSON
@@ -201,5 +201,6 @@ export const queries = `
   buildings(${qryParams}): [Building]
   buildingsByBounds(bounds: JSON, serviceStatuses: [ServiceStatus]): [Building]
   buildingDetail(_id: String!): Building
+  buildingsByCustomer(contactId: String!): [Building]
   buildingGet(osmbId: String): Building
 `;

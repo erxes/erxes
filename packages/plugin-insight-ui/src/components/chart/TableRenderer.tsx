@@ -1,7 +1,7 @@
-import React from 'react';
-import Table from '@erxes/ui/src/components/table';
-import styled from 'styled-components';
-import { formatNumbers } from '../../utils';
+import React from "react";
+import Table from "@erxes/ui/src/components/table";
+import { formatNumbers } from "../../utils";
+import styled from "styled-components";
 
 const ScrollWrapper = styled.div`
   height: 50vh;
@@ -22,15 +22,17 @@ type IDataSet = {
 type Props = {
   dataset: IDataSet;
   // tableType: string;
-  serviceName: string
+  serviceName: string;
 };
 
 const TableList = (props: Props) => {
   const { dataset, serviceName } = props;
   const { title, data, labels } = dataset;
 
-  const headerTitle = serviceName.charAt(0).toUpperCase() + serviceName.slice(1);
-  const formatType = title.toLowerCase().includes('time') ? 'time' : 'commarize'
+  const headerTitle =
+    serviceName.charAt(0).toUpperCase() + serviceName.slice(1);
+  const formatType =
+    title && title.toLowerCase().includes("time") ? "time" : "commarize";
 
   return (
     <ScrollWrapper>
@@ -43,16 +45,18 @@ const TableList = (props: Props) => {
         </thead>
 
         <tbody>
-          {(labels || []).map((label, index) => ({ label, value: data[index] }))
-            .sort((a, b) => b.value - a.value)
-            .map(({ label, value }, index) => (
-              <tr key={index}>
-                <td>
-                  <b>{label}</b>
-                </td>
-                <td>{formatNumbers(value, 'x', formatType)}</td>
-              </tr>
-            ))}
+          {(
+            (labels || [])
+              .map((label, index) => ({ label, value: data[index] }))
+              .sort((a, b) => b.value - a.value) || []
+          ).map(({ label, value }, index) => (
+            <tr key={index}>
+              <td>
+                <b>{label}</b>
+              </td>
+              <td>{formatNumbers(value, "x", formatType)}</td>
+            </tr>
+          ))}
         </tbody>
       </Table>
     </ScrollWrapper>

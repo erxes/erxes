@@ -49,7 +49,7 @@ class FullPreviewStep extends React.Component<Props, State> {
         <DesktopPreview>
           <PreviewContainer>
             <DesktopPreviewContent
-              templateId={templateId}
+              templateid={templateId}
               dangerouslySetInnerHTML={{ __html: content }}
             />
           </PreviewContainer>

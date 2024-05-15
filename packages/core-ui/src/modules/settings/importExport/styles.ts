@@ -71,20 +71,20 @@ const ImportHistoryActions = styled.div`
   }
 `;
 
-const FullContent = styledTS<{ center: boolean; align?: boolean }>(styled.div)`
+const FullContent = styledTS<{ $center: boolean; $align?: boolean }>(styled.div)`
   flex: 1;
   display: flex;
-  justify-content: ${props => props.center && 'center'};
-  align-items: ${props => (props.align ? 'flex-start' : 'center')};
+  justify-content: ${props => props.$center && 'center'};
+  align-items: ${props => (props.$align ? 'flex-start' : 'center')};
 `;
 
-const TypeContent = styledTS<{ center: boolean; align?: boolean }>(styled.div)`
+const TypeContent = styledTS<{ $center: boolean; $align?: boolean }>(styled.div)`
   flex: 1;
   display: flex !important;
   margin-bottom: 30px;
   margin-left: 20px;
-  justify-content: ${props => props.center && 'center'};
-  align-items: ${props => (props.align ? 'flex-start' : 'center')};
+  justify-content: ${props => props.$center && 'center'};
+  align-items: ${props => (props.$align ? 'flex-start' : 'center')};
   flex-wrap: wrap;
 
   @media (max-width: 1440px) {

@@ -2,7 +2,7 @@ export const types = (
   cardAvailable,
   kbAvailable,
   formsAvailable,
-  productsAvailable,
+  productsAvailable
 ) => `
 ${
   cardAvailable
@@ -66,8 +66,16 @@ ${
     smsTransporterType: String
     loginWithOTP: Boolean
     expireAfter: Int
+    emailSubject: String
   }
-
+  type TwoFactorConfig {
+    content: String
+    codeLength: Int
+    smsTransporterType: String
+    enableTwoFactor: Boolean
+    expireAfter: Int
+    emailSubject: String
+  }
   type MailConfig {
     subject: String
     invitationContent : String
@@ -94,7 +102,18 @@ ${
     smsTransporterType: String
     loginWithOTP: Boolean
     expireAfter: Int
+    emailSubject: String
   }
+
+  input TwoFactorConfigInput {
+    content: String
+    codeLength: Int
+    smsTransporterType: String
+    enableTwoFactor: Boolean
+    expireAfter: Int
+    emailSubject: String
+  }
+
 
   input MailConfigInput {
     subject: String
@@ -162,6 +181,8 @@ ${
     mobileResponsive: Boolean
   
     otpConfig: OTPConfig
+    twoFactorConfig: TwoFactorConfig
+
     mailConfig: MailConfig
     manualVerificationConfig: ManualVerificationConfig
     passwordVerificationConfig: PasswordVerificationConfig
@@ -284,6 +305,7 @@ ${
     testUserOTP: String
 
     otpConfig: OTPConfigInput
+    twoFactorConfig:TwoFactorConfigInput
     mailConfig: MailConfigInput
     manualVerificationConfig: JSON
     passwordVerificationConfig: JSON
@@ -375,7 +397,7 @@ export const queries = (cardAvailable, kbAvailable, formsAvailable) => `
   }
 `;
 
-export const mutations = (cardAvailable) => `
+export const mutations = cardAvailable => `
   clientPortalConfigUpdate (
     config: ClientPortalConfigInput!
   ): ClientPortal

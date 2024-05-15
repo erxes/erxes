@@ -1,38 +1,50 @@
-import { Redirect, Route } from 'react-router-dom';
+import {
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useParams,
+} from 'react-router-dom';
 
+import React from 'react';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
-import React from 'react';
 
-const CustomerDetails = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "CustomerDetails" */ './containers/CustomerDetails'
-  )
+const CustomerDetails = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "CustomerDetails" */ './containers/CustomerDetails'
+    ),
 );
 
-const CustomersList = asyncComponent(() =>
-  import(/* webpackChunkName: "CustomersList" */ './containers/CustomersList')
+const CustomersList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "CustomersList" */ './containers/CustomersList'
+    ),
 );
 
-const contacts = () => {
+const Contacts = () => {
   const lastVisited = localStorage.getItem('erxes_contact_url') || 'visitor';
 
   if (lastVisited === 'companies') {
-    return <Redirect to={lastVisited} />;
+    return <Navigate to={lastVisited} />;
   }
 
-  return <Redirect to={`/contacts/${lastVisited}`} />;
+  return <Navigate to={`/contacts/${lastVisited}`} />;
 };
 
-const detail = ({ match }) => {
-  const id = match.params.id;
+const Detail = () => {
+  const { id = '' } = useParams();
 
   return <CustomerDetails id={id} />;
 };
 
-const list = ({ match, location }) => {
+const List = () => {
+  const location = useLocation();
+
   const queryParams = queryString.parse(location.search);
-  const type = match.params.type;
+  const { type = '' } = useParams();
 
   localStorage.setItem('erxes_contact_url', type);
 
@@ -41,23 +53,17 @@ const list = ({ match, location }) => {
 
 const routes = () => {
   return (
-    <React.Fragment>
-      <Route key="/contacts" exact={true} path="/contacts" render={contacts} />
+    <Routes>
+      <Route key="/contacts" path="/contacts" element={<Contacts />} />
 
       <Route
         key="/contacts/details/:id"
-        exact={true}
         path="/contacts/details/:id"
-        component={detail}
+        element={<Detail />}
       />
 
-      <Route
-        key="/contacts/:type"
-        exact={true}
-        path="/contacts/:type"
-        component={list}
-      />
-    </React.Fragment>
+      <Route key="/contacts/:type" path="/contacts/:type" element={<List />} />
+    </Routes>
   );
 };
 

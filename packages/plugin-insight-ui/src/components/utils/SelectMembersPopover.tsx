@@ -1,12 +1,12 @@
-import React, { useRef } from 'react';
-import Popover from 'react-bootstrap/Popover';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import "../../styles.css";
 
-import { __ } from '@erxes/ui/src/utils/index';
+import { IDashboard, IReport } from "../../types";
+import React, { useRef } from "react";
 
-import SelectMembersBox from '../../containers/utils/SelectMembersBox';
-import { IDashboard, IReport } from '../../types';
-import '../../styles.css';
+import Popover from "@erxes/ui/src/components/Popover";
+import { PopoverContent } from "@erxes/ui/src/components/filterableList/styles";
+import SelectMembersBox from "../../containers/utils/SelectMembersBox";
+import { __ } from "@erxes/ui/src/utils/index";
 
 type Props = {
   targets: IReport[] | IDashboard[];
@@ -18,27 +18,18 @@ const SelectMembersPopover = (props: Props) => {
   const { targets, trigger, type } = props;
   const overlayTriggerRef = useRef<any>(null);
 
-  const popover = (
-    <Popover id={'assign-popover'} className="custom-popover">
-      <Popover.Title as="h3">{__('Choose person')}</Popover.Title>
-      <Popover.Content>
-        <SelectMembersBox targets={targets} type={type} />
-      </Popover.Content>
-    </Popover>
-  );
-
   return (
-    <OverlayTrigger
-      ref={(overlayTrigger) => {
-        overlayTriggerRef.current = overlayTrigger;
-      }}
-      trigger="click"
+    <Popover
+      innerRef={overlayTriggerRef.current}
+      trigger={trigger}
       placement="bottom-end"
-      overlay={popover}
-      rootClose={true}
+      className="custom-popover"
     >
-      {trigger}
-    </OverlayTrigger>
+      <div className="popover-header">{__("Choose person")}</div>
+      <PopoverContent>
+        <SelectMembersBox targets={targets} type={type} />
+      </PopoverContent>
+    </Popover>
   );
 };
 

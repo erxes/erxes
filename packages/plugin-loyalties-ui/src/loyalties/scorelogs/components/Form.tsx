@@ -6,17 +6,17 @@ import {
   FormGroup,
   ModalTrigger,
   SelectTeamMembers,
-  __
-} from '@erxes/ui/src';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
+  __,
+} from "@erxes/ui/src";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
 
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
-import { IFormProps } from '@erxes/ui/src/types';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import React from 'react';
-import SelectClientPortalUser from '../../../common/SelectClientPortalUsers';
-import { getOwnerTypes } from '../../common/constants';
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
+import { IFormProps } from "@erxes/ui/src/types";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import React from "react";
+import SelectClientPortalUser from "../../../common/SelectClientPortalUsers";
+import { getOwnerTypes } from "../../common/constants";
 
 type Props = {
   renderBtn: (props: any) => JSX.Element;
@@ -32,30 +32,30 @@ class ScoreForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      ownerType: 'customer',
-      ownerId: '',
-      changeScore: 0
+      ownerType: "customer",
+      ownerId: "",
+      changeScore: 0,
     };
   }
 
-  generateDoc = values => {
+  generateDoc = (values) => {
     const { ownerId } = this.state;
 
     return {
       ...values,
       changeScore: Number(values?.changeScore || 0),
-      ownerId
+      ownerId,
     };
   };
 
   renderOwner = () => {
     const { ownerType, ownerId } = this.state;
 
-    const handleOwnerId = id => {
-      this.setState(prev => ({ ...prev, ownerId: id }));
+    const handleOwnerId = (id) => {
+      this.setState((prev) => ({ ...prev, ownerId: id }));
     };
 
-    if (isEnabled('contacts') && ownerType === 'customer') {
+    if (isEnabled("contacts") && ownerType === "customer") {
       return (
         <SelectCustomers
           label="Customer"
@@ -67,7 +67,7 @@ class ScoreForm extends React.Component<Props, State> {
       );
     }
 
-    if (ownerType === 'user') {
+    if (ownerType === "user") {
       return (
         <SelectTeamMembers
           label="Team Member"
@@ -79,7 +79,7 @@ class ScoreForm extends React.Component<Props, State> {
       );
     }
 
-    if (isEnabled('contacts') && ownerType === 'company') {
+    if (isEnabled("contacts") && ownerType === "company") {
       return (
         <SelectCompanies
           label="Compnay"
@@ -91,7 +91,7 @@ class ScoreForm extends React.Component<Props, State> {
       );
     }
 
-    if (isEnabled('clientportal') && ownerType === 'cpUser') {
+    if (isEnabled("clientportal") && ownerType === "cpUser") {
       return (
         <SelectClientPortalUser
           label="Business Portal User"
@@ -112,11 +112,11 @@ class ScoreForm extends React.Component<Props, State> {
 
     let changeScore = 0;
 
-    const handleOwnerType = e => {
+    const handleOwnerType = (e) => {
       const target = e.currentTarget as HTMLInputElement;
       const value = target.value;
       const name = target.name;
-      this.setState(prev => ({ ...prev, [name]: value }));
+      this.setState((prev) => ({ ...prev, [name]: value }));
     };
 
     const Form = (formProps: IFormProps, closeModal: () => void) => {
@@ -125,11 +125,11 @@ class ScoreForm extends React.Component<Props, State> {
       return (
         <>
           <FormGroup>
-            <ControlLabel>{__('Owner type')}</ControlLabel>
+            <ControlLabel>{__("Owner type")}</ControlLabel>
             <FormControl
               {...formProps}
               name="ownerType"
-              componentClass="select"
+              componentclass="select"
               defaultValue={ownerType}
               required={true}
               onChange={handleOwnerType}
@@ -142,11 +142,11 @@ class ScoreForm extends React.Component<Props, State> {
             </FormControl>
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('Owner')}</ControlLabel>
+            <ControlLabel>{__("Owner")}</ControlLabel>
             {this.renderOwner()}
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('Score')}</ControlLabel>
+            <ControlLabel>{__("Score")}</ControlLabel>
             <FormControl
               {...formProps}
               name="changeScore"
@@ -160,13 +160,13 @@ class ScoreForm extends React.Component<Props, State> {
           </FormGroup>
           <ModalFooter>
             <Button btnStyle="simple" icon="cancel-1" onClick={closeModal}>
-              {__('Close')}
+              {__("Close")}
             </Button>
             {renderBtn({
-              name: 'score',
+              name: "score",
               values: this.generateDoc(values),
               isSubmitted,
-              callback: closeModal
+              callback: closeModal,
             })}
           </ModalFooter>
         </>
@@ -175,11 +175,13 @@ class ScoreForm extends React.Component<Props, State> {
 
     const content = ({ closeModal }) => {
       return (
-        <CommonForm renderContent={formProps => Form(formProps, closeModal)} />
+        <CommonForm
+          renderContent={(formProps) => Form(formProps, closeModal)}
+        />
       );
     };
 
-    const trigger = <Button btnStyle="success">{__('Give Score')}</Button>;
+    const trigger = <Button btnStyle="success">{__("Give Score")}</Button>;
 
     return (
       <ModalTrigger

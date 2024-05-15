@@ -1,24 +1,25 @@
-import { gql, useQuery } from '@apollo/client';
-import { Description } from '@erxes/ui-settings/src/styles';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { __ } from '@erxes/ui/src/utils/core';
-import React from 'react';
-import queries from '../graphql/queries';
-import { generateParams } from './List';
-import { FormContainer } from '../../styles';
-import { Box as StatusBox } from '../../styles';
+import { gql, useQuery } from "@apollo/client";
+
+import { Description } from "@erxes/ui-settings/src/styles";
+import { FormContainer } from "../../styles";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { Box as StatusBox } from "../../styles";
+import { __ } from "@erxes/ui/src/utils/core";
+import { generateParams } from "./List";
+import queries from "../graphql/queries";
 
 export function Statistics({
   queryParams,
-  totalCount
+  totalCount,
 }: {
   queryParams: any;
   totalCount: number;
 }) {
   const { data, loading } = useQuery(gql(queries.getStatistic), {
     variables: {
-      ...generateParams({ queryParams })
-    }
+      ...generateParams({ queryParams }),
+    },
   });
 
   if (loading) {
@@ -30,23 +31,23 @@ export function Statistics({
 
   const list = [
     {
-      label: 'Total count',
-      value: totalCount || 0
+      label: "Total count",
+      value: totalCount || 0,
     },
     {
-      label: 'Average Score',
-      value: averageScore || 0
+      label: "Average Score",
+      value: averageScore || 0,
     },
     {
-      label: 'Submitted Assessments Count',
-      value: submittedAssessmentCount || 0
-    }
+      label: "Submitted Assessments Count",
+      value: submittedAssessmentCount || 0,
+    },
   ];
 
   return (
-    <FormContainer column>
-      {list.map(item => (
-        <StatusBox>
+    <FormContainer $column>
+      {list.map((item, i) => (
+        <StatusBox key={i}>
           <Description>{__(item.label)}</Description>
           <h4>{item.value}</h4>
         </StatusBox>

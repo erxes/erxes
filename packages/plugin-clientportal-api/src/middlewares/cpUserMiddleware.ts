@@ -48,7 +48,7 @@ export default async function cpUserMiddleware(
       'clientPortalVerifyOTP',
       'clientPortalRefreshToken',
       'clientPortalGetConfigByDomain',
-      'clientPortalKnowledgeBaseTopicDetail'
+      'clientPortalKnowledgeBaseTopicDetail',
     ].includes(operationName)
   ) {
     return next();
@@ -67,12 +67,33 @@ export default async function cpUserMiddleware(
       process.env.JWT_TOKEN_SECRET || ''
     );
 
-    const { userId } = verifyResult;
+    const { userId, isPassed2FA, isEnableTwoFactor } = verifyResult;
 
     const userDoc = await models.ClientPortalUsers.findOne({ _id: userId });
 
     if (!userDoc) {
       return next();
+    }
+    const check = () => {
+      const two2FAoperationsNames = [
+        'clientPortal2FAGetCode',
+        'clientPortalVerify2FA',
+      ];
+      for (const name of two2FAoperationsNames) {
+        if (name.toLocaleLowerCase() === operationName.toLocaleLowerCase()) {
+          return false;
+        }
+      }
+      return true;
+    };
+    if (isEnableTwoFactor) {
+      if (!isPassed2FA && check()) {
+        const graphQLError = new GraphQLError(
+          '2Factor Authentication is activiated'
+        );
+
+        return res.status(200).json({ errors: [graphQLError] });
+      }
     }
 
     // save user in request

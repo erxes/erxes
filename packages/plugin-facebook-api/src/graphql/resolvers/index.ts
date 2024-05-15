@@ -10,11 +10,11 @@ const resolvers: any = async () => ({
   ...CustomResolvers,
 
   Mutation: {
-    ...mutations
+    ...mutations,
   },
   Query: {
-    ...queries
-  }
+    ...queries,
+  },
 });
 
 export default resolvers;

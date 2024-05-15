@@ -54,6 +54,7 @@ const queryParams = `
 export const queries = `
   savingsTransactionsMain(${queryParams}): SavingTransactionsListResponse
   savingsTransactions(${queryParams}): [SavingTransaction]
+  clientSavingsTransactions(${queryParams}): [SavingTransaction]
   savingsTransactionDetail(_id: String!): SavingTransaction
 `;
 
@@ -72,6 +73,15 @@ const commonFields = `
   organizationRegister: String,
   transactionType: String
 `;
+const clientFields = `
+  secondaryPassword: String,
+  dealtType: String,
+  accountNumber: String,
+  accountHolderName: String,
+  externalBankName: String,
+  ownBankNumber: String,
+  ownBankType: String,
+`;
 
 const changeFields = `
   payment: Float,
@@ -79,6 +89,7 @@ const changeFields = `
 
 export const mutations = `
   savingsTransactionsAdd(${commonFields}): SavingTransaction
+  clientSavingsTransactionsAdd(${commonFields}${clientFields}): SavingTransaction
   savingsTransactionsEdit(_id: String!, ${commonFields}): SavingTransaction
   savingsTransactionsChange(_id: String!, ${changeFields}): SavingTransaction
   savingsTransactionsRemove(transactionIds: [String]): [String]

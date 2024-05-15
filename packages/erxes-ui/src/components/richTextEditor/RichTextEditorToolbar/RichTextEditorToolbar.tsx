@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+
 import { EditorToolbarWrapper } from './styles';
 
 export interface IRichTextEditorToolbarProps {
@@ -12,14 +13,14 @@ export interface IRichTextEditorToolbarProps {
 }
 
 export const RichTextEditorToolbar = (
-  props: Partial<IRichTextEditorToolbarProps> = {}
+  props: Partial<IRichTextEditorToolbarProps> = {},
 ) => {
   const ref = useRef<HTMLDivElement>(null);
   const { sticky = false, stickyOffset, ...others } = props;
 
   return (
     <EditorToolbarWrapper
-      innerRef={ref}
+      ref={ref}
       style={{ position: sticky ? 'sticky' : 'unset' }}
       {...others}
     />

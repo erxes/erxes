@@ -16,7 +16,6 @@ import { IPerform } from '../../performs/types';
 type Props = {
   overallWork: IOverallWorkDet;
   perform: IPerform;
-  history: any;
   queryParams: any;
   removePerform: (_id: string) => void;
   minPotentialCount: number;

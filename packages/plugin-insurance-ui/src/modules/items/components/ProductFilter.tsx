@@ -1,18 +1,16 @@
 import Box from '@erxes/ui/src/components/Box';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import {
-  FieldStyle,
   SidebarCounter,
-  SidebarList,
+  SidebarList
 } from '@erxes/ui/src/layout/styles';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import { withRouter } from 'react-router-dom';
-import {  InsuranceProduct } from '../../../gql/types';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { InsuranceProduct } from '../../../gql/types';
 import { FilterLabel } from '../../../styles';
 
-interface IProps extends IRouterProps {
+interface IProps {
   counts: { [key: string]: number };
   products: InsuranceProduct[];
   loading: boolean;
@@ -20,18 +18,21 @@ interface IProps extends IRouterProps {
 }
 
 function Products({
-  history,
+
   counts,
   products,
   loading,
   emptyText,
 }: IProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const data = (
     <SidebarList>
       {products.map((product) => {
         const onClick = () => {
-          router.setParams(history, { product: product._id });
-          router.removeParams(history, 'page');
+          router.setParams(navigate, location, { product: product._id });
+          router.removeParams(navigate, location, 'page');
         };
 
         return (
@@ -40,7 +41,7 @@ function Products({
               href="#filter"
               tabIndex={0}
               className={
-                router.getParam(history, 'product') === product._id
+                router.getParam(location, 'product') === product._id
                   ? 'active'
                   : ''
               }
@@ -75,4 +76,4 @@ function Products({
   );
 }
 
-export default withRouter<IProps>(Products);
+export default Products;

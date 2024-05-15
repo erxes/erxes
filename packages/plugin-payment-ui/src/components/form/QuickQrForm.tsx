@@ -1,17 +1,17 @@
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { IPaymentDocument } from '../../types';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import { SettingsContent } from './styles';
-import { __ } from '@erxes/ui/src/utils';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import Button from '@erxes/ui/src/components/Button';
-import { PAYMENT_KINDS, BANK_CODES, MCC_CODES } from '../constants';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import Select from 'react-select-plus';
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import React from "react";
+import { IPaymentDocument } from "../../types";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Form from "@erxes/ui/src/components/form/Form";
+import { SettingsContent } from "./styles";
+import { __ } from "@erxes/ui/src/utils";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import Button from "@erxes/ui/src/components/Button";
+import { PAYMENT_KINDS, BANK_CODES, MCC_CODES } from "../constants";
+import Toggle from "@erxes/ui/src/components/Toggle";
+import Select from "react-select";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -22,7 +22,7 @@ type Props = {
 
 type State = {
   paymentName: string;
-  type: 'company' | 'person' | undefined;
+  type: "company" | "person" | undefined;
   registerNumber: string;
   name: string;
 
@@ -49,19 +49,19 @@ const QuickQrForm = (props: Props) => {
   const { config, name } = payment || ({} as IPaymentDocument);
 
   const [state, setState] = React.useState<State>({
-    type: config ? (config.isCompany ? 'company' : 'person') : undefined,
+    type: config ? (config.isCompany ? "company" : "person") : undefined,
     ...config,
     name,
-    companyName: config ? config.name : ''
+    companyName: config ? config.name : "",
   });
 
   const generateDoc = () => {
     const generatedValues = {
       name: state.name,
       kind: PAYMENT_KINDS.QPAY_QUICK_QR,
-      status: 'active',
+      status: "active",
       config: {
-        isCompany: state.type === 'company',
+        isCompany: state.type === "company",
         registerNumber: state.registerNumber,
         name: state.companyName,
         mccCode: state.mccCode,
@@ -76,8 +76,8 @@ const QuickQrForm = (props: Props) => {
         bankCode: state.bankCode,
         bankAccount: state.bankAccount,
         bankAccountName: state.bankAccountName,
-        merchantId: state.merchantId
-      }
+        merchantId: state.merchantId,
+      },
     };
 
     return payment ? { id: payment._id, ...generatedValues } : generatedValues;
@@ -104,13 +104,13 @@ const QuickQrForm = (props: Props) => {
           defaultValue={value}
           onChange={onChangeConfig.bind(this, key)}
           value={value}
-          type={isPassword ? 'password' : ''}
+          type={isPassword ? "password" : ""}
         />
       </FormGroup>
     );
   };
 
-  const renderInputs = formProps => {
+  const renderInputs = (formProps) => {
     if (!state.type) {
       return null;
     }
@@ -118,57 +118,57 @@ const QuickQrForm = (props: Props) => {
     return (
       <div
         style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '20px'
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "20px",
         }}
       >
-        {state.type === 'company' && renderItem('companyName', 'Company Name')}
-        {state.type === 'person' && renderItem('firstName', 'First Name')}
-        {state.type === 'person' && renderItem('lastName', 'Last Name')}
+        {state.type === "company" && renderItem("companyName", "Company Name")}
+        {state.type === "person" && renderItem("firstName", "First Name")}
+        {state.type === "person" && renderItem("lastName", "Last Name")}
 
-        {renderItem('registerNumber', 'Register Number')}
+        {renderItem("registerNumber", "Register Number")}
         {/* {renderItem('mccCode', 'MCC Code')} */}
         {renderMccCode()}
-        {renderItem('city', 'City')}
-        {renderItem('district', 'District')}
-        {renderItem('address', 'Address')}
-        {renderItem('phone', 'Phone')}
-        {renderItem('email', 'Email')}
+        {renderItem("city", "City")}
+        {renderItem("district", "District")}
+        {renderItem("address", "Address")}
+        {renderItem("phone", "Phone")}
+        {renderItem("email", "Email")}
 
         {renderItem(
-          'bankAccount',
-          'Account Number',
-          'The account number to receive payments'
+          "bankAccount",
+          "Account Number",
+          "The account number to receive payments"
         )}
         <FormGroup>
           <ControlLabel required={true}>Bank</ControlLabel>
-          <p>{__('The bank of the account number to receive payments')}</p>
+          <p>{__("The bank of the account number to receive payments")}</p>
           <FormControl
             {...formProps}
             id="toBank"
             name="toBank"
-            componentClass="select"
+            componentclass="select"
             required={true}
             defaultValue={state.bankCode}
-            onChange={onChangeConfig.bind(this, 'bankCode')}
+            onChange={onChangeConfig.bind(this, "bankCode")}
             errors={formProps.errors}
           >
-            <option value="">{__('Select a bank')}</option>
-            {BANK_CODES.map(bank => (
+            <option value="">{__("Select a bank")}</option>
+            {BANK_CODES.map((bank) => (
               <option key={bank.value} value={bank.value}>
                 {bank.label}
               </option>
             ))}
           </FormControl>
         </FormGroup>
-        {renderItem('bankAccountName', 'Account Name', 'Account holder name')}
+        {renderItem("bankAccountName", "Account Name", "Account holder name")}
       </div>
     );
   };
 
   const renderMccCode = () => {
-    const onChangeMccCode = e => {
+    const onChangeMccCode = (e) => {
       setState({ ...state, mccCode: e.value });
     };
 
@@ -176,11 +176,12 @@ const QuickQrForm = (props: Props) => {
       <FormGroup>
         <ControlLabel required={true}>MCC Code</ControlLabel>
         <Select
-          placeholder={__('Select MCC Code')}
-          value={state.mccCode}
+          placeholder={__("Select MCC Code")}
+          value={MCC_CODES.find((o) => o.value === state.mccCode)}
           onChange={onChangeMccCode}
           options={MCC_CODES}
-          multi={false}
+          isClearable={true}
+          isMulti={false}
         />
       </FormGroup>
     );
@@ -191,20 +192,20 @@ const QuickQrForm = (props: Props) => {
 
     return (
       <>
-        <SettingsContent title={__('General settings')}>
-          {renderItem('name', 'Name')}
+        <SettingsContent title={__("General settings")}>
+          {renderItem("name", "Name")}
 
           <FormGroup>
-            <ControlLabel>{__('Type')}</ControlLabel>
+            <ControlLabel>{__("Type")}</ControlLabel>
             <FormControl
-              componentClass="select"
+              componentclass="select"
               required={true}
               defaultValue={state.type}
-              onChange={onChangeConfig.bind(this, 'type')}
+              onChange={onChangeConfig.bind(this, "type")}
             >
-              <option>{__('Please select a type')}</option>
-              <option value={'company'}>{__('Company')}</option>
-              <option value={'person'}>{__('Individual')}</option>
+              <option>{__("Please select a type")}</option>
+              <option value={"company"}>{__("Company")}</option>
+              <option value={"person"}>{__("Individual")}</option>
             </FormControl>
           </FormGroup>
 
@@ -221,10 +222,10 @@ const QuickQrForm = (props: Props) => {
             Cancel
           </Button>
           {renderButton({
-            passedName: 'payment',
+            passedName: "payment",
             values: generateDoc(),
             isSubmitted,
-            callback: closeModal
+            callback: closeModal,
           })}
         </ModalFooter>
       </>

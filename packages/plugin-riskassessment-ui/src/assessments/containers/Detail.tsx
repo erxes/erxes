@@ -10,7 +10,6 @@ import { Spinner } from '@erxes/ui/src';
 type Props = {
   riskAssessment: any;
   queryParams: any;
-  history: any;
 };
 
 type FinalProps = {
@@ -27,7 +26,6 @@ class Detail extends React.Component<FinalProps> {
       riskAssessment,
       detailQueryResponse,
       queryParams,
-      history
     } = this.props;
 
     if (detailQueryResponse.loading) {
@@ -43,7 +41,6 @@ class Detail extends React.Component<FinalProps> {
 
     const updatedProps = {
       queryParams,
-      history,
       riskAssessment,
       detail,
       assignedUsers,

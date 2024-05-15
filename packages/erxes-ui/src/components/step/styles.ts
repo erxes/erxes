@@ -7,18 +7,18 @@ import styledTS from 'styled-components-ts';
 const StepContainer = styledTS<{ direction?: string }>(styled.div)`
   display: flex;
   flex: 1;
-  flex-direction: ${props => (props.direction ? 'column' : 'row')};
-  align-items: ${props => props.direction === 'horizontal' && 'center'};
+  flex-direction: ${(props) => (props.direction ? 'column' : 'row')};
+  align-items: ${(props) => props.direction === 'horizontal' && 'center'};
   position: relative;
   height: 100%;
   overflow: auto;
-  box-shadow: ${props =>
+  box-shadow: ${(props) =>
     !props.direction && `0 0 4px ${colors.colorShadowGray}`};
-  margin: ${props =>
+  margin: ${(props) =>
     props.direction === 'vertical' && `0 ${dimensions.coreSpacing}px`};
 
   > *:nth-child(n + 2) {
-    margin-left: ${props => !props.direction && '5px'};
+    margin-left: ${(props) => !props.direction && '5px'};
   }
 `;
 
@@ -33,24 +33,24 @@ const StepWrapper = styled.div`
 `;
 
 const StepItem = styledTS<{
-  show: boolean;
-  active?: boolean;
+  $show: boolean;
+  $active?: boolean;
   direction?: string;
 }>(styled.div)`
   transition: all .3s ease;
-  width: ${props => (props.show ? '100%' : '60px')};
-  width: ${props => props.direction === 'vertical' && '100%'};
-  box-shadow: ${props =>
+  width: ${(props) => (props.$show ? '100%' : '60px')};
+  width: ${(props) => props.direction === 'vertical' && '100%'};
+  box-shadow: ${(props) =>
     !props.direction && `0 0 4px ${colors.colorShadowGray}`};
   position: relative;
   z-index: 2;
 
   &:before {
     position: absolute;
-    border-right: ${props =>
+    border-right: ${(props) =>
       props.direction === 'vertical' && `2px solid ${colors.bgActive}`};
-    width: ${props => props.direction === 'horizontal' && '100%'};
-    height: ${props => props.direction === 'vertical' && '100%'};
+    width: ${(props) => props.direction === 'horizontal' && '100%'};
+    height: ${(props) => props.direction === 'vertical' && '100%'};
     top: 30px;
     left: -50%;
     z-index: 2;
@@ -58,20 +58,20 @@ const StepItem = styledTS<{
   &:after {
     position: absolute;
     content: "";
-    border-bottom: ${props =>
+    border-bottom: ${(props) =>
       props.direction === 'horizontal' &&
       `2px solid ${
-        props.active === true ? colors.colorPrimary : colors.bgActive
+        props.$active === true ? colors.colorPrimary : colors.bgActive
       }`};
-    border-right: ${props =>
+    border-right: ${(props) =>
       props.direction === 'vertical' &&
       `2px solid ${
-        props.active === true ? colors.colorCoreGreen : colors.bgActive
+        props.$active === true ? colors.colorCoreGreen : colors.bgActive
       }`};
     
-    height: ${props => props.direction === 'vertical' && '100%'};
-    top: ${props => (props.direction === 'horizontal' ? '-30px' : '30px')};
-    left: ${props => (props.direction === 'horizontal' ? '-50%' : '11px')};
+    height: ${(props) => props.direction === 'vertical' && '100%'};
+    top: ${(props) => (props.direction === 'horizontal' ? '-30px' : '30px')};
+    left: ${(props) => (props.direction === 'horizontal' ? '-50%' : '11px')};
     z-index: 2;
   }
   &:first-child::before {
@@ -110,16 +110,16 @@ const Indicator = styled.div`
   }
 `;
 
-const FullStep = styledTS<{ show: boolean; direction?: string }>(styled.div)`
-  justify-content: ${props => props.direction && 'flex-start'};
-  background: ${props =>
+const FullStep = styledTS<{ $show: boolean; direction?: string }>(styled.div)`
+  justify-content: ${(props) => props.direction && 'flex-start'};
+  background: ${(props) =>
     props.direction === 'horizontal' ? 'transparent' : colors.colorWhite};
   height: 100%;
-  width: ${props => !props.direction && '100%'};
+  width: ${(props) => !props.direction && '100%'};
   transition: all 0.3s ease;
-  display: ${props => (props.show ? 'flex' : 'none')};
+  display: ${(props) => (props.$show ? 'flex' : 'none')};
   flex-direction: column;
-  flex: ${props => props.direction && '1'};
+  flex: ${(props) => props.direction && '1'};
 `;
 
 const StepHeaderContainer = styled.div`
@@ -164,36 +164,36 @@ const StepHeaderTitle = styled.h5`
 `;
 
 const StepContent = styledTS<{ direction?: string; fullWidth?: boolean }>(
-  styled.div
+  styled.div,
 )`
-  width: ${props =>
+  width: ${(props) =>
     props.direction === 'vertical' ? 'calc(100% - 35px)' : '100%'};
-  height: ${props =>
+  height: ${(props) =>
     props.direction === 'vertical' ? 'calc(100% - 35px)' : 'calc(100% - 55px)'};
-  margin-left: ${props => props.direction && 'auto'};
- overflow: ${props => props.fullWidth && 'hidden'};
+  margin-left: ${(props) => props.direction && 'auto'};
+ overflow: ${(props) => props.fullWidth && 'hidden'};
 `;
 
 const ShortStep = styledTS<{
-  show: boolean;
-  active?: boolean;
+  $show: boolean;
+  $active?: boolean;
   direction?: string;
 }>(styled.div)`
   position: relative;
-  width: ${props =>
+  width: ${(props) =>
     props.direction === 'vertical'
       ? '100%'
       : props.direction === 'horizontal'
-      ? '200px'
-      : '60px'};
+        ? '200px'
+        : '60px'};
   height: 100%;
-  background: ${props => !props.direction && colors.bgLight};
-  border: ${props => !props.direction && `1px solid ${colors.bgLight}`};
+  background: ${(props) => !props.direction && colors.bgLight};
+  border: ${(props) => !props.direction && `1px solid ${colors.bgLight}`};
   cursor: pointer;
-  display: ${props => (props.show ? 'flex' : 'none')};
+  display: ${(props) => (props.$show ? 'flex' : 'none')};
   align-items: center;
   padding: ${dimensions.unitSpacing}px 0;
-  flex-direction: ${props =>
+  flex-direction: ${(props) =>
     props.direction === 'vertical' ? 'row' : 'column'};
   transition: all 0.3s ease;
   
@@ -212,9 +212,9 @@ const ShortStep = styledTS<{
 
   &:before {
     position: absolute;
-    border-bottom: ${props =>
+    border-bottom: ${(props) =>
       props.direction === 'horizontal' && `2px solid ${colors.bgActive}`};
-    width: ${props => props.direction === 'horizontal' && '100%'};
+    width: ${(props) => props.direction === 'horizontal' && '100%'};
     top: 55px;
     left: -50%;
     z-index: 2;
@@ -223,14 +223,14 @@ const ShortStep = styledTS<{
   &:after {
     position: absolute;
     content: "";
-    border-bottom: ${props =>
+    border-bottom: ${(props) =>
       props.direction === 'horizontal' &&
       `2px solid ${
-        props.active === true ? colors.colorPrimary : colors.bgActive
+        props.$active === true ? colors.colorPrimary : colors.bgActive
       }`};
-    width: ${props => props.direction === 'horizontal' && '100%'};
-    top: ${props => props.direction === 'horizontal' && '25px'};
-    left: ${props => props.direction === 'horizontal' && '50%'};
+    width: ${(props) => props.direction === 'horizontal' && '100%'};
+    top: ${(props) => props.direction === 'horizontal' && '25px'};
+    left: ${(props) => props.direction === 'horizontal' && '50%'};
     z-index: 2;
   }
 
@@ -239,9 +239,9 @@ const ShortStep = styledTS<{
     &:after {
       position: absolute;
       content: "";
-      border-bottom: ${props =>
+      border-bottom: ${(props) =>
         props.direction === 'horizontal' && `2px solid ${colors.colorPrimary}`};
-      width: ${props => props.direction === 'horizontal' && '100%'};
+      width: ${(props) => props.direction === 'horizontal' && '100%'};
       top: 20px;
       left: 50%;
       z-index: 3;
@@ -257,21 +257,21 @@ const ShortStep = styledTS<{
   }
 `;
 
-const StepCount = styledTS<{ active?: boolean; direction?: string }>(
-  styled.div
+const StepCount = styledTS<{ $active?: boolean; direction?: string }>(
+  styled.div,
 )`
   position: relative;
   z-index: 5;
   display: flex;
   justify-content: center;
   align-items: center;
-  width: ${props => (props.direction === 'horizontal' ? '35px' : '25px')};
-  height: ${props => (props.direction === 'horizontal' ? '35px' : '25px')};;
+  width: ${(props) => (props.direction === 'horizontal' ? '35px' : '25px')};
+  height: ${(props) => (props.direction === 'horizontal' ? '35px' : '25px')};;
   border-radius: 50%;
-  color: ${props =>
-    props.active === true ? colors.colorWhite : colors.colorCoreBlack};
-  background-color: ${props =>
-    props.active === true
+  color: ${(props) =>
+    props.$active === true ? colors.colorWhite : colors.colorCoreBlack};
+  background-color: ${(props) =>
+    props.$active === true
       ? `${
           props.direction === 'horizontal'
             ? colors.colorPrimary
@@ -295,16 +295,16 @@ const FlexItem = styledTS<{
   v?: string;
   h?: string;
   direction?: string;
-  slimmer?: boolean;
-  thinner?: boolean;
+  $slimmer?: boolean;
+  $thinner?: boolean;
   vh?: number;
 }>(styled.div)`
   display: flex;
   height: 100%;
-  border-right: ${props =>
-    !props.slimmer && `1px solid ${colors.borderPrimary}`};
-  flex: ${props => (props.count ? props.count : 1)};
-  ${props => {
+  border-right: ${(props) =>
+    !props.$slimmer && `1px solid ${colors.borderPrimary}`};
+  flex: ${(props) => (props.count ? props.count : 1)};
+  ${(props) => {
     if (props.vh) {
       return `
         max-height: ${props.vh}vh;
@@ -312,7 +312,7 @@ const FlexItem = styledTS<{
     }
     return null;
   }};
-   ${props => {
+   ${(props) => {
      if (props.overflow) {
        return `
         overflow: ${props.overflow};
@@ -320,7 +320,7 @@ const FlexItem = styledTS<{
      }
      return null;
    }};
-  ${props => {
+  ${(props) => {
     if (props.v) {
       return `
         align-items: ${props.v};
@@ -328,7 +328,7 @@ const FlexItem = styledTS<{
     }
     return null;
   }};
-  ${props => {
+  ${(props) => {
     if (props.h) {
       return `
         justify-content: ${props.h};
@@ -336,7 +336,7 @@ const FlexItem = styledTS<{
     }
     return null;
   }};
-  ${props => {
+  ${(props) => {
     if (props.direction) {
       return `
         flex-direction: ${props.direction};
@@ -344,8 +344,8 @@ const FlexItem = styledTS<{
     }
     return null;
   }};
-  ${props => {
-    if (props.slimmer) {
+  ${(props) => {
+    if (props.$slimmer) {
       return `
         width: 50%;
         margin: 0 auto;
@@ -353,8 +353,8 @@ const FlexItem = styledTS<{
     }
     return null;
   }};
-  ${props => {
-    if (props.thinner) {
+  ${(props) => {
+    if (props.$thinner) {
       return `
         width: 60%;
         margin: 0 auto;
@@ -374,26 +374,26 @@ const FlexPad = styled(FlexItem)`
   padding: ${dimensions.coreSpacing}px;
 `;
 
-const LeftItem = styledTS<{ deactive?: boolean }>(styled.div)`
+const LeftItem = styledTS<{ $deactive?: boolean }>(styled.div)`
   overflow: auto;
   flex: 1;
   min-width: 43.33333%;
   padding: ${dimensions.coreSpacing + 5}px;
-  opacity: ${props => props.deactive && '0.3'};
-  cursor: ${props => props.deactive && 'not-allowed'};
+  opacity: ${(props) => props.$deactive && '0.3'};
+  cursor: ${(props) => props.$deactive && 'not-allowed'};
   input:disabled {
     cursor: not-allowed;
   }
 `;
 
-const Preview = styledTS<{ fullHeight?: boolean }>(styled.div)`
+const Preview = styledTS<{ $fullHeight?: boolean }>(styled.div)`
   flex: 1;
   border-left: 1px solid ${colors.borderPrimary};
   background: url('/images/previews/preview.png');
   background-repeat: repeat;
   background-position: center 20px;
   background-size: cover;
-  height: ${props => props.fullHeight && '100%'};
+  height: ${(props) => props.$fullHeight && '100%'};
   overflow: hidden;
 `;
 
@@ -405,9 +405,9 @@ const StyledButton = styledTS<{ next?: boolean }>(styled.button)`
   padding: 10px 40px;
   font-weight: 500;
   margin-right: 10px;
-  color: ${props =>
+  color: ${(props) =>
     props.next === true ? colors.colorWhite : colors.colorPrimary};
-  background: ${props =>
+  background: ${(props) =>
     props.next === true ? colors.colorPrimary : colors.colorWhite};
 `;
 
@@ -419,17 +419,17 @@ const ButtonContainer = styled.div`
   padding: 0 ${dimensions.coreSpacing}px;
 `;
 
-const StepButton = styledTS<{ next?: boolean }>(styled.button)`
+const StepButton = styledTS<{ $next?: boolean }>(styled.button)`
   border-radius: 8px;
   height: 36px;
   width: 110px;
   font-weight: 500;
   margin-right: 10px;
   border: 1px solid ${colors.colorPrimary};
-  color: ${props =>
-    props.next === true ? colors.colorWhite : colors.colorPrimary};
-  background: ${props =>
-    props.next === true ? colors.colorPrimary : colors.colorWhite};
+  color: ${(props) =>
+    props.$next === true ? colors.colorWhite : colors.colorPrimary};
+  background: ${(props) =>
+    props.$next === true ? colors.colorPrimary : colors.colorWhite};
 
   &:hover {
     cursor: pointer;
@@ -528,7 +528,7 @@ const WebPreview = styledTS<{ isEngage?: boolean }>(styled.div)`
     rgba(0, 0, 0, 0.08) 95%,
     rgba(0, 0, 0, 0.1) 100%
   );
-  width: ${props => props.isEngage && '100%'};
+  width: ${(props) => props.isEngage && '100%'};
 
   .engage-message {
     > div:first-of-type {
@@ -564,5 +564,5 @@ export {
   ButtonContainer,
   LauncherContainer,
   WebPreview,
-  WidgetPreview
+  WidgetPreview,
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 import Comment from '../components/Comment';
-import { IItem } from '../../boards/types';
+import { IItem, IStage } from '../../boards/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import { gql } from '@apollo/client';
@@ -10,7 +10,7 @@ import { queries, mutations } from '../graphql/';
 import {
   ClientPortalCommentQueryResponse,
   IClientPortalComment,
-  CommentRemoveMutationResponse
+  CommentRemoveMutationResponse,
 } from '../types';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 
@@ -39,7 +39,7 @@ class CommentContainer extends React.Component<FinalProps> {
             Alert.success('You successfully deleted a comment');
             clientPortalCommentsQuery.refetch();
           })
-          .catch(e => {
+          .catch((e) => {
             Alert.error(e.message);
           });
       });
@@ -47,7 +47,7 @@ class CommentContainer extends React.Component<FinalProps> {
 
     return (
       <Comment
-        currentUser={this.props.currentUser}
+        currentUser={this.props.currentUser || ({} as IUser)}
         clientPortalComments={clientPortalComments}
         remove={remove}
       />
@@ -62,19 +62,22 @@ const WithProps = withProps<Props>(
       {
         name: 'clientPortalCommentsQuery',
         options: ({ item }: { item: IItem }) => ({
-          variables: { typeId: item._id, type: item.stage.type },
+          variables: {
+            typeId: item._id,
+            type: (item.stage || ({} as IStage)).type,
+          },
           fetchPolicy: 'network-only',
-          notifyOnNetworkStatusChange: true
-        })
-      }
+          notifyOnNetworkStatusChange: true,
+        }),
+      },
     ),
     graphql<Props, CommentRemoveMutationResponse, {}>(
       gql(mutations.clientPortalCommentsRemove),
       {
-        name: 'removeMutation'
-      }
-    )
-  )(CommentContainer)
+        name: 'removeMutation',
+      },
+    ),
+  )(CommentContainer),
 );
 
 export default withCurrentUser(WithProps);

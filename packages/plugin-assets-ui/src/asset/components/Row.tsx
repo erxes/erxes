@@ -1,5 +1,5 @@
-import React from 'react';
-import { IAsset } from '../../common/types';
+import React from "react";
+import { IAsset } from "../../common/types";
 import {
   Button,
   FormControl,
@@ -8,16 +8,15 @@ import {
   Tip,
   router,
   __,
-  ActionButtons
+  ActionButtons,
 } from '@erxes/ui/src';
-import { Badge, ContainerBox, MoreContainer } from '../../style';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import AssetForm from '../containers/AssetForm';
 import AssignArticles from '../containers/actions/Assign';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 type Props = {
   asset: IAsset;
-  history: any;
   queryParams: any;
   isChecked: boolean;
   toggleBulk: (asset: IAsset, isChecked?: boolean) => void;
@@ -27,20 +26,21 @@ type Props = {
   ) => void;
 };
 
-function Row(props: Props) {
+const Row = (props: Props) => {
   const {
     asset,
-    history,
     queryParams,
     isChecked,
     toggleBulk,
-    assignKbArticles
+    assignKbArticles,
   } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const { code, name, category, parent, childAssetCount, unitPrice } = asset;
 
   const renderKbAssignForm = () => {
-    const articleContent = articleProps => (
+    const articleContent = (articleProps) => (
       <AssignArticles
         {...articleProps}
         assignedArticleIds={asset.kbArticleIds}
@@ -52,7 +52,7 @@ function Row(props: Props) {
 
     const trigger = (
       <Button btnStyle="link">
-        <Tip text={__('Assign Knowledgebase')} placement="bottom">
+        <Tip text={__("Assign Knowledgebase")} placement="bottom">
           <Icon icon="light-bulb" />
         </Tip>
       </Button>
@@ -70,14 +70,14 @@ function Row(props: Props) {
   };
 
   const onRowClick = () => {
-    history.push(`/settings/assets/detail/${asset._id}`);
+    navigate(`/settings/assets/detail/${asset._id}`);
   };
 
-  const onCellClick = e => {
+  const onCellClick = (e) => {
     e.stopPropagation();
   };
 
-  const onChange = e => {
+  const onChange = (e) => {
     if (toggleBulk) {
       toggleBulk(asset, e.target.checked);
     }
@@ -85,26 +85,26 @@ function Row(props: Props) {
 
   const handleParent = () => {
     if (queryParams.categoryId) {
-      router.removeParams(history, 'categoryId');
+      router.removeParams(navigate, location, 'categoryId');
     }
-    router.setParams(history, { assetId: asset._id });
+    router.setParams(navigate, location, { assetId: asset._id });
   };
 
-  const content = formProps => <AssetForm {...formProps} asset={asset} />;
+  const content = (formProps) => <AssetForm {...formProps} asset={asset} />;
 
   return (
     <tr onClick={onRowClick}>
       <td onClick={onCellClick}>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={onChange}
         />
       </td>
       <td>{code}</td>
       <td>{name}</td>
-      <td>{category ? category.name : ''}</td>
-      <td>{parent ? parent.name : ''}</td>
+      <td>{category ? category.name : ""}</td>
+      <td>{parent ? parent.name : ""}</td>
       <td>{(unitPrice || 0).toLocaleString()}</td>
       <td onClick={onCellClick}>
         <ActionButtons>
@@ -116,12 +116,12 @@ function Row(props: Props) {
               {/* <Badge>{childAssetCount}</Badge> */}
             </Button>
           )}
-          {isEnabled('knowledgebase') && renderKbAssignForm()}
+          {isEnabled("knowledgebase") && renderKbAssignForm()}
           <ModalTrigger
             title="Edit basic info"
             trigger={
               <Button btnStyle="link">
-                <Tip text={__('Edit')} placement="bottom">
+                <Tip text={__("Edit")} placement="bottom">
                   <Icon icon="edit-3" />
                 </Tip>
               </Button>
@@ -133,6 +133,6 @@ function Row(props: Props) {
       </td>
     </tr>
   );
-}
+};
 
 export default Row;

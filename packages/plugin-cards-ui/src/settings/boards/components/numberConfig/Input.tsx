@@ -1,7 +1,7 @@
 import {
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
 } from '@erxes/ui/src/components/form';
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 
@@ -32,7 +32,7 @@ function PlaceHolderInput(props: Props) {
   const onChangeConfig = (conf: string) => {
     if (conf.startsWith(' ')) {
       return Alert.error(
-        `Please make sure the number configuration doesn't start with a space`
+        `Please make sure the number configuration doesn't start with a space`,
       );
     }
 
@@ -43,7 +43,7 @@ function PlaceHolderInput(props: Props) {
     return (
       <Attribution
         config={config}
-        setConfig={conf => onChangeConfig(conf)}
+        setConfig={(conf) => onChangeConfig(conf)}
         attributions={attributions}
       />
     );
@@ -74,7 +74,7 @@ function PlaceHolderInput(props: Props) {
         index += 1;
       }
 
-      const deletes = Object.keys(by).filter(key => {
+      const deletes = Object.keys(by).filter((key) => {
         const val = by[key];
 
         if (start === end && val.min < start && val.max < start) {
@@ -120,7 +120,7 @@ function PlaceHolderInput(props: Props) {
           </FormGroup>
         </BoardHeader>
       </FlexItem>
-      <FlexItem count={1} hasSpace={true}>
+      <FlexItem count={1} $hasSpace={true}>
         <FormGroup>
           <ControlLabel>Fractional part</ControlLabel>
           <FormControl

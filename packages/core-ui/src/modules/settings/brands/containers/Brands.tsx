@@ -1,21 +1,20 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
 import {
   BrandDetailQueryResponse,
   BrandsCountQueryResponse,
-  BrandsGetLastQueryResponse
-} from '@erxes/ui/src/brands/types';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { mutations, queries } from '../graphql';
-import { router as routerUtils, withProps } from 'modules/common/utils';
+  BrandsGetLastQueryResponse,
+} from "@erxes/ui/src/brands/types";
+import { mutations, queries } from "../graphql";
+import { router as routerUtils, withProps } from "modules/common/utils";
 
-import ButtonMutate from 'modules/common/components/ButtonMutate';
-import DumbBrands from '../components/Brands';
-import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import queryString from 'query-string';
-import { withRouter } from 'react-router-dom';
+import ButtonMutate from "modules/common/components/ButtonMutate";
+import DumbBrands from "../components/Brands";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import React from "react";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import queryString from "query-string";
 
 type Props = {
   currentBrandId: string;
@@ -24,17 +23,11 @@ type Props = {
 type FinalProps = {
   brandDetailQuery: BrandDetailQueryResponse;
   brandsCountQuery: BrandsCountQueryResponse;
-} & Props &
-  IRouterProps;
+} & Props;
 
 class Brands extends React.Component<FinalProps> {
   render() {
-    const {
-      brandDetailQuery,
-      brandsCountQuery,
-      location,
-      currentBrandId
-    } = this.props;
+    const { brandDetailQuery, brandsCountQuery, currentBrandId } = this.props;
 
     const queryParams = queryString.parse(location.search);
 
@@ -43,7 +36,7 @@ class Brands extends React.Component<FinalProps> {
       values,
       isSubmitted,
       callback,
-      object
+      object,
     }: IButtonMutateProps) => {
       return (
         <ButtonMutate
@@ -54,7 +47,7 @@ class Brands extends React.Component<FinalProps> {
           isSubmitted={isSubmitted}
           type="submit"
           successMessage={`You successfully ${
-            object ? 'updated' : 'added'
+            object ? "updated" : "added"
           } a ${name}`}
         />
       );
@@ -66,7 +59,7 @@ class Brands extends React.Component<FinalProps> {
       queryParams: queryString.parse(location.search),
       currentBrand: brandDetailQuery?.brandDetail || {},
       brandsTotalCount: brandsCountQuery?.brandsTotalCount || 0,
-      loading: brandDetailQuery?.loading
+      loading: brandDetailQuery?.loading,
     };
 
     return <DumbBrands {...extendedProps} />;
@@ -78,21 +71,21 @@ const getRefetchQueries = (queryParams, currentBrandId?: string) => {
     {
       query: gql(queries.brands),
       variables: {
-        perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
-      }
+        perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20,
+      },
     },
     {
-      query: gql(queries.brands)
+      query: gql(queries.brands),
     },
     {
-      query: gql(queries.integrationsCount)
+      query: gql(queries.integrationsCount),
     },
     {
       query: gql(queries.brandDetail),
-      variables: { _id: currentBrandId || '' }
+      variables: { _id: currentBrandId || "" },
     },
     { query: gql(queries.brandsCount) },
-    { query: gql(queries.brands) }
+    { query: gql(queries.brands) },
   ];
 };
 
@@ -101,22 +94,23 @@ const BrandsContainer = withProps<Props>(
     graphql<Props, BrandDetailQueryResponse, { _id: string }>(
       gql(queries.brandDetail),
       {
-        name: 'brandDetailQuery',
+        name: "brandDetailQuery",
         options: ({ currentBrandId }: { currentBrandId: string }) => ({
           variables: { _id: currentBrandId },
-          fetchPolicy: 'network-only'
-        })
+          fetchPolicy: "network-only",
+        }),
       }
     ),
     graphql<Props, BrandsCountQueryResponse, {}>(gql(queries.brandsCount), {
-      name: 'brandsCountQuery'
+      name: "brandsCountQuery",
     })
   )(Brands)
 );
 
 type WithCurrentIdProps = {
-  history: any;
+  location: any;
   queryParams: any;
+  navigate: any;
 };
 
 type WithCurrentIdFinalProps = {
@@ -127,20 +121,22 @@ type WithCurrentIdFinalProps = {
 class WithCurrentId extends React.Component<WithCurrentIdFinalProps> {
   componentWillReceiveProps(nextProps: WithCurrentIdFinalProps) {
     const {
+      navigate,
+      location,
       lastBrandQuery,
-      history,
-      queryParams: { _id }
+      queryParams: { _id },
     } = nextProps;
 
     if (
-      !history.location.hash &&
+      !location.hash &&
       lastBrandQuery &&
       !_id &&
       lastBrandQuery.brandsGetLast &&
       !lastBrandQuery.loading
     ) {
       routerUtils.setParams(
-        history,
+        navigate,
+        location,
         { _id: lastBrandQuery.brandsGetLast._id },
         true
       );
@@ -149,12 +145,12 @@ class WithCurrentId extends React.Component<WithCurrentIdFinalProps> {
 
   render() {
     const {
-      queryParams: { _id }
+      queryParams: { _id },
     } = this.props;
 
     const updatedProps = {
       ...this.props,
-      currentBrandId: _id
+      currentBrandId: _id,
     };
 
     return <BrandsContainer {...updatedProps} />;
@@ -166,24 +162,25 @@ const WithLastBrand = withProps<WithCurrentIdProps>(
     graphql<WithCurrentIdProps, BrandsGetLastQueryResponse, { _id: string }>(
       gql(queries.brandsGetLast),
       {
-        name: 'lastBrandQuery',
+        name: "lastBrandQuery",
         skip: ({ queryParams }: { queryParams: any }) => queryParams._id,
         options: ({ queryParams }: { queryParams: any }) => ({
           variables: { _id: queryParams._id },
-          fetchPolicy: 'network-only'
-        })
+          fetchPolicy: "network-only",
+        }),
       }
     )
   )(WithCurrentId)
 );
 
-const WithQueryParams = (props: IRouterProps) => {
-  const { location } = props;
-  const queryParams = queryString.parse(location.search);
-
-  const extendedProps = { ...props, queryParams };
+const WithQueryParams = (props: {
+  queryParams: any;
+  location: any;
+  navigate: any;
+}) => {
+  const extendedProps = { ...props };
 
   return <WithLastBrand {...extendedProps} />;
 };
 
-export default withRouter<IRouterProps>(WithQueryParams);
+export default WithQueryParams;
