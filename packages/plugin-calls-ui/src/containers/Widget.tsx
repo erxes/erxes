@@ -4,6 +4,8 @@ import Widget from '../components/Widget';
 type Props = {
   callUserIntegrations: any;
   setConfig: any;
+  setHideIncomingCall?: (isHide: boolean) => void;
+  hideIncomingCall?: boolean;
 };
 
 const WidgetContainer = (props: Props) => {
