@@ -351,7 +351,8 @@ export const prepareSettlePayment = async (
     !ebarimtConfig ||
     !Object.keys(ebarimtConfig) ||
     !ebarimtConfig.districtCode ||
-    !ebarimtConfig.companyRD
+    !ebarimtConfig.companyRD ||
+    !ebarimtConfig.merchantTin
   ) {
     billType = BILL_TYPES.INNER;
   }
@@ -368,7 +369,6 @@ export const prepareSettlePayment = async (
         billType,
         registerNumber
       );
-
 
       let response;
 
