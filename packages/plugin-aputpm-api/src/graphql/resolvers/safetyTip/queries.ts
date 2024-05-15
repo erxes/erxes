@@ -25,6 +25,7 @@ const generateFilter = async (subdomain, params) => {
         },
         fields: {
           _id: 1,
+          order: 1,
         },
       },
       isRPC: true,
