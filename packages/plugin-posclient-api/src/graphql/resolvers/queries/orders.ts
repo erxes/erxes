@@ -209,8 +209,7 @@ const orderQueries = {
   },
 
   async ordersCheckCompany(_root, { registerNumber }, { config }: IContext) {
-    const checkTaxpayerUrl =
-      config && config.ebarimtConfig && config.ebarimtConfig.checkTaxpayerUrl;
+    const checkTaxpayerUrl = config.ebarimtConfig?.checkTaxpayerUrl;
 
     if (!checkTaxpayerUrl) {
       throw new Error('Not found check taxpayer url');
