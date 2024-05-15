@@ -12,6 +12,11 @@ import {
   types as collateralTypes
 } from './collateral';
 import {
+  mutations as collateralTypeMutations,
+  queries as collateralTypeQueries,
+  types as collateralTypeTypes
+} from './collateralType';
+import {
   mutations as contractMutations,
   queries as contractQueries,
   types as contractTypes
@@ -75,6 +80,7 @@ export const types = `
   ${periodLockTypes()},
   ${contractTypes()},
   ${collateralTypes()}
+  ${collateralTypeTypes()},
   ${contractTypeTypes()},
   ${insuranceTypeTypes()},
   ${invoiceTypes},
@@ -87,7 +93,8 @@ export const types = `
 export const queries = `
   ${periodLockQueries},
   ${contractQueries},
-  ${collateralQueries}
+  ${collateralQueries},
+  ${collateralTypeQueries},
   ${contractTypeQueries},
   ${insuranceTypeQueries},
   ${invoiceQueries},
@@ -101,6 +108,7 @@ export const mutations = `
   ${periodLockMutations}
   ${contractMutations},
   ${contractTypeMutations},
+  ${collateralTypeMutations},
   ${insuranceTypeMutations},
   ${invoiceMutations},
   ${scheduleMutations},
