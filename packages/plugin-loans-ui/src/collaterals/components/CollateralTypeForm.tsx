@@ -116,7 +116,7 @@ function CollateralTypeForm({ data, renderButton, closeModal }: IProps) {
             name: 'type',
             componentclass: 'select',
             componentProps: {
-              options: ['car', 'realState'].map((v) => ({
+              options: ['car', 'realState', 'savings', 'other'].map((v) => ({
                 value: v,
                 label: v
               }))
@@ -207,7 +207,7 @@ function CollateralTypeForm({ data, renderButton, closeModal }: IProps) {
       return renderFormGroup(formProps, {
         ...props,
         onChange,
-        componentclass:'checkbox',
+        componentclass: 'checkbox',
         value: collateralTypeProperty
       });
     };
@@ -217,57 +217,56 @@ function CollateralTypeForm({ data, renderButton, closeModal }: IProps) {
         <FormColumn>
           {renderForm({
             label: 'sizeSquare',
-            name: 'sizeSquare',
+            name: 'sizeSquare'
           })}
           {renderForm({
             label: 'sizeSquareUnit',
-            name: 'sizeSquareUnit',
+            name: 'sizeSquareUnit'
           })}
           {renderForm({
             label: 'cntRoom',
-            name: 'cntRoom',
+            name: 'cntRoom'
           })}
           {renderForm({
             label: 'startDate',
-            name: 'startDate',
+            name: 'startDate'
           })}
           {renderForm({
             label: 'endDate',
-            name: 'endDate',
+            name: 'endDate'
           })}
           {renderForm({
             label: 'purpose',
-            name: 'purpose',
+            name: 'purpose'
           })}
           {renderForm({
             label: 'mark',
-            name: 'mark',
+            name: 'mark'
           })}
           {renderForm({
             label: 'color',
-            name: 'color',
+            name: 'color'
           })}
           {renderForm({
             label: 'power',
-            name: 'power',
+            name: 'power'
           })}
           {renderForm({
             label: 'frameNumber',
-            name: 'frameNumber',
+            name: 'frameNumber'
           })}
           {renderForm({
             label: 'importedDate',
-            name: 'importedDate',
+            name: 'importedDate'
           })}
           {renderForm({
             label: 'factoryDate',
-            name: 'factoryDate',
+            name: 'factoryDate'
           })}
           {renderForm({
             label: 'courtOrderDate',
-            name: 'courtOrderDate',
+            name: 'courtOrderDate'
           })}
-
         </FormColumn>
       </ScrollWrapper>
     );
@@ -326,14 +325,15 @@ function CollateralTypeForm({ data, renderButton, closeModal }: IProps) {
           >
             {__('Settings')}
           </TabTitle>
-          <TabTitle
+          {/* <TabTitle
             className={tabName === 'property' ? 'active' : ''}
             onClick={() => setTabName('property')}
           >
             {__('Property')}
-          </TabTitle>
+          </TabTitle> */}
         </Tabs>
       </CenterContent>
+      <div style={{ padding: 5 }}></div>
       <Form renderContent={renderContent} />
     </>
   );

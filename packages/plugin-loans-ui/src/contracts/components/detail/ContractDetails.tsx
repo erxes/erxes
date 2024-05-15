@@ -103,7 +103,7 @@ const ContractDetails = (props: Props) => {
       setCollaterals(value);
     }
     if (name === 'collateralsData') {
-      setCollateralsData(value);
+      setCollateralsData([...value]);
     }
   };
 

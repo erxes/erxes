@@ -69,6 +69,7 @@ const queryParams = `
 
 export const queries = `
   collateralTypesMain(${queryParams}): CollateralTypeListResponse
+  collateralTypes(${queryParams}): [CollateralType]
   collateralTypeDetail(_id: String!): CollateralType
 `;
 

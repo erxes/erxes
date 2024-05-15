@@ -103,6 +103,25 @@ export const collateralTypesMain = `
   }
 `
 
+export const collateralTypes = `
+  query collateralTypes($page: Int, $perPage: Int) {
+    collateralTypes(page: $page, perPage: $perPage) {
+      _id
+      code
+      name
+      description
+      type
+      startDate
+      endDate
+      status
+      currency
+      config{
+        defaultPercent
+      }
+    }
+  }
+`
+
 export const collateralTypeDetail = `
 query collateralTypeDetail($id: String!) {
   collateralTypeDetail(_id: $id) {
@@ -152,5 +171,6 @@ query collateralTypeDetail($id: String!) {
 export default {
   collateralsMain,
   collateralTypesMain,
-  collateralTypeDetail
+  collateralTypeDetail,
+  collateralTypes
 };

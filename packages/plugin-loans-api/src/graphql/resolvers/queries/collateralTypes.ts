@@ -37,6 +37,18 @@ const collateralQueries = {
       totalCount: models.CollateralTypes.find(filter).count()
     }
   },
+  collateralTypes: async (
+    _root,
+    params,
+    { commonQuerySelector, models }: IContext
+  ) => {
+    const filter = await generateFilter(commonQuerySelector);
+    const list = await paginate(models.CollateralTypes.find(filter), {
+      page: params.page,
+      perPage: params.perPage
+    });
+    return list
+  },
   collateralTypeDetail: async (
     _root,
     {_id},
