@@ -1,7 +1,6 @@
 import fetch from 'node-fetch';
 import * as moment from 'moment';
 import { IEbarimt } from './definitions/putResponses';
-import { BILL_TYPES } from './definitions/constants';
 import { IEbarimtConfig } from './definitions/configs';
 
 export interface IDoc {
