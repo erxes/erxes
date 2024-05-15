@@ -11,6 +11,7 @@ type TransactionsTotalCount {
     invoice: Invoice
     paymentId: String
     paymentKind: String
+    payment: Payment
     amount: Float
     status: String
     createdAt: Date

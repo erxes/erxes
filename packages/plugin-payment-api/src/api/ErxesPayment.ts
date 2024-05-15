@@ -9,6 +9,7 @@ import { WechatPayAPI } from './wechatpay/api';
 import { PocketAPI } from './pocket/api';
 import { ITransactionDocument } from '../models/definitions/transactions';
 import { MinuPayAPI } from './minupay/api';
+import { GolomtAPI } from './golomt/api';
 
 class ErxesPayment {
   public socialpay: SocialPayAPI;
@@ -20,6 +21,7 @@ class ErxesPayment {
   public qpayQuickqr: QPayQuickQrAPI;
   public pocket: PocketAPI;
   public minupay: MinuPayAPI;
+  public golomt: GolomtAPI;
   public domain: string;
 
   private payment: any;
@@ -36,6 +38,7 @@ class ErxesPayment {
     this.qpayQuickqr = new QPayQuickQrAPI(payment.config, domain);
     this.pocket = new PocketAPI(payment.config, domain);
     this.minupay = new MinuPayAPI(payment.config, domain);
+    this.golomt = new GolomtAPI(payment.config);
   }
 
   async createInvoice(transaction: ITransactionDocument) {

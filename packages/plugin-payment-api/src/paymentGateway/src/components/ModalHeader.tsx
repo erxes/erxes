@@ -4,6 +4,7 @@ import { usePayment } from './Payments';
 
 const ModalHeader = () => {
   const { onClose, apiDomain, kind } = usePayment();
+
   return (
     <>
       <Button
@@ -22,9 +23,6 @@ const ModalHeader = () => {
           />
           <div className="flex-1 text-left">
             <h5 className="font-medium capitalize">{kind}</h5>
-            <div className="text-neutral-500 text-xs font-normal line-clamp-1">
-              storepay - Baterdene
-            </div>
           </div>
         </div>
         <div className="inline-flex items-center border text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 p-2 px-4 rounded-xl bg-yellow-100, border-amber-200 text-yellow-500">

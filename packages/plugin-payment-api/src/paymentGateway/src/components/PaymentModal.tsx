@@ -4,12 +4,15 @@ import { usePayment } from './Payments';
 import Minupay from './minupay';
 import QrPayment from './qrpayment';
 import PhonePayment from './phonepayment';
+import GolomtForm from './GolomtForm';
 
 const PaymentModal = () => {
   const { isOpen, onClose, kind = 'default' } = usePayment();
 
   const renderContent = () => {
     if (kind === 'minupay') return <Minupay />;
+
+    if (kind === 'golomt') return <GolomtForm />;
 
     return (
       <>

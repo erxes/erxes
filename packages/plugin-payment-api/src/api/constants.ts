@@ -102,6 +102,17 @@ export const PAYMENTS = {
     handlerMethod: 'POST',
   },
 
+  golomt: {
+    title: 'Golomt E-Commerce',
+    kind: 'golomt',
+    apiUrl: 'https://ecommerce.golomtbank.com',
+    actions: {
+      invoice: 'api/invoice',
+      invoiceCheck: 'api/inquiry',
+    },
+    handlerMethod: 'POST',
+  },
+
   ALL: [
     'qpay',
     'socialpay',
@@ -112,6 +123,7 @@ export const PAYMENTS = {
     'paypal',
     'minupay',
     'qpayQuickqr',
+    'golomt',
   ],
 };
 

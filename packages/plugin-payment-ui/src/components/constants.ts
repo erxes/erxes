@@ -6,6 +6,7 @@ import QuickQrForm from './form/QuickQrForm';
 import SocialPayForm from './form/SocialPayForm';
 import StorepayForm from './form/StorePayForm';
 import MinuForm from './form/MinuForm';
+import GolomtForm from './form/GolomtForm';
 
 export const PAYMENTCONFIGS = [
   {
@@ -98,10 +99,10 @@ export const PAYMENTCONFIGS = [
     name: 'Golomt E-Commerce',
     description:
       'Becoming an E-Commerce merchant for online sales and payment we offer products and services 24/7. Accepts most type of domestic and foreign card and provide opportunity to make and receive payment from anywhere',
-    isAvailable: false,
+    isAvailable: true,
     kind: 'golomt',
     logo: 'images/payments/golomt.png',
-    createModal: '',
+    createModal: GolomtForm,
     createUrl: '/settings/payments/createGolomt',
     category: 'Payment method',
     color: 'blue',

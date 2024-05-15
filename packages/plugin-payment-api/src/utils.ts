@@ -14,6 +14,7 @@ import { pocketCallbackHandler } from './api/pocket/api';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import { sendMessage } from '@erxes/api-utils/src/messageBroker';
 import { ITransactionDocument } from './models/definitions/transactions';
+import { golomtCallbackHandler } from './api/golomt/api';
 
 export const callbackHandler = async (req, res) => {
   const { route, body, query } = req;
@@ -51,6 +52,8 @@ export const callbackHandler = async (req, res) => {
       case PAYMENTS.storepay.kind:
         transaction = await storepayCallbackHandler(models, data);
         break;
+      case PAYMENTS.golomt.kind:
+        transaction = await golomtCallbackHandler(models, data);
       default:
         return res.status(400).send('Invalid kind');
     }

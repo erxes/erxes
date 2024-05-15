@@ -38,10 +38,14 @@ export const INVOICE = gql`
       transactions {
         _id
         amount
+        createdAt
         paymentId
         paymentKind
         response
         status
+        payment {
+          name
+        }
       }
     }
   }

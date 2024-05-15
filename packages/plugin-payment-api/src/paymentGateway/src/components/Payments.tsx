@@ -19,6 +19,7 @@ type ContextProps = Props & {
   onClose: () => void;
   transaction: any;
   kind: string;
+  name?: string;
   paymentId: string;
   apiResponse?: any;
 };
@@ -40,29 +41,44 @@ const PaymentGateway = (props: Props) => {
   const transactions = invoiceDetail.transactions || [];
 
   const [currentTransaction, setCurrentTransaction] = useState<any>(
-    props.newTransaction
+    props.newTransaction,
   );
 
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [kind, setKind] = useState(
-    props.newTransaction?.paymentKind || 'default'
+    props.newTransaction?.paymentKind || 'default',
   );
   const [currentPaymentId, setCurrentPaymentId] = useState(
-    props.newTransaction?.paymentId || ''
+    props.newTransaction?.paymentId || '',
   );
 
-  const openModal = payment => {
+  const openModal = (payment) => {
     setCurrentPaymentId(payment._id);
     setCurrentTransaction(null);
     setKind(payment.kind);
 
     if (payment.kind !== 'storepay') {
       const pendingTransaction = transactions.find(
-        t => t.paymentId === payment._id && t.status === 'pending'
+        (t) => t.paymentId === payment._id && t.status === 'pending',
       );
+
+      console.log('pending ', pendingTransaction);
 
       if (pendingTransaction && pendingTransaction.paymentKind === 'minupay') {
         props.requestNewTransaction(payment._id);
+      } else if (
+        pendingTransaction &&
+        pendingTransaction.paymentKind === 'golomt'
+      ) {
+        // request new transaction for golomt if the transaction is older than 7 minutes
+        const now = new Date();
+        const sevenMinutesAgo = new Date(now.getTime() - 7 * 60 * 1000);
+        const isWithinPastSevenMinutes =
+          new Date(pendingTransaction.createdAt) >= sevenMinutesAgo;
+
+        if (!isWithinPastSevenMinutes) {
+          props.requestNewTransaction(payment._id);
+        }
       } else if (pendingTransaction) {
         setCurrentTransaction(pendingTransaction);
       } else {
@@ -83,7 +99,7 @@ const PaymentGateway = (props: Props) => {
     }
   }, [transactions, props.newTransaction]);
 
-  const renderPayment = payment => {
+  const renderPayment = (payment) => {
     return (
       <PaymentType
         key={payment.kind}
@@ -110,7 +126,7 @@ const PaymentGateway = (props: Props) => {
         </header>
         <div className="min-h-48">
           <div className="pt-4 pb-8 grid md:grid-cols-2 gap-4 ">
-            {payments.map(payment => renderPayment(payment))}
+            {payments.map((payment) => renderPayment(payment))}
           </div>
         </div>
         <div className="text-right border-t border-dashed pt-3">
@@ -128,7 +144,8 @@ const PaymentGateway = (props: Props) => {
           transaction: currentTransaction,
           kind: kind.includes('qpay') ? 'qpay' : kind,
           paymentId: currentPaymentId,
-          apiResponse: currentTransaction?.response
+          apiResponse: currentTransaction?.response,
+          name: currentTransaction?.payment?.name,
         }}
       >
         <Modal />
