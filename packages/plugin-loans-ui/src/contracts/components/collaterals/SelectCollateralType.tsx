@@ -18,7 +18,7 @@ function generateCustomerOptions(array: ICollateralTypeDocument[] = []): IOption
   });
 }
 
-export let CollateralType = {};
+export var CollateralType = {};
 
 export default ({
   queryParams,

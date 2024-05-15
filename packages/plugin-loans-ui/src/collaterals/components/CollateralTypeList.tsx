@@ -5,13 +5,13 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 
 import { __, router } from '@erxes/ui/src/utils';
 import React, { useMemo } from 'react';
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ICollateralTypeDocument } from '../types';
 import CollateralTypeForm from '../containers/CollateralTypeForm';
-import CollapsibleList from "@erxes/ui/src/components/collapsibleList/CollapsibleList";
-import Button from "@erxes/ui/src/components/Button";
+import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
+import Button from '@erxes/ui/src/components/Button';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -20,19 +20,15 @@ interface IProps {
   list: ICollateralTypeDocument[];
   totalCount?: number;
   loading: boolean;
-  remove:(id:string)=>void
+  remove: (id: string) => void;
 }
 
 const renderFormTrigger = (
   trigger: React.ReactNode,
   collateralType?: ICollateralTypeDocument
 ) => {
-
   const content = (props) => (
-    <CollateralTypeForm
-      {...props}
-      data={collateralType}
-    />
+    <CollateralTypeForm {...props} data={collateralType} />
   );
 
   return (
@@ -46,7 +42,7 @@ const renderFormTrigger = (
 };
 
 const List = (props: IProps) => {
-  const { queryParams, list, totalCount, loading,remove } = props;
+  const { queryParams, list, totalCount, loading, remove } = props;
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -58,7 +54,7 @@ const List = (props: IProps) => {
   const renderEditAction = (category: ICollateralTypeDocument) => {
     const trigger = (
       <Button btnStyle="link">
-        <Tip text={__("Edit")} placement="bottom">
+        <Tip text={__('Edit')} placement="bottom">
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -69,8 +65,8 @@ const List = (props: IProps) => {
 
   const renderRemoveAction = (category: ICollateralTypeDocument) => {
     return (
-      <Button btnStyle="link" onClick={()=>remove(category._id)}>
-        <Tip text={__("Remove")} placement="bottom">
+      <Button btnStyle="link" onClick={() => remove(category._id)}>
+        <Tip text={__('Remove')} placement="bottom">
           <Icon icon="cancel-1" />
         </Tip>
       </Button>
@@ -78,28 +74,27 @@ const List = (props: IProps) => {
   };
 
   const onClick = (id: string) => {
-    router.removeParams(navigate, location, "page");
+    router.removeParams(navigate, location, 'page');
     router.setParams(navigate, location, { categoryId: id });
   };
 
   const renderCollateralTypeList = useMemo(() => {
-
-      return (
-        <CollapsibleList
-          items={list}
-          editAction={renderEditAction}
-          removeAction={renderRemoveAction}
-          loading={loading}
-          onClick={onClick}
-          queryParams={queryParams}
-          treeView={
-            !["disabled", "archived"].includes(
-              router.getParam(location, ["status"])
-            )
-          }
-          keyCount="productCount"
-        />
-      );
+    return (
+      <CollapsibleList
+        items={list}
+        editAction={renderEditAction}
+        removeAction={renderRemoveAction}
+        loading={loading}
+        onClick={onClick}
+        queryParams={queryParams}
+        treeView={
+          !['disabled', 'archived'].includes(
+            router.getParam(location, ['status'])
+          )
+        }
+        keyCount="productCount"
+      />
+    );
   }, [list, loading, totalCount]);
 
   const renderCategoryHeader = () => {
@@ -109,26 +104,27 @@ const List = (props: IProps) => {
       </Button>
     );
     return (
-      <>
-        <Section.Title>
-          {renderFormTrigger(trigger)}
-          <Section.QuickButtons>
-            {router.getParam(location, 'categoryId') && (
-              <a href="#cancel" tabIndex={0} onClick={clearCategoryFilter}>
-                <Tip text={__('Clear filter')} placement="bottom">
-                  <Icon icon="cancel-1" />
-                </Tip>
-              </a>
-            )}
-          </Section.QuickButtons>
-        </Section.Title>
-      </>
+      <Section.Title>
+        {renderFormTrigger(trigger)}
+        <Section.QuickButtons>
+          {router.getParam(location, 'categoryId') && (
+            <a href="#cancel" tabIndex={0} onClick={clearCategoryFilter}>
+              <Tip text={__('Clear filter')} placement="bottom">
+                <Icon icon="cancel-1" />
+              </Tip>
+            </a>
+          )}
+        </Section.QuickButtons>
+      </Section.Title>
     );
   };
 
   return (
     <Sidebar>
-      <Section maxHeight={188} $collapsible={totalCount ? totalCount > 9 : false}>
+      <Section
+        maxHeight={188}
+        $collapsible={totalCount ? totalCount > 9 : false}
+      >
         {renderCategoryHeader()}
         {renderCollateralTypeList}
       </Section>

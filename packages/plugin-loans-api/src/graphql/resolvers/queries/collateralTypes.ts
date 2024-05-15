@@ -1,4 +1,4 @@
-import { checkPermission, paginate } from '@erxes/api-utils/src';
+import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 const generateFilter = async (commonQuerySelector) => {
   const filter: any = commonQuerySelector;

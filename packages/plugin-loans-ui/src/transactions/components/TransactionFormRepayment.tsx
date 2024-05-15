@@ -230,7 +230,7 @@ function TransactionFormNew(props: Props) {
                     useNumberFormat
                     fixed={0}
                     name="isPrePayment"
-                    value={isPrePayment}
+                    checked={isPrePayment}
                     onChange={(e: any) => {
                       setIsPrePayment(e.target.checked);
                       if (e.target.checked == false) {

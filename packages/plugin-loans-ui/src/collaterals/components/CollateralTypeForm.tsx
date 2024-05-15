@@ -1,5 +1,4 @@
-import React, { useMemo } from 'react';
-import { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   ICollateralProperty,
   ICollateralTypeConfig,
@@ -8,7 +7,6 @@ import {
 import Form from '@erxes/ui/src/components/form/Form';
 import {
   FormColumn,
-  FormWrapper,
   ModalFooter,
   ScrollWrapper
 } from '@erxes/ui/src/styles/main';

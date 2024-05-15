@@ -1,5 +1,4 @@
-import { useQuery } from '@apollo/client';
-import { gql, QueryHookOptions } from '@apollo/client';
+import { useQuery, gql, QueryHookOptions } from '@apollo/client';
 
 interface MainType {
   loading: boolean;
@@ -21,7 +20,7 @@ function useListQuery<T, K>(
 
   return {
     list: mainQuery.data?.[field]?.list ?? [],
-    totalCount:mainQuery.data?.[field]?.totalCount,
+    totalCount: mainQuery.data?.[field]?.totalCount,
     ...mainQuery
   };
 }

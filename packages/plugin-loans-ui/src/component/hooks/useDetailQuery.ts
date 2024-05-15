@@ -1,5 +1,4 @@
-import { useQuery } from '@apollo/client';
-import { gql, QueryHookOptions } from '@apollo/client';
+import { useQuery, gql, QueryHookOptions } from '@apollo/client';
 
 interface MainType {
   loading: boolean;

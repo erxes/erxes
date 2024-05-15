@@ -4,7 +4,6 @@ import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { IPeriodLockDocument } from './models/definitions/periodLocks';
 import { IContractDocument } from './models/definitions/contracts';
 import {
-  ICollateralType,
   ICollateralTypeDocument
 } from './models/definitions/collateralType';
 import { IContractTypeDocument } from './models/definitions/contractTypes';
