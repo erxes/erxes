@@ -9,23 +9,23 @@ on:
       - staging
       - build-test
     paths:
-      - 'packages/erxes-ui/**'
-      - 'packages/core-ui/**'
-      - '.github/workflows/coreui.yaml'
-      - '!ui/nginx/**'
-      - '!ui/docker-entrypoint.sh'
-      - '!ui/Dockerfile'
-      - '!ui/.dockerignore'
+      - "packages/erxes-ui/**"
+      - "packages/core-ui/**"
+      - ".github/workflows/coreui.yaml"
+      - "!ui/nginx/**"
+      - "!ui/docker-entrypoint.sh"
+      - "!ui/Dockerfile"
+      - "!ui/.dockerignore"
 
 jobs:
   ui:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: Use Node.js 18.17.x
+      - name: Use Node.js 18.18.x
         uses: actions/setup-node@v4
         with:
-          node-version: 18.17.x
+          node-version: 18.18.x
 
       - uses: actions/checkout@v4
 

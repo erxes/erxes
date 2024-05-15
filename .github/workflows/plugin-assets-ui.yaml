@@ -9,23 +9,23 @@ on:
       - staging
       - build-test
     paths:
-      - 'packages/erxes-ui/**'
-      - 'packages/ui-plugin-template/**'
-      - 'packages/ui-cards/**'
-      - 'packages/ui-forms/**'
-      - 'packages/ui-inbox/**'
-      - 'packages/ui-knowledgebase/**'
-      - 'packages/ui-leads/**'
-      - 'packages/ui-log/**'
-      - 'packages/ui-notifications/**'
-      - 'packages/ui-products/**'
-      - 'packages/ui-segments/**'
-      - 'packages/ui-settings/**'
-      - 'packages/ui-team/**'
-      - 'packages/ui-tags/**'
-      - 'packages/ui-assets/**'
-      - 'packages/plugin-assets-ui/**'
-      - '.github/workflows/plugin-assets-ui.yaml'
+      - "packages/erxes-ui/**"
+      - "packages/ui-plugin-template/**"
+      - "packages/ui-cards/**"
+      - "packages/ui-forms/**"
+      - "packages/ui-inbox/**"
+      - "packages/ui-knowledgebase/**"
+      - "packages/ui-leads/**"
+      - "packages/ui-log/**"
+      - "packages/ui-notifications/**"
+      - "packages/ui-products/**"
+      - "packages/ui-segments/**"
+      - "packages/ui-settings/**"
+      - "packages/ui-team/**"
+      - "packages/ui-tags/**"
+      - "packages/ui-assets/**"
+      - "packages/plugin-assets-ui/**"
+      - ".github/workflows/plugin-assets-ui.yaml"
   pull_request:
     branches:
       - dev
@@ -34,23 +34,23 @@ on:
       - staging
       - build-test
     paths:
-      - 'packages/erxes-ui/**'
-      - 'packages/ui-plugin-template/**'
-      - 'packages/ui-cards/**'
-      - 'packages/ui-forms/**'
-      - 'packages/ui-inbox/**'
-      - 'packages/ui-knowledgebase/**'
-      - 'packages/ui-leads/**'
-      - 'packages/ui-log/**'
-      - 'packages/ui-notifications/**'
-      - 'packages/ui-products/**'
-      - 'packages/ui-segments/**'
-      - 'packages/ui-settings/**'
-      - 'packages/ui-team/**'
-      - 'packages/ui-tags/**'
-      - 'packages/ui-assets/**'
-      - 'packages/plugin-assets-ui/**'
-      - '.github/workflows/plugin-assets-ui.yaml'
+      - "packages/erxes-ui/**"
+      - "packages/ui-plugin-template/**"
+      - "packages/ui-cards/**"
+      - "packages/ui-forms/**"
+      - "packages/ui-inbox/**"
+      - "packages/ui-knowledgebase/**"
+      - "packages/ui-leads/**"
+      - "packages/ui-log/**"
+      - "packages/ui-notifications/**"
+      - "packages/ui-products/**"
+      - "packages/ui-segments/**"
+      - "packages/ui-settings/**"
+      - "packages/ui-team/**"
+      - "packages/ui-tags/**"
+      - "packages/ui-assets/**"
+      - "packages/plugin-assets-ui/**"
+      - ".github/workflows/plugin-assets-ui.yaml"
 
 jobs:
   ui:
@@ -59,10 +59,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node.js 18.17.x
+      - name: Use Node.js 18.18.x
         uses: actions/setup-node@v4
         with:
-          node-version: 18.17.x
+          node-version: 18.18.x
 
       # https://github.com/actions/cache/blob/main/examples.md#node---yarn
       - name: Get yarn cache directory path
