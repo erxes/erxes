@@ -1,13 +1,13 @@
-import { IContext } from '../../../connectionResolver';
-import { sendCoreMessage } from '../../../messageBroker';
-import { escapeRegExp } from '@erxes/api-utils/src/core';
+import { IContext } from "../../../connectionResolver";
+import { sendCoreMessage } from "../../../messageBroker";
+import { escapeRegExp } from "@erxes/api-utils/src/core";
 
 const generateFilter = async (subdomain, params) => {
-  let filter: any = { status: { $ne: 'deleted' } };
+  let filter: any = { status: { $ne: "deleted" } };
 
   if (params.name) {
     filter.name = {
-      $in: [new RegExp(`.*${escapeRegExp(params.name)}.*`, 'i')]
+      $in: [new RegExp(`.*${escapeRegExp(params.name)}.*`, "i")],
     };
   }
 
@@ -18,32 +18,35 @@ const generateFilter = async (subdomain, params) => {
   if (params?.branchIds?.length > 0) {
     const branches = await sendCoreMessage({
       subdomain,
-      action: 'branches.find',
+      action: "branches.find",
       data: {
         query: {
-          _id: { $in: params?.branchIds }
+          _id: { $in: params?.branchIds },
         },
         fields: {
-          _id: 1
-        }
+          _id: 1,
+        },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
-    const branchOrders = branches.map(branch => new RegExp(branch.order, 'i'));
+    const branchOrders = branches.map(
+      (branch) => new RegExp(branch.order, "i")
+    );
     const branchIds = (
       await sendCoreMessage({
         subdomain,
-        action: '',
+        action: "branches.find",
         data: {
           query: {
-            order: { $in: branchOrders }
+            order: { $in: branchOrders },
           },
-          fields: { _id: 1 }
-        }
+          fields: { _id: 1 },
+        },
+        defaultValue: [],
       })
-    ).map(branch => branch._id);
+    ).map((branch) => branch._id);
 
     filter.branchIds = { $in: branchIds };
   }
@@ -67,7 +70,7 @@ const safetyTipQueries = {
     const filter = await generateFilter(subdomain, params);
 
     return await models.SafetyTips.find(filter).count();
-  }
+  },
 };
 
 export default safetyTipQueries;
