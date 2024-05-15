@@ -285,9 +285,13 @@ function CollateralTypeForm({ data, renderButton, closeModal }: IProps) {
   const renderContent = (formProps: IFormProps) => {
     const { isSubmitted } = formProps;
     const renderForm = () => {
-      if (tabName == 'main') return renderMainForm(formProps);
-      else if (tabName == 'config') return renderConfigForm(formProps);
-      else if (tabName == 'property') return renderPropertyForm(formProps);
+      if (tabName == 'main') {
+        return renderMainForm(formProps);
+      } else if (tabName == 'config') {
+        return renderConfigForm(formProps);
+      } else if (tabName == 'property') {
+        return renderPropertyForm(formProps);
+      }
     };
 
     return (

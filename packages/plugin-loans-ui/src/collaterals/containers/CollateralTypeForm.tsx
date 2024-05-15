@@ -52,7 +52,9 @@ const CollateralTypeFormContainer = (props: IProps) => {
     'collateralTypeDetail'
   );
 
-  if (props.data?._id && !detailQuery.detail) return null;
+  if (props.data?._id && !detailQuery.detail) {
+    return null;
+  }
 
   const updatedProps = {
     ...props,

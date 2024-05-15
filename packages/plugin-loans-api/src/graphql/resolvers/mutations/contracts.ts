@@ -256,14 +256,13 @@ const contractMutations = {
     },
     { models }: IContext
   ) => {
-    const updatedContract = await models.InterestCorrection.stopInterest({
+    return await models.InterestCorrection.stopInterest({
       contractId,
       stoppedDate,
       interestAmount,
       isStopLoss,
       lossAmount
     });
-    return updatedContract;
   },
   interestChange: async (
     _root,
@@ -281,14 +280,12 @@ const contractMutations = {
     },
     { models }: IContext
   ) => {
-    const updatedContract = await models.InterestCorrection.interestChange({
+    return await models.InterestCorrection.interestChange({
       contractId,
       stoppedDate,
       interestAmount,
       lossAmount
     });
-
-    return updatedContract;
   },
   interestReturn: async (
     _root,
@@ -303,12 +300,11 @@ const contractMutations = {
     },
     { models }: IContext
   ) => {
-    const updatedContract = await models.InterestCorrection.interestReturn({
+    return await models.InterestCorrection.interestReturn({
       contractId,
       invDate,
       interestAmount
     });
-    return updatedContract;
   }
 };
 

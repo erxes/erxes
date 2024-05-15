@@ -26,7 +26,7 @@ import { queries } from '../graphql';
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   transaction: ITransaction;
-  contractId?:string;
+  contractId?: string;
   type: string;
   closeModal: () => void;
 };
@@ -57,7 +57,9 @@ const getValue = (mustPay, value) => {
 function TransactionFormNew(props: Props) {
   const [paymentInfo, setPaymentInfo] = useState<PaymentInfo | undefined>();
 
-  const [contractId, setContractId] = useState<string | undefined>(props.contractId);
+  const [contractId, setContractId] = useState<string | undefined>(
+    props.contractId
+  );
   const [isPrePayment, setIsPrePayment] = useState<boolean>();
   const [payDate, setPayDate] = useState(new Date());
   const [calcDate, setCalcDate] = useState(new Date());
@@ -96,8 +98,9 @@ function TransactionFormNew(props: Props) {
 
           const storedInterest = getValue(paymentInfo.storedInterest, total);
           total = storedInterest.change;
-          if (storedInterest.value >= 0)
+          if (storedInterest.value >= 0) {
             setStoredInterest(storedInterest.value);
+          }
 
           const calcInterest = getValue(paymentInfo.calcInterest, total);
           total = calcInterest.change;
@@ -229,9 +232,9 @@ function TransactionFormNew(props: Props) {
                     name="isPrePayment"
                     value={isPrePayment}
                     onChange={(e: any) => {
-                      setIsPrePayment(e.target.checked)
-                      if(e.target.checked == false){
-                        setCalcDate(payDate)
+                      setIsPrePayment(e.target.checked);
+                      if (e.target.checked == false) {
+                        setCalcDate(payDate);
                       }
                     }}
                   />
@@ -253,20 +256,22 @@ function TransactionFormNew(props: Props) {
                     </DateContainer>
                   </FormGroup>
                 )}
-                {!props.contractId && <FormGroup>
-                  <ControlLabel>{__('Contract')}</ControlLabel>
-                  <SelectContracts
-                    label={__('Choose an contract')}
-                    name="contractId"
-                    initialValue={contractId}
-                    onSelect={(v) => {
-                      if (typeof v === 'string') {
-                        setContractId(v);
-                      }
-                    }}
-                    multi={false}
-                  />
-                </FormGroup>}
+                {!props.contractId && (
+                  <FormGroup>
+                    <ControlLabel>{__('Contract')}</ControlLabel>
+                    <SelectContracts
+                      label={__('Choose an contract')}
+                      name="contractId"
+                      initialValue={contractId}
+                      onSelect={(v) => {
+                        if (typeof v === 'string') {
+                          setContractId(v);
+                        }
+                      }}
+                      multi={false}
+                    />
+                  </FormGroup>
+                )}
                 <FormGroup>
                   <ControlLabel>{__('Description')}</ControlLabel>
                   <DateContainer>
