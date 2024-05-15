@@ -19,7 +19,7 @@ import {
 
 import Datetime from '@nateradebaugh/react-datetime';
 import { IQueryParams } from '@erxes/ui/src/types';
-import RTG from 'react-transition-group';
+import { CSSTransition } from 'react-transition-group';
 import React, { useState } from 'react';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import dayjs from 'dayjs';
@@ -35,7 +35,7 @@ const SelectCustomers = asyncComponent(
     isEnabled('contacts') &&
     import(
       /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/customers/containers/SelectCustomers'
-    ),
+    )
 );
 
 type Props = {
@@ -74,7 +74,7 @@ const FilterMenu = (props: Props) => {
       quarterId: '',
       serviceStatus: '',
       networkType: '',
-    },
+    }
   );
 
   const setFilter = () => {
@@ -82,7 +82,7 @@ const FilterMenu = (props: Props) => {
   };
 
   const toggleMenu = () => {
-    setShowMenu((prev) => !prev);
+    setShowMenu(prev => !prev);
   };
 
   const onSearch = (e: React.KeyboardEvent<Element>) => {
@@ -92,15 +92,15 @@ const FilterMenu = (props: Props) => {
     }
   };
 
-  const onChangeInput = (e) => {
+  const onChangeInput = e => {
     const target = e.target;
     const name = target.name;
     const value = target.value;
 
-    setFilterParams((prev) => ({ ...prev, [name]: value }));
+    setFilterParams(prev => ({ ...prev, [name]: value }));
   };
   const onChangeQuarter = (quarterId, center?: ICoordinates) => {
-    setFilterParams((prev) => ({
+    setFilterParams(prev => ({
       ...prev,
       quarterId: String(quarterId),
     }));
@@ -109,7 +109,7 @@ const FilterMenu = (props: Props) => {
     }
   };
   const onChangeDistrict = (districtId, center?: ICoordinates) => {
-    setFilterParams((prev) => ({
+    setFilterParams(prev => ({
       ...prev,
       districtId: String(districtId),
       quarterId: '',
@@ -120,7 +120,7 @@ const FilterMenu = (props: Props) => {
   };
 
   const onChangeCity = (cityId, center?: ICoordinates) => {
-    setFilterParams((prev) => ({
+    setFilterParams(prev => ({
       ...prev,
       cityId,
       districtId: '',
@@ -168,9 +168,9 @@ const FilterMenu = (props: Props) => {
           <ControlLabel>Service status</ControlLabel>
           <FormControl
             id={'serviceStatus'}
-            componentClass="select"
+            // componentClass='select'
             defaultValue={filterParams.serviceStatus}
-            name="serviceStatus"
+            name='serviceStatus'
             onChange={onChangeInput}
           >
             {['', 'inactive', 'active', 'inprogress'].map((p, index) => (
@@ -185,9 +185,9 @@ const FilterMenu = (props: Props) => {
           <ControlLabel>Network type</ControlLabel>
           <FormControl
             id={'networkType'}
-            componentClass="select"
+            // componentClass='select'
             defaultValue={filterParams.networkType}
-            name="networkType"
+            name='networkType'
             onChange={onChangeInput}
           >
             {['', 'ftth', 'fttb'].map((p, index) => (
@@ -208,10 +208,10 @@ const FilterMenu = (props: Props) => {
         <MenuFooter>
           <Button
             block={true}
-            btnStyle="success"
+            btnStyle='success'
             uppercase={false}
             onClick={setFilter}
-            icon="filter"
+            icon='filter'
           >
             {__('Filter')}
           </Button>
@@ -226,8 +226,8 @@ const FilterMenu = (props: Props) => {
     <div>
       {isFiltered && (
         <Button
-          btnStyle="warning"
-          icon="times-circle"
+          btnStyle='warning'
+          icon='times-circle'
           uppercase={false}
           onClick={props.clearFilter}
         >
@@ -235,22 +235,23 @@ const FilterMenu = (props: Props) => {
         </Button>
       )}
       <Button
-        btnStyle="simple"
+        btnStyle='simple'
         uppercase={false}
-        icon="bars"
+        icon='bars'
         onClick={toggleMenu}
       >
         {showMenu ? __('Hide Filter') : __('Show Filter')}
       </Button>
 
-      <RTG.CSSTransition
+      <CSSTransition
         in={showMenu}
         timeout={300}
-        classNames="slide-in-right"
+        className='slide-in-right'
+        appear={true}
         unmountOnExit={true}
       >
         <RightMenuContainer>{renderTabContent()}</RightMenuContainer>
-      </RTG.CSSTransition>
+      </CSSTransition>
     </div>
   );
 };

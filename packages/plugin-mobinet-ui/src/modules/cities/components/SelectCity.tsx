@@ -3,7 +3,8 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IOption } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
+import Select from 'react-select';
 import { LeftContent, Row } from '../../../styles';
 
 import { ICoordinates } from '../../../types';
@@ -25,7 +26,7 @@ class SelectCity extends React.Component<Props, {}> {
 
       return {
         value: city._id,
-        label: city.name
+        label: city.name,
       };
     });
   }
