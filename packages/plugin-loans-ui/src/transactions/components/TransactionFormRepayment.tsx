@@ -233,7 +233,7 @@ function TransactionFormNew(props: Props) {
                     checked={isPrePayment}
                     onChange={(e: any) => {
                       setIsPrePayment(e.target.checked);
-                      if (e.target.checked == false) {
+                      if (!e.target.checked) {
                         setCalcDate(payDate);
                       }
                     }}
