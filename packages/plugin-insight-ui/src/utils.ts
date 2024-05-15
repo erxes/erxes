@@ -72,6 +72,11 @@ export const getValue = (obj, path) => {
 }
 
 export const commarizeNumbers = (number) => {
+
+  if (number == null) {
+    return "";
+  }
+
   let strNum = number.toString();
 
   let parts = strNum.split(".");

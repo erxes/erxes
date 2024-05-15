@@ -23,6 +23,7 @@ const SipProviderContainer = (props) => {
     localStorage.getItem('isConnectCallRequested') || '{}',
   );
   const [historyId, setHistoryId] = useState('');
+  const [hideIncomingCall, setHideIncomingCall] = useState(false);
 
   const { data, loading, error } = useQuery(gql(queries.callUserIntegrations));
   const { data: callConfigData, loading: callConfigLoading } = useQuery(
@@ -96,6 +97,7 @@ const SipProviderContainer = (props) => {
           callDuration: duration,
           callStatus,
           callType: direction,
+          customerPhone,
         },
         refetchQueries: ['callHistories'],
       })
@@ -259,12 +261,15 @@ const SipProviderContainer = (props) => {
             <IncomingCallContainer
               {...props}
               callUserIntegrations={callUserIntegrations}
+              hideIncomingCall={hideIncomingCall}
             />
           )}
           <WidgetContainer
             {...props}
             callUserIntegrations={callUserIntegrations}
             setConfig={handleSetConfig}
+            setHideIncomingCall={setHideIncomingCall}
+            hideIncomingCall={hideIncomingCall}
           />
         </>
       )}

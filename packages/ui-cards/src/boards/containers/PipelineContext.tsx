@@ -35,6 +35,8 @@ type WrapperProps = {
   initialItemMap?: IItemMap;
   options: IOptions;
   children: any;
+  navigate: any;
+  location: any;
   queryParams: IFilterParams & INonFilterParams;
   queryParamsChanged: (
     queryParams: IFilterParams,
@@ -532,7 +534,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
     const { itemMap, itemIds } = this.state;
     const items = itemMap[stageId] || [];
 
-    const { queryParams } = this.props;
+    const { queryParams, navigate, location } = this.props;
 
     if (!aboveItemId) {
       this.setState({
@@ -540,7 +542,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
         itemIds: [...itemIds, item._id],
       });
 
-      isRefresh(queryParams, routerUtils);
+      isRefresh(queryParams, routerUtils, navigate, location);
 
       return;
     }
@@ -559,7 +561,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
       });
     }
 
-    isRefresh(queryParams, routerUtils);
+    isRefresh(queryParams, routerUtils, navigate, location);
   };
 
   onRemoveItem = (itemId: string, stageId: string) => {
