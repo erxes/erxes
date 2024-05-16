@@ -57,7 +57,7 @@ const Dashboard = (props: Props) => {
   };
 
   const renderActionBar = () => {
-    const leftActionBar = <Title>{__(`${dashboard.name || ""}`)}</Title>;
+    const leftActionBar = <Title>{`${dashboard.name || ""}`}</Title>;
 
     const trigger = (
       <div>

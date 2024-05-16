@@ -53,14 +53,14 @@ const ChartFormField = (props: Props) => {
 
   const { fieldQueryVariables } = filterType;
 
+  const [fieldValue, setFieldValue] = useState(initialValue);
+
   useEffect(() => {
-    if (!fieldValue && fieldDefaultValue) {
-      setFieldValue(fieldDefaultValue);
-      onChange(fieldDefaultValue);
+    if (!initialValue && fieldDefaultValue) {
+      setFieldValue([fieldDefaultValue]);
+      onChange([fieldDefaultValue]);
     }
   }, [fieldDefaultValue]);
-
-  const [fieldValue, setFieldValue] = useState(initialValue);
 
   const onSelect = (selectedOption) => {
     if (selectedOption === undefined || selectedOption === null) {

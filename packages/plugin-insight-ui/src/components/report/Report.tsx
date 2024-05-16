@@ -63,7 +63,7 @@ const Report = (props: Props) => {
   };
 
   const renderActionBar = () => {
-    const leftActionBar = <Title>{__(`${report.name || ""}`)}</Title>;
+    const leftActionBar = <Title>{`${report.name || ""}`}</Title>;
 
     const trigger = (
       <div>

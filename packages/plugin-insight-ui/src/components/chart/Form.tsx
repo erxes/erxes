@@ -172,6 +172,7 @@ const Form = (props: Props) => {
           <ChartFormField
             initialValue={filters[f.fieldName]}
             filterType={f}
+            chartType={chartType}
             fieldValues={filters}
             key={f.fieldName}
             setFilter={setFilter}
