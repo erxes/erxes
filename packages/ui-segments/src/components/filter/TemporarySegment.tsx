@@ -45,6 +45,10 @@ export const RightDrawerContainer = styled(RightMenuContainer)`
 export const ScrolledContent = styled.div`
   flex: 1;
   overflow: auto;
+
+  input[type='text'] {
+    width: 100%;
+  }
 `;
 
 type Props = {
