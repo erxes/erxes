@@ -4,8 +4,7 @@ import { field, getDateFieldDefinition } from './utils';
 export interface IEbarimtConfig {
   companyName: string;
   ebarimtUrl: string;
-  getTinUrl: string;
-  getInfoUrl: string;
+  checkTaxpayerUrl: string;
 
   merchantTin: string;
   companyRD: string,
@@ -103,15 +102,10 @@ const ebarimtConfigSchema = new Schema(
       optional: true,
       label: 'Ebarimt server url',
     }),
-    getTinUrl: field({
+    checkTaxpayerUrl: field({
       type: String,
       optional: true,
       label: 'Ebarimt tin url',
-    }),
-    getInfoUrl: field({
-      type: String,
-      optional: true,
-      label: 'Ebarimt info url',
     }),
 
     merchantTin: field({ type: String, optional: true, label: 'Tin' }),

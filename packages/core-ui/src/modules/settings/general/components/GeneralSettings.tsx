@@ -6,11 +6,11 @@ import {
   Title
 } from "@erxes/ui-settings/src/styles";
 import {
+  DATA_RETENTION_DURATION,
   FILE_MIME_TYPES,
+  FILE_SYSTEM_TYPES,
   KEY_LABELS,
   LANGUAGES,
-  FILE_SYSTEM_TYPES,
-  DATA_RETENTION_DURATION,
   LOG_RETENTION_DURATION,
   SERVICE_TYPES
 } from "@erxes/ui-settings/src/general/constants";
@@ -98,7 +98,7 @@ class GeneralSettings extends React.Component<Props, State> {
       value = values.map(el => el.value);
     }
 
-    this.onChangeConfig(code, value.toString());
+    this.onChangeConfig(code, value);
   };
 
   onChangeSingleCombo = (code: string, obj) => {

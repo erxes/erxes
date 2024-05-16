@@ -145,11 +145,12 @@ export const setupMessageConsumers = async () => {
 
   consumeRPCQueue(
     'ebarimt:putresponses.getCompany',
-    async ({ subdomain, data: { companyRD, companyTin } }) => {
+    async ({ subdomain, data: { companyRD } }) => {
       const config = await getConfig(subdomain, 'EBARIMT', {}) || {};
+      const response = await getCompanyInfo({ checkTaxpayerUrl: config.checkTaxpayerUrl, no: companyRD })
       return {
         status: 'success',
-        data: await getCompanyInfo({ getTinUrl: config.getTinUrl, getInfoUrl: config.getInfoUrl, rd: companyRD, tin: companyTin }),
+        data: response.result?.data,
       };
     },
   );

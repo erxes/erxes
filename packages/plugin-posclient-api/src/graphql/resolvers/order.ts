@@ -158,19 +158,22 @@ export default {
     }
 
     const excludeIds: string[] = [];
-    for (const falsePR of putResponses.filter(pr => pr.status === 'ERROR')) {
+    for (const falsePR of putResponses.filter(pr => pr.status !== 'SUCCESS')) {
       for (const truePR of putResponses.filter(pr => pr.status === 'SUCCESS')) {
+
         if (
           falsePR.sendInfo &&
           truePR.sendInfo &&
-          falsePR.sendInfo.amount === truePR.sendInfo.amount &&
-          falsePR.sendInfo.vat === truePR.sendInfo.vat &&
-          falsePR.sendInfo.taxType === truePR.sendInfo.taxType
+          falsePR.sendInfo.totalAmount === truePR.sendInfo.totalAmount &&
+          falsePR.sendInfo.totalVAT === truePR.sendInfo.totalVAT &&
+          falsePR.sendInfo.type === truePR.sendInfo.type &&
+          falsePR.sendInfo.receipts?.length === truePR.sendInfo.receipts?.length 
         ) {
           excludeIds.push(falsePR._id);
         }
       }
     }
+    console.log(excludeIds)
 
     const innerItems = await models.OrderItems.find({
       orderId: order._id,

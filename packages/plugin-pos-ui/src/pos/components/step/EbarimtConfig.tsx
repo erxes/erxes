@@ -94,8 +94,7 @@ const EbarimtConfig = (props: Props) => {
             <BlockRow>
               {renderInput('companyName', 'company Name')}
               {renderInput('ebarimtUrl', 'ebarimt Url')}
-              {renderInput('getTinUrl', 'Tin Url')}
-              {renderInput('getInfoUrl', 'Info Url')}
+              {renderInput('checkTaxpayerUrl', 'check taxpayer Url')}
             </BlockRow>
           </Block>
 

@@ -94,13 +94,11 @@ const isValidBarcode = (barcode: string): boolean => {
 const getCustomerInfo = async (type, config, doc) => {
   if (type === 'B2B_RECEIPT') {
     const resp = await getCompanyInfo({
-      getTinUrl: config.getTinUrl,
-      getInfoUrl: config.getInfoUrl,
-      tin: doc.customerTin,
-      rd: doc.customerRD
+      checkTaxpayerUrl: config.checkTaxpayerUrl,
+      no: doc.customerTin || doc.customerRD,
     });
 
-    if (resp.status !== 'checked') {
+    if (resp.status !== 'checked' || !resp.tin) {
       return { msg: 'wrong tin number or rd or billType' }
     }
     return { customerTin: resp.tin }
