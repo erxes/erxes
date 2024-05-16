@@ -1,6 +1,6 @@
 "use client"
 
-import { FC, useEffect, useState } from "react"
+import { FC, useState } from "react"
 import NextImage, { ImageLoaderProps, ImageProps } from "next/image"
 import { Package } from "lucide-react"
 
@@ -38,13 +38,6 @@ const Image: FC<
     }
     return cloudflareLoader
   }
-
-  useEffect(() => {
-    if (src) {
-      const fixedSrc = readFile(src || "")
-      setSrcI(fixedSrc)
-    }
-  }, [src])
 
   const updatedProps = {
     ...rest,

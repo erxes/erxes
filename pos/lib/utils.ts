@@ -15,12 +15,16 @@ export const READ_FILE = "/read-file?key="
 export const ERXES_SASS = "erxes-saas/"
 
 export const readFile = (url: string = "") => {
-  if (url.startsWith(ERXES_SASS))
-    return process.env.NEXT_PUBLIC_MAIN_API_DOMAIN + READ_FILE + url
+  const { NEXT_PUBLIC_MAIN_API_DOMAIN } = getEnv()
+
+  if (url.startsWith(ERXES_SASS)) {
+    return NEXT_PUBLIC_MAIN_API_DOMAIN + READ_FILE + url
+  }
 
   if (url.includes(READ_FILE)) {
     const apiUrl = url.split(READ_FILE)[0]
-    return url.replace(apiUrl, process.env.NEXT_PUBLIC_MAIN_API_DOMAIN || "")
+
+    return url.replace(apiUrl, NEXT_PUBLIC_MAIN_API_DOMAIN || "")
   }
   return url
 }
