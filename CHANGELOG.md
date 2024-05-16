@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.10.0-rc.6](https://github.com/erxes/erxes/compare/1.10.0-rc.4...1.10.0-rc.6) (2024-05-16)
+
+
+### Features
+
+* **calls:** add activity log and fix incoming call widget ([4c6acf3](https://github.com/erxes/erxes/commit/4c6acf36a6280baddcbe44f08463713698b46221))
+
+
+### Bug Fixes
+
+* **cards:** card & insight bugs ([#5202](https://github.com/erxes/erxes/issues/5202)) ([49d35f8](https://github.com/erxes/erxes/commit/49d35f8e2f7c6ec163374e5d40f95c09fdfd78a6))
+
 ## [1.10.0-rc.4](https://github.com/erxes/erxes/compare/1.10.0-rc.3...1.10.0-rc.4) (2024-05-13)
 
 
