@@ -11,7 +11,7 @@ const Ebarimt = ({
   totalCityTax,
   totalAmount,
   lottery,
-  type
+  type,
 }: IPutResponse) => {
   const [registerNumber] = useAtom(registerNumberAtom)
   const [printType] = useAtom(printTypeAtom)
@@ -34,7 +34,9 @@ const Ebarimt = ({
     return (
       <>
         {Number(totalVAT) > 0 && <p>НӨАТ: {formatNum(Number(totalVAT))}</p>}
-        {Number(totalCityTax) > 0 && <p>НXАТ: {formatNum(Number(totalCityTax))}</p>}
+        {Number(totalCityTax) > 0 && (
+          <p>НXАТ: {formatNum(Number(totalCityTax))}</p>
+        )}
         <p>Дүн: {formatNum(totalAmount || 0)}</p>
         {!printType && !!lottery && (
           <div>

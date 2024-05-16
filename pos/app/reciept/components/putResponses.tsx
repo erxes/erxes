@@ -25,9 +25,7 @@ export const PutResponse = ({
         </div>
       )}
       <Stocks receipts={receipts || []} />
-      {
-        status !== 'SUCCESS' && <Error message={message} />
-      }
+      {status !== "SUCCESS" && <Error message={message} />}
 
       <Ebarimt {...rest} />
     </div>
@@ -39,7 +37,7 @@ const PutResponses = () => {
   return (
     <>
       {(putResponses || []).map((putResponse) => (
-        <PutResponse {...putResponse} key={putResponse.id} />
+        <PutResponse {...putResponse} key={putResponse.contentId} />
       ))}
     </>
   )
