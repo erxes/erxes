@@ -132,7 +132,8 @@ export default function useExtensions({
         HTMLAttributes: {
           class: 'mention',
         },
-        suggestion: mentionSuggestion && getMentionSuggestions(mentionSuggestion),
+        suggestion:
+          mentionSuggestion && getMentionSuggestions(mentionSuggestion),
       }),
       CharacterCount.configure({
         limit,
@@ -142,7 +143,7 @@ export default function useExtensions({
       }),
       GlobalAttributes,
     ],
-    []
+    [],
   );
 }
 export function useGenerateJSON(html: string) {
@@ -215,9 +216,7 @@ export function useGenerateJSON(html: string) {
       HTMLAttributes: {
         class: 'mention',
       },
-
-    })
-    ,
+    }),
     CharacterCount,
     Placeholder,
     GlobalAttributes,
@@ -294,11 +293,9 @@ export function generateHTML(json: JSONContent) {
       HTMLAttributes: {
         class: 'mention',
       },
-
-    })
-    ,
+    }),
     CharacterCount,
     Placeholder,
     GlobalAttributes,
-  ])
+  ]);
 }

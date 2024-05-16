@@ -88,7 +88,7 @@ const RespondBoxContainer = (props: FinalProps) => {
 
   const sendMessage = (
     variables: AddMessageMutationVariables,
-    callback: (error: Error) => void
+    callback: (error: Error) => void,
   ) => {
     const { conversationId, content, attachments, internal, contentType } =
       variables;
@@ -159,9 +159,9 @@ const withQuery = () =>
               },
             };
           },
-        }
-      )
-    )(RespondBoxContainer)
+        },
+      ),
+    )(RespondBoxContainer),
   );
 
 class Wrapper extends React.Component<

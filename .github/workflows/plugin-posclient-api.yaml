@@ -9,9 +9,9 @@ on:
       - staging
       - build-test
     paths:
-      - 'packages/api-utils/**'
-      - 'packages/plugin-posclient-api/**'
-      - '.github/workflows/plugin-posclient-api.yaml'
+      - "packages/api-utils/**"
+      - "packages/plugin-posclient-api/**"
+      - ".github/workflows/plugin-posclient-api.yaml"
   pull_request:
     branches:
       - dev
@@ -20,9 +20,9 @@ on:
       - staging
       - build-test
     paths:
-      - 'packages/api-utils/**'
-      - 'packages/plugin-posclient-api/**'
-      - '.github/workflows/plugin-posclient-api.yaml'
+      - "packages/api-utils/**"
+      - "packages/plugin-posclient-api/**"
+      - ".github/workflows/plugin-posclient-api.yaml"
 
 jobs:
   api:

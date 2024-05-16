@@ -38,11 +38,11 @@ const generateAttributes = (combinedFields?: any[], contentType?: string) => {
       (combinedFields || []).map((field) => ({
         value: `${type}.${field.name}`,
         name: field.label,
-      }))
+      })),
     );
   } else {
     (combinedFields || []).forEach((field) =>
-      items.push({ value: `customer.${field.name}`, name: field.label })
+      items.push({ value: `customer.${field.name}`, name: field.label }),
     );
   }
 
@@ -137,6 +137,6 @@ export default withProps<IEditorProps>(
         },
       }),
       skip: !isEnabled('segments'),
-    })
-  )(EditorContainer)
+    }),
+  )(EditorContainer),
 );

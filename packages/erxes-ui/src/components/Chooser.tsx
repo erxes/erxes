@@ -1,13 +1,13 @@
-import { ActionTop, Column, Columns, Footer, Title } from '../styles/chooser';
-import { CenterContent, ModalFooter } from '../styles/main';
+import { ActionTop, Column, Columns, Footer, Title } from "../styles/chooser";
+import { CenterContent, ModalFooter } from "../styles/main";
 
-import Button from './Button';
-import EmptyState from './EmptyState';
-import FormControl from './form/Control';
-import Icon from './Icon';
-import ModalTrigger from './ModalTrigger';
-import React from 'react';
-import { __ } from '../utils/core';
+import Button from "./Button";
+import EmptyState from "./EmptyState";
+import FormControl from "./form/Control";
+import Icon from "./Icon";
+import ModalTrigger from "./ModalTrigger";
+import React from "react";
+import { __ } from "../utils/core";
 
 export type CommonProps = {
   data: any;
@@ -28,7 +28,7 @@ export type CommonProps = {
   renderExtra?: () => any;
   handleExtra?: (data: any) => void;
   extraChecker?: (data: any) => any;
-  modalSize?: 'sm' | 'lg' | 'xl';
+  modalSize?: "sm" | "lg" | "xl";
 };
 
 type Props = {
@@ -52,7 +52,7 @@ class CommonChooser extends React.Component<Props, State> {
     this.state = {
       datas,
       loadmore: true,
-      searchValue: ''
+      searchValue: "",
     };
   }
 
@@ -88,18 +88,18 @@ class CommonChooser extends React.Component<Props, State> {
   handleChange = (type, data) => {
     const { datas } = this.state;
 
-    if (type === 'plus-1') {
+    if (type === "plus-1") {
       if (this.props.limit && this.props.limit === datas.length) {
         return;
       }
 
       this.setState({ datas: [...datas, data] });
     } else {
-      this.setState({ datas: datas.filter(item => item !== data) });
+      this.setState({ datas: datas.filter((item) => item !== data) });
     }
   };
 
-  search = e => {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -123,7 +123,7 @@ class CommonChooser extends React.Component<Props, State> {
   };
 
   renderRow(data, icon) {
-    if (icon === 'plus-1' && this.state.datas.some(e => e._id === data._id)) {
+    if (icon === "plus-1" && this.state.datas.some((e) => e._id === data._id)) {
       return null;
     }
 
@@ -145,7 +145,7 @@ class CommonChooser extends React.Component<Props, State> {
     if (selectedDatas.length) {
       return (
         <ul>
-          {selectedDatas.map(data => this.renderRow(data, 'times'))}
+          {selectedDatas.map((data) => this.renderRow(data, "times"))}
           {this.props.renderExtra && this.props.renderExtra()}
         </ul>
       );
@@ -163,7 +163,7 @@ class CommonChooser extends React.Component<Props, State> {
 
     return (
       <ul>
-        {datas.map(dataItem => this.renderRow(dataItem, 'plus-1'))}
+        {datas.map((dataItem) => this.renderRow(dataItem, "plus-1"))}
         {this.state.loadmore && (
           <CenterContent>
             <Button
@@ -172,7 +172,7 @@ class CommonChooser extends React.Component<Props, State> {
               onClick={this.loadMore}
               icon="angle-double-down"
             >
-              {loading ? 'Loading' : 'Load More'}
+              {loading ? "Loading" : "Load More"}
             </Button>
           </CenterContent>
         )}
@@ -206,14 +206,14 @@ class CommonChooser extends React.Component<Props, State> {
           <Column>
             <ActionTop>
               <FormControl
-                placeholder={__('Type to search')}
+                placeholder={__("Type to search")}
                 onChange={this.search}
               />
               {this.renderSubFilter()}
             </ActionTop>
             {this.content()}
           </Column>
-          <Column lastChild={true}>
+          <Column $lastChild={true}>
             <Title>
               {data.name}
               &apos;s {title}
@@ -228,7 +228,7 @@ class CommonChooser extends React.Component<Props, State> {
               <ModalTrigger
                 title={`New ${title}`}
                 trigger={addTrigger}
-                size={modalSize || 'lg'}
+                size={modalSize || "lg"}
                 content={renderForm}
               />
             )}
