@@ -82,7 +82,7 @@ const CollateralForm = (props: Props) => {
 
     return (
       <CollateralTableWrapper>
-        <Table striped>
+        <Table $striped>
           <thead>
             <tr>
               <th>{__('Insurance type')}</th>

@@ -1,5 +1,10 @@
 import * as debug from 'debug';
 import fetch from 'node-fetch';
+import * as FormData from 'form-data';
+import * as fs from 'fs';
+import * as dns from 'dns';
+import redis from './redis';
+import * as tmp from 'tmp';
 
 export const debugBase = debug('erxes-email-verifier:base');
 export const debugCrons = debug('erxes-email-verifier:crons');
@@ -91,7 +96,89 @@ export const getEnv = ({
   return value || '';
 };
 
-export const isEmailValid = (email: string): boolean => {
-  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-  return emailRegex.test(email);
+export const isValidDomain = async (email) => {
+  const domain = email.split('@')[1];
+
+  const cachedDomainResponse = await redis.get(`verifier:${domain}`);
+
+  if (!cachedDomainResponse) {
+    return new Promise((resolve) => {
+      dns.resolveMx(domain, (err, addresses) => {
+        if (err) {
+          resolve(false);
+        } else {
+          if (addresses.length > 0) {
+            redis.set(`verifier:${domain}`, 'valid', 'EX', 24 * 60 * 60);
+          }
+
+          resolve(true);
+        }
+      });
+    });
+  }
+
+  return cachedDomainResponse === 'valid' ? true : false;
+};
+
+export const isValidEmail = (email) => {
+  const complexEmailRegex =
+    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+
+  return complexEmailRegex.test(email);
+};
+
+export const sendFile = async (
+  url: string,
+  token: string,
+  fileName: string,
+  hostname: string,
+  key: string,
+) => {
+  const form = new FormData();
+
+  const fileStream = fs.createReadStream(fileName);
+
+  form.append('file', fileStream);
+
+  try {
+    const result: any = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer:${token}`,
+      },
+      body: form,
+    }).then((r) => r.json());
+
+    const { data, error } = result;
+
+    if (data) {
+      const listIds = await getArray(key);
+
+      listIds.push({ listId: data.list_id, hostname });
+
+      setArray(key, listIds);
+
+      tmp.setGracefulCleanup();
+      await fs.unlinkSync(fileName);
+    } else if (error) {
+      throw new Error(error.message);
+    }
+  } catch (e) {
+    throw e;
+  }
+};
+
+export const setArray = async (key, array) => {
+  const jsonArray = JSON.stringify(array);
+  await redis.set(key, jsonArray);
+};
+
+export const getArray = async (key) => {
+  const jsonArray = await redis.get(key);
+
+  if (!jsonArray) {
+    return [];
+  }
+
+  return JSON.parse(jsonArray);
 };

@@ -9,9 +9,9 @@ on:
       - staging
       - build-test
     paths:
-      - 'packages/api-utils/**'
-      - 'packages/plugin-cards-api/**'
-      - '.github/workflows/plugin-cards-api.yaml'
+      - "packages/api-utils/**"
+      - "packages/plugin-cards-api/**"
+      - ".github/workflows/plugin-cards-api.yaml"
   pull_request:
     branches:
       - dev
@@ -20,9 +20,9 @@ on:
       - staging
       - build-test
     paths:
-      - 'packages/api-utils/**'
-      - 'packages/plugin-cards-api/**'
-      - '.github/workflows/plugin-cards-api.yaml'
+      - "packages/api-utils/**"
+      - "packages/plugin-cards-api/**"
+      - ".github/workflows/plugin-cards-api.yaml"
 
 jobs:
   api:

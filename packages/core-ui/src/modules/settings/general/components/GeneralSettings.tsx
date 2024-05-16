@@ -3,7 +3,7 @@ import {
   ContentBox,
   FlexRow,
   ImageWrapper,
-  Title,
+  Title
 } from "@erxes/ui-settings/src/styles";
 import {
   DATA_RETENTION_DURATION,
@@ -12,13 +12,13 @@ import {
   KEY_LABELS,
   LANGUAGES,
   LOG_RETENTION_DURATION,
-  SERVICE_TYPES,
+  SERVICE_TYPES
 } from "@erxes/ui-settings/src/general/constants";
 import {
   __,
   loadDynamicComponent,
   readFile,
-  uploadHandler,
+  uploadHandler
 } from "modules/common/utils";
 
 import ActivateInstallation from "./ActivateInstallation";
@@ -61,11 +61,11 @@ class GeneralSettings extends React.Component<Props, State> {
     this.state = {
       configsMap: props.configsMap,
       language: props.currentLanguage,
-      isSaved: false,
+      isSaved: false
     };
   }
 
-  save = (e) => {
+  save = e => {
     e.preventDefault();
 
     const { configsMap, language } = this.state;
@@ -95,7 +95,7 @@ class GeneralSettings extends React.Component<Props, State> {
     let value = values;
 
     if (Array.isArray(values)) {
-      value = values.map((el) => el.value);
+      value = values.map(el => el.value);
     }
 
     this.onChangeConfig(code, value);
@@ -109,7 +109,7 @@ class GeneralSettings extends React.Component<Props, State> {
     this.onChangeConfig(code, e.target.value);
   };
 
-  onLanguageChange = (language) => {
+  onLanguageChange = language => {
     this.setState({ language: language.value });
   };
 
@@ -133,7 +133,7 @@ class GeneralSettings extends React.Component<Props, State> {
     this.onChangeConfig(field, e.hex);
   };
 
-  renderColorPicker = (field) => {
+  renderColorPicker = field => {
     const { configsMap } = this.state;
     const value = configsMap[field];
 
@@ -171,7 +171,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
       afterRead: ({ result }) => {
         return;
-      },
+      }
     });
   };
 
@@ -207,8 +207,8 @@ class GeneralSettings extends React.Component<Props, State> {
       value = defaultValues[kind] || "";
     }
 
-    const optionValue = value.every((i) => typeof i === "string")
-      ? constant.filter((o) => value.includes(o.value))
+    const optionValue = value.every(i => typeof i === "string")
+      ? constant.filter(o => value.includes(o.value))
       : value;
 
     return (
@@ -267,7 +267,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const breadcrumb = [
       { title: __("Settings"), link: "/settings" },
-      { title: __("General system config") },
+      { title: __("General system config") }
     ];
 
     const actionButtons = (
@@ -281,9 +281,9 @@ class GeneralSettings extends React.Component<Props, State> {
       </Button>
     );
 
-    const mimeTypeOptions = FILE_MIME_TYPES.map((item) => ({
+    const mimeTypeOptions = FILE_MIME_TYPES.map(item => ({
       value: item.value,
-      label: `${item.label} (${item.extension})`,
+      label: `${item.label} (${item.extension})`
     }));
     const mimeTypeDesc = __(
       "Comma-separated list of media types. Leave it blank for accepting all media types"
@@ -291,7 +291,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const emailServiceOptions = [
       { label: "SES", value: "SES" },
-      { label: "Custom", value: "custom" },
+      { label: "Custom", value: "custom" }
     ];
 
     const content = (
@@ -305,7 +305,7 @@ class GeneralSettings extends React.Component<Props, State> {
             <ControlLabel>Language</ControlLabel>
             <Select
               options={LANGUAGES}
-              value={LANGUAGES.find((o) => o.value === language)}
+              value={LANGUAGES.find(o => o.value === language)}
               onChange={this.onLanguageChange}
               isSearchable={false}
               isClearable={false}
@@ -317,8 +317,8 @@ class GeneralSettings extends React.Component<Props, State> {
             <ControlLabel>Currency</ControlLabel>
             <Select
               options={CURRENCIES}
-              value={CURRENCIES.filter((o) =>
-                configsMap.dealCurrency.includes(o.value)
+              value={CURRENCIES.filter(o =>
+                configsMap.dealCurrency?.includes(o.value)
               )}
               onChange={this.onChangeMultiCombo.bind(this, "dealCurrency")}
               isMulti={true}
@@ -330,7 +330,7 @@ class GeneralSettings extends React.Component<Props, State> {
             <FormControl
               componentclass="checkbox"
               checked={configsMap.CHECK_TEAM_MEMBER_SHOWN}
-              onChange={(e) =>
+              onChange={e =>
                 this.onChangeConfig(
                   "CHECK_TEAM_MEMBER_SHOWN",
                   (e.target as any).checked
@@ -417,7 +417,7 @@ class GeneralSettings extends React.Component<Props, State> {
               <ControlLabel>{KEY_LABELS.UPLOAD_FILE_TYPES}</ControlLabel>
               {mimeTypeDesc && <p>{__(mimeTypeDesc)}</p>}
               <Select
-                value={mimeTypeOptions.filter((o) =>
+                value={mimeTypeOptions.filter(o =>
                   (configsMap.UPLOAD_FILE_TYPES || []).includes(o.value)
                 )}
                 options={mimeTypeOptions}
@@ -436,7 +436,7 @@ class GeneralSettings extends React.Component<Props, State> {
               </ControlLabel>
               {mimeTypeDesc && <p>{__(mimeTypeDesc)}</p>}
               <Select
-                value={mimeTypeOptions.filter((o) =>
+                value={mimeTypeOptions.filter(o =>
                   (configsMap.WIDGETS_UPLOAD_FILE_TYPES || []).includes(o.value)
                 )}
                 options={mimeTypeOptions}
@@ -456,7 +456,7 @@ class GeneralSettings extends React.Component<Props, State> {
               <Select
                 options={SERVICE_TYPES}
                 value={SERVICE_TYPES.find(
-                  (o) => (configsMap.UPLOAD_SERVICE_TYPE || "AWS") === o.value
+                  o => (configsMap.UPLOAD_SERVICE_TYPE || "AWS") === o.value
                 )}
                 isClearable={false}
                 onChange={this.onChangeSingleCombo.bind(
@@ -471,7 +471,7 @@ class GeneralSettings extends React.Component<Props, State> {
               <Select
                 options={FILE_SYSTEM_TYPES}
                 value={FILE_SYSTEM_TYPES.find(
-                  (o) => o.value === (configsMap.FILE_SYSTEM_PUBLIC || "true")
+                  o => o.value === (configsMap.FILE_SYSTEM_PUBLIC || "true")
                 )}
                 isClearable={false}
                 isSearchable={false}
@@ -622,7 +622,7 @@ class GeneralSettings extends React.Component<Props, State> {
             emailConfig={{
               email: configsMap.COMPANY_EMAIL_FROM,
               type: configsMap.COMPANY_EMAIL_TEMPLATE_TYPE,
-              template: configsMap.COMPANY_EMAIL_TEMPLATE,
+              template: configsMap.COMPANY_EMAIL_TEMPLATE
             }}
             emailText="Set an email address you wish to send your internal transactional emails from. For example, task notifications, team member mentions, etc."
             setEmailConfig={this.onChangeEmailConfig}
@@ -638,7 +638,7 @@ class GeneralSettings extends React.Component<Props, State> {
             <Select
               options={emailServiceOptions}
               value={emailServiceOptions.find(
-                (o) => o.value === (configsMap.DEFAULT_EMAIL_SERVICE || "SES")
+                o => o.value === (configsMap.DEFAULT_EMAIL_SERVICE || "SES")
               )}
               isClearable={false}
               isSearchable={false}
@@ -688,8 +688,7 @@ class GeneralSettings extends React.Component<Props, State> {
               <Select
                 options={DATA_RETENTION_DURATION}
                 value={DATA_RETENTION_DURATION.find(
-                  (o) =>
-                    o.value === (configsMap.NOTIFICATION_DATA_RETENTION || 3)
+                  o => o.value === (configsMap.NOTIFICATION_DATA_RETENTION || 3)
                 )}
                 isClearable={false}
                 isSearchable={false}
@@ -704,7 +703,7 @@ class GeneralSettings extends React.Component<Props, State> {
               <Select
                 options={LOG_RETENTION_DURATION}
                 value={LOG_RETENTION_DURATION.find(
-                  (o) => o.value === (configsMap.LOG_DATA_RETENTION || 1)
+                  o => o.value === (configsMap.LOG_DATA_RETENTION || 1)
                 )}
                 isClearable={false}
                 isSearchable={false}

@@ -4,14 +4,14 @@ import React, {
   useEffect,
   useImperativeHandle,
   useRef,
-  useState
+  useState,
 } from "react";
 import { SuggestionOptions, SuggestionProps } from "@tiptap/suggestion";
 import {
   VariableLabel,
   VariableListBtn,
   VariableListWrapper,
-  VariableWrapper
+  VariableWrapper,
 } from "../styles";
 
 import { FlexCenter } from "../../../styles/main";
@@ -69,7 +69,7 @@ export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
           item.username ||
           item.email ||
           "Username not found"
-        ).trim()
+        ).trim(),
       };
 
       if (item) {
@@ -116,7 +116,7 @@ export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
         }
 
         return false;
-      }
+      },
     }));
 
     const renderList = () => {
@@ -132,7 +132,7 @@ export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
           username = "",
           fullName = "",
           title = "",
-          email = ""
+          email = "",
         } = item || {};
         const displayName = (fullName || username || email).trim();
         return (
@@ -223,7 +223,7 @@ export function VariableComponent(props: NodeViewProps) {
       style={{
         display: "inline-block",
         lineHeight: 1,
-        ...(selected ? { outline: "3px solid #555" } : {})
+        ...(selected ? { outline: "3px solid #555" } : {}),
       }}
     >
       <Popover
@@ -240,9 +240,9 @@ export function VariableComponent(props: NodeViewProps) {
           <input
             placeholder="Add Variable Name"
             value={id}
-            onChange={e => {
+            onChange={(e) => {
               updateAttributes({
-                id: e.target.value
+                id: e.target.value,
               });
             }}
           />
@@ -252,9 +252,9 @@ export function VariableComponent(props: NodeViewProps) {
           <input
             placeholder="Fallback Value"
             value={fallback || ""}
-            onChange={e => {
+            onChange={(e) => {
               updateAttributes({
-                fallback: e.target.value
+                fallback: e.target.value,
               });
             }}
           />
