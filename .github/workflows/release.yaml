@@ -553,6 +553,13 @@ jobs:
 
           docker buildx imagetools create erxes/plugin-insight-api:rc --tag  erxes/plugin-insight-api:${GITHUB_REF#refs/tags/}
 
+      - name: plugin-khanbank-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker buildx imagetools create erxes/plugin-khanbank-api:rc --tag  erxes/plugin-khanbank-api:${GITHUB_REF#refs/tags/}
+
       - name: inbox ui
         run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-inbox-ui
           s3://erxes-release-plugins/uis/plugin-inbox-ui/${GITHUB_REF#refs/tags/}/
@@ -737,3 +744,7 @@ jobs:
       - name: insight ui
         run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-insight-ui
           s3://erxes-release-plugins/uis/plugin-insight-ui/${GITHUB_REF#refs/tags/}/
+
+      - name: khanbank ui
+        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-khanbank-ui
+          s3://erxes-release-plugins/uis/plugin-khanbank-ui/${GITHUB_REF#refs/tags/}/
