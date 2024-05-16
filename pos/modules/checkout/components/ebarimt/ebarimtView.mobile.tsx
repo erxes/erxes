@@ -51,6 +51,7 @@ const EbarimtView = () => {
 
   return (
     <iframe
+      title="Payment"
       ref={iframeRef}
       src={"/reciept/ebarimt?id=" + activeOrder}
       className="aspect-square md:h-[50vh] md:aspect-auto"

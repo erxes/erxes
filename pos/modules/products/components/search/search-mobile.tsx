@@ -1,5 +1,4 @@
 import { activeCategoryAtom, searchAtom } from "@/store"
-import { searchPopoverAtom } from "@/store/ui.store"
 import { useAtom, useSetAtom } from "jotai"
 
 import { Input } from "@/components/ui/input"

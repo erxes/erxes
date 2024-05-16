@@ -18,30 +18,28 @@ const CheckoutMain = () => {
     useAtom(orderCollapsibleAtom)
   const mode = useAtomValue(modeAtom)
   return (
-    <>
-      <OrderDetail>
-        <div className="pb-4 md:p-4">
-          <Customer />
+    <OrderDetail>
+      <div className="pb-4 md:p-4">
+        <Customer />
+      </div>
+      {!(mode === "mobile" && orderCollapsible) ? (
+        <Cart />
+      ) : (
+        <div className="flex-auto" />
+      )}
+      <Collapsible
+        asChild
+        open={orderCollapsible}
+        onOpenChange={(open) => setOrderCollapsibleAtom(open)}
+      >
+        <div className="grid flex-none grid-cols-2 gap-2 pt-4 md:p-4">
+          <DeliveryInputs />
+          <TotalAmount />
+          <ChooseType />
+          <BuyAction />
         </div>
-        {!(mode === "mobile" && orderCollapsible) ? (
-          <Cart />
-        ) : (
-          <div className="flex-auto" />
-        )}
-        <Collapsible
-          asChild
-          open={orderCollapsible}
-          onOpenChange={(open) => setOrderCollapsibleAtom(open)}
-        >
-          <div className="grid flex-none grid-cols-2 gap-2 pt-4 md:p-4">
-            <DeliveryInputs />
-            <TotalAmount />
-            <ChooseType />
-            <BuyAction />
-          </div>
-        </Collapsible>
-      </OrderDetail>
-    </>
+      </Collapsible>
+    </OrderDetail>
   )
 }
 

@@ -72,14 +72,17 @@ const HistoryTable = ({
 
 export const LoadingList = () => {
   const { perPage } = useAtomValue(filterAtom)
+  const uniqueIndexes = [] // Initialize an empty array
 
+  // Populate the array with unique numbers from 0 to perPage - 1
+  for (let i = 0; i < perPage; i++) {
+    uniqueIndexes.push(i)
+  }
   return (
     <>
-      {Array.from({
-        length: perPage,
-      }).map((_, idx) => (
-        <TableRow key={idx} style={{ height: 49 }}>
-          {Array.from({ length: 7 }).map((_, id) => (
+      {uniqueIndexes.map((key) => (
+        <TableRow key={key} style={{ height: 49 }}>
+          {[0, 1, 2, 3, 4, 5].map((_, id) => (
             <TableCell key={id}>
               <Skeleton className="h-4 w-full" />
             </TableCell>

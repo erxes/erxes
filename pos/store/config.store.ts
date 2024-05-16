@@ -26,7 +26,7 @@ export const permissionConfigAtom = atom<IPermissionConfig | undefined>(
   (get) => {
     const role = get(isAdminAtom) ? "admins" : "cashiers"
 
-    const pConfig = (get(configAtom)?.permissionConfig || {})[role] || {}
+    const pConfig = get(configAtom)?.permissionConfig?.[role] ?? {}
 
     const limit = parseFloat(pConfig.directDiscountLimit + "")
 
@@ -39,11 +39,14 @@ export const permissionConfigAtom = atom<IPermissionConfig | undefined>(
 export const configsAtom = atom<IConfig[] | null>(null)
 
 export const currentUserAtom = atom<ICurrentUser | null>(null)
+
 export const userLabelAtom = atom((get) => {
   const { details, email } = get(currentUserAtom) || {}
   const { fullName, position } = details || {}
-  return fullName ? `${fullName} ${position ? `(${position})` : ""}` : email
+  const role = position ? `(${position})` : ""
+  return fullName ? `${fullName} ${role}` : email
 })
+
 export const isAdminAtom = atom((get) =>
   get(configAtom)?.adminIds?.includes(get(currentUserAtom)?._id || "")
 )

@@ -59,24 +59,28 @@ const ChooseBillType = () => {
 
 const BillType = ({ billType }: { billType: IBillType }) => {
   const bt = useAtomValue(billTypeAtom)
+
+  function getBillType() {
+    if (billType === "1") {
+      return "Хувь хүн"
+    }
+    return billType === "3" ? "Байгуулга" : "Түр баримт"
+  }
+
   return (
     <Button
       className="h-16 flex-1 justify-start gap-2 relative rounded-md"
       variant="outline"
       Component="div"
     >
-      <RadioGroupItem value={billType || ""} id={billType || ""} />
-      {billType === "1"
-        ? "Хувь хүн"
-        : billType === "3"
-        ? "Байгуулга"
-        : "Түр баримт"}
+      <RadioGroupItem value={billType ?? ""} id={billType ?? ""} />
+      {getBillType()}
       <Label
         className={cn(
           "absolute inset-[-1px]",
           bt === billType && "border-2 border-primary rounded-md "
         )}
-        htmlFor={billType || ""}
+        htmlFor={billType ?? ""}
       />
     </Button>
   )

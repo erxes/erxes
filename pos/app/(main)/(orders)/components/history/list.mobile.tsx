@@ -32,10 +32,14 @@ const ListMobile = ({
 
 const Loading = () => {
   const { perPage } = useAtomValue(filterAtom)
+  const uniqueIndexes = []
+  for (let i = 0; i < perPage; i++) {
+    uniqueIndexes.push(i)
+  }
   return (
     <>
-      {Array.from({ length: perPage }).map((_, idx) => (
-        <Card className="text-sm" key={idx}>
+      {uniqueIndexes.map((key) => (
+        <Card className="text-sm" key={key}>
           <CardContent className="p-3 space-y-2">
             <div className="flex items-center justify-between text-sm">
               <span className="inline-flex items-center gap-2">

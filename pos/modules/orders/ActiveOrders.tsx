@@ -58,7 +58,7 @@ const ActiveOrders = () => {
             className="h-8 bg-white font-black rounded-sm"
             variant="ghost"
           >
-            {activeOrder?.number || "0000"}
+            {activeOrder?.number ?? "0000"}
           </Button>
         </PopoverTrigger>
       </div>
