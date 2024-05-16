@@ -82,7 +82,7 @@ export const LoadingList = () => {
     <>
       {uniqueIndexes.map((key) => (
         <TableRow key={key} style={{ height: 49 }}>
-          {[0, 1, 2, 3, 4, 5].map((_, id) => (
+          {[0, 1, 2, 3, 4, 5].map((id) => (
             <TableCell key={id}>
               <Skeleton className="h-4 w-full" />
             </TableCell>
