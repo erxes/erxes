@@ -32,7 +32,7 @@ const rdMap = {
 }
 
 const getTinNo = async (rd) => {
-  const info = await (0, fetch.default)(
+  const info = await fetch(
     `https://ebarimt.erkhet.biz/getTinInfo?regNo=${rd}`
   ).then((r) => r.json());
 
