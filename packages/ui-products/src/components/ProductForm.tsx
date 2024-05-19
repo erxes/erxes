@@ -729,7 +729,7 @@ const Form = (props: Props) => {
             <FormGroup>
               <ControlLabel>Secondary Images</ControlLabel>
               <Uploader
-                defaultFileList={attachmentsMore || []}
+                defaultFileList={attachmentsMore}
                 onChange={onChangeAttachmentMore}
                 multiple={true}
                 single={false}
