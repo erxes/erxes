@@ -12,7 +12,7 @@ export interface IPutResponseModel extends Model<IEbarimtDocument> {
   putData(
     doc: IEbarimt,
     config: IEbarimtConfig
-  ): Promise<IEbarimtDocument>;
+  ): Promise<{ putData?: IEbarimtDocument, innerData?: IEbarimt }>;
   returnBill(
     doc: { contentType: string; contentId: string; number: string },
     config: IEbarimtConfig
@@ -56,72 +56,83 @@ export const loadPutResponseClass = models => {
         }
       }
 
-      const { status, msg, data } = await getEbarimtData({ config, doc });
-      if (status !== 'ok' || !data) {
+      const { status, msg, data, innerData } = await getEbarimtData({ config, doc });
+      if (status !== 'ok' || !(data || innerData)) {
         throw new Error(msg)
       }
 
-      const prePutResponse: IEbarimtDocument | undefined =
-        await models.PutResponses.putHistory({
-          contentType,
-          contentId,
-        });
+      const result: { putData?: IEbarimtDocument, innerData?: IEbarimt } = {};
+      if (data) {
+        const prePutResponse: IEbarimtDocument | undefined =
+          await models.PutResponses.putHistory({
+            contentType,
+            contentId,
+          });
 
-      if (prePutResponse) {
-        // prePutResponse has not updated then not rePutData
-        if (
-          prePutResponse.totalAmount === data.totalAmount &&
-          prePutResponse.totalVAT === data.totalVAT &&
-          prePutResponse.totalCityTax === data.totalCityTax &&
-          prePutResponse.receipts &&
-          prePutResponse.receipts.length === data.receipts?.length &&
-          (prePutResponse.type || 'B2C_RECEIPT') ===
-          (data.type || 'B2C_RECEIPT')
-        ) {
-          return models.PutResponses.findOne({
-            _id: prePutResponse._id,
-          }).lean();
+        if (prePutResponse) {
+          // prePutResponse has not updated then not rePutData
+          if (
+            prePutResponse.totalAmount === data.totalAmount &&
+            prePutResponse.totalVAT === data.totalVAT &&
+            prePutResponse.totalCityTax === data.totalCityTax &&
+            prePutResponse.receipts &&
+            prePutResponse.receipts.length === data.receipts?.length &&
+            (prePutResponse.type || 'B2C_RECEIPT') ===
+            (data.type || 'B2C_RECEIPT')
+          ) {
+            return {
+              putData: await models.PutResponses.findOne({
+                _id: prePutResponse._id,
+              }).lean(),
+              innerData
+            };
+          }
+
+          data.inactiveId = prePutResponse.id;
         }
 
-        data.inactiveId = prePutResponse.id;
-      }
-
-      const resObj = await models.PutResponses.createPutResponse({
-        sendInfo: { ...data },
-        contentId,
-        contentType,
-        number: doc.number
-      });
-
-      const response = await fetch(
-        `${config.ebarimtUrl}/rest/receipt?`,
-        {
-          method: 'POST',
-          body: JSON.stringify({ ...data }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          timeout: 10000
-        },
-      )
-        .then((r) => r.json())
-        .catch((err) => {
-          throw new Error(err.message);
+        const resObj = await models.PutResponses.createPutResponse({
+          sendInfo: { ...data },
+          contentId,
+          contentType,
+          number: doc.number
         });
 
-      if (prePutResponse && response.status === 'SUCCESS') {
-        await models.PutResponses.updateOne(
-          { _id: prePutResponse._id },
-          { $set: { state: 'inactive' } },
-        );
+        const response = await fetch(
+          `${config.ebarimtUrl}/rest/receipt?`,
+          {
+            method: 'POST',
+            body: JSON.stringify({ ...data }),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            timeout: 10000
+          },
+        )
+          .then((r) => r.json())
+          .catch((err) => {
+            throw new Error(err.message);
+          });
+
+        if (prePutResponse && response.status === 'SUCCESS') {
+          await models.PutResponses.updateOne(
+            { _id: prePutResponse._id },
+            { $set: { state: 'inactive' } },
+          );
+        }
+
+        await models.PutResponses.updatePutResponse(resObj._id, {
+          ...response,
+          // customerName: params.customerName,
+        });
+        result.putData = await models.PutResponses.findOne({ _id: resObj._id }).lean();
       }
 
-      await models.PutResponses.updatePutResponse(resObj._id, {
-        ...response,
-        // customerName: params.customerName,
-      });
+      if (innerData) {
+        result.innerData = innerData;
+      }
 
-      return models.PutResponses.findOne({ _id: resObj._id }).lean();
+      return result;
     }
 
     public static async returnBill(doc, config) {

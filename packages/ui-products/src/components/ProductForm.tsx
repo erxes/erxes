@@ -53,7 +53,7 @@ type State = {
   vendorId: string;
   description: string;
   uom: string;
-  subUoms: any[];
+  subUoms: { _id: string, uom: string, ratio: number }[];
   taxType: string;
   taxCode: string;
   scopeBrandIds: string[];
@@ -91,16 +91,17 @@ const Form = (props: Props) => {
   }
 
   const [state, setState] = useState<State>({
+    ...product,
     barcodes: barcodes ? barcodes : [],
     variants: fixVariants,
     barcodeInput: "",
-    barcodeDescription: barcodeDescription ? barcodeDescription : "",
-    attachment: attachment ? attachment : undefined,
-    attachmentMore: attachmentMore ? attachmentMore : undefined,
-    vendorId: vendorId ? vendorId : "",
-    description: description ? description : "",
+    barcodeDescription: barcodeDescription || "",
+    attachment: attachment,
+    attachmentMore: attachmentMore,
+    vendorId: vendorId || "",
+    description: description || "",
     uom: uom || "",
-    subUoms: subUoms ? subUoms : [],
+    subUoms: subUoms || [],
     taxType: taxType || "",
     taxCode: taxCode || "",
     scopeBrandIds,
@@ -188,6 +189,7 @@ const Form = (props: Props) => {
     finalValues.attachment = attachment;
 
     return {
+      ...product,
       ...finalValues,
       code,
       categoryId,
@@ -200,7 +202,7 @@ const Form = (props: Props) => {
       vendorId,
       description,
       uom,
-      subUoms: subUoms
+      subUoms: (subUoms || [])
         .filter((su) => su.uom)
         .map((su) => ({
           ...su,
@@ -340,7 +342,7 @@ const Form = (props: Props) => {
   };
 
   const onClickAddSub = () => {
-    const subUoms = state.subUoms;
+    const subUoms = [...state.subUoms || []];
 
     subUoms.push({ uom: "", ratio: 1, _id: Math.random().toString() });
     setState((prevState) => ({ ...prevState, subUoms }));
@@ -398,9 +400,10 @@ const Form = (props: Props) => {
   };
 
   const onTaxChange = (e) => {
-    setState({
+    setState((prevState) => ({
+      ...prevState,
       [e.target.name]: e.target.value,
-    } as any);
+    } as any));
   };
 
   const onChangeCateogry = (option) => {
@@ -419,7 +422,7 @@ const Form = (props: Props) => {
 
   const renderBarcodes = () => {
     const { barcodes, variants, attachmentMore } = state;
-    if (!barcodes.length) {
+    if (!barcodes?.length) {
       return <></>;
     }
 
@@ -726,7 +729,7 @@ const Form = (props: Props) => {
             <FormGroup>
               <ControlLabel>Secondary Images</ControlLabel>
               <Uploader
-                defaultFileList={attachmentsMore}
+                defaultFileList={attachmentsMore || []}
                 onChange={onChangeAttachmentMore}
                 multiple={true}
                 single={false}

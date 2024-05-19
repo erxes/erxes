@@ -121,7 +121,7 @@ export default {
             totalAmount: order.totalAmount,
             totalVAT: 0,
             totalCityTax: 0,
-            taxType: 'NO_VAT',
+            taxType: 'NOT_SEND',
             items: items.map(item => ({
               _id: item._id,
               id: item.id,
@@ -173,7 +173,6 @@ export default {
         }
       }
     }
-    console.log(excludeIds)
 
     const innerItems = await models.OrderItems.find({
       orderId: order._id,

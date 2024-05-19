@@ -218,29 +218,10 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     innerAmount,
     ableVATAmount,
     ableCityTaxAmount,
-  } = await getArrangeProducts(config, doc)
+  } = await getArrangeProducts(config, doc);
 
-  const mainData: IEbarimt = {
-    number: doc.number,
-    contentType: doc.contentType,
-    contentId: doc.contentId,
-
-    totalAmount: ableAmount + freeAmount + zeroAmount + innerAmount,
-    totalVAT: ableVATAmount,
-    totalCityTax: ableCityTaxAmount,
-    districtCode: config.districtCode,
-    branchNo: config.branchNo,
-    merchantTin: config.merchantTin,
-    posNo: config.posNo,
-    type: doc.type,
-    reportMonth,
-    data: {},
-    customerTin,
-    consumerNo,
-
-    receipts: [],
-    payments: []
-  };
+  let innerData: IEbarimt | undefined = undefined;
+  let mainData: IEbarimt | undefined = undefined;
 
   const commonOderInfo = {
     merchantTin: config.merchantTin,
@@ -249,68 +230,116 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     data: {},
   }
 
-  if (detailsFree.length) {
-    mainData.receipts?.push({
-      ...commonOderInfo,
-      totalAmount: freeAmount,
-      taxType: 'VAT_FREE',
-      items: detailsFree,
-    });
-  }
+  if (details.length || details0.length || detailsFree.length) {
+    mainData = {
+      number: doc.number,
+      contentType: doc.contentType,
+      contentId: doc.contentId,
 
-  if (details0.length) {
-    mainData.receipts?.push({
-      ...commonOderInfo,
-      totalAmount: zeroAmount,
-      taxType: 'VAT_ZERO',
-      items: details0,
-    });
+      totalAmount: ableAmount + freeAmount + zeroAmount,
+      totalVAT: ableVATAmount,
+      totalCityTax: ableCityTaxAmount,
+      districtCode: config.districtCode,
+      branchNo: config.branchNo,
+      merchantTin: config.merchantTin,
+      posNo: config.posNo,
+      type: doc.type,
+      reportMonth,
+      data: {},
+      customerTin,
+      consumerNo,
+
+      receipts: [],
+      payments: []
+    };
+
+    if (detailsFree.length) {
+      mainData.receipts?.push({
+        ...commonOderInfo,
+        totalAmount: freeAmount,
+        taxType: 'VAT_FREE',
+        items: detailsFree,
+      });
+    }
+
+    if (details0.length) {
+      mainData.receipts?.push({
+        ...commonOderInfo,
+        totalAmount: zeroAmount,
+        taxType: 'VAT_ZERO',
+        items: details0,
+      });
+    }
+
+    if (details.length) {
+      mainData.receipts?.push({
+        ...commonOderInfo,
+        totalAmount: ableAmount,
+        totalVAT: ableVATAmount,
+        totalCityTax: ableCityTaxAmount,
+        taxType: 'VAT_ABLE',
+        items: details,
+      });
+    }
+
+    // payments
+    let cashAmount = mainData.totalAmount ?? 0;
+    for (const payment of doc.nonCashAmounts) {
+      mainData.payments?.push({
+        code: 'PAYMENT_CARD',
+        exchangeCode: '',
+        status: 'PAID',
+        paidAmount: payment.amount,
+      });
+
+      cashAmount -= payment.amount;
+    }
+
+    if (cashAmount) {
+      mainData.payments?.push({
+        code: 'CASH',
+        exchangeCode: '',
+        status: 'PAID',
+        paidAmount: cashAmount,
+      });
+    }
   }
 
   if (detailsInner.length) {
-    mainData.receipts?.push({
-      ...commonOderInfo,
-      // inner: true, // TODO: check
+    innerData = {
+      number: doc.number,
+      contentType: doc.contentType,
+      contentId: doc.contentId,
+
       totalAmount: innerAmount,
-      taxType: 'NO_VAT',
-      items: detailsInner,
-    });
+      totalVAT: 0,
+      totalCityTax: 0,
+      districtCode: config.districtCode,
+      branchNo: config.branchNo,
+      merchantTin: config.merchantTin,
+      posNo: config.posNo,
+      type: doc.type,
+      reportMonth,
+      data: {},
+      customerTin,
+      consumerNo,
+
+      receipts: [{
+        ...commonOderInfo,
+        totalAmount: innerAmount,
+        taxType: 'NOT_SEND',
+        items: detailsFree,
+      }],
+      payments: [{
+        code: 'CASH',
+        exchangeCode: '',
+        status: 'PAID',
+        paidAmount: innerAmount,
+      }]
+    };
   }
 
-  if (details.length) {
-    mainData.receipts?.push({
-      ...commonOderInfo,
-      totalAmount: ableAmount,
-      totalVAT: ableVATAmount,
-      totalCityTax: ableCityTaxAmount,
-      taxType: 'VAT_ABLE',
-      items: details,
-    });
-  }
-
-  // payments
-  let cashAmount = mainData.totalAmount ?? 0;
-  for (const payment of doc.nonCashAmounts) {
-    mainData.payments?.push({
-      code: 'PAYMENT_CARD',
-      exchangeCode: '',
-      status: 'PAID',
-      paidAmount: payment.amount,
-    });
-
-    cashAmount -= payment.amount;
-  }
-
-  if (cashAmount) {
-    mainData.payments?.push({
-      code: 'CASH',
-      exchangeCode: '',
-      status: 'PAID',
-      paidAmount: cashAmount,
-    });
-  }
-
-  return { status: 'ok', data: mainData };
+  return { status: 'ok', data: mainData, innerData };
 }
 
 export const getCompanyInfo = async ({ checkTaxpayerUrl, no }: { checkTaxpayerUrl: string, no: string }) => {

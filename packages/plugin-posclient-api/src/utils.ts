@@ -370,24 +370,21 @@ export const prepareSettlePayment = async (
         registerNumber
       );
 
-      let response;
-
       try {
-        response = await models.PutResponses.putData(
+        const { putData, innerData } = await models.PutResponses.putData(
           { ...ebarimtData },
           ebarimtConfig,
         );
+        putData && ebarimtResponses.push(putData);
+        innerData && ebarimtResponses.push(innerData);
       } catch (e) {
-        response = {
+        ebarimtResponses.push({
           _id: `Err${Math.random()}`,
           billId: 'Error',
           success: 'false',
           message: e.message
-        }
+        })
       }
-
-      ebarimtResponses.push(response);
-
     }
 
     if (

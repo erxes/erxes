@@ -80,54 +80,67 @@ export const afterMutationHandlers = async (
 
       const ebarimtData: IDoc = await getPostData(subdomain, config, deal);
 
-      let ebarimtResponse;
+      const ebarimtResponses: any[] = [];
 
       if (config.skipPutData) {
-        const eData = await getEbarimtData({ config, doc: ebarimtData });
-        const { status, msg, data } = eData;
+        const { status, msg, data, innerData } = await getEbarimtData({ config, doc: ebarimtData });
 
-        if (status === 'err' || (status !== 'ok' || !data)) {
-          ebarimtResponse = {
+        if (status !== 'ok' || !data || !innerData) {
+          ebarimtResponses.push({
             _id: nanoid(),
             id: 'Error',
             status: 'ERROR',
             message: msg
-          }
+          })
         } else {
-          ebarimtResponse = {
-            _id: nanoid(),
-            ...data,
-            id: 'Түр баримт',
-            status: 'SUCCESS',
-            date: moment(new Date).format('"yyyy-MM-dd HH:mm:ss'),
-            registerNo: config.companyRD || '',
-          };
+          if (data) {
+            ebarimtResponses.push({
+              _id: nanoid(),
+              ...data,
+              id: 'Түр баримт',
+              status: 'SUCCESS',
+              date: moment(new Date).format('"yyyy-MM-dd HH:mm:ss'),
+              registerNo: config.companyRD || '',
+            });
+          }
+          if (innerData) {
+            ebarimtResponses.push({
+              _id: nanoid(),
+              ...innerData,
+              id: 'Түр баримт',
+              status: 'SUCCESS',
+              date: moment(new Date).format('"yyyy-MM-dd HH:mm:ss'),
+              registerNo: config.companyRD || '',
+            });
+          }
         }
-
       } else {
         try {
-          ebarimtResponse = await models.PutResponses.putData(
+          const { putData, innerData } = await models.PutResponses.putData(
             ebarimtData,
             config,
           );
+
+          putData && ebarimtResponses.push(putData);
+          innerData && ebarimtResponses.push(innerData);
         } catch (e) {
-          ebarimtResponse = {
+          ebarimtResponses.push({
             _id: nanoid(),
             id: 'Error',
             status: 'ERROR',
             message: e.message
-          }
+          })
         }
       }
 
       try {
-        if (ebarimtResponse) {
+        if (ebarimtResponses.length) {
           await graphqlPubsub.publish(`automationResponded:${user._id}`, {
             automationResponded: {
               userId: user._id,
-              responseId: ebarimtResponse.id,
+              responseId: ebarimtResponses.map((er) => er._id).join('-'),
               sessionCode: user.sessionCode || '',
-              content: [{ ...config, ...ebarimtResponse }],
+              content: ebarimtResponses.map((er) => ({ ...config, ...er })),
             },
           });
         }
