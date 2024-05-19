@@ -116,8 +116,8 @@ export default {
           customerName: '',
 
           receipts: [{
-            _id: Math.random(),
-            id: Math.random(),
+            _id: '',
+            id: '',
             totalAmount: order.totalAmount,
             totalVAT: 0,
             totalCityTax: 0,
