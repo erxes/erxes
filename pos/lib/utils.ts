@@ -28,6 +28,19 @@ export const getEnv = (): any => {
   const envs: any = {}
 
   if (typeof window !== "undefined") {
+    const appVersion = localStorage.getItem(`pos_env_NEXT_PUBLIC_APP_VERSION`) || 'OS';
+
+    if (appVersion === 'SAAS') {
+      const subdomain = window.location.hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
+
+      for (const envMap of (window as any).envMaps) {
+        const value = localStorage.getItem(`pos_env_${envMap.name}`) || '';
+        envs[envMap.name] = value.replace('<subdomain>', subdomain);
+      }
+
+      return envs;
+    }
+
     for (const envMap of (window as any).envMaps || []) {
       envs[envMap.name] = localStorage.getItem(`pos_env_${envMap.name}`)
     }
@@ -122,9 +135,9 @@ export const formatNum = (num: number | string, splitter?: string): string => {
   if (checked) {
     const options = splitter
       ? {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }
       : undefined
 
     return checked.toLocaleString(undefined, options)

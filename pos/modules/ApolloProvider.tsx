@@ -9,7 +9,11 @@ const Provider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    ;(window as any).envMaps = [
+    (window as any).envMaps = [
+      {
+        name: "NEXT_PUBLIC_APP_VERSION",
+        processValue: "%NEXT_PUBLIC_APP_VERSION%",
+      },
       {
         name: "NEXT_PUBLIC_MAIN_API_DOMAIN",
         processValue: "%NEXT_PUBLIC_MAIN_API_DOMAIN%",
