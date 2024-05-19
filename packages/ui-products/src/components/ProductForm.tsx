@@ -525,7 +525,7 @@ const Form = (props: Props) => {
       (object.attachment && extractAttachment([object.attachment])) || [];
 
     const attachmentsMore =
-      (object.attachmentMore && extractAttachment(object.attachmentMore)) || [];
+      (object.attachmentMore && object.attachmentMore.length) && extractAttachment(object.attachmentMore) || [];
 
     const {
       vendorId,
