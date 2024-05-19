@@ -40,9 +40,7 @@ export const getPostData = async (subdomain, config, deal, dateType = '') => {
     for (const company of companies) {
       if (re.test(company.code)) {
         const checkCompanyRes = await fetch(
-          config.checkCompanyUrl +
-          '?' +
-          new URLSearchParams({ regno: company.code }),
+          `${config.checkCompanyUrl}?${new URLSearchParams({ regno: company.code })}`,
         ).then((res) => res.json());
 
         if (checkCompanyRes.found) {
