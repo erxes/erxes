@@ -17,7 +17,9 @@ const Ebarimt = ({
   const [type] = useAtom(printTypeAtom)
 
   const renderLotteryCode = () => {
-    if (!amount) return null
+    if (!amount) {
+      return null
+    }
     if (billType === "3")
       return (
         <div>

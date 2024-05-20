@@ -1,4 +1,4 @@
-  import { ebarimtConfigAtom } from "@/store/config.store"
+import { configAtom } from "@/store/config.store"
 import {
   customerAtom,
   orderNumberAtom,
@@ -14,7 +14,8 @@ const EbarimtHeader = () => {
   const user = useAtomValue(orderUserAtom)
   const number = useAtomValue(orderNumberAtom)
   const paidDate = useAtomValue(paidDateAtom)
-  const ebarimtConfig = useAtomValue(ebarimtConfigAtom)
+  const { name, uiOptions } = useAtomValue(configAtom) || {}
+  const { receiptIcon } = uiOptions || {}
   const customer = useAtomValue(customerAtom)
 
   const renderPerson = (isCus?: boolean) => {
@@ -40,16 +41,16 @@ const EbarimtHeader = () => {
   return (
     <>
       <header className="flex items-center justify-center">
-        {ebarimtConfig?.uiOptions?.receiptIcon && (
+        {receiptIcon && (
           <Image
-            src={ebarimtConfig?.uiOptions?.receiptIcon}
+            src={receiptIcon}
             alt=""
             height={32}
             width={100}
             className="h-8 w-auto object-contain"
           />
         )}
-        <p className="pl-2 font-bold leading-5">{ebarimtConfig?.name}</p>
+        <p className="pl-2 font-bold leading-5">{name}</p>
       </header>
       <div className="flex items-center justify-between">
         <div className="flex items-center">
