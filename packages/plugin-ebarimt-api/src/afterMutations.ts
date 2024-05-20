@@ -105,7 +105,6 @@ export const afterMutationHandlers = async (
           }
           if (innerData) {
             ebarimtResponses.push({
-              _id: nanoid(),
               ...innerData,
               id: 'Түр баримт',
               status: 'SUCCESS',

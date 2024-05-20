@@ -305,6 +305,7 @@ export const prepareEbarimtData = async (
         return;
       }
       return {
+        recId: item._id,
         product,
         quantity: item.count,
         unitPrice: item.unitPrice ?? 0,
@@ -569,3 +570,60 @@ export const reverseItemStatus = async (
     return e;
   }
 };
+
+export const fakePutData = async (models: IModels, items: IOrderItemDocument[], order: IOrderDocument, config: IConfig) => {
+  const products = await models.Products.find({
+    _id: { $in: items.map(item => item.productId) }
+  });
+  const productById = {};
+  for (const product of products) {
+    productById[product._id] = product;
+  }
+
+  return {
+    id: 'tempBill',
+    number: order.number,
+    contentType: 'pos',
+    contentId: order._id,
+    posToken: config.token,
+    totalAmount: order.totalAmount,
+    totalVAT: 0,
+    totalCityTax: 0,
+    type: '9',
+    status: 'SUCCESS',
+    qrData: '',
+    lottery: '',
+    date: moment(order.paidDate).format('yyyy-MM-dd hh:mm:ss'),
+
+    cashAmount: order.cashAmount || 0,
+    nonCashAmount: order.totalAmount - (order.cashAmount || 0),
+    registerNo: '',
+    customerNo: '',
+    customerName: '',
+
+    receipts: [{
+      _id: '',
+      id: '',
+      totalAmount: order.totalAmount,
+      totalVAT: 0,
+      totalCityTax: 0,
+      taxType: 'NOT_SEND',
+      items: items.map(item => ({
+        _id: item._id,
+        id: item.id,
+        name: productById[item.productId].shortName || productById[item.productId].name,
+        measureUnit: productById[item.productId].uom || 'ш',
+        qty: item.count,
+        unitPrice: item.unitPrice,
+        totalAmount: (item.unitPrice || 0) * item.count,
+        totalVAT: 0,
+        totalCityTax: 0,
+        totalBonus: item.discountAmount,
+      })),
+    }],
+    payments: [
+      {}
+    ],
+
+  };
+}

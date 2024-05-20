@@ -36,6 +36,7 @@ export interface IItem {
   totalCityTax?: number;
   totalAmount: number;
   data?: any;
+  recId: string;
 }
 
 export interface IReceipt {
@@ -94,7 +95,7 @@ export interface IEbarimt {
   state?: string;
 }
 
-export interface IEbarimtDocument extends Document, IEbarimt {
+export interface IEbarimtFull extends IEbarimt {
   _id: string;
   createdAt: Date;
   modifiedAt: Date;
@@ -103,9 +104,14 @@ export interface IEbarimtDocument extends Document, IEbarimt {
   posId: number;
   status: string;
   message: string;
-  qrData: string;
-  lottery: string;
+  qrData?: string;
+  lottery?: string;
   date: string;
+}
+
+export interface IEbarimtDocument extends Document, IEbarimtFull {
+  _id: string;
+  id: string;
 }
 
 export const itemsSchema = schemaHooksWrapper(
@@ -125,6 +131,7 @@ export const itemsSchema = schemaHooksWrapper(
     totalCityTax: field({ type: Number, label: 'totalCityTax' }),
     totalAmount: field({ type: Number, label: 'totalAmount' }),
     data: field({ type: Object, label: 'data' }),
+    recId: field({ type: String, label: 'recId' }),
   }),
 
   'erxes_ebarimt'
@@ -193,11 +200,11 @@ export const ebarimtSchema = schemaHooksWrapper(
     posId: field({ type: Number, label: '' }),
     status: field({ type: String, label: '' }),
     message: field({ type: String, label: '' }),
-    qrData: field({ type: String, label: '' }),
-    lottery: field({ type: String, label: '' }),
+    qrData: field({ type: String, optional: true, label: '' }),
+    lottery: field({ type: String, optional: true, label: '' }),
     date: field({ type: String, label: '' }),
 
-    easy: field({ type: Boolean, label: '' }),
+    easy: field({ type: Boolean, optional: true, label: '' }),
 
     // billType == 1 and lottery is null or '' then save
     getInformation: field({ type: String, label: '' }),

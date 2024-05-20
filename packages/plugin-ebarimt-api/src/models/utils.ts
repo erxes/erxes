@@ -1,5 +1,5 @@
 import * as moment from 'moment';
-import { IEbarimt, IEbarimtConfig } from './definitions/ebarimt';
+import { IEbarimt, IEbarimtConfig, IEbarimtFull } from './definitions/ebarimt';
 import { getCompanyInfo } from '../utils';
 
 export interface IDoc {
@@ -16,6 +16,7 @@ export interface IDoc {
   consumerNo?: string;
 
   details?: {
+    recId: string;
     product: {
       _id: string;
       name: string;
@@ -220,7 +221,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     ableCityTaxAmount,
   } = await getArrangeProducts(config, doc)
 
-  let innerData: IEbarimt | undefined = undefined;
+  let innerData: IEbarimtFull | undefined = undefined;
   let mainData: IEbarimt | undefined = undefined;
 
   const commonOderInfo = {
@@ -307,6 +308,15 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
 
   if (detailsInner.length) {
     innerData = {
+      _id: 'tempBill',
+      id: 'tempBIll',
+      date: moment(new Date).format('"yyyy-MM-DD HH:mm:ss'),
+      createdAt: new Date,
+      modifiedAt: new Date,
+      status: 'SUCCESS',
+      message: '',
+      posId: 0,
+
       number: doc.number,
       contentType: doc.contentType,
       contentId: doc.contentId,
@@ -328,7 +338,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
         ...commonOderInfo,
         totalAmount: innerAmount,
         taxType: 'NOT_SEND',
-        items: detailsFree,
+        items: detailsInner,
       }],
       payments: [{
         code: 'CASH',

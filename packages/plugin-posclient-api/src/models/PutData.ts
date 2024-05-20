@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 import * as moment from 'moment';
-import { IEbarimt } from './definitions/putResponses';
+import { IEbarimt, IEbarimtFull } from './definitions/putResponses';
 import { IEbarimtConfig } from './definitions/configs';
 
 export interface IDoc {
@@ -17,6 +17,7 @@ export interface IDoc {
   consumerNo?: string;
 
   details?: {
+    recId: string;
     product: {
       _id: string;
       name: string;
@@ -119,6 +120,7 @@ const genStock = (detail, product, config) => {
   const barCodeType = isValidBarcode(barCode) ? 'GS1' : 'UNDEFINED'
 
   return {
+    recId: detail.recId,
     name: product.shortName ? product.shortName : `${product.code} - ${product.name}`,
     barCode,
     barCodeType,
@@ -220,7 +222,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     ableCityTaxAmount,
   } = await getArrangeProducts(config, doc);
 
-  let innerData: IEbarimt | undefined = undefined;
+  let innerData: IEbarimtFull | undefined = undefined;
   let mainData: IEbarimt | undefined = undefined;
 
   const commonOderInfo = {
@@ -307,6 +309,15 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
 
   if (detailsInner.length) {
     innerData = {
+      _id: 'tempBill',
+      id: 'tempBIll',
+      date: moment(new Date).format('"yyyy-MM-DD HH:mm:ss'),
+      createdAt: new Date,
+      modifiedAt: new Date,
+      status: 'SUCCESS',
+      message: '',
+      posId: 0,
+
       number: doc.number,
       contentType: doc.contentType,
       contentId: doc.contentId,
@@ -328,7 +339,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
         ...commonOderInfo,
         totalAmount: innerAmount,
         taxType: 'NOT_SEND',
-        items: detailsFree,
+        items: detailsInner,
       }],
       payments: [{
         code: 'CASH',

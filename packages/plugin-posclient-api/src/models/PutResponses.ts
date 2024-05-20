@@ -5,6 +5,7 @@ import { IEbarimtConfig } from './definitions/configs';
 import {
   IEbarimt,
   IEbarimtDocument,
+  IEbarimtFull,
   ebarimtSchema
 } from './definitions/putResponses';
 
@@ -12,7 +13,7 @@ export interface IPutResponseModel extends Model<IEbarimtDocument> {
   putData(
     doc: IEbarimt,
     config: IEbarimtConfig
-  ): Promise<{ putData?: IEbarimtDocument, innerData?: IEbarimt }>;
+  ): Promise<{ putData?: IEbarimtDocument, innerData?: IEbarimtFull }>;
   returnBill(
     doc: { contentType: string; contentId: string; number: string },
     config: IEbarimtConfig
@@ -64,11 +65,11 @@ export const loadPutResponseClass = models => {
 
       const { status, msg, data, innerData } = await getEbarimtData({ config, doc });
 
-      if (status !== 'ok' || !data) {
+      if (status !== 'ok' || !(data || innerData)) {
         throw new Error(msg)
       }
 
-      const result: { putData?: IEbarimtDocument, innerData?: IEbarimt } = {};
+      const result: { putData?: IEbarimtDocument, innerData?: IEbarimtFull } = {};
 
       if (data) {
         const prePutResponse: IEbarimtDocument | undefined =
@@ -129,6 +130,11 @@ export const loadPutResponseClass = models => {
           );
         }
 
+        await models.OrderItems.updateMany(
+          { orderId: contentId, isInner: true, _id: { $in: (((data.receipts || [])[0] || {}).items || []).map(i => i.recId) } },
+          { $set: { isInner: false } },
+        );
+
         await models.PutResponses.updatePutResponse(resObj._id, {
           ...response,
           // customerName: params.customerName,
@@ -138,6 +144,10 @@ export const loadPutResponseClass = models => {
       }
 
       if (innerData) {
+        await models.OrderItems.updateMany(
+          { orderId: contentId, _id: { $in: (((innerData.receipts || [])[0] || {}).items || []).map(i => i.recId) } },
+          { $set: { isInner: true } },
+        );
         result.innerData = innerData;
       }
 

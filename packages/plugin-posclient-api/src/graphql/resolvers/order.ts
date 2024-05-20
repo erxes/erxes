@@ -1,4 +1,3 @@
-import * as moment from 'moment';
 import { IContext } from '../../connectionResolver';
 import { IOrderDocument } from '../../models/definitions/orders';
 import { IOrderItemDocument } from '../../models/definitions/orderItems';
@@ -8,8 +7,7 @@ import {
   sendContactsMessage,
   sendCoreMessage
 } from '../../messageBroker';
-import { prepareEbarimtData } from '../utils/orderUtils';
-import { IEbarimtConfig } from '../../models/definitions/configs';
+import { fakePutData } from '../utils/orderUtils';
 
 export default {
   async items(order: IOrderDocument, { }, { models }: IContext) {
@@ -85,62 +83,7 @@ export default {
     if (order.billType === '9') {
       const items: IOrderItemDocument[] = await models.OrderItems.find({ orderId: order._id }).lean();
 
-      const products = await models.Products.find({
-        _id: { $in: items.map(item => item.productId) }
-      });
-      const productById = {};
-      for (const product of products) {
-        productById[product._id] = product;
-      }
-
-      return [
-        {
-          id: '',
-          number: order.number,
-          contentType: 'pos',
-          contentId: order._id,
-          posToken: config.token,
-          totalAmount: order.totalAmount,
-          totalVAT: 0,
-          totalCityTax: 0,
-          type: '9',
-          status: 'SUCCESS',
-          qrData: '',
-          lottery: '',
-          date: moment(order.paidDate).format('yyyy-MM-dd hh:mm:ss'),
-
-          cashAmount: order.cashAmount || 0,
-          nonCashAmount: order.totalAmount - (order.cashAmount || 0),
-          registerNo: '',
-          customerNo: '',
-          customerName: '',
-
-          receipts: [{
-            _id: '',
-            id: '',
-            totalAmount: order.totalAmount,
-            totalVAT: 0,
-            totalCityTax: 0,
-            taxType: 'NOT_SEND',
-            items: items.map(item => ({
-              _id: item._id,
-              id: item.id,
-              name: productById[item.productId].shortName || productById[item.productId].name,
-              measureUnit: productById[item.productId].uom || 'ш',
-              qty: item.count,
-              unitPrice: item.unitPrice,
-              totalAmount: (item.unitPrice || 0) * item.count,
-              totalVAT: 0,
-              totalCityTax: 0,
-              totalBonus: item.discountAmount,
-            })),
-          }],
-          payments: [
-            {}
-          ],
-
-        }
-      ];
+      return [await fakePutData(models, items, order, config)]
     }
 
     const putResponses: IEbarimtDocument[] = await models.PutResponses.find(
@@ -153,10 +96,6 @@ export default {
       .sort({ createdAt: -1 })
       .lean();
 
-    if (!putResponses.length) {
-      return [];
-    }
-
     const excludeIds: string[] = [];
     for (const falsePR of putResponses.filter(pr => pr.status !== 'SUCCESS')) {
       for (const truePR of putResponses.filter(pr => pr.status === 'SUCCESS')) {
@@ -167,7 +106,7 @@ export default {
           falsePR.sendInfo.totalAmount === truePR.sendInfo.totalAmount &&
           falsePR.sendInfo.totalVAT === truePR.sendInfo.totalVAT &&
           falsePR.sendInfo.type === truePR.sendInfo.type &&
-          falsePR.sendInfo.receipts?.length === truePR.sendInfo.receipts?.length 
+          falsePR.sendInfo.receipts?.length === truePR.sendInfo.receipts?.length
         ) {
           excludeIds.push(falsePR._id);
         }
@@ -180,27 +119,7 @@ export default {
     }).lean();
 
     if (innerItems && innerItems.length) {
-      const products = await models.Products.find({
-        _id: { $in: innerItems.map(i => i.productId) }
-      });
-      const productsById = {};
-      for (const product of products) {
-        productsById[product._id] = product;
-      }
-      const putData = await prepareEbarimtData(
-        models,
-        order,
-        {
-          ...config.ebarimtConfig as IEbarimtConfig
-        });
-
-      const response = {
-        _id: Math.random(),
-        billId: 'Түр баримт',
-        ...(putData),
-        registerNo: config.ebarimtConfig?.companyRD || ''
-      };
-
+      const response = await fakePutData(models, innerItems, order, config)
       putResponses.push(response as any);
     }
 

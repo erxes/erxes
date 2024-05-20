@@ -3,7 +3,8 @@ import {
   IEbarimtConfig,
   IEbarimt,
   IEbarimtDocument,
-  ebarimtSchema
+  ebarimtSchema,
+  IEbarimtFull
 } from './definitions/ebarimt';
 import { IDoc, getEbarimtData } from './utils';
 import { Model } from 'mongoose';
@@ -12,7 +13,7 @@ export interface IPutResponseModel extends Model<IEbarimtDocument> {
   putData(
     doc: IEbarimt,
     config: IEbarimtConfig
-  ): Promise<{ putData?: IEbarimtDocument, innerData?: IEbarimt }>;
+  ): Promise<{ putData?: IEbarimtDocument, innerData?: IEbarimtFull }>;
   returnBill(
     doc: { contentType: string; contentId: string; number: string },
     config: IEbarimtConfig
@@ -61,7 +62,7 @@ export const loadPutResponseClass = models => {
         throw new Error(msg)
       }
 
-      const result: { putData?: IEbarimtDocument, innerData?: IEbarimt } = {};
+      const result: { putData?: IEbarimtDocument, innerData?: IEbarimtFull } = {};
       if (data) {
         const prePutResponse: IEbarimtDocument | undefined =
           await models.PutResponses.putHistory({
