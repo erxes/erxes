@@ -17,7 +17,10 @@ const Ebarimt = ({
   const [printType] = useAtom(printTypeAtom)
 
   const renderLotteryCode = () => {
-    if (!totalAmount) return null
+    if (!totalAmount) {
+      return null
+    }
+
     if (type === "B2B_RECEIPT")
       return (
         <div>
