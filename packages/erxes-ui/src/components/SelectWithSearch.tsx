@@ -20,7 +20,7 @@ export const SelectValue = styled.div`
   justify-content: center;
   align-items: center;
   margin-left: -2px;
-  padding-left: 25px;
+  padding-left: 18px;
 
   img {
     position: absolute;

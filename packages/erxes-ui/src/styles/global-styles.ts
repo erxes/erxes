@@ -715,12 +715,12 @@ a:hover {
   margin-right: 5px !important;
   position: relative;
   padding-right: 0px !important;
-  padding-left: 0px !important;
+  padding-left: 10px !important;
 }
 
 .css-9jq23d {
   color: ${colors.colorWhite} !important;
-  padding: 2px 10px 2px 2px !important;
+  padding: 2px 10px 2px 0px !important;
 }
 
 .css-1nmdiq5-menu {
@@ -868,6 +868,7 @@ a:hover {
   box-shadow: none !important;
   cursor: pointer !important;
   border-color: rgb(221, 221, 221) !important;
+  background: transparent !important;
 }
 
 .css-13cymwt-control > div, .css-t3ipsp-control > div {
