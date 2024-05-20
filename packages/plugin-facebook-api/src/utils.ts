@@ -350,9 +350,9 @@ export const sendReply = async (
   const integration = await models.Integrations.getIntegration({
     erxesApiId: integrationId
   });
-
+  console.log(integration, 'integration');
   const { facebookPageTokensMap = {} } = integration;
-
+  console.log(facebookPageTokensMap, 'facebookPageTokensMap');
   let pageAccessToken;
 
   try {
@@ -364,9 +364,10 @@ export const sendReply = async (
     debugError(
       `Error ocurred while trying to get page access token with ${e.message}`
     );
+    console.log(e.message, 'e.message');
     return e;
   }
-
+  console.log(pageAccessToken, 'pageAccessToken');
   try {
     const response = await graphRequest.post(`${url}`, pageAccessToken, {
       ...data
