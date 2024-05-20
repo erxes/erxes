@@ -62,4 +62,7 @@ export interface IOrderInput {
   description: string;
   isPre?: boolean;
   buttonType?: string;
+  isSubscription?: boolean;
+  closeDate?: Date;
+  subscriptionId?: string;
 }

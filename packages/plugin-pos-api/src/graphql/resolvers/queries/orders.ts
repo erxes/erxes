@@ -832,6 +832,57 @@ const queries = {
   ) => {
     return posOrderRecordsCountQuery(models, params, commonQuerySelector, user);
   },
+
+  posOrderCustomers: async (_root, params, { subdomain, models }: IContext) => {
+    return paginate(
+      models.PosOrders.aggregate([
+        {
+          $match: {
+            customerId: { $nin: [null, '', undefined] },
+          },
+        },
+        {
+          $group: {
+            _id: '$customerId',
+            customerType: { $first: '$customerType' },
+            orders: { $push: '$$ROOT' },
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            customerType: 1,
+            orders: 1,
+            totalOrders: { $size: '$orders' },
+            totalAmount: { $sum: '$orders.totalAmount' },
+          },
+        },
+        { $sort: { _id: -1 } },
+      ]),
+      params
+    );
+  },
+  posOrderCustomersTotalCount: async (
+    _root,
+    params,
+    { subdomain, models }: IContext
+  ) => {
+    const [{ totalDocuments }] = await models.PosOrders.aggregate([
+      {
+        $group: {
+          _id: '$customerId',
+          customerType: { $first: '$customerType' },
+          orders: { $push: '$$ROOT' },
+        },
+      },
+
+      {
+        $count: 'totalDocuments',
+      },
+    ]);
+
+    return totalDocuments;
+  },
 };
 
 checkPermission(queries, 'posOrders', 'showOrders');
@@ -842,5 +893,6 @@ checkPermission(queries, 'posOrdersGroupSummary', 'showOrders');
 checkPermission(queries, 'posProducts', 'showOrders');
 checkPermission(queries, 'posOrderRecords', 'showOrders');
 checkPermission(queries, 'posOrderRecordsCount', 'showOrders');
+// checkPermission(queries, 'posOrderCustomers', 'showOrders');
 
 export default queries;

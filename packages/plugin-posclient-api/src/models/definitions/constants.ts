@@ -143,3 +143,10 @@ export const ORDER_ORIGINS = {
   KIOSK: 'kiosk',
   ALL: ['', 'kiosk'],
 };
+
+export const SUBSCRIPTION_INFO_STATUS = {
+  ACTIVE: 'active',
+  CANCELLED: 'cancelled',
+  DONE: 'done',
+  ALL: ['active', 'done', 'cancellled'],
+};

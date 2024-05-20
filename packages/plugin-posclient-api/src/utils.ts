@@ -4,6 +4,7 @@ import { IModels } from './connectionResolver';
 import {
   fetchSegment,
   sendPosMessage,
+  sendProductsMessage,
   sendSegmentsMessage,
   sendTagsMessage,
 } from './messageBroker';
@@ -24,6 +25,7 @@ import {
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { IOrderDocument } from './models/definitions/orders';
 import { IConfigDocument } from './models/definitions/configs';
+import moment from 'moment';
 
 type TSortBuilder = { primaryName: number } | { [index: string]: number };
 
@@ -47,7 +49,7 @@ export const getEsTypes = () => {
 export const countBySegment = async (
   subdomain: string,
   contentType: string,
-  qb,
+  qb
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
@@ -78,7 +80,7 @@ export const countBySegment = async (
 export const countByTag = async (
   subdomain: string,
   type: string,
-  qb,
+  qb
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
@@ -147,7 +149,7 @@ export class Builder {
       this.subdomain,
       segment._id,
       { returnSelector: true },
-      segmentData,
+      segmentData
     );
 
     this.positiveList = [...this.positiveList, selector];
@@ -230,7 +232,7 @@ export class Builder {
 export const updateMobileAmount = async (
   subdomain: string,
   models: IModels,
-  paymentParams: any[],
+  paymentParams: any[]
 ) => {
   const firstData = (paymentParams || [])[0] || {};
   const { contentTypeId } = firstData;
@@ -256,7 +258,7 @@ export const updateMobileAmount = async (
   let order = await models.Orders.findOne(orderSelector).lean();
   const sumMobileAmount = (order.mobileAmounts || []).reduce(
     (sum, i) => sum + i.amount,
-    0,
+    0
   );
 
   await models.Orders.updateOne(orderSelector, {
@@ -275,7 +277,9 @@ export const updateMobileAmount = async (
     ) {
       const conf = await models.Configs.findOne({ token: posToken });
       if (!conf) {
-        debugError(`Error occurred while sending data to erxes: config not found`);
+        debugError(
+          `Error occurred while sending data to erxes: config not found`
+        );
         return;
       }
 
@@ -331,12 +335,46 @@ export const updateMobileAmount = async (
   return sumMobileAmount;
 };
 
+const generateSubscriptionDoc = async (
+  models: IModels,
+  subdomain: string,
+  order: IOrderDocument
+) => {
+  let doc: any = {};
+
+  if (order?.subscriptionInfo && !order?.closeDate) {
+    const item = await models.OrderItems.findOne({ orderId: order._id });
+
+    const product = await models.Products.findOne({ _id: item?.productId });
+
+    const uom = await sendProductsMessage({
+      subdomain,
+      action: 'uoms.findOne',
+      data: {
+        code: product?.uom,
+      },
+      isRPC: true,
+      defaultValue: {},
+    });
+
+    const { subscriptionConfig = {} } = uom;
+
+    const { period } = subscriptionConfig;
+
+    doc.closeDate = new Date(
+      moment().add(1, period.replace('ly', '')).toISOString()
+    );
+  }
+
+  return doc;
+};
+
 export const prepareSettlePayment = async (
   subdomain: string,
   models: IModels,
   order: IOrderDocument,
   config: IConfigDocument,
-  { _id, billType, registerNumber }: ISettlePaymentParams,
+  { _id, billType, registerNumber }: ISettlePaymentParams
 ) => {
   checkOrderStatus(order);
 
@@ -369,11 +407,11 @@ export const prepareSettlePayment = async (
         items,
         billType,
         registerNumber,
-        config.paymentTypes,
+        config.paymentTypes
       );
 
       ebarimtConfig.districtName = getDistrictName(
-        (ebarimtConfig && ebarimtConfig.districtCode) || '',
+        (ebarimtConfig && ebarimtConfig.districtCode) || ''
       );
 
       for (const data of ebarimtDatas) {
@@ -398,7 +436,7 @@ export const prepareSettlePayment = async (
 
           await models.OrderItems.updateOne(
             { _id: { $in: data.itemIds } },
-            { $set: { isInner: true } },
+            { $set: { isInner: true } }
           );
 
           continue;
@@ -415,10 +453,10 @@ export const prepareSettlePayment = async (
             _id: `Err${Math.random()}`,
             billId: 'Error',
             success: 'false',
-            message: e.message
-          }
+            message: e.message,
+          };
         }
-        
+
         ebarimtResponses.push(response);
       }
     }
@@ -428,10 +466,17 @@ export const prepareSettlePayment = async (
       (ebarimtResponses.length &&
         !ebarimtResponses.filter((er) => er.success !== 'true').length)
     ) {
+      const subscriptionData = await generateSubscriptionDoc(
+        models,
+        subdomain,
+        order
+      );
+
       await models.Orders.updateOne(
         { _id },
         {
           $set: {
+            ...subscriptionData,
             billType,
             registerNumber,
             paidDate: now,
@@ -440,10 +485,10 @@ export const prepareSettlePayment = async (
               config,
               'settle',
               { ...order, paidDate: now },
-              { ...order },
+              { ...order }
             ),
           },
-        },
+        }
       );
     }
 

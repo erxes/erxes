@@ -11,6 +11,7 @@ import {
   ORDER_STATUSES,
   ORDER_TYPES,
   ORDER_SALE_STATUS,
+  SUBSCRIPTION_INFO_STATUS,
 } from './constants';
 
 export interface IPaidAmount {
@@ -66,6 +67,13 @@ export interface IOrder {
   taxInfo?: any;
   convertDealId?: string;
   returnInfo?: any;
+
+  //subscription
+  subscriptionInfo?: {
+    subscriptionId: string;
+    subscriptionStatus: string;
+  };
+  closeDate?: Date;
 }
 
 const commonAttributes = { positive: true, default: 0 };
@@ -96,6 +104,20 @@ const returnInfoSchema = new Schema({
   returnAt: field({ type: Date }),
   returnBy: field({ type: String }),
   description: field({ type: String }),
+});
+
+const subscriptionInfo = new Schema({
+  subscriptionId: field({
+    type: String,
+    label: 'Subscription Id',
+    optional: true,
+  }),
+  status: field({
+    type: String,
+    label: 'Subscription Status',
+    enum: SUBSCRIPTION_INFO_STATUS.ALL,
+    default: SUBSCRIPTION_INFO_STATUS.ACTIVE,
+  }),
 });
 
 export const orderSchema = schemaHooksWrapper(
@@ -266,8 +288,14 @@ export const orderSchema = schemaHooksWrapper(
       optional: true,
       label: 'Return information',
     }),
+    subscriptionInfo: field({
+      type: subscriptionInfo,
+      optional: true,
+      label: 'Subscription Info',
+    }),
+    closeDate: field({ type: Date, optional: true, label: 'Close Date' }),
   }),
-  'erxes_orders',
+  'erxes_orders'
 );
 
 orderSchema.index({ posToken: 1, number: 1 }, { unique: true });

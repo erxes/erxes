@@ -3,6 +3,7 @@ import { escapeRegExp, getPureDate, paginate } from '@erxes/api-utils/src/core';
 import fetch from 'node-fetch';
 import { sendPosMessage } from '../../../messageBroker';
 import { IConfig } from '../../../models/definitions/configs';
+import { SUBSCRIPTION_INFO_STATUS } from '../../../models/definitions/constants';
 
 interface ISearchParams {
   searchValue?: string;
@@ -128,7 +129,7 @@ const filterOrders = (params: ISearchParams, models, config) => {
     })
       .sort(sort)
       .lean(),
-    { page, perPage },
+    { page, perPage }
   );
 };
 
@@ -144,7 +145,7 @@ const orderQueries = {
   async ordersTotalCount(
     _root,
     params: ISearchParams,
-    { models, config }: IContext,
+    { models, config }: IContext
   ) {
     const filter = generateFilter(config, params);
     return await models.Orders.find({
@@ -162,7 +163,7 @@ const orderQueries = {
       sortField,
       sortDirection,
     }: ISearchParams,
-    { models }: IContext,
+    { models }: IContext
   ) {
     const filter: any = {};
 
@@ -184,14 +185,14 @@ const orderQueries = {
       })
         .sort(sort)
         .lean(),
-      { page, perPage },
+      { page, perPage }
     );
   },
 
   async orderDetail(
     _root,
     { _id, customerId }: { _id: string; customerId?: string },
-    { posUser, models, config }: IContext,
+    { posUser, models, config }: IContext
   ) {
     const tokenFilter = {
       $or: [{ posToken: config.token }, { subToken: config.token }],
@@ -216,7 +217,7 @@ const orderQueries = {
 
     if (url) {
       const response = await fetch(
-        url + '?' + new URLSearchParams({ regno: registerNumber }),
+        url + '?' + new URLSearchParams({ regno: registerNumber })
       ).then((res) => res.json());
       return response;
     }
@@ -242,6 +243,24 @@ const orderQueries = {
     }
 
     return info;
+  },
+
+  async checkSubscription(
+    _root,
+    { customerId, productId },
+    { models }: IContext
+  ) {
+    const subscription = await models.Orders.findOne({
+      customerId,
+      'items.productId': productId,
+      'subscriptionInfo.status': SUBSCRIPTION_INFO_STATUS.ACTIVE,
+    });
+
+    if (!subscription) {
+      throw new Error(`Cannot find subscription`);
+    }
+
+    return subscription;
   },
 };
 

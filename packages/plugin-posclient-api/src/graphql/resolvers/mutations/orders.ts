@@ -7,6 +7,7 @@ import {
   sendCoreMessage,
   sendInboxMessage,
   sendPosMessage,
+  sendProductsMessage,
 } from '../../../messageBroker';
 import { IConfig, IConfigDocument } from '../../../models/definitions/configs';
 import {
@@ -15,8 +16,12 @@ import {
   ORDER_STATUSES,
   ORDER_SALE_STATUS,
   ORDER_TYPES,
+  SUBSCRIPTION_INFO_STATUS,
 } from '../../../models/definitions/constants';
-import { IPaidAmount } from '../../../models/definitions/orders';
+import {
+  IOrderDocument,
+  IPaidAmount,
+} from '../../../models/definitions/orders';
 import { IPosUserDocument } from '../../../models/definitions/posUsers';
 import { IContext, IOrderInput } from '../../types';
 import {
@@ -35,6 +40,8 @@ import {
 } from '../../utils/orderUtils';
 import { checkSlotStatus } from '../../utils/slots';
 import { prepareSettlePayment } from '../../../utils';
+import { nanoid } from 'nanoid';
+import moment from 'moment';
 
 interface IPaymentBase {
   billType: string;
@@ -76,6 +83,20 @@ const getTaxInfo = (config: IConfig) => {
     hasCitytax:
       (config.ebarimtConfig && config.ebarimtConfig?.hasCitytax) || false,
   };
+};
+
+const getSubscriptionInfo = (doc: IOrderInput) => {
+  const { isSubscription, subscriptionId } = doc;
+
+  let subscriptionInfo = {};
+
+  if (isSubscription) {
+    subscriptionInfo = {
+      subscriptionId: subscriptionId ? subscriptionId : nanoid(),
+      status: SUBSCRIPTION_INFO_STATUS.ACTIVE,
+    };
+  }
+  return subscriptionInfo;
 };
 
 export const getStatus = (config, buttonType, doc, order?) => {
@@ -154,7 +175,7 @@ const orderAdd = async (models: IModels, lastDoc, config) => {
   }
 };
 
-const ordersAdd = async (
+export const ordersAdd = async (
   doc: IOrderInput,
   {
     posUser,
@@ -166,7 +187,7 @@ const ordersAdd = async (
     config: IConfigDocument;
     models: IModels;
     subdomain: string;
-  },
+  }
 ) => {
   const { totalAmount, type, customerId, customerType, branchId, isPre } = doc;
   if (!posUser && !doc.customerId && customerType !== 'visitor') {
@@ -198,7 +219,7 @@ const ordersAdd = async (
       doc,
       config,
       models,
-      posUser,
+      posUser
     );
 
     const status = getStatus(config, doc.buttonType, doc);
@@ -215,6 +236,7 @@ const ordersAdd = async (
       taxInfo: getTaxInfo(config),
       status,
       saleStatus,
+      ...getSubscriptionInfo(doc),
     };
 
     const order = await orderAdd(models, lastDoc, config);
@@ -259,7 +281,7 @@ const ordersAdd = async (
           slotsStatusUpdated: await checkSlotStatus(
             models,
             config,
-            currentSlots,
+            currentSlots
           ),
         });
       }
@@ -268,7 +290,7 @@ const ordersAdd = async (
     return order;
   } catch (e) {
     debugError(
-      `Error occurred when creating order: ${JSON.stringify(orderDoc)}`,
+      `Error occurred when creating order: ${JSON.stringify(orderDoc)}`
     );
 
     return e;
@@ -287,7 +309,7 @@ const ordersEdit = async (
     config: IConfigDocument;
     models: IModels;
     subdomain: string;
-  },
+  }
 ) => {
   const order = await models.Orders.getOrder(doc._id);
 
@@ -309,7 +331,7 @@ const ordersEdit = async (
     doc,
     config,
     models,
-    posUser,
+    posUser
   );
 
   preparedDoc.items = await reverseItemStatus(models, preparedDoc.items);
@@ -375,7 +397,7 @@ const orderMutations = {
   async ordersAdd(
     _root,
     doc: IOrderInput,
-    { posUser, config, models, subdomain }: IContext,
+    { posUser, config, models, subdomain }: IContext
   ) {
     return ordersAdd(doc, { posUser, config, models, subdomain });
   },
@@ -383,7 +405,7 @@ const orderMutations = {
   async ordersEdit(
     _root,
     doc: IOrderEditParams,
-    { posUser, config, models, subdomain }: IContext,
+    { posUser, config, models, subdomain }: IContext
   ) {
     return ordersEdit(doc, { posUser, config, models, subdomain });
   },
@@ -391,7 +413,7 @@ const orderMutations = {
   async orderChangeStatus(
     _root,
     { _id, status }: { _id: string; status: string },
-    { models, subdomain, config }: IContext,
+    { models, subdomain, config }: IContext
   ) {
     const oldOrder = await models.Orders.getOrder(_id);
 
@@ -404,14 +426,14 @@ const orderMutations = {
     if (status === ORDER_STATUSES.REDOING) {
       await models.OrderItems.updateMany(
         { orderId: order._id },
-        { $set: { status: ORDER_ITEM_STATUSES.CONFIRM } },
+        { $set: { status: ORDER_ITEM_STATUSES.CONFIRM } }
       );
     }
 
     if (status === ORDER_STATUSES.DONE) {
       await models.OrderItems.updateMany(
         { orderId: order._id },
-        { $set: { status: ORDER_ITEM_STATUSES.DONE } },
+        { $set: { status: ORDER_ITEM_STATUSES.DONE } }
       );
     }
 
@@ -445,7 +467,7 @@ const orderMutations = {
   async orderChangeSaleStatus(
     _root,
     { _id, saleStatus }: { _id: string; saleStatus: string },
-    { models, subdomain, config }: IContext,
+    { models, subdomain, config }: IContext
   ) {
     const oldOrder = await models.Orders.getOrder(_id);
 
@@ -461,7 +483,7 @@ const orderMutations = {
   async ordersChange(
     _root,
     params: IOrderChangeParams,
-    { models, config, subdomain }: IContext,
+    { models, config, subdomain }: IContext
   ) {
     // after paid then edit order some field
     // if online, update branch
@@ -528,7 +550,7 @@ const orderMutations = {
   async orderItemChangeStatus(
     _root,
     { _id, status }: { _id: string; status: string },
-    { models, config }: IContext,
+    { models, config }: IContext
   ) {
     const oldOrderItem = await models.OrderItems.getOrderItem(_id);
 
@@ -550,7 +572,7 @@ const orderMutations = {
   async ordersMakePayment(
     _root,
     { _id, doc }: IPaymentParams,
-    { config, models, subdomain }: IContext,
+    { config, models, subdomain }: IContext
   ) {
     let order = await models.Orders.getOrder(_id);
 
@@ -574,11 +596,11 @@ const orderMutations = {
         ebarimtConfig,
         items,
         doc.billType,
-        doc.registerNumber || order.registerNumber,
+        doc.registerNumber || order.registerNumber
       );
 
       ebarimtConfig.districtName = getDistrictName(
-        (config.ebarimtConfig && config.ebarimtConfig.districtCode) || '',
+        (config.ebarimtConfig && config.ebarimtConfig.districtCode) || ''
       );
 
       for (const data of ebarimtDatas) {
@@ -607,10 +629,10 @@ const orderMutations = {
                 config,
                 'settle',
                 { ...order, paidDate: now },
-                { ...order },
+                { ...order }
               ),
             },
-          },
+          }
         );
       }
 
@@ -660,7 +682,7 @@ const orderMutations = {
       cashAmount?: number;
       paidAmounts?: IPaidAmount[];
     },
-    { models, config, subdomain }: IContext,
+    { models, config, subdomain }: IContext
   ) {
     const order = await models.Orders.getOrder(_id);
 
@@ -724,7 +746,7 @@ const orderMutations = {
     if (
       order.mobileAmount ||
       (order.paidAmounts || []).filter(
-        (pa) => pa.info && Object.keys(pa.info).length,
+        (pa) => pa.info && Object.keys(pa.info).length
       ).length > 0
     ) {
       throw new Error('Card payment exists for this order');
@@ -754,13 +776,13 @@ const orderMutations = {
   async ordersSettlePayment(
     _root,
     { _id, billType, registerNumber }: ISettlePaymentParams,
-    { config, models, subdomain }: IContext,
+    { config, models, subdomain }: IContext
   ) {
     let order = await models.Orders.getOrder(_id);
 
     if (!ORDER_TYPES.SALES.includes(order.type || '')) {
       throw new Error(
-        'Зөвхөн борлуулах төрөлтэй захиалгын төлбөрийг төлөх боломжтой',
+        'Зөвхөн борлуулах төрөлтэй захиалгын төлбөрийг төлөх боломжтой'
       );
     }
 
@@ -774,7 +796,7 @@ const orderMutations = {
   async ordersConvertToDeal(
     _root,
     params,
-    { models, subdomain, posUser, config }: IContext,
+    { models, subdomain, posUser, config }: IContext
   ) {
     const order = await models.Orders.getOrder(params._id);
     if (!order.branchId) {
@@ -884,7 +906,7 @@ const orderMutations = {
 
     await models.Orders.updateOne(
       { _id: order._id },
-      { $set: { convertDealId: deal._id } },
+      { $set: { convertDealId: deal._id } }
     );
     return models.Orders.getOrder(order._id);
   },
@@ -892,7 +914,7 @@ const orderMutations = {
   async afterFormSubmit(
     _root,
     { _id, conversationId }: { _id: string; conversationId: string },
-    { models, subdomain, config }: IContext,
+    { models, subdomain, config }: IContext
   ) {
     const order = await models.Orders.getOrder(_id);
 
@@ -927,11 +949,11 @@ const orderMutations = {
   async ordersFinish(
     _root,
     doc: IOrderInput & { _id?: string },
-    { config, models, subdomain, posUser }: IContext,
+    { config, models, subdomain, posUser }: IContext
   ) {
     if (!ORDER_TYPES.OUT.includes(doc.type || '')) {
       throw new Error(
-        'Зөвхөн зарлагадах төрөлтэй захиалгыг л шууд хаах боломжтой',
+        'Зөвхөн зарлагадах төрөлтэй захиалгыг л шууд хаах боломжтой'
       );
     }
 
@@ -981,10 +1003,10 @@ const orderMutations = {
               config,
               'finish',
               { ...order, paidDate: now },
-              { ...order },
+              { ...order }
             ),
           },
-        },
+        }
       );
 
       order = await models.Orders.getOrder(_id);
@@ -1032,7 +1054,7 @@ const orderMutations = {
       cashAmount?: number;
       paidAmounts?: IPaidAmount[];
     },
-    { subdomain, models, posUser, config }: IContext,
+    { subdomain, models, posUser, config }: IContext
   ) {
     if (!config.adminIds.includes(posUser._id)) {
       throw new Error('Order return admin required');
@@ -1060,7 +1082,7 @@ const orderMutations = {
         (order.mobileAmount || 0) +
         (order.paidAmounts || []).reduce(
           (sum, i) => Number(sum) + Number(i.amount),
-          0,
+          0
         );
 
       if (savedPaidAmount !== amount) {
@@ -1089,7 +1111,7 @@ const orderMutations = {
           ? (order.cashAmount || 0) - Number(cashAmount.toFixed(2))
           : order.cashAmount || 0,
         paidAmounts: (order.paidAmounts || []).concat(
-          (paidAmounts || []).map((a) => ({ ...a, amount: -1 * a.amount })),
+          (paidAmounts || []).map((a) => ({ ...a, amount: -1 * a.amount }))
         ),
       },
     };

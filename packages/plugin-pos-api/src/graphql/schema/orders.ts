@@ -72,6 +72,15 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     ${posOrderFields(contactsEnabled)}
   }
 
+  type PosOrdersByCustomer {
+    _id: String,
+    customerType: String,
+    customerDetail:JSON,
+    orders:[PosOrder]
+    totalOrders:Int,
+    totalAmount:Int
+  }
+
   type PosProduct {
     _id: String!
     name: String
@@ -98,11 +107,16 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
   }
 `;
 
-const queryParams = `
+const commonQueryParams = `
   page: Int
   perPage: Int
   sortField: String
   sortDirection: Int
+
+`;
+
+const queryParams = `
+${commonQueryParams}
   search: String
   paidStartDate: Date
   paidEndDate: Date
@@ -134,6 +148,8 @@ export const queries = `
   posOrdersTotalCount(${queryParams}): JSON
   posOrderRecords(${queryParams}): [PosOrderRecord]
   posOrderRecordsCount(${queryParams}): Int
+  posOrderCustomers(${commonQueryParams}):[PosOrdersByCustomer]
+  posOrderCustomersTotalCount(${commonQueryParams}):Int
 `;
 
 export const mutations = `

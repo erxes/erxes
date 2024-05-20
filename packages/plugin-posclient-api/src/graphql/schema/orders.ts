@@ -70,7 +70,9 @@ const addEditParams = `
   saleStatus: String,
   buttonType: String,
   description: String,
-  isPre: Boolean
+  isPre: Boolean,
+  isSubscription: Boolean,
+  closeDate:Date
 `;
 
 export const types = `
@@ -209,4 +211,5 @@ export const queries = `
   ordersDeliveryInfo(orderId: String!): JSON
   fullOrderItems(searchValue: String, statuses: [String], page: Int, perPage: Int, sortField: String, sortDirection: Int): [PosOrderItem]
   convertedDealLink(_id: String!): JSON
+  checkSubscription(customerId:String,productId:String):Order
 `;

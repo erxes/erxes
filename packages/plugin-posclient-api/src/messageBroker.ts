@@ -50,7 +50,7 @@ export const setupMessageConsumers = async () => {
         status: 'success',
         data: await receivePosConfig(subdomain, models, data),
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -66,13 +66,13 @@ export const setupMessageConsumers = async () => {
 
       await models.Configs.updateOne(
         { token: posToken },
-        { $set: { status: 'deleted' } },
+        { $set: { status: 'deleted' } }
       );
       return {
         status: 'success',
         data: {},
       };
-    },
+    }
   );
 
   consumeQueue(
@@ -105,7 +105,7 @@ export const setupMessageConsumers = async () => {
             break;
         }
       }
-    },
+    }
   );
 
   consumeQueue(
@@ -116,13 +116,13 @@ export const setupMessageConsumers = async () => {
 
       await models.Orders.updateOne(
         { _id: orderId },
-        { $set: { synced: true, convertDealId } },
+        { $set: { synced: true, convertDealId } }
       );
       await models.PutResponses.updateMany(
         { _id: { $in: responseIds } },
-        { $set: { synced: true } },
+        { $set: { synced: true } }
       );
-    },
+    }
   );
 
   consumeQueue(
@@ -134,7 +134,7 @@ export const setupMessageConsumers = async () => {
       await models.Orders.updateOne(
         { _id: order._id },
         { $set: { ...order, modifiedAt: new Date() } },
-        { upsert: true },
+        { upsert: true }
       );
 
       const bulkOps: any[] = [];
@@ -166,7 +166,7 @@ export const setupMessageConsumers = async () => {
           customerType: order.customerType,
         },
       });
-    },
+    }
   );
 
   consumeQueue(
@@ -180,7 +180,7 @@ export const setupMessageConsumers = async () => {
         posToken: order.posToken,
         subToken: order.subToken,
       });
-    },
+    }
   );
 
   consumeQueue(
@@ -193,7 +193,7 @@ export const setupMessageConsumers = async () => {
       }
 
       await updateMobileAmount(subdomain, models, [data]);
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -220,7 +220,7 @@ export const setupMessageConsumers = async () => {
         status: 'success',
         data: { healthy: 'ok' },
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -231,18 +231,18 @@ export const setupMessageConsumers = async () => {
       const { cover } = data;
       await models.Covers.updateOne(
         { _id: cover._id },
-        { $set: { status: 'reconf' } },
+        { $set: { status: 'reconf' } }
       );
       return {
         status: 'success',
         data: await models.Covers.findOne({ _id: cover._id }),
       };
-    },
+    }
   );
 };
 
 export const sendCommonMessage = async (
-  args: MessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string }
 ): Promise<any> => {
   return sendMessage({
     ...args,
@@ -251,7 +251,7 @@ export const sendCommonMessage = async (
 
 export const sendMessageWrapper = async (
   serviceName: string,
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   const { SKIP_REDIS } = process.env;
 
@@ -266,11 +266,11 @@ export const sendMessageWrapper = async (
           subdomain,
           data: serviceName,
           thirdService: true,
-        },
+        }
       );
 
       const timeout = new Promise<boolean>((resolve) =>
-        setTimeout(() => resolve(false), 1000),
+        setTimeout(() => resolve(false), 1000)
       );
 
       const response = await Promise.race([longTask, timeout]);
@@ -297,49 +297,49 @@ export const sendMessageWrapper = async (
 };
 
 export const sendPosMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessageWrapper('pos', args);
 };
 
 export const sendCoreMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessageWrapper('core', args);
 };
 
 export const sendInventoriesMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessageWrapper('inventories', args);
 };
 
 export const sendContactsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessageWrapper('contacts', args);
 };
 
 export const sendCardsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessageWrapper('cards', args);
 };
 
 export const sendInboxMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessageWrapper('inbox', args);
 };
 
 export const sendLoyaltiesMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessageWrapper('loyalties', args);
 };
 
 export const sendPricingMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessageWrapper('pricing', args);
 };
@@ -349,13 +349,19 @@ export const sendTagsMessage = (args: MessageArgsOmitService): Promise<any> => {
 };
 
 export const sendSegmentsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessageWrapper('segments', args);
 };
 
 export const sendFormsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessageWrapper('forms', args);
+};
+
+export const sendProductsMessage = async (
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessageWrapper('forms', args);
 };
@@ -364,7 +370,7 @@ export const fetchSegment = (
   subdomain: string,
   segmentId: string,
   options?,
-  segmentData?: any,
+  segmentData?: any
 ) =>
   sendSegmentsMessage({
     subdomain,
