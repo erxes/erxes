@@ -74,7 +74,7 @@ const Editor = forwardRef(
       const foundTemplates = responseTemplates.filter(
         (template) =>
           template.name.toLowerCase().includes(textContent) ||
-          template.content.toLowerCase().includes(textContent)
+          template.content.toLowerCase().includes(textContent),
       );
 
       if (foundTemplates.length > 0) {
@@ -141,6 +141,6 @@ const Editor = forwardRef(
         />
       </div>
     );
-  }
+  },
 );
 export default Editor;

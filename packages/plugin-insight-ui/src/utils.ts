@@ -68,44 +68,56 @@ export const filterChartTemplates = (chartTemplates, reportTemplates, item) => {
 
 export const getValue = (obj, path) => {
   const keys = path.split('.');
-  return keys.reduce((acc, key) => (acc && acc[key] !== 'undefined' ? acc[key] : undefined), obj);
-}
+  return keys.reduce(
+    (acc, key) => (acc && acc[key] !== 'undefined' ? acc[key] : undefined),
+    obj,
+  );
+};
 
 export const commarizeNumbers = (number) => {
-
   if (number == null) {
-    return "";
+    return '';
   }
 
   let strNum = number.toString();
 
-  let parts = strNum.split(".");
+  let parts = strNum.split('.');
   let integerPart = parts[0];
-  let decimalPart = parts.length > 1 ? "." + parts[1] : "";
+  let decimalPart = parts.length > 1 ? '.' + parts[1] : '';
 
-  integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
   return integerPart + decimalPart;
-}
+};
 
 export const abbrevateNumbers = (number) => {
-  if (number < 1e3) { return number; }
-  if (number >= 1e3 && number < 1e6) { return +(number / 1e3).toFixed(1) + "K"; }
-  if (number >= 1e6 && number < 1e9) { return +(number / 1e6).toFixed(1) + "M"; }
-  if (number >= 1e9 && number < 1e12) { return +(number / 1e9).toFixed(1) + "B"; }
-  if (number >= 1e12) { return +(number / 1e12).toFixed(1) + "T"; }
-}
+  if (number < 1e3) {
+    return number;
+  }
+  if (number >= 1e3 && number < 1e6) {
+    return +(number / 1e3).toFixed(1) + 'K';
+  }
+  if (number >= 1e6 && number < 1e9) {
+    return +(number / 1e6).toFixed(1) + 'M';
+  }
+  if (number >= 1e9 && number < 1e12) {
+    return +(number / 1e9).toFixed(1) + 'B';
+  }
+  if (number >= 1e12) {
+    return +(number / 1e12).toFixed(1) + 'T';
+  }
+};
 
 export const formatNumbers = (value: number, axis?: string, type?: string) => {
-  if (type === "time") {
-    return formatMillisecond(value, axis)
+  if (type === 'time') {
+    return formatMillisecond(value, axis);
   }
 
-  if (type === "commarize") {
-    return commarizeNumbers(value)
+  if (type === 'commarize') {
+    return commarizeNumbers(value);
   }
 
-  return abbrevateNumbers(value)
+  return abbrevateNumbers(value);
 };
 
 export const formatMillisecond = (milliseconds, axis) => {
@@ -178,10 +190,13 @@ export const formatMillisecond = (milliseconds, axis) => {
   }
 };
 
-export const generateParentOptionsFromQuery = (queryFieldOptions: any[], parentData: any[] = []) => {
+export const generateParentOptionsFromQuery = (
+  queryFieldOptions: any[],
+  parentData: any[] = [],
+) => {
   return parentData.reduce((acc, data) => {
     const options = queryFieldOptions
-      .filter(option => option?.parent === data._id)
+      .filter((option) => option?.parent === data._id)
       .map(({ value, label }) => ({ value, label }));
 
     if (options.length > 0) {
@@ -189,18 +204,24 @@ export const generateParentOptionsFromQuery = (queryFieldOptions: any[], parentD
     }
     return acc;
   }, []);
-}
+};
 
 export const generateParentOptionsFromField = (queryFieldOptions: any[]) => {
   return queryFieldOptions.reduce((acc, option) => {
-    const contentType = option.parent.split(":").pop() || option.parent;
-    const existingContentType = acc.find(item => item.label === contentType);
+    const contentType = option.parent.split(':').pop() || option.parent;
+    const existingContentType = acc.find((item) => item.label === contentType);
 
     if (existingContentType) {
-      existingContentType.options.push({ label: option.label.trim(), value: option.value });
+      existingContentType.options.push({
+        label: option.label.trim(),
+        value: option.value,
+      });
     } else {
-      acc.push({ label: contentType, options: [{ label: option.label.trim(), value: option.value }] });
+      acc.push({
+        label: contentType,
+        options: [{ label: option.label.trim(), value: option.value }],
+      });
     }
     return acc;
   }, []);
-}
+};

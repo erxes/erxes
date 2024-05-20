@@ -74,9 +74,20 @@ export default async function cpUserMiddleware(
     if (!userDoc) {
       return next();
     }
-
+    const check = () => {
+      const two2FAoperationsNames = [
+        'clientPortal2FAGetCode',
+        'clientPortalVerify2FA',
+      ];
+      for (const name of two2FAoperationsNames) {
+        if (name.toLocaleLowerCase() === operationName.toLocaleLowerCase()) {
+          return false;
+        }
+      }
+      return true;
+    };
     if (isEnableTwoFactor) {
-      if (!isPassed2FA) {
+      if (!isPassed2FA && check()) {
         const graphQLError = new GraphQLError(
           '2Factor Authentication is activiated'
         );

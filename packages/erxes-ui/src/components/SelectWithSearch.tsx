@@ -20,7 +20,7 @@ export const SelectValue = styled.div`
   justify-content: center;
   align-items: center;
   margin-left: -2px;
-  padding-left: 25px;
+  padding-left: 18px;
 
   img {
     position: absolute;
@@ -35,8 +35,8 @@ const SelectOption = styled.div`
 `;
 
 export const Avatar = styled.img`
-  width: 20px;
-  height: 20px;
+  width: 20px !important;
+  height: 20px !important;
   border-radius: 10px;
   background: ${colors.bgActive};
   object-fit: cover;

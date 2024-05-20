@@ -256,7 +256,7 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
 };
 
 export const consumeInventory = async (subdomain, config, doc, action) => {
-  const updateCode = action === 'delete' ? doc.code : doc.No.replace(/\s/g, '');
+  const updateCode = action === 'delete' ? doc.code : doc.No;
 
   const product = await sendProductsMessage({
     subdomain,
@@ -272,7 +272,7 @@ export const consumeInventory = async (subdomain, config, doc, action) => {
     const productCategory = await sendProductsMessage({
       subdomain,
       action: 'categories.findOne',
-      data: { name: doc.Item_Category_Code },
+      data: { code: doc.Item_Category_Code },
       isRPC: true,
     });
 
@@ -287,7 +287,7 @@ export const consumeInventory = async (subdomain, config, doc, action) => {
       unitPrice: doc?.Unit_Price || 0,
       code: doc.No,
       uom: doc?.Base_Unit_of_Measure || 'PCS',
-      categoryId: productCategory ? productCategory._id : product.categoryId,
+      categoryId: productCategory?._id || product?.categoryId, // TODO: if product not exists and productCategory not found then category is null
       scopeBrandIds: brandIds,
       status: 'active',
     };
@@ -355,13 +355,25 @@ export const consumeCategory = async (
     }
 
     const document: any = {
-      name: doc?.Code || 'default',
       code: doc?.Code,
-      description: doc?.Description,
+      name: doc?.Description || 'default',
       scopeBrandIds: brandIds,
       parentId: categoryId,
       status: 'active',
     };
+
+    if (doc.Parent_Category) {
+      const parentCategory = await sendProductsMessage({
+        subdomain,
+        action: 'categories.findOne',
+        data: { code: doc.Parent_Category },
+        isRPC: true,
+      });
+
+      if (parentCategory) {
+        document.parentId = parentCategory._id
+      }
+    }
 
     if (productCategory) {
       await sendProductsMessage({
@@ -851,7 +863,7 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
 
 const getPriceForList = (prods) => {
   let resProd = prods[0];
-  let resPrice = prods[0].Unit_Price;
+  let resPrice = prods[0].Price_Inc_CityTax_and_VAT || prods[0].Unit_Price;
 
   const hasDateList = prods.filter(
     (p) => p.Ending_Date && p.Ending_Date !== '0001-01-01'
@@ -859,14 +871,14 @@ const getPriceForList = (prods) => {
 
   if (hasDateList.length) {
     resProd = hasDateList[0];
-    resPrice = hasDateList[0].Unit_Price;
+    resPrice = hasDateList[0].Price_Inc_CityTax_and_VAT || hasDateList[0].Unit_Price;
 
     for (const prod of hasDateList) {
-      if (resPrice < prod.Unit_Price) {
+      if (resPrice < (prod.Price_Inc_CityTax_and_VAT || prod.Unit_Price)) {
         continue;
       }
 
-      resPrice = prod.Unit_Price;
+      resPrice = prod.Price_Inc_CityTax_and_VAT || prod.Unit_Price;
       resProd = prod;
     }
 
@@ -874,11 +886,11 @@ const getPriceForList = (prods) => {
   }
 
   for (const prod of prods) {
-    if (resPrice < prod.Unit_Price) {
+    if (resPrice < (prod.Price_Inc_CityTax_and_VAT || prod.Unit_Price)) {
       continue;
     }
 
-    resPrice = prod.Unit_Price;
+    resPrice = prod.Price_Inc_CityTax_and_VAT || prod.Unit_Price;
     resProd = prod;
   }
 
