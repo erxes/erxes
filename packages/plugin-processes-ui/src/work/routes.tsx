@@ -1,31 +1,26 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
+import React from "react";
+import { Route, Routes, useLocation } from "react-router-dom";
 
-const WorkList = asyncComponent(() =>
-  import(/* webpackChunkName: "WorkList" */ './containers/WorkList')
+const WorkList = asyncComponent(
+  () => import(/* webpackChunkName: "WorkList" */ "./containers/WorkList")
 );
 
-const workList = ({ location, history }) => {
-  return (
-    <WorkList
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const WorkListComponent = () => {
+  const location = useLocation();
+  return <WorkList queryParams={queryString.parse(location.search)} />;
 };
 
 const routes = () => {
   return (
-    <>
+    <Routes>
       <Route
         path="/processes/works"
-        exact={true}
         key="/processes/works"
-        component={workList}
+        element={<WorkListComponent />}
       />
-    </>
+    </Routes>
   );
 };
 

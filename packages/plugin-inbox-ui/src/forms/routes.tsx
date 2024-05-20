@@ -1,40 +1,57 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import {
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 
-const CreateLead = asyncComponent(() =>
-  import(/* webpackChunkName: "CreateLead" */ './containers/CreateLead')
+import React from "react";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
+
+const CreateLead = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Forms - CreateLead" */ "./containers/CreateLead"
+    )
 );
 
-const EditLead = asyncComponent(() =>
-  import(/* webpackChunkName: "EditLead" */ './containers/EditLead')
+const EditLead = asyncComponent(
+  () => import(/* webpackChunkName: "EditLead" */ "./containers/EditLead")
 );
 
-const List = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Form" */ './containers/List')
+const List = asyncComponent(
+  () => import(/* webpackChunkName: "List - Form" */ "./containers/List")
 );
 
-const ResponseList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "List - FormResponse" */ './containers/ResponseList'
-  )
+const ResponseList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "List - FormResponse" */ "./containers/ResponseList"
+    )
 );
 
-const forms = history => {
-  const { location } = history;
-
+const Forms = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const queryParams = queryString.parse(location.search);
 
-  return <List queryParams={queryParams} history={history} />;
+  return (
+    <List queryParams={queryParams} location={location} navigate={navigate} />
+  );
 };
 
-const createLead = () => {
-  return <CreateLead />;
+const CreateLeadComponent = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  return <CreateLead location={location} navigate={navigate} />;
 };
 
-const editLead = ({ match, location }) => {
-  const { contentTypeId, formId } = match.params;
+const EditLeadComponent = () => {
+  const { contentTypeId, formId } = useParams();
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return (
@@ -46,8 +63,9 @@ const editLead = ({ match, location }) => {
   );
 };
 
-const responseList = ({ match, location }) => {
-  const { integrationId, formId } = match.params;
+const ResponseListComponent = () => {
+  const { integrationId, formId } = useParams();
+  const location = useLocation();
 
   const queryParams = queryString.parse(location.search);
   queryParams.integrationId = integrationId;
@@ -58,30 +76,26 @@ const responseList = ({ match, location }) => {
 
 const routes = () => {
   return (
-    <React.Fragment>
-      <Route exact={true} key="/forms" path="/forms" component={forms} />
-
+    <Routes>
+      <Route path="/forms" element={<Forms />} />
       <Route
         key="/forms/create"
-        exact={true}
         path="/forms/create"
-        component={createLead}
+        element={<CreateLeadComponent />}
       />
 
       <Route
         key="/forms/edit/:contentTypeId?/:formId?"
-        exact={true}
         path="/forms/edit/:contentTypeId/:formId?"
-        component={editLead}
+        element={<EditLeadComponent />}
       />
 
       <Route
         key="/forms/responses/:integrationId?/:formId?"
-        exact={true}
         path="/forms/responses/:integrationId?/:formId?"
-        component={responseList}
+        element={<ResponseListComponent />}
       />
-    </React.Fragment>
+    </Routes>
   );
 };
 

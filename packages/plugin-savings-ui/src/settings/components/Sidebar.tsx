@@ -1,28 +1,29 @@
 import {
   Button,
-  MainStyleTopHeader as TopHeader,
   Sidebar as LeftSidebar,
-  SidebarList as List
-} from '@erxes/ui/src';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { __ } from 'coreui/utils';
+  SidebarList as List,
+  MainStyleTopHeader as TopHeader,
+} from "@erxes/ui/src";
 
-class Sidebar extends React.Component {
-  renderListItem(url: string, text: string) {
+import { Link } from "react-router-dom";
+import React from "react";
+import { __ } from "coreui/utils";
+
+const Sidebar = () => {
+  const renderListItem = (url: string, text: string) => {
     return (
       <li>
         <Link
           to={url}
-          className={window.location.href.includes(url) ? 'active' : ''}
+          className={window.location.href.includes(url) ? "active" : ""}
         >
           {__(text)}
         </Link>
       </li>
     );
-  }
+  };
 
-  renderSidebarHeader() {
+  const renderSidebarHeader = () => {
     return (
       <TopHeader>
         <Link to="/settings/">
@@ -32,25 +33,23 @@ class Sidebar extends React.Component {
             block={true}
             uppercase={false}
           >
-            {__('Back to Settings')}
+            {__("Back to Settings")}
           </Button>
         </Link>
       </TopHeader>
     );
-  }
+  };
 
-  render() {
-    return (
-      <LeftSidebar full={true} header={this.renderSidebarHeader()}>
-        <List id="SettingsSidebar">
-          {this.renderListItem(
-            '/erxes-plugin-saving/holiday-settings',
-            __('Holiday configs')
-          )}
-        </List>
-      </LeftSidebar>
-    );
-  }
-}
+  return (
+    <LeftSidebar full={true} header={renderSidebarHeader()}>
+      <List id="SettingsSidebar">
+        {renderListItem(
+          "/erxes-plugin-saving/saving-settings",
+          __("Main configs")
+        )}
+      </List>
+    </LeftSidebar>
+  );
+};
 
 export default Sidebar;

@@ -1,28 +1,27 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Routes, useLocation } from "react-router-dom";
 
-const Container = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings-SmsDeliveries" */ './containers/SmsDeliveries'
-  )
+import React from "react";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
+
+const Container = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings-SmsDeliveries" */ "./containers/SmsDeliveries"
+    )
 );
 
-const SmsDeliveries = ({ location, history }) => {
+const SmsDeliveries = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return <Container queryParams={queryParams} history={history} />;
+  return <Container queryParams={queryParams} />;
 };
 
 const routes = () => (
-  <React.Fragment>
-    <Route
-      exact={true}
-      path="/settings/sms-deliveries/"
-      component={SmsDeliveries}
-    />
-  </React.Fragment>
+  <Routes>
+    <Route path="/settings/sms-deliveries/" element={<SmsDeliveries />} />
+  </Routes>
 );
 
 export default routes;

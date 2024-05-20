@@ -7,7 +7,7 @@ import scheduleMutations from './schedules';
 import transactionMutations from './transactions';
 import classificationMutations from './classification';
 import nonBalancetransactionMutations from './nonBalanceTransactions';
-
+import collateralTypeMutations from './collateralTypes';
 export default {
   ...periodLockMutations,
   ...contractTypeMutations,
@@ -17,5 +17,6 @@ export default {
   ...scheduleMutations,
   ...transactionMutations,
   ...classificationMutations,
-  ...nonBalancetransactionMutations
+  ...nonBalancetransactionMutations,
+  ...collateralTypeMutations
 };

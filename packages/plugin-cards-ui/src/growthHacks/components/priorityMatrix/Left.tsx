@@ -1,14 +1,13 @@
-import LoadMore from '@erxes/ui/src/components/LoadMore';
-import Table from '@erxes/ui/src/components/table';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
 import { LeftContent, ScrollContent } from '../../styles';
-import { IGrowthHackParams } from '../../types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import GrowthHackAddTrigger from '../GrowthHackAddTrigger';
 
-interface IProps extends IRouterProps {
+import GrowthHackAddTrigger from '../GrowthHackAddTrigger';
+import { IGrowthHackParams } from '../../types';
+import LoadMore from '@erxes/ui/src/components/LoadMore';
+import React from 'react';
+import Table from '@erxes/ui/src/components/table';
+import { __ } from '@erxes/ui/src/utils/core';
+
+interface IProps {
   queryParams: any;
   growthHacks: any[];
   totalCount: number;
@@ -31,7 +30,7 @@ class Left extends React.Component<IProps> {
     return (
       <LeftContent>
         <ScrollContent>
-          <Table hover={true}>
+          <Table $hover={true}>
             <thead>
               <tr>
                 <th>{__('Experiment name')}</th>
@@ -40,7 +39,7 @@ class Left extends React.Component<IProps> {
               </tr>
             </thead>
             <tbody className="with-input">
-              {growthHacks.map(growthHack => {
+              {growthHacks.map((growthHack) => {
                 return (
                   <tr key={growthHack._id}>
                     <td>{growthHack.name}</td>
@@ -53,7 +52,7 @@ class Left extends React.Component<IProps> {
                         onChange={this.onSave.bind(
                           this,
                           growthHack._id,
-                          'impact'
+                          'impact',
                         )}
                       />
                     </td>
@@ -66,7 +65,7 @@ class Left extends React.Component<IProps> {
                         onChange={this.onSave.bind(
                           this,
                           growthHack._id,
-                          'ease'
+                          'ease',
                         )}
                       />
                     </td>
@@ -83,4 +82,4 @@ class Left extends React.Component<IProps> {
   }
 }
 
-export default withRouter<IProps>(Left);
+export default Left;

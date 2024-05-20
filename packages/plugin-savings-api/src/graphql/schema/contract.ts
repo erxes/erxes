@@ -146,6 +146,7 @@ const interestCorrectionFields = `
 
 export const mutations = `
   savingsContractsAdd(${commonFields}): SavingContract
+  clientSavingsContractsAdd(${commonFields}): SavingContract
   savingsContractsEdit(_id: String!, ${commonFields}): SavingContract
   savingsContractsDealEdit(_id: String!, ${commonFields}): SavingContract
   savingsContractsClose(contractId: String, closeDate: Date, closeType: String, description: String): SavingContract

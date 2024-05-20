@@ -1,5 +1,5 @@
 import Box from '@erxes/ui/src/components/Box';
-import Collapse from 'react-bootstrap/Collapse';
+import Collapse from '@erxes/ui/src/components/Collapse';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
@@ -68,7 +68,7 @@ class TaggerSection extends React.Component<Props, State> {
         callback={collapseCallback}
         noPadding={true}
       >
-        <Collapse in={this.state.isTaggerVisible}>
+        <Collapse show={this.state.isTaggerVisible}>
           <Tagger
             type={type}
             targets={[data]}

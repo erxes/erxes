@@ -1,9 +1,10 @@
 import {
   FieldStyle,
   SidebarCounter,
-  SidebarList
+  SidebarList,
 } from '@erxes/ui/src/layout/styles';
 
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
@@ -46,7 +47,7 @@ class ConversationDetails extends React.Component<Props> {
   renderRow(field, value) {
     const { fields = [] } = this.props;
 
-    const property = fields.find(e => e.type === field);
+    const property = fields.find((e) => e.type === field);
 
     if (property && !property.isVisible) {
       return null;
@@ -66,7 +67,7 @@ class ConversationDetails extends React.Component<Props> {
     const { conversation, fields = [] } = this.props;
     const { integration = {} as IIntegration } = conversation;
 
-    const property = fields.find(e => e.type === 'integration');
+    const property = fields.find((e) => e.type === 'integration');
 
     if (property && !property.isVisible) {
       return null;
@@ -93,7 +94,7 @@ class ConversationDetails extends React.Component<Props> {
     const { brand = {} as IBrand, channels = [] } = integration;
 
     if (!fields || fields.length === 0) {
-      return null;
+      return <EmptyState icon="chat-info" text="No data" size="small" />;
     }
 
     return (
@@ -103,11 +104,11 @@ class ConversationDetails extends React.Component<Props> {
             {this.renderVisitorContactInfo(customer)}
             {this.renderRow(
               'opened',
-              dayjs(conversation.createdAt).format('lll')
+              dayjs(conversation.createdAt).format('lll'),
             )}
             {this.renderRow(
               'channels',
-              channels.map(c => <span key={c._id}>{c.name} </span>)
+              channels.map((c) => <span key={c._id}>{c.name} </span>),
             )}
             {this.renderRow('brand', brand && brand.name)}
             {this.renderIntegration()}

@@ -1,10 +1,12 @@
-import debounce from 'lodash/debounce';
-import { IUser } from 'modules/auth/types';
-import * as React from 'react';
-import RTG from 'react-transition-group';
-import AssistantContent from '../containers/AssistantContent';
-import { Bot, BotWrapper } from './styles';
-import { __ } from 'modules/common/utils';
+import * as React from "react";
+
+import { Bot, BotWrapper } from "./styles";
+
+import AssistantContent from "../containers/AssistantContent";
+import { CSSTransition } from "react-transition-group";
+import { IUser } from "modules/auth/types";
+import { __ } from "modules/common/utils";
+import debounce from "lodash/debounce";
 
 type Props = {
   currentUser: IUser;
@@ -19,7 +21,7 @@ class Robot extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { currentRoute: 'setupList', showContent: false };
+    this.state = { currentRoute: "setupList", showContent: false };
   }
 
   changeRoute = (currentRoute: string) => {
@@ -45,7 +47,7 @@ class Robot extends React.Component<Props, State> {
   toggleContent = (isShow: boolean) => {
     this.setState({ showContent: isShow }, () => {
       if (!isShow) {
-        debounce(() => this.changeRoute('setupList'), 500)();
+        debounce(() => this.changeRoute("setupList"), 500)();
       }
     });
   };
@@ -53,7 +55,7 @@ class Robot extends React.Component<Props, State> {
   changeContent = () => {
     const { currentRoute } = this.state;
 
-    if (currentRoute && !currentRoute.includes('setup')) {
+    if (currentRoute && !currentRoute.includes("setup")) {
       return;
     }
 
@@ -64,7 +66,7 @@ class Robot extends React.Component<Props, State> {
     return (
       <>
         {this.renderContent()}
-        <RTG.CSSTransition
+        <CSSTransition
           in={true}
           appear={true}
           timeout={2600}
@@ -77,7 +79,7 @@ class Robot extends React.Component<Props, State> {
               </span>
             </BotWrapper>
           </Bot>
-        </RTG.CSSTransition>
+        </CSSTransition>
       </>
     );
   }

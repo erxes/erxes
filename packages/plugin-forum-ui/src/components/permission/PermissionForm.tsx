@@ -1,17 +1,17 @@
-import { Alert, __ } from '@erxes/ui/src/utils';
-import { DividerText, StepBody, StepHeader, StepItem } from '../../styles';
-import { correctValue, generateModuleParams } from '../../utils';
+import { Alert, __ } from "@erxes/ui/src/utils";
+import { DividerText, StepBody, StepHeader, StepItem } from "../../styles";
+import { correctValue, generateModuleParams } from "../../utils";
 
-import Button from '@erxes/ui/src/components/Button';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { ICategory } from '../../types';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { PERMISSIONS } from '../../constants';
-import React from 'react';
-import Select from 'react-select-plus';
-import { mutations } from '../../graphql';
+import Button from "@erxes/ui/src/components/Button";
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { ICategory } from "../../types";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import { PERMISSIONS } from "../../constants";
+import React from "react";
+import Select from "react-select";
+import { mutations } from "../../graphql";
 
 type Props = {
   groupId: string;
@@ -28,9 +28,9 @@ type State = {
 
 class PermissionForm extends React.Component<Props, State> {
   state = {
-    selectedModule: '',
+    selectedModule: "",
     selectedCategories: [],
-    isSubmitted: false
+    isSubmitted: false,
   };
 
   save = (e: React.FormEvent) => {
@@ -39,11 +39,11 @@ class PermissionForm extends React.Component<Props, State> {
     const { selectedModule, selectedCategories } = this.state;
 
     if (!selectedModule) {
-      return Alert.error('Please select the category!');
+      return Alert.error("Please select the category!");
     }
 
     if (!this.hasItems(selectedCategories)) {
-      return Alert.error('Please select at least one permission!');
+      return Alert.error("Please select at least one permission!");
     }
 
     return this.setState({ isSubmitted: true });
@@ -55,7 +55,7 @@ class PermissionForm extends React.Component<Props, State> {
     return {
       _id: this.props.groupId,
       permission: selectedModule,
-      categoryIds: this.collectValues(selectedCategories)
+      categoryIds: this.collectValues(selectedCategories),
     };
   };
 
@@ -80,12 +80,12 @@ class PermissionForm extends React.Component<Props, State> {
 
     this.setState({
       selectedModule,
-      selectedCategories: []
+      selectedCategories: [],
     });
   };
 
   collectValues = (items: any[]) => {
-    return items.map(item => item._id);
+    return items.map((item) => item._id);
   };
 
   renderContent() {
@@ -94,27 +94,30 @@ class PermissionForm extends React.Component<Props, State> {
 
     return (
       <StepItem>
-        <StepHeader>{__('What action can do')}</StepHeader>
+        <StepHeader>{__("What action can do")}</StepHeader>
         <StepBody>
           <FormGroup>
             <ControlLabel required={true}>Choose the permission</ControlLabel>
             <Select
-              placeholder={__('Choose permission')}
+              placeholder={__("Choose permission")}
               options={generateModuleParams(PERMISSIONS)}
-              value={selectedModule}
+              value={generateModuleParams(PERMISSIONS).find(
+                (o) => o.value === selectedModule
+              )}
+              isClearable={true}
               onChange={this.changeModule}
             />
           </FormGroup>
-          <DividerText>{__('Then')}</DividerText>
+          <DividerText>{__("Then")}</DividerText>
           <FormGroup>
             <ControlLabel required={true}>Choose the categories</ControlLabel>
             <Select
-              placeholder={__('Choose categories')}
-              options={generateModuleParams(categoryList)}
+              placeholder={__("Choose categories")}
+              options={generateModuleParams(categoryList || [])}
               value={selectedCategories}
-              disabled={!this.isModuleSelected()}
-              onChange={this.select.bind(this, 'selectedCategories')}
-              multi={true}
+              isDisabled={!this.isModuleSelected()}
+              onChange={this.select.bind(this, "selectedCategories")}
+              isMulti={true}
             />
           </FormGroup>
         </StepBody>
@@ -145,7 +148,7 @@ class PermissionForm extends React.Component<Props, State> {
             refetchQueries={refetchQueries}
             isSubmitted={this.state.isSubmitted}
             type="submit"
-            successMessage={__(`You successfully added a permission`) + '.'}
+            successMessage={__(`You successfully added a permission`) + "."}
           />
         </ModalFooter>
       </form>

@@ -1,3 +1,4 @@
+import { Alert, __, confirm, router } from "@erxes/ui/src/utils";
 import {
   Button,
   DataWithLoader,
@@ -5,28 +6,26 @@ import {
   ModalTrigger,
   Pagination,
   SortHandler,
-  Table
-} from '@erxes/ui/src/components';
+  Table,
+} from "@erxes/ui/src/components";
 import {
+  MainStyleCount as Count,
   MainStyleTitle as Title,
-  MainStyleCount as Count
-} from '@erxes/ui/src/styles/eindex';
-import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import { Wrapper } from '@erxes/ui/src/layout';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
+} from "@erxes/ui/src/styles/eindex";
 
-import LotteryForm from '../containers/Form';
-import { LoyaltiesTableWrapper } from '../../common/styles';
-import { ILottery } from '../types';
-import LotteryRow from './Row';
-import Sidebar from './Sidebar';
-import { ILotteryCampaign } from '../../../configs/lotteryCampaign/types';
-import { menuLoyalties } from '../../common/constants';
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import { ILottery } from "../types";
+import { ILotteryCampaign } from "../../../configs/lotteryCampaign/types";
+import LotteryForm from "../containers/Form";
+import LotteryRow from "./Row";
+import { LoyaltiesTableWrapper } from "../../common/styles";
+import React, {useState} from "react";
+import Sidebar from "./Sidebar";
+import { Wrapper } from "@erxes/ui/src/layout";
+import { menuLoyalties } from "../../common/constants";
+import { useLocation, useNavigate } from 'react-router-dom';
 
-interface IProps extends IRouterProps {
+interface IProps  {
   lotteries: ILottery[];
   currentCampaign?: ILotteryCampaign;
   loading: boolean;
@@ -42,111 +41,97 @@ interface IProps extends IRouterProps {
     doc: { lotteryIds: string[] },
     emptyBulk: () => void
   ) => void;
-  history: any;
   queryParams: any;
 }
 
-type State = {
-  searchValue?: string;
-};
-
-class LotteriesList extends React.Component<IProps, State> {
-  private timer?: NodeJS.Timer = undefined;
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      searchValue: this.props.searchValue
-    };
-  }
-
-  onChange = () => {
-    const { toggleAll, lotteries } = this.props;
-    toggleAll(lotteries, 'lotteries');
+const  LotteriesList=(props:IProps)=> {
+  let timer;
+  const [searchValue, setSearchValue] = useState(props.searchValue)
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  const onChange = () => {
+    const { toggleAll, lotteries } = props;
+    toggleAll(lotteries, "lotteries");
   };
 
-  search = e => {
-    if (this.timer) {
-      clearTimeout(this.timer);
+  const search = (e) => {
+    if (timer) {
+      clearTimeout(timer);
     }
 
-    const { history } = this.props;
     const searchValue = e.target.value;
 
-    this.setState({ searchValue });
-    this.timer = setTimeout(() => {
-      router.removeParams(history, 'page');
-      router.setParams(history, { searchValue });
+    setSearchValue( searchValue );
+    timer = setTimeout(() => {
+      router.removeParams(navigate,location, "page");
+      router.setParams(navigate,location, { searchValue });
     }, 500);
   };
 
-  removeLotteries = lotteries => {
+  const removeLotteries = (lotteries) => {
     const lotteryIds: string[] = [];
 
-    lotteries.forEach(lottery => {
+    lotteries.forEach((lottery) => {
       lotteryIds.push(lottery._id);
     });
 
-    this.props.removeLotteries({ lotteryIds }, this.props.emptyBulk);
+    props.removeLotteries({ lotteryIds }, props.emptyBulk);
   };
 
-  moveCursorAtTheEnd = e => {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
-  render() {
     const {
       lotteries,
-      history,
       loading,
       toggleBulk,
       bulk,
       isAllSelected,
       totalCount,
       queryParams,
-      currentCampaign
-    } = this.props;
+      currentCampaign,
+    } = props;
 
     const mainContent = (
       <LoyaltiesTableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
           <thead>
             <tr>
               <th>
                 <FormControl
                   checked={isAllSelected}
-                  componentClass="checkbox"
-                  onChange={this.onChange}
+                  componentclass="checkbox"
+                  onChange={onChange}
                 />
               </th>
               <th>
-                <SortHandler sortField={'createdAt'} label={__('Created')} />
+                <SortHandler sortField={"createdAt"} label={__("Created")} />
               </th>
               <th>
-                <SortHandler sortField={'number'} label={__('Number')} />
+                <SortHandler sortField={"number"} label={__("Number")} />
               </th>
               <th>
-                <SortHandler sortField={'ownerType'} label={__('Owner Type')} />
+                <SortHandler sortField={"ownerType"} label={__("Owner Type")} />
               </th>
               <th>
-                <SortHandler sortField={'ownerId'} label={__('Owner')} />
+                <SortHandler sortField={"ownerId"} label={__("Owner")} />
               </th>
               <th>
-                <SortHandler sortField={'status'} label={__('Status')} />
+                <SortHandler sortField={"status"} label={__("Status")} />
               </th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody id="lotteries">
-            {lotteries.map(lottery => (
+            {lotteries.map((lottery) => (
               <LotteryRow
                 lottery={lottery}
                 isChecked={bulk.includes(lottery)}
                 key={lottery._id}
-                history={history}
                 toggleBulk={toggleBulk}
                 currentCampaign={currentCampaign}
                 queryParams={queryParams}
@@ -163,7 +148,7 @@ class LotteriesList extends React.Component<IProps, State> {
       </Button>
     );
 
-    const lotteryForm = props => {
+    const lotteryForm = (props) => {
       return <LotteryForm {...props} queryParams={queryParams} />;
     };
 
@@ -172,9 +157,9 @@ class LotteriesList extends React.Component<IProps, State> {
         const onClick = () =>
           confirm()
             .then(() => {
-              this.removeLotteries(bulk);
+              removeLotteries(bulk);
             })
-            .catch(error => {
+            .catch((error) => {
               Alert.error(error.message);
             });
 
@@ -195,11 +180,11 @@ class LotteriesList extends React.Component<IProps, State> {
         <BarItems>
           <FormControl
             type="text"
-            placeholder={__('Type to search')}
-            onChange={this.search}
-            value={this.state.searchValue}
+            placeholder={__("Type to search")}
+            onChange={search}
+            value={searchValue}
             autoFocus={true}
-            onFocus={this.moveCursorAtTheEnd}
+            onFocus={moveCursorAtTheEnd}
           />
 
           <ModalTrigger
@@ -216,7 +201,7 @@ class LotteriesList extends React.Component<IProps, State> {
     const actionBarLeft = (
       <Title>
         {(currentCampaign && `${currentCampaign.title}`) ||
-          'All lottery campaigns'}{' '}
+          "All lottery campaigns"}{" "}
       </Title>
     );
     const actionBar = (
@@ -237,14 +222,13 @@ class LotteriesList extends React.Component<IProps, State> {
           <Sidebar
             loadingMainQuery={loading}
             queryParams={queryParams}
-            history={history}
             isAward={true}
           />
         }
         content={
           <>
             <Count>
-              {totalCount} lottery{totalCount > 1 && 's'}
+              {totalCount} lottery{totalCount > 1 && "s"}
             </Count>
             <DataWithLoader
               data={mainContent}
@@ -258,7 +242,7 @@ class LotteriesList extends React.Component<IProps, State> {
         hasBorder
       />
     );
-  }
+  
 }
 
-export default withRouter<IRouterProps>(LotteriesList);
+export default LotteriesList;

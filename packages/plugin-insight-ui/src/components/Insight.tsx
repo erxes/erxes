@@ -5,14 +5,13 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Sidebar from './Sidebar';
 
 type Props = {
-  history: any;
   queryParams: any;
   component: any;
   loading: boolean;
 };
 
 const Insight = (props: Props) => {
-  const { queryParams, history, component, loading } = props;
+  const { queryParams, component, loading } = props;
 
   const renderContent = () => {
     const Component = component;
@@ -20,7 +19,6 @@ const Insight = (props: Props) => {
     return (
       <Component
         queryParams={queryParams}
-        history={history}
         loading={loading}
       />
     );
@@ -33,7 +31,7 @@ const Insight = (props: Props) => {
         header={
           <Wrapper.Header title="Insight" breadcrumb={[{ title: 'Insight' }]} />
         }
-        leftSidebar={<Sidebar queryParams={queryParams} history={history} />}
+        leftSidebar={<Sidebar queryParams={queryParams} />}
         content={renderContent()}
       />
     </>

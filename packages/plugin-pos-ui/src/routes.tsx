@@ -1,150 +1,116 @@
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import queryString from "query-string";
+import React from "react";
+import { Route, Routes, useLocation, useParams } from "react-router-dom";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 
-const List = asyncComponent(() =>
-  import(/* webpackChunkName: "List" */ './pos/containers/List')
+const List = asyncComponent(
+  () => import(/* webpackChunkName: "List" */ "./pos/containers/List")
 );
 
-const PosContainer = asyncComponent(() =>
-  import(/* webpackChunkName: "PosContainer" */ './pos/containers/Pos')
+const PosContainer = asyncComponent(
+  () => import(/* webpackChunkName: "PosContainer" */ "./pos/containers/Pos")
 );
 
-const OrderList = asyncComponent(() =>
-  import(/* webpackChunkName: "OrderList" */ './orders/containers/List')
+const OrderList = asyncComponent(
+  () => import(/* webpackChunkName: "OrderList" */ "./orders/containers/List")
 );
 
-const OrderRecords = asyncComponent(() =>
-  import(/* webpackChunkName: "OrderList" */ './orders/containers/Records')
+const OrderRecords = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "OrderList" */ "./orders/containers/Records")
 );
 
-const OrderSummary = asyncComponent(() =>
-  import(/* webpackChunkName: "OrderList" */ './orders/containers/Summary')
+const OrderSummary = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "OrderList" */ "./orders/containers/Summary")
 );
 
-const CoverList = asyncComponent(() =>
-  import(/* webpackChunkName: "OrderList" */ './orders/containers/CoverList')
+const CoverList = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "OrderList" */ "./orders/containers/CoverList")
 );
 
-const PosProductList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "PosProductList" */ './orders/containers/ProductList'
-  )
+const PosProductList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "PosProductList" */ "./orders/containers/ProductList"
+    )
 );
 
-const settingsComponent = ({ location, history }) => {
-  return (
-    <List queryParams={queryString.parse(location.search)} history={history} />
-  );
+const SettingsComponent = () => {
+  const location = useLocation();
+  return <List queryParams={queryString.parse(location.search)} />;
 };
 
-const posComponent = ({ match, location, history }) => {
-  const { posId } = match.params;
+const PosComponent = () => {
+  const { posId } = useParams();
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return (
-    <PosContainer queryParams={queryParams} posId={posId} history={history} />
-  );
+  return <PosContainer queryParams={queryParams} posId={posId} />;
 };
 
-const OrderListComponent = ({ location, history }) => {
-  return (
-    <OrderList
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const OrderListComponent = () => {
+  const location = useLocation();
+  return <OrderList queryParams={queryString.parse(location.search)} />;
 };
 
-const OrderRecordsComponent = ({ location, history }) => {
-  return (
-    <OrderRecords
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const OrderRecordsComponent = () => {
+  const location = useLocation();
+  return <OrderRecords queryParams={queryString.parse(location.search)} />;
 };
 
-const OrderSummaryComponent = ({ location, history }) => {
-  return (
-    <OrderSummary
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const OrderSummaryComponent = () => {
+  const location = useLocation();
+  return <OrderSummary queryParams={queryString.parse(location.search)} />;
 };
 
-const CoverListComponent = ({ location, history }) => {
-  return (
-    <CoverList
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const CoverListComponent = () => {
+  const location = useLocation();
+  return <CoverList queryParams={queryString.parse(location.search)} />;
 };
 
-const OrderItemsComponent = ({ location, history }) => {
-  return (
-    <PosProductList
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const OrderItemsComponent = () => {
+  const location = useLocation();
+  return <PosProductList queryParams={queryString.parse(location.search)} />;
 };
 
 const routes = () => {
   return (
-    <>
-      <Route
-        key="/pos"
-        exact={true}
-        path="/pos"
-        component={settingsComponent}
-      />
+    <Routes>
+      <Route key="/pos" path="/pos" element={<SettingsComponent />} />
       <Route
         key="/pos/edit/:posId"
-        exact={true}
         path="/pos/edit/:posId"
-        component={posComponent}
+        element={<PosComponent />}
       />
-      <Route
-        key="/pos/create"
-        exact={true}
-        path="/pos/create"
-        component={posComponent}
-      />
+      <Route key="/pos/create" path="/pos/create" element={<PosComponent />} />
       <Route
         key="/pos-orders"
-        exact={true}
         path="/pos-orders"
-        component={OrderListComponent}
+        element={<OrderListComponent />}
       />
       <Route
         key="/pos-covers"
-        exact={true}
         path="/pos-covers"
-        component={CoverListComponent}
+        element={<CoverListComponent />}
       />
       <Route
         key="/pos-order-items"
-        exact={true}
         path="/pos-order-items"
-        component={OrderItemsComponent}
+        element={<OrderItemsComponent />}
       />
       <Route
         key="/pos-order-records"
-        exact={true}
         path="/pos-order-records"
-        component={OrderRecordsComponent}
+        element={<OrderRecordsComponent />}
       />
       <Route
         key="/pos-order-summary"
-        exact={true}
         path="/pos-order-summary"
-        component={OrderSummaryComponent}
+        element={<OrderSummaryComponent />}
       />
-    </>
+    </Routes>
   );
 };
 

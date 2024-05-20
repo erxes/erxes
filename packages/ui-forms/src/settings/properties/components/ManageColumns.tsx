@@ -1,15 +1,15 @@
-import { Footer } from '@erxes/ui-cards/src/boards/styles/item';
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import SortableList from '@erxes/ui/src/components/SortableList';
-import { colors } from '@erxes/ui/src/styles';
-import { ScrollWrapper } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import styled from 'styled-components';
+import { Footer } from "@erxes/ui-cards/src/boards/styles/item";
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import SortableList from "@erxes/ui/src/components/SortableList";
+import { colors } from "@erxes/ui/src/styles";
+import { ScrollWrapper } from "@erxes/ui/src/styles/main";
+import { __ } from "@erxes/ui/src/utils";
+import React from "react";
+import styled from "styled-components";
 
-import { IConfigColumn } from '../types';
+import { IConfigColumn } from "../types";
 
 const Header = styled.div`
   display: flex;
@@ -51,11 +51,11 @@ class ManageColumns extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    if (props.columns.findIndex((c) => c._id === '#') === -1) {
+    if (props.columns.findIndex((c) => c._id === "#") === -1) {
       props.columns.unshift({
-        _id: '#',
-        name: '#',
-        label: 'Numerical index',
+        _id: "#",
+        name: "#",
+        label: "Numerical index",
         order: 0,
         checked: false,
       });
@@ -63,8 +63,8 @@ class ManageColumns extends React.Component<Props, State> {
 
     this.state = {
       columns: props.columns,
-      importType: 'csv',
-      searchValue: '',
+      importType: "csv",
+      searchValue: "",
     };
   }
 
@@ -109,14 +109,14 @@ class ManageColumns extends React.Component<Props, State> {
           <FormControl
             id={String(col._id)}
             defaultChecked={col.checked}
-            componentClass="checkbox"
+            componentclass="checkbox"
           />
         </Child>
       );
     };
 
     const onclickCsv = (e) => {
-      this.setState({ importType: 'csv' }, () => {
+      this.setState({ importType: "csv" }, () => {
         this.onSubmit(e);
       });
     };
@@ -126,14 +126,14 @@ class ManageColumns extends React.Component<Props, State> {
         <FormGroup>
           <FormControl
             type="text"
-            placeholder={__('Type to search')}
+            placeholder={__("Type to search")}
             onChange={this.search}
             value={this.state.searchValue}
           />
         </FormGroup>
         <Header>
-          <span>{__('Column name')}</span>
-          <span>{__('Visible')}</span>
+          <span>{__("Column name")}</span>
+          <span>{__("Visible")}</span>
         </Header>
 
         <ScrollWrapper calcHeight="320">
@@ -154,19 +154,19 @@ class ManageColumns extends React.Component<Props, State> {
             Cancel
           </Button>
 
-          {type && type === 'import' ? (
+          {type && type === "import" ? (
             <Button type="submit" onClick={onclickCsv}>
               Download csv
             </Button>
           ) : null}
 
-          {type && type === 'export' ? (
+          {type && type === "export" ? (
             <Button type="submit" onClick={this.onSubmit}>
               Export {contentType}
             </Button>
           ) : null}
 
-          {!['export', 'import'].includes(type) ? (
+          {!["export", "import"].includes(type) ? (
             <Button type="submit" onClick={this.onSubmit}>
               Save
             </Button>

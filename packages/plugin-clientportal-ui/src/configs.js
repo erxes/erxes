@@ -7,15 +7,14 @@ module.exports = {
     './routes': './src/routes.tsx',
     './cardDetailAction': './src/containers/comments/CardDetailAction.tsx',
     './fieldConfig': './src/containers/FieldConfigForm.tsx',
-    './vendorSection': './src/containers/cardsRightSidebarSection/VendorSection.tsx',
-    './clientSection': './src/containers/cardsRightSidebarSection/ClientSection.tsx',
+    './Section': './src/containers/cardsRightSidebarSection/Section.tsx',
   },
   cardDetailAction: './cardDetailAction',
   fieldConfig: './fieldConfig',
   routes: {
     url: 'http://localhost:3015/remoteEntry.js',
     scope: 'clientportal',
-    module: './routes'
+    module: './routes',
   },
   menus: [
     {
@@ -25,44 +24,11 @@ module.exports = {
       location: 'settings',
       scope: 'businessportal',
       action: '',
-      permissions: []
-    }
+      permissions: [],
+    },
   ],
 
-  ticketRightSidebarSection: [
-    {
-      text: "vendorSection",
-      component: "./vendorSection",
-      scope: "clientportal"
-    },
-    {
-      text: "clientSection",
-      component: "./clientSection",
-      scope: "clientportal"
-    }
-  ],
-  taskRightSidebarSection: [
-    {
-      text: "vendorSection",
-      component: "./vendorSection",
-      scope: "clientportal"
-    },
-    {
-      text: "clientSection",
-      component: "./clientSection",
-      scope: "clientportal"
-    }
-  ],
-  dealRightSidebarSection: [
-    {
-      text: "vendorSection",
-      component: "./vendorSection",
-      scope: "clientportal"
-    },
-    {
-      text: "clientSection",
-      component: "./clientSection",
-      scope: "clientportal"
-    }
-  ]
+  taskRightSidebarSection: './Section',
+  ticketRightSidebarSection: './Section',
+  dealRightSidebarSection: './Section',
 };

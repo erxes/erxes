@@ -1,5 +1,5 @@
-import React from 'react';
-import { FormControl } from '@erxes/ui/src/components/form';
+import React from "react";
+import { FormControl } from "@erxes/ui/src/components/form";
 
 type Props = {
   toggleWeekDays: (dayKey: string) => void;
@@ -14,7 +14,7 @@ const ScheduleConfig = (props: Props) => {
   };
   return (
     <>
-      <FormControl componentClass="checkbox" onChange={toggleWeekDay} />
+      <FormControl componentclass="checkbox" onChange={toggleWeekDay} />
       <div>{weekDay}</div>
     </>
   );

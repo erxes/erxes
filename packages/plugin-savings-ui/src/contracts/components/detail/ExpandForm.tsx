@@ -2,16 +2,13 @@ import {
   Button,
   ControlLabel,
   Form,
-  FormControl,
   FormGroup,
-  MainStyleFormColumn as FormColumn,
-  MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
-  Info
+  Info,
 } from '@erxes/ui/src';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
+import React, { useState } from 'react';
 import { IContract } from '../../types';
 import { __ } from 'coreui/utils';
 import SelectContractType from '../../../contractTypes/containers/SelectContractType';
@@ -22,53 +19,25 @@ type Props = {
   closeModal: () => void;
 };
 
-type State = {
-  closeType: string;
-  description: string;
-  contractTypeId: string;
-};
+const ExpandForm = (props: Props) => {
+  const [contractTypeId, setContractTypeId] = useState(
+    props.contract.contractTypeId,
+  );
+  const { contract } = props;
 
-class ExpandForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      closeType: '',
-      description: '',
-      contractTypeId: props.contract.contractTypeId
-    };
-  }
-
-  generateDoc = () => {
-    const { contract } = this.props;
-
+  const generateDoc = () => {
     return {
       id: contract._id,
-      contractTypeId: this.state.contractTypeId
+      contractTypeId: contractTypeId,
     };
   };
 
-  renderFormGroup = (label, props) => {
-    return (
-      <FormGroup>
-        <ControlLabel required={!label.includes('Amount')}>
-          {label}
-        </ControlLabel>
-        <FormControl {...props} />
-      </FormGroup>
-    );
+  const onSelectContractType = (value) => {
+    setContractTypeId(value);
   };
 
-  onFieldClick = e => {
-    e.target.select();
-  };
-
-  onSelectContractType(value) {
-    this.setState({ contractTypeId: value });
-  }
-
-  renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton, contract } = this.props;
+  const renderContent = (formProps: IFormProps) => {
+    const { closeModal, renderButton } = props;
     const { isSubmitted } = formProps;
 
     return (
@@ -82,8 +51,8 @@ class ExpandForm extends React.Component<Props, State> {
             <SelectContractType
               label={__('Choose type')}
               name="contractTypeId"
-              value={this.state.contractTypeId || ''}
-              onSelect={this.onSelectContractType}
+              value={contractTypeId || ''}
+              onSelect={onSelectContractType}
               multi={false}
             ></SelectContractType>
           </FormGroup>
@@ -96,18 +65,16 @@ class ExpandForm extends React.Component<Props, State> {
 
           {renderButton({
             name: 'contract',
-            values: this.generateDoc(),
+            values: generateDoc(),
             isSubmitted,
-            object: this.props.contract
+            object: contract,
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default ExpandForm;

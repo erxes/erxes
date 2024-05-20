@@ -1,14 +1,15 @@
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FlexItem, FlexPad } from '@erxes/ui/src/components/step/styles';
-import colors from '@erxes/ui/src/styles/colors';
-import { __ } from '@erxes/ui/src/utils/core';
-import React from 'react';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { IEngageNotification } from '@erxes/ui-engage/src/types';
-import NotificationPreview from './NotificationPreview';
+import { FlexItem, FlexPad } from "@erxes/ui/src/components/step/styles";
+
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IEngageNotification } from "@erxes/ui-engage/src/types";
+import NotificationPreview from "./NotificationPreview";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils/core";
+import colors from "@erxes/ui/src/styles/colors";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 const FlexInfo = styled.div`
   display: flex;
@@ -26,7 +27,7 @@ const Char = styledTS<{ count: number }>(styled.div)`
 
 type Props = {
   onChange: (
-    name: 'shortMessage' | 'notification',
+    name: "shortMessage" | "notification",
     value?: IEngageNotification | IEngageNotification
   ) => void;
   messageKind: string;
@@ -46,25 +47,25 @@ class NotificationForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      characterCount: this.calcCharacterCount(160, this.getContent('content')),
-      titleCount: this.calcCharacterCount(15, this.getContent('title')),
-      message: this.getContent('content'),
-      title: this.getContent('title'),
-      isMobile: this.getContent('isMobile') || false,
+      characterCount: this.calcCharacterCount(160, this.getContent("content")),
+      titleCount: this.calcCharacterCount(15, this.getContent("title")),
+      message: this.getContent("content"),
+      title: this.getContent("title"),
+      isMobile: this.getContent("isMobile") || false,
     };
   }
   onChangeNotification = (key: string, value: string | boolean) => {
     const shortMessage = { ...this.props.notification } as IEngageNotification;
     shortMessage[key] = value;
 
-    this.props.onChange('notification', shortMessage);
+    this.props.onChange("notification", shortMessage);
   };
 
   getContent(key: string) {
     const { notification } = this.props;
 
     if (!notification) {
-      return '';
+      return "";
     }
 
     return notification[key];
@@ -83,17 +84,17 @@ class NotificationForm extends React.Component<Props, State> {
     const { message, title, isMobile, titleCount, characterCount } = this.state;
 
     const onChangeTitle = (e) =>
-      this.onChangeNotification('title', (e.target as HTMLInputElement).value);
+      this.onChangeNotification("title", (e.target as HTMLInputElement).value);
 
     const onChangeContent = (e) =>
       this.onChangeNotification(
-        'content',
+        "content",
         (e.target as HTMLInputElement).value
       );
 
     const onChangeIsMobile = (e) => {
       this.onChangeNotification(
-        'isMobile',
+        "isMobile",
         (e.target as HTMLInputElement).checked
       );
     };
@@ -120,7 +121,7 @@ class NotificationForm extends React.Component<Props, State> {
         <FlexPad overflow="auto" direction="column" count="3">
           <FormGroup>
             <FlexInfo>
-              <ControlLabel>{__('Notification title')}:</ControlLabel>
+              <ControlLabel>{__("Notification title")}:</ControlLabel>
               <Char count={titleCount}>{titleCount}</Char>
             </FlexInfo>
             <FormControl
@@ -133,11 +134,11 @@ class NotificationForm extends React.Component<Props, State> {
           </FormGroup>
           <FormGroup>
             <FlexInfo>
-              <ControlLabel>{__('Notification content')}:</ControlLabel>
+              <ControlLabel>{__("Notification content")}:</ControlLabel>
               <Char count={characterCount}>{characterCount}</Char>
             </FlexInfo>
             <FormControl
-              componentClass="textarea"
+              componentclass="textarea"
               defaultValue={notification && notification.content}
               onBlur={onChangeContent}
               onChange={onChangeNotificationContent}
@@ -148,7 +149,7 @@ class NotificationForm extends React.Component<Props, State> {
 
           <FormGroup horizontal>
             <FlexInfo>
-              <ControlLabel>{__('Is mobile notification')}:</ControlLabel>
+              <ControlLabel>{__("Is mobile notification")}:</ControlLabel>
             </FlexInfo>
             <input
               onBlur={onChangeIsMobile}
@@ -163,7 +164,7 @@ class NotificationForm extends React.Component<Props, State> {
           <NotificationPreview
             title={title}
             message={message}
-            isMobile={this.getContent('isMobile')}
+            isMobile={this.getContent("isMobile")}
           />
         </FlexItem>
       </FlexItem>

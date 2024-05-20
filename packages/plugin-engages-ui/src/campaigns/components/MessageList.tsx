@@ -1,25 +1,25 @@
-import { ChooseBox } from '@erxes/ui-engage/src/styles';
-import PercentItem, { ItemWrapper } from './PercentItem';
+import PercentItem, { ItemWrapper } from "./PercentItem";
 
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { EMPTY_CONTENT_ENGAGE } from '@erxes/ui-settings/src/constants';
-import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { IEngageMessage } from '@erxes/ui-engage/src/types';
-import { Link } from 'react-router-dom';
-import MessageListRow from '../containers/MessageListRow';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import React from 'react';
-import Sidebar from '../containers/Sidebar';
-import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
-import Table from '@erxes/ui/src/components/table';
-import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from 'coreui/utils';
-import colors from '@erxes/ui/src/styles/colors';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import Button from "@erxes/ui/src/components/Button";
+import { ChooseBox } from "@erxes/ui-engage/src/styles";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import { EMPTY_CONTENT_ENGAGE } from "@erxes/ui-settings/src/constants";
+import EmptyContent from "@erxes/ui/src/components/empty/EmptyContent";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IEngageMessage } from "@erxes/ui-engage/src/types";
+import { Link } from "react-router-dom";
+import MessageListRow from "../containers/MessageListRow";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import React from "react";
+import Sidebar from "../containers/Sidebar";
+import { TAG_TYPES } from "@erxes/ui-tags/src/constants";
+import Table from "@erxes/ui/src/components/table";
+import TaggerPopover from "@erxes/ui-tags/src/components/TaggerPopover";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "coreui/utils";
+import colors from "@erxes/ui/src/styles/colors";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   messages: IEngageMessage[];
@@ -39,7 +39,7 @@ class List extends React.Component<Props> {
   onChange = () => {
     const { toggleAll, messages } = this.props;
 
-    toggleAll(messages, 'engageMessages');
+    toggleAll(messages, "engageMessages");
   };
 
   renderTagger() {
@@ -47,7 +47,7 @@ class List extends React.Component<Props> {
 
     const tagButton = (
       <Button btnStyle="simple" size="small" icon="tag-alt">
-        {__('Tag')}
+        {__("Tag")}
       </Button>
     );
 
@@ -61,7 +61,7 @@ class List extends React.Component<Props> {
         targets={bulk}
         trigger={tagButton}
         successCallback={emptyBulk}
-        refetchQueries={['engageMessages']}
+        refetchQueries={["engageMessages"]}
       />
     );
   }
@@ -86,7 +86,7 @@ class List extends React.Component<Props> {
 
     const trigger = (
       <Button btnStyle="warning" size="small" icon="analysis">
-        {__('Email statistics')}
+        {__("Email statistics")}
       </Button>
     );
 
@@ -175,7 +175,7 @@ class List extends React.Component<Props> {
         {this.renderPercentage()}
         <Link to="/campaigns/create?kind=manual">
           <Button btnStyle="success" size="small" icon="plus-circle">
-            {__('New broadcast')}
+            {__("New broadcast")}
           </Button>
         </Link>
       </>
@@ -196,32 +196,32 @@ class List extends React.Component<Props> {
 
     const actionBar = (
       <Wrapper.ActionBar
-        left={isEnabled('tags') && this.renderTagger()}
+        left={isEnabled("tags") && this.renderTagger()}
         right={this.renderRightActionBar()}
       />
     );
 
     const mainContent = (
-      <Table whiteSpace="nowrap" hover={true} bordered={true}>
+      <Table $whiteSpace="nowrap" $hover={true} $bordered={true}>
         <thead>
           <tr>
             <th style={{ width: 60 }}>
               <FormControl
                 checked={isAllSelected}
-                componentClass="checkbox"
+                componentclass="checkbox"
                 onChange={this.onChange}
               />
             </th>
-            <th>{__('Title')}</th>
-            <th>{__('Status')}</th>
-            <th>{__('Total')}</th>
-            <th>{__('Type')}</th>
-            <th>{__('Brand')}</th>
-            <th>{__('From')}</th>
-            <th>{__('Created by')}</th>
-            <th>{__('Created date')}</th>
-            {isEnabled('tags') && <th>{__('Tags')}</th>}
-            <th>{__('Actions')}</th>
+            <th>{__("Title")}</th>
+            <th>{__("Status")}</th>
+            <th>{__("Total")}</th>
+            <th>{__("Type")}</th>
+            <th>{__("Brand")}</th>
+            <th>{__("From")}</th>
+            <th>{__("Created by")}</th>
+            <th>{__("Created date")}</th>
+            {isEnabled("tags") && <th>{__("Tags")}</th>}
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody id="engageMessages">
@@ -243,8 +243,8 @@ class List extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Broadcast')}
-            breadcrumb={[{ title: __('Broadcast') }]}
+            title={__("Broadcast")}
+            breadcrumb={[{ title: __("Broadcast") }]}
             queryParams={queryParams}
           />
         }

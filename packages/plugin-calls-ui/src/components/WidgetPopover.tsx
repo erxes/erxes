@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Tab, TabContent, TabsContainer } from '../styles';
+import { Tab, TabContent, TabsContainer, TabsWrapper } from '../styles';
 
 import ContactsContainer from '../containers/Contacts';
 import HistoryContainer from '../containers/History';
+import { ICallConfigDoc } from '../types';
 import { Icon } from '@erxes/ui/src/components';
 import KeyPadContainer from '../containers/KeyPad';
 import { __ } from '@erxes/ui/src/utils';
-import { ICallConfigDoc } from '../types';
 import { callPropType } from '../lib/types';
 import { extractPhoneNumberFromCounterpart } from '../utils';
 
@@ -62,33 +62,37 @@ const WidgetPopover = (
       />
     );
   };
-
+  if (context?.call?.direction === 'callDirection/INCOMING') {
+    return;
+  }
   return (
     <>
       <TabContent>{renderContent()}</TabContent>
-      <TabsContainer full={true}>
-        <Tab
-          className={currentTab === 'History' ? 'active' : ''}
-          onClick={historyOnClick}
-        >
-          <Icon icon="history" size={20} />
-          {__('History')}
-        </Tab>
-        <Tab
-          className={currentTab === 'Keyboard' ? 'active' : ''}
-          onClick={keyboardOnClick}
-        >
-          <Icon icon="keyboard-alt" size={20} />
-          {__('Keyboard')}
-        </Tab>
-        <Tab
-          className={currentTab === 'Contact' ? 'active' : ''}
-          onClick={contactsOnClick}
-        >
-          <Icon icon="book" size={18} />
-          {__('Contact')}
-        </Tab>
-      </TabsContainer>
+      <TabsWrapper>
+        <TabsContainer full={true}>
+          <Tab
+            className={currentTab === 'History' ? 'active' : ''}
+            onClick={historyOnClick}
+          >
+            <Icon icon="history" size={20} />
+            {__('History')}
+          </Tab>
+          <Tab
+            className={currentTab === 'Keyboard' ? 'active' : ''}
+            onClick={keyboardOnClick}
+          >
+            <Icon icon="keyboard-alt" size={20} />
+            {__('Keyboard')}
+          </Tab>
+          <Tab
+            className={currentTab === 'Contact' ? 'active' : ''}
+            onClick={contactsOnClick}
+          >
+            <Icon icon="book" size={18} />
+            {__('Contact')}
+          </Tab>
+        </TabsContainer>
+      </TabsWrapper>
     </>
   );
 };

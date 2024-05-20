@@ -1,19 +1,19 @@
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { gql } from '@apollo/client';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import Form from '../components/Form';
 import * as React from 'react';
-import { withRouter } from 'react-router-dom';
 import { mutations, queries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
+import { useNavigate } from 'react-router-dom';
 
-type Props = {} & IRouterProps;
+type Props = {};
 
-class {Name}Container extends React.Component<Props> {
-  renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
-    const { history } = this.props;
+const {Name}Container =(props: Props)=> {
+  const navigate = useNavigate();
 
+  const renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
     const callback = () => {
-      history.push('/settings/integrations');
+      navigate('/settings/integrations');
     };
 
     return (
@@ -29,14 +29,12 @@ class {Name}Container extends React.Component<Props> {
     );
   };
 
-  render() {
-    const updatedProps = {
-      ...this.props,
-      renderButton: this.renderButton
-    };
+  const updatedProps = {
+    ...props,
+    renderButton: renderButton
+  };
 
-    return <Form {...updatedProps} />;
-  }
+  return <Form {...updatedProps} />;
 }
 
 const getRefetchQueries = (kind: string) => {
@@ -56,4 +54,4 @@ const getRefetchQueries = (kind: string) => {
   ];
 };
 
-export default withRouter<Props>({Name}Container);
+export default ({Name}Container);

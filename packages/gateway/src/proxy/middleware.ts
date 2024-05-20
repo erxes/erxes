@@ -1,4 +1,4 @@
-import { createProxyMiddleware } from 'http-proxy-middleware';
+import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import { ErxesProxyTarget } from './targets';
 import * as dotenv from 'dotenv';
 import { apolloRouterPort } from '../apollo-router';
@@ -10,6 +10,7 @@ const { NODE_ENV } = process.env;
 const onProxyReq = (proxyReq, req: any) => {
   proxyReq.setHeader('hostname', req.hostname);
   proxyReq.setHeader('userid', req.user ? req.user._id : '');
+  fixRequestBody(proxyReq, req);
 };
 
 const forbid = (_req, res) => {

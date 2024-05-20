@@ -1,6 +1,6 @@
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { IModels } from './connectionResolver';
 import { sendInboxMessage } from './messageBroker';
+import { getOrCreateCustomer } from './store';
 
 const acceptCall = async (
   models: IModels,
@@ -12,14 +12,6 @@ const acceptCall = async (
   const integration = await models.Integrations.findOne({
     inboxId: params.inboxIntegrationId,
   }).lean();
-
-  const inboxIntegration = await sendInboxMessage({
-    subdomain,
-    action: 'integrations.findOne',
-    data: { _id: integration?.inboxId },
-    isRPC: true,
-    defaultValue: null,
-  });
 
   if (!integration) {
     throw new Error('Integration not found');
@@ -74,7 +66,9 @@ const acceptCall = async (
         : e,
     );
   }
-
+  if (!customer || !customer.erxesApiId) {
+    customer = await getOrCreateCustomer(models, subdomain, customerPhone);
+  }
   //save on api
   try {
     const apiConversationResponse = await sendInboxMessage({
@@ -102,32 +96,14 @@ const acceptCall = async (
     throw new Error(e);
   }
 
-  const channels = await sendInboxMessage({
+  await sendInboxMessage({
     subdomain,
-    action: 'channels.find',
+    action: 'conversationClientMessageInserted',
     data: {
-      integrationIds: { $in: [inboxIntegration._id] },
+      ...history?.toObject(),
+      conversationId: history.conversationId,
     },
-    isRPC: true,
   });
-
-  for (const channel of channels) {
-    for (const userId of channel.memberIds || []) {
-      graphqlPubsub.publish(
-        `conversationClientMessageInserted:${subdomain}:${userId}`,
-        {
-          conversationClientMessageInserted: {
-            _id: Math.random().toString(),
-            content: 'new grandstream message',
-            createdAt: new Date(),
-            customerId: customer?.erxesApiId,
-            conversationId: history.conversationId,
-          },
-          integration: inboxIntegration,
-        },
-      );
-    }
-  }
 
   return history;
 };

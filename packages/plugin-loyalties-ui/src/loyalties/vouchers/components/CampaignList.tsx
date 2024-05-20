@@ -1,16 +1,17 @@
-import React from 'react';
-import queryString from 'query-string';
-import { DataWithLoader, Icon, Tip } from '@erxes/ui/src/components';
-import { __, router } from '@erxes/ui/src/utils';
-import { Sidebar, Wrapper } from '@erxes/ui/src/layout';
-import { IVoucherCampaign } from '../../../configs/voucherCampaign/types';
-import { Link } from 'react-router-dom';
-import { SidebarListItem } from '../../common/styles';
+import { DataWithLoader, Icon, Tip } from "@erxes/ui/src/components";
+import { Sidebar, Wrapper } from "@erxes/ui/src/layout";
+import { __, router } from "@erxes/ui/src/utils";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import { IVoucherCampaign } from "../../../configs/voucherCampaign/types";
+import { Link } from "react-router-dom";
+import React from "react";
+import { SidebarListItem } from "../../common/styles";
+import queryString from "query-string";
 
 const { Section } = Wrapper.Sidebar;
 
 interface IProps {
-  history: any;
   queryParams: any;
   refetch: any;
   voucherCampaigns: IVoucherCampaign[];
@@ -18,20 +19,23 @@ interface IProps {
   loading: boolean;
 }
 
-class List extends React.Component<IProps> {
-  clearCategoryFilter = () => {
-    router.setParams(this.props.history, { campaignId: null });
+const List = (props: IProps) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const clearCategoryFilter = () => {
+    router.setParams(navigate, location, { campaignId: null });
   };
 
-  isActive = (id: string) => {
-    const { queryParams } = this.props;
-    const currentGroup = queryParams.campaignId || '';
+  const isActive = (id: string) => {
+    const { queryParams } = props;
+    const currentGroup = queryParams?.campaignId || "";
 
     return currentGroup === id;
   };
 
-  renderContent() {
-    const { voucherCampaigns, queryParams } = this.props;
+  const renderContent = () => {
+    const { voucherCampaigns, queryParams } = props;
 
     const otherParams = { ...queryParams };
     delete otherParams.campaignId;
@@ -44,11 +48,11 @@ class List extends React.Component<IProps> {
 
       let link;
       switch (campaign.voucherType) {
-        case 'lottery':
+        case "lottery":
           link = `/lotteries?${qryString}&voucherCampaignId=${campaign._id}`;
           break;
 
-        case 'spin':
+        case "spin":
           link = `/spins?${qryString}&voucherCampaignId=${campaign._id}`;
           break;
 
@@ -59,7 +63,7 @@ class List extends React.Component<IProps> {
       result.push(
         <SidebarListItem
           key={campaign._id}
-          isActive={this.isActive(campaign._id)}
+          $isActive={isActive(campaign?._id || "")}
         >
           <Link to={link}>{name}</Link>
         </SidebarListItem>
@@ -67,20 +71,20 @@ class List extends React.Component<IProps> {
     }
 
     return result;
-  }
+  };
 
-  renderCategoryHeader() {
+  const renderCategoryHeader = () => {
     return (
       <>
         <Section.Title>
           <Link to={`/erxes-plugin-loyalty/settings/voucher`}>
             <Icon icon="cog" />
-            {__('Manage Voucher Campaigns')}
+            {__("Manage Voucher Campaigns")}
           </Link>
           <Section.QuickButtons>
-            {router.getParam(this.props.history, 'campaignId') && (
-              <a href="#cancel" tabIndex={0} onClick={this.clearCategoryFilter}>
-                <Tip text={__('Clear filter')} placement="bottom">
+            {router.getParam(location, "campaignId") && (
+              <a href="#cancel" tabIndex={0} onClick={clearCategoryFilter}>
+                <Tip text={__("Clear filter")} placement="bottom">
                   <Icon icon="cancel-1" />
                 </Tip>
               </a>
@@ -89,14 +93,14 @@ class List extends React.Component<IProps> {
         </Section.Title>
       </>
     );
-  }
+  };
 
-  renderCategoryList() {
-    const { voucherCampaignsCount, loading } = this.props;
+  const renderCategoryList = () => {
+    const { voucherCampaignsCount, loading } = props;
 
     return (
       <DataWithLoader
-        data={this.renderContent()}
+        data={renderContent()}
         loading={loading}
         count={voucherCampaignsCount}
         emptyText="There is no voucher campaigns"
@@ -104,21 +108,16 @@ class List extends React.Component<IProps> {
         size="small"
       />
     );
-  }
+  };
 
-  render() {
-    return (
-      <Sidebar hasBorder>
-        <Section
-          maxHeight={188}
-          collapsible={this.props.voucherCampaignsCount > 5}
-        >
-          {this.renderCategoryHeader()}
-          {this.renderCategoryList()}
-        </Section>
-      </Sidebar>
-    );
-  }
-}
+  return (
+    <Sidebar hasBorder>
+      <Section maxHeight={188} $collapsible={props.voucherCampaignsCount > 5}>
+        {renderCategoryHeader()}
+        {renderCategoryList()}
+      </Section>
+    </Sidebar>
+  );
+};
 
 export default List;

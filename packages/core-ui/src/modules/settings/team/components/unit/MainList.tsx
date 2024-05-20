@@ -2,65 +2,56 @@ import {
   FilterContainer,
   InputBar,
   LeftActionBar,
-  Title
-} from '@erxes/ui-settings/src/styles';
-import { IUnit, UnitsMainQueryResponse } from '@erxes/ui/src/team/types';
-import { __, router } from '@erxes/ui/src/utils';
+  Title,
+} from "@erxes/ui-settings/src/styles";
+import { IUnit, UnitsMainQueryResponse } from "@erxes/ui/src/team/types";
+import { __, router } from "@erxes/ui/src/utils";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import { BarItems } from 'modules/layout/styles';
-import Button from 'modules/common/components/Button';
-import DataWithLoader from 'modules/common/components/DataWithLoader';
-import Form from '../../containers/common/BlockForm';
-import FormControl from 'modules/common/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
-import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Pagination from 'modules/common/components/pagination/Pagination';
-import React from 'react';
-import SettingsSideBar from '../../containers/common/SettingSideBar';
-import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
-import Table from 'modules/common/components/table';
-import Tip from '@erxes/ui/src/components/Tip';
-import Wrapper from 'modules/layout/components/Wrapper';
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import { BarItems } from "modules/layout/styles";
+import Button from "modules/common/components/Button";
+import DataWithLoader from "modules/common/components/DataWithLoader";
+import Form from "../../containers/common/BlockForm";
+import FormControl from "modules/common/components/form/Control";
+import Icon from "@erxes/ui/src/components/Icon";
+import LeftSidebar from "@erxes/ui/src/layout/components/Sidebar";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import Pagination from "modules/common/components/pagination/Pagination";
+import React, { useState } from "react";
+import SettingsSideBar from "../../containers/common/SettingSideBar";
+import SidebarHeader from "@erxes/ui-settings/src/common/components/SidebarHeader";
+import Table from "modules/common/components/table";
+import Tip from "@erxes/ui/src/components/Tip";
+import Wrapper from "modules/layout/components/Wrapper";
 
 type Props = {
   listQuery: UnitsMainQueryResponse;
   deleteUnits: (ids: string[], callback: () => void) => void;
   queryParams: any;
-  history: any;
 };
 
-type State = {
-  selectedItems: string[];
-  searchValue: string;
-};
+const MainList = (props: Props) => {
+  let timer;
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [searchValue, setSearchValue] = useState(
+    props.queryParams.searchValue || ""
+  );
 
-class MainList extends React.Component<Props, State> {
-  private timer?: NodeJS.Timer;
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      selectedItems: [],
-      searchValue: props.queryParams.searchValue || ''
-    };
-  }
-
-  remove = (_id?: string) => {
+  const remove = (_id?: string) => {
     if (_id) {
-      this.props.deleteUnits([_id], () => this.setState({ selectedItems: [] }));
+      props.deleteUnits([_id], () => setSelectedItems([]));
     } else {
-      this.props.deleteUnits(this.state.selectedItems, () =>
-        this.setState({ selectedItems: [] })
-      );
+      props.deleteUnits(selectedItems, () => setSelectedItems([]));
     }
   };
 
-  renderForm() {
+  const renderForm = () => {
     const trigger = (
       <Button btnStyle="success" icon="plus-circle">
-        {__('Add Unit')}
+        {__("Add Unit")}
       </Button>
     );
 
@@ -71,69 +62,66 @@ class MainList extends React.Component<Props, State> {
     return (
       <ModalTrigger title="Add Unit" content={content} trigger={trigger} />
     );
-  }
+  };
 
-  renderSearch() {
-    const search = e => {
-      if (this.timer) {
-        clearTimeout(this.timer);
+  const renderSearch = () => {
+    const search = (e) => {
+      if (timer) {
+        clearTimeout(timer);
       }
 
-      const { history } = this.props;
       const searchValue = e.target.value;
 
-      this.setState({ searchValue });
+      setSearchValue(searchValue);
 
-      this.timer = setTimeout(() => {
-        router.removeParams(history, 'page');
-        router.setParams(history, { searchValue });
+      timer = setTimeout(() => {
+        router.removeParams(navigate, location, "page");
+        router.setParams(navigate, location, { searchValue });
       }, 500);
     };
 
-    const moveCursorAtTheEnd = e => {
+    const moveCursorAtTheEnd = (e) => {
       const tmpValue = e.target.value;
 
-      e.target.value = '';
+      e.target.value = "";
       e.target.value = tmpValue;
     };
 
     return (
-      <FilterContainer marginRight={true}>
+      <FilterContainer $marginRight={true}>
         <InputBar type="searchBar">
           <Icon icon="search-1" size={20} />
           <FormControl
             type="text"
-            placeholder={__('Type to search')}
+            placeholder={__("Type to search")}
             onChange={search}
-            value={this.state.searchValue}
+            value={searchValue}
             autoFocus={true}
             onFocus={moveCursorAtTheEnd}
           />
         </InputBar>
       </FilterContainer>
     );
-  }
+  };
 
-  renderRow(unit: IUnit) {
-    const { selectedItems } = this.state;
-
+  const renderRow = (unit: IUnit) => {
     const handleSelect = () => {
       if (selectedItems.includes(unit._id)) {
         const removedSelectedItems = selectedItems.filter(
-          selectItem => selectItem !== unit._id
+          (selectItem) => selectItem !== unit._id
         );
-        return this.setState({ selectedItems: removedSelectedItems });
+        return setSelectedItems(removedSelectedItems);
       }
-      this.setState({ selectedItems: [...selectedItems, unit._id] });
+      setSelectedItems([...selectedItems, unit._id]);
     };
 
-    const onclick = e => {
+    const onclick = (e) => {
       e.stopPropagation();
     };
 
     const trigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')} placement="top">
+        <Tip text={__("Edit")} placement="top">
           <Icon icon="edit-3" />
         </Tip>
       </Button>
@@ -143,7 +131,7 @@ class MainList extends React.Component<Props, State> {
       <tr key={unit._id}>
         <td onClick={onclick}>
           <FormControl
-            componentClass="checkbox"
+            componentclass="checkbox"
             checked={selectedItems.includes(unit._id)}
             onClick={handleSelect}
           />
@@ -151,7 +139,7 @@ class MainList extends React.Component<Props, State> {
         <td>{__(unit.code)}</td>
         <td>{__(unit.title)}</td>
         <td>{__(unit?.supervisor?.email)}</td>
-        <td>{__(unit?.department?.title || '')}</td>
+        <td>{__(unit?.department?.title || "")}</td>
         <td>{unit.userIds?.length || 0}</td>
         <td>{unit.userCount}</td>
         <td>
@@ -164,10 +152,10 @@ class MainList extends React.Component<Props, State> {
               )}
               trigger={trigger}
             />
-            <Tip text={__('Delete')} placement="top">
+            <Tip text={__("Delete")} placement="top">
               <Button
                 btnStyle="link"
-                onClick={() => this.remove(unit._id)}
+                onClick={() => remove(unit._id)}
                 icon="times-circle"
               />
             </Tip>
@@ -175,22 +163,20 @@ class MainList extends React.Component<Props, State> {
         </td>
       </tr>
     );
-  }
+  };
 
-  renderContent() {
-    const { listQuery } = this.props;
+  const renderContent = () => {
+    const { listQuery } = props;
 
     const units = listQuery.unitsMain.list || [];
 
-    const { selectedItems } = this.state;
-
     const handleSelectAll = () => {
       if (!selectedItems.length) {
-        const unitIds = units.map(unit => unit._id);
-        return this.setState({ selectedItems: unitIds });
+        const unitIds = units.map((unit) => unit._id);
+        return setSelectedItems(unitIds);
       }
 
-      this.setState({ selectedItems: [] });
+      setSelectedItems([]);
     };
 
     return (
@@ -199,92 +185,87 @@ class MainList extends React.Component<Props, State> {
           <tr>
             <th>
               <FormControl
-                componentClass="checkbox"
+                componentclass="checkbox"
                 checked={units?.length === selectedItems.length}
                 onClick={handleSelectAll}
               />
             </th>
-            <th>{__('Code')}</th>
-            <th>{__('Title')}</th>
-            <th>{__('Supervisor')}</th>
-            <th>{__('Department')}</th>
-            <th>{__('Team member count')}</th>
-            <th>{__('Actions')}</th>
+            <th>{__("Code")}</th>
+            <th>{__("Title")}</th>
+            <th>{__("Supervisor")}</th>
+            <th>{__("Department")}</th>
+            <th>{__("Team member count")}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
-        <tbody>{(units || []).map(unit => this.renderRow(unit))}</tbody>
+        <tbody>{(units || []).map((unit) => renderRow(unit))}</tbody>
       </Table>
     );
-  }
-  render() {
-    const { listQuery } = this.props;
+  };
+  const { listQuery } = props;
+  const { totalCount } = listQuery.unitsMain;
 
-    const { totalCount } = listQuery.unitsMain;
+  const rightActionBar = (
+    <BarItems>
+      {renderSearch()}
+      {renderForm()}
+    </BarItems>
+  );
 
-    const { selectedItems } = this.state;
+  const leftActionBar = selectedItems.length > 0 && (
+    <Button
+      btnStyle="danger"
+      size="small"
+      icon="times-circle"
+      onClick={() => remove()}
+    >
+      Remove
+    </Button>
+  );
 
-    const rightActionBar = (
-      <BarItems>
-        {this.renderSearch()}
-        {this.renderForm()}
-      </BarItems>
-    );
-
-    const leftActionBar = selectedItems.length > 0 && (
-      <Button
-        btnStyle="danger"
-        size="small"
-        icon="times-circle"
-        onClick={() => this.remove()}
-      >
-        Remove
-      </Button>
-    );
-
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title="Units"
-            breadcrumb={[
-              { title: __('Settings'), link: '/settings' },
-              { title: __('Units') }
-            ]}
-          />
-        }
-        actionBar={
-          <Wrapper.ActionBar
-            right={rightActionBar}
-            left={
-              <LeftActionBar>
-                <Title capitalize={true}>
-                  {__('Units')}&nbsp;
-                  {`(${totalCount || 0})`}
-                </Title>
-                {leftActionBar}
-              </LeftActionBar>
-            }
-          />
-        }
-        content={
-          <DataWithLoader
-            loading={listQuery.loading}
-            count={totalCount}
-            data={this.renderContent()}
-            emptyImage="/images/actions/25.svg"
-            emptyText="No Units"
-          />
-        }
-        leftSidebar={
-          <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
-            <SettingsSideBar />
-          </LeftSidebar>
-        }
-        footer={<Pagination count={totalCount} />}
-        hasBorder={true}
-      />
-    );
-  }
-}
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title="Units"
+          breadcrumb={[
+            { title: __("Settings"), link: "/settings" },
+            { title: __("Units") },
+          ]}
+        />
+      }
+      actionBar={
+        <Wrapper.ActionBar
+          right={rightActionBar}
+          left={
+            <LeftActionBar>
+              <Title $capitalize={true}>
+                {__("Units")}&nbsp;
+                {`(${totalCount || 0})`}
+              </Title>
+              {leftActionBar}
+            </LeftActionBar>
+          }
+        />
+      }
+      content={
+        <DataWithLoader
+          loading={listQuery.loading}
+          count={totalCount}
+          data={renderContent()}
+          emptyImage="/images/actions/25.svg"
+          emptyText="No Units"
+        />
+      }
+      leftSidebar={
+        <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
+          <SettingsSideBar />
+        </LeftSidebar>
+      }
+      footer={<Pagination count={totalCount} />}
+      hasBorder={true}
+    />
+  );
+};
 
 export default MainList;

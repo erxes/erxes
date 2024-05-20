@@ -1,37 +1,35 @@
-import _ from 'lodash';
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import DetailLeftSidebar from './DetailLeftSidebar';
-import DetailRightSidebar from './DetailRightSidebar';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Form from '../../performs/containers/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import PerformRow from './PerformRow';
-import React from 'react';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { FieldStyle, SidebarCounter, Table } from '@erxes/ui/src';
-import { __ } from 'coreui/utils';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import { FinanceAmount, FlexRow } from '../../styles';
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-import { IOverallWorkDet } from '../types';
-import { IPerform } from '../../performs/types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { menuNavs } from '../../constants';
-import { Title } from '@erxes/ui-settings/src/styles';
-import { withRouter } from 'react-router-dom';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import { FieldStyle, SidebarCounter, Table } from "@erxes/ui/src";
+import { FinanceAmount, FlexRow } from "../../styles";
+
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import Button from "@erxes/ui/src/components/Button";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import DetailLeftSidebar from "./DetailLeftSidebar";
+import DetailRightSidebar from "./DetailRightSidebar";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Form from "../../performs/containers/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
+import { IOverallWorkDet } from "../types";
+import { IPerform } from "../../performs/types";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import PerformRow from "./PerformRow";
+import React from "react";
+import { Title } from "@erxes/ui-settings/src/styles";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import _ from "lodash";
+import { __ } from "coreui/utils";
+import { menuNavs } from "../../constants";
 
 type Props = {
-  history: any;
   queryParams: any;
   overallWork: IOverallWorkDet;
   errorMsg?: string;
   performs: IPerform[];
   performsCount: number;
   removePerform: (_id: string) => void;
-} & IRouterProps;
+};
 
 type State = {
   minPotentialCount: number;
@@ -79,7 +77,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
 
     this.state = {
       minPotentialCount: this.calcMinPotentialCount(),
-      maxMadeCount: this.calcMaxMadeCount()
+      maxMadeCount: this.calcMaxMadeCount(),
     };
   }
 
@@ -93,7 +91,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
       <li>
         <FlexRow>
           <FieldStyle>{__(`${label}`)}:</FieldStyle>
-          <SidebarCounter>{value || '-'}</SidebarCounter>
+          <SidebarCounter>{value || "-"}</SidebarCounter>
         </FlexRow>
       </li>
     );
@@ -101,7 +99,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
 
   renderEditRow(label, key) {
     const value = this.state[key];
-    const onChangeValue = e => {
+    const onChangeValue = (e) => {
       this.setState({ [key]: Number(e.target.value) } as any);
     };
     return (
@@ -114,11 +112,11 @@ class OverallWorkDetail extends React.Component<Props, State> {
     );
   }
 
-  generateLabel = customer => {
+  generateLabel = (customer) => {
     const { firstName, primaryEmail, primaryPhone, lastName } =
       customer || ({} as ICustomer);
 
-    let value = firstName ? firstName.toUpperCase() : '';
+    let value = firstName ? firstName.toUpperCase() : "";
 
     if (lastName) {
       value = `${value} ${lastName}`;
@@ -134,44 +132,37 @@ class OverallWorkDetail extends React.Component<Props, State> {
   };
 
   renderContent() {
-    const {
-      overallWork,
-      queryParams,
-      history,
-      errorMsg,
-      performs,
-      removePerform
-    } = this.props;
+    const { overallWork, queryParams, errorMsg, performs, removePerform } =
+      this.props;
     if (errorMsg) {
       return (
         <EmptyState
-          text={errorMsg.replace('GraphQL error: ', '')}
+          text={errorMsg.replace("GraphQL error: ", "")}
           size="full"
-          image={'/images/actions/11.svg'}
+          image={"/images/actions/11.svg"}
         />
       );
     }
 
     return (
-      <Table whiteSpace="nowrap" bordered={true} hover={true}>
+      <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
         <thead>
           <tr>
-            <th>{__('Start At')}</th>
-            <th>{__('Count')}</th>
-            <th>{__('End At')}</th>
-            <th>{__('Modified by')}</th>
-            <th>{__('Modified At')}</th>
-            <th>{__('Status')}</th>
-            <th>{__('Actions')}</th>
+            <th>{__("Start At")}</th>
+            <th>{__("Count")}</th>
+            <th>{__("End At")}</th>
+            <th>{__("Modified by")}</th>
+            <th>{__("Modified At")}</th>
+            <th>{__("Status")}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody id="overallWorks">
-          {(performs || []).map(perform => (
+          {(performs || []).map((perform) => (
             <PerformRow
               key={Math.random()}
               perform={perform}
               overallWork={overallWork}
-              history={history}
               queryParams={queryParams}
               removePerform={removePerform}
               minPotentialCount={this.state.minPotentialCount}
@@ -183,7 +174,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
   }
 
   render() {
-    const { queryParams, history, overallWork, performsCount } = this.props;
+    const { queryParams, overallWork, performsCount } = this.props;
 
     const mainContent = (
       <DataWithLoader
@@ -196,11 +187,11 @@ class OverallWorkDetail extends React.Component<Props, State> {
     );
     const trigger = (
       <Button btnStyle="success" icon="plus-circle">
-        {__('Add performance')}
+        {__("Add performance")}
       </Button>
     );
 
-    const modalContent = props => (
+    const modalContent = (props) => (
       <Form
         {...props}
         overallWorkDetail={overallWork}
@@ -211,7 +202,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
     const actionBarRight = (
       <BarItems>
         <ModalTrigger
-          title={__('Add Performance')}
+          title={__("Add Performance")}
           size="xl"
           trigger={trigger}
           autoOpenKey="showProductModal"
@@ -220,7 +211,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
       </BarItems>
     );
 
-    const actionBarLeft = <Title>{'Performances'}</Title>;
+    const actionBarLeft = <Title>{"Performances"}</Title>;
 
     return (
       <Wrapper
@@ -230,9 +221,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
         actionBar={
           <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
         }
-        leftSidebar={
-          <DetailLeftSidebar queryParams={queryParams} history={history} />
-        }
+        leftSidebar={<DetailLeftSidebar queryParams={queryParams} />}
         rightSidebar={
           <DetailRightSidebar
             queryParams={queryParams}
@@ -247,4 +236,4 @@ class OverallWorkDetail extends React.Component<Props, State> {
   }
 }
 
-export default withRouter<IRouterProps>(OverallWorkDetail);
+export default OverallWorkDetail;

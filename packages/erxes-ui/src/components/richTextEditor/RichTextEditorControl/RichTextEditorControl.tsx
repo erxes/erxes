@@ -1,13 +1,12 @@
-import React, { useRef } from 'react';
-
-import { useRichTextEditorContext } from '../RichTextEditor.context';
-import { IRichTextEditorLabels } from '../labels';
 import { EditorControl } from './styles';
+import { IRichTextEditorLabels } from '../labels';
+import React from 'react';
+import { useRichTextEditorContext } from '../RichTextEditor.context';
 
 export type RichTextEditorControlStylesNames = 'control';
 
 export interface IRichTextEditorControlProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  extends React.ButtonHTMLAttributes<HTMLSpanElement> {
   /** Determines whether the control should have active state, false by default */
   active?: boolean;
 
@@ -18,9 +17,9 @@ export interface IRichTextEditorControlProps
   isSourceControl?: boolean;
 }
 
-export const RichTextEditorControl = (props: IRichTextEditorControlProps) => {
+export const RichTextEditorControl = (props: any) => {
   const { isSourceEnabled } = useRichTextEditorContext();
-  const ref = useRef<HTMLButtonElement>(null);
+  // const ref = useRef<HTMLButtonElement>(null);
 
   const {
     interactive,
@@ -34,7 +33,7 @@ export const RichTextEditorControl = (props: IRichTextEditorControlProps) => {
   return (
     <EditorControl
       {...others}
-      type="button"
+      type="span"
       disabled={isSourceControl ? false : disabled || isSourceEnabled}
       data-rich-text-editor-control={true}
       tabIndex={interactive ? 0 : -1}
@@ -44,7 +43,7 @@ export const RichTextEditorControl = (props: IRichTextEditorControlProps) => {
       }
       aria-pressed={(active && interactive) || undefined}
       aria-hidden={!interactive || undefined}
-      innerRef={ref}
+      // ref={ref}
       onMouseDown={(event) => {
         event.preventDefault();
         onMouseDown?.(event);

@@ -1,13 +1,14 @@
-import Button from '../../components/Button';
-import FormControl from '../../components/form/Control';
-import Form from '../../components/form/Form';
-import FormGroup from '../../components/form/Group';
-import ControlLabel from '../../components/form/Label';
-import { ModalFooter } from '../../styles/main';
-import { IButtonMutateProps, IFormProps } from '../../types';
-import EmailConfigForm from '@erxes/ui-settings/src/general/components/EmailConfigForm';
-import React, { useState } from 'react';
-import { IBrand } from '../types';
+import { IButtonMutateProps, IFormProps } from "../../types";
+import React, { useState } from "react";
+
+import Button from "../../components/Button";
+import ControlLabel from "../../components/form/Label";
+import EmailConfigForm from "@erxes/ui-settings/src/general/components/EmailConfigForm";
+import Form from "../../components/form/Form";
+import FormControl from "../../components/form/Control";
+import FormGroup from "../../components/form/Group";
+import { IBrand } from "../types";
+import { ModalFooter } from "../../styles/main";
 
 type Props = {
   brand?: IBrand;
@@ -33,7 +34,7 @@ const BrandForm = (props: Props) => {
 
     const updatedValues = {
       ...values,
-      emailConfig
+      emailConfig,
     };
 
     return (
@@ -48,11 +49,11 @@ const BrandForm = (props: Props) => {
         </Button>
 
         {renderButton({
-          name: 'brand',
+          name: "brand",
           values: updatedValues,
           isSubmitted,
           callback: closeModal || afterSave,
-          object: brand
+          object: brand,
         })}
       </ModalFooter>
     );
@@ -97,7 +98,7 @@ const BrandForm = (props: Props) => {
           <FormControl
             {...formProps}
             name="description"
-            componentClass="textarea"
+            componentclass="textarea"
             rows={5}
             defaultValue={object.description}
           />

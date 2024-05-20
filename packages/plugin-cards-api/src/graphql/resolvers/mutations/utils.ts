@@ -376,9 +376,8 @@ export const itemsEdit = async (
       action: 'sendMobileNotification',
       data: {
         title: notificationDoc?.item?.name,
-        body: `${
-          user?.details?.fullName || user?.details?.shortName
-        } has updated`,
+        body: `${user?.details?.fullName || user?.details?.shortName
+          } has updated`,
         receivers: notificationDoc?.item?.assignedUserIds,
         data: {
           type,
@@ -405,7 +404,7 @@ export const itemsEdit = async (
     user,
   );
 
-  const oldStage = await models.Stages.getStage(oldItem.stageId);
+  const updatedStage = await models.Stages.getStage(updatedItem.stageId);
 
   if (doc.tagIds || doc.startDate || doc.closeDate || doc.name) {
     graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
@@ -415,21 +414,21 @@ export const itemsEdit = async (
     });
   }
 
-  if (oldStage.pipelineId !== stage.pipelineId) {
+  if (updatedStage.pipelineId !== stage.pipelineId) {
     graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
       pipelinesChanged: {
-        _id: oldStage.pipelineId,
+        _id: stage.pipelineId,
         proccessId,
         action: 'itemRemove',
         data: {
           item: oldItem,
-          oldStageId: oldStage._id,
+          oldStageId: stage._id,
         },
       },
     });
     graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
       pipelinesChanged: {
-        _id: stage.pipelineId,
+        _id: updatedStage.pipelineId,
         proccessId,
         action: 'itemAdd',
         data: {
@@ -438,7 +437,7 @@ export const itemsEdit = async (
             ...(await itemResolver(models, subdomain, user, type, updatedItem)),
           },
           aboveItemId: '',
-          destinationStageId: stage._id,
+          destinationStageId: updatedStage._id,
         },
       },
     });
@@ -628,9 +627,7 @@ export const itemsChange = async (
       action: 'sendMobileNotification',
       data: {
         title: `${item.name}`,
-        body: `${user?.details?.fullName || user?.details?.shortName} ${
-          action + content
-        }`,
+        body: `${user?.details?.fullName || user?.details?.shortName} ${action + content}`,
         receivers: item?.assignedUserIds,
         data: {
           type,
@@ -704,9 +701,7 @@ export const itemsRemove = async (
       action: 'sendMobileNotification',
       data: {
         title: `${item.name}`,
-        body: `${
-          user?.details?.fullName || user?.details?.shortName
-        } deleted the ${type}`,
+        body: `${user?.details?.fullName || user?.details?.shortName} deleted the ${type}`,
         receivers: item?.assignedUserIds,
         data: {
           type,

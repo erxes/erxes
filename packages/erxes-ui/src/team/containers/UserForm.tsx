@@ -19,7 +19,6 @@ type Props = {
   groupsQuery: any; // check - UsersGroupsQueryResponse
   getEnvQuery: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  history?: any;
   queryParams?: any;
 };
 

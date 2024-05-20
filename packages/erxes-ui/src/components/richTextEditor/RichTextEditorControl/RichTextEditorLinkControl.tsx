@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import { BoxArrowUpRight } from 'react-bootstrap-icons';
-import { useRichTextEditorContext } from '../RichTextEditor.context';
 import {
   IRichTextEditorControlBaseProps,
   RichTextEditorControlBase,
-} from './RichTextEditorControl';
-import Tip from '../../Tip';
-import { InputAction, InputWrapper, LinkInput, LinkWrapper } from './styles';
-import Icon from '../../Icon';
+} from "./RichTextEditorControl";
+import { InputAction, InputWrapper, LinkInput, LinkWrapper } from "./styles";
+import React, { useState } from "react";
 
-const LinkIcon: IRichTextEditorControlBaseProps['icon'] = () => (
+import { BoxArrowUpRight } from "react-bootstrap-icons";
+import Icon from "../../Icon";
+import Popover from "../../Popover";
+import Tip from "../../Tip";
+import { useRichTextEditorContext } from "../RichTextEditor.context";
+
+const LinkIcon: IRichTextEditorControlBaseProps["icon"] = () => (
   <Icon icon="link-alt" />
 );
 
@@ -20,7 +21,7 @@ export type RichTextEditorLinkControlProps = {
 };
 
 export const RichTextEditorLinkControl = (
-  props: RichTextEditorLinkControlProps,
+  props: RichTextEditorLinkControlProps
 ) => {
   let overLayRef;
 
@@ -28,7 +29,7 @@ export const RichTextEditorLinkControl = (
 
   const ctx = useRichTextEditorContext();
 
-  const [url, setUrl] = useState('');
+  const [url, setUrl] = useState("");
   const [external, setExternal] = useState(initialExternal);
   const [opened, setOpened] = useState(false);
 
@@ -41,26 +42,26 @@ export const RichTextEditorLinkControl = (
 
   const handleOpen = () => {
     open();
-    const linkData = ctx.editor?.getAttributes('link');
-    setUrl(linkData?.href || '');
-    setExternal(linkData?.target === '_blank');
+    const linkData = ctx.editor?.getAttributes("link");
+    setUrl(linkData?.href || "");
+    setExternal(linkData?.target === "_blank");
   };
 
   const handleClose = () => {
     close();
-    setUrl('');
+    setUrl("");
     setExternal(initialExternal);
   };
 
   const setLink = () => {
     handleClose();
-    url === ''
-      ? ctx.editor?.chain().focus().extendMarkRange('link').unsetLink().run()
+    url === ""
+      ? ctx.editor?.chain().focus().extendMarkRange("link").unsetLink().run()
       : ctx.editor
           ?.chain()
           .focus()
-          .extendMarkRange('link')
-          .setLink({ href: url, target: external ? '_blank' : null })
+          .extendMarkRange("link")
+          .setLink({ href: url, target: external ? "_blank" : null })
           .run();
   };
 
@@ -70,62 +71,60 @@ export const RichTextEditorLinkControl = (
   };
 
   const handleInputKeydown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       event.preventDefault();
       setLink();
     }
   };
 
   return (
-    <OverlayTrigger
-      ref={(overlayTrigger) => {
+    <Popover
+      trigger={
+        <RichTextEditorControlBase
+          icon={icon || LinkIcon}
+          aria-label={ctx.labels.linkControlLabel}
+          title={ctx.labels.linkControlLabel}
+          onClick={handleOpen}
+          active={ctx.editor?.isActive("link")}
+        />
+      }
+      innerRef={(overlayTrigger) => {
         overLayRef = overlayTrigger;
       }}
-      trigger="click"
-      rootClose={true}
       placement="top"
-      overlay={
-        <LinkWrapper>
-          <InputWrapper>
-            <LinkInput
-              placeholder={ctx.labels.linkEditorInputPlaceholder}
-              aria-label={ctx.labels.linkEditorInputLabel}
-              type="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              onKeyDown={handleInputKeydown}
-            />
-            <InputAction>
-              <Tip
-                placement="top"
-                text={
-                  external
-                    ? ctx.labels.linkEditorExternalLink
-                    : ctx.labels.linkEditorInternalLink
-                }
-              >
-                <button
-                  onClick={() => setExternal((e) => !e)}
-                  data-active={external || undefined}
-                >
-                  <BoxArrowUpRight
-                    style={{ width: '0.875rem', height: '0.875rem' }}
-                  />
-                </button>
-              </Tip>
-            </InputAction>
-          </InputWrapper>
-          <button onClick={handleSave}>{ctx.labels.linkEditorSave}</button>
-        </LinkWrapper>
-      }
     >
-      <RichTextEditorControlBase
-        icon={icon || LinkIcon}
-        aria-label={ctx.labels.linkControlLabel}
-        title={ctx.labels.linkControlLabel}
-        onClick={handleOpen}
-        active={ctx.editor?.isActive('link')}
-      />
-    </OverlayTrigger>
+      <LinkWrapper>
+        <InputWrapper>
+          <LinkInput
+            placeholder={ctx.labels.linkEditorInputPlaceholder}
+            aria-label={ctx.labels.linkEditorInputLabel}
+            type="url"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            onKeyDown={handleInputKeydown}
+          />
+          <InputAction>
+            <Tip
+              placement="top"
+              text={
+                external
+                  ? ctx.labels.linkEditorExternalLink
+                  : ctx.labels.linkEditorInternalLink
+              }
+            >
+              <button
+                onClick={() => setExternal((e) => !e)}
+                data-active={external || undefined}
+              >
+                <BoxArrowUpRight
+                  style={{ width: "0.875rem", height: "0.875rem" }}
+                />
+              </button>
+            </Tip>
+          </InputAction>
+        </InputWrapper>
+        <button onClick={handleSave}>{ctx.labels.linkEditorSave}</button>
+      </LinkWrapper>
+    </Popover>
   );
 };

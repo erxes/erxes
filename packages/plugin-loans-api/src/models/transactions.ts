@@ -1,7 +1,6 @@
 import { ITransaction, transactionSchema } from './definitions/transactions';
 import { INVOICE_STATUS, SCHEDULE_STATUS } from './definitions/constants';
 import { findContractOfTr } from './utils/findUtils';
-import { generatePendingSchedules } from './utils/scheduleUtils';
 import {
   getCalcedAmounts,
   removeTrAfterSchedule,
@@ -85,6 +84,8 @@ export const loadTransactionClass = (models: IModels) => {
         .sort({ date: -1 })
         .lean();
 
+      const config: IConfig = await getConfig('loansConfig', subdomain);
+
       if (!doc.contractId) {
         throw new Error('Contract not selected');
       }
@@ -116,6 +117,14 @@ export const loadTransactionClass = (models: IModels) => {
       }
 
       if (doc.transactionType === 'give') {
+        if (!config.loanGiveLimit) {
+          throw new Error('Loan give limit not configured');
+        }
+
+        if (config.loanGiveLimit < doc.total) {
+          throw new Error('The limit is exceeded');
+        }
+
         doc.give = doc.total;
         doc.contractReaction = contract;
 
@@ -147,8 +156,6 @@ export const loadTransactionClass = (models: IModels) => {
         return tr;
       }
 
-      const config: IConfig = await getConfig('loansConfig', subdomain);
-
       doc.payDate = getFullDate(doc.payDate);
       doc.contractReaction = contract;
 
@@ -173,7 +180,7 @@ export const loadTransactionClass = (models: IModels) => {
         );
 
       await createTransactionSchedule(contract, tr.payDate, tr, models, config);
-      await scheduleFixAfterCurrent(contract, tr.payDate, models, config);
+      await scheduleFixAfterCurrent(contract, tr.payDate, models, config)
 
       const contractType = await models.ContractTypes.findOne({
         _id: contract.contractTypeId
@@ -332,10 +339,16 @@ export const loadTransactionClass = (models: IModels) => {
         { _id },
         { $set: { ...doc, total: newTotal } }
       );
-      
+
       let newTr = await models.Transactions.getTransaction({ _id });
 
-      await createTransactionSchedule(contract, newTr.payDate, newTr, models, config);
+      await createTransactionSchedule(
+        contract,
+        newTr.payDate,
+        newTr,
+        models,
+        config
+      );
       await scheduleFixAfterCurrent(contract, newTr.payDate, models, config);
 
       return newTr;
@@ -374,10 +387,7 @@ export const loadTransactionClass = (models: IModels) => {
             (await models.Contracts.updateOne(
               { _id: oldTr.contractId },
               {
-                $set: {
-                  storedInterest: oldTr.calcedInfo?.storedInterest,
-                  givenAmount: oldTr.contractReaction?.givenAmount
-                }
+                $set: oldTr.contractReaction
               }
             ));
           await models.Transactions.deleteOne({ _id: oldTr._id });

@@ -1,13 +1,4 @@
-import Button from '@erxes/ui/src/components/Button';
-import { ITimeclock } from '../../types';
-import Row from './TimeclockRow';
-import { Alert, __ } from '@erxes/ui/src/utils';
-import React, { useState } from 'react';
-import { Title } from '@erxes/ui-settings/src/styles';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import Table from '@erxes/ui/src/components/table';
-import TimeForm from '../../containers/timeclock/TimeFormList';
+import { Alert, __ } from "@erxes/ui/src/utils";
 import {
   CustomRangeContainer,
   FlexCenter,
@@ -17,19 +8,28 @@ import {
   MarginY,
   TextAlignCenter,
   ToggleButton,
-  ToggleDisplay
-} from '../../styles';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import { ControlLabel } from '@erxes/ui/src/components/form';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import Select from 'react-select-plus';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { prepareCurrentUserOption } from '../../utils';
-import * as dayjs from 'dayjs';
+  ToggleDisplay,
+} from "../../styles";
+import { IBranch, IDepartment } from "@erxes/ui/src/team/types";
+import React, { useState } from "react";
+import { isEnabled, loadDynamicComponent } from "@erxes/ui/src/utils/core";
+
+import Button from "@erxes/ui/src/components/Button";
+import { ControlLabel } from "@erxes/ui/src/components/form";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import { ITimeclock } from "../../types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import Row from "./TimeclockRow";
+import Select from "react-select";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import Table from "@erxes/ui/src/components/table";
+import TimeForm from "../../containers/timeclock/TimeFormList";
+import { Title } from "@erxes/ui-settings/src/styles";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { prepareCurrentUserOption } from "../../utils";
 
 type Props = {
   currentUser: IUser;
@@ -68,44 +68,44 @@ function List(props: Props) {
     removeTimeclock,
     getActionBar,
     showSideBar,
-    getPagination
+    getPagination,
   } = props;
 
-  const [extractType, setExtractType] = useState('All team members');
+  const [extractType, setExtractType] = useState("All team members");
   const [currUserIds, setUserIds] = useState([]);
 
   const [selectedBranches, setBranches] = useState<string[]>([]);
   const [selectedDepartments, setDepartments] = useState<string[]>([]);
 
   const renderDepartmentOptions = (depts: IDepartment[]) => {
-    return depts.map(dept => ({
+    return depts.map((dept) => ({
       value: dept._id,
       label: dept.title,
-      userIds: dept.userIds
+      userIds: dept.userIds,
     }));
   };
 
   const renderBranchOptions = (branchesList: IBranch[]) => {
-    return branchesList.map(branch => ({
+    return branchesList.map((branch) => ({
       value: branch._id,
       label: branch.title,
-      userIds: branch.userIds
+      userIds: branch.userIds,
     }));
   };
 
-  const onBranchSelect = el => {
+  const onBranchSelect = (el) => {
     const selectedBranchIds: string[] = [];
-    selectedBranchIds.push(...el.map(branch => branch.value));
+    selectedBranchIds.push(...el.map((branch) => branch.value));
     setBranches(selectedBranchIds);
   };
 
-  const onDepartmentSelect = el => {
+  const onDepartmentSelect = (el) => {
     const selectedDeptIds: string[] = [];
-    selectedDeptIds.push(...el.map(dept => dept.value));
+    selectedDeptIds.push(...el.map((dept) => dept.value));
     setDepartments(selectedDeptIds);
   };
 
-  const onMemberSelect = selectedUsers => {
+  const onMemberSelect = (selectedUsers) => {
     setUserIds(selectedUsers);
   };
 
@@ -129,20 +129,20 @@ function List(props: Props) {
     ? {}
     : {
         ids: returnTotalUserOptions(),
-        excludeIds: false
+        excludeIds: false,
       };
 
   const trigger = (
-    <Button btnStyle={'success'} icon="plus-circle">
+    <Button btnStyle={"success"} icon="plus-circle">
       Start Shift
     </Button>
   );
 
   const [startDate, setStartDate] = useState(
-    new Date(localStorage.getItem('startDate') || Date.now())
+    new Date(localStorage.getItem("startDate") || Date.now())
   );
   const [endDate, setEndDate] = useState(
-    new Date(localStorage.getItem('endDate') || Date.now())
+    new Date(localStorage.getItem("endDate") || Date.now())
   );
 
   const extractTrigger = isCurrentUserAdmin ? (
@@ -154,16 +154,16 @@ function List(props: Props) {
   );
 
   const [isSideBarOpen, setIsOpen] = useState(
-    localStorage.getItem('isSideBarOpen') === 'true' ? true : false
+    localStorage.getItem("isSideBarOpen") === "true" ? true : false
   );
 
   const onToggleSidebar = () => {
     const toggleIsOpen = !isSideBarOpen;
     setIsOpen(toggleIsOpen);
-    localStorage.setItem('isSideBarOpen', toggleIsOpen.toString());
+    localStorage.setItem("isSideBarOpen", toggleIsOpen.toString());
   };
 
-  const modalContent = contenProps => (
+  const modalContent = (contenProps) => (
     <TimeForm
       {...contenProps}
       {...props}
@@ -172,23 +172,23 @@ function List(props: Props) {
     />
   );
 
-  const onStartDateChange = dateVal => {
+  const onStartDateChange = (dateVal) => {
     if (checkDateRange(dateVal, endDate)) {
       setStartDate(dateVal);
-      localStorage.setItem('startDate', startDate.toISOString());
+      localStorage.setItem("startDate", startDate.toISOString());
     }
   };
 
-  const onEndDateChange = dateVal => {
+  const onEndDateChange = (dateVal) => {
     if (checkDateRange(startDate, dateVal)) {
       setEndDate(dateVal);
-      localStorage.setItem('endDate', endDate.toISOString());
+      localStorage.setItem("endDate", endDate.toISOString());
     }
   };
 
   const checkDateRange = (start: Date, end: Date) => {
     if ((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24) > 8) {
-      Alert.error('Please choose date range within 8 days');
+      Alert.error("Please choose date range within 8 days");
       return false;
     }
 
@@ -201,12 +201,18 @@ function List(props: Props) {
         branchIds: selectedBranches,
         departmentIds: selectedDepartments,
         userIds: currUserIds,
-        extractAll: extractType === 'All team members'
+        extractAll: extractType === "All team members",
       });
     }
   };
-  const extractContent = contentProps => (
-    <FlexColumnCustom marginNum={10}>
+  const extractOptions = ["All team members", "Choose team members"].map(
+    (e) => ({
+      value: e,
+      label: e,
+    })
+  );
+  const extractContent = (contentProps) => (
+    <FlexColumnCustom $marginNum={10}>
       <div>
         <ControlLabel>Select Date Range</ControlLabel>
         <CustomRangeContainer>
@@ -214,49 +220,57 @@ function List(props: Props) {
             required={false}
             value={startDate}
             name="startDate"
-            placeholder={'Starting date'}
-            dateFormat={'YYYY-MM-DD'}
+            placeholder={"Starting date"}
+            dateFormat={"YYYY-MM-DD"}
             onChange={onStartDateChange}
           />
           <DateControl
             required={false}
             value={endDate}
             name="endDate"
-            placeholder={'Ending date'}
-            dateFormat={'YYYY-MM-DD'}
+            placeholder={"Ending date"}
+            dateFormat={"YYYY-MM-DD"}
             onChange={onEndDateChange}
           />
         </CustomRangeContainer>
       </div>
 
       <Select
-        value={extractType}
-        onChange={el => setExtractType(el.value)}
+        value={extractOptions.find((o) => o.value === extractType)}
+        onChange={(el: any) => setExtractType(el.value)}
         placeholder="Select extract type"
-        options={['All team members', 'Choose team members'].map(e => ({
-          value: e,
-          label: e
-        }))}
+        isClearable={true}
+        options={extractOptions}
       />
 
-      <ToggleDisplay display={extractType === 'Choose team members'}>
+      <ToggleDisplay display={extractType === "Choose team members"}>
         <div>
           <ControlLabel>Departments</ControlLabel>
           <Select
-            value={selectedDepartments}
+            value={
+              departments &&
+              renderDepartmentOptions(departments).filter((o) =>
+                selectedDepartments.includes(o.value)
+              )
+            }
             onChange={onDepartmentSelect}
             placeholder="Select departments"
-            multi={true}
+            isMulti={true}
             options={departments && renderDepartmentOptions(departments)}
           />
         </div>
         <div>
           <ControlLabel>Branches</ControlLabel>
           <Select
-            value={selectedBranches}
+            value={
+              branches &&
+              renderBranchOptions(branches).filter((o) =>
+                selectedBranches.includes(o.value)
+              )
+            }
             onChange={onBranchSelect}
             placeholder="Select branches"
-            multi={true}
+            isMulti={true}
             options={branches && renderBranchOptions(branches)}
           />
         </div>
@@ -285,7 +299,7 @@ function List(props: Props) {
   );
 
   const bichilTimeclockActionBar = loadDynamicComponent(
-    'bichilTimeclockActionBar',
+    "bichilTimeclockActionBar",
     { currentUserId: currentUser._id, isCurrentUserAdmin, queryParams }
   );
 
@@ -293,14 +307,14 @@ function List(props: Props) {
     <FlexRowLeft>
       <ToggleButton
         id="btn-inbox-channel-visible"
-        isActive={isSideBarOpen}
+        $isActive={isSideBarOpen}
         onClick={onToggleSidebar}
       >
         <Icon icon="subject" />
       </ToggleButton>
 
-      {!isEnabled('bichil') && (
-        <Title capitalize={true}>{` Total: ${timeclocks.length}`}</Title>
+      {!isEnabled("bichil") && (
+        <Title $capitalize={true}>{` Total: ${timeclocks.length}`}</Title>
       )}
     </FlexRowLeft>
   );
@@ -310,15 +324,15 @@ function List(props: Props) {
       {bichilTimeclockActionBar && bichilTimeclockActionBar}
 
       <div>
-        {!isEnabled('bichil') && (
+        {!isEnabled("bichil") && (
           <ModalTrigger
-            title={__('Extract all data')}
+            title={__("Extract all data")}
             trigger={extractTrigger}
             content={extractContent}
           />
         )}
         <ModalTrigger
-          title={__('Start shift')}
+          title={__("Start shift")}
           trigger={trigger}
           content={modalContent}
         />
@@ -340,7 +354,7 @@ function List(props: Props) {
   getPagination(<Pagination count={totalCount} />);
 
   const bichilTimeclockTable = loadDynamicComponent(
-    'bichilTimeclockTable',
+    "bichilTimeclockTable",
     props
   );
 
@@ -352,22 +366,22 @@ function List(props: Props) {
     <Table>
       <thead>
         <tr>
-          <th>{__('Team member')}</th>
-          <th>{__('Shift date')}</th>
-          <th>{__('Check In')}</th>
-          <th>{__('In Device')}</th>
-          <th>{__('Location')}</th>
-          <th>{__('Check Out')}</th>
-          <th>{__('Overnight')}</th>
-          <th>{__('Out Device')}</th>
-          <th>{__('Location')}</th>
+          <th>{__("Team member")}</th>
+          <th>{__("Shift date")}</th>
+          <th>{__("Check In")}</th>
+          <th>{__("In Device")}</th>
+          <th>{__("Location")}</th>
+          <th>{__("Check Out")}</th>
+          <th>{__("Overnight")}</th>
+          <th>{__("Out Device")}</th>
+          <th>{__("Location")}</th>
           <th>
-            <TextAlignCenter>{__('Action')}</TextAlignCenter>
+            <TextAlignCenter>{__("Action")}</TextAlignCenter>
           </th>
         </tr>
       </thead>
       <tbody>
-        {timeclocks.map(timeclock => {
+        {timeclocks.map((timeclock) => {
           return (
             <Row
               isCurrentUserAdmin={isCurrentUserAdmin}

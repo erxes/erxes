@@ -1,24 +1,22 @@
-import React from 'react';
+import React from "react";
 
-import Alert from '@erxes/ui/src/utils/Alert/index';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/index';
+import Alert from "@erxes/ui/src/utils/Alert/index";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { __ } from "@erxes/ui/src/utils/index";
 
-import Form from '../../components/dashboard/Form';
-import { queries, mutations } from '../../graphql';
-import { gql, useQuery, useMutation } from '@apollo/client';
+import Form from "../../components/dashboard/Form";
+import { queries, mutations } from "../../graphql";
+import { gql, useQuery, useMutation } from "@apollo/client";
 import {
   DashboardDetailQueryResponse,
   DashboardEditMutationResponse,
   DashboardFormMutationVariables,
   InsightTemplatesListQueryResponse,
-} from '../../types';
+} from "../../types";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
-  history: any;
 
   dashboardId?: string;
 
@@ -26,25 +24,26 @@ type Props = {
 };
 
 const FormContainer = (props: Props) => {
-  const { dashboardId, history, closeDrawer } = props;
+  const { dashboardId, closeDrawer } = props;
+  const navigate = useNavigate();
 
   const dashboardDetailQuery = useQuery<DashboardDetailQueryResponse>(
     gql(queries.dashboardDetail),
     {
       skip: !dashboardId,
       variables: { id: dashboardId },
-    },
+    }
   );
 
   const reportTemplatesListQuery = useQuery<InsightTemplatesListQueryResponse>(
-    gql(queries.insightTemplatesList),
+    gql(queries.insightTemplatesList)
   );
 
   const [dashboardAddMutation] = useMutation(gql(mutations.dashboardAdd), {
     refetchQueries: [
       {
         query: gql(queries.sectionList),
-        variables: { type: 'dashboard' },
+        variables: { type: "dashboard" },
       },
       {
         query: gql(queries.dashboardList),
@@ -58,7 +57,7 @@ const FormContainer = (props: Props) => {
       refetchQueries: [
         {
           query: gql(queries.sectionList),
-          variables: { type: 'dashboard' },
+          variables: { type: "dashboard" },
         },
         {
           query: gql(queries.dashboardList),
@@ -70,7 +69,7 @@ const FormContainer = (props: Props) => {
           },
         },
       ],
-    },
+    }
   );
 
   const handleMutation = (values: DashboardFormMutationVariables) => {
@@ -81,8 +80,8 @@ const FormContainer = (props: Props) => {
         .then(() => {
           closeDrawer();
 
-          Alert.success('Successfully edited dashboard');
-          history.push(`/insight?dashboardId=${dashboardId}`);
+          Alert.success("Successfully edited dashboard");
+          navigate(`/insight?dashboardId=${dashboardId}`);
         })
         .catch((err) => Alert.error(err.message));
     }
@@ -91,10 +90,10 @@ const FormContainer = (props: Props) => {
       .then((res) => {
         closeDrawer();
 
-        Alert.success('Successfully created dashboard');
+        Alert.success("Successfully created dashboard");
         const { _id } = res.data.dashboardAdd;
         if (_id) {
-          history.push(`/insight?dashboardId=${_id}`);
+          navigate(`/insight?dashboardId=${_id}`);
         }
       })
       .catch((err) => {
