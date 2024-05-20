@@ -1,4 +1,4 @@
-import { sendCardsMessage, sendLogsMessage } from '../../messageBroker';
+import { sendCardsMessage, sendCoreMessage, sendLogsMessage } from '../../messageBroker';
 import { buildMatchFilter, getDetails, generateGroupIds, getStageIds } from '../utils';
 import {
   ACTION_PIPELINES,
@@ -11,6 +11,102 @@ import {
 import { IModels } from '../../connectionResolver';
 
 const chartTemplates = [
+  {
+    templateType: 'deviationByClosedStages',
+    serviceType: 'deviation',
+    name: 'Deviation by closed stages',
+    chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea'],
+    getChartResult: async (
+      models: IModels,
+      filter: any,
+      dimension: any,
+      subdomain: string,
+    ) => {
+      const matchfilter = await buildMatchFilter(
+        filter,
+        subdomain,
+        DEVIATION_PIPELINE_TYPE,
+      );
+
+      const stageIds = await getStageIds(subdomain, DEVIATION_PIPELINE_TYPE, true);
+
+      const tickets = await sendCardsMessage({
+        subdomain,
+        action: 'tickets.find',
+        data: {
+          stageId: { $in: stageIds },
+          ...matchfilter
+        },
+        isRPC: true,
+        defaultValue: null,
+      });
+
+      const getTotalUsers = await sendCoreMessage({
+        subdomain,
+        action: 'users.find',
+        data: {
+          query: {
+            isActive: true,
+            "customFieldsData.field": "L0lMXRfJLLoTMwcbcOnwc",
+            "customFieldsData.value": "yes"
+          }
+        },
+        isRPC: true,
+        defaultValue: [],
+      });
+
+      const operatorIds = getTotalUsers.map(user => user._id)
+
+      const countByStage = {};
+      const countByOperator = {};
+
+      (tickets || []).forEach(({ stageId, assignedUserIds }) => {
+        const operatorCount = assignedUserIds.filter(userId => operatorIds.includes(userId)).length;
+
+        countByStage[stageId] = (countByStage[stageId] || 0) + 1;
+        countByOperator[stageId] = (countByOperator[stageId] || 0) + operatorCount;
+      });
+
+      const stagesMap = await getDetails({
+        subdomain,
+        params: { getStageIds: Object.keys(countByStage) },
+      });
+
+      const data = Object.entries(countByStage).map(([stageId, count]) => ({
+        pipeline: stagesMap[stageId].pipelineId,
+        stage: stagesMap[stageId].title,
+        count,
+        operators: countByOperator[stageId] || 0,
+      }));
+
+      return data
+
+    },
+    filterTypes: [
+      {
+        fieldName: 'branchIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'branches',
+        fieldLabel: 'Select branches',
+      },
+      {
+        fieldName: 'assignedUserIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select assigned users',
+      },
+      {
+        fieldName: 'dateRange',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'date',
+        fieldOptions: DATE_RANGE_TYPES,
+        fieldLabel: 'Select date range',
+      },
+    ]
+  },
   {
     templateType: 'deviationByDefaultBranch',
     serviceType: 'deviation',
@@ -169,6 +265,7 @@ const chartTemplates = [
       },
     ],
   },
+
   {
     templateType: 'totalDeviation',
     serviceType: 'deviation',
@@ -238,6 +335,7 @@ const chartTemplates = [
             action: 'tickets.find',
             data: {
               stageId: { $in: stageIds },
+              status: "active",
               ...matchfilter,
             },
             isRPC: true,
