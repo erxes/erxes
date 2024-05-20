@@ -82,13 +82,6 @@ class List extends React.Component<IProps> {
           <thead>
             
           <tr>
-              <th>
-                <FormControl
-                  checked={isAllSelected}
-                  componentClass="checkbox"
-                  onChange={this.onChange}
-                />
-              </th>
                 {tableHeadName.map((head) => (
                   <th key={head}>{head || ''}</th>
                  ))}
@@ -144,64 +137,75 @@ class List extends React.Component<IProps> {
       );
     };
 
-  const setType = type => {
+ 
     const content = props => {
       return (
         <NonBalanceTransactionForm
           {...props}
-          closeModal= {closeModal}
-          transactionType={type}
           queryParams={queryParams}
         />
       );
     };
-    return <Bulk content={content} />;
-};
 
+const addTrigger = (
+  <Button btnStyle="success" icon="plus-circle">
+    {__('Add Non Balance')}
+  </Button>
+);
+
+    // const actionBarRight = (
+    //   <BarItems>
+    //     {can('manageTransactions', currentUser) && (
+    //       <Dropdown>
+    //         <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
+    //           <Button btnStyle="success" size="medium" icon="add">
+    //             {__('Add Non Balance')}
+    //           </Button>
+    //         </Dropdown.Toggle>
+    //         <Dropdown.Menu >
+    //           <li>
+    //             <ModalTrigger
+    //               title={__('collateral')}
+    //               trigger={ <a href="#collateral">{__('Collateral')}</a>}
+    //               size="lg"
+    //               content={() =>setType('çç')}
+    //             />
+    //           </li>
+    //           <li>
+    //           <ModalTrigger
+    //               title={__('Interest Change')}
+    //               trigger={ <a href="#Interest Change">{__('Interest Change')}</a>}
+    //               size="lg"
+    //               content={() =>setType('interest')}
+    //             />
+    //           </li>
+    //           <li>
+    //           <ModalTrigger
+    //               title={__('Loan')}
+    //               trigger={ <a href="#Loan">{__('Loan')}</a>}
+    //               size="lg"
+    //               content={() =>setType('loan')}
+    //             />
+    //           </li>
+    //         </Dropdown.Menu>
+    //       </Dropdown>
+    //     )}
+    //   </BarItems>
+    // );
     const actionBarRight = (
       <BarItems>
-        {can('manageTransactions', currentUser) && (
-          <Dropdown>
-            <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
-              <Button btnStyle="success" size="medium" icon="add">
-                {__('Add Non Balance')}
-              </Button>
-            </Dropdown.Toggle>
-
-            <Dropdown.Menu >
-              <li>
-                <ModalTrigger
-                  title={__('collateral')}
-                  trigger={ <a href="#collateral">{__('Collateral')}</a>}
-                  size="lg"
-                  content={() =>setType('collateral')}
-                />
-              </li>
-              <li>
-              <ModalTrigger
-                  title={__('Interest Change')}
-                  trigger={ <a href="#Interest Change">{__('Interest Change')}</a>}
-                  size="lg"
-                  content={() =>setType('interest')}
-                />
-              </li>
-              <li>
-              <ModalTrigger
-                  title={__('Loan')}
-                  trigger={ <a href="#Loan">{__('Loan')}</a>}
-                  size="lg"
-                  content={() =>setType('loan')}
-                />
-              </li>
-            </Dropdown.Menu>
-          </Dropdown>
-        )}
+        
+       
+          <ModalTrigger
+            title={`${__('New Non Balance')}`}
+            trigger={addTrigger}
+            size="xl"
+            content={content}
+            backDrop="static"
+          />
       </BarItems>
     );
-
-    const actionBar = (
-      <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
-    );
+    const actionBar = (<Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />);
 
     return (
       <Wrapper

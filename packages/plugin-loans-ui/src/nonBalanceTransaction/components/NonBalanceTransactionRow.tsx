@@ -1,7 +1,6 @@
 import {
   Bulk,
   Button,
-  FormControl,
   Icon,
   ModalTrigger,
   Tip,
@@ -18,18 +17,9 @@ type Props = {
   toggleBulk: (nonBalanceTransaction: INonBalanceTransaction, isChecked?: boolean) => void;
 };
 function nonBalanceTransactionRow({
-  nonBalanceTransaction,
-  isChecked,
-  toggleBulk
+  nonBalanceTransaction
 }: Props) {
-  const onChange = e => {
-    if (toggleBulk) {
-      toggleBulk(nonBalanceTransaction, e.target.checked);
-    }
-  };
-  const onClick = e => {
-    e.stopPropagation();
-  };    
+   
   const checkForm = () => {
     const content = () => {
       return (
@@ -43,13 +33,6 @@ function nonBalanceTransactionRow({
   
   return (
       <tr>
-        <td onClick={onClick}>
-          <FormControl
-            checked={isChecked}
-            componentClass="checkbox"
-            onChange={onChange}
-          />
-        </td>
         <td key={'contractId'}>
           {(nonBalanceTransaction && nonBalanceTransaction?.contract?.number) ||
             ''}
@@ -78,5 +61,4 @@ function nonBalanceTransactionRow({
       </tr>
   );
 }
-
 export default nonBalanceTransactionRow;
