@@ -59,21 +59,15 @@ class CloseDate extends React.Component<Props, State> {
     this.setState({ dueDate: date });
   };
 
-  hideContent = () => {
-    this.overlay.hide();
-  };
-
   onSave = (close) => {
     const { dueDate } = this.state;
 
     this.props.onChangeField("closeDate", dueDate);
-    // this.hideContent();
     close();
   };
 
   remove = (close) => {
     this.props.onChangeField("closeDate", null);
-    // this.hideContent();
     close();
   };
 
