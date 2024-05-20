@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.11.0-rc.2](https://github.com/erxes/erxes/compare/1.11.0-rc.1...1.11.0-rc.2) (2024-05-20)
+
+
+### Features
+
+* **call:** added dnd, transfer call ([29fec61](https://github.com/erxes/erxes/commit/29fec613b8ce285054a1fcc764c64ec05b530217))
+* **calls:** added wait mode and transfer call and logs  ([5b8854c](https://github.com/erxes/erxes/commit/5b8854cef31bb5938f8d857a1f85fb2d68c26766))
+
 ## [1.11.0-rc.1](https://github.com/erxes/erxes/compare/1.11.0-rc.0...1.11.0-rc.1) (2024-05-20)
 
 
