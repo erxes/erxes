@@ -1,6 +1,6 @@
 import { useState } from "react"
 import useOrderCU from "@/modules/orders/hooks/useOrderCU"
-import { kioskModalView } from "@/store"
+import { checkoutModalViewAtom } from "@/store"
 import { registerNumberAtom } from "@/store/order.store"
 import { useAtom, useSetAtom } from "jotai"
 import { DeleteIcon } from "lucide-react"
@@ -17,7 +17,7 @@ const RegisterNumber = () => {
   const [registerNumber, setRegister] = useAtom(registerNumberAtom)
   const { checkRegister, loading, data } = useCheckRegister()
   const { found, name } = data || {}
-  const setView = useSetAtom(kioskModalView)
+  const setView = useSetAtom(checkoutModalViewAtom)
   const { loading: loadingEdit, orderCU } = useOrderCU(() => {
     setView("choosePay")
   })

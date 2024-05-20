@@ -26,6 +26,7 @@ export interface ICollateralData {
   percent: number;
   marginAmount: number;
   leaseAmount: number;
+  collateralTypeId: string;
   insuranceTypeId?: string;
   insuranceAmount?: number;
 }
@@ -162,7 +163,7 @@ export const collateralDataSchema = {
   percent: { type: Number },
   marginAmount: { type: Number },
   leaseAmount: { type: Number },
-
+  collateralTypeId: { type: String },
   insuranceTypeId: { type: String },
   currency: { type: String },
   insuranceAmount: { type: Number }

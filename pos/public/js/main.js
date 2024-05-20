@@ -8,6 +8,11 @@ const getEnv = (name, defaultValue) => {
 };
 
 window.envMaps = [
+  // saas or os == other
+  {
+    name: 'NEXT_PUBLIC_APP_VERSION',
+    processValue: '%NEXT_PUBLIC_APP_VERSION%'
+  },
   {
     name: 'NEXT_PUBLIC_MAIN_API_DOMAIN',
     processValue: '%NEXT_PUBLIC_MAIN_API_DOMAIN%'

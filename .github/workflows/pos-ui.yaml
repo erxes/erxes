@@ -8,8 +8,8 @@ on:
       - rc
       - staging
     paths:
-      - 'pos/**'
-      - '.github/workflows/pos-ui.yaml'
+      - "pos/**"
+      - ".github/workflows/pos-ui.yaml"
 
   pull_request:
     branches:
@@ -18,8 +18,8 @@ on:
       - rc
       - staging
     paths:
-      - 'pos/**'
-      - '.github/workflows/pos-ui.yaml'
+      - "pos/**"
+      - ".github/workflows/pos-ui.yaml"
 
 jobs:
   pos-ui:

@@ -1,4 +1,5 @@
 import { checkPermission } from '@erxes/api-utils/src';
+import { IContext } from '../../../connectionResolver';
 const generateFilter = async (params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
 
@@ -39,7 +40,7 @@ const collateralQueries = {
   collateralsMain: async (
     _root,
     params,
-    { commonQuerySelector, models, checkPermission, user }
+    { commonQuerySelector, models }:IContext
   ) => {
     const filter = await generateFilter(params, commonQuerySelector);
     const _page = Number(params.page || '1');

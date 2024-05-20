@@ -10,6 +10,7 @@ import { ILoginParams } from '../../../models/ClientPortalUser';
 import {
   IInvitiation,
   IUser,
+  ITwoFactorDevice,
 } from '../../../models/definitions/clientPortalUser';
 import redis from '../../../redis';
 import { sendSms } from '../../../utils';
@@ -17,12 +18,14 @@ import { sendCommonMessage } from './../../../messageBroker';
 import * as jwt from 'jsonwebtoken';
 import { fetchUserFromSocialpay } from '../../../socialpayUtils';
 import fetch from 'node-fetch';
+import { TwoFactorConfig } from '../../../models/definitions/clientPortal';
 
 export interface IVerificationParams {
   userId: string;
   emailOtp?: string;
   phoneOtp?: string;
   password?: string;
+  twoFactor?: ITwoFactorDevice;
 }
 
 interface IClientPortalUserEdit extends IUser {
@@ -135,7 +138,7 @@ const clientPortalUserMutations = {
     const optConfig = clientPortal.otpConfig;
 
     if (optConfig && optConfig.loginWithOTP) {
-      return tokenHandler(user, clientPortal, res);
+      return tokenHandler(user, clientPortal, res, false);
     }
 
     return 'verified';
@@ -159,9 +162,16 @@ const clientPortalUserMutations = {
     args: ILoginParams,
     { models, res }: IContext
   ) => {
-    const { user, clientPortal } = await models.ClientPortalUsers.login(args);
+    const { user, clientPortal, isPassed2FA } =
+      await models.ClientPortalUsers.login(args);
 
-    return tokenHandler(user, clientPortal, res);
+    return tokenHandler(
+      user,
+      clientPortal,
+      res,
+      clientPortal.twoFactorConfig?.enableTwoFactor,
+      isPassed2FA
+    );
   },
 
   clientPortalFacebookAuthentication: async (
@@ -249,7 +259,7 @@ const clientPortalUserMutations = {
         user.clientPortalId
       );
 
-      return tokenHandler(user, clientPortal, res);
+      return tokenHandler(user, clientPortal, res, false);
     } catch (e) {
       throw new Error(e.message);
     }
@@ -412,7 +422,7 @@ const clientPortalUserMutations = {
       user.clientPortalId
     );
 
-    return tokenHandler(user, clientPortal, res);
+    return tokenHandler(user, clientPortal, res, false);
   },
 
   /*
@@ -696,12 +706,21 @@ const clientPortalUserMutations = {
 
   clientPortal2FAGetCode: async (
     _root,
-    args: { phone: string; email: string; clientPortalId: string; deviceToken },
-    { models, subdomain, res }: IContext
+    args: {
+      byPhone: boolean;
+      byEmail: boolean;
+      deviceToken?: string;
+    },
+    { models, subdomain, res, cpUser }: IContext
   ) => {
-    const { phone, email, clientPortalId, deviceToken } = args;
+    if (!cpUser) {
+      throw new Error('User is not logged in');
+    }
+    const { byPhone, byEmail, deviceToken } = args;
 
-    const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
+    const clientPortal = await models.ClientPortals.getConfig(
+      cpUser.clientPortalId
+    );
 
     const config = clientPortal.twoFactorConfig || {
       content: '',
@@ -715,14 +734,7 @@ const clientPortalUserMutations = {
       throw new Error('Login with 2FA is not enabled');
     }
 
-    const doc = { phone, email };
-
-    const user = await models.ClientPortalUsers.loginWithoutPassword(
-      subdomain,
-      clientPortal,
-      doc,
-      deviceToken
-    );
+    const doc = { phone: cpUser.phone, email: cpUser.email };
 
     try {
       if (clientPortal?.testUserPhone && clientPortal._id) {
@@ -771,17 +783,20 @@ const clientPortalUserMutations = {
             );
           }
 
-          return { userId: user._id, message: 'Sms sent' };
+          return { userId: cpUser._id, message: 'Sms sent' };
         }
       }
     } catch (e) {
       console.log(e.message);
     }
-    if (user.phone) {
+    if (byPhone) {
+      if (!cpUser.phone) {
+        throw new Error("User doesn't have phone");
+      }
       const phoneCode = await models.ClientPortalUsers.imposeVerificationCode({
         clientPortalId: clientPortal._id,
         codeLength: config.codeLength,
-        phone: user.phone,
+        phone: cpUser.phone,
         expireAfter: config.expireAfter,
       });
 
@@ -793,17 +808,21 @@ const clientPortalUserMutations = {
         await sendSms(
           subdomain,
           config.smsTransporterType ? config.smsTransporterType : 'messagePro',
-          phone,
+          cpUser.phone,
           body
         );
       }
-      return { userId: user._id, message: 'Sms sent' };
+      return { userId: cpUser._id, message: 'Sms sent' };
     }
-    if (user.email) {
+
+    if (cpUser.email && byEmail) {
+      if (!cpUser.email) {
+        throw new Error("User doesn't have email");
+      }
       const emailCode = await models.ClientPortalUsers.imposeVerificationCode({
         clientPortalId: clientPortal._id,
         codeLength: config.codeLength,
-        email: user.email,
+        email: cpUser.email,
         expireAfter: config.expireAfter,
       });
 
@@ -816,7 +835,7 @@ const clientPortalUserMutations = {
           subdomain,
           action: 'sendEmail',
           data: {
-            toEmails: [email],
+            toEmails: [cpUser.email],
             title: config.emailSubject || 'OTP verification',
             template: {
               name: 'base',
@@ -827,34 +846,71 @@ const clientPortalUserMutations = {
           },
         });
       }
-      return { userId: user._id, message: 'Sent' };
+      return { userId: cpUser._id, message: 'Sent' };
     }
   },
 
   clientPortalVerify2FA: async (
     _root,
-    args: IVerificationParams,
+    args: { emailOtp?: string; phoneOtp?: string; twoFactor: ITwoFactorDevice },
     context: IContext
   ) => {
-    const { models, res, subdomain } = context;
+    const { models, res, subdomain, cpUser } = context;
+    if (!cpUser) {
+      throw new Error('User is not logged in');
+    }
 
-    const user = await models.ClientPortalUsers.verifyUser(subdomain, args);
-
-    if (!user) {
-      throw new Error('User not found');
+    if (!args.twoFactor) {
+      throw new Error('Provide Two Factor Params.');
     }
 
     const clientPortal = await models.ClientPortals.getConfig(
-      user.clientPortalId
+      cpUser.clientPortalId
     );
 
     const twoFactorConfig = clientPortal.twoFactorConfig;
+    const user = await models.ClientPortalUsers.verifyUser(subdomain, {
+      emailOtp: args.emailOtp,
+      phoneOtp: args.phoneOtp,
+      twoFactor: args.twoFactor,
+      userId: cpUser.id,
+    });
 
     if (twoFactorConfig && twoFactorConfig.enableTwoFactor) {
-      return tokenHandler(user, clientPortal, res, true);
+      const twoFactorDevices: ITwoFactorDevice[] =
+        cpUser.twoFactorDevices || [];
+      if (!twoFactorDevices.includes(args.twoFactor)) {
+        twoFactorDevices.push(args.twoFactor);
+        await cpUser.update({ $set: { twoFactorDevices } });
+      }
+      return tokenHandler(
+        cpUser,
+        clientPortal,
+        res,
+        twoFactorConfig.enableTwoFactor,
+        true
+      );
     }
 
-    return 'verified';
+    return '2Factor not enabled';
+  },
+
+  clientPortal2FADeleteKey: async (
+    _root,
+    args: { key: string },
+    context: IContext
+  ) => {
+    const { models, res, subdomain, cpUser } = context;
+    if (!cpUser) {
+      throw new Error('User is not logged in');
+    }
+
+    const pull = await models.ClientPortalUsers.updateOne(
+      { _id: cpUser.id },
+      { $pull: { twoFactorDevices: { key: args.key } } }
+    );
+
+    return 'success';
   },
   clientPortalLoginWithMailOTP: async (
     _root,
@@ -1002,7 +1058,7 @@ const clientPortalUserMutations = {
       doc
     );
 
-    return tokenHandler(user, clientPortal, res);
+    return tokenHandler(user, clientPortal, res, false);
   },
 
   clientPortalUsersSendVerificationRequest: async (
