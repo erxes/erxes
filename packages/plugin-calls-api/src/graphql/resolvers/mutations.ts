@@ -1,4 +1,8 @@
-import { generateToken, getRecordUrl } from '../../utils';
+import {
+  generateToken,
+  getRecordUrl,
+  sendToGrandStreamRequest,
+} from '../../utils';
 import { IContext, IModels } from '../../connectionResolver';
 
 import acceptCall from '../../acceptCall';
@@ -8,6 +12,7 @@ import { ICallHistory } from '../../models/definitions/callHistories';
 import { sendInboxMessage } from '../../messageBroker';
 import { updateConfigs } from '../../helpers';
 import { getOrCreateCustomer } from '../../store';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 
 export interface ISession {
   sessionCode: string;
@@ -122,6 +127,18 @@ const callsMutations = {
       user,
       'addHistory',
     );
+
+    await putCreateLog(
+      subdomain,
+      {
+        type: 'call',
+        newData: doc,
+        object: history,
+        description: `Call "${history._id}" has been created`,
+      },
+      user,
+    );
+
     return models.CallHistory.getCallHistory(history.sessionId);
   },
 
@@ -144,7 +161,17 @@ const callsMutations = {
         { $set: { ...doc, modifiedAt: new Date(), modifiedBy: user._id } },
       );
 
-      const callRecordUrl = await getRecordUrl(doc, user, models, subdomain, 3);
+      await putUpdateLog(
+        subdomain,
+        {
+          type: 'call',
+          object: history,
+          newData: doc,
+          description: `call ${history._id} has been edited`,
+        },
+        user,
+      );
+      const callRecordUrl = await getRecordUrl(doc, user, models, subdomain);
       if (callRecordUrl) {
         await models.CallHistory.updateOne(
           { _id },
@@ -183,14 +210,22 @@ const callsMutations = {
   async callHistoryRemove(
     _root,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, subdomain, user }: IContext,
   ) {
     const history = await models.CallHistory.findOne({ _id });
 
     if (!history) {
       throw new Error(`Call history not found with id ${_id}`);
     }
-
+    await putDeleteLog(
+      subdomain,
+      {
+        type: 'call',
+        object: history,
+        description: `call "${history?._id}" has been deleted`,
+      },
+      user,
+    );
     return history.remove();
   },
 
@@ -198,6 +233,132 @@ const callsMutations = {
     await updateConfigs(models, configsMap);
 
     return { status: 'ok' };
+  },
+
+  async callsUpdateSipDnd(
+    _root,
+    { dndStatus, integrationId },
+    { models, user }: IContext,
+  ) {
+    const queueData = (await sendToGrandStreamRequest(
+      models,
+      {
+        path: 'api',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        data: {
+          request: {
+            action: 'updateSIPAccount',
+            dnd: dndStatus || 'yes',
+          },
+        },
+        integrationId: integrationId,
+        retryCount: 3,
+        isConvertToJson: true,
+        isAddExtention: true,
+      },
+      user,
+    )) as any;
+
+    if (queueData && queueData.response) {
+      const { need_apply } = queueData?.response;
+      if (need_apply === 'yes') {
+        return 'success';
+      }
+    }
+    return 'failed';
+  },
+
+  async callTransfer(
+    _root,
+    { extensionNumber, integrationId, direction },
+    { models, user }: IContext,
+  ) {
+    const listBridgedChannelsPayload = {
+      path: 'api',
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      data: {
+        request: {
+          action: 'listBridgedChannels',
+        },
+      },
+      integrationId,
+      retryCount: 3,
+      isConvertToJson: true,
+      isAddExtention: false,
+      isGetExtension: true,
+    };
+    console.log('11');
+
+    const {
+      response: listBridgedChannelsResponse,
+      extentionNumber: extension,
+    } = await sendToGrandStreamRequest(
+      models,
+      listBridgedChannelsPayload,
+      user,
+    );
+    let channel = '';
+    console.log('22', extension, extensionNumber);
+    if (listBridgedChannelsResponse?.response) {
+      const channels = listBridgedChannelsResponse.response.channel;
+      console.log('33');
+      if (channels) {
+        console.log('44');
+
+        const filteredChannels = channels.filter((ch) => {
+          if (direction === 'incoming') {
+            console.log('55');
+            return ch.callerid2 === extension;
+          } else {
+            console.log('66');
+
+            return ch.callerid1 === extension;
+          }
+        });
+        if (filteredChannels.length > 0) {
+          console.log('77');
+
+          if (direction === 'incoming') {
+            channel = filteredChannels[0].channel2 || '';
+          } else {
+            channel = filteredChannels[0].channel1 || '';
+          }
+        }
+      }
+    }
+
+    const callTransferPayload = {
+      path: 'api',
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      data: {
+        request: {
+          action: 'callTransfer',
+          extension: extensionNumber,
+          channel,
+        },
+      },
+      integrationId,
+      retryCount: 3,
+      isConvertToJson: true,
+      isAddExtention: false,
+    };
+    console.log('88');
+
+    const callTransferResponse = await sendToGrandStreamRequest(
+      models,
+      callTransferPayload,
+      user,
+    );
+    console.log('99');
+
+    if (callTransferResponse?.response?.need_apply) {
+      return callTransferResponse?.response?.need_apply;
+    }
+
+    return 'failed';
   },
 };
 

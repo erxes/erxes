@@ -100,6 +100,7 @@ const mutationFilterParams = `
   callType: String
   startDate: String
   endDate: String
+  integrationId: String
 `;
 
 const filterParams = `
@@ -114,7 +115,9 @@ const queries = `
   callsActiveSession: CallActiveSession
   callHistories(${filterParams}, skip: Int): [CallHistory]
   callsGetConfigs: JSON
-`;
+  callsGetOperatorDndStatus(integrationId: String!): String
+  callExtensionList(integrationId: String!): JSON
+  `;
 
 const mutations = `
   callsIntegrationUpdate(configs: CallIntegrationConfigs): JSON
@@ -127,6 +130,9 @@ const mutations = `
   callHistoryEditStatus(callStatus: String, conversationId: String): String
   callHistoryRemove(_id: String!): JSON
   callsUpdateConfigs(configsMap: JSON!): JSON
+  callsUpdateSipDnd(dndStatus: String!, integrationId: String!): String
+  callTransfer(extensionNumber: String!, integrationId: String!, direction: String): String
+
 `;
 
 const typeDefs = async () => {
