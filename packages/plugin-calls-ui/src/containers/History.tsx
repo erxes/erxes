@@ -1,25 +1,37 @@
-import { Alert, confirm } from "@erxes/ui/src/utils";
-import { gql, useMutation, useQuery } from "@apollo/client";
-import { mutations, queries } from "../graphql";
+import { Alert, confirm } from '@erxes/ui/src/utils';
+import { gql, useMutation, useQuery } from '@apollo/client';
+import { mutations, queries } from '../graphql';
 
-import History from "../components/History";
-import React from "react";
+import History from '../components/History';
+import React from 'react';
 
 type Props = {
   changeMainTab: (phoneNumber: string, shiftTab: string) => void;
+  callUserIntegrations?: any;
 };
 
 const HistoryContainer = (props: Props) => {
   let histories;
-  const { changeMainTab } = props;
+  const { changeMainTab, callUserIntegrations } = props;
+  const defaultCallIntegration = localStorage.getItem(
+    'config:call_integrations',
+  );
+
+  const inboxId =
+    JSON.parse(defaultCallIntegration || '{}')?.inboxId ||
+    callUserIntegrations?.[0]?.inboxId;
+
   const { data, loading, error, refetch } = useQuery(
     gql(queries.callHistories),
     {
-      fetchPolicy: "network-only",
-    }
+      variables: {
+        integrationId: inboxId,
+      },
+      fetchPolicy: 'network-only',
+    },
   );
   const [removeHistory] = useMutation(gql(mutations.callHistoryRemove), {
-    refetchQueries: ["CallHistories"],
+    refetchQueries: ['CallHistories'],
   });
 
   if (error) {
@@ -34,11 +46,11 @@ const HistoryContainer = (props: Props) => {
         },
       })
         .then(() => {
-          Alert.success("Successfully removed");
+          Alert.success('Successfully removed');
         })
         .catch((e) => {
           Alert.error(e.message);
-        })
+        }),
     );
   };
   histories = data?.callHistories;
