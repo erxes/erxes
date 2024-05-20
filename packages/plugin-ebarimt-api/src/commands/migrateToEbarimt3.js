@@ -2,6 +2,7 @@ const fetch = require("node-fetch");
 const dotenv = require('dotenv');
 const { nanoid } = require("nanoid");
 const { MongoClient } = require('mongodb');
+const { rdMap } = require("./tinByRdMap");
 
 
 dotenv.config();
@@ -22,18 +23,9 @@ const taxTypes = {
   '5': 'NO_VAT'
 }
 
-const rdMap = {
-  '0000038': {
-    merchantTin: '37900846788',
-    posNo: '10003688',
-    districtCode: '3420',
-    branchNo: '21',
-  }
-}
-
 const getTinNo = async (rd) => {
   const info = await fetch(
-    `https://ebarimt.erkhet.biz/getTinInfo?regNo=${rd}`
+    `https://ebarimt-bridge.erkhet.biz/getTinInfo?regNo=${rd}`
   ).then((r) => r.json());
 
   const tinNo = info.data;
