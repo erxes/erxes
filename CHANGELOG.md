@@ -1,5 +1,48 @@
 # Changelog
 
+## [1.10.0](https://github.com/erxes/erxes/compare/1.10.0-rc.7...1.10.0) (2024-05-16)
+
+## [1.10.0-rc.7](https://github.com/erxes/erxes/compare/1.10.0-rc.6...1.10.0-rc.7) (2024-05-16)
+
+## [1.10.0-rc.6](https://github.com/erxes/erxes/compare/1.10.0-rc.4...1.10.0-rc.6) (2024-05-16)
+
+
+### Features
+
+* **calls:** add activity log and fix incoming call widget ([4c6acf3](https://github.com/erxes/erxes/commit/4c6acf36a6280baddcbe44f08463713698b46221))
+
+
+### Bug Fixes
+
+* **cards:** card & insight bugs ([#5202](https://github.com/erxes/erxes/issues/5202)) ([49d35f8](https://github.com/erxes/erxes/commit/49d35f8e2f7c6ec163374e5d40f95c09fdfd78a6))
+
+## [1.10.0-rc.4](https://github.com/erxes/erxes/compare/1.10.0-rc.3...1.10.0-rc.4) (2024-05-13)
+
+
+### Features
+
+* **core:** add 'inline' query parameter to 'read-file' endpoint for direct browser opening instead of download ([d91e895](https://github.com/erxes/erxes/commit/d91e89515126ea69761c03de4c34fbcde7849b5c))
+
+## [1.9.1](https://github.com/erxes/erxes/compare/1.10.0-rc.3...1.10.0-rc.4) (2024-05-08)
+
+
+### Bug Fixes
+
+* **erxes-ui:** remove undefined or null elements from attachments ([dadc273](https://github.com/erxes/erxes/commit/dadc273b42add41b4c8635f18e1526519d020196))
+
+## [1.9.0](https://github.com/erxes/erxes/compare/1.10.0-rc.3...1.10.0-rc.4) (2024-05-01)
+
+
+### Bug Fixes
+
+* **calls:** fix calls widgets in saas ([d7d462b](https://github.com/erxes/erxes/commit/d7d462b33c774c700aaa5c1e22eb7547d12e8165))
+* generate subdomain in configs ([97bb518](https://github.com/erxes/erxes/commit/97bb518e37a3d7929eca25d5940b0804aaed759c))
+
+
+### Performance Improvements
+
+* fix context subdomain in saas  ([c1fbdad](https://github.com/erxes/erxes/commit/c1fbdadfd465435cd9a494022cab15111476ba9d))
+
 ## [1.10.0-rc.3](https://github.com/erxes/erxes/compare/1.10.0-rc.2...1.10.0-rc.3) (2024-05-13)
 
 
