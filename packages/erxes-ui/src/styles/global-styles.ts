@@ -1648,7 +1648,9 @@ a:hover {
       height: 0 !important;
     }
   }
- 
+  .hidden {
+    display: none !important;
+  }
 `;
 
 const globalStyle = [`${style}`] as any;

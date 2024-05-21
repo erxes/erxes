@@ -787,6 +787,38 @@ const GotoMenuItem = styled(NavMenuItem)`
   }
 `;
 
+const InnerWidgetHandler = styledTS<{$hide?: boolean; $double?: boolean; $show: boolean}>(styled.div)`
+  position: fixed;
+  right: ${props => props.$show ? '30px' : '23px'};
+  bottom: ${props => props.$show ? props.$double ? '170px' : '100px' : '70px'};
+  i {
+    background: ${props => props.$show ? 'rgba(0, 0, 0, 0.3)' : '#fff'};
+    position: fixed;
+    cursor: pointer;
+    ${props => props.$show ? `
+      right: 4px;
+      color: #fff;
+      bottom: ${props.$double ? "143px" : '76px'};
+      height: 20px;
+      width: 20px;
+      display: flex;
+      align-items:center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+    `:`
+      bottom: 50px;
+      right: 0;
+      padding: 9px 2px;
+      border-top-left-radius: 8px;
+      border-bottom-left-radius: 8px;
+      border: 1px solid ${colors.borderPrimary};
+      box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    `}
+
+  ${props => props.$hide && 'display: none;'}
+`;
+
 export {
   Layout,
   MoreMenuWrapper,
@@ -845,4 +877,5 @@ export {
   GotoItem,
   GotoModal,
   GotoMenuItem,
+  InnerWidgetHandler,
 };

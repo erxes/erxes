@@ -386,6 +386,8 @@ export const pluginsInnerWidgets = () => {
     newDiv.style.cssText =
       newDiv.style.cssText + (plugin.innerWidget.style || "");
 
+    newDiv.id = `${plugin.name}InnerWidget`;
+
     createRoot(newDiv).render(
       <BrowserRouter>
         <SystemWithApolloProvider
