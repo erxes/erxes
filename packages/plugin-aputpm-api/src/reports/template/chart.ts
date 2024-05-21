@@ -26,6 +26,7 @@ const chartTemplates = [
         filter,
         subdomain,
         DEVIATION_PIPELINE_TYPE,
+        true
       );
 
       const stageIds = await getStageIds(subdomain, DEVIATION_PIPELINE_TYPE, true);
@@ -91,11 +92,60 @@ const chartTemplates = [
         fieldLabel: 'Select branches',
       },
       {
+        fieldName: 'createdUserIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select created users',
+      },
+      {
+        fieldName: 'closedUserIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'users',
+        fieldLabel: 'Select closed users',
+      },
+      {
         fieldName: 'assignedUserIds',
         fieldType: 'select',
         multi: true,
         fieldQuery: 'users',
         fieldLabel: 'Select assigned users',
+      },
+      {
+        fieldName: 'pipelineIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelines',
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldQueryVariables: `{"type": "${DEVIATION_PIPELINE_TYPE}"}`,
+        multi: true,
+        isAll: true,
+        fieldLabel: 'Select pipeline',
+      },
+      {
+        fieldName: 'pipelineLabelIds',
+        fieldType: 'select',
+        fieldQuery: 'pipelineLabels',
+        multi: true,
+        isAll: true,
+        fieldValueVariable: '_id',
+        fieldLabelVariable: 'name',
+        fieldParentVariable: 'pipelineId',
+        logics: [
+          {
+            logicFieldName: 'pipelineIds',
+            logicFieldVariable: 'pipelineIds',
+          },
+        ],
+        fieldLabel: 'Select label',
+      },
+      {
+        fieldName: 'assetIds',
+        fieldType: 'select',
+        multi: true,
+        fieldQuery: 'assets',
+        fieldLabel: 'Select Assets',
       },
       {
         fieldName: 'dateRange',
