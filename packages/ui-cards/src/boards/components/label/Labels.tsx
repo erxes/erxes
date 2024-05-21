@@ -1,8 +1,10 @@
 import * as React from "react";
-import { PipelineConsumer } from "../../containers/PipelineContext";
+
 import { Label, LabelList } from "../../styles/label";
+import { Transition, TransitionChild } from "@headlessui/react";
+
 import { IPipelineLabel } from "../../types";
-import { Transition } from "@headlessui/react";
+import { PipelineConsumer } from "../../containers/PipelineContext";
 
 type IProps = {
   labels: IPipelineLabel[];
@@ -58,9 +60,7 @@ class Labels extends React.PureComponent<IProps, { isHover: boolean }> {
           onClick={toggleLabels}
         >
           <Transition show={isShowLabel}>
-            <Transition.Child as={React.Fragment}>
-              <span>{label.name}</span>
-            </Transition.Child>
+            <span>{label.name}</span>
           </Transition>
         </Label>
       );

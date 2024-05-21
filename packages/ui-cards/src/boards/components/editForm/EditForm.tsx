@@ -1,17 +1,22 @@
-import { IEditFormContent, IItem, IItemParams, IOptions } from "../../types";
-import { __, router as routerUtils } from "@erxes/ui/src/utils";
-
-import { ArchiveStatus } from "../../styles/item";
-import { CloseModal } from "@erxes/ui/src/styles/main";
-import Icon from "@erxes/ui/src/components/Icon";
-import React, { useState, useEffect, Fragment } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { Dialog, Transition } from "@headlessui/react";
+import {
+  Dialog,
+  DialogPanel,
+  Transition,
+  TransitionChild,
+} from "@headlessui/react";
 import {
   DialogContent,
   DialogWrapper,
   ModalOverlay,
 } from "@erxes/ui/src/styles/main";
+import { IEditFormContent, IItem, IItemParams, IOptions } from "../../types";
+import React, { Fragment, useEffect, useState } from "react";
+import { __, router as routerUtils } from "@erxes/ui/src/utils";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import { ArchiveStatus } from "../../styles/item";
+import { CloseModal } from "@erxes/ui/src/styles/main";
+import Icon from "@erxes/ui/src/components/Icon";
 import styled from "styled-components";
 
 const Relative = styled.div`
@@ -63,12 +68,12 @@ function EditForm(props: Props) {
   }, [stageId]);
 
   const onChangeStage = (stageId: string) => {
-    setStageId(stageId)
+    setStageId(stageId);
     const { item, saveItem, onUpdate } = props;
 
     if (item.stageId !== stageId) {
-      setPrevStageId(item.stageId)
-      saveItem({ stageId }, updatedItem => {
+      setPrevStageId(item.stageId);
+      saveItem({ stageId }, (updatedItem) => {
         if (onUpdate) {
           onUpdate(updatedItem, prevStageId);
         }
@@ -153,7 +158,7 @@ function EditForm(props: Props) {
   return (
     <Transition appear show={props.isPopupVisible} as={Fragment}>
       <Dialog as="div" onClose={onHideModal} className={` relative z-10`}>
-        <Transition.Child
+        <TransitionChild
           as={Fragment}
           enter="ease-out duration-300"
           enterFrom="opacity-0"
@@ -163,27 +168,25 @@ function EditForm(props: Props) {
           leaveTo="opacity-0"
         >
           <ModalOverlay />
-        </Transition.Child>
+        </TransitionChild>
         <DialogWrapper>
           <DialogContent>
-            <Dialog.Panel className={` dialog-size-xl`}>
+            <DialogPanel className={` dialog-size-xl`}>
               {renderArchiveStatus()}
 
-              <Transition.Child>
-                <Relative>
-                  {renderHeader()}
-                  <div className="dialog-description">
-                    {props.formContent({
-                      state: { stageId, updatedItem, prevStageId },
-                      saveItem: saveItemHandler,
-                      onChangeStage,
-                      copy,
-                      remove,
-                    })}
-                  </div>
-                </Relative>
-              </Transition.Child>
-            </Dialog.Panel>
+              <Relative>
+                {renderHeader()}
+                <div className="dialog-description">
+                  {props.formContent({
+                    state: { stageId, updatedItem, prevStageId },
+                    saveItem: saveItemHandler,
+                    onChangeStage,
+                    copy,
+                    remove,
+                  })}
+                </div>
+              </Relative>
+            </DialogPanel>
           </DialogContent>
         </DialogWrapper>
       </Dialog>

@@ -1,5 +1,11 @@
 import { ColorPick, ColorPicker, Flex } from "@erxes/ui/src/styles/main";
-import { Dialog, Transition } from "@headlessui/react";
+import {
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  Transition,
+  TransitionChild,
+} from "@headlessui/react";
 import {
   DialogContent,
   DialogWrapper,
@@ -447,7 +453,7 @@ class PipelineForm extends React.Component<Props, State> {
     return (
       <Transition appear show={show} as={React.Fragment}>
         <Dialog as="div" onClose={closeModal} className={`relative z-10`}>
-          <Transition.Child
+          <TransitionChild
             as={React.Fragment}
             enter="ease-out duration-300"
             enterFrom="opacity-0"
@@ -457,18 +463,16 @@ class PipelineForm extends React.Component<Props, State> {
             leaveTo="opacity-0"
           >
             <ModalOverlay />
-          </Transition.Child>
+          </TransitionChild>
           <DialogWrapper>
             <DialogContent>
-              <Dialog.Panel className={`dialog-size-lg`}>
-                <Dialog.Title as="h3">
+              <DialogPanel className={`dialog-size-lg`}>
+                <DialogTitle as="h3">
                   {pipeline ? `${__("Edit project")}` : `${__("Add project")}`}
                   <Icon icon="times" size={24} onClick={closeModal} />
-                </Dialog.Title>
-                <Transition.Child>
-                  <Form renderContent={this.renderContent} />
-                </Transition.Child>
-              </Dialog.Panel>
+                </DialogTitle>
+                <Form renderContent={this.renderContent} />
+              </DialogPanel>
             </DialogContent>
           </DialogWrapper>
         </Dialog>

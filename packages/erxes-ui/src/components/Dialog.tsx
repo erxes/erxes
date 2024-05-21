@@ -1,4 +1,10 @@
-import { Dialog, Transition } from "@headlessui/react";
+import {
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  Transition,
+  TransitionChild,
+} from "@headlessui/react";
 import {
   DialogContent,
   DialogWrapper,
@@ -28,7 +34,7 @@ function DialogComponent({
   return (
     <Transition appear show={show} as={Fragment}>
       <Dialog as="div" onClose={closeModal} className={` relative z-10`}>
-        <Transition.Child
+        <TransitionChild
           as={Fragment}
           enter="ease-out duration-300"
           enterFrom="opacity-0"
@@ -38,22 +44,20 @@ function DialogComponent({
           leaveTo="opacity-0"
         >
           <ModalOverlay />
-        </Transition.Child>
+        </TransitionChild>
         <DialogWrapper>
           <DialogContent>
-            <Dialog.Panel className={`dialog-size-${size ? size : "lg"}`}>
+            <DialogPanel className={`dialog-size-${size ? size : "lg"}`}>
               {!hideHeader && (
-                <Dialog.Title as="h3">
+                <DialogTitle as="h3">
                   {title}
                   <Icon icon="times" size={24} onClick={closeModal} />
-                </Dialog.Title>
+                </DialogTitle>
               )}
-              <Transition.Child>
-                <div className={`dialog-description ${className}`}>
-                  {children}
-                </div>
-              </Transition.Child>
-            </Dialog.Panel>
+              <div className={`dialog-description ${className}`}>
+                {children}
+              </div>
+            </DialogPanel>
           </DialogContent>
         </DialogWrapper>
       </Dialog>

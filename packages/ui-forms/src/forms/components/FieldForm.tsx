@@ -1,5 +1,11 @@
 import { Alert, __, loadDynamicComponent } from "@erxes/ui/src/utils";
-import { Dialog, Transition } from "@headlessui/react";
+import {
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  Transition,
+  TransitionChild,
+} from "@headlessui/react";
 import {
   DialogContent,
   DialogWrapper,
@@ -814,7 +820,7 @@ class FieldForm extends React.Component<Props, State> {
     return (
       <Transition appear show={true} as={React.Fragment}>
         <Dialog as="div" onClose={onCancel} className={` relative z-10`}>
-          <Transition.Child
+          <TransitionChild
             as={React.Fragment}
             enter="ease-out duration-300"
             enterFrom="opacity-0"
@@ -824,20 +830,16 @@ class FieldForm extends React.Component<Props, State> {
             leaveTo="opacity-0"
           >
             <ModalOverlay />
-          </Transition.Child>
+          </TransitionChild>
           <DialogWrapper>
             <DialogContent>
-              <Dialog.Panel className={` dialog-size-xl`}>
-                <Dialog.Title as="h3">
+              <DialogPanel className={` dialog-size-xl`}>
+                <DialogTitle as="h3">
                   {mode === "create" ? "Add" : "Edit"} {field.type} field
                   <Icon icon="times" size={24} onClick={onCancel} />
-                </Dialog.Title>
-                <Transition.Child>
-                  <div className="dialog-description">
-                    {this.renderContent()}
-                  </div>
-                </Transition.Child>
-              </Dialog.Panel>
+                </DialogTitle>
+                <div className="dialog-description">{this.renderContent()}</div>
+              </DialogPanel>
             </DialogContent>
           </DialogWrapper>
         </Dialog>

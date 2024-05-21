@@ -12,6 +12,7 @@ export default function Collapse({
 }) {
   return (
     <Transition
+      as={"div"}
       show={show}
       enter="transition-opacity duration-300"
       enterFrom="opacity-0"

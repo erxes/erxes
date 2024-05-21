@@ -1,14 +1,22 @@
-import React, { useState, Fragment } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
+import { CallAction, DialogWrapper, TransferCallWrapper } from "../styles";
+import {
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  Transition,
+  TransitionChild,
+} from "@headlessui/react";
 import {
   DialogContent,
   ModalFooter,
   ModalOverlay,
-} from '@erxes/ui/src/styles/main';
-import { Icon } from '@erxes/ui/src/components';
-import Form from '@erxes/ui/src/components/form/Form';
-import { CallAction, DialogWrapper, TransferCallWrapper } from '../styles';
-import TransferCall from '../containers/TransferCall';
+} from "@erxes/ui/src/styles/main";
+import React, { Fragment, useState } from "react";
+
+import Form from "@erxes/ui/src/components/form/Form";
+import { Icon } from "@erxes/ui/src/components";
+import TransferCall from "../containers/TransferCall";
+
 //import Dialog from '@erxes/ui/src/components/Dialog';
 
 type Props = {
@@ -32,7 +40,7 @@ const DialogComponent = (props: Props) => {
   return (
     <CallAction disabled={disabled} onClick={handleShow}>
       <TransferCallWrapper>
-        <Icon size={20} icon={'phone-volume'} />
+        <Icon size={20} icon={"phone-volume"} />
         <Transition appear show={show} as={React.Fragment}>
           <Dialog
             as="div"
@@ -40,7 +48,7 @@ const DialogComponent = (props: Props) => {
             className={` relative z-10`}
             open={show}
           >
-            <Transition.Child
+            <TransitionChild
               as={Fragment}
               enter="ease-out duration-300"
               enterFrom="opacity-0"
@@ -50,20 +58,18 @@ const DialogComponent = (props: Props) => {
               leaveTo="opacity-0"
             >
               <ModalOverlay />
-            </Transition.Child>
+            </TransitionChild>
             <DialogWrapper direction={props.direction}>
               <DialogContent>
-                <Dialog.Panel className={`dialog-size-sm`}>
-                  <Dialog.Title as="h3">
+                <DialogPanel className={`dialog-size-sm`}>
+                  <DialogTitle as="h3">
                     Transfer Call
                     <Icon icon="times" size={24} onClick={handleClose} />
-                  </Dialog.Title>
-                  <Transition.Child>
-                    <div className="dialog-description">
-                      <Form renderContent={renderContent} />
-                    </div>
-                  </Transition.Child>
-                </Dialog.Panel>
+                  </DialogTitle>
+                  <div className="dialog-description">
+                    <Form renderContent={renderContent} />
+                  </div>
+                </DialogPanel>
               </DialogContent>
             </DialogWrapper>
           </Dialog>

@@ -1,23 +1,30 @@
-import React, { useState, useEffect, Fragment } from 'react';
-import { gql, useQuery, useMutation } from '@apollo/client';
-import { Alert, confirm } from '@erxes/ui/src/utils';
+import { Alert, confirm } from "@erxes/ui/src/utils";
 import {
-  mutations,
-  queries,
-} from '@erxes/ui-cards/src/settings/boards/graphql';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import { LinkButton } from '@erxes/ui/src/styles/main';
-import { __ } from 'coreui/utils';
-import { FormControl } from '@erxes/ui/src/components/form';
-import Table from '@erxes/ui/src/components/table';
-import { Dialog, Transition } from '@headlessui/react';
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  Transition,
+  TransitionChild,
+} from "@headlessui/react";
 import {
   DialogContent,
   DialogWrapper,
-  ModalOverlay,
   ModalFooter,
-} from '@erxes/ui/src/styles/main';
+  ModalOverlay,
+} from "@erxes/ui/src/styles/main";
+import React, { Fragment, useEffect, useState } from "react";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import {
+  mutations,
+  queries,
+} from "@erxes/ui-cards/src/settings/boards/graphql";
+
+import Button from "@erxes/ui/src/components/Button";
+import { FormControl } from "@erxes/ui/src/components/form";
+import Icon from "@erxes/ui/src/components/Icon";
+import { LinkButton } from "@erxes/ui/src/styles/main";
+import Table from "@erxes/ui/src/components/table";
+import { __ } from "coreui/utils";
 
 type array = {
   _id: string;
@@ -39,9 +46,9 @@ function ExpensesForm() {
   }, [data]);
 
   const [inputValues, setInputValues] = useState({
-    _id: '',
-    name: '',
-    description: '',
+    _id: "",
+    name: "",
+    description: "",
   });
 
   const addElement = () => {
@@ -52,9 +59,9 @@ function ExpensesForm() {
     };
     setElements((prevElements) => [...prevElements, newElement]);
     setInputValues({
-      _id: '',
-      name: '',
-      description: '',
+      _id: "",
+      name: "",
+      description: "",
     });
   };
 
@@ -76,8 +83,8 @@ function ExpensesForm() {
   const handleSubmit = (event) => {
     const setData = elements.map((element, index) => {
       if (!element.name) {
-        Alert.error('Please fill all fields');
-        throw new Error('Please fill all fields');
+        Alert.error("Please fill all fields");
+        throw new Error("Please fill all fields");
       }
       return {
         name: element.name,
@@ -89,7 +96,7 @@ function ExpensesForm() {
     confirm().then(() => {
       expenseMutation({ variables: { expenseDocs: setData } })
         .then(() => {
-          Alert.success('Successfully created');
+          Alert.success("Successfully created");
           handleClose();
         })
         .catch((e) => {
@@ -110,7 +117,7 @@ function ExpensesForm() {
           onClose={handleClose}
           className={`relative z-10`}
         >
-          <Transition.Child
+          <TransitionChild
             as={Fragment}
             enter="ease-out duration-300"
             enterFrom="opacity-0"
@@ -120,87 +127,86 @@ function ExpensesForm() {
             leaveTo="opacity-0"
           >
             <ModalOverlay />
-          </Transition.Child>
+          </TransitionChild>
           <DialogWrapper>
             <DialogContent>
-              <Dialog.Panel className={`dialog-size-sm`}>
-                <Dialog.Title as="h3">
-                  {__('Manage Expenses')}
+              <DialogPanel className={`dialog-size-sm`}>
+                <DialogTitle as="h3">
+                  {__("Manage Expenses")}
                   <Icon icon="times" size={24} onClick={handleClose} />
-                </Dialog.Title>
-                <Transition.Child>
-                  <Table $whiteSpace="nowrap" $hover={true}>
-                    <thead>
-                      <tr>
-                        <th>{__('Name')}</th>
-                        <th>{__('Description')}</th>
-                        <th>{__('Action')}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(elements || []).map((element, index) => (
-                        <tr key={index}>
-                          <td>
-                            <FormControl
-                              type="text"
-                              placeholder="Enter Name"
-                              defaultValue={element.name}
-                              onChange={(e: any) =>
-                                changeElement(index, 'name', e.target.value)
-                              }
-                            />
-                          </td>
-                          <td>
-                            <FormControl
-                              type="text"
-                              defaultValue={element.description}
-                              placeholder="Enter description"
-                              onChange={(e: any) =>
-                                changeElement(
-                                  index,
-                                  'description',
-                                  e.target.value,
-                                )
-                              }
-                            />
-                          </td>
-                          <td>
-                            <Button
-                              block
-                              btnStyle="simple"
-                              type="button"
-                              icon="times"
-                              onClick={() => deleteElement(index)}
-                            ></Button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                    <LinkButton onClick={addElement}>
-                      <Icon icon="plus-1" /> {__('Add another expense')}
-                    </LinkButton>
-                  </Table>
-                  <ModalFooter className="dialog-description">
-                    <Button
-                      btnStyle="simple"
-                      size="small"
-                      icon="times-circle"
-                      onClick={handleClose}
-                    >
-                      {__('Cancel')}
-                    </Button>
+                </DialogTitle>
 
-                    <Button
-                      btnStyle="success"
-                      size="small"
-                      onClick={handleSubmit}
-                      icon="checked-1"
-                    >
-                      Save
-                    </Button>
-                  </ModalFooter>
-                </Transition.Child>
-              </Dialog.Panel>
+                <Table $whiteSpace="nowrap" $hover={true}>
+                  <thead>
+                    <tr>
+                      <th>{__("Name")}</th>
+                      <th>{__("Description")}</th>
+                      <th>{__("Action")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(elements || []).map((element, index) => (
+                      <tr key={index}>
+                        <td>
+                          <FormControl
+                            type="text"
+                            placeholder="Enter Name"
+                            defaultValue={element.name}
+                            onChange={(e: any) =>
+                              changeElement(index, "name", e.target.value)
+                            }
+                          />
+                        </td>
+                        <td>
+                          <FormControl
+                            type="text"
+                            defaultValue={element.description}
+                            placeholder="Enter description"
+                            onChange={(e: any) =>
+                              changeElement(
+                                index,
+                                "description",
+                                e.target.value
+                              )
+                            }
+                          />
+                        </td>
+                        <td>
+                          <Button
+                            block
+                            btnStyle="simple"
+                            type="button"
+                            icon="times"
+                            onClick={() => deleteElement(index)}
+                          ></Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <LinkButton onClick={addElement}>
+                    <Icon icon="plus-1" /> {__("Add another expense")}
+                  </LinkButton>
+                </Table>
+                <ModalFooter className="dialog-description">
+                  <Button
+                    btnStyle="simple"
+                    size="small"
+                    icon="times-circle"
+                    onClick={handleClose}
+                  >
+                    {__("Cancel")}
+                  </Button>
+
+                  <Button
+                    btnStyle="success"
+                    size="small"
+                    onClick={handleSubmit}
+                    icon="checked-1"
+                  >
+                    Save
+                  </Button>
+                </ModalFooter>
+              </DialogPanel>
             </DialogContent>
           </DialogWrapper>
         </Dialog>
