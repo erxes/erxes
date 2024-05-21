@@ -10,6 +10,7 @@ import { getNextMonth, getToday, regexSearchText } from '@erxes/api-utils/src';
 import { IListParams } from './boards';
 import {
   fetchSegment,
+  sendCommonMessage,
   sendContactsMessage,
   sendCoreMessage,
   sendFormsMessage,
@@ -105,7 +106,7 @@ export const generateExtraFilters = async (filter, extraParams) => {
     closeDateEndDate,
   } = extraParams;
 
-  const isListEmpty = (value) => {
+  const isListEmpty = value => {
     return value.length === 1 && value[0].length === 0;
   };
 
@@ -174,7 +175,7 @@ export const generateCommonFilters = async (
   models: IModels,
   subdomain: string,
   currentUserId: string,
-  args: any,
+  args: any
 ) => {
   const {
     _ids,
@@ -213,9 +214,10 @@ export const generateCommonFilters = async (
     departmentIds,
     dateRangeFilters,
     customFieldsDataFilters,
+    vendorCustomerIds,
   } = args;
 
-  const isListEmpty = (value) => {
+  const isListEmpty = value => {
     return value.length === 1 && value[0].length === 0;
   };
 
@@ -248,7 +250,7 @@ export const generateCommonFilters = async (
       defaultValue: [],
     });
 
-    filter.branchIds = { $in: branches.map((item) => item._id) };
+    filter.branchIds = { $in: branches.map(item => item._id) };
   }
 
   if (departmentIds) {
@@ -263,7 +265,7 @@ export const generateCommonFilters = async (
       defaultValue: [],
     });
 
-    filter.departmentIds = { $in: departments.map((item) => item._id) };
+    filter.departmentIds = { $in: departments.map(item => item._id) };
   }
 
   if (customerIds && type) {
@@ -296,7 +298,7 @@ export const generateCommonFilters = async (
     });
 
     filterIds = filterIds.length
-      ? filterIds.filter((id) => relIds.includes(id))
+      ? filterIds.filter(id => relIds.includes(id))
       : relIds;
   }
 
@@ -504,8 +506,8 @@ export const generateCommonFilters = async (
         }
 
         if (
-          !!pipelineDepartmentIds.filter((departmentId) =>
-            userDepartmentIds.includes(departmentId),
+          !!pipelineDepartmentIds.filter(departmentId =>
+            userDepartmentIds.includes(departmentId)
           ).length
         ) {
           includeCheckUserIds = includeCheckUserIds.concat(user._id || []);
@@ -561,7 +563,27 @@ export const generateCommonFilters = async (
   if (number) {
     filter.number = { $regex: `${number}`, $options: 'mui' };
   }
-
+  if (vendorCustomerIds?.length > 0) {
+    const cards = await sendCommonMessage({
+      subdomain,
+      serviceName: 'clientportal',
+      action: 'clientPortalUserCards.find',
+      data: {
+        contentType: 'ticket',
+        cpUserId: { $in: vendorCustomerIds },
+      },
+      isRPC: true,
+      defaultValue: [],
+    });
+    const cardIds = cards.map(d => d.contentTypeId);
+    if (filter._id) {
+      const ids = filter._id.$in;
+      const newIds = ids.filter(d => cardIds.includes(d));
+      filter._id = { $in: newIds };
+    } else {
+      filter._id = { $in: cardIds };
+    }
+  }
   return filter;
 };
 
@@ -619,7 +641,7 @@ export const generateDealCommonFilters = async (
   subdomain: string,
   currentUserId: string,
   args = {} as any,
-  extraParams?: any,
+  extraParams?: any
 ) => {
   args.type = 'deal';
   const { productIds } = extraParams || args;
@@ -627,7 +649,7 @@ export const generateDealCommonFilters = async (
     models,
     subdomain,
     currentUserId,
-    args,
+    args
   );
 
   if (extraParams) {
@@ -649,7 +671,7 @@ export const generatePurchaseCommonFilters = async (
   subdomain: string,
   currentUserId: string,
   args = {} as any,
-  extraParams?: any,
+  extraParams?: any
 ) => {
   args.type = 'purchase';
   const { productIds } = extraParams || args;
@@ -658,7 +680,7 @@ export const generatePurchaseCommonFilters = async (
     models,
     subdomain,
     currentUserId,
-    args,
+    args
   );
 
   if (extraParams) {
@@ -680,7 +702,7 @@ export const generateTicketCommonFilters = async (
   subdomain: string,
   currentUserId: string,
   args = {} as any,
-  extraParams?: any,
+  extraParams?: any
 ) => {
   args.type = 'ticket';
 
@@ -688,7 +710,7 @@ export const generateTicketCommonFilters = async (
     models,
     subdomain,
     currentUserId,
-    args,
+    args
   );
 
   if (extraParams) {
@@ -706,7 +728,7 @@ export const generateTaskCommonFilters = async (
   subdomain: string,
   currentUserId: string,
   args = {} as any,
-  extraParams?: any,
+  extraParams?: any
 ) => {
   args.type = 'task';
 
@@ -714,7 +736,7 @@ export const generateTaskCommonFilters = async (
     models,
     subdomain,
     currentUserId,
-    args,
+    args
   );
 
   if (extraParams) {
@@ -744,7 +766,7 @@ export const generateGrowthHackCommonFilters = async (
   subdomain: string,
   currentUserId: string,
   args = {} as any,
-  extraParams?: any,
+  extraParams?: any
 ) => {
   args.type = 'growthHack';
 
@@ -754,7 +776,7 @@ export const generateGrowthHackCommonFilters = async (
     models,
     subdomain,
     currentUserId,
-    args,
+    args
   );
 
   if (extraParams) {
@@ -794,7 +816,7 @@ const dateSelector = (date: IDate) => {
 // comparing pipelines departmentIds and current user departmentIds
 const compareDepartmentIds = (
   pipelineDepartmentIds: string[],
-  userDepartmentIds: string[],
+  userDepartmentIds: string[]
 ): boolean => {
   if (!pipelineDepartmentIds.length || !userDepartmentIds.length) {
     return false;
@@ -812,7 +834,7 @@ const compareDepartmentIds = (
 export const checkItemPermByUser = async (
   models: IModels,
   user: any,
-  item: IItemCommonFields,
+  item: IItemCommonFields
 ) => {
   const stage = await models.Stages.getStage(item.stageId);
 
@@ -829,7 +851,7 @@ export const checkItemPermByUser = async (
   // check permission on department
   const hasUserInDepartment = compareDepartmentIds(
     departmentIds,
-    userDepartmentIds,
+    userDepartmentIds
   );
 
   if (
@@ -861,7 +883,7 @@ export const checkItemPermByUser = async (
 export const archivedItems = async (
   models: IModels,
   params: IArchiveArgs,
-  collection: any,
+  collection: any
 ) => {
   const { pipelineId, ...listArgs } = params;
 
@@ -888,7 +910,7 @@ export const archivedItems = async (
 export const archivedItemsCount = async (
   models: IModels,
   params: IArchiveArgs,
-  collection: any,
+  collection: any
 ) => {
   const { pipelineId } = params;
 
@@ -905,7 +927,7 @@ export const archivedItemsCount = async (
 
 const generateArhivedItemsFilter = (
   params: IArchiveArgs,
-  stages: IStageDocument[],
+  stages: IStageDocument[]
 ) => {
   const {
     search,
@@ -922,7 +944,7 @@ const generateArhivedItemsFilter = (
 
   const filter: any = { status: BOARD_STATUSES.ARCHIVED };
 
-  filter.stageId = { $in: stages.map((stage) => stage._id) };
+  filter.stageId = { $in: stages.map(stage => stage._id) };
 
   if (search) {
     Object.assign(filter, regexSearchText(search, 'name'));
@@ -984,7 +1006,7 @@ export const getItemList = async (
   type: string,
   extraFields?: { [key: string]: number },
   getExtraFields?: (item: any) => { [key: string]: any },
-  serverTiming?,
+  serverTiming?
 ) => {
   const { collection } = getCollection(models, type);
   const { page, perPage } = args;
@@ -1073,7 +1095,7 @@ export const getItemList = async (
     serverTiming.endTime('getItemsPipelineAggregate');
   }
 
-  const ids = list.map((item) => item._id);
+  const ids = list.map(item => item._id);
 
   if (serverTiming) {
     serverTiming.startTime('conformities');
@@ -1105,7 +1127,7 @@ export const getItemList = async (
     cocIdsByItemId,
     cocIds,
     typeId1,
-    typeId2,
+    typeId2
   ) => {
     cocIds.push(conformity[typeId1]);
 
@@ -1123,7 +1145,7 @@ export const getItemList = async (
         companyIdsByItemId,
         companyIds,
         'mainTypeId',
-        'relTypeId',
+        'relTypeId'
       );
       continue;
     }
@@ -1133,7 +1155,7 @@ export const getItemList = async (
         companyIdsByItemId,
         companyIds,
         'relTypeId',
-        'mainTypeId',
+        'mainTypeId'
       );
       continue;
     }
@@ -1143,7 +1165,7 @@ export const getItemList = async (
         customerIdsByItemId,
         customerIds,
         'mainTypeId',
-        'relTypeId',
+        'relTypeId'
       );
       continue;
     }
@@ -1153,7 +1175,7 @@ export const getItemList = async (
         customerIdsByItemId,
         customerIds,
         'relTypeId',
-        'mainTypeId',
+        'mainTypeId'
       );
       continue;
     }
@@ -1219,12 +1241,12 @@ export const getItemList = async (
   const getCocsByItemId = (
     itemId: string,
     cocIdsByItemId: any,
-    cocs: any[],
+    cocs: any[]
   ) => {
     const cocIds = cocIdsByItemId[itemId] || [];
 
     return cocIds.flatMap((cocId: string) => {
-      const found = cocs.find((coc) => cocId === coc._id);
+      const found = cocs.find(coc => cocId === coc._id);
 
       return found || [];
     });
@@ -1286,9 +1308,9 @@ export const getItemList = async (
     ) {
       item.customProperties = [];
 
-      fields.forEach((field) => {
+      fields.forEach(field => {
         const fieldData = item.customFieldsData.find(
-          (f) => f.field === field._id,
+          f => f.field === field._id
         );
 
         if (fieldData) {
@@ -1299,9 +1321,7 @@ export const getItemList = async (
       });
     }
 
-    const notification = notifications.find(
-      (n) => n.contentTypeId === item._id,
-    );
+    const notification = notifications.find(n => n.contentTypeId === item._id);
 
     updatedList.push({
       ...item,

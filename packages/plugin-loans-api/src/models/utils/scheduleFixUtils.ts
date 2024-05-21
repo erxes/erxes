@@ -287,11 +287,12 @@ export async function scheduleFixAfterCurrent(
         .toNumber();
   }
 
-  
-
   if (updateBulks.length > 0) await models.Schedules.bulkWrite(updateBulks);
-  let mustPayDate = await getMustPayDate(scheduleList,contract.mustPayDate)
-  await models.Contracts.updateOne({_id:contract._id},{$set:{mustPayDate:mustPayDate}})
+  let mustPayDate = await getMustPayDate(scheduleList, contract.mustPayDate);
+  await models.Contracts.updateOne(
+    { _id: contract._id },
+    { $set: { mustPayDate: mustPayDate } }
+  );
 }
 
 export async function createTransactionSchedule(
@@ -330,8 +331,13 @@ export async function createTransactionSchedule(
           didPayment: tr.payment,
           didCommitmentInterest: tr.commitmentInterest,
           didInterestEve: tr.storedInterest,
-          didInterestNonce: tr.calcInterest,
-          balance: (tr.payment ?? 0) * -1
+          didInterestNonce: tr.calcInterest
+        },
+        $set: {
+          balance: new BigNumber(loanBalance)
+            .minus(tr.payment ?? 0)
+            .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
+            .toNumber()
         },
         $push: {
           transactionIds: tr._id
@@ -353,7 +359,10 @@ export async function createTransactionSchedule(
       contractId: contract._id,
       version: '0',
       payDate: currentDate,
-      balance: new BigNumber(balance).minus(tr.payment ?? 0).toNumber(),
+      balance: new BigNumber(balance)
+        .minus(tr.payment ?? 0)
+        .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
+        .toNumber(),
       payment: 0,
       interestEve: interestEve,
       interestNonce: interestNonce,
@@ -389,6 +398,8 @@ export async function createTransactionSchedule(
       .minus(tr.payment)
       .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
       .toNumber();
+
+    console.log('loanBalance?::::::::::::>', loanBalance);
 
     await models.Contracts.updateOne(
       { _id: contract._id },
