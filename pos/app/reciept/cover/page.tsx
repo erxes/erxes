@@ -1,8 +1,7 @@
 "use client"
 
 import { useSearchParams } from "next/navigation"
-import useConfig from "@/modules/auth/hooks/useConfig"
-import { coverConfigAtom } from "@/store/config.store"
+import { paymentTypesAtom } from "@/store/config.store"
 import { useQuery } from "@apollo/client"
 import { format } from "date-fns"
 import { useAtomValue } from "jotai"
@@ -16,14 +15,12 @@ import { queries } from "@/app/(main)/cover/graphql"
 const Cover = () => {
   const searchParams = useSearchParams()
   const id = searchParams.get("id")
-
-  const { loading: loadingConfig } = useConfig("cover")
   const { loading, data } = useQuery(queries.recieptDetail, {
     variables: { id },
   })
-  const config = useAtomValue(coverConfigAtom)
+  const paymentTypes = useAtomValue(paymentTypesAtom)
 
-  if (loading || loadingConfig) return <div></div>
+  if (loading) return <div></div>
 
   const {
     beginDate,
@@ -35,8 +32,6 @@ const Cover = () => {
     description,
     details,
   } = data?.coverDetail || {}
-
-  const { paymentTypes } = config || {}
 
   const cashDetail = details.find(
     (detail: Detail) => detail.paidType === "cashAmount"
