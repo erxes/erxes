@@ -12,7 +12,6 @@ import * as tmp from 'tmp';
 import * as xlsxPopulate from 'xlsx-populate';
 import { sendCommonMessage } from '../../messageBroker';
 import { query } from './queries/items';
-import * as chromium from 'download-chromium';
 
 export const verifyVendor = async (context) => {
   const { subdomain, cpUser } = context;
@@ -798,17 +797,22 @@ export const generateContract = async (
 };
 
 const generatePdf = async (subdomain, content, dealNumber) => {
-  const injectedHtml = content.replace(/<head>/i, `<head>\n<meta charset="UTF-8">`);
-
+  const injectedHtml = content.replace(
+    /<head>/i,
+    `<head>\n<meta charset="UTF-8">`
+  );
 
   const browser = await puppeteer.launch({
     headless: true,
-    executablePath: '/usr/bin/google-chrome',
-    // executablePath:
-    //       '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    // executablePath: '/usr/bin/google-chrome',
+    executablePath:
+      '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--lang=mn-MN,mn'],
   });
   const page = await browser.newPage();
+  await page.setExtraHTTPHeaders({
+    'Accept-Language': 'mn',
+  });
 
   await page.setContent(injectedHtml, { waitUntil: 'domcontentloaded' });
   await page.emulateMediaType('screen');
