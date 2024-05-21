@@ -28,8 +28,7 @@ const getTinNo = async (rd) => {
     `https://ebarimt-bridge.erkhet.biz/getTinInfo?regNo=${rd}`
   ).then((r) => r.json());
 
-  const tinNo = info.data;
-  return tinNo
+  return info.data;
 }
 
 const command = async () => {

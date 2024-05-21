@@ -121,7 +121,7 @@ const genStock = (detail, product, config) => {
 
   return {
     recId: detail.recId,
-    name: product.shortName ? product.shortName : `${product.code} - ${product.name}`,
+    name: product.shortName || `${product.code} - ${product.name}`,
     barCode,
     barCodeType,
     classificationCode: config.defaultGSCode,

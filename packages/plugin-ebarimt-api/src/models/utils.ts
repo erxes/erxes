@@ -117,7 +117,7 @@ const genStock = (detail, product, config) => {
   const barCodeType = isValidBarcode(barCode) ? 'GS1' : 'UNDEFINED'
 
   return {
-    name: product.shortName ? product.shortName : `${product.code} - ${product.name}`,
+    name: product.shortName || `${product.code} - ${product.name}`,
     barCode,
     barCodeType,
     classificationCode: config.defaultGSCode,
