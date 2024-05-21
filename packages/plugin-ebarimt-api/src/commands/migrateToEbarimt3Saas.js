@@ -104,6 +104,7 @@ const command = async () => {
             districtCode: rdMap[doc.registerNo].districtCode,
             branchNo: rdMap[doc.registerNo].branchNo,
             merchantTin: rdMap[doc.registerNo].merchantTin,
+            posId: 'eb2',
             posNo: rdMap[doc.registerNo].posNo,
             customerTin: doc.billType === '3' ? await getTinNo(doc.customerNo) : '',
             consumerNo: ''

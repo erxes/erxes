@@ -85,7 +85,7 @@ export const loadClasses = (
     IProductCategoryModel
   >('posclient_product_categories', loadProductCategoryClass(models));
   models.PutResponses = db.model<IEbarimtDocument, IPutResponseModel>(
-    'posclient_put_responses',
+    'posclient_putresponses',
     loadPutResponseClass(models),
   );
   models.PosSlots = db.model<IPosSlotDocument, IPosSlotModel>(
