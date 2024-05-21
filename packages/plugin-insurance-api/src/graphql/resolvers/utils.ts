@@ -814,6 +814,8 @@ const generatePdf = async (subdomain, content, dealNumber) => {
     'Accept-Language': 'mn',
   });
 
+  console.log(injectedHtml)
+
   await page.setContent(injectedHtml, { waitUntil: 'domcontentloaded' });
   await page.emulateMediaType('screen');
 
