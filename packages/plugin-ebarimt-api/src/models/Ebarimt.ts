@@ -154,7 +154,7 @@ export const loadPutResponseClass = models => {
 
       const resultObjIds: string[] = [];
       for (const prePutResponse of prePutResponses) {
-        const date = prePutResponse.date;
+        const { date } = prePutResponse;
 
         if (!prePutResponse.id || !date) {
           continue;

@@ -132,7 +132,10 @@ export const loadPutResponseClass = models => {
         }
 
         await models.OrderItems.updateMany(
-          { orderId: contentId, isInner: true, _id: { $in: (((data.receipts || [])[0] || {}).items || []).map(i => i.recId) } },
+          {
+            orderId: contentId,
+            isInner: true
+          },
           { $set: { isInner: false } },
         );
 
@@ -146,7 +149,10 @@ export const loadPutResponseClass = models => {
 
       if (innerData) {
         await models.OrderItems.updateMany(
-          { orderId: contentId, _id: { $in: (((innerData.receipts || [])[0] || {}).items || []).map(i => i.recId) } },
+          {
+            orderId: contentId,
+            _id: { $in: ((innerData.receipts || [])[0]?.items || []).map(i => i.recId) }
+          },
           { $set: { isInner: true } },
         );
         result.innerData = innerData;
@@ -172,7 +178,7 @@ export const loadPutResponseClass = models => {
 
       const resultObjIds: string[] = [];
       for (const prePutResponse of prePutResponses) {
-        const date = prePutResponse.date;
+        const { date } = prePutResponse;
 
         if (!prePutResponse.id || !date) {
           continue;

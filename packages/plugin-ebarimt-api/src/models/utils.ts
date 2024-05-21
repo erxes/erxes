@@ -117,7 +117,7 @@ const genStock = (detail, product, config) => {
   const barCodeType = isValidBarcode(barCode) ? 'GS1' : 'UNDEFINED'
 
   return {
-    name: product.shortName ? product.shortName : `${product.code} - ${product.name}`,
+    name: product.shortName || `${product.code} - ${product.name}`,
     barCode,
     barCodeType,
     classificationCode: config.defaultGSCode,
@@ -151,7 +151,7 @@ const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc) => {
   const totalPercent = vatPercent + cityTaxPercent + 100
 
   for (const detail of (doc.details || []).filter(d => d.product)) {
-    const product = detail.product;
+    const { product } = detail;
 
     const stock = genStock(detail, product, config)
 
