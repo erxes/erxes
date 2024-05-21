@@ -157,7 +157,7 @@ const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc) => {
   const totalPercent = vatPercent + cityTaxPercent + 100
 
   for (const detail of (doc.details || []).filter(d => d.product)) {
-    const product = detail.product;
+    const { product } = detail;
 
     const stock = genStock(detail, product, config);
 
