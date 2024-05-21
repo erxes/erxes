@@ -798,14 +798,19 @@ export const generateContract = async (
 };
 
 const generatePdf = async (subdomain, content, dealNumber) => {
+  const injectedHtml = content.replace(/<head>/i, `<head>\n<meta charset="UTF-8">`);
+
+
   const browser = await puppeteer.launch({
     headless: true,
     executablePath: '/usr/bin/google-chrome',
+    // executablePath:
+    //       '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   });
   const page = await browser.newPage();
 
-  await page.setContent(content, { waitUntil: 'domcontentloaded' });
+  await page.setContent(injectedHtml, { waitUntil: 'domcontentloaded' });
   await page.emulateMediaType('screen');
 
   const pdf = await page.pdf({
