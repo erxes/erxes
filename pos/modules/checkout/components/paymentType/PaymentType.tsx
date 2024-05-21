@@ -1,119 +1,26 @@
-import { ChangeEvent, useEffect } from "react"
-import {
-  currentPaymentTypeAtom,
-  displayAmountAtom,
-  paymentAmountTypeAtom,
-} from "@/store"
-import {
-  activeOrderIdAtom,
-  paidOrderIdAtom,
-  paidProductsAtom,
-  payByProductAtom,
-  payByProductTotalAtom,
-} from "@/store/order.store"
-import { useAtom, useAtomValue, useSetAtom } from "jotai"
-import { Percent, XIcon } from "lucide-react"
+import useHandlePayment from "@/modules/checkout/hooks/useHandlePayment"
+import usePayByProduct from "@/modules/checkout/hooks/usePayByProduct"
+import { currentPaymentTypeAtom } from "@/store"
+import { useSetAtom } from "jotai"
+import { XIcon } from "lucide-react"
 
-import { IPaymentAmountType } from "@/types/order.types"
 import { HARD_PAYMENT_TYPES } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Toggle } from "@/components/ui/toggle"
-import Keys from "@/app/(main)/checkout/components/Keys"
 
-import useHandlePayment from "../../hooks/useHandlePayment"
-import { useCheckNotSplit } from "../../hooks/usePaymentType"
-import PayByProduct from "./PayByProduct"
+import PaymentTypeHandlers from "./paymentTypeHandlers"
+import PaymentTypeInput from "./paymentTypeInput"
 
 const PaymentType = () => {
-  const [paymentAmountType, setPaymentAmountType] = useAtom(
-    paymentAmountTypeAtom
-  )
-  const [paidProducts, setPaidProducts] = useAtom(paidProductsAtom)
-  const [payByProduct, setPayByProduct] = useAtom(payByProductAtom)
-  const payByProductTotal = useAtomValue(payByProductTotalAtom)
-  const setPaidOrderId = useSetAtom(paidOrderIdAtom)
-  const orderIdAtom = useAtomValue(activeOrderIdAtom)
-
   const setPaymentTerm = useSetAtom(currentPaymentTypeAtom)
-  const displayAmount = useAtomValue(displayAmountAtom)
-  const {
-    handleValueChange,
-    handlePay,
-    loading,
-    currentAmount,
-    notPaidAmount,
-    type,
-  } = useHandlePayment()
-  const { disableInput } = useCheckNotSplit()
-
-  const onChange = (e: ChangeEvent<HTMLInputElement>) =>
-    handleValueChange(e.target.value)
-
-  useEffect(() => {
-    if (paymentAmountType === "items" && payByProductTotal > 0) {
-      handleValueChange(
-        (payByProductTotal > notPaidAmount
-          ? notPaidAmount
-          : payByProductTotal
-        ).toString()
-      )
-    }
-  }, [paymentAmountType, payByProductTotal, handleValueChange, notPaidAmount])
-
-  const mergePaid = () => {
-    const mergedArray = payByProduct.reduce(
-      (result, obj1) => {
-        const existingObj = result.find((obj2) => obj2._id === obj1._id)
-
-        if (existingObj) {
-          // If _id exists, add counts
-          existingObj.count += obj1.count
-        } else {
-          // If _id doesn't exist, push the object to the result array
-          result.push({ ...obj1 })
-        }
-
-        return result
-      },
-      [...paidProducts]
-    )
-    setPaidProducts(mergedArray)
-    setPaidOrderId(orderIdAtom)
-    setPayByProduct([])
-  }
+  const { handlePay, loading, currentAmount, notPaidAmount, type } =
+    useHandlePayment()
+  const { mergePaid } = usePayByProduct()
 
   return (
     <>
       <div className="flex justify-between items-center p-1 border-b border-white/20 pb-2 mb-4">
         <div className="flex-auto">
-          <div className="flex items-center text-3xl font-black mb-2">
-            <Toggle
-              className="text-3xl font-black w-11 px-2"
-              colorMode="dark"
-              pressed={paymentAmountType === "percent"}
-              onPressedChange={(pressed) =>
-                setPaymentAmountType(pressed ? "percent" : "amount")
-              }
-            >
-              {paymentAmountType === "percent" ? (
-                <Percent className="h-6 w-6" strokeWidth={3} />
-              ) : (
-                "₮"
-              )}
-            </Toggle>
-            <Input
-              className="border-none px-2 "
-              focus={false}
-              value={displayAmount.toLocaleString()}
-              onChange={onChange}
-              disabled={disableInput || paymentAmountType === "items"}
-            />
-          </div>
-          <span className="text-slate-300">
-            Үлдэгдэл: {(notPaidAmount - currentAmount).toLocaleString()}₮
-          </span>
+          <PaymentTypeInput />
         </div>
         <div className="flex-auto flex items-center">
           <Button
@@ -140,43 +47,7 @@ const PaymentType = () => {
           </Button>
         </div>
       </div>
-      <Tabs
-        defaultValue="amount"
-        value={paymentAmountType}
-        onValueChange={(value) =>
-          setPaymentAmountType(value as IPaymentAmountType)
-        }
-      >
-        <TabsList className="grid w-full grid-cols-3 bg-neutral-700 text-white/80 my-4 flex-none">
-          <TabsTrigger
-            value="amount"
-            className="data-[state=active]:bg-black data-[state=active]:text-white"
-          >
-            Дүнгээр
-          </TabsTrigger>
-          <TabsTrigger
-            value="percent"
-            className="data-[state=active]:bg-black data-[state=active]:text-white"
-          >
-            Хувиар
-          </TabsTrigger>
-          <TabsTrigger
-            value="items"
-            className="data-[state=active]:bg-black data-[state=active]:text-white"
-          >
-            Бараагаар
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="amount">
-          <Keys />
-        </TabsContent>
-        <TabsContent value="percent">
-          <Keys />
-        </TabsContent>
-        <TabsContent value="items" className="flex-auto">
-          <PayByProduct />
-        </TabsContent>
-      </Tabs>
+      <PaymentTypeHandlers />
     </>
   )
 }

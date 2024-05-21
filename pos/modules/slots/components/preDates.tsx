@@ -14,7 +14,9 @@ import {
 const PreDates = ({ isPreDates }: { isPreDates: ISlot["isPreDates"] }) => {
   const setActiveOrder = useSetAtom(activeOrderIdAtom)
   const setSelectedTab = useSetAtom(selectedTabAtom)
-  if (!isPreDates?.length) return null
+  if (!isPreDates?.length) {
+    return null
+  }
   return (
     <>
       <DropdownMenuSeparator />

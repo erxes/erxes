@@ -1,18 +1,15 @@
 "use client"
 
 import { useState } from "react"
+import { ebarimtConfigAtom } from "@/store/config.store"
+import { useAtomValue } from "jotai"
 
 import { useToast } from "@/components/ui/use-toast"
 
 import SettingsButton from "./components/Button"
 
-const SendData = ({
-  ebarimtUrl,
-  companyRD,
-}: {
-  ebarimtUrl?: string
-  companyRD?: string
-}) => {
+const SendData = () => {
+  const { ebarimtUrl, companyRD } = useAtomValue(ebarimtConfigAtom) || {}
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
 
