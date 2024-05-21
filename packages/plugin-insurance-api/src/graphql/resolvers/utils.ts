@@ -797,10 +797,21 @@ export const generateContract = async (
 };
 
 const generatePdf = async (subdomain, content, dealNumber) => {
-  const injectedHtml = content.replace(
-    /<head>/i,
-    `<head>\n<meta charset="UTF-8">`
-  );
+  let injectedHtml = content;
+
+  const metaTag = '<meta charset="UTF-8">';
+
+  if (content.includes("<head>")) {
+    injectedHtml = content.replace("<head>", `<head>${metaTag}`);
+  }
+
+  if (injectedHtml.includes("<head/>")) {
+    injectedHtml = content.replace("<head/>", `<head>${metaTag}</head>`);
+  }
+
+  if (!injectedHtml.includes("<head>")) {
+    injectedHtml = `<head>${metaTag}</head>${content}`;
+  }
 
   const browser = await puppeteer.launch({
     headless: true,
