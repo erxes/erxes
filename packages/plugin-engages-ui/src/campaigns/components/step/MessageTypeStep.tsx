@@ -30,6 +30,7 @@ type Props = {
   businessPortalKind?: string;
   handleClientPortalKindChange: (kind: string) => void;
   selectedCpId?: string;
+  segmentsTypes?: any[];
 };
 
 type State = {
@@ -150,6 +151,21 @@ class MessageTypeStep extends React.Component<Props, State> {
       return null;
     }
 
+    const segmentOptions = (this.props.segmentsTypes || []).length > 0
+      ? (this.props.segmentsTypes || [] as any).map((type) => ({
+          label: type.description,
+          value: type.contentType,
+        }))
+      : [
+          { value: "contacts:lead", label: "Leads" },
+          { value: "contacts:customer", label: "Customers" },
+          { value: "contacts:company", label: "Company contacts" },
+          { value: "cards:deal", label: "Deal contacts" },
+          { value: "cards:task", label: "Task contacts" },
+          { value: "cards:ticket", label: "Ticket contacts" },
+          { value: "cards:purchase", label: "Purchase contacts" },
+        ];
+
     return (
       <SelectMessageType>
         <FormGroup>
@@ -158,15 +174,7 @@ class MessageTypeStep extends React.Component<Props, State> {
             id="segmentType"
             value={this.state.segmentType}
             componentclass="select"
-            options={[
-              { value: "contacts:lead", label: "Leads" },
-              { value: "contacts:customer", label: "Customers" },
-              { value: "contacts:company", label: "Company contacts" },
-              { value: "cards:deal", label: "Deal contacts" },
-              { value: "cards:task", label: "Task contacts" },
-              { value: "cards:ticket", label: "Ticket contacts" },
-              { value: "cards:purchase", label: "Purchase contacts" },
-            ]}
+            options={segmentOptions}
             onChange={this.onChange.bind(this, "segmentType")}
           />
         </FormGroup>
