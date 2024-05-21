@@ -3,12 +3,11 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import {
   FieldStyle,
   SidebarCounter,
-  SidebarList
+  SidebarList,
 } from '@erxes/ui/src/layout/styles';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import { withRouter } from 'react-router-dom';
 
 import { ICity } from '../../../cities/types';
 
@@ -19,19 +18,19 @@ interface IProps extends IRouterProps {
   emptyText?: string;
 }
 
-function Cities({ history, counts, cities, loading, emptyText }: IProps) {
+function Cities({ counts, cities, loading, emptyText }: IProps) {
   const data = (
     <SidebarList>
       {cities.map(city => {
         const onClick = () => {
-          router.setParams(history, { city: city._id });
+          // router.setParams(history, { city: city._id });
           router.removeParams(history, 'page');
         };
 
         return (
           <li key={city._id}>
             <a
-              href="#filter"
+              href='#filter'
               tabIndex={0}
               className={
                 router.getParam(history, 'city') === city._id ? 'active' : ''
@@ -51,19 +50,19 @@ function Cities({ history, counts, cities, loading, emptyText }: IProps) {
     <Box
       title={__('Filter by city')}
       collapsible={cities.length > 5}
-      name="showFilterByCity"
+      name='showFilterByCity'
     >
       <DataWithLoader
         data={data}
         loading={loading}
         count={cities.length}
         emptyText={emptyText || 'Empty'}
-        emptyIcon="leaf"
-        size="small"
+        emptyIcon='leaf'
+        size='small'
         objective={true}
       />
     </Box>
   );
 }
 
-export default withRouter<IProps>(Cities);
+export default Cities;

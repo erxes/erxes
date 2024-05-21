@@ -3,7 +3,8 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IOption } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
-import Select from 'react-select-plus';
+// import Select from 'react-select-plus';
+import Select from 'react-select';
 
 import { LeftContent, Row } from '../../../styles';
 import { IQuarter } from '../types';
@@ -24,7 +25,7 @@ class SelectDistrict extends React.Component<Props, {}> {
 
       return {
         value: quarter._id,
-        label: quarter.name
+        label: quarter.name,
       };
     });
   }

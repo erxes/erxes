@@ -10,7 +10,7 @@ import {
 } from '../types';
 import { ICoordinates } from '../../../types';
 
-const generateParams = (queryParams) => {
+const generateParams = queryParams => {
   return {
     ...router.generatePaginationParams(queryParams || {}),
     searchValue: queryParams?.searchValue,
@@ -44,7 +44,7 @@ export default function BuildingContainer(props: Props) {
       },
       fetchPolicy: 'network-only',
       skip: props.viewType !== 'list',
-    },
+    }
   );
 
   // const buildingsByBounds = useQuery<BuildingsByBoundsQueryResponse>(
@@ -61,13 +61,13 @@ export default function BuildingContainer(props: Props) {
 
   const [fetchBuildingsWithinBounds, { data: buildingsByBoundsData }] =
     useLazyQuery<BuildingsByBoundsQueryResponse>(
-      gql(queries.buildingsByBoundsQuery),
+      gql(queries.buildingsByBoundsQuery)
     );
 
   const getBuildingsWithingBounds = (bounds: ICoordinates[]) => {
     fetchBuildingsWithinBounds({
       variables: {
-        bounds: bounds.map((b) => [b.lng, b.lat]),
+        bounds: bounds.map(b => [b.lng, b.lat]),
         // serviceStatuses: ['active', 'inprogress']
       },
     });
@@ -87,7 +87,7 @@ export default function BuildingContainer(props: Props) {
 
           Alert.success('You successfully deleted a building.');
         })
-        .catch((e) => {
+        .catch(e => {
           Alert.error(e.message);
         });
     });
@@ -114,5 +114,12 @@ export default function BuildingContainer(props: Props) {
     getBuildingsWithingBounds,
   };
 
-  return <List {...extendedProps} />;
+  return (
+    <List
+      location={undefined}
+      match={undefined}
+      navigate={undefined}
+      {...extendedProps}
+    />
+  );
 }

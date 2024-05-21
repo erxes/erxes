@@ -395,10 +395,31 @@ export const buildMatchFilter = async (filter, subdomain, type: string) => {
   return matchfilter;
 };
 
-export const getDetails = async ({ subdomain, params }) => {
-  const { getUserIds, getLabelIds, getBranchIds, getDepartmentIds } = params;
+export const getDetails = async ({ subdomain, params }: {
+  subdomain: any;
+  params: any;
+  extraValues?: any;
+}) => {
+  const { getStageIds, getUserIds, getLabelIds, getBranchIds, getDepartmentIds } = params;
 
   const detailsMap = {};
+
+  if (getStageIds) {
+    const getTotalStages = await sendCardsMessage({
+      subdomain,
+      action: 'stages.find',
+      data: { _id: { $in: getStageIds } },
+      isRPC: true,
+      defaultValue: null,
+    });
+
+    for (const stage of getTotalStages) {
+      detailsMap[stage._id] = {
+        title: stage.name,
+        pipelineId: stage.pipelineId,
+      };
+    }
+  }
 
   if (getUserIds) {
     const getTotalUsers = await sendCoreMessage({

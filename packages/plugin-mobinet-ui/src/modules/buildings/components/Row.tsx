@@ -8,16 +8,17 @@ import BuildingForm from '../containers/Form';
 import TextInfo from '@erxes/ui/src/components/TextInfo';
 import { IBuilding } from '../types';
 import { Icon, Label, ModalTrigger } from '@erxes/ui/src';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
   index: number;
-  history: any;
   building: IBuilding;
   remove: (buildingId: string) => void;
 };
 
 const Row = (props: Props) => {
   const { building, remove } = props;
+  const navigate = useNavigate();
 
   const renderRemoveAction = () => {
     const onClick = () => {
@@ -25,12 +26,12 @@ const Row = (props: Props) => {
     };
 
     return (
-      <Tip text={__('Delete')} placement="top">
+      <Tip text={__('Delete')} placement='top'>
         <Button
-          id="buildingDelete"
-          btnStyle="link"
+          id='buildingDelete'
+          btnStyle='link'
           onClick={onClick}
-          icon="times-circle"
+          icon='times-circle'
         />
       </Tip>
     );
@@ -38,22 +39,20 @@ const Row = (props: Props) => {
 
   const renderEditAction = () => {
     return (
-      <Tip text={__('Edit')} placement="top">
+      <Tip text={__('Edit')} placement='top'>
         <Button
-          id="buildingEdit"
-          btnStyle="link"
-          icon="edit"
+          id='buildingEdit'
+          btnStyle='link'
+          icon='edit'
           onClick={() => {
-            props.history.push(`/mobinet/building/details/${building._id}`);
+            navigate(`/mobinet/building/details/${building._id}`);
           }}
         />
       </Tip>
     );
   };
 
-  const formContent = (props) => (
-    <BuildingForm {...props} building={building} />
-  );
+  const formContent = props => <BuildingForm {...props} building={building} />;
 
   const center = building.location || {
     lat: 0,
@@ -78,7 +77,7 @@ const Row = (props: Props) => {
   const installationRequestIds = building.installationRequestIds || [];
   const ticketIds = building.ticketIds || [];
   const onClick = () => {
-    props.history.push(`/mobinet/building/details/${building._id}`);
+    navigate(`/mobinet/building/details/${building._id}`);
   };
 
   let statusText = 'Сүлжээ нэвтрээгүй';

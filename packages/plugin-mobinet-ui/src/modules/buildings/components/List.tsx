@@ -3,6 +3,7 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
@@ -12,9 +13,9 @@ import { LinkButton } from '@erxes/ui/src/styles/main';
 import { IQueryParams, IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
+import Dropdown from '@erxes/ui/src/components/Dropdown';
+
 import Modal from 'react-bootstrap/Modal';
-import { withRouter } from 'react-router-dom';
 import OSMBuildings from '../../../common/OSMBuildings';
 import OSMap from '../../../common/OSMap';
 import { ICoordinates } from '../../../types';
@@ -23,6 +24,7 @@ import BuildingForm from '../containers/Form';
 import { IBuilding, IOSMBuilding } from '../types';
 import FilterMenu from './FilterMenu';
 import Row from './Row';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
 type Props = {
   buildings: IBuilding[];
@@ -44,13 +46,15 @@ const List = (props: Props) => {
     totalCount,
     queryParams,
     loading,
-    history,
+
     viewType,
     remove,
     page,
     perPage,
   } = props;
-
+  let [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [center, setCenter] = useState<ICoordinates>({
     lat: 47.918812,
     lng: 106.9154893,
@@ -106,7 +110,6 @@ const List = (props: Props) => {
         key={building._id}
         building={building}
         remove={remove}
-        history={props.history}
       />
     ));
   };
@@ -126,7 +129,7 @@ const List = (props: Props) => {
     const { properties } = e;
 
     if (properties._id) {
-      history.push(`/mobinet/building/details/${properties._id}`);
+      navigate(`/mobinet/building/details/${properties._id}`);
       return;
     }
 
@@ -136,9 +139,6 @@ const List = (props: Props) => {
     }
 
     setCurrentOsmBuilding(e);
-    console.log('eeeeee');
-    console.log(e);
-    // setCurrentBuilding()
     setIsFormOpen(true);
   };
 
@@ -185,7 +185,7 @@ const List = (props: Props) => {
         height={'100%'}
         onChangeCenter={onChangeCenter}
         onChange={d => {
-          return history.push(`/mobinet/building/details/${d._id}`);
+          navigate(`/mobinet/building/details/${d._id}`);
         }}
         onload={onload}
         center={center}
@@ -201,7 +201,7 @@ const List = (props: Props) => {
       return null;
     }
     return (
-      <Table whiteSpace='nowrap' hover={true}>
+      <Table $whiteSpace='nowrap' $hover={true}>
         <thead>
           <tr>
             <th>{'#'}</th>
@@ -244,32 +244,34 @@ const List = (props: Props) => {
       setCurrentBuilding(undefined);
       setIsFormOpen(false);
     };
-
-    return (
-      <Modal
-        show={true}
-        size='xl'
-        onHide={onHide}
-        animation={false}
-        enforceFocus={false}
-      >
-        <Modal.Header closeButton={true}>
-          <Modal.Title>
-            {currentBuilding ? __('Edit building') : __('Add building')}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body id='ModalBody' className='md-padding'>
-          {formContent({ closeModal: () => setIsFormOpen(false) })}
-        </Modal.Body>
-      </Modal>
-    );
+    return <div>asd</div>;
+    // return (
+    //   <Modal
+    //     show={true}
+    //     size='xl'
+    //     onHide={onHide}
+    //     animation={false}
+    //     enforceFocus={false}
+    //   >
+    //     <Modal.Header closeButton={true}>
+    //       <Modal.Title>
+    //         {currentBuilding ? __('Edit building') : __('Add building')}
+    //       </Modal.Title>
+    //     </Modal.Header>
+    //     <Modal.Body id='ModalBody' className='md-padding'>
+    //       {formContent({ closeModal: () => setIsFormOpen(false) })}
+    //     </Modal.Body>
+    //   </Modal>
+    // );
   };
 
   const renderViewChooser = () => {
     const onFilterClick = e => {
       const type = e.target.id;
 
-      router.setParams(history, { viewType: type });
+      // router.setParams(history, { viewType: type });
+      console.log(searchParams);
+      setSearchParams({ viewType: type });
     };
 
     const viewTypes = [
@@ -279,22 +281,23 @@ const List = (props: Props) => {
     ];
 
     return (
-      <Dropdown>
-        <Dropdown.Toggle as={DropdownToggle} id='dropdown-buildingAction'>
+      <Dropdown
+        toggleComponent={
+          // <Dropdown.Toggle as={DropdownToggle} id='dropdown-buildingAction'>
           <Button btnStyle='primary' icon='list-ui-alt'>
             {viewTypes.find(type => type.value === viewType)?.title}
             <Icon icon='angle-down' />
           </Button>
-        </Dropdown.Toggle>
-        <Dropdown.Menu>
-          {viewTypes.map(type => (
-            <li key={type.value}>
-              <LinkButton id={type.value} onClick={onFilterClick}>
-                {__(type.title)}
-              </LinkButton>
-            </li>
-          ))}
-        </Dropdown.Menu>
+          // </Dropdown.Toggle>
+        }
+      >
+        {viewTypes.map(type => (
+          <li key={type.value}>
+            <LinkButton id={type.value} onClick={onFilterClick}>
+              {__(type.title)}
+            </LinkButton>
+          </li>
+        ))}
       </Dropdown>
     );
   };
@@ -313,19 +316,19 @@ const List = (props: Props) => {
     setSearchValue(searchValue);
 
     timer = setTimeout(() => {
-      router.removeParams(history, 'page');
-      router.setParams(history, { searchValue });
+      router.removeParams(navigate, location, 'page');
+      router.setParams(navigate, location, { searchValue });
     }, 500);
   };
 
   const onFilter = (filterParams: IQueryParams) => {
-    router.removeParams(props.history, 'page');
+    router.removeParams(navigate, location, 'page');
 
     for (const key of Object.keys(filterParams)) {
       if (filterParams[key]) {
-        router.setParams(props.history, { [key]: filterParams[key] });
+        router.setParams(navigate, location, { [key]: filterParams[key] });
       } else {
-        router.removeParams(props.history, key);
+        router.removeParams(navigate, location, key);
       }
     }
 
@@ -413,4 +416,4 @@ const List = (props: Props) => {
   );
 };
 
-export default withRouter<Props>(List);
+export default List;
