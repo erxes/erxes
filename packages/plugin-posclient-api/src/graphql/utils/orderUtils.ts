@@ -3,7 +3,6 @@ import { IModels } from '../../connectionResolver';
 import { IPayment } from '../resolvers/mutations/orders';
 import { IOrderInput, IOrderItemInput } from '../types';
 import { IOrderItemDocument } from '../../models/definitions/orderItems';
-import fetch from 'node-fetch';
 import {
   BILL_TYPES,
   ORDER_TYPES,
@@ -595,8 +594,8 @@ export const fakePutData = async (models: IModels, items: IOrderItemDocument[], 
     lottery: '',
     date: moment(order.paidDate).format('yyyy-MM-dd hh:mm:ss'),
 
-    cashAmount: order.cashAmount || 0,
-    nonCashAmount: order.totalAmount - (order.cashAmount || 0),
+    cashAmount: order.cashAmount ?? 0,
+    nonCashAmount: order.totalAmount - (order.cashAmount ?? 0),
     registerNo: '',
     customerNo: '',
     customerName: '',
@@ -615,7 +614,7 @@ export const fakePutData = async (models: IModels, items: IOrderItemDocument[], 
         measureUnit: productById[item.productId].uom || 'ш',
         qty: item.count,
         unitPrice: item.unitPrice,
-        totalAmount: (item.unitPrice || 0) * item.count,
+        totalAmount: (item.unitPrice ?? 0) * item.count,
         totalVAT: 0,
         totalCityTax: 0,
         totalBonus: item.discountAmount,
