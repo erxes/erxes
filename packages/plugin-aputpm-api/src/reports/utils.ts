@@ -260,7 +260,7 @@ export const generateGroupIds = async (ids: string[], type: string, subdomain: s
   return childIds;
 }
 
-export const buildMatchFilter = async (filter, subdomain, type: string) => {
+export const buildMatchFilter = async (filter: any, subdomain: any, type: string, closed?: boolean) => {
   const {
     branchIds,
     departmentIds,
@@ -366,6 +366,7 @@ export const buildMatchFilter = async (filter, subdomain, type: string) => {
           $in: getPipelineIds,
         },
         type,
+        ...(closed ? { name: 'Хаасан' } : {})
       },
       isRPC: true,
       defaultValue: null,
