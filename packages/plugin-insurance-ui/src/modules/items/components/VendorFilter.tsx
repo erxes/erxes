@@ -31,8 +31,8 @@ function Companies({
       {companies.map((company) => {
         const erxesCompany = company.company;
         const onClick = () => {
-          router.setParams(navigate, location, { company: erxesCompany._id });
           router.removeParams(navigate, location, 'page');
+          router.setParams(navigate, location, { company: erxesCompany._id });
         };
 
         return (

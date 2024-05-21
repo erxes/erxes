@@ -34,10 +34,9 @@ function Categories(props: IProps) {
     <SidebarList>
       {categories.map((category) => {
         const onClick = () => {
-       
-          router.setParams(navigate, location, { category: category._id });
           router.removeParams(navigate, location, 'page');
           router.removeParams(navigate, location, 'product');
+          router.setParams(navigate, location, { category: category._id });
         };
 
         return (

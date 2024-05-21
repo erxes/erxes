@@ -11,6 +11,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { __, router } from '@erxes/ui/src/utils/core';
 
 import { FilterContainer } from '../../../styles';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface IProps {
   loadingMainQuery: boolean;
@@ -18,6 +19,8 @@ interface IProps {
 }
 
 const Sidebar = (props: IProps) => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const { loadingMainQuery, queryParams } = props;
   const [abortController] = useState(new AbortController());
   const [categories, setCategories] = useState([]);
@@ -41,7 +44,6 @@ const Sidebar = (props: IProps) => {
   };
 
   const onVendorsLoad = (vendors) => {
-
     setVendors(vendors);
   };
 
@@ -54,18 +56,18 @@ const Sidebar = (props: IProps) => {
     setSearchValue(inputValue);
 
     timer = setTimeout(() => {
-      router.removeParams(history, 'page');
-      router.setParams(history, { searchValue: inputValue });
+      router.removeParams(navigate, location, 'page');
+      router.setParams(navigate, location, { searchValue: inputValue });
     }, 500);
   };
 
   return (
     <Wrapper.Sidebar hasBorder wide={true}>
       <FilterContainer>
-        <InputBar type="searchBar">
-          <Icon icon="search-1" size={20} />
+        <InputBar type='searchBar'>
+          <Icon icon='search-1' size={20} />
           <FormControl
-            type="text"
+            type='text'
             placeholder={__('Contract Number')}
             onChange={onSearch}
             value={searchValue}

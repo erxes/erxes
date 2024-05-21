@@ -31,8 +31,8 @@ function Products({
     <SidebarList>
       {products.map((product) => {
         const onClick = () => {
-          router.setParams(navigate, location, { product: product._id });
           router.removeParams(navigate, location, 'page');
+          router.setParams(navigate, location, { product: product._id });
         };
 
         return (
