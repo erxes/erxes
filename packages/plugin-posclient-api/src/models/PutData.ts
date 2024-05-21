@@ -104,7 +104,7 @@ const getCustomerInfo = async (type, config, doc) => {
       return { msg: 'wrong tin number or rd or billType' }
     }
 
-    return { customerTin: resp.tin }
+    return { customerTin: resp.tin, customerName: resp.result?.data?.name }
   };
 
   const re = /^\d{8}$/gui;
@@ -199,7 +199,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
   const { config, doc } = params;
   const type = doc.type || 'B2C_RECEIPT';
 
-  const { customerTin, consumerNo, msg } = await getCustomerInfo(type, config, doc);
+  const { customerTin, consumerNo, msg, customerName } = await getCustomerInfo(type, config, doc);
   if (msg) {
     return { status: 'err', msg }
   }
@@ -249,6 +249,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
       reportMonth,
       data: {},
       customerTin,
+      customerName,
       consumerNo,
 
       receipts: [],

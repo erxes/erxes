@@ -124,6 +124,7 @@ export const types = `
     merchantTin: String
     posNo: String
     customerTin: String
+    customerName: String
     consumerNo: String
     type: String
     inactiveId: String

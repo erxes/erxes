@@ -65,6 +65,7 @@ const responseFields = `
   merchantTin
   posNo
   customerTin
+  customerName
   consumerNo
   type
   inactiveId

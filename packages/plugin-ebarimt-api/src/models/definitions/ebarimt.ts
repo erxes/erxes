@@ -77,6 +77,7 @@ export interface IEbarimt {
   merchantTin?: string;
   posNo?: string;
   customerTin?: string;
+  customerName?: string;
   consumerNo?: string;
   type: 'B2C_RECEIPT' | 'B2B_RECEIPT';
   inactiveId?: string;
@@ -187,6 +188,7 @@ export const ebarimtSchema = schemaHooksWrapper(
     merchantTin: field({ type: String, label: 'merchantTin' }),
     posNo: field({ type: String, label: 'posNo' }),
     customerTin: field({ type: String, label: 'customerTin' }),
+    customerName: field({ type: String, label: 'customerName' }),
     consumerNo: field({ type: String, label: 'consumerNo' }),
     type: field({ type: String, label: 'type' }),
     inactiveId: field({ type: String, label: 'inactiveId' }),

@@ -10,6 +10,8 @@ const Ebarimt = ({
   totalVAT,
   totalCityTax,
   totalAmount,
+  customerTin,
+  customerName,
   lottery,
   type,
 }: IPutResponse) => {
@@ -24,12 +26,16 @@ const Ebarimt = ({
     if (type === "B2B_RECEIPT")
       return (
         <div>
+          {customerTin !== registerNumber ? <p>
+            <span className="text-[10px]">ТТД:</span>{" "}
+            <span className="font-semibold">{customerTin}</span>
+          </p> : ''}
           <p>
             <span className="text-[10px]">РД:</span>{" "}
             <span className="font-semibold">{registerNumber}</span>
           </p>
           <p>
-            Hэр: <span className="font-semibold">{lottery}</span>
+            Hэр: <span className="font-semibold">{customerName}</span>
           </p>
           {Number(totalVAT) > 0 && <p>НӨАТ: {formatNum(Number(totalVAT))}</p>}
           {Number(totalCityTax) > 0 && (

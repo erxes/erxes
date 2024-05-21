@@ -63,6 +63,7 @@ const putResponseFields = `
   merchantTin
   posNo
   customerTin
+  customerName
   consumerNo
   type
   inactiveId

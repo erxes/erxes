@@ -33,15 +33,15 @@ const getRows = receipts => {
 };
 
 const customerInfo = (response) => {
-  if (!(response.customerNo || response.customerName)) {
+  if (!(response.customerTin || response.customerName)) {
     return '';
   }
   return `
     <div>
       <br />
       <p><strong>Худалдан авагч:</strong></p>
-      ${response.customerNo
-      ? `<p>ТТД: ${response.customerNo}</p>`
+      ${response.customerTin
+      ? `<p>ТТД: ${response.customerTin}</p>`
       : ''}
       ${response.customerName
       ? `<p>Нэр: ${response.customerName} </p>`

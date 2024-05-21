@@ -117,6 +117,7 @@ export interface IPutResponse {
   merchantTin?: string;
   posNo?: string;
   customerTin?: string;
+  customerName?: string;
   consumerNo?: string;
   type: string;
   inactiveId?: string;

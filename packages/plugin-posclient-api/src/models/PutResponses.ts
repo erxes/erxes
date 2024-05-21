@@ -104,7 +104,8 @@ export const loadPutResponseClass = models => {
           sendInfo: { ...data },
           contentId,
           contentType,
-          number: doc.number
+          number: doc.number,
+          customerName: data.customerName,
         });
 
         const response = await fetch(
