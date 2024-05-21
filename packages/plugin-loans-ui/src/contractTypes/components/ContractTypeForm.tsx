@@ -206,14 +206,14 @@ const ContractTypeForm = (props: Props) => {
               {leaseType !== LEASE_TYPES.SAVING && (
                 <FormGroup>
                   <ControlLabel>{__("Allow Product Categories")}</ControlLabel>
-                  <Select
-                    className="flex-item"
+                  <FormControl 
+                    name="productType"
+                    componentclass="select"
                     placeholder={__("Select product categories")}
                     value={productCategoriesOption.filter((o) =>
-                      productCategoryIds.includes(o.value)
+                      productCategoryIds?.includes(o.value)
                     )}
                     onChange={onSelectProductCategory}
-                    isMulti={true}
                     options={productCategoriesOption}
                   />
                 </FormGroup>

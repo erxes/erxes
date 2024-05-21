@@ -1,15 +1,15 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
-import CreatableSelect from "react-select/creatable";
+import CreatableSelect from 'react-select/creatable';
 
-import Icon from "@erxes/ui/src/components/Icon";
-import { __ } from "@erxes/ui/src/utils/index";
+import Icon from '@erxes/ui/src/components/Icon';
+import { __ } from '@erxes/ui/src/utils/index';
 
-import { ISection, SectionMutationVariables } from "../../types";
-import { CustomOption } from "../../styles";
+import { ISection, SectionMutationVariables } from '../../types';
+import { CustomOption } from '../../styles';
 
 type Props = {
-  type: "dashboard" | "goal" | "report";
+  type: 'dashboard' | 'goal' | 'report';
   sections: ISection[];
   sectionId: string;
   setSectionId(value: string): void;
@@ -19,23 +19,23 @@ type Props = {
 const SelectSections = (props: Props) => {
   const { type, sections, sectionId, setSectionId, addSection } = props;
 
-  const [input, setInput] = useState<string>("");
+  const [input, setInput] = useState<string>('');
 
   const handleClick = (inputValue: string) => {
-    if (inputValue === "" && inputValue.length < 2) {
+    if (inputValue === '' && inputValue.length < 2) {
       return;
     }
 
     addSection({ name: inputValue, type });
   };
 
-  const formatCreateLabel = (
-    inputValue: string
-  ) => {
-    return <CustomOption>
-      <Icon className="list-icon" icon="plus-1" />
-      <div>{inputValue}</div>
-    </CustomOption>
+  const formatCreateLabel = (inputValue: string) => {
+    return (
+      <CustomOption>
+        <Icon className="list-icon" icon="plus-1" />
+        <div>{inputValue}</div>
+      </CustomOption>
+    );
   };
 
   const generateOptions = (options) => {
@@ -49,7 +49,7 @@ const SelectSections = (props: Props) => {
 
   return (
     <CreatableSelect
-      placeholder={__("Choose a section")}
+      placeholder={__('Choose a section')}
       value={generateOptions(sections).find((o) => o.value === sectionId)}
       onChange={(selectedOption) => setSectionId(selectedOption.value)}
       options={generateOptions(sections)}

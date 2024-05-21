@@ -1,5 +1,6 @@
 import { IContext } from '../../connectionResolver';
 import { sendCommonMessage } from '../../messageBroker';
+import { sendToGrandStreamRequest } from '../../utils';
 export interface IHistoryArgs {
   limit?: number;
   callStatus?: string;
@@ -10,6 +11,7 @@ export interface IHistoryArgs {
   perPage?: number;
   searchValue?: string;
   skip?: number;
+  integrationId?: string;
 }
 
 const callsQueries = {
@@ -50,6 +52,81 @@ const callsQueries = {
 
   async callsGetConfigs(_root, _args, { models }: IContext) {
     return models.Configs.find({}).lean();
+  },
+
+  async callsGetOperatorDndStatus(
+    _root,
+    { integrationId },
+    { models, user }: IContext,
+  ) {
+    const queueData = (await sendToGrandStreamRequest(
+      models,
+      {
+        path: 'api',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        data: {
+          request: {
+            action: 'getSIPAccount',
+          },
+        },
+        integrationId: integrationId,
+        retryCount: 3,
+        isConvertToJson: true,
+        isAddExtention: true,
+      },
+      user,
+    )) as any;
+
+    if (queueData && queueData.response) {
+      const { extension } = queueData?.response;
+
+      if (extension) {
+        return extension.dnd || 'no';
+      }
+      return 'extension not found';
+    }
+    return 'request failed';
+  },
+
+  async callExtensionList(
+    _root,
+    { integrationId },
+    { models, user }: IContext,
+  ) {
+    const queueData = (await sendToGrandStreamRequest(
+      models,
+      {
+        path: 'api',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        data: {
+          request: {
+            action: 'listAccount',
+            item_num: '40',
+            options: 'extension,fullname,status',
+            page: '1',
+            sidx: 'extension',
+            sord: 'asc',
+          },
+        },
+        integrationId: integrationId,
+        retryCount: 3,
+        isConvertToJson: true,
+        isAddExtention: false,
+      },
+      user,
+    )) as any;
+
+    if (queueData && queueData.response) {
+      const { account } = queueData?.response;
+
+      if (account) {
+        return account;
+      }
+      return [];
+    }
+    return 'request failed';
   },
 };
 

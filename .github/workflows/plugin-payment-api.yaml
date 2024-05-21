@@ -9,9 +9,9 @@ on:
       - staging
       - build-test
     paths:
-      - 'packages/api-utils/**'
-      - 'packages/plugin-payment-api/**'
-      - '.github/workflows/plugin-payment-api.yaml'
+      - "packages/api-utils/**"
+      - "packages/plugin-payment-api/**"
+      - ".github/workflows/plugin-payment-api.yaml"
   pull_request:
     branches:
       - dev
@@ -20,9 +20,9 @@ on:
       - staging
       - build-test
     paths:
-      - 'packages/api-utils/**'
-      - 'packages/plugin-payment-api/**'
-      - '.github/workflows/plugin-payment-api.yaml'
+      - "packages/api-utils/**"
+      - "packages/plugin-payment-api/**"
+      - ".github/workflows/plugin-payment-api.yaml"
 
 jobs:
   api:

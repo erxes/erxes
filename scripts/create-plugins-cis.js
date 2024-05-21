@@ -75,6 +75,7 @@ var plugins = [
   { name: 'reports', api: true, ui: true },
   { name: 'instagram', api: true, ui: true },
   { name: 'insight', api: true, ui: true },
+  { name: 'burenscoring', api: true, ui: true },
 ];
 
 const pluginsMap = {};

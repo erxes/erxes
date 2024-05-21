@@ -122,7 +122,7 @@ const Pos = (props: Props) => {
       pdomain: state.pos.pdomain,
       erxesAppToken: state.pos.erxesAppToken,
       productDetails: state.pos.productDetails || [],
-      groups,
+      groups: state.groups,
       adminIds: state.pos.adminIds,
       cashierIds: state.pos.cashierIds,
       paymentIds: state.pos.paymentIds || [],
@@ -170,28 +170,6 @@ const Pos = (props: Props) => {
 
   const onChange = (key: string, value: any) => {
     setState((prevState) => ({ ...prevState, [key]: value }));
-  };
-
-  const onChangeAppearance = (key: string, value: any) => {
-    let uiOptions = state.uiOptions || {};
-    const { pos = {} as IPos } = state || {};
-    uiOptions[key] = value;
-
-    if (uiOptions[key]) {
-      uiOptions[key] = value;
-    } else {
-      uiOptions = { [key]: value } as IUIOptions;
-    }
-
-    if (pos.uiOptions) {
-      pos.uiOptions = uiOptions;
-    }
-
-    setState((prevState) => ({ ...prevState, pos }));
-  };
-
-  const onFormDocChange = (formData) => {
-    setState((prevState) => ({ ...prevState, formData }));
   };
 
   const onStepClick = (currentStepNumber) => {

@@ -16,14 +16,18 @@ export default {
     {},
     { models }: IContext
   ) {
+    const order = category.order.slice(-1)
+      ? category.order.replace(/\\/g, '\\\\')
+      : category.order;
+
     const asset_category_ids = await models.AssetCategories.find(
-      { order: { $regex: new RegExp(category.order) } },
+      { order: { $regex: new RegExp(order) } },
       { _id: 1 }
     );
 
     return models.Assets.countDocuments({
       categoryId: { $in: asset_category_ids },
-      status: { $ne: ASSET_STATUSES.DELETED }
+      status: { $ne: ASSET_STATUSES.DELETED },
     });
-  }
+  },
 };

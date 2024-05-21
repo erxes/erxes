@@ -3,15 +3,15 @@ name: Crons CI
 on:
   push:
     branches:
-      - 'dev'
+      - "dev"
       - master
       - rc
-      - 'staging'
+      - "staging"
       - build-test
     paths:
-      - 'packages/api-utils/**'
-      - 'packages/crons/**'
-      - '.github/workflows/crons.yaml'
+      - "packages/api-utils/**"
+      - "packages/crons/**"
+      - ".github/workflows/crons.yaml"
 
 jobs:
   crons:

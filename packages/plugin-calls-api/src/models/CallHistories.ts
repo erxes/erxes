@@ -19,17 +19,21 @@ export const loadCallHistoryClass = (models: IModels) => {
       return history;
     }
     public static async getCallHistories(selector, user) {
-      const integration = await models.Integrations.getIntegration(user?._id);
+      const integration = await models.Integrations.getIntegration(
+        user?._id,
+        selector.integrationId,
+      );
       if (!integration) {
         throw new Error('Integration not found');
       }
       const operator = integration.operators.find(
         (operator) => operator.userId === user?._id,
       );
-      if(!operator){
-         throw new Error('Operator not found');
+      if (!operator) {
+        throw new Error('Operator not found');
       }
-      selector.extentionNumber = operator.gsUsername
+      selector.extentionNumber = operator.gsUsername;
+      delete selector.integrationId;
 
       if (selector?.callStatus === 'missed') {
         selector.callStatus = { $ne: 'connected' };
@@ -38,7 +42,6 @@ export const loadCallHistoryClass = (models: IModels) => {
       }
       const histories = await models.CallHistory.find({
         ...selector,
-        operatorPhone: integration.phone,
       })
         .sort({ modifiedAt: -1 })
         .skip(selector.skip || 0)

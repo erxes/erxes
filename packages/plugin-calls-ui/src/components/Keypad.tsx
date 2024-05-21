@@ -1,6 +1,6 @@
-import * as PropTypes from "prop-types";
+import * as PropTypes from 'prop-types';
 
-import { Alert, __ } from "@erxes/ui/src/utils";
+import { Alert, __ } from '@erxes/ui/src/utils';
 import {
   BackIcon,
   ChooseCountry,
@@ -13,8 +13,8 @@ import {
   NameCardContainer,
   NumberInput,
   PhoneNumber,
-} from "../styles";
-import { Button, Icon } from "@erxes/ui/src/components";
+} from '../styles';
+import { Button, Icon } from '@erxes/ui/src/components';
 import {
   CALL_DIRECTION_INCOMING,
   CALL_DIRECTION_OUTGOING,
@@ -24,29 +24,32 @@ import {
   SIP_STATUS_DISCONNECTED,
   SIP_STATUS_ERROR,
   SIP_STATUS_REGISTERED,
-} from "../lib/enums";
-import React, { useEffect, useRef, useState } from "react";
+} from '../lib/enums';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   calculateTimeElapsed,
   callActions,
   formatPhone,
   getSpentTime,
   renderKeyPad,
-} from "../utils";
-import { callPropType, sipPropType } from "../lib/types";
+} from '../utils';
+import { callPropType, sipPropType } from '../lib/types';
 
-import { FormControl } from "@erxes/ui/src/components/form";
-import { ICustomer } from "../types";
-import Select from "react-select";
-import { renderFullName } from "@erxes/ui/src/utils/core";
+import { FormControl } from '@erxes/ui/src/components/form';
+import { ICustomer } from '../types';
+import Select from 'react-select';
+import { renderFullName } from '@erxes/ui/src/utils/core';
+import TransferCall from '../containers/TransferCall';
 
 type Props = {
-  addCustomer: (firstName: string, phoneNumber: string) => void;
+  addCustomer: (inboxId: string, phoneNumber: string) => void;
   callUserIntegrations: any;
   setConfig: any;
   customer: ICustomer;
   disconnectCall: () => void;
   phoneNumber: string;
+  pauseExtention: (inboxId: string, dndStatus: string) => void;
+  dndStatus: string;
 };
 
 const KeyPad = (props: Props, context) => {
@@ -59,33 +62,41 @@ const KeyPad = (props: Props, context) => {
     setConfig,
     customer,
     phoneNumber,
+    pauseExtention,
+    dndStatus,
   } = props;
 
   const defaultCallIntegration = localStorage.getItem(
-    "config:call_integrations"
+    'config:call_integrations',
   );
 
-  const [shrink, setShrink] = useState(customer ? true : false);
   const [selectFocus, setSelectFocus] = useState(false);
-  const [number, setNumber] = useState(phoneNumber || "");
-  const [dialCode, setDialCode] = useState("");
+  const [number, setNumber] = useState(phoneNumber || '');
+  const [dialCode, setDialCode] = useState('');
 
   const [showTrigger, setShowTrigger] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState('');
   const [callFrom, setCallFrom] = useState(
-    JSON.parse(defaultCallIntegration || "{}")?.phone ||
+    JSON.parse(defaultCallIntegration || '{}')?.phone ||
       callUserIntegrations?.[0]?.phone ||
-      ""
+      '',
   );
   const [hasMicrophone, setHasMicrophone] = useState(false);
   const [timeSpent, setTimeSpent] = useState(
-    call?.startTime ? calculateTimeElapsed(call.startTime) : 0
+    call?.startTime ? calculateTimeElapsed(call.startTime) : 0,
   );
+  const [isPaused, setPaused] = useState(dndStatus === 'yes' ? true : false);
+
+  const shrink = customer ? true : false;
+
   const formatedPhone = formatPhone(number);
   const ourPhone = callUserIntegrations?.map((user) => ({
     value: user.phone,
     label: user.phone,
   }));
+  const inboxId =
+    JSON.parse(defaultCallIntegration || '{}')?.inboxId ||
+    callUserIntegrations?.[0]?.inboxId;
 
   useEffect(() => {
     if (inputRef.current) {
@@ -105,8 +116,8 @@ const KeyPad = (props: Props, context) => {
       .catch((error) => {
         const errorMessage = error
           ?.toString()
-          .replace("DOMException:", "")
-          .replace("NotFoundError: ", "");
+          .replace('DOMException:', '')
+          .replace('NotFoundError: ', '');
         setHasMicrophone(false);
         return Alert.error(errorMessage);
       });
@@ -115,10 +126,6 @@ const KeyPad = (props: Props, context) => {
         CALL_STATUS_STARTING &&
       hasMicrophone
     ) {
-      const inboxId =
-        JSON.parse(defaultCallIntegration || "{}")?.inboxId ||
-        callUserIntegrations?.[0]?.inboxId;
-
       addCustomer(inboxId, formatedPhone);
     }
     if (call?.status === CALL_STATUS_ACTIVE) {
@@ -136,7 +143,7 @@ const KeyPad = (props: Props, context) => {
   }, [call?.status]);
   const handleCall = () => {
     if (!hasMicrophone) {
-      return Alert.error("Check your microphone");
+      return Alert.error('Check your microphone');
     }
 
     if (Sip.sip?.status !== SIP_STATUS_REGISTERED) {
@@ -158,13 +165,13 @@ const KeyPad = (props: Props, context) => {
   };
 
   const handleCallConnect = (status: string) => {
-    const isConnected = status === "connect";
+    const isConnected = status === 'connect';
 
     const integration = callUserIntegrations?.find(
-      (userIntegration) => userIntegration.phone === callFrom
+      (userIntegration) => userIntegration.phone === callFrom,
     );
     localStorage.setItem(
-      "config:call_integrations",
+      'config:call_integrations',
       JSON.stringify({
         inboxId: integration?.inboxId,
         phone: integration?.phone,
@@ -172,7 +179,7 @@ const KeyPad = (props: Props, context) => {
         token: integration?.token,
         operators: integration?.operators,
         isAvailable: isConnected ? true : false,
-      })
+      }),
     );
     setConfig({
       inboxId: integration?.inboxId,
@@ -183,14 +190,14 @@ const KeyPad = (props: Props, context) => {
       isAvailable: isConnected ? true : false,
     });
     localStorage.setItem(
-      "isConnectCallRequested",
-      isConnected ? "true" : "false"
+      'isConnectCallRequested',
+      isConnected ? 'true' : 'false',
     ),
       localStorage.setItem(
-        "callInfo",
+        'callInfo',
         JSON.stringify({
           isUnRegistered: isConnected ? true : false,
-        })
+        }),
       );
   };
 
@@ -200,7 +207,7 @@ const KeyPad = (props: Props, context) => {
 
     setSelectFocus(!selectFocus);
 
-    if (e === "delete") {
+    if (e === 'delete') {
       num = number.slice(0, -1);
       dialNumber = dialCode.slice(0, -1);
       if (Sip.call?.status === CALL_STATUS_ACTIVE) {
@@ -210,7 +217,7 @@ const KeyPad = (props: Props, context) => {
       }
     } else {
       // notfy by sound
-      const audio = new Audio("/sound/clickNumPad.mp3");
+      const audio = new Audio('/sound/clickNumPad.mp3');
       audio.play();
 
       num += e;
@@ -218,7 +225,7 @@ const KeyPad = (props: Props, context) => {
         dialNumber += e;
 
         const { sendDtmf } = context;
-        if (dialNumber.includes("*") && sendDtmf) {
+        if (dialNumber.includes('*') && sendDtmf) {
           sendDtmf(dialNumber);
           setDialCode(dialNumber);
         }
@@ -230,8 +237,16 @@ const KeyPad = (props: Props, context) => {
   const handleKeyDown = (event) => {
     const keyValue = event.key;
 
-    if (keyValue === "Enter") {
+    if (keyValue === 'Enter') {
       handleCall();
+    }
+  };
+
+  const togglePause = () => {
+    if (pauseExtention) {
+      const status = isPaused ? 'no' : 'yes';
+      pauseExtention(inboxId, status);
+      setPaused(!isPaused);
     }
   };
 
@@ -244,10 +259,10 @@ const KeyPad = (props: Props, context) => {
     setCallFrom(status.value);
 
     const integration = callUserIntegrations?.find(
-      (userIntegration) => userIntegration.phone === status.value
+      (userIntegration) => userIntegration.phone === status.value,
     );
     localStorage.setItem(
-      "config:call_integrations",
+      'config:call_integrations',
       JSON.stringify({
         inboxId: integration?.inboxId,
         phone: integration?.phone,
@@ -255,7 +270,7 @@ const KeyPad = (props: Props, context) => {
         token: integration?.token,
         operators: integration?.operators,
         isAvailable: true,
-      })
+      }),
     );
 
     setConfig({
@@ -271,12 +286,12 @@ const KeyPad = (props: Props, context) => {
     return (
       <ChooseCountry>
         <BackIcon onClick={onBack}>
-          <Icon icon="angle-left" size={20} /> {__("Back")}
+          <Icon icon="angle-left" size={20} /> {__('Back')}
         </BackIcon>
         <InputBar type="country">
           <Icon icon="search-1" size={20} />
           <FormControl
-            placeholder={__("Search")}
+            placeholder={__('Search')}
             name="searchValue"
             onChange={search}
             value={searchValue}
@@ -311,7 +326,7 @@ const KeyPad = (props: Props, context) => {
     if (!shrink) {
       return (
         <>
-          {renderFullName(customer || "", true)}
+          {renderFullName(customer || '', true)}
           <PhoneNumber shrink={shrink}>{showNumber}</PhoneNumber>
         </>
       );
@@ -322,6 +337,9 @@ const KeyPad = (props: Props, context) => {
     !Sip.call ||
     Sip.sip?.status === SIP_STATUS_ERROR ||
     Sip.sip?.status === SIP_STATUS_DISCONNECTED;
+
+  let direction = context.call?.direction?.split('/')[1];
+  direction = direction?.toLowerCase() || '';
   if (
     Sip.call?.direction === CALL_DIRECTION_OUTGOING &&
     Sip.call?.status === CALL_STATUS_STARTING
@@ -333,16 +351,17 @@ const KeyPad = (props: Props, context) => {
             <NameCardContainer>
               <h5>
                 <Icon icon="calling" size={16} />
-                {__("Calling")}
+                {__('Calling')}
               </h5>
               <PhoneNumber>{number}</PhoneNumber>
             </NameCardContainer>
             {callActions(
               isMuted,
               handleAudioToggle,
-              isHolded,
-              handleHold,
-              handleCallStop
+              handleCallStop,
+              inboxId,
+              Sip.call?.status === CALL_STATUS_ACTIVE ? false : true,
+              direction,
             )}
           </IncomingContent>
         </IncomingContainer>
@@ -355,18 +374,19 @@ const KeyPad = (props: Props, context) => {
         <IncomingContainer>
           <IncomingContent>
             <NameCardContainer>
-              <h5>{__("In Call")}</h5>
+              <h5>{__('In Call')}</h5>
               {renderCallerInfo()}
             </NameCardContainer>
             <p>
-              {__("Call duration:")} <b>{getSpentTime(timeSpent)}</b>
+              {__('Call duration:')} <b>{getSpentTime(timeSpent)}</b>
             </p>
             {callActions(
               isMuted,
               handleAudioToggle,
-              isHolded,
-              handleHold,
-              handleCallStop
+              handleCallStop,
+              inboxId,
+              Sip.call?.status === CALL_STATUS_ACTIVE ? false : true,
+              direction,
             )}
           </IncomingContent>
         </IncomingContainer>
@@ -378,27 +398,36 @@ const KeyPad = (props: Props, context) => {
       <NumberInput>
         <KeypadHeader>
           <HeaderItem>
-            <Icon className={isConnected ? "off" : "on"} icon="signal-alt-3" />
-            {isConnected ? __("Offline") : __("Online")}
+            <Icon className={isConnected ? 'off' : 'on'} icon="signal-alt-3" />
+            {isConnected ? __('Offline') : __('Online')}
+          </HeaderItem>
+
+          <HeaderItem onClick={togglePause}>
+            <Icon
+              className={isPaused ? 'on' : 'off'}
+              size={13}
+              icon={isPaused ? 'play-1' : 'pause-1'}
+            />
+            {isPaused ? __('Un Pause') : __('Pause')}
           </HeaderItem>
           <HeaderItem
             onClick={() =>
               isConnected
-                ? handleCallConnect("connect")
-                : handleCallConnect("disconnect")
+                ? handleCallConnect('connect')
+                : handleCallConnect('disconnect')
             }
           >
             <Icon
-              className={isConnected ? "on" : "off"}
+              className={isConnected ? 'on' : 'off'}
               size={13}
-              icon={isConnected ? "power-button" : "pause-1"}
+              icon={isConnected ? 'power-button' : 'pause-1'}
             />
-            {isConnected ? __("Turn on") : __("Turn off")}
+            {isConnected ? __('Turn on') : __('Turn off')}
           </HeaderItem>
         </KeypadHeader>
         <InputBar type="keypad">
           <input
-            placeholder={__("Enter Phone Number")}
+            placeholder={__('Enter Phone Number')}
             name="searchValue"
             value={number}
             onKeyDown={handleKeyDown}
@@ -410,14 +439,13 @@ const KeyPad = (props: Props, context) => {
           />
         </InputBar>
         {renderKeyPad(handNumPad)}
-        <p>{__("Calling from your own phone number")}</p>
+        <p>{__('Calling from your own phone number')}</p>
         <Select
-          placeholder={__("Choose phone number")}
+          placeholder={__('Choose phone number')}
           value={ourPhone.find((phone) => phone.value === callFrom)}
           onChange={onStatusChange}
           isClearable={false}
           options={ourPhone}
-          // scrollMenuIntoView={true}
           menuPlacement="top"
           onBlur={() => setSelectFocus(!selectFocus)}
         />
@@ -430,10 +458,10 @@ const KeyPad = (props: Props, context) => {
                 onClick={handleCall}
               >
                 {Sip.call?.status === CALL_STATUS_IDLE
-                  ? "Call"
+                  ? 'Call'
                   : Sip.call?.status === CALL_STATUS_STARTING
-                    ? "Calling"
-                    : "Stopping"}
+                    ? 'Calling'
+                    : 'Stopping'}
               </Button>
             </>
           )}
