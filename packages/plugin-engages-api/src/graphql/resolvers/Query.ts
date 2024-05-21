@@ -13,6 +13,7 @@ import {
   sendTagsMessage,
 } from '../../messageBroker';
 import { debugError } from '@erxes/api-utils/src/debuggers';
+import { SocketLabs } from '../../api/socketLabs';
 
 interface IPaged {
   page?: number;
@@ -344,6 +345,30 @@ const engageQueries = {
     });
 
     const userEmails = users.map((u) => u.email);
+
+    const config = await models.Configs.getConfig('emailServiceType');
+
+    if (config.value === 'socketLabs') {
+      const { apiKey, serverId, username } =
+        await models.Configs.getSocketLabsConfigs();
+
+      if (!apiKey || !serverId || !username) {
+        throw new Error('SocketLabs has missing configs');
+      }
+
+      const api = new SocketLabs({
+        apiToken: apiKey,
+        serverId,
+        username,
+      });
+
+      const verifiedDomains = await api.getVerifiedDomains();
+
+      return userEmails.filter((email) =>
+        verifiedDomains.includes(email.split('@')[1]),
+      );
+    }
+
     const allVerifiedEmails: any =
       (await awsRequests.getVerifiedEmails(models)) || [];
 
