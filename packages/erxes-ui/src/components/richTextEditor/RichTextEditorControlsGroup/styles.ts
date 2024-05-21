@@ -139,6 +139,8 @@ const ControlsGroupWrapper = styled.div<{
       }
     }
   }
+
+  ${props => props.$toolbarPlacement === 'bottom' && `.absolute {bottom: 28px;}`}
 `;
 
 export { ControlsGroupWrapper };

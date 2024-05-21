@@ -9,7 +9,7 @@ const EditorToolbarWrapper = styled.div`
   height: 49px;
   overflow: visible !important;
 
-  .Select-control {
+  .css-13cymwt-control, .css-t3ipsp-control {
     width: 56px;
   }
 `;
