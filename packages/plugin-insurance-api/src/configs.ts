@@ -61,7 +61,7 @@ export default {
     <title>Hello World</title>
 </head>
 <body>
-    <h1>Hello, World!</h1>
+    <h1>өөөөө, үүүү!</h1>
 </body>
 </html>
 `;
@@ -69,7 +69,9 @@ export default {
       const browser = await puppeteer.launch({
         headless: true,
         executablePath:
-          '/usr/bin/google-chrome',
+          '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+        // executablePath:
+        //   '/usr/bin/google-chrome',
           args: ['--no-sandbox', '--disable-setuid-sandbox']
       });
       const page = await browser.newPage();
