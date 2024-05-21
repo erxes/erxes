@@ -92,10 +92,7 @@ export class AppProvider extends React.Component<
 
     fetch(`/locales/${currentLanguage}.json`)
       .then((res) => res.json())
-      .catch((e) => {
-        console.log(e.message);
-        console.log(`${currentLanguage} translation not found`);
-      })
+      .catch(() => console.log(`${currentLanguage} translation not found`))
       .then((json) => {
         T.setTexts(json);
         this.setState({ isLoadedLocale: true });
