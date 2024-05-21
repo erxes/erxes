@@ -804,9 +804,9 @@ const generatePdf = async (subdomain, content, dealNumber) => {
 
   const browser = await puppeteer.launch({
     headless: true,
-    // executablePath: '/usr/bin/google-chrome',
-    executablePath:
-      '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+    executablePath: '/usr/bin/google-chrome',
+    // executablePath:
+    //   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--lang=mn-MN,mn'],
   });
   const page = await browser.newPage();
