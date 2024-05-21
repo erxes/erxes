@@ -401,8 +401,7 @@ export const CallInfo = styledTS<{ shrink?: boolean }>(styled.div)`
 `;
 
 export const Actions = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
   gap: 20px;
 
   > div {
@@ -773,4 +772,27 @@ const AcitivityHeader = styled.div`
   justify-content: space-between;
 `;
 
-export { ActivityRow, ActivityIcon, ActivityDate, AcitivityHeader };
+const TransferCallWrapper = styled.div`
+  margin: 20px 20px 0px 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid ${colors.borderPrimary};
+`;
+
+const DialogWrapper = styledTS<{ direction?: string }>(styled.div)`
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  z-index: 1000000;
+  left: auto;
+  margin-right: ${(props) => (props.direction === 'incoming' ? '30px' : '25px')};
+  width: 360px;
+  margin-top: 120px;
+`;
+export {
+  ActivityRow,
+  ActivityIcon,
+  ActivityDate,
+  AcitivityHeader,
+  TransferCallWrapper,
+  DialogWrapper,
+};

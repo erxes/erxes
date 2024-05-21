@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.0-rc.1](https://github.com/erxes/erxes/compare/1.11.0-rc.0...1.11.0-rc.1) (2024-05-20)
+
+
+### Bug Fixes
+
+* **cards:** detail chooser, properties and automation attribute ([#5210](https://github.com/erxes/erxes/issues/5210)) ([f4be0a7](https://github.com/erxes/erxes/commit/f4be0a730b037b754cc1d18c91126bd118bfefc0))
+
 ## [1.11.0-rc.0](https://github.com/erxes/erxes/compare/1.10.0...1.11.0-rc.0) (2024-05-16)
 
 

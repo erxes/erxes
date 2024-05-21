@@ -151,6 +151,15 @@ const callsUpdateConfigs = `
     callsUpdateConfigs(configsMap: $configsMap)
   }
 `;
+const callsUpdateSipDnd = `
+  mutation CallsUpdateSipDnd($dndStatus: String!, $integrationId: String!) {
+    callsUpdateSipDnd(dndStatus: $dndStatus, integrationId: $integrationId)
+}`;
+
+const callTransfer = `
+  mutation callTransfer($extensionNumber: String!, $integrationId: String!, $direction: String) {
+    callTransfer(extensionNumber: $extensionNumber, integrationId: $integrationId, direction: $direction)
+}`;
 
 export default {
   callsIntegrationUpdate,
@@ -164,4 +173,6 @@ export default {
   callHistoryRemove,
   callsUpdateConfigs,
   callHistoryEditStatus,
+  callsUpdateSipDnd,
+  callTransfer,
 };

@@ -5,6 +5,8 @@ import { Icon } from '@erxes/ui/src/components';
 import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
 import moment from 'moment';
+import TransferCall from './containers/TransferCall';
+import DialogComponent from './components/Dialog';
 
 export const formatPhone = (phone) => {
   var num;
@@ -71,12 +73,11 @@ export const renderKeyPad = (handNumPad) => {
 export const callActions = (
   isMuted,
   handleAudioToggle,
-  isHolded,
-  handleHold,
   endCall,
+  inboxId,
+  disableTransferCall,
+  direction,
 ) => {
-  const isHold = isHolded().localHold;
-
   return (
     <InCallFooter>
       <Actions>
@@ -91,26 +92,21 @@ export const callActions = (
           {isMuted() ? __('UnMute') : __('Mute')}
         </div>
         <div>
-          <CallAction
-            key={isHold ? 'UnHold' : 'Hold'}
-            active={isHold ? true : false}
-            onClick={handleHold}
-            disabled={true}
-          >
-            <Icon size={20} icon={'pause-1'} />
-          </CallAction>
-          {isHold ? __('UnHold') : __('Hold')}
+          <DialogComponent
+            title="Transfer call"
+            inboxId={inboxId}
+            disabled={disableTransferCall}
+            direction={direction}
+          />
+
+          {__('Transfer')}
         </div>
         <div>
-          <CallAction disabled={true}>
-            <Icon size={20} icon={'phone-volume'} />
+          <CallAction onClick={endCall} isDecline={true}>
+            <Icon size={20} icon="phone-slash" />
           </CallAction>
-          {__('Transfer')}
-          <span className="coming-soon">coming soon</span>
+          {__('End Call')}
         </div>
-        <CallAction onClick={endCall} isDecline={true}>
-          <Icon size={20} icon="phone-slash" />
-        </CallAction>
       </Actions>
     </InCallFooter>
   );
