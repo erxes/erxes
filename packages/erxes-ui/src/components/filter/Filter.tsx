@@ -23,9 +23,7 @@ function Filter({ queryParams = {}, filterTitle }: IProps) {
   const location = useLocation() as any;
 
   const onClickClose = (paramKey) => {
-    for (const key of paramKey) {
-      removeParams(navigate, location, key);
-    }
+      removeParams(navigate, location, ...paramKey);
   };
 
   const onClickRemove = (paramKey: string, ids: string[], id: string) => {
