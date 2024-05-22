@@ -8,8 +8,8 @@ on:
       - rc
       - staging
     paths:
-      - "email-verifier/**"
-      - ".github/workflows/email_verifier.yaml"
+      - 'email-verifier/**'
+      - '.github/workflows/email_verifier.yaml'
 
   pull_request:
     branches:
@@ -18,8 +18,8 @@ on:
       - rc
       - staging
     paths:
-      - "email-verifier/**"
-      - ".github/workflows/email_verifier.yaml"
+      - 'email-verifier/**'
+      - '.github/workflows/email_verifier.yaml'
 
 jobs:
   email-verifier:
@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node.js 18.18.x
+      - name: Use Node.js 18.17.x
         uses: actions/setup-node@v1
         with:
           node-version: 18.18.x

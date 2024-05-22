@@ -9,8 +9,8 @@ on:
       - staging
       - build-test
     paths:
-      - "scripts/pluginsMap.js"
-      - ".github/workflows/plugins-map.yaml"
+      - 'scripts/pluginsMap.js'
+      - '.github/workflows/plugins-map.yaml'
   pull_request:
     branches:
       - dev
@@ -19,15 +19,15 @@ on:
       - staging
       - build-test
     paths:
-      - "scripts/pluginsMap.js"
-      - ".github/workflows/plugins-map.yaml"
+      - 'scripts/pluginsMap.js'
+      - '.github/workflows/plugins-map.yaml'
 
 jobs:
   ui:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: Use Node.js 18.18.x
+      - name: Use Node.js 18.17.x
         uses: actions/setup-node@v4
         with:
           node-version: 18.18.x
