@@ -55,33 +55,33 @@ const PutResponses: React.FC<IProps> = (props: IProps) => {
         <thead>
           <tr>
             <th>
-              <SortHandler sortField={"billId"} label={__("BillID")} />
+              <SortHandler sortField={'billId'} label={__('BillID')} />
             </th>
             <th>
-              <SortHandler sortField={"number"} label={__("Number")} />
+              <SortHandler sortField={'number'} label={__('Number')} />
             </th>
             <th>
-              <SortHandler sortField={"date"} label={__("Date")} />
+              <SortHandler sortField={'date'} label={__('Date')} />
             </th>
             <th>
-              <SortHandler sortField={"success"} label={__("Success")} />
+              <SortHandler sortField={'status'} label={__('Status')} />
             </th>
             <th>
-              <SortHandler sortField={"billType"} label={__("Bill Type")} />
+              <SortHandler sortField={'type'} label={__('Bill Type')} />
             </th>
             <th>
-              <SortHandler sortField={"taxType"} label={__("Tax Type")} />
+              <SortHandler label={__('receipts')} />
             </th>
             <th>
-              <SortHandler sortField={"amount"} label={__("Amount")} />
+              <SortHandler sortField={'totalAmount'} label={__('Amount')} />
             </th>
             <th>
-              <SortHandler sortField={"message"} label={__("Message")} />
+              <SortHandler sortField={'message'} label={__('Message')} />
             </th>
             <th>
               <SortHandler
-                sortField={"returnBillId"}
-                label={__("Return BillID")}
+                sortField={"InactiveId"}
+                label={__("Inactive ID")}
               />
             </th>
             <th>Үйлдлүүд</th>

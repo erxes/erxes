@@ -49,7 +49,10 @@ export default content => {
 
         table tr:last-child td {
           border-bottom: 1px dashed #444;
+        }
 
+        .right {
+          text-align: right
         }
 
         table thead th {
@@ -93,10 +96,12 @@ export default content => {
 
         .inventory-info {
           font-weight: bold;
+          text-align: left;
         }
 
         .total {
           margin-top: 30px;
+          text-align: right;
         }
 
         .total label {

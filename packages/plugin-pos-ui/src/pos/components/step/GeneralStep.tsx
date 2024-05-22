@@ -162,7 +162,7 @@ const GeneralStep = (props: Props) => {
 
     const chosenTypes: string[] = [];
     const result: any[] = [];
-    for (var i = 0; i < ALLOW_TYPES.length; i++) {
+    for (let i = 0; i < ALLOW_TYPES.length; i++) {
       const currentCh = (allowTypes || [])[i] || "";
 
       const options = (i !== 0 ? [{ value: "", label: "Null" }] : []).concat(

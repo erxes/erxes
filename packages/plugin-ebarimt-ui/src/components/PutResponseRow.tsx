@@ -1,4 +1,5 @@
 import Button from "@erxes/ui/src/components/Button";
+import dayjs from 'dayjs';
 import { IPutResponse } from "../types";
 import PerResponse from "./PerResponse";
 import React from "react";
@@ -40,16 +41,19 @@ const PutResponseRow: React.FC<Props> = ({ putResponse, history }: Props) => {
   };
 
   return (
-    <tr>
-      <td key={"BillID"}>{putResponse.billId} </td>
+    <tr key={putResponse._id}>
+      <td key={'BillID'}>{putResponse.id} </td>
       <td key={"number"}>{putResponse.number} </td>
-      <td key={"Date"}>{putResponse.date}</td>
-      <td key={"success"}>{displayValue(putResponse, "success")}</td>
-      <td key={"billType"}>{displayValue(putResponse, "billType")}</td>
-      <td key={"taxType"}>{displayValue(putResponse, "taxType")}</td>
-      <td key={"amount"}>{displayValue(putResponse, "amount")}</td>
-      <td key={"message"}>{displayValue(putResponse, "message")}</td>
-      <td key={"ReturnBillId"}>{putResponse.sendInfo?.returnBillId} </td>
+      <td key={'Date'}>
+        {putResponse.date ||
+          dayjs(putResponse.createdAt).format('YYYY-MM-DD HH:mm:ss')}
+      </td>
+      <td key={'success'}>{displayValue(putResponse, 'status')}</td>
+      <td key={'billType'}>{displayValue(putResponse, 'type')}</td>
+      <td key={'taxType'}>{displayValue(putResponse.receipts, 'length')}</td>
+      <td key={'amount'}>{displayValue(putResponse, 'totalAmount')}</td>
+      <td key={'message'}>{displayValue(putResponse, 'message')}</td>
+      <td key={'inactiveId'}>{putResponse.inactiveId} </td>
       <td key={"actions"}>
         {putResponse.contentType === "deal" && (
           <Button

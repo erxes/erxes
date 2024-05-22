@@ -6,35 +6,35 @@ import {
   sendPosMessage,
 } from '../../../messageBroker';
 import { IContext } from '../../../connectionResolver';
-import { getCompany } from '../../../utils';
+import { getCompanyInfo, getConfig } from '../../../utils';
 
 const generateFilter = async (subdomain, params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
 
   if (params.search) {
     filter.$or = [
-      { billId: new RegExp(`.*${params.search}.*`, 'i') },
-      { returnBillId: new RegExp(`.*${params.search}.*`, 'i') },
+      { id: new RegExp(`.*${params.search}.*`, 'i') },
+      { inactiveId: new RegExp(`.*${params.search}.*`, 'i') },
       { number: new RegExp(`.*${params.search}.*`, 'i') },
     ];
   }
 
   if (params.billIdRule) {
     if (params.billIdRule === '00') {
-      filter.billId = { $in: ['', null] };
-      filter.returnBillId = { $in: ['', null] };
+      filter.id = { $in: ['', null] };
+      filter.inactiveId = { $in: ['', null] };
     }
     if (params.billIdRule === '01') {
-      filter.billId = { $in: ['', null] };
-      filter.returnBillId = { $nin: ['', null] };
+      filter.id = { $in: ['', null] };
+      filter.inactiveId = { $nin: ['', null] };
     }
     if (params.billIdRule === '10') {
-      filter.billId = { $nin: ['', null] };
-      filter.returnBillId = { $in: ['', null] };
+      filter.id = { $nin: ['', null] };
+      filter.inactiveId = { $in: ['', null] };
     }
     if (params.billIdRule === '11') {
-      filter.billId = { $nin: ['', null] };
-      filter.returnBillId = { $nin: ['', null] };
+      filter.id = { $nin: ['', null] };
+      filter.inactiveId = { $nin: ['', null] };
     }
   }
 
@@ -116,7 +116,7 @@ const generateFilter = async (subdomain, params, commonQuerySelector) => {
   }
 
   if (params.success) {
-    filter.success = params.success;
+    filter.status = params.success;
   }
 
   if (params.billType) {
@@ -143,7 +143,7 @@ const generateFilter = async (subdomain, params, commonQuerySelector) => {
   }
 
   if (params.isLast) {
-    filter.status = { $ne: 'inactive' };
+    filter.state = { $ne: 'inactive' };
   }
 
   return filter;
@@ -171,7 +171,7 @@ const genDuplicatedFilter = async (params) => {
   const ced = new Date(endDate);
   if (
     ((ced ? ced.getTime() : 0) - (csd ? csd.getTime() : 0)) /
-      (1000 * 60 * 60 * 24) >
+    (1000 * 60 * 60 * 24) >
     32
   ) {
     throw new Error('The date range exceeds one month');
@@ -231,8 +231,8 @@ const queries = {
     const filter = await generateFilter(subdomain, params, commonQuerySelector);
     const res = await models.PutResponses.aggregate([
       { $match: filter },
-      { $project: { _id: 1, amount: 1 } },
-      { $group: { _id: '', amount: { $sum: { $toDecimal: '$amount' } } } },
+      { $project: { _id: 1, totalAmount: 1 } },
+      { $group: { _id: '', amount: { $sum: { $toDecimal: '$totalAmount' } } } },
     ]);
 
     if (!res || !res.length) {
@@ -257,7 +257,7 @@ const queries = {
     const ced = new Date(createdEndDate);
     if (
       ((ced ? ced.getTime() : 0) - (csd ? csd.getTime() : 0)) /
-        (1000 * 60 * 60 * 24) >
+      (1000 * 60 * 60 * 24) >
       32
     ) {
       throw new Error('The date range exceeds one month');
@@ -283,9 +283,9 @@ const queries = {
       }
 
       result[dateStr].counter += 1;
-      result[dateStr].vat += Number(res.vat) || 0;
-      result[dateStr].cityTax += Number(res.cityTax) || 0;
-      result[dateStr].amount += Number(res.amount) || 0;
+      result[dateStr].vat += Number(res.totalVAT) || 0;
+      result[dateStr].cityTax += Number(res.totalCityTax) || 0;
+      result[dateStr].amount += Number(res.totalAmount) || 0;
     }
 
     const dates = Object.keys(result).reverse();
@@ -306,7 +306,8 @@ const queries = {
     { companyRD }: { companyRD: string },
     { subdomain },
   ) => {
-    return getCompany(subdomain, companyRD);
+    const config = await getConfig(subdomain, 'EBARIMT')
+    return getCompanyInfo({ checkTaxpayerUrl: config.checkTaxpayerUrl, no: companyRD });
   },
 
   putResponsesDuplicated: async (_root, params, { models }) => {
@@ -319,8 +320,8 @@ const queries = {
         $match: {
           ...filter,
           success: 'true',
-          $or: [{ returnBillId: { $exists: false } }, { returnBillId: '' }],
-          status: { $ne: 'inactive' },
+          $or: [{ inactiveId: { $exists: false } }, { inactiveId: '' }],
+          state: { $ne: 'inactive' },
         },
       },
       {
@@ -345,8 +346,8 @@ const queries = {
         $match: {
           ...filter,
           success: 'true',
-          $or: [{ returnBillId: { $exists: false } }, { returnBillId: '' }],
-          status: { $ne: 'inactive' },
+          $or: [{ inactiveId: { $exists: false } }, { inactiveId: '' }],
+          state: { $ne: 'inactive' },
         },
       },
       {

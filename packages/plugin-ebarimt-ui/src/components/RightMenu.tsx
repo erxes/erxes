@@ -13,8 +13,7 @@ import {
   RightMenuContainer,
   TabContent,
 } from "../styles";
-import React, { ChangeEvent, KeyboardEvent, useRef, useState } from "react";
-
+import React, { useRef, useState } from "react";
 import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
 import { CSSTransition } from "react-transition-group";
 import Datetime from "@nateradebaugh/react-datetime";
@@ -291,16 +290,16 @@ const RightMenu: React.FC<Props> = (props) => {
         {renderContentType()}
 
         <FormGroup>
-          <ControlLabel>{`Success`}</ControlLabel>
+          <ControlLabel>{`Status`}</ControlLabel>
           <FormControl
             name={"success"}
             componentclass="select"
             defaultValue={filterParams.success}
             onChange={onChangeInput}
           >
-            <option value="">{__("All")}</option>
-            <option value="true">{__("true")}</option>
-            <option value="false">{__("false")}</option>
+            <option value="">{__('All')}</option>
+            <option value="SUCCESS">{__('SUCCESS')}</option>
+            <option value="ERROR">{__('ERROR')}</option>
           </FormControl>
         </FormGroup>
 
@@ -312,9 +311,9 @@ const RightMenu: React.FC<Props> = (props) => {
             defaultValue={filterParams.billType}
             onChange={onChangeInput}
           >
-            <option value="">{__("All")}</option>
-            <option value="1">{__("1")}</option>
-            <option value="3">{__("3")}</option>
+            <option value="">{__('All')}</option>
+            <option value="B2C_RECEIPT">{__('B2C_RECEIPT')}</option>
+            <option value="B2B_RECEIPT">{__('B2B_RECEIPT')}</option>
           </FormControl>
         </FormGroup>
 
