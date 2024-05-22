@@ -9,9 +9,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/core/**"
-      - ".github/workflows/core.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/core/**'
+      - '.github/workflows/core.yaml'
 
 jobs:
   core:
@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node.js 18.18.x
+      - name: Use Node.js 18.17.x
         uses: actions/setup-node@v4
         with:
           node-version: 18.18.x

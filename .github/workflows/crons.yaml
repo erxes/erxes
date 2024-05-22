@@ -3,15 +3,15 @@ name: Crons CI
 on:
   push:
     branches:
-      - "dev"
+      - 'dev'
       - master
       - rc
-      - "staging"
+      - 'staging'
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/crons/**"
-      - ".github/workflows/crons.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/crons/**'
+      - '.github/workflows/crons.yaml'
 
 jobs:
   crons:
@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node.js 18.18.x
+      - name: Use Node.js 18.17.x
         uses: actions/setup-node@v4
         with:
           node-version: 18.18.x
