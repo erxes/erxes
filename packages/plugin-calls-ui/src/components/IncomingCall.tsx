@@ -27,6 +27,7 @@ type Props = {
   hasMicrophone: boolean;
   phoneNumber: string;
   hideIncomingCall?: boolean;
+  inboxId: string;
 };
 
 const getSpentTime = (seconds: number) => {
@@ -59,8 +60,14 @@ const formatNumber = (n: number) => {
 const IncomingCall = (props: Props, context) => {
   const Sip = context;
   const { mute, unmute, isMuted, isHolded, hold, unhold, call } = Sip;
-  const { customer, hasMicrophone, phoneNumber, channels, hideIncomingCall } =
-    props;
+  const {
+    customer,
+    hasMicrophone,
+    phoneNumber,
+    channels,
+    hideIncomingCall,
+    inboxId,
+  } = props;
   const primaryPhone = customer?.primaryPhone || '';
 
   const [haveIncomingCall, setHaveIncomingCall] = useState(
@@ -71,6 +78,8 @@ const IncomingCall = (props: Props, context) => {
     call.status === CALL_STATUS_ACTIVE ? 'active' : 'pending',
   );
 
+  let direction = context.call?.direction?.split('/')[1];
+  direction = direction?.toLowerCase() || '';
   const audioRef = useRef<HTMLAudioElement | null>(null);
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -219,9 +228,10 @@ const IncomingCall = (props: Props, context) => {
             {callActions(
               isMuted,
               handleAudioToggle,
-              isHolded,
-              handleHold,
               endCall,
+              inboxId,
+              Sip.call?.status === CALL_STATUS_ACTIVE ? false : true,
+              direction,
             )}
           </IncomingContent>
         </IncomingContainer>

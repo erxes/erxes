@@ -1,11 +1,6 @@
-import React from 'react';
-import queries from '../../graphql/queries';
-import { useQuery } from '@apollo/client';
-import { gql } from '@apollo/client';
-
-import Spinner from '@erxes/ui/src/components/Spinner';
-import VendorSection from './VendorSection';
-import ClientSection from './ClientSection';
+import ClientSection from "./ClientSection";
+import React from "react";
+import VendorSection from "./VendorSection";
 
 type Props = {
   mainType: string;

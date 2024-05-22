@@ -59,23 +59,19 @@ class CloseDate extends React.Component<Props, State> {
     this.setState({ dueDate: date });
   };
 
-  hideContent = () => {
-    this.overlay.hide();
-  };
-
-  onSave = () => {
+  onSave = (close) => {
     const { dueDate } = this.state;
 
     this.props.onChangeField("closeDate", dueDate);
-    this.hideContent();
+    close();
   };
 
-  remove = () => {
+  remove = (close) => {
     this.props.onChangeField("closeDate", null);
-    this.hideContent();
+    close();
   };
 
-  renderContent() {
+  renderContent = (close) => {
     const { reminderMinute, isCheckDate, createdDate } = this.props;
     const { dueDate } = this.state;
 
@@ -163,16 +159,16 @@ class CloseDate extends React.Component<Props, State> {
         />
 
         <DateGrid>
-          <Button colorname="red" onClick={this.remove}>
+          <Button colorname="red" onClick={() => this.remove(close)}>
             Remove
           </Button>
-          <Button colorname="green" onClick={this.onSave}>
+          <Button colorname="green" onClick={() => this.onSave(close)}>
             Save
           </Button>
         </DateGrid>
       </CloseDateContent>
     );
-  }
+  };
 
   render() {
     const { isComplete, onChangeField, closeDate } = this.props;
@@ -190,8 +186,12 @@ class CloseDate extends React.Component<Props, State> {
 
     return (
       <CloseDateWrapper ref={this.ref}>
-        <Popover placement="bottom-end" trigger={trigger}>
-          {this.renderContent()}
+        <Popover
+          placement="bottom-end"
+          trigger={trigger}
+          closeAfterSelect={true}
+        >
+          {this.renderContent}
         </Popover>
         {closeDate && (
           <CheckBoxWrapper>
