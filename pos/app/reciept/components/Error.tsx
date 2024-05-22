@@ -1,6 +1,6 @@
 const Error = ({
-  message,
   errorCode,
+  message,
 }: {
   errorCode?: string
   message?: string
@@ -10,7 +10,7 @@ const Error = ({
   }
   return (
     <div className="py-1">
-      {errorCode}: {message}
+      {message}
     </div>
   )
 }
