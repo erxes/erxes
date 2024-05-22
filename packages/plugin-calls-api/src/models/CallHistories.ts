@@ -40,6 +40,11 @@ export const loadCallHistoryClass = (models: IModels) => {
       } else {
         delete selector.callStatus;
       }
+      if (selector.searchValue) {
+        selector.customerPhone = {
+          $in: [new RegExp(`.*${selector.searchValue}.*`, 'i')],
+        };
+      }
       const histories = await models.CallHistory.find({
         ...selector,
       })
