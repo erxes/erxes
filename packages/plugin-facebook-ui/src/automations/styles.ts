@@ -402,3 +402,11 @@ export const PreviewButton = styled.div`
   flex-shrink: 0;
   margin-right: 30px;
 `;
+
+
+export const FieldInfo = styledTS<{ error?: boolean }>(styled.div)`
+  width: 100%;
+  display:flex;
+  justify-content: end;
+  color:${({ error }) => (error ? colors.colorCoreRed : colors.colorCoreGray)}
+`; 
