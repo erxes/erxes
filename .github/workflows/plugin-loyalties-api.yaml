@@ -9,9 +9,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-loyalties-api/**"
-      - ".github/workflows/plugin-loyalties-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-loyalties-api/**'
+      - '.github/workflows/plugin-loyalties-api.yaml'
   pull_request:
     branches:
       - dev
@@ -20,9 +20,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-loyalties-api/**"
-      - ".github/workflows/plugin-loyalties-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-loyalties-api/**'
+      - '.github/workflows/plugin-loyalties-api.yaml'
 
 jobs:
   api:
