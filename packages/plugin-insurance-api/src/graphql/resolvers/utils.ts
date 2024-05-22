@@ -800,34 +800,44 @@ const generatePdf = async (subdomain, content, dealNumber) => {
   let injectedHtml = content;
 
   const metaTag = '<meta charset="UTF-8">';
+  const cssStyles = `
+    <style>
+      body {
+        font-family: 'Arial', sans-serif;
+      }
+    </style>
+  `;
+
+  if (content.includes("<html>")) {
+    injectedHtml = content.replace("<html>", '<html lang="mn">');
+  }
 
   if (content.includes("<head>")) {
-    injectedHtml = content.replace("<head>", `<head>${metaTag}`);
+    injectedHtml = content.replace("<head>", `<head>${metaTag}${cssStyles}`);
   }
 
   if (injectedHtml.includes("<head/>")) {
-    injectedHtml = content.replace("<head/>", `<head>${metaTag}</head>`);
+    injectedHtml = content.replace("<head/>", `<head>${metaTag}${cssStyles}</head>`);
   }
 
   if (!injectedHtml.includes("<head>")) {
-    injectedHtml = `<head>${metaTag}</head>${content}`;
+    injectedHtml = `<head>${metaTag}${cssStyles}</head>${content}`;
   }
 
   const browser = await puppeteer.launch({
     headless: true,
     executablePath: '/usr/bin/google-chrome',
-    // executablePath:
-    //   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--lang=mn-MN,mn'],
   });
+  
   const page = await browser.newPage();
   await page.setExtraHTTPHeaders({
     'Accept-Language': 'mn',
   });
 
-  console.log(injectedHtml)
+  console.log(injectedHtml);
 
-  await page.setContent(injectedHtml, { waitUntil: 'domcontentloaded' });
+  await page.setContent(injectedHtml, { waitUntil: 'networkidle0' });
   await page.emulateMediaType('screen');
 
   const pdf = await page.pdf({
@@ -836,10 +846,7 @@ const generatePdf = async (subdomain, content, dealNumber) => {
   });
 
   await browser.close();
-
-  // const buffer:any = await createPdfBuffer(content);
-  // const buffer: any = await HTMLtoDOCX(content)
-
+  
   const DOMAIN = getEnv({
     name: 'DOMAIN',
     subdomain,
@@ -879,6 +886,7 @@ const generatePdf = async (subdomain, content, dealNumber) => {
     name: `${dealNumber}.pdf`,
   };
 };
+
 
 export default async function userMiddleware(req: any, _res: any, next: any) {
   const subdomain = getSubdomain(req);
