@@ -235,11 +235,24 @@ const callsMutations = {
     return { status: 'ok' };
   },
 
-  async callsUpdateSipDnd(
+  async callsPauseAgent(
     _root,
-    { dndStatus, integrationId },
+    { status, integrationId },
     { models, user }: IContext,
   ) {
+    const integration = await models.Integrations.findOne({
+      inboxId: integrationId,
+    }).lean();
+
+    if (!integration) {
+      throw new Error('Integration not found');
+    }
+    const operator = integration.operators.find(
+      (operator) => operator.userId === user?._id,
+    );
+
+    const extentionNumber = operator?.gsUsername || '1001';
+
     const queueData = (await sendToGrandStreamRequest(
       models,
       {
@@ -248,22 +261,33 @@ const callsMutations = {
         headers: { 'Content-Type': 'application/json' },
         data: {
           request: {
-            action: 'updateSIPAccount',
-            dnd: dndStatus || 'yes',
+            action: 'pauseUnpauseQueueAgent',
+            operatetype: status,
+            interface: extentionNumber,
           },
         },
         integrationId: integrationId,
         retryCount: 3,
         isConvertToJson: true,
-        isAddExtention: true,
+        isAddExtention: false,
       },
       user,
     )) as any;
 
     if (queueData && queueData.response) {
       const { need_apply } = queueData?.response;
-      if (need_apply === 'yes') {
-        return 'success';
+      if (need_apply) {
+        const operator = await models.Operators.getOperator(user._id);
+        if (operator) {
+          await models.Operators.updateOperator(user._id, status);
+        } else if (!operator) {
+          await models.Operators.create({
+            userId: user._id,
+            status,
+            extension: extentionNumber,
+          });
+        }
+        return need_apply;
       }
     }
     return 'failed';

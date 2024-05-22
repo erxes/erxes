@@ -48,8 +48,8 @@ type Props = {
   customer: ICustomer;
   disconnectCall: () => void;
   phoneNumber: string;
-  pauseExtention: (inboxId: string, dndStatus: string) => void;
-  dndStatus: string;
+  pauseExtention: (inboxId: string, status: string) => void;
+  agentStatus: string;
 };
 
 const KeyPad = (props: Props, context) => {
@@ -63,7 +63,7 @@ const KeyPad = (props: Props, context) => {
     customer,
     phoneNumber,
     pauseExtention,
-    dndStatus,
+    agentStatus,
   } = props;
 
   const defaultCallIntegration = localStorage.getItem(
@@ -85,7 +85,9 @@ const KeyPad = (props: Props, context) => {
   const [timeSpent, setTimeSpent] = useState(
     call?.startTime ? calculateTimeElapsed(call.startTime) : 0,
   );
-  const [isPaused, setPaused] = useState(dndStatus === 'yes' ? true : false);
+  const [isPaused, setPaused] = useState(
+    agentStatus === 'paused' ? true : false,
+  );
 
   const shrink = customer ? true : false;
 
@@ -244,7 +246,7 @@ const KeyPad = (props: Props, context) => {
 
   const togglePause = () => {
     if (pauseExtention) {
-      const status = isPaused ? 'no' : 'yes';
+      const status = isPaused ? 'unpause' : 'pause';
       pauseExtention(inboxId, status);
       setPaused(!isPaused);
     }
