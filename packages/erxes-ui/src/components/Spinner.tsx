@@ -1,8 +1,8 @@
-import React from 'react';
-import { colors } from '../styles';
-import { rotate } from '../utils/animations';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import React from "react";
+import { colors } from "../styles";
+import { rotate } from "../utils/animations";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 type Props = {
   objective?: boolean;
@@ -11,11 +11,12 @@ type Props = {
   right?: string;
   top?: string;
   bottom?: string;
+  height?: string;
 };
 
-const Spin = styledTS<{ $objective?: boolean } & Props>(styled.div)`
-  height: ${(props) => props.$objective && '100px'};
-  position: ${(props) => props.$objective && 'relative'};
+const Spin = styledTS<{ $objective?: boolean; height?: string }>(styled.div)`
+  height: ${(props) => props.$objective && (props.height ? props.height : "100px")};
+  position: ${(props) => props.$objective && "relative"};
 `;
 
 export const MainLoader = styledTS<Props>(styled.div)`
@@ -38,13 +39,14 @@ export const MainLoader = styledTS<Props>(styled.div)`
 function Spinner({
   objective = false,
   size = 26,
-  top = '50%',
-  bottom = 'auto',
-  left = '50%',
-  right = 'auto',
+  top = "50%",
+  bottom = "auto",
+  left = "50%",
+  right = "auto",
+  height = "auto",
 }: Props) {
   return (
-    <Spin $objective={objective}>
+    <Spin $objective={objective} height={height}>
       <MainLoader
         size={size}
         top={top}
