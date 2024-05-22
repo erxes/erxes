@@ -7,6 +7,7 @@ import Tip from "@erxes/ui/src/components/Tip";
 import colors from "@erxes/ui/src/styles/colors";
 import { formatValue } from "@erxes/ui/src/utils";
 import { useNavigate } from "react-router-dom";
+import { Flex } from "@erxes/ui/src/styles/main";
 
 type Props = {
   index: number;
@@ -110,16 +111,22 @@ const Row: React.FC<Props> = ({
       </td>
       <td>{index.toString()}</td>
       <td>
-        {renderStatus(verificationStatus === "verified")}
-        {verificationStatus}
+        <Flex>
+          {verificationStatus}
+          {renderStatus(verificationStatus === "verified")}
+        </Flex>
       </td>
       <td>
-        {renderStatus(clientPortalUser.isEmailVerified)}
-        {email}
+        <Flex>
+          {email}
+          {renderStatus(clientPortalUser.isEmailVerified)}
+        </Flex>
       </td>
       <td>
-        {renderStatus(clientPortalUser.isPhoneVerified)}
-        {phone}
+        <Flex>
+          {phone}
+          {renderStatus(clientPortalUser.isPhoneVerified)}
+        </Flex>
       </td>
       <td>{username}</td>
       <td>{code || "-"}</td>
