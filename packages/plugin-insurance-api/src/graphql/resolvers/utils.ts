@@ -7,12 +7,12 @@ import * as jwt from 'jsonwebtoken';
 import * as moment from 'moment';
 import fetch from 'node-fetch';
 import * as puppeteer from 'puppeteer';
-
+import * as path from 'path';
 import * as tmp from 'tmp';
 import * as xlsxPopulate from 'xlsx-populate';
 import { sendCommonMessage } from '../../messageBroker';
 import { query } from './queries/items';
-import path from 'path';
+
 
 export const verifyVendor = async (context) => {
   const { subdomain, cpUser } = context;
