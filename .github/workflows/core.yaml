@@ -9,9 +9,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/core/**"
-      - ".github/workflows/core.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/core/**'
+      - '.github/workflows/core.yaml'
 
 jobs:
   core:

@@ -9,9 +9,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-exm-api/**"
-      - ".github/workflows/plugin-exm-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-exm-api/**'
+      - '.github/workflows/plugin-exm-api.yaml'
   pull_request:
     branches:
       - dev
@@ -20,9 +20,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-exm-api/**"
-      - ".github/workflows/plugin-exm-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-exm-api/**'
+      - '.github/workflows/plugin-exm-api.yaml'
 
 jobs:
   api:
