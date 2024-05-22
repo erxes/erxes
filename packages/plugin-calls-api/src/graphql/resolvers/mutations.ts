@@ -248,22 +248,23 @@ const callsMutations = {
         headers: { 'Content-Type': 'application/json' },
         data: {
           request: {
-            action: 'updateSIPAccount',
-            dnd: dndStatus || 'yes',
+            action: 'pauseUnpauseQueueAgent',
+            operatetype: dndStatus === 'yes' ? 'pause' : 'unpause',
+            interface: '1005',
           },
         },
         integrationId: integrationId,
         retryCount: 3,
         isConvertToJson: true,
-        isAddExtention: true,
+        isAddExtention: false,
       },
       user,
     )) as any;
 
     if (queueData && queueData.response) {
       const { need_apply } = queueData?.response;
-      if (need_apply === 'yes') {
-        return 'success';
+      if (need_apply) {
+        return need_apply;
       }
     }
     return 'failed';

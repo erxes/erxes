@@ -307,7 +307,7 @@ export const sendToGrandStreamRequest = async (
 
   let cookie = await getOrSetCallCookie(wsServer);
   cookie = cookie?.toString();
-
+  console.log(cookie, 'cookie');
   try {
     const requestOptions: RequestInit & Required<{ headers: HeadersInit }> = {
       method,
