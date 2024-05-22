@@ -1,323 +1,391 @@
-import { DISTRICTS } from './definitions/constants';
-import { IModels } from '../connectionResolver';
 import fetch from 'node-fetch';
+import * as moment from 'moment';
+import { IEbarimt, IEbarimtFull } from './definitions/putResponses';
 import { IEbarimtConfig } from './definitions/configs';
-import { IPutResponseDocument } from './definitions/putResponses';
 
-const formatNumber = (num: number): string => {
-  return num && num.toFixed ? num.toFixed(2) : '0.00';
-};
-
-export interface IPutDataArgs {
-  models: IModels;
-  number?: string;
-  date?: string;
-  orderId?: string;
-  hasVat?: boolean;
-  hasCitytax?: boolean;
-  billType?: string;
-  customerCode?: string;
-  customerName?: string;
-  productsById?: any;
-  details?: any[];
-  cashAmount?: number;
-  nonCashAmount?: number;
-
-  transaction?: any;
-  records?: any;
-  taxType?: string;
-  returnBillId?: string;
-
-  config?: any;
+export interface IDoc {
   contentType: string;
   contentId: string;
+  number: string;
+
+  date?: Date;
+  type: string;
+
+  customerRD?: string;
+  customerTin?: string;
+  customerName?: string;
+  consumerNo?: string;
+
+  details?: {
+    recId: string;
+    product: {
+      _id: string;
+      name: string;
+      shortName?: string;
+      categoryId?: string;
+      type?: string;
+      barcodes?: string[];
+      unitPrice?: number;
+      code: string;
+      status?: string;
+      uom?: string;
+      taxType?: string;
+      taxCode?: string;
+    };
+    barcode?: string;
+    quantity: number;
+    unitPrice: number;
+    totalDiscount: number;
+    totalAmount: number;
+  }[];
+  nonCashAmounts: { amount: number }[];
+
+  inactiveId?: string;
+  invoiceId?: string;
 }
 
-interface IStockItem {
-  code: string;
-  name: string;
-  measureUnit: string;
-  qty: string;
-  unitPrice: string;
-  totalAmount: string;
-  vat: string;
-  cityTax: string;
-  discount: string;
+export interface IPutDataArgs {
+  config: IEbarimtConfig;
+  doc: IDoc
 }
 
-export class PutData<IListArgs extends IPutDataArgs> {
-  public districtCode: string = '';
-  public params: IListArgs;
-  public transactionInfo: any;
-  public vatPercent: number = 10;
-  public cityTaxPercent: number = 0;
-  public config: any;
-  public models: IModels;
-  public defaultGScode!: string;
-
-  constructor(params: IListArgs) {
-    this.params = params;
-    this.config = params.config;
-    this.models = params.models;
-
-    this.vatPercent =
-      (this.params.hasVat && Number(this.config.vatPercent)) || 0;
-    this.cityTaxPercent =
-      (this.params.hasCitytax && Number(this.config.cityTaxPercent)) || 0;
-    this.defaultGScode = this.config.defaultGSCode || '';
+const isValidBarcode = (barcode: string): boolean => {
+  // check length
+  if (
+    barcode.length < 8 ||
+    barcode.length > 18 ||
+    (barcode.length != 8 &&
+      barcode.length != 12 &&
+      barcode.length != 13 &&
+      barcode.length != 14 &&
+      barcode.length != 18)
+  ) {
+    return false;
   }
 
-  private async generateStock(detail, vat, citytax) {
-    if (!detail.count) {
-      return;
+  const lastDigit = Number(barcode.substring(barcode.length - 1));
+  let checkSum = 0;
+  if (isNaN(lastDigit)) {
+    return false;
+  } // not a valid upc/ean
+
+  const arr: any = barcode
+    .substring(0, barcode.length - 1)
+    .split('')
+    .reverse();
+  let oddTotal = 0,
+    evenTotal = 0;
+
+  for (let i = 0; i < arr.length; i++) {
+    if (isNaN(arr[i])) {
+      return false;
+    } // can't be a valid upc/ean we're checking for
+
+    if (i % 2 == 0) {
+      oddTotal += Number(arr[i]) * 3;
+    } else {
+      evenTotal += Number(arr[i]);
     }
-
-    const product = this.params.productsById[detail.productId] || {};
-
-    if (!product._id) {
-      return;
-    }
-
-    return {
-      code: detail.inventoryCode,
-      barCode: detail.barcode || this.defaultGScode,
-      name: product.name,
-      shortName: product.shortName,
-      measureUnit: product.uom || 'ш',
-      qty: formatNumber(detail.count),
-      unitPrice: formatNumber(detail.amount / (detail.count || 1)),
-      totalAmount: formatNumber(detail.amount),
-      vat: formatNumber(vat),
-      cityTax: formatNumber(citytax),
-      discount: formatNumber(detail.discount || 0),
-    };
   }
+  checkSum = (10 - ((evenTotal + oddTotal) % 10)) % 10;
 
-  private async generateStocks() {
-    let sumAmount = 0;
-    let vatAmount = 0;
-    let citytaxAmount = 0;
-    const stocks: IStockItem[] = [];
+  // true if they are equal
+  return checkSum == lastDigit;
+};
 
-    const taxPercent = this.vatPercent + this.cityTaxPercent;
-
-    for (const detail of this.params.details || []) {
-      sumAmount += detail.amount;
-
-      const vat = (detail.amount / (100 + taxPercent)) * this.vatPercent;
-      vatAmount += vat;
-
-      const cityTax =
-        (detail.amount / (100 + taxPercent)) * this.cityTaxPercent;
-      citytaxAmount += cityTax;
-
-      const stock = await this.generateStock(detail, vat, cityTax);
-
-      if (stock) {
-        stocks.push(stock);
-      }
-    }
-
-    return { stocks, sumAmount, vatAmount, citytaxAmount };
-  }
-
-  public async generateTransactionInfo() {
-    const { stocks, sumAmount, vatAmount, citytaxAmount } =
-      await this.generateStocks();
-
-    return {
-      cashAmount: formatNumber(sumAmount),
-      nonCashAmount: formatNumber(0),
-
-      amount: formatNumber(sumAmount),
-      vat: formatNumber(vatAmount),
-      cityTax: formatNumber(citytaxAmount),
-
-      districtCode: this.config.districtCode,
-      billType: this.params.billType,
-      taxType: this.params.taxType,
-
-      stocks,
-
-      customerNo: this.params.customerCode,
-      billIdSuffix: Math.round(
-        Math.random() * (999999 - 100000) + 100000,
-      ).toString(),
-
-      // Хэрвээ буцаах гэж байгаа бол түүний ДДТД
-      returnBillId: this.params.returnBillId,
-    };
-  }
-
-  public async run() {
-    const url = this.config.ebarimtUrl || '';
-    const rd = this.config.companyRD || '';
-
-    const { contentType, contentId, number } = this.params;
-
-    if (!Object.keys(DISTRICTS).includes(this.config.districtCode)) {
-      throw new Error(`Invalid district code: ${this.config.districtCode}`);
-    }
-
-    this.transactionInfo = await this.generateTransactionInfo();
-
-    const continuePutResponses: IPutResponseDocument[] =
-      await this.models.PutResponses.find({
-        contentType,
-        contentId,
-        taxType: this.params.taxType,
-        modifiedAt: { $exists: false }
-      }).lean();
-
-    if (continuePutResponses.length) {
-      for (const cpr of continuePutResponses) {
-        if ((new Date().getTime() - new Date(cpr.createdAt).getTime()) / 1000 < 10) {
-          throw new Error('The previously submitted data has not yet been processed');
-        }
-      }
-    }
-
-    const prePutResponse: IPutResponseDocument | undefined = await this.models.PutResponses.putHistory({
-      contentType,
-      contentId,
-      taxType: this.params.taxType || '',
+const getCustomerInfo = async (type, config, doc) => {
+  if (type === 'B2B_RECEIPT') {
+    const resp = await getCompanyInfo({
+      checkTaxpayerUrl: config.checkTaxpayerUrl,
+      no: doc.customerTin || doc.customerRD,
     });
 
-    if (prePutResponse) {
-      if (
-        prePutResponse.amount === this.transactionInfo.amount &&
-        prePutResponse.stocks &&
-        prePutResponse.stocks.length === this.transactionInfo.stocks.length &&
-        (prePutResponse.taxType || '1') ===
-        (this.transactionInfo.taxType || '1') &&
-        (prePutResponse.billType || '1') ===
-        (this.transactionInfo.billType || '1')
-      ) {
-        return this.models.PutResponses.findOne({
-          billId: prePutResponse.billId,
-        }).lean() as any;
-      }
-
-      this.transactionInfo.returnBillId = prePutResponse.billId;
-      await this.models.PutResponses.updateOne(
-        { _id: prePutResponse._id },
-        { $set: { status: 'inactive' } },
-      );
+    if (resp.status !== 'checked') {
+      return { msg: 'wrong tin number or rd or billType' }
     }
 
-    const resObj = await this.models.PutResponses.createPutResponse({
-      sendInfo: { ...this.transactionInfo },
-      contentId,
-      contentType,
-      number,
-    });
+    return { customerTin: resp.tin, customerName: resp.result?.data?.name }
+  };
 
-    const responseBody = await fetch(`${url}/put?lib=${rd}`, {
-      method: 'POST',
-      body: JSON.stringify({ data: this.transactionInfo }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      timeout: 10000
-    }).then((res) => res.json());
+  const re = /^\d{8}$/gui;
+  if (doc.consumerNo && re.test(doc.consumerNo)) {
+    return { consumerNo: doc.consumerNo };
+  };
 
-    if (
-      responseBody.billType == '1' &&
-      responseBody.lottery == '' &&
-      responseBody.success
-    ) {
-      if (prePutResponse) {
-        responseBody.lottery = prePutResponse.lottery;
-      } else {
-        responseBody.getInformation = await fetch(
-          `${url}/getInformation?lib=${rd}`,
-        ).then((res) => res.text());
-      }
+  return {};
+}
+
+const genStock = (detail, product, config) => {
+  const barCode = detail.barcode ?? (product.barcodes || [])[0] ?? '';
+  const barCodeType = isValidBarcode(barCode) ? 'GS1' : 'UNDEFINED'
+
+  return {
+    recId: detail.recId,
+    name: product.shortName || `${product.code} - ${product.name}`,
+    barCode,
+    barCodeType,
+    classificationCode: config.defaultGSCode,
+    taxProductCode: product.taxCode,
+    measureUnit: product.uom ?? 'ш',
+    qty: detail.quantity,
+    unitPrice: detail.unitPrice,
+    totalBonus: detail.totalDiscount,
+    totalAmount: detail.totalAmount,
+    totalVAT: 0,
+    totalCityTax: 0,
+    data: {},
+    productId: product._id,
+  };
+}
+
+const getArrangeProducts = async (config: IEbarimtConfig, doc: IDoc) => {
+  const details: any[] = [];
+  const detailsFree: any[] = [];
+  const details0: any[] = [];
+  const detailsInner: any[] = [];
+  let ableAmount = 0;
+  let freeAmount = 0;
+  let zeroAmount = 0;
+  let innerAmount = 0;
+  let ableVATAmount = 0;
+  let ableCityTaxAmount = 0;
+
+  const vatPercent =
+    (config.hasVat && Number(config.vatPercent)) || 0;
+  const cityTaxPercent =
+    (config.hasCitytax && Number(config.cityTaxPercent)) || 0;
+  const totalPercent = vatPercent + cityTaxPercent + 100
+
+  for (const detail of (doc.details || []).filter(d => d.product)) {
+    const { product } = detail;
+
+    const stock = genStock(detail, product, config);
+
+    if (product.taxType === '2') {
+      detailsFree.push({ ...stock });
+      freeAmount += detail.totalAmount;
+    } else if (product.taxType === '3') {
+      details0.push({ ...stock });
+      zeroAmount += detail.totalAmount;
+    } else if (product.taxType === '5') {
+      detailsInner.push({ ...stock });
+      innerAmount += detail.totalAmount;
+    } else {
+      const totalVAT = detail.totalAmount / totalPercent * vatPercent;
+      const totalCityTax = detail.totalAmount / totalPercent * cityTaxPercent;
+      ableAmount += detail.totalAmount;
+      ableVATAmount += totalVAT;
+      ableCityTaxAmount += totalCityTax;
+
+      details.push({ ...stock, totalVAT, totalCityTax });
     }
+  }
 
-    await this.models.PutResponses.updatePutResponse(resObj._id, {
-      ...responseBody,
-      customerName: this.params.customerName,
-    });
-
-    return this.models.PutResponses.findOne({ _id: resObj._id }).lean();
+  return {
+    details,
+    detailsFree,
+    details0,
+    detailsInner,
+    ableAmount,
+    freeAmount,
+    zeroAmount,
+    innerAmount,
+    ableVATAmount,
+    ableCityTaxAmount,
   }
 }
 
-export const returnBill = async (
-  models: IModels,
-  doc: {
-    contentType: string;
-    contentId: string;
-    number: string;
-    config: IEbarimtConfig;
-  },
-) => {
-  const config = doc.config;
-  const url = config.ebarimtUrl || '';
-  const { contentType, contentId } = doc;
+export const getEbarimtData = async (params: IPutDataArgs) => {
+  const { config, doc } = params;
+  const type = doc.type || 'B2C_RECEIPT';
 
-  const prePutResponses = await models.PutResponses.putHistories({
-    contentType,
-    contentId,
-  });
-
-  if (!prePutResponses.length) {
-    return {
-      error: 'Буцаалт гүйцэтгэх шаардлагагүй баримт байна.',
-    };
+  const { customerTin, consumerNo, msg, customerName } = await getCustomerInfo(type, config, doc);
+  if (msg) {
+    return { status: 'err', msg }
   }
 
-  const resultObjIds: string[] = [];
-  for (const prePutResponse of prePutResponses) {
-    let rd = prePutResponse.registerNo;
-    if (!rd) {
-      continue;
-    }
+  let reportMonth: string | undefined = undefined;
+  if (doc.date && doc.date.getMonth() !== (new Date()).getMonth()) {
+    reportMonth = moment(doc.date).format('YYYY-MM-DD')
+  }
 
-    if (rd.length === 12) {
-      rd = rd.slice(-8);
-    }
+  const {
+    details,
+    detailsFree,
+    details0,
+    detailsInner,
+    ableAmount,
+    freeAmount,
+    zeroAmount,
+    innerAmount,
+    ableVATAmount,
+    ableCityTaxAmount,
+  } = await getArrangeProducts(config, doc);
 
-    const date = prePutResponse.date;
+  let innerData: IEbarimtFull | undefined = undefined;
+  let mainData: IEbarimt | undefined = undefined;
 
-    if (!prePutResponse.billId || !date) {
-      continue;
-    }
+  const commonOderInfo = {
+    merchantTin: config.merchantTin,
+    totalVAT: 0,
+    totalCityTax: 0,
+    data: {},
+  }
 
-    const data = {
-      returnBillId: prePutResponse.billId,
-      date: date,
-    };
-
-    await models.PutResponses.updateOne(
-      { _id: prePutResponse._id },
-      { $set: { status: 'inactive' } },
-    );
-
-    const resObj = await models.PutResponses.createPutResponse({
-      sendInfo: { ...data },
-      contentId,
-      contentType,
+  if (details.length || details0.length || detailsFree.length) {
+    mainData = {
       number: doc.number,
-      returnBillId: prePutResponse.billId,
-    });
+      contentType: doc.contentType,
+      contentId: doc.contentId,
 
-    const responseBody = await fetch(`${url}/returnBill?lib=${rd}`, {
-      method: 'POST',
-      body: JSON.stringify({ data }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then((res) => res.json());
+      totalAmount: ableAmount + freeAmount + zeroAmount,
+      totalVAT: ableVATAmount,
+      totalCityTax: ableCityTaxAmount,
+      districtCode: config.districtCode,
+      branchNo: config.branchNo,
+      merchantTin: config.merchantTin,
+      posNo: config.posNo,
+      type: doc.type,
+      reportMonth,
+      data: {},
+      customerTin,
+      customerName,
+      consumerNo,
 
-    await models.PutResponses.updatePutResponse(resObj._id, {
-      ...responseBody,
-    });
-    resultObjIds.push(resObj._id);
+      receipts: [],
+      payments: []
+    };
+
+    if (detailsFree.length) {
+      mainData.receipts?.push({
+        ...commonOderInfo,
+        totalAmount: freeAmount,
+        taxType: 'VAT_FREE',
+        items: detailsFree,
+      });
+    }
+
+    if (details0.length) {
+      mainData.receipts?.push({
+        ...commonOderInfo,
+        totalAmount: zeroAmount,
+        taxType: 'VAT_ZERO',
+        items: details0,
+      });
+    }
+
+    if (details.length) {
+      mainData.receipts?.push({
+        ...commonOderInfo,
+        totalAmount: ableAmount,
+        totalVAT: ableVATAmount,
+        totalCityTax: ableCityTaxAmount,
+        taxType: 'VAT_ABLE',
+        items: details,
+      });
+    }
+
+    // payments
+    let cashAmount = mainData.totalAmount ?? 0;
+    for (const payment of doc.nonCashAmounts) {
+      mainData.payments?.push({
+        code: 'PAYMENT_CARD',
+        exchangeCode: '',
+        status: 'PAID',
+        paidAmount: payment.amount,
+      });
+
+      cashAmount -= payment.amount;
+    }
+
+    if (cashAmount) {
+      mainData.payments?.push({
+        code: 'CASH',
+        exchangeCode: '',
+        status: 'PAID',
+        paidAmount: cashAmount,
+      });
+    }
   }
 
-  return models.PutResponses.find({ _id: { $in: resultObjIds } })
-    .sort({ createdAt: -1 })
-    .lean();
+  if (detailsInner.length) {
+    innerData = {
+      _id: 'tempBill',
+      id: 'tempBIll',
+      date: moment(new Date).format('"yyyy-MM-DD HH:mm:ss'),
+      createdAt: new Date,
+      modifiedAt: new Date,
+      status: 'SUCCESS',
+      message: '',
+      posId: 0,
+
+      number: doc.number,
+      contentType: doc.contentType,
+      contentId: doc.contentId,
+
+      totalAmount: innerAmount,
+      totalVAT: 0,
+      totalCityTax: 0,
+      districtCode: config.districtCode,
+      branchNo: config.branchNo,
+      merchantTin: config.merchantTin,
+      posNo: config.posNo,
+      type: doc.type,
+      reportMonth,
+      data: {},
+      customerTin,
+      consumerNo,
+
+      receipts: [{
+        ...commonOderInfo,
+        totalAmount: innerAmount,
+        taxType: 'NOT_SEND',
+        items: detailsInner,
+      }],
+      payments: [{
+        code: 'CASH',
+        exchangeCode: '',
+        status: 'PAID',
+        paidAmount: innerAmount,
+      }]
+    };
+  }
+
+  return { status: 'ok', data: mainData, innerData };
+}
+
+export const getCompanyInfo = async ({ checkTaxpayerUrl, no }: { checkTaxpayerUrl: string, no: string }) => {
+  const tinre = /(^\d{11}$)|(^\d{12}$)/;
+  if (tinre.test(no)) {
+    const result = await fetch(
+      // `https://api.ebarimt.mn/api/info/check/getInfo?tin=${tinNo}`
+      `${checkTaxpayerUrl}/getInfo?tin=${no}`
+    ).then((r) => r.json());
+
+    return { status: 'checked', result, tin: no };
+  }
+
+  const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)/gui;
+
+  if (!re.test(no)) {
+    return { status: 'notValid' };
+  }
+
+  const info = await fetch(
+    // `https://api.ebarimt.mn/api/info/check/getTinInfo?regNo=${rd}`
+    `${checkTaxpayerUrl}/getTinInfo?regNo=${no}`
+  ).then((r) => r.json());
+
+  if (info.status !== 200) {
+    return { status: 'notValid' };
+  }
+
+  const tinNo = info.data;
+
+  const result = await fetch(
+    // `https://api.ebarimt.mn/api/info/check/getInfo?tin=${tinNo}`
+    `${checkTaxpayerUrl}/getInfo?tin=${tinNo}`
+  ).then((r) => r.json());
+
+  return { status: 'checked', result, tin: tinNo };
 };
