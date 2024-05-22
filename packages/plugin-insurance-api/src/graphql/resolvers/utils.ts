@@ -12,6 +12,7 @@ import * as tmp from 'tmp';
 import * as xlsxPopulate from 'xlsx-populate';
 import { sendCommonMessage } from '../../messageBroker';
 import { query } from './queries/items';
+import path from 'path';
 
 export const verifyVendor = async (context) => {
   const { subdomain, cpUser } = context;
@@ -799,13 +800,19 @@ export const generateContract = async (
 const generatePdf = async (subdomain, content, dealNumber) => {
   let injectedHtml = content;
 
+  const fontPath = path.resolve(__dirname, '../../../fonts/Roboto-Regular.ttf');
+
   const metaTag = '<meta charset="UTF-8">';
   const cssStyles = `
-    <style>
-      body {
-        font-family: 'Arial', sans-serif;
-      }
-    </style>
+  <style>
+  @font-face {
+    font-family: 'Roboto';
+    src: url('file://${fontPath}') format('truetype');
+  }
+  body {
+    font-family: 'Roboto', sans-serif;
+  }
+</style>
   `;
 
   if (content.includes("<html>")) {
@@ -829,7 +836,7 @@ const generatePdf = async (subdomain, content, dealNumber) => {
     executablePath: '/usr/bin/google-chrome',
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--lang=mn-MN,mn'],
   });
-  
+
   const page = await browser.newPage();
   await page.setExtraHTTPHeaders({
     'Accept-Language': 'mn',
