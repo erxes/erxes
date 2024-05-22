@@ -9,9 +9,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-forms-api/**"
-      - ".github/workflows/plugin-forms-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-forms-api/**'
+      - '.github/workflows/plugin-forms-api.yaml'
   pull_request:
     branches:
       - dev
@@ -20,9 +20,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-forms-api/**"
-      - ".github/workflows/plugin-forms-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-forms-api/**'
+      - '.github/workflows/plugin-forms-api.yaml'
 
 jobs:
   api:

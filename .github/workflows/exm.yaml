@@ -9,8 +9,8 @@ on:
       - staging
       - exm-improve
     paths:
-      - "exm-web/**"
-      - ".github/workflows/exm.yaml"
+      - 'exm-web/**'
+      - '.github/workflows/exm.yaml'
 
   pull_request:
     branches:
@@ -20,8 +20,8 @@ on:
       - staging
       - exm-improve
     paths:
-      - "exm-web/**"
-      - ".github/workflows/exm.yaml"
+      - 'exm-web/**'
+      - '.github/workflows/exm.yaml'
 
 jobs:
   exm-ui:

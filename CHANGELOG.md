@@ -1,5 +1,96 @@
 # Changelog
 
+## [1.11.0-rc.3](https://github.com/erxes/erxes/compare/1.11.0-rc.1...1.11.0-rc.3) (2024-05-22)
+
+## [1.10.1](https://github.com/erxes/erxes/compare/1.10.0...1.10.1) (2024-05-22)
+
+### Features
+
+- **calls:** added wait mode and transfer call and logs ([5b8854c](https://github.com/erxes/erxes/commit/5b8854cef31bb5938f8d857a1f85fb2d68c26766))
+
+### Bug Fixes
+
+- **inbox:** integration typename error ([50cdfbe](https://github.com/erxes/erxes/commit/50cdfbe4f9694ec3afb8497ec9f9dacf14173afc))
+- **responsetemplate:** show save button ([ef3d79c](https://github.com/erxes/erxes/commit/ef3d79c53e280cc6bf1cbf71a43d950956074990))
+
+## [1.10.0-rc.5](https://github.com/erxes/erxes/compare/1.11.0-rc.1...1.11.0-rc.3) (2024-05-15)
+
+## [1.11.0-rc.1](https://github.com/erxes/erxes/compare/1.11.0-rc.0...1.11.0-rc.1) (2024-05-20)
+
+### Bug Fixes
+
+- **cards:** detail chooser, properties and automation attribute ([#5210](https://github.com/erxes/erxes/issues/5210)) ([f4be0a7](https://github.com/erxes/erxes/commit/f4be0a730b037b754cc1d18c91126bd118bfefc0))
+
+## [1.11.0-rc.0](https://github.com/erxes/erxes/compare/1.10.0...1.11.0-rc.0) (2024-05-16)
+
+### Features
+
+- add plugin buren scoring ([#5162](https://github.com/erxes/erxes/issues/5162)) ([b50c189](https://github.com/erxes/erxes/commit/b50c189a8ed226947daa677f663b427943fe321a))
+- **email-verifier:** use clearout for email validation ([6260771](https://github.com/erxes/erxes/commit/62607713b19ed88d04d75400be3d7098c1380bea))
+
+### Bug Fixes
+
+- (merge) clientportal ([#5201](https://github.com/erxes/erxes/issues/5201)) ([5b4e6cf](https://github.com/erxes/erxes/commit/5b4e6cfad5959a9d73b0a2ffdd36fefa6066d0cf))
+- **automation:** facebook message won't send ([949427a](https://github.com/erxes/erxes/commit/949427a19c7e8a2c14cd29965f7c8b0feb4807e7))
+- clientportal improvement, vendor filter ([#5195](https://github.com/erxes/erxes/issues/5195)) ([9fb8b1d](https://github.com/erxes/erxes/commit/9fb8b1d501a41f219c972c6bc7f16584ca038429))
+- Collateral type ([#5209](https://github.com/erxes/erxes/issues/5209)) ([b7f14e7](https://github.com/erxes/erxes/commit/b7f14e7113b5901e031df76485e9ac22ba61d14c))
+- **contacts:** change onClick action of manual email/phone validation status ([636e2f0](https://github.com/erxes/erxes/commit/636e2f0f53c962c6bbbd5a0478c46c3c64cd9a99))
+- **loans:** Modal fix ([#5187](https://github.com/erxes/erxes/issues/5187)) ([1d7cea2](https://github.com/erxes/erxes/commit/1d7cea222af631358c997eaa47b541bccac0077a))
+- msd product category syn with parent category ([0c367d8](https://github.com/erxes/erxes/commit/0c367d87046c7ca0c1fb80da9a285a90512eccf5))
+- msdynamic check products Allow_Ecommerce ([2f717fe](https://github.com/erxes/erxes/commit/2f717febb5763a035a4d4508ec6c047d4204014e))
+- msdynamic exclude item_category_code is null ([368783f](https://github.com/erxes/erxes/commit/368783f992cf0e3f3706c176431b0e96cfab3a6d))
+- msdynamic item code not replace ([698eb1b](https://github.com/erxes/erxes/commit/698eb1be748d738128f0f99b501ed7b72f9a29c6))
+- msdynamic Price_Inc_CityTax_and_VAT ([ca08979](https://github.com/erxes/erxes/commit/ca089796edde0011576d486d9c1da310c74a7316))
+- msdynamic update check categories ([fefdb10](https://github.com/erxes/erxes/commit/fefdb108f69641968a6b7032d3bcff7c23b3d3a3))
+- msdynamic update check categories ([f90c64e](https://github.com/erxes/erxes/commit/f90c64ed037eee7ae60d0a1758521daa9f790258))
+- pos update groups fix ([03af5b5](https://github.com/erxes/erxes/commit/03af5b57372a107c48394ec92c7cf0ad7a7f0994))
+- posclient product categories filter by ids ([6662501](https://github.com/erxes/erxes/commit/666250151b40b31f4018b06affae7cfe57637b90))
+
+### Performance Improvements
+
+- **widgets:** improve load time by specifying width for messenger launcher icon in widgets ([4be7b9e](https://github.com/erxes/erxes/commit/4be7b9e612233a875430797379702ff442c4f3d6))
+
+### Reverts
+
+- **verifier:** fallback to reacherhq ([75811a0](https://github.com/erxes/erxes/commit/75811a0caf46e1029e4df48904bf76b05698e4ac))
+- **verifier:** revert to sendgrid ([960180c](https://github.com/erxes/erxes/commit/960180ce0fef2f92b658af0ca07bdc5a12f9aff5))
+
+## [1.11.0-rc.0](https://github.com/erxes/erxes/compare/1.10.0...1.11.0-rc.0) (2024-05-16)
+
+### Features
+
+- add plugin buren scoring ([#5162](https://github.com/erxes/erxes/issues/5162)) ([b50c189](https://github.com/erxes/erxes/commit/b50c189a8ed226947daa677f663b427943fe321a))
+- **email-verifier:** use clearout for email validation ([6260771](https://github.com/erxes/erxes/commit/62607713b19ed88d04d75400be3d7098c1380bea))
+
+### Bug Fixes
+
+- (merge) clientportal ([#5201](https://github.com/erxes/erxes/issues/5201)) ([5b4e6cf](https://github.com/erxes/erxes/commit/5b4e6cfad5959a9d73b0a2ffdd36fefa6066d0cf))
+- **automation:** facebook message won't send ([949427a](https://github.com/erxes/erxes/commit/949427a19c7e8a2c14cd29965f7c8b0feb4807e7))
+- clientportal improvement, vendor filter ([#5195](https://github.com/erxes/erxes/issues/5195)) ([9fb8b1d](https://github.com/erxes/erxes/commit/9fb8b1d501a41f219c972c6bc7f16584ca038429))
+- Collateral type ([#5209](https://github.com/erxes/erxes/issues/5209)) ([b7f14e7](https://github.com/erxes/erxes/commit/b7f14e7113b5901e031df76485e9ac22ba61d14c))
+- **contacts:** change onClick action of manual email/phone validation status ([636e2f0](https://github.com/erxes/erxes/commit/636e2f0f53c962c6bbbd5a0478c46c3c64cd9a99))
+- **loans:** Modal fix ([#5187](https://github.com/erxes/erxes/issues/5187)) ([1d7cea2](https://github.com/erxes/erxes/commit/1d7cea222af631358c997eaa47b541bccac0077a))
+- msd product category syn with parent category ([0c367d8](https://github.com/erxes/erxes/commit/0c367d87046c7ca0c1fb80da9a285a90512eccf5))
+- msdynamic check products Allow_Ecommerce ([2f717fe](https://github.com/erxes/erxes/commit/2f717febb5763a035a4d4508ec6c047d4204014e))
+- msdynamic exclude item_category_code is null ([368783f](https://github.com/erxes/erxes/commit/368783f992cf0e3f3706c176431b0e96cfab3a6d))
+- msdynamic item code not replace ([698eb1b](https://github.com/erxes/erxes/commit/698eb1be748d738128f0f99b501ed7b72f9a29c6))
+- msdynamic Price_Inc_CityTax_and_VAT ([ca08979](https://github.com/erxes/erxes/commit/ca089796edde0011576d486d9c1da310c74a7316))
+- msdynamic update check categories ([fefdb10](https://github.com/erxes/erxes/commit/fefdb108f69641968a6b7032d3bcff7c23b3d3a3))
+- msdynamic update check categories ([f90c64e](https://github.com/erxes/erxes/commit/f90c64ed037eee7ae60d0a1758521daa9f790258))
+- pos update groups fix ([03af5b5](https://github.com/erxes/erxes/commit/03af5b57372a107c48394ec92c7cf0ad7a7f0994))
+- posclient product categories filter by ids ([6662501](https://github.com/erxes/erxes/commit/666250151b40b31f4018b06affae7cfe57637b90))
+
+### Performance Improvements
+
+- **widgets:** improve load time by specifying width for messenger launcher icon in widgets ([4be7b9e](https://github.com/erxes/erxes/commit/4be7b9e612233a875430797379702ff442c4f3d6))
+
+### Reverts
+
+- **verifier:** fallback to reacherhq ([75811a0](https://github.com/erxes/erxes/commit/75811a0caf46e1029e4df48904bf76b05698e4ac))
+- **verifier:** revert to sendgrid ([960180c](https://github.com/erxes/erxes/commit/960180ce0fef2f92b658af0ca07bdc5a12f9aff5))
+
+* ebarimt 3.0 ([af774fc](https://github.com/erxes/erxes/commit/af774fcb228d3fc746f32abab522b3385928dce7))
+
 ## [1.10.0](https://github.com/erxes/erxes/compare/1.10.0-rc.7...1.10.0) (2024-05-16)
 
 ## [1.10.0-rc.7](https://github.com/erxes/erxes/compare/1.10.0-rc.6...1.10.0-rc.7) (2024-05-16)

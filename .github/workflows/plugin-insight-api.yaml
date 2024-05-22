@@ -9,9 +9,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-insight-api/**"
-      - ".github/workflows/plugin-insight-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-insight-api/**'
+      - '.github/workflows/plugin-insight-api.yaml'
   pull_request:
     branches:
       - dev
@@ -20,9 +20,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-insight-api/**"
-      - ".github/workflows/plugin-insight-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-insight-api/**'
+      - '.github/workflows/plugin-insight-api.yaml'
 
 jobs:
   api:
