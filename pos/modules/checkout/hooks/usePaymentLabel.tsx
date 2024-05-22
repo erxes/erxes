@@ -1,10 +1,10 @@
-import { coverConfigAtom } from "@/store/config.store"
+import { paymentTypesAtom } from "@/store/config.store"
 import { useAtomValue } from "jotai"
 
 import { BANK_CARD_TYPES } from "@/lib/constants"
 
 const usePaymentLabel = () => {
-  const { paymentTypes } = useAtomValue(coverConfigAtom) || {}
+  const paymentTypes = useAtomValue(paymentTypesAtom) || []
 
   const getLabel = (type: string) => {
     if (type === "cash") return "Бэлнээр"

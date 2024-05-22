@@ -1,7 +1,7 @@
+import colors from './colors';
+import { dimensions } from '.';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { dimensions } from '.';
-import colors from './colors';
 
 const columnSizing = '20px';
 const borderRadius = '2px';
@@ -12,14 +12,14 @@ const Columns = styled.div`
   height: 100%;
 `;
 
-const Column = styledTS<{ lastChild?: boolean; width?: string }>(styled.div)`
-  flex: ${props => (props.lastChild ? 3 : 4)};
+const Column = styledTS<{ $lastChild?: boolean; width?: string }>(styled.div)`
+  flex: ${props => (props.$lastChild ? 3 : 4)};
   position: relative;
   ${props => (props.width ? `width: ${props.width}` : null)}
-  margin-left: ${props => props.lastChild && columnSizing};
-  padding-left: ${props => props.lastChild && columnSizing};
+  margin-left: ${props => props.$lastChild && columnSizing};
+  padding-left: ${props => props.$lastChild && columnSizing};
   border-left: ${props =>
-    props.lastChild && `1px solid ${colors.borderDarker}`};
+    props.$lastChild && `1px solid ${colors.borderDarker}`};
 
   > input {
     margin-bottom: ${columnSizing};

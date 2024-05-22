@@ -1,6 +1,5 @@
 "use client"
 
-import useConfig from "@/modules/auth/hooks/useConfig"
 import {
   ChevronRight,
   CoinsIcon,
@@ -31,10 +30,6 @@ const SelectPaymentTypeMain = () => {
   } = usePossiblePaymentTerms()
 
   const { getLabel } = usePaymentLabel()
-
-  const { loading } = useConfig("payment")
-
-  if (loading) return <div className="h-24" />
 
   return (
     <div className="grid grid-cols-2 gap-2">

@@ -12,6 +12,7 @@ import { extractPhoneNumberFromCounterpart } from '../utils';
 interface IProps {
   closeModal?: () => void;
   callUserIntegrations: any;
+  hideIncomingCall?: boolean;
 }
 
 const IncomingCallContainer = (props: IProps, context) => {
@@ -75,6 +76,8 @@ const IncomingCallContainer = (props: IProps, context) => {
       channels={channels}
       hasMicrophone={hasMicrophone}
       phoneNumber={phoneNumber}
+      hideIncomingCall={props.hideIncomingCall}
+      inboxId={inboxId}
     />
   );
 };

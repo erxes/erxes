@@ -1,7 +1,7 @@
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import React from "react";
 
-import CategoryList from "../containers/CategoryList";
+import CollateralTypeList from "../containers/CollateralTypeList";
 
 function Sidebar({
   queryParams,
@@ -11,7 +11,7 @@ function Sidebar({
 }) {
   return (
     <Wrapper.Sidebar>
-      <CategoryList queryParams={queryParams} />
+      <CollateralTypeList queryParams={queryParams} />
     </Wrapper.Sidebar>
   );
 }

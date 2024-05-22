@@ -120,7 +120,7 @@ export const getContentIds = async (subdomain: string, data) => {
   return sendCommonMessage({
     subdomain,
     serviceName,
-    action: 'logs:getContentIds',
+    action: 'logs.getContentIds',
     data,
     isRPC: true,
   });
