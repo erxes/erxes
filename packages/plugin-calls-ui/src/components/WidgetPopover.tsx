@@ -47,7 +47,12 @@ const WidgetPopover = (
 
   const renderContent = () => {
     if (currentTab === 'History') {
-      return <HistoryContainer changeMainTab={changeTab} />;
+      return (
+        <HistoryContainer
+          changeMainTab={changeTab}
+          callUserIntegrations={callUserIntegrations}
+        />
+      );
     }
 
     if (currentTab === 'Contact') {

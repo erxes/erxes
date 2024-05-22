@@ -38,10 +38,6 @@ export default class Attribution extends React.Component<Props, State> {
     };
   }
 
-  hideContent = () => {
-    this.overlay.hide();
-  };
-
   getComma = (preValue) => {
     if (this.props.fieldType === "select" && preValue) {
       return ", ";
@@ -54,9 +50,7 @@ export default class Attribution extends React.Component<Props, State> {
     return "";
   };
 
-  onClickAttribute = (item) => {
-    this.overlay.hide();
-
+  onClickAttribute = (item, close) => {
     const { config, setConfig, onlySet, inputName = "value" } = this.props;
 
     if (onlySet) {
@@ -68,6 +62,7 @@ export default class Attribution extends React.Component<Props, State> {
     }
 
     setConfig(config);
+    close();
   };
 
   render() {
@@ -102,16 +97,8 @@ export default class Attribution extends React.Component<Props, State> {
       );
     }
 
-    return (
-      <Popover
-        innerRef={this.overlay}
-        trigger={
-          <span>
-            {__("Attribution")} <Icon icon="angle-down" />
-          </span>
-        }
-        placement="top"
-      >
+    const lists = (close) => {
+      return (
         <Attributes>
           <React.Fragment>
             <FormGroup>
@@ -128,13 +115,28 @@ export default class Attribution extends React.Component<Props, State> {
             {filterAttrs.map((item) => (
               <li
                 key={item.name}
-                onClick={this.onClickAttribute.bind(this, item)}
+                onClick={this.onClickAttribute.bind(this, item, close)}
               >
                 {__(item.label)}
               </li>
             ))}
           </React.Fragment>
         </Attributes>
+      );
+    };
+
+    return (
+      <Popover
+        innerRef={this.overlay}
+        trigger={
+          <span>
+            {__("Attribution")} <Icon icon="angle-down" />
+          </span>
+        }
+        placement="top"
+        closeAfterSelect={true}
+      >
+        {lists}
       </Popover>
     );
   }

@@ -3,15 +3,15 @@ name: Crons CI
 on:
   push:
     branches:
-      - "dev"
+      - 'dev'
       - master
       - rc
-      - "staging"
+      - 'staging'
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/crons/**"
-      - ".github/workflows/crons.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/crons/**'
+      - '.github/workflows/crons.yaml'
 
 jobs:
   crons:
@@ -23,7 +23,7 @@ jobs:
       - name: Use Node.js 18.17.x
         uses: actions/setup-node@v4
         with:
-          node-version: 18.17.x
+          node-version: 18.18.x
 
       # https://github.com/actions/cache/blob/master/examples.md#node---yarn
       - name: Get yarn cache directory path

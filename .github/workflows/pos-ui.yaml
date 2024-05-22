@@ -8,8 +8,8 @@ on:
       - rc
       - staging
     paths:
-      - "pos/**"
-      - ".github/workflows/pos-ui.yaml"
+      - 'pos/**'
+      - '.github/workflows/pos-ui.yaml'
 
   pull_request:
     branches:
@@ -18,8 +18,8 @@ on:
       - rc
       - staging
     paths:
-      - "pos/**"
-      - ".github/workflows/pos-ui.yaml"
+      - 'pos/**'
+      - '.github/workflows/pos-ui.yaml'
 
 jobs:
   pos-ui:
@@ -31,7 +31,7 @@ jobs:
       - name: Use Node.js 18.17.x
         uses: actions/setup-node@v4
         with:
-          node-version: 18.17.x
+          node-version: 18.18.x
 
       - name: Build
         run: |

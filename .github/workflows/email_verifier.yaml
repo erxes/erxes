@@ -8,8 +8,8 @@ on:
       - rc
       - staging
     paths:
-      - "email-verifier/**"
-      - ".github/workflows/email_verifier.yaml"
+      - 'email-verifier/**'
+      - '.github/workflows/email_verifier.yaml'
 
   pull_request:
     branches:
@@ -18,8 +18,8 @@ on:
       - rc
       - staging
     paths:
-      - "email-verifier/**"
-      - ".github/workflows/email_verifier.yaml"
+      - 'email-verifier/**'
+      - '.github/workflows/email_verifier.yaml'
 
 jobs:
   email-verifier:
@@ -31,7 +31,7 @@ jobs:
       - name: Use Node.js 18.17.x
         uses: actions/setup-node@v1
         with:
-          node-version: 18.17.x
+          node-version: 18.18.x
 
       # https://github.com/actions/cache/blob/master/examples.md#node---yarn
       - name: Get yarn cache directory path

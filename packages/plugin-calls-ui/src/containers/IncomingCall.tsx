@@ -77,6 +77,7 @@ const IncomingCallContainer = (props: IProps, context) => {
       hasMicrophone={hasMicrophone}
       phoneNumber={phoneNumber}
       hideIncomingCall={props.hideIncomingCall}
+      inboxId={inboxId}
     />
   );
 };
