@@ -8,6 +8,7 @@ import colors from "@erxes/ui/src/styles/colors";
 import { formatValue } from "@erxes/ui/src/utils";
 import { useNavigate } from "react-router-dom";
 import { Flex } from "@erxes/ui/src/styles/main";
+import { ClickableRow } from "@erxes/ui-contacts/src/customers/styles";
 
 type Props = {
   index: number;
@@ -109,49 +110,87 @@ const Row: React.FC<Props> = ({
           onChange={onChange}
         />
       </td>
-      <td>{index.toString()}</td>
       <td>
-        <Flex>
-          {verificationStatus}
-          {renderStatus(verificationStatus === "verified")}
-        </Flex>
+        <ClickableRow>{index.toString()}</ClickableRow>
       </td>
       <td>
-        <Flex>
-          {email}
-          {renderStatus(clientPortalUser.isEmailVerified)}
-        </Flex>
+        <ClickableRow>
+          {" "}
+          <Flex>
+            {verificationStatus}
+            {renderStatus(verificationStatus === "verified")}
+          </Flex>
+        </ClickableRow>
       </td>
       <td>
-        <Flex>
-          {phone}
-          {renderStatus(clientPortalUser.isPhoneVerified)}
-        </Flex>
+        <ClickableRow>
+          {" "}
+          <Flex>
+            {email}
+            {renderStatus(clientPortalUser.isEmailVerified)}
+          </Flex>
+        </ClickableRow>
       </td>
-      <td>{username}</td>
-      <td>{code || "-"}</td>
-      <td>{firstName || companyName}</td>
-      <td>{lastName}</td>
-      <td>{companyName || "-"}</td>
-      <td>{type}</td>
-      <td>{clientPortal ? clientPortal.name : "-"}</td>
       <td>
-        <Label
-          key={clientPortalUser._id}
-          lblColor={
-            clientPortalUser.isOnline
-              ? colors.colorCoreGreen
-              : colors.colorCoreGray
-          }
-          ignoreTrans={true}
-        >
-          <span>{status}</span>
-        </Label>
+        <ClickableRow>
+          {" "}
+          <Flex>
+            {phone}
+            {renderStatus(clientPortalUser.isPhoneVerified)}
+          </Flex>
+        </ClickableRow>
       </td>
-      <td>{formatValue(clientPortalUser.sessionCount || 0)}</td>
-      <td>{formatValue(clientPortalUser.lastSeenAt)}</td>
-      <td>{formatValue(createdAt)}</td>
-      <td>{formatValue(clientPortalUser.modifiedAt)}</td>
+      <td>
+        <ClickableRow>{username}</ClickableRow>
+      </td>
+      <td>
+        <ClickableRow>{code || "-"}</ClickableRow>
+      </td>
+      <td>
+        <ClickableRow>{firstName || companyName}</ClickableRow>
+      </td>
+      <td>
+        <ClickableRow>{lastName}</ClickableRow>
+      </td>
+      <td>
+        <ClickableRow>{companyName || "-"}</ClickableRow>
+      </td>
+      <td>
+        <ClickableRow>{type}</ClickableRow>
+      </td>
+      <td>
+        <ClickableRow>{clientPortal ? clientPortal.name : "-"}</ClickableRow>
+      </td>
+      <td>
+        <ClickableRow>
+          {" "}
+          <Label
+            key={clientPortalUser._id}
+            lblColor={
+              clientPortalUser.isOnline
+                ? colors.colorCoreGreen
+                : colors.colorCoreGray
+            }
+            ignoreTrans={true}
+          >
+            <span>{status}</span>
+          </Label>
+        </ClickableRow>
+      </td>
+      <td>
+        <ClickableRow>
+          {formatValue(clientPortalUser.sessionCount || 0)}
+        </ClickableRow>
+      </td>
+      <td>
+        <ClickableRow>{formatValue(clientPortalUser.lastSeenAt)}</ClickableRow>
+      </td>
+      <td>
+        <ClickableRow>{formatValue(createdAt)}</ClickableRow>
+      </td>
+      <td>
+        <ClickableRow>{formatValue(clientPortalUser.modifiedAt)}</ClickableRow>
+      </td>
     </tr>
   );
 };
