@@ -26,14 +26,14 @@ const ebarimtMutations = {
       rd = rd.slice(-8);
     }
 
-    const { billId, date } = putResponse;
+    const { id, date } = putResponse;
 
-    if (!billId || !date) {
-      throw new Error('not found putResponses billId or date')
+    if (!id || !date) {
+      throw new Error('not found putResponses id or date')
     }
 
     const data = {
-      returnBillId: billId,
+      returnid: id,
       date: date,
     };
 
@@ -42,7 +42,8 @@ const ebarimtMutations = {
       contentId: putResponse.contentId,
       contentType: putResponse.contentType,
       number: putResponse.number,
-      returnBillId: billId,
+      inactiveId: id,
+      type: putResponse.type
     });
 
     const response = await fetch(`${url}/returnBill?lib=${rd}`, {
@@ -56,7 +57,7 @@ const ebarimtMutations = {
     if (['true', true].includes(response.success)) {
       await models.PutResponses.updateOne(
         { _id: putResponse._id },
-        { $set: { status: 'inactive' } },
+        { $set: { state: 'inactive' } },
       );
     }
 

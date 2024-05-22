@@ -77,7 +77,7 @@ const GeneralSettings: React.FC<Props> = ({ save, configsMap }: Props) => {
       >
         {renderItem('companyName')}
         {renderItem('ebarimtUrl')}
-        {renderItem('checkCompanyUrl')}
+        {renderItem('checkTaxpayerUrl')}
       </CollapseContent>
     </ContentBox>
   );

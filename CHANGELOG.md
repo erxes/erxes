@@ -2,16 +2,16 @@
 
 ## [1.11.0-rc.3](https://github.com/erxes/erxes/compare/1.11.0-rc.1...1.11.0-rc.3) (2024-05-22)
 
+## [1.10.1](https://github.com/erxes/erxes/compare/1.10.0...1.10.1) (2024-05-22)
 
 ### Features
 
-* **calls:** added wait mode and transfer call and logs  ([5b8854c](https://github.com/erxes/erxes/commit/5b8854cef31bb5938f8d857a1f85fb2d68c26766))
-
+- **calls:** added wait mode and transfer call and logs ([5b8854c](https://github.com/erxes/erxes/commit/5b8854cef31bb5938f8d857a1f85fb2d68c26766))
 
 ### Bug Fixes
 
-* **inbox:** integration typename error ([50cdfbe](https://github.com/erxes/erxes/commit/50cdfbe4f9694ec3afb8497ec9f9dacf14173afc))
-* **responsetemplate:** show save button ([ef3d79c](https://github.com/erxes/erxes/commit/ef3d79c53e280cc6bf1cbf71a43d950956074990))
+- **inbox:** integration typename error ([50cdfbe](https://github.com/erxes/erxes/commit/50cdfbe4f9694ec3afb8497ec9f9dacf14173afc))
+- **responsetemplate:** show save button ([ef3d79c](https://github.com/erxes/erxes/commit/ef3d79c53e280cc6bf1cbf71a43d950956074990))
 
 ## [1.10.0-rc.5](https://github.com/erxes/erxes/compare/1.11.0-rc.1...1.11.0-rc.3) (2024-05-15)
 
@@ -88,6 +88,8 @@
 
 - **verifier:** fallback to reacherhq ([75811a0](https://github.com/erxes/erxes/commit/75811a0caf46e1029e4df48904bf76b05698e4ac))
 - **verifier:** revert to sendgrid ([960180c](https://github.com/erxes/erxes/commit/960180ce0fef2f92b658af0ca07bdc5a12f9aff5))
+
+* ebarimt 3.0 ([af774fc](https://github.com/erxes/erxes/commit/af774fcb228d3fc746f32abab522b3385928dce7))
 
 ## [1.10.0](https://github.com/erxes/erxes/compare/1.10.0-rc.7...1.10.0) (2024-05-16)
 
