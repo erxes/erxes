@@ -1,7 +1,7 @@
 {
   "name": "erxes",
   "private": true,
-  "version": "1.11.0-rc.3",
+  "version": "1.11.0-rc.4",
   "workspaces": [
     "packages/*",
     "scripts"
@@ -71,5 +71,8 @@
     "webpack-bundle-analyzer": "^4.10.1",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1"
+  },
+  "dependencies": {
+    "release-it": "^17.3.0"
   }
 }
