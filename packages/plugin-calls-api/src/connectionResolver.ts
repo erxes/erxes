@@ -23,7 +23,7 @@ import {
   loadConfigClass,
 } from './models/Configs';
 import { IOperator, IOperatorDocuments } from './models/definitions/operators';
-import { IOperatorModel } from './models/Operators';
+import { IOperatorModel, loadOperatorClass } from './models/Operators';
 export interface IModels {
   Integrations: IIntegrationModel;
   Customers: ICustomerModel;
@@ -63,7 +63,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   );
   models.Operators = db.model<IOperatorDocuments, IOperatorModel>(
     'calls_operators',
-    loadConfigClass(models),
+    loadOperatorClass(models),
   );
 
   return models;
