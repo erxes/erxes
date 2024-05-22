@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.1](https://github.com/erxes/erxes/compare/1.10.0...1.10.1) (2024-05-22)
+
+
+### Features
+
+* ebarimt 3.0 ([af774fc](https://github.com/erxes/erxes/commit/af774fcb228d3fc746f32abab522b3385928dce7))
+
 ## [1.10.0](https://github.com/erxes/erxes/compare/1.10.0-rc.7...1.10.0) (2024-05-16)
 
 ## [1.10.0-rc.7](https://github.com/erxes/erxes/compare/1.10.0-rc.6...1.10.0-rc.7) (2024-05-16)
