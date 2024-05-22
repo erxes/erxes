@@ -54,39 +54,12 @@ const callsQueries = {
     return models.Configs.find({}).lean();
   },
 
-  async callsGetOperatorDndStatus(
-    _root,
-    { integrationId },
-    { models, user }: IContext,
-  ) {
-    const queueData = (await sendToGrandStreamRequest(
-      models,
-      {
-        path: 'api',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        data: {
-          request: {
-            action: 'getSIPAccount',
-          },
-        },
-        integrationId: integrationId,
-        retryCount: 3,
-        isConvertToJson: true,
-        isAddExtention: true,
-      },
-      user,
-    )) as any;
-
-    if (queueData && queueData.response) {
-      const { extension } = queueData?.response;
-
-      if (extension) {
-        return extension.dnd || 'no';
-      }
-      return 'extension not found';
+  async callGetAgentStatus(_root, _args, { models, user }: IContext) {
+    const operator = await models.Operators.findOne({ userId: user._id });
+    if (operator) {
+      return operator.status;
     }
-    return 'request failed';
+    return 'unAvailable';
   },
 
   async callExtensionList(

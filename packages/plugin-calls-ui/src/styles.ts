@@ -4,12 +4,12 @@ import {
   pop,
   slideRight,
 } from '@erxes/ui/src/utils/animations';
+import { dimensions, typography } from '@erxes/ui/src/styles';
 import styled, { css, keyframes } from 'styled-components';
 
-import colors from '@erxes/ui/src/styles/colors';
-import { dimensions, typography } from '@erxes/ui/src/styles';
-import styledTS from 'styled-components-ts';
 import { WhiteBox } from '@erxes/ui/src/layout/styles';
+import colors from '@erxes/ui/src/styles/colors';
+import styledTS from 'styled-components-ts';
 
 export const Tab = styled(TabTitle)`
   display: flex;
@@ -775,7 +775,6 @@ const AcitivityHeader = styled.div`
 const TransferCallWrapper = styled.div`
   margin: 20px 20px 0px 20px;
   padding-bottom: 20px;
-  border-bottom: 1px solid ${colors.borderPrimary};
 `;
 
 const DialogWrapper = styledTS<{ direction?: string }>(styled.div)`
