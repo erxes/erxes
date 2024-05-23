@@ -86,7 +86,6 @@ export const removeIntegration = async (
   console.log(DOMAIN, 'DOMAIN');
   console.log(integrationRemoveBy, 'integrationRemoveBy');
   if (ENDPOINT_URL) {
-    test;
     // send domain to core endpoints
     try {
       await fetch(`${ENDPOINT_URL}/remove-endpoint`, {
