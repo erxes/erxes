@@ -9,14 +9,14 @@ import { useToast } from "@/components/ui/use-toast"
 import SettingsButton from "./components/Button"
 
 const SendData = () => {
-  const { ebarimtUrl, companyRD } = useAtomValue(ebarimtConfigAtom) || {}
+  const { ebarimtUrl } = useAtomValue(ebarimtConfigAtom) || {}
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
 
   const handleClick = async () => {
     setLoading(true)
 
-    fetch(`${ebarimtUrl}/sendData?lib=${companyRD}`)
+    fetch(`${ebarimtUrl}/rest/send`)
       .then((res: any) => res.json())
       .then((res) => {
         if (res.success) {

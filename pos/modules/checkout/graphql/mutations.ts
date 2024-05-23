@@ -27,11 +27,8 @@ const ordersSettlePayment = gql`
       billType: $billType
       registerNumber: $registerNumber
     ) {
-      success
-      lotteryWarningMsg
-      errorCode
+      status
       message
-      getInformation
     }
   }
 `

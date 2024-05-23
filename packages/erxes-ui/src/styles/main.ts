@@ -574,7 +574,7 @@ const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 1500;
+  z-index: 1050;
   width: 100%;
   height: 100%;
   background: rgba(48, 67, 92, 0.5);
@@ -597,7 +597,7 @@ const DialogWrapper = styled.div`
   position: fixed;
   inset: 0;
   overflow-y: auto;
-  z-index: 2000;
+  z-index: 1050;
 `;
 
 const MenuDivider = styled.div`

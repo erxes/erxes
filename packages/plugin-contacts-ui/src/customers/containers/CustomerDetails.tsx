@@ -59,7 +59,6 @@ function CustomerDetailsContainer(props: Props) {
           deviceVisibility,
           customerFields,
         }) => {
-          console.log("in here");
           return (
             <CustomerDetails
               {...updatedProps}
