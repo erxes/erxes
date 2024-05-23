@@ -36,12 +36,10 @@ const CreateFacebookComponent = () => {
 const FbMessengerBot = () => {
   const location = useLocation();
 
-  const { _id } = useParams();
+  const { id } = useParams();
   const queryParams = queryString.parse(location.search);
 
-  return (
-    <MessengerBotForm _id={_id} queryParams={queryParams} />
-  );
+  return <MessengerBotForm _id={id} queryParams={queryParams} />;
 };
 
 const Auth = () => {

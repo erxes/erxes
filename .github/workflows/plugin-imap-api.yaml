@@ -9,9 +9,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-imap-api/**"
-      - ".github/workflows/plugin-imap-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-imap-api/**'
+      - '.github/workflows/plugin-imap-api.yaml'
   pull_request:
     branches:
       - dev
@@ -20,9 +20,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-imap-api/**"
-      - ".github/workflows/plugin-imap-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-imap-api/**'
+      - '.github/workflows/plugin-imap-api.yaml'
 
 jobs:
   api:

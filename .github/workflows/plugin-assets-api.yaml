@@ -9,9 +9,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-assets-api/**"
-      - ".github/workflows/plugin-assets-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-assets-api/**'
+      - '.github/workflows/plugin-assets-api.yaml'
   pull_request:
     branches:
       - dev
@@ -20,9 +20,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-assets-api/**"
-      - ".github/workflows/plugin-assets-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-assets-api/**'
+      - '.github/workflows/plugin-assets-api.yaml'
 
 jobs:
   api:

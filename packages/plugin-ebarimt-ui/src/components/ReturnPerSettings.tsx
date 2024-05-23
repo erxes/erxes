@@ -58,10 +58,14 @@ const PerSettings: React.FC<Props> = (props: Props) => {
     e.preventDefault();
     const { configsMap, currentConfigKey } = props;
     const key = state.config.stageId;
+    const returnStageInEbarimt = { ...configsMap.returnStageInEbarimt };
 
-    delete configsMap.returnStageInEbarimt[currentConfigKey];
-    configsMap.returnStageInEbarimt[key] = state.config;
-    props.save(configsMap);
+    if (key !== currentConfigKey) {
+      delete returnStageInEbarimt[currentConfigKey];
+    }
+
+    returnStageInEbarimt[key] = state.config;
+    props.save({ ...configsMap, returnStageInEbarimt });
   };
 
   const onDelete = (e) => {

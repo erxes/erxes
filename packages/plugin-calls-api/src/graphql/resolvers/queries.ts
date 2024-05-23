@@ -1,5 +1,6 @@
 import { IContext } from '../../connectionResolver';
 import { sendCommonMessage } from '../../messageBroker';
+import { sendToGrandStreamRequest } from '../../utils';
 export interface IHistoryArgs {
   limit?: number;
   callStatus?: string;
@@ -10,6 +11,7 @@ export interface IHistoryArgs {
   perPage?: number;
   searchValue?: string;
   skip?: number;
+  integrationId?: string;
 }
 
 const callsQueries = {
@@ -50,6 +52,54 @@ const callsQueries = {
 
   async callsGetConfigs(_root, _args, { models }: IContext) {
     return models.Configs.find({}).lean();
+  },
+
+  async callGetAgentStatus(_root, _args, { models, user }: IContext) {
+    const operator = await models.Operators.findOne({ userId: user._id });
+    if (operator) {
+      return operator.status;
+    }
+    return 'unAvailable';
+  },
+
+  async callExtensionList(
+    _root,
+    { integrationId },
+    { models, user }: IContext,
+  ) {
+    const queueData = (await sendToGrandStreamRequest(
+      models,
+      {
+        path: 'api',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        data: {
+          request: {
+            action: 'listAccount',
+            item_num: '40',
+            options: 'extension,fullname,status',
+            page: '1',
+            sidx: 'extension',
+            sord: 'asc',
+          },
+        },
+        integrationId: integrationId,
+        retryCount: 3,
+        isConvertToJson: true,
+        isAddExtention: false,
+      },
+      user,
+    )) as any;
+
+    if (queueData && queueData.response) {
+      const { account } = queueData?.response;
+
+      if (account) {
+        return account;
+      }
+      return [];
+    }
+    return 'request failed';
   },
 };
 
