@@ -14,7 +14,7 @@ import {
   NumberInput,
   PhoneNumber,
 } from "../styles";
-import { Button, Icon, Spinner } from "@erxes/ui/src/components";
+import { Button, Icon } from "@erxes/ui/src/components";
 import {
   CALL_DIRECTION_INCOMING,
   CALL_DIRECTION_OUTGOING,
@@ -48,8 +48,8 @@ type Props = {
   customer: ICustomer;
   disconnectCall: () => void;
   phoneNumber: string;
-  pauseExtention: (inboxId: string, dndStatus: string) => void;
-  dndStatus: string;
+  pauseExtention: (inboxId: string, status: string) => void;
+  agentStatus: string;
   loading: boolean;
   currentCallConversationId: string;
 };
@@ -67,7 +67,7 @@ const KeyPad = (props: Props, context) => {
     customer,
     phoneNumber,
     pauseExtention,
-    dndStatus,
+    agentStatus,
     currentCallConversationId,
   } = props;
 
@@ -90,7 +90,9 @@ const KeyPad = (props: Props, context) => {
   const [timeSpent, setTimeSpent] = useState(
     call?.startTime ? calculateTimeElapsed(call.startTime) : 0
   );
-  const [isPaused, setPaused] = useState(dndStatus === "yes" ? true : false);
+  const [isPaused, setPaused] = useState(
+    agentStatus === "paused" ? true : false
+  );
 
   const shrink = customer ? true : false;
 
@@ -253,7 +255,7 @@ const KeyPad = (props: Props, context) => {
 
   const togglePause = () => {
     if (pauseExtention) {
-      const status = isPaused ? "no" : "yes";
+      const status = isPaused ? "unpause" : "pause";
       pauseExtention(inboxId, status);
       setPaused(!isPaused);
     }
@@ -310,24 +312,6 @@ const KeyPad = (props: Props, context) => {
       </ChooseCountry>
     );
   }
-
-  const renderPause = () => {
-    if (props.loading) {
-      return <Spinner objective={true} size={20} />;
-    }
-
-    return (
-      <HeaderItem onClick={togglePause}>
-        <Icon
-          className={isPaused ? "on" : "pause"}
-          size={13}
-          icon={isPaused ? "play-1" : "pause-1"}
-        />
-        {isPaused ? __("Un Pause") : __("Pause")}
-      </HeaderItem>
-    );
-  };
-
   const handleAudioToggle = () => {
     if (!isMuted()) {
       mute();
@@ -428,7 +412,10 @@ const KeyPad = (props: Props, context) => {
               Sip.call?.status === CALL_STATUS_ACTIVE ? false : true,
               direction,
               gotoDetail,
-              currentCallConversationId ? false : true
+              currentCallConversationId &&
+                currentCallConversationId.length !== 0
+                ? false
+                : true
             )}
           </IncomingContent>
         </IncomingContainer>
@@ -443,7 +430,15 @@ const KeyPad = (props: Props, context) => {
             <Icon className={isConnected ? "off" : "on"} icon="signal-alt-3" />
             {isConnected ? __("Offline") : __("Online")}
           </HeaderItem>
-          {renderPause()}
+
+          <HeaderItem onClick={togglePause}>
+            <Icon
+              className={isPaused ? "on" : "off"}
+              size={13}
+              icon={isPaused ? "play-1" : "pause-1"}
+            />
+            {isPaused ? __("Un Pause") : __("Pause")}
+          </HeaderItem>
           <HeaderItem
             onClick={() =>
               isConnected
@@ -454,7 +449,7 @@ const KeyPad = (props: Props, context) => {
             <Icon
               className={isConnected ? "on" : "off"}
               size={13}
-              icon={"power-button"}
+              icon={isConnected ? "power-button" : "pause-1"}
             />
             {isConnected ? __("Turn on") : __("Turn off")}
           </HeaderItem>

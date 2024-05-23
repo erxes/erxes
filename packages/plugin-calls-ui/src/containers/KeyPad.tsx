@@ -4,6 +4,7 @@ import { mutations, queries } from "../graphql";
 
 import { Alert } from "@erxes/ui/src/utils";
 import KeyPad from "../components/Keypad";
+import { Spinner } from "@erxes/ui/src/components";
 
 type IProps = {
   callUserIntegrations: any;
@@ -30,19 +31,15 @@ const KeyPadContainer = (props: IProps) => {
 
   const [customer, setCustomer] = useState<any>(undefined);
   const [createCustomerMutation] = useMutation(gql(mutations.customersAdd));
-  const [updateDndMutation] = useMutation(gql(mutations.callsUpdateSipDnd));
+  const [updatePauseAgent] = useMutation(gql(mutations.callPauseAgent));
 
   const [disconnectCall] = useMutation(gql(mutations.callDisconnect));
 
   const {
-    data: callDndStatus,
+    data: agentStatusData,
     loading,
     refetch,
-  } = useQuery(gql(queries.callsGetDndStatus), {
-    variables: {
-      integrationId: inboxId,
-    },
-  });
+  } = useQuery(gql(queries.callGetAgentStatus));
 
   const createCustomer = (inboxIntegrationId: string, primaryPhone: string) => {
     createCustomerMutation({
@@ -59,15 +56,16 @@ const KeyPadContainer = (props: IProps) => {
       });
   };
 
-  const pauseExtention = (integrationId: string, dndStatus: string) => {
-    updateDndMutation({
+  const pauseExtention = (integrationId: string, status: string) => {
+    updatePauseAgent({
       variables: {
-        dndStatus,
+        status,
         integrationId,
       },
     })
       .then(() => {
-        const isPaused = dndStatus === "yes" ? "paused" : "unpaused";
+        const isPaused = agentStatus === "yes" ? "paused" : "unpaused";
+
         Alert.success(`Successfully ${isPaused}`);
         refetch();
       })
@@ -76,8 +74,11 @@ const KeyPadContainer = (props: IProps) => {
       });
   };
 
-  const dndStatus = callDndStatus?.callsGetOperatorDndStatus || "";
+  if (loading) {
+    return <Spinner />;
+  }
 
+  const agentStatus = agentStatusData.callGetAgentStatus;
   return (
     <KeyPad
       addCustomer={createCustomer}
@@ -88,7 +89,7 @@ const KeyPadContainer = (props: IProps) => {
       disconnectCall={disconnectCall}
       phoneNumber={phoneNumber || ""}
       pauseExtention={pauseExtention}
-      dndStatus={dndStatus}
+      agentStatus={agentStatusData}
       loading={loading}
       currentCallConversationId={currentCallConversationId}
     />

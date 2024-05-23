@@ -1,6 +1,8 @@
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import * as moment from 'moment';
+import { nanoid } from 'nanoid';
 import { IModels } from './connectionResolver';
-import { PutData } from './models/utils';
+import { IDoc, getEbarimtData } from './models/utils';
 import { getConfig, getPostData } from './utils';
 
 export default {
@@ -76,44 +78,57 @@ export const afterMutationHandlers = async (
         ...configs[destinationStageId],
       };
 
-      const ebarimtDatas = await getPostData(subdomain, config, deal);
+      const ebarimtData: IDoc = await getPostData(subdomain, config, deal);
 
       const ebarimtResponses: any[] = [];
 
-      for (const ebarimtData of ebarimtDatas) {
-        let ebarimtResponse;
+      if (config.skipPutData) {
+        const { status, msg, data, innerData } = await getEbarimtData({ config, doc: ebarimtData });
 
-        if (config.skipPutData || ebarimtData.inner) {
-          const putData = new PutData({
-            ...config,
-            ...ebarimtData,
-            config,
-            models,
-          });
-          ebarimtResponse = {
-            _id: Math.random(),
-            billId: 'Түр баримт',
-            ...(await putData.generateTransactionInfo()),
-            registerNo: config.companyRD || '',
-          };
+        if (status !== 'ok' || !data || !innerData) {
+          ebarimtResponses.push({
+            _id: nanoid(),
+            id: 'Error',
+            status: 'ERROR',
+            message: msg
+          })
         } else {
-          try {
-            ebarimtResponse = await models.PutResponses.putData(
-              ebarimtData,
-              config,
-            );
-          } catch (e) {
-            ebarimtResponse = {
-              _id: `Err${Math.random()}`,
-              billId: 'Error',
-              success: 'false',
-              message: e.message
-            }
+          if (data) {
+            ebarimtResponses.push({
+              _id: nanoid(),
+              ...data,
+              id: 'Түр баримт',
+              status: 'SUCCESS',
+              date: moment(new Date).format('"yyyy-MM-dd HH:mm:ss'),
+              registerNo: config.companyRD || '',
+            });
           }
-
+          if (innerData) {
+            ebarimtResponses.push({
+              ...innerData,
+              id: 'Түр баримт',
+              status: 'SUCCESS',
+              date: moment(new Date).format('"yyyy-MM-dd HH:mm:ss'),
+              registerNo: config.companyRD || '',
+            });
+          }
         }
-        if (ebarimtResponse._id) {
-          ebarimtResponses.push(ebarimtResponse);
+      } else {
+        try {
+          const { putData, innerData } = await models.PutResponses.putData(
+            ebarimtData,
+            config,
+          );
+
+          putData && ebarimtResponses.push(putData);
+          innerData && ebarimtResponses.push(innerData);
+        } catch (e) {
+          ebarimtResponses.push({
+            _id: nanoid(),
+            id: 'Error',
+            status: 'ERROR',
+            message: e.message
+          })
         }
       }
 
