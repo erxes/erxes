@@ -138,6 +138,7 @@ export const AdditionalDetail = styled.div`
   color: #888;
   align-items: center;
   display: flex;
+  position: relative;
 
   > span {
     font-size: 11px;
