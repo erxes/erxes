@@ -38,8 +38,8 @@ import { callPropType, sipPropType } from "../lib/types";
 import { FormControl } from "@erxes/ui/src/components/form";
 import { ICustomer } from "../types";
 import Select from "react-select";
-import TransferCall from "../containers/TransferCall";
 import { renderFullName } from "@erxes/ui/src/utils/core";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   addCustomer: (inboxId: string, phoneNumber: string) => void;
@@ -51,11 +51,14 @@ type Props = {
   pauseExtention: (inboxId: string, dndStatus: string) => void;
   dndStatus: string;
   loading: boolean;
+  currentCallConversationId: string;
 };
 
 const KeyPad = (props: Props, context) => {
   const Sip = context;
   const inputRef = useRef<any>(null);
+  const navigate = useNavigate();
+
   const { call, mute, unmute, isMuted, isHolded, hold, unhold } = Sip;
   const {
     addCustomer,
@@ -65,6 +68,7 @@ const KeyPad = (props: Props, context) => {
     phoneNumber,
     pauseExtention,
     dndStatus,
+    currentCallConversationId,
   } = props;
 
   const defaultCallIntegration = localStorage.getItem(
@@ -104,9 +108,11 @@ const KeyPad = (props: Props, context) => {
       inputRef.current.focus();
     }
   }, [selectFocus]);
+
   useEffect(() => {
     setNumber(phoneNumber);
   }, [phoneNumber]);
+
   useEffect(() => {
     let timer;
     navigator.mediaDevices
@@ -142,6 +148,7 @@ const KeyPad = (props: Props, context) => {
       clearInterval(timer);
     };
   }, [call?.status]);
+
   const handleCall = () => {
     if (!hasMicrophone) {
       return Alert.error("Check your microphone");
@@ -158,6 +165,7 @@ const KeyPad = (props: Props, context) => {
       startCall(formatedPhone);
     }
   };
+
   const handleCallStop = () => {
     const { stopCall } = context;
     if (stopCall) {
@@ -334,6 +342,13 @@ const KeyPad = (props: Props, context) => {
       unhold();
     }
   };
+
+  const gotoDetail = () => {
+    navigate(`/inbox/index?_id=${currentCallConversationId}`, {
+      replace: true,
+    });
+  };
+
   const renderCallerInfo = () => {
     if (!formatedPhone) {
       return null;
@@ -346,12 +361,13 @@ const KeyPad = (props: Props, context) => {
       return (
         <>
           {renderFullName(customer || "", true)}
-          <PhoneNumber shrink={shrink}>{showNumber}</PhoneNumber>
+          <PhoneNumber $shrink={shrink}>{showNumber}</PhoneNumber>
         </>
       );
     }
-    return <PhoneNumber shrink={shrink}>{showNumber}</PhoneNumber>;
+    return <PhoneNumber $shrink={shrink}>{showNumber}</PhoneNumber>;
   };
+
   const isConnected =
     !Sip.call ||
     Sip.sip?.status === SIP_STATUS_ERROR ||
@@ -380,7 +396,12 @@ const KeyPad = (props: Props, context) => {
               handleCallStop,
               inboxId,
               Sip.call?.status === CALL_STATUS_ACTIVE ? false : true,
-              direction
+              direction,
+              gotoDetail,
+              currentCallConversationId &&
+                currentCallConversationId.length !== 0
+                ? false
+                : true
             )}
           </IncomingContent>
         </IncomingContainer>
@@ -405,7 +426,9 @@ const KeyPad = (props: Props, context) => {
               handleCallStop,
               inboxId,
               Sip.call?.status === CALL_STATUS_ACTIVE ? false : true,
-              direction
+              direction,
+              gotoDetail,
+              currentCallConversationId ? false : true
             )}
           </IncomingContent>
         </IncomingContainer>

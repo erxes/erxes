@@ -9,10 +9,16 @@ type IProps = {
   callUserIntegrations: any;
   setConfig: any;
   phoneNumber: any;
+  currentCallConversationId: string;
 };
 
 const KeyPadContainer = (props: IProps) => {
-  const { callUserIntegrations, setConfig, phoneNumber } = props;
+  const {
+    callUserIntegrations,
+    setConfig,
+    phoneNumber,
+    currentCallConversationId,
+  } = props;
 
   const defaultCallIntegration = localStorage.getItem(
     "config:call_integrations"
@@ -84,6 +90,7 @@ const KeyPadContainer = (props: IProps) => {
       pauseExtention={pauseExtention}
       dndStatus={dndStatus}
       loading={loading}
+      currentCallConversationId={currentCallConversationId}
     />
   );
 };

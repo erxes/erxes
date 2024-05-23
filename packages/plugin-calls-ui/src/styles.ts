@@ -75,9 +75,9 @@ export const Contacts = styled.div`
   }
 `;
 
-export const PhoneNumber = styledTS<{ shrink?: boolean }>(styled.div)`
+export const PhoneNumber = styledTS<{ $shrink?: boolean }>(styled.div)`
   ${(props) =>
-    props.shrink
+    props.$shrink
       ? `font-weight: 600;
     font-size: 15px;`
       : `font-weight: 500;
@@ -98,14 +98,14 @@ export const PhoneNumber = styledTS<{ shrink?: boolean }>(styled.div)`
 `;
 
 export const CallDetail = styledTS<{
-  isMissedCall: boolean;
-  isIncoming: boolean;
+  $isMissedCall: boolean;
+  $isIncoming: boolean;
 }>(styled.div)`
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 5px 20px;
-  padding-left: ${(props) => props.isIncoming && '40px'};
+  padding-left: ${(props) => props.$isIncoming && '40px'};
   cursor: pointer;
   transition: all ease .3s;
 
@@ -124,13 +124,13 @@ export const CallDetail = styledTS<{
 
     ${PhoneNumber} {
         color: ${(props) =>
-          props.isMissedCall ? colors.colorCoreRed : colors.colorCoreDarkGray};
+          props.$isMissedCall ? colors.colorCoreRed : colors.colorCoreDarkGray};
     }
   }
 
   a {
     font-weight: 700;
-    color: ${(props) => (props.isMissedCall ? '#FF4949' : '#000')};
+    color: ${(props) => (props.$isMissedCall ? '#FF4949' : '#000')};
   }
 `;
 
@@ -402,14 +402,12 @@ export const CallInfo = styledTS<{ shrink?: boolean }>(styled.div)`
 
 export const Actions = styled.div`
   display: flex;
-  gap: 20px;
+  flex: 1;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
 
   > div {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
     .coming-soon {
       margin-bottom: -10px;
       margin-top: -3px;
@@ -419,10 +417,15 @@ export const Actions = styled.div`
   }
 `;
 
+export const InnerActions = styled.div`
+  display: flex;
+  gap: 25px;
+`;
+
 export const CallAction = styledTS<{
-  isDecline?: boolean;
-  active?: boolean;
-  disabled?: boolean;
+  $isDecline?: boolean;
+  $active?: boolean;
+  $disabled?: boolean;
 }>(styled.div)`
   width: 60px;
   height: 60px;
@@ -431,21 +434,21 @@ export const CallAction = styledTS<{
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  cursor: pointer;
-  color: ${(props) => (props.active ? colors.textPrimary : colors.colorWhite)};
+  cursor: ${props => props.$disabled ? 'not-allowed' : 'pointer'};
+  color: ${(props) => (props.$active ? colors.textPrimary : colors.colorWhite)};
   background: ${(props) =>
-    props.disabled
+    props.$disabled
       ? colors.colorShadowGray
-      : props.isDecline
+      : props.$isDecline
         ? colors.colorCoreRed
-        : props.active
+        : props.$active
           ? colors.colorWhite
           : 'rgba(255, 255, 255, 0.4)'};
-  margin-bottom: 5px;
+  margin-bottom: 2px;
   transition: all ease .3s;
 
   ${(props) =>
-    props.isDecline &&
+    props.$isDecline &&
     `
     justify-self: center;
     grid-column-start: span 3;
@@ -453,9 +456,9 @@ export const CallAction = styledTS<{
 
   &:hover {
     background: ${(props) =>
-      props.isDecline
+      props.$isDecline
         ? 'rgba(234, 71, 93, 0.6)'
-        : !props.active && !props.disabled && 'rgba(255, 255, 255, 0.2)'};
+        : !props.$active && !props.$disabled && 'rgba(255, 255, 255, 0.2)'};
   }
 `;
 
@@ -787,11 +790,25 @@ const DialogWrapper = styledTS<{ direction?: string }>(styled.div)`
   width: 360px;
   margin-top: 120px;
 `;
+
+const CallWrapper = styled.div`
+  position:absolute;
+  width:72px;
+  z-index:999999;
+  height:72px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  bottom: 80px;
+  right: 12px
+`;
+
 export {
   ActivityRow,
   ActivityIcon,
   ActivityDate,
   AcitivityHeader,
   TransferCallWrapper,
+  CallWrapper,
   DialogWrapper,
 };
