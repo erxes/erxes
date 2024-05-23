@@ -29,6 +29,7 @@ const Widget = (props: Props, context) => {
       setHideIncomingCall(!hideIncomingCall);
     }
   };
+
   return (
     <Popover
       trigger={
@@ -38,6 +39,7 @@ const Widget = (props: Props, context) => {
       }
       placement="top"
       className="call-popover"
+      defaultOpen={true}
     >
       <WidgetPopover autoOpenTab="Keyboard" {...props} />
     </Popover>
