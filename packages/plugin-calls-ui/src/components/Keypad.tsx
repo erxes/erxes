@@ -18,8 +18,12 @@ import {
   CALL_DIRECTION_INCOMING,
   CALL_DIRECTION_OUTGOING,
   CALL_STATUS_ACTIVE,
+  CALL_STATUS_DISCONNECTED,
+  CALL_STATUS_ENDED,
+  CALL_STATUS_FAILED,
   CALL_STATUS_IDLE,
   CALL_STATUS_STARTING,
+  CALL_STATUS_STOPPING,
   SIP_STATUS_DISCONNECTED,
   SIP_STATUS_ERROR,
   SIP_STATUS_REGISTERED,
@@ -60,6 +64,9 @@ const KeyPad = (props: Props, context) => {
   const Sip = context;
   const inputRef = useRef<any>(null);
   const navigate = useNavigate();
+  const outgoingAudio = useRef(new Audio("/sound/outgoing.mp3"));
+  const pickupAudio = useRef(new Audio("/sound/pickup.mp3"));
+  const hangupAudio = useRef(new Audio("/sound/hangup.mp3"));
 
   const { call, mute, unmute, isMuted, isHolded, hold, unhold } = Sip;
   const {
@@ -80,6 +87,7 @@ const KeyPad = (props: Props, context) => {
   const [selectFocus, setSelectFocus] = useState(false);
   const [number, setNumber] = useState(phoneNumber || "");
   const [dialCode, setDialCode] = useState("");
+  const [ringingSound, setRingingSound] = useState(false);
 
   const [showTrigger, setShowTrigger] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -118,6 +126,21 @@ const KeyPad = (props: Props, context) => {
   }, [phoneNumber]);
 
   useEffect(() => {
+    const audio = outgoingAudio.current;
+
+    if (ringingSound) {
+      audio.loop = true;
+      audio
+        .play()
+        .catch((error) => console.error("Error playing audio:", error));
+    } else {
+      audio.loop = false;
+      audio.pause();
+      audio.currentTime = 0;
+    }
+  }, [ringingSound]);
+
+  useEffect(() => {
     let timer;
     navigator.mediaDevices
       .getUserMedia({ audio: true })
@@ -132,15 +155,22 @@ const KeyPad = (props: Props, context) => {
         setHasMicrophone(false);
         return Alert.error(errorMessage);
       });
+
     if (
       (call?.direction === CALL_DIRECTION_OUTGOING && call?.status) ===
         CALL_STATUS_STARTING &&
       hasMicrophone
     ) {
+      setRingingSound(true);
       addCustomer(inboxId, formatedPhone);
     }
     if (call?.status === CALL_STATUS_ACTIVE) {
       const { startTime } = call;
+      setRingingSound(false);
+
+      const audio = pickupAudio.current;
+      audio.play();
+
       if (startTime) {
         timer = setInterval(() => {
           const diff = calculateTimeElapsed(startTime);
@@ -148,7 +178,19 @@ const KeyPad = (props: Props, context) => {
         }, 1000);
       }
     }
+
+    if (
+      call?.status === CALL_STATUS_STOPPING ||
+      call?.status === CALL_STATUS_FAILED ||
+      call?.status === CALL_STATUS_DISCONNECTED ||
+      call?.status === CALL_STATUS_ENDED
+    ) {
+      const audio = hangupAudio.current;
+      audio.play();
+    }
     return () => {
+      setRingingSound(false);
+
       clearInterval(timer);
     };
   }, [call?.status]);
@@ -508,6 +550,7 @@ const KeyPad = (props: Props, context) => {
       </NumberInput>
     );
   }
+
   return null;
 };
 
