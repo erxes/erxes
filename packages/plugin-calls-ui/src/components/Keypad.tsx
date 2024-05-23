@@ -336,7 +336,7 @@ const KeyPad = (props: Props, context) => {
   };
 
   const renderPause = () => {
-    if (!props.loading) {
+    if (props.loading) {
       return <Spinner size={20} objective={true} height="inherit" />;
     }
 
