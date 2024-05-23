@@ -74,11 +74,8 @@ const KeyPadContainer = (props: IProps) => {
       });
   };
 
-  if (loading) {
-    return <Spinner />;
-  }
+  const agentStatus = agentStatusData?.callGetAgentStatus || "";
 
-  const agentStatus = agentStatusData.callGetAgentStatus;
   return (
     <KeyPad
       addCustomer={createCustomer}

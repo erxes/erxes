@@ -14,7 +14,6 @@ import {
   NumberInput,
   PhoneNumber,
 } from "../styles";
-import { Button, Icon } from "@erxes/ui/src/components";
 import {
   CALL_DIRECTION_INCOMING,
   CALL_DIRECTION_OUTGOING,
@@ -35,9 +34,12 @@ import {
 } from "../utils";
 import { callPropType, sipPropType } from "../lib/types";
 
+import Button from "@erxes/ui/src/components/Button";
 import { FormControl } from "@erxes/ui/src/components/form";
 import { ICustomer } from "../types";
+import Icon from "@erxes/ui/src/components/Icon";
 import Select from "react-select";
+import Spinner from "@erxes/ui/src/components/Spinner";
 import { renderFullName } from "@erxes/ui/src/utils/core";
 import { useNavigate } from "react-router-dom";
 
@@ -333,6 +335,23 @@ const KeyPad = (props: Props, context) => {
     });
   };
 
+  const renderPause = () => {
+    if (!props.loading) {
+      return <Spinner size={20} objective={true} height="inherit" />;
+    }
+
+    return (
+      <HeaderItem onClick={togglePause}>
+        <Icon
+          className={isPaused ? "on" : "off"}
+          size={13}
+          icon={isPaused ? "play-1" : "pause-1"}
+        />
+        {isPaused ? __("Un Pause") : __("Pause")}
+      </HeaderItem>
+    );
+  };
+
   const renderCallerInfo = () => {
     if (!formatedPhone) {
       return null;
@@ -431,14 +450,7 @@ const KeyPad = (props: Props, context) => {
             {isConnected ? __("Offline") : __("Online")}
           </HeaderItem>
 
-          <HeaderItem onClick={togglePause}>
-            <Icon
-              className={isPaused ? "on" : "off"}
-              size={13}
-              icon={isPaused ? "play-1" : "pause-1"}
-            />
-            {isPaused ? __("Un Pause") : __("Pause")}
-          </HeaderItem>
+          {renderPause()}
           <HeaderItem
             onClick={() =>
               isConnected
@@ -480,19 +492,17 @@ const KeyPad = (props: Props, context) => {
         />
         <>
           {Sip.sip?.status === SIP_STATUS_REGISTERED && (
-            <>
-              <Button
-                btnStyle="success"
-                icon="outgoing-call"
-                onClick={handleCall}
-              >
-                {Sip.call?.status === CALL_STATUS_IDLE
-                  ? "Call"
-                  : Sip.call?.status === CALL_STATUS_STARTING
-                    ? "Calling"
-                    : "Stopping"}
-              </Button>
-            </>
+            <Button
+              btnStyle="success"
+              icon="outgoing-call"
+              onClick={handleCall}
+            >
+              {Sip.call?.status === CALL_STATUS_IDLE
+                ? "Call"
+                : Sip.call?.status === CALL_STATUS_STARTING
+                  ? "Calling"
+                  : "Stopping"}
+            </Button>
           )}
         </>
       </NumberInput>
