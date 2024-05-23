@@ -26,7 +26,7 @@ const SipProviderContainer = (props) => {
   const [historyId, setHistoryId] = useState("");
   const [hideIncomingCall, setHideIncomingCall] = useState(false);
   const [currentCallConversationId, setCurrentCallConversationId] =
-    useState(false);
+    useState("");
 
   const { data, loading, error } = useQuery(gql(queries.callUserIntegrations));
   const { data: callConfigData, loading: callConfigLoading } = useQuery(

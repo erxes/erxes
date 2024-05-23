@@ -127,6 +127,7 @@ const callHistoryAdd = `
   callHistoryAdd(inboxIntegrationId: $inboxIntegrationId,  customerPhone: $customerPhone, callStartTime: $callStartTime, callStatus: $callStatus, callType: $callType, sessionId: $sessionId) {
     _id
     sessionId
+    conversationId
   }
 }
 `;
