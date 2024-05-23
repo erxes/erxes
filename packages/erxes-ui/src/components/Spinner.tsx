@@ -15,7 +15,7 @@ type Props = {
 };
 
 const Spin = styledTS<{ $objective?: boolean; height?: string }>(styled.div)`
-  height: ${(props) => props.$objective && (props.height ? props.height : "100px")};
+  height: ${(props) => props.$objective && (props.height ? props.height : "100%")};
   position: ${(props) => props.$objective && "relative"};
 `;
 
@@ -43,7 +43,7 @@ function Spinner({
   bottom = "auto",
   left = "50%",
   right = "auto",
-  height = "auto",
+  height,
 }: Props) {
   return (
     <Spin $objective={objective} height={height}>
