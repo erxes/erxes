@@ -115,6 +115,7 @@ const queries = `
   callsCustomerDetail(customerPhone: String): Customer
   callsActiveSession: CallActiveSession
   callHistories(${filterParams}, skip: Int): [CallHistory]
+  callHistoriesTotalCount(${filterParams}, skip: Int): Int
   callsGetConfigs: JSON
   callGetAgentStatus: String
   callExtensionList(integrationId: String!): JSON

@@ -49,6 +49,13 @@ const callsQueries = {
 
     return activeSession;
   },
+  async callHistoriesTotalCount(
+    _root,
+    params: IHistoryArgs,
+    { models, user }: IContext,
+  ) {
+    return models.CallHistory.getHistoriesCount(params, user);
+  },
 
   async callsGetConfigs(_root, _args, { models }: IContext) {
     return models.Configs.find({}).lean();
