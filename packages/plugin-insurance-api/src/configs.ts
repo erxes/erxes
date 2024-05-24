@@ -19,7 +19,8 @@ import * as chromium from 'download-chromium';
 import redis from '@erxes/api-utils/src/redis';
 import puppeteer from 'puppeteer';
 import { format, join } from 'path';
-import * as htmlPdf from 'html-pdf-node';
+import * as hb from 'handlebars';
+import * as inlineCss from 'inline-css';
 
 export default {
   name: 'insurance',
@@ -67,6 +68,32 @@ export default {
 </html>
 `;
 
+      const browser = await puppeteer.launch({
+        headless: true,
+        // executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+        executablePath: '/usr/bin/google-chrome',
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      });
+      const page = await browser.newPage();
+
+      const data = await inlineCss(htmlString, { url: '/' });
+      console.log('Compiling the template with handlebars');
+      // we have compile our code with handlebars
+      const template = hb.compile(data, { strict: true });
+      const result = template(data);
+      const html = result;
+
+      // We set the page content as the generated html by handlebars
+      await page.setContent(html, {
+        waitUntil: 'networkidle0', // wait for page to load completely
+      });
+
+      page.pdf({ format: 'A4' }).then(async (pdf) => {
+        await browser.close();
+        res.setHeader('Content-Type', 'application/pdf');
+        return res.send(pdf);
+      });
+
       // const browser = await puppeteer.launch({
       //   headless: true,
       //   executablePath:
@@ -85,17 +112,16 @@ export default {
       //   printBackground: true,
       // });
 
-      // await browser.close();
-      const options = { format: 'A4', args: ['--no-sandbox', '--disable-setuid-sandbox'] };
+      // // await browser.close();
+      // const options = { format: 'A4', args: ['--no-sandbox', '--disable-setuid-sandbox'] };
 
+      // htmlPdf.generatePdf({content:htmlString}, options).then((pdf) => {
+      //   res.setHeader('Content-Type', 'application/pdf');
+      //   return res.send(pdf);
+      // });
 
-      htmlPdf.generatePdf({content:htmlString}, options).then((pdf) => {
-        res.setHeader('Content-Type', 'application/pdf');
-        return res.send(pdf);
-      });
-
-      // res.setHeader('Content-Type', 'application/pdf');
-      // return res.send(pdf);
+      // // res.setHeader('Content-Type', 'application/pdf');
+      // // return res.send(pdf);
     });
 
     app.get('/export', async (req: any, res) => {

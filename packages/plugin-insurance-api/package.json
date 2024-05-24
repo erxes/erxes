@@ -20,6 +20,8 @@
     "puppeteer": "^22.6.3",
     "tmp": "^0.2.3",
     "pdf-puppeteer": "^1.1.11",
+    "handlebars":"^4.7.8",
+    "inline-css":"^4.0.2",
     "html-pdf-node":"1.0.8"
   }
 }
