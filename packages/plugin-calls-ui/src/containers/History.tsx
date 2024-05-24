@@ -1,9 +1,10 @@
-import { Alert, confirm } from '@erxes/ui/src/utils';
-import { gql, useMutation, useQuery } from '@apollo/client';
-import { mutations, queries } from '../graphql';
+import { Alert, confirm } from "@erxes/ui/src/utils";
+import React, { useState } from "react";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { mutations, queries } from "../graphql";
 
-import History from '../components/History';
-import React from 'react';
+import History from "../components/History";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   changeMainTab: (phoneNumber: string, shiftTab: string) => void;
@@ -11,14 +12,17 @@ type Props = {
 };
 
 const HistoryContainer = (props: Props) => {
+  const [searchValue, setSearchValue] = useState("");
+  const navigate = useNavigate();
+
   let histories;
   const { changeMainTab, callUserIntegrations } = props;
   const defaultCallIntegration = localStorage.getItem(
-    'config:call_integrations',
+    "config:call_integrations"
   );
 
   const inboxId =
-    JSON.parse(defaultCallIntegration || '{}')?.inboxId ||
+    JSON.parse(defaultCallIntegration || "{}")?.inboxId ||
     callUserIntegrations?.[0]?.inboxId;
 
   const { data, loading, error, refetch } = useQuery(
@@ -27,16 +31,20 @@ const HistoryContainer = (props: Props) => {
       variables: {
         integrationId: inboxId,
       },
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
   const [removeHistory] = useMutation(gql(mutations.callHistoryRemove), {
-    refetchQueries: ['CallHistories'],
+    refetchQueries: ["CallHistories"],
   });
 
   if (error) {
     Alert.error(error.message);
   }
+
+  const onSearch = (searchValue: string) => {
+    setSearchValue(searchValue);
+  };
 
   const remove = (id: string) => {
     confirm().then(() =>
@@ -46,11 +54,11 @@ const HistoryContainer = (props: Props) => {
         },
       })
         .then(() => {
-          Alert.success('Successfully removed');
+          Alert.success("Successfully removed");
         })
         .catch((e) => {
           Alert.error(e.message);
-        }),
+        })
     );
   };
   histories = data?.callHistories;
@@ -62,6 +70,9 @@ const HistoryContainer = (props: Props) => {
       changeMainTab={changeMainTab}
       refetch={refetch}
       remove={remove}
+      onSearch={onSearch}
+      searchValue={searchValue}
+      navigate={navigate}
     />
   );
 };

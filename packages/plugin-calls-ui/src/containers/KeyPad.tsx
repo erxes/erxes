@@ -1,26 +1,32 @@
-import React, { useState } from 'react';
-import { gql, useMutation, useQuery } from '@apollo/client';
-import { mutations, queries } from '../graphql';
+import React, { useState } from "react";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { mutations, queries } from "../graphql";
 
-import { Alert } from '@erxes/ui/src/utils';
-import KeyPad from '../components/Keypad';
-import { Spinner } from '@erxes/ui/src/components';
+import { Alert } from "@erxes/ui/src/utils";
+import KeyPad from "../components/Keypad";
+import { Spinner } from "@erxes/ui/src/components";
 
 type IProps = {
   callUserIntegrations: any;
   setConfig: any;
   phoneNumber: any;
+  currentCallConversationId: string;
 };
 
 const KeyPadContainer = (props: IProps) => {
-  const { callUserIntegrations, setConfig, phoneNumber } = props;
+  const {
+    callUserIntegrations,
+    setConfig,
+    phoneNumber,
+    currentCallConversationId,
+  } = props;
 
   const defaultCallIntegration = localStorage.getItem(
-    'config:call_integrations',
+    "config:call_integrations"
   );
 
   const inboxId =
-    JSON.parse(defaultCallIntegration || '{}')?.inboxId ||
+    JSON.parse(defaultCallIntegration || "{}")?.inboxId ||
     callUserIntegrations?.[0]?.inboxId;
 
   const [customer, setCustomer] = useState<any>(undefined);
@@ -58,7 +64,7 @@ const KeyPadContainer = (props: IProps) => {
       },
     })
       .then(() => {
-        const isPaused = agentStatus === 'yes' ? 'paused' : 'unpaused';
+        const isPaused = agentStatus === "yes" ? "paused" : "unpaused";
 
         Alert.success(`Successfully ${isPaused}`);
         refetch();
@@ -68,11 +74,8 @@ const KeyPadContainer = (props: IProps) => {
       });
   };
 
-  if (loading) {
-    return <Spinner />;
-  }
+  const agentStatus = agentStatusData?.callGetAgentStatus || "";
 
-  const agentStatus = agentStatusData.callGetAgentStatus;
   return (
     <KeyPad
       addCustomer={createCustomer}
@@ -81,9 +84,11 @@ const KeyPadContainer = (props: IProps) => {
       setConfig={setConfig}
       customer={customer}
       disconnectCall={disconnectCall}
-      phoneNumber={phoneNumber || ''}
+      phoneNumber={phoneNumber || ""}
       pauseExtention={pauseExtention}
       agentStatus={agentStatusData}
+      loading={loading}
+      currentCallConversationId={currentCallConversationId}
     />
   );
 };
