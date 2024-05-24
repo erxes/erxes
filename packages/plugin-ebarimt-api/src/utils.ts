@@ -102,11 +102,7 @@ const getCustomerName = (customer) => {
   return '';
 };
 
-const checkBillType = async (subdomain, config, deal) => {
-  let type: 'B2C_RECEIPT' | 'B2B_RECEIPT' = 'B2C_RECEIPT';
-  let customerCode = '';
-  let customerName = '';
-
+const billTypeCustomFieldsData = async (config, deal) => {
   if (
     config.dealBillType?.billType &&
     config.dealBillType?.regNo &&
@@ -130,12 +126,26 @@ const checkBillType = async (subdomain, config, deal) => {
       const resp = await getCompanyInfo({ checkTaxpayerUrl: config.checkTaxpayerUrl, no: customDataRegNo.value })
 
       if (resp.status === 'checked' && resp.tin) {
-        type = 'B2B_RECEIPT';
-        customerCode = customDataRegNo.value;
-        customerName = customDataComName.value;
+        return {
+          type: 'B2B_RECEIPT',
+          customerCode: customDataRegNo.value,
+          customerName: customDataComName.value,
+        }
       }
     }
 
+  }
+}
+const checkBillType = async (subdomain, config, deal) => {
+  let type: 'B2C_RECEIPT' | 'B2B_RECEIPT' = 'B2C_RECEIPT';
+  let customerCode = '';
+  let customerName = '';
+
+  const checker = await billTypeCustomFieldsData(config, deal);
+  if (checker?.type === 'B2B_RECEIPT') {
+    type = checker.type;
+    customerCode = checker.customerCode;
+    customerName = checker.customerName;
   }
 
   if (type === 'B2C_RECEIPT') {
