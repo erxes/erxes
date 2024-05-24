@@ -56,7 +56,7 @@ export default {
     app.get('/doc', async (req, res) => {
       const htmlString = `
 <!DOCTYPE html>
-<html>
+<html lang="mn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
