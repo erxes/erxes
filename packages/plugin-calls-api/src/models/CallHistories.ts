@@ -32,21 +32,23 @@ export const loadCallHistoryClass = (models: IModels) => {
       if (!operator) {
         throw new Error('Operator not found');
       }
-      selector.extentionNumber = operator.gsUsername;
-      delete selector.integrationId;
+      const historyFilter: any = {};
+
+      historyFilter.extentionNumber = operator.gsUsername;
 
       if (selector?.callStatus === 'missed') {
-        selector.callStatus = { $ne: 'connected' };
+        historyFilter.callStatus = { $ne: 'connected' };
       } else {
         delete selector.callStatus;
       }
       if (selector.searchValue) {
-        selector.customerPhone = {
+        historyFilter.customerPhone = {
           $in: [new RegExp(`.*${selector.searchValue}.*`, 'i')],
         };
       }
+
       const histories = await models.CallHistory.find({
-        ...selector,
+        ...historyFilter,
       })
         .sort({ modifiedAt: -1 })
         .skip(selector.skip || 0)
