@@ -304,18 +304,13 @@ export const isValidDate = (date) => {
   return false;
 };
 export const extractAttachment = (attachments: IAttachment[]) => {
-  return attachments.map((file) => {
-    if (!file) {
-      return;
-    }
-    return {
-      name: file.name,
-      type: file.type,
-      url: file.url,
-      size: file.size,
-      duration: file.duration,
-    };
-  });
+  return attachments.filter(file => file).map((file) => ({
+    name: file.name,
+    type: file.type,
+    url: file.url,
+    size: file.size,
+    duration: file.duration,
+  }));
 };
 
 export const setCookie = (cname: string, cvalue: string, exdays = 100) => {
