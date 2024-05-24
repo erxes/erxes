@@ -3,7 +3,6 @@ import { __, ControlLabel, FormControl, FormGroup } from "@erxes/ui/src";
 import { Block, BlockRow, FlexColumn, FlexItem } from "../../../styles";
 import { LeftItem } from "@erxes/ui/src/components/step/styles";
 import { IPos } from "../../../types";
-import { DISTRICTS } from "../../../constants";
 
 type Props = {
   onChange: (name: "ebarimtConfig", value: any) => void;
@@ -17,20 +16,20 @@ const EbarimtConfig = (props: Props) => {
     props.pos && props.pos.ebarimtConfig
       ? props.pos.ebarimtConfig
       : {
-          companyName: "",
-          ebarimtUrl: "",
-          checkCompanyUrl: "",
-          hasVat: false,
-          hasCitytax: false,
-          defaultPay: "debtAmount",
-          districtCode: "",
-          companyRD: "",
-          defaultGSCode: "",
-          vatPercent: 0,
-          cityTaxPercent: 0,
-          footerText: "",
-          hasCopy: false,
-        }
+        companyName: "",
+        ebarimtUrl: "",
+        checkCompanyUrl: "",
+        hasVat: false,
+        hasCitytax: false,
+        defaultPay: "debtAmount",
+        districtCode: "",
+        companyRD: "",
+        defaultGSCode: "",
+        vatPercent: 0,
+        cityTaxPercent: 0,
+        footerText: "",
+        hasCopy: false,
+      }
   );
 
   const onChangeConfig = (code: string, value) => {
@@ -91,36 +90,25 @@ const EbarimtConfig = (props: Props) => {
       <FlexColumn>
         <LeftItem>
           <Block>
-            <h4>{__("Main")}</h4>
+            <h4>{__('Main')}</h4>
             <BlockRow>
-              {renderInput("companyName", "Company name", "")}
-              {renderInput("ebarimtUrl", "E-barimt URL", "")}
-              {renderInput("checkCompanyUrl", "Company check URL", "")}
+              {renderInput('companyName', 'company Name')}
+              {renderInput('ebarimtUrl', 'ebarimt Url')}
+              {renderInput('checkTaxpayerUrl', 'check taxpayer Url')}
             </BlockRow>
           </Block>
 
           <Block>
-            <h4>{__("Other")}</h4>
+            <h4>{__('Other')}</h4>
             <BlockRow>
-              <FormGroup>
-                <ControlLabel>{__("Provice/District")}</ControlLabel>
-                <FormControl
-                  componentclass="select"
-                  defaultValue={config.districtCode}
-                  options={[
-                    { value: "", label: "Choose District" },
-                    ...DISTRICTS,
-                  ]}
-                  onChange={onChangeInput.bind(this, "districtCode")}
-                  required={true}
-                />
-              </FormGroup>
-              {renderInput("companyRD", "Company register number", "")}
-              {renderInput(
-                "defaultGSCode",
-                "default GSCode",
-                "https://ebarimt.mn/img/buteegdehuun%20uilchilgeenii%20negdsen%20angilal.pdf"
-              )}
+              {renderInput('companyRD', 'companyRD', '')}
+              {renderInput('merchantTin', 'merchantTin', '')}
+              {renderInput('posNo', 'posNo', '')}
+            </BlockRow>
+            <BlockRow>
+              {renderInput('districtCode', 'districtCode', '')}
+              {renderInput('branchNo', 'branchNo', '')}
+              {renderInput('defaultGSCode', 'defaultGSCode', '')}
             </BlockRow>
           </Block>
 

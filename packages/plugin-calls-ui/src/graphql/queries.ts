@@ -114,8 +114,8 @@ const activeSession = `
 }`;
 
 const callHistories = `
-  query CallHistories($limit: Int, $callStatus: String, $callType: String, $startDate: String, $endDate: String, $skip: Int) {
-    callHistories(limit: $limit, callStatus: $callStatus, callType: $callType, startDate: $startDate, endDate: $endDate, skip: $skip) {
+  query CallHistories($limit: Int, $callStatus: String, $callType: String, $startDate: String, $endDate: String, $skip: Int, $integrationId: String) {
+    callHistories(limit: $limit, callStatus: $callStatus, callType: $callType, startDate: $startDate, endDate: $endDate, skip: $skip, integrationId: $integrationId) {
       _id
     operatorPhone
     customerPhone
@@ -163,6 +163,18 @@ const callsGetConfigs = `
   }
 `;
 
+const callGetAgentStatus = `
+  query callGetAgentStatus {
+    callGetAgentStatus
+  }
+`;
+
+const callExtensionList = `
+  query callExtensionList($integrationId: String!) {
+  callExtensionList(integrationId: $integrationId)
+}
+`;
+
 export default {
   callsIntegrationDetail,
   callUserIntegrations,
@@ -171,4 +183,6 @@ export default {
   activeSession,
   callHistories,
   callsGetConfigs,
+  callGetAgentStatus,
+  callExtensionList,
 };

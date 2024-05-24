@@ -9,8 +9,8 @@ on:
       - staging
       - build-test
     paths:
-      - "scripts/pluginsMap.js"
-      - ".github/workflows/plugins-map.yaml"
+      - 'scripts/pluginsMap.js'
+      - '.github/workflows/plugins-map.yaml'
   pull_request:
     branches:
       - dev
@@ -19,8 +19,8 @@ on:
       - staging
       - build-test
     paths:
-      - "scripts/pluginsMap.js"
-      - ".github/workflows/plugins-map.yaml"
+      - 'scripts/pluginsMap.js'
+      - '.github/workflows/plugins-map.yaml'
 
 jobs:
   ui:

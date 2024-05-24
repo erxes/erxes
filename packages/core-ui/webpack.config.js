@@ -170,6 +170,10 @@ module.exports = (env, args) => {
             singleton: true,
             eager: true,
           },
+          "@headlessui/react": {
+            requiredVersion: deps["@headlessui/react"],
+            singleton: true,
+          },
           "./src/appContext": {},
           "./src/apolloClient": {},
           "./src/modules/common/components/WithPermission": {},

@@ -1,9 +1,10 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '../graphql';
+import * as compose from "lodash.flowright";
+
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries } from "../graphql";
 
 type Props = {
   currentOrganizationQuery: any;
@@ -17,8 +18,6 @@ const withCurrentOrganization = (Component) => {
       return <Spinner />;
     }
 
-    console.log(currentOrganizationQuery);
-
     const extendedProps = {
       ...props,
       currentOrganization:
@@ -30,11 +29,11 @@ const withCurrentOrganization = (Component) => {
 
   return compose(
     graphql(gql(queries.chargeCurrentOrganization), {
-      name: 'currentOrganizationQuery',
+      name: "currentOrganizationQuery",
       options: {
-        fetchPolicy: 'network-only',
+        fetchPolicy: "network-only",
       },
-    }),
+    })
   )(Container);
 };
 

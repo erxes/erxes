@@ -3,15 +3,15 @@ name: Gateway CI
 on:
   push:
     branches:
-      - "dev"
+      - 'dev'
       - master
       - rc
-      - "staging"
+      - 'staging'
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/gateway/**"
-      - ".github/workflows/gateway.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/gateway/**'
+      - '.github/workflows/gateway.yaml'
 
 jobs:
   gateway:
