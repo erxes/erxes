@@ -2,6 +2,8 @@ import {
   ICommonFormProps,
   ICommonListProps,
 } from "@erxes/ui-settings/src/common/types";
+import { Link, useLocation } from "react-router-dom";
+import { __, router } from "modules/common/utils";
 
 import ActionButtons from "@erxes/ui/src/components/ActionButtons";
 import { AppConsumer } from "appContext";
@@ -10,7 +12,6 @@ import { ControlLabel } from "@erxes/ui/src/components/form";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import Icon from "@erxes/ui/src/components/Icon";
-import { Link, useLocation } from "react-router-dom";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
 import React from "react";
@@ -21,7 +22,6 @@ import Toggle from "@erxes/ui/src/components/Toggle";
 import { UserAvatar } from "../styles";
 import UserForm from "@erxes/ui/src/team/containers/UserForm";
 import UserResetPasswordForm from "@erxes/ui/src/team/containers/UserResetPasswordForm";
-import { __, router } from "modules/common/utils";
 import { useNavigate } from "react-router-dom";
 
 type IProps = {
@@ -50,15 +50,15 @@ const UserList = (props: FinalProps) => {
     }
   };
 
-  const renderForm = (props) => {
+  const renderForm = (formProps) => {
     const onCloseModal = () => {
       removeUserQueryParams();
-      props.closeModal();
+      formProps.closeModal();
     };
 
     return (
       <UserForm
-        {...props}
+        {...formProps}
         closeModal={onCloseModal}
         queryParams={props.queryParams}
         renderButton={props.renderButton}

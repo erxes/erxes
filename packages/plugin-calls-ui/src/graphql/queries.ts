@@ -163,9 +163,9 @@ const callsGetConfigs = `
   }
 `;
 
-const callsGetDndStatus = `
-  query callsGetOperatorDndStatus($integrationId: String!) {
-    callsGetOperatorDndStatus(integrationId: $integrationId)
+const callGetAgentStatus = `
+  query callGetAgentStatus {
+    callGetAgentStatus
   }
 `;
 
@@ -183,6 +183,6 @@ export default {
   activeSession,
   callHistories,
   callsGetConfigs,
-  callsGetDndStatus,
+  callGetAgentStatus,
   callExtensionList,
 };

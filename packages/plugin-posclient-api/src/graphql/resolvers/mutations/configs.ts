@@ -13,7 +13,7 @@ import { connectToMessageBroker } from '@erxes/api-utils/src/messageBroker';
 import { setupMessageConsumers, sendPosMessage } from '../../../messageBroker';
 import { IOrderItemDocument } from '../../../models/definitions/orderItems';
 import fetch from 'node-fetch';
-import { IPutResponseDocument } from '../../../models/definitions/putResponses';
+import { IEbarimtDocument } from '../../../models/definitions/putResponses';
 
 const configMutations = {
   posConfigsFetch: async (
@@ -120,7 +120,7 @@ const configMutations = {
   },
 
   async syncOrders(_root, _param, { models, subdomain, config }: IContext) {
-    const unSyncedPutResponses: IPutResponseDocument[] =
+    const unSyncedPutResponses: IEbarimtDocument[] =
       await models.PutResponses.find({ synced: { $ne: true } })
         .sort({ paidDate: 1 })
         .limit(100)
