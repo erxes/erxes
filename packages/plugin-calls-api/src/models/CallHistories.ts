@@ -46,7 +46,7 @@ export const loadCallHistoryClass = (models: IModels) => {
           $in: [new RegExp(`.*${selector.searchValue}.*`, 'i')],
         };
       }
-
+      console.log('');
       const histories = await models.CallHistory.find({
         ...historyFilter,
       })
