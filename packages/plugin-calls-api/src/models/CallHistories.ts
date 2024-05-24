@@ -10,6 +10,7 @@ import {
 export interface ICallHistoryModel extends Model<ICallHistoryDocument> {
   getCallHistory(sessionId: string): Promise<ICallHistoryDocument>;
   getCallHistories(selector, user: IUser): Promise<ICallHistoryDocument>;
+  getHistoriesCount(selector, user: IUser): Promise<ICallHistoryDocument>;
 }
 
 export const loadCallHistoryClass = (models: IModels) => {
@@ -39,6 +40,7 @@ export const loadCallHistoryClass = (models: IModels) => {
       if (selector?.callStatus === 'missed') {
         historyFilter.callStatus = { $ne: 'connected' };
       } else {
+        delete historyFilter.callStatus;
         delete selector.callStatus;
       }
       if (selector.searchValue) {
@@ -54,6 +56,40 @@ export const loadCallHistoryClass = (models: IModels) => {
         .limit(selector.limit || 20);
 
       return histories;
+    }
+    public static async getHistoriesCount(selector, user) {
+      const integration = await models.Integrations.getIntegration(
+        user?._id,
+        selector.integrationId,
+      );
+      if (!integration) {
+        throw new Error('Integration not found');
+      }
+      const operator = integration.operators.find(
+        (operator) => operator.userId === user?._id,
+      );
+      if (!operator) {
+        throw new Error('Operator not found');
+      }
+      const historyFilter: any = {};
+
+      historyFilter.extentionNumber = operator.gsUsername;
+
+      if (selector?.callStatus === 'missed') {
+        historyFilter.callStatus = { $ne: 'connected' };
+      } else {
+        delete historyFilter.callStatus;
+        delete selector.callStatus;
+      }
+      if (selector.searchValue) {
+        historyFilter.customerPhone = {
+          $in: [new RegExp(`.*${selector.searchValue}.*`, 'i')],
+        };
+      }
+
+      return await models.CallHistory.find({
+        ...historyFilter,
+      }).count();
     }
   }
 

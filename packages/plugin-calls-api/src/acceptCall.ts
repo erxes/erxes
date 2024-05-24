@@ -71,7 +71,6 @@ const acceptCall = async (
   }
   //save on api
   try {
-    console.log(type, 'type', user?.details?.operatorPhone, user);
     const apiConversationResponse = await sendInboxMessage({
       subdomain,
       action: 'integrations.receive',
