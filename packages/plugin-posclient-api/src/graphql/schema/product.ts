@@ -86,6 +86,8 @@ const productCategoriesParams = `
   excludeEmpty: Boolean,
   meta: String,
   isKiosk: Boolean,
+  ids: [String],
+  excludeIds: Boolean,
 `;
 const commonParams = `
   page: Int,
