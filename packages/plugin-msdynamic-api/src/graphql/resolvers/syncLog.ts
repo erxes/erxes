@@ -2,7 +2,7 @@ import { IContext, sendCoreMessage } from '../../messageBroker';
 import { ISyncLogDocument } from '../../models/definitions/dynamic';
 
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
+  async __resolveReference({ _id }, { models }: IContext) {
     return models.SyncLogs.findOne({ _id });
   },
 

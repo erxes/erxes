@@ -4,7 +4,7 @@ import { IContractDocument } from '../../models/definitions/contracts';
 import { IContract } from '../../models/definitions/contracts';
 
 const Contracts = {
-  contractType(contract: IContract, _, { models }: IContext) {
+  async contractType(contract: IContract, _, { models }: IContext) {
     return models.ContractTypes.findOne({ _id: contract.contractTypeId });
   },
 

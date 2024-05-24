@@ -133,7 +133,7 @@ const filterOrders = (params: ISearchParams, models, config) => {
 };
 
 const orderQueries = {
-  orders(_root, params: ISearchParams, { models, config }: IContext) {
+  async orders(_root, params: ISearchParams, { models, config }: IContext) {
     return filterOrders(params, models, config);
   },
 
@@ -149,7 +149,7 @@ const orderQueries = {
     const filter = generateFilter(config, params);
     return await models.Orders.find({
       ...filter,
-    }).count();
+    }).countDocuments();
   },
 
   async fullOrderItems(

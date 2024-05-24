@@ -1,4 +1,4 @@
-import { Document, Model, Schema } from 'mongoose';
+import { Document, Model, Schema, HydratedDocument } from 'mongoose';
 import { IModels } from '../connectionResolver';
 
 interface ISmsStatus {
@@ -17,9 +17,9 @@ export interface ISmsRequest {
   errorMessages?: string[];
 }
 
-export interface ISmsRequestDocument extends ISmsRequest, Document {}
+export type ISmsRequestDocument = HydratedDocument<ISmsRequest>;
 
-export interface ISmsRequestModel extends Model<ISmsRequestDocument> {
+export interface ISmsRequestModel extends Model<ISmsRequest> {
   createRequest(doc: ISmsRequest): Promise<ISmsRequestDocument>;
   updateRequest(_id: string, doc: ISmsRequest): Promise<ISmsRequestDocument>;
 }
