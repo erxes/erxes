@@ -107,40 +107,56 @@ export const getPostData = async (subdomain, config, deal) => {
   let customerCode = '';
   let customerName = '';
 
-  const companyIds = await sendCoreMessage({
-    subdomain,
-    action: 'conformities.savedConformity',
-    data: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['company'] },
-    isRPC: true,
-    defaultValue: [],
-  });
+  if (config.dealBillType && config.dealBillType.billType && config.dealBillType.regNo && deal.customFieldsData && deal.customFieldsData.length) {
+    const checkCompanyStrs = ['Байгууллага', 'Company', 'B2B', 'B2B_RECEIPT', '3'];
+    const customDataBillType = deal.customFieldsData.find(cfd => cfd.field === config.dealBillType.billType && checkCompanyStrs.includes(cfd.value));
+    const customDataRegNo = deal.customFieldsData.find(cfd => cfd.field === config.dealBillType.regNo && cfd.value);
+    const customDataComName = deal.customFieldsData.find(cfd => cfd.field === config.dealBillType.companyName && cfd.value);
 
-  if (companyIds.length > 0) {
-    const companies = await sendContactsMessage({
+    if (customDataBillType && customDataRegNo && customDataComName) {
+      const resp = await getCompanyInfo({ checkTaxpayerUrl: config.checkTaxpayerUrl, no: customDataRegNo.value })
+
+      if (resp.status === 'checked' && resp.tin) {
+        type = 'B2B_RECEIPT';
+        customerCode = customDataRegNo.value;
+        customerName = customDataComName.value;
+      }
+    }
+
+  }
+
+  if (type === 'B2C_RECEIPT') {
+    const companyIds = await sendCoreMessage({
       subdomain,
-      action: 'companies.findActiveCompanies',
-      data: {
-        selector: { _id: { $in: companyIds } },
-        fields: { _id: 1, code: 1, primaryName: 1 },
-      },
+      action: 'conformities.savedConformity',
+      data: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['company'] },
       isRPC: true,
       defaultValue: [],
     });
 
-    const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)/gui;
-    for (const company of companies) {
-      if (re.test(company.code)) {
-        const checkCompanyRes = await fetch(
-          config.checkCompanyUrl +
-          '?' +
-          new URLSearchParams({ regno: company.code }),
-        ).then((r) => r.json());
+    if (companyIds.length > 0) {
+      const companies = await sendContactsMessage({
+        subdomain,
+        action: 'companies.findActiveCompanies',
+        data: {
+          selector: { _id: { $in: companyIds } },
+          fields: { _id: 1, code: 1, primaryName: 1 },
+        },
+        isRPC: true,
+        defaultValue: [],
+      });
 
-        if (checkCompanyRes.found) {
-          type = 'B2B_RECEIPT';
-          customerCode = company.code;
-          customerName = company.primaryName;
-          continue;
+      const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)|(^\d{11}$)|(^\d{12}$)/gui;
+      for (const company of companies) {
+        if (re.test(company.code)) {
+          const checkCompanyRes = await getCompanyInfo({ checkTaxpayerUrl: config.checkTaxpayerUrl, no: company.code });
+
+          if (checkCompanyRes.status === 'checked' && checkCompanyRes.tin) {
+            type = 'B2B_RECEIPT';
+            customerCode = company.code;
+            customerName = company.primaryName;
+            continue;
+          }
         }
       }
     }

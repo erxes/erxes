@@ -15,13 +15,15 @@ import { IConfigsMap } from '../types';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import { Title } from '@erxes/ui-settings/src/styles';
+import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
   configsMap: IConfigsMap;
+  fieldGroups: any[];
 };
 
-const GeneralSettings: React.FC<Props> = ({ save, configsMap }: Props) => {
+const GeneralSettings: React.FC<Props> = ({ save, configsMap, fieldGroups }: Props) => {
   const [currentMap, setCurrentMap] = useState(configsMap.EBARIMT || {});
 
   const saveHandler = (e) => {
@@ -32,7 +34,7 @@ const GeneralSettings: React.FC<Props> = ({ save, configsMap }: Props) => {
   };
 
   const onChangeConfig = (code: string, value) => {
-    setCurrentMap({...currentMap, [code]: value});
+    setCurrentMap({ ...currentMap, [code]: value });
   };
 
   const onChangeInput = (code: string, e) => {
@@ -51,6 +53,51 @@ const GeneralSettings: React.FC<Props> = ({ save, configsMap }: Props) => {
       </FormGroup>
     );
   };
+
+  const onChangeDealBillType = (e) => {
+    onChangeConfig('dealBillType', { ...currentMap.dealBillType || {}, [e.target.name]: e.target.value })
+  }
+
+  const renderFieldChooser = (key: string, desc: string) => {
+
+    const dealBillType = currentMap.dealBillType || {};
+    return (
+      <FormColumn>
+        <FormGroup>
+          <ControlLabel>{desc}</ControlLabel>
+          <FormControl
+            name={key}
+            componentclass="select"
+            options={[
+              { value: "", label: "Empty" },
+              ...(
+                (
+                  (
+                    (fieldGroups || []).find(
+                      (fg) => fg._id === dealBillType.groupId
+                    ) || {}
+                  ).fields || []
+                ).filter((f) =>
+                  [
+                    "input",
+                    "textarea",
+                    "select",
+                    "check",
+                    "radio",
+                  ].includes(f.type)
+                ) || []
+              ).map((f) => ({
+                value: f._id,
+                label: `${f.code ? `${f.code} - ` : ''}${f.text}`,
+              })),
+            ]}
+            value={dealBillType[key]}
+            onChange={onChangeDealBillType}
+          />
+        </FormGroup>
+      </FormColumn>
+    )
+  }
 
   const breadcrumb = [
     { title: __('Settings'), link: '/settings' },
@@ -78,6 +125,32 @@ const GeneralSettings: React.FC<Props> = ({ save, configsMap }: Props) => {
         {renderItem('companyName')}
         {renderItem('ebarimtUrl')}
         {renderItem('checkTaxpayerUrl')}
+
+        <CollapseContent title="Deals ebarimt billType config" full={false} >
+          <FormWrapper>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel>Field Group:</ControlLabel>
+                <FormControl
+                  name="groupId"
+                  componentclass="select"
+                  options={[
+                    { value: "", label: "Empty" },
+                    ...(fieldGroups || []).map((fg) => ({
+                      value: fg._id,
+                      label: `${fg.code ? `${fg.code} - ` : ''}${fg.name}`,
+                    })),
+                  ]}
+                  value={(currentMap.dealBillType || {})[`groupId`]}
+                  onChange={onChangeDealBillType}
+                />
+              </FormGroup>
+            </FormColumn>
+            {renderFieldChooser('billType', 'Bill Type Chooser')}
+            {renderFieldChooser('regNo', 'RegNo or TINNo input')}
+            {renderFieldChooser('companyName', 'Company name response')}
+          </FormWrapper>
+        </CollapseContent>
       </CollapseContent>
     </ContentBox>
   );
