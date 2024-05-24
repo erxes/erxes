@@ -18,7 +18,8 @@ import tags from './tags';
 import * as chromium from 'download-chromium';
 import redis from '@erxes/api-utils/src/redis';
 import puppeteer from 'puppeteer';
-import { join } from 'path';
+import { format, join } from 'path';
+import * as htmlPdf from 'html-pdf-node';
 
 export default {
   name: 'insurance',
@@ -54,42 +55,47 @@ export default {
     app.get('/doc', async (req, res) => {
       const htmlString = `
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hello World</title>
 </head>
 <body>
-    <h1>өөөөө, үүүү!</h1>
+    <h1>өөөөө, үүүү test!</h1>
 </body>
 </html>
 `;
 
-      const browser = await puppeteer.launch({
-        headless: true,
-        executablePath:
-          '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-        // executablePath:
-        //   '/usr/bin/google-chrome',
-          args: ['--no-sandbox', '--disable-setuid-sandbox']
+      // const browser = await puppeteer.launch({
+      //   headless: true,
+      //   executablePath:
+      //     '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+      //   // executablePath:
+      //   //   '/usr/bin/google-chrome',
+      //     args: ['--no-sandbox', '--disable-setuid-sandbox']
+      // });
+      // const page = await browser.newPage();
+
+      // await page.setContent(htmlString, { waitUntil: 'domcontentloaded' });
+      // await page.emulateMediaType('screen');
+
+      // const pdf = await page.pdf({
+      //   format: 'A4',
+      //   printBackground: true,
+      // });
+
+      // await browser.close();
+      const options = { format: 'A4', args: ['--no-sandbox', '--disable-setuid-sandbox'] };
+
+
+      htmlPdf.generatePdf({content:htmlString}, options).then((pdf) => {
+        res.setHeader('Content-Type', 'application/pdf');
+        return res.send(pdf);
       });
-      const page = await browser.newPage();
 
-      await page.setContent(htmlString, { waitUntil: 'domcontentloaded' });
-      await page.emulateMediaType('screen');
-
-      const pdf = await page.pdf({
-        format: 'A4',
-        printBackground: true,
-      });
-
-      await browser.close();
-
-      console.log(pdf);
-
-      res.setHeader('Content-Type', 'application/pdf');
-      return res.send(pdf);
+      // res.setHeader('Content-Type', 'application/pdf');
+      // return res.send(pdf);
     });
 
     app.get('/export', async (req: any, res) => {

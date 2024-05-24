@@ -13,7 +13,6 @@ import * as xlsxPopulate from 'xlsx-populate';
 import { sendCommonMessage } from '../../messageBroker';
 import { query } from './queries/items';
 
-
 export const verifyVendor = async (context) => {
   const { subdomain, cpUser } = context;
 

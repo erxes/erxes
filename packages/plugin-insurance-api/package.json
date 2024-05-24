@@ -19,6 +19,7 @@
     "html-pdf": "^3.0.1",
     "puppeteer": "^22.6.3",
     "tmp": "^0.2.3",
-    "pdf-puppeteer": "^1.1.11"
+    "pdf-puppeteer": "^1.1.11",
+    "html-pdf-node":"1.0.8"
   }
 }
