@@ -357,7 +357,7 @@ export const actionCreateMessage = async (
         fromBot: true,
       });
 
-      await sendInboxMessage({
+      sendInboxMessage({
         subdomain,
         action: 'conversationClientMessageInserted',
         data: {

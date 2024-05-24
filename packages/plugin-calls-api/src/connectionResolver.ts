@@ -22,13 +22,15 @@ import {
   IConfigModel,
   loadConfigClass,
 } from './models/Configs';
-
+import { IOperatorDocuments } from './models/definitions/operators';
+import { IOperatorModel, loadOperatorClass } from './models/Operators';
 export interface IModels {
   Integrations: IIntegrationModel;
   Customers: ICustomerModel;
   ActiveSessions: IActiveSessionModel;
   CallHistory: ICallHistoryModel;
   Configs: IConfigModel;
+  Operators: IOperatorModel;
 }
 
 export interface IContext extends IMainContext {
@@ -58,6 +60,10 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Configs = db.model<IConfigDocument, IConfigModel>(
     'calls_configs',
     loadConfigClass(models),
+  );
+  models.Operators = db.model<IOperatorDocuments, IOperatorModel>(
+    'calls_operators',
+    loadOperatorClass(models),
   );
 
   return models;

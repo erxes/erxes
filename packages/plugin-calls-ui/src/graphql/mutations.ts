@@ -127,6 +127,7 @@ const callHistoryAdd = `
   callHistoryAdd(inboxIntegrationId: $inboxIntegrationId,  customerPhone: $customerPhone, callStartTime: $callStartTime, callStatus: $callStatus, callType: $callType, sessionId: $sessionId) {
     _id
     sessionId
+    conversationId
   }
 }
 `;
@@ -151,9 +152,9 @@ const callsUpdateConfigs = `
     callsUpdateConfigs(configsMap: $configsMap)
   }
 `;
-const callsUpdateSipDnd = `
-  mutation CallsUpdateSipDnd($dndStatus: String!, $integrationId: String!) {
-    callsUpdateSipDnd(dndStatus: $dndStatus, integrationId: $integrationId)
+const callPauseAgent = `
+  mutation callsPauseAgent($status: String!, $integrationId: String!) {
+    callsPauseAgent(status: $status, integrationId: $integrationId)
 }`;
 
 const callTransfer = `
@@ -173,6 +174,6 @@ export default {
   callHistoryRemove,
   callsUpdateConfigs,
   callHistoryEditStatus,
-  callsUpdateSipDnd,
+  callPauseAgent,
   callTransfer,
 };

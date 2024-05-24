@@ -9,9 +9,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-syncpolaris-api/**"
-      - ".github/workflows/plugin-syncpolaris-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-syncpolaris-api/**'
+      - '.github/workflows/plugin-syncpolaris-api.yaml'
   pull_request:
     branches:
       - dev
@@ -20,9 +20,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-syncpolaris-api/**"
-      - ".github/workflows/plugin-syncpolaris-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-syncpolaris-api/**'
+      - '.github/workflows/plugin-syncpolaris-api.yaml'
 
 jobs:
   api:
