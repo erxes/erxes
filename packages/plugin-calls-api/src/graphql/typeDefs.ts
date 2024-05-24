@@ -101,6 +101,7 @@ const mutationFilterParams = `
   startDate: String
   endDate: String
   integrationId: String
+  searchValue: String
 `;
 
 const filterParams = `
