@@ -1,5 +1,4 @@
 import { getCompanyInfo, getSyncLogDoc, toErkhet } from './utils';
-import fetch from 'node-fetch';
 
 export const customerToErkhet = async (models, params, action) => {
   const syncLogDoc = getSyncLogDoc(params);

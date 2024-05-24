@@ -28,7 +28,11 @@ export const getPostData = async (
 
   const ebarimtConfig = await getCoreConfig(subdomain, 'EBARIMT', {})
 
-  if (ebarimtConfig.dealBillType && ebarimtConfig.dealBillType.billType && ebarimtConfig.dealBillType.regNo && deal.customFieldsData && deal.customFieldsData.length) {
+  if (
+    ebarimtConfig.dealBillType?.billType &&
+    ebarimtConfig.dealBillType?.regNo &&
+    deal.customFieldsData?.length
+  ) {
     const checkCompanyStrs = ['Байгууллага', 'Company', 'B2B', 'B2B_RECEIPT', '3'];
     const customDataBillType = deal.customFieldsData.find(cfd => cfd.field === ebarimtConfig.dealBillType.billType && checkCompanyStrs.includes(cfd.value));
     const customDataRegNo = deal.customFieldsData.find(cfd => cfd.field === ebarimtConfig.dealBillType.regNo && cfd.value);
@@ -65,7 +69,7 @@ export const getPostData = async (
       defaultValue: [],
     });
 
-    const re = new RegExp('(^[А-ЯЁӨҮ]{2}[0-9]{8}$)|(^\\d{7}$)|(^\\d{11}$)|(^\\d{12}$)', 'gui');
+    const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)|(^\d{11}$)|(^\d{12}$)/gui;
     for (const company of companies) {
       customerCode = company.code;
 

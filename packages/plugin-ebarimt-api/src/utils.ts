@@ -102,16 +102,29 @@ const getCustomerName = (customer) => {
   return '';
 };
 
-export const getPostData = async (subdomain, config, deal) => {
+const checkBillType = async (subdomain, config, deal) => {
   let type: 'B2C_RECEIPT' | 'B2B_RECEIPT' = 'B2C_RECEIPT';
   let customerCode = '';
   let customerName = '';
 
-  if (config.dealBillType && config.dealBillType.billType && config.dealBillType.regNo && deal.customFieldsData && deal.customFieldsData.length) {
+  if (
+    config.dealBillType?.billType &&
+    config.dealBillType?.regNo &&
+    deal.customFieldsData?.length
+  ) {
     const checkCompanyStrs = ['Байгууллага', 'Company', 'B2B', 'B2B_RECEIPT', '3'];
-    const customDataBillType = deal.customFieldsData.find(cfd => cfd.field === config.dealBillType.billType && checkCompanyStrs.includes(cfd.value));
-    const customDataRegNo = deal.customFieldsData.find(cfd => cfd.field === config.dealBillType.regNo && cfd.value);
-    const customDataComName = deal.customFieldsData.find(cfd => cfd.field === config.dealBillType.companyName && cfd.value);
+
+    const customDataBillType = deal.customFieldsData.find(
+      cfd => cfd.field === config.dealBillType.billType && checkCompanyStrs.includes(cfd.value)
+    );
+
+    const customDataRegNo = deal.customFieldsData.find(
+      cfd => cfd.field === config.dealBillType.regNo && cfd.value
+    );
+
+    const customDataComName = deal.customFieldsData.find(
+      cfd => cfd.field === config.dealBillType.companyName && cfd.value
+    );
 
     if (customDataBillType && customDataRegNo && customDataComName) {
       const resp = await getCompanyInfo({ checkTaxpayerUrl: config.checkTaxpayerUrl, no: customDataRegNo.value })
@@ -203,6 +216,11 @@ export const getPostData = async (subdomain, config, deal) => {
       }
     }
   }
+  return { type, customerCode, customerName }
+}
+
+export const getPostData = async (subdomain, config, deal) => {
+  const { type, customerCode, customerName } = await checkBillType(subdomain, config, deal)
 
   const productsIds = deal.productsData.map((item) => item.productId);
   const products = await sendProductsMessage({

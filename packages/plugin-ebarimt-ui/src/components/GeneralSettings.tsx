@@ -88,7 +88,7 @@ const GeneralSettings: React.FC<Props> = ({ save, configsMap, fieldGroups }: Pro
                 ) || []
               ).map((f) => ({
                 value: f._id,
-                label: `${f.code ? `${f.code} - ` : ''}${f.text}`,
+                label: f.code ? `${f.code} - ${f.text}` : f.text,
               })),
             ]}
             value={dealBillType[key]}
@@ -138,7 +138,7 @@ const GeneralSettings: React.FC<Props> = ({ save, configsMap, fieldGroups }: Pro
                     { value: "", label: "Empty" },
                     ...(fieldGroups || []).map((fg) => ({
                       value: fg._id,
-                      label: `${fg.code ? `${fg.code} - ` : ''}${fg.name}`,
+                      label: fg.code ? `${fg.code} - ${fg.name}` : fg.name,
                     })),
                   ]}
                   value={(currentMap.dealBillType || {})[`groupId`]}
