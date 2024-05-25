@@ -82,7 +82,7 @@ export default class SipProvider extends React.Component<
     rtcSession;
   }
 > {
-  public static childContextTypes = {
+  public static readonly childContextTypes = {
     sip: sipPropType,
     call: callPropType,
     registerSip: PropTypes.func,
