@@ -1,12 +1,12 @@
-import { IUser } from '@erxes/ui/src/auth/types';
-import React from 'react';
+import { IUser } from "@erxes/ui/src/auth/types";
+import React from "react";
 import {
   ErxesStaffProfile,
   ErxesSupporters,
   StateSpan,
-  Supporters as SupporterStyled
-} from './styles';
-import { __, getUserAvatar } from 'coreui/utils';
+  Supporters as SupporterStyled,
+} from "./styles";
+import { __, getUserAvatar } from "coreui/utils";
 
 type Props = {
   showChatPreview?: boolean;
@@ -21,11 +21,11 @@ class Supporters extends React.Component<Props> {
   renderContent() {
     const { isOnline, teamMembers, supporterIds } = this.props;
 
-    const supporters = teamMembers.filter(user =>
-      (supporterIds || []).includes(user._id || '')
+    const supporters = teamMembers.filter((user) =>
+      (supporterIds || []).includes(user._id || "")
     );
 
-    return supporters.map(u => {
+    return supporters.map((u) => {
       const details = u.details || {};
 
       return (
@@ -46,9 +46,8 @@ class Supporters extends React.Component<Props> {
       return null;
     }
 
-    return <span>{timezone ? timezone : __('No timezone chosen')}</span>;
+    return <span>{timezone || __("No timezone chosen")}</span>;
   }
-
   render() {
     const { supporterIds, showChatPreview } = this.props;
 

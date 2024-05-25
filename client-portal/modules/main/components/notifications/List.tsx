@@ -86,7 +86,10 @@ const List = (props: Props) => {
         </NotificationList>
 
         <NotificationFooter className="d-flex justify-content-end align-items-center">
-          <span onClick={markAllAsRead}>{__("Mark all as read")}</span>{" "}
+          <button onClick={markAllAsRead}>
+            {__("Mark all as read")}
+          </button>{" "}
+
         </NotificationFooter>
 
         <Modal

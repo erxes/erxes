@@ -120,7 +120,11 @@ export const ChatForm = ({
           onSubmit={form.handleSubmit(onSubmit)}
         >
           <div className="gap-3 flex flex-col">
-            <label className="font-bold">To*</label>
+            <label htmlFor="recipient" className="font-bold">
+            To*
+          </label>
+            <input type="text" id="recipient" name="recipient" />
+
             <FormField
               control={form.control}
               name="userIds"
@@ -140,7 +144,10 @@ export const ChatForm = ({
 
             {userIds && userIds.length > 1 ? (
               <>
-                <label className="font-bold">Group chat name*</label>
+                <label htmlFor="groupChatName" className="font-bold">
+                  Group chat name*
+                </label>
+                <input type="text" id="groupChatName" name="groupChatName" />
                 <FormField
                   control={form.control}
                   name="name"

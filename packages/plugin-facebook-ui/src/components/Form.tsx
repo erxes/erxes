@@ -78,7 +78,7 @@ class Facebook extends React.Component<Props, State> {
     accountId: string;
   }) => {
     const { accountId, kind } = this.props;
-
+  
     return {
       name: values.messengerName,
       brandId: values.brandId,
@@ -86,10 +86,11 @@ class Facebook extends React.Component<Props, State> {
       accountId: accountId || values.accountId,
       channelIds: this.state.channelIds,
       data: {
-        pageIds: this.state.selectedPages
-      }
+        pageIds: this.state.selectedPages,
+      },
     };
   };
+  
 
   renderPages() {
     const { pages, loadingPages } = this.props;
