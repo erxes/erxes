@@ -177,7 +177,6 @@ class SingleArticle extends React.Component<Props, { reaction: string }> {
           />
         )}
         <div
-          tabIndex={0}
           onClick={this.showImageModal}
           dangerouslySetInnerHTML={{
             __html: article.content,
