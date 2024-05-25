@@ -16,8 +16,6 @@ import {
   SIP_STATUS_DISCONNECTED,
   SIP_STATUS_ERROR,
   SIP_STATUS_REGISTERED,
-} from '../../lib/enums';
-import {
   CallDirection,
   CallStatus,
   SipErrorType,
@@ -84,7 +82,7 @@ export default class SipProvider extends React.Component<
     rtcSession;
   }
 > {
-  public static childContextTypes = {
+  public static readonly childContextTypes = {
     sip: sipPropType,
     call: callPropType,
     registerSip: PropTypes.func,
@@ -105,7 +103,7 @@ export default class SipProvider extends React.Component<
     unhold: PropTypes.func,
   };
 
-  public static propTypes = {
+  public static readonly propTypes = {
     host: PropTypes.string,
     port: PropTypes.number,
     pathname: PropTypes.string,
@@ -120,7 +118,7 @@ export default class SipProvider extends React.Component<
     debug: PropTypes.bool,
   };
 
-  public static defaultProps = {
+  public static readonly defaultProps = {
     host: null,
     port: null,
     pathname: '',

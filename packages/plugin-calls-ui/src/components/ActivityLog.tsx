@@ -10,7 +10,6 @@ import { CenterText } from '@erxes/ui-log/src/activityLogs/styles';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Link } from 'react-router-dom';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils/core';
 import dayjs from 'dayjs';
 import { getIconAndColor } from '@erxes/ui-log/src/activityLogs/utils';
 
@@ -18,12 +17,11 @@ import { colors, dimensions } from '@erxes/ui/src/styles';
 
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { readFile } from '@erxes/ui/src/utils/core';
+import { readFile, __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   contentType: string;
   activity: any;
-  currentUser: any;
 };
 
 const MessageBody = styledTS<{ $staff?: boolean }>(styled.div)`
@@ -89,6 +87,7 @@ const ActivityItem = (props: Props) => {
       <Audio>
         <audio controls={true}>
           <source src={readFile(recordUrl)} type="audio/wav" />{' '}
+          <track kind="captions" src="" />
         </audio>
       </Audio>
     );
