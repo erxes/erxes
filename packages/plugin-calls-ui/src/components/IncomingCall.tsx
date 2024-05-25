@@ -169,7 +169,7 @@ const IncomingCall = (props: Props, context) => {
   };
 
   const renderUserInfo = (type?: string) => {
-    const inCall = type === 'incall' ? true : false;
+    const inCall = type === 'incall';
     const hasChannel = channels?.length > 0;
     const channelName = channels?.[0]?.name || '';
     const fullName = renderFullName(customer || '', false);
