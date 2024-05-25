@@ -26,7 +26,6 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IContractType } from '../../../contractTypes/types';
 import { IUser } from '@erxes/ui/src/auth/types';
-import Icon from '@erxes/ui/src/components/Icon';
 import { LEASE_TYPES } from '../../../contractTypes/constants';
 import React from 'react';
 import Select from 'react-select';
@@ -277,8 +276,9 @@ class ContractForm extends React.Component<Props, State> {
     const name = (e?.target as HTMLInputElement)?.name;
     let value: any = (e?.target as HTMLInputElement)?.value;
 
-    if ((e?.target as HTMLInputElement)?.type === 'checkbox')
+    if ((e?.target as HTMLInputElement)?.type === 'checkbox') {
       value = (e.target as HTMLInputElement).checked;
+    }
 
     const repayment = name === 'repayment' ? value : this.state.repayment;
 

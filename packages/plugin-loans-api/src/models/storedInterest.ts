@@ -110,9 +110,7 @@ export const loanStoredInterestClass = (models: IModels) => {
     }
 
     public static async getStoredInterest(_id: string) {
-      let res = await models.StoredInterest.findOne({ _id }).lean();
-
-      return res;
+      return await models.StoredInterest.findOne({ _id }).lean();
     }
 
     public static async updateStoredInterest(

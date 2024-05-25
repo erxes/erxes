@@ -162,8 +162,9 @@ const ClassificationForm = (props: Props) => {
         });
       }
       classification.list.splice(index, 1);
-      if (classification.list.length === 0)
+      if (classification.list.length === 0){
         dataClassifications.splice(cIndex, 1);
+      }
 
       setClassificationChangeList(dataClassifications);
     };
