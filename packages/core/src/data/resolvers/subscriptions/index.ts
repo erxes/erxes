@@ -1,16 +1,12 @@
 import robot from './robot';
 import users from './users';
 
-let subscriptions: any = {
-  ...robot,
-  ...users
-};
-
 const { NODE_ENV } = process.env;
 
 // disable subscriptions in test mode
-if (NODE_ENV === 'test') {
-  subscriptions = {};
-}
+const subscriptions: any = NODE_ENV === 'test' ? {} : {
+  ...robot,
+  ...users
+};
 
 export default subscriptions;

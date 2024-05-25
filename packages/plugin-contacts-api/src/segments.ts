@@ -1,7 +1,6 @@
 import {
   fetchByQuery,
   fetchByQueryWithScroll,
-  generateElkIds,
   getRealIdFromElk,
 } from '@erxes/api-utils/src/elasticsearch';
 import {

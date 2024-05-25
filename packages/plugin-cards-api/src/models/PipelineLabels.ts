@@ -24,10 +24,10 @@ export interface IPipelineLabelModel extends Model<IPipelineLabelDocument> {
     _id: string,
     doc: IPipelineLabel
   ): Promise<IPipelineLabelDocument>;
-  removePipelineLabel(_id: string): void;
-  labelsLabel(pipelineId: string, targetId: string, labelIds: string[]): void;
+  removePipelineLabel(_id: string): Promise<void>;
+  labelsLabel(pipelineId: string, targetId: string, labelIds: string[]): Promise<void>;
   validateUniqueness(filter: IFilter, _id?: string): Promise<boolean>;
-  labelObject(params: ILabelObjectParams): void;
+  labelObject(params: ILabelObjectParams): Promise<void>;
 }
 
 export const loadPipelineLabelClass = (models: IModels) => {

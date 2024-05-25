@@ -5,7 +5,7 @@ import { IModels } from '../../connectionResolver';
 
 export interface IConfigModel extends Model<IConfigDocument> {
   getConfig(code: string): Promise<IConfigDocument>;
-  createOrUpdateConfig({ code, value }: IConfig): IConfigDocument;
+  createOrUpdateConfig({ code, value }: IConfig): Promise<IConfigDocument>;
   constants();
 }
 

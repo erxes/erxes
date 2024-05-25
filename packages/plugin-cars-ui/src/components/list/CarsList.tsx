@@ -1,6 +1,5 @@
 import {
   Alert,
-  BarItems,
   Button,
   DataWithLoader,
   FormControl,
@@ -35,7 +34,6 @@ type Props = {
   loading: boolean;
   searchValue: string;
   totalCount: number;
-  // TODO: check is below line not throwing error ?
   toggleBulk: () => void;
   toggleAll: (targets: ICar[], containerId: string) => void;
   bulk: any[];

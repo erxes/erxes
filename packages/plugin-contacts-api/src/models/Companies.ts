@@ -24,7 +24,7 @@ export interface ICompanyModel extends Model<ICompanyDocument> {
       code?: string;
     },
     idsToExclude?: string[] | string
-  ): never;
+  ): Promise<never>;
 
   fillSearchText(doc: ICompany): string;
 

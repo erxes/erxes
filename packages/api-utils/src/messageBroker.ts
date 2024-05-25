@@ -303,7 +303,7 @@ export const sendRPCMessageMq = async (
     return channel.assertQueue('', { exclusive: true }).then((q) => {
       const timeoutMs =
         message.timeout || Number(process.env.RPC_TIMEOUT) || 10000;
-      var interval = setTimeout(() => {
+      const interval = setTimeout(() => {
         if (!channel) {
           throw new Error(`RabbitMQ channel is ${channel}`);
         }

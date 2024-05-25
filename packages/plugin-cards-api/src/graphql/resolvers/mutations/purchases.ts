@@ -109,7 +109,7 @@ const purchaseMutations = {
       const cantRemoveUserIds = removedUserIds.filter((userId) =>
         oldAssignedUserPdata.includes(userId),
       );
-      if (cantRemoveUserIds.length > 0) {
+      if (cantRemoveUserIds.length) {
         throw new Error(
           'Cannot remove the team member, it is assigned in the product / service section',
         );
@@ -130,7 +130,7 @@ const purchaseMutations = {
         assignedUsersPdata,
       );
 
-      if (addedUserIds.length > 0 || removedUserIds.length > 0) {
+      if (addedUserIds.length || removedUserIds.length) {
         let assignedUserIds =
           doc.assignedUserIds || oldpurchase.assignedUserIds || [];
         assignedUserIds = [...new Set(assignedUserIds.concat(addedUserIds))];
@@ -142,10 +142,8 @@ const purchaseMutations = {
     }
 
     if (
-      doc.expensesData &&
-      doc.expensesData.length &&
-      doc.productsData &&
-      doc.productsData.length
+      doc.expensesData?.length &&
+      doc.productsData?.length
     ) {
       const dataOfQuantity = doc.expensesData.filter(
         (ed) => ed.type === EXPENSE_DIVIDE_TYPES.QUANTITY,

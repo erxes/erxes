@@ -1,10 +1,9 @@
 import { DataWithLoader, Icon, Tip } from "@erxes/ui/src/components";
 import { Sidebar, Wrapper } from "@erxes/ui/src/layout";
 import { __, router } from "@erxes/ui/src/utils";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import { ISpinCampaign } from "../../../configs/spinCampaign/types";
-import { Link } from "react-router-dom";
 import React from "react";
 import { SidebarListItem } from "../../common/styles";
 import queryString from "query-string";

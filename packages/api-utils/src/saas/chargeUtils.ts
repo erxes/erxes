@@ -16,6 +16,93 @@ const sendCommonMessage = async ({ serviceName, action, subdomain, data }) => {
   });
 };
 
+const getPluginType = (methodName?: string, actionName?: string, params?: any) => {
+  if (!methodName) {
+    return '';
+  }
+
+  if (methodName === 'integrationsCreateLeadIntegration') {
+    return 'inbox:popups';
+  }
+
+  if (methodName === 'integrationsCreateLeadIntegration') {
+    return 'inbox:popups';
+  }
+
+  if (methodName === 'integrationsCreateExternalIntegration') {
+    const integrationKind = params?.kind;
+
+    switch (integrationKind) {
+      case 'facebook-post':
+        return 'facebookPost';
+      case 'facebook-messenger':
+        return 'facebookMessenger';
+      case 'instagram-post':
+        return 'instagramPost';
+      case 'instagram-messenger':
+        return 'instagramMessenger';
+      default:
+        return ''
+    }
+  }
+
+  if (methodName === 'customersAdd') {
+    return 'contacts';
+  }
+
+  if (methodName === 'integrationsCreateLeadIntegration') {
+    return 'inbox:popups';
+  }
+
+  if (methodName === 'integrationsCreateMessengerIntegration') {
+    return 'inbox:messenger';
+  }
+
+  if (methodName === 'integrationsCreateBookingIntegration') {
+    return 'inbox:booking';
+  }
+
+  if (methodName === 'knowledgeBaseTopicsAdd') {
+    return 'knowledgebase';
+  }
+
+  if (methodName === 'automationsAdd') {
+    return 'automations';
+  }
+
+  if (methodName === 'segmentsAdd') {
+    return 'segments';
+  }
+
+  if (methodName === 'usersInvite') {
+    return 'teamMembers';
+  }
+
+  if (methodName === 'boardsAdd') {
+    if (actionName === 'dealBoardsAdd') {
+      return 'cards:deals';
+    }
+
+    if (actionName === 'taskBoardsAdd') {
+      return 'cards:tasks';
+    }
+
+    if (actionName === 'ticketBoardsAdd') {
+      return 'card:tickets';
+    }
+
+    if (actionName === 'growthHackBoardsAdd') {
+      return 'cards:growthHacks';
+    }
+  }
+
+  if (methodName === 'clientPortalConfigUpdate') {
+    return 'clientportal';
+  }
+
+  return '';
+}
+
 export const getUsageByPluginType = async (args: {
   subdomain: string;
   pluginType?: string;
@@ -25,89 +112,9 @@ export const getUsageByPluginType = async (args: {
   params?;
 }) => {
   const { subdomain, methodName, actionName, models, params } = args;
-  let pluginType = args.pluginType;
+  const pluginType: string = getPluginType(methodName, actionName, params) ?? args.pluginType;
 
   let totalUsage = 0;
-
-  if (methodName === 'integrationsCreateLeadIntegration') {
-    pluginType = 'inbox:popups';
-  }
-
-  if (methodName === 'integrationsCreateLeadIntegration') {
-    pluginType = 'inbox:popups';
-  }
-
-  if (methodName === 'integrationsCreateExternalIntegration') {
-    const integrationKind = params ? params.kind : '';
-
-    switch (integrationKind) {
-      case 'facebook-post':
-        pluginType = 'facebookPost';
-
-      case 'facebook-messenger':
-        pluginType = 'facebookMessenger';
-
-      case 'instagram-post':
-        pluginType = 'instagramPost';
-
-      case 'instagram-messenger':
-        pluginType = 'instagramMessenger';
-    }
-  }
-
-  if (methodName === 'customersAdd') {
-    pluginType = 'contacts';
-  }
-
-  if (methodName === 'integrationsCreateLeadIntegration') {
-    pluginType = 'inbox:popups';
-  }
-
-  if (methodName === 'integrationsCreateMessengerIntegration') {
-    pluginType = 'inbox:messenger';
-  }
-
-  if (methodName === 'integrationsCreateBookingIntegration') {
-    pluginType = 'inbox:booking';
-  }
-
-  if (methodName === 'knowledgeBaseTopicsAdd') {
-    pluginType = 'knowledgebase';
-  }
-
-  if (methodName === 'automationsAdd') {
-    pluginType = 'automations';
-  }
-
-  if (methodName === 'segmentsAdd') {
-    pluginType = 'segments';
-  }
-
-  if (methodName === 'usersInvite') {
-    pluginType = 'teamMembers';
-  }
-
-  if (methodName === 'boardsAdd') {
-    if (actionName === 'dealBoardsAdd') {
-      pluginType = 'cards:deals';
-    }
-
-    if (actionName === 'taskBoardsAdd') {
-      pluginType = 'cards:tasks';
-    }
-
-    if (actionName === 'ticketBoardsAdd') {
-      pluginType = 'card:tickets';
-    }
-
-    if (actionName === 'growthHackBoardsAdd') {
-      pluginType = 'cards:growthHacks';
-    }
-  }
-
-  if (methodName === 'clientPortalConfigUpdate') {
-    pluginType = 'clientportal';
-  }
 
   if (pluginType === 'contacts') {
     if (models) {

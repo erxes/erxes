@@ -97,7 +97,7 @@ function Component(
     return (
       <>
         {items.map((car, index) => (
-          <SectionBodyItem key={index}>
+          <SectionBodyItem key={car._id}>
             <Link to={`/erxes-plugin-car/details/${car._id}`}>
               <Icon icon="arrow-to-right" />
             </Link>
