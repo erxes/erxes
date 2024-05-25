@@ -66,7 +66,10 @@ export default class ListHeader extends React.Component<Props> {
               id="dropdown-filter-components"
             >
               <FilterGroup className="d-flex align-items-center">
-                <label>Filter by</label> &nbsp;
+                <label htmlFor="first-name">
+                  Filter by
+                </label> &nbsp;
+                <input type="text" id="first-name" />
                 <CardTab>
                   <span
                     className={`d-flex align-items-center justify-content-center`}
