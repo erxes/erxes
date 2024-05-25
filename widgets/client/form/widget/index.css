@@ -1,9 +1,9 @@
-[id^="erxes-container"] {
+[id^='erxes-container'] {
   z-index: 1000000000;
   border: none;
 }
 
-[id^="erxes-container"] > iframe {
+[id^='erxes-container'] > iframe {
   border: none;
 }
 
@@ -20,12 +20,12 @@
 }
 
 @media only screen and (max-width: 420px) {
-  [id^="erxes-container"] {
+  [id^='erxes-container'] {
     width: 100%;
     max-height: none;
   }
 
-  [id^="erxes-iframe"] {
+  [id^='erxes-iframe'] {
     bottom: 0;
     right: 0;
   }
@@ -89,14 +89,10 @@
   left: 0;
   right: 0;
   top: 0;
-  animation-delay: 1s;
+  -webkit-animation: fadeInDown 0.3s both;
+  animation: fadeInDown 0.3s both;
   -webkit-animation-delay: 1s;
-  animation: fadeInDown;
-  -webkit-animation: fadeInDown;
-  -webkit-animation-duration: 0.3s;
-  animation-duration: 0.3s;
-  -webkit-animation-fill-mode: both;
-  animation-fill-mode: both;
+  animation-delay: 1s;
   max-height: 100%;
   box-shadow: 0 3px 20px -2px rgba(0, 0, 0, 0.3);
 }
