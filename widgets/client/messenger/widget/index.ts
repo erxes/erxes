@@ -15,10 +15,8 @@ declare const window: any;
  */
 
 // check is mobile
-const isMobile =
-  /iPhone/i.exec(navigator.userAgent) ||
-  /iPad/i.exec(navigator.userAgent) ||
-  /Android/i.exec(navigator.userAgent);
+
+const isMobile = /iPhone|iPad|Android/i.exec(navigator.userAgent) !== null;
 
 let viewportMeta: any;
 let newViewportMeta: any;
