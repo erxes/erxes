@@ -30,6 +30,8 @@ function ConversationItem({ conversation, notificationCount, goToConversation }:
 
   return (
     <li
+      role="button"
+      tabIndex={0}
       className={classNames('erxes-list-item', {
         unread: notificationCount > 0,
       })}
