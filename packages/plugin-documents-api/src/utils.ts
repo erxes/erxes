@@ -52,7 +52,10 @@ const coreUser = async (subdomain, document, itemId, replacedContents) => {
 }
 
 const arranger = (replacedContents, heads, scripts, styles, replacers, copies, results, width) => {
-  for (let replacedContent of replacedContents) {
+  let index = -1;
+
+  for (const replacedContent of replacedContents) {
+    index += 1;
     if (replacedContent.startsWith('::heads::')) {
       heads += replacedContent.replace('::heads::', '');
       continue;
@@ -68,13 +71,13 @@ const arranger = (replacedContents, heads, scripts, styles, replacers, copies, r
       continue;
     }
 
+    let tempReplaceContent = replacedContent;
     for (const replacer of replacers) {
       const [key, value] = replacer.split(',');
 
       if (key) {
         const regex = new RegExp(key, 'g');
-        const tempContent = replacedContent;
-        replacedContent = tempContent.replace(regex, value);
+        tempReplaceContent = replacedContent.replace(regex, value);
       }
     }
 
@@ -82,14 +85,14 @@ const arranger = (replacedContents, heads, scripts, styles, replacers, copies, r
       results = `
         ${results}
         <div style="margin-right: 2mm; margin-bottom: 2mm; width: ${width}mm; float: left;">
-          ${replacedContent}
+          ${tempReplaceContent}
         </div>
       `;
     } else {
-      results = results + replacedContent;
+      results = results + tempReplaceContent;
     }
   }
-  return { replacedContents, heads, scripts, styles, results }
+  return { heads, scripts, styles, results }
 }
 
 
@@ -129,10 +132,9 @@ export const helper = async (subdomain, document, query) => {
 
   let results: string = '';
 
-  const replacers = (document.replacer || '').split('\n');
+  const replacers = (document.replacer ?? '').split('\n');
 
   const arrangeResponse = arranger(replacedContents, heads, scripts, styles, replacers, copies, results, width);
-  replacedContents = arrangeResponse.replacedContents;
   heads = arrangeResponse.heads;
   scripts = arrangeResponse.scripts;
   styles = arrangeResponse.styles;
