@@ -8,12 +8,12 @@ import {
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
-  __,
-} from "@erxes/ui/src";
-import { ChangeAmount, ExtraDebtSection } from "../../contracts/styles";
-import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-import { ITransaction, ITransactionDoc } from "../types";
-import React, { useState } from "react";
+  __
+} from '@erxes/ui/src';
+import { ChangeAmount, ExtraDebtSection } from '../../contracts/styles';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { ITransaction, ITransactionDoc } from '../types';
+import React, { useState } from 'react';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -35,12 +35,6 @@ const TransactionForm = (props: Props) => {
   const [debt, setDebt] = useState(transaction.debt || 0);
   const [futureDebt, setFutureDebt] = useState(transaction.futureDebt || 0);
   const [debtTenor, setDebtTenor] = useState(transaction.debtTenor || 0);
-  const [maxTotal, setMaxTotal] = useState(
-    Math.max(transaction.calcedInfo.total || 0, transaction.total || 0)
-  );
-  const [firstTotal, setFirstTotal] = useState(
-    (transaction.total || 0) - (transaction.futureDebt || 0)
-  );
 
   const generateDoc = (values: { _id: string } & ITransactionDoc) => {
     const finalValues = values;
@@ -58,7 +52,7 @@ const TransactionForm = (props: Props) => {
       insurance: Number(insurance || 0),
       debt: Number(debt || 0),
       futureDebt: Number(futureDebt || 0),
-      debtTenor: Number(debtTenor || 0),
+      debtTenor: Number(debtTenor || 0)
     };
   };
 
@@ -75,23 +69,11 @@ const TransactionForm = (props: Props) => {
       Number(insurance) +
       Number(debt);
 
-    if (total > maxTotal) {
-      return `Overdue total: Max total is ${maxTotal}`;
-    }
-
-    if (total < firstTotal) {
-      return `Missing first Total: first Total total is ${firstTotal}`;
-    }
-
-    if (futureDebt && transaction.calcedInfo.total < firstTotal) {
-      return `Overdue future debt`;
-    }
-
     if (futureDebt && !debtTenor) {
       return `must fill debt Tenor when Future debt`;
     }
 
-    return "";
+    return '';
   };
 
   const onChangeField = (e) => {
@@ -102,26 +84,33 @@ const TransactionForm = (props: Props) => {
       value = 0;
     }
 
-    const setHandler =
-      name === "total"
-        ? setTotal
-        : name === "payment"
-          ? setPayment
-          : name === "interestEve"
-            ? setInterestEve
-            : name === "interestNonce"
-              ? setInterestNonce
-              : name === "loss"
-                ? setLoss
-                : name === "insurance"
-                  ? setInsurance
-                  : name === "insurance"
-                    ? setDebt
-                    : name === " futureDebt"
-                      ? setFutureDebt
-                      : setDebtTenor;
+    switch (name) {
+      case 'total':
+        setTotal(value);
+        break;
+      case 'payment':
+        setPayment(value);
+        break;
+      case 'interestEve':
+        setInterestEve(value);
+        break;
+      case 'interestNonce':
+        setInterestNonce(value);
+        break;
+      case 'loss':
+        setLoss(value);
+        break;
+      case 'insurance':
+        setInsurance(value);
+        break;
+      case 'futureDebt':
+        setFutureDebt(value);
+        break;
 
-    setHandler(value as any);
+      default:
+        setDebtTenor(value);
+        break;
+    }
 
     setTimeout(() => {
       const validErr = checkValid();
@@ -139,33 +128,16 @@ const TransactionForm = (props: Props) => {
 
       setTotal(total);
 
-      if (name !== "futureDebt") {
-        setFutureDebt(total - firstTotal);
-      }
       if (!futureDebt) {
         setDebtTenor(0);
       }
     }, 300);
   };
 
-  const renderRow = (formProps: IFormProps, label, fieldName) => {
+  const renderRow = (formProps: IFormProps, label, fieldName,val) => {
     const trCalcedInfo = transaction.calcedInfo;
     const trCalcedVal = trCalcedInfo[fieldName] || 0;
     const trVal = transaction[fieldName] || 0;
-    const val =
-      fieldName === "total"
-        ? total
-        : fieldName === "payment"
-          ? payment
-          : fieldName === "interestEve"
-            ? interestEve
-            : fieldName === "interestNonce"
-              ? interestNonce
-              : fieldName === "loss"
-                ? loss
-                : fieldName === "insurance"
-                  ? insurance
-                  : debt;
 
     return (
       <FormWrapper>
@@ -183,7 +155,7 @@ const TransactionForm = (props: Props) => {
         <FormColumn>
           <FormControl
             {...formProps}
-            type={"number"}
+            type={'number'}
             name={fieldName}
             min={0}
             value={val}
@@ -220,13 +192,13 @@ const TransactionForm = (props: Props) => {
             <ControlLabel>{__(`Odd`)}</ControlLabel>
           </FormColumn>
         </FormWrapper>
-        {renderRow(formProps, "total", "total")}
-        {renderRow(formProps, "payment", "payment")}
-        {renderRow(formProps, "interest eve", "interestEve")}
-        {renderRow(formProps, "interest nonce", "interestNonce")}
-        {renderRow(formProps, "loss", "loss")}
-        {renderRow(formProps, "insurance", "insurance")}
-        {renderRow(formProps, "debt", "debt")}
+        {renderRow(formProps, 'total', 'total',total)}
+        {renderRow(formProps, 'payment', 'payment',payment)}
+        {renderRow(formProps, 'interest eve', 'interestEve',interestEve)}
+        {renderRow(formProps, 'interest nonce', 'interestNonce',interestNonce)}
+        {renderRow(formProps, 'loss', 'loss',loss)}
+        {renderRow(formProps, 'insurance', 'insurance',insurance)}
+        {renderRow(formProps, 'debt', 'debt',debt)}
       </>
     );
   };
@@ -246,8 +218,8 @@ const TransactionForm = (props: Props) => {
           </FormColumn>
           <FormColumn>
             <FormControl
-              type={"number"}
-              name={"futureDebt"}
+              type={'number'}
+              name={'futureDebt'}
               min={0}
               value={futureDebt}
               onChange={onChangeField}
@@ -268,8 +240,8 @@ const TransactionForm = (props: Props) => {
           </FormColumn>
           <FormColumn>
             <FormControl
-              type={"number"}
-              name={"debtTenor"}
+              type={'number'}
+              name={'debtTenor'}
               min={1}
               value={Math.round(debtTenor)}
               onChange={onChangeField}
@@ -297,12 +269,12 @@ const TransactionForm = (props: Props) => {
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
-            {__("Close")}
+            {__('Close')}
           </Button>
           {renderButton({
             values: generateDoc(values),
             isSubmitted,
-            disableLoading: Boolean(checkValid()),
+            disableLoading: Boolean(checkValid())
           })}
         </ModalFooter>
       </>
