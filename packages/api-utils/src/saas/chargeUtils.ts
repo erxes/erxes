@@ -16,7 +16,11 @@ const sendCommonMessage = async ({ serviceName, action, subdomain, data }) => {
   });
 };
 
-const getPluginType = (methodName: string, actionName: string, params: any) => {
+const getPluginType = (methodName?: string, actionName?: string, params?: any) => {
+  if (!methodName) {
+    return '';
+  }
+
   if (methodName === 'integrationsCreateLeadIntegration') {
     return 'inbox:popups';
   }
@@ -106,11 +110,9 @@ export const getUsageByPluginType = async (args: {
   params?;
 }) => {
   const { subdomain, methodName, actionName, models, params } = args;
-  let pluginType = getPluginType(methodName || '', actionName || '', params) || args.pluginType;
+  const pluginType = getPluginType(methodName, actionName, params) ?? args.pluginType;
 
   let totalUsage = 0;
-
-
 
   if (pluginType === 'contacts') {
     if (models) {
