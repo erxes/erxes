@@ -83,7 +83,6 @@ export default class GenerateField extends React.Component<Props, State> {
         value = this.state.checkBoxValues;
       });
     }
-    
 
     if (onValueChange) {
       this.setState({ value });
