@@ -243,10 +243,7 @@ const KeyPad = (props: Props, context) => {
       operators: integration?.operators,
       isAvailable: isConnected,
     });
-    localStorage.setItem(
-      'isConnectCallRequested',
-      isConnected ? 'true' : 'false',
-    );
+    localStorage.setItem('isConnectCallRequested', isConnected.toString());
     localStorage.setItem(
       'callInfo',
       JSON.stringify({
