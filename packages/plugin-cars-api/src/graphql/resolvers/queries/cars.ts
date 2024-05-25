@@ -182,10 +182,8 @@ const carQueries = {
       commonQuerySelectorElk
     });
 
-    switch (only) {
-      case 'bySegment':
-        counts.bySegment = await countBySegment(subdomain, 'cars:car', qb);
-        break;
+    if (only === 'bySegment') {
+      counts.bySegment = await countBySegment(subdomain, 'cars:car', qb);
     }
 
     return counts;
