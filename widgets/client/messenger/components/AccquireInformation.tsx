@@ -43,9 +43,9 @@ class AccquireInformation extends React.PureComponent<Props, State> {
     this.renderTitle = this.renderTitle.bind(this);
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.loading !== this.props.loading) {
-      this.setState({ isLoading: nextProps.loading });
+  componentDidUpdate(prevProps: Props) {
+    if (this.props.loading !== prevProps.loading) {
+      this.setState({ isLoading: this.props.loading });
     }
   }
 
