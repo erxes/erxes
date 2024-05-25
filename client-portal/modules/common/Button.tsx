@@ -84,16 +84,16 @@ const ButtonStyled = styledTS<{
       cursor: pointer;
       text-decoration: none;
       color: ${types[props.btnStyle].color &&
-      darken(types[props.btnStyle].color, 35)};
+    darken(types[props.btnStyle].color, 35)};
       background: ${props.btnStyle !== "link" &&
-      `${darken(types[props.btnStyle].background, 20)}`};
+    `${darken(types[props.btnStyle].background, 20)}`};
     }
 
     &:active,
     &:focus {
       box-shadow: ${types[props.btnStyle].border
-        ? `0 0 0 0.2rem ${lighten(types[props.btnStyle].border, 65)}`
-        : `0 0 0 0.2rem ${lighten(types[props.btnStyle].background, 65)}`};
+      ? `0 0 0 0.2rem ${lighten(types[props.btnStyle].border, 65)}`
+      : `0 0 0 0.2rem ${lighten(types[props.btnStyle].background, 65)}`};
       box-shadow: ${props.btnStyle === "link" && "none"};
     }
 
@@ -209,9 +209,11 @@ export default class Button extends React.Component<ButtonProps> {
     const Element: any = href ? ButtonLink : ButtonStyled;
 
     let content = children;
-
+    function setName(content) {
+      this.content = content;
+    };
     if (!ignoreTrans && typeof content === "string") {
-      content = content;
+      setName(content)
     }
 
     if (icon) {
