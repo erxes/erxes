@@ -1,17 +1,17 @@
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import { IChannel } from '@erxes/ui-inbox/src/settings/channels/types';
-import IntegrationList from '@erxes/ui-inbox/src/settings/integrations/containers/common/IntegrationList';
-import ManageIntegrations from '../containers/ManageIntegrations';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import React from 'react';
-import Sidebar from '../containers/Sidebar';
-import { Title } from '@erxes/ui-settings/src/styles';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from 'coreui/utils';
+import Button from "@erxes/ui/src/components/Button";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
+import { IChannel } from "@erxes/ui-inbox/src/settings/channels/types";
+import IntegrationList from "@erxes/ui-inbox/src/settings/integrations/containers/common/IntegrationList";
+import ManageIntegrations from "../containers/ManageIntegrations";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import React from "react";
+import Sidebar from "../containers/Sidebar";
+import { Title } from "@erxes/ui-settings/src/styles";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "coreui/utils";
 
 type Props = {
   integrationsCount: number;
@@ -22,26 +22,22 @@ type Props = {
 
 class Channels extends React.Component<Props, {}> {
   render() {
-    const {
-      integrationsCount,
-      currentChannel,
-      queryParams,
-      loading
-    } = this.props;
+    const { integrationsCount, currentChannel, queryParams, loading } =
+      this.props;
 
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Channels'), link: '/settings/channels' },
-      { title: `${currentChannel.name || ''}` }
+      { title: __("Settings"), link: "/settings" },
+      { title: __("Channels"), link: "/settings/channels" },
+      { title: `${currentChannel.name || ""}` },
     ];
 
     const trigger = (
       <Button btnStyle="simple" icon="web-grid-alt">
-        {__('Manage integration')}
+        {__("Manage integration")}
       </Button>
     );
 
-    const content = props => (
+    const content = (props) => (
       <ManageIntegrations
         {...props}
         queryParams={queryParams}
@@ -65,17 +61,17 @@ class Channels extends React.Component<Props, {}> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={`${currentChannel.name || ''}`}
+            title={`${currentChannel.name || ""}`}
             breadcrumb={breadcrumb}
           />
         }
         mainHead={
           <HeaderDescription
             icon="/images/actions/31.svg"
-            title={'Channels'}
+            title={"Channels"}
             description={`${__(
-              `Channels are important to know how and where your team members are spread out`
-            )}.${__(`Manage your channels and stay at the top of your game`)}`}
+              `Channels are important to know how and where your team members are spread out. Manage your channels and stay at the top of your game`
+            )}`}
           />
         }
         leftSidebar={
@@ -104,7 +100,7 @@ class Channels extends React.Component<Props, {}> {
             loading={loading}
             count={integrationsCount}
             emptyText={__(
-              'Choose from our many integrations and add to your channel'
+              "Choose from our many integrations and add to your channel"
             )}
             emptyImage="/images/actions/2.svg"
           />
