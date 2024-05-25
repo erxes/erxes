@@ -1,9 +1,9 @@
-import { CHAT_TYPE } from '../../../models/definitions/chat';
-import * as strip from 'strip';
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
-import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { sendCoreMessage } from '../../../messageBroker';
-import { IContext } from '../../../connectionResolver';
+import { CHAT_TYPE } from "../../../models/definitions/chat";
+import * as strip from "strip";
+import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
+import { checkPermission } from "@erxes/api-utils/src/permissions";
+import { sendCoreMessage } from "../../../messageBroker";
+import { IContext } from "../../../connectionResolver";
 
 const checkChatAdmin = async (Chats, userId) => {
   const found = await Chats.exists({
@@ -11,7 +11,7 @@ const checkChatAdmin = async (Chats, userId) => {
   });
 
   if (!found) {
-    throw new Error('Only admin can this action');
+    throw new Error("Only admin can this action");
   }
 };
 
@@ -19,17 +19,17 @@ const hasAdminLeft = (chat, userId) => {
   const found = (chat.adminIds || []).indexOf(userId) !== -1;
 
   if (found && (chat.adminIds || []).length === 1) {
-    throw new Error('You cannot remove you. There is no admin except you.');
+    throw new Error("You cannot remove you. There is no admin except you.");
   }
 };
 
 const strip_html = (string: any) => {
-  if (typeof string === 'undefined' || string === null) {
+  if (typeof string === "undefined" || string === null) {
     return;
   } else {
     const regex = /(&nbsp;|<([^>]+)>)/gi;
-    let result = string.replace(regex, '');
-    result = result.replace(/&#[0-9][0-9][0-9][0-9];/gi, ' ');
+    let result = string.replace(regex, "");
+    result = result.replace(/&#\d{4};/gi, " ");
     const cut = result.slice(0, 70);
     return cut;
   }
@@ -37,10 +37,9 @@ const strip_html = (string: any) => {
 
 const chatMutations = {
   chatAdd: async (_root, { participantIds, ...doc }, { user, models }) => {
-    const allParticipantIds =
-      participantIds && participantIds.includes(user._id)
-        ? participantIds
-        : (participantIds || []).concat(user._id);
+    const allParticipantIds = participantIds?.includes(user._id)
+      ? participantIds
+      : (participantIds || []).concat(user._id);
 
     const chat = await models.Chats.createChat(
       {
@@ -48,20 +47,20 @@ const chatMutations = {
         participantIds: allParticipantIds,
         adminIds: [user._id],
       },
-      user._id,
+      user._id
     );
 
     const recievers = allParticipantIds.filter((value) => user._id !== value);
 
     sendCoreMessage({
-      subdomain: 'os',
-      action: 'sendMobileNotification',
+      subdomain: "os",
+      action: "sendMobileNotification",
       data: {
         title: doc.title,
         body: doc.description,
         recievers,
         data: {
-          type: 'chats',
+          type: "chats",
           id: chat._id,
         },
       },
@@ -93,7 +92,7 @@ const chatMutations = {
     });
 
     if (!chat) {
-      throw new Error('Chat not found');
+      throw new Error("Chat not found");
     }
 
     if (chat.type === CHAT_TYPE.GROUP) {
@@ -105,14 +104,14 @@ const chatMutations = {
               participantIds: { $in: user?._id },
               adminIds: { $in: user?._id },
             },
-          },
+          }
         );
 
-        return 'Success';
+        return "Success";
       }
     }
 
-    return 'Success';
+    return "Success";
   },
 
   chatArchive: async (_root, { _id }, { models, user }) => {
@@ -122,31 +121,31 @@ const chatMutations = {
     });
 
     if (!chat) {
-      throw new Error('Chat not found');
+      throw new Error("Chat not found");
     }
 
-    const archiverUser = chat && chat.archivedUserIds.includes(user._id);
+    const archiverUser = chat?.archivedUserIds?.includes(user._id);
 
     if (archiverUser) {
       await models.Chats.updateOne(
         { _id },
-        { $pull: { archivedUserIds: { $in: [user._id] } } },
+        { $pull: { archivedUserIds: { $in: [user._id] } } }
       );
     } else {
       await models.Chats.updateOne(
         { _id },
-        { $push: { archivedUserIds: [user._id] } },
+        { $push: { archivedUserIds: [user._id] } }
       );
     }
 
-    return 'Success';
+    return "Success";
   },
 
   chatMarkAsRead: async (_root, { _id }, { models, user }) => {
     const lastMessage = await models.ChatMessages.findOne({ chatId: _id }).sort(
       {
         createdAt: -1,
-      },
+      }
     );
 
     let seen;
@@ -186,7 +185,7 @@ const chatMutations = {
       if (updated) {
         await models.Chats.updateOne(
           { _id: chat._id },
-          { $set: { seenInfos } },
+          { $set: { seenInfos } }
         );
       }
     }
@@ -200,7 +199,7 @@ const chatMutations = {
       participantIds: { $in: [user._id] },
     });
 
-    const isPinnedUser = chat && chat.isPinnedUserIds.includes(user._id);
+    const isPinnedUser = chat?.isPinnedUserIds?.includes(user._id);
 
     if (chat) {
       if (chat.createdUser?._id) {
@@ -214,7 +213,7 @@ const chatMutations = {
           { _id },
           {
             $push: { isPinnedUserIds: [user._id] },
-          },
+          }
         );
       }
 
@@ -223,7 +222,7 @@ const chatMutations = {
           { _id },
           {
             $pull: { isPinnedUserIds: { $in: [user._id] } },
-          },
+          }
         );
       }
 
@@ -237,7 +236,7 @@ const chatMutations = {
       _id,
       participantIds: { $in: [user._id] },
     });
-    const muteUser = chat && chat.muteUserIds.includes(user._id);
+    const muteUser = chat?.muteUserIds?.includes(user._id);
 
     if (chat) {
       if (chat.createdUser?._id) {
@@ -251,7 +250,7 @@ const chatMutations = {
           { _id },
           {
             $push: { muteUserIds: [user._id] },
-          },
+          }
         );
       }
 
@@ -260,7 +259,7 @@ const chatMutations = {
           { _id },
           {
             $pull: { muteUserIds: { $in: [user._id] } },
-          },
+          }
         );
       }
 
@@ -271,16 +270,16 @@ const chatMutations = {
 
   chatMessageAdd: async (_root, args, { models, user }) => {
     if (!args.content && args.attachments.length === 0) {
-      throw new Error('Content is required');
+      throw new Error("Content is required");
     }
 
     // <img> tags wrapped inside empty <p> tag should be allowed
     const contentValid =
-      args.content.indexOf('<img') !== -1 ? true : strip(args.content);
+      args.content.indexOf("<img") !== -1 ? true : strip(args.content);
 
     // if there is no attachments and no content then throw content required error
     if (args?.attachments.length === 0 && !contentValid) {
-      throw new Error('Content is required');
+      throw new Error("Content is required");
     }
 
     const message = await models.ChatMessages.createChatMessage(args, user._id);
@@ -294,26 +293,26 @@ const chatMutations = {
           updatedAt: new Date(),
           archivedUserIds: [],
         },
-      },
+      }
     );
 
     const chat = await models.Chats.getChat(message.chatId, user._id);
 
     let recievers = chat.participantIds.filter(
-      (value) => !chat.muteUserIds.includes(value),
+      (value) => !chat.muteUserIds.includes(value)
     );
 
     recievers = chat.participantIds.filter((value) => user._id !== value);
 
     sendCoreMessage({
-      subdomain: 'os',
-      action: 'sendMobileNotification',
+      subdomain: "os",
+      action: "sendMobileNotification",
       data: {
         title: `${user?.details?.fullName || user?.fullName} sent you chat`,
         body: strip_html(args.content),
         receivers: recievers,
         data: {
-          type: 'chats',
+          type: "chats",
           id: chat._id,
         },
       },
@@ -354,7 +353,7 @@ const chatMutations = {
 
       await models.ChatMessages.updateOne(
         { _id },
-        { $set: { isPinned: !message.isPinned } },
+        { $set: { isPinned: !message.isPinned } }
       );
 
       return !message.isPinned;
@@ -365,37 +364,36 @@ const chatMutations = {
   chatAddOrRemoveMember: async (
     _root,
     { _id, userIds, type },
-    { models, user },
+    { models, user }
   ) => {
     const chat = await models.Chats.getChat(_id, user._id);
-    // const chat = await models.Chats.getChat(_id);
 
     if ((chat.participantIds || []).length === 1) {
-      if (type === 'remove') {
+      if (type === "remove") {
         await models.Chats.removeChat(_id);
 
-        return 'Chat removed';
+        return "Chat removed";
       }
     }
 
     // while user is removing himself or herself
-    if (type === 'remove' && (userIds || []).indexOf(user._id) !== -1) {
+    if (type === "remove" && (userIds || []).indexOf(user._id) !== -1) {
       hasAdminLeft(chat, user._id);
     }
 
     await models.Chats.updateOne(
       { _id },
-      type === 'add'
+      type === "add"
         ? { $addToSet: { participantIds: userIds } }
         : {
             $pull: {
               participantIds: { $in: userIds },
               adminIds: { $in: userIds },
             },
-          },
+          }
     );
 
-    return 'Success';
+    return "Success";
   },
 
   chatMakeOrRemoveAdmin: async (_root, { _id, userId }, { models, user }) => {
@@ -407,7 +405,7 @@ const chatMutations = {
     });
 
     if (!chat) {
-      throw new Error('Chat not found');
+      throw new Error("Chat not found");
     }
 
     const found = (chat.adminIds || []).indexOf(userId) !== -1;
@@ -423,10 +421,10 @@ const chatMutations = {
       { _id },
       found
         ? { $pull: { adminIds: { $in: [userId] } } }
-        : { $addToSet: { adminIds: [userId] } },
+        : { $addToSet: { adminIds: [userId] } }
     );
 
-    return 'Success';
+    return "Success";
   },
 
   chatTypingInfo(_root, args: { chatId: string; userId?: string }) {
@@ -434,19 +432,19 @@ const chatMutations = {
       chatTypingStatusChanged: args,
     });
 
-    return 'ok';
+    return "ok";
   },
 
   chatForward: async (_root, { userIds, ...args }, { user, models }) => {
     if (userIds && userIds.length > 0) {
-      const participantIds = [...(userIds || [])];
+      const participantIds = [...userIds];
 
       if (!participantIds.includes(user._id)) {
         participantIds.push(user._id);
       }
 
       let newChat = await models.Chats.findOne({
-        type: 'direct',
+        type: "direct",
         participantIds: {
           $all: participantIds,
           $size: participantIds.length,
@@ -457,9 +455,9 @@ const chatMutations = {
         newChat = await models.Chats.createChat(
           {
             participantIds,
-            type: 'direct',
+            type: "direct",
           },
-          user._id,
+          user._id
         );
 
         graphqlPubsub.publish(`chatInserted:${user._id}`, {
@@ -484,7 +482,7 @@ const chatMutations = {
         $set: {
           updatedAt: new Date(),
         },
-      },
+      }
     );
 
     graphqlPubsub.publish(`chatMessageInserted:${message.chatId}`, {
@@ -494,20 +492,20 @@ const chatMutations = {
     const chat = await models.Chats.getChat(message.chatId, user._id);
 
     let recievers = chat.participantIds.filter(
-      (value) => !chat.muteUserIds.includes(value),
+      (value) => !chat.muteUserIds.includes(value)
     );
 
     recievers = recievers.filter((value) => user._id !== value);
 
     sendCoreMessage({
-      subdomain: 'os',
-      action: 'sendMobileNotification',
+      subdomain: "os",
+      action: "sendMobileNotification",
       data: {
         title: `${user?.details?.fullName || user?.fullName} sent you chat`,
         body: strip_html(args.content),
         receivers: recievers,
         data: {
-          type: 'chats',
+          type: "chats",
           id: chat._id,
         },
       },
@@ -540,7 +538,7 @@ const chatMutations = {
         {
           userId: doc.userId || user._id,
           ...doc,
-        },
+        }
       );
     }
 
@@ -555,14 +553,14 @@ const chatMutations = {
   },
 };
 
-checkPermission(chatMutations, 'chatAdd', 'manageChats');
-checkPermission(chatMutations, 'chatEdit', 'manageChats');
-checkPermission(chatMutations, 'chatRemove', 'manageChats');
-checkPermission(chatMutations, 'chatMarkAsRead', 'manageChats');
-checkPermission(chatMutations, 'chatMessageAdd', 'manageChats');
-checkPermission(chatMutations, 'chatMessageRemove', 'manageChats');
-checkPermission(chatMutations, 'chatMessageToggleIsPinned', 'manageChats');
-checkPermission(chatMutations, 'chatAddOrRemoveMember', 'manageChats');
-checkPermission(chatMutations, 'chatMakeOrRemoveAdmin', 'manageChats');
+checkPermission(chatMutations, "chatAdd", "manageChats");
+checkPermission(chatMutations, "chatEdit", "manageChats");
+checkPermission(chatMutations, "chatRemove", "manageChats");
+checkPermission(chatMutations, "chatMarkAsRead", "manageChats");
+checkPermission(chatMutations, "chatMessageAdd", "manageChats");
+checkPermission(chatMutations, "chatMessageRemove", "manageChats");
+checkPermission(chatMutations, "chatMessageToggleIsPinned", "manageChats");
+checkPermission(chatMutations, "chatAddOrRemoveMember", "manageChats");
+checkPermission(chatMutations, "chatMakeOrRemoveAdmin", "manageChats");
 
 export default chatMutations;
