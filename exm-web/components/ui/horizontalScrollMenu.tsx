@@ -45,7 +45,6 @@ export const HorizontalScrollMenu = ({
       })
   return (
 <div
-  role="scrollbar"
   className="relative flex-auto flex-col overflow-hidden"
   onMouseLeave={dragStop}
   tabIndex={0}
