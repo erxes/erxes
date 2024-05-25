@@ -16,25 +16,19 @@ document.getElementsByTagName("head")[0].appendChild(meta);
 
 const iframeId = "erxes-booking-iframe";
 const container = "erxes-booking-container";
-
-// container
 const erxesContainer = document.createElement("div");
 erxesContainer.id = container;
 erxesContainer.className = "";
 
-// add iframe
 const iframe = document.createElement("iframe");
 iframe.id = iframeId;
 iframe.src = generateIntegrationUrl("booking");
 iframe.style.display = "none";
 
 erxesContainer.appendChild(iframe);
-
 const embedContainer = document.querySelector("[data-erxes-booking]");
 
 const trackIframe = () => {
-  // after iframe load send connection info
-  // After iframe load, send connection info
   iframe.onload = () => {
     iframe.style.display = "block";
 
@@ -45,7 +39,7 @@ const trackIframe = () => {
           setting: window.erxesSettings.booking,
           storage: getStorage(),
         },
-        "https://secure.example.com" // Replace with your actual target origin
+        "https://secure.example.com" // Replace with the actual origin of the iframe content
       );
     }
   };
@@ -62,12 +56,12 @@ if (!embedContainer) {
 
 // listen for messages from widget
 window.addEventListener("message", (event: MessageEvent) => {
-  // Verify the origin of the messages
+  // Check the origin of the message
   if (event.origin !== "https://secure.example.com") {
     console.warn("Received message from unauthorized origin:", event.origin);
-    return; // Ignore the message if the origin is not what you expect
+    return; // Do not process messages from untrusted origins
   }
 
-  // Handle the message if the origin is verified
+  // Process the message from the trusted origin
   listenForCommonRequests(event, iframe);
 });
