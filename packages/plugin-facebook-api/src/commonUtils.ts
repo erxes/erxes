@@ -1,38 +1,13 @@
 import * as dotenv from 'dotenv';
 
 import { IModels } from './connectionResolver';
-import { debugBase, debugExternalRequests } from './debuggers';
+import { debugBase } from './debuggers';
 import redis from '@erxes/api-utils/src/redis';
 
 dotenv.config();
 
 const CACHE_NAME = 'configs_erxes_fb_integrations';
 
-interface IRequestParams {
-  url?: string;
-  path?: string;
-  headerType?: string;
-  headerParams?: { [key: string]: string };
-  method: string;
-  params?: { [key: string]: string | boolean };
-  body?: {
-    [key: string]:
-      | string
-      | string[]
-      | boolean
-      | number
-      | {
-          [key: string]: string | number | boolean | any;
-        }
-      | any
-      | any[]
-      | {
-          [key: string]: {
-            [key: string]: string | boolean | any;
-          };
-        };
-  };
-}
 
 export const getEnv = ({
   name,

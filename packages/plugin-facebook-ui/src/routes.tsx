@@ -1,10 +1,9 @@
 import React from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes,useLocation, useNavigate, useParams } from "react-router-dom";
 import queryString from "query-string";
 
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 import { Authorization } from "./containers/Authorization";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 const CreateFacebook = asyncComponent(
   () =>

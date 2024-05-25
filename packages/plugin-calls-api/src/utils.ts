@@ -65,9 +65,8 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       throw new Error(`Queue not found`);
     }
     console.log('1');
-    const extension = queue?.find(
-      (queue) =>
-        queue.members && queue.members.split(',').includes(extentionNumber),
+    const extension = queue?.find((queue) =>
+      queue.members?.split(',').includes(extentionNumber),
     )?.extension;
 
     const startDate = moment(callStartTime).format('YYYY-MM-DD');
@@ -108,9 +107,9 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
 
     let cdr_root = '';
 
-    if (cdrData && cdrData.response) {
+    if (cdrData?.response) {
       cdr_root = cdrData.response.cdr_root;
-    } else if (cdrData && cdrData.cdr_root) {
+    } else if (cdrData?.cdr_root) {
       cdr_root = cdrData?.cdr_root;
     }
     console.log('2');
@@ -229,7 +228,7 @@ export const getOrSetCallCookie = async (wsServer) => {
   });
   const data = await response.json();
 
-  const { challenge } = data?.response;
+  const { challenge } = data?.response ?? {};
 
   const hashedPassword = crypto
     .createHash('md5')
