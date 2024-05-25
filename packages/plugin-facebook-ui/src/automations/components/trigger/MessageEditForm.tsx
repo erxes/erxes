@@ -9,7 +9,6 @@ import FormControl from "@erxes/ui/src/components/form/Control";
 import Icon from "@erxes/ui/src/components/Icon";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
 import PersistentMenu from "./PersistentMenu";
-import Tip from "@erxes/ui/src/components/Tip";
 import { __ } from "@erxes/ui/src/utils/core";
 import colors from "@erxes/ui/src/styles/colors";
 
@@ -19,7 +18,6 @@ type Props = {
   onCancel: () => void;
   config: any;
 };
-``;
 
 function EditForm({
   triggerConst: { conditions: conditionsConst = [] },
