@@ -46,7 +46,11 @@ const Contact: React.FC<Props> = ({
               as={DropdownToggle}
               toggleComponent={<Icon icon="ellipsis-v" size={18} />}
             >
-              <li key="call" onClick={() => onCall(customer?.primaryPhone)}>
+              <li
+                key="call"
+                tabIndex={0}
+                onClick={() => onCall(customer?.primaryPhone)}
+              >
                 <Icon icon="outgoing-call" /> {__('Call')}
               </li>
             </Dropdown>
