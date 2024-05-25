@@ -110,22 +110,18 @@ export const removeIntegration = async (
 };
 
 export const removeAccount = async (
-  subdomain,
+  subdomain: string,
   models: IModels,
   _id: string
 ): Promise<{ erxesApiIds: string | string[] } | Error> => {
   const account = await models.Accounts.findOne({ _id });
-
   if (!account) {
     return new Error(`Account not found: ${_id}`);
   }
-
   const erxesApiIds: string[] = [];
-
   const integrations = await models.Integrations.find({
     accountId: account._id
   });
-
   if (integrations.length > 0) {
     for (const integration of integrations) {
       try {
@@ -136,15 +132,17 @@ export const removeAccount = async (
         );
         erxesApiIds.push(response);
       } catch (e) {
+        debugError(`Error occurred while removing integration: ${e.message}`);
+
+       
         throw e;
       }
     }
   }
-
   await models.Accounts.deleteOne({ _id });
-
   return { erxesApiIds };
 };
+
 
 export const repairIntegrations = async (
   subdomain: string,
@@ -166,7 +164,6 @@ export const repairIntegrations = async (
   }
 
   try {
-    // pageTokenResponse = await getPageAccessToken(pageId, account.token);
     const pageTokens = await refreshPageAccesToken(models, pageId, integration);
     await subscribePage(pageId, pageTokens[pageId]);
     await models.Integrations.remove({
@@ -178,6 +175,8 @@ export const repairIntegrations = async (
     debugError(
       `Error ocurred while trying to get page access token with ${e.message}`
     );
+    // Handle the error or rethrow it
+    throw new Error('Failed to repair integrations');
   }
 
   await models.Integrations.updateOne(
@@ -203,12 +202,14 @@ export const repairIntegrations = async (
         headers: { 'Content-Type': 'application/json' }
       });
     } catch (e) {
-      throw e;
+      // Handle the error or rethrow it
+      throw new Error('Failed to update endpoint');
     }
   }
 
   return true;
 };
+
 
 export const removeCustomers = async (models: IModels, params) => {
   const { customerIds } = params;
@@ -263,9 +264,11 @@ export const instagramCreateIntegration = async (
       facebookPageId
     });
   } catch (error) {
-    // You can also throw the error again or perform additional error handling here
+    debugError(`Error occurred while creating Instagram integration: ${error.message}`);
+
     throw error;
   }
+
 
   const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });

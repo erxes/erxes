@@ -38,7 +38,7 @@ const receiveComment = async (
     INTEGRATION_KINDS.POST,
     facebookPageTokensMap
   );
-  const postConversation = await getOrCreatePostConversation(
+   await getOrCreatePostConversation(
     models,
     pageId,
     subdomain,
@@ -50,7 +50,6 @@ const receiveComment = async (
   await getOrCreateComment(
     models,
     subdomain,
-    postConversation,
     params,
     pageId,
     userId,
