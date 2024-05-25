@@ -50,6 +50,49 @@ const coreUser = async (subdomain, document, itemId, replacedContents) => {
   replacedContents.push(content);
   return replacedContents;
 }
+
+const arranger = (replacedContents, heads, scripts, styles, replacers, copies, results, width) => {
+  for (let replacedContent of replacedContents) {
+    if (replacedContent.startsWith('::heads::')) {
+      heads += replacedContent.replace('::heads::', '');
+      continue;
+    }
+
+    if (replacedContent.startsWith('::scripts::')) {
+      scripts += replacedContent.replace('::scripts::', '');
+      continue;
+    }
+
+    if (replacedContent.startsWith('::styles::')) {
+      styles += replacedContent.replace('::styles::', '');
+      continue;
+    }
+
+    for (const replacer of replacers) {
+      const [key, value] = replacer.split(',');
+
+      if (key) {
+        const regex = new RegExp(key, 'g');
+        const tempContent = replacedContent;
+        replacedContent = tempContent.replace(regex, value);
+      }
+    }
+
+    if (copies) {
+      results = `
+        ${results}
+        <div style="margin-right: 2mm; margin-bottom: 2mm; width: ${width}mm; float: left;">
+          ${replacedContent}
+        </div>
+      `;
+    } else {
+      results = results + replacedContent;
+    }
+  }
+  return { replacedContents, heads, scripts, styles, results }
+}
+
+
 export const helper = async (subdomain, document, query) => {
   const { _id, copies, width, itemId } = query;
   let replacedContents: any[] = [];
@@ -88,43 +131,12 @@ export const helper = async (subdomain, document, query) => {
 
   const replacers = (document.replacer || '').split('\n');
 
-  for (let replacedContent of replacedContents) {
-    if (replacedContent.startsWith('::heads::')) {
-      heads += replacedContent.replace('::heads::', '');
-      continue;
-    }
-
-    if (replacedContent.startsWith('::scripts::')) {
-      scripts += replacedContent.replace('::scripts::', '');
-      continue;
-    }
-
-    if (replacedContent.startsWith('::styles::')) {
-      styles += replacedContent.replace('::styles::', '');
-      continue;
-    }
-
-    for (const replacer of replacers) {
-      const [key, value] = replacer.split(',');
-
-      if (key) {
-        const regex = new RegExp(key, 'g');
-        const tempContent = replacedContent;
-        replacedContent = tempContent.replace(regex, value);
-      }
-    }
-
-    if (copies) {
-      results = `
-             ${results}
-              <div style="margin-right: 2mm; margin-bottom: 2mm; width: ${width}mm; float: left;">
-                ${replacedContent}
-              </div>
-            `;
-    } else {
-      results = results + replacedContent;
-    }
-  }
+  const arrangeResponse = arranger(replacedContents, heads, scripts, styles, replacers, copies, results, width);
+  replacedContents = arrangeResponse.replacedContents;
+  heads = arrangeResponse.heads;
+  scripts = arrangeResponse.scripts;
+  styles = arrangeResponse.styles;
+  results = arrangeResponse.results;
 
   let multipliedResults: string[] = [
     `
@@ -185,6 +197,7 @@ export const helper = async (subdomain, document, query) => {
       ${styles}
     </style>
   `;
+
   const script = `
       ${scripts}
   `;
