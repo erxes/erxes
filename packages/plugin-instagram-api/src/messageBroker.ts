@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import { sendMessage } from '@erxes/api-utils/src/core';
+import { sendMessage,MessageArgsOmitService, sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core';
 
 import {
   instagramCreateIntegration,
@@ -11,11 +11,6 @@ import {
 import { handleInstagramMessage } from './handleInstagramMessage';
 import { userIds } from './middlewares/userMiddleware';
 
-import { sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core';
-import type {
-  MessageArgs,
-  MessageArgsOmitService
-} from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
 import {
