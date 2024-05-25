@@ -100,14 +100,14 @@ export const loadStructureClass = (models: IModels) => {
 // );
 
 export interface IDepartmentModel extends Model<IDepartmentDocument> {
-  getDepartment(doc: any): IDepartmentDocument;
-  createDepartment(doc: any, user: IUserDocument): IDepartmentDocument;
+  getDepartment(doc: any): Promise<IDepartmentDocument>;
+  createDepartment(doc: any, user: IUserDocument): Promise<IDepartmentDocument>;
   updateDepartment(
     _id: string,
     doc: any,
     user: IUserDocument,
-  ): IDepartmentDocument;
-  removeDepartments(ids?: string[]): IDepartmentDocument;
+  ): Promise<IDepartmentDocument>;
+  removeDepartments(ids?: string[]): Promise<IDepartmentDocument>;
 }
 
 export const loadDepartmentClass = (models: IModels) => {
@@ -464,10 +464,10 @@ export const loadBranchClass = (models: IModels) => {
   return branchSchema;
 };
 export interface IPositionModel extends Model<IPositionDocument> {
-  getPosition(doc: any): IPositionDocument;
-  createPosition(doc: any, user: IUserDocument): IPositionDocument;
-  updatePosition(_id: string, doc: any, user: IUserDocument): IPositionDocument;
-  removePositions(ids?: string[]): IPositionDocument;
+  getPosition(doc: any): Promise<IPositionDocument>;
+  createPosition(doc: any, user: IUserDocument): Promise<IPositionDocument>;
+  updatePosition(_id: string, doc: any, user: IUserDocument): Promise<IPositionDocument>;
+  removePositions(ids?: string[]): Promise<IPositionDocument>;
 }
 
 export const loadPositionClass = (models: IModels) => {

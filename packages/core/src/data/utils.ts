@@ -1545,11 +1545,10 @@ export const resizeImage = async (
 
     await image.writeAsync(file.path);
 
-    return file;
   } catch (error) {
     console.error(error);
-    return file;
   }
+  return file;
 };
 
 export const isImage = (mimetypeOrName: string) => {
