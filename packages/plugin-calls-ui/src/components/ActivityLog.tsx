@@ -22,7 +22,6 @@ import { readFile, __ } from '@erxes/ui/src/utils/core';
 type Props = {
   contentType: string;
   activity: any;
-  currentUser: any;
 };
 
 const MessageBody = styledTS<{ $staff?: boolean }>(styled.div)`
