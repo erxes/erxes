@@ -40,7 +40,7 @@ const getRelatedValue = async (
     }
 
     return (
-      (user && ((user.detail && user.detail.fullName) || user.email)) || ''
+      (user && ((user?.detail && user?.detail?.fullName) || user?.email)) || ''
     );
   }
 
@@ -69,7 +69,7 @@ const getRelatedValue = async (
     }
 
     return (
-      users.map(user => (user.detail && user.detail.fullName) || user.email) ||
+      users.map(user => (user?.detail?.fullName) || user?.email) ||
       []
     ).join(', ');
   }
