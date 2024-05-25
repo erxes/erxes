@@ -93,6 +93,8 @@ const getPluginType = (methodName: string, actionName: string, params: any) => {
   if (methodName === 'clientPortalConfigUpdate') {
     return 'clientportal';
   }
+
+  return '';
 }
 
 export const getUsageByPluginType = async (args: {
