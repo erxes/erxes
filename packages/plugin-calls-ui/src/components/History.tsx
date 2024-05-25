@@ -129,7 +129,7 @@ class History extends React.Component<Props, State> {
               $isMissedCall={isMissedCall}
               key={i}
               className={this.state.cursor === i ? 'active' : ''}
-              $isIncoming={callType !== 'outgoing' ? true : false}
+              $isIncoming={callType !== 'outgoing'}
               onClick={() => this.onCall(item.customer.primaryPhone)}
             >
               <div>
@@ -146,12 +146,11 @@ class History extends React.Component<Props, State> {
                   as={DropdownToggle}
                   toggleComponent={<Icon icon="ellipsis-v" size={18} />}
                 >
-                  <li
-                    key="delete"
-                    tabIndex={0}
-                    onClick={() => this.onRemove(item._id)}
-                  >
-                    <button>
+                  <li key="delete">
+                    <button
+                      tabIndex={0}
+                      onClick={() => this.onRemove(item._id)}
+                    >
                       <Icon icon="trash-alt" size={14} /> {__('Delete')}
                     </button>
                   </li>
