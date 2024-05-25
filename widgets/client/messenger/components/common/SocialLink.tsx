@@ -1,12 +1,12 @@
-import * as React from "react";
-import { isValidURL } from "../../../utils";
+import * as React from 'react';
+import { isValidURL } from '../../../utils';
 
 type Props = {
   url?: string;
   icon: string;
 };
 
-function SocialLink(props: Props) {
+const SocialLink = (props: Props) => {
   const { url, icon } = props;
 
   if (!url || !isValidURL(url)) {
@@ -18,6 +18,6 @@ function SocialLink(props: Props) {
       <img src={icon} />
     </a>
   );
-}
+};
 
 export default SocialLink;

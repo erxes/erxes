@@ -2,7 +2,6 @@ import * as React from 'react';
 
 type Props = {
   username?: string;
-  userId?: string;
 };
 
 class UserName extends React.Component<Props, {}> {

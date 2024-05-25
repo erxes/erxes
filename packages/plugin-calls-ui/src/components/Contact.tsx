@@ -1,13 +1,13 @@
-import { AdditionalDetail, ContactItem, Contacts, InputBar } from "../styles";
-import React, { useState } from "react";
+import { AdditionalDetail, ContactItem, Contacts, InputBar } from '../styles';
+import React, { useState } from 'react';
 
-import Dropdown from "@erxes/ui/src/components/Dropdown";
-import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
-import { EmptyState } from "@erxes/ui/src/components";
-import { FormControl } from "@erxes/ui/src/components/form";
-import Icon from "@erxes/ui/src/components/Icon";
-import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
-import { __ } from "@erxes/ui/src/utils";
+import Dropdown from '@erxes/ui/src/components/Dropdown';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import { EmptyState } from '@erxes/ui/src/components';
+import { FormControl } from '@erxes/ui/src/components/form';
+import Icon from '@erxes/ui/src/components/Icon';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   customers?: any;
@@ -18,17 +18,14 @@ type Props = {
 
 const Contact: React.FC<Props> = ({
   customers,
-  history,
   searchCustomer,
   changeMainTab,
 }: Props) => {
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState('');
 
   const renderContact = () => {
-    const [searchValue, setSearchValue] = useState("");
-
     const onCall = (phoneNumber) => {
-      changeMainTab(phoneNumber, "Keyboard");
+      changeMainTab(phoneNumber, 'Keyboard');
     };
 
     if (!customers || customers.length === 0) {
@@ -37,10 +34,10 @@ const Contact: React.FC<Props> = ({
 
     return customers.map((customer, i) => {
       return (
-        <ContactItem key={i}>
+        <ContactItem key={customer._id}>
           <NameCard
             user={customer}
-            key={i}
+            key={customer._id}
             avatarSize={40}
             secondLine={customer.primaryPhone}
           />
@@ -49,9 +46,13 @@ const Contact: React.FC<Props> = ({
               as={DropdownToggle}
               toggleComponent={<Icon icon="ellipsis-v" size={18} />}
             >
-              <li key="call" onClick={() => onCall(customer?.primaryPhone)}>
-                <Icon icon="outgoing-call" /> {__("Call")}
-              </li>
+              <button
+                key="call"
+                onClick={() => onCall(customer?.primaryPhone)}
+                className="dropdown-item"
+              >
+                <Icon icon="outgoing-call" /> {__('Call')}
+              </button>
             </Dropdown>
           </AdditionalDetail>
         </ContactItem>
@@ -79,7 +80,7 @@ const Contact: React.FC<Props> = ({
     <>
       <InputBar type="searchBar">
         <FormControl
-          placeholder={__("Search")}
+          placeholder={__('Search')}
           name="searchValue"
           onChange={onChange}
           value={searchValue}

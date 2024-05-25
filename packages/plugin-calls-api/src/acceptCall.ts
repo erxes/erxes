@@ -66,7 +66,7 @@ const acceptCall = async (
         : e,
     );
   }
-  if (!customer || !customer.erxesApiId) {
+  if (!customer?.erxesApiId) {
     customer = await getOrCreateCustomer(models, subdomain, customerPhone);
   }
   //save on api

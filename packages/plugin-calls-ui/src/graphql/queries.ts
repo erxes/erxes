@@ -37,8 +37,8 @@ const callCustomerDetail: string = `
       phone
       tagIds
         ${
-          isEnabled('tags')
-            ? `
+          isEnabled('tags') &&
+          `
           getTags {
             _id
             name
@@ -47,7 +47,6 @@ const callCustomerDetail: string = `
 
           }
         `
-            : ``
         }
      
     }

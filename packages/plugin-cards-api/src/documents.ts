@@ -5,10 +5,228 @@ import {
   sendProductsMessage,
   sendFormsMessage
 } from './messageBroker';
-import * as _ from 'lodash';
 
 const toMoney = value => {
   return new Intl.NumberFormat().format(value);
+};
+
+// for generate placeholder regex
+const generatePlaceHolderRegex = field =>
+  new RegExp(`{{\\s*${field}\\s*}}`, 'g');
+
+const findCollectionByStageType = (models, stageType) => {
+  const collections = {
+    deal: models.Deals,
+    purchase: models.Purchases,
+    ticket: models.Tickets,
+    task: models.Tasks,
+    growthHack: models.GrowthHacks
+  };
+  return collections[stageType] || null;
+};
+
+const replaceDates = (content: string, item: any) => {
+  let replacedContent = content.replace(
+    generatePlaceHolderRegex('createdAt'),
+    item.createdAt.toLocaleDateString()
+  );
+  if (item.closeDate) {
+    replacedContent = replacedContent.replace(
+      generatePlaceHolderRegex('closeDate'),
+      item.closeDate.toLocaleDateString()
+    );
+  }
+  replacedContent = replacedContent.replace(
+    generatePlaceHolderRegex('now'),
+    new Date().toLocaleDateString()
+  );
+  return replacedContent;
+};
+
+const replaceAssignedUsers = async (
+  replacedContent: string,
+  item: any,
+  subdomain: string
+) => {
+  if (
+    replacedContent.includes(`{{ assignedUsers }}`) &&
+    item?.assignedUserIds?.length > 0
+  ) {
+    const users = await sendCoreMessage({
+      subdomain,
+      action: 'users.find',
+      isRPC: true,
+      data: { query: { _id: { $in: item.assignedUserIds || [] } } }
+    });
+
+    const userNames = users
+      .map(
+        user => `${user.details.firstName || ''} ${user.details.lastName || ''}`
+      )
+      .join(',');
+    return replacedContent.replace(
+      generatePlaceHolderRegex('assignedUsers'),
+      userNames
+    );
+  }
+  return replacedContent.replace(generatePlaceHolderRegex('assignedUsers'), '');
+};
+
+const replaceContacts = async (
+  replacedContent: string,
+  item: any,
+  subdomain: string,
+  field: string,
+  stageType,
+  relType: string,
+  activeContactAction: string,
+  getNameAction: string
+) => {
+  if (replacedContent.includes(`{{ ${field} }}`)) {
+    const contactIds = await sendCoreMessage({
+      subdomain,
+      action: 'conformities.savedConformity',
+      data: {
+        mainType: stageType,
+        mainTypeId: item._id,
+        relTypes: [relType]
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const activeContacts = await sendContactsMessage({
+      subdomain,
+      action: `${field}.${activeContactAction}`,
+      data: { selector: { _id: { $in: contactIds } } },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    let contactRows: string[] = [];
+
+    for (const item of activeContacts) {
+      const name = await sendContactsMessage({
+        subdomain,
+        action: `${field}.${getNameAction}`,
+        data: { customer: item },
+        isRPC: true,
+        defaultValue: ''
+      });
+
+      contactRows.push(name);
+    }
+    replacedContent = replacedContent.replace(
+      generatePlaceHolderRegex(field),
+      contactRows.join(',')
+    );
+  }
+  return replacedContent;
+};
+
+const replaceProducts = async (
+  item: any,
+  subdomain: string,
+  replacedContent: string,
+  brandId: string,
+  key: any,
+  type: string
+) => {
+  let totalAmount = 0;
+  let discount = 0;
+
+  const productsData = item.productsData || [];
+
+  const productRows: string[] = [];
+  let index = 0;
+
+  for (const pd of productsData) {
+    if (!pd?.productId) {
+      continue;
+    }
+
+    if (!pd?.tickUsed) {
+      continue;
+    }
+
+    const product = await sendProductsMessage({
+      subdomain,
+      action: 'findOne',
+      data: { _id: pd.productId },
+      isRPC: true
+    });
+
+    if (!product || product.type !== type) {
+      continue;
+    }
+
+    if (
+      (brandId &&
+        brandId !== 'noBrand' &&
+        !product.scopeBrandIds.includes(brandId)) ||
+      (brandId === 'noBrand' && product.scopeBrandIds.length > 0)
+    ) {
+      continue;
+    }
+
+    index++;
+
+    const tAmount = pd.quantity * pd.unitPrice;
+
+    totalAmount += tAmount;
+    discount += pd.discount || 0;
+
+    productRows.push(
+      `<tr>
+            <td>${index}</td>
+            <td>${product.name}</td>
+            <td>${pd.quantity}</td>
+            <td>${toMoney(pd.unitPrice)}</td>
+            <td>${toMoney(tAmount)}</td>
+          </tr>
+          `
+    );
+  }
+
+  const headingText = type === 'product' ? 'Product name' : 'Service name';
+
+  replacedContent = replacedContent.replace(
+    key,
+    productRows.length > 0
+      ? `<table>
+              <tbody>
+                <thead>
+                  <tr>
+                    <th>№</th>
+                    <th>
+                      ${headingText}
+                    </th>
+                    <th>Quantity</th>
+                    <th>Unit price</th>
+                    <th>Total amount</th>
+                  </tr>
+                </thead>
+                ${productRows.join('')}
+              </tbody>
+            </table>
+
+            <script>
+              window.print();
+            </script>
+            `
+      : ''
+  );
+
+  return { totalAmount, discount };
+};
+
+const replaceCommonFields = (content, item, fields) => {
+  return fields.reduce((updatedContent, field) => {
+    return updatedContent.replace(
+      generatePlaceHolderRegex(field),
+      item[field] || ''
+    );
+  }, content);
 };
 
 const getCustomFields = async ({ subdomain }) => {
@@ -87,25 +305,7 @@ export default {
     if (!stage) {
       return '';
     }
-    let collection;
-
-    if (stage.type == 'deal') {
-      collection = models.Deals;
-    }
-    if (stage.type == 'purchase') {
-      collection = models.Purchases;
-    }
-    if (stage.type == 'ticket') {
-      collection = models.Tickets;
-    }
-
-    if (stage.type == 'task') {
-      collection = models.Tasks;
-    }
-
-    if (stage.type == 'growthHack') {
-      collection = models.GrowthHacks;
-    }
+    let collection = findCollectionByStageType(models, stage.type);
     if (!collection) {
       return '';
     }
@@ -135,33 +335,15 @@ export default {
 
     const simpleFields = ['name', 'description'];
 
-    let replacedContent = content;
+    let replacedContent =
+      replaceCommonFields(content, item, simpleFields) || '';
 
-    for (const field of simpleFields) {
-      replacedContent = replacedContent.replace(
-        `{{ ${field} }}`,
-        item[field] || ''
-      );
-    }
+    replacedContent = replaceDates(replacedContent, item);
 
     replacedContent = replacedContent.replace(
-      /{{ createdAt }}/g,
-      item.createdAt.toLocaleDateString()
+      generatePlaceHolderRegex('stageName'),
+      stage.name
     );
-
-    if (item.closeDate) {
-      replacedContent = replacedContent.replace(
-        /{{ closeDate }}/g,
-        item.closeDate.toLocaleDateString()
-      );
-    }
-
-    replacedContent = replacedContent.replace(
-      /{{ now }}/g,
-      new Date().toLocaleDateString()
-    );
-
-    replacedContent = replacedContent.replace(/{{ stageName }}/g, stage.name);
 
     if (replacedContent.includes('{{ brandName }}')) {
       if (brandId) {
@@ -173,210 +355,62 @@ export default {
         });
 
         replacedContent = replacedContent.replace(
-          /{{ brandName }}/g,
+          generatePlaceHolderRegex('brandName'),
           brand.name
         );
       }
-      replacedContent = replacedContent.replace(/{{ brandName }}/g, '');
+      replacedContent = replacedContent.replace(
+        generatePlaceHolderRegex('brandName'),
+        ''
+      );
     }
 
     // ============ replace users
-    const users = await sendCoreMessage({
-      subdomain,
-      action: 'users.find',
-      isRPC: true,
-      data: {
-        query: { _id: { $in: item.assignedUserIds || [] } }
-      }
-    });
 
-    replacedContent = replacedContent.replace(
-      /{{ assignedUsers }}/g,
-      users
-        .map(
-          user =>
-            `${user.details.firstName || ''} ${user.details.lastName || ''}`
-        )
-        .join(',')
+    replacedContent = await replaceAssignedUsers(
+      replacedContent,
+      item,
+      subdomain
     );
 
-    if (replacedContent.includes('{{ customers }}')) {
-      const customerIds = await sendCoreMessage({
-        subdomain,
-        action: 'conformities.savedConformity',
-        data: {
-          mainType: stage.type,
-          mainTypeId: item._id,
-          relTypes: ['customer']
-        },
-        isRPC: true,
-        defaultValue: []
-      });
-
-      const activeCustomers = await sendContactsMessage({
-        subdomain,
-        action: 'customers.findActiveCustomers',
-        data: { selector: { _id: { $in: customerIds } } },
-        isRPC: true,
-        defaultValue: []
-      });
-
-      const customerRows: string[] = [];
-
-      for (const item of activeCustomers) {
-        const name = await sendContactsMessage({
-          subdomain,
-          action: 'customers.getCustomerName',
-          data: { customer: item },
-          isRPC: true,
-          defaultValue: ''
-        });
-
-        customerRows.push(name);
-      }
-
-      replacedContent = replacedContent.replace(
-        /{{ customers }}/g,
-        customerRows.join(',')
-      );
-    }
-
-    if (replacedContent.includes('{{ companies }}')) {
-      const companyIds = await sendCoreMessage({
-        subdomain,
-        action: 'conformities.savedConformity',
-        data: {
-          mainType: stage.type,
-          mainTypeId: item._id,
-          relTypes: ['company']
-        },
-        isRPC: true,
-        defaultValue: []
-      });
-
-      const activeCompanies = await sendContactsMessage({
-        subdomain,
-        action: 'companies.findActiveCompanies',
-        data: { selector: { _id: { $in: companyIds } } },
-        isRPC: true,
-        defaultValue: []
-      });
-
-      const companyRows: string[] = [];
-
-      for (const item of activeCompanies) {
-        const name = await sendContactsMessage({
-          subdomain,
-          action: 'companies.getCompanyName',
-          data: { company: item },
-          isRPC: true,
-          defaultValue: ''
-        });
-
-        companyRows.push(name);
-      }
-
-      replacedContent = replacedContent.replace(
-        /{{ companies }}/g,
-        companyRows.join(',')
-      );
-    }
-
-    const replaceProducts = async (key, type) => {
-      let totalAmount = 0;
-      let discount = 0;
-
-      const productsData = item.productsData || [];
-
-      const productRows: string[] = [];
-      let index = 0;
-
-      for (const pd of productsData) {
-        if (!pd || !pd.productId) {
-          continue;
-        }
-
-        if (!pd.tickUsed) {
-          continue;
-        }
-
-        const product = await sendProductsMessage({
-          subdomain,
-          action: 'findOne',
-          data: { _id: pd.productId },
-          isRPC: true
-        });
-
-        if (!product || product.type !== type) {
-          continue;
-        }
-
-        if (
-          (brandId &&
-            brandId !== 'noBrand' &&
-            !product.scopeBrandIds.includes(brandId)) ||
-          (brandId === 'noBrand' && product.scopeBrandIds.length > 0)
-        ) {
-          continue;
-        }
-
-        index++;
-
-        const tAmount = pd.quantity * pd.unitPrice;
-
-        totalAmount += tAmount;
-        discount += pd.discount || 0;
-
-        productRows.push(
-          `<tr>
-            <td>${index}</td>
-            <td>${product.name}</td>
-            <td>${pd.quantity}</td>
-            <td>${toMoney(pd.unitPrice)}</td>
-            <td>${toMoney(tAmount)}</td>
-          </tr>
-          `
-        );
-      }
-
-      replacedContent = replacedContent.replace(
-        key,
-        productRows.length > 0
-          ? `<table>
-              <tbody>
-                <thead>
-                  <tr>
-                    <th>№</th>
-                    <th>
-                      ${type === 'product' ? 'Product name' : 'Service name'}
-                    </th>
-                    <th>Quantity</th>
-                    <th>Unit price</th>
-                    <th>Total amount</th>
-                  </tr>
-                </thead>
-                ${productRows.join('')}
-              </tbody>
-            </table>
-
-            <script>
-              window.print();
-            </script>
-            `
-          : ''
-      );
-
-      return { totalAmount, discount };
-    };
+    // ==== replace contacts
+    replacedContent = await replaceContacts(
+      replacedContent,
+      item,
+      subdomain,
+      'customers',
+      stage.type,
+      'customer',
+      'findActiveCustomers',
+      'getCustomerName'
+    );
+    replacedContent = await replaceContacts(
+      replacedContent,
+      item,
+      subdomain,
+      'companies',
+      stage.type,
+      'company',
+      'findActiveCompanies',
+      'getCompanyName'
+    );
 
     const replaceProductsResult = await replaceProducts(
-      /{{ productsInfo }}/g,
+      item,
+      subdomain,
+      replacedContent,
+      brandId,
+      generatePlaceHolderRegex('productsInfo'),
       'product'
     );
     const productsTotalAmount = replaceProductsResult.totalAmount;
 
     const replaceServicesResult = await replaceProducts(
-      /{{ servicesInfo }}/g,
+      item,
+      subdomain,
+      replacedContent,
+      brandId,
+      generatePlaceHolderRegex('servicesInfo'),
       'service'
     );
     const servicesTotalAmount = replaceServicesResult.totalAmount;
@@ -410,7 +444,7 @@ export default {
       toMoney(totalAmountWithoutVat)
     );
 
-    const cash = ((item.paymentsData || {}).cash || {}).amount || 0;
+    const cash = item?.paymentsData?.cash?.amount || 0;
 
     replacedContent = replacedContent.replace(
       /{{ paymentCash }}/g,

@@ -1,12 +1,11 @@
-import { SIP_STATUS_DISCONNECTED, SIP_STATUS_ERROR } from "../lib/enums";
-import { callPropType, sipPropType } from "../lib/types";
+import { SIP_STATUS_DISCONNECTED, SIP_STATUS_ERROR } from '../lib/enums';
+import { callPropType, sipPropType } from '../lib/types';
 
-import Icon from "@erxes/ui/src/components/Icon";
-import Popover from "@erxes/ui/src/components/Popover";
-import React from "react";
-import WidgetPopover from "./WidgetPopover";
-import { WidgetWrapper } from "../styles";
-import { __ } from "@erxes/ui/src/utils";
+import Icon from '@erxes/ui/src/components/Icon';
+import Popover from '@erxes/ui/src/components/Popover';
+import React from 'react';
+import WidgetPopover from './WidgetPopover';
+import { WidgetWrapper } from '../styles';
 
 type Props = {
   callUserIntegrations: any;
@@ -34,7 +33,7 @@ const Widget = (props: Props, context) => {
     <Popover
       trigger={
         <WidgetWrapper $isConnected={isConnected} onClick={onClick}>
-          <Icon icon={isConnected ? "phone-slash" : "phone"} size={23} />
+          <Icon icon={isConnected ? 'phone-slash' : 'phone'} size={23} />
         </WidgetWrapper>
       }
       placement="top"
