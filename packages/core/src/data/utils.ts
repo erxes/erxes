@@ -60,6 +60,28 @@ const applyTemplate = async (data: any, templateName: string) => {
   return template(data);
 };
 
+const getHtml = async (name, data, defaultTemplate, defaultTemplateType, customHtml, customHtmlData) => {
+  // generate email content by given template
+  let html;
+
+  if (name) {
+    html = await applyTemplate(data, name);
+  } else if (
+    !defaultTemplate ||
+    !defaultTemplateType ||
+    (defaultTemplateType && defaultTemplateType.toString() === 'simple')
+  ) {
+    html = await applyTemplate(data, 'base');
+  } else if (defaultTemplate) {
+    html = Handlebars.compile(defaultTemplate.toString())(data || {});
+  }
+
+  if (customHtml) {
+    html = Handlebars.compile(customHtml)(customHtmlData || {});
+  }
+  return html;
+}
+
 export const sendEmail = async (
   subdomain: string,
   params: IEmailParams,
@@ -122,7 +144,7 @@ export const sendEmail = async (
       models,
     );
 
-    if (transportMethod === 'sendgrid' || (VERSION && VERSION === 'saas')) {
+    if (transportMethod === 'sendgrid' || VERSION === 'saas') {
       sendgridMail = require('@sendgrid/mail');
 
       const SENDGRID_API_KEY = getEnv({ name: 'SENDGRID_API_KEY', subdomain });
@@ -154,28 +176,11 @@ export const sendEmail = async (
     }
   }
 
+  const html = await getHtml(name, data, defaultTemplate, defaultTemplateType, customHtml, customHtmlData);
+
   for (const toEmail of toEmails) {
     if (modifier) {
       modifier(data, toEmail);
-    }
-
-    // generate email content by given template
-    let html;
-
-    if (name) {
-      html = await applyTemplate(data, name);
-    } else if (
-      !defaultTemplate ||
-      !defaultTemplateType ||
-      (defaultTemplateType && defaultTemplateType.toString() === 'simple')
-    ) {
-      html = await applyTemplate(data, 'base');
-    } else if (defaultTemplate) {
-      html = Handlebars.compile(defaultTemplate.toString())(data || {});
-    }
-
-    if (customHtml) {
-      html = Handlebars.compile(customHtml)(customHtmlData || {});
     }
 
     const mailOptions: any = {
@@ -545,7 +550,7 @@ const uploadToCFImages = async (
     ? false
     : await getConfig('FILE_SYSTEM_PUBLIC', 'false', models);
 
-    const VERSION = getEnv({ name: 'VERSION' });
+  const VERSION = getEnv({ name: 'VERSION' });
 
   const url = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/images/v1`;
   const headers = {
@@ -1316,7 +1321,7 @@ export const checkPremiumService = async (type) => {
 
     const response = await fetch(
       `${getCoreDomain()}/check-premium-service?` +
-        new URLSearchParams({ domain, type }),
+      new URLSearchParams({ domain, type }),
     ).then((r) => r.text());
 
     return response === 'yes';
