@@ -70,7 +70,7 @@ const getRelatedValue = async (
 
     return (
       users.map(user => (user?.detail?.fullName) || user?.email) ||
-      []
+      ''
     ).join(', ');
   }
 
@@ -99,7 +99,7 @@ const getRelatedValue = async (
       _id: target[targetKey]
     });
 
-    return (stage && stage.name) || '';
+    return (stage && stage?.name) || '';
   }
 
   if (['sourceConversationIds'].includes(targetKey)) {
