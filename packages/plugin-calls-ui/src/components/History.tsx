@@ -151,9 +151,9 @@ class History extends React.Component<Props, State> {
                     tabIndex={0}
                     onClick={() => this.onRemove(item._id)}
                   >
-                    <a href="#">
+                    <button>
                       <Icon icon="trash-alt" size={14} /> {__('Delete')}
-                    </a>
+                    </button>
                   </li>
                   <li key="detail">
                     <a
