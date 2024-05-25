@@ -1,7 +1,7 @@
 import React from 'react';
 import validator from 'validator';
 import { generateRandomString, isValidUsername } from '../utils';
-import { Error } from './styles';
+import { ErrorMessage } from './styles';
 import { IFormProps } from '../types';
 
 type Props = {
@@ -91,12 +91,12 @@ class Form extends React.Component<Props, State> {
     const value = element ? element.value : '';
 
     if (props.required && !value) {
-      return <Error>Required field</Error>;
+      return <ErrorMessage>Required field</ErrorMessage>;
     }
 
     if (props.type === 'email' && !validator.isEmail(value)) {
       return (
-        <Error>Invalid email format! Please enter a valid email address</Error>
+        <ErrorMessage>Invalid email format! Please enter a valid email address</ErrorMessage>
       );
     }
 
@@ -104,19 +104,19 @@ class Form extends React.Component<Props, State> {
       props.max &&
       !validator.isLength('description', { min: 0, max: props.max })
     ) {
-      return <Error>Maximum length is {props.max} characters</Error>;
+      return <ErrorMessage>Maximum length is {props.max} characters</ErrorMessage>;
     }
 
     if (value && props.type === 'url' && !validator.isURL(value)) {
-      return <Error>Invalid link</Error>;
+      return <ErrorMessage>Invalid link</ErrorMessage>;
     }
 
     if (value && props.type === 'number' && !validator.isFloat(value)) {
-      return <Error>Invalid number format! Please enter a valid number</Error>;
+      return <ErrorMessage>Invalid number format! Please enter a valid number</ErrorMessage>;
     }
 
     if (value && props.name === 'username' && !isValidUsername(value)) {
-      return <Error>Invalid Username</Error>;
+      return <ErrorMessage>Invalid Username</ErrorMessage>;
     }
 
     return null;
