@@ -46,23 +46,6 @@ class OutgoingWebhookForm extends React.Component<Props, State> {
     this.setState({ [name]: value } as Pick<State, keyof State>);
   };
 
-  onChange = (e) => {
-    const index = (e.currentTarget as HTMLInputElement).value;
-    const isChecked = (e.currentTarget as HTMLInputElement).checked;
-
-    const selected = this.state.selectedActions[index];
-    const selectedActions = this.state.selectedActions;
-
-    selectedActions[index] = {
-      type: selected.type,
-      action: selected.action,
-      label: selected.label,
-      checked: isChecked,
-    };
-
-    this.setState({ selectedActions });
-  };
-
   collectValues = (selectedActions) =>
     selectedActions.map(
       (selectedAction) =>

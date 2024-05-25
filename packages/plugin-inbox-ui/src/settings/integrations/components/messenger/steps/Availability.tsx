@@ -154,29 +154,25 @@ class Availability extends React.Component<Props> {
       this.onChangeFunction("hideWhenOffline", e.target.checked);
 
     return (
-      <React.Fragment>
-        <FormGroup>
-          <ControlLabel>
-            {__("Hide messenger during offline hours")}
-          </ControlLabel>
-          <Description>
-            {__(
-              "Forcibly hide the messenger when you're offline. This will hide the messenger from your website visitors."
-            )}
-          </Description>
+      <FormGroup>
+        <ControlLabel>{__("Hide messenger during offline hours")}</ControlLabel>
+        <Description>
+          {__(
+            "Forcibly hide the messenger when you're offline. This will hide the messenger from your website visitors."
+          )}
+        </Description>
 
-          <ToggleWrapper>
-            <Toggle
-              checked={hideWhenOffline}
-              onChange={onChange}
-              icons={{
-                checked: <span>Yes</span>,
-                unchecked: <span>No</span>,
-              }}
-            />
-          </ToggleWrapper>
-        </FormGroup>
-      </React.Fragment>
+        <ToggleWrapper>
+          <Toggle
+            checked={hideWhenOffline}
+            onChange={onChange}
+            icons={{
+              checked: <span>Yes</span>,
+              unchecked: <span>No</span>,
+            }}
+          />
+        </ToggleWrapper>
+      </FormGroup>
     );
   }
 
