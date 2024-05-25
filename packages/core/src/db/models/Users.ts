@@ -76,7 +76,7 @@ export interface IUserModel extends Model<IUserDocument> {
     emails?: string[];
     employeeId?: string;
     username?: string;
-  }): never;
+  }): Promise<never>;
   getSecret(): string;
   generateToken(): { token: string; expires: Date };
   createUser(doc: IUser): Promise<IUserDocument>;
@@ -94,7 +94,7 @@ export interface IUserModel extends Model<IUserDocument> {
   ): Promise<IUserDocument>;
   setUserActiveOrInactive(_id: string): Promise<IUserDocument>;
   generatePassword(password: string): Promise<string>;
-  invite(params: IInviteParams): string;
+  invite(params: IInviteParams): Promise<string>;
   resendInvitation({ email }: { email: string }): string;
   confirmInvitation(params: IConfirmParams): Promise<IUserDocument>;
   comparePassword(password: string, userPassword: string): boolean;
@@ -106,7 +106,7 @@ export interface IUserModel extends Model<IUserDocument> {
   changePassword(
     params: IPasswordParams & { currentPassword: string },
   ): Promise<IUserDocument>;
-  forgotPassword(email: string): string;
+  forgotPassword(email: string): Promise<string>;
   createTokens(_user: IUserDocument, secret: string): string[];
   refreshTokens(refreshToken: string): {
     token: string;

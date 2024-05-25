@@ -18,14 +18,14 @@ import { checkCodeDuplication } from './utils';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 
 export interface IStructureModel extends Model<IStructureDocument> {
-  getStructure(doc: any): IStructureDocument;
-  createStructure(doc: any, user: IUserDocument): IStructureDocument;
+  getStructure(doc: any): Promise<IStructureDocument>;
+  createStructure(doc: any, user: IUserDocument): Promise<IStructureDocument>;
   updateStructure(
     _id: string,
     doc: any,
     user: IUserDocument,
-  ): IStructureDocument;
-  removeStructure(_id: string): IStructureDocument;
+  ): Promise<IStructureDocument>;
+  removeStructure(_id: string): Promise<IStructureDocument>;
 }
 
 export const loadStructureClass = (models: IModels) => {
