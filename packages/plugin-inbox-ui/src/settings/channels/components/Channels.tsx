@@ -1,6 +1,5 @@
 import Button from "@erxes/ui/src/components/Button";
 import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
-import EmptyState from "@erxes/ui/src/components/EmptyState";
 import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
 import { IChannel } from "@erxes/ui-inbox/src/settings/channels/types";
 import IntegrationList from "@erxes/ui-inbox/src/settings/integrations/containers/common/IntegrationList";
