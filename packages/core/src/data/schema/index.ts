@@ -49,7 +49,7 @@ import {
   mutations as OnboardingMutations,
 } from './organizations';
 
-export let types = `
+export const types = `
   scalar JSON
   scalar Date
 
@@ -57,13 +57,13 @@ export let types = `
     PUBLIC
     PRIVATE
   }
-  
+
   directive @cacheControl(
     maxAge: Int
     scope: CacheControlScope
     inheritMaxAge: Boolean
   ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
-  
+
   ${UserTypes}
   ${BrandTypes}
   ${ConformityTypes}
@@ -77,10 +77,10 @@ export let types = `
   ${PluginTypes}
 `;
 
-export let queries = `
+export const queries = `
   ${UserQueries}
   ${BrandQueries}
-  
+
   ${ConfigQueries}
   ${PermissionQueries}
   ${RobotQueries}
@@ -91,7 +91,7 @@ export let queries = `
   ${OnboardingQueries}
 `;
 
-export let mutations = `
+export const mutations = `
   ${UserMutations}
   ${BrandMutations}
   ${ConfigMutations}
@@ -104,7 +104,7 @@ export let mutations = `
   ${OnboardingMutations}
 `;
 
-export let subscriptions = `
+export const subscriptions = `
   onboardingChanged(userId: String!): OnboardingNotification
 
   userChanged(userId: String): JSON
