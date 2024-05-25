@@ -69,61 +69,70 @@ function isGreaterNumber(value: any, compareValue: any) {
   return value > compareValue;
 }
 
+function getValue(value, defaultValue) {
+  if (!value) {
+    return defaultValue;
+  }
+  return value;
+}
+
 function generateDefault(props) {
   const { contract = {} } = props;
   return {
     contractNumber: contract.number,
-    contractDate: contract.contractDate || new Date(),
+    contractDate: getValue(contract.contractDate, new Date()),
     endDate: contract.endDate,
     loanPurpose: contract.loanPurpose,
     loanDestination: contract.loanDestination,
     loanSubPurpose: contract.loanSubPurpose,
-    contractTypeId: contract.contractTypeId || '',
+    contractTypeId: contract.contractTypeId,
     status: contract.status,
     branchId: contract.branchId,
     leaseType: contract.leaseType,
-    description: contract.description || '',
-    marginAmount: contract.marginAmount || 0,
-    leaseAmount: contract.leaseAmount || 0,
-    feeAmount: contract.feeAmount || 0,
-    tenor: contract.tenor || 0,
-    lossPercent: contract.lossPercent || 0,
+    description: contract.description,
+    marginAmount: getValue(contract.marginAmount, 0),
+    leaseAmount: getValue(contract.leaseAmount, 0),
+    feeAmount: getValue(contract.feeAmount, 0),
+    tenor: getValue(contract.tenor, 0),
+    lossPercent: getValue(contract.lossPercent, 0),
     lossCalcType: contract.lossCalcType,
-    interestRate: contract.interestRate || 0,
-    interestMonth: (contract.interestRate || 0) / 12,
-    repayment: contract.repayment || 'fixed',
-    startDate: contract.startDate || new Date(),
-    scheduleDays: contract.scheduleDays || [new Date().getDate()],
-    debt: contract.debt || 0,
-    debtTenor: contract.debtTenor || 0,
-    debtLimit: contract.debtLimit || 0,
-    salvageAmount: contract.salvageAmount || 0,
-    salvagePercent: contract.salvagePercent || 0,
-    salvageTenor: contract.salvageTenor || 0,
-    skipInterestCalcMonth: contract.skipInterestCalcMonth || 0,
+    interestRate: getValue(contract.interestRate, 0),
+    interestMonth: getValue(contract.interestRate, 0) / 12,
+    repayment: getValue(contract.repayment, 'fixed'),
+    startDate: getValue(contract.startDate, new Date()),
+    scheduleDays: getValue(contract.scheduleDays, [new Date().getDate()]),
+    debt: getValue(contract.debt, 0),
+    debtTenor: getValue(contract.debtTenor, 0),
+    debtLimit: getValue(contract.debtLimit, 0),
+    salvageAmount: getValue(contract.salvageAmount, 0),
+    salvagePercent: getValue(contract.salvagePercent, 0),
+    salvageTenor: getValue(contract.salvageTenor, 0),
+    skipInterestCalcMonth: getValue(contract.skipInterestCalcMonth, 0),
     useDebt: contract.useDebt,
     useMargin: contract.useMargin,
     useSkipInterest: contract.useSkipInterest,
-    relationExpertId: contract.relationExpertId || '',
-    leasingExpertId: contract.leasingExpertId || '',
-    riskExpertId: contract.riskExpertId || '',
-    customerId: contract.customerId || '',
-    customerType: contract.customerType || 'customer',
-    weekends: contract.weekends || [],
-    useHoliday: contract.useHoliday || false,
-    relContractId: contract.relContractId || '',
-    skipAmountCalcMonth: contract.skipAmountCalcMonth || 0,
-    customInterest: contract.customInterest || 0,
-    customPayment: contract.customPayment || 0,
-    currency:
-      contract.currency || props.currentUser?.configs?.dealCurrency?.[0],
-    downPayment: contract.downPayment || 0,
+    relationExpertId: getValue(contract.relationExpertId, ''),
+    leasingExpertId: getValue(contract.leasingExpertId, ''),
+    riskExpertId: getValue(contract.riskExpertId, ''),
+    customerId: getValue(contract.customerId, ''),
+    customerType: getValue(contract.customerType, 'customer'),
+    weekends: getValue(contract.weekends, []),
+    useHoliday: getValue(contract.useHoliday, false),
+    relContractId: getValue(contract.relContractId, ''),
+    skipAmountCalcMonth: getValue(contract.skipAmountCalcMonth, 0),
+    customInterest: getValue(contract.customInterest, 0),
+    customPayment: getValue(contract.customPayment, 0),
+    currency: getValue(
+      contract.currency,
+      props.currentUser?.configs?.dealCurrency?.[0]
+    ),
+    downPayment: getValue(contract.downPayment, 0),
     useFee: contract.useFee,
     useManualNumbering: contract.useManualNumbering,
     commitmentInterest: contract.commitmentInterest,
     savingContractId: contract.savingContractId,
     firstPayDate: contract.firstPayDate,
-    holidayType: contract.holidayType || 'before'
+    holidayType: getValue(contract.holidayType, 'before')
   };
 }
 
