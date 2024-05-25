@@ -1,13 +1,13 @@
 import {
   replacePlaceHolders,
-  setProperty,
+  setProperty
 } from '@erxes/api-utils/src/automations';
 import { generateModels, IModels } from './connectionResolver';
 import { itemsAdd } from './graphql/resolvers/mutations/utils';
 import {
   sendCommonMessage,
   sendContactsMessage,
-  sendCoreMessage,
+  sendCoreMessage
 } from './messageBroker';
 import { getCollection } from './models/utils';
 
@@ -16,7 +16,7 @@ const getRelatedValue = async (
   subdomain: string,
   target,
   targetKey,
-  relatedValueProps?: any,
+  relatedValueProps?: any
 ) => {
   if (
     [
@@ -24,27 +24,27 @@ const getRelatedValue = async (
       'assignedUserId',
       'closedUserId',
       'ownerId',
-      'createdBy',
+      'createdBy'
     ].includes(targetKey)
   ) {
     const user = await sendCoreMessage({
       subdomain,
       action: 'users.findOne',
       data: { _id: target[targetKey] },
-      isRPC: true,
+      isRPC: true
     });
 
-    if (relatedValueProps[targetKey]) {
+    if (relatedValueProps && relatedValueProps[targetKey]) {
       const key = relatedValueProps[targetKey]?.key;
       return user[key];
     }
 
-    return (user) => user.detail?.fullName || user.email;
+    return user => user.detail?.fullName || user.email;
   }
 
   if (
     ['participatedUserIds', 'assignedUserIds', 'watchedUserIds'].includes(
-      targetKey,
+      targetKey
     )
   ) {
     const users = await sendCoreMessage({
@@ -52,24 +52,22 @@ const getRelatedValue = async (
       action: 'users.find',
       data: {
         query: {
-          _id: { $in: target[targetKey] },
-        },
+          _id: { $in: target[targetKey] }
+        }
       },
-      isRPC: true,
+      isRPC: true
     });
 
-    if (!!relatedValueProps[targetKey]) {
+    if (relatedValueProps && relatedValueProps[targetKey]) {
       const { key, filter } = relatedValueProps[targetKey] || {};
       return users
-        .filter((user) => (filter ? user[filter.key] === filter.value : user))
-        .map((user) => user[key])
+        .filter(user => (filter ? user[filter.key] === filter.value : user))
+        .map(user => user[key])
         .join(', ');
     }
 
     return (
-      users.map(
-        (user) => (user.detail && user.detail.fullName) || user.email,
-      ) || []
+      users.map(user => user?.detail?.fullName || user?.email) || ''
     ).join(', ');
   }
 
@@ -79,26 +77,26 @@ const getRelatedValue = async (
       serviceName: 'tags',
       action: 'find',
       data: { _id: { $in: target[targetKey] } },
-      isRPC: true,
+      isRPC: true
     });
 
-    return (tags.map((tag) => tag.name) || []).join(', ');
+    return (tags.map(tag => tag.name) || []).join(', ');
   }
 
   if (targetKey === 'labelIds') {
     const labels = await models.PipelineLabels.find({
-      _id: { $in: target[targetKey] },
+      _id: { $in: target[targetKey] }
     });
 
-    return (labels.map((label) => label.name) || []).join(', ');
+    return (labels.map(label => label.name) || []).join(', ');
   }
 
   if (['initialStageId', 'stageId'].includes(targetKey)) {
     const stage = await models.Stages.findOne({
-      _id: target[targetKey],
+      _id: target[targetKey]
     });
 
-    return (stage && stage.name) || '';
+    return (stage && stage?.name) || '';
   }
 
   if (['sourceConversationIds'].includes(targetKey)) {
@@ -107,16 +105,16 @@ const getRelatedValue = async (
       serviceName: 'inbox',
       action: 'conversations.find',
       data: { _id: { $in: target[targetKey] } },
-      isRPC: true,
+      isRPC: true
     });
 
-    return (conversations.map((c) => c.content) || []).join(', ');
+    return (conversations.map(c => c.content) || []).join(', ');
   }
 
   if (['customers', 'companies'].includes(targetKey)) {
     const relTypeConst = {
       companies: 'company',
-      customers: 'customer',
+      customers: 'customer'
     };
 
     const contactIds = await sendCoreMessage({
@@ -125,10 +123,10 @@ const getRelatedValue = async (
       data: {
         mainType: target.type,
         mainTypeId: target._id,
-        relTypes: [relTypeConst[targetKey]],
+        relTypes: [relTypeConst[targetKey]]
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     const upperCasedTargetKey =
@@ -139,21 +137,20 @@ const getRelatedValue = async (
       action: `${targetKey}.findActive${upperCasedTargetKey}`,
       data: { selector: { _id: { $in: contactIds } } },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
-    if (relatedValueProps && !!relatedValueProps[targetKey]) {
+    if (relatedValueProps && relatedValueProps[targetKey]) {
       const { key, filter } = relatedValueProps[targetKey] || {};
       return activeContacts
-        .filter((contacts) =>
-          filter ? contacts[filter.key] === filter.value : contacts,
+        .filter(contacts =>
+          filter ? contacts[filter.key] === filter.value : contacts
         )
-        .map((contacts) => contacts[key])
+        .map(contacts => contacts[key])
         .join(', ');
     }
 
-    const result = activeContacts.map((contact) => contact?._id).join(', ');
-    return result;
+    return activeContacts.map(contact => contact?._id).join(', ');
   }
 
   if (targetKey.includes('productsData')) {
@@ -167,10 +164,10 @@ const getRelatedValue = async (
   return false;
 };
 
-const generateTotalAmount = (productsData) => {
+const generateTotalAmount = productsData => {
   let totalAmount = 0;
 
-  (productsData || []).forEach((product) => {
+  (productsData || []).forEach(product => {
     if (product.tickUsed) {
       return;
     }
@@ -186,7 +183,7 @@ const relatedServices = (
   subdomain: string,
   triggerCollectionType: string,
   moduleCollectionType: string,
-  target: any,
+  target: any
 ) => [
   {
     name: 'contacts',
@@ -202,10 +199,10 @@ const relatedServices = (
         data: {
           mainType: triggerCollectionType,
           mainTypeId: target._id,
-          relTypes: [moduleCollectionType],
+          relTypes: [moduleCollectionType]
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
       if (!relTypeIds.length) {
@@ -213,14 +210,14 @@ const relatedServices = (
       }
 
       return { _id: { $in: relTypeIds } };
-    },
+    }
   },
   {
     name: 'inbox',
     filter: async () => ({
-      sourceConversationIds: { $in: [target._id] },
-    }),
-  },
+      sourceConversationIds: { $in: [target._id] }
+    })
+  }
 ];
 
 // find trigger related module items
@@ -228,7 +225,7 @@ const getItems = async (
   subdomain: string,
   module: string,
   execution: any,
-  triggerType: string,
+  triggerType: string
 ) => {
   const { target } = execution;
 
@@ -265,9 +262,9 @@ const getItems = async (
       data: {
         mainType: triggerCollectionType,
         mainTypeId: target._id,
-        relTypes: [moduleCollectionType],
+        relTypes: [moduleCollectionType]
       },
-      isRPC: true,
+      isRPC: true
     });
 
     return model.find({ _id: { $in: relTypeIds } });
@@ -278,8 +275,8 @@ const getItems = async (
     subdomain,
     triggerCollectionType,
     moduleCollectionType,
-    target,
-  ).find((service) => service.name === triggerService);
+    target
+  ).find(service => service.name === triggerService);
 
   let filter: any = await relatedService?.filter();
 
@@ -292,10 +289,10 @@ const getItems = async (
       data: {
         module,
         triggerType,
-        target,
+        target
       },
       isRPC: true,
-      defaultValue: null,
+      defaultValue: null
     });
   }
 
@@ -305,7 +302,7 @@ const getItems = async (
 export default {
   receiveActions: async ({
     subdomain,
-    data: { action, execution, collectionType, triggerType, actionType },
+    data: { action, execution, collectionType, triggerType, actionType }
   }) => {
     const models = await generateModels(subdomain);
 
@@ -315,7 +312,7 @@ export default {
         subdomain,
         action,
         execution,
-        collectionType,
+        collectionType
       });
     }
 
@@ -325,7 +322,7 @@ export default {
       subdomain,
       module,
       execution,
-      triggerType,
+      triggerType
     );
 
     return setProperty({
@@ -337,12 +334,12 @@ export default {
       execution,
       relatedItems,
       sendCommonMessage,
-      triggerType,
+      triggerType
     });
   },
   replacePlaceHolders: async ({
     subdomain,
-    data: { target, config, relatedValueProps },
+    data: { target, config, relatedValueProps }
   }) => {
     const models = generateModels(subdomain);
 
@@ -353,7 +350,7 @@ export default {
       actionData: config,
       target,
       relatedValueProps,
-      complexFields: ['productsData'],
+      complexFields: ['productsData']
     });
   },
   constants: {
@@ -364,7 +361,7 @@ export default {
         icon: 'file-plus-alt',
         label: 'Task',
         description:
-          'Start with a blank workflow that enralls and is triggered off task',
+          'Start with a blank workflow that enralls and is triggered off task'
       },
       {
         type: 'cards:purchase',
@@ -372,7 +369,7 @@ export default {
         icon: 'file-plus-alt',
         label: 'Purchase',
         description:
-          'Start with a blank workflow that enralls and is triggered off purchase',
+          'Start with a blank workflow that enralls and is triggered off purchase'
       },
       {
         type: 'cards:ticket',
@@ -380,7 +377,7 @@ export default {
         icon: 'file-plus',
         label: 'Ticket',
         description:
-          'Start with a blank workflow that enralls and is triggered off ticket',
+          'Start with a blank workflow that enralls and is triggered off ticket'
       },
       {
         type: 'cards:deal',
@@ -388,8 +385,8 @@ export default {
         icon: 'piggy-bank',
         label: 'Sales pipeline',
         description:
-          'Start with a blank workflow that enralls and is triggered off sales pipeline item',
-      },
+          'Start with a blank workflow that enralls and is triggered off sales pipeline item'
+      }
     ],
     actions: [
       {
@@ -397,34 +394,34 @@ export default {
         icon: 'file-plus-alt',
         label: 'Create task',
         description: 'Create task',
-        isAvailable: true,
+        isAvailable: true
       },
       {
         type: 'cards:purchase.create',
         icon: 'file-plus-alt',
         label: 'Create purchase',
         description: 'Create purchase',
-        isAvailable: true,
+        isAvailable: true
       },
       {
         type: 'cards:deal.create',
         icon: 'piggy-bank',
         label: 'Create deal',
         description: 'Create deal',
-        isAvailable: true,
+        isAvailable: true
       },
       {
         type: 'cards:ticket.create',
         icon: 'file-plus',
         label: 'Create ticket',
         description: 'Create ticket',
-        isAvailable: true,
-      },
-    ],
-  },
+        isAvailable: true
+      }
+    ]
+  }
 };
 
-const generateIds = (value) => {
+const generateIds = value => {
   const arr = value.split(', ');
 
   if (Array.isArray(arr)) {
@@ -443,7 +440,7 @@ const actionCreate = async ({
   subdomain,
   action,
   execution,
-  collectionType,
+  collectionType
 }) => {
   const { config = {} } = action;
   let { target, triggerType } = execution || {};
@@ -456,17 +453,17 @@ const actionCreate = async ({
         getRelatedValue,
         actionData: { assignedTo: action.config.assignedTo },
         target: { ...target, type: (triggerType || '').replace('cards:', '') },
-        isRelated: false,
+        isRelated: false
       })
     : {};
 
   delete action.config.assignedTo;
 
-  if (!!config.customers) {
+  if (config?.customers) {
     relatedValueProps['customers'] = { key: '_id' };
     target.customers = config.customers;
   }
-  if (!!config.companies) {
+  if (config?.companies) {
     relatedValueProps['companies'] = { key: '_id' };
     target.companies = config.companies;
   }
@@ -479,8 +476,8 @@ const actionCreate = async ({
       getRelatedValue,
       actionData: action.config,
       target: { ...target, type: (triggerType || '').replace('cards:', '') },
-      relatedValueProps,
-    })),
+      relatedValueProps
+    }))
   };
 
   if (execution.target.userId) {
@@ -514,18 +511,18 @@ const actionCreate = async ({
     newData.stageId = config.stageId;
   }
 
-  if (!!newData?.customers) {
+  if (newData?.customers) {
     newData.customerIds = generateIds(newData.customers);
   }
-  if (!!newData?.companies) {
+  if (newData?.companies) {
     newData.companyIds = generateIds(newData.companies);
   }
 
-  if (Object.keys(newData).some((key) => key.startsWith('customFieldsData'))) {
+  if (Object.keys(newData).some(key => key.startsWith('customFieldsData'))) {
     const customFieldsData: Array<{ field: string; value: string }> = [];
 
-    const fieldKeys = Object.keys(newData).filter((key) =>
-      key.startsWith('customFieldsData'),
+    const fieldKeys = Object.keys(newData).filter(key =>
+      key.startsWith('customFieldsData')
     );
 
     for (const fieldKey of fieldKeys) {
@@ -533,7 +530,7 @@ const actionCreate = async ({
 
       customFieldsData.push({
         field: fieldId,
-        value: newData[fieldKey],
+        value: newData[fieldKey]
       });
     }
     newData.customFieldsData = customFieldsData;
@@ -546,7 +543,7 @@ const actionCreate = async ({
         ticket: models.Tickets,
         task: models.Tasks,
         deal: models.Deals,
-        purchase: models.Purchases,
+        purchase: models.Purchases
       };
 
       const item = await modelsMap[itemType].findOne({ _id: target._id });
@@ -562,7 +559,7 @@ const actionCreate = async ({
       subdomain,
       newData,
       collectionType,
-      create,
+      create
     );
 
     if (execution.triggerType === 'inbox:conversation') {
@@ -573,8 +570,8 @@ const actionCreate = async ({
           mainType: 'customer',
           mainTypeId: execution.target.customerId,
           relType: `${collectionType}`,
-          relTypeId: item._id,
-        },
+          relTypeId: item._id
+        }
       });
     } else {
       const mainType = execution.triggerType.split(':')[1];
@@ -586,8 +583,8 @@ const actionCreate = async ({
           mainType: mainType.replace('lead', 'customer'),
           mainTypeId: execution.targetId,
           relType: `${collectionType}`,
-          relTypeId: item._id,
-        },
+          relTypeId: item._id
+        }
       });
     }
 
@@ -596,7 +593,7 @@ const actionCreate = async ({
       itemId: item._id,
       stageId: item.stageId,
       pipelineId: newData.pipelineId,
-      boardId: newData.boardId,
+      boardId: newData.boardId
     };
   } catch (e) {
     return { error: e.message };
