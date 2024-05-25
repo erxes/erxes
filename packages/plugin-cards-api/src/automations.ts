@@ -34,14 +34,12 @@ const getRelatedValue = async (
       isRPC: true
     });
 
-    if (relatedValueProps&& relatedValueProps[targetKey]) {
+    if (relatedValueProps && relatedValueProps[targetKey]) {
       const key = relatedValueProps[targetKey]?.key;
       return user[key];
     }
 
-    return (
-      (user && ((user?.detail && user?.detail?.fullName) || user?.email)) || ''
-    );
+    return user => user.detail?.fullName || user.email;
   }
 
   if (
@@ -63,14 +61,13 @@ const getRelatedValue = async (
     if (relatedValueProps && relatedValueProps[targetKey]) {
       const { key, filter } = relatedValueProps[targetKey] || {};
       return users
-        .filter((user) => (filter ? user[filter.key] === filter.value : user))
-        .map((user) => user[key])
+        .filter(user => (filter ? user[filter.key] === filter.value : user))
+        .map(user => user[key])
         .join(', ');
     }
 
     return (
-      users.map(user => (user?.detail?.fullName) || user?.email) ||
-      ''
+      users.map(user => user?.detail?.fullName || user?.email) || ''
     ).join(', ');
   }
 
