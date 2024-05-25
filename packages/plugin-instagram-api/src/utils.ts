@@ -197,19 +197,19 @@ export const getPageAccessTokenFromMap = (
   pageId: string,
   pageTokens: { [key: string]: string },
 ): string => {
-  return (pageTokens || {})[pageId];
+  return pageTokens?.[pageId] || '';
 };
 
 export const getInstagramUser = async (
   userId: string,
   facebookPageId: string,
-  facebookPageTokensMap?: { [key: string]: string },
+  facebookPageTokensMap: { [key: string]: string } = {},
 ) => {
-  if (facebookPageTokensMap !== undefined) {
-    const token = await getPageAccessTokenFromMap(
-      facebookPageId,
-      facebookPageTokensMap,
-    );
+  const token = getPageAccessTokenFromMap(
+    facebookPageId,
+    facebookPageTokensMap,
+  );
+  if (token !== '') {
     const accounInfo: any = await graphRequest.get(
       `${userId}?fields=name,profile_pic`,
       token,
