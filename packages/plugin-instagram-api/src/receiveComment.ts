@@ -4,7 +4,6 @@ import {
   getOrCreateCustomer,
   getOrCreatePostConversation
 } from './store';
-// import { ICommentParams } from './types';
 import { INTEGRATION_KINDS } from './constants';
 
 const receiveComment = async (
