@@ -5,7 +5,7 @@ import {
   generateIntegrationUrl,
   getStorage,
   listenForCommonRequests,
-  setErxesProperty
+  setErxesProperty,
 } from "../../widgetUtils";
 
 declare const window: any;
@@ -100,12 +100,13 @@ iframe.onload = async () => {
   }
 
   const setting = window.erxesSettings.messenger;
+  const trustedOrigin = "https://trusteddomain.com";
 
   setErxesProperty("showMessenger", () => {
     contentWindow.postMessage(
       {
         fromPublisher: true,
-        action: "showMessenger"
+        action: "showMessenger",
       },
       "*"
     );
@@ -115,9 +116,9 @@ iframe.onload = async () => {
     {
       fromPublisher: true,
       setting,
-      storage: getStorage()
+      storage: getStorage(),
     },
-    "*"
+    trustedOrigin
   );
 };
 
