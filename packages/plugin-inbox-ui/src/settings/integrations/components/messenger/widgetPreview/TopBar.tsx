@@ -11,8 +11,10 @@ import {
 } from "./styles";
 
 import { IBrand } from "@erxes/ui/src/brands/types";
-import { IMessagesItem } from "@erxes/ui-inbox/src/settings/integrations/types";
-import { IMessengerApps } from "@erxes/ui-inbox/src/settings/integrations/types";
+import {
+  IMessagesItem,
+  IMessengerApps,
+} from "@erxes/ui-inbox/src/settings/integrations/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import React from "react";
@@ -24,7 +26,7 @@ type Props = {
   color: string;
   textColor: string;
   message?: IMessagesItem;
-  wallpaper: string;
+  // wallpaper: string;
   supporterIds?: string[];
   isOnline: boolean;
   logoPreviewUrl?: string;
