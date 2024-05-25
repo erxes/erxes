@@ -34,7 +34,7 @@ const getRelatedValue = async (
       isRPC: true
     });
 
-    if (!!relatedValueProps[targetKey]) {
+    if (relatedValueProps&& relatedValueProps[targetKey]) {
       const key = relatedValueProps[targetKey]?.key;
       return user[key];
     }
