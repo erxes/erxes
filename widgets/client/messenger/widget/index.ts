@@ -90,35 +90,34 @@ erxesContainer.appendChild(iframe);
 document.body.appendChild(erxesContainer);
 
 // after iframe load send connection info
-iframe.onload = async () => {
-  iframe.style.display = "block";
+iframe.onload = () => {
+  try {
+    iframe.style.display = "block";
+    const contentWindow = iframe.contentWindow;
+    if (!contentWindow) throw new Error("Content window is not available.");
 
-  const contentWindow = iframe.contentWindow;
+    const setting = window.erxesSettings.messenger;
+    setErxesProperty("showMessenger", () => {
+      contentWindow.postMessage(
+        {
+          fromPublisher: true,
+          action: "showMessenger",
+        },
+        "https://secure.erxes.io"
+      );
+    });
 
-  if (!contentWindow) {
-    return;
-  }
-
-  const setting = window.erxesSettings.messenger;
-
-  setErxesProperty("showMessenger", () => {
     contentWindow.postMessage(
       {
         fromPublisher: true,
-        action: "showMessenger",
+        setting,
+        storage: getStorage(),
       },
-      "*"
+      "https://secure.erxes.io" // Ensure this matches the expected origin
     );
-  });
-
-  contentWindow.postMessage(
-    {
-      fromPublisher: true,
-      setting,
-      storage: getStorage(),
-    },
-    "*"
-  );
+  } catch (error) {
+    console.error("Failed to initialize the iframe:", error);
+  }
 };
 
 // listen for widget toggle
