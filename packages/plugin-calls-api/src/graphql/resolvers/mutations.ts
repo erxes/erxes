@@ -62,7 +62,7 @@ const callsMutations = {
 
   async callUpdateActiveSession(
     _root,
-    {},
+    _args,
     {
       models,
       user,
