@@ -252,10 +252,10 @@ export const loadDepartmentClass = (models: IModels) => {
 };
 
 export interface IUnitModel extends Model<IUnitDocument> {
-  getUnit(doc: any): IUnitDocument;
-  createUnit(doc: any, user: IUserDocument): IUnitDocument;
-  updateUnit(_id: string, doc: any, user: IUserDocument): IUnitDocument;
-  removeUnits(ids?: string[]): IUnitDocument;
+  getUnit(doc: any): Promise<IUnitDocument>;
+  createUnit(doc: any, user: IUserDocument): Promise<IUnitDocument>;
+  updateUnit(_id: string, doc: any, user: IUserDocument): Promise<IUnitDocument>;
+  removeUnits(ids?: string[]): Promise<IUnitDocument>;
 }
 
 export const loadUnitClass = (models: IModels) => {
