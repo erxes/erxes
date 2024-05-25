@@ -5,7 +5,6 @@ import React, { useState } from "react";
 import { IAsset } from "../../../../common/types";
 import Select from "react-select";
 import Topic from "./Topic";
-import { Formgroup } from "@erxes/ui/src/components/form/styles";
 import { SelectAssignType } from "../../../../style";
 
 export const ASSIGN_TYPE = [
@@ -41,7 +40,7 @@ const Assign = (props: Props) => {
         articleIds: selectedArticles,
       },
       callback: () => {
-        setAssignType(assignType);
+        setAssignType("ddd");
         setSelectedArticles(selectedArticleIds || []);
         closeModal();
       },
