@@ -8,22 +8,22 @@ import styledTS from "styled-components-ts";
 const Line = styledTS<{ width?: string; height?: string; $round?: boolean }>(
   styled(Loader)
 )`
-  width: ${(props) => (props.width ? props.width : "100%")};
-  height: ${(props) => (props.height ? props.height : "10px")};
+  width: ${(props) => (props.width || "100%")};
+  height: ${(props) => (props.height || "10px")};
   border-radius: ${(props) => props.$round && "8px"};
   flex-shrink: 0;
 `;
 
 const Round = styledTS<{ volume?: string }>(styled(Loader))`
-  width: ${(props) => (props.volume ? props.volume : "100%")};
-  height: ${(props) => (props.volume ? props.volume : "100%")};  
+  width: ${(props) => (props.volume || "100%")};
+  height: ${(props) => (props.volume || "100%")};  
   border-radius: 50%;     
   flex-shrink: 0;
 `;
 
 const FlexRow = styledTS<{ $alignItems?: string }>(styled.div)`
   display: flex;
-  align-items: ${(props) => (props.$alignItems ? props.$alignItems : "center")};
+  align-items: ${(props) => (props.$alignItems || "center")};
 `;
 
 const FlexColumn = styled.div`
