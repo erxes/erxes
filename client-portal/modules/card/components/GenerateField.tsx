@@ -65,22 +65,25 @@ export default class GenerateField extends React.Component<Props, State> {
     }
 
     if (type === "check") {
-      let checkBoxValues = this.state.checkBoxValues;
       const isChecked = e.target.checked;
-      // if selected value is not already in list then add it
-      if (isChecked && !checkBoxValues.includes(optionValue)) {
-        checkBoxValues.push(optionValue);
-      }
-
-      // remove option from checked list
-      if (!isChecked) {
-        checkBoxValues = checkBoxValues.filter(v => v !== optionValue);
-      }
-
-      this.setState({ checkBoxValues });
-
-      value = checkBoxValues;
+      const optionValue = e.target.value;
+    
+      this.setState((prevState) => {
+        let checkBoxValues = [...prevState.checkBoxValues]; 
+        if (isChecked && !checkBoxValues.includes(optionValue)) {
+          checkBoxValues.push(optionValue);
+        }
+    
+        if (!isChecked) {
+          checkBoxValues = checkBoxValues.filter(v => v !== optionValue);
+        }
+    
+        return { checkBoxValues }; 
+      }, () => {
+        value = this.state.checkBoxValues;
+      });
     }
+    
 
     if (onValueChange) {
       this.setState({ value });
