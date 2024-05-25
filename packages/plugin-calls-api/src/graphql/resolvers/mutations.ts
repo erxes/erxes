@@ -192,7 +192,7 @@ const callsMutations = {
 
   async callHistoryEditStatus(
     _root,
-    { callStatus, sessionId }: { callStatus: String; sessionId: String },
+    { callStatus, sessionId }: { callStatus: string; sessionId: string },
     { user, models }: IContext,
   ) {
     if (sessionId && sessionId !== '') {
