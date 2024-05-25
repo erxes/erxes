@@ -157,41 +157,41 @@ export const getPageList = async (
   accessToken?: string,
   kind?: string,
 ) => {
-  let response = {} as any;
   try {
-    response = await graphRequest.get(
-      '/me/accounts?fields=instagram_business_account, access_token,id,name',
+    const response = await graphRequest.get(
+      '/me/accounts?fields=instagram_business_account,access_token,id,name',
       accessToken,
     );
-  } catch (e) {
-    throw e;
-  }
 
-  const pages: any[] = [];
+    const pages: any[] = [];
 
-  for (const page of response.data) {
-    if (page.instagram_business_account) {
-      const pageId = page.instagram_business_account.id;
-      const accounInfo: any = await graphRequest.get(
-        `${pageId}?fields=username`,
-        accessToken,
-      );
+    for (const page of response?.data || []) {
+      if (page.instagram_business_account) {
+        const pageId = page.instagram_business_account.id;
+        const accounInfo = await graphRequest.get(
+          `${pageId}?fields=username`,
+          accessToken,
+        );
 
-      const integration = await models.Integrations.findOne({
-        instagramPageId: accounInfo.id,
-        kind,
-      });
+        const integration = await models.Integrations.findOne({
+          instagramPageId: accounInfo.id,
+          kind,
+        });
 
-      pages.push({
-        id: accounInfo.id,
-        name: accounInfo.username,
-        isUsed: !!integration,
-      });
+        pages.push({
+          id: accounInfo.id,
+          name: accounInfo.username,
+          isUsed: !!integration,
+        });
+      }
     }
-  }
 
-  return pages;
+    return pages;
+  } catch (error) {
+    throw error;
+  }
 };
+
 
 export const getPageAccessTokenFromMap = (
   pageId: string,
