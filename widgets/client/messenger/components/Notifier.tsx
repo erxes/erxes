@@ -1,11 +1,11 @@
-import * as classNames from "classnames";
-import * as React from "react";
-import * as RTG from "react-transition-group";
-import { iconClose } from "../../icons/Icons";
-import { striptags } from "../../utils";
-import EngageMessage from "../components/EngageMessage";
-import User from "../components/common/User";
-import { IEngageData, IMessage } from "../types";
+import * as classNames from 'classnames';
+import * as React from 'react';
+import * as RTG from 'react-transition-group';
+import { iconClose } from '../../icons/Icons';
+import { striptags } from '../../utils';
+import EngageMessage from '../components/EngageMessage';
+import User from '../components/common/User';
+import { IEngageData, IMessage } from '../types';
 
 type Props = {
   message: IMessage;
@@ -44,9 +44,9 @@ class Notifier extends React.PureComponent<Props, State> {
     const { message } = this.props;
     const { engageData, user, content } = message;
 
-    let fullName = "";
+    let fullName = '';
 
-    if (user && user.details) {
+    if (user?.details) {
       fullName = user.details.fullName;
     }
 
@@ -68,28 +68,21 @@ class Notifier extends React.PureComponent<Props, State> {
   render() {
     const { message, readConversation } = this.props;
     const engageData = message.engageData || ({} as IEngageData);
-    const classes = classNames("erxes-notification", {
-      "full-message": engageData.sentAs === "fullMessage"
+    const classes = classNames('erxes-notification', {
+      'full-message': engageData.sentAs === 'fullMessage',
     });
 
     return (
-      <RTG.CSSTransition
-        in={this.state.isVisible}
-        appear={true}
-        timeout={300}
-        classNames="scale-in"
-        unmountOnExit={true}
-      >
+      <RTG.CSSTransition in={this.state.isVisible} appear={true} timeout={300} classNames="scale-in" unmountOnExit={true}>
         <div className={classes}>
-          <div
-            className="flex-notification-container"
-            onClick={() => readConversation(message.conversationId)}
-          >
+          <div role="button" tabIndex={0} className="flex-notification-container" onClick={() => readConversation(message.conversationId)}>
             {this.renderNotificationBody()}
           </div>
           <a
             className="close-notification"
             title="Close notification"
+            role="button"
+            tabIndex={0}
             onClick={() => {
               this.close();
             }}

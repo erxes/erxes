@@ -1,17 +1,11 @@
-import {
-  ContentBox,
-  ErxesContent,
-  LeftSide,
-  RightSide,
-  Website,
-} from "./styles";
+import { ContentBox, ErxesContent, LeftSide, RightSide, Website } from './styles';
 
-import Button from "@erxes/ui/src/components/Button";
-import { IMessengerApps } from "@erxes/ui-inbox/src/settings/integrations/types";
-import Icon from "@erxes/ui/src/components/Icon";
-import React from "react";
-import { __ } from "@erxes/ui/src/utils/core";
-import dayjs from "dayjs";
+import Button from '@erxes/ui/src/components/Button';
+import { IMessengerApps } from '@erxes/ui-inbox/src/settings/integrations/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils/core';
+import dayjs from 'dayjs';
 
 type Props = {
   activeStep?: string;
@@ -25,8 +19,8 @@ function renderWebsiteApps(websites, color) {
     return null;
   }
 
-  return websites.map((website, index) => (
-    <ContentBox key={index}>
+  return websites.map((website) => (
+    <ContentBox key={website.url}>
       <Website color={color}>
         <p>{website.description}</p>
         <Button>{website.buttonText}</Button>
@@ -36,21 +30,16 @@ function renderWebsiteApps(websites, color) {
 }
 
 function GreetingContent(props: Props) {
-  const { knowledgebases, websites } =
-    props.messengerApps || ({} as IMessengerApps);
+  const { knowledgebases, websites } = props.messengerApps || ({} as IMessengerApps);
 
   const { responseRate } = props;
 
-  const isTabbed =
-    (knowledgebases || []).length !== 0 &&
-    (knowledgebases || [])[0].topicId &&
-    props.activeStep === "addon"
-      ? true
-      : false;
+  const isTabbed = Boolean((knowledgebases || []).length !== 0 && (knowledgebases || [])[0].topicId && props.activeStep === 'addon');
+
   return (
     <ErxesContent $isTabbed={isTabbed}>
       <ContentBox>
-        <h4>{__("Recent conversations")}</h4>
+        <h4>{__('Recent conversations')}</h4>
         <ul>
           <li>
             <LeftSide>
@@ -59,9 +48,9 @@ function GreetingContent(props: Props) {
               </span>
             </LeftSide>
             <RightSide>
-              <span>{__("Start new conversation")}</span>
+              <span>{__('Start new conversation')}</span>
               <p>Our usual response time</p>
-              <p> {responseRate || "A few minutes"}</p>
+              <p> {responseRate || 'A few minutes'}</p>
             </RightSide>
           </li>
           <li>
@@ -69,14 +58,14 @@ function GreetingContent(props: Props) {
               <img src="/images/avatar-colored.svg" alt="avatar" />
             </LeftSide>
             <RightSide>
-              <div>{dayjs(new Date()).format("LT")}</div>
-              <span>{__("User")}</span>
-              <p>{__("We need your help!")}</p>
+              <div>{dayjs(new Date()).format('LT')}</div>
+              <span>{__('User')}</span>
+              <p>{__('We need your help!')}</p>
             </RightSide>
           </li>
         </ul>
       </ContentBox>
-      {props.activeStep === "addon" && renderWebsiteApps(websites, props.color)}
+      {props.activeStep === 'addon' && renderWebsiteApps(websites, props.color)}
     </ErxesContent>
   );
 }

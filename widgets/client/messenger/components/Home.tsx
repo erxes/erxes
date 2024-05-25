@@ -1,27 +1,17 @@
-import * as classNames from "classnames";
-import * as dayjs from "dayjs";
-import * as React from "react";
-import * as RTG from "react-transition-group";
-import { facebook, twitter, youtube } from "../../icons/Icons";
-import {
-  IIntegrationLink,
-  IIntegrationMessengerData,
-  IIntegrationMessengerDataMessagesItem,
-  IUser,
-} from "../../types";
-import { __ } from "../../utils";
-import TopBar from "../containers/TopBar";
-import SocialLink from "./common/SocialLink";
-import Supporters from "./common/Supporters";
-import asyncComponent from "../../AsyncComponent";
+import * as classNames from 'classnames';
+import * as React from 'react';
+import * as RTG from 'react-transition-group';
+import { facebook, twitter, youtube } from '../../icons/Icons';
+import { IIntegrationLink, IIntegrationMessengerData, IIntegrationMessengerDataMessagesItem, IUser } from '../../types';
+import { __ } from '../../utils';
+import TopBar from '../containers/TopBar';
+import SocialLink from './common/SocialLink';
+import Supporters from './common/Supporters';
+import asyncComponent from '../../AsyncComponent';
 
-const Integrations = asyncComponent(() => 
-  import(/* webpackChunkName: "MessengerIntegrations" */ "../containers/Integrations")
-);
+const Integrations = asyncComponent(() => import(/* webpackChunkName: "MessengerIntegrations" */ '../containers/Integrations'));
 
-const FaqCategories = asyncComponent(() => 
-  import(/* webpackChunkName: "MessengerFaq" */ "./faq/FaqCategories")
-);
+const FaqCategories = asyncComponent(() => import(/* webpackChunkName: "MessengerFaq" */ './faq/FaqCategories'));
 
 type Props = {
   supporters: IUser[];
@@ -77,34 +67,28 @@ class Home extends React.Component<Props, State> {
       return null;
     }
 
-    const indicatorClasses = classNames("indicator", {
+    const indicatorClasses = classNames('indicator', {
       left: this.state.activeSupport,
     });
 
     return (
       <div className="erxes-tab" onClick={this.toggleTab}>
-        <div
-          style={{ backgroundColor: this.props.color }}
-          className={indicatorClasses}
-        />
-        <span>{__("Support")}</span>
-        <span>{__("Faq")}</span>
+        <div style={{ backgroundColor: this.props.color }} className={indicatorClasses} />
+        <span>{__('Support')}</span>
+        <span>{__('Faq')}</span>
       </div>
     );
   }
 
   renderGreetings(messengerData: IIntegrationMessengerData) {
-    const messages =
-      messengerData.messages || ({} as IIntegrationMessengerDataMessagesItem);
+    const messages = messengerData.messages || ({} as IIntegrationMessengerDataMessagesItem);
 
     const greetings = messages.greetings || {};
 
     return (
       <div className="welcome-info">
-        <h3>{greetings.title || __("Welcome")}</h3>
-        <div className="description">
-          {greetings.message || __("Welcome description")}
-        </div>
+        <h3>{greetings.title || __('Welcome')}</h3>
+        <div className="description">{greetings.message || __('Welcome description')}</div>
       </div>
     );
   }
@@ -124,15 +108,10 @@ class Home extends React.Component<Props, State> {
   }
 
   renderHead() {
-    const {
-      isOnline,
-      supporters,
-      loading,
-      messengerData,
-    } = this.props;
+    const { isOnline, supporters, loading, messengerData } = this.props;
     return (
       <div
-        className={classNames("erxes-welcome", {
+        className={classNames('erxes-welcome', {
           tabbed: messengerData.knowledgeBaseTopicId,
         })}
         ref={(node) => {
@@ -141,12 +120,7 @@ class Home extends React.Component<Props, State> {
       >
         {this.renderAssistBar(messengerData)}
         {this.renderGreetings(messengerData)}
-        <Supporters
-          users={supporters}
-          isExpanded={false}
-          loading={loading}
-          isOnline={isOnline}
-        />
+        <Supporters users={supporters} isExpanded={false} loading={loading} isOnline={isOnline} />
         {this.renderTab()}
       </div>
     );
@@ -157,34 +131,20 @@ class Home extends React.Component<Props, State> {
     const topicId = messengerData.knowledgeBaseTopicId;
 
     return (
-      <div
-        className="erxes-home-container"
-        style={{ paddingTop: this.state.headHeight }}
-      >
+      <div className="erxes-home-container" style={{ paddingTop: this.state.headHeight }}>
         <TopBar middle={this.renderHead()} />
         <div
-          className={classNames("erxes-home-content", {
+          className={classNames('erxes-home-content', {
             tabbed: topicId,
           })}
         >
-          <RTG.CSSTransition
-            in={this.state.activeSupport}
-            appear={true}
-            timeout={600}
-            classNames="slide"
-          >
+          <RTG.CSSTransition in={this.state.activeSupport} appear={true} timeout={600} classNames="slide">
             <div className="erxes-home-item">
               <Integrations />
             </div>
           </RTG.CSSTransition>
 
-          <RTG.CSSTransition
-            in={!this.state.activeSupport}
-            appear={true}
-            timeout={600}
-            classNames="slide"
-            unmountOnExit={true}
-          >
+          <RTG.CSSTransition in={!this.state.activeSupport} appear={true} timeout={600} classNames="slide" unmountOnExit={true}>
             <div className="erxes-home-item seperate">
               <FaqCategories topicId={topicId} />
             </div>
