@@ -1,6 +1,5 @@
-// css
+// Import CSS and utilities
 import "./index.css";
-
 import {
   generateIntegrationUrl,
   getStorage,
@@ -8,13 +7,10 @@ import {
   setErxesProperty,
 } from "../../widgetUtils";
 
+// TypeScript declaration for the global window object
 declare const window: any;
 
-/*
- * Messenger message's embeddable script
- */
-
-// check is mobile
+// Variables for mobile detection and viewport handling
 const isMobile =
   navigator.userAgent.match(/iPhone/i) ||
   navigator.userAgent.match(/iPad/i) ||
@@ -23,13 +19,9 @@ const isMobile =
 let viewportMeta: any;
 let newViewportMeta: any;
 let hideDelayTimer: any;
-
 const delay = 350;
 
-if (isMobile) {
-  viewportMeta = document.querySelector('meta[name="viewport"]');
-}
-
+// Function to manage viewport for mobile devices
 function renewViewPort() {
   if (viewportMeta) {
     document.getElementsByTagName("head")[0].removeChild(viewportMeta);
@@ -52,6 +44,7 @@ function revertViewPort() {
   }
 }
 
+// Function to handle class toggling with delay
 function delaydToggleClass(str: string, isVisible: boolean) {
   hideDelayTimer = setTimeout(() => {
     erxesContainer.classList.toggle(str, isVisible);
@@ -70,17 +63,14 @@ function clearTimer() {
   }
 }
 
+// Setup for iframe and container
 const iframeId = "erxes-messenger-iframe";
 const container = "erxes-messenger-container";
-
-// container
 const erxesContainer = document.createElement("div");
 erxesContainer.id = container;
 erxesContainer.className = "erxes-messenger-hidden";
 
-// add iframe
 const iframe: any = document.createElement("iframe");
-
 iframe.id = iframeId;
 iframe.src = generateIntegrationUrl("messenger");
 iframe.style.display = "none";
@@ -89,10 +79,9 @@ iframe.allow = "camera *;microphone *";
 erxesContainer.appendChild(iframe);
 document.body.appendChild(erxesContainer);
 
-// after iframe load send connection info
+// Handling iframe load and message passing
 iframe.onload = async () => {
   iframe.style.display = "block";
-
   const contentWindow = iframe.contentWindow;
 
   if (!contentWindow) {
@@ -100,7 +89,6 @@ iframe.onload = async () => {
   }
 
   const setting = window.erxesSettings.messenger;
-  const trustedOrigin = "https://trusteddomain.com";
 
   setErxesProperty("showMessenger", () => {
     contentWindow.postMessage(
@@ -118,11 +106,11 @@ iframe.onload = async () => {
       setting,
       storage: getStorage(),
     },
-    trustedOrigin
+    "*"
   );
 };
 
-// listen for widget toggle
+// Event listener for message handling from the iframe
 window.addEventListener("message", async (event: MessageEvent) => {
   const data = event.data;
   const { isVisible, message, isSmallContainer } = data;
@@ -134,44 +122,38 @@ window.addEventListener("message", async (event: MessageEvent) => {
       document.body.classList.toggle("widget-mobile", isVisible);
     }
 
-    if (message === "messenger") {
-      if (isMobile && isVisible) {
-        renewViewPort();
-      } else {
-        revertViewPort();
-      }
+    switch (message) {
+      case "messenger":
+        if (isMobile && isVisible) {
+          renewViewPort();
+        } else {
+          revertViewPort();
+        }
 
-      clearTimer();
+        clearTimer();
+        erxesContainer.className = isVisible
+          ? "erxes-messenger-shown"
+          : "erxes-messenger-hidden";
+        erxesContainer.classList.toggle("small", isSmallContainer);
+        document.body.classList.toggle("messenger-widget-shown", isVisible);
+        break;
 
-      if (isVisible) {
-        erxesContainer.className = "erxes-messenger-shown";
-      } else {
-        delaydSetClass("erxes-messenger-hidden");
-      }
+      case "notifier":
+        clearTimer();
+        delaydToggleClass("erxes-notifier-shown", isVisible);
+        if (!isVisible) {
+          delaydSetClass("erxes-messenger-hidden");
+        }
+        break;
 
-      erxesContainer.classList.toggle("small", isSmallContainer);
-      document.body.classList.toggle("messenger-widget-shown", isVisible);
-    }
-
-    if (message === "notifier") {
-      clearTimer();
-      delaydToggleClass("erxes-notifier-shown", isVisible);
-
-      // change container div dimension
-      if (!isVisible) {
-        delaydSetClass("erxes-messenger-hidden");
-      }
-    }
-
-    if (message === "notifierFull") {
-      clearTimer();
-
-      // add class and hide notifier
-      if (isVisible) {
-        erxesContainer.className += " erxes-notifier-shown fullMessage";
-      } else {
-        delaydSetClass("erxes-messenger-hidden");
-      }
+      case "notifierFull":
+        clearTimer();
+        if (isVisible) {
+          erxesContainer.className += " erxes-notifier-shown fullMessage";
+        } else {
+          delaydSetClass("erxes-messenger-hidden");
+        }
+        break;
     }
   }
 });
