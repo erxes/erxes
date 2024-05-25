@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 
 import { IModels } from './connectionResolver';
-import { debugBase, debugExternalRequests } from './debuggers';
+import { debugBase } from './debuggers';
 import redis from '@erxes/api-utils/src/redis';
 
 dotenv.config();
