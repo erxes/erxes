@@ -1,4 +1,3 @@
-import * as _ from 'underscore';
 import { IChannel, IChannelDocument } from '../../models/definitions/channels';
 
 import { MODULE_NAMES } from '../../constants';
@@ -23,7 +22,7 @@ export const sendChannelNotifications = async (
   channel: IChannelDocument,
   type: 'invited' | 'removed',
   user: any,
-  receivers?: string[]
+  receivers?: string[],
 ) => {
   let action = `invited you to the`;
 
@@ -47,8 +46,8 @@ export const sendChannelNotifications = async (
       // exclude current user
       receivers:
         receivers ||
-        (channel.memberIds || []).filter(id => id !== channel.userId)
-    }
+        (channel.memberIds || []).filter((id) => id !== channel.userId),
+    },
   });
 };
 
@@ -59,7 +58,7 @@ const channelMutations = {
   async channelsAdd(
     _root,
     doc: IChannel,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const channel = await models.Channels.createChannel(doc, user._id);
 
@@ -72,9 +71,9 @@ const channelMutations = {
         {
           type: MODULE_NAMES.CHANNEL,
           newData: { ...doc, userId: user._id },
-          object: channel
+          object: channel,
         },
-        user
+        user,
       );
     } catch (e) {
       console.log(e, 'eee');
@@ -89,13 +88,13 @@ const channelMutations = {
   async channelsEdit(
     _root,
     { _id, ...doc }: IChannelsEdit,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const channel = await models.Channels.getChannel(_id);
 
     const { addedUserIds, removedUserIds } = checkUserIds(
       channel.memberIds || [],
-      doc.memberIds || []
+      doc.memberIds || [],
     );
 
     const updated = await models.Channels.updateChannel(_id, doc);
@@ -105,14 +104,14 @@ const channelMutations = {
       channel,
       'invited',
       user,
-      addedUserIds
+      addedUserIds,
     );
     await sendChannelNotifications(
       subdomain,
       channel,
       'removed',
       user,
-      removedUserIds
+      removedUserIds,
     );
 
     await putUpdateLog(
@@ -122,9 +121,9 @@ const channelMutations = {
         type: MODULE_NAMES.CHANNEL,
         object: channel,
         newData: doc,
-        updatedDocument: updated
+        updatedDocument: updated,
       },
-      user
+      user,
     );
 
     if (
@@ -136,8 +135,8 @@ const channelMutations = {
         action: 'registerOnboardHistory',
         data: {
           type: 'connectIntegrationsToChannel',
-          user
-        }
+          user,
+        },
       });
     }
 
@@ -150,7 +149,7 @@ const channelMutations = {
   async channelsRemove(
     _root,
     { _id }: { _id: string },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const channel = await models.Channels.getChannel(_id);
 
@@ -162,11 +161,11 @@ const channelMutations = {
       models,
       subdomain,
       { type: MODULE_NAMES.CHANNEL, object: channel },
-      user
+      user,
     );
 
     return true;
-  }
+  },
 };
 
 checkPermission(channelMutations, 'channelsAdd', 'manageChannels');
