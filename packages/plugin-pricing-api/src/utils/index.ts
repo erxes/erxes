@@ -1,17 +1,17 @@
-import * as _ from 'lodash';
-import * as dayjs from 'dayjs';
-import { IModels } from '../connectionResolver';
+import * as _ from "lodash";
+import * as dayjs from "dayjs";
+import { IModels } from "../connectionResolver";
 import {
   checkRepeatRule,
   calculatePriceRule,
   calculateQuantityRule,
   calculateDiscountValue,
   calculateExpiryRule,
-  calculatePriceAdjust
-} from './rule';
-import { getAllowedProducts } from './product';
-import { CalculatedRule, OrderItem } from '../types';
-import { IPricingPlanDocument } from '../models/definitions/pricingPlan';
+  calculatePriceAdjust,
+} from "./rule";
+import { getAllowedProducts } from "./product";
+import { CalculatedRule, OrderItem } from "../types";
+import { IPricingPlanDocument } from "../models/definitions/pricingPlan";
 
 // Finding valid discounts
 export const getMainConditions: any = (branchId?, departmentId?, date?) => {
@@ -19,61 +19,61 @@ export const getMainConditions: any = (branchId?, departmentId?, date?) => {
   const nowISO = now.toISOString();
 
   return {
-    status: 'active',
+    status: "active",
     $and: [
       {
         $or: [
           {
             branchIds: { $in: [branchId && branchId] },
-            departmentIds: { $size: 0 }
+            departmentIds: { $size: 0 },
           },
           {
             departmentIds: { $in: [departmentId && departmentId] },
-            branchIds: { $size: 0 }
+            branchIds: { $size: 0 },
           },
           {
             branchIds: { $size: 0 },
-            departmentIds: { $size: 0 }
+            departmentIds: { $size: 0 },
           },
           {
             departmentIds: { $in: [departmentId && departmentId] },
-            branchIds: { $in: [branchId && branchId] }
-          }
-        ]
+            branchIds: { $in: [branchId && branchId] },
+          },
+        ],
       },
       {
         $or: [
           {
             isStartDateEnabled: false,
-            isEndDateEnabled: false
+            isEndDateEnabled: false,
           },
           {
             isStartDateEnabled: true,
             isEndDateEnabled: false,
             startDate: {
-              $lt: nowISO
-            }
+              $lt: nowISO,
+            },
           },
           {
             isStartDateEnabled: false,
             isEndDateEnabled: true,
             endDate: {
-              $gt: nowISO
-            }
+              $gt: nowISO,
+            },
           },
           {
             isStartDateEnabled: true,
             isEndDateEnabled: true,
             startDate: {
-              $lt: nowISO
+              $lt: nowISO,
             },
             endDate: {
-              $gt: nowISO
-            }
-          }
-        ]
-      }
-    ]
+              $gt: nowISO,
+            },
+          },
+        ],
+      },
+    ],
   };
 };
 
@@ -86,7 +86,7 @@ export const checkPricing = async (
   branchId: string,
   orderItems: OrderItem[]
 ) => {
-  const productIds: string[] = orderItems.map(p => p.productId);
+  const productIds: string[] = orderItems.map((p) => p.productId);
   const result: object = {};
 
   let allowedProductIds: string[] = [];
@@ -94,31 +94,30 @@ export const checkPricing = async (
   // Finding valid discounts
   const conditions: any = getMainConditions(branchId, departmentId);
 
-  if (prioritizeRule === 'only') {
+  if (prioritizeRule === "only") {
     conditions.isPriority = true;
-  } else if (prioritizeRule === 'exclude') {
+  } else if (prioritizeRule === "exclude") {
     conditions.isPriority = false;
   }
 
   const sortArgs: object = {
     isPriority: 1,
-    value: 1
+    value: 1,
   };
 
   // Prepare object to save calculated data
   for (const item of orderItems) {
     if (!Object.keys(result).includes(item.itemId)) {
       result[item.itemId] = {
-        type: '',
+        type: "",
         value: 0,
-        bonusProducts: []
+        bonusProducts: [],
       };
     }
   }
 
-  const plans: IPricingPlanDocument[] = await models.PricingPlans.find(
-    conditions
-  ).sort(sortArgs);
+  const plans: IPricingPlanDocument[] =
+    await models.PricingPlans.find(conditions).sort(sortArgs);
 
   if (plans.length === 0) {
     return;
@@ -151,7 +150,7 @@ export const checkPricing = async (
       if (appliedBundleCounts > item.quantity)
         appliedBundleCounts = item.quantity;
 
-      let type: string = '';
+      let type: string = "";
       let value: number = 0;
       let bonusProducts: any = [];
 
@@ -194,21 +193,16 @@ export const checkPricing = async (
       if (priceRule.passed && quantityRule.passed && expiryRule.passed) {
         // Bonus product will always be prioritized
         if (
-          (priceRule.type === 'bonus' &&
-            priceRule.bonusProducts &&
-            priceRule.bonusProducts.length) ||
-          (quantityRule.type === 'bonus' &&
-            quantityRule.bonusProducts &&
-            quantityRule.bonusProducts.length) ||
-          (expiryRule.type === 'bonus' &&
-            expiryRule.bonusProducts &&
-            expiryRule.bonusProducts.length)
+          (priceRule?.type === "bonus" && priceRule?.bonusProducts?.length) ||
+          (quantityRule?.type === "bonus" &&
+            quantityRule?.bonusProducts?.length) ||
+          (expiryRule?.type === "bonus" && expiryRule?.bonusProducts?.length)
         ) {
-          type = 'bonus';
+          type = "bonus";
           bonusProducts = [
             ...priceRule.bonusProducts,
             ...quantityRule.bonusProducts,
-            ...expiryRule.bonusProducts
+            ...expiryRule.bonusProducts,
           ];
           value = 0;
         }
@@ -216,15 +210,15 @@ export const checkPricing = async (
         // Prioritize highest value between rules
         let rules = [priceRule, quantityRule, expiryRule];
         let maxValueRule = rules.reduce((prev, current) => {
-          if (prev.value > current.value && prev.type !== 'bonus') {
+          if (prev.value > current.value && prev.type !== "bonus") {
             return prev;
-          } else if (current.type !== 'bonus') {
+          } else if (current.type !== "bonus") {
             return current;
           }
           return prev;
         });
 
-        if (maxValueRule.type && maxValueRule.type.length) {
+        if (maxValueRule?.type?.length) {
           type = maxValueRule.type;
           value = maxValueRule.value;
         }
@@ -240,7 +234,7 @@ export const checkPricing = async (
         }
 
         // Finalize values
-        if (type !== 'bonus') {
+        if (type !== "bonus") {
           result[item.itemId].type = type;
 
           // Priority calculation
@@ -256,12 +250,12 @@ export const checkPricing = async (
           }
         }
 
-        if (type === 'bonus') {
+        if (type === "bonus") {
           // Priority calculation
           if (plan.isPriority) {
             result[item.itemId].bonusProducts = [
               ...result[item.itemId].bonusProducts,
-              ...bonusProducts
+              ...bonusProducts,
             ];
           } else {
             result[item.itemId].bonusProducts = bonusProducts;
@@ -273,9 +267,9 @@ export const checkPricing = async (
     }
 
     // Calculate bundle
-    if (plan.applyType === 'bundle') {
+    if (plan.applyType === "bundle") {
       appliedBundleItems.map((item: any) => {
-        if (result[item.itemId].type !== 'bonus') {
+        if (result[item.itemId].type !== "bonus") {
           result[item.itemId].value = Math.floor(
             (result[item.itemId].value / item.quantity) * appliedBundleCounts
           );

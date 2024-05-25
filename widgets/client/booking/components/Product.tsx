@@ -18,7 +18,7 @@ class Product extends React.Component<Props, { selectedImageUrl: string }> {
     super(props);
 
     this.state = {
-      selectedImageUrl: ""
+      selectedImageUrl: "",
     };
   }
 
@@ -37,7 +37,7 @@ class Product extends React.Component<Props, { selectedImageUrl: string }> {
     const showFull = (img: any) => {
       const image = document.getElementById("img-active") as HTMLImageElement;
       if (image) {
-        image.src = readFile(img && img.url);
+        image.src = readFile(img?.url);
       }
       this.setState({ selectedImageUrl: img.url || "" });
     };
@@ -49,7 +49,7 @@ class Product extends React.Component<Props, { selectedImageUrl: string }> {
     }
 
     const renderFieldsData = () =>
-      fields.map((field: IField, index: any) => {
+      fields.map((field: IField) => {
         if (field.isDefinedByErxes) {
           if (productFieldIds.indexOf(field._id) !== -1) {
             data[field._id] = product[field.type as keyof IProduct];
@@ -65,7 +65,7 @@ class Product extends React.Component<Props, { selectedImageUrl: string }> {
         }
 
         return (
-          <p key={index}>
+          <p key={field?._id}>
             <strong>{field.text}: </strong>
             {data[field._id] || ""}
           </p>
@@ -81,8 +81,8 @@ class Product extends React.Component<Props, { selectedImageUrl: string }> {
       if (orientation === "left") {
         carousel.scrollTo({
           top: 0,
-          left: scrollAmount -= scrollPerClick,
-          behavior: "smooth"
+          left: (scrollAmount -= scrollPerClick),
+          behavior: "smooth",
         });
 
         if (scrollAmount < 0) {
@@ -94,14 +94,14 @@ class Product extends React.Component<Props, { selectedImageUrl: string }> {
         if (scrollAmount <= carousel.scrollWidth - carousel.clientWidth) {
           carousel.scrollTo({
             top: 0,
-            left: scrollAmount += scrollPerClick,
-            behavior: "smooth"
+            left: (scrollAmount += scrollPerClick),
+            behavior: "smooth",
           });
         } else {
           carousel.scrollTo({
             top: 0,
-            left: scrollAmount = -scrollPerClick,
-            behavior: "smooth"
+            left: (scrollAmount = -scrollPerClick),
+            behavior: "smooth",
           });
         }
       }
@@ -132,8 +132,8 @@ class Product extends React.Component<Props, { selectedImageUrl: string }> {
               <div className="active flex-center">
                 <img
                   id="img-active"
-                  src={readFile(product.attachment && product.attachment.url)}
-                  alt={product.attachment && product.attachment.name}
+                  src={readFile(product?.attachment?.url)}
+                  alt={product?.attachment?.name}
                 />
               </div>
               <div className="relative">
@@ -149,13 +149,13 @@ class Product extends React.Component<Props, { selectedImageUrl: string }> {
                           this.state.selectedImageUrl === img.url
                             ? widgetColor
                             : "transparent"
-                        }`
+                        }`,
                       }}
                     >
                       <img
-                        id={img && img.name}
-                        src={readFile(img && img.url)}
-                        alt={img && img.name}
+                        id={img?.name}
+                        src={readFile(img?.url)}
+                        alt={img?.name}
                       />
                     </div>
                   ))}

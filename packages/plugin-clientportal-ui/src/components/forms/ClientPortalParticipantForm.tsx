@@ -3,26 +3,16 @@ import {
   ClientPortalConfig,
   IClientPortalParticipant,
   IClientPortalUser,
-  IClientPortalUserDoc,
 } from "../../types";
-import {
-  FormColumn,
-  FormWrapper,
-  ModalFooter,
-  ScrollWrapper,
-} from "@erxes/ui/src/styles/main";
+import { ModalFooter, ScrollWrapper } from "@erxes/ui/src/styles/main";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-
-import AvatarUpload from "@erxes/ui/src/components/AvatarUpload";
 import Button from "@erxes/ui/src/components/Button";
-import CollapseContent from "@erxes/ui/src/components/CollapseContent";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import { Form } from "@erxes/ui/src/components/form";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import { IUser } from "@erxes/ui/src/auth/types";
 import React from "react";
-import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
 import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
@@ -45,15 +35,6 @@ class ClientPortalParticipantForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const clientPortalUser =
-      props.clientPortalUser || ({} as IClientPortalUser);
-    const userId = props.currentUser ? props.currentUser._id : "";
-
-    const activeSections = {
-      renderClientPortalUser: false,
-      renderClientPortalCompany: false,
-    };
-
     this.state = {
       status: this.props.participant?.status || "participating",
       paymentStatus: this.props.participant?.paymentStatus || "unpaid",
@@ -67,7 +48,6 @@ class ClientPortalParticipantForm extends React.Component<Props, State> {
 
   generateDoc = (values: { _id: string } & IClientPortalParticipant) => {
     const { participant } = this.props;
-    const finalValues = values;
 
     const doc: any = {
       id: participant?._id,

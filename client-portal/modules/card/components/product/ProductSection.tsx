@@ -1,9 +1,9 @@
-import { Config, IProductData } from '../../../types';
+import { Config, IProductData } from "../../../types";
 
-import React from 'react';
-import Box from '../../../common/Box';
+import React from "react";
+import Box from "../../../common/Box";
 
-import ProductForm from './ProductForm';
+import ProductForm from "./ProductForm";
 
 type Props = {
   config: Config;
@@ -11,7 +11,7 @@ type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;
 };
 
-function ProductSection(props: Props) {
+function ProductSection(props: Readonly<Props>) {
   return (
     <Box title="Product & Service" hasShadow={true}>
       <ProductForm {...props} />
