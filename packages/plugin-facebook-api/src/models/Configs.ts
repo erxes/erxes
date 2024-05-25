@@ -65,16 +65,17 @@ export const loadConfigClass = (models: IModels) => {
      */
     public static async updateConfigs(configsMap) {
       const codes = Object.keys(configsMap);
-
+    
       for (const code of codes) {
         if (!code) {
           continue;
         }
-
+    
         const value = configsMap[code];
         const doc = { code, value };
-
-        await models.Configs.createOrUpdateConfig(doc);
+    
+        // If createOrUpdateConfig does not return a promise, remove await
+        models.Configs.createOrUpdateConfig(doc);
       }
     }
   }
