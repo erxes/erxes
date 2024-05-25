@@ -1,9 +1,7 @@
 import { debugError } from './debuggers';
 import { sendInboxMessage } from './messageBroker';
-import { getInstagramUser } from './utils';
+import { getInstagramUser,getPostLink } from './utils';
 import { IModels } from './connectionResolver';
-import { INTEGRATION_KINDS } from './constants';
-import { getPostDetails, getPostLink } from './utils';
 import { IIntegrationDocument } from './models/Integrations';
 import { ICustomerDocument } from './models/definitions/customers';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
@@ -51,7 +49,6 @@ export const getOrCreatePostConversation = async (
 export const getOrCreateComment = async (
   models: IModels,
   subdomain: string,
-  postConversation: any,
   commentParams: any,
   pageId: string,
   userId: string,
