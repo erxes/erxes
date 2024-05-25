@@ -22,7 +22,7 @@ function ConversationInit(props: Props) {
 
   const createButton = () => {
     return (
-      <li onClick={createConversation} className="erxes-list-item" tabIndex={0}>
+      <li role="button" onClick={createConversation} className="erxes-list-item" tabIndex={0}>
         <div className="erxes-left-side">
           <span>{iconPlus}</span>
         </div>
@@ -40,7 +40,7 @@ function ConversationInit(props: Props) {
 
   const seeAllConversationBtn = () => {
     return (
-      <li onClick={goToAllConversations} className="erxes-list-item" tabIndex={0}>
+      <li role="button" onClick={goToAllConversations} className="erxes-list-item" tabIndex={0}>
         <div className="erxes-right-side">
           <div className="erxes-last-message">{__('See all your conversations')}</div>
         </div>
@@ -49,15 +49,13 @@ function ConversationInit(props: Props) {
   };
 
   return (
-    <>
-      <ul className="erxes-conversation-init">
-        {conversations.length > 0 && (
-          <ConversationItem key={conversations[0]._id} conversation={conversations[0]} goToConversation={goToConversation} />
-        )}
-        {conversations.length > 1 && seeAllConversationBtn()}
-        {createButton()}
-      </ul>
-    </>
+    <ul className="erxes-conversation-init">
+      {conversations.length > 0 && (
+        <ConversationItem key={conversations[0]._id} conversation={conversations[0]} goToConversation={goToConversation} />
+      )}
+      {conversations.length > 1 && seeAllConversationBtn()}
+      {createButton()}
+    </ul>
   );
 }
 
