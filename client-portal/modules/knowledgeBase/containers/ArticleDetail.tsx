@@ -28,12 +28,12 @@ function ArticleDetailContainer({
 
   let queryOptions1 = {};
   if (catId) {
-    queryOptions = {
+    queryOptions1 = {
       variables: { _id: catId },
       skip: false,
     };
   } else {
-    queryOptions = { skip: true };
+    queryOptions1 = { skip: true };
   }
   
   const { data: catData = {} as any } = useQuery(gql(categoryDetailQuery), queryOptions1);
