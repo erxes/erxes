@@ -98,9 +98,7 @@ export default class CardDetail extends React.Component<
                 </div>
                 {createdUser?._id === this.props.currentUser._id && (
                   <div className="actions">
-                    <span
-                      role="button"
-                      tabIndex={0}
+                    <button
                       onClick={() => this.deleteComment(comment._id)}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === 'Space') {
@@ -109,7 +107,8 @@ export default class CardDetail extends React.Component<
                       }}
                     >
                       Delete
-                    </span>
+                    </button>
+
                   </div>
                 )}
               </CreatedUser>
@@ -243,9 +242,7 @@ export default class CardDetail extends React.Component<
     return (
       <>
         <DetailHeader className="d-flex align-items-center">
-          <span
-            role="button"
-            tabIndex={0} // Make the element focusable
+          <button
             onClick={this.props.onClose}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === 'Space') {
@@ -254,7 +251,7 @@ export default class CardDetail extends React.Component<
             }}
           >
             <Icon icon="angle-double-left" size={20} /> Back
-          </span>
+          </button>
 
         </DetailHeader>
         <div className="row">
