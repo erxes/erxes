@@ -143,10 +143,8 @@ class SingleArticle extends React.Component<Props, { reaction: string }> {
       <Feedback>
         <div className={reactionClassess}>
           {(article.reactionChoices || []).map((reactionChoice, index) => (
-            <span
+            <button
               key={index}
-              role="button"
-              tabIndex={0}
               className={reactionChoice === reaction ? "active" : undefined}
               onClick={() => this.onReactionClick(reactionChoice)}
               onKeyDown={(e) => {
@@ -156,7 +154,8 @@ class SingleArticle extends React.Component<Props, { reaction: string }> {
               }}
             >
               <img alt="reaction" src={reactionChoice} />
-            </span>
+            </button>
+
 
           ))}
         </div>
@@ -177,14 +176,14 @@ class SingleArticle extends React.Component<Props, { reaction: string }> {
             erxesForms={forms}
           />
         )}
-        <span
-          role="button"
+        <div
           tabIndex={0}
           onClick={this.showImageModal}
           dangerouslySetInnerHTML={{
             __html: article.content,
           }}
         />
+
       </p>
     );
   };
