@@ -62,7 +62,7 @@ const callsMutations = {
 
   async callUpdateActiveSession(
     _root,
-    {},
+    _args,
     {
       models,
       user,
@@ -86,7 +86,11 @@ const callsMutations = {
     });
   },
 
-  async callTerminateSession(_root, {}, { models, user, subdomain }: IContext) {
+  async callTerminateSession(
+    _root,
+    _args,
+    { models, user, subdomain }: IContext,
+  ) {
     await models.ActiveSessions.deleteOne({
       userId: user._id,
     });
@@ -188,7 +192,7 @@ const callsMutations = {
 
   async callHistoryEditStatus(
     _root,
-    { callStatus, sessionId }: { callStatus: String; sessionId: String },
+    { callStatus, sessionId }: { callStatus: string; sessionId: string },
     { user, models }: IContext,
   ) {
     if (sessionId && sessionId !== '') {
