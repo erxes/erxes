@@ -109,7 +109,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
 
     if (cdrData?.response) {
       cdr_root = cdrData.response.cdr_root;
-    } else if (cdrData && cdrData.cdr_root) {
+    } else if (cdrData?.cdr_root) {
       cdr_root = cdrData?.cdr_root;
     }
     console.log('2');
