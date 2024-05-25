@@ -108,12 +108,10 @@ class TopBar extends React.Component<Props> {
     const { brands = [], brandId } = this.props;
     let currentBrand = {} as IBrand;
 
-    brands.map((brand) => {
-      if (brand._id !== brandId) {
-        return null;
+    brands.forEach((brand) => {
+      if (brand._id === brandId) {
+        currentBrand = brand;
       }
-
-      return (currentBrand = brand);
     });
 
     return (
