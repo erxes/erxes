@@ -57,8 +57,9 @@ class Form extends React.Component<Props, State> {
       if (this.props.onSubmit) {
         return this.props.onSubmit(this.state.values);
       }
-
-      this.setState({ isSubmitted: !this.state.isSubmitted });
+      this.setState((prevState) => ({
+        isSubmitted: !prevState.isSubmitted,
+      }));
     });
   };
 
