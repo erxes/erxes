@@ -12,7 +12,7 @@ export interface IPostConversation {
   content: string;
   integrationId: string;
   customerId?: string;
-  permalink_url: String;
+  permalink_url: string;
   attachments: string[];
 }
 
