@@ -19,8 +19,8 @@ function renderWebsiteApps(websites, color) {
     return null;
   }
 
-  return websites.map((website, index) => (
-    <ContentBox key={index}>
+  return websites.map((website) => (
+    <ContentBox key={website.url}>
       <Website color={color}>
         <p>{website.description}</p>
         <Button>{website.buttonText}</Button>
