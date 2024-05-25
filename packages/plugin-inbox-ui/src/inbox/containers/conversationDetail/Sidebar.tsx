@@ -66,7 +66,7 @@ class Sidebar extends React.Component<FinalProps, State> {
     const config = getConfig(STORAGE_KEY) || {};
 
     return Object.entries(config)?.reduce((result, [key, value]) => {
-      const keys = key.replace(/\d+$/, "");
+      const keys = key.replace(/[0-9]+$/, "");
       result[keys] = keys in result ? result[keys] || value : value;
 
       return result;
