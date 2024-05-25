@@ -60,11 +60,11 @@ const getRelatedValue = async (
       isRPC: true
     });
 
-    if (!!relatedValueProps[targetKey]) {
+    if (relatedValueProps && relatedValueProps[targetKey]) {
       const { key, filter } = relatedValueProps[targetKey] || {};
       return users
-        .filter(user => (filter ? user[filter.key] === filter.value : user))
-        .map(user => user[key])
+        .filter((user) => (filter ? user[filter.key] === filter.value : user))
+        .map((user) => user[key])
         .join(', ');
     }
 
@@ -143,7 +143,7 @@ const getRelatedValue = async (
       defaultValue: []
     });
 
-    if (relatedValueProps && !!relatedValueProps[targetKey]) {
+    if (relatedValueProps && relatedValueProps[targetKey]) {
       const { key, filter } = relatedValueProps[targetKey] || {};
       return activeContacts
         .filter(contacts =>
