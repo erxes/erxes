@@ -1,5 +1,55 @@
 import { sendCommonMessage } from "./messageBroker";
 
+const coreUser = async (subdomain, document, itemId, replacedContents) => {
+  const user = await sendCommonMessage({
+    subdomain,
+    serviceName: 'core',
+    isRPC: true,
+    action: 'users.findOne',
+    data: {
+      _id: itemId,
+    },
+  });
+
+  let content = document.content;
+
+  const details = user.details || {};
+
+  content = content.replace(/{{ username }}/g, user.username);
+  content = content.replace(/{{ email }}/g, user.email);
+  content = content.replace(
+    /{{ details.firstName }}/g,
+    details.firstName
+  );
+  content = content.replace(
+    /{{ details.lastName }}/g,
+    details.lastName
+  );
+  content = content.replace(
+    /{{ details.middleName }}/g,
+    details.middleName
+  );
+  content = content.replace(
+    /{{ details.position }}/g,
+    details.position
+  );
+  content = content.replace(/{{ details.avatar }}/g, details.avatar);
+  content = content.replace(
+    /{{ details.description }}/g,
+    details.description
+  );
+
+  for (const data of user.customFieldsData || []) {
+    const regex = new RegExp(
+      `{{ customFieldsData.${data.field} }}`,
+      'g'
+    );
+    content = content.replace(regex, data.stringValue);
+  }
+
+  replacedContents.push(content);
+  return replacedContents;
+}
 export const helper = async (subdomain, document, query) => {
   const { _id, copies, width, itemId } = query;
   let replacedContents: any[] = [];
@@ -8,53 +58,7 @@ export const helper = async (subdomain, document, query) => {
   let heads = '';
 
   if (document.contentType === 'core:user') {
-    const user = await sendCommonMessage({
-      subdomain,
-      serviceName: 'core',
-      isRPC: true,
-      action: 'users.findOne',
-      data: {
-        _id: itemId,
-      },
-    });
-
-    let content = document.content;
-
-    const details = user.details || {};
-
-    content = content.replace(/{{ username }}/g, user.username);
-    content = content.replace(/{{ email }}/g, user.email);
-    content = content.replace(
-      /{{ details.firstName }}/g,
-      details.firstName
-    );
-    content = content.replace(
-      /{{ details.lastName }}/g,
-      details.lastName
-    );
-    content = content.replace(
-      /{{ details.middleName }}/g,
-      details.middleName
-    );
-    content = content.replace(
-      /{{ details.position }}/g,
-      details.position
-    );
-    content = content.replace(/{{ details.avatar }}/g, details.avatar);
-    content = content.replace(
-      /{{ details.description }}/g,
-      details.description
-    );
-
-    for (const data of user.customFieldsData || []) {
-      const regex = new RegExp(
-        `{{ customFieldsData.${data.field} }}`,
-        'g'
-      );
-      content = content.replace(regex, data.stringValue);
-    }
-
-    replacedContents.push(content);
+    replacedContents = await coreUser(subdomain, document, itemId, replacedContents)
   } else {
     try {
       const serviceName = document.contentType.includes(':')
@@ -105,7 +109,8 @@ export const helper = async (subdomain, document, query) => {
 
       if (key) {
         const regex = new RegExp(key, 'g');
-        replacedContent = replacedContent.replace(regex, value);
+        const tempContent = replacedContent;
+        replacedContent = tempContent.replace(regex, value);
       }
     }
 
