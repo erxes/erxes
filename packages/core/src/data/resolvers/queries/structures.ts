@@ -227,7 +227,7 @@ const structureQueries = {
 
   async branches(
     _root,
-    params: any & { searchValue?: string },
+    params: any,
     { models, user }: IContext,
   ) {
     const filter = await generateFilters({
@@ -309,7 +309,7 @@ const structureQueries = {
 
   async positions(
     _root,
-    params: any & { searchValue?: string },
+    params: any,
     { models, user }: IContext,
   ) {
     const filter = await generateFilters({

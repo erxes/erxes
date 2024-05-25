@@ -95,7 +95,7 @@ export interface IUserModel extends Model<IUserDocument> {
   setUserActiveOrInactive(_id: string): Promise<IUserDocument>;
   generatePassword(password: string): Promise<string>;
   invite(params: IInviteParams): Promise<string>;
-  resendInvitation({ email }: { email: string }): string;
+  resendInvitation({ email }: { email: string }): Promise<string>;
   confirmInvitation(params: IConfirmParams): Promise<IUserDocument>;
   comparePassword(password: string, userPassword: string): boolean;
   resetPassword(params: {
