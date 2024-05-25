@@ -74,7 +74,7 @@ class ImageWithPreview extends React.Component<Props, State> {
 
   toggleImage = () => {
     this.setState((prevState) => ({
-      visible: !prevState.visible
+      visible: !prevState.visible,
     }));
   };
 
