@@ -15,7 +15,9 @@ export const graphRequest = {
     return new Promise((resolve, reject) => {
       graph[method](path, ...otherParams, (error, response) => {
         if (error) {
-          return reject(error);
+          const errorMessage = typeof error === 'string' ? error : error.message;
+          const errorObject = new Error(errorMessage);
+          return reject(errorObject);
         }
         return resolve(response);
       });
@@ -33,6 +35,7 @@ export const graphRequest = {
     return this.base('del', ...args);
   },
 };
+
 
 export const getPostDetails = async (
   pageId: string,
