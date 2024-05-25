@@ -51,11 +51,13 @@ const coreUser = async (subdomain, document, itemId, replacedContents) => {
   return replacedContents;
 }
 
-const arranger = (replacedContents, heads, scripts, styles, replacers, copies, results, width) => {
-  let index = -1;
+const arranger = (replacedContents, replacers, copies, width) => {
+  let results: string = '';
+  let scripts = '';
+  let styles = '';
+  let heads = '';
 
   for (const replacedContent of replacedContents) {
-    index += 1;
     if (replacedContent.startsWith('::heads::')) {
       heads += replacedContent.replace('::heads::', '');
       continue;
@@ -99,9 +101,6 @@ const arranger = (replacedContents, heads, scripts, styles, replacers, copies, r
 export const helper = async (subdomain, document, query) => {
   const { _id, copies, width, itemId } = query;
   let replacedContents: any[] = [];
-  let scripts = '';
-  let styles = '';
-  let heads = '';
 
   if (document.contentType === 'core:user') {
     replacedContents = await coreUser(subdomain, document, itemId, replacedContents)
@@ -130,15 +129,9 @@ export const helper = async (subdomain, document, query) => {
     }
   }
 
-  let results: string = '';
-
   const replacers = (document.replacer ?? '').split('\n');
 
-  const arrangeResponse = arranger(replacedContents, heads, scripts, styles, replacers, copies, results, width);
-  heads = arrangeResponse.heads;
-  scripts = arrangeResponse.scripts;
-  styles = arrangeResponse.styles;
-  results = arrangeResponse.results;
+  const { heads, scripts, styles, results } = arranger(replacedContents, replacers, copies, width);
 
   let multipliedResults: string[] = [
     `
