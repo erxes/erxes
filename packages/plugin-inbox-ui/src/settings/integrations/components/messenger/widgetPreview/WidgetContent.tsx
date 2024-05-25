@@ -36,8 +36,9 @@ class WidgetContent extends React.Component<Props, { skillResponse?: string }> {
       skillResponse: '',
     };
   }
+
   onSkillClick = (skill) => {
-    this.setState({ skillResponse: skill.response && skill.response });
+    this.setState({ skillResponse: skill.response });
   };
 
   renderMessage = (msg) => {
