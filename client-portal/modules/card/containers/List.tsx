@@ -17,7 +17,7 @@ function ListContainer({ currentUser, type, config, ...props }: Props) {
   const { loading: loadingStages, data: stages = {} as any } = useQuery(
     gql(queries.stages),
     {
-      skip: !config[`${type}PipelineId` || ""],
+      skip: !config[`${type}PipelineId`],
       fetchPolicy: "network-only",
       variables: {
         pipelineId: config[`${type}PipelineId` || ""],
