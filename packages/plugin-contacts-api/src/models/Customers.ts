@@ -89,7 +89,7 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
   checkDuplication(
     customerFields: ICustomerFieldsInput,
     idsToExclude?: string[] | string,
-  ): never;
+  ): Promise<never>;
   findActiveCustomers(
     selector,
     fields?,

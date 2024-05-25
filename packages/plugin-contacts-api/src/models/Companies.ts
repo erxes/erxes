@@ -16,7 +16,7 @@ import {
 } from '../messageBroker';
 
 export interface ICompanyModel extends Model<ICompanyDocument> {
-  getCompanyName(company: ICompany): Promise<string>;
+  getCompanyName(company: ICompany): string;
 
   checkDuplication(
     companyFields: {
@@ -26,7 +26,7 @@ export interface ICompanyModel extends Model<ICompanyDocument> {
     idsToExclude?: string[] | string
   ): Promise<never>;
 
-  fillSearchText(doc: ICompany): Promise<string>;
+  fillSearchText(doc: ICompany): string;
 
   findActiveCompanies(
     selector,
