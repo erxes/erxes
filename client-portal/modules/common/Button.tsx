@@ -209,9 +209,9 @@ export default class Button extends React.Component<ButtonProps> {
     const Element: any = href ? ButtonLink : ButtonStyled;
 
     let content = children;
-
-    if (!ignoreTrans && typeof content === "string") {
-      content = content;
+    let newName = content;
+    if (!ignoreTrans && typeof newName === "string") {
+      content = newName;
     }
 
     if (icon) {
