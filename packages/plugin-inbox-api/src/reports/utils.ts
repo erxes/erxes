@@ -1,6 +1,5 @@
 import * as dayjs from 'dayjs';
-import { MONTH_NAMES, NOW, STATUS_KIND, WEEKDAY_NAMES } from './constants';
-import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
+import { MONTH_NAMES, NOW, WEEKDAY_NAMES } from './constants';
 import { getIntegrationMeta } from '../utils';
 import { sendCoreMessage } from '../messageBroker';
 
@@ -245,6 +244,29 @@ export const getIntegrationIds = async (query, models) => {
     return (integrations || []).map(integration => integration._id)
 }
 
+export const getDateFilter = (dateRange, startDate, endDate) => {
+    const dateFilter = returnDateRange(dateRange, startDate, endDate);
+
+    return Object.keys(dateFilter).length ? dateFilter : {}
+}
+
+export const getUserIds = async (type: string, ids: string[], subdomain: any) => {
+    const users = await sendCoreMessage({
+        subdomain,
+        action: 'users.find',
+        data: {
+            query: {
+                [`${type}Ids`]: { $in: ids },
+                isActive: true,
+            },
+        },
+        isRPC: true,
+        defaultValue: [],
+    });
+
+    return users.map(user => user._id)
+}
+
 export const buildMatchFilter = async (filter, subdomain, models, field?) => {
     const {
         assignedUserIds,
@@ -275,44 +297,21 @@ export const buildMatchFilter = async (filter, subdomain, models, field?) => {
     }
 
     // DEPARTMENT FILTER
-    if (departmentIds && departmentIds.length) {
-        const users = await sendCoreMessage({
-            subdomain,
-            action: 'users.find',
-            data: {
-                query: {
-                    departmentIds: { $in: departmentIds },
-                    isActive: true,
-                },
-            },
-            isRPC: true,
-            defaultValue: [],
-        });
-
-        const userIds = users.map(user => user._id)
+    if (departmentIds?.length) {
+        const userIds = getUserIds('department', departmentIds, subdomain)
 
         matchfilter[userFieldType] = { $in: userIds };
     }
 
     // BRANCH FILTER
-    if (branchIds && branchIds.length) {
-        const users = await sendCoreMessage({
-            subdomain,
-            action: 'users.find',
-            data: {
-                query: { branchIds: { $in: branchIds }, isActive: true },
-            },
-            isRPC: true,
-            defaultValue: [],
-        });
-
-        const userIds = users.map(user => user._id)
+    if (branchIds?.length) {
+        const userIds = getUserIds('branch', branchIds, subdomain)
 
         matchfilter[userFieldType] = { $in: userIds };
     }
 
     // BRAND FILTER
-    if (brandIds && brandIds.length) {
+    if (brandIds?.length) {
         const query = { brandId: { $in: brandIds } }
         const integrationIds = await getIntegrationIds(query, models)
 
@@ -320,7 +319,7 @@ export const buildMatchFilter = async (filter, subdomain, models, field?) => {
     }
 
     // SOURCE FILTER
-    if (integrationTypes && integrationTypes.length) {
+    if (integrationTypes?.length) {
         const query = { kind: { $in: integrationTypes } }
         const integrationIds = await getIntegrationIds(query, models)
 
@@ -328,46 +327,68 @@ export const buildMatchFilter = async (filter, subdomain, models, field?) => {
     }
 
     //ASSIGNED USER FILTER
-    if (assignedUserIds && assignedUserIds.length) {
+    if (assignedUserIds?.length) {
         matchfilter['assignedUserId'] = { $in: assignedUserIds };
     }
 
     //RESPONDED USER FILTER
-    if (respondedUserIds && respondedUserIds.length) {
+    if (respondedUserIds?.length) {
         matchfilter['firstRespondedUserId'] = { $in: respondedUserIds };
     }
 
     // TAG FILTER
-    if (tagIds && tagIds.length) {
+    if (tagIds?.length) {
         matchfilter['tagIds'] = { $in: tagIds };
     }
 
     //CLOSED USER FILTER
-    if (closedUserIds && closedUserIds.length) {
+    if (closedUserIds?.length) {
         matchfilter['closedUserId'] = { $in: closedUserIds };
     }
 
     // DATE FILTER
     if (dateRange) {
         const { startDate, endDate, dateRangeType = 'createdAt' } = filter;
-        const dateFilter = returnDateRange(dateRange, startDate, endDate);
 
-        if (Object.keys(dateFilter).length) {
-            matchfilter[dateRangeType] = dateFilter;
-        }
+        matchfilter[dateRangeType] = getDateFilter(dateRange, startDate, endDate);
     }
 
     if (closedDateRange) {
         const { startDate, endDate, dateRangeType = 'closedAt' } = filter;
-        const dateFilter = returnDateRange(closedDateRange, startDate, endDate);
 
-        if (Object.keys(dateFilter).length) {
-            matchfilter[dateRangeType] = dateFilter;
-        }
+        matchfilter[dateRangeType] = getDateFilter(closedDateRange, startDate, endDate);
     }
 
     return matchfilter;
 };
+
+export const buildLookup = (type: string, from: string, localField?: string, foreignField?: string) => {
+
+    const lookup = {
+        $lookup: {
+            from,
+            let: { fieldId: `$${localField || "_id"}` },
+            pipeline: [
+                {
+                    $match: {
+                        $expr: {
+                            $and: [
+                                { $eq: [`$${foreignField || '_id'}`, "$$fieldId"] },
+                            ]
+                        }
+                    }
+                },
+            ],
+            as: type,
+        },
+    }
+
+    const unwind = {
+        $unwind: `$${type}`
+    }
+
+    return [lookup, unwind]
+}
 
 export const getDimensionPipeline = async (filter, subdomain, models) => {
     const { dimension, status } = filter
@@ -414,6 +435,9 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
     }
 
     if (dimension === 'source') {
+
+        const integrationLookup = buildLookup('integration', 'integrations', 'integrationId')
+
         pipeline.push(...[
             {
                 $match: matchfilter
@@ -423,25 +447,7 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
                     count: { $sum: 1 }
                 }
             },
-            {
-                $lookup: {
-                    from: "integrations",
-                    let: { integrationId: "$_id" },
-                    pipeline: [
-                        {
-                            $match: {
-                                $expr: {
-                                    $eq: ["$_id", "$$integrationId"],
-                                },
-                            },
-                        },
-                    ],
-                    as: "integration",
-                },
-            },
-            {
-                $unwind: "$integration",
-            },
+            ...integrationLookup,
             {
                 $group: {
                     _id: "$integration.kind",
@@ -475,6 +481,8 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
 
         const { tagIds } = filter
 
+        const lookup = buildLookup('tag', "tags")
+
         pipeline.push(...[
             {
                 $match: matchfilter,
@@ -488,28 +496,8 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
                     count: { $sum: 1 }
                 }
             },
-            {
-                $lookup: {
-                    from: "tags",
-                    let: {
-                        tagId: "$_id",
-                    },
-                    pipeline: [
-                        {
-                            $match: {
-                                $expr: {
-                                    $eq: ["$_id", "$$tagId"],
-                                },
-                            },
-                        },
-                    ],
-                    as: "tag",
-                },
-            },
-            {
-                $unwind: "$tag",
-            },
-            ...(tagIds && tagIds.length ? [{ $match: { _id: { $in: tagIds } } }] : []),
+            ...lookup,
+            ...(tagIds?.length ? [{ $match: { _id: { $in: tagIds } } }] : []),
             {
                 $project: {
                     _id: "$tag.name",
@@ -523,6 +511,9 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
 
         const { departmentIds } = filter
 
+        const userLookup = buildLookup("user", "users", statusBy)
+        const departmentLookUp = buildLookup("department", "departments")
+
         pipeline.push(...[
             {
                 $match: {
@@ -530,17 +521,7 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
                     ...matchfilter
                 }
             },
-            {
-                $lookup: {
-                    from: "users",
-                    localField: `${statusBy}`,
-                    foreignField: "_id",
-                    as: "user",
-                },
-            },
-            {
-                $unwind: "$user"
-            },
+            ...userLookup,
             {
                 $unwind: "$user.departmentIds"
             },
@@ -550,18 +531,8 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
                     count: { $sum: 1 }
                 }
             },
-            {
-                $lookup: {
-                    from: 'departments',
-                    localField: "_id",
-                    foreignField: "_id",
-                    as: "department"
-                }
-            },
-            {
-                $unwind: "$department"
-            },
-            ...(departmentIds && departmentIds.length ? [{ $match: { _id: { $in: departmentIds } } }] : []),
+            ...departmentLookUp,
+            ...(departmentIds?.length ? [{ $match: { _id: { $in: departmentIds } } }] : []),
             {
                 $project: {
                     _id: "$department.title",
@@ -575,6 +546,9 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
 
         const { branchIds } = filter
 
+        const userLookup = buildLookup("user", "users", statusBy)
+        const branchLookUp = buildLookup("branch", "branches")
+
         pipeline.push(...[
             {
                 $match: {
@@ -582,17 +556,7 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
                     ...matchfilter
                 }
             },
-            {
-                $lookup: {
-                    from: "users",
-                    localField: `${statusBy}`,
-                    foreignField: "_id",
-                    as: "user",
-                },
-            },
-            {
-                $unwind: "$user"
-            },
+            ...userLookup,
             {
                 $unwind: "$user.branchIds"
             },
@@ -602,18 +566,8 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
                     count: { $sum: 1 }
                 }
             },
-            {
-                $lookup: {
-                    from: 'branches',
-                    localField: "_id",
-                    foreignField: "_id",
-                    as: "branch"
-                }
-            },
-            {
-                $unwind: "$branch"
-            },
-            ...(branchIds && branchIds.length ? [{ $match: { _id: { $in: branchIds } } }] : []),
+            ...branchLookUp,
+            ...(branchIds?.length ? [{ $match: { _id: { $in: branchIds } } }] : []),
             {
                 $project: {
                     _id: "$branch.title",
@@ -624,6 +578,10 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
     }
 
     if (dimension === 'brand') {
+
+        const integrationLookup = buildLookup('integration', 'integrations', 'integrationId')
+        const brandLookup = buildLookup('brand', 'brands')
+
         pipeline.push(...[
             {
                 $match: {
@@ -634,34 +592,14 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
                     ...matchfilter
                 },
             },
-            {
-                $lookup: {
-                    from: "integrations",
-                    localField: "integrationId",
-                    foreignField: "_id",
-                    as: "integration",
-                },
-            },
-            {
-                $unwind: "$integration",
-            },
+            ...integrationLookup,
             {
                 $group: {
                     _id: "$integration.brandId",
                     count: { $sum: 1 },
                 },
             },
-            {
-                $lookup: {
-                    from: "brands",
-                    localField: "_id",
-                    foreignField: "_id",
-                    as: "brand",
-                },
-            },
-            {
-                $unwind: "$brand",
-            },
+            ...brandLookup,
             {
                 $project: {
                     _id: "$brand.name",
@@ -672,6 +610,9 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
     }
 
     if (dimension === 'teamMember') {
+
+        const userLookup = buildLookup("user", "users")
+
         pipeline.push(...[
             {
                 $match: matchfilter
@@ -682,17 +623,7 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
                     count: { $sum: 1 }
                 }
             },
-            {
-                $lookup: {
-                    from: "users",
-                    foreignField: "_id",
-                    localField: "_id",
-                    as: "user"
-                }
-            },
-            {
-                $unwind: "$user"
-            },
+            ...userLookup,
             {
                 $project: {
                     _id: "$user.details.fullName",
@@ -703,24 +634,24 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
     }
 
     if (dimension === 'frequency') {
-        const { frequencyType, status, dateRange, startDate, endDate } = filter
+        const { frequencyType, dateRange, startDate, endDate } = filter
 
 
         let formatType = "%Y"
 
-        if (dateRange && dateRange.toLowerCase().includes('day')) {
+        if (dateRange?.toLowerCase().includes('day')) {
             formatType = '%Hh:%Mm:%Ss'
         }
 
-        if (dateRange && dateRange.toLowerCase().includes('week')) {
+        if (dateRange?.toLowerCase().includes('week')) {
             formatType = '%u'
         }
 
-        if (dateRange && dateRange.toLowerCase().includes('month')) {
+        if (dateRange?.toLowerCase().includes('month')) {
             formatType = "%V"
         }
 
-        if (dateRange && dateRange.toLowerCase().includes('year')) {
+        if (dateRange?.toLowerCase().includes('year')) {
             formatType = "%m"
         }
 
@@ -858,7 +789,7 @@ export const getDimensionPipeline = async (filter, subdomain, models) => {
 }
 
 export const calculateAverage = (arr: number[]) => {
-    if (!arr || !arr.length) {
+    if (!arr?.length) {
         return 0; // Handle division by zero for an empty array
     }
 
