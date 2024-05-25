@@ -6,6 +6,7 @@ import {
   getFacebookUserProfilePic,
   getPostLink,
   uploadMedia,
+  getPostDetails,
 } from './utils';
 import { IModels } from './connectionResolver';
 import { INTEGRATION_KINDS } from './constants';
@@ -13,7 +14,6 @@ import { ICustomerDocument } from './models/definitions/customers';
 import { IIntegrationDocument } from './models/Integrations';
 import { putCreateLog } from './logUtils';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
-import { getPostDetails } from './utils';
 interface IDoc {
   postId?: string;
   commentId?: string;
@@ -48,7 +48,7 @@ export const generatePostDoc = async (
   const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs(subdomain);
 
   const mediaUrls = postParams.photos || [];
-  const mediaLink = postParams.link || '';
+  const mediaLink = postParams.link ?? '';
 
   if (UPLOAD_SERVICE_TYPE === 'AWS') {
     if (mediaLink) {
@@ -77,8 +77,8 @@ export const generatePostDoc = async (
   }
 
   const doc: IDoc = {
-    postId: post_id || id,
-    content: message || '...',
+    postId: post_id ?? id,
+    content: message ?? '...',    
     recipientId: pageId,
     senderId: userId,
     permalink_url: '',
@@ -128,7 +128,7 @@ const generateCommentDoc = (
     commentId: comment_id,
     recipientId: pageId,
     senderId: userId,
-    content: message || '...',
+    content: message ?? '...',
     permalink_url: '',
     customerId,
   };
@@ -154,7 +154,7 @@ const generateCommentDoc = (
   }
 
   if (post && post.permalink_url) {
-    doc.permalink_url = post.permalink_url;
+    doc.permalink_url = post?.permalink_url;
   }
 
   return doc;
@@ -236,7 +236,7 @@ export const getOrCreatePost = async (
   const postUrl = await getPostLink(
     pageId,
     facebookPageTokensMap,
-    postParams.post_id || '',
+    postParams.post_id ?? '',
   );
   const doc = await generatePostDoc(postParams, pageId, userId, subdomain);
   if (!doc.attachments && doc.content === '...') {
@@ -252,11 +252,9 @@ export const getOrCreatePost = async (
 export const getOrCreateComment = async (
   models: IModels,
   subdomain: string,
-  postConversation: any,
   commentParams: ICommentParams,
   pageId: string,
   userId: string,
-  verb: string,
   integration: IIntegrationDocument,
   customer: ICustomerDocument,
 ) => {
