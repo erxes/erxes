@@ -104,11 +104,9 @@ function Login({
             isSubmitted,
           })}
         </FormGroup>
-
-        <div className="text-center text-link" onClick={onResetPassword}>
-          Forget your password?
-        </div>
-
+        <button className="ext-center text-link" onClick={onResetPassword}>
+        Forget your password?
+          </button>
         <div className="auth-divider" />
 
         {config.googleClientId && (
@@ -134,9 +132,9 @@ function Login({
 
         <div className="text-center">
           Don't have an account?{" "}
-          <span className="text-link" onClick={onSignup}>
-            Sign up
-          </span>
+        <button className="text-link" onClick={onSignup}>
+        Sign up
+          </button>
         </div>
       </>
     );
