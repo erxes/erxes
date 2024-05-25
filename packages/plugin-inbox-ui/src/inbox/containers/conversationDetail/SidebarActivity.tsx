@@ -1,7 +1,6 @@
 import * as compose from 'lodash.flowright';
 
-import { ActivityLogQueryResponse } from '@erxes/ui-contacts/src/customers/types';
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
+import { ActivityLogQueryResponse, ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
 import SidebarActivity from '../../components/conversationDetail/sidebar/SidebarActivity';

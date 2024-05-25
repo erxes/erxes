@@ -400,7 +400,6 @@ class CreateMessenger extends React.Component<Props, State> {
                   onChange={this.onChange}
                   color={color}
                   textColor={textColor}
-                  logoPreviewUrl={logoPreviewUrl}
                   wallpaper={wallpaper}
                 />
               </Step>
@@ -411,7 +410,6 @@ class CreateMessenger extends React.Component<Props, State> {
                 onClick={this.onStepClick.bind(null, "greeting")}
               >
                 <Greeting
-                  teamMembers={this.props.teamMembers}
                   onChange={this.onChange}
                   supporterIds={supporterIds}
                   messages={messages}
