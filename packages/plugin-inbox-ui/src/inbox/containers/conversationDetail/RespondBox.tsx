@@ -9,11 +9,10 @@ import { readFile, withProps } from '@erxes/ui/src/utils';
 
 import { AppConsumer } from 'coreui/appContext';
 import { IAttachmentPreview } from '@erxes/ui/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
+import { IUser, UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import React from 'react';
 import RespondBox from '../../components/conversationDetail/workarea/RespondBox';
 import { ResponseTemplatesQueryResponse } from '../../../settings/responseTemplates/types';
-import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import debounce from 'lodash/debounce';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
