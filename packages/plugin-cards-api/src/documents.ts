@@ -141,11 +141,11 @@ const replaceProducts = async (
   let index = 0;
 
   for (const pd of productsData) {
-    if (!pd || !pd.productId) {
+    if (!pd?.productId) {
       continue;
     }
 
-    if (!pd.tickUsed) {
+    if (!pd?.tickUsed) {
       continue;
     }
 
@@ -188,6 +188,8 @@ const replaceProducts = async (
     );
   }
 
+  const headingText = type === 'product' ? 'Product name' : 'Service name';
+
   replacedContent = replacedContent.replace(
     key,
     productRows.length > 0
@@ -197,7 +199,7 @@ const replaceProducts = async (
                   <tr>
                     <th>№</th>
                     <th>
-                      ${type === 'product' ? 'Product name' : 'Service name'}
+                      ${headingText}
                     </th>
                     <th>Quantity</th>
                     <th>Unit price</th>
@@ -442,7 +444,7 @@ export default {
       toMoney(totalAmountWithoutVat)
     );
 
-    const cash = ((item.paymentsData || {}).cash || {}).amount || 0;
+    const cash = item?.paymentsData?.cash?.amount || 0;
 
     replacedContent = replacedContent.replace(
       /{{ paymentCash }}/g,
