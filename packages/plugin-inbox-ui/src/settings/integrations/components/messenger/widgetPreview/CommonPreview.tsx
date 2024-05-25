@@ -80,13 +80,11 @@ class CommonPreview extends React.Component<Props> {
         </WidgetPreviewStyled>
 
         <Launcher
-          style={Object.assign(
-            {
-              backgroundColor: color,
-              backgroundImage: `url(${logoPreviewUrl})`,
-            },
-            logoPreviewStyle
-          )}
+          style={{
+            backgroundColor: color,
+            backgroundImage: `url(${logoPreviewUrl})`,
+            ...logoPreviewStyle,
+          }}
         />
       </WebPreview>
     );
