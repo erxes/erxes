@@ -228,7 +228,7 @@ export const getOrSetCallCookie = async (wsServer) => {
   });
   const data = await response.json();
 
-  const { challenge } = data?.response;
+  const { challenge } = data?.response ?? {};
 
   const hashedPassword = crypto
     .createHash('md5')
