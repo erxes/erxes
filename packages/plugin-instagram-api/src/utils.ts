@@ -188,9 +188,11 @@ export const getPageList = async (
 
     return pages;
   } catch (error) {
+    console.error('Error in getPageList:', error);
     throw error;
   }
 };
+
 
 
 export const getPageAccessTokenFromMap = (
