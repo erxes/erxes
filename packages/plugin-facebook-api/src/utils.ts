@@ -21,6 +21,9 @@ export const graphRequest = {
     return new Promise((resolve, reject) => {
       graph[method](path, ...otherParams, (error, response) => {
         if (error) {
+          if (!(error instanceof Error)) {
+            error = new Error(error);
+          }
           return reject(error);
         }
         return resolve(response);
