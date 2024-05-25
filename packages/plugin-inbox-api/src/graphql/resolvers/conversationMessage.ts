@@ -1,4 +1,4 @@
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 import { IMessageDocument } from '../../models/definitions/conversationMessages';
 import { MESSAGE_TYPES } from '../../models/definitions/constants';
 import {

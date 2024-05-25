@@ -202,8 +202,7 @@ const gatherDescriptions = async (
       }
 
       if (
-        updatedDocument &&
-        updatedDocument.brandId &&
+        updatedDocument?.brandId &&
         updatedDocument.brandId !== object.brandId
       ) {
         brandIds.push(updatedDocument.brandId);
