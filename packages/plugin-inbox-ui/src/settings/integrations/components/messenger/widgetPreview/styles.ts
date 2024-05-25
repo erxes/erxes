@@ -452,11 +452,11 @@ const Website = styledTS<{ color?: string }>(styled.div)`
 
   > button {
     width: 100%;
-    background: ${(props) => props.color && props.color};
+    background: ${(props) => props.color};
     border-radius: 5px;
 
     &:hover {
-      background: ${(props) => props.color && props.color};
+      background: ${(props) => props.color};
     }
   }
 `;
