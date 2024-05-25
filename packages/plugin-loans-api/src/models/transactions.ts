@@ -1,4 +1,8 @@
-import { ITransaction, transactionSchema } from './definitions/transactions';
+import {
+  ITransaction,
+  transactionSchema,
+  ITransactionDocument
+} from './definitions/transactions';
 import { INVOICE_STATUS, SCHEDULE_STATUS } from './definitions/constants';
 import { findContractOfTr } from './utils/findUtils';
 import {
@@ -8,7 +12,6 @@ import {
   transactionRule
 } from './utils/transactionUtils';
 import { Model } from 'mongoose';
-import { ITransactionDocument } from './definitions/transactions';
 import { IModels } from '../connectionResolver';
 import { FilterQuery } from 'mongodb';
 import { IContractDocument } from './definitions/contracts';
@@ -180,7 +183,7 @@ export const loadTransactionClass = (models: IModels) => {
         );
 
       await createTransactionSchedule(contract, tr.payDate, tr, models, config);
-      await scheduleFixAfterCurrent(contract, tr.payDate, models, config)
+      await scheduleFixAfterCurrent(contract, tr.payDate, models, config);
 
       const contractType = await models.ContractTypes.findOne({
         _id: contract.contractTypeId
@@ -250,7 +253,7 @@ export const loadTransactionClass = (models: IModels) => {
       const contract = await models.Contracts.findOne({
         _id: doc.contractId
       }).lean();
-      if (!contract || !contract._id) {
+      if (!contract?._id) {
         await models.Transactions.updateOne({ _id }, { $set: { ...doc } });
         return models.Transactions.getTransaction({ _id });
       }
@@ -305,7 +308,7 @@ export const loadTransactionClass = (models: IModels) => {
         _id: oldTr.contractId
       }).lean();
 
-      if (!contract || !contract._id) {
+      if (!contract?._id) {
         await models.Transactions.updateOne({ _id }, { $set: { ...doc } });
         return models.Transactions.getTransaction({ _id });
       }

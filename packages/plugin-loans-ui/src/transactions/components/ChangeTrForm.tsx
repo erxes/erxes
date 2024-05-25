@@ -106,7 +106,9 @@ const TransactionForm = (props: Props) => {
       case 'futureDebt':
         setFutureDebt(value);
         break;
-
+      case 'debt':
+        setDebt(value);
+        break;
       default:
         setDebtTenor(value);
         break;
@@ -134,7 +136,7 @@ const TransactionForm = (props: Props) => {
     }, 300);
   };
 
-  const renderRow = (formProps: IFormProps, label, fieldName,val) => {
+  const renderRow = (formProps: IFormProps, label, fieldName, val) => {
     const trCalcedInfo = transaction.calcedInfo;
     const trCalcedVal = trCalcedInfo[fieldName] || 0;
     const trVal = transaction[fieldName] || 0;
@@ -192,13 +194,13 @@ const TransactionForm = (props: Props) => {
             <ControlLabel>{__(`Odd`)}</ControlLabel>
           </FormColumn>
         </FormWrapper>
-        {renderRow(formProps, 'total', 'total',total)}
-        {renderRow(formProps, 'payment', 'payment',payment)}
-        {renderRow(formProps, 'interest eve', 'interestEve',interestEve)}
-        {renderRow(formProps, 'interest nonce', 'interestNonce',interestNonce)}
-        {renderRow(formProps, 'loss', 'loss',loss)}
-        {renderRow(formProps, 'insurance', 'insurance',insurance)}
-        {renderRow(formProps, 'debt', 'debt',debt)}
+        {renderRow(formProps, 'total', 'total', total)}
+        {renderRow(formProps, 'payment', 'payment', payment)}
+        {renderRow(formProps, 'interest eve', 'interestEve', interestEve)}
+        {renderRow(formProps, 'interest nonce', 'interestNonce', interestNonce)}
+        {renderRow(formProps, 'loss', 'loss', loss)}
+        {renderRow(formProps, 'insurance', 'insurance', insurance)}
+        {renderRow(formProps, 'debt', 'debt', debt)}
       </>
     );
   };

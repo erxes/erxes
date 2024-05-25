@@ -1,5 +1,8 @@
-import { ISchedule, scheduleSchema } from './definitions/schedules';
-import { IScheduleDocument } from './definitions/schedules';
+import {
+  ISchedule,
+  scheduleSchema,
+  IScheduleDocument
+} from './definitions/schedules';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { FilterQuery } from 'mongodb';

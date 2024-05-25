@@ -18,7 +18,7 @@ export const loadClassificationClass = (models: IModels) => {
         );
       }
 
-      var res = await models.Classification.insertMany(classifications);
+      let res = await models.Classification.insertMany(classifications);
 
       return res;
     }
@@ -28,13 +28,13 @@ export const loadClassificationClass = (models: IModels) => {
     public static async createClassification(
       classification: IClassificationDocument
     ) {
-      var res = await models.Classification.create(classification);
+      let res = await models.Classification.create(classification);
 
       return res;
     }
 
     public static async getClassification(_id: string) {
-      var res = await models.Classification.findOne({ _id }).lean();
+      let res = await models.Classification.findOne({ _id }).lean();
 
       return res;
     }
@@ -43,7 +43,7 @@ export const loadClassificationClass = (models: IModels) => {
       _id: string,
       classification: IClassification
     ) {
-      var res = await models.Classification.updateOne(
+      let res = await models.Classification.updateOne(
         { _id },
         { $set: classification }
       );

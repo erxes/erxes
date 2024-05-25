@@ -1,5 +1,8 @@
-import { IInvoice, invoiceSchema } from './definitions/invoices';
-import { IInvoiceDocument } from './definitions/invoices';
+import {
+  IInvoice,
+  invoiceSchema,
+  IInvoiceDocument
+} from './definitions/invoices';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { FilterQuery } from 'mongodb';
@@ -55,7 +58,7 @@ export const loadInvoiceClass = (models: IModels) => {
       });
       const nowDate = getFullDate(date);
 
-      const config = await getConfig('loansConfig',subdomain)
+      const config = await getConfig('loansConfig', subdomain);
 
       for await (let contract of contracts) {
         const lastSchedule = await models.Schedules.findOne({
@@ -82,10 +85,15 @@ export const loadInvoiceClass = (models: IModels) => {
           invoiceDate <= contract.startDate
         )
           continue;
-        const calcInfo: any = getCalcedAmounts(models, subdomain, {
-          contractId: contract._id,
-          payDate: nowDate
-        },config);
+        const calcInfo: any = getCalcedAmounts(
+          models,
+          subdomain,
+          {
+            contractId: contract._id,
+            payDate: nowDate
+          },
+          config
+        );
         calcInfo.payment = payAmount;
         calcInfo.payDate = invoiceDate;
         calcInfo.interestEve = contract.storedInterest;

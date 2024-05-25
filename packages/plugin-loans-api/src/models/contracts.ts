@@ -7,7 +7,10 @@ import {
 import {
   contractSchema,
   ICloseVariable,
-  IContract
+  IContract,
+  IContractDocument,
+  IInsurancesData,
+  ICollateralData
 } from './definitions/contracts';
 import { getCloseInfo } from './utils/closeUtils';
 import {
@@ -18,12 +21,9 @@ import {
   getNumber
 } from './utils/utils';
 import { Model } from 'mongoose';
-import { IContractDocument } from './definitions/contracts';
 import { IModels } from '../connectionResolver';
 import { FilterQuery } from 'mongodb';
 import { ITransaction } from './definitions/transactions';
-import { IInsurancesData } from './definitions/contracts';
-import { ICollateralData } from './definitions/contracts';
 
 const getInsurancAmount = (
   insurancesData: IInsurancesData[],
