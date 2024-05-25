@@ -25,7 +25,9 @@ export default class TaskHeader extends React.Component<Props, State> {
   }
 
   showModal = () => {
-    this.setState({ show: !this.state.show });
+    this.setState((prevState) => ({
+      show: !prevState.show
+    }));
   };
 
   render() {
