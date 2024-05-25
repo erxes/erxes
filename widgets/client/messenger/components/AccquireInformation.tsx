@@ -115,11 +115,21 @@ class AccquireInformation extends React.PureComponent<Props, State> {
         {this.renderTitle()}
         <div className="accquire-information slide-in">
           <p className="type">
-            <span className={type === 'email' ? 'current' : ''} onClick={() => this.onTypeChange('email')} style={{ borderColor: color }}>
+            <span
+              className={type === 'email' ? 'current' : ''}
+              onClick={() => this.onTypeChange('email')}
+              style={{ borderColor: color }}
+              tabIndex={0}
+            >
               {__('Email')}
             </span>
 
-            <span className={type === 'phone' ? 'current' : ''} onClick={() => this.onTypeChange('phone')} style={{ borderColor: color }}>
+            <span
+              className={type === 'phone' ? 'current' : ''}
+              onClick={() => this.onTypeChange('phone')}
+              style={{ borderColor: color }}
+              tabIndex={0}
+            >
               {__('Phone')}
             </span>
           </p>
