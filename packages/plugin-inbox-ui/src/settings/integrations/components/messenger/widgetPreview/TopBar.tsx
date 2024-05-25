@@ -26,10 +26,8 @@ type Props = {
   color: string;
   textColor: string;
   message?: IMessagesItem;
-  // wallpaper: string;
   supporterIds?: string[];
   isOnline: boolean;
-  // logoPreviewUrl?: string;
   brandId?: string;
   brands?: IBrand[];
   teamMembers: IUser[];
