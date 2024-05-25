@@ -367,13 +367,13 @@ export const buildLookup = (type: string, from: string, localField?: string, for
     const lookup = {
         $lookup: {
             from,
-            let: { fieldId: `$${localField || "_id"}` },
+            let: { fieldId: `$${localField ?? "_id"}` },
             pipeline: [
                 {
                     $match: {
                         $expr: {
                             $and: [
-                                { $eq: [`$${foreignField || '_id'}`, "$$fieldId"] },
+                                { $eq: [`$${foreignField ?? '_id'}`, "$$fieldId"] },
                             ]
                         }
                     }
