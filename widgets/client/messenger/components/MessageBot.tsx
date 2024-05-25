@@ -26,78 +26,37 @@ type CommonProps = {
 };
 
 function MessageBot(props: Props) {
-  const {
-    conversationId,
-    color,
-    botData,
-    replyAutoAnswer,
-    sendTypingInfo,
-    scrollBottom
-  } = props;
+  const { conversationId, color, botData, replyAutoAnswer, sendTypingInfo, scrollBottom } = props;
 
   if (botData.length === 0) {
     return null;
   }
 
   const renderTextMessage = (message: IBotData, idx: number) => {
-    return (
-      <div
-        key={idx}
-        className="erxes-message top"
-        dangerouslySetInnerHTML={{ __html: xss(urlify(message.text || "")) }}
-      />
-    );
+    return <div key={idx} className="erxes-message top" dangerouslySetInnerHTML={{ __html: xss(urlify(message.text || '')) }} />;
   };
 
   const renderFileMessage = (message: IBotData, idx: number) => {
     return (
       <div key={idx} className="bot-message">
-        <img
-          className="image-message"
-          onLoad={scrollBottom}
-          src={message.url}
-          alt={message.title || ''}
-        />
+        <img className="image-message" src={message.url} alt={message.title || ''} onLoad={scrollBottom} />
       </div>
     );
   };
 
-  const renderCustomMessage = (
-    message: IBotData,
-    commonProps: CommonProps,
-    idx: number
-  ) => {
-    return (
-      <CustomMessage
-        key={idx}
-        color={color}
-        message={message}
-        {...commonProps}
-      />
-    );
+  const renderCustomMessage = (message: IBotData, commonProps: CommonProps, idx: number) => {
+    return <CustomMessage key={idx} color={color} message={message} {...commonProps} />;
   };
 
-  const renderCarouselMessage = (
-    elements: any,
-    commonProps: CommonProps,
-    idx: number
-  ) => {
-    return (
-      <Carousel
-        key={idx}
-        scrollBottom={scrollBottom}
-        items={elements}
-        color={color}
-        {...commonProps}
-      />
-    );
+  const renderCarouselMessage = (elements: any, commonProps: CommonProps, idx: number) => {
+    return <Carousel key={idx} scrollBottom={scrollBottom} items={elements} color={color} {...commonProps} />;
   };
 
   function renderBotMessage() {
     const commonProps = {
       conversationId,
       replyAutoAnswer,
-      sendTypingInfo
+      sendTypingInfo,
     };
 
     return botData.map((item, idx) => {
