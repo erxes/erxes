@@ -29,7 +29,7 @@ type Props = {
   // wallpaper: string;
   supporterIds?: string[];
   isOnline: boolean;
-  logoPreviewUrl?: string;
+  // logoPreviewUrl?: string;
   brandId?: string;
   brands?: IBrand[];
   teamMembers: IUser[];
