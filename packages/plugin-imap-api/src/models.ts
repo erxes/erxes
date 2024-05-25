@@ -1,7 +1,7 @@
-import { Document, Model, Schema } from 'mongoose';
-import { IModels } from '../src/connectionResolver';
-import { sendContactsMessage, sendInboxMessage } from '../src/messageBroker';
-import * as nodemailer from 'nodemailer';
+import { Document, Model, Schema } from "mongoose";
+import { IModels } from "../src/connectionResolver";
+import { sendContactsMessage, sendInboxMessage } from "../src/messageBroker";
+import * as nodemailer from "nodemailer";
 
 interface IMail {
   name: string;
@@ -68,7 +68,7 @@ export const attachmentSchema = new Schema(
     size: Number,
     attachmentId: String,
   },
-  { _id: false },
+  { _id: false }
 );
 
 const emailSchema = new Schema(
@@ -76,7 +76,7 @@ const emailSchema = new Schema(
     name: String,
     address: String,
   },
-  { _id: false },
+  { _id: false }
 );
 
 export const messageSchema = new Schema({
@@ -93,14 +93,14 @@ export const messageSchema = new Schema({
   from: [emailSchema],
   attachments: [attachmentSchema],
   createdAt: { type: Date, index: true, default: new Date() },
-  type: { type: String, enum: ['SENT', 'INBOX'] },
+  type: { type: String, enum: ["SENT", "INBOX"] },
 });
 
 export interface IMessageModel extends Model<IMessageDocument> {
   createSendMail(
     args: any,
     subdomain: string,
-    models: IModels,
+    models: IModels
   ): Promise<IMessageDocument>;
 }
 
@@ -109,7 +109,7 @@ export const loadMessageClass = (models) => {
     public static async createSendMail(
       args: any,
       subdomain: string,
-      models: IModels,
+      models: IModels
     ) {
       const {
         integrationId,
@@ -129,27 +129,39 @@ export const loadMessageClass = (models) => {
 
       const selector = customerId
         ? { _id: customerId }
-        : { status: { $ne: 'deleted' }, emails: { $in: to } };
+        : { status: { $ne: "deleted" }, emails: { $in: to } };
 
       customer = await sendContactsMessage({
         subdomain,
-        action: 'customers.findOne',
+        action: "customers.findOne",
         data: selector,
         isRPC: true,
       });
 
       if (!customer) {
-        const [primaryEmail] = to;
+        const primaryEmail = to.length > 0 ? to[0] : undefined;
 
-        customer = await sendContactsMessage({
-          subdomain,
-          action: 'customers.createCustomer',
-          data: {
-            state: 'lead',
-            primaryEmail,
-          },
-          isRPC: true,
-        });
+        if (primaryEmail) {
+          try {
+            customer = await sendContactsMessage({
+              subdomain,
+              action: "customers.createCustomer",
+              data: {
+                state: "lead",
+                primaryEmail,
+              },
+              isRPC: true,
+            });
+            if (!customer) {
+              throw new Error("Failed to create customer.");
+            }
+          } catch (error) {
+            console.error("Error creating customer:", error);
+            throw error;
+          }
+        } else {
+          console.error("No valid email address found.");
+        }
       }
 
       let integration;
@@ -169,7 +181,7 @@ export const loadMessageClass = (models) => {
       if (!integration && conversationId) {
         const conversation = await sendInboxMessage({
           subdomain,
-          action: 'conversations.findOne',
+          action: "conversations.findOne",
           data: { _id: conversationId },
           isRPC: true,
         });
@@ -180,23 +192,23 @@ export const loadMessageClass = (models) => {
       }
 
       if (!integration) {
-        throw new Error('Integration not found');
+        throw new Error("Integration not found");
       }
 
       if (conversationId) {
         if (shouldResolve) {
           await sendInboxMessage({
             subdomain,
-            action: 'conversations.changeStatus',
-            data: { id: conversationId, status: 'closed' },
+            action: "conversations.changeStatus",
+            data: { id: conversationId, status: "closed" },
             isRPC: true,
           });
         }
         if (shouldOpen) {
           await sendInboxMessage({
             subdomain,
-            action: 'conversations.changeStatus',
-            data: { id: conversationId, status: 'new' },
+            action: "conversations.changeStatus",
+            data: { id: conversationId, status: "new" },
             isRPC: true,
           });
         }
@@ -245,7 +257,7 @@ export const loadMessageClass = (models) => {
           type,
           size,
         })),
-        type: 'SENT',
+        type: "SENT",
       });
       return {
         info: info,
@@ -298,7 +310,7 @@ export const loadIntegrationClass = (models) => {
 
 export interface ILog {
   date: Date;
-  type: 'info' | 'error';
+  type: "info" | "error";
   message: string;
   errorStack?: String;
 }
@@ -317,7 +329,7 @@ export interface ILogModel extends Model<ILogDocument> {
     type,
     message,
   }: {
-    type: 'info' | 'error';
+    type: "info" | "error";
     message: string;
     errorStack?: string;
   }): JSON;

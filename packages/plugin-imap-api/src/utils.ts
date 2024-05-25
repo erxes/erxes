@@ -1,16 +1,16 @@
-import * as dotenv from 'dotenv';
+import * as dotenv from "dotenv";
 dotenv.config();
-import * as Imap from 'node-imap';
-import { simpleParser } from 'mailparser';
-import { IModels, generateModels } from './connectionResolver';
+import * as Imap from "node-imap";
+import { simpleParser } from "mailparser";
+import { IModels, generateModels } from "./connectionResolver";
 import {
   sendContactsMessage,
   sendImapMessage,
   sendInboxMessage,
-} from './messageBroker';
-import { IIntegrationDocument } from './models';
-import { throttle } from 'lodash';
-import { redlock } from './redlock';
+} from "./messageBroker";
+import { IIntegrationDocument } from "./models";
+import { throttle } from "lodash";
+import { redlock } from "./redlock";
 
 const { NODE_ENV } = process.env;
 
@@ -27,7 +27,7 @@ export const findAttachmentParts = (struct, attachments?) => {
     } else {
       if (
         struct[i].disposition &&
-        ['INLINE', 'ATTACHMENT'].indexOf(toUpper(struct[i].disposition.type)) >
+        ["INLINE", "ATTACHMENT"].indexOf(toUpper(struct[i].disposition.type)) >
           -1
       ) {
         attachments.push(struct[i]);
@@ -60,32 +60,32 @@ const searchMessages = (imap: Imap, criteria) => {
       let f: Imap.ImapFetch;
 
       try {
-        f = imap.fetch(results, { bodies: '', struct: true });
-        f.on('error', (error: any) => {
+        f = imap.fetch(results, { bodies: "", struct: true });
+        f.on("error", (error: any) => {
           throw error;
         });
       } catch (e) {
-        if (e.message?.includes('Nothing to fetch')) {
+        if (e.message?.includes("Nothing to fetch")) {
           return resolve([]);
         }
         throw e;
       }
 
-      f.on('message', (msg) => {
-        msg.on('body', async (stream) => {
+      f.on("message", (msg) => {
+        msg.on("body", async (stream) => {
           let buffers: Buffer[] = [];
 
-          stream.on('data', (buffer) => {
+          stream.on("data", (buffer) => {
             buffers.push(buffer);
           });
 
-          stream.once('end', async () => {
-            messages.push(Buffer.concat(buffers).toString('utf8'));
+          stream.once("end", async () => {
+            messages.push(Buffer.concat(buffers).toString("utf8"));
           });
         });
       });
 
-      f.once('end', async () => {
+      f.once("end", async () => {
         const data: any = [];
 
         for (const message of messages) {
@@ -104,7 +104,7 @@ const saveMessages = async (
   imap: Imap,
   integration: IIntegrationDocument,
   criteria,
-  models: IModels,
+  models: IModels
 ) => {
   const msgs: any = await searchMessages(imap, criteria);
 
@@ -136,7 +136,7 @@ const saveMessages = async (
     if (!prev) {
       const customer = await sendContactsMessage({
         subdomain,
-        action: 'customers.findOne',
+        action: "customers.findOne",
         data: {
           customerPrimaryEmail: from,
         },
@@ -148,7 +148,7 @@ const saveMessages = async (
       } else {
         const apiCustomerResponse = await sendContactsMessage({
           subdomain,
-          action: 'customers.createCustomer',
+          action: "customers.createCustomer",
           data: {
             integrationId: integration.inboxId,
             primaryEmail: from,
@@ -189,9 +189,9 @@ const saveMessages = async (
     } else {
       const { _id } = await sendInboxMessage({
         subdomain,
-        action: 'integrations.receive',
+        action: "integrations.receive",
         data: {
-          action: 'create-or-update-conversation',
+          action: "create-or-update-conversation",
           payload: JSON.stringify({
             integrationId: integration.inboxId,
             customerId,
@@ -223,12 +223,12 @@ const saveMessages = async (
         type: contentType,
         size,
       })),
-      type: 'INBOX',
+      type: "INBOX",
     });
 
     await sendInboxMessage({
       subdomain,
-      action: 'conversationClientMessageInserted',
+      action: "conversationClientMessageInserted",
       data: {
         _id: conversationMessage._id,
         content: msg.html,
@@ -241,7 +241,7 @@ const saveMessages = async (
 export const listenIntegration = async (
   subdomain: string,
   integration: IIntegrationDocument,
-  models: IModels,
+  models: IModels
 ) => {
   interface ListenResult {
     reconnect: boolean;
@@ -260,7 +260,7 @@ export const listenIntegration = async (
       try {
         lock = await redlock.lock(
           `${subdomain}:imap:integration:${integration._id}`,
-          60000,
+          60000
         );
       } catch (e) {
         // 1 other pod or container is already listening on it
@@ -273,7 +273,7 @@ export const listenIntegration = async (
       await lock.extend(60000);
 
       const updatedIntegration = await models.Integrations.findById(
-        integration._id,
+        integration._id
       );
 
       if (!updatedIntegration) {
@@ -295,8 +295,8 @@ export const listenIntegration = async (
         }
         try {
           const criteria: any = [
-            'UNSEEN',
-            ['SINCE', lastFetchDate.toISOString()],
+            "UNSEEN",
+            ["SINCE", lastFetchDate.toISOString()],
           ];
           const nextLastFetchDate = new Date();
           await saveMessages(
@@ -304,36 +304,36 @@ export const listenIntegration = async (
             imap,
             updatedIntegration,
             criteria,
-            models,
+            models
           );
           lastFetchDate = nextLastFetchDate;
 
           await models.Integrations.updateOne(
             { _id: updatedIntegration._id },
-            { $set: { lastFetchDate } },
+            { $set: { lastFetchDate } }
           );
         } catch (e) {
           error = e;
           reconnect = false;
           await models.Logs.createLog({
-            type: 'error',
-            message: 'syncEmail error:' + e.message,
+            type: "error",
+            message: "syncEmail error:" + e.message,
             errorStack: e.stack,
           });
           imap.end();
         }
       };
 
-      imap.once('ready', (_response) => {
-        imap.openBox('INBOX', true, async (e, box) => {
+      imap.once("ready", (_response) => {
+        imap.openBox("INBOX", true, async (e, box) => {
           if (e) {
             // if we can't open the inbox, we can't sync emails
             error = e;
             reconnect = false;
             closing = true;
             await models.Logs.createLog({
-              type: 'error',
-              message: 'openBox error:' + e.message,
+              type: "error",
+              message: "openBox error:" + e.message,
               errorStack: e.stack,
             });
             return imap.end();
@@ -342,30 +342,30 @@ export const listenIntegration = async (
         });
       });
 
-      imap.on('mail', throttle(syncEmail, 30000, { leading: true }));
+      imap.on("mail", throttle(syncEmail, 30000, { leading: true }));
 
-      imap.on('error', async (e) => {
+      imap.on("error", async (e) => {
         if (closing) {
           return;
         }
         error = e;
         closing = true;
-        if (e.message.includes('Invalid credentials')) {
+        if (e.message.includes("Invalid credentials")) {
           // We shouldn't try to reconnect, since it's impossible to reconnect when the credentials are wrong.
           reconnect = false;
           await models.Integrations.updateOne(
             { _id: updatedIntegration._id },
             {
               $set: {
-                healthStatus: 'unHealthy',
+                healthStatus: "unHealthy",
                 error: `${e.message}`,
               },
-            },
+            }
           );
         }
         await models.Logs.createLog({
-          type: 'error',
-          message: 'error event: ' + e.message,
+          type: "error",
+          message: "error event: " + e.message,
           errorStack: e.stack,
         });
         imap.end();
@@ -391,8 +391,8 @@ export const listenIntegration = async (
         });
       };
 
-      imap.once('close', closeEndHandler);
-      imap.once('end', closeEndHandler);
+      imap.once("close", closeEndHandler);
+      imap.once("end", closeEndHandler);
 
       imap.connect();
 
@@ -448,18 +448,18 @@ const startDistributingJobs = async (subdomain: string) => {
 
     try {
       await models.Logs.createLog({
-        type: 'info',
+        type: "info",
         message: `Distributing imap sync jobs`,
       });
 
       const integrations = await models.Integrations.find({
-        healthStatus: 'healthy',
+        healthStatus: "healthy",
       });
 
       for (const integration of integrations) {
         sendImapMessage({
           subdomain,
-          action: 'listen',
+          action: "listen",
           data: {
             _id: integration._id,
           },
@@ -470,7 +470,7 @@ const startDistributingJobs = async (subdomain: string) => {
     }
   };
   // wait for other containers to start up
-  NODE_ENV === 'production' &&
+  NODE_ENV === "production" &&
     (await new Promise((resolve) => setTimeout(resolve, 60000)));
 
   while (true) {
@@ -479,7 +479,7 @@ const startDistributingJobs = async (subdomain: string) => {
       // try doing it every 10 minutes
       await new Promise((resolve) => setTimeout(resolve, 10 * 60 * 1000));
     } catch (e) {
-      console.log('distributeWork error', e);
+      console.log("distributeWork error", e);
     }
   }
 };
