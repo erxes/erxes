@@ -78,7 +78,7 @@ export interface IUserModel extends Model<IUserDocument> {
     username?: string;
   }): Promise<never>;
   getSecret(): string;
-  generateToken(): { token: string; expires: Date };
+  generateToken(): Promise<{ token: string; expires: Date }>;
   createUser(doc: IUser): Promise<IUserDocument>;
   updateUser(_id: string, doc: IUpdateUser): Promise<IUserDocument>;
   editProfile(_id: string, doc: IEditProfile): Promise<IUserDocument>;
@@ -122,8 +122,8 @@ export interface IUserModel extends Model<IUserDocument> {
     password?: string;
   }): Promise<IUserDocument>;
   getTokenFields(user: IUserDocument);
-  logout(_user: IUserDocument, token: string): string;
-  createSystemUser(doc: IAppDocument): IUserDocument;
+  logout(_user: IUserDocument, token: string): Promise<string>;
+  createSystemUser(doc: IAppDocument): Promise<IUserDocument>;
   findUsers(query: any, options?: any): Promise<IUserDocument[]>;
 }
 
