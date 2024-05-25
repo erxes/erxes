@@ -23,7 +23,7 @@ function ConversationItem({ conversation, notificationCount, goToConversation }:
   let avatar = defaultAvatar;
   let fullName = (__('Support staff') ?? '').toString();
 
-  if (participatedUser && participatedUser.details) {
+  if (participatedUser?.details) {
     avatar = participatedUser.details.avatar || defaultAvatar;
     fullName = participatedUser.details.fullName || fullName;
   }
