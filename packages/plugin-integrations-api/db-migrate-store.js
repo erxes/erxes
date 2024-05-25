@@ -25,8 +25,8 @@ class dbStore {
         const store = data[0]
 
         // Check if old format and convert if needed
-        if (!Object.prototype.hasOwnProperty.call(store, 'lastRun') &&
-          Object.prototype.hasOwnProperty.call(store, 'pos')) {
+        if (!Object.hasOwnProperty.call(store, 'lastRun') &&
+          Object.hasOwnProperty.call(store, 'pos')) {
 
           if (store.pos === 0) {
             store.lastRun = null
