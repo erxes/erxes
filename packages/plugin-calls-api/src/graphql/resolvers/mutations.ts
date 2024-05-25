@@ -86,7 +86,11 @@ const callsMutations = {
     });
   },
 
-  async callTerminateSession(_root, {}, { models, user, subdomain }: IContext) {
+  async callTerminateSession(
+    _root,
+    _args,
+    { models, user, subdomain }: IContext,
+  ) {
     await models.ActiveSessions.deleteOne({
       userId: user._id,
     });
