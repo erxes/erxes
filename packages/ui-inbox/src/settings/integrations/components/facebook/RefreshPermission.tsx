@@ -15,7 +15,6 @@ type CommonTypes = {
 };
 
 type Props = {
-  integrationId: string;
   integrationKind: string;
   name: string;
   brandId: string;
