@@ -177,9 +177,8 @@ window.addEventListener('message', async (event: MessageEvent) => {
           const selector = `[data-erxes-modal="${setting.form_id}"]`;
           const elements = document.querySelectorAll(selector);
 
-          for (let i = 0; i < elements.length; i++) {
-            const elm = elements[i];
-
+          const elementsArray = Array.from(elements);
+          for (const elm of elementsArray) {
             elm.addEventListener('click', () => {
               iframe.contentWindow.postMessage(
                 {
