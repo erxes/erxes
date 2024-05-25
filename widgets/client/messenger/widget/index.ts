@@ -5,7 +5,7 @@ import {
   generateIntegrationUrl,
   getStorage,
   listenForCommonRequests,
-  setErxesProperty
+  setErxesProperty,
 } from "../../widgetUtils";
 
 declare const window: any;
@@ -15,10 +15,7 @@ declare const window: any;
  */
 
 // check is mobile
-const isMobile =
-  navigator.userAgent.match(/iPhone/i) ||
-  navigator.userAgent.match(/iPad/i) ||
-  navigator.userAgent.match(/Android/i);
+const isMobile = /iPhone|iPad|Android/.exec(navigator.userAgent) !== null;
 
 let viewportMeta: any;
 let newViewportMeta: any;
@@ -105,7 +102,7 @@ iframe.onload = async () => {
     contentWindow.postMessage(
       {
         fromPublisher: true,
-        action: "showMessenger"
+        action: "showMessenger",
       },
       "*"
     );
@@ -115,7 +112,7 @@ iframe.onload = async () => {
     {
       fromPublisher: true,
       setting,
-      storage: getStorage()
+      storage: getStorage(),
     },
     "*"
   );
