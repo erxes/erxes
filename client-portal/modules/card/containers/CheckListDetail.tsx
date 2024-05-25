@@ -1,23 +1,23 @@
-import { gql, useQuery } from '@apollo/client';
-import React from 'react';
-import { queries } from '../graphql';
-import { Config } from '../../types';
-import CheckList from '../components/CheckListDetail';
-import Spinner from '../../common/Spinner';
+import { gql, useQuery } from "@apollo/client";
+import React from "react";
+import { queries } from "../graphql";
+import { Config } from "../../types";
+import CheckList from "../components/CheckListDetail";
+import Spinner from "../../common/Spinner";
 
 type Props = {
   checklist: any;
   config: Config;
 };
-function CheckListDetail({ checklist, config }: Props) {
+function CheckListDetail({ checklist, config }: Readonly<Props>) {
   const { data, loading } = useQuery(gql(queries.checklistDetail), {
     variables: { _id: checklist._id },
     skip: !checklist,
     context: {
       headers: {
-        'erxes-app-token': config?.erxesAppToken
-      }
-    }
+        "erxes-app-token": config?.erxesAppToken,
+      },
+    },
   });
 
   if (loading) {
