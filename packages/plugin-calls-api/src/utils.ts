@@ -65,9 +65,8 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       throw new Error(`Queue not found`);
     }
     console.log('1');
-    const extension = queue?.find(
-      (queue) =>
-        queue.members && queue.members.split(',').includes(extentionNumber),
+    const extension = queue?.find((queue) =>
+      queue.members?.split(',').includes(extentionNumber),
     )?.extension;
 
     const startDate = moment(callStartTime).format('YYYY-MM-DD');
