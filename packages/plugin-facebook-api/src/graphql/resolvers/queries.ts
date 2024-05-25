@@ -1,4 +1,4 @@
-import { IContext, IModels } from '../../connectionResolver';
+import { IContext} from '../../connectionResolver';
 import { INTEGRATION_KINDS } from '../../constants';
 import { sendInboxMessage } from '../../messageBroker';
 import { IConversationMessageDocument } from '../../models/definitions/conversationMessages';
@@ -92,16 +92,15 @@ const facebookQueries = {
       isResolved: isResolved === true
     };
 
-    if (senderId && senderId !== 'undefined') {
+    if (senderId !== undefined) {
       const customer = await models.Customers.findOne({ erxesApiId: senderId });
-
-      if (customer && customer.userId) {
+    
+      if (customer?.userId) {
         query.senderId = customer.userId;
       }
     } else {
       query.parentId = commentId !== 'undefined' ? commentId : '';
     }
-
     const result = await models.CommentConversation.aggregate([
       {
         $match: query
