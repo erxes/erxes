@@ -1,7 +1,6 @@
 import * as graph from 'fbgraph';
 import { FacebookAdapter } from 'botbuilder-adapter-facebook-erxes';
 import * as AWS from 'aws-sdk';
-import * as fs from 'fs';
 import fetch from 'node-fetch';
 import { pipeline } from 'node:stream/promises';
 
@@ -12,7 +11,6 @@ import { generateAttachmentUrl, getConfig } from './commonUtils';
 import { IAttachment, IAttachmentMessage } from './types';
 import { getFileUploadConfigs } from './messageBroker';
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
-import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
