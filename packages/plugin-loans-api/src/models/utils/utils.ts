@@ -404,7 +404,7 @@ export const getLossPercent = async (
     _id: contract.contractTypeId
   }).lean();
 
-  if (contractType?.lossPercent > 0) return contractType?.lossPercent / 100;
+  if (contractType?.lossPercent && contractType?.lossPercent > 0) return contractType?.lossPercent / 100;
 
   return 0;
 };

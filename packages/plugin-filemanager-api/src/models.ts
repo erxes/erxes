@@ -56,7 +56,7 @@ export const loadFolderClass = (models: IModels) => {
 
     public static async saveFolder({ _id, doc }) {
       if (_id) {
-        await models.Folders.update({ _id }, { $set: doc });
+        await models.Folders.updateOne({ _id }, { $set: doc });
         return models.Folders.findOne({ _id });
       }
 

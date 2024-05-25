@@ -58,6 +58,10 @@ const contractMutations = {
         _id: doc.depositAccount
       }).lean();
 
+      if(!deposit) {
+        throw new Error(`Contract ${doc.depositAccount} not found`);
+      }
+
       await models.Transactions.createTransaction({
         payDate: doc.startDate,
         total: savingAmount,

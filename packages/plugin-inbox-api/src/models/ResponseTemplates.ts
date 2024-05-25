@@ -46,13 +46,13 @@ export const loadClass = (models: IModels) => {
      * Delete response template
      */
     public static async removeResponseTemplate(_id: string) {
-      const responseTemplateObj = await models.ResponseTemplates.findOne({ _id });
+      const responseTemplateObj = await models.ResponseTemplates.findOneAndDelete({ _id });
 
       if (!responseTemplateObj) {
         throw new Error(`Response template not found with id ${_id}`);
       }
 
-      return responseTemplateObj.remove();
+      return responseTemplateObj;
     }
   }
 

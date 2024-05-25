@@ -3,7 +3,7 @@ import { sendMessageBroker } from '../../messageBroker';
 import { ITransaction } from '../../models/definitions/transactions';
 
 const Transactions = {
-  company(transaction: ITransaction, _, { subdomain }: IContext) {
+  async company(transaction: ITransaction, _, { subdomain }: IContext) {
     return sendMessageBroker(
       {
         subdomain,
@@ -14,7 +14,7 @@ const Transactions = {
       'contacts'
     );
   },
-  customer(transaction: ITransaction, _, { subdomain }: IContext) {
+  async customer(transaction: ITransaction, _, { subdomain }: IContext) {
     return sendMessageBroker(
       {
         subdomain,
@@ -25,10 +25,10 @@ const Transactions = {
       'contacts'
     );
   },
-  contract(transaction: ITransaction, _, { models }: IContext) {
+  async contract(transaction: ITransaction, _, { models }: IContext) {
     return models.Contracts.findOne({ _id: transaction.contractId });
   },
-  invoice(transaction: ITransaction, _, { models }: IContext) {
+  async invoice(transaction: ITransaction, _, { models }: IContext) {
     return models.Invoices.findOne({ _id: transaction.invoiceId });
   }
 };

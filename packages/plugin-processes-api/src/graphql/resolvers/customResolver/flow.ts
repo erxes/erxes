@@ -4,7 +4,7 @@ import { IFlow, IFlowDocument } from '../../../models/definitions/flows';
 import { getProductAndUoms } from './utils';
 
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
+  async __resolveReference({ _id }, { models }: IContext) {
     return models.Flows.findOne({ _id });
   },
 

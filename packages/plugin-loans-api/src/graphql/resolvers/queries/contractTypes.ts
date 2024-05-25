@@ -76,7 +76,7 @@ const contractTypeQueries = {
           perPage: params.perPage
         }
       ),
-      totalCount: models.ContractTypes.find(filter).count()
+      totalCount: models.ContractTypes.find(filter).countDocuments()
     };
   },
 

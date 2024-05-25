@@ -3,7 +3,7 @@ import { IObjectTypeResolver } from '@graphql-tools/utils';
 import { IPost } from '../../db/models/post';
 
 const ForumPost: IObjectTypeResolver<IPost, IContext> = {
-  __resolveReference({ _id }, { models: { Post } }: IContext) {
+  async __resolveReference({ _id }, { models: { Post } }: IContext) {
     return Post.findById({ _id });
   },
   async category({ categoryId }, _, { models: { Category } }) {

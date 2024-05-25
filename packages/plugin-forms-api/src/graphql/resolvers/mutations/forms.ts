@@ -19,14 +19,14 @@ const formMutations = {
   /**
    * Create a new form
    */
-  formsAdd(_root, doc: IForm, { user, docModifier, models }: IContext) {
+  async formsAdd(_root, doc: IForm, { user, docModifier, models }: IContext) {
     return models.Forms.createForm(docModifier(doc), user._id);
   },
 
   /**
    * Update a form data
    */
-  formsEdit(_root, { _id, ...doc }: IFormsEdit, { models }: IContext) {
+  async formsEdit(_root, { _id, ...doc }: IFormsEdit, { models }: IContext) {
     return models.Forms.updateForm(_id, doc);
   },
 
@@ -128,7 +128,7 @@ const formMutations = {
       }
     });
 
-    return models.FormSubmissions.remove({ customerId, contentTypeId });
+    return models.FormSubmissions.deleteOne({ customerId, contentTypeId });
   }
 };
 
