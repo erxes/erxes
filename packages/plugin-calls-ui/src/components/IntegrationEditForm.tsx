@@ -78,8 +78,6 @@ const IntegrationEditForm = (props: IProps) => {
     );
   };
 
-  const keys = ['host', 'smtpHost', 'smtpPort', 'mainUser', 'user', 'password'];
-
   return (
     <>
       {renderInput('phone', 'Phone number', details.phone)}
