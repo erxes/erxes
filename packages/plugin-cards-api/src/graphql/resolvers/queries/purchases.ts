@@ -54,8 +54,8 @@ const purchaseQueries = {
     };
 
     const getExtraFields = async (item: any) => ({
-      amount: await purchaseResolvers.amount(item),
-      unUsedAmount: await purchaseResolvers.unUsedAmount(item)
+      amount: purchaseResolvers.amount(item),
+      unUsedAmount: purchaseResolvers.unUsedAmount(item)
     });
 
     const purchases = await getItemList(
