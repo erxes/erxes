@@ -1,12 +1,8 @@
-import {
-  IMessagesItem,
-  ISkillData
-} from '@erxes/ui-inbox/src/settings/integrations/types';
+import { IMessagesItem, ISkillData, IMessengerApps } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { Launcher, WidgetPreviewStyled } from './styles';
 
 import GreetingContent from './GreetingContent';
 import { IBrand } from '@erxes/ui/src/brands/types';
-import { IMessengerApps } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
 import TopBar from './TopBar';
@@ -52,18 +48,11 @@ class CommonPreview extends React.Component<Props> {
       activeStep,
       messengerApps,
       showVideoCallRequest,
-      responseRate
+      responseRate,
     } = this.props;
 
     if (showChatPreview) {
-      return (
-        <GreetingContent
-          activeStep={activeStep}
-          messengerApps={messengerApps}
-          color={color}
-          responseRate={responseRate}
-        />
-      );
+      return <GreetingContent activeStep={activeStep} messengerApps={messengerApps} color={color} responseRate={responseRate} />;
     }
 
     return (
@@ -94,7 +83,7 @@ class CommonPreview extends React.Component<Props> {
           style={Object.assign(
             {
               backgroundColor: color,
-              backgroundImage: `url(${logoPreviewUrl})`
+              backgroundImage: `url(${logoPreviewUrl})`,
             },
             logoPreviewStyle
           )}
