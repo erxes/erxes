@@ -6,7 +6,6 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import SmsForm from '@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
 import EmailWidget from '@erxes/ui-inbox/src/inbox/components/EmailWidget';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
@@ -27,7 +26,7 @@ class ActionForms extends React.Component<Props, {}> {
       <>
         {(isEnabled('engages') || isEnabled('imap')) && (
           <EmailWidget
-            disabled={user.email ? false : true}
+            disabled={user.email === ''}
             buttonStyle={user.email ? 'primary' : 'simple'}
             emailTo={user.email}
             customerId={user._id || undefined}
@@ -41,7 +40,7 @@ class ActionForms extends React.Component<Props, {}> {
           title={`Send SMS to (${operatorPhone})`}
           trigger={
             <Button
-              disabled={operatorPhone ? false : true}
+              disabled={!operatorPhone || operatorPhone === ''}
               size="small"
               btnStyle={operatorPhone ? 'primary' : 'simple'}
             >
