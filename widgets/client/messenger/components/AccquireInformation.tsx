@@ -120,6 +120,7 @@ class AccquireInformation extends React.PureComponent<Props, State> {
               onClick={() => this.onTypeChange('email')}
               style={{ borderColor: color }}
               tabIndex={0}
+              role="button"
             >
               {__('Email')}
             </span>
@@ -129,6 +130,7 @@ class AccquireInformation extends React.PureComponent<Props, State> {
               onClick={() => this.onTypeChange('phone')}
               style={{ borderColor: color }}
               tabIndex={0}
+              role="button"
             >
               {__('Phone')}
             </span>
