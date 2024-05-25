@@ -1,7 +1,6 @@
 import * as graph from 'fbgraph';
 import { FacebookAdapter } from 'botbuilder-adapter-facebook-erxes';
 import * as AWS from 'aws-sdk';
-import * as fs from 'fs';
 import fetch from 'node-fetch';
 import { pipeline } from 'node:stream/promises';
 
@@ -12,7 +11,6 @@ import { generateAttachmentUrl, getConfig } from './commonUtils';
 import { IAttachment, IAttachmentMessage } from './types';
 import { getFileUploadConfigs } from './messageBroker';
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
-import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
@@ -23,6 +21,9 @@ export const graphRequest = {
     return new Promise((resolve, reject) => {
       graph[method](path, ...otherParams, (error, response) => {
         if (error) {
+          if (!(error instanceof Error)) {
+            error = new Error(error);
+          }
           return reject(error);
         }
         return resolve(response);
@@ -41,6 +42,7 @@ export const graphRequest = {
     return this.base('del', ...args);
   },
 };
+
 export const getPostDetails = async (
   pageId: string,
   pageTokens: { [key: string]: string },
@@ -134,16 +136,21 @@ export const getPageAccessTokenFromMap = (
   pageId: string,
   pageTokens: { [key: string]: string },
 ): string => {
-  return (pageTokens || {})[pageId];
+  return pageTokens?.[pageId];
 };
 
 export const subscribePage = async (
-  pageId,
-  pageToken,
-): Promise<{ success: true } | any> => {
-  return graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
-    subscribed_fields: ['conversations', 'feed', 'messages'],
-  });
+  pageId: string,
+  pageToken: string,
+): Promise<{ success: true } | { error: string }> => {
+  try {
+    await graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
+      subscribed_fields: ['conversations', 'feed', 'messages'],
+    });
+    return { success: true };
+  } catch (error) {
+    return { error: error.message };
+  }
 };
 
 export const getPostLink = async (
@@ -173,16 +180,16 @@ export const getPostLink = async (
 };
 
 export const unsubscribePage = async (
-  pageId,
-  pageToken,
-): Promise<{ success: true } | any> => {
-  return graphRequest
-    .delete(`${pageId}/subscribed_apps`, pageToken)
-    .then((res) => res)
-    .catch((e) => {
-      debugError(e);
-      throw e;
-    });
+  pageId: string,
+  pageToken: string,
+): Promise<{ success: true } | Error> => {
+  try {
+    await graphRequest.delete(`${pageId}/subscribed_apps`, pageToken);
+    return { success: true };
+  } catch (error) {
+    debugError(error);
+    throw error;
+  }
 };
 
 export const getFacebookUser = async (
@@ -257,14 +264,15 @@ export const uploadMedia = async (subdomain: string, url: any, video) => {
         },
         (err, res) => {
           if (err) {
-            reject(err);
+            reject(new Error(err.message)); // Wrap the error in an Error object
+            return; // Add return statement to exit the function after rejecting
           }
+    
           const file = FILE_SYSTEM_PUBLIC === 'true' ? res.Location : res.key;
-
-          return resolve(file);
+          resolve(file);
         },
       );
-    });
+    });    
   } catch (e) {
     debugError(
       `Error occurred while getting facebook user profile pic: ${e.message}`,
@@ -324,10 +332,10 @@ export const restorePost = async (
   let pageAccessToken;
 
   try {
-    pageAccessToken = await getPageAccessTokenFromMap(pageId, pageTokens);
+    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
   } catch (e) {
     debugError(
-      `Error ocurred while trying to get page access token with ${e.message}`,
+      `Error occurred while trying to get page access token with ${e.message}`,
     );
   }
 
@@ -452,7 +460,7 @@ export const checkFacebookPages = async (models: IModels, pages: any) => {
   for (const page of pages) {
     const integration = await models.Integrations.findOne({ pageId: page.id });
 
-    page.isUsed = integration ? true : false;
+    page.isUsed = !!integration;
   }
 
   return pages;
