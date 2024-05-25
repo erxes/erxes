@@ -47,7 +47,6 @@ export const HorizontalScrollMenu = ({
 <div
   className="relative flex-auto flex-col overflow-hidden"
   onMouseLeave={dragStop}
-  tabIndex={0}
 >
   <ScrollMenu
     scrollContainerClassName={cn(
