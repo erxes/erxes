@@ -365,8 +365,8 @@ const CallLabel = styledTS<{ type: string }>(styled.span)`
 `;
 
 const ModalWrapper = styledTS<{ $show?: boolean }>(styled.div)`
-${({ $show }) =>
-  $show
+${props =>
+  props.$show
     ? `
       position: fixed;
       top: 0;
