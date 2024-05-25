@@ -1,14 +1,13 @@
 declare const window: any;
 
-// css
 import {
   generateIntegrationUrl,
   getStorage,
-  listenForCommonRequests
+  listenForCommonRequests,
 } from "../../widgetUtils";
 import "./index.css";
 
-// meta
+// Set up the meta tag for responsive design
 const meta = document.createElement("meta");
 meta.name = "viewport";
 meta.content = "initial-scale=1, width=device-width";
@@ -17,23 +16,23 @@ document.getElementsByTagName("head")[0].appendChild(meta);
 const iframeId = "erxes-booking-iframe";
 const container = "erxes-booking-container";
 
-// container
+// Create and set up the container div
 const erxesContainer = document.createElement("div");
 erxesContainer.id = container;
 erxesContainer.className = "";
 
-// add iframe
+// Create the iframe for booking integration
 const iframe = document.createElement("iframe");
 iframe.id = iframeId;
 iframe.src = generateIntegrationUrl("booking");
 iframe.style.display = "none";
-
 erxesContainer.appendChild(iframe);
 
+// Locate the embedding container in the DOM
 const embedContainer = document.querySelector("[data-erxes-booking]");
 
 const trackIframe = () => {
-  // after iframe load send connection info
+  // Handle iframe loading
   iframe.onload = () => {
     iframe.style.display = "block";
 
@@ -42,16 +41,16 @@ const trackIframe = () => {
         {
           fromPublisher: true,
           setting: window.erxesSettings.booking,
-          storage: getStorage()
+          storage: getStorage(),
         },
-        "*"
+        "https://secure.example.com" // Replace with your actual target origin
       );
     }
   };
 };
 
 if (!embedContainer) {
-  console.log(
+  console.error(
     'Please create a "div" element with an attribute named "data-erxes-booking"'
   );
 } else {
@@ -59,9 +58,11 @@ if (!embedContainer) {
   trackIframe();
 }
 
-// listen for messages from widget
-window.addEventListener("message", async (event: MessageEvent) => {
-  listenForCommonRequests(event, iframe);
+// Handle incoming messages securely
+window.addEventListener("message", function (event: MessageEvent) {
+  if (event.origin !== "https://secure.example.com") {
+    return; // Ensure the message is from a trusted origin
+  }
 
-  return null;
+  listenForCommonRequests(event, iframe);
 });
