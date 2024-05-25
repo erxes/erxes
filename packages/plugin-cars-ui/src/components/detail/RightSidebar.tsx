@@ -62,9 +62,7 @@ const RightSidebar = (props: Props) => {
       )}
 
       {isEnabled("cards") && (
-        <>
           <DealSection mainType="car" mainTypeId={car._id} />
-        </>
       )}
 
       <Box title={__("Other")} name="showOthers">

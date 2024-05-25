@@ -1,28 +1,28 @@
+import React, { useState } from 'react';
+import Select from 'react-select';
 import {
-  __,
   Button,
   ControlLabel,
+  extractAttachment,
   Form,
   FormControl,
   FormGroup,
+  generateCategoryOptions,
   Icon,
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
   SelectTeamMembers,
-  generateCategoryOptions,
-  extractAttachment,
-} from "@erxes/ui/src";
-import { IUser } from "@erxes/ui/src/auth/types";
+  Uploader
+} from '@erxes/ui/src';
+import { BackgroundSelector, ChooseColor } from '../../styles';
+import { ICar, ICarCategory, ICarDoc } from '../../types';
+import { IUser } from '@erxes/ui/src/auth/types';
 import {
   IButtonMutateProps,
   IFormProps,
   IAttachment,
 } from "@erxes/ui/src/types";
-import { ChooseColor, BackgroundSelector } from "../../styles";
-import React, { useState } from "react";
-import Select from "react-select";
 
 import {
   CAR_BODY_TYPES,
@@ -30,8 +30,6 @@ import {
   CAR_GEAR_BOXS,
   COLORS,
 } from "../../constants";
-import { ICar, ICarCategory, ICarDoc } from "../../types";
-import { Uploader } from "@erxes/ui/src";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
