@@ -1,16 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { gql, useMutation } from "@apollo/client";
+import React, { useEffect, useState } from 'react';
+import { gql, useMutation } from '@apollo/client';
 
-import { Alert } from "@erxes/ui/src/utils";
-import { ICustomer } from "../types";
-import IncomingCall from "../components/IncomingCall";
-import { __ } from "@erxes/ui/src/utils/core";
-import { callPropType } from "../lib/types";
-import { extractPhoneNumberFromCounterpart } from "../utils";
-import { mutations } from "../graphql";
+import { Alert } from '@erxes/ui/src/utils';
+import { ICustomer } from '../types';
+import IncomingCall from '../components/IncomingCall';
+import { callPropType } from '../lib/types';
+import { extractPhoneNumberFromCounterpart } from '../utils';
+import { mutations } from '../graphql';
 
 interface IProps {
-  closeModal?: () => void;
   callUserIntegrations: any;
   hideIncomingCall?: boolean;
   currentCallConversationId: string;
@@ -26,11 +24,11 @@ const IncomingCallContainer = (props: IProps, context) => {
   const { call } = context;
 
   const phoneNumber = extractPhoneNumberFromCounterpart(
-    context?.call?.counterpart
+    context?.call?.counterpart,
   );
 
   const defaultCallIntegration =
-    localStorage.getItem("config:call_integrations") || "{}";
+    localStorage.getItem('config:call_integrations') || '{}';
   const inboxId =
     JSON.parse(defaultCallIntegration)?.inboxId ||
     callUserIntegrations?.[0]?.inboxId;
@@ -44,11 +42,11 @@ const IncomingCallContainer = (props: IProps, context) => {
         setHasMicrophone(true);
       })
       .catch((error) => {
-        console.error("Error accessing microphone:", error);
+        console.error('Error accessing microphone:', error);
         const errorMessage = error
           ?.toString()
-          .replace("DOMException:", "")
-          .replace("NotFoundError: ", "");
+          .replace('DOMException:', '')
+          .replace('NotFoundError: ', '');
         setHasMicrophone(false);
 
         Alert.error(errorMessage);

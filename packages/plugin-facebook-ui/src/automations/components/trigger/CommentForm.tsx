@@ -21,7 +21,6 @@ type Props = {
   activeTrigger: ITrigger;
   addConfig: (trigger: ITrigger, id?: string, config?: any) => void;
   closeModal: () => void;
-  triggerConst: any;
 };
 
 const POST_TYPE = [

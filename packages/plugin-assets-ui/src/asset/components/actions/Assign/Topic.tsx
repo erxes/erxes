@@ -1,11 +1,9 @@
 import { ControlLabel, EmptyState, FormControl } from "@erxes/ui/src";
-import { KbCategoriesContainer, KbTopics } from "../../../../style";
+import { ContainerBox, KbCategoriesContainer, KbTopics } from "../../../../style";
 
 import Category from "./Category";
-import { ContainerBox } from "../../../../style";
 import { IAsset } from "../../../../common/types";
 import React from "react";
-import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   objects?: IAsset[];

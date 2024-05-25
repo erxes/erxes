@@ -12,15 +12,14 @@ import {
   IChecklistItemModel,
   loadClass as loadChecklistClass,
   loadItemClass,
+  IChecklistModel,
 } from './models/Checklists';
 
-import { loadExpenseClass } from './models/Expenses';
 import { IDealModel, loadDealClass } from './models/Deals';
 import { IPurchaseModel, loadPurchaseClass } from './models/Purchases';
 import { ITaskModel, loadTaskClass } from './models/Tasks';
 import { ITicketModel, loadTicketClass } from './models/Tickets';
 import { IGrowthHackModel, loadGrowthHackClass } from './models/GrowthHacks';
-import { IChecklistModel } from './models/Checklists';
 import {
   IBoardDocument,
   IPipelineDocument,
@@ -46,7 +45,7 @@ import {
 } from './models/PipelineTemplates';
 import { IPipelineTemplateDocument } from './models/definitions/pipelineTemplates';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
-import { IExpenseModel } from './models/Expenses';
+import { IExpenseModel, loadExpenseClass } from './models/Expenses';
 import { IExpenseDocument } from './models/definitions/expenses';
 
 export interface IModels {
