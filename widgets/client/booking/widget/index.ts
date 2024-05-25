@@ -1,5 +1,6 @@
 declare const window: any;
 
+// css
 import {
   generateIntegrationUrl,
   getStorage,
@@ -7,7 +8,7 @@ import {
 } from "../../widgetUtils";
 import "./index.css";
 
-// Set up the meta tag for responsive design
+// meta
 const meta = document.createElement("meta");
 meta.name = "viewport";
 meta.content = "initial-scale=1, width=device-width";
@@ -16,23 +17,24 @@ document.getElementsByTagName("head")[0].appendChild(meta);
 const iframeId = "erxes-booking-iframe";
 const container = "erxes-booking-container";
 
-// Create and set up the container div
+// container
 const erxesContainer = document.createElement("div");
 erxesContainer.id = container;
 erxesContainer.className = "";
 
-// Create the iframe for booking integration
+// add iframe
 const iframe = document.createElement("iframe");
 iframe.id = iframeId;
 iframe.src = generateIntegrationUrl("booking");
 iframe.style.display = "none";
+
 erxesContainer.appendChild(iframe);
 
-// Locate the embedding container in the DOM
 const embedContainer = document.querySelector("[data-erxes-booking]");
 
 const trackIframe = () => {
-  // Handle iframe loading
+  // after iframe load send connection info
+  // After iframe load, send connection info
   iframe.onload = () => {
     iframe.style.display = "block";
 
@@ -50,7 +52,7 @@ const trackIframe = () => {
 };
 
 if (!embedContainer) {
-  console.error(
+  console.log(
     'Please create a "div" element with an attribute named "data-erxes-booking"'
   );
 } else {
@@ -58,11 +60,14 @@ if (!embedContainer) {
   trackIframe();
 }
 
-// Handle incoming messages securely
-window.addEventListener("message", function (event: MessageEvent) {
+// listen for messages from widget
+window.addEventListener("message", (event: MessageEvent) => {
+  // Verify the origin of the messages
   if (event.origin !== "https://secure.example.com") {
-    return; // Ensure the message is from a trusted origin
+    console.warn("Received message from unauthorized origin:", event.origin);
+    return; // Ignore the message if the origin is not what you expect
   }
 
+  // Handle the message if the origin is verified
   listenForCommonRequests(event, iframe);
 });
