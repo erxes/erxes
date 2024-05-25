@@ -93,14 +93,15 @@ const createIframe = (setting: Setting) => {
       delete modifiedSetting.onAction;
     }
 
-    const message = {
-      fromPublisher: true,
-      hasPopupHandlers: document.querySelectorAll(handlerSelector).length > 0,
-      setting: modifiedSetting,
-      storage: getStorage(),
-    };
-
-    contentWindow.postMessage(message, '*');
+    contentWindow.postMessage(
+      {
+        fromPublisher: true,
+        hasPopupHandlers: document.querySelectorAll(handlerSelector).length > 0,
+        setting: modifiedSetting,
+        storage: getStorage(),
+      },
+      '*'
+    );
   };
 
   return { container, iframe };
@@ -125,13 +126,14 @@ const postMessageToOne = (formId: string, data: any) => {
     return;
   }
 
-  const message = {
-    fromPublisher: true,
-    formId,
-    ...data,
-  };
-
-  contentWindow.postMessage(message, '*');
+  contentWindow.postMessage(
+    {
+      fromPublisher: true,
+      formId,
+      ...data,
+    },
+    '*'
+  );
 };
 
 setErxesProperty('showPopup', (id: string) => {
@@ -166,70 +168,66 @@ formSettings.forEach((formSetting: Setting) => {
 
 // listen for messages from widget
 window.addEventListener('message', async (event: MessageEvent) => {
-  try {
-    const data = event.data || {};
-    const { fromErxes, source, message, setting } = data;
+  const data = event.data || {};
+  const { fromErxes, source, message, setting } = data;
 
-    if (!setting || source !== 'fromForms') {
-      return null;
-    }
+  if (!setting || source !== 'fromForms') {
+    return null;
+  }
 
-    const { container, iframe } = iframesMapping[getMappingKey(setting)];
+  const { container, iframe } = iframesMapping[getMappingKey(setting)];
 
-    listenForCommonRequests(event, iframe);
+  listenForCommonRequests(event, iframe);
 
-    const completeSetting = getSetting(setting);
+  const completeSetting = getSetting(setting);
 
-    if (!completeSetting) {
-      return null;
-    }
+  if (!completeSetting) {
+    return null;
+  }
 
-    if (!(fromErxes && source === 'fromForms')) {
-      return null;
-    }
+  if (!(fromErxes && source === 'fromForms')) {
+    return null;
+  }
 
-    if (message === 'submitResponse' && completeSetting.onAction) {
-      completeSetting.onAction(data);
-    }
+  if (message === 'submitResponse' && completeSetting.onAction) {
+    completeSetting.onAction(data);
+  }
 
-    if (message === 'connected') {
-      const loadType =
-        data.connectionInfo.widgetsLeadConnect.integration.leadData.loadType;
+  if (message === 'connected') {
+    const loadType =
+      data.connectionInfo.widgetsLeadConnect.integration.leadData.loadType;
 
-      // track popup handlers
-      if (loadType === 'popup') {
-        const selector = `[data-erxes-modal="${setting.form_id}"]`;
-        const elements = document.querySelectorAll(selector);
+    // track popup handlers
+    if (loadType === 'popup') {
+      const selector = `[data-erxes-modal="${setting.form_id}"]`;
+      const elements = document.querySelectorAll(selector);
 
-        // Using for instead of for to get correct element
-        // tslint:disable-next-line
-        for (let i = 0; i < elements.length; i++) {
-          const elm = elements[i];
+      // Using for instead of for to get correct element
+      // tslint:disable-next-line
+      for (let i = 0; i < elements.length; i++) {
+        const elm = elements[i];
 
-          elm.addEventListener('click', () => {
-            iframe.contentWindow.postMessage(
-              {
-                fromPublisher: true,
-                action: 'showPopup',
-                formId: setting.form_id,
-              },
-              '*'
-            );
-          });
-        }
+        elm.addEventListener('click', () => {
+          iframe.contentWindow.postMessage(
+            {
+              fromPublisher: true,
+              action: 'showPopup',
+              formId: setting.form_id,
+            },
+            '*'
+          );
+        });
       }
     }
-
-    if (message === 'changeContainerClass') {
-      container.className = data.className;
-    }
-
-    if (message === 'changeContainerStyle') {
-      container.style = data.style;
-    }
-
-    return null;
-  } catch (error) {
-    console.error('widgets-client-form-widget-index.ts - 233 line');
   }
+
+  if (message === 'changeContainerClass') {
+    container.className = data.className;
+  }
+
+  if (message === 'changeContainerStyle') {
+    container.style = data.style;
+  }
+
+  return null;
 });

@@ -1,12 +1,12 @@
 // css
-import "./index.css";
+import './index.css';
 
 import {
   generateIntegrationUrl,
   getStorage,
   listenForCommonRequests,
-  setErxesProperty
-} from "../../widgetUtils";
+  setErxesProperty,
+} from '../../widgetUtils';
 
 declare const window: any;
 
@@ -15,10 +15,8 @@ declare const window: any;
  */
 
 // check is mobile
-const isMobile =
-  navigator.userAgent.match(/iPhone/i) ||
-  navigator.userAgent.match(/iPad/i) ||
-  navigator.userAgent.match(/Android/i);
+const isMobile = window.matchMedia('only screen and (max-width: 768px)')
+  .matches as boolean;
 
 let viewportMeta: any;
 let newViewportMeta: any;
@@ -32,23 +30,23 @@ if (isMobile) {
 
 function renewViewPort() {
   if (viewportMeta) {
-    document.getElementsByTagName("head")[0].removeChild(viewportMeta);
+    document.getElementsByTagName('head')[0].removeChild(viewportMeta);
   }
 
-  newViewportMeta = document.createElement("meta");
-  newViewportMeta.name = "viewport";
+  newViewportMeta = document.createElement('meta');
+  newViewportMeta.name = 'viewport';
   newViewportMeta.content =
-    "initial-scale=1, user-scalable=0, maximum-scale=1, width=device-width";
-  document.getElementsByTagName("head")[0].appendChild(newViewportMeta);
+    'initial-scale=1, user-scalable=0, maximum-scale=1, width=device-width';
+  document.getElementsByTagName('head')[0].appendChild(newViewportMeta);
 }
 
 function revertViewPort() {
   if (newViewportMeta) {
-    document.getElementsByTagName("head")[0].removeChild(newViewportMeta);
+    document.getElementsByTagName('head')[0].removeChild(newViewportMeta);
   }
 
   if (viewportMeta) {
-    document.getElementsByTagName("head")[0].appendChild(viewportMeta);
+    document.getElementsByTagName('head')[0].appendChild(viewportMeta);
   }
 }
 
@@ -70,28 +68,28 @@ function clearTimer() {
   }
 }
 
-const iframeId = "erxes-messenger-iframe";
-const container = "erxes-messenger-container";
+const iframeId = 'erxes-messenger-iframe';
+const container = 'erxes-messenger-container';
 
 // container
-const erxesContainer = document.createElement("div");
+const erxesContainer = document.createElement('div');
 erxesContainer.id = container;
-erxesContainer.className = "erxes-messenger-hidden";
+erxesContainer.className = 'erxes-messenger-hidden';
 
 // add iframe
-const iframe: any = document.createElement("iframe");
+const iframe: any = document.createElement('iframe');
 
 iframe.id = iframeId;
-iframe.src = generateIntegrationUrl("messenger");
-iframe.style.display = "none";
-iframe.allow = "camera *;microphone *";
+iframe.src = generateIntegrationUrl('messenger');
+iframe.style.display = 'none';
+iframe.allow = 'camera *;microphone *';
 
 erxesContainer.appendChild(iframe);
 document.body.appendChild(erxesContainer);
 
 // after iframe load send connection info
 iframe.onload = async () => {
-  iframe.style.display = "block";
+  iframe.style.display = 'block';
 
   const contentWindow = iframe.contentWindow;
 
@@ -100,77 +98,79 @@ iframe.onload = async () => {
   }
 
   const setting = window.erxesSettings.messenger;
+  const message = {
+    fromPublisher: true,
+    action: 'showMessenger',
+  };
 
-  setErxesProperty("showMessenger", () => {
-    contentWindow.postMessage(
-      {
-        fromPublisher: true,
-        action: "showMessenger"
-      },
-      "*"
-    );
+  setErxesProperty('showMessenger', () => {
+    contentWindow.postMessage(message, '*');
   });
 
   contentWindow.postMessage(
     {
       fromPublisher: true,
       setting,
-      storage: getStorage()
+      storage: getStorage(),
     },
-    "*"
+    '*'
   );
 };
 
 // listen for widget toggle
-window.addEventListener("message", async (event: MessageEvent) => {
-  const data = event.data;
-  const { isVisible, message, isSmallContainer } = data;
+window.addEventListener('message', async function (event: MessageEvent) {
+  try {
+    const data = event.data;
+    const { isVisible, message, isSmallContainer } = data;
 
-  listenForCommonRequests(event, iframe);
+    listenForCommonRequests(event, iframe);
 
-  if (data.fromErxes && data.source === "fromMessenger") {
-    if (isMobile) {
-      document.body.classList.toggle("widget-mobile", isVisible);
-    }
-
-    if (message === "messenger") {
-      if (isMobile && isVisible) {
-        renewViewPort();
-      } else {
-        revertViewPort();
+    if (data.fromErxes && data.source === 'fromMessenger') {
+      if (isMobile) {
+        document.body.classList.toggle('widget-mobile', isVisible);
       }
 
-      clearTimer();
+      if (message === 'messenger') {
+        if (isMobile && isVisible) {
+          renewViewPort();
+        } else {
+          revertViewPort();
+        }
 
-      if (isVisible) {
-        erxesContainer.className = "erxes-messenger-shown";
-      } else {
-        delaydSetClass("erxes-messenger-hidden");
+        clearTimer();
+
+        if (isVisible) {
+          erxesContainer.className = 'erxes-messenger-shown';
+        } else {
+          delaydSetClass('erxes-messenger-hidden');
+        }
+
+        erxesContainer.classList.toggle('small', isSmallContainer);
+        document.body.classList.toggle('messenger-widget-shown', isVisible);
       }
 
-      erxesContainer.classList.toggle("small", isSmallContainer);
-      document.body.classList.toggle("messenger-widget-shown", isVisible);
-    }
+      if (message === 'notifier') {
+        clearTimer();
+        delaydToggleClass('erxes-notifier-shown', isVisible);
 
-    if (message === "notifier") {
-      clearTimer();
-      delaydToggleClass("erxes-notifier-shown", isVisible);
+        // change container div dimension
+        if (!isVisible) {
+          delaydSetClass('erxes-messenger-hidden');
+        }
+      }
 
-      // change container div dimension
-      if (!isVisible) {
-        delaydSetClass("erxes-messenger-hidden");
+      if (message === 'notifierFull') {
+        clearTimer();
+
+        // add class and hide notifier
+        if (isVisible) {
+          erxesContainer.className += ' erxes-notifier-shown fullMessage';
+        } else {
+          delaydSetClass('erxes-messenger-hidden');
+        }
       }
     }
-
-    if (message === "notifierFull") {
-      clearTimer();
-
-      // add class and hide notifier
-      if (isVisible) {
-        erxesContainer.className += " erxes-notifier-shown fullMessage";
-      } else {
-        delaydSetClass("erxes-messenger-hidden");
-      }
-    }
+  } catch (error) {
+    console.log('ERROR: widget messenger error');
   }
 });
