@@ -43,7 +43,6 @@ dayjs.extend(relativeTime);
 
 type Props = {
   conversation: IConversation;
-  channelId?: string;
   isActive: boolean;
   onClick: (conversation: IConversation) => void;
   toggleCheckbox: (conversation: IConversation, checked: boolean) => void;
