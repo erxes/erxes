@@ -232,7 +232,7 @@ const KeyPad = (props: Props, context) => {
         wsServer: integration?.wsServer,
         token: integration?.token,
         operators: integration?.operators,
-        isAvailable: isConnected ? true : false,
+        isAvailable: isConnected,
       }),
     );
     setConfig({
@@ -241,18 +241,18 @@ const KeyPad = (props: Props, context) => {
       wsServer: integration?.wsServer,
       token: integration?.token,
       operators: integration?.operators,
-      isAvailable: isConnected ? true : false,
+      isAvailable: isConnected,
     });
     localStorage.setItem(
       'isConnectCallRequested',
       isConnected ? 'true' : 'false',
-    ),
-      localStorage.setItem(
-        'callInfo',
-        JSON.stringify({
-          isUnRegistered: isConnected ? true : false,
-        }),
-      );
+    );
+    localStorage.setItem(
+      'callInfo',
+      JSON.stringify({
+        isUnRegistered: isConnected,
+      }),
+    );
   };
 
   const handNumPad = (e) => {
