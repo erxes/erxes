@@ -463,11 +463,11 @@ const actionCreate = async ({
 
   delete action.config.assignedTo;
 
-  if (!!config.customers) {
+  if (config?.customers) {
     relatedValueProps['customers'] = { key: '_id' };
     target.customers = config.customers;
   }
-  if (!!config.companies) {
+  if (config?.companies) {
     relatedValueProps['companies'] = { key: '_id' };
     target.companies = config.companies;
   }
@@ -515,10 +515,10 @@ const actionCreate = async ({
     newData.stageId = config.stageId;
   }
 
-  if (!!newData?.customers) {
+  if (newData?.customers) {
     newData.customerIds = generateIds(newData.customers);
   }
-  if (!!newData?.companies) {
+  if (newData?.companies) {
     newData.companyIds = generateIds(newData.companies);
   }
 
