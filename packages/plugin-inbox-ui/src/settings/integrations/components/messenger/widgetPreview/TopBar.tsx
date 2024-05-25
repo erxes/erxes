@@ -14,10 +14,8 @@ type Props = {
   color: string;
   textColor: string;
   message?: IMessagesItem;
-  wallpaper: string;
   supporterIds?: string[];
   isOnline: boolean;
-  logoPreviewUrl?: string;
   brandId?: string;
   brands?: IBrand[];
   teamMembers: IUser[];
@@ -89,12 +87,10 @@ class TopBar extends React.Component<Props> {
     const { brands = [], brandId } = this.props;
     let currentBrand = {} as IBrand;
 
-    brands.map((brand) => {
-      if (brand._id !== brandId) {
-        return null;
+    brands.forEach((brand) => {
+      if (brand._id === brandId) {
+        currentBrand = brand;
       }
-
-      return (currentBrand = brand);
     });
 
     return (
