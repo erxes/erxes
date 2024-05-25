@@ -1,12 +1,12 @@
-import { Alert, __ } from "../utils";
-import React, { useCallback, useEffect, useState } from "react";
+import { Alert, __ } from '../utils';
+import React, { useCallback, useEffect, useState } from 'react';
 
-import Icon from "./Icon";
-import client from "../apolloClient";
-import debounce from "lodash/debounce";
-import { gql } from "@apollo/client";
-import CreatableSelect from "react-select/creatable";
-import styled from "styled-components";
+import Icon from './Icon';
+import client from '../apolloClient';
+import debounce from 'lodash/debounce';
+import { gql } from '@apollo/client';
+import CreatableSelect from 'react-select/creatable';
+import styled from 'styled-components';
 
 const Wrapper = styled.div`
   display: flex;
@@ -42,10 +42,7 @@ const FillContent = styled.div`
   margin-right: 5px;
 `;
 
-function Option(props: {
-  option: { label: string; value: string; onRemove: (value: string) => void };
-  onSelect: (option: Option, e: any) => void;
-}) {
+function Option(props: { option: { label: string; value: string; onRemove: (value: string) => void }; onSelect: (option: Option, e: any) => void }) {
   const { option, onSelect } = props;
   const { onRemove } = option;
 
@@ -63,7 +60,7 @@ function Option(props: {
     return (
       <OptionWrapper>
         <FillContent>{option.label}</FillContent>
-        <small>({__("Already exist")})</small>
+        <small>({__('Already exist')})</small>
       </OptionWrapper>
     );
   }
@@ -71,11 +68,7 @@ function Option(props: {
   return (
     <OptionWrapper onClick={onClick}>
       <FillContent>{option.label}</FillContent>
-      <Icon
-        style={{ float: "right" }}
-        icon="times-circle"
-        onClick={onRemoveClick}
-      />
+      <Icon style={{ float: 'right' }} icon="times-circle" onClick={onRemoveClick} />
     </OptionWrapper>
   );
 }
@@ -120,13 +113,11 @@ function AutoCompletionSelect({
     const currentFields = { ...fields };
     const addedOptions = currentFields.added.options;
 
-    const filteredOptions = addedOptions.filter(
-      (option) => option.value !== value
-    );
+    const filteredOptions = addedOptions.filter((option) => option.value !== value);
 
     currentFields.added.options = filteredOptions;
 
-    setSearchValue("");
+    setSearchValue('');
     setSelectedValue(null);
     setFields(currentFields);
 
@@ -146,15 +137,13 @@ function AutoCompletionSelect({
       })),
     },
     search: {
-      label: __("Search result"),
+      label: __('Search result'),
       options: [],
     },
   });
 
-  const [selectedValue, setSelectedValue] = useState<Option | null>(
-    defaultValue ? { label: defaultValue, value: defaultValue } : null
-  );
-  const [searchValue, setSearchValue] = useState<string>("");
+  const [selectedValue, setSelectedValue] = useState<Option | null>(defaultValue ? { label: defaultValue, value: defaultValue } : null);
+  const [searchValue, setSearchValue] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
 
   const generateOptions = useCallback(
@@ -177,9 +166,7 @@ function AutoCompletionSelect({
 
   const setFetchResult = useCallback(
     (list) => {
-      const options = generateOptions(list).filter(
-        (item) => item.label !== defaultValue
-      );
+      const options = generateOptions(list).filter((item) => item.label !== defaultValue);
 
       const currentFields = { ...fields };
 
@@ -217,7 +204,7 @@ function AutoCompletionSelect({
   }, [searchValue, fetch]);
 
   const handleChange = (option) => {
-    setSearchValue("");
+    setSearchValue('');
     setSelectedValue(option);
 
     if (option) {
@@ -235,7 +222,7 @@ function AutoCompletionSelect({
   };
 
   const handleSave = () => {
-    setSearchValue("");
+    setSearchValue('');
 
     const newItem = {
       label: searchValue,
@@ -278,7 +265,7 @@ function AutoCompletionSelect({
         return handleSave();
       }
 
-      return Alert.error("Invalid format");
+      return Alert.error('Invalid format');
     }
 
     return handleSave();
@@ -305,8 +292,6 @@ function AutoCompletionSelect({
     <Wrapper>
       <FillContent>
         <CreatableSelect
-          // ref={selectRef}
-          // isLoading={loading}
           isClearable={true}
           required={required}
           placeholder={placeholder}
