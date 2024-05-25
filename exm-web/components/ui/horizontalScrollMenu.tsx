@@ -44,27 +44,27 @@ export const HorizontalScrollMenu = ({
         }
       })
   return (
-    <div
-      className="relative flex-auto flex-col overflow-hidden"
-      onMouseLeave={dragStop}
-    >
-      <ScrollMenu
-        scrollContainerClassName={cn(
-          "flex overflow-y-hidden scrollbar-hide",
-          className
-        )}
-        separatorClassName={separatorClassName}
-        wrapperClassName="flex flex-col"
-        onWheel={onWheel}
-        onMouseDown={() => dragStart}
-        onMouseUp={() => dragStop}
-        onMouseMove={handleDrag}
-        LeftArrow={LeftArrow}
-        RightArrow={RightArrow}
-      >
-        {children}
-      </ScrollMenu>
-    </div>
+<div
+  className="relative flex-auto flex-col overflow-hidden"
+  onMouseLeave={dragStop}
+>
+  <ScrollMenu
+    scrollContainerClassName={cn(
+      "flex overflow-y-hidden scrollbar-hide",
+      className
+    )}
+    separatorClassName={separatorClassName}
+    wrapperClassName="flex flex-col"
+    onWheel={onWheel}
+    onMouseDown={() => dragStart}
+    onMouseUp={() => dragStop}
+    onMouseMove={handleDrag}
+    LeftArrow={LeftArrow}
+    RightArrow={RightArrow}
+  >
+    {children}
+  </ScrollMenu>
+</div>
   )
 }
 

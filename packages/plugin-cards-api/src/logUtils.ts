@@ -300,7 +300,7 @@ const gatherPipelineTemplateFieldNames = async (
   options = await gatherUsernames({
     foreignKey: 'createdBy',
     prevList: options,
-    items: await findUsers(subdomain, [doc.createdBy || '']),
+    items: await findUsers(subdomain, [doc.createdBy ?? '']),
   });
 
   if (doc.stages && doc.stages.length > 0) {
@@ -399,7 +399,7 @@ const findItemName = async (
     item = await GrowthHacks.getGrowthHack(contentTypeId);
   }
 
-  if (item && item.name) {
+  if (item?.name) {
     name = item.name;
   }
 

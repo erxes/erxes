@@ -64,9 +64,9 @@ class Section extends React.Component<Props, State> {
   }
 
   toggleCollapse = () => {
-    this.setState({
-      collapse: !this.state.collapse
-    });
+    this.setState((prevState) => ({
+      collapse: !prevState.collapse
+    }));
   };
 
   renderCollapseButton = () => {

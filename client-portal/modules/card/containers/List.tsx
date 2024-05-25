@@ -17,10 +17,10 @@ function ListContainer({ currentUser, type, config, ...props }: Props) {
   const { loading: loadingStages, data: stages = {} as any } = useQuery(
     gql(queries.stages),
     {
-      skip: !config[`${type}PipelineId` || ""],
+      skip: !config[`${type}PipelineId`],
       fetchPolicy: "network-only",
       variables: {
-        pipelineId: config[`${type}PipelineId` || ""],
+        pipelineId: config[`${type}PipelineId`],
         customerIds: currentUser &&
           currentUser.erxesCustomerId && [`${currentUser.erxesCustomerId}`],
       },
@@ -35,9 +35,9 @@ function ListContainer({ currentUser, type, config, ...props }: Props) {
   const { loading: loadingLable, data: pipeLinelabels = {} as any } = useQuery(
     gql(queries.pipelineLabels),
     {
-      skip: !config[`${type}PipelineId` || ""],
+      skip: !config[`${type}PipelineId`],
       fetchPolicy: "network-only",
-      variables: { pipelineId: config[`${type}PipelineId` || ""] },
+      variables: { pipelineId: config[`${type}PipelineId`] },
       context: {
         headers: {
           "erxes-app-token": config?.erxesAppToken,
@@ -50,9 +50,9 @@ function ListContainer({ currentUser, type, config, ...props }: Props) {
     loading: loadingAssignedUsers,
     data: pipelineAssignedUsers = {} as any,
   } = useQuery(gql(queries.pipelineAssignedUsers), {
-    skip: !config[`${type}PipelineId` || ""],
+    skip: !config[`${type}PipelineId`],
     fetchPolicy: "network-only",
-    variables: { _id: config[`${type}PipelineId` || ""] },
+    variables: { _id: config[`${type}PipelineId`] },
     context: {
       headers: {
         "erxes-app-token": config?.erxesAppToken,

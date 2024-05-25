@@ -75,15 +75,15 @@ function renderPost(
       onClick={() => onSelect && onSelect(post.id, post)}
     >
       <PostImage>
-        {post?.full_picture ? (
-          <img src={post?.full_picture} />
-        ) : (
-          <div>
-            <Icon icon="picture" size={36} />
-            <span>{'No Image'}</span>
-          </div>
-        )}
-      </PostImage>
+    {post?.full_picture ? (
+    <img src={post?.full_picture} alt="" />
+  ) : (
+    <div>
+      <Icon icon="picture" size={36} />
+      <span>No Image</span>
+    </div>
+  )}
+   </PostImage>
       <TemplateBoxInfo>
         <h5>{post.message}</h5>
         <div>

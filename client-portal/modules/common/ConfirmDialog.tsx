@@ -39,7 +39,7 @@ const IconWrapper = styled.div`
   color: ${colors.colorSecondary};
 `;
 
-const Error = styled.span`
+const ErrorMessage = styled.span`
   font-size: 12px;
   color: ${rgba(colors.colorCoreRed, 0.8)};
 
@@ -102,9 +102,9 @@ class ConfirmDialog extends React.Component<Props, State> {
       return this.setState({
         errors: {
           confirm: (
-            <Error>
+            <ErrorMessage>
               Enter <strong>delete</strong> to confirm
-            </Error>
+            </ErrorMessage>
           ),
         },
       });
@@ -118,9 +118,9 @@ class ConfirmDialog extends React.Component<Props, State> {
       return this.setState({
         errors: {
           confirm: (
-            <Error>
+            <ErrorMessage>
               Enter <strong>update</strong> to confirm
-            </Error>
+            </ErrorMessage>
           ),
         },
       });

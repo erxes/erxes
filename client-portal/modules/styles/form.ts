@@ -99,7 +99,7 @@ const LoginFormWrapper = styled.div`
    }
 `;
 
-const Error = styled.label`
+const ErrorMessage = styled.label`
   color: ${colors.colorCoreRed};
   margin-top: ${dimensions.unitSpacing - 3}px;
   display: block;
@@ -146,4 +146,4 @@ const SocialLogin = styled.div`
   }
 `;
 
-export { LoginFormWrapper, Input, Error, SocialLogin, WithIconFormControl };
+export { LoginFormWrapper, Input, ErrorMessage, SocialLogin, WithIconFormControl };

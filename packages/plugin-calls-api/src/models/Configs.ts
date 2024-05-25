@@ -74,7 +74,7 @@ export const loadConfigClass = (models: IModels) => {
         const value = configsMap[code];
         const doc = { code, value };
 
-        await models.Configs.createOrUpdateConfig(doc);
+        models.Configs.createOrUpdateConfig(doc);
       }
     }
   }
