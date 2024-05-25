@@ -112,7 +112,7 @@ export const getUsageByPluginType = async (args: {
   params?;
 }) => {
   const { subdomain, methodName, actionName, models, params } = args;
-  const pluginType = getPluginType(methodName, actionName, params) ?? args.pluginType;
+  const pluginType: string = getPluginType(methodName, actionName, params) ?? args.pluginType;
 
   let totalUsage = 0;
 
