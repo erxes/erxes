@@ -48,10 +48,10 @@ const assetCategoriesQueries = {
       .sort({ order: 1 })
       .lean();
   },
-  assetCategoryDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  async assetCategoryDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.AssetCategories.findOne({ _id }).lean();
   },
-  assetCategoriesTotalCount(_root, _params, { models }: IContext) {
+  async assetCategoriesTotalCount(_root, _params, { models }: IContext) {
     return models.AssetCategories.find().countDocuments();
   }
 };

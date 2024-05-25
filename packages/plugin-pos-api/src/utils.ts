@@ -747,6 +747,7 @@ export const syncOrderFromClient = async ({
           subdomain,
           action: 'erxes-posclient-to-pos-api-remove',
           data: {
+            // FIXME: Should it throw or skip this call when toPos is null or undefined ?
             order: { ...newOrder, posToken, subToken: toPos.token },
           },
           pos: toCancelPos,

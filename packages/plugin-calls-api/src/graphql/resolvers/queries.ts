@@ -15,7 +15,7 @@ export interface IHistoryArgs {
 }
 
 const callsQueries = {
-  callsIntegrationDetail(_root, { integrationId }, { models }: IContext) {
+  async callsIntegrationDetail(_root, { integrationId }, { models }: IContext) {
     return models.Integrations.findOne({ inboxId: integrationId });
   },
 
@@ -48,6 +48,13 @@ const callsQueries = {
     const activeSession = models.CallHistory.getCallHistories(params, user);
 
     return activeSession;
+  },
+  async callHistoriesTotalCount(
+    _root,
+    params: IHistoryArgs,
+    { models, user }: IContext,
+  ) {
+    return models.CallHistory.getHistoriesCount(params, user);
   },
 
   async callsGetConfigs(_root, _args, { models }: IContext) {

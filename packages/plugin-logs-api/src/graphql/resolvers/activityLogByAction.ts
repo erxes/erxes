@@ -12,7 +12,7 @@ export default {
     );
   },
 
-  contentTypeDetail(
+  async contentTypeDetail(
     activityLog: IActivityLogDocument,
     _,
     { subdomain }: IContext,

@@ -2836,7 +2836,7 @@ export const dealCharts = [
             let deals
 
             if (pipeline.length === 0) {
-                const dealsCount = await models.Deals.find(matchFilter).count()
+                const dealsCount = await models.Deals.find(matchFilter).countDocuments()
 
                 deals = [
                     {

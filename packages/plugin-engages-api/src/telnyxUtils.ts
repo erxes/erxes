@@ -55,7 +55,7 @@ export const saveTelnyxHookData = async (models: IModels, data: any) => {
 
         statuses.push({ date: new Date(), status: receiver.status });
 
-        await models.SmsRequests.updateRequest(initialRequest._id, {
+        await models.SmsRequests.updateRequest(initialRequest._id.toString(), {
           status: receiver.status,
           responseData: JSON.stringify(data.payload),
           statusUpdates: statuses,
@@ -168,7 +168,7 @@ export const handleMessageCallback = async (
       );
     }
 
-    await models.SmsRequests.updateRequest(request._id, {
+    await models.SmsRequests.updateRequest(request._id.toString(), {
       errorMessages: [err.message],
       status: 'error',
     });
@@ -185,7 +185,7 @@ export const handleMessageCallback = async (
       );
     }
 
-    await models.SmsRequests.updateRequest(request._id, {
+    await models.SmsRequests.updateRequest(request._id.toString(), {
       status: receiver && receiver.status,
       responseData: JSON.stringify(res.data),
       telnyxId: res.data.id,
