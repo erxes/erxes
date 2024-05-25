@@ -39,9 +39,7 @@ const getRelatedValue = async (
       return user[key];
     }
 
-    return (
-      (user && ((user.detail && user.detail.fullName) || user.email)) || ''
-    );
+    return (user) => user.detail?.fullName || user.email;
   }
 
   if (
