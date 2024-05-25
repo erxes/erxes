@@ -161,7 +161,7 @@ export const getOrCreateCustomer = async (
   try {
     instagramUser = await getInstagramUser(
       userId,
-      facebookPageId || '',
+      facebookPageId ?? '',
       facebookPageTokensMap
     );
   } catch (e) {
