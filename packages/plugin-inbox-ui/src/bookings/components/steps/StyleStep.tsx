@@ -1,4 +1,9 @@
-import { ColorPick, ColorPicker } from "@erxes/ui/src/styles/main";
+import {
+  ColorPick,
+  ColorPicker,
+  Flex,
+  FlexHeight as FlexItemContainer,
+} from "@erxes/ui/src/styles/main";
 import Select from "react-select";
 import { SubHeading, WidgetBackgrounds } from "@erxes/ui-settings/src/styles";
 
@@ -6,9 +11,7 @@ import { BOOKING_ITEM_SHAPE } from "../../constants";
 import { COLORS } from "@erxes/ui/src/constants/colors";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import { FONTS } from "@erxes/ui-settings/src/constants";
-import { Flex } from "@erxes/ui/src/styles/main";
 import { FlexItem } from "@erxes/ui/src/layout/styles";
-import { FlexHeight as FlexItemContainer } from "@erxes/ui/src/styles/main";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import { LeftItem } from "@erxes/ui/src/components/step/styles";
 import Popover from "@erxes/ui/src/components/Popover";

@@ -15,8 +15,7 @@ import Info from "@erxes/ui/src/components/Info";
 import { LeftItem } from "@erxes/ui/src/components/step/styles";
 import React from "react";
 import Spinner from "@erxes/ui/src/components/Spinner";
-import { __ } from "@erxes/ui/src/utils/core";
-import { readFile } from "@erxes/ui/src/utils/core";
+import { readFile, __ } from "@erxes/ui/src/utils/core";
 import { uploadHandler } from "@erxes/ui/src/utils";
 
 const defaultValue = {
@@ -24,7 +23,6 @@ const defaultValue = {
 };
 
 type Props = {
-  type: string;
   onChange: (
     name:
       | "carousel"
@@ -41,8 +39,6 @@ type Props = {
   calloutTitle?: string;
   calloutBtnText?: string;
   bodyValue?: string;
-  color: string;
-  theme: string;
   image?: string;
   skip?: boolean;
   calloutImgSize?: string;
