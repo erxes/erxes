@@ -64,7 +64,7 @@ class TopBar extends React.Component<Props> {
   }
 
   renderServerInfo() {
-    const { showChatPreview, timezone } = this.props;
+    const { showChatPreview, timezone = __("Asia/Ulaanbaatar") } = this.props;
 
     if (!showChatPreview) {
       return null;
@@ -75,7 +75,7 @@ class TopBar extends React.Component<Props> {
         <div>
           {__("Server time")}: {dayjs(new Date()).format("lll")}
         </div>
-        {__("Timezone")}: {timezone ? timezone : __("Asia/Ulaanbaatar")}
+        {__("Timezone")}: {timezone}
       </ServerInfo>
     );
   }
