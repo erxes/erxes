@@ -30,7 +30,7 @@ const getPluginType = (methodName?: string, actionName?: string, params?: any) =
   }
 
   if (methodName === 'integrationsCreateExternalIntegration') {
-    const integrationKind = params ? params.kind : '';
+    const integrationKind = params?.kind;
 
     switch (integrationKind) {
       case 'facebook-post':
@@ -41,6 +41,8 @@ const getPluginType = (methodName?: string, actionName?: string, params?: any) =
         return 'instagramPost';
       case 'instagram-messenger':
         return 'instagramMessenger';
+      default:
+        return ''
     }
   }
 
