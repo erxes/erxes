@@ -15,10 +15,10 @@ declare const window: any;
  */
 
 // check is mobile
-const isMobile = (() => {
-  const mobileRegex = /iPhone|iPod|iPad|Android/i;
-  return mobileRegex.exec(navigator.userAgent) !== null;
-})();
+const isMobile =
+  navigator.userAgent.match(/iPhone/i) ||
+  navigator.userAgent.match(/iPad/i) ||
+  navigator.userAgent.match(/Android/i);
 
 let viewportMeta: any;
 let newViewportMeta: any;
