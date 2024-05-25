@@ -73,14 +73,10 @@ class ConversationDetail extends React.Component<Props, State> {
   }
 
   onWheel(e: any) {
-    if (e.nativeEvent.wheelDelta > 0) {
-      if (!this.state.isFullHead) {
-        this.setState({ isFullHead: true });
-      }
-    } else {
-      if (this.state.isFullHead) {
-        this.setState({ isFullHead: false });
-      }
+    if (e.nativeEvent.wheelDelta > 0 && !this.state.isFullHead) {
+      this.setState({ isFullHead: true });
+    } else if (e.nativeEvent.wheelDelta <= 0 && this.state.isFullHead) {
+      this.setState({ isFullHead: false });
     }
   }
 
