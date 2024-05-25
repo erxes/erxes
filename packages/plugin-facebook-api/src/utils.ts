@@ -329,10 +329,10 @@ export const restorePost = async (
   let pageAccessToken;
 
   try {
-    pageAccessToken = await getPageAccessTokenFromMap(pageId, pageTokens);
+    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
   } catch (e) {
     debugError(
-      `Error ocurred while trying to get page access token with ${e.message}`,
+      `Error occurred while trying to get page access token with ${e.message}`,
     );
   }
 
