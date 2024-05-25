@@ -24,7 +24,7 @@ export const putUpdateLog = async (subdomain: string, logDoc, user) => {
 };
 
 export const putCreateLog = async (subdomain: string, logDoc, user) => {
-  const created = await commonPutCreateLog(
+  await commonPutCreateLog(
     subdomain,
     { ...logDoc, type: `calls:${logDoc.type}` },
     user,
