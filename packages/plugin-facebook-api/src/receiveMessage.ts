@@ -126,7 +126,7 @@ const receiveMessage = async (
         payload: JSON.stringify({
           customerId: customer.erxesApiId,
           integrationId: integration.erxesApiId,
-          content: text || '',
+          content: text ?? '',
           attachments: formattedAttachments,
           conversationId: conversation.erxesApiId,
           updatedAt: timestamp,
@@ -134,14 +134,14 @@ const receiveMessage = async (
       },
       isRPC: true,
     });
-
+  
     conversation.erxesApiId = apiConversationResponse._id;
-
+  
     await conversation.save();
   } catch (e) {
     await models.Conversations.deleteOne({ _id: conversation._id });
     throw new Error(e);
-  }
+  }  
   // get conversation message
   let conversationMessage = await models.ConversationMessages.findOne({
     mid: message.mid,
