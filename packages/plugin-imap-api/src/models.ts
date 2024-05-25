@@ -36,7 +36,7 @@ export const customerSchema = new Schema({
 
 export interface ICustomerModel extends Model<ICustomerDocument> {}
 
-export const loadCustomerClass = (models) => {
+export const loadCustomerClass = (customerSchema) => {
   class Customer {}
 
   customerSchema.loadClass(Customer);

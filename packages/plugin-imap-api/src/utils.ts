@@ -15,7 +15,7 @@ import { redlock } from "./redlock";
 const { NODE_ENV } = process.env;
 
 export const toUpper = (thing) => {
-  return thing && thing.toUpperCase ? thing.toUpperCase() : thing;
+  return thing?.toUpperCase?.() ?? thing;
 };
 
 export const findAttachmentParts = (struct, attachments?) => {
@@ -24,16 +24,14 @@ export const findAttachmentParts = (struct, attachments?) => {
   for (let i = 0, len = struct.length, _r: any; i < len; ++i) {
     if (Array.isArray(struct[i])) {
       findAttachmentParts(struct[i], attachments);
-    } else {
-      if (
-        struct[i].disposition &&
-        ["INLINE", "ATTACHMENT"].indexOf(toUpper(struct[i].disposition.type)) >
-          -1
-      ) {
-        attachments.push(struct[i]);
-      }
+    } else if (
+      struct[i].disposition &&
+      ["INLINE", "ATTACHMENT"].indexOf(toUpper(struct[i].disposition.type)) > -1
+    ) {
+      attachments.push(struct[i]);
     }
   }
+
   return attachments;
 };
 
@@ -111,12 +109,7 @@ const saveMessages = async (
   console.log(`======== found ${msgs.length} messages`);
 
   for (const msg of msgs) {
-    if (
-      msg.to &&
-      msg.to.value &&
-      msg.to.value[0] &&
-      msg.to.value[0].address !== integration.user
-    ) {
+    if (msg.to?.value?.[0]?.address !== integration.user) {
       continue;
     }
 
@@ -214,10 +207,10 @@ const saveMessages = async (
       references: msg.references,
       subject: msg.subject,
       body: msg.html,
-      to: msg.to && msg.to.value,
-      cc: msg.cc && msg.cc.value,
-      bcc: msg.bcc && msg.bcc.value,
-      from: msg.from && msg.from.value,
+      to: msg.to?.value,
+      cc: msg.cc?.value,
+      bcc: msg.bcc?.value,
+      from: msg.from?.value,
       attachments: msg.attachments.map(({ filename, contentType, size }) => ({
         filename,
         type: contentType,
