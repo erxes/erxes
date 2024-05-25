@@ -113,7 +113,7 @@ iframe.onload = () => {
         setting,
         storage: getStorage(),
       },
-      "https://secure.erxes.io" // Ensure this matches the expected origin
+      "https://secure.erxes.io"
     );
   } catch (error) {
     console.error("Failed to initialize the iframe:", error);
