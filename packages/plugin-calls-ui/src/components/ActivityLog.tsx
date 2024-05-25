@@ -87,6 +87,7 @@ const ActivityItem = (props: Props) => {
       <Audio>
         <audio controls={true}>
           <source src={readFile(recordUrl)} type="audio/wav" />{' '}
+          <track kind="captions" src="" />
         </audio>
       </Audio>
     );
