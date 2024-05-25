@@ -196,9 +196,19 @@ export default function Form({
   return (
     <>
       <DetailHeader className="d-flex align-items-center">
-        <span onClick={() => closeModal()}>
+        <span
+          role="button"
+          tabIndex={0} // Make the element focusable
+          onClick={() => closeModal()}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === 'Space') {
+              closeModal();
+            }
+          }}
+        >
           <Icon icon="leftarrow-3" /> Back
         </span>
+
       </DetailHeader>
       <FormWrapper>
         <h4>Add a new {type}</h4>
