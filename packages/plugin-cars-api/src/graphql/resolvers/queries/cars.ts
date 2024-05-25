@@ -17,8 +17,6 @@ const generateFilter = async (
 
   const filter: any = commonQuerySelector;
 
-  // filter.status = { $ne: "Deleted" };
-
   if (params.categoryId) {
     filter.categoryId = params.categoryId;
   }
