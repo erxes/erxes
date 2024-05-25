@@ -22,7 +22,7 @@ function ConversationInit(props: Props) {
 
   const createButton = () => {
     return (
-      <li onClick={createConversation} className="erxes-list-item">
+      <li onClick={createConversation} className="erxes-list-item" tabIndex={0}>
         <div className="erxes-left-side">
           <span>{iconPlus}</span>
         </div>
@@ -40,7 +40,7 @@ function ConversationInit(props: Props) {
 
   const seeAllConversationBtn = () => {
     return (
-      <li onClick={goToAllConversations} className="erxes-list-item">
+      <li onClick={goToAllConversations} className="erxes-list-item" tabIndex={0}>
         <div className="erxes-right-side">
           <div className="erxes-last-message">{__('See all your conversations')}</div>
         </div>
