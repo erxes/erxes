@@ -7,11 +7,15 @@ import {
   TemplateInfo,
   Templates,
 } from "@erxes/ui-emailtemplates/src/styles";
-import { FlexItem, FlexRow, InputBar } from "@erxes/ui-settings/src/styles";
+import {
+  FlexItem,
+  FlexRow,
+  InputBar,
+  FilterContainer,
+} from "@erxes/ui-settings/src/styles";
 import React, { useState } from "react";
 import { __, router } from "coreui/utils";
 
-import { FilterContainer } from "@erxes/ui-settings/src/styles";
 import Form from "@erxes/ui-inbox/src/settings/responseTemplates/components/Form";
 import { FormControl } from "@erxes/ui/src/components/form";
 import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
@@ -126,7 +130,7 @@ const ResponseTemplateList: React.FC<Props> = ({
       <Templates>
         {objects.map((object, index) => (
           <Template
-            key={index}
+            key={index + 11}
             $isLongName={object.name > 45}
             position="flex-start"
           >
