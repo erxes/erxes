@@ -37,7 +37,7 @@ class ConversationDetail extends React.Component<Props, State> {
       isFocused: true,
       expanded: true,
       isFullHead: true,
-      isMinimizeVideoCall: true
+      isMinimizeVideoCall: true,
     };
 
     this.inputFocus = this.inputFocus.bind(this);
@@ -48,15 +48,20 @@ class ConversationDetail extends React.Component<Props, State> {
   }
 
   toggleHead() {
-    this.setState({ isFullHead: !this.state.isFullHead });
+    this.setState((prevState) => ({
+      isFullHead: !prevState.isFullHead,
+    }));
   }
 
   toggleVideoCall = () => {
-    this.setState({ isMinimizeVideoCall: !this.state.isMinimizeVideoCall });
+    this.setState((prevState) => ({
+      isMinimizeVideoCall: !prevState.isMinimizeVideoCall,
+    }));
   };
-
   toggleExpand() {
-    this.setState({ expanded: !this.state.expanded });
+    this.setState((prevState) => ({
+      expanded: !prevState.expanded,
+    }));
   }
 
   inputFocus() {
@@ -95,12 +100,10 @@ class ConversationDetail extends React.Component<Props, State> {
     } = this.props;
 
     const rootClasses = classNames('erxes-content-wrapper', {
-      'mini-video': this.state.isMinimizeVideoCall
+      'mini-video': this.state.isMinimizeVideoCall,
     });
 
-    const placeholder = !messages.length
-      ? __('Send a message')
-      : __('Write a reply');
+    const placeholder = !messages.length ? __('Send a message') : __('Write a reply');
 
     const handleLeftClick = (e: React.FormEvent<HTMLButtonElement>) => {
       e.preventDefault();
