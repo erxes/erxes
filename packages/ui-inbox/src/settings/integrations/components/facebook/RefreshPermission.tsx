@@ -21,10 +21,6 @@ type Props = {
   brandId: string;
   channelIds: string[];
   webhookData: any;
-  onSubmit: (
-    id: string,
-    { name, brandId, channelIds }: IntegrationMutationVariables,
-  ) => void;
   closeModal: () => void;
 };
 
