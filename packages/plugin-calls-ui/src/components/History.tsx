@@ -146,13 +146,8 @@ class History extends React.Component<Props, State> {
                   as={DropdownToggle}
                   toggleComponent={<Icon icon="ellipsis-v" size={18} />}
                 >
-                  <li key="delete">
-                    <button
-                      tabIndex={0}
-                      onClick={() => this.onRemove(item._id)}
-                    >
-                      <Icon icon="trash-alt" size={14} /> {__('Delete')}
-                    </button>
+                  <li key="delete" onClick={() => this.onRemove(item._id)}>
+                    <Icon icon="trash-alt" size={14} /> {__('Delete')}
                   </li>
                   <li key="detail">
                     <a
