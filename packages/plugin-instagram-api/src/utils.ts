@@ -1,11 +1,10 @@
 import * as graph from 'fbgraph';
 
 import { IModels } from './connectionResolver';
-import { debugBase, debugError, debugInstagram } from './debuggers';
-import { generateAttachmentUrl, getConfig } from './commonUtils';
+import { debugError, debugInstagram } from './debuggers';
+import { generateAttachmentUrl } from './commonUtils';
 import { IAttachment, IAttachmentMessage } from './types';
 import { IIntegrationDocument } from './models/Integrations';
-import { FacebookAdapter } from 'botbuilder-adapter-facebook-erxes';
 
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
