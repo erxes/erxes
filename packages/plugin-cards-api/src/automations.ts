@@ -150,8 +150,7 @@ const getRelatedValue = async (
         .join(', ');
     }
 
-    const result = activeContacts.map(contact => contact?._id).join(', ');
-    return result;
+    return activeContacts.map(contact => contact?._id).join(', ');
   }
 
   if (targetKey.includes('productsData')) {

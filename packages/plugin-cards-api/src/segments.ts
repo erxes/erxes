@@ -68,7 +68,7 @@ export default {
     if (productIds.length > 0) {
       positive = {
         bool: {
-          should: productIds.map(productId => ({
+          should: productIds.map((productId) => ({
             match: { 'productsData.productId': productId }
           }))
         }
@@ -176,9 +176,7 @@ const generateProductsCategoryProductIds = async (subdomain, condition) => {
       defaultValue: []
     });
 
-    const productIds = products.map(product => product._id);
-
-    return productIds;
+    return products.map((product) => product._id);
   }
   return [];
 };
