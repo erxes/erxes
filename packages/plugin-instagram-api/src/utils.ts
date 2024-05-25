@@ -97,9 +97,9 @@ export const getFacebookPageIdsForInsta = async (
 };
 
 export const subscribePage = async (
-  pageId,
-  pageToken,
-): Promise<{ success: true } | any> => {
+  pageId: string,
+  pageToken: string,
+): Promise<{ success: true }> => {
   return graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
     subscribed_fields: ['conversations', 'feed', 'messages'],
   });
@@ -141,9 +141,9 @@ export const refreshPageAccesToken = async (
 };
 
 export const unsubscribePage = async (
-  pageId,
-  pageToken,
-): Promise<{ success: true } | any> => {
+  pageId: string,
+  pageToken: string,
+): Promise<{ success: true }> => {
   return graphRequest
     .delete(`${pageId}/subscribed_apps`, pageToken)
     .then((res) => res)
