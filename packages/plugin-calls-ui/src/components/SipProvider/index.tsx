@@ -103,7 +103,7 @@ export default class SipProvider extends React.Component<
     unhold: PropTypes.func,
   };
 
-  public static propTypes = {
+  public static readonly propTypes = {
     host: PropTypes.string,
     port: PropTypes.number,
     pathname: PropTypes.string,
@@ -118,7 +118,7 @@ export default class SipProvider extends React.Component<
     debug: PropTypes.bool,
   };
 
-  public static defaultProps = {
+  public static readonly defaultProps = {
     host: null,
     port: null,
     pathname: '',
