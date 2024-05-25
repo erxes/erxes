@@ -102,13 +102,12 @@ const receiveMessage = async (
     }
   } else {
     const bot = await models.Bots.findOne({ _id: botId });
-
     if (bot) {
       conversation.botId = botId;
     }
-    conversation.content = text || '';
+    conversation.content = text ?? '';
   }
-
+  
   const formattedAttachments = (attachments || [])
     .filter((att) => att.type !== 'fallback')
     .map((att) => ({
