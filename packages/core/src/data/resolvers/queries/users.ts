@@ -227,7 +227,7 @@ const queryBuilder = async (
     selector.isActive = true;
   }
 
-  if (ids && ids.length > 0) {
+  if (ids?.length) {
     if (excludeIds) {
       selector._id = { $nin: ids };
     } else {
@@ -239,7 +239,7 @@ const queryBuilder = async (
     selector.registrationToken = { $eq: null };
   }
 
-  if (brandIds && brandIds.length > 0) {
+  if (brandIds?.length) {
     selector.brandIds = { $in: brandIds };
   }
 
@@ -278,13 +278,13 @@ const queryBuilder = async (
         models,
       );
 
-      if (!branchUserIds || !branchUserIds.length || !branchUserIds.includes(user._id)) {
+      if (!branchUserIds?.length || !branchUserIds.includes(user._id)) {
         customCond.push({
           branchIds: { $in: await getChildIds(models.Branches, branchIds) },
         });
       }
 
-      if (!departmentUserIds || !departmentUserIds.length || !departmentUserIds.includes(user._id)) {
+      if (!departmentUserIds?.length || !departmentUserIds.includes(user._id)) {
         customCond.push({
           departmentIds: {
             $in: await getChildIds(models.Departments, departmentIds),
@@ -295,13 +295,13 @@ const queryBuilder = async (
       andCondition = customCond.length ? [{ $or: customCond }] : [];
     }
   } else {
-    if (branchIds && branchIds.length) {
+    if (branchIds?.length) {
       selector.branchIds = {
         $in: await getChildIds(models.Branches, branchIds),
       };
     }
 
-    if (departmentIds && departmentIds.length) {
+    if (departmentIds?.length) {
       selector.departmentIds = {
         $in: await getChildIds(models.Departments, departmentIds),
       };
