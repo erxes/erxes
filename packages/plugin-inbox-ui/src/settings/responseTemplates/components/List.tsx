@@ -128,9 +128,9 @@ const ResponseTemplateList: React.FC<Props> = ({
 
     return (
       <Templates>
-        {objects.map((object) => (
+        {objects.map((object, index) => (
           <Template
-            key={Math.random()}
+            key={index + 11}
             $isLongName={object.name > 45}
             position="flex-start"
           >
