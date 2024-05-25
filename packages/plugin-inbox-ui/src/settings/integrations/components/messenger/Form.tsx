@@ -306,9 +306,7 @@ class CreateMessenger extends React.Component<Props, State> {
   onStepClick = (name) => {
     this.setState({
       isStepActive:
-        name === "greeting" || name === "hours" || name === "addon"
-          ? true
-          : false,
+        name === "greeting" || name === "hours" || name === "addon",
       activeStep: name,
     });
   };
