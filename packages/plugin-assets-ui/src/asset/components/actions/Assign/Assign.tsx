@@ -40,7 +40,7 @@ const Assign = (props: Props) => {
         articleIds: selectedArticles,
       },
       callback: () => {
-        setAssignType("ddd");
+        setAssignType("add");
         setSelectedArticles(selectedArticleIds || []);
         closeModal();
       },
