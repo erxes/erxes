@@ -1,5 +1,4 @@
 import * as DataLoader from 'dataloader';
-import * as _ from 'underscore';
 import accountCategory from './accountCategory';
 import transaction from './transaction';
 import { IModels } from '../connectionResolver';

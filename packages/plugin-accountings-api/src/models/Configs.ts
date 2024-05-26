@@ -1,5 +1,4 @@
-import { Model, model } from 'mongoose';
-// import { COMPANY_INDUSTRY_TYPES, SEX_OPTIONS, SOCIAL_LINKS } from '@erxes/api-utils/src/constants';
+import { Model } from 'mongoose';
 import {
   accountingConfigSchema,
   IAccountingConfig,
@@ -12,7 +11,7 @@ export interface IAccountingConfigModel
   createOrUpdateConfig({
     code,
     value,
-  }: IAccountingConfig): IAccountingConfigDocument;
+  }: IAccountingConfig): Promise<IAccountingConfigDocument>;
   constants();
 }
 

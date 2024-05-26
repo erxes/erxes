@@ -29,7 +29,7 @@ const CategoryStatusFilter: React.FC<Props> = () => {
       >
         <SidebarList>
           {categoryStatusChoises(__).map(
-            ({ value, label }: { value: string; label: string }) =>
+            ({ value, label }) =>
               (value === 'disabled' || value === 'archived') && (
                 <li key={value}>
                   <a

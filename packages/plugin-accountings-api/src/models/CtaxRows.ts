@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import {
@@ -72,8 +71,6 @@ export const loadCtaxRowClass = (models: IModels, subdomain: string) => {
       }
 
       let response = 'deleted';
-
-      // TODO: check records
 
       if (usedIds.length > 0) {
         await models.CtaxRows.updateMany(

@@ -8,13 +8,13 @@ export default {
     return models.AccountCategories.findOne({ _id });
   },
 
-  isRoot(category: IAccountCategoryDocument, {}) {
-    return category.parentId ? false : true;
+  isRoot(category: IAccountCategoryDocument, { }) {
+    return !Boolean(category.parentId);
   },
 
   async accountCount(
     category: IAccountCategoryDocument,
-    {},
+    { _ },
     { models }: IContext,
   ) {
     const account_category_ids = await models.AccountCategories.find(

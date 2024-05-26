@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import {
@@ -67,7 +66,8 @@ export const loadAccountClass = (models: IModels, subdomain: string) => {
       if (doc.parentId) {
         const parentAccount = await models.Accounts.getAccount({ _id: doc.parentId })
 
-        if (!doc.code.match(`^${parentAccount.code}.*`)) {
+        const re = new RegExp(`^${parentAccount.code}.*`)
+        if (!re.test(doc.code)) {
           throw new Error('Code is not validate of parent account');
         }
         doc.categoryId = parentAccount.categoryId;
@@ -88,7 +88,7 @@ export const loadAccountClass = (models: IModels, subdomain: string) => {
      * Update Accounting
      */
     public static async updateAccount(_id: string, doc: IAccount) {
-      const oldAccount = await models.Accounts.getAccount({ _id });
+      await models.Accounts.getAccount({ _id });
 
 
       doc.code = doc.code
@@ -129,8 +129,6 @@ export const loadAccountClass = (models: IModels, subdomain: string) => {
 
       let response = 'deleted';
 
-      // TODO: check records
-
       if (usedIds.length > 0) {
         await models.Accounts.updateMany(
           { _id: { $in: usedIds } },
@@ -166,8 +164,8 @@ export const loadAccountClass = (models: IModels, subdomain: string) => {
 
       const name: string = accountingFields.name || '';
       const kind: string = accountingFields.kind || '';
-      const description: string = accountingFields.description || '';
-      const categoryId: string = accountingFields.categoryId || '';
+      const description: string = accountingFields.description ?? '';
+      const categoryId: string = accountingFields.categoryId ?? '';
 
       for (const accountingId of accountingIds) {
         const accountingObj = await models.Accounts.getAccount({

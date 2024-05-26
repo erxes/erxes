@@ -1,5 +1,4 @@
 import { Model } from 'mongoose';
-import * as _ from 'lodash';
 import { IModels } from '../connectionResolver';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { IAccountCategory, IAccountCategoryDocument, accountCategorySchema } from './definitions/accountCategory';
@@ -14,7 +13,7 @@ export interface IAccountCategoryModel extends Model<IAccountCategoryDocument> {
     _id: string,
     doc: IAccountCategory,
   ): Promise<IAccountCategoryDocument>;
-  removeAccountCategory(_id: string): void;
+  removeAccountCategory(_id: string): Promise<void>;
 }
 
 export const loadAccountCategoryClass = (models: IModels) => {

@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import {

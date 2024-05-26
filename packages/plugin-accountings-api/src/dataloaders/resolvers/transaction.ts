@@ -7,7 +7,7 @@ export default {
   },
 
   async followTrs(transaction: ITransactionDocument, _, { dataLoaders }: IContext) {
-    if (!transaction.follows || !transaction.follows.length)
+    if (!transaction.follows?.length)
       return;
 
     return transaction.follows.map(f => dataLoaders.transaction.load(f.id))

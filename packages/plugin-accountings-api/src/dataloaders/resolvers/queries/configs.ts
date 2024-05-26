@@ -1,5 +1,7 @@
 import * as dotenv from 'dotenv';
 import { IContext } from '../../../connectionResolver';
+import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
+
 dotenv.config();
 
 const configQueries = {
@@ -11,6 +13,6 @@ const configQueries = {
   },
 };
 
-// moduleRequireLogin(configQueries);
+moduleRequireLogin(configQueries);
 
 export default configQueries;

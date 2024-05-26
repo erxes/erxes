@@ -177,7 +177,7 @@ const accountQueries = {
 
     let sort: any = { code: 1 };
     if (sortField) {
-      sort = { [sortField]: sortDirection || 1 };
+      sort = { [sortField]: sortDirection ?? 1 };
     }
 
     return await paginate(

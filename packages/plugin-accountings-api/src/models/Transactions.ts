@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import { Model, connection } from 'mongoose';
 import { nanoid } from 'nanoid';
 import { IModels } from '../connectionResolver';
@@ -20,7 +19,7 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
   createTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
   updateTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
   removeTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
-  removeTransaction(_id: string): Promise<String>;
+  removeTransaction(_id: string): Promise<string>;
   removePTransaction(_ids: string[]): Promise<{ n: number; ok: number }>;
 }
 
@@ -68,8 +67,8 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
       const lastDoc = {
         ...doc,
         _id,
-        ptrId: doc.ptrId || nanoid(),
-        parentId: doc.parentId || _id,
+        ptrId: doc.ptrId ?? nanoid(),
+        parentId: doc.parentId ?? _id,
         ptrStatus: PTR_STATUSES.UNKNOWN,
         sumDt: doc.details.filter(d => d.side === TR_SIDES.DEBIT).reduce((sum, cur) => sum + cur.amount, 0),
         sumCt: doc.details.filter(d => d.side === TR_SIDES.CREDIT).reduce((sum, cur) => sum + cur.amount, 0),
@@ -91,7 +90,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
       await models.Transactions.updateOne({ _id }, {
         $set: {
           ...doc,
-          parentId: doc.parentId || _id,
+          parentId: doc.parentId ?? _id,
           sumDt: doc.details.filter(d => d.side === TR_SIDES.DEBIT).reduce((sum, cur) => sum + cur.amount, 0),
           sumCt: doc.details.filter(d => d.side === TR_SIDES.CREDIT).reduce((sum, cur) => sum + cur.amount, 0),
           modifiedAt: new Date()

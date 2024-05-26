@@ -8,9 +8,6 @@ import logs from './logUtils';
 import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
-export let debug;
-export let mainDb;
-
 export default {
   name: 'accountings',
   permissions,
@@ -41,5 +38,4 @@ export default {
 
   onServerInit: async () => {},
   setupMessageConsumers,
-
 };

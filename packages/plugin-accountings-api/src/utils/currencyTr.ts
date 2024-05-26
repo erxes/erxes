@@ -18,7 +18,7 @@ export const checkValidationCurrency = async (models: IModels, doc: ISingleTrInp
 
   const spotRate = await models.ExchangeRates.findOne({ date: doc.date, mainCurrency, rateCurrency: account.currency }).lean();
 
-  if (!spotRate || !spotRate.rate) {
+  if (!spotRate?.rate) {
     throw new Error('not found spot rate')
   }
   if (doc.customRate && spotRate !== doc.customRate && !doc.currencyDiffAccountId) {
@@ -56,8 +56,6 @@ export const checkValidationCurrency = async (models: IModels, doc: ISingleTrInp
 
     return currencyDiffTrDoc
   }
-
-  return;
 }
 
 export const doCurrencyTr = async (models: IModels, transaction: ITransactionDocument, currencyDoc?: ITransaction) => {

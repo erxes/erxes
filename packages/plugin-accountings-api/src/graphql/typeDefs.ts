@@ -13,7 +13,6 @@ import {
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 const typeDefs = async () => {
-  const tagsAvailable = await isEnabled('tags');
   const contactsAvailable = await isEnabled('contacts');
 
   return gql`

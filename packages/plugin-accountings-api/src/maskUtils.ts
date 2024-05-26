@@ -1,4 +1,3 @@
-import * as _ from 'underscore';
 import { IAccountCategory } from './models/definitions/accountCategory';
 
 export const checkCodeMask = async (
@@ -10,10 +9,8 @@ export const checkCodeMask = async (
   }
 
   if (
-    !category ||
-    !category.maskType ||
-    !category.mask ||
-    !category.mask.values
+    !category?.maskType ||
+    !category?.mask?.values
   ) {
     return true;
   }

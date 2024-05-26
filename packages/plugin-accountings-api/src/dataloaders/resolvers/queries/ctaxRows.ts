@@ -16,7 +16,7 @@ const generateFilterCat = async ({
     filter.status = status;
   }
 
-  if (kinds && kinds.length) {
+  if (kinds?.length) {
     filter.kind = { $in: kinds };
   }
 
