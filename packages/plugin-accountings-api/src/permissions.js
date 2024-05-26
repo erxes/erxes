@@ -25,5 +25,22 @@ module.exports = {
         description: 'Merge accounts'
       }
     ]
+  },
+  accountingsTransaction: {
+    name: 'accountingsTr',
+    description: 'Accounting Transaction',
+    actions: [
+      {
+        name: 'accountingsTrAll',
+        description: 'Transaction ALL',
+        use: []
+      },
+      {
+        
+      }
+    ]
+  },
+  other: {
+
   }
 };

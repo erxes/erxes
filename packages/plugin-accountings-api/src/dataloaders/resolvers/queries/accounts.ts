@@ -1,14 +1,16 @@
+import * as _ from 'lodash';
 import {
   checkPermission,
   requireLogin,
 } from '@erxes/api-utils/src/permissions';
 import { paginate } from '@erxes/api-utils/src';
-
 import { escapeRegExp } from '@erxes/api-utils/src/core';
-import { IContext } from '../../../connectionResolver';
+import { IContext, IModels } from '../../../connectionResolver';
 import { ACCOUNT_STATUSES } from '../../../models/definitions/constants';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 
 interface IQueryParams {
+  type: string;
   ids?: string[];
   excludeIds?: boolean;
   status?: string;
@@ -26,10 +28,11 @@ interface IQueryParams {
   journal: string;
 }
 
-const generateFilter = async (
-  models,
-  commonQuerySelector,
-  params,
+export const generateFilter = async (
+  models: IModels,
+  commonQuerySelector: any,
+  params: IQueryParams,
+  user: IUserDocument
 ) => {
   const {
     type,
@@ -48,6 +51,10 @@ const generateFilter = async (
 
   filter.status = { $ne: ACCOUNT_STATUSES.DELETED };
 
+  if (ids?.length) {
+    filter._id = { [excludeIds ? '$nin' : '$in']: ids };
+  }
+
   if (params.status) {
     filter.status = params.status;
   }
@@ -56,7 +63,7 @@ const generateFilter = async (
   }
 
   if (categoryId) {
-    const category = await models.AccountCategories.getAccountingCategory({
+    const category = await models.AccountCategories.getAccountCategory({
       _id: categoryId,
       status: { $in: [null, 'active'] },
     });
@@ -74,27 +81,22 @@ const generateFilter = async (
     filter.categoryId = { $nin: notActiveCategories.map((e) => e._id) };
   }
 
-  if (ids && ids.length > 0) {
-    filter._id = { [excludeIds ? '$nin' : '$in']: ids };
-  }
-
   // search =========
   if (searchValue) {
     const regex = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
-    const codeRegex = new RegExp(
-      `^${searchValue
-        .replace(/\./g, '\\.')
-        .replace(/\*/g, '.')
-        .replace(/_/g, '.')}.*`,
-      'igu',
-    );
+
+    let codeFilter = { code: { $in: [regex] } };
+    if (searchValue.includes('.') || searchValue.includes('_') || searchValue.includes('*')) {
+      const codeRegex = new RegExp(
+        `^${searchValue.replace(/\*/g, '.').replace(/_/g, '.')}$`,
+        'igu',
+      );
+      codeFilter = { code: { $in: [codeRegex] }, };
+    }
 
     filter.$or = [
-      {
-        $or: [{ code: { $in: [regex] } }, { code: { $in: [codeRegex] } }],
-      },
+      codeFilter,
       { name: { $in: [regex] } },
-      { barcodes: { $in: [searchValue] } },
     ];
   }
 
@@ -105,7 +107,7 @@ const generateFilter = async (
   if (journal) {
     filter.journal = journal;
   }
-  
+
   if (branchId) {
     filter.branchId = branchId;
   }
@@ -121,6 +123,26 @@ const generateFilter = async (
   if (isOutBalance !== undefined) {
     filter.isOutBalance = isOutBalance
   }
+
+  if (user.isOwner) {
+    return filter;
+  }
+
+  const permissions = await models.Permissions.find({ user: user._id }).lean();
+
+  const hasPermAccountIds = permissions.map(p => p.accountId)
+
+  if (filter._id.$in?.length) {
+    filter._id.$in = _.intersection(filter._id.$in, hasPermAccountIds);
+    return filter;
+  }
+
+  if (filter._id.$nin?.length) {
+    filter._id.$nin = _.difference(filter._id.$nin, hasPermAccountIds);
+    return filter;
+  }
+
+  filter._id = { $in: hasPermAccountIds };
 
   return filter;
 };
@@ -138,16 +160,16 @@ const accountQueries = {
       models,
       commonQuerySelector,
       params,
+      user,
     );
 
     const { sortField, sortDirection, page, perPage, ids, excludeIds } = params;
 
     const pagintationArgs = { page, perPage };
     if (
-      ids &&
-      ids.length &&
       !excludeIds &&
-      ids.length > (pagintationArgs.perPage || 20)
+      ids?.length &&
+      ids?.length > (pagintationArgs.perPage || 20)
     ) {
       pagintationArgs.page = 1;
       pagintationArgs.perPage = ids.length;
@@ -167,12 +189,13 @@ const accountQueries = {
   async accountsTotalCount(
     _root,
     params: IQueryParams,
-    { commonQuerySelector, models }: IContext,
+    { commonQuerySelector, models, user }: IContext,
   ) {
     const filter = await generateFilter(
       models,
       commonQuerySelector,
       params,
+      user,
     );
 
     return models.Accounts.find(filter).count();

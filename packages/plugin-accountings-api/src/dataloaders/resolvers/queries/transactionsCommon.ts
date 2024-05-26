@@ -3,8 +3,11 @@ import {
   requireLogin,
 } from '@erxes/api-utils/src/permissions';
 import { paginate } from '@erxes/api-utils/src';
+import { IContext, IModels } from '../../../connectionResolver';
+import { TR_STATUSES } from '../../../models/definitions/constants';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
-import { IContext } from '../../../connectionResolver';
+import { IUserDocument } from '@erxes/api-utils/src/types';
+import { generateFilter as accountGenerateFilter } from './accounts';
 
 interface IQueryParams {
   ids?: string[];
@@ -12,14 +15,29 @@ interface IQueryParams {
   status?: string;
   searchValue?: string;
   number?: string;
-  accountIds?: string[];
 
-  brand?: string;
+  accountIds?: string[];
+  accountType: string;
+  accountExcludeIds?: boolean;
+  accountStatus?: string;
+  accountCategoryId?: string;
+  accountSearchValue?: string;
+  accountBrand?: string;
+  accountIsOutBalance?: boolean,
+  accountBranchId: string;
+  accountDepartmentId: string;
+  accountCurrency: string;
+  accountJournal: string;
+
+  brandId?: string;
   isOutBalance?: boolean,
   branchId: string;
   departmentId: string;
   currency: string;
   journal: string;
+
+  statuses: string[];
+  accountsJournal: string;
 
   page?: number;
   perPage?: number;
@@ -27,27 +45,102 @@ interface IQueryParams {
   sortDirection?: number;
 }
 
+const getAccountIds = async (models: IModels, commonQuerySelector, params: IQueryParams, user: IUserDocument): Promise<string[]> => {
+  const {
+    accountIds,
+    accountType,
+    accountExcludeIds,
+    accountStatus,
+    accountCategoryId,
+    accountSearchValue,
+    accountBrand,
+    accountIsOutBalance,
+    accountBranchId,
+    accountDepartmentId,
+    accountCurrency,
+    accountJournal,
+  } = params;
+
+  const accountFilter: any = await accountGenerateFilter(models, commonQuerySelector, {
+    ids: accountIds,
+    type: accountType,
+    excludeIds: accountExcludeIds,
+    status: accountStatus,
+    categoryId: accountCategoryId,
+    searchValue: accountSearchValue,
+    brand: accountBrand,
+    isOutBalance: accountIsOutBalance,
+    branchId: accountBranchId,
+    departmentId: accountDepartmentId,
+    currency: accountCurrency,
+    journal: accountJournal,
+  }, user);
+
+  const accounts = await models.Accounts.find({ ...accountFilter }, { _id: 1 }).lean();
+  return accounts.map(a => a._id);
+}
+
 const generateFilter = async (
-  models,
-  commonQuerySelector,
-  params,
+  models: IModels,
+  commonQuerySelector: any,
+  params: IQueryParams,
+  user: IUserDocument,
 ) => {
   const {
     ids,
     excludeIds,
     searchValue,
     number,
-    accountIds,
-    brand,
-    isOutBalance,
+    journal,
+    brandId,
     branchId,
     departmentId,
     currency,
-    journal,
+    statuses,
   } = params;
-  const filter: any = commonQuerySelector;
+  const filter = commonQuerySelector;
 
-  filter.status = {};
+  filter.accountId = { $in: await getAccountIds(models, commonQuerySelector, params, user) }
+
+  if (journal) {
+    filter.journal = journal
+  }
+
+  if (statuses?.length) {
+    filter.status = { $in: statuses }
+  } else {
+    filter.status = { $in: TR_STATUSES.ACTIVE }
+  }
+
+  if (ids?.length) {
+    filter._id = { [excludeIds ? '$nin' : '$in']: ids };
+  }
+
+  if (number) {
+    const regex = new RegExp(`.*${escapeRegExp(number)}.*`, 'i');
+    filter.number = { $in: [regex] };
+  }
+
+  if (searchValue) {
+    const regex = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
+    filter.description = { $in: [regex] };
+  }
+
+  if (brandId) {
+    filter.scopeBrandIds = { $in: [brandId] }
+  }
+
+  if (branchId) {
+    filter.branchId = { $in: [branchId] }
+  }
+
+  if (departmentId) {
+    filter.departmentId = { $in: [departmentId] }
+  }
+
+  if (currency) {
+    filter['trDetail.currency'] = currency;
+  }
 
   return filter;
 };
@@ -70,12 +163,13 @@ const transactionCommon = {
   async transactions(
     _root,
     params: IQueryParams & { page: number, perPage: number },
-    { commonQuerySelector, models }: IContext,
+    { commonQuerySelector, models, user }: IContext,
   ) {
     const filter = await generateFilter(
       models,
       commonQuerySelector,
       params,
+      user
     );
 
     const { sortField, sortDirection, page, perPage, ids, excludeIds } = params;
@@ -105,13 +199,14 @@ const transactionCommon = {
   async transactionsCount(
     _root,
     params: IQueryParams,
-    { commonQuerySelector, models }: IContext,
+    { commonQuerySelector, models, user }: IContext,
   ) {
 
     const filter = await generateFilter(
       models,
       commonQuerySelector,
       params,
+      user,
     );
 
     return models.Transactions.find(filter).count();

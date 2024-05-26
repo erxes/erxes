@@ -39,6 +39,7 @@ export const TR_SIDES = {
   CREDIT: 'ct',
   ALL: ['dt', 'ct']
 }
+
 export const TR_STATUSES = {
   PLAN: 'plan',
   PENDING: 'pending',
@@ -47,7 +48,9 @@ export const TR_STATUSES = {
   REAL: 'real',
   CONFIRMED: 'confirmed',
   COMPLETE: 'complete',
-  ALL: ['plan', 'pending', 'synced', 'real', 'confirmed', 'complete'],
+  DELETED: 'deleted',
+  ACTIVE: ['synced', 'real', 'confirmed', 'complete'],
+  ALL: ['plan', 'pending', 'synced', 'real', 'confirmed', 'complete', 'deleted'],
 };
 
 export const PTR_STATUSES = {
@@ -62,7 +65,7 @@ export const JOURNALS = {
   MAIN: 'main',
   MAIN_FB: 'main_fb',
   CASH: 'cash',
-  FUND_IN: 'bank',
+  FUND: 'bank',
   DEBT: 'debt',
   INV_FB: 'inv_fb',
   INV_INCOME: 'inv_income',
@@ -75,13 +78,11 @@ export const JOURNALS = {
   INV_IN_RETURN: 'inv_in_return',
   INV_SALE_RETURN: 'inv_sale_return',
   ALL: [
-    'main',
-    'cash_in', 'cash_out',
-    'bank_in', 'bank_out',
-    'debt', 'payable', 'receivable',
+    'main', 'cash', 'bank', 'debt',
     'inv_fb', 'inv_income', 'inv_out', 'inv_move', 'inv_adjust', 'inv_convert',
     'inv_sale', 'inv_cost',
     'inv_in_return', 'inv_sale_return',
     'expense'
-  ]
+  ],
+  ALL_INV: [],
 }
