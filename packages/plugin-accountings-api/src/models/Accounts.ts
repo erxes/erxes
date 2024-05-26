@@ -1,3 +1,4 @@
+import * as moment from 'moment';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import {
@@ -175,7 +176,7 @@ export const loadAccountClass = (models: IModels, subdomain: string) => {
         await models.Accounts.findByIdAndUpdate(accountingId, {
           $set: {
             status: ACCOUNT_STATUSES.DELETED,
-            code: Math.random().toString().concat('^', accountingObj.code),
+            code: moment(new Date).format('"yyyy-MM-dd HH:mm').toString().concat('^', accountingObj.code),
           },
         });
       }
