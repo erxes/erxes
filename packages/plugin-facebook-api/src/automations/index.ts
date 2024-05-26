@@ -126,7 +126,6 @@ export default {
       });
     }
 
-    return;
   },
   replacePlaceHolders: async ({
     subdomain,

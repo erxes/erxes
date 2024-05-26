@@ -184,7 +184,7 @@ export const checkMessageTrigger = (subdomain, { target, config }) => {
     isSelected,
     type,
     persistentMenuIds,
-    conditions: directMessageCondtions = [],
+    conditions: directMessageConditions = [],
   } of conditions) {
     if (isSelected) {
       if (type === 'getStarted' && target.content === 'Get Started') {
@@ -199,15 +199,12 @@ export const checkMessageTrigger = (subdomain, { target, config }) => {
         }
       }
 
-      if (type === 'direct' && directMessageCondtions?.length > 0) {
-        if (
-          checkContentConditions(target?.content || '', directMessageCondtions)
-        ) {
+      if (type === 'direct' && directMessageConditions.length > 0) {
+        if (checkContentConditions(target?.content || '', directMessageConditions)) {
           return true;
         }
       }
     }
-    continue;
   }
 };
 

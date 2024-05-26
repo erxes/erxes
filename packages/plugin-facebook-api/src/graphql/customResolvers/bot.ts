@@ -11,14 +11,11 @@ export default {
 
   async page({ token, pageId }: IBotDocument, _args, { models }: IContext) {
     try {
-      const response: any = await graphRequest.get(
-        `/${pageId}?fields=name`,
-        token,
-      );
-      return response ? response : null;
+      const response: any = await graphRequest.get(`/${pageId}?fields=name`, token);
+      return response ?? null;
     } catch (error) {
       return null;
-    }
+    }    
   },
 
   async profileUrl({ pageId, token }: IBotDocument) {

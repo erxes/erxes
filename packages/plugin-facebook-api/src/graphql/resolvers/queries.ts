@@ -1,4 +1,4 @@
-import { IContext, IModels } from '../../connectionResolver';
+import { IContext} from '../../connectionResolver';
 import { INTEGRATION_KINDS } from '../../constants';
 import { sendInboxMessage } from '../../messageBroker';
 import { IConversationMessageDocument } from '../../models/definitions/conversationMessages';
@@ -92,16 +92,15 @@ const facebookQueries = {
       isResolved: isResolved === true
     };
 
-    if (senderId && senderId !== 'undefined') {
+    if (senderId !== undefined) {
       const customer = await models.Customers.findOne({ erxesApiId: senderId });
-
-      if (customer && customer.userId) {
+    
+      if (customer?.userId) {
         query.senderId = customer.userId;
       }
     } else {
       query.parentId = commentId !== 'undefined' ? commentId : '';
     }
-
     const result = await models.CommentConversation.aggregate([
       {
         $match: query
@@ -238,36 +237,35 @@ const facebookQueries = {
     if (conversation) {
       if (limit) {
         const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
-
+    
         messages = await models.ConversationMessages.find(query)
           .sort(sort)
-          .skip(skip || 0)
+          .skip(skip ?? 0)
           .limit(limit);
-
+    
         return getFirst ? messages : messages.reverse();
       }
-
+    
       messages = await models.ConversationMessages.find(query)
         .sort({ createdAt: -1 })
         .limit(50);
-
+    
       return messages.reverse();
     } else {
-      let comment: any[] = [];
-      const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
-      comment = await models.CommentConversation.find({
-        erxesApiId: conversationId
-      })
-        .sort(sort)
-        .skip(skip || 0);
-
-      const comment_ids = comment?.map((item) => item.comment_id);
-      const search = await models.CommentConversationReply.find({
-        parentId: comment_ids
-      })
-        .sort(sort)
-        .skip(skip || 0);
-
+        let comment: any[] = [];
+        const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
+        comment = await models.CommentConversation.find({
+          erxesApiId: conversationId
+        })
+          .sort(sort)
+          .skip(skip ?? 0);
+      
+        const comment_ids = comment?.map((item) => item.comment_id);
+        const search = await models.CommentConversationReply.find({
+          parentId: comment_ids
+        })
+          .sort(sort)
+          .skip(skip ?? 0);
       if (search.length > 0) {
         // Combine the arrays and sort by createdAt in ascending order
         const combinedResult = [...comment, ...search].sort((a, b) =>
@@ -385,19 +383,19 @@ const facebookQueries = {
 
     if (limit) {
       const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
-
+    
       messages = await models.CommentConversation.find(query)
         .sort(sort)
-        .skip(skip || 0)
+        .skip(skip ?? 0)
         .limit(limit);
-
+    
       return getFirst ? messages : messages.reverse();
     }
-
+    
     messages = await models.CommentConversation.find(query)
       .sort({ createdAt: -1 })
       .limit(50);
-
+    
     return messages.reverse();
   },
 
