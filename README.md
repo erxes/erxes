@@ -144,6 +144,13 @@ For general help using erxes, please refer to the erxes documentation. For addit
 - **<a href="https://github.com/erxes/erxes/issues" > Feedback section</a>** Roadmap, feature requests & bugs
 - **<a href="https://twitter.com/erxesHQ" > Twitter</a>** Get the news fast
 
+## 💪 Thanks to all Contributors
+
+Thanks to all contributors for helping this project grow! 🍻
+
+<a href="https://github.com/sanjay-kv/Stackoverflow-Analysis/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=erxes/erxes" width=800 />
+</a>
  
 ## License
 See the <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md" >**LICENSE**</a> file for licensing information.
