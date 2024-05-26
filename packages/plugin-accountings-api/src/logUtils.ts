@@ -63,7 +63,7 @@ const gatherDescriptions = async (
   const description = `"${object.name}" has been ${action}d`;
 
   switch (type) {
-    case MODULE_NAMES.ACCOUNT:
+    case MODULE_NAMES.ACCOUNT: {
       extraDesc = await gatherAccountFieldNames(models, subdomain, object);
 
       if (updatedDocument) {
@@ -76,7 +76,8 @@ const gatherDescriptions = async (
       }
 
       break;
-    case MODULE_NAMES.ACCOUNT_CATEGORY:
+    }
+    case MODULE_NAMES.ACCOUNT_CATEGORY: {
       const parentIds: string[] = [];
 
       if (object.parentId) {
@@ -98,6 +99,7 @@ const gatherDescriptions = async (
       }
 
       break;
+    }
     default:
       break;
   }
