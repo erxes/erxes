@@ -149,7 +149,7 @@ For general help using erxes, please refer to the erxes documentation. For addit
 Thanks to all contributors for helping this project grow! 🍻
 
 <a href="https://github.com/sanjay-kv/Stackoverflow-Analysis/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=erxes/erxes" width=800 />
+  <img src="https://contrib.rocks/image?repo=erxes/erxes" width=500 />
 </a>
  
 ## License
