@@ -60,7 +60,7 @@ const channelMutations = {
     doc: IChannel,
     { user, models, subdomain }: IContext,
   ) {
-    const channel = models.Channels.createChannel(doc, user._id);
+    const channel = await models.Channels.createChannel(doc, user._id);
 
     await sendChannelNotifications(subdomain, channel, 'invited', user);
 
