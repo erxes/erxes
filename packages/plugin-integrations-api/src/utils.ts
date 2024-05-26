@@ -1,9 +1,9 @@
-import * as dotenv from 'dotenv';
-import * as sanitizeHtml from 'sanitize-html';
-import { IModels } from './connectionResolver';
-import { debugBase, debugExternalRequests } from './debuggers';
-import redis from '@erxes/api-utils/src/redis';
-import { sendInboxMessage } from './messageBroker';
+import * as dotenv from "dotenv";
+import * as sanitizeHtml from "sanitize-html";
+import { IModels } from "./connectionResolver";
+import { debugBase } from "./debuggers";
+import redis from "@erxes/api-utils/src/redis";
+import { sendInboxMessage } from "./messageBroker";
 
 dotenv.config();
 interface IRequestParams {
@@ -20,13 +20,12 @@ interface IRequestParams {
       | boolean
       | number
       | {
-          [key: string]: string | number | boolean | any;
+          [key: string]: any;
         }
-      | any
       | any[]
       | {
           [key: string]: {
-            [key: string]: string | boolean | any;
+            [key: string]: any;
           };
         };
   };
@@ -40,9 +39,9 @@ interface IRequestParams {
  */
 export const checkConcurrentError = (e: any, name: string) => {
   throw new Error(
-    e.message.includes('duplicate')
+    e.message.includes("duplicate")
       ? `Concurrent request: nylas ${name} duplication`
-      : e,
+      : e
   );
 };
 
@@ -52,7 +51,7 @@ export const checkConcurrentError = (e: any, name: string) => {
  * @returns {String} striped text
  */
 export const cleanHtml = (body: string) => {
-  const clean = sanitizeHtml(body || '', {
+  const clean = sanitizeHtml(body || "", {
     allowedTags: [],
     allowedAttributes: {},
   }).trim();
@@ -69,7 +68,7 @@ export const getEnv = ({
 }): string => {
   const value = process.env[name];
 
-  if (!value && typeof defaultValue !== 'undefined') {
+  if (!value && typeof defaultValue !== "undefined") {
     return defaultValue;
   }
 
@@ -77,7 +76,7 @@ export const getEnv = ({
     debugBase(`Missing environment variable configuration for ${name}`);
   }
 
-  return value || '';
+  return value || "";
 };
 
 /**
@@ -91,9 +90,9 @@ export const compose =
     fns.reduceRight((p, f) => p.then(f), Promise.resolve(arg));
 
 export const getConfigs = async (models: IModels) => {
-  const configsCache = await redis.get('configs_erxes_integrations');
+  const configsCache = await redis.get("configs_erxes_integrations");
 
-  if (configsCache && configsCache !== '{}') {
+  if (configsCache && configsCache !== "{}") {
     return JSON.parse(configsCache);
   }
 
@@ -104,7 +103,7 @@ export const getConfigs = async (models: IModels) => {
     configsMap[config.code] = config.value;
   }
 
-  await redis.set('configs_erxes_integrations', JSON.stringify(configsMap));
+  await redis.set("configs_erxes_integrations", JSON.stringify(configsMap));
 
   return configsMap;
 };
@@ -122,9 +121,9 @@ export const getConfig = async (models: IModels, code, defaultValue?) => {
 export const getCommonGoogleConfigs = async (subdomain: string) => {
   const response = await sendInboxMessage({
     subdomain,
-    action: 'integrations.receive',
+    action: "integrations.receive",
     data: {
-      action: 'get-configs',
+      action: "get-configs",
     },
     isRPC: true,
   });
@@ -140,18 +139,18 @@ export const getCommonGoogleConfigs = async (subdomain: string) => {
 };
 
 export const resetConfigsCache = async () => {
-  await redis.set('configs_erxes_integrations', '');
+  await redis.set("configs_erxes_integrations", "");
 };
 
 export const generateUid = () => {
-  return '_' + Math.random().toString(36).substr(2, 9);
+  return "_" + Math.random().toString(36);
 };
 
 export const isAfter = (
   expiresTimestamp: number,
-  defaultMillisecond?: number,
+  defaultMillisecond?: number
 ) => {
-  const millisecond = defaultMillisecond || new Date().getTime();
+  const millisecond = defaultMillisecond ?? new Date().getTime();
   const expiresMillisecond = new Date(expiresTimestamp * 1000).getTime();
 
   if (expiresMillisecond > millisecond) {

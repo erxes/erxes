@@ -50,10 +50,10 @@ const CreateLeadContainer: React.FC<Props> = (props) => {
     isIntegrationSubmitted: false,
     mustWait: { optionsStep: false },
   });
-  const [id, setId] = useState('')
+  const [id, setId] = useState("");
 
   useEffect(() => {
-    if (state.doc && state.isReadyToSaveForm && id !== '') {
+    if (state.doc && state.isReadyToSaveForm && id !== "") {
       afterFormDbSave();
     }
   }, [state.doc, state.isReadyToSaveForm, id]);
@@ -131,7 +131,7 @@ const CreateLeadContainer: React.FC<Props> = (props) => {
     ...props,
     fields: [],
     save,
-    afterFormDbSave: id => setId(id),
+    afterFormDbSave: (id) => setId(id),
     waitUntilFinish,
     onChildProcessFinished: (component) => {
       if (state.mustWait.hasOwnProperty(component)) {
@@ -164,7 +164,7 @@ const withTemplatesQuery = withProps<Props>(
           perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount,
         },
       }),
-      skip: !isEnabled("engages") ? true : false,
+      skip: !isEnabled("engages"),
     })
   )(CreateLeadContainer)
 );
@@ -173,7 +173,7 @@ export default withProps<Props>(
   compose(
     graphql(gql(queries.templateTotalCount), {
       name: "emailTemplatesTotalCountQuery",
-      skip: !isEnabled("engages") ? true : false,
+      skip: !isEnabled("engages"),
     }),
     graphql<{}, ConfigsQueryResponse>(gql(settingsQueries.configs), {
       name: "configsQuery",

@@ -1,6 +1,6 @@
-import { Document, Model, model, Schema } from 'mongoose';
-import { IModels } from '../connectionResolver';
-import { field } from './utils';
+import { Document, Model, Schema } from "mongoose";
+import { IModels } from "../connectionResolver";
+import { field } from "./utils";
 
 export interface IConfig {
   code: string;
@@ -16,7 +16,7 @@ export interface IConfigDocument extends IConfig, Document {
 export const configSchema = new Schema({
   _id: field({ pkey: true }),
   code: field({ type: String, unique: true }),
-  value: field({ type: Object })
+  value: field({ type: Object }),
 });
 
 export interface IConfigModel extends Model<IConfigDocument> {
@@ -34,7 +34,7 @@ export const loadConfigClass = (models: IModels) => {
       const config = await models.Configs.findOne({ code });
 
       if (!config) {
-        return { value: '' };
+        return { value: "" };
       }
 
       return config;
@@ -45,7 +45,7 @@ export const loadConfigClass = (models: IModels) => {
      */
     public static async createOrUpdateConfig({
       code,
-      value
+      value,
     }: {
       code: string;
       value: string[];

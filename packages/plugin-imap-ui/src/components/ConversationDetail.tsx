@@ -1,9 +1,8 @@
-import React from 'react';
-import { gql, useQuery } from '@apollo/client';
-import { __ } from '@erxes/ui/src';
-import MailConversation from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/mail/MailConversation';
-import { queries } from '../graphql';
-import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
+import React from "react";
+import { gql, useQuery } from "@apollo/client";
+import MailConversation from "@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/mail/MailConversation";
+import { queries } from "../graphql";
+import { IConversation } from "@erxes/ui-inbox/src/inbox/types";
 
 type Props = {
   currentId: string;
@@ -17,7 +16,7 @@ const Detail = (props: Props) => {
     variables: {
       conversationId: currentId,
     },
-    fetchPolicy: 'network-only',
+    fetchPolicy: "network-only",
   });
 
   if (messagesQuery.loading) {

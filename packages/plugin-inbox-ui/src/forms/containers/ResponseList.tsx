@@ -6,8 +6,10 @@ import {
 } from "@erxes/ui-forms/src/forms/types";
 
 import { FieldsQueryResponse } from "@erxes/ui-forms/src/settings/properties/types";
-import { IntegrationDetailQueryResponse } from "@erxes/ui-inbox/src/settings/integrations/types";
-import { LeadIntegrationDetailQueryResponse } from "@erxes/ui-inbox/src/settings/integrations/types";
+import {
+  LeadIntegrationDetailQueryResponse,
+  IntegrationDetailQueryResponse,
+} from "@erxes/ui-inbox/src/settings/integrations/types";
 import React from "react";
 import ResponseList from "../components/ResponseList";
 import { generatePaginationParams } from "@erxes/ui/src/utils/router";

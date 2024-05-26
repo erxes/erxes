@@ -24,13 +24,13 @@ type Props = {
 };
 
 const ActivityItem = (props: Props) => {
-  const { activity, currentUser } = props;
+  const { activity } = props;
 
   const { contentTypeDetail = {}, contentType } = activity;
   const { body, subject, createdAt } = contentTypeDetail;
 
   const [shrink, setShrink] = useState<boolean>(
-    (contentTypeDetail.body || "").length > 380 ? true : false
+    (contentTypeDetail.body || "").length > 380
   );
 
   const renderWhom = (contentTypeDetail) => {

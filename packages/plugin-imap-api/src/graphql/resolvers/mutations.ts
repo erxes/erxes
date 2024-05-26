@@ -1,5 +1,5 @@
-import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
-import { IContext, IModels } from '../../connectionResolver';
+import { moduleRequireLogin } from "@erxes/api-utils/src/permissions";
+import { IContext } from "../../connectionResolver";
 
 const notificationMutations = {
   /**
@@ -9,7 +9,7 @@ const notificationMutations = {
     const sendMail = await models.Messages.createSendMail(
       args,
       subdomain,
-      models,
+      models
     );
     return sendMail;
   },

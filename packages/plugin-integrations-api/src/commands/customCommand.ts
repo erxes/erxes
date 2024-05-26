@@ -1,12 +1,12 @@
-import * as dotenv from 'dotenv';
-import * as mongoose from 'mongoose';
+import * as dotenv from "dotenv";
+import * as mongoose from "mongoose";
 
 dotenv.config();
 
 const options = {
   useNewUrlParser: true,
   useCreateIndex: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
 };
 
 const command = async (API_MONGO_URL, MONGO_URL) => {
@@ -36,7 +36,7 @@ const command = async (API_MONGO_URL, MONGO_URL) => {
         count++;
 
         if (callback) {
-          await callback(entry);
+          callback(entry);
         }
       }
     }
@@ -45,25 +45,25 @@ const command = async (API_MONGO_URL, MONGO_URL) => {
   };
 
   // find invalid customers
-  const apiCustomers = apiMongoClient.db.collection('customers');
+  const apiCustomers = apiMongoClient.db.collection("customers");
   const integrationCustomers = integrationMongoClient.db.collection(
-    'customers_facebooks'
+    "customers_facebooks"
   );
-  await find('customer', apiCustomers, integrationCustomers);
+  await find("customer", apiCustomers, integrationCustomers);
 
   // find invalid conversations
-  const apiConversations = apiMongoClient.db.collection('conversations');
+  const apiConversations = apiMongoClient.db.collection("conversations");
   const integrationConversations = integrationMongoClient.db.collection(
-    'conversations_facebooks'
+    "conversations_facebooks"
   );
   const integrationConversationMessages = integrationMongoClient.db.collection(
-    'conversation_messages_facebooks'
+    "conversation_messages_facebooks"
   );
   await find(
-    'conversation',
+    "conversation",
     apiConversations,
     integrationConversations,
-    async conversation => {
+    async (conversation) => {
       const messagesCount = await integrationConversationMessages
         .find({ conversationId: conversation._id })
         .count();
@@ -75,4 +75,4 @@ const command = async (API_MONGO_URL, MONGO_URL) => {
   process.exit();
 };
 
-command('mongodb://localhost/erxes', 'mongodb://localhost/erxes_integrations');
+command("mongodb://localhost/erxes", "mongodb://localhost/erxes_integrations");

@@ -9,8 +9,7 @@ import {
 import { mutations, queries } from "@erxes/ui-leads/src/graphql";
 
 import { ConfigsQueryResponse } from "@erxes/ui-settings/src/general/types";
-import { ILeadData } from "@erxes/ui-leads/src/types";
-import { ILeadIntegration } from "@erxes/ui-leads/src/types";
+import { ILeadData, ILeadIntegration } from "@erxes/ui-leads/src/types";
 import Lead from "../components/Lead";
 import React, { useEffect, useState } from "react";
 import { gql } from "@apollo/client";
@@ -142,7 +141,8 @@ const EditLeadContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    integration: integration ? integration : ({} as any),
+    integration: integration ?? ({} as any),
+
     integrationId: integration._id,
     save,
     afterFormDbSave,
@@ -176,7 +176,7 @@ const withTemplatesQuery = withProps<FinalProps>(
           perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount,
         },
       }),
-      skip: !isEnabled("engages") ? true : false,
+      skip: !isEnabled("engages"),
     })
   )(EditLeadContainer)
 );
@@ -185,7 +185,7 @@ export default withProps<FinalProps>(
   compose(
     graphql(gql(queries.templateTotalCount), {
       name: "emailTemplatesTotalCountQuery",
-      skip: !isEnabled("engages") ? true : false,
+      skip: !isEnabled("engages"),
     }),
     graphql<Props, LeadIntegrationDetailQueryResponse, { _id: string }>(
       gql(queries.integrationDetail),

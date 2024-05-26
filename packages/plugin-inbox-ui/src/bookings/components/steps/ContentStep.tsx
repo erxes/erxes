@@ -36,7 +36,6 @@ type Props = {
   onChangeBooking: (name: Name, value: any) => void;
   name: string;
   description: string;
-  userFilters: string[];
   productCategoryId: string;
   image: any;
   line?: string;
@@ -150,60 +149,56 @@ function ContentStep({
   const renderDisplayBlock = () => {
     const options = generateSelectOptions(BOOKING_DISPLAY_BLOCK.ALL_LIST);
     return (
-      <>
-        <Flex>
-          <FlexItem count={3}>
-            <FormGroup>
-              <ControlLabel>Display blocks</ControlLabel>
-              <Select
-                options={options}
-                placeholder="Choose line"
-                value={options.find((option) => option.value === line)}
-                isClearable={true}
-                onChange={(e: any) => onChangeBooking("line", e ? e.value : "")}
-              />
-            </FormGroup>
-          </FlexItem>
+      <Flex>
+        <FlexItem count={3}>
+          <FormGroup>
+            <ControlLabel>Display blocks</ControlLabel>
+            <Select
+              options={options}
+              placeholder="Choose line"
+              value={options.find((option) => option.value === line)}
+              isClearable={true}
+              onChange={(e: any) => onChangeBooking("line", e ? e.value : "")}
+            />
+          </FormGroup>
+        </FlexItem>
 
-          <FlexItem $hasSpace={true}>
-            <FormGroup>
-              <ControlLabel>Columns</ControlLabel>
-              <FormControl
-                type="number"
-                min={0}
-                value={columns}
-                onChange={(e: any) =>
-                  onChangeBooking("columns", e.target.value)
-                }
-              />
-            </FormGroup>
-          </FlexItem>
+        <FlexItem $hasSpace={true}>
+          <FormGroup>
+            <ControlLabel>Columns</ControlLabel>
+            <FormControl
+              type="number"
+              min={0}
+              value={columns}
+              onChange={(e: any) => onChangeBooking("columns", e.target.value)}
+            />
+          </FormGroup>
+        </FlexItem>
 
-          <FlexItem $hasSpace={true}>
-            <FormGroup>
-              <ControlLabel>Rows</ControlLabel>
-              <FormControl
-                type="number"
-                min={0}
-                value={rows}
-                onChange={(e: any) => onChangeBooking("rows", e.target.value)}
-              />
-            </FormGroup>
-          </FlexItem>
+        <FlexItem $hasSpace={true}>
+          <FormGroup>
+            <ControlLabel>Rows</ControlLabel>
+            <FormControl
+              type="number"
+              min={0}
+              value={rows}
+              onChange={(e: any) => onChangeBooking("rows", e.target.value)}
+            />
+          </FormGroup>
+        </FlexItem>
 
-          <FlexItem $hasSpace={true}>
-            <FormGroup>
-              <ControlLabel>Margin</ControlLabel>
-              <FormControl
-                type="number"
-                min={0}
-                value={margin}
-                onChange={(e: any) => onChangeBooking("margin", e.target.value)}
-              />
-            </FormGroup>
-          </FlexItem>
-        </Flex>
-      </>
+        <FlexItem $hasSpace={true}>
+          <FormGroup>
+            <ControlLabel>Margin</ControlLabel>
+            <FormControl
+              type="number"
+              min={0}
+              value={margin}
+              onChange={(e: any) => onChangeBooking("margin", e.target.value)}
+            />
+          </FormGroup>
+        </FlexItem>
+      </Flex>
     );
   };
 

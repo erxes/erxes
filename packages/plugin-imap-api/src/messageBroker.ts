@@ -1,44 +1,46 @@
-import * as dotenv from 'dotenv';
-import { sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core';
-import { MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
-import { generateModels } from './connectionResolver';
-import { listenIntegration } from './utils';
+import * as dotenv from "dotenv";
+import {
+  sendMessage as sendCommonMessage,
+  MessageArgsOmitService,
+} from "@erxes/api-utils/src/core";
+import { generateModels } from "./connectionResolver";
+import { listenIntegration } from "./utils";
 import {
   InterMessage,
   consumeQueue,
   consumeRPCQueue,
-} from '@erxes/api-utils/src/messageBroker';
+} from "@erxes/api-utils/src/messageBroker";
 
 dotenv.config();
 
 export const setupMessageConsumers = async () => {
   consumeRPCQueue(
-    'imap:createIntegration',
+    "imap:createIntegration",
     async ({ subdomain, data: { doc, integrationId } }) => {
       const models = await generateModels(subdomain);
 
       const integration = await models.Integrations.create({
         inboxId: integrationId,
-        healthStatus: 'healthy',
-        error: '',
+        healthStatus: "healthy",
+        error: "",
         ...JSON.parse(doc.data),
       });
 
       listenIntegration(subdomain, integration, models);
 
       await models.Logs.createLog({
-        type: 'info',
+        type: "info",
         message: `Started syncing ${integration.user}`,
       });
 
       return {
-        status: 'success',
+        status: "success",
       };
-    },
+    }
   );
 
   consumeRPCQueue(
-    'imap:updateIntegration',
+    "imap:updateIntegration",
     async ({ subdomain, data: { integrationId, doc } }) => {
       const detail = JSON.parse(doc.data);
       const models = await generateModels(subdomain);
@@ -49,17 +51,17 @@ export const setupMessageConsumers = async () => {
 
       if (!integration) {
         return {
-          status: 'error',
-          errorMessage: 'Integration not found.',
+          status: "error",
+          errorMessage: "Integration not found.",
         };
       }
 
-      detail.healthStatus = 'healthy';
-      detail.error = '';
+      detail.healthStatus = "healthy";
+      detail.error = "";
 
       await models.Integrations.updateOne(
         { inboxId: integrationId },
-        { $set: detail },
+        { $set: detail }
       );
 
       const updatedIntegration = await models.Integrations.findOne({
@@ -71,13 +73,13 @@ export const setupMessageConsumers = async () => {
       }
 
       return {
-        status: 'success',
+        status: "success",
       };
-    },
+    }
   );
 
   consumeRPCQueue(
-    'imap:removeIntegrations',
+    "imap:removeIntegrations",
     async ({ subdomain, data: { integrationId } }) => {
       const models = await generateModels(subdomain);
 
@@ -92,13 +94,13 @@ export const setupMessageConsumers = async () => {
       });
 
       return {
-        status: 'success',
+        status: "success",
       };
-    },
+    }
   );
 
   consumeRPCQueue(
-    'imap:api_to_integrations',
+    "imap:api_to_integrations",
     async (args: InterMessage): Promise<any> => {
       const { subdomain, data } = args;
       const models = await generateModels(subdomain);
@@ -107,32 +109,32 @@ export const setupMessageConsumers = async () => {
 
       const integration = await models.Integrations.findOne({
         inboxId: integrationId,
-      }).select(['-_id', '-kind', '-erxesApiId', '-inboxId']);
+      }).select(["-_id", "-kind", "-erxesApiId", "-inboxId"]);
 
-      if (data.action === 'getDetails') {
+      if (data.action === "getDetails") {
         return {
-          status: 'success',
+          status: "success",
           data: integration,
         };
       }
       return {
-        status: 'success',
+        status: "success",
       };
-    },
+    }
   );
 
-  consumeRPCQueue('imap:imapMessage.create', async ({ subdomain, data }) => {
+  consumeRPCQueue("imap:imapMessage.create", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
-      status: 'success',
+      status: "success",
       data: await models.Messages.createSendMail(data, subdomain, models),
     };
   });
 
   // /imap/get-status'
   consumeRPCQueue(
-    'imap:getStatus',
+    "imap:getStatus",
     async ({ subdomain, data: { integrationId } }) => {
       const models = await generateModels(subdomain);
 
@@ -141,24 +143,24 @@ export const setupMessageConsumers = async () => {
       });
 
       let result = {
-        status: 'healthy',
+        status: "healthy",
       } as any;
 
       if (integration) {
         result = {
-          status: integration.healthStatus || 'healthy',
+          status: integration.healthStatus || "healthy",
           error: integration.error,
         };
       }
 
       return {
         data: result,
-        status: 'success',
+        status: "success",
       };
-    },
+    }
   );
 
-  consumeQueue('imap:listen', async ({ subdomain, data: { _id } }) => {
+  consumeQueue("imap:listen", async ({ subdomain, data: { _id } }) => {
     const models = await generateModels(subdomain);
 
     const integration = await models.Integrations.findById(_id);
@@ -174,21 +176,21 @@ export const setupMessageConsumers = async () => {
 
 export const sendContactsMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
-    serviceName: 'contacts',
+    serviceName: "contacts",
     ...args,
   });
 };
 
 export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
-    serviceName: 'inbox',
+    serviceName: "inbox",
     ...args,
   });
 };
 
 export const sendImapMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
-    serviceName: 'imap',
+    serviceName: "imap",
     ...args,
   });
 };
