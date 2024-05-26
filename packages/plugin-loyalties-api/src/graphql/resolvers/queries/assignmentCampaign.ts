@@ -35,7 +35,7 @@ const assignmentCampaignQueries = {
     );
   },
 
-  cpAssignmentCampaigns(_root, {}, { models }: IContext) {
+  async cpAssignmentCampaigns(_root, {}, { models }: IContext) {
     const now = new Date();
     return models.AssignmentCampaigns.find({
       status: CAMPAIGN_STATUS.ACTIVE,
@@ -54,7 +54,7 @@ const assignmentCampaignQueries = {
     return models.AssignmentCampaigns.find(filter).countDocuments();
   },
 
-  assignmentCampaignDetail(
+  async assignmentCampaignDetail(
     _root,
     { _id }: { _id: string },
     { models }: IContext

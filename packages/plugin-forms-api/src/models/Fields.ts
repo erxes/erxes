@@ -272,7 +272,8 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         { $unset: { associatedFieldId: '' } },
       );
 
-      return fieldObj.remove();
+      await fieldObj.deleteOne();
+      return fieldObj;
     }
 
     /*
@@ -693,7 +694,7 @@ export const loadGroupClass = (models: IModels) => {
         await models.Fields.removeField(field._id);
       }
 
-      await groupObj.remove();
+      await groupObj.deleteOne();
 
       return _id;
     }

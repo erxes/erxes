@@ -205,7 +205,7 @@ const queries = {
     const filter = await generateFilter(subdomain, params, commonQuerySelector);
 
     return await paginate(
-      models.PutResponses.find(filter).sort(sortBuilder(params)),
+      models.PutResponses.find(filter).sort(sortBuilder(params) as any),
       {
         page: params.page || 1,
         perPage: params.perPage,

@@ -3,7 +3,7 @@ import { sendCommonMessage, sendContactsMessage } from '../../messageBroker';
 import { IInvoice } from '../../models/definitions/invoices';
 
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
+  async __resolveReference({ _id }, { models }: IContext) {
     return models.Invoices.findOne({ _id });
   },
 

@@ -75,7 +75,7 @@ export default {
     };
   },
 
-  user(order: IOrderDocument, { }, { models }: IContext) {
+  async user(order: IOrderDocument, { }, { models }: IContext) {
     return models.PosUsers.findOne({ _id: order.userId });
   },
 

@@ -1,9 +1,9 @@
-import { Document, Schema, Model, Connection, Types } from 'mongoose';
+import { Document, Schema, Model, Connection, Types, HydratedDocument } from 'mongoose';
 import { IModels } from './index';
 import * as _ from 'lodash';
 
 export interface IPage {
-  _id: any;
+  _id: Types.ObjectId;
   code?: string | null;
   content?: string | null;
   description?: string | null;
@@ -15,21 +15,21 @@ export interface IPage {
   customIndexed: any;
 }
 
-export type PageDocument = IPage & Document;
+export type PageDocument = HydratedDocument<IPage>;
 
 const OMIT_FROM_INPUT = ['_id'] as const;
 
 export type PageCreateInput = Omit<IPage, typeof OMIT_FROM_INPUT[number]>;
 export type PagePatchInput = PageCreateInput;
 
-export interface IPageModel extends Model<PageDocument> {
+export interface IPageModel extends Model<IPage> {
   findByIdOrThrow(_id: string): Promise<PageDocument>;
   createPage(input: PageCreateInput): Promise<PageDocument>;
   patchPage(_id: string, patch: PagePatchInput): Promise<PageDocument>;
   deletePage(_id: string): Promise<PageDocument>;
 }
 
-export const pageSchema = new Schema<PageDocument>({
+export const pageSchema = new Schema<IPage>({
   code: String,
   content: String,
   description: String,
@@ -76,13 +76,13 @@ export const generatePageModel = (
     }
     public static async deletePage(_id: string): Promise<PageDocument> {
       const page = await models.Page.findByIdOrThrow(_id);
-      await page.remove();
+      await page.deleteOne();
       return page;
     }
   }
   pageSchema.loadClass(PageModelStatics);
 
-  models.Page = con.model<PageDocument, IPageModel>('forum_pages', pageSchema);
+  models.Page = con.model<IPage, IPageModel>('forum_pages', pageSchema);
   // creating wildcard index on the schema doesn't work
   models.Page.collection.createIndex({ 'customIndexed.$**': 1 });
 };

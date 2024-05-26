@@ -4,7 +4,7 @@ import {
 } from './definitions/loanPurposeType';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { FilterQuery } from 'mongodb';
+import { FilterQuery } from 'mongoose';
 
 export interface IPurposeTypeModel extends Model<IPurposeTypeDocument> {}
 

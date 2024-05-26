@@ -23,7 +23,7 @@ const collateralQueries = {
     });
     return {
       list,
-      totalCount: models.CollateralTypes.find(filter).count()
+      totalCount: models.CollateralTypes.find(filter).countDocuments()
     };
   },
   collateralTypes: async (
