@@ -4,13 +4,13 @@ import { IModels } from '../connectionResolver';
 import {
   channelSchema,
   IChannel,
-  IChannelDocument
+  IChannelDocument,
 } from './definitions/channels';
 
 export interface IChannelModel extends Model<IChannelDocument> {
   getChannel(_id: string): Promise<IChannelDocument>;
-  createChannel(doc: IChannel, userId?: string): IChannelDocument;
-  updateChannel(_id: string, doc: IChannel): IChannelDocument;
+  createChannel(doc: IChannel, userId?: string): Promise<IChannelDocument>;
+  updateChannel(_id: string, doc: IChannel): Promise<IChannelDocument>;
   updateUserChannels(channelIds: string[], userId: string): IChannelDocument[];
   removeChannel(_id: string): void;
 }
@@ -38,7 +38,7 @@ export const loadClass = (models: IModels) => {
       return models.Channels.create({
         ...doc,
         createdAt: new Date(),
-        userId
+        userId,
       });
     }
 
@@ -46,7 +46,7 @@ export const loadClass = (models: IModels) => {
       await models.Channels.updateOne(
         { _id },
         { $set: doc },
-        { runValidators: true }
+        { runValidators: true },
       );
 
       return models.Channels.findOne({ _id });
@@ -54,20 +54,20 @@ export const loadClass = (models: IModels) => {
 
     public static async updateUserChannels(
       channelIds: string[],
-      userId: string
+      userId: string,
     ) {
       // remove from previous channels
       await models.Channels.updateMany(
         { memberIds: { $in: [userId] } },
         { $pull: { memberIds: userId } },
-        { multi: true }
+        { multi: true },
       );
 
       // add to given channels
       await models.Channels.updateMany(
         { _id: { $in: channelIds } },
         { $push: { memberIds: userId } },
-        { multi: true }
+        { multi: true },
       );
 
       return models.Channels.find({ _id: { $in: channelIds } });

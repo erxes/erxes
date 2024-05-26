@@ -4,8 +4,12 @@ import {
 } from './receiveMessage';
 
 import { generateModels, IModels } from './connectionResolver';
-import { paginate, sendMessage } from '@erxes/api-utils/src/core';
-import { MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
+import {
+  paginate,
+  sendMessage,
+  MessageArgs,
+  MessageArgsOmitService,
+} from '@erxes/api-utils/src/core';
 import { receiveVisitorDetail } from './widgetUtils';
 import { getIntegrationsKinds } from './utils';
 import { sendNotifications } from './graphql/resolvers/conversationMutations';

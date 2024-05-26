@@ -130,9 +130,7 @@ module.exports = {
               return false;
             }
 
-            if (!integration) {
-              return false;
-            }
+            if (!integration) return false;
 
             return true;
           },
