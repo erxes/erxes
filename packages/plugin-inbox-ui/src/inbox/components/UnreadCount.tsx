@@ -1,34 +1,32 @@
 import { __, setBadge } from "@erxes/ui/src/utils/core";
 
 import Label from "@erxes/ui/src/components/Label";
-import React from "react";
+import React, { useEffect } from "react";
 
 type Props = {
   unreadConversationsCount?: number;
 };
 
-class UnreadCount extends React.Component<Props> {
-  componentWillReceiveProps(nextProps: any) {
-    const unreadCount = nextProps.unreadConversationsCount;
+const UnreadCount = (props: Props) => {
+  useEffect(() => {
+    const unreadCount = props.unreadConversationsCount;
 
-    if (unreadCount !== this.props.unreadConversationsCount) {
-      setBadge(unreadCount, __("Team Inbox").toString());
+    if (unreadCount !== props.unreadConversationsCount) {
+      setBadge(unreadCount || 0, __("Team Inbox").toString());
     }
+  }, [props.unreadConversationsCount]);
+
+  const { unreadConversationsCount } = props;
+
+  if (unreadConversationsCount === 0) {
+    return null;
   }
 
-  render() {
-    const { unreadConversationsCount } = this.props;
-
-    if (unreadConversationsCount === 0) {
-      return null;
-    }
-
-    return (
-      <Label shake={true} lblStyle="danger" ignoreTrans={true}>
-        {unreadConversationsCount}
-      </Label>
-    );
-  }
-}
+  return (
+    <Label shake={true} lblStyle="danger" ignoreTrans={true}>
+      {unreadConversationsCount}
+    </Label>
+  );
+};
 
 export default UnreadCount;

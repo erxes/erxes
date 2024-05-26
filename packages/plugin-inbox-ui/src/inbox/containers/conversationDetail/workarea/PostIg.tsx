@@ -17,8 +17,6 @@ type FinalProps = {
   instagramPostQuery: any;
 } & Props;
 
-// instagramPostQuery
-// InstagramPostInfoContainer;
 class InstagramPostInfoContainer extends React.Component<FinalProps> {
   render() {
     const { instagramPostQuery } = this.props;

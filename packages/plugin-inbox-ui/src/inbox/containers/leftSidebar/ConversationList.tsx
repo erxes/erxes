@@ -4,16 +4,15 @@ import {
   ConversationsQueryResponse,
   ConvesationsQueryVariables,
   IConversation,
+  ConversationsTotalCountQueryResponse,
 } from "@erxes/ui-inbox/src/inbox/types";
 import {
-  getSubdomain,
   router as routerUtils,
   withProps,
 } from "@erxes/ui/src/utils";
 import { queries, subscriptions } from "@erxes/ui-inbox/src/inbox/graphql";
 
 import ConversationList from "../../components/leftSidebar/ConversationList";
-import { ConversationsTotalCountQueryResponse } from "@erxes/ui-inbox/src/inbox/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import { InboxManagementActionConsumer } from "../InboxCore";
 import React from "react";

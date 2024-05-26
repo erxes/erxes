@@ -10,12 +10,11 @@ import {
   refetchSidebarConversationsOptions,
   setConfig,
 } from "@erxes/ui-inbox/src/inbox/utils";
-import { mutations, queries } from "@erxes/ui-inbox/src/inbox/graphql";
+import { mutations } from "@erxes/ui-inbox/src/inbox/graphql";
 
 import { AppConsumer } from "coreui/appContext";
-import Bulk from "@erxes/ui/src/components/Bulk";
+import Bulk, { IBulkContentProps } from "@erxes/ui/src/components/Bulk";
 import DumbSidebar from "../../components/leftSidebar/Sidebar";
-import { IBulkContentProps } from "@erxes/ui/src/components/Bulk";
 import { InboxManagementActionConsumer } from "../InboxCore";
 import React from "react";
 import { gql } from "@apollo/client";

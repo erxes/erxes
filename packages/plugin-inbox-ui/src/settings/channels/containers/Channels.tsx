@@ -10,7 +10,7 @@ import DumbChannels from "../components/Channels";
 import Empty from "../components/Empty";
 import { IChannel } from "@erxes/ui-inbox/src/settings/channels/types";
 import { IntegrationsCountQueryResponse } from "@erxes/ui-inbox/src/settings/integrations/types";
-import React from "react";
+import React, { useEffect } from "react";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 import { queries } from "../graphql";
@@ -90,14 +90,14 @@ type withCurrentIdFinalProps = {
 } & withCurrentIdProps;
 
 // tslint:disable-next-line:max-classes-per-file
-class WithCurrentId extends React.Component<withCurrentIdFinalProps> {
-  componentWillReceiveProps(nextProps) {
+const WithCurrentId = (props: withCurrentIdFinalProps) => {
+  useEffect(() => {
     const {
       location,
       navigate,
-      lastChannelQuery = {},
+      lastChannelQuery = {} as any,
       queryParams: { _id },
-    } = nextProps;
+    } = props;
 
     const { channelsGetLast, loading } = lastChannelQuery;
 
@@ -109,25 +109,23 @@ class WithCurrentId extends React.Component<withCurrentIdFinalProps> {
         true
       );
     }
+  }, [props]);
+
+  const {
+    queryParams: { _id },
+  } = props;
+
+  if (!_id) {
+    return <Empty {...props} />;
   }
 
-  render() {
-    const {
-      queryParams: { _id },
-    } = this.props;
+  const updatedProps = {
+    ...props,
+    currentChannelId: _id,
+  };
 
-    if (!_id) {
-      return <Empty {...this.props} />;
-    }
-
-    const updatedProps = {
-      ...this.props,
-      currentChannelId: _id,
-    };
-
-    return <ChannelsContainer {...updatedProps} />;
-  }
-}
+  return <ChannelsContainer {...updatedProps} />;
+};
 
 const WithLastChannel = withProps<withCurrentIdProps>(
   compose(

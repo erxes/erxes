@@ -1,8 +1,8 @@
-import Button from '@erxes/ui/src/components/Button';
-import { CONVERSATION_STATUSES } from '../constants';
-import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
-import React from 'react';
-import { __ } from 'coreui/utils';
+import Button from "@erxes/ui/src/components/Button";
+import { CONVERSATION_STATUSES } from "../constants";
+import { IConversation } from "@erxes/ui-inbox/src/inbox/types";
+import React from "react";
+import { __ } from "coreui/utils";
 
 type Props = {
   conversations: IConversation[];
@@ -14,7 +14,7 @@ class Resolver extends React.Component<Props> {
 
     // call change status method
     changeStatus(
-      conversations.map(c => {
+      conversations.map((c) => {
         return c._id;
       }),
       status
@@ -23,15 +23,15 @@ class Resolver extends React.Component<Props> {
 
   render() {
     const hasClosedConversation = this.props.conversations.find(
-      conversation => conversation.status === CONVERSATION_STATUSES.CLOSED
+      (conversation) => conversation.status === CONVERSATION_STATUSES.CLOSED
     );
 
-    const buttonText = hasClosedConversation ? 'Open' : 'Resolve';
-    const icon = hasClosedConversation ? 'redo' : 'check-circle';
+    const buttonText = hasClosedConversation ? "Open" : "Resolve";
+    const icon = hasClosedConversation ? "redo" : "check-circle";
 
     const btnAttrs = {
-      size: 'small',
-      btnStyle: hasClosedConversation ? 'warning' : 'success',
+      size: "small",
+      btnStyle: hasClosedConversation ? "warning" : "success",
       icon,
       onClick: hasClosedConversation
         ? () => {
@@ -39,14 +39,10 @@ class Resolver extends React.Component<Props> {
           }
         : () => {
             this.changeStatus(CONVERSATION_STATUSES.CLOSED);
-          }
+          },
     };
 
-    return (
-      <>
-        <Button {...btnAttrs}>{__(buttonText)}</Button>
-      </>
-    );
+    return <Button {...btnAttrs}>{__(buttonText)}</Button>;
   }
 }
 

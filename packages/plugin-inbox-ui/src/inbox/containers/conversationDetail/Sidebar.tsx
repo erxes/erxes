@@ -5,10 +5,9 @@ import {
   PropertyProvider,
 } from "@erxes/ui-contacts/src/customers/propertyContext";
 
-import { CustomerDetailQueryResponse } from "@erxes/ui-contacts/src/customers/types";
+import { CustomerDetailQueryResponse, ICustomer } from "@erxes/ui-contacts/src/customers/types";
 import DumbSidebar from "../../components/conversationDetail/sidebar/Sidebar";
 import { IConversation } from "@erxes/ui-inbox/src/inbox/types";
-import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
 import { IField } from "@erxes/ui/src/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import React from "react";
@@ -95,8 +94,6 @@ class Sidebar extends React.Component<FinalProps, State> {
       .catch((error) => {
         console.log(error.message); // tslint:disable-line
       });
-
-    return;
   }
 
   toggleSection = (): void => {

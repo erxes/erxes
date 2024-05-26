@@ -136,7 +136,7 @@ function BuildSkill({
       const handleRemove = (e) => handleRemoveOption(index);
 
       return (
-        <Item key={index}>
+        <Item key={index + 11}>
           <FormGroup>
             <ControlLabel required={true}>Select a skill</ControlLabel>
             <Select

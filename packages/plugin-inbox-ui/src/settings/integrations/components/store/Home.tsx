@@ -43,10 +43,6 @@ class Home extends React.Component<Props, State> {
     };
   }
 
-  onSearch = e => {
-    this.setState({ searchValue: e.target.value.toLowerCase() });
-  };
-
   renderIntegrations() {
     const { integrations, searchValue } = this.state;
     const { totalCount, queryParams, customLink } = this.props;

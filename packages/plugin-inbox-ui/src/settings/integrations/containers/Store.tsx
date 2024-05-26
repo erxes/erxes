@@ -1,11 +1,10 @@
-import { getEnv, withProps } from "@erxes/ui/src/utils";
+import { getEnv } from "@erxes/ui/src/utils";
 
 import Home from "../components/store/Home";
 import React from "react";
 import Spinner from "@erxes/ui/src/components/Spinner";
-import { gql } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
 import { queries } from "@erxes/ui-inbox/src/settings/integrations/graphql";
-import { useQuery } from "@apollo/client";
 
 type Props = {
   queryParams: any;

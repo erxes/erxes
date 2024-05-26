@@ -1,4 +1,4 @@
-import { ActionButtons, SidebarListItem } from "@erxes/ui-settings/src/styles";
+import { ActionButtons, SidebarListItem, Header } from "@erxes/ui-settings/src/styles";
 import { FieldStyle, SidebarList } from "@erxes/ui/src/layout/styles";
 import {
   ISkillType,
@@ -7,7 +7,6 @@ import {
 
 import Button from "@erxes/ui/src/components/Button";
 import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
-import { Header } from "@erxes/ui-settings/src/styles";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import { Link } from "react-router-dom";

@@ -26,7 +26,6 @@ type Props = {
   ) => void;
   color: string;
   textColor: string;
-  logoPreviewUrl?: string;
   wallpaper: string;
 };
 

@@ -11,7 +11,7 @@ import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import strip from 'strip';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
-import { withProps, getSubdomain } from '@erxes/ui/src/utils';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   currentUser: IUser;
@@ -72,7 +72,7 @@ export default withProps<Props>(
           fetchPolicy: 'network-only',
           notifyOnNetworkStatusChange: true,
         }),
-        skip: !isEnabled('inbox') ? true : false,
+        skip: !isEnabled('inbox'),
       },
     ),
   )(withCurrentUser(UnreadCountContainer)),

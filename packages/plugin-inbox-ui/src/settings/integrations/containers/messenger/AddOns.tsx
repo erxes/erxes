@@ -1,4 +1,4 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
 import {
   ILeadMessengerApp,
@@ -6,18 +6,17 @@ import {
   ITopicMessengerApp,
   IWebsiteMessengerApp,
   IntegrationsQueryResponse,
-} from '@erxes/ui-inbox/src/settings/integrations/types';
-import { graphql, withApollo } from '@apollo/client/react/hoc';
+} from "@erxes/ui-inbox/src/settings/integrations/types";
+import { graphql, withApollo } from "@apollo/client/react/hoc";
 
-import AddOns from '../../components/messenger/steps/AddOns';
-import { ITopic } from '@erxes/ui-knowledgebase/src/types';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
-import { gql } from '@apollo/client';
-import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
-import { queries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
-import { withProps } from '@erxes/ui/src/utils';
+import AddOns from "../../components/messenger/steps/AddOns";
+import { ITopic, TopicsQueryResponse } from "@erxes/ui-knowledgebase/src/types";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { gql } from "@apollo/client";
+import { queries as kbQueries } from "@erxes/ui-knowledgebase/src/graphql";
+import { queries } from "@erxes/ui-inbox/src/settings/integrations/graphql";
+import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   selectedBrand?: string;
@@ -68,20 +67,20 @@ class KnowledgeBaseContainer extends React.Component<FinalProps> {
 export default withProps<FinalProps>(
   compose(
     graphql<Props, TopicsQueryResponse>(gql(kbQueries.knowledgeBaseTopics), {
-      name: 'knowledgeBaseTopicsQuery',
+      name: "knowledgeBaseTopicsQuery",
     }),
     graphql<{}>(gql(queries.integrationTotalCount), {
-      name: 'leadIntegrationsTotalCountQuery',
+      name: "leadIntegrationsTotalCountQuery",
     }),
     graphql<Props, IntegrationsQueryResponse>(gql(queries.integrations), {
-      name: 'leadIntegrationsQuery',
+      name: "leadIntegrationsQuery",
       options: () => ({
         variables: {
-          kind: 'lead',
+          kind: "lead",
           perPage: 20,
         },
       }),
     }),
-    withApollo,
-  )(KnowledgeBaseContainer),
+    withApollo
+  )(KnowledgeBaseContainer)
 );

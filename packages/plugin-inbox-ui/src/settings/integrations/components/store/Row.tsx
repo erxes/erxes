@@ -129,7 +129,7 @@ class Row extends React.Component<Props, State> {
           )}
         </IntegrationRow>
         <Collapse
-          show={this.state.isContentVisible && selected ? true : false}
+          show={this.state.isContentVisible && selected}
           unmount={true}
         >
           <CollapsibleContent>{this.renderList()}</CollapsibleContent>
