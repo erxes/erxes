@@ -33,14 +33,8 @@ module.exports = {
       {
         name: 'accountingsTrAll',
         description: 'Transaction ALL',
-        use: []
-      },
-      {
         
-      }
+      },
     ]
   },
-  other: {
-
-  }
 };
