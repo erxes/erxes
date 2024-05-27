@@ -62,7 +62,7 @@ export const loadMovementClass = (models: IModels) => {
       }
 
       await models.MovementItems.movementItemsEdit(_id, doc.items);
-      await models.Movements.update(
+      await models.Movements.updateOne(
         { _id },
         {
           $set: {
@@ -88,7 +88,7 @@ export const loadMovementClass = (models: IModels) => {
 
         await models.MovementItems.deleteMany({ movementId: { $in: ids } });
 
-        await models.Movements.remove({ _id: { $in: ids } });
+        await models.Movements.deleteMany({ _id: { $in: ids } });
       } catch (error) {
         throw new Error(error.message);
       }

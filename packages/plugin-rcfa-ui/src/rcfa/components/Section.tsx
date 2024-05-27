@@ -1,0 +1,363 @@
+import {
+  BarItems,
+  Box,
+  Button,
+  ControlLabel,
+  EmptyState,
+  FormControl,
+  FormGroup,
+  Icon,
+  ModalTrigger,
+  TabTitle,
+  Tabs,
+  __,
+  confirm
+} from '@erxes/ui/src/';
+import { LinkButton, ModalFooter } from '@erxes/ui/src/styles/main';
+import _loadsh from 'lodash';
+import React from 'react';
+import { IRCFA } from '../../../../plugin-rcfa-api/src/models/definitions/rcfa';
+import { CreateRootTask } from '../../common/CreateRootTask';
+import { StyledContent, TabAction, TriggerTabs } from '../../styles';
+import ResolverModal from './ResolverModal';
+
+interface IRCFAIssues extends IRCFA {
+  isEditing?: boolean;
+  issue: string;
+}
+
+type Props = {
+  issues: IRCFAIssues[];
+  detail: IRCFAIssues;
+  addIssue: (data, callback: () => void) => void;
+  editIssue: (_id: string, doc: any) => void;
+  removeIssue: (_id: string) => void;
+  closeIssue: (_id: string) => void;
+  createRootTask: (variables: any) => void;
+  mainTypeId: string;
+  mainType: string;
+};
+
+type State = {
+  issues: any[];
+  toShow: string[];
+};
+
+class RCFASection extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      issues: props.issues || [],
+      toShow: []
+    };
+  }
+
+  componentDidMount() {
+    if (
+      _loadsh.isEmpty(this.props.detail || {}) &&
+      !this.state?.issues?.length
+    ) {
+      this.setState({
+        issues: [{ issue: '', _id: Math.random(), isEditing: true }]
+      });
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (
+      JSON.stringify(prevProps.issues) !== JSON.stringify(this.props.issues)
+    ) {
+      this.setState({ issues: this.props.issues });
+    }
+  }
+
+  handleSave(
+    {
+      _id,
+      value,
+      parentId
+    }: {
+      _id?: string;
+      value: string;
+      parentId?: string;
+    },
+    callback: () => void
+  ) {
+    const { detail, editIssue, addIssue } = this.props;
+
+    if (!_loadsh.isEmpty(detail) && typeof _id === 'string') {
+      return editIssue(_id, { issue: value });
+    }
+
+    addIssue({ issue: value, parentId }, callback);
+  }
+
+  renderCreateActionForm({ issueId, selectedIssue }) {
+    const { mainType, mainTypeId } = this.props;
+
+    const trigger = (
+      <Button btnStyle="success">
+        {__(`Set Root a Cause (${selectedIssue?.actionIds?.length || 0})`)}
+      </Button>
+    );
+
+    const resolverContent = ({ closeModal }) => {
+      return (
+        <ResolverModal
+          mainType={mainType}
+          mainTypeId={mainTypeId}
+          issueId={issueId}
+          closeModal={closeModal}
+        />
+      );
+    };
+
+    return (
+      <ModalTrigger
+        title="Create action"
+        content={resolverContent}
+        trigger={trigger}
+      />
+    );
+  }
+
+  renderRootTaskForm(issue) {
+    const { createRootTask } = this.props;
+
+    return <CreateRootTask issue={issue} createRootTask={createRootTask} />;
+  }
+
+  renderTree(closeModal, level: number, issues, parentId?) {
+    level++;
+
+    const { toShow } = this.state;
+    const { closeIssue, editIssue } = this.props;
+    const issueIds = issues.map(issue => issue._id);
+    const selectedIssueId = toShow.find(id => issueIds.includes(id));
+    const selectedIssue = this.state.issues.find(
+      issue => issue._id === selectedIssueId
+    );
+
+    const handleAddIssue = () => {
+      this.setState({
+        issues: [
+          ...this.state.issues,
+          {
+            issue: '',
+            _id: Math.random(),
+            isEditing: true,
+            ...(parentId && { parentId })
+          }
+        ]
+      });
+    };
+
+    const selectTab = _id => {
+      const updatedToShow = toShow.filter(id => !issueIds.includes(id));
+
+      if (toShow.includes(_id)) {
+        return this.setState({ toShow: updatedToShow });
+      }
+
+      this.setState({ toShow: [...updatedToShow, _id] });
+    };
+    const onChangeIssue = (e, _id) => {
+      const { value } = e.currentTarget as HTMLInputElement;
+
+      const updateIssues = this.state.issues.map(issue =>
+        issue._id === _id ? { ...issue, issue: value } : issue
+      );
+
+      this.setState({ issues: updateIssues });
+    };
+
+    const handleSaveIssue = (e, _id, parentId) => {
+      if (e.key === 'Enter') {
+        const { value } = e.currentTarget as HTMLInputElement;
+        const updatedIssues = issues.map(issue =>
+          issue._id === _id ? { ...issue, isEditing: !issue.isEditing } : issue
+        );
+
+        this.handleSave({ _id, value, ...(parentId && { parentId }) }, () =>
+          this.setState({ issues: updatedIssues })
+        );
+      }
+    };
+
+    const handleDescription = e => {
+      if (e.key === 'Enter') {
+        const { value } = e.currentTarget as HTMLInputElement;
+
+        editIssue(selectedIssue._id, { description: value });
+      }
+    };
+
+    const handleRemoveIssue = _id => {
+      confirm().then(() => {
+        this.props.removeIssue(_id);
+      });
+    };
+
+    const handleAddRoot = () => {
+      this.setState({
+        issues: [
+          ...this.state.issues,
+          {
+            issue: '',
+            _id: Math.random(),
+            isEditing: true,
+            parentId: selectedIssueId
+          }
+        ]
+      });
+    };
+
+    return (
+      <>
+        <TriggerTabs>
+          <Tabs full>
+            {(issues || []).map(issue => {
+              if (issue.isEditing) {
+                return (
+                  <FormControl
+                    type="text"
+                    value={issue?.issue}
+                    onChange={e => onChangeIssue(e, issue._id)}
+                    onKeyPress={e =>
+                      handleSaveIssue(e, issue._id, issue.parentId)
+                    }
+                  />
+                );
+              }
+
+              return (
+                <TabTitle
+                  key={issue._id}
+                  onClick={selectTab.bind(this, issue._id)}
+                  className={toShow.includes(issue._id) ? 'active' : ''}
+                >
+                  {issue.issue}
+                  <TabAction onClick={handleRemoveIssue.bind(this, issue._id)}>
+                    <Icon icon="times-circle" />
+                  </TabAction>
+                </TabTitle>
+              );
+            })}
+            {selectedIssue?.status === 'inProgress' && (
+              <Button
+                style={{ marginLeft: 'auto' }}
+                btnStyle="link"
+                icon="focus-add"
+                onClick={handleAddIssue}
+              />
+            )}
+          </Tabs>
+        </TriggerTabs>
+        {toShow.some(id => issueIds.includes(id)) && (
+          <>
+            <StyledContent>
+              <FormGroup>
+                <ControlLabel>{'Desciption'}</ControlLabel>
+                <FormControl
+                  componentClass="textarea"
+                  defaultValue={selectedIssue?.description}
+                  onKeyPress={handleDescription}
+                  disabled={selectedIssue.status !== 'inProgress'}
+                />
+              </FormGroup>
+              <ModalFooter style={{ paddingBottom: '20px' }}>
+                {selectedIssue?.status === 'inProgress' && (
+                  <>
+                    <Button
+                      btnStyle="danger"
+                      onClick={closeIssue.bind(this, selectedIssue._id)}
+                    >
+                      {__('Close this root')}
+                    </Button>
+                    {this.renderRootTaskForm(selectedIssue)}
+                    {this.renderCreateActionForm({
+                      issueId: selectedIssue._id,
+                      selectedIssue
+                    })}
+                  </>
+                )}
+              </ModalFooter>
+            </StyledContent>
+            {this.state.issues.find(issue => issue.parentId === selectedIssueId)
+              ? level < 5 &&
+                this.renderTree(
+                  closeModal,
+                  level,
+                  this.state.issues.filter(
+                    issue => issue.parentId === selectedIssueId
+                  ),
+                  selectedIssueId
+                )
+              : selectedIssue.status == 'inProgress' && (
+                  <LinkButton onClick={handleAddRoot}>
+                    {__('Add root')}
+                  </LinkButton>
+                )}
+          </>
+        )}
+      </>
+    );
+  }
+
+  renderContent() {
+    const { issues } = this.state;
+    const { detail } = this.props;
+
+    let icon = 'plus-circle';
+
+    if (!_loadsh.isEmpty(detail)) {
+      icon = 'edit-alt';
+    }
+
+    const trigger = (
+      <Button btnStyle="simple">
+        <Icon icon={icon} />
+      </Button>
+    );
+
+    const content = ({ closeModal }) => {
+      return this.renderTree(
+        closeModal,
+        0,
+        issues.filter(issue => !issue.parentId),
+        null
+      );
+    };
+
+    return (
+      <ModalTrigger
+        title="RCFA"
+        size="xl"
+        trigger={trigger}
+        content={content}
+      />
+    );
+  }
+
+  render() {
+    const { detail } = this.props;
+    const { issues } = this.props;
+
+    const extraButtons = <BarItems>{this.renderContent()}</BarItems>;
+
+    return (
+      <Box title="RCFA" name="name" extraButtons={extraButtons} isOpen>
+        <StyledContent>
+          {!_loadsh.isEmpty(detail || {}) && issues.length > 0 ? (
+            <p>{issues[issues?.length - 1]?.issue}</p>
+          ) : (
+            <EmptyState icon="info-circle" text="There has no rcfa issues" />
+          )}
+        </StyledContent>
+      </Box>
+    );
+  }
+}
+
+export default RCFASection;

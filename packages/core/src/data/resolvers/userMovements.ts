@@ -2,7 +2,7 @@ import { IUserMovementDocument } from '../../db/models/definitions/users';
 import { IContext } from '../../connectionResolver';
 
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
+  async __resolveReference({ _id }, { models }: IContext) {
     return models.UserMovements.findOne({ _id });
   },
 

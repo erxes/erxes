@@ -13,11 +13,11 @@ import {
 } from '../../models/utils/utils';
 
 const Contracts = {
-  contractType(contract: IContract, _, { models }: IContext) {
+  async contractType(contract: IContract, _, { models }: IContext) {
     return models.ContractTypes.findOne({ _id: contract.contractTypeId });
   },
 
-  relationExpert(contract: IContract, _, { subdomain }: IContext) {
+  async relationExpert(contract: IContract, _, { subdomain }: IContext) {
     if (!contract.relationExpertId) return null;
 
     return sendCoreMessage({
@@ -28,7 +28,7 @@ const Contracts = {
     });
   },
 
-  leasingExpert(contract: IContract, _, { subdomain }: IContext) {
+  async leasingExpert(contract: IContract, _, { subdomain }: IContext) {
     if (!contract.leasingExpertId) return null;
 
     return sendCoreMessage({
@@ -39,7 +39,7 @@ const Contracts = {
     });
   },
 
-  riskExpert(contract: IContract, _, { subdomain }: IContext) {
+  async riskExpert(contract: IContract, _, { subdomain }: IContext) {
     if (!contract.riskExpertId) return null;
 
     return sendCoreMessage({
@@ -192,7 +192,7 @@ const Contracts = {
     return currentSchedule;
   },
 
-  relContract(contract: IContractDocument, _, { models }: IContext) {
+  async relContract(contract: IContractDocument, _, { models }: IContext) {
     if (!contract.relContractId) {
       return;
     }
@@ -231,7 +231,7 @@ const Contracts = {
       payDate: { $lte: today }
     }).lean();
 
-    return schedules.reduce((a, b) => a + b.didPayment, 0) || 0;
+    return schedules.reduce((a, b) => a + (b.didPayment || 0), 0) || 0;
   },
 
   async nextPayment(

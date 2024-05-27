@@ -146,7 +146,6 @@ const customFieldSchema = new Schema(
         type: [Number],
         optional: true,
       },
-      required: false,
     },
   },
   { _id: false }

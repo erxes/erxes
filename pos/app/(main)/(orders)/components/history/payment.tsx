@@ -1,4 +1,5 @@
-import useConfig from "@/modules/auth/hooks/useConfig"
+import { paymentTypesAtom } from "@/store/config.store"
+import { useAtomValue } from "jotai"
 
 import { CardTitle } from "@/components/ui/card"
 import {
@@ -28,10 +29,7 @@ const Payment = ({
     info: any
   }[]
 }) => {
-  const { loading, config } = useConfig("cover")
-  const { paymentTypes } = config
-
-  if (loading) return null
+  const paymentTypes = useAtomValue(paymentTypesAtom)
 
   return (
     <div>
@@ -64,22 +62,20 @@ const Payment = ({
               </TableCell>
               <TableCell />
             </TableRow>
-            {(paymentTypes || []).map(
-              (type: { _id: string; title: string; type: string }) => {
-                const pa = paidAmounts.find((pt) => pt.type === type.type)
-                return (
-                  <TableRow className="border-b" key={type._id}>
-                    <TableCell className="h-8">{type.title}</TableCell>
-                    <TableCell className="h-8">
-                      {(pa?.amount || 0).toLocaleString()}
-                    </TableCell>
-                    <TableCell className="h-8">
-                      {!!pa?.info ? <div /> : "-"}
-                    </TableCell>
-                  </TableRow>
-                )
-              }
-            )}
+            {(paymentTypes || []).map((type) => {
+              const pa = paidAmounts.find((pt) => pt.type === type.type)
+              return (
+                <TableRow className="border-b" key={type._id}>
+                  <TableCell className="h-8">{type.title}</TableCell>
+                  <TableCell className="h-8">
+                    {(pa?.amount || 0).toLocaleString()}
+                  </TableCell>
+                  <TableCell className="h-8">
+                    {!!pa?.info ? <div /> : "-"}
+                  </TableCell>
+                </TableRow>
+              )
+            })}
           </TableBody>
         </Table>
       </div>

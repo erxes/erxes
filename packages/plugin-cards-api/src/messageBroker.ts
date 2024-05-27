@@ -347,7 +347,7 @@ export const setupMessageConsumers = async () => {
 
       return {
         status: 'success',
-        data: await models.Boards.find(selector).count(),
+        data: await models.Boards.find(selector).countDocuments(),
       };
     },
   );
@@ -359,7 +359,7 @@ export const setupMessageConsumers = async () => {
 
       return {
         status: 'success',
-        data: await models.GrowthHacks.count(selector),
+        data: await models.GrowthHacks.countDocuments(selector),
       };
     },
   );
@@ -434,7 +434,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: 'success',
-      data: await models.Deals.find(data).count(),
+      data: await models.Deals.find(data).countDocuments(),
     };
   });
 
@@ -443,7 +443,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: 'success',
-      data: await models.Purchases.find(data).count(),
+      data: await models.Purchases.find(data).countDocuments(),
     };
   });
 

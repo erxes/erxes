@@ -67,7 +67,7 @@ const insuranceTypeQueries = {
           perPage: params.perPage
         }
       ),
-      totalCount: models.InsuranceTypes.find(filter).count()
+      totalCount: models.InsuranceTypes.find(filter).countDocuments()
     };
   },
 

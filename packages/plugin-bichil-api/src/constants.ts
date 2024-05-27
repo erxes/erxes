@@ -1,0 +1,91 @@
+export const PRELIMINARY_REPORT_COLUMNS = [
+  '№',
+  'Овог Нэр',
+  'Ажилтаны код',
+  'Албан тушаал',
+  'Ажиллавал зохих хоног',
+  'Ажилласан хоног',
+  'Тайлбар'
+];
+export const FINAL_REPORT_COLUMNS = (parentBranchesCount?: number) => {
+  const returnArray: any[] = [[[''], ['Д/Д']]];
+
+  if (parentBranchesCount) {
+    returnArray.push([[''], ['Толгой салбар']]);
+  }
+
+  returnArray.push(
+    [[''], ['Салбар']],
+    [
+      ['Хүнтэй холбоотой мэдээлэл'],
+      ['Овог нэр', 'Ажилтаны код', 'Албан тушаал']
+    ],
+    [[''], ['Ажилвал зохих цаг']],
+    [[''], ['Ажилласан цаг ']],
+    [['Хүсэлт'], ['Ээлжийн амралт', 'Чөлөөтэй цаг', 'Өвчтэй']],
+    [[''], ['Ажлаас гарсан, дикрит авсан ']],
+    [['Нэмэгдэл'], ['Цалинтай', 'Захирал нэрэмжит']],
+    [
+      ['Суутгал'],
+      [
+        'Бүртгэл дутуу',
+        'Б/Д мөнгө',
+        'Үр дүн хасалт',
+        'Тасалсан өдөр',
+        'Торгууль',
+        'Үр дүн хасалт',
+        'Суутгал нэгдсэн'
+      ]
+    ],
+
+    [[''], ['Тайлбар']]
+  );
+  return returnArray;
+};
+
+export const PIVOT_REPORT_COLUMNS = [
+  [
+    ['Хүнтэй холбоотой мэдээлэл'],
+    ['№', 'Ажилтаны код', 'Овог Нэр', 'Албан тушаал']
+  ],
+  [['Хугацаа'], ['Өдөр']],
+  [['Төлөвлөгөө'], ['Эхлэх', 'Дуусах', 'Нийт төлөвлөсөн']],
+  [
+    ['Performance'],
+    [
+      'Check In',
+      'In Device',
+      'Check Out',
+      'Out Device',
+      'Байршил',
+      'Нийт ажилласан',
+      'Илүү цаг',
+      'Шөнийн цаг',
+      'Хоцролт'
+    ]
+  ]
+];
+
+export const TIMECLOCK_EXPORT_COLUMNS = [
+  [[''], ['Д/Д']],
+  [[''], ['Овог нэр']],
+  [[''], ['Ажилтаны код']]
+];
+
+export const SALARY_FIELDS = [
+  'employeeId',
+  'totalWorkHours',
+  'totalWorkedHours',
+  'mainSalary',
+  'adequateSalary',
+  'vacation',
+  'totalAddition',
+  'kpi',
+  'otherAddition',
+  'mainDeduction',
+  'ndsh',
+  'hhoat',
+  'otherDeduction',
+  'preliminarySalary',
+  'endSalary'
+];

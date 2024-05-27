@@ -1,10 +1,10 @@
-import { Document, Schema, Model, Connection } from 'mongoose';
+import { Document, Schema, Model, Connection, HydratedDocument, Types } from 'mongoose';
 import { sendClientPortalMessage } from '../../messageBroker';
 import { IModels } from './index';
 import { notifyFollowedYou } from './utils';
 
 export interface IFollowCpUser {
-  _id: any;
+  _id: Types.ObjectId;
   followeeId: string;
   followerId: string;
 }
@@ -16,9 +16,9 @@ export type FollowCpUserInput = Omit<
   typeof OMIT_FROM_INPUT[number]
 >;
 
-export type FollowCpUserDocument = IFollowCpUser & Document;
+export type FollowCpUserDocument = HydratedDocument<IFollowCpUser>;
 
-export interface IFollowCpUserModel extends Model<FollowCpUserDocument> {
+export interface IFollowCpUserModel extends Model<IFollowCpUser> {
   follow(followeeId: string, followerId: string): Promise<boolean>;
   unfollow(followeeId: string, followerId: string): Promise<boolean>;
   getFollowerIds(
@@ -27,7 +27,7 @@ export interface IFollowCpUserModel extends Model<FollowCpUserDocument> {
   ): Promise<string[]>;
 }
 
-export const followCpUserSchema = new Schema<FollowCpUserDocument>({
+export const followCpUserSchema = new Schema<IFollowCpUser>({
   followeeId: { type: String, required: true },
   followerId: { type: String, required: true }
 });
@@ -54,7 +54,9 @@ export const generateFollowCpUserModel = (
         upsert: true
       });
 
-      if (result.upserted?.length) {
+      result.upsertedCount
+
+      if (result.upsertedCount) {
         await notifyFollowedYou(subdomain, models, followeeId, followerId);
       }
       return true;
@@ -82,7 +84,7 @@ export const generateFollowCpUserModel = (
   }
   followCpUserSchema.loadClass(FollowCpUserModel);
 
-  models.FollowCpUser = con.model<FollowCpUserDocument, IFollowCpUserModel>(
+  models.FollowCpUser = con.model<IFollowCpUser, IFollowCpUserModel>(
     'forum_follow_cp_users',
     followCpUserSchema
   );

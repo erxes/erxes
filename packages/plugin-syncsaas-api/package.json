@@ -1,0 +1,12 @@
+{
+  "name": "@erxes/plugin-syncsaas-api",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "nodemon src/index.ts",
+    "build" : "tsc"
+  },
+  "dependencies": {
+    "@erxes/api-utils" : "*",
+    "firebase-admin": "^8.6.1"
+  }
+}

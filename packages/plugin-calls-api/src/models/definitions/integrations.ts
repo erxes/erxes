@@ -1,7 +1,7 @@
 import { Schema, Document } from 'mongoose';
 import { field } from './utils';
 
-interface Operator {
+export interface Operator {
   userId: string;
   gsUsername: string;
   gsPassword: string;
@@ -23,5 +23,5 @@ export const integrationSchema = new Schema({
   wsServer: field({ type: String, label: 'web socket server' }),
   phone: field({ type: String, label: 'phone number', unique: true }),
   operators: field({ type: Object, label: 'Operator maps' }),
-  token: field({ type: String, label: 'token' })
+  token: field({ type: String, label: 'token' }),
 });

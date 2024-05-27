@@ -1,0 +1,16 @@
+{
+  "name": "@erxes/plugin-tumentech-api",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "nodemon src/index.ts",
+    "build" : "tsc"
+  },
+  "dependencies": {
+    "@erxes/api-utils" : "*",
+    "googleapis": "^113.0.0",
+    "jsonwebtoken": "^8.5.1"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^8.5.6"
+  }
+}

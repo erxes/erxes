@@ -88,7 +88,7 @@ const invoiceQueries = {
         page: params.page,
         perPage: params.perPage
       }),
-      totalCount: models.Invoices.find(filter).count()
+      totalCount: models.Invoices.find(filter).countDocuments()
     };
   },
 

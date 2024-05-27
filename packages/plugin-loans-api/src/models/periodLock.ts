@@ -5,7 +5,7 @@ import {
 } from './definitions/periodLocks';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { FilterQuery } from 'mongodb';
+import { FilterQuery } from 'mongoose';
 import { sendMessageBroker } from '../messageBroker';
 import { IStoredInterestDocument } from './definitions/storedInterest';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';

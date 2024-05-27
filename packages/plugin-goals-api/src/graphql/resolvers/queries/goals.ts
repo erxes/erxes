@@ -73,7 +73,7 @@ const goalQueries = {
         page: params.page,
         perPage: params.perPage,
       }),
-      totalCount: models.Goals.find(filter).count(),
+      totalCount: models.Goals.find(filter).countDocuments(),
     };
   },
 

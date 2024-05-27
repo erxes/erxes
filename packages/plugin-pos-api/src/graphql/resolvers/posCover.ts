@@ -3,7 +3,7 @@ import { sendCoreMessage } from '../../messageBroker';
 import { ICover } from '../../models/definitions/covers';
 
 export default {
-  user(cover: ICover, {}, { subdomain }: IContext) {
+  async user(cover: ICover, {}, { subdomain }: IContext) {
     if (!cover.userId) {
       return null;
     }
@@ -15,7 +15,7 @@ export default {
     });
   },
 
-  createdUser(cover: ICover, {}, { subdomain }: IContext) {
+  async createdUser(cover: ICover, {}, { subdomain }: IContext) {
     if (!cover.createdBy) {
       return null;
     }
@@ -27,7 +27,7 @@ export default {
     });
   },
 
-  modifiedUser(cover: ICover, {}, { subdomain }: IContext) {
+  async modifiedUser(cover: ICover, {}, { subdomain }: IContext) {
     if (!cover.modifiedBy) {
       return null;
     }

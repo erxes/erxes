@@ -435,11 +435,11 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
         );
       }
 
-      const indicators = await models.RiskIndicators.find({
+      const indicators: any[] = await models.RiskIndicators.find({
         _id: { $in: RAIndicatorIds }
       }).lean();
 
-      for (const indicator of indicators) {
+      for (const indicator  of indicators) {
         const submitted = await models.RiskFormSubmissions.findOne({
           assessmentId: riskAssessment._id,
           indicatorId: indicator._id,
@@ -573,10 +573,14 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
         const groupAssessments: any[] = [];
 
         for (const group of indicatorsGroup?.groups || []) {
-          const groupAssessment = await models.RiskAssessmentGroups.findOne({
+          const groupAssessment: any = await models.RiskAssessmentGroups.findOne({
             assessmentId: riskAssessment._id,
             groupId: group._id
           }).lean();
+
+          if(!groupAssessment) {
+            throw new Error(`RiskAssessmentGroup not found`);
+          }
 
           const indicatorsAssessments = await models.RiskAssessmentIndicators.find(
             {
@@ -601,15 +605,20 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
             });
             indicatorAssessment.submissions = submissions;
           }
+      
           groupAssessment.indicatorsAssessments = indicatorsAssessments;
           groupAssessments.push(groupAssessment);
         }
         assessment.groupAssessment = groupAssessments;
       }
       if (indicatorId) {
-        const indicatorAssessment = await models.RiskAssessmentIndicators.findOne(
+        const indicatorAssessment: any = await models.RiskAssessmentIndicators.findOne(
           { assessmentId: riskAssessment._id, indicatorId }
         ).lean();
+
+        if(!indicatorAssessment) {
+          throw new Error(`RiskAssessmentIndicator not found`);
+        }
 
         indicatorAssessment.submissions = await getIndicatorSubmissions({
           models,
@@ -650,23 +659,23 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
           indicatorIds = [...indicatorIds, ...group.indicatorIds];
         }
 
-        const result = await models.RiskFormSubmissions.aggregate([
-          {
-            $match: {
-              cardId,
-              cardType,
-              assessmentId: riskAssessmentId,
-              indicatorId: { $in: indicatorIds }
-            }
-          },
-          {
-            $group: {
-              indicatorId: '$indicatorId',
-              fields: { $push: '$$ROOT' },
-              count: { $sum: 1 }
-            }
-          }
-        ]);
+        // const result = await models.RiskFormSubmissions.aggregate([
+        //   {
+        //     $match: {
+        //       cardId,
+        //       cardType,
+        //       assessmentId: riskAssessmentId,
+        //       indicatorId: { $in: indicatorIds }
+        //     }
+        //   },
+        //   {
+        //     $group: {
+        //       indicatorId: '$indicatorId',
+        //       fields: { $push: '$$ROOT' },
+        //       count: { $sum: 1 }
+        //     }
+        //   }
+        // ]);
         return;
       }
     }
