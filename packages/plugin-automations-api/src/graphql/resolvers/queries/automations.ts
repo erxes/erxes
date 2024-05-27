@@ -70,7 +70,7 @@ const automationQueries = {
 
     const filter = generateFilter(params);
 
-    const automations = paginate(
+    const automations = await paginate(
       models.Automations.find(filter).sort({ createdAt: -1 }).lean(),
       { perPage, page },
     );
@@ -110,7 +110,11 @@ const automationQueries = {
   /**
    * Automations history list
    */
-  async automationHistories(_root, params: IHistoriesParams, { models }: IContext) {
+  async automationHistories(
+    _root,
+    params: IHistoriesParams,
+    { models }: IContext,
+  ) {
     const {
       page,
       perPage,
