@@ -1,5 +1,5 @@
 import { Alert, confirm } from "@erxes/ui/src/utils";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { mutations, queries } from "../graphql";
 
@@ -13,9 +13,10 @@ type Props = {
 
 const HistoryContainer = (props: Props) => {
   const [searchValue, setSearchValue] = useState("");
+  const [loadingHistories, setLoadingHistories] = useState(true);
+
   const navigate = useNavigate();
 
-  let histories;
   const { changeMainTab, callUserIntegrations } = props;
   const defaultCallIntegration = localStorage.getItem(
     "config:call_integrations"
@@ -25,18 +26,53 @@ const HistoryContainer = (props: Props) => {
     JSON.parse(defaultCallIntegration || "{}")?.inboxId ||
     callUserIntegrations?.[0]?.inboxId;
 
-  const { data, loading, error, refetch } = useQuery(
+  const { data, loading, error, refetch, fetchMore } = useQuery(
     gql(queries.callHistories),
     {
       variables: {
         integrationId: inboxId,
+        searchValue,
+        limit: 5,
       },
       fetchPolicy: "network-only",
     }
   );
+
+  const histories = data?.callHistories || [];
+
   const [removeHistory] = useMutation(gql(mutations.callHistoryRemove), {
     refetchQueries: ["CallHistories"],
   });
+
+  const onLoadMore = (skip: number) => {
+    return fetchMore({
+      variables: {
+        limit: 5,
+        skip,
+      },
+      updateQuery: (prevResult, { fetchMoreResult }) => {
+        if (!fetchMoreResult || fetchMoreResult.callHistories.length === 0) {
+          return prevResult;
+        }
+
+        const prevHistories = prevResult.callHistories || [];
+        const prevHistoriesIds = prevHistories.map((t: any) => t._id);
+
+        const fetchedHistories: any[] = [];
+
+        for (const t of fetchMoreResult.callHistories) {
+          if (!prevHistoriesIds.includes(t._id)) {
+            fetchedHistories.push(t);
+          }
+        }
+
+        return {
+          ...prevResult,
+          callHistories: [...prevHistories, ...fetchedHistories],
+        };
+      },
+    });
+  };
 
   if (error) {
     Alert.error(error.message);
@@ -61,7 +97,6 @@ const HistoryContainer = (props: Props) => {
         })
     );
   };
-  histories = data?.callHistories;
 
   return (
     <History
@@ -73,6 +108,8 @@ const HistoryContainer = (props: Props) => {
       onSearch={onSearch}
       searchValue={searchValue}
       navigate={navigate}
+      onLoadMore={onLoadMore}
+      totalCount={histories.length || 0}
     />
   );
 };
