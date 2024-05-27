@@ -100,7 +100,7 @@ function AccountForm(props: IProps): React.ReactNode {
               options: [
                 { label: 'main', value: 'main' },
                 { label: 'cash', value: 'cash' },
-                { label: 'bank', value: 'bank' },
+                { label: 'fund', value: 'fund' },
                 { label: 'debt', value: 'debt' },
                 { label: 'inventory', value: 'inventory' },
                 { label: 'fixedAsset', value: 'fixedAsset' },

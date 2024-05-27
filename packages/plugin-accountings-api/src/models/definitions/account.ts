@@ -1,7 +1,7 @@
 import { Schema, Document } from 'mongoose';
 
 import { field, schemaWrapper } from './utils';
-import { ACCOUNT_KINDS, ACCOUNT_STATUSES } from './constants';
+import { ACCOUNT_JOURNALS, ACCOUNT_KINDS, ACCOUNT_STATUSES } from './constants';
 
 export interface IAccount {
   code: string;
@@ -41,8 +41,8 @@ export const accountSchema = schemaWrapper(
     }),
     journal: field({
       type: String,
-      enum: ACCOUNT_KINDS.ALL,
-      default: ACCOUNT_KINDS.ACTIVE,
+      enum: ACCOUNT_JOURNALS.ALL,
+      default: ACCOUNT_JOURNALS.MAIN,
       label: 'KIND',
     }),
     description: field({ type: String, optional: true, label: 'Description' }),

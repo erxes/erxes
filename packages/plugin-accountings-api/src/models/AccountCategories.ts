@@ -58,11 +58,8 @@ export const loadAccountCategoryClass = (models: IModels) => {
         _id: doc.parentId,
       }).lean();
 
-      if (parentCategory) {
-        // Generatingg order
-        doc.order = await this.generateOrder(parentCategory, doc);
-      }
-
+      // Generating order
+      doc.order = await this.generateOrder(doc, parentCategory);
 
       return models.AccountCategories.create({ ...doc, createdAt: new Date() });
     }
@@ -90,10 +87,8 @@ export const loadAccountCategoryClass = (models: IModels) => {
         throw new Error('Cannot change category');
       }
 
-      if (parentCategory) {
-        // Generatingg  order
-        doc.order = await this.generateOrder(parentCategory, doc);
-      }
+      // Generating order
+      doc.order = await this.generateOrder(doc, parentCategory);
 
       const childCategories = await models.AccountCategories.find({
         $and: [
@@ -142,8 +137,8 @@ export const loadAccountCategoryClass = (models: IModels) => {
      * Generating order
      */
     public static async generateOrder(
-      parentCategory: IAccountCategory,
       doc: IAccountCategory,
+      parentCategory?: IAccountCategory | null | undefined,
     ) {
       const order = parentCategory
         ? `${parentCategory.order}${doc.code}/`
