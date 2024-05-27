@@ -31,9 +31,9 @@ export const setupMessageConsumers = async () => {
       return {
         data: regData
           ? await models.AccountCategories.find({
-              ...query,
-              order: { $regex: new RegExp(regData) },
-            }).sort(sort)
+            ...query,
+            order: { $regex: new RegExp(regData) },
+          }).sort(sort)
           : await models.AccountCategories.find(query).sort(sort).lean(),
         status: 'success',
       };
@@ -168,11 +168,14 @@ export const setupMessageConsumers = async () => {
         const category = await models.AccountCategories.findOne({
           _id: categoryId,
         }).lean();
-        const categories = await models.AccountCategories.find({
-          order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) },
-        }).lean();
 
-        query.categoryId = { $in: categories.map((c) => c._id) };
+        if (category) {
+          const categories = await models.AccountCategories.find({
+            order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) },
+          }).lean();
+          query.categoryId = { $in: categories.map((c) => c._id) };
+        }
+
       }
 
       return {
@@ -196,15 +199,17 @@ export const setupMessageConsumers = async () => {
         const category = await models.AccountCategories.findOne({
           _id: categoryId,
         }).lean();
-        const categories = await models.AccountCategories.find({
-          order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) },
-        }).lean();
+        if (category) {
+          const categories = await models.AccountCategories.find({
+            order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) },
+          }).lean();
 
-        filter.categoryId = { $in: categories.map((c) => c._id) };
+          filter.categoryId = { $in: categories.map((c) => c._id) };
+        }
       }
 
       return {
-        data: await models.Accounts.find(filter).count(),
+        data: await models.Accounts.find(filter).countDocuments(),
         status: 'success',
       };
     },

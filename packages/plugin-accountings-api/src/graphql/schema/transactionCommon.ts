@@ -1,5 +1,5 @@
 export const types = () => `
-  type FollowTrType @key(fields: "_id") @cacheControl(maxAge: 3) {
+  type FollowTrType {
     type: String
     id: String
   }
@@ -97,27 +97,27 @@ const taxParams = `
 
 
 const trsQueryParams = `
-  ids?: [String],
-  excludeIds?: Boolean,
-  status?: String,
-  searchValue?: String,
-  number?: String,
+  ids: [String],
+  excludeIds: Boolean,
+  status: String,
+  searchValue: String,
+  number: String,
 
-  accountIds?: [String],
+  accountIds: [String],
   accountType: String,
-  accountExcludeIds?: Boolean,
-  accountStatus?: String,
-  accountCategoryId?: String,
-  accountSearchValue?: String,
-  accountBrand?: String,
-  accountIsOutBalance?: Boolean,
+  accountExcludeIds: Boolean,
+  accountStatus: String,
+  accountCategoryId: String,
+  accountSearchValue: String,
+  accountBrand: String,
+  accountIsOutBalance: Boolean,
   accountBranchId: String,
   accountDepartmentId: String,
   accountCurrency: String,
   accountJournal: String,
 
-  brandId?: String,
-  isOutBalance?: Boolean,
+  brandId: String,
+  isOutBalance: Boolean,
   branchId: String,
   departmentId: String,
   currency: String,

@@ -16,11 +16,13 @@ export const checkValidationCurrency = async (models: IModels, doc: ISingleTrInp
     throw new Error('must fill Currency Amount')
   }
 
-  const spotRate = await models.ExchangeRates.findOne({ date: doc.date, mainCurrency, rateCurrency: account.currency }).lean();
+  const spotRateObj = await models.ExchangeRates.findOne({ date: doc.date, mainCurrency, rateCurrency: account.currency }).lean();
 
-  if (!spotRate?.rate) {
+  if (!spotRateObj?.rate) {
     throw new Error('not found spot rate')
   }
+  const spotRate = spotRateObj.rate;
+
   if (doc.customRate && spotRate !== doc.customRate && !doc.currencyDiffAccountId) {
     throw new Error('not found spot rate')
   }
@@ -63,7 +65,7 @@ export const doCurrencyTr = async (models: IModels, transaction: ITransactionDoc
 
   if (!currencyDoc) {
     if (oldFollowInfo) {
-      await models.Transactions.updateOne(transaction._id, {
+      await models.Transactions.updateOne({ _id: transaction._id }, {
         $pull: {
           follows: { ...oldFollowInfo }
         }
@@ -79,12 +81,12 @@ export const doCurrencyTr = async (models: IModels, transaction: ITransactionDoc
 
     } else {
       const currencyTr = await models.Transactions.createTransaction({ ...currencyDoc, originId: transaction._id });
-      await models.Transactions.updateOne(transaction._id, {
+      await models.Transactions.updateOne({ _id: transaction._id }, {
         $pull: {
           follows: { ...oldFollowInfo }
         }
       })
-      await models.Transactions.updateOne(transaction._id, {
+      await models.Transactions.updateOne({ _id: transaction._id }, {
         $addToSet: {
           follows: {
             type: 'currencyDiff',
@@ -96,7 +98,7 @@ export const doCurrencyTr = async (models: IModels, transaction: ITransactionDoc
 
   } else {
     const currencyTr = await models.Transactions.createTransaction({ ...currencyDoc, originId: transaction._id });
-    await models.Transactions.updateOne(transaction._id, {
+    await models.Transactions.updateOne({ _id: transaction._id }, {
       $addToSet: {
         follows: [{
           type: 'currencyDiff',

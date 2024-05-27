@@ -198,7 +198,7 @@ const accountQueries = {
       user,
     );
 
-    return models.Accounts.find(filter).count();
+    return models.Accounts.find(filter).countDocuments();
   },
 
   accountDetail(_root, { _id }: { _id: string }, { models }: IContext) {
