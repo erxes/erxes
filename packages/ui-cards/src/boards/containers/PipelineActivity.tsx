@@ -111,7 +111,7 @@ export default withProps<Props>(
             action: queryParams.action,
           },
         }),
-        skip: !isEnabled("logs") ? true : false,
+        skip: !isEnabled("logs"),
       }
     ),
     graphql<Props>(gql(queries.internalNotesByAction), {
@@ -121,7 +121,7 @@ export default withProps<Props>(
           ...commonParams(queryParams, options),
         },
       }),
-      skip: !isEnabled("internalnotes") ? true : false,
+      skip: !isEnabled("internalnotes"),
     })
   )(ActivityList)
 );
