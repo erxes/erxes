@@ -97,16 +97,32 @@ const taxParams = `
 
 
 const trsQueryParams = `
-  accountIds: [String]
-  status: String,
-  searchValue: String,
-  brand: String
-  ids: [String],
-  excludeIds: Boolean,
-  isOutBalance: Boolean,
-  branchId: String
-  departmentId: String
-  currency: String
+  ids?: [String],
+  excludeIds?: Boolean,
+  status?: String,
+  searchValue?: String,
+  number?: String,
+
+  accountIds?: [String],
+  accountType: String,
+  accountExcludeIds?: Boolean,
+  accountStatus?: String,
+  accountCategoryId?: String,
+  accountSearchValue?: String,
+  accountBrand?: String,
+  accountIsOutBalance?: Boolean,
+  accountBranchId: String,
+  accountDepartmentId: String,
+  accountCurrency: String,
+  accountJournal: String,
+
+  brandId?: String,
+  isOutBalance?: Boolean,
+  branchId: String,
+  departmentId: String,
+  currency: String,
+  journal: String,
+  statuses: [String],
 `;
 
 export const queries = `

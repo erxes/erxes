@@ -35,9 +35,7 @@ interface IQueryParams {
   departmentId: string;
   currency: string;
   journal: string;
-
   statuses: string[];
-  accountsJournal: string;
 
   page?: number;
   perPage?: number;
