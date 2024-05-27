@@ -2,11 +2,12 @@ import { CellContext, ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 
 import { IOrderHistory } from "@/types/order.types"
+import { typeTextDef } from "@/lib/constants"
 import { Badge } from "@/components/ui/badge"
 
 import HistoryItemAction from "./historyItemAction"
 
-const formatDate = (info: CellContext<IOrderHistory, unknown>) =>
+export const formatDate = (info: CellContext<IOrderHistory, unknown>) =>
   info.getValue()
     ? format(new Date(info.getValue() as string), "yyyy.MM.dd HH:mm")
     : "-"
@@ -30,7 +31,7 @@ const columns: ColumnDef<IOrderHistory>[] = [
   {
     accessorKey: "type",
     header: "Төрөл",
-    cell: (info) => info.getValue(),
+    cell: (info) => typeTextDef[info.getValue() as keyof typeof typeTextDef],
   },
   {
     accessorKey: "createdAt",
@@ -50,7 +51,9 @@ const columns: ColumnDef<IOrderHistory>[] = [
   {
     id: "actions",
     enableHiding: false,
-    cell: HistoryItemAction,
+    cell: ({ row }: CellContext<IOrderHistory, unknown>) => (
+      <HistoryItemAction {...(row.original || {})} />
+    ),
   },
 ]
 

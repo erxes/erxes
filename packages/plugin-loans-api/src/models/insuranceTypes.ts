@@ -5,7 +5,7 @@ import {
 import { IInsuranceTypeDocument } from './definitions/insuranceTypes';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { FilterQuery } from 'mongodb';
+import { FilterQuery } from 'mongoose';
 
 export interface IInsuranceTypeModel extends Model<IInsuranceTypeDocument> {
   getInsuranceType(selector: FilterQuery<IInsuranceTypeDocument>);

@@ -24,11 +24,11 @@ const chartTemplates = [
 
             if (stateType === "customer" || stateType === "lead" || stateType === "visitor") {
                 totalCounts = {
-                    'Total Customer Count': await models.Customers.find({ ...matchFilter, state: { $eq: stateType }, status: "Active" }).count(),
+                    'Total Customer Count': await models.Customers.find({ ...matchFilter, state: { $eq: stateType }, status: "Active" }).countDocuments(),
                 };
             } else if (stateType === "company") {
                 totalCounts = {
-                    'Total Company Count': await models.Companies.find(matchFilter).count(),
+                    'Total Company Count': await models.Companies.find(matchFilter).countDocuments(),
                 };
             } else if (stateType === "client-portal" || stateType === "vendor-portal") {
                 const kind = stateType === "client-portal" ? "client" : "vendor";
@@ -44,8 +44,8 @@ const chartTemplates = [
                 const pipeline = getBusinnesPortalPipeline(matchFilter, 'all');
 
                 const [companiesCount, customersCount, businessPortalsCount] = await Promise.all([
-                    models.Companies.find(matchFilter).count(),
-                    models.Customers.find(matchFilter).count(),
+                    models.Companies.find(matchFilter).countDocuments(),
+                    models.Customers.find(matchFilter).countDocuments(),
                     getBusinessPortalCount(pipeline, 0, subdomain)
                 ]);
 
@@ -545,7 +545,7 @@ const chartTemplates = [
 
             const matchFilter = await buildMatchFilter(filter, subdomain)
 
-            const customersCount = await models.Customers.find({ ...matchFilter, state: "customer", status: "Active" }).count()
+            const customersCount = await models.Customers.find({ ...matchFilter, state: "customer", status: "Active" }).countDocuments()
 
             const totalCount = {
                 'Total Count': customersCount
@@ -1311,7 +1311,7 @@ const chartTemplates = [
 
             const matchFilter = await buildMatchFilter(filter, subdomain)
 
-            const customersCount = await models.Customers.find({ ...matchFilter, state: "lead" }).count()
+            const customersCount = await models.Customers.find({ ...matchFilter, state: "lead" }).countDocuments()
 
             const totalCount = {
                 'Total Count': customersCount
@@ -2075,7 +2075,7 @@ const chartTemplates = [
 
             const matchFilter = await buildMatchFilter(filter, subdomain)
 
-            const customersCount = await models.Companies.find(matchFilter).count()
+            const customersCount = await models.Companies.find(matchFilter).countDocuments()
 
             const totalCount = {
                 'Total Count': customersCount

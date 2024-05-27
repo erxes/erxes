@@ -31,7 +31,7 @@ const chargeQueries = {
     return plugins;
   },
 
-  chargeCurrentOrganization(_root, {}, { subdomain, models }: IContext) {
+  async chargeCurrentOrganization(_root, {}, { subdomain, models }: IContext) {
     return getOrganizationDetail({ subdomain, models });
   },
 };

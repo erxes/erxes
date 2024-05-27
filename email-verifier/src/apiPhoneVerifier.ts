@@ -1,10 +1,8 @@
 import * as csv from 'csv-writer';
 import * as dotenv from 'dotenv';
-import * as fs from 'fs';
-import * as request from 'request-promise';
 import { PHONE_VALIDATION_STATUSES, Phones } from './models';
-import { getArray, setArray } from './redisClient';
-import { debugBase, debugError, getEnv, sendRequest } from './utils';
+import { debugBase, debugError, getEnv, sendFile, sendRequest } from './utils';
+import fetch from 'node-fetch';
 
 dotenv.config();
 
@@ -67,51 +65,12 @@ const bulkClearOut = async (unverifiedPhones: string[], hostname: string) => {
       setTimeout(resolve, 1000);
     });
 
-    await sendFile(fileName, hostname);
+    const url = `${CLEAR_OUT_PHONE_API_URL}/phonenumber/bulk`;
+    const redisKey = 'erxes_phone_verifier_list_ids';
+
+    await sendFile(url, CLEAR_OUT_PHONE_API_KEY, fileName, hostname, redisKey);
   } catch (e) {
     debugBase(`Error occured during bulk phone validation ${e.message}`);
-    throw e;
-  }
-};
-
-export const sendFile = async (fileName: string, hostname: string) => {
-  try {
-    const result = await request({
-      method: 'POST',
-      url: `${CLEAR_OUT_PHONE_API_URL}/phonenumber/bulk`,
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        Authorization: `Bearer:${CLEAR_OUT_PHONE_API_KEY}`,
-      },
-      formData: {
-        file: fs.createReadStream(`./${fileName}.csv`),
-      },
-    });
-
-    let data;
-    let error;
-
-    if (typeof result === 'string') {
-      data = JSON.parse(result).data;
-      error = JSON.parse(result).error;
-    } else {
-      data = result.data;
-      error = result.error;
-    }
-
-    if (data) {
-      const listIds = await getArray('erxes_phone_verifier_list_ids');
-
-      listIds.push({ listId: data.list_id, hostname });
-
-      setArray('erxes_phone_verifier_list_ids', listIds);
-
-      await fs.unlinkSync(`./${fileName}.csv`);
-    } else if (error) {
-      throw new Error(error.message);
-    }
-  } catch (e) {
-    // request may fail
     throw e;
   }
 };
@@ -119,22 +78,16 @@ export const sendFile = async (fileName: string, hostname: string) => {
 export const getStatus = async (listId: string) => {
   const url = `${CLEAR_OUT_PHONE_API_URL}/phonenumber/bulk/progress_status?list_id=${listId}`;
   try {
-    const result = await request({
+    const res = await fetch(url, {
       method: 'GET',
-      url,
       headers: {
         'Content-Type': 'multipart/form-data',
         Authorization: `Bearer:${CLEAR_OUT_PHONE_API_KEY}`,
       },
-    });
+    }).then((r) => r.json());
 
-    if (typeof result === 'string') {
-      return JSON.parse(result);
-    }
-
-    return result;
+    return res;
   } catch (e) {
-    // request may fail
     throw e;
   }
 };
@@ -239,7 +192,6 @@ export const validateBulkPhones = async (
         },
       });
     } catch (e) {
-      // request may fail
       throw e;
     }
   }
@@ -249,7 +201,6 @@ export const validateBulkPhones = async (
       debugBase(`Sending  unverified phones to clearoutphone`);
       await bulkClearOut(unverifiedPhones, hostname);
     } catch (e) {
-      // request may fail
       throw e;
     }
   }
@@ -264,18 +215,16 @@ export const getBulkResult = async (listId: string, hostname: string) => {
 
   try {
     debugBase(`Downloading bulk phone validation result`);
-    const response = await sendRequest({
-      url,
+    const response: any = await fetch(url, {
       method: 'POST',
       headers,
-      body: { list_id: listId },
-    });
+      body: JSON.stringify({ list_id: listId }),
+    }).then((r) => r.json());
 
     try {
-      const resp = await sendRequest({
-        url: response.data.url,
+      const resp = await fetch(response.data.url, {
         method: 'GET',
-      });
+      }).then((r) => r.text());
 
       const rows = resp.split('\n');
       const phones: Array<{ phone: string; status: string }> = [];
@@ -330,11 +279,9 @@ export const getBulkResult = async (listId: string, hostname: string) => {
         },
       });
     } catch (e) {
-      // request may fail
       throw e;
     }
   } catch (e) {
-    // request may fail
     throw e;
   }
 };

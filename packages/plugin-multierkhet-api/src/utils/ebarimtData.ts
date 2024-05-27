@@ -1,10 +1,9 @@
-import fetch from 'node-fetch';
 import {
   sendContactsMessage,
   sendCoreMessage,
   sendProductsMessage
 } from '../messageBroker';
-import { getSyncLogDoc } from './utils';
+import { getCompanyInfo, getCoreConfig, getSyncLogDoc } from './utils';
 
 export const validConfigMsg = async config => {
   if (!config.url) {
@@ -23,8 +22,32 @@ export const getPostData = async (
 ) => {
   let billType = '1';
   let customerCode = '';
+  let ebarimtTIN = '';
 
   const syncLogDoc = getSyncLogDoc({ type: 'cards:deal', user, object: deal });
+
+  const ebarimtConfig = await getCoreConfig(subdomain, 'EBARIMT', {})
+
+  if (
+    ebarimtConfig.dealBillType?.billType &&
+    ebarimtConfig.dealBillType?.regNo &&
+    deal.customFieldsData?.length
+  ) {
+    const checkCompanyStrs = ['Байгууллага', 'Company', 'B2B', 'B2B_RECEIPT', '3'];
+    const customDataBillType = deal.customFieldsData.find(cfd => cfd.field === ebarimtConfig.dealBillType.billType && checkCompanyStrs.includes(cfd.value));
+    const customDataRegNo = deal.customFieldsData.find(cfd => cfd.field === ebarimtConfig.dealBillType.regNo && cfd.value);
+    const customDataComName = deal.customFieldsData.find(cfd => cfd.field === ebarimtConfig.dealBillType.companyName && cfd.value);
+
+    if (customDataBillType && customDataRegNo && customDataComName) {
+      const resp = await getCompanyInfo({ checkTaxpayerUrl: ebarimtConfig.checkTaxpayerUrl, no: customDataRegNo.value })
+
+      if (resp.status === 'checked' && resp.tin) {
+        billType = '3';
+        ebarimtTIN = resp.tin
+      }
+    }
+
+  }
 
   const companyIds = await sendCoreMessage({
     subdomain,
@@ -46,23 +69,22 @@ export const getPostData = async (
       defaultValue: [],
     });
 
-    const re = new RegExp('(^[А-ЯЁӨҮ]{2}[0-9]{8}$)|(^\\d{7}$)', 'gui');
+    const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)|(^\d{11}$)|(^\d{12}$)/gui;
     for (const company of companies) {
-      if (re.test(company.code)) {
-        const checkCompanyRes = await fetch(
-          `https://ebarimt.erkhet.biz/getCompany?regno=${company.code}`
-        ).then((r) => r.json());
+      customerCode = company.code;
 
-        if (checkCompanyRes.found) {
+      if (billType === '1' && re.test(company.code)) {
+        const checkCompanyRes = await getCompanyInfo({ checkTaxpayerUrl: ebarimtConfig.checkTaxpayerUrl, no: company.code });
+
+        if (checkCompanyRes.status === 'checked' && checkCompanyRes.tin) {
           billType = '3';
-          customerCode = company.code;
-          continue;
+          break;
         }
       }
     }
   }
 
-  if (billType === '1') {
+  if (billType === '1' || !customerCode) {
     const customerIds = await sendCoreMessage({
       subdomain,
       action: 'conformities.savedConformity',
@@ -318,6 +340,7 @@ export const getPostData = async (
         hasCitytax: config.hasCitytax || false,
         billType,
         customerCode,
+        ebarimtTIN,
         description: deal.name,
         workerEmail:
           (deal.assignedUserIds.length &&

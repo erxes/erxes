@@ -3,7 +3,7 @@ import { ISegmentDocument } from "../../models/definitions/segments";
 import { fetchSegment } from "./queries/queryBuilder";
 
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
+  async __resolveReference({ _id }, { models }: IContext) {
     return models.Segments.findOne({ _id });
   },
   async getSubSegments(

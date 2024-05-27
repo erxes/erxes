@@ -144,7 +144,7 @@ export const checkVouchersSale = async (
 
   const productCatIds = discountCampaigns.reduce(
     (catIds, c) => catIds.concat(c.productCategoryIds),
-    []
+    [] as string[]
   );
 
   const categoryIdsByCampaignId = {};

@@ -24,20 +24,20 @@ interface IError {
   text: string;
 }
 
-export interface IFormModel extends Model<IFormDocument> {
+export interface IFormModel extends Model<IForm> {
   getForm(_id: string): Promise<IFormDocument>;
   generateCode(): string;
-  createForm(doc: IForm, createdUserId: string): Promise<IFormDocument>;
+  createForm(doc: Omit<IForm, '_id' | 'createdUserId' | 'createdDate'>, createdUserId: string): Promise<IFormDocument>;
 
   updateForm(
     _id,
-    { title, description, buttonText }: IForm
+    { title, description, buttonText }: Omit<IForm, '_id'>
   ): Promise<IFormDocument>;
 
   removeForm(_id: string): void;
   duplicate(_id: string): Promise<IFormDocument>;
 
-  validate(formId: string, submissions: ISubmission[]): Promise<IError[]>;
+  validateForm(formId: string, submissions: ISubmission[]): Promise<IError[]>;
 }
 
 export const loadFormClass = (models: IModels) => {
@@ -69,7 +69,7 @@ export const loadFormClass = (models: IModels) => {
     /**
      * Creates a form document
      */
-    public static async createForm(doc: IForm, createdUserId: string) {
+    public static async createForm(doc: Omit<IForm, '_id' | 'createdUserId' | 'createdDate'>, createdUserId: string) {
       doc.code = await this.generateCode();
 
       return models.Forms.create({
@@ -82,7 +82,7 @@ export const loadFormClass = (models: IModels) => {
     /**
      * Updates a form document
      */
-    public static async updateForm(_id: string, doc: IForm) {
+    public static async updateForm(_id: string, doc: Omit<IForm, '_id'>) {
       await models.Forms.updateOne(
         { _id },
         { $set: doc },
@@ -142,7 +142,7 @@ export const loadFormClass = (models: IModels) => {
       return newForm;
     }
 
-    public static async validate(formId: string, submissions: ISubmission[]) {
+    public static async validateForm(formId: string, submissions: ISubmission[]) {
       const fields = await models.Fields.find({ contentTypeId: formId });
       const errors: Array<{ fieldId: string; code: string; text: string }> = [];
 

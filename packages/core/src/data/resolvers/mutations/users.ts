@@ -235,7 +235,7 @@ const userMutations = {
   /*
    * Reset member's password
    */
-  usersResetMemberPassword(
+  async usersResetMemberPassword(
     _root,
     args: { _id: string; newPassword: string },
     { models }: IContext,
@@ -246,7 +246,7 @@ const userMutations = {
   /*
    * Change user password
    */
-  usersChangePassword(
+  async usersChangePassword(
     _root,
     args: { currentPassword: string; newPassword: string },
     { user, models }: IContext,
@@ -549,7 +549,7 @@ const userMutations = {
     return user;
   },
 
-  usersConfigEmailSignatures(
+  async usersConfigEmailSignatures(
     _root,
     { signatures }: { signatures: IEmailSignature[] },
     { user, models }: IContext,
@@ -557,7 +557,7 @@ const userMutations = {
     return models.Users.configEmailSignatures(user._id, signatures);
   },
 
-  usersConfigGetNotificationByEmail(
+  async usersConfigGetNotificationByEmail(
     _root,
     { isAllowed }: { isAllowed: boolean },
     { user, models }: IContext,

@@ -2,7 +2,7 @@ import { IContext } from '../../connectionResolver';
 import { IScriptDocument } from '../../models/definitions/scripts';
 
 export default {
-  messenger(script: IScriptDocument, _args, { models }: IContext) {
+  async messenger(script: IScriptDocument, _args, { models }: IContext) {
     return models.Integrations.findOne({ _id: script.messengerId });
   },
 
@@ -17,7 +17,7 @@ export default {
     }
   },
 
-  leads(script: IScriptDocument, _args, { models }: IContext) {
+  async leads(script: IScriptDocument, _args, { models }: IContext) {
     return models.Integrations.findIntegrations({
       _id: { $in: script.leadIds || [] }
     });

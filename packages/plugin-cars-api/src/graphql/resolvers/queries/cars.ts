@@ -133,7 +133,7 @@ const carQueries = {
         page: params.page,
         perPage: params.perPage
       }),
-      totalCount: models.Cars.find(filter).count()
+      totalCount: models.Cars.find(filter).countDocuments()
     };
   },
 

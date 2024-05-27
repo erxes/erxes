@@ -26,7 +26,7 @@ export const types = ({ contacts, tags, clientPortal }) => `
     }
 
     ${tags ? `tags: [Tag]` : ''}
-    ${true ? `vendorCustomers: [ClientPortalUser]` : ''}
+    ${clientPortal ? `vendorCustomers: [ClientPortalUser]` : ''}
 
     ${commonTypes}
   }

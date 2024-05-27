@@ -4,7 +4,7 @@ import { sendCommonMessage } from '../../messageBroker';
 import { IProductDocument } from '../../models/definitions/products';
 
 export default {
-  customFieldsDataByFieldCode(
+  async customFieldsDataByFieldCode(
     product: IProductDocument,
     _,
     { subdomain }: IContext,
@@ -20,7 +20,7 @@ export default {
     return (product.isCheckRems || {})[config.token] || false;
   },
 
-  category(product: IProductDocument, _, { models }: IContext) {
+  async category(product: IProductDocument, _, { models }: IContext) {
     return models.ProductCategories.findOne({ _id: product.categoryId });
   },
 };

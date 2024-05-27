@@ -44,7 +44,7 @@ const classificationsQueries = {
           perPage: params.perPage
         }
       ),
-      totalCount: models.Classification.find(filter).count()
+      totalCount: models.Classification.find(filter).countDocuments()
     };
   },
 
