@@ -17,10 +17,7 @@ import { IDayPlan, IDayPlanConfirmParams } from "../types";
 import { ITimeframe } from "../../settings/types";
 import { menuSalesplans } from "../../constants";
 import { TableWrapper } from "../../styles";
-import {
-  FlexRow,
-  Title,
-} from "@erxes/ui-settings/src/styles";
+import { FlexRow, Title } from "@erxes/ui-settings/src/styles";
 import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
@@ -149,14 +146,14 @@ const DayPlanList = (props: Props) => {
 
     return (
       <FlexRow>
-            <FormControl
-              type="text"
-              placeholder={__("Type to search")}
-              onChange={handleSearch}
-              value={search}
-              autoFocus={true}
-              onFocus={moveCursorAtTheEnd}
-            />
+        <FormControl
+          type="text"
+          placeholder={__("Type to search")}
+          onChange={handleSearch}
+          value={search}
+          autoFocus={true}
+          onFocus={moveCursorAtTheEnd}
+        />
         <ModalTrigger
           title="Add label"
           trigger={trigger}

@@ -96,7 +96,7 @@ class SendMail extends React.Component<Props, State> {
             {customMail}
           </Chip>
         ))}
-        <FormControl onKeyPress={onChange} placeholder="enter a some email" />
+        <FormControl onKeyPress={onChange} placeholder="Enter some email" />
       </FormGroup>
     );
   }
@@ -397,7 +397,7 @@ class SendMail extends React.Component<Props, State> {
           <BarItems>
             <FormControl
               name="searchValue"
-              placeholder="type a search"
+              placeholder="Type to search"
               value={searchValue}
               onChange={onSearch}
             />

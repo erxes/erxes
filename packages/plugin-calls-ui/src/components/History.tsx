@@ -111,7 +111,7 @@ class History extends React.Component<Props, State> {
       <>
         <InputBar type="searchBar">
           <FormControl
-            placeholder={__("Search")}
+            placeholder={__("Type to search")}
             name="searchValue"
             onChange={this.onSearchChange}
             value={this.props.searchValue}
