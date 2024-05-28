@@ -38,8 +38,14 @@ const HistoryContainer = (props: Props) => {
     }
   );
 
-  const histories = data?.callHistories || [];
+  const callHistoriesTotalCountQuery = useQuery(
+    gql(queries.callHistoriesTotalCount)
+  );
 
+  const histories = data?.callHistories || [];
+  const totalCount =
+    callHistoriesTotalCountQuery?.data?.callHistoriesTotalCount || 0;
+  console.log(callHistoriesTotalCountQuery);
   const [removeHistory] = useMutation(gql(mutations.callHistoryRemove), {
     refetchQueries: ["CallHistories"],
   });
@@ -54,7 +60,7 @@ const HistoryContainer = (props: Props) => {
         if (!fetchMoreResult || fetchMoreResult.callHistories.length === 0) {
           return prevResult;
         }
-
+        console.log("here after updateQuery", prevResult, fetchMoreResult);
         const prevHistories = prevResult.callHistories || [];
         const prevHistoriesIds = prevHistories.map((t: any) => t._id);
 

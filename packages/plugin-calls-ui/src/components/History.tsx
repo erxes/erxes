@@ -23,6 +23,8 @@ type Props = {
   loading?: boolean;
   searchValue: string;
   navigate: any;
+  totalCount: number;
+  onLoadMore: (skip: number) => void;
   changeMainTab: (phoneNumber: string, shiftTab: string) => void;
   onSearch: (searchValue: string) => void;
   refetch: ({ callStatus }: { callStatus: string }) => void;
@@ -31,6 +33,8 @@ type Props = {
 
 type State = {
   currentTab: string;
+  loading?: boolean;
+  hasMore?: boolean;
   cursor: number;
 };
 
@@ -42,20 +46,46 @@ class History extends React.Component<Props, State> {
 
     this.state = {
       currentTab: "All",
+      loading: false,
+      hasMore: true,
       cursor: 0,
     };
 
     this.activeItemRef = React.createRef();
+    this.loadMore = this.loadMore.bind(this);
+    this.handleScroll = this.handleScroll.bind(this);
   }
 
   componentDidMount() {
     document.addEventListener("keydown", this.handleKeyDown);
+    this.loadMore();
+    window.addEventListener("scroll", this.handleScroll);
   }
 
   componentWillUnmount() {
     document.removeEventListener("keydown", this.handleKeyDown);
+    window.removeEventListener("scroll", this.handleScroll);
   }
 
+  handleScroll = () => {
+    if (
+      window.innerHeight + document.documentElement.scrollTop ===
+      document.documentElement.offsetHeight
+    ) {
+      this.loadMore();
+    }
+  };
+
+  loadMore = () => {
+    if (this.state.loading || !this.state.hasMore) return;
+
+    this.setState({ loading: true });
+
+    const { onLoadMore } = this.props;
+    console.log("kkk");
+    onLoadMore(30);
+  };
+  a;
   handleKeyDown = (e) => {
     const { cursor } = this.state;
 
