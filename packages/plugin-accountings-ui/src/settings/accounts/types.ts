@@ -46,18 +46,22 @@ export type AccountsQueryResponse = {
   accounts: IAccount[];
 } & QueryResponse;
 
+
 export type AccountsCountQueryResponse = {
   accounts: IAccount[];
 } & QueryResponse;
 
-export interface IAccountsTotalCountResponse {
-  accountsTotalCount: number;
-}
+// categories
+export type AccountCategoriesQueryResponse = {
+  accountCategories: IAccount[];
+} & QueryResponse;
 
-export interface IAccountCategoryResponse {
-  accountCategories: IAccountCategory[];
-}
+export type AddAccountMutationResponse = {
+  addAccountMutation: (params: { variables: IAccount }) => Promise<any>;
+};
 
-export interface IAccountCategoriesTotalCountResponse {
-  accountCategoriesTotalCount: number;
-}
+export type EditAccountMutationResponse = {
+  editPosMutation: (params: {
+    variables: { _id: string } & IAccount;
+  }) => Promise<any>;
+};

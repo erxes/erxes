@@ -1,16 +1,15 @@
 
-import { gql, useQuery, useMutation } from "@apollo/client";
-import React, { useState } from "react";
-import * as compose from "lodash.flowright";
-
-import { IAccount } from "../types";
-import { mutations, queries } from "../graphql";
-
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { Alert, Spinner } from "@erxes/ui/src";
 import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
-import Form from "../components/AccountForm";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
 import { withProps } from "@erxes/ui/src/utils";
+import * as compose from "lodash.flowright";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Form from "../components/AccountForm";
+import { mutations, queries } from "../graphql";
+import { AccountCategoriesQueryResponse, AccountDetailQueryResponse, AddAccountMutationResponse, EditAccountMutationResponse, IAccount } from "../types";
 
 type Props = {
   accountId?: string;
@@ -19,24 +18,71 @@ type Props = {
 };
 
 const AccountFormContainer = (props: Props) => {
-  const {accountId} = props;
+  const { accountId } = props;
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState<boolean>(false);
 
-  const posDetailQuery = useQuery<PosDetailQueryResponse>(
+  const accountDetailQuery = useQuery<AccountDetailQueryResponse>(
     gql(queries.accountDetail),
     {
-      skip: !posId,
+      skip: !accountId,
       fetchPolicy: "cache-and-network",
       variables: {
-        _id: posId || "",
-        posId: posId || "",
+        _id: accountId || "",
+        accountId: accountId || "",
       },
     }
   );
 
-  
+  // const [addAccountMutation] = useMutation<AddAccountMutationResponse>(
+  //   gql(mutations.accountsAdd)
+  // );
+  // const [editAccountMutation] = useMutation<EditAccountMutationResponse>(
+  //   gql(mutations.accountsEdit)
+  // );
+
+  const accountCategoriesQuery = useQuery<AccountCategoriesQueryResponse>(
+    gql(queries.accountCategories),
+    {
+      fetchPolicy: "cache-and-network"
+    }
+  );
+
+  if (
+    (accountDetailQuery && accountDetailQuery.loading) ||
+    (accountCategoriesQuery && accountCategoriesQuery.loading)
+  ) {
+    return <Spinner objective={true} />;
+  }
+
+  // const save = (doc) => {
+  //   setLoading(true);
+
+  //   const saveMutation = accountId ? editAccountMutation : addAccountMutation;
+
+  //   saveMutation({
+  //     variables: {
+  //       _id: accountId,
+  //       ...doc,
+  //     },
+  //   })
+  //     .then(() => {
+  //       Alert.success("You successfully updated a pos");
+
+  //       navigate({
+  //         pathname: `/accountings/accounts`,
+  //         search: "?refetchList=true",
+  //       });
+  //     })
+
+  //     .catch((error) => {
+  //       Alert.error(error.message);
+
+  //       setLoading(false);
+  //     });
+  // };
+
   const renderButton = ({
     name,
     values,
@@ -44,23 +90,6 @@ const AccountFormContainer = (props: Props) => {
     callback,
     object,
   }: IButtonMutateProps) => {
-    const { unitPrice, accountCount, minimiumCount } = values;
-    const attachmentMoreArray: any[] = [];
-    const attachment = values.attachment || undefined;
-    const attachmentMore = values.attachmentMore || [];
-
-    attachmentMore.map((attach) => {
-      attachmentMoreArray.push({ ...attach, __typename: undefined });
-    });
-
-    values.unitPrice = Number(unitPrice);
-    values.accountCount = Number(accountCount);
-    values.minimiumCount = Number(minimiumCount);
-    values.attachment = attachment
-      ? { ...attachment, __typename: undefined }
-      : null;
-    values.attachmentMore = attachmentMoreArray;
-
     return (
       <ButtonMutate
         mutation={object ? mutations.accountsEdit : mutations.accountsAdd}
@@ -70,14 +99,13 @@ const AccountFormContainer = (props: Props) => {
         isSubmitted={isSubmitted}
         type="submit"
         uppercase={false}
-        successMessage={`You successfully ${
-          object ? "updated" : "added"
-        } a ${name}`}
+        successMessage={`You successfully ${object ? "updated" : "added"
+          } a ${name}`}
       />
     );
   };
 
-  const accountCategories = accountCategoriesQuery.accountCategories || [];
+  const accountCategories = (accountCategoriesQuery && accountCategoriesQuery?.data?.accountCategories) || [];
 
   const updatedProps = {
     ...props,
@@ -97,13 +125,4 @@ const getRefetchQueries = () => {
   ];
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, AccountCategoriesQueryResponse>(
-      gql(queries.accountCategories),
-      {
-        name: "accountCategoriesQuery",
-      }
-    ),
-  )(AccountFormContainer)
-);
+export default AccountFormContainer;
