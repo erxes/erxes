@@ -22,6 +22,7 @@ import { sendToWebhook } from '@erxes/api-utils/src';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import fetch from 'node-fetch';
 import { SocketLabs } from '../../api/socketLabs';
+import { hostname } from 'os';
 
 interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
@@ -52,7 +53,7 @@ const engageMutations = {
   async engageMessageAdd(
     _root,
     doc: IEngageMessage,
-    { user, docModifier, models, subdomain }: IContext,
+    { user, docModifier, models, subdomain }: IContext
   ) {
     await checkCampaignDoc(models, subdomain, doc);
 
@@ -62,7 +63,7 @@ const engageMutations = {
     }
 
     const engageMessage = await models.EngageMessages.createEngageMessage(
-      docModifier({ ...doc, createdBy: user._id }),
+      docModifier({ ...doc, createdBy: user._id })
     );
 
     await sendToWebhook({
@@ -99,7 +100,7 @@ const engageMutations = {
   async engageMessageEdit(
     _root,
     { _id, ...doc }: IEngageMessageEdit,
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user }: IContext
   ) {
     await checkCampaignDoc(models, subdomain, doc);
 
@@ -133,7 +134,7 @@ const engageMutations = {
   async engageMessageRemove(
     _root,
     { _id }: { _id: string },
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user }: IContext
   ) {
     const engageMessage = await models.EngageMessages.getEngageMessage(_id);
 
@@ -155,7 +156,7 @@ const engageMutations = {
   async engageMessageSetLive(
     _root,
     { _id }: { _id: string },
-    { models, subdomain }: IContext,
+    { models, subdomain }: IContext
   ) {
     const campaign = await models.EngageMessages.getEngageMessage(_id);
 
@@ -181,7 +182,7 @@ const engageMutations = {
   async engageMessageSetLiveManual(
     _root,
     { _id }: { _id: string },
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user }: IContext
   ) {
     const draftCampaign = await models.EngageMessages.getEngageMessage(_id);
 
@@ -206,7 +207,7 @@ const engageMutations = {
         },
         description: `Broadcast "${draftCampaign.title}" has been set live`,
       },
-      user,
+      user
     );
 
     return live;
@@ -224,7 +225,7 @@ const engageMutations = {
   async engageMessageVerifyEmail(
     _root,
     { email }: { email: string },
-    { models }: IContext,
+    { models }: IContext
   ) {
     const config = await models.Configs.getConfig('emailServiceType');
 
@@ -248,33 +249,80 @@ const engageMutations = {
     });
 
     try {
-      const response: any = {
+      let response: any = {
         verified: false,
         isEmailVerified: false,
         isDomainVerified: false,
+        isBounceDomainVerified: false,
+        isTrackingDomainVerified: false,
       };
 
-      const { isDomainVerified, isEmailVerified } = await api.checkEmail(email);
-      response.isDomainVerified = isDomainVerified;
-      response.isEmailVerified = isEmailVerified;
+      const res = await api.checkEmail(email);
+      response = {
+        ...res,
+      };
 
-      if (isEmailVerified && isDomainVerified) {
+      if (
+        response.isEmailVerified &&
+        response.isDomainVerified &&
+        response.isBounceDomainVerified &&
+        response.isTrackingDomainVerified
+      ) {
         response.verified = true;
       }
 
-      if (!isEmailVerified) {
+      if (!response.isEmailVerified) {
         await api.sendVerificationRequest(email);
       }
 
-      if (!isDomainVerified) {
-        const cnameConf = await api.getCNAMEConf(email);
+      if (!response.isDomainVerified) {
+        const cnameConf = api.getCNAMEConf(email);
         response.cname = cnameConf;
       }
+
+      if (!response.isBounceDomainVerified) {
+        response.bounce = api.getBounceDomainConf(email);
+      }
+
+      if (!response.isTrackingDomainVerified) {
+        response.tracking = api.getTrackingDomainConf(email);
+      }
+
+      console.log('r  ', response);
 
       return response;
     } catch (e) {
       throw new Error(e.message);
     }
+  },
+
+  async engageMessageVerifyCode(
+    _root,
+    { email, verificationCode }: { email: string; verificationCode: string },
+    { models }: IContext
+  ) {
+    const config = await models.Configs.getConfig('emailServiceType');
+
+    if (config.value === 'ses') {
+      const response = await awsRequests.verifyEmail(models, email);
+
+      return JSON.stringify(response);
+    }
+
+    const { apiKey, serverId, username } =
+      await models.Configs.getSocketLabsConfigs();
+
+    if (!apiKey || !serverId || !username) {
+      throw new Error('SocketLabs has missing configs');
+    }
+
+    const api = new SocketLabs({
+      apiToken: apiKey,
+      serverId,
+      username,
+    });
+
+    return api.validate(email, verificationCode);
   },
 
   /**
@@ -283,7 +331,7 @@ const engageMutations = {
   async engageMessageRemoveVerifiedEmail(
     _root,
     { email }: { email: string },
-    { models }: IContext,
+    { models }: IContext
   ) {
     const response = await awsRequests.removeVerifiedEmail(models, email);
 
@@ -293,12 +341,12 @@ const engageMutations = {
   async engageMessageSendTestEmail(
     _root,
     args: ITestEmailParams,
-    { subdomain, models }: IContext,
+    { subdomain, models }: IContext
   ) {
     const { content, from, to, title } = args;
     if (!(content && from && to && title)) {
       throw new Error(
-        'Email content, title, from address or to address is missing',
+        'Email content, title, from address or to address is missing'
       );
     }
 
@@ -347,7 +395,7 @@ const engageMutations = {
   async engageMessageCopy(
     _root,
     { _id }: { _id },
-    { docModifier, models, subdomain, user }: IContext,
+    { docModifier, models, subdomain, user }: IContext
   ) {
     const sourceCampaign = await models.EngageMessages.getEngageMessage(_id);
 
@@ -386,7 +434,7 @@ const engageMutations = {
         },
         description: `Campaign "${sourceCampaign.title}" has been copied`,
       },
-      user,
+      user
     );
 
     return copy;
@@ -398,7 +446,7 @@ const engageMutations = {
   async engageSendMail(
     _root,
     args: any,
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain }: IContext
   ) {
     const { body, customerId, ...doc } = args;
     const customerQuery = customerId
@@ -483,33 +531,33 @@ checkPermission(engageMutations, 'engageMessageRemove', 'engageMessageRemove');
 checkPermission(
   engageMutations,
   'engageMessageSetLive',
-  'engageMessageSetLive',
+  'engageMessageSetLive'
 );
 checkPermission(
   engageMutations,
   'engageMessageSetPause',
-  'engageMessageSetPause',
+  'engageMessageSetPause'
 );
 checkPermission(
   engageMutations,
   'engageMessageSetLiveManual',
-  'engageMessageSetLiveManual',
+  'engageMessageSetLiveManual'
 );
 checkPermission(
   engageMutations,
   'engageMessageVerifyEmail',
-  'engageMessageRemove',
+  'engageMessageRemove'
 );
 checkPermission(
   engageMutations,
   'engageMessageRemoveVerifiedEmail',
-  'engageMessageRemove',
+  'engageMessageRemove'
 );
 
 checkPermission(
   engageMutations,
   'engageMessageSendTestEmail',
-  'engageMessageRemove',
+  'engageMessageRemove'
 );
 
 checkPermission(engageMutations, 'engageMessageCopy', 'engageMessageAdd');

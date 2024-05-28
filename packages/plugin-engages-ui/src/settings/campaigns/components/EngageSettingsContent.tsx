@@ -20,7 +20,7 @@ import Select from 'react-select';
 type Props = {
   configsMap: IConfigsMap;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  verifyEmail: (email: string) => void;
+  verifyEmail: (email: string, callback) => void;
   removeVerifiedEmail: (email: string) => void;
   sendTestEmail: (from: string, to: string, content: string) => void;
   verifiedEmails: string[];
@@ -41,6 +41,7 @@ type State = {
   telnyxApiKey?: string;
   telnyxPhone?: string;
   telnyxProfileId?: string;
+  socketLabsResult?: any;
 };
 
 type CommonFields =
@@ -69,6 +70,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
       telnyxApiKey: configsMap.telnyxApiKey || '',
       telnyxPhone: configsMap.telnyxPhone || '',
       telnyxProfileId: configsMap.telnyxProfileId || '',
+      socketLabsResult: undefined,
     };
   }
 
@@ -84,8 +86,12 @@ class EngageSettingsContent extends React.Component<Props, State> {
   onVerifyEmail = () => {
     const { emailToVerify } = this.state;
 
+    const callback = (res) => {
+      this.setState({ socketLabsResult: res });
+    };
+
     if (emailToVerify) {
-      return this.props.verifyEmail(emailToVerify);
+      return this.props.verifyEmail(emailToVerify, callback);
     }
 
     return Alert.error('Write your email to verify!');
@@ -117,7 +123,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
             <Recipient key={index}>
               {email}
               <span onClick={this.onRemoveVerifiedEmail.bind(this, email)}>
-                <Icon icon="times" />
+                <Icon icon='times' />
               </span>
             </Recipient>
           ))}
@@ -132,9 +138,6 @@ class EngageSettingsContent extends React.Component<Props, State> {
       return null;
     }
 
-    // SOCKETLABS_SERVER_ID=33895
-    // SOCKETLABS_INJECTION_API_KEY=huA0KPsKNXZe9c9lPUAs.yB534t0nzoqFFNoqB7cukuBEFJLWUT7kVDQaJYcD
-
     return (
       <>
         <FormGroup>
@@ -142,7 +145,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
           <FormControl
             {...formProps}
             max={140}
-            name="socketLabsServerId"
+            name='socketLabsServerId'
             defaultValue={configsMap.socketLabsServerId}
           />
         </FormGroup>
@@ -151,7 +154,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
           <FormControl
             {...formProps}
             max={140}
-            name="socketLabsApiKey"
+            name='socketLabsApiKey'
             defaultValue={configsMap.socketLabsApiKey}
           />
         </FormGroup>
@@ -159,7 +162,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
           <ControlLabel>Username</ControlLabel>
           <FormControl
             {...formProps}
-            name="socketLabsUsername"
+            name='socketLabsUsername'
             defaultValue={configsMap.socketLabsUsername}
           />
         </FormGroup>
@@ -167,7 +170,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
           <ControlLabel>SMTP Password</ControlLabel>
           <FormControl
             {...formProps}
-            name="socketLabsPassword"
+            name='socketLabsPassword'
             defaultValue={configsMap.socketLabsPassword}
           />
         </FormGroup>
@@ -187,13 +190,13 @@ class EngageSettingsContent extends React.Component<Props, State> {
 
     return (
       <>
-        <FlexRow $alignItems="flex-start" $justifyContent="space-between">
+        <FlexRow $alignItems='flex-start' $justifyContent='space-between'>
           <FormGroup>
             <ControlLabel>AWS SES Access key ID</ControlLabel>
             <FormControl
               {...formProps}
               max={140}
-              name="accessKeyId"
+              name='accessKeyId'
               defaultValue={configsMap.accessKeyId}
             />
           </FormGroup>
@@ -203,18 +206,18 @@ class EngageSettingsContent extends React.Component<Props, State> {
             <FormControl
               {...formProps}
               max={140}
-              name="secretAccessKey"
+              name='secretAccessKey'
               defaultValue={configsMap.secretAccessKey}
             />
           </FormGroup>
         </FlexRow>
-        <FlexRow $alignItems="flex-start" $justifyContent="space-between">
+        <FlexRow $alignItems='flex-start' $justifyContent='space-between'>
           <FormGroup>
             <ControlLabel>AWS SES Region</ControlLabel>
             <FormControl
               {...formProps}
               max={140}
-              name="region"
+              name='region'
               defaultValue={configsMap.region}
             />
           </FormGroup>
@@ -224,7 +227,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
             <FormControl
               {...formProps}
               max={140}
-              name="configSet"
+              name='configSet'
               defaultValue={configsMap.configSet}
             />
           </FormGroup>
@@ -240,7 +243,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
 
     return (
       <CollapseContent
-        beforeTitle={<Icon icon="shield-check" />}
+        beforeTitle={<Icon icon='shield-check' />}
         transparent={true}
         title={__('Domain management')}
       >
@@ -249,14 +252,14 @@ class EngageSettingsContent extends React.Component<Props, State> {
         <Verify>
           <ControlLabel required={true}>Domain</ControlLabel>
           <FormControl
-            type="email"
+            type='email'
             onChange={this.onChangeCommon.bind(this, 'emailToVerify')}
           />
 
           <Button
             onClick={this.onVerifyEmail}
-            btnStyle="success"
-            icon="check-circle"
+            btnStyle='success'
+            icon='check-circle'
           >
             Verify
           </Button>
@@ -275,7 +278,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
       { label: 'SocketLabs Email', value: 'socketLabs' },
     ];
     const currentType = emailServices.find(
-      (item) => item.value === emailServiceType,
+      (item) => item.value === emailServiceType
     );
 
     return (
@@ -283,13 +286,13 @@ class EngageSettingsContent extends React.Component<Props, State> {
         <Info>
           <p>
             {__(
-              `${currentType?.label} enables you to send and receive email using a reliable and scalable email platform. Set up your custom ${currentType?.label.toLowerCase()} account`,
+              `${currentType?.label} enables you to send and receive email using a reliable and scalable email platform. Set up your custom ${currentType?.label.toLowerCase()} account`
             ) + '.'}
           </p>
           <a
-            target="_blank"
-            href="https://docs.erxes.io/conversations"
-            rel="noopener noreferrer"
+            target='_blank'
+            href='https://docs.erxes.io/conversations'
+            rel='noopener noreferrer'
           >
             {__(`Learn more about ${currentType?.label} configuration`)}
           </a>
@@ -299,7 +302,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
           <Select
             options={emailServices}
             value={emailServices.find(
-              (item) => item.value === this.state.emailServiceType,
+              (item) => item.value === this.state.emailServiceType
             )}
             isClearable={false}
             isSearchable={false}
@@ -317,7 +320,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
           <FormControl
             {...formProps}
             max={140}
-            name="unverifiedEmailsLimit"
+            name='unverifiedEmailsLimit'
             defaultValue={configsMap.unverifiedEmailsLimit || 100}
           />
         </FormGroup>
@@ -332,7 +335,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
           </p>
           <FormControl
             {...formProps}
-            name="allowedEmailSkipLimit"
+            name='allowedEmailSkipLimit'
             defaultValue={configsMap.allowedEmailSkipLimit || 10}
           />
         </FormGroup>
@@ -364,19 +367,27 @@ class EngageSettingsContent extends React.Component<Props, State> {
     );
   };
 
+  renderSocketLabsResult() {
+    if (!this.state.socketLabsResult) {
+      return null;
+    }
+
+    
+  }
+
   render() {
     return (
       <ContentBox id={'EngageSettingsMenu'}>
         <CollapseContent
-          beforeTitle={<Icon icon="settings" />}
+          beforeTitle={<Icon icon='settings' />}
           transparent={true}
-          title="General settings"
+          title='General settings'
         >
           <Form renderContent={this.renderContent} />
         </CollapseContent>
 
         <CollapseContent
-          beforeTitle={<Icon icon="shield-check" />}
+          beforeTitle={<Icon icon='shield-check' />}
           transparent={true}
           title={__('Verify the email addresses that you send email from')}
         >
@@ -385,29 +396,29 @@ class EngageSettingsContent extends React.Component<Props, State> {
           <Verify>
             <ControlLabel required={true}>Email</ControlLabel>
             <FormControl
-              type="email"
+              type='email'
               onChange={this.onChangeCommon.bind(this, 'emailToVerify')}
             />
 
             <Button
               onClick={this.onVerifyEmail}
-              btnStyle="success"
-              icon="check-circle"
+              btnStyle='success'
+              icon='check-circle'
             >
               Verify
             </Button>
           </Verify>
         </CollapseContent>
         <CollapseContent
-          beforeTitle={<Icon icon="envelope-upload" />}
+          beforeTitle={<Icon icon='envelope-upload' />}
           transparent={true}
           title={__('Send your first testing email')}
         >
-          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
+          <FlexRow $alignItems='flex-start' $justifyContent='space-between'>
             <FormGroup>
               <ControlLabel>From</ControlLabel>
               <FormControl
-                placeholder="from@email.com"
+                placeholder='from@email.com'
                 onChange={this.onChangeCommon.bind(this, 'testFrom')}
               />
             </FormGroup>
@@ -415,7 +426,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel>To</ControlLabel>
               <FormControl
-                placeholder="to@email.com"
+                placeholder='to@email.com'
                 onChange={this.onChangeCommon.bind(this, 'testTo')}
               />
             </FormGroup>
@@ -424,15 +435,15 @@ class EngageSettingsContent extends React.Component<Props, State> {
             <ControlLabel>Content</ControlLabel>
             <FormControl
               placeholder={__('Write your content') + '...'}
-              componentclass="textarea"
+              componentclass='textarea'
               onChange={this.onChangeCommon.bind(this, 'testContent')}
             />
           </FormGroup>
 
           <ModalFooter>
             <Button
-              btnStyle="success"
-              icon="message"
+              btnStyle='success'
+              icon='message'
               onClick={this.onSendTestEmail}
             >
               Send test email

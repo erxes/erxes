@@ -43,16 +43,47 @@ export class SocketLabs {
 
       const finalUrl = params ? url + '?' + new URLSearchParams(params) : url;
 
-      const res = await fetch(finalUrl, requestOptions);
+      const res: any = await fetch(finalUrl, requestOptions);
 
       console.log(
         `${this.apiUrl}/v2/servers/${this.serverId}/${path}` +
-          new URLSearchParams(params),
+          new URLSearchParams(params)
       );
 
       return res;
     } catch (e) {
       console.error('errorrrr ', e);
+      throw new Error(e.message);
+    }
+  }
+
+  async validate (email: string, verificationCode: string) {
+    const domain = email.split('@')[1];
+
+    try {
+      const response: any = await this.request({
+        path: `sending-domains/${domain}/verify`,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: {
+          username: this.username,
+          verificationCode,
+          domain,
+        },
+      }).then((r) => r.json());
+
+      const { data, error } = response;
+
+      if (error && error[0]) {
+        throw new Error(error[0].message);
+      }
+
+      if (data.result) {
+        return 'verification email sent';
+      }
+
+      return 'failed';
+    } catch (e) {
       throw new Error(e.message);
     }
   }
@@ -110,15 +141,25 @@ export class SocketLabs {
       const verificationStatus = {
         isEmailVerified: false,
         isDomainVerified: false,
+        isBounceDomainVerified: false,
+        isTrackingDomainVerified: false,
       };
       console.log('data ', data);
 
-      if (data && data.verificationStatus === 'Complete') {
+      if (data?.verificationStatus === 'Complete') {
         verificationStatus.isEmailVerified = true;
       }
 
-      if (data && data.authenticationStatus !== 'Unauthenticated') {
+      if (data?.authenticationStatus !== 'Unauthenticated') {
         verificationStatus.isDomainVerified = true;
+      }
+
+      if (data?.bounceDomain) {
+        verificationStatus.isBounceDomainVerified = true;
+      }
+
+      if (data?.trackingDomain) {
+        verificationStatus.isTrackingDomainVerified = true;
       }
 
       return verificationStatus;
@@ -133,6 +174,8 @@ export class SocketLabs {
     const verificationStatus = {
       isEmailVerified: false,
       isDomainVerified: false,
+      isBounceDomainVerified: false,
+      isTrackingDomainVerified: false,
     };
 
     try {
@@ -155,19 +198,27 @@ export class SocketLabs {
 
         if (error[0].errorType === 'EmailRestricted') {
           throw new Error(
-            `Emails cannot be sent from ${domain}. Please use your company email address instead.`,
+            `Emails cannot be sent from ${domain}. Please use your company email address instead.`
           );
         }
 
         throw new Error(error[0].message);
       }
 
-      if (data && data.verificationStatus === 'Complete') {
+      if (data?.verificationStatus === 'Complete') {
         verificationStatus.isEmailVerified = true;
       }
 
-      if (data && data.authenticationStatus !== 'Unauthenticated') {
+      if (data?.authenticationStatus !== 'Unauthenticated') {
         verificationStatus.isDomainVerified = true;
+      }
+
+      if (data?.bounceDomain) {
+        verificationStatus.isBounceDomainVerified = true;
+      }
+
+      if (data?.trackingDomain) {
+        verificationStatus.isTrackingDomainVerified = true;
       }
 
       return verificationStatus;
@@ -176,12 +227,30 @@ export class SocketLabs {
     }
   }
 
-  async getCNAMEConf(email: string) {
+  getCNAMEConf(email: string) {
     const domain = email.split('@')[1];
 
     return {
       hostname: `dkim._domainkey.${domain}`,
       value: 'dkim._domainkey.email-od.com',
+    };
+  }
+
+  getBounceDomainConf(email: string) {
+    const domain = email.split('@')[1];
+
+    return {
+      hostname: `bounce.${domain}`,
+      value: 'tracking.socketlabs.com'
+    };
+  }
+
+  getTrackingDomainConf(email: string) {
+    const domain = email.split('@')[1];
+
+    return {
+      hostname: `links.${domain}`,
+      value: 'tracking.socketlabs.com'
     };
   }
 
@@ -201,9 +270,62 @@ export class SocketLabs {
     const verified = data.filter(
       (d) =>
         d.verificationStatus === 'Complete' &&
-        d.authenticationStatus !== 'Unauthenticated',
+        d.authenticationStatus !== 'Unauthenticated'
     );
 
     return verified.map((d) => d.sendingDomain);
+  }
+
+  async verifyBounceDomain(email) {
+    const domain = email.split('@')[1];
+
+    const response: any = await this.request({
+      path: 'bounce',
+      method: 'POST',
+      body: {
+        domain: `bounce.${domain}`,
+        isDefault: false,
+      },
+
+      headers: { 'Content-Type': 'application/json' },
+    }).then((r) => r.json());
+
+    const { data, error } = await response.json();
+
+    if (error && error.length > 0) {
+      throw new Error(error.message);
+    }
+
+    return data;
+  }
+
+  async verifyTrackingDomain(email) {
+    const domain = email.split('@')[1];
+
+    const response: any = await this.request({
+      path: 'tracking',
+      method: 'POST',
+      body: {
+        domain: `links.${domain}`,
+        automaticTrackingEnabled: true,
+        clicksEnabled: true,
+        encryptedTrackingStatus: 'none',
+        googleAnalyticsEnabled: false,
+        httpsEnabled: true,
+        isDefault: false,
+        opensEnabled: true,
+        unsubscribesEnabled: true,
+      },
+
+      headers: { 'Content-Type': 'application/json' },
+    }).then((r) => r.json());
+
+    const { data, error } = await response.json();
+
+    if (error && error.length > 0) {
+      throw new Error(error.message);
+    }
+
+    return data;
   }
 }
