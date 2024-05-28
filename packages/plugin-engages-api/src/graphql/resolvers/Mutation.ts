@@ -169,7 +169,7 @@ const engageMutations = {
   /**
    * Engage message set pause
    */
-  engageMessageSetPause(_root, { _id }: { _id: string }, { models }: IContext) {
+  async engageMessageSetPause(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.EngageMessages.engageMessageSetPause(_id);
   },
 

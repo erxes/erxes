@@ -9,9 +9,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-burenscoring-api/**"
-      - ".github/workflows/plugin-burenscoring-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-burenscoring-api/**'
+      - '.github/workflows/plugin-burenscoring-api.yaml'
   pull_request:
     branches:
       - dev
@@ -20,9 +20,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-burenscoring-api/**"
-      - ".github/workflows/plugin-burenscoring-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-burenscoring-api/**'
+      - '.github/workflows/plugin-burenscoring-api.yaml'
 
 jobs:
   api:

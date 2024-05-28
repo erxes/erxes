@@ -9,9 +9,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-products-api/**"
-      - ".github/workflows/plugin-products-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-products-api/**'
+      - '.github/workflows/plugin-products-api.yaml'
   pull_request:
     branches:
       - dev
@@ -20,9 +20,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-products-api/**"
-      - ".github/workflows/plugin-products-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-products-api/**'
+      - '.github/workflows/plugin-products-api.yaml'
 
 jobs:
   api:

@@ -69,7 +69,7 @@ const labelsQueries = {
     { models, subdomain }: IContext
   ) => {
     const filter = await getGenerateFilter(subdomain, params);
-    return await models.DayLabels.find(filter).count();
+    return await models.DayLabels.find(filter).countDocuments();
   }
 };
 

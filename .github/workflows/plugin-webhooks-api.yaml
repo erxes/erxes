@@ -9,9 +9,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-webhooks-api/**"
-      - ".github/workflows/plugin-webhooks-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-webhooks-api/**'
+      - '.github/workflows/plugin-webhooks-api.yaml'
   pull_request:
     branches:
       - dev
@@ -20,9 +20,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-webhooks-api/**"
-      - ".github/workflows/plugin-webhooks-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-webhooks-api/**'
+      - '.github/workflows/plugin-webhooks-api.yaml'
 
 jobs:
   api:

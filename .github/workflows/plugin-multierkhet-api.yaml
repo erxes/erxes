@@ -9,9 +9,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-multierkhet-api/**"
-      - ".github/workflows/plugin-multierkhet-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-multierkhet-api/**'
+      - '.github/workflows/plugin-multierkhet-api.yaml'
   pull_request:
     branches:
       - dev
@@ -20,9 +20,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-multierkhet-api/**"
-      - ".github/workflows/plugin-multierkhet-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-multierkhet-api/**'
+      - '.github/workflows/plugin-multierkhet-api.yaml'
 
 jobs:
   api:

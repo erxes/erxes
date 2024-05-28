@@ -19,6 +19,7 @@ type Props = {
   onChange: (_id: string, name: string, value: any) => void;
   hideMenu?: boolean;
   addButtonLabel?: string;
+  limit?:number
 };
 
 type Buttons = {
@@ -35,6 +36,7 @@ function ButtonsGenerator({
   onChange,
   hideMenu,
   addButtonLabel,
+  limit,
 }: Props) {
   const [btns, setButtons] = useState(buttons as Buttons[]);
 
@@ -47,7 +49,7 @@ function ButtonsGenerator({
   };
 
   const onChangeButtons = (buttons) => {
-    onChange(_id, "buttons", buttons);
+    onChange(_id, 'buttons', buttons);
   };
 
   const renderButton = (button) => {
@@ -78,6 +80,10 @@ function ButtonsGenerator({
     const handleEdit = (e) => {
       const { value } = e.currentTarget as HTMLInputElement;
 
+      if(value.length > 20){
+        return
+      }
+
       const updateButtons = btns.map((btn) =>
         btn._id === button._id ? { ...btn, text: value } : btn
       );
@@ -89,10 +95,10 @@ function ButtonsGenerator({
 
       e.preventDefault();
       if (value.trim().length === 0) {
-        return Alert.warning("Button text required!");
+        return Alert.warning('Button text required!');
       }
 
-      onBtnChange("isEditing", false);
+      onBtnChange('isEditing', false);
     };
 
     const onRemove = () => {
@@ -106,16 +112,16 @@ function ButtonsGenerator({
     const handleBtnTypeChange = (e, type) => {
       e.preventDefault();
 
-      onBtnChange("type", type);
+      onBtnChange('type', type);
     };
 
     const renderTrigger = (type) => {
-      if (type === "link") {
+      if (type === 'link') {
         const onChangeLink = (e) => {
           e.stopPropagation();
           const { value } = e.currentTarget as HTMLInputElement;
 
-          onBtnChange("link", value);
+          onBtnChange('link', value);
         };
 
         return (
@@ -128,7 +134,7 @@ function ButtonsGenerator({
               />
             </div>
             <Button btnStyle="link" size="small">
-              {__("Link")} <Icon icon="angle-down" />
+              {__('Link')} <Icon icon="angle-down" />
             </Button>
           </Row>
         );
@@ -138,9 +144,9 @@ function ButtonsGenerator({
         <Button
           btnStyle="link"
           size="small"
-          style={{ display: "flex", gap: 5 }}
+          style={{ display: 'flex', gap: 5 }}
         >
-          {__("Button")} <Icon icon="angle-down" />
+          {__('Button')} <Icon icon="angle-down" />
         </Button>
       );
     };
@@ -155,7 +161,7 @@ function ButtonsGenerator({
               onChange={handleEdit}
               value={button?.text || null}
               onBlur={onSave}
-              onKeyPress={(e) => e.key === "Enter" && onSave(e)}
+              onKeyPress={(e) => e.key === 'Enter' && onSave(e)}
             />
           </FormContainer>
         );
@@ -178,8 +184,8 @@ function ButtonsGenerator({
           >
             <Container>
               {[
-                { type: "btn", text: "Button" },
-                { type: "link", text: "Link" },
+                { type: 'btn', text: 'Button' },
+                { type: 'link', text: 'Link' },
               ].map(({ text, type }) => (
                 <Menu.Item
                   // className="dropdown-item"
@@ -201,7 +207,7 @@ function ButtonsGenerator({
 
   const addButton = () => {
     const newBtnCount = btns.filter((btn) =>
-      btn.text.includes("New Button #")
+      btn.text.includes('New Button #')
     ).length;
 
     onChangeButtons([
@@ -209,18 +215,28 @@ function ButtonsGenerator({
       {
         _id: Math.random().toString(),
         text: `New Button #${newBtnCount + 1}`,
-        type: "button",
+        type: 'button',
         isEditing: true,
       },
     ]);
   };
 
+  const renderAddButton = () =>{
+    if(limit && btns.length +1  >limit){
+      return null
+    }
+
+    return (
+      <Button block btnStyle="link" icon="plus-1" onClick={addButton}>
+        {__(addButtonLabel || 'Add Button')}
+      </Button>
+    );
+  }
+
   return (
     <>
       {btns.map((button) => renderButton(button))}
-      <Button block btnStyle="link" icon="plus-1" onClick={addButton}>
-        {__(addButtonLabel || "Add Button")}
-      </Button>
+      {renderAddButton()}
     </>
   );
 }

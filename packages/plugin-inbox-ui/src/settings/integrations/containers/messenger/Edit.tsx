@@ -1,84 +1,134 @@
-import * as compose from 'lodash.flowright';
-
-import { Alert, __, withProps } from 'coreui/utils';
+import { Alert, __ } from "coreui/utils";
 import {
   EditMessengerMutationResponse,
   EditMessengerMutationVariables,
-  IMessengerApps,
-  IMessengerData,
-  IUiOptions,
   IntegrationDetailQueryResponse,
   MessengerAppsQueryResponse,
   SaveMessengerAppearanceMutationResponse,
   SaveMessengerAppsMutationResponse,
   SaveMessengerConfigsMutationResponse,
-} from '@erxes/ui-inbox/src/settings/integrations/types';
+} from "@erxes/ui-inbox/src/settings/integrations/types";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import {
   mutations,
   queries,
-} from '@erxes/ui-inbox/src/settings/integrations/graphql';
+} from "@erxes/ui-inbox/src/settings/integrations/graphql";
 
-import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
-import Form from '../../components/messenger/Form';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
-import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
-import { useNavigate } from 'react-router-dom';
+import { BrandsQueryResponse } from "@erxes/ui/src/brands/types";
+import Form from "../../components/messenger/Form";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { TopicsQueryResponse } from "@erxes/ui-knowledgebase/src/types";
+import { UsersQueryResponse } from "@erxes/ui/src/auth/types";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { queries as kbQueries } from "@erxes/ui-knowledgebase/src/graphql";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   integrationId: string;
 };
 
-type FinalProps = {
-  usersQuery: UsersQueryResponse;
-  brandsQuery: BrandsQueryResponse;
-  integrationDetailQuery: IntegrationDetailQueryResponse;
-  knowledgeBaseTopicsQuery: TopicsQueryResponse;
-  messengerAppsQuery: MessengerAppsQueryResponse;
-} & Props &
-  SaveMessengerConfigsMutationResponse &
-  SaveMessengerAppearanceMutationResponse &
-  SaveMessengerAppsMutationResponse &
-  EditMessengerMutationResponse;
-
-const EditMessenger = (props: FinalProps) => {
+const EditMessenger = (props: Props) => {
+  const { integrationId } = props;
   const navigate = useNavigate();
-  const {
-    integrationId,
-    usersQuery,
-    brandsQuery,
-    integrationDetailQuery,
-    editMessengerMutation,
-    saveConfigsMutation,
-    saveAppearanceMutation,
-    messengerAppSaveMutation,
-    knowledgeBaseTopicsQuery,
-    messengerAppsQuery,
-  } = props;
+
+  const { data: usersData, loading: usersLoading } =
+    useQuery<UsersQueryResponse>(gql(queries.users));
+  const { data: brandsData, loading: brandsLoading } =
+    useQuery<BrandsQueryResponse>(gql(queries.brands), {
+      fetchPolicy: "network-only",
+    });
+  const { data: topicsData } = useQuery<TopicsQueryResponse>(
+    gql(kbQueries.knowledgeBaseTopics),
+    {
+      skip: !isEnabled("knowledgebase") ? true : false,
+    }
+  );
+  const { data: integrationDetailData, loading: integrationDetailLoading } =
+    useQuery<IntegrationDetailQueryResponse>(gql(queries.integrationDetail), {
+      variables: { _id: integrationId },
+      fetchPolicy: "network-only",
+    });
+  const { data: messengerAppsData, loading: messengerAppsLoading } =
+    useQuery<MessengerAppsQueryResponse>(gql(queries.messengerApps), {
+      variables: { integrationId },
+      fetchPolicy: "network-only",
+    });
+
+  const [editMessengerMutation] = useMutation<
+    EditMessengerMutationResponse,
+    EditMessengerMutationVariables
+  >(gql(mutations.integrationsEditMessenger), {
+    refetchQueries: [
+      {
+        query: gql(queries.integrationDetail),
+        variables: { _id: integrationId },
+        fetchPolicy: "network-only",
+      },
+    ],
+  });
+
+  const [saveConfigsMutation] =
+    useMutation<SaveMessengerConfigsMutationResponse>(
+      gql(mutations.integrationsSaveMessengerConfigs),
+      {
+        refetchQueries: [
+          {
+            query: gql(queries.integrationDetail),
+            variables: { _id: integrationId },
+            fetchPolicy: "network-only",
+          },
+        ],
+      }
+    );
+
+  const [saveAppearanceMutation] =
+    useMutation<SaveMessengerAppearanceMutationResponse>(
+      gql(mutations.integrationsSaveMessengerAppearance),
+      {
+        refetchQueries: [
+          {
+            query: gql(queries.integrationDetail),
+            variables: { _id: integrationId },
+            fetchPolicy: "network-only",
+          },
+        ],
+      }
+    );
+
+  const [messengerAppSaveMutation] =
+    useMutation<SaveMessengerAppsMutationResponse>(
+      gql(mutations.messengerAppSave),
+      {
+        refetchQueries: [
+          {
+            query: gql(queries.integrationDetail),
+            variables: { _id: integrationId },
+            fetchPolicy: "network-only",
+          },
+        ],
+      }
+    );
 
   const [isLoading, setIsLoading] = React.useState(false);
 
   if (
-    integrationDetailQuery.loading ||
-    usersQuery.loading ||
-    brandsQuery.loading ||
-    messengerAppsQuery.loading
+    integrationDetailLoading ||
+    usersLoading ||
+    brandsLoading ||
+    messengerAppsLoading
   ) {
     return <Spinner />;
   }
 
-  const users = usersQuery.users || [];
-  const brands = brandsQuery.brands || [];
-  const integration = integrationDetailQuery.integrationDetail || {};
-  const topics = knowledgeBaseTopicsQuery.knowledgeBaseTopics || [];
-  const apps = messengerAppsQuery.messengerApps || {};
+  const users = usersData?.users || [];
+  const brands = brandsData?.brands || [];
+  const integration = integrationDetailData?.integrationDetail || {};
+  const topics = topicsData?.knowledgeBaseTopics || [];
+  const apps = messengerAppsData?.messengerApps || {};
 
   const deleteTypeName = (datas) => {
-    return (datas || []).filter((item) => delete item.__typename);
+    return (datas || []).map(({ __typename, ...item }) => item);
   };
 
   const save = (doc) => {
@@ -103,14 +153,14 @@ const EditMessenger = (props: FinalProps) => {
         channelIds,
       },
     })
-      .then(({ data }) => {
+      .then(({ data = {} as any }) => {
         const id = data.integrationsEditMessengerIntegration._id;
 
         return saveConfigsMutation({
           variables: { _id: id, messengerData },
         });
       })
-      .then(({ data }) => {
+      .then(({ data = {} as any }) => {
         const id = data.integrationsSaveMessengerConfigs._id;
 
         return saveAppearanceMutation({
@@ -118,12 +168,13 @@ const EditMessenger = (props: FinalProps) => {
         });
       })
       .then(() => {
+        console.log("ooo");
         const messengerAppsWithoutTypename = {
           websites: deleteTypeName(messengerApps.websites),
           knowledgebases: deleteTypeName(messengerApps.knowledgebases),
           leads: deleteTypeName(messengerApps.leads),
         };
-
+        console.log("here", messengerAppsWithoutTypename);
         return messengerAppSaveMutation({
           variables: {
             integrationId,
@@ -132,17 +183,18 @@ const EditMessenger = (props: FinalProps) => {
         });
       })
       .then(() => {
-        Alert.success('You successfully updated a messenger');
-
-        navigate('/settings/integrations?refetch=true');
+        Alert.success("You successfully updated a messenger");
+        console.log("here11");
+        navigate("/settings/integrations?refetch=true");
       })
       .catch((error) => {
-        if (error.message.includes('Duplicated messenger for single brand')) {
+        console.log("here22", error);
+        if (error.message.includes("Duplicated messenger for single brand")) {
           return Alert.warning(
             __(
-              "You've already created a messenger for the brand you've selected. Please choose a different brand or edit the previously created messenger",
+              "You've already created a messenger for the brand you've selected. Please choose a different brand or edit the previously created messenger"
             ),
-            6000,
+            6000
           );
         }
 
@@ -164,87 +216,4 @@ const EditMessenger = (props: FinalProps) => {
   return <Form {...updatedProps} />;
 };
 
-const commonOptions = ({ integrationId }) => {
-  return {
-    refetchQueries: [
-      {
-        query: gql(queries.integrationDetail),
-        variables: { _id: integrationId || '' },
-        fetchPolicy: 'network-only',
-      },
-    ],
-  };
-};
-
-export default withProps<Props>(
-  compose(
-    graphql<Props, UsersQueryResponse>(gql(queries.users), {
-      name: 'usersQuery',
-    }),
-    graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
-      name: 'brandsQuery',
-      options: () => ({
-        fetchPolicy: 'network-only',
-      }),
-    }),
-    graphql<Props, TopicsQueryResponse>(gql(kbQueries.knowledgeBaseTopics), {
-      name: 'knowledgeBaseTopicsQuery',
-    }),
-    graphql<Props, MessengerAppsQueryResponse, { integrationId: string }>(
-      gql(queries.messengerApps),
-      {
-        name: 'messengerAppsQuery',
-        options: ({ integrationId }: { integrationId: string }) => ({
-          variables: {
-            integrationId,
-          },
-          fetchPolicy: 'network-only',
-        }),
-      },
-    ),
-    graphql<Props, IntegrationDetailQueryResponse, { _id: string }>(
-      gql(queries.integrationDetail),
-      {
-        name: 'integrationDetailQuery',
-        options: ({ integrationId }: { integrationId: string }) => ({
-          variables: {
-            _id: integrationId || '',
-          },
-          fetchPolicy: 'network-only',
-        }),
-      },
-    ),
-    graphql<
-      Props,
-      EditMessengerMutationResponse,
-      EditMessengerMutationVariables
-    >(gql(mutations.integrationsEditMessenger), {
-      name: 'editMessengerMutation',
-      options: commonOptions,
-    }),
-    graphql<
-      Props,
-      SaveMessengerConfigsMutationResponse,
-      { _id: string; messengerData: IMessengerData }
-    >(gql(mutations.integrationsSaveMessengerConfigs), {
-      name: 'saveConfigsMutation',
-      options: commonOptions,
-    }),
-    graphql<
-      Props,
-      SaveMessengerAppsMutationResponse,
-      { _id: string; messengerApps: IMessengerApps }
-    >(gql(mutations.messengerAppSave), {
-      name: 'messengerAppSaveMutation',
-      options: commonOptions,
-    }),
-    graphql<
-      Props,
-      SaveMessengerAppearanceMutationResponse,
-      { _id: string; uiOptions: IUiOptions }
-    >(gql(mutations.integrationsSaveMessengerAppearance), {
-      name: 'saveAppearanceMutation',
-      options: commonOptions,
-    }),
-  )(EditMessenger),
-);
+export default EditMessenger;

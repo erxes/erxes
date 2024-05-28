@@ -1,4 +1,4 @@
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 import * as _ from 'underscore';
 import { IModels } from './connectionResolver';
 import {
@@ -12,11 +12,9 @@ import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 import { BILL_TYPES } from './models/definitions/constants';
 import {
   checkOrderStatus,
-  getDistrictName,
   prepareEbarimtData,
   validateOrderPayment,
 } from './graphql/utils/orderUtils';
-import { PutData } from './models/PutData';
 import {
   ISettlePaymentParams,
   getStatus,
@@ -254,6 +252,11 @@ export const updateMobileAmount = async (
   }
 
   let order = await models.Orders.findOne(orderSelector).lean();
+
+  if(!order) {
+    throw new Error(`Order not found`);
+  }
+  
   const sumMobileAmount = (order.mobileAmounts || []).reduce(
     (sum, i) => sum + i.amount,
     0,
@@ -264,6 +267,10 @@ export const updateMobileAmount = async (
   });
 
   order = await models.Orders.findOne(orderSelector).lean();
+
+  if(!order) {
+    throw new Error(`Order not found`);
+  }
 
   const { billType, totalAmount, registerNumber, _id } = order;
 
@@ -297,8 +304,8 @@ export const updateMobileAmount = async (
         _id: { $in: items.map((i) => i.productId) },
       }).lean();
       for (const item of items) {
-        const product = products.find((p) => p._id === item.productId) || {};
-        item.productName = `${product.code} - ${product.name}`;
+        const product = products.find((p) => p._id === item.productId);
+        item.productName = `${product?.code} - ${product?.name}`;
       }
     }
 
@@ -353,7 +360,8 @@ export const prepareSettlePayment = async (
     !ebarimtConfig ||
     !Object.keys(ebarimtConfig) ||
     !ebarimtConfig.districtCode ||
-    !ebarimtConfig.companyRD
+    !ebarimtConfig.companyRD ||
+    !ebarimtConfig.merchantTin
   ) {
     billType = BILL_TYPES.INNER;
   }
@@ -362,71 +370,36 @@ export const prepareSettlePayment = async (
     const ebarimtResponses: any[] = [];
 
     if (billType !== BILL_TYPES.INNER) {
-      const ebarimtDatas = await prepareEbarimtData(
+      const ebarimtData = await prepareEbarimtData(
         models,
         order,
         ebarimtConfig,
         items,
         billType,
-        registerNumber,
-        config.paymentTypes,
+        registerNumber
       );
 
-      ebarimtConfig.districtName = getDistrictName(
-        (ebarimtConfig && ebarimtConfig.districtCode) || '',
-      );
-
-      for (const data of ebarimtDatas) {
-        let response;
-
-        if (data.inner) {
-          const putData = new PutData({
-            ...config,
-            ...data,
-            config,
-            models,
-          });
-
-          response = {
-            _id: Math.random(),
-            billId: 'Түр баримт',
-            ...(await putData.generateTransactionInfo()),
-            registerNo: ebarimtConfig.companyRD || '',
-            success: 'true',
-          };
-          ebarimtResponses.push(response);
-
-          await models.OrderItems.updateOne(
-            { _id: { $in: data.itemIds } },
-            { $set: { isInner: true } },
-          );
-
-          continue;
-        }
-
-        try {
-          response = await models.PutResponses.putData({
-            ...data,
-            config: ebarimtConfig,
-            models,
-          });
-        } catch (e) {
-          response = {
-            _id: `Err${Math.random()}`,
-            billId: 'Error',
-            success: 'false',
-            message: e.message
-          }
-        }
-        
-        ebarimtResponses.push(response);
+      try {
+        const { putData, innerData } = await models.PutResponses.putData(
+          { ...ebarimtData },
+          ebarimtConfig,
+        );
+        putData && ebarimtResponses.push(putData);
+        innerData && ebarimtResponses.push(innerData);
+      } catch (e) {
+        ebarimtResponses.push({
+          _id: `Err${Math.random()}`,
+          billId: 'Error',
+          success: 'false',
+          message: e.message
+        })
       }
     }
 
     if (
       billType === BILL_TYPES.INNER ||
       (ebarimtResponses.length &&
-        !ebarimtResponses.filter((er) => er.success !== 'true').length)
+        !ebarimtResponses.filter((er) => er.status !== 'SUCCESS').length)
     ) {
       await models.Orders.updateOne(
         { _id },
@@ -463,8 +436,8 @@ export const prepareSettlePayment = async (
         _id: { $in: items.map((i) => i.productId) },
       }).lean();
       for (const item of items) {
-        const product = products.find((p) => p._id === item.productId) || {};
-        item.productName = `${product.code} - ${product.name}`;
+        const product = products.find((p) => p._id === item.productId);
+        item.productName = `${product?.code} - ${product?.name}`;
       }
     }
 

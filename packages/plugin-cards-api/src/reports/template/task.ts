@@ -342,7 +342,7 @@ export const taskCharts = [
             let tasks
 
             if (pipeline.length === 0) {
-                const tasksCount = await models.Tasks.find(matchFilter).count()
+                const tasksCount = await models.Tasks.find(matchFilter).countDocuments()
 
                 tasks = [
                     {

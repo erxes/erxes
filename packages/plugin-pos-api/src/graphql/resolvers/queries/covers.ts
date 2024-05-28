@@ -49,7 +49,7 @@ const coverQueries = {
   async posCoversCount(_root, params, { models }: IContext) {
     return models.Covers.find({
       ...(await generateFilterQuery(models, params)),
-    }).count();
+    }).countDocuments();
   },
 
   async posCoverDetail(_root, { _id }: { _id: string }, { models }: IContext) {

@@ -46,7 +46,7 @@ const ResponseTemplateList: React.FC<Props> = ({
   };
 
   const renderForm = (props) => {
-    return <Form {...props} renderButton={props.renderButton} />;
+    return <Form {...props} renderButton={renderButton} />;
   };
 
   const renderEditAction = (object) => {
