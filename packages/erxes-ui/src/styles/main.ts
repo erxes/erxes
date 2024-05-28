@@ -25,11 +25,11 @@ const FlexCenter = styled(Flex)`
 const Actions = styledTS<{ isSmall?: boolean }>(styled.div)`
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: 0 ${dimensions.coreSpacing}px ${dimensions.unitSpacing}px;
 
-  > a, button {
+  a, button {
     flex: 1;
-    padding: 4px 15px;
 
     i {
       font-size: 12px;
@@ -37,11 +37,12 @@ const Actions = styledTS<{ isSmall?: boolean }>(styled.div)`
     }
   }
 
-  > div, > button {
+  > div {
     margin-left: ${dimensions.unitSpacing}px;
+    position: relative;
   }
 
-  .dropdown {
+  [id^="headlessui-menu-items-"] {
     display: ${(props) => (props.isSmall ? 'inline-block' : 'block')};
   }
 

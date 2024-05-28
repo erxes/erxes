@@ -119,7 +119,7 @@ const List = (props: Props) => {
     return (
       <FormControl
         type="text"
-        placeholder="type a search"
+        placeholder="Type to search"
         onChange={search}
         autoFocus={true}
         value={searchValue}
