@@ -141,7 +141,7 @@ export const loadJobCategoryClass = (models: IModels) => {
      * Generating order
      */
     public static async generateOrder(
-      parentCategory: IJobCategory,
+      parentCategory: IJobCategory | null |undefined,
       doc: IJobCategory,
     ) {
       const order = parentCategory

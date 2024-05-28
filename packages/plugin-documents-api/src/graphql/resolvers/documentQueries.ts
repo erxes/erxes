@@ -38,8 +38,8 @@ const generateFilter = (args: IListParams) => {
 };
 
 const documentQueries = {
-  documents(_root, args: IListParams, { models }: IContext) {
-    const sort = { date: -1 };
+  async documents(_root, args: IListParams, { models }: IContext) {
+    const sort: any = { date: -1 };
 
     const selector = generateFilter(args);
 
@@ -50,7 +50,7 @@ const documentQueries = {
     return paginate(models.Documents.find(selector).sort(sort), args);
   },
 
-  documentsDetail(_root, { _id }, { models }: IContext) {
+  async documentsDetail(_root, { _id }, { models }: IContext) {
     return models.Documents.findOne({ _id });
   },
 
@@ -121,7 +121,7 @@ const documentQueries = {
     });
   },
 
-  documentsTotalCount(_root, args: IListParams, { models }: IContext) {
+  async documentsTotalCount(_root, args: IListParams, { models }: IContext) {
     const selector = generateFilter(args);
 
     return models.Documents.find(selector).countDocuments();

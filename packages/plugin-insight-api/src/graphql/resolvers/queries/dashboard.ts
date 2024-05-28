@@ -48,7 +48,7 @@ const DashboardQueries = {
     params,
     { commonQuerySelector, models }: IContext,
   ) => {
-    const totalCount = models.Dashboards.count({});
+    const totalCount = models.Dashboards.countDocuments({});
     const filter = await generateFilter(params, commonQuerySelector)
     const list = await models.Dashboards.find(
       filter

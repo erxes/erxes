@@ -5,7 +5,7 @@ const scriptQueries = {
   /**
    * Scripts list
    */
-  scripts(
+  async scripts(
     _root,
     args: { page: number; perPage: number },
     { commonQuerySelector, models }: IContext
@@ -16,7 +16,7 @@ const scriptQueries = {
   /**
    * Get all scripts count. We will use it in pager
    */
-  scriptsTotalCount(_root, _args, { commonQuerySelector, models }: IContext) {
+  async scriptsTotalCount(_root, _args, { commonQuerySelector, models }: IContext) {
     return models.Scripts.find(commonQuerySelector).countDocuments();
   }
 };

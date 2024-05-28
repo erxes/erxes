@@ -8,7 +8,7 @@ import {
 } from '../../models/definitions/fields';
 
 export const field = {
-  __resolveReference({ _id }, { models }: IContext) {
+  async __resolveReference({ _id }, { models }: IContext) {
     return models.Fields.findOne({ _id });
   },
   name(root: IFieldDocument) {
@@ -28,7 +28,7 @@ export const field = {
     };
   },
 
-  associatedField(root: IFieldDocument, _params, { models }: IContext) {
+  async associatedField(root: IFieldDocument, _params, { models }: IContext) {
     const { associatedFieldId } = root;
 
     // Returning field that associated with form field

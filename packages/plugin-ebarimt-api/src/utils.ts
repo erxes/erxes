@@ -102,11 +102,41 @@ const getCustomerName = (customer) => {
   return '';
 };
 
-export const getPostData = async (subdomain, config, deal) => {
-  let type: 'B2C_RECEIPT' | 'B2B_RECEIPT' = 'B2C_RECEIPT';
-  let customerCode = '';
-  let customerName = '';
+const billTypeCustomFieldsData = async (config, deal) => {
+  if (
+    config.dealBillType?.billType &&
+    config.dealBillType?.regNo &&
+    deal.customFieldsData?.length
+  ) {
+    const checkCompanyStrs = ['Байгууллага', 'Company', 'B2B', 'B2B_RECEIPT', '3'];
 
+    const customDataBillType = deal.customFieldsData.find(
+      cfd => cfd.field === config.dealBillType.billType && checkCompanyStrs.includes(cfd.value)
+    );
+
+    const customDataRegNo = deal.customFieldsData.find(
+      cfd => cfd.field === config.dealBillType.regNo && cfd.value
+    );
+
+    const customDataComName = deal.customFieldsData.find(
+      cfd => cfd.field === config.dealBillType.companyName && cfd.value
+    );
+
+    if (customDataBillType && customDataRegNo && customDataComName) {
+      const resp = await getCompanyInfo({ checkTaxpayerUrl: config.checkTaxpayerUrl, no: customDataRegNo.value })
+
+      if (resp.status === 'checked' && resp.tin) {
+        return {
+          type: 'B2B_RECEIPT',
+          customerCode: customDataRegNo.value,
+          customerName: customDataComName.value,
+        }
+      }
+    }
+  }
+}
+
+const billTypeConfomityCompany = async (subdomain, config, deal) => {
   const companyIds = await sendCoreMessage({
     subdomain,
     action: 'conformities.savedConformity',
@@ -127,22 +157,41 @@ export const getPostData = async (subdomain, config, deal) => {
       defaultValue: [],
     });
 
-    const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)/gui;
+    const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)|(^\d{11}$)|(^\d{12}$)/gui;
     for (const company of companies) {
       if (re.test(company.code)) {
-        const checkCompanyRes = await fetch(
-          config.checkCompanyUrl +
-          '?' +
-          new URLSearchParams({ regno: company.code }),
-        ).then((r) => r.json());
+        const checkCompanyRes = await getCompanyInfo({ checkTaxpayerUrl: config.checkTaxpayerUrl, no: company.code });
 
-        if (checkCompanyRes.found) {
-          type = 'B2B_RECEIPT';
-          customerCode = company.code;
-          customerName = company.primaryName;
-          continue;
+        if (checkCompanyRes.status === 'checked' && checkCompanyRes.tin) {
+          return {
+            type: 'B2B_RECEIPT',
+            customerCode: company.code,
+            customerName: company.primaryName,
+          }
         }
       }
+    }
+  }
+}
+
+const checkBillType = async (subdomain, config, deal) => {
+  let type: 'B2C_RECEIPT' | 'B2B_RECEIPT' = 'B2C_RECEIPT';
+  let customerCode = '';
+  let customerName = '';
+
+  const checker = await billTypeCustomFieldsData(config, deal);
+  if (checker?.type === 'B2B_RECEIPT') {
+    type = 'B2B_RECEIPT';
+    customerCode = checker.customerCode;
+    customerName = checker.customerName;
+  }
+
+  if (type === 'B2C_RECEIPT') {
+    const checkerC = await billTypeConfomityCompany(subdomain, config, deal);
+    if (checkerC?.type === 'B2B_RECEIPT') {
+      type = 'B2B_RECEIPT';
+      customerCode = checker?.customerCode;
+      customerName = checker?.customerName;
     }
   }
 
@@ -187,6 +236,11 @@ export const getPostData = async (subdomain, config, deal) => {
       }
     }
   }
+  return { type, customerCode, customerName }
+}
+
+export const getPostData = async (subdomain, config, deal) => {
+  const { type, customerCode, customerName } = await checkBillType(subdomain, config, deal)
 
   const productsIds = deal.productsData.map((item) => item.productId);
   const products = await sendProductsMessage({

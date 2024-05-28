@@ -126,7 +126,8 @@ export const dashboardSchema = schemaHooksWrapper(
     name: field({ type: String, label: 'Name' }),
     sectionId: field({ type: String, label: 'Section id' }),
     visibility: field({
-      type: IVisibilityType,
+      type: String,
+      enum: Object.values(IVisibilityType),
       label: 'Dashboard visibility',
     }),
     assignedUserIds: field({ type: [String], label: 'Assigned member ids' }),
@@ -163,7 +164,8 @@ export const reportSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Report name', index: true }),
   visibility: field({
-    type: IVisibilityType,
+    type: String,
+    enum: Object.values(IVisibilityType),
     label: 'Report visibility',
   }),
   assignedUserIds: field({ type: [String], label: 'Assigned member ids' }),
@@ -243,7 +245,7 @@ export const chartSchema = schemaHooksWrapper(
       index: true,
     }),
     order: field({ type: Number, label: 'Order number' }),
-    chartType: field({ type: IChartType, label: 'Chart type' }),
+    chartType: field({ type: String, enum: Object.values(IChartType), label: 'Chart type' }),
     filter: field({ type: JSON, label: 'Filters' }),
     dimension: field({ type: JSON, label: 'Dimension' }),
     defaultFilterId: field({ type: String, label: 'Default filter id' }),

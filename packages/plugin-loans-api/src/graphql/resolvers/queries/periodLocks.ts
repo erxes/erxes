@@ -70,7 +70,7 @@ const periodLockQueries = {
           perPage: params.perPage
         }
       ),
-      totalCount: models.PeriodLocks.find(filter).count()
+      totalCount: models.PeriodLocks.find(filter).countDocuments()
     };
   },
 

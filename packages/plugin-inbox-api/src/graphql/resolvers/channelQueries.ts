@@ -13,16 +13,16 @@ const channelQueries = {
   /**
    * Channels list
    */
-  channelsByMembers(_root, { memberIds }: { memberIds: string[] }, { models }: IContext) {
+  async channelsByMembers(_root, { memberIds }: { memberIds: string[] }, { models }: IContext) {
     return models.Channels.find({ memberIds: { $in: memberIds } });
   },
 
   /**
    * Channels list
    */
-  channels(_root, { memberIds }: { memberIds: string[] }, { models }: IContext) {
+  async channels(_root, { memberIds }: { memberIds: string[] }, { models }: IContext) {
     const query: IChannelQuery = {};
-    const sort = { createdAt: -1 };
+    const sort: any = { createdAt: -1 };
 
     if (memberIds) {
       query.memberIds = { $in: memberIds };
@@ -34,21 +34,21 @@ const channelQueries = {
   /**
    * Get one channel
    */
-  channelDetail(_root, { _id }: { _id: string }, { models }: IContext ) {
+  async channelDetail(_root, { _id }: { _id: string }, { models }: IContext ) {
     return models.Channels.findOne({ _id });
   },
 
   /**
    * Get all channels count. We will use it in pager
    */
-  channelsTotalCount(_root, _params, { models }: IContext) {
+  async channelsTotalCount(_root, _params, { models }: IContext) {
     return models.Channels.find({}).countDocuments();
   },
 
   /**
    * Get last channel
    */
-  channelsGetLast(_root, _params, { models }: IContext) {
+  async channelsGetLast(_root, _params, { models }: IContext) {
     return models.Channels.findOne({}).sort({ createdAt: -1 });
   }
 };

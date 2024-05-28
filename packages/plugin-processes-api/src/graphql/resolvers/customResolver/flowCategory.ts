@@ -3,7 +3,7 @@ import { IContext } from '../../../connectionResolver';
 import { sendProductsMessage } from '../../../messageBroker';
 
 export default {
-  __resolveReference({ _id }, { subdomain }: IContext) {
+  async __resolveReference({ _id }, { subdomain }: IContext) {
     return sendProductsMessage({
       subdomain,
       action: 'findOne',
@@ -35,6 +35,6 @@ export default {
     return await models.Flows.find({
       productId: { $in: productIds },
       status: { $ne: FLOW_STATUSES.ARCHIVED }
-    }).count();
+    }).countDocuments();
   }
 };
