@@ -7,7 +7,6 @@ import {
   EditPosMutationResponse,
   GroupsBulkInsertMutationResponse,
   GroupsQueryResponse,
-  IProductGroup,
   PosDetailQueryResponse,
   PosEnvQueryResponse,
   SlotsBulkUpdateMutationResponse,
