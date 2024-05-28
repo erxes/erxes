@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.11.0-rc.7](https://github.com/erxes/erxes/compare/1.11.0-rc.6...1.11.0-rc.7) (2024-05-28)
+
+## [1.11.0-rc.6](https://github.com/erxes/erxes/compare/1.11.0-rc.5...1.11.0-rc.6) (2024-05-28)
+
 ## [1.11.0-rc.5](https://github.com/erxes/erxes/compare/1.11.0...1.11.0-rc.5) (2024-05-28)
 
 * chore: add burenscoring in release yaml (194418d9d2)
