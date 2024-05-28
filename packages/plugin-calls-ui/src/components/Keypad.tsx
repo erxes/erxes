@@ -385,7 +385,7 @@ const KeyPad = (props: Props, context) => {
     return (
       <HeaderItem onClick={togglePause}>
         <Icon
-          className={isPaused ? "on" : "off"}
+          className={isPaused ? "on" : "pause"}
           size={13}
           icon={isPaused ? "play-1" : "pause-1"}
         />
@@ -503,7 +503,7 @@ const KeyPad = (props: Props, context) => {
             <Icon
               className={isConnected ? "on" : "off"}
               size={13}
-              icon={isConnected ? "power-button" : "pause-1"}
+              icon={"power-button"}
             />
             {isConnected ? __("Turn on") : __("Turn off")}
           </HeaderItem>
