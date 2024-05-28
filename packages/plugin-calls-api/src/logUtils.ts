@@ -43,7 +43,7 @@ export default {
       },
     });
 
-    if (!customer || !customer.primaryPhone) {
+    if (!customer?.primaryPhone) {
       return {
         status: 'success',
         data: [],
