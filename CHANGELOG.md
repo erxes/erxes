@@ -1,5 +1,7 @@
 # Changelog
 
+## [1.11.0-rc.5](https://github.com/erxes/erxes/compare/1.11.0...1.11.0-rc.5) (2024-05-28)
+
 * chore: add burenscoring in release yaml (194418d9d2)
 * Merge branch 'master' of github.com:erxes/erxes into rc (0d664bad14)
 * feat: ebarimt billType for customFieldsData (#5226) (59897b51b2)
