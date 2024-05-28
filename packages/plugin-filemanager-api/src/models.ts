@@ -137,7 +137,7 @@ export const loadFileClass = models => {
   class File {
     public static async saveFile({ _id, doc }) {
       if (_id) {
-        await models.Files.update({ _id }, { $set: doc });
+        await models.Files.updateOne({ _id }, { $set: doc });
         return models.Files.findOne({ _id });
       }
 
