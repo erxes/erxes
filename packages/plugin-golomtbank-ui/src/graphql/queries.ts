@@ -12,8 +12,15 @@ const accounts = `
     golomtbankAccounts 
   }
 `;
+const configs = `
+  query configsGetValue($code: String!) {
+    configsGetValue(code: $code)
+  }
+`;
+
 
 export default {
   detail,
-  accounts
+  accounts,
+  configs
 };

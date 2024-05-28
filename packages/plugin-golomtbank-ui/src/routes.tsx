@@ -1,25 +1,24 @@
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 
-const CreateGolomtbank = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings CreateGolomtbank" */ './containers/Form')
+const GolomtbankConfig = asyncComponent(() =>
+  import(/* webpackChunkName: "Settings CreateGolomtbank" */ './config/containers/config')
 );
 
-const createGolomtbank = () => {
-  return <CreateGolomtbank />;
+const golomtbankConfig = () => {
+  return <GolomtbankConfig />;
 };
-
 const routes = () => {
   return (
-    <React.Fragment>
-      <Route
-        key="/settings/integrations/createGolomtbank"
-        exact={true}
-        path="/settings/integrations/createGolomtbank"
-        component={createGolomtbank}
+    <Routes>
+       <Route
+        key="/erxes-plugin-golomtbank/config"
+        path="/erxes-plugin-golomtbank/config"
+        Component={golomtbankConfig}
       />
-    </React.Fragment>
+    </Routes>
+     
   );
 };
 

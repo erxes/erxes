@@ -1,10 +1,11 @@
-const removeAccount = `
-  mutation golomtbankAccountRemove($_id: String!) {
-    golomtbankAccountRemove(_id: $_id)
+// Settings
+
+const updateConfigs = `
+  mutation configsUpdate($configsMap: JSON!) {
+    configsUpdate(configsMap: $configsMap)
   }
 `;
 
-
 export default {
-  removeAccount
+  updateConfigs
 };
