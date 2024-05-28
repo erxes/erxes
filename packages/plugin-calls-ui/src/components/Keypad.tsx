@@ -346,7 +346,7 @@ const KeyPad = (props: Props, context) => {
         <InputBar type="country">
           <Icon icon="search-1" size={20} />
           <FormControl
-            placeholder={__("Search")}
+            placeholder={__("Type to search")}
             name="searchValue"
             onChange={search}
             value={searchValue}

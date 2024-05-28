@@ -50,7 +50,6 @@ export const ChartBack = styled(RootBack)`
 
 export const GroupByContent = styled.div`
   display: flex;
-  font-size: 11px;
   [id^="headlessui-listbox-button-"] {
     padding: 0 8px;
     .menu {

@@ -1,5 +1,5 @@
 import Form from "../../containers/label/LabelsForm";
-import React, { useState, useRef } from "react";
+import React, { useRef } from "react";
 import Sidebar from "./Sidebar";
 import SidebarWrapper from "../Sidebar";
 import { __, Alert, confirm, router } from "@erxes/ui/src/utils";
@@ -14,12 +14,7 @@ import {
 } from "@erxes/ui/src/components";
 import { ISPLabel } from "../../types";
 import Row from "./LabelsRow";
-import {
-  FlexItem,
-  FlexRow,
-  InputBar,
-  Title,
-} from "@erxes/ui-settings/src/styles";
+import { Title } from "@erxes/ui-settings/src/styles";
 import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
@@ -135,27 +130,22 @@ const List = (props: Props) => {
     );
 
     return (
-      <FlexRow>
-        <InputBar type="searchBar">
-          <Icon icon="search-1" size={20} />
-          <FlexItem>
-            <FormControl
-              type="text"
-              placeholder={__("Type to search")}
-              onChange={handleSearch}
-              value={search}
-              autoFocus={true}
-              onFocus={moveCursorAtTheEnd}
-            />
-          </FlexItem>
-        </InputBar>
+      <BarItems>
+        <FormControl
+          type="text"
+          placeholder={__("Type to search")}
+          onChange={handleSearch}
+          value={search}
+          autoFocus={true}
+          onFocus={moveCursorAtTheEnd}
+        />
         <ModalTrigger
           title="Add label"
           trigger={trigger}
           autoOpenKey="showProductModal"
           content={modalContent}
         />
-      </FlexRow>
+      </BarItems>
     );
   };
 
