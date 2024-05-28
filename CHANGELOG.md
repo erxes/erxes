@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.11.0-rc.5](https://github.com/erxes/erxes/compare/1.11.0...1.11.0-rc.5) (2024-05-28)
+
+* chore: add burenscoring in release yaml (194418d9d2)
+* Merge branch 'master' of github.com:erxes/erxes into rc (0d664bad14)
+* feat: ebarimt billType for customFieldsData (#5226) (59897b51b2)
+* chore: improve code quality (#5288) (6c2d30f5c6)
+* Merge branch 'master' into rc (5004b340cb)
+* chore(forms): handle strings starting with slash as plain regex (6955c5e0ab)
+* Merge branch 'master' of github.com:erxes/erxes (83655ec344)
+* chore: add call history count (43f4573c8c)
+* chore: debug on call assigned used (125fabca68)
+* fix(calls): fixed history filter (122274dbce)
+* chore: show log and added search value on history (82e08f7af1)
+* remove console log (85b2f87c73)
+* fix package.json (be78ee6cc1)
+* update pluginsMap (9a35c69e45)
+* undo alert (ebba93b871)
+* fix(calls): update callhistory query (39fdcba266)
+* fix(calls): add sound (3aefb969ab)
+* fix(calls): add go to conversation and search in history (b5e6e31b2b)
+* fix(calls): update agent status (4a066b2291)
+* fix(calls): agentStatus ui update (76bcff07ce)
+* Merge branch 'rc' of github.com:erxes/erxes into rc (8104adefd2)
+* fix(calls): add default open option in popover (bed6a668e8)
+* fix(calls): add conversation detail (e07a5aa2ab)
+* chore: update ui configs and essyncer (8ee46f8e29)
+
 ## [1.11.0-rc.4](https://github.com/erxes/erxes/compare/1.11.0-rc.3...1.11.0-rc.4) (2024-05-22)
 
 
