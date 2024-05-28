@@ -27,7 +27,7 @@ export const getOwnerTypes = () => {
 
   if (isEnabled('clientportal')) {
     ownerTypes.push({
-      label: 'Client Portal User',
+      label: 'Business Portal User',
       name: 'cpUser'
     });
   }

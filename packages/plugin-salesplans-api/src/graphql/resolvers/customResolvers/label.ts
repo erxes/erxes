@@ -2,7 +2,7 @@ import { IContext } from '../../../connectionResolver';
 import { ILabelDocument } from '../../../models/definitions/labels';
 
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
+  async __resolveReference({ _id }, { models }: IContext) {
     return models.Labels.findOne({ _id });
   },
 

@@ -1,0 +1,195 @@
+import Button from '@erxes/ui/src/components/Button';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { Formgroup } from '@erxes/ui/src/components/form/styles';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import Table from '@erxes/ui/src/components/table';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from '@erxes/ui/src/utils/core';
+import WithPermission from 'coreui/withPermission';
+import React, { useState } from 'react';
+import Form from '../containers/Form';
+import { ToggleButton } from '../styles';
+import Row from './Row';
+
+type Props = {
+  queryParams: any;
+  history: any;
+
+  salaries?: any[];
+  labels: any;
+  symbols: any;
+  totalCount?: number;
+  loading?: boolean;
+  isEmployeeSalary?: boolean;
+  remove: (id: string) => void;
+  refetch?: () => void;
+  confirmPassword?: () => void;
+
+  getActionBar: (actionBar: any) => void;
+  showSideBar: (sideBar: boolean) => void;
+  getPagination: (pagination: any) => void;
+  setLoading: (loading: boolean) => void;
+  setEmptyContentButton: (content: any) => void;
+};
+
+const List = (props: Props) => {
+  const {
+    totalCount,
+    queryParams,
+    loading,
+    salaries = [],
+    labels = {},
+    getActionBar,
+    getPagination,
+    showSideBar,
+    setEmptyContentButton
+  } = props;
+  const keys = Object.keys(labels).filter(
+    key => !['title', 'employeeId'].includes(key)
+  );
+
+  const [isSideBarOpen, setIsOpen] = useState(
+    JSON.parse(localStorage.getItem('isSideBarOpen') || 'false')
+  );
+
+  const onToggleSidebar = () => {
+    const toggleIsOpen = !isSideBarOpen;
+    setIsOpen(toggleIsOpen);
+    localStorage.setItem('isSideBarOpen', toggleIsOpen.toString());
+  };
+
+  const renderRow = () => {
+    return salaries.map(salary => (
+      <Row {...props} key={salary._id} salary={salary} keys={keys} />
+    ));
+  };
+
+  const renderButton = (
+    <div
+      style={{
+        display: 'flex',
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)'
+      }}>
+      <Formgroup>
+        <ControlLabel>Salaries</ControlLabel>
+        <p>Confirm password to see salary details</p>
+        <Button
+          btnStyle='success'
+          size='small'
+          icon='eye'
+          onClick={props.confirmPassword}>
+          See salary details
+        </Button>
+      </Formgroup>
+    </div>
+  );
+
+  queryParams.loadingMainQuery = loading;
+
+  const trigger = (
+    <Button btnStyle='success' size='small' icon='plus-circle'>
+      Import salary report
+    </Button>
+  );
+
+  const formContent = formProps => (
+    <Form {...formProps} successCallback={props.refetch} />
+  );
+
+  const righActionBar = (
+    <ModalTrigger
+      size='sm'
+      title='Import salary report'
+      autoOpenKey='showAppAddModal'
+      trigger={trigger}
+      content={formContent}
+    />
+  );
+
+  const sideBarToggleButton = (
+    <ToggleButton
+      id='btn-inbox-channel-visible'
+      isActive={isSideBarOpen}
+      onClick={onToggleSidebar}>
+      <Icon icon='subject' />
+    </ToggleButton>
+  );
+
+  const actionBar = (
+    <WithPermission action='addSalaries'>
+      <Wrapper.ActionBar right={righActionBar} left={sideBarToggleButton} />
+    </WithPermission>
+  );
+
+  const breadcrumb = props.isEmployeeSalary
+    ? [
+        { title: __('Profile'), link: '/profile' },
+        { title: __('Salary detail'), link: '/profile/salaries/bichil' }
+      ]
+    : [
+        { title: __('Settings'), link: '/settings' },
+        { title: __('Salaries'), link: '/salaries' }
+      ];
+
+  const content = (
+    <Table whiteSpace='nowrap' hover={true}>
+      <thead>
+        <tr>
+          <th>title</th>
+          <th>Ажилтны код</th>
+          <th>Салбар/нэгж</th>
+          <th>Албан тушаал</th>
+          <th>Овог нэр</th>
+          {keys.map(key => (
+            <th key={key}>{labels[key]}</th>
+          ))}
+
+          {!props.isEmployeeSalary && <th>{__('Action')}</th>}
+        </tr>
+      </thead>
+      <tbody>{renderRow()}</tbody>
+    </Table>
+  );
+
+  const emptyTitle = props.isEmployeeSalary
+    ? 'Confirmation required'
+    : 'No data';
+  const emptyDescription = props.isEmployeeSalary
+    ? 'Please confirm your password to view salary details'
+    : 'There is no data to display or you do not have permission to view it';
+  const steps: any[] = [];
+
+  if (props.isEmployeeSalary) {
+    steps.push({
+      title: 'Confirm password',
+      description: 'Please confirm your password to view salary details',
+      content: <div>triggeeer</div>
+    });
+  }
+
+  const emptyContent = (
+    <EmptyContent
+      content={{
+        title: emptyTitle,
+        description: emptyDescription,
+        steps
+      }}
+      maxItemWidth='360px'
+    />
+  );
+
+  getActionBar(actionBar);
+  showSideBar(isSideBarOpen);
+  getPagination(<Pagination count={totalCount} />);
+  setEmptyContentButton(renderButton);
+
+  return content;
+};
+
+export default List;

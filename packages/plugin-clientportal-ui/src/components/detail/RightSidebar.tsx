@@ -9,6 +9,8 @@ import CardItems from '../../containers/CardItems';
 
 type Props = {
   clientPortalUser: IClientPortalUser;
+  cards: any[];
+  cardType: string;
 };
 
 const RightSidebar: React.FC<Props> = ({ clientPortalUser }: Props) => {

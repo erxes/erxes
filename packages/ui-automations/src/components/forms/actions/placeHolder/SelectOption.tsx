@@ -35,13 +35,7 @@ export default class SelectOption extends React.Component<Props, State> {
     };
   }
 
-  hideContent = () => {
-    this.overlay.hide();
-  };
-
-  onChange = (item) => {
-    this.overlay.hide();
-
+  onChange = (item, close) => {
     const { config, setConfig, inputName = "value" } = this.props;
 
     if (this.props.isMulti) {
@@ -61,6 +55,7 @@ export default class SelectOption extends React.Component<Props, State> {
     }
 
     setConfig(config);
+    close();
   };
 
   render() {
@@ -78,16 +73,9 @@ export default class SelectOption extends React.Component<Props, State> {
         new RegExp(searchValue, "i").test(option.label)
       );
     }
-    return (
-      <Popover
-        innerRef={this.overlay}
-        trigger={
-          <span>
-            {__("Options")} <Icon icon="angle-down" />
-          </span>
-        }
-        placement="top"
-      >
+
+    const lists = (close) => {
+      return (
         <Attributes>
           <React.Fragment>
             <FormGroup>
@@ -98,12 +86,29 @@ export default class SelectOption extends React.Component<Props, State> {
               <b>Default Options</b>
             </li>
             {options.map((item) => (
-              <li key={item.label} onClick={this.onChange.bind(this, item)}>
+              <li
+                key={item.label}
+                onClick={this.onChange.bind(this, item, close)}
+              >
                 {item.label}
               </li>
             ))}
           </React.Fragment>
         </Attributes>
+      );
+    };
+    return (
+      <Popover
+        innerRef={this.overlay}
+        trigger={
+          <span>
+            {__("Options")} <Icon icon="angle-down" />
+          </span>
+        }
+        placement="top"
+        closeAfterSelect={true}
+      >
+        {lists}
       </Popover>
     );
   }

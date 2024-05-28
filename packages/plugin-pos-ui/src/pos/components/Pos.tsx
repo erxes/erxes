@@ -7,7 +7,7 @@ import {
   Wrapper,
   __,
 } from '@erxes/ui/src';
-import Appearance, { IUIOptions } from './step/Appearance';
+import Appearance from './step/Appearance';
 import { Content, LeftContent } from '../../styles';
 import {
   ControlWrapper,

@@ -58,6 +58,7 @@ type Props = {
   clientPortalGetConfigs: ClientPortalConfig[];
   businessPortalKind?: string;
   handleClientPortalKindChange: (kind: string) => void;
+  segmentsTypes?: any[];
 };
 
 type State = {
@@ -440,6 +441,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
                 this.props.handleClientPortalKindChange
               }
               selectedCpId={this.state.cpId}
+              segmentsTypes={this.props.segmentsTypes}
             />
           </Step>
 

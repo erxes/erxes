@@ -24,6 +24,11 @@ class BoardItemCreate extends React.Component<IActivityLogItemProps> {
       userName = renderUserFullName(createdByDetail.content);
     }
 
+    if (createdByDetail && createdByDetail.type === 'clientPortalUser') {
+      userName = getCPUserName(createdByDetail.content);
+      console.log(userName);
+    }
+
     const body = (
       <Link
         to={`/${contentType}/board?_id=${activity._id}&itemId=${contentTypeDetail._id}`}

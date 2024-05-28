@@ -1,0 +1,13 @@
+{
+  "name": "@erxes/plugin-neighbor-ui",
+  "version": "1.0.0",
+  "scripts": {
+    "install-deps": "yarn install",
+    "start": "webpack serve --mode development",
+    "build": "webpack --mode production"
+  },
+  "dependencies": {
+    "@erxes/ui" : "*",
+    "react-rating-stars-component": "^2.2.0"
+  }
+}

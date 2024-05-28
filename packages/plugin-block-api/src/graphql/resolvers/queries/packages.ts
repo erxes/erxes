@@ -48,7 +48,7 @@ const blockQueries = {
     return models.Packages.findOne({ _id });
   },
 
-  packageCounts(
+  async packageCounts(
     _root,
     { type }: { type: string },
     { commonQuerySelector, models }: IContext

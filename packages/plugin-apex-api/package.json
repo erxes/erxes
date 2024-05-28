@@ -1,0 +1,15 @@
+{
+  "name": "@erxes/plugin-apex-api",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "nodemon src/index.ts",
+    "build" : "tsc"
+  },
+  "dependencies": {
+    "@erxes/api-utils" : "*",
+    "cheerio": "^1.0.0-rc.12",
+    "csv-parser": "^3.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "xlsx-populate": "^1.21.0"
+  }
+}

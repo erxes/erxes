@@ -128,9 +128,9 @@ export const loadClass = (models: IModels) => {
         }
       }
 
-      await models.Segments.remove({ _id: { $in: subSegmentIds } });
-
-      return segmentObj.remove();
+      await models.Segments.deleteMany({ _id: { $in: subSegmentIds } });
+      await segmentObj.deleteOne();
+      return segmentObj;
     }
   }
 

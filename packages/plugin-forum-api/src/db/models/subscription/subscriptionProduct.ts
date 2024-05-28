@@ -1,4 +1,11 @@
-import { Document, Schema, Model, Connection, Types } from 'mongoose';
+import {
+  Document,
+  Schema,
+  Model,
+  Connection,
+  Types,
+  HydratedDocument,
+} from 'mongoose';
 import { IModels } from '../index';
 import * as _ from 'lodash';
 import { TimeDurationUnit, TIME_DURATION_UNITS } from '../../../consts';
@@ -9,13 +16,14 @@ export const SUBSCRIPTION_PRODUCT_USER_TYPES = [
   undefined,
   '',
   'company',
-  'customer'
+  'customer',
 ] as const;
 
-export type SubscriptionProductUserTypes = typeof SUBSCRIPTION_PRODUCT_USER_TYPES[number];
+export type SubscriptionProductUserTypes =
+  (typeof SUBSCRIPTION_PRODUCT_USER_TYPES)[number];
 
 export interface ISubscriptionProduct {
-  _id: any;
+  _id: Types.ObjectId;
   name?: string | null;
   description?: string | null;
   unit: TimeDurationUnit;
@@ -28,62 +36,60 @@ export interface ISubscriptionProduct {
 export type SubscriptionProductInsert = Omit<ISubscriptionProduct, '_id'>;
 export type SubscriptionProductPatch = Partial<SubscriptionProductInsert>;
 
-export type SubscriptionProductDocument = ISubscriptionProduct & Document;
+export type SubscriptionProductDocument =
+  HydratedDocument<ISubscriptionProduct>;
 
-export interface ISubscriptionProductModel
-  extends Model<SubscriptionProductDocument> {
+export interface ISubscriptionProductModel extends Model<ISubscriptionProduct> {
   findByIdOrThrow(_id: string): Promise<SubscriptionProductDocument>;
 
   createSubscriptionProduct(
-    input: SubscriptionProductInsert
+    input: SubscriptionProductInsert,
   ): Promise<SubscriptionProductDocument>;
   patchSubscriptionProduct(
     _id: string,
-    input: SubscriptionProductPatch
+    input: SubscriptionProductPatch,
   ): Promise<SubscriptionProductDocument>;
 
   deleteSubscriptionProduct(_id: string): Promise<SubscriptionProductDocument>;
 }
 
-export const subscriptionProductSchema = new Schema<
-  SubscriptionProductDocument
->({
+export const subscriptionProductSchema = new Schema<ISubscriptionProduct>({
   name: String,
   description: String,
   unit: {
     type: String,
     required: true,
-    enum: TIME_DURATION_UNITS
+    enum: TIME_DURATION_UNITS,
   },
   multiplier: {
     type: Number,
     required: true,
-    min: 0
+    min: 0,
   },
   price: {
     type: Number,
     required: true,
-    min: 0
+    min: 0,
   },
   listOrder: {
     type: Number,
     required: true,
-    default: 0
+    default: 0,
   },
   userType: {
     type: String,
-    enum: SUBSCRIPTION_PRODUCT_USER_TYPES
-  }
+    enum: SUBSCRIPTION_PRODUCT_USER_TYPES,
+  },
 });
 
 export const generateSubscriptionProductModel = (
   subdomain: string,
   con: Connection,
-  models: IModels
+  models: IModels,
 ): void => {
   class SubscriptionProductModel {
     public static async findByIdOrThrow(
-      _id: string
+      _id: string,
     ): Promise<SubscriptionProductDocument> {
       const product = await models.SubscriptionProduct.findById(_id);
       if (!product) {
@@ -93,7 +99,7 @@ export const generateSubscriptionProductModel = (
     }
 
     public static async createSubscriptionProduct(
-      input: SubscriptionProductInsert
+      input: SubscriptionProductInsert,
     ): Promise<SubscriptionProductDocument | void> {
       const product = await models.SubscriptionProduct.create(input);
       return product;
@@ -101,12 +107,12 @@ export const generateSubscriptionProductModel = (
 
     public static async patchSubscriptionProduct(
       _id: string,
-      input: SubscriptionProductPatch
+      input: SubscriptionProductPatch,
     ): Promise<SubscriptionProductDocument> {
       const product = await models.SubscriptionProduct.findByIdAndUpdate(
         _id,
         { $set: input },
-        { new: true }
+        { new: true },
       );
       if (!product) {
         throw new Error('Subscription product not found');
@@ -115,17 +121,17 @@ export const generateSubscriptionProductModel = (
     }
 
     public static async deleteSubscriptionProduct(
-      _id: string
+      _id: string,
     ): Promise<SubscriptionProductDocument> {
       const product = await models.SubscriptionProduct.findByIdOrThrow(_id);
-      await product.remove();
+      await product.deleteOne();
       return product;
     }
   }
   subscriptionProductSchema.loadClass(SubscriptionProductModel);
 
   models.SubscriptionProduct = con.model<
-    SubscriptionProductDocument,
+    ISubscriptionProduct,
     ISubscriptionProductModel
   >('forum_subscription_products', subscriptionProductSchema);
 };

@@ -333,6 +333,9 @@ export const ActionContainer = styled(MoveContainer)`
   > div {
     margin: 0 ${dimensions.unitSpacing / 2}px ${dimensions.unitSpacing / 2}px 0;
   }
+  [id^="headlessui-menu-items-"] {
+    padding: 7px 0;
+  }
 `;
 
 export const MoveFormContainer = styled.div`

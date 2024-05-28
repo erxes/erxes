@@ -65,7 +65,7 @@ const getAmountsMap = async (
 };
 
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
+  async __resolveReference({ _id }, { models }: IContext) {
     return models.Stages.findOne({ _id });
   },
 
@@ -166,7 +166,7 @@ export default {
           args.extraParams
         );
 
-        return Deals.find(filter).count();
+        return Deals.find(filter).countDocuments();
       }
       case BOARD_TYPES.TICKET: {
         const filter = await generateTicketCommonFilters(
@@ -177,7 +177,7 @@ export default {
           args.extraParams
         );
 
-        return Tickets.find(filter).count();
+        return Tickets.find(filter).countDocuments();
       }
       case BOARD_TYPES.TASK: {
         const filter = await generateTaskCommonFilters(
@@ -192,7 +192,7 @@ export default {
           args.extraParams
         );
 
-        return Tasks.find(filter).count();
+        return Tasks.find(filter).countDocuments();
       }
       case BOARD_TYPES.GROWTH_HACK: {
         const filter = await generateGrowthHackCommonFilters(
@@ -203,7 +203,7 @@ export default {
           args.extraParams
         );
 
-        return GrowthHacks.find(filter).count();
+        return GrowthHacks.find(filter).countDocuments();
       }
       case BOARD_TYPES.PURCHASE: {
         const filter = await generatePurchaseCommonFilters(
@@ -214,7 +214,7 @@ export default {
           args.extraParams
         );
 
-        return Purchases.find(filter).count();
+        return Purchases.find(filter).countDocuments();
       }
     }
   },
@@ -236,7 +236,7 @@ export default {
       args.extraParams
     );
 
-    return models.Deals.find(filter).count();
+    return models.Deals.find(filter).countDocuments();
   },
 
   /*
@@ -256,7 +256,7 @@ export default {
       args.extraParams
     );
 
-    return models.Purchases.find(filter).count();
+    return models.Purchases.find(filter).countDocuments();
   },
 
   /*
@@ -394,7 +394,7 @@ export default {
       args.extraParams
     );
 
-    return models.Deals.find(filter).count();
+    return models.Deals.find(filter).countDocuments();
   },
 
   async stayedPurchasesTotalCount(
@@ -416,7 +416,7 @@ export default {
       args.extraParams
     );
 
-    return models.Purchases.find(filter).count();
+    return models.Purchases.find(filter).countDocuments();
   },
 
   /*

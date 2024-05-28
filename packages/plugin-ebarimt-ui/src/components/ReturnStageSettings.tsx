@@ -52,12 +52,13 @@ const GeneralSettings: React.FC<Props> = (props: Props) => {
 
   const deleteHandler = (currentConfigKey: string) => {
     confirm('This Action will delete this config are you sure?').then(() => {
-      delete configsMap.returnStageInEbarimt[currentConfigKey];
-      delete configsMap.returnStageInEbarimt['newEbarimtConfig'];
+      const returnStageInEbarimt = { ...configsMap.returnStageInEbarimt };
+      delete returnStageInEbarimt[currentConfigKey];
+      delete returnStageInEbarimt['newEbarimtConfig'];
 
-      setConfigsMap(configsMap);
+      setConfigsMap({ ...configsMap, returnStageInEbarimt });
 
-      save(configsMap);
+      save({ ...configsMap, returnStageInEbarimt });
     });
   };
 

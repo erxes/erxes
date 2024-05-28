@@ -259,7 +259,7 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
       return asset;
     }
 
-    public static async generateOrder(parentAsset: IAsset, doc: IAsset) {
+    public static async generateOrder(parentAsset: IAsset | null, doc: IAsset) {
       const order = parentAsset
         ? `${parentAsset.order}/${doc.code}`
         : `${doc.code}`;

@@ -1,8 +1,8 @@
 import { IContext } from '../../types';
 import { escapeRegExp, getPureDate, paginate } from '@erxes/api-utils/src/core';
-import fetch from 'node-fetch';
 import { sendPosMessage } from '../../../messageBroker';
 import { IConfig } from '../../../models/definitions/configs';
+import { getCompanyInfo } from '../../../models/PutData';
 
 interface ISearchParams {
   searchValue?: string;
@@ -133,7 +133,7 @@ const filterOrders = (params: ISearchParams, models, config) => {
 };
 
 const orderQueries = {
-  orders(_root, params: ISearchParams, { models, config }: IContext) {
+  async orders(_root, params: ISearchParams, { models, config }: IContext) {
     return filterOrders(params, models, config);
   },
 
@@ -149,7 +149,7 @@ const orderQueries = {
     const filter = generateFilter(config, params);
     return await models.Orders.find({
       ...filter,
-    }).count();
+    }).countDocuments();
   },
 
   async fullOrderItems(
@@ -208,23 +208,18 @@ const orderQueries = {
   },
 
   async ordersCheckCompany(_root, { registerNumber }, { config }: IContext) {
-    if (!registerNumber) {
+    const checkTaxpayerUrl = config.ebarimtConfig?.checkTaxpayerUrl;
+
+    if (!checkTaxpayerUrl) {
+      throw new Error('Not found check taxpayer url');
+    }
+    const resp = await getCompanyInfo({ checkTaxpayerUrl, no: registerNumber })
+
+    if (resp.status !== 'checked' || !resp.tin) {
       throw new Error('Company register number required for checking');
     }
-    const url =
-      config && config.ebarimtConfig && config.ebarimtConfig.checkCompanyUrl;
 
-    if (url) {
-      const response = await fetch(
-        url + '?' + new URLSearchParams({ regno: registerNumber }),
-      ).then((res) => res.json());
-      return response;
-    }
-
-    return {
-      error: 'ebarimt config error',
-      message: 'Check company url is not configured',
-    };
+    return resp.result?.data
   },
 
   async ordersDeliveryInfo(_root, { orderId }, { subdomain }: IContext) {

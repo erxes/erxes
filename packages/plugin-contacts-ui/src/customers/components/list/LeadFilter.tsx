@@ -91,9 +91,27 @@ function Leads({ counts, integrations = [], loading, loadMore, all }: IProps) {
 
   const data = (
     <SidebarList>
-      {renderIntegrations()}
+      {integrations.map(integration => {
+        const form = integration.form || ({} as any);
 
-      {all !== integrations.length && !disableLoadMoreBtn ? (
+        return (
+          <li key={integration._id}>
+            <a
+              href="#filter"
+              tabIndex={0}
+              className={
+                router.getParam(history, 'form') === form._id ? 'active' : ''
+              }
+              onClick={onClick.bind(null, form._id)}
+            >
+              <FieldStyle>{integration.name}</FieldStyle>
+              <SidebarCounter>{counts[form._id]}</SidebarCounter>
+            </a>
+          </li>
+        );
+      })}
+
+      {all !== integrations.length ? (
         <Button
           block={true}
           btnStyle="link"

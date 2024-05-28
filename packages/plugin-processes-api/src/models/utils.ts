@@ -177,7 +177,7 @@ export const getResultProductsFromFlow = async (
       const jobRefer = await models.JobRefers.findOne({
         _id: config.jobReferId
       }).lean();
-      if (jobRefer) {
+      if (jobRefer?.resultProducts) {
         return jobRefer.resultProducts;
       }
     }
