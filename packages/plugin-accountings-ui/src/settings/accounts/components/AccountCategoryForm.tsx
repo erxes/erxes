@@ -1,11 +1,11 @@
 import React from 'react';
-import CustomForm from '../../components/form';
-import { accountQuery } from '../graphql/query';
-import { IAccountCategoryDocument } from '../../types/IAccountCategory';
+import CustomForm from '../../../components/form';
+import queries from '../graphql/queries';
+import { IAccountCategory } from '../../../types/accountCategory';
 import { IOption } from '@erxes/ui/src/types';
 
 export function generateCategoryOptions(
-  array: IAccountCategoryDocument[] = []
+  array: IAccountCategory[] = []
 ): IOption[] {
   return array.map((node, level) => ({
     value: node._id,
@@ -64,7 +64,7 @@ function AccountCategoryForm(props: IProps): React.ReactNode {
               multi: false,
               queryName: 'accountCategories',
               generateOptions: generateCategoryOptions,
-              customQuery: accountQuery.accountCategories
+              customQuery: queries.accountCategories
             }
           },
           {

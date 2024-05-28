@@ -12,10 +12,11 @@ import React from 'react';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
 import Tip from '@erxes/ui/src/components/Tip';
-import { IAccountCategoryResponse, accountQuery } from '../graphql/query';
+import queries from '../graphql/queries';
 import AccountCategoryForm from '../components/AccountCategoryForm';
-import { IAccountCategoryDocument } from '../../types/IAccountCategory';
-import mutation from '../graphql/mutation';
+import { IAccountCategory } from '../../../types/accountCategory';
+import mutation from '../graphql/mutations';
+import { IAccountCategoryResponse } from '../types';
 
 interface IProps {
   queryParams: any;
@@ -27,7 +28,7 @@ const AccountCategoryList: React.FC<IProps> = (props) => {
   const location = useLocation();
 
   const { data, loading } = useQuery<IAccountCategoryResponse>(
-    gql(accountQuery.accountCategories)
+    gql(queries.accountCategories)
   );
 
   const [accountCategoriesRemoveMutation] = useMutation(
@@ -44,7 +45,7 @@ const AccountCategoryList: React.FC<IProps> = (props) => {
 
   const renderFormTrigger = (
     trigger: React.ReactNode,
-    category?: IAccountCategoryDocument
+    category?: IAccountCategory
   ) => {
     const content = (props) => (
       <AccountCategoryForm
@@ -68,7 +69,7 @@ const AccountCategoryList: React.FC<IProps> = (props) => {
     );
   };
 
-  const renderEditAction = (category: IAccountCategoryDocument) => {
+  const renderEditAction = (category: IAccountCategory) => {
     const trigger = (
       <Button btnStyle="link">
         <Tip text={__('Edit')} placement="bottom">
@@ -90,7 +91,7 @@ const AccountCategoryList: React.FC<IProps> = (props) => {
     });
   };
 
-  const renderRemoveAction = (category: IAccountCategoryDocument) => {
+  const renderRemoveAction = (category: IAccountCategory) => {
     return (
       <Button btnStyle="link" onClick={remove.bind(null, category._id)}>
         <Tip text={__('Remove')} placement="bottom">

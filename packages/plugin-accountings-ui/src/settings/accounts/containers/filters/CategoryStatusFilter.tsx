@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import Box from '@erxes/ui/src/components/Box';
 import React from 'react';
-import { categoryStatusChoises } from '../../../utils';
+import { categoryStatusChoises } from '../../../../utils';
 
 type Props = {};
 

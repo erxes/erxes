@@ -1,5 +1,5 @@
 import React from 'react';
-import AccountRoutes from './accounts/routes';
+import AccountRoutes from './settings/accounts/routes';
 
 const routes = () => <AccountRoutes />;
 

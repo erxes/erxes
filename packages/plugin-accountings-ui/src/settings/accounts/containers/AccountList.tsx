@@ -1,14 +1,10 @@
 import { gql, useQuery, useMutation } from '@apollo/client';
-import {
-  IAccountsResponse,
-  IAccountsTotalCountResponse,
-  accountQuery
-} from '../graphql/query';
+import queries from '../graphql/queries';
 import React, { useMemo, useState } from 'react';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import CustomTable from '../../components/table';
+import CustomTable from '../../../components/table';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Button from '@erxes/ui/src/components/Button';
@@ -17,11 +13,12 @@ import { __, router } from 'coreui/utils';
 import { useNavigate } from 'react-router-dom';
 import { Title, FlexItem, InputBar } from '@erxes/ui-settings/src/styles';
 import AccountCategoryList from './AccountCategoryList';
-import AccountForm from '../components/AccountForm';
+import AccountForm from '../containers/AccountForm';
 import Icon from '@erxes/ui/src/components/Icon';
-import mutation from '../graphql/mutation';
+import mutation from '../graphql/mutations';
 import Bulk from '@erxes/ui/src/components/Bulk';
 import { Alert } from '@erxes/ui/src';
+import { IAccountsResponse, IAccountsTotalCountResponse } from '../types';
 
 interface IProps {
   queryParams: any;
@@ -64,14 +61,14 @@ function List({ queryParams, ...props }: IProps): React.ReactNode {
   }, [queryParams]);
 
   const { data, loading } = useQuery<IAccountsResponse>(
-    gql(accountQuery.accounts),
+    gql(queries.accounts),
     {
       variables: variables
     }
   );
 
   const { data: accountsTotal } = useQuery<IAccountsTotalCountResponse>(
-    gql(accountQuery.accountsTotalCount),
+    gql(queries.accountsTotalCount),
     {
       variables: variables
     }
@@ -109,7 +106,7 @@ function List({ queryParams, ...props }: IProps): React.ReactNode {
   );
 
   const accountForm = (props, mutation) => {
-    return <AccountForm {...props} mutation={mutation} />;
+    return <AccountForm {...props} accountId= />;
   };
 
   const onClickRemove = () => {
@@ -143,11 +140,11 @@ function List({ queryParams, ...props }: IProps): React.ReactNode {
         </FlexItem>
       </InputBar>
       <ModalTrigger
-        title="New customer"
-        autoOpenKey="showCustomerModal"
+        title="New account"
+        autoOpenKey="showAccountModal"
         trigger={addTrigger}
         size="lg"
-        content={(p) => accountForm(p, mutation.accountAdd)}
+        content={(p) => accountForm(p, mutation.accountsAdd)}
         backDrop="static"
       />
     </BarItems>
