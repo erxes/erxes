@@ -106,7 +106,7 @@ function List({ queryParams, ...props }: IProps): React.ReactNode {
   );
 
   const accountForm = (props, mutation) => {
-    return <AccountForm {...props} accountId= />;
+    return <AccountForm {...props} />;
   };
 
   const onClickRemove = () => {
