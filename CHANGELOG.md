@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.11.0-rc.9](https://github.com/erxes/erxes/compare/1.11.0-rc.5...1.11.0-rc.9) (2024-05-28)
+
+
+### Bug Fixes
+
+* **calls:** some style ([91fdcd3](https://github.com/erxes/erxes/commit/91fdcd3caca8966605f7ef7654fa514829c44306))
+* **cards:** ui audit and spacing ([#5218](https://github.com/erxes/erxes/issues/5218)) ([f10d5a5](https://github.com/erxes/erxes/commit/f10d5a5d5bb4ab6c196f9925061f6ecac39079dc))
+
+## [1.11.0-rc.7](https://github.com/erxes/erxes/compare/1.11.0-rc.5...1.11.0-rc.7) (2024-05-28)
+
+
+### Bug Fixes
+
+* **calls:** some style ([91fdcd3](https://github.com/erxes/erxes/commit/91fdcd3caca8966605f7ef7654fa514829c44306))
+* **cards:** ui audit and spacing ([#5218](https://github.com/erxes/erxes/issues/5218)) ([f10d5a5](https://github.com/erxes/erxes/commit/f10d5a5d5bb4ab6c196f9925061f6ecac39079dc))
+
+## [1.11.0-rc.8](https://github.com/erxes/erxes/compare/1.11.0-rc.5...1.11.0-rc.8) (2024-05-28)
+
+
+### Bug Fixes
+
+* **calls:** some style ([91fdcd3](https://github.com/erxes/erxes/commit/91fdcd3caca8966605f7ef7654fa514829c44306))
+* **cards:** ui audit and spacing ([#5218](https://github.com/erxes/erxes/issues/5218)) ([f10d5a5](https://github.com/erxes/erxes/commit/f10d5a5d5bb4ab6c196f9925061f6ecac39079dc))
+
 ## [1.11.0-rc.6](https://github.com/erxes/erxes/compare/1.11.0-rc.5...1.11.0-rc.6) (2024-05-28)
 
 
@@ -7,6 +31,10 @@
 
 * **calls:** some style ([91fdcd3](https://github.com/erxes/erxes/commit/91fdcd3caca8966605f7ef7654fa514829c44306))
 * **cards:** ui audit and spacing ([#5218](https://github.com/erxes/erxes/issues/5218)) ([f10d5a5](https://github.com/erxes/erxes/commit/f10d5a5d5bb4ab6c196f9925061f6ecac39079dc))
+
+## [1.11.0-rc.7](https://github.com/erxes/erxes/compare/1.11.0-rc.6...1.11.0-rc.7) (2024-05-28)
+
+## [1.11.0-rc.6](https://github.com/erxes/erxes/compare/1.11.0-rc.5...1.11.0-rc.6) (2024-05-28)
 
 ## [1.11.0-rc.5](https://github.com/erxes/erxes/compare/1.11.0...1.11.0-rc.5) (2024-05-28)
 
