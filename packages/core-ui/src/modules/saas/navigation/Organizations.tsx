@@ -35,7 +35,7 @@ class Organizations extends React.PureComponent<Props> {
 
     if (organizations.length === 0) {
       return (
-        <Add href="https://erxes.io/create" target="_blank">
+        <Add href="https://erxes.io/onboarding" target="_blank">
           {__("Create a new organization")}
           <span>{__("No organizations")}</span>
         </Add>
@@ -62,7 +62,7 @@ class Organizations extends React.PureComponent<Props> {
           })}
           <Divider />
           <li>
-            <a href="https://erxes.io/create">
+            <a href="https://erxes.io/onboarding">
               {__("Create a new organization")}
             </a>
           </li>

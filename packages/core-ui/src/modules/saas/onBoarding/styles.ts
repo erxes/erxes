@@ -53,7 +53,6 @@ const RightSidebarContent = styled.div`
 const CarouselWrapper = styled.div`
   width: 80%;
   height: 100%;
-  margin-top: 70px;
 
   .carousel-caption {
     position: relative;

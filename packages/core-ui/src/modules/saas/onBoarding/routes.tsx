@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Routes, useLocation } from "react-router-dom";
+import { Route, useLocation } from "react-router-dom";
 import queryString from "query-string";
 import OnBoarding from "./container/OnBoarding";
 

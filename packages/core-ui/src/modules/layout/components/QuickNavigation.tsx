@@ -190,21 +190,9 @@ const QuickNavigation = ({
             currentUser.currentOrganization ? (
               <>
                 <Menu.Item>
-                  <DropNav>
-                    {__("Global Profile")} <Icon icon="angle-right" />
-                    <ul>
-                      <li>
-                        <a href={`${CORE_URL}/organizations`}>
-                          {__("Go to Global Profile")}
-                        </a>
-                      </li>
-                      <li>
-                        <a href={`${CORE_URL}/billing`}>
-                          {__("Go to Billing")}
-                        </a>
-                      </li>
-                    </ul>
-                  </DropNav>
+                  <Link to="https://erxes.io/organizations">
+                    {__("Go to Global Profile")}
+                  </Link>
                 </Menu.Item>
 
                 <MenuDivider />

@@ -69,6 +69,10 @@ a:hover {
   width: 100%;
 }
 
+.h-full {
+  height: 100%;
+}
+
 .shadow-lg {
   box-shadow: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -2px rgba(0,0,0,.05);
 }
@@ -917,6 +921,31 @@ a:hover {
 .punch-card .axis text {
   font-size: 0.875em;
   fill: ${colors.colorCoreGray};
+}
+
+/* tailwind css */
+
+.inset-0 {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.transition-opacity {
+  transition-property: opacity;
+}
+
+.duration-700 {
+  transition-duration: 700ms;
+}
+
+.opacity-0 {
+  opacity: 0;
+}
+
+.opacity-100 {
+  opacity: 1;
 }
 
 /* react datetime */
