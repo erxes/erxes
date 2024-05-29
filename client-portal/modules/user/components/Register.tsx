@@ -172,9 +172,9 @@ function Register({
 
         <div className="text-center">
           Already have an account?{" "}
-          <span className="text-link" onClick={onSignin}>
-            Sign in
-          </span>
+          <button className="text-link" onClick={onSignin}>
+        Sign in
+          </button>
         </div>
       </>
     );

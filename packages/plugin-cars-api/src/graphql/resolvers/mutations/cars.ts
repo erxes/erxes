@@ -50,25 +50,22 @@ const carMutations = {
   carsRemove: async (
     _root,
     { carIds }: { carIds: string[] },
-    { models, user }: IContext,
+    { models, subdomain, user }: IContext,
   ) => {
     const cars = await models.Cars.find({ _id: { $in: carIds } }).lean();
 
     await models.Cars.removeCars(carIds);
 
-    // for (const car of cars) {
-    //   messageBroker().sendMessage("putActivityLog", {
-    //     action: "removeActivityLog",
-    //     data: { contentTypeId: car._id },
-    //   });
-
-    //   await putDeleteLog(
-    //     messageBroker(),
-    //     gatherDescriptions,
-    //     { type: "car", object: car, extraParams: { models } },
-    //     user
-    //   );
-    // }
+    for (const car of cars) {
+      await putDeleteLog(
+        subdomain,
+        {
+          type: 'car',
+          object: car,
+        },
+        user
+      );
+    }
 
     return carIds;
   },

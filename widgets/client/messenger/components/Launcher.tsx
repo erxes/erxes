@@ -16,15 +16,7 @@ type Props = {
 };
 
 function Launcher(props: Props) {
-  const {
-    isMessengerVisible,
-    isBrowserInfoSaved,
-    onClick,
-    uiOptions,
-    lastUnreadMessage,
-    totalUnreadCount,
-    browserInfo,
-  } = props;
+  const { isMessengerVisible, isBrowserInfoSaved, onClick, uiOptions, lastUnreadMessage, totalUnreadCount, browserInfo } = props;
 
   const clickHandler = () => {
     onClick(isMessengerVisible);
@@ -54,7 +46,9 @@ function Launcher(props: Props) {
 
   return (
     <>
-      <a
+      <div
+        role="button"
+        tabIndex={0}
         className={launcherClasses}
         onClick={clickHandler}
         style={{
@@ -66,7 +60,7 @@ function Launcher(props: Props) {
       >
         <div />
         {renderUnreadCount()}
-      </a>
+      </div>
 
       {renderNotifier()}
     </>

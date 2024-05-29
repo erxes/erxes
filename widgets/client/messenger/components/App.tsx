@@ -1,14 +1,10 @@
-import * as React from "react";
-import * as RTG from "react-transition-group";
-import asyncComponent from "../../AsyncComponent";
+import * as React from 'react';
+import { CSSTransition } from 'react-transition-group';
+import asyncComponent from '../../AsyncComponent';
 
-const Launcher = asyncComponent(() => 
-  import(/* webpackChunkName: "MessengerLauncher" */ '../containers/Launcher')
-);
+const Launcher = asyncComponent(() => import(/* webpackChunkName: "MessengerLauncher" */ '../containers/Launcher'));
 
-const Messenger = asyncComponent(() => 
-  import(/* webpackChunkName: "MessengerMain" */ '../containers/Messenger')
-);
+const Messenger = asyncComponent(() => import(/* webpackChunkName: "MessengerMain" */ '../containers/Messenger'));
 
 type Props = {
   isMessengerVisible: boolean;
@@ -37,16 +33,11 @@ export default class App extends React.Component<Props> {
 
     return (
       <div className="erxes-widget">
-        <RTG.CSSTransition
-          in={isMessengerVisible}
-          timeout={300}
-          classNames="scale-in"
-          unmountOnExit={true}
-        >
+        <CSSTransition in={isMessengerVisible} timeout={300} classNames="scale-in" unmountOnExit={true}>
           <div className="erxes-messenger">
             <Messenger />
           </div>
-        </RTG.CSSTransition>
+        </CSSTransition>
 
         {this.renderLauncher()}
       </div>

@@ -29,10 +29,9 @@ import { Wrapper } from "@erxes/ui/src/layout";
 import { Title } from "@erxes/ui-settings/src/styles";
 import Sidebar from "../../general/components/Sidebar";
 import { FormFooter, SettingsContent } from "../../../styles";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SelectSegments from "@erxes/ui-segments/src/containers/SelectSegments";
 import SegmentFields from "../common/SegmentFields";
-import { useNavigate } from "react-router-dom";
 
 type Props = {
   assignmentCampaign: IAssignmentCampaign;

@@ -82,7 +82,8 @@ const DragNDrop = ({
           setIsDragging(true)
         }}
       >
-        <label htmlFor="browse">
+      <input type="file" id="browse" />
+      <label htmlFor="browse">
           <div className="upload-info flex items-center flex-col">
             <div className="p-3 rounded-[12px] bg-[#eee] w-fit h-fit mb-3">
               <FilePlus />

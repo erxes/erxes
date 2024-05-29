@@ -20,7 +20,7 @@ const Text = styled.div`
   }
 `;
 
-function Error({ statusCode }) {
+function ErrorMessage({ statusCode }) {
   return (
     <ErrorContainer>
       <Text>
@@ -40,9 +40,9 @@ function Error({ statusCode }) {
   );
 }
 
-Error.getInitialProps = ({ res, err }) => {
+ErrorMessage.getInitialProps = ({ res, err }) => {
   const statusCode = res ? res.statusCode : err ? err.statusCode : 404;
   return { statusCode };
 };
 
-export default Error;
+export default ErrorMessage;

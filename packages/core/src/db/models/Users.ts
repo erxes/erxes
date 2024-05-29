@@ -76,9 +76,9 @@ export interface IUserModel extends Model<IUserDocument> {
     emails?: string[];
     employeeId?: string;
     username?: string;
-  }): never;
+  }): Promise<never>;
   getSecret(): string;
-  generateToken(): { token: string; expires: Date };
+  generateToken(): Promise<{ token: string; expires: Date }>;
   createUser(doc: IUser): Promise<IUserDocument>;
   updateUser(_id: string, doc: IUpdateUser): Promise<IUserDocument>;
   editProfile(_id: string, doc: IEditProfile): Promise<IUserDocument>;
@@ -94,8 +94,8 @@ export interface IUserModel extends Model<IUserDocument> {
   ): Promise<IUserDocument>;
   setUserActiveOrInactive(_id: string): Promise<IUserDocument>;
   generatePassword(password: string): Promise<string>;
-  invite(params: IInviteParams): string;
-  resendInvitation({ email }: { email: string }): string;
+  invite(params: IInviteParams): Promise<string>;
+  resendInvitation({ email }: { email: string }): Promise<string>;
   confirmInvitation(params: IConfirmParams): Promise<IUserDocument>;
   comparePassword(password: string, userPassword: string): boolean;
   resetPassword(params: {
@@ -106,7 +106,7 @@ export interface IUserModel extends Model<IUserDocument> {
   changePassword(
     params: IPasswordParams & { currentPassword: string },
   ): Promise<IUserDocument>;
-  forgotPassword(email: string): string;
+  forgotPassword(email: string): Promise<string>;
   createTokens(_user: IUserDocument, secret: string): string[];
   refreshTokens(refreshToken: string): {
     token: string;
@@ -122,8 +122,8 @@ export interface IUserModel extends Model<IUserDocument> {
     password?: string;
   }): Promise<IUserDocument>;
   getTokenFields(user: IUserDocument);
-  logout(_user: IUserDocument, token: string): string;
-  createSystemUser(doc: IAppDocument): IUserDocument;
+  logout(_user: IUserDocument, token: string): Promise<string>;
+  createSystemUser(doc: IAppDocument): Promise<IUserDocument>;
   findUsers(query: any, options?: any): Promise<IUserDocument[]>;
 }
 

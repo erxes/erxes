@@ -22,7 +22,7 @@ export interface IChecklistModel extends Model<IChecklistDocument> {
 
   updateChecklist(_id: string, doc: IChecklist): Promise<IChecklistDocument>;
 
-  removeChecklist(_id: string): void;
+  removeChecklist(_id: string): Promise<void>;
 }
 
 export interface IChecklistItemModel extends Model<IChecklistItemDocument> {

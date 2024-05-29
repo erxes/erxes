@@ -143,13 +143,20 @@ class SingleArticle extends React.Component<Props, { reaction: string }> {
       <Feedback>
         <div className={reactionClassess}>
           {(article.reactionChoices || []).map((reactionChoice, index) => (
-            <span
+            <button
               key={index}
               className={reactionChoice === reaction ? "active" : undefined}
-              onClick={this.onReactionClick.bind(this, reactionChoice)}
+              onClick={() => this.onReactionClick(reactionChoice)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === 'Space') {
+                  this.onReactionClick(reactionChoice);
+                }
+              }}
             >
               <img alt="reaction" src={reactionChoice} />
-            </span>
+            </button>
+
+
           ))}
         </div>
       </Feedback>
@@ -175,6 +182,7 @@ class SingleArticle extends React.Component<Props, { reaction: string }> {
             __html: article.content,
           }}
         />
+
       </p>
     );
   };

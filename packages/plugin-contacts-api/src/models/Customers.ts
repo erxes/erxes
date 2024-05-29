@@ -89,7 +89,7 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
   checkDuplication(
     customerFields: ICustomerFieldsInput,
     idsToExclude?: string[] | string,
-  ): never;
+  ): Promise<never>;
   findActiveCustomers(
     selector,
     fields?,
@@ -298,13 +298,14 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         action: 'fields.prepareCustomFieldsData',
         data: doc.customFieldsData,
         isRPC: true,
+        defaultValue: []
       });
 
       if (doc.integrationId) {
         doc.relatedIntegrationIds = [doc.integrationId];
       }
 
-      const pssDoc = await models.Customers.calcPSS(doc);
+      const pssDoc = models.Customers.calcPSS(doc);
 
       const customer = await models.Customers.create({
         createdAt: new Date(),
@@ -359,6 +360,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
           action: 'fields.prepareCustomFieldsData',
           data: doc.customFieldsData,
           isRPC: true,
+          defaultValue: []
         });
       }
 
@@ -378,7 +380,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      const pssDoc = await models.Customers.calcPSS({
+      const pssDoc = models.Customers.calcPSS({
         ...oldCustomer,
         ...doc,
       });
@@ -424,7 +426,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
     /**
      * Calc customer profileScore, searchText and state
      */
-    public static async calcPSS(customer: any) {
+    public static calcPSS(customer: any) {
       const nullValues = ['', null];
 
       let possibleLead = false;
@@ -799,6 +801,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
           contentType: 'constacts:customer',
         },
         isRPC: true,
+        defaultValue: {}
       });
 
       return this.createCustomer({
@@ -831,6 +834,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
           contentType: 'contacts:customer',
         },
         isRPC: true,
+        defaultValue: {}
       });
 
       const modifier: any = {
@@ -851,7 +855,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
 
       const updateCustomer = await models.Customers.getCustomer(_id);
 
-      const pssDoc = await models.Customers.calcPSS(updateCustomer);
+      const pssDoc = models.Customers.calcPSS(updateCustomer);
 
       await models.Customers.updateOne({ _id }, { $set: pssDoc });
 
@@ -971,7 +975,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         },
       });
 
-      const pssDoc = await models.Customers.calcPSS(customer);
+      const pssDoc = models.Customers.calcPSS(customer);
 
       await models.Customers.updateOne({ _id: customerId }, { $set: pssDoc });
 

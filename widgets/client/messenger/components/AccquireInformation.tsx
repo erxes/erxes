@@ -27,9 +27,7 @@ class AccquireInformation extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const currentCountry = COUNTRIES.find(
-      (country) => country.code === connection.browserInfo?.countryCode
-    );
+    const currentCountry = COUNTRIES.find((country) => country.code === connection.browserInfo?.countryCode);
 
     this.state = {
       type: 'email',
@@ -45,9 +43,9 @@ class AccquireInformation extends React.PureComponent<Props, State> {
     this.renderTitle = this.renderTitle.bind(this);
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.loading !== this.props.loading) {
-      this.setState({ isLoading: nextProps.loading });
+  componentDidUpdate(prevProps: Props) {
+    if (this.props.loading !== prevProps.loading) {
+      this.setState({ isLoading: this.props.loading });
     }
   }
 
@@ -70,7 +68,7 @@ class AccquireInformation extends React.PureComponent<Props, State> {
 
   isPhoneValid(phoneNumber: string) {
     const reg = /^\d{8,}$/;
-    return reg.test(phoneNumber.replace(/[\s()+\-\.]|ext/gi, ''));
+    return reg.test(phoneNumber.replace(/[\s()+\-.]|ext/gi, ''));
   }
 
   isEmailValid(email: string) {
@@ -78,16 +76,12 @@ class AccquireInformation extends React.PureComponent<Props, State> {
     return emailRegex.test(email);
   }
 
-
   save(e: React.FormEvent) {
     e.preventDefault();
 
     const { value, type } = this.state;
 
-    if (
-      (type === 'email' && this.isEmailValid(value)) ||
-      this.isPhoneValid(value)
-    ) {
+    if ((type === 'email' && this.isEmailValid(value)) || this.isPhoneValid(value)) {
       return this.props.save(this.state);
     }
 
@@ -102,10 +96,7 @@ class AccquireInformation extends React.PureComponent<Props, State> {
     const title = (
       <div className="erxes-topbar-title">
         <div>{__('Contact')}</div>
-        <span>
-          {__('Please leave your contact details to start a conversation') +
-            '.'}
-        </span>
+        <span>{__('Please leave your contact details to start a conversation') + '.'}</span>
       </div>
     );
 
@@ -117,8 +108,7 @@ class AccquireInformation extends React.PureComponent<Props, State> {
     const { type, isValidated, isLoading, country } = this.state;
     const formClasses = classNames('form', { invalid: !isValidated });
 
-    const placeholder =
-      type === 'email' ? __('email@domain.com') : __('phone number');
+    const placeholder = type === 'email' ? __('email@domain.com') : __('phone number');
 
     return (
       <>
@@ -129,6 +119,8 @@ class AccquireInformation extends React.PureComponent<Props, State> {
               className={type === 'email' ? 'current' : ''}
               onClick={() => this.onTypeChange('email')}
               style={{ borderColor: color }}
+              tabIndex={0}
+              role="button"
             >
               {__('Email')}
             </span>
@@ -137,6 +129,8 @@ class AccquireInformation extends React.PureComponent<Props, State> {
               className={type === 'phone' ? 'current' : ''}
               onClick={() => this.onTypeChange('phone')}
               style={{ borderColor: color }}
+              tabIndex={0}
+              role="button"
             >
               {__('Phone')}
             </span>
@@ -151,20 +145,14 @@ class AccquireInformation extends React.PureComponent<Props, State> {
                   height: '100%',
                 }}
               >
-                <input
-                  style={{ width: '100px' }}
-                  value={country && `${country.emoji} ${country.dialCode}`}
-                  readOnly={true}
-                />
+                <input style={{ width: '100px' }} value={country && `${country.emoji} ${country.dialCode}`} readOnly={true} />
 
                 <div style={{ height: '36px' }}>
                   <select
                     value={country?.code}
                     onChange={(e) =>
                       this.setState({
-                        country: COUNTRIES.find(
-                          (c) => c.code === e.target.value
-                        ),
+                        country: COUNTRIES.find((c) => c.code === e.target.value),
                       })
                     }
                     className="form-control"
@@ -183,27 +171,13 @@ class AccquireInformation extends React.PureComponent<Props, State> {
                     ))}
                   </select>
                 </div>
-                <input
-                  onChange={this.onValueChange}
-                  placeholder={placeholder ? placeholder.toString() : ''}
-                  type="tel"
-                  autoFocus={true}
-                />
+                <input onChange={this.onValueChange} placeholder={placeholder ? placeholder.toString() : ''} type="tel" autoFocus={true} />
               </div>
             ) : (
-              <input
-                onChange={this.onValueChange}
-                placeholder={placeholder ? placeholder.toString() : ''}
-                type="text"
-                autoFocus={true}
-              />
+              <input onChange={this.onValueChange} placeholder={placeholder ? placeholder.toString() : ''} type="text" autoFocus={true} />
             )}
 
-            <button
-              onClick={this.save}
-              type="submit"
-              style={{ backgroundColor: color }}
-            >
+            <button onClick={this.save} type="submit" style={{ backgroundColor: color }}>
               {isLoading ? <div className="loader" /> : iconRight(textColor)}
             </button>
           </form>

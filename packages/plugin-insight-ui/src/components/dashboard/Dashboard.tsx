@@ -1,7 +1,11 @@
-import { ChartTitle, ContentContainer, DragField } from "../../styles";
+import {
+  ChartTitle,
+  ContentContainer,
+  DragField,
+  RightDrawerContainer,
+} from "../../styles";
 import React, { useRef, useState } from "react";
 import { defaultLayout, deserializeItem } from "../../utils";
-
 import { BarItems } from "@erxes/ui/src";
 import Button from "@erxes/ui/src/components/Button";
 import { CSSTransition } from "react-transition-group";
@@ -14,13 +18,11 @@ import { IDashboard } from "../../types";
 import Icon from "@erxes/ui/src/components/Icon";
 import PageContent from "@erxes/ui/src/layout/components/PageContent";
 import Participators from "../utils/Participators";
-import { RightDrawerContainer } from "../../styles";
 import SelectMembersPopover from "../utils/SelectMembersPopover";
 import { Title } from "@erxes/ui-settings/src/styles";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { __ } from "@erxes/ui/src/utils/index";
+import { __, getEnv } from "@erxes/ui/src/utils/index";
 import confirm from "@erxes/ui/src/utils/confirmation/confirm";
-import { getEnv } from "@erxes/ui/src/utils/index";
 import queryString from "query-string";
 
 type Props = {
@@ -161,7 +163,7 @@ const Dashboard = (props: Props) => {
       filter: JSON.stringify(item.filter),
       dimension: JSON.stringify(item.dimension),
       layout: JSON.stringify(item.layout),
-      vizState: JSON.stringify(item.vizState)
+      vizState: JSON.stringify(item.vizState),
     });
 
     const { REACT_APP_API_URL } = getEnv();
@@ -229,7 +231,7 @@ const Dashboard = (props: Props) => {
       <DataWithLoader
         data={
           <DragField
-            haveChart={(charts || []).length ? true : false}
+            haveChart={charts?.length ? true : false}
             cols={2 * 3}
             margin={[30, 30]}
             onDragStart={() => setIsDragging(true)}

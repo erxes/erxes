@@ -48,9 +48,10 @@ function ForgotPassword({ renderButton, setResetPassword, setLogin }: Props) {
 
         <div className="text-center">
           Already have an account?{" "}
-          <span className="text-link" onClick={onSignin}>
+          <button className="text-link" onClick={onSignin}>
             Sign in
-          </span>
+          </button>
+
         </div>
       </>
     );

@@ -1,9 +1,9 @@
-import * as classNames from "classnames";
-import * as React from "react";
-import { IUser } from "../../types";
-import { striptags } from "../../utils";
-import User from "../components/common/User";
-import { IEngageData } from "../types";
+import * as classNames from 'classnames';
+import * as React from 'react';
+import { IUser } from '../../types';
+import { striptags } from '../../utils';
+import User from '../components/common/User';
+import { IEngageData } from '../types';
 
 const Component = React.Component;
 
@@ -14,7 +14,7 @@ type Props = {
 
 class EngageMessage extends Component<Props> {
   renderUserFullName(user?: IUser) {
-    if (user && user.details) {
+    if (user?.details) {
       return user.details.fullName;
     }
   }
@@ -23,30 +23,22 @@ class EngageMessage extends Component<Props> {
     const { content, sentAs } = this.props.engageData;
     const { user } = this.props;
 
-    if (sentAs === "badge") {
+    if (sentAs === 'badge') {
       return null;
     }
 
-    const classes = classNames("notification-body", {
-      "full-message": sentAs === "fullMessage"
+    const classes = classNames('notification-body', {
+      'full-message': sentAs === 'fullMessage',
     });
 
     return (
-      <>
-        <div className="flex-notification">
-          <div className="user-info">
-            <User user={user} />
-            {this.renderUserFullName(user)}
-          </div>
-          <div className={classes}>
-            {sentAs === "fullMessage" ? (
-              <span dangerouslySetInnerHTML={{ __html: content }} />
-            ) : (
-              striptags(content)
-            )}
-          </div>
+      <div className="flex-notification">
+        <div className="user-info">
+          <User user={user} />
+          {this.renderUserFullName(user)}
         </div>
-      </>
+        <div className={classes}>{sentAs === 'fullMessage' ? <span dangerouslySetInnerHTML={{ __html: content }} /> : striptags(content)}</div>
+      </div>
     );
   }
 

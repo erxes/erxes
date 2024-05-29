@@ -1,8 +1,8 @@
-import * as classNames from "classnames";
-import * as React from "react";
-import * as ReactModal from "react-modal";
-import { iconClose, iconLeft, iconMore } from "../../icons/Icons";
-import { __, readFile} from "../../utils";
+import * as classNames from 'classnames';
+import * as React from 'react';
+import * as ReactModal from 'react-modal';
+import { iconClose, iconLeft, iconMore } from '../../icons/Icons';
+import { __, readFile } from '../../utils';
 
 type Props = {
   middle: React.ReactNode;
@@ -30,10 +30,10 @@ class TopBar extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { 
-      headHeight: props.prevHeight, 
+    this.state = {
+      headHeight: props.prevHeight,
       isVisibleDropdown: false,
-      isModalOpen: false
+      isModalOpen: false,
     };
     this.endConversation = this.endConversation.bind(this);
   }
@@ -55,11 +55,15 @@ class TopBar extends React.Component<Props, State> {
   }
 
   toggleModal = () => {
-    this.setState({ isModalOpen: !this.state.isModalOpen });
+    this.setState((prevState) => ({
+      isModalOpen: !prevState.isModalOpen,
+    }));
   };
 
   toggleDropdown = () => {
-    this.setState({ isVisibleDropdown: !this.state.isVisibleDropdown });
+    this.setState((prevState) => ({
+      isVisibleDropdown: !prevState.isVisibleDropdown,
+    }));
   };
 
   endConversation = (_e: any, confirmed?: boolean) => {
@@ -78,25 +82,21 @@ class TopBar extends React.Component<Props, State> {
 
   exportConversation = () => {
     const { exportConversation } = this.props;
-    exportConversation(exportData => {
+    exportConversation((exportData) => {
       // exported data in new tab.
       const url = readFile(exportData);
-      window.open( url, '_blank')?.focus();
+      window.open(url, '_blank')?.focus();
     });
-  }
+  };
 
   renderRightButton() {
-    const topBarClassNames = classNames("topbar-button", "right", "fade-in", {
-      "dropdown-open": this.state.isVisibleDropdown
+    const topBarClassNames = classNames('topbar-button', 'right', 'fade-in', {
+      'dropdown-open': this.state.isVisibleDropdown,
     });
 
     if (!this.props.isChat) {
       return (
-        <a
-          className={topBarClassNames}
-          onClick={this.toggleLauncher}
-          title="Close"
-        >
+        <a role="button" tabIndex={0} className={topBarClassNames} onClick={this.toggleLauncher} title="Close">
           {iconClose(this.props.textColor)}
         </a>
       );
@@ -108,21 +108,21 @@ class TopBar extends React.Component<Props, State> {
         <ul>
           <li>
             <a href="#" onClick={this.toggleModal}>
-              {__("End conversation")}
+              {__('End conversation')}
             </a>
           </li>
           <li>
             <a href="#" onClick={this.toggleLauncher}>
-              {__("Close")}
+              {__('Close')}
             </a>
           </li>
-          { this.props.activeConversation &&
-          <li>
-            <a href="#" onClick={this.exportConversation}>
-              {__("Export conversation")}
-            </a>
-          </li>
-          }
+          {this.props.activeConversation && (
+            <li>
+              <a href="#" onClick={this.exportConversation}>
+                {__('Export conversation')}
+              </a>
+            </li>
+          )}
         </ul>
       </button>
     );
@@ -136,10 +136,7 @@ class TopBar extends React.Component<Props, State> {
     }
 
     return (
-      <button
-        className="topbar-button left fade-in"
-        onClick={onLeftButtonClick}
-      >
+      <button className="topbar-button left fade-in" onClick={onLeftButtonClick}>
         {iconLeft(textColor)}
       </button>
     );
@@ -158,10 +155,14 @@ class TopBar extends React.Component<Props, State> {
         className="erxes-modal fade-in"
         overlayClassName="erxes-overlay"
       >
-        <h5>{__("Do you want to end this conversation ?")}</h5>
+        <h5>{__('Do you want to end this conversation ?')}</h5>
         <div className="modal-footer">
-          <button className="erxes-button btn-outline" onClick={this.endConversation}>{__("No")}</button>
-          <button className="erxes-button btn-primary" onClick={handleConfirm}>{__("Yes")}</button>
+          <button className="erxes-button btn-outline" onClick={this.endConversation}>
+            {__('No')}
+          </button>
+          <button className="erxes-button btn-primary" onClick={handleConfirm}>
+            {__('Yes')}
+          </button>
         </div>
       </ReactModal>
     );
@@ -170,30 +171,27 @@ class TopBar extends React.Component<Props, State> {
   render() {
     const { color, isExpanded, middle, toggleHead, textColor } = this.props;
 
-    const topBarClassNames = classNames("erxes-topbar", {
-      expanded: isExpanded
+    const topBarClassNames = classNames('erxes-topbar', {
+      expanded: isExpanded,
     });
 
-    const middleClass = classNames("erxes-middle", "fade-in", {
-      expandable: toggleHead ? true : false
+    const middleClass = classNames('erxes-middle', 'fade-in', {
+      expandable: toggleHead ? true : false,
     });
 
     return (
       <>
         {this.renderModal()}
-        <div
-          className="head-wrapper"
-          style={{ height: this.state.headHeight, backgroundColor: color }}
-        >
+        <div className="head-wrapper" style={{ height: this.state.headHeight, backgroundColor: color }}>
           <div
             className={topBarClassNames}
             style={{ color: textColor }}
-            ref={node => {
+            ref={(node) => {
               this.node = node;
             }}
           >
             {this.renderLeftButton()}
-            <div onClick={toggleHead} className={middleClass}>
+            <div role="button" tabIndex={0} onClick={toggleHead} className={middleClass}>
               {middle}
             </div>
             {this.renderRightButton()}

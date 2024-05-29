@@ -33,7 +33,7 @@ type Props = {
   toggleBulk: (target: any, toAdd: boolean) => void;
 };
 
-function displayValue(customer, name, group, index) {
+const displayValue = (customer, name, group, index) => {
   const value = _.get(customer, name);
 
   if (name === "firstName") {
@@ -108,7 +108,7 @@ function displayValue(customer, name, group, index) {
     );
   }
 
-  if (name === "isSubscribed" || name === "code" || name === "hasAuthority") {
+  if (["isSubscribed", "code", "hasAuthority"].includes(name)) {
     return <TextInfo>{value}</TextInfo>;
   }
 

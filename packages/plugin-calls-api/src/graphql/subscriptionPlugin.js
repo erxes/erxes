@@ -1,5 +1,3 @@
-var { withFilter } = require('graphql-subscriptions');
-
 module.exports = {
   name: 'calls',
   typeDefs: `

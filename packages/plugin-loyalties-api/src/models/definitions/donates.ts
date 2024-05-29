@@ -1,7 +1,6 @@
 import { commonSchema, ICommonFields, ICommonDocument } from './common';
 import { Document, Schema } from 'mongoose';
-import { field } from './utils';
-import { schemaHooksWrapper } from './utils';
+import { field, schemaHooksWrapper } from './utils';
 
 export interface IDonate extends ICommonFields {
   donateScore: number;

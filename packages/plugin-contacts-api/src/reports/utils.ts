@@ -10,7 +10,7 @@ export const getIntegrationMeta = async () => {
     for (const serviceName of serviceNames) {
         const service = await getService(serviceName);
         const inboxIntegrations =
-            (service.config.meta || {}).inboxIntegrations || [];
+            service.config?.meta?.inboxIntegrations || [];
 
         if (inboxIntegrations && inboxIntegrations.length > 0) {
             metas = metas.concat(inboxIntegrations);
@@ -287,7 +287,7 @@ export const buildMatchFilter = async (filter, subdomain) => {
     const matchfilter = {};
 
     // FORM FILTER
-    if (formIds && formIds.length) {
+    if (formIds?.length) {
         const query = { formId: { $in: formIds } }
         const integrationIds = await getIntegrationIds(query, subdomain)
 
@@ -295,7 +295,7 @@ export const buildMatchFilter = async (filter, subdomain) => {
     }
 
     // BRAND FILTER
-    if (brandIds) {
+    if (brandIds?.length) {
         const query = { brandId: { $in: brandIds } }
         const integrationIds = await getIntegrationIds(query, subdomain)
 
@@ -303,20 +303,20 @@ export const buildMatchFilter = async (filter, subdomain) => {
     }
 
     // TAG FILTER
-    if (tagIds && tagIds.length) {
+    if (tagIds?.length) {
         matchfilter['tagIds'] = { $in: tagIds };
     }
 
-    // if (branchIds && branchIds.length) {
-    //     matchfilter['branchIds'] = { $in: branchIds };
-    // }
+    if (branchIds?.length) {
+        matchfilter['branchIds'] = { $in: branchIds };
+    }
 
-    // if (departmentIds && departmentIds.length) {
-    //     matchfilter['departmentIds'] = { $in: departmentIds };
-    // }
+    if (departmentIds?.length) {
+        matchfilter['departmentIds'] = { $in: departmentIds };
+    }
 
     // SOURCE FILTER
-    if (integrationTypes && integrationTypes.length) {
+    if (integrationTypes?.length) {
         const query = { kind: { $in: integrationTypes } }
         const integrationIds = await getIntegrationIds(query, subdomain)
 
@@ -324,7 +324,7 @@ export const buildMatchFilter = async (filter, subdomain) => {
     }
 
     // CHANNEL FILTER
-    if (channelIds && channelIds.length) {
+    if (channelIds?.length) {
         const channels = await sendInboxMessage({
             subdomain,
             action: "channels.find",
@@ -341,7 +341,7 @@ export const buildMatchFilter = async (filter, subdomain) => {
     }
 
     // FIELD GROUP FILTER
-    if (groupIds && groupIds.length) {
+    if (groupIds?.length) {
         const fields = await sendFormsMessage({
             subdomain,
             action: 'fields.find',
@@ -360,12 +360,12 @@ export const buildMatchFilter = async (filter, subdomain) => {
     }
 
     // FIELD FILTER
-    if (fieldIds && fieldIds.length) {
+    if (fieldIds?.length) {
         matchfilter['customFieldsData.field'] = { $in: fieldIds };
     }
 
     //PORTAL FILTER
-    if (portalIds && portalIds.length) {
+    if (portalIds?.length) {
         matchfilter['clientPortalId'] = { $in: portalIds };
     }
 

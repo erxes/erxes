@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { iconPlus, iconSearch } from "../../icons/Icons";
-import { __ } from "../../utils";
-import ConversationItem from "../containers/ConversationItem";
-import { IConversation } from "../types";
-import TopBar from "../containers/TopBar";
+import { iconPlus, iconSearch } from '../../icons/Icons';
+import { __ } from '../../utils';
+import ConversationItem from '../containers/ConversationItem';
+import { IConversation } from '../types';
+import TopBar from '../containers/TopBar';
 
 type Props = {
   conversations: IConversation[];
@@ -14,37 +14,30 @@ type Props = {
 };
 
 function ConversationList(props: Props) {
-  const {
-    conversations,
-    goToConversation,
-    loading,
-    createConversation,
-    goToHome
-  } = props;
+  const { conversations, goToConversation, loading, createConversation, goToHome } = props;
   const [searchValue, setSearchValue] = React.useState<string>('');
-  const [ conversationList, setConversationList] = React.useState<IConversation[]>([]);
+  const [conversationList, setConversationList] = React.useState<IConversation[]>([]);
 
   React.useEffect(() => {
-    
-    if(!loading) {
+    if (!loading) {
       setConversationList(conversations);
     }
 
-    if(searchValue) {
-      setConversationList(result => result.filter(conv => conv.content.toString().toLowerCase().indexOf(searchValue.toLowerCase()) > -1));
+    if (searchValue) {
+      setConversationList((result) => result.filter((conv) => conv.content.toString().toLowerCase().indexOf(searchValue.toLowerCase()) > -1));
     }
   }, [searchValue, loading]);
 
   if (loading) {
     return <div className="loader" />;
-  }  
+  }
 
   const createButton = () => {
     return (
       <ul className="erxes-last-section">
-        <li onClick={createConversation} className="erxes-create-btn">
+        <li role="button" tabIndex={0} onClick={createConversation} className="erxes-create-btn">
           <span>{iconPlus}</span>
-          <span className="erxes-start-text">{__("Start new conversation")}</span>
+          <span className="erxes-start-text">{__('Start new conversation')}</span>
         </li>
       </ul>
     );
@@ -63,25 +56,16 @@ function ConversationList(props: Props) {
         </div>
       </li>
     );
-  }
+  };
 
   return (
     <>
-    <TopBar
-          middle={
-          `Previous Conversations`
-          }
-          onLeftButtonClick={goToHome}
-        />
-        <div className="erxes-content">
+      <TopBar middle={`Previous Conversations`} onLeftButtonClick={goToHome} />
+      <div className="erxes-content">
         <ul className="erxes-conversation-list">
           {searchButton()}
-          {conversationList.map(conversation => (
-            <ConversationItem
-              key={conversation._id}
-              conversation={conversation}
-              goToConversation={goToConversation}
-            />
+          {conversationList.map((conversation) => (
+            <ConversationItem key={conversation._id} conversation={conversation} goToConversation={goToConversation} />
           ))}
         </ul>
         {createButton()}

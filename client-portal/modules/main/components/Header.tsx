@@ -267,7 +267,7 @@ function Header({
             ? config.description
             : 'What we can help you with'}
         </h3>
-        {headerBottomComponent && headerBottomComponent}
+        {headerBottomComponent}
       </BottomComponent>
       <Modal
         content={() => (

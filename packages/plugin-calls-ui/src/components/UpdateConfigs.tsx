@@ -17,7 +17,6 @@ const KEY_LABELS = {
 };
 
 type Props = {
-  loading: boolean;
   updateConfigs: (configsMap: IConfigsMap) => void;
   configsMap: IConfigsMap;
 };

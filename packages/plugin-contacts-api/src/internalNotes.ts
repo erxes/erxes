@@ -17,8 +17,8 @@ export default {
 
     const name =
       type === 'customer'
-        ? await Customers.getCustomerName(response)
-        : await Companies.getCompanyName(response);
+        ? Customers.getCustomerName(response)
+        : Companies.getCompanyName(response);
 
     notifDoc.notifType = `${type}Mention`;
     notifDoc.content = name;

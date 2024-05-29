@@ -3,8 +3,8 @@ import { IModels } from '../connectionResolver';
 import { INote, INoteDocument, noteSchema } from './definitions/notes';
 
 export interface INoteModel extends Model<INoteDocument> {
-  getNote(_id: string): INoteDocument;
-  createNote(doc: any): INoteDocument;
+  getNote(_id: string): Promise<INoteDocument>;
+  createNote(doc: any): Promise<INoteDocument>;
   updateNote(_id: string, doc: any): INoteDocument;
 }
 
@@ -13,14 +13,14 @@ export const loadClass = (models: IModels) => {
     public static async getNote(_id: string) {
       const note = models.Notes.findOne({ _id }).lean();
 
-      if(!note) {
-        throw new Error('Note not found')
+      if (!note) {
+        throw new Error('Note not found');
       }
       return note;
     }
 
     public static async createNote(doc: INote) {
-      return models.Notes.create({ ...doc, createdAt: new Date() });
+      return await models.Notes.create({ ...doc, createdAt: new Date() });
     }
 
     public static async updateNote(_id: string, doc: INote) {

@@ -6,7 +6,7 @@ import { attachmentSchema } from '@erxes/api-utils/src/definitions/common';
 export interface ICommentConversationReply {
   mid: string;
   commentConversationId: string;
-  parentId: String;
+  parentId: string;
   recipientId: string;
   senderId: string;
   isResolved: boolean;

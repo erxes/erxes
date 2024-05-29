@@ -205,8 +205,9 @@ export default class Button extends React.Component<ButtonProps> {
 
     let content = children;
 
-    if (!ignoreTrans && typeof content === 'string') {
-      content = content;
+    let newcontent = content;
+    if (!ignoreTrans && typeof newcontent === 'string') {
+      content = newcontent;
     }
 
     if (icon) {

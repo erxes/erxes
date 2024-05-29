@@ -8,11 +8,11 @@ export interface Operator {
 }
 
 export interface IIntegration {
-  inboxId: String;
-  wsServer: String;
-  phone: String;
+  inboxId: string;
+  wsServer: string;
+  phone: string;
   operators: [Operator];
-  token: String;
+  token: string;
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {}

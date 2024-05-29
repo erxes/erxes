@@ -13,7 +13,7 @@ import { handleFacebookMessage } from './handleFacebookMessage';
 import { userIds } from './middlewares/userMiddleware';
 
 import { sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core';
-import { MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
+import {  MessageArgsOmitService } from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
 import {

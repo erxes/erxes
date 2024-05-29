@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 
 import Attachment from "./Attachment";
 import { IAttachment } from "./types";
@@ -42,7 +42,6 @@ const ToggleButton = styled(Delete.withComponent("div"))`
 
 type Props = {
   attachments: IAttachment[];
-  onChange?: (attachments: IAttachment[]) => void;
   removeAttachment?: (index: number) => void;
   limit?: number;
   hasBackground?: boolean;

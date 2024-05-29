@@ -1,18 +1,8 @@
-import { ContainerBox } from "../../../../style";
+import { ContainerBox, KbArticles } from "../../../../style";
 import { FormControl } from "@erxes/ui/src";
-import { IAsset } from "../../../../common/types";
-import { KbArticles } from "../../../../style";
 import React from "react";
-import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
-  objects?: IAsset[];
-  kbTopics: any[];
-  loadArticles: (categoryId: string) => void;
-  loadedArticles: any[];
-  save: (doc: { ids: string[]; data: any; callback: () => void }) => void;
-  closeModal: () => void;
-  selectedArticleIds?: string[];
   article: any;
   selectedArticles: string[];
   setSelectedArticles: (articleIds: string[]) => void;

@@ -20,7 +20,7 @@ import { PROMOCODE_STATUS } from "@erxes/api-utils/src/saas/definition";
 import { authCookieOptions } from "@erxes/api-utils/src/core";
 import { PROMO_CODE_TYPE } from "@erxes/api-utils/src/saas/constants";
 
-export let MAPPING: { [key: string]: IModels } = {};
+export const MAPPING: { [key: string]: IModels } = {};
 
 interface IUpdateOrganizationInfoParams {
   subdomain: string;

@@ -110,6 +110,7 @@ export const gatherDescriptions = async (params) => {
           nameFields: ['name'],
         });
       }
+      break;
     }
     default:
       break;

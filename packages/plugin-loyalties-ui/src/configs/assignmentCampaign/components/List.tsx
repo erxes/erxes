@@ -1,4 +1,8 @@
-import { Alert, __, confirm, router } from "@erxes/ui/src/utils";
+import {
+  FilterContainer,
+  FlexRow,
+  Title,
+} from "@erxes/ui-settings/src/styles";
 import {
   Button,
   DataWithLoader,
@@ -7,20 +11,15 @@ import {
   Pagination,
   Table,
 } from "@erxes/ui/src/components";
-import {
-  FilterContainer,
-  FlexRow,
-  Title,
-} from "@erxes/ui-settings/src/styles";
+import { Alert, __, confirm, router } from "@erxes/ui/src/utils";
 
-import CreateForm from "./CreateForm";
-import { IAssignmentCampaign } from "../types";
-import { Link } from "react-router-dom";
-import React, { useState } from "react";
-import Row from "./Row";
-import Sidebar from "../../general/components/Sidebar";
 import { Wrapper } from "@erxes/ui/src/layout";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import Sidebar from "../../general/components/Sidebar";
+import { IAssignmentCampaign } from "../types";
+import CreateForm from "./CreateForm";
+import Row from "./Row";
 
 type Props = {
   assignmentCampaigns: IAssignmentCampaign[];
@@ -43,7 +42,7 @@ type Props = {
 const AssignmentCampaigns = (props: Props) => {
   let timer;
   const [searchValue, setSearchValue] = useState(props.searchValue || "");
-  const [filterStatus, setFilterStatus] = useState(props.filterStatus || "");
+
   const location = useLocation();
   const navigate = useNavigate();
 

@@ -9,12 +9,9 @@ import {
   ErxesSpacialMessage,
   FromCustomer,
   SkillWrapper,
-  VideoCallRequestWrapper
+  VideoCallRequestWrapper,
 } from './styles';
-import {
-  IMessagesItem,
-  ISkillData
-} from '@erxes/ui-inbox/src/settings/integrations/types';
+import { IMessagesItem, ISkillData } from '@erxes/ui-inbox/src/settings/integrations/types';
 
 import Button from '@erxes/ui/src/components/Button';
 import React from 'react';
@@ -36,14 +33,15 @@ class WidgetContent extends React.Component<Props, { skillResponse?: string }> {
     super(props);
 
     this.state = {
-      skillResponse: ''
+      skillResponse: '',
     };
   }
-  onSkillClick = skill => {
-    this.setState({ skillResponse: skill.response && skill.response });
+
+  onSkillClick = (skill) => {
+    this.setState({ skillResponse: skill.response });
   };
 
-  renderMessage = msg => {
+  renderMessage = (msg) => {
     if (!msg) {
       return null;
     }
@@ -73,12 +71,7 @@ class WidgetContent extends React.Component<Props, { skillResponse?: string }> {
   renderSkills() {
     const { activeStep, color, skillData } = this.props;
 
-    if (
-      !skillData ||
-      (Object.keys(skillData) || []).length === 0 ||
-      !skillData.options ||
-      activeStep !== 'intro'
-    ) {
+    if (!skillData || (Object.keys(skillData) || []).length === 0 || !skillData.options || activeStep !== 'intro') {
       return null;
     }
 
@@ -92,13 +85,13 @@ class WidgetContent extends React.Component<Props, { skillResponse?: string }> {
 
     return (
       <SkillWrapper color={color}>
-        {(skillData.options || []).map((skill, index) => {
+        {(skillData.options || []).map((skill) => {
           if (!skill.label) {
             return null;
           }
 
           return (
-            <Button onClick={this.onSkillClick.bind(this, skill)} key={index}>
+            <Button onClick={this.onSkillClick.bind(this, skill)} key={skill.skillId}>
               {skill.label}
             </Button>
           );
@@ -126,9 +119,7 @@ class WidgetContent extends React.Component<Props, { skillResponse?: string }> {
             <ErxesDate>{__('1 hour ago')}</ErxesDate>
           </li>
           <ErxesFromCustomer>
-            <FromCustomer style={{ backgroundColor: color, color: textColor }}>
-              {__('We need your help!')}
-            </FromCustomer>
+            <FromCustomer style={{ backgroundColor: color, color: textColor }}>{__('We need your help!')}</FromCustomer>
             <ErxesDate>{__('6 minutes ago')}</ErxesDate>
           </ErxesFromCustomer>
           {!isOnline && this.renderMessage(message && message.away)}

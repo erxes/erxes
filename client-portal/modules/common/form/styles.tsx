@@ -300,7 +300,7 @@ const Checkbox = styledTS<{ color?: string }>(styled(inputStyle))`
   }
 `;
 
-const Error = styled.label`
+const ErrorMessage = styled.label`
   color: ${colors.colorCoreRed};
   margin-top: ${dimensions.unitSpacing - 3}px;
   display: block;
@@ -401,7 +401,7 @@ export {
   Label,
   Formgroup,
   FlexWrapper,
-  Error,
+  ErrorMessage,
   SortItem,
   SortableWrapper,
   DragHandler,

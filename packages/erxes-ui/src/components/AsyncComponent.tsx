@@ -12,22 +12,16 @@ function retry(fn, retriesLeft = 30, interval = 2000) {
 
         setTimeout(() => {
           if (retriesLeft === 1) {
-            // reject('maximum retries exceeded');
             reject(error);
             return;
           }
-
-          // Passing on "reject" is the important part
           retry(fn, retriesLeft - 1, interval).then(resolve, reject);
         }, interval);
       });
   });
 }
 
-export default function asyncComponent(
-  importComponent: any,
-  loaderStyle?: IAnimatedLoader,
-): any {
+export default function asyncComponent(importComponent: any, loaderStyle?: IAnimatedLoader): any {
   class AsyncComponent extends React.Component<any, { component: any }> {
     constructor(props) {
       super(props);

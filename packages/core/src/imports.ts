@@ -29,7 +29,7 @@ export default {
     const { result, properties } = data;
     const models = await generateModels(subdomain);
 
-    const bulkDoc: any = [];
+    const bulkDoc: any[] = [];
 
     // Iterating field values
     for (const fieldValue of result) {
@@ -39,7 +39,7 @@ export default {
 
       // Iterating through detailed properties
       for (const property of properties) {
-        const value = (fieldValue[colIndex] || '').toString();
+        const value = (fieldValue[colIndex] ?? '').toString();
 
         switch (property.name) {
           case 'customProperty':
@@ -100,16 +100,18 @@ export default {
             {
               doc[property.name] = value;
 
-              if (property.name === 'createdAt' && value) {
-                doc.createdAt = new Date(value);
-              }
+              if (value) {
+                if (property.name === 'createdAt') {
+                  doc.createdAt = new Date(value);
+                }
 
-              if (property.name === 'emails' && value) {
-                doc.emails = value.split(',');
-              }
+                if (property.name === 'emails') {
+                  doc.emails = value.split(',');
+                }
 
-              if (property.name === 'names' && value) {
-                doc.names = value.split(',');
+                if (property.name === 'names') {
+                  doc.names = value.split(',');
+                }
               }
 
               if (property.name === 'isComplete') {

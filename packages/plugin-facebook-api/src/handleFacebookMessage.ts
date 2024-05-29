@@ -2,8 +2,7 @@ import * as strip from 'strip';
 
 import { IModels } from './connectionResolver';
 import { generateAttachmentMessages, sendReply } from './utils';
-import { sendInboxMessage } from './messageBroker';
-import { sendCoreMessage } from './messageBroker';
+import { sendInboxMessage ,sendCoreMessage} from './messageBroker';
 
 /**
  * Handle requests from erxes api

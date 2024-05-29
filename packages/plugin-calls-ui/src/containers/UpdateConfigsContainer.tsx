@@ -42,7 +42,6 @@ const ConfigsContainer = (props: FinalProps) => {
   };
 
   const updatedProps = {
-    loading: getConfigsQuery.loading,
     updateConfigs,
     configsMap,
   };

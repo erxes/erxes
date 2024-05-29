@@ -1,16 +1,11 @@
 import * as React from 'react';
-import { __ } from '../../utils';
-import ConversationInit from "../containers/ConversationInit";
+import ConversationInit from '../containers/ConversationInit';
 import asyncComponent from '../../AsyncComponent';
-import WebsiteApp from "../containers/websiteApp/WebsiteApp";
+import WebsiteApp from '../containers/websiteApp/WebsiteApp';
 import { IWebsiteApp } from '../types';
 import IntegrationItem from './IntegrationItem';
 
-const LeadConnect = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "MessengerLeadConnect" */ '../containers/lead/LeadConnect'
-  )
-);
+const LeadConnect = asyncComponent(() => import(/* webpackChunkName: "MessengerLeadConnect" */ '../containers/lead/LeadConnect'));
 
 type Props = {
   formCodes: string[];
@@ -27,9 +22,7 @@ export default class Integrations extends React.PureComponent<Props> {
       return null;
     }
 
-    return formCodes.map((formCode: string) => (
-        <LeadConnect key={formCode} brandCode={brandCode} formCode={formCode} />
-    ));
+    return formCodes.map((formCode: string) => <LeadConnect key={formCode} brandCode={brandCode} formCode={formCode} />);
   }
 
   renderWebsiteApps() {

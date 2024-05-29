@@ -28,8 +28,8 @@ const TopBarIcon = styledTS<{ $isLeft: boolean }>(styled.div)`
   text-align: center;
   position: absolute;
   top: 15px;
-  left: ${props => props.$isLeft && '15px'};
-  right: ${props => (props.$isLeft ? '0px' : '15px')};
+  left: ${(props) => props.$isLeft && '15px'};
+  right: ${(props) => (props.$isLeft ? '0px' : '15px')};
 
   &:hover {
     background-color: ${rgba(colors.colorBlack, 0.2)};
@@ -69,8 +69,7 @@ const StateSpan = styledTS<{ state: boolean }>(styled.span)`
   bottom: 2px;
   position: absolute;
   right: 2px;
-  background-color: ${props =>
-    props.state ? colors.colorCoreGreen : colors.colorLightGray};
+  background-color: ${(props) => (props.state ? colors.colorCoreGreen : colors.colorLightGray)};
 `;
 
 const ErxesSupporters = styled.div`
@@ -279,7 +278,7 @@ const GreetingInfo = styled.div`
 
 const ErxesContent = styledTS<{ $isTabbed: boolean }>(styled.div)`
   height: 100%;
-  margin-top: ${props => (props.$isTabbed ? '0px' : '-40px')};
+  margin-top: ${(props) => (props.$isTabbed ? '0px' : '-40px')};
   flex: 1;
   overflow: auto;
   z-index: 5;
@@ -333,7 +332,8 @@ const RightSide = styled.div`
 const ContentBox = styled.div`
   background: ${colors.colorWhite};
   border-radius: ${dimensions.unitSpacing}px;
-  box-shadow: 0 4px 15px 0 ${rgba(colors.colorBlack, 0.1)},
+  box-shadow:
+    0 4px 15px 0 ${rgba(colors.colorBlack, 0.1)},
     0 1px 2px 0 ${rgba(colors.colorBlack, 0.1)};
   margin: 15px;
   min-height: 100px;
@@ -365,7 +365,7 @@ const ServerInfo = styled.div`
 const VideoCallRequestWrapper = styledTS<{ color: string }>(styled.div)`
   background: ${colors.colorWhite};
   border-radius: ${unitSpace};
-  border-top: 3px solid ${props => props.color};
+  border-top: 3px solid ${(props) => props.color};
   box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.15);
   color: ${colors.textPrimary};
   margin: ${coreSpace} 0;
@@ -387,7 +387,7 @@ const CallButtons = styledTS<{ color: string }>(styled.div)`
   display: flex;
 
   button {
-    background: ${props => props.color};
+    background: ${(props) => props.color};
     border-radius: 5px;
     flex: 1;
   }
@@ -403,13 +403,13 @@ const SkillWrapper = styledTS<{ color?: string }>(styled.div)`
   }
 
   button {
-    background: ${props => props.color && props.color};
+    background: ${(props) => props.color};
     margin-bottom: ${unitSpace};
 
     &:hover {
       box-shadow: 0 1px 10px 2px rgba(0,0,0,.15);
       opacity: .9;
-      background: ${props => props.color && props.color};
+      background: ${(props) => props.color};
     }
   }
 `;
@@ -452,11 +452,11 @@ const Website = styledTS<{ color?: string }>(styled.div)`
 
   > button {
     width: 100%;
-    background: ${props => props.color && props.color};
+    background: ${(props) => props.color};
     border-radius: 5px;
 
     &:hover {
-      background: ${props => props.color && props.color};
+      background: ${(props) => props.color};
     }
   }
 `;
@@ -494,5 +494,5 @@ export {
   VideoCallRequestWrapper,
   CallButtons,
   SkillWrapper,
-  Website
+  Website,
 };

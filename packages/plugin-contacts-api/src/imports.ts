@@ -41,8 +41,7 @@ export default {
 
           doc.state = contentType;
 
-          const { profileScore, searchText } =
-            await models.Customers.calcPSS(doc);
+          const { profileScore, searchText } = models.Customers.calcPSS(doc);
 
           doc.profileScore = profileScore;
           doc.searchText = searchText;

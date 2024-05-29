@@ -18,14 +18,14 @@ import { checkCodeDuplication } from './utils';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 
 export interface IStructureModel extends Model<IStructureDocument> {
-  getStructure(doc: any): IStructureDocument;
-  createStructure(doc: any, user: IUserDocument): IStructureDocument;
+  getStructure(doc: any): Promise<IStructureDocument>;
+  createStructure(doc: any, user: IUserDocument): Promise<IStructureDocument>;
   updateStructure(
     _id: string,
     doc: any,
     user: IUserDocument,
-  ): IStructureDocument;
-  removeStructure(_id: string): IStructureDocument;
+  ): Promise<IStructureDocument>;
+  removeStructure(_id: string): Promise<IStructureDocument>;
 }
 
 export const loadStructureClass = (models: IModels) => {
@@ -100,14 +100,14 @@ export const loadStructureClass = (models: IModels) => {
 // );
 
 export interface IDepartmentModel extends Model<IDepartmentDocument> {
-  getDepartment(doc: any): IDepartmentDocument;
-  createDepartment(doc: any, user: IUserDocument): IDepartmentDocument;
+  getDepartment(doc: any): Promise<IDepartmentDocument>;
+  createDepartment(doc: any, user: IUserDocument): Promise<IDepartmentDocument>;
   updateDepartment(
     _id: string,
     doc: any,
     user: IUserDocument,
-  ): IDepartmentDocument;
-  removeDepartments(ids?: string[]): IDepartmentDocument;
+  ): Promise<IDepartmentDocument>;
+  removeDepartments(ids?: string[]): Promise<IDepartmentDocument>;
 }
 
 export const loadDepartmentClass = (models: IModels) => {
@@ -252,10 +252,10 @@ export const loadDepartmentClass = (models: IModels) => {
 };
 
 export interface IUnitModel extends Model<IUnitDocument> {
-  getUnit(doc: any): IUnitDocument;
-  createUnit(doc: any, user: IUserDocument): IUnitDocument;
-  updateUnit(_id: string, doc: any, user: IUserDocument): IUnitDocument;
-  removeUnits(ids?: string[]): IUnitDocument;
+  getUnit(doc: any): Promise<IUnitDocument>;
+  createUnit(doc: any, user: IUserDocument): Promise<IUnitDocument>;
+  updateUnit(_id: string, doc: any, user: IUserDocument): Promise<IUnitDocument>;
+  removeUnits(ids?: string[]): Promise<IUnitDocument>;
 }
 
 export const loadUnitClass = (models: IModels) => {
@@ -464,10 +464,10 @@ export const loadBranchClass = (models: IModels) => {
   return branchSchema;
 };
 export interface IPositionModel extends Model<IPositionDocument> {
-  getPosition(doc: any): IPositionDocument;
-  createPosition(doc: any, user: IUserDocument): IPositionDocument;
-  updatePosition(_id: string, doc: any, user: IUserDocument): IPositionDocument;
-  removePositions(ids?: string[]): IPositionDocument;
+  getPosition(doc: any): Promise<IPositionDocument>;
+  createPosition(doc: any, user: IUserDocument): Promise<IPositionDocument>;
+  updatePosition(_id: string, doc: any, user: IUserDocument): Promise<IPositionDocument>;
+  removePositions(ids?: string[]): Promise<IPositionDocument>;
 }
 
 export const loadPositionClass = (models: IModels) => {

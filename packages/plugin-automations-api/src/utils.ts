@@ -293,7 +293,7 @@ export const calculateExecution = async ({
       return;
     }
   } catch (e) {
-    await models.Executions.createExecution({
+    models.Executions.createExecution({
       automationId,
       triggerId: id,
       triggerType: type,
@@ -350,57 +350,44 @@ export const calculateExecution = async ({
 };
 
 const isWaitingDateConfig = (dateConfig) => {
-  if (dateConfig) {
-    const NOW = new Date();
-
-    if (dateConfig.type === 'range') {
-      const { startDate, endDate } = dateConfig;
-      if (startDate < NOW && endDate > NOW) {
-        return true;
-      }
-    }
-
-    if (dateConfig?.type === 'cycle') {
-      const { frequencyType } = dateConfig;
-
-      const generateDate = (inputDate, isMonth?) => {
-        const date = new Date(inputDate);
-
-        return new Date(
-          NOW.getFullYear(),
-          isMonth ? NOW.getMonth() : date.getMonth(),
-          date.getDay(),
-        );
-      };
-
-      if (frequencyType === 'everyYear') {
-        const startDate = generateDate(dateConfig.startDate);
-        if (dateConfig?.endDate) {
-          const endDate = generateDate(dateConfig.endDate);
-
-          if (NOW < startDate && NOW > endDate) {
-            return true;
-          }
-        }
-        if (NOW < startDate) {
-          return true;
-        }
-      }
-      if (frequencyType === 'everyMonth') {
-        const startDate = generateDate(dateConfig.startDate, true);
-        if (dateConfig?.endDate) {
-          const endDate = generateDate(dateConfig.endDate, true);
-
-          if (NOW < startDate && NOW > endDate) {
-            return true;
-          }
-        }
-        if (NOW < startDate) {
-          return true;
-        }
-      }
-    }
+  if (!dateConfig) {
+    return false;
   }
+
+  const NOW = new Date();
+
+  const isInRange = ({ startDate, endDate }) =>
+    startDate < NOW && endDate > NOW;
+
+  const generateDate = (inputDate, isMonth = false) => {
+    const date = new Date(inputDate);
+    return new Date(
+      NOW.getFullYear(),
+      isMonth ? NOW.getMonth() : date.getMonth(),
+      date.getDay(),
+    );
+  };
+
+  const isWithinCycle = (frequencyType) => {
+    const startDate = generateDate(
+      dateConfig.startDate,
+      frequencyType === 'everyMonth',
+    );
+    const endDate = dateConfig.endDate
+      ? generateDate(dateConfig.endDate, frequencyType === 'everyMonth')
+      : null;
+
+    return !endDate || (NOW < startDate && NOW > endDate) || NOW < startDate;
+  };
+
+  if (dateConfig.type === 'range') {
+    return isInRange(dateConfig);
+  }
+
+  if (dateConfig.type === 'cycle') {
+    return isWithinCycle(dateConfig.frequencyType);
+  }
+
   return false;
 };
 

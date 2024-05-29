@@ -91,7 +91,7 @@ const automationQueries = {
     { _id }: { _id: string },
     { models }: IContext,
   ) {
-    return models.Automations.getAutomation(_id);
+    return await models.Automations.getAutomation(_id);
   },
 
   /**

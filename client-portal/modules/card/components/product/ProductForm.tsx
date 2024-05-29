@@ -121,12 +121,15 @@ class ProductForm extends React.Component<Props, State> {
         </Table>
         <FooterInfo>
           <table>
-            <tr>
-              <td>{__("Total:")}</td>
-              <td>{this.renderTotal()}</td>
-            </tr>
+            <tbody>
+              <tr>
+                <td>{__("Total:")}</td>
+                <td>{this.renderTotal()}</td>
+              </tr>
+            </tbody>
           </table>
         </FooterInfo>
+
       </>
     );
   }

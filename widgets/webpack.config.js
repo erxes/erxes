@@ -13,36 +13,34 @@ module.exports = {
     events: './client/events/index.ts',
     eventsWidget: './client/events/widget/index.ts',
     booking: './client/booking/index.ts',
-    bookingWidget: './client/booking/widget/index.ts'
+    bookingWidget: './client/booking/widget/index.ts',
   },
 
   output: {
     path: path.join(__dirname, 'static'),
     filename: '[name].bundle.js',
-    chunkFilename: '[name].[contenthash].js'
+    chunkFilename: '[name].[contenthash].js',
   },
 
-  plugins: [
-    new Dotenv()
-  ],
+  plugins: [new Dotenv()],
 
   module: {
     rules: [
       {
-        test: /\.(t|j)sx?$/,
+        test: /\.[tj]sx?$/,
         loader: 'awesome-typescript-loader',
-        exclude: /node_modules/
+        exclude: /node_modules/,
       },
       // addition - add source-map support
       {
         enforce: 'pre',
         test: /\.js$/,
         loader: 'source-map-loader',
-        exclude: [/node_modules/]
+        exclude: [/node_modules/],
       },
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader']
+        use: ['style-loader', 'css-loader'],
       },
       {
         test: /\.(png|woff|woff2|eot|ttf)$/,
@@ -50,15 +48,15 @@ module.exports = {
           {
             loader: 'url-loader',
             options: {
-              limit: 100000
-            }
-          }
-        ]
+              limit: 100000,
+            },
+          },
+        ],
       },
       {
         test: /\.scss$/,
         use: ['style-loader', 'css-loader', 'sass-loader'],
-        exclude: [/node_modules/]
+        exclude: [/node_modules/],
       },
       {
         test: /\.(eot|woff|woff2|ttf|svg|png|jpg|gif)$/,
@@ -67,16 +65,16 @@ module.exports = {
             loader: 'url-loader',
             options: {
               limit: 30000,
-              name: '[name]-[hash].[ext]'
-            }
-          }
-        ]
-      }
-    ]
+              name: '[name]-[hash].[ext]',
+            },
+          },
+        ],
+      },
+    ],
   },
 
   // addition - add source-map support
-  devtool: "source-map",
+  devtool: 'source-map',
 
   resolve: {
     extensions: ['.js', '.ts', '.tsx', '.json'],

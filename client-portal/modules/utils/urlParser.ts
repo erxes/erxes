@@ -36,7 +36,6 @@ const extractRootDomain = (url: string) => {
   if (arrLen > 2) {
     domain = splitArr[arrLen - 2] + '.' + splitArr[arrLen - 1];
     if (
-      splitArr[arrLen - 1].length === 2 &&
       splitArr[arrLen - 1].length === 2
     ) {
       domain = splitArr[arrLen - 3] + '.' + domain;

@@ -54,10 +54,10 @@ const receiveComment = async (
     params,
     pageId,
     userId,
-    params.verb || '',
+    params.verb ?? '',
     integration,
     customer,
-  );
+  );  
 };
 
 export default receiveComment;

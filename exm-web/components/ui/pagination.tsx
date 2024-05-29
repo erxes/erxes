@@ -192,7 +192,7 @@ const PaginationContainer = ({
     let prevClass = ""
     let nextClass = ""
 
-    if (currentPage || 1 <= 1) {
+    if (currentPage || 1 <= totalPagesCount) {
       prevClass = "disabled"
     }
 

@@ -1,28 +1,28 @@
-import { IOrder, IOrderDocument } from '../../models/definitions/orders';
-import { IModels } from '../../connectionResolver';
-import { IPayment } from '../resolvers/mutations/orders';
-import { IOrderInput, IOrderItemInput } from '../types';
-import { IOrderItemDocument } from '../../models/definitions/orderItems';
+import { IOrder, IOrderDocument } from "../../models/definitions/orders";
+import { IModels } from "../../connectionResolver";
+import { IPayment } from "../resolvers/mutations/orders";
+import { IOrderInput, IOrderItemInput } from "../types";
+import { IOrderItemDocument } from "../../models/definitions/orderItems";
 import {
   BILL_TYPES,
   ORDER_TYPES,
-  ORDER_ITEM_STATUSES
-} from '../../models/definitions/constants';
+  ORDER_ITEM_STATUSES,
+} from "../../models/definitions/constants";
 import {
   IConfigDocument,
   IConfig,
-  IEbarimtConfig
-} from '../../models/definitions/configs';
-import * as moment from 'moment';
-import { debugError } from '@erxes/api-utils/src/debuggers';
-import { IProductDocument } from '../../models/definitions/products';
-import { checkLoyalties } from './loyalties';
-import { checkPricing } from './pricing';
-import { checkRemainders } from './products';
-import { getPureDate } from '@erxes/api-utils/src';
-import { checkDirectDiscount } from './directDiscount';
-import { IPosUserDocument } from '../../models/definitions/posUsers';
-import { getCompanyInfo } from '../../models/PutData';
+  IEbarimtConfig,
+} from "../../models/definitions/configs";
+import * as moment from "moment";
+import { debugError } from "@erxes/api-utils/src/debuggers";
+import { IProductDocument } from "../../models/definitions/products";
+import { checkLoyalties } from "./loyalties";
+import { checkPricing } from "./pricing";
+import { checkRemainders } from "./products";
+import { getPureDate } from "@erxes/api-utils/src";
+import { checkDirectDiscount } from "./directDiscount";
+import { IPosUserDocument } from "../../models/definitions/posUsers";
+import { getCompanyInfo } from "../../models/PutData";
 
 interface IDetailItem {
   count: number;
@@ -36,12 +36,11 @@ export const generateOrderNumber = async (
   models: IModels,
   config: IConfig
 ): Promise<string> => {
-  const todayStr = moment().format('YYYYMMDD').toString();
+  const todayStr = moment().format("YYYYMMDD").toString();
 
-  const beginNumber =
-    (config && config.beginNumber && `${config.beginNumber}.`) || '';
+  const beginNumber = `${config?.beginNumber ?? ""}.`;
 
-  let suffix = '0001';
+  let suffix = "0001";
   let number = `${todayStr}_${beginNumber}${suffix}`;
 
   let latestOrder;
@@ -50,39 +49,37 @@ export const generateOrderNumber = async (
     {
       $match: {
         posToken: config.token,
-        number: { $regex: new RegExp(`^${todayStr}_${beginNumber}*`) }
-      }
+        number: { $regex: new RegExp(`^${todayStr}_${beginNumber}*`) },
+      },
     },
     {
       $project: {
         number: 1,
-        number_len: { $strLenCP: '$number' }
-      }
+        number_len: { $strLenCP: "$number" },
+      },
     },
     { $sort: { number_len: -1, number: -1 } },
-    { $limit: 1 }
+    { $limit: 1 },
   ]);
 
   if (latestOrders.length) {
     latestOrder = latestOrders[0];
   }
 
-  if (latestOrder && latestOrder._id) {
-    const parts = latestOrder.number.split('_');
+  if (latestOrder) {
+    const parts = latestOrder.number.split("_");
 
-    const suffixParts = parts[1].split('.');
+    const suffixParts = parts[1].split(".");
     const latestSuffix =
       (suffixParts.length === 2 && suffixParts[1]) || suffixParts[0];
 
     const latestNum = parseInt(latestSuffix, 10);
     const addend =
-      (config &&
-        config.maxSkipNumber &&
-        config.maxSkipNumber > 1 &&
-        Math.round(Math.random() * (config.maxSkipNumber - 1) + 1)) ||
-      1;
+      config?.maxSkipNumber && config.maxSkipNumber > 1
+        ? Math.round(Math.random() * (config.maxSkipNumber - 1) + 1)
+        : 1;
 
-    suffix = String(latestNum + addend).padStart(4, '0');
+    suffix = String(latestNum + addend).padStart(4, "0");
     number = `${todayStr}_${beginNumber}${suffix}`;
   }
 
@@ -97,25 +94,25 @@ export const validateOrder = async (
 ) => {
   const { items = [] } = doc;
 
-  if (!items.filter(i => !i.isPackage).length) {
-    throw new Error('Products missing in order. Please add products');
+  if (!items.filter((i) => !i.isPackage).length) {
+    throw new Error("Products missing in order. Please add products");
   }
 
   if (doc.isPre && (!doc.dueDate || doc.dueDate < getPureDate(new Date()))) {
     throw new Error(
-      'The due date of the pre-order must be recorded in the future'
+      "The due date of the pre-order must be recorded in the future"
     );
   }
 
   const products = await models.Products.find({
-    _id: { $in: items.map(i => i.productId) }
+    _id: { $in: items.map((i) => i.productId) },
   }).lean();
-  const productIds = products.map(p => p._id);
+  const productIds = products.map((p) => p._id);
 
   for (const item of items) {
     // will throw error if product is not found
     if (!productIds.includes(item.productId)) {
-      throw new Error('Products missing in order');
+      throw new Error("Products missing in order");
     }
   }
 
@@ -125,7 +122,7 @@ export const validateOrder = async (
     config.departmentId
   ) {
     const checkProducts = products.filter(
-      p => (p.isCheckRems || {})[config.token || ''] || false
+      (p) => p.isCheckRems?.[config.token] || false
     );
 
     if (checkProducts.length) {
@@ -165,7 +162,7 @@ export const validateOrder = async (
       }
 
       if (errors.length) {
-        throw new Error(errors.join(', '));
+        throw new Error(errors.join(", "));
       }
     }
   }
@@ -173,12 +170,12 @@ export const validateOrder = async (
 
 export const validateOrderPayment = (order: IOrder, doc: IPayment) => {
   if (order.paidDate) {
-    throw new Error('Order has already been paid');
+    throw new Error("Order has already been paid");
   }
   const {
     cashAmount: paidCash = 0,
     mobileAmount: paidMobile = 0,
-    paidAmounts
+    paidAmounts,
   } = order;
   const { cashAmount = 0 } = doc;
 
@@ -202,7 +199,7 @@ export const cleanOrderItems = async (
   items: IOrderItemInput[],
   models: IModels
 ) => {
-  const itemIds = items.map(item => item._id);
+  const itemIds = items.map((item) => item._id);
 
   await models.OrderItems.deleteMany({ orderId, isPackage: true });
   await models.OrderItems.deleteMany({ orderId, _id: { $nin: itemIds } });
@@ -214,10 +211,10 @@ export const updateOrderItems = async (
   models: IModels
 ) => {
   const oldItems = await models.OrderItems.find({
-    _id: { $in: items.map(item => item._id) }
+    _id: { $in: items.map((item) => item._id) },
   }).lean();
 
-  const itemIds = oldItems.map(i => i._id);
+  const itemIds = oldItems.map((i) => i._id);
 
   for (const item of items) {
     const doc = {
@@ -232,7 +229,7 @@ export const updateOrderItems = async (
       isTake: item.isTake,
       manufacturedDate: item.manufacturedDate,
       description: item.description,
-      attachment: item.attachment
+      attachment: item.attachment,
     };
 
     if (itemIds.includes(item._id)) {
@@ -240,7 +237,7 @@ export const updateOrderItems = async (
     } else {
       await models.OrderItems.createOrderItem({
         ...doc,
-        orderId
+        orderId,
       });
     }
   }
@@ -265,22 +262,27 @@ export const prepareEbarimtData = async (
   registerNumber?: string
 ) => {
   const billType = orderBillType || order.billType || BILL_TYPES.CITIZEN;
-  let type: string = billType === '3' ? 'B2B_RECEIPT' : 'B2C_RECEIPT';
-  let customerCode = '';
-  let customerName = '';
+  let type: string = billType === "3" ? "B2B_RECEIPT" : "B2C_RECEIPT";
+  let customerCode = "";
+  let customerName = "";
 
   if (registerNumber) {
-    const resp = await getCompanyInfo({ checkTaxpayerUrl: config.checkTaxpayerUrl, no: registerNumber })
+    const resp = await getCompanyInfo({
+      checkTaxpayerUrl: config.checkTaxpayerUrl,
+      no: registerNumber,
+    });
 
-    if (resp.status === 'checked' && resp.tin) {
-      type = 'B2B_RECEIPT';
+    if (resp.status === "checked" && resp.tin) {
+      type = "B2B_RECEIPT";
       customerCode = registerNumber;
       customerName = resp.result?.data?.name;
     }
   }
 
-  const productIds = items.map(item => item.productId);
-  const products: IProductDocument[] = await models.Products.find({ _id: { $in: productIds } }).lean();
+  const productIds = items.map((item) => item.productId);
+  const products: IProductDocument[] = await models.Products.find({
+    _id: { $in: productIds },
+  }).lean();
   const productsById = {};
 
   for (const product of products) {
@@ -288,9 +290,9 @@ export const prepareEbarimtData = async (
   }
 
   return {
-    contentType: 'pos',
+    contentType: "pos",
     contentId: order._id,
-    number: order.number ?? '',
+    number: order.number ?? "",
 
     date: new Date(),
     type,
@@ -298,7 +300,7 @@ export const prepareEbarimtData = async (
     customerRD: customerCode,
     customerName,
 
-    details: items.map(item => {
+    details: items.map((item) => {
       const product: IProductDocument = productsById[item.productId];
       if (!product) {
         return;
@@ -309,41 +311,43 @@ export const prepareEbarimtData = async (
         quantity: item.count,
         unitPrice: item.unitPrice ?? 0,
         totalDiscount: item.discountAmount,
-        totalAmount: item.count * (item.unitPrice ?? 0)
-      }
+        totalAmount: item.count * (item.unitPrice ?? 0),
+      };
     }),
-    nonCashAmounts: [...order.paidAmounts || [], ...order.mobileAmounts || []].map(pay => ({ amount: pay.amount }))
-  }
+    nonCashAmounts: [
+      ...(order.paidAmounts || []),
+      ...(order.mobileAmounts || []),
+    ].map((pay) => ({ amount: pay.amount })),
+  };
 };
 
 const getMatchMaps = (matchOrders, lastCatProdMaps, product) => {
   for (const order of matchOrders) {
     const matchMaps = lastCatProdMaps.filter(
-      lcp => lcp.category.order === order
+      (lcp) => lcp.category.order === order
     );
 
     if (matchMaps.length) {
       const withCodeMatch = matchMaps.find(
-        m => m.code && product.code.includes(m.code)
+        (m) => m.code && product.code.includes(m.code)
       );
       if (withCodeMatch) {
         return withCodeMatch;
       }
 
       const withNameMatch = matchMaps.find(
-        m => !m.code && m.name && product.name.includes(m.name)
+        (m) => !m.code && m.name && product.name.includes(m.name)
       );
       if (withNameMatch) {
         return withNameMatch;
       }
 
-      const normalMatch = matchMaps.find(m => !m.code && !m.name);
+      const normalMatch = matchMaps.find((m) => !m.code && !m.name);
       if (normalMatch) {
         return normalMatch;
       }
     }
   }
-  return;
 };
 
 const checkPrices = async (subdomain, preparedDoc, config, posUser) => {
@@ -376,10 +380,10 @@ export const prepareOrderDoc = async (
 ) => {
   const { catProdMappings = [] } = config;
 
-  const items = doc.items.filter(i => !i.isPackage) || [];
+  const items = doc.items.filter((i) => !i.isPackage) || [];
 
   const products: IProductDocument[] = await models.Products.find({
-    _id: { $in: items.map(i => i.productId) }
+    _id: { $in: items.map((i) => i.productId) },
   }).lean();
 
   const productsOfId: { [_id: string]: IProductDocument } = {};
@@ -393,53 +397,55 @@ export const prepareOrderDoc = async (
   for (const item of items) {
     const fixedUnitPrice = Number(
       Number(
-        ((productsOfId[item.productId] || {}).prices || {})[config.token] ||
-        item.unitPrice ||
-        0
-      ).toFixed(2)
+        (
+          (productsOfId[item.productId]?.prices || {})[config.token] ||
+          item.unitPrice ||
+          0
+        ).toFixed(2)
+      )
     );
 
     item.unitPrice = isNaN(fixedUnitPrice) ? 0 : fixedUnitPrice;
     doc.totalAmount += (item.count || 0) * fixedUnitPrice;
   }
 
-  const hasTakeItems = items.filter(i => i.isTake);
+  const hasTakeItems = items.filter((i) => i.isTake);
 
   if (hasTakeItems.length > 0 && catProdMappings.length > 0) {
     const toAddProducts = {};
 
     const mapCatIds = catProdMappings
-      .filter(cpm => cpm.categoryId)
-      .map(cpm => cpm.categoryId);
-    const hasTakeProducIds = hasTakeItems.map(hti => hti.productId);
+      .filter((cpm) => cpm.categoryId)
+      .map((cpm) => cpm.categoryId);
+    const hasTakeProducIds = hasTakeItems.map((hti) => hti.productId);
     const hasTakeCatIds = hasTakeProducIds.map(
-      htpi => (productsOfId[htpi] || {}).categoryId
+      (htpi) => (productsOfId[htpi] || {}).categoryId
     );
     const categories = await models.ProductCategories.find({
-      _id: { $in: [...mapCatIds, ...hasTakeCatIds] }
+      _id: { $in: [...mapCatIds, ...hasTakeCatIds] },
     }).lean();
 
     const categoriesOfId = {};
     for (const cat of categories) {
       categoriesOfId[cat._id] = cat;
     }
-    const lastCatProdMaps = catProdMappings.map(cpm => ({
+    const lastCatProdMaps = catProdMappings.map((cpm) => ({
       ...cpm,
-      category: categoriesOfId[cpm.categoryId]
+      category: categoriesOfId[cpm.categoryId],
     }));
 
     for (const item of hasTakeItems) {
       const product = productsOfId[item.productId];
-      const category = categoriesOfId[product.categoryId || ''];
+      const category = categoriesOfId[product.categoryId ?? ""];
 
       if (!category) {
         continue;
       }
 
-      const perOrders = category.order.split('/');
+      const perOrders = category.order.split("/");
       const matchOrders: string[] = [];
       for (let i = perOrders.length - 1; i > 0; i--) {
-        matchOrders.push(`${perOrders.slice(0, i).join('/')}/`);
+        matchOrders.push(`${perOrders.slice(0, i).join("/")}/`);
       }
 
       const matchMap = getMatchMaps(matchOrders, lastCatProdMaps, product);
@@ -458,7 +464,7 @@ export const prepareOrderDoc = async (
 
     if (addProductIds.length) {
       const takingProducts = await models.Products.find({
-        _id: { $in: addProductIds }
+        _id: { $in: addProductIds },
       });
 
       for (const addProduct of takingProducts) {
@@ -474,7 +480,7 @@ export const prepareOrderDoc = async (
           count: toAddItem.count,
           unitPrice: fixedUnitPrice,
           isPackage: true,
-          isTake: true
+          isTake: true,
         });
 
         doc.totalAmount += (toAddItem.count || 0) * fixedUnitPrice;
@@ -482,24 +488,20 @@ export const prepareOrderDoc = async (
     }
   }
 
-  if (
-    doc.type === ORDER_TYPES.DELIVERY &&
-    config.deliveryConfig &&
-    config.deliveryConfig.productId
-  ) {
+  if (doc.type === ORDER_TYPES.DELIVERY && config?.deliveryConfig?.productId) {
     const deliveryProd = await models.Products.findOne({
-      _id: config.deliveryConfig.productId
+      _id: config.deliveryConfig.productId,
     }).lean();
 
     if (deliveryProd) {
-      const deliveryUnitPrice = (deliveryProd.prices || {})[config.token || ''] || 0;
+      const deliveryUnitPrice = deliveryProd.prices?.[config.token ?? ""] ?? 0;
       items.push({
         _id: Math.random().toString(),
         productId: deliveryProd._id,
         count: 1,
         unitPrice: deliveryUnitPrice,
         isPackage: true,
-        isTake: true
+        isTake: true,
       });
       doc.totalAmount += deliveryUnitPrice;
     }
@@ -510,7 +512,7 @@ export const prepareOrderDoc = async (
 
 export const checkOrderStatus = (order: IOrderDocument) => {
   if (order.paidDate) {
-    throw new Error('Order is already paid');
+    throw new Error("Order is already paid");
   }
 };
 
@@ -523,18 +525,18 @@ export const checkOrderAmount = (order: IOrderDocument, amount: number) => {
     (paidAmounts || []).reduce((sum, i) => Number(sum) + Number(i.amount), 0);
 
   if (amount < 0 && paidAmount < order.totalAmount) {
-    throw new Error('Amount less 0');
+    throw new Error("Amount less 0");
   }
 
   if (amount > 0 && paidAmount > order.totalAmount) {
-    throw new Error('Amount exceeds total amount');
+    throw new Error("Amount exceeds total amount");
   }
 
   if (
     paidAmount <= order.totalAmount &&
     paidAmount + amount > order.totalAmount
   ) {
-    throw new Error('Amount exceeds total amount');
+    throw new Error("Amount exceeds total amount");
   }
 };
 
@@ -545,20 +547,20 @@ export const reverseItemStatus = async (
   let newPreparedDocItems: IOrderItemInput[] = [...items];
   try {
     const oldOrderItems = await models.OrderItems.find({
-      _id: { $in: items.map(item => item._id) }
+      _id: { $in: items.map((item) => item._id) },
     }).lean();
     if (oldOrderItems) {
       newPreparedDocItems.forEach(async (newItem, index) => {
         const foundItem = oldOrderItems.find(
-          oldItem =>
+          (oldItem) =>
             oldItem._id === newItem._id && oldItem.count < newItem.count
         );
-        if (foundItem && foundItem._id) {
+        if (foundItem?._id) {
           newPreparedDocItems[index].status = ORDER_ITEM_STATUSES.CONFIRM;
 
           await models.OrderItems.updateOrderItem(foundItem._id, {
             ...foundItem,
-            status: ORDER_ITEM_STATUSES.CONFIRM
+            status: ORDER_ITEM_STATUSES.CONFIRM,
           });
         }
       });
@@ -570,9 +572,14 @@ export const reverseItemStatus = async (
   }
 };
 
-export const fakePutData = async (models: IModels, items: IOrderItemDocument[], order: IOrderDocument, config: IConfig) => {
+export const fakePutData = async (
+  models: IModels,
+  items: IOrderItemDocument[],
+  order: IOrderDocument,
+  config: IConfig
+) => {
   const products = await models.Products.find({
-    _id: { $in: items.map(item => item.productId) }
+    _id: { $in: items.map((item) => item.productId) },
   });
   const productById = {};
   for (const product of products) {
@@ -580,49 +587,50 @@ export const fakePutData = async (models: IModels, items: IOrderItemDocument[], 
   }
 
   return {
-    id: 'tempBill',
+    id: "tempBill",
     number: order.number,
-    contentType: 'pos',
+    contentType: "pos",
     contentId: order._id,
     posToken: config.token,
     totalAmount: order.totalAmount,
     totalVAT: 0,
     totalCityTax: 0,
-    type: '9',
-    status: 'SUCCESS',
-    qrData: '',
-    lottery: '',
-    date: moment(order.paidDate).format('yyyy-MM-dd hh:mm:ss'),
+    type: "9",
+    status: "SUCCESS",
+    qrData: "",
+    lottery: "",
+    date: moment(order.paidDate).format("yyyy-MM-dd hh:mm:ss"),
 
     cashAmount: order.cashAmount ?? 0,
     nonCashAmount: order.totalAmount - (order.cashAmount ?? 0),
-    registerNo: '',
-    customerNo: '',
-    customerName: '',
+    registerNo: "",
+    customerNo: "",
+    customerName: "",
 
-    receipts: [{
-      _id: '',
-      id: '',
-      totalAmount: order.totalAmount,
-      totalVAT: 0,
-      totalCityTax: 0,
-      taxType: 'NOT_SEND',
-      items: items.map(item => ({
-        _id: item._id,
-        id: item.id,
-        name: productById[item.productId].shortName || productById[item.productId].name,
-        measureUnit: productById[item.productId].uom || 'ш',
-        qty: item.count,
-        unitPrice: item.unitPrice,
-        totalAmount: (item.unitPrice ?? 0) * item.count,
+    receipts: [
+      {
+        _id: "",
+        id: "",
+        totalAmount: order.totalAmount,
         totalVAT: 0,
         totalCityTax: 0,
-        totalBonus: item.discountAmount,
-      })),
-    }],
-    payments: [
-      {}
+        taxType: "NOT_SEND",
+        items: items.map((item) => ({
+          _id: item._id,
+          id: item.id,
+          name:
+            productById[item.productId].shortName ||
+            productById[item.productId].name,
+          measureUnit: productById[item.productId].uom || "ш",
+          qty: item.count,
+          unitPrice: item.unitPrice,
+          totalAmount: (item.unitPrice ?? 0) * item.count,
+          totalVAT: 0,
+          totalCityTax: 0,
+          totalBonus: item.discountAmount,
+        })),
+      },
     ],
-
+    payments: [{}],
   };
-}
+};

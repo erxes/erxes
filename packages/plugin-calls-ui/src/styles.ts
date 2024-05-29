@@ -435,14 +435,14 @@ export const CallAction = styledTS<{
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  cursor: ${props => props.$disabled ? 'not-allowed' : 'pointer'};
+  cursor: ${(props) => (props.$disabled ? 'not-allowed' : 'pointer')};
   color: ${(props) => (props.$active ? colors.textPrimary : colors.colorWhite)};
-  background: ${(props) =>
-    props.$disabled
+  background: ${({ $disabled, $isDecline, $active }) =>
+    $disabled
       ? colors.colorShadowGray
-      : props.$isDecline
+      : $isDecline
         ? colors.colorCoreRed
-        : props.$active
+        : $active
           ? colors.colorWhite
           : 'rgba(255, 255, 255, 0.4)'};
   margin-bottom: 2px;
@@ -793,15 +793,15 @@ const DialogWrapper = styledTS<{ direction?: string }>(styled.div)`
 `;
 
 const CallWrapper = styled.div`
-  position:absolute;
-  width:72px;
-  z-index:999999;
-  height:72px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  position: absolute;
+  width: 72px;
+  z-index: 999999;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   bottom: 80px;
-  right: 12px
+  right: 12px;
 `;
 
 export {

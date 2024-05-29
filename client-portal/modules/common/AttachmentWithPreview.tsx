@@ -153,11 +153,13 @@ class AttachmentWithPreview extends React.Component<Props, State> {
       this.onSlide("left", activeIndex);
     }
   };
-
   onToggle = () => {
-    this.setState({ visible: !this.state.visible, currentIndex: 0 });
+    this.setState((prevState) => ({
+      visible: !prevState.visible,
+      currentIndex: 0
+    }));
   };
-
+  
   onSlide = (type: string, index: number) => {
     const { attachments } = this.props;
 

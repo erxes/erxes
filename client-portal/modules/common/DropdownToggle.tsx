@@ -18,8 +18,9 @@ class DropdownToggle extends React.Component<Props> {
   };
 
   render() {
-    return <div onClick={this.handleClick}>{this.props.children}</div>;
+    return <button onClick={this.handleClick}>{this.props.children}</button>;
   }
+
 }
 
 export default DropdownToggle;

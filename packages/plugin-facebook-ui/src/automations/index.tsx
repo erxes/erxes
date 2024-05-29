@@ -11,16 +11,14 @@ const Automations = (props) => {
   const { componentType, activeAction, activeTrigger } = props || {};
 
   if (componentType === 'triggerForm') {
-    const [_serviceName, contentType] = activeTrigger?.type.split(':');
+    const [_serviceName, contentType] = (activeTrigger?.type || '')?.split(':');
 
-    switch (contentType) {
-      case 'messages':
-        return <MessageForm {...props} />;
-      case 'comments':
-        return <CommnetForm {...props} />;
-      default:
-        return null;
-    }
+    const forms = {
+      messages: <MessageForm {...props} />,
+      comments: <CommnetForm {...props} />,
+    };
+
+    return forms[contentType] || null;
   }
 
   if (componentType === 'triggerContent') {

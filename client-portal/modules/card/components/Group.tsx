@@ -1,30 +1,30 @@
-import { Config, IUser } from '../../types';
 import {
   GroupBoxWrapper,
   GroupList,
   GroupWrapper,
   Label,
   ListHead,
-  ListRow
-} from '../../styles/cards';
+  ListRow,
+} from "../../styles/cards";
 
-import React from 'react';
-import dayjs from 'dayjs';
-import { renderUserFullName } from '../../utils';
-import { useRouter } from 'next/router';
-import Box from '../../common/Box';
+import dayjs from "dayjs";
+import { useRouter } from "next/router";
+import Box from "../../common/Box";
+import { renderUserFullName } from "../../utils";
 
 type Props = {
-  loading: boolean;
   items: any;
   item: any;
-  currentUser: IUser;
-  config: Config;
   type: string;
   groupType: string;
 };
 
-export default function Group({ items, item, type, groupType }: Props) {
+export default function Group({
+  items,
+  item,
+  type,
+  groupType,
+}: Readonly<Props>) {
   const router = useRouter();
 
   if (!items || items.length === 0) {
@@ -32,8 +32,8 @@ export default function Group({ items, item, type, groupType }: Props) {
   }
 
   const boxTitle =
-    (groupType === 'user' ? renderUserFullName(item) : item?.name) +
-    ' ' +
+    (groupType === "user" ? renderUserFullName(item) : item?.name) +
+    " " +
     item?.itemsTotalCount;
 
   return (
@@ -51,7 +51,7 @@ export default function Group({ items, item, type, groupType }: Props) {
               <div>Labels</div>
             </ListHead>
             <div>
-              {(items || []).map(card => {
+              {(items || []).map((card) => {
                 const { stage = {}, labels } = card;
 
                 return (
@@ -61,32 +61,32 @@ export default function Group({ items, item, type, groupType }: Props) {
                     onClick={() => router.push(`/${type}s?itemId=${card._id}`)}
                   >
                     <div className="base-color">{card.name}</div>
-                    <div>{dayjs(card.createdAt).format('MMM D YYYY')}</div>
+                    <div>{dayjs(card.createdAt).format("MMM D YYYY")}</div>
                     <div>
                       {card.stageChangedDate
-                        ? dayjs(card.stageChangedDate).format('MMM D YYYY')
-                        : '-'}
+                        ? dayjs(card.stageChangedDate).format("MMM D YYYY")
+                        : "-"}
                     </div>
 
                     <div>
                       {card.startDate
-                        ? dayjs(card.startDate).format('MMM D YYYY')
-                        : '-'}
+                        ? dayjs(card.startDate).format("MMM D YYYY")
+                        : "-"}
                     </div>
 
                     <div>
                       {card.closeDate
-                        ? dayjs(card.closeDate).format('MMM D YYYY')
-                        : '-'}
+                        ? dayjs(card.closeDate).format("MMM D YYYY")
+                        : "-"}
                     </div>
 
                     <div className="base-color">{stage.name}</div>
 
                     <div>
-                      {(labels || []).map(label => (
+                      {(labels || []).map((label) => (
                         <Label
                           key={label._id}
-                          lblStyle={'custom'}
+                          lblStyle={"custom"}
                           colorCode={label.colorCode}
                         >
                           {label.name}

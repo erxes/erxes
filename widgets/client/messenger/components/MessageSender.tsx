@@ -69,7 +69,9 @@ class MessageSender extends React.Component<Props, State> {
     textarea.style.height = 0;
 
     if (height) {
-      return (form.style.height = textarea.style.height = `${height}px`);
+      form.style.height = `${height}px`;
+      textarea.style.height = `${height}px`;
+      return;
     }
 
     form.style.height = `${textarea.scrollHeight}px`;
@@ -184,11 +186,7 @@ class MessageSender extends React.Component<Props, State> {
     }
 
     return (
-      <label
-        title="Video call request"
-        className="ctrl-item"
-        onClick={this.sendVideoCallRequest}
-      >
+      <label role="button" tabIndex={0} title="Video call request" className="ctrl-item" onClick={this.sendVideoCallRequest}>
         {iconVideo()}
       </label>
     );
@@ -198,11 +196,7 @@ class MessageSender extends React.Component<Props, State> {
     const { conversationId, inputDisabled } = this.props;
 
     return (
-      <form
-        className="erxes-message-sender"
-        ref={this.setForm}
-        onSubmit={this.onSubmit}
-      >
+      <form className="erxes-message-sender" ref={this.setForm} onSubmit={this.onSubmit}>
         <textarea
           ref={this.setArea}
           className="reply"

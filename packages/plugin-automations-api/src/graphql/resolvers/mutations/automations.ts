@@ -43,7 +43,7 @@ const automationMutations = {
       user
     );
 
-    return models.Automations.getAutomation(automation._id);
+    return await models.Automations.getAutomation(automation._id);
   },
 
   /**
@@ -72,7 +72,7 @@ const automationMutations = {
       user
     );
 
-    return models.Automations.getAutomation(_id);
+    return await models.Automations.getAutomation(_id);
   },
 
   /**
@@ -158,7 +158,7 @@ const automationMutations = {
     const automationDoc: IAutomationDoc = {
       ...automation,
       status: 'template',
-      name: automation.name += ' from template',
+      name: (automation.name += ' from template'),
       createdAt: new Date(),
       createdBy: user._id,
       updatedBy: user._id
@@ -200,11 +200,11 @@ const automationMutations = {
     for (const automation of automations) {
       const { triggers, actions } = automation;
 
-      const triggerIds = triggers.map(trigger => {
+      const triggerIds = triggers.map((trigger) => {
         return trigger.config.contentId;
       });
 
-      const actionIds = actions.map(action => {
+      const actionIds = actions.map((action) => {
         return action.config.contentId;
       });
 
@@ -212,7 +212,7 @@ const automationMutations = {
     }
 
     await models.Automations.deleteMany({ _id: { $in: automationIds } });
-    await models.Executions.removeExecutions(automationIds);
+    models.Executions.removeExecutions(automationIds);
 
     for (const segmentId of segmentIds || []) {
       sendSegmentsMessage({

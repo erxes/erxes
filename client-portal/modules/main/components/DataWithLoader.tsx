@@ -5,7 +5,6 @@ type Props = {
   data: any;
   count?: any;
   loading: boolean;
-  size?: string;
   objective?: boolean;
   emptyContent?: React.ReactNode;
   loadingContent?: React.ReactNode;
@@ -16,7 +15,6 @@ class DataWithLoader extends React.Component<Props> {
     emptyText: 'There is no data',
     emptyIcon: '',
     emptyImage: '',
-    size: 'full',
     objective: false,
   };
 

@@ -1,7 +1,4 @@
-import * as PropTypes from 'prop-types';
-
 import { Button, ControlLabel, Form } from '@erxes/ui/src/components';
-import { callPropType, sipPropType } from '../lib/types';
 
 import { IFormProps } from '@erxes/ui/src/types';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
@@ -12,11 +9,11 @@ interface IProps {
   closeModal?: () => void;
   setConfig?: any;
   removeActiveSession?: () => {};
-  setCallInfo?: ({ isUnRegistered: boolean }) => void;
+  setCallInfo?: ({ isUnRegistered }) => void;
 }
 
 const TerminateSessionForm = (props: IProps) => {
-  const { closeModal, setConfig, removeActiveSession, setCallInfo } = props;
+  const { closeModal, removeActiveSession, setCallInfo } = props;
 
   const onOk = () => {
     // tslint:disable-next-line:no-unused-expression
@@ -54,7 +51,7 @@ const TerminateSessionForm = (props: IProps) => {
     closeModal();
   };
 
-  const renderContent = (formProps: IFormProps) => {
+  const renderContent = () => {
     return (
       <>
         <ControlLabel>

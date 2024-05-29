@@ -1,10 +1,10 @@
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import React, { useState, useEffect } from "react";
-import OperatorForm from "./OperatorForm";
-import Button from "@erxes/ui/src/components/Button";
-import { __ } from "@erxes/ui/src/utils/core";
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import React, { useState, useEffect } from 'react';
+import OperatorForm from './OperatorForm';
+import Button from '@erxes/ui/src/components/Button';
+import { __ } from '@erxes/ui/src/utils/core';
 
 interface IProps {
   integrationKind: string;
@@ -17,10 +17,10 @@ const IntegrationEditForm = (props: IProps) => {
   const [operators, setOperators] = useState<any>(details.operators);
 
   useEffect(() => {
-    props.onChange("operators", operators);
+    props.onChange('operators', operators);
   }, [operators]);
 
-  if (integrationKind !== "calls") {
+  if (integrationKind !== 'calls') {
     return null;
   }
 
@@ -31,7 +31,7 @@ const IntegrationEditForm = (props: IProps) => {
   const onChangeOperatorDetails = (
     name: string,
     value: string,
-    index: number
+    index: number,
   ) => {
     const currentOperator = operators.find((_, i) => i === index);
 
@@ -53,7 +53,7 @@ const IntegrationEditForm = (props: IProps) => {
   const handleAddOperation = () => {
     setOperators([
       ...operators,
-      { userId: "", gsUsername: "", gsPassword: "" },
+      { userId: '', gsUsername: '', gsPassword: '' },
     ]);
   };
 
@@ -78,13 +78,11 @@ const IntegrationEditForm = (props: IProps) => {
     );
   };
 
-  const keys = ["host", "smtpHost", "smtpPort", "mainUser", "user", "password"];
-
   return (
     <>
-      {renderInput("phone", "Phone number", details.phone)}
+      {renderInput('phone', 'Phone number', details.phone)}
 
-      {renderInput("wsServer", "Web socket server", details.wsServer)}
+      {renderInput('wsServer', 'Web socket server', details.wsServer)}
 
       <>
         {operators.map((operator, index) => (
@@ -94,18 +92,18 @@ const IntegrationEditForm = (props: IProps) => {
             onChange={onChangeOperators}
             onChangeDetails={onChangeOperatorDetails}
             removeOperator={handleRemoveOperator}
-            key={index}
+            key={operator.userId}
           />
         ))}
         <FormGroup>
-          <div style={{ display: "flex", justifyContent: "end" }}>
+          <div style={{ display: 'flex', justifyContent: 'end' }}>
             <Button
               btnStyle="primary"
               icon="plus"
               size="medium"
               onClick={handleAddOperation}
             >
-              {__("Add Operator")}
+              {__('Add Operator')}
             </Button>
           </div>
         </FormGroup>

@@ -196,9 +196,11 @@ export default function Form({
   return (
     <>
       <DetailHeader className="d-flex align-items-center">
-        <span onClick={() => closeModal()}>
+        <button onClick={() => closeModal()}>
           <Icon icon="leftarrow-3" /> Back
-        </span>
+        </button>
+
+
       </DetailHeader>
       <FormWrapper>
         <h4>Add a new {type}</h4>

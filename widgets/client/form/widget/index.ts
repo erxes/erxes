@@ -7,12 +7,7 @@ declare const window: any;
 // css
 import './index.css';
 
-import {
-  generateIntegrationUrl,
-  getStorage,
-  listenForCommonRequests,
-  setErxesProperty
-} from '../../widgetUtils';
+import { generateIntegrationUrl, getStorage, listenForCommonRequests, setErxesProperty } from '../../widgetUtils';
 
 // add meta to head
 const meta = document.createElement('meta');
@@ -61,9 +56,7 @@ const createIframe = (setting: Setting) => {
   container.appendChild(iframe);
 
   // if there is an placeholder for embed then add new iframe to it
-  const embedContainer = document.querySelector(
-    `[data-erxes-embed="${formId}"]`
-  );
+  const embedContainer = document.querySelector(`[data-erxes-embed="${formId}"]`);
 
   if (embedContainer) {
     embedContainer.appendChild(container);
@@ -98,7 +91,7 @@ const createIframe = (setting: Setting) => {
         fromPublisher: true,
         hasPopupHandlers: document.querySelectorAll(handlerSelector).length > 0,
         setting: modifiedSetting,
-        storage: getStorage()
+        storage: getStorage(),
       },
       '*'
     );
@@ -108,7 +101,7 @@ const createIframe = (setting: Setting) => {
 };
 
 const postMessageToOne = (formId: string, data: any) => {
-  const settingAsString = Object.keys(iframesMapping).find(sas => {
+  const settingAsString = Object.keys(iframesMapping).find((sas) => {
     const setting = JSON.parse(sas);
 
     return formId === setting.form_id;
@@ -130,7 +123,7 @@ const postMessageToOne = (formId: string, data: any) => {
     {
       fromPublisher: true,
       formId,
-      ...data
+      ...data,
     },
     '*'
   );
@@ -153,14 +146,9 @@ const formSettings = window.erxesSettings.forms || [];
 // create iframes and save with index
 const iframesMapping: any = {};
 
-const getMappingKey = (setting: Setting) =>
-  JSON.stringify({ form_id: setting.form_id, brand_id: setting.brand_id });
+const getMappingKey = (setting: Setting) => JSON.stringify({ form_id: setting.form_id, brand_id: setting.brand_id });
 
-const getSetting = (setting: Setting) =>
-  formSettings.find(
-    (s: Setting) =>
-      s.brand_id === setting.brand_id && s.form_id === setting.form_id
-  );
+const getSetting = (setting: Setting) => formSettings.find((s: Setting) => s.brand_id === setting.brand_id && s.form_id === setting.form_id);
 
 formSettings.forEach((formSetting: Setting) => {
   iframesMapping[getMappingKey(formSetting)] = createIframe(formSetting);
@@ -171,63 +159,47 @@ window.addEventListener('message', async (event: MessageEvent) => {
   const data = event.data || {};
   const { fromErxes, source, message, setting } = data;
 
-  if (!setting || source !== 'fromForms') {
-    return null;
-  }
+  if (setting && source === 'fromForms') {
+    const { container, iframe } = iframesMapping[getMappingKey(setting)];
+    listenForCommonRequests(event, iframe);
 
-  const { container, iframe } = iframesMapping[getMappingKey(setting)];
+    const completeSetting = getSetting(setting);
 
-  listenForCommonRequests(event, iframe);
+    if (completeSetting && fromErxes && source === 'fromForms') {
+      if (message === 'submitResponse' && completeSetting.onAction) {
+        completeSetting.onAction(data);
+      }
 
-  const completeSetting = getSetting(setting);
+      if (message === 'connected') {
+        const loadType = data.connectionInfo.widgetsLeadConnect.integration.leadData.loadType;
 
-  if (!completeSetting) {
-    return null;
-  }
+        if (loadType === 'popup') {
+          const selector = `[data-erxes-modal="${setting.form_id}"]`;
+          const elements = document.querySelectorAll(selector);
 
-  if (!(fromErxes && source === 'fromForms')) {
-    return null;
-  }
+          const elementsArray = Array.from(elements);
+          for (const elm of elementsArray) {
+            elm.addEventListener('click', () => {
+              iframe.contentWindow.postMessage(
+                {
+                  fromPublisher: true,
+                  action: 'showPopup',
+                  formId: setting.form_id,
+                },
+                '*'
+              );
+            });
+          }
+        }
+      }
 
-  if (message === 'submitResponse' && completeSetting.onAction) {
-    completeSetting.onAction(data);
-  }
+      if (message === 'changeContainerClass') {
+        container.className = data.className;
+      }
 
-  if (message === 'connected') {
-    const loadType =
-      data.connectionInfo.widgetsLeadConnect.integration.leadData.loadType;
-
-    // track popup handlers
-    if (loadType === 'popup') {
-      const selector = `[data-erxes-modal="${setting.form_id}"]`;
-      const elements = document.querySelectorAll(selector);
-
-      // Using for instead of for to get correct element
-      // tslint:disable-next-line
-      for (let i = 0; i < elements.length; i++) {
-        const elm = elements[i];
-
-        elm.addEventListener('click', () => {
-          iframe.contentWindow.postMessage(
-            {
-              fromPublisher: true,
-              action: 'showPopup',
-              formId: setting.form_id
-            },
-            '*'
-          );
-        });
+      if (message === 'changeContainerStyle') {
+        container.style = data.style;
       }
     }
   }
-
-  if (message === 'changeContainerClass') {
-    container.className = data.className;
-  }
-
-  if (message === 'changeContainerStyle') {
-    container.style = data.style;
-  }
-
-  return null;
 });

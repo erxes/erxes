@@ -210,7 +210,6 @@ hr {
 
   -webkit-transition: all 0.25s ease;
   -moz-transition: all 0.25s ease;
-  transition: all 0.25s ease;
 }
 
 .react-toggle--checked .react-toggle-thumb {
@@ -376,7 +375,7 @@ hr {
 }
 
 .Select .Select-arrow:before {
-  font-family: 'erxes';
+  font-family: Arial, Helvetica, sans-serif;
   content: '';
   font-size: 14px;
   color: #888;
