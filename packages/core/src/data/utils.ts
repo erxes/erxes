@@ -392,7 +392,7 @@ export const checkFile = async (models: IModels, file, source?: string) => {
     models,
   );
 
-  if (!(UPLOAD_FILE_TYPES && UPLOAD_FILE_TYPES.split(',')).includes(mime)) {
+  if (!(UPLOAD_FILE_TYPES && UPLOAD_FILE_TYPES.includes(mime))) {
     if (!defaultMimeTypes.includes(mime)) {
       return 'Invalid configured file type';
     }
@@ -545,7 +545,7 @@ const uploadToCFImages = async (
     ? false
     : await getConfig('FILE_SYSTEM_PUBLIC', 'false', models);
 
-    const VERSION = getEnv({ name: 'VERSION' });
+  const VERSION = getEnv({ name: 'VERSION' });
 
   const url = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/images/v1`;
   const headers = {
@@ -1158,7 +1158,11 @@ export const uploadFile = async (
   }
 
   if (UPLOAD_SERVICE_TYPE === 'CLOUDFLARE') {
-    nameOrLink = await uploadFileCloudflare(file, VERSION === 'saas' ? true : false, models);
+    nameOrLink = await uploadFileCloudflare(
+      file,
+      VERSION === 'saas' ? true : false,
+      models,
+    );
   }
 
   if (UPLOAD_SERVICE_TYPE === 'local') {
