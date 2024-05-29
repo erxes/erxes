@@ -1,4 +1,4 @@
-name: Plugin {sample} Api CI
+name: Api core CI
 
 on:
   push:
@@ -10,22 +10,11 @@ on:
       - build-test
     paths:
       - 'packages/api-utils/**'
-      - 'packages/plugin-{sample}-api/**'
-      - '.github/workflows/plugin-{sample}-api.yaml'
-  pull_request:
-    branches:
-      - dev
-      - master
-      - rc
-      - staging
-      - build-test
-    paths:
-      - 'packages/api-utils/**'
-      - 'packages/plugin-{sample}-api/**'
-      - '.github/workflows/plugin-{sample}-api.yaml'
+      - 'packages/core/**'
+      - '.github/workflows/core.yaml'
 
 jobs:
-  api:
+  core:
     runs-on: ubuntu-22.04
 
     steps:
@@ -36,7 +25,7 @@ jobs:
         with:
           node-version: 18.17.x
 
-      # https://github.com/actions/cache/blob/main/examples.md#node---yarn
+      # https://github.com/actions/cache/blob/master/examples.md#node---yarn
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
@@ -45,22 +34,22 @@ jobs:
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-api-plugin-{sample}
+          key: ${{ runner.os }}-yarn-api-core
           restore-keys: |
             ${{ runner.os }}-yarn-api-
-            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-yarn
 
       - name: Build
         run: |
           cp -r builder dist
           cd dist
           yarn install
-          yarn build plugin {sample}
+          yarn build core
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test' )
         run: |
           cd dist/erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker buildx build -t erxes/plugin-{sample}-api:${GITHUB_REF#refs/heads/} -f Dockerfile .
-          docker push erxes/plugin-{sample}-api:${GITHUB_REF#refs/heads/}
+          docker buildx build -t erxes/core:${GITHUB_REF#refs/heads/} -f Dockerfile .
+          docker push erxes/core:${GITHUB_REF#refs/heads/}

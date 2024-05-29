@@ -1,0 +1,80 @@
+name: UI CI
+
+on:
+  push:
+    branches:
+      - dev
+      - master
+      - rc
+      - staging
+      - build-test
+    paths:
+      - 'packages/erxes-ui/**'
+      - 'packages/core-ui/**'
+      - '.github/workflows/coreui.yaml'
+      - '!ui/nginx/**'
+      - '!ui/docker-entrypoint.sh'
+      - '!ui/Dockerfile'
+      - '!ui/.dockerignore'
+
+jobs:
+  ui:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Use Node.js 18.17.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.17.x
+
+      - uses: actions/checkout@v4
+
+      # https://github.com/actions/cache/blob/main/examples.md#node---yarn
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v4
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn # since the yarn install runs at workspace level
+          restore-keys: |
+            ${{ runner.os }}-yarn
+
+      - name: Build
+        run: |
+          yarn install --frozen-lockfile
+          cd packages/core-ui
+          yarn build
+
+      - name: Configure AWS credentials
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Deploy locales
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
+        run: |
+          tar -cf locales.tar --directory=packages/core-ui/public/locales .
+          aws s3 cp locales.tar s3://erxes-${GITHUB_REF#refs/heads/}-plugins/locales.tar
+
+      - name: Deploy Core UI
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
+        run: |
+          tar -czf build.tar --directory=packages/core-ui/dist .
+          cp build.tar packages/core-ui/dist
+          aws s3 sync packages/core-ui/dist s3://erxes-${GITHUB_REF#refs/heads/}-plugins/uis/core-ui --delete
+
+      - name: Build docker image
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
+        env:
+          BASE_IMAGE: erxes/erxes:base-1.18-alpine
+        run: |
+          cd packages/core-ui
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes:${GITHUB_REF#refs/heads/} -f Dockerfile .
+          docker push erxes/erxes:${GITHUB_REF#refs/heads/}

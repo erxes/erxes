@@ -45,4 +45,4 @@ jobs:
       - name: Deploy
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test')
         run: |
-          aws s3 cp scripts/pluginsMap.js s3://erxes-enterprise-plugins
+          aws s3 cp scripts/pluginsMap.js s3://erxes-${GITHUB_REF#refs/heads/}-plugins
