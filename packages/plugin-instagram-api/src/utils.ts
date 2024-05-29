@@ -1,11 +1,10 @@
 import * as graph from 'fbgraph';
 
 import { IModels } from './connectionResolver';
-import { debugBase, debugError, debugInstagram } from './debuggers';
-import { generateAttachmentUrl, getConfig } from './commonUtils';
+import { debugError, debugInstagram } from './debuggers';
+import { generateAttachmentUrl } from './commonUtils';
 import { IAttachment, IAttachmentMessage } from './types';
 import { IIntegrationDocument } from './models/Integrations';
-import { FacebookAdapter } from 'botbuilder-adapter-facebook-erxes';
 
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
@@ -16,7 +15,9 @@ export const graphRequest = {
     return new Promise((resolve, reject) => {
       graph[method](path, ...otherParams, (error, response) => {
         if (error) {
-          return reject(error);
+          const errorMessage = typeof error === 'string' ? error : error.message;
+          const errorObject = new Error(errorMessage);
+          return reject(errorObject);
         }
         return resolve(response);
       });
@@ -34,6 +35,7 @@ export const graphRequest = {
     return this.base('del', ...args);
   },
 };
+
 
 export const getPostDetails = async (
   pageId: string,
@@ -95,9 +97,9 @@ export const getFacebookPageIdsForInsta = async (
 };
 
 export const subscribePage = async (
-  pageId,
-  pageToken,
-): Promise<{ success: true } | any> => {
+  pageId: string,
+  pageToken: string,
+): Promise<{ success: true }> => {
   return graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
     subscribed_fields: ['conversations', 'feed', 'messages'],
   });
@@ -139,9 +141,9 @@ export const refreshPageAccesToken = async (
 };
 
 export const unsubscribePage = async (
-  pageId,
-  pageToken,
-): Promise<{ success: true } | any> => {
+  pageId: string,
+  pageToken: string,
+): Promise<{ success: true }> => {
   return graphRequest
     .delete(`${pageId}/subscribed_apps`, pageToken)
     .then((res) => res)
@@ -155,59 +157,61 @@ export const getPageList = async (
   accessToken?: string,
   kind?: string,
 ) => {
-  let response = {} as any;
   try {
-    response = await graphRequest.get(
-      '/me/accounts?fields=instagram_business_account, access_token,id,name',
+    const response = await graphRequest.get(
+      '/me/accounts?fields=instagram_business_account,access_token,id,name',
       accessToken,
     );
-  } catch (e) {
-    throw e;
-  }
 
-  const pages: any[] = [];
+    const pages: any[] = [];
 
-  for (const page of response.data) {
-    if (page.instagram_business_account) {
-      const pageId = page.instagram_business_account.id;
-      const accounInfo: any = await graphRequest.get(
-        `${pageId}?fields=username`,
-        accessToken,
-      );
+    for (const page of response?.data || []) {
+      if (page.instagram_business_account) {
+        const pageId = page.instagram_business_account.id;
+        const accounInfo = await graphRequest.get(
+          `${pageId}?fields=username`,
+          accessToken,
+        );
 
-      const integration = await models.Integrations.findOne({
-        instagramPageId: accounInfo.id,
-        kind,
-      });
+        const integration = await models.Integrations.findOne({
+          instagramPageId: accounInfo.id,
+          kind,
+        });
 
-      pages.push({
-        id: accounInfo.id,
-        name: accounInfo.username,
-        isUsed: !!integration,
-      });
+        pages.push({
+          id: accounInfo.id,
+          name: accounInfo.username,
+          isUsed: !!integration,
+        });
+      }
     }
-  }
 
-  return pages;
+    return pages;
+  } catch (error) {
+    console.error('Error in getPageList:', error);
+    throw error;
+  }
 };
+
+
 
 export const getPageAccessTokenFromMap = (
   pageId: string,
   pageTokens: { [key: string]: string },
 ): string => {
-  return (pageTokens || {})[pageId];
+  return pageTokens?.[pageId] || '';
 };
 
 export const getInstagramUser = async (
   userId: string,
   facebookPageId: string,
-  facebookPageTokensMap?: { [key: string]: string },
+  facebookPageTokensMap: { [key: string]: string } = {},
 ) => {
-  if (facebookPageTokensMap !== undefined) {
-    const token = await getPageAccessTokenFromMap(
-      facebookPageId,
-      facebookPageTokensMap,
-    );
+  const token = getPageAccessTokenFromMap(
+    facebookPageId,
+    facebookPageTokensMap,
+  );
+  if (token !== '') {
     const accounInfo: any = await graphRequest.get(
       `${userId}?fields=name,profile_pic`,
       token,
