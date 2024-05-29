@@ -4,6 +4,7 @@ import { gql, useMutation, useQuery } from "@apollo/client";
 import { mutations, queries } from "../graphql";
 
 import History from "../components/History";
+import { IHistory } from "../types";
 import { useNavigate } from "react-router-dom";
 
 type Props = {
@@ -13,7 +14,9 @@ type Props = {
 
 const HistoryContainer = (props: Props) => {
   const [searchValue, setSearchValue] = useState("");
-  const [loadingHistories, setLoadingHistories] = useState(true);
+  const [items, setItems] = useState<IHistory[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [skip, setSkip] = useState(0);
 
   const navigate = useNavigate();
 
@@ -32,53 +35,60 @@ const HistoryContainer = (props: Props) => {
       variables: {
         integrationId: inboxId,
         searchValue,
-        limit: 5,
+        limit: 20,
+        skip: 0,
       },
       fetchPolicy: "network-only",
+      onCompleted: (data) => {
+        setItems(data.callHistories);
+        setHasMore(data.callHistories.length === 20);
+        setSkip(20);
+      },
     }
   );
 
   const callHistoriesTotalCountQuery = useQuery(
-    gql(queries.callHistoriesTotalCount)
+    gql(queries.callHistoriesTotalCount),
+    {
+      variables: {
+        integrationId: inboxId,
+      },
+    }
   );
 
-  const histories = data?.callHistories || [];
   const totalCount =
     callHistoriesTotalCountQuery?.data?.callHistoriesTotalCount || 0;
-  console.log(callHistoriesTotalCountQuery);
+
   const [removeHistory] = useMutation(gql(mutations.callHistoryRemove), {
     refetchQueries: ["CallHistories"],
   });
 
-  const onLoadMore = (skip: number) => {
-    return fetchMore({
+  const onLoadMore = useCallback(async () => {
+    if (loading || !hasMore) return;
+
+    await fetchMore({
       variables: {
-        limit: 5,
-        skip,
+        skip: items.length,
       },
-      updateQuery: (prevResult, { fetchMoreResult }) => {
-        if (!fetchMoreResult || fetchMoreResult.callHistories.length === 0) {
-          return prevResult;
-        }
-        console.log("here after updateQuery", prevResult, fetchMoreResult);
-        const prevHistories = prevResult.callHistories || [];
-        const prevHistoriesIds = prevHistories.map((t: any) => t._id);
-
-        const fetchedHistories: any[] = [];
-
-        for (const t of fetchMoreResult.callHistories) {
-          if (!prevHistoriesIds.includes(t._id)) {
-            fetchedHistories.push(t);
-          }
-        }
-
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult) return prev;
         return {
-          ...prevResult,
-          callHistories: [...prevHistories, ...fetchedHistories],
+          ...prev,
+          callHistories: [
+            ...prev.callHistories,
+            ...fetchMoreResult.callHistories,
+          ],
         };
       },
+    }).then((fetchMoreResult) => {
+      setItems((prevItems) => [
+        ...prevItems,
+        ...fetchMoreResult.data.callHistories,
+      ]);
+      setHasMore(fetchMoreResult.data.callHistories.length === 20);
+      setSkip((prevSkip) => prevSkip + 20);
     });
-  };
+  }, [loading, hasMore, items.length, fetchMore]);
 
   if (error) {
     Alert.error(error.message);
@@ -106,8 +116,8 @@ const HistoryContainer = (props: Props) => {
 
   return (
     <History
-      histories={histories}
-      loading={loading}
+      histories={items}
+      loading={loading || callHistoriesTotalCountQuery?.loading}
       changeMainTab={changeMainTab}
       refetch={refetch}
       remove={remove}
@@ -115,7 +125,7 @@ const HistoryContainer = (props: Props) => {
       searchValue={searchValue}
       navigate={navigate}
       onLoadMore={onLoadMore}
-      totalCount={histories.length || 0}
+      totalCount={totalCount || 0}
     />
   );
 };

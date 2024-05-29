@@ -24,7 +24,7 @@ type Props = {
   searchValue: string;
   navigate: any;
   totalCount: number;
-  onLoadMore: (skip: number) => void;
+  onLoadMore: () => void;
   changeMainTab: (phoneNumber: string, shiftTab: string) => void;
   onSearch: (searchValue: string) => void;
   refetch: ({ callStatus }: { callStatus: string }) => void;
@@ -33,8 +33,6 @@ type Props = {
 
 type State = {
   currentTab: string;
-  loading?: boolean;
-  hasMore?: boolean;
   cursor: number;
 };
 
@@ -46,46 +44,42 @@ class History extends React.Component<Props, State> {
 
     this.state = {
       currentTab: "All",
-      loading: false,
-      hasMore: true,
       cursor: 0,
     };
 
     this.activeItemRef = React.createRef();
-    this.loadMore = this.loadMore.bind(this);
     this.handleScroll = this.handleScroll.bind(this);
   }
 
   componentDidMount() {
+    if (this.activeItemRef.current) {
+      this.activeItemRef.current.addEventListener("scroll", this.handleScroll);
+    }
+
     document.addEventListener("keydown", this.handleKeyDown);
-    this.loadMore();
-    window.addEventListener("scroll", this.handleScroll);
   }
 
   componentWillUnmount() {
+    if (this.activeItemRef.current) {
+      this.activeItemRef.current.removeEventListener(
+        "scroll",
+        this.handleScroll
+      );
+    }
     document.removeEventListener("keydown", this.handleKeyDown);
-    window.removeEventListener("scroll", this.handleScroll);
   }
 
   handleScroll = () => {
+    const element = this.activeItemRef.current;
+
     if (
-      window.innerHeight + document.documentElement.scrollTop ===
-      document.documentElement.offsetHeight
+      element &&
+      element.scrollHeight - element.scrollTop === element.clientHeight
     ) {
-      this.loadMore();
+      this.props.onLoadMore();
     }
   };
 
-  loadMore = () => {
-    if (this.state.loading || !this.state.hasMore) return;
-
-    this.setState({ loading: true });
-
-    const { onLoadMore } = this.props;
-    console.log("kkk");
-    onLoadMore(30);
-  };
-  a;
   handleKeyDown = (e) => {
     const { cursor } = this.state;
 
@@ -137,58 +131,63 @@ class History extends React.Component<Props, State> {
       return <EmptyState icon="ban" text="There is no history" size="small" />;
     }
 
-    return histories.map((item, i) => {
-      const { callStatus, callType, createdAt } = item;
-      const isMissedCall =
-        callStatus === "missed" || callStatus === "cancelled";
+    return (
+      <>
+        {histories.map((item, i) => {
+          const { callStatus, callType, createdAt } = item;
+          const isMissedCall =
+            callStatus === "missed" || callStatus === "cancelled";
 
-      const content = item.customer && (
-        <CallDetail
-          $isMissedCall={isMissedCall}
-          key={i}
-          className={this.state.cursor === i ? "active" : ""}
-          $isIncoming={callType !== "outgoing" ? true : false}
-          onClick={() => this.onCall(item.customer.primaryPhone)}
-        >
-          <div>
-            {callType === "outgoing" && (
-              <Icon size={12} icon={"outgoing-call"} />
-            )}
-            <PhoneNumber $shrink={true}>
-              {renderFullName(item.customer, false)}
-            </PhoneNumber>
-          </div>
-          <AdditionalDetail>
-            <span>{dayjs(createdAt).format("DD MMM, HH:mm")}</span>
-            <Dropdown
-              as={DropdownToggle}
-              toggleComponent={<Icon icon="ellipsis-v" size={18} />}
+          const content = item.customer && (
+            <CallDetail
+              $isMissedCall={isMissedCall}
+              key={i}
+              className={this.state.cursor === i ? "active" : ""}
+              $isIncoming={callType !== "outgoing" ? true : false}
+              onClick={() => this.onCall(item.customer.primaryPhone)}
             >
-              <li key="delete">
-                <a href="#" onClick={() => this.onRemove(item._id)}>
-                  <Icon icon="trash-alt" size={14} /> {__("Delete")}
-                </a>
-              </li>
-              <li key="detail">
-                <a
-                  href="#"
-                  onClick={() =>
-                    navigate(`/inbox/index?_id=${item.conversationId}`, {
-                      replace: true,
-                    })
-                  }
+              <div>
+                {callType === "outgoing" && (
+                  <Icon size={12} icon={"outgoing-call"} />
+                )}
+                <PhoneNumber $shrink={true}>
+                  {renderFullName(item.customer, false)}
+                </PhoneNumber>
+              </div>
+              <AdditionalDetail>
+                <span>{dayjs(createdAt).format("DD MMM, HH:mm")}</span>
+                <Dropdown
+                  as={DropdownToggle}
+                  toggleComponent={<Icon icon="ellipsis-v" size={18} />}
                 >
-                  <Icon icon="arrow-from-right" size={12} />{" "}
-                  {__("Go to Detail")}
-                </a>
-              </li>
-            </Dropdown>
-          </AdditionalDetail>
-        </CallDetail>
-      );
+                  <li key="delete">
+                    <a href="#" onClick={() => this.onRemove(item._id)}>
+                      <Icon icon="trash-alt" size={14} /> {__("Delete")}
+                    </a>
+                  </li>
+                  <li key="detail">
+                    <a
+                      href="#"
+                      onClick={() =>
+                        navigate(`/inbox/index?_id=${item.conversationId}`, {
+                          replace: true,
+                        })
+                      }
+                    >
+                      <Icon icon="arrow-from-right" size={12} />{" "}
+                      {__("Go to Detail")}
+                    </a>
+                  </li>
+                </Dropdown>
+              </AdditionalDetail>
+            </CallDetail>
+          );
 
-      return content;
-    });
+          return content;
+        })}
+        {loading && <div>Loading...</div>}
+      </>
+    );
   };
 
   render() {
@@ -201,7 +200,8 @@ class History extends React.Component<Props, State> {
             className={currentTab === "All" ? "active" : ""}
             onClick={() => this.onTabClick("All")}
           >
-            {__("All")}
+            {__("All")}{" "}
+            {this.props.totalCount !== 0 && `(${this.props.totalCount})`}
           </TabTitle>
           <TabTitle
             className={currentTab === "Missed Call" ? "active" : ""}
@@ -211,7 +211,6 @@ class History extends React.Component<Props, State> {
           </TabTitle>
         </Tabs>
         <CallHistory ref={this.activeItemRef}>
-          {/* <h4>{__("Recents")}</h4> */}
           <InputBar type="searchBar">
             <FormControl
               placeholder={__("Search")}

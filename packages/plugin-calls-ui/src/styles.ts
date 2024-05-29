@@ -53,7 +53,7 @@ export const TabContent = styledTS<{ show?: boolean }>(styled.div)`
 `;
 
 export const CallHistory = styled.div`
-  height: 100px;
+  height: 392px;
   overflow: auto;
 
   h4 {
