@@ -80,6 +80,7 @@ function Form(props: Props) {
             content={value}
             onChange={(content) => onChange(field.code, content)}
             height={250}
+            onCtrlEnter={submit}
           />
         );
 

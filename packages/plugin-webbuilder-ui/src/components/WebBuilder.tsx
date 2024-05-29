@@ -46,7 +46,7 @@ function WebBuilder(props: Props) {
     <BarItems>
       <FormControl
         type="text"
-        placeholder={__("Search sites")}
+        placeholder={__("Type to search")}
         onChange={search}
         value={searchValue}
       />
