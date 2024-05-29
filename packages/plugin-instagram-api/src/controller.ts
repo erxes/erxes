@@ -4,7 +4,6 @@ import loginMiddleware from './middlewares/loginMiddleware';
 import receiveMessage from './receiveMessage';
 import { generateModels } from './connectionResolver';
 import { getPageList } from './utils';
-import { INSTAGRAM_POST_TYPES, INTEGRATION_KINDS } from './constants';
 import receiveComment from './receiveComment';
 
 import {

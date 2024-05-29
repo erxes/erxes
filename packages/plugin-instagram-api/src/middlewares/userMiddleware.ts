@@ -1,23 +1,28 @@
 import { sendInboxMessage } from '../messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
-export let userIds: string[] = [];
+export const userIds: string[] = [];
 
 const userMiddleware = async (req, _res, next) => {
   const { path, headers, query } = req;
   const subdomain = getSubdomain(req);
 
   if (userIds.length === 0) {
-    const response = await sendInboxMessage({
-      subdomain,
-      action: 'integrations.receive',
-      data: {
-        action: 'getUserIds'
-      },
-      isRPC: true
-    });
+    try {
+      const response = await sendInboxMessage({
+        subdomain,
+        action: 'integrations.receive',
+        data: {
+          action: 'getUserIds'
+        },
+        isRPC: true
+      });
 
-    userIds = response.userIds;
+      // Update the contents of userIds instead of reassigning the variable
+      userIds.push(...response.userIds);
+    } catch (error) {
+      return next(error);
+    }
   }
 
   if (path.startsWith('/accounts')) {
@@ -28,9 +33,9 @@ const userMiddleware = async (req, _res, next) => {
         return next();
       }
 
-      next(new Error('User not authorized'));
-    } catch (e) {
-      next(e);
+      return next(new Error('User not authorized'));
+    } catch (error) {
+      return next(error);
     }
   }
 

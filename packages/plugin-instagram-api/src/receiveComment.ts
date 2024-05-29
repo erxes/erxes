@@ -4,7 +4,6 @@ import {
   getOrCreateCustomer,
   getOrCreatePostConversation
 } from './store';
-// import { ICommentParams } from './types';
 import { INTEGRATION_KINDS } from './constants';
 
 const receiveComment = async (
@@ -39,7 +38,7 @@ const receiveComment = async (
     INTEGRATION_KINDS.POST,
     facebookPageTokensMap
   );
-  const postConversation = await getOrCreatePostConversation(
+   await getOrCreatePostConversation(
     models,
     pageId,
     subdomain,
@@ -51,7 +50,6 @@ const receiveComment = async (
   await getOrCreateComment(
     models,
     subdomain,
-    postConversation,
     params,
     pageId,
     userId,

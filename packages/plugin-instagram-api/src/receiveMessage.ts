@@ -11,7 +11,6 @@ const receiveMessage = async (
   messageData: IMessageData
 ) => {
   const { recipient, sender, timestamp, message } = messageData;
-  // const attachments = messageData.message.attachments;
   const integration = await models.Integrations.getIntegration({
     $and: [
       { instagramPageId: { $in: [recipient.id] } },
