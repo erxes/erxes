@@ -35,7 +35,7 @@ const useGolomt = () => {
 }
 
 export const useGolomtTransaction = (options: {
-  onCompleted: (data: any) => void
+  onCompleted: (data?: any) => void
   onError: (data: any) => void
 }) => {
   const { onCompleted, onError } = options

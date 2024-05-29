@@ -53,7 +53,7 @@ export const useSendTransaction = ({
   onCompleted,
   onError,
 }: {
-  onCompleted: (data: any) => void
+  onCompleted: (data?: any) => void
   onError: () => void
 }) => {
   const { onError: errorHandle, toast } = useToast()
