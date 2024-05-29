@@ -12,7 +12,6 @@ import {
   extractAttachment,
 } from "@erxes/ui/src";
 import {
-  CommonFormGroup,
   SelectWithAssetCategory,
   SelectWithAssets,
 } from "../../common/utils";
