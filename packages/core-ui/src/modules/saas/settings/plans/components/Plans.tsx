@@ -61,8 +61,8 @@ class Plans extends React.Component<Props> {
         action="editOrganizationInfo"
         fallbackComponent={fallbackComponent}
       >
-        <FullContent center={true}>
-          <MiddleContent transparent={true}>
+        <FullContent $center={true}>
+          <MiddleContent $transparent={true}>
             <OrganizationProfile currentOrganization={currentOrganization} />
             <Overview
               currentUser={currentUser}

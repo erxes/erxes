@@ -13,12 +13,12 @@ import withChargeItems from '../containers/withChargeItems';
 import withCurrentOrganization from '@erxes/ui-settings/src/general/saas/containers/withCurrentOrganization';
 
 const Item = styledTS<{ bottomSpace?: number }>(styled.div)`
-  padding: 7px 20px;
+  padding: 5px 20px;
   background: ${rgba(colors.colorCoreTeal, 0.08)};
   margin-bottom: 5px;
 
   h5 {
-    margin: 7px 0 10px;
+    margin: 7px 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
