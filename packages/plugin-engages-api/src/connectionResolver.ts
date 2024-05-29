@@ -1,6 +1,7 @@
-import * as mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
+import * as mongoose from 'mongoose';
 
+import { createGenerateModels } from '@erxes/api-utils/src/core';
 import {
   IConfigDocument,
   IConfigModel,
@@ -11,8 +12,8 @@ import {
   IDeliveryReportsDocument,
   IStatsDocument,
   IStatsModel,
-  loadStatsClass,
   deliveryReportsSchema,
+  loadStatsClass,
 } from './models/DeliveryReports';
 import { IEngageMessageModel, loadEngageMessageClass } from './models/Engages';
 import { ILogDocument, ILogModel, loadLogClass } from './models/Logs';
@@ -22,9 +23,6 @@ import {
   loadSmsRequestClass,
 } from './models/SmsRequests';
 import { IEngageMessageDocument } from './models/definitions/engages';
-import { createGenerateModels } from '@erxes/api-utils/src/core';
-import { IVerifiedDomainModel, loadDomainClass } from './models/Domains';
-import {  IVerifiedDomainDocument } from './models/definitions/verifiedDomains';
 
 export interface IModels {
   Configs: IConfigModel;
@@ -33,7 +31,6 @@ export interface IModels {
   Logs: ILogModel;
   SmsRequests: ISmsRequestModel;
   Stats: IStatsModel;
-  Domains: IVerifiedDomainModel;
 }
 
 export interface IContext extends IMainContext {
@@ -71,11 +68,6 @@ export const loadClasses = (
     'engage_logs',
     loadLogClass(models, subdomain),
   );
-
-  models.Domains = db.model<IVerifiedDomainDocument, IVerifiedDomainModel>(
-    'engage_verified_domains',
-    loadDomainClass(models),
-  )
 
   return models;
 };

@@ -291,3 +291,8 @@ export type EngageLogsQueryResponse = {
   engageLogs: IEngageLog[];
   fetchMore: any;
 } & QueryResponse;
+
+
+export type EngageSocketLabsDomainsResponse = {
+  engageSocketLabsDomains: any[];
+} & QueryResponse;

@@ -21,6 +21,7 @@ import {
   getEditorAttributeUtil,
   updateConfigs,
 } from '../../utils';
+import redisUtils from '../../redisUtils';
 
 interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
@@ -170,7 +171,11 @@ const engageMutations = {
   /**
    * Engage message set pause
    */
-  async engageMessageSetPause(_root, { _id }: { _id: string }, { models }: IContext) {
+  async engageMessageSetPause(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
     return models.EngageMessages.engageMessageSetPause(_id);
   },
 
@@ -286,7 +291,8 @@ const engageMutations = {
         response.tracking = api.getTrackingDomainConf(email);
       }
 
-      console.log('r  ', response);
+      const domain = email.split('@')[1];
+      await redisUtils.insertDomain(domain);
 
       return response;
     } catch (e) {
@@ -322,12 +328,7 @@ const engageMutations = {
 
     const result = await api.validate(email, verificationCode);
 
-    if (result === 'verified') {
-      const domain = email.split('@')[1];
-      await models.Domains.createDomain(domain)
-    }
-
-    return result
+    return result;
   },
 
   /**

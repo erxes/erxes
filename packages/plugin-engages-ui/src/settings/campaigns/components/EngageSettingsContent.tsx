@@ -42,6 +42,7 @@ type State = {
   telnyxPhone?: string;
   telnyxProfileId?: string;
   socketLabsResult?: any;
+  domains?: any[];
 };
 
 type CommonFields =
@@ -180,13 +181,10 @@ class EngageSettingsContent extends React.Component<Props, State> {
 
   renderSesConfigs = (formProps) => {
     const { configsMap } = this.props;
-    console.log('SSSSS ', this.state.emailServiceType);
+
     if (this.state.emailServiceType !== 'ses') {
-      console.log('nullll');
       return null;
     }
-
-    console.log('render pro');
 
     return (
       <>
@@ -236,7 +234,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
     );
   };
 
-  renderSocketlabsDomain = () => {
+  renderSocketlabsDomainConfig = () => {
     if (this.state.emailServiceType !== 'socketLabs') {
       return null;
     }
@@ -247,8 +245,6 @@ class EngageSettingsContent extends React.Component<Props, State> {
         transparent={true}
         title={__('Domain management')}
       >
-        {this.renderVerifiedEmails()}
-
         <Verify>
           <ControlLabel required={true}>Domain</ControlLabel>
           <FormControl
@@ -367,12 +363,68 @@ class EngageSettingsContent extends React.Component<Props, State> {
     );
   };
 
-  renderSocketLabsResult() {
-    if (!this.state.socketLabsResult) {
+  renderSocketDomainManagement() {
+    if (this.state.emailServiceType !== 'socketLabs') {
       return null;
     }
 
-    
+    return (
+      <CollapseContent
+        beforeTitle={<Icon icon='shield-check' />}
+        transparent={true}
+        title={__('Domain management')}
+      >
+        {this.renderVerifiedEmails()}
+
+        <Verify>
+          <ControlLabel required={true}>Email</ControlLabel>
+          <FormControl
+            type='email'
+            onChange={this.onChangeCommon.bind(this, 'emailToVerify')}
+          />
+
+          <Button
+            onClick={this.onVerifyEmail}
+            btnStyle='success'
+            icon='check-circle'
+          >
+            Verify
+          </Button>
+        </Verify>
+      </CollapseContent>
+    );
+  }
+
+  renderSesVerification() {
+    if (this.state.emailServiceType !== 'ses') {
+      return null;
+    }
+
+    return (
+      <CollapseContent
+        beforeTitle={<Icon icon='shield-check' />}
+        transparent={true}
+        title={__('Verify the email addresses that you send email from')}
+      >
+        {this.renderVerifiedEmails()}
+
+        <Verify>
+          <ControlLabel required={true}>Email</ControlLabel>
+          <FormControl
+            type='email'
+            onChange={this.onChangeCommon.bind(this, 'emailToVerify')}
+          />
+
+          <Button
+            onClick={this.onVerifyEmail}
+            btnStyle='success'
+            icon='check-circle'
+          >
+            Verify
+          </Button>
+        </Verify>
+      </CollapseContent>
+    );
   }
 
   render() {
@@ -385,30 +437,8 @@ class EngageSettingsContent extends React.Component<Props, State> {
         >
           <Form renderContent={this.renderContent} />
         </CollapseContent>
-
-        <CollapseContent
-          beforeTitle={<Icon icon='shield-check' />}
-          transparent={true}
-          title={__('Verify the email addresses that you send email from')}
-        >
-          {this.renderVerifiedEmails()}
-
-          <Verify>
-            <ControlLabel required={true}>Email</ControlLabel>
-            <FormControl
-              type='email'
-              onChange={this.onChangeCommon.bind(this, 'emailToVerify')}
-            />
-
-            <Button
-              onClick={this.onVerifyEmail}
-              btnStyle='success'
-              icon='check-circle'
-            >
-              Verify
-            </Button>
-          </Verify>
-        </CollapseContent>
+        {this.renderSesVerification()}
+        {this.renderSocketDomainManagement()}
         <CollapseContent
           beforeTitle={<Icon icon='envelope-upload' />}
           transparent={true}

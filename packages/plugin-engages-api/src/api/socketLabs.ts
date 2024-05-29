@@ -57,7 +57,7 @@ export class SocketLabs {
     }
   }
 
-  async validate (email: string, verificationCode: string) {
+  async validate(email: string, verificationCode: string) {
     const domain = email.split('@')[1];
 
     try {
@@ -241,7 +241,7 @@ export class SocketLabs {
 
     return {
       hostname: `bounce.${domain}`,
-      value: 'tracking.socketlabs.com'
+      value: 'tracking.socketlabs.com',
     };
   }
 
@@ -250,11 +250,11 @@ export class SocketLabs {
 
     return {
       hostname: `links.${domain}`,
-      value: 'tracking.socketlabs.com'
+      value: 'tracking.socketlabs.com',
     };
   }
 
-  async getVerifiedDomains() {
+  async getDomains(isVerified?: boolean) {
     const response: any = await this.request({
       path: 'sending-domains/detail',
       method: 'GET',
@@ -267,13 +267,16 @@ export class SocketLabs {
       throw new Error(error.message);
     }
 
-    const verified = data.filter(
-      (d) =>
-        d.verificationStatus === 'Complete' &&
-        d.authenticationStatus !== 'Unauthenticated'
-    );
+    if (isVerified) {
+      const verified = data.filter(
+        (d) =>
+          d.verificationStatus === 'Complete' &&
+          d.authenticationStatus === 'Authenticated'
+      );
+      return verified;
+    }
 
-    return verified.map((d) => d.sendingDomain);
+    return data;
   }
 
   async verifyBounceDomain(email) {

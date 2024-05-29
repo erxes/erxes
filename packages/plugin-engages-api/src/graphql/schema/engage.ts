@@ -239,6 +239,7 @@ export const queries = `
   engageMessageCounts(name: String!, kind: String, status: String): JSON
   engagesConfigDetail: JSON
   engageVerifiedEmails: [String]
+  engageSocketLabsDomains: JSON
   engageReportsList(page: Int, perPage: Int, customerId: String, status: String, searchValue: String): EngageDeliveryReport
   engageEmailPercentages: AvgEmailStats
   engageSmsDeliveries(type: String!, to: String, page: Int, perPage: Int): DeliveryList

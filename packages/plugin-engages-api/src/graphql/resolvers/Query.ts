@@ -14,6 +14,7 @@ import {
 } from '../../messageBroker';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { SocketLabs } from '../../api/socketLabs';
+import redisUtils from '../../redisUtils';
 
 interface IPaged {
   page?: number;
@@ -62,7 +63,7 @@ const tagQueryBuilder = (tagId: string) => ({ tagIds: tagId });
 // status query builder
 const statusQueryBuilder = (
   status: string,
-  user?,
+  user?
 ): IStatusQueryBuilder | undefined => {
   if (status === 'live') {
     return { isLive: true };
@@ -92,7 +93,7 @@ const countsByKind = async (models: IModels, commonSelector) => ({
 const countsByStatus = async (
   models: IModels,
   commonSelector,
-  { kind, user }: { kind: string; user },
+  { kind, user }: { kind: string; user }
 ): Promise<ICount> => {
   const query: IQuery = commonSelector;
 
@@ -124,7 +125,7 @@ const countsByTag = async (
     kind: string;
     status: string;
     user;
-  },
+  }
 ): Promise<ICount> => {
   let query: any = commonSelector;
 
@@ -163,7 +164,7 @@ const listQuery = async (
   subdomain: string,
   commonSelector,
   { kind, status, tag, ids }: IListArgs,
-  user,
+  user
 ) => {
   let query = commonSelector;
 
@@ -212,7 +213,7 @@ const engageQueries = {
   async engageMessageCounts(
     _root,
     { name, kind, status }: ICountParams,
-    { user, commonQuerySelector, subdomain, models }: IContext,
+    { user, commonQuerySelector, subdomain, models }: IContext
   ) {
     if (name === 'kind') {
       return countsByKind(models, commonQuerySelector);
@@ -235,7 +236,7 @@ const engageQueries = {
   async engageMessages(
     _root,
     args: IListArgs,
-    { user, commonQuerySelector, models, subdomain }: IContext,
+    { user, commonQuerySelector, models, subdomain }: IContext
   ) {
     const query = await listQuery(subdomain, commonQuerySelector, args, user);
 
@@ -243,14 +244,18 @@ const engageQueries = {
       models.EngageMessages.find(query).sort({
         createdAt: -1,
       }),
-      { ...args, ids: args.ids ? args.ids.split(',') : [] },
+      { ...args, ids: args.ids ? args.ids.split(',') : [] }
     );
   },
 
   /**
    * Get one message
    */
-  async engageMessageDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  async engageMessageDetail(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
     return models.EngageMessages.findOne({ _id });
   },
 
@@ -264,7 +269,7 @@ const engageQueries = {
   async engageReportsList(
     _root,
     params: IReportParams,
-    { models, subdomain }: IContext,
+    { models, subdomain }: IContext
   ) {
     const { page, perPage, customerId, status, searchValue } = params;
     const _page = Number(page || '1');
@@ -326,7 +331,7 @@ const engageQueries = {
   async engageMessagesTotalCount(
     _root,
     args: IListArgs,
-    { user, commonQuerySelector, subdomain, models }: IContext,
+    { user, commonQuerySelector, subdomain, models }: IContext
   ) {
     const query = await listQuery(subdomain, commonQuerySelector, args, user);
     return models.EngageMessages.find(query).countDocuments();
@@ -349,10 +354,9 @@ const engageQueries = {
     const config = await models.Configs.getConfig('emailServiceType');
 
     if (config.value === 'socketLabs') {
-      const verifiedDomains = await models.Domains.find({});
-
+      const domains = await redisUtils.getDomains();
       return userEmails.filter((email) =>
-        verifiedDomains.includes(email.split('@')[1]),
+        domains.includes(email.split('@')[1])
       );
     }
 
@@ -383,14 +387,14 @@ const engageQueries = {
       models.Logs.find({ engageMessageId: args.engageMessageId }).sort({
         createdAt: -1,
       }),
-      { ...args },
+      { ...args }
     );
   },
 
   async engageSmsDeliveries(
     _root,
     params: ISmsDeliveryParams,
-    { models }: IContext,
+    { models }: IContext
   ) {
     const { type, to, page, perPage } = params;
 
@@ -415,6 +419,33 @@ const engageQueries = {
     const totalCount = await models.SmsRequests.countDocuments(filter);
 
     return { list: data, totalCount };
+  },
+
+  async engageSocketLabsDomains(_root, _args, { models }: IContext) {
+    const { apiKey, serverId, username } =
+      await models.Configs.getSocketLabsConfigs();
+
+    if (!apiKey || !serverId || !username) {
+      throw new Error('SocketLabs has missing configs');
+    }
+
+    const api = new SocketLabs({
+      apiToken: apiKey,
+      serverId,
+      username,
+    });
+
+    const domains = await redisUtils.getDomains();
+
+    const signedDomains = await api.getDomains();
+    console.log("signedDomains", signedDomains)
+    console.log("domains", domains)
+    // filter signedDomains by domains
+    const filteredDomains = signedDomains.filter((domain) => {
+      return domains.includes(domain.sendingDomain);
+    })
+
+    return filteredDomains;
   },
 };
 
