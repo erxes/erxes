@@ -1,10 +1,8 @@
-import * as routerUtils from '@erxes/ui/src/utils/router';
-
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Detail from './Detail';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import List from '../config/containers/config';
+import List from '../accounts/containers/list';
 import React from 'react';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils/core';
@@ -24,13 +22,13 @@ const CorporateGateway = (props: Props) => {
       link: '/khanbank-corporate-gateway',
     },
   ];
-  const count = queryParams._id ? 1 : 0;
+  const count = queryParams.account ? 1 : 0;
 
   return (
     <Wrapper
       header={
         <Wrapper.Header
-          title="Khanbank Corporate Gateway"
+          title="Golomt Corporate Gateway"
           breadcrumb={breadcrumb}
         />
       }

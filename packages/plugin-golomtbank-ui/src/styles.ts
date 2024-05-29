@@ -1,6 +1,10 @@
 import { dimensions } from '@erxes/ui/src/styles';
 import styled from 'styled-components';
-
+export const ConfigList = styled.div`
+  a {
+    padding: 0;
+  }
+`;
 export const LoyaltyAmount = styled.div`
   font-weight: 800;
   line-height: 20px;
@@ -33,6 +37,9 @@ export const FlexRow = styled.div`
 
 export const DetailRow = styled(FlexRow)`
   justify-content: space-around;
+`;
+export const Content = styled.div`
+  padding: ${dimensions.coreSpacing}px;
 `;
 
 export const CustomRangeContainer = styled.div`

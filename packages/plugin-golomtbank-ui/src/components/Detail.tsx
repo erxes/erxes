@@ -1,7 +1,7 @@
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import { Content } from '../../../styles';
+import { Content } from '../styles';
 import DetailContainer from '../accounts/containers/Detail';
 import TransactionsContainer from '../transactions/containers/List';
 
@@ -42,14 +42,10 @@ const Detail = (props: Props) => {
   };
 
   const renderTabs = () => {
-    if (!queryParams._id) {
+    if (!queryParams.account) {
       return <>please select corporate gateway</>;
     }
-
-    if (!queryParams._id || !queryParams.account) {
-      return <>please select account</>;
-    }
-
+    
     return (
       <>
         <Tabs full={true}>

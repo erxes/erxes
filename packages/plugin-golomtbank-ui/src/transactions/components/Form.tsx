@@ -9,8 +9,8 @@ import { IFormProps } from "@erxes/ui/src/types";
 import { __ } from "@erxes/ui/src/utils/core";
 import React, { useState } from "react";
 
-import { BANK_CODES, TRANSACTION_TYPES } from "../../../../constants";
-import { IAccountHolder, IKhanbankAccount } from "../../accounts/types";
+import { BANK_CODES, TRANSACTION_TYPES } from "../../constants";
+import { IAccountHolder, IKhanbankAccount } from "../types";
 import { IKhanbankTransactionInput } from "../types";
 
 type Props = {

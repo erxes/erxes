@@ -8,7 +8,7 @@ import React from 'react';
 
 import { BlockRow } from '../../styles';
 import { getCurrencySymbol } from '../../utils';
-import TransactionForm from '../../transactions/containers/Form';
+
 import Transactions from '../../transactions/containers/List';
 import { IGolomtAccount } from '../../types/IGolomtAccount';
 
@@ -53,11 +53,7 @@ const Detail = (props: Props) => {
   );
 
   const transactionFormContent = modalProps => (
-    <TransactionForm
-      {...modalProps}
-      configId={queryParams._id}
-      accountNumber={queryParams.account}
-    />
+    <div/>
   );
 
   const renderAccount = () => {

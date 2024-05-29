@@ -7,7 +7,7 @@ const GolomtbankConfig = asyncComponent(() =>
   import(/* webpackChunkName: "Settings CreateGolomtbank" */ './config/containers/config')
 );
 const GolomtbankAccounts = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings CreateGolomtbank" */ './accounts/containers/list')
+  import(/* webpackChunkName: "Settings CreateGolomtbank" */ './components/CorporateGateway')
 );
 const golomtbankConfig = () => {
   return <GolomtbankConfig />;

@@ -7,7 +7,7 @@ import { IGolomtAccount } from "../../types/IGolomtAccount";
 import { Link } from "react-router-dom";
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Sidebar } from "@erxes/ui";
+import { Sidebar } from "@erxes/ui/src";
 
 type Props = {
   queryParams: any;
@@ -27,8 +27,7 @@ const List = (props: any) => {
   };
 
 
-  return (accounts || []).map((account) => (
-  
+  return <Sidebar>{(accounts || []).map((account) => (
         <SidebarListItem
           id={account.accountId}
           key={account.accountId}
@@ -43,7 +42,6 @@ const List = (props: any) => {
             </FieldStyle>
           </Link>
         </SidebarListItem>
-  
-  ));
+  ))}</Sidebar>;
 };
 export default List;

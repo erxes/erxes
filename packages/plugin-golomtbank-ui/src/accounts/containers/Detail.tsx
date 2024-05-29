@@ -13,26 +13,7 @@ type Props = {
 } ;
 
 const DetailContainer = (props: Props) => {
-  const { _id, account } = props.queryParams;
-
-  const { data, loading, error } = useQuery<AccountDetailQueryResponse>(
-    gql(queries.detail),
-    {
-      variables: {
-        configId: _id,
-        accountId: account.account
-      },
-      fetchPolicy: 'network-only'
-    }
-  );
-
-  if (loading) {
-    return <Spinner />;
-  }
-
-  if (error) {
-    return <ErrorMsg>{error.message}</ErrorMsg>;
-  }
+  const { account } = props.queryParams;
 
   const accountDetail = {
     "requestId": "b0f9d6ab66ef475ba4393ff3c202eb14",
@@ -52,7 +33,7 @@ const DetailContainer = (props: Props) => {
 
   const extendedProps = {
     ...props,
-    loading,
+    loading:false,
     account: accountDetail
   };
 
