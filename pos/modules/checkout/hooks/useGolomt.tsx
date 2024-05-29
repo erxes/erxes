@@ -69,7 +69,7 @@ export const useGolomtTransaction = (options: {
             description: "Transaction was successful",
           })
           return (
-            !!onCompleted && onCompleted(decodeURIComponent(atob(posResult)))
+            !!onCompleted && onCompleted(posResult)
           )
         }
         toast({ description: posResult.responseDesc, variant: "destructive" })
