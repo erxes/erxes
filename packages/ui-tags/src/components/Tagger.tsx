@@ -66,7 +66,7 @@ const Tagger: React.FC<TaggerProps> = (props) => {
             "tag-" + cursor
           )[0] as HTMLElement;
           const showTags = document.getElementById("conversationTags");
-
+        
           if (element && showTags) {
             element.click();
             tagger(state.tagsForList);

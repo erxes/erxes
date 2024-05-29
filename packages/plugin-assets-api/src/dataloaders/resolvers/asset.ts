@@ -21,7 +21,7 @@ export default {
   },
 
   async isRoot(asset: IAssetDocument, {}) {
-    return asset.parentId ? false : true;
+    return !asset.parentId; 
   },
 
   async childAssetCount(asset: IAssetDocument, {}, { models }: IContext) {
