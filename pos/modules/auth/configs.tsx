@@ -1,13 +1,16 @@
 "use client"
 
 import { ReactNode, useEffect, useState } from "react"
-import { modeAtom, refetchUserAtom } from "@/store"
-import { configAtom, configsAtom, currentUserAtom } from "@/store/config.store"
-import { orderTypeAtom } from "@/store/order.store"
+import { refetchUserAtom } from "@/store"
+import {
+  configAtom,
+  orderPasswordAtom,
+  setConfigsAtom,
+  setCurrentUserAtom,
+} from "@/store/config.store"
 import { useQuery } from "@apollo/client"
 import { useAtom, useSetAtom } from "jotai"
 
-import { useMediaQuery } from "@/lib/useMediaQuery"
 import { hexToHsl } from "@/lib/utils"
 import Loader from "@/components/ui/loader"
 import { useToast } from "@/components/ui/use-toast"
@@ -15,15 +18,13 @@ import { useToast } from "@/components/ui/use-toast"
 import { queries } from "./graphql"
 
 const Configs = ({ children }: { children: ReactNode }) => {
-  const setConfigs = useSetAtom(configsAtom)
-  const setCurrentUser = useSetAtom(currentUserAtom)
+  const setConfigs = useSetAtom(setConfigsAtom)
+  const setCurrentUser = useSetAtom(setCurrentUserAtom)
   const setConfig = useSetAtom(configAtom)
+  const setOrderPassword = useSetAtom(orderPasswordAtom)
   const [loadingConfigs, setLoadingConfigs] = useState(true)
   const { onError } = useToast()
   const [fetchUser, setFetchUser] = useAtom(refetchUserAtom)
-  const setOrderType = useSetAtom(orderTypeAtom)
-  const setMode = useSetAtom(modeAtom)
-  const isMobile = useMediaQuery("(max-width: 768px)")
 
   const { loading, data, refetch } = useQuery(queries.posCurrentUser)
 
@@ -54,41 +55,28 @@ const Configs = ({ children }: { children: ReactNode }) => {
   }, [data, setCurrentUser])
 
   useEffect(() => {
-    if (isMobile) {
-      setMode("mobile")
-    }
-  }, [isMobile, setMode])
+    const { uiOptions, orderPassword, ...restConfig } =
+      (config || {}).currentConfig || {}
 
-  const { currentConfig } = config || {}
-  const { _id, allowTypes, uiOptions } = currentConfig || {}
-
-  useEffect(() => {
-    if (_id) {
-      setConfig(currentConfig)
-      setOrderType((allowTypes || [])[0])
+    if (restConfig) {
+      setConfig(restConfig)
     }
-  }, [config])
+    setOrderPassword(orderPassword)
+
+    const { primary } = uiOptions?.colors || {}
+
+    if (primary) {
+      document.documentElement.style.setProperty(
+        "--primary",
+        hexToHsl(primary || "#4f33af")
+      )
+    }
+  }, [config, setConfig, setOrderPassword])
 
   if (loading || loadingConfig || loadingConfigs)
     return <Loader className="h-screen" />
 
-  const { primary } = uiOptions?.colors || {}
-
-  return (
-    <>
-      <style>{`
-         :root {
-           ${
-             primary
-               ? `--primary: ${hexToHsl(primary)};
-             `
-               : ""
-           }
-          }
-        `}</style>
-      {children}
-    </>
-  )
+  return <>{children}</>
 }
 
 export default Configs

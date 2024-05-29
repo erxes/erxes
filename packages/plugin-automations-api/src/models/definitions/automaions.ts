@@ -31,7 +31,6 @@ export interface ITrigger {
     contentId: string;
     reEnrollment: boolean;
     reEnrollmentRules: string[];
-    dateConfig: any;
   };
   style?: any;
   icon?: string;

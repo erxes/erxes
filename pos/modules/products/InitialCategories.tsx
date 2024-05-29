@@ -1,19 +1,21 @@
-import { initialCategoryIdsAtom } from "@/store/config.store"
-import { useAtomValue } from "jotai"
+import { useQuery } from "@apollo/client"
 
 import {
   HorizontalScrollMenu,
   ScrollMenuItem,
 } from "@/components/ui/horizontalScrollMenu"
 
+import { queries } from "../auth/graphql"
 import CategoryItem from "./components/categoryItem/categoryItem.main"
 
 const InitialCategories = () => {
-  const initialCategoryIds = useAtomValue(initialCategoryIdsAtom)
+  const { data, loading } = useQuery(queries.getInitialCategories)
 
-  if (!(initialCategoryIds || []).length) {
-    return null
-  }
+  if (loading) return null
+
+  const { initialCategoryIds } = data?.currentConfig || {}
+
+  if (!(initialCategoryIds || []).length) return null
 
   return (
     <HorizontalScrollMenu separatorClassName="w-2 flex-none">

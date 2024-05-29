@@ -100,7 +100,7 @@ export const checkPricing = async (
     conditions.isPriority = false;
   }
 
-  const sortArgs: any = {
+  const sortArgs: object = {
     isPriority: 1,
     value: 1
   };

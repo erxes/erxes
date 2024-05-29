@@ -33,7 +33,7 @@ const blockQueries = {
   },
 
   async totalInvestmentCount(_root, _arg, { models }: IContext) {
-    const total = await models.Investments.find({}).countDocuments();
+    const total = await models.Investments.find({}).count();
 
     return total;
   },

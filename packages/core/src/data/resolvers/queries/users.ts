@@ -357,13 +357,13 @@ const userQueries = {
         ? { [sortField]: sortDirection }
         : { username: 1 };
 
-    return paginate(models.Users.find(selector).sort(sort as any), args);
+    return paginate(models.Users.find(selector).sort(sort), args);
   },
 
   /**
    * All users
    */
-  async allUsers(
+  allUsers(
     _root,
     {
       isActive,
@@ -392,7 +392,7 @@ const userQueries = {
   /**
    * Get one user
    */
-  async userDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  userDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Users.findOne({ _id });
   },
 

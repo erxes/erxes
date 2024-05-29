@@ -120,7 +120,7 @@ const prepareData = async (
   const perPage = params.perPage;
 
   const selector: any = await generateFilterItems(subdomain, params);
-  const count = await models.SafeRemainderItems.find(selector).countDocuments();
+  const count = await models.SafeRemainderItems.find(selector).count();
 
   let datas = [];
   const pageCount = Math.ceil(count / perPage);

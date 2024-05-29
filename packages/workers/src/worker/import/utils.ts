@@ -147,7 +147,7 @@ const importBulkStream = ({
     rowIndex: number,
     rows: any,
     contentType: string,
-  ) => Promise<any>;
+  ) => Promise<void>;
   associateContentType?: string;
   associateField?: string;
   mainAssociateField?: string;

@@ -45,7 +45,7 @@ const messageListen = async (
   };
   const customer = await Customers.getOrCreate(createData, subdomain);
 
-  let conversation  = await Conversations.findOne({
+  let conversation: IConversation | null = await Conversations.findOne({
     senderId: message.sender.id,
     integrationId,
   });

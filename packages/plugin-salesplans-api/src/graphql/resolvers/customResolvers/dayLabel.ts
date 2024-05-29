@@ -3,7 +3,7 @@ import { sendCoreMessage } from '../../../messageBroker';
 import { IDayLabelDocument } from '../../../models/definitions/dayLabels';
 
 export default {
-  async __resolveReference({ _id }, { models }: IContext) {
+  __resolveReference({ _id }, { models }: IContext) {
     return models.DayLabels.findOne({ _id });
   },
 

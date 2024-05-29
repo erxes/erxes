@@ -3,11 +3,11 @@ import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../connectionResolver';
 
 const skillTypesQueries = {
-  async skillTypes(_root, _params, { models }: IContext) {
+  skillTypes(_root, _params, { models }: IContext) {
     return models.SkillTypes.find({}).sort({ name: 1 });
   },
 
-  async skillTypesTotalCount(_root, _params, { models }: IContext) {
+  skillTypesTotalCount(_root, _params, { models }: IContext) {
     return models.SkillTypes.countDocuments({});
   }
 };

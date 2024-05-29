@@ -13,11 +13,11 @@ const ForumCategory: IObjectTypeResolver<ICategory, IContext> = {
   },
 
   async descendants({ _id }, _, { models: { Category } }) {
-    return Category.getDescendantsOf([_id.toString()]);
+    return Category.getDescendantsOf([_id]);
   },
 
   async ancestors({ _id }, _, { models: { Category } }) {
-    return Category.getAncestorsOf(_id.toString());
+    return Category.getAncestorsOf(_id);
   },
   async posts({ _id }, params, { models }) {
     const { Post } = models;

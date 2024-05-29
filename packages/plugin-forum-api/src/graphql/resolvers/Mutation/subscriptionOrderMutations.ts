@@ -31,7 +31,7 @@ const subscriptionOrderMutations: IObjectTypeResolver<any, IContext> = {
       cpUser
     );
   },
-  async forumCpCompleteSubscriptionOrder(
+  forumCpCompleteSubscriptionOrder(
     _,
     { subscriptionOrderId, invoiceId },
     { models: { SubscriptionOrder } }
@@ -41,7 +41,7 @@ const subscriptionOrderMutations: IObjectTypeResolver<any, IContext> = {
       invoiceId
     );
   },
-  async forumCpFailSubscriptionOrder(
+  forumCpFailSubscriptionOrder(
     _,
     { subscriptionOrderId },
     { models: { SubscriptionOrder }, cpUser }

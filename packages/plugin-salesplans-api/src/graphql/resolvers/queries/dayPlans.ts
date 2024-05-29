@@ -125,7 +125,7 @@ const labelsQueries = {
     { models, subdomain }: IContext
   ) => {
     const filter = await getGenerateFilter(subdomain, params);
-    return await models.DayPlans.find(filter).countDocuments();
+    return await models.DayPlans.find(filter).count();
   },
 
   dayPlansSum: async (

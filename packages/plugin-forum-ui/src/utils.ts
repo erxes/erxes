@@ -13,7 +13,7 @@ export const postUsername = ({ post, typeKey, crmKey, cpKey }) => {
   if (post[typeKey] === 'CP') {
     return (
       (post[cpKey]?.username || post[cpKey]?.email || post[cpKey]?._id) +
-      ' (Business Portal)'
+      ' (Client Portal)'
     );
   }
 };

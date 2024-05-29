@@ -28,7 +28,7 @@ const PaymentSheet = () => {
           className={cn(
             "flex flex-col",
             type === "mobile" && "sm:max-w-3xl",
-            isKiosk && "h-2/3 rounded-t-3xl sm:max-w-none"
+            isKiosk && "h-2/3 rounded-t-3xl"
           )}
           side={isKiosk ? "bottom" : undefined}
         >

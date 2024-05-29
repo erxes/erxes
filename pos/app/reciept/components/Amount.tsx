@@ -1,6 +1,6 @@
 import { useCallback } from "react"
 import { cartAtom } from "@/store/cart.store"
-import { paymentTypesAtom } from "@/store/config.store"
+import { ebarimtConfigAtom } from "@/store/config.store"
 import {
   cashAmountAtom,
   mobileAmountAtom,
@@ -16,8 +16,9 @@ const Amount = () => {
   const mobile = useAtomValue(mobileAmountAtom)
   const total = useAtomValue(orderTotalAmountAtom)
   const items = useAtomValue(cartAtom)
-  const paymentTypes = useAtomValue(paymentTypesAtom)
+  const config = useAtomValue(ebarimtConfigAtom)
   const paidAmounts = useAtomValue(paidAmountsAtom)
+  const { paymentTypes } = config || {}
 
   const discountAmounts = useCallback(() => {
     return (items || []).reduce(
@@ -53,9 +54,7 @@ const Field = ({
   val: number
   className?: string
 }) => {
-  if (!val) {
-    return null
-  }
+  if (!val) return null
 
   return (
     <div className={cn("flex items-center justify-between", className)}>

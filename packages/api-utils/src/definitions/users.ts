@@ -212,8 +212,7 @@ export const userSchema = schemaWrapper(
       sparse: true,
     }),
     chatStatus: field({
-      type: String,
-      enum: Object.values(IUserChatStatus),
+      type: IUserChatStatus,
       optional: true,
       label: 'User chat status /used for exm/',
     }),

@@ -67,9 +67,6 @@ export const loadSpinClass = (models: IModels, subdomain: string) => {
       }
 
       const spin = await models.Spins.findOne({ _id }).lean();
-      if(!spin) {
-        throw new Error(`Spin ${_id} not found`);
-      }
       const campaignId = spin.campaignId;
 
       await models.SpinCampaigns.getSpinCampaign(campaignId);

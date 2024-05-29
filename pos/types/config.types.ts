@@ -1,16 +1,8 @@
-import { IOrderType } from "./order.types"
-
 export interface IUIOptions {
   colors?: string
   logo?: string
   favIcon?: string
   receiptIcon?: string
-  bgImage?: string
-  kioskHeaderImage?: string
-  texts?: {
-    phone?: string
-    website?: string
-  }
 }
 
 export interface IConfig {
@@ -23,36 +15,13 @@ export interface IConfig {
   description?: string
   waitingScreen?: {
     isActive?: boolean
-    value?: string
-    type?: string
   }
   erxesAppToken?: string
   kitchenScreen?: IKitchenScreen
   uiOptions?: IUIOptions
-  paymentTypes?: IPaymentType[]
-  paymentIds?: string[]
-  allowTypes: IOrderType[]
-  orderPassword?: string
-  banFractions?: boolean
-  permissionConfig?: {
-    admins?: IPermissionConfig
-    cashiers?: IPermissionConfig
-  }
-  initialCategoryIds?: string[]
-  ebarimtConfig?: IEbarimtConfig
-  branchId: string
-  departmentId: string
-}
-
-export interface IEbarimtConfig {
-  footerText?: string
-  hasCopy?: boolean
-  ebarimtUrl?: string
-  companyRD?: string
 }
 
 export interface IPaymentType {
-  _id: string
   type: string
   title: string
   config?: {
@@ -73,6 +42,32 @@ export interface IPermissionConfig {
   directDiscountLimit?: number
 }
 
+export interface ICoverConfig {
+  paymentIds: string[]
+  paymentTypes: IPaymentType[]
+}
+
+export interface IEbarimtConfig {
+  ebarimtConfig: {
+    footerText: string
+    hasCopy: boolean
+  }
+  paymentTypes: IPaymentType[]
+  uiOptions: IUIOptions
+  name: string
+}
+
+export interface ISettingsConfig {
+  branchId: string
+  createdAt: string
+  departmentId: string
+  paymentTypes: IPaymentType[]
+  ebarimtConfig: {
+    ebarimtUrl: string
+    companyRD: string
+  }
+}
+
 export interface ICurrentUser {
   _id: string
   createdAt?: string
@@ -89,10 +84,4 @@ export interface ICurrentUser {
   }
 }
 
-export type modeT =
-  | "market"
-  | "main"
-  | "kiosk"
-  | "coffee-shop"
-  | "restaurant"
-  | "mobile"
+export type modeT = "market" | "main" | "kiosk" | "coffee-shop" | "restaurant"

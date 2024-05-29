@@ -35,7 +35,7 @@ const spinCampaignQueries = {
     );
   },
 
-  async cpSpinCampaigns(_root, {}, { models }: IContext) {
+  cpSpinCampaigns(_root, {}, { models }: IContext) {
     const now = new Date();
 
     return models.SpinCampaigns.find({
@@ -55,7 +55,7 @@ const spinCampaignQueries = {
     return models.SpinCampaigns.find(filter).countDocuments();
   },
 
-  async spinCampaignDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  spinCampaignDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.SpinCampaigns.getSpinCampaign(_id);
   }
 };

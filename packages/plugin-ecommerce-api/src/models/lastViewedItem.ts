@@ -56,7 +56,7 @@ export const loadLastViewedItemClass = (models: IModels, subdomain: string) => {
       return item;
     }
     public static async removeLastViewedItem(_id: string) {
-      return models.LastViewedItem.findOneAndDelete({ _id });
+      return models.LastViewedItem.findOneAndRemove({ _id });
     }
   }
   lastvieweditemSchema.loadClass(LastViewedItem);

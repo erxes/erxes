@@ -8,7 +8,6 @@ export interface IClassification {
   classification: string;
   newClassification: string;
   contractId: string;
-  dtl: any
 }
 
 export interface IClassificationDocument extends IClassification, Document {

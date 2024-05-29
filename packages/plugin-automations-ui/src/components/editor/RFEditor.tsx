@@ -5,7 +5,6 @@ import ReactFlow, {
   Background,
   ConnectionMode,
   Controls,
-  MiniMap,
   addEdge,
   getOutgoers,
   updateEdge,
@@ -21,7 +20,6 @@ import {
 } from '../../types';
 import CustomNode, { ScratchNode } from './Node';
 import { generateEdges, generateNodes } from './utils';
-import ConnectionLine from './ConnectionLine';
 
 type Props = {
   automation: IAutomation;
@@ -40,10 +38,10 @@ type Props = {
   showDrawer: boolean;
   toggleDrawer: ({
     type,
-    awaitingNodeId,
+    awaitingActionId,
   }: {
     type: string;
-    awaitingNodeId?: string;
+    awaitingActionId?: string;
   }) => void;
   onDoubleClick: (type: string, id: string) => void;
   removeItem: (type: string, id: string) => void;
@@ -56,7 +54,7 @@ const nodeTypes = {
   scratch: ScratchNode,
 };
 
-const fitViewOptions = { padding: 4, minZoom: 0.8 };
+const fitViewOptions = { padding: 4 };
 
 function AutomationEditor({
   triggers,
@@ -67,10 +65,10 @@ function AutomationEditor({
 }: Props) {
   const edgeUpdateSuccessful = useRef(true);
   const [edges, setEdges, onEdgesChange] = useEdgesState(
-    generateEdges({ triggers, actions })
+    generateEdges({ triggers, actions }),
   );
   const [nodes, setNodes, onNodesChange] = useNodesState(
-    generateNodes({ triggers, actions }, props)
+    generateNodes({ triggers, actions }, props),
   );
 
   useEffect(() => {
@@ -124,7 +122,7 @@ function AutomationEditor({
         return updatedEdges;
       });
     },
-    [nodes]
+    [nodes],
   );
 
   const onEdgeUpdate = useCallback((oldEdge, newConnection) => {
@@ -170,7 +168,7 @@ function AutomationEditor({
 
       return !hasCycle(target);
     },
-    [nodes, edges]
+    [nodes, edges],
   );
 
   const onPaneClick = () => {
@@ -181,20 +179,6 @@ function AutomationEditor({
 
   const onNodeDragStop = (_, node) => {
     onChangePositions(node?.data?.nodeType, node.id, node.position);
-  };
-
-  const onDoubleClickEdge = (_, edge) => {
-    setEdges((eds) => eds.filter((e) => e.id !== edge.id));
-    let info: any = { source: edge.source, target: undefined };
-
-    const sourceNode = nodes.find((n) => n.id === edge.source);
-
-    if (edge.sourceHandle.includes(sourceNode?.id)) {
-      info.optionalConnectId = undefined;
-      info.connectType = 'optional';
-    }
-
-    onConnect(info);
   };
 
   return (
@@ -215,11 +199,7 @@ function AutomationEditor({
         onPaneClick={onPaneClick}
         isValidConnection={isValidConnection}
         onNodeDragStop={onNodeDragStop}
-        onEdgeDoubleClick={onDoubleClickEdge}
-        connectionLineComponent={ConnectionLine}
-        minZoom={0.1}
       >
-        <MiniMap pannable position="top-right" />
         <Controls />
         <Background />
       </ReactFlow>

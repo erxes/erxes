@@ -1,18 +1,16 @@
-import { Schema, Document, HydratedDocument } from 'mongoose';
+import { Schema, Document } from 'mongoose';
 import { field } from './utils';
-import { ICustomerModel } from '../Customers';
 
 export interface ICustomer {
-  _id: string;
   inboxIntegrationId: string;
   primaryPhone: string | number;
   erxesApiId?: string;
   status: string;
 }
 
-export type ICustomerDocument = HydratedDocument<ICustomer>;
+export interface ICustomerDocument extends ICustomer, Document {}
 
-export const customerSchema: Schema<ICustomer, ICustomerModel> = new Schema<ICustomer, ICustomerModel>({
+export const customerSchema: Schema<ICustomer> = new Schema<ICustomer>({
   _id: field({ pkey: true }),
   erxesApiId: { type: String, label: 'Customer id at contacts-api' },
   primaryPhone: {

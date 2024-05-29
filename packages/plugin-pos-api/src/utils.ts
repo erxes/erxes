@@ -747,7 +747,7 @@ export const syncOrderFromClient = async ({
           subdomain,
           action: 'erxes-posclient-to-pos-api-remove',
           data: {
-            order: { ...newOrder, posToken, subToken: toCancelPos.token },
+            order: { ...newOrder, posToken, subToken: toPos.token },
           },
           pos: toCancelPos,
         });

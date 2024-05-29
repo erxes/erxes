@@ -74,7 +74,7 @@ const labelsQueries = {
     { models }: IContext
   ) => {
     const filter = getGenerateFilter(params);
-    return await models.Labels.find(filter).countDocuments();
+    return await models.Labels.find(filter).count();
   },
 
   timeframes: async (_root: any, _args: any, { models }: IContext) => {

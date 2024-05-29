@@ -35,7 +35,7 @@ const command = async () => {
     const user = await Users.findOne({ appId: app._id });
 
     if (!user) {
-      await Users.insertOne({
+      await Users.insert({
         role: 'system',
         appId: app._id,
         username: app.name,

@@ -9,7 +9,7 @@ const getCount = async (subdomain: string, tag: ITagDocument) => {
 };
 
 const tags = {
-  async __resolveReference({ _id }, { models }: IContext) {
+  __resolveReference({ _id }, { models }: IContext) {
     return models.Tags.findOne({ _id });
   },
 

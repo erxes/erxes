@@ -12,6 +12,8 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 type Props = {
   loadingMainQuery: boolean;
   type: string;
+
+  queryParams?: any;
 };
 
 class Sidebar extends React.Component<Props> {
@@ -60,6 +62,7 @@ class Sidebar extends React.Component<Props> {
 
         {isEnabled('inbox') && (
           <LeadFilter
+            queryParams={this.props.queryParams}
             type={type}
             loadingMainQuery={loadingMainQuery}
             abortController={this.abortController}

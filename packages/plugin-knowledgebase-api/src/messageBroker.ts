@@ -39,7 +39,7 @@ export const setupMessageConsumers = async () => {
 
       return {
         status: 'success',
-        data: await models.KnowledgeBaseTopics.find(query).countDocuments(),
+        data: await models.KnowledgeBaseTopics.find(query).count(),
       };
     },
   );

@@ -4,7 +4,6 @@ import {
   BottomBarActionsContainer,
   BottomBarContainer,
   ContentWrapper,
-  FieldInfo,
   MainContent,
   PreviewButton,
   Wrapper,
@@ -15,7 +14,7 @@ import {
   FlexCenter,
   ModalFooter,
 } from "@erxes/ui/src/styles/main";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import Alert from "@erxes/ui/src/utils/Alert/index";
 import Button from "@erxes/ui/src/components/Button";
@@ -48,7 +47,6 @@ export const TabAction = styled.div`
   }
 `;
 
-
 const checkIsAbleAddMessage = (messages, type) => {
   if (
     type === "input" &&
@@ -79,9 +77,7 @@ function ReplyFbMessage({
   triggerType,
 }: Props) {
   const [config, setConfig] = useState(activeAction?.config || {});
-  const [error,setError] = useState(false)
   const { messages = [] as Message[] } = config;
-
 
   const handleChange = (_id, name, value) => {
     const updateMessages = messages.map((message) =>
@@ -92,45 +88,23 @@ function ReplyFbMessage({
   };
 
   const renderText = ({ _id, text, buttons }) => {
-    const limit = buttons.length ? 640 : 2000;
     const onChange = ({ text }) => {
-        handleChange(_id, "text", text);
+      handleChange(_id, "text", text);
     };
-
-    useEffect(()=>{
-      if (text.length >limit) {
-        setError(true)
-      }else if (!!error && text.length < limit) {
-        setError(false);
-      }
-    },[buttons,text])
 
     return (
       <Column>
-        <ControlLabel>
-          {__('Text')}
-          <FieldInfo
-            error={text.length > limit}
-          >{`${text?.length}/${limit}`}</FieldInfo>
-        </ControlLabel>
-
+        <ControlLabel>{__("Text")}</ControlLabel>
         <PlaceHolderInput
           config={{ text }}
           triggerType={triggerType}
           inputName="text"
-          componentClass="textarea"
+          componentclass="textarea"
           label=""
           placeholder="Enter your text..."
           onChange={onChange}
-          textLimit={limit}
         />
-
-        <ButtonsGenerator
-          _id={_id}
-          buttons={buttons}
-          onChange={handleChange}
-          limit={3}
-        />
+        <ButtonsGenerator _id={_id} buttons={buttons} onChange={handleChange} />
       </Column>
     );
   };
@@ -169,10 +143,6 @@ function ReplyFbMessage({
     const handleChangeInput = (e) => {
       const { value } = e.currentTarget as HTMLInputElement;
 
-      if(value?.length > 640){
-        return 
-      }
-
       handleChange(_id, "text", value);
     };
 
@@ -180,10 +150,8 @@ function ReplyFbMessage({
       <div>
         <ControlLabel>{__("Quick Replies")}</ControlLabel>
 
-        <FieldInfo>{`${text?.length || 0}/640`}</FieldInfo>
-
         <FormControl
-          placeholder="enter your text"
+          placeholder="Enter your text"
           value={text}
           onChange={handleChangeInput}
         />
@@ -194,7 +162,6 @@ function ReplyFbMessage({
           onChange={handleChangeQuickReplies}
           hideMenu
           addButtonLabel="Add Quick Reply"
-          limit={13}
         />
       </div>
     );
@@ -254,7 +221,7 @@ function ReplyFbMessage({
     return (
       <div>
         <FormGroup>
-          <ControlLabel>{__("Text")}<FieldInfo>{`${input?.text?.length || 0}/2000`}</FieldInfo></ControlLabel>
+          <ControlLabel>{__("Text")}</ControlLabel>
           <FormControl
             defaultValue={input.text || ""}
             onChange={(e) =>
@@ -371,14 +338,8 @@ function ReplyFbMessage({
           <PreviewButton>
             <PreviewWidget messages={messages} />
           </PreviewButton>
-          <Button
-            btnStyle="success"
-            icon="checked-1"
-            block
-            onClick={onSave}
-            disabled={error}
-          >
-            {__('Save')}
+          <Button btnStyle="success" icon="checked-1" block onClick={onSave}>
+            {__("Save")}
           </Button>
         </ModalFooter>
       </BottomBarContainer>

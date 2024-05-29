@@ -104,14 +104,6 @@ export const MobileEmulator = styledTS<{
     gap: 15px;
     padding-top: 50px;
 
-    > p {
-      font-size: 14px;
-      color: #b0b3b8;
-      width:250px;
-      word-wrap: break-word;
-      text-align: center;
-    }
-
     > span {
       font-size: 14px;
       color: #b0b3b8;
@@ -164,8 +156,6 @@ export const MobileEmulator = styledTS<{
         background-color: ${colors.colorCoreBlue};
         padding: 10px 20px;
         border-radius: 15px;
-        max-width:200px;
-        word-wrap: break-word;
       }
     }
 

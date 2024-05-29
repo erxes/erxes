@@ -75,6 +75,7 @@ export interface IRichTextEditorProps extends IRichTextEditorContentProps {
   limit?: number;
   contentType?: string;
   integrationKind?: string;
+  onCtrlEnter?: () => void;
 }
 
 const RichTextEditor = forwardRef(function RichTextEditor(
@@ -100,6 +101,7 @@ const RichTextEditor = forwardRef(function RichTextEditor(
     limit,
     toolbar,
     autoFocus,
+    onCtrlEnter
   } = props;
   const editorContentProps = {
     height,
@@ -219,6 +221,21 @@ const RichTextEditor = forwardRef(function RichTextEditor(
     }),
     []
   );
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyEvents);
+    return () => window.removeEventListener("keydown", handleKeyEvents);
+  }, [handleKeyEvents]);
+
+  function handleKeyEvents(event: KeyboardEvent) {
+    const isFocused = editorRef?.current?.isFocused;
+
+    if (!isFocused) return;
+
+    if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+      onCtrlEnter && onCtrlEnter();
+    }
+  }
 
   const mergedLabels = useMemo(
     () => ({ ...DEFAULT_LABELS, ...labels }),

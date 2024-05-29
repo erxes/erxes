@@ -25,7 +25,7 @@ const generateFilter = (params: ICommonParams) => {
 };
 
 const donateQueries = {
-  async donates(_root, params: ICommonParams, { models }: IContext) {
+  donates(_root, params: ICommonParams, { models }: IContext) {
     const filter: any = generateFilter(params);
     return paginate(models.Donates.find(filter), params);
   },

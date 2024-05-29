@@ -1,4 +1,4 @@
-import { Schema, model, Document, Model, HydratedDocument } from 'mongoose';
+import { Schema, model, Document, Model } from 'mongoose';
 import { sendInboxMessage } from './messageBroker';
 
 interface ICustomer {
@@ -88,14 +88,13 @@ export const Integrations = model<any, any>(
   loadIntegrationClass()
 );
 
-export interface IConversation {
+export interface IConversation extends Document {
   erxesApiId?: string;
   timestamp: Date;
   senderId: string;
   recipientId?: string;
   integrationId: string;
 }
-export type IConversationDocument = HydratedDocument<IConversation>;
 
 export const conversationSchema: Schema<IConversation> = new Schema<
   IConversation

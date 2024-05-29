@@ -1,6 +1,6 @@
 "use client"
 
-import { FC, useState } from "react"
+import { FC, useEffect, useState } from "react"
 import NextImage, { ImageLoaderProps, ImageProps } from "next/image"
 import { Package } from "lucide-react"
 
@@ -23,7 +23,6 @@ const Image: FC<
     fallBack,
     sizes,
     className,
-    quality,
     ...rest
   } = props
   const fixedSrc = readFile(src || "")
@@ -31,13 +30,13 @@ const Image: FC<
   const [isImageLoading, setIsImageLoading] = useState(true)
   const [srcI, setSrcI] = useState(fixedSrc || fallBack || "/product.png")
   const handleComplete = () => setIsImageLoading(false)
-  const fromCF = srcI.includes("https://imagedelivery.net/")
-  const getLoader = () => {
-    if (srcI.includes("//:localhost") || srcI.startsWith("/")) {
-      return undefined
+
+  useEffect(() => {
+    if (src) {
+      const fixedSrc = readFile(src || "")
+      setSrcI(fixedSrc)
     }
-    return cloudflareLoader
-  }
+  }, [src])
 
   const updatedProps = {
     ...rest,
@@ -51,33 +50,15 @@ const Image: FC<
 
   if (srcI === "/product.png" || !srcI)
     return (
-      <Package
-        className={cn(
-          "text-zinc-300",
-          updatedProps.fill &&
-            "h-12 w-12 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 absolute",
-          className
-        )}
-        strokeWidth={0.5}
-      />
+      <Package className={cn("text-zinc-300", className)} strokeWidth={0.5} />
     )
 
   return (
     <NextImage
       {...updatedProps}
-      src={
-        fromCF
-          ? cloudflareLoader({
-              src: srcI,
-              width: parseInt(width?.toString() || "500"),
-              quality: parseInt(quality?.toString() || "75"),
-            })
-          : srcI
-      }
-      loader={getLoader()}
+      loader={!srcI.startsWith("/") ? cloudflareLoader : undefined}
       onLoad={handleComplete}
       className={cn(className, isImageLoading && "blur-2xl", "text-black")}
-      unoptimized={fromCF}
       sizes={
         sizes ||
         `(max-width: 768px) 20vw,
@@ -89,17 +70,8 @@ const Image: FC<
 }
 
 export function cloudflareLoader({ src, width, quality }: ImageLoaderProps) {
-  const params = [`width=${width}`, "format=avif"]
-  const trimmedSrc = src.trim()
-
-  if (trimmedSrc.startsWith("https://imagedelivery.net/")) {
-    return `${trimmedSrc.slice(0, -6)}${params.join(",")}`
-  }
-
-  const q = `quality=${quality || 75}`
-  return `https://erxes.io/cdn-cgi/image/${params
-    .concat([q])
-    .join(",")}/${trimmedSrc}`
+  const params = [`width=${width}`, `quality=${quality || 75}`, "format=auto"]
+  return `https://erxes.io/cdn-cgi/image/${params.join(",")}/${src}`
 }
 
 export default Image

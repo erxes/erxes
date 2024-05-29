@@ -1,11 +1,12 @@
-import { paymentTypesAtom, permissionConfigAtom } from "@/store/config.store"
+import { coverConfigAtom, permissionConfigAtom } from "@/store/config.store"
 import { paidAmountsAtom } from "@/store/order.store"
 import { useAtomValue } from "jotai"
 
 const useRenderEbarimt = () => {
+  const coverConfig = useAtomValue(coverConfigAtom)
   const { isTempBill } = useAtomValue(permissionConfigAtom) || {}
+  const { paymentTypes } = coverConfig || {}
   const paidAmounts = useAtomValue(paidAmountsAtom)
-  const paymentTypes = useAtomValue(paymentTypesAtom)
 
   const skipEbarimtPts = paymentTypes
     ?.filter((pt) => pt?.config?.skipEbarimt)

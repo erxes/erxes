@@ -28,7 +28,6 @@ function OptionalContent({ action, handle }: Props) {
   };
 
   const renderCard = ({
-    _id,
     text = '',
     title = '',
     subtitle = '',
@@ -39,7 +38,7 @@ function OptionalContent({ action, handle }: Props) {
     attachments = [],
   }: any) => {
     return (
-      <Card key={_id}>
+      <Card>
         {!!attachments?.length &&
           renderExtraContent({
             icon: 'attach',
@@ -124,13 +123,7 @@ function OptionalContent({ action, handle }: Props) {
     }
   };
 
-  return (
-    <>
-      {messages.map((message) => (
-        <div key={message?._id}>{renderMessage(message)}</div>
-      ))}
-    </>
-  );
+  return <>{messages.map((message) => renderMessage(message))}</>;
 }
 
 export default OptionalContent;

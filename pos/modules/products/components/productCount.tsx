@@ -3,9 +3,7 @@ import { useAtomValue } from "jotai"
 
 const ProductCount = () => {
   const count = useAtomValue(productCountAtom)
-  if (!count) {
-    return null
-  }
+  if (!count) return null
   return <span className="pl-1">({count})</span>
 }
 

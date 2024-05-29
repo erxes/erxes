@@ -2,10 +2,10 @@ import { IContext } from '../..';
 import { IObjectTypeResolver } from '@graphql-tools/utils';
 
 const CategoryQueries: IObjectTypeResolver<any, IContext> = {
-  forumCategoryByCode: async (_, { code }, { models: { Category } }) => {
+  forumCategoryByCode: (_, { code }, { models: { Category } }) => {
     return Category.findOne({ code }).lean();
   },
-  forumCategories: async (_, params, { models: { Category } }) => {
+  forumCategories: (_, params, { models: { Category } }) => {
     const query: any = {};
 
     const fields = ['_id', 'parentId', 'code'];
@@ -33,15 +33,15 @@ const CategoryQueries: IObjectTypeResolver<any, IContext> = {
       .sort(sort)
       .lean();
   },
-  forumCategory: async (_, { _id }, { models: { Category } }) => {
+  forumCategory: (_, { _id }, { models: { Category } }) => {
     return Category.findById(_id).lean();
   },
 
-  async forumCategoryQuery(_, { query = {} }, { models: { Category } }) {
+  forumCategoryQuery(_, { query = {} }, { models: { Category } }) {
     return Category.find(query).lean();
   },
 
-  forumCateogryIsDescendantRelationship: async (
+  forumCateogryIsDescendantRelationship: (
     _,
     { ancestorId, descendantId },
     { models: { Category } }

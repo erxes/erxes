@@ -125,7 +125,7 @@ const pricingPlanQueries = {
 
     const { sortField, sortDirection } = params;
 
-    const sort: any =
+    const sort =
       sortField && sortDirection
         ? { [sortField]: sortDirection }
         : { updatedAt: -1 };
@@ -151,7 +151,7 @@ const pricingPlanQueries = {
   ) => {
     const filter = await generateFilter(subdomain, models, params);
 
-    return await models.PricingPlans.find(filter).countDocuments();
+    return await models.PricingPlans.find(filter).count();
   },
 
   pricingPlanDetail: async (

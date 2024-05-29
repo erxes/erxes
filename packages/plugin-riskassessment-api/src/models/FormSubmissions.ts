@@ -65,16 +65,11 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
       let totalPercent: number = 0;
       let maxScoreAviable: any = 0;
 
-      const ri = await models.RiskIndicators.findOne({
+      const { forms, calculateMethod } = await models.RiskIndicators.findOne({
         _id: indicatorId
       }).lean();
 
-      if(!ri) {
-        throw new Error(`RiskIndicator ${indicatorId} not found`);
-      }
-      const { forms, calculateMethod } = ri;
-
-      const formIds = forms?.map(form => form.formId) || [];
+      const formIds = forms.map(form => form.formId);
 
       const fields = await sendFormsMessage({
         subdomain,
@@ -86,7 +81,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         defaultValue: []
       });
 
-      if (forms?.length === 1) {
+      if (forms.length === 1) {
         const { sumNumber, scoreAviable } = await calculateFormResponses({
           responses: formSubmissions,
           fields,
@@ -100,7 +95,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
             ? Number(((sumNumber / scoreAviable) * 100).toFixed(1))
             : sumNumber;
       }
-      if (forms?.length && forms?.length > 1) {
+      if (forms.length > 1) {
         for (const form of forms) {
           const fieldIds = fields
             .filter(field => field.contentTypeId === form.formId)
@@ -121,11 +116,11 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
           });
 
           resultScore += Number(
-            (sumNumber * (form.percentWeight || 0 / 100)).toFixed(2)
+            (sumNumber * (form.percentWeight / 100)).toFixed(2)
           );
-          totalPercent += form.percentWeight || 0 / 100;
+          totalPercent += form.percentWeight / 100;
           maxScoreAviable += Number(
-            (scoreAviable * (form.percentWeight || 0 / 100)).toFixed(2)
+            (scoreAviable * (form.percentWeight / 100)).toFixed(2)
           );
         }
 
@@ -182,14 +177,9 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
        * Calculate the submitted indicator score of user
        */
 
-      const ri = await models.RiskIndicators.findOne({
+      const { forms, calculateMethod } = await models.RiskIndicators.findOne({
         _id: indicatorId
       }).lean();
-      if(!ri) {
-        throw new Error(`RiskIndicators ${indicatorId} not found`);
-      }
-
-      const { forms, calculateMethod } = ri;
       let totalCount = 0;
       let totalPercent = 0;
       let resultSumNumber = 0;
@@ -197,7 +187,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
 
       const filter = generateFields(params);
 
-      const formIds = forms?.map(form => form.formId) || {};
+      const formIds = forms.map(form => form.formId);
 
       const fields = await sendFormsMessage({
         subdomain,
@@ -209,7 +199,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         defaultValue: []
       });
 
-      if (forms?.length === 1) {
+      if (forms.length === 1) {
         const {
           sumNumber,
           submissions,
@@ -233,7 +223,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         );
         await models.RiskFormSubmissions.insertMany(submissions);
       }
-      if (forms?.length && forms.length > 1) {
+      if (forms.length > 1) {
         for (const form of forms) {
           const fieldIds = fields
             .filter(field => field.contentTypeId === form.formId)
@@ -257,11 +247,11 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
             filter: { ...filter, riskAssessmentId: _id }
           });
           totalCount += Number(
-            (sumNumber * (form.percentWeight || 0 / 100)).toFixed(2)
+            (sumNumber * (form.percentWeight / 100)).toFixed(2)
           );
-          totalPercent += form.percentWeight || 0 / 100;
+          totalPercent += form.percentWeight / 100;
           maxScoreAviable += Number(
-            (scoreAviable * (form.percentWeight || 0 / 100)).toFixed(2)
+            (scoreAviable * (form.percentWeight / 100)).toFixed(2)
           );
           await models.RiskFormSubmissions.insertMany(submissions);
         }

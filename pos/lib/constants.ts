@@ -17,7 +17,6 @@ export const typeTextDef: any = {
   loss: "Хорогдол",
   spend: "Зарлагадсан",
   reject: "Гологдол",
-  before: "Урьдчилсан",
 }
 
 export const ORDER_STATUSES = {

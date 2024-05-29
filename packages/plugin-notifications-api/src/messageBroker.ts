@@ -158,7 +158,7 @@ export const setupMessageConsumers = async () => {
     'notifications:batchUpdate',
     async ({ subdomain, data: { selector, modifier } }) => {
       const models = await generateModels(subdomain);
-      await models.Notifications.updateMany(selector, modifier);
+      await models.Notifications.update(selector, modifier, { multi: true });
     },
   );
 

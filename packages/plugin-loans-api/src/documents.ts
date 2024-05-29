@@ -49,11 +49,9 @@ export default {
 
   replaceContent: async ({ subdomain, data: { contractId, content } }) => {
     const models = await generateModels(subdomain);
-    const contractDocument = await models.Contracts.findOne({ _id: contractId }).lean();
+    const contract = await models.Contracts.findOne({ _id: contractId }).lean();
 
-    if (!contractDocument) return content;
-
-    let contract = contractDocument as any;
+    if (!contract) return content;
 
     if (contract.customerType === 'customer') {
       const customer = await sendMessageBroker(
@@ -87,7 +85,7 @@ export default {
       contractId: contract._id
     })
       .sort({ payDate: 1 })
-      .lean();
+      .lean<ISchedule>();
     contract.loanScheduleInfo = `
       <table>
         <tbody>

@@ -28,7 +28,7 @@ const Items = () => {
                 </div>
                 <div className="flex-auto  px-3">{productName}</div>
                 <div className="whitespace-nowrap text-primary">
-                  {count} x {unitPrice.toLocaleString()}₮
+                  {count} x {unitPrice}
                 </div>
               </div>
             )

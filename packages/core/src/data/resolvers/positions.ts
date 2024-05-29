@@ -24,7 +24,7 @@ const getAllChildrenIds = async (models: IModels, parentId: string) => {
 };
 
 export default {
-  async __resolveReference({ _id }, { models }: IContext) {
+  __resolveReference({ _id }, { models }: IContext) {
     return models.Positions.findOne({ _id });
   },
 
@@ -37,15 +37,15 @@ export default {
     });
   },
 
-  async parent(position: IPositionDocument, _args, { models }: IContext) {
+  parent(position: IPositionDocument, _args, { models }: IContext) {
     return models.Positions.findOne({ _id: position.parentId });
   },
 
-  async children(position: IPositionDocument, _args, { models }: IContext) {
+  children(position: IPositionDocument, _args, { models }: IContext) {
     return models.Positions.find({ parentId: position._id });
   },
 
-  async supervisor(position: IPositionDocument, _args, { models }: IContext) {
+  supervisor(position: IPositionDocument, _args, { models }: IContext) {
     return models.Users.findOne({ _id: position.supervisorId, isActive: true });
   },
 
@@ -66,6 +66,6 @@ export default {
     return await models.Users.find({
       positionIds: { $in: [position._id, ...allChildrenIds] },
       isActive: true,
-    }).countDocuments();
+    }).count();
   },
 };

@@ -2,7 +2,7 @@ import { ITopicDocument } from '../../models/definitions/knowledgebase';
 import { IContext } from '../../connectionResolver';
 
 export default {
-  async __resolveReference({ _id }, { models }: IContext) {
+  __resolveReference({ _id }, { models }: IContext) {
     return models.KnowledgeBaseTopics.findOne({ _id });
   },
   
@@ -16,7 +16,7 @@ export default {
 
   },
 
-  async categories(topic: ITopicDocument, _args, { models }: IContext) {
+  categories(topic: ITopicDocument, _args, { models }: IContext) {
     return models.KnowledgeBaseCategories.find({ topicId: topic._id }).sort({
       title: 1,
     });

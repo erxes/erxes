@@ -1,29 +1,21 @@
-import {
-  Document,
-  Schema,
-  Model,
-  Connection,
-  Types,
-  HydratedDocument,
-} from 'mongoose';
+import { Document, Schema, Model, Connection, Types } from 'mongoose';
 import { IModels } from './index';
 import * as _ from 'lodash';
 import { CpUserLevels } from '../../consts';
 import { ICpUser } from '../../graphql';
 
 export interface IForumClientPortalUser {
-  _id: string;
+  _id: any;
   subscriptionEndsAfter?: Date | null;
 }
 
-export type ForumClientPortalUserDocument =
-  HydratedDocument<IForumClientPortalUser>;
+export type ForumClientPortalUserDocument = IForumClientPortalUser & Document;
 
 export interface IForumClientPortalUserModel
-  extends Model<IForumClientPortalUser> {
+  extends Model<ForumClientPortalUserDocument> {
   findByIdOrCreate(_id: string): Promise<ForumClientPortalUserDocument>;
   findByIdOrCreateMany(
-    _ids: string[],
+    _ids: string[]
   ): Promise<ForumClientPortalUserDocument[]>;
   findAndIsSubscribed(_id: string): Promise<boolean>;
   isSubscribed(doc: IForumClientPortalUser): boolean;
@@ -31,44 +23,45 @@ export interface IForumClientPortalUserModel
   getUserLevel(cpUser?: ICpUser | null): Promise<CpUserLevels>;
 }
 
-export const forumClientPortalUserSchema =
-  new Schema<IForumClientPortalUser>(
-    {
-      _id: { type: String, required: true },
-      subscriptionEndsAfter: Date,
-    },
-    { _id: false },
-  );
+export const forumClientPortalUserSchema = new Schema<
+  ForumClientPortalUserDocument
+>(
+  {
+    _id: { type: String, required: true },
+    subscriptionEndsAfter: Date
+  },
+  { _id: false }
+);
 
 export const generateForumClientPortalUserModel = (
   subdomain: string,
   con: Connection,
-  models: IModels,
+  models: IModels
 ): void => {
   class ForumClientPortalUserModel {
     public static async findByIdOrCreate(
-      _id: string,
+      _id: string
     ): Promise<ForumClientPortalUserDocument> {
       const existing = await models.ForumClientPortalUser.findById(_id);
       if (existing) return existing;
       const doc = new models.ForumClientPortalUser({
         _id,
-        subscriptionEndsAfter: null,
+        subscriptionEndsAfter: null
       });
       await doc.save();
       return doc;
     }
     public static async findByIdOrCreateMany(
-      _ids: string[],
+      _ids: string[]
     ): Promise<ForumClientPortalUserDocument[]> {
       const existings = await models.ForumClientPortalUser.find({
-        _id: { $in: _ids },
+        _id: { $in: _ids }
       });
-      const existingIds = new Set(existings.map((e) => e._id));
+      const existingIds = new Set(existings.map(e => e._id));
 
       const notExistings = _ids
-        .filter((_id) => !existingIds.has(_id))
-        .map((_id) => {
+        .filter(_id => !existingIds.has(_id))
+        .map(_id => {
           _id;
         });
 
@@ -90,12 +83,13 @@ export const generateForumClientPortalUserModel = (
     }
 
     public static async getUserLevel(
-      cpUser?: ICpUser | null,
+      cpUser?: ICpUser | null
     ): Promise<CpUserLevels> {
       if (!cpUser?.userId) return 'GUEST';
 
-      const isSubscribed =
-        await models.ForumClientPortalUser.findAndIsSubscribed(cpUser.userId);
+      const isSubscribed = await models.ForumClientPortalUser.findAndIsSubscribed(
+        cpUser.userId
+      );
       if (isSubscribed) return 'SUBSCRIBED';
 
       return 'REGISTERED';
@@ -104,7 +98,7 @@ export const generateForumClientPortalUserModel = (
   forumClientPortalUserSchema.loadClass(ForumClientPortalUserModel);
 
   models.ForumClientPortalUser = con.model<
-  IForumClientPortalUser,
+    ForumClientPortalUserDocument,
     IForumClientPortalUserModel
   >('forum_client_portal_users', forumClientPortalUserSchema);
 };

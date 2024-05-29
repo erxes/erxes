@@ -41,15 +41,15 @@ export const removeDuplicates = async () => {
     }
   ]);
 
-  for await (const group of agg) {
+  agg.forEach(async group => {
     const duplicates = group.duplicates;
     const deleteIds = duplicates.slice(1); // Delete all other documents' _ids
-    await db.collection('timeclocks').deleteMany({
+    await db.collection('timeclocks').remove({
       _id: {
         $in: deleteIds
       }
     });
-  }
+  });
 
   return 'success';
 };

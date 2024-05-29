@@ -4,11 +4,11 @@ import { IProductDocument } from '../../models/definitions/products';
 import { customFieldsDataByFieldCode } from '@erxes/api-utils/src/fieldUtils';
 
 export default {
-  async __resolveReference({ _id }, { models }: IContext) {
+  __resolveReference({ _id }, { models }: IContext) {
     return models.Products.findOne({ _id });
   },
 
-  async category(product: IProductDocument, _, { dataLoaders }: IContext) {
+  category(product: IProductDocument, _, { dataLoaders }: IContext) {
     return (
       (product.categoryId &&
         dataLoaders.productCategory.load(product.categoryId)) ||
@@ -27,7 +27,7 @@ export default {
     );
   },
 
-  async customFieldsDataByFieldCode(
+  customFieldsDataByFieldCode(
     product: IProductDocument,
     _,
     { subdomain }: IContext,

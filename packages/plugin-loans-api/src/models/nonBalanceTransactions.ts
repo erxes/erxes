@@ -1,7 +1,7 @@
 import { INonBalanceTransaction, nonBalanceTransactionSchema, INonBalanceTransactionDocument } from './definitions/nonBalanceTransactions';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { FilterQuery } from 'mongoose';
+import { FilterQuery } from 'mongodb';
 
 export interface INonBalanceTransactionModel extends Model<INonBalanceTransactionDocument> {
   getNonBalanceTransaction(selector: FilterQuery<INonBalanceTransactionDocument>);

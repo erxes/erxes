@@ -34,7 +34,6 @@ type Props = {
   required?: boolean;
   componentClass?: string;
   placeholder?: string;
-  textLimit?: number;
 };
 
 type State = {
@@ -169,24 +168,13 @@ class PlaceHolderInput extends React.Component<Props, State> {
   }
 
   onChange = (e) => {
-    const { inputName, fieldType,componentClass,textLimit } = this.props;
+    const { inputName, fieldType } = this.props;
     if (["select"].includes(fieldType || "")) {
       return;
     }
 
-    
     const { config } = this.state;
     const value = (e.target as HTMLInputElement).value;
-
-    if (
-      componentClass === 'textarea' &&
-      textLimit &&
-      value.length > textLimit &&
-      (config[inputName] || '')?.length < value.length
-    ) {
-      return;
-    }
-
     config[inputName] = value;
 
     this.setState({ config });

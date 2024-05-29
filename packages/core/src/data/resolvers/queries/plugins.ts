@@ -5,7 +5,7 @@ interface IPluginParams {
 }
 
 const pluginQueries = {
-  async savedPlugins(_root, { mainType }: IPluginParams) {
+  savedPlugins(_root, { mainType }: IPluginParams) {
     const filter: any = {};
 
     if (mainType) {

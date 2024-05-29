@@ -2,7 +2,7 @@ import { graphqlPubsub } from '../../../pubsub';
 import { IContext } from '../../../connectionResolver';
 
 const robotMutations = {
-  async robotEntriesMarkAsNotified(_root, { _id }: { _id: string }, { models }: IContext) {
+  robotEntriesMarkAsNotified(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.RobotEntries.markAsNotified(_id);
   },
 
@@ -21,11 +21,11 @@ const robotMutations = {
     return status;
   },
 
-  async onboardingForceComplete(_root, _args, { user, models }: IContext) {
+  onboardingForceComplete(_root, _args, { user, models }: IContext) {
     return models.OnboardingHistories.forceComplete(user._id);
   },
 
-  async onboardingCompleteShowStep(
+  onboardingCompleteShowStep(
     _root,
     { step }: { step: string },
     { user, models }: IContext

@@ -84,7 +84,7 @@ const nonBalanceTransactionQueries = {
           perPage: params.perPage
         }
       ),
-      totalCount: await models.NonBalanceTransactions.find(filter).countDocuments()
+      totalCount: await models.NonBalanceTransactions.find(filter).count()
     };
   },
 

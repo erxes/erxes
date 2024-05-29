@@ -487,7 +487,8 @@ const productQueries = {
       };
 
       let products = await models.Products.find(filters)
-        .sort({ code: 1 });
+        .sort({ code: 1 })
+        .lean();
       if (!products.length) {
         products = [product];
       }
@@ -633,7 +634,7 @@ const productQueries = {
     return result[0];
   },
 
-  async poscProductCategoryDetail(
+  poscProductCategoryDetail(
     _root,
     { _id }: { _id: string },
     { models }: IContext

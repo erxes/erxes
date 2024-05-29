@@ -5,7 +5,7 @@
 import { IContext } from '../../../connectionResolver';
 
 const jobCategoryQueries = {
-  async jobCategories(
+  jobCategories(
     _root,
     {
       parentId,
@@ -35,11 +35,11 @@ const jobCategoryQueries = {
       .lean();
   },
 
-  async jobCategoriesTotalCount(_root, _params, { models }: IContext) {
+  jobCategoriesTotalCount(_root, _params, { models }: IContext) {
     return models.JobCategories.find().countDocuments();
   },
 
-  async jobCategoryDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  jobCategoryDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.JobCategories.findOne({ _id }).lean();
   }
 };

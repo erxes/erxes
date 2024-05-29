@@ -495,7 +495,7 @@ const widgetMutations = {
     );
   },
 
-  async widgetsLeadIncreaseViewCount(
+  widgetsLeadIncreaseViewCount(
     _root,
     { formId }: { formId: string },
     { models }: IContext,
@@ -1107,7 +1107,7 @@ const widgetMutations = {
     return null;
   },
 
-  async widgetsSendTypingInfo(
+  widgetsSendTypingInfo(
     _root,
     args: { conversationId: string; text?: string },
   ) {

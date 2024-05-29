@@ -471,7 +471,7 @@ export const loadProductCategoryClass = (models: IModels) => {
      * Generating order
      */
     public static async generateOrder(
-      parentCategory: IProductCategory | null | undefined,
+      parentCategory: IProductCategory,
       doc: IProductCategory,
     ) {
       const order = parentCategory

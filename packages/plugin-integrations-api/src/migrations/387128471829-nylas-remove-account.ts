@@ -19,7 +19,8 @@ module.exports.up = async () => {
   const mongoClient = await mongoose.createConnection(
     process.env.MONGO_URL || '',
     {
-      family: 4
+      useNewUrlParser: true,
+      useCreateIndex: true
     }
   );
 

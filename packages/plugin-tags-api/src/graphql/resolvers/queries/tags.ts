@@ -56,7 +56,7 @@ const tagQueries = {
       selector.name = new RegExp(`.*${searchValue}.*`, 'i');
     }
 
-    const tagsCount = await models.Tags.find(selector).countDocuments();
+    const tagsCount = await models.Tags.find(selector).count();
 
     return tagsCount;
   },
@@ -154,7 +154,7 @@ const tagQueries = {
   /**
    * Get one tag
    */
-  async tagDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  tagDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Tags.findOne({ _id });
   },
 };

@@ -32,7 +32,7 @@ const command = async () => {
   ];
 
   for (const index of indexes) {
-    if (index.name && indexesToDrop.includes(index.name)) {
+    if (indexesToDrop.includes(index.name)) {
       await CPUsers.dropIndex(index.name);
     }
   }

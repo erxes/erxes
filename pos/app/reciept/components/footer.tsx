@@ -4,12 +4,11 @@ import { useAtomValue } from "jotai"
 
 const Footer = () => {
   const type = useAtomValue(printTypeAtom)
-  const { footerText } = useAtomValue(ebarimtConfigAtom) || {}
+  const config = useAtomValue(ebarimtConfigAtom)
   const description = useAtomValue(descriptionAtom)
+  const { footerText } = config?.ebarimtConfig || {}
 
-  if (type === "inner") {
-    return null
-  }
+  if (type === "inner") return null
 
   return (
     <>

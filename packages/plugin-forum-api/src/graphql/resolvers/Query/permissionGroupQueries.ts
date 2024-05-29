@@ -9,7 +9,7 @@ const permissionGroupQueries: IObjectTypeResolver<any, IContext> = {
   forumPermissionGroups: async (_, __, { models: { PermissionGroup } }) => {
     return PermissionGroup.find().lean();
   },
-  forumPermissionGroupCategoryPermits: async (
+  forumPermissionGroupCategoryPermits: (
     _,
     params,
     { models: { PermissionGroupCategoryPermit } }

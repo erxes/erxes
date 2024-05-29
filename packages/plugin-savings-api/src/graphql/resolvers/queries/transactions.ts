@@ -127,7 +127,7 @@ const transactionQueries = {
           perPage: params.perPage
         }
       ),
-      totalCount: await models.Transactions.find(filter).countDocuments()
+      totalCount: await models.Transactions.find(filter).count()
     };
   },
 

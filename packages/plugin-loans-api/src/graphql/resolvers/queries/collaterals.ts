@@ -1,6 +1,5 @@
 import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
-import { Expression } from 'mongoose';
 const generateFilter = async (params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
 
@@ -22,7 +21,7 @@ const generateFilter = async (params, commonQuerySelector) => {
   return filter;
 };
 
-export const sortBuilder = (params): Record<string, 1 | -1 | Expression.Meta> => {
+export const sortBuilder = params => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 

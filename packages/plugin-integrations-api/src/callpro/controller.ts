@@ -101,10 +101,6 @@ const init = async (app) => {
         phoneNumber: numberTo,
       }).lean();
 
-      if(!integration) {
-        throw new Error(`Integration phoneNumber=${numberTo} not found`);
-      }
-
       const inboxIntegration = await sendInboxMessage({
         subdomain,
         action: 'integrations.findOne',

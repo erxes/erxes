@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
+import useConfig from "@/modules/auth/hooks/useConfig"
 import { queries } from "@/modules/orders/graphql"
 import { modeAtom } from "@/store"
-import { ebarimtConfigAtom } from "@/store/config.store"
 import {
   printTypeAtom,
   putResponsesAtom,
@@ -29,11 +29,12 @@ const Reciept = () => {
   const [type, setType] = useAtom(printTypeAtom)
   const putResponses = useAtomValue(putResponsesAtom)
   const setOrderStates = useSetAtom(setOrderStatesAtom)
+  const { config, loading } = useConfig("ebarimt")
   const { onError } = useToast()
 
-  const { hasCopy } = useAtomValue(ebarimtConfigAtom) || {}
+  const { hasCopy } = config.ebarimtConfig || {}
 
-  const { loading, data } = useQuery(queries.ebarimtDetail, {
+  const { loading: loadingDetail, data } = useQuery(queries.ebarimtDetail, {
     fetchPolicy: "network-only",
     onError,
     skip: !_id,
@@ -46,7 +47,7 @@ const Reciept = () => {
       if (orderDetail?._id === _id) {
         setOrderStates(orderDetail)
         data.billType === BILL_TYPES.INNER && setType("inner")
-        mode !== "mobile" && setTimeout(() => window.print(), 50)
+        setTimeout(() => window.print(), 50)
       }
     }
   }, [_id, data, setOrderStates, setType])
@@ -75,9 +76,7 @@ const Reciept = () => {
     }
   }, [handleAfterPrint])
 
-  if (loading) {
-    return null
-  }
+  if (loading || loadingDetail) return null
 
   return (
     <>
@@ -87,10 +86,9 @@ const Reciept = () => {
       <Footer />
       <Button
         onClick={handleClick}
-        className="px-6 text-xs print:hidden w-full"
-        variant="secondary"
+        className="mx-3 w-40 text-xs font-bold print:hidden"
       >
-        хэвлэх
+        Print
       </Button>
     </>
   )

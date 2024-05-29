@@ -1,7 +1,7 @@
 import { IContext } from '../../../connectionResolver';
 
 const commentQueries = {
-  async clientPortalComments(
+  clientPortalComments(
     _root,
     { typeId, type }: { typeId: string; type: string },
     { models }: IContext

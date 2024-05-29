@@ -123,7 +123,7 @@ const segmentQueries = {
   /**
    * Segments list
    */
-  async segments(
+  segments(
     _root,
     {
       contentTypes,

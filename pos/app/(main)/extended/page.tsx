@@ -35,9 +35,7 @@ const Extended = () => {
     }
   }, [refetch, refetchOrder, setRefetchOrder])
 
-  if (loading) {
-    return null
-  }
+  if (loading) return null
 
   const {
     paidAmounts,

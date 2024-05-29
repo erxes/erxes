@@ -273,7 +273,7 @@ export async function scheduleFixAfterCurrent(
         });
       }
       balance = new BigNumber(balance)
-        .minus(schedule.payment || 0)
+        .minus(schedule.payment)
         .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
         .toNumber();
     }

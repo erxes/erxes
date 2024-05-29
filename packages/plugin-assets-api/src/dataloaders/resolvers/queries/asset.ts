@@ -189,7 +189,7 @@ const assetQueries = {
     return models.Assets.find(filter).countDocuments();
   },
 
-  async assetDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  assetDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Assets.findOne({ _id }).lean();
   },
 };

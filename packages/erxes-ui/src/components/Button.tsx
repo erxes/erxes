@@ -225,7 +225,7 @@ export default class Button extends React.Component<ButtonProps> {
       $uppercase: uppercase,
       $btnStyle: btnStyle,
       $block: block,
-      disabled: disabled,
+      $disabled: disabled,
     };
 
     // TODO: fix

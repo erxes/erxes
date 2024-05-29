@@ -95,7 +95,7 @@ const UploadIconBtn = styled.div`
 `;
 
 type Props = {
-  defaultFileList?: IAttachment[];
+  defaultFileList: IAttachment[];
   onChange: (attachments: IAttachment[]) => void;
   single?: boolean;
   limit?: number;

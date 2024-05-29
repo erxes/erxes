@@ -1,6 +1,7 @@
+// import EventListener from "@/modules/kiosk/EventListener"
+
 import BuyAction from "@/modules/checkout/components/buyAction/buyAction.kiosk"
 import Cart from "@/modules/checkout/components/cart/cart.kiosk"
-import EventListener from "@/modules/kiosk/EventListener"
 import ProductCategories from "@/modules/products/productCategories.kiosk"
 import Products from "@/modules/products/products.kiosk"
 
@@ -24,7 +25,7 @@ const Kiosk = () => {
         <Cart />
         <BuyAction />
       </div>
-      <EventListener />
+      {/* <EventListener /> */}
     </div>
   )
 }

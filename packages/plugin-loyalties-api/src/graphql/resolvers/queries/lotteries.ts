@@ -33,7 +33,7 @@ const generateFilter = (params: IParams) => {
 };
 
 const spinQueries = {
-  async lotteries(_root, params: IParams, { models }: IContext) {
+  lotteries(_root, params: IParams, { models }: IContext) {
     const filter: any = generateFilter(params);
     return paginate(models.Lotteries.find(filter), params);
   },

@@ -45,10 +45,7 @@ const PhoneNumber = ({
 
   return (
     <Form {...form}>
-      <form
-        className="md:max-w-xs w-full"
-        onSubmit={form.handleSubmit(onSubmit)}
-      >
+      <form className="max-w-xs w-full" onSubmit={form.handleSubmit(onSubmit)}>
         <FormField
           control={form.control}
           name="phone"

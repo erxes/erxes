@@ -10,7 +10,7 @@ if (!MONGO_URL) {
   throw new Error(`Environment variable MONGO_URL not set.`);
 }
 
-const client = new MongoClient(MONGO_URL, { family: 4 });
+const client = new MongoClient(MONGO_URL, { useUnifiedTopology: true });
 
 const main = async () => {
   await client.connect();

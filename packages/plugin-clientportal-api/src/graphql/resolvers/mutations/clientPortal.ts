@@ -62,7 +62,7 @@ const clientPortalMutations = {
     return models.ClientPortals.createOrUpdateConfig(config);
   },
 
-  async clientPortalRemove(_root, { _id }: { _id: string }, { models }: IContext) {
+  clientPortalRemove(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.ClientPortals.deleteOne({ _id });
   },
 

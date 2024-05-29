@@ -4,7 +4,7 @@ import { useEffect } from "react"
 import { useInView } from "react-intersection-observer"
 
 import { Button } from "@/components/ui/button"
-import Loader, { LoaderIcon } from "@/components/ui/loader"
+import { LoaderIcon } from "@/components/ui/loader"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 import ProductItem from "./components/productItem/productItem.main"
@@ -21,11 +21,11 @@ const Products = () => {
     inView && handleLoadMore()
   }, [handleLoadMore, inView])
 
-  if (loading) return <Loader className="py-32" />
+  if (loading) return <div className="p-4">loading...</div>
 
   return (
-    <ScrollArea className="w-full md:pr-3">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-x-2 gap-y-3">
+    <ScrollArea className="w-full pr-3">
+      <div className="grid grid-cols-4 gap-x-2 gap-y-3">
         {products.map((product) => (
           <ProductItem key={product._id} {...product} />
         ))}

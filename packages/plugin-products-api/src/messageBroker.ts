@@ -198,9 +198,6 @@ export const setupMessageConsumers = async () => {
         const category = await models.ProductCategories.findOne({
           _id: categoryId,
         }).lean();
-        if(!category) {
-          throw new Error(`ProductCategory ${categoryId} not found`);
-        }
         const categories = await models.ProductCategories.find({
           order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) },
         }).lean();
@@ -229,9 +226,6 @@ export const setupMessageConsumers = async () => {
         const category = await models.ProductCategories.findOne({
           _id: categoryId,
         }).lean();
-        if(!category) {
-          throw new Error(`ProductCategory ${categoryId} not found`);
-        }
         const categories = await models.ProductCategories.find({
           order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) },
         }).lean();
@@ -240,7 +234,7 @@ export const setupMessageConsumers = async () => {
       }
 
       return {
-        data: await models.Products.find(filter).countDocuments(),
+        data: await models.Products.find(filter).count(),
         status: 'success',
       };
     },

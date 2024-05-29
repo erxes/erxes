@@ -4,7 +4,7 @@ import { sendContactsMessage, sendCoreMessage } from '../../../messageBroker';
 import { getProductAndUoms } from './utils';
 
 export default {
-  async __resolveReference({ _id }, { models }: IContext) {
+  __resolveReference({ _id }, { models }: IContext) {
     return models.Performs.findOne({ _id });
   },
 

@@ -2,10 +2,10 @@ import { IContext } from '../..';
 import { IObjectTypeResolver } from '@graphql-tools/utils';
 
 const subscriptionProductQueries: IObjectTypeResolver<any, IContext> = {
-  async forumSubscriptionProduct(_, { _id }, { models: { SubscriptionProduct } }) {
+  forumSubscriptionProduct(_, { _id }, { models: { SubscriptionProduct } }) {
     return SubscriptionProduct.findByIdOrThrow(_id);
   },
-  async forumSubscriptionProducts(
+  forumSubscriptionProducts(
     _,
     { sort = {}, userType },
     { models: { SubscriptionProduct } }

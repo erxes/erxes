@@ -5,7 +5,7 @@ import {
 } from './definitions/periodLocks';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { FilterQuery } from 'mongoose';
+import { FilterQuery } from 'mongodb';
 import { IStoredInterestDocument } from './definitions/storedInterest';
 import { getDaysInMonth, getDiffDay, getFullDate } from './utils/utils';
 import {

@@ -126,17 +126,17 @@ const dealQueries = {
       args
     );
 
-    return models.Deals.find(filter).countDocuments();
+    return models.Deals.find(filter).count();
   },
 
   /**
    * Archived list
    */
-  async archivedDeals(_root, args: IArchiveArgs, { models }: IContext) {
+  archivedDeals(_root, args: IArchiveArgs, { models }: IContext) {
     return archivedItems(models, args, models.Deals);
   },
 
-  async archivedDealsCount(_root, args: IArchiveArgs, { models }: IContext) {
+  archivedDealsCount(_root, args: IArchiveArgs, { models }: IContext) {
     return archivedItemsCount(models, args, models.Deals);
   },
 

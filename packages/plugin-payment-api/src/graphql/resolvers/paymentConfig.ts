@@ -4,7 +4,7 @@ import { sendInboxMessage } from '../../messageBroker';
 import { IPaymentConfig } from '../../models/definitions/paymentConfigs';
 
 export default {
-  async __resolveReference({ _id }, { models }: IContext) {
+  __resolveReference({ _id }, { models }: IContext) {
     return models.PaymentConfigs.findOne({ _id });
   },
 

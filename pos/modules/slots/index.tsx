@@ -18,9 +18,7 @@ const Slots = () => {
     subToSlots()
   }, [])
 
-  if (selectedTab === "products") {
-    return null
-  }
+  if (selectedTab === "products") return null
 
   return (
     <div className="w-full overflow-auto shadow-inner p-2">

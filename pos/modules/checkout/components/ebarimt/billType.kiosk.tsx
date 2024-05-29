@@ -1,5 +1,5 @@
 import useOrderCU from "@/modules/orders/hooks/useOrderCU"
-import { checkoutModalViewAtom } from "@/store"
+import { kioskModalView } from "@/store"
 import { billTypeAtom } from "@/store/order.store"
 import { useAtom, useSetAtom } from "jotai"
 
@@ -9,7 +9,7 @@ import { DialogContent } from "@/components/ui/dialog"
 
 const BillType = () => {
   const [billType, setBillType] = useAtom(billTypeAtom)
-  const setView = useSetAtom(checkoutModalViewAtom)
+  const setView = useSetAtom(kioskModalView)
 
   const { loading: loadingEdit, orderCU } = useOrderCU(() => {
     billType === "1" && setView("choosePay")

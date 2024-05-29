@@ -41,17 +41,17 @@ const taskQueries = {
       ...(await generateTaskCommonFilters(models, subdomain, user._id, args))
     };
 
-    return models.Tasks.find(filter).countDocuments();
+    return models.Tasks.find(filter).count();
   },
 
   /**
    * Archived list
    */
-  async archivedTasks(_root, args: IArchiveArgs, { models }: IContext) {
+  archivedTasks(_root, args: IArchiveArgs, { models }: IContext) {
     return archivedItems(models, args, models.Tasks);
   },
 
-  async archivedTasksCount(_root, args: IArchiveArgs, { models }: IContext) {
+  archivedTasksCount(_root, args: IArchiveArgs, { models }: IContext) {
     return archivedItemsCount(models, args, models.Tasks);
   },
 

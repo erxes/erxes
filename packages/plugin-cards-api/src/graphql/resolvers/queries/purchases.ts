@@ -139,17 +139,17 @@ const purchaseQueries = {
       args
     );
 
-    return models.Purchases.find(filter).countDocuments();
+    return models.Purchases.find(filter).count();
   },
 
   /**
    * Archived list
    */
-  async archivedpurchases(_root, args: IArchiveArgs, { models }: IContext) {
+  archivedpurchases(_root, args: IArchiveArgs, { models }: IContext) {
     return archivedItems(models, args, models.Purchases);
   },
 
-  async archivedpurchasesCount(_root, args: IArchiveArgs, { models }: IContext) {
+  archivedpurchasesCount(_root, args: IArchiveArgs, { models }: IContext) {
     return archivedItemsCount(models, args, models.Purchases);
   },
 

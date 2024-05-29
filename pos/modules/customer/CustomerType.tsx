@@ -17,9 +17,7 @@ const CustomerType = ({
   const [, setCustomer] = useAtom(customerAtom)
 
   const handleClick = () => {
-    if (readOnly) {
-      return null
-    }
+    if (readOnly) return null
     setCustomer(null)
     if (type === "company") return setType("user")
     if (type === "user") return setType("")

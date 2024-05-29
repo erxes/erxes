@@ -3,7 +3,7 @@ import { IObjectTypeResolver } from '@graphql-tools/utils';
 import { IPost } from '../../db/models/post';
 import { PollOption } from '../../db/models/pollOption';
 
-const ForumPollOption = {
+const ForumPollOption: IObjectTypeResolver<PollOption, IContext> = {
   async createdByCp({ createdByCpId }) {
     return (
       createdByCpId && { __typename: 'ClientPortalUser', _id: createdByCpId }

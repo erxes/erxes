@@ -1273,10 +1273,6 @@ export const onNextScheduled = async (
     _id: nextSchedule._id
   }).lean();
 
-  if(!updatedSchedule) {
-    throw new Error(`Schedule ${nextSchedule._id} not found`);
-  }
-
   await generatePendingSchedules(
     models,
     contract,
@@ -1331,7 +1327,7 @@ export const afterNextScheduled = async (
 
   for (const skippedSchedule of skippedSchedules) {
     trReaction.push({
-      scheduleId: skippedSchedule._id || '',
+      scheduleId: skippedSchedule._id || 0,
       preData: { status: SCHEDULE_STATUS.PENDING }
     });
   }

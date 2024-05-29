@@ -1,10 +1,9 @@
-import { Document, Model, Schema, HydratedDocument } from 'mongoose';
+import { Document, Model, Schema } from 'mongoose';
 
 import { IModels } from '../connectionResolver';
 import { field } from './definitions/utils';
 
 export interface IAccount {
-  _id: string;
   kind: string;
   token: string;
   tokenSecret?: string;
@@ -14,7 +13,7 @@ export interface IAccount {
   uid: string;
 }
 
-export type IAccountDocument = HydratedDocument<IAccount>;
+export interface IAccountDocument extends IAccount, Document {}
 
 export const accountSchema = new Schema({
   _id: field({ pkey: true }),

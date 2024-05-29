@@ -28,7 +28,7 @@ const generateCommonFilter = ({
 };
 
 const webbuilderQueries = {
-  async webbuilderPagesMain(
+  webbuilderPagesMain(
     _root,
     {
       page,
@@ -41,19 +41,19 @@ const webbuilderQueries = {
     const filter = generateCommonFilter({ searchValue, siteId });
 
     return {
-      list: await paginate(models.Pages.find(filter), {
+      list: paginate(models.Pages.find(filter), {
         page,
         perPage,
       }),
-      totalCount: await models.Pages.find(filter).countDocuments(),
+      totalCount: models.Pages.find(filter).count(),
     };
   },
 
-  async webbuilderPageDetail(_root, { _id }, { models }: IContext) {
+  webbuilderPageDetail(_root, { _id }, { models }: IContext) {
     return models.Pages.findOne({ _id });
   },
 
-  async webbuilderContentTypes(
+  webbuilderContentTypes(
     _root,
     { siteId }: { siteId: string },
     { models }: IContext,
@@ -67,7 +67,7 @@ const webbuilderQueries = {
     return models.ContentTypes.find(filter).sort({ displayName: 1 });
   },
 
-  async webbuilderContentTypesMain(
+  webbuilderContentTypesMain(
     _root,
     {
       page,
@@ -79,18 +79,18 @@ const webbuilderQueries = {
     const filter = generateCommonFilter({ siteId });
 
     return {
-      list: await paginate(
+      list: paginate(
         models.ContentTypes.find(filter).sort({ displayName: 1 }),
         {
           page,
           perPage,
         },
       ),
-      totalCount: await models.ContentTypes.find(filter).countDocuments(),
+      totalCount: models.ContentTypes.find(filter).count(),
     };
   },
 
-  async webbuilderContentTypeDetail(
+  webbuilderContentTypeDetail(
     _root,
     { _id }: { _id: string },
     { models }: IContext,
@@ -98,7 +98,7 @@ const webbuilderQueries = {
     return models.ContentTypes.findOne({ _id });
   },
 
-  async webbuilderEntriesMain(
+  webbuilderEntriesMain(
     _root,
     {
       contentTypeId,
@@ -108,12 +108,12 @@ const webbuilderQueries = {
     { models }: IContext,
   ) {
     return {
-      list: await paginate(models.Entries.find({ contentTypeId }), { page, perPage }),
-      totalCount: await models.Entries.find({ contentTypeId }).countDocuments(),
+      list: paginate(models.Entries.find({ contentTypeId }), { page, perPage }),
+      totalCount: models.Entries.find({ contentTypeId }).count(),
     };
   },
 
-  async webbuilderEntryDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  webbuilderEntryDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Entries.findOne({ _id });
   },
 
@@ -123,11 +123,11 @@ const webbuilderQueries = {
     ).then((res) => res.json());
   },
 
-  async webbuilderTemplatesTotalCount(_root, _args, { models }: IContext) {
-    return models.Templates.find().countDocuments();
+  webbuilderTemplatesTotalCount(_root, _args, { models }: IContext) {
+    return models.Templates.find().count();
   },
 
-  async webbuilderTemplateDetail(
+  webbuilderTemplateDetail(
     _root,
     { _id }: { _id: string },
     { models }: IContext,
@@ -135,7 +135,7 @@ const webbuilderQueries = {
     return models.Templates.findOne({ _id });
   },
 
-  async webbuilderSites(
+  webbuilderSites(
     _root,
     {
       page,
@@ -166,8 +166,8 @@ const webbuilderQueries = {
     });
   },
 
-  async webbuilderSitesTotalCount(_root, _args, { models }: IContext) {
-    return models.Sites.find().countDocuments();
+  webbuilderSitesTotalCount(_root, _args, { models }: IContext) {
+    return models.Sites.find().count();
   },
 };
 

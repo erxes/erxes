@@ -3,11 +3,11 @@ import { IAssetCategoriesDocument } from '../../common/types/asset';
 import { IContext } from '../../connectionResolver';
 
 export default {
-  async __resolveReference({ _id }, { models }: IContext) {
+  __resolveReference({ _id }, { models }: IContext) {
     return models.AssetCategories.findOne({ _id });
   },
 
-  async isRoot(category: IAssetCategoriesDocument, {}) {
+  isRoot(category: IAssetCategoriesDocument, {}) {
     return category.parentId ? false : true;
   },
 

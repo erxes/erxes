@@ -16,7 +16,7 @@ export default {
       return new Error(`Invalid ${error.path}: ${error.value}`);
     }
   },
-  async chartsCount(report: IReportDocument, {}, { models }: IContext) {
+  chartsCount(report: IReportDocument, {}, { models }: IContext) {
     try {
       const { _id } = report;
       return models.Charts.find({ reportId: _id }).countDocuments();

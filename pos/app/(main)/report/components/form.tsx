@@ -64,7 +64,7 @@ const ReportForm = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-3 w-full md:w-1/3 print:hidden"
+        className="space-y-3 w-1/3 print:hidden"
       >
         <FormField
           control={form.control}

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import usePrintBill from "@/modules/checkout/hooks/usePrintBill"
-import { checkoutDialogOpenAtom } from "@/store"
+import { kioskDialogOpenAtom } from "@/store"
 import {
   activeOrderIdAtom,
   mobileAmountAtom,
@@ -27,7 +27,7 @@ const SuccessDialog = () => {
   const setInitial = useSetAtom(setInitialAtom)
   const router = useRouter()
   const activeOrder = useAtomValue(activeOrderIdAtom)
-  const setKioskDialogOpen = useSetAtom(checkoutDialogOpenAtom)
+  const setKioskDialogOpen = useSetAtom(kioskDialogOpenAtom)
   const putResponses = useAtomValue(putResponsesAtom)
   const [openSuccesDialog, setOpenSuccesDialog] = useState(false)
 

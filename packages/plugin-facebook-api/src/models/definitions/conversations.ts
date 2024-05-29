@@ -1,10 +1,9 @@
-import { Document, Schema, HydratedDocument } from 'mongoose';
+import { Document, Schema } from 'mongoose';
 
 import { field } from './utils';
 
 export interface IConversation {
   // id on erxes-api
-  _id: string;
   erxesApiId?: string;
   timestamp: Date;
   senderId: string;
@@ -15,7 +14,7 @@ export interface IConversation {
   botId?: string;
 }
 
-export type IConversationDocument = HydratedDocument<IConversation>;
+export interface IConversationDocument extends IConversation, Document {}
 
 export const conversationSchema = new Schema({
   _id: field({ pkey: true }),

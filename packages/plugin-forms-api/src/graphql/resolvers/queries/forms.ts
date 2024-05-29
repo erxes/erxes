@@ -8,14 +8,14 @@ const formQueries = {
   /**
    * Forms list
    */
-  async forms(_root, _args, { commonQuerySelector, models }: IContext) {
+  forms(_root, _args, { commonQuerySelector, models }: IContext) {
     return models.Forms.find(commonQuerySelector).sort({ title: 1 });
   },
 
   /**
    * Get one form
    */
-  async formDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  formDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Forms.findOne({ _id });
   },
 

@@ -127,7 +127,7 @@ const Filter = ({
     <div className="px-4">
       <Form {...form}>
         <form
-          className="grid grid-cols-1 md:grid-cols-4 items-end gap-y-3 gap-x-2"
+          className="grid grid-cols-4 items-end gap-y-3 gap-x-2"
           onSubmit={form.handleSubmit(onSubmit)}
         >
           <FormField
@@ -293,7 +293,7 @@ const Filter = ({
             )}
           />
 
-          <Button type="submit" disabled={loading} className="md:col-start-3">
+          <Button type="submit" disabled={loading} className="col-start-3">
             <SearchIcon className="h-5 w-5 mr-1" />
             Хайх
           </Button>

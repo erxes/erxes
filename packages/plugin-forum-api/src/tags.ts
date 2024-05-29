@@ -21,25 +21,25 @@ export default {
     const { type, action, _ids, tagIds, targetIds } = data;
 
     const models = await generateModels(subdomain);
-    const Post = models.Post;
+    const model = models[tagTypeModelName[type as TagTypes]];
 
     let response = {};
 
     if (action === 'count') {
-      response = await Post.countDocuments({
+      response = await model.countDocuments({
         tagIds: { $in: _ids },
         state: 'PUBLISHED'
       });
     }
 
     if (action === 'tagObject') {
-      await Post.updateMany(
+      await model.updateMany(
         { _id: { $in: targetIds } },
         { $set: { tagIds } },
         { multi: true }
       );
 
-      response = await Post.find({ _id: { $in: targetIds } }).lean();
+      response = await model.find({ _id: { $in: targetIds } }).lean();
     }
 
     return response;
@@ -49,11 +49,11 @@ export default {
     data: { sourceId, destId, type, action }
   }) => {
     const models = await generateModels(subdomain);
-    const Post = models.Post;
+    const model = models[tagTypeModelName[type as TagTypes]];
 
     if (action === 'remove') {
       try {
-        await Post.updateMany(
+        await model.updateMany(
           { tagIds: { $in: [sourceId] } },
           { $pull: { tagIds: { $in: [sourceId] } } }
         );
@@ -65,13 +65,13 @@ export default {
     }
 
     if (action === 'merge') {
-      const itemIds = await Post
+      const itemIds = await model
         .find({ tagIds: { $in: [sourceId] } }, { _id: 1 })
         .distinct('_id');
 
       try {
         // add to new destination
-        await Post.updateMany(
+        await model.updateMany(
           { _id: { $in: itemIds } },
           { $set: { 'tagIds.$[elem]': destId } },
           { arrayFilters: [{ elem: { $eq: sourceId } }] }

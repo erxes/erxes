@@ -20,7 +20,7 @@ const CheckRegister = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!current.match(/^[А-ЯЁӨҮ]{2}\d{8}$|^\d{7}$/))
+    if (!current.match(/^[А-ЯЁӨҮ]{2}[0-9]{8}$|^\d{7}$/))
       return toast({
         description: "Зөв регистерийн дугаараа оруулана уу",
         variant: "destructive",

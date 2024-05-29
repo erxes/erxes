@@ -48,7 +48,7 @@ const configClientPortalQueries = {
   /**
    * Get last config
    */
-  async clientPortalGetLast(_root, { kind }, { models }: IContext) {
+  clientPortalGetLast(_root, { kind }, { models }: IContext) {
     return models.ClientPortals.findOne({ kind }).sort({
       createdAt: -1,
     });
@@ -150,7 +150,7 @@ const configClientPortalQueries = {
     return getCards('purchase', context, _args);
   },
 
-  async clientPortalTicket(_root, { _id }: { _id: string }, { subdomain }: IContext) {
+  clientPortalTicket(_root, { _id }: { _id: string }, { subdomain }: IContext) {
     return sendCardsMessage({
       subdomain,
       action: 'tickets.findOne',
@@ -315,7 +315,7 @@ const configClientPortalQueries = {
     return users;
   },
 
-  async clientPortalUserTickets(
+  clientPortalUserTickets(
     _root,
     { userId }: { userId: string },
     { models, cpUser, subdomain }: IContext
@@ -328,7 +328,7 @@ const configClientPortalQueries = {
     return getUserCards(id, 'ticket', models, subdomain);
   },
 
-  async clientPortalUserDeals(
+  clientPortalUserDeals(
     _root,
     { userId }: { userId: string },
     { models, cpUser, subdomain }: IContext
@@ -342,7 +342,7 @@ const configClientPortalQueries = {
     return getUserCards(id, 'deal', models, subdomain);
   },
 
-  async clientPortalUserPurchases(
+  clientPortalUserPurchases(
     _root,
     { userId }: { userId: string },
     { models, cpUser, subdomain }: IContext
@@ -356,7 +356,7 @@ const configClientPortalQueries = {
     return getUserCards(id, 'purchase', models, subdomain);
   },
 
-  async clientPortalUserTasks(
+  clientPortalUserTasks(
     _root,
     { userId }: { userId: string },
     { models, cpUser, subdomain }: IContext
@@ -370,7 +370,7 @@ const configClientPortalQueries = {
     return getUserCards(id, 'task', models, subdomain);
   },
 
-  async clientPortalParticipantDetail(
+  clientPortalParticipantDetail(
     _root,
     {
       _id,

@@ -1,5 +1,5 @@
 import { IUser, IUserDocument } from '@erxes/api-utils/src/types';
-import { Document, Schema, Model, Connection, Types, HydratedDocument } from 'mongoose';
+import { Document, Schema, Model, Connection, Types } from 'mongoose';
 import {
   USER_TYPES,
   UserTypes,
@@ -38,7 +38,7 @@ interface TranslationsFields extends CommonPostFields {
 }
 
 export interface IPost extends CommonPostFields {
-  _id: Types.ObjectId;
+  _id: any;
   categoryId?: string | null;
   state: PostStates;
   lang?: string | null;
@@ -79,7 +79,7 @@ export interface IPost extends CommonPostFields {
   pollEndDate?: Date | null;
 }
 
-export type PostDocument = HydratedDocument<IPost>;
+export type PostDocument = IPost & Document;
 
 const OMIT_FROM_INPUT = [
   '_id',
@@ -121,7 +121,7 @@ export type PostCreateInputCp = Omit<
 >;
 export type PostPatchInputCp = Partial<PostCreateInputCp>;
 
-export interface IPostModel extends Model<IPost> {
+export interface IPostModel extends Model<PostDocument> {
   findByIdOrThrow(_id: string): Promise<PostDocument>;
 
   setFeaturedByAdmin(_id: string, isFeatured: boolean): Promise<boolean>;
@@ -205,8 +205,8 @@ const common = {
   thumbnailAlt: String
 };
 
-export const postSchema = new Schema<IPost>({
-  categoryId: Schema.Types.ObjectId,
+export const postSchema = new Schema<PostDocument>({
+  categoryId: Types.ObjectId,
   categoryApprovalState: {
     type: String,
     required: true,
@@ -458,7 +458,7 @@ export const generatePostModel = (
       user: IUserDocument
     ): Promise<PostDocument> {
       const post = await models.Post.findByIdOrThrow(_id);
-      await post.deleteOne();
+      await post.remove();
       cleanupAfterDelete(models, _id, 'CRM', user._id);
       return post;
     }
@@ -713,8 +713,8 @@ export const generatePostModel = (
     ): Promise<PostDocument> {
       if (!cpUser) throw new LoginRequiredError();
       const post = await models.Post.findByIdOrThrowCp(_id, cpUser);
-      await post.deleteOne();
-      await cleanupAfterDelete(models, post._id.toString(), 'CP', cpUser.userId);
+      await post.remove();
+      await cleanupAfterDelete(models, post._id, 'CP', cpUser.userId);
       return post;
     }
 
@@ -770,7 +770,7 @@ export const generatePostModel = (
   }
   postSchema.loadClass(PostModel);
 
-  models.Post = con.model<IPost, IPostModel>('forum_posts', postSchema);
+  models.Post = con.model<PostDocument, IPostModel>('forum_posts', postSchema);
   models.Post.collection.createIndex({ 'customIndexed.$**': 1 });
 };
 

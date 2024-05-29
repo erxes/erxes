@@ -1,5 +1,5 @@
 import { currentAmountAtom, currentPaymentTypeAtom } from "@/store"
-import { paymentTypesAtom } from "@/store/config.store"
+import { coverConfigAtom } from "@/store/config.store"
 import {
   cashAmountAtom,
   mobileAmountAtom,
@@ -12,19 +12,22 @@ import { ALL_BANK_CARD_TYPES } from "@/lib/constants"
 import { filterPaymentTypes } from "@/lib/utils"
 
 const usePaymentType = (type: string) => {
-  const paymentTypes = useAtomValue(paymentTypesAtom)
+  const config = useAtomValue(coverConfigAtom)
+  const { paymentTypes } = config || {}
 
   return paymentTypes?.find((pt) => pt.type === type)
 }
 
 export const useCheckNotSplit = () => {
+  const config = useAtomValue(coverConfigAtom)
+  const { paymentTypes: pTs } = config || {}
   const cashAmount = useAtomValue(cashAmountAtom)
   const mobileAmount = useAtomValue(mobileAmountAtom)
   const paidAmounts = useAtomValue(paidAmountsAtom)
   const unPaidAmount = useAtomValue(unPaidAmountAtom)
   const setCurrentAmount = useSetAtom(currentAmountAtom)
-  const [currentPaymentType, setType] = useAtom(currentPaymentTypeAtom)
-  const paymentTypes = filterPaymentTypes(useAtomValue(paymentTypesAtom))
+  const [paymentType, setType] = useAtom(currentPaymentTypeAtom)
+  const paymentTypes = filterPaymentTypes(pTs)
 
   const notSplitPts = (paymentTypes || [])
     .filter((pt) => {
@@ -59,15 +62,9 @@ export const useCheckNotSplit = () => {
     setType(type)
   }
 
-  const disableInput = notSplitPts.includes(currentPaymentType || "")
+  const disableInput = notSplitPts.includes(paymentType || "")
 
-  return {
-    mappedPts,
-    handleSetType,
-    disableInput,
-    paidNotSplit,
-    currentPaymentType,
-  }
+  return { mappedPts, handleSetType, disableInput, paidNotSplit }
 }
 
 export default usePaymentType

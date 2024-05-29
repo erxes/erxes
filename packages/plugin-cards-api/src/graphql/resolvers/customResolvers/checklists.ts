@@ -2,7 +2,7 @@ import { IContext } from "../../../connectionResolver";
 import { IChecklistDocument } from "../../../models/definitions/checklists";
 
 export default {
-  async items(checklist: IChecklistDocument, _args, { models }: IContext) {
+  items(checklist: IChecklistDocument, _args, { models }: IContext) {
     return models.ChecklistItems.find({ checklistId: checklist._id }).sort({
       order: 1
     });

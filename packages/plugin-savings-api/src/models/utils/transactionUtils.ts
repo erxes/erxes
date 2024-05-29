@@ -54,7 +54,7 @@ export const removeTrAfterSchedule = async (
   models: IModels,
   tr: ITransactionDocument
 ) => {
-  const nextTrsCount = await models.Transactions.countDocuments({
+  const nextTrsCount = await models.Transactions.count({
     contractId: tr.contractId,
     payDate: { $gt: tr.payDate }
   }).lean();

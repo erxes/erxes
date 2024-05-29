@@ -10,7 +10,7 @@ import {
 import { Model } from 'mongoose';
 import { ITransactionDocument } from './definitions/transactions';
 import { IModels } from '../connectionResolver';
-import { FilterQuery } from 'mongoose';
+import { FilterQuery } from 'mongodb';
 import { IContractDocument } from './definitions/contracts';
 import { getPureDate } from '@erxes/api-utils/src';
 import { createEbarimt } from './utils/ebarimtUtils';
@@ -236,7 +236,7 @@ export const loadTransactionClass = (models: IModels) => {
         .sort({ date: -1 })
         .lean();
 
-      if (periodLock && !periodLock?.excludeContracts.includes(doc.contractId || 'undefined'))
+      if (periodLock && !periodLock?.excludeContracts.includes(doc.contractId))
         throw new Error(
           'At this moment transaction can not been created because this date closed'
         );
@@ -315,10 +315,6 @@ export const loadTransactionClass = (models: IModels) => {
         transactionIds: { $in: [_id] }
       }).lean();
 
-      if(!oldSchedule) {
-        throw new Error('Schedule not found');
-      }
-
       const preSchedules = await models.Schedules.find({
         contractId: contract._id,
         payDate: { $lt: oldSchedule.payDate }
@@ -379,7 +375,7 @@ export const loadTransactionClass = (models: IModels) => {
 
           if (
             periodLock &&
-            !periodLock?.excludeContracts.includes(oldTr.contractId || 'undefined')
+            !periodLock?.excludeContracts.includes(oldTr.contractId)
           )
             throw new Error(
               'At this moment transaction can not been created because this date closed'

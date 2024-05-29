@@ -29,7 +29,7 @@ const webhookQueries = {
   /**
    * Webhooks list
    */
-  async webhooks(_root, _args: IListParams, { models }: IContext) {
+  webhooks(_root, _args: IListParams, { models }: IContext) {
     const filter = generateFilter(_args);
 
     return paginate(models.Webhooks.find(filter), _args);
@@ -38,7 +38,7 @@ const webhookQueries = {
   /**
    * Get one Webhook
    */
-  async webhookDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  webhookDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Webhooks.findOne({ _id });
   },
 

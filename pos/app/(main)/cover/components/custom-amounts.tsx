@@ -1,4 +1,4 @@
-import { configAtom } from "@/store/config.store"
+import { coverConfigAtom } from "@/store/config.store"
 import { calcAmountsAtom } from "@/store/cover.store"
 import { useAtomValue } from "jotai"
 
@@ -7,15 +7,15 @@ import { ALL_BANK_CARD_TYPES } from "@/lib/constants"
 import Amount from "./amount"
 
 const CustomAmounts = () => {
-  const { paymentTypes, paymentIds } = useAtomValue(configAtom) || {}
+  const config = useAtomValue(coverConfigAtom)
   const calcAmounts = useAtomValue(calcAmountsAtom)
+  const { paymentTypes, paymentIds } = config || {}
 
   const nonBankPts = (paymentTypes || []).filter(
     (pt) => !ALL_BANK_CARD_TYPES.includes(pt.type)
   )
   if (paymentIds?.length) {
     nonBankPts.push({
-      _id: "mobile",
       type: "mobile",
       title: "Цахимаар",
     })

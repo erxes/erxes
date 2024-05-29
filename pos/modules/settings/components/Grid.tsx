@@ -1,17 +1,13 @@
 "use client"
 
-import { configAtom } from "@/store/config.store"
-import { useAtomValue } from "jotai"
-
 import DeleteOrders from "../DeleteOrders"
 import SendData from "../SendData"
 import SyncConfig from "../SyncConfig"
 import SyncOrders from "../SyncOrders"
 import ErxesLink from "./ErxesLink"
 
-const Grid = () => {
-  const { branchId, departmentId, ebarimtConfig } =
-    useAtomValue(configAtom) || {}
+const Grid = ({ config }: any) => {
+  const { branchId, departmentId, ebarimtConfig } = config || {}
 
   return (
     <>
@@ -22,7 +18,7 @@ const Grid = () => {
         <SyncOrders />
         <DeleteOrders />
 
-        {!!ebarimtConfig && <SendData />}
+        {!!ebarimtConfig && <SendData {...(ebarimtConfig || {})} />}
         {!!branchId && !!departmentId && (
           <>
             <ErxesLink

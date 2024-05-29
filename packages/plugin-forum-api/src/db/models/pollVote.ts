@@ -1,5 +1,5 @@
 import { IUserDocument } from '@erxes/api-utils/src/types';
-import { Document, Schema, Model, Connection, Types, HydratedDocument } from 'mongoose';
+import { Document, Schema, Model, Connection, Types } from 'mongoose';
 import { ICpUser } from '../../graphql';
 import { IModels } from './index';
 import * as _ from 'lodash';
@@ -7,7 +7,8 @@ import { LoginRequiredError } from '../../customErrors';
 import { UserTypes } from '../../consts';
 
 export interface PollVote {
-  pollOptionId: Types.ObjectId;
+  _id: any;
+  pollOptionId: string;
   cpUserId: string;
 }
 
@@ -16,7 +17,7 @@ const pollVoteSchema = new Schema<PollVote>({
   cpUserId: { type: String, required: true }
 });
 
-type PollVoteDocument = HydratedDocument<PollVote>;
+type PollVoteDocument = PollVote & Document;
 
 export interface PollVoteModel extends Model<PollVoteDocument> {
   vote(pollOptionId: string, cpUser?: ICpUser): Promise<boolean>;
@@ -55,7 +56,7 @@ export const generatePollVoteModel = (
       };
 
       if (post.isPollMultiChoice) {
-        await models.PollVote.updateOne(doc, { $set: doc }, { upsert: true });
+        await models.PollVote.update(doc, { $set: doc }, { upsert: true });
         return true;
       }
 
@@ -113,7 +114,7 @@ export const generatePollVoteModel = (
   }
   pollVoteSchema.loadClass(PollVoteStatics);
 
-  models.PollVote = con.model<PollVote, PollVoteModel>(
+  models.PollVote = con.model<PollVoteDocument, PollVoteModel>(
     'forum_poll_vote',
     pollVoteSchema
   );

@@ -81,13 +81,13 @@ export const setupMessageConsumers = async () => {
     async ({ subdomain, data: { integrationId } }) => {
       const models = await generateModels(subdomain);
 
-      await models.Messages.deleteMany({
+      await models.Messages.remove({
         inboxIntegrationId: integrationId,
       });
-      await models.Customers.deleteMany({
+      await models.Customers.remove({
         inboxIntegrationId: integrationId,
       });
-      await models.Integrations.deleteMany({
+      await models.Integrations.remove({
         inboxId: integrationId,
       });
 

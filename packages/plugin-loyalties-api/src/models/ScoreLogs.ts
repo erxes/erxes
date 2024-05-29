@@ -72,10 +72,10 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       const { order, orderType } = doc;
       const filter = generateFilter(doc);
       const list = paginate(
-        models.ScoreLogs.find(filter).sort({ [orderType]: order } as any),
+        models.ScoreLogs.find(filter).sort({ [orderType]: order }),
         doc
       );
-      const total = await models.ScoreLogs.find(filter).countDocuments();
+      const total = await models.ScoreLogs.find(filter).count();
       return { list, total };
     }
 

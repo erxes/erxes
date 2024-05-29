@@ -6,7 +6,7 @@ import { getEnv } from "@/lib/utils"
 const env = getEnv()
 
 const httpLink: any = new HttpLink({
-  uri: `${env.NEXT_PUBLIC_SERVER_API_DOMAIN || env.NEXT_PUBLIC_MAIN_API_DOMAIN}/graphql`,
+  uri: `${env.NEXT_PUBLIC_SERVER_API_DOMAIN}/graphql`,
   credentials: "include",
 })
 

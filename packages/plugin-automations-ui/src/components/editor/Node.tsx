@@ -40,10 +40,10 @@ type Props = {
     config: any;
     toggleDrawer: ({
       type,
-      awaitingNodeId,
+      awaitingActionId,
     }: {
       type: string;
-      awaitingNodeId?: string;
+      awaitingActionId?: string;
     }) => void;
     onDoubleClick: (type: string, id: string) => void;
     removeItem: (type: string, id: string) => void;
@@ -123,7 +123,9 @@ export default memo(({ id, data }: Props) => {
     if (optionId.includes("right")) {
       toggleDrawer({
         type: `actions`,
-        awaitingNodeId: isOptionalConnect ? optionId.replace("-right", "") : id,
+        awaitingActionId: isOptionalConnect
+          ? optionId.replace("-right", "")
+          : id,
       });
     }
   };
@@ -190,7 +192,6 @@ export default memo(({ id, data }: Props) => {
           isOptionalConnect: true,
         })}
         isConnectable
-        title="optional-connect"
         style={{
           right: "20px",
           width: 15,

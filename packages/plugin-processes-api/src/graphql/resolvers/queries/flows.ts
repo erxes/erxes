@@ -116,7 +116,7 @@ const flowQueries = {
     );
   },
 
-  async flowsAll(_root, _arg, { models }: IContext) {
+  flowsAll(_root, _arg, { models }: IContext) {
     // const selector = generateFilter(params, commonQuerySelector);
 
     return models.Flows.find()
@@ -137,13 +137,13 @@ const flowQueries = {
       commonQuerySelector
     );
 
-    return models.Flows.find(selector).countDocuments();
+    return models.Flows.find(selector).count();
   },
 
   /**
    * Get one flow
    */
-  async flowDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  flowDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Flows.findOne({ _id });
   }
 

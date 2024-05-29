@@ -3,14 +3,14 @@ import { IContext } from '../../../connectionResolver';
 import { IRiskFormSubmissionParams } from '../../../models/definitions/common';
 
 const formSubmissionMutations = {
-  async riskFormSaveSubmissions(
+  riskFormSaveSubmissions(
     _root,
     params: IRiskFormSubmissionParams,
     { models }: IContext
   ) {
     return models.RiskFormSubmissions.formSaveSubmission(params);
   },
-  async RAIndicatorTestScore(_root, params, { models }: IContext) {
+  RAIndicatorTestScore(_root, params, { models }: IContext) {
     return models.RiskFormSubmissions.testScore(params);
   }
 };

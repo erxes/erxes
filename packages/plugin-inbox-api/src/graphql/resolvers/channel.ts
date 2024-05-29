@@ -3,13 +3,13 @@ import { IContext } from '../../connectionResolver';
 import { sendCoreMessage } from '../../messageBroker';
 
 export default {
-  async integrations(channel: IChannelDocument, _args, { models }: IContext) {
+  integrations(channel: IChannelDocument, _args, { models }: IContext) {
     return models.Integrations.findIntegrations({
       _id: { $in: channel.integrationIds }
     });
   },
 
-  async members(channel: IChannelDocument, _args, { subdomain }: IContext) {
+  members(channel: IChannelDocument, _args, { subdomain }: IContext) {
 
     return sendCoreMessage({
       subdomain,

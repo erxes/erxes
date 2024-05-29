@@ -5,7 +5,6 @@ import Products from "."
 import Slots from "../slots/slots.main"
 import BarcodeResult from "./barcodeResult.market"
 import Search from "./components/search/search.main"
-import InitialCategories from "./InitialCategories"
 import ProductCategories from "./productCategories.main"
 
 const ProductsContainer = () => {
@@ -16,7 +15,6 @@ const ProductsContainer = () => {
         <Search />
         <div className="flex flex-auto overflow-hidden">
           <ProductCategories />
-          <InitialCategories />
         </div>
       </div>
       <div className="flex flex-auto overflow-hidden relative">

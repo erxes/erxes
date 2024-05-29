@@ -2,7 +2,7 @@ import { IContext } from '../../connectionResolver';
 import { IScheduleDocument } from '../../models/definitions/timeclock';
 
 export default {
-  async shifts(schedule: IScheduleDocument, {}, { models }: IContext, {}) {
+  shifts(schedule: IScheduleDocument, {}, { models }: IContext, {}) {
     return models.Shifts.find({
       _id: schedule.shiftIds,
       scheduleId: schedule._id

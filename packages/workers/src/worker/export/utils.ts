@@ -53,7 +53,7 @@ export const receiveExportCreate = async (
       subdomain
     });
   } catch (e) {
-    await models.ExportHistory.updateOne(
+    await models.ExportHistory.update(
       { _id: exportHistoryId },
       { error: e.message }
     );

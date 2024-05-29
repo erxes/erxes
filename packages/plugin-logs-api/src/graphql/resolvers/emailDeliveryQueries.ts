@@ -2,7 +2,7 @@ import { paginate, requireLogin } from "@erxes/api-utils/src";
 import { IContext } from "../../connectionResolver";
 
 const emailDeliveryQueries = {
-  async emailDeliveryDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  emailDeliveryDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.EmailDeliveries.findOne({ _id });
   },
 

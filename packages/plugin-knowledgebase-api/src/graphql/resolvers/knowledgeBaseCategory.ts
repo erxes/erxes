@@ -3,7 +3,7 @@ import { ICategoryDocument } from '../../models/definitions/knowledgebase';
 import { IContext } from '../../connectionResolver';
 
 export const KnowledgeBaseCategory = {
-  async articles(category: ICategoryDocument, _args, { models }: IContext) {
+  articles(category: ICategoryDocument, _args, { models }: IContext) {
     return models.KnowledgeBaseArticles.find({
       categoryId: category._id,
       status: { $in: [PUBLISH_STATUSES.PUBLISH, PUBLISH_STATUSES.DRAFT] }
@@ -29,11 +29,11 @@ export const KnowledgeBaseCategory = {
     }));
   },
 
-  async firstTopic(category: ICategoryDocument, _args, { models }: IContext) {
+  firstTopic(category: ICategoryDocument, _args, { models }: IContext) {
     return models.KnowledgeBaseTopics.findOne({ _id: category.topicId });
   },
 
-  async numOfArticles(category: ICategoryDocument, _args, { models }: IContext) {
+  numOfArticles(category: ICategoryDocument, _args, { models }: IContext) {
     return models.KnowledgeBaseArticles.find({
       categoryId: category._id,
       status: { $in: [PUBLISH_STATUSES.PUBLISH, PUBLISH_STATUSES.DRAFT] }
@@ -44,7 +44,7 @@ export const KnowledgeBaseCategory = {
 export const KnowledgeBaseParentCategory = {
   ...KnowledgeBaseCategory,
 
-  async childrens(category: ICategoryDocument, _args, { models }: IContext) {
+  childrens(category: ICategoryDocument, _args, { models }: IContext) {
     return models.KnowledgeBaseCategories.find({
       parentCategoryId: category._id
     }).sort({ title: 1 });

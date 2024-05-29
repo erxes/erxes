@@ -143,7 +143,7 @@ const dashboardMutations = {
    */
 
   async dashboardRemove(_root, { _id }: { _id: string }, { models }: IContext) {
-    await models.Charts.deleteMany({ contentId: _id });
+    await models.Charts.remove({ contentId: _id });
     const dashboard = await models.Dashboards.removeDashboard(_id);
     return dashboard;
   },
@@ -157,10 +157,9 @@ const dashboardMutations = {
       throw new Error('Dashboard not found');
     }
 
-    const {_id:_, ...dup} = dashboard.toObject();
-
     const duplicatedDashboard = await models.Dashboards.createDashboard({
-      ...dup,
+      ...dashboard.toObject(),
+      _id: undefined,
       name: `${dashboard.name} copied`,
       createdBy: user._id,
       createdAt: new Date(),

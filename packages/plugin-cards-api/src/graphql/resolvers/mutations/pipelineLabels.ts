@@ -87,7 +87,7 @@ const pipelineLabelMutations = {
   /**
    * Attach a label
    */
-  async pipelineLabelsLabel(
+  pipelineLabelsLabel(
     _root,
     {
       pipelineId,

@@ -3,7 +3,7 @@
 import * as React from "react"
 import { useRef } from "react"
 import type { LinkProps } from "next/link"
-import { cva, VariantProps } from "class-variance-authority"
+import { VariantProps, cva } from "class-variance-authority"
 import { AnimatePresence, motion } from "framer-motion"
 import { Loader2 } from "lucide-react"
 import { mergeRefs } from "react-merge-refs"
@@ -29,7 +29,6 @@ const buttonVariants = cva(
         default: "h-10 py-2 px-4",
         sm: "h-9 px-3 rounded-md",
         lg: "h-11 px-8 rounded-md text-sm font-extrabold",
-        icon: "h-9 w-9",
       },
     },
     defaultVariants: {

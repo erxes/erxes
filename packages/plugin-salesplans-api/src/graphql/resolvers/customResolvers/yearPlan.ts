@@ -3,7 +3,7 @@ import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
 import { IYearPlanDocument } from '../../../models/definitions/yearPlans';
 
 export default {
-  async __resolveReference({ _id }, { models }: IContext) {
+  __resolveReference({ _id }, { models }: IContext) {
     return models.YearPlans.findOne({ _id });
   },
 

@@ -4,7 +4,7 @@ import { IContext } from '../../../connectionResolver';
 import { sendCoreMessage, sendFormsMessage } from '../../../messageBroker';
 
 export default {
-  async __resolveReference({ _id }, { models }: IContext) {
+  __resolveReference({ _id }, { models }: IContext) {
     return models.GrowthHacks.findOne({ _id });
   },
 
@@ -62,7 +62,7 @@ export default {
     });
   },
 
-  async assignedUsers(
+  assignedUsers(
     growthHack: IGrowthHackDocument,
     _args,
     { subdomain }: IContext,
@@ -89,14 +89,14 @@ export default {
       }));
   },
 
-  async votedUsers(growthHack: IGrowthHackDocument) {
+  votedUsers(growthHack: IGrowthHackDocument) {
     return (growthHack.votedUserIds || []).map(votedUserId => ({
       __typename: 'User',
       _id: votedUserId
     }));
   },
 
-  async isVoted(growthHack: IGrowthHackDocument, _args, { user }: IContext) {
+  isVoted(growthHack: IGrowthHackDocument, _args, { user }: IContext) {
     return growthHack.votedUserIds && growthHack.votedUserIds.length > 0
       ? growthHack.votedUserIds.indexOf(user._id) !== -1
       : false;
@@ -108,7 +108,7 @@ export default {
     return models.Pipelines.findOne({ _id: stage.pipelineId });
   },
 
-  async boardId(growthHack: IGrowthHackDocument, _args, { models }: IContext) {
+  boardId(growthHack: IGrowthHackDocument, _args, { models }: IContext) {
     return boardId(models, growthHack);
   },
 
@@ -129,11 +129,11 @@ export default {
     return pipeline.hackScoringType;
   },
 
-  async stage(growthHack: IGrowthHackDocument, _args, { models }: IContext) {
+  stage(growthHack: IGrowthHackDocument, _args, { models }: IContext) {
     return models.Stages.getStage(growthHack.stageId);
   },
 
-  async isWatched(growthHack: IGrowthHackDocument, _args, { user }: IContext) {
+  isWatched(growthHack: IGrowthHackDocument, _args, { user }: IContext) {
     const watchedUserIds = growthHack.watchedUserIds || [];
 
     if (watchedUserIds.includes(user._id)) {
@@ -143,13 +143,13 @@ export default {
     return false;
   },
 
-  async labels(growthHack: IGrowthHackDocument, _args, { models }: IContext) {
+  labels(growthHack: IGrowthHackDocument, _args, { models }: IContext) {
     return models.PipelineLabels.find({
       _id: { $in: growthHack.labelIds || [] }
     });
   },
 
-  async createdUser(growthHack: IGrowthHackDocument) {
+  createdUser(growthHack: IGrowthHackDocument) {
     if (!growthHack.userId) {
       return;
     }

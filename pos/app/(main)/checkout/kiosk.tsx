@@ -1,15 +1,26 @@
 "use client"
 
+import { useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import PaymentSheet from "@/modules/checkout/components/paymentType/paymentSheet"
 import TotalAmount from "@/modules/checkout/components/totalAmount/totalAmount.kiosk"
-import useHandleOrderId from "@/modules/orders/hooks/useHandleOrderId"
 import OrderDetail from "@/modules/orders/OrderDetail"
+import { activeOrderIdAtom } from "@/store/order.store"
+import { useSetAtom } from "jotai"
 
 import HandleOrder from "./components/HandleOrder.kiosk"
 import Items from "./components/Items.kiosk"
 
 const Kiosk = () => {
-  useHandleOrderId()
+  const searchValue = useSearchParams()
+  const _id = searchValue.get("orderId")
+  const setActiveOrderId = useSetAtom(activeOrderIdAtom)
+
+  useEffect(() => {
+    if (_id) {
+      setActiveOrderId(_id)
+    }
+  }, [_id, setActiveOrderId])
   return (
     <>
       <OrderDetail>

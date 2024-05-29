@@ -48,7 +48,7 @@ export const loadProductReviewClass = (models: IModels, subdomain: string) => {
       return models.ProductReview.findOne({ _id });
     }
     public static async removeProductReview(_id: string) {
-      return models.ProductReview.findOneAndDelete({ _id });
+      return models.ProductReview.findOneAndRemove({ _id });
     }
   }
   productreviewSchema.loadClass(ProductReview);

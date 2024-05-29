@@ -62,13 +62,13 @@ export const loadBrandClass = (models: IModels) => {
     }
 
     public static async removeBrand(_id) {
-      const brandObj = await models.Brands.findOneAndDelete({ _id });
+      const brandObj = await models.Brands.findOne({ _id });
 
       if (!brandObj) {
         throw new Error(`Brand not found with id ${_id}`);
       }
 
-      return brandObj;
+      return brandObj.remove();
     }
   }
 

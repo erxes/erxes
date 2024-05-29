@@ -8,7 +8,7 @@ import { ITaskDocument } from '../../../models/definitions/tasks';
 import { boardId } from '../../utils';
 
 export default {
-  async __resolveReference({ _id }, { models }: IContext) {
+  __resolveReference({ _id }, { models }: IContext) {
     return models.Tasks.findOne({ _id });
   },
 
@@ -96,7 +96,7 @@ export default {
     }));
   },
 
-  async assignedUsers(
+  assignedUsers(
     task: ITaskDocument,
     _args,
     { subdomain }: IContext,
@@ -133,15 +133,15 @@ export default {
     return Pipelines.findOne({ _id: stage.pipelineId });
   },
 
-  async boardId(task: ITaskDocument, _args, { models }: IContext) {
+  boardId(task: ITaskDocument, _args, { models }: IContext) {
     return boardId(models, task);
   },
 
-  async stage(task: ITaskDocument, _args, { models: { Stages } }: IContext) {
+  stage(task: ITaskDocument, _args, { models: { Stages } }: IContext) {
     return Stages.getStage(task.stageId);
   },
 
-  async isWatched(task: ITaskDocument, _args, { user }: IContext) {
+  isWatched(task: ITaskDocument, _args, { user }: IContext) {
     const watchedUserIds = task.watchedUserIds || [];
 
     if (watchedUserIds.includes(user._id)) {
@@ -151,7 +151,7 @@ export default {
     return false;
   },
 
-  async hasNotified(task: ITaskDocument, _args, { user, subdomain }: IContext) {
+  hasNotified(task: ITaskDocument, _args, { user, subdomain }: IContext) {
     return sendNotificationsMessage({
       subdomain,
       action: 'checkIfRead',
@@ -168,7 +168,7 @@ export default {
     return (task.tagIds || []).map(_id => ({ __typename: 'Tag', _id }));
   },
 
-  async labels(task: ITaskDocument, _args, { models: { PipelineLabels } }: IContext) {
+  labels(task: ITaskDocument, _args, { models: { PipelineLabels } }: IContext) {
     return PipelineLabels.find({ _id: { $in: task.labelIds || [] } });
   }
 };

@@ -3,7 +3,7 @@ import { sendContactsMessage } from "../../messageBroker";
 // import { IFormDocument } from "../../models/definitions/forms";
 
 export default {
-  async __resolveReference({ _id }, { models }: IContext) {
+  __resolveReference({ _id }, { models }: IContext) {
     return models.FormSubmissions.findOne({ _id });
   },
 

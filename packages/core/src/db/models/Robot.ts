@@ -31,13 +31,7 @@ export const loadRobotClass = (models: IModels) => {
     public static async markAsNotified(
       _id: string
     ): Promise<IRobotEntryDocument> {
-      const entry = await models.RobotEntries.findOneAndUpdate({ _id }, { $set: { isNotified: true } }, { new: true });
-
-      if (!entry) {
-        throw new Error();
-      }
-
-      return entry;
+      return models.RobotEntries.updateOne({ _id }, { $set: { isNotified: true } });
     }
 
     public static async createEntry(
@@ -121,14 +115,10 @@ export const loadOnboardingHistoryClass = (models: IModels) => {
         return { status: 'prev', entry: prevEntry };
       }
 
-      const updatedEntry = await models.OnboardingHistories.findOneAndUpdate(
+      const updatedEntry = await models.OnboardingHistories.updateOne(
         { userId: user._id },
         { $push: { completedSteps: type } }
       );
-
-      if(!updatedEntry) {
-        throw new Error();
-      }
 
       return { status: 'created', entry: updatedEntry };
     }
@@ -151,26 +141,26 @@ export const loadOnboardingHistoryClass = (models: IModels) => {
     public static async forceComplete(
       userId: string
     ): Promise<IOnboardingHistoryDocument> {
-      const entry = await models.OnboardingHistories.findOneAndUpdate(
-        { userId },
-        { $set: { isCompleted: true } },
-        { new : true }
-      );
+      const entry = await models.OnboardingHistories.findOne({ userId });
 
       if (!entry) {
         return models.OnboardingHistories.create({ userId, isCompleted: true });
       }
-      return entry;
+
+      return models.OnboardingHistories.updateOne(
+        { userId },
+        { $set: { isCompleted: true } }
+      );
     }
 
     public static async completeShowStep(
       step: string,
       userId: string
     ): Promise<void> {
-      return models.OnboardingHistories.findOneAndUpdate(
+      return models.OnboardingHistories.updateOne(
         { userId },
         { $push: { completedSteps: step } },
-        { upsert: true, new: true }
+        { upsert: true }
       );
     }
 

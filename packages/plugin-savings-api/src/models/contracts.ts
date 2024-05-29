@@ -8,7 +8,7 @@ import { addMonths, getFullDate, getNumber } from './utils/utils';
 import { Model } from 'mongoose';
 import { IContractDocument } from './definitions/contracts';
 import { IModels } from '../connectionResolver';
-import { FilterQuery } from 'mongoose';
+import { FilterQuery } from 'mongodb';
 
 export interface IContractModel extends Model<IContractDocument> {
   getContract(
@@ -120,7 +120,7 @@ export const loadContractClass = (models: IModels) => {
      * Remove Contract category
      */
     public static async removeContracts(_ids) {
-      const transactions = await models.Transactions.countDocuments({
+      const transactions = await models.Transactions.count({
         contractId: _ids,
       });
       if (transactions > 0)

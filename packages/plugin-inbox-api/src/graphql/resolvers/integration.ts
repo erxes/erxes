@@ -7,7 +7,7 @@ import { IContext } from '../../connectionResolver';
 import { isServiceRunning } from '../../utils';
 
 export default {
-  async __resolveReference({ _id }, { models }: IContext) {
+  __resolveReference({ _id }, { models }: IContext) {
     return models.Integrations.findOne({ _id });
   },
   brand(integration: IIntegrationDocument) {
@@ -30,7 +30,7 @@ export default {
     return { __typename: 'Form', _id: integration.formId };
   },
 
-  async channels(integration: IIntegrationDocument, _args, { models }: IContext) {
+  channels(integration: IIntegrationDocument, _args, { models }: IContext) {
     return models.Channels.find({
       integrationIds: { $in: [integration._id] },
     });
@@ -43,7 +43,7 @@ export default {
     }));
   },
 
-  async websiteMessengerApps(
+  websiteMessengerApps(
     integration: IIntegrationDocument,
     _args,
     { models }: IContext,
@@ -57,7 +57,7 @@ export default {
     return [];
   },
 
-  async knowledgeBaseMessengerApps(
+  knowledgeBaseMessengerApps(
     integration: IIntegrationDocument,
     _args,
     { models }: IContext,
@@ -71,7 +71,7 @@ export default {
     return [];
   },
 
-  async leadMessengerApps(
+  leadMessengerApps(
     integration: IIntegrationDocument,
     _args,
     { models }: IContext,

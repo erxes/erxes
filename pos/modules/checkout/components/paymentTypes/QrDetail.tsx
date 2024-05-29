@@ -19,7 +19,7 @@ const QrDetail = ({
 }) => {
   const amount = useAtomValue(currentAmountAtom)
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+    <div className="grid grid-cols-2 gap-2">
       <div>
         <div className="text-black/60 mb-1">QR код уншуулах</div>
         <div className="relative">
@@ -30,8 +30,8 @@ const QrDetail = ({
               <Image
                 src={qrCode}
                 className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2"
-                height={256}
-                width={256}
+                height={192}
+                width={192}
                 alt=""
               />
             ) : (

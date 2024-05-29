@@ -54,11 +54,11 @@ const growthHackQueries = {
   /**
    * Archived list
    */
-  async archivedGrowthHacks(_root, args: IArchiveArgs, { models }: IContext) {
+  archivedGrowthHacks(_root, args: IArchiveArgs, { models }: IContext) {
     return archivedItems(models, args, models.GrowthHacks);
   },
 
-  async archivedGrowthHacksCount(_root, args: IArchiveArgs, { models }: IContext) {
+  archivedGrowthHacksCount(_root, args: IArchiveArgs, { models }: IContext) {
     return archivedItemsCount(models, args, models.GrowthHacks);
   },
 
@@ -77,7 +77,7 @@ const growthHackQueries = {
       args
     );
 
-    return models.GrowthHacks.find(filter).countDocuments();
+    return models.GrowthHacks.find(filter).count();
   },
 
   async growthHacksPriorityMatrix(

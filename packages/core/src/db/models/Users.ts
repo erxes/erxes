@@ -770,7 +770,7 @@ export const loadUserClass = (models: IModels) => {
         if (!deviceTokens.includes(deviceToken)) {
           deviceTokens.push(deviceToken);
 
-          await user.updateOne({ $set: { deviceTokens } });
+          await user.update({ $set: { deviceTokens } });
         }
       }
 

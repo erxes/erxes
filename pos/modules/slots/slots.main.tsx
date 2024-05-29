@@ -15,9 +15,7 @@ const Slots = () => {
   const [activeSlot, setActiveSlot] = useAtom(slotCodeAtom)
   const setSlotFilter = useSetAtom(slotFilterAtom)
 
-  if (!loading && !slots?.length) {
-    return null
-  }
+  if (!loading && !slots?.length) return null
 
   const activeSlots = (slots || []).filter((sl: any) => !sl?.option?.isShape)
 

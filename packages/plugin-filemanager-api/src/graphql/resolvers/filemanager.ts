@@ -48,7 +48,7 @@ export const folder = {
   },
 
   async hasChild(root: IFolderDocument, _args, { models }: IContext) {
-    const count = await models.Folders.find({ parentId: root._id }).countDocuments();
+    const count = await models.Folders.find({ parentId: root._id }).count();
 
     return count > 0;
   },

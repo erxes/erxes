@@ -23,7 +23,7 @@ const emojiQueries = {
     });
   },
 
-  emojiCount: async (_root, doc: IArgs, { models }) => {
+  emojiCount: (_root, doc: IArgs, { models }) => {
     return models.Emojis.find(doc).countDocuments();
   },
 

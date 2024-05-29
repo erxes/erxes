@@ -1,5 +1,5 @@
 import { IUserDocument } from '@erxes/api-utils/src/types';
-import { Document, Schema, Model, Connection, Types, HydratedDocument } from 'mongoose';
+import { Document, Schema, Model, Connection, Types } from 'mongoose';
 import { cpus } from 'os';
 import { UserTypes, USER_TYPES } from '../../consts';
 import { LoginRequiredError } from '../../customErrors';
@@ -7,8 +7,9 @@ import { ICpUser } from '../../graphql';
 import { IModels } from './index';
 
 export interface IComment {
+  _id: any;
   replyToId?: string;
-  postId: Types.ObjectId;
+  postId: string;
   content: string;
 
   createdUserType: UserTypes;
@@ -36,8 +37,8 @@ const OMIT_FROM_INPUT = [
 
 type CommentCreateInput = Omit<IComment, typeof OMIT_FROM_INPUT[number]>;
 
-export type CommentDocument = HydratedDocument<IComment>;
-export interface ICommentModel extends Model<IComment> {
+export type CommentDocument = IComment & Document;
+export interface ICommentModel extends Model<CommentDocument> {
   findByIdOrThrow(_id: string): Promise<CommentDocument>;
   createComment(
     c: CommentCreateInput,
@@ -65,10 +66,10 @@ export interface ICommentModel extends Model<IComment> {
   /* >>> Client portal */
 }
 
-export const commentSchema = new Schema<IComment>(
+export const commentSchema = new Schema<CommentDocument>(
   {
-    replyToId: { type: Schema.Types.ObjectId, index: true },
-    postId: { type: Schema.Types.ObjectId, index: true },
+    replyToId: { type: Types.ObjectId, index: true },
+    postId: { type: Types.ObjectId, index: true },
     content: { type: String, required: true },
 
     createdUserType: { type: String, required: true, enum: USER_TYPES },
@@ -151,7 +152,7 @@ export const generateCommentModel = (
     ): Promise<CommentDocument> {
       if (!cpUser) throw new LoginRequiredError();
 
-      const post = await models.Post.findByIdOrThrow(c.postId.toString());
+      const post = await models.Post.findByIdOrThrow(c.postId);
       const category = await models.Category.findById(post.categoryId);
 
       await models.Category.ensureUserIsAllowed(
@@ -209,7 +210,7 @@ export const generateCommentModel = (
   }
   commentSchema.loadClass(CommentModel);
 
-  models.Comment = con.model<IComment, ICommentModel>(
+  models.Comment = con.model<CommentDocument, ICommentModel>(
     'forum_comments',
     commentSchema
   );

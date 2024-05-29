@@ -2,15 +2,27 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { uiOptionsAtom } from "@/store/config.store"
+import { queries } from "@/modules/auth/graphql"
 import { orderTypeAtom } from "@/store/order.store"
-import { useAtomValue, useSetAtom } from "jotai"
+import { useQuery } from "@apollo/client"
+import { useSetAtom } from "jotai"
 import { ArrowLeft, PhoneIcon, ShoppingBagIcon, SoupIcon } from "lucide-react"
 
 import { IOrderType } from "@/types/order.types"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { Button } from "@/components/ui/button"
 import Image from "@/components/ui/image"
+import Loader from "@/components/ui/loader"
+
+// colors: IConfigColors;
+// logo: string;
+// bgImage: string;
+// favIcon: string;
+// receiptIcon: string;
+// kioskHeaderImage: string;
+// mobileAppImage: string;
+// qrCodeImage: string;
+// texts: IConfigColors;
 
 const Page = () => {
   const setType = useSetAtom(orderTypeAtom)
@@ -20,7 +32,10 @@ const Page = () => {
     setType(type)
     router.push("/home")
   }
-  const { texts, logo } = useAtomValue(uiOptionsAtom) || {}
+  const { data, loading } = useQuery(queries.uiOptions)
+  const { texts, logo } = data?.currentConfig?.uiOptions || {}
+
+  if (loading) return <Loader className="h-screen" />
 
   return (
     <div className="w-full h-screen flex flex-col items-center justify-between relative ">

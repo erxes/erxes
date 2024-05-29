@@ -1,7 +1,7 @@
 import { IMovementItemDocument } from '../../common/types/asset';
 import { IContext } from '../../connectionResolver';
 export default {
-  async __resolveReference({ _id }, { models }: IContext) {
+  __resolveReference({ _id }, { models }: IContext) {
     return models.Movements.findOne({ _id });
   },
 

@@ -144,20 +144,19 @@ const transactionMutations = {
         extraParams: { models }
       };
 
-      // if (transaction.ebarimt && transaction.isManual){
-      //   await sendMessageBroker(
-      //     {
-      //       action: 'putresponses.returnBill',
-      //       data: {
-      //         contentType: 'savings:transaction',
-      //         contentId: transaction._id,
-      //         number: transaction.number
-      //       },
-      //       subdomain
-      //     },
-      //     'ebarimt'
-      //   );
-      // }
+      if (transaction.ebarimt && transaction.isManual)
+        await sendMessageBroker(
+          {
+            action: 'putresponses.returnBill',
+            data: {
+              contentType: 'savings:transaction',
+              contentId: transaction._id,
+              number: transaction.number
+            },
+            subdomain
+          },
+          'ebarimt'
+        );
 
       await deleteLog(subdomain, user, logData);
     }

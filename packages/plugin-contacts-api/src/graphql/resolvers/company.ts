@@ -4,7 +4,7 @@ import { sendCoreMessage, sendCommonMessage } from '../../messageBroker';
 import { customFieldsDataByFieldCode } from '@erxes/api-utils/src/fieldUtils';
 
 export default {
-  async __resolveReference({ _id }, { models: { Companies } }: IContext) {
+  __resolveReference({ _id }, { models: { Companies } }: IContext) {
     return Companies.findOne({ _id });
   },
 
@@ -40,7 +40,7 @@ export default {
     return { __typename: 'User', _id: company.ownerId };
   },
 
-  async parentCompany(
+  parentCompany(
     { parentCompanyId }: ICompanyDocument,
     _,
     { models: { Companies } }: IContext,
@@ -48,7 +48,7 @@ export default {
     return Companies.findOne({ _id: parentCompanyId });
   },
 
-  async customFieldsDataByFieldCode(
+  customFieldsDataByFieldCode(
     company: ICompanyDocument,
     _,
     { subdomain }: IContext,

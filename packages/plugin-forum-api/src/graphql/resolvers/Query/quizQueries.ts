@@ -3,19 +3,19 @@
 import { IContext } from '../..';
 import { IObjectTypeResolver } from '@graphql-tools/utils';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
-import { Types, ObjectId, Schema } from 'mongoose';
+import { Types } from 'mongoose';
 
 const quizQueries: IObjectTypeResolver<any, IContext> = {
-  async forumQuizzes(_, { sort = {}, offset = 0, limit = 0 }, { models: { Quiz } }) {
+  forumQuizzes(_, { sort = {}, offset = 0, limit = 0 }, { models: { Quiz } }) {
     return Quiz.find()
       .sort(sort)
       .skip(offset)
       .limit(limit);
   },
-  async forumQuiz(_, { _id }, { models: { Quiz } }) {
+  forumQuiz(_, { _id }, { models: { Quiz } }) {
     return Quiz.findByIdOrThrow(_id);
   },
-  async forumQuizQuestion(_, { _id }, { models: { QuizQuestion } }) {
+  forumQuizQuestion(_, { _id }, { models: { QuizQuestion } }) {
     return QuizQuestion.findByIdOrThrow(_id);
   }
 };
@@ -27,18 +27,18 @@ const cpQuizQueries: IObjectTypeResolver<any, IContext> = {
     { models: { Quiz, Post } }
   ) {
     const post = await Post.findByIdOrThrow(_id);
-    const $matchOr: any[] = [{ postId: new Types.ObjectId(_id as string) }];
+    const $matchOr: any[] = [{ postId: Types.ObjectId(_id) }];
     if (post.tagIds?.length) {
       $matchOr.push({ tagIds: { $in: post.tagIds } });
     }
     if (post.categoryId) {
-      $matchOr.push({ categoryId: new Types.ObjectId(post.categoryId) });
+      $matchOr.push({ categoryId: Types.ObjectId(post.categoryId) });
     }
 
     const branches: any[] = [
       {
         case: {
-          $eq: ['$postId', new Types.ObjectId(_id as string)]
+          $eq: ['$postId', Types.ObjectId(_id)]
         },
         then: 3
       }
@@ -48,7 +48,7 @@ const cpQuizQueries: IObjectTypeResolver<any, IContext> = {
       branches.push({
         case: {
           $and: [
-            { $eq: ['$categoryId', new Types.ObjectId(post.categoryId)] },
+            { $eq: ['$categoryId', Types.ObjectId(post.categoryId)] },
             {
               $gt: [
                 {
@@ -68,7 +68,7 @@ const cpQuizQueries: IObjectTypeResolver<any, IContext> = {
 
       if (post.categoryId) {
         $or.push({
-          $eq: ['$categoryId', new Types.ObjectId(post.categoryId)]
+          $eq: ['$categoryId', Types.ObjectId(post.categoryId)]
         });
       }
 
@@ -132,7 +132,7 @@ const cpQuizQueries: IObjectTypeResolver<any, IContext> = {
     return res;
   },
 
-  async forumCpQuizzes(
+  forumCpQuizzes(
     _,
     { offset = 0, limit = 0, sort = {}, ...params },
     { models: { Quiz } }

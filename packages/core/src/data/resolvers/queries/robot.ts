@@ -217,7 +217,7 @@ const checkShowModule = (
 };
 
 const robotQueries = {
-  async robotEntries(
+  robotEntries(
     _root,
     {
       isNotified,
@@ -235,7 +235,7 @@ const robotQueries = {
     return models.RobotEntries.find(selector);
   },
 
-  async onboardingStepsCompleteness(
+  onboardingStepsCompleteness(
     _root,
     { steps }: { steps: string[] },
     { user, models }: IContext

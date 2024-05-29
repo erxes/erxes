@@ -27,7 +27,7 @@ export interface IFilter extends ICommonParams {
 }
 
 const logQueries = {
-  async logs(_root, params: ILogQueryParams, { models }: IContext) {
+  logs(_root, params: ILogQueryParams, { models }: IContext) {
     return fetchLogs(models, params);
   },
 

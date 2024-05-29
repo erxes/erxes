@@ -2,7 +2,7 @@ import { IContext } from '../../connectionResolver';
 import { ISyncLogDocument } from '../../models/definitions/syncLog';
 
 export default {
-  async __resolveReference({ _id }, { models }: IContext) {
+  __resolveReference({ _id }, { models }: IContext) {
     return models.SyncLogs.findOne({ _id });
   },
 

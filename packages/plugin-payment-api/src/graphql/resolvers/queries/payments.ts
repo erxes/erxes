@@ -34,7 +34,7 @@ const generateFilterQuery = (params: IParam) => {
 };
 
 const queries = {
-  async payments(_root, args, { models }: IContext) {
+  payments(_root, args, { models }: IContext) {
     const filter: any = {};
 
     if (args.status) {

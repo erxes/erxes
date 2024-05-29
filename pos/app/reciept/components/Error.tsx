@@ -1,16 +1,14 @@
 const Error = ({
-  errorCode,
   message,
+  errorCode,
 }: {
   errorCode?: string
   message?: string
 }) => {
-  if (!errorCode || !message) {
-    return null
-  }
+  if (!errorCode || !message) return null
   return (
     <div className="py-1">
-      {message}
+      {errorCode}: {message}
     </div>
   )
 }

@@ -42,7 +42,7 @@ const generateFilter = (params: IParam, commonQuerySelector) => {
 };
 
 const jobReferQueries = {
-  async jobRefers(
+  jobRefers(
     _root,
     params: IParam & {
       page: number;
@@ -62,20 +62,20 @@ const jobReferQueries = {
     );
   },
 
-  async jobReferTotalCount(
+  jobReferTotalCount(
     _root,
     params: IParam,
     { commonQuerySelector, models }: IContext
   ) {
     const selector = generateFilter(params, commonQuerySelector);
 
-    return models.JobRefers.find(selector).countDocuments();
+    return models.JobRefers.find(selector).count();
   },
 
   /**
    * Get one jobRefer
    */
-  async jobReferDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  jobReferDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.JobRefers.findOne({ _id }).lean();
   }
 };

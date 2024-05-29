@@ -8,9 +8,9 @@ import {
   generateBotData,
   generatePayloadString,
   checkContentConditions,
-  getUrl,
 } from './utils';
 import * as moment from 'moment';
+import { getEnv } from '../commonUtils';
 
 const generateMessages = async (
   subdomain: string,
@@ -46,6 +46,26 @@ const generateMessages = async (
     return generatedButtons;
   };
 
+  const getUrl = (key) => {
+    const DOMAIN = getEnv({
+      name: 'DOMAIN',
+      subdomain,
+    });
+
+    const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+    const VERSION = getEnv({ name: 'VERSION' });
+
+    if (NODE_ENV !== 'production') {
+      return `${DOMAIN}/read-file?key=${key}`;
+    }
+
+    if (VERSION === 'saas') {
+      return `${DOMAIN}/api/read-file?key=${key}`;
+    }
+
+    return `${DOMAIN}/gateway/read-file?key=${key}`;
+  };
+
   const quickRepliesIndex = messages.findIndex(
     ({ type }) => type === 'quickReplies',
   );
@@ -67,7 +87,7 @@ const generateMessages = async (
     audio = '',
     input,
   } of messages) {
-    const botData = generateBotData(subdomain, {
+    const botData = generateBotData({
       type,
       buttons,
       text,
@@ -109,7 +129,7 @@ const generateMessages = async (
               ({ title = '', subtitle = '', image = '', buttons = [] }) => ({
                 title,
                 subtitle,
-                image_url: getUrl(subdomain, image),
+                image_url: getUrl(image),
                 buttons: generateButtons(buttons),
               }),
             ),
@@ -143,7 +163,7 @@ const generateMessages = async (
           attachment: {
             type,
             payload: {
-              url: getUrl(subdomain, url),
+              url: getUrl(url),
             },
           },
           botData,
@@ -337,7 +357,7 @@ export const actionCreateMessage = async (
         fromBot: true,
       });
 
-      sendInboxMessage({
+      await sendInboxMessage({
         subdomain,
         action: 'conversationClientMessageInserted',
         data: {

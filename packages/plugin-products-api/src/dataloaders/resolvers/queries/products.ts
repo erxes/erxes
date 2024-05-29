@@ -253,7 +253,7 @@ const productQueries = {
       return await getSimilaritiesProductsCount(models, filter, params);
     }
 
-    return models.Products.find(filter).countDocuments();
+    return models.Products.find(filter).count();
   },
 
   /**
@@ -440,11 +440,11 @@ const productQueries = {
     return models.ProductCategories.find(filter).countDocuments();
   },
 
-  async productDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  productDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Products.findOne({ _id }).lean();
   },
 
-  async productCategoryDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  productCategoryDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.ProductCategories.findOne({ _id }).lean();
   },
 

@@ -1,8 +1,6 @@
 import {
-  checkoutDialogOpenAtom,
   currentAmountAtom,
   currentPaymentTypeAtom,
-  modeAtom,
   paymentAmountTypeAtom,
 } from "@/store"
 import {
@@ -19,8 +17,6 @@ import { paidAmounts } from "@/lib/utils"
 import useAddPayment from "./useAddPayment"
 
 const useHandlePayment = () => {
-  const mode = useAtomValue(modeAtom)
-  const setCheckoutDialogOpen = useSetAtom(checkoutDialogOpenAtom)
   const [currentAmount, setCurrentAmount] = useAtom(currentAmountAtom)
   const notPaidAmount = useAtomValue(unPaidAmountAtom)
   const type = useAtomValue(currentPaymentTypeAtom)
@@ -59,10 +55,7 @@ const useHandlePayment = () => {
 
   const handlePay = () => {
     if (type === "mobile" || ALL_BANK_CARD_TYPES.includes(type)) {
-      if (mode === "mobile") {
-        setCheckoutDialogOpen(false)
-      }
-      return setTimeout(() => setOpenSheet(true), 300)
+      return setOpenSheet(true)
     }
     if (type === "cash") {
       return addPayment({

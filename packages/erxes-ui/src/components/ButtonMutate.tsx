@@ -87,8 +87,6 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
       this.setState({ isLoading: true });
     }
 
-    console.log('refetchQueries', refetchQueries);
-
     client
       .mutate({
         mutation: gql(mutation),

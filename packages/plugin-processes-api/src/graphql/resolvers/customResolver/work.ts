@@ -3,7 +3,7 @@ import { IContext } from '../../../connectionResolver';
 import { sendCoreMessage } from '../../../messageBroker';
 
 export default {
-  async __resolveReference({ _id }, { models }: IContext) {
+  __resolveReference({ _id }, { models }: IContext) {
     return models.Works.findOne({ _id });
   },
 

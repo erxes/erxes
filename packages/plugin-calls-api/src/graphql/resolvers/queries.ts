@@ -15,7 +15,7 @@ export interface IHistoryArgs {
 }
 
 const callsQueries = {
-  async callsIntegrationDetail(_root, { integrationId }, { models }: IContext) {
+  callsIntegrationDetail(_root, { integrationId }, { models }: IContext) {
     return models.Integrations.findOne({ inboxId: integrationId });
   },
 

@@ -3,7 +3,7 @@ import { IContext } from '../../../connectionResolver';
 import { getProductAndUoms } from './utils';
 
 export default {
-  async __resolveReference({ _id }, { models }: IContext) {
+  __resolveReference({ _id }, { models }: IContext) {
     return models.JobRefers.findOne({ _id }).lean();
   },
 

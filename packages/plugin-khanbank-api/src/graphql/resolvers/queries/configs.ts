@@ -8,7 +8,7 @@ const queries = {
     { page, perPage }: { page: number; perPage: number },
     { models }: IContext
   ) {
-    const totalCount = await models.KhanbankConfigs.find({}).countDocuments();
+    const totalCount = await models.KhanbankConfigs.find({}).count();
 
     return {
       list: paginate(

@@ -139,7 +139,7 @@ export const setupMessageConsumers = async () => {
       const models = await generateModels(subdomain);
 
       return {
-        data: await models.PostConversations.findOne({ erxesApiId }),
+        data: await models.PostConversations.findOne({ erxesApiId }, true),
         status: 'success'
       };
     }

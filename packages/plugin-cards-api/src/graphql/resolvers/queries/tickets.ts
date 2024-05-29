@@ -38,17 +38,17 @@ const ticketQueries = {
       ...(await generateTicketCommonFilters(models, subdomain, user._id, args))
     };
 
-    return models.Tickets.find(filter).countDocuments();
+    return models.Tickets.find(filter).count();
   },
 
   /**
    * Archived list
    */
-  async archivedTickets(_root, args: IArchiveArgs, { models }: IContext) {
+  archivedTickets(_root, args: IArchiveArgs, { models }: IContext) {
     return archivedItems(models, args, models.Tickets);
   },
 
-  async archivedTicketsCount(_root, args: IArchiveArgs, { models }: IContext) {
+  archivedTicketsCount(_root, args: IArchiveArgs, { models }: IContext) {
     return archivedItemsCount(models, args, models.Tickets);
   },
 

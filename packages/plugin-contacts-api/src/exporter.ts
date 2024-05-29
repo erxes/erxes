@@ -113,19 +113,19 @@ const prepareDataCount = async (
 
   switch (type) {
     case MODULE_NAMES.COMPANY:
-      data = await models.Companies.find(contactsFilter).countDocuments();
+      data = await models.Companies.find(contactsFilter).count();
 
       break;
     case 'lead':
-      data = await models.Customers.find(contactsFilter).countDocuments();
+      data = await models.Customers.find(contactsFilter).count();
 
       break;
     case 'visitor':
-      data = await models.Customers.find(contactsFilter).countDocuments();
+      data = await models.Customers.find(contactsFilter).count();
 
       break;
     case MODULE_NAMES.CUSTOMER:
-      data = await models.Customers.find(contactsFilter).countDocuments();
+      data = await models.Customers.find(contactsFilter).count();
       break;
   }
 

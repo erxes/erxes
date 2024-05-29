@@ -429,7 +429,7 @@ const chatMutations = {
     return 'Success';
   },
 
-  async chatTypingInfo(_root, args: { chatId: string; userId?: string }) {
+  chatTypingInfo(_root, args: { chatId: string; userId?: string }) {
     graphqlPubsub.publish(`chatTypingStatusChanged:${args.chatId}`, {
       chatTypingStatusChanged: args,
     });
@@ -550,7 +550,7 @@ const chatMutations = {
     });
   },
 
-  chatMessageReactionRemove: async (_root, { _id }, { models }: IContext) => {
+  chatMessageReactionRemove: (_root, { _id }, { models }: IContext) => {
     return models.ChatMessageReactions.removeChatMessageReaction(_id);
   },
 };

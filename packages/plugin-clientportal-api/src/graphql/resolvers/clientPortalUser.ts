@@ -4,10 +4,10 @@ import { IUser } from '../../models/definitions/clientPortalUser';
 import { customFieldsDataByFieldCode } from '../../utils';
 
 const ClientPortalUser = {
-  __resolveReference: async ({ _id }, { models }: IContext) => {
+  __resolveReference: ({ _id }, { models }: IContext) => {
     return models.ClientPortalUsers.findOne({ _id });
   },
-  async clientPortal(user, _args, { models: { ClientPortals } }: IContext) {
+  clientPortal(user, _args, { models: { ClientPortals } }: IContext) {
     return (
       user.clientPortalId &&
       ClientPortals.findOne({
@@ -34,7 +34,7 @@ const ClientPortalUser = {
     );
   },
 
-  async customFieldsDataByFieldCode(company: IUser, _, { subdomain }: IContext) {
+  customFieldsDataByFieldCode(company: IUser, _, { subdomain }: IContext) {
     return customFieldsDataByFieldCode(company, subdomain);
   },
 
@@ -60,10 +60,10 @@ const ClientPortalUser = {
 };
 
 const ClientPortalParticipant = {
-  __resolveReference: async ({ _id }, { models }: IContext) => {
+  __resolveReference: ({ _id }, { models }: IContext) => {
     return models.ClientPortalUserCards.findOne({ _id });
   },
-  async cpUser(user, _args, { models: { ClientPortalUsers } }: IContext) {
+  cpUser(user, _args, { models: { ClientPortalUsers } }: IContext) {
     return (
       user.cpUserId &&
       ClientPortalUsers.findOne({

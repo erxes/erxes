@@ -191,8 +191,13 @@ const clientPortalUserMutations = {
           })
       ).then(r => r.json());
 
+      if (!response || !response.id) {
+        throw new Error('Facebook authentication failed');
+      }
+
       const { id, name, email, picture, first_name, last_name } =
         response || {};
+        
       let qry: any = {};
       let user: any = {};
 
@@ -297,6 +302,11 @@ const clientPortalUserMutations = {
             method: 'POST',
           }
         ).then(r => r.json());
+
+        if (authResponse.error) {
+          throw new Error(authResponse.error.message);
+        }
+
         return authResponse;
       } catch (err) {
         throw new Error(err);
@@ -323,6 +333,11 @@ const clientPortalUserMutations = {
             },
           }
         ).then(r => r.json());
+
+        if (userResponse.error) {
+          throw new Error(userResponse.error.message);
+        }
+
         return userResponse;
       } catch (err) {
         throw Error(err);
@@ -454,7 +469,7 @@ const clientPortalUserMutations = {
   /*
    * Change user password
    */
-  async clientPortalUserChangePassword(
+  clientPortalUserChangePassword(
     _root,
     args: { currentPassword: string; newPassword: string },
     { cpUser, models }: IContext
@@ -468,7 +483,7 @@ const clientPortalUserMutations = {
   /*
    * Change user password
    */
-  async clientPortalResetPasswordWithCode(
+  clientPortalResetPasswordWithCode(
     _root,
     args: {
       phone: string;
@@ -481,7 +496,7 @@ const clientPortalUserMutations = {
     return models.ClientPortalUsers.changePasswordWithCode(args);
   },
 
-  async clientPortalResetPassword(
+  clientPortalResetPassword(
     _root,
     args: { token: string; newPassword: string },
     { models }: IContext
@@ -881,7 +896,7 @@ const clientPortalUserMutations = {
         cpUser.twoFactorDevices || [];
       if (!twoFactorDevices.includes(args.twoFactor)) {
         twoFactorDevices.push(args.twoFactor);
-        await cpUser.updateOne({ $set: { twoFactorDevices } });
+        await cpUser.update({ $set: { twoFactorDevices } });
       }
       return tokenHandler(
         cpUser,
@@ -1322,7 +1337,7 @@ const clientPortalUserMutations = {
         _id: cpUser.clientPortalId,
       }).lean();
 
-      if (cp?.kind === 'vendor') {
+      if (cp || cp.kind === 'vendor') {
         await models.Companies.createOrUpdateCompany({
           erxesCompanyId,
           clientPortalId: cp._id,
@@ -1354,7 +1369,7 @@ const clientPortalUserMutations = {
       }
     }
 
-    await models.ClientPortalUsers.updateOne({ _id }, { $set: doc });
+    await models.ClientPortalUsers.update({ _id }, { $set: doc });
 
     return models.ClientPortalUsers.findOne({ _id });
   },

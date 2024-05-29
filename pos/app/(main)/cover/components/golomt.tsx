@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { endPoint, initialData } from "@/modules/checkout/hooks/useGolomt"
-import { paymentTypesAtom } from "@/store/config.store"
+import { coverConfigAtom } from "@/store/config.store"
 import { golomtResponseAtom } from "@/store/cover.store"
 import { useAtom, useAtomValue } from "jotai"
 
@@ -11,12 +11,14 @@ import { useToast } from "@/components/ui/use-toast"
 import BankAmountUi from "./bank-amount-ui"
 
 const Golomt = () => {
-  const paymentTypes = useAtomValue(paymentTypesAtom) || []
+  const config = useAtomValue(coverConfigAtom)
   const [response, setResponse] = useAtom(golomtResponseAtom)
   const [loading, setLoading] = useState(false)
   const { onError } = useToast()
 
-  const golomt = paymentTypes.find((pt) => pt.type === BANK_CARD_TYPES.GOLOMT)
+  const golomt = config?.paymentTypes.find(
+    (pt) => pt.type === BANK_CARD_TYPES.GOLOMT
+  )
 
   const handleFetchCover = () => {
     setLoading(true)
@@ -43,9 +45,7 @@ const Golomt = () => {
       })
   }
 
-  if (!golomt) {
-    return null
-  }
+  if (!golomt) return null
 
   return (
     <BankAmountUi

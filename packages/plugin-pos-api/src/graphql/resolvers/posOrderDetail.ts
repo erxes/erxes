@@ -9,7 +9,7 @@ import { IPosOrderDocument } from '../../models/definitions/orders';
 import { getConfig } from '../../utils';
 
 const resolvers = {
-  user: async (order, {}, { subdomain }) => {
+  user: (order, {}, { subdomain }) => {
     if (!order.userId) {
       return null;
     }

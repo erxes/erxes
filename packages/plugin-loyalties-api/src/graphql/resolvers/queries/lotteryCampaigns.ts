@@ -38,7 +38,7 @@ const lotteryCampaignQueries = {
     );
   },
 
-  async cpLotteryCampaigns(_root, {}, { models }: IContext) {
+  cpLotteryCampaigns(_root, {}, { models }: IContext) {
     const now = new Date();
 
     return models.LotteryCampaigns.find({
@@ -58,7 +58,7 @@ const lotteryCampaignQueries = {
     return models.LotteryCampaigns.find(filter).countDocuments();
   },
 
-  async lotteryCampaignDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  lotteryCampaignDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.LotteryCampaigns.getLotteryCampaign(_id);
   },
   async lotteryCampaignWinnerList(

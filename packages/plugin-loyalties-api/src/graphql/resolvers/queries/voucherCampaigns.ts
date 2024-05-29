@@ -56,7 +56,7 @@ const voucherCampaignQueries = {
     );
   },
 
-  async cpVoucherCampaigns(_root, {}, { models }: IContext) {
+  cpVoucherCampaigns(_root, {}, { models }: IContext) {
     const now = new Date();
 
     return models.VoucherCampaigns.find({
@@ -76,7 +76,7 @@ const voucherCampaignQueries = {
     return models.VoucherCampaigns.find(filter).countDocuments();
   },
 
-  async voucherCampaignDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  voucherCampaignDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.VoucherCampaigns.getVoucherCampaign(_id);
   }
 };

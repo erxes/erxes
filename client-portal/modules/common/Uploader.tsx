@@ -97,19 +97,14 @@ class Uploader extends React.Component<Props, State> {
         // set attachments
         const attachment = { url: response, ...fileInfo };
 
-        this.setState(
-          (prevState) => ({
-            attachments: [attachment, ...prevState.attachments]
-          }),
-          () => {
-            this.props.onChange(this.state.attachments);
-        
-            this.setState({
-              loading: false
-            });
-          }
-        );
-        
+        const attachments = [attachment, ...this.state.attachments];
+
+        this.props.onChange(attachments);
+
+        this.setState({
+          loading: false,
+          attachments,
+        });
       },
     });
 
@@ -117,18 +112,15 @@ class Uploader extends React.Component<Props, State> {
   };
 
   removeAttachment = (index: number) => {
-    this.setState(
-      (prevState) => {
-        const attachments = [...prevState.attachments];
-        attachments.splice(index, 1);
-        return { attachments };
-      },
-      () => {
-        this.props.onChange(this.state.attachments);
-      }
-    );
+    const attachments = [...this.state.attachments];
+
+    attachments.splice(index, 1);
+
+    this.setState({ attachments });
+
+    this.props.onChange(attachments);
   };
-  
+
   renderUploadButton() {
     const { multiple, single, showUploader } = this.props;
 

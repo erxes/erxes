@@ -3,11 +3,11 @@ import { sendCoreMessage, sendFormsMessage } from '../../../messageBroker';
 import { IItemCommonFields } from '../../../models/definitions/boards';
 
 export default {
-  async __resolveReference({ _id }, { models }: IContext) {
+  __resolveReference({ _id }, { models }: IContext) {
     return models.Tickets.findOne({ _id });
   },
 
-  async branches(item: IItemCommonFields, args, { subdomain }: IContext) {
+  branches(item: IItemCommonFields, args, { subdomain }: IContext) {
     return sendCoreMessage({
       subdomain,
       action: 'branches.find',
@@ -18,7 +18,7 @@ export default {
       defaultValue: []
     });
   },
-  async departments(item: IItemCommonFields, args, { subdomain }: IContext) {
+  departments(item: IItemCommonFields, args, { subdomain }: IContext) {
     return sendCoreMessage({
       subdomain,
       action: 'departments.find',

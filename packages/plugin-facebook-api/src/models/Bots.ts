@@ -80,7 +80,6 @@ export const loadBotClass = (models: IModels) => {
           pageAccessToken: bot.token,
           botId: bot._id,
           persistentMenus: bot.persistentMenus,
-          greetText: bot?.greetText,
         });
       } catch (error) {
         await models.Bots.deleteOne({ _id: bot._id });
@@ -118,7 +117,6 @@ export const loadBotClass = (models: IModels) => {
           botId: bot._id,
           pageAccessToken: bot.token,
           persistentMenus: bot.persistentMenus,
-          greetText: bot.greetText,
         });
       } catch (err) {
         throw new Error(err.message);
@@ -134,16 +132,15 @@ export const loadBotClass = (models: IModels) => {
         throw new Error(error.message);
       }
 
-      const { pageId, persistentMenus, greetText } = doc;
+      const { pageId, persistentMenus } = doc;
 
       const bot = await this.getBot(_id);
 
       if (
-        JSON.stringify({ pageId, persistentMenus, greetText }) !==
+        JSON.stringify({ pageId, persistentMenus }) !==
         JSON.stringify({
           pageId: bot.pageId,
           persistentMenus: bot.persistentMenus,
-          greetText: bot.greetText,
         })
       ) {
         try {
@@ -155,7 +152,6 @@ export const loadBotClass = (models: IModels) => {
             botId: bot._id,
             pageAccessToken: bot.token,
             persistentMenus: doc.persistentMenus,
-            greetText: greetText !== bot.greetText ? greetText : undefined,
           });
         } catch (error) {
           throw new Error(error.message);
@@ -182,7 +178,6 @@ export const loadBotClass = (models: IModels) => {
       botId,
       pageAccessToken,
       persistentMenus,
-      greetText,
     }) {
       let generatedPersistentMenus: any[] = [];
 
@@ -212,7 +207,7 @@ export const loadBotClass = (models: IModels) => {
         subscribed_fields: ['messages', 'messaging_postbacks'],
       });
 
-      let doc: any = {
+      await graphRequest.post('/me/messenger_profile', pageAccessToken, {
         get_started: { payload: JSON.stringify({ botId: botId }) },
         persistent_menu: [
           {
@@ -228,18 +223,7 @@ export const loadBotClass = (models: IModels) => {
             ],
           },
         ],
-      };
-
-      if (greetText) {
-        doc.greeting = [
-          {
-            locale: 'default',
-            text: greetText,
-          },
-        ];
-      }
-
-      await graphRequest.post('/me/messenger_profile', pageAccessToken, doc);
+      });
 
       return { status: 'success' };
     }

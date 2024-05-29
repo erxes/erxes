@@ -13,8 +13,10 @@ class dbStore {
     this.db = null
   }
 
-  async connect() {
-    return mongoose.createConnection(this.url, {}).db;
+  connect() {
+    return mongoose.createConnection(this.url, { useNewUrlParser: true }).then(client => {
+      return client.db;
+    })
   }
 
   load(fn) {

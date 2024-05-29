@@ -6,7 +6,6 @@ import { useToast } from "@/components/ui/use-toast"
 
 import { mutations } from "../graphql"
 
-const resetModes = ["main", "restaurant", "mobile", "coffee-shop"]
 const useAddPayment = (options?: { onError?: (errors: any) => void }) => {
   const mode = useAtomValue(modeAtom)
   const setType = useSetAtom(currentPaymentTypeAtom)
@@ -16,7 +15,7 @@ const useAddPayment = (options?: { onError?: (errors: any) => void }) => {
 
   const [addPayment, { loading }] = useMutation(mutations.ordersAddPayment, {
     onCompleted() {
-      resetModes.includes(mode) && setType("")
+      mode === "main" && setType("")
       setRefetchOrder(true)
     },
     refetchQueries: ["orderDetail"],

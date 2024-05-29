@@ -56,7 +56,7 @@ const prepareDataCount = async (
     filter._id = { $in: itemIds };
   }
 
-  data = await models.XypData.find(filter).countDocuments();
+  data = await models.XypData.find(filter).count();
 
   return data;
 };
