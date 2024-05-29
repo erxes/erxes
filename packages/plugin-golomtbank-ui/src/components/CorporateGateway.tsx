@@ -18,8 +18,8 @@ const CorporateGateway = (props: Props) => {
 
   const breadcrumb = [
     {
-      title: __('Khanbank Corporate Gateway'),
-      link: '/khanbank-corporate-gateway',
+      title: __('Golomtbank Corporate Gateway'),
+      link: '/Golomtbank-corporate-gateway',
     },
   ];
   const count = queryParams.account ? 1 : 0;
@@ -35,7 +35,7 @@ const CorporateGateway = (props: Props) => {
       mainHead={
         <HeaderDescription
           icon="/images/actions/27.svg"
-          title="Khanbank Corporate Gateway"
+          title="Golomtbank Corporate Gateway"
           description={__(
             `Corporate Gateway enables you access banking services through erxes.`,
           )}
@@ -50,12 +50,12 @@ const CorporateGateway = (props: Props) => {
           emptyContent={
             <EmptyContent
               content={{
-                title: __('Getting Started with Khanbank Corporate Gateway'),
+                title: __('Getting Started with Golomtbank Corporate Gateway'),
                 steps: [
                   {
                     title: __('Create Corporate Gateway config'),
                     description: __(
-                      'Register at Khanbank and become a Khanbank customer',
+                      'Register at Golomtbank and become a Golomtbank customer',
                     ),
                     url: `https://www.khanbank.com/en/corporate/product/429?activetab=2`,
                     urlText: 'Apply for Corporate Gateway',

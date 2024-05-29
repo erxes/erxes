@@ -34,63 +34,7 @@ const  list =  [
         "schemeCode": "CA658",
         "schemeType": "SBA"
       }
-    },
-    {
-      "requestId": "390f23f821b24ac9afc6a93557dcc6b2",
-      "accountId": "1605214227",
-      "accountName": "ОЧИР УНДРАА ОМЗ ББСБ",
-      "shortName": "ОЧИР УНДРА",
-      "currency": "MNT",
-      "branchId": "160",
-      "isSocialPayConnected": "N",
-      "accountType": {
-        "schemeCode": "CA658",
-        "schemeType": "SBA"
-      }
-    },
-    {
-      "requestId": "0bf7c96f0fc64e1bb8b85cf7f4025d94",
-      "accountId": "8115006941",
-      "accountName": "ОЧИР УНДРАА ОМЗ ББСБ",
-      "shortName": "ОЧИР УНДРА",
-      "currency": "MNT",
-      "branchId": "814",
-      "isSocialPayConnected": "N",
-      "accountType": {
-        "schemeCode": "CA602",
-        "schemeType": "SBA"
-      }
-    },
-    {
-      "requestId": "1ea0f85ffd684d09b60a8633ff6a0949",
-      "accountId": "1905008266",
-      "accountName": "ОЧИР УНДРАА ОМЗ ББСБ",
-      "shortName": "ОЧИР УНДРА",
-      "currency": "MNT",
-      "branchId": "814",
-      "isSocialPayConnected": "N",
-      "accountType": {
-        "schemeCode": "CA602",
-        "schemeType": "SBA"
-      }
-    },
-    
-    {
-      "requestId": "b0f9d6ab66ef475ba4393ff3c202eb14",
-      "accountId": "1605172170",
-      "accountName": "ОЧИР УНДРАА ОМЗ ББСБ",
-      "shortName": "ОЧИР УНДРА",
-      "currency": "MNT",
-      "branchId": "814",
-      "isSocialPayConnected": "N",
-      "accountType": {
-        "schemeCode": "CA658",
-        "schemeType": "SBA"
-      }
-    },
-
-
-    
+    }
   ]
 
      
