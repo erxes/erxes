@@ -438,14 +438,10 @@ const engageQueries = {
     const domains = await redisUtils.getDomains();
 
     const signedDomains = await api.getDomains();
-    console.log("signedDomains", signedDomains)
-    console.log("domains", domains)
-    // filter signedDomains by domains
-    const filteredDomains = signedDomains.filter((domain) => {
-      return domains.includes(domain.sendingDomain);
-    })
 
-    return filteredDomains;
+    return signedDomains.filter((domain) => {
+      return domains.includes(domain.sendingDomain);
+    });
   },
 };
 

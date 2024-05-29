@@ -268,12 +268,11 @@ export class SocketLabs {
     }
 
     if (isVerified) {
-      const verified = data.filter(
+      return data.filter(
         (d) =>
           d.verificationStatus === 'Complete' &&
           d.authenticationStatus === 'Authenticated'
       );
-      return verified;
     }
 
     return data;

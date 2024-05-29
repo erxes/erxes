@@ -13,6 +13,10 @@ const Domain = (props: Props) => {
   const [currentTab, setCurrentTab] = React.useState(0);
 
   const renderContent = () => {
+    const {sendingDomain, verificationStatus, authenticationStatus, dkimDomain, bounceDomain, trackingDomain} = domains[currentTab];
+
+   
+
     return <>{`this is content of ${currentTab}`}</>;
   };
 

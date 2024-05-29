@@ -326,9 +326,7 @@ const engageMutations = {
       username,
     });
 
-    const result = await api.validate(email, verificationCode);
-
-    return result;
+    return await api.validate(email, verificationCode);
   },
 
   /**

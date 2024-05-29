@@ -15,7 +15,7 @@ import { IModels } from './connectionResolver';
 export const isUsingElk = () => {
   const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
 
-  return ELK_SYNCER === 'false' ? false : true;
+  return !(ELK_SYNCER === 'false');
 };
 
 export const createTransporter = async (models: IModels) => {
@@ -376,11 +376,9 @@ export const setCampaignCount = async (models: IModels, data: ICampaign) => {
 
 export const getEditorAttributeUtil = async (subdomain: string) => {
   const services = await getServices();
-  const editor = await new EditorAttributeUtil(
+  return await new EditorAttributeUtil(
     `${process.env.DOMAIN}/gateway/pl:core`,
     services,
     subdomain,
   );
-
-  return editor;
 };
