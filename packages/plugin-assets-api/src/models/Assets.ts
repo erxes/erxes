@@ -192,8 +192,8 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
       const name: string = assetFields.name || '';
       const description: string = assetFields.description ?? '';
       const categoryId = assetFields.categoryId ?? undefined;
-      const parentId = assetFields.parentId || undefined;
-      const vendorId: string = assetFields.vendorId || '';
+      const parentId = assetFields.parentId ?? undefined;
+      const vendorId: string = assetFields.vendorId ?? '';
       const usedIds: string[] = [];
 
       for (const assetId of assetIds) {
