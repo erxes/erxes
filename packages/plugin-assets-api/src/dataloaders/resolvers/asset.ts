@@ -31,7 +31,7 @@ export default {
 
     let filter: string | object = { $regex: new RegExp(order) };
 
-    if (asset.order.match(/\\/)) {
+    if (/\\/.exec(asset.order)) {
       filter = asset.order;
     }
 
