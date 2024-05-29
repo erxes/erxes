@@ -173,7 +173,7 @@ export const queries = `
   insightChartGetTemplates(serviceName: String!): JSON
   insightChartGetFilterTypes(serviceName: String!, templateType: String!): JSON
 
-  chartGetResult(serviceName: String!, templateType: String!, filter: JSON, dimension: JSON): JSON
+  chartGetResult(serviceName: String!, templateType: String!, chartType: String!, filter: JSON, dimension: JSON): JSON
 
   dashboardList(${queryParams}): DashboardListResponse
   dashboardDetail(_id: String!): Dashboard

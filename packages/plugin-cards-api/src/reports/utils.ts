@@ -1,26 +1,921 @@
 import { sendCoreMessage, sendFormsMessage, sendInboxMessage } from "../messageBroker";
-import { MONTH_NAMES, NOW, PROBABILITY_CLOSED, PROBABILITY_OPEN, WEEKDAY_NAMES } from './constants';
+import { MONTH_NAMES, NOW, PROBABILITY_CLOSED, PROBABILITY_OPEN, WEEKDAY_NAMES, DIMENSION_MAP, FIELD_MAP, COLLECTION_MAP } from './constants';
 import { IModels } from "../connectionResolver";
 import * as dayjs from 'dayjs';
 import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
+const util = require('util')
 
-export const buildLookup = (from, field, extraConditions = [], extraStages = []) => {
-    const conditions = [
-        { $eq: ["$_id", "$$fieldId"] },
-        ...extraConditions,
-    ]
+export const buildUnwind = ({ fields }: { fields: string[] }) => {
+    const unwinds = (fields || []).map((field) => ({
+        $unwind: `$${FIELD_MAP[field]}`
+    }));
 
-    const pipeline = [
-        { $match: { $expr: { $and: conditions } } },
-        ...extraStages
-    ]
+    return unwinds;
+}
+
+export const buildLookup = ({ fields, localField, foreignField, extraConditions = [], extraStages = [] }: {
+    fields: string[];
+    localField?: string;
+    foreignField?: string;
+    extraConditions?: any[];
+    extraStages?: any[];
+}) => {
+
+    const lookups = fields.map((field) => {
+        const conditions: any = [
+            { $eq: [`$${foreignField || '_id'}`, "$$fieldId"] },
+            ...extraConditions,
+        ];
+
+        const pipeline: any = [
+            { $match: { $expr: { $and: conditions } } },
+            ...extraStages,
+        ];
+
+        return [
+            {
+                $lookup: {
+                    from: COLLECTION_MAP[field],
+                    let: { fieldId: `$_id.${localField || DIMENSION_MAP[field]}` },
+                    pipeline,
+                    as: field,
+                },
+            },
+            {
+                $unwind: `$${field}`
+            }
+        ];
+    });
+
+    return [...lookups.flat()];
+}
+
+export const buildGroupBy = ({ fields, action, extraFields }: {
+    fields: string[];
+    action: object;
+    extraFields?: object;
+}): object => {
+
+    const groupBy = (fields || []).reduce((acc, field) => {
+        acc[DIMENSION_MAP[field]] = `$${FIELD_MAP[field]}`;
+        return acc;
+    }, {});
 
     return {
-        from,
-        let: { fieldId: `$${field}` },
-        pipeline,
-        as: 'lookup'
+        $group: {
+            _id: groupBy,
+            ...action,
+            ...extraFields
+        }
     }
+}
+
+export const buildAction = (measures: string[]): object => {
+    const actions = {};
+
+    measures.forEach((measure) => {
+        switch (measure) {
+            case 'count':
+                actions[measure] = { $sum: 1 };
+                break;
+            case 'totalAmount':
+                actions[measure] = { $sum: '$productsData.amount' };
+                break
+            case 'unusedAmount':
+                actions[measure] = { $sum: { $cond: [{ $eq: ['$productsData.tickUsed', false] }, '$productsData.amount', 0] } };
+                break;
+            case 'averageAmount':
+                actions[measure] = { $avg: '$productsData.amount' };
+                break;
+            case 'forecastAmount':
+                actions[measure] = {
+                    $sum: {
+                        $divide: [
+                            {
+                                $multiply: [
+                                    "$productsData.amount",
+                                    "$probability"
+                                ]
+                            },
+                            100
+                        ]
+                    }
+                }
+                break;
+            default:
+                actions[measure] = { $sum: 1 };
+                break;
+        }
+    });
+
+    return actions;
+}
+export const buildPipeline = (filter, type, matchFilter) => {
+
+    const { dimension, measure, userType = 'userId', frequencyType, dateRange, startDate, endDate, dateRangeType = "createdAt" } = filter
+
+    const pipeline: any[] = [];
+
+    let formatType = "%Y"
+
+    if (dateRange && dateRange.toLowerCase().includes('day')) {
+        formatType = '%Hh:%Mm:%Ss'
+    }
+
+    if (dateRange && dateRange.toLowerCase().includes('week')) {
+        formatType = '%u'
+    }
+
+    if (dateRange && dateRange.toLowerCase().includes('month')) {
+        formatType = "%V"
+    }
+
+    if (dateRange && dateRange.toLowerCase().includes('year')) {
+        formatType = "%m"
+    }
+
+    if (dateRange === 'customDate' && startDate && endDate) {
+        formatType = '%Y-%m-%d';
+    }
+
+    const dateFormat = frequencyType || formatType
+
+    if (dimension.includes("tag")) {
+        pipeline.push({ $unwind: "$tagIds" });
+    }
+
+    if (dimension.includes("label")) {
+        pipeline.push({ $unwind: "$labelIds" });
+    }
+
+    if (dimension.includes("customer")) {
+        pipeline.push({
+            $lookup: {
+                from: "conformities",
+                let: { fieldId: "$_id" },
+                pipeline: [
+                    {
+                        $match: {
+                            $and: [
+                                {
+                                    $expr: {
+                                        $eq: ["$mainType", type],
+                                    },
+                                },
+                                {
+                                    $expr: {
+                                        $eq: [
+                                            "$mainTypeId",
+                                            "$$fieldId",
+                                        ],
+                                    },
+                                },
+                                {
+                                    $expr: {
+                                        $eq: ["$relType", "customer"],
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                ],
+                as: "conformity",
+            },
+        },
+            {
+                $unwind: "$conformity",
+            });
+    }
+
+    if (dimension.includes("company")) {
+        pipeline.push({
+            $lookup: {
+                from: "conformities",
+                let: { fieldId: "$_id" },
+                pipeline: [
+                    {
+                        $match: {
+                            $and: [
+                                {
+                                    $expr: {
+                                        $eq: ["$mainType", type],
+                                    },
+                                },
+                                {
+                                    $expr: {
+                                        $eq: [
+                                            "$mainTypeId",
+                                            "$$fieldId",
+                                        ],
+                                    },
+                                },
+                                {
+                                    $expr: {
+                                        $eq: ["$relType", "company"],
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                ],
+                as: "conformity",
+            },
+        },
+            {
+                $unwind: "$conformity",
+            });
+    }
+
+    if (dimension.includes("teamMember") && userType === "assignedUserIds") {
+        pipeline.push({ $unwind: "$assignedUserIds" });
+    }
+
+    if (dimension.includes("branch")) {
+        pipeline.push({ $unwind: "$branchIds" });
+    }
+
+    if (dimension.includes("department")) {
+        pipeline.push({ $unwind: "$departmentIds" });
+    }
+
+    if (dimension.includes("source")) {
+        pipeline.push(
+            {
+                $unwind: "$sourceConversationIds"
+            },
+            {
+                $lookup: {
+                    from: "conversations",
+                    let: { conversationId: "$sourceConversationIds" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $eq: ["$_id", "$$conversationId"]
+                                }
+                            }
+                        }
+                    ],
+                    as: 'conversation'
+                }
+            },
+            {
+                $unwind: "$conversation"
+            },
+            {
+                $lookup: {
+                    from: "integrations",
+                    let: { integrationId: "$conversation.integrationId" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $eq: ["$_id", "$$integrationId"]
+                                }
+                            }
+                        }
+                    ],
+                    as: 'integration'
+                }
+            },
+            {
+                $unwind: "$integration"
+            })
+    }
+
+    if (dimension.includes("product") || (measure || []).some(m => ["totalAmount", "averageAmount", "unusedAmount", "forecastAmount"].includes(m))) {
+        pipeline.push({ $unwind: "$productsData" });
+    }
+
+    if (dimension.includes("pipeline") || (measure || []).includes("forecastAmount")) {
+        pipeline.push(
+            {
+                $lookup: {
+                    from: "stages",
+                    localField: "stageId",
+                    foreignField: "_id",
+                    as: "stage",
+                },
+            },
+            {
+                $unwind: "$stage",
+            },
+        );
+    }
+
+    if (dimension.includes("board")) {
+        pipeline.push(
+            {
+                $lookup: {
+                    from: "stages",
+                    localField: "stageId",
+                    foreignField: "_id",
+                    as: "stage",
+                },
+            },
+            {
+                $unwind: "$stage",
+            },
+            {
+                $lookup: {
+                    from: "pipelines",
+                    localField: "stage.pipelineId",
+                    foreignField: "_id",
+                    as: "pipeline",
+                },
+            },
+            {
+                $unwind: "$pipeline",
+            },
+        );
+    }
+
+    if (measure.includes("forecastAmount")) {
+        pipeline.push({
+            $addFields: {
+                probability: {
+                    $switch: {
+                        branches: [
+                            {
+                                case: {
+                                    $eq: ["$stage.probability", "Won"]
+                                },
+                                then: 100
+                            },
+                            {
+                                case: {
+                                    $eq: [
+                                        "$stage.probability",
+                                        "Done"
+                                    ]
+                                },
+                                then: 100
+                            },
+                            {
+                                case: {
+                                    $eq: [
+                                        "$stage.probability",
+                                        "Resolved"
+                                    ]
+                                },
+                                then: 100
+                            },
+                            {
+                                case: {
+                                    $eq: [
+                                        "$stage.probability",
+                                        "Lost"
+                                    ]
+                                },
+                                then: 0
+                            }
+                        ],
+                        default: {
+                            $toDouble: {
+                                $arrayElemAt: [
+                                    {
+                                        $split: [
+                                            "$stage.probability",
+                                            "%"
+                                        ]
+                                    },
+                                    0
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        })
+    }
+
+    const match: object = {
+
+        ...matchFilter
+    }
+
+    if (measure.includes("forecastAmount")) {
+        match["stage.probability"] = { $ne: null };
+    }
+
+    if (dimension.includes("priority")) {
+        match["priority"] = { $nin: [null, "", " "] };
+    }
+
+    if (dimension.includes("teamMember")) {
+        match[userType] = { $exists: true };
+    }
+
+    if (dimension.includes("frequency")) {
+        match[dateRangeType] = { $ne: null };
+    }
+
+    if (dimension.includes("card")) {
+        match["name"] = { $nin: [null, ""] }
+    }
+
+    pipeline.push({
+        $match: match
+    });
+
+    const groupKeys: any = {};
+    if (dimension.includes("tag")) {
+        groupKeys.tagId = "$tagIds";
+    }
+
+    if (dimension.includes("card")) {
+        groupKeys.cardName = "$name";
+    }
+
+    if (dimension.includes("label")) {
+        groupKeys.labelId = "$labelIds";
+    }
+
+    if (dimension.includes("customer")) {
+        groupKeys.customerId = "$conformity.relTypeId";
+    }
+
+    if (dimension.includes("company")) {
+        groupKeys.companyId = "$conformity.relTypeId";
+    }
+
+    if (dimension.includes("priority")) {
+        groupKeys.priority = "$priority";
+    }
+
+    if (dimension.includes("status")) {
+        groupKeys.status = "$status";
+    }
+
+    if (dimension.includes("teamMember")) {
+        groupKeys.userId = `$${userType}`;
+    }
+
+    if (dimension.includes("branch")) {
+        groupKeys.branchId = "$branchIds";
+    }
+
+    if (dimension.includes("department")) {
+        groupKeys.departmentId = "$departmentIds";
+    }
+
+    if (dimension.includes("department")) {
+        groupKeys.source = "$integration.kind";
+    }
+
+    if (dimension.includes("product")) {
+        groupKeys.productId = "$productsData.productId";
+    }
+
+    if (dimension.includes("stage")) {
+        groupKeys.stageId = "$stageId";
+    }
+
+    if (dimension.includes("pipeline")) {
+        groupKeys.pipelineId = "$stage.pipelineId";
+    }
+
+    if (dimension.includes("board")) {
+        groupKeys.boardId = "$pipeline.boardId";
+    }
+
+    if (dimension.includes("source")) {
+        groupKeys.source = "$integration.kind";
+    }
+
+    if (dimension.includes("frequency")) {
+        groupKeys.frequency = {
+            $dateToString: {
+                format: dateFormat,
+                date: `$${dateRangeType}`,
+            },
+        };
+    }
+
+    pipeline.push({
+        $group: {
+            _id: groupKeys,
+            ...buildAction(measure),
+            ...(dimension.includes("frequency") ? { date: { $first: `$${dateRangeType}` } } : {}),
+        }
+    });
+
+    if (dimension.includes("frequency")) {
+        pipeline.push({ $sort: { _id: 1 } })
+    }
+
+    if (dimension.includes("tag")) {
+        pipeline.push(
+            {
+                $lookup: {
+                    from: "tags",
+                    let: { fieldId: "$_id.tagId" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $eq: ["$_id", "$$fieldId"]
+                                }
+                            }
+                        }
+                    ],
+                    as: "tag"
+                }
+            },
+            { $unwind: "$tag" }
+        );
+    }
+
+    if (dimension.includes("label")) {
+        pipeline.push(
+            {
+                $lookup: {
+                    from: "pipeline_labels",
+                    let: { fieldId: "$_id.labelId" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $eq: ["$_id", "$$fieldId"]
+                                }
+                            }
+                        }
+                    ],
+                    as: "label"
+                }
+            },
+            { $unwind: "$label" }
+        );
+    }
+
+    if (dimension.includes("customer")) {
+        pipeline.push(
+            {
+                $lookup: {
+                    from: "customers",
+                    let: { fieldId: "$_id.customerId" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $eq: ["$_id", "$$fieldId"]
+                                }
+                            }
+                        }
+                    ],
+                    as: "customer"
+                }
+            },
+            { $unwind: "$customer" }
+        );
+    }
+
+    if (dimension.includes("company")) {
+        pipeline.push(
+            {
+                $lookup: {
+                    from: "companies",
+                    let: { fieldId: "$_id.companyId" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $eq: ["$_id", "$$fieldId"]
+                                }
+                            }
+                        }
+                    ],
+                    as: "company"
+                }
+            },
+            { $unwind: "$company" }
+        );
+    }
+
+    if (dimension.includes("teamMember")) {
+        pipeline.push(
+            {
+                $lookup: {
+                    from: "users",
+                    let: { fieldId: "$_id.userId" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$_id", "$$fieldId"] },
+                                        { $eq: ["$isActive", true] },
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    as: "user"
+                }
+            },
+            { $unwind: "$user" }
+        );
+    }
+
+    if (dimension.includes("branch")) {
+        pipeline.push(
+            {
+                $lookup: {
+                    from: "branches",
+                    let: { fieldId: "$_id.branchId" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$_id", "$$fieldId"] },
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    as: "branch"
+                }
+            },
+            { $unwind: "$branch" }
+        );
+    }
+
+    if (dimension.includes("department")) {
+        pipeline.push(
+            {
+                $lookup: {
+                    from: "departments",
+                    let: { fieldId: "$_id.departmentId" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$_id", "$$fieldId"] },
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    as: "department"
+                }
+            },
+            { $unwind: "$department" }
+        );
+    }
+
+    if (dimension.includes("product")) {
+        pipeline.push(
+            {
+                $lookup: {
+                    from: "products",
+                    let: { fieldId: "$_id.productId" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$_id", "$$fieldId"] },
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    as: "product"
+                }
+            },
+            { $unwind: "$product" }
+        );
+    }
+
+    if (dimension.includes("stage")) {
+        pipeline.push(
+            {
+                $lookup: {
+                    from: "stages",
+                    let: { fieldId: "$_id.stageId" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$_id", "$$fieldId"] },
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    as: "stage"
+                }
+            },
+            { $unwind: "$stage" }
+        );
+    }
+
+    if (dimension.includes("pipeline")) {
+        pipeline.push(
+            {
+                $lookup: {
+                    from: "pipelines",
+                    let: { fieldId: "$_id.pipelineId" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$_id", "$$fieldId"] },
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    as: "pipeline"
+                }
+            },
+            { $unwind: "$pipeline" }
+        );
+    }
+
+    if (dimension.includes("board")) {
+        pipeline.push(
+            {
+                $lookup: {
+                    from: "boards",
+                    let: { fieldId: "$_id.boardId" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$_id", "$$fieldId"] },
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    as: "board"
+                }
+            },
+            { $unwind: "$board" }
+        );
+    }
+
+    const projectionFields: any = {
+        _id: 0,
+    };
+
+    measure.forEach((m) => {
+        projectionFields[m] = 1;
+    });
+
+    if (dimension.includes("frequency")) {
+
+        let projectStage: any = "$_id.frequency"
+
+        if (dateFormat === "%u") {
+            projectStage = {
+                $arrayElemAt: [WEEKDAY_NAMES, { $subtract: [{ $toInt: "$_id.frequency" }, 1] }]
+            }
+        }
+
+        if (dateFormat === "%m") {
+            projectStage = {
+                $arrayElemAt: [MONTH_NAMES, { $subtract: [{ $toInt: "$_id.frequency" }, 1] }],
+            }
+        }
+
+        if (dateFormat === "%V") {
+            projectStage = {
+                $concat: [
+                    "Week ",
+                    "$_id.frequency",
+                    " ",
+                    {
+                        $dateToString: {
+                            format: "%m/%d",
+                            date: {
+                                $dateFromString: {
+                                    dateString: {
+                                        $concat: [
+                                            {
+                                                $dateToString: {
+                                                    format: "%Y",
+                                                    date: "$date",
+                                                },
+                                            },
+                                            "-W",
+                                            {
+                                                $dateToString: {
+                                                    format: "%V",
+                                                    date: "$date",
+                                                },
+                                            },
+                                            "-1",
+                                        ],
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    "-",
+                    {
+                        $dateToString: {
+                            format: "%m/%d",
+                            date: {
+                                $dateFromString: {
+                                    dateString: {
+                                        $concat: [
+                                            {
+                                                $dateToString: {
+                                                    format: "%Y",
+                                                    date: "$date",
+                                                },
+                                            },
+                                            "-W",
+                                            {
+                                                $dateToString: {
+                                                    format: "%V",
+                                                    date: "$date",
+                                                },
+                                            },
+                                            "-7",
+                                        ],
+                                    },
+                                },
+                            },
+                        },
+                    },
+                ],
+            }
+        }
+
+        projectionFields.frequency = projectStage;
+    }
+
+    if (dimension.includes("tag")) {
+        projectionFields.tag = "$tag.name";
+    }
+
+    if (dimension.includes("card")) {
+        projectionFields.card = "$_id.cardName";
+    }
+
+    if (dimension.includes("label")) {
+        projectionFields.label = "$label.name";
+    }
+
+    if (dimension.includes("customer")) {
+        projectionFields.customer = "$customer.firstName";
+    }
+
+    if (dimension.includes("company")) {
+        projectionFields.company = "$company.primaryName";
+    }
+
+    if (dimension.includes("priority")) {
+        projectionFields.priority = "$_id.priority";
+    }
+
+    if (dimension.includes("status")) {
+        projectionFields.status = "$_id.status";
+    }
+
+    if (dimension.includes("teamMember")) {
+        projectionFields.teamMember = "$user.details.fullName";
+    }
+
+    if (dimension.includes("branch")) {
+        projectionFields.branch = "$branch.title";
+    }
+
+    if (dimension.includes("department")) {
+        projectionFields.department = "$department.title";
+    }
+
+    if (dimension.includes("source")) {
+        projectionFields.source = "$_id.source";
+    }
+
+    if (dimension.includes("product")) {
+        projectionFields.product = "$product.name";
+    }
+
+    if (dimension.includes("stage")) {
+        projectionFields.stage = "$stage.name";
+    }
+
+    if (dimension.includes("pipeline")) {
+        projectionFields.pipeline = "$pipeline.name";
+    }
+
+    if (dimension.includes("board")) {
+        projectionFields.board = "$board.name";
+    }
+
+    pipeline.push({ $project: projectionFields });
+
+    return pipeline;
 }
 
 export const returnDateRange = (
@@ -354,8 +1249,60 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
     return matchfilter;
 }
 
+export const buildData = ({ chartType, data, measure, dimension }) => {
+    switch (chartType) {
+        case 'bar':
+        case 'line':
+        case 'pie':
+        case 'doughnut':
+        case 'radar':
+        case 'polarArea':
+            return buildChartData(data, measure, dimension)
+        case 'table':
+            return buildTableData(data, measure, dimension)
+        default:
+            return data
+    }
+}
+
+export const buildChartData = (data: any, measures: any, dimensions: any) => {
+
+    const datasets = (data || []).map(item => item[measures[0]])
+    const labels = (data || []).map(item => item[dimensions[0]])
+
+    return { data: datasets, labels };
+}
+
+export const buildTableData = (data: any, measures: any, dimensions: any) => {
+
+    const reorderedData = data.map(item => {
+        const order = {};
+
+        dimensions.forEach(dimension => {
+            order[dimension] = item[dimension];
+        });
+
+        measures.forEach(measure => {
+            order[measure] = item[measure];
+        });
+        return order;
+    });
+
+    const total = data.reduce((acc, item) => {
+        measures.forEach(measure => {
+            if (item[measure] !== undefined) {
+                acc[measure] = (acc[measure] || 0) + item[measure];
+            }
+        });
+
+        return acc;
+    }, {})
+
+    return { data: [...reorderedData, total] }
+}
+
 export const getDimensionPipeline = async (filter, type, subdomain, models) => {
-    const { dimension } = filter
+    const { dimension, measure } = filter
 
     const matchFilter = await buildMatchFilter(filter, type, subdomain, models)
 
@@ -920,7 +1867,6 @@ export const getDimensionPipeline = async (filter, type, subdomain, models) => {
 
     // STAGE DIMENSION
     if (dimension === 'stage') {
-
         pipeline.push(...[
             {
                 $match: {
@@ -1001,7 +1947,6 @@ export const getDimensionPipeline = async (filter, type, subdomain, models) => {
 
     // BOARD DIMENSION
     if (dimension === 'board') {
-
         pipeline.push(...[
             {
                 $match: {
