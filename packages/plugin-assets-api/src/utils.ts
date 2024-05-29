@@ -151,7 +151,7 @@ export const generateFilter = async (
 
   if (params.withKnowledgebase) {
     let KbFilter: any = { 'kbArticleIds.0': { $exists: 1 } };
-    if (!!filter?.assetId?.$in?.length) {
+    if (filter?.assetId?.$in?.length) {
       KbFilter._id = filter?.assetId?.$in;
     }
     const assetIdsWithKb = await models?.Assets.find(KbFilter).distinct('_id');
@@ -161,7 +161,7 @@ export const generateFilter = async (
   if (params.onlyCurrent) {
     let pipeline: any = [];
 
-    if (!!filter?.assetId?.$in?.length) {
+    if (filter?.assetId?.$in?.length) {
       pipeline = [{ $match: { assetId: { $in: filter?.assetId?.$in } } }];
     }
 
