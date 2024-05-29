@@ -2,7 +2,7 @@
 import { Builder, parseString } from 'xml2js';
 //api connect
 //to save request
- sent
+
 export class tosentRequest {
 
 

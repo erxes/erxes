@@ -2,15 +2,18 @@ import gql from 'graphql-tag';
 
 const types = `
   type Golomtbank {
-    _id: String!
-    title: String
-    mailData: JSON
+    requestId: String,
+    accountId: String,
+    accountName: String,
+    shortName: String
+    currency: String
+    branchId: String
   }
 `;
 
 const queries = `
-  golomtbankConversationDetail(conversationId: String!): [Golomtbank]
-  golomtbankAccounts: JSON
+
+  golomtBankAccounts: JSON
 `;
 
 const mutations = `

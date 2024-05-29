@@ -19,5 +19,12 @@ module.exports = {
       scope: 'golomtbank',
       location: "settings"
     },
+    {
+      text: "GolomtBank",
+      icon: "icon-university",
+      url: "/erxes-plugin-golomtbank/accounts",
+      scope: 'golomtbank',
+      location: "mainNavigation"
+    }
   ]
 };

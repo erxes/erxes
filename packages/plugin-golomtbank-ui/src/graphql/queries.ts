@@ -9,7 +9,7 @@ const detail = `
 
 const accounts = `
   query golomtbankAccounts {
-    golomtbankAccounts 
+    golomtBankAccounts
   }
 `;
 const configs = `
