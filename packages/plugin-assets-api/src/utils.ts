@@ -161,7 +161,7 @@ export const generateFilter = async (
   if (params.onlyCurrent) {
     let pipeline: any = [];
 
-    if (!!filter?.assetId?.$in?.length) {
+    if (filter?.assetId?.$in?.length) {
       pipeline = [{ $match: { assetId: { $in: filter?.assetId?.$in } } }];
     }
 
