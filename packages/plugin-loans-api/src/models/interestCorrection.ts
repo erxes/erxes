@@ -1,7 +1,6 @@
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import {
-  IInterestCorrection,
   IInterestCorrectionDocument,
   InterestCorrectionSchema
 } from './definitions/interestCorrection';
@@ -27,7 +26,7 @@ export const loanInterestCorrectionClass = (models: IModels) => {
         type: INTEREST_CORRECTION_TYPE.STOP_INTEREST
       });
 
-      if (!!interestCorrection) {
+      if (interestCorrection) {
         throw new Error('Interest already stopped');
       }
 

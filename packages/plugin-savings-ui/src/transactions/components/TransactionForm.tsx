@@ -9,7 +9,7 @@ import {
   MainStyleFormWrapper as FormWrapper,
   Info,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
+  MainStyleScrollWrapper as ScrollWrapper
 } from '@erxes/ui/src';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { ITransaction, ITransactionDoc } from '../types';
@@ -20,7 +20,7 @@ import React, { useState } from 'react';
 import { __ } from 'coreui/utils';
 import dayjs from 'dayjs';
 import SelectContracts, {
-  Contracts,
+  Contracts
 } from '../../contracts/components/common/SelectContract';
 
 type Props = {
@@ -32,29 +32,26 @@ type Props = {
 
 const TransactionForm = (props: Props) => {
   const { transaction = {} as ITransaction, type } = props;
-  const [contractId, setcontractId] = useState(transaction.contractId || '');
-  const [payDate, setpayDate] = useState(transaction.payDate || new Date());
-  const [invoiceId, setinvoiceId] = useState(transaction.invoiceId || '');
-  const [description, setdescription] = useState(transaction.description || '');
-  const [total, settotal] = useState(transaction.total || 0);
-  const [companyId, setcompanyId] = useState(transaction.companyId || '');
-  const [customerId, setcustomerId] = useState(transaction.customerId || '');
-  const [paymentInfo, setpaymentInfo] = useState(null as any);
-  const [storedInterest, setstoredInterest] = useState(
-    transaction.storedInterest || 0,
+  const [contractId, setContractId] = useState(transaction.contractId || '');
+  const [payDate, setPayDate] = useState(transaction.payDate || new Date());
+  const [description, setDescription] = useState(transaction.description || '');
+  const [total, setTotal] = useState(transaction.total || 0);
+  const [companyId, setCompanyId] = useState(transaction.companyId || '');
+  const [customerId, setCustomerId] = useState(transaction.customerId || '');
+  const [storedInterest, setStoredInterest] = useState(
+    transaction.storedInterest || 0
   );
-  const [transactionType, settransactionType] = useState(type);
-  const [closeInterestRate, setcloseInterestRate] = useState(
-    transaction.closeInterestRate || 0,
+  const [closeInterestRate, setCloseInterestRate] = useState(
+    transaction.closeInterestRate || 0
   );
-  const [closeInterest, setcloseInterest] = useState(
-    transaction.closeInterest || 0,
+  const [closeInterest, setCloseInterest] = useState(
+    transaction.closeInterest || 0
   );
-  const [interestRate, setinterestRate] = useState(
-    transaction.interestRate || 0,
+  const [interestRate, setInterestRate] = useState(
+    transaction.interestRate || 0
   );
-  const [savingAmount, setsavingAmount] = useState(
-    transaction.savingAmount || 0,
+  const [savingAmount, setSavingAmount] = useState(
+    transaction.savingAmount || 0
   );
 
   const generateDoc = (values: { _id: string } & ITransactionDoc) => {
@@ -67,20 +64,18 @@ const TransactionForm = (props: Props) => {
     return {
       _id: finalValues._id,
       contractId,
-      invoiceId,
       description,
       companyId,
       customerId,
-      paymentInfo,
       storedInterest,
-      transactionType,
+      transactionType: type,
       closeInterestRate,
       closeInterest,
       interestRate,
       savingAmount,
       isManual: true,
       payDate: finalValues.payDate,
-      total: Number(total),
+      total: Number(total)
     };
   };
 
@@ -113,30 +108,23 @@ const TransactionForm = (props: Props) => {
     const { values, isSubmitted } = formProps;
 
     const onSelect = (value, name) => {
-      setcontractId(value);
+      setContractId(value);
     };
 
     const onChangePayDate = (value) => {
-      setpayDate(value);
+      setPayDate(value);
     };
 
     const onChangeField = (e) => {
-      if ((e.target as HTMLInputElement).name === 'total' && paymentInfo) {
-        const value = Number((e.target as HTMLInputElement).value);
-
-        if (value > paymentInfo.closeAmount) {
-          (e.target as HTMLInputElement).value = paymentInfo.closeAmount;
-        }
-      }
       const value =
         e.target.type === 'checkbox'
           ? (e.target as HTMLInputElement).checked
           : (e.target as HTMLInputElement).value;
       if ((e.target as HTMLInputElement).name === 'total') {
-        settotal(value as any);
+        setTotal(value as any);
       }
       if ((e.target as HTMLInputElement).name === 'description') {
-        setdescription(value as any);
+        setDescription(value as any);
       }
     };
 
@@ -168,12 +156,17 @@ const TransactionForm = (props: Props) => {
                   onSelect={(v, n) => {
                     onSelect(v, n);
                     if (typeof v === 'string') {
-                      setcustomerId(Contracts[v].customerId);
-                      setstoredInterest(Contracts[v].storedInterest);
-                      setcloseInterestRate(Contracts[v].closeInterestRate);
-                      setinterestRate(Contracts[v].interestRate);
-                      setsavingAmount(Contracts[v].savingAmount);
-                      setcloseInterest(
+                      if (Contracts[v].customerType === 'company') {
+                        setCompanyId(Contracts[v].customerId);
+                      } else {
+                        setCustomerId(Contracts[v].customerId);
+                      }
+
+                      setStoredInterest(Contracts[v].storedInterest);
+                      setCloseInterestRate(Contracts[v].closeInterestRate);
+                      setInterestRate(Contracts[v].interestRate);
+                      setSavingAmount(Contracts[v].savingAmount);
+                      setCloseInterest(
                         Number(
                           (
                             ((Contracts[v].savingAmount *
@@ -181,8 +174,8 @@ const TransactionForm = (props: Props) => {
                               100 /
                               365) *
                             dayjs().diff(dayjs(Contracts[v].startDate), 'day')
-                          ).toFixed(2),
-                        ),
+                          ).toFixed(2)
+                        )
                       );
                     }
                   }}
@@ -197,7 +190,6 @@ const TransactionForm = (props: Props) => {
                   useNumberFormat
                   fixed={2}
                   name="total"
-                  max={paymentInfo?.closeAmount}
                   value={total}
                   onChange={onChangeField}
                   onClick={onFieldClick}
@@ -215,17 +207,17 @@ const TransactionForm = (props: Props) => {
                   />
                 </DateContainer>
               </FormGroup>
-              {transactionType === 'outcome' && (
+              {type === 'outcome' && (
                 <Info type="danger" title="Анхаар">
                   Зарлага хийх үед хүүгийн буцаалт хийгдэж гэрээ цуцлагдахыг
                   анхаарна уу
                 </Info>
               )}
-              {transactionType === 'outcome' &&
+              {type === 'outcome' &&
                 renderRowTr('Saving Amount', 'savingAmount')}
-              {transactionType === 'outcome' &&
+              {type === 'outcome' &&
                 renderRowTr('Saving stored interest', 'storedInterest')}
-              {transactionType === 'outcome' &&
+              {type === 'outcome' &&
                 renderRowTr('Close interest Rate', 'closeInterest')}
             </FormColumn>
           </FormWrapper>
@@ -240,7 +232,7 @@ const TransactionForm = (props: Props) => {
             name: 'transaction',
             values: generateDoc(values),
             isSubmitted,
-            object: props.transaction,
+            object: props.transaction
           })}
         </ModalFooter>
       </>

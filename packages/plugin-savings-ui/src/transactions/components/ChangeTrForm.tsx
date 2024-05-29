@@ -1,6 +1,5 @@
 import {
   __,
-  Alert,
   Button,
   ControlLabel,
   Form,
@@ -26,10 +25,7 @@ const TransactionForm = (props: Props) => {
   const { transaction } = props;
   const [total, setTotal] = useState(transaction.total || 0);
   const [payment, setPayment] = useState(transaction.payment || 0);
-  const [maxTotal, setMaxTotal] = useState(Math.max(transaction.total || 0));
-  const [firstTotal, setFirstTotal] = useState(
-    (transaction.total || 0) - (transaction.futureDebt || 0),
-  );
+  
 
   const generateDoc = (values: { _id: string } & ITransactionDoc) => {
     const finalValues = values;
@@ -48,20 +44,6 @@ const TransactionForm = (props: Props) => {
     e.target.select();
   };
 
-  const checkValid = () => {
-    const total = Number(payment);
-
-    if (total > maxTotal) {
-      return `Overdue total: Max total is ${maxTotal}`;
-    }
-
-    if (total < firstTotal) {
-      return `Missing first Total: first Total total is ${firstTotal}`;
-    }
-
-    return '';
-  };
-
   const onChangeField = (e) => {
     const name = (e.target as HTMLInputElement).name;
     let value = Number((e.target as HTMLInputElement).value);
@@ -78,13 +60,7 @@ const TransactionForm = (props: Props) => {
     }
 
     setTimeout(() => {
-      const validErr = checkValid();
-      if (validErr) {
-        Alert.error(validErr);
-      }
-
       const total = Number(payment);
-
       setTotal(total);
     }, 300);
   };
@@ -184,7 +160,6 @@ const TransactionForm = (props: Props) => {
           {renderButton({
             values: generateDoc(values),
             isSubmitted,
-            disableLoading: Boolean(checkValid()),
           })}
         </ModalFooter>
       </>

@@ -145,7 +145,7 @@ function TransactionFormGive(props: Props) {
                     componentclass="select"
                   >
                     {['khanbank', 'golomt'].map((typeName, index) => (
-                      <option key={index} value={typeName}>
+                      <option key={typeName} value={typeName}>
                         {__(typeName)}
                       </option>
                     ))}

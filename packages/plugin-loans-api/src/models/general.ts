@@ -1,5 +1,4 @@
 import {
-  IGeneral,
   IGeneralDocument,
   generalSchema
 } from './definitions/general';
@@ -30,9 +29,7 @@ export const loadGeneralClass = (models: IModels) => {
         generals.push(general);
       }
 
-      var res = await models.General.insertMany(generals);
-
-      return res;
+      return await models.General.insertMany(generals);
     }
   }
   generalSchema.loadClass(General);

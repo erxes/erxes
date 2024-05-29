@@ -18,9 +18,7 @@ export const loadClassificationClass = (models: IModels) => {
         );
       }
 
-      var res = await models.Classification.insertMany(classifications);
-
-      return res;
+      return await models.Classification.insertMany(classifications);
     }
     /**
      * Create a periodLock
@@ -28,27 +26,21 @@ export const loadClassificationClass = (models: IModels) => {
     public static async createClassification(
       classification: IClassificationDocument
     ) {
-      var res = await models.Classification.create(classification);
-
-      return res;
+      return await models.Classification.create(classification);
     }
 
     public static async getClassification(_id: string) {
-      var res = await models.Classification.findOne({ _id }).lean();
-
-      return res;
+      return await models.Classification.findOne({ _id }).lean();
     }
 
     public static async updateClassification(
       _id: string,
       classification: IClassification
     ) {
-      var res = await models.Classification.updateOne(
+      return await models.Classification.updateOne(
         { _id },
         { $set: classification }
       );
-
-      return res;
     }
   }
   classificationSchema.loadClass(Classification);

@@ -32,7 +32,6 @@ interface IProps {
   transactions: ITransaction[];
   loading: boolean;
   totalCount: number;
-  // TODO: check is below line not throwing error ?
   toggleBulk: () => void;
   toggleAll: (targets: ITransaction[], containerId: string) => void;
   bulk: any[];
@@ -52,7 +51,6 @@ interface IProps {
 }
 
 const TransactionsList = (props: IProps) => {
-  let timer = undefined;
   const {
     transactions,
     loading,

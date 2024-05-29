@@ -30,39 +30,7 @@ type Props = {
   closeModal: () => void;
 };
 
-function addClassification(classification, list, currentItem) {
-  list.push({
-    classification,
-    list: [
-      {
-        contractId: currentItem._id,
-        amount: currentItem.amount,
-        ...currentItem,
-      },
-    ],
-  });
-}
-
-function generateList(contractTypes, contracts) {
-  let dataClassifications: any = [];
-
-  contractTypes?.map((type) => {
-    const currentContracts = contracts?.filter(
-      (a) => a.contractTypeId === type._id,
-    );
-    currentContracts.map((contract) => {
-      addClassification(contract.classification, dataClassifications, contract);
-    });
-  });
-
-  return dataClassifications;
-}
-
 const StoreInterestForm = (props: Props) => {
-  const [classificationChangeList, setClassificationChangeList] = useState(
-    props.contracts,
-  );
-
   const generateDoc = () => {
     return [];
   };
@@ -73,7 +41,7 @@ const StoreInterestForm = (props: Props) => {
     return errors;
   };
 
-  const renderClassificationList = () => {
+  const renderStoreInterestList = () => {
     return (
       <table style={{ width: '100%' }}>
         <thead>
@@ -90,9 +58,9 @@ const StoreInterestForm = (props: Props) => {
             columnSpan: 'all',
           }}
         >
-          {classificationChangeList.map((mur) => {
+          {props.contracts.map((mur) => {
             return (
-              <tr>
+              <tr key={mur._id}>
                 <td style={{ fontSize: 'bold' }}>{mur.number}</td>
                 <td>
                   {moment(mur.lastStoredDate || undefined).format('YYYY/MM/DD')}
@@ -109,7 +77,7 @@ const StoreInterestForm = (props: Props) => {
 
   const renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton } = props;
-    const { values, isSubmitted } = formProps;
+    const { isSubmitted } = formProps;
 
     return (
       <>
@@ -130,7 +98,7 @@ const StoreInterestForm = (props: Props) => {
             </FormGroup>
           </FormColumn>
         </FormWrapper>
-        <ScrollWrapper>{renderClassificationList()}</ScrollWrapper>
+        <ScrollWrapper>{renderStoreInterestList()}</ScrollWrapper>
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
