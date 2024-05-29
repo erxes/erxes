@@ -178,11 +178,11 @@ const ActivityDate = styled.div`
   cursor: help;
 `;
 
-const ActivityContent = styledTS<{ isInternalNote?: boolean }>(styled.div)`
+const ActivityContent = styledTS<{ $isInternalNote?: boolean }>(styled.div)`
   margin-top: ${dimensions.unitSpacing}px;
   padding: ${dimensions.unitSpacing}px;
   background: ${(props) =>
-    props.isInternalNote ? colors.bgInternal : colors.borderPrimary};
+    props.$isInternalNote ? colors.bgInternal : colors.borderPrimary};
   box-shadow: 0 1px 2px 0 ${colors.darkShadow};
   word-break:break-word;
 

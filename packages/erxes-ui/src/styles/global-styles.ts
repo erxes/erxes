@@ -327,6 +327,7 @@ a:hover {
   float: left;
   background: ${colors.colorWhite};
   border-radius: 4px;
+  padding: 7px 0px;
 }
 
 [id^="headlessui-menu-items-"].menuWidthFit {

@@ -75,7 +75,7 @@ const Sidebar = (props: Props) => {
         id={"checkboxList"}
         style={{
           backgroundColor: "white",
-          marginBottom: "10px",
+          margin: "0 20px 10px 20px",
           padding: "10px 0",
         }}
       >

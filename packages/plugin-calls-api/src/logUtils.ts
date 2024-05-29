@@ -34,7 +34,6 @@ export const putCreateLog = async (subdomain: string, logDoc, user) => {
 export default {
   collectItems: async ({ subdomain, data }) => {
     const { contentId } = data;
-
     const customer = await sendContactsMessage({
       subdomain,
       action: 'customers.findOne',
@@ -44,7 +43,7 @@ export default {
       },
     });
 
-    if (!customer) {
+    if (!customer?.primaryPhone) {
       return {
         status: 'success',
         data: [],

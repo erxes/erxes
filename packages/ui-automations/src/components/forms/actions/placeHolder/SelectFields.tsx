@@ -2,16 +2,16 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-} from '@erxes/ui/src/components/form';
+} from "@erxes/ui/src/components/form";
+import React, { useEffect, useState } from "react";
 
-import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import Popover from '@erxes/ui/src/components/Popover';
-import { __ } from '@erxes/ui/src/utils';
-import React, { useEffect, useState } from 'react';
-import { Attributes } from '../styles';
-import PlaceHolderInput from './PlaceHolderInput';
+import { Attributes } from "../styles";
+import Button from "@erxes/ui/src/components/Button";
+import { FieldsCombinedByType } from "@erxes/ui-forms/src/settings/properties/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import PlaceHolderInput from "./PlaceHolderInput";
+import Popover from "@erxes/ui/src/components/Popover";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   triggerType: string;
@@ -52,9 +52,9 @@ const renderFields = (
       excludeAttr={field.excludeAttr}
       onChange={onSelect}
       triggerType={triggerType}
-      fieldType={field.type === 'Date' ? 'date' : field.type}
+      fieldType={field.type === "Date" ? "date" : field.type}
       options={field.selectOptions || []}
-      optionsAllowedTypes={['contact']}
+      optionsAllowedTypes={["contact"]}
       triggerConfig={triggerConfig}
       attrWithSegmentConfig={!!triggerConfig}
       isMulti={true}
@@ -81,7 +81,7 @@ const SelectFields = (props: Props) => {
   } = props;
 
   const [fields, setFields] = useState([] as typeof attributions);
-  const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState("");
 
   useEffect(() => {
     const selectedFields = attributions.filter((attribution) =>
@@ -112,7 +112,7 @@ const SelectFields = (props: Props) => {
 
   if (searchValue) {
     attributions = attributions.filter((option) =>
-      new RegExp(searchValue, 'i').test(option.label)
+      new RegExp(searchValue, "i").test(option.label)
     );
   }
   return (
@@ -122,7 +122,7 @@ const SelectFields = (props: Props) => {
         closeAfterSelect
         trigger={
           <Button btnStyle="simple" block icon="add">
-            {__(label || '')}
+            {__(label || "")}
           </Button>
         }
         placement="top"
@@ -132,14 +132,14 @@ const SelectFields = (props: Props) => {
             <Attributes>
               <React.Fragment>
                 <FormGroup>
-                  <ControlLabel>{__('Search')}</ControlLabel>
+                  <ControlLabel>{__("Search")}</ControlLabel>
                   <FormControl
                     placeholder="type a search"
                     onChange={onSearch}
                   />
                 </FormGroup>
                 <li>
-                  <b>{__('Fields')}</b>
+                  <b>{__("Fields")}</b>
                 </li>
                 {attributions
                   .filter(
