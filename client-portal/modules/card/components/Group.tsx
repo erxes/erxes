@@ -1,4 +1,3 @@
-import { Config, IUser } from "../../types";
 import {
   GroupBoxWrapper,
   GroupList,
@@ -8,11 +7,10 @@ import {
   ListRow,
 } from "../../styles/cards";
 
-import React from "react";
 import dayjs from "dayjs";
-import { renderUserFullName } from "../../utils";
 import { useRouter } from "next/router";
 import Box from "../../common/Box";
+import { renderUserFullName } from "../../utils";
 
 type Props = {
   items: any;
