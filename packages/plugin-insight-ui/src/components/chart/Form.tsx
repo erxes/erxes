@@ -133,32 +133,16 @@ const Form = (props: Props) => {
   };
 
   const setFilter = (fieldName: string, value: any) => {
-    if (value === undefined || value === null) {
-      const newOne = Object.keys(filters)
-      .filter((a) => a !== fieldName)
-      .reduce((newObj, key) => {
-        newObj[key] = filters[key];
-        return newObj;
-      }, {});
 
-      setFilters({ ...newOne });
-      return;
-    }
+    setFilters((prevFilters) => {
+      if (value === undefined || value === null || (Array.isArray(value) && !value.length)) {
+        const { [fieldName]: omitted, ...updatedFilters } = prevFilters;
+        return updatedFilters;
+      }
 
-    if (Array.isArray(value) && !value.length) {
-      const newOne = Object.keys(filters)
-      .filter((option) => option !== fieldName)
-      .reduce((newObj, key) => {
-        newObj[key] = filters[key];
-        return newObj;
-      }, {});
-
-      setFilters({ ...newOne });
-      return;
-    }
-
-    setFilters({ ...filters, [fieldName]: value });
-    return;
+      const updatedFilters = { ...prevFilters, [fieldName]: value };
+      return updatedFilters;
+    });
   };
 
   const renderFilterTypeFields = () => {

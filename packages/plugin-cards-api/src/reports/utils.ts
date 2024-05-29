@@ -5,7 +5,7 @@ import * as dayjs from 'dayjs';
 import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
 const util = require('util')
 
-export const buildUnwind = ({ fields }: { fields: string[] }): object[] => {
+export const buildUnwind = ({ fields }: { fields: string[] }) => {
     const unwinds = (fields || []).map((field) => ({
         $unwind: `$${FIELD_MAP[field]}`
     }));
@@ -17,9 +17,9 @@ export const buildLookup = ({ fields, localField, foreignField, extraConditions 
     fields: string[];
     localField?: string;
     foreignField?: string;
-    extraConditions?: object[];
-    extraStages?: object[];
-}): object[] => {
+    extraConditions?: any[];
+    extraStages?: any[];
+}) => {
 
     const lookups = fields.map((field) => {
         const conditions: any = [
@@ -114,7 +114,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
 
     const { dimension, measure, userType = 'userId', frequencyType, dateRange, startDate, endDate, dateRangeType = "createdAt" } = filter
 
-    const pipeline: object[] = [];
+    const pipeline: any[] = [];
 
     let formatType = "%Y"
 
@@ -139,8 +139,6 @@ export const buildPipeline = (filter, type, matchFilter) => {
     }
 
     const dateFormat = frequencyType || formatType
-
-    // ----------------------------------------------------------------
 
     if (dimension.includes("tag")) {
         pipeline.push({ $unwind: "$tagIds" });
@@ -392,7 +390,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     }
 
     const match: object = {
-        status: { $eq: "active" },
+
         ...matchFilter
     }
 
@@ -1280,8 +1278,8 @@ export const buildTableData = (data: any, measures: any, dimensions: any) => {
     const reorderedData = data.map(item => {
         const order = {};
 
-        dimensions.forEach(dim => {
-            order[dim] = item[dim];
+        dimensions.forEach(dimension => {
+            order[dimension] = item[dimension];
         });
 
         measures.forEach(measure => {
@@ -1310,872 +1308,872 @@ export const getDimensionPipeline = async (filter, type, subdomain, models) => {
 
     const pipeline: any[] = []
 
-    // if (!dimension || dimension === 'count') {
-    //     return pipeline
-    // }
+    if (!dimension || dimension === 'count') {
+        return pipeline
+    }
 
-    // // TAG DIMENSION
-    // if (dimension === 'tag') {
-    //     pipeline.push(...[
-    //         {
-    //             $unwind: "$tagIds"
-    //         },
-    //         {
-    //             $match: {
-    //                 status: { $eq: "active" },
-    //                 ...matchFilter
-    //             }
-    //         },
-    //         {
-    //             $group: {
-    //                 _id: "$tagIds",
-    //                 count: { $sum: 1 }
-    //             }
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: 'tags',
-    //                 localField: '_id',
-    //                 foreignField: '_id',
-    //                 as: 'tag'
-    //             }
-    //         },
-    //         {
-    //             $unwind: "$tag"
-    //         },
-    //         {
-    //             $project: {
-    //                 _id: "$tag.name",
-    //                 count: 1
-    //             }
-    //         }
-    //     ])
-    // } ✅
+    // TAG DIMENSION
+    if (dimension === 'tag') {
+        pipeline.push(...[
+            {
+                $unwind: "$tagIds"
+            },
+            {
+                $match: {
+                    status: { $eq: "active" },
+                    ...matchFilter
+                }
+            },
+            {
+                $group: {
+                    _id: "$tagIds",
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'tags',
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'tag'
+                }
+            },
+            {
+                $unwind: "$tag"
+            },
+            {
+                $project: {
+                    _id: "$tag.name",
+                    count: 1
+                }
+            }
+        ])
+    }
 
-    // // LABEL DIMENSION
-    // if (dimension === 'label') {
-    //     pipeline.push(...[
-    //         {
-    //             $unwind: "$labelIds",
-    //         },
-    //         {
-    //             $match: {
-    //                 status: { $eq: "active" },
-    //                 ...matchFilter
-    //             }
-    //         },
-    //         {
-    //             $group: {
-    //                 _id: "$labelIds",
-    //                 count: { $sum: 1 },
-    //             },
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: "pipeline_labels",
-    //                 localField: "_id",
-    //                 foreignField: "_id",
-    //                 as: "label",
-    //             },
-    //         },
-    //         {
-    //             $unwind: "$label",
-    //         },
-    //         {
-    //             $project: {
-    //                 _id: "$label.name",
-    //                 count: 1
-    //             }
-    //         }
-    //     ])
-    // } ✅
+    // LABEL DIMENSION
+    if (dimension === 'label') {
+        pipeline.push(...[
+            {
+                $unwind: "$labelIds",
+            },
+            {
+                $match: {
+                    status: { $eq: "active" },
+                    ...matchFilter
+                }
+            },
+            {
+                $group: {
+                    _id: "$labelIds",
+                    count: { $sum: 1 },
+                },
+            },
+            {
+                $lookup: {
+                    from: "pipeline_labels",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "label",
+                },
+            },
+            {
+                $unwind: "$label",
+            },
+            {
+                $project: {
+                    _id: "$label.name",
+                    count: 1
+                }
+            }
+        ])
+    }
 
-    // // PRIOPRITY DIMENSION
-    // if (dimension === 'priority') {
-    //     pipeline.push(...[
-    //         {
-    //             $match: {
-    //                 priority: { $nin: [null, ""] },
-    //                 ...matchFilter
-    //             }
-    //         },
-    //         {
-    //             $group: {
-    //                 _id: "$priority",
-    //                 count: { $sum: 1 }
-    //             }
-    //         },
-    //         {
-    //             $project: {
-    //                 _id: "$_id",
-    //                 count: 1
-    //             }
-    //         }
-    //     ])
-    // } ✅
+    // PRIOPRITY DIMENSION
+    if (dimension === 'priority') {
+        pipeline.push(...[
+            {
+                $match: {
+                    priority: { $nin: [null, ""] },
+                    ...matchFilter
+                }
+            },
+            {
+                $group: {
+                    _id: "$priority",
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    _id: "$_id",
+                    count: 1
+                }
+            }
+        ])
+    }
 
-    // // STATUS DIMENSION
-    // if (dimension === 'status') {
-    //     pipeline.push(...[
-    //         {
-    //             $match: {
-    //                 status: { $ne: null },
-    //                 ...matchFilter
-    //             }
-    //         },
-    //         {
-    //             $group: {
-    //                 _id: "$status",
-    //                 count: { $sum: 1 }
-    //             }
-    //         },
-    //         {
-    //             $project: {
-    //                 _id: "$_id",
-    //                 count: 1
-    //             }
-    //         }
-    //     ])
-    // } ✅
+    // STATUS DIMENSION
+    if (dimension === 'status') {
+        pipeline.push(...[
+            {
+                $match: {
+                    status: { $ne: null },
+                    ...matchFilter
+                }
+            },
+            {
+                $group: {
+                    _id: "$status",
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    _id: "$_id",
+                    count: 1
+                }
+            }
+        ])
+    }
 
-    // // TEAM MEMBER DIMENSION
-    // if (dimension === 'teamMember') {
+    // TEAM MEMBER DIMENSION
+    if (dimension === 'teamMember') {
 
-    //     const { userType = 'userId' } = filter
+        const { userType = 'userId' } = filter
 
-    //     pipeline.push(...[
-    //         {
-    //             $match: {
-    //                 [userType]: { $exists: true },
-    //                 ...matchFilter
-    //             }
-    //         },
-    //         ...(userType === 'assignedUserIds' ? [{ $unwind: "$assignedUserIds" }] : []),
-    //         {
-    //             $group: {
-    //                 _id: `$${userType}`,
-    //                 count: { $sum: 1 }
-    //             }
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: "users",
-    //                 let: { userId: "$_id" },
-    //                 pipeline: [
-    //                     {
-    //                         $match: {
-    //                             $expr: {
-    //                                 $and: [
-    //                                     { $eq: ["$_id", "$$userId"] },
-    //                                     { $eq: ["$isActive", true] },
-    //                                 ]
-    //                             }
-    //                         }
-    //                     }
-    //                 ],
-    //                 as: "user"
-    //             }
-    //         },
-    //         { $unwind: "$user" },
-    //         {
-    //             $project: {
-    //                 _id: "$user.details.fullName",
-    //                 count: 1,
-    //             },
-    //         },
-    //     ])
-    // } ✅
+        pipeline.push(...[
+            {
+                $match: {
+                    [userType]: { $exists: true },
+                    ...matchFilter
+                }
+            },
+            ...(userType === 'assignedUserIds' ? [{ $unwind: "$assignedUserIds" }] : []),
+            {
+                $group: {
+                    _id: `$${userType}`,
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    let: { userId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$_id", "$$userId"] },
+                                        { $eq: ["$isActive", true] },
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    as: "user"
+                }
+            },
+            { $unwind: "$user" },
+            {
+                $project: {
+                    _id: "$user.details.fullName",
+                    count: 1,
+                },
+            },
+        ])
+    }
 
-    // // BRANCH DIMENSION
-    // if (dimension === 'branch') {
-    //     pipeline.push(...[
-    //         {
-    //             $unwind: "$branchIds"
-    //         },
-    //         {
-    //             $match: {
-    //                 ...matchFilter
-    //             }
-    //         },
-    //         {
-    //             $group: {
-    //                 _id: "$branchIds",
-    //                 count: { $sum: 1 }
-    //             }
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: "branches",
-    //                 let: { branchId: "$_id" },
-    //                 pipeline: [
-    //                     {
-    //                         $match: {
-    //                             $expr: {
-    //                                 $and: [
-    //                                     { $eq: ["$_id", "$$branchId"] }
-    //                                 ]
-    //                             }
-    //                         }
-    //                     }
-    //                 ],
-    //                 as: "branch"
-    //             }
-    //         },
-    //         { $unwind: "$branch" },
-    //         {
-    //             $project: {
-    //                 _id: "$branch.title",
-    //                 count: 1,
-    //             },
-    //         },
-    //     ])
-    // } ✅
+    // BRANCH DIMENSION
+    if (dimension === 'branch') {
+        pipeline.push(...[
+            {
+                $unwind: "$branchIds"
+            },
+            {
+                $match: {
+                    ...matchFilter
+                }
+            },
+            {
+                $group: {
+                    _id: "$branchIds",
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $lookup: {
+                    from: "branches",
+                    let: { branchId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$_id", "$$branchId"] }
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    as: "branch"
+                }
+            },
+            { $unwind: "$branch" },
+            {
+                $project: {
+                    _id: "$branch.title",
+                    count: 1,
+                },
+            },
+        ])
+    }
 
-    // // DEPARTMENT DIMENSION
-    // if (dimension === 'department') {
-    //     pipeline.push(...[
-    //         {
-    //             $unwind: "$departmentIds"
-    //         },
-    //         {
-    //             $match: {
-    //                 ...matchFilter
-    //             }
-    //         },
-    //         {
-    //             $group: {
-    //                 _id: "$departmentIds",
-    //                 count: { $sum: 1 }
-    //             }
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: "departments",
-    //                 let: { departmentId: "$_id" },
-    //                 pipeline: [
-    //                     {
-    //                         $match: {
-    //                             $expr: {
-    //                                 $and: [
-    //                                     { $eq: ["$_id", "$$departmentId"] },
-    //                                     { $eq: ["$status", "active"] },
-    //                                 ]
-    //                             }
-    //                         }
-    //                     }
-    //                 ],
-    //                 as: "department"
-    //             }
-    //         },
-    //         { $unwind: "$department" },
-    //         {
-    //             $project: {
-    //                 _id: "$department.title",
-    //                 count: 1,
-    //             },
-    //         },
-    //     ])
-    // } ✅
+    // DEPARTMENT DIMENSION
+    if (dimension === 'department') {
+        pipeline.push(...[
+            {
+                $unwind: "$departmentIds"
+            },
+            {
+                $match: {
+                    ...matchFilter
+                }
+            },
+            {
+                $group: {
+                    _id: "$departmentIds",
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $lookup: {
+                    from: "departments",
+                    let: { departmentId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$_id", "$$departmentId"] },
+                                        { $eq: ["$status", "active"] },
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    as: "department"
+                }
+            },
+            { $unwind: "$department" },
+            {
+                $project: {
+                    _id: "$department.title",
+                    count: 1,
+                },
+            },
+        ])
+    }
 
-    // // COMPANY DIMENSION
-    // if (dimension === 'company') {
-    //     pipeline.push(...[
-    //         {
-    //             $match: {
-    //                 status: "active",
-    //                 ...matchFilter
-    //             },
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: "conformities",
-    //                 let: { fieldId: "$_id" },
-    //                 pipeline: [
-    //                     {
-    //                         $match: {
-    //                             $and: [
-    //                                 {
-    //                                     $expr: {
-    //                                         $eq: ["$mainType", type],
-    //                                     },
-    //                                 },
-    //                                 {
-    //                                     $expr: {
-    //                                         $eq: [
-    //                                             "$mainTypeId",
-    //                                             "$$fieldId",
-    //                                         ],
-    //                                     },
-    //                                 },
-    //                                 {
-    //                                     $expr: {
-    //                                         $eq: ["$relType", "company"],
-    //                                     },
-    //                                 },
-    //                             ],
-    //                         },
-    //                     },
-    //                 ],
-    //                 as: "conformity",
-    //             },
-    //         },
-    //         {
-    //             $unwind: "$conformity",
-    //         },
-    //         {
-    //             $group: {
-    //                 _id: "$conformity.relTypeId",
-    //                 count: { $sum: 1 },
-    //             },
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: "companies",
-    //                 let: { companyId: "$_id" },
-    //                 pipeline: [
-    //                     {
-    //                         $match: {
-    //                             $and: [
-    //                                 {
-    //                                     $expr: {
-    //                                         $eq: ["$_id", "$$companyId"],
-    //                                     },
-    //                                 },
-    //                             ],
-    //                         },
-    //                     },
-    //                 ],
-    //                 as: "company",
-    //             },
-    //         },
-    //         {
-    //             $unwind: "$company",
-    //         },
-    //         {
-    //             $project: {
-    //                 _id: "$company.primaryName",
-    //                 count: 1,
-    //             },
-    //         },
-    //     ])
-    // } ✅
+    // COMPANY DIMENSION
+    if (dimension === 'company') {
+        pipeline.push(...[
+            {
+                $match: {
+                    status: "active",
+                    ...matchFilter
+                },
+            },
+            {
+                $lookup: {
+                    from: "conformities",
+                    let: { fieldId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $and: [
+                                    {
+                                        $expr: {
+                                            $eq: ["$mainType", type],
+                                        },
+                                    },
+                                    {
+                                        $expr: {
+                                            $eq: [
+                                                "$mainTypeId",
+                                                "$$fieldId",
+                                            ],
+                                        },
+                                    },
+                                    {
+                                        $expr: {
+                                            $eq: ["$relType", "company"],
+                                        },
+                                    },
+                                ],
+                            },
+                        },
+                    ],
+                    as: "conformity",
+                },
+            },
+            {
+                $unwind: "$conformity",
+            },
+            {
+                $group: {
+                    _id: "$conformity.relTypeId",
+                    count: { $sum: 1 },
+                },
+            },
+            {
+                $lookup: {
+                    from: "companies",
+                    let: { companyId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $and: [
+                                    {
+                                        $expr: {
+                                            $eq: ["$_id", "$$companyId"],
+                                        },
+                                    },
+                                ],
+                            },
+                        },
+                    ],
+                    as: "company",
+                },
+            },
+            {
+                $unwind: "$company",
+            },
+            {
+                $project: {
+                    _id: "$company.primaryName",
+                    count: 1,
+                },
+            },
+        ])
+    }
 
-    // // CUSTOMER DIMENSION
-    // if (dimension === 'customer') {
-    //     pipeline.push(...[
-    //         {
-    //             $match: {
-    //                 ...matchFilter
-    //             },
-    //         },
-    // {
-    //     $lookup: {
-    //         from: "conformities",
-    //         let: { fieldId: "$_id" },
-    //         pipeline: [
-    //             {
-    //                 $match: {
-    //                     $and: [
-    //                         {
-    //                             $expr: {
-    //                                 $eq: ["$mainType", type],
-    //                             },
-    //                         },
-    //                         {
-    //                             $expr: {
-    //                                 $eq: [
-    //                                     "$mainTypeId",
-    //                                     "$$fieldId",
-    //                                 ],
-    //                             },
-    //                         },
-    //                         {
-    //                             $expr: {
-    //                                 $eq: ["$relType", "customer"],
-    //                             },
-    //                         },
-    //                     ],
-    //                 },
-    //             },
-    //         ],
-    //         as: "conformity",
-    //     },
-    // },
-    //         {
-    //             $unwind: "$conformity",
-    //         },
-    //         {
-    //             $group: {
-    //                 _id: "$conformity.relTypeId",
-    //                 count: { $sum: 1 },
-    //             },
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: "customers",
-    //                 let: { customerId: "$_id" },
-    //                 pipeline: [
-    //                     {
-    //                         $match: {
-    //                             $and: [
-    //                                 {
-    //                                     $expr: {
-    //                                         $eq: ["$_id", "$$customerId"],
-    //                                     },
-    //                                 },
-    //                             ],
-    //                         },
-    //                     },
-    //                 ],
-    //                 as: "customer",
-    //             },
-    //         },
-    //         {
-    //             $unwind: "$customer",
-    //         },
-    //         {
-    //             $project: {
-    //                 _id: {
-    //                     $switch: {
-    //                         branches: [
-    //                             { case: { $ne: ["$customer.firstName", null] }, then: "$customer.firstName" },
-    //                             { case: { $ne: ["$customer.lastName", null] }, then: "$customer.lastName" },
-    //                             { case: { $ne: ["$customer.middleName", null] }, then: "$customer.middleName" },
-    //                             { case: { $ne: ["$customer.primaryEmail", null] }, then: "$customer.primaryEmail" },
-    //                             { case: { $ne: ["$customer.primaryPhone", null] }, then: "$customer.primaryPhone" },
-    //                             { case: { $ne: ["$customer.visitorContactInfo.phone", null] }, then: "$customer.visitorContactInfo.phone" },
-    //                             { case: { $ne: ["$customer.visitorContactInfo.email", null] }, then: "$customer.visitorContactInfo.email" }
-    //                         ],
-    //                         default: "Unknown"
-    //                     }
-    //                 },
-    //                 count: 1,
-    //             },
-    //         },
-    //     ])
-    // } ✅
+    // CUSTOMER DIMENSION
+    if (dimension === 'customer') {
+        pipeline.push(...[
+            {
+                $match: {
+                    ...matchFilter
+                },
+            },
+            {
+                $lookup: {
+                    from: "conformities",
+                    let: { fieldId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $and: [
+                                    {
+                                        $expr: {
+                                            $eq: ["$mainType", type],
+                                        },
+                                    },
+                                    {
+                                        $expr: {
+                                            $eq: [
+                                                "$mainTypeId",
+                                                "$$fieldId",
+                                            ],
+                                        },
+                                    },
+                                    {
+                                        $expr: {
+                                            $eq: ["$relType", "customer"],
+                                        },
+                                    },
+                                ],
+                            },
+                        },
+                    ],
+                    as: "conformity",
+                },
+            },
+            {
+                $unwind: "$conformity",
+            },
+            {
+                $group: {
+                    _id: "$conformity.relTypeId",
+                    count: { $sum: 1 },
+                },
+            },
+            {
+                $lookup: {
+                    from: "customers",
+                    let: { customerId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $and: [
+                                    {
+                                        $expr: {
+                                            $eq: ["$_id", "$$customerId"],
+                                        },
+                                    },
+                                ],
+                            },
+                        },
+                    ],
+                    as: "customer",
+                },
+            },
+            {
+                $unwind: "$customer",
+            },
+            {
+                $project: {
+                    _id: {
+                        $switch: {
+                            branches: [
+                                { case: { $ne: ["$customer.firstName", null] }, then: "$customer.firstName" },
+                                { case: { $ne: ["$customer.lastName", null] }, then: "$customer.lastName" },
+                                { case: { $ne: ["$customer.middleName", null] }, then: "$customer.middleName" },
+                                { case: { $ne: ["$customer.primaryEmail", null] }, then: "$customer.primaryEmail" },
+                                { case: { $ne: ["$customer.primaryPhone", null] }, then: "$customer.primaryPhone" },
+                                { case: { $ne: ["$customer.visitorContactInfo.phone", null] }, then: "$customer.visitorContactInfo.phone" },
+                                { case: { $ne: ["$customer.visitorContactInfo.email", null] }, then: "$customer.visitorContactInfo.email" }
+                            ],
+                            default: "Unknown"
+                        }
+                    },
+                    count: 1,
+                },
+            },
+        ])
+    }
 
-    // // SOURCE DIMENSION
-    // if (dimension === 'source') {
-    //     pipeline.push(...[
-    //         {
-    //             $unwind: "$sourceConversationIds"
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: "conversations",
-    //                 let: { conversationId: "$sourceConversationIds" },
-    //                 pipeline: [
-    //                     {
-    //                         $match: {
-    //                             $expr: {
-    //                                 $eq: ["$_id", "$$conversationId"]
-    //                             }
-    //                         }
-    //                     }
-    //                 ],
-    //                 as: 'conversation'
-    //             }
-    //         },
-    //         {
-    //             $unwind: "$conversation"
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: "integrations",
-    //                 let: { integrationId: "$conversation.integrationId" },
-    //                 pipeline: [
-    //                     {
-    //                         $match: {
-    //                             $expr: {
-    //                                 $eq: ["$_id", "$$integrationId"]
-    //                             }
-    //                         }
-    //                     }
-    //                 ],
-    //                 as: 'integration'
-    //             }
-    //         },
-    //         {
-    //             $unwind: "$integration"
-    //         },
-    //         {
-    //             $match: {
-    //                 ...matchFilter
-    //             }
-    //         },
-    //         {
-    //             $group: {
-    //                 _id: "$integration.kind",
-    //                 count: { $sum: 1 }
-    //             }
-    //         },
-    //         {
-    //             $project: {
-    //                 _id: 1,
-    //                 count: 1
-    //             }
-    //         }
-    //     ])
-    // } ✅
+    // SOURCE DIMENSION
+    if (dimension === 'source') {
+        pipeline.push(...[
+            {
+                $unwind: "$sourceConversationIds"
+            },
+            {
+                $lookup: {
+                    from: "conversations",
+                    let: { conversationId: "$sourceConversationIds" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $eq: ["$_id", "$$conversationId"]
+                                }
+                            }
+                        }
+                    ],
+                    as: 'conversation'
+                }
+            },
+            {
+                $unwind: "$conversation"
+            },
+            {
+                $lookup: {
+                    from: "integrations",
+                    let: { integrationId: "$conversation.integrationId" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $eq: ["$_id", "$$integrationId"]
+                                }
+                            }
+                        }
+                    ],
+                    as: 'integration'
+                }
+            },
+            {
+                $unwind: "$integration"
+            },
+            {
+                $match: {
+                    ...matchFilter
+                }
+            },
+            {
+                $group: {
+                    _id: "$integration.kind",
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    count: 1
+                }
+            }
+        ])
+    }
 
-    // // PRODUCT DIMENSION
-    // if (dimension === 'product') {
-    //     pipeline.push(...[
-    //         {
-    //             $unwind: "$productsData"
-    //         },
-    //         {
-    //             $match: {
-    //                 ...matchFilter
-    //             }
-    //         },
-    //         {
-    //             $group: {
-    //                 _id: "$productsData.productId",
-    //                 count: { $sum: 1 }
-    //             }
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: "products",
-    //                 let: { productId: "$_id" },
-    //                 pipeline: [
-    //                     {
-    //                         $match: {
-    //                             $expr: {
-    //                                 $and: [
-    //                                     { $eq: ["$_id", "$$productId"] },
-    //                                     { $eq: ["$status", "active"] }
-    //                                 ]
-    //                             }
-    //                         }
-    //                     }
-    //                 ],
-    //                 as: "product",
-    //             }
-    //         },
-    //         {
-    //             $unwind: "$product"
-    //         },
-    //         {
-    //             $project: {
-    //                 _id: "$product.name",
-    //                 count: 1
-    //             }
-    //         }
-    //     ])
-    // } ✅
+    // PRODUCT DIMENSION
+    if (dimension === 'product') {
+        pipeline.push(...[
+            {
+                $unwind: "$productsData"
+            },
+            {
+                $match: {
+                    ...matchFilter
+                }
+            },
+            {
+                $group: {
+                    _id: "$productsData.productId",
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $lookup: {
+                    from: "products",
+                    let: { productId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$_id", "$$productId"] },
+                                        { $eq: ["$status", "active"] }
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    as: "product",
+                }
+            },
+            {
+                $unwind: "$product"
+            },
+            {
+                $project: {
+                    _id: "$product.name",
+                    count: 1
+                }
+            }
+        ])
+    }
 
-    // // STAGE DIMENSION
-    // if (dimension === 'stage') {
-    //     pipeline.push(...[
-    //         {
-    //             $match: {
-    //                 ...matchFilter
-    //             }
-    //         },
-    //         {
-    //             $group: {
-    //                 _id: "$stageId",
-    //                 count: { $sum: 1 }
-    //             }
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: 'stages',
-    //                 localField: '_id',
-    //                 foreignField: '_id',
-    //                 as: 'stage'
-    //             }
-    //         },
-    //         {
-    //             $unwind: "$stage"
-    //         },
-    //         {
-    //             $project: {
-    //                 _id: "$stage.name",
-    //                 count: 1
-    //             }
-    //         }
-    //     ])
-    // } ✅
+    // STAGE DIMENSION
+    if (dimension === 'stage') {
+        pipeline.push(...[
+            {
+                $match: {
+                    ...matchFilter
+                }
+            },
+            {
+                $group: {
+                    _id: "$stageId",
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'stages',
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'stage'
+                }
+            },
+            {
+                $unwind: "$stage"
+            },
+            {
+                $project: {
+                    _id: "$stage.name",
+                    count: 1
+                }
+            }
+        ])
+    }
 
-    // // PIPELINE DIMENSION
-    // if (dimension === 'pipeline') {
+    // PIPELINE DIMENSION
+    if (dimension === 'pipeline') {
 
-    //     pipeline.push(...[
-    //         {
-    //             $match: {
-    //                 ...matchFilter
-    //             }
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: "stages",
-    //                 localField: "stageId",
-    //                 foreignField: "_id",
-    //                 as: "stage",
-    //             },
-    //         },
-    //         {
-    //             $unwind: "$stage",
-    //         },
-    //         {
-    //             $group: {
-    //                 _id: "$stage.pipelineId",
-    //                 count: { $sum: 1 },
-    //             },
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: "pipelines",
-    //                 localField: "_id",
-    //                 foreignField: "_id",
-    //                 as: "pipeline",
-    //             },
-    //         },
-    //         {
-    //             $unwind: "$pipeline",
-    //         },
-    //         {
-    //             $project: {
-    //                 _id: "$pipeline.name",
-    //                 count: 1,
-    //             },
-    //         },
-    //     ])
-    // } ✅
+        pipeline.push(...[
+            {
+                $match: {
+                    ...matchFilter
+                }
+            },
+            {
+                $lookup: {
+                    from: "stages",
+                    localField: "stageId",
+                    foreignField: "_id",
+                    as: "stage",
+                },
+            },
+            {
+                $unwind: "$stage",
+            },
+            {
+                $group: {
+                    _id: "$stage.pipelineId",
+                    count: { $sum: 1 },
+                },
+            },
+            {
+                $lookup: {
+                    from: "pipelines",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "pipeline",
+                },
+            },
+            {
+                $unwind: "$pipeline",
+            },
+            {
+                $project: {
+                    _id: "$pipeline.name",
+                    count: 1,
+                },
+            },
+        ])
+    }
 
-    // // BOARD DIMENSION
-    // if (dimension === 'board') {
-    //     pipeline.push(...[
-    //         {
-    //             $match: {
-    //                 ...matchFilter
-    //             }
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: "stages",
-    //                 localField: "stageId",
-    //                 foreignField: "_id",
-    //                 as: "stage",
-    //             },
-    //         },
-    //         {
-    //             $unwind: "$stage",
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: "pipelines",
-    //                 localField: "stage.pipelineId",
-    //                 foreignField: "_id",
-    //                 as: "pipeline",
-    //             },
-    //         },
-    //         {
-    //             $unwind: "$pipeline",
-    //         },
-    //         {
-    //             $group: {
-    //                 _id: "$pipeline.boardId",
-    //                 count: { $sum: 1 },
-    //             },
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: "boards",
-    //                 localField: "_id",
-    //                 foreignField: "_id",
-    //                 as: "board",
-    //             },
-    //         },
-    //         {
-    //             $unwind: "$board",
-    //         },
-    //         {
-    //             $project: {
-    //                 _id: "$board.name",
-    //                 count: 1,
-    //             },
-    //         },
-    //     ])
-    // } ✅
+    // BOARD DIMENSION
+    if (dimension === 'board') {
+        pipeline.push(...[
+            {
+                $match: {
+                    ...matchFilter
+                }
+            },
+            {
+                $lookup: {
+                    from: "stages",
+                    localField: "stageId",
+                    foreignField: "_id",
+                    as: "stage",
+                },
+            },
+            {
+                $unwind: "$stage",
+            },
+            {
+                $lookup: {
+                    from: "pipelines",
+                    localField: "stage.pipelineId",
+                    foreignField: "_id",
+                    as: "pipeline",
+                },
+            },
+            {
+                $unwind: "$pipeline",
+            },
+            {
+                $group: {
+                    _id: "$pipeline.boardId",
+                    count: { $sum: 1 },
+                },
+            },
+            {
+                $lookup: {
+                    from: "boards",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "board",
+                },
+            },
+            {
+                $unwind: "$board",
+            },
+            {
+                $project: {
+                    _id: "$board.name",
+                    count: 1,
+                },
+            },
+        ])
+    }
 
-    // // FREQUENCY DIMENSION
-    // if (dimension === 'frequency') {
+    // FREQUENCY DIMENSION
+    if (dimension === 'frequency') {
 
-    //     const { frequencyType, dateRange, startDate, endDate, dateRangeType = "createdAt" } = filter
+        const { frequencyType, dateRange, startDate, endDate, dateRangeType = "createdAt" } = filter
 
-    //     let formatType = "%Y"
+        let formatType = "%Y"
 
-    //     if (dateRange && dateRange.toLowerCase().includes('day')) {
-    //         formatType = '%Hh:%Mm:%Ss'
-    //     }
+        if (dateRange && dateRange.toLowerCase().includes('day')) {
+            formatType = '%Hh:%Mm:%Ss'
+        }
 
-    //     if (dateRange && dateRange.toLowerCase().includes('week')) {
-    //         formatType = '%u'
-    //     }
+        if (dateRange && dateRange.toLowerCase().includes('week')) {
+            formatType = '%u'
+        }
 
-    //     if (dateRange && dateRange.toLowerCase().includes('month')) {
-    //         formatType = "%V"
-    //     }
+        if (dateRange && dateRange.toLowerCase().includes('month')) {
+            formatType = "%V"
+        }
 
-    //     if (dateRange && dateRange.toLowerCase().includes('year')) {
-    //         formatType = "%m"
-    //     }
+        if (dateRange && dateRange.toLowerCase().includes('year')) {
+            formatType = "%m"
+        }
 
-    //     if (dateRange === 'customDate' && startDate && endDate) {
-    //         formatType = '%Y-%m-%d';
-    //     }
+        if (dateRange === 'customDate' && startDate && endDate) {
+            formatType = '%Y-%m-%d';
+        }
 
-    //     const dateFormat = frequencyType || formatType
+        const dateFormat = frequencyType || formatType
 
-    //     let projectStage: any = [
-    //         {
-    //             $project: {
-    //                 _id: 1,
-    //                 count: 1,
-    //                 amount: 1
-    //             }
-    //         }
-    //     ]
+        let projectStage: any = [
+            {
+                $project: {
+                    _id: 1,
+                    count: 1,
+                    amount: 1
+                }
+            }
+        ]
 
-    //     if (dateFormat === '%u') {
-    //         projectStage = [
-    //             {
-    //                 $project: {
-    //                     _id: {
-    //                         $arrayElemAt: [WEEKDAY_NAMES, { $subtract: [{ $toInt: "$_id" }, 1] }]
-    //                     },
-    //                     count: 1,
-    //                     amount: 1
-    //                 }
-    //             }
-    //         ];
-    //     }
+        if (dateFormat === '%u') {
+            projectStage = [
+                {
+                    $project: {
+                        _id: {
+                            $arrayElemAt: [WEEKDAY_NAMES, { $subtract: [{ $toInt: "$_id" }, 1] }]
+                        },
+                        count: 1,
+                        amount: 1
+                    }
+                }
+            ];
+        }
 
-    //     if (dateFormat === '%m') {
-    //         projectStage = [
-    //             {
-    //                 $project: {
-    //                     _id: {
-    //                         $arrayElemAt: [MONTH_NAMES, { $subtract: [{ $toInt: "$_id" }, 1] }],
-    //                     },
-    //                     count: 1,
-    //                     amount: 1
-    //                 },
-    //             }
-    //         ]
-    //     }
+        if (dateFormat === '%m') {
+            projectStage = [
+                {
+                    $project: {
+                        _id: {
+                            $arrayElemAt: [MONTH_NAMES, { $subtract: [{ $toInt: "$_id" }, 1] }],
+                        },
+                        count: 1,
+                        amount: 1
+                    },
+                }
+            ]
+        }
 
-    //     if (dateFormat === '%V') {
-    //         projectStage = [
-    //             {
-    //                 $project: {
-    //                     _id: {
-    //                         $concat: [
-    //                             "Week ",
-    //                             "$_id",
-    //                             " ",
-    //                             {
-    //                                 $dateToString: {
-    //                                     format: "%m/%d",
-    //                                     date: {
-    //                                         $dateFromString: {
-    //                                             dateString: {
-    //                                                 $concat: [
-    //                                                     {
-    //                                                         $dateToString: {
-    //                                                             format: "%Y",
-    //                                                             date: "$createdAt",
-    //                                                         },
-    //                                                     },
-    //                                                     "-W",
-    //                                                     {
-    //                                                         $dateToString: {
-    //                                                             format: "%V",
-    //                                                             date: "$createdAt",
-    //                                                         },
-    //                                                     },
-    //                                                     "-1",
-    //                                                 ],
-    //                                             },
-    //                                         },
-    //                                     },
-    //                                 },
-    //                             },
-    //                             "-",
-    //                             {
-    //                                 $dateToString: {
-    //                                     format: "%m/%d",
-    //                                     date: {
-    //                                         $dateFromString: {
-    //                                             dateString: {
-    //                                                 $concat: [
-    //                                                     {
-    //                                                         $dateToString: {
-    //                                                             format: "%Y",
-    //                                                             date: "$createdAt",
-    //                                                         },
-    //                                                     },
-    //                                                     "-W",
-    //                                                     {
-    //                                                         $dateToString: {
-    //                                                             format: "%V",
-    //                                                             date: "$createdAt",
-    //                                                         },
-    //                                                     },
-    //                                                     "-7",
-    //                                                 ],
-    //                                             },
-    //                                         },
-    //                                     },
-    //                                 },
-    //                             },
-    //                         ],
-    //                     },
-    //                     count: 1,
-    //                     amount: 1
-    //                 },
-    //             }
-    //         ]
-    //     }
+        if (dateFormat === '%V') {
+            projectStage = [
+                {
+                    $project: {
+                        _id: {
+                            $concat: [
+                                "Week ",
+                                "$_id",
+                                " ",
+                                {
+                                    $dateToString: {
+                                        format: "%m/%d",
+                                        date: {
+                                            $dateFromString: {
+                                                dateString: {
+                                                    $concat: [
+                                                        {
+                                                            $dateToString: {
+                                                                format: "%Y",
+                                                                date: "$createdAt",
+                                                            },
+                                                        },
+                                                        "-W",
+                                                        {
+                                                            $dateToString: {
+                                                                format: "%V",
+                                                                date: "$createdAt",
+                                                            },
+                                                        },
+                                                        "-1",
+                                                    ],
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                                "-",
+                                {
+                                    $dateToString: {
+                                        format: "%m/%d",
+                                        date: {
+                                            $dateFromString: {
+                                                dateString: {
+                                                    $concat: [
+                                                        {
+                                                            $dateToString: {
+                                                                format: "%Y",
+                                                                date: "$createdAt",
+                                                            },
+                                                        },
+                                                        "-W",
+                                                        {
+                                                            $dateToString: {
+                                                                format: "%V",
+                                                                date: "$createdAt",
+                                                            },
+                                                        },
+                                                        "-7",
+                                                    ],
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            ],
+                        },
+                        count: 1,
+                        amount: 1
+                    },
+                }
+            ]
+        }
 
-    //     pipeline.push(...[
-    //         {
-    //             $match: {
-    //                 [dateRangeType]: { $ne: null },
-    //                 ...matchFilter
-    //             },
-    //         },
-    //         {
-    //             $group: {
-    //                 _id: {
-    //                     $dateToString: {
-    //                         format: dateFormat,
-    //                         date: `$${dateRangeType}`,
-    //                     },
-    //                 },
-    //                 createdAt: { $first: `$${dateRangeType}` },
-    //                 count: { $sum: 1 },
-    //             },
-    //         },
-    //         { $sort: { _id: 1 } },
-    //         ...projectStage
-    //     ])
-    // }
+        pipeline.push(...[
+            {
+                $match: {
+                    [dateRangeType]: { $ne: null },
+                    ...matchFilter
+                },
+            },
+            {
+                $group: {
+                    _id: {
+                        $dateToString: {
+                            format: dateFormat,
+                            date: `$${dateRangeType}`,
+                        },
+                    },
+                    createdAt: { $first: `$${dateRangeType}` },
+                    count: { $sum: 1 },
+                },
+            },
+            { $sort: { _id: 1 } },
+            ...projectStage
+        ])
+    }
 
-    // pipeline.push(...[
-    //     {
-    //         $project: {
-    //             _id: 0,
-    //             key: "$_id",
-    //             count: 1
-    //         }
-    //     }
-    // ])
+    pipeline.push(...[
+        {
+            $project: {
+                _id: 0,
+                key: "$_id",
+                count: 1
+            }
+        }
+    ])
 
     return pipeline
 }

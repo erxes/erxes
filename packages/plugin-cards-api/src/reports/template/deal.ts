@@ -2856,7 +2856,6 @@ export const dealCharts = [
             chartType: string,
             subdomain: string,
         ) => {
-
             const { dimension, measure } = filter
 
             const matchFilter = await buildMatchFilter(filter, 'deal', subdomain, models)
@@ -2866,12 +2865,7 @@ export const dealCharts = [
             if (chartType === "number") {
                 const dealsCount = await models.Deals.find(matchFilter).countDocuments()
 
-                deals = [
-                    {
-                        count: "Total Count",
-                        totalCount: dealsCount
-                    }
-                ]
+                deals = { labels: "Total Count", data: dealsCount }
             } else {
                 const pipeline = buildPipeline(filter, "deal", matchFilter)
 
@@ -2889,7 +2883,7 @@ export const dealCharts = [
                 fieldType: 'select',
                 multi: true,
                 fieldOptions: DIMENSION_OPTIONS,
-                fieldDefaultValue: 'teamMember',
+                fieldDefaultValue: ['teamMember'],
                 fieldLabel: 'Select dimension',
             },
             // MEASURE FILTER
@@ -2898,7 +2892,7 @@ export const dealCharts = [
                 fieldType: 'select',
                 multi: true,
                 fieldOptions: MEASURE_OPTIONS,
-                fieldDefaultValue: 'count',
+                fieldDefaultValue: ['count'],
                 fieldLabel: 'Select measure',
             },
             // FREQUENCY TYPE FILTER BASED DIMENSION FILTER

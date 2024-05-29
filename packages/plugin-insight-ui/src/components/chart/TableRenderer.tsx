@@ -28,7 +28,7 @@ type Props = {
 const TableList = (props: Props) => {
   const { dataset: { data = [], }, } = props;
 
-  const headers = Object.keys(data[0]);
+  const headers = data.length > 0 ? Object.keys(data[0]) : [];
 
   return (
     <ScrollWrapper>

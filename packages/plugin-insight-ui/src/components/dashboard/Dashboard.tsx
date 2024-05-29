@@ -161,7 +161,8 @@ const Dashboard = (props: Props) => {
       filter: JSON.stringify(item.filter),
       dimension: JSON.stringify(item.dimension),
       layout: JSON.stringify(item.layout),
-      vizState: JSON.stringify(item.vizState)
+      vizState: JSON.stringify(item.vizState),
+      chartType: 'table'
     });
 
     const { REACT_APP_API_URL } = getEnv();
