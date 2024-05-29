@@ -58,7 +58,7 @@ export const RichTextEditorContent = (props: IRichTextEditorContentProps) => {
       }
       return false;
     },
-    [editor]
+    [editor],
   );
 
   return (

@@ -1,9 +1,4 @@
-import {
-  FilterContainer,
-  InputBar,
-  LeftActionBar,
-  Title,
-} from "@erxes/ui-settings/src/styles";
+import { LeftActionBar, Title } from "@erxes/ui-settings/src/styles";
 import {
   IPosition,
   PositionsMainQueryResponse,
@@ -223,19 +218,14 @@ const MainList = (props: Props) => {
     };
 
     return (
-      <FilterContainer $marginRight={true}>
-        <InputBar type="searchBar">
-          <Icon icon="search-1" size={20} />
-          <FormControl
-            type="text"
-            placeholder={__("Type to search")}
-            onChange={search}
-            value={searchValue}
-            autoFocus={true}
-            onFocus={moveCursorAtTheEnd}
-          />
-        </InputBar>
-      </FilterContainer>
+      <FormControl
+        type="text"
+        placeholder={__("Type to search")}
+        onChange={search}
+        value={searchValue}
+        autoFocus={true}
+        onFocus={moveCursorAtTheEnd}
+      />
     );
   };
   const rightActionBar = (

@@ -151,7 +151,7 @@ function ReplyFbMessage({
         <ControlLabel>{__("Quick Replies")}</ControlLabel>
 
         <FormControl
-          placeholder="enter your text"
+          placeholder="Enter your text"
           value={text}
           onChange={handleChangeInput}
         />

@@ -242,7 +242,7 @@ class Form extends React.Component<Props, State> {
       <>
         <ScrollWrapper>
           <FormGroup>
-            <ControlLabel required={true}>title</ControlLabel>
+            <ControlLabel required={true}>Title</ControlLabel>
             <FormControl
               {...formProps}
               name="title"
@@ -309,7 +309,7 @@ class Form extends React.Component<Props, State> {
           <FormWrapper>
             <FormColumn>
               <FormGroup>
-                <ControlLabel required={true}>buy Score</ControlLabel>
+                <ControlLabel required={true}>Buy Score</ControlLabel>
                 <FormControl
                   {...formProps}
                   name="buyScore"
@@ -328,7 +328,7 @@ class Form extends React.Component<Props, State> {
               <ControlLabel required={true}>Name</ControlLabel>
             </FormColumn>
             <FormColumn>
-              <ControlLabel required={true}>voucher Campaign</ControlLabel>
+              <ControlLabel required={true}>Voucher Campaign</ControlLabel>
             </FormColumn>
             <FormColumn>
               <ControlLabel required={true}>Probability</ControlLabel>

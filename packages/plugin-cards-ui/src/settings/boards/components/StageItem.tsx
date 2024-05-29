@@ -137,7 +137,6 @@ class StageItem extends React.Component<Props> {
           defaultValue={stage.code}
           name="code"
           placeholder={__("Code")}
-          autoFocus={true}
           onChange={onChangeFormControl.bind(this, stage._id)}
         />
 
@@ -145,7 +144,6 @@ class StageItem extends React.Component<Props> {
           defaultValue={stage.age}
           name="age"
           placeholder={__("Age")}
-          autoFocus={true}
           onChange={onChangeFormControl.bind(this, stage._id)}
         />
 

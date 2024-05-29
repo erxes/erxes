@@ -1,8 +1,8 @@
-import { IAttachment } from '@erxes/api-utils/src/types';
-import { Document, Schema } from 'mongoose';
+import { IAttachment } from "@erxes/api-utils/src/types";
+import { Document, Schema } from "mongoose";
 
-import { USER_LOGIN_TYPES } from './constants';
-import { field } from './utils';
+import { USER_LOGIN_TYPES } from "./constants";
+import { field } from "./utils";
 
 export interface INotificationConfig {
   notifType: string;
@@ -29,6 +29,7 @@ export interface IUser {
   secondaryPassword?: string;
   type?: string;
   deviceTokens?: string[];
+  twoFactorDevices?: ITwoFactorDevice[];
   clientPortalId: string;
   erxesCustomerId?: string;
   erxesCompanyId?: string;
@@ -70,18 +71,40 @@ export interface IUserDocument extends IUser, Document {
   isEmailVerified: boolean;
 }
 
+export interface ITwoFactorDevice {
+  device: String;
+  key: String;
+  date: Date;
+}
 export const notificationConfigSchema = new Schema(
   {
     notifType: field({
-      type: String
+      type: String,
     }),
     isAllowed: field({
       type: Boolean,
-      default: true
+      default: true,
     }),
     label: field({
-      type: String
-    })
+      type: String,
+    }),
+  },
+  { _id: false }
+);
+
+export const twoFactor = new Schema(
+  {
+    device: field({
+      type: String,
+    }),
+    key: field({
+      type: String,
+    }),
+    date: field({
+      type: Date,
+      default: Date.now,
+      label: "login at",
+    }),
   },
   { _id: false }
 );
@@ -90,18 +113,18 @@ export const notificationSettingsSchema = new Schema(
   {
     receiveByEmail: field({
       type: Boolean,
-      default: false
+      default: false,
     }),
     receiveBySms: field({
       type: Boolean,
-      default: false
+      default: false,
     }),
 
     // notification configs
     configs: field({
       type: [notificationConfigSchema],
-      default: []
-    })
+      default: [],
+    }),
   },
   { _id: false }
 );
@@ -116,62 +139,62 @@ const customFieldSchema = new Schema(
     locationValue: {
       type: {
         type: String,
-        enum: ['Point'],
-        optional: true
+        enum: ["Point"],
+        optional: true,
       },
       coordinates: {
         type: [Number],
-        optional: true
+        optional: true,
       },
-      required: false
-    }
+      required: false,
+    },
   },
   { _id: false }
 );
-customFieldSchema.index({ locationValue: '2dsphere' });
+customFieldSchema.index({ locationValue: "2dsphere" });
 
 export const clientPortalUserSchema = new Schema({
   _id: field({ pkey: true }),
   type: field({
     type: String,
     enum: USER_LOGIN_TYPES.ALL,
-    default: USER_LOGIN_TYPES.CUSTOMER
+    default: USER_LOGIN_TYPES.CUSTOMER,
   }),
   email: field({
     type: String,
     match: [
       /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,10})+$/,
-      'Please fill a valid email address'
+      "Please fill a valid email address",
     ],
-    label: 'Email',
+    label: "Email",
     optional: true,
-    sparse: true
+    sparse: true,
   }),
   phone: field({ type: String, optional: true, sparse: true }),
   username: field({
     type: String,
     optional: true,
     unique: true,
-    sparse: true
+    sparse: true,
   }),
   code: field({ type: String, optional: true }),
   password: field({ type: String }),
   firstName: field({
     type: String,
     optional: true,
-    label: 'First name'
+    label: "First name",
   }),
   secondaryPassword: field({ type: String, optional: true }),
-  lastName: field({ type: String, optional: true, label: 'Last name' }),
+  lastName: field({ type: String, optional: true, label: "Last name" }),
   companyName: field({
     type: String,
     optional: true,
-    label: 'Company name'
+    label: "Company name",
   }),
   companyRegistrationNumber: field({
     type: String,
     optional: true,
-    label: 'Company registration number'
+    label: "Company registration number",
   }),
   clientPortalId: field({ type: String, required: true }),
   erxesCompanyId: field({ type: String, optional: true }),
@@ -183,22 +206,23 @@ export const clientPortalUserSchema = new Schema({
   isPhoneVerified: field({
     type: Boolean,
     optional: true,
-    default: false
+    default: false,
   }),
   isEmailVerified: field({
     type: Boolean,
     optional: true,
-    default: false
+    default: false,
   }),
   deviceTokens: field({
     type: [String],
     default: [],
-    label: 'Device tokens'
+    label: "Device tokens",
   }),
+  twoFactorDevices: field({ type: [twoFactor], default: [] }),
   createdAt: field({
     type: Date,
     default: Date.now,
-    label: 'Registered at'
+    label: "Registered at",
   }),
   modifiedAt: field({ type: Date }),
 
@@ -209,45 +233,45 @@ export const clientPortalUserSchema = new Schema({
   registrationTokenExpires: field({ type: Date }),
   isOnline: field({
     type: Boolean,
-    label: 'Is online',
-    optional: true
+    label: "Is online",
+    optional: true,
   }),
   lastSeenAt: field({
     type: Date,
-    label: 'Last seen at',
-    optional: true
+    label: "Last seen at",
+    optional: true,
   }),
   sessionCount: field({
     type: Number,
-    label: 'Session count',
-    optional: true
+    label: "Session count",
+    optional: true,
   }),
 
   // notification settings
   notificationSettings: field({
     type: notificationSettingsSchema,
-    default: {}
+    default: {},
   }),
-  avatar: field({ type: String, label: 'Avatar' }),
+  avatar: field({ type: String, label: "Avatar" }),
 
   // manual verification
   verificationRequest: field({
     type: {
-      status: { type: String, default: 'notVerified' },
+      status: { type: String, default: "notVerified" },
       attachments: { type: Object, optional: false },
       description: { type: String, optional: true },
-      verifiedBy: { type: String, optional: true }
+      verifiedBy: { type: String, optional: true },
     },
-    optional: true
+    optional: true,
   }),
 
   customFieldsData: field({
     type: [customFieldSchema],
     optional: true,
-    label: 'Custom fields data'
+    label: "Custom fields data",
   }),
   facebookId: field({ type: String }),
-  googleId: field({ type: String })
+  googleId: field({ type: String }),
 });
 
 clientPortalUserSchema.index(
@@ -255,7 +279,7 @@ clientPortalUserSchema.index(
   {
     expireAfterSeconds: 24 * 60 * 60,
     partialFilterExpression: {
-      $and: [{ isPhoneVerified: false }, { isEmailVerified: false }]
-    }
+      $and: [{ isPhoneVerified: false }, { isEmailVerified: false }],
+    },
   }
 );

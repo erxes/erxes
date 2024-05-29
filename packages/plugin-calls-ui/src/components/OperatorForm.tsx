@@ -22,19 +22,19 @@ const OperatorForm = (props: Props) => {
     onChange,
     onChangeDetails,
     removeOperator,
-    index
+    index,
   } = props;
 
   const onChangeDetail = (e: any) => {
     onChangeDetails(e.target.name, e.target.value, index);
   };
 
-  const onSelectUser = value => {
+  const onSelectUser = (value) => {
     onChange(index, { ...operator, userId: value });
   };
 
   const remove = () => {
-    removeOperator(index);
+    removeOperator && removeOperator(index);
   };
 
   return (
@@ -46,12 +46,12 @@ const OperatorForm = (props: Props) => {
               label={`Choose operator ${index + 1}`}
               name="selectedMembers"
               multi={false}
-              initialValue={(operator && operator.userId) || ''}
+              initialValue={operator?.userId || (operator && operator?.userId)}
               onSelect={onSelectUser}
             />
           </div>
           <Button
-            onClick={remove}
+            onClick={() => remove()}
             btnStyle="danger"
             icon="times"
             style={{ padding: '7px 15px' }}
@@ -69,6 +69,7 @@ const OperatorForm = (props: Props) => {
           name={`gsUsername`}
           onChange={onChangeDetail}
           required={true}
+          value={(operator && operator.gsUsername) || ''}
         />
       </FormGroup>
       <FormGroup>

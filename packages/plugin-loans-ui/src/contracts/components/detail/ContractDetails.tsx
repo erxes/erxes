@@ -103,7 +103,7 @@ const ContractDetails = (props: Props) => {
       setCollaterals(value);
     }
     if (name === 'collateralsData') {
-      setCollateralsData(value);
+      setCollateralsData([...value]);
     }
   };
 
@@ -116,7 +116,6 @@ const ContractDetails = (props: Props) => {
 
   const pDataChange = (pData) => onChangeField('collateralsData', pData);
   const prsChange = (prs) => onChangeField('collaterals', prs);
-  console.log('contract', contract, collaterals, collateralsData);
   const content = (
     <>
       <Tabs
@@ -125,7 +124,7 @@ const ContractDetails = (props: Props) => {
             label: __(`First Schedules`),
             component: (contract.leaseType === LEASE_TYPES.FINANCE ||
               contract.leaseType === LEASE_TYPES.SAVING) && (
-              <ScheduleSection contractId={contract._id} isFirst={true} />
+              <ScheduleSection contractId={contract._id} isFirst={true} regenSchedules={props.regenSchedules}/>
             ),
           },
           {

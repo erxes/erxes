@@ -381,13 +381,13 @@ jobs:
 
           docker buildx imagetools create erxes/plugin-facebook-api:master --tag  erxes/plugin-facebook-api:${GITHUB_REF#refs/tags/}
 
-      - name: plugin-ecommerce-api
+      - name: plugin-ecommemastere-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
 
-          docker buildx imagetools create erxes/plugin-ecommerce-api:master --tag  erxes/plugin-ecommerce-api:${GITHUB_REF#refs/tags/}
+          docker buildx imagetools create erxes/plugin-ecommemastere-api:master --tag  erxes/plugin-ecommemastere-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-cars-api
         run: >
@@ -552,6 +552,20 @@ jobs:
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
           docker buildx imagetools create erxes/plugin-insight-api:master --tag  erxes/plugin-insight-api:${GITHUB_REF#refs/tags/}
+
+      - name: plugin-khanbank-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker buildx imagetools create erxes/plugin-khanbank-api:master --tag  erxes/plugin-khanbank-api:${GITHUB_REF#refs/tags/}
+
+      - name: plugin-burenscoring-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker buildx imagetools create erxes/plugin-burenscoring-api:master --tag  erxes/plugin-burenscoring-api:${GITHUB_REF#refs/tags/}
 
       - name: inbox ui
         run: aws s3 sync s3://erxes-master-plugins/uis/plugin-inbox-ui
@@ -737,3 +751,11 @@ jobs:
       - name: insight ui
         run: aws s3 sync s3://erxes-master-plugins/uis/plugin-insight-ui
           s3://erxes-release-plugins/uis/plugin-insight-ui/${GITHUB_REF#refs/tags/}/
+
+      - name: khanbank ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-khanbank-ui
+          s3://erxes-release-plugins/uis/plugin-khanbank-ui/${GITHUB_REF#refs/tags/}/
+
+      - name: burenscoring ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-burenscoring-ui
+          s3://erxes-release-plugins/uis/plugin-burenscoring-ui/${GITHUB_REF#refs/tags/}/

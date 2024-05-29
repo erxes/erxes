@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 
 import { Config } from '../../types';
 import { mutations } from '../graphql';
+import React from 'react';
 
 type Props = {
   config: Config;
@@ -19,20 +20,22 @@ function VerifyContainer(props: Props) {
     return <p>Invalid code</p>;
   }
 
-  googleAuth({
-    variables: {
-      code,
-      clientPortalId: config._id,
-    },
-  })
-    .then((result) => {
-      if (result?.data?.clientPortalGoogleAuthentication === 'loggedin') {
-        window.location.href = '/';
-      }
+  React.useEffect(() => {
+    googleAuth({
+      variables: {
+        code,
+        clientPortalId: config._id,
+      },
     })
-    .catch((e) => {
-      console.error('error: ', e.message);
-    });
+      .then((result) => {
+        if (result?.data?.clientPortalGoogleAuthentication === 'loggedin') {
+          window.location.href = '/';
+        }
+      })
+      .catch((e) => {
+        console.error('error: ', e.message);
+      });
+  }, [code]);
 
   return <p />;
 }

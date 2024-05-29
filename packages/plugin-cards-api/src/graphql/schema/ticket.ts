@@ -4,10 +4,10 @@ import {
   commonMutationParams,
   commonTypes,
   conformityQueryFields,
-  copyParams
+  copyParams,
 } from './common';
 
-export const types = ({ contacts, tags }) => `
+export const types = ({ contacts, tags, clientPortal }) => `
   type TicketListItem {
     customPropertiesData:JSON,
     ${commonListTypes}
@@ -26,6 +26,7 @@ export const types = ({ contacts, tags }) => `
     }
 
     ${tags ? `tags: [Tag]` : ''}
+    ${clientPortal ? `vendorCustomers: [ClientPortalUser]` : ''}
 
     ${commonTypes}
   }
@@ -40,6 +41,7 @@ const listQueryParams = `
   parentId:String
   stageId: String
   customerIds: [String]
+  vendorCustomerIds: [String]
   companyIds: [String]
   date: ItemDate
   skip: Int

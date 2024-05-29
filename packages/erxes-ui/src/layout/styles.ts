@@ -73,6 +73,7 @@ const MainHead = styled.div`
   padding: 0 ${dimensions.coreSpacing}px;
   background: ${colors.colorWhite};
   box-shadow: 0 0 6px 1px ${colors.shadowPrimary};
+  z-index: 2;
 `;
 
 const MainContent = styledTS<{
