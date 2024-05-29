@@ -1,22 +1,20 @@
-import { Alert, __, confirm, router } from '@erxes/ui/src/utils';
-import { useLocation, useNavigate } from 'react-router-dom';
-
-import { gql, useQuery, useMutation } from '@apollo/client';
-import Button from '@erxes/ui/src/components/Button';
-import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
+import { gql, useMutation, useQuery } from '@apollo/client';
 import { Header } from '@erxes/ui-settings/src/styles';
-import CategoryStatusFilter from './filters/CategoryStatusFilter';
+import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
+import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
-import Tip from '@erxes/ui/src/components/Tip';
-import queries from '../graphql/queries';
-import AccountCategoryForm from '../components/AccountCategoryForm';
-import { IAccountCategory } from '../../../types/accountCategory';
+import { Alert, __, confirm, router } from '@erxes/ui/src/utils';
+import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import AccountCategoryForm from '../containers/AccountCategoryForm';
 import mutation from '../graphql/mutations';
-import { IAccountCategoryResponse } from '../types';
+import queries from '../graphql/queries';
+import { AccountCategoriesQueryResponse, IAccountCategory } from '../types';
+import CategoryStatusFilter from './filters/CategoryStatusFilter';
 
 interface IProps {
   queryParams: any;
@@ -27,7 +25,7 @@ const AccountCategoryList: React.FC<IProps> = (props) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { data, loading } = useQuery<IAccountCategoryResponse>(
+  const { data, loading } = useQuery<AccountCategoriesQueryResponse>(
     gql(queries.accountCategories)
   );
 
@@ -54,7 +52,7 @@ const AccountCategoryList: React.FC<IProps> = (props) => {
         mutation={
           category
             ? mutation.accountCategoriesEdit
-            : mutation.accountCategoryAdd
+            : mutation.accountCategoriesAdd
         }
       />
     );

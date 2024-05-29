@@ -3,28 +3,29 @@ import { gql, useQuery } from "@apollo/client";
 import { Spinner } from "@erxes/ui/src";
 import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
-import React from "react";
+import React, { useState } from "react";
 import Form from "../components/AccountForm";
 import { mutations, queries } from "../graphql";
-import { AccountCategoriesQueryResponse, AccountDetailQueryResponse } from "../types";
+import { AccountCategoriesQueryResponse, AccountCategoryDetailQueryResponse } from "../types";
 
 type Props = {
-  accountId?: string;
+  accountCategoryId?: string;
   queryParams: any;
   closeModal: () => void;
 };
 
-const AccountFormContainer = (props: Props) => {
-  const { accountId } = props;
+const AccountCategoryFormContainer = (props: Props) => {
+  const { accountCategoryId } = props;
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const accountDetailQuery = useQuery<AccountDetailQueryResponse>(
+  const accountCategoryDetailQuery = useQuery<AccountCategoryDetailQueryResponse>(
     gql(queries.accountDetail),
     {
-      skip: !accountId,
+      skip: !accountCategoryId,
       fetchPolicy: "network-only",
       variables: {
-        _id: accountId || "",
-        accountId: accountId || "",
+        _id: accountCategoryId || "",
+        accountCategoryId: accountCategoryId || "",
       },
     }
   );
@@ -37,7 +38,7 @@ const AccountFormContainer = (props: Props) => {
   );
 
   if (
-    (accountDetailQuery && accountDetailQuery.loading) ||
+    (accountCategoryDetailQuery && accountCategoryDetailQuery.loading) ||
     (accountCategoriesQuery && accountCategoriesQuery.loading)
   ) {
     return <Spinner objective={true} />;
@@ -52,7 +53,7 @@ const AccountFormContainer = (props: Props) => {
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
-        mutation={object ? mutations.accountsEdit : mutations.accountsAdd}
+        mutation={object ? mutations.accountCategoriesEdit : mutations.accountCategoriesAdd}
         variables={values}
         callback={callback}
         refetchQueries={getRefetchQueries()}
@@ -65,12 +66,12 @@ const AccountFormContainer = (props: Props) => {
     );
   };
 
-  const account = accountDetailQuery?.data?.accountDetail;
+  const accountCategory = accountCategoryDetailQuery?.data?.accountCategoryDetail
   const accountCategories = (accountCategoriesQuery?.data?.accountCategories) || [];
 
   const updatedProps = {
     ...props,
-    account,
+    accountCategory,
     renderButton,
     accountCategories,
   };
@@ -80,11 +81,10 @@ const AccountFormContainer = (props: Props) => {
 
 const getRefetchQueries = () => {
   return [
-    "accountDetail",
     "accounts",
     "accountsTotalCount",
     "accountCategories",
   ];
 };
 
-export default AccountFormContainer;
+export default AccountCategoryFormContainer;

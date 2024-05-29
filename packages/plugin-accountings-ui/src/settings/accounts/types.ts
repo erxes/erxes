@@ -52,8 +52,12 @@ export type AccountsCountQueryResponse = {
 } & QueryResponse;
 
 // categories
+export type AccountCategoryDetailQueryResponse = {
+  accountCategoryDetail: IAccountCategory;
+} & QueryResponse;
+
 export type AccountCategoriesQueryResponse = {
-  accountCategories: IAccount[];
+  accountCategories: IAccountCategory[];
 } & QueryResponse;
 
 export type AddAccountMutationResponse = {

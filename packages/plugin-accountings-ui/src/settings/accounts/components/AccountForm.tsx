@@ -133,6 +133,11 @@ function AccountForm(props: IProps): React.ReactNode {
     };
   };
 
+  const onCategoryChange = (categoryId: string) => {
+    const category = getMaskStr(categoryId)
+    setState((prevState) => ({ ...prevState, categoryId, category }));
+  }
+
   const renderContent = (formProps: IFormProps) => {
     const { renderButton, closeModal, account } =
       props;
@@ -171,7 +176,7 @@ function AccountForm(props: IProps): React.ReactNode {
                     value: '',
                     label: '...Empty category',
                   }}
-                  onSelect={(categoryId) => setState((prevState) => ({ ...prevState, categoryId: categoryId as string }))}
+                  onSelect={(categoryId) => onCategoryChange(categoryId as string)}
                   multi={false}
                 />
               </Row>

@@ -84,7 +84,7 @@ const categoryInputParams = `
   mask: $mask
 `;
 
-const accountCategoryAdd = `
+const accountCategoriesAdd = `
   mutation accountCategoriesAdd(${categoryInputParamDefs}) {
     accountCategoriesAdd(${categoryInputParams}) {
       ${categoryFields}
@@ -111,7 +111,7 @@ export default {
   accountsEdit,
   accountsRemove,
   accountsMerge,
-  accountCategoryAdd,
+  accountCategoriesAdd,
   accountCategoriesEdit,
   accountCategoriesRemove
 };
