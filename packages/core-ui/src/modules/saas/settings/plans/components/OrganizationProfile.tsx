@@ -6,6 +6,7 @@ import {
   StatusBox,
   StatusTitle,
   UpgradeButtons,
+  Alert,
 } from "../styles";
 import { ColorPick, ColorPicker } from "@erxes/ui/src/styles/main";
 import {
@@ -14,7 +15,6 @@ import {
   FormGroup,
 } from "@erxes/ui/src/components/form";
 
-import Alert from "react-bootstrap/Alert";
 import AvatarUpload from "@erxes/ui/src/components/AvatarUpload";
 import Button from "@erxes/ui/src/components/Button";
 import { COLORS } from "@erxes/ui/src/constants/colors";
@@ -22,8 +22,7 @@ import EmailConfigForm from "@erxes/ui-settings/src/general/components/EmailConf
 import { IConfigsMap } from "@erxes/ui-settings/src/general/types";
 import { IOrganization } from "../types";
 import Icon from "@erxes/ui/src/components/Icon";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Popover from "react-bootstrap/Popover";
+import Popover from "@erxes/ui/src/components/Popover";
 import React from "react";
 import Table from "@erxes/ui/src/components/table";
 import Tip from "@erxes/ui/src/components/Tip";
@@ -297,15 +296,13 @@ class OrganizationProfile extends React.Component<Props, State> {
 
     const colorPopover = (color, onChange, id: string) => {
       return (
-        <Popover id={id}>
-          <TwitterPicker
-            width="266px"
-            triangle="hide"
-            color={{ hex: color }}
-            onChange={onChange}
-            colors={COLORS}
-          />
-        </Popover>
+        <TwitterPicker
+          width="266px"
+          triangle="hide"
+          color={{ hex: color }}
+          onChange={onChange}
+          colors={COLORS}
+        />
       );
     };
 
@@ -332,34 +329,32 @@ class OrganizationProfile extends React.Component<Props, State> {
           <ControlLabel>Text color</ControlLabel>
           <p>Used on the login page text</p>
           <ColorPickerWrapper>
-            <OverlayTrigger
-              trigger="click"
-              rootClose={true}
+            <Popover
               placement="bottom"
-              overlay={textPopover}
+              trigger={
+                <ColorPick>
+                  <ColorPicker style={{ backgroundColor: textColor }} />
+                </ColorPick>
+              }
             >
-              <ColorPick>
-                <ColorPicker style={{ backgroundColor: textColor }} />
-              </ColorPick>
-            </OverlayTrigger>
+              {textPopover}
+            </Popover>
           </ColorPickerWrapper>
         </FormGroup>
 
         <div className="hide">
           <FormGroup>
             <ControlLabel>Icon color</ControlLabel>
-            <div>
-              <OverlayTrigger
-                trigger="click"
-                rootClose={true}
-                placement="bottom"
-                overlay={iconPopover}
-              >
+            <Popover
+              placement="bottom"
+              trigger={
                 <ColorPick>
                   <ColorPicker style={{ backgroundColor: iconColor }} />
                 </ColorPick>
-              </OverlayTrigger>
-            </div>
+              }
+            >
+              {iconPopover}
+            </Popover>
           </FormGroup>
         </div>
 
@@ -372,16 +367,16 @@ class OrganizationProfile extends React.Component<Props, State> {
           </Tip>
           <p>Used on the login background</p>
           <ColorPickerWrapper>
-            <OverlayTrigger
-              trigger="click"
-              rootClose={true}
+            <Popover
               placement="bottom"
-              overlay={backgroundPopover}
+              trigger={
+                <ColorPick>
+                  <ColorPicker style={{ backgroundColor }} />
+                </ColorPick>
+              }
             >
-              <ColorPick>
-                <ColorPicker style={{ backgroundColor }} />
-              </ColorPick>
-            </OverlayTrigger>
+              {backgroundPopover}
+            </Popover>
           </ColorPickerWrapper>
         </FormGroup>
       </>
@@ -443,11 +438,11 @@ class OrganizationProfile extends React.Component<Props, State> {
           </FormGroup>
           <FormGroup>
             <ControlLabel>DNS Record</ControlLabel>
-            <Alert variant="info">
-              <Alert.Heading>
+            <Alert>
+              <div>
                 Add the records below to your DNS settings for {subdomain}
                 .app.erxes.io
-              </Alert.Heading>
+              </div>
               <p>
                 You need to add both records below. The second record will only
                 be available once the first has been set and its status is
