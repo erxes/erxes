@@ -1,46 +1,53 @@
-import { Document, Schema, Model, Connection, Types } from 'mongoose';
+import {
+  Document,
+  Schema,
+  Model,
+  Connection,
+  Types,
+  HydratedDocument,
+} from 'mongoose';
 import { IModels } from '../index';
 import * as _ from 'lodash';
 
 export interface IPermissionGroup {
-  _id: any;
+  _id: Types.ObjectId;
   name: string;
 }
 
-export type PermissionGroupDocument = IPermissionGroup & Document;
+export type PermissionGroupDocument = HydratedDocument<IPermissionGroup>;
 
 const OMIT_FROM_INPUT = ['_id'] as const;
 
 export type PermissionGroupCreateInput = Omit<
   IPermissionGroup,
-  typeof OMIT_FROM_INPUT[number]
+  (typeof OMIT_FROM_INPUT)[number]
 >;
 export type PermissionGroupPatchInput = PermissionGroupCreateInput;
 
-export interface IPermissionGroupModel extends Model<PermissionGroupDocument> {
+export interface IPermissionGroupModel extends Model<IPermissionGroup> {
   findByIdOrThrow(_id: string): Promise<PermissionGroupDocument>;
   createPermissionGroup(
-    input: PermissionGroupCreateInput
+    input: PermissionGroupCreateInput,
   ): Promise<PermissionGroupDocument>;
   patchPermissionGroup(
     _id: string,
-    patch: PermissionGroupPatchInput
+    patch: PermissionGroupPatchInput,
   ): Promise<PermissionGroupDocument>;
   deletePermissionGroup(_id: string): Promise<PermissionGroupDocument>;
 }
 
-export const permissionGroupSchema = new Schema<PermissionGroupDocument>({
-  name: { type: String, required: true, unique: true }
+export const permissionGroupSchema = new Schema<IPermissionGroup>({
+  name: { type: String, required: true, unique: true },
 });
 
 export const generatePermissionGroupModel = (
   subdomain: string,
   con: Connection,
-  models: IModels
+  models: IModels,
 ): void => {
   class PermissionGroupModelStatics {
     public static async findByIdOrThrow(
-      _id: string
+      _id: string,
     ): Promise<PermissionGroupDocument> {
       const doc = await models.PermissionGroup.findById(_id);
       if (!doc) {
@@ -50,19 +57,19 @@ export const generatePermissionGroupModel = (
     }
 
     public static async createPermissionGroup(
-      input: PermissionGroupCreateInput
+      input: PermissionGroupCreateInput,
     ): Promise<PermissionGroupDocument> {
       return models.PermissionGroup.create(input);
     }
 
     public static async patchPermissionGroup(
       _id: string,
-      patch: PermissionGroupPatchInput
+      patch: PermissionGroupPatchInput,
     ): Promise<PermissionGroupDocument> {
       const doc = await models.PermissionGroup.findByIdAndUpdate(
         _id,
         { $set: patch },
-        { new: true }
+        { new: true },
       );
       if (!doc) {
         throw new Error(`Permission group with _id=${_id} doesn't exist`);
@@ -71,7 +78,7 @@ export const generatePermissionGroupModel = (
     }
 
     public static async deletePermissionGroup(
-      _id: string
+      _id: string,
     ): Promise<PermissionGroupDocument> {
       const doc = await models.PermissionGroup.findByIdOrThrow(_id);
 
@@ -79,10 +86,10 @@ export const generatePermissionGroupModel = (
       session.startTransaction();
       try {
         await models.PermissionGroupCategoryPermit.deleteMany({
-          permissionGroupId: _id
+          permissionGroupId: _id,
         });
         await models.PermissionGroupUser.deleteMany({ permissionGroupId: _id });
-        await doc.remove();
+        await doc.deleteOne();
         await session.commitTransaction();
       } catch (e) {
         await session.abortTransaction();
@@ -95,8 +102,8 @@ export const generatePermissionGroupModel = (
 
   permissionGroupSchema.loadClass(PermissionGroupModelStatics);
 
-  models.PermissionGroup = con.model<
-    PermissionGroupDocument,
-    IPermissionGroupModel
-  >('forum_permission_groups', permissionGroupSchema);
+  models.PermissionGroup = con.model<IPermissionGroup, IPermissionGroupModel>(
+    'forum_permission_groups',
+    permissionGroupSchema,
+  );
 };

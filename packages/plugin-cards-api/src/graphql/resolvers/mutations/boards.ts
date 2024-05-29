@@ -369,10 +369,10 @@ const boardMutations = {
     const copied = await models.Pipelines.createPipeline(pipelineDoc);
 
     for (const stage of sourceStages) {
+      const { _id, ...rest} = stage;
       await models.Stages.createStage({
-        ...stage,
-        _id: undefined,
-        probability: stage.probability || "10%",
+        ...rest,
+        probability: stage.probability || '10%',
         type: copied.type,
         pipelineId: copied._id,
       });
@@ -391,7 +391,7 @@ const boardMutations = {
   /**
    * Update stage orders
    */
-  stagesUpdateOrder(
+  async stagesUpdateOrder(
     _root,
     { orders }: { orders: IOrderInput[] },
     { models }: IContext

@@ -3,7 +3,7 @@ import { sendCommonMessage, sendCoreMessage } from '../../messageBroker';
 import { IGrantRequest } from '../../models/definitions/grant';
 
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
+  async __resolveReference({ _id }, { models }: IContext) {
     return models.Requests.findOne({ _id });
   },
 

@@ -4,11 +4,11 @@ import { IContext } from '../../connectionResolver';
 import { sendKbMessage } from '../../messageBroker';
 
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
+  async __resolveReference({ _id }, { models }: IContext) {
     return models.Assets.findOne({ _id });
   },
 
-  category(asset: IAssetDocument, _, { dataLoaders }: IContext) {
+  async category(asset: IAssetDocument, _, { dataLoaders }: IContext) {
     return (
       (asset.categoryId &&
         dataLoaders.assetCategories.load(asset.categoryId)) ||
@@ -16,11 +16,11 @@ export default {
     );
   },
 
-  parent(asset: IAssetDocument, _, { dataLoaders }: IContext) {
+  async parent(asset: IAssetDocument, _, { dataLoaders }: IContext) {
     return (asset.parentId && dataLoaders.asset.load(asset.parentId)) || null;
   },
 
-  isRoot(asset: IAssetDocument, {}) {
+  async isRoot(asset: IAssetDocument, {}) {
     return asset.parentId ? false : true;
   },
 
@@ -43,7 +43,7 @@ export default {
     });
   },
 
-  vendor(asset: IAssetDocument, _, { dataLoaders }: IContext) {
+  async vendor(asset: IAssetDocument, _, { dataLoaders }: IContext) {
     return (asset.vendorId && dataLoaders.company.load(asset.vendorId)) || null;
   },
 

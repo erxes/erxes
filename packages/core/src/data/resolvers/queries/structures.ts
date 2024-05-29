@@ -154,11 +154,11 @@ const structureQueries = {
     return { list, totalCount, totalUsersCount };
   },
 
-  departmentDetail(_root, { _id }, { models }: IContext) {
+  async departmentDetail(_root, { _id }, { models }: IContext) {
     return models.Departments.getDepartment({ _id });
   },
 
-  units(
+  async units(
     _root,
     { searchValue }: { searchValue?: string },
     { models }: IContext,
@@ -221,7 +221,7 @@ const structureQueries = {
     return { list, totalCount, totalUsersCount };
   },
 
-  unitDetail(_root, { _id }, { models }: IContext) {
+  async unitDetail(_root, { _id }, { models }: IContext) {
     return models.Units.getUnit({ _id });
   },
 
@@ -275,7 +275,7 @@ const structureQueries = {
     return { list, totalCount, totalUsersCount };
   },
 
-  branchDetail(_root, { _id }, { models }: IContext) {
+  async branchDetail(_root, { _id }, { models }: IContext) {
     return models.Branches.getBranch({ _id });
   },
 
@@ -303,7 +303,7 @@ const structureQueries = {
     return models.Users.findUsers({ _id: { $nin: userIds }, isActive: true });
   },
 
-  structureDetail(_root, _args, { models }: IContext) {
+  async structureDetail(_root, _args, { models }: IContext) {
     return models.Structures.findOne();
   },
 
@@ -359,7 +359,7 @@ const structureQueries = {
     return { list, totalCount, totalUsersCount };
   },
 
-  positionDetail(_root, { _id }, { models }: IContext) {
+  async positionDetail(_root, { _id }, { models }: IContext) {
     return models.Positions.getPosition({ _id });
   },
 };

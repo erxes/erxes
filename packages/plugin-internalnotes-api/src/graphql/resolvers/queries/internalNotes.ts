@@ -24,7 +24,7 @@ const internalNoteQueries = {
   /**
    * InternalNotes list
    */
-  internalNotes(
+  async internalNotes(
     _root,
     {
       contentType,

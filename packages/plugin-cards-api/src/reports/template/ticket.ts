@@ -2466,7 +2466,7 @@ export const ticketCharts = [
             let tickets
 
             if (pipeline.length === 0) {
-                const ticketsCount = await models.Tickets.find(matchFilter).count()
+                const ticketsCount = await models.Tickets.find(matchFilter).countDocuments()
 
                 tickets = [
                     {

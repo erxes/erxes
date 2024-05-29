@@ -27,7 +27,7 @@ const useCapitron = () => {
 }
 
 export const useCapitronTransaction = (options: {
-  onCompleted: () => void
+  onCompleted: (data: any) => void
   onError: () => void
 }) => {
   const { onCompleted, onError } = options
@@ -56,7 +56,7 @@ export const useCapitronTransaction = (options: {
           toast({
             description: "Transaction was successful",
           })
-          return !!onCompleted && onCompleted()
+          return !!onCompleted && onCompleted(ecrResult)
         }
         toast({
           description: `${JSON.stringify(ecrResult)}`,

@@ -23,6 +23,8 @@ export const loadClass = (models: IModels) => {
     public static async getChannel(_id: string) {
       const channel = await models.Channels.findOne({ _id });
 
+      let x = await models.Channels.findOne({ _id }).lean();
+
       if (!channel) {
         throw new Error('Channel not found');
       }

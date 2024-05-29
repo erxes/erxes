@@ -94,7 +94,9 @@ export class consumeSalesPlans {
 
     const flowByProducId = {};
     for (const flow of flows) {
-      flowByProducId[flow.productId] = flow;
+      if(flow.productId) {
+        flowByProducId[flow.productId] = flow;
+      }
     }
 
     this.flows = flows;

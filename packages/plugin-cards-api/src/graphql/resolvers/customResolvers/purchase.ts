@@ -112,7 +112,7 @@ export const generateAmounts = (productsData, useTick = true) => {
 };
 
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
+  async __resolveReference({ _id }, { models }: IContext) {
     return models.Purchases.findOne({ _id });
   },
 
@@ -194,15 +194,15 @@ export default {
     return response;
   },
 
-  unUsedAmount(deal: IPurchaseDocument) {
+  async unUsedAmount(deal: IPurchaseDocument) {
     return generateAmounts(deal.productsData || [], false);
   },
 
-  amount(deal: IPurchaseDocument) {
+  async amount(deal: IPurchaseDocument) {
     return generateAmounts(deal.productsData || []);
   },
 
-  assignedUsers(
+  async assignedUsers(
     purchase: IPurchaseDocument,
     _args,
     { subdomain }: IContext,
@@ -235,15 +235,15 @@ export default {
     return models.Pipelines.findOne({ _id: stage.pipelineId }).lean();
   },
 
-  boardId(purchase: IPurchaseDocument, _args, { models }: IContext) {
+  async boardId(purchase: IPurchaseDocument, _args, { models }: IContext) {
     return boardId(models, purchase);
   },
 
-  stage(purchase: IPurchaseDocument, _args, { models }: IContext) {
+  async stage(purchase: IPurchaseDocument, _args, { models }: IContext) {
     return models.Stages.getStage(purchase.stageId);
   },
 
-  isWatched(purchase: IPurchaseDocument, _args, { user }: IContext) {
+  async isWatched(purchase: IPurchaseDocument, _args, { user }: IContext) {
     const watchedUserIds = purchase.watchedUserIds || [];
 
     if (watchedUserIds && watchedUserIds.includes(user._id)) {
@@ -270,7 +270,7 @@ export default {
     return response;
   },
 
-  labels(purchase: IPurchaseDocument, _args, { models }: IContext) {
+  async labels(purchase: IPurchaseDocument, _args, { models }: IContext) {
     return models.PipelineLabels.find({
       _id: { $in: purchase.labelIds || [] }
     }).lean();

@@ -1163,7 +1163,11 @@ export const uploadFile = async (
   }
 
   if (UPLOAD_SERVICE_TYPE === 'CLOUDFLARE') {
-    nameOrLink = await uploadFileCloudflare(file, VERSION === 'saas' ? true : false, models);
+    nameOrLink = await uploadFileCloudflare(
+      file,
+      VERSION === 'saas' ? true : false,
+      models,
+    );
   }
 
   if (UPLOAD_SERVICE_TYPE === 'local') {
@@ -1392,12 +1396,16 @@ export const sendMobileNotification = async (
   const tokens: string[] = [];
 
   if (receivers) {
-    tokens.push(
-      ...(await models.Users.find({
-        _id: { $in: receivers },
-        role: { $ne: USER_ROLES.SYSTEM },
-      }).distinct('deviceTokens')),
-    );
+    const xs = await models.Users.find({
+      _id: { $in: receivers },
+      role: { $ne: USER_ROLES.SYSTEM },
+    }).distinct('deviceTokens');
+
+    for (let x of xs) {
+      if(x) {
+        tokens.push(x);
+      }
+    }
   }
 
   if (deviceTokens && deviceTokens.length) {

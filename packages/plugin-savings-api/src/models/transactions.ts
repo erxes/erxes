@@ -8,7 +8,7 @@ import {
 import { Model } from 'mongoose';
 import { ITransactionDocument } from './definitions/transactions';
 import { IModels } from '../connectionResolver';
-import { FilterQuery } from 'mongodb';
+import { FilterQuery } from 'mongoose';
 import { IContractDocument } from './definitions/contracts';
 import { TRANSACTION_TYPE } from './definitions/constants';
 
@@ -115,7 +115,7 @@ export const loadTransactionClass = (models: IModels) => {
         .sort({ date: -1 })
         .lean();
 
-      if (periodLock && !periodLock?.excludeContracts.includes(doc.contractId))
+      if (periodLock && !periodLock?.excludeContracts.includes(doc.contractId || 'undefined'))
         throw new Error(
           'At this moment transaction can not been created because this date closed'
         );
@@ -202,7 +202,7 @@ export const loadTransactionClass = (models: IModels) => {
 
           if (
             periodLock &&
-            !periodLock?.excludeContracts.includes(oldTr.contractId)
+            !periodLock?.excludeContracts.includes(oldTr.contractId || 'undefined')
           )
             throw new Error(
               'At this moment transaction can not been created because this date closed'
