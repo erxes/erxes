@@ -13,7 +13,7 @@ const Domains = () => {
   const { data, loading } = useQuery(gql(engageQueries.domains));
 
   if (loading) {
-    return <Spinner />;
+    return <Spinner objective={true}/>;
   }
 
   return <Component domains={data?.engageSocketLabsDomains || []} />;
