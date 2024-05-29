@@ -23,6 +23,8 @@ type Props = {
   loading?: boolean;
   searchValue: string;
   navigate: any;
+  totalCount: number;
+  onLoadMore: () => void;
   changeMainTab: (phoneNumber: string, shiftTab: string) => void;
   onSearch: (searchValue: string) => void;
   refetch: ({ callStatus }: { callStatus: string }) => void;
@@ -46,15 +48,37 @@ class History extends React.Component<Props, State> {
     };
 
     this.activeItemRef = React.createRef();
+    this.handleScroll = this.handleScroll.bind(this);
   }
 
   componentDidMount() {
-    document.addEventListener('keydown', this.handleKeyDown);
+    if (this.activeItemRef.current) {
+      this.activeItemRef.current.addEventListener("scroll", this.handleScroll);
+    }
+
+    document.addEventListener("keydown", this.handleKeyDown);
   }
 
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleKeyDown);
+    if (this.activeItemRef.current) {
+      this.activeItemRef.current.removeEventListener(
+        "scroll",
+        this.handleScroll
+      );
+    }
+    document.removeEventListener("keydown", this.handleKeyDown);
   }
+
+  handleScroll = () => {
+    const element = this.activeItemRef.current;
+
+    if (
+      element &&
+      element.scrollHeight - element.scrollTop === element.clientHeight
+    ) {
+      this.props.onLoadMore();
+    }
+  };
 
   handleKeyDown = (e) => {
     const { cursor } = this.state;
@@ -109,16 +133,6 @@ class History extends React.Component<Props, State> {
 
     return (
       <>
-        <InputBar type="searchBar">
-          <FormControl
-            placeholder={__('Search')}
-            name="searchValue"
-            onChange={this.onSearchChange}
-            value={this.props.searchValue}
-            autoFocus={true}
-          />
-          <Icon icon="search-1" size={20} />
-        </InputBar>
         {histories.map((item, i) => {
           const { callStatus, callType, createdAt } = item;
           const isMissedCall =
@@ -169,6 +183,7 @@ class History extends React.Component<Props, State> {
 
           return content;
         })}
+        {loading && <div>Loading...</div>}
       </>
     );
   };
@@ -183,7 +198,8 @@ class History extends React.Component<Props, State> {
             className={currentTab === 'All' ? 'active' : ''}
             onClick={() => this.onTabClick('All')}
           >
-            {__('All')}
+            {__("All")}{" "}
+            {this.props.totalCount !== 0 && `(${this.props.totalCount})`}
           </TabTitle>
           <TabTitle
             className={currentTab === 'Missed Call' ? 'active' : ''}
@@ -193,7 +209,16 @@ class History extends React.Component<Props, State> {
           </TabTitle>
         </Tabs>
         <CallHistory ref={this.activeItemRef}>
-          {/* <h4>{__("Recents")}</h4> */}
+          <InputBar type="searchBar">
+            <FormControl
+              placeholder={__("Search")}
+              name="searchValue"
+              onChange={this.onSearchChange}
+              value={this.props.searchValue}
+              autoFocus={true}
+            />
+            <Icon icon="search-1" size={20} />
+          </InputBar>
           {this.renderCalls()}
         </CallHistory>
       </>

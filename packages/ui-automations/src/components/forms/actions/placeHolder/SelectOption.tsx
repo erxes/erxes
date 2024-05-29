@@ -80,7 +80,7 @@ export default class SelectOption extends React.Component<Props, State> {
           <React.Fragment>
             <FormGroup>
               <ControlLabel>{__("Search")}</ControlLabel>
-              <FormControl placeholder="type a search" onChange={onSearch} />
+              <FormControl placeholder="Type to search" onChange={onSearch} />
             </FormGroup>
             <li>
               <b>Default Options</b>

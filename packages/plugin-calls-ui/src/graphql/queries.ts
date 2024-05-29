@@ -113,8 +113,8 @@ const activeSession = `
 }`;
 
 const callHistories = `
-  query CallHistories($limit: Int, $callStatus: String, $callType: String, $startDate: String, $endDate: String, $skip: Int, $integrationId: String) {
-    callHistories(limit: $limit, callStatus: $callStatus, callType: $callType, startDate: $startDate, endDate: $endDate, skip: $skip, integrationId: $integrationId) {
+  query CallHistories($limit: Int, $callStatus: String, $callType: String, $startDate: String, $endDate: String, $skip: Int, $integrationId: String, $searchValue: String) {
+    callHistories(limit: $limit, callStatus: $callStatus, callType: $callType, startDate: $startDate, endDate: $endDate, skip: $skip, integrationId: $integrationId, searchValue: $searchValue) {
       _id
     operatorPhone
     customerPhone
@@ -156,6 +156,12 @@ const callHistories = `
     }
 }`;
 
+const callHistoriesTotalCount = `
+  query callHistoriesTotalCount($limit: Int, $callStatus: String, $callType: String, $startDate: String, $endDate: String, $integrationId: String, $searchValue: String, $skip: Int) {
+    callHistoriesTotalCount(limit: $limit, callStatus: $callStatus, callType: $callType, startDate: $startDate, endDate: $endDate, integrationId: $integrationId, searchValue: $searchValue, skip: $skip)
+  }
+`;
+
 const callsGetConfigs = `
   query callsGetConfigs {
     callsGetConfigs
@@ -178,6 +184,7 @@ export default {
   callsIntegrationDetail,
   callUserIntegrations,
   callCustomerDetail,
+  callHistoriesTotalCount,
   customers,
   activeSession,
   callHistories,

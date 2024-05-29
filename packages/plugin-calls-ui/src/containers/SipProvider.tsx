@@ -200,11 +200,13 @@ const SipProviderContainer = (props) => {
 
   if (!config.isAvailable) {
     return (
-      <WidgetContainer
-        {...props}
-        callUserIntegrations={callUserIntegrations}
-        setConfig={handleSetConfig}
-      />
+      <CallWrapper>
+        <WidgetContainer
+          {...props}
+          callUserIntegrations={callUserIntegrations}
+          setConfig={handleSetConfig}
+        />
+      </CallWrapper>
     );
   }
 

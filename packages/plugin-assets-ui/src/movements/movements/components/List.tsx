@@ -3,7 +3,6 @@ import {
   Button,
   DataWithLoader,
   FormControl,
-  Icon,
   ModalTrigger,
   Pagination,
   Table,
@@ -12,12 +11,7 @@ import {
   __,
   router,
 } from "@erxes/ui/src";
-import {
-  FlexItem,
-  FlexRow,
-  InputBar,
-  Title,
-} from "@erxes/ui-settings/src/styles";
+import { FlexRow, Title } from "@erxes/ui-settings/src/styles";
 import React, { useRef, useState } from "react";
 
 import { ContainerBox } from "../../../style";
@@ -178,19 +172,14 @@ const List = (props: Props) => {
 
     return (
       <FlexRow>
-        <InputBar type="searchBar">
-          <Icon icon="search-1" size={20} />
-          <FlexItem>
-            <FormControl
-              type="text"
-              placeholder={__("Type to search")}
-              onChange={handleSearch}
-              value={searchValue}
-              autoFocus={true}
-              onFocus={moveCursorAtTheEnd}
-            />
-          </FlexItem>
-        </InputBar>
+        <FormControl
+          type="text"
+          placeholder={__("Type to search")}
+          onChange={handleSearch}
+          value={searchValue}
+          autoFocus={true}
+          onFocus={moveCursorAtTheEnd}
+        />
         <ModalTrigger
           title="Add Movement"
           content={renderFormContent}

@@ -80,7 +80,7 @@ const Contact: React.FC<Props> = ({
     <>
       <InputBar type="searchBar">
         <FormControl
-          placeholder={__('Search')}
+          placeholder={__("Type to search")}
           name="searchValue"
           onChange={onChange}
           value={searchValue}

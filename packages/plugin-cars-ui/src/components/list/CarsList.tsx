@@ -3,19 +3,13 @@ import {
   Button,
   DataWithLoader,
   FormControl,
-  Icon,
   ModalTrigger,
   Pagination,
   SortHandler,
   Table,
   Wrapper,
 } from "@erxes/ui/src";
-import {
-  FlexItem,
-  FlexRow,
-  InputBar,
-  Title,
-} from "@erxes/ui-settings/src/styles";
+import { FlexRow, Title } from "@erxes/ui-settings/src/styles";
 import React, { useRef, useState } from "react";
 import { __, isEnabled, router } from "@erxes/ui/src/utils/core";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -166,20 +160,15 @@ const CarsList = (props: Props) => {
     }
 
     return (
-      <>
-        <InputBar type="searchBar">
-          <Icon icon="search-1" size={20} />
-          <FlexItem>
-            <FormControl
-              type="text"
-              placeholder={__("Type to search")}
-              onChange={handleSearch}
-              value={search}
-              autoFocus={true}
-              onFocus={moveCursorAtTheEnd}
-            />
-          </FlexItem>
-        </InputBar>
+      <BarItems>
+        <FormControl
+          type="text"
+          placeholder={__("Type to search")}
+          onChange={handleSearch}
+          value={search}
+          autoFocus={true}
+          onFocus={moveCursorAtTheEnd}
+        />
 
         <ModalTrigger
           title="New car"
@@ -189,7 +178,7 @@ const CarsList = (props: Props) => {
           content={carForm}
           backDrop="static"
         />
-      </>
+      </BarItems>
     );
   };
 

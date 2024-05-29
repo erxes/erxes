@@ -361,7 +361,7 @@ export default {
         icon: 'file-plus-alt',
         label: 'Task',
         description:
-          'Start with a blank workflow that enralls and is triggered off task'
+          'Start with a blank workflow that enrolls and is triggered off task'
       },
       {
         type: 'cards:purchase',
@@ -369,7 +369,7 @@ export default {
         icon: 'file-plus-alt',
         label: 'Purchase',
         description:
-          'Start with a blank workflow that enralls and is triggered off purchase'
+          'Start with a blank workflow that enrolls and is triggered off purchase'
       },
       {
         type: 'cards:ticket',
@@ -377,7 +377,7 @@ export default {
         icon: 'file-plus',
         label: 'Ticket',
         description:
-          'Start with a blank workflow that enralls and is triggered off ticket'
+          'Start with a blank workflow that enrolls and is triggered off ticket'
       },
       {
         type: 'cards:deal',
@@ -385,7 +385,7 @@ export default {
         icon: 'piggy-bank',
         label: 'Sales pipeline',
         description:
-          'Start with a blank workflow that enralls and is triggered off sales pipeline item'
+          'Start with a blank workflow that enrolls and is triggered off sales pipeline item'
       }
     ],
     actions: [
