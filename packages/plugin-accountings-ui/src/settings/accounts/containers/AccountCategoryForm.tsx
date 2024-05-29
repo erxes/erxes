@@ -4,7 +4,7 @@ import { Spinner } from "@erxes/ui/src";
 import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
 import React, { useState } from "react";
-import Form from "../components/AccountForm";
+import Form from "../components/AccountCategoryForm";
 import { mutations, queries } from "../graphql";
 import { AccountCategoriesQueryResponse, AccountCategoryDetailQueryResponse } from "../types";
 

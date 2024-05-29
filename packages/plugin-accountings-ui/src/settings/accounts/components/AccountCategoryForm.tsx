@@ -71,53 +71,39 @@ function AccountCategoryForm(props: IProps): React.ReactNode {
     mask: mask || '',
   });
 
-  const getMaskStr = (categoryId) => {
-    const { code } = state;
-
-    const category = props.accountCategories.find((pc) => pc._id === categoryId);
-    let maskStr = "";
-
-    if (category && category.maskType && category.mask) {
-      const maskList: any[] = [];
-      for (const value of category.mask.values || []) {
-        if (value.static) {
-          maskList.push(value.static);
-          continue;
-        }
-
-        if (value.type === "char") {
-          maskList.push(value.char);
-        }
-
-        if (value.type === "customField" && value.matches) {
-          maskList.push(`(${Object.values(value.matches).join("|")})`);
-        }
-      }
-      maskStr = `${maskList.join("")}\w+`;
-
-      if (maskList.length && !code) {
-        setState((prevState) => ({ ...prevState, code: maskList[0] }));
-      }
-    }
-    setState((prevState) => ({ ...prevState, maskStr }));
-
-    return category;
-  };
-
   const generateDoc = (values: {
     _id?: string;
     description: string;
   }) => {
-    const { accountCategory } = props;
+    const { accountCategory, accountCategories } = props;
     const finalValues = values;
     if (accountCategory) {
       finalValues._id = accountCategory._id;
+    }
+
+    let genMaskType = maskType;
+    let genMask = maskType && mask;
+
+    const parentCategory = accountCategories.find((c) => c._id === parentId);
+    if (parentCategory && parentCategory.maskType === "hard") {
+      genMaskType = parentCategory.maskType;
+      genMask = parentCategory.mask;
+    }
+
+    if (parentCategory && parentCategory.maskType === "soft") {
+      if (mask.isSimilar) {
+        genMaskType = parentCategory.maskType;
+        genMask = parentCategory.mask;
+      }
     }
 
     return {
       ...accountCategory,
       ...state,
       ...finalValues,
+      status: 'active',
+      maskType: genMaskType,
+      mask: genMask,
     };
   };
 
@@ -185,7 +171,7 @@ function AccountCategoryForm(props: IProps): React.ReactNode {
               <FormControl
                 {...formProps}
                 name="name"
-                defaultValue={object.name}
+                defaultValue={name}
                 autoFocus={true}
                 required={true}
               />
