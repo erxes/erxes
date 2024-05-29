@@ -166,7 +166,6 @@ class Uploader extends React.Component<Props, State> {
           <AttachmentsGallery
             attachments={attachments}
             limit={limit}
-            onChange={onChange}
             removeAttachment={this.removeAttachment}
           />
         )}
