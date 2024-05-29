@@ -132,7 +132,7 @@ function AssetForm({
   };
 
   const onChangeAttachmentMore = (files: IAttachment[]) => {
-    setAttachmentMore(files ? files : undefined);
+    setAttachmentMore(files);
   };
 
   const onChangeCurrentTab = (selecteTab) => {
