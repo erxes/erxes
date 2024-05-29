@@ -16,6 +16,7 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import { Verify } from '@erxes/ui-settings/src/general/components/styles';
 import Select from 'react-select';
+import DomainsManagement from '../containers/Domains';
 
 type Props = {
   configsMap: IConfigsMap;
@@ -234,35 +235,6 @@ class EngageSettingsContent extends React.Component<Props, State> {
     );
   };
 
-  renderSocketlabsDomainConfig = () => {
-    if (this.state.emailServiceType !== 'socketLabs') {
-      return null;
-    }
-
-    return (
-      <CollapseContent
-        beforeTitle={<Icon icon='shield-check' />}
-        transparent={true}
-        title={__('Domain management')}
-      >
-        <Verify>
-          <ControlLabel required={true}>Domain</ControlLabel>
-          <FormControl
-            type='email'
-            onChange={this.onChangeCommon.bind(this, 'emailToVerify')}
-          />
-
-          <Button
-            onClick={this.onVerifyEmail}
-            btnStyle='success'
-            icon='check-circle'
-          >
-            Verify
-          </Button>
-        </Verify>
-      </CollapseContent>
-    );
-  };
 
   renderContent = (formProps: IFormProps) => {
     const { configsMap, renderButton } = this.props;
@@ -374,7 +346,8 @@ class EngageSettingsContent extends React.Component<Props, State> {
         transparent={true}
         title={__('Domain management')}
       >
-        {this.renderVerifiedEmails()}
+        <DomainsManagement/>
+        {/* {this.renderVerifiedEmails()}
 
         <Verify>
           <ControlLabel required={true}>Email</ControlLabel>
@@ -390,7 +363,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
           >
             Verify
           </Button>
-        </Verify>
+        </Verify> */}
       </CollapseContent>
     );
   }
