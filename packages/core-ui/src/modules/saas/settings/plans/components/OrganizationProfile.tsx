@@ -471,7 +471,7 @@ class OrganizationProfile extends React.Component<Props, State> {
         </FlexRow>
         {this.props.currentOrganization.domain ? (
           <FormGroup>
-            <Table striped={true} condensed={true} bordered={true}>
+            <Table $striped={true} $condensed={true} $bordered={true}>
               <thead>
                 <tr>
                   <th>Type</th>

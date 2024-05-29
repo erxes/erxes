@@ -31,6 +31,11 @@ const Item = styledTS<{ bottomSpace?: number }>(styled.div)`
     a {
       color: ${colors.textSecondary};
       font-size: 14px;
+      width: fit-content;
+      padding: 0;
+      &:hover {
+        background: none;
+      }
     }
 
     em {

@@ -2,7 +2,7 @@ import "@nateradebaugh/react-datetime/css/react-datetime.css";
 import "abortcontroller-polyfill/dist/polyfill-patch-fetch";
 import "erxes-icon/css/erxes.min.css";
 // global style
-import "@erxes/ui/src/styles/global-styles.ts";
+import { GlobalStyle } from "@erxes/ui/src/styles/global-styles";
 
 import { ApolloProvider } from "@apollo/client";
 import React from "react";
@@ -11,7 +11,6 @@ import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
-import ErrorBoundary from "@erxes/ui/src/components/ErrorBoundary";
 
 const wenv = (window as any).env || {};
 const getItem = (name) => wenv[name] || process.env[name] || "https://erxes.io";
@@ -64,7 +63,7 @@ const onResponse = (response) => {
 
   const Routes = require("./routes").default;
   const apolloClient = require("./apolloClient").default;
-console.log("Routes", Routes)
+
   if (response.isWhiteLabel) {
     // Save organization info for white label customers
     localStorage.setItem(
@@ -107,11 +106,10 @@ console.log("Routes", Routes)
   // }
 
   createRoot(target).render(
-    <ErrorBoundary pluginName={"fefefe"}>
-      <ApolloProvider client={apolloClient}>
-        <Routes />
-      </ApolloProvider>
-    </ErrorBoundary>
+    <ApolloProvider client={apolloClient}>
+      <Routes />
+      <GlobalStyle />
+    </ApolloProvider>
   );
 };
 

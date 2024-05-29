@@ -68,8 +68,8 @@ export const NavItem = styled.div`
     }
   }
 
-  .dropdown-menu {
-    min-width: 240px;
+  [id^="headlessui-menu-items-"] {
+    min-width: 220px;
   }
 `;
 
@@ -129,10 +129,7 @@ const QuickNavigation = ({
 
   const { CORE_URL } = getEnv();
   const { VERSION } = getVersion();
-  console.log(
-    "currentUser.currentOrganization",
-    currentUser.currentOrganization
-  );
+
   return (
     <nav id={"SettingsNav"}>
       {brandsCombo}
