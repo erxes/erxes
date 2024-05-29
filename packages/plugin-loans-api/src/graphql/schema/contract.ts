@@ -174,6 +174,7 @@ const queryParams = `
   closeDateType: String
   branchId: String
   status: String
+  leaseType: String
 `;
 
 export const queries = `

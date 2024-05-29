@@ -219,7 +219,7 @@ const contractQueries = {
   ) => {
     return paginate(
       models.Contracts.find(
-        await generateFilter(models, params, commonQuerySelector)
+        generateFilter(models, params, commonQuerySelector)
       ),
       {
         page: params.page,
@@ -234,7 +234,7 @@ const contractQueries = {
     { commonQuerySelector, models }: IContext
   ) => {
     if (!params.customerId) throw new Error('Customer not found');
-    return paginate(
+    return await paginate(
       models.Contracts.find(
         await generateFilter(models, params, commonQuerySelector)
       ),
@@ -257,11 +257,11 @@ const contractQueries = {
     const filter = await generateFilter(models, params, commonQuerySelector);
 
     return {
-      list: paginate(models.Contracts.find(filter).sort(sortBuilder(params)), {
+      list: await paginate(models.Contracts.find(filter).sort(sortBuilder(params)), {
         page: params.page,
         perPage: params.perPage
       }),
-      totalCount: models.Contracts.find(filter).countDocuments()
+      totalCount: await models.Contracts.find(filter).countDocuments()
     };
   },
 
