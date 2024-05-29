@@ -151,7 +151,7 @@ class Uploader extends React.Component<Props, State> {
   }
 
   render() {
-    const { limit = 4, onChange, showUploader } = this.props;
+    const { limit = 4, showUploader } = this.props;
     const { attachments, loading } = this.state;
 
     return (
@@ -166,7 +166,6 @@ class Uploader extends React.Component<Props, State> {
           <AttachmentsGallery
             attachments={attachments}
             limit={limit}
-            onChange={onChange}
             removeAttachment={this.removeAttachment}
           />
         )}
