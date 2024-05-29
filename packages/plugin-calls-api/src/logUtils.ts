@@ -5,7 +5,7 @@ import {
 } from '@erxes/api-utils/src/logUtils';
 
 import { generateModels } from './connectionResolver';
-import { sendContactsMessage } from './messageBroker';
+import { sendContactsMessage, sendInboxMessage } from './messageBroker';
 
 export const putDeleteLog = async (subdomain: string, logDoc, user) => {
   await commonPutDeleteLog(
@@ -57,14 +57,23 @@ export default {
 
     const results: any = [];
     for (const history of histories) {
+      const messages = await sendInboxMessage({
+        subdomain,
+        action: 'conversationMessages.find',
+        data: { conversationId: history.conversationId, limit: 3 },
+        isRPC: true,
+        defaultValue: [],
+      });
       results.push({
         _id: history._id,
         contentType: 'calls:customer',
         createdAt: history.createdAt,
-        contentTypeDetail: history,
+        contentTypeDetail: {
+          history,
+          conversationMessages: messages ? messages : [],
+        },
       });
     }
-
     return {
       status: 'success',
       data: results,
