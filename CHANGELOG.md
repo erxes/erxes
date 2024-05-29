@@ -1,5 +1,36 @@
 # Changelog
 
+## [1.12.0-rc.0](https://github.com/erxes/erxes/compare/1.11.0-rc.9...1.12.0-rc.0) (2024-05-29)
+
+
+### Features
+
+* ebarimt 3.0 part of the pos ([be81482](https://github.com/erxes/erxes/commit/be8148278c52206dd0c81a22c357a9c644d0ebe4))
+* Pos mobile theme ([#5205](https://github.com/erxes/erxes/issues/5205)) ([c43d76a](https://github.com/erxes/erxes/commit/c43d76adf25c4e746e73132460ad0a702b34a6ad))
+
+
+### Bug Fixes
+
+* **automation:** can't get list automations ([7add1a7](https://github.com/erxes/erxes/commit/7add1a79e764847bca24da42d21f201908765678))
+* **automations:** fix magnet connect ([7abb235](https://github.com/erxes/erxes/commit/7abb235703b603bd23b9eb473ee4d52daab767af))
+* **automations:** generate right url for bot data url in chatbot ([2c5d836](https://github.com/erxes/erxes/commit/2c5d8362ea446e91069883433de46811b91ab1e0))
+* card reader result save ([5a0ba85](https://github.com/erxes/erxes/commit/5a0ba85efb063d7c9cc94d7c72d06f6b747dac3c))
+* card reader result save ([dd30996](https://github.com/erxes/erxes/commit/dd30996c17a5937273ece738f30d262ff58efae0))
+* **clientportal:** fix google and facebook authentication ([0752226](https://github.com/erxes/erxes/commit/07522261f8b09b087327bcf336a1bcd52ff76dbf))
+* **coreui:** can't disable button component ([592af11](https://github.com/erxes/erxes/commit/592af117c1169f7cadf6bdeeb952b99d6e4da892))
+* **facebook:** can't edit bot & some ui fixes in bot form ([50d5ce9](https://github.com/erxes/erxes/commit/50d5ce94f1509d4dd72b8649e70e2ef763d913ec))
+* **forms:** user passed as wrong prop name in customFieldsData Section ([fb6afa0](https://github.com/erxes/erxes/commit/fb6afa08342f8812461964c04418e061f2f98995))
+* **internalnotes:** can't get contentIds in internalNotesByAction query ([c188c71](https://github.com/erxes/erxes/commit/c188c71ee27b51161ec0955ff4f98a4139d2ecea))
+* MONGO_URL for local dev environments ([dcebe12](https://github.com/erxes/erxes/commit/dcebe12b4192848a85bb9637b1ee54a138dc4d27))
+* pos-api syncOrderFromClient ([ccd5b1c](https://github.com/erxes/erxes/commit/ccd5b1cdaa3d21b2586de8fbfb04199b541588f7))
+* product form with attachments ([2882cd5](https://github.com/erxes/erxes/commit/2882cd552e227217bef97df16473c632324c3219))
+* typo ([01447d2](https://github.com/erxes/erxes/commit/01447d2a237ea904327de85b6e8ada56f965ba80))
+
+
+### Performance Improvements
+
+* **pos-ui:**  os and saas merge code ([d165a4a](https://github.com/erxes/erxes/commit/d165a4afcb20d154a88aa4cabdd2292310a3c27c))
+
 ## [1.11.0-rc.9](https://github.com/erxes/erxes/compare/1.11.0-rc.5...1.11.0-rc.9) (2024-05-28)
 
 ### Bug Fixes
