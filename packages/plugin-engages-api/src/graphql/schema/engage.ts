@@ -167,6 +167,10 @@ export const types = async () => {
       totalCount: Int
     }  
 
+    type VerifiedDomain {
+      domain: String
+    }
+
     input EngageScheduleDateInput {
       type: String,
       month: String,
@@ -235,6 +239,7 @@ export const queries = `
   engageMessageCounts(name: String!, kind: String, status: String): JSON
   engagesConfigDetail: JSON
   engageVerifiedEmails: [String]
+  engageSocketLabsDomains: JSON
   engageReportsList(page: Int, perPage: Int, customerId: String, status: String, searchValue: String): EngageDeliveryReport
   engageEmailPercentages: AvgEmailStats
   engageSmsDeliveries(type: String!, to: String, page: Int, perPage: Int): DeliveryList
@@ -271,7 +276,8 @@ export const mutations = `
   engageMessageSetPause(_id: String!): EngageMessage
   engageMessageSetLiveManual(_id: String!): EngageMessage
   engagesUpdateConfigs(configsMap: JSON!): JSON
-  engageMessageVerifyEmail(email: String!): String
+  engageMessageVerifyEmail(email: String!): JSON
+  engageMessageVerifyCode(email: String!, verificationCode: String!): JSON
   engageMessageRemoveVerifiedEmail(email: String!): String
   engageMessageSendTestEmail(from: String!, to: String!, content: String!, title: String!): String
   engageMessageCopy(_id: String!): EngageMessage
