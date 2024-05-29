@@ -2,27 +2,25 @@ import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 
-import { IEngageMessage } from '../../models/definitions/engages';
+import { sendToWebhook } from '@erxes/api-utils/src';
+import { debugError } from '@erxes/api-utils/src/debuggers';
+import { SocketLabs } from '../../api/socketLabs';
 import { CAMPAIGN_KINDS } from '../../constants';
 import { checkCampaignDoc, send } from '../../engageUtils';
 import {
   sendContactsMessage,
   sendCoreMessage,
-  sendLogsMessage,
   sendImapMessage,
+  sendLogsMessage,
 } from '../../messageBroker';
+import { IEngageMessage } from '../../models/definitions/engages';
+import { sendEmail } from '../../sender';
+import { awsRequests } from '../../trackers/engageTracker';
 import {
-  updateConfigs,
   createTransporter,
   getEditorAttributeUtil,
+  updateConfigs,
 } from '../../utils';
-import { awsRequests } from '../../trackers/engageTracker';
-import { sendEmail } from '../../sender';
-import { sendToWebhook } from '@erxes/api-utils/src';
-import { debugError } from '@erxes/api-utils/src/debuggers';
-import fetch from 'node-fetch';
-import { SocketLabs } from '../../api/socketLabs';
-import { hostname } from 'os';
 
 interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
@@ -322,7 +320,14 @@ const engageMutations = {
       username,
     });
 
-    return api.validate(email, verificationCode);
+    const result = await api.validate(email, verificationCode);
+
+    if (result === 'verified') {
+      const domain = email.split('@')[1];
+      await models.Domains.createDomain(domain)
+    }
+
+    return result
   },
 
   /**

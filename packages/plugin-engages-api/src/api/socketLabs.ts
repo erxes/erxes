@@ -79,7 +79,7 @@ export class SocketLabs {
       }
 
       if (data.result) {
-        return 'verification email sent';
+        return 'verified';
       }
 
       return 'failed';

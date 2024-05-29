@@ -167,6 +167,10 @@ export const types = async () => {
       totalCount: Int
     }  
 
+    type VerifiedDomain {
+      domain: String
+    }
+
     input EngageScheduleDateInput {
       type: String,
       month: String,
