@@ -38,11 +38,11 @@ const generateAttributes = (combinedFields?: any[], contentType?: string) => {
       (combinedFields || []).map((field) => ({
         value: `${type}.${field.name}`,
         name: field.label,
-      }))
+      })),
     );
   } else {
     (combinedFields || []).forEach((field) =>
-      items.push({ value: `customer.${field.name}`, name: field.label })
+      items.push({ value: `customer.${field.name}`, name: field.label }),
     );
   }
 
@@ -77,6 +77,7 @@ const EditorContainer = (props: FinalProps) => {
     contentType,
     insertItems,
     showMentions,
+    onCtrlEnter,
     ...otherProps
   } = props;
 
@@ -122,6 +123,7 @@ const EditorContainer = (props: FinalProps) => {
       {...(showMentions && {
         mentionSuggestion: { getVariables, fetchMentions, extractFunction },
       })}
+      onCtrlEnter={onCtrlEnter}
       placeholderProp={placeholderItems}
     />
   );
@@ -137,6 +139,6 @@ export default withProps<IEditorProps>(
         },
       }),
       skip: !isEnabled('segments'),
-    })
-  )(EditorContainer)
+    }),
+  )(EditorContainer),
 );

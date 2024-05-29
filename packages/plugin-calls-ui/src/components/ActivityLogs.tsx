@@ -3,6 +3,7 @@ import {
   ActivityDate,
   ActivityIcon,
   ActivityRow,
+  MessageContent,
 } from '../styles';
 import React from 'react';
 
@@ -19,11 +20,17 @@ import { colors, dimensions } from '@erxes/ui/src/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { readFile } from '@erxes/ui/src/utils/core';
+import Attachment from '@erxes/ui/src/components/Attachment';
+import xss from 'xss';
+import { urlify } from '@erxes/ui/src/utils/urlParser';
+import withConsumer from '../withConsumer';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { can } from '@erxes/ui/src/utils/core';
 
 type Props = {
   contentType: string;
   activity: any;
-  currentUser: any;
+  currentUser: IUser;
 };
 
 const MessageBody = styledTS<{ $staff?: boolean }>(styled.div)`
@@ -80,17 +87,20 @@ const Audio = styled.div`
 `;
 
 const ActivityItem = (props: Props) => {
-  const { activity } = props;
-  const { contentTypeDetail = {}, contentType } = activity;
-  const { createdAt, recordUrl } = contentTypeDetail;
+  const { activity, currentUser } = props;
+  const { contentTypeDetail = {}, contentType = '' } = activity;
+  const { history = {}, conversationMessages = [] } = contentTypeDetail;
+  const { createdAt = '', recordUrl = '' } = history;
 
   const renderAudio = () => {
     return (
-      <Audio>
-        <audio controls={true}>
-          <source src={readFile(recordUrl)} type="audio/wav" />{' '}
-        </audio>
-      </Audio>
+      can('showCallRecord', currentUser) && (
+        <Audio>
+          <audio controls={true}>
+            <source src={readFile(recordUrl)} type="audio/wav" />{' '}
+          </audio>
+        </Audio>
+      )
     );
   };
 
@@ -123,26 +133,58 @@ const ActivityItem = (props: Props) => {
       </CenterText>
     );
   };
-
   if (contentType && !contentType.includes('calls')) {
     return null;
   }
   const iconAndColor = getIconAndColor('callpro');
-  return (
-    <ActivityRow>
-      <Tip text={'Phone call'} placement="top">
-        <ActivityIcon color={iconAndColor.color}>
-          <Icon icon={iconAndColor.icon} />
-        </ActivityIcon>
-      </Tip>
 
-      <AcitivityHeader>
-        <ActivityDate>{dayjs(createdAt).format('lll')}</ActivityDate>
-      </AcitivityHeader>
-      {renderWhom(contentTypeDetail)}
-      {renderExpandButton(contentTypeDetail)}
-    </ActivityRow>
+  const renderAttachment = (hasAttachment: boolean, message: any) => {
+    const { attachments } = message;
+
+    if (!hasAttachment) {
+      return null;
+    }
+
+    return attachments.map((attachment, index) => {
+      return <Attachment key={index} attachment={attachment} simple={true} />;
+    });
+  };
+
+  const renderContent = (message: any) => {
+    const hasAttachment = message.attachments && message.attachments.length > 0;
+
+    return message.content ? (
+      <>
+        <MessageContent $staff={true} $internal={message.internal}>
+          <span
+            dangerouslySetInnerHTML={{ __html: xss(urlify(message.content)) }}
+          />
+          {renderAttachment(hasAttachment, message)}
+        </MessageContent>
+      </>
+    ) : (
+      <></>
+    );
+  };
+
+  return (
+    history && (
+      <ActivityRow>
+        <Tip text={'Phone call'} placement="top">
+          <ActivityIcon color={iconAndColor.color}>
+            <Icon icon={iconAndColor.icon} />
+          </ActivityIcon>
+        </Tip>
+
+        <AcitivityHeader>
+          <ActivityDate>{dayjs(createdAt).format('lll')}</ActivityDate>
+        </AcitivityHeader>
+        {renderWhom(history)}
+        {conversationMessages?.map((message) => renderContent(message))}
+        {renderExpandButton(history)}
+      </ActivityRow>
+    )
   );
 };
 
-export default ActivityItem;
+export default withConsumer(ActivityItem);

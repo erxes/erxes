@@ -3,6 +3,9 @@ import * as mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { IPeriodLockDocument } from './models/definitions/periodLocks';
 import { IContractDocument } from './models/definitions/contracts';
+import {
+  ICollateralTypeDocument
+} from './models/definitions/collateralType';
 import { IContractTypeDocument } from './models/definitions/contractTypes';
 import { IInsuranceTypeDocument } from './models/definitions/insuranceTypes';
 import { IInvoiceDocument } from './models/definitions/invoices';
@@ -10,6 +13,10 @@ import { IScheduleDocument } from './models/definitions/schedules';
 import { ITransactionDocument } from './models/definitions/transactions';
 import { loadPeriodLockClass, IPeriodLockModel } from './models/periodLock';
 import { loadContractClass, IContractModel } from './models/contracts';
+import {
+  loadCollateralTypeClass,
+  ICollateralTypeModel
+} from './models/collateralType';
 import {
   loadContractTypeClass,
   IContractTypeModel
@@ -69,6 +76,7 @@ export interface IModels {
   LoanPurposeType: IPurposeTypeModel;
   LoanPurpose: IPurposeModel;
   NonBalanceTransactions: INonBalanceTransactionModel;
+  CollateralTypes: ICollateralTypeModel;
 }
 
 export interface IContext extends IMainContext {
@@ -162,6 +170,14 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'loan_non_balance_transactions',
     loadNonBalanceTransactionClass(models)
   ) as INonBalanceTransactionModel;
+
+  models.CollateralTypes = db.model<
+    ICollateralTypeDocument,
+    ICollateralTypeModel
+  >(
+    'loan_collateral_type',
+    loadCollateralTypeClass(models)
+  ) as ICollateralTypeModel;
 
   return models;
 };

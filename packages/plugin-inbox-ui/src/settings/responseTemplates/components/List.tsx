@@ -7,11 +7,11 @@ import {
   TemplateInfo,
   Templates,
 } from "@erxes/ui-emailtemplates/src/styles";
-import { FlexItem, FlexRow, InputBar } from "@erxes/ui-settings/src/styles";
+import { FlexRow } from "@erxes/ui-settings/src/styles";
+
 import React, { useState } from "react";
 import { __, router } from "coreui/utils";
 
-import { FilterContainer } from "@erxes/ui-settings/src/styles";
 import Form from "@erxes/ui-inbox/src/settings/responseTemplates/components/Form";
 import { FormControl } from "@erxes/ui/src/components/form";
 import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
@@ -46,7 +46,7 @@ const ResponseTemplateList: React.FC<Props> = ({
   };
 
   const renderForm = (props) => {
-    return <Form {...props} renderButton={props.renderButton} />;
+    return <Form {...props} renderButton={renderButton} />;
   };
 
   const renderEditAction = (object) => {
@@ -87,35 +87,24 @@ const ResponseTemplateList: React.FC<Props> = ({
       queryParams && queryParams.brandId ? queryParams.brandId : "";
 
     return (
-      <FilterContainer $marginRight={true}>
-        <FlexRow>
-          <InputBar type="searchBar">
-            <Icon icon="search-1" size={20} />
-            <FlexItem>
-              <FormControl
-                placeholder={__("Type to search")}
-                name="searchValue"
-                onChange={onChange}
-                value={searchValue}
-                onKeyPress={handleKeyDown}
-                onKeyDown={handleKeyDown}
-                autoFocus={true}
-              />
-            </FlexItem>
-          </InputBar>
-          <InputBar type="selectBar">
-            <FlexItem>
-              <SelectBrands
-                label="Filter by brand"
-                initialValue={brandId}
-                onSelect={onSelect}
-                name="brandId"
-                multi={false}
-              />
-            </FlexItem>
-          </InputBar>
-        </FlexRow>
-      </FilterContainer>
+      <FlexRow $alignItems='flex-end'>
+        <FormControl
+          placeholder={__("Type to search")}
+          name="searchValue"
+          onChange={onChange}
+          value={searchValue}
+          onKeyPress={handleKeyDown}
+          onKeyDown={handleKeyDown}
+          autoFocus={true}
+        />
+          <SelectBrands
+            label="Filter by brand"
+            initialValue={brandId}
+            onSelect={onSelect}
+            name="brandId"
+            multi={false}
+          />
+      </FlexRow>
     );
   };
 

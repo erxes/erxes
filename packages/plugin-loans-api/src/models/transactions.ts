@@ -180,7 +180,7 @@ export const loadTransactionClass = (models: IModels) => {
         );
 
       await createTransactionSchedule(contract, tr.payDate, tr, models, config);
-      await scheduleFixAfterCurrent(contract, tr.payDate, models, config);
+      await scheduleFixAfterCurrent(contract, tr.payDate, models, config)
 
       const contractType = await models.ContractTypes.findOne({
         _id: contract.contractTypeId
@@ -387,10 +387,7 @@ export const loadTransactionClass = (models: IModels) => {
             (await models.Contracts.updateOne(
               { _id: oldTr.contractId },
               {
-                $set: {
-                  storedInterest: oldTr.calcedInfo?.storedInterest,
-                  givenAmount: oldTr.contractReaction?.givenAmount
-                }
+                $set: oldTr.contractReaction
               }
             ));
           await models.Transactions.deleteOne({ _id: oldTr._id });

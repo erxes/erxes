@@ -126,6 +126,7 @@ const Description = (props: DescProps) => {
                 '|',
                 'image',
               ]}
+              onCtrlEnter={onSend}
             />
 
             {renderFooter()}

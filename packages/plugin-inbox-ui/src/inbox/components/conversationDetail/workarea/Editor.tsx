@@ -17,6 +17,7 @@ type EditorProps = {
   placeholder?: string;
   limit?: number;
   mentionSuggestion?: MentionSuggestionParams;
+  onCtrlEnter?: () => void;
 };
 
 type State = {
@@ -37,6 +38,7 @@ const Editor = forwardRef(
       mentionSuggestion,
       onChange,
       limit,
+      onCtrlEnter,
     } = props;
 
     const [state, setState] = useState<State>({
@@ -74,7 +76,7 @@ const Editor = forwardRef(
       const foundTemplates = responseTemplates.filter(
         (template) =>
           template.name.toLowerCase().includes(textContent) ||
-          template.content.toLowerCase().includes(textContent)
+          template.content.toLowerCase().includes(textContent),
       );
 
       if (foundTemplates.length > 0) {
@@ -138,9 +140,10 @@ const Editor = forwardRef(
           autoGrowMinHeight={100}
           autoGrowMaxHeight="55vh"
           limit={limit}
+          onCtrlEnter={onCtrlEnter}
         />
       </div>
     );
-  }
+  },
 );
 export default Editor;
