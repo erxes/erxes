@@ -2,7 +2,7 @@ import { BarItems, Wrapper } from "@erxes/ui/src/layout";
 import React, { useState, useEffect, useRef } from "react";
 import { IAsset, IAssetCategory } from "../../common/types";
 import { breadcrumb } from "../../common/constant";
-import { FlexItem, InputBar, Title } from "@erxes/ui-settings/src/styles";
+import { Title } from "@erxes/ui-settings/src/styles";
 import {
   __,
   router,
@@ -13,7 +13,6 @@ import {
   DataWithLoader,
   Button,
   ModalTrigger,
-  Icon,
   Alert,
 } from "@erxes/ui/src";
 import Row from "./Row";
@@ -203,19 +202,14 @@ const List = (props: Props) => {
 
     return (
       <BarItems>
-        <InputBar type="searchBar">
-          <Icon icon="search-1" size={20} />
-          <FlexItem>
-            <FormControl
-              type="text"
-              placeholder={__("Type to search")}
-              onChange={handleSearch}
-              value={search}
-              autoFocus={true}
-              onFocus={moveCursorAtTheEnd}
-            />
-          </FlexItem>
-        </InputBar>
+        <FormControl
+          type="text"
+          placeholder={__("Type to search")}
+          onChange={handleSearch}
+          value={search}
+          autoFocus={true}
+          onFocus={moveCursorAtTheEnd}
+        />
 
         <Link to="/settings/importHistories?type=asset">
           <Button btnStyle="simple" icon="arrow-from-right">

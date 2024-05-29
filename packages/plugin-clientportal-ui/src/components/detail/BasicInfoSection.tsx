@@ -5,7 +5,7 @@ import Button from "@erxes/ui/src/components/Button";
 import { ModalTrigger } from "@erxes/ui/src/components";
 import Icon from "@erxes/ui/src/components/Icon";
 import Tip from "@erxes/ui/src/components/Tip";
-import { Actions } from "@erxes/ui/src/styles/main";
+import { Actions, Flex } from "@erxes/ui/src/styles/main";
 import ClientPortalUserForm from "../../containers/ClientPortalUserForm";
 import Dropdown from "@erxes/ui/src/components/Dropdown";
 import { IClientPortalUser } from "../../types";
@@ -44,32 +44,34 @@ const BasicInfoSection: React.FC<Props> = ({
             type="action"
           />
         )}
-        <ModalTrigger
-          dialogClassName="middle"
-          title={`Send SMS to (${phone})`}
-          trigger={
+        <Tip text="Send SMS" placement="top-end">
+          <ModalTrigger
+            dialogClassName="middle"
+            title={`Send SMS to (${phone})`}
+            trigger={
+              <Button
+                disabled={phone ? false : true}
+                size="small"
+                btnStyle={phone ? "primary" : "simple"}
+              >
+                <Icon icon="message" />
+              </Button>
+            }
+            content={smsForm}
+          />
+        </Tip>
+        <Tip text="Call" placement="top-end">
+          <Flex>
             <Button
-              disabled={phone ? false : true}
+              href={phone && `tel:${phone}`}
               size="small"
               btnStyle={phone ? "primary" : "simple"}
+              disabled={phone ? false : true}
             >
-              <Tip text="Send SMS" placement="top-end">
-                <Icon icon="message" />
-              </Tip>
+              <Icon icon="phone" />
             </Button>
-          }
-          content={smsForm}
-        />
-        <Button
-          href={phone && `tel:${phone}`}
-          size="small"
-          btnStyle={phone ? "primary" : "simple"}
-          disabled={phone ? false : true}
-        >
-          <Tip text="Call" placement="top-end">
-            <Icon icon="phone" />
-          </Tip>
-        </Button>
+          </Flex>
+        </Tip>
       </>
     );
   };

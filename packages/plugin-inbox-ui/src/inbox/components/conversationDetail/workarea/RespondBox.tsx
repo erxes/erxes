@@ -113,21 +113,6 @@ const RespondBox = (props: Props) => {
     props.refetchResponseTemplates(textContent);
   }, [debouncedContent]);
 
-  useEffect(() => {
-    window.addEventListener("keydown", handleKeyEvents);
-    return () => window.removeEventListener("keydown", handleKeyEvents);
-  }, [handleKeyEvents]);
-
-  function handleKeyEvents(event: KeyboardEvent) {
-    const isFocused = forwardedRef?.current?.getIsFocused();
-
-    if (!isFocused) return;
-
-    if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
-      addMessage();
-    }
-  }
-
   // save editor current content to state
   const onEditorContentChange = useDebouncedCallback(
     (editorContent: string) => {
@@ -391,6 +376,7 @@ const RespondBox = (props: Props) => {
         limit={
           props.conversation.integration.kind === "telnyx" ? 160 : undefined
         }
+        onCtrlEnter={addMessage}
       />
     );
   }
