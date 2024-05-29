@@ -632,7 +632,7 @@ class GeneralSettings extends React.Component<Props, State> {
                 'GOOGLE_APPLICATION_CREDENTIALS_JSON',
                 'Firebase config for notifications',
                 undefined,
-                <LinkButton
+                configsMap?.GOOGLE_APPLICATION_CREDENTIALS_JSON?<LinkButton
                   onClick={() =>
                     this.onChangeConfig('GOOGLE_APP_ADDITIONAL_CREDS_JSON', [
                       ...(configsMap?.GOOGLE_APP_ADDITIONAL_CREDS_JSON || []),
@@ -641,7 +641,7 @@ class GeneralSettings extends React.Component<Props, State> {
                   }
                 >
                   {__('+ Add additional JSON config')}
-                </LinkButton>,
+                </LinkButton>:undefined
               )}
               {(configsMap?.GOOGLE_APP_ADDITIONAL_CREDS_JSON || []).map(
                 (additionalJSON, index) => (
