@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.11.1](https://github.com/erxes/erxes/compare/1.11.0-rc.9...1.11.1) (2024-05-29)
+
+
+### Bug Fixes
+
+* card reader result save ([5a0ba85](https://github.com/erxes/erxes/commit/5a0ba85efb063d7c9cc94d7c72d06f6b747dac3c))
+* **clientportal:** fix google and facebook authentication ([0752226](https://github.com/erxes/erxes/commit/07522261f8b09b087327bcf336a1bcd52ff76dbf))
+
 ## [1.11.0-rc.9](https://github.com/erxes/erxes/compare/1.11.0-rc.5...1.11.0-rc.9) (2024-05-28)
 
 ### Bug Fixes
