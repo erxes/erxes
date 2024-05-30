@@ -100,16 +100,23 @@ const CarouselWrapper = styled.div`
     }
   }
 
-  .carousel-indicators li {
-    background-color: ${colors.colorPrimary};
-    width: 40px;
-    height: 4px;
-    border-radius: 7px;
-    opacity: 0.3;
-    border: none;
+  .carousel-indicators {
+    display: flex;
+    left: 65%;
+    gap: 5px;
 
-    &.active {
-      opacity: 1 !important;
+    div {
+      background-color: ${colors.colorPrimary};
+      width: 40px;
+      height: 4px;
+      border-radius: 7px;
+      opacity: 0.3;
+      border: none;
+      cursor: pointer;
+
+      &.active {
+        opacity: 1 !important;
+      }
     }
   }
 

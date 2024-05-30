@@ -138,7 +138,6 @@ const QuickNavigation = ({
     );
   }
 
-  const { CORE_URL } = getEnv();
   const { VERSION } = getVersion();
 
   return (
