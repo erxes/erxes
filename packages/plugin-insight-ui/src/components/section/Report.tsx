@@ -41,7 +41,7 @@ const ReportSection = (props: Props) => {
   };
 
   const extraButtons = (
-    <Tip text="Add report" placement="top">
+    <Tip text="Add report" placement="left">
       <a
         href="#addReport"
         onClick={() => {
