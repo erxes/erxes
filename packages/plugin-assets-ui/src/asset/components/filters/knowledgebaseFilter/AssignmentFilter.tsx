@@ -22,7 +22,7 @@ const AssignmentFilter = (props: Props) => {
     return (
       <SidebarList>
         {checkKnowledge.map((type) => (
-          <li key={Math.random()}>
+          <li key={type.title}>
             <a
               href="#filter"
               tabIndex={0}
