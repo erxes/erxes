@@ -6,7 +6,7 @@ import { extractClientportalToken } from '@erxes/api-utils/src/clientportal';
 import { IModels, generateModels } from '../connectionResolver';
 
 export default async function cpUserMiddleware(
-  req: Request & { cpUser?: any },
+  req: Request & { cpUser?: any; isPassed2FA: boolean },
   res: Response,
   next: NextFunction
 ) {
@@ -74,32 +74,16 @@ export default async function cpUserMiddleware(
     if (!userDoc) {
       return next();
     }
-    const check = () => {
-      const two2FAoperationsNames = [
-        'clientPortal2FAGetCode',
-        'clientPortalVerify2FA',
-      ];
-      for (const name of two2FAoperationsNames) {
-        if (name.toLocaleLowerCase() === operationName.toLocaleLowerCase()) {
-          return false;
-        }
-      }
-      return true;
-    };
-    if (isEnableTwoFactor) {
-      if (!isPassed2FA && check()) {
-        const graphQLError = new GraphQLError(
-          '2Factor Authentication is activiated'
-        );
-
-        return res.status(200).json({ errors: [graphQLError] });
-      }
-    }
 
     // save user in request
     req.cpUser = userDoc;
     req.cpUser.loginToken = token;
     req.cpUser.sessionCode = req.headers.sessioncode || '';
+    if (isEnableTwoFactor) {
+      req.isPassed2FA = isPassed2FA;
+    } else {
+      req.isPassed2FA = true;
+    }
   } catch (e) {
     if (e.name === 'TokenExpiredError') {
       const graphQLError = new GraphQLError('token expired');

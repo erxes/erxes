@@ -2,7 +2,7 @@ import "@nateradebaugh/react-datetime/css/react-datetime.css";
 import "abortcontroller-polyfill/dist/polyfill-patch-fetch";
 import "erxes-icon/css/erxes.min.css";
 // global style
-import "@erxes/ui/src/styles/global-styles.ts";
+import { GlobalStyle } from "@erxes/ui/src/styles/global-styles";
 
 import { ApolloProvider } from "@apollo/client";
 import React from "react";
@@ -108,6 +108,7 @@ const onResponse = (response) => {
   createRoot(target).render(
     <ApolloProvider client={apolloClient}>
       <Routes />
+      <GlobalStyle />
     </ApolloProvider>
   );
 };

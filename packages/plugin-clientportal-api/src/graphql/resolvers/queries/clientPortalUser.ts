@@ -45,27 +45,27 @@ const clientPortalUserQueries = {
       const fields = [
         {
           firstName: {
-            $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
-          }
+            $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')],
+          },
         },
         {
           lastName: {
-            $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
-          }
+            $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')],
+          },
         },
         {
           email: {
-            $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
-          }
+            $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')],
+          },
         },
         {
           phone: {
-            $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
-          }
+            $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')],
+          },
         },
         {
-          code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
-        }
+          code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] },
+        },
       ];
 
       filter.$or = fields;
@@ -106,9 +106,7 @@ const clientPortalUserQueries = {
     }
 
     return paginate(
-      models.ClientPortalUsers.find(filter)
-        .sort({ createdAt: -1 })
-        .lean(),
+      models.ClientPortalUsers.find(filter).sort({ createdAt: -1 }).lean(),
       pagintationArgs
     );
   },
@@ -116,14 +114,20 @@ const clientPortalUserQueries = {
   async clientPortalUserDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models, isPassed2FA }: IContext
   ) {
     return models.ClientPortalUsers.findOne({ _id });
   },
 
   async clientPortalCurrentUser(_root, _args, context: IContext) {
-    const { cpUser } = context;
+    const { cpUser, isPassed2FA } = context;
+    if (!cpUser) {
+      throw Error('User is not logged in');
+    }
 
+    if (cpUser && !isPassed2FA) {
+      throw Error('Verify 2FA');
+    }
     return cpUser
       ? context.models.ClientPortalUsers.getUser({ _id: cpUser._id })
       : null;
@@ -149,8 +153,7 @@ const clientPortalUserQueries = {
     { models }: IContext
   ) {
     return models.Companies.find({ clientPortalId }).lean();
-  }
-
+  },
 };
 
 export default clientPortalUserQueries;
