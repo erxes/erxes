@@ -1,9 +1,17 @@
 import React, { forwardRef, useEffect, useRef, useState } from "react";
 
+import Dialog from "@erxes/ui/src/components/Dialog";
 import { Menu } from "@headlessui/react";
 
+type IModalMenuItems = {
+  title: string;
+  trigger: React.ReactNode;
+  content: any;
+  additionalModalProps?: any;
+};
+
 type Props = {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   toggleComponent: React.ReactNode;
   as?: React.ElementType;
   drop?: string;
@@ -11,12 +19,25 @@ type Props = {
   disabled?: boolean;
   isMenuWidthFit?: boolean;
   unmount?: boolean;
+  modalMenuItems?: IModalMenuItems[];
 };
 
 const Dropdown: React.FC<Props> = forwardRef<HTMLDivElement, Props>(
-  ({ children, as, drop, toggleComponent, isMenuWidthFit, unmount }, ref) => {
+  (
+    {
+      children,
+      as,
+      drop,
+      toggleComponent,
+      isMenuWidthFit,
+      unmount,
+      modalMenuItems = [] as any,
+    },
+    ref
+  ) => {
     const [height, setHeight] = useState(0);
     const [width, setWidth] = useState(0);
+
     const buttonRef = useRef<HTMLButtonElement>({} as any);
 
     useEffect(() => {
@@ -33,14 +54,59 @@ const Dropdown: React.FC<Props> = forwardRef<HTMLDivElement, Props>(
           ? { minWidth: width }
           : {};
 
-    // const MenuButton = React.forwardRef(function (props, ref) {
-    //   return toggleComponent;
-    // });
+    if (modalMenuItems) {
+      const initialDialogsState = modalMenuItems.reduce((acc, item, index) => {
+        acc[index] = false;
+        return acc;
+      }, {});
+
+      const [dialogs, setDialogs] = useState(initialDialogsState);
+
+      const openDialog = (dialog) => setDialogs({ ...dialogs, [dialog]: true });
+      const closeDialog = (dialog) =>
+        setDialogs({ ...dialogs, [dialog]: false });
+
+      return (
+        <>
+          <Menu as={as || "div"} className="relative dropdown-btn">
+            <Menu.Button ref={buttonRef}>{toggleComponent}</Menu.Button>
+            <Menu.Items
+              ref={ref}
+              className={`absolute ${isMenuWidthFit && "menuWidthFit"}`}
+              style={style}
+              unmount={unmount}
+            >
+              {modalMenuItems.map((item, index) => (
+                <Menu.Item
+                  as="span"
+                  key={index}
+                  onClick={() => openDialog(index)}
+                >
+                  {item.trigger}
+                </Menu.Item>
+              ))}
+              {children}
+            </Menu.Items>
+          </Menu>
+
+          {modalMenuItems.map((item, index) => (
+            <Dialog
+              key={index}
+              show={dialogs[index]}
+              closeModal={() => closeDialog(index)}
+              title={item.title}
+              {...item.additionalModalProps}
+            >
+              {item.content({ closeModal: () => closeDialog(index) })}
+            </Dialog>
+          ))}
+        </>
+      );
+    }
 
     return (
       <Menu as={as || "div"} className="relative dropdown-btn">
         <Menu.Button ref={buttonRef}>{toggleComponent}</Menu.Button>
-        {/* <Menu.Button ref={buttonRef} as={MenuButton} /> */}
         <Menu.Items
           ref={ref}
           className={`absolute ${isMenuWidthFit && "menuWidthFit"}`}
