@@ -114,7 +114,7 @@ export const generateCategoryOptions = (
   for (const category of categories) {
     const order = category.order;
 
-    const foundedString = order.match(/[/]/gi);
+    const foundedString = order.match(/\//gi);
 
     let space = '';
 
@@ -145,7 +145,7 @@ export const generateParentOptions = (
   for (const asset of assets) {
     const order = asset.order;
 
-    const foundedString = order.match(/[/]/gi);
+    const foundedString = order.match(/\//gi);
 
     let space = '';
 
@@ -279,7 +279,7 @@ export const SelectWithAssets = ({
       const asset = item || ({} as IAsset);
       const order = asset.order;
 
-      const foundedString = order.match(/[/]/gi);
+      const foundedString = order.match(/\//gi);
 
       let space = '';
 
@@ -342,7 +342,7 @@ export const SelectWithAssetCategory = ({
       const asset = item || ({} as IAsset);
       const order = asset.order;
 
-      const foundedString = order.match(/[/]/gi);
+      const foundedString = order.match(/\//gi);
 
       let space = '';
 
