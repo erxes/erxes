@@ -524,7 +524,7 @@ const sendEmails = async ({
 
       headers = {
         'X-SES-CONFIGURATION-SET': AWS_SES_CONFIG_SET || 'erxes',
-        EmailDeliveryId: emailDelivery && emailDelivery._id,
+        EmailDeliveryId: emailDelivery?._id,
       };
     } else {
       headers['X-SES-CONFIGURATION-SET'] = 'erxes';
