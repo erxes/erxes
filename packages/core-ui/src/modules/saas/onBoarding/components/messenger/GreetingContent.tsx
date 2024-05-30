@@ -50,7 +50,7 @@ function GreetingContent(props: Props) {
       <ContentBox>
         <h4>{__('Do you want to learn more?')}</h4>
 
-        <FormGroup>
+        <FormGroup className='form-group'>
           <FormControl
             name="firstName"
             placeholder="Enter your email adress:"

@@ -61,8 +61,8 @@ function Messenger(props: Props) {
   return (
     <>
       <SidebarContent>
-        <FormGroup>
-          <FormLabel>Brand name</FormLabel>
+        <FormGroup className={`form-group ${active ? "active" : ""}`} controlId="messenger">
+          <FormLabel uppercase={false}>Brand name</FormLabel>
           <FormControl
             defaultValue={brandName}
             name="name"
@@ -72,8 +72,8 @@ function Messenger(props: Props) {
           />
         </FormGroup>
 
-        <FormGroup>
-          <FormLabel>Color accent:</FormLabel>
+        <FormGroup className="form-group color-accent">
+          <FormLabel uppercase={false}>Color accent:</FormLabel>
           <ColorChooserWrapper>
             <TwitterPicker
               color={color}

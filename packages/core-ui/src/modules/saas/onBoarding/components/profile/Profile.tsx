@@ -79,10 +79,10 @@ function Profile(props: Props) {
         </AvatarWrapper>
 
         <FormGroup
-        // className={activeFirst ? "active" : ""}
-        // controlId="firstName"
+          className={`form-group ${activeFirst ? "active" : ""}`}
+          controlId="firstName"
         >
-          <FormLabel>First Name</FormLabel>
+          <FormLabel uppercase={false}>First Name</FormLabel>
           <FormControl
             defaultValue={firstName}
             name="firstName"
@@ -93,9 +93,10 @@ function Profile(props: Props) {
         </FormGroup>
 
         <FormGroup
-        // className={activeLast ? "active" : ""} controlId="lastName"
+          className={`form-group ${activeLast ? "active" : ""}`}
+          controlId="lastName"
         >
-          <FormLabel>Last Name</FormLabel>
+          <FormLabel uppercase={false}>Last Name</FormLabel>
           <FormControl
             defaultValue={lastName}
             name="lastName"
@@ -106,10 +107,10 @@ function Profile(props: Props) {
         </FormGroup>
 
         <FormGroup
-        // className={`disabled ${activeEmail ? "active" : ""}`}
-        // controlId="email"
+          className={`form-group disabled ${activeEmail ? "active" : ""}`}
+          controlId="email"
         >
-          <FormLabel>Email</FormLabel>
+          <FormLabel uppercase={false}>Email</FormLabel>
           <FormControl
             defaultValue={email}
             name="name"

@@ -39,7 +39,7 @@ class ResetPassword extends React.Component<Props, { newPassword: string }> {
           <FormGroup>
             <FormControl
               type="password"
-              placeholder={__('new password')}
+              placeholder={__('New password')}
               required={true}
               onChange={this.handlePasswordChange}
             />

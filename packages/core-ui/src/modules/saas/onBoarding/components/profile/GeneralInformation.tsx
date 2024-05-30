@@ -39,17 +39,17 @@ function GeneralInformation(props: Props) {
         </ErxesStaffProfile>
 
         <FormGroup>
-          <FormLabel>First Name</FormLabel>
+          <FormLabel uppercase={false}>First Name</FormLabel>
           <FormControl value={firstName} name="firstName" />
         </FormGroup>
 
         <FormGroup>
-          <FormLabel>Last Name</FormLabel>
+          <FormLabel uppercase={false}>Last Name</FormLabel>
           <FormControl value={lastName} name="lastName" />
         </FormGroup>
 
         <FormGroup>
-          <FormLabel>Email</FormLabel>
+          <FormLabel uppercase={false}>Email</FormLabel>
           <FormControl value={email} name="name" />
         </FormGroup>
       </GeneralInformationForm>
