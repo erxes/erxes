@@ -48,11 +48,12 @@ const Carousel = ({ items, intervalTime }) => {
       </div>
       <div className="carousel-indicators">
         {items.map((item, index) => (
-          <div
+          <span
+            aria-hidden="true"
             key={index + 67}
             className={currentIndex === index ? "active" : ""}
             onClick={() => setCurrentIndex(index)}
-          ></div>
+          ></span>
         ))}
       </div>
     </div>

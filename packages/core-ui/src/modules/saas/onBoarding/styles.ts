@@ -105,7 +105,7 @@ const CarouselWrapper = styled.div`
     left: 65%;
     gap: 5px;
 
-    div {
+    span {
       background-color: ${colors.colorPrimary};
       width: 40px;
       height: 4px;
