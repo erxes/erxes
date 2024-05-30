@@ -9,7 +9,7 @@ import {
 import { executeActions } from '../utils';
 
 function accessNestedObject(obj, keys) {
-  return keys.reduce((acc, key) => acc && acc[key], obj) || '';
+  return keys.reduce((acc, key) => acc?.[key], obj) || '';
 }
 
 export const playWait = async (models: IModels, subdomain: string, data) => {
