@@ -57,6 +57,10 @@ const generateFilter = async (models, params, commonQuerySelector) => {
     filter.contractId = { $in: ['', null] };
   }
 
+  if (params.description) {
+    filter.description = { $in:  [new RegExp(`.*${params.searchValue}.*`, 'i')] };
+  }
+
   return filter;
 };
 

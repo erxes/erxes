@@ -30,6 +30,45 @@ const transactionMutations = {
     return transaction;
   },
 
+  clientTransactionsAdd: async (
+    _root,
+    doc: ITransaction & { secondaryPassword: string },
+    { user, models, subdomain }: IContext
+  ) => {
+    const validate = await sendMessageBroker(
+      {
+        subdomain,
+        action: 'clientPortalUsers.validatePassword',
+        data: {
+          userId: doc.customerId,
+          password: doc.secondaryPassword,
+          secondary: true
+        }
+      },
+      'clientportal'
+    );
+
+    if (validate.status === 'error') {
+      throw new Error(validate.errorMessage);
+    }
+
+    const transaction = await models.Transactions.createTransaction(
+      subdomain,
+      doc
+    );
+
+    const logData = {
+      type: 'transaction',
+      newData: doc,
+      object: transaction,
+      extraParams: { models }
+    };
+
+    await createLog(subdomain, user, logData);
+
+    return transaction;
+  },
+
   /**
    * Updates a transaction
    */
@@ -75,7 +114,11 @@ const transactionMutations = {
       _id
     });
 
-    const updated = await models.Transactions.changeTransaction(_id, doc,subdomain);
+    const updated = await models.Transactions.changeTransaction(
+      _id,
+      doc,
+      subdomain
+    );
 
     const logData = {
       type: 'transaction',
@@ -105,7 +148,10 @@ const transactionMutations = {
       isManual: true
     }).lean();
 
-    await models.Transactions.removeTransactions(transactions.map(a => a._id),subdomain);
+    await models.Transactions.removeTransactions(
+      transactions.map((a) => a._id),
+      subdomain
+    );
 
     for (const transaction of transactions) {
       const logData = {
