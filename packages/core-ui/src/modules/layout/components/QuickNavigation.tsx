@@ -1,5 +1,5 @@
 import { DropNav, UserHelper } from "../styles";
-import { __, getEnv } from "modules/common/utils";
+import { __ } from "modules/common/utils";
 import { colors, dimensions } from "modules/common/styles";
 
 import BrandChooser from "./BrandChooser";
