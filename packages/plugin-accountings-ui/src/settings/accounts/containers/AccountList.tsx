@@ -1,57 +1,29 @@
 import { gql, useQuery, useMutation } from '@apollo/client';
-import queries from '../graphql/queries';
+import { Alert, confirm } from "@erxes/ui/src/utils";
+import {
+  AccountCategoryDetailQueryResponse,
+  RemoveAccountMutationResponse,
+  AccountsCountQueryResponse,
+  AccountsQueryResponse,
+} from "../types";
+import { mutations, queries } from "../graphql";
+import Bulk from "@erxes/ui/src/components/Bulk";
+import List from "../components/AccountList";
 import React, { useMemo, useState } from 'react';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import CustomTable from '../../../components/table';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Button from '@erxes/ui/src/components/Button';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { __, router } from 'coreui/utils';
-import { useNavigate } from 'react-router-dom';
-import { Title, FlexItem, InputBar } from '@erxes/ui-settings/src/styles';
-import AccountCategoryList from './AccountCategoryList';
-import AccountForm from '../containers/AccountForm';
-import Icon from '@erxes/ui/src/components/Icon';
-import mutation from '../graphql/mutations';
-import Bulk from '@erxes/ui/src/components/Bulk';
-import { Alert } from '@erxes/ui/src';
-import { IAccountsResponse, IAccountsTotalCountResponse } from '../types';
+import { generatePaginationParams } from "@erxes/ui/src/utils/router";
+import { useNavigate } from "react-router-dom";
 
-interface IProps {
+type Props = {
   queryParams: any;
-  searchValue: string;
-  toggleBulk: any;
-  bulk: any[];
-  toggleAll: any;
-  emptyBulk: any;
-  isAllSelected: boolean;
-}
-
-let timer;
-
-export const breadcrumb = [
-  { title: __('Accountings'), link: '/accountings' },
-  { title: __('Accounts') }
-];
-
-const moveCursorAtTheEnd = (e) => {
-  const tmpValue = e.target.value;
-
-  e.target.value = '';
-  e.target.value = tmpValue;
+  type?: string;
 };
 
-function List({ queryParams, ...props }: IProps): React.ReactNode {
-  const { toggleBulk, bulk, toggleAll, emptyBulk, isAllSelected } = props;
-
+const AccountListContainer = (props: Props) => {
   const navigate = useNavigate();
 
-  const [searchValue, setSearchValue] = useState<string | undefined>(
-    props.searchValue
-  );
+  const {
+    queryParams,
+  } = props;
 
   const variables = useMemo(() => {
     return {
@@ -60,147 +32,97 @@ function List({ queryParams, ...props }: IProps): React.ReactNode {
     };
   }, [queryParams]);
 
-  const { data, loading } = useQuery<IAccountsResponse>(
+  const accountsQuery = useQuery<AccountsQueryResponse>(
     gql(queries.accounts),
     {
       variables: variables
     }
   );
 
-  const { data: accountsTotal } = useQuery<IAccountsTotalCountResponse>(
+  const accountsCountQuery = useQuery<AccountsCountQueryResponse>(
     gql(queries.accountsTotalCount),
     {
       variables: variables
     }
   );
 
-  const [accountsRemove] = useMutation(gql(mutation.accountsRemove), {
-    onError: (error) => {
-      Alert.error(error.message);
-    },
-    onCompleted: () => {
-      emptyBulk();
-      Alert.success(`You successfully deleted a accounts`);
+  const accountCategoryDetailQuery = useQuery<AccountCategoryDetailQueryResponse>(
+    gql(queries.accountCategoryDetail),
+    {
+      skip: !queryParams.categoryId,
+      fetchPolicy: "cache-and-network",
+      variables: queryParams.categoryId
     }
-  });
+  )
 
-  const search = (e) => {
-    if (timer) {
-      clearTimeout(timer);
-    }
-
-    const searchValue = e.target.value;
-
-    setSearchValue(searchValue);
-
-    timer = setTimeout(() => {
-      router.removeParams(navigate, location, 'page');
-      router.setParams(navigate, location, { searchValue });
-    }, 500);
-  };
-
-  const addTrigger = (
-    <Button btnStyle="success" icon="plus-circle">
-      Add {'account'}
-    </Button>
+  const [accountsRemove] = useMutation<RemoveAccountMutationResponse>(
+    gql(mutations.accountsRemove),
   );
+  const remove = (posId: string, emptyBulk) => {
+    const message = 'Are you sure?';
 
-  const accountForm = (props, mutation) => {
-    return <AccountForm {...props} />;
-  };
+    confirm(message).then(() => {
+      accountsRemove({
+        variables: { _id: posId },
+      })
+        .then((removeStatus) => {
+          // refresh queries
+          refetch();
 
-  const onClickRemove = () => {
-    accountsRemove({
-      variables: {
-        accountIds: bulk.map((a) => a._id)
-      },
-      refetchQueries: ['accounts', 'accountsTotalCount'],
-      awaitRefetchQueries:false
+          emptyBulk();
+          console.log(removeStatus, 'kkkkkkkkkkkkkkkkk')
+          const status = removeStatus.data?.removeAccountMutation || '';
+
+          // status === "deleted"
+          //   ? Alert.success("You successfully deleted a Account")
+          //   : Alert.warning("Account status deleted");
+        })
+        .catch((e) => {
+          Alert.error(e.message);
+        });
     });
   };
+  // const AccountsMerge = 
 
-  const actionBarRight = (
-    <BarItems>
-      {bulk?.length > 0 && (
-        <Button btnStyle="danger" icon="cancel-1" onClick={onClickRemove}>
-          Remove
-        </Button>
-      )}
-      <InputBar type="searchBar">
-        <Icon icon="search-1" size={20} />
-        <FlexItem>
-          <FormControl
-            type="text"
-            placeholder={__('Type to search')}
-            onChange={search}
-            value={searchValue}
-            autoFocus={true}
-            onFocus={moveCursorAtTheEnd}
-          />
-        </FlexItem>
-      </InputBar>
-      <ModalTrigger
-        title="New account"
-        autoOpenKey="showAccountModal"
-        trigger={addTrigger}
-        size="lg"
-        content={(p) => accountForm(p, mutation.accountsAdd)}
-        backDrop="static"
-      />
-    </BarItems>
-  );
+  const accounts = accountsQuery.data?.accounts || [];
 
-  const actionBarLeft = <Title>{`All accounts`}</Title>;
+  const searchValue = props.queryParams.searchValue || "";
 
-  const actionBar = (
-    <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
-  );
+  const updatedProps = {
+    ...props,
+    queryParams,
+    accounts,
+    remove,
+    loading: accountsQuery.loading || accountsCountQuery.loading,
+    searchValue,
+    accountsCount: accountsCountQuery.data?.accountsCount || 0,
+    currentCategory: accountCategoryDetailQuery?.data?.accountCategoryDetail,
+    // mergeAccounts,
+  };
 
-  return (
-    <Wrapper
-      header={
-        <Wrapper.Header
-          title={__('List accounts')}
-          breadcrumb={breadcrumb}
-          queryParams={queryParams}
-        />
-      }
-      actionBar={actionBar}
-      content={
-        <DataWithLoader
-          data={
-            <CustomTable
-              columns={[
-                { label: 'code', key: 'code' },
-                { label: 'name', key: 'name' },
-                { label: 'currency', key: 'currency' },
-                { label: 'kind', key: 'kind' },
-                { label: 'journal', key: 'journal' }
-              ]}
-              data={data?.accounts}
-              action={{
-                editForm: (p) => accountForm(p, mutation.accountsEdit)
-              }}
-              check={{ toggleBulk, bulk, toggleAll, emptyBulk, isAllSelected }}
-            />
-          }
-          loading={loading}
-          count={accountsTotal?.accountsTotalCount}
-          emptyText="There is no data"
-          emptyImage="/images/actions/5.svg"
-        />
-      }
-      transparent={true}
-      hasBorder={true}
-      leftSidebar={<AccountCategoryList queryParams={queryParams} />}
-      footer={<Pagination count={accountsTotal?.accountsTotalCount} />}
-    />
-  );
-}
+  const AccountList = (props) => {
+    return <List {...updatedProps} {...props} />;
+  };
 
-function AccountList(props) {
-  const renderList = (bulkProps) => <List {...bulkProps} {...props} />;
-  return <Bulk content={renderList} />;
-}
+  const refetch = () => {
+    accountsQuery.refetch();
+  };
 
-export default AccountList;
+  return <Bulk content={AccountList} refetch={refetch} />;
+};
+
+const getRefetchQueries = () => {
+  return [
+    "Accounts",
+    "AccountCategories",
+    "AccountCategoriesCount",
+    "AccountsTotalCount",
+    "AccountCountByTags",
+  ];
+};
+
+const options = () => ({
+  refetchQueries: getRefetchQueries(),
+});
+
+export default AccountListContainer;
