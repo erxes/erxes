@@ -236,7 +236,7 @@ const contractQueries = {
       params,
       commonQuerySelector
     );
-    return paginate(models.Contracts.find(loanContractsQuery), {
+    return await paginate(models.Contracts.find(loanContractsQuery), {
       page: params.page,
       perPage: params.perPage
     });
@@ -254,11 +254,14 @@ const contractQueries = {
     const filter = await generateFilter(models, params, commonQuerySelector);
 
     return {
-      list: paginate(models.Contracts.find(filter).sort(sortBuilder(params)), {
-        page: params.page,
-        perPage: params.perPage
-      }),
-      totalCount: models.Contracts.find(filter).countDocuments()
+      list: await paginate(
+        models.Contracts.find(filter).sort(sortBuilder(params)),
+        {
+          page: params.page,
+          perPage: params.perPage
+        }
+      ),
+      totalCount: await models.Contracts.find(filter).countDocuments()
     };
   },
 

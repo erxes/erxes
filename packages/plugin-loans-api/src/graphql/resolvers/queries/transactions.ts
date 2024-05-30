@@ -9,7 +9,7 @@ const generateFilter = async (models, params, commonQuerySelector) => {
       { number: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
       { _id: 1 }
     );
-    filter.contractId = { $in: contracts.map(item => item._id) };
+    filter.contractId = { $in: contracts.map((item) => item._id) };
   }
 
   if (params.ids) {
@@ -60,7 +60,7 @@ const generateFilter = async (models, params, commonQuerySelector) => {
   return filter;
 };
 
-export const sortBuilder = params => {
+export const sortBuilder = (params) => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -80,7 +80,7 @@ const transactionQueries = {
     params,
     { commonQuerySelector, models }: IContext
   ) => {
-    return paginate(
+    return await paginate(
       models.Transactions.find(
         await generateFilter(models, params, commonQuerySelector)
       ),
