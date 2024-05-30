@@ -75,7 +75,9 @@ function BasicInfo({ asset, remove, assignKbArticles }: Props) {
       <li>
         <FieldStyle>{__(name)}</FieldStyle>
         <SidebarCounter>{variable || defaultName}</SidebarCounter>
-        {extraField && extraField}
+        {
+        extraField
+        }
       </li>
     );
   };
