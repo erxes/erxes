@@ -23,7 +23,7 @@ export default {
   subscriptionPluginPath: require('path').resolve(
     __dirname,
     'graphql',
-    'subscriptionPlugin.js',
+    'subscriptionPlugin.js'
   ),
 
   meta: {
@@ -47,7 +47,7 @@ export default {
     context.models = models;
     context.requestInfo = requestInfo;
     context.res = res;
-
+    context.isPassed2FA = req?.isPassed2FA;
     if (req.cpUser) {
       context.cpUser = req.cpUser;
     }
