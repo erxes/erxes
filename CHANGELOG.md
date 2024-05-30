@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.2](https://github.com/erxes/erxes/compare/1.11.1...1.11.2) (2024-05-30)
+
+
+### Bug Fixes
+
+* **coreui:** add headlessui dropdown modal ([054fe71](https://github.com/erxes/erxes/commit/054fe710784387995a517d9b664e54aa1f0b418c))
+
 ## [1.11.1](https://github.com/erxes/erxes/compare/1.11.0-rc.9...1.11.1) (2024-05-29)
 
 
