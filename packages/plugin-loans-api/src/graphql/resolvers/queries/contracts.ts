@@ -12,6 +12,10 @@ const generateFilter = async (models, params, commonQuerySelector) => {
     filter.number = { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] };
   }
 
+  if(params.leaseType){
+    filter.leaseType = params.leaseType
+  }
+
   if (params.status) {
     filter.status = params.status;
   }

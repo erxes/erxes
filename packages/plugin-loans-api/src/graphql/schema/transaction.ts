@@ -72,6 +72,7 @@ const queryParams = `
   contractHasnt: String
   sortField: String
   sortDirection: Int
+  description: String
 `;
 
 export const queries = `
