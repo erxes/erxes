@@ -70,11 +70,9 @@ const Sidebar = (props: Props) => {
   const clearParams = (field) => {
     if (Array.isArray(field)) {
       field.forEach((name) => {
-        // this.setState({ [name]: undefined });
         return router.removeParams(navigate, location, name);
       });
     }
-    // this.setState({ [field]: undefined });
     router.removeParams(navigate, location, field);
   };
 
