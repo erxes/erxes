@@ -164,11 +164,11 @@ function General({
         handleFormChange('twoFactorConfig', null);
       } else {
         handleFormChange('twoFactorConfig', {
-          emailSubject: 'OTP verification',
+          emailSubject: '2FA verification',
           smsTransporterType: '',
           codeLength: 4,
           content: 'Your verification code is {{ code }}',
-          expireAfter: 1,
+          expireAfter: 5,
           enableTwoFactor: false,
         });
       }
@@ -381,7 +381,7 @@ function General({
         codeLength: 4,
         smsTransporterType: 'messagePro',
         enableTwoFactor: false,
-        expireAfter: 1,
+        expireAfter: 5,
       }),
     };
     const handleChange = e => {
