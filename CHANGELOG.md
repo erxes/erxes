@@ -1,5 +1,7 @@
 # Changelog
 
+## [1.11.3](https://github.com/erxes/erxes/compare/1.11.2...1.11.3) (2024-05-30)
+
 ## [1.11.2](https://github.com/erxes/erxes/compare/1.11.1...1.11.2) (2024-05-30)
 
 
