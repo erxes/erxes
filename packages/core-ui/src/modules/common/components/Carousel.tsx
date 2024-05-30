@@ -17,7 +17,7 @@ const Carousel = ({ items, intervalTime }) => {
       <div className="overflow-hidden">
         {items.map((item, index) => (
           <Transition
-            key={index}
+            key={index + 11}
             show={index === currentIndex}
             enter="transition-opacity duration-700"
             enterFrom="opacity-0"
@@ -49,6 +49,7 @@ const Carousel = ({ items, intervalTime }) => {
       <div className="carousel-indicators">
         {items.map((item, index) => (
           <li
+            key={index + 67}
             className={currentIndex === index ? "active" : ""}
             onClick={() => setCurrentIndex(index)}
           ></li>

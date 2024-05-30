@@ -14,7 +14,7 @@ function FormGroup({
 }) {
   return (
     <Formgroup
-      controlId={controlId && controlId}
+      controlId={controlId}
       className={className}
       $horizontal={horizontal}
     >

@@ -175,9 +175,6 @@ const Sidebar = (props: Props) => {
 
   return (
     <LeftSidebar showStar={activeStep === 0 || false}>
-      {/* {activeStep === 0 && (
-        <img src="/images/home/home3.png" className="shooting-star" />
-      )} */}
       {activeStep === 0 && (
         <img src="/images/shootingStars.png" className="welcome-cover" />
       )}

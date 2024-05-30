@@ -71,6 +71,17 @@ export const NavItem = styled.div`
   [id^="headlessui-menu-items-"] {
     min-width: 220px;
   }
+  
+  [id^="headlessui-menu-items-"] button {
+    border: none;
+    background: none;
+    text-align: left;
+
+    &:hover {
+      background: ${colors.bgActive};
+      cursor: pointer;
+    }
+  }
 `;
 
 const Version = styled.div`
@@ -207,7 +218,7 @@ const QuickNavigation = ({
               </>
             ) : null}
             <Menu.Item>
-              <a onClick={logout}>{__("Sign out")}</a>
+              <button onClick={logout}>{__("Sign out")}</button>
             </Menu.Item>
             {release ? (
               <Version>
