@@ -33,6 +33,42 @@ const contractMutations = {
     return contract;
   },
 
+  clientLoanContractsAdd: async (
+    _root,
+    doc: IContract & { secondaryPassword: string },
+    { user, models, subdomain }: IContext
+  ) => {
+    const validate = await sendMessageBroker(
+      {
+        subdomain,
+        action: 'clientPortalUsers.validatePassword',
+        data: {
+          userId: doc.customerId,
+          password: doc.secondaryPassword,
+          secondary: true
+        }
+      },
+      'clientportal'
+    );
+
+    if (validate.status === 'error') {
+      throw new Error(validate.errorMessage);
+    }
+
+    const contract = await models.Contracts.createContract(doc);
+
+    const logData = {
+      type: 'contract',
+      newData: doc,
+      object: contract,
+      extraParams: { models }
+    };
+
+    await createLog(subdomain, user, logData);
+
+    return contract;
+  },
+
   /**
    * Updates a contract
    */
