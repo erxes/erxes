@@ -20,7 +20,7 @@ const buildCommentsQuery = queryParams => {
 };
 
 const CommentQueries: IObjectTypeResolver<any, IContext> = {
-  forumComments: (_, params, { models: { Comment } }) => {
+  forumComments: async (_, params, { models: { Comment } }) => {
     const { limit = 0, offset = 0, sort = {}, ...queryParams } = params;
     const query: any = buildCommentsQuery(queryParams);
 
@@ -31,13 +31,13 @@ const CommentQueries: IObjectTypeResolver<any, IContext> = {
       .lean();
   },
 
-  forumCommentsCount: (_, params, { models: { Comment } }) => {
+  forumCommentsCount: async (_, params, { models: { Comment } }) => {
     const { limit = 0, offset = 0, sort = {}, ...queryParams } = params;
     const query: any = buildCommentsQuery(queryParams);
 
     return Comment.countDocuments(query);
   },
-  forumComment: (_, { _id }, { models: { Comment } }) => {
+  forumComment: async (_, { _id }, { models: { Comment } }) => {
     return Comment.findById(_id).lean();
   }
 };

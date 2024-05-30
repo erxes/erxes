@@ -1,25 +1,22 @@
 "use client"
 
 import { useState } from "react"
+import { ebarimtConfigAtom } from "@/store/config.store"
+import { useAtomValue } from "jotai"
 
 import { useToast } from "@/components/ui/use-toast"
 
 import SettingsButton from "./components/Button"
 
-const SendData = ({
-  ebarimtUrl,
-  companyRD,
-}: {
-  ebarimtUrl?: string
-  companyRD?: string
-}) => {
+const SendData = () => {
+  const { ebarimtUrl } = useAtomValue(ebarimtConfigAtom) || {}
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
 
   const handleClick = async () => {
     setLoading(true)
 
-    fetch(`${ebarimtUrl}/sendData?lib=${companyRD}`)
+    fetch(`${ebarimtUrl}/rest/send`)
       .then((res: any) => res.json())
       .then((res) => {
         if (res.success) {

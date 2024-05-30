@@ -1,10 +1,4 @@
-import {
-  FilterContainer,
-  FlexItem,
-  FlexRow,
-  InputBar,
-  Title,
-} from "@erxes/ui-settings/src/styles";
+import { FilterContainer, FlexRow, Title } from "@erxes/ui-settings/src/styles";
 import { __, router } from "@erxes/ui/src/utils";
 
 import Button from "@erxes/ui/src/components/Button";
@@ -13,7 +7,6 @@ import FormComponent from "@erxes/ui-tags/src/components/Form";
 import { FormControl } from "@erxes/ui/src/components/form";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
 import { ITag } from "@erxes/ui-tags/src/types";
-import Icon from "@erxes/ui/src/components/Icon";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 import React from "react";
@@ -79,18 +72,13 @@ function List({
   const actionBarRight = (
     <FilterContainer>
       <FlexRow>
-        <InputBar type="searchBar">
-          <Icon icon="search-1" size={20} />
-          <FlexItem>
-            <FormControl
-              placeholder={__("Search")}
-              name="searchValue"
-              onChange={search}
-              value={searchValue}
-              autoFocus={true}
-            />
-          </FlexItem>
-        </InputBar>
+        <FormControl
+          placeholder={__("Type to search")}
+          name="searchValue"
+          onChange={search}
+          value={searchValue}
+          autoFocus={true}
+        />
         <ModalTrigger
           title={__("Add tag")}
           autoOpenKey={`showTag${tagType}Modal`}

@@ -1,4 +1,4 @@
-import { Document, Schema, Model, Connection, Types } from 'mongoose';
+import { Document, Schema, Model, Connection, Types, HydratedDocument } from 'mongoose';
 import { IModels } from '../index';
 import * as _ from 'lodash';
 import { Permissions } from '../../../consts';
@@ -7,13 +7,12 @@ const { ObjectId } = Types;
 
 export interface IPermissionGroupCategoryPermit {
   _id?: any;
-  categoryId: string;
-  permissionGroupId: string;
+  categoryId: Types.ObjectId;
+  permissionGroupId: Types.ObjectId;
   permission: Permissions;
 }
 
-export type PermissionGroupCategoryPermitDocument = IPermissionGroupCategoryPermit &
-  Document;
+export type PermissionGroupCategoryPermitDocument = HydratedDocument<IPermissionGroupCategoryPermit>
 
 export interface IPermissionGroupCategoryPermitModel
   extends Model<PermissionGroupCategoryPermitDocument> {
@@ -36,10 +35,10 @@ export interface IPermissionGroupCategoryPermitModel
 }
 
 export const PermissionGroupCategoryPermitSchema = new Schema<
-  PermissionGroupCategoryPermitDocument
+IPermissionGroupCategoryPermit
 >({
-  categoryId: { type: ObjectId, required: true },
-  permissionGroupId: { type: ObjectId, required: true },
+  categoryId: { type: Schema.Types.ObjectId, required: true },
+  permissionGroupId: { type: Schema.Types.ObjectId, required: true },
   permission: { type: String, required: true }
 });
 
@@ -62,7 +61,7 @@ export const generatePermissionGroupCategoryPermitModel = (
       permission: Permissions
     ): Promise<void> {
       const toInsert: IPermissionGroupCategoryPermit[] = categoryIds.map(
-        categoryId => ({ permissionGroupId, categoryId, permission })
+        categoryId => ({ permissionGroupId: new Types.ObjectId(permissionGroupId), categoryId: new Types.ObjectId(categoryId), permission })
       );
       await models.PermissionGroupCategoryPermit.insertMany(toInsert);
     }
@@ -146,7 +145,7 @@ export const generatePermissionGroupCategoryPermitModel = (
     PermissionGroupCategoryPermitModel
   );
   models.PermissionGroupCategoryPermit = con.model<
-    PermissionGroupCategoryPermitDocument,
+  IPermissionGroupCategoryPermit,
     IPermissionGroupCategoryPermitModel
   >(
     'forum_permission_group_category_permit',

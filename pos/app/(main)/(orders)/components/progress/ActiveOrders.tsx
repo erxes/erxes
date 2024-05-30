@@ -32,7 +32,9 @@ const ActiveOrders = () => {
     subToItems(ORDER_ITEM_STATUSES.ALL)
   }, [])
 
-  if (loading) return null
+  if (loading) {
+    return null
+  }
 
   const arr = []
 

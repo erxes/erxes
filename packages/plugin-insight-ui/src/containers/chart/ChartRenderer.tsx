@@ -16,9 +16,7 @@ import { queries } from "../../graphql";
 import { withProps } from "@erxes/ui/src/utils/core";
 
 const getRandomNumbers = (num?: number) => {
-  const getRandomNumber: number = Math.floor(
-    Math.random() * (DEFAULT_BACKGROUND_COLORS.length - (num || 0) - 1)
-  );
+  const getRandomNumber: number = Math.floor(Math.random() * (DEFAULT_BACKGROUND_COLORS.length - (num || 0) - 1));
 
   if (!num) {
     return getRandomNumber;
@@ -118,12 +116,13 @@ export default withProps<Props>(
   compose(
     graphql<any>(gql(queries.chartGetResult), {
       name: "chartGetResultQuery",
-      options: ({ chartVariables, filter, dimension }) => ({
+      options: ({ chartVariables, filter, dimension, chartType }) => ({
         variables: {
           serviceName: chartVariables.serviceName,
           templateType: chartVariables.templateType,
           filter: { ...filter },
           dimension: { ...dimension },
+          chartType,
         },
         fetchPolicy: "network-only",
       }),

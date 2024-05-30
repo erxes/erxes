@@ -97,14 +97,14 @@ export const loadSafeRemainderItemClass = (models: IModels) => {
           productId: item.productId,
           branchId: item.branchId,
           departmentId: item.departmentId
-        }).lean()) || {};
+        }).lean());
 
       await models.SafeRemainderItems.updateOne(
         { _id },
         {
           $set: {
             ...doc,
-            preCount: liveRem.count || 0,
+            preCount: liveRem?.count || 0,
             modifiedAt: new Date(),
             modifiedBy: userId
           }

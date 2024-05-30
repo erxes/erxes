@@ -5,6 +5,7 @@ import { sendCoreMessage } from '../messageBroker';
 
 export interface IExm {
   name: string;
+  scoringConfig: any;
 }
 
 export interface IExmDocument extends IExm, Document {
@@ -109,14 +110,14 @@ export const loadExmClass = (models: IModels, subdomain: string) => {
      */
     public static async removeExm(_id: string) {
       const exmObj = await models.Exms.getExm(_id);
-
-      return exmObj.remove();
+      await exmObj.deleteOne();
+      return exmObj;
     }
 
     public static async useScoring(user, action) {
       const exmObj = await models.Exms.findOne().lean();
 
-      const scoringConfig = (exmObj.scoringConfig || []).find(
+      const scoringConfig = (exmObj?.scoringConfig || []).find(
         config => config.action === action
       ) || { score: 0 };
 

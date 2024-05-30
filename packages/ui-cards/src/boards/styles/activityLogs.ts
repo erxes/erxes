@@ -32,7 +32,7 @@ export const DateType = styled.div`
 
 export const RowFill = styled.div`
   display: flex;
-  padding: 5px 5px 5px 20px;
+  padding: 5px 5px 5px 0px;
 `;
 
 export const FieldStyle = styled.div`

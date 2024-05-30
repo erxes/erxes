@@ -62,7 +62,7 @@ const prepareDataCount = async (
     filter._id = { $in: itemIds };
   }
 
-  data = await models.PosOrders.find(filter).count();
+  data = await models.PosOrders.find(filter).countDocuments();
 
   return data;
 };

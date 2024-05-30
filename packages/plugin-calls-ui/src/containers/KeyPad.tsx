@@ -4,7 +4,6 @@ import { mutations, queries } from "../graphql";
 
 import { Alert } from "@erxes/ui/src/utils";
 import KeyPad from "../components/Keypad";
-import { Spinner } from "@erxes/ui/src/components";
 
 type IProps = {
   callUserIntegrations: any;

@@ -47,7 +47,7 @@ const command = async () => {
 
       const PER_MONGO_URL = MONGO_URL.replace(
         '<organizationId>',
-        org._id,
+        org._id.toString(),
       );
 
       const client = new MongoClient(PER_MONGO_URL);

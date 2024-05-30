@@ -103,7 +103,7 @@ const sendNotifcation = (props: Props) => {
               </ControlLabel>
               <p>{__('Firebase config for notifications')}</p>
               <FormControl
-                placeholder="paste a config"
+                placeholder="Paste a config"
                 onChange={handleSettingOnChange}
                 value={config?.customConfig}
               />

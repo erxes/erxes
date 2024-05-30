@@ -6,7 +6,6 @@ import Button from "@erxes/ui/src/components/Button";
 import Dropdown from "@erxes/ui/src/components/Dropdown";
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 import Icon from "@erxes/ui/src/components/Icon";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import React from "react";
 import Tip from "@erxes/ui/src/components/Tip";
 import UserResetPasswordForm from "../../containers/UserResetPasswordForm";
@@ -63,25 +62,6 @@ class ActionSection extends React.Component<Props> {
     );
   }
 
-  renderEditButton() {
-    const { user, renderEditForm } = this.props;
-
-    const userForm = (props) => {
-      return renderEditForm({ ...props, user });
-    };
-
-    return (
-      <li>
-        <ModalTrigger
-          title="Edit basic info"
-          trigger={<a href="#edit">{__("Edit Profile")}</a>}
-          size="lg"
-          content={userForm}
-        />
-      </li>
-    );
-  }
-
   renderResendInvitation = () => {
     const { user, resendInvitation } = this.props;
 
@@ -118,34 +98,38 @@ class ActionSection extends React.Component<Props> {
     );
   };
 
-  renderResetPassword = () => {
-    const content = (props) => {
+  renderDropdown() {
+    const { user, renderEditForm } = this.props;
+
+    const userEditForm = (props) => {
+      return renderEditForm({ ...props, user });
+    };
+
+    const userResetPasswordForm = (props) => {
       return <UserResetPasswordForm {...props} object={this.props.user} />;
     };
 
-    return (
-      <ModalTrigger
-        title="Reset member password"
-        trigger={
-          <li>
-            <a href="#reset">{__("Reset Password")}</a>
-          </li>
-        }
-        content={content}
-      />
-    );
-  };
+    const menuItems = [
+      {
+        title: "Edit basic info",
+        trigger: <a href="#edit">{__("Edit Profile")}</a>,
+        content: userEditForm,
+        additionalModalProps: { size: "lg" },
+      },
+      {
+        title: "Reset member password",
+        trigger: <a href="#reset">{__("Reset Password")}</a>,
+        content: userResetPasswordForm,
+      },
+    ];
 
-  renderDropdown() {
     return (
       <Dropdown
         as={DropdownToggle}
         toggleComponent={this.renderButton()}
-        unmount={false}
+        modalMenuItems={menuItems}
       >
-        {this.renderEditButton()}
         {this.renderResendInvitation()}
-        {this.renderResetPassword()}
         {this.renderDeActivate()}
       </Dropdown>
     );

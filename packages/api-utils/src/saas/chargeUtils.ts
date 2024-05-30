@@ -111,7 +111,7 @@ export const getUsageByPluginType = async (args: {
 
   if (pluginType === 'contacts') {
     if (models) {
-      totalUsage = await models.Customers.find({}).count();
+      totalUsage = await models.Customers.find({}).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
@@ -126,7 +126,7 @@ export const getUsageByPluginType = async (args: {
     const selector = { kind: 'facebook-post' };
 
     if (models) {
-      totalUsage = await models.Integrations.find(selector).count();
+      totalUsage = await models.Integrations.find(selector).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
@@ -140,7 +140,7 @@ export const getUsageByPluginType = async (args: {
     const selector = { kind: 'instagram-post' };
 
     if (models) {
-      totalUsage = await models.Integrations.find(selector).count();
+      totalUsage = await models.Integrations.find(selector).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
@@ -154,7 +154,7 @@ export const getUsageByPluginType = async (args: {
     const selector = { kind: 'facebook-messenger' };
 
     if (models) {
-      totalUsage = await models.Integrations.find(selector).count();
+      totalUsage = await models.Integrations.find(selector).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
@@ -168,7 +168,7 @@ export const getUsageByPluginType = async (args: {
     const selector = { kind: 'instagram-messenger' };
 
     if (models) {
-      totalUsage = await models.Integrations.find(selector).count();
+      totalUsage = await models.Integrations.find(selector).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
@@ -180,7 +180,7 @@ export const getUsageByPluginType = async (args: {
   }
   if (pluginType === 'cards:tickets') {
     if (models) {
-      totalUsage = await models.Boards.find({ type: 'ticket' }).count();
+      totalUsage = await models.Boards.find({ type: 'ticket' }).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
@@ -193,7 +193,7 @@ export const getUsageByPluginType = async (args: {
 
   if (pluginType === 'cards:tasks') {
     if (models) {
-      totalUsage = await models.Boards.find({ type: 'task' }).count();
+      totalUsage = await models.Boards.find({ type: 'task' }).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
@@ -206,7 +206,7 @@ export const getUsageByPluginType = async (args: {
 
   if (pluginType === 'cards:deals') {
     if (models) {
-      totalUsage = await models.Boards.find({ type: 'deal' }).count();
+      totalUsage = await models.Boards.find({ type: 'deal' }).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
@@ -219,7 +219,7 @@ export const getUsageByPluginType = async (args: {
 
   if (pluginType === 'cards:growthHacks') {
     if (models) {
-      totalUsage = await models.GrowthHacks.find({}).count();
+      totalUsage = await models.GrowthHacks.find({}).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
@@ -234,7 +234,7 @@ export const getUsageByPluginType = async (args: {
     const selector = { kind: 'messenger' };
 
     if (models) {
-      totalUsage = await models.Integrations.find(selector).count();
+      totalUsage = await models.Integrations.find(selector).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
@@ -249,7 +249,7 @@ export const getUsageByPluginType = async (args: {
     const selector = { kind: 'lead' };
 
     if (models) {
-      totalUsage = await models.Integrations.find(selector).count();
+      totalUsage = await models.Integrations.find(selector).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
@@ -264,7 +264,7 @@ export const getUsageByPluginType = async (args: {
     const selector = { kind: 'booking' };
 
     if (models) {
-      totalUsage = await models.Integrations.find(selector).count();
+      totalUsage = await models.Integrations.find(selector).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
@@ -277,7 +277,7 @@ export const getUsageByPluginType = async (args: {
 
   if (pluginType === 'knowledgebase') {
     if (models) {
-      totalUsage = await models.KnowledgeBaseCategories.find({}).count();
+      totalUsage = await models.KnowledgeBaseCategories.find({}).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
@@ -290,7 +290,7 @@ export const getUsageByPluginType = async (args: {
 
   if (pluginType === 'clientPortal') {
     if (models) {
-      totalUsage = await models.ClientPortals.find({}).count();
+      totalUsage = await models.ClientPortals.find({}).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
@@ -303,7 +303,7 @@ export const getUsageByPluginType = async (args: {
 
   if (pluginType === 'automations') {
     if (models) {
-      totalUsage = await models.Automations.find({}).count();
+      totalUsage = await models.Automations.find({}).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
@@ -316,7 +316,7 @@ export const getUsageByPluginType = async (args: {
 
   if (pluginType === 'segments') {
     if (models) {
-      totalUsage = await models.Segments.find({}).count();
+      totalUsage = await models.Segments.find({}).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
@@ -329,7 +329,7 @@ export const getUsageByPluginType = async (args: {
 
   if (pluginType === 'teamMembers') {
     if (models) {
-      totalUsage = await models.Users.find({}).count();
+      totalUsage = await models.Users.find({}).countDocuments();
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,

@@ -89,7 +89,7 @@ const growthHackMutations = {
   /**
    * Watch a growth hack
    */
-  growthHacksWatch(
+  async growthHacksWatch(
     _root,
     { _id, isAdd }: { _id: string; isAdd: boolean },
     { user, models }: IContext
@@ -100,7 +100,7 @@ const growthHackMutations = {
   /**
    * Vote a growth hack
    */
-  growthHacksVote(
+  async growthHacksVote(
     _root,
     { _id, isVote }: { _id: string; isVote: boolean },
     { user, models }: IContext

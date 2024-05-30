@@ -7,7 +7,7 @@ const notificationQueries = {
   /**
    * Notifications list
    */
-  notifications(
+  async notifications(
     _root,
     {
       requireRead,
@@ -31,7 +31,7 @@ const notificationQueries = {
     },
     { models, user }: IContext,
   ) {
-    const sort = { date: -1 };
+    const sort: any = { date: -1 };
 
     const selector: any = { receiver: user._id };
 
@@ -68,7 +68,7 @@ const notificationQueries = {
   /**
    * Notification counts
    */
-  notificationCounts(
+  async notificationCounts(
     _root,
     {
       requireRead,
@@ -124,7 +124,7 @@ const notificationQueries = {
   /**
    * Get per user configuration
    */
-  notificationsGetConfigurations(_root, _args, { user, models }: IContext) {
+  async notificationsGetConfigurations(_root, _args, { user, models }: IContext) {
     return models.NotificationConfigurations.find({ user: user._id });
   },
 };
