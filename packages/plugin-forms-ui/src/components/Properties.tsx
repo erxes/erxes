@@ -6,8 +6,6 @@ import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
 import { IField } from "@erxes/ui/src/types";
 import { IFieldGroup } from "@erxes/ui-forms/src/settings/properties/types";
 import Icon from "@erxes/ui/src/components/Icon";
-import { Menu } from "@headlessui/react";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import PropertyForm from "@erxes/ui-forms/src/settings/properties/containers/PropertyForm";
 import PropertyGroupForm from "@erxes/ui-forms/src/settings/properties/containers/PropertyGroupForm";
 import { PropertyList } from "@erxes/ui-forms/src/settings/properties/styles";
@@ -192,6 +190,23 @@ class Properties extends React.Component<
       );
     };
 
+    const menuItems = [
+      {
+        title: "Add Group",
+        trigger: addGroup,
+        content: groupContent,
+        additionalModalProps: {
+          size,
+          autoOpenKey: `showProperty${currentType}Modal`,
+        },
+      },
+      {
+        title: "Add Property",
+        trigger: addField,
+        content: propertyContent,
+      },
+    ];
+
     return (
       <Dropdown
         as={DropdownToggle}
@@ -202,25 +217,8 @@ class Properties extends React.Component<
             <Icon icon="angle-down" />
           </Button>
         }
-        unmount={false}
-      >
-        <Menu.Item>
-          <ModalTrigger
-            title={__("Add Group")}
-            size={size}
-            trigger={addGroup}
-            autoOpenKey={`showProperty${currentType}Modal`}
-            content={groupContent}
-          />
-        </Menu.Item>
-        <Menu.Item>
-          <ModalTrigger
-            title={__("Add Property")}
-            trigger={addField}
-            content={propertyContent}
-          />
-        </Menu.Item>
-      </Dropdown>
+        modalMenuItems={menuItems}
+      />
     );
   };
 
