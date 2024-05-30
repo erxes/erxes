@@ -188,8 +188,13 @@ class CategoryForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Code</ControlLabel>
-          <FormControl {...formProps} name="code" defaultValue={object.code} />
+          <ControlLabel required={true}>Code</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="code"
+            defaultValue={object.code}
+            required={true}
+          />
         </FormGroup>
 
         <FormGroup>
