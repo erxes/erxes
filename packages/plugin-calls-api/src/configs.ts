@@ -6,6 +6,7 @@ import webhookReceiver from './webhook';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import logs from './logUtils';
+import * as permissions from './permissions';
 
 export default {
   name: 'calls',
@@ -30,6 +31,7 @@ export default {
       },
     ],
     logs: { providesActivityLog: true, consumers: logs },
+    permissions,
   },
 
   postHandlers: [{ path: '/webhook', method: webhookReceiver }],

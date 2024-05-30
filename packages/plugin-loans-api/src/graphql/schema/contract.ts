@@ -174,6 +174,7 @@ const queryParams = `
   closeDateType: String
   branchId: String
   status: String
+  leaseType: String
 `;
 
 export const queries = `
@@ -256,8 +257,13 @@ const interestCorrectionFields = `
   lossAmount: Float
 `;
 
+const clientFields = `
+  secondaryPassword: String
+`;
+
 export const mutations = `
   contractsAdd(${commonFields}): LoanContract
+  clientLoanContractsAdd(${commonFields}${clientFields}): LoanContract
   contractsEdit(_id: String!, ${commonFields}): LoanContract
   contractsDealEdit(_id: String!, ${commonFields}): LoanContract
   contractsClose(contractId: String, closeDate: Date, closeType: String, description: String): LoanContract

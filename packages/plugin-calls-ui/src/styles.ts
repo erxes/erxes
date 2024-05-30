@@ -435,7 +435,7 @@ export const CallAction = styledTS<{
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  cursor: ${props => props.$disabled ? 'not-allowed' : 'pointer'};
+  cursor: ${(props) => (props.$disabled ? 'not-allowed' : 'pointer')};
   color: ${(props) => (props.$active ? colors.textPrimary : colors.colorWhite)};
   background: ${(props) =>
     props.$disabled
@@ -793,15 +793,76 @@ const DialogWrapper = styledTS<{ direction?: string }>(styled.div)`
 `;
 
 const CallWrapper = styled.div`
-  position:absolute;
-  width:72px;
-  z-index:999999;
-  height:72px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  position: absolute;
+  width: 72px;
+  z-index: 999999;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   bottom: 80px;
-  right: 12px
+  right: 12px;
+`;
+const MessageContent = styledTS<{ $internal?: boolean; $staff?: boolean }>(
+  styled.div,
+)`
+  margin-top: 5px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  border-radius: 20px;
+  background: ${colors.colorWhite};
+  background: ${(props) =>
+    props.$internal
+      ? colors.bgInternal
+      : props.$staff && colors.colorSecondary};
+  word-break: break-word;
+  box-shadow: 0 1px 1px 0 ${colors.darkShadow};
+  color: ${(props) => props.$staff && !props.$internal && colors.colorWhite};
+  text-align: left;
+
+  a {
+    color: ${(props) =>
+      props.$staff && !props.$internal
+        ? colors.colorWhite
+        : colors.linkPrimary};
+    text-decoration: underline;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  > span {
+    display: block;
+  }
+
+  .mention {
+    font-weight: bold;
+    display: inline-block;
+  }
+
+  img {
+    max-width: 300px;
+    border-radius: 2px;
+  }
+
+  ul,
+  ol {
+    padding-left: 25px;
+    margin: 0;
+  }
+
+  h3 {
+    margin-top: 0;
+  }
+
+  blockquote {
+    margin-bottom: 0;
+    border-color: ${colors.borderDarker};
+  }
+
+  pre {
+    margin-bottom: 0;
+  }
 `;
 
 export {
@@ -812,4 +873,5 @@ export {
   TransferCallWrapper,
   CallWrapper,
   DialogWrapper,
+  MessageContent,
 };

@@ -89,7 +89,7 @@ export const loadCallHistoryClass = (models: IModels) => {
 
       return await models.CallHistory.find({
         ...historyFilter,
-      }).count();
+      }).countDocuments();
     }
   }
 

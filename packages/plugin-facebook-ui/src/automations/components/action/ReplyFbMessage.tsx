@@ -183,7 +183,7 @@ function ReplyFbMessage({
         <FieldInfo>{`${text?.length || 0}/640`}</FieldInfo>
 
         <FormControl
-          placeholder="enter your text"
+          placeholder="Enter your text"
           value={text}
           onChange={handleChangeInput}
         />

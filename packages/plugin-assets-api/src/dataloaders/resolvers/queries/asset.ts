@@ -88,7 +88,7 @@ export const generateCommonAssetFilter = async (
 
     filter.$or = fields;
   }
-  if (!!articleIds?.length) {
+  if (articleIds?.length) {
     filter.kbArticleIds = { $in: articleIds };
   }
 

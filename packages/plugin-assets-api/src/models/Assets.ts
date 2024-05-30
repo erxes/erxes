@@ -190,10 +190,10 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
 
       let customFieldsData: ICustomField[] = [];
       const name: string = assetFields.name || '';
-      const description: string = assetFields.description || '';
-      const categoryId = assetFields.categoryId || undefined;
-      const parentId = assetFields.parentId || undefined;
-      const vendorId: string = assetFields.vendorId || '';
+      const description: string = assetFields.description ?? '';
+      const categoryId = assetFields.categoryId ?? undefined;
+      const parentId = assetFields.parentId ?? undefined;
+      const vendorId: string = assetFields.vendorId ?? '';
       const usedIds: string[] = [];
 
       for (const assetId of assetIds) {

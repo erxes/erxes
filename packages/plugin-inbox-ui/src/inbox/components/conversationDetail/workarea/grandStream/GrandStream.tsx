@@ -12,22 +12,27 @@ import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
 import dayjs from 'dayjs';
 import { readFile } from '@erxes/ui/src/utils/core';
+import { AppConsumer } from 'coreui/appContext';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { can } from '@erxes/ui/src/utils/core';
 
 type Props = {
   conversation: IConversation;
+  currentUser: IUser;
 };
 
-const GrandStream: React.FC<Props> = ({ conversation }) => {
+const GrandStream: React.FC<Props> = ({ conversation, currentUser }) => {
   const { callDuration, callStatus, callType, createdAt, recordUrl } =
     conversation.callHistory || ({} as ICallHistory);
-
   const renderAudio = () => {
     return (
-      <Audio>
-        <audio controls={true}>
-          <source src={readFile(recordUrl)} type="audio/wav" />{' '}
-        </audio>
-      </Audio>
+      can('showCallRecord', currentUser) && (
+        <Audio>
+          <audio controls={true}>
+            <source src={readFile(recordUrl)} type="audio/wav" />{' '}
+          </audio>
+        </Audio>
+      )
     );
   };
 
@@ -84,4 +89,14 @@ const GrandStream: React.FC<Props> = ({ conversation }) => {
   );
 };
 
-export default GrandStream;
+const WithConsumer = (props: Props) => {
+  return (
+    <AppConsumer>
+      {({ currentUser }) => (
+        <GrandStream {...props} currentUser={currentUser || ({} as IUser)} />
+      )}
+    </AppConsumer>
+  );
+};
+
+export default WithConsumer;
