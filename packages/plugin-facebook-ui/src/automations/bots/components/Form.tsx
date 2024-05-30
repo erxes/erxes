@@ -13,13 +13,13 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Step from '@erxes/ui/src/components/step/Step';
 import { Preview, StepWrapper } from '@erxes/ui/src/components/step/styles';
 import { PageHeader } from '@erxes/ui/src/layout/styles';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { Flex, ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils/core';
 import React, { useEffect, useState } from 'react';
 import Accounts from '../../../containers/Accounts';
 import ButtonsGenerator from '../../components/action/ButtonGenerator';
-import { Padding } from '../../styles';
+import { FieldInfo, Padding } from '../../styles';
 import { EmulatorWrapper, Features, MobileEmulator } from '../styles';
 import { SelectAccountPages, fetchPageDetail } from '../utils';
 import { Avatar } from '@erxes/ui-cards/src/boards/styles/item';
@@ -140,9 +140,34 @@ function Form({ renderButton, bot, returnToList }: Props) {
                   defaultValue={doc?.name}
                 />
               </FormGroup>
+              <FormGroup>
+                <ControlLabel>{__('Greet Message (Optional)')}</ControlLabel>
+                <FieldInfo
+                  error={doc?.greetText?.length > 160}
+                >{`${doc?.greetText?.length}/160`}</FieldInfo>
+                <FormControl
+                  name="greetMessage"
+                  componentclass="textarea"
+                  placeholder="Type a greet message for your messenger"
+                  defaultValue={doc.greetText}
+                  onChange={(e) =>
+                    doc?.greetText?.length < 160 &&
+                    setDoc({
+                      ...doc,
+                      greetText: (e.currentTarget as HTMLInputElement)?.value,
+                    })
+                  }
+                />
+              </FormGroup>
               <ControlLabel>
-                {__('Persistent Menu')}
-                <HelpPopover title="A Persistent Menu is a quick-access toolbar in your chat. Customize it below for easy navigation to key bot features." />
+                <Flex>
+                  {__('Persistent Menu')}
+
+                  <HelpPopover title="">
+                    "A Persistent Menu is a quick-access toolbar in your chat.
+                    Customize it below for easy navigation to key bot features."
+                  </HelpPopover>
+                </Flex>
               </ControlLabel>
               <ButtonsGenerator
                 _id=""
@@ -151,6 +176,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
                 onChange={(_id, _name, values) =>
                   setDoc({ ...doc, persistentMenus: values })
                 }
+                limit={5}
               />
             </Padding>
           </Step>
@@ -209,6 +235,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
                   {!isLastStep ? (
                     <>
                       <div className="getStarted">
+                        <p>{doc?.greetText || ''}</p>
                         <span>tap to send</span>
                         <button>Get Started</button>
                       </div>
@@ -243,7 +270,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
                                 : '/images/erxes-bot.svg'
                             }
                           />
-                          <span>{'Get Started'}</span>
+                          <span>{doc?.greetText || 'Get Started'}</span>
                         </div>
                       </div>
                       <div className="persistentMenu">

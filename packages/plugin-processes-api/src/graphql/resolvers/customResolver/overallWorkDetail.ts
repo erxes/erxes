@@ -4,7 +4,7 @@ import { JOB_TYPES } from '../../../models/definitions/constants';
 import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
 
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
+  async __resolveReference({ _id }, { models }: IContext) {
     return models.Works.findOne({ _id });
   },
 

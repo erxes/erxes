@@ -35,7 +35,7 @@ const donateCampaignQueries = {
     );
   },
 
-  cpDonateCampaigns(_root, {}, { models }: IContext) {
+  async cpDonateCampaigns(_root, {}, { models }: IContext) {
     const now = new Date();
     return models.DonateCampaigns.find({
       status: CAMPAIGN_STATUS.ACTIVE,
@@ -54,7 +54,7 @@ const donateCampaignQueries = {
     return models.DonateCampaigns.find(filter).countDocuments();
   },
 
-  donateCampaignDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  async donateCampaignDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.DonateCampaigns.getDonateCampaign(_id);
   }
 };

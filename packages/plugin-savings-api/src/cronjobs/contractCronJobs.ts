@@ -23,7 +23,7 @@ export async function storeInterestCron(subdomain: string) {
       lastStoredDate: { $lt: nextDate },
       status: CONTRACT_STATUS.NORMAL,
       interestRate: { $gt: 0 }
-    }).lean<IContractDocument>();
+    }).lean();
 
     for await (const contract of contracts) {
       await storeInterestMethod(contract, models, nowDate, nextDate);

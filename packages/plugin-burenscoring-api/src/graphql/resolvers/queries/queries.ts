@@ -31,7 +31,7 @@ const burenScoringQueries = {
           perPage: params.perPage
         }
       ),
-      totalCount: await models.BurenScorings.find(filter).count()
+      totalCount: await models.BurenScorings.find(filter).countDocuments()
     };
   },
   getCustomerScore: async (_root, { customerId }, { models }: IContext) => {

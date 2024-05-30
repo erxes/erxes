@@ -59,7 +59,7 @@ const command = async () => {
         pipelineId: segment2.pipelineId
       };
 
-      await SegmentsCollections.remove({ _id: segment2._id });
+      await SegmentsCollections.deleteOne({ _id: segment2._id });
 
       await SegmentsCollections.updateOne({ _id: subSegmentId }, { $set: doc });
     }

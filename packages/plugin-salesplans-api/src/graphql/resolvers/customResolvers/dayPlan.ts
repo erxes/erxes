@@ -3,7 +3,7 @@ import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
 import { IDayPlanDocument } from '../../../models/definitions/dayPlans';
 
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
+  async __resolveReference({ _id }, { models }: IContext) {
     return models.DayPlans.findOne({ _id });
   },
 

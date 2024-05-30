@@ -107,7 +107,7 @@ export default {
     return { __typename: 'User', _id: customer.ownerId };
   },
 
-  customFieldsDataByFieldCode(
+  async customFieldsDataByFieldCode(
     company: ICustomerDocument,
     _,
     { subdomain }: IContext,

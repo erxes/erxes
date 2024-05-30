@@ -23,7 +23,7 @@ export default {
     return user;
   },
 
-  status(user: IUserDocument) {
+  async status(user: IUserDocument) {
     if (user.registrationToken) {
       return 'Not verified';
     }
@@ -200,7 +200,7 @@ export default {
       (await models.Users.find({
         score: { $gt: user.score || 0 },
         role: { $ne: USER_ROLES.SYSTEM },
-      }).count()) + 1
+      }).countDocuments()) + 1
     );
   },
 };
