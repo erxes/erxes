@@ -46,7 +46,7 @@ export const playWait = async (models: IModels, subdomain: string, data) => {
 
     if (
       currentAction.type === 'delay' &&
-      (!currentAction.config || !currentAction.config.value)
+      !(currentAction?.config?.value)
     ) {
       continue;
     }
