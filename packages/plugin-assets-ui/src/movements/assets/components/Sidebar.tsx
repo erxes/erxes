@@ -56,7 +56,6 @@ const Sidebar = (props: Props) => {
       value = moment(value).format(`YYYY/MM/DD hh:mm`);
     }
 
-    // this.setState({ [name]: value });
     router.setParams(navigate, location, { [name]: value });
     router.setParams(navigate, location, { page: 1 });
   };
