@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.12.0-rc.1](https://github.com/erxes/erxes/compare/1.12.0-rc.0...1.12.0-rc.1) (2024-05-30)
+
+
+### Bug Fixes
+
+* (clientportal) bug and 2fa ([#5306](https://github.com/erxes/erxes/issues/5306)) ([793a0ff](https://github.com/erxes/erxes/commit/793a0ffde343fad75540977b764f2b14e45da3de))
+* **calls:** undo ringing audio ([4cf7596](https://github.com/erxes/erxes/commit/4cf75966657ae0836142e6bd9d451c6386d8dbd3))
+* **coreui:** add dropdown with modal component ([5de46fb](https://github.com/erxes/erxes/commit/5de46fbc88ec25f28f739bf4dadb07bf3a597b7c))
+* **coreui:** headlessui dropdown modal save ([f040375](https://github.com/erxes/erxes/commit/f040375388d23eaf95b76f9ade916e69ee375ba4))
+* **dropdown:** items style ([#5291](https://github.com/erxes/erxes/issues/5291)) ([c8d5155](https://github.com/erxes/erxes/commit/c8d51559a51e7aa448d1ad69efe8c4ba9fe6811e))
+* **knowledgebase:** parent category error ([fdb04ea](https://github.com/erxes/erxes/commit/fdb04ea169ffbb39f035060dc9f74ae498bf7a91))
+* **profile:** save button not working and add confirm action ([94c5bc3](https://github.com/erxes/erxes/commit/94c5bc33dad7d3276063735516cf5ac7a68f7272))
+* **saas:** some styling and view ([#5207](https://github.com/erxes/erxes/issues/5207)) ([d56e990](https://github.com/erxes/erxes/commit/d56e990b26141ba9846c14be1c70ed78dcf723ba))
+
 ## [1.12.0-rc.0](https://github.com/erxes/erxes/compare/1.11.0-rc.9...1.12.0-rc.0) (2024-05-29)
 
 
