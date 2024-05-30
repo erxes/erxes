@@ -48,7 +48,7 @@ const transactionMutations = {
       'clientportal'
     );
 
-    if (validate.status === 'error') {
+    if (validate?.status === 'error') {
       throw new Error(validate.errorMessage);
     }
 

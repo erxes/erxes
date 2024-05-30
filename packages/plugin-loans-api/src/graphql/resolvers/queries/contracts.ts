@@ -221,7 +221,7 @@ const contractQueries = {
     params,
     { commonQuerySelector, models }: IContext
   ) => {
-    return paginate(
+    return await paginate(
       models.Contracts.find(
         generateFilter(models, params, commonQuerySelector)
       ),
