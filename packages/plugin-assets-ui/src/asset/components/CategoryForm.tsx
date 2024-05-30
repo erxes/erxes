@@ -1,11 +1,7 @@
 import { CommonFormGroup, SelectWithAssetCategory } from '../../common/utils';
-import { FormColumn } from '@erxes/ui/src/styles/main';
-import { FormWrapper } from '@erxes/ui/src/styles/main';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { FormColumn, FormWrapper,ModalFooter  } from '@erxes/ui/src/styles/main';
 import { IAssetCategory, IAssetCategoryTypes } from '../../common/types';
-import { IAttachment } from '@erxes/ui/src/types';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { IFormProps } from '@erxes/ui/src/types';
+import { IAttachment, IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { ASSET_CATEGORY_STATUSES } from '../../common/constant';
 import CommonForm from '@erxes/ui/src/components/form/Form';
 import React, { useState, useEffect } from 'react';
