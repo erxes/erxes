@@ -92,7 +92,7 @@ const Form = (props: Props) => {
 
   const [state, setState] = useState<State>({
     ...product,
-    barcodes: barcodes ? barcodes : [],
+    barcodes: barcodes || [],
     variants: fixVariants,
     barcodeInput: "",
     barcodeDescription: barcodeDescription || "",

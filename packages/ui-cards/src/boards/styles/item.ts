@@ -82,7 +82,7 @@ export const LastUpdate = styled.div`
 
 export const ColumnChild = styled.td`
   &:first-child {
-    width: 500px;
+    max-width: 400px;
   }
 
   &:last-child {
@@ -91,7 +91,7 @@ export const ColumnChild = styled.td`
 `;
 
 export const LabelColumn = styled.td`
-  width: 300px;
+  max-width: 200px;
 `;
 
 export const StageColumn = styled.td`
