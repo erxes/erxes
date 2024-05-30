@@ -491,7 +491,9 @@ export const loadClientPortalUserClass = (models: IModels) => {
       }
 
       // check current password ============
-      const valid = user.password ? await this.comparePassword(currentPassword, user.password) : false;
+      const valid = user.password
+        ? await this.comparePassword(currentPassword, user.password)
+        : false;
 
       if (!valid) {
         throw new Error('Incorrect current password');
@@ -845,7 +847,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
         if (twoFactor && twoFactor.key && twoFactor.device) {
           isFound = user.twoFactorDevices?.find(x => x.key === twoFactor.key);
         } else {
-          throw new Error('2FA is enabled, fill the arguments');
+          throw new Error('TwoFactor argument is required');
         }
       }
 
