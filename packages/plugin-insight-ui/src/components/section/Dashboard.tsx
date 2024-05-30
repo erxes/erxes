@@ -42,7 +42,7 @@ const DashboardSection = (props: Props) => {
   };
 
   const extraButtons = (
-    <Tip text="Add dashboard">
+    <Tip text="Add dashboard" placement="top">
       <a
         href="#addDashboard"
         onClick={() => {
