@@ -25,11 +25,11 @@ const FlexCenter = styled(Flex)`
 const Actions = styledTS<{ isSmall?: boolean }>(styled.div)`
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: 0 ${dimensions.coreSpacing}px ${dimensions.unitSpacing}px;
 
-  > a, button {
+  a, button {
     flex: 1;
-    padding: 4px 15px;
 
     i {
       font-size: 12px;
@@ -37,11 +37,12 @@ const Actions = styledTS<{ isSmall?: boolean }>(styled.div)`
     }
   }
 
-  > div, > button {
+  > div {
     margin-left: ${dimensions.unitSpacing}px;
+    position: relative;
   }
 
-  .dropdown {
+  [id^="headlessui-menu-items-"] {
     display: ${(props) => (props.isSmall ? 'inline-block' : 'block')};
   }
 
@@ -574,7 +575,7 @@ const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 1000;
+  z-index: 1050;
   width: 100%;
   height: 100%;
   background: rgba(48, 67, 92, 0.5);
@@ -597,7 +598,7 @@ const DialogWrapper = styled.div`
   position: fixed;
   inset: 0;
   overflow-y: auto;
-  z-index: 1040;
+  z-index: 1050;
 `;
 
 const MenuDivider = styled.div`

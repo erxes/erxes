@@ -25,6 +25,7 @@ export type IFilterType = {
 
 type Props = {
   filterType: IFilterType;
+  chartType: string;
   fieldValues?: any;
   setFilter: (fieldName: string, value: any) => void;
   initialValue?: any;
@@ -34,7 +35,7 @@ type Props = {
 };
 
 const ChartFormFieldList = (props: Props) => {
-  const { filterType, setFilter, fieldValues } = props;
+  const { filterType, chartType, setFilter, fieldValues } = props;
 
   const {
     fieldName,
@@ -197,10 +198,13 @@ const ChartFormFieldList = (props: Props) => {
     return <></>;
   }
 
+  // const isMulti = chartType === "table" && (fieldName === "dimension" || fieldName === "measure") ? true : multi
+
   return (
     <ChartFormField
       fieldType={fieldType}
       fieldQuery={fieldQuery}
+      // multi={isMulti}
       multi={multi}
       fieldOptions={
         fieldOptions ||

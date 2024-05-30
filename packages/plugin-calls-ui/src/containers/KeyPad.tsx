@@ -1,43 +1,44 @@
-import React, { useState } from 'react';
-import { gql, useMutation, useQuery } from '@apollo/client';
-import { mutations, queries } from '../graphql';
+import React, { useState } from "react";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { mutations, queries } from "../graphql";
 
-import { Alert } from '@erxes/ui/src/utils';
-import KeyPad from '../components/Keypad';
-import { Spinner } from '@erxes/ui/src/components';
+import { Alert } from "@erxes/ui/src/utils";
+import KeyPad from "../components/Keypad";
 
 type IProps = {
   callUserIntegrations: any;
   setConfig: any;
   phoneNumber: any;
+  currentCallConversationId: string;
 };
 
 const KeyPadContainer = (props: IProps) => {
-  const { callUserIntegrations, setConfig, phoneNumber } = props;
+  const {
+    callUserIntegrations,
+    setConfig,
+    phoneNumber,
+    currentCallConversationId,
+  } = props;
 
   const defaultCallIntegration = localStorage.getItem(
-    'config:call_integrations',
+    "config:call_integrations"
   );
 
   const inboxId =
-    JSON.parse(defaultCallIntegration || '{}')?.inboxId ||
+    JSON.parse(defaultCallIntegration || "{}")?.inboxId ||
     callUserIntegrations?.[0]?.inboxId;
 
   const [customer, setCustomer] = useState<any>(undefined);
   const [createCustomerMutation] = useMutation(gql(mutations.customersAdd));
-  const [updateDndMutation] = useMutation(gql(mutations.callsUpdateSipDnd));
+  const [updatePauseAgent] = useMutation(gql(mutations.callPauseAgent));
 
   const [disconnectCall] = useMutation(gql(mutations.callDisconnect));
 
   const {
-    data: callDndStatus,
+    data: agentStatusData,
     loading,
     refetch,
-  } = useQuery(gql(queries.callsGetDndStatus), {
-    variables: {
-      integrationId: inboxId,
-    },
-  });
+  } = useQuery(gql(queries.callGetAgentStatus));
 
   const createCustomer = (inboxIntegrationId: string, primaryPhone: string) => {
     createCustomerMutation({
@@ -54,15 +55,16 @@ const KeyPadContainer = (props: IProps) => {
       });
   };
 
-  const pauseExtention = (integrationId: string, dndStatus: string) => {
-    updateDndMutation({
+  const pauseExtention = (integrationId: string, status: string) => {
+    updatePauseAgent({
       variables: {
-        dndStatus,
+        status,
         integrationId,
       },
     })
       .then(() => {
-        const isPaused = dndStatus === 'yes' ? 'paused' : 'unpaused';
+        const isPaused = agentStatus === "yes" ? "paused" : "unpaused";
+
         Alert.success(`Successfully ${isPaused}`);
         refetch();
       })
@@ -71,11 +73,8 @@ const KeyPadContainer = (props: IProps) => {
       });
   };
 
-  if (loading) {
-    return <Spinner />;
-  }
+  const agentStatus = agentStatusData?.callGetAgentStatus || "";
 
-  const dndStatus = callDndStatus.callsGetOperatorDndStatus;
   return (
     <KeyPad
       addCustomer={createCustomer}
@@ -84,9 +83,11 @@ const KeyPadContainer = (props: IProps) => {
       setConfig={setConfig}
       customer={customer}
       disconnectCall={disconnectCall}
-      phoneNumber={phoneNumber || ''}
+      phoneNumber={phoneNumber || ""}
       pauseExtention={pauseExtention}
-      dndStatus={dndStatus}
+      agentStatus={agentStatusData}
+      loading={loading}
+      currentCallConversationId={currentCallConversationId}
     />
   );
 };

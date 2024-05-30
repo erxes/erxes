@@ -9,9 +9,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-knowledgebase-api/**"
-      - ".github/workflows/plugin-knowledgebase-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-knowledgebase-api/**'
+      - '.github/workflows/plugin-knowledgebase-api.yaml'
   pull_request:
     branches:
       - dev
@@ -20,9 +20,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-knowledgebase-api/**"
-      - ".github/workflows/plugin-knowledgebase-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-knowledgebase-api/**'
+      - '.github/workflows/plugin-knowledgebase-api.yaml'
 
 jobs:
   api:

@@ -10,7 +10,7 @@ const configQueries = {
   /**
    * Config object
    */
-  multierkhetConfigs(_root, _args, { models }: IContext) {
+  async multierkhetConfigs(_root, _args, { models }: IContext) {
     return models.Configs.find({});
   },
 

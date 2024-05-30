@@ -1,6 +1,7 @@
-import * as PropTypes from 'prop-types';
+import * as PropTypes from "prop-types";
 
-import { Alert, __ } from '@erxes/ui/src/utils';
+import { Alert, __ } from "@erxes/ui/src/utils";
+import { CALL_STATUS_ACTIVE, CALL_STATUS_IDLE } from "../lib/enums";
 import {
   IncomingActionButton,
   IncomingButtonContainer,
@@ -9,17 +10,17 @@ import {
   IncomingContent,
   NameCardContainer,
   PhoneNumber,
-} from '../styles';
-import { ICustomer } from '../types';
-import React, { useEffect, useRef, useState } from 'react';
-import { callPropType, sipPropType } from '../lib/types';
+} from "../styles";
+import React, { useEffect, useRef, useState } from "react";
+import { callPropType, sipPropType } from "../lib/types";
 
-import Avatar from '@erxes/ui/src/components/nameCard/Avatar';
-import { CALL_STATUS_IDLE, CALL_STATUS_ACTIVE } from '../lib/enums';
-import Icon from '@erxes/ui/src/components/Icon';
-import { callActions } from '../utils';
-import { caller } from '../constants';
-import { renderFullName } from '@erxes/ui/src/utils/core';
+import Avatar from "@erxes/ui/src/components/nameCard/Avatar";
+import { ICustomer } from "../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { callActions } from "../utils";
+import { caller } from "../constants";
+import { renderFullName } from "@erxes/ui/src/utils/core";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   customer: ICustomer;
@@ -28,6 +29,7 @@ type Props = {
   phoneNumber: string;
   hideIncomingCall?: boolean;
   inboxId: string;
+  currentCallConversationId: string;
 };
 
 const getSpentTime = (seconds: number) => {
@@ -51,7 +53,7 @@ const getSpentTime = (seconds: number) => {
 };
 
 const formatNumber = (n: number) => {
-  return n.toLocaleString('en-US', {
+  return n.toLocaleString("en-US", {
     minimumIntegerDigits: 2,
     useGrouping: false,
   });
@@ -66,41 +68,45 @@ const IncomingCall = (props: Props, context) => {
     phoneNumber,
     channels,
     hideIncomingCall,
+    currentCallConversationId,
     inboxId,
   } = props;
-  const primaryPhone = customer?.primaryPhone || '';
+  const primaryPhone = customer?.primaryPhone || "";
+
+  const navigate = useNavigate();
 
   const [haveIncomingCall, setHaveIncomingCall] = useState(
-    primaryPhone ? true : false,
+    primaryPhone ? true : false
   );
   const [timeSpent, setTimeSpent] = useState(0);
   const [status, setStatus] = useState(
-    call.status === CALL_STATUS_ACTIVE ? 'active' : 'pending',
+    call.status === CALL_STATUS_ACTIVE ? "active" : "pending"
   );
 
-  let direction = context.call?.direction?.split('/')[1];
-  direction = direction?.toLowerCase() || '';
+  let direction = context.call?.direction?.split("/")[1];
+  direction = direction?.toLowerCase() || "";
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
   useEffect(() => {
     let timer: NodeJS.Timeout;
 
     if (audioRef.current) {
-      audioRef.current.src = '/sound/incoming.mp3';
+      audioRef.current.src = "/sound/incoming.mp3";
       audioRef.current.play();
     }
-    if (status === 'accepted') {
+    if (status === "accepted") {
       timer = setInterval(() => {
         setTimeSpent((prevTimeSpent) => prevTimeSpent + 1);
       }, 1000);
     }
-    if (status !== 'accepted') {
+    if (status !== "accepted") {
       setHaveIncomingCall(true);
     }
 
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
-        audioRef.current.src = '';
+        audioRef.current.src = "";
       }
       clearInterval(timer);
     };
@@ -113,13 +119,13 @@ const IncomingCall = (props: Props, context) => {
   const onAcceptCall = () => {
     if (audioRef.current) {
       audioRef.current.pause();
-      audioRef.current.src = '';
+      audioRef.current.src = "";
     }
     if (!hasMicrophone) {
-      return Alert.error('Check your microphone');
+      return Alert.error("Check your microphone");
     }
 
-    setStatus('accepted');
+    setStatus("accepted");
     const { answerCall, call } = context;
     setHaveIncomingCall(false);
     if (answerCall && call?.status !== CALL_STATUS_IDLE) {
@@ -130,7 +136,7 @@ const IncomingCall = (props: Props, context) => {
   const onDeclineCall = () => {
     if (audioRef.current) {
       audioRef.current.pause();
-      audioRef.current.src = '';
+      audioRef.current.src = "";
     }
 
     setHaveIncomingCall(false);
@@ -157,23 +163,29 @@ const IncomingCall = (props: Props, context) => {
     }
   };
 
+  const gotoDetail = () => {
+    navigate(`/inbox/index?_id=${currentCallConversationId}`, {
+      replace: true,
+    });
+  };
+
   const renderUserInfo = (type?: string) => {
-    const inCall = type === 'incall' ? true : false;
+    const inCall = type === "incall" ? true : false;
     const hasChannel = channels?.length > 0;
-    const channelName = channels?.[0]?.name || '';
-    const fullName = renderFullName(customer || '', false);
+    const channelName = channels?.[0]?.name || "";
+    const fullName = renderFullName(customer || "", false);
 
     return (
       <NameCardContainer>
-        <h5>{__('Call')}</h5>
+        <h5>{__("Call")}</h5>
         <Avatar user={customer} size={inCall ? 72 : 30} />
-        <h4>{fullName === 'Unknown' ? phoneNumber : fullName}</h4>
+        <h4>{fullName === "Unknown" ? phoneNumber : fullName}</h4>
         {primaryPhone && (
           <PhoneNumber>
             {primaryPhone}
             {hasChannel && (
               <span>
-                {__('is calling to')} {channelName}
+                {__("is calling to")} {channelName}
               </span>
             )}
             <h5>{caller.place}</h5>
@@ -196,13 +208,13 @@ const IncomingCall = (props: Props, context) => {
                   <IncomingActionButton onClick={onAcceptCall} type="accepted">
                     <Icon icon="phone-alt" size={20} />
                   </IncomingActionButton>
-                  <b>{__('Accept')}</b>
+                  <b>{__("Accept")}</b>
                 </div>
                 <div>
                   <IncomingActionButton onClick={onDeclineCall} type="decline">
                     <Icon icon="phone-slash" size={20} />
                   </IncomingActionButton>
-                  <b>{__('Decline')}</b>
+                  <b>{__("Decline")}</b>
                 </div>
               </IncomingButtonContainer>
             </IncomingContent>
@@ -212,18 +224,18 @@ const IncomingCall = (props: Props, context) => {
     );
   }
 
-  if (status === 'accepted' && !haveIncomingCall && !hideIncomingCall) {
+  if (status === "accepted" && !haveIncomingCall && !hideIncomingCall) {
     if (audioRef.current) {
       audioRef.current.pause();
-      audioRef.current.src = '';
+      audioRef.current.src = "";
     }
     return hasMicrophone ? (
       <IncomingCallNav>
         <IncomingContainer>
           <IncomingContent>
-            {renderUserInfo('incall')}
+            {renderUserInfo("incall")}
             <p>
-              {__('Call duration:')} <b>{getSpentTime(timeSpent)}</b>
+              {__("Call duration:")} <b>{getSpentTime(timeSpent)}</b>
             </p>
             {callActions(
               isMuted,
@@ -232,6 +244,11 @@ const IncomingCall = (props: Props, context) => {
               inboxId,
               Sip.call?.status === CALL_STATUS_ACTIVE ? false : true,
               direction,
+              gotoDetail,
+              currentCallConversationId &&
+                currentCallConversationId.length !== 0
+                ? false
+                : true
             )}
           </IncomingContent>
         </IncomingContainer>

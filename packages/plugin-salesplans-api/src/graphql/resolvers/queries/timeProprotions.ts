@@ -54,7 +54,7 @@ const timeProportionsQuery = {
     { models }: IContext
   ) => {
     const filter = await getGenerateFilter(params);
-    return await models.TimeProportions.find(filter).count();
+    return await models.TimeProportions.find(filter).countDocuments();
   }
 };
 

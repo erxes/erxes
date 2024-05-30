@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
-import useConfig from "@/modules/auth/hooks/useConfig"
-import { currentPaymentTypeAtom, kioskDialogOpenAtom } from "@/store"
+import { checkoutDialogOpenAtom, currentPaymentTypeAtom } from "@/store"
 import { useAtom, useSetAtom } from "jotai"
 
 import { BANK_CARD_TYPES } from "@/lib/constants"
@@ -21,8 +20,6 @@ const SelectPaymentType = () => {
     setCurrentAmount(notPaidAmount)
   }, [notPaidAmount, setCurrentAmount])
 
-  const { loading: loadingConfig } = useConfig("payment")
-
   return (
     <>
       <DialogContent className="bg-black text-white  sm:rounded-3xl">
@@ -30,25 +27,21 @@ const SelectPaymentType = () => {
           Төлбөрийн хэрэгсэлээ <br /> сонгоно уу!
         </h2>
 
-        {loadingConfig ? (
-          <Loader className="min-h-[15rem]" />
-        ) : (
-          <RadioGroup className="flex flex-col justify-center gap-4 pt-4 pb-8">
-            {!!paymentIds?.length && (
-              <PaymentType type="mobile">Цахимаар</PaymentType>
-            )}
-            {!!khan && (
-              <PaymentType type={BANK_CARD_TYPES.KHANBANK}>Kартаар</PaymentType>
-            )}
-            {!!tdb && <PaymentType type={tdb.type}>Kартаар</PaymentType>}
-            {!!capitron && (
-              <PaymentType type={capitron.type}>Kартаар</PaymentType>
-            )}
-            {!!golomt && (
-              <PaymentType type={BANK_CARD_TYPES.GOLOMT}>Kартаар</PaymentType>
-            )}
-          </RadioGroup>
-        )}
+        <RadioGroup className="flex flex-col justify-center gap-4 pt-4 pb-8">
+          {!!paymentIds?.length && (
+            <PaymentType type="mobile">Цахимаар</PaymentType>
+          )}
+          {!!khan && (
+            <PaymentType type={BANK_CARD_TYPES.KHANBANK}>Kартаар</PaymentType>
+          )}
+          {!!tdb && <PaymentType type={tdb.type}>Kартаар</PaymentType>}
+          {!!capitron && (
+            <PaymentType type={capitron.type}>Kартаар</PaymentType>
+          )}
+          {!!golomt && (
+            <PaymentType type={BANK_CARD_TYPES.GOLOMT}>Kартаар</PaymentType>
+          )}
+        </RadioGroup>
       </DialogContent>
     </>
   )
@@ -65,7 +58,7 @@ const PaymentType = ({
   const [currentPaymentType, handleSetType] = useAtom(currentPaymentTypeAtom)
   const [shouldPay, setShouldPay] = useState(false)
 
-  const setOpen = useSetAtom(kioskDialogOpenAtom)
+  const setOpen = useSetAtom(checkoutDialogOpenAtom)
 
   useEffect(() => {
     if (currentPaymentType && shouldPay) {

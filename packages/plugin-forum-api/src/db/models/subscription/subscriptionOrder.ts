@@ -1,4 +1,4 @@
-import { Document, Schema, Model, Connection, Types } from 'mongoose';
+import { Document, Schema, Model, Connection, Types, HydratedDocument } from 'mongoose';
 import { IModels } from '../index';
 import * as _ from 'lodash';
 import { TimeDurationUnit, TIME_DURATION_UNITS } from '../../../consts';
@@ -19,7 +19,7 @@ export const SUBSCRIPTION_ORDER_STATES = [
 export type SubscriptionOrderState = typeof SUBSCRIPTION_ORDER_STATES[number];
 
 export interface ISubscriptionOrder {
-  _id: any;
+  _id: Types.ObjectId;
 
   invoiceId?: string | null;
 
@@ -36,7 +36,7 @@ export interface ISubscriptionOrder {
   state: SubscriptionOrderState;
 }
 
-export type SubscriptionOrderDocument = ISubscriptionOrder & Document;
+export type SubscriptionOrderDocument = HydratedDocument<ISubscriptionOrder>;
 
 export interface ISubscriptionOrderModel
   extends Model<SubscriptionOrderDocument> {
@@ -74,7 +74,7 @@ export interface ISubscriptionOrderModel
 export const collectionName = 'forum_subscription_orders';
 export const contentType = `forum:${collectionName}`;
 
-export const subscriptionOrderSchema = new Schema<SubscriptionOrderDocument>({
+export const subscriptionOrderSchema = new Schema<ISubscriptionOrder>({
   invoiceId: {
     type: String,
     unique: true,
@@ -292,7 +292,7 @@ export const generateSubscriptionOrderModel = (
   subscriptionOrderSchema.loadClass(SubscriptionOrderModel);
 
   models.SubscriptionOrder = con.model<
-    SubscriptionOrderDocument,
+  ISubscriptionOrder,
     ISubscriptionOrderModel
   >(collectionName, subscriptionOrderSchema);
 };

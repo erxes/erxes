@@ -1,7 +1,7 @@
 import { sendCommonMessage } from '../../messageBroker';
 
 export const chartGetResult = async (
-    { serviceName, templateType, filter: stringifiedFilter },
+    { serviceName, templateType, chartType, filter: stringifiedFilter },
     subdomain: any,
 ) => {
     const filter = JSON.parse(stringifiedFilter)
@@ -13,6 +13,7 @@ export const chartGetResult = async (
         data: {
             filter,
             templateType,
+            chartType
         },
         isRPC: true,
     });

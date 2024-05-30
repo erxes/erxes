@@ -135,7 +135,7 @@ export const setupMessageConsumers = () => {
     async ({ subdomain, data: { selector } }) => {
       const models = await generateModels(subdomain);
 
-      const count = await models.Integrations.count(selector);
+      const count = await models.Integrations.countDocuments(selector);
 
       return { data: count, status: 'success' };
     },
@@ -180,7 +180,18 @@ export const setupMessageConsumers = () => {
     'inbox:conversationMessages.find',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
+      const { skip, limit } = data;
+      if (skip || limit) {
+        delete data.skip;
+        delete data.limit;
 
+        return {
+          status: 'success',
+          data: await models.ConversationMessages.find(data)
+            .skip(skip || 0)
+            .limit(limit || 20),
+        };
+      }
       return {
         status: 'success',
         data: await models.ConversationMessages.find(data).lean(),

@@ -796,7 +796,7 @@ function General({
             </p>
             <FormControl
               componentclass="select"
-              placeholder="select"
+              placeholder="Select"
               value={tokenPassMethod}
               onChange={(e: any) =>
                 handleFormChange("tokenPassMethod", e.currentTarget.value)
@@ -815,7 +815,7 @@ function General({
             </p>
             <FormControl
               componentclass="input"
-              placeholder="token expiration duration"
+              placeholder="Token expiration duration"
               type="number"
               min={1}
               max={5}
@@ -836,7 +836,7 @@ function General({
             </p>
             <FormControl
               componentclass="input"
-              placeholder="refresh token expiration duration"
+              placeholder="Refresh token expiration duration"
               type="number"
               min={7}
               max={30}

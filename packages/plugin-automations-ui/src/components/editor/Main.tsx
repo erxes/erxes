@@ -68,7 +68,7 @@ type State = {
   activeAction: IAction;
   selectedContentId?: string;
   automationNotes: IAutomationNote[];
-  awaitingActionId?: string;
+  awaitingNodeId?: string;
 };
 
 class Editor extends React.Component<Props, State> {
@@ -212,10 +212,10 @@ class Editor extends React.Component<Props, State> {
 
   toggleDrawer = ({
     type,
-    awaitingActionId,
+    awaitingNodeId,
   }: {
     type: string;
-    awaitingActionId?: string;
+    awaitingNodeId?: string;
   }) => {
     const { showDrawer, triggers, currentTab } = this.state;
 
@@ -226,7 +226,7 @@ class Editor extends React.Component<Props, State> {
     this.setState({
       showDrawer: !!type && currentTab !== type ? true : !showDrawer,
       currentTab: type,
-      awaitingActionId,
+      awaitingNodeId,
     });
   };
 
@@ -238,8 +238,16 @@ class Editor extends React.Component<Props, State> {
     this.setState({ triggers, actions });
   };
 
+  generatePostion = (position: any) => {
+    const { x, y } = position;
+
+    if (x && y) {
+      return { y, x: x + 350 };
+    }
+  };
+
   addAction = (data: IAction, actionId?: string, config?: any) => {
-    let { actions, awaitingActionId } = this.state;
+    let { actions, triggers, awaitingNodeId } = this.state;
 
     let action: any = { ...data, id: this.getNewId(actions.map((a) => a.id)) };
 
@@ -261,38 +269,50 @@ class Editor extends React.Component<Props, State> {
       actions.push(action);
     }
 
-    if (awaitingActionId) {
-      const [awaitActionId, optionalConnectId] = awaitingActionId.split("-");
+    if (awaitingNodeId) {
+      if (triggers.some(({ id }) => id === awaitingNodeId)) {
+        triggers = triggers.map((trigger) => {
+          if (trigger.id === awaitingNodeId) {
+            action.position = this.generatePostion(trigger.position || {});
+            return { ...trigger, actionId: action.id };
+          }
+          return trigger;
+        });
+      } else {
+        const [awaitActionId, optionalConnectId] = awaitingNodeId.split("-");
 
-      actions = actions.map((a) => {
-        if (a.id === awaitActionId && optionalConnectId) {
-          const { config } = a || {};
-          const { optionalConnects = [] } = config || {};
+        actions = actions.map((a) => {
+          if (a.id === awaitActionId) {
+            action.position = this.generatePostion(a.position || {});
 
-          return {
-            ...a,
-            config: {
-              ...config,
-              optionalConnects: [
-                ...optionalConnects,
-                { sourceId: a.id, actionId: action.id, optionalConnectId },
-              ],
-            },
-          };
-        }
+            if (optionalConnectId) {
+              const { config } = a || {};
+              const { optionalConnects = [] } = config || {};
 
-        if (a.id === awaitActionId) {
-          return { ...a, nextActionId: action.id };
-        }
+              return {
+                ...a,
+                config: {
+                  ...config,
+                  optionalConnects: [
+                    ...optionalConnects,
+                    { sourceId: a.id, actionId: action.id, optionalConnectId },
+                  ],
+                },
+              };
+            }
+            return { ...a, nextActionId: action.id };
+          }
 
-        return a;
-      });
+          return a;
+        });
+      }
     }
 
     this.setState({
       actions,
+      triggers,
       activeAction: action,
-      awaitingActionId: undefined,
+      awaitingNodeId: undefined,
     });
   };
 

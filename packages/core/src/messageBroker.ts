@@ -54,7 +54,7 @@ export const setupMessageConsumers = async (): Promise<void> => {
       const models = await generateModels(subdomain);
 
       if (type === 'uninstall' && message === 'done') {
-        await models.InstallationLogs.remove({ pluginName: name });
+        await models.InstallationLogs.deleteMany({ pluginName: name });
         return;
       }
 
@@ -64,7 +64,7 @@ export const setupMessageConsumers = async (): Promise<void> => {
       });
 
       if (message === 'done') {
-        await models.InstallationLogs.remove({
+        await models.InstallationLogs.deleteMany({
           pluginName: name,
           message: { $ne: 'done' },
         });
