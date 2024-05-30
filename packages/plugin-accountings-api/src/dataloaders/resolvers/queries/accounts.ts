@@ -186,7 +186,7 @@ const accountQueries = {
     )
   },
 
-  async accountsTotalCount(
+  async accountsCount(
     _root,
     params: IQueryParams,
     { commonQuerySelector, models, user }: IContext,
@@ -206,7 +206,7 @@ const accountQueries = {
   },
 };
 
-requireLogin(accountQueries, 'accountsTotalCount');
+requireLogin(accountQueries, 'accountsCount');
 checkPermission(accountQueries, 'accounts', 'showAccounts', []);
 
 export default accountQueries;

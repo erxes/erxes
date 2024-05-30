@@ -5,15 +5,14 @@ import React, { useEffect, useState } from "react";
 
 import { BarItems } from "@erxes/ui/src/layout/styles";
 import Button from "@erxes/ui/src/components/Button";
-import CategoryList from "../containers/productCategory/CategoryList";
+import CategoryList from "../containers/AccountCategoryList";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
-import Form from "@erxes/ui-products/src/containers/ProductForm";
+import Form from "../containers/AccountForm";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
-import AccountsMerge from "./detail/AccountsMerge";
-import Row from "./ProductRow";
+import Row from "./AccountRow";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import { TAG_TYPES } from "@erxes/ui-tags/src/constants";
 import Table from "@erxes/ui/src/components/table";
@@ -25,26 +24,24 @@ import { isEnabled } from "@erxes/ui/src/utils/core";
 
 interface IProps {
   queryParams: any;
-  products: IAccount[];
-  productsCount: number;
+  accounts: IAccount[];
+  accountsCount: number;
   isAllSelected: boolean;
   bulk: any[];
   emptyBulk: () => void;
-  remove: (doc: { productIds: string[] }, emptyBulk: () => void) => void;
+  remove: (accountIds: string[], emptyBulk: () => void) => void;
   toggleBulk: () => void;
   toggleAll: (targets: IAccount[], containerId: string) => void;
   loading: boolean;
   searchValue: string;
   currentCategory: IAccountCategory;
-  mergeAccounts: () => void;
-  mergeProductLoading;
 }
 
 const AccountList: React.FC<IProps> = (props) => {
   let timer;
 
   const {
-    products,
+    accounts,
     toggleBulk,
     bulk,
     toggleAll,
@@ -53,9 +50,7 @@ const AccountList: React.FC<IProps> = (props) => {
     loading,
     currentCategory,
     isAllSelected,
-    mergeProductLoading,
-    mergeAccounts,
-    productsCount,
+    accountsCount,
     queryParams,
   } = props;
 
@@ -72,33 +67,33 @@ const AccountList: React.FC<IProps> = (props) => {
   }, [checked, bulk]);
 
   const renderRow = () => {
-    return products.map((product) => (
+    return accounts.map((account) => (
       <Row
-        key={product._id}
-        product={product}
+        key={account._id}
+        account={account}
         toggleBulk={toggleBulk}
-        isChecked={(bulk || []).map((b) => b._id).includes(product._id)}
+        isChecked={(bulk || []).map((b) => b._id).includes(account._id)}
       />
     ));
   };
 
   const onChange = () => {
-    toggleAll(products, "products");
+    toggleAll(accounts, "accounts");
 
-    if (bulk.length === products.length) {
+    if (bulk.length === accounts.length) {
       router.removeParams(navigate, location, "ids");
       router.setParams(navigate, location, { page: 1 });
     }
   };
 
-  const removeAccounts = (products) => {
-    const productIds: string[] = [];
+  const removeAccounts = (accounts) => {
+    const accountIds: string[] = [];
 
-    products.forEach((product) => {
-      productIds.push(product._id);
+    accounts.forEach((account) => {
+      accountIds.push(account._id);
     });
 
-    remove({ productIds }, emptyBulk);
+    remove(accountIds, emptyBulk);
   };
 
   const search = (e) => {
@@ -128,7 +123,7 @@ const AccountList: React.FC<IProps> = (props) => {
       return <Spinner objective={true} />;
     }
 
-    if (currentCategory.accountCount === 0) {
+    if (!accountsCount) {
       return (
         <EmptyState
           image="/images/actions/8.svg"
@@ -167,7 +162,7 @@ const AccountList: React.FC<IProps> = (props) => {
 
   const breadcrumb = [
     { title: __("Settings"), link: "/settings" },
-    { title: __("Product & Service") },
+    { title: __("Accounts") },
   ];
 
   const onChangeChecked = (e) => {
@@ -200,40 +195,8 @@ const AccountList: React.FC<IProps> = (props) => {
 
   const modalContent = (props) => <Form {...props} />;
 
-  const productsMerge = (props) => {
-    return (
-      <AccountsMerge
-        {...props}
-        objects={bulk}
-        save={mergeAccounts}
-        mergeProductLoading={mergeProductLoading}
-      />
-    );
-  };
-
   const actionBarRight = () => {
     if (bulk.length > 0) {
-      const onClick = () =>
-        confirm()
-          .then(() => {
-            removeAccounts(bulk);
-          })
-          .catch((error) => {
-            Alert.error(error.message);
-          });
-
-      const mergeButton = (
-        <Button btnStyle="success" icon="merge">
-          Merge
-        </Button>
-      );
-
-      const tagButton = (
-        <Button btnStyle="success" icon="tag-alt">
-          Tag
-        </Button>
-      );
-
       return (
         <BarItems>
           <FormControl
@@ -249,27 +212,16 @@ const AccountList: React.FC<IProps> = (props) => {
             autoFocus={true}
             onFocus={moveCursorAtTheEnd}
           />
-          {bulk.length === 2 && (
-            <ModalTrigger
-              title="Merge Product"
-              size="lg"
-              dialogClassName="modal-1000w"
-              trigger={mergeButton}
-              content={productsMerge}
-            />
-          )}
-          <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
+          <Button
+            btnStyle="danger"
+            icon="cancel-1"
+            onClick={removeAccounts.bind(this, bulk)}
+          >
             Remove
           </Button>
         </BarItems>
       );
     }
-
-    const actionBarLeft = (
-      <Title>{`${
-        currentCategory.name || "All products"
-      } (${productsCount})`}</Title>
-    );
 
     return (
       <BarItems>
@@ -281,18 +233,10 @@ const AccountList: React.FC<IProps> = (props) => {
           autoFocus={true}
           onFocus={moveCursorAtTheEnd}
         />
-        {isEnabled("segments") && (
-          <TemporarySegment btnSize="medium" contentType={`products:product`} />
-        )}
-        <Link to="/settings/importHistories?type=product">
-          <Button btnStyle="simple" icon="arrow-from-right">
-            {__("Import items")}
-          </Button>
-        </Link>
         <ModalTrigger
-          title="Add Product/Services"
+          title="Add Account"
           trigger={trigger}
-          autoOpenKey="showProductModal"
+          autoOpenKey="showAccountModal"
           content={modalContent}
           size="lg"
         />
@@ -301,16 +245,15 @@ const AccountList: React.FC<IProps> = (props) => {
   };
 
   const actionBarLeft = (
-    <Title>{`${
-      currentCategory.name || "All products"
-    } (${productsCount})`}</Title>
+    <Title>{`${currentCategory?.name || "All accounts"
+      } (${accountsCount})`}</Title>
   );
 
   return (
     <Wrapper
       header={
         <Wrapper.Header
-          title={__("Product & Service")}
+          title={__("Accounts")}
           queryParams={queryParams}
           breadcrumb={breadcrumb}
         />
@@ -318,11 +261,11 @@ const AccountList: React.FC<IProps> = (props) => {
       mainHead={
         <HeaderDescription
           icon="/images/actions/30.svg"
-          title={"Product & Service"}
+          title={"Accounts"}
           description={`${__(
-            "All information and know-how related to your business products and services are found here"
+            "All information and know-how related to your business accounts and services are found here"
           )}.${__(
-            "Create and add in unlimited products and servicess so that you and your team members can edit and share"
+            "Create and add in unlimited accounts and servicess so that you and your team members can edit and share"
           )}`}
         />
       }
@@ -330,7 +273,7 @@ const AccountList: React.FC<IProps> = (props) => {
         <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight()} />
       }
       leftSidebar={<CategoryList queryParams={queryParams} />}
-      footer={<Pagination count={productsCount} />}
+      footer={<Pagination count={accountsCount} />}
       content={renderContent()}
       transparent={true}
       hasBorder={true}

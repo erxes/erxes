@@ -82,7 +82,7 @@ const AccountCategoryFormContainer = (props: Props) => {
 const getRefetchQueries = () => {
   return [
     "accounts",
-    "accountsTotalCount",
+    "accountsCount",
     "accountCategories",
   ];
 };

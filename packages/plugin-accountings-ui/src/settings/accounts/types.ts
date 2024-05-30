@@ -11,6 +11,7 @@ export interface IAccountCategory {
   mergeIds?: string[];
   maskType?: string;
   mask?: any;
+  accountsCount?: number;
 }
 
 export interface IAccount {

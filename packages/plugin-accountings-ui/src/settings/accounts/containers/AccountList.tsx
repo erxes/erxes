@@ -19,7 +19,6 @@ type Props = {
 };
 
 const AccountListContainer = (props: Props) => {
-  const navigate = useNavigate();
 
   const {
     queryParams,
@@ -40,7 +39,7 @@ const AccountListContainer = (props: Props) => {
   );
 
   const accountsCountQuery = useQuery<AccountsCountQueryResponse>(
-    gql(queries.accountsTotalCount),
+    gql(queries.accountsCount),
     {
       variables: variables
     }
@@ -55,22 +54,30 @@ const AccountListContainer = (props: Props) => {
     }
   )
 
-  const [accountsRemove] = useMutation<RemoveAccountMutationResponse>(
+  const refetchQueries = [
+    "Accounts",
+    "AccountCategories",
+    "AccountCategoriesCount",
+    "AccountsCount",
+  ];
+
+  const [removeAccountMutation] = useMutation<RemoveAccountMutationResponse>(
     gql(mutations.accountsRemove),
+    {
+      refetchQueries
+    }
   );
-  const remove = (posId: string, emptyBulk) => {
+  const remove = (accountIds: string[], emptyBulk) => {
     const message = 'Are you sure?';
 
     confirm(message).then(() => {
-      accountsRemove({
-        variables: { _id: posId },
+      removeAccountMutation({
+        variables: { accountIds },
       })
         .then((removeStatus) => {
           // refresh queries
-          refetch();
 
           emptyBulk();
-          console.log(removeStatus, 'kkkkkkkkkkkkkkkkk')
           const status = removeStatus.data?.removeAccountMutation || '';
 
           // status === "deleted"
@@ -82,9 +89,10 @@ const AccountListContainer = (props: Props) => {
         });
     });
   };
-  // const AccountsMerge = 
 
   const accounts = accountsQuery.data?.accounts || [];
+  const accountsCount = accountsCountQuery.data?.accountsCount || 0;
+  const currentCategory = accountCategoryDetailQuery?.data?.accountCategoryDetail;
 
   const searchValue = props.queryParams.searchValue || "";
 
@@ -95,34 +103,15 @@ const AccountListContainer = (props: Props) => {
     remove,
     loading: accountsQuery.loading || accountsCountQuery.loading,
     searchValue,
-    accountsCount: accountsCountQuery.data?.accountsCount || 0,
-    currentCategory: accountCategoryDetailQuery?.data?.accountCategoryDetail,
-    // mergeAccounts,
+    accountsCount,
+    currentCategory,
   };
 
   const AccountList = (props) => {
     return <List {...updatedProps} {...props} />;
   };
 
-  const refetch = () => {
-    accountsQuery.refetch();
-  };
-
-  return <Bulk content={AccountList} refetch={refetch} />;
+  return <Bulk content={AccountList} />;
 };
-
-const getRefetchQueries = () => {
-  return [
-    "Accounts",
-    "AccountCategories",
-    "AccountCategoriesCount",
-    "AccountsTotalCount",
-    "AccountCountByTags",
-  ];
-};
-
-const options = () => ({
-  refetchQueries: getRefetchQueries(),
-});
 
 export default AccountListContainer;

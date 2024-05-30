@@ -47,8 +47,8 @@ const accountsEdit = `
 `;
 
 const accountsRemove = `
-  mutation accountsRemove($_id: String!) {
-    accountsRemove(_id: $_ids)
+  mutation accountsRemove($accountIds: [String!]) {
+    accountsRemove(accountIds: $accountIds)
   }
 `;
 

@@ -86,7 +86,7 @@ export const queries = `
     sortField: String
     sortDirection: Int    
   ): [Account]
-  accountsTotalCount(${accountsQueryParams}): Int
+  accountsCount(${accountsQueryParams}): Int
   accountDetail(_id: String): Account
 `;
 

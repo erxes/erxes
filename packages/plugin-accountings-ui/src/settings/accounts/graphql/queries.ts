@@ -85,9 +85,9 @@ const accountDetail = `
   }
 `;
 
-const accountsTotalCount = `
-  query accountsTotalCount(${accountsFilterParamDefs}, ${commonParamDefs}) {
-    accountsTotalCount(${accountsFilterParams}, ${commonParams})
+const accountsCount = `
+  query accountsCount(${accountsFilterParamDefs}) {
+    accountsCount(${accountsFilterParams})
   }
 `;
 
@@ -151,7 +151,7 @@ const accountCategoriesTotalCount = `
 export default {
   accounts,
   accountDetail,
-  accountsTotalCount,
+  accountsCount,
   accountCategories,
   accountCategoryDetail,
   accountCategoriesTotalCount

@@ -82,7 +82,7 @@ const getRefetchQueries = () => {
   return [
     "accountDetail",
     "accounts",
-    "accountsTotalCount",
+    "accountsCount",
     "accountCategories",
   ];
 };

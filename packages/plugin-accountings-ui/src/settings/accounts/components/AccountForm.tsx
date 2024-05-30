@@ -138,6 +138,19 @@ function AccountForm(props: IProps): React.ReactNode {
     setState((prevState) => ({ ...prevState, categoryId, category }));
   }
 
+  const renderCommonInput = (formProps, object, key, title) => {
+    return (<FormGroup>
+      <ControlLabel required={true}>{title}</ControlLabel>
+      <FormControl
+        {...formProps}
+        name={key}
+        defaultValue={object[key]}
+        autoFocus={true}
+        required={true}
+      />
+    </FormGroup>)
+  }
+
   const renderContent = (formProps: IFormProps) => {
     const { renderButton, closeModal, account } =
       props;
@@ -214,6 +227,7 @@ function AccountForm(props: IProps): React.ReactNode {
                 required={true}
               />
             </FormGroup>
+            {renderCommonInput()}
 
           </FormColumn>
           <FormColumn>
