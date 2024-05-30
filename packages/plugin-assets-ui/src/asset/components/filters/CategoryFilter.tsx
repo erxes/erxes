@@ -27,7 +27,6 @@ type Props = {
 const CategoryFilter = (props: Props) => {
   const {
     assetCategories,
-    totalCount,
     loading,
     remove,
     refetchAssetCategories,
