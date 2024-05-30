@@ -43,15 +43,13 @@ export const ContainerBox = styledTS<ContainerBoxType>(styled.div)`
     justify-content: ${({ $justifyCenter }) =>
       $justifyCenter ? 'center  ' : ''};
     margin:${({ marginX, marginY }) =>
-      `${marginX ? `${marginX}px` : '0px'} ${
-        marginY ? `${marginY}px` : '0px'
-      }`};
+      (marginX ? `${marginX}px ` : '0px ') + (marginY ? `${marginY}px` : '0px')};    
     border-right:${({ rightBorder }) =>
       rightBorder ? '1px solid ${colors.borderPrimary}' : ''};
 `;
 
 export const InfoDetail = styled.p`
-  margin: 0;
+  margin: 0;  
   display: block;
   font-size: 12px;
   font-weight: normal;
