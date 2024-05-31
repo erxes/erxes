@@ -226,7 +226,7 @@ const automationQueries = {
       const service = await getService(serviceName);
       const meta = service.config?.meta || {};
 
-      if (meta && meta.automations && meta.automations.constants) {
+      if (meta?.automations?.constants) {
         const pluginConstants = meta.automations.constants || {};
         const { triggers = [], actions = [] } = pluginConstants;
 
