@@ -161,7 +161,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
     console.log('5');
 
     if (fileNameWithoutExtension) {
-      console.log('6', fileNameWithoutExtension);
+      console.log('6');
 
       const records = (await sendToGrandStreamRequest(
         models,
@@ -331,7 +331,7 @@ export const sendToGrandStreamRequest = async (
 
   let cookie = await getOrSetCallCookie(wsServer);
   cookie = cookie?.toString();
-  console.log(cookie, 'cookie', wsServer);
+
   try {
     const requestOptions: RequestInit & Required<{ headers: HeadersInit }> = {
       method,
