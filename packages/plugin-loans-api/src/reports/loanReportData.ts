@@ -31,10 +31,10 @@ const DIMENSION_OPTIONS = [
   { label: 'Priority', value: 'priority' }
 ];
 
-const loanExpirationReportData = {
-  templateType: 'loanExpirationReportData',
+const loanReportData = {
+  templateType: 'loanReportData',
   serviceType: 'loans',
-  name: 'Loan Expired Data',
+  name: 'Loan Data',
   chartTypes: ['table'],
   getChartResult: async () => {
     const data = [0, 1, 5, 6, 5];
@@ -82,4 +82,4 @@ const loanExpirationReportData = {
   ]
 };
 
-export default loanExpirationReportData;
+export default loanReportData;
