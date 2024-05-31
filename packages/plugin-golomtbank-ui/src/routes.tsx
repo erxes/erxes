@@ -4,7 +4,7 @@ import queryString from "query-string";
 import { Route, Routes, useLocation } from 'react-router-dom';
 
 const GolomtbankConfig = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings CreateGolomtbank" */ './config/containers/config')
+  import(/* webpackChunkName: "Settings CreateGolomtbank" */ './configs/containers/List')
 );
 const GolomtbankAccounts = asyncComponent(() =>
   import(/* webpackChunkName: "Settings CreateGolomtbank" */ './components/CorporateGateway')
@@ -25,8 +25,8 @@ const routes = () => {
     
     <Routes>
        <Route
-        key="/erxes-plugin-golomtbank/config"
-        path="/erxes-plugin-golomtbank/config"
+        key="/erxes-plugin-golomtbank/configs"
+        path="/erxes-plugin-golomtbank/configs"
         Component={golomtbankConfig}
       />
        <Route

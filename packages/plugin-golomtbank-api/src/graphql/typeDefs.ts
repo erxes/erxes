@@ -1,38 +1,48 @@
 import gql from 'graphql-tag';
 
-const types = `
-  type Golomtbank {
-    requestId: String,
-    accountId: String,
-    accountName: String,
-    shortName: String
-    currency: String
-    branchId: String
-  }
-`;
+import {
+  mutations as configMutations,
+  queries as configQueries,
+  types as configTypes
+} from './schema/configs';
 
-const queries = `
+// import {
+//   queries as accountQueries,
+//   types as accountTypes
+// } from './schema/accounts';
 
-  golomtBankAccounts: JSON
-`;
 
-const mutations = `
-  golomtbankAccountRemove(_id: String!): String
-`;
 
-const typeDefs = gql`
-  scalar JSON
-  scalar Date
+const typeDefs = async () => {
+  return gql`
+    scalar JSON
+    scalar Date
 
-  ${types}
+    enum CacheControlScope {
+      PUBLIC
+      PRIVATE
+    }
+    
+    directive @cacheControl(
+      maxAge: Int
+      scope: CacheControlScope
+      inheritMaxAge: Boolean
+    ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
 
-  extend type Query {
-    ${queries}
-  }
+    extend type User @key(fields: "_id") {
+      _id: String! @external
+    }
+    
+    ${configTypes}
 
-  extend type Mutation {
-    ${mutations}
-  }
-`;
+    extend type Query {
+      ${configQueries}
+    }
+    
+    extend type Mutation {
+      ${configMutations}
+    }
+  `;
+};
 
 export default typeDefs;
