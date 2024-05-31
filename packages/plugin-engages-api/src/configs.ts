@@ -11,6 +11,7 @@ import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
 import app from '@erxes/api-utils/src/app';
+import { SocketLabs } from './api/socketLabs';
 
 export default {
   name: 'engages',
@@ -38,6 +39,20 @@ export default {
   onServerInit: async () => {
     // Insert routes below
     app.use('/telnyx', telnyx);
+
+    app.get('/login', async (req,res) => {
+      const api = new SocketLabs({
+        apiToken: "apiKey",
+        serverId:"33",
+        username:"mendorshikh",
+      });
+  
+       const r = await api.login();
+
+       console.log("rrrrrr ",r);
+
+       res.send('ok');
+    })
   },
   setupMessageConsumers,
 };

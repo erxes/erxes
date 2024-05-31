@@ -1,6 +1,9 @@
 import type { RequestInit, HeadersInit } from 'node-fetch';
-import { hostname } from 'os';
+import nodeFetch from 'node-fetch';
+import fetchCookie from 'fetch-cookie';
+import * as FormData from 'form-data';
 
+const fetch = fetchCookie(nodeFetch);
 export class SocketLabs {
   private apiToken: string;
   private serverId: string;
@@ -57,12 +60,43 @@ export class SocketLabs {
     }
   }
 
-  async validate(email: string, verificationCode: string) {
-    const domain = email.split('@')[1];
+  async login() {
+    const url = 'https://cp.socketlabs.com/GetTwoStepConfigs';
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+
+    const formData = new FormData();
+
+    formData.append('username', this.username);
+    formData.append('pswd', process.env.password);
 
     try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: formData,
+      });
+
+      //
+
+     
+      const setCookieHeader = res.headers.raw()['set-cookie'];
+      console.log("setCookieHeader ",setCookieHeader)
+    const tokenRes = await fetch('https://cp.socketlabs.com/api/servers/33895/token');
+
+    console.log('tokenRes', tokenRes);
+      
+      
+    } catch (e) {
+      console.log('errrrroooor', e);
+    }
+  }
+
+  async validate(domain: string, verificationCode: string) {
+    try {
       const response: any = await this.request({
-        path: `sending-domains/${domain}/verify`,
+        path: `sending-domains/${domain}/verify/`,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: {
@@ -75,6 +109,7 @@ export class SocketLabs {
       const { data, error } = response;
 
       if (error && error[0]) {
+        console.log(error);
         throw new Error(error[0].message);
       }
 
@@ -138,31 +173,7 @@ export class SocketLabs {
         return this.registerEmail(email);
       }
 
-      const verificationStatus = {
-        isEmailVerified: false,
-        isDomainVerified: false,
-        isBounceDomainVerified: false,
-        isTrackingDomainVerified: false,
-      };
-      console.log('data ', data);
-
-      if (data?.verificationStatus === 'Complete') {
-        verificationStatus.isEmailVerified = true;
-      }
-
-      if (data?.authenticationStatus !== 'Unauthenticated') {
-        verificationStatus.isDomainVerified = true;
-      }
-
-      if (data?.bounceDomain) {
-        verificationStatus.isBounceDomainVerified = true;
-      }
-
-      if (data?.trackingDomain) {
-        verificationStatus.isTrackingDomainVerified = true;
-      }
-
-      return verificationStatus;
+      return data;
     } catch (e) {
       throw new Error(e.message);
     }
@@ -219,6 +230,10 @@ export class SocketLabs {
 
       if (data?.trackingDomain) {
         verificationStatus.isTrackingDomainVerified = true;
+      }
+
+      if (data?.verificationStatus !== 'Complete') {
+        this.sendVerificationRequest(email);
       }
 
       return verificationStatus;
@@ -278,9 +293,7 @@ export class SocketLabs {
     return data;
   }
 
-  async verifyBounceDomain(email) {
-    const domain = email.split('@')[1];
-
+  async verifyBounceDomain(domain) {
     const response: any = await this.request({
       path: 'bounce',
       method: 'POST',
@@ -292,18 +305,16 @@ export class SocketLabs {
       headers: { 'Content-Type': 'application/json' },
     }).then((r) => r.json());
 
-    const { data, error } = await response.json();
+    const { error } = response;
 
     if (error && error.length > 0) {
-      throw new Error(error.message);
+      return false;
     }
 
-    return data;
+    return true;
   }
 
-  async verifyTrackingDomain(email) {
-    const domain = email.split('@')[1];
-
+  async verifyTrackingDomain(domain) {
     const response: any = await this.request({
       path: 'tracking',
       method: 'POST',
@@ -322,12 +333,32 @@ export class SocketLabs {
       headers: { 'Content-Type': 'application/json' },
     }).then((r) => r.json());
 
-    const { data, error } = await response.json();
+    const { error } = response;
 
     if (error && error.length > 0) {
-      throw new Error(error.message);
+      return false;
     }
 
-    return data;
+    return true;
+  }
+
+  async verifyCname(domain) {
+    const response: any = await this.request({
+      path: 'dkim/cname',
+      method: 'POST',
+      body: {
+        domain,
+      },
+
+      headers: { 'Content-Type': 'application/json' },
+    }).then((r) => r.json());
+
+    const { error, data } = response;
+
+    if (error && error.length > 0) {
+      return false;
+    }
+
+    return data.validationResult === 'Success';
   }
 }
