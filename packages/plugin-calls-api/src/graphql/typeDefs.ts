@@ -93,6 +93,7 @@ const commonHistoryFields = `
   callStatus: String
   sessionId: String
   inboxIntegrationId: String
+  transferedCallStatus: String
 `;
 
 const mutationFilterParams = `

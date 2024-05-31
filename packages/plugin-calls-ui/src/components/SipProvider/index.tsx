@@ -64,6 +64,7 @@ export default class SipProvider extends React.Component<
       callStatus: string,
       direction: string,
       customerPhone: string,
+      diversionHeader?: string,
     ) => void;
     addHistory: (
       callStatus: string,
@@ -569,6 +570,7 @@ export default class SipProvider extends React.Component<
               foundUri.substring(0, delimiterPosition) || foundUri,
           });
         }
+        const diversionHeader = rtcRequest.getHeader('Diversion');
 
         const { rtcSession: rtcSessionInState } = this.state;
 
@@ -613,6 +615,7 @@ export default class SipProvider extends React.Component<
               'cancelled',
               direction,
               customerPhone,
+              diversionHeader || '',
             );
           }
           this.setState({
@@ -656,6 +659,7 @@ export default class SipProvider extends React.Component<
               'connected',
               direction,
               customerPhone,
+              diversionHeader || '',
             );
           }
           this.setState({
