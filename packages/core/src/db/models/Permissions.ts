@@ -194,7 +194,7 @@ export const loadUserGroupClass = (models: IModels) => {
      * @return {Promise}
      */
     public static async removeGroup(_id: string) {
-      const groupObj = await models.UsersGroups.findOne({ _id });
+      const groupObj = await models.UsersGroups.findOneAndDelete({ _id });
 
       if (!groupObj) {
         throw new Error(`Group not found with id ${_id}`);
@@ -207,7 +207,7 @@ export const loadUserGroupClass = (models: IModels) => {
 
       await models.Permissions.deleteMany({ groupId: groupObj._id });
 
-      return groupObj.remove();
+      return groupObj;
     }
 
     public static async copyGroup(sourceGroupId: string, memberIds?: string[]) {

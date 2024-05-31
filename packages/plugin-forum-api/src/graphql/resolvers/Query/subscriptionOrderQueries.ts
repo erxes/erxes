@@ -4,7 +4,7 @@ import { IObjectTypeResolver } from '@graphql-tools/utils';
 //forumCpMySubscriptionOrders: [ForumSubscriptionOrder!]
 
 const subscriptionOrderQueries: IObjectTypeResolver<any, IContext> = {
-  forumCpMySubscriptionOrders(
+  async forumCpMySubscriptionOrders(
     _,
     __,
     { models: { SubscriptionOrder }, cpUser }

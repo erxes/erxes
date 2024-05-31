@@ -18,6 +18,7 @@ import {
   loadIntegrationClass,
 } from './models/Integrations';
 import {
+  IConversation,
   IConversationDocument,
   IConversationModel,
   loadConversationClass,
@@ -62,7 +63,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'zalo_integrations',
     loadIntegrationClass(models),
   );
-  models.Conversations = db.model<IConversationDocument, IConversationModel>(
+  models.Conversations = db.model<IConversation, IConversationModel>(
     'zalo_conversations',
     loadConversationClass(models),
   );

@@ -61,7 +61,7 @@ export const loadPerformClass = (models: IModels) => {
         if (e.message.includes(`E11000 duplicate key error dup key`)) {
           return await this.createPerform(
             doc,
-            await models.Performs.find({ series }).count()
+            await models.Performs.find({ series }).countDocuments()
           );
         } else {
           throw new Error(e.message);
@@ -100,7 +100,7 @@ export const loadPerformClass = (models: IModels) => {
             _id,
             doc,
             oldPerform,
-            await models.Performs.find({ series }).count()
+            await models.Performs.find({ series }).countDocuments()
           );
         } else {
           throw new Error(e.message);

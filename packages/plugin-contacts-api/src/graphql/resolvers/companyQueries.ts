@@ -93,7 +93,7 @@ const companyQueries = {
   /**
    * Get one company
    */
-  companyDetail(
+  async companyDetail(
     _root,
     { _id }: { _id: string },
     { models: { Companies } }: IContext
