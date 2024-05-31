@@ -8,7 +8,8 @@ import {
   DISTRICTS,
   BILL_TYPES,
   ORDER_TYPES,
-  ORDER_ITEM_STATUSES
+  ORDER_ITEM_STATUSES,
+  PRODUCT_TYPES
 } from '../../models/definitions/constants';
 import {
   IConfigDocument,
@@ -25,6 +26,7 @@ import { checkRemainders } from './products';
 import { getPureDate } from '@erxes/api-utils/src';
 import { checkDirectDiscount } from './directDiscount';
 import { IPosUserDocument } from '../../models/definitions/posUsers';
+import { sendProductsMessage } from '../../messageBroker';
 
 interface IDetailItem {
   count: number;
@@ -541,6 +543,14 @@ export const prepareOrderDoc = async (
 ) => {
   const { catProdMappings = [] } = config;
 
+  const subscriptionUoms = await sendProductsMessage({
+    subdomain,
+    action: 'uoms.find',
+    data: { isForSubscription:true },
+    isRPC: true,
+    defaultValue: [],
+  });
+
   const items = doc.items.filter(i => !i.isPackage) || [];
 
   const products: IProductDocument[] = await models.Products.find({
@@ -566,6 +576,26 @@ export const prepareOrderDoc = async (
 
     item.unitPrice = isNaN(fixedUnitPrice) ? 0 : fixedUnitPrice;
     doc.totalAmount += (item.count || 0) * fixedUnitPrice;
+
+    if (
+      productsOfId[item.productId]?.type === PRODUCT_TYPES.SUBSCRIPTION && 
+      subscriptionUoms.some(uom=>uom.code === productsOfId[item.productId]?.uom
+      )) {
+      const { subscriptionConfig={} } =
+        subscriptionUoms.find(
+          ({ code }) => code === productsOfId[item.productId]?.uom,
+        ) || {};
+
+        const period = (subscriptionConfig?.period ||'').replace('ly','')
+
+
+        item.closeDate = new Date(
+          moment()
+            .add(item.count || 0, period)
+            .toISOString(),
+        );
+    }
+
   }
 
   const hasTakeItems = items.filter(i => i.isTake);

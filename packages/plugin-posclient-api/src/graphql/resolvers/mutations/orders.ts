@@ -257,6 +257,7 @@ export const ordersAdd = async (
         manufacturedDate: item.manufacturedDate,
         description: item.description,
         attachment: item.attachment,
+        closeDate:item?.closeDate
       });
     }
 

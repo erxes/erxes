@@ -1,7 +1,8 @@
 export const PRODUCT_TYPES = {
   PRODUCT: 'product',
   SERVICE: 'service',
-  ALL: ['product', 'service'],
+  SUBSCRIPTION:"subscription",
+  ALL: ['product', 'service','subscription'],
 };
 
 export const PRODUCT_STATUSES = {

@@ -24,6 +24,7 @@ export interface IOrderItem {
   manufacturedDate?: string;
   description?: string;
   attachment?: IAttachment;
+  closeDate?:Date;
 }
 
 export interface IOrderItemDocument extends Document, IOrderItem {
@@ -40,49 +41,54 @@ export const orderItemSchema = schemaHooksWrapper(
     count: getNumberFieldDefinition({ label: 'Count', positive: true }),
     unitPrice: getNumberFieldDefinition({
       label: 'Unit price',
-      positive: true
+      positive: true,
     }),
     discountAmount: getNumberFieldDefinition({
       label: 'Discount price amount',
-      optional: true
+      optional: true,
     }),
     discountPercent: getNumberFieldDefinition({
       label: 'Discount percent',
       discount: true,
       optional: true,
-      default: 0
+      default: 0,
     }),
     bonusCount: getNumberFieldDefinition({
       label: 'Bonus count',
       positive: true,
-      optional: true
+      optional: true,
     }),
     bonusVoucherId: field({ type: String, label: 'Bonus Voucher' }),
     orderId: field({ type: String, label: 'Order id', index: true }),
     isPackage: field({
       type: Boolean,
       default: false,
-      label: 'Is Package'
+      label: 'Is Package',
     }),
     isTake: field({
       type: Boolean,
       label: 'order eat but some take',
-      default: false
+      default: false,
     }),
     status: field({
       type: String,
       label: 'status of order item',
       enum: ORDER_ITEM_STATUSES.ALL,
-      default: ORDER_ITEM_STATUSES.NEW
+      default: ORDER_ITEM_STATUSES.NEW,
     }),
     isInner: field({
       type: Boolean,
       label: 'inner or skip ebarimt',
-      default: false
+      default: false,
     }),
     manufacturedDate: field({ type: String, label: 'manufactured' }),
     description: field({ type: String, label: 'Description' }),
-    attachment: field({ type: Object, label: 'Attachment' })
+    attachment: field({ type: Object, label: 'Attachment' }),
+    closeDate: field({
+      type: Date,
+      label: 'Subscription Close Date',
+      optional: true,
+    }),
   }),
-  'erxes_orderItem'
+  'erxes_orderItem',
 );
