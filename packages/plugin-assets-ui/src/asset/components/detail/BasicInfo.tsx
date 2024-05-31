@@ -81,31 +81,6 @@ function BasicInfo({ asset, remove, assignKbArticles }: Props) {
       </li>
     );
   };
-  const renderKbDetail = () => {
-    const content = (props) => (
-      <AssignArticles
-        {...props}
-        knowledgeData={asset?.knowledgeData}
-        assignedArticleIds={asset.kbArticleIds}
-        objects={[asset]}
-        save={assignKbArticles}
-      />
-    );
-
-    return (
-      <ModalTrigger
-        title="Edit Assigned Knowledgebase Articles"
-        dialogClassName="modal-1000w"
-        content={content}
-        size="xl"
-        trigger={
-          <li>
-            <a href="#assign">{__("Assign")}</a>
-          </li>
-        }
-      />
-    );
-  };
 
   const renderAction = () => {
     const onDelete = () =>
@@ -115,24 +90,48 @@ function BasicInfo({ asset, remove, assignKbArticles }: Props) {
           Alert.error(error.message);
         });
 
+    const editForm = (props) => <AssetForm {...props} asset={asset || {}} />;
+    const kbForm = (props) => (
+      <AssignArticles
+        {...props}
+        knowledgeData={asset?.knowledgeData}
+        assignedArticleIds={asset.kbArticleIds}
+        objects={[asset]}
+        save={assignKbArticles}
+      />
+    );
+
+    const menuItems = [
+      {
+        title: "Edit basic info",
+        trigger: <a href="#edit">{__("Edit")}</a>,
+        content: editForm,
+        additionalModalProps: { size: "lg" },
+      },
+      isEnabled("knowledgebase") && {
+        title: "Edit Assigned Knowledgebase Articles",
+        trigger: <a href="#assign">{__("Assign")}</a>,
+        content: kbForm,
+        additionalModalProps: { className: "modal-1000w", size: "xl" },
+      },
+    ];
+
     return (
       <Actions>
         <Dropdown
-          unmount={false}
           toggleComponent={
             <Button btnStyle="simple" size="medium">
               {__("Action")}
               <Icon icon="angle-down" />
             </Button>
           }
+          modalMenuItems={menuItems}
         >
           <li>
             <a href="#delete" onClick={onDelete}>
               {__("Delete")}
             </a>
           </li>
-          {renderEditForm()}
-          {isEnabled("knowledgebase") && renderKbDetail()}
         </Dropdown>
       </Actions>
     );
@@ -144,23 +143,6 @@ function BasicInfo({ asset, remove, assignKbArticles }: Props) {
     }
 
     return <Attachment attachment={item} />;
-  };
-
-  const renderEditForm = () => {
-    const content = (props) => <AssetForm {...props} asset={asset || {}} />;
-
-    return (
-      <ModalTrigger
-        title="Edit basic info"
-        trigger={
-          <li>
-            <a href="#edit">{__("Edit")}</a>
-          </li>
-        }
-        size="lg"
-        content={content}
-      />
-    );
   };
 
   const changeAssetDetail = () => {

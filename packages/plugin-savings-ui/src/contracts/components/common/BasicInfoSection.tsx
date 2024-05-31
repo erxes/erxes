@@ -81,6 +81,27 @@ const BasicInfoSection = (props: Props) => {
       <ContractForm change {...props} contract={contract} />
     );
 
+    const menuItems = [
+      can("contractsClose", currentUser) && {
+        title: "To Close Contract",
+        trigger: <a href="#toClose">{__("To Close Contract")}</a>,
+        content: closeForm,
+        additionalModalProps: { size: "lg" },
+      },
+      {
+        title: "Interest correction",
+        trigger: <a href="#toClose">{__("Interest correction")}</a>,
+        content: interestChangeForm,
+        additionalModalProps: { size: "lg" },
+      },
+      {
+        title: "Change Contract",
+        trigger: <a href="#toClose">{__("Change Contract")}</a>,
+        content: contractForm,
+        additionalModalProps: { size: "lg" },
+      },
+    ];
+
     return (
       <Action>
         <Dropdown
@@ -92,7 +113,7 @@ const BasicInfoSection = (props: Props) => {
               <Icon icon="angle-down" />
             </Button>
           }
-          unmount={false}
+          modalMenuItems={menuItems}
         >
           {documents?.map((mur) => {
             return (
@@ -103,16 +124,6 @@ const BasicInfoSection = (props: Props) => {
               </li>
             );
           })}
-          {can("contractsClose", currentUser) && (
-            <li>
-              <ModalTrigger
-                title={__("To Close Contract")}
-                trigger={<a href="#toClose">{__("To Close Contract")}</a>}
-                size="lg"
-                content={closeForm}
-              />
-            </li>
-          )}
           {can("contractsRemove", currentUser) && (
             <li>
               <a href="#delete" onClick={onDelete}>
@@ -120,22 +131,6 @@ const BasicInfoSection = (props: Props) => {
               </a>
             </li>
           )}
-          <li>
-            <ModalTrigger
-              title={__("Interest correction")}
-              trigger={<a href="#toClose">{__("Interest correction")}</a>}
-              size="lg"
-              content={interestChangeForm}
-            />
-          </li>
-          <li>
-            <ModalTrigger
-              title={__("Change Contract")}
-              trigger={<a href="#toClose">{__("Change Contract")}</a>}
-              size="lg"
-              content={contractForm}
-            />
-          </li>
         </Dropdown>
       </Action>
     );
