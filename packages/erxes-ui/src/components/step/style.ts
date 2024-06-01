@@ -1,9 +1,9 @@
-import { colors, dimensions } from "../../styles";
-import { BoxRoot } from "../../styles/main";
-import { ContentHeader } from "../../layout/styles";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
-import { Embedded, PreviewContainer, SlideLeftContent } from "./preview/styles";
+import { colors, dimensions } from '../../styles';
+import { BoxRoot } from '../../styles/main';
+import { ContentHeader } from '../../layout/styles';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
+import { Embedded, PreviewContainer, SlideLeftContent } from './preview/styles';
 
 const Space = `${dimensions.unitSpacing + dimensions.coreSpacing}px`;
 
@@ -19,7 +19,7 @@ const Box = styledTS<{ selected?: boolean; glowBorderSelected?: boolean }>(
     color: ${colors.colorSecondary};
   }
   span {
-    font-weight: ${(props) => props.selected && "500"};
+    font-weight: ${props => props.selected && '500'};
   }
   &:last-child {
     margin-right: 0;
@@ -30,14 +30,14 @@ const Box = styledTS<{ selected?: boolean; glowBorderSelected?: boolean }>(
       ? `
       border: 1px dashed ${colors.colorPrimary} ;
       `
-      : ""}
+      : ''}
 
 `;
 
 const BoxRow = styledTS<{ type?: string }>(styled.div)`
   display: flex;
   flex-direction: row;
-  margin-right: ${(props) => props.type && "20px"};
+  margin-right: ${props => props.type && '20px'};
 `;
 
 const FlexItem = styled.div`
@@ -46,7 +46,7 @@ const FlexItem = styled.div`
 `;
 
 const MobilePreview = styled.div`
-  background: url("/images/previews/mobile.png") no-repeat;
+  background: url('/images/previews/mobile.png') no-repeat;
   width: 376px;
   height: 650px;
   margin: 0 auto;
@@ -83,7 +83,7 @@ const BackgroundSelector = styledTS<{ selected?: boolean }>(styled.li)`
   padding: ${dimensions.unitSpacing / 2}px;
   margin-right: ${dimensions.unitSpacing / 2}px;
   border: 1px solid
-    ${(props) => (props.selected ? colors.colorShadowGray : "transparent")};
+    ${props => (props.selected ? colors.colorShadowGray : 'transparent')};
   > div {
     height: ${dimensions.headerSpacing - 20}px;
     width: ${dimensions.headerSpacing - 20}px;
@@ -92,7 +92,7 @@ const BackgroundSelector = styledTS<{ selected?: boolean }>(styled.li)`
     text-align: center;
     line-height: ${dimensions.headerSpacing - 20}px;
     > i {
-      visibility: ${(props) => (props.selected ? "visible" : "hidden")};
+      visibility: ${props => (props.selected ? 'visible' : 'hidden')};
       font-size: ${dimensions.unitSpacing}px;
       color: ${colors.colorWhite};
       &:before {
@@ -161,12 +161,12 @@ const CarouselInner = styledTS<{ selected?: boolean }>(styled.div)`
       border-radius: 50%;
       background-color: rgb(255, 255, 255);
       border: 2px solid
-        ${(props) =>
+        ${props =>
           props.selected ? colors.colorPrimary : colors.colorShadowGray};
 
       &:hover {
         cursor: pointer;
-        border-color: ${(props) => !props.selected && colors.borderPrimary};
+        border-color: ${props => !props.selected && colors.borderPrimary};
       }
     }
 
@@ -206,7 +206,7 @@ const CarouselSteps = styled.ul`
 `;
 
 const DesktopPreview = styled.div`
-  background: url("/images/previews/desktop.png") no-repeat;
+  background: url('/images/previews/desktop.png') no-repeat;
   background-size: cover;
   border: 1px solid ${colors.borderPrimary};
   border-radius: ${dimensions.unitSpacing / 2}px;
@@ -222,7 +222,7 @@ const ImagePreview = styled.img`
 `;
 
 const TabletPreview = styled.div`
-  background: url("/images/previews/tablet.png") no-repeat center center;
+  background: url('/images/previews/tablet.png') no-repeat center center;
   width: 768px;
   height: 1024px;
   margin: 0 auto;
@@ -279,5 +279,5 @@ export {
   FullPreview,
   MobilePreview,
   TabletPreview,
-  LabelWrapper,
+  LabelWrapper
 };
