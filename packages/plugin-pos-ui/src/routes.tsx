@@ -1,46 +1,46 @@
-import queryString from 'query-string';
-import React from 'react';
-import { Route, Routes, useLocation, useParams } from 'react-router-dom';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import queryString from "query-string";
+import React from "react";
+import { Route, Routes, useLocation, useParams } from "react-router-dom";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 
 const List = asyncComponent(
-  () => import(/* webpackChunkName: "List" */ './pos/containers/List')
+  () => import(/* webpackChunkName: "List" */ "./pos/containers/List")
 );
 
 const PosContainer = asyncComponent(
-  () => import(/* webpackChunkName: "PosContainer" */ './pos/containers/Pos')
+  () => import(/* webpackChunkName: "PosContainer" */ "./pos/containers/Pos")
 );
 
 const OrderList = asyncComponent(
-  () => import(/* webpackChunkName: "OrderList" */ './orders/containers/List')
+  () => import(/* webpackChunkName: "OrderList" */ "./orders/containers/List")
 );
 
 const OrderRecords = asyncComponent(
   () =>
-    import(/* webpackChunkName: "OrderList" */ './orders/containers/Records')
+    import(/* webpackChunkName: "OrderList" */ "./orders/containers/Records")
 );
 
 const OrderSummary = asyncComponent(
   () =>
-    import(/* webpackChunkName: "OrderList" */ './orders/containers/Summary')
+    import(/* webpackChunkName: "OrderList" */ "./orders/containers/Summary")
 );
 
 const CoverList = asyncComponent(
   () =>
-    import(/* webpackChunkName: "OrderList" */ './orders/containers/CoverList')
+    import(/* webpackChunkName: "OrderList" */ "./orders/containers/CoverList")
 );
 
 const PosProductList = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "PosProductList" */ './orders/containers/ProductList'
+      /* webpackChunkName: "PosProductList" */ "./orders/containers/ProductList"
     )
 );
 
 const PosOrdesByCustomers = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "PosOrdesByCustomers" */ './orders/containers/OrdersByCustomers'
+      /* webpackChunkName: "PosOrdesByCustomers" */ "./orders/containers/OrdersByCustomers"
     )
 );
 

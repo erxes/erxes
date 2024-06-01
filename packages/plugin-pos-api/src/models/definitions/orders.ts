@@ -107,12 +107,12 @@ const posOrderItemSchema = schemaHooksWrapper(
     discountAmount: field({
       type: Number,
       label: 'Discount price amount',
-      optional: true,
+      optional: true
     }),
     discountPercent: field({
       type: Number,
       label: 'Discount percent',
-      optional: true,
+      optional: true
     }),
     bonusCount: field({ type: Number, label: 'Bonus count', optional: true }),
     bonusVoucherId: field({ type: String, label: 'Bonus Voucher' }),
@@ -121,12 +121,12 @@ const posOrderItemSchema = schemaHooksWrapper(
     isTake: field({
       type: Boolean,
       label: 'order eat but some take',
-      default: false,
+      default: false
     }),
     isInner: field({
       type: Boolean,
       label: 'inner or skip ebarimt',
-      default: false,
+      default: false
     }),
     manufacturedDate: field({ type: String, label: 'manufactured' }),
     description: field({ type: String, label: 'Description' }),
@@ -134,22 +134,22 @@ const posOrderItemSchema = schemaHooksWrapper(
     closeDate: field({
       type: Date,
       label: 'Subscription Close Date',
-      optional: true,
-    }),
+      optional: true
+    })
   }),
-  'erxes_posOrderItem',
+  'erxes_posOrderItem'
 );
 
 const paidAmountSchema = new Schema({
   _id: field({ pkey: true }),
   type: field({ type: String }),
   amount: field({ type: Number }),
-  info: field({ type: Object }),
+  info: field({ type: Object })
 });
 
 const mobileAmountSchema = new Schema({
   _id: field({ pkey: true }),
-  amount: field({ type: Number }),
+  amount: field({ type: Number })
 });
 
 const returnInfoSchema = new Schema({
@@ -157,7 +157,7 @@ const returnInfoSchema = new Schema({
   paidAmounts: field({ type: [paidAmountSchema] }),
   returnAt: field({ type: Date }),
   returnBy: field({ type: String }),
-  description: field({ type: String }),
+  description: field({ type: String })
 });
 
 export const posOrderSchema = schemaHooksWrapper(
@@ -175,32 +175,32 @@ export const posOrderSchema = schemaHooksWrapper(
     mobileAmounts: field({
       type: [mobileAmountSchema],
       optional: true,
-      label: 'Mobile amounts',
+      label: 'Mobile amounts'
     }),
     paidAmounts: field({ type: [paidAmountSchema], label: 'Paid amounts' }),
     totalAmount: field({ type: Number, label: 'Total amount' }),
     finalAmount: field({ type: Number, label: 'finalAmount' }),
     shouldPrintEbarimt: field({
       type: Boolean,
-      label: 'Should print ebarimt for this order',
+      label: 'Should print ebarimt for this order'
     }),
     printedEbarimt: field({
       type: Boolean,
       label: 'Printed ebarimt',
-      default: false,
+      default: false
     }),
     billType: field({
       type: String,
-      label: 'Ebarimt receiver entity type',
+      label: 'Ebarimt receiver entity type'
     }),
     billId: field({ type: String, label: 'Bill id' }),
     registerNumber: field({
       type: String,
-      label: 'Register number of the entity',
+      label: 'Register number of the entity'
     }),
     oldBillId: field({
       type: String,
-      label: 'Previous bill id if it is changed',
+      label: 'Previous bill id if it is changed'
     }),
     type: field({ type: String, label: 'Order type' }),
     userId: field({ type: String, label: 'Created user' }),
@@ -215,35 +215,35 @@ export const posOrderSchema = schemaHooksWrapper(
     syncErkhetInfo: field({
       type: String,
       optional: true,
-      label: 'SyncErkhetInfo',
+      label: 'SyncErkhetInfo'
     }),
     deliveryInfo: field({
       type: Object,
       optional: true,
-      label: 'Delivery Info, address, map, etc',
+      label: 'Delivery Info, address, map, etc'
     }),
     description: field({
       type: String,
       label: 'Description',
-      optional: true,
+      optional: true
     }),
     isPre: field({
       type: Boolean,
       label: 'Is Pre-Order',
-      optional: true,
+      optional: true
     }),
     origin: field({ type: String, optional: true, label: 'origin' }),
     taxInfo: field({ type: Object, optional: true }),
     convertDealId: field({
       type: String,
       optional: true,
-      label: 'Converted Deal',
+      label: 'Converted Deal'
     }),
     returnInfo: field({
       type: returnInfoSchema,
       optional: true,
-      label: 'Return information',
-    }),
+      label: 'Return information'
+    })
   }),
-  'erxes_posOrders',
+  'erxes_posOrders'
 );

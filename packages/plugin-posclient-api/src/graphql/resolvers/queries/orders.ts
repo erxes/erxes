@@ -218,7 +218,7 @@ const orderQueries = {
     if (url) {
       const response = await fetch(
         url + '?' + new URLSearchParams({ regno: registerNumber })
-      ).then((res) => res.json());
+      ).then(res => res.json());
       return response;
     }
 

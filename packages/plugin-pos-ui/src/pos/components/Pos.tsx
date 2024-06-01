@@ -5,29 +5,29 @@ import {
   Step,
   Steps,
   Wrapper,
-  __,
-} from "@erxes/ui/src";
-import Appearance, { IUIOptions } from "./step/Appearance";
-import { Content, LeftContent } from "../../styles";
+  __
+} from '@erxes/ui/src';
+import Appearance, { IUIOptions } from './step/Appearance';
+import { Content, LeftContent } from '../../styles';
 import {
   ControlWrapper,
   Indicator,
-  StepWrapper,
-} from "@erxes/ui/src/components/step/styles";
-import { IPos, IProductGroup, ISlot } from "../../types";
+  StepWrapper
+} from '@erxes/ui/src/components/step/styles';
+import { IPos, IProductGroup, ISlot } from '../../types';
 
-import CardsConfig from "./step/CardsConfig";
-import ConfigStep from "./step/ConfigStep";
-import DeliveryConfig from "./step/DeliveryConfig";
-import EbarimtConfig from "./step/EbarimtConfig";
-import ErkhetConfig from "./step/ErkhetConfig";
-import GeneralStep from "./step/GeneralStep";
-import { Link } from "react-router-dom";
-import React, { useState } from "react";
-import PermissionStep from "./step/Permission";
-import PaymentsStep from "./step/PaymentsStep";
-import { ALLOW_TYPES } from "../../constants";
-import ScreensConfig from "./step/Screens";
+import CardsConfig from './step/CardsConfig';
+import ConfigStep from './step/ConfigStep';
+import DeliveryConfig from './step/DeliveryConfig';
+import EbarimtConfig from './step/EbarimtConfig';
+import ErkhetConfig from './step/ErkhetConfig';
+import GeneralStep from './step/GeneralStep';
+import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import PermissionStep from './step/Permission';
+import PaymentsStep from './step/PaymentsStep';
+import { ALLOW_TYPES } from '../../constants';
+import ScreensConfig from './step/Screens';
 
 type Props = {
   pos?: IPos;
@@ -47,26 +47,26 @@ const Pos = (props: Props) => {
     groups,
     save,
     slots,
-    envs,
+    envs
   } = props;
 
   const [state, setState] = useState({
     pos,
-    carousel: "pos",
+    carousel: 'pos',
     groups: groups || [],
     uiOptions: pos.uiOptions || {
       colors: {
-        bodyColor: "#FFFFFF",
-        headerColor: "#6569DF",
-        footerColor: "#3CCC38",
+        bodyColor: '#FFFFFF',
+        headerColor: '#6569DF',
+        footerColor: '#3CCC38'
       },
-      logo: "",
-      bgImage: "",
-      favIcon: "",
-      receiptIcon: "",
-      kioskHeaderImage: "",
-      mobileAppImage: "",
-      qrCodeImage: "",
+      logo: '',
+      bgImage: '',
+      favIcon: '',
+      receiptIcon: '',
+      kioskHeaderImage: '',
+      mobileAppImage: '',
+      qrCodeImage: ''
     },
     isSkip: false,
     ebarimtConfig: pos.ebarimtConfig,
@@ -77,43 +77,43 @@ const Pos = (props: Props) => {
     checkRemainder: pos.checkRemainder || false,
     allowTypes:
       pos.allowTypes ||
-      ALLOW_TYPES.filter((at) => at.kind === "sale").map((at) => at.value),
+      ALLOW_TYPES.filter(at => at.kind === 'sale').map(at => at.value)
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!state.pos.name) {
-      return Alert.error("Enter POS name");
+      return Alert.error('Enter POS name');
     }
 
     if (!state.pos.adminIds || !state.pos.adminIds.length) {
-      return Alert.error("Choose admin users");
+      return Alert.error('Choose admin users');
     }
 
     if (!state.pos.cashierIds || !state.pos.cashierIds.length) {
-      return Alert.error("Choose cashier users");
+      return Alert.error('Choose cashier users');
     }
 
-    const saveTypes = state.allowTypes.filter((at) => at);
+    const saveTypes = state.allowTypes.filter(at => at);
     if (!saveTypes.length) {
-      return Alert.error("Toggle at least one type");
+      return Alert.error('Toggle at least one type');
     }
 
-    const cleanMappings = (state.pos.catProdMappings || []).map((m) => ({
+    const cleanMappings = (state.pos.catProdMappings || []).map(m => ({
       _id: m._id,
       categoryId: m.categoryId,
       productId: m.productId,
-      code: m.code || "",
-      name: m.name || "",
+      code: m.code || '',
+      name: m.name || ''
     }));
 
-    const cleanSlot = (state.slots || []).map((m) => ({
+    const cleanSlot = (state.slots || []).map(m => ({
       _id: m._id,
       code: m.code,
       name: m.name,
       posId: m.posId,
-      option: m.option,
+      option: m.option
     }));
 
     let doc: any = {
@@ -154,14 +154,14 @@ const Pos = (props: Props) => {
       allowTypes: saveTypes,
       isCheckRemainder: state.pos.isCheckRemainder,
       checkExcludeCategoryIds: state.pos.checkExcludeCategoryIds || [],
-      banFractions: state.pos.banFractions,
+      banFractions: state.pos.banFractions
     };
 
     if (!pos.isOnline) {
       doc = {
         ...doc,
-        beginNumber: "",
-        allowBranchIds: [],
+        beginNumber: '',
+        allowBranchIds: []
       };
     }
 
@@ -171,7 +171,7 @@ const Pos = (props: Props) => {
   };
 
   const onChange = (key: string, value: any) => {
-    setState((prevState) => ({ ...prevState, [key]: value }));
+    setState(prevState => ({ ...prevState, [key]: value }));
   };
 
   const onChangeAppearance = (key: string, value: any) => {
@@ -189,30 +189,30 @@ const Pos = (props: Props) => {
       pos.uiOptions = uiOptions;
     }
 
-    setState((prevState) => ({ ...prevState, pos }));
+    setState(prevState => ({ ...prevState, pos }));
   };
 
-  const onFormDocChange = (formData) => {
-    setState((prevState) => ({ ...prevState, formData }));
+  const onFormDocChange = formData => {
+    setState(prevState => ({ ...prevState, formData }));
   };
 
-  const onStepClick = (currentStepNumber) => {
-    let carousel = "form";
+  const onStepClick = currentStepNumber => {
+    let carousel = 'form';
     switch (currentStepNumber) {
       case 1:
-        carousel = state.isSkip ? "form" : "callout";
+        carousel = state.isSkip ? 'form' : 'callout';
         break;
       case 2:
-        carousel = state.isSkip ? "form" : "callout";
+        carousel = state.isSkip ? 'form' : 'callout';
         break;
       case 7:
-        carousel = "success";
+        carousel = 'success';
         break;
       default:
         break;
     }
 
-    return setState((prevState) => ({ ...prevState, carousel }));
+    return setState(prevState => ({ ...prevState, carousel }));
   };
 
   const renderButtons = () => {
@@ -233,7 +233,7 @@ const Pos = (props: Props) => {
         <Button
           disabled={isActionLoading}
           btnStyle="success"
-          icon={isActionLoading ? undefined : "check-circle"}
+          icon={isActionLoading ? undefined : 'check-circle'}
           onClick={handleSubmit}
         >
           {isActionLoading && <SmallLoader />}
@@ -243,11 +243,11 @@ const Pos = (props: Props) => {
     );
   };
 
-  const breadcrumb = [{ title: "POS List", link: `/pos` }, { title: "POS" }];
+  const breadcrumb = [{ title: 'POS List', link: `/pos` }, { title: 'POS' }];
 
   return (
     <StepWrapper>
-      <Wrapper.Header title={__("Pos")} breadcrumb={breadcrumb} />
+      <Wrapper.Header title={__('Pos')} breadcrumb={breadcrumb} />
       <Content>
         <LeftContent>
           <Steps>
@@ -297,7 +297,7 @@ const Pos = (props: Props) => {
             </Step>
             <Step
               img="/images/icons/erxes-04.svg"
-              title={"Appearance"}
+              title={'Appearance'}
               onClick={onStepClick}
               noButton={true}
             >
@@ -309,7 +309,7 @@ const Pos = (props: Props) => {
             </Step>
             <Step
               img="/images/icons/erxes-14.svg"
-              title={"Screens Config"}
+              title={'Screens Config'}
               onClick={onStepClick}
               noButton={true}
             >
@@ -321,7 +321,7 @@ const Pos = (props: Props) => {
             </Step>
             <Step
               img="/images/icons/erxes-05.svg"
-              title={"ebarimt Config"}
+              title={'ebarimt Config'}
               onClick={onStepClick}
               noButton={true}
             >
@@ -329,7 +329,7 @@ const Pos = (props: Props) => {
             </Step>
             <Step
               img="/images/icons/erxes-07.svg"
-              title={"finance Config"}
+              title={'finance Config'}
               onClick={onStepClick}
               noButton={true}
             >
@@ -341,7 +341,7 @@ const Pos = (props: Props) => {
             </Step>
             <Step
               img="/images/icons/erxes-09.svg"
-              title={"Delivery Config"}
+              title={'Delivery Config'}
               onClick={onStepClick}
               noButton={true}
             >
@@ -349,7 +349,7 @@ const Pos = (props: Props) => {
             </Step>
             <Step
               img="/images/icons/erxes-07.svg"
-              title={"Sync Cards"}
+              title={'Sync Cards'}
               onClick={onStepClick}
               noButton={true}
             >
@@ -358,8 +358,8 @@ const Pos = (props: Props) => {
           </Steps>
           <ControlWrapper>
             <Indicator>
-              {__("You are")} {state.pos ? "editing" : "creating"}{" "}
-              <strong>{state.pos.name || ""}</strong> {__("pos")}
+              {__('You are')} {state.pos ? 'editing' : 'creating'}{' '}
+              <strong>{state.pos.name || ''}</strong> {__('pos')}
             </Indicator>
             {renderButtons()}
           </ControlWrapper>

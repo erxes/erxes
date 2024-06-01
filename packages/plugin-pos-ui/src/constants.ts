@@ -4,7 +4,7 @@ export const menuPos = [
   { title: 'Pos by Items', link: '/pos-order-items' },
   { title: 'Pos Items', link: '/pos-order-records' },
   { title: 'Pos Summary', link: '/pos-order-summary' },
-  { title: 'Pos Orders By Customer', link: '/pos-orders-by-customers' },
+  { title: 'Pos Orders By Customer', link: '/pos-orders-by-customers' }
 ];
 
 export const TEXT_COLORS = [
@@ -17,7 +17,7 @@ export const TEXT_COLORS = [
   '#444',
   '#333',
   '#222',
-  '#000',
+  '#000'
 ];
 
 export const ALLOW_TYPES = [
@@ -27,7 +27,7 @@ export const ALLOW_TYPES = [
   { value: 'loss', label: 'Loss', kind: 'out' },
   { value: 'spend', label: 'Spend', kind: 'out' },
   { value: 'reject', label: 'Reject', kind: 'out' },
-  { value: 'before', label: 'Before', kind: 'sale' },
+  { value: 'before', label: 'Before', kind: 'sale' }
 ];
 
 export const ALLOW_STATUSES = [
@@ -37,7 +37,7 @@ export const ALLOW_STATUSES = [
   { value: 'done', label: 'Done' },
   { value: 'complete', label: 'Complete' },
   { value: 'pending', label: 'Pending' },
-  { value: 'return', label: 'Return' },
+  { value: 'return', label: 'Return' }
 ];
 
 export const DISTRICTS = [
@@ -70,7 +70,7 @@ export const DISTRICTS = [
   { value: '28', label: 'Багахангай' },
   { value: '29', label: 'Налайх' },
   { value: '34', label: 'Сонгинохайрхан' },
-  { value: '35', label: 'Чингэлтэй' },
+  { value: '35', label: 'Чингэлтэй' }
 ];
 
 export const FILTER_PARAMS = [
@@ -88,7 +88,7 @@ export const FILTER_PARAMS = [
   'financeEndDate',
   'paidDate',
   'userId',
-  'hasntUser',
+  'hasntUser'
 ];
 
 export const PAYMENT_TYPE_ICONS = [
@@ -121,5 +121,5 @@ export const PAYMENT_TYPE_ICONS = [
   'usd-circle',
   'yen',
   'ticket',
-  'sync',
+  'sync'
 ];
