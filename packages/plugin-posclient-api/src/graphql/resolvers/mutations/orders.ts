@@ -7,7 +7,6 @@ import {
   sendCoreMessage,
   sendInboxMessage,
   sendPosMessage,
-  sendProductsMessage,
 } from '../../../messageBroker';
 import { IConfig, IConfigDocument } from '../../../models/definitions/configs';
 import {
@@ -16,12 +15,8 @@ import {
   ORDER_STATUSES,
   ORDER_SALE_STATUS,
   ORDER_TYPES,
-  SUBSCRIPTION_INFO_STATUS,
 } from '../../../models/definitions/constants';
-import {
-  IOrderDocument,
-  IPaidAmount,
-} from '../../../models/definitions/orders';
+import { IPaidAmount } from '../../../models/definitions/orders';
 import { IPosUserDocument } from '../../../models/definitions/posUsers';
 import { IContext, IOrderInput } from '../../types';
 import {
@@ -40,8 +35,6 @@ import {
 } from '../../utils/orderUtils';
 import { checkSlotStatus } from '../../utils/slots';
 import { prepareSettlePayment } from '../../../utils';
-import { nanoid } from 'nanoid';
-import moment from 'moment';
 
 interface IPaymentBase {
   billType: string;
@@ -83,20 +76,6 @@ const getTaxInfo = (config: IConfig) => {
     hasCitytax:
       (config.ebarimtConfig && config.ebarimtConfig?.hasCitytax) || false,
   };
-};
-
-const getSubscriptionInfo = (doc: IOrderInput) => {
-  const { isSubscription, subscriptionId } = doc;
-
-  let subscriptionInfo = {};
-
-  if (isSubscription) {
-    subscriptionInfo = {
-      subscriptionId: subscriptionId ? subscriptionId : nanoid(),
-      status: SUBSCRIPTION_INFO_STATUS.ACTIVE,
-    };
-  }
-  return subscriptionInfo;
 };
 
 export const getStatus = (config, buttonType, doc, order?) => {
@@ -236,7 +215,7 @@ export const ordersAdd = async (
       taxInfo: getTaxInfo(config),
       status,
       saleStatus,
-      ...getSubscriptionInfo(doc),
+      subscriptionInfo: preparedDoc?.subscriptionInfo,
     };
 
     const order = await orderAdd(models, lastDoc, config);

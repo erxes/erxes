@@ -21,6 +21,7 @@ import {
 } from '@erxes/api-utils/src/messageBroker';
 import { updateMobileAmount } from './utils';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import { ordersAdd } from './graphql/resolvers/mutations/orders';
 
 export const setupMessageConsumers = async () => {
   const { SKIP_REDIS } = process.env;
@@ -239,6 +240,40 @@ export const setupMessageConsumers = async () => {
       };
     },
   );
+
+  consumeRPCQueue(
+    `posclient:addOrder${channelToken}`,
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      const { doc } = data;
+
+      const posUser = await models.PosUsers.findOne({
+        _id: doc?.userId,
+      });
+
+      const config = await models.Configs.findOne({
+        token: doc?.posToken,
+      });
+
+      if (!posUser || !config) {
+        return {
+          status: 'error',
+          errorMessage: 'Could not find a user',
+        };
+      }
+
+      return {
+        status: 'success',
+        data: await ordersAdd(doc, {
+          models,
+          subdomain,
+          posUser,
+          config,
+        }),
+      };
+    },
+  );
 };
 
 export const sendCommonMessage = async (
@@ -269,7 +304,7 @@ export const sendMessageWrapper = async (
         },
       );
 
-      const timeout = new Promise<boolean>(resolve =>
+      const timeout = new Promise<boolean>((resolve) =>
         setTimeout(() => resolve(false), 1000),
       );
 
@@ -363,7 +398,7 @@ export const sendFormsMessage = async (
 export const sendProductsMessage = async (
   args: MessageArgsOmitService,
 ): Promise<any> => {
-  return sendMessageWrapper('forms', args);
+  return sendMessageWrapper('products', args);
 };
 
 export const fetchSegment = (

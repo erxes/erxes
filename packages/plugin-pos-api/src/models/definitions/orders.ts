@@ -1,6 +1,7 @@
 import { IAttachment } from '@erxes/api-utils/src/types';
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
+import { SUBSCRIPTION_INFO_STATUS } from '../../contants';
 
 export interface IPosOrderItem {
   createdAt?: Date;
@@ -68,6 +69,10 @@ export interface IPosOrder {
   taxInfo?: any;
   convertDealId?: string;
   returnInfo?: any;
+  subscriptionInfo?: {
+    subscriptionId: string;
+    status: string;
+  };
 }
 export interface IPosOrderDocument extends IPosOrder, Document {
   _id: string;
@@ -160,6 +165,20 @@ const returnInfoSchema = new Schema({
   description: field({ type: String })
 });
 
+const subscriptionInfo = new Schema({
+  subscriptionId: field({
+    type: String,
+    label: 'Subscription Id',
+    optional: true
+  }),
+  status: field({
+    type: String,
+    label: 'Subscription Status',
+    enum: SUBSCRIPTION_INFO_STATUS.ALL,
+    default: SUBSCRIPTION_INFO_STATUS.ACTIVE
+  })
+});
+
 export const posOrderSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
@@ -243,7 +262,13 @@ export const posOrderSchema = schemaHooksWrapper(
       type: returnInfoSchema,
       optional: true,
       label: 'Return information'
-    })
+    }),
+    subscriptionInfo: field({
+      type: subscriptionInfo,
+      optional: true,
+      label: 'Subscription Info'
+    }),
+    closeDate: field({ type: Date, optional: true, label: 'Close Date' })
   }),
   'erxes_posOrders'
 );

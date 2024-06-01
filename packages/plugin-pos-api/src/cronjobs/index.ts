@@ -1,8 +1,7 @@
-import { IOrderInput } from "@erxes/api-utils/src/commonUtils";
-import { generateModels } from "../connectionResolver";
-import { SUBSCRIPTION_INFO_STATUS } from "../contants";
-import { sendPosclientMessage, sendProductsMessage } from "../messageBroker";
-import moment from "moment";
+import { generateModels } from '../connectionResolver';
+import { SUBSCRIPTION_INFO_STATUS } from '../contants';
+import { sendPosclientMessage, sendProductsMessage } from '../messageBroker';
+import moment from 'moment';
 
 function toSpecificDayOfWeek(date, dayOfWeek) {
   let currentDay = date.getDay();
@@ -22,11 +21,11 @@ export default {
 
     const subscriptions = await models.PosOrders.find({
       $and: [
-        { "items.closeDate": { $gte: START_TODAY } },
-        { "items.closeDate": { $lte: END_TODAY } },
+        { 'items.closeDate': { $gte: START_TODAY } },
+        { 'items.closeDate': { $lte: END_TODAY } }
       ],
-      "subscriptionInfo.status": SUBSCRIPTION_INFO_STATUS.ACTIVE,
-      status: "complete",
+      'subscriptionInfo.status': SUBSCRIPTION_INFO_STATUS.ACTIVE,
+      status: 'complete'
     });
 
     for (const subscription of subscriptions) {
@@ -43,36 +42,36 @@ export default {
         ) {
           const product = await sendProductsMessage({
             subdomain,
-            action: "products.findOne",
+            action: 'products.findOne',
             data: {
-              _id: item.productId,
+              _id: item.productId
             },
             isRPC: true,
-            defaultValue: null,
+            defaultValue: null
           });
 
           const uom = await sendProductsMessage({
             subdomain,
-            action: "",
+            action: 'uom.findOne',
             data: { code: product?.uom },
             isRPC: true,
-            defaultValue: null,
+            defaultValue: null
           });
 
           const { subscriptionConfig = {} } = uom || {};
 
           const { period, rule, specificDay } = subscriptionConfig;
 
-          if (["fromExpiredDate", "fromSpecificDate"].includes(rule)) {
+          if (['fromExpiredDate', 'fromSpecificDate'].includes(rule)) {
             let nextCloseDate = new Date(
-              moment().add(1, period.replace("ly", "")).toISOString(),
+              moment().add(1, period.replace('ly', '')).toISOString()
             );
 
-            if (rule === "fromSpecificDate") {
-              if (period === "monthly") {
+            if (rule === 'fromSpecificDate') {
+              if (period === 'monthly') {
                 nextCloseDate = new Date(nextCloseDate.setDate(specificDay));
               }
-              if (period === "weekly") {
+              if (period === 'weekly') {
                 nextCloseDate = toSpecificDayOfWeek(nextCloseDate, 3);
               }
             }
@@ -81,20 +80,21 @@ export default {
 
           await sendPosclientMessage({
             subdomain,
-            action: "erxes-posclient-to-pos-api",
+            action: 'erxes-posclient-to-pos-api',
             data: {
               ...subscription,
               items: [item],
+              subscriptionId: subscription?.subscriptionInfo?.subscriptionId
             },
-            pos,
+            pos
           });
         }
       }
 
       await models.PosOrders.updateOne(
         { _id: subscription._id },
-        { "subscriptionInfo.status": SUBSCRIPTION_INFO_STATUS.DONE },
+        { 'subscriptionInfo.status': SUBSCRIPTION_INFO_STATUS.CLOSED }
       );
     }
-  },
+  }
 };

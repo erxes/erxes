@@ -45,7 +45,7 @@ export interface IOrderItemInput {
   manufacturedDate?: string; // Unix epoch number
   description?: string;
   attachment?: IAttachment;
-  closeDate?:Date
+  closeDate?: Date;
 }
 
 export interface IOrderInput {
@@ -63,7 +63,6 @@ export interface IOrderInput {
   description: string;
   isPre?: boolean;
   buttonType?: string;
-  isSubscription?: boolean;
   closeDate?: Date;
   subscriptionId?: string;
 }

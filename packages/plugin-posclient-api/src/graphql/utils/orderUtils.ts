@@ -9,7 +9,8 @@ import {
   BILL_TYPES,
   ORDER_TYPES,
   ORDER_ITEM_STATUSES,
-  PRODUCT_TYPES
+  PRODUCT_TYPES,
+  SUBSCRIPTION_INFO_STATUS
 } from '../../models/definitions/constants';
 import {
   IConfigDocument,
@@ -27,6 +28,7 @@ import { getPureDate } from '@erxes/api-utils/src';
 import { checkDirectDiscount } from './directDiscount';
 import { IPosUserDocument } from '../../models/definitions/posUsers';
 import { sendProductsMessage } from '../../messageBroker';
+import { nanoid } from 'nanoid';
 
 interface IDetailItem {
   count: number;
@@ -546,9 +548,9 @@ export const prepareOrderDoc = async (
   const subscriptionUoms = await sendProductsMessage({
     subdomain,
     action: 'uoms.find',
-    data: { isForSubscription:true },
+    data: { isForSubscription: true },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   const items = doc.items.filter(i => !i.isPackage) || [];
@@ -562,6 +564,8 @@ export const prepareOrderDoc = async (
   for (const prod of products) {
     productsOfId[prod._id] = prod;
   }
+
+  let subscriptionInfo;
 
   // set unitPrice
   doc.totalAmount = 0;
@@ -578,24 +582,33 @@ export const prepareOrderDoc = async (
     doc.totalAmount += (item.count || 0) * fixedUnitPrice;
 
     if (
-      productsOfId[item.productId]?.type === PRODUCT_TYPES.SUBSCRIPTION && 
-      subscriptionUoms.some(uom=>uom.code === productsOfId[item.productId]?.uom
-      )) {
-      const { subscriptionConfig={} } =
+      productsOfId[item.productId]?.type === PRODUCT_TYPES.SUBSCRIPTION &&
+      subscriptionUoms.some(
+        uom => uom.code === productsOfId[item.productId]?.uom
+      )
+    ) {
+      const { subscriptionConfig = {} } =
         subscriptionUoms.find(
-          ({ code }) => code === productsOfId[item.productId]?.uom,
+          ({ code }) => code === productsOfId[item.productId]?.uom
         ) || {};
 
-        const period = (subscriptionConfig?.period ||'').replace('ly','')
+      const period = (subscriptionConfig?.period || '').replace('ly', '');
 
+      console.log({ period, count: item.count });
 
-        item.closeDate = new Date(
-          moment()
-            .add(item.count || 0, period)
-            .toISOString(),
-        );
+      item.closeDate = new Date(
+        moment()
+          .add(item.count || 0, period)
+          .toISOString()
+      );
+
+      if (!subscriptionInfo) {
+        subscriptionInfo = {
+          subscriptionId: doc?.subscriptionId || nanoid(),
+          status: SUBSCRIPTION_INFO_STATUS.ACTIVE
+        };
+      }
     }
-
   }
 
   const hasTakeItems = items.filter(i => i.isTake);
@@ -687,7 +700,8 @@ export const prepareOrderDoc = async (
     }).lean();
 
     if (deliveryProd) {
-      const deliveryUnitPrice = (deliveryProd.prices || {})[config.token || ''] || 0;
+      const deliveryUnitPrice =
+        (deliveryProd.prices || {})[config.token || ''] || 0;
       items.push({
         _id: Math.random().toString(),
         productId: deliveryProd._id,
@@ -700,7 +714,12 @@ export const prepareOrderDoc = async (
     }
   }
 
-  return await checkPrices(subdomain, { ...doc, items }, config, posUser);
+  return await checkPrices(
+    subdomain,
+    { ...doc, items, subscriptionInfo },
+    config,
+    posUser
+  );
 };
 
 export const checkOrderStatus = (order: IOrderDocument) => {

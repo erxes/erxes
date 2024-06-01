@@ -71,8 +71,6 @@ const addEditParams = `
   buttonType: String,
   description: String,
   isPre: Boolean,
-  isSubscription: Boolean,
-  closeDate:Date
 `;
 
 export const types = `
