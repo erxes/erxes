@@ -1,6 +1,6 @@
-import { ICompany } from "@erxes/ui-contacts/src/companies/types";
-import { ITag } from "@erxes/ui-tags/src/types";
-import { QueryResponse } from "@erxes/ui/src/types";
+import { ICompany } from '@erxes/ui-contacts/src/companies/types';
+import { ITag } from '@erxes/ui-tags/src/types';
+import { QueryResponse } from '@erxes/ui/src/types';
 
 export interface IProductDoc {
   _id?: string;

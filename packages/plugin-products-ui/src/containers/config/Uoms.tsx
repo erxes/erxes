@@ -1,39 +1,39 @@
-import { gql } from "@apollo/client";
-import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
-import { IButtonMutateProps } from "@erxes/ui/src/types";
-import { Alert, confirm } from "@erxes/ui/src/utils";
-import React from "react";
-import List from "../../components/config/Uoms";
-import { mutations, queries } from "../../graphql";
-import { UomRemoveMutationResponse, UomsCountQueryResponse } from "../../types";
-import { UomsQueryResponse } from "@erxes/ui-products/src/types";
-import { useQuery, useMutation } from "@apollo/client";
+import { gql } from '@apollo/client';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { Alert, confirm } from '@erxes/ui/src/utils';
+import React from 'react';
+import List from '../../components/config/Uoms';
+import { mutations, queries } from '../../graphql';
+import { UomRemoveMutationResponse, UomsCountQueryResponse } from '../../types';
+import { UomsQueryResponse } from '@erxes/ui-products/src/types';
+import { useQuery, useMutation } from '@apollo/client';
 
 type Props = {};
 
 const ListContainer = (props: Props) => {
   const uomsQuery = useQuery<UomsQueryResponse>(gql(queries.uoms));
   const uomsCountQuery = useQuery<UomsCountQueryResponse>(
-    gql(queries.uomsTotalCount)
+    gql(queries.uomsTotalCount),
   );
   const [uomsRemove] = useMutation<UomRemoveMutationResponse>(
-    gql(mutations.uomsRemove)
+    gql(mutations.uomsRemove),
   );
 
-  const remove = (uom) => {
+  const remove = uom => {
     confirm(`This action will remove the uom. Are you sure?`)
       .then(() => {
         uomsRemove({ variables: { uomIds: [uom._id] } })
           .then(() => {
-            Alert.success("You successfully deleted a uom");
+            Alert.success('You successfully deleted a uom');
             uomsQuery.refetch();
             uomsCountQuery.refetch();
           })
-          .catch((e) => {
+          .catch(e => {
             Alert.error(e.message);
           });
       })
-      .catch((e) => {
+      .catch(e => {
         Alert.error(e.message);
       });
   };
@@ -53,7 +53,7 @@ const ListContainer = (props: Props) => {
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
-          object ? "updated" : "added"
+          object ? 'updated' : 'added'
         } a ${name}`}
       />
     );
@@ -72,6 +72,6 @@ const ListContainer = (props: Props) => {
   return <List {...updatedProps} />;
 };
 
-const refetch = ["uoms", "uomsTotalCount"];
+const refetch = ['uoms', 'uomsTotalCount'];
 
 export default ListContainer;

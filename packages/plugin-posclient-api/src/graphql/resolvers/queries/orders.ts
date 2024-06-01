@@ -129,7 +129,7 @@ const filterOrders = (params: ISearchParams, models, config) => {
     })
       .sort(sort)
       .lean(),
-    { page, perPage }
+    { page, perPage },
   );
 };
 
@@ -145,7 +145,7 @@ const orderQueries = {
   async ordersTotalCount(
     _root,
     params: ISearchParams,
-    { models, config }: IContext
+    { models, config }: IContext,
   ) {
     const filter = generateFilter(config, params);
     return await models.Orders.find({
@@ -163,7 +163,7 @@ const orderQueries = {
       sortField,
       sortDirection,
     }: ISearchParams,
-    { models }: IContext
+    { models }: IContext,
   ) {
     const filter: any = {};
 
@@ -185,14 +185,14 @@ const orderQueries = {
       })
         .sort(sort)
         .lean(),
-      { page, perPage }
+      { page, perPage },
     );
   },
 
   async orderDetail(
     _root,
     { _id, customerId }: { _id: string; customerId?: string },
-    { posUser, models, config }: IContext
+    { posUser, models, config }: IContext,
   ) {
     const tokenFilter = {
       $or: [{ posToken: config.token }, { subToken: config.token }],
@@ -217,7 +217,7 @@ const orderQueries = {
 
     if (url) {
       const response = await fetch(
-        url + '?' + new URLSearchParams({ regno: registerNumber })
+        url + '?' + new URLSearchParams({ regno: registerNumber }),
       ).then(res => res.json());
       return response;
     }
@@ -248,7 +248,7 @@ const orderQueries = {
   async checkSubscription(
     _root,
     { customerId, productId },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const subscription = await models.Orders.findOne({
       customerId,

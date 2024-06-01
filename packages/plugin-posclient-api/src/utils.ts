@@ -38,7 +38,7 @@ export const getEsTypes = () => {
 
   const typesMap: { [key: string]: any } = {};
 
-  schema.eachPath((name) => {
+  schema.eachPath(name => {
     const path = schema.paths[name];
     typesMap[name] = path.options.esType;
   });
@@ -49,7 +49,7 @@ export const getEsTypes = () => {
 export const countBySegment = async (
   subdomain: string,
   contentType: string,
-  qb
+  qb,
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
@@ -80,7 +80,7 @@ export const countBySegment = async (
 export const countByTag = async (
   subdomain: string,
   type: string,
-  qb
+  qb,
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
@@ -149,7 +149,7 @@ export class Builder {
       this.subdomain,
       segment._id,
       { returnSelector: true },
-      segmentData
+      segmentData,
     );
 
     this.positiveList = [...this.positiveList, selector];
@@ -215,7 +215,7 @@ export class Builder {
       body: queryOptions,
     });
 
-    const list = response.hits.hits.map((hit) => {
+    const list = response.hits.hits.map(hit => {
       return {
         _id: hit._id,
         ...hit._source,
@@ -232,7 +232,7 @@ export class Builder {
 export const updateMobileAmount = async (
   subdomain: string,
   models: IModels,
-  paymentParams: any[]
+  paymentParams: any[],
 ) => {
   const firstData = (paymentParams || [])[0] || {};
   const { contentTypeId } = firstData;
@@ -258,7 +258,7 @@ export const updateMobileAmount = async (
   let order = await models.Orders.findOne(orderSelector).lean();
   const sumMobileAmount = (order.mobileAmounts || []).reduce(
     (sum, i) => sum + i.amount,
-    0
+    0,
   );
 
   await models.Orders.updateOne(orderSelector, {
@@ -278,7 +278,7 @@ export const updateMobileAmount = async (
       const conf = await models.Configs.findOne({ token: posToken });
       if (!conf) {
         debugError(
-          `Error occurred while sending data to erxes: config not found`
+          `Error occurred while sending data to erxes: config not found`,
         );
         return;
       }
@@ -298,10 +298,10 @@ export const updateMobileAmount = async (
     const config = await models.Configs.findOne({ token: posToken });
     if (config?.isOnline) {
       const products = await models.Products.find({
-        _id: { $in: items.map((i) => i.productId) },
+        _id: { $in: items.map(i => i.productId) },
       }).lean();
       for (const item of items) {
-        const product = products.find((p) => p._id === item.productId) || {};
+        const product = products.find(p => p._id === item.productId) || {};
         item.productName = `${product.code} - ${product.name}`;
       }
     }
@@ -338,7 +338,7 @@ export const updateMobileAmount = async (
 const generateSubscriptionDoc = async (
   models: IModels,
   subdomain: string,
-  order: IOrderDocument
+  order: IOrderDocument,
 ) => {
   let doc: any = {};
 
@@ -362,7 +362,7 @@ const generateSubscriptionDoc = async (
     const { period } = subscriptionConfig;
 
     doc.closeDate = new Date(
-      moment().add(1, period.replace('ly', '')).toISOString()
+      moment().add(1, period.replace('ly', '')).toISOString(),
     );
   }
 
@@ -374,7 +374,7 @@ export const prepareSettlePayment = async (
   models: IModels,
   order: IOrderDocument,
   config: IConfigDocument,
-  { _id, billType, registerNumber }: ISettlePaymentParams
+  { _id, billType, registerNumber }: ISettlePaymentParams,
 ) => {
   checkOrderStatus(order);
 
@@ -407,11 +407,11 @@ export const prepareSettlePayment = async (
         items,
         billType,
         registerNumber,
-        config.paymentTypes
+        config.paymentTypes,
       );
 
       ebarimtConfig.districtName = getDistrictName(
-        (ebarimtConfig && ebarimtConfig.districtCode) || ''
+        (ebarimtConfig && ebarimtConfig.districtCode) || '',
       );
 
       for (const data of ebarimtDatas) {
@@ -436,7 +436,7 @@ export const prepareSettlePayment = async (
 
           await models.OrderItems.updateOne(
             { _id: { $in: data.itemIds } },
-            { $set: { isInner: true } }
+            { $set: { isInner: true } },
           );
 
           continue;
@@ -464,12 +464,12 @@ export const prepareSettlePayment = async (
     if (
       billType === BILL_TYPES.INNER ||
       (ebarimtResponses.length &&
-        !ebarimtResponses.filter((er) => er.success !== 'true').length)
+        !ebarimtResponses.filter(er => er.success !== 'true').length)
     ) {
       const subscriptionData = await generateSubscriptionDoc(
         models,
         subdomain,
-        order
+        order,
       );
 
       await models.Orders.updateOne(
@@ -485,10 +485,10 @@ export const prepareSettlePayment = async (
               config,
               'settle',
               { ...order, paidDate: now },
-              { ...order }
+              { ...order },
             ),
           },
-        }
+        },
       );
     }
 
@@ -505,10 +505,10 @@ export const prepareSettlePayment = async (
 
     if (config.isOnline) {
       const products = await models.Products.find({
-        _id: { $in: items.map((i) => i.productId) },
+        _id: { $in: items.map(i => i.productId) },
       }).lean();
       for (const item of items) {
-        const product = products.find((p) => p._id === item.productId) || {};
+        const product = products.find(p => p._id === item.productId) || {};
         item.productName = `${product.code} - ${product.name}`;
       }
     }

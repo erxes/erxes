@@ -1,4 +1,4 @@
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const vendorField = `
   vendor {
@@ -40,7 +40,7 @@ const productFields = `
   code
   categoryId
   vendorId
-  ${isEnabled("contacts") ? vendorField : ``}
+  ${isEnabled('contacts') ? vendorField : ``}
   scopeBrandIds
   status,
   description
@@ -49,7 +49,7 @@ const productFields = `
   variants
   barcodeDescription
   ${
-    isEnabled("tags")
+    isEnabled('tags')
       ? `
     getTags {
       _id
@@ -202,5 +202,5 @@ export default {
   productCategories,
   productsConfigs,
   uoms,
-  uomsTotalCount,
+  uomsTotalCount
 };
