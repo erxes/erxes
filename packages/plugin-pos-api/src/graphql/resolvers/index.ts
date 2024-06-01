@@ -20,7 +20,7 @@ const resolvers: any = async () => ({
   PosCover,
   PosOrdersByCustomer,
   Mutation,
-  Query,
+  Query
 });
 
 export default resolvers;

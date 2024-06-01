@@ -3,7 +3,7 @@ import {
   FormControl,
   Form,
   FormGroup,
-  ControlLabel,
+  ControlLabel
 } from '@erxes/ui/src/components';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
@@ -25,7 +25,7 @@ type Props = {
 
 const SUBSCRIPTION_PERIOD = [
   { label: 'Weekly', value: 'weekly' },
-  { label: 'Monthly', value: 'monthly' },
+  { label: 'Monthly', value: 'monthly' }
 ];
 
 const BrandForm = (props: Props) => {
@@ -33,7 +33,7 @@ const BrandForm = (props: Props) => {
   const object = uom || ({} as IUom);
   const [subsConfig, setSubsConfig] = useState({
     isForSubscription: uom?.isForSubscription,
-    ...(uom?.subscriptionConfig || {}),
+    ...(uom?.subscriptionConfig || {})
   } as any);
 
   const renderFooter = (formProps: IFormProps) => {
@@ -48,7 +48,7 @@ const BrandForm = (props: Props) => {
     const updatedValues = {
       ...values,
       isForSubscription,
-      subscriptionConfig,
+      subscriptionConfig
     };
 
     return (
@@ -67,7 +67,7 @@ const BrandForm = (props: Props) => {
           values: updatedValues,
           isSubmitted,
           callback: closeModal || afterSave,
-          object: uom,
+          object: uom
         })}
       </ModalFooter>
     );
@@ -92,13 +92,13 @@ const BrandForm = (props: Props) => {
             options={SUBSCRIPTION_PERIOD as any}
             value={
               SUBSCRIPTION_PERIOD.find(
-                ({ value }) => subsConfig?.period === value,
+                ({ value }) => subsConfig?.period === value
               ) as any
             }
             onChange={({ value }) =>
               setSubsConfig({
                 isForSubscription: subsConfig.isForSubscription,
-                period: value,
+                period: value
               })
             }
           />
@@ -112,8 +112,8 @@ const BrandForm = (props: Props) => {
                 { value: 'fromExpiredDate', label: 'Start from Expired Date' },
                 {
                   value: 'fromSpecificDate',
-                  label: 'Start from Specific Date',
-                },
+                  label: 'Start from Specific Date'
+                }
               ].map(({ value, label }) => (
                 <Box
                   key={value}
@@ -135,7 +135,7 @@ const BrandForm = (props: Props) => {
             )}
             <DaySelector
               type={subsConfig?.period}
-              onSelect={value => handleSubsConfigChange('specificDay', value)}
+              onSelect={(value) => handleSubsConfigChange('specificDay', value)}
               selectedValue={subsConfig?.specificDay}
             />
           </FormGroup>
@@ -179,7 +179,7 @@ const BrandForm = (props: Props) => {
             onChange={() =>
               handleSubsConfigChange(
                 'isForSubscription',
-                !subsConfig.isForSubscription,
+                !subsConfig.isForSubscription
               )
             }
           />

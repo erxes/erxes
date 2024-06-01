@@ -5,14 +5,14 @@ import {
   Step,
   Steps,
   Wrapper,
-  __
+  __,
 } from '@erxes/ui/src';
 import Appearance, { IUIOptions } from './step/Appearance';
 import { Content, LeftContent } from '../../styles';
 import {
   ControlWrapper,
   Indicator,
-  StepWrapper
+  StepWrapper,
 } from '@erxes/ui/src/components/step/styles';
 import { IPos, IProductGroup, ISlot } from '../../types';
 
@@ -47,7 +47,7 @@ const Pos = (props: Props) => {
     groups,
     save,
     slots,
-    envs
+    envs,
   } = props;
 
   const [state, setState] = useState({
@@ -58,7 +58,7 @@ const Pos = (props: Props) => {
       colors: {
         bodyColor: '#FFFFFF',
         headerColor: '#6569DF',
-        footerColor: '#3CCC38'
+        footerColor: '#3CCC38',
       },
       logo: '',
       bgImage: '',
@@ -66,7 +66,7 @@ const Pos = (props: Props) => {
       receiptIcon: '',
       kioskHeaderImage: '',
       mobileAppImage: '',
-      qrCodeImage: ''
+      qrCodeImage: '',
     },
     isSkip: false,
     ebarimtConfig: pos.ebarimtConfig,
@@ -77,7 +77,7 @@ const Pos = (props: Props) => {
     checkRemainder: pos.checkRemainder || false,
     allowTypes:
       pos.allowTypes ||
-      ALLOW_TYPES.filter(at => at.kind === 'sale').map(at => at.value)
+      ALLOW_TYPES.filter((at) => at.kind === 'sale').map((at) => at.value),
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -95,25 +95,25 @@ const Pos = (props: Props) => {
       return Alert.error('Choose cashier users');
     }
 
-    const saveTypes = state.allowTypes.filter(at => at);
+    const saveTypes = state.allowTypes.filter((at) => at);
     if (!saveTypes.length) {
       return Alert.error('Toggle at least one type');
     }
 
-    const cleanMappings = (state.pos.catProdMappings || []).map(m => ({
+    const cleanMappings = (state.pos.catProdMappings || []).map((m) => ({
       _id: m._id,
       categoryId: m.categoryId,
       productId: m.productId,
       code: m.code || '',
-      name: m.name || ''
+      name: m.name || '',
     }));
 
-    const cleanSlot = (state.slots || []).map(m => ({
+    const cleanSlot = (state.slots || []).map((m) => ({
       _id: m._id,
       code: m.code,
       name: m.name,
       posId: m.posId,
-      option: m.option
+      option: m.option,
     }));
 
     let doc: any = {
@@ -154,14 +154,14 @@ const Pos = (props: Props) => {
       allowTypes: saveTypes,
       isCheckRemainder: state.pos.isCheckRemainder,
       checkExcludeCategoryIds: state.pos.checkExcludeCategoryIds || [],
-      banFractions: state.pos.banFractions
+      banFractions: state.pos.banFractions,
     };
 
     if (!pos.isOnline) {
       doc = {
         ...doc,
         beginNumber: '',
-        allowBranchIds: []
+        allowBranchIds: [],
       };
     }
 
@@ -171,7 +171,7 @@ const Pos = (props: Props) => {
   };
 
   const onChange = (key: string, value: any) => {
-    setState(prevState => ({ ...prevState, [key]: value }));
+    setState((prevState) => ({ ...prevState, [key]: value }));
   };
 
   const onChangeAppearance = (key: string, value: any) => {
@@ -189,14 +189,14 @@ const Pos = (props: Props) => {
       pos.uiOptions = uiOptions;
     }
 
-    setState(prevState => ({ ...prevState, pos }));
+    setState((prevState) => ({ ...prevState, pos }));
   };
 
-  const onFormDocChange = formData => {
-    setState(prevState => ({ ...prevState, formData }));
+  const onFormDocChange = (formData) => {
+    setState((prevState) => ({ ...prevState, formData }));
   };
 
-  const onStepClick = currentStepNumber => {
+  const onStepClick = (currentStepNumber) => {
     let carousel = 'form';
     switch (currentStepNumber) {
       case 1:
@@ -212,7 +212,7 @@ const Pos = (props: Props) => {
         break;
     }
 
-    return setState(prevState => ({ ...prevState, carousel }));
+    return setState((prevState) => ({ ...prevState, carousel }));
   };
 
   const renderButtons = () => {
