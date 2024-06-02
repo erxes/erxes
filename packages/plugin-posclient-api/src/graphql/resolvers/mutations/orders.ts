@@ -201,8 +201,6 @@ export const ordersAdd = async (
       posUser
     );
 
-    console.log({ preparedDoc });
-
     const status = getStatus(config, doc.buttonType, doc);
     const saleStatus = getSaleStatus(config, doc, preparedDoc);
 

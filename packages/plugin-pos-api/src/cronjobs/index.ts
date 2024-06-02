@@ -105,14 +105,6 @@ export default {
             item.closeDate = nextCloseDate;
           }
 
-          console.log({
-            order: {
-              ...doc,
-              _id: nanoid(),
-              items: [{ ...item, status: 'new' }]
-            }
-          });
-
           await sendPosclientMessage({
             subdomain,
             action: 'createOrder',

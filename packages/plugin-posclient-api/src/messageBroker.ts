@@ -131,7 +131,6 @@ export const setupMessageConsumers = async () => {
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
       const { order } = data;
-      console.log({ orderId: order._id });
 
       await models.Orders.updateOne(
         { _id: order._id },
