@@ -1,0 +1,149 @@
+import LocationOption from '@erxes/ui-forms/src/settings/properties/components/LocationOption';
+import Button from '@erxes/ui/src/components/Button';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils/core';
+import React, { useEffect, useState } from 'react';
+
+import { IGolomtBankConfigsItem } from '../../scheme/configTypes';
+
+type Props = {
+  config?: IGolomtBankConfigsItem;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  closeModal: () => void;
+};
+
+const ConfigForm = (props: Props) => {
+  const { config } = props;
+
+  const [configObject, setConfigObject] = useState<
+  IGolomtBankConfigsItem | undefined
+  >(config);
+
+  const generateDoc = () => {
+    const finalValues: any = {};
+
+    if (config) {
+      finalValues._id = config._id;
+    }
+
+    if (configObject) {
+      finalValues.userName = configObject.userName;
+      finalValues.organizationName = configObject.organizationName;
+      finalValues.clientId = configObject.clientId;
+      finalValues.sessionKey = configObject.sessionKey;
+      finalValues.ivKey = configObject.ivKey;
+      finalValues.password = configObject.password;
+    }
+
+    return {
+      ...finalValues
+    };
+  };
+
+  const onChangeInput = e => {
+    const { id, value } = e.target;
+
+    const obj: any = configObject || {};
+
+    obj[id] = value;
+
+    setConfigObject(obj);
+  };
+
+  const renderInput = (formProps, title, name, type, value) => {
+    return (
+      <FormGroup>
+        <ControlLabel>{title}</ControlLabel>
+        <FormControl
+          {...formProps}
+          id={name}
+          name={name}
+          type={type}
+          defaultValue={value}
+          onChange={onChangeInput}
+        />
+      </FormGroup>
+    );
+  };
+
+  const renderContent = (formProps: IFormProps) => {
+    const { closeModal, renderButton } = props;
+    const { isSubmitted } = formProps;
+
+    return (
+      <>
+        {renderInput(
+          formProps,
+          'RegisterId',
+          'registerId',
+          'string',
+          config && config.registerId
+        )},
+        {renderInput(
+          formProps,
+          'OrganizationName',
+          'organizationName',
+          'string',
+          config && config.organizationName
+        )}
+        {renderInput(
+          formProps,
+          'IvKey',
+          'ivKey',
+          'string',
+          config && config.ivKey
+        )}
+        {renderInput(
+          formProps,
+          'ClientId',
+          'clientId',
+          'string',
+          config && config.clientId
+        )}
+        {renderInput(
+          formProps,
+          'SessionKey',
+          'sessionKey',
+          'string',
+          config && config.sessionKey
+        )}
+        {renderInput(
+          formProps,
+          'UserName',
+          'userName',
+          'string',
+          config && config.userName
+        )}
+        {renderInput(
+          formProps,
+          'Password',
+          'password',
+          'password',
+          config && config.password
+        )}
+        <ModalFooter>
+          <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
+            Close
+          </Button>
+
+          {renderButton({
+            name: 'configs',
+            values: generateDoc(),
+            isSubmitted,
+            callback: closeModal,
+            object: config
+          })}
+        </ModalFooter>
+      </>
+    );
+  };
+
+  return <Form renderContent={renderContent} />;
+};
+
+export default ConfigForm;
