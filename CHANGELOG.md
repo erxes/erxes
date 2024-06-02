@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.4](https://github.com/erxes/erxes/compare/1.11.3...1.11.4) (2024-06-02)
+
+
+### Bug Fixes
+
+* **coreui:** can't redirect onboarding route ([6854c20](https://github.com/erxes/erxes/commit/6854c207864b5051b4a1a9ade9149a74bfd8d3bf))
+
 ## [1.11.3](https://github.com/erxes/erxes/compare/1.11.2...1.11.3) (2024-05-30)
 
 ## [1.11.2](https://github.com/erxes/erxes/compare/1.11.1...1.11.2) (2024-05-30)
