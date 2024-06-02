@@ -2,8 +2,9 @@ import Icon from "@erxes/ui/src/components/Icon";
 import React from "react";
 import Popover from "@erxes/ui/src/components/Popover";
 
-import { WidgetButton } from "../../../styles";
+// import { WidgetButton } from "../styles";
 import RateList from "../containers/Rates";
+import { Button } from "@erxes/ui";
 
 const Widget = () => {
   return (
@@ -11,9 +12,9 @@ const Widget = () => {
       <Popover
         placement="bottom"
         trigger={
-          <WidgetButton>
+          <Button>
             <Icon icon="dollar-sign" size={20} />
-          </WidgetButton>
+          </Button>
         }
         className="notification-popover"
       >

@@ -7,7 +7,7 @@ import {
  golomtBankConfigSchema
 } from './definitions/golomtBankConfigs';
 
-export interface IGolomtBankConfigModel extends Model<IGolomtBankConfigDocument> {
+export interface IGolomtBankConfigModel extends Model<IGolomtBankConfigDocument> { 
   createConfig(doc: IGolomtBankConfig): Promise<IGolomtBankConfigDocument>;
   updateConfig(_id: string, doc: any): Promise<IGolomtBankConfigDocument>;
   getConfig(doc: any): Promise<IGolomtBankConfigDocument>;
@@ -17,16 +17,16 @@ export interface IGolomtBankConfigModel extends Model<IGolomtBankConfigDocument>
 export const loadGolomtBankConfigClass = (models: IModels) => {
   class GolomtBankConfigs {
     public static async createConfig(doc: IGolomtBankConfig) {
-      const khanbankConfig = await models.GolomtBankConfigs.findOne({
-        consumerclientIdKey: doc.clientId,
-        userName: doc.userName
+      const golomtBankConfig = await models.GolomtBankConfig.findOne({
+        consumerKey: doc.consumerKey,
+        secretKey: doc.secretKey
       });
 
       if (khanbankConfig) {
         throw new Error('Config already exists');
       }
 
-      return models.GolomtBankConfigs.create(doc);
+      return models.GolomtBankConfig.create(doc);
     }
 
     public static async updateConfig(_id: string, doc: any) {

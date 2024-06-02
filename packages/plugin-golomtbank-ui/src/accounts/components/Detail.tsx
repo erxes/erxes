@@ -64,20 +64,44 @@ const Detail = (props: Props) => {
         <BlockRow>
           <FormGroup>
             <p>{__('Account')}</p>
-            <strong>{accountNumber}</strong>
+            <strong>{account.accountId}</strong>
           </FormGroup>
 
           <FormGroup>
             <p>{__('Account holder')} </p>
-            {/* //<strong>{holderInfo}</strong> */}
+            <strong>{account.accountName}</strong>
           </FormGroup>
 
           <FormGroup>
             <p>{__('Balance')} </p>
             <strong>
-              {/* {account.balance.toLocaleString()}{' '} */}
+              {(120000).toLocaleString()}{' '}
               {getCurrencySymbol(account.currency || 'MNT')}
             </strong>
+          </FormGroup>
+          <FormGroup>
+            <p>{__('Type')} </p>
+            <strong>
+              {account.accountType.schemeType}
+            </strong>
+          </FormGroup>
+
+          <FormGroup>
+            <p>{__('branch')} </p>
+            <strong>
+              {account.branchId}
+            </strong>
+          </FormGroup>
+          <FormGroup>
+            <p>{__('Social account')}</p>
+            <Toggle
+              checked={true}
+              onChange={toggleChange}
+              icons={{
+                checked: <span>Yes</span>,
+                unchecked: <span>No</span>
+              }}
+            />
           </FormGroup>
         </BlockRow>
 
