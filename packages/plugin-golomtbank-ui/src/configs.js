@@ -15,7 +15,7 @@ module.exports = {
     {
       text: "Golomt Bank config",
       image: "/images/icons/erxes-01.svg",
-      to: "/erxes-plugin-golomtbank/configs",
+      to: "/erxes-plugin-golomtbank/config",
       scope: 'golomtbank',
       location: "settings"
     },

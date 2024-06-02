@@ -15,7 +15,7 @@ import React from "react";
 import { SidebarList } from "@erxes/ui/src/layout/styles";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import { TopHeader } from "@erxes/ui/src/styles/main";
-import Form from "../configs/containers/Form";
+import Form from "../config/containers/config";
 type Props = {
   configs: any[];
   totalCount: number;

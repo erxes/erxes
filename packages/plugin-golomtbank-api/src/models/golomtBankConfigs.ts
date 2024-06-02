@@ -7,7 +7,7 @@ import {
   golomtBankConfigSchema
 } from './definitions/golomtBankConfigs';
 
-export interface IGolomtBankConfigModel extends Model<IGolomtBankConfigDocument> { 
+export interface IGolomtBankConfigModel extends Model<IGolomtBankConfigDocument> {
   createConfig(doc: IGolomtBankConfig): Promise<IGolomtBankConfigDocument>;
   updateConfig(_id: string, doc: any): Promise<IGolomtBankConfigDocument>;
   getConfig(doc: any): Promise<IGolomtBankConfigDocument>;
@@ -17,9 +17,15 @@ export interface IGolomtBankConfigModel extends Model<IGolomtBankConfigDocument>
 export const loadGolomtBankConfigClass = (models: IModels) => {
   class GolomtBankConfig {
     public static async createConfig(doc: IGolomtBankConfig) {
+<<<<<<< HEAD
       const khanbankConfig = await models.GolomtBankConfigs.findOne({
         consumerclientIdKey: doc.clientId,
         userName: doc.userName
+=======
+      const golomtBankConfig = await models.GolomtBankConfig.findOne({
+        consumerKey: doc.consumerKey,
+        secretKey: doc.secretKey
+>>>>>>> parent of 30a8a4c1c9 (05/31)
       });
 
       if (golomtBankConfig) {

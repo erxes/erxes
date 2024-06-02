@@ -26,7 +26,7 @@ function Sidebar () {
     <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
       <List id="Sidebar">
         {renderListItem(
-          '/erxes-plugin-golomtbank/configs',
+          '/erxes-plugin-golomtbank/config',
           'General config',
         )
         }

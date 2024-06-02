@@ -1,22 +1,11 @@
-import { QueryResponse } from '@erxes/ui/src/types';
-
-export interface IGolomtBankConfigsItem {
-  _id: string;
+export interface IGolomtBankConfig {
   name: string;
-  userName: string;
-  organizationName: string;
-  ivKey: string;
-  clientId: string;
-  sessionKey: string;
-  password: string
+  description: string;
+  consumerKey: string;
+  secretKey: string;
 }
 
-export type ConfigsListQueryResponse = {
-  golomtBankConfigsList: {
-    list: IGolomtBankConfigsItem[];
-    totalCount: number;
-  };
-
-  loading: boolean;
-  refetch: () => void;
-} & QueryResponse;
+export interface IGolomtBankConfigDocument extends IGolomtBankConfig, Document {
+  _id: string;
+  createdAt: Date;
+}
