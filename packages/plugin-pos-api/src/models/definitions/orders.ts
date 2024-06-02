@@ -165,19 +165,24 @@ const returnInfoSchema = new Schema({
   description: field({ type: String })
 });
 
-const subscriptionInfo = new Schema({
-  subscriptionId: field({
-    type: String,
-    label: 'Subscription Id',
-    optional: true
-  }),
-  status: field({
-    type: String,
-    label: 'Subscription Status',
-    enum: SUBSCRIPTION_INFO_STATUS.ALL,
-    default: SUBSCRIPTION_INFO_STATUS.ACTIVE
-  })
-});
+const subscriptionInfo = new Schema(
+  {
+    subscriptionId: field({
+      type: String,
+      label: 'Subscription Id',
+      optional: true
+    }),
+    status: field({
+      type: String,
+      label: 'Subscription Status',
+      enum: SUBSCRIPTION_INFO_STATUS.ALL,
+      default: SUBSCRIPTION_INFO_STATUS.ACTIVE
+    })
+  },
+  {
+    _id: false
+  }
+);
 
 export const posOrderSchema = schemaHooksWrapper(
   new Schema({

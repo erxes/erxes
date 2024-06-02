@@ -6,7 +6,7 @@ import {
   sendCardsMessage,
   sendCoreMessage,
   sendInboxMessage,
-  sendPosMessage,
+  sendPosMessage
 } from '../../../messageBroker';
 import { IConfig, IConfigDocument } from '../../../models/definitions/configs';
 import {
@@ -14,7 +14,7 @@ import {
   ORDER_ITEM_STATUSES,
   ORDER_STATUSES,
   ORDER_SALE_STATUS,
-  ORDER_TYPES,
+  ORDER_TYPES
 } from '../../../models/definitions/constants';
 import { IPaidAmount } from '../../../models/definitions/orders';
 import { IPosUserDocument } from '../../../models/definitions/posUsers';
@@ -31,7 +31,7 @@ import {
   reverseItemStatus,
   updateOrderItems,
   validateOrder,
-  validateOrderPayment,
+  validateOrderPayment
 } from '../../utils/orderUtils';
 import { checkSlotStatus } from '../../utils/slots';
 import { prepareSettlePayment } from '../../../utils';
@@ -74,7 +74,7 @@ const getTaxInfo = (config: IConfig) => {
   return {
     hasVat: (config.ebarimtConfig && config.ebarimtConfig.hasVat) || false,
     hasCitytax:
-      (config.ebarimtConfig && config.ebarimtConfig?.hasCitytax) || false,
+      (config.ebarimtConfig && config.ebarimtConfig?.hasCitytax) || false
   };
 };
 
@@ -105,7 +105,7 @@ export const getStatus = (config, buttonType, doc, order?) => {
       doc.items.length
     ) {
       const newItems =
-        doc.items.filter((i) => i.status === ORDER_ITEM_STATUSES.NEW) || [];
+        doc.items.filter(i => i.status === ORDER_ITEM_STATUSES.NEW) || [];
       if (newItems.length) {
         return ORDER_STATUSES.REDOING;
       }
@@ -141,7 +141,7 @@ const orderAdd = async (models: IModels, lastDoc, config) => {
 
     const order = await models.Orders.createOrder({
       ...lastDoc,
-      number,
+      number
     });
 
     return order;
@@ -160,7 +160,7 @@ export const ordersAdd = async (
     posUser,
     config,
     models,
-    subdomain,
+    subdomain
   }: {
     posUser: IPosUserDocument;
     config: IConfigDocument;
@@ -189,7 +189,7 @@ export const ordersAdd = async (
     customerId,
     customerType,
     userId: posUser ? posUser._id : '',
-    isPre,
+    isPre
   };
 
   try {
@@ -200,6 +200,8 @@ export const ordersAdd = async (
       models,
       posUser
     );
+
+    console.log({ preparedDoc });
 
     const status = getStatus(config, doc.buttonType, doc);
     const saleStatus = getSaleStatus(config, doc, preparedDoc);
@@ -215,7 +217,7 @@ export const ordersAdd = async (
       taxInfo: getTaxInfo(config),
       status,
       saleStatus,
-      subscriptionInfo: preparedDoc?.subscriptionInfo,
+      subscriptionInfo: preparedDoc?.subscriptionInfo
     };
 
     const order = await orderAdd(models, lastDoc, config);
@@ -236,7 +238,7 @@ export const ordersAdd = async (
         manufacturedDate: item.manufacturedDate,
         description: item.description,
         attachment: item.attachment,
-        closeDate: item?.closeDate,
+        closeDate: item?.closeDate
       });
     }
 
@@ -246,14 +248,14 @@ export const ordersAdd = async (
         _id: order._id,
         status: order.status,
         customerId: order.customerId,
-        customerType: order.customerType,
-      },
+        customerType: order.customerType
+      }
     });
 
     if (order.slotCode) {
       const currentSlots = await models.PosSlots.find({
         posToken: config.token,
-        code: order.slotCode,
+        code: order.slotCode
       }).lean();
 
       if (currentSlots.length) {
@@ -262,7 +264,7 @@ export const ordersAdd = async (
             models,
             config,
             currentSlots
-          ),
+          )
         });
       }
     }
@@ -283,7 +285,7 @@ const ordersEdit = async (
     posUser,
     config,
     models,
-    subdomain,
+    subdomain
   }: {
     posUser: IPosUserDocument;
     config: IConfigDocument;
@@ -341,7 +343,7 @@ const ordersEdit = async (
     dueDate: doc.dueDate,
     description: doc.description,
     status,
-    saleStatus,
+    saleStatus
   });
 
   await graphqlPubsub.publish('ordersOrdered', {
@@ -350,8 +352,8 @@ const ordersEdit = async (
       _id: updatedOrder._id,
       status: updatedOrder.status,
       customerId: updatedOrder.customerId,
-      customerType: order.customerType,
-    },
+      customerType: order.customerType
+    }
   });
 
   if (
@@ -360,12 +362,12 @@ const ordersEdit = async (
   ) {
     const currentSlots = await models.PosSlots.find({
       posToken: config.token,
-      code: { $in: [order.slotCode, updatedOrder.slotCode] },
+      code: { $in: [order.slotCode, updatedOrder.slotCode] }
     }).lean();
 
     if (currentSlots.length) {
       await graphqlPubsub.publish('slotsStatusUpdated', {
-        slotsStatusUpdated: await checkSlotStatus(models, config, currentSlots),
+        slotsStatusUpdated: await checkSlotStatus(models, config, currentSlots)
       });
     }
   }
@@ -400,7 +402,7 @@ const orderMutations = {
     const order = await models.Orders.updateOrder(_id, {
       ...oldOrder,
       status,
-      modifiedAt: new Date(),
+      modifiedAt: new Date()
     });
 
     if (status === ORDER_STATUSES.REDOING) {
@@ -423,8 +425,8 @@ const orderMutations = {
         _id,
         status: order.status,
         customerId: order.customerId,
-        customerType: order.customerType,
-      },
+        customerType: order.customerType
+      }
     });
 
     if (
@@ -437,7 +439,7 @@ const orderMutations = {
         sendPosMessage({
           subdomain,
           action: 'createOrUpdateOrders',
-          data: { action: 'statusToDone', order, posToken: config.token },
+          data: { action: 'statusToDone', order, posToken: config.token }
         });
       } catch (e) {}
     }
@@ -454,7 +456,7 @@ const orderMutations = {
     await models.Orders.updateOrder(_id, {
       ...oldOrder,
       saleStatus,
-      modifiedAt: new Date(),
+      modifiedAt: new Date()
     });
 
     return await models.Orders.getOrder(_id);
@@ -517,9 +519,9 @@ const orderMutations = {
             action: 'makePayment',
             order,
             items: await models.OrderItems.find({
-              orderId: params._id,
-            }).lean(),
-          },
+              orderId: params._id
+            }).lean()
+          }
         });
       } catch (e) {
         debugError(`Error occurred while sending data to erxes: ${e.message}`);
@@ -540,8 +542,8 @@ const orderMutations = {
       orderItemsOrdered: {
         _id,
         posToken: config.token,
-        status: status,
-      },
+        status: status
+      }
     });
 
     return await models.OrderItems.getOrderItem(_id);
@@ -559,7 +561,7 @@ const orderMutations = {
     checkOrderStatus(order);
 
     const items = await models.OrderItems.find({
-      orderId: order._id,
+      orderId: order._id
     }).lean();
 
     await validateOrderPayment(order, doc);
@@ -589,14 +591,14 @@ const orderMutations = {
         response = await models.PutResponses.putData({
           ...data,
           config: ebarimtConfig,
-          models,
+          models
         });
         ebarimtResponses.push(response);
       }
 
       if (
         ebarimtResponses.length &&
-        !ebarimtResponses.filter((er) => er.success !== 'true').length
+        !ebarimtResponses.filter(er => er.success !== 'true').length
       ) {
         await models.Orders.updateOne(
           { _id },
@@ -610,8 +612,8 @@ const orderMutations = {
                 'settle',
                 { ...order, paidDate: now },
                 { ...order }
-              ),
-            },
+              )
+            }
           }
         );
       }
@@ -623,8 +625,8 @@ const orderMutations = {
           ...order,
           _id,
           status: order.status,
-          customerId: order.customerId,
-        },
+          customerId: order.customerId
+        }
       });
 
       try {
@@ -636,8 +638,8 @@ const orderMutations = {
             action: 'makePayment',
             responses: ebarimtResponses,
             order,
-            items,
-          },
+            items
+          }
         });
       } catch (e) {
         debugError(`Error occurred while sending data to erxes: ${e.message}`);
@@ -656,7 +658,7 @@ const orderMutations = {
     {
       _id,
       cashAmount,
-      paidAmounts,
+      paidAmounts
     }: {
       _id: string;
       cashAmount?: number;
@@ -679,8 +681,8 @@ const orderMutations = {
           ? (order.cashAmount || 0) + Number(cashAmount.toFixed(2))
           : order.cashAmount || 0,
         paidAmounts: (order.paidAmounts || []).concat(paidAmounts || []),
-        saleStatus: ORDER_SALE_STATUS.CONFIRMED,
-      },
+        saleStatus: ORDER_SALE_STATUS.CONFIRMED
+      }
     };
 
     await models.Orders.updateOne({ _id: order._id }, modifier);
@@ -691,10 +693,10 @@ const orderMutations = {
       const items = await models.OrderItems.find({ orderId: newOrder._id });
       if (config.isOnline) {
         const products = await models.Products.find({
-          _id: { $in: items.map((i) => i.productId) },
+          _id: { $in: items.map(i => i.productId) }
         }).lean();
         for (const item of items) {
-          const product = products.find((p) => p._id === item.productId) || {};
+          const product = products.find(p => p._id === item.productId) || {};
           item.productName = `${product.code} - ${product.name}`;
         }
       }
@@ -707,8 +709,8 @@ const orderMutations = {
             posToken: config.token,
             action: 'makePayment',
             order,
-            items,
-          },
+            items
+          }
         });
       } catch (e) {
         debugError(`Error occurred while sending data to erxes: ${e.message}`);
@@ -726,7 +728,7 @@ const orderMutations = {
     if (
       order.mobileAmount ||
       (order.paidAmounts || []).filter(
-        (pa) => pa.info && Object.keys(pa.info).length
+        pa => pa.info && Object.keys(pa.info).length
       ).length > 0
     ) {
       throw new Error('Card payment exists for this order');
@@ -769,7 +771,7 @@ const orderMutations = {
     return await prepareSettlePayment(subdomain, models, order, config, {
       _id,
       billType,
-      registerNumber,
+      registerNumber
     });
   }, // end ordersSettlePayment()
 
@@ -797,14 +799,14 @@ const orderMutations = {
         subdomain,
         action: 'deals.findOne',
         data: { _id: order.convertDealId },
-        isRPC: true,
+        isRPC: true
       });
       if (deal) {
         const dealLink = await sendCardsMessage({
           subdomain,
           action: 'getLink',
           data: { _id: order.convertDealId, type: 'deal' },
-          isRPC: true,
+          isRPC: true
         });
 
         throw new Error(`Already converted: ${dealLink}`);
@@ -820,15 +822,15 @@ const orderMutations = {
       stageId: cardConfig.stageId,
       assignedUserIds: [posUser._id],
       watchedUserIds: [posUser._id],
-      productsData: items.map((i) => ({
+      productsData: items.map(i => ({
         productId: i.productId,
         uom: 'PC',
         currency: 'MNT',
         quantity: i.count,
         unitPrice: i.unitPrice,
         amount: i.count * (i.unitPrice || 0),
-        tickUsed: true,
-      })),
+        tickUsed: true
+      }))
     };
 
     if (order.deliveryInfo && cardConfig.deliveryMapField) {
@@ -841,18 +843,18 @@ const orderMutations = {
             type: 'Point',
             coordinates: [
               marker.longitude || marker.lng,
-              marker.latitude || marker.lat,
-            ],
+              marker.latitude || marker.lat
+            ]
           },
           value: {
             lat: marker.latitude || marker.lat,
             lng: marker.longitude || marker.lng,
-            description: 'location',
+            description: 'location'
           },
           stringValue: `${marker.longitude || marker.lng},${
             marker.latitude || marker.lat
-          }`,
-        },
+          }`
+        }
       ];
     }
 
@@ -861,7 +863,7 @@ const orderMutations = {
       action: 'deals.create',
       data: dealData,
       isRPC: true,
-      defaultValue: {},
+      defaultValue: {}
     });
 
     if (order.customerId) {
@@ -877,9 +879,9 @@ const orderMutations = {
             mainType: 'deal',
             mainTypeId: deal._id,
             relType: order.customerType || 'customer',
-            relTypeId: order.customerId,
+            relTypeId: order.customerId
           },
-          isRPC: true,
+          isRPC: true
         });
       }
     }
@@ -920,9 +922,9 @@ const orderMutations = {
             posclient link: <a href="${config.pdomain || '/'}?orderId=${
               order._id
             }">${order.number}</a> <br />
-        `,
+        `
       },
-      isRPC: true,
+      isRPC: true
     });
   },
 
@@ -948,14 +950,14 @@ const orderMutations = {
         posUser,
         config,
         models,
-        subdomain,
+        subdomain
       });
     } else {
       const addedOrder = await ordersAdd(doc, {
         posUser,
         config,
         models,
-        subdomain,
+        subdomain
       });
       _id = addedOrder._id;
     }
@@ -965,7 +967,7 @@ const orderMutations = {
     checkOrderStatus(order);
 
     const items = await models.OrderItems.find({
-      orderId: order._id,
+      orderId: order._id
     }).lean();
 
     await validateOrderPayment(order, { billType: BILL_TYPES.INNER });
@@ -984,8 +986,8 @@ const orderMutations = {
               'finish',
               { ...order, paidDate: now },
               { ...order }
-            ),
-          },
+            )
+          }
         }
       );
 
@@ -996,8 +998,8 @@ const orderMutations = {
           ...order,
           _id,
           status: order.status,
-          customerId: order.customerId,
-        },
+          customerId: order.customerId
+        }
       });
 
       try {
@@ -1008,8 +1010,8 @@ const orderMutations = {
             posToken: config.token,
             action: 'makePayment',
             order,
-            items,
-          },
+            items
+          }
         });
       } catch (e) {
         debugError(`Error occurred while sending data to erxes: ${e.message}`);
@@ -1028,7 +1030,7 @@ const orderMutations = {
     {
       _id,
       cashAmount,
-      paidAmounts,
+      paidAmounts
     }: {
       _id: string;
       cashAmount?: number;
@@ -1085,15 +1087,15 @@ const orderMutations = {
           cashAmount,
           paidAmounts,
           returnAt: new Date(),
-          returnBy: posUser._id,
+          returnBy: posUser._id
         },
         cashAmount: cashAmount
           ? (order.cashAmount || 0) - Number(cashAmount.toFixed(2))
           : order.cashAmount || 0,
         paidAmounts: (order.paidAmounts || []).concat(
-          (paidAmounts || []).map((a) => ({ ...a, amount: -1 * a.amount }))
-        ),
-      },
+          (paidAmounts || []).map(a => ({ ...a, amount: -1 * a.amount }))
+        )
+      }
     };
 
     const ebarimtConfig = config.ebarimtConfig;
@@ -1106,7 +1108,7 @@ const orderMutations = {
       contentId: _id,
       contentType: 'pos',
       number: order.number || '',
-      config: ebarimtConfig,
+      config: ebarimtConfig
     })) as any;
 
     if (returnResponses.error) {
@@ -1123,8 +1125,8 @@ const orderMutations = {
         _id: order._id,
         status: order.status,
         customerId: order.customerId,
-        customerType: order.customerType,
-      },
+        customerType: order.customerType
+      }
     });
 
     try {
@@ -1136,15 +1138,15 @@ const orderMutations = {
           action: 'makePayment',
           responses: returnResponses,
           order,
-          items: await models.OrderItems.find({ orderId: _id }).lean(),
-        },
+          items: await models.OrderItems.find({ orderId: _id }).lean()
+        }
       });
     } catch (e) {
       debugError(`Error occurred while sending data to erxes: ${e.message}`);
     }
 
     return models.Orders.findOne({ _id: order._id });
-  },
+  }
 };
 
 export default orderMutations;

@@ -594,8 +594,6 @@ export const prepareOrderDoc = async (
 
       const period = (subscriptionConfig?.period || '').replace('ly', '');
 
-      console.log({ period, count: item.count });
-
       item.closeDate = new Date(
         moment()
           .add(item.count || 0, period)

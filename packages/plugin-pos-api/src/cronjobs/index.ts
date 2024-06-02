@@ -1,7 +1,9 @@
 import { generateModels } from '../connectionResolver';
 import { SUBSCRIPTION_INFO_STATUS } from '../contants';
+import { debugError } from '../debugger';
 import { sendPosclientMessage, sendProductsMessage } from '../messageBroker';
-import moment from 'moment';
+import * as moment from 'moment';
+import { nanoid } from 'nanoid';
 
 function toSpecificDayOfWeek(date, dayOfWeek) {
   let currentDay = date.getDay();
@@ -11,7 +13,7 @@ function toSpecificDayOfWeek(date, dayOfWeek) {
 }
 
 export default {
-  handleDailyJob: async ({ subdomain }) => {
+  handleMinutelyJob: async ({ subdomain }) => {
     const models = await generateModels(subdomain);
 
     const TODAY = new Date();
@@ -26,12 +28,37 @@ export default {
       ],
       'subscriptionInfo.status': SUBSCRIPTION_INFO_STATUS.ACTIVE,
       status: 'complete'
-    });
+    }).lean();
 
     for (const subscription of subscriptions) {
-      const { items = [], posToken } = subscription;
+      const {
+        items = [],
+        posToken,
+        origin,
+        type,
+        slotCode,
+        customerType,
+        customerId,
+        description,
+        subscriptionInfo,
+        userId
+      } = subscription;
 
-      const pos = await models.Pos.findOne({ token: posToken });
+      const pos = await models.Pos.findOne({ token: posToken }).lean();
+
+      const doc = {
+        origin,
+        type,
+        slotCode,
+        customerType,
+        customerId,
+        description,
+        status: 'new',
+        createdAt: new Date(),
+        subscriptionId: subscriptionInfo?.subscriptionId,
+        posToken,
+        userId
+      };
 
       for (const item of items) {
         if (
@@ -42,7 +69,7 @@ export default {
         ) {
           const product = await sendProductsMessage({
             subdomain,
-            action: 'products.findOne',
+            action: 'findOne',
             data: {
               _id: item.productId
             },
@@ -52,7 +79,7 @@ export default {
 
           const uom = await sendProductsMessage({
             subdomain,
-            action: 'uom.findOne',
+            action: 'uoms.findOne',
             data: { code: product?.uom },
             isRPC: true,
             defaultValue: null
@@ -78,18 +105,42 @@ export default {
             item.closeDate = nextCloseDate;
           }
 
+          console.log({
+            order: {
+              ...doc,
+              _id: nanoid(),
+              items: [{ ...item, status: 'new' }]
+            }
+          });
+
           await sendPosclientMessage({
             subdomain,
-            action: 'erxes-posclient-to-pos-api',
+            action: 'createOrder',
             data: {
-              ...subscription,
-              items: [item],
-              subscriptionId: subscription?.subscriptionInfo?.subscriptionId
+              order: {
+                ...doc,
+                _id: nanoid(),
+                items: [{ ...item, status: 'new' }]
+              }
             },
             pos
+          }).catch(error => {
+            debugError(error.message);
           });
         }
       }
+
+      await sendPosclientMessage({
+        subdomain,
+        action: 'erxes-posclient-to-pos-api',
+        data: {
+          order: {
+            _id: subscription._id,
+            'subscriptionInfo.status': SUBSCRIPTION_INFO_STATUS.CLOSED
+          }
+        },
+        pos
+      });
 
       await models.PosOrders.updateOne(
         { _id: subscription._id },
