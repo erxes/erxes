@@ -104,6 +104,7 @@ const Row: React.FC<RowProps> = ({
     return (
       <ModalTrigger
         title={`${__("Merge")} ${tag.name}`}
+        tipText="Merge"
         trigger={<Button btnStyle="link" icon="merge" />}
         content={(props) => (
           <div {...props}>

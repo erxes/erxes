@@ -112,7 +112,7 @@ const DashboardSection = (props: Props) => {
 
   const renderContent = () => {
     if (loading) {
-      return <Spinner objective={true} />;
+      return <Spinner objective={true} height='50px' />;
     }
 
     if (sections?.length === 0 && dashboards?.length === 0) {
