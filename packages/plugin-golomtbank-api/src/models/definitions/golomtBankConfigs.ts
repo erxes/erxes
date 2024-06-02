@@ -2,12 +2,10 @@ import { field } from '@erxes/api-utils/src/definitions/utils';
 import { Document, Schema } from 'mongoose';
 
 export interface IGolomtBankConfig {
-  userName: string;
-  organizationName: string;
-  clientId: string;
-  ivKey: string;
-  sessionKey: string;
-  password: string
+  name: string;
+  description: string;
+  consumerKey: string;
+  secretKey: string;
 }
 
 export interface IGolomtBankConfigDocument extends IGolomtBankConfig, Document {
@@ -17,11 +15,9 @@ export interface IGolomtBankConfigDocument extends IGolomtBankConfig, Document {
 
 export const golomtBankConfigSchema = new Schema({
   _id: field({ pkey: true }),
-  userName: field({ type: String, required: true }),
-  organizationName: field({ type: String }),
-  ivKey: field({ type: String }),
-  clientId: field({ type: String, required: true }),
-  sessionKey: field({ type: String, required: true }),
-  password: field({ type: String, required: true }),
+  name: field({ type: String, required: true }),
+  description: field({ type: String }),
   createdAt: field({ type: Date, default: Date.now }),
+  consumerKey: field({ type: String, required: true }),
+  secretKey: field({ type: String, required: true })
 });

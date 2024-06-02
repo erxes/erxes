@@ -9,7 +9,8 @@ import { IGolomtBankConfigDocument } from './models/definitions/golomtBankConfig
 import { IGolomtBankTransactionModel } from './models/golomtBankTransaction';
 
 export interface IModels {
- GolomtBankConfigs: IGolomtBankConfigModel;
+  GolomtBankConfig: IGolomtBankConfigModel;
+  GolomtBankTransaction: IGolomtBankTransactionModel;
 }
 
 export interface IContext extends IMainContext {
@@ -23,7 +24,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.GolomtBankConfig = db.model<
     IGolomtBankConfigDocument,
     IGolomtBankConfigModel
-  >('khanbank_configs', loadGolomtBankConfigClass(models));
+  >('golomtBank_configs', loadGolomtBankConfigClass(models));
 
   return models;
 };

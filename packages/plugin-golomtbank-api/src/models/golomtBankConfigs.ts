@@ -4,7 +4,7 @@ import { IModels } from '../connectionResolver';
 import {
   IGolomtBankConfig,
   IGolomtBankConfigDocument,
- golomtBankConfigSchema
+  golomtBankConfigSchema
 } from './definitions/golomtBankConfigs';
 
 export interface IGolomtBankConfigModel extends Model<IGolomtBankConfigDocument> { 
@@ -15,14 +15,14 @@ export interface IGolomtBankConfigModel extends Model<IGolomtBankConfigDocument>
 }
 
 export const loadGolomtBankConfigClass = (models: IModels) => {
-  class GolomtBankConfigs {
+  class GolomtBankConfig {
     public static async createConfig(doc: IGolomtBankConfig) {
-      const golomtBankConfig = await models.GolomtBankConfig.findOne({
-        consumerKey: doc.consumerKey,
-        secretKey: doc.secretKey
+      const khanbankConfig = await models.GolomtBankConfigs.findOne({
+        consumerclientIdKey: doc.clientId,
+        userName: doc.userName
       });
 
-      if (khanbankConfig) {
+      if (golomtBankConfig) {
         throw new Error('Config already exists');
       }
 
@@ -30,36 +30,36 @@ export const loadGolomtBankConfigClass = (models: IModels) => {
     }
 
     public static async updateConfig(_id: string, doc: any) {
-      const khanbankConfig = await models.GolomtBankConfigs.findOne({
+      const golomtBankConfig = await models.GolomtBankConfig.findOne({
         consumerKey: doc.consumerKey,
         secretKey: doc.secretKey
       });
 
-      if (khanbankConfig && khanbankConfig._id !== _id) {
+      if (golomtBankConfig && golomtBankConfig._id !== _id) {
         throw new Error('Config exists with same credentials');
       }
 
-      await models.GolomtBankConfigs.updateOne({ _id }, { $set: doc });
+      await models.GolomtBankConfig.updateOne({ _id }, { $set: doc });
 
-      return models.GolomtBankConfigs.getConfig({ _id });
+      return models.GolomtBankConfig.getConfig( _id );
     }
 
     public static async removeConfig(_id: string) {
-      return models.GolomtBankConfigs.remove({ _id });
+      return models.GolomtBankConfig.remove({ _id });
     }
 
-    public static async getConfig(doc: any) {
-      const khanbankConfig = await models.GolomtBankConfigs.findOne(doc);
+    public static async getConfig(_id: string) {
+      const golomtBankConfig = await models.GolomtBankConfig.findOne(_id);
 
-      if (!khanbankConfig) {
+      if (!golomtBankConfig) {
         throw new Error('Config not found');
       }
 
-      return khanbankConfig;
+      return golomtBankConfig;
     }
   }
 
-  golomtBankConfigSchema.loadClass(GolomtBankConfigs);
+  golomtBankConfigSchema.loadClass(GolomtBankConfig);
 
   return golomtBankConfigSchema;
 };
