@@ -18,9 +18,15 @@ export const loadGolomtBankConfigClass = (models: IModels) => {
   class GolomtBankConfig {
     public static async createConfig(doc: IGolomtBankConfig) {
 <<<<<<< HEAD
+<<<<<<< HEAD
       const khanbankConfig = await models.GolomtBankConfigs.findOne({
         consumerclientIdKey: doc.clientId,
         userName: doc.userName
+=======
+      const golomtBankConfig = await models.GolomtBankConfig.findOne({
+        consumerKey: doc.consumerKey,
+        secretKey: doc.secretKey
+>>>>>>> parent of 30a8a4c1c9 (05/31)
 =======
       const golomtBankConfig = await models.GolomtBankConfig.findOne({
         consumerKey: doc.consumerKey,
