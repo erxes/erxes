@@ -3,7 +3,7 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { gql } from '@apollo/client';
 import ConfigForm from '../components/Form';
-import { mutations, queries } from '../graphql';
+import { mutations, queries } from '../../graphql';
 
 type Props = {
   closeModal: () => void;

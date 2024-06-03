@@ -7,7 +7,7 @@ import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import Form from '../containers/Form';
 
-import { IGolomtBankConfigsItem } from '../../types/IGolomtBankConfigs';
+import { IGolomtBankConfigsItem } from '../../types/IConfigs';
 
 type Props = {
   config: IGolomtBankConfigsItem;

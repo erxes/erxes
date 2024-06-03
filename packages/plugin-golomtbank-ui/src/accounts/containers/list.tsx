@@ -18,7 +18,7 @@ type Props = {
 export default function ListContainer(props: Props) {
   const { data, loading, error } = useQuery<AccountsListQueryResponse>(
 
-    gql(queries.accounts),
+    gql(queries.listQuery),
     {
       variables: {
         configId: props.configId,

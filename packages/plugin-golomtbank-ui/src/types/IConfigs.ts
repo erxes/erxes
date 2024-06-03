@@ -1,14 +1,23 @@
-// queries
-export type IConfigsMap = { [key: string]: any };
 
-export type IBurenConfig = {
-  _id: string;
-  code: string;
-  value: any;
-};
+import { QueryResponse } from '@erxes/ui/src/types';
 
-export type ConfigsResponse = {
-  configs: IBurenConfig[];
+export interface IGolomtBankConfigsItem {
+  _id: string
+  name: string
+  organizationName: string
+  clientId: string
+  ivKey: string
+  sessionKey: string
+  configPassword: string
+  registerId: string
+}
+
+export type ConfigsListQueryResponse = {
+  golomtBankConfigsList: {
+    list: IGolomtBankConfigsItem[];
+    totalCount: number;
+  };
+
   loading: boolean;
   refetch: () => void;
-};
+} & QueryResponse;

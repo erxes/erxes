@@ -3,16 +3,22 @@ import React from 'react';
 import queryString from "query-string";
 import { Route, Routes, useLocation } from 'react-router-dom';
 
-const GolomtbankConfig = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings CreateGolomtbank" */ './config/containers/config')
+const ConfigsList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "ConfigList" */ "./configs/containers/List"
+    )
 );
 const GolomtbankAccounts = asyncComponent(() =>
   import(/* webpackChunkName: "Settings CreateGolomtbank" */ './components/CorporateGateway')
 );
-const golomtbankConfig = () => {
-  return <GolomtbankConfig />;
-};
 
+const ConfigsListComponent = () => {
+  const location = useLocation();
+  const queryParams = queryString.parse(location.search);
+
+  return <ConfigsList queryParams={queryParams} />;
+};
 const MenuComponent = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
@@ -24,11 +30,7 @@ const routes = () => {
   return (
     
     <Routes>
-       <Route
-        key="/erxes-plugin-golomtbank/config"
-        path="/erxes-plugin-golomtbank/config"
-        Component={golomtbankConfig}
-      />
+       <Route path="/settings/golomtBank" element={<ConfigsListComponent />} />
        <Route
         key="/erxes-plugin-golomtbank/accounts"
         path="/erxes-plugin-golomtbank/accounts"

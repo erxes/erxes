@@ -1,26 +1,34 @@
-const detail = `
-  query golomtbank($conversationId: String!) {
-      golomtbankConversationDetail(conversationId: $conversationId) {
-          _id
-          mailData
+const listQuery = `
+query GolomtBankConfigsList($page: Int, $perPage: Int) {
+    golomtBankConfigsList(page: $page, perPage: $perPage) {
+      list {
+        _id
+        name
+        organizationName
+        clientId
+        ivKey
+        sessionKey
+        registerId
       }
+      totalCount
+    }
   }
 `;
-
-const accounts = `
-  query golomtbankAccounts {
-    golomtBankAccounts
+const ratesQuery = `
+query KhanbankRates {
+  khanbankRates {
+    sellRate
+    number
+    name
+    midRate
+    currency
+    cashSellRate
+    cashBuyRate
+    buyRate
   }
+}
 `;
-const configs = `
-  query configsGetValue($code: String!) {
-    configsGetValue(code: $code)
-  }
-`;
-
-
 export default {
-  detail,
-  accounts,
-  configs
+  listQuery,
+  ratesQuery
 };

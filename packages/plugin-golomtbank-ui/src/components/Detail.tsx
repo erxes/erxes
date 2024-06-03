@@ -3,7 +3,6 @@ import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { Content } from '../styles';
 import DetailContainer from '../accounts/containers/Detail';
-import TransactionsContainer from '../transactions/containers/List';
 
 type Props = {
   loading?: boolean;
@@ -30,13 +29,7 @@ const Detail = (props: Props) => {
       );
     }
 
-    if (currentTab === 'transactions') {
-      return (
-        <Content>
-          <TransactionsContainer {...props} queryParams={queryParams} />
-        </Content>
-      );
-    }
+
 
     return <>{currentTab}</>;
   };

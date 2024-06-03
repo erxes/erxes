@@ -13,11 +13,11 @@ module.exports = {
   },
   menus: [
     {
-      text: "Golomt Bank config",
-      image: "/images/icons/erxes-01.svg",
-      to: "/erxes-plugin-golomtbank/config",
-      scope: 'golomtbank',
-      location: "settings"
+      text: "GolomtBank",
+      to: "/settings/golomtBank",
+      image: "/images/icons/erxes-25.png",
+      location: "settings",
+      scope: "golomtBank",
     },
     {
       text: "GolomtBank",
@@ -27,4 +27,5 @@ module.exports = {
       location: "mainNavigation"
     }
   ]
+  
 };

@@ -5,10 +5,10 @@ import { gql } from "@apollo/client";
 import React from "react";
 import { useQuery, useMutation } from "@apollo/client";
 
-import SidebarList from "../../corporateGateway/components/ConfigsList";
+import SidebarList from "../../components/ConfigsList";
 import List from "../components/List";
-import { mutations, queries } from "../graphql";
-import { ConfigsListQueryResponse } from "../types";
+import { mutations, queries } from "../../graphql";
+import { ConfigsListQueryResponse } from "../../types/IConfigs";
 import { useLocation } from "react-router-dom";
 
 type Props = {
@@ -18,7 +18,7 @@ type Props = {
 
 export default function ListContainer(props: Props) {
   const location = useLocation();
-  const isSettings = location.pathname === "/settings/khanbank";
+  const isSettings = location.pathname === "/settings/golomtBank";
 
   const variables: any = {
     ...router.generatePaginationParams(props.queryParams || {}),
@@ -56,9 +56,9 @@ export default function ListContainer(props: Props) {
     return <Spinner />;
   }
 
-  const configs = (data && data.khanbankConfigsList.list) || [];
+  const configs =  data?.golomtBankConfigsList?.list || [];
 
-  const totalCount = (data && data.khanbankConfigsList.totalCount) || 0;
+  const totalCount = data?.golomtBankConfigsList?.totalCount || 0;
 
   const extendedProps = {
     ...props,

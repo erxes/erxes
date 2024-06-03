@@ -3,7 +3,7 @@ import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
 import EmptyContent from "@erxes/ui/src/components/empty/EmptyContent";
 import Form from "../containers/Form";
 import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
-import { IGolomtBankConfigsItem } from "../../types/IGolomtBankConfigs";
+import { IGolomtBankConfigsItem } from "../../types/IConfigs";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 import React from "react";

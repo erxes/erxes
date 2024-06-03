@@ -2,22 +2,23 @@ import * as routerUtils from "@erxes/ui/src/utils/router";
 
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { ConfigList } from "../styles";
-import AccountList from "../accounts/containers/list";
+import AccountList from "../accounts/containers/List";
 import Box from "@erxes/ui/src/components/Box";
 import Button from "@erxes/ui/src/components/Button";
+import { ConfigList } from "../styles";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Form from "../configs/containers/Form";
+import { IGolomtBankConfigsItem } from "../types/IConfigs";
 import Icon from "@erxes/ui/src/components/Icon";
 import LeftSidebar from "@erxes/ui/src/layout/components/Sidebar";
 import LoadMore from "@erxes/ui/src/components/LoadMore";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import React from "react";
 import { SidebarList } from "@erxes/ui/src/layout/styles";
-import Spinner from "@erxes/ui/src/components/Spinner";
 import { TopHeader } from "@erxes/ui/src/styles/main";
-import Form from "../config/containers/config";
+
 type Props = {
-  configs: any[];
+  configs: IGolomtBankConfigsItem[];
   totalCount: number;
   queryParams: any;
   loading: boolean;
@@ -37,7 +38,7 @@ const ConfigsList = (props: Props) => {
 
   React.useEffect(() => {
     const defaultAccount = JSON.parse(
-      localStorage.getItem("khanbankDefaultAccount") || "{}"
+      localStorage.getItem("golomtBankDefaultAccount") || "{}"
     );
 
     if (defaultAccount.configId && defaultAccount.accountNumber) {
@@ -97,8 +98,9 @@ const ConfigsList = (props: Props) => {
         Add New Config
       </Button>
     );
+
     const formContent = (formProps) => <Form {...formProps} />;
-  
+
     return (
       <TopHeader>
         <ModalTrigger
@@ -118,7 +120,7 @@ const ConfigsList = (props: Props) => {
         <SidebarList
           $noTextColor={true}
           $noBackground={true}
-          id={"khanbankSidebar"}
+          id={"golomtBankSidebar"}
         >
           {renderRow()}
           <LoadMore all={totalCount} loading={loading} />

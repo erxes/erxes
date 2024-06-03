@@ -2,7 +2,7 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { gql } from '@apollo/client';
 import React from 'react';
 import { useQuery } from '@apollo/client';
-import { RatesQueryResponse } from '../../../types';
+import { RatesQueryResponse } from '../types';
 import Rates from '../components/Rates';
 import queries from '../graphql/queries';
 
@@ -18,7 +18,7 @@ const RateList = () => {
     return <Spinner />;
   }
 
-  const rates = (data && data.khanbankRates) || [];
+  const rates = (data && data.golomtBankRates) || [];
 
   return (
     <>

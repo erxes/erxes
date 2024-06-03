@@ -9,7 +9,7 @@ import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils/core';
 import React, { useEffect, useState } from 'react';
 
-import { IGolomtBankConfigsItem } from '../../types/IGolomtBankConfigs';
+import { IGolomtBankConfigsItem } from '../../types/IConfigs';
 
 type Props = {
   config?: IGolomtBankConfigsItem;
@@ -32,11 +32,14 @@ const ConfigForm = (props: Props) => {
     }
 
     if (configObject) {
-      finalValues.userName = configObject.userName;
+
+      finalValues.registerId = configObject.registerId;
+      finalValues.ivKey = configObject.ivKey;
+      finalValues.name = configObject.name;
       finalValues.organizationName = configObject.organizationName;
       finalValues.clientId = configObject.clientId;
       finalValues.sessionKey = configObject.sessionKey;
-      finalValues.password = configObject.password;
+      finalValues.configPassword = configObject.configPassword;
     }
 
     return {
@@ -54,14 +57,14 @@ const ConfigForm = (props: Props) => {
     setConfigObject(obj);
   };
 
-  const renderInput = (formProps, title, userName, type, value) => {
+  const renderInput = (formProps, title, name, type, value) => {
     return (
       <FormGroup>
         <ControlLabel>{title}</ControlLabel>
         <FormControl
           {...formProps}
-          id={userName}
-          nauserNameme={userName}
+          id={name}
+          name={name}
           type={type}
           defaultValue={value}
           onChange={onChangeInput}
@@ -78,8 +81,15 @@ const ConfigForm = (props: Props) => {
       <>
         {renderInput(
           formProps,
-          'UserName',
-          'UserName',
+          'RegisterId',
+          'registerId',
+          'string',
+          config && config.registerId
+        )}
+        {renderInput(
+          formProps,
+          'Name',
+          'name',
           'string',
           config && config.name
         )}
@@ -101,15 +111,22 @@ const ConfigForm = (props: Props) => {
           formProps,
           'ClientId',
           'clientId',
-          'password',
+          'string',
           config && config.clientId
         )}
         {renderInput(
           formProps,
           'SessionKey',
           'sessionKey',
-          'password',
+          'string',
           config && config.sessionKey
+        )}
+        {renderInput(
+          formProps,
+          'ConfigPassword',
+          'configPassword',
+          'password',
+          config && config.configPassword
         )}
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">

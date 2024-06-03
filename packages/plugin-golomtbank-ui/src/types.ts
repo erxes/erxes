@@ -12,5 +12,5 @@ export interface IRate {
 }
 
 export type RatesQueryResponse = {
-  khanbankRates: IRate[];
+  golomtBankRates: IRate[];
 } & QueryResponse;
