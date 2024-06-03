@@ -1,15 +1,16 @@
 import {
   IGolomtBankConfigModel,
   loadGolomtBankConfigClass,
-} from './models/GolomtBankConfigs';
+} from './models/golomtBankConfigs';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 import * as mongoose from 'mongoose';
 import { IGolomtBankConfigDocument } from './models/definitions/golomtBankConfigs';
-import GolomtBank from './golomtBank/golomtBank';
+import { IGolomtBankTransactionModel } from './models/golomtBankTransaction';
 
 export interface IModels {
-  GolomtBankConfigs: IGolomtBankConfigModel;
+  GolomtBankConfig: IGolomtBankConfigModel;
+  GolomtBankTransaction: IGolomtBankTransactionModel;
 }
 
 export interface IContext extends IMainContext {
@@ -20,7 +21,7 @@ export interface IContext extends IMainContext {
 export const loadClasses = (db: mongoose.Connection): IModels => {
   const models = {} as IModels;
 
-  models.GolomtBankConfigs = db.model<
+  models.GolomtBankConfig = db.model<
     IGolomtBankConfigDocument,
     IGolomtBankConfigModel
   >('golomtBank_configs', loadGolomtBankConfigClass(models));
@@ -29,4 +30,3 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 };
 
 export const generateModels = createGenerateModels<IModels>(loadClasses);
-

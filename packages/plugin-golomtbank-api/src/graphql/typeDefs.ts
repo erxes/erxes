@@ -1,74 +1,38 @@
 import gql from 'graphql-tag';
 
-import {
-  mutations as configMutations,
-  queries as configQueries,
-  types as configTypes
-} from './schema/configs';
+const types = `
+  type Golomtbank {
+    requestId: String,
+    accountId: String,
+    accountName: String,
+    shortName: String
+    currency: String
+    branchId: String
+  }
+`;
 
-// import {
-//   queries as accountQueries,
-//   types as accountTypes
-// } from './schema/accounts';
+const queries = `
 
-// import {
-//   mutations as transferMutations,
-//   types as transferTypes
-// } from './schema/transfer';
+  golomtBankAccounts: JSON
+`;
 
-// import {
-//   mutations as taxMutations,
-//   queries as taxQueries,
-//   types as taxTypes
-// } from './schema/taxes';
+const mutations = `
+  golomtbankAccountRemove(_id: String!): String
+`;
 
-const typeDefs = async () => {
-  return gql`
-    scalar JSON
-    scalar Date
+const typeDefs = gql`
+  scalar JSON
+  scalar Date
 
-    enum CacheControlScope {
-      PUBLIC
-      PRIVATE
-    }
-    
-    directive @cacheControl(
-      maxAge: Int
-      scope: CacheControlScope
-      inheritMaxAge: Boolean
-    ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
+  ${types}
 
-    extend type User @key(fields: "_id") {
-      _id: String! @external
-    }
+  extend type Query {
+    ${queries}
+  }
 
-    extend type Department @key(fields: "_id") {
-      _id: String! @external
-    }
-    
-    ${configTypes}
-
-    type GolomtBankRate {
-      currency: String
-      midRate: Float
-      buyRate: Float
-      sellRate: Float
-      cashBuyRate: Float
-      cashSellRate: Float
-      name: String
-      number: String
-    }
-
-    extend type Query {
-      ${configQueries}
-
-      golomtBankRates: [GolomtBankRate]
-    }
-    
-    extend type Mutation {
-      ${configMutations}
-    }
-  `;
-};
+  extend type Mutation {
+    ${mutations}
+  }
+`;
 
 export default typeDefs;

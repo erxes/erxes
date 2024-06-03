@@ -1,4 +1,4 @@
-import { paginate} from '@erxes/api-utils/src';
+import { checkPermission, paginate, requireLogin } from '@erxes/api-utils/src';
 
 import { IContext } from '../../../connectionResolver';
 

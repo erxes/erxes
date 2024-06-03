@@ -17,25 +17,32 @@ export interface IGolomtBankConfigModel extends Model<IGolomtBankConfigDocument>
 export const loadGolomtBankConfigClass = (models: IModels) => {
   class GolomtBankConfig {
     public static async createConfig(doc: IGolomtBankConfig) {
-      const golomtBankConfig = await models.GolomtBankConfigs.findOne({
-        registerId: doc.registerId,
-        name: doc.name,
-        organizationName: doc.organizationName,
-        clientId: doc.clientId,
-        ivKey: doc.ivKey,
-        sessionKey: doc.sessionKey,
-        configPassword: doc.configPassword
+<<<<<<< HEAD
+<<<<<<< HEAD
+      const khanbankConfig = await models.GolomtBankConfigs.findOne({
+        consumerclientIdKey: doc.clientId,
+        userName: doc.userName
+=======
+      const golomtBankConfig = await models.GolomtBankConfig.findOne({
+        consumerKey: doc.consumerKey,
+        secretKey: doc.secretKey
+>>>>>>> parent of 30a8a4c1c9 (05/31)
+=======
+      const golomtBankConfig = await models.GolomtBankConfig.findOne({
+        consumerKey: doc.consumerKey,
+        secretKey: doc.secretKey
+>>>>>>> parent of 30a8a4c1c9 (05/31)
       });
 
       if (golomtBankConfig) {
         throw new Error('Config already exists');
       }
 
-      return models.GolomtBankConfigs.create(doc);
+      return models.GolomtBankConfig.create(doc);
     }
 
     public static async updateConfig(_id: string, doc: any) {
-      const golomtBankConfig = await models.GolomtBankConfigs.findOne({
+      const golomtBankConfig = await models.GolomtBankConfig.findOne({
         consumerKey: doc.consumerKey,
         secretKey: doc.secretKey
       });
@@ -44,17 +51,17 @@ export const loadGolomtBankConfigClass = (models: IModels) => {
         throw new Error('Config exists with same credentials');
       }
 
-      await models.GolomtBankConfigs.updateOne({ _id }, { $set: doc });
+      await models.GolomtBankConfig.updateOne({ _id }, { $set: doc });
 
-      return models.GolomtBankConfigs.getConfig({ _id });
+      return models.GolomtBankConfig.getConfig( _id );
     }
 
     public static async removeConfig(_id: string) {
-      return models.GolomtBankConfigs.remove({ _id });
+      return models.GolomtBankConfig.remove({ _id });
     }
 
-    public static async getConfig(doc: any) {
-      const golomtBankConfig = await models.GolomtBankConfigs.findOne(doc);
+    public static async getConfig(_id: string) {
+      const golomtBankConfig = await models.GolomtBankConfig.findOne(_id);
 
       if (!golomtBankConfig) {
         throw new Error('Config not found');

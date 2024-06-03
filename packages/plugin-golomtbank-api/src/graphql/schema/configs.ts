@@ -1,15 +1,10 @@
 export const types = `
-
   type GolomtBankConfig @key(fields: "_id") @cacheControl(maxAge: 3){
-
     _id: String
     name: String
-    organizationName: String
-    clientId: String
-    ivKey: String
-    sessionKey: String
-    configPassword: String
-    registerId: String
+    description: String
+    consumerKey: String
+    secretKey: String
   }
 
   type GolomtBankConfigListResponse {
@@ -19,13 +14,10 @@ export const types = `
 `;
 
 const mutationParams = `
-  name: String
-  organizationName: String
-  clientId: String
-  ivKey: String
-  sessionKey: String
-  configPassword: String
-  registerId: String
+    name: String!
+    description: String
+    consumerKey: String!
+    secretKey: String!
 `;
 
 export const mutations = `
