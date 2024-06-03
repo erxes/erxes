@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.11.5](https://github.com/erxes/erxes/compare/1.11.4...1.11.5) (2024-06-03)
+
+
+### Bug Fixes
+
+* **ebarimt:** b2b_reciepts bug ([19bf440](https://github.com/erxes/erxes/commit/19bf4401bfb49cee2a01953f210435deca7d91f5))
+* **posclient:** b2b_reciepts ([09abc66](https://github.com/erxes/erxes/commit/09abc66a0f96874ed4c73897442fc5c14f587660))
+
 ## [1.11.4](https://github.com/erxes/erxes/compare/1.11.3...1.11.4) (2024-06-02)
 
 
