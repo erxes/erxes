@@ -34,9 +34,7 @@ class ActionsForm extends React.Component<Props, State> {
     this.setState({ currentTab });
   };
 
-  onFavourite = (action, e) => {
-    e.stopPropagation();
-
+  onFavourite = (action) => {
     this.setState({ isFavourite: !this.state.isFavourite });
 
     const actionsLocalStorage =
