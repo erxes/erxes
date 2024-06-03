@@ -102,7 +102,7 @@ function ActionRow({
     tags,
   } = automation;
 
-  const isActive = status !== "draft" ? true : false;
+  const isActive = status !== "draft";
   const labelStyle = isActive ? "success" : "simple";
 
   return (
