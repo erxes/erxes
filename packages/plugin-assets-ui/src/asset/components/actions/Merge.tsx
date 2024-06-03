@@ -97,13 +97,16 @@ const Merge = (props: Props) => {
 
   const renderAssetProperties = (key: string, value: string, icon: string) => {
     return (
-      <li key={key} onClick={handleChange.bind(this, icon, key, value)}>
-        {renderTitle(key)}
-        {renderValue(key, value)}
-        <Icon icon={icon} />
+      <li key={key}>
+        <button onClick={() => handleChange(icon, key, value)}>
+          {renderTitle(key)}
+          {renderValue(key, value)}
+          <Icon icon={icon} />
+        </button>
       </li>
     );
   };
+  
 
   const renderTitle = (key: string) => {
     const title = ASSET_INFO[key];
