@@ -97,7 +97,7 @@ const Merge = (props: Props) => {
 
   const renderAssetProperties = (key: string, value: string, icon: string) => {
     return (
-        <button 
+        <li
     key={key}
     onClick={() => handleChange(icon, key, value)}
     onKeyDown={(event) => {
@@ -109,7 +109,7 @@ const Merge = (props: Props) => {
     {renderTitle(key)}
     {renderValue(key, value)}
     <Icon icon={icon} />
-  </button>
+  </li>
 
     
     );
