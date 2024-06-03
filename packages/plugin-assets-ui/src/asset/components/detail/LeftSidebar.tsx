@@ -8,7 +8,6 @@ import CustomFieldsSection from '../../containers/detail/CustomFieldSection';
 
 type Props = {
   asset: IAsset;
-  refetchDetail: () => void;
 };
 
 const LeftSidebar = (props: Props) => {
