@@ -30,6 +30,22 @@ type Props = {
   style?: any;
   onExit?: () => void;
   tipText?: string;
+  tipPlacement?:
+    | "auto-start"
+    | "auto"
+    | "auto-end"
+    | "top-start"
+    | "top"
+    | "top-end"
+    | "right-start"
+    | "right"
+    | "right-end"
+    | "bottom-end"
+    | "bottom"
+    | "bottom-start"
+    | "left-end"
+    | "left"
+    | "left-start";
   isAnimate?: boolean;
 };
 
@@ -53,6 +69,7 @@ const ModalTrigger: React.FC<Props> = forwardRef(
       centered,
       style,
       tipText,
+      tipPlacement,
       isAnimate = false,
     },
     ref
@@ -124,7 +141,10 @@ const ModalTrigger: React.FC<Props> = forwardRef(
     return (
       <>
         {tipText ? (
-          <Tip text={__(tipText)} placement="bottom">
+          <Tip
+            text={__(tipText)}
+            placement={tipPlacement ? tipPlacement : "bottom"}
+          >
             {triggerComponent}
           </Tip>
         ) : (
