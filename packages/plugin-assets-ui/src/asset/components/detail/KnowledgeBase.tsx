@@ -20,7 +20,7 @@ type Props = {
 const KbArticles = ({ articles, asset }: Props) => {
   const { knowledgeData = {} } = asset;
   const [selectedCategoryIds, setCategoryIds] = useState<string[]>([]);
-
+  
   const handleClick = (_id) => {
     if (selectedCategoryIds.includes(_id)) {
       return setCategoryIds(
