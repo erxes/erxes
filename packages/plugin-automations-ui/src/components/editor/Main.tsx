@@ -114,7 +114,7 @@ class Editor extends React.Component<Props, State> {
     this.setState({ name: value });
   };
   switchActionbarTab = (type) => {
-    this.setState({ isActionTab: type === "action" ? true : false });
+    this.setState({ isActionTab: type === "action" });
   };
 
   onToggle = (e) => {
