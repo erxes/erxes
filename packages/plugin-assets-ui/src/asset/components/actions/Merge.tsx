@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { IAsset, IAssetDoc as IAssetDocc } from '../../../common/types';
-import Button from '@erxes/ui/src/components/Button';
-import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Column, Columns, Title } from '@erxes/ui/src/styles/chooser';
-import { __ } from '@erxes/ui/src/utils';
-import { ASSET_INFO } from '../../../common/constant';
-import { InfoDetail } from '../../../style';
-import { Info, InfoTitle, ModalFooter  } from '@erxes/ui/src/styles/main';
+import React, { useState } from "react";
+import { IAsset, IAssetDoc as IAssetDocc } from "../../../common/types";
+import Button from "@erxes/ui/src/components/Button";
+import { SmallLoader } from "@erxes/ui/src/components/ButtonMutate";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Column, Columns, Title } from "@erxes/ui/src/styles/chooser";
+import { __ } from "@erxes/ui/src/utils";
+import { ASSET_INFO } from "../../../common/constant";
+import { InfoDetail } from "../../../style";
+import { Info, InfoTitle, ModalFooter } from "@erxes/ui/src/styles/main";
 
 type IAssetDoc = IAssetDocc & {};
 
@@ -53,18 +53,18 @@ const Merge = (props: Props) => {
   const handleChange = (type: string, key: string, value: string) => {
     const values = { ...selectedValues };
 
-    if (type === 'plus-circle') {
-      if (key === 'parent') {
+    if (type === "plus-circle") {
+      if (key === "parent") {
         delete values.category;
       }
-      if (key === 'category') {
+      if (key === "category") {
         delete values.parent;
       }
 
       values[key] = value;
 
-      if (key === 'links') {
-        const links = { ...values.links , value};
+      if (key === "links") {
+        const links = { ...values.links, value };
         values[key] = links;
       }
     } else {
@@ -79,7 +79,7 @@ const Merge = (props: Props) => {
 
     return (
       <React.Fragment>
-        <Title>{asset.name || 'Name'}</Title>
+        <Title>{asset.name || "Name"}</Title>
         <ul>
           {properties.map((info) => {
             const key = info.field;
@@ -97,24 +97,23 @@ const Merge = (props: Props) => {
 
   const renderAssetProperties = (key: string, value: string, icon: string) => {
     return (
-        <li
-    key={key}
-    onClick={() => handleChange(icon, key, value)}
-    onKeyDown={(event) => {
-      if (event.key === 'Enter') {
-        handleChange(icon, key, value);
-      }
-    }}
-  >
-    {renderTitle(key)}
-    {renderValue(key, value)}
-    <Icon icon={icon} />
-  </li>
-
-    
+      <div
+        key={key}
+        onClick={() => handleChange(icon, key, value)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            handleChange(icon, key, value);
+          }
+        }}
+      >
+        <li>
+          {renderTitle(key)}
+          {renderValue(key, value)}
+          <Icon icon={icon} />
+        </li>
+      </div>
     );
   };
-  
 
   const renderTitle = (key: string) => {
     const title = ASSET_INFO[key];
@@ -124,13 +123,13 @@ const Merge = (props: Props) => {
 
   const renderValue = (field: string, value: any) => {
     switch (field) {
-      case 'category':
+      case "category":
         return renderCategoryInfo(value);
 
-      case 'parent':
+      case "parent":
         return renderParentInfo(value);
 
-      case 'vendor':
+      case "vendor":
         return renderVendorInfo(value);
 
       default:
@@ -141,7 +140,7 @@ const Merge = (props: Props) => {
   const renderCategoryInfo = (value) => {
     return (
       <Info>
-        <InfoTitle>{__('Name')}: </InfoTitle>
+        <InfoTitle>{__("Name")}: </InfoTitle>
         <InfoDetail>{value.name}</InfoDetail>
       </Info>
     );
@@ -150,7 +149,7 @@ const Merge = (props: Props) => {
   const renderParentInfo = (value) => {
     return (
       <Info>
-        <InfoTitle>{__('Name')}</InfoTitle>
+        <InfoTitle>{__("Name")}</InfoTitle>
         <InfoTitle>{value.name}</InfoTitle>
       </Info>
     );
@@ -159,7 +158,7 @@ const Merge = (props: Props) => {
   const renderVendorInfo = (value) => {
     return (
       <Info>
-        <InfoTitle>{__('Info')}: </InfoTitle>
+        <InfoTitle>{__("Info")}: </InfoTitle>
         <InfoDetail>
           {value.primaryName ||
             value.primaryEmail ||
@@ -174,14 +173,14 @@ const Merge = (props: Props) => {
     <form onSubmit={onSubmit}>
       <Columns>
         <Column className="multiple">
-          {renderAsset(asset1, 'plus-circle')}
+          {renderAsset(asset1, "plus-circle")}
         </Column>
 
         <Column className="multiple">
-          {renderAsset(asset2, 'plus-circle')}
+          {renderAsset(asset2, "plus-circle")}
         </Column>
 
-        <Column>{renderAsset(selectedValues, 'times-circle')}</Column>
+        <Column>{renderAsset(selectedValues, "times-circle")}</Column>
       </Columns>
 
       <ModalFooter>
@@ -191,7 +190,7 @@ const Merge = (props: Props) => {
         <Button
           type="submit"
           btnStyle="success"
-          icon={mergeAssetLoading ? undefined : 'check-circle'}
+          icon={mergeAssetLoading ? undefined : "check-circle"}
           disabled={mergeAssetLoading}
         >
           {mergeAssetLoading && <SmallLoader />}
