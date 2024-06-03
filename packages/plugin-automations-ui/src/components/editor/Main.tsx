@@ -176,7 +176,7 @@ class Editor extends React.Component<Props, State> {
       showDrawer: true,
       showTrigger: false,
       currentTab: "actions",
-      activeAction: action ? action : ({} as IAction),
+      activeAction: action || ({} as IAction),
     });
   };
 
