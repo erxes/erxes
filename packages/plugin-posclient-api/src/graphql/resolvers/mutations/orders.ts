@@ -34,6 +34,7 @@ import {
 } from '../../utils/orderUtils';
 import { checkSlotStatus } from '../../utils/slots';
 import { prepareSettlePayment } from '../../../utils';
+import { IDoc } from '../../../models/PutData';
 
 interface IPaymentBase {
   billType: string;
@@ -567,7 +568,7 @@ const orderMutations = {
     try {
       const ebarimtResponses: any[] = [];
 
-      const ebarimtData: any = await prepareEbarimtData(
+      const ebarimtData: IDoc = await prepareEbarimtData(
         models,
         order,
         ebarimtConfig,
