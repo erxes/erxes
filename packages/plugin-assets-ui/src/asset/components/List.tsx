@@ -22,7 +22,6 @@ import { isEnabled } from "@erxes/ui/src/utils/core";
 import MergeAssets from "./actions/Merge";
 import AssignArticles from "../containers/actions/Assign";
 import Sidebar from "../containers/Sidebar";
-import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   assets: IAsset[];
