@@ -105,6 +105,7 @@ const Merge = (props: Props) => {
             handleChange(icon, key, value);
           }
         }}
+        aria-hidden
       >
         <li>
           {renderTitle(key)}
