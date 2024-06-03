@@ -13,7 +13,6 @@ const KbCat = styled(KbCategories)`
 `;
 
 type Props = {
-  kbArticleIds: string[];
   articles: IArticle[];
   asset: IAsset;
 };
