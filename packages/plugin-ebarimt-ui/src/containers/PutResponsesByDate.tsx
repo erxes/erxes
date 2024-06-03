@@ -72,15 +72,7 @@ const PutResponsesContainer: React.FC<Props> = (props) => {
   };
 
   const onFilter = (filterParams: IQueryParams) => {
-    router.removeParams(navigate, location, "page");
-
-    for (const key of Object.keys(filterParams)) {
-      if (filterParams[key]) {
-        router.setParams(navigate, location, { [key]: filterParams[key] });
-      } else {
-        router.removeParams(navigate, location, key);
-      }
-    }
+    router.setParams(navigate, location, filterParams);
 
     return router;
   };

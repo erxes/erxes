@@ -22,6 +22,7 @@ import {
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { IOrderDocument } from './models/definitions/orders';
 import { IConfigDocument } from './models/definitions/configs';
+import { IDoc } from './models/PutData';
 
 type TSortBuilder = { primaryName: number } | { [index: string]: number };
 
@@ -370,7 +371,7 @@ export const prepareSettlePayment = async (
     const ebarimtResponses: any[] = [];
 
     if (billType !== BILL_TYPES.INNER) {
-      const ebarimtData = await prepareEbarimtData(
+      const ebarimtData: IDoc = await prepareEbarimtData(
         models,
         order,
         ebarimtConfig,

@@ -19,6 +19,7 @@ export interface ISession {
 }
 interface ICallHistoryEdit extends ICallHistory {
   _id: string;
+  transferedCallStatus: string;
 }
 
 const callsMutations = {
@@ -172,14 +173,19 @@ const callsMutations = {
         user,
       );
       const callRecordUrl = await getRecordUrl(doc, user, models, subdomain);
-      if (callRecordUrl) {
+      if (
+        callRecordUrl &&
+        callRecordUrl !== 'Check transfered call record url!'
+      ) {
         await models.CallHistory.updateOne(
           { _id },
           { $set: { recordUrl: callRecordUrl } },
         );
         return callRecordUrl;
       }
-
+      if (callRecordUrl === 'Check transfered call record url!') {
+        return callRecordUrl;
+      }
       return 'success';
     } else {
       throw new Error(`You cannot edit`);

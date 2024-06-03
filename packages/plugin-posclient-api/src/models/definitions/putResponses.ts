@@ -60,7 +60,7 @@ export interface IEbarimt {
   customerTin?: string;
   customerName?: string;
   consumerNo?: string;
-  type: string;
+  type?: string;
   inactiveId?: string;
   invoiceId?: string;
   reportMonth?: string;
