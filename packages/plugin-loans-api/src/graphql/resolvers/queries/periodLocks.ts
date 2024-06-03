@@ -40,7 +40,7 @@ const periodLockQueries = {
     params,
     { commonQuerySelector, models }: IContext
   ) => {
-    return paginate(
+    return await paginate(
       models.PeriodLocks.find(
         await generateFilter(params, commonQuerySelector)
       ),
@@ -63,14 +63,14 @@ const periodLockQueries = {
     const filter = await generateFilter(params, commonQuerySelector);
 
     return {
-      list: paginate(
+      list: await paginate(
         models.PeriodLocks.find(filter).sort(sortBuilder(params)),
         {
           page: params.page,
           perPage: params.perPage
         }
       ),
-      totalCount: models.PeriodLocks.find(filter).countDocuments()
+      totalCount: await models.PeriodLocks.find(filter).countDocuments()
     };
   },
 

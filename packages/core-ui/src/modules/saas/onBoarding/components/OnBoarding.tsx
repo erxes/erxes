@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Content,
   MainContent,
   SuccessContent,
-} from 'modules/saas/onBoarding/styles';
-import WelcomeContent from './welcome/WelcomeContent';
-import Sidebar from './Sidebar';
-import MessengerPreview from './messenger/MessengerPreview';
-import { IUser } from 'modules/auth/types';
-import InstallCode from '../container/messenger/InstallCode';
-import ProfilePreview from './profile/ProfilePreview';
-import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
+} from "modules/saas/onBoarding/styles";
+import WelcomeContent from "./welcome/WelcomeContent";
+import Sidebar from "./Sidebar";
+import MessengerPreview from "./messenger/MessengerPreview";
+import { IUser } from "modules/auth/types";
+import InstallCode from "../container/messenger/InstallCode";
+import ProfilePreview from "./profile/ProfilePreview";
+import { IIntegration } from "@erxes/ui-inbox/src/settings/integrations/types";
 
 type Props = {
   currentUser: IUser;
@@ -28,14 +28,14 @@ const OnBoarding = ({
   queryParams,
 }: Props) => {
   const [activeStep, changeStep] = useState<number>(queryParams.steps || 0);
-  const [firstName, setFirstName] = useState(user?.details?.firstName || '');
-  const [lastName, setLastName] = useState(user?.details?.lastName || '');
-  const [email, setEmail] = useState(user.email || '');
-  const [avatar, setAvatar] = useState(user?.details?.avatar || '');
+  const [firstName, setFirstName] = useState(user?.details?.firstName || "");
+  const [lastName, setLastName] = useState(user?.details?.lastName || "");
+  const [email, setEmail] = useState(user.email || "");
+  const [avatar, setAvatar] = useState(user?.details?.avatar || "");
 
-  const [brandName, setBrandName] = useState(integration?.brand?.name || '');
+  const [brandName, setBrandName] = useState(integration?.brand?.name || "");
   const [color, setColor] = useState(
-    integration?.uiOptions?.color || '#4F33AF',
+    integration?.uiOptions?.color || "#4F33AF"
   );
 
   useEffect(() => {
@@ -46,16 +46,16 @@ const OnBoarding = ({
 
   let totalSteps = onboardingSteps.length + 1;
 
-  if (onboardingSteps.includes('installMessenger')) {
+  if (onboardingSteps.includes("installMessenger")) {
     totalSteps = totalSteps + 1;
   }
 
-  if (onboardingSteps.includes('clientPortal')) {
+  if (onboardingSteps.includes("clientPortal")) {
     totalSteps = totalSteps - 1;
   }
 
   const flexStart =
-    (activeStep === 3 && onboardingSteps.includes('installMessenger')) ||
+    (activeStep === 3 && onboardingSteps.includes("installMessenger")) ||
     activeStep === totalSteps
       ? true
       : false;
@@ -92,7 +92,7 @@ const OnBoarding = ({
     }
 
     return (onboardingSteps || []).map((step) => {
-      if (step === 'setupProfile') {
+      if (step === "setupProfile") {
         if (activeStep === 1) {
           return (
             <ProfilePreview
@@ -106,7 +106,7 @@ const OnBoarding = ({
         }
       }
 
-      if (step === 'installMessenger') {
+      if (step === "installMessenger") {
         if (activeStep === 2) {
           return (
             <MessengerPreview
@@ -117,10 +117,8 @@ const OnBoarding = ({
             />
           );
         }
-        if (step === 'installMessenger') {
-          if (activeStep === 3) {
-            return <InstallCode />;
-          }
+        if (activeStep === 3) {
+          return <InstallCode />;
         }
       }
     });

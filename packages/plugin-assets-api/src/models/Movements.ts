@@ -7,7 +7,7 @@ export interface IMovementModel extends Model<IMovementDocument> {
   movements(params: any): Promise<IMovementDocument[]>;
   movementAdd(doc: any, userId: string): Promise<IMovementDocument>;
   movementRemove(ids: string[]): Promise<IMovementDocument>;
-  movementEdit(_id: String, doc: any): Promise<IMovementDocument>;
+  movementEdit(_id: string, doc: any): Promise<IMovementDocument>;
 }
 
 export const loadMovementClass = (models: IModels) => {

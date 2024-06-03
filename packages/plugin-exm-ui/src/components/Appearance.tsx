@@ -209,7 +209,7 @@ export default function Appearance(props: Props) {
               <ControlLabel>{__("Website")}</ControlLabel>
               <FormControl
                 value={url}
-                placeholder="website"
+                placeholder="Website"
                 onChange={(e: any) => setUrl(e.target.value)}
               />
             </FeatureRowItem>

@@ -96,10 +96,9 @@ const renderRoutes = (currentUser) => {
     }
 
     return (
-      <>
-        <MainLayout currentUser={currentUser}>
-          <SettingsRoutes />
-          <WelcomeRoutes currentUser={currentUser} />
+      <MainLayout currentUser={currentUser}>
+        <SettingsRoutes />
+        <WelcomeRoutes currentUser={currentUser} />
           {pluginLayouts(currentUser)}
           {pluginRouters()}
           <BrowserRoutes>
@@ -109,8 +108,7 @@ const renderRoutes = (currentUser) => {
               element={<UserConfirmationComponent />}
             />
           </BrowserRoutes>
-        </MainLayout>
-      </>
+      </MainLayout>
     );
   }
 

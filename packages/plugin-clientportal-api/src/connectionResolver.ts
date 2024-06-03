@@ -46,6 +46,7 @@ export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
   cpUser?: IUserDocument;
+  isPassed2FA: boolean;
 }
 
 export const loadClasses = (db: mongoose.Connection): IModels => {
@@ -53,12 +54,12 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   models.ClientPortals = db.model<IClientPortalDocument, IClientPortalModel>(
     'client_portals',
-    loadClientPortalClass(models),
+    loadClientPortalClass(models)
   );
 
   models.ClientPortalUsers = db.model<IUserDocument, IUserModel>(
     'client_portal_users',
-    loadClientPortalUserClass(models),
+    loadClientPortalUserClass(models)
   );
 
   models.ClientPortalUserCards = db.model<
@@ -73,17 +74,17 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   models.Comments = db.model<ICommentDocument, ICommentModel>(
     'client_portal_comments',
-    loadCommentClass(models),
+    loadCommentClass(models)
   );
 
   models.FieldConfigs = db.model<IFieldConfigDocument, IFieldConfigModel>(
     'client_portal_field_configs',
-    loadFieldConfigClass(models),
+    loadFieldConfigClass(models)
   );
 
   models.Companies = db.model<IClientCompanyDocument, IClientCompanyModel>(
     'client_portal_companies',
-    loadCompanyClass(models),
+    loadCompanyClass(models)
   );
 
   return models;

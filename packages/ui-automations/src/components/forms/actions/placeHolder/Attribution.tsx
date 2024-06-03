@@ -104,7 +104,7 @@ export default class Attribution extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel>{__("Search")}</ControlLabel>
               <FormControl
-                placeholder="type a search"
+                placeholder="Type to search"
                 value={searchValue}
                 onChange={onSearch}
               />

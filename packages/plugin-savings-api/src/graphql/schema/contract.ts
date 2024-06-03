@@ -144,9 +144,13 @@ const interestCorrectionFields = `
   lossAmount: Float
 `;
 
+const clientFields = `
+  secondaryPassword: String
+`;
+
 export const mutations = `
   savingsContractsAdd(${commonFields}): SavingContract
-  clientSavingsContractsAdd(${commonFields}): SavingContract
+  clientSavingsContractsAdd(${commonFields}${clientFields}): SavingContract
   savingsContractsEdit(_id: String!, ${commonFields}): SavingContract
   savingsContractsDealEdit(_id: String!, ${commonFields}): SavingContract
   savingsContractsClose(contractId: String, closeDate: Date, closeType: String, description: String): SavingContract

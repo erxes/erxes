@@ -176,15 +176,12 @@ const Sidebar = (props: Props) => {
   return (
     <LeftSidebar showStar={activeStep === 0 || false}>
       {activeStep === 0 && (
-        <img src="/images/home/home3.png" className="shooting-star" />
-      )}
-      {activeStep === 0 && (
         <img src="/images/shootingStars.png" className="welcome-cover" />
       )}
       {activeStep !== 0 && (
         <SidebarHeader>
           <div className="header">{renderHeaderInfo()}</div>
-          {<Indicator totalStep={totalStep} activeStep={activeStep} />}
+          <Indicator totalStep={totalStep} activeStep={activeStep} />
         </SidebarHeader>
       )}
       {renderContent()}

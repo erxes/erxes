@@ -64,9 +64,9 @@ const KeyPad = (props: Props, context) => {
   const Sip = context;
   const inputRef = useRef<any>(null);
   const navigate = useNavigate();
-  const outgoingAudio = useRef(new Audio("/sound/outgoing.mp3"));
-  const pickupAudio = useRef(new Audio("/sound/pickup.mp3"));
-  const hangupAudio = useRef(new Audio("/sound/hangup.mp3"));
+  // const outgoingAudio = useRef(new Audio("/sound/outgoing.mp3"));
+  // const pickupAudio = useRef(new Audio("/sound/pickup.mp3"));
+  // const hangupAudio = useRef(new Audio("/sound/hangup.mp3"));
 
   const { call, mute, unmute, isMuted, isHolded, hold, unhold } = Sip;
   const {
@@ -87,7 +87,7 @@ const KeyPad = (props: Props, context) => {
   const [selectFocus, setSelectFocus] = useState(false);
   const [number, setNumber] = useState(phoneNumber || "");
   const [dialCode, setDialCode] = useState("");
-  const [ringingSound, setRingingSound] = useState(false);
+  // const [ringingSound, setRingingSound] = useState(false);
 
   const [showTrigger, setShowTrigger] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -125,20 +125,20 @@ const KeyPad = (props: Props, context) => {
     setNumber(phoneNumber);
   }, [phoneNumber]);
 
-  useEffect(() => {
-    const audio = outgoingAudio.current;
+  // useEffect(() => {
+  //   const audio = outgoingAudio.current;
 
-    if (ringingSound) {
-      audio.loop = true;
-      audio
-        .play()
-        .catch((error) => console.error("Error playing audio:", error));
-    } else {
-      audio.loop = false;
-      audio.pause();
-      audio.currentTime = 0;
-    }
-  }, [ringingSound]);
+  //   if (ringingSound) {
+  //     audio.loop = true;
+  //     audio
+  //       .play()
+  //       .catch((error) => console.error("Error playing audio:", error));
+  //   } else {
+  //     audio.loop = false;
+  //     audio.pause();
+  //     audio.currentTime = 0;
+  //   }
+  // }, [ringingSound]);
 
   useEffect(() => {
     let timer;
@@ -161,15 +161,15 @@ const KeyPad = (props: Props, context) => {
         CALL_STATUS_STARTING &&
       hasMicrophone
     ) {
-      setRingingSound(true);
+      // setRingingSound(true);
       addCustomer(inboxId, formatedPhone);
     }
     if (call?.status === CALL_STATUS_ACTIVE) {
       const { startTime } = call;
-      setRingingSound(false);
+      // setRingingSound(false);
 
-      const audio = pickupAudio.current;
-      audio.play();
+      // const audio = pickupAudio.current;
+      // audio.play();
 
       if (startTime) {
         timer = setInterval(() => {
@@ -179,17 +179,17 @@ const KeyPad = (props: Props, context) => {
       }
     }
 
-    if (
-      call?.status === CALL_STATUS_STOPPING ||
-      call?.status === CALL_STATUS_FAILED ||
-      call?.status === CALL_STATUS_DISCONNECTED ||
-      call?.status === CALL_STATUS_ENDED
-    ) {
-      const audio = hangupAudio.current;
-      audio.play();
-    }
+    // if (
+    //   call?.status === CALL_STATUS_STOPPING ||
+    //   call?.status === CALL_STATUS_FAILED ||
+    //   call?.status === CALL_STATUS_DISCONNECTED ||
+    //   call?.status === CALL_STATUS_ENDED
+    // ) {
+    //   const audio = hangupAudio.current;
+    //   audio.play();
+    // }
     return () => {
-      setRingingSound(false);
+      // setRingingSound(false);
 
       clearInterval(timer);
     };
@@ -346,7 +346,7 @@ const KeyPad = (props: Props, context) => {
         <InputBar type="country">
           <Icon icon="search-1" size={20} />
           <FormControl
-            placeholder={__("Search")}
+            placeholder={__("Type to search")}
             name="searchValue"
             onChange={search}
             value={searchValue}
@@ -385,7 +385,7 @@ const KeyPad = (props: Props, context) => {
     return (
       <HeaderItem onClick={togglePause}>
         <Icon
-          className={isPaused ? "on" : "off"}
+          className={isPaused ? "on" : "pause"}
           size={13}
           icon={isPaused ? "play-1" : "pause-1"}
         />
@@ -503,7 +503,7 @@ const KeyPad = (props: Props, context) => {
             <Icon
               className={isConnected ? "on" : "off"}
               size={13}
-              icon={isConnected ? "power-button" : "pause-1"}
+              icon={"power-button"}
             />
             {isConnected ? __("Turn on") : __("Turn off")}
           </HeaderItem>

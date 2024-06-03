@@ -72,6 +72,7 @@ const queryParams = `
   contractHasnt: String
   sortField: String
   sortDirection: Int
+  description: String
 `;
 
 export const queries = `
@@ -117,8 +118,13 @@ const changeFields = `
   debtTenor: Float
 `;
 
+const clientFields = `
+  secondaryPassword: String
+`;
+
 export const mutations = `
   transactionsAdd(${commonFields}): LoanTransaction
+  clientTransactionsAdd(${commonFields}${clientFields}): LoanTransaction
   transactionsEdit(_id: String!, ${commonFields}): LoanTransaction
   transactionsChange(_id: String!, ${changeFields}): LoanTransaction
   transactionsRemove(transactionIds: [String]): [String]
