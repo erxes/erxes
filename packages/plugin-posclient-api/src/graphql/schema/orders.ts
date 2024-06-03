@@ -209,5 +209,4 @@ export const queries = `
   ordersDeliveryInfo(orderId: String!): JSON
   fullOrderItems(searchValue: String, statuses: [String], page: Int, perPage: Int, sortField: String, sortDirection: Int): [PosOrderItem]
   convertedDealLink(_id: String!): JSON
-  checkSubscription(customerId:String,productId:String):Order
 `;

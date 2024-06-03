@@ -11,6 +11,7 @@ import {
   getTomorrow,
   shortStrToDate,
 } from '@erxes/api-utils/src/core';
+import { SUBSCRIPTION_INFO_STATUS } from '../../../contants';
 
 export const paginate = (
   collection,
@@ -882,6 +883,25 @@ const queries = {
     ]);
 
     return totalDocuments;
+  },
+
+  async checkSubscription(
+    _root,
+    { customerId, productId },
+    { models }: IContext
+  ) {
+    const subscription = await models.PosOrders.findOne({
+      customerId,
+      'items.productId': productId,
+      'subscriptionInfo.status': SUBSCRIPTION_INFO_STATUS.ACTIVE,
+      'items.closeDate': { $gte: new Date() },
+    });
+
+    if (!subscription) {
+      throw new Error(`Cannot find subscription`);
+    }
+
+    return subscription;
   },
 };
 

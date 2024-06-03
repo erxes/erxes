@@ -244,24 +244,6 @@ const orderQueries = {
 
     return info;
   },
-
-  async checkSubscription(
-    _root,
-    { customerId, productId },
-    { models }: IContext,
-  ) {
-    const subscription = await models.Orders.findOne({
-      customerId,
-      'items.productId': productId,
-      'subscriptionInfo.status': SUBSCRIPTION_INFO_STATUS.ACTIVE,
-    });
-
-    if (!subscription) {
-      throw new Error(`Cannot find subscription`);
-    }
-
-    return subscription;
-  },
 };
 
 export default orderQueries;

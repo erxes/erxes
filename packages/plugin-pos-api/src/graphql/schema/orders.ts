@@ -150,6 +150,7 @@ export const queries = `
   posOrderRecordsCount(${queryParams}): Int
   posOrderCustomers(${commonQueryParams}):[PosOrdersByCustomer]
   posOrderCustomersTotalCount(${commonQueryParams}):Int
+  checkSubscription(customerId:String,productId:String):Order
 `;
 
 export const mutations = `
