@@ -21,11 +21,9 @@ import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { __ } from "coreui/utils";
 import { can } from "@erxes/ui/src/utils/core";
 import confirm from "@erxes/ui/src/utils/confirmation/confirm";
-// import { router } from '@erxes/ui/src/utils';
 import withConsumer from "../../../withConsumer";
 import { useNavigate } from "react-router-dom";
 
-// import Sidebar from './Sidebar';
 
 type ContractAlert = { name: string; count: number; filter: any };
 interface IProps {
@@ -33,7 +31,6 @@ interface IProps {
   loading: boolean;
   searchValue: string;
   totalCount: number;
-  // TODO: check is below line not throwing error ?
   toggleBulk: () => void;
   toggleAll: (targets: IContract[], containerId: string) => void;
   bulk: any[];
@@ -246,7 +243,7 @@ const ContractsList = (props: IProps) => {
             </Button>
           )}
         {alerts.map((mur) => (
-          <Button onClick={() => onSelect(mur.filter, "ids")}>
+          <Button key={mur.name} onClick={() => onSelect(mur.filter, "ids")}>
             {mur.name}:{mur.count}
           </Button>
         ))}
@@ -256,7 +253,7 @@ const ContractsList = (props: IProps) => {
     actionBarLeft = (
       <BarItems>
         {alerts.map((mur) => (
-          <Button onClick={() => onSelect(mur.filter, "ids")}>
+          <Button key={mur.name} onClick={() => onSelect(mur.filter, "ids")}>
             {mur.name}:{mur.count}
           </Button>
         ))}

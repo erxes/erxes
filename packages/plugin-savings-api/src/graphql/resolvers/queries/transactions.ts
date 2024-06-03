@@ -57,6 +57,10 @@ const generateFilter = async (models, params, commonQuerySelector) => {
     filter.contractId = { $in: ['', null] };
   }
 
+  if(params.transactionType){
+    filter.transactionType = params.transactionType
+  }
+
   return filter;
 };
 
