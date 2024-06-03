@@ -307,7 +307,7 @@ const contractQueries = {
     return alerts;
   },
   /**
-   * @param _root 
+   * @param _root
    * @returns OK
    */
   checkAccountBalance: async (
@@ -325,10 +325,13 @@ const contractQueries = {
       _id: contractId
     });
 
-    if (!account) throw new Error('Account not found.');
+    if (!account) {
+      throw new Error('Account not found.');
+    }
 
-    if (account.savingAmount < requiredAmount)
+    if (account.savingAmount < requiredAmount) {
       throw new Error('Account balance not reached.');
+    }
 
     return 'OK';
   }
