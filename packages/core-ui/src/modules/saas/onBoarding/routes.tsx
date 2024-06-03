@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, useLocation } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import queryString from "query-string";
 import OnBoarding from "./container/OnBoarding";
 
@@ -11,7 +11,9 @@ const routes = ({ currentUser }) => {
   };
 
   return (
-    <Route key="/onboarding" path="/onboarding" element={<Onboarding />} />
+    <Routes>
+      <Route key="/onboarding" path="/onboarding" element={<Onboarding />} />
+    </Routes>
   );
 };
 
