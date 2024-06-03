@@ -7,7 +7,7 @@ import { Column, Columns, Title } from '@erxes/ui/src/styles/chooser';
 import { __ } from '@erxes/ui/src/utils';
 import { ASSET_INFO } from '../../../common/constant';
 import { InfoDetail } from '../../../style';
-import { Info, InfoTitle, ModalFooter } from '@erxes/ui/src/styles/main';
+import { Info, InfoTitle, ModalFooter  } from '@erxes/ui/src/styles/main';
 
 type IAssetDoc = IAssetDocc & {};
 
@@ -64,7 +64,7 @@ const Merge = (props: Props) => {
       values[key] = value;
 
       if (key === 'links') {
-        const links = Object.assign({ ...values.links }, value);
+        const links = { ...values.links , value};
         values[key] = links;
       }
     } else {
