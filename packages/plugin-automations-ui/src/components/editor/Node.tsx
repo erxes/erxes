@@ -26,7 +26,6 @@ const showHandler = (data, option) => {
 };
 
 type Props = {
-  id: string;
   data: {
     automation: IAutomation;
     automationNotes?: IAutomationNote[];
