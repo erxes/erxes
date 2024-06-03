@@ -61,7 +61,7 @@ class ActivityItem extends React.Component<Props> {
       <FlexCenterContent>
         <span>
           <Link to={`/automations/details/${automationId}`}>
-            <a>{'this '}</a>
+            this
           </Link>
           {`automation sent email to `}
           {(result || []).map(item => (
