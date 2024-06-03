@@ -80,7 +80,7 @@ const renderTriggerContent = (
   }
   const constant = (constants || []).find((c) => c.type === type);
 
-  if (!constant?.isCustom) {
+  if (constant?.isCustom) {
     return (
       <div className="triggerContent">
         {renderDynamicComponent(
