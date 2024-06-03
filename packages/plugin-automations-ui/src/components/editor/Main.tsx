@@ -190,7 +190,7 @@ class Editor extends React.Component<Props, State> {
       showAction: false,
       currentTab: "triggers",
       selectedContentId,
-      activeTrigger: trigger ? trigger : ({} as ITrigger),
+      activeTrigger: trigger || ({} as ITrigger),
     });
   };
 
