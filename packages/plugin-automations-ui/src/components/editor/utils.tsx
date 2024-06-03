@@ -56,7 +56,7 @@ export const generateEdges = ({
         continue;
       }
 
-      if (!optionalConnects?.length) {
+      if (optionalConnects?.length) {
         for (const {
           actionId,
           sourceId,
