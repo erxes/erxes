@@ -124,7 +124,7 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
       let response = 'deleted';
 
       for (const id of _ids) {
-        if (!dealAssetIds.includes(id)) {
+        if (dealAssetIds.length !==0 && !dealAssetIds.includes(id)) {
           unUsedIds.push(id);
         } else {
           usedIds.push(id);
