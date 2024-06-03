@@ -18,7 +18,6 @@ import dayjs from 'dayjs';
 type Props = {
   contentType: string;
   activity: any;
-  currentUser: any;
 };
 
 class ActivityItem extends React.Component<Props> {
@@ -41,6 +40,7 @@ class ActivityItem extends React.Component<Props> {
       </ActivityRow>
     );
   }
+  
 
   renderSendEmail(doc: any, createdAt) {
     const { automationId, result } = doc;
