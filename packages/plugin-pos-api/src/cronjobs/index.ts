@@ -13,7 +13,7 @@ function toSpecificDayOfWeek(date, dayOfWeek) {
 }
 
 export default {
-  handleMinutelyJob: async ({ subdomain }) => {
+  handleDailyJob: async ({ subdomain }) => {
     const models = await generateModels(subdomain);
 
     const TODAY = new Date();
@@ -24,10 +24,10 @@ export default {
     const subscriptions = await models.PosOrders.find({
       $and: [
         { 'items.closeDate': { $gte: START_TODAY } },
-        { 'items.closeDate': { $lte: END_TODAY } }
+        { 'items.closeDate': { $lte: END_TODAY } },
       ],
       'subscriptionInfo.status': SUBSCRIPTION_INFO_STATUS.ACTIVE,
-      status: 'complete'
+      status: 'complete',
     }).lean();
 
     for (const subscription of subscriptions) {
@@ -41,7 +41,7 @@ export default {
         customerId,
         description,
         subscriptionInfo,
-        userId
+        userId,
       } = subscription;
 
       const pos = await models.Pos.findOne({ token: posToken }).lean();
@@ -57,7 +57,7 @@ export default {
         createdAt: new Date(),
         subscriptionId: subscriptionInfo?.subscriptionId,
         posToken,
-        userId
+        userId,
       };
 
       for (const item of items) {
@@ -71,10 +71,10 @@ export default {
             subdomain,
             action: 'findOne',
             data: {
-              _id: item.productId
+              _id: item.productId,
             },
             isRPC: true,
-            defaultValue: null
+            defaultValue: null,
           });
 
           const uom = await sendProductsMessage({
@@ -82,7 +82,7 @@ export default {
             action: 'uoms.findOne',
             data: { code: product?.uom },
             isRPC: true,
-            defaultValue: null
+            defaultValue: null,
           });
 
           const { subscriptionConfig = {} } = uom || {};
@@ -112,11 +112,11 @@ export default {
               order: {
                 ...doc,
                 _id: nanoid(),
-                items: [{ ...item, status: 'new' }]
-              }
+                items: [{ ...item, status: 'new' }],
+              },
             },
-            pos
-          }).catch(error => {
+            pos,
+          }).catch((error) => {
             debugError(error.message);
           });
         }
@@ -128,10 +128,10 @@ export default {
         data: {
           order: {
             _id: subscription._id,
-            'subscriptionInfo.status': SUBSCRIPTION_INFO_STATUS.CLOSED
-          }
+            'subscriptionInfo.status': SUBSCRIPTION_INFO_STATUS.CLOSED,
+          },
         },
-        pos
+        pos,
       });
 
       await models.PosOrders.updateOne(
@@ -139,5 +139,5 @@ export default {
         { 'subscriptionInfo.status': SUBSCRIPTION_INFO_STATUS.CLOSED }
       );
     }
-  }
+  },
 };
