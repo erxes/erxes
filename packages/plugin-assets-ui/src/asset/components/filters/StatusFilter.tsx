@@ -34,8 +34,8 @@ const StatusFilter = (props: Props) => {
       isOpen={queryParams.status}
     >
       <SidebarList>
-        {assetStatusChoises().map(({ value, label }: { value: string; label: string }, index: number) => (
-          <li key={index}>
+        {assetStatusChoises().map(({ value, label }) => (
+          <li key={value}>
             <a
               href="#filter"
               tabIndex={0}
