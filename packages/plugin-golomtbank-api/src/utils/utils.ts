@@ -3,13 +3,18 @@ import fetch from 'node-fetch';
 import redis from '../redis';
 
 export const getAuthHeaders = async (args: {
-  consumerKey: string;
-  secretKey: string;
+  name: string,
+  organizationName: string,
+  ivKey: string,
+  sessionKey: string,
+  clientId: string,
+  configPassword: string,
+  registerId: string
 }) => {
-  const { consumerKey, secretKey } = args;
+  const { clientId, sessionKey } = args;
 
   const accessToken = await redis.get(
-    `golomtbank_token_${consumerKey}:${secretKey}`,
+    `golomtbank_token_${clientId}:${sessionKey}`,
   );
 
   if (accessToken) {
@@ -29,14 +34,14 @@ export const getAuthHeaders = async (args: {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           Authorization: `Basic ${Buffer.from(
-            `${consumerKey}:${secretKey}`,
+            `${clientId}:${sessionKey}`,
           ).toString('base64')}`,
         },
       },
     ).then((res) => res.json());
 
     await redis.set(
-      `khanbank_token_${consumerKey}:${secretKey}`,
+      `khanbank_token_${clientId}:${sessionKey}`,
       response.access_token,
       'EX',
       response.access_token_expires_in - 60,

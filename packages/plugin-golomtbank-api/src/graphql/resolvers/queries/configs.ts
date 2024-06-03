@@ -44,5 +44,4 @@ const queries = {
     return models.GolomtBankConfigs.getConfig({ _id });
   }
 };
-
 export default queries;

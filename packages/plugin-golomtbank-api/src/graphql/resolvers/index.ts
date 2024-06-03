@@ -1,15 +1,19 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
-import golomtConfigs from './mutations/configMutation';
-import accounts from './queries/accounts';
 
-const resolvers: any = {
+import mutations from './mutations';
+import queries from './queries';
+//import { GolomtBankAccount } from './queries/accounts';
+
+const resolvers: any = async () => ({
   ...customScalars,
+  // GolomtBankStatement,
+
   Mutation: {
-    ...golomtConfigs
+    ...mutations
   },
   Query: {
-    ...accounts
+    ...queries
   }
-};
+});
 
 export default resolvers;
