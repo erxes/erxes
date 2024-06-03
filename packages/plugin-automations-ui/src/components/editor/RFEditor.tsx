@@ -197,7 +197,6 @@ function AutomationEditor({
   };
 
   return (
-    <>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -222,7 +221,6 @@ function AutomationEditor({
         <Controls />
         <Background />
       </ReactFlow>
-    </>
   );
 }
 
