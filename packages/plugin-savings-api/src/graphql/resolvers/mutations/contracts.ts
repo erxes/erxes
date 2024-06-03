@@ -71,7 +71,7 @@ const contractMutations = {
       },
       'contacts'
     );
-    
+
     if (savingAmount > 0 && contract) {
       const deposit = await models.Contracts.findOne({
         _id: doc.depositAccount

@@ -99,6 +99,11 @@ const queryParams = `
   isDeposit: Boolean
 `;
 
+const checkBalanceParams = `
+  contractId: String
+  requiredAmount: Float
+`
+
 export const queries = `
   savingsContractsMain(${queryParams}): SavingContractsListResponse
   savingsContracts(${queryParams}): [SavingContract]
@@ -106,6 +111,7 @@ export const queries = `
   savingsContractDetail(_id: String!): SavingContract
   savingsCloseInfo(contractId: String, date: Date): SavingCloseInfo
   savingsContractsAlert(date: Date): [SavingAlert]
+  checkAccountBalance(${checkBalanceParams}): String
 `;
 
 const commonFields = `

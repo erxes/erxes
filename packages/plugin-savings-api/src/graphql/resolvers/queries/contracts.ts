@@ -305,6 +305,32 @@ const contractQueries = {
     }
 
     return alerts;
+  },
+  /**
+   * @param _root 
+   * @returns OK
+   */
+  checkAccountBalance: async (
+    _root,
+    {
+      contractId,
+      requiredAmount
+    }: {
+      contractId: string;
+      requiredAmount: number;
+    },
+    { models }: IContext
+  ) => {
+    const account = await models.Contracts.findById({
+      _id: contractId
+    });
+
+    if (!account) throw new Error('Account not found.');
+
+    if (account.savingAmount < requiredAmount)
+      throw new Error('Account balance not reached.');
+
+    return 'OK';
   }
 };
 
