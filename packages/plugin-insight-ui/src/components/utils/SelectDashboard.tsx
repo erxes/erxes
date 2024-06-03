@@ -17,7 +17,11 @@ const SelectDashboard = (props: Props) => {
     <Dropdown
       drop="down"
       as={DropdownToggle}
-      toggleComponent={<Button btnStyle="simple">Add to dashboard</Button>}
+      toggleComponent={
+        <Button btnStyle="success" size="small">
+          Add to dashboard
+        </Button>
+      }
       // alignRight={true}
     >
       {sections.map((section) => (
