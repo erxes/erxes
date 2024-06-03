@@ -28,6 +28,8 @@ type Props = {
   assets: IAsset[];
   assetsCount: number;
   queryParams: any;
+  location: any;
+  navigate: any;
   isAllSelected: boolean;
   bulk: any[];
   emptyBulk: () => void;
@@ -64,12 +66,12 @@ const List = (props: Props) => {
     currentParent,
     mergeAssets,
     mergeAssetLoading,
+    location,
+    navigate
   } = props;
 
   const [search, setSearch] = useState(searchValue);
   const timerRef = useRef<number | null>(null);
-  const location = useLocation();
-  const navigate = useNavigate();
 
   useEffect(() => {
     emptyBulk();
@@ -84,8 +86,8 @@ const List = (props: Props) => {
     setSearch(value);
 
     timerRef.current = window.setTimeout(() => {
-      router.setParams(navigate, location, { searchValue: value });
       router.removeParams(navigate, location, "page");
+      router.setParams(navigate, location, { searchValue: value });
     }, 500);
   };
 

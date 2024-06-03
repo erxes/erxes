@@ -33,8 +33,15 @@ const AssetDetail = asyncComponent(
 
 const Assets = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
-  return <AssetList queryParams={queryString.parse(location.search)} />;
+  return (
+    <AssetList 
+      queryParams={queryString.parse(location.search)} 
+      location={location} 
+      navigate={navigate}
+    />
+  );
 };
 
 const Detail = () => {

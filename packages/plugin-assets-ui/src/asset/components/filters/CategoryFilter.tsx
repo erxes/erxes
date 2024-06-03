@@ -76,8 +76,9 @@ const CategoryFilter = (props: Props) => {
   };
 
   const handleClick = (categoryId) => {
-    router.setParams(navigate, location, { assetCategoryId: categoryId });
     router.removeParams(navigate, location, 'page');
+    router.setParams(navigate, location, { assetCategoryId: categoryId });
+    
   };
 
   const renderContent = () => {

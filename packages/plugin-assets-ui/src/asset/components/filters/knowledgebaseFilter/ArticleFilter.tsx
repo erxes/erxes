@@ -34,9 +34,9 @@ const ArticleFilter = (props: Props) => {
         articleIds: (articleIds || []).filter((articleId) => articleId !== id),
       });
     }
-
-    router.setParams(navigate, location, { articleIds: [...articleIds, id] });
     router.removeParams(navigate, location, "page");
+    router.setParams(navigate, location, { articleIds: [...articleIds, id] });
+    
   };
 
   const renderArticlesContent = () => {

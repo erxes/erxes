@@ -12,15 +12,15 @@ import { mutations, queries } from "../graphql";
 import List from "../components/List";
 import React from "react";
 import { generatePaginationParams } from "@erxes/ui/src/utils/router";
-import { useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
+  location: any;
+  navigate: any;
 };
 
 const ListContainer = (props: Props) => {
-  const { queryParams } = props;
-  const navigate = useNavigate();
+  const { queryParams, navigate } = props;
 
   const assetsQuery = useQuery<IAssetQueryResponse>(gql(queries.assets), {
     variables: generateQueryParams(queryParams),
