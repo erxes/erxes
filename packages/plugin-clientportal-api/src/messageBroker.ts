@@ -5,7 +5,7 @@ import {
 } from '@erxes/api-utils/src/core';
 import { afterMutationHandlers } from './afterMutations';
 
-import { generateModels, IModels } from './connectionResolver';
+import { generateModels } from './connectionResolver';
 import { sendNotification, sendSms } from './utils';
 import { createCard } from './models/utils';
 import {
