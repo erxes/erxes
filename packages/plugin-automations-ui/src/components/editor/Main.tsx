@@ -505,12 +505,12 @@ class Editor extends React.Component<Props, State> {
     const items: IAction[] | ITrigger[] =
       type === "trigger" ? triggers : actions;
 
-    this.setState({
-      ...this.state,
+    this.setState(prevState=> ({
+      ...prevState,
       [`${type}s`]: items.map((item) =>
         item.id === id ? { ...item, position } : item
       ),
-    });
+    }));
   };
 
   renderConfirmation() {

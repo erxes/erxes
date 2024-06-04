@@ -200,9 +200,10 @@ class Settings extends React.Component<Props, State> {
     return (
       <SettingsLayout>
         <LeftSidebar>
-          <button
+          <li
             className={currentTab === "general" ? "active" : ""}
             onClick={this.onClickTab.bind(this, "general")}
+            role="button"
             onKeyDown={e => {
               if(e.key === 'enter'){
               this.onClickTab.bind(this, "general")
@@ -211,18 +212,19 @@ class Settings extends React.Component<Props, State> {
             }
           >
             General
-          </button>
-          <button
+          </li>
+          <li
             className={currentTab === "suppression" ? "active" : ""}
             onClick={this.onClickTab.bind(this, "suppression")}
+            role="button"
             onKeyUp={e => {
               if(e.key === 'space'){
-                this.onClickTab.bind(this, "suppression")
+                {this.onClickTab.bind(this, "suppression")}
               }
             }}
           >
             Unenrollment and Suppression
-          </button>
+          </li>
         </LeftSidebar>
         <SettingsContent>{this.renderContent()}</SettingsContent>
       </SettingsLayout>

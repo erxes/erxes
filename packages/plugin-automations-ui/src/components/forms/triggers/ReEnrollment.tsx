@@ -35,7 +35,7 @@ class ReEnrollment extends React.Component<Props, State> {
     const { config = {} } = trigger;
 
     this.state = {
-      reEnroll: config.reEnrollment,
+      reEnroll : !!config.reEnrollment,
       checked: config.reEnrollmentRules || [],
     };
   }
@@ -95,7 +95,8 @@ class ReEnrollment extends React.Component<Props, State> {
         onChange={this.onChangeCheckbox}
         checked={reEnroll ? checked.includes(propertyName) : false}
         value={`${propertyName}`}
-        disabled={reEnroll}
+        disabled={!reEnroll}
+
       >
         {`${labelByName[propertyName]}`}
       </FormControl>

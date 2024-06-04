@@ -56,13 +56,11 @@ class SetProperty extends React.Component<Props, State> {
     };
   }
 
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.activeAction !== prevState.activeAction) {
-      return { config: nextProps.activeAction.config };
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.activeAction !== this.props.activeAction) {
+      this.setState({ config: nextProps.activeAction.config });
     }
-    return null;
   }
-  
 
   onChangeField = (name: string, value: string) => {
     const { config } = this.state;
