@@ -1,12 +1,10 @@
-import { ButtonMutate } from '@erxes/ui/src';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils/core';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { IAssetCategoryTypes } from '../../common/types';
-import { mutations } from '../graphql';
-
-import CategoryForm from '../components/CategoryForm';
+import { ButtonMutate } from "@erxes/ui/src";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import * as compose from "lodash.flowright";
+import React from "react";
+import { IAssetCategoryTypes } from "../../common/types";
+import { mutations } from "../graphql";
+import CategoryForm from "../components/CategoryForm";
 
 type Props = {
   closeModal: () => void;
@@ -27,11 +25,11 @@ const CategoryFormContainer = (props: Props) => {
   }: IButtonMutateProps) => {
     let mutation = mutations.assetCategoryAdd;
 
-    let sucessAction = 'added';
+    let sucessAction = "added";
 
     if (object) {
       mutation = mutations.assetCategoryEdit;
-      sucessAction = 'updated';
+      sucessAction = "updated";
     }
 
     return (
@@ -39,7 +37,7 @@ const CategoryFormContainer = (props: Props) => {
         mutation={mutation}
         variables={values}
         callback={callback}
-        refetchQueries={['assetCategories', 'assetCategoriesTotalCount']}
+        refetchQueries={["assetCategories", "assetCategoriesTotalCount"]}
         isSubmitted={isSubmitted}
         type="submit"
         confirmationUpdate={confirmationUpdate}
