@@ -173,7 +173,7 @@ const configClientPortalQueries = {
       searchValue?: string;
       categoryIds: string[];
       topicId?: string;
-      isPrivate: Boolean;
+      isPrivate: boolean;
     },
     { subdomain }: IContext
   ) {
