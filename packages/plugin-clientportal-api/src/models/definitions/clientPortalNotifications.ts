@@ -8,7 +8,7 @@ export interface ICPNotification {
   receiver?: string;
   notifType?: 'engage' | 'system';
   clientPortalId: string;
-  eventData?: any | null;
+  eventData?: any;
   groupId?: string;
 }
 
