@@ -1,5 +1,5 @@
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
-import { confirm } from "@erxes/ui/src/utils";
+import { confirm, loadDynamicComponent, __ } from "@erxes/ui/src/utils";
 import Alert from "@erxes/ui/src/utils/Alert";
 import Button from "@erxes/ui/src/components/Button";
 import { ModalTrigger } from "@erxes/ui/src/components";
@@ -11,7 +11,6 @@ import Dropdown from "@erxes/ui/src/components/Dropdown";
 import { IClientPortalUser } from "../../types";
 import React from "react";
 import SmsForm from "@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm";
-import { loadDynamicComponent, __ } from "@erxes/ui/src/utils";
 // import ExtendSubscription from '@erxes/ui-forum/src/containers/ExtendSubscriptionForm';
 import EmailWidget from "@erxes/ui-inbox/src/inbox/components/EmailWidget";
 import { isEnabled } from "@erxes/ui/src/utils/core";
