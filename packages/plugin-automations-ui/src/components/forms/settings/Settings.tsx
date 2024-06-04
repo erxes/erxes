@@ -200,7 +200,7 @@ class Settings extends React.Component<Props, State> {
     return (
       <SettingsLayout>
         <LeftSidebar>
-          <li
+          <button
             className={currentTab === "general" ? "active" : ""}
             onClick={this.onClickTab.bind(this, "general")}
             onKeyDown={e => {
@@ -211,7 +211,7 @@ class Settings extends React.Component<Props, State> {
             }
           >
             General
-          </li>
+          </button>
           <li
             className={currentTab === "suppression" ? "active" : ""}
             onClick={this.onClickTab.bind(this, "suppression")}
