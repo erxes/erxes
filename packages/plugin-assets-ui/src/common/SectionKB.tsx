@@ -1,10 +1,8 @@
 import { Box, Button, ControlLabel, Icon, Tip } from "@erxes/ui/src";
-import { KbArticlesContainer, KbTreeViewItem } from "../style";
+import { KbArticlesContainer, KbTreeViewItem, ContainerBox } from "../style";
 import React, { useState } from "react";
 import { gql, useQuery } from "@apollo/client";
 import { removeParams, setParams } from "@erxes/ui/src/utils/router";
-
-import { ContainerBox } from "../style";
 import { checkKnowledge } from "./constant";
 import client from "@erxes/ui/src/apolloClient";
 import { generateParamsIds } from "./utils";
