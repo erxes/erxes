@@ -2,10 +2,8 @@ import { Alert, Bulk, router } from "@erxes/ui/src";
 import { MainQueryResponse, RemoveMutationResponse } from "../types";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { mutations, queries } from "../graphql";
-
 import CarsList from "../components/list/CarsList";
 import React from "react";
-import { graphql } from "@apollo/client/react/hoc";
 import { useNavigate } from "react-router-dom";
 
 type Props = {
