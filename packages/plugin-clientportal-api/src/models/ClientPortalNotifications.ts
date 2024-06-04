@@ -1,4 +1,3 @@
-import { IUserDocument } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
 
 import { IModels } from '../connectionResolver';
