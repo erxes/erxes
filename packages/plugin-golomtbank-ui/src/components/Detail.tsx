@@ -2,7 +2,7 @@ import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { Content } from '../styles';
-import DetailContainer from '../accounts/containers/Detail';
+import DetailContainer from '../corporateGateway/accounts/containers/Detail';
 
 type Props = {
   loading?: boolean;

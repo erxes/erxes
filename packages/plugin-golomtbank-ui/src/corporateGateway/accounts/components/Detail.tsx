@@ -1,4 +1,3 @@
-
 import Button from '@erxes/ui/src/components/Button';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
@@ -6,15 +5,13 @@ import Toggle from '@erxes/ui/src/components/Toggle';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 
-import { BlockRow } from '../../styles';
-import { getCurrencySymbol } from '../../utils';
-
-import Transactions from '../../transactions/containers/List';
-import { IGolomtAccount } from '../../types/IGolomtAccount';
+import {BlockRow } from '../../../styles';
+import { getCurrencySymbol } from '../../../utils';
+import { IGolomtBankAccount } from '../../../types/IGolomtAccount';
 
 type Props = {
   queryParams: any;
-  account: IGolomtAccount;
+  account: IGolomtBankAccount;
 };
 
 const Detail = (props: Props) => {
@@ -113,7 +110,7 @@ const Detail = (props: Props) => {
     return (
       <div>
         <h4>{__('Latest transactions')}</h4>
-        <Transactions {...props} showLatest={true} />
+       
       </div>
     );
   };

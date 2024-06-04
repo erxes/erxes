@@ -10,7 +10,7 @@ const ConfigsList = asyncComponent(
     )
 );
 const GolomtbankAccounts = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings CreateGolomtbank" */ './components/CorporateGateway')
+  import(/* webpackChunkName: "Settings CreateGolomtbank" */ './corporateGateway/accounts/containers/List')
 );
 
 const ConfigsListComponent = () => {
@@ -28,14 +28,9 @@ const MenuComponent = () => {
 
 const routes = () => {
   return (
-    
     <Routes>
        <Route path="/settings/golomtBank" element={<ConfigsListComponent />} />
-       <Route
-        key="/erxes-plugin-golomtbank/accounts"
-        path="/erxes-plugin-golomtbank/accounts"
-        element={<MenuComponent />}
-      />
+      <Route path="/golomtBank-corporate-gateway" element={<MenuComponent />} />
     </Routes>
      
   );

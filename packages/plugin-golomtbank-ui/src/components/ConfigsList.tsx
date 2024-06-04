@@ -2,7 +2,7 @@ import * as routerUtils from "@erxes/ui/src/utils/router";
 
 import { useLocation, useNavigate } from "react-router-dom";
 
-import AccountList from "../accounts/containers/List";
+import AccountList from "../corporateGateway/accounts/containers/List";
 import Box from "@erxes/ui/src/components/Box";
 import Button from "@erxes/ui/src/components/Button";
 import { ConfigList } from "../styles";

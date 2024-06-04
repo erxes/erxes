@@ -1,7 +1,13 @@
-import { QueryResponse } from "@erxes/ui/src/types"
+import { QueryResponse } from '@erxes/ui/src/types';
 
+export interface IAccountHolder {
+  number: string;
+  custLastName: string;
+  custFirstName: string;
+  currency: string;
+}
 
-export interface  IGolomtAccount  {
+export interface IGolomtBankAccount {
   requestId: string,
   accountId: string,
   accountName: string,
@@ -15,15 +21,16 @@ export interface  IGolomtAccount  {
   }
 
 }
+
 export type AccountsListQueryResponse = {
-  golomtBankAccounts: IGolomtAccount[];
+  golomtBankAccounts: IGolomtBankAccount[];
 
   loading: boolean;
   refetch: () => void;
 } & QueryResponse;
 
 export type AccountDetailQueryResponse = {
-  golomtBankAccountDetail: IGolomtAccount;
+  golomtBankAccountDetail: IGolomtBankAccount;
 
   loading: boolean;
   refetch: () => void;

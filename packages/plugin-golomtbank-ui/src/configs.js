@@ -21,11 +21,10 @@ module.exports = {
     },
     {
       text: "GolomtBank",
+      url: "/golomtBank-corporate-gateway",
       icon: "icon-university",
-      url: "/erxes-plugin-golomtbank/accounts",
-      scope: 'golomtbank',
-      location: "mainNavigation"
-    }
+      location: "mainNavigation",
+      scope: "golomtBank"
+    },
   ]
-  
 };
