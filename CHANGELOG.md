@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.12.0-rc.2](https://github.com/erxes/erxes/compare/1.12.0-rc.1...1.12.0-rc.2) (2024-06-03)
+
+
+### Bug Fixes
+
+* **calls:** saved transfer call record ([afbcb1e](https://github.com/erxes/erxes/commit/afbcb1e4090cd238d126e21d311980af1c8c48d0))
+
+## [1.11.0-rc.8](https://github.com/erxes/erxes/compare/1.12.0-rc.1...1.12.0-rc.2) (2024-05-28)
+
+## [1.11.0-rc.7](https://github.com/erxes/erxes/compare/1.12.0-rc.1...1.12.0-rc.2) (2024-05-28)
+
+## [1.11.0-rc.6](https://github.com/erxes/erxes/compare/1.12.0-rc.1...1.12.0-rc.2) (2024-05-28)
+
 ## [1.12.0-rc.1](https://github.com/erxes/erxes/compare/1.12.0-rc.0...1.12.0-rc.1) (2024-05-30)
 
 
