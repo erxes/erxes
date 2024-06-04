@@ -18,8 +18,6 @@ import { sendCommonMessage } from './../../../messageBroker';
 import * as jwt from 'jsonwebtoken';
 import { fetchUserFromSocialpay } from '../../../socialpayUtils';
 import fetch from 'node-fetch';
-import { TwoFactorConfig } from '../../../models/definitions/clientPortal';
-
 export interface IVerificationParams {
   userId: string;
   emailOtp?: string;
