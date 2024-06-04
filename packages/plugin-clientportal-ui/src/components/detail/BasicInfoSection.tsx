@@ -48,7 +48,7 @@ const BasicInfoSection: React.FC<Props> = ({
           title={`Send SMS to (${phone})`}
           trigger={
             <Button
-              disabled={phone ? false : true}
+              disabled={!phone}
               size="small"
               btnStyle={phone ? "primary" : "simple"}
             >
@@ -63,7 +63,7 @@ const BasicInfoSection: React.FC<Props> = ({
           href={phone && `tel:${phone}`}
           size="small"
           btnStyle={phone ? "primary" : "simple"}
-          disabled={phone ? false : true}
+          disabled={!phone}
         >
           <Tip text="Call" placement="top-end">
             <Icon icon="phone" />
