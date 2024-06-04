@@ -16,7 +16,7 @@ import {
   CustomRangeContainer,
   EndDateContainer,
 } from "../../../style";
-import React, { useState } from "react";
+import React from "react";
 
 import { DateContainer } from "@erxes/ui/src/styles/main";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
