@@ -1,6 +1,5 @@
 import { ButtonMutate } from "@erxes/ui/src";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
-import * as compose from "lodash.flowright";
 import React from "react";
 import { IAssetCategoryTypes } from "../../common/types";
 import { mutations } from "../graphql";
