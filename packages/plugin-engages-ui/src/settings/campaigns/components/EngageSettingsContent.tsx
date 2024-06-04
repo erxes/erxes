@@ -1,25 +1,25 @@
-import { Alert, __ } from "coreui/utils";
-import { ContentBox, FlexRow } from "@erxes/ui-settings/src/styles";
-import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-import { Recipient, Recipients } from "@erxes/ui-engage/src/styles";
-
-import Button from "@erxes/ui/src/components/Button";
-import CollapseContent from "@erxes/ui/src/components/CollapseContent";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import Form from "@erxes/ui/src/components/form/Form";
-import { FormControl } from "@erxes/ui/src/components/form";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import { IConfigsMap } from "@erxes/ui-settings/src/general/types";
-import Icon from "@erxes/ui/src/components/Icon";
-import Info from "@erxes/ui/src/components/Info";
-import { ModalFooter } from "@erxes/ui/src/styles/main";
-import React from "react";
-import { Verify } from "@erxes/ui-settings/src/general/components/styles";
+import Alert from '@erxes/ui/src/utils/Alert';
+import { ContentBox, FlexRow } from '@erxes/ui-settings/src/styles';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { Recipient, Recipients } from '@erxes/ui-engage/src/styles';
+import { __, getVersion } from '@erxes/ui/src/utils/core';
+import Button from '@erxes/ui/src/components/Button';
+import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Form from '@erxes/ui/src/components/form/Form';
+import { FormControl } from '@erxes/ui/src/components/form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import Info from '@erxes/ui/src/components/Info';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import React from 'react';
+import { Verify } from '@erxes/ui-settings/src/general/components/styles';
 
 type Props = {
   configsMap: IConfigsMap;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  verifyEmail: (email: string) => void;
+  verifyEmail: (email: string, address?: string, name?: string) => void;
   removeVerifiedEmail: (email: string) => void;
   sendTestEmail: (from: string, to: string, content: string) => void;
   verifiedEmails: string[];
@@ -30,6 +30,8 @@ type State = {
   accessKeyId?: string;
   region?: string;
   emailToVerify?: string;
+  name?: string;
+  address?: string;
   testFrom?: string;
   testTo?: string;
   testContent?: string;
@@ -42,13 +44,13 @@ type State = {
 };
 
 type CommonFields =
-  | "emailToVerify"
-  | "testFrom"
-  | "testTo"
-  | "testContent"
-  | "telnyxApiKey"
-  | "telnyxPhone"
-  | "telnyxProfileId";
+  | 'emailToVerify'
+  | 'testFrom'
+  | 'testTo'
+  | 'testContent'
+  | 'telnyxApiKey'
+  | 'telnyxPhone'
+  | 'telnyxProfileId';
 
 class EngageSettingsContent extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -57,14 +59,14 @@ class EngageSettingsContent extends React.Component<Props, State> {
     const { configsMap } = props;
 
     this.state = {
-      secretAccessKey: configsMap.secretAccessKey || "",
-      accessKeyId: configsMap.accessKeyId || "",
-      region: configsMap.region || "",
-      configSet: configsMap.configSet || "",
-      emailVerificationType: configsMap.emailVerificationType || "",
-      telnyxApiKey: configsMap.telnyxApiKey || "",
-      telnyxPhone: configsMap.telnyxPhone || "",
-      telnyxProfileId: configsMap.telnyxProfileId || "",
+      secretAccessKey: configsMap.secretAccessKey || '',
+      accessKeyId: configsMap.accessKeyId || '',
+      region: configsMap.region || '',
+      configSet: configsMap.configSet || '',
+      emailVerificationType: configsMap.emailVerificationType || '',
+      telnyxApiKey: configsMap.telnyxApiKey || '',
+      telnyxPhone: configsMap.telnyxPhone || '',
+      telnyxProfileId: configsMap.telnyxProfileId || '',
     };
   }
 
@@ -77,19 +79,25 @@ class EngageSettingsContent extends React.Component<Props, State> {
   };
 
   onVerifyEmail = () => {
-    const { emailToVerify } = this.state;
+    // const {VERSION} = getVersion();
+    const VERSION = 'saas'
+    const { emailToVerify, name, address } = this.state;
 
-    if (emailToVerify) {
-      return this.props.verifyEmail(emailToVerify);
+    if (VERSION === 'saas' && (!emailToVerify || !name || !address)) {
+      return Alert.error('Complete all required fields!')
     }
 
-    return Alert.error("Write your email to verify!");
+    if (emailToVerify) {
+      return this.props.verifyEmail(emailToVerify, address, name);
+    }
+
+    return Alert.error('Write your email to verify!');
   };
 
   onSendTestEmail = () => {
     const { testFrom, testTo, testContent } = this.state;
 
-    this.props.sendTestEmail(testFrom || "", testTo || "", testContent || "");
+    this.props.sendTestEmail(testFrom || '', testTo || '', testContent || '');
   };
 
   onRemoveVerifiedEmail = (email: string) => {
@@ -105,14 +113,14 @@ class EngageSettingsContent extends React.Component<Props, State> {
 
     return (
       <>
-        <h4>{__("Verified emails")}:</h4>
+        <h4>{__('Verified emails')}:</h4>
 
         <Recipients>
           {verifiedEmails.map((email, index) => (
             <Recipient key={index}>
               {email}
               <span onClick={this.onRemoveVerifiedEmail.bind(this, email)}>
-                <Icon icon="times" />
+                <Icon icon='times' />
               </span>
             </Recipient>
           ))}
@@ -130,24 +138,24 @@ class EngageSettingsContent extends React.Component<Props, State> {
         <Info>
           <p>
             {__(
-              "Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account"
-            ) + "."}
+              'Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account'
+            ) + '.'}
           </p>
           <a
-            target="_blank"
-            href="https://docs.erxes.io/conversations"
-            rel="noopener noreferrer"
+            target='_blank'
+            href='https://docs.erxes.io/conversations'
+            rel='noopener noreferrer'
           >
-            {__("Learn more about Amazon SES configuration")}
+            {__('Learn more about Amazon SES configuration')}
           </a>
         </Info>
-        <FlexRow $alignItems="flex-start" $justifyContent="space-between">
+        <FlexRow $alignItems='flex-start' $justifyContent='space-between'>
           <FormGroup>
             <ControlLabel>AWS SES Access key ID</ControlLabel>
             <FormControl
               {...formProps}
               max={140}
-              name="accessKeyId"
+              name='accessKeyId'
               defaultValue={configsMap.accessKeyId}
             />
           </FormGroup>
@@ -157,18 +165,18 @@ class EngageSettingsContent extends React.Component<Props, State> {
             <FormControl
               {...formProps}
               max={140}
-              name="secretAccessKey"
+              name='secretAccessKey'
               defaultValue={configsMap.secretAccessKey}
             />
           </FormGroup>
         </FlexRow>
-        <FlexRow $alignItems="flex-start" $justifyContent="space-between">
+        <FlexRow $alignItems='flex-start' $justifyContent='space-between'>
           <FormGroup>
             <ControlLabel>AWS SES Region</ControlLabel>
             <FormControl
               {...formProps}
               max={140}
-              name="region"
+              name='region'
               defaultValue={configsMap.region}
             />
           </FormGroup>
@@ -178,7 +186,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
             <FormControl
               {...formProps}
               max={140}
-              name="configSet"
+              name='configSet'
               defaultValue={configsMap.configSet}
             />
           </FormGroup>
@@ -189,11 +197,11 @@ class EngageSettingsContent extends React.Component<Props, State> {
           <FormControl
             {...formProps}
             max={140}
-            name="unverifiedEmailsLimit"
+            name='unverifiedEmailsLimit'
             defaultValue={configsMap.unverifiedEmailsLimit || 100}
           />
         </FormGroup>
-        <FlexRow $alignItems="flex-start" $justifyContent="space-between">
+        <FlexRow $alignItems='flex-start' $justifyContent='space-between'>
           <FormGroup>
             <ControlLabel>Allowed email skip limit</ControlLabel>
             <p>
@@ -204,7 +212,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
             </p>
             <FormControl
               {...formProps}
-              name="allowedEmailSkipLimit"
+              name='allowedEmailSkipLimit'
               defaultValue={configsMap.allowedEmailSkipLimit || 10}
             />
           </FormGroup>
@@ -216,7 +224,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
             </p>
             <FormControl
               {...formProps}
-              name="smsLimit"
+              name='smsLimit'
               defaultValue={configsMap.smsLimit || 0}
               min={50}
               max={100}
@@ -225,7 +233,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
         </FlexRow>
         <ModalFooter>
           {renderButton({
-            name: "configsMap",
+            name: 'configsMap',
             values: this.generateDoc(values),
             isSubmitted,
             object: this.props.configsMap,
@@ -236,74 +244,93 @@ class EngageSettingsContent extends React.Component<Props, State> {
   };
 
   render() {
+    // const { VERSION } = getVersion();
+    const VERSION = 'saas';
+
     return (
-      <ContentBox id={"EngageSettingsMenu"}>
+      <ContentBox id={'EngageSettingsMenu'}>
         <CollapseContent
-          beforeTitle={<Icon icon="settings" />}
+          beforeTitle={<Icon icon='settings' />}
           transparent={true}
-          title="General settings"
+          title='General settings'
         >
           <Form renderContent={this.renderContent} />
         </CollapseContent>
 
         <CollapseContent
-          beforeTitle={<Icon icon="shield-check" />}
+          beforeTitle={<Icon icon='shield-check' />}
           transparent={true}
-          title={__("Verify the email addresses that you send email from")}
+          title={__('Verify the email addresses that you send email from')}
         >
           {this.renderVerifiedEmails()}
+          {VERSION && VERSION === 'saas' && (
+            <>
+              <ControlLabel required={true}>Name</ControlLabel>
+              <FormControl
+                type='input'
+                onChange={this.onChangeCommon.bind(this, 'name')}
+              />
 
-          <Verify>
-            <ControlLabel required={true}>Email</ControlLabel>
-            <FormControl
-              type="email"
-              onChange={this.onChangeCommon.bind(this, "emailToVerify")}
-            />
+              <ControlLabel required={true}>Address</ControlLabel>
+              <FormControl
+                type='input'
+                onChange={this.onChangeCommon.bind(this, 'address')}
+              />
+            </>
+          )}
 
+          {/* <Verify> */}
+          <ControlLabel required={true}>Email</ControlLabel>
+          <FormControl
+            type='email'
+            onChange={this.onChangeCommon.bind(this, 'emailToVerify')}
+          />
+          <ModalFooter>
             <Button
               onClick={this.onVerifyEmail}
-              btnStyle="success"
-              icon="check-circle"
+              btnStyle='success'
+              icon='check-circle'
             >
               Verify
             </Button>
-          </Verify>
+            {/* </Verify> */}
+          </ModalFooter>
         </CollapseContent>
         <CollapseContent
-          beforeTitle={<Icon icon="envelope-upload" />}
+          beforeTitle={<Icon icon='envelope-upload' />}
           transparent={true}
-          title={__("Send your first testing email")}
+          title={__('Send your first testing email')}
         >
-          <FlexRow $alignItems="flex-start" $justifyContent="space-between">
+          <FlexRow $alignItems='flex-start' $justifyContent='space-between'>
             <FormGroup>
               <ControlLabel>From</ControlLabel>
               <FormControl
-                placeholder="from@email.com"
-                onChange={this.onChangeCommon.bind(this, "testFrom")}
+                placeholder='from@email.com'
+                onChange={this.onChangeCommon.bind(this, 'testFrom')}
               />
             </FormGroup>
 
             <FormGroup>
               <ControlLabel>To</ControlLabel>
               <FormControl
-                placeholder="to@email.com"
-                onChange={this.onChangeCommon.bind(this, "testTo")}
+                placeholder='to@email.com'
+                onChange={this.onChangeCommon.bind(this, 'testTo')}
               />
             </FormGroup>
           </FlexRow>
           <FormGroup>
             <ControlLabel>Content</ControlLabel>
             <FormControl
-              placeholder={__("Write your content") + "..."}
-              componentclass="textarea"
-              onChange={this.onChangeCommon.bind(this, "testContent")}
+              placeholder={__('Write your content') + '...'}
+              componentclass='textarea'
+              onChange={this.onChangeCommon.bind(this, 'testContent')}
             />
           </FormGroup>
 
           <ModalFooter>
             <Button
-              btnStyle="success"
-              icon="message"
+              btnStyle='success'
+              icon='message'
               onClick={this.onSendTestEmail}
             >
               Send test email

@@ -2,24 +2,24 @@ import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 
-import { IEngageMessage } from '../../models/definitions/engages';
+import { sendToWebhook } from '@erxes/api-utils/src';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 import { CAMPAIGN_KINDS } from '../../constants';
 import { checkCampaignDoc, send } from '../../engageUtils';
 import {
   sendContactsMessage,
   sendCoreMessage,
+  sendImapMessage,
   sendLogsMessage,
-  sendImapMessage
 } from '../../messageBroker';
-import {
-  updateConfigs,
-  createTransporter,
-  getEditorAttributeUtil
-} from '../../utils';
-import { awsRequests } from '../../trackers/engageTracker';
+import { IEngageMessage } from '../../models/definitions/engages';
 import { sendEmail } from '../../sender';
-import { sendToWebhook } from '@erxes/api-utils/src';
-import { debugError } from '@erxes/api-utils/src/debuggers';
+import { awsRequests } from '../../trackers/engageTracker';
+import {
+  createTransporter,
+  getEditorAttributeUtil,
+  updateConfigs
+} from '../../utils';
 
 interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
@@ -40,7 +40,7 @@ interface ITestEmailParams {
  */
 const emptyCustomers = {
   customerIds: [],
-  messengerReceivedCustomerIds: []
+  messengerReceivedCustomerIds: [],
 };
 
 const engageMutations = {
@@ -68,8 +68,8 @@ const engageMutations = {
       data: {
         action: 'create',
         type: 'engages:engageMessages',
-        params: engageMessage
-      }
+        params: engageMessage,
+      },
     });
 
     await send(models, subdomain, engageMessage, doc.forceCreateConversation);
@@ -78,12 +78,12 @@ const engageMutations = {
       type: MODULE_ENGAGE,
       newData: {
         ...doc,
-        ...emptyCustomers
+        ...emptyCustomers,
       },
       object: {
         ...engageMessage.toObject(),
-        ...emptyCustomers
-      }
+        ...emptyCustomers,
+      },
     };
 
     await putCreateLog(subdomain, logDoc, user);
@@ -117,7 +117,7 @@ const engageMutations = {
       type: MODULE_ENGAGE,
       object: { ...engageMessage.toObject(), ...emptyCustomers },
       newData: { ...updated.toObject(), ...emptyCustomers },
-      updatedDocument: updated
+      updatedDocument: updated,
     };
 
     await putUpdateLog(subdomain, logDoc, user);
@@ -139,7 +139,7 @@ const engageMutations = {
 
     const logDoc = {
       type: MODULE_ENGAGE,
-      object: { ...engageMessage.toObject(), ...emptyCustomers }
+      object: { ...engageMessage.toObject(), ...emptyCustomers },
     };
 
     await putDeleteLog(subdomain, logDoc, user);
@@ -195,14 +195,14 @@ const engageMutations = {
         type: MODULE_ENGAGE,
         newData: {
           isLive: true,
-          isDraft: false
+          isDraft: false,
         },
         object: {
           _id,
           isLive: draftCampaign.isLive,
-          isDraft: draftCampaign.isDraft
+          isDraft: draftCampaign.isDraft,
         },
-        description: `Broadcast "${draftCampaign.title}" has been set live`
+        description: `Broadcast "${draftCampaign.title}" has been set live`,
       },
       user
     );
@@ -221,9 +221,60 @@ const engageMutations = {
    */
   async engageMessageVerifyEmail(
     _root,
-    { email }: { email: string },
-    { models }: IContext
+    {
+      email,
+      address,
+      name,
+    }: { email: string; address?: string; name?: string },
+    { models, subdomain }: IContext
   ) {
+    // const VERSION = getEnv({ name: 'VERSION' });
+    const VERSION = 'saas';
+
+    if (VERSION === 'saas') {
+      // const SENDGRID_API_KEY = getConfig({ name: 'SENDGRID_API_KEY', subdomain });
+      const sendgrid = require('@sendgrid/client');
+      const SENDGRID_CLIENT_KEY = await sendCoreMessage({
+        subdomain,
+        action: 'getConfig',
+        data: { code: 'SENDGRID_CLIENT_KEY', defaultValue: null },
+        isRPC: true,
+      });
+
+      console.log('SENDGRID_CLIENT_KEY', SENDGRID_CLIENT_KEY);
+
+      sendgrid.setApiKey(SENDGRID_CLIENT_KEY);
+
+      const data = {
+        nickname: name,
+        from: {
+          email,
+          name,
+        },
+        reply_to: {
+          email,
+          name,
+        },
+        address,
+        city: 'Ulaanbaatar',
+        zip: '16000',
+        country: 'Mongolia',
+      };
+
+      const options: any = {
+        url: '/v3/marketing/senders',
+        method: 'POST',
+        body: data,
+      };
+      try {
+        const res = await sendgrid.request(options);
+
+        return JSON.stringify(res);
+      } catch (e) {
+        throw new Error(`Error occurred while verifying email ${email}`);
+      }
+    }
+
     const response = await awsRequests.verifyEmail(models, email);
 
     return JSON.stringify(response);
@@ -235,8 +286,50 @@ const engageMutations = {
   async engageMessageRemoveVerifiedEmail(
     _root,
     { email }: { email: string },
-    { models }: IContext
+    { models, subdomain }: IContext
   ) {
+    // const VERSION = getEnv({ name: 'VERSION' });
+    const VERSION = 'saas';
+
+    if (VERSION === 'saas') {
+      // const SENDGRID_API_KEY = getConfig({ name: 'SENDGRID_API_KEY', subdomain });
+      const sendgrid = require('@sendgrid/client');
+      const SENDGRID_CLIENT_KEY = await sendCoreMessage({
+        subdomain,
+        action: 'getConfig',
+        data: { code: 'SENDGRID_CLIENT_KEY', defaultValue: null },
+        isRPC: true,
+      });
+
+      const sendersRequest = {
+        url: `/v3/marketing/senders`,
+        method: 'GET',
+      };
+
+      sendgrid.setApiKey(SENDGRID_CLIENT_KEY);
+
+      const [body] = await sendgrid.request(sendersRequest);
+
+      const result = body.body;
+
+      const senderToRemove = result.find((e) => e.from.email === email);
+      console.log('senderToRemove', senderToRemove);
+      if (!senderToRemove) {
+        throw new Error(`Sender with email ${email} not found`);
+      }
+
+      const deleteRequest = {
+        url: `/v3/marketing/senders/${senderToRemove.id}`,
+        method: 'DELETE',
+      };
+      try {
+        await sendgrid.request(deleteRequest);
+        return JSON.stringify({ status: 'removed' });
+      } catch (e) {
+        throw new Error(`Error removing sender with email ${email}`);
+      }
+    }
+
     const response = await awsRequests.removeVerifiedEmail(models, email);
 
     return JSON.stringify(response);
@@ -260,14 +353,14 @@ const engageMutations = {
       isRPC: true,
       subdomain,
       action: 'customers.findOne',
-      data: { customerPrimaryEmail: to }
+      data: { customerPrimaryEmail: to },
     });
 
     const targetUser = await sendCoreMessage({
       data: { email: to },
       action: 'users.findOne',
       subdomain,
-      isRPC: true
+      isRPC: true,
     });
 
     const attributeUtil = await getEditorAttributeUtil(subdomain);
@@ -275,8 +368,40 @@ const engageMutations = {
     replacedContent = await attributeUtil.replaceAttributes({
       content,
       customer,
-      user: targetUser
+      user: targetUser,
     });
+
+    // const VERSION = getEnv({ name: 'VERSION' });
+    const VERSION = 'saas';
+
+    if (VERSION === 'saas') {
+      const sendgridMail = require('@sendgrid/mail');
+      const SENDGRID_API_KEY = await sendCoreMessage({
+        subdomain,
+        action: 'getConfig',
+        data: { code: 'SENDGRID_API_KEY', defaultValue: null },
+        isRPC: true,
+      });
+
+      sendgridMail.setApiKey(SENDGRID_API_KEY);
+
+      try {
+        const sendgridResponse = await sendgridMail.send({
+          from,
+          to,
+          subject: title,
+          html: replacedContent,
+          text: replacedContent,
+        });
+
+        sendgridMail.sendMultiple
+
+        return JSON.stringify(sendgridResponse);
+      } catch (e) {
+        console.log(e);
+        return;
+      }
+    }
 
     try {
       const transporter = await createTransporter(models);
@@ -285,7 +410,7 @@ const engageMutations = {
         to,
         subject: title,
         html: content,
-        content: replacedContent
+        content: replacedContent,
       });
       return JSON.stringify(response);
     } catch (e) {
@@ -312,7 +437,7 @@ const engageMutations = {
       isLive: false,
       runCount: 0,
       totalCustomersCount: 0,
-      validCustomersCount: 0
+      validCustomersCount: 0,
     });
 
     delete doc._id;
@@ -330,13 +455,13 @@ const engageMutations = {
         type: MODULE_ENGAGE,
         newData: {
           ...doc,
-          ...emptyCustomers
+          ...emptyCustomers,
         },
         object: {
           ...copy.toObject(),
-          ...emptyCustomers
+          ...emptyCustomers,
         },
-        description: `Campaign "${sourceCampaign.title}" has been copied`
+        description: `Campaign "${sourceCampaign.title}" has been copied`,
       },
       user
     );
@@ -361,7 +486,7 @@ const engageMutations = {
       subdomain,
       action: 'customers.findOne',
       data: customerQuery,
-      isRPC: true
+      isRPC: true,
     });
 
     doc.body = body || '';
@@ -375,12 +500,12 @@ const engageMutations = {
           attachments: doc.attachments,
           sender: doc.from || '',
           cc: doc.cc || [],
-          bcc: doc.bcc || []
+          bcc: doc.bcc || [],
         },
         customers: [customer],
         customer,
         createdBy: user._id,
-        title: doc.subject
+        title: doc.subject,
       });
     } catch (e) {
       debugError(e);
@@ -391,9 +516,9 @@ const engageMutations = {
       subdomain,
       action: 'customers.getCustomerIds',
       data: {
-        primaryEmail: { $in: doc.to }
+        primaryEmail: { $in: doc.to },
       },
-      isRPC: true
+      isRPC: true,
     });
 
     doc.userId = user._id;
@@ -406,9 +531,9 @@ const engageMutations = {
           ...doc,
           customerId: cusId,
           kind: 'transaction',
-          status: 'pending'
+          status: 'pending',
         },
-        isRPC: true
+        isRPC: true,
       });
     }
 
@@ -417,15 +542,15 @@ const engageMutations = {
         subdomain,
         action: 'imapMessage.create',
         data: {
-          ...doc
+          ...doc,
         },
-        isRPC: true
+        isRPC: true,
       });
       return imapSendMail;
     } catch (e) {
       throw e;
     }
-  }
+  },
 };
 
 checkPermission(engageMutations, 'engageMessageAdd', 'engageMessageAdd');

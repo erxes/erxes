@@ -615,3 +615,30 @@ export const checkCustomerExists = async (
 
   return customers.length > 0;
 };
+
+export const sendgridVerifiedEmails = async (subdomain) => {
+  const sendgrid = require('@sendgrid/client');
+  const SENDGRID_CLIENT_KEY = await sendCoreMessage({
+    subdomain,
+    action: 'getConfig',
+    data: { code: 'SENDGRID_CLIENT_KEY', defaultValue: null },
+    isRPC: true,
+  });
+
+  const request = {
+    url: `/v3/marketing/senders`,
+    method: 'GET',
+  };
+
+  sendgrid.setApiKey(SENDGRID_CLIENT_KEY);
+
+  const [body] = await sendgrid.request(request);
+
+  const result = body.body;
+
+  return result
+    .filter((e) => e.verified.status === true && e.locked === false)
+    .map((e) => {
+      return e.from.email;
+    });
+};
