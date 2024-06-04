@@ -29,7 +29,7 @@ type Props = {
 type State = {
   image?: IAttachment;
   secondaryImages?: IAttachment[];
-  productCategoryId?: String;
+  productCategoryId?: string;
 };
 
 class CategoryForm extends React.Component<Props, State> {
