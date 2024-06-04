@@ -35,7 +35,7 @@ class ReEnrollment extends React.Component<Props, State> {
     const { config = {} } = trigger;
 
     this.state = {
-      reEnroll: config.reEnrollment ? true : false,
+      reEnroll: config.reEnrollment,
       checked: config.reEnrollmentRules || [],
     };
   }
