@@ -153,7 +153,7 @@ const Form = (props: Props) => {
   };
 
   const renderChooser = (trigger) => {
-    const chooserTrigger = trigger ? trigger : <Button>Select Assets</Button>;
+    const chooserTrigger = trigger || <Button>Select Assets</Button>;
 
     return (
       <ModalTrigger
