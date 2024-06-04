@@ -30,17 +30,20 @@ class Delay extends React.Component<Props, State> {
     this.state = { config: config || {} };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.activeAction !== this.props.activeAction) {
-      this.setState({ config: nextProps.activeAction.config });
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.activeAction !== prevState.activeAction) {
+      return { config: nextProps.activeAction.config };
     }
+    return null;
   }
 
   onChangeField = (name: string, value: string) => {
-    const { config } = this.state;
-    config[name] = value;
-
-    this.setState({ config });
+    this.setState(prevState => ({
+      config: {
+        ...prevState.config,
+        [name]: value
+      }
+    }));
   };
 
   renderContent() {
@@ -79,5 +82,6 @@ class Delay extends React.Component<Props, State> {
     );
   }
 }
+
 
 export default Delay;
