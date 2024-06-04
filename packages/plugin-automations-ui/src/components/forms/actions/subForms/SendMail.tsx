@@ -126,7 +126,7 @@ class SendMail extends React.Component<Props, State> {
       : [];
 
     return (
-      <>
+      
         <PlaceHolderInput
           config={config}
           triggerType={triggerType}
@@ -145,7 +145,7 @@ class SendMail extends React.Component<Props, State> {
             </HelpPopover>
           }
         />
-      </>
+      
     );
   }
 
