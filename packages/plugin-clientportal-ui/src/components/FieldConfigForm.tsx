@@ -23,7 +23,7 @@ function FieldConfigForm(props: Props) {
     fieldConfig ? fieldConfig.allowedClientPortalIds : []
   );
 
-  const [requiredOn, setrequiredOn] = React.useState(
+  const [requiredOn, setRequiredOn] = React.useState(
     fieldConfig ? fieldConfig.requiredOn : []
   );
 
@@ -88,7 +88,7 @@ function FieldConfigForm(props: Props) {
               requiredOn.includes(o.value)
             )}
             onChange={(value) => {
-              setrequiredOn(value.map((v) => v.value));
+              setRequiredOn(value.map((v) => v.value));
             }}
             isMulti={true}
           />
