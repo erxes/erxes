@@ -1,18 +1,17 @@
-import { IField } from '@erxes/ui/src/types';
-import React from 'react';
-import SelectCars from './SelectCars';
+import { IField } from "@erxes/ui/src/types";
+import React from "react";
+import SelectCars from "./SelectCars";
 
 type Props = {
-  contentType: string;
   field: IField;
   onChange: (ids: string[], relationType: string) => void;
 };
 
 const SelectContacts = (props: Props) => {
   const { field, onChange } = props;
-  const { relationType = '' } = field;
+  const { relationType = "" } = field;
 
-  if (relationType !== 'cars:car') {
+  if (relationType !== "cars:car") {
     return null;
   }
 
