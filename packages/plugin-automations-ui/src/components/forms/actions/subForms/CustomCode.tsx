@@ -38,12 +38,10 @@ class Delay extends React.Component<Props, State> {
   }
 
   onChangeField = (name: string, value: string) => {
-    this.setState(prevState => ({
-      config: {
-        ...prevState.config,
-        [name]: value
-      }
-    }));
+    const { config } = this.state;
+    config[name] = value;
+
+    this.setState({ config });
   };
 
   renderContent() {
@@ -82,6 +80,5 @@ class Delay extends React.Component<Props, State> {
     );
   }
 }
-
 
 export default Delay;
