@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  __,
-  router,
-  Box,
-  FieldStyle,
-  SidebarList,
-  DataWithLoader,
-} from "@erxes/ui/src";
+import { __, router, Box, FieldStyle, SidebarList } from "@erxes/ui/src";
 import { generateParamsIds } from "../../../../common/utils";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -36,14 +29,13 @@ const ArticleFilter = (props: Props) => {
     }
     router.removeParams(navigate, location, "page");
     router.setParams(navigate, location, { articleIds: [...articleIds, id] });
-    
   };
 
   const renderArticlesContent = () => {
     return (
       <SidebarList>
         {articles.map((article) => (
-          <li key={article._id} style={{ marginBottom: "5px" }}> 
+          <li key={article._id} style={{ marginBottom: "5px" }}>
             <a
               href="#filter"
               tabIndex={0}
