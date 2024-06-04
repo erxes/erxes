@@ -35,6 +35,4 @@ export const kbHandler = async (models: IModels, subdomain, params) => {
       link
     });
   }
-
-  return;
 };
