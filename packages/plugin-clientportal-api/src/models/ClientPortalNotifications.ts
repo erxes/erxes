@@ -50,7 +50,7 @@ export const loadNotificationClass = (models: IModels) => {
         contentTypeId,
       });
 
-      return notification ? false : true;
+      return !notification;
     }
 
     /**
