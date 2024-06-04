@@ -212,7 +212,7 @@ class Settings extends React.Component<Props, State> {
           >
             General
           </button>
-          <li
+          <button
             className={currentTab === "suppression" ? "active" : ""}
             onClick={this.onClickTab.bind(this, "suppression")}
             onKeyUp={e => {
@@ -222,7 +222,7 @@ class Settings extends React.Component<Props, State> {
             }}
           >
             Unenrollment and Suppression
-          </li>
+          </button>
         </LeftSidebar>
         <SettingsContent>{this.renderContent()}</SettingsContent>
       </SettingsLayout>
