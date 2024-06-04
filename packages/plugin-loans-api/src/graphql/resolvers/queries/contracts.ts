@@ -3,7 +3,7 @@ import { getFullDate } from '../../../models/utils/utils';
 import { checkPermission, paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 
-const generateFilter = async (models, params, commonQuerySelector) => {
+const generateFilter = async (params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
 
   filter.status = { $ne: 'Deleted' };
@@ -12,8 +12,8 @@ const generateFilter = async (models, params, commonQuerySelector) => {
     filter.number = { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] };
   }
 
-  if(params.leaseType){
-    filter.leaseType = params.leaseType
+  if (params.leaseType) {
+    filter.leaseType = params.leaseType;
   }
 
   if (params.status) {
@@ -30,42 +30,6 @@ const generateFilter = async (models, params, commonQuerySelector) => {
       $gte: date,
       $lte: new Date(date.getTime() + 1000 * 3600 * 24)
     };
-  }
-
-  if (
-    params.conformityMainTypeId &&
-    params.conformityMainType &&
-    params.conformityIsSaved
-  ) {
-    filter._id = {
-      $in: await models.Conformities.savedConformity({
-        mainType: params.conformityMainType,
-        mainTypeId: params.conformityMainTypeId,
-        relTypes: ['contract', 'contractSub']
-      })
-    };
-  }
-  if (
-    params.conformityMainTypeId &&
-    params.conformityMainType &&
-    params.conformityIsRelated
-  ) {
-    let ids = [];
-    ids = ids.concat(
-      await models.Conformities.relatedConformity({
-        mainType: params.conformityMainType,
-        mainTypeId: params.conformityMainTypeId,
-        relType: 'contract'
-      })
-    );
-    ids = ids.concat(
-      await models.Conformities.relatedConformity({
-        mainType: params.conformityMainType,
-        mainTypeId: params.conformityMainTypeId,
-        relType: 'contractSub'
-      })
-    );
-    filter._id = { $in: ids };
   }
 
   if (params.contractTypeId) {
@@ -222,9 +186,7 @@ const contractQueries = {
     { commonQuerySelector, models }: IContext
   ) => {
     return await paginate(
-      models.Contracts.find(
-        generateFilter(models, params, commonQuerySelector)
-      ),
+      models.Contracts.find(await generateFilter(params, commonQuerySelector)),
       {
         page: params.page,
         perPage: params.perPage
@@ -239,9 +201,7 @@ const contractQueries = {
   ) => {
     if (!params.customerId) throw new Error('Customer not found');
     return await paginate(
-      models.Contracts.find(
-        await generateFilter(models, params, commonQuerySelector)
-      ),
+      models.Contracts.find(await generateFilter(params, commonQuerySelector)),
       {
         page: params.page,
         perPage: params.perPage
@@ -258,13 +218,16 @@ const contractQueries = {
     params,
     { commonQuerySelector, models }: IContext
   ) => {
-    const filter = await generateFilter(models, params, commonQuerySelector);
+    const filter = await generateFilter(params, commonQuerySelector);
 
     return {
-      list: await paginate(models.Contracts.find(filter).sort(sortBuilder(params)), {
-        page: params.page,
-        perPage: params.perPage
-      }),
+      list: await paginate(
+        models.Contracts.find(filter).sort(sortBuilder(params)),
+        {
+          page: params.page,
+          perPage: params.perPage
+        }
+      ),
       totalCount: await models.Contracts.find(filter).countDocuments()
     };
   },
