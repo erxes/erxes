@@ -25,6 +25,8 @@ const TransferCall = (props: Props, context) => {
   });
 
   const transfer = (extensionNumber: string) => {
+    localStorage.setItem('transferedCallStatus', 'local');
+
     transferCall({
       variables: {
         extensionNumber,
@@ -39,6 +41,7 @@ const TransferCall = (props: Props, context) => {
       .catch((e) => {
         Alert.error(e.message);
         props.closeModal();
+        localStorage.removeItem('transferedCallStatus');
       });
   };
 
