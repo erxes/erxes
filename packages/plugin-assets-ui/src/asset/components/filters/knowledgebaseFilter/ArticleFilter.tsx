@@ -6,7 +6,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 type Props = {
   articles: any[];
   queryParams: any;
-  loading: boolean;
 };
 
 const ArticleFilter = (props: Props) => {
