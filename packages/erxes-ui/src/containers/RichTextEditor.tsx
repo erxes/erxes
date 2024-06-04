@@ -77,6 +77,7 @@ const EditorContainer = (props: FinalProps) => {
     contentType,
     insertItems,
     showMentions,
+    onCtrlEnter,
     ...otherProps
   } = props;
 
@@ -122,6 +123,7 @@ const EditorContainer = (props: FinalProps) => {
       {...(showMentions && {
         mentionSuggestion: { getVariables, fetchMentions, extractFunction },
       })}
+      onCtrlEnter={onCtrlEnter}
       placeholderProp={placeholderItems}
     />
   );

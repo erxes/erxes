@@ -16,6 +16,11 @@ enum IChartType {
   PIE = 'pie',
   BAR = 'bar',
   LINE = 'line',
+  DOUGHNUT = 'doughnut',
+  RADAR = 'radar',
+  POLARAREA = 'polarArea',
+  TABLE = 'table',
+  NUMBER = 'number'
 }
 
 export interface IChartEdit {

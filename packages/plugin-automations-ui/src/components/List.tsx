@@ -223,7 +223,7 @@ class AutomationsList extends React.Component<IProps, State> {
       <BarItems>
         <FormControl
           type="text"
-          placeholder={__("Search an automation")}
+          placeholder={__("Type to search")}
           onChange={this.search}
           value={this.state.searchValue}
           autoFocus={true}

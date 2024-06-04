@@ -147,7 +147,7 @@ const LeftSidebar: React.FC<Props> = (props: Props) => {
   };
 
   return (
-    <Sidebar wide={true}>
+    <Sidebar wide={true} hasBorder={true}>
       <SectionContainer>
         <DetailInfo clientPortalUser={clientPortalUser} />
       </SectionContainer>

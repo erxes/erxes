@@ -1,8 +1,6 @@
 import {
   FilterContainer,
-  FlexItem,
   FlexRow,
-  InputBar,
   Title,
 } from "@erxes/ui-settings/src/styles";
 import {
@@ -15,7 +13,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Button from "@erxes/ui/src/components/Button";
 import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
 import Form from "../containers/Form";
-import Icon from "@erxes/ui/src/components/Icon";
 import React from "react";
 import Row from "./Row";
 import Sidebar from "./Sidebar";
@@ -71,17 +68,12 @@ function List({
 
   const renderSearch = () => {
     return (
-      <InputBar type="searchBar">
-        <Icon icon="search-1" size={20} />
-        <FlexItem>
-          <FormControl
-            type="text"
-            placeholder={__("Type to search")}
-            onChange={searchHandler}
-            autoFocus={true}
-          />
-        </FlexItem>
-      </InputBar>
+      <FormControl
+        type="text"
+        placeholder={__("Type to search")}
+        onChange={searchHandler}
+        autoFocus={true}
+      />
     );
   };
 

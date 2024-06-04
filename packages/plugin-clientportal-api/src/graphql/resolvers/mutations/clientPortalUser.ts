@@ -189,8 +189,13 @@ const clientPortalUserMutations = {
           })
       ).then(r => r.json());
 
+      if (!response || !response.id) {
+        throw new Error('Facebook authentication failed');
+      }
+
       const { id, name, email, picture, first_name, last_name } =
         response || {};
+        
       let qry: any = {};
       let user: any = {};
 
@@ -295,6 +300,11 @@ const clientPortalUserMutations = {
             method: 'POST',
           }
         ).then(r => r.json());
+
+        if (authResponse.error) {
+          throw new Error(authResponse.error.message);
+        }
+
         return authResponse;
       } catch (err) {
         throw new Error(err);
@@ -321,6 +331,11 @@ const clientPortalUserMutations = {
             },
           }
         ).then(r => r.json());
+
+        if (userResponse.error) {
+          throw new Error(userResponse.error.message);
+        }
+
         return userResponse;
       } catch (err) {
         throw Error(err);

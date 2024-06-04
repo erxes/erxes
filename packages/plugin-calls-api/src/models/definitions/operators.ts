@@ -15,7 +15,7 @@ export const operatorSchema = new Schema({
   status: field({
     type: String,
     label: 'Operator extension',
-    enum: ['unAvailable', 'idle', 'paused', 'unPaused'],
+    enum: ['unAvailable', 'idle', 'pause', 'unpause'],
     default: 'unAvailable',
   }),
 });

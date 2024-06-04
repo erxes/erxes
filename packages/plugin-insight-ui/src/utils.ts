@@ -109,8 +109,13 @@ export const abbrevateNumbers = (number) => {
 };
 
 export const formatNumbers = (value: number, axis?: string, type?: string) => {
-  if (type === 'time') {
-    return formatMillisecond(value, axis);
+
+  if (!value) {
+    return "-"
+  }
+
+  if (type === "time") {
+    return formatMillisecond(value, axis)
   }
 
   if (type === 'commarize') {

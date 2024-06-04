@@ -82,7 +82,7 @@ export const handleContacts = async (args: IContactsParams) => {
       user.erxesCustomerId = customer._id;
       await models.ClientPortalUsers.updateOne(
         { _id: user._id },
-        { $set: { erxesCustomerId: customer._id } },
+        { $set: { erxesCustomerId: customer._id } }
       );
 
       for (const serviceName of await getServices()) {
@@ -152,7 +152,7 @@ export const handleContacts = async (args: IContactsParams) => {
       user.erxesCompanyId = company._id;
       await models.ClientPortalUsers.updateOne(
         { _id: user._id },
-        { $set: { erxesCompanyId: company._id } },
+        { $set: { erxesCompanyId: company._id } }
       );
 
       for (const serviceName of await getServices()) {
@@ -203,7 +203,7 @@ export const handleDeviceToken = async (user, deviceToken) => {
     if (!deviceTokens.includes(deviceToken)) {
       deviceTokens.push(deviceToken);
 
-      await user.update({ $set: { deviceTokens } });
+      await user.updateOne({ $set: { deviceTokens } });
     }
   }
 };
@@ -280,20 +280,20 @@ export const participantEditRelation = async (
   type,
   cardId,
   oldCpUserIds,
-  cpUserIds,
+  cpUserIds
 ) => {
   const userCards = await models.ClientPortalUserCards.find({
     contentType: type,
     contentTypeId: cardId,
   });
   const newCpUsers = cpUserIds.filter(
-    (x) => userCards.findIndex((m) => m.cpUserId === x) === -1,
+    x => userCards.findIndex(m => m.cpUserId === x) === -1
   );
 
-  const excludedCpUsers = oldCpUserIds.filter((m) => !cpUserIds.includes(m));
+  const excludedCpUsers = oldCpUserIds.filter(m => !cpUserIds.includes(m));
 
   if (newCpUsers) {
-    const docs = newCpUsers.map((d) => ({
+    const docs = newCpUsers.map(d => ({
       contentType: type,
       contentTypeId: cardId,
       cpUserId: d,
