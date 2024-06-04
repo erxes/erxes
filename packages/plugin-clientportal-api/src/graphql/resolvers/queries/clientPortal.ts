@@ -5,8 +5,6 @@ import { IContext, IModels } from '../../../connectionResolver';
 import {
   sendCardsMessage,
   sendCommonMessage,
-  sendContactsMessage,
-  sendCoreMessage,
   sendKbMessage,
 } from '../../../messageBroker';
 import { getCards, getUserCards } from '../../../utils';
