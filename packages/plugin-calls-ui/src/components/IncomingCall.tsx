@@ -181,6 +181,7 @@ const IncomingCall = (props: Props, context) => {
     const hasChannel = channels?.length > 0;
     const channelName = channels?.[0]?.name || '';
     const fullName = renderFullName(customer || '', false);
+    const hasGroupName = call.groupName || '';
 
     return (
       <NameCardContainer>
@@ -190,6 +191,11 @@ const IncomingCall = (props: Props, context) => {
         {primaryPhone && (
           <PhoneNumber>
             {primaryPhone}
+            {hasGroupName && (
+              <span>
+                {__('from')} {hasGroupName}
+              </span>
+            )}
             {hasChannel && (
               <span>
                 {__('is calling to')} {channelName}
