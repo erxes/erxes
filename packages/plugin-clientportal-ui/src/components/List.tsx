@@ -10,12 +10,11 @@ import { FieldStyle, SidebarList } from "@erxes/ui/src/layout/styles";
 import { TopHeader } from "@erxes/ui/src/styles/main";
 import { __ } from "@erxes/ui/src/utils/core";
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import ClientPortalDetailContainer from "../containers/ClientPortalDetail";
 import { StyledUrl } from "../styles";
 import { ClientPortalConfig } from "../types";
-import { useLocation } from "react-router-dom";
 
 type Props = {
   configs: ClientPortalConfig[];
