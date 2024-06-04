@@ -76,7 +76,7 @@ class ActionsForm extends React.Component<Props, State> {
           text={isFavourite ? __("Unfavourite") : __("Favourite")}
           placement="top"
         >
-          <div
+          <button
             className="favourite-action"
             onClick={this.onFavourite.bind(this, action)}
             onKeyDown={e => {
@@ -87,7 +87,7 @@ class ActionsForm extends React.Component<Props, State> {
             aria-hidden
           >
             <Icon icon="star" size={20} />
-          </div>
+          </button>
         </Tip>
       </ActionBox>
     );
