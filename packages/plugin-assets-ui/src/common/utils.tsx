@@ -2,7 +2,7 @@ import {
   ContentColumn,
   ItemRow,
   ItemText,
-} from '@erxes/ui-cards/src/deals/styles';
+} from "@erxes/ui-cards/src/deals/styles";
 import {
   ControlLabel,
   DataWithLoader,
@@ -13,16 +13,18 @@ import {
   Spinner,
   Wrapper,
   __,
-} from '@erxes/ui/src';
-import { IOption, IQueryParams } from '@erxes/ui/src/types';
-import React from 'react';
-import { queries as assetCategoryQueries } from '../asset/graphql';
-import { queries as assetQueries } from '../asset/graphql';
-import { ASSET_CATEGORY_STATUS_FILTER } from './constant';
-import { CommonFormGroupTypes, IAsset, IAssetCategoryTypes } from './types';
-import { queries as movementQueries } from '../movements/movements/graphql';
-import { queries as movementItemQueries } from '../movements/assets/graphql';
-import { gql } from '@apollo/client';
+} from "@erxes/ui/src";
+import { IOption, IQueryParams } from "@erxes/ui/src/types";
+import React from "react";
+import {
+  queries as assetCategoryQueries,
+  queries as assetQueries,
+} from "../asset/graphql";
+import { ASSET_CATEGORY_STATUS_FILTER } from "./constant";
+import { CommonFormGroupTypes, IAsset, IAssetCategoryTypes } from "./types";
+import { queries as movementQueries } from "../movements/movements/graphql";
+import { queries as movementItemQueries } from "../movements/assets/graphql";
+import { gql } from "@apollo/client";
 
 export const DefaultWrapper = ({
   title,
@@ -72,7 +74,7 @@ export const DefaultWrapper = ({
           data={content}
           count={totalCount}
           emptyImage="/images/actions/5.svg"
-          emptyText={__('No data')}
+          emptyText={__("No data")}
         />
       }
       hasBorder={true}
@@ -107,7 +109,7 @@ export const CommonItemRow = ({ children, label }) => {
 export const generateCategoryOptions = (
   categories: IAssetCategoryTypes[],
   currentCategoryId?: string,
-  drawCode?: boolean,
+  drawCode?: boolean
 ) => {
   const result: React.ReactNode[] = [];
 
@@ -116,19 +118,19 @@ export const generateCategoryOptions = (
 
     const foundedString = order.match(/\//gi);
 
-    let space = '';
+    let space = "";
 
     if (foundedString) {
-      space = '\u00A0 '.repeat(foundedString.length);
+      space = "\u00A0 ".repeat(foundedString.length);
     }
 
     if (currentCategoryId !== category._id) {
       result.push(
         <option key={category._id} value={category._id}>
           {space}
-          {drawCode ? `${category.code} - ` : ''}
+          {drawCode ? `${category.code} - ` : ""}
           {category.name}
-        </option>,
+        </option>
       );
     }
   }
@@ -139,7 +141,7 @@ export const generateCategoryOptions = (
 export const generateParentOptions = (
   assets: IAsset[],
   currentAssetId?: string,
-  drawCode?: boolean,
+  drawCode?: boolean
 ) => {
   const result: React.ReactNode[] = [];
   for (const asset of assets) {
@@ -147,18 +149,18 @@ export const generateParentOptions = (
 
     const foundedString = order.match(/\//gi);
 
-    let space = '';
+    let space = "";
 
     if (foundedString) {
-      space = '\u00A0 '.repeat(foundedString.length);
+      space = "\u00A0 ".repeat(foundedString.length);
     }
     if (currentAssetId !== asset._id) {
       result.push(
         <option key={asset._id} value={asset._id}>
           {space}
-          {drawCode ? `${asset.code} - ` : ''}
+          {drawCode ? `${asset.code} - ` : ""}
           {asset.name}
-        </option>,
+        </option>
       );
     }
   }
@@ -180,12 +182,12 @@ export const assetStatusChoises = () => {
 
 export const getRefetchQueries = () => {
   return [
-    'assetDetail',
-    'assets',
-    'assetsTotalCount',
-    'assetCategories',
-    'assetMovementItems',
-    'assetMovementItemsTotalCount',
+    "assetDetail",
+    "assets",
+    "assetsTotalCount",
+    "assetCategories",
+    "assetMovementItems",
+    "assetMovementItemsTotalCount",
   ];
 };
 
@@ -261,7 +263,7 @@ export const SelectWithAssets = ({
   onSelect: (
     value: string[] | string,
     name: string,
-    assetName?: string,
+    assetName?: string
   ) => void;
   multi?: boolean;
   customOption?: IOption;
@@ -281,10 +283,10 @@ export const SelectWithAssets = ({
 
       const foundedString = order.match(/\//gi);
 
-      let space = '';
+      let space = "";
 
       if (foundedString) {
-        space = '\u00A0 '.repeat(foundedString.length);
+        space = "\u00A0 ".repeat(foundedString.length);
       }
 
       list.push({
@@ -344,10 +346,10 @@ export const SelectWithAssetCategory = ({
 
       const foundedString = order.match(/\//gi);
 
-      let space = '';
+      let space = "";
 
       if (foundedString) {
-        space = '\u00A0 '.repeat(foundedString.length);
+        space = "\u00A0 ".repeat(foundedString.length);
       }
 
       list.push({ label: `${space} ${asset.name}`, value: asset._id });
@@ -378,7 +380,7 @@ export const generateParamsIds = (ids) => {
   if (!ids?.length) {
     return undefined;
   }
-  if (typeof ids === 'string') {
+  if (typeof ids === "string") {
     return [ids];
   }
   return ids;
