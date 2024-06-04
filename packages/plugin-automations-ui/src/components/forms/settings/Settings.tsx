@@ -215,6 +215,11 @@ class Settings extends React.Component<Props, State> {
           <li
             className={currentTab === "suppression" ? "active" : ""}
             onClick={this.onClickTab.bind(this, "suppression")}
+            onKeyUp={e => {
+              if(e.key === 'space'){
+                this.onClickTab.bind(this, "suppression")
+              }
+            }}
           >
             Unenrollment and Suppression
           </li>
