@@ -26,6 +26,19 @@ export default function Component({
   mainTypeId,
   refetch,
 }: Props) {
+  const renderForm = (formProps, participant) => {
+    return (
+      <ClientPortalParticipantForm
+        mainType={mainType}
+        mainTypeId={mainTypeId}
+        {...formProps}
+        queryParams={{}}
+        kind={kind}
+        clientPortalUser={participant.cpUser}
+      />
+    );
+  };
+
   const renderBody = () => {
     if (!participants || !participants.length) {
       return <EmptyState icon="user-6" text="No data" />;
@@ -33,14 +46,13 @@ export default function Component({
 
     return (
       <>
-        {participants.map((participant, index) => (
-          <React.Fragment key={index}>
+        {participants.map((participant) => (
+          <React.Fragment key={participant._id}>
             <ModalTrigger
-              key={index}
               title={`User Card detail`}
               trigger={
-                <ParticipantsWrapper key={index}>
-                  <ItemContainer key={index}>
+                <ParticipantsWrapper>
+                  <ItemContainer>
                     {/* <Detail color='#F7CE53' item={participant.cpUser} /> */}
                     <Detail color="#b49cf1" item={participant?.cpUser} />
                     <Detail
@@ -48,27 +60,17 @@ export default function Component({
                       item={participant?.cpUser?.company}
                     />
                     <Link
-                      key={index}
                       to={`/settings/client-portal/users/details/${participant.cpUserId}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <a>{participant.status}</a>
+                      {participant.status}
                     </Link>
                   </ItemContainer>
                 </ParticipantsWrapper>
               }
               autoOpenKey="showCardClientUserModal"
-              content={(props) => (
-                <ClientPortalParticipantForm
-                  mainType={mainType}
-                  mainTypeId={mainTypeId}
-                  {...props}
-                  queryParams={{}}
-                  kind={kind}
-                  clientPortalUser={participant.cpUser}
-                />
-              )}
+              content={(formProps) => renderForm(formProps, participant)}
               size={"lg"}
             />
           </React.Fragment>

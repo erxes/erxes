@@ -118,9 +118,7 @@ function Appearance({
             placement="bottom"
             trigger={
               <ColorPick>
-                <ColorPicker
-                  style={{ backgroundColor: value ? value : COLORS[4] }}
-                />
+                <ColorPicker style={{ backgroundColor: value || COLORS[4] }} />
               </ColorPick>
             }
           >
