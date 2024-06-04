@@ -137,6 +137,7 @@ const transactionQueries = {
       scheduleDate
     );
   }
+
 };
 
 checkPermission(transactionQueries, 'transactions', 'showTransactions');
