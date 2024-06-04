@@ -676,10 +676,8 @@ export const loadClientPortalUserClass = (models: IModels) => {
       isRessetting?: boolean;
       testUserOTP?: number;
     }) {
-      const code = testUserOTP
-        ? testUserOTP
-        : this.generateVerificationCode(codeLength);
-      const codeExpires = Date.now() + 60000 * (expireAfter || 5);
+      const code = testUserOTP ?? this.generateVerificationCode(codeLength);
+      const codeExpires = Date.now() + 60000 * (expireAfter ?? 5);
 
       let query: any = {};
       let userFindQuery: any = {};
@@ -906,7 +904,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
         this.checkPassword(password);
       }
 
-      const plainPassword = password || '';
+      const plainPassword = password ?? '';
 
       const user = await handleContacts({
         subdomain,
