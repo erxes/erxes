@@ -662,7 +662,7 @@ export const getUserName = (data: IUser) => {
   }
 
   if (data.email || data.username || data.phone) {
-    return data.email || data.username || data.phone;
+    return (data.email ?? data.username) ?? data.phone;
   }
 
   return 'Unknown';
