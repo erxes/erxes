@@ -35,7 +35,7 @@ class ActionsForm extends React.Component<Props, State> {
   };
 
   onFavourite = (action) => {
-    this.setState({ isFavourite: !this.state.isFavourite });
+    this.setState((prevState) => ({ isFavourite: !prevState.isFavourite }));
 
     const actionsLocalStorage =
       localStorage.getItem("automations_favourite_actions") || "[]";
@@ -79,6 +79,12 @@ class ActionsForm extends React.Component<Props, State> {
           <div
             className="favourite-action"
             onClick={this.onFavourite.bind(this, action)}
+            onKeyDown={e => {
+             if (e.key === 'enter') {
+                this.onFavourite.bind(this, action)
+              }
+            }}
+            aria-hidden
           >
             <Icon icon="star" size={20} />
           </div>
@@ -113,9 +119,10 @@ class ActionsForm extends React.Component<Props, State> {
       );
 
       return (
-        <React.Fragment key={index}>
-          {this.renderBox(action, isFavourite, index)}
+        <React.Fragment key={action.id}>
+              {this.renderBox(action, isFavourite, index)}
         </React.Fragment>
+
       );
     });
   }
