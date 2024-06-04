@@ -289,7 +289,7 @@ const clientPortalUserMutations = {
               client_id: clientPortals.googleClientId ?? '',
               grant_type: 'authorization_code',
               client_secret: clientPortals.googleClientSecret ?? '',
-              redirect_uri: clientPortals.googleRedirectUri ?? '',
+              redirect_uri: clientPortals.googleRedirectUri || '',
             }),
           {
             method: 'POST',
@@ -1378,7 +1378,7 @@ const clientPortalUserMutations = {
           throw new Error('Invalid refresh token');
         }
 
-        const { userId } = decoded as any;
+        const { userId } = decoded;
         const user = await models.ClientPortalUsers.findOne({ _id: userId });
 
         if (!user) {
