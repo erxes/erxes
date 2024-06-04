@@ -286,10 +286,10 @@ const clientPortalUserMutations = {
           'https://oauth2.googleapis.com/token?' +
             new URLSearchParams({
               code: authCode,
-              client_id: clientPortals.googleClientId || '',
+              client_id: clientPortals.googleClientId ?? '',
               grant_type: 'authorization_code',
-              client_secret: clientPortals.googleClientSecret || '',
-              redirect_uri: clientPortals.googleRedirectUri || '',
+              client_secret: clientPortals.googleClientSecret ?? '',
+              redirect_uri: clientPortals.googleRedirectUri ?? '',
             }),
           {
             method: 'POST',
