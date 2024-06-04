@@ -1,5 +1,4 @@
 import fetch from 'node-fetch';
-
 import redis from '../redis';
 
 export const getAuthHeaders = async (args: {
@@ -11,7 +10,8 @@ export const getAuthHeaders = async (args: {
   configPassword: string,
   registerId: string
 }) => {
-  const { clientId, sessionKey } = args;
+
+  const { name, organizationName,ivKey, clientId,configPassword,registerId, sessionKey } = args;
 
   const accessToken = await redis.get(
     `golomtbank_token_${clientId}:${sessionKey}`,
@@ -24,15 +24,15 @@ export const getAuthHeaders = async (args: {
     };
   }
 
-  const apiUrl = 'https://api.golomt.com/v';
+  const apiUrl = 'https://openapi-uat.golomtbank.com/api';
 
   try {
     const response = await fetch(
-      `${apiUrl}/auth/token?grant_type=client_credentials`,
+      `${apiUrl}/v1/auth/login`,
       {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
           Authorization: `Basic ${Buffer.from(
             `${clientId}:${sessionKey}`,
           ).toString('base64')}`,

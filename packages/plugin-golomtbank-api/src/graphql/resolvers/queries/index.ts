@@ -1,10 +1,10 @@
 import configQueries from './configs';
-import account from './accounts';
+import accountQueries from './accounts';
 import fetch from 'node-fetch';
 
 export default {
   ...configQueries,
-  ...account,
+  ...accountQueries,
 
   golomtBankRates: async (_root, _args, _context) => {
     try {

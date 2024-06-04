@@ -2,11 +2,11 @@ import customScalars from '@erxes/api-utils/src/customScalars';
 
 import mutations from './mutations';
 import queries from './queries';
-//import { GolomtBankAccount } from './queries/accounts';
+import { GolomtBankAccount } from './accounts';
 
 const resolvers: any = async () => ({
   ...customScalars,
-  // GolomtBankStatement,
+  GolomtBankAccount,
 
   Mutation: {
     ...mutations
