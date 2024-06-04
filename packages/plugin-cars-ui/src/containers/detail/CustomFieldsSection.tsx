@@ -1,15 +1,15 @@
-import { SaveMutation } from '@erxes/ui-cards/src/boards/types';
-import GenerateCustomFields from '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields';
-import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
-import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { gql, useQuery, useMutation } from '@apollo/client';
-import React from 'react';
+import { SaveMutation } from "@erxes/ui-cards/src/boards/types";
+import GenerateCustomFields from "@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields";
+import { queries as fieldQueries } from "@erxes/ui-forms/src/settings/properties/graphql";
+import { FieldsGroupsQueryResponse } from "@erxes/ui-forms/src/settings/properties/types";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { gql, useQuery, useMutation } from "@apollo/client";
+import React from "react";
 
-import { mutations, queries } from '../../graphql';
-import { DetailQueryResponse } from '../../types';
+import { mutations, queries } from "../../graphql";
+import { DetailQueryResponse } from "../../types";
 
 type Props = {
   isDetail: boolean;
@@ -22,9 +22,9 @@ const CustomFieldsSection = (props: Props) => {
   const fieldsGroupsQuery = useQuery<FieldsGroupsQueryResponse>(
     gql(fieldQueries.fieldsGroups),
     {
-      skip: !isEnabled('forms') ? true : false,
+      skip: !isEnabled("forms"),
       variables: {
-        contentType: 'cars:car',
+        contentType: "cars:car",
         isDefinedByErxes: false,
       },
     }
