@@ -1,4 +1,4 @@
-import { IItemParams, SaveMutation } from '@erxes/ui-cards/src/boards/types';
+import { SaveMutation } from '@erxes/ui-cards/src/boards/types';
 import GenerateCustomFields from '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields';
 import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
 import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
@@ -27,7 +27,7 @@ const CustomFieldsSection = (props: Props) => {
         contentType: 'cars:car',
         isDefinedByErxes: false,
       },
-    },
+    }
   );
 
   const carDetailQuery = useQuery<DetailQueryResponse>(gql(queries.carDetail), {
