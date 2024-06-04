@@ -49,6 +49,7 @@ const queryParams = `
   contractHasnt: String
   sortField: String
   sortDirection: Int
+  transactionType: String
 `;
 
 export const queries = `

@@ -266,6 +266,7 @@ export const prepareEbarimtData = async (
 ) => {
   const billType = orderBillType || order.billType || BILL_TYPES.CITIZEN;
   let type: string = billType === '3' ? 'B2B_RECEIPT' : 'B2C_RECEIPT';
+  let customerTin = '';
   let customerCode = '';
   let customerName = '';
 
@@ -274,6 +275,7 @@ export const prepareEbarimtData = async (
 
     if (resp.status === 'checked' && resp.tin) {
       type = 'B2B_RECEIPT';
+      customerTin = resp.tin;
       customerCode = registerNumber;
       customerName = resp.result?.data?.name;
     }
@@ -295,14 +297,14 @@ export const prepareEbarimtData = async (
     date: new Date(),
     type,
 
-    customerRD: customerCode,
+    customerCode,
     customerName,
+    customerTin,
 
-    details: items.map(item => {
+    details: items.filter(item => {
+      return Boolean(productsById[item.productId]);
+    }).map(item => {
       const product: IProductDocument = productsById[item.productId];
-      if (!product) {
-        return;
-      }
       return {
         recId: item._id,
         product,

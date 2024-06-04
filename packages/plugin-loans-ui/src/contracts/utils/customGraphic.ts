@@ -10,7 +10,7 @@ type Params = {
   dateRange: number[];
   startDate: Date;
   skipAmountCalcMonth: number;
-  firstPayDate: Date;
+  firstPayDate?: Date;
 };
 
 export const getDiffDay = (fromDate: Date, toDate: Date) => {
@@ -55,7 +55,7 @@ export function generateCustomGraphic({
         return;
       }
 
-      if(index == 0 && mainDate !== firstPayDate){
+      if(index == 0 && mainDate !== firstPayDate && firstPayDate){
         mainDate = firstPayDate
       }
 

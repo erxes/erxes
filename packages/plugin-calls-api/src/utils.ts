@@ -22,8 +22,11 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
     callStartTime,
     callEndTime,
     _id,
+    transferedCallStatus,
   } = params;
-
+  if (transferedCallStatus === 'local' && callType === 'incoming') {
+    return 'Check transfered call record url!';
+  }
   const history = await models.CallHistory.findOne({ _id });
   const { inboxIntegrationId = '' } = history;
 
@@ -73,13 +76,19 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
     const startDate = moment(callStartTime).format('YYYY-MM-DD');
     const endTime = moment(callEndTime).format('YYYY-MM-DD');
     let caller = customerPhone;
-    let callee = extension || operator;
+    let callee = extentionNumber || extension || operator;
+
+    if (transferedCallStatus === 'remote') {
+      callee = extension || extentionNumber;
+    }
+    let fileDir = 'monitor';
+
     if (callType === 'outgoing') {
       caller = extentionNumber;
       callee = customerPhone;
     }
 
-    console.log('caller: ', caller, callee, startDate, endTime);
+    console.log('caller: ', caller, callee, startDate, endTime, callType);
     console.log('now:', new Date());
 
     const cdrData = (await sendToGrandStreamRequest(
@@ -115,18 +124,33 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
     }
     console.log('2');
 
-    const todayCdr = JSON.parse(JSON.stringify(cdr_root));
+    const todayCdr = cdr_root && JSON.parse(JSON.stringify(cdr_root));
     const sortedCdr =
       todayCdr &&
       todayCdr.sort((a, b) => a.createdAt?.getTime() - b.createdAt?.getTime());
 
-    const lastCreatedObject = sortedCdr[todayCdr.length - 1];
+    let lastCreatedObject = sortedCdr[todayCdr.length - 1];
 
     let fileNameWithoutExtension = '';
     console.log('3');
 
+    const transferCall = findTransferCall(lastCreatedObject);
+    console.log(transferCall, 'transferCall');
+    if (transferCall) {
+      lastCreatedObject = transferCall;
+      fileDir = 'monitor';
+    }
     if (lastCreatedObject && lastCreatedObject.disposition === 'ANSWERED') {
+      if (
+        ['QUEUE', 'TRANSFERED'].some((substring) =>
+          lastCreatedObject.action_type.includes(substring),
+        ) &&
+        !(transferedCallStatus === 'remote' && callType === 'incoming')
+      ) {
+        fileDir = 'queue';
+      }
       const { recordfiles = '' } = lastCreatedObject;
+      console.log(recordfiles, 'recordfiles', fileDir);
       if (recordfiles) {
         const parts = recordfiles.split('/');
         const fileName = parts[1];
@@ -148,7 +172,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
           data: {
             request: {
               action: 'recapi',
-              filedir: 'monitor',
+              filedir: fileDir,
               filename: fileNameWithoutExtension,
             },
           },
@@ -364,3 +388,12 @@ export const sendToGrandStreamRequest = async (
     throw new Error(e.message);
   }
 };
+
+function findTransferCall(data) {
+  for (const key in data) {
+    if (data[key].action_type === 'TRANSFER') {
+      return data[key];
+    }
+  }
+  return null;
+}
