@@ -1,10 +1,6 @@
-import { sendCardsMessage, sendContactsMessage } from '../../../messageBroker';
-
 import { IClientPortal } from '../../../models/definitions/clientPortal';
 import { IContext } from '../../../connectionResolver';
 import { checkPermission } from '@erxes/api-utils/src';
-import { putActivityLog } from '../../../logUtils';
-import { getUserName } from '../../../utils';
 import { participantEditRelation, createCard } from '../../../models/utils';
 
 export interface IVerificationParams {
@@ -113,7 +109,7 @@ const clientPortalMutations = {
       paymentStatus: string;
       paymentAmount: number;
       offeredAmount: number;
-      hasVat: Boolean;
+      hasVat: boolean;
     },
     { subdomain, cpUser, models }: IContext,
   ) {
