@@ -82,8 +82,6 @@ export const cardUpdateHandler = async (models: IModels, subdomain, params) => {
       link: `${config.url}/${cardType}s?stageId=${destinationStageId}`
     });
   }
-
-  return;
 };
 
 export const cardDeleteHandler = async (models: IModels, subdomain, params) => {
@@ -127,6 +125,4 @@ export const cardDeleteHandler = async (models: IModels, subdomain, params) => {
       link: `${config.url}/${cardType}s`
     });
   }
-
-  return;
 };
