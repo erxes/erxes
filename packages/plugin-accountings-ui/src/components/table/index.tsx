@@ -83,7 +83,7 @@ function renderRow(
           <ActionButtons>
             {action?.editForm && (
               <ModalTrigger
-                title="Edit basic info"
+                title="Edit account"
                 trigger={trigger}
                 size="xl"
                 content={content}

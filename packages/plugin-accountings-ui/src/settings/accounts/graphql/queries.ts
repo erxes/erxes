@@ -108,7 +108,7 @@ export const categoryFields = `
 `;
 
 const categoryFilterParamDefs = `
-  $accountCategoriesParentId2: String,
+  $accountCategoriesParentId: String,
   $withChild: Boolean,
   $searchValue: String,
   $status: String,
@@ -117,7 +117,7 @@ const categoryFilterParamDefs = `
 `;
 
 const categoryFilterParams = `
-  parentId: $accountCategoriesParentId2,
+  parentId: $accountCategoriesParentId,
   withChild: $withChild,
   searchValue: $searchValue,
   status: $status,
@@ -134,10 +134,14 @@ const accountCategories = `
 `;
 
 const accountCategoryDetail = `
-  query accountCategoryDetail(${categoryFilterParamDefs}) {
-    accountCategoryDetail(${categoryFilterParams}) {
+  query accountCategoryDetail($_id: String!) {
+    accountCategoryDetail(_id: $_id) {
       ${categoryFields}
-      parent
+      parent {
+        _id
+        code
+        name
+      }
     }
   }
 `;

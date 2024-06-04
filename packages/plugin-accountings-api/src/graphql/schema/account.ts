@@ -12,6 +12,8 @@ export const types = () => `
     accountCount: Int
     maskType: String
     mask: JSON
+
+    parent: AccountCategory
   }
 
   type Account @key(fields: "_id") @cacheControl(maxAge: 3) {
@@ -78,7 +80,7 @@ const accountsQueryParams = `
 export const queries = `
   accountCategories(parentId: String, withChild: Boolean, searchValue: String, status: String, meta: String, brand: String): [AccountCategory]
   accountCategoriesTotalCount(parentId: String, withChild: Boolean, searchValue: String, status: String, meta: String): Int
-  accountCategoryDetail(_id: String): AccountCategory
+  accountCategoryDetail(_id: String!): AccountCategory
   accounts(
     ${accountsQueryParams},
     page: Int,

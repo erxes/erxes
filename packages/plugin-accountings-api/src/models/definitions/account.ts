@@ -31,7 +31,7 @@ export const accountSchema = schemaWrapper(
     code: field({ type: String, unique: true, label: 'Code' }),
     name: field({ type: String, label: 'Name' }),
     categoryId: field({ type: String, label: 'Category' }),
-    parentId: field({ type: String, label: 'Parent account' }),
+    parentId: field({ type: String, optional: true, label: 'Parent account' }),
     currency: field({ type: String, label: 'Currency' }),
     kind: field({
       type: String,
@@ -46,6 +46,8 @@ export const accountSchema = schemaWrapper(
       label: 'KIND',
     }),
     description: field({ type: String, optional: true, label: 'Description' }),
+    branchId: field({ type: String, optional: true, label: 'Branch' }),
+    departmentId: field({ type: String, optional: true, label: 'Department' }),
     createdAt: field({
       type: Date,
       default: new Date(),

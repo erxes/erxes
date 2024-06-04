@@ -1,4 +1,4 @@
-
+import { AppConsumer } from "coreui/appContext";
 import { gql, useQuery } from "@apollo/client";
 import { Spinner } from "@erxes/ui/src";
 import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
@@ -75,7 +75,12 @@ const AccountFormContainer = (props: Props) => {
     accountCategories,
   };
 
-  return <Form {...updatedProps} />;
+  return (<AppConsumer>
+    {({ currentUser }) => {
+      return <Form {...updatedProps} currencies={currentUser?.configs?.dealCurrency || []} />;
+    }}
+  </AppConsumer>)
+  
 };
 
 const getRefetchQueries = () => {

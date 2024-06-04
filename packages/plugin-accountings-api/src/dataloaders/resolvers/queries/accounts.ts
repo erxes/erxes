@@ -201,7 +201,7 @@ const accountQueries = {
     return models.Accounts.find(filter).countDocuments();
   },
 
-  accountDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  async accountDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Accounts.findOne({ _id }).lean();
   },
 };

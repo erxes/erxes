@@ -13,6 +13,7 @@ import ProductForm from "../containers/AccountForm";
 import React from "react";
 import TextInfo from "@erxes/ui/src/components/TextInfo";
 import { useNavigate } from "react-router-dom";
+import AccountFormContainer from "../containers/AccountForm";
 
 type Props = {
   account: IAccount;
@@ -46,9 +47,9 @@ const Row: React.FC<Props> = (props) => {
     navigate(`/settings/account-service/details/${account._id}`);
   };
 
-  const content = (props) => <ProductForm {...props} account={account} />;
+  const content = (props) => <AccountFormContainer {...props} accountId={account._id} />;
 
-  const { code, name } = account;
+  const { code, name, category, currency, kind, journal } = account;
 
   return (
     <tr onClick={onTrClick}>
@@ -61,11 +62,15 @@ const Row: React.FC<Props> = (props) => {
       </td>
       <td>{code}</td>
       <td>{name}</td>
+      <td>{category?.name}</td>
+      <td>{currency}</td>
+      <td>{kind}</td>
+      <td>{journal}</td>
       
       <td onClick={onClick}>
         <ActionButtons>
           <ModalTrigger
-            title="Edit basic info"
+            title="Edit account"
             trigger={trigger}
             size="xl"
             content={content}

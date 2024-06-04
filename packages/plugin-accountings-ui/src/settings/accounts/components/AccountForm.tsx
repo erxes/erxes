@@ -9,13 +9,16 @@ import {
   FormWrapper,
   ModalFooter,
 } from "@erxes/ui/src/styles/main";
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import {
   IButtonMutateProps,
   IFormProps,
 } from "@erxes/ui/src/types";
 import { __, router } from "@erxes/ui/src/utils/core";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
+import { ACCOUNT_JOURNALS, ACCOUNT_KINDS } from '../../../constants';
 import SelectAccountCategory from '../containers/SelectAccountCategory';
 import { IAccount, IAccountCategory } from '../types';
 
@@ -24,17 +27,13 @@ interface IProps {
   accountCategories: IAccountCategory[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
+  currencies: string[];
 }
 
 type State = {
   code: string;
-  name: string;
   categoryId?: string;
   parentId?: string;
-  currency: string;
-  kind: string;
-  journal: string;
-  description?: string;
   branchId?: string;
   departmentId?: string;
   scopeBrandIds?: string[];
@@ -50,13 +49,8 @@ function AccountForm(props: IProps): React.ReactNode {
 
   const {
     code,
-    name,
     categoryId,
     parentId,
-    currency,
-    kind,
-    journal,
-    description,
     branchId,
     departmentId,
     scopeBrandIds,
@@ -69,18 +63,13 @@ function AccountForm(props: IProps): React.ReactNode {
   const [state, setState] = useState<State>({
     ...account,
     code: code ?? '',
-    name: name ?? '',
     categoryId: categoryId || paramCategoryId || '',
     parentId: parentId ?? '',
-    currency: currency ?? 'MNT',
-    kind: kind ?? '',
-    journal: journal ?? '',
-    description: description ?? '',
     branchId: branchId ?? '',
     departmentId: departmentId ?? '',
     scopeBrandIds: scopeBrandIds || [],
     status: status ?? '',
-    isOutBalance: isOutBalance ?? false,
+    isOutBalance: isOutBalance ?? false
   });
 
   const getMaskStr = (categoryId) => {
@@ -118,7 +107,6 @@ function AccountForm(props: IProps): React.ReactNode {
 
   const generateDoc = (values: {
     _id?: string;
-    description: string;
   }) => {
     const { account } = props;
     const finalValues = values;
@@ -130,6 +118,7 @@ function AccountForm(props: IProps): React.ReactNode {
       ...account,
       ...state,
       ...finalValues,
+      isOutBalance: Boolean(state.isOutBalance)
     };
   };
 
@@ -138,40 +127,19 @@ function AccountForm(props: IProps): React.ReactNode {
     setState((prevState) => ({ ...prevState, categoryId, category }));
   }
 
-  const renderCommonInput = (formProps, object, key, title) => {
-    return (<FormGroup>
-      <ControlLabel required={true}>{title}</ControlLabel>
-      <FormControl
-        {...formProps}
-        name={key}
-        defaultValue={object[key]}
-        autoFocus={true}
-        required={true}
-      />
-    </FormGroup>)
-  }
-
   const renderContent = (formProps: IFormProps) => {
-    const { renderButton, closeModal, account } =
+    const { renderButton, closeModal, account, currencies } =
       props;
     const { values, isSubmitted } = formProps;
     const object = account || ({} as IAccount);
 
     const {
       code,
-      name,
       categoryId,
-      parentId,
-      currency,
-      kind,
-      journal,
-      description,
       branchId,
       departmentId,
-      scopeBrandIds,
-      status,
-      isOutBalance,
       maskStr,
+      isOutBalance
     } = state;
 
     return (
@@ -194,7 +162,6 @@ function AccountForm(props: IProps): React.ReactNode {
                 />
               </Row>
             </FormGroup>
-
             <FormGroup>
               <ControlLabel required={true}>Code</ControlLabel>
               <p>
@@ -216,9 +183,8 @@ function AccountForm(props: IProps): React.ReactNode {
                 }}
               />
             </FormGroup>
-
             <FormGroup>
-              <ControlLabel required={true}>Name</ControlLabel>
+              <ControlLabel required={true}>{__('Name')}</ControlLabel>
               <FormControl
                 {...formProps}
                 name="name"
@@ -227,11 +193,94 @@ function AccountForm(props: IProps): React.ReactNode {
                 required={true}
               />
             </FormGroup>
-            {renderCommonInput()}
-
+            <FormGroup>
+              <ControlLabel required={true}>{__('Description')}</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="description"
+                defaultValue={object.description}
+                componentclass='textarea'
+              />
+            </FormGroup>
           </FormColumn>
-          <FormColumn>
 
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>{__('Currency')}</ControlLabel>
+              <FormControl
+                {...formProps}
+                componentclass='select'
+                name="currency"
+                defaultValue={object.currency || 'MNT'}
+                options={currencies.map(cur => ({ value: cur, label: cur }))}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel required={true}>{__('Kind')}</ControlLabel>
+              <FormControl
+                {...formProps}
+                componentclass='select'
+                name="kind"
+                defaultValue={object.kind}
+                options={ACCOUNT_KINDS}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel required={true}>{__('Journal')}</ControlLabel>
+              <FormControl
+                {...formProps}
+                componentclass='select'
+                name="journal"
+                defaultValue={object.journal}
+                options={ACCOUNT_JOURNALS}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel required={true}>{__('Branch')}</ControlLabel>
+              <SelectBranches
+                label="Choose branch"
+                name="branchId"
+                initialValue={branchId}
+                multi={false}
+                onSelect={(branchId) => {
+                  setState((prevState) => ({
+                    ...prevState,
+                    branchId: branchId as string,
+                  }));
+                }}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel required={true}>{__('Department')}</ControlLabel>
+              <SelectDepartments
+                label="Choose department"
+                name="departmentId"
+                initialValue={departmentId}
+                multi={false}
+                onSelect={(departmentId) => {
+                  setState((prevState) => ({
+                    ...prevState,
+                    departmentId: departmentId as string,
+                  }));
+                }}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel required={true}>{__('Out of Balance')}</ControlLabel>
+              <FormControl
+                {...formProps}
+                componentclass='checkbox'
+                name="isOutBalance"
+                defaultValue={isOutBalance}
+                checked={isOutBalance}
+                onChange={(e: any) => {
+                  setState((prevState) => ({
+                    ...prevState,
+                    isOutBalance: e.target.checked,
+                  }));
+                }}
+              />
+            </FormGroup>
           </FormColumn>
         </FormWrapper>
 

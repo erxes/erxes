@@ -89,14 +89,17 @@ export const loadAccountClass = (models: IModels, subdomain: string) => {
      * Update Accounting
      */
     public static async updateAccount(_id: string, doc: IAccount) {
-      await models.Accounts.getAccount({ _id });
+      const account = await models.Accounts.getAccount({ _id });
 
 
       doc.code = doc.code
         .replace(/\*/g, '')
         .replace(/_/g, '')
         .replace(/ /g, '');
-      await this.checkCodeDuplication(doc.code);
+
+      if (account.code !== doc.code) {
+        await this.checkCodeDuplication(doc.code);
+      }
 
       const category = await models.AccountCategories.getAccountCategory({
         _id: doc.categoryId,
@@ -119,7 +122,7 @@ export const loadAccountClass = (models: IModels, subdomain: string) => {
       const unUsedIds: string[] = [];
 
       const usedAccountIds = await models.Transactions.find({ 'details.accountId': { $in: _ids } }).distinct('details.accountId')
-      
+
       for (const id of _ids) {
         if (!usedAccountIds.includes(id)) {
           unUsedIds.push(id);

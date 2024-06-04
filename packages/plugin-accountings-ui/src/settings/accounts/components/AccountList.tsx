@@ -147,10 +147,10 @@ const AccountList: React.FC<IProps> = (props) => {
               </th>
               <th>{__("Code")}</th>
               <th>{__("Name")}</th>
-              <th>{__("Type")}</th>
               <th>{__("Category")}</th>
-              <th>{__("Unit Price")}</th>
-              <th>{__("Tags")}</th>
+              <th>{__("Currency")}</th>
+              <th>{__("Kind")}</th>
+              <th>{__("Journal")}</th>
               <th>{__("Actions")}</th>
             </tr>
           </thead>
@@ -189,7 +189,7 @@ const AccountList: React.FC<IProps> = (props) => {
 
   const trigger = (
     <Button btnStyle="success" icon="plus-circle">
-      Add items
+      Add account
     </Button>
   );
 

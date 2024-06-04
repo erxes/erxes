@@ -26,8 +26,8 @@ const AccountListContainer = (props: Props) => {
 
   const variables = useMemo(() => {
     return {
-      page: Number(queryParams?.page | 1),
-      searchValue: queryParams.searchValue
+      ...queryParams,
+      page: Number(queryParams?.page | 1)
     };
   }, [queryParams]);
 
@@ -50,7 +50,7 @@ const AccountListContainer = (props: Props) => {
     {
       skip: !queryParams.categoryId,
       fetchPolicy: "cache-and-network",
-      variables: queryParams.categoryId
+      variables: { _id: queryParams.categoryId }
     }
   )
 
@@ -101,7 +101,7 @@ const AccountListContainer = (props: Props) => {
     queryParams,
     accounts,
     remove,
-    loading: accountsQuery.loading || accountsCountQuery.loading,
+    loading: accountsQuery.loading || accountsCountQuery.loading || (accountCategoryDetailQuery && accountCategoryDetailQuery.loading),
     searchValue,
     accountsCount,
     currentCategory,

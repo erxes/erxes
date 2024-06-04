@@ -31,6 +31,8 @@ export interface IAccount {
   status: string;
   isOutBalance: boolean;
   mergedIds?: string[];
+
+  category?: IAccountCategory;
 }
 
 export type QueryResponse = {

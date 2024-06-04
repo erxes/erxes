@@ -87,7 +87,7 @@ const accountCategoryQueries = {
     return models.AccountCategories.find(filter).countDocuments();
   },
 
-  accountCategoryDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  async accountCategoryDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.AccountCategories.findOne({ _id }).lean();
   },
 };
