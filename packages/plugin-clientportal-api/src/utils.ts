@@ -294,7 +294,7 @@ export const sendNotification = async (
           notifType,
           clientPortalId: recipient.clientPortalId,
           eventData,
-          groupId: doc?.groupId || '',
+          groupId: doc?.groupId ?? '',
         },
         createdUser && createdUser._id,
       );
