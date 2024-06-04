@@ -72,7 +72,7 @@ const GrandStream: React.FC<Props> = ({ conversation, currentUser }) => {
     return (
       <Tip text={__("Download audio")} placement="top">
         <Download href="#" onClick={handleDownload} id="downloadButton">
-          <Icon icon="download-1" size={18} />
+          <Icon icon="download-1" size={16} />
         </Download>
       </Tip>
     );
