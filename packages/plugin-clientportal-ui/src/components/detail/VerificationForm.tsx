@@ -20,7 +20,7 @@ const VerificationForm = (props: Props) => {
   const { status, attachments } =
     clientPortalUser.verificationRequest || ({} as IVerificationRequest);
 
-  const [vStatus, setStatus] = useState(status ? status : "notVerified");
+  const [vStatus, setVStatus] = useState(status || "notVerified");
 
   const renderFooter = (formProps: IFormProps) => {
     const { isSubmitted } = formProps;
@@ -51,7 +51,7 @@ const VerificationForm = (props: Props) => {
 
   const renderContent = (formProps: IFormProps) => {
     const onChange = (e) => {
-      setStatus(e.target.value);
+      setVStatus(e.target.value);
     };
 
     const renderAttachment = () => {
