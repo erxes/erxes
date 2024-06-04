@@ -172,60 +172,58 @@ const MovementItem = (props: Props) => {
         <tr>
           <td style={{ width: 40 }} />
           <td colSpan={7}>
-            <>
-              <Flex>
-                <MovementItemInfoContainer>
-                  <ItemRow label="Choose Asset:">
-                    <SelectWithAssets
-                      label="Choose Asset"
-                      name="assetId"
-                      onSelect={changeRowItem}
-                      initialValue={assetId}
-                      skip={selectedItems?.filter((item) => item !== assetId)}
-                      customOption={{ value: "", label: "Choose Asset" }}
-                    />
-                  </ItemRow>
-                  <ItemRow label="Branch:">
-                    {generateInfoText({
-                      type: "branch",
-                      prev: sourceLocations?.branch,
-                      current: branch,
-                    })}
-                  </ItemRow>
-                  <ItemRow label="Department:">
-                    {generateInfoText({
-                      type: "department",
-                      prev: sourceLocations?.department,
-                      current: department,
-                    })}
-                  </ItemRow>
-                  <ItemRow label="Customer:">
-                    {generateInfoText({
-                      type: "contacts",
-                      prev: sourceLocations?.customer,
-                      current: customer,
-                    })}
-                  </ItemRow>
-                  <ItemRow label="Company:">
-                    {generateInfoText({
-                      type: "companies",
-                      prev: sourceLocations?.company,
-                      current: company,
-                    })}
-                  </ItemRow>
-                  <ItemRow label="Team Member:">
-                    {generateInfoText({
-                      type: "team",
-                      prev: sourceLocations?.teamMember,
-                      current: teamMember,
-                    })}
-                  </ItemRow>
-                </MovementItemInfoContainer>
-                <MovementItemConfigContainer>
-                  <ContainerBox $column>{children}</ContainerBox>
-                </MovementItemConfigContainer>
-              </Flex>
-            </>
+            <Flex>
+              <MovementItemInfoContainer>
+                <ItemRow label="Choose Asset:">
+                  <SelectWithAssets
+                    label="Choose Asset"
+                    name="assetId"
+                    onSelect={changeRowItem}
+                    initialValue={assetId}
+                    skip={selectedItems?.filter((item) => item !== assetId)}
+                    customOption={{ value: "", label: "Choose Asset" }}
+                  />
+                </ItemRow>
+                <ItemRow label="Branch:">
+                  {generateInfoText({
+                    type: "branch",
+                    prev: sourceLocations?.branch,
+                    current: branch,
+                  })}
+                </ItemRow>
+                <ItemRow label="Department:">
+                  {generateInfoText({
+                    type: "department",
+                    prev: sourceLocations?.department,
+                    current: department,
+                  })}
+                </ItemRow>
+                <ItemRow label="Customer:">
+                  {generateInfoText({
+                    type: "contacts",
+                    prev: sourceLocations?.customer,
+                    current: customer,
+                  })}
+                </ItemRow>
+                <ItemRow label="Company:">
+                  {generateInfoText({
+                    type: "companies",
+                    prev: sourceLocations?.company,
+                    current: company,
+                  })}
+                </ItemRow>
+                <ItemRow label="Team Member:">
+                  {generateInfoText({
+                    type: "team",
+                    prev: sourceLocations?.teamMember,
+                    current: teamMember,
+                  })}
+                </ItemRow>
+              </MovementItemInfoContainer>
+              <MovementItemConfigContainer>
+                <ContainerBox $column>{children}</ContainerBox>
+              </MovementItemConfigContainer>
+            </Flex>
           </td>
         </tr>
       )}
