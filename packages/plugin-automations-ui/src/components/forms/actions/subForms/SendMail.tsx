@@ -17,9 +17,8 @@ import {
 
 import AddTemplateForm from "@erxes/ui-emailtemplates/src/containers/Form";
 import { Avatar } from "@erxes/ui/src/components/SelectWithSearch";
-import { BackIcon } from "@erxes/ui-automations/src/styles";
+import { BackIcon, DrawerDetail } from "@erxes/ui-automations/src/styles";
 import Common from "@erxes/ui-automations/src/components/forms/actions/Common";
-import { DrawerDetail } from "@erxes/ui-automations/src/styles";
 import { IAction } from "@erxes/ui-automations/src/types";
 import { Padding } from "../styles";
 import PlaceHolderInput from "@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput";
