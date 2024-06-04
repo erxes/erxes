@@ -51,7 +51,7 @@ const generateEmails = (entry, key?) => {
     return entry
       .split(', ')
       .filter((value) =>
-        value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
+        RegExp(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/).exec(value),
       );
   }
 
