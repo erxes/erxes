@@ -1,4 +1,4 @@
-import { EmptyState, Spinner, withCurrentUser, withProps } from "@erxes/ui/src";
+import { EmptyState, Spinner, withCurrentUser } from "@erxes/ui/src";
 import { gql, useQuery } from "@apollo/client";
 
 import CarDetails from "../../components/detail/CarDetails";
