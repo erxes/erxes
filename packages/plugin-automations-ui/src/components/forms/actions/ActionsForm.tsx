@@ -84,7 +84,6 @@ class ActionsForm extends React.Component<Props, State> {
                 this.onFavourite.bind(this, action)
               }
             }}
-            aria-hidden
           >
             <Icon icon="star" size={20} />
           </button>
