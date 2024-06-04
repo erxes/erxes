@@ -74,7 +74,7 @@ class CategoryForm extends React.Component<Props, State> {
   };
 
   onChangeAttachmentMore = (files: IAttachment[]) => {
-    this.setState({ secondaryImages: files ? files : undefined });
+    this.setState({ secondaryImages: files || undefined });
   };
 
   onSelectChange = (value) => {
