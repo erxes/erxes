@@ -95,7 +95,7 @@ class ReEnrollment extends React.Component<Props, State> {
         onChange={this.onChangeCheckbox}
         checked={reEnroll ? checked.includes(propertyName) : false}
         value={`${propertyName}`}
-        disabled={reEnroll ? false : true}
+        disabled={reEnroll}
       >
         {`${labelByName[propertyName]}`}
       </FormControl>
