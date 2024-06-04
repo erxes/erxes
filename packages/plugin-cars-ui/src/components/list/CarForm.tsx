@@ -1,5 +1,4 @@
 import {
-  __,
   Button,
   ControlLabel,
   Form,
@@ -9,10 +8,10 @@ import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
   SelectTeamMembers,
   generateCategoryOptions,
   extractAttachment,
+  Uploader,
 } from "@erxes/ui/src";
 import { IUser } from "@erxes/ui/src/auth/types";
 import {
@@ -31,7 +30,6 @@ import {
   COLORS,
 } from "../../constants";
 import { ICar, ICarCategory, ICarDoc } from "../../types";
-import { Uploader } from "@erxes/ui/src";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
