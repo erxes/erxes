@@ -203,6 +203,12 @@ class Settings extends React.Component<Props, State> {
           <li
             className={currentTab === "general" ? "active" : ""}
             onClick={this.onClickTab.bind(this, "general")}
+            onKeyDown={e => {
+              if(e.key === 'enter'){
+              this.onClickTab.bind(this, "general")
+            }
+            }
+            }
           >
             General
           </li>
