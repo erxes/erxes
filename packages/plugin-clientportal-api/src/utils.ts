@@ -241,7 +241,7 @@ interface ISendNotification {
   link: string;
   createdUser?: IUserDocument;
   isMobile?: boolean;
-  eventData?: any | null;
+  eventData?: any;
   mobileConfig?: IMobileConfig;
   groupId?: string;
 }
