@@ -19,7 +19,6 @@ type Props = {
   trigger: ITrigger;
   segment?: ISegment;
   fields: FieldsCombinedByType[];
-  afterSave?: () => void;
   addConfig: (trigger: ITrigger, id?: string, config?: any) => void;
 };
 
