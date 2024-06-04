@@ -1,15 +1,15 @@
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { IArticle, ICategory } from '@erxes/ui-knowledgebase/src/types';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { QueryResponse } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import AssetKb from '../../components/detail/KnowledgeBase';
-import { queries } from '../../graphql';
-import { IAsset } from '../../../common/types';
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { IArticle } from "@erxes/ui-knowledgebase/src/types";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { QueryResponse } from "@erxes/ui/src/types";
+import { withProps } from "@erxes/ui/src/utils";
+import * as compose from "lodash.flowright";
+import React from "react";
+import AssetKb from "../../components/detail/KnowledgeBase";
+import { queries } from "../../graphql";
+import { IAsset } from "../../../common/types";
 
 type Props = {
   kbArticleIds: string[];
@@ -49,12 +49,12 @@ const KbContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.knowledgeBaseArticles), {
-      name: 'kbArticlesQueryResponse',
+      name: "kbArticlesQueryResponse",
       options: ({ kbArticleIds }) => ({
         variables: {
           articleIds: kbArticleIds,
         },
       }),
-    }),
-  )(KbContainer),
+    })
+  )(KbContainer)
 );
