@@ -152,8 +152,6 @@ const generateQueryParams = (queryParams) => {
     articleIds: generateParamsIds(queryParams?.articleIds),
     withKnowledgebase: queryParams?.state
       ? queryParams?.state === "Assigned"
-        ? true
-        : false
       : undefined,
     ...generatePaginationParams(queryParams || {}),
   };
