@@ -11,28 +11,28 @@ type Props = {
 };
 
 export default class Attribution extends React.Component<Props> {
-  private overlay: any;
+  private overlayRef = React.createRef<any>();
 
   hideContent = () => {
-    this.overlay.hide();
+    this.overlayRef.current?.hide();
   };
 
   onClickAttribute = (item) => {
-    this.overlay.hide();
-    const { setConfig } = this.props;
-    let { config } = this.props;
+    this.hideContent();
+    const { setConfig, config } = this.props;
 
     const characters = ["_", "-", "/", " "];
-
     const value = item.value;
 
+    let newConfig = config;
+
     if (characters.includes(value)) {
-      config = `${config}${value}`;
+      newConfig = `${newConfig}${value}`;
     } else {
-      config = `${config}{${value}}`;
+      newConfig = `${newConfig}{${value}}`;
     }
 
-    setConfig(config);
+    setConfig(newConfig);
   };
 
   render() {
@@ -46,6 +46,7 @@ export default class Attribution extends React.Component<Props> {
           </span>
         }
         placement="top"
+        ref={this.overlayRef}
       >
         <Attributes>
           <React.Fragment>
@@ -55,7 +56,7 @@ export default class Attribution extends React.Component<Props> {
             {attributions.map((item) => (
               <li
                 key={item.value}
-                onClick={this.onClickAttribute.bind(this, item)}
+                onClick={() => this.onClickAttribute(item)}
               >
                 {__(item.label)}
               </li>
