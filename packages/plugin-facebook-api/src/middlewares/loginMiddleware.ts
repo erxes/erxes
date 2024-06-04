@@ -66,17 +66,15 @@ const loginMiddleware = async (req, res) => {
   };
   console.log(config, 'config');
   debugResponse(debugFacebook, req, JSON.stringify(config));
+  console.log(req, JSON.stringify(config), 'req, JSON.stringify(config)');
   // If this branch executes user is already being redirected back with
   // code (whatever that is)
   // code is set
   // we'll send that and get the access token
 
-  return graph.authorize(config, async (err, facebookRes) => {
+  return graph.authorize(config, async (_err, facebookRes) => {
+    console.log(_err, facebookRes, 'facebook-res');
     const { access_token } = facebookRes;
-
-    if (err) {
-      console.log(err, 'error');
-    }
 
     const userAccount: {
       id: string;
