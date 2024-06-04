@@ -225,7 +225,7 @@ const clientPortalUserMutations = {
           firstName: first_name,
           lastName: last_name,
           clientPortalId,
-          isEmailVerified: email ? true : false,
+          isEmailVerified: !!email,
         });
       }
 
