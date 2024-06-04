@@ -394,8 +394,6 @@ const engageMutations = {
           text: replacedContent,
         });
 
-        sendgridMail.sendMultiple
-
         return JSON.stringify(sendgridResponse);
       } catch (e) {
         console.log(e);
