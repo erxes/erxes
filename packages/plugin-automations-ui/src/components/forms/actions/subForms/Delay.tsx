@@ -28,12 +28,13 @@ class Delay extends React.Component<Props, State> {
     this.state = { config: config || {} };
   }
 
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.activeAction !== prevState.activeAction) {
-      return { config: nextProps.activeAction.config };
+  componentDidUpdate(prevProps) {
+    if (this.props.activeAction !== prevProps.activeAction) {
+      this.setState({ config: this.props.activeAction.config });
     }
-    return null;
   }
+  
+  
 
   onChangeField = (name: string, value: string) => {
     const { config } = this.state;
