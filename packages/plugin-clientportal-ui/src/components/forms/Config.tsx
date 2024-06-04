@@ -54,19 +54,14 @@ function General({
   testUserOTP,
   handleFormChange,
 }: Props) {
-  const [otpEnabled, setOtpEnabled] = useState<boolean>(
-    otpConfig ? true : false
-  );
+  const [otpEnabled, setOtpEnabled] = useState<boolean>(!!otpConfig);
 
-  const [mailEnabled, setMailEnabled] = useState<boolean>(
-    mailConfig ? true : false
-  );
+  const [mailEnabled, setMailEnabled] = useState<boolean>(!!mailConfig);
 
-  const [twoFactorEnabled, setTwoFactorEnabled] = useState<boolean>(
-    twoFactorConfig ? true : false
-  );
+  const [twoFactorEnabled, setTwoFactorEnabled] =
+    useState<boolean>(!!twoFactorConfig);
   const [manualVerificationEnabled, setManualVerificationEnabled] =
-    useState<boolean>(manualVerificationConfig ? true : false);
+    useState<boolean>(!!manualVerificationConfig);
 
   const [userIds] = useState<string[]>(
     manualVerificationConfig ? manualVerificationConfig.userIds : []
