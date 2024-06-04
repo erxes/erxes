@@ -324,7 +324,7 @@ export const getRecipientEmails = async ({
         continue;
       }
 
-      if (!!reciepentType.serviceName) {
+      if (reciepentType.serviceName) {
         const emails = await sendCommonMessage({
           subdomain,
           serviceName: reciepentType.serviceName,
