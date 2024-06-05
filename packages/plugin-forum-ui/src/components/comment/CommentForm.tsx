@@ -1,26 +1,26 @@
-import React, { useState } from 'react';
-import { FormControl } from '@erxes/ui/src/components/form';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import Form from '@erxes/ui/src/components/form/Form';
-import { CommentForm as Comment } from '../../styles';
+import React, { useState } from "react";
+import { FormControl } from "@erxes/ui/src/components/form";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import Form from "@erxes/ui/src/components/form/Form";
+import { CommentForm as Comment } from "../../styles";
 
 const CommentForm: React.FC<{
   replyToId?: string;
   postId: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 }> = ({ replyToId, postId, renderButton }) => {
-  const [comment, setComment] = useState('');
+  const [comment, setComment] = useState("");
   const generateDoc = (values: { comment: string }) => {
     const finalValues = values;
 
     return {
       postId,
       replyToId,
-      content: finalValues.comment
+      content: finalValues.comment,
     };
   };
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     e.preventDefault();
 
     setComment(e.target.value);
@@ -30,7 +30,7 @@ const CommentForm: React.FC<{
     const { isSubmitted, values } = formProps;
 
     return (
-      <Comment isReply={replyToId ? true : false}>
+      <Comment isReply={!!replyToId}>
         <FormControl
           {...formProps}
           placeholder="Write a comment"
@@ -42,7 +42,7 @@ const CommentForm: React.FC<{
         {renderButton({
           values: generateDoc(values),
           isSubmitted,
-          callback: () => setComment('')
+          callback: () => setComment(""),
         })}
       </Comment>
     );

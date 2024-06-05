@@ -60,7 +60,7 @@ class PermissionForm extends React.Component<Props, State> {
   };
 
   hasItems = (items: string[]) => {
-    return items.length > 0 ? true : false;
+    return items.length > 0;
   };
 
   isModuleSelected = () => {
