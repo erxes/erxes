@@ -1,6 +1,6 @@
 import { Alert } from "@erxes/ui/src";
 import { IUser } from "@erxes/ui/src/auth/types";
-import { gql } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import withCurrentUser from "@erxes/ui/src/auth/containers/withCurrentUser";
@@ -9,7 +9,6 @@ import {
   ClientPortalUserRemoveMutationResponse,
   IClientPortalUser,
 } from "../../types";
-import { useMutation } from "@apollo/client";
 
 import BasicInfoSection from "../../components/detail/BasicInfoSection";
 import { mutations } from "../../graphql";
