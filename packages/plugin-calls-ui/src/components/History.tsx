@@ -161,13 +161,13 @@ class History extends React.Component<Props, State> {
                   toggleComponent={<Icon icon="ellipsis-v" size={18} />}
                 >
                   <li key="delete">
-                    <a href="#" onClick={() => this.onRemove(item._id)}>
+                    <a href="#delete" onClick={() => this.onRemove(item._id)}>
                       <Icon icon="trash-alt" size={14} /> {__("Delete")}
                     </a>
                   </li>
                   <li key="detail">
                     <a
-                      href="#"
+                      href="#navigate"
                       onClick={() =>
                         navigate(`/inbox/index?_id=${item.conversationId}`, {
                           replace: true,
