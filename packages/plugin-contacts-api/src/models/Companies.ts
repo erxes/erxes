@@ -111,19 +111,19 @@ export const loadCompanyClass = (models: IModels, subdomain) => {
         (doc.names || []).join(' '),
         (doc.emails || []).join(' '),
         (doc.phones || []).join(' '),
-        doc.website || '',
-        doc.industry || '',
-        doc.plan || '',
-        doc.description || '',
-        doc.code || ''
+        doc.website ?? '',
+        doc.industry ?? '',
+        doc.plan ?? '',
+        doc.description ?? '',
+        doc.code ?? ''
       ]);
     }
 
     public static getCompanyName(company: ICompany) {
       return (
-        company.primaryName ||
-        company.primaryEmail ||
-        company.primaryPhone ||
+        company.primaryName ??
+        company.primaryEmail ??
+        company.primaryPhone ??
         'Unknown'
       );
     }
