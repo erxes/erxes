@@ -99,13 +99,13 @@ const ActivityItem = (props: Props) => {
       can("showCallRecord", currentUser) && (
         <Audio>
           <audio controls={true}>
+            <source src={readFile(recordUrl)} type="audio/wav" />{" "}
             <track
               kind="captions"
               src="captions.vtt"
               srcLang="en"
               label="English"
             ></track>
-            <source src={readFile(recordUrl)} type="audio/wav" />{" "}
           </audio>
         </Audio>
       )
