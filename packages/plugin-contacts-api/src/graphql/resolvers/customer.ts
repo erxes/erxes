@@ -2,7 +2,6 @@ import { ICustomerDocument } from '../../models/definitions/customers';
 import {
   sendCoreMessage,
   sendInboxMessage,
-  sendCommonMessage,
 } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
