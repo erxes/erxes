@@ -5,11 +5,11 @@ import {
   InnerActions,
   Keypad,
 } from "./styles";
+import React, { useState } from "react";
 import { numbers, symbols } from "./constants";
 
 import DialogComponent from "./components/Dialog";
 import { Icon } from "@erxes/ui/src/components";
-import React from "react";
 import { __ } from "@erxes/ui/src/utils";
 import moment from "moment";
 
@@ -116,6 +116,13 @@ export const callActions = (
             </CallAction>
 
             {__("Detail")}
+          </div>
+          <div>
+            <CallAction>
+              <Icon size={20} icon={"dialpad-alt"} />
+            </CallAction>
+
+            {__("Keypad")}
           </div>
         </InnerActions>
         <div>
