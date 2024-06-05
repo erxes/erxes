@@ -24,7 +24,7 @@ class ErxesPayment {
 
   constructor(payment: IPaymentDocument, domain?: string) {
     this.payment = payment;
-    this.domain = domain || '';
+    this.domain = domain ?? '';
     this.socialpay = new SocialPayAPI(payment.config);
     this.storepay = new StorePayAPI(payment.config, domain);
     this.qpay = new QpayAPI(payment.config, domain);
