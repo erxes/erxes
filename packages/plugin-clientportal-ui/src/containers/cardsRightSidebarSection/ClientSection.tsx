@@ -1,9 +1,8 @@
-import React from 'react';
-import queries from '../../graphql/queries';
-import { useQuery } from '@apollo/client';
-import { gql } from '@apollo/client';
-import Section from '../../components/cardRightSidebarSection/Section';
-import Spinner from '@erxes/ui/src/components/Spinner';
+import React from "react";
+import queries from "../../graphql/queries";
+import { useQuery, gql } from "@apollo/client";
+import Section from "../../components/cardRightSidebarSection/Section";
+import Spinner from "@erxes/ui/src/components/Spinner";
 
 type Props = {
   mainType: string;
@@ -19,7 +18,7 @@ const Container = (props: Props) => {
     variables: {
       contentType: props.mainType,
       contentTypeId: props.mainTypeId,
-      userKind: 'client',
+      userKind: "client",
     },
     skip: !props.mainType || !props.mainTypeId,
   });
@@ -35,7 +34,7 @@ const Container = (props: Props) => {
       {...props}
       refetch={refetch}
       participants={clientPortalParticipants}
-      kind='client'
+      kind="client"
     />
   );
 };
