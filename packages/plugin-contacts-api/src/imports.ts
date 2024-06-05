@@ -194,21 +194,15 @@ export default {
             break;
 
           case 'pronoun':
-            {
               doc.sex = generatePronoun(value);
-            }
             break;
 
           case 'companiesPrimaryNames':
-            {
               doc.companiesPrimaryNames = value.split(',');
-            }
             break;
 
           case 'companiesPrimaryEmails':
-            {
               doc.companiesPrimaryEmails = value.split(',');
-            }
             break;
 
           case 'customersPrimaryEmails':
