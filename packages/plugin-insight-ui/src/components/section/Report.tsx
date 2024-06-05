@@ -41,7 +41,7 @@ const ReportSection = (props: Props) => {
   };
 
   const extraButtons = (
-    <Tip text="Add report">
+    <Tip text="Add report" placement="left">
       <a
         href="#addReport"
         onClick={() => {
@@ -111,7 +111,7 @@ const ReportSection = (props: Props) => {
 
   const renderContent = () => {
     if (loading) {
-      return <Spinner objective={true} />;
+      return <Spinner objective={true} height='50px'/>;
     }
 
     if (sections?.length === 0 && reports?.length === 0) {
