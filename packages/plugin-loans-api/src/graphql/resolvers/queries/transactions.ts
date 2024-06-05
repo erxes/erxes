@@ -58,7 +58,11 @@ const generateFilter = async (models, params, commonQuerySelector) => {
   }
 
   if (params.description) {
-    filter.description = { $in:  [new RegExp(`.*${params.searchValue}.*`, 'i')] };
+    filter.description = { $in:  [new RegExp(`.*${params.description}.*`, 'i')] };
+  }
+
+  if (params.total) {
+    filter.total
   }
 
   return filter;
