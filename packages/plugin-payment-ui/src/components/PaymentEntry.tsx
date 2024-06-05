@@ -1,28 +1,27 @@
-import { ButtonMutate } from '@erxes/ui/src/components';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __, getEnv } from '@erxes/ui/src/utils';
-import React from 'react';
+import { ButtonMutate } from "@erxes/ui/src/components";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { __, getEnv } from "@erxes/ui/src/utils";
+import React from "react";
 
-import { getGqlString, getRefetchQueries } from '../containers/utils';
-import { mutations } from '../graphql';
-import { ByKindTotalCount } from '../types';
-import { PAYMENTCONFIGS } from './constants';
-import { Box, PaymentItem, Ribbon, Type } from './styles';
+import { getGqlString, getRefetchQueries } from "../containers/utils";
+import { mutations } from "../graphql";
+import { ByKindTotalCount } from "../types";
+import { PAYMENTCONFIGS } from "./constants";
+import { Box, PaymentItem, Ribbon, Type } from "./styles";
 
 type Props = {
   payment: any;
   getClassName: (type: string) => string;
   toggleBox: (kind: string) => void;
-  queryParams: any;
   paymentsCount?: ByKindTotalCount;
 };
 
 function getCount(type: string, paymentsCount?: ByKindTotalCount) {
   const countByType = (paymentsCount && paymentsCount[type]) || 0;
 
-  if (typeof countByType === 'undefined') {
+  if (typeof countByType === "undefined") {
     return null;
   }
   return <span>({countByType})</span>;
@@ -35,7 +34,7 @@ function renderType(type: string) {
 
   return (
     <Type>
-      <Icon icon="comment-alt-lines" /> {__('Payment type')}
+      <Icon icon="comment-alt-lines" /> {__("Payment type")}
     </Type>
   );
 }
@@ -63,11 +62,11 @@ function renderCreate(kind: string) {
     return null;
   }
 
-  const trigger = <button>+ {__('Add')}</button>;
+  const trigger = <button>+ {__("Add")}</button>;
 
   const meta: any = PAYMENTCONFIGS.find((p) => p.kind === kind);
 
-  const title = meta ? `Add ${meta.name}` : 'Add payment config';
+  const title = meta ? `Add ${meta.name}` : "Add payment config";
 
   if (!meta || !meta.isAvailable) {
     return null;
@@ -79,7 +78,7 @@ function renderCreate(kind: string) {
     <Component {...props} renderButton={renderButton} metaData={meta} />
   );
 
-  const size = meta.modalSize || 'lg';
+  const size = meta.modalSize || "lg";
 
   return (
     <ModalTrigger
@@ -110,7 +109,7 @@ function Entry({ payment, getClassName, toggleBox, paymentsCount }: Props) {
         </p>
         {!isAvailable && (
           <Ribbon>
-            <span>{__('Coming soon')}</span>
+            <span>{__("Coming soon")}</span>
           </Ribbon>
         )}
       </Box>
