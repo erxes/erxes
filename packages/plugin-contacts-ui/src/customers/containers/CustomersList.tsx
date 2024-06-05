@@ -10,8 +10,6 @@ import {
   MainQueryResponse,
   VerifyMutationResponse,
   VerifyMutationVariables,
-} from "@erxes/ui-contacts/src/customers/types";
-import {
   MergeMutationResponse,
   MergeMutationVariables,
   RemoveMutationResponse,
