@@ -1,15 +1,15 @@
 import {
   ActivityDate,
   FlexCenterContent,
-  MergedContacts
-} from '@erxes/ui-log/src/activityLogs/styles';
-import { __, renderFullName, renderUserFullName } from '@erxes/ui/src/utils';
+  MergedContacts,
+} from "@erxes/ui-log/src/activityLogs/styles";
+import { __, renderFullName, renderUserFullName } from "@erxes/ui/src/utils";
 
-import { IActivityLogItemProps } from '@erxes/ui-log/src/activityLogs/types';
-import { Link } from 'react-router-dom';
-import React from 'react';
-import Tip from '@erxes/ui/src/components/Tip';
-import dayjs from 'dayjs';
+import { IActivityLogItemProps } from "@erxes/ui-log/src/activityLogs/types";
+import { Link } from "react-router-dom";
+import React from "react";
+import Tip from "@erxes/ui/src/components/Tip";
+import dayjs from "dayjs";
 
 type Props = { contentDetail: any } & IActivityLogItemProps;
 
@@ -21,7 +21,7 @@ class MergedLog extends React.Component<Props> {
       const { content } = createdByDetail;
 
       if (content && content.details) {
-        const userName = renderUserFullName(createdByDetail.content || '');
+        const userName = renderUserFullName(createdByDetail.content || "");
 
         return <strong>{userName}</strong>;
       }
@@ -31,7 +31,7 @@ class MergedLog extends React.Component<Props> {
   };
 
   renderLink = (type, contact) => {
-    if (type === 'customers') {
+    if (type === "customers") {
       return `/contacts/details/${contact._id}`;
     } else {
       return `/${type}/details/${contact._id}`;
@@ -41,14 +41,14 @@ class MergedLog extends React.Component<Props> {
   renderContent = () => {
     const { contentType } = this.props.activity;
     const { contentDetail } = this.props;
-    const type = contentType.includes('customer') ? 'customers' : 'companies';
+    const type = contentType.includes("customer") ? "customers" : "companies";
 
     return (
       <>
         {this.renderCreatedBy()}&nbsp;
-        {__('merged')}
+        {__("merged")}
         {contentDetail.length !== 0 &&
-          contentDetail.map(contact => {
+          contentDetail.map((contact) => {
             return (
               <Link
                 key={contact._id}
@@ -69,16 +69,14 @@ class MergedLog extends React.Component<Props> {
     const { createdAt } = this.props.activity;
 
     return (
-      <>
-        <FlexCenterContent>
-          <MergedContacts>{this.renderContent()}</MergedContacts>
-          <Tip text={dayjs(createdAt).format('llll')}>
-            <ActivityDate>
-              {dayjs(createdAt).format('MMM D, h:mm A')}
-            </ActivityDate>
-          </Tip>
-        </FlexCenterContent>
-      </>
+      <FlexCenterContent>
+        <MergedContacts>{this.renderContent()}</MergedContacts>
+        <Tip text={dayjs(createdAt).format("llll")}>
+          <ActivityDate>
+            {dayjs(createdAt).format("MMM D, h:mm A")}
+          </ActivityDate>
+        </Tip>
+      </FlexCenterContent>
     );
   }
 }
