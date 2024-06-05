@@ -88,7 +88,7 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
 
   constructor(config?: any, domain?: string) {
     super(config);
-    this.domain = domain || '';
+    this.domain = domain ?? '';
     this.config = config;
   }
 
@@ -219,7 +219,7 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         // customer_name: 'erxes',
         // customer_logo: 'https://erxes.io/static/images/logo/icon.png',
         callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.qpayQuickqr.kind}?identifier=${invoice.identifier}`,
-        description: invoice.description || 'Гүйлгээ',
+        description: invoice.description ?? 'Гүйлгээ',
         mcc_code: this.config.mccCode,
         bank_accounts: [
           {
