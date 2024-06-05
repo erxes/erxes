@@ -25,13 +25,13 @@ function GeneralContainer(props: Props) {
   const knowledgeBaseTopicsQuery = useQuery<TopicsQueryResponse>(
     gql(knowledgeBaseQueries.knowledgeBaseTopics),
     {
-      skip: isEnabled("knowledgebase") ? false : true,
+      skip: !isEnabled("knowledgebase"),
     }
   );
 
   const boardsQuery = useQuery<BoardsQueryResponse>(gql(boardQueries.boards), {
     variables: { type: "task" },
-    skip: isEnabled("cards") ? false : true,
+    skip: !isEnabled("cards"),
   });
 
   const fetchPipelines = (boardId: string) => {
