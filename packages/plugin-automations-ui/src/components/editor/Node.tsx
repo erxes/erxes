@@ -232,11 +232,11 @@ export default memo(({ id, data }: Props) => {
           <div className="custom-menu">
             <div>
               {renderNote()}
-              <button
+              <i
                 className="icon-trash-alt delete-control"
                 onClick={removeNode}
                 title={__("Delete")}
-              ></button>
+              ></i>
             </div>
           </div>
           <div>

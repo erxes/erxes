@@ -76,17 +76,12 @@ class ActionsForm extends React.Component<Props, State> {
           text={isFavourite ? __("Unfavourite") : __("Favourite")}
           placement="top"
         >
-          <button
+          <i
             className="favourite-action"
             onClick={this.onFavourite.bind(this, action)}
-            onKeyDown={e => {
-             if (e.key === 'enter') {
-                this.onFavourite.bind(this, action)
-              }
-            }}
           >
             <Icon icon="star" size={20} />
-          </button>
+          </i>
         </Tip>
       </ActionBox>
     );
@@ -119,9 +114,8 @@ class ActionsForm extends React.Component<Props, State> {
 
       return (
         <React.Fragment key={action.id}>
-              {this.renderBox(action, isFavourite, index)}
+          {this.renderBox(action, isFavourite, index)}
         </React.Fragment>
-
       );
     });
   }
