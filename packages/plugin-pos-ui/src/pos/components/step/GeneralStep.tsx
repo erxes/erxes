@@ -129,21 +129,19 @@ const GeneralStep = (props: Props) => {
     }
 
     return (
-      <>
-        <BlockRow>
-          <FormGroup>
-            <ControlLabel>Choose branch</ControlLabel>
-            <SelectBranches
-              label="Choose branch"
-              name="branchId"
-              initialValue={pos.branchId}
-              onSelect={onChangeBranches}
-              customOption={{ value: "", label: "No branch..." }}
-              multi={false}
-            />
-          </FormGroup>
-        </BlockRow>
-      </>
+      <BlockRow>
+        <FormGroup>
+          <ControlLabel>Choose branch</ControlLabel>
+          <SelectBranches
+            label="Choose branch"
+            name="branchId"
+            initialValue={pos.branchId}
+            onSelect={onChangeBranches}
+            customOption={{ value: "", label: "No branch..." }}
+            multi={false}
+          />
+        </FormGroup>
+      </BlockRow>
     );
   };
 
@@ -278,7 +276,7 @@ const GeneralStep = (props: Props) => {
                 <ControlLabel>Is Online</ControlLabel>
                 <Toggle
                   id={"isOnline"}
-                  checked={pos && pos.isOnline ? true : false}
+                  checked={!!(pos && pos.isOnline)}
                   onChange={onChangeSwitchMain}
                   icons={{
                     checked: <span>Yes</span>,
@@ -291,7 +289,7 @@ const GeneralStep = (props: Props) => {
                   <ControlLabel>On Server</ControlLabel>
                   <Toggle
                     id={"onServer"}
-                    checked={pos && pos.onServer ? true : false}
+                    checked={!!(pos && pos.onServer)}
                     onChange={onChangeSwitchMain}
                     icons={{
                       checked: <span>Yes</span>,
