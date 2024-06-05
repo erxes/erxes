@@ -10,59 +10,55 @@ type Props = {
   attributions: any[];
 };
 
-export default class Attribution extends React.Component<Props> {
-  private overlay: any;
-
-  hideContent = () => {
-    this.overlay.hide();
-  };
-
-  onClickAttribute = (item) => {
-    this.overlay.hide();
-    const { setConfig } = this.props;
-    let { config } = this.props;
+export default function Attribution(props: Props) {
+  const onClickAttribute = (item, close) => {
+    const { setConfig, config } = props;
 
     const characters = ["_", "-", "/", " "];
 
     const value = item.value;
+    let changedConfig;
 
     if (characters.includes(value)) {
-      config = `${config}${value}`;
+      changedConfig = `${config}${value}`;
     } else {
-      config = `${config}{${value}}`;
+      changedConfig = `${config}{${value}}`;
     }
 
-    setConfig(config);
+    setConfig(changedConfig);
+    close();
   };
 
-  render() {
-    const { attributions } = this.props;
+  const { attributions } = props;
 
+  const content = (close) => {
     return (
-      <Popover
-        trigger={
-          <span>
-            {__("Attribution")} <Icon icon="angle-down" />
-          </span>
-        }
-        placement="top"
-      >
-        <Attributes>
-          <React.Fragment>
-            <li>
-              <b>{__("Attributions")}</b>
+      <Attributes>
+        <React.Fragment>
+          <li>
+            <b>{__("Attributions")}</b>
+          </li>
+          {attributions.map((item) => (
+            <li key={item.value} onClick={() => onClickAttribute(item, close)}>
+              {__(item.label)}
             </li>
-            {attributions.map((item) => (
-              <li
-                key={item.value}
-                onClick={this.onClickAttribute.bind(this, item)}
-              >
-                {__(item.label)}
-              </li>
-            ))}
-          </React.Fragment>
-        </Attributes>
-      </Popover>
+          ))}
+        </React.Fragment>
+      </Attributes>
     );
-  }
+  };
+
+  return (
+    <Popover
+      trigger={
+        <span>
+          {__("Attribution")} <Icon icon="angle-down" />
+        </span>
+      }
+      placement="top"
+      closeAfterSelect
+    >
+      {content}
+    </Popover>
+  );
 }
