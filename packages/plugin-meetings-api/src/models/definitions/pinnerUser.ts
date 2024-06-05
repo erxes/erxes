@@ -6,7 +6,7 @@ export interface IPinnedUser {
   pinnedUserIds: string;
 }
 export interface IPinnedUserDocument extends IPinnedUser, Document {
-  _id: String;
+  _id: string;
 }
 
 export const pinnedUserSchema = new Schema({
