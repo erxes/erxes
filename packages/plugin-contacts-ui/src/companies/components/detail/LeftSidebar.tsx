@@ -1,12 +1,12 @@
-import BasicInfoSection from '../common/BasicInfoSection';
-import CustomFieldsSection from '../../containers/detail/CustomFieldsSection';
-import { ICompany } from '@erxes/ui-contacts/src/companies/types';
-import { IField } from '@erxes/ui/src/types';
-import React from 'react';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import TaggerSection from '@erxes/ui-contacts/src/customers/components/common/TaggerSection';
-import { TrackedDataSection } from '../../../customers/components/common';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import BasicInfoSection from "../common/BasicInfoSection";
+import CustomFieldsSection from "../../containers/detail/CustomFieldsSection";
+import { ICompany } from "@erxes/ui-contacts/src/companies/types";
+import { IField } from "@erxes/ui/src/types";
+import React from "react";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import TaggerSection from "@erxes/ui-contacts/src/customers/components/common/TaggerSection";
+import { TrackedDataSection } from "../../../customers/components/common";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   company: ICompany;
@@ -22,11 +22,7 @@ class LeftSidebar extends React.Component<Props> {
       return null;
     }
 
-    return (
-      <>
-        <TrackedDataSection company={this.props.company} />
-      </>
-    );
+    return <TrackedDataSection company={this.props.company} />;
   }
 
   render() {
@@ -35,7 +31,7 @@ class LeftSidebar extends React.Component<Props> {
     return (
       <Sidebar wide={true}>
         <BasicInfoSection company={company} fields={fields} />
-        {isEnabled('tags') && (
+        {isEnabled("tags") && (
           <TaggerSection
             data={company}
             type="contacts:company"
