@@ -233,9 +233,7 @@ router.get('/gateway', async (req, res) => {
   }
 
   const monpayCouponEnabled: boolean =
-    process.env.MONPAY_COUPON_USERNAME && process.env.MONPAY_COUPON_PASSWORD
-      ? true
-      : false;
+    !!(process.env.MONPAY_COUPON_USERNAME && process.env.MONPAY_COUPON_PASSWORD);
 
   res.render('index', {
     title: 'Payment gateway',
