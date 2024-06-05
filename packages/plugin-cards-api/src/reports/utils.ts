@@ -23,7 +23,7 @@ export const buildLookup = ({ fields, localField, foreignField, extraConditions 
 
     const lookups = fields.map((field) => {
         const conditions: any = [
-            { $eq: [`$${foreignField || '_id'}`, "$$fieldId"] },
+            { $eq: [`$${foreignField ?? '_id'}`, "$$fieldId"] },
             ...extraConditions,
         ];
 
@@ -114,23 +114,29 @@ export const buildPipeline = (filter, type, matchFilter) => {
 
     const { dimension, measure, userType = 'userId', frequencyType, dateRange, startDate, endDate, dateRangeType = "createdAt" } = filter
 
+    const dimensions = Array.isArray(dimension) ? dimension : dimension?.split(",") || []
+    const measures = Array.isArray(measure) ? measure : measure?.split(",") || []
+
+    console.log('dimensions', dimensions)
+    console.log('measures', measures)
+
     const pipeline: any[] = [];
 
     let formatType = "%Y"
 
-    if (dateRange && dateRange.toLowerCase().includes('day')) {
+    if (dateRange?.toLowerCase().includes('day')) {
         formatType = '%Hh:%Mm:%Ss'
     }
 
-    if (dateRange && dateRange.toLowerCase().includes('week')) {
+    if (dateRange?.toLowerCase().includes('week')) {
         formatType = '%u'
     }
 
-    if (dateRange && dateRange.toLowerCase().includes('month')) {
+    if (dateRange?.toLowerCase().includes('month')) {
         formatType = "%V"
     }
 
-    if (dateRange && dateRange.toLowerCase().includes('year')) {
+    if (dateRange?.toLowerCase().includes('year')) {
         formatType = "%m"
     }
 
@@ -140,15 +146,15 @@ export const buildPipeline = (filter, type, matchFilter) => {
 
     const dateFormat = frequencyType || formatType
 
-    if (dimension.includes("tag")) {
+    if (dimensions.includes("tag")) {
         pipeline.push({ $unwind: "$tagIds" });
     }
 
-    if (dimension.includes("label")) {
+    if (dimensions.includes("label")) {
         pipeline.push({ $unwind: "$labelIds" });
     }
 
-    if (dimension.includes("customer")) {
+    if (dimensions.includes("customer")) {
         pipeline.push({
             $lookup: {
                 from: "conformities",
@@ -187,7 +193,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
             });
     }
 
-    if (dimension.includes("company")) {
+    if (dimensions.includes("company")) {
         pipeline.push({
             $lookup: {
                 from: "conformities",
@@ -226,19 +232,19 @@ export const buildPipeline = (filter, type, matchFilter) => {
             });
     }
 
-    if (dimension.includes("teamMember") && userType === "assignedUserIds") {
+    if (dimensions.includes("teamMember") && userType === "assignedUserIds") {
         pipeline.push({ $unwind: "$assignedUserIds" });
     }
 
-    if (dimension.includes("branch")) {
+    if (dimensions.includes("branch")) {
         pipeline.push({ $unwind: "$branchIds" });
     }
 
-    if (dimension.includes("department")) {
+    if (dimensions.includes("department")) {
         pipeline.push({ $unwind: "$departmentIds" });
     }
 
-    if (dimension.includes("source")) {
+    if (dimensions.includes("source")) {
         pipeline.push(
             {
                 $unwind: "$sourceConversationIds"
@@ -283,11 +289,11 @@ export const buildPipeline = (filter, type, matchFilter) => {
             })
     }
 
-    if (dimension.includes("product") || (measure || []).some(m => ["totalAmount", "averageAmount", "unusedAmount", "forecastAmount"].includes(m))) {
+    if (dimensions.includes("product") || measures.some(m => ["totalAmount", "averageAmount", "unusedAmount", "forecastAmount"].includes(m))) {
         pipeline.push({ $unwind: "$productsData" });
     }
 
-    if (dimension.includes("pipeline") || (measure || []).includes("forecastAmount")) {
+    if (dimensions.includes("pipeline") || measures.includes("forecastAmount")) {
         pipeline.push(
             {
                 $lookup: {
@@ -303,7 +309,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
         );
     }
 
-    if (dimension.includes("board")) {
+    if (dimensions.includes("board")) {
         pipeline.push(
             {
                 $lookup: {
@@ -330,7 +336,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
         );
     }
 
-    if (measure.includes("forecastAmount")) {
+    if (measures.includes("forecastAmount")) {
         pipeline.push({
             $addFields: {
                 probability: {
@@ -390,27 +396,26 @@ export const buildPipeline = (filter, type, matchFilter) => {
     }
 
     const match: object = {
-
         ...matchFilter
     }
 
-    if (measure.includes("forecastAmount")) {
+    if (measures.includes("forecastAmount")) {
         match["stage.probability"] = { $ne: null };
     }
 
-    if (dimension.includes("priority")) {
+    if (dimensions.includes("priority")) {
         match["priority"] = { $nin: [null, "", " "] };
     }
 
-    if (dimension.includes("teamMember")) {
+    if (dimensions.includes("teamMember")) {
         match[userType] = { $exists: true };
     }
 
-    if (dimension.includes("frequency")) {
+    if (dimensions.includes("frequency")) {
         match[dateRangeType] = { $ne: null };
     }
 
-    if (dimension.includes("card")) {
+    if (dimensions.includes("card")) {
         match["name"] = { $nin: [null, ""] }
     }
 
@@ -419,71 +424,71 @@ export const buildPipeline = (filter, type, matchFilter) => {
     });
 
     const groupKeys: any = {};
-    if (dimension.includes("tag")) {
+    if (dimensions.includes("tag")) {
         groupKeys.tagId = "$tagIds";
     }
 
-    if (dimension.includes("card")) {
+    if (dimensions.includes("card")) {
         groupKeys.cardName = "$name";
     }
 
-    if (dimension.includes("label")) {
+    if (dimensions.includes("label")) {
         groupKeys.labelId = "$labelIds";
     }
 
-    if (dimension.includes("customer")) {
+    if (dimensions.includes("customer")) {
         groupKeys.customerId = "$conformity.relTypeId";
     }
 
-    if (dimension.includes("company")) {
+    if (dimensions.includes("company")) {
         groupKeys.companyId = "$conformity.relTypeId";
     }
 
-    if (dimension.includes("priority")) {
+    if (dimensions.includes("priority")) {
         groupKeys.priority = "$priority";
     }
 
-    if (dimension.includes("status")) {
+    if (dimensions.includes("status")) {
         groupKeys.status = "$status";
     }
 
-    if (dimension.includes("teamMember")) {
+    if (dimensions.includes("teamMember")) {
         groupKeys.userId = `$${userType}`;
     }
 
-    if (dimension.includes("branch")) {
+    if (dimensions.includes("branch")) {
         groupKeys.branchId = "$branchIds";
     }
 
-    if (dimension.includes("department")) {
+    if (dimensions.includes("department")) {
         groupKeys.departmentId = "$departmentIds";
     }
 
-    if (dimension.includes("department")) {
+    if (dimensions.includes("department")) {
         groupKeys.source = "$integration.kind";
     }
 
-    if (dimension.includes("product")) {
+    if (dimensions.includes("product")) {
         groupKeys.productId = "$productsData.productId";
     }
 
-    if (dimension.includes("stage")) {
+    if (dimensions.includes("stage")) {
         groupKeys.stageId = "$stageId";
     }
 
-    if (dimension.includes("pipeline")) {
+    if (dimensions.includes("pipeline")) {
         groupKeys.pipelineId = "$stage.pipelineId";
     }
 
-    if (dimension.includes("board")) {
+    if (dimensions.includes("board")) {
         groupKeys.boardId = "$pipeline.boardId";
     }
 
-    if (dimension.includes("source")) {
+    if (dimensions.includes("source")) {
         groupKeys.source = "$integration.kind";
     }
 
-    if (dimension.includes("frequency")) {
+    if (dimensions.includes("frequency")) {
         groupKeys.frequency = {
             $dateToString: {
                 format: dateFormat,
@@ -495,16 +500,16 @@ export const buildPipeline = (filter, type, matchFilter) => {
     pipeline.push({
         $group: {
             _id: groupKeys,
-            ...buildAction(measure),
-            ...(dimension.includes("frequency") ? { date: { $first: `$${dateRangeType}` } } : {}),
+            ...buildAction(measures),
+            ...(dimensions.includes("frequency") ? { date: { $first: `$${dateRangeType}` } } : {}),
         }
     });
 
-    if (dimension.includes("frequency")) {
+    if (dimensions.includes("frequency")) {
         pipeline.push({ $sort: { _id: 1 } })
     }
 
-    if (dimension.includes("tag")) {
+    if (dimensions.includes("tag")) {
         pipeline.push(
             {
                 $lookup: {
@@ -526,7 +531,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
         );
     }
 
-    if (dimension.includes("label")) {
+    if (dimensions.includes("label")) {
         pipeline.push(
             {
                 $lookup: {
@@ -548,7 +553,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
         );
     }
 
-    if (dimension.includes("customer")) {
+    if (dimensions.includes("customer")) {
         pipeline.push(
             {
                 $lookup: {
@@ -570,7 +575,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
         );
     }
 
-    if (dimension.includes("company")) {
+    if (dimensions.includes("company")) {
         pipeline.push(
             {
                 $lookup: {
@@ -592,7 +597,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
         );
     }
 
-    if (dimension.includes("teamMember")) {
+    if (dimensions.includes("teamMember")) {
         pipeline.push(
             {
                 $lookup: {
@@ -617,7 +622,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
         );
     }
 
-    if (dimension.includes("branch")) {
+    if (dimensions.includes("branch")) {
         pipeline.push(
             {
                 $lookup: {
@@ -641,7 +646,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
         );
     }
 
-    if (dimension.includes("department")) {
+    if (dimensions.includes("department")) {
         pipeline.push(
             {
                 $lookup: {
@@ -665,7 +670,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
         );
     }
 
-    if (dimension.includes("product")) {
+    if (dimensions.includes("product")) {
         pipeline.push(
             {
                 $lookup: {
@@ -689,7 +694,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
         );
     }
 
-    if (dimension.includes("stage")) {
+    if (dimensions.includes("stage")) {
         pipeline.push(
             {
                 $lookup: {
@@ -713,7 +718,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
         );
     }
 
-    if (dimension.includes("pipeline")) {
+    if (dimensions.includes("pipeline")) {
         pipeline.push(
             {
                 $lookup: {
@@ -737,7 +742,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
         );
     }
 
-    if (dimension.includes("board")) {
+    if (dimensions.includes("board")) {
         pipeline.push(
             {
                 $lookup: {
@@ -765,11 +770,11 @@ export const buildPipeline = (filter, type, matchFilter) => {
         _id: 0,
     };
 
-    measure.forEach((m) => {
-        projectionFields[m] = 1;
+    measures.forEach((measure) => {
+        projectionFields[measure] = 1;
     });
 
-    if (dimension.includes("frequency")) {
+    if (dimensions.includes("frequency")) {
 
         let projectStage: any = "$_id.frequency"
 
@@ -853,63 +858,63 @@ export const buildPipeline = (filter, type, matchFilter) => {
         projectionFields.frequency = projectStage;
     }
 
-    if (dimension.includes("tag")) {
+    if (dimensions.includes("tag")) {
         projectionFields.tag = "$tag.name";
     }
 
-    if (dimension.includes("card")) {
+    if (dimensions.includes("card")) {
         projectionFields.card = "$_id.cardName";
     }
 
-    if (dimension.includes("label")) {
+    if (dimensions.includes("label")) {
         projectionFields.label = "$label.name";
     }
 
-    if (dimension.includes("customer")) {
+    if (dimensions.includes("customer")) {
         projectionFields.customer = "$customer.firstName";
     }
 
-    if (dimension.includes("company")) {
+    if (dimensions.includes("company")) {
         projectionFields.company = "$company.primaryName";
     }
 
-    if (dimension.includes("priority")) {
+    if (dimensions.includes("priority")) {
         projectionFields.priority = "$_id.priority";
     }
 
-    if (dimension.includes("status")) {
+    if (dimensions.includes("status")) {
         projectionFields.status = "$_id.status";
     }
 
-    if (dimension.includes("teamMember")) {
+    if (dimensions.includes("teamMember")) {
         projectionFields.teamMember = "$user.details.fullName";
     }
 
-    if (dimension.includes("branch")) {
+    if (dimensions.includes("branch")) {
         projectionFields.branch = "$branch.title";
     }
 
-    if (dimension.includes("department")) {
+    if (dimensions.includes("department")) {
         projectionFields.department = "$department.title";
     }
 
-    if (dimension.includes("source")) {
+    if (dimensions.includes("source")) {
         projectionFields.source = "$_id.source";
     }
 
-    if (dimension.includes("product")) {
+    if (dimensions.includes("product")) {
         projectionFields.product = "$product.name";
     }
 
-    if (dimension.includes("stage")) {
+    if (dimensions.includes("stage")) {
         projectionFields.stage = "$stage.name";
     }
 
-    if (dimension.includes("pipeline")) {
+    if (dimensions.includes("pipeline")) {
         projectionFields.pipeline = "$pipeline.name";
     }
 
-    if (dimension.includes("board")) {
+    if (dimensions.includes("board")) {
         projectionFields.board = "$board.name";
     }
 
@@ -1080,59 +1085,57 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
     const matchfilter = {};
 
     // USER FILTER
-    if (userIds && userIds.length) {
+    if (userIds?.length) {
         const { userType = 'userId' } = filter;
         matchfilter[userType] = { $in: userIds };
     }
 
     // BRANCH FILTER
-    if (branchIds && branchIds.length) {
+    if (branchIds?.length) {
         matchfilter['branchIds'] = { $in: branchIds };
     }
 
     // DEPARTMENT FILTER
-    if (departmentIds && departmentIds.length) {
+    if (departmentIds?.length) {
         matchfilter['departmentIds'] = { $in: departmentIds };
     }
 
     // COMPANY FILTER
-    if (companyIds && companyIds.length) {
-        const conformities = await sendCoreMessage({
+    if (companyIds?.length) {
+        const mainTypeIds = await sendCoreMessage({
             subdomain,
-            action: 'conformities.findConformities',
+            action: 'conformities.filterConformity',
             data: {
-                relType: "company",
-                relTypeId: { $in: companyIds }
+                mainType: 'company',
+                mainTypeIds: companyIds,
+                relType: type
             },
             isRPC: true,
             defaultValue: []
         })
-
-        const mainTypeIds = conformities.map(conformity => conformity.mainTypeId)
 
         matchfilter['_id'] = { $in: mainTypeIds };
     }
 
     // CUSTOMER FILTER
-    if (customerIds && customerIds.length) {
-        const conformities = await sendCoreMessage({
+    if (customerIds?.length) {
+        const mainTypeIds = await sendCoreMessage({
             subdomain,
-            action: 'conformities.findConformities',
+            action: 'conformities.filterConformity',
             data: {
-                relType: "customer",
-                relTypeId: { $in: customerIds }
+                mainType: 'customer',
+                mainTypeIds: customerIds,
+                relType: type
             },
             isRPC: true,
             defaultValue: []
         })
 
-        const mainTypeIds = conformities.map(conformity => conformity.mainTypeId)
-
         matchfilter['_id'] = { $in: mainTypeIds };
     }
 
     // SOURCE FILTER
-    if (integrationTypes && integrationTypes.length) {
+    if (integrationTypes?.length) {
         const query = { kind: { $in: integrationTypes } }
         const integrationIds = await getIntegrationIds(query, subdomain)
 
@@ -1140,12 +1143,12 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
     }
 
     // PRODUCTS FILTER
-    if (productIds && productIds.length) {
+    if (productIds?.length) {
         matchfilter['productsData.productId'] = { $in: productIds };
     }
 
     // TAG FILTER
-    if (tagIds && tagIds.length) {
+    if (tagIds?.length) {
         matchfilter['tagIds'] = { $in: tagIds };
     }
 
@@ -1156,18 +1159,18 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
     }
 
     // PIPELINE FILTER
-    if (pipelineIds && pipelineIds.length) {
+    if (pipelineIds?.length) {
         const stageIds = await getStageIds(filter, type, model)
         matchfilter['stageId'] = { $in: stageIds };
     }
 
     // STAGE FILTER
-    if (stageIds && stageIds.length) {
+    if (stageIds?.length) {
         matchfilter['stageId'] = { $in: stageIds };
     }
 
     // LABEL FILTER
-    if (labelIds && labelIds.length) {
+    if (labelIds?.length) {
         matchfilter['labelIds'] = { $in: labelIds };
     }
 
@@ -1203,7 +1206,7 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
     }
 
     // FIELD GROUP FILTER
-    if (groupIds && groupIds.length) {
+    if (groupIds?.length) {
         const fields = await sendFormsMessage({
             subdomain,
             action: 'fields.find',
@@ -1222,7 +1225,7 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
     }
 
     // CUSTOM PROPERTIES FIELD FILTER 
-    if (fieldIds && fieldIds.length) {
+    if (fieldIds?.length) {
         matchfilter['customFieldsData.field'] = { $in: fieldIds };
     }
 
@@ -1302,7 +1305,7 @@ export const buildTableData = (data: any, measures: any, dimensions: any) => {
 }
 
 export const getDimensionPipeline = async (filter, type, subdomain, models) => {
-    const { dimension, measure } = filter
+    const { dimension } = filter
 
     const matchFilter = await buildMatchFilter(filter, type, subdomain, models)
 
@@ -2008,19 +2011,19 @@ export const getDimensionPipeline = async (filter, type, subdomain, models) => {
 
         let formatType = "%Y"
 
-        if (dateRange && dateRange.toLowerCase().includes('day')) {
+        if (dateRange?.toLowerCase().includes('day')) {
             formatType = '%Hh:%Mm:%Ss'
         }
 
-        if (dateRange && dateRange.toLowerCase().includes('week')) {
+        if (dateRange?.toLowerCase().includes('week')) {
             formatType = '%u'
         }
 
-        if (dateRange && dateRange.toLowerCase().includes('month')) {
+        if (dateRange?.toLowerCase().includes('month')) {
             formatType = "%V"
         }
 
-        if (dateRange && dateRange.toLowerCase().includes('year')) {
+        if (dateRange?.toLowerCase().includes('year')) {
             formatType = "%m"
         }
 
@@ -2183,7 +2186,7 @@ export const getStageIds = async (filter: any, type: string, models: IModels,) =
 
     const pipelines = await models.Pipelines.find({
         ...(boardId ? { boardId: { $in: [boardId] } } : {}),
-        ...(pipelineIds && pipelineIds.length ? { _id: { $in: pipelineIds } } : {}),
+        ...(pipelineIds?.length ? { _id: { $in: pipelineIds } } : {}),
         type: type,
     })
 
@@ -2191,7 +2194,7 @@ export const getStageIds = async (filter: any, type: string, models: IModels,) =
 
     const stages = await models.Stages.find({
         ...(stageProbability ? { probability: Array.isArray(stageProbability) ? { $in: stageProbability } : stageProbability } : {}),
-        ...(stageIds && stageIds.length ? { _id: { $in: stageIds } } : {}),
+        ...(stageIds?.length ? { _id: { $in: stageIds } } : {}),
         pipelineId: {
             $in: getPipelineIds,
         },
@@ -2221,8 +2224,7 @@ export const getIntegrationMeta = async () => {
 
     for (const serviceName of serviceNames) {
         const service = await getService(serviceName);
-        const inboxIntegrations =
-            (service.config.meta || {}).inboxIntegrations || [];
+        const inboxIntegrations = (service?.config?.meta || {})?.inboxIntegrations || [];
 
         if (inboxIntegrations && inboxIntegrations.length > 0) {
             metas = metas.concat(inboxIntegrations);
