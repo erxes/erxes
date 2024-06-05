@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.12.0-rc.4](https://github.com/erxes/erxes/compare/1.12.0-rc.3...1.12.0-rc.4) (2024-06-05)
+
+
+### Bug Fixes
+
+* **coreui:** tooltips update ([#5309](https://github.com/erxes/erxes/issues/5309)) ([07d7768](https://github.com/erxes/erxes/commit/07d7768f2ebe56beb1069055267cbdf7e5d4caec))
+
+## [1.12.0-rc.2](https://github.com/erxes/erxes/compare/1.12.0-rc.3...1.12.0-rc.4) (2024-06-03)
+
+## [1.11.0-rc.8](https://github.com/erxes/erxes/compare/1.12.0-rc.3...1.12.0-rc.4) (2024-05-28)
+
+## [1.11.0-rc.7](https://github.com/erxes/erxes/compare/1.12.0-rc.3...1.12.0-rc.4) (2024-05-28)
+
+## [1.11.0-rc.6](https://github.com/erxes/erxes/compare/1.12.0-rc.3...1.12.0-rc.4) (2024-05-28)
+
 ## [1.12.0-rc.3](https://github.com/erxes/erxes/compare/1.12.0-rc.1...1.12.0-rc.3) (2024-06-05)
 
 
