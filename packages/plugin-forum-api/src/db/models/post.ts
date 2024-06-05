@@ -1,20 +1,8 @@
 import { IUser, IUserDocument } from "@erxes/api-utils/src/types";
-import {
-  Document,
-  Schema,
-  Model,
-  Connection,
-  Types,
-  HydratedDocument,
-} from "mongoose";
-import {
-  USER_TYPES,
-  UserTypes,
-  ALL_CP_USER_LEVEL_REQUIREMENT_ERROR_MESSAGES,
-} from "../../consts";
+import { Schema, Model, Connection, Types, HydratedDocument } from "mongoose";
+import { USER_TYPES, UserTypes } from "../../consts";
 import { ICpUser } from "../../graphql";
 import { IModels } from "./index";
-import { assert } from "console";
 import {
   InsufficientUserLevelError,
   LoginRequiredError,

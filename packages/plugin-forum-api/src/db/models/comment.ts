@@ -1,6 +1,5 @@
 import { IUserDocument } from "@erxes/api-utils/src/types";
 import {
-  Document,
   Schema,
   Model,
   Connection,

@@ -68,9 +68,8 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       throw new Error(`Queue not found`);
     }
     console.log("1");
-    const extension = queue?.find(
-      (queue) =>
-        queue.members && queue.members.split(",").includes(extentionNumber)
+    const extension = queue?.find((queue) =>
+      queue?.members?.split(",")?.includes(extentionNumber)
     )?.extension;
 
     const startDate = moment(callStartTime).format("YYYY-MM-DD");
@@ -138,7 +137,6 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
     console.log(transferCall, "transferCall");
     if (transferCall) {
       lastCreatedObject = transferCall;
-      fileDir = "monitor";
     }
     if (lastCreatedObject && lastCreatedObject.disposition === "ANSWERED") {
       if (
