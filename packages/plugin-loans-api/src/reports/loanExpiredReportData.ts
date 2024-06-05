@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js';
 import { IModels } from '../connectionResolver';
 import * as moment from 'moment';
-import { generateData } from './utils';
+import { generateChartData, generateData } from './utils';
 
 const DIMENSION_OPTIONS = [
   {
@@ -18,11 +18,6 @@ const DIMENSION_OPTIONS = [
     label: 'Interest Rate',
     value: 'interestRate',
     aggregate: { project: { path: 'interestRate', value: 1 } }
-  },
-  {
-    label: 'Loss Percent',
-    value: 'lossPercent',
-    aggregate: { project: { path: 'lossPercent', value: 1 } }
   },
   {
     label: 'Contract Type',
@@ -60,30 +55,18 @@ const DIMENSION_OPTIONS = [
     aggregate: { project: { path: 'endDate', value: 1 } }
   },
   {
-    label: 'MustPayDate',
+    label: 'Expired Day',
     value: 'mustPayDate',
-    format: (v: Date | undefined) => v && moment(v).format('YYYY-MM-DD'),
+    format: (v: Date | undefined) => v && moment(v).diff(moment(), 'day'),
     aggregate: { project: { path: 'mustPayDate', value: 1 } }
   }
 ];
 
 const MEASURE_OPTIONS = [
   {
-    label: 'Margin amount',
-    value: 'marginAmount',
-    aggregate: { project: { path: 'marginAmount', value: 1 } },
-    format: (v: number = 0) => new BigNumber(v).toFormat()
-  },
-  {
     label: 'Balance Amount',
     value: 'loanBalanceAmount',
     aggregate: { project: { path: 'loanBalanceAmount', value: 1 } },
-    format: (v: number = 0) => new BigNumber(v).toFormat()
-  },
-  {
-    label: 'Loan Amount',
-    value: 'leaseAmount',
-    aggregate: { project: { path: 'leaseAmount', value: 1 } },
     format: (v: number = 0) => new BigNumber(v).toFormat()
   }
 ];
@@ -92,17 +75,35 @@ const loanReportData = {
   templateType: 'loanExpiredReportData',
   serviceType: 'loans',
   name: 'Loan Expired Data',
-  chartTypes: ['table'],
-  getChartResult: async (models: IModels, filter: any) => {
+  chartTypes: ['table', 'bar', 'pie'],
+  getChartResult: async (models: IModels, filter: any, chartType: string) => {
+    const title = 'Loan Expiration Data';
+    if (!(filter.dimension?.length > 0)) {
+      filter.dimension = ['number'];
+    }
+
+    if (!(filter.measure?.length > 0)) {
+      filter.measure = ['loanBalanceAmount'];
+    }
+
     const data = await generateData(
       models,
       'Contracts',
       DIMENSION_OPTIONS,
       MEASURE_OPTIONS,
-      filter
+      filter,
+      chartType
     );
 
-    const title = 'Loan Expiration Data';
+    if (chartType !== 'table') {
+      let chartData = generateChartData(
+        data,
+        filter.dimension[0],
+        filter.measure[0]
+      );
+      return { title, data: chartData.data, labels: chartData.labels };
+    }
+
     return { title, data };
   },
 

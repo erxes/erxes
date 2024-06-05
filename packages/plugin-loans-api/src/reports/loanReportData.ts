@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js';
 import { IModels } from '../connectionResolver';
 import * as moment from 'moment';
-import { generateData } from './utils';
+import { generateChartData, generateData } from './utils';
 
 const DIMENSION_OPTIONS = [
   {
@@ -115,16 +115,34 @@ const loanReportData = {
   serviceType: 'loans',
   name: 'Loan Data',
   chartTypes: ['table'],
-  getChartResult: async (models: IModels, filter: any) => {
+  getChartResult: async (models: IModels, filter: any, chartType: string) => {
+    const title = 'Loan Data';
+
+    if (!(filter.dimension?.length > 0)) {
+      filter.dimension = ['number'];
+    }
+
+    if (!(filter.measure?.length > 0)) {
+      filter.measure = ['loanBalanceAmount'];
+    }
+
     const data = await generateData(
       models,
       'Contracts',
       DIMENSION_OPTIONS,
       MEASURE_OPTIONS,
-      filter
+      filter,
+      chartType
     );
 
-    const title = 'Loan Data';
+    if (chartType !== 'table') {
+      let chartData = generateChartData(
+        data,
+        filter.dimension[0],
+        filter.measure[0]
+      );
+      return { title, data: chartData.data, labels: chartData.labels };
+    }
 
     return { title, data };
   },

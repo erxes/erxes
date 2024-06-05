@@ -10,7 +10,7 @@ interface IOption {
       value: any;
     };
     lookup?: any[];
-  };
+  } | any[];
   format?: (v: any) => any;
 }
 
@@ -46,6 +46,7 @@ export async function generateData(
   DIMENSION_OPTIONS: IOption[],
   MEASURE_OPTIONS: IOption[],
   filter: { dimension?: string[]; measure?: string[] },
+  chartType: string
 ) {
   let aggregate: any = [];
   let project: any = { _id: 0 };
@@ -86,12 +87,30 @@ export async function generateData(
         row[field.value] = field.format(row[field.value]);
       }
     });
-    MEASURE_OPTIONS.forEach((field) => {
-      if (field.format && row[field.value]) {
-        row[field.value] = field.format(row[field.value]);
-      }
-    });
+    if (chartType === 'table') {
+      MEASURE_OPTIONS.forEach((field) => {
+        if (field.format && row[field.value]) {
+          row[field.value] = field.format(row[field.value]);
+        }
+      });
+    }
   });
 
   return resultData;
+}
+
+export function generateChartData(
+  resultData: any[],
+  dimension: string,
+  measure: string
+) {
+  let labels: any[] = [];
+  let data: any[] = [];
+  if (resultData.length > 0) {
+    resultData.forEach((row) => {
+      labels.push(row[dimension]);
+      data.push(row[measure]);
+    });
+  }
+  return { labels, data };
 }
