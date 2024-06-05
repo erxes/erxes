@@ -100,11 +100,9 @@ const KeyPad = (props: Props, context) => {
   const [timeSpent, setTimeSpent] = useState(
     call?.startTime ? calculateTimeElapsed(call.startTime) : 0
   );
-  const [isPaused, setIsPaused] = useState(
-    agentStatus === "paused" ? true : false
-  );
+  const [isPaused, setIsPaused] = useState(agentStatus === "paused");
 
-  const shrink = customer ? true : false;
+  const shrink = !!customer;
 
   const formatedPhone = formatPhone(number);
   const ourPhone = callUserIntegrations?.map((user) => ({
@@ -436,13 +434,11 @@ const KeyPad = (props: Props, context) => {
               handleAudioToggle,
               handleCallStop,
               inboxId,
-              Sip.call?.status === CALL_STATUS_ACTIVE ? false : true,
+              !(Sip.call?.status === CALL_STATUS_ACTIVE),
               direction,
               gotoDetail,
-              currentCallConversationId &&
-                currentCallConversationId.length !== 0
-                ? false
-                : true
+              !currentCallConversationId ||
+                currentCallConversationId.length === 0
             )}
           </IncomingContent>
         </IncomingContainer>
@@ -466,13 +462,11 @@ const KeyPad = (props: Props, context) => {
               handleAudioToggle,
               handleCallStop,
               inboxId,
-              Sip.call?.status === CALL_STATUS_ACTIVE ? false : true,
+              Sip.call?.status === CALL_STATUS_ACTIVE,
               direction,
               gotoDetail,
-              currentCallConversationId &&
-                currentCallConversationId.length !== 0
-                ? false
-                : true
+              !currentCallConversationId ||
+                currentCallConversationId.length === 0
             )}
           </IncomingContent>
         </IncomingContainer>
