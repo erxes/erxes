@@ -1,27 +1,26 @@
 import {
   ActivityIcon,
-  ActivityRow
-} from '@erxes/ui-log/src/activityLogs/styles';
+  ActivityRow,
+} from "@erxes/ui-log/src/activityLogs/styles";
 import {
   formatText,
-  getIconAndColor
-} from '@erxes/ui-log/src/activityLogs/utils';
+  getIconAndColor,
+} from "@erxes/ui-log/src/activityLogs/utils";
 
-import CreatedLog from './components/CreateLog';
-import Icon from '@erxes/ui/src/components/Icon';
-import MergedLog from './containers/MergedLog';
-import React from 'react';
-import Tip from '@erxes/ui/src/components/Tip';
+import CreatedLog from "./components/CreateLog";
+import Icon from "@erxes/ui/src/components/Icon";
+import MergedLog from "./containers/MergedLog";
+import React from "react";
+import Tip from "@erxes/ui/src/components/Tip";
 
 type Props = {
   contentType: string;
   activity: any;
-  currentUser: any;
 };
 
 class ActivityItem extends React.Component<Props> {
   renderDetail(contentType: string, children: React.ReactNode) {
-    const type = contentType.split(':')[1];
+    const type = contentType.split(":")[1];
 
     const iconAndColor = getIconAndColor(type || contentType) || {};
 
@@ -42,16 +41,16 @@ class ActivityItem extends React.Component<Props> {
 
     const { contentType, action, _id } = activity;
 
-    const type = contentType.split(':')[1];
+    const type = contentType.split(":")[1];
 
     switch ((action && action) || type) {
-      case 'create':
+      case "create":
         return this.renderDetail(
           activity.contentType,
           <CreatedLog activity={activity} />
         );
 
-      case 'merge':
+      case "merge":
         return this.renderDetail(
           activity.contentType,
           <MergedLog activity={activity} />
