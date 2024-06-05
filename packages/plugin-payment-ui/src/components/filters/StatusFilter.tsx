@@ -57,7 +57,7 @@ function StatusFilter({ counts, emptyText }: IProps) {
         data={data}
         loading={false}
         count={PAYMENT_STATUS.ALL.length}
-        emptyText={emptyText ? emptyText : "Loading"}
+        emptyText={emptyText || "Loading"}
         emptyIcon="leaf"
         size="small"
         objective={true}
