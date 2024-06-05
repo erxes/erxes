@@ -78,7 +78,7 @@ function TypeFilter({ counts, emptyText }: IProps) {
         data={data}
         loading={false}
         count={TYPES.length}
-        emptyText={emptyText ? emptyText : "Loading"}
+        emptyText={emptyText || "Loading"}
         emptyIcon="leaf"
         size="small"
         objective={true}
