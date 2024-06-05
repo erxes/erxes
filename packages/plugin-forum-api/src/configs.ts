@@ -1,21 +1,21 @@
-import * as serverTiming from 'server-timing';
+import * as serverTiming from "server-timing";
 
-import typeDefs from './graphql/typeDefs';
-import resolvers from './graphql/resolvers';
-import * as cookieParser from 'cookie-parser';
-import { setupMessageConsumers, sendSegmentsMessage } from './messageBroker';
-import * as permissions from './permissions';
-import { routeErrorHandling } from '@erxes/api-utils/src/requests';
-import { getSubdomain } from '@erxes/api-utils/src/core';
-import cpUserMiddleware from './middlewares/cpUserMiddleware';
-import { generateModels } from './db/models';
-import { IContext } from './graphql';
-import cronjobs from './cronjobs';
-import tags from './tags';
-import { generateAllDataLoaders } from './graphql/dataloaders';
+import typeDefs from "./graphql/typeDefs";
+import resolvers from "./graphql/resolvers";
+import * as cookieParser from "cookie-parser";
+import { setupMessageConsumers } from "./messageBroker";
+import * as permissions from "./permissions";
+import { routeErrorHandling } from "@erxes/api-utils/src/requests";
+import { getSubdomain } from "@erxes/api-utils/src/core";
+import cpUserMiddleware from "./middlewares/cpUserMiddleware";
+import { generateModels } from "./db/models";
+import { IContext } from "./graphql";
+import cronjobs from "./cronjobs";
+import tags from "./tags";
+import { generateAllDataLoaders } from "./graphql/dataloaders";
 
 export default {
-  name: 'forum',
+  name: "forum",
   permissions,
   graphql: async () => {
     return {
