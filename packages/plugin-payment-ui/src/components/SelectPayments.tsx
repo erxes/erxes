@@ -57,12 +57,7 @@ const SelectPayments: React.FC<Props> = (props) => {
   return (
     <FormGroup>
       <ControlLabel required={isRequired}>Payments</ControlLabel>
-      <p>
-        {" "}
-        {description
-          ? description
-          : __("Select payments that you want to use ")}
-      </p>
+      <p> {description || __("Select payments that you want to use ")}</p>
       <Row>
         <LeftContent>
           <Select
