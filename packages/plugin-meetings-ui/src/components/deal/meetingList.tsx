@@ -7,7 +7,6 @@ import {
   SectionBodyItem,
   SidebarList,
 } from "@erxes/ui/src";
-import _loadash from "lodash";
 import { IMeeting } from "../../types";
 import Form from "../../containers/myCalendar/meeting/Form";
 import dayjs from "dayjs";
