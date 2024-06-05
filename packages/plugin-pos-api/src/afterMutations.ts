@@ -236,6 +236,5 @@ export const afterMutationHandlers = async (subdomain, params) => {
         await handler(subdomain, params, action, 'user', pos);
       }
     }
-    return;
   }
 };
