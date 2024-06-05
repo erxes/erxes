@@ -125,7 +125,7 @@ const chartTemplates = [
             const { stateType } = filter;
             const matchFilter = await buildMatchFilter(filter, subdomain)
 
-            const pipeline = [
+            const pipeline: any = [
                 {
                     $match: { ...matchFilter, createdAt: { $ne: null } }
                 },
@@ -147,9 +147,8 @@ const chartTemplates = [
             let totalCounts
 
             if (stateType === "customer" || stateType === "lead" || stateType === "visitor") {
-                pipeline[0].$match = Object.assign({}, pipeline[0].$match, { state: { $eq: stateType } });
+                pipeline[0].$match = { ...pipeline[0].$match, state: { $eq: stateType } };
                 const customerCount = await models.Customers.aggregate(pipeline)
-
                 totalCounts = [...customerCount]
             } else if (stateType === "company") {
                 const companyCount = await models.Companies.aggregate(pipeline)
@@ -285,7 +284,8 @@ const chartTemplates = [
             let totalCounts
 
             if (stateType === "customer" || stateType === "lead" || stateType === "visitor") {
-                pipeline[0].$match = Object.assign({}, pipeline[0].$match, { state: { $eq: stateType } });
+                pipeline[0].$match = { ...pipeline[0].$match, state: { $eq: stateType } };
+            
                 const customerCount = await models.Customers.aggregate([...pipeline, ...customersProject])
 
                 totalCounts = [...customerCount]
@@ -390,7 +390,7 @@ const chartTemplates = [
             const { stateType } = filter;
             const matchFilter = await buildMatchFilter(filter, subdomain)
 
-            const pipeline = [
+            const pipeline: any = [
                 {
                     $match: {
                         ...matchFilter,
@@ -438,7 +438,7 @@ const chartTemplates = [
             let totalCounts
 
             if (stateType === "customer" || stateType === "lead" || stateType === "visitor") {
-                pipeline[0].$match = Object.assign({}, pipeline[0].$match, { state: { $eq: stateType } });
+                pipeline[0].$match = { ...pipeline[0].$match, state: { $eq: stateType } };
                 const customerCount = await models.Customers.aggregate(pipeline)
 
                 totalCounts = [...customerCount]
