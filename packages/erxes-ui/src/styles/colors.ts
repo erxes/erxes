@@ -62,6 +62,8 @@ const socialViber = '#8f5db7';
 const socialLine = '#00c300';
 const socialTwilio = '#cf272d';
 const socialInstagramMessenger = '#C13584';
+const socialGrandStream = '#1793c7';
+
 export default {
   colorPrimary,
   colorPrimaryDark,
@@ -115,5 +117,6 @@ export default {
   socialLine,
   socialTwilio,
   socialWhatsApp,
-  socialInstagramMessenger
+  socialInstagramMessenger,
+  socialGrandStream
 };
