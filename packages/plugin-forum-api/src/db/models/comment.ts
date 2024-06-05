@@ -1,10 +1,16 @@
-import { IUserDocument } from '@erxes/api-utils/src/types';
-import { Document, Schema, Model, Connection, Types, HydratedDocument } from 'mongoose';
-import { cpus } from 'os';
-import { UserTypes, USER_TYPES } from '../../consts';
-import { LoginRequiredError } from '../../customErrors';
-import { ICpUser } from '../../graphql';
-import { IModels } from './index';
+import { IUserDocument } from "@erxes/api-utils/src/types";
+import {
+  Document,
+  Schema,
+  Model,
+  Connection,
+  Types,
+  HydratedDocument,
+} from "mongoose";
+import { UserTypes, USER_TYPES } from "../../consts";
+import { LoginRequiredError } from "../../customErrors";
+import { ICpUser } from "../../graphql";
+import { IModels } from "./index";
 
 export interface IComment {
   replyToId?: string;
@@ -23,18 +29,18 @@ export interface IComment {
 }
 
 const OMIT_FROM_INPUT = [
-  '_id',
-  'createdUserType',
-  'createdAt',
-  'createdById',
-  'createdByCpId',
-  'updatedUserType',
-  'updatedAt',
-  'updatedById',
-  'updatedByCpId'
+  "_id",
+  "createdUserType",
+  "createdAt",
+  "createdById",
+  "createdByCpId",
+  "updatedUserType",
+  "updatedAt",
+  "updatedById",
+  "updatedByCpId",
 ] as const;
 
-type CommentCreateInput = Omit<IComment, typeof OMIT_FROM_INPUT[number]>;
+type CommentCreateInput = Omit<IComment, (typeof OMIT_FROM_INPUT)[number]>;
 
 export type CommentDocument = HydratedDocument<IComment>;
 export interface ICommentModel extends Model<IComment> {
@@ -77,10 +83,10 @@ export const commentSchema = new Schema<IComment>(
 
     updatedUserType: { type: String, required: true, enum: USER_TYPES },
     updatedById: String,
-    updatedByCpId: String
+    updatedByCpId: String,
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 
@@ -98,7 +104,7 @@ export const generateCommentModel = (
       return comment;
     }
     public static async createComment(
-      c: Omit<IComment, '_id'>,
+      c: Omit<IComment, "_id">,
       user: IUserDocument
     ): Promise<CommentDocument> {
       const res = await models.Comment.create({
@@ -106,7 +112,7 @@ export const generateCommentModel = (
         createdById: user._id,
         createdUserType: USER_TYPES[0],
         updatedById: user._id,
-        updatedUserType: USER_TYPES[0]
+        updatedUserType: USER_TYPES[0],
       });
       await models.Post.updateOne(
         { _id: c.postId },
@@ -146,7 +152,7 @@ export const generateCommentModel = (
       return comment;
     }
     public static async createCommentCp(
-      c: Omit<IComment, '_id'>,
+      c: Omit<IComment, "_id">,
       cpUser?: ICpUser
     ): Promise<CommentDocument> {
       if (!cpUser) throw new LoginRequiredError();
@@ -155,7 +161,7 @@ export const generateCommentModel = (
       const category = await models.Category.findById(post.categoryId);
 
       await models.Category.ensureUserIsAllowed(
-        'WRITE_COMMENT',
+        "WRITE_COMMENT",
         category,
         cpUser
       );
@@ -165,7 +171,7 @@ export const generateCommentModel = (
         createdByCpId: cpUser.userId,
         createdUserType: USER_TYPES[1],
         updatedByCpId: cpUser.userId,
-        updatedUserType: USER_TYPES[1]
+        updatedUserType: USER_TYPES[1],
       });
 
       await models.Post.updateOne(
@@ -180,7 +186,7 @@ export const generateCommentModel = (
       content: string,
       cpUser?: ICpUser
     ): Promise<CommentDocument> {
-      if (!cpUser) throw new Error('Unauthorized');
+      if (!cpUser) throw new Error("Unauthorized");
 
       const comment = await models.Comment.findByIdOrThrowCp(_id, cpUser);
       comment.content = content;
@@ -210,7 +216,7 @@ export const generateCommentModel = (
   commentSchema.loadClass(CommentModel);
 
   models.Comment = con.model<IComment, ICommentModel>(
-    'forum_comments',
+    "forum_comments",
     commentSchema
   );
 };
@@ -224,24 +230,24 @@ async function deleteCommentCommon(
 
   while (findRepliesOf?.length) {
     const replies = await models.Comment.find({
-      replyToId: { $in: findRepliesOf }
+      replyToId: { $in: findRepliesOf },
     })
-      .select('_id')
+      .select("_id")
       .lean();
-    const replyIds = replies.map(reply => reply._id);
+    const replyIds = replies.map((reply) => reply._id);
     idsToDelete.push(...replyIds);
     findRepliesOf = replyIds;
   }
 
   await models.Comment.deleteMany({
-    _id: { $in: idsToDelete }
+    _id: { $in: idsToDelete },
   });
 
   await models.CommentDownVote.deleteMany({
-    contentId: { $in: idsToDelete }
+    contentId: { $in: idsToDelete },
   });
   await models.CommentUpVote.deleteMany({
-    contentId: { $in: idsToDelete }
+    contentId: { $in: idsToDelete },
   });
 
   await models.Post.updateOne(
