@@ -1,9 +1,8 @@
-import { useQuery, useMutation } from '@apollo/client';
-import { gql } from '@apollo/client';
-import { confirm } from '@erxes/ui/src/utils';
-import React from 'react';
-import Detail from '../../components/comments/CardDetailAction';
-import { mutations, queries } from '../../graphql';
+import { useQuery, useMutation, gql } from "@apollo/client";
+import { confirm } from "@erxes/ui/src/utils";
+import React from "react";
+import Detail from "../../components/comments/CardDetailAction";
+import { mutations, queries } from "../../graphql";
 
 type Props = {
   item: any;
@@ -11,12 +10,12 @@ type Props = {
 
 function DetailContainer({ item }: Props) {
   const {
-    stage: { type = '' }
+    stage: { type = "" },
   } = item;
 
   const { data } = useQuery(gql(queries.clientPortalComments), {
     variables: { typeId: item._id, type },
-    skip: !type
+    skip: !type,
   });
 
   const comments = data?.clientPortalComments || [];
@@ -25,9 +24,9 @@ function DetailContainer({ item }: Props) {
     refetchQueries: [
       {
         query: gql(queries.clientPortalComments),
-        variables: { typeId: item._id, type }
-      }
-    ]
+        variables: { typeId: item._id, type },
+      },
+    ],
   });
 
   const [deleteComment] = useMutation(
@@ -36,9 +35,9 @@ function DetailContainer({ item }: Props) {
       refetchQueries: [
         {
           query: gql(queries.clientPortalComments),
-          variables: { typeId: item._id, type }
-        }
-      ]
+          variables: { typeId: item._id, type },
+        },
+      ],
     }
   );
 
@@ -47,9 +46,9 @@ function DetailContainer({ item }: Props) {
       variables: {
         ...values,
         typeId: item._id,
-        type: 'ticket',
-        userType: 'team'
-      }
+        type: "ticket",
+        userType: "team",
+      },
     });
   };
 
@@ -57,20 +56,20 @@ function DetailContainer({ item }: Props) {
     confirm().then(() =>
       deleteComment({
         variables: {
-          _id: commentId
-        }
+          _id: commentId,
+        },
       })
     );
   };
 
-  if (type !== 'ticket') {
+  if (type !== "ticket") {
     return null;
   }
 
   const updatedProps = {
     comments,
     handleSubmit,
-    handleRemoveComment
+    handleRemoveComment,
   };
 
   return <Detail {...updatedProps} />;
