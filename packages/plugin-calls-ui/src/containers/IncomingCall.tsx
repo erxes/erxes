@@ -10,7 +10,6 @@ import { extractPhoneNumberFromCounterpart } from "../utils";
 import { mutations } from "../graphql";
 
 interface IProps {
-  closeModal?: () => void;
   callUserIntegrations: any;
   hideIncomingCall?: boolean;
   currentCallConversationId: string;
