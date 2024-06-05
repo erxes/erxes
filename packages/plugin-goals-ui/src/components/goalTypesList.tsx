@@ -10,10 +10,7 @@ import {
   __,
   confirm,
 } from "@erxes/ui/src";
-import {
-  default as GoalForm,
-  default as GoalTypeForm,
-} from "../containers/goalForm";
+import { default as GoalTypeForm } from "../containers/goalForm";
 
 import GoalRow from "./goalRow";
 import { GoalTypesTableWrapper } from "../styles";
