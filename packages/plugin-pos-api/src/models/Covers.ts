@@ -1,4 +1,4 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import { ICover, ICoverDocument, coverSchema } from './definitions/covers';
 
 export interface ICoverModel extends Model<ICoverDocument> {
@@ -16,7 +16,6 @@ export const loadCoverClass = models => {
       if (!cover) {
         throw new Error(`Cover not found with id: ${_id}`);
       }
-
       return cover;
     }
 
