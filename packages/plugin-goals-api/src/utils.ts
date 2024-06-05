@@ -1,8 +1,4 @@
-import { sendCommonMessage } from './messageBroker';
-import { sendCoreMessage } from './messageBroker';
-import { generateModels, IModels } from './connectionResolver';
-import { IUserDocument } from '@erxes/api-utils/src/types';
-import { IGoalDocument } from './models/definitions/goals';
+import { sendCommonMessage , sendCoreMessage } from './messageBroker';
 
 export const countDocuments = async (
   subdomain: string,
