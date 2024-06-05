@@ -11,8 +11,8 @@ import {
   PosEnvQueryResponse,
   SlotsBulkUpdateMutationResponse,
   SlotsQueryResponse,
+  IPos,
 } from "../../types";
-import { IPos } from "../../types";
 import { mutations, queries } from "../graphql";
 import { useNavigate } from "react-router-dom";
 
