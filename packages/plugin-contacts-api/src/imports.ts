@@ -173,9 +173,7 @@ export default {
             break;
 
           case 'customData':
-            {
               doc[property.name] = value;
-            }
             break;
 
           case 'ownerEmail':
