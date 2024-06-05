@@ -1,12 +1,11 @@
-import { __, router } from '@erxes/ui/src/utils/core';
+import { __, router } from "@erxes/ui/src/utils/core";
 
-import Box from '@erxes/ui/src/components/Box';
-import FilterByParams from '@erxes/ui/src/components/FilterByParams';
-import { ICategory } from '../../types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
-import React from 'react';
-import { useNavigate, useLocation } from "react-router-dom";
+import Box from "@erxes/ui/src/components/Box";
+import FilterByParams from "@erxes/ui/src/components/FilterByParams";
+import { ICategory } from "../../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 
 interface IProps {
   categories: ICategory[];
@@ -17,16 +16,16 @@ function CategoryFilter({ categories }: IProps) {
   const navigate = useNavigate();
 
   const onClick = () => {
-    router.setParams(navigate,location, { categoryId: null });
+    router.setParams(navigate, location, { categoryId: null });
   };
 
   const extraButtons = (
     <>
-      <Link to={'/forums/categories'}>
+      <Link to={"/forums/categories"}>
         <Icon icon="cog" />
       </Link>
 
-      {router.getParam(location, 'categoryId') && (
+      {router.getParam(location, "categoryId") && (
         <a href="#cancel" tabIndex={0} onClick={onClick}>
           <Icon icon="times-circle" />
         </a>
@@ -37,7 +36,7 @@ function CategoryFilter({ categories }: IProps) {
   return (
     <Box
       extraButtons={extraButtons}
-      title={__('Filter by Categories')}
+      title={__("Filter by Categories")}
       collapsible={categories.length > 7}
       name="showFilterByTags"
     >
