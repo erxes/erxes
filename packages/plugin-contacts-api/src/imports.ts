@@ -157,12 +157,11 @@ export default {
 
         switch (property.name) {
           case 'customProperty':
-            {
+            
               doc.customFieldsData.push({
                 field: property.id,
                 value: fieldValue[colIndex],
               });
-
               doc.customFieldsData = await sendFormsMessage({
                 subdomain,
                 action: 'fields.prepareCustomFieldsData',
@@ -171,7 +170,6 @@ export default {
                 defaultValue: doc.customFieldsData,
                 timeout: 60 * 1000, // 1 minute
               });
-            }
             break;
 
           case 'customData':
