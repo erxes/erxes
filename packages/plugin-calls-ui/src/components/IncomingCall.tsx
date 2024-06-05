@@ -209,7 +209,14 @@ const IncomingCall = (props: Props, context) => {
   if (haveIncomingCall) {
     return (
       <>
-        <audio ref={audioRef} loop autoPlay />
+        <audio ref={audioRef} loop autoPlay>
+          <track
+            kind="captions"
+            src="captions.vtt"
+            srcLang="en"
+            label="English"
+          ></track>
+        </audio>
         <IncomingCallNav>
           <IncomingContainer>
             <IncomingContent>
