@@ -120,7 +120,7 @@ export class QpayAPI extends BaseAPI {
         invoice_code: qpayInvoiceCode,
         sender_invoice_no: invoice._id,
         invoice_receiver_code: 'terminal',
-        invoice_description: invoice.description || 'test invoice',
+        invoice_description: invoice.description ?? 'test invoice',
         amount: invoice.amount,
         callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.qpay.kind}?identifier=${invoice.identifier}`,
       };
