@@ -1,18 +1,17 @@
 import {
   BoardsQueryResponse,
   IPipeline,
-} from '@erxes/ui-cards/src/boards/types';
-import React, { useEffect, useState } from 'react';
+} from "@erxes/ui-cards/src/boards/types";
+import React, { useEffect, useState } from "react";
 
-import General from '../components/forms/General';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
-import boardQueries from '@erxes/ui-cards/src/settings/boards/graphql/queries';
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import knowledgeBaseQueries from '@erxes/ui-knowledgebase/src/graphql/queries';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { useQuery } from '@apollo/client';
+import General from "../components/forms/General";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { TopicsQueryResponse } from "@erxes/ui-knowledgebase/src/types";
+import boardQueries from "@erxes/ui-cards/src/settings/boards/graphql/queries";
+import client from "@erxes/ui/src/apolloClient";
+import { gql, useQuery } from "@apollo/client";
+import knowledgeBaseQueries from "@erxes/ui-knowledgebase/src/graphql/queries";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   handleFormChange: (name: string, value: string | boolean) => void;
@@ -26,20 +25,20 @@ function GeneralContainer(props: Props) {
   const knowledgeBaseTopicsQuery = useQuery<TopicsQueryResponse>(
     gql(knowledgeBaseQueries.knowledgeBaseTopics),
     {
-      skip: isEnabled('knowledgebase') ? false : true,
-    },
+      skip: isEnabled("knowledgebase") ? false : true,
+    }
   );
 
   const boardsQuery = useQuery<BoardsQueryResponse>(gql(boardQueries.boards), {
-    variables: { type: 'task' },
-    skip: isEnabled('cards') ? false : true,
+    variables: { type: "task" },
+    skip: isEnabled("cards") ? false : true,
   });
 
   const fetchPipelines = (boardId: string) => {
     client
       .query({
         query: gql(boardQueries.pipelines),
-        variables: { boardId, type: 'task' },
+        variables: { boardId, type: "task" },
       })
       .then(({ data = {} }) => {
         setPipelines(data.pipelines || []);
@@ -70,7 +69,7 @@ function GeneralContainer(props: Props) {
     topics,
     boards,
     pipelines,
-    tokenPassMethod: 'cookie' as 'cookie',
+    tokenPassMethod: "cookie" as "cookie",
     fetchPipelines,
   };
 
