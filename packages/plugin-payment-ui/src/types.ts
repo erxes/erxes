@@ -1,6 +1,3 @@
-import { ICompany } from '@erxes/ui-contacts/src/companies/types';
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-
 import { Counts, QueryResponse } from '@erxes/ui/src/types';
 
 export interface IPayment {
