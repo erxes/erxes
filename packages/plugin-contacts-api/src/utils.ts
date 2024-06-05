@@ -638,7 +638,7 @@ export const prepareEngageCustomers = async (
       try {
         await onFinishPiping();
       } catch (e) {
-        return reject(e);
+        return reject( new Error(e));
       }
 
       resolve({ status: 'done', customerInfos });
