@@ -1,7 +1,6 @@
 import BigNumber from 'bignumber.js';
 import { IModels } from '../connectionResolver';
 import * as moment from 'moment';
-import * as __ from 'lodash';
 import { generateData } from './utils';
 
 const DIMENSION_OPTIONS = [

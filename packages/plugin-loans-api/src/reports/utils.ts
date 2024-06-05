@@ -15,8 +15,8 @@ interface IOption {
 }
 
 export function generateAggregateOption(
-  aggregate: any[] = [],
-  project: any = {},
+  aggregate: any[],
+  project: any,
   filter: string[],
   options: IOption[]
 ) {

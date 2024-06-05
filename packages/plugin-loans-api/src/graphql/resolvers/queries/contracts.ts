@@ -4,24 +4,18 @@ import { checkPermission, paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 
 const generateFilter = async (params, commonQuerySelector) => {
-  const filter: any = commonQuerySelector;
-
+  let filter: any = commonQuerySelector;
+  
   filter.status = { $ne: 'Deleted' };
 
-  if (params.searchValue) {
-    filter.number = { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] };
-  }
-
-  if (params.leaseType) {
-    filter.leaseType = params.leaseType;
-  }
-
-  if (params.status) {
-    filter.status = params.status;
-  }
+  filter = { ...filter, ...(params || {}) };
 
   if (params.ids) {
     filter._id = { $in: params.ids };
+  }
+
+  if (params.searchValue) {
+    filter.number = { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] };
   }
 
   if (params.closeDate) {
@@ -30,10 +24,6 @@ const generateFilter = async (params, commonQuerySelector) => {
       $gte: date,
       $lte: new Date(date.getTime() + 1000 * 3600 * 24)
     };
-  }
-
-  if (params.contractTypeId) {
-    filter.contractTypeId = params.contractTypeId;
   }
 
   if (params.isExpired === 'true') {
@@ -132,33 +122,6 @@ const generateFilter = async (params, commonQuerySelector) => {
       default:
         break;
     }
-  }
-
-  if (params.customerId) {
-    filter.customerId = params.customerId;
-  }
-  if (params.branchId) {
-    filter.branchId = params.branchId;
-  }
-
-  if (params.leaseAmount) {
-    filter.leaseAmount = params.leaseAmount;
-  }
-
-  if (params.interestRate) {
-    filter.interestRate = params.interestRate;
-  }
-
-  if (params.tenor) {
-    filter.tenor = params.tenor;
-  }
-
-  if (params.repayment) {
-    filter.repayment = params.repayment;
-  }
-
-  if (params.dealId) {
-    filter.dealId = params.dealId;
   }
 
   return filter;
