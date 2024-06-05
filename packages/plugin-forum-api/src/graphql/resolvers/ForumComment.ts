@@ -1,9 +1,8 @@
-import { IContext } from '..';
-import { IObjectTypeResolver } from '@graphql-tools/utils';
-import { IPost } from '../../db/models/post';
-import { IComment } from '../../db/models/comment';
+import { IContext } from "..";
+import { IObjectTypeResolver } from "@graphql-tools/utils";
+import { IComment } from "../../db/models/comment";
 
-const ForumComment  = {
+const ForumComment = {
   async post({ postId }, _, { models: { Post } }) {
     return Post.findById(postId).lean();
   },
@@ -14,11 +13,11 @@ const ForumComment  = {
     return Comment.find({ replyToId: _id }).lean();
   },
   async createdBy({ createdById }) {
-    return createdById && { __typename: 'User', _id: createdById };
+    return createdById && { __typename: "User", _id: createdById };
   },
   async createdByCp({ createdByCpId }) {
     return (
-      createdByCpId && { __typename: 'ClientPortalUser', _id: createdByCpId }
+      createdByCpId && { __typename: "ClientPortalUser", _id: createdByCpId }
     );
   },
 
@@ -31,18 +30,18 @@ const ForumComment  = {
 
   async upVotes({ _id }, _, { models: { CommentUpVote } }) {
     const upVotes = await CommentUpVote.find({ contentId: _id }).lean();
-    return upVotes.map(v => ({
-      __typename: 'ClientPortalUser',
-      _id: v.userId
+    return upVotes.map((v) => ({
+      __typename: "ClientPortalUser",
+      _id: v.userId,
     }));
   },
   async downVotes({ _id }, _, { models: { CommentDownVote } }) {
     const downVotes = await CommentDownVote.find({ contentId: _id }).lean();
-    return downVotes.map(v => ({
-      __typename: 'ClientPortalUser',
-      _id: v.userId
+    return downVotes.map((v) => ({
+      __typename: "ClientPortalUser",
+      _id: v.userId,
     }));
-  }
+  },
 };
 
 export default ForumComment;

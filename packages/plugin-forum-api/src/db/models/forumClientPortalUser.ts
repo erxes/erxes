@@ -3,11 +3,9 @@ import {
   Schema,
   Model,
   Connection,
-  Types,
   HydratedDocument,
 } from 'mongoose';
 import { IModels } from './index';
-import * as _ from 'lodash';
 import { CpUserLevels } from '../../consts';
 import { ICpUser } from '../../graphql';
 
