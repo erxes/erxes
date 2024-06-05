@@ -1,18 +1,17 @@
-import { Alert } from '@erxes/ui/src/utils';
+import { Alert } from "@erxes/ui/src/utils";
 import {
   ClientPortalUserRemoveMutationResponse,
   ClientPortalUserTotalCountQueryResponse,
   ClientPortalUsersQueryResponse,
   ClientPortalVerifyUsersMutationResponse,
-} from '../types';
-import { mutations, queries } from '../graphql';
+} from "../types";
+import { mutations, queries } from "../graphql";
 
-import Bulk from '@erxes/ui/src/components/Bulk';
-import ClientPortalUserList from '../components/list/ClientPortalUserList';
-import React, { useState } from 'react';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { gql } from '@apollo/client';
-import { useQuery, useMutation } from '@apollo/client';
+import Bulk from "@erxes/ui/src/components/Bulk";
+import ClientPortalUserList from "../components/list/ClientPortalUserList";
+import React, { useState } from "react";
+import { generatePaginationParams } from "@erxes/ui/src/utils/router";
+import { gql, useQuery, useMutation } from "@apollo/client";
 
 type Props = {
   queryParams: any;
@@ -39,14 +38,14 @@ const ClientportalUserListContainer: React.FC<FinalProps> = (
         dateFilters: queryParams.dateFilters,
         ...generatePaginationParams(queryParams),
       },
-      fetchPolicy: 'network-only',
+      fetchPolicy: "network-only",
     }
   );
   const clientPortalUserTotalCountQuery =
     useQuery<ClientPortalUserTotalCountQueryResponse>(
       gql(queries.clientPortalUserCounts),
       {
-        fetchPolicy: 'network-only',
+        fetchPolicy: "network-only",
       }
     );
 
@@ -68,9 +67,9 @@ const ClientportalUserListContainer: React.FC<FinalProps> = (
     })
       .then(() => {
         emptyBulk();
-        Alert.success('You successfully deleted a client portal user');
+        Alert.success("You successfully deleted a client portal user");
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -83,9 +82,9 @@ const ClientportalUserListContainer: React.FC<FinalProps> = (
       },
     })
       .then(() => {
-        Alert.success('You successfully verified a client portal user');
+        Alert.success("You successfully verified a client portal user");
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -95,7 +94,7 @@ const ClientportalUserListContainer: React.FC<FinalProps> = (
       clientPortalUsersQuery.data.clientPortalUsers) ||
     [];
 
-  const searchValue = props.queryParams.searchValue || '';
+  const searchValue = props.queryParams.searchValue || "";
 
   const updatedProps = {
     ...props,
@@ -111,7 +110,7 @@ const ClientportalUserListContainer: React.FC<FinalProps> = (
     verifyUsers,
   };
 
-  const content = props => {
+  const content = (props) => {
     return <ClientPortalUserList {...updatedProps} {...props} />;
   };
 
@@ -119,7 +118,7 @@ const ClientportalUserListContainer: React.FC<FinalProps> = (
 };
 
 const getRefetchQueries = () => {
-  return ['clientPortalUserCounts', 'clientPortalUsers'];
+  return ["clientPortalUserCounts", "clientPortalUsers"];
 };
 
 export default ClientportalUserListContainer;
