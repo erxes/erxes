@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { __, dimensions, Button, Tip, Icon, ControlLabel } from '@erxes/ui/src';
+import React, { useState } from "react";
+import styled, { css } from "styled-components";
+import styledTS from "styled-components-ts";
+import { __, dimensions, Button, Tip, Icon, ControlLabel } from "@erxes/ui/src";
 
 const MainDescription = styledTS<{
   expand: boolean;
@@ -17,7 +17,7 @@ const MainDescription = styledTS<{
   cursor: pointer;
 
   ${(props) => css`
-    height: ${props.expand === false && '0px'};
+    height: ${props.expand === false && "0px"};
   `}
 
   h4 {
@@ -31,7 +31,7 @@ const MainDescription = styledTS<{
 const ActionBar = styledTS<{
   expand: boolean;
 }>(styled.div)`
-  margin-top: ${(props) => (props.expand ? '-72px' : '')};
+  margin-top: ${(props) => (props.expand ? "-72px" : "")};
   text-align: right;
 `;
 
@@ -91,15 +91,15 @@ type Props = {
 
 const MainHead = (props: Props) => {
   const { staticKeys, summary, icon, title, actionBar } = props;
-  const localExpand = localStorage.getItem('expand');
+  const localExpand = localStorage.getItem("expand");
 
   const [expand, setExpand] = useState(
-    localExpand ? localExpand === 'true' : true,
+    localExpand ? localExpand === "true" : true
   );
 
   const onClick = () => {
     setExpand(!expand);
-    localStorage.setItem('expand', expand.toString());
+    localStorage.setItem("expand", expand.toString());
   };
 
   const onClickSkip = (e) => {
@@ -108,7 +108,7 @@ const MainHead = (props: Props) => {
 
   const renderAmount = (summary, key) => {
     if (!Object.keys(summary).includes(key)) {
-      return '';
+      return "";
     }
 
     return (
@@ -121,7 +121,7 @@ const MainHead = (props: Props) => {
 
   const renderSummary = () => {
     if (!expand) {
-      return '';
+      return "";
     }
 
     if (Object.keys(summary).length === 0) {
@@ -132,7 +132,7 @@ const MainHead = (props: Props) => {
       <Amount>
         {staticKeys.map((key) => renderAmount(summary, key))}
         {Object.keys(summary)
-          .filter((a) => !['_id'].includes(a))
+          .filter((a) => !["_id"].includes(a))
           .filter((a) => !staticKeys.includes(a))
           .map((key) => renderAmount(summary, key))}
       </Amount>
@@ -140,24 +140,22 @@ const MainHead = (props: Props) => {
   };
 
   return (
-    <>
-      <MainDescription expand={expand} onClick={onClick}>
-        <Description>
-          {expand && <DescImg src={icon} />}
+    <MainDescription expand={expand} onClick={onClick}>
+      <Description>
+        {expand && <DescImg src={icon} />}
 
-          <h4>{__(title)}</h4>
-          {renderSummary()}
-        </Description>
-        <Button btnStyle="link" onClick={onClick}>
-          <Tip text={__(expand ? 'Shrink' : 'Expand')} placement="top">
-            <Icon icon={expand ? 'uparrow' : 'downarrow-2'} />
-          </Tip>
-        </Button>
-        <ActionBar expand={expand} onClick={onClickSkip}>
-          {actionBar}
-        </ActionBar>
-      </MainDescription>
-    </>
+        <h4>{__(title)}</h4>
+        {renderSummary()}
+      </Description>
+      <Button btnStyle="link" onClick={onClick}>
+        <Tip text={__(expand ? "Shrink" : "Expand")} placement="top">
+          <Icon icon={expand ? "uparrow" : "downarrow-2"} />
+        </Tip>
+      </Button>
+      <ActionBar expand={expand} onClick={onClickSkip}>
+        {actionBar}
+      </ActionBar>
+    </MainDescription>
   );
 };
 
