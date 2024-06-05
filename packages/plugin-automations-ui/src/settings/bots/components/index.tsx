@@ -31,7 +31,7 @@ const getBotsByPlatform = () => {
   let list: any[] = [];
 
   for (const plugin of (window as any).plugins || []) {
-    if (!!plugin?.automationBots?.length) {
+    if (plugin?.automationBots?.length) {
       list = [
         ...list,
         ...plugin.automationBots.map((item) => ({
