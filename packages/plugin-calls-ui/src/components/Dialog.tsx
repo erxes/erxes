@@ -1,10 +1,6 @@
 import { CallAction, DialogWrapper, TransferCallWrapper } from "../styles";
 import { Dialog, Transition } from "@headlessui/react";
-import {
-  DialogContent,
-  ModalFooter,
-  ModalOverlay,
-} from "@erxes/ui/src/styles/main";
+import { DialogContent, ModalOverlay } from "@erxes/ui/src/styles/main";
 import React, { Fragment, useState } from "react";
 
 import Form from "@erxes/ui/src/components/form/Form";
@@ -14,7 +10,6 @@ import TransferCall from "../containers/TransferCall";
 
 type Props = {
   inboxId: string;
-  title: string;
   disabled: boolean;
   direction: string;
 };
