@@ -1,11 +1,10 @@
-import { Counts } from '@erxes/ui/src/types';
-import { gql } from '@apollo/client';
-import React from 'react';
+import { Counts } from "@erxes/ui/src/types";
+import { gql, useQuery } from "@apollo/client";
+import React from "react";
 
-import ClientPortalIdFilter from '../components/list/ClientPortalIdFilter';
-import { queries } from '../graphql';
-import { ClientPortalConfigsQueryResponse } from '../types';
-import { useQuery } from '@apollo/client';
+import ClientPortalIdFilter from "../components/list/ClientPortalIdFilter";
+import { queries } from "../graphql";
+import { ClientPortalConfigsQueryResponse } from "../types";
 
 type Props = {
   counts: Counts;
@@ -18,9 +17,9 @@ const ClientPortalIdFilterContainer: React.FC<Props> = (props: Props) => {
   const clientPortalConfigsQuery = useQuery<ClientPortalConfigsQueryResponse>(
     gql(queries.getConfigs),
     {
-      fetchPolicy: 'network-only',
-      variables: { kind: kind || 'client' },
-    },
+      fetchPolicy: "network-only",
+      variables: { kind: kind || "client" },
+    }
   );
 
   const clientPortalGetConfigs =
