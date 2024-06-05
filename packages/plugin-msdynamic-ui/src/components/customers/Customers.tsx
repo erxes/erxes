@@ -107,16 +107,14 @@ const Customers = ({
     };
 
     const syncButton = (
-      <>
-        <Button
-          btnStyle="primary"
-          size="small"
-          icon="check-1"
-          onClick={onClickSync}
-        >
-          Sync
-        </Button>
-      </>
+      <Button
+        btnStyle="primary"
+        size="small"
+        icon="check-1"
+        onClick={onClickSync}
+      >
+        Sync
+      </Button>
     );
 
     const subHeader = <Wrapper.ActionBar right={syncButton} />;
