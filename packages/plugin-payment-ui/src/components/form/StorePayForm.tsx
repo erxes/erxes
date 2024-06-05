@@ -1,22 +1,21 @@
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
-import React, { useState } from 'react';
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { __ } from "@erxes/ui/src/utils";
+import React, { useState } from "react";
 
-import { IPaymentDocument, IStorepayConfig } from '../../types';
-import { PAYMENT_KINDS } from '../constants';
-import { SettingsContent } from './styles';
+import { IPaymentDocument, IStorepayConfig } from "../../types";
+import { PAYMENT_KINDS } from "../constants";
+import { SettingsContent } from "./styles";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   payment?: IPaymentDocument;
-  metaData?: any;
 };
 
 type State = {
@@ -32,7 +31,7 @@ type State = {
 
 const StorepayConfigForm: React.FC<Props> = (props) => {
   const { payment } = props;
-  const { name = '', config } = payment || ({} as IPaymentDocument);
+  const { name = "", config } = payment || ({} as IPaymentDocument);
   const {
     storeId,
     merchantPassword,
@@ -62,7 +61,7 @@ const StorepayConfigForm: React.FC<Props> = (props) => {
     const generatedValues = {
       name: values.paymentName,
       kind: PAYMENT_KINDS.STOREPAY,
-      status: 'active',
+      status: "active",
       config: {
         storeId: values.storeId,
         merchantPassword: values.merchantPassword,
@@ -83,7 +82,7 @@ const StorepayConfigForm: React.FC<Props> = (props) => {
     key: string,
     title: string,
     description?: string,
-    isPassword?: boolean,
+    isPassword?: boolean
   ) => {
     const value = state[key];
 
@@ -95,7 +94,7 @@ const StorepayConfigForm: React.FC<Props> = (props) => {
           defaultValue={value}
           onChange={onChangeConfig.bind(this, key)}
           value={value}
-          type={isPassword ? 'password' : ''}
+          type={isPassword ? "password" : ""}
         />
       </FormGroup>
     );
@@ -124,20 +123,20 @@ const StorepayConfigForm: React.FC<Props> = (props) => {
 
     return (
       <>
-        <SettingsContent title={__('General settings')}>
-          {renderItem('paymentName', 'Name')}
-          {renderItem('storeId', 'Store id')}
-          {renderItem('merchantUsername', 'Merchant username')}
-          {renderItem('merchantPassword', 'Merchant password', '', true)}
-          {renderItem('appUsername', 'App username')}
-          {renderItem('appPassword', 'App password', '', true)}
+        <SettingsContent title={__("General settings")}>
+          {renderItem("paymentName", "Name")}
+          {renderItem("storeId", "Store id")}
+          {renderItem("merchantUsername", "Merchant username")}
+          {renderItem("merchantPassword", "Merchant password", "", true)}
+          {renderItem("appUsername", "App username")}
+          {renderItem("appPassword", "App password", "", true)}
 
           <a
             href="https://docs.google.com/forms/d/e/1FAIpQLScxZItJ5egDhNqSOMTj6np6d9yrb5zW9micqvqxHFcyhsRszg/viewform"
             target="_blank"
             rel="noreferrer"
           >
-            {__('Contact with storepay')}
+            {__("Contact with storepay")}
           </a>
         </SettingsContent>
 
@@ -151,7 +150,7 @@ const StorepayConfigForm: React.FC<Props> = (props) => {
             Cancel
           </Button>
           {renderButton({
-            passedName: 'storepay',
+            passedName: "storepay",
             values: generateDoc(values),
             isSubmitted,
             callback: closeModal,
