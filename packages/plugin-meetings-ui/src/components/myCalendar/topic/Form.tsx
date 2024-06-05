@@ -1,19 +1,19 @@
-import Button from '@erxes/ui/src/components/Button';
+import Button from "@erxes/ui/src/components/Button";
 import {
   ControlLabel,
   Form,
   FormControl,
-  FormGroup
-} from '@erxes/ui/src/components/form';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React, { useState } from 'react';
-import { ITopic } from '../../../types';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+  FormGroup,
+} from "@erxes/ui/src/components/form";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import React, { useState } from "react";
+import { ITopic } from "../../../types";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 
 type Props = {
   topic?: ITopic;
-  meetingId: String;
+  meetingId: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   participantUserIds: string[];
   meetingStatus: string;
@@ -22,16 +22,11 @@ type Props = {
 };
 
 export const TopicForm = (props: Props) => {
-  const {
-    afterSave,
-    topic,
-    meetingId,
-    participantUserIds,
-    meetingStatus
-  } = props;
+  const { afterSave, topic, meetingId, participantUserIds, meetingStatus } =
+    props;
   const [ownerId, setOwnerId] = useState(topic?.ownerId);
 
-  const onSelectOwner = value => {
+  const onSelectOwner = (value) => {
     setOwnerId(value);
   };
 
@@ -50,7 +45,7 @@ export const TopicForm = (props: Props) => {
     }
     return {
       ...finalValues,
-      meetingId
+      meetingId,
     };
   };
 
@@ -68,7 +63,7 @@ export const TopicForm = (props: Props) => {
             type="text"
             required={true}
             autoFocus={true}
-            disabled={topic ? true : false}
+            disabled={!!topic}
           />
         </FormGroup>
         <FormGroup>
@@ -80,12 +75,12 @@ export const TopicForm = (props: Props) => {
             type="text"
             required={true}
             autoFocus={true}
-            disabled={topic ? true : false}
+            disabled={!!topic}
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{'Topic Owner'}</ControlLabel>
+          <ControlLabel>{"Topic Owner"}</ControlLabel>
 
           <SelectTeamMembers
             label="Choose topic owner"
@@ -97,17 +92,17 @@ export const TopicForm = (props: Props) => {
           />
         </FormGroup>
 
-        {meetingStatus !== 'completed' && (
-          <ModalFooter id={'AddTagButtons'}>
+        {meetingStatus !== "completed" && (
+          <ModalFooter id={"AddTagButtons"}>
             <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
               Cancel
             </Button>
             {renderButton({
-              passedName: 'meetings',
+              passedName: "meetings",
               values: generateDoc(values),
               isSubmitted,
               callback: closeModal || afterSave,
-              object: topic
+              object: topic,
             })}
           </ModalFooter>
         )}
