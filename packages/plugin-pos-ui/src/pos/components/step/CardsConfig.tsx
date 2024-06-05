@@ -1,17 +1,17 @@
-import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
-import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
-import { Alert, Button, __ } from '@erxes/ui/src';
-import client from '@erxes/ui/src/apolloClient';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
-import React, { useEffect, useState } from 'react';
-import { Block, FlexColumn, FlexItem, FlexRow } from '../../../styles';
-import { IConfigsMap, IPos } from '../../../types';
-import PerConfigs from '../cardsGroup/PerConfigs';
+import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
+import { FieldsCombinedByType } from "@erxes/ui-forms/src/settings/properties/types";
+import { Alert, Button } from "@erxes/ui/src";
+import client from "@erxes/ui/src/apolloClient";
+import { LeftItem } from "@erxes/ui/src/components/step/styles";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { gql } from "@apollo/client";
+import React, { useEffect, useState } from "react";
+import { Block, FlexColumn, FlexItem, FlexRow } from "../../../styles";
+import { IConfigsMap, IPos } from "../../../types";
+import PerConfigs from "../cardsGroup/PerConfigs";
 
 type Props = {
-  onChange: (name: 'cardsConfig', value: any) => void;
+  onChange: (name: "cardsConfig", value: any) => void;
   pos?: IPos;
 };
 
@@ -19,20 +19,20 @@ const CardsConfig = (props: Props) => {
   const { pos, onChange } = props;
 
   const [config, setConfig] = useState<IConfigsMap>(
-    pos && pos.cardsConfig ? pos.cardsConfig : {},
+    pos && pos.cardsConfig ? pos.cardsConfig : {}
   );
 
   const [fieldsCombined, setFieldsCombined] = useState<FieldsCombinedByType[]>(
-    [],
+    []
   );
 
   useEffect(() => {
-    if (isEnabled('forms')) {
+    if (isEnabled("forms")) {
       client
         .query({
           query: gql(formQueries.fieldsCombinedByContentType),
           variables: {
-            contentType: 'cards:deal',
+            contentType: "cards:deal",
           },
         })
         .then(({ data }) => {
@@ -47,12 +47,12 @@ const CardsConfig = (props: Props) => {
     setConfig((prevConfig) => ({
       ...prevConfig,
       newCardsConfig: {
-        branchId: '',
-        boardId: '',
-        pipelineId: '',
-        stageId: '',
+        branchId: "",
+        boardId: "",
+        pipelineId: "",
+        stageId: "",
         assignedUserIds: [],
-        deliveryMapField: '',
+        deliveryMapField: "",
       },
     }));
   };
@@ -61,9 +61,9 @@ const CardsConfig = (props: Props) => {
     delete config[currentConfigKey];
 
     setConfig(config);
-    onChange('cardsConfig', config);
+    onChange("cardsConfig", config);
 
-    Alert.success('You successfully deleted stage in cards settings.');
+    Alert.success("You successfully deleted stage in cards settings.");
   };
 
   const handleEdit = (key, currenConfig: any) => {
@@ -71,7 +71,7 @@ const CardsConfig = (props: Props) => {
     config[currenConfig.branchId] = { ...currenConfig };
 
     setConfig(config);
-    onChange('cardsConfig', config);
+    onChange("cardsConfig", config);
   };
 
   const renderCollapse = () => {
