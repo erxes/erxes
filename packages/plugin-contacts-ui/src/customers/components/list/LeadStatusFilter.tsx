@@ -2,16 +2,16 @@ import {
   FieldStyle,
   SidebarCounter,
   SidebarList,
-} from '@erxes/ui/src/layout/styles';
-import { __, router } from 'coreui/utils';
+} from "@erxes/ui/src/layout/styles";
+import { __, router } from "coreui/utils";
 
-import Box from '@erxes/ui/src/components/Box';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import Icon from '@erxes/ui/src/components/Icon';
-import { LEAD_STATUS_TYPES } from '@erxes/ui-contacts/src/customers/constants';
-import React from 'react';
-import { leadStatusChoices } from '../../utils';
-import { useLocation, useNavigate } from 'react-router-dom';
+import Box from "@erxes/ui/src/components/Box";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import Icon from "@erxes/ui/src/components/Icon";
+import { LEAD_STATUS_TYPES } from "@erxes/ui-contacts/src/customers/constants";
+import React from "react";
+import { leadStatusChoices } from "../../utils";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface IProps {
   counts: { [key: string]: number };
@@ -24,36 +24,34 @@ function LeadStatusFilter({ counts, loading, searchable }: IProps) {
   const location = useLocation();
 
   const renderCounts = () => {
-    const paramKey = 'leadStatus';
+    const paramKey = "leadStatus";
 
     const onClick = (key, value) => {
       router.setParams(navigate, location, { [key]: value });
-      router.removeParams(navigate, location, 'page');
+      router.removeParams(navigate, location, "page");
     };
 
     return (
       <SidebarList>
-        {leadStatusChoices(__).map(
-          ({ value, label }: { value: string; label: string }) => {
-            return (
-              <li key={Math.random()}>
-                <a
-                  href="#filter"
-                  tabIndex={0}
-                  className={
-                    router.getParam(location, [paramKey]) === value
-                      ? 'active'
-                      : ''
-                  }
-                  onClick={onClick.bind(this, paramKey, value)}
-                >
-                  <FieldStyle>{label}</FieldStyle>
-                  <SidebarCounter>{counts ? counts[value] : 0}</SidebarCounter>
-                </a>
-              </li>
-            );
-          },
-        )}
+        {leadStatusChoices(__).map(({ value, label }) => {
+          return (
+            <li key={Math.random()}>
+              <a
+                href="#filter"
+                tabIndex={0}
+                className={
+                  router.getParam(location, [paramKey]) === value
+                    ? "active"
+                    : ""
+                }
+                onClick={onClick.bind(this, paramKey, value)}
+              >
+                <FieldStyle>{label}</FieldStyle>
+                <SidebarCounter>{counts ? counts[value] : 0}</SidebarCounter>
+              </a>
+            </li>
+          );
+        })}
       </SidebarList>
     );
   };
@@ -62,7 +60,7 @@ function LeadStatusFilter({ counts, loading, searchable }: IProps) {
     router.setParams(navigate, location, { leadStatus: null });
   };
 
-  const extraButtons = router.getParam(location, 'leadStatus') && (
+  const extraButtons = router.getParam(location, "leadStatus") && (
     <a href="#cancel" tabIndex={0} onClick={onClear}>
       <Icon icon="times-circle" />
     </a>
@@ -71,7 +69,7 @@ function LeadStatusFilter({ counts, loading, searchable }: IProps) {
   return (
     <Box
       extraButtons={extraButtons}
-      title={__('Filter by lead status')}
+      title={__("Filter by lead status")}
       name="showFilterByStatus"
     >
       <DataWithLoader
