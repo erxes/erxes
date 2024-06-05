@@ -22,7 +22,7 @@ const generateFilterQuery = (params: IParam) => {
   }
 
   if (status) {
-    query.isActive = status === 'active' ? true : false;
+    query.isActive = status === 'active';
   }
 
   if (searchValue) {
