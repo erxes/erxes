@@ -93,7 +93,7 @@ export const callActions = (
           <div>
             <CallAction
               key={isMuted() ? "UnMute" : "Mute"}
-              $active={isMuted() ? true : false}
+              $active={isMuted()}
               onClick={handleAudioToggle}
             >
               <Icon size={20} icon={"phone-times"} />
