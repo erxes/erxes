@@ -260,13 +260,11 @@ const IncomingCall = (props: Props, context) => {
               handleAudioToggle,
               endCall,
               inboxId,
-              Sip.call?.status === CALL_STATUS_ACTIVE ? false : true,
+              !(Sip.call?.status === CALL_STATUS_ACTIVE),
               direction,
               gotoDetail,
-              currentCallConversationId &&
-                currentCallConversationId.length !== 0
-                ? false
-                : true
+              !currentCallConversationId ||
+                currentCallConversationId.length === 0
             )}
           </IncomingContent>
         </IncomingContainer>
