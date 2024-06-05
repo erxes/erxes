@@ -1,22 +1,18 @@
-import { AppConsumer, ButtonMutate } from '@erxes/ui/src';
-import { IUser, UsersQueryResponse } from '@erxes/ui/src/auth/types';
-import {
-  IButtonMutateProps,
-  IQueryParams,
-} from '@erxes/ui/src/types';
-import { gql } from '@apollo/client';
-import React from 'react';
+import { AppConsumer, ButtonMutate } from "@erxes/ui/src";
+import { IUser, UsersQueryResponse } from "@erxes/ui/src/auth/types";
+import { IButtonMutateProps, IQueryParams } from "@erxes/ui/src/types";
+import { gql, useQuery } from "@apollo/client";
+import React from "react";
 
-import ClientPortalUserForm from '../components/forms/ClientPortalUserForm';
-import { mutations, queries } from '../graphql';
-import { ClientPortalConfigsQueryResponse, IClientPortalUser } from '../types';
-import { useQuery } from '@apollo/client';
+import ClientPortalUserForm from "../components/forms/ClientPortalUserForm";
+import { mutations, queries } from "../graphql";
+import { ClientPortalConfigsQueryResponse, IClientPortalUser } from "../types";
 
 type Props = {
   clientPortalUser: IClientPortalUser;
   closeModal: () => void;
   queryParams: IQueryParams;
-  kind: 'client' | 'vendor';
+  kind: "client" | "vendor";
 };
 
 type FinalProps = {
@@ -26,12 +22,12 @@ type FinalProps = {
 } & Props;
 
 const ClientPortalUserFormContainer: React.FC<FinalProps> = (
-  props: FinalProps,
+  props: FinalProps
 ) => {
   const { closeModal, kind } = props;
 
   const clientPortalConfigsQuery = useQuery(gql(queries.getConfigs), {
-    fetchPolicy: 'network-only',
+    fetchPolicy: "network-only",
     variables: { kind },
   });
 
@@ -50,7 +46,7 @@ const ClientPortalUserFormContainer: React.FC<FinalProps> = (
 
       Object.keys(newObj).forEach((key) => {
         const val = newObj[key];
-        if (val === null || val === undefined || val === '') {
+        if (val === null || val === undefined || val === "") {
           delete newObj[key];
         }
       });
@@ -75,7 +71,7 @@ const ClientPortalUserFormContainer: React.FC<FinalProps> = (
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
-          object ? 'updated' : 'added'
+          object ? "updated" : "added"
         } a ${name}`}
       >
         Invite
@@ -107,7 +103,7 @@ const ClientPortalUserFormContainer: React.FC<FinalProps> = (
 };
 
 const getRefetchQueries = () => {
-  return ['clientPortalUsers', 'clientPortalUserCounts'];
+  return ["clientPortalUsers", "clientPortalUserCounts"];
 };
 
 export default ClientPortalUserFormContainer;
