@@ -424,6 +424,10 @@ export const StageItem = styledTS<{ $isPass: boolean }>(styled.li)`
     color: ${(props) =>
       props.$isPass ? colors.colorSecondary : colors.colorShadowGray};
   }
+
+  .headlessui-popover-tooltip {
+    display: block;
+  }
 `;
 
 export const SelectValue = styled.div`
