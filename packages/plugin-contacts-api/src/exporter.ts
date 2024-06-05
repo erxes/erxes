@@ -206,7 +206,7 @@ export const fillValue = async (
       );
 
       value = customers
-        .map(cus => cus.firstName || cus.primaryEmail)
+        .map(cus => cus.firstName ?? cus.primaryEmail)
         .join(', ');
 
       break;
