@@ -23,7 +23,7 @@ import {
 } from './verifierUtils';
 import exporter from './exporter';
 import documents from './documents';
-import { EMAIL_VALIDATION_STATUSES, NOTIFICATION_MODULES } from './constants';
+import { NOTIFICATION_MODULES } from './constants';
 import app from '@erxes/api-utils/src/app';
 import reports from './reports/reports'
 
