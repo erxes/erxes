@@ -8,15 +8,15 @@ import {
   generateBotData,
   generatePayloadString,
   checkContentConditions,
+  getUrl,
 } from './utils';
 import * as moment from 'moment';
-import { getEnv } from '../commonUtils';
 
 const generateMessages = async (
   subdomain: string,
   config: any,
   conversation: IConversation,
-  customer: ICustomer
+  customer: ICustomer,
 ) => {
   let { messages = [] } = config || {};
 
@@ -46,26 +46,6 @@ const generateMessages = async (
     return generatedButtons;
   };
 
-  const getUrl = (key) => {
-    const DOMAIN = getEnv({
-      name: 'DOMAIN',
-      subdomain,
-    });
-
-    const NODE_ENV = getEnv({ name: 'NODE_ENV' });
-    const VERSION = getEnv({ name: 'VERSION' });
-
-    if (NODE_ENV !== 'production') {
-      return `${DOMAIN}/read-file?key=${key}`;
-    }
-
-    if (VERSION === 'saas') {
-      return `${DOMAIN}/api/read-file?key=${key}`;
-    }
-
-    return `${DOMAIN}/gateway/read-file?key=${key}`;
-  };
-
   const quickRepliesIndex = messages.findIndex(
     ({ type }) => type === 'quickReplies',
   );
@@ -87,7 +67,7 @@ const generateMessages = async (
     audio = '',
     input,
   } of messages) {
-    const botData = generateBotData({
+    const botData = generateBotData(subdomain, {
       type,
       buttons,
       text,
@@ -129,7 +109,7 @@ const generateMessages = async (
               ({ title = '', subtitle = '', image = '', buttons = [] }) => ({
                 title,
                 subtitle,
-                image_url: getUrl(image),
+                image_url: getUrl(subdomain, image),
                 buttons: generateButtons(buttons),
               }),
             ),
@@ -163,7 +143,7 @@ const generateMessages = async (
           attachment: {
             type,
             payload: {
-              url: getUrl(url),
+              url: getUrl(subdomain, url),
             },
           },
           botData,
@@ -258,6 +238,9 @@ const generateObjectToWait = ({
     obj.waitingActionId = actionIdIfNotReply;
 
     propertyName = 'botId';
+  } else {
+    obj.startWaitingDate = moment().add(24, 'hours').toDate();
+    obj.waitingActionId = null;
   }
 
   return {
@@ -308,11 +291,7 @@ export const actionCreateMessage = async (
       subdomain,
       config,
       conversation,
-<<<<<<< HEAD
-      customer
-=======
       customer,
->>>>>>> c89679e19305028f422ffb67c7259e6aaa64ce67
     );
 
     if (!messages?.length) {
@@ -340,7 +319,9 @@ export const actionCreateMessage = async (
         },
         recipientId,
         integration.erxesApiId,
-      );
+      ).catch((error) => {
+        throw new Error(error);
+      });
 
       if (!resp) {
         return;
@@ -356,13 +337,15 @@ export const actionCreateMessage = async (
         fromBot: true,
       });
 
-      await sendInboxMessage({
+      sendInboxMessage({
         subdomain,
         action: 'conversationClientMessageInserted',
         data: {
           ...conversationMessage.toObject(),
           conversationId: conversation.erxesApiId,
         },
+      }).catch((error) => {
+        debugError(error.message);
       });
 
       result.push(conversationMessage);
@@ -384,5 +367,6 @@ export const actionCreateMessage = async (
     };
   } catch (error) {
     debugError(error.message);
+    throw new Error(error.message);
   }
 };

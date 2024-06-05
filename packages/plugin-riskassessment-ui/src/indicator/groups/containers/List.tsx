@@ -1,18 +1,19 @@
-import { Alert, confirm, EmptyState, Spinner } from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { IIndicatorsGroupsQueryResponse } from '../common/types';
-import { generateParams, refetchQueries } from '../common/utilss';
-import ListComponent from '../components/List';
-import { mutations, queries } from '../graphql';
+import * as compose from "lodash.flowright";
+
+import { Alert, EmptyState, Spinner, confirm } from "@erxes/ui/src";
+import { generateParams, refetchQueries } from "../common/utilss";
+import { mutations, queries } from "../graphql";
+
+import { IIndicatorsGroupsQueryResponse } from "../common/types";
+import ListComponent from "../components/List";
+import React from "react";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { withProps } from "@erxes/ui/src/utils/core";
 
 type Props = {
   queryParams: any;
-} & IRouterProps;
+};
 
 type FinalProps = {
   listQuery: IIndicatorsGroupsQueryResponse;
@@ -31,19 +32,15 @@ class List extends React.Component<FinalProps> {
       return <Spinner />;
     }
 
-    if (listQuery.error) {
-      return <EmptyState text={listQuery.error} icon="info-circle" />;
-    }
-
     const { riskIndicatorsGroups, riskIndicatorsGroupsTotalCount } = listQuery;
 
-    const remove = ids => {
+    const remove = (ids) => {
       confirm().then(() => {
         removeGroups({ variables: { ids } })
           .then(() => {
-            Alert.success('You successfully remove groups of indicators');
+            Alert.success("You successfully remove groups of indicators");
           })
-          .catch(err => {
+          .catch((err) => {
             Alert.error(err.message);
           });
       });
@@ -54,7 +51,7 @@ class List extends React.Component<FinalProps> {
       list: riskIndicatorsGroups,
       totalCount: riskIndicatorsGroupsTotalCount,
       queryParams,
-      remove
+      remove,
     };
 
     return <ListComponent {...updatedProps} />;
@@ -64,16 +61,16 @@ class List extends React.Component<FinalProps> {
 export default withProps(
   compose(
     graphql<Props>(gql(queries.list), {
-      name: 'listQuery',
+      name: "listQuery",
       options: ({ queryParams }) => ({
-        variables: generateParams(queryParams)
-      })
+        variables: generateParams(queryParams),
+      }),
     }),
     graphql<Props>(gql(mutations.removeGroups), {
-      name: 'removeGroups',
+      name: "removeGroups",
       options: ({ queryParams }) => ({
-        refetchQueries: refetchQueries(queryParams)
-      })
+        refetchQueries: refetchQueries(queryParams),
+      }),
     })
   )(List)
 );

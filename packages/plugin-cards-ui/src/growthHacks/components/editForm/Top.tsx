@@ -1,17 +1,18 @@
-import { PriorityIndicator } from '@erxes/ui-cards/src/boards/components/editForm';
-import Move from '@erxes/ui-cards/src/boards/containers/editForm/Move';
-import { ColorButton } from '@erxes/ui-cards/src/boards/styles/common';
 import {
   HeaderContent,
   HeaderRow,
   MetaInfo,
-  TitleRow
-} from '@erxes/ui-cards/src/boards/styles/item';
-import { IOptions } from '@erxes/ui-cards/src/boards/types';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Participators from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/Participators';
-import React, { useEffect, useState } from 'react';
-import { IGrowthHack } from '../../types';
+  TitleRow,
+} from "@erxes/ui-cards/src/boards/styles/item";
+import React, { useEffect, useState } from "react";
+
+import { ColorButton } from "@erxes/ui-cards/src/boards/styles/common";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IGrowthHack } from "../../types";
+import { IOptions } from "@erxes/ui-cards/src/boards/types";
+import Move from "@erxes/ui-cards/src/boards/containers/editForm/Move";
+import Participators from "@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/Participators";
+import { PriorityIndicator } from "@erxes/ui-cards/src/boards/components/editForm";
 
 type Props = {
   item: IGrowthHack;
@@ -54,7 +55,7 @@ function Top(props: Props) {
 
     return (
       <ColorButton color="#666">
-        {hackStages.map(i => (
+        {hackStages.map((i) => (
           <span key={i}>
             <PriorityIndicator value={i} />
             {i}
@@ -67,13 +68,13 @@ function Top(props: Props) {
   const { saveItem, score, dueDate, number } = props;
   const { assignedUsers = [], priority } = item;
 
-  const onNameBlur = e => {
+  const onNameBlur = (e) => {
     if (item.name !== name) {
       saveItem({ name });
     }
   };
 
-  const onChangeName = e => {
+  const onChangeName = (e) => {
     setName(e.target.value);
   };
 
@@ -84,7 +85,7 @@ function Top(props: Props) {
           <TitleRow>
             {priority && <PriorityIndicator value={priority} />}
             <FormControl
-              componentClass="textarea"
+              componentclass="textarea"
               value={name}
               required={true}
               onBlur={onNameBlur}

@@ -14,8 +14,9 @@ export interface ICallRecord {
   privacy: string;
   status: string;
   token: string;
-
+  kind: string;
   recordings?: IRecording[];
+  createdAt: Date;
 }
 
 const recordingSchema = new Schema(

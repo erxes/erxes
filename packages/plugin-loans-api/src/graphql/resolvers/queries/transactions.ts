@@ -57,6 +57,10 @@ const generateFilter = async (models, params, commonQuerySelector) => {
     filter.contractId = { $in: ['', null] };
   }
 
+  if (params.description) {
+    filter.description = { $in:  [new RegExp(`.*${params.searchValue}.*`, 'i')] };
+  }
+
   return filter;
 };
 
@@ -110,7 +114,7 @@ const transactionQueries = {
           perPage: params.perPage
         }
       ),
-      totalCount: await models.Transactions.find(filter).count()
+      totalCount: await models.Transactions.find(filter).countDocuments()
     };
   },
 

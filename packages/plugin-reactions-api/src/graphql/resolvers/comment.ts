@@ -8,7 +8,7 @@ const Comment = {
     );
   },
 
-  childCount(comment, {}, { models }) {
+  async childCount(comment, {}, { models }) {
     return models.Comments.find({
       parentId: comment._id
     }).countDocuments();

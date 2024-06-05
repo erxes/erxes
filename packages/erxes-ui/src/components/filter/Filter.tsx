@@ -1,15 +1,15 @@
-import { gql } from '@apollo/client';
+import { removeParams, setParams } from '../../utils/router';
+import { useLocation, useNavigate } from 'react-router-dom';
+
 import Chip from '../Chip';
+import React from 'react';
 import { __ } from '../../utils/core';
 import { cleanIntegrationKind } from '../../utils';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import styled from 'styled-components';
-import { IRouterProps } from '../../types';
 import createChipText from './createChipText';
-import { removeParams, setParams } from '../../utils/router';
+import { gql } from '@apollo/client';
+import styled from 'styled-components';
 
-interface IProps extends IRouterProps {
+interface IProps {
   queryParams?: any;
   filterTitle?: string;
 }
@@ -18,29 +18,30 @@ const Filters = styled.div`
   font-size: 0.9em;
 `;
 
-function Filter({ queryParams = {}, filterTitle, history }: IProps) {
-  const onClickClose = paramKey => {
-    for (const key of paramKey) {
-      removeParams(history, key);
-    }
+function Filter({ queryParams = {}, filterTitle }: IProps) {
+  const navigate = useNavigate();
+  const location = useLocation() as any;
+
+  const onClickClose = (paramKey) => {
+      removeParams(navigate, location, ...paramKey);
   };
 
   const onClickRemove = (paramKey: string, ids: string[], id: string) => {
     if (ids.length === 1) {
-      removeParams(history, paramKey);
+      removeParams(navigate, location, paramKey);
     } else {
       const index = ids.indexOf(id);
 
       ids.splice(index, 1);
 
-      setParams(history, { [paramKey]: ids.toString() });
+      setParams(navigate, location, { [paramKey]: ids.toString() });
     }
   };
 
   const renderFilterParam = (
     paramKey: string,
     bool: boolean,
-    customText?: string
+    customText?: string,
   ) => {
     if (!queryParams[paramKey]) {
       return null;
@@ -60,7 +61,7 @@ function Filter({ queryParams = {}, filterTitle, history }: IProps) {
   const renderFilterWithData = (
     paramKey: string,
     type: string,
-    fields = '_id name'
+    fields = '_id name',
   ) => {
     if (queryParams[paramKey]) {
       const id = queryParams[paramKey];
@@ -144,13 +145,13 @@ function Filter({ queryParams = {}, filterTitle, history }: IProps) {
       {renderFilterParam('status', false)}
       {renderFilterParam('state', false)}
       {renderFilterParam('categoryApprovalState', false)}
-      {location.href.includes('forum') &&
+      {(location?.href || '').includes('forum') &&
         renderFilterWithData('categoryId', 'forum')}
-      {location.href.includes('product') &&
+      {(location?.href || '').includes('product') &&
         renderFilterWithData(
           'categoryId',
           'productCategory',
-          '_id, code, name'
+          '_id, code, name',
         )}
       {renderFilterParam('participating', true)}
       {renderFilterParam('unassigned', true)}
@@ -176,16 +177,16 @@ function Filter({ queryParams = {}, filterTitle, history }: IProps) {
       {renderFilterWithData(
         'assetCategoryId',
         'assetCategory',
-        '_id, code, name'
+        '_id, code, name',
       )}
       {renderFilterWithData(
         'knowledgebaseCategoryId',
         'knowledgeBaseCategory',
-        '_id, title'
+        '_id, title',
       )}
       {renderFilterWithData('assetId', 'asset', '_id, code, name')}
     </Filters>
   );
 }
 
-export default withRouter<IProps>(Filter);
+export default Filter;

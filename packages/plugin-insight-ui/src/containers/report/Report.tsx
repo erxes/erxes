@@ -1,27 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import { gql, useQuery, useMutation } from '@apollo/client';
+import { gql, useQuery, useMutation } from "@apollo/client";
 
-import Alert from '@erxes/ui/src/utils/Alert/index';
-import confirm from '@erxes/ui/src/utils/confirmation/confirm';
-import { __ } from '@erxes/ui/src/utils/index';
-import { router } from '@erxes/ui/src/utils';
+import Alert from "@erxes/ui/src/utils/Alert/index";
+import confirm from "@erxes/ui/src/utils/confirmation/confirm";
+import { __ } from "@erxes/ui/src/utils/index";
+import { router } from "@erxes/ui/src/utils";
 
-import Report from '../../components/report/Report';
-import { queries, mutations } from '../../graphql';
+import Report from "../../components/report/Report";
+import { queries, mutations } from "../../graphql";
 import {
   IReport,
   ChartFormMutationVariables,
   ReportDetailQueryResponse,
-} from '../../types';
+} from "../../types";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
-  history: any;
   queryParams: any;
 };
 
 const ReportContainer = (props: Props) => {
-  const { queryParams, history } = props;
+  const { queryParams } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const reportQuery = useQuery<ReportDetailQueryResponse>(
     gql(queries.reportDetail),
@@ -30,8 +32,8 @@ const ReportContainer = (props: Props) => {
       variables: {
         reportId: queryParams.reportId,
       },
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
 
   const [reportDuplicateMutation] = useMutation(
@@ -40,13 +42,13 @@ const ReportContainer = (props: Props) => {
       refetchQueries: [
         {
           query: gql(queries.sectionList),
-          variables: { type: 'report' },
+          variables: { type: "report" },
         },
         {
           query: gql(queries.reportList),
         },
       ],
-    },
+    }
   );
 
   const [reportRemoveMutation] = useMutation(gql(mutations.reportRemove), {
@@ -60,10 +62,10 @@ const ReportContainer = (props: Props) => {
   const reportDuplicate = (_id: string) => {
     reportDuplicateMutation({ variables: { _id } })
       .then((res) => {
-        Alert.success('Successfully duplicated report');
+        Alert.success("Successfully duplicated report");
         const { _id } = res.data.reportDuplicate;
         if (_id) {
-          history.push(`/insight?reportId=${_id}`);
+          navigate(`/insight?reportId=${_id}`);
         }
       })
       .catch((err) => {
@@ -72,32 +74,34 @@ const ReportContainer = (props: Props) => {
   };
 
   const reportRemove = (ids: string[]) => {
-    confirm(__('Are you sure to delete selected reports?')).then(() => {
+    confirm(__("Are you sure to delete selected reports?")).then(() => {
       reportRemoveMutation({ variables: { ids } })
         .then(() => {
           if (ids.includes(queryParams.reportId)) {
-            router.removeParams(history, ...Object.keys(queryParams));
+            router.removeParams(
+              navigate,
+              location,
+              ...Object.keys(queryParams)
+            );
           }
-          Alert.success(__('Successfully deleted'));
+          Alert.success(__("Successfully deleted"));
         })
         .catch((e: Error) => Alert.error(e.message));
     });
   };
 
-  const [reportChartsEditMutation] = useMutation(
-    gql(mutations.chartsEdit),
-  );
+  const [reportChartsEditMutation] = useMutation(gql(mutations.chartsEdit));
 
   const [reportChartsRemoveMutation] = useMutation(
     gql(mutations.chartsRemove),
     {
-      refetchQueries: ['reportsList', 'reportDetail'],
-    },
+      refetchQueries: ["reportsList", "reportDetail"],
+    }
   );
 
   const reportChartsEdit = (
     _id: string,
-    values: ChartFormMutationVariables,
+    values: ChartFormMutationVariables
   ) => {
     reportChartsEditMutation({ variables: { _id, ...values } });
   };
@@ -105,7 +109,7 @@ const ReportContainer = (props: Props) => {
   const reportChartsRemove = (_id: string) => {
     reportChartsRemoveMutation({ variables: { _id } })
       .then(() => {
-        Alert.success('Successfully removed chart');
+        Alert.success("Successfully removed chart");
       })
       .catch((err) => Alert.error(err.message));
   };

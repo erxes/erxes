@@ -34,7 +34,7 @@ export const loadPackageClass = (models: IModels) => {
     }
 
     public static async removePackage(_id) {
-      return models.Packages.remove({ _id });
+      return models.Packages.deleteOne({ _id });
     }
   }
 

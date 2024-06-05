@@ -1,9 +1,8 @@
-import { Attributes } from '@erxes/ui-cards/src/settings/boards/styles';
-import Icon from '@erxes/ui/src/components/Icon';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import React from 'react';
-import { __ } from 'coreui/utils';
+import { Attributes } from "@erxes/ui-cards/src/settings/boards/styles";
+import Icon from "@erxes/ui/src/components/Icon";
+import Popover from "@erxes/ui/src/components/Popover";
+import React from "react";
+import { __ } from "coreui/utils";
 
 type Props = {
   config: string;
@@ -18,12 +17,12 @@ export default class Attribution extends React.Component<Props> {
     this.overlay.hide();
   };
 
-  onClickAttribute = item => {
+  onClickAttribute = (item) => {
     this.overlay.hide();
     const { setConfig } = this.props;
     let { config } = this.props;
 
-    const characters = ['_', '-', '/', ' '];
+    const characters = ["_", "-", "/", " "];
 
     const value = item.value;
 
@@ -36,17 +35,24 @@ export default class Attribution extends React.Component<Props> {
     setConfig(config);
   };
 
-  renderContent() {
+  render() {
     const { attributions } = this.props;
 
     return (
-      <Popover id="attribute-popover">
+      <Popover
+        trigger={
+          <span>
+            {__("Attribution")} <Icon icon="angle-down" />
+          </span>
+        }
+        placement="top"
+      >
         <Attributes>
           <React.Fragment>
             <li>
-              <b>{__('Attributions')}</b>
+              <b>{__("Attributions")}</b>
             </li>
-            {attributions.map(item => (
+            {attributions.map((item) => (
               <li
                 key={item.value}
                 onClick={this.onClickAttribute.bind(this, item)}
@@ -57,25 +63,6 @@ export default class Attribution extends React.Component<Props> {
           </React.Fragment>
         </Attributes>
       </Popover>
-    );
-  }
-
-  render() {
-    return (
-      <OverlayTrigger
-        ref={overlay => {
-          this.overlay = overlay;
-        }}
-        trigger="click"
-        placement="top"
-        overlay={this.renderContent()}
-        rootClose={true}
-        container={this}
-      >
-        <span>
-          {__('Attribution')} <Icon icon="angle-down" />
-        </span>
-      </OverlayTrigger>
     );
   }
 }

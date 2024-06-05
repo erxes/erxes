@@ -1,11 +1,11 @@
-import { colors, typography } from './';
+import { colors, dimensions, typography } from './';
 
-import { injectGlobal } from 'styled-components';
-import { robotAnimation } from '../utils/animations';
+import { createGlobalStyle } from 'styled-components';
 
 const style = `
 html {
   height: 100%;
+  overflow: hidden;
 }
 
 body {
@@ -29,6 +29,10 @@ body {
   }
 }
 
+button {
+  cursor: pointer;
+}
+
 a {
   color: ${colors.linkPrimary};
   transition: color 0.3s ease;
@@ -50,6 +54,25 @@ a:hover {
 .text-warning {
   color: ${colors.colorCoreYellow} !important;
 }
+
+/* positions */
+
+.relative {
+  position: relative;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -2px rgba(0,0,0,.05);
+}
+
 /* override */
 
 .modal {
@@ -105,19 +128,43 @@ a:hover {
 }
 
 .modal-content {
-  border-radius: 2px;
+  border-radius: 8x;
   border: 0;
   box-shadow: 0 2px 10px -3px rgba(0, 0, 0, 0.5);
   background: ${colors.bgLight};
 }
 
 .modal-header {
-  padding: 15px 40px;
-  border: 0;
-  border-radius: 2px;
-  background: #673FBD;
+  padding: 15px 30px;
+  border-bottom: 1px solid rgb(238, 238, 238);
+  border-radius: 8px;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
+}
+
+.modal-header .btn-close {
+    --bs-btn-close-color: #000;
+    --bs-btn-close-bg: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3E%3C/svg%3E");
+    --bs-btn-close-opacity: 0.5;
+    --bs-btn-close-hover-opacity: 0.75;
+    --bs-btn-close-focus-shadow: 0 0 0 0.25rem #0d6efd40;
+    --bs-btn-close-focus-opacity: 1;
+    --bs-btn-close-disabled-opacity: 0.25;
+    --bs-btn-close-white-filter: invert(1) grayscale(100%) brightness(200%);
+    background: #0000 var(--bs-btn-close-bg) center/1em auto no-repeat;
+    border: 0;
+    border-radius: .375rem;
+    box-sizing: initial;
+    height: 1em;
+    opacity: var(--bs-btn-close-opacity);
+    padding: .25em;
+    width: 1em
+}
+
+.modal-header {
+  &:before, &:after {
+    content: none;
+  }
 }
 
 .modal-header.less-padding {
@@ -131,13 +178,12 @@ a:hover {
 }
 
 .modal-title {
-  font-size: ${typography.fontSizeHeading7}px;
+  font-size: ${typography.fontSizeHeading7 + 2}px;
   font-weight: normal;
-  color: ${colors.colorWhite};
 }
 
 .modal-body {
-  padding: 30px 40px;
+  padding: 30px;
 
   &.md-padding {
     padding: 20px;
@@ -261,20 +307,6 @@ a:hover {
   opacity: 0;
 }
 
-.robot-appear-active,
-.robot-enter-active {
-  animation-name: ${robotAnimation};
-  animation-duration: 0.6s;
-  animation-delay: 2s;
-}
-
-.robot-exit,
-.robot-exit-active {
-  animation-name: ${robotAnimation};
-  animation-duration: 0.6s;
-  animation-direction: reverse;
-}
-
 /* dropdown */
 
 .dropdown-btn {
@@ -283,44 +315,56 @@ a:hover {
 	vertical-align: middle
 }
 
-.dropdown-menu {
+[id^="headlessui-menu-items-"] {
   margin-top: 0 !important;
   border: none;
   font-size: ${typography.fontSizeBody}px;
   color: ${colors.textPrimary};
   min-width: 100%;
   box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  right: 0;
+  float: left;
+  background: ${colors.colorWhite};
+  border-radius: 4px;
+  padding: 7px 0px;
+}
+
+[id^="headlessui-menu-items-"].menuWidthFit {
+  min-width: fit-content;
+  right: unset;
 }
 
 .dropdown-menu > span {
   display: block;
 }
 
-.dropdown-menu li a,
-.dropdown-menu li button {
+[id^="headlessui-menu-items-"] a,
+[id^="headlessui-menu-items-"] button {
   display: block;
   padding: 3px 20px;
   color: ${colors.textPrimary};
   white-space: nowrap;
   float: none;
   margin: 0;
+  width: 100%;
 }
 
-.dropdown-menu > li > a {
+[id^="headlessui-menu-items-"] > a {
   color: ${colors.textPrimary};
   font-weight: normal;
 }
 
-.dropdown-menu > li.active > a {
+[id^="headlessui-menu-items-"].active > a {
   background: ${colors.bgActive};
 }
 
-.dropdown-menu > li > a:focus,
-.dropdown-menu > li > a:hover,
-.dropdown-menu li a:focus,
-.dropdown-menu li a:hover,
-.dropdown-menu li button:focus,
-.dropdown-menu li button:hover {
+[id^="headlessui-menu-items-"] > a:focus,
+[id^="headlessui-menu-items-"] > a:hover,
+[id^="headlessui-menu-items-"] a:focus,
+[id^="headlessui-menu-items-"] a:hover,
+[id^="headlessui-menu-items-"] button:focus,
+[id^="headlessui-menu-items-"] button:hover {
   color: ${colors.colorCoreDarkGray};
   background: ${colors.bgActive};
   outline: 0;
@@ -329,6 +373,65 @@ a:hover {
 
 .gjs-four-color, .gjs-four-color-h:hover {
   color: #6569df !important;
+}
+
+/* modal */
+[id^="headlessui-dialog-panel-"] {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(.4,0,.2,1);
+  transition-duration: .15s;
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 2px 10px -3px;
+  opacity: 1;
+  vertical-align: middle;
+  text-align: left;
+  background: ${colors.colorWhite};
+  border-radius: 8px;
+  width: 500px;
+  margin: 50px auto;
+}
+
+[id^="headlessui-dialog-title-"] {
+  margin: 0;
+  font-size: 18px;
+  position: relative;
+  text-transform: capitalize;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid ${colors.borderPrimary};
+  padding: ${dimensions.coreSpacing - 5}px ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+}
+
+[id^="headlessui-dialog-title-"] > i {
+  cursor: pointer;
+}
+
+[id^="headlessui-description-"].dialog-description {
+  padding: 20px 30px 30px;
+  margin: 0;
+}
+
+@media (min-width: 600px){
+  .dialog-size-lg {
+    width: 800px;
+  }
+  .dialog-size-xl {
+    width: 80%;
+  }
+}
+@media (max-width: 576px) {
+  .dialog-size-lg, .dialog-size-xl {
+    width: 90%;
+  }
+}
+@media (min-width: 1200px){
+  .dialog-size-xl {
+    width: 1150px;
+  }
+}
+
+.dialog-size-xs {
+  width: 300px;
 }
 
 /* tooltip */
@@ -394,16 +497,56 @@ a:hover {
   z-index: 1040;
 }
 
-.popover {
+[id^="headlessui-popover-button-"], [id^="headlessui-menu-button-"], [id^="headlessui-listbox-button-"], #rte-controls-group-dropdown-button {
+  padding: 0;
+  background: none;
+  border: 0;
+  outline: 0;
+}
+
+[id^="headlessui-menu-items-"] li {
+  display: flex;
+  &::marker {
+    display: none;
+  }
+}
+
+[id^="headlessui-listbox-options-"] {
+  padding: 0;
+  margin: 0;
+  focus: 0;
+  outline: 0;
+  list-style: none;
+  z-index: 5;
+  position: relative;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.05);
+  background: ${colors.colorWhite};
+  border-radius: 0.25rem;
+}
+
+[id^="headlessui-listbox-options-"] span {
+  border: 0;
+}
+
+[id^="headlessui-popover-panel-"] {
   font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;
   border: none;
   border-radius: 4px;
   font-size: inherit;
   padding: 0;
   color: ${colors.textPrimary};
+  background-color: ${colors.colorWhite};
+  word-wrap: break-word;
+  z-index: 1060;
   font-weight: inherit;
   box-shadow: 0 0 20px 3px rgba(0, 0, 0, 0.15);
   max-width: 310px;
+  position: absolute;
+  will-change: transform;
+  top: 10px;
+  left: 0px;
+  transform: translate3d(0px, 18px, 0px);
+  transition: opacity .15s linear;
 }
 
 .bs-popover-bottom > .arrow::before,
@@ -480,6 +623,9 @@ a:hover {
   max-width: 405px;
   width: 405px;
   height: 400px;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
 }
 
 .popover-template .popover-body {
@@ -493,17 +639,18 @@ a:hover {
 }
 
 .notification-popover {
-  right: 15px;
-  max-width: 360px;
+  right: 15px !important;
+  width: 360px !important;
+  max-width: 360px !important; 
 }
 
 .call-popover {
-  right: 15px;
+  right: 15px !important;
   left: auto !important;
   width: 360px;
-  max-width: 360px;
+  max-width: 360px !important;
   position: fixed !important;
-  bottom: 155px;
+  bottom: 155px !important;
   top: auto !important;
   transform: none !important;
   border-radius: 25px;
@@ -582,25 +729,52 @@ a:hover {
   margin-left: 0;
 }
 
-.Select--multi .Select-value {
-  background-color: ${colors.colorSecondary};
-  border-radius: 11px;
+.css-1p3m7a8-multiValue {
+  background-color: ${colors.colorSecondary} !important;
+  border-radius: 11px !important;
   border: 1px solid ${colors.colorSecondary};
   color: ${colors.colorWhite};
-  margin-top: 6px;
-  margin-left: 0;
-  margin-right: 5px;
+  margin-top: 6px !important;
+  margin-left: 0 !important;
+  margin-right: 5px !important;
   position: relative;
-  padding-right: 20px;
+  padding-right: 0px !important;
+  padding-left: 10px !important;
 }
 
-.Select--multi .Select-value-icon {
+.css-9jq23d {
+  color: ${colors.colorWhite} !important;
+  padding: 2px 10px 2px 0px !important;
+}
+
+.css-1nmdiq5-menu {
+  .active {
+    background-color: ${colors.colorSecondary} !important;
+  }
+}
+
+.css-b62m3t-container {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.css-1jqq78o-placeholder {
+  color: #aaa;
+}
+
+.css-wsp0cs-MultiValueGeneric {
+  color: ${colors.colorWhite} !important;
+  padding: 2px !important;
+}
+
+.css-12a83d4-MultiValueRemove {
   display: inline-block;
   vertical-align: middle;
   cursor: pointer;
   width: 20px;
   height: 20px;
-  border-radius: 10px;
+  border-radius: 10px !important;
   position: absolute;
   right: 0;
   top: 0;
@@ -610,11 +784,19 @@ a:hover {
   padding: 0;
 }
 
-.Select--multi .Select-value-icon:hover,
-.Select--multi .Select-value-icon:focus,
-.Select--multi .Select-value-icon:active {
-  background-color: rgba(0, 0, 0, 0.2);
-  color: ${colors.colorWhite};
+.css-v7duua:hover,
+.css-v7duua:focus,
+.css-v7duua:active,
+.css-12a83d4-MultiValueRemove:hover,
+.css-12a83d4-MultiValueRemove:focus,
+.css-12a83d4-MultiValueRemove:active {
+  background-color: rgba(0, 0, 0, 0.2) !important;
+  color: ${colors.colorWhite} !important;
+}
+
+.css-v7duua {
+  background: rgba(0, 0, 0, 0.1) !important;
+  border-radius: 50% !important;
 }
 
 .Select--multi .Select-value-label {
@@ -700,6 +882,38 @@ a:hover {
   input {
     width: 100% !important;
   }
+}
+
+.css-13cymwt-control, .css-t3ipsp-control {
+  border-top-width: 0 !important;
+  border-right-width: 0 !important;
+  border-left-width: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  border-color: rgb(221, 221, 221) !important;
+  background: transparent !important;
+}
+
+.css-13cymwt-control > div, .css-t3ipsp-control > div {
+  padding: 2px 8px 2px 0;
+}
+
+.css-t3ipsp-control, .css-t3ipsp-control:hover {
+  border-color: ${colors.colorPrimary} !important;
+}
+
+.css-1xc3v61-indicatorContainer, .css-15lsz6c-indicatorContainer {
+  padding: 2px !important;
+}
+
+.css-1u9des2-indicatorSeparator {
+  display: none;
+}
+
+.css-tj5bde-Svg {
+  height: 12px;
+  width: 12px;
 }
 
 .simple-option .channel-round {
@@ -1465,4 +1679,4 @@ const globalStyle = [`${style}`] as any;
 
 globalStyle.raw = [`${style}`];
 
-injectGlobal(globalStyle);
+export const GlobalStyle = createGlobalStyle(globalStyle);

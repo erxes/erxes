@@ -90,7 +90,7 @@ const Description = (props: DescProps) => {
 
   return (
     <FormGroup>
-      <ContentWrapper isEditing={edit}>
+      <ContentWrapper $isEditing={edit}>
         <TitleRow>
           <ControlLabel>
             <Icon icon="align-left-justify" />
@@ -126,6 +126,7 @@ const Description = (props: DescProps) => {
                 '|',
                 'image',
               ]}
+              onCtrlEnter={onSend}
             />
 
             {renderFooter()}

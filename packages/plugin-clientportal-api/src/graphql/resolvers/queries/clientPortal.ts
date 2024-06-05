@@ -34,7 +34,7 @@ const configClientPortalQueries = {
   async clientPortalGetConfigs(
     _root,
     args: { kind?: string; page?: number; perPage?: number },
-    { models }: IContext,
+    { models }: IContext
   ) {
     const { kind = 'client' } = args;
 
@@ -48,7 +48,7 @@ const configClientPortalQueries = {
   /**
    * Get last config
    */
-  clientPortalGetLast(_root, { kind }, { models }: IContext) {
+  async clientPortalGetLast(_root, { kind }, { models }: IContext) {
     return models.ClientPortals.findOne({ kind }).sort({
       createdAt: -1,
     });
@@ -57,7 +57,7 @@ const configClientPortalQueries = {
   async clientPortalGetConfig(
     _root,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models }: IContext
   ) {
     return models.ClientPortals.findOne({ _id });
   },
@@ -65,7 +65,7 @@ const configClientPortalQueries = {
   async clientPortalGetConfigByDomain(
     _root,
     { clientPortalName },
-    { models, requestInfo }: IContext,
+    { models, requestInfo }: IContext
   ) {
     return await getByHost(models, requestInfo, clientPortalName);
   },
@@ -73,7 +73,7 @@ const configClientPortalQueries = {
   async clientPortalGetTaskStages(
     _root,
     _args,
-    { models, subdomain, requestInfo }: IContext,
+    { models, subdomain, requestInfo }: IContext
   ) {
     const config = await getByHost(models, requestInfo);
 
@@ -90,7 +90,7 @@ const configClientPortalQueries = {
   async clientPortalGetTasks(
     _root,
     { stageId },
-    { models, subdomain, requestInfo }: IContext,
+    { models, subdomain, requestInfo }: IContext
   ) {
     const config = await getByHost(models, requestInfo);
 
@@ -120,7 +120,7 @@ const configClientPortalQueries = {
   async clientPortalKnowledgeBaseTopicDetail(
     _root,
     { _id },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     return sendKbMessage({
       subdomain,
@@ -150,7 +150,7 @@ const configClientPortalQueries = {
     return getCards('purchase', context, _args);
   },
 
-  clientPortalTicket(_root, { _id }: { _id: string }, { subdomain }: IContext) {
+  async clientPortalTicket(_root, { _id }: { _id: string }, { subdomain }: IContext) {
     return sendCardsMessage({
       subdomain,
       action: 'tickets.findOne',
@@ -177,7 +177,7 @@ const configClientPortalQueries = {
       topicId?: string;
       isPrivate: Boolean;
     },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     const selector: any = {};
 
@@ -226,7 +226,7 @@ const configClientPortalQueries = {
   async clientPortalGetAllowedFields(
     _root,
     { _id }: { _id: string },
-    { models, subdomain }: IContext,
+    { models, subdomain }: IContext
   ) {
     const configs = await models.FieldConfigs.find({
       allowedClientPortalIds: _id,
@@ -241,7 +241,7 @@ const configClientPortalQueries = {
       return [];
     }
 
-    const fieldIds = configs.map((config) => config.fieldId);
+    const fieldIds = configs.map(config => config.fieldId);
     const fields = await sendCommonMessage({
       subdomain,
       serviceName: 'forms',
@@ -260,8 +260,8 @@ const configClientPortalQueries = {
       return fields;
     }
 
-    return fields.map((field) => {
-      const found = required.find((config) => config.fieldId === field._id);
+    return fields.map(field => {
+      const found = required.find(config => config.fieldId === field._id);
 
       if (!found) {
         return field;
@@ -277,11 +277,11 @@ const configClientPortalQueries = {
   async clientPortalCardUsers(
     _root,
     { contentType, contentTypeId, userKind },
-    { models }: IContext,
+    { models }: IContext
   ) {
     const userIds = await models.ClientPortalUserCards.getUserIds(
       contentType,
-      contentTypeId,
+      contentTypeId
     );
 
     if (!userIds || userIds.length === 0) {
@@ -315,10 +315,10 @@ const configClientPortalQueries = {
     return users;
   },
 
-  clientPortalUserTickets(
+  async clientPortalUserTickets(
     _root,
     { userId }: { userId: string },
-    { models, cpUser, subdomain }: IContext,
+    { models, cpUser, subdomain }: IContext
   ) {
     const id = userId || (cpUser && cpUser._id);
 
@@ -328,10 +328,10 @@ const configClientPortalQueries = {
     return getUserCards(id, 'ticket', models, subdomain);
   },
 
-  clientPortalUserDeals(
+  async clientPortalUserDeals(
     _root,
     { userId }: { userId: string },
-    { models, cpUser, subdomain }: IContext,
+    { models, cpUser, subdomain }: IContext
   ) {
     const id = userId || (cpUser && cpUser._id);
 
@@ -342,10 +342,10 @@ const configClientPortalQueries = {
     return getUserCards(id, 'deal', models, subdomain);
   },
 
-  clientPortalUserPurchases(
+  async clientPortalUserPurchases(
     _root,
     { userId }: { userId: string },
-    { models, cpUser, subdomain }: IContext,
+    { models, cpUser, subdomain }: IContext
   ) {
     const id = userId || (cpUser && cpUser._id);
 
@@ -356,10 +356,10 @@ const configClientPortalQueries = {
     return getUserCards(id, 'purchase', models, subdomain);
   },
 
-  clientPortalUserTasks(
+  async clientPortalUserTasks(
     _root,
     { userId }: { userId: string },
-    { models, cpUser, subdomain }: IContext,
+    { models, cpUser, subdomain }: IContext
   ) {
     const id = userId || (cpUser && cpUser._id);
 
@@ -370,7 +370,7 @@ const configClientPortalQueries = {
     return getUserCards(id, 'task', models, subdomain);
   },
 
-  clientPortalParticipantDetail(
+  async clientPortalParticipantDetail(
     _root,
     {
       _id,
@@ -383,7 +383,7 @@ const configClientPortalQueries = {
       contentTypeId: string;
       cpUserId: string;
     },
-    { models, cpUser, subdomain }: IContext,
+    { models, cpUser, subdomain }: IContext
   ) {
     const filter = {} as any;
     if (_id) filter._id = _id;
@@ -403,11 +403,11 @@ const configClientPortalQueries = {
       contentTypeId: string;
       userKind: string;
     },
-    { models, cpUser, subdomain }: IContext,
+    { models, cpUser, subdomain }: IContext
   ) {
     const userIds = await models.ClientPortalUserCards.getUserIds(
       contentType,
-      contentTypeId,
+      contentTypeId
     );
 
     if (!userIds || userIds.length === 0) {
@@ -437,11 +437,13 @@ const configClientPortalQueries = {
         },
       },
     ]);
+
     const filter = {} as any;
 
     if (contentType) filter.contentType = contentType;
     if (contentTypeId) filter.contentTypeId = contentTypeId;
-    if (users?.length > 0) filter.cpUserId = { $in: users.map((d) => d._id) };
+    if (users?.length > 0) filter.cpUserId = { $in: users.map(d => d._id) };
+    else return [];
     return models.ClientPortalUserCards.find(filter);
   },
 };

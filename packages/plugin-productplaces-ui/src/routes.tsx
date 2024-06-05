@@ -1,10 +1,11 @@
-import Settings from './containers/Settings';
-import React from 'react';
-import { Route } from 'react-router-dom';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import Settings from "./containers/Settings";
+import React from "react";
+import { Route, Routes } from "react-router-dom";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 
-const StageSettings = asyncComponent(() =>
-  import(/* webpackChunkName: "StageSettings" */ './components/StageSettings')
+const StageSettings = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "StageSettings" */ "./components/StageSettings")
 );
 
 const StageSetting = () => {
@@ -13,8 +14,9 @@ const StageSetting = () => {
   );
 };
 
-const SplitSettings = asyncComponent(() =>
-  import(/* webpackChunkName: "SplitSettings" */ './components/SplitSettings')
+const SplitSettings = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "SplitSettings" */ "./components/SplitSettings")
 );
 
 const SplitSetting = () => {
@@ -23,8 +25,9 @@ const SplitSetting = () => {
   );
 };
 
-const PrintSettings = asyncComponent(() =>
-  import(/* webpackChunkName: "PrintSettings" */ './components/PrintSettings')
+const PrintSettings = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "PrintSettings" */ "./components/PrintSettings")
 );
 
 const PrintSetting = () => {
@@ -35,26 +38,23 @@ const PrintSetting = () => {
 
 const routes = () => {
   return (
-    <React.Fragment>
+    <Routes>
       <Route
         key="/erxes-plugin-product-places/settings/stage"
-        exact={true}
         path="/erxes-plugin-product-places/settings/stage"
-        component={StageSetting}
+        element={<StageSetting />}
       />
       <Route
         key="/erxes-plugin-product-places/settings/split"
-        exact={true}
         path="/erxes-plugin-product-places/settings/split"
-        component={SplitSetting}
+        element={<SplitSetting />}
       />
       <Route
         key="/erxes-plugin-product-places/settings/print"
-        exact={true}
         path="/erxes-plugin-product-places/settings/print"
-        component={PrintSetting}
+        element={<PrintSetting />}
       />
-    </React.Fragment>
+    </Routes>
   );
 };
 

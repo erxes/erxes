@@ -1,6 +1,6 @@
 import Settings from './containers/Settings';
 import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 
@@ -79,116 +79,112 @@ const PipelineSetting = () => {
   return <Settings component={PipelineSettings} configCode="remainderConfig" />;
 };
 
-const syncHistoryList = ({ location, history }) => {
+const SyncHistoryListComponent = () => {
+  const location = useLocation()
+
   return (
     <SyncHistoryList
       queryParams={queryString.parse(location.search)}
-      history={history}
     />
   );
 };
 
-const checkSyncedDealList = ({ location, history }) => {
+const CheckSyncedDealList = () => {
+  const location = useLocation()
+
   return (
     <CheckSyncedDeals
       queryParams={queryString.parse(location.search)}
-      history={history}
     />
   );
 };
 
-const CheckSyncedOrderList = ({ location, history }) => {
+const CheckSyncedOrderList = () => {
+  const location = useLocation()
+
   return (
     <CheckSyncedOrders
       queryParams={queryString.parse(location.search)}
-      history={history}
     />
   );
 };
 
-const InventoryProductList = ({ location, history }) => {
+const InventoryProductList = () => {
+  const location = useLocation()
+
   return (
     <InventoryProducts
       queryParams={queryString.parse(location.search)}
-      history={history}
     />
   );
 };
 
-const InventoryCategoryList = ({ location, history }) => {
+const InventoryCategoryList = () => {
+  const location = useLocation()
+
   return (
     <InventoryCategory
       queryParams={queryString.parse(location.search)}
-      history={history}
     />
   );
 };
 const routes = () => {
   return (
-    <React.Fragment>
+    <Routes>
       <Route
         key="/erxes-plugin-multi-erkhet/settings/general"
-        exact={true}
         path="/erxes-plugin-multi-erkhet/settings/general"
-        component={GeneralSetting}
+        element={<GeneralSetting/>}
       />
 
       <Route
         key="/erxes-plugin-multi-erkhet/settings/stage"
-        exact={true}
         path="/erxes-plugin-multi-erkhet/settings/stage"
-        component={StageSetting}
+        element={<StageSetting/>}
       />
 
       <Route
         key="/erxes-plugin-multi-erkhet/settings/return-stage"
-        exact={true}
         path="/erxes-plugin-multi-erkhet/settings/return-stage"
-        component={ReturnStageSetting}
+        element={<ReturnStageSetting/>}
       />
 
       <Route
         key="/erxes-plugin-multi-erkhet/settings/pipeline"
-        exact={true}
         path="/erxes-plugin-multi-erkhet/settings/pipeline"
-        component={PipelineSetting}
+        element={<PipelineSetting/>}
       />
 
       <Route
         key="/multi-erkhet-history"
-        exact={true}
         path="/multi-erkhet-history"
-        component={syncHistoryList}
+        element={<SyncHistoryListComponent/>}
       />
 
       <Route
         key="/check-multi-synced-deals"
-        exact={true}
         path="/check-multi-synced-deals"
-        component={checkSyncedDealList}
+        element={<CheckSyncedDealList/>}
       />
 
       <Route
         key="/check-multi-pos-orders"
-        exact={true}
         path="/check-multi-pos-orders"
-        component={CheckSyncedOrderList}
+        element={<CheckSyncedOrderList/>}
       />
 
       <Route
         key="/multi-inventory-products"
-        exact={true}
         path="/multi-inventory-products"
-        component={InventoryProductList}
+        element={<InventoryProductList/>}
       />
 
       <Route
         key="/multi-inventory-category"
-        exact={true}
         path="/multi-inventory-category"
-        component={InventoryCategoryList}
+        element={<InventoryCategoryList/>}
       />
-    </React.Fragment>
+    </Routes>
   );
 };
 

@@ -3,17 +3,17 @@ import gql from 'graphql-tag';
 import {
   types as posTypes,
   queries as posQueries,
-  mutations as posMutations
+  mutations as posMutations,
 } from './schema/pos';
 import {
   types as posOrderTypes,
   queries as posOrderQueries,
-  mutations as posOrderMutations
+  mutations as posOrderMutations,
 } from './schema/orders';
 import {
   types as posCoverTypes,
   queries as posCoverQueries,
-  mutations as posCoverMutations
+  mutations as posCoverMutations,
 } from './schema/covers';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 

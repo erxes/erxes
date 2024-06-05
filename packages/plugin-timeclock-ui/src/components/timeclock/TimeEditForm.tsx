@@ -1,18 +1,19 @@
-import React, { useState } from 'react';
-import { ControlLabel, FormControl } from '@erxes/ui/src/components/form';
+import { ControlLabel, FormControl } from "@erxes/ui/src/components/form";
 import {
   CustomRangeContainer,
   FlexCenter,
   FlexColumn,
   FlexRow,
-  FlexRowEven
-} from '../../styles';
-import { ITimeclock } from '../../types';
-import { IFormProps } from '@erxes/ui/src/types';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import { Alert } from '@erxes/ui/src/utils';
-import Form from '@erxes/ui/src/components/form/Form';
-import Button from '@erxes/ui/src/components/Button';
+  FlexRowEven,
+} from "../../styles";
+import React, { useState } from "react";
+
+import { Alert } from "@erxes/ui/src/utils";
+import Button from "@erxes/ui/src/components/Button";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import Form from "@erxes/ui/src/components/form/Form";
+import { IFormProps } from "@erxes/ui/src/types";
+import { ITimeclock } from "../../types";
 
 type Props = {
   timeclock: ITimeclock;
@@ -36,15 +37,15 @@ export const TimeEditForm = (props: Props) => {
 
   const [shiftEnded, setShiftEnded] = useState(!timeclock.shiftActive);
 
-  const onShiftStartInsertChange = date => {
+  const onShiftStartInsertChange = (date) => {
     setShiftStartInsert(date);
   };
 
-  const onShiftEndInsertChange = date => {
+  const onShiftEndInsertChange = (date) => {
     setShiftEndInsert(date);
   };
 
-  const toggleShiftActive = e => {
+  const toggleShiftActive = (e) => {
     setShiftEnded(e.target.checked);
   };
 
@@ -63,7 +64,7 @@ export const TimeEditForm = (props: Props) => {
     let inDeviceType;
 
     if (shiftStartInsert !== timeclock.shiftStart) {
-      inDeviceType = 'edit';
+      inDeviceType = "edit";
     }
 
     if (!shiftEnded) {
@@ -71,12 +72,12 @@ export const TimeEditForm = (props: Props) => {
         _id: timeclock._id,
         shiftStart: shiftStartInsert,
         shiftActive: true,
-        inDeviceType
+        inDeviceType,
       };
     }
 
     if (shiftEndInsert !== timeclock.shiftEnd) {
-      outDeviceType = 'edit';
+      outDeviceType = "edit";
     }
 
     return {
@@ -85,7 +86,7 @@ export const TimeEditForm = (props: Props) => {
       shiftEnd: shiftEndInsert,
       shiftActive: false,
       inDeviceType,
-      outDeviceType
+      outDeviceType,
     };
   };
 
@@ -96,7 +97,7 @@ export const TimeEditForm = (props: Props) => {
       shiftEndInsert &&
       new Date(shiftEndInsert).getTime() < new Date(shiftStartInsert).getTime()
     ) {
-      Alert.error('Shift end can not be sooner than shift start');
+      Alert.error("Shift end can not be sooner than shift start");
       return false;
     }
 
@@ -105,7 +106,7 @@ export const TimeEditForm = (props: Props) => {
 
   const renderTimelogForm = (formProps: IFormProps) => {
     return (
-      <FlexColumn marginNum={20}>
+      <FlexColumn $marginNum={20}>
         <div>
           {timeclock.user &&
             timeclock.user.details &&
@@ -117,9 +118,9 @@ export const TimeEditForm = (props: Props) => {
           <DateControl
             value={shiftStartInsert}
             name="startDate"
-            placeholder={'Starting date'}
-            dateFormat={'YYYY-MM-DD'}
-            timeFormat={'HH:mm'}
+            placeholder={"Starting date"}
+            dateFormat={"YYYY-MM-DD"}
+            timeFormat={"HH:mm"}
             onChange={onShiftStartInsertChange}
           />
         </CustomRangeContainer>
@@ -130,7 +131,7 @@ export const TimeEditForm = (props: Props) => {
             <FormControl
               name="shiftActive"
               defaultChecked={shiftEnded}
-              componentClass="checkbox"
+              componentclass="checkbox"
               onChange={toggleShiftActive}
             />
             <div>Ended</div>
@@ -144,16 +145,16 @@ export const TimeEditForm = (props: Props) => {
               <DateControl
                 value={shiftEndInsert}
                 name="startDate"
-                placeholder={'Starting date'}
-                dateFormat={'YYYY-MM-DD'}
-                timeFormat={'HH:mm'}
+                placeholder={"Starting date"}
+                dateFormat={"YYYY-MM-DD"}
+                timeFormat={"HH:mm"}
                 onChange={onShiftEndInsertChange}
               />
             </CustomRangeContainer>
           </>
         )}
 
-        <FlexCenter style={{ marginTop: '10px' }}>
+        <FlexCenter style={{ marginTop: "10px" }}>
           <Button btnStyle="primary" onClick={editTimeClock}>
             Save
           </Button>

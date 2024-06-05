@@ -1,6 +1,33 @@
 import { IModels } from '../../connectionResolver';
-import { ATTACHMENT_TYPES, CUSTOM_DATE_FREQUENCY_TYPES, DATERANGE_BY_TYPES, DATERANGE_TYPES, DIMENSION_OPTIONS, DUE_DATERANGE_TYPES, DUE_TYPES, MEASURE_OPTIONS, MONTH_NAMES, NOW, PRIORITY, PROBABILITY_DEAL, PROBABILITY_TASK, STATUS_TYPES, USER_TYPES, WEEKDAY_NAMES } from '../constants';
-import { buildMatchFilter, getDimensionPipeline } from '../utils';
+import { ATTACHMENT_TYPES, CUSTOM_DATE_FREQUENCY_TYPES, DATERANGE_BY_TYPES, DATERANGE_TYPES, DUE_DATERANGE_TYPES, DUE_TYPES, MONTH_NAMES, NOW, PRIORITY, PROBABILITY_DEAL, PROBABILITY_TASK, STATUS_TYPES, USER_TYPES, WEEKDAY_NAMES } from '../constants';
+import { buildMatchFilter, buildPipeline, buildData, getDimensionPipeline } from '../utils';
+const util = require('util')
+
+const MEASURE_OPTIONS = [
+    { label: 'Total Count', value: 'count' },
+    { label: 'Total Amount', value: 'totalAmount' },
+    { label: 'Average Amount', value: 'averageAmount' },
+    { label: 'Unused Amount', value: 'unusedAmount' },
+    { label: 'Forecast', value: 'forecastAmount' },
+];
+
+const DIMENSION_OPTIONS = [
+    { label: 'Team members', value: 'teamMember' },
+    { label: 'Departments', value: 'department' },
+    { label: 'Branches', value: 'branch' },
+    { label: 'Companies', value: 'company' },
+    { label: 'Customers', value: 'customer' },
+    { label: 'Products', value: 'product' },
+    { label: 'Boards', value: 'board' },
+    { label: 'Pipelines', value: 'pipeline' },
+    { label: 'Stages', value: 'stage' },
+    { label: 'Card', value: 'card' },
+    { label: 'Tags', value: 'tag' },
+    { label: 'Labels', value: 'label' },
+    { label: 'Frequency (day, week, month)', value: 'frequency' },
+    { label: 'Status', value: 'status' },
+    { label: 'Priority', value: 'priority' },
+];
 
 export const dealCharts = [
     {
@@ -11,7 +38,7 @@ export const dealCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
 
@@ -296,7 +323,7 @@ export const dealCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
 
@@ -347,7 +374,7 @@ export const dealCharts = [
 
             const data = Object.values(totalCountByLabel);
             const labels = Object.keys(totalCountByLabel);
-            const title = 'Total Deal Count By Tag';
+            const title = 'Total Deal Count By Label';
 
             return { title, data, labels };
         },
@@ -583,7 +610,7 @@ export const dealCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
 
@@ -892,7 +919,7 @@ export const dealCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
             const { userType = "userId" } = filter
@@ -1198,7 +1225,7 @@ export const dealCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
             const matchFilter = await buildMatchFilter(filter, 'deal', subdomain, models)
@@ -1500,7 +1527,7 @@ export const dealCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
 
@@ -1891,7 +1918,7 @@ export const dealCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
 
@@ -2206,7 +2233,7 @@ export const dealCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
 
@@ -2521,7 +2548,7 @@ export const dealCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
             const { userType = 'userId' } = filter
@@ -2822,53 +2849,51 @@ export const dealCharts = [
         templateType: "DealsTotalCount",
         serviceType: 'cards',
         name: 'Total Deals Count',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table', 'number'],
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
-            const matchFilter = await buildMatchFilter(filter, 'deal', subdomain, models)
+            const { dimension, measure } = filter
 
-            const pipeline = await getDimensionPipeline(filter, 'deal', subdomain, models)
+            const matchFilter = await buildMatchFilter(filter, 'deal', subdomain, models)
 
             let deals
 
-            if (pipeline.length === 0) {
-                const dealsCount = await models.Deals.find(matchFilter).count()
+            if (chartType === "number") {
+                const dealsCount = await models.Deals.find(matchFilter).countDocuments()
 
-                deals = [
-                    {
-                        key: "Total Count",
-                        count: dealsCount
-                    }
-                ]
+                deals = { labels: "Total Count", data: dealsCount }
             } else {
+                const pipeline = buildPipeline(filter, "deal", matchFilter)
+
                 deals = await models.Deals.aggregate(pipeline)
             }
 
-
-            const totalCount = (deals || []).reduce((acc, { count, key }) => {
-                acc[key] = count;
-                return acc;
-            }, {});
-
-            const data = Object.values(totalCount);
-            const labels = Object.keys(totalCount);
             const title = 'Total Deals Count';
 
-            return { title, data, labels };
+            return { title, ...buildData({ chartType, data: deals, measure, dimension }) };
         },
         filterTypes: [
             // DIMENSION FILTER
             {
                 fieldName: 'dimension',
                 fieldType: 'select',
-                multi: false,
+                multi: true,
                 fieldOptions: DIMENSION_OPTIONS,
-                fieldDefaultValue: 'count',
+                fieldDefaultValue: ['teamMember'],
                 fieldLabel: 'Select dimension',
+            },
+            // MEASURE FILTER
+            {
+                fieldName: 'measure',
+                fieldType: 'select',
+                multi: true,
+                fieldOptions: MEASURE_OPTIONS,
+                fieldDefaultValue: ['count'],
+                fieldLabel: 'Select measure',
             },
             // FREQUENCY TYPE FILTER BASED DIMENSION FILTER
             {
@@ -3127,7 +3152,7 @@ export const dealCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
             const { dateRangeType = 'closeDate', frequencyType = '%Y-%m-%d' } = filter
@@ -3505,7 +3530,7 @@ export const dealCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
 

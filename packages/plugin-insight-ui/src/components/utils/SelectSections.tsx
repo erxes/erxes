@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import Select, { Option } from 'react-select-plus';
+import CreatableSelect from 'react-select/creatable';
 
 import Icon from '@erxes/ui/src/components/Icon';
 import { __ } from '@erxes/ui/src/utils/index';
@@ -21,20 +21,22 @@ const SelectSections = (props: Props) => {
 
   const [input, setInput] = useState<string>('');
 
-  const handleClick = () => {
-    if (input === '' && input.length < 2) {
+  const handleClick = (inputValue: string) => {
+    if (inputValue === '' && inputValue.length < 2) {
       return;
     }
 
-    addSection({ name: input, type });
+    addSection({ name: inputValue, type });
   };
 
-  const customOption = (
-    <CustomOption onClick={handleClick}>
-      <Icon className="list-icon" icon="plus-1" />
-      <div>Section</div>
-    </CustomOption>
-  );
+  const formatCreateLabel = (inputValue: string) => {
+    return (
+      <CustomOption>
+        <Icon className="list-icon" icon="plus-1" />
+        <div>{inputValue}</div>
+      </CustomOption>
+    );
+  };
 
   const generateOptions = (options) => {
     const optionsWithButton = options.map((option) => ({
@@ -46,13 +48,14 @@ const SelectSections = (props: Props) => {
   };
 
   return (
-    <Select
+    <CreatableSelect
       placeholder={__('Choose a section')}
-      value={sectionId}
+      value={generateOptions(sections).find((o) => o.value === sectionId)}
       onChange={(selectedOption) => setSectionId(selectedOption.value)}
       options={generateOptions(sections)}
-      clearable={false}
-      noResultsText={customOption}
+      isClearable={false}
+      onCreateOption={handleClick}
+      formatCreateLabel={formatCreateLabel}
       onInputChange={(value) => setInput(value)}
       required={true}
     />

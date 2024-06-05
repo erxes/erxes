@@ -1,78 +1,96 @@
-import React from 'react';
-import { Alert, Bulk, Spinner } from '@erxes/ui/src';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { graphql } from '@apollo/client/react/hoc';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { generateParamsIds, getRefetchQueries } from '../../common/utils';
-import * as compose from 'lodash.flowright';
-import { queries, mutations } from '../graphql';
-
-import { gql } from '@apollo/client';
+import { Alert, Bulk } from "@erxes/ui/src";
 import {
-  AssetRemoveMutationResponse,
   IAssetCategoryDetailQueryResponse,
   IAssetDetailQueryResponse,
   IAssetQueryResponse,
   IAssetTotalCountQueryResponse,
-  MergeMutationResponse
-} from '../../common/types';
-import List from '../components/List';
+} from "../../common/types";
+import { generateParamsIds, getRefetchQueries } from "../../common/utils";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { mutations, queries } from "../graphql";
+
+import List from "../components/List";
+import React from "react";
+import { generatePaginationParams } from "@erxes/ui/src/utils/router";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
-type FinalProps = {
-  assets: IAssetQueryResponse;
-  assetsCount: IAssetTotalCountQueryResponse;
-  assetCategoryDetailQuery: IAssetCategoryDetailQueryResponse;
-  assetDetailQuery: IAssetDetailQueryResponse;
-  assetsAssignKbArticles: any;
-} & Props &
-  AssetRemoveMutationResponse &
-  MergeMutationResponse;
+const ListContainer = (props: Props) => {
+  const { queryParams } = props;
+  const navigate = useNavigate();
 
-function ListContainer(props: FinalProps) {
-  const {
-    queryParams,
-    history,
-    assets,
-    assetsCount,
-    assetCategoryDetailQuery,
-    assetDetailQuery,
-    assetsMerge,
-    assetsRemove,
-    assetsAssignKbArticles
-  } = props;
+  const assetsQuery = useQuery<IAssetQueryResponse>(gql(queries.assets), {
+    variables: generateQueryParams(queryParams),
+    fetchPolicy: "network-only",
+  });
+
+  const assetsCountQuery = useQuery<IAssetTotalCountQueryResponse>(
+    gql(queries.assetsCount),
+    {
+      variables: generateQueryParams(queryParams),
+      fetchPolicy: "network-only",
+    }
+  );
+
+  const assetDetailQuery = useQuery<IAssetDetailQueryResponse>(
+    gql(queries.assetDetail),
+    {
+      variables: {
+        _id: queryParams?.assetCategoryId,
+      },
+    }
+  );
+
+  const assetCategoryDetailQuery = useQuery<IAssetCategoryDetailQueryResponse>(
+    gql(queries.assetCategoryDetail),
+    {
+      variables: {
+        _id: queryParams?.assetCategoryId,
+      },
+    }
+  );
+
+  const [assetsMerge] = useMutation(gql(mutations.assetsMerge));
+  const [assetsRemove] = useMutation(gql(mutations.assetsRemove), {
+    refetchQueries: getRefetchQueries(),
+  });
+  const [assetsAssignKbArticles] = useMutation(
+    gql(mutations.assetsAssignKbArticles),
+    {
+      refetchQueries: getRefetchQueries(),
+    }
+  );
 
   const remove = ({ assetIds }, emptyBulk) => {
     assetsRemove({
-      variables: { assetIds }
+      variables: { assetIds },
     })
-      .then(removeStatus => {
+      .then((removeStatus) => {
         emptyBulk();
 
-        const status = removeStatus.data.assetsRemove;
+        const status = removeStatus?.data?.assetsRemove;
 
-        status === 'deleted'
-          ? Alert.success('You successfully deleted a asset')
-          : Alert.warning('Asset status deleted');
+        status === "deleted"
+          ? Alert.success("You successfully deleted a asset")
+          : Alert.warning("Asset status deleted");
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
 
   const assignKbArticles = ({ ids, data, callback }) => {
     assetsAssignKbArticles({
-      variables: { ids, ...generateQueryParams(queryParams), ...data }
+      variables: { ids, ...generateQueryParams(queryParams), ...data },
     })
       .then(() => {
-        Alert.success('Success');
+        Alert.success("Success");
         callback();
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
         callback();
       });
@@ -82,48 +100,49 @@ function ListContainer(props: FinalProps) {
     assetsMerge({
       variables: {
         assetIds: ids,
-        assetFields: data
-      }
+        assetFields: data,
+      },
     })
       .then((result: any) => {
         callback();
 
-        Alert.success('You successfully merged a asset');
-        history.push(
+        Alert.success("You successfully merged a asset");
+        navigate(
           `/settings/asset-movements/detail/${result.data.assetsMerge._id}`
         );
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
 
-  const assetList = bulkProps => {
+  const assetList = (bulkProps) => {
     const updatedProps = {
       ...props,
-      assets: assets?.assets || [],
-      assetsCount: assetsCount.assetsTotalCount || 0,
+      assets: assetsQuery?.data?.assets || [],
+      assetsCount: assetsCountQuery?.data?.assetsTotalCount || 0,
       remove,
       assignKbArticles,
       mergeAssets,
-      loading: assets.loading || assetsCount.loading,
+      loading: assetsQuery.loading || assetsCountQuery.loading,
       queryParams,
-      currentCategory: assetCategoryDetailQuery.assetCategoryDetail || {},
-      currentParent: assetDetailQuery.assetDetail || {},
-      searchValue: queryParams.searchValue || ''
+      currentCategory:
+        assetCategoryDetailQuery?.data?.assetCategoryDetail || {},
+      currentParent: assetDetailQuery?.data?.assetDetail || {},
+      searchValue: queryParams.searchValue || "",
     };
 
     return <List {...bulkProps} {...updatedProps} />;
   };
 
   const refetch = () => {
-    assets.refetch();
+    assetsQuery.refetch();
   };
 
   return <Bulk content={assetList} refetch={refetch} />;
-}
+};
 
-const generateQueryParams = queryParams => {
+const generateQueryParams = (queryParams) => {
   return {
     categoryId: queryParams?.assetCategoryId,
     parentId: queryParams?.assetId,
@@ -132,60 +151,12 @@ const generateQueryParams = queryParams => {
     irregular: Boolean(queryParams?.irregular),
     articleIds: generateParamsIds(queryParams?.articleIds),
     withKnowledgebase: queryParams?.state
-      ? queryParams?.state === 'Assigned'
+      ? queryParams?.state === "Assigned"
         ? true
         : false
       : undefined,
-    ...generatePaginationParams(queryParams || {})
+    ...generatePaginationParams(queryParams || {}),
   };
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props>(gql(queries.assets), {
-      name: 'assets',
-      options: ({ queryParams }) => ({
-        variables: generateQueryParams(queryParams),
-        fetchPolicy: 'network-only'
-      })
-    }),
-    graphql<Props>(gql(queries.assetsCount), {
-      name: 'assetsCount',
-      options: ({ queryParams }) => ({
-        variables: generateQueryParams(queryParams),
-        fetchPolicy: 'network-only'
-      })
-    }),
-    graphql<Props>(gql(queries.assetDetail), {
-      name: 'assetDetailQuery',
-      options: ({ queryParams }) => ({
-        variables: {
-          _id: queryParams?.parentId
-        }
-      })
-    }),
-    graphql<Props>(gql(queries.assetCategoryDetail), {
-      name: 'assetCategoryDetailQuery',
-      options: ({ queryParams }) => ({
-        variables: {
-          _id: queryParams?.assetCategoryId
-        }
-      })
-    }),
-    graphql(gql(mutations.assetsMerge), {
-      name: 'assetsMerge'
-    }),
-    graphql(gql(mutations.assetsRemove), {
-      name: 'assetsRemove',
-      options: () => ({
-        refetchQueries: getRefetchQueries()
-      })
-    }),
-    graphql(gql(mutations.assetsAssignKbArticles), {
-      name: 'assetsAssignKbArticles',
-      options: () => ({
-        refetchQueries: getRefetchQueries()
-      })
-    })
-  )(ListContainer)
-);
+export default ListContainer;

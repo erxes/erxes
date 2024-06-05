@@ -1,10 +1,11 @@
+import * as dayjs from 'dayjs';
+
 import { IModels, generateModels } from './connectionResolver';
 import {
   sendCoreMessage,
-  sendTagsMessage,
   sendFormsMessage,
+  sendTagsMessage,
 } from './messageBroker';
-import * as dayjs from 'dayjs';
 
 const checkFilterParam = (param: any) => {
   return param && param.length;
@@ -508,7 +509,7 @@ const chartTemplates = [
 
           // Count occurrences of labels
           deals.forEach((deal) => {
-            deal.labelIds.forEach((labelId) => {
+            (deal.labelIds || []).forEach((labelId) => {
               if (!labelData[labelId]) {
                 labelData[labelId] = {
                   _id: labelId,
@@ -695,7 +696,7 @@ const chartTemplates = [
       if (deals) {
         const idCounts = {};
         deals.forEach((dealItem) => {
-          dealItem.customFieldsData.forEach((fieldData) => {
+          (dealItem.customFieldsData || []).forEach((fieldData) => {
             if (fieldData.value && Array.isArray(fieldData.value)) {
               fieldData.value.forEach((obj) => {
                 const id = Object.keys(obj)[0];
@@ -2822,7 +2823,7 @@ const chartTemplates = [
       if (task) {
         const idCounts = {};
         task.forEach((ticketItem) => {
-          ticketItem.customFieldsData.forEach((fieldData) => {
+          (ticketItem.customFieldsData || []).forEach((fieldData) => {
             if (fieldData.value && Array.isArray(fieldData.value)) {
               fieldData.value.forEach((obj) => {
                 const id = Object.keys(obj)[0];
@@ -4151,7 +4152,7 @@ const chartTemplates = [
         }).lean();
         if (taskCount) {
           tasks = taskCount.filter((task) => {
-            return task.assignedUserIds.some((userId) =>
+            return (task.assignedUserIds || []).some((userId) =>
               selectedUserIds.includes(userId),
             );
           });
@@ -4765,7 +4766,7 @@ const chartTemplates = [
         }).lean();
         if (taskCount) {
           tasks = taskCount.filter((task) => {
-            return task.assignedUserIds.some((userId) =>
+            return (task.assignedUserIds || []).some((userId) =>
               selectedUserIds.includes(userId),
             );
           });
@@ -9387,7 +9388,7 @@ async function pipelineFilterData(
     // Assign totalAmount to each deal
     const groupStage = deals.map((deal) => ({
       ...deal,
-      productCount: deal.productsData.length,
+      productCount: deal.productsData?.length,
       totalAmount: dealAmountMap[deal.stageId],
     }));
     const title = 'Deals sales and average';

@@ -1,22 +1,26 @@
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 
-const Properties = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings Properties" */ './containers/Properties'
-  )
+const Properties = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings Properties" */ './containers/Properties'
+    ),
 );
 
-const properties = ({ location }) => {
+const PropertiesComp = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <Properties queryParams={queryParams} />;
 };
 
 const routes = () => (
-  <Route path="/settings/properties/" component={properties} />
+  <Routes>
+    <Route path="/settings/properties/" element={<PropertiesComp />} />
+  </Routes>
 );
 
 export default routes;

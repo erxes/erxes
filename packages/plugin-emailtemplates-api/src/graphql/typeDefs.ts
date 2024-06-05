@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import {
   types as emailTemplateTypes,
   queries as emailTemplateQueries,
-  mutations as emailTemplateMutations
+  mutations as emailTemplateMutations,
 } from './schema/emailTemplate';
 
 const typeDefs = async () => {

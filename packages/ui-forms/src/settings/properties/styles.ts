@@ -39,14 +39,14 @@ const FieldType = styled.span`
   display: flex;
 `;
 
-const CollapseRow = styledTS<{ isChild: boolean }>(styled.div)`
+const CollapseRow = styledTS<{ $isChild: boolean }>(styled.div)`
   font-size: ${coreSpace};
   position: relative;
   display: flex;
   overflow: hidden;
   justify-content: space-between;
   padding: ${props =>
-    props.isChild ? dimensions.unitSpacing : dimensions.coreSpacing}px;
+    props.$isChild ? dimensions.unitSpacing : dimensions.coreSpacing}px;
   margin: 0px;
   background: ${colors.colorWhite};
 
@@ -57,7 +57,7 @@ const CollapseRow = styledTS<{ isChild: boolean }>(styled.div)`
   }
 `;
 
-const DropIcon = styledTS<{ isOpen: boolean }>(styled.i)`
+const DropIcon = styledTS<{ $isOpen: boolean }>(styled.i)`
   font-style: normal;
   line-height: 1;
 
@@ -69,7 +69,7 @@ const DropIcon = styledTS<{ isOpen: boolean }>(styled.i)`
     font-size: 18px;
     margin-right: ${coreSpace};
     transition: all ease 0.3s;
-    transform: ${props => props.isOpen && `rotate(180deg)`};
+    transform: ${props => props.$isOpen && `rotate(180deg)`};
   }
 `;
 
@@ -91,6 +91,10 @@ const SidebarFooter = styled.div`
 
 const SelectInput = styled.div`
   margin-bottom: 5px;
+
+  > div {
+    flex: 0;
+  }
 
   label {
     margin-right: 5px;
@@ -152,7 +156,7 @@ const RowField = styled.div`
 
 const PropertyTableRow = styled.div`
   display: flex;
-  flex 1;
+  flex: 1;
 
   &:hover {
     ${RowField} {

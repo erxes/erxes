@@ -1,216 +1,153 @@
-import * as compose from 'lodash.flowright';
-import { gql } from '@apollo/client';
-import React from 'react';
-import { Alert, Spinner, withProps } from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { graphql } from '@apollo/client/react/hoc';
-import Pos from '../components/Pos';
+import { gql, useQuery, useMutation } from "@apollo/client";
+import React, { useState } from "react";
+import { Alert, Spinner } from "@erxes/ui/src";
+import Pos from "../components/Pos";
 import {
   AddPosMutationResponse,
   EditPosMutationResponse,
   GroupsBulkInsertMutationResponse,
   GroupsQueryResponse,
-  IProductGroup,
   PosDetailQueryResponse,
   PosEnvQueryResponse,
   SlotsBulkUpdateMutationResponse,
-  SlotsQueryResponse
-} from '../../types';
-import { IPos, ISlot } from '../../types';
-import { mutations, queries } from '../graphql';
+  SlotsQueryResponse,
+} from "../../types";
+import { IPos } from "../../types";
+import { mutations, queries } from "../graphql";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   posId?: string;
   queryParams: any;
-  history: any;
 };
 
-type State = {
-  isLoading: boolean;
-};
+const PosContainer = (props: Props) => {
+  const { posId } = props;
+  const navigate = useNavigate();
 
-type FinalProps = {
-  posDetailQuery: PosDetailQueryResponse;
-  groupsQuery: GroupsQueryResponse;
-  slotsQuery: SlotsQueryResponse;
-  posEnvQuery: PosEnvQueryResponse;
-} & Props &
-  EditPosMutationResponse &
-  AddPosMutationResponse &
-  GroupsBulkInsertMutationResponse &
-  IRouterProps &
-  SlotsBulkUpdateMutationResponse;
+  const [loading, setLoading] = useState<boolean>(false);
 
-class EditPosContainer extends React.Component<FinalProps, State> {
-  constructor(props: FinalProps) {
-    super(props);
-
-    this.state = { isLoading: false };
-  }
-
-  render() {
-    const {
-      groupsQuery,
-      posDetailQuery,
-      editPosMutation,
-      addPosMutation,
-      productGroupsBulkInsertMutation,
-      slotsBulkUpdateMutation,
-      history,
-      slotsQuery,
-      posEnvQuery
-    } = this.props;
-
-    if (
-      (posDetailQuery && posDetailQuery.loading) ||
-      (groupsQuery && groupsQuery.loading) ||
-      (slotsQuery && slotsQuery.loading)
-    ) {
-      return <Spinner objective={true} />;
+  const posDetailQuery = useQuery<PosDetailQueryResponse>(
+    gql(queries.posDetail),
+    {
+      skip: !posId,
+      fetchPolicy: "cache-and-network",
+      variables: {
+        _id: posId || "",
+        posId: posId || "",
+      },
     }
+  );
 
-    const pos = (posDetailQuery && posDetailQuery.posDetail) || ({} as IPos);
-    const groups = (groupsQuery && groupsQuery.productGroups) || [];
-    const slots = (slotsQuery && slotsQuery.posSlots) || [];
-    const envs = posEnvQuery.posEnv || {};
+  const posEnvQuery = useQuery<PosEnvQueryResponse>(gql(queries.posEnv), {
+    fetchPolicy: "cache-and-network",
+  });
 
-    const save = doc => {
-      const { posId } = this.props;
+  const groupsQuery = useQuery<GroupsQueryResponse>(
+    gql(queries.productGroups),
+    {
+      skip: !posId,
+      fetchPolicy: "cache-and-network",
+      variables: {
+        posId: posId || "",
+      },
+    }
+  );
 
-      this.setState({ isLoading: true });
+  const slotsQuery = useQuery<SlotsQueryResponse>(gql(queries.productGroups), {
+    skip: !posId,
+    fetchPolicy: "network-only",
+    variables: {
+      posId: posId || "",
+    },
+  });
 
-      const saveMutation = posId ? editPosMutation : addPosMutation;
+  const [addPosMutation] = useMutation<AddPosMutationResponse>(
+    gql(mutations.posAdd)
+  );
+  const [editPosMutation] = useMutation<EditPosMutationResponse>(
+    gql(mutations.posEdit)
+  );
+  const [productGroupsBulkInsertMutation] =
+    useMutation<GroupsBulkInsertMutationResponse>(
+      gql(mutations.saveProductGroups)
+    );
+  const [slotsBulkUpdateMutation] =
+    useMutation<SlotsBulkUpdateMutationResponse>(gql(mutations.saveSlots));
 
-      saveMutation({
-        variables: {
-          _id: posId,
-          ...doc
-        }
-      })
-        .then(data => {
-          productGroupsBulkInsertMutation({
-            variables: {
-              posId: posId || data.data.posAdd._id,
-              groups: doc.groups.map(e => ({
-                _id: e._id,
-                name: e.name,
-                description: e.description,
-                categoryIds: e.categoryIds || [],
-                excludedCategoryIds: e.excludedCategoryIds || [],
-                excludedProductIds: e.excludedProductIds || []
-              }))
-            }
-          });
-          slotsBulkUpdateMutation({
-            variables: {
-              posId: posId || data.data.posAdd._id,
-              slots: doc.posSlots
-            }
-          });
-        })
-        .then(() => {
-          Alert.success('You successfully updated a pos');
-
-          history.push({
-            pathname: `/pos`,
-            search: '?refetchList=true'
-          });
-        })
-
-        .catch(error => {
-          Alert.error(error.message);
-
-          this.setState({ isLoading: false });
-        });
-    };
-
-    const updatedProps = {
-      ...this.props,
-      groups,
-      pos,
-      save,
-      isActionLoading: this.state.isLoading,
-      slots,
-      envs
-    };
-
-    return <Pos {...updatedProps} />;
+  if (
+    (posDetailQuery && posDetailQuery.loading) ||
+    (groupsQuery && groupsQuery.loading) ||
+    (slotsQuery && slotsQuery.loading)
+  ) {
+    return <Spinner objective={true} />;
   }
-}
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, PosDetailQueryResponse, { posId: string }>(
-      gql(queries.posDetail),
-      {
-        name: 'posDetailQuery',
-        skip: ({ posId }) => !posId,
-        options: ({ posId }: { posId?: string }) => ({
-          fetchPolicy: 'cache-and-network',
-          variables: {
-            _id: posId || '',
-            posId: posId || ''
-          }
-        })
-      }
-    ),
-    graphql<Props, PosDetailQueryResponse, {}>(gql(queries.posEnv), {
-      name: 'posEnvQuery',
-      options: () => ({
-        fetchPolicy: 'cache-and-network'
-      })
-    }),
-    graphql<{}, AddPosMutationResponse, IPos>(gql(mutations.posAdd), {
-      name: 'addPosMutation'
-    }),
+  const save = (doc) => {
+    setLoading(true);
 
-    graphql<Props, GroupsQueryResponse, { posId: string }>(
-      gql(queries.productGroups),
-      {
-        name: 'groupsQuery',
-        skip: ({ posId }) => !posId,
-        options: ({ posId }: { posId?: string }) => ({
-          fetchPolicy: 'cache-and-network',
-          variables: {
-            posId: posId || ''
-          }
-        })
-      }
-    ),
+    const saveMutation = posId ? editPosMutation : addPosMutation;
 
-    graphql<Props, SlotsQueryResponse, { posId: string }>(
-      gql(queries.posSlots),
-      {
-        name: 'slotsQuery',
-        skip: ({ posId }) => !posId,
-        options: ({ posId }: { posId?: string }) => ({
-          variables: { posId: posId || '' },
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
-
-    graphql<Props, EditPosMutationResponse, { _id: string } & IPos>(
-      gql(mutations.posEdit),
-      {
-        name: 'editPosMutation'
-      }
-    ),
-
-    graphql<
-      Props,
-      GroupsBulkInsertMutationResponse,
-      { posId: string; groups: IProductGroup[] }
-    >(gql(mutations.saveProductGroups), {
-      name: 'productGroupsBulkInsertMutation'
-    }),
-
-    graphql<
-      Props,
-      SlotsBulkUpdateMutationResponse,
-      { posId: string; groups: ISlot[] }
-    >(gql(mutations.saveSlots), {
-      name: 'slotsBulkUpdateMutation'
+    saveMutation({
+      variables: {
+        _id: posId,
+        ...doc,
+      },
     })
-  )(EditPosContainer)
-);
+      .then((data) => {
+        productGroupsBulkInsertMutation({
+          variables: {
+            posId: posId || data.data.posAdd._id,
+            groups: doc.groups.map((e) => ({
+              _id: e._id,
+              name: e.name,
+              description: e.description,
+              categoryIds: e.categoryIds || [],
+              excludedCategoryIds: e.excludedCategoryIds || [],
+              excludedProductIds: e.excludedProductIds || [],
+            })),
+          },
+        });
+        slotsBulkUpdateMutation({
+          variables: {
+            posId: posId || data.data.posAdd._id,
+            slots: doc.posSlots,
+          },
+        });
+      })
+      .then(() => {
+        Alert.success("You successfully updated a pos");
+
+        navigate({
+          pathname: `/pos`,
+          search: "?refetchList=true",
+        });
+      })
+
+      .catch((error) => {
+        Alert.error(error.message);
+
+        setLoading(false);
+      });
+  };
+
+  const pos =
+    (posDetailQuery && posDetailQuery?.data?.posDetail) || ({} as IPos);
+  const groups = (groupsQuery && groupsQuery?.data?.productGroups) || [];
+  const slots = (slotsQuery && slotsQuery?.data?.posSlots) || [];
+  const envs = posEnvQuery?.data?.posEnv || {};
+
+  const updatedProps = {
+    ...props,
+    groups,
+    pos,
+    save,
+    isActionLoading: loading,
+    slots,
+    envs,
+  };
+
+  return <Pos {...updatedProps} />;
+};
+
+export default PosContainer;

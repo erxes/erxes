@@ -1,18 +1,11 @@
 import Chooser from '@erxes/ui/src/components/Chooser';
-import { withProps } from '@erxes/ui/src/utils/core';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
+import React, { useState } from 'react';
 
-import { mutations, queries } from '../graphql';
-import {
-  AddMutationResponse,
-  ContractTypesQueryResponse,
-  IContractType,
-  IContractTypeDoc
-} from '../types';
+import { queries } from '../graphql';
+import { ContractTypesQueryResponse, IContractType } from '../types';
 import ContractTypeForm from './ContractTypeForm';
+import { useQuery } from '@apollo/client';
 
 type Props = {
   search: (value: string, loadMore?: boolean) => void;
@@ -20,100 +13,66 @@ type Props = {
   searchValue: string;
 };
 
-type FinalProps = {
-  contractTypesQuery: ContractTypesQueryResponse;
-} & Props &
-  AddMutationResponse;
+const ContractTypeChooser = (props: Props & WrapperProps) => {
+  const [newContractType, setNewContractType] = useState(undefined as any);
+  const { searchValue, perPage, data, search } = props;
 
-class ContractTypeChooser extends React.Component<
-  WrapperProps & FinalProps,
-  { newContractType?: IContractType }
-> {
-  constructor(props) {
-    super(props);
+  const contractTypesQuery = useQuery<ContractTypesQueryResponse>(
+    gql(queries.contractTypes),
+    {
+      variables: {
+        searchValue,
+        perPage,
+        mainType: data.mainType,
+        mainTypeId: data.mainTypeId,
+        isRelated: data.isRelated,
+        sortField: 'createdAt',
+        sortDirection: -1,
+      },
+      fetchPolicy: data.isRelated ? 'network-only' : 'cache-first',
+    },
+  );
 
-    this.state = {
-      newContractType: undefined
-    };
-  }
-
-  resetAssociatedItem = () => {
-    return this.setState({ newContractType: undefined });
+  const resetAssociatedItem = () => {
+    setNewContractType(undefined);
   };
 
-  render() {
-    const { data, contractTypesQuery, search } = this.props;
+  const renderName = (contractType) => {
+    return `${contractType.code} - ${contractType.name} (${contractType.percent})`;
+  };
 
-    const renderName = contractType => {
-      return `${contractType.code} - ${contractType.name} (${contractType.percent})`;
-    };
+  const getAssociatedContractType = (newContractType: IContractType) => {
+    setNewContractType(newContractType);
+  };
 
-    const getAssociatedContractType = (newContractType: IContractType) => {
-      this.setState({ newContractType });
-    };
+  const updatedProps = {
+    ...props,
+    data: {
+      _id: data._id,
+      name: renderName(data),
+      datas: data.contractTypes,
+      mainTypeId: data.mainTypeId,
+      mainType: data.mainType,
+      relType: 'contractType',
+    },
+    search,
+    clearState: () => search(''),
+    title: 'ContractType',
+    renderForm: (formProps) => (
+      <ContractTypeForm
+        {...formProps}
+        getAssociatedContractType={getAssociatedContractType}
+      />
+    ),
+    renderName,
+    newItem: newContractType,
+    resetAssociatedItem: resetAssociatedItem,
+    datas: contractTypesQuery?.data?.contractTypes || [],
+    refetchQuery: queries.contractTypes,
+  };
 
-    const updatedProps = {
-      ...this.props,
-      data: {
-        _id: data._id,
-        name: renderName(data),
-        datas: data.contractTypes,
-        mainTypeId: data.mainTypeId,
-        mainType: data.mainType,
-        relType: 'contractType'
-      },
-      search,
-      clearState: () => search(''),
-      title: 'ContractType',
-      renderForm: formProps => (
-        <ContractTypeForm
-          {...formProps}
-          getAssociatedContractType={getAssociatedContractType}
-        />
-      ),
-      renderName,
-      newItem: this.state.newContractType,
-      resetAssociatedItem: this.resetAssociatedItem,
-      datas: contractTypesQuery.contractTypes || [],
-      refetchQuery: queries.contractTypes
-    };
-
-    return <Chooser {...updatedProps} />;
-  }
-}
-
-const WithQuery = withProps<Props>(
-  compose(
-    graphql<
-      Props & WrapperProps,
-      ContractTypesQueryResponse,
-      { searchValue: string; perPage: number }
-    >(gql(queries.contractTypes), {
-      name: 'contractTypesQuery',
-      options: ({ searchValue, perPage, data }) => {
-        return {
-          variables: {
-            searchValue,
-            perPage,
-            mainType: data.mainType,
-            mainTypeId: data.mainTypeId,
-            isRelated: data.isRelated,
-            sortField: 'createdAt',
-            sortDirection: -1
-          },
-          fetchPolicy: data.isRelated ? 'network-only' : 'cache-first'
-        };
-      }
-    }),
-    // mutations
-    graphql<{}, AddMutationResponse, IContractTypeDoc>(
-      gql(mutations.contractTypesAdd),
-      {
-        name: 'contractTypesAdd'
-      }
-    )
-  )(ContractTypeChooser)
-);
+  return <Chooser {...updatedProps} />;
+};
 
 type WrapperProps = {
   data: {
@@ -128,39 +87,27 @@ type WrapperProps = {
   closeModal: () => void;
 };
 
-export default class Wrapper extends React.Component<
-  WrapperProps,
-  {
-    perPage: number;
-    searchValue: string;
-  }
-> {
-  constructor(props) {
-    super(props);
+export default function Wrapper(props: WrapperProps) {
+  const [perPage, setPerPage] = useState(20);
+  const [searchValue, setSearchValue] = useState('');
 
-    this.state = { perPage: 20, searchValue: '' };
-  }
-
-  search = (value, loadmore) => {
+  const search = (value, loadmore) => {
     let perPage = 20;
 
     if (loadmore) {
-      perPage = this.state.perPage + 20;
+      perPage = perPage + 20;
     }
 
-    return this.setState({ perPage, searchValue: value });
+    setPerPage(perPage);
+    setSearchValue(value);
   };
 
-  render() {
-    const { searchValue, perPage } = this.state;
-
-    return (
-      <WithQuery
-        {...this.props}
-        search={this.search}
-        searchValue={searchValue}
-        perPage={perPage}
-      />
-    );
-  }
+  return (
+    <ContractTypeChooser
+      {...props}
+      search={search}
+      searchValue={searchValue}
+      perPage={perPage}
+    />
+  );
 }

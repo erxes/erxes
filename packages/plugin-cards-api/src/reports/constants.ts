@@ -51,6 +51,57 @@ export const DIMENSION_OPTIONS = [
     { label: 'Priority', value: 'priority' },
 ];
 
+export const DIMENSION_MAP = {
+    teamMember: "userId",
+    department: "departmentId",
+    branch: "branchId",
+    company: "companyId",
+    customer: "customerId",
+    product: "productId",
+    board: "boardId",
+    pipeline: "pipelineId",
+    stage: "stageId",
+    tag: "tagId",
+    label: "labelId",
+    frequency: "frequency",
+    status: "status",
+    priority: "priority",
+}
+
+export const COLLECTION_MAP = {
+    teamMember: "users",
+    department: "departments",
+    branch: "branches",
+    company: "companies",
+    customer: "customers",
+    product: "products",
+    board: "boards",
+    pipeline: "pipelines",
+    stage: "stages",
+    tag: "tags",
+    label: "pipeline_labels",
+    // frequency: "frequency",
+    // status: "status",
+    // priority: "priority",
+}
+
+export const FIELD_MAP = {
+    teamMember: "userId",
+    department: "departmentIds",
+    branch: "branchIds",
+    // company : "companyId", 
+    // customer : "customerId", 
+    product: "productsData",
+    // board : "boardId", 
+    // pipeline : "pipelineId", 
+    stage: "stageId",
+    tag: "tagIds",
+    label: "labelIds",
+    // frequency : "frequency", 
+    status: "status",
+    // priority : "priority", 
+}
+
 export const CUSTOM_DATE_FREQUENCY_TYPES = [
     { label: 'By week', value: '%V' },
     { label: 'By month', value: '%m' },
@@ -65,6 +116,16 @@ export const MEASURE_OPTIONS = [
     { label: 'Total Time', value: 'time' },
     { label: 'Average Time', value: 'averageTime' },
     { label: 'Forecast', value: 'forecast' },
+];
+
+export const INTEGRATION_OPTIONS = [
+    { label: 'XOS Messenger', value: 'messenger' },
+    { label: 'Email', value: 'email' },
+    { label: 'Call', value: 'calls' },
+    { label: 'Callpro', value: 'callpro' },
+    { label: 'SMS', value: 'sms' },
+    { label: 'Facebook Messenger', value: 'facebook-messenger' },
+    { label: 'Facebook Post', value: 'facebook-post' },
 ];
 
 export const USER_TYPES = [
@@ -165,27 +226,3 @@ export const PRIORITY = [
     { label: 'Medium', value: 'Medium' },
     { label: 'Low', value: 'Low' },
 ];
-
-// ----------------------------------------------------------------
-
-
-export const DATE_RANGE_TYPES = [
-    { label: 'All time', value: 'all' },
-    { label: 'Today', value: 'today' },
-    { label: 'Yesterday', value: 'yesterday' },
-    { label: 'This Week', value: 'thisWeek' },
-    { label: 'Last Week', value: 'lastWeek' },
-    { label: 'This Month', value: 'thisMonth' },
-    { label: 'Last Month', value: 'lastMonth' },
-    { label: 'This Year', value: 'thisYear' },
-    { label: 'Last Year', value: 'lastYear' },
-    { label: 'Custom Date', value: 'customDate' },
-];
-
-export const PIPELINE_TYPE_TICKET = 'ticket';
-export const PIPELINE_TYPE_DEAL = 'deal';
-export const PIPELINE_TYPE_TASK = 'task';
-
-export const CUSTOM_PROPERTIES_DEAL = 'cards:deal';
-export const CUSTOM_PROPERTIES_TICKET = 'cards:ticket';
-export const CUSTOM_PROPERTIES_TASK = 'cards:task';

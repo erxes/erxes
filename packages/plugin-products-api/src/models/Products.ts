@@ -124,7 +124,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         throw new Error('Code is not validate of category mask');
       }
 
-      doc.sameMasks = await checkSameMaskConfig(models, subdomain, doc);
+      doc.sameMasks = await checkSameMaskConfig(models, doc);
 
       doc.uom = await models.Uoms.checkUOM(doc);
 
@@ -170,7 +170,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         product.customFieldsData,
         doc.customFieldsData,
       );
-      doc.sameMasks = await checkSameMaskConfig(models, subdomain, {
+      doc.sameMasks = await checkSameMaskConfig(models, {
         ...product,
         ...doc,
       });
@@ -471,7 +471,7 @@ export const loadProductCategoryClass = (models: IModels) => {
      * Generating order
      */
     public static async generateOrder(
-      parentCategory: IProductCategory,
+      parentCategory: IProductCategory | null | undefined,
       doc: IProductCategory,
     ) {
       const order = parentCategory

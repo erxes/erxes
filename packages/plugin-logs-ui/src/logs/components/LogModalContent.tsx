@@ -226,7 +226,7 @@ export default class LogModal extends React.Component<Props> {
             size={15}
             color={color}
           />
-          <TextInfo textStyle={cls} hugeness="big">
+          <TextInfo $textStyle={cls} hugeness="big">
             {label}
           </TextInfo>
         </div>

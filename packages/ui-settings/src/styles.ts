@@ -116,12 +116,12 @@ const ActionButtons = styled.div`
 `;
 
 const SidebarListItem = styledTS<{
-  isActive: boolean;
+  $isActive: boolean;
   backgroundColor?: string;
 }>(styled.li)`
   position: relative;
-  background: ${props =>
-    (props.isActive && rgba(colors.colorPrimary, 0.2)) ||
+  background: ${(props) =>
+    (props.$isActive && rgba(colors.colorPrimary, 0.2)) ||
     props.backgroundColor ||
     colors.colorWhite};
   overflow: hidden;
@@ -132,8 +132,8 @@ const SidebarListItem = styledTS<{
   a {
     white-space: normal;
     flex: 1;
-    color: ${props => props.isActive && colors.colorPrimary} !important;
-    font-weight: ${props => (props.isActive ? 600 : 500)};
+    color: ${(props) => props.$isActive && colors.colorPrimary} !important;
+    font-weight: ${(props) => (props.$isActive ? 600 : 500)};
 
     border-bottom: 1px solid ${colors.borderPrimary};
 
@@ -142,7 +142,7 @@ const SidebarListItem = styledTS<{
 
     &:hover {
       background: none;
-      color: ${props => !props.isActive && lighten(colors.textPrimary, 40)};
+      color: ${(props) => !props.$isActive && lighten(colors.textPrimary, 40)};
     }
 
     &:focus {
@@ -161,7 +161,7 @@ const SidebarListItem = styledTS<{
   
   &:hover {
     cursor: pointer;
-    background: ${props => !props.isActive && colors.bgLight};
+    background: ${(props) => !props.$isActive && colors.bgLight};
     
     ${ActionButtons} {
       width: 60px;
@@ -203,24 +203,24 @@ const ExpandWrapper = styled.div`
   }
 `;
 
-const Description = styledTS<{ noMargin?: boolean; halfWidth?: boolean }>(
-  styled.div
+const Description = styledTS<{ $noMargin?: boolean; $halfWidth?: boolean }>(
+  styled.div,
 )`
   color: ${colors.colorCoreGray};
   font-size: 12px;
-  max-width: ${props => props.halfWidth && '500px'};
-  margin-bottom: ${props => !props.noMargin && '20px'};
+  max-width: ${(props) => props.$halfWidth && '500px'};
+  margin-bottom: ${(props) => !props.$noMargin && '20px'};
 `;
 
-const FlexRow = styledTS<{ alignItems?: string; justifyContent?: string }>(
-  styled.div
+const FlexRow = styledTS<{ $alignItems?: string; $justifyContent?: string }>(
+  styled.div,
 )`
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
-  align-items: ${props => (props.alignItems ? props.alignItems : 'center')};
-  justify-content: ${props =>
-    props.justifyContent ? props.justifyContent : 'flex-start'};
+  align-items: ${(props) => (props.$alignItems ? props.$alignItems : 'center')};
+  justify-content: ${(props) =>
+    props.$justifyContent ? props.$justifyContent : 'flex-start'};
   flex: 1;
 
   > div {
@@ -262,6 +262,11 @@ const FlexItem = styled(DateContainer)`
   margin-left: ${dimensions.coreSpacing}px;
   &:first-child {
     margin-left: 0;
+  }
+
+  .css-13cymwt-control, .css-t3ipsp-control { 
+    background: transparent !important;
+    border-width: 0 !important;
   }
 `;
 
@@ -333,10 +338,10 @@ const SubItem = styled.div`
   }
 `;
 
-const FilterContainer = styledTS<{ marginRight?: boolean }>(styled.div)`
+const FilterContainer = styledTS<{ $marginRight?: boolean }>(styled.div)`
   position: relative;
   z-index: 2;
-  margin-right: ${props => props.marginRight && '10px'};
+  margin-right: ${(props) => props.$marginRight && '10px'};
 `;
 
 const SidebarList = styled.div`
@@ -405,12 +410,12 @@ const InputBar = styledTS<{ type?: string }>(styled.div)`
   align-items: center;
   display: flex;
   flex: 1;
-  max-width: ${props =>
+  max-width: ${(props) =>
     props.type === 'active' && `${dimensions.headerSpacingWide * 2 + 20}px`};
   padding: 0 5px 0 ${dimensions.coreSpacing}px;
   border-radius: 8px;
-  margin-left: ${props => props.type === 'active' && '10px'};
-  padding-left: ${props =>
+  margin-left: ${(props) => props.type === 'active' && '10px'};
+  padding-left: ${(props) =>
     props.type === 'searchBar' && `${dimensions.unitSpacing * 2}px`};
 
   input, .Select-control {
@@ -424,11 +429,11 @@ const Header = styled.div`
   border-bottom: 1px solid ${colors.borderPrimary};
 `;
 
-const Title = styledTS<{ capitalize?: boolean }>(styled.div)`
+const Title = styledTS<{ $capitalize?: boolean }>(styled.div)`
   font-size: 24px;
   display: flex;
   line-height: 30px;
-  text-transform: ${props => props.capitalize && 'capitalize'};
+  text-transform: ${(props) => props.$capitalize && 'capitalize'};
 
   > span {
     font-size: 75%;
@@ -526,5 +531,5 @@ export {
   TicketComment,
   CommentContent,
   CreatedUser,
-  LeftActionBar
+  LeftActionBar,
 };

@@ -1,24 +1,24 @@
-import { ActionButtons, SidebarListItem } from '@erxes/ui-settings/src/styles';
-import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import { ActionButtons, SidebarListItem } from "@erxes/ui-settings/src/styles";
+import { FieldStyle, SidebarList } from "@erxes/ui/src/layout/styles";
 import {
   ISkillType,
-  ISkillTypesDocument
-} from '@erxes/ui-inbox/src/settings/skills/types';
-import { Link, withRouter } from 'react-router-dom';
+  ISkillTypesDocument,
+} from "@erxes/ui-inbox/src/settings/skills/types";
 
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { Header } from '@erxes/ui-settings/src/styles';
-import Icon from '@erxes/ui/src/components/Icon';
-import LoadMore from '@erxes/ui/src/components/LoadMore';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import SkillTypeForm from './SkillTypeForm';
-import Tip from '@erxes/ui/src/components/Tip';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from 'coreui/utils';
+import Button from "@erxes/ui/src/components/Button";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import { Header } from "@erxes/ui-settings/src/styles";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Link } from "react-router-dom";
+import LoadMore from "@erxes/ui/src/components/LoadMore";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import SkillTypeForm from "./SkillTypeForm";
+import Tip from "@erxes/ui/src/components/Tip";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "coreui/utils";
 
 type Props = {
   queryParams: any;
@@ -29,7 +29,7 @@ type Props = {
   remove: (id: string) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   objects: ISkillTypesDocument[];
-} & IRouterProps;
+};
 
 const { Section } = Wrapper.Sidebar;
 
@@ -41,10 +41,10 @@ function SkillTypes({
   loading,
   refetch,
   remove,
-  renderButton
+  renderButton,
 }: Props) {
   const isItemActive = (id: string) => {
-    const currentType = queryParams.typeId || '';
+    const currentType = queryParams.typeId || "";
 
     return currentType === id;
   };
@@ -52,7 +52,7 @@ function SkillTypes({
   function renderEditAction(object: ISkillTypesDocument) {
     const trigger = (
       <Button id="skilltype-edit" btnStyle="link">
-        <Tip text={__('Edit')} placement="bottom">
+        <Tip text={__("Edit")} placement="bottom">
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -66,7 +66,7 @@ function SkillTypes({
 
     return (
       <Button btnStyle="link" onClick={handleRemove}>
-        <Tip text={__('Remove')} placement="bottom">
+        <Tip text={__("Remove")} placement="bottom">
           <Icon icon="cancel-1" />
         </Tip>
       </Button>
@@ -80,7 +80,7 @@ function SkillTypes({
   }
 
   function renderFormTrigger(trigger: React.ReactNode, object?: ISkillType) {
-    const content = props => renderForm({ ...props, object });
+    const content = (props) => renderForm({ ...props, object });
 
     return (
       <ModalTrigger
@@ -106,16 +106,19 @@ function SkillTypes({
     return (
       <>
         <Header>{renderFormTrigger(trigger)}</Header>
-        <Section.Title>{__('Skill types')}</Section.Title>
+        <Section.Title>{__("Skill types")}</Section.Title>
       </>
     );
   }
 
   function renderContent() {
     return (
-      <SidebarList noTextColor noBackground>
-        {objects.map(object => (
-          <SidebarListItem key={object._id} isActive={isItemActive(object._id)}>
+      <SidebarList $noTextColor={true} $noBackground={true}>
+        {objects.map((object) => (
+          <SidebarListItem
+            key={object._id}
+            $isActive={isItemActive(object._id)}
+          >
             <Link to={`?typeId=${object._id}`}>
               <FieldStyle>{object.name}</FieldStyle>
             </Link>
@@ -135,8 +138,8 @@ function SkillTypes({
         data={renderContent()}
         loading={loading}
         count={totalCount}
-        emptyText={`${__('Get started by grouping the skills into types')}.${__(
-          'For example, language skills'
+        emptyText={`${__("Get started by grouping the skills into types")}.${__(
+          "For example, language skills"
         )}`}
         emptyImage="/images/actions/26.svg"
       />
@@ -145,4 +148,4 @@ function SkillTypes({
   );
 }
 
-export default withRouter<Props>(SkillTypes);
+export default SkillTypes;

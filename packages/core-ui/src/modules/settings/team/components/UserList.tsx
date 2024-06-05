@@ -1,91 +1,77 @@
 import {
   ICommonFormProps,
   ICommonListProps,
-} from '@erxes/ui-settings/src/common/types';
+} from "@erxes/ui-settings/src/common/types";
+import { Link, useLocation } from "react-router-dom";
+import { __, router } from "modules/common/utils";
 
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import { AppConsumer } from 'appContext';
-import Button from '@erxes/ui/src/components/Button';
-import { ControlLabel } from '@erxes/ui/src/components/form';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import React from 'react';
-import Table from '@erxes/ui/src/components/table';
-import TextInfo from '@erxes/ui/src/components/TextInfo';
-import Tip from '@erxes/ui/src/components/Tip';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { UserAvatar } from '../styles';
-import UserForm from '@erxes/ui/src/team/containers/UserForm';
-import UserResetPasswordForm from '@erxes/ui/src/team/containers/UserResetPasswordForm';
-import { __, router } from 'modules/common/utils';
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import { AppConsumer } from "appContext";
+import Button from "@erxes/ui/src/components/Button";
+import { ControlLabel } from "@erxes/ui/src/components/form";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
+import React from "react";
+import Table from "@erxes/ui/src/components/table";
+import TextInfo from "@erxes/ui/src/components/TextInfo";
+import Tip from "@erxes/ui/src/components/Tip";
+import Toggle from "@erxes/ui/src/components/Toggle";
+import { UserAvatar } from "../styles";
+import UserForm from "@erxes/ui/src/team/containers/UserForm";
+import UserResetPasswordForm from "@erxes/ui/src/team/containers/UserResetPasswordForm";
+import { useNavigate } from "react-router-dom";
 
 type IProps = {
   changeStatus: (id: string) => void;
   resendInvitation: (email: string) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   queryParams?: any;
-  history?: any;
 };
 
 type FinalProps = ICommonListProps &
   ICommonFormProps &
   IProps & { currentUser: IUser };
 
-type States = {
-  searchValue: string;
-};
+const UserList = (props: FinalProps) => {
+  const navigate = useNavigate();
+  const location = useLocation();
 
-class UserList extends React.Component<FinalProps, States> {
-  constructor(props: FinalProps) {
-    super(props);
-
-    const {
-      queryParams: { searchValue },
-    } = props;
-
-    this.state = {
-      searchValue: searchValue || '',
-    };
-  }
-
-  onAvatarClick = (object) => {
-    return this.props.history.push(`team/details/${object._id}`);
+  const onAvatarClick = (object) => {
+    return navigate(`details/${object._id}`);
   };
 
-  removeUserQueryParams = () => {
-    const { queryParams, history } = this.props;
-    if (queryParams && history && queryParams.positionIds) {
-      router.removeParams(history, 'positionIds');
+  const removeUserQueryParams = () => {
+    const { queryParams } = props;
+    if (queryParams && queryParams.positionIds) {
+      router.removeParams(navigate, location, "positionIds");
     }
   };
 
-  renderForm = (props) => {
+  const renderForm = (formProps) => {
     const onCloseModal = () => {
-      this.removeUserQueryParams();
-      props.closeModal();
+      removeUserQueryParams();
+      formProps.closeModal();
     };
 
     return (
       <UserForm
-        {...props}
+        {...formProps}
         closeModal={onCloseModal}
-        history={this.props.history}
-        queryParams={this.props.queryParams}
-        renderButton={this.props.renderButton}
+        queryParams={props.queryParams}
+        renderButton={props.renderButton}
       />
     );
   };
 
-  renderEditAction = (user: IUser) => {
-    const { currentUser } = this.props;
+  const renderEditAction = (user: IUser) => {
+    const { currentUser } = props;
 
     if (user._id === currentUser._id) {
       return (
-        <Tip text={__('View Profile')} placement="top">
+        <Tip text={__("View Profile")} placement="top">
           <Link to="/profile">
             <Icon icon="user-6" size={15} />
           </Link>
@@ -95,18 +81,18 @@ class UserList extends React.Component<FinalProps, States> {
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')} placement="top">
+        <Tip text={__("Edit")} placement="top">
           <Icon icon="pen-1" size={15} />
         </Tip>
       </Button>
     );
 
     const content = (props) => {
-      return this.renderForm({ ...props, object: user });
+      return renderForm({ ...props, object: user });
     };
 
     const onModalExit = () => {
-      this.removeUserQueryParams();
+      removeUserQueryParams();
     };
 
     return (
@@ -120,21 +106,21 @@ class UserList extends React.Component<FinalProps, States> {
     );
   };
 
-  renderResetPasswordForm = (props) => {
+  const renderResetPasswordForm = (props) => {
     return <UserResetPasswordForm {...props} />;
   };
 
-  renderResetPassword = (user: IUser) => {
+  const renderResetPassword = (user: IUser) => {
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text={__('Reset Member Password')} placement="top">
+        <Tip text={__("Reset Member Password")} placement="top">
           <Icon icon="lock-alt" size={15} />
         </Tip>
       </Button>
     );
 
     const content = (props) => {
-      return this.renderResetPasswordForm({ ...props, object: user });
+      return renderResetPasswordForm({ ...props, object: user });
     };
 
     return (
@@ -146,28 +132,28 @@ class UserList extends React.Component<FinalProps, States> {
     );
   };
 
-  renderResendInvitation(user: IUser) {
+  const renderResendInvitation = (user: IUser) => {
     const onClick = () => {
-      this.props.resendInvitation(user.email);
+      props.resendInvitation(user.email);
     };
 
-    if (user.status !== 'Not verified') {
+    if (user.status !== "Not verified") {
       return null;
     }
 
     return (
       <Button btnStyle="link" onClick={onClick}>
-        <Tip text={__('Resend')} placement="top">
+        <Tip text={__("Resend")} placement="top">
           <Icon icon="redo" size={15} />
         </Tip>
       </Button>
     );
-  }
+  };
 
-  renderRows({ objects }: { objects: IUser[] }) {
+  const renderRows = ({ objects }: { objects: IUser[] }) => {
     return objects.map((object) => {
-      const onClick = () => this.onAvatarClick(object);
-      const onChange = () => this.props.changeStatus(object._id);
+      const onClick = () => onAvatarClick(object);
+      const onChange = () => props.changeStatus(object._id);
 
       return (
         <tr key={object._id}>
@@ -176,13 +162,13 @@ class UserList extends React.Component<FinalProps, States> {
           </UserAvatar>
           <td>
             <TextInfo
-              textStyle={object.status === 'Verified' ? 'success' : 'warning'}
+              $textStyle={object.status === "Verified" ? "success" : "warning"}
             >
-              {object.status || 'Verified'}
+              {object.status || "Verified"}
             </TextInfo>
           </td>
           <td>{object.email}</td>
-          <td>{object.employeeId || '-'}</td>
+          <td>{object.employeeId || "-"}</td>
           <td>
             <Toggle
               defaultChecked={object.isActive}
@@ -195,52 +181,50 @@ class UserList extends React.Component<FinalProps, States> {
           </td>
           <td>
             <ActionButtons>
-              {this.renderResendInvitation(object)}
-              {this.renderEditAction(object)}
-              {this.renderResetPassword(object)}
+              {renderResendInvitation(object)}
+              {renderEditAction(object)}
+              {renderResetPassword(object)}
             </ActionButtons>
           </td>
         </tr>
       );
     });
-  }
+  };
 
-  renderContent = (props) => {
+  const renderContent = (props) => {
     return (
       <>
-        <Table wideHeader={true}>
+        <Table $wideHeader={true}>
           <thead>
             <tr>
               <th>
-                <ControlLabel>{__('Full name')}</ControlLabel>
+                <ControlLabel>{__("Full name")}</ControlLabel>
               </th>
               <th>
-                <ControlLabel>{__('Invitation status')}</ControlLabel>
+                <ControlLabel>{__("Invitation status")}</ControlLabel>
               </th>
               <th>
-                <ControlLabel>{__('Email')}</ControlLabel>
+                <ControlLabel>{__("Email")}</ControlLabel>
               </th>
               <th>
-                <ControlLabel>{__('Employee Id')}</ControlLabel>
+                <ControlLabel>{__("Employee Id")}</ControlLabel>
               </th>
               <th>
-                <ControlLabel>{__('Status')}</ControlLabel>
+                <ControlLabel>{__("Status")}</ControlLabel>
               </th>
               <th>
-                <ControlLabel>{__('Actions')}</ControlLabel>
+                <ControlLabel>{__("Actions")}</ControlLabel>
               </th>
             </tr>
           </thead>
-          <tbody>{this.renderRows(props)}</tbody>
+          <tbody>{renderRows(props)}</tbody>
         </Table>
       </>
     );
   };
 
-  render() {
-    return this.renderContent(this.props);
-  }
-}
+  return renderContent(props);
+};
 
 const WithConsumer = (props: IProps & ICommonListProps & ICommonFormProps) => {
   return (

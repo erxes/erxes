@@ -1,137 +1,122 @@
-import * as routerUtils from '../utils/router';
+import * as routerUtils from "../utils/router";
 
-import { __, router } from '../utils/core';
+import React, { forwardRef, useEffect, useState } from "react";
+import { __, router } from "../utils/core";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import { CloseModal } from '../styles/main';
-import { IRouterProps } from '../types';
-import Icon from './Icon';
-import { Modal } from 'react-bootstrap';
-import RTG from 'react-transition-group';
-import React from 'react';
-import queryString from 'query-string';
-import { withRouter } from 'react-router-dom';
+import { CSSTransition } from "react-transition-group";
+import { CloseModal } from "../styles/main";
+import Icon from "./Icon";
+import { Modal } from "react-bootstrap";
+import queryString from "query-string";
 
 type Props = {
   title: string;
+  as?: string | any;
   trigger?: React.ReactNode;
   autoOpenKey?: string;
-  content: ({ closeModal }: { closeModal: () => void }) => React.ReactNode;
-  size?: 'sm' | 'lg' | 'xl';
+  content: any;
+  size?: "sm" | "lg" | "xl";
   ignoreTrans?: boolean;
   dialogClassName?: string;
-  backDrop?: 'static' | boolean;
+  backDrop?: "static" | boolean;
   enforceFocus?: boolean;
   hideHeader?: boolean;
   isOpen?: boolean;
   addisOpenToQueryParam?: boolean;
-  history: any;
-  paddingContent?: 'less-padding';
+  paddingContent?: "less-padding";
   centered?: boolean;
+  style?: any;
   onExit?: () => void;
   isAnimate?: boolean;
-} & IRouterProps;
-
-type State = {
-  isOpen?: boolean;
-  autoOpenKey?: string;
 };
 
-class ModalTrigger extends React.Component<Props, State> {
-  static getDerivedStateFromProps(props, state) {
-    if (props.autoOpenKey !== state.autoOpenKey) {
-      if (routerUtils.checkHashKeyInURL(props.history, props.autoOpenKey)) {
-        return {
-          isOpen: true,
-          autoOpenKey: props.autoOpenKey
-        };
-      }
-    }
-
-    return null;
-  }
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      isOpen: props.isOpen || false,
-      autoOpenKey: ''
-    };
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    const { isOpen } = this.state;
-    const queryParams = queryString.parse(location.search);
-
-    if (this.props.addisOpenToQueryParam && prevState.isOpen !== isOpen) {
-      if (isOpen && !queryParams.isOpen) {
-        router.setParams(this.props.history, {
-          isModalOpen: isOpen
-        });
-      }
-
-      if (queryParams.isModalOpen) {
-        router.removeParams(this.props.history, 'isModalOpen');
-      }
-    }
-  }
-
-  openModal = () => {
-    this.setState({ isOpen: true });
-  };
-
-  closeModal = () => {
-    this.setState({ isOpen: false });
-  };
-
-  renderHeader = () => {
-    if (this.props.hideHeader) {
-      return (
-        <CloseModal onClick={this.closeModal}>
-          <Icon icon="times" />
-        </CloseModal>
-      );
-    }
-
-    const { title, ignoreTrans, paddingContent } = this.props;
-
-    return (
-      <Modal.Header closeButton={true} className={paddingContent}>
-        <Modal.Title>{ignoreTrans ? title : __(title)}</Modal.Title>
-      </Modal.Header>
-    );
-  };
-
-  render() {
-    const {
+const ModalTrigger: React.FC<Props> = forwardRef(
+  (
+    {
+      title,
       trigger,
+      autoOpenKey,
+      content,
       size,
       dialogClassName,
-      content,
-      backDrop,
       enforceFocus,
-      onExit,
+      hideHeader,
+      isOpen,
+      addisOpenToQueryParam,
       paddingContent,
+      onExit,
+      ignoreTrans,
+      backDrop,
       centered,
-      isAnimate = false
-    } = this.props;
+      style,
+      isAnimate = false,
+    },
+    ref
+  ) => {
+    const navigate = useNavigate();
+    const location = useLocation();
 
-    const { isOpen } = this.state;
+    const [isOpenTrigger, setIsOpen] = useState(isOpen || false);
+    const [autoOpenKeyState, setAutoOpenKey] = useState("");
+
+    // const { isOpen: urlIsOpen } = useParams<{ isOpen?: string }>();
+
+    useEffect(() => {
+      if (autoOpenKey !== autoOpenKeyState) {
+        if (routerUtils.checkHashKeyInURL({ location }, autoOpenKey)) {
+          setIsOpen(true);
+          setAutoOpenKey(autoOpenKey || "");
+        }
+      }
+    }, [autoOpenKey, autoOpenKeyState]);
+
+    useEffect(() => {
+      const queryParams = queryString.parse(window.location.search);
+
+      if (addisOpenToQueryParam) {
+        if (isOpenTrigger && !queryParams.isOpen) {
+          router.setParams(navigate, location, {
+            isModalOpen: isOpenTrigger,
+          });
+        }
+
+        if (queryParams.isModalOpen) {
+          router.removeParams(navigate, location, "isModalOpen");
+        }
+      }
+    }, [addisOpenToQueryParam, isOpen]);
+
+    const openModal = () => {
+      setIsOpen(true);
+    };
+
+    const closeModal = () => {
+      setIsOpen(false);
+    };
+
+    const renderHeader = () => {
+      if (hideHeader) {
+        return (
+          <CloseModal onClick={closeModal}>
+            <Icon icon="times" />
+          </CloseModal>
+        );
+      }
+
+      return (
+        <Modal.Header closeButton={true} className={paddingContent}>
+          <Modal.Title>{ignoreTrans ? title : __(title)}</Modal.Title>
+        </Modal.Header>
+      );
+    };
 
     // add onclick event to the trigger component
     const triggerComponent = trigger
       ? React.cloneElement(trigger as React.ReactElement<any>, {
-          onClick: this.openModal
+          onClick: openModal,
         })
       : null;
-
-    const onHideHandler = () => {
-      this.closeModal();
-
-      if (onExit) {
-        onExit();
-      }
-    };
 
     return (
       <>
@@ -140,24 +125,29 @@ class ModalTrigger extends React.Component<Props, State> {
         <Modal
           dialogClassName={dialogClassName}
           size={size}
-          show={isOpen}
-          onHide={onHideHandler}
+          show={isOpenTrigger}
+          onHide={closeModal}
           backdrop={backDrop}
           enforceFocus={enforceFocus}
           onExit={onExit}
           animation={isAnimate}
           centered={centered}
+          style={style}
         >
-          {this.renderHeader()}
+          {renderHeader()}
           <Modal.Body className={paddingContent}>
-            <RTG.Transition in={isOpen} timeout={300} unmountOnExit={true}>
-              {content({ closeModal: this.closeModal })}
-            </RTG.Transition>
+            <CSSTransition
+              in={isOpenTrigger}
+              timeout={300}
+              unmountOnExit={true}
+            >
+              {content({ closeModal })}
+            </CSSTransition>
           </Modal.Body>
         </Modal>
       </>
     );
   }
-}
+);
 
-export default withRouter(ModalTrigger);
+export default ModalTrigger;

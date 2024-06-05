@@ -1,17 +1,17 @@
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import React from 'react';
-import Row from './Row';
-import Sidebar from './Sidebar';
-import Table from '@erxes/ui/src/components/table';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import { IRemainderProduct } from '../types';
-import { SUBMENU } from '../../constants';
+import Button from "@erxes/ui/src/components/Button";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import React from "react";
+import Row from "./Row";
+import Sidebar from "./Sidebar";
+import Table from "@erxes/ui/src/components/table";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "@erxes/ui/src/utils";
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import { IRemainderProduct } from "../types";
+import { SUBMENU } from "../../constants";
 
 type Props = {
   products: IRemainderProduct[];
@@ -48,7 +48,7 @@ export default function ListComponent(props: Props) {
     handleSearch,
     emptyBulk,
     toggleBulk,
-    toggleAll
+    toggleAll,
   } = props;
 
   const renderRow = () => {
@@ -66,7 +66,7 @@ export default function ListComponent(props: Props) {
     <BarItems>
       <FormControl
         type="text"
-        placeholder={__('Type to search')}
+        placeholder={__("Type to search")}
         onChange={handleSearch}
         defaultValue={searchValue}
         autoFocus={true}
@@ -77,7 +77,7 @@ export default function ListComponent(props: Props) {
         disabled={!(branchId && departmentId && bulk.length)}
         onClick={() => recalculate(bulk, departmentId, branchId, emptyBulk)}
       >
-        {__('Recalculate')}
+        {__("Recalculate")}
       </Button>
     </BarItems>
   );
@@ -89,18 +89,18 @@ export default function ListComponent(props: Props) {
           <th style={{ width: 60 }}>
             <FormControl
               checked={isAllSelected}
-              componentClass="checkbox"
-              onChange={() => toggleAll(products, 'products')}
+              componentclass="checkbox"
+              onChange={() => toggleAll(products, "products")}
             />
           </th>
-          <th>{__('Code')}</th>
-          <th>{__('Name')}</th>
-          <th>{__('Category')}</th>
-          <th>{__('Unit Price')}</th>
-          <th>{__('Remainder')}</th>
-          <th>{__('Soon In')}</th>
-          <th>{__('Soon Out')}</th>
-          <th>{__('UOM')}</th>
+          <th>{__("Code")}</th>
+          <th>{__("Name")}</th>
+          <th>{__("Category")}</th>
+          <th>{__("Unit Price")}</th>
+          <th>{__("Remainder")}</th>
+          <th>{__("Soon In")}</th>
+          <th>{__("Soon Out")}</th>
+          <th>{__("UOM")}</th>
         </tr>
       </thead>
       <tbody>{renderRow()}</tbody>
@@ -110,7 +110,7 @@ export default function ListComponent(props: Props) {
   return (
     <Wrapper
       header={
-        <Wrapper.Header title={__('Remainder of Products')} submenu={SUBMENU} />
+        <Wrapper.Header title={__("Remainder of Products")} submenu={SUBMENU} />
       }
       actionBar={<Wrapper.ActionBar right={actionButtons} />}
       leftSidebar={<Sidebar />}

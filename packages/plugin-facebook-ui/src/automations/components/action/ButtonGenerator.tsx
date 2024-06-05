@@ -1,15 +1,17 @@
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Alert from '@erxes/ui/src/utils/Alert/index';
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from '@erxes/ui/src/utils/core';
-import React, { useEffect, useState } from 'react';
-import { ButtonRow, Container, Row } from '../../styles';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { FormContainer } from '@erxes/ui-cards/src/boards/styles/common';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import LinkAction from './LinkAction';
+import { ButtonRow, Container, Row } from "../../styles";
+import React, { useEffect, useState } from "react";
+
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import Alert from "@erxes/ui/src/utils/Alert/index";
+import Button from "@erxes/ui/src/components/Button";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import { FormContainer } from "@erxes/ui-cards/src/boards/styles/common";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Icon from "@erxes/ui/src/components/Icon";
+import LinkAction from "./LinkAction";
+import { Menu } from "@headlessui/react";
+import { __ } from "@erxes/ui/src/utils/core";
 
 type Props = {
   _id: string;
@@ -17,6 +19,7 @@ type Props = {
   onChange: (_id: string, name: string, value: any) => void;
   hideMenu?: boolean;
   addButtonLabel?: string;
+  limit?:number
 };
 
 type Buttons = {
@@ -33,6 +36,7 @@ function ButtonsGenerator({
   onChange,
   hideMenu,
   addButtonLabel,
+  limit,
 }: Props) {
   const [btns, setButtons] = useState(buttons as Buttons[]);
 
@@ -51,7 +55,7 @@ function ButtonsGenerator({
   const renderButton = (button) => {
     const onBtnChange = (name, value) => {
       const updateButtons = btns.map((btn) =>
-        btn._id === button._id ? { ...btn, [name]: value } : btn,
+        btn._id === button._id ? { ...btn, [name]: value } : btn
       );
 
       setButtons(updateButtons);
@@ -61,23 +65,27 @@ function ButtonsGenerator({
           text,
           type,
           link,
-        })),
+        }))
       );
     };
 
     const onDoubleClick = () => {
       setButtons(
         btns.map((btn) =>
-          btn._id === button._id ? { ...btn, isEditing: true } : btn,
-        ),
+          btn._id === button._id ? { ...btn, isEditing: true } : btn
+        )
       );
     };
 
     const handleEdit = (e) => {
       const { value } = e.currentTarget as HTMLInputElement;
 
+      if(value.length > 20){
+        return
+      }
+
       const updateButtons = btns.map((btn) =>
-        btn._id === button._id ? { ...btn, text: value } : btn,
+        btn._id === button._id ? { ...btn, text: value } : btn
       );
       setButtons(updateButtons);
     };
@@ -95,7 +103,7 @@ function ButtonsGenerator({
 
     const onRemove = () => {
       const updateButtons = generateButtons().filter(
-        (btn) => btn._id !== button._id,
+        (btn) => btn._id !== button._id
       );
 
       onChangeButtons(updateButtons);
@@ -170,29 +178,23 @@ function ButtonsGenerator({
         {renderInput()}
 
         {!hideMenu && (
-          <Dropdown>
-            <Dropdown.Toggle
-              id="dropdown-customize dropdown-autoclose-true"
-              as={DropdownToggle}
-            >
-              {renderTrigger(button.type)}
-            </Dropdown.Toggle>
-            <Dropdown.Menu rootCloseEvent="click">
-              <Container>
-                {[
-                  { type: 'btn', text: 'Button' },
-                  { type: 'link', text: 'Link' },
-                ].map(({ text, type }) => (
-                  <Dropdown.Item
-                    className="dropdown-item"
-                    key={type}
-                    onClick={(e) => handleBtnTypeChange(e, type)}
-                  >
-                    <a>{text}</a>
-                  </Dropdown.Item>
-                ))}
-              </Container>
-            </Dropdown.Menu>
+          <Dropdown
+            as={DropdownToggle}
+            toggleComponent={renderTrigger(button.type)}
+          >
+            <Container>
+              {[
+                { type: 'btn', text: 'Button' },
+                { type: 'link', text: 'Link' },
+              ].map(({ text, type }) => (
+                <Menu.Item
+                  // className="dropdown-item"
+                  key={type}
+                >
+                  <a onClick={(e) => handleBtnTypeChange(e, type)}>{text}</a>
+                </Menu.Item>
+              ))}
+            </Container>
           </Dropdown>
         )}
 
@@ -205,7 +207,7 @@ function ButtonsGenerator({
 
   const addButton = () => {
     const newBtnCount = btns.filter((btn) =>
-      btn.text.includes('New Button #'),
+      btn.text.includes('New Button #')
     ).length;
 
     onChangeButtons([
@@ -219,12 +221,22 @@ function ButtonsGenerator({
     ]);
   };
 
-  return (
-    <>
-      {btns.map((button) => renderButton(button))}
+  const renderAddButton = () =>{
+    if(limit && btns.length +1  >limit){
+      return null
+    }
+
+    return (
       <Button block btnStyle="link" icon="plus-1" onClick={addButton}>
         {__(addButtonLabel || 'Add Button')}
       </Button>
+    );
+  }
+
+  return (
+    <>
+      {btns.map((button) => renderButton(button))}
+      {renderAddButton()}
     </>
   );
 }

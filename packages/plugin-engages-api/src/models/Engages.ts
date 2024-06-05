@@ -123,7 +123,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
      * Remove engage message
      */
     public static async removeEngageMessage(_id: string) {
-      const message = await models.EngageMessages.findOne({ _id });
+      const message = await models.EngageMessages.findOneAndDelete({ _id });
 
       if (!message) {
         throw new Error(`Campaign not found with id ${_id}`);
@@ -131,7 +131,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
 
       // await removeEngageConversations(_id);
 
-      return message.remove();
+      return message;
     }
 
     /**

@@ -14,7 +14,7 @@ import {
 import { getActionsMap } from './helpers';
 import { sendCommonMessage, sendSegmentsMessage } from './messageBroker';
 
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 import { IModels } from './connectionResolver';
 import { handleEmail } from './common/emailUtils';
 import { setActionWait } from './actions/wait';
@@ -45,7 +45,7 @@ export const isInSegment = async (
   segmentId: string,
   targetId: string,
 ) => {
-  await delay(10000);
+  await delay(15000);
 
   const response = await sendSegmentsMessage({
     subdomain,
@@ -315,8 +315,8 @@ export const calculateExecution = async ({
     .limit(1)
     .lean();
 
-  const latestExecution: IExecutionDocument =
-    executions.length && executions[0];
+  const latestExecution: IExecutionDocument | null =
+    executions.length ? executions[0] : null;
 
   if (latestExecution) {
     if (!reEnrollment || !reEnrollmentRules.length) {

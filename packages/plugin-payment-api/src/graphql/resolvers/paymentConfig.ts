@@ -3,9 +3,8 @@ import { IContext } from '../../connectionResolver';
 import { sendInboxMessage } from '../../messageBroker';
 import { IPaymentConfig } from '../../models/definitions/paymentConfigs';
 
-
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
+  async __resolveReference({ _id }, { models }: IContext) {
     return models.PaymentConfigs.findOne({ _id });
   },
 
@@ -20,7 +19,7 @@ export default {
         action: 'integrations.findOne',
         data: { _id: config.contentTypeId },
         isRPC: true,
-        defaultValue: null
+        defaultValue: null,
       });
 
       return integration ? integration.name : 'Integration not found';
@@ -32,5 +31,5 @@ export default {
 
   async payments(config: IPaymentConfig, {}, { models }: IContext) {
     return models.Payments.find({ _id: { $in: config.paymentIds } }).lean();
-  }
+  },
 };

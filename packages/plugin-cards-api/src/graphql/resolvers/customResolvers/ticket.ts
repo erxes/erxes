@@ -1,14 +1,15 @@
 import { IContext } from '../../../connectionResolver';
 import {
+  sendCommonMessage,
   sendContactsMessage,
   sendCoreMessage,
-  sendNotificationsMessage
+  sendNotificationsMessage,
 } from '../../../messageBroker';
 import { ITicketDocument } from '../../../models/definitions/tickets';
 import { boardId } from '../../utils';
 
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
+  async __resolveReference({ _id }, { models }: IContext) {
     return models.Tickets.findOne({ _id });
   },
 
@@ -24,10 +25,10 @@ export default {
       data: {
         mainType: 'ticket',
         mainTypeId: ticket._id,
-        relTypes: ['company']
+        relTypes: ['company'],
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     const companies = await sendContactsMessage({
@@ -35,7 +36,7 @@ export default {
       action: 'companies.findActiveCompanies',
       data: { selector: { _id: { $in: companyIds } } },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     if (isSubscription) {
@@ -57,10 +58,10 @@ export default {
       data: {
         mainType: 'ticket',
         mainTypeId: ticket._id,
-        relTypes: ['customer']
+        relTypes: ['customer'],
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     const customers = await sendContactsMessage({
@@ -68,11 +69,11 @@ export default {
       action: 'customers.findActiveCustomers',
       data: {
         selector: {
-          _id: { $in: customerIds }
-        }
+          _id: { $in: customerIds },
+        },
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     if (isSubscription) {
@@ -81,11 +82,11 @@ export default {
 
     return (customers || []).map(({ _id }) => ({
       __typename: 'Customer',
-      _id
+      _id,
     }));
   },
 
-  assignedUsers(
+  async assignedUsers(
     ticket: ITicketDocument,
     _args,
     { subdomain }: IContext,
@@ -97,10 +98,10 @@ export default {
         action: 'users.find',
         data: {
           query: {
-            _id: { $in: ticket.assignedUserIds }
-          }
+            _id: { $in: ticket.assignedUserIds },
+          },
         },
-        isRPC: true
+        isRPC: true,
       });
     }
 
@@ -108,7 +109,7 @@ export default {
       .filter(e => e)
       .map(_id => ({
         __typename: 'User',
-        _id
+        _id,
       }));
   },
 
@@ -122,15 +123,15 @@ export default {
     return Pipelines.findOne({ _id: stage.pipelineId });
   },
 
-  boardId(ticket: ITicketDocument, _args, { models }: IContext) {
+  async boardId(ticket: ITicketDocument, _args, { models }: IContext) {
     return boardId(models, ticket);
   },
 
-  stage(ticket: ITicketDocument, _args, { models: { Stages } }: IContext) {
+  async stage(ticket: ITicketDocument, _args, { models: { Stages } }: IContext) {
     return Stages.getStage(ticket.stageId);
   },
 
-  isWatched(ticket: ITicketDocument, _args, { user }: IContext) {
+  async isWatched(ticket: ITicketDocument, _args, { user }: IContext) {
     const watchedUserIds = ticket.watchedUserIds || [];
 
     if (watchedUserIds.includes(user._id)) {
@@ -140,20 +141,20 @@ export default {
     return false;
   },
 
-  hasNotified(ticket: ITicketDocument, _args, { user, subdomain }: IContext) {
+  async hasNotified(ticket: ITicketDocument, _args, { user, subdomain }: IContext) {
     return sendNotificationsMessage({
       subdomain,
       action: 'checkIfRead',
       data: {
         userId: user._id,
-        itemId: ticket._id
+        itemId: ticket._id,
       },
       isRPC: true,
-      defaultValue: true
+      defaultValue: true,
     });
   },
 
-  labels(
+  async labels(
     ticket: ITicketDocument,
     _args,
     { models: { PipelineLabels } }: IContext
@@ -171,5 +172,22 @@ export default {
     }
 
     return { __typename: 'User', _id: ticket.userId };
-  }
+  },
+  async vendorCustomers(
+    ticket: ITicketDocument,
+    _args,
+    { subdomain }: IContext,
+    { isSubscription }
+  ) {
+    return sendCommonMessage({
+      subdomain,
+      serviceName: 'clientportal',
+      action: 'clientPortalUserCards.users',
+      data: {
+        contentType: 'ticket',
+        contentTypeId: ticket.id,
+      },
+      isRPC: true,
+    });
+  },
 };

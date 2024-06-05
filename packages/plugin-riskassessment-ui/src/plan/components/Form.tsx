@@ -5,21 +5,17 @@ import {
   PageHeader,
   Step,
   Steps,
-  __
-} from '@erxes/ui/src';
-import { StepWrapper } from '@erxes/ui/src/components/step/styles';
-import {
-  IButtonMutateProps,
-  IFormProps,
-  IRouterProps
-} from '@erxes/ui/src/types';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { CommonFormContainer } from '../../styles';
-import { IPLan, ISchedule } from '../common/types';
-import GeneralConfig from './GeneralContent';
-import SchedulesConfig from './Schedules';
-import PerformanceContent from './PerformanceContent';
+  __,
+} from "@erxes/ui/src";
+import { StepWrapper } from "@erxes/ui/src/components/step/styles";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import React from "react";
+import { Link } from "react-router-dom";
+import { CommonFormContainer } from "../../styles";
+import { IPLan, ISchedule } from "../common/types";
+import GeneralConfig from "./GeneralContent";
+import SchedulesConfig from "./Schedules";
+import PerformanceContent from "./PerformanceContent";
 
 type Props = {
   plan: IPLan;
@@ -30,7 +26,7 @@ type Props = {
   };
   renderButton: (variables: IButtonMutateProps) => JSX.Element;
   forceStart: (id: string) => void;
-} & IRouterProps;
+};
 
 type State = {
   plan: IPLan;
@@ -43,7 +39,7 @@ class Form extends React.Component<Props, State> {
 
     this.state = {
       plan: props?.plan || {},
-      useGroup: false
+      useGroup: false,
     };
 
     this.renderContent = this.renderContent.bind(this);
@@ -72,13 +68,12 @@ class Form extends React.Component<Props, State> {
   }
 
   renderSchedulesContent() {
-    const { history, schedule } = this.props;
+    const { schedule } = this.props;
     const { plan } = this.state;
 
     const updatedProps = {
       ...schedule,
-      history,
-      plan
+      plan,
     };
 
     return <SchedulesConfig {...updatedProps} />;
@@ -87,26 +82,26 @@ class Form extends React.Component<Props, State> {
   renderContent(formProps: IFormProps) {
     const { renderButton, plan, forceStart } = this.props;
 
-    const saveSteps = stepNumber => {
-      const fieldName = plan ? plan._id : 'create';
+    const saveSteps = (stepNumber) => {
+      const fieldName = plan ? plan._id : "create";
       const steps = JSON.parse(
-        localStorage.getItem('risk_assessment_plans_active_step') || '{}'
+        localStorage.getItem("risk_assessment_plans_active_step") || "{}"
       );
 
       const updateSteps = { ...steps, [fieldName]: stepNumber };
 
       localStorage.setItem(
-        'risk_assessment_plans_active_step',
+        "risk_assessment_plans_active_step",
         JSON.stringify(updateSteps)
       );
     };
 
     const activeStep = (): number => {
       const steps = JSON.parse(
-        localStorage.getItem('risk_assessment_plans_active_step') || '{}'
+        localStorage.getItem("risk_assessment_plans_active_step") || "{}"
       );
 
-      const fieldName = plan ? plan._id : 'create';
+      const fieldName = plan ? plan._id : "create";
 
       return steps[fieldName] || 0;
     };
@@ -117,7 +112,7 @@ class Form extends React.Component<Props, State> {
           <Step
             title="General"
             img="/images/icons/erxes-24.svg"
-            noButton={plan?.status === 'archived'}
+            noButton={plan?.status === "archived"}
             additionalButton={
               <>
                 {!!plan && (
@@ -126,14 +121,14 @@ class Form extends React.Component<Props, State> {
                     icon="archive-alt"
                     onClick={forceStart.bind(this, plan?._id)}
                   >
-                    {__('Force Start')}
+                    {__("Force Start")}
                   </Button>
                 )}
                 {renderButton({
                   ...formProps,
-                  text: 'Plan',
+                  text: "Plan",
                   values: this.generateDoc(),
-                  object: plan
+                  object: plan,
                 })}
               </>
             }
@@ -152,7 +147,7 @@ class Form extends React.Component<Props, State> {
               {this.renderSchedulesContent()}
             </Step>
           )}
-          {plan?.status === 'archived' && (
+          {plan?.status === "archived" && (
             <Step
               img="/images/icons/erxes-33.png"
               onClick={saveSteps}
@@ -174,7 +169,7 @@ class Form extends React.Component<Props, State> {
           <BarItems>
             <Link to={`/settings/risk-assessment-plans`}>
               <Button icon="leftarrow-3" btnStyle="link">
-                {__('Back')}
+                {__("Back")}
               </Button>
             </Link>
           </BarItems>

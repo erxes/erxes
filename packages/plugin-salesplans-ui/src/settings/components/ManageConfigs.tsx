@@ -1,19 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   __,
   Button,
   ControlLabel,
   FormControl,
   Icon,
-  Tip
-} from '@erxes/ui/src';
-import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
+  Table,
+  Tip,
+} from "@erxes/ui/src";
+import { FlexItem, FlexRow } from "@erxes/ui-settings/src/styles";
 import {
   FullContent,
+  LinkButton,
   MiddleContent,
-  ModalFooter
-} from '@erxes/ui/src/styles/main';
-import { ITimeframe } from '../types';
+  ModalFooter,
+} from "@erxes/ui/src/styles/main";
+import { ITimeframe } from "../types";
+import { FormTable, LevelOption, RemoveRow } from "../../styles";
 
 type Props = {
   data: ITimeframe[];
@@ -27,19 +30,42 @@ const ManageConfigs = (props: Props) => {
   const [configsData, setConfigsData] = useState<ITimeframe[]>(
     data ? data : []
   );
+
   const [sumPercent, setSumPercent] = useState<number>(0);
 
   useEffect(() => {
-    setConfigsData(data);
+    if (!data || data.length === 0) {
+      setConfigsData([
+        {
+          name: "",
+          description: "",
+          percent: 0,
+          startTime: 0,
+          endTime: 0,
+        },
+      ]);
+    } else {
+      setConfigsData(data);
+    }
     setSumPercent(
       data.length
-        ? data.map(d => d.percent || 0).reduce((sum, d) => sum + d)
+        ? data.map((d) => d.percent || 0).reduce((sum, d) => sum + d)
         : 0
     );
   }, [data]);
 
   const addConfig = () => {
     setConfigsData([...configsData, {}]);
+  };
+
+  const removeConfigData = (index: number, _id?: string) => {
+    const updatedConfigsData = [...configsData];
+    const removedConfig = updatedConfigsData.splice(index, 1)[0];
+
+    const newSumPercent = sumPercent - (removedConfig.percent || 0);
+
+    setConfigsData(updatedConfigsData);
+    setSumPercent(newSumPercent);
   };
 
   const onCancel = () => {
@@ -50,13 +76,25 @@ const ManageConfigs = (props: Props) => {
     edit(configsData);
   };
 
+  const renderRemoveInput = (index, item) => {
+    if (configsData.length <= 1) {
+      return null;
+    }
+
+    return (
+      <RemoveRow onClick={() => removeConfigData(index, item._id)}>
+        <Icon icon="times" />
+      </RemoveRow>
+    );
+  };
+
   const renderConfigData = () => {
     return configsData.map((item: any, index: number) => {
       const onChangeConfigData = (event: any, key: string) => {
         const updatedLabels = [...configsData];
 
         let value: any = (event.target as HTMLInputElement).value;
-        if (['startTime', 'endTime', 'percent'].includes(key)) {
+        if (["startTime", "endTime", "percent"].includes(key)) {
           value = Number(value);
         }
         item[key] = value;
@@ -64,87 +102,68 @@ const ManageConfigs = (props: Props) => {
         setConfigsData(updatedLabels);
         setSumPercent(
           configsData.length
-            ? configsData.map(d => d.percent || 0).reduce((sum, d) => sum + d)
+            ? configsData.map((d) => d.percent || 0).reduce((sum, d) => sum + d)
             : 0
         );
       };
 
-      const removeConfigData = (index: number, _id?: string) => {
-        setConfigsData(
-          configsData.filter((_element, _index) => _index !== index)
-        );
-      };
-
       return (
-        <div key={index}>
-          <FlexRow>
-            <FlexItem>
-              <FormControl
-                type="text"
-                id={`${index}`}
-                value={item.name || ''}
-                placeholder={'Name'}
-                onChange={(event: any) => onChangeConfigData(event, 'name')}
-              />
-            </FlexItem>
-            <FlexItem>
-              <FormControl
-                id={`${index}`}
-                value={item.description || ''}
-                placeholder={'Description'}
-                onChange={(event: any) =>
-                  onChangeConfigData(event, 'description')
-                }
-              />
-            </FlexItem>
-            <FlexItem>
-              <FormControl
-                type="number"
-                componentClass="number"
-                min={0}
-                max={100}
-                id={`${index}`}
-                value={item.percent || 0}
-                onChange={(event: any) => onChangeConfigData(event, 'percent')}
-              />
-            </FlexItem>
-            <FlexItem>
-              <FormControl
-                type="number"
-                componentClass="number"
-                min={0}
-                max={24}
-                id={`${index}`}
-                value={item.startTime || ''}
-                onChange={(event: any) =>
-                  onChangeConfigData(event, 'startTime')
-                }
-              />
-            </FlexItem>
-            <FlexItem>
-              <FormControl
-                type="number"
-                componentClass="number"
-                min={0}
-                max={24}
-                id={`${index}`}
-                value={item.endTime || ''}
-                onChange={(event: any) => onChangeConfigData(event, 'endTime')}
-              />
-            </FlexItem>
-            <FlexItem>
-              <Button
-                id="skill-edit-skill"
-                btnStyle="link"
-                onClick={() => removeConfigData(index, item._id)}
-              >
-                <Tip text={__('remove')} placement="bottom">
-                  <Icon icon="times-circle" />
-                </Tip>
-              </Button>
-            </FlexItem>
-          </FlexRow>
-        </div>
+        <tr key={index}>
+          <td>
+            <FormControl
+              type="text"
+              id={`${index}`}
+              value={item.name || ""}
+              placeholder={"Name"}
+              onChange={(event: any) => onChangeConfigData(event, "name")}
+            />
+          </td>
+          <td>
+            <FormControl
+              id={`${index}`}
+              value={item.description || ""}
+              placeholder={"Description"}
+              onChange={(event: any) =>
+                onChangeConfigData(event, "description")
+              }
+            />
+          </td>
+          <td>
+            <FormControl
+              type="number"
+              componentclass="number"
+              min={0}
+              max={100}
+              id={`${index}`}
+              value={item.percent || 0}
+              onChange={(event: any) => onChangeConfigData(event, "percent")}
+            />
+          </td>
+          <td>
+            <FormControl
+              type="number"
+              componentclass="number"
+              min={0}
+              max={24}
+              id={`${index}`}
+              value={item.startTime || ""}
+              onChange={(event: any) => onChangeConfigData(event, "startTime")}
+            />
+          </td>
+          <td>
+            <FormControl
+              type="number"
+              componentclass="number"
+              min={0}
+              max={24}
+              id={`${index}`}
+              value={item.endTime || ""}
+              onChange={(event: any) => onChangeConfigData(event, "endTime")}
+            />
+          </td>
+
+          <td>{renderRemoveInput(index, item)}</td>
+        </tr>
       );
     });
   };
@@ -152,37 +171,40 @@ const ManageConfigs = (props: Props) => {
   const renderContent = () => {
     return (
       <>
-        <FlexRow>
-          <FlexItem>
-            <ControlLabel>Name</ControlLabel>
-          </FlexItem>
-          <FlexItem>
-            <ControlLabel>Description</ControlLabel>
-          </FlexItem>
-          <FlexItem>
-            <ControlLabel>Percent</ControlLabel>
-          </FlexItem>
-          <FlexItem>
-            <ControlLabel>Start time (Hour)</ControlLabel>
-          </FlexItem>
-          <FlexItem>
-            <ControlLabel>End time (Hour)</ControlLabel>
-          </FlexItem>
-          <FlexItem>
-            <ControlLabel>Action</ControlLabel>
-          </FlexItem>
-        </FlexRow>
+        <FormTable>
+          <thead>
+            <tr>
+              <th>
+                <ControlLabel>Name</ControlLabel>
+              </th>
+              <th>
+                <ControlLabel>Description</ControlLabel>
+              </th>
+              <th>
+                <ControlLabel>Percent</ControlLabel>
+              </th>
+              <th>
+                <ControlLabel>Start time (Hour)</ControlLabel>
+              </th>
+              <th>
+                <ControlLabel>End time (Hour)</ControlLabel>
+              </th>
+              <th />
+            </tr>
+          </thead>
 
-        {renderConfigData()}
-        <FlexRow>Summary Percent: {sumPercent}</FlexRow>
-        <Button
-          type="button"
-          onClick={addConfig}
-          icon="plus-circle"
-          uppercase={false}
-        >
-          Add config
-        </Button>
+          <tbody>{renderConfigData()}</tbody>
+        </FormTable>
+
+        <LevelOption>
+          <FlexRow justifyContent="space-between">
+            <LinkButton onClick={addConfig}>
+              <Icon icon="add" /> {__("Add another config")}
+            </LinkButton>
+            Summary Percent: {sumPercent}
+          </FlexRow>
+        </LevelOption>
+
         <ModalFooter>
           <Button
             btnStyle="simple"
@@ -210,7 +232,6 @@ const ManageConfigs = (props: Props) => {
   return (
     <FullContent center={true} align={true}>
       <MiddleContent transparent={true}>{renderContent()}</MiddleContent>
-      <ModalFooter></ModalFooter>
     </FullContent>
   );
 };

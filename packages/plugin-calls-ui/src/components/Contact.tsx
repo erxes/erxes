@@ -1,12 +1,13 @@
-import Icon from '@erxes/ui/src/components/Icon';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import { AdditionalDetail, InputBar, ContactItem, Contacts } from '../styles';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import { FormControl } from '@erxes/ui/src/components/form';
-import { EmptyState } from '@erxes/ui/src/components';
+import { AdditionalDetail, ContactItem, Contacts, InputBar } from "../styles";
+import React, { useState } from "react";
+
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import { EmptyState } from "@erxes/ui/src/components";
+import { FormControl } from "@erxes/ui/src/components/form";
+import Icon from "@erxes/ui/src/components/Icon";
+import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   customers?: any;
@@ -15,24 +16,21 @@ type Props = {
   changeMainTab: (phoneNumber: string, shiftTab: string) => void;
 };
 
-type State = {
-  searchValue: string;
-};
+const Contact: React.FC<Props> = ({
+  customers,
+  history,
+  searchCustomer,
+  changeMainTab,
+}: Props) => {
+  const [searchValue, setSearchValue] = useState("");
 
-class Contact extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+  const renderContact = () => {
+    const [searchValue, setSearchValue] = useState("");
 
-    this.state = {
-      searchValue: '',
+    const onCall = (phoneNumber) => {
+      changeMainTab(phoneNumber, "Keyboard");
     };
-  }
-  onCall = (phoneNumber) => {
-    this.props.changeMainTab(phoneNumber, 'Keyboard');
-  };
 
-  renderContact = () => {
-    const { customers } = this.props;
     if (!customers || customers.length === 0) {
       return <EmptyState icon="ban" text="There is no contact" size="small" />;
     }
@@ -47,18 +45,13 @@ class Contact extends React.Component<Props, State> {
             secondLine={customer.primaryPhone}
           />
           <AdditionalDetail>
-            <Dropdown>
-              <Dropdown.Toggle as={DropdownToggle} id="dropdown-convert-to">
-                <Icon icon="ellipsis-v" size={18} />
-              </Dropdown.Toggle>
-              <Dropdown.Menu>
-                <li
-                  key="call"
-                  onClick={() => this.onCall(customer?.primaryPhone)}
-                >
-                  <Icon icon="outgoing-call" /> {__('Call')}
-                </li>
-              </Dropdown.Menu>
+            <Dropdown
+              as={DropdownToggle}
+              toggleComponent={<Icon icon="ellipsis-v" size={18} />}
+            >
+              <li key="call" onClick={() => onCall(customer?.primaryPhone)}>
+                <Icon icon="outgoing-call" /> {__("Call")}
+              </li>
             </Dropdown>
           </AdditionalDetail>
         </ContactItem>
@@ -66,41 +59,37 @@ class Contact extends React.Component<Props, State> {
     });
   };
 
-  render() {
-    const { searchValue } = this.state;
-    const { searchCustomer } = this.props;
-    let timer;
+  let timer;
 
-    const onSearch = () => {
-      searchCustomer(this.state.searchValue);
-    };
+  const onSearch = () => {
+    searchCustomer(searchValue);
+  };
 
-    const onChange = (e) => {
-      if (timer) {
-        clearTimeout(timer);
-      }
+  const onChange = (e) => {
+    if (timer) {
+      clearTimeout(timer);
+    }
 
-      const inputValue = e.target.value;
+    const inputValue = e.target.value;
 
-      this.setState({ searchValue: inputValue });
-    };
+    setSearchValue(inputValue);
+  };
 
-    return (
-      <>
-        <InputBar type="searchBar">
-          <FormControl
-            placeholder={__('Search')}
-            name="searchValue"
-            onChange={onChange}
-            value={searchValue}
-            autoFocus={true}
-          />
-          <Icon icon="search-1" size={20} onClick={onSearch} />
-        </InputBar>
-        <Contacts>{this.renderContact()}</Contacts>
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <InputBar type="searchBar">
+        <FormControl
+          placeholder={__("Type to search")}
+          name="searchValue"
+          onChange={onChange}
+          value={searchValue}
+          autoFocus={true}
+        />
+        <Icon icon="search-1" size={20} onClick={onSearch} />
+      </InputBar>
+      <Contacts>{renderContact()}</Contacts>
+    </>
+  );
+};
 
 export default Contact;

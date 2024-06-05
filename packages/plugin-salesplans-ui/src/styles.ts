@@ -33,4 +33,40 @@ export const TableWrapper = styled.div`
   }
 `;
 
+export const FormTable = styled.table`
+  width: 100%;
+
+  td {
+    padding-right: ${dimensions.coreSpacing}px;
+    width: 19%;
+  }
+
+  tr {
+    td:last-child {
+      padding: 0;
+    }
+  }
+`;
+
+export const LevelWrapper = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+export const RemoveRow = styled.a`
+  margin-top: ${dimensions.unitSpacing + 2}px;
+  margin-left: ${dimensions.unitSpacing}px;
+  padding: ${dimensions.unitSpacing / 2}px;
+  color: ${colors.colorCoreDarkGray};
+
+  &:hover {
+    cursor: pointer;
+    color: ${colors.colorCoreRed};
+  }
+`;
+
+export const LevelOption = styled.div`
+  margin-top: ${dimensions.coreSpacing}px;
+`;
+
 export { FilterContainer, LabelsTableWrapper, SidebarFilters };

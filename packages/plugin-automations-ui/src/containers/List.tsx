@@ -1,33 +1,33 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
 import {
-  IAutomation,
   AddMutationResponse,
+  ArchiveMutationResponse,
+  ArchiveMutationVariables,
   CountQueryResponse,
+  EditMutationResponse,
+  IAutomation,
   IAutomationDoc,
   ListQueryVariables,
   MainQueryResponse,
   RemoveMutationResponse,
-  ArchiveMutationResponse,
   RemoveMutationVariables,
-  ArchiveMutationVariables,
-  EditMutationResponse
-} from '../types';
-import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import { mutations, queries } from '../graphql';
+} from "../types";
+import { Alert, confirm, withProps } from "@erxes/ui/src/utils";
+import { mutations, queries } from "../graphql";
 
-import Bulk from '@erxes/ui/src/components/Bulk';
-import { DefaultColumnsConfigQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import List from '../components/List';
-import React from 'react';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
+import Bulk from "@erxes/ui/src/components/Bulk";
+import { DefaultColumnsConfigQueryResponse } from "@erxes/ui-forms/src/settings/properties/types";
+import List from "../components/List";
+import React from "react";
+import { generatePaginationParams } from "@erxes/ui/src/utils/router";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
 
 type Props = {
   queryParams?: any;
+  navigate: any;
+  location: any;
 };
 
 type FinalProps = {
@@ -36,7 +36,6 @@ type FinalProps = {
   automationsListConfigQuery: DefaultColumnsConfigQueryResponse;
   duplicateMutation: any;
 } & Props &
-  IRouterProps &
   RemoveMutationResponse &
   AddMutationResponse &
   EditMutationResponse &
@@ -53,7 +52,7 @@ class ListContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
   }
 
@@ -77,7 +76,7 @@ class ListContainer extends React.Component<FinalProps, State> {
       addAutomationMutation,
       automationsArchive,
       duplicateMutation,
-      history
+      navigate,
     } = this.props;
 
     const counts = automationsTotalCountQuery
@@ -87,20 +86,20 @@ class ListContainer extends React.Component<FinalProps, State> {
     const addAutomation = () => {
       addAutomationMutation({
         variables: {
-          name: 'Your automation title',
-          status: 'draft',
+          name: "Your automation title",
+          status: "draft",
           triggers: [],
-          actions: []
-        }
+          actions: [],
+        },
       })
-        .then(data => {
-          history.push({
+        .then((data) => {
+          navigate({
             pathname: `/automations/details/${data.data.automationsAdd._id}`,
-            search: '?isCreate=true'
+            search: "?isCreate=true",
           });
         })
 
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
     };
@@ -108,18 +107,18 @@ class ListContainer extends React.Component<FinalProps, State> {
     const removeAutomations = ({ automationIds }, emptyBulk) => {
       confirm().then(() => {
         automationsRemove({
-          variables: { automationIds }
+          variables: { automationIds },
         })
           .then(() => {
             emptyBulk();
             Alert.success(
-              'You successfully deleted a automation. The changes will take a few seconds',
+              "You successfully deleted a automation. The changes will take a few seconds",
               4500
             );
 
             this.refetchWithDelay();
           })
-          .catch(e => {
+          .catch((e) => {
             Alert.error(e.message);
           });
       });
@@ -131,33 +130,33 @@ class ListContainer extends React.Component<FinalProps, State> {
           .then(() => {
             emptyBulk();
             Alert.success(
-              'You successfully archived a automation. The changes will take a few seconds',
+              "You successfully archived a automation. The changes will take a few seconds",
               4500
             );
 
             this.refetchWithDelay();
           })
-          .catch(e => {
+          .catch((e) => {
             Alert.error(e.message);
           });
       });
     };
 
-    const duplicate = _id => {
+    const duplicate = (_id) => {
       confirm().then(() => {
         duplicateMutation({
-          variables: { _id, duplicate: true }
+          variables: { _id, duplicate: true },
         })
           .then(() => {
-            Alert.success('You successfully duplicated a automation.');
+            Alert.success("You successfully duplicated a automation.");
           })
-          .catch(e => {
+          .catch((e) => {
             Alert.error(e.message);
           });
       });
     };
 
-    const searchValue = this.props.queryParams.searchValue || '';
+    const searchValue = this.props.queryParams.searchValue || "";
     const { list = [], totalCount = 0 } =
       automationsMainQuery.automationsMain || {};
 
@@ -172,10 +171,10 @@ class ListContainer extends React.Component<FinalProps, State> {
       duplicate,
       removeAutomations,
       archiveAutomations,
-      refetch: this.refetchWithDelay
+      refetch: this.refetchWithDelay,
     };
 
-    const automationsList = props => {
+    const automationsList = (props) => {
       return <List {...updatedProps} {...props} />;
     };
 
@@ -188,11 +187,11 @@ class ListContainer extends React.Component<FinalProps, State> {
   }
 }
 
-const generateParamsIds = ids => {
+const generateParamsIds = (ids) => {
   if (!ids?.length) {
     return undefined;
   }
-  if (typeof ids === 'string') {
+  if (typeof ids === "string") {
     return [ids];
   }
   return ids;
@@ -208,7 +207,7 @@ const generateParams = ({ queryParams }) => {
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
       : undefined,
-    tagIds: generateParamsIds(queryParams.tagIds)
+    tagIds: generateParamsIds(queryParams.tagIds),
   };
 };
 
@@ -216,8 +215,8 @@ export const getRefetchQueries = (queryParams?: any) => {
   return [
     {
       query: gql(queries.automationsMain),
-      variables: { ...generateParams({ queryParams }) }
-    }
+      variables: { ...generateParams({ queryParams }) },
+    },
   ];
 };
 
@@ -226,63 +225,67 @@ export default withProps<Props>(
     graphql<Props, MainQueryResponse, ListQueryVariables>(
       gql(queries.automationsMain),
       {
-        name: 'automationsMainQuery',
+        name: "automationsMainQuery",
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
+          fetchPolicy: "network-only",
+        }),
       }
     ),
     graphql<Props, CountQueryResponse>(gql(queries.automationsTotalCount), {
-      name: 'automationsTotalCountQuery',
+      name: "automationsTotalCountQuery",
       options: ({ queryParams }) => ({
         variables: {
-          status: queryParams.status
-        }
-      })
+          status: queryParams.status,
+        },
+      }),
     }),
     // mutations
     graphql<{}, AddMutationResponse, IAutomationDoc>(
       gql(mutations.automationsAdd),
       {
-        name: 'addAutomationMutation',
+        name: "addAutomationMutation",
         options: () => ({
-          refetchQueries: ['automations', 'automationsMain', 'automationDetail']
-        })
+          refetchQueries: [
+            "automations",
+            "automationsMain",
+            "automationDetail",
+          ],
+        }),
       }
     ),
     graphql<{}, {}, IAutomationDoc>(gql(mutations.automationsSaveAsTemplate), {
-      name: 'duplicateMutation',
+      name: "duplicateMutation",
       options: () => ({
-        refetchQueries: ['automations', 'automationsMain', 'automationDetail']
-      })
+        refetchQueries: ["automations", "automationsMain", "automationDetail"],
+      }),
     }),
     graphql<Props, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.automationsRemove),
       {
-        name: 'automationsRemove',
+        name: "automationsRemove",
         options: ({ queryParams }) => ({
-          refetchQueries: getRefetchQueries(queryParams)
-        })
+          refetchQueries: getRefetchQueries(queryParams),
+        }),
       }
     ),
     graphql<Props, RemoveMutationResponse, ArchiveMutationVariables>(
       gql(mutations.archiveAutomations),
       {
-        name: 'automationsArchive',
+        name: "automationsArchive",
         options: ({ queryParams }) => ({
-          refetchQueries: getRefetchQueries(queryParams)
-        })
+          refetchQueries: getRefetchQueries(queryParams),
+        }),
       }
     ),
     graphql<Props, EditMutationResponse, IAutomation>(
       gql(mutations.archiveAutomations),
       {
-        name: 'editMutation',
+        name: "editMutation",
         options: ({ queryParams }) => ({
-          refetchQueries: getRefetchQueries(queryParams)
-        })
+          refetchQueries: getRefetchQueries(queryParams),
+        }),
       }
     )
-  )(withRouter<IRouterProps>(ListContainer))
+  )(ListContainer)
 );

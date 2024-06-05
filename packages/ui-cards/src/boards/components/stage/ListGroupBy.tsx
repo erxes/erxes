@@ -1,28 +1,29 @@
+import * as routerUtils from "@erxes/ui/src/utils/router";
+
 import {
   AddNew,
-  ListBody,
+  ColumnLastChild,
   Footer,
-  ListContainer,
+  GroupTitle,
   Header,
+  ListBody,
+  ListContainer,
   ListStageFooter,
   StageTitle,
-  GroupTitle,
-  ColumnLastChild
-} from '../../styles/stage';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import { AddForm } from '../../containers/portable';
-import { IItem, IOptions } from '../../types';
-import Table from '@erxes/ui/src/components/table';
-import ListItemRow from './ListItemRow';
-import * as routerUtils from '@erxes/ui/src/utils/router';
-import Item from './Item';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+} from "../../styles/stage";
+import { IItem, IOptions } from "../../types";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import { AddForm } from "../../containers/portable";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Icon from "@erxes/ui/src/components/Icon";
+import Item from "./Item";
+import ListItemRow from "./ListItemRow";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
+import React from "react";
+import Table from "@erxes/ui/src/components/table";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   index: number;
@@ -36,21 +37,24 @@ type Props = {
   onRemoveItem: (itemId: string, stageId: string) => void;
   groupObj: any;
   groupType: string;
-} & IRouterProps;
+};
 
-class ListGroupBy extends React.Component<Props> {
-  onScroll = (e: React.UIEvent<HTMLDivElement>) => {
+const ListGroupBy = (props: Props) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const onScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
     const bottom =
       Math.round(target.scrollHeight - target.scrollTop) <= target.clientHeight;
 
     if (bottom) {
-      this.props.loadMore();
+      props.loadMore();
     }
   };
 
-  renderAddItemTrigger() {
-    const { options, groupObj, onAddItem } = this.props;
+  const renderAddItemTrigger = () => {
+    const { options, groupObj, onAddItem } = props;
     const addText = options.texts.addText;
 
     const trigger = (
@@ -67,44 +71,44 @@ class ListGroupBy extends React.Component<Props> {
       showSelect: false,
       callback: (item: IItem) => onAddItem(groupObj._id, item),
       stageId: groupObj._id,
-      aboveItemId: ''
+      aboveItemId: "",
     };
 
-    const content = props => <AddForm {...props} {...formProps} />;
+    const content = (props) => <AddForm {...props} {...formProps} />;
 
     return <ModalTrigger title={addText} trigger={trigger} content={content} />;
-  }
+  };
 
-  onClick = (item: any) => {
-    const { history, groupObj } = this.props;
+  const onClick = (item: any) => {
+    const { groupObj } = props;
 
-    routerUtils.setParams(history, {
+    routerUtils.setParams(navigate, location, {
       itemId: `${item._id}${groupObj._id}`,
-      key: ''
+      key: "",
     });
   };
 
-  beforePopupClose = () => {
-    this.props.refetch();
+  const beforePopupClose = () => {
+    props.refetch();
   };
 
-  renderHeader = () => {
-    const { groupType, groupObj } = this.props;
+  const renderHeader = () => {
+    const { groupType, groupObj } = props;
 
-    if (groupType === 'assignee') {
+    if (groupType === "assignee") {
       return <NameCard user={groupObj} avatarSize={30} />;
     }
 
     return (
       <GroupTitle>
         {groupObj.name.charAt(0).toUpperCase() + groupObj.name.slice(1)}
-        <span>{this.props.itemsTotalCount}</span>
+        <span>{props.itemsTotalCount}</span>
       </GroupTitle>
     );
   };
 
-  renderTable = () => {
-    const { groupObj, items, options, groupType } = this.props;
+  const renderTable = () => {
+    const { groupObj, items, options, groupType } = props;
 
     if (!groupObj) {
       return <EmptyState icon="grid" text="No stage" size="small" />;
@@ -116,21 +120,22 @@ class ListGroupBy extends React.Component<Props> {
 
     return (
       <>
-        <Table hover={true} bordered={true}>
+        <Table $hover={true} $bordered={true}>
           <thead>
             <tr>
-              <th>{__('Card Title')}</th>
-              <th>{groupType === 'stage' ? __('Label') : __('Stage')}</th>
-              {(groupType === 'assignee' || groupType === 'dueDate') && (
-                <th>{__('Label')}</th>
+              <th>{__("Card Title")}</th>
+              <th>{groupType === "stage" ? __("Label") : __("Stage")}</th>
+              {(groupType === "assignee" || groupType === "dueDate") && (
+                <th>{__("Label")}</th>
               )}
-              <th>{groupType === 'priority' ? __('Label') : __('Priority')}</th>
-              <th>{__('Due Date')}</th>
-              {groupType !== 'assignee' && <th>{__('Assignee')}</th>}
-              {options.type === 'deal' ||
-                (options.type === 'purchase' && <th>{__('Products')}</th>)}
-              <th>{__('Associated Customer')}</th>
-              <ColumnLastChild>{__('Associated Company')}</ColumnLastChild>
+              <th>{groupType === "priority" ? __("Label") : __("Priority")}</th>
+              <th>{__("Due Date")}</th>
+              {groupType !== "assignee" && <th>{__("Assignee")}</th>}
+              {(options.type === "deal" || options.type === "purchase") && (
+                <th>{__("Products")}</th>
+              )}
+              <th>{__("Associated Customer")}</th>
+              <ColumnLastChild>{__("Associated Company")}</ColumnLastChild>
             </tr>
           </thead>
           <tbody id="groupByList">
@@ -138,8 +143,8 @@ class ListGroupBy extends React.Component<Props> {
               <Item
                 key={item._id}
                 item={item}
-                onClick={() => this.onClick(item)}
-                beforePopupClose={this.beforePopupClose}
+                onClick={() => onClick(item)}
+                beforePopupClose={beforePopupClose}
                 options={options}
                 groupType={groupType}
                 groupObj={groupObj}
@@ -152,21 +157,17 @@ class ListGroupBy extends React.Component<Props> {
     );
   };
 
-  render() {
-    const { groupType } = this.props;
+  const { groupType } = props;
 
-    return (
-      <ListContainer>
-        <Header>
-          <StageTitle>{this.renderHeader()}</StageTitle>
-        </Header>
-        <ListBody onScroll={this.onScroll}>{this.renderTable()}</ListBody>
-        {groupType === 'stage' && (
-          <Footer>{this.renderAddItemTrigger()}</Footer>
-        )}
-      </ListContainer>
-    );
-  }
-}
+  return (
+    <ListContainer>
+      <Header>
+        <StageTitle>{renderHeader()}</StageTitle>
+      </Header>
+      <ListBody onScroll={onScroll}>{renderTable()}</ListBody>
+      {groupType === "stage" && <Footer>{renderAddItemTrigger()}</Footer>}
+    </ListContainer>
+  );
+};
 
-export default withRouter<Props>(ListGroupBy);
+export default ListGroupBy;

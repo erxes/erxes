@@ -1,7 +1,7 @@
-import { ChooseBox } from '@erxes/ui-engage/src/styles';
 import PercentItem, { ItemWrapper } from './PercentItem';
 
 import Button from '@erxes/ui/src/components/Button';
+import { ChooseBox } from '@erxes/ui-engage/src/styles';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { EMPTY_CONTENT_ENGAGE } from '@erxes/ui-settings/src/constants';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
@@ -202,13 +202,13 @@ class List extends React.Component<Props> {
     );
 
     const mainContent = (
-      <Table whiteSpace='nowrap' hover={true} bordered={true}>
+      <Table $whiteSpace='nowrap' $hover={true} $bordered={true}>
         <thead>
           <tr>
             <th style={{ width: 60 }}>
               <FormControl
                 checked={isAllSelected}
-                componentClass='checkbox'
+                componentclass='checkbox'
                 onChange={this.onChange}
               />
             </th>

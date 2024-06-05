@@ -5,22 +5,20 @@ import {
   IContentType,
   TypesAddMutationResponse,
   TypesEditMutationResponse,
-  TypesRemoveMutationResponse
+  TypesRemoveMutationResponse,
 } from '../../types';
 import { mutations, queries } from '../../graphql';
 
 import ContentTypeForm from '../../components/contentTypes/ContenTypeForm';
-import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
 
 type Props = {
   onCancel: (settingsObject: any, type: string) => void;
   siteId: string;
   contentType?: IContentType;
-} & IRouterProps;
+};
 
 type FinalProps = {} & Props &
   TypesAddMutationResponse &
@@ -32,7 +30,7 @@ function ContentTypeFormContainer(props: FinalProps) {
     typesAddMutation,
     typesEditMutation,
     typesRemoveMutation,
-    contentType
+    contentType,
   } = props;
 
   const action = (variables: any, afterSave?: any) => {
@@ -52,7 +50,7 @@ function ContentTypeFormContainer(props: FinalProps) {
           afterSave();
         }
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -67,7 +65,7 @@ function ContentTypeFormContainer(props: FinalProps) {
             afterSave();
           }
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     });
@@ -77,7 +75,7 @@ function ContentTypeFormContainer(props: FinalProps) {
     ...props,
     action,
     remove,
-    contentType: contentType || ({} as IContentType)
+    contentType: contentType || ({} as IContentType),
   };
 
   return <ContentTypeForm {...updatedProps} />;
@@ -87,16 +85,16 @@ const refetchTypeQueries = (siteId: string) => [
   { query: gql(queries.contentTypesMain), variables: { siteId } },
   {
     query: gql(queries.contentTypes),
-    variables: { siteId }
-  }
+    variables: { siteId },
+  },
 ];
 
 export default compose(
   graphql<Props, TypesAddMutationResponse>(gql(mutations.typesAdd), {
     name: 'typesAddMutation',
     options: ({ siteId }) => ({
-      refetchQueries: refetchTypeQueries(siteId)
-    })
+      refetchQueries: refetchTypeQueries(siteId),
+    }),
   }),
   graphql<Props, TypesEditMutationResponse>(gql(mutations.typesEdit), {
     name: 'typesEditMutation',
@@ -106,16 +104,16 @@ export default compose(
         {
           query: gql(queries.contentTypeDetail),
           variables: {
-            _id: contentType && contentType._id ? contentType._id : ''
-          }
-        }
-      ]
-    })
+            _id: contentType && contentType._id ? contentType._id : '',
+          },
+        },
+      ],
+    }),
   }),
   graphql<Props, TypesRemoveMutationResponse>(gql(mutations.typesRemove), {
     name: 'typesRemoveMutation',
     options: ({ siteId }) => ({
-      refetchQueries: refetchTypeQueries(siteId)
-    })
-  })
-)(withRouter(ContentTypeFormContainer));
+      refetchQueries: refetchTypeQueries(siteId),
+    }),
+  }),
+)(ContentTypeFormContainer);

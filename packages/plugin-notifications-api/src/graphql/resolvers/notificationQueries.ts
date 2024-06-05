@@ -3,12 +3,11 @@ import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../connectionResolver';
 import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
-
 const notificationQueries = {
   /**
    * Notifications list
    */
-  notifications(
+  async notifications(
     _root,
     {
       requireRead,
@@ -30,9 +29,9 @@ const notificationQueries = {
       startDate: string;
       endDate: string;
     },
-    { models, user }: IContext
+    { models, user }: IContext,
   ) {
-    const sort = { date: -1 };
+    const sort: any = { date: -1 };
 
     const selector: any = { receiver: user._id };
 
@@ -55,14 +54,12 @@ const notificationQueries = {
     if (startDate && endDate) {
       selector.date = {
         $gte: startDate,
-        $lt: endDate
+        $lt: endDate,
       };
     }
 
     if (limit) {
-      return models.Notifications.find(selector)
-        .sort(sort)
-        .limit(limit);
+      return models.Notifications.find(selector).sort(sort).limit(limit);
     }
 
     return paginate(models.Notifications.find(selector), params).sort(sort);
@@ -71,14 +68,14 @@ const notificationQueries = {
   /**
    * Notification counts
    */
-  notificationCounts(
+  async notificationCounts(
     _root,
     {
       requireRead,
       notifType,
-      contentTypes
+      contentTypes,
     }: { requireRead: boolean; notifType: string; contentTypes: string },
-    { user, models }: IContext
+    { user, models }: IContext,
   ) {
     const selector: any = { receiver: user._id };
 
@@ -127,9 +124,9 @@ const notificationQueries = {
   /**
    * Get per user configuration
    */
-  notificationsGetConfigurations(_root, _args, { user, models }: IContext) {
+  async notificationsGetConfigurations(_root, _args, { user, models }: IContext) {
     return models.NotificationConfigurations.find({ user: user._id });
-  }
+  },
 };
 
 moduleRequireLogin(notificationQueries);

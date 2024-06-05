@@ -6,8 +6,8 @@ import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import * as messageBroker from './messageBroker';
 import type { InterMessage } from './messageBroker';
-import { coreModelOrganizations, getCoreConnection } from './saas/saas';
 import { connect } from './mongo-connection';
+import { coreModelOrganizations, getCoreConnection } from './saas/saas';
 
 export const getEnv = ({
   name,
@@ -354,10 +354,7 @@ export const getSubdomain = (req): string => {
   return subdomain;
 };
 
-export const connectionOptions: mongoose.ConnectionOptions = {
-  useNewUrlParser: true,
-  useCreateIndex: true,
-  useFindAndModify: false,
+export const connectionOptions: mongoose.ConnectOptions = {
   family: 4,
 };
 

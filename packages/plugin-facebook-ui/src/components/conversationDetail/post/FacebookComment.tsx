@@ -1,21 +1,21 @@
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import DealConvertTrigger from '@erxes/ui-cards/src/deals/components/DealConvertTrigger';
-import TaskConvertTrigger from '@erxes/ui-cards/src/tasks/components/TaskConvertTrigger';
-import PurchaseConvertTrigger from '@erxes/ui-cards/src/purchases/components/PurchaseConvertTrigger';
-import TicketConvertTrigger from '@erxes/ui-cards/src/tickets/components/TicketConvertTrigger';
-import * as React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import styled from 'styled-components';
-import { IFacebookComment } from '../../../types';
-import Date from './Date';
-import FacebookContent from './FacebookContent';
-import ReplyingMessage from './ReplyingMessage';
-import { ChildPost, FlexItem, Reply, ShowMore, User } from './styles';
-import UserName from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/UserName';
-import { Comment } from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/styles';
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
+import DealConvertTrigger from "@erxes/ui-cards/src/deals/components/DealConvertTrigger";
+import TaskConvertTrigger from "@erxes/ui-cards/src/tasks/components/TaskConvertTrigger";
+import PurchaseConvertTrigger from "@erxes/ui-cards/src/purchases/components/PurchaseConvertTrigger";
+import TicketConvertTrigger from "@erxes/ui-cards/src/tickets/components/TicketConvertTrigger";
+import * as React from "react";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import styled from "styled-components";
+import { IFacebookComment } from "../../../types";
+import Date from "./Date";
+import FacebookContent from "./FacebookContent";
+import ReplyingMessage from "./ReplyingMessage";
+import { ChildPost, FlexItem, Reply, ShowMore, User } from "./styles";
+import UserName from "@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/UserName";
+import { Comment } from "@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/styles";
 
 const Container = styled.div`
   display: inline-block;
@@ -51,7 +51,7 @@ type Props = {
   fetchFacebook: ({
     commentId,
     postId,
-    limit
+    limit,
   }: {
     commentId?: string;
     postId?: string;
@@ -76,11 +76,11 @@ export default class FacebookComment extends React.Component<
 
     this.state = {
       hasReplies,
-      isResolved: data.isResolved ? true : false
+      isResolved: data.isResolved ? true : false,
     };
   }
 
-  fetchReplies = commentId => {
+  fetchReplies = (commentId) => {
     const { fetchFacebook } = this.props;
 
     fetchFacebook({ commentId });
@@ -109,11 +109,11 @@ export default class FacebookComment extends React.Component<
       const { attachments } = comment;
 
       attachments.forEach((link, index) => {
-        if (link.includes('fna.fbcdn.net')) {
+        if (link.includes("fna.fbcdn.net")) {
           result.push({
             url: link,
-            name: 'attachment',
-            type: 'image / jpeg,'
+            name: "attachment",
+            type: "image / jpeg,",
           });
         }
       });
@@ -123,13 +123,8 @@ export default class FacebookComment extends React.Component<
   };
 
   render() {
-    const {
-      comment,
-      replyComment,
-      isReply,
-      convertToInfo,
-      refetch
-    } = this.props;
+    const { comment, replyComment, isReply, convertToInfo, refetch } =
+      this.props;
     const { isResolved } = this.state;
 
     const customer = comment.customer || ({} as any);
@@ -139,14 +134,14 @@ export default class FacebookComment extends React.Component<
     }
 
     const size = comment && comment.parentId ? 20 : 32;
-    const statusText = isResolved ? 'Open' : 'Resolve';
+    const statusText = isResolved ? "Open" : "Resolve";
 
-    const content = props => (
+    const content = (props) => (
       <ReplyingMessage
         changeHasReply={this.changeHasReply}
         conversationId={comment.conversationId}
         commentId={comment.commentId}
-        currentUserName={`${customer.firstName} ${customer.lastName || ''}`}
+        currentUserName={`${customer.firstName} ${customer.lastName || ""}`}
         replyComment={replyComment}
         {...props}
       />
@@ -154,11 +149,11 @@ export default class FacebookComment extends React.Component<
 
     const triggerProps = {
       relTypeIds: [customer._id],
-      relType: 'customer',
+      relType: "customer",
       sourceConversationId: comment.commentId,
       refetch,
       description: comment.content,
-      attachments: this.collectAttachments()
+      attachments: this.collectAttachments(),
     };
 
     return (
@@ -170,7 +165,7 @@ export default class FacebookComment extends React.Component<
             <FlexItem>
               <Comment>
                 <UserName
-                  username={`${customer.firstName} ${customer.lastName || ''}`}
+                  username={`${customer.firstName} ${customer.lastName || ""}`}
                 />
                 <FacebookContent
                   content={comment.content}
@@ -189,38 +184,38 @@ export default class FacebookComment extends React.Component<
               </Reply>
             ) : null}
             <Container>
-              <Dropdown>
-                <Dropdown.Toggle as={DropdownToggle} id="dropdown-convert-to">
+              <Dropdown
+                as={DropdownToggle}
+                toggleComponent={
                   <Reply type="convert">
                     <span>Convert</span>
                   </Reply>
-                </Dropdown.Toggle>
-                <Dropdown.Menu>
-                  <li key="ticket">
-                    <TicketConvertTrigger
-                      {...triggerProps}
-                      url={convertToInfo.ticketUrl}
-                    />
-                  </li>
-                  <li key="deal">
-                    <DealConvertTrigger
-                      {...triggerProps}
-                      url={convertToInfo.dealUrl}
-                    />
-                  </li>
-                  <li key="task">
-                    <TaskConvertTrigger
-                      {...triggerProps}
-                      url={convertToInfo.taskUrl}
-                    />
-                  </li>
-                  <li key="purchase">
-                    <PurchaseConvertTrigger
-                      {...triggerProps}
-                      url={convertToInfo.purchaseUrl}
-                    />
-                  </li>
-                </Dropdown.Menu>
+                }
+              >
+                <li key="ticket">
+                  <TicketConvertTrigger
+                    {...triggerProps}
+                    url={convertToInfo.ticketUrl}
+                  />
+                </li>
+                <li key="deal">
+                  <DealConvertTrigger
+                    {...triggerProps}
+                    url={convertToInfo.dealUrl}
+                  />
+                </li>
+                <li key="task">
+                  <TaskConvertTrigger
+                    {...triggerProps}
+                    url={convertToInfo.taskUrl}
+                  />
+                </li>
+                <li key="purchase">
+                  <PurchaseConvertTrigger
+                    {...triggerProps}
+                    url={convertToInfo.purchaseUrl}
+                  />
+                </li>
               </Dropdown>
             </Container>
 

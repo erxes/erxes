@@ -247,12 +247,24 @@ class NotificationForm extends React.Component<Props, State> {
               <Char count={characterCount}>{characterCount}</Char>
             </FlexInfo>
             <FormControl
-              componentClass='textarea'
+              componentclass='textarea'
               defaultValue={notification && notification.content}
               onBlur={onChangeContent}
               onChange={onChangeNotificationContent}
               maxLength={160}
               required
+            />
+          </FormGroup>
+
+          <FormGroup horizontal>
+            <FlexInfo>
+              <ControlLabel>{__('Is mobile notification')}:</ControlLabel>
+            </FlexInfo>
+            <input
+              onBlur={onChangeIsMobile}
+              defaultChecked={notification?.isMobile || false}
+              onChange={e => onChangeIsMobile(e)}
+              type='checkbox'
             />
           </FormGroup>
         </FlexPad>

@@ -12,7 +12,6 @@ import { queries as voucherCampaignQueries } from '../../voucherCampaign/graphql
 import CreateForm from '../components/CreateForm';
 
 type Props = {
-  history: any;
   queryParams: any;
 };
 

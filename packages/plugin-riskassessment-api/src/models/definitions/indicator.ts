@@ -46,6 +46,7 @@ export interface IRiskAssessmentsConfigsDocument extends Document {
 }
 
 export interface IIndicatorsGroupDocument extends Document {
+  _id: string;
   indicatorIds: string[];
   percentWeight?: number;
   calculateLogics: ICalculateLogics[];

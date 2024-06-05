@@ -3,12 +3,12 @@ import { IAssetCategoriesDocument } from '../../common/types/asset';
 import { IContext } from '../../connectionResolver';
 
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
+  async __resolveReference({ _id }, { models }: IContext) {
     return models.AssetCategories.findOne({ _id });
   },
 
-  isRoot(category: IAssetCategoriesDocument, {}) {
-    return category.parentId ? false : true;
+  async isRoot(category: IAssetCategoriesDocument, {}) {
+    return !category.parentId;
   },
 
   async assetCount(
@@ -16,14 +16,18 @@ export default {
     {},
     { models }: IContext
   ) {
+    const order = category.order.slice(-1)
+      ? category.order.replace(/\\/g, '\\\\')
+      : category.order;
+
     const asset_category_ids = await models.AssetCategories.find(
-      { order: { $regex: new RegExp(category.order) } },
+      { order: { $regex: new RegExp(order) } },
       { _id: 1 }
     );
 
     return models.Assets.countDocuments({
       categoryId: { $in: asset_category_ids },
-      status: { $ne: ASSET_STATUSES.DELETED }
+      status: { $ne: ASSET_STATUSES.DELETED },
     });
-  }
+  },
 };

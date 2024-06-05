@@ -1,7 +1,7 @@
 module.exports = {
   srcDir: __dirname,
   name: "calls",
-  port: 3017,
+  port: 3119,
   scope: "calls",
   exposes: {
     "./routes": "./src/routes.tsx",
@@ -9,25 +9,26 @@ module.exports = {
     "./inboxIntegrationForm": "./src/components/IntegrationForm.tsx",
     "./integrationDetailsForm": "./src/components/IntegrationEditForm.tsx",
     "./integrationCustomActions": "./src/components/TokenButton.tsx",
-    './inboxIntegrationSettings': './src/containers/UpdateConfigsContainer.tsx',
+    "./inboxIntegrationSettings": "./src/containers/UpdateConfigsContainer.tsx",
+    "./activityLog": "./src/components/ActivityLogs.tsx",
   },
 
   routes: {
-    url: "http://localhost:3017/remoteEntry.js",
+    url: "http://localhost:3119/remoteEntry.js",
     scope: "calls",
     module: "./routes",
   },
-  innerWidget: {
-    url: "http://localhost:3017/remoteEntry.js",
+
+  layout: {
+    url: "http://localhost:3119/remoteEntry.js",
     scope: "calls",
     module: "./call",
-    style: "bottom: 80px;right: 12px",
   },
   inboxIntegrationForm: "./inboxIntegrationForm",
   invoiceDetailRightSection: "./invoiceDetailRightSection",
   integrationDetailsForm: "./integrationDetailsForm",
   integrationCustomActions: "./integrationCustomActions",
-  inboxIntegrationSettings: './inboxIntegrationSettings',
+  inboxIntegrationSettings: "./inboxIntegrationSettings",
   inboxIntegrations: [
     {
       name: "Grand stream",
@@ -38,4 +39,5 @@ module.exports = {
       createModal: "grandstream",
     },
   ],
+  activityLog: "./activityLog",
 };

@@ -46,7 +46,7 @@ const contractTypeQueries = {
     params,
     { commonQuerySelector, models }: IContext
   ) => {
-    return paginate(
+    return await paginate(
       models.ContractTypes.find(
         await generateFilter(params, commonQuerySelector)
       ),
@@ -69,14 +69,14 @@ const contractTypeQueries = {
     const filter = await generateFilter(params, commonQuerySelector);
 
     return {
-      list: paginate(
+      list: await paginate(
         models.ContractTypes.find(filter).sort(sortBuilder(params)),
         {
           page: params.page,
           perPage: params.perPage
         }
       ),
-      totalCount: models.ContractTypes.find(filter).count()
+      totalCount: await models.ContractTypes.find(filter).countDocuments()
     };
   },
 

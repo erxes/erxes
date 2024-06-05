@@ -5,7 +5,7 @@ const resolvers: any = async () => ({
 
   Query: {},
 
-  Mutation: {}
+  Mutation: {},
 });
 
 export default resolvers;

@@ -11,8 +11,8 @@ import { getMainDefinition } from '@apollo/client/utilities';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { __, getEnv } from './utils/core';
 import { createClient } from 'graphql-ws';
-import noIdNestedTypes from './no-id-nested-types';
 import addMergeKeyfieldPolicy from './add-merge-keyfield-policy';
+import noIdNestedTypes from './no-id-nested-types';
 
 const { REACT_APP_API_SUBSCRIPTION_URL, REACT_APP_API_URL } = getEnv();
 

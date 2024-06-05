@@ -1,4 +1,6 @@
 import { checkPermission } from '@erxes/api-utils/src';
+import { IContext } from '../../../connectionResolver';
+import { Expression } from 'mongoose';
 const generateFilter = async (params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
 
@@ -20,7 +22,7 @@ const generateFilter = async (params, commonQuerySelector) => {
   return filter;
 };
 
-export const sortBuilder = params => {
+export const sortBuilder = (params): Record<string, 1 | -1 | Expression.Meta> => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -39,7 +41,7 @@ const collateralQueries = {
   collateralsMain: async (
     _root,
     params,
-    { commonQuerySelector, models, checkPermission, user }
+    { commonQuerySelector, models }:IContext
   ) => {
     const filter = await generateFilter(params, commonQuerySelector);
     const _page = Number(params.page || '1');

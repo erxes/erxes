@@ -24,7 +24,6 @@ type Props = {
 
   isCurrentUserAdmin: boolean;
 
-  history: any;
   queryParams: any;
   explanation?: string;
   userId?: string;

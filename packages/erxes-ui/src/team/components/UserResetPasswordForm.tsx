@@ -56,7 +56,7 @@ class UserResetPasswordForm extends React.Component<Props> {
 
           <FormControl
             type="password"
-            placeholder={__('repeat password')}
+            placeholder={__('Repeat password')}
             id="repeat-password"
           />
         </FormGroup>

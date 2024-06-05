@@ -9,7 +9,7 @@ import { dimensions } from '../styles';
 import styledTS from 'styled-components-ts';
 
 const MainDescription = styledTS<{
-  expand: boolean;
+  $expand: boolean;
 }>(styled.div)`
   width: 100%;
   padding: ${dimensions.coreSpacing}px ${dimensions.unitSpacing}px;
@@ -21,14 +21,14 @@ const MainDescription = styledTS<{
   position: relative;
   cursor: pointer;
 
-  ${props => css`
-    height: ${props.expand === false && '0px'};
+  ${(props) => css`
+    height: ${props.$expand === false && '0px'};
   `}
 
   h4 {
     margin: 0;
-    padding-bottom: ${props => (props.expand ? '5px' : '0')};
-    font-size: ${props => (props.expand ? '18px' : '15px')};
+    padding-bottom: ${(props) => (props.$expand ? '5px' : '0')};
+    font-size: ${(props) => (props.$expand ? '18px' : '15px')};
     font-weight: 500;
   }
 `;
@@ -62,7 +62,7 @@ class HeaderDescription extends React.PureComponent<Props, State> {
 
     const localExpand = localStorage.getItem('expand');
     this.state = {
-      expand: localExpand ? localExpand === 'true' : true
+      expand: localExpand ? localExpand === 'true' : true,
     };
   }
 
@@ -76,7 +76,7 @@ class HeaderDescription extends React.PureComponent<Props, State> {
     const { icon, title, description, renderExtra } = this.props;
 
     return (
-      <MainDescription expand={this.state.expand} onClick={this.onClick}>
+      <MainDescription $expand={this.state.expand} onClick={this.onClick}>
         <Description>
           {this.state.expand && <DescImg src={icon} />}
           <span>

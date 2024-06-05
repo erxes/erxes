@@ -169,9 +169,9 @@ const dayPlansMutations = {
     { models, subdomain }: IContext
   ) => {
     const dayPlans = await models.DayPlans.find({ _id: { $in: _ids } }).lean();
-    const newDayPlans = dayPlans.filter(dp => dp.statas === DAYPLAN_STATUS.NEW);
+    const newDayPlans = dayPlans.filter(dp => dp.status === DAYPLAN_STATUS.NEW);
     const otherDayPlans = dayPlans.filter(
-      dp => dp.statas !== DAYPLAN_STATUS.NEW
+      dp => dp.status !== DAYPLAN_STATUS.NEW
     );
     const removeResponse = await sendProcessesMessage({
       subdomain,

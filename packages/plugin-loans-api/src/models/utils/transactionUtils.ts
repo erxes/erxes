@@ -413,12 +413,11 @@ export const removeTrAfterSchedule = async (
   config:IConfig,
   noDeleteSchIds: any[] = []
 ) => {
-  console.log('tr',tr)
   if (!Object.keys(tr.reactions || {}).length) {
     return;
   }
 
-  const nextTrsCount = await models.Transactions.count({
+  const nextTrsCount = await models.Transactions.countDocuments({
     contractId: tr.contractId,
     payDate: { $gt: tr.payDate }
   }).lean();
@@ -453,15 +452,12 @@ export const removeTrAfterSchedule = async (
     }
   }
 
-  if (tr.contractReaction) {
-    const { _id, ...otherData } = tr.contractReaction;
-    await models.Contracts.updateOne({ _id: _id }, { $set: otherData });
-  }
+ 
 
   if (bulkOps && bulkOps.length) {
     await models.Schedules.bulkWrite(bulkOps);
   }
-  console.log('delIds',delIds)
+  
   if (delIds.length) {
     await models.Schedules.deleteMany({
       _id: { $in: delIds },
@@ -469,5 +465,9 @@ export const removeTrAfterSchedule = async (
     });
   }
 
-  await scheduleFixAfterCurrent(tr.contractReaction,tr.payDate,models,config)
+  if (tr.contractReaction) {
+    const { _id, ...otherData } = tr.contractReaction;
+    await models.Contracts.updateOne({ _id: _id }, { $set: otherData });
+    await scheduleFixAfterCurrent(tr.contractReaction,tr.payDate,models,config)
+  }
 };

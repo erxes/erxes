@@ -1,4 +1,5 @@
 import * as dotenv from 'dotenv';
+import { sendMessage } from '@erxes/api-utils/src/core';
 
 import {
   facebookCreateIntegration,
@@ -6,7 +7,7 @@ import {
   removeAccount,
   removeCustomers,
   removeIntegration,
-  repairIntegrations,
+  repairIntegrations
 } from './helpers';
 import { handleFacebookMessage } from './handleFacebookMessage';
 import { userIds } from './middlewares/userMiddleware';
@@ -20,7 +21,7 @@ import {
   RPResult,
   consumeQueue,
   consumeRPCQueue,
-  sendRPCMessage,
+  sendRPCMessage
 } from '@erxes/api-utils/src/messageBroker';
 
 dotenv.config();
@@ -35,9 +36,9 @@ export const setupMessageConsumers = async () => {
 
       return {
         data: await models.Accounts.find(selector).lean(),
-        status: 'success',
+        status: 'success'
       };
-    },
+    }
   );
   consumeRPCQueue(
     'facebook:updateIntegration',
@@ -46,24 +47,24 @@ export const setupMessageConsumers = async () => {
       const details = JSON.parse(doc.data);
 
       const integration = await models.Integrations.findOne({
-        erxesApiId: integrationId,
+        erxesApiId: integrationId
       });
 
       if (!integration) {
         return {
           status: 'error',
-          errorMessage: 'Integration not found.',
+          errorMessage: 'Integration not found.'
         };
       }
       await models.Integrations.updateOne(
         { erxesApiId: integrationId },
-        { $set: details },
+        { $set: details }
       );
 
       return {
-        status: 'success',
+        status: 'success'
       };
-    },
+    }
   );
   // listen for rpc queue =========
   consumeRPCQueue(
@@ -72,9 +73,8 @@ export const setupMessageConsumers = async () => {
       const models = await generateModels(subdomain);
 
       const { action, type } = data;
-
       let response: RPResult = {
-        status: 'success',
+        status: 'success'
       };
 
       try {
@@ -96,12 +96,12 @@ export const setupMessageConsumers = async () => {
       } catch (e) {
         response = {
           status: 'error',
-          errorMessage: e.message,
+          errorMessage: e.message
         };
       }
 
       return response;
-    },
+    }
   );
 
   // /facebook/get-status'
@@ -111,25 +111,25 @@ export const setupMessageConsumers = async () => {
       const models = await generateModels(subdomain);
 
       const integration = await models.Integrations.findOne({
-        erxesApiId: integrationId,
+        erxesApiId: integrationId
       });
 
       let result = {
-        status: 'healthy',
+        status: 'healthy'
       } as any;
 
       if (integration) {
         result = {
           status: integration.healthStatus || 'healthy',
-          error: integration.error,
+          error: integration.error
         };
       }
 
       return {
         data: result,
-        status: 'success',
+        status: 'success'
       };
-    },
+    }
   );
 
   // /facebook/get-post
@@ -139,10 +139,10 @@ export const setupMessageConsumers = async () => {
       const models = await generateModels(subdomain);
 
       return {
-        data: await models.PostConversations.findOne({ erxesApiId }, true),
-        status: 'success',
+        data: await models.PostConversations.findOne({ erxesApiId }),
+        status: 'success'
       };
-    },
+    }
   );
 
   // app.get('/facebook/get-customer-posts'
@@ -151,7 +151,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       data: await facebookGetCustomerPosts(models, data),
-      status: 'success',
+      status: 'success'
     };
   });
 
@@ -166,9 +166,9 @@ export const setupMessageConsumers = async () => {
 
       return {
         status: 'error',
-        errorMessage: 'Wrong kind',
+        errorMessage: 'Wrong kind'
       };
-    },
+    }
   );
 
   // '/integrations/remove',
@@ -180,7 +180,7 @@ export const setupMessageConsumers = async () => {
       await removeIntegration(subdomain, models, integrationId);
 
       return { status: 'success' };
-    },
+    }
   );
 
   consumeQueue('facebook:notification', async ({ subdomain, data }) => {
@@ -207,9 +207,9 @@ export const setupMessageConsumers = async () => {
 
       return {
         status: 'success',
-        data: await models.ConversationMessages.find(data).lean(),
+        data: await models.ConversationMessages.find(data).lean()
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -227,16 +227,25 @@ export const setupMessageConsumers = async () => {
 
       return {
         status: 'success',
-        data: filter,
+        data: filter
       };
-    },
+    }
   );
+};
+
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'core',
+    ...args
+  });
 };
 
 export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: 'inbox',
-    ...args,
+    ...args
   });
 };
 

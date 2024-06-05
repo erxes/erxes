@@ -17,6 +17,7 @@ type EditorProps = {
   placeholder?: string;
   limit?: number;
   mentionSuggestion?: MentionSuggestionParams;
+  onCtrlEnter?: () => void;
 };
 
 type State = {
@@ -37,6 +38,7 @@ const Editor = forwardRef(
       mentionSuggestion,
       onChange,
       limit,
+      onCtrlEnter,
     } = props;
 
     const [state, setState] = useState<State>({
@@ -131,15 +133,14 @@ const Editor = forwardRef(
           placeholder={placeholder}
           integrationKind={integrationKind}
           showMentions={showMentions}
-          {...(showMentions && {
-            mentionSuggestion: mentionSuggestion,
-          })}
+          mentionSuggestion={mentionSuggestion}
           content={content}
           onChange={onChange}
           autoGrow={true}
           autoGrowMinHeight={100}
           autoGrowMaxHeight="55vh"
           limit={limit}
+          onCtrlEnter={onCtrlEnter}
         />
       </div>
     );

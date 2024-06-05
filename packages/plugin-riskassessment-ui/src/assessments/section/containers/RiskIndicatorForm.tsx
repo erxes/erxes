@@ -1,14 +1,16 @@
-import { Alert, confirm, EmptyState, Spinner } from '@erxes/ui/src';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { RiskAssessmentIndicatorFormQueryResponse } from '../../common/types';
-import { AssessmentFilters } from '../common/types';
-import IndicatorForm from '../components/RiskIndicatorForm';
-import { mutations, queries } from '../graphql';
-import client from '@erxes/ui/src/apolloClient';
+import * as compose from "lodash.flowright";
+
+import { Alert, EmptyState, Spinner, confirm } from "@erxes/ui/src";
+import { mutations, queries } from "../graphql";
+
+import { AssessmentFilters } from "../common/types";
+import IndicatorForm from "../components/RiskIndicatorForm";
+import React from "react";
+import { RiskAssessmentIndicatorFormQueryResponse } from "../../common/types";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { withProps } from "@erxes/ui/src/utils/core";
 type Props = {
   filters: AssessmentFilters;
   closeModal: () => void;
@@ -25,22 +27,15 @@ class RiskIndicatorForm extends React.Component<FinalProps> {
     super(props);
   }
   render() {
-    const {
-      indicatorFormQueryResponse,
-      closeModal,
-      onlyPreview,
-      filters
-    } = this.props;
+    const { indicatorFormQueryResponse, closeModal, onlyPreview, filters } =
+      this.props;
 
     if (indicatorFormQueryResponse.loading) {
       return <Spinner />;
     }
 
-    const {
-      riskAssessmentIndicatorForm,
-      loading,
-      error
-    } = indicatorFormQueryResponse;
+    const { riskAssessmentIndicatorForm, loading, error } =
+      indicatorFormQueryResponse;
 
     if (loading) {
       return <Spinner />;
@@ -50,10 +45,10 @@ class RiskIndicatorForm extends React.Component<FinalProps> {
       return <EmptyState text="" />;
     }
 
-    const submitForm = doc => {
+    const submitForm = (doc) => {
       const { saveSubmission, filters } = this.props;
 
-      let confirmText = 'Are you sure';
+      let confirmText = "Are you sure";
 
       if (
         doc.formSubmissions &&
@@ -63,44 +58,44 @@ class RiskIndicatorForm extends React.Component<FinalProps> {
         )
       ) {
         confirmText =
-          'Are you sure submit without type some text on description to fields';
+          "Are you sure submit without type some text on description to fields";
       }
 
       confirm(confirmText).then(() => {
         const variables = {
           ...doc,
-          ...filters
+          ...filters,
         };
-        saveSubmission({ variables }).catch(err => Alert.error(err.message));
+        saveSubmission({ variables }).catch((err) => Alert.error(err.message));
       });
     };
 
-    const checkTestScore = variables => {
+    const checkTestScore = (variables) => {
       client
         .mutate({
           mutation: gql(mutations.checkTestScore),
-          variables
+          variables,
         })
-        .then(res => {
+        .then((res) => {
           const { RAIndicatorTestScore } = res.data;
 
           Alert.info(`Test Score: ${RAIndicatorTestScore?.resultScore || 0}`);
         })
-        .catch(err => Alert.error(err.message));
+        .catch((err) => Alert.error(err.message));
     };
 
     const updatedProps = {
       fields: riskAssessmentIndicatorForm?.fields,
       submittedFields: riskAssessmentIndicatorForm?.submittedFields,
       withDescription: riskAssessmentIndicatorForm?.withDescription,
-      indicatorId: filters.indicatorId || '',
-      branchId: filters.branchId || '',
-      departmentId: filters.departmentId || '',
-      operationId: filters.operationId || '',
+      indicatorId: filters.indicatorId || "",
+      branchId: filters.branchId || "",
+      departmentId: filters.departmentId || "",
+      operationId: filters.operationId || "",
       submitForm,
       closeModal,
       onlyPreview,
-      checkTestScore
+      checkTestScore,
     };
 
     return <IndicatorForm {...updatedProps} />;
@@ -112,39 +107,39 @@ const refetchQueries = ({
   cardType,
   riskAssessmentId,
   userId,
-  indicatorId
+  indicatorId,
 }) => [
   {
     query: gql(queries.riskAssessment),
-    variables: { cardId, cardType }
+    variables: { cardId, cardType },
   },
   {
     query: gql(queries.riskAssessmentAssignedMembers),
-    variables: { cardId, cardType, riskAssessmentId }
+    variables: { cardId, cardType, riskAssessmentId },
   },
   {
     query: gql(queries.riskAssessmentSubmitForm),
-    variables: { cardId, cardType, riskAssessmentId, userId }
+    variables: { cardId, cardType, riskAssessmentId, userId },
   },
   {
     query: gql(queries.riskAssessmentIndicatorForm),
-    variables: { indicatorId, riskAssessmentId, userId }
-  }
+    variables: { indicatorId, riskAssessmentId, userId },
+  },
 ];
 
 export default withProps(
   compose(
     graphql<Props>(gql(queries.riskAssessmentIndicatorForm), {
-      name: 'indicatorFormQueryResponse',
+      name: "indicatorFormQueryResponse",
       options: ({ filters: { indicatorId, riskAssessmentId, userId } }) => ({
         variables: { indicatorId, riskAssessmentId, userId },
-        fetchPolicy: 'cache-and-network'
-      })
+        fetchPolicy: "cache-and-network",
+      }),
     }),
     graphql<Props>(gql(mutations.riskFormSaveSubmission), {
-      name: 'saveSubmission',
+      name: "saveSubmission",
       options: ({
-        filters: { indicatorId, riskAssessmentId, userId, cardId, cardType }
+        filters: { indicatorId, riskAssessmentId, userId, cardId, cardType },
       }) => ({
         variables: { indicatorId, riskAssessmentId, userId },
         refetchQueries: refetchQueries({
@@ -152,9 +147,9 @@ export default withProps(
           cardId,
           cardType,
           userId,
-          indicatorId
-        })
-      })
+          indicatorId,
+        }),
+      }),
     })
   )(RiskIndicatorForm)
 );

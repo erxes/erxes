@@ -1,6 +1,5 @@
 import { Alert, Bulk, Spinner } from '@erxes/ui/src';
 import client from '@erxes/ui/src/apolloClient';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { router } from '@erxes/ui/src/utils';
 import { withProps } from '@erxes/ui/src/utils/core';
 import { gql } from '@apollo/client';
@@ -18,8 +17,7 @@ type FinalProps = {
   lotteriesCampaignCustomerList: any;
   doLottery: any;
   getNextChar: any;
-} & Props &
-  IRouterProps;
+} & Props;
 class AwardContent extends React.Component<FinalProps, Props> {
   constructor(props) {
     super(props);

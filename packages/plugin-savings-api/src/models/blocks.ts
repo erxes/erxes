@@ -1,7 +1,7 @@
 import { IBlock, blockSchema ,IBlockDocument} from './definitions/blocks';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { FilterQuery } from 'mongodb';
+import { FilterQuery } from 'mongoose';
 import { IContractDocument } from './definitions/contracts';
 
 export interface IBlockModel extends Model<IBlockDocument> {
@@ -39,7 +39,7 @@ export const loadBlockClass = (models: IModels) => {
         .sort({ date: -1 })
         .lean();
 
-      if (periodLock && !periodLock?.excludeContracts.includes(doc.contractId))
+      if (periodLock && !periodLock?.excludeContracts.includes(doc.contractId || 'undefined'))
         throw new Error(
           'At this moment block can not been created because this date closed'
         );
@@ -82,7 +82,7 @@ export const loadBlockClass = (models: IModels) => {
 
           if (
             periodLock &&
-            !periodLock?.excludeContracts.includes(oldTr.contractId)
+            !periodLock?.excludeContracts.includes(oldTr.contractId || 'undefined')
           )
             throw new Error(
               'At this moment block can not been created because this date closed'

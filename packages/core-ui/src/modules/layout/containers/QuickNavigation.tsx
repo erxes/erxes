@@ -64,7 +64,7 @@ class QuickNavigationContainer extends React.Component<Props, State> {
 
   render() {
     const { getEnvQuery, currentUser } = this.props;
-    const config = getEnvQuery.configsGetEnv || {};
+    const config = getEnvQuery?.configsGetEnv || {};
 
     return (
       <QuickNavigation

@@ -6,6 +6,8 @@ import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 
 import { createLog, deleteLog, updateLog } from '../../../logUtils';
+import { TRANSACTION_TYPE } from '../../../models/definitions/constants';
+import { sendMessageBroker } from '../../../messageBroker';
 
 const contractMutations = {
   savingsContractsAdd: async (
@@ -14,6 +16,95 @@ const contractMutations = {
     { user, models, subdomain }: IContext
   ) => {
     const contract = await models.Contracts.createContract(doc);
+
+    const logData = {
+      type: 'contract',
+      newData: doc,
+      object: contract,
+      extraParams: { models }
+    };
+
+    await createLog(subdomain, user, logData);
+
+    return contract;
+  },
+  clientSavingsContractsAdd: async (
+    _root,
+    doc: IContract & { secondaryPassword: string },
+    { user, models, subdomain }: IContext
+  ) => {
+    let savingAmount = doc.savingAmount;
+    if (!doc.depositAccount) {
+      throw new Error(
+        'No deposit account linked. Please select a deposit account to proceed with your savings.'
+      );
+    }
+
+    doc.savingAmount = 0;
+    const contract = await models.Contracts.createContract(doc);
+
+    const validate = await sendMessageBroker(
+      {
+        subdomain,
+        action: 'clientPortalUsers.validatePassword',
+        data: {
+          userId: doc.customerId,
+          password: doc.secondaryPassword,
+          secondary: true
+        }
+      },
+      'clientportal'
+    );
+
+    if (validate.status === 'error') {
+      throw new Error(validate.errorMessage);
+    }
+
+    const customer = await sendMessageBroker(
+      {
+        action: 'customers.findOne',
+        subdomain,
+        data: {
+          _id: doc.customerId
+        },
+        isRPC: true
+      },
+      'contacts'
+    );
+
+    if (savingAmount > 0 && contract) {
+      const deposit = await models.Contracts.findOne({
+        _id: doc.depositAccount
+      }).lean();
+
+      if (!deposit) {
+        throw new Error(`Contract ${doc.depositAccount} not found`);
+      }
+
+      await models.Transactions.createTransaction({
+        payDate: doc.startDate,
+        total: savingAmount,
+        transactionType: TRANSACTION_TYPE.OUTCOME,
+        contractId: deposit._id,
+        customerId: doc.customerId,
+        description: 'saving',
+        payment: savingAmount,
+        accountNumber: contract.number,
+        accountHolderName: customer.firstName
+      });
+
+      await models.Transactions.createTransaction({
+        payDate: doc.startDate,
+        total: savingAmount,
+        transactionType: TRANSACTION_TYPE.INCOME,
+        contractId: contract._id,
+        customerId: doc.customerId,
+        description: 'saving',
+        payment: savingAmount,
+        accountNumber: deposit.number,
+        accountHolderName: customer.firstName
+      });
+    }
 
     const logData = {
       type: 'contract',

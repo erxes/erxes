@@ -1,66 +1,62 @@
-import { __ } from '../utils/core';
-import React from 'react';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { colors } from '../styles';
+import React from "react";
+import { __ } from "../utils/core";
+import { colors } from "../styles";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 const types = {
   default: {
-    color: colors.colorSecondary
+    color: colors.colorSecondary,
   },
   primary: {
-    color: colors.colorPrimary
+    color: colors.colorPrimary,
   },
   success: {
-    color: colors.colorCoreGreen
+    color: colors.colorCoreGreen,
   },
   danger: {
-    color: colors.colorCoreRed
+    color: colors.colorCoreRed,
   },
   warning: {
-    color: colors.colorCoreYellow
+    color: colors.colorCoreYellow,
   },
   simple: {
-    color: colors.colorCoreLightGray
-  }
+    color: colors.colorCoreLightGray,
+  },
 };
 
-const Text = styledTS<{ textStyle: string; hugeness: string }>(styled.span)`
+const Text = styledTS<{ $textStyle: string; hugeness: string }>(styled.span)`
   text-transform: uppercase;
-  font-size: ${props => (props.hugeness !== 'small' ? '14px' : '10px')};
+  font-size: ${(props) => (props.hugeness !== "small" ? "14px" : "10px")};
   font-weight: bold;
-  color: ${props => types[props.textStyle || 'default'].color}
+  color: ${(props) => types[props.$textStyle || "default"].color}
 `;
 
 type Props = {
   children: React.ReactNode | string;
   ignoreTrans?: boolean;
-  textStyle?: string;
+  $textStyle?: string;
   hugeness?: string;
-};
-
-const defaultProps = {
-  textStyle: 'default',
-  hugeness: 'small'
 };
 
 class TextInfo extends React.PureComponent<Props> {
   render() {
-    const { ignoreTrans, children } = this.props;
+    const { ignoreTrans, children, $textStyle, hugeness } = this.props;
 
     let content;
 
     if (ignoreTrans) {
       content = children;
-    } else if (typeof children === 'string') {
+    } else if (typeof children === "string") {
       content = __(children);
     }
 
-    return (
-      <Text {...defaultProps} {...this.props}>
-        {content}
-      </Text>
-    );
+    const defaultProps = {
+      $textStyle: $textStyle || "default",
+      hugeness: hugeness || "small",
+    };
+
+    return <Text {...defaultProps}>{content}</Text>;
   }
 }
 

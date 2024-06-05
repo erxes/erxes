@@ -1,9 +1,9 @@
 import { DrawerDetail } from '@erxes/ui-automations/src/styles';
 import Icon from '@erxes/ui/src/components/Icon';
 import colors from '@erxes/ui/src/styles/colors';
-import typography from '@erxes/ui/src/styles/typography';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import typography from '@erxes/ui/src/styles/typography';
 
 export const Container = styled.div`
   padding: 10px 0;
@@ -28,6 +28,9 @@ export const Row = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  button {
+    flex-shrink: 0;
+  }
 `;
 
 export const Wrapper = styled(DrawerDetail)`
@@ -105,10 +108,13 @@ export const ButtonRow = styledTS<{ twoElement?: boolean }>(styled.div)`
   grid-gap: 10px;
   padding: 10px 0;
   border-bottom: 1px solid ${colors.bgGray};
-  > div,
   > a {
     border-right: 1px solid ${colors.bgGray};
+    cursor: text;
   }
+  > div {
+    border-right: 1px solid ${colors.bgGray};
+    cursor: pointer;
 
   > div:last-child {
     border-right: none;
@@ -386,4 +392,16 @@ export const ListItem = styled.div`
     font-weight: ${typography.fontWeightMedium};
     margin-bottom:10px;
 }
+`;
+
+export const PreviewButton = styled.div`
+  flex-shrink: 0;
+  margin-right: 30px;
+`;
+
+export const FieldInfo = styledTS<{ error?: boolean }>(styled.div)`
+  width: 100%;
+  display:flex;
+  justify-content: end;
+  color:${({ error }) => (error ? colors.colorCoreRed : colors.colorCoreGray)}
 `;
