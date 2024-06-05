@@ -1,4 +1,4 @@
-import { readFile } from "@erxes/ui/src/utils";
+import { readFile, __ } from "@erxes/ui/src/utils";
 import { FlexContent, FlexItem } from "@erxes/ui/src/layout/styles";
 import {
   IAttachment,
@@ -20,7 +20,6 @@ import PollOptions from "./PollOptions";
 import React from "react";
 import Select from "react-select";
 import Uploader from "@erxes/ui/src/components/Uploader";
-import { __ } from "@erxes/ui/src/utils";
 import dayjs from "dayjs";
 
 type Props = {
@@ -58,7 +57,7 @@ class PostForm extends React.Component<Props, State> {
       selectedTags: post.tagIds || [],
       pollOptions: post.pollOptions || [],
       multipleChoice: post.isPollMultiChoice || false,
-      hasEndDate: post.pollEndDate ? true : false,
+      hasEndDate: !!post.pollEndDate,
       endDate: post.pollEndDate || null,
       createdAt: post.createdAt || new Date().toString(),
       thumbnail: post.thumbnail
