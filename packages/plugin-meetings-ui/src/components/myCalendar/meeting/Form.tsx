@@ -5,7 +5,7 @@ import Button from "@erxes/ui/src/components/Button";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-import { __, Alert } from "@erxes/ui/src/utils";
+import { Alert } from "@erxes/ui/src/utils";
 import React, { useState } from "react";
 import { ICommonFormProps } from "@erxes/ui-settings/src/common/types";
 import { IMeeting } from "../../../types";
@@ -18,7 +18,7 @@ import DateControl from "@erxes/ui/src/components/form/DateControl";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import { IUser } from "@erxes/ui/src/auth/types";
 import { CompaniesQueryResponse } from "@erxes/ui-contacts/src/companies/types";
-import { DealsQueryResponse, IDeal } from "@erxes/ui-cards/src/deals/types";
+import { DealsQueryResponse } from "@erxes/ui-cards/src/deals/types";
 
 import { ModalTrigger } from "@erxes/ui/src/components";
 import DealChooser from "../../../containers/myCalendar/meeting/Chooser";
