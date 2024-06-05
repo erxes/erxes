@@ -537,7 +537,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
 
       const esTypes = getEsTypes(this.contentType);
 
-      let fieldToSort = sortField || 'createdAt';
+      let fieldToSort = sortField ?? 'createdAt';
 
       if (!esTypes[fieldToSort] || esTypes[fieldToSort] === 'email') {
         fieldToSort = `${fieldToSort}.keyword`;
