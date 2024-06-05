@@ -45,10 +45,10 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     automationConstantsQuery,
   } = props;
 
-  const [saveLoading, setLoading] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
 
   const save = (doc: IAutomation) => {
-    setLoading(true);
+    setSaveLoading(true);
 
     editAutomationMutation({
       variables: {
@@ -59,7 +59,7 @@ const AutomationDetailsContainer = (props: FinalProps) => {
         router.removeParams(navigate, location, "isCreate");
 
         setTimeout(() => {
-          setLoading(false);
+          setSaveLoading(false);
         }, 300);
 
         Alert.success(`You successfully updated a ${doc.name || "status"}`);
