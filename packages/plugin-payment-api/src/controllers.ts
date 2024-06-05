@@ -108,7 +108,7 @@ router.post('/gateway/storepay', async (req, res) => {
   const api = new StorePayAPI(payment.config, domain);
 
   try {
-    const apiRes = await api.createInvoice({ ...invoice, phone } as any);
+    const apiRes = await api.createInvoice({ ...invoice, phone });
     invoice.apiResponse = apiRes;
 
     await models.Invoices.updateOne(
