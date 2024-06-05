@@ -45,22 +45,21 @@ const BasicInfoSection: React.FC<Props> = ({
             type="action"
           />
         )}
-        <Tip text="Send SMS" placement="top-end">
-          <ModalTrigger
-            dialogClassName="middle"
-            title={`Send SMS to (${phone})`}
-            trigger={
-              <Button
-                disabled={phone ? false : true}
-                size="small"
-                btnStyle={phone ? "primary" : "simple"}
-              >
-                <Icon icon="message" />
-              </Button>
-            }
-            content={smsForm}
-          />
-        </Tip>
+        <ModalTrigger
+          dialogClassName="middle"
+          title={`Send SMS to (${phone})`}
+          trigger={
+            <Button
+              disabled={phone ? false : true}
+              size="small"
+              btnStyle={phone ? "primary" : "simple"}
+            >
+              <Icon icon="message" />
+            </Button>
+          }
+          content={smsForm}
+          tipText="Send SMS"
+        />
         <Tip text="Call" placement="top-end">
           <Flex>
             <Button
