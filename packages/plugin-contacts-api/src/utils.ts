@@ -1033,9 +1033,9 @@ export const updateCustomerFromForm = async (
   const customerDoc: any = {
     ...doc,
     location: browserInfo,
-    firstName: customer.firstName || doc.firstName,
-    lastName: customer.lastName || doc.lastName,
-    middleName: customer.middleName || doc.middleName,
+    firstName: customer.firstName ?? doc.firstName,
+    lastName: customer.lastName ?? doc.lastName,
+    middleName: customer.middleName ?? doc.middleName,
     sex: doc.pronoun,
     birthDate: doc.birthDate,
     scopeBrandIds: [...doc.scopeBrandIds, ...(customer.scopeBrandIds || [])],
@@ -1123,7 +1123,7 @@ const createCustomer = async (
     lastName: customerDoc.lastName || '',
     middleName: customerDoc.middleName || '',
     primaryPhone: customerDoc.phone || '',
-    scopeBrandIds: [brandId || ''],
+    scopeBrandIds: [brandId ?? ''],
   };
 
   if (saveAsCustomer) {
