@@ -1,10 +1,10 @@
-import { IUser } from '@erxes/ui/src/auth/types';
-import React from 'react';
-import CalendarComponent from '../../../components/myCalendar/meeting/Calendar';
-import { IMeeting } from '../../../types';
-import { gql, useMutation } from '@apollo/client';
-import { mutations } from '../../../graphql';
-import { Alert, confirm } from '@erxes/ui/src/utils';
+import { IUser } from "@erxes/ui/src/auth/types";
+import React from "react";
+import CalendarComponent from "../../../components/myCalendar/meeting/Calendar";
+import { IMeeting } from "../../../types";
+import { gql, useMutation } from "@apollo/client";
+import { mutations } from "../../../graphql";
+import { Alert } from "@erxes/ui/src/utils";
 
 type Props = {
   meetings?: IMeeting[];
@@ -13,7 +13,7 @@ type Props = {
 };
 export const CalendarContainer = (props: Props) => {
   const [changeMeetingDate] = useMutation(gql(mutations.editMeeting), {
-    refetchQueries: ['meetings']
+    refetchQueries: ["meetings"],
   });
   const changeDateMeeting = (
     meetingId: string,
@@ -25,13 +25,13 @@ export const CalendarContainer = (props: Props) => {
       variables: {
         _id: meetingId,
         startDate: new Date(start),
-        endDate: new Date(end)
-      }
+        endDate: new Date(end),
+      },
     })
-      .then(res => {
-        Alert.success('You successfully edited a meeting');
+      .then((res) => {
+        Alert.success("You successfully edited a meeting");
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
         callback(); // Call the callback on error
       });
@@ -39,7 +39,7 @@ export const CalendarContainer = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    changeDateMeeting
+    changeDateMeeting,
   };
   return <CalendarComponent {...updatedProps} />;
 };
