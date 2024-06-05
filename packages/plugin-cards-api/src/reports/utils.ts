@@ -117,9 +117,6 @@ export const buildPipeline = (filter, type, matchFilter) => {
     const dimensions = Array.isArray(dimension) ? dimension : dimension?.split(",") || []
     const measures = Array.isArray(measure) ? measure : measure?.split(",") || []
 
-    console.log('dimensions', dimensions)
-    console.log('measures', measures)
-
     const pipeline: any[] = [];
 
     let formatType = "%Y"
