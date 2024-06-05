@@ -87,9 +87,9 @@ export const loadCallHistoryClass = (models: IModels) => {
         };
       }
 
-      return await models.CallHistory.find({
+      return await models.CallHistory.countDocuments({
         ...historyFilter,
-      }).countDocuments();
+      });
     }
   }
 
