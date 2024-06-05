@@ -205,17 +205,17 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
 
     public static getCustomerName(customer: ICustomer) {
       if (customer.firstName || customer.lastName) {
-        return (customer.firstName || '') + ' ' + (customer.lastName || '');
+        return (customer.firstName ?? '') + ' ' + (customer.lastName ?? '');
       }
 
       if (customer.primaryEmail || customer.primaryPhone) {
-        return customer.primaryEmail || customer.primaryPhone;
+        return customer.primaryEmail ?? customer.primaryPhone;
       }
 
       const { visitorContactInfo } = customer;
 
       if (visitorContactInfo) {
-        return visitorContactInfo.phone || visitorContactInfo.email;
+        return visitorContactInfo.phone ?? visitorContactInfo.email;
       }
 
       return 'Unknown';
