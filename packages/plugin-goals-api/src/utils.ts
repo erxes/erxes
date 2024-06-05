@@ -1,4 +1,4 @@
-import { sendCommonMessage , sendCoreMessage } from './messageBroker';
+import { sendCommonMessage } from './messageBroker';
 
 export const countDocuments = async (
   subdomain: string,
