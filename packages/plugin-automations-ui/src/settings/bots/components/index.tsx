@@ -45,7 +45,7 @@ const getBotsByPlatform = () => {
 };
 
 function Settings() {
-  const [selectedPlatform, setPlatform] = useState(null as any);
+  const [selectedPlatform, setSelectedPlatform] = useState(null as any);
 
   const header = (
     <HeaderDescription
@@ -65,7 +65,9 @@ function Settings() {
     }
 
     const handleSelectPlatform = (platform) => {
-      setPlatform(selectedPlatform?.name !== platform.name ? platform : null);
+      setSelectedPlatform(
+        selectedPlatform?.name !== platform.name ? platform : null
+      );
     };
 
     return platforms.map((platform) => (
