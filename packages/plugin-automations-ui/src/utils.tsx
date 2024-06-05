@@ -292,8 +292,6 @@ export const getTriggerConfig = (
   if (triggers && triggers.length > 0) {
     return triggers[0]?.config;
   }
-
-  return;
 };
 
 export const renderDynamicComponent = (props, type) => {
@@ -312,6 +310,4 @@ export const renderDynamicComponent = (props, type) => {
       );
     }
   }
-
-  return;
 };
