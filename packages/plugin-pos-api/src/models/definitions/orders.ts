@@ -46,8 +46,8 @@ export interface IPosOrder {
   paidAmounts?: IPaidAmount[];
   totalAmount?: number;
   finalAmount?: number;
-  shouldPrintEbarimt?: Boolean;
-  printedEbarimt?: Boolean;
+  shouldPrintEbarimt?: boolean;
+  printedEbarimt?: boolean;
   billType?: string;
   billId?: string;
   oldBillId?: string;
@@ -58,7 +58,7 @@ export interface IPosOrder {
   subBranchId: string;
   departmentId: string;
   posToken: string;
-  syncedErkhet?: Boolean;
+  syncedErkhet?: boolean;
   syncErkhetInfo?: string;
   deliveryInfo?: any;
   description?: string;
