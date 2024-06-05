@@ -5,7 +5,6 @@ import resolvers from "./graphql/resolvers";
 import * as cookieParser from "cookie-parser";
 import { setupMessageConsumers } from "./messageBroker";
 import * as permissions from "./permissions";
-import { routeErrorHandling } from "@erxes/api-utils/src/requests";
 import { getSubdomain } from "@erxes/api-utils/src/core";
 import cpUserMiddleware from "./middlewares/cpUserMiddleware";
 import { generateModels } from "./db/models";
