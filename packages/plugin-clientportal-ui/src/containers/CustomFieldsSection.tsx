@@ -1,16 +1,15 @@
-import { SaveMutation } from '@erxes/ui-cards/src/boards/types';
-import GenerateCustomFields from '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields';
-import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
-import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
-import React from 'react';
+import { SaveMutation } from "@erxes/ui-cards/src/boards/types";
+import GenerateCustomFields from "@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields";
+import { queries as fieldQueries } from "@erxes/ui-forms/src/settings/properties/graphql";
+import { FieldsGroupsQueryResponse } from "@erxes/ui-forms/src/settings/properties/types";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { gql, useQuery, useMutation } from "@apollo/client";
+import React from "react";
 
-import { mutations, queries } from '../graphql';
-import { ClientPoratlUserDetailQueryResponse } from '../types';
-import { useQuery, useMutation } from '@apollo/client';
+import { mutations, queries } from "../graphql";
+import { ClientPoratlUserDetailQueryResponse } from "../types";
 
 type Props = {
   isDetail: boolean;
@@ -24,11 +23,11 @@ const CustomFieldsSection = (props: Props) => {
     gql(fieldQueries.fieldsGroups),
     {
       variables: {
-        contentType: 'clientportal:user',
+        contentType: "clientportal:user",
         isDefinedByErxes: false,
       },
-      skip: !isEnabled('forms') ? true : false,
-    },
+      skip: !isEnabled("forms") ? true : false,
+    }
   );
 
   const clientPortalUserDetailQuery =
@@ -38,11 +37,11 @@ const CustomFieldsSection = (props: Props) => {
         variables: {
           _id: id,
         },
-      },
+      }
     );
 
   const [editMutation] = useMutation<SaveMutation>(
-    gql(mutations.clientPortalUsersEdit),
+    gql(mutations.clientPortalUsersEdit)
   );
 
   if (
