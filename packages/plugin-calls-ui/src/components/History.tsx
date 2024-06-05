@@ -143,7 +143,7 @@ class History extends React.Component<Props, State> {
               $isMissedCall={isMissedCall}
               key={i}
               className={this.state.cursor === i ? "active" : ""}
-              $isIncoming={callType !== "outgoing" ? true : false}
+              $isIncoming={callType !== "outgoing"}
               onClick={() => this.onCall(item.customer.primaryPhone)}
             >
               <div>
