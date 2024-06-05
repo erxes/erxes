@@ -463,7 +463,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       this.params.autoCompletion
         ? this.searchByAutoCompletionType(
             this.params.searchValue,
-            this.params.autoCompletionType || '',
+            this.params.autoCompletionType ?? '',
           )
         : this.searchFilter(this.params.searchValue);
     }
