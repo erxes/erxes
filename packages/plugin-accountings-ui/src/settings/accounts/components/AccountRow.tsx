@@ -7,13 +7,10 @@ import {
   Tip,
   __,
 } from "@erxes/ui/src";
-
-import { IAccount } from "../types";
-import ProductForm from "../containers/AccountForm";
 import React from "react";
-import TextInfo from "@erxes/ui/src/components/TextInfo";
 import { useNavigate } from "react-router-dom";
 import AccountFormContainer from "../containers/AccountForm";
+import { IAccount } from "../types";
 
 type Props = {
   account: IAccount;
@@ -43,16 +40,12 @@ const Row: React.FC<Props> = (props) => {
     e.stopPropagation();
   };
 
-  const onTrClick = () => {
-    navigate(`/settings/account-service/details/${account._id}`);
-  };
-
   const content = (props) => <AccountFormContainer {...props} accountId={account._id} />;
 
   const { code, name, category, currency, kind, journal } = account;
 
   return (
-    <tr onClick={onTrClick}>
+    <tr>
       <td onClick={onClick}>
         <FormControl
           checked={isChecked}
@@ -66,7 +59,7 @@ const Row: React.FC<Props> = (props) => {
       <td>{currency}</td>
       <td>{kind}</td>
       <td>{journal}</td>
-      
+
       <td onClick={onClick}>
         <ActionButtons>
           <ModalTrigger

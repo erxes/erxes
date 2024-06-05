@@ -48,12 +48,7 @@ const AccountCategoryList: React.FC<IProps> = (props) => {
     const content = (props) => (
       <AccountCategoryForm
         {...props}
-        defaultValue={category}
-        mutation={
-          category
-            ? mutation.accountCategoriesEdit
-            : mutation.accountCategoriesAdd
-        }
+        accountCategoryId={category?._id}
       />
     );
 

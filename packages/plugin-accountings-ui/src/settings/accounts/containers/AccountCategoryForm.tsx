@@ -19,13 +19,12 @@ const AccountCategoryFormContainer = (props: Props) => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const accountCategoryDetailQuery = useQuery<AccountCategoryDetailQueryResponse>(
-    gql(queries.accountDetail),
+    gql(queries.accountCategoryDetail),
     {
       skip: !accountCategoryId,
       fetchPolicy: "network-only",
       variables: {
         _id: accountCategoryId || "",
-        accountCategoryId: accountCategoryId || "",
       },
     }
   );

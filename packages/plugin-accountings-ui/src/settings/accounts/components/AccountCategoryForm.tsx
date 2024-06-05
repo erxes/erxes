@@ -14,7 +14,7 @@ import {
   IFormProps,
 } from "@erxes/ui/src/types";
 import { __, router } from "@erxes/ui/src/utils/core";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import SelectAccountCategory from '../containers/SelectAccountCategory';
 import { IAccountCategory } from '../types';
