@@ -7,32 +7,27 @@ import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
 import SideBarContainer from "../myMeetings/SideBar";
 import { IUser } from "@erxes/ui/src/auth/types";
 import { FormControl } from "@erxes/ui/src/components";
-import { MeetingsQueryResponse } from "../../types";
 import MyMeetingListContainer from "../../containers/myMeetings/List";
 import { menuMeeting } from "../../contants";
 import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
-  meetings: any;
   loading: boolean;
   queryParams: any;
-  route?: string;
-  refetchQueries?: any;
   currentUser: IUser;
-  meetingQuery?: MeetingsQueryResponse;
 };
 
 function MyMeetings(props: Props) {
   const { loading, queryParams, currentUser } = props;
   const { searchValue } = queryParams;
-  const [searchText, setSearchValue] = useState(searchValue);
+  const [searchText, setSearchText] = useState(searchValue);
   const location = useLocation();
   const navigate = useNavigate();
 
   const searchHandler = (e) => {
     const searchingValue = e.target.value;
 
-    setSearchValue(searchingValue);
+    setSearchText(searchingValue);
 
     setTimeout(() => {
       router.removeParams(navigate, location, "page");
