@@ -1,6 +1,5 @@
 import { IPosOrderDocument, posOrderSchema } from './definitions/orders';
 import { Model } from 'mongoose';
-import { IModels } from '../connectionResolver';
 
 export interface IPosOrderModel extends Model<IPosOrderDocument> {}
 
