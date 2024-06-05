@@ -5,11 +5,10 @@ import {
   IPinnedUserDocument,
   pinnedUserSchema
 } from './definitions/pinnerUser';
-import { checkLogin } from '@erxes/api-utils/src';
 
 export interface IPinnedUserModel extends Model<IPinnedUserDocument> {
   updatePinnedUser(
-    pinnedUserIds: String[],
+    pinnedUserIds: string[],
     user: IUser
   ): Promise<IPinnedUserDocument>;
 }
