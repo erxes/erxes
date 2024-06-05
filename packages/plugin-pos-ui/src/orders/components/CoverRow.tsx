@@ -1,11 +1,11 @@
-import * as dayjs from 'dayjs';
-import _ from 'lodash';
-import Button from '@erxes/ui/src/components/Button';
-import Detail from '../containers/CoverDetail';
-import React from 'react';
-import { ModalTrigger, confirm } from '@erxes/ui/src';
-import { FinanceAmount } from '../../styles';
-import { ICover } from '../types';
+import * as dayjs from "dayjs";
+import _ from "lodash";
+import Button from "@erxes/ui/src/components/Button";
+import Detail from "../containers/CoverDetail";
+import React from "react";
+import { ModalTrigger } from "@erxes/ui/src";
+import { FinanceAmount } from "../../styles";
+import { ICover } from "../types";
 
 type Props = {
   cover: ICover;
@@ -42,16 +42,16 @@ const CoverRow = (props: Props) => {
   };
 
   const onRemove = () => {
-    remove(cover._id || '');
+    remove(cover._id || "");
   };
 
   const trigger = (
     <tr>
-      <td key={'beginDate'}>{dayjs(cover.beginDate).format('lll')} </td>
-      <td key={'endDate'}>{dayjs(cover.endDate).format('lll')}</td>
-      <td key={'pos'}>{cover.posName}</td>
-      <td key={'user'}>{cover.user ? cover.user.email : ''}</td>
-      <td key={'actions'} onClick={onClick}>
+      <td key={"beginDate"}>{dayjs(cover.beginDate).format("lll")} </td>
+      <td key={"endDate"}>{dayjs(cover.endDate).format("lll")}</td>
+      <td key={"pos"}>{cover.posName}</td>
+      <td key={"user"}>{cover.user ? cover.user.email : ""}</td>
+      <td key={"actions"} onClick={onClick}>
         <Button
           btnStyle="warning"
           size="small"
@@ -70,7 +70,7 @@ const CoverRow = (props: Props) => {
       trigger={trigger}
       autoOpenKey="showProductModal"
       content={modalContent}
-      size={'lg'}
+      size={"lg"}
     />
   );
 };
