@@ -61,7 +61,7 @@ const generateQuery = async args => {
     }
   });
 
-  if (!!fieldsMustExist?.length) {
+  if (fieldsMustExist?.length) {
     for (const field of fieldsMustExist) {
       positiveList.push({
         exists: {
@@ -166,7 +166,7 @@ const contactQueries = {
       const contactsQueryOptions = await generateQuery(args);
       const contactsSortOptions = await generateSort({ type, ...args });
 
-      if (!!autoCompleteQuery?.length) {
+      if (autoCompleteQuery?.length) {
         const response = await fetchEs({
           subdomain,
           action: 'search',
