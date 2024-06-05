@@ -1,4 +1,3 @@
-import * as schedule from 'node-schedule';
 import { generateModels } from '../connectionResolver';
 import { sendCoreMessage } from '../messageBroker';
 // import { debugCrons } from '../debuggers';
