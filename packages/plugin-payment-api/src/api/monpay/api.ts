@@ -86,7 +86,7 @@ export class MonpayAPI extends BaseAPI {
     const data: IMonpayInvoice = {
       amount: invoice.amount,
       generateUuid: true,
-      displayName: invoice.description || 'monpay transaction',
+      displayName: invoice.description ?? 'monpay transaction',
       callbackUrl: `${this.domain}/pl:payment/callback/${PAYMENTS.monpay.kind}`,
     };
 
