@@ -27,7 +27,7 @@ import {
 //   golomtbankAccountRemove(_id: String!): String
 // `;
 
-const typeDefs = gql`
+const typeDefs = async () => gql`
   scalar JSON
   scalar Date
 

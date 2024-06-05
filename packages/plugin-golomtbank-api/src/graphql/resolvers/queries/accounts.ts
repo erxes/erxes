@@ -8,8 +8,12 @@ const queries = {
     { configId }: { configId: string },
     { models }: IContext
   ) {
-    // const config = await models.GolomtBankConfigs.getConfig({ _id: configId });
-    // const golomtBank = new GolomtBank(config);
+    
+    const config = await models.GolomtBankConfigs.getConfig({ _id: configId });
+    if (!config) {
+      throw new Error('Not found config');
+    }
+    const golomtBank = new GolomtBank(config);
     const  list =  [
       {
         "requestId": "cc65ebc637d04541a7e45d753aaddce2",
@@ -25,7 +29,9 @@ const queries = {
         }
       }
     ]
+   const test = golomtBank.accounts.list();
     try {
+
       return list
       // return golomtBank.accounts.list();
     } catch (e) {

@@ -1,5 +1,7 @@
 import fetch from 'node-fetch';
 import redis from '../redis';
+import { encryptedPassword } from './encryptPassword';
+import { decryptData } from './decrypt';
 
 export const getAuthHeaders = async (args: {
   name: string,
@@ -27,29 +29,29 @@ export const getAuthHeaders = async (args: {
   const apiUrl = 'https://openapi-uat.golomtbank.com/api';
 
   try {
+    const encrypted = encryptedPassword(configPassword,sessionKey,ivKey)
+   
     const response = await fetch(
       `${apiUrl}/v1/auth/login`,
       {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Basic ${Buffer.from(
-            `${clientId}:${sessionKey}`,
-          ).toString('base64')}`,
+          'Content-Type': 'application/json'
         },
+        body:JSON.stringify({"name":name,"password":encrypted})
       },
     ).then((res) => res.json());
 
     await redis.set(
-      `khanbank_token_${clientId}:${sessionKey}`,
-      response.access_token,
+      `golomtbank_token_${clientId}:${sessionKey}`,
+      response.token,
       'EX',
-      response.access_token_expires_in - 60,
+      response.expiresIn - 60,
     );
 
     return {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${response.access_token}`,
+      Authorization: `Bearer ${response.token}`,
     };
   } catch (e) {
     console.error(e.message);

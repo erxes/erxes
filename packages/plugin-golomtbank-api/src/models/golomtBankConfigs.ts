@@ -19,18 +19,12 @@ export const loadGolomtBankConfigClass = (models: IModels) => {
     public static async createConfig(doc: IGolomtBankConfig) {
       const golomtBankConfig = await models.GolomtBankConfigs.findOne({
         registerId: doc.registerId,
-        name: doc.name,
-        organizationName: doc.organizationName,
         clientId: doc.clientId,
-        ivKey: doc.ivKey,
-        sessionKey: doc.sessionKey,
-        configPassword: doc.configPassword
+        ivKey: doc.ivKey
       });
-
       if (golomtBankConfig) {
         throw new Error('Config already exists');
       }
-
       return models.GolomtBankConfigs.create(doc);
     }
 

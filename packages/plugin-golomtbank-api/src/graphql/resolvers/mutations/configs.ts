@@ -5,28 +5,26 @@ import { IGolomtBankConfig } from '../../../models/definitions/golomtBankConfigs
 
 const mutations = {
   async golomtBankConfigsAdd(_root, args: IGolomtBankConfig, { models }: IContext) {
-    const name = args.name;
-    const organizationName = args.organizationName;
-    const ivKey = args.ivKey;
-    const sessionKey = args.sessionKey;
-    const clientId = args.clientId;
-    const configPassword = args.configPassword;
-    const registerId =  args.registerId;
-    try {
-      await getAuthHeaders({
-        name: name,
-        organizationName: organizationName,
-        ivKey: ivKey,
-        sessionKey: sessionKey,
-        clientId: clientId,
-        configPassword: configPassword,
-        registerId: registerId
-      });
 
-      return models.GolomtBankConfigs.createConfig(args);
-    } catch (e) {
-      throw new Error('Unable to authenticate with the provided credentials');
-    }
+    // const name = args.name;
+    // const organizationName = args.organizationName;
+    // const ivKey = args.ivKey;
+    // const sessionKey = args.sessionKey;
+    // const clientId = args.clientId;
+    // const configPassword = args.configPassword;
+    // const registerId =  args.registerId;
+
+    //   await getAuthHeaders({
+    //     name: name,
+    //     organizationName: organizationName,
+    //     ivKey: ivKey,
+    //     sessionKey: sessionKey,
+    //     clientId: clientId,
+    //     configPassword: configPassword,
+    //     registerId: registerId
+    //   });
+      return await models.GolomtBankConfigs.createConfig(args);
+
   },
 
   async golomtBankConfigsEdit(

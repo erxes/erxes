@@ -14,28 +14,28 @@ const GolomtBankAccount = {
     }
   },
 
-  async holderInfo(_account: any, params, { models }: IContext) {
-    const { configId, accountNumber } = params;
+  // async holderInfo(_account: any, params, { models }: IContext) {
+  //   const { configId, accountNumber } = params;
 
-    if (!configId || !accountNumber) {
-      return null;
-    }
+  //   if (!configId || !accountNumber) {
+  //     return null;
+  //   }
 
-    const config = await models.GolomtBankConfigs.findOne({ _id: configId });
+  //   const config = await models.GolomtBankConfigs.findOne({ _id: configId });
 
-    if (!config) {
-      return null;
-    }
+  //   if (!config) {
+  //     return null;
+  //   }
 
-    const api = new GolomtBank(config);
+  //   const api = new GolomtBank(config);
 
-    try {
-      const holderInfo = await api.accounts.getHolder(accountNumber, '050000');
-      return holderInfo;
-    } catch (_e) {
-      return null;
-    }
-  }
+  //   try {
+  //     const holderInfo = await api.accounts.getHolder(accountNumber, '050000');
+  //     return holderInfo;
+  //   } catch (_e) {
+  //     return null;
+  //   }
+  // }
 };
 
 export { GolomtBankAccount };

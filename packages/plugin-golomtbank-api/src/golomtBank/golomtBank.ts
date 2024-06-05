@@ -29,8 +29,8 @@ class GolomtBank {
       configPassword: config.configPassword
     };
 
-    if (!auth.clientId || !auth.sessionKey) {
-      throw new Error('Consumer key and secret key are required');
+    if (!auth.registerId || !auth.configPassword) {
+      throw new Error('Consumer register and secret password are required');
     }
     this.registerId = config.registerId;
     this.name = config.name;
@@ -41,7 +41,7 @@ class GolomtBank {
     this.configPassword = config.configPassword;
 
     this.apiUrl = 'https://openapi-uat.golomtbank.com/api';
-
+    
     this.accounts = new AccountsApi(this);
     // this.statements = new StatementsApi(this);
     // this.transfer = new TransferApi(this);

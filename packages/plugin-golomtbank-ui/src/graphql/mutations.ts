@@ -1,9 +1,16 @@
 const addMutation = `
-mutation GolomtBankConfigsAdd($consumerKey: String!, $name: String!, $secretKey: String!,  $description: String) {
-    golomtBankConfigsAdd(consumerKey: $consumerKey, name: $name, secretKey: $secretKey, description: $description) {
-      _id
-    }
+mutation GolomtBankConfigsAdd($name: String, $organizationName: String, $clientId: String, $ivKey: String, $sessionKey: String, $configPassword: String, $registerId: String) {
+  golomtBankConfigsAdd(name: $name, organizationName: $organizationName, clientId: $clientId, ivKey: $ivKey, sessionKey: $sessionKey, configPassword: $configPassword, registerId: $registerId) {
+    _id
+    name
+    organizationName
+    clientId
+    ivKey
+    sessionKey
+    configPassword
+    registerId
   }
+}
 `;
 
 const editMutation = `

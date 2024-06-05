@@ -19,10 +19,9 @@ export interface IContext extends IMainContext {
 export const loadClasses = (db: mongoose.Connection): IModels => {
   const models = {} as IModels;
 
-  models.GolomtBankConfigs = db.model<
-    IGolomtBankConfigDocument,
-    IGolomtBankConfigModel
-  >('golomtBank_configs', loadGolomtBankConfigClass(models));
+  models.GolomtBankConfigs = db.model<IGolomtBankConfigDocument, IGolomtBankConfigModel>(
+    'golomtBank_configs', 
+    loadGolomtBankConfigClass(models));
 
   return models;
 };

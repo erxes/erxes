@@ -2,13 +2,15 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import { setupMessageConsumers } from './messageBroker';
 import init from './controller';
+import { getSubdomain } from '@erxes/api-utils/src/core';
+import { generateModels } from './connectionResolver';
 
 export default {
   name: 'golomtbank',
-  graphql: () => {
+  graphql: async() => {
     return {
-      typeDefs,
-      resolvers
+      typeDefs:await typeDefs(),
+      resolvers:await resolvers()
     };
   },
   meta: {
@@ -17,7 +19,18 @@ export default {
       label: 'Golomtbank'
     }
   },
-  apolloServerContext: async (context) => {
+  apolloServerContext: async (context, req, res) => {
+    const subdomain = getSubdomain(req);
+
+    context.subdomain = subdomain;
+    context.models = await generateModels(subdomain);
+
+    context.serverTiming = {
+      startTime: res.startTime,
+      endTime: res.endTime,
+      setMetric: res.setMetric,
+    };
+
     return context;
   },
 
