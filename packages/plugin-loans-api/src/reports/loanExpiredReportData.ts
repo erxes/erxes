@@ -78,11 +78,11 @@ const loanReportData = {
   chartTypes: ['table', 'bar', 'pie'],
   getChartResult: async (models: IModels, filter: any, chartType: string) => {
     const title = 'Loan Expiration Data';
-    if (!(filter.dimension?.length > 0)) {
+    if (!filter.measure || filter.dimension?.length == 0) {
       filter.dimension = ['number'];
     }
 
-    if (!(filter.measure?.length > 0)) {
+    if (!filter.measure || filter.measure?.length == 0) {
       filter.measure = ['loanBalanceAmount'];
     }
 

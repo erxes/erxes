@@ -118,11 +118,11 @@ const loanReportData = {
   getChartResult: async (models: IModels, filter: any, chartType: string) => {
     const title = 'Loan Data';
 
-    if (!(filter.dimension?.length > 0)) {
+    if (!filter.dimension && filter.dimension?.length == 0) {
       filter.dimension = ['number'];
     }
 
-    if (!(filter.measure?.length > 0)) {
+    if (filter.measure && filter.measure?.length == 0) {
       filter.measure = ['loanBalanceAmount'];
     }
 

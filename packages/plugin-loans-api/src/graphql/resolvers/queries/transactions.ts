@@ -62,7 +62,7 @@ const generateFilter = async (models, params, commonQuerySelector) => {
   }
 
   if (params.total) {
-    filter.total
+    filter.total = params.total
   }
 
   return filter;
