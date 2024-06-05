@@ -157,7 +157,7 @@ const PerConfigs = (props: Props) => {
           icon="check-circle"
           onClick={onSave}
           uppercase={false}
-          disabled={config.stageId ? false : true}
+          disabled={!config.stageId}
         >
           Save
         </Button>
