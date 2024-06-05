@@ -491,7 +491,6 @@ const createDealPerOrder = async ({ subdomain, pos, newOrder }) => {
     return cardDeal._id
   }
   // end sync cards config then <
-  return;
 };
 
 const syncErkhetRemainder = async ({ subdomain, models, pos, newOrder }) => {
