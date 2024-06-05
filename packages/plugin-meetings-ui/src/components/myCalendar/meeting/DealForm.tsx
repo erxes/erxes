@@ -1,13 +1,12 @@
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Button from '@erxes/ui/src/components/Button';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { IButtonMutateProps, IFormProps, IOption } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
-import React, { useState } from 'react';
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Button from "@erxes/ui/src/components/Button";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import React, { useState } from "react";
+import { ICommonFormProps } from "@erxes/ui-settings/src/common/types";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -18,7 +17,7 @@ type Props = {
 export const DealForm = (props: Props) => {
   const { stageId } = props;
 
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
 
   const generateDoc = (values: { name: string; stageId: string }) => {
     const finalValues = values;
@@ -30,11 +29,11 @@ export const DealForm = (props: Props) => {
       finalValues.stageId = stageId;
     }
     return {
-      ...finalValues
+      ...finalValues,
     };
   };
 
-  const onChange = e => {
+  const onChange = (e) => {
     setName(e.target.value);
   };
 
@@ -57,17 +56,17 @@ export const DealForm = (props: Props) => {
           />
         </FormGroup>
 
-        <ModalFooter id={'AddTagButtons'}>
+        <ModalFooter id={"AddTagButtons"}>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
             Cancel
           </Button>
 
           {renderButton({
-            passedName: 'meeting',
+            passedName: "meeting",
             values: generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: name
+            object: name,
           })}
         </ModalFooter>
       </>
