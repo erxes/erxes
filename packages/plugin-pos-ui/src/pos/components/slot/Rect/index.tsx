@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react';
-import { getLength, getAngle, getCursor } from '../utils';
-import StyledRect from './StyledRect';
+import React, { useRef } from "react";
+import { getLength, getAngle, getCursor } from "../utils";
+import StyledRect from "./StyledRect";
 
 export interface Styles {
   transform: {
@@ -51,17 +51,17 @@ interface Rect {
 }
 
 const zoomableMap: { [key: string]: string } = {
-  n: 't',
-  s: 'b',
-  e: 'r',
-  w: 'l',
-  ne: 'tr',
-  nw: 'tl',
-  se: 'br',
-  sw: 'bl'
+  n: "t",
+  s: "b",
+  e: "r",
+  w: "l",
+  ne: "tr",
+  nw: "tl",
+  se: "br",
+  sw: "bl",
 };
 
-const Rect: React.FC<RectProps> = props => {
+const Rect: React.FC<RectProps> = (props) => {
   const elementRef = useRef<any>(null);
 
   const startDrag = (e: React.MouseEvent) => {
@@ -78,14 +78,14 @@ const Rect: React.FC<RectProps> = props => {
       if (props.onDrag) props.onDrag(deltaX, deltaY);
     };
     const onUp = () => {
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup', onUp);
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
       if (!isMouseDown) return;
       isMouseDown = false;
       if (props.onDragEnd) props.onDragEnd();
     };
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
   };
 
   const startRotate = (e: React.MouseEvent) => {
@@ -94,8 +94,8 @@ const Rect: React.FC<RectProps> = props => {
     const { clientX, clientY } = e;
     const {
       styles: {
-        transform: { rotateAngle: startAngle }
-      }
+        transform: { rotateAngle: startAngle },
+      },
     } = props;
 
     const rect = elementRef.current?.node?.getBoundingClientRect();
@@ -103,11 +103,11 @@ const Rect: React.FC<RectProps> = props => {
     const { left, width, top, height } = rect || {};
     const center = {
       x: (left || 0) + (width || 0) / 2,
-      y: (top || 0) + (height || 0) / 2
+      y: (top || 0) + (height || 0) / 2,
     };
     const startVector = {
       x: clientX - center.x,
-      y: clientY - center.y
+      y: clientY - center.y,
     };
 
     if (props.onRotateStart) props.onRotateStart();
@@ -117,20 +117,20 @@ const Rect: React.FC<RectProps> = props => {
       const { clientX, clientY } = e;
       const rotateVector = {
         x: clientX - center.x,
-        y: clientY - center.y
+        y: clientY - center.y,
       };
       const angle = getAngle(startVector, rotateVector);
       if (props.onRotate) props.onRotate(angle, startAngle);
     };
     const onUp = () => {
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup', onUp);
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
       if (!isMouseDown) return;
       isMouseDown = false;
       if (props.onRotateEnd) props.onRotateEnd();
     };
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
   };
 
   const startResize = (e: React.MouseEvent, cursor: string) => {
@@ -141,15 +141,15 @@ const Rect: React.FC<RectProps> = props => {
       styles: {
         position: { centerX, centerY },
         size: { width, height },
-        transform: { rotateAngle }
-      }
+        transform: { rotateAngle },
+      },
     } = props;
     const { clientX: startX, clientY: startY } = e;
     const rect: Rect = { width, height, centerX, centerY, rotateAngle };
     const type =
       (e.currentTarget &&
-        e.currentTarget.getAttribute('class')?.split(' ')[0]) ||
-      '';
+        e.currentTarget.getAttribute("class")?.split(" ")[0]) ||
+      "";
     if (props.onResizeStart) props.onResizeStart();
 
     isMouseDown = true;
@@ -167,15 +167,15 @@ const Rect: React.FC<RectProps> = props => {
     };
 
     const onUp = () => {
-      document.body.style.cursor = 'auto';
-      document.removeEventListener('mousemove', () => setTimeout(onMove));
-      document.removeEventListener('mouseup', () => setTimeout(onUp));
+      document.body.style.cursor = "auto";
+      document.removeEventListener("mousemove", () => setTimeout(onMove));
+      document.removeEventListener("mouseup", () => setTimeout(onUp));
       if (!isMouseDown) return;
       isMouseDown = false;
       if (props.onResizeEnd) props.onResizeEnd();
     };
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
   };
 
   const {
@@ -185,12 +185,12 @@ const Rect: React.FC<RectProps> = props => {
       transform: { rotateAngle },
       borderRadius,
       color,
-      zIndex
+      zIndex,
     },
     zoomable,
     rotatable,
     parentRotateAngle,
-    active
+    active,
   } = props;
 
   const style = {
@@ -201,18 +201,18 @@ const Rect: React.FC<RectProps> = props => {
     top: centerY - Math.abs(height) / 2,
     borderRadius: Number(borderRadius),
     background: color,
-    zIndex
+    zIndex,
   };
-  const direction = (zoomable || '')
-    .split(',')
-    .map(d => d.trim())
-    .filter(d => d);
+  const direction = (zoomable || "")
+    .split(",")
+    .map((d) => d.trim())
+    .filter((d) => d);
 
   return (
     <StyledRect
       ref={elementRef}
       onMouseDown={startDrag}
-      className={'rect ' + (active ? 'rect-active' : '')}
+      className={"rect " + (active ? "rect-active" : "")}
       style={style}
     >
       {rotatable && (
@@ -230,7 +230,7 @@ const Rect: React.FC<RectProps> = props => {
         {props.children}
       </div>
 
-      {direction.map(d => {
+      {direction.map((d) => {
         const cursor = `${getCursor(
           rotateAngle + parentRotateAngle,
           d
@@ -240,12 +240,12 @@ const Rect: React.FC<RectProps> = props => {
             key={d}
             style={{ cursor }}
             className={`${zoomableMap[d]} resizable-handler`}
-            onMouseDown={e => startResize(e, cursor)}
+            onMouseDown={(e) => startResize(e, cursor)}
           />
         );
       })}
 
-      {direction.map(d => (
+      {direction.map((d) => (
         <div key={d} className={`${zoomableMap[d]} square`} />
       ))}
     </StyledRect>
