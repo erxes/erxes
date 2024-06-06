@@ -6,9 +6,8 @@ import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { gql } from '@apollo/client';
 import PackageList from '../components/PackageList';
-import { useQuery, useMutation } from '@apollo/client';
+import { useQuery, useMutation, gql } from '@apollo/client';
 
 type Props = {
   type: string;

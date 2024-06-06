@@ -14,8 +14,9 @@ import {
   ControlWrapper,
   Indicator,
   StepWrapper,
+  FlexItem,
+   LeftItem,
 } from "@erxes/ui/src/components/step/styles";
-import { FlexItem, LeftItem } from "@erxes/ui/src/components/step/styles";
 import {
   IPage,
   SchedulePageMutationVariables,

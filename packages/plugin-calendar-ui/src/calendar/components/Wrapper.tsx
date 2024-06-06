@@ -1,18 +1,17 @@
-import { IBoard, IGroup } from '../types';
-import { extractDate, generateFilters } from '../utils';
+import { extractDate, generateFilters, } from '../utils';
 
 import Button from '@erxes/ui/src/components/Button';
 import { ButtonGroup } from '@erxes/ui-cards/src/boards/styles/header';
 import { CalendarController } from '../styles';
 import Event from '../containers/Event';
-import { IAccount } from '../types';
+import { IAccount, IBoard, IGroup } from '../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
 import Sidebar from './LeftSidebar';
 import { TYPES } from '../constants';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from 'coreui/utils';
+
 import { capitalize } from '@erxes/ui-log/src/activityLogs/utils';
 import dayjs from 'dayjs';
 
@@ -41,7 +40,7 @@ const CalendarContext = React.createContext({} as IStore);
 
 export const CalendarConsumer = CalendarContext.Consumer;
 
-const breadcrumb = [{ title: __('Calendar'), link: '/calendar' }];
+const breadcrumb = [{ title: ('Calendar'), link: '/calendar' }];
 class CalendarWrapper extends React.Component<Props, State> {
   constructor(props) {
     super(props);
@@ -74,7 +73,9 @@ class CalendarWrapper extends React.Component<Props, State> {
 
     this.props.accounts.map(acc => {
       return acc.calendars.map(calendar => {
-        return (color[calendar.providerCalendarId] = acc.color);
+
+        const value = color[calendar.providerCalendarId] = acc.color
+        return value;
       });
     });
 

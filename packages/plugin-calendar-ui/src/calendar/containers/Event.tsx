@@ -83,7 +83,7 @@ class EventContainer extends React.Component<FinalProps, {}> {
                 queryParams
               });
 
-              const msg = `${__(`You successfully deleted a`)} ${__('event')}.`;
+              const msg = `${__('You successfully deleted a')} ${__('event')}.`;
 
               Alert.success(msg);
             })

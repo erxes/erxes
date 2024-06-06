@@ -20,10 +20,8 @@ import { __ } from "@erxes/ui/src/utils/core";
 type Props = {
   groups: IGroup[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  updateOrder?: any;
   remove: (group: IGroup) => void;
   boardId: string;
-  refetch: ({ boardId }: { boardId?: string }) => Promise<any>;
   currentBoard?: IBoard;
   customLink: (kind: string) => void;
   removeCalendar: (calendar: ICalendar) => void;

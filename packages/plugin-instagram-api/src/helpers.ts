@@ -136,7 +136,8 @@ export const removeAccount = async (
         );
         erxesApiIds.push(response);
       } catch (e) {
-        throw e;
+        console.log('Error message: ', e)
+        throw e
       }
     }
   }
@@ -203,7 +204,7 @@ export const repairIntegrations = async (
         headers: { 'Content-Type': 'application/json' }
       });
     } catch (e) {
-      throw e;
+      console.log ('erorr message: ' , e);
     }
   }
 
@@ -264,8 +265,8 @@ export const instagramCreateIntegration = async (
     });
   } catch (error) {
     // You can also throw the error again or perform additional error handling here
-    throw error;
-  }
+    console.log ('erorr message: ' , error);
+    }
 
   const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });

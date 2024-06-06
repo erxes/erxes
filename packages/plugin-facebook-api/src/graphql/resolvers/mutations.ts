@@ -61,7 +61,7 @@ const facebookMutations = {
 
     await models.CommentConversation.updateOne(
       { commentId },
-      { $set: { isResolved: comment.isResolved ? false : true } },
+      { $set: { isResolved: !comment.isResolved } },
     );
 
     return models.CommentConversation.findOne({ _id: comment._id });

@@ -43,7 +43,6 @@ type Props = {
   events: IEvent[];
   startTime: Date;
   endTime: Date;
-  queryParams: any;
   remove: (_id: string, accountId: string) => void;
   onDayClick: (date) => void;
 };

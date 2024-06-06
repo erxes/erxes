@@ -1,4 +1,4 @@
-import { IContext, IModels } from '../../connectionResolver';
+import { IContext } from '../../connectionResolver';
 import { INTEGRATION_KINDS } from '../../constants';
 import { sendInboxMessage } from '../../messageBroker';
 import { IConversationMessageDocument } from '../../models/definitions/conversationMessages';
@@ -241,7 +241,7 @@ const instagramQueries = {
 
         messages = await models.ConversationMessages.find(query)
           .sort(sort)
-          .skip(skip || 0)
+          .skip(skip ?? 0)
           .limit(limit);
 
         return getFirst ? messages : messages.reverse();
@@ -259,14 +259,14 @@ const instagramQueries = {
         erxesApiId: conversationId,
       })
         .sort(sort)
-        .skip(skip || 0);
+        .skip(skip ?? 0);
 
       const comment_ids = comment?.map((item) => item.comment_id);
       const search = await models.CommentConversationReply.find({
         parentId: comment_ids,
       })
         .sort(sort)
-        .skip(skip || 0);
+        .skip(skip ?? 0);
 
       if (search.length > 0) {
         // Combine the arrays and sort by createdAt in ascending order
@@ -366,7 +366,7 @@ const instagramQueries = {
 
       messages = await models.CommentConversation.find(query)
         .sort(sort)
-        .skip(skip || 0)
+        .skip(skip ?? 0)
         .limit(limit);
 
       return getFirst ? messages : messages.reverse();

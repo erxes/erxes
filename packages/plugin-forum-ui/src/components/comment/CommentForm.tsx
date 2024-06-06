@@ -30,7 +30,7 @@ const CommentForm: React.FC<{
     const { isSubmitted, values } = formProps;
 
     return (
-      <Comment isReply={replyToId ? true : false}>
+      <Comment isReply={!!replyToId}>
         <FormControl
           {...formProps}
           placeholder="Write a comment"

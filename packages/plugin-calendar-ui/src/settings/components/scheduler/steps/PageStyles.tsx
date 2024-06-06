@@ -18,7 +18,6 @@ type NameInput =
 
 type Props = {
   onChange: (name: NameInput, value: string) => void;
-  companyName?: string;
   slug?: string;
   color?: string;
   submitText?: string;
@@ -27,10 +26,7 @@ type Props = {
 
 type State = {
   companyName?: string;
-  slug?: string;
   color?: string;
-  submitText?: string;
-  thankYouText?: string;
 };
 
 class PageStyles extends React.Component<Props, State> {

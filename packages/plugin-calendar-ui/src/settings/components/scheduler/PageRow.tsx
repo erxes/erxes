@@ -6,16 +6,12 @@ import { IPage } from '../../types';
 
 type Props = {
   page: IPage;
-  accountId: string;
   remove: (pageId: string) => void;
 };
 
 declare function editSchedule(editToken: string, inDarkMode: boolean): any;
 
 class PageRow extends React.Component<Props> {
-  onEdit = pageEditToken => {
-    editSchedule(pageEditToken, false);
-  };
 
   onView = e => {
     e.preventDefault();

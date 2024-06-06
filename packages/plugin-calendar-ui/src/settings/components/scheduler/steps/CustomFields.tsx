@@ -50,7 +50,7 @@ const RequiredField = styled.div`
 
 type Props = {
   onChange: (name: "additionalFields", value: any) => void;
-  additionalFields?: additionalField[];
+  
 };
 
 type State = {

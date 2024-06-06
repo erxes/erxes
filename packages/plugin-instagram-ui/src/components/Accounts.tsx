@@ -13,14 +13,12 @@ import { __, confirm } from 'coreui/utils';
 import Button from '@erxes/ui/src/components/Button';
 import { CenterText } from '@erxes/ui-log/src/activityLogs/styles';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { IFormProps } from '@erxes/ui/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
 
 type Props = {
   onSelect: (accountId?: string) => void;
   accounts: IAccount[];
-  formProps?: IFormProps;
   onAdd: () => void;
   kind: IntegrationTypesInstagram;
   renderForm?: () => JSX.Element;

@@ -135,6 +135,7 @@ class EditForm extends React.Component<FinalProps, State> {
                             cal,
                             acc.accountId
                           )}
+                          aria-hidden
                         >
                           <Icon
                             icon={"circle"}

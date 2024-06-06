@@ -7,7 +7,6 @@ import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
 import GroupForm from "../../containers/permission/PermissionGroupForm";
 import { IUserGroupDocument } from "../../types";
 import Icon from "@erxes/ui/src/components/Icon";
-import { Link } from "react-router-dom";
 import LoadMore from "@erxes/ui/src/components/LoadMore";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import React, { useEffect } from "react";
@@ -15,7 +14,7 @@ import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
 import { SidebarItem } from "../../styles";
 import Tip from "@erxes/ui/src/components/Tip";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 
 const { Section } = Wrapper.Sidebar;
 

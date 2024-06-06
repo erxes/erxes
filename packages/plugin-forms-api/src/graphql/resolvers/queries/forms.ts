@@ -1,5 +1,5 @@
 import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { IContext, IModels } from '../../../connectionResolver';
+import { IContext } from '../../../connectionResolver';
 import { sendInboxMessage } from '../../../messageBroker';
 import { IFormSubmissionFilter } from '../../../models/definitions/forms';
 import { formSubmissionsQuery } from '../../../utils';

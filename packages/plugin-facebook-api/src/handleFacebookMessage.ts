@@ -2,8 +2,7 @@ import * as strip from 'strip';
 
 import { IModels } from './connectionResolver';
 import { generateAttachmentMessages, sendReply } from './utils';
-import { sendInboxMessage } from './messageBroker';
-import { sendCoreMessage } from './messageBroker';
+import { sendCoreMessage,sendInboxMessage } from './messageBroker';
 
 /**
  * Handle requests from erxes api
@@ -150,9 +149,9 @@ export const handleFacebookMessage = async (
       attachments = [],
       extraInfo
     } = doc;
-    const tag = extraInfo && extraInfo.tag ? extraInfo.tag : '';
+    const tag = extraInfo?.tag || '';
 
-    const regex = new RegExp('<img[^>]* src="([^"]*)"', 'g');
+    const regex = /<img[^>]* src="([^"]*)"/g;
 
     const images: string[] = (content.match(regex) || []).map((m) =>
       m.replace(regex, '$1')

@@ -2,8 +2,7 @@ import * as strip from 'strip';
 
 import { IModels } from './connectionResolver';
 import { generateAttachmentMessages, sendReply } from './utils';
-import { sendInboxMessage } from './messageBroker';
-import { sendCoreMessage } from './messageBroker';
+import { sendCoreMessage, sendInboxMessage } from './messageBroker';
 /**
  * Handle requests from erxes api
  */
@@ -79,12 +78,12 @@ export const handleInstagramMessage = async (
 
     let data = {
       message: strippedContent,
-      attachment_url: attachment_url || undefined
+      attachment_url: attachment_url ?? undefined
     };
     const id = commentConversationResult
       ? commentConversationResult.comment_id
       : post.postId;
-    if (commentConversationResult && commentConversationResult.comment_id) {
+    if (commentConversationResult ?? commentConversationResult.comment_id) {
       data = {
         message: ` ${strippedContent}`,
         attachment_url: attachment_url
@@ -102,7 +101,7 @@ export const handleInstagramMessage = async (
         `${id}/replies`,
         data,
         recipientId,
-        inboxConversation && inboxConversation.integrationId
+        inboxConversation ?? inboxConversation.integrationId
       );
 
       const user = await sendCoreMessage({
@@ -141,9 +140,9 @@ export const handleInstagramMessage = async (
       attachments = [],
       extraInfo
     } = doc;
-    const tag = extraInfo && extraInfo.tag ? extraInfo.tag : '';
+    const tag = extraInfo ?? extraInfo.tag ? extraInfo.tag : '';
 
-    const regex = new RegExp('<img[^>]* src="([^"]*)"', 'g');
+    const regex = /<img[^>]* src="([^"]*)"/g;
 
     const images: string[] = (content.match(regex) || []).map((m) =>
       m.replace(regex, '$1')
@@ -192,7 +191,7 @@ export const handleInstagramMessage = async (
           }
         } catch (e) {
           await models.ConversationMessages.deleteOne({
-            _id: localMessage && localMessage._id
+            _id: localMessage ?? localMessage._id
           });
 
           throw new Error(e.message);

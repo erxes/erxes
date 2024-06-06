@@ -62,10 +62,12 @@ class Modal extends React.Component<Props, {}> {
           </FormControl>
 
           <FacebookTagText>
-            Message tags may not be used to send promotional content, including
-            but not limited to deals,purchases offers, coupons, and discounts.
-            Use of tags outside of the approved use cases may result in
-            restrictions on the Page's ability to send messages.
+            <p>
+              Message tags may not be used to send promotional content,
+              including but not limited to deals,purchases offers, coupons, and
+              discounts. Use of tags outside of the approved use cases may
+              result in restrictions on the Page's ability to send messages.
+            </p>
             <a
               href="https://developers.facebook.com/docs/messenger-platform/send-messages/message-tags/"
               target="_blank"

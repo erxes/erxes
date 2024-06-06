@@ -8,6 +8,7 @@ import {
 } from './utils';
 import { getEnv, resetConfigsCache } from './commonUtils';
 import fetch from 'node-fetch';
+import { error } from 'console';
 
 export const removeIntegration = async (
   subdomain: string,
@@ -135,6 +136,7 @@ export const removeAccount = async (
         );
         erxesApiIds.push(response);
       } catch (e) {
+        console.error(error.occ)
         throw e;
       }
     }
@@ -191,6 +193,7 @@ export const repairIntegrations = async (
         headers: { 'Content-Type': 'application/json' }
       });
     } catch (e) {
+      console.error('Error occured: ', e);
       throw e;
     }
   }
