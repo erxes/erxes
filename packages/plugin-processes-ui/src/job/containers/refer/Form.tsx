@@ -1,15 +1,15 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { IJobRefer, JobCategoriesQueryResponse } from '../../types';
-import { mutations, queries } from '../../graphql';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import From from '../../components/refer/Form';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { withProps } from '@erxes/ui/src/utils';
-import { IProductsData } from '../../../types';
+import { IJobRefer, JobCategoriesQueryResponse } from "../../types";
+import { mutations, queries } from "../../graphql";
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import From from "../../components/refer/Form";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import React from "react";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { withProps } from "@erxes/ui/src/utils";
+import { IProductsData } from "../../../types";
 
 type Props = {
   jobRefer?: IJobRefer;
@@ -29,10 +29,11 @@ class ProductFormContainer extends React.Component<FinalProps> {
     }
 
     const renderButton = ({
+      name,
       values,
       isSubmitted,
       callback,
-      object
+      object,
     }: IButtonMutateProps) => {
       const { duration, needProducts, resultProducts, quantity } = values;
 
@@ -40,19 +41,7 @@ class ProductFormContainer extends React.Component<FinalProps> {
       values.quantity = Number(quantity);
 
       values.needProducts = needProducts.map(
-        e =>
-          ({
-            _id: e._id,
-            productId: e.productId,
-            quantity: e.quantity,
-            uom: e.uom,
-            branchId: e.branchId,
-            departmentId: e.departmentId
-          } as IProductsData)
-      );
-
-      values.resultProducts = resultProducts.map(
-        e =>
+        (e) =>
           ({
             _id: e._id,
             productId: e.productId,
@@ -60,8 +49,20 @@ class ProductFormContainer extends React.Component<FinalProps> {
             uom: e.uom,
             branchId: e.branchId,
             departmentId: e.departmentId,
-            proportion: e.proportion
-          } as IProductsData)
+          }) as IProductsData
+      );
+
+      values.resultProducts = resultProducts.map(
+        (e) =>
+          ({
+            _id: e._id,
+            productId: e.productId,
+            quantity: e.quantity,
+            uom: e.uom,
+            branchId: e.branchId,
+            departmentId: e.departmentId,
+            proportion: e.proportion,
+          }) as IProductsData
       );
 
       return (
@@ -69,12 +70,12 @@ class ProductFormContainer extends React.Component<FinalProps> {
           mutation={object ? mutations.jobRefersEdit : mutations.jobRefersAdd}
           variables={values}
           callback={callback}
-          refetchQueries={getRefetchQueries('test refetch')}
+          refetchQueries={getRefetchQueries("test refetch")}
           isSubmitted={isSubmitted}
           type="submit"
           uppercase={false}
           successMessage={`You successfully ${
-            object ? 'updated' : 'added'
+            object ? "updated" : "added"
           } a ${name}`}
         />
       );
@@ -85,21 +86,21 @@ class ProductFormContainer extends React.Component<FinalProps> {
     const updatedProps = {
       ...this.props,
       renderButton,
-      jobCategories
+      jobCategories,
     };
 
     return <From {...updatedProps} />;
   }
 }
 
-const getRefetchQueries = test => {
-  return ['jobRefers', 'jobReferTotalCount', 'jobCategories'];
+const getRefetchQueries = (test) => {
+  return ["jobRefers", "jobReferTotalCount", "jobCategories"];
 };
 
 export default withProps<Props>(
   compose(
     graphql<Props, JobCategoriesQueryResponse>(gql(queries.jobCategories), {
-      name: 'jobCategoriesQuery'
+      name: "jobCategoriesQuery",
     })
   )(ProductFormContainer)
 );

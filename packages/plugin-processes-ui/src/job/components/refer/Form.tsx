@@ -522,6 +522,7 @@ class Form extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
+            name: "Job refer",
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,

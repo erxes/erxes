@@ -1,18 +1,18 @@
-import React from 'react';
+import React from "react";
 
-import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
-import { IOption, IQueryParams } from '@erxes/ui/src/types';
-import { queries } from '../../graphql';
-import { IJobRefer } from '../../types';
+import SelectWithSearch from "@erxes/ui/src/components/SelectWithSearch";
+import { IOption, IQueryParams } from "@erxes/ui/src/types";
+import { queries } from "../../graphql";
+import { IJobRefer } from "../../types";
 
 // get config options for react-select
 export function generateProductOptions(array: IJobRefer[] = []): IOption[] {
-  return array.map(item => {
+  return array.map((item) => {
     const jobRefer = item || ({} as IJobRefer);
 
     return {
       value: jobRefer._id,
-      label: `${jobRefer.code} - ${jobRefer.name}`
+      label: `${jobRefer.code} - ${jobRefer.name}`,
     };
   });
 }
@@ -25,7 +25,7 @@ export default ({
   label,
   name,
   customOption,
-  filterParams
+  filterParams,
 }: {
   queryParams?: IQueryParams;
   label: string;
@@ -33,7 +33,6 @@ export default ({
   multi?: boolean;
   customOption?: IOption;
   initialValue?: string | string[];
-  setParam?: boolean;
   name: string;
   filterParams?: any;
 }) => {
