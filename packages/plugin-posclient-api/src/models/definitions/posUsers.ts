@@ -1,5 +1,4 @@
 import { Document, Schema } from 'mongoose';
-import { IPosUserModel } from '../PosUsers';
 import { field, getDateFieldDefinition } from './utils';
 
 interface IDetail {
