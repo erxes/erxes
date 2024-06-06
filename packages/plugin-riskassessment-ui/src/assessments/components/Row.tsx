@@ -23,10 +23,6 @@ type Props = {
 };
 
 class Row extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-  }
-
   renderPopOver(title, contents, group) {
     return (
       <DetailPopOver title={title} icon="downarrow-2" withoutPopoverTitle>
