@@ -261,7 +261,6 @@ export const getPostData = async (
           workerEmail:
             productData.assignUserId && userEmailById[productData.assignUserId],
         });
-        continue;
       }
     }
   }
@@ -342,7 +341,6 @@ export const getPostData = async (
           for (const key of Object.keys(payments)) {
             if (payments[key] > 0.005) {
               payments[key] = payments[key] + sumSaleAmount;
-              continue;
             }
           }
         }
