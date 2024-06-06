@@ -1,5 +1,4 @@
-import * as mongoose from 'mongoose';
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import {
   IConfig,
   configSchema,
