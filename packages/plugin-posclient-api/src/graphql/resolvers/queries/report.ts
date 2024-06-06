@@ -122,7 +122,7 @@ const reportQueries = {
       const items = {};
       for (const groupedItem of groupedItems) {
         const product = productById[groupedItem._id];
-        const category = categoryById[product.categoryId || ''] || {
+        const category = categoryById[product.categoryId ?? ''] || {
           _id: 'undefined',
           code: 'Unknown',
           name: 'Unknown'
