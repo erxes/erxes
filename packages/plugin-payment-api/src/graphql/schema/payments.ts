@@ -33,6 +33,7 @@ export const queries = `
   paymentsTotalCount(kind: String, status: String): paymentsTotalCount
 
   qpayGetMerchant(_id: String!): JSON
+  qpayGetDistricts(cityCode: String!): JSON
 `;
 
 const params = `
@@ -67,6 +68,4 @@ export const mutations = `
     description: String
     callbackUrl: String
   ): JSON
-
-
 `;
