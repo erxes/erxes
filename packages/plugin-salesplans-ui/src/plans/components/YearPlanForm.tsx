@@ -1,22 +1,19 @@
-import React, { useState } from 'react';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
-import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
-import { Alert, __ } from '@erxes/ui/src/utils';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { IYearPlanParams } from '../types';
+import React, { useState } from "react";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
+import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
+import { __ } from "@erxes/ui/src/utils";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { IYearPlanParams } from "../types";
 import {
   Button,
   ControlLabel,
   Form as CommonForm,
   FormControl,
   FormGroup,
-} from '@erxes/ui/src/components';
-import {
-  MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
-} from '@erxes/ui/src/styles/eindex';
+} from "@erxes/ui/src/components";
+import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -74,8 +71,8 @@ const YearPlanForm = (props: Props) => {
           <SelectBranches
             label="Choose branch"
             name="selectedBranchId"
-            initialValue={''}
-            onSelect={(branchId) => onSelectChange('branchId', branchId)}
+            initialValue={""}
+            onSelect={(branchId) => onSelectChange("branchId", branchId)}
             multi={false}
           />
         </FormGroup>
@@ -84,9 +81,9 @@ const YearPlanForm = (props: Props) => {
           <SelectDepartments
             label="Choose department"
             name="selectedDepartmentId"
-            initialValue={''}
+            initialValue={""}
             onSelect={(departmentId) =>
-              onSelectChange('departmentId', departmentId)
+              onSelectChange("departmentId", departmentId)
             }
             multi={false}
           />
@@ -96,9 +93,9 @@ const YearPlanForm = (props: Props) => {
           <SelectProductCategory
             label="Choose product category"
             name="productCategoryId"
-            initialValue={''}
+            initialValue={""}
             onSelect={(categoryId) =>
-              onSelectChange('productCategoryId', categoryId)
+              onSelectChange("productCategoryId", categoryId)
             }
             multi={false}
           />
@@ -108,8 +105,8 @@ const YearPlanForm = (props: Props) => {
           <SelectProducts
             label="Choose product"
             name="productId"
-            initialValue={''}
-            onSelect={(productId) => onSelectChange('productId', productId)}
+            initialValue={""}
+            onSelect={(productId) => onSelectChange("productId", productId)}
             multi={false}
           />
         </FormGroup>
