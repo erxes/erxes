@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.0-rc.5](https://github.com/erxes/erxes/compare/1.12.0-rc.4...1.12.0-rc.5) (2024-06-06)
+
+
+### Bug Fixes
+
+* **cards:** assignedUser glitch ([40eeb9a](https://github.com/erxes/erxes/commit/40eeb9aba9fb96b0379c30c11f04d556017cd5c8))
+
 ## [1.12.0-rc.4](https://github.com/erxes/erxes/compare/1.12.0-rc.3...1.12.0-rc.4) (2024-06-05)
 
 
