@@ -1,9 +1,8 @@
-import { gql } from '@apollo/client';
-import React from 'react';
-import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { subscriptions } from '../graphql';
-import { useSubscription } from '@apollo/client';
+import { gql, useSubscription } from "@apollo/client";
+import React from "react";
+import withCurrentUser from "@erxes/ui/src/auth/containers/withCurrentUser";
+import { IUser } from "@erxes/ui/src/auth/types";
+import { subscriptions } from "../graphql";
 
 type Props = {
   currentUser: IUser;
@@ -18,9 +17,9 @@ const ReturnResponseBody = ({ currentUser }: Props) => {
     {
       variables: {
         userId: currentUser._id,
-        sessionCode: sessionStorage.getItem('sessioncode') || ''
+        sessionCode: sessionStorage.getItem("sessioncode") || "",
       },
-      shouldResubscribe: false
+      shouldResubscribe: false,
     }
   );
 
@@ -47,14 +46,14 @@ const ReturnResponseBody = ({ currentUser }: Props) => {
   const printMainContent = printContents;
 
   const myWindow =
-    window.open(`__`, '_blank', 'width=800, height=800') || ({} as any);
+    window.open(`__`, "_blank", "width=800, height=800") || ({} as any);
 
-  localStorage.setItem('multierkhetResponseId', responseId);
+  localStorage.setItem("multierkhetResponseId", responseId);
 
-  if ('document' in myWindow && 'write' in myWindow.document) {
+  if ("document" in myWindow && "write" in myWindow.document) {
     myWindow.document.write(printMainContent);
   } else {
-    alert('please allow Pop-ups and redirects on site settings!!!');
+    alert("please allow Pop-ups and redirects on site settings!!!");
   }
 
   return <></>;

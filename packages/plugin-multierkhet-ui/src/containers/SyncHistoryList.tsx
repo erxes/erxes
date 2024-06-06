@@ -1,14 +1,13 @@
-import { gql } from '@apollo/client';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { router } from '@erxes/ui/src/utils/core';
-import React from 'react';
-import SyncHistoryList from '../components/SyncHistoryList';
-import { queries } from '../graphql';
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { router } from "@erxes/ui/src/utils/core";
+import React from "react";
+import SyncHistoryList from "../components/SyncHistoryList";
+import { queries } from "../graphql";
 import {
   SyncHistoriesCountQueryResponse,
   SyncHistoriesQueryResponse,
-} from '../types';
-import { useQuery } from '@apollo/client';
+} from "../types";
+import { useQuery, gql } from "@apollo/client";
 
 type Props = {
   queryParams: any;
@@ -21,16 +20,16 @@ const SyncHistoryListContainer = (props: Props) => {
     gql(queries.syncHistories),
     {
       variables: generateParams({ queryParams }),
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
 
   const syncHistoriesCountQuery = useQuery<SyncHistoriesCountQueryResponse>(
     gql(queries.syncHistoriesCount),
     {
       variables: generateParams({ queryParams }),
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
 
   if (syncHistoriesQuery.loading || syncHistoriesCountQuery.loading) {

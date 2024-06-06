@@ -1,19 +1,18 @@
-import Alert from '@erxes/ui/src/utils/Alert';
-import CheckSyncedOrders from '../components/syncedOrders/CheckSyncedOrders';
-import { gql } from '@apollo/client';
-import React, { useState } from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { Bulk } from '@erxes/ui/src/components';
+import Alert from "@erxes/ui/src/utils/Alert";
+import CheckSyncedOrders from "../components/syncedOrders/CheckSyncedOrders";
+import React, { useState } from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { Bulk } from "@erxes/ui/src/components";
 import {
   CheckSyncedMutationResponse,
   CheckSyncedOrdersQueryResponse,
   CheckSyncedOrdersTotalCountQueryResponse,
   PosListQueryResponse,
   ToSyncOrdersMutationResponse,
-} from '../types';
-import { mutations, queries } from '../graphql';
-import { router } from '@erxes/ui/src/utils/core';
-import { useQuery, useMutation } from '@apollo/client';
+} from "../types";
+import { mutations, queries } from "../graphql";
+import { router } from "@erxes/ui/src/utils/core";
+import { useQuery, useMutation, gql } from "@apollo/client";
 
 type Props = {
   queryParams: any;
@@ -28,15 +27,15 @@ const CheckSyncedOrdersContainer = (props: Props) => {
       name
       description
     }
-  }`),
+  }`)
   );
 
   const checkSyncItemsQuery = useQuery<CheckSyncedOrdersQueryResponse>(
     gql(queries.checkSyncOrders),
     {
       variables: generateParams({ queryParams }),
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
 
   const checkSyncedOrdersTotalCountQuery =
@@ -44,15 +43,15 @@ const CheckSyncedOrdersContainer = (props: Props) => {
       gql(queries.checkSyncOrdersTotalCount),
       {
         variables: generateParams({ queryParams }),
-        fetchPolicy: 'network-only',
-      },
+        fetchPolicy: "network-only",
+      }
     );
 
   const [toMultiCheckSynced] = useMutation<CheckSyncedMutationResponse>(
-    gql(mutations.toCheckSynced),
+    gql(mutations.toCheckSynced)
   );
   const [toMultiSyncOrders] = useMutation<ToSyncOrdersMutationResponse>(
-    gql(mutations.toSyncOrders),
+    gql(mutations.toSyncOrders)
   );
 
   const [unSyncedOrderIds, setUnSyncedOrderIds] = useState([] as string[]);
@@ -61,7 +60,7 @@ const CheckSyncedOrdersContainer = (props: Props) => {
   // remove action
   const checkSynced = async ({ orderIds }, emptyBulk) => {
     await toMultiCheckSynced({
-      variables: { ids: orderIds, type: 'pos' },
+      variables: { ids: orderIds, type: "pos" },
     })
       .then((response) => {
         emptyBulk();
@@ -100,7 +99,7 @@ const CheckSyncedOrdersContainer = (props: Props) => {
         const changed = unSyncedOrderIds.filter((u) => !orderIds.includes(u));
         setUnSyncedOrderIds(changed);
         Alert.success(
-          `Алгассан: ${skipped.length}, Алдаа гарсан: ${error.length}, Амжилттай: ${success.length}`,
+          `Алгассан: ${skipped.length}, Алдаа гарсан: ${error.length}, Амжилттай: ${success.length}`
         );
       })
       .catch((e) => {
