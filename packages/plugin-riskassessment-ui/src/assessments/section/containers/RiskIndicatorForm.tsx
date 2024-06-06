@@ -23,9 +23,6 @@ type FinalProps = {
 } & Props;
 
 class RiskIndicatorForm extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-  }
   render() {
     const { indicatorFormQueryResponse, closeModal, onlyPreview, filters } =
       this.props;
