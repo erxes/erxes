@@ -278,8 +278,8 @@ const getDivederInMonth = async (
 
       if (publicRules && publicRules.length) {
         const lastPublicRule = publicRules[publicRules.length - 1];
-        publicRules.map(r => r.multiplier || 0);
-        divider += (lastPublicRule.multiplier || 1) - 1;
+        publicRules.map(r => r.multiplier ?? 0);
+        divider += (lastPublicRule.multiplier ?? 1) - 1;
       }
     }
   }
