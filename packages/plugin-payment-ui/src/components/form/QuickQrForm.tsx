@@ -136,7 +136,6 @@ const QuickQrForm = (props: Props) => {
         {state.type === 'person' && renderItem('lastName', 'Last Name')}
 
         {renderItem('registerNumber', 'Register Number')}
-        {/* {renderItem('mccCode', 'MCC Code')} */}
         {renderMccCode()}
         <FormGroup>
           <FormControl
@@ -163,14 +162,13 @@ const QuickQrForm = (props: Props) => {
             errors={formProps.errors}
           >
             <option value=''>{__('Select a city')}</option>
-            {CITIES.map((bank) => (
-              <option key={bank.code} value={bank.code}>
-                {bank.name}
+            {CITIES.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.name}
               </option>
             ))}
           </FormControl>
         </FormGroup>
-        {/* {renderItem("district", "District")} */}
         <SelectDistrict onChange={onChangeDistrict} cityCode={state.city} />
         {renderItem('businessName', 'Business Name')}
         {renderItem('address', 'Address')}

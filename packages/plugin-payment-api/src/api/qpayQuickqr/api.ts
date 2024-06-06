@@ -1,6 +1,6 @@
 import { IModels } from '../../connectionResolver';
 import { IInvoiceDocument } from '../../models/definitions/invoices';
-import { CITIES, PAYMENTS, PAYMENT_STATUS } from '../constants';
+import { PAYMENTS, PAYMENT_STATUS } from '../constants';
 import { VendorBaseAPI } from './vendorBase';
 
 export type QPayMerchantConfig = {
@@ -307,10 +307,6 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
       method: 'POST',
       path: meta.paths.merchantList,
     });
-  }
-
-  async getCities() {
-    return CITIES;
   }
 
   async getDistricts(city: string) {

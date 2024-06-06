@@ -109,8 +109,7 @@ const queries = {
       password: process.env.QUICK_QR_PASSWORD || ''
     });
 
-    const cities = await api.getCities();
-    return cities;
+    return api.getCities();
   },
 
   async qpayGetDistricts(_root, args) {
