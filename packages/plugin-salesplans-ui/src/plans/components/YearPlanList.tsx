@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import Row from "./YearPlanRow";
 import Sidebar from "./YearPlanSidebar";
 import { __, Alert, confirm, router } from "@erxes/ui/src/utils";
-import { BarItems, Wrapper } from "@erxes/ui/src/layout";
+import { Wrapper } from "@erxes/ui/src/layout";
 import {
   Button,
   DataWithLoader,
@@ -15,10 +15,7 @@ import Form from "../containers/YearPlanForm";
 import { menuSalesplans, MONTHS } from "../../constants";
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 import { TableWrapper } from "../../styles";
-import {
-  FlexRow,
-  Title,
-} from "@erxes/ui-settings/src/styles";
+import { FlexRow, Title } from "@erxes/ui-settings/src/styles";
 import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
