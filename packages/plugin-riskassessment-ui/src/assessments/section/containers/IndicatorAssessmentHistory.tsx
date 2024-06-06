@@ -1,6 +1,6 @@
 import * as compose from "lodash.flowright";
 
-import { EmptyState, Spinner } from "@erxes/ui/src";
+import { Spinner } from "@erxes/ui/src";
 
 import AssessmentHistoryComponent from "../components/IndicatorAssessmentHistory";
 import { IndicatorAssessmentsQueryResponse } from "../../common/types";
@@ -23,10 +23,6 @@ type FinalProps = {
 } & Props;
 
 class AssessmentHistory extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { assessmentHistoryQueryResponse, setHistory } = this.props;
 
