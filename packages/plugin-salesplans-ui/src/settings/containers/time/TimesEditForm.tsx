@@ -1,15 +1,11 @@
-import * as compose from 'lodash.flowright';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import From from '../../components/time/TimesEditForm';
-import { gql, useQuery } from '@apollo/client';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { graphql } from '@apollo/client/react/hoc';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { mutations } from '../../graphql';
-import { queries } from '../../graphql';
-import { ITimeProportion, TimeframeQueryResponse } from '../../types';
-import { withProps } from '@erxes/ui/src/utils';
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import From from "../../components/time/TimesEditForm";
+import { gql, useQuery } from "@apollo/client";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { mutations, queries } from "../../graphql";
+import { ITimeProportion, TimeframeQueryResponse } from "../../types";
 
 type Props = {
   timeProportion: ITimeProportion;
@@ -18,7 +14,7 @@ type Props = {
 
 const TimesFormEditContainer = (props: Props) => {
   const timeFrameQuery = useQuery<TimeframeQueryResponse>(
-    gql(queries.timeframes),
+    gql(queries.timeframes)
   );
 
   if (timeFrameQuery.loading) {
@@ -36,7 +32,7 @@ const TimesFormEditContainer = (props: Props) => {
         mutation={mutations.timeProportionEdit}
         variables={values}
         callback={callback}
-        refetchQueries={['timeProportions', 'timeProportionsCount']}
+        refetchQueries={["timeProportions", "timeProportionsCount"]}
         isSubmitted={isSubmitted}
         type="submit"
         uppercase={false}
