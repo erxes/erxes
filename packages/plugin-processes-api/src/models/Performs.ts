@@ -1,12 +1,11 @@
-import * as moment from 'moment';
-import { Model } from 'mongoose';
-import * as _ from 'underscore';
-import { IModels } from '../connectionResolver';
+import * as moment from "moment";
+import { Model } from "mongoose";
+import { IModels } from "../connectionResolver";
 import {
   IPerform,
   IPerformDocument,
-  performSchema
-} from './definitions/performs';
+  performSchema,
+} from "./definitions/performs";
 
 export interface IPerformModel extends Model<IPerformDocument> {
   getPerform(_id: string): Promise<IPerformDocument>;
@@ -28,7 +27,7 @@ export const loadPerformClass = (models: IModels) => {
       const perform = await models.Performs.findOne({ _id }).lean();
 
       if (!perform) {
-        throw new Error('Perform not found');
+        throw new Error("Perform not found");
       }
 
       return perform;
@@ -38,15 +37,15 @@ export const loadPerformClass = (models: IModels) => {
      * Create a perform
      */
     public static async createPerform(doc: IPerform, len?: number) {
-      let series = '';
+      let series = "";
       if (doc.endAt) {
-        const dateStr = `${moment(doc.endAt).format('YYYYMMDD HHmmss SSS')}`;
+        const dateStr = `${moment(doc.endAt).format("YYYYMMDD HHmmss SSS")}`;
         series = `${dateStr}${
           len
-            ? (len + 1).toString().padStart(2, '0')
+            ? (len + 1).toString().padStart(2, "0")
             : Math.round(Math.random() * (99 - 1) + 1)
                 .toString()
-                .padStart(2, '0')
+                .padStart(2, "0")
         }`;
       }
 
@@ -55,7 +54,7 @@ export const loadPerformClass = (models: IModels) => {
         perform = await models.Performs.create({
           ...doc,
           createdAt: new Date(),
-          series
+          series,
         });
       } catch (e) {
         if (e.message.includes(`E11000 duplicate key error dup key`)) {
@@ -82,13 +81,13 @@ export const loadPerformClass = (models: IModels) => {
       const oldPerform = perform || (await models.Performs.getPerform(_id));
       let series = oldPerform.series;
       if (doc.endAt && !oldPerform.series) {
-        const dateStr = `${moment(doc.endAt).format('YYYYMMDD HHmmss SSS')}`;
+        const dateStr = `${moment(doc.endAt).format("YYYYMMDD HHmmss SSS")}`;
         series = `${dateStr}${
           len
-            ? (len + 1).toString().padStart(2, '0')
+            ? (len + 1).toString().padStart(2, "0")
             : Math.round(Math.random() * (99 - 1) + 1)
                 .toString()
-                .padStart(2, '0')
+                .padStart(2, "0")
         }`;
       }
 

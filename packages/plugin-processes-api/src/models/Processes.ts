@@ -1,12 +1,11 @@
-import * as _ from 'underscore';
-import { FLOW_STATUSES } from './definitions/constants';
+import { FLOW_STATUSES } from "./definitions/constants";
 import {
   processSchema,
   IProcess,
-  IProcessDocument
-} from './definitions/processes';
-import { IModels } from '../connectionResolver';
-import { Model } from 'mongoose';
+  IProcessDocument,
+} from "./definitions/processes";
+import { IModels } from "../connectionResolver";
+import { Model } from "mongoose";
 
 export interface IProcessModel extends Model<IProcessDocument> {
   getProcess(_id: string): Promise<IProcessDocument>;
@@ -25,7 +24,7 @@ export const loadProcessClass = (models: IModels) => {
       const process = await models.Processes.findOne({ _id });
 
       if (!process) {
-        throw new Error('Process not found');
+        throw new Error("Process not found");
       }
 
       return process;
@@ -38,7 +37,7 @@ export const loadProcessClass = (models: IModels) => {
       const process = await models.Processes.create({
         ...doc,
         status: FLOW_STATUSES.DRAFT,
-        createdAt: new Date()
+        createdAt: new Date(),
       });
 
       return process;
@@ -55,8 +54,8 @@ export const loadProcessClass = (models: IModels) => {
         {
           $set: {
             ...doc,
-            status
-          }
+            status,
+          },
         }
       );
 
@@ -79,7 +78,7 @@ export const loadProcessClass = (models: IModels) => {
     public static async removeProcesses(processIds: string[]) {
       await models.Processes.deleteMany({ _id: { $in: processIds } });
 
-      return 'deleted';
+      return "deleted";
     }
   }
 

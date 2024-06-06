@@ -1,20 +1,19 @@
-import { Model } from 'mongoose';
-import * as _ from 'underscore';
-import { IModels } from '../connectionResolver';
-import { JOB_STATUSES } from './definitions/constants';
+import { Model } from "mongoose";
+import { IModels } from "../connectionResolver";
+import { JOB_STATUSES } from "./definitions/constants";
 import {
   IJobCategory,
   IJobCategoryDocument,
   jobCategorySchema,
-} from './definitions/jobCategories';
-import { escapeRegExp } from '@erxes/api-utils/src/core';
+} from "./definitions/jobCategories";
+import { escapeRegExp } from "@erxes/api-utils/src/core";
 
 export interface IJobCategoryModel extends Model<IJobCategoryDocument> {
   getJobCategory(_id: string): Promise<IJobCategoryDocument>;
   createJobCategory(doc: IJobCategory): Promise<IJobCategoryDocument>;
   updateJobCategory(
     _id: string,
-    doc: IJobCategory,
+    doc: IJobCategory
   ): Promise<IJobCategoryDocument>;
   removeJobCategory(_id: string): void;
 }
@@ -28,14 +27,14 @@ export const loadJobCategoryClass = (models: IModels) => {
       const job = await models.JobCategories.findOne({ _id });
 
       if (!job) {
-        throw new Error('JobCategory not found');
+        throw new Error("JobCategory not found");
       }
 
       return job;
     }
 
     static async checkCodeDuplication(code: string) {
-      if (code.includes('/')) {
+      if (code.includes("/")) {
         throw new Error('The "/" character is not allowed in the code');
       }
 
@@ -44,7 +43,7 @@ export const loadJobCategoryClass = (models: IModels) => {
       });
 
       if (category) {
-        throw new Error('Code must be unique');
+        throw new Error("Code must be unique");
       }
     }
 
@@ -84,7 +83,7 @@ export const loadJobCategoryClass = (models: IModels) => {
       }).lean();
 
       if (parentCategory && parentCategory.parentId === _id) {
-        throw new Error('Cannot change category');
+        throw new Error("Cannot change category");
       }
 
       // Generatingg  order
@@ -113,7 +112,7 @@ export const loadJobCategoryClass = (models: IModels) => {
 
         await models.JobCategories.updateOne(
           { _id: childCategory._id },
-          { $set: { order } },
+          { $set: { order } }
         );
       });
 
@@ -141,8 +140,8 @@ export const loadJobCategoryClass = (models: IModels) => {
      * Generating order
      */
     public static async generateOrder(
-      parentCategory: IJobCategory | null |undefined,
-      doc: IJobCategory,
+      parentCategory: IJobCategory | null | undefined,
+      doc: IJobCategory
     ) {
       const order = parentCategory
         ? `${parentCategory.order}${doc.code}/`
