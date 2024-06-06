@@ -13,10 +13,7 @@ import {
   Form as CommonForm,
   FormGroup,
 } from "@erxes/ui/src/components";
-import {
-  MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
-} from "@erxes/ui/src/styles/eindex";
+import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
 import { DateContainer } from "@erxes/ui/src/styles/main";
 import moment from "moment";
 import { useNavigate, useLocation } from "react-router-dom";
