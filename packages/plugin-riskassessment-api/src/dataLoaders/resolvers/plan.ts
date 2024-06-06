@@ -84,7 +84,7 @@ export default {
       return null;
     }
 
-    const totalCards = !!cardIds?.length ? cardIds.length : 0;
+    const totalCards = cardIds?.length ? cardIds.length : 0;
 
     let averangeAssessment = 0;
 
