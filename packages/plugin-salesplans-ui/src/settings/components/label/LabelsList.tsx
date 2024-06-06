@@ -8,7 +8,6 @@ import {
   Button,
   DataWithLoader,
   FormControl,
-  Icon,
   ModalTrigger,
   Table,
 } from "@erxes/ui/src/components";
