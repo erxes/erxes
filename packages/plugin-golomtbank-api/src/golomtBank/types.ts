@@ -19,4 +19,5 @@ export type GolomtBankAccount = {
   branchId: string;
   isSocialPayConnected: string;
   accountType: string;
+  
 }

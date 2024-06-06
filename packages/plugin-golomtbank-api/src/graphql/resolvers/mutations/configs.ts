@@ -41,17 +41,18 @@ const mutations = {
     const clientId = args.clientId;
     const configPassword = args.configPassword;
     const registerId =  args.registerId;
+    const accountId =  args.accountId;
 
     try {
-      await getAuthHeaders({
-        name: name,
-        organizationName: organizationName,
-        ivKey: ivKey,
-        sessionKey: sessionKey,
-        clientId: clientId,
-        configPassword: configPassword,
-        registerId: registerId
-      });
+    //   await getAuthHeaders({
+    //     name: name,
+    //     organizationName: organizationName,
+    //     ivKey: ivKey,
+    //     sessionKey: sessionKey,
+    //     clientId: clientId,
+    //     configPassword: configPassword,
+    //     registerId: registerId
+    //   });
 
       return models.GolomtBankConfigs.updateConfig(args._id, args);
     } catch (e) {

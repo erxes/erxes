@@ -26,36 +26,33 @@ export class BaseApi {
     params?: any;
     data?: any;
   }) {
-    const { method, path, params, data,type } = args;
+    const { method, path, params, data, type } = args;
     const headers = (await this.getHeaders()) || {};
     try {
       const requestOptions: RequestInit & Required<{ headers: HeadersInit }> = {
         method,
         headers,
       };
-      if(type === 'ACCTLST') {
+     
+        requestOptions.headers['Content-Type'] = 'application/json';
         const checkSum = await encryptData(data,this.config.sessionKey,this.config.ivKey)
         requestOptions.headers['X-Golomt-Checksum'] = checkSum;
-        requestOptions.headers['X-Golomt-Service'] = 'ACCTLST';
-      }
+        requestOptions.headers['X-Golomt-Service'] = type;
+
       if (data) {
         requestOptions.body = JSON.stringify(data);
-        requestOptions.headers['Content-Type'] = 'application/json';
       }
       
-      //https://api.https://openapi-uat.golomtbank.com/api.com/v1/account/balance/inq?clientId=88974537498305151326
-     
-   const test =    await fetch(
+        const response =  await fetch(
         `${this.apiUrl}/${path}?` + new URLSearchParams(params),
         requestOptions,
-      ).then(
-        
-        (res) => res.text());
-        console.log('test::',decryptData(test,this.config.ivKey,this.config.sessionKey) )
+      ).then((res) => res.text());
+      console.log(decryptData(response,this.config.ivKey,this.config.sessionKey))
+       return decryptData(response,this.config.ivKey,this.config.sessionKey)
     } catch (e) {
       console.log('e',e)
       throw new Error(e);
     }
-
+ 
   }
 }

@@ -8,6 +8,7 @@ export const types = `
     sessionKey: String
     configPassword: String
     registerId: String
+    accountId: String
   }
 
   type GolomtBankConfigListResponse {
@@ -24,6 +25,7 @@ const mutationParams = `
     sessionKey: String
     configPassword: String
     registerId: String
+    accountId: String
 `;
 
 export const mutations = `

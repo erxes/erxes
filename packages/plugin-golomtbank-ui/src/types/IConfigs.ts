@@ -10,6 +10,7 @@ export interface IGolomtBankConfigsItem {
   sessionKey: string
   configPassword: string
   registerId: string
+  accountId: string
 }
 
 export type ConfigsListQueryResponse = {

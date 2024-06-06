@@ -70,9 +70,9 @@ const dateParams = `
 
 export const queries = `
   golomtBankAccounts(configId: String): JSON
-  golomtBankAccountDetail(configId: String!, accountNumber: String!): GolomtBankAccount
-  golomtBankAccountHolder(configId: String!, accountNumber: String! bankCode: String): GolomtBankAccountHolder
+  golomtBankAccountDetail(configId: String!, accountId: String!): GolomtBankAccount
+  golomtBankAccountHolder(configId: String!, accountId: String! bankCode: String): GolomtBankAccountHolder
 
-  golomtBankStatements(configId: String!, accountNumber: String!, ${paginationParams} ${dateParams} ): GolomtBankStatement
-  golomtBankStatementsAfterRecord(configId: String!, accountNumber: String!, record: Int! ${paginationParams}): GolomtBankStatement
+  golomtBankStatements(configId: String!, accountId: String!, ${paginationParams} ${dateParams} ): GolomtBankStatement
+  golomtBankStatementsAfterRecord(configId: String!, accountId: String!, record: Int! ${paginationParams}): GolomtBankStatement
 `;

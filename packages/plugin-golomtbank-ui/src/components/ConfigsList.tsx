@@ -70,7 +70,7 @@ const ConfigsList = (props: Props) => {
         <Box
           key={index}
           extraButtons={reload}
-          title={config.name}
+          title={config.accountId}
           isOpen={currentConfig === config._id}
           name={config._id}
           callback={() => {

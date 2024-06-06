@@ -1,6 +1,6 @@
 import { IGolomtBankConfigDocument } from '../models/definitions/golomtBankConfigs';
 import { AccountsApi } from './api/accounts';
-// import { StatementsApi } from './api/statements';
+import { StatementsApi } from './api/statements';
 // import { TaxesApi } from './api/taxes';
 // import { TransferApi } from './api/transfer';
 
@@ -14,7 +14,7 @@ class GolomtBank {
   public sessionKey: string;
   public configPassword: string;
   public accounts: AccountsApi;
-  // public statements: StatementsApi;
+  public statements: StatementsApi;
   // public transfer: TransferApi;
   // public taxes: TaxesApi;
 
@@ -43,7 +43,7 @@ class GolomtBank {
     this.apiUrl = 'https://openapi-uat.golomtbank.com/api';
     
     this.accounts = new AccountsApi(this);
-    // this.statements = new StatementsApi(this);
+    this.statements = new StatementsApi(this);
     // this.transfer = new TransferApi(this);
     // this.taxes = new TaxesApi(this);
   }

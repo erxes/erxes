@@ -7,7 +7,8 @@ export interface IGolomtBankConfig {
   clientId: string;
   ivKey: string;
   sessionKey: string;
-  configPassword: string
+  configPassword: string;
+  accountId: string
 }
 
 export interface IGolomtBankConfigDocument extends IGolomtBankConfig, Document {
@@ -24,5 +25,6 @@ export const golomtBankConfigSchema = new Schema({
   clientId: field({ type: String, required: true }),
   sessionKey: field({ type: String, required: true }),
   configPassword: field({ type: String, required: true }),
+  accountId: field({ type: String, required: true }),
   createdAt: field({ type: Date, default: Date.now }),
 });

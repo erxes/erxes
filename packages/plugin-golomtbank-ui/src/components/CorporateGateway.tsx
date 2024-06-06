@@ -4,7 +4,7 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Detail from './Detail';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import List from '../corporateGateway/accounts/containers/List';
+import List from '../configs/containers/List';
 import React from 'react';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils/core';

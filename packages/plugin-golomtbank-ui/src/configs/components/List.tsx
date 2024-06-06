@@ -61,7 +61,7 @@ const List = (props: Props) => {
     <Table $whiteSpace="nowrap" $hover={true}>
       <thead>
         <tr>
-          <th>{__("name")}</th>
+          <th>{__("accountId")}</th>
           <th>{__("Action")}</th>
         </tr>
       </thead>

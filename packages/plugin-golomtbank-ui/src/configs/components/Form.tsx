@@ -40,6 +40,7 @@ const ConfigForm = (props: Props) => {
       finalValues.clientId = configObject.clientId;
       finalValues.sessionKey = configObject.sessionKey;
       finalValues.configPassword = configObject.configPassword;
+      finalValues.accountId = configObject.accountId;
     }
 
     return {
@@ -85,6 +86,13 @@ const ConfigForm = (props: Props) => {
           'registerId',
           'string',
           config && config.registerId
+        )}
+        {renderInput(
+          formProps,
+          'AccountId',
+          'accountId',
+          'string',
+          config && config.accountId
         )}
         {renderInput(
           formProps,

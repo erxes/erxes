@@ -39,7 +39,7 @@ const Row = (props: Props) => {
   return (
     <tr>
       <td key={Math.random()}>
-        <RowTitle>{config.name || '-'}</RowTitle>
+        <RowTitle>{config.accountId || '-'}</RowTitle>
       </td>
       <td>
         <ActionButtons>

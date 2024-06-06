@@ -9,6 +9,8 @@ query GolomtBankConfigsList($page: Int, $perPage: Int) {
         ivKey
         sessionKey
         registerId
+        configPassword
+        accountId
       }
       totalCount
     }
