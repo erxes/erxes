@@ -8,7 +8,6 @@ import * as compose from "lodash.flowright";
 import React from "react";
 import ListComponent from "../components/List";
 import { mutations, queries } from "../graphql";
-import client from "@erxes/ui/src/apolloClient";
 import { generateParamsIds } from "../../common/utils";
 
 type Props = {
@@ -26,10 +25,6 @@ type FinalProps = {
 } & Props;
 
 class List extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const {
       removePlansMutationsResponse,
