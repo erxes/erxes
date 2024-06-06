@@ -14,7 +14,6 @@ import {
 export const setupMessageConsumers = async () => {
   consumeQueue('riskassessment:afterMutation', async ({ subdomain, data }) => {
     await afterMutationHandlers(subdomain, data);
-    return;
   });
 
   consumeRPCQueue(
