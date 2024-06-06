@@ -1,6 +1,5 @@
-import { Model } from 'mongoose';
-import * as _ from 'underscore';
-import { IModels } from '../connectionResolver';
+import { Model } from "mongoose";
+import { IModels } from "../connectionResolver";
 import {
   IChart,
   IChartDocument,
@@ -9,7 +8,7 @@ import {
   reportSchema,
   chartSchema,
   IChartEdit,
-} from './definitions/reports';
+} from "./definitions/reports";
 
 export interface IReportModel extends Model<IReportDocument> {
   getReport(_id: string): Promise<IReportDocument>;
@@ -24,7 +23,7 @@ export const loadReportClass = (models: IModels) => {
     public static async getReport(_id: string) {
       const report = await models.Reports.findOne({ _id });
       if (!report) {
-        throw new Error('Report not found');
+        throw new Error("Report not found");
       }
 
       return report;
@@ -38,7 +37,7 @@ export const loadReportClass = (models: IModels) => {
     public static async updateReport(_id: string, doc: IReport) {
       const report = await models.Reports.findOne({ _id });
       if (!report) {
-        throw new Error('Report not found');
+        throw new Error("Report not found");
       }
 
       return models.Reports.updateOne({ _id }, { $set: { ...doc } });
@@ -47,7 +46,7 @@ export const loadReportClass = (models: IModels) => {
     public static async removeReport(_id: string) {
       const report = await models.Reports.getReport(_id);
       if (!report) {
-        throw new Error('Report not found');
+        throw new Error("Report not found");
       }
       return models.Reports.deleteOne({ _id });
     }
@@ -71,7 +70,7 @@ export const loadChartClass = (models: IModels) => {
     public static async getChart(_id: string) {
       const chart = await models.Charts.findOne({ _id });
       if (!chart) {
-        throw new Error('chart not found');
+        throw new Error("chart not found");
       }
       return chart;
     }
@@ -89,7 +88,7 @@ export const loadChartClass = (models: IModels) => {
     public static async removeChart(_id: string) {
       const chart = await models.Charts.getChart(_id);
       if (!chart) {
-        throw new Error('Chart not found');
+        throw new Error("Chart not found");
       }
       return models.Charts.deleteOne({ _id });
     }
