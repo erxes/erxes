@@ -1,17 +1,17 @@
-import { Alert, confirm, EmptyState, Spinner } from '@erxes/ui/src';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
+import { Alert, confirm, EmptyState, Spinner } from "@erxes/ui/src";
+import { withProps } from "@erxes/ui/src/utils/core";
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
 import {
   OperationsQueryResponse,
   OperationsTotalCountQueryResponse,
-  RemoveOperationsMutationResponse
-} from '../common/types';
-import { generateParams, refetchQueries } from '../common/utils';
-import ListComponent from '../components/List';
-import { mutations, queries } from '../graphql';
+  RemoveOperationsMutationResponse,
+} from "../common/types";
+import { generateParams, refetchQueries } from "../common/utils";
+import ListComponent from "../components/List";
+import { mutations, queries } from "../graphql";
 type Props = {
   queryParams: any;
 };
@@ -23,10 +23,6 @@ type FinalProps = {
 } & Props;
 
 class List extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { listQuery, totalCountQuery } = this.props;
 
@@ -42,7 +38,7 @@ class List extends React.Component<FinalProps> {
       const { removeOperations } = this.props;
       confirm().then(() => {
         removeOperations({ variables: { ids } }).then(() => {
-          Alert.success('Removed successfully');
+          Alert.success("Removed successfully");
         });
       });
     };
@@ -52,7 +48,7 @@ class List extends React.Component<FinalProps> {
       list: listQuery.operations,
       totalCount: totalCountQuery.operationsTotalCount,
       loading: listQuery.loading,
-      remove
+      remove,
     };
 
     return <ListComponent {...updateProps} />;
@@ -62,24 +58,24 @@ class List extends React.Component<FinalProps> {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.operations), {
-      name: 'listQuery',
+      name: "listQuery",
       options: ({ queryParams }) => ({
-        variables: generateParams(queryParams)
-      })
+        variables: generateParams(queryParams),
+      }),
     }),
     graphql<Props>(gql(queries.operationsTotalCount), {
-      name: 'totalCountQuery',
+      name: "totalCountQuery",
       options: ({ queryParams }) => ({
-        variables: generateParams(queryParams)
-      })
+        variables: generateParams(queryParams),
+      }),
     }),
     graphql<Props, RemoveOperationsMutationResponse>(
       gql(mutations.removeOperations),
       {
-        name: 'removeOperations',
+        name: "removeOperations",
         options: ({ queryParams }) => ({
-          refetchQueries: refetchQueries(queryParams)
-        })
+          refetchQueries: refetchQueries(queryParams),
+        }),
       }
     )
   )(List)
