@@ -33,7 +33,7 @@ class MultipleAssessment extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    if (!!this.props?.riskAssessments?.length) {
+    if (this.props?.riskAssessments?.length) {
       const { riskAssessments } = this.props;
 
       let riskAssessment: any = {};
