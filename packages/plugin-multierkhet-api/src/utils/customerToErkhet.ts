@@ -1,8 +1,8 @@
-import { getCompanyInfo, getSyncLogDoc, toErkhet } from './utils';
+import { getCompanyInfo, getSyncLogDoc, toErkhet } from "./utils";
 
 export const customerToErkhet = async (models, params, action) => {
   const syncLogDoc = getSyncLogDoc(params);
-  const configs = await models.Configs.getConfig('erkhetConfig', {});
+  const configs = await models.Configs.getConfig("erkhetConfig", {});
 
   const configBrandIds = Object.keys(configs);
   if (!configBrandIds.length) {
@@ -13,20 +13,20 @@ export const customerToErkhet = async (models, params, action) => {
   const oldCustomer = params.object;
   let sendData = {};
 
-  let name = customer.primaryName || '';
+  let name = customer.primaryName || "";
 
   name =
     name && customer.firstName
-      ? name.concat(' - ').concat(customer.firstName || '')
-      : name || customer.firstName || '';
+      ? name.concat(" - ").concat(customer.firstName || "")
+      : name || customer.firstName || "";
   name =
     name && customer.lastName
-      ? name.concat(' - ').concat(customer.lastName || '')
-      : name || customer.lastName || '';
+      ? name.concat(" - ").concat(customer.lastName || "")
+      : name || customer.lastName || "";
 
   for (const brandId of configBrandIds) {
     const config = configs[brandId];
-    name = name ? name : config.customerDefaultName;
+    name = name || config.customerDefaultName;
 
     if (!(config.apiKey && config.apiSecret && config.apiToken)) {
       continue;
@@ -36,42 +36,45 @@ export const customerToErkhet = async (models, params, action) => {
     try {
       sendData = {
         action,
-        oldCode: oldCustomer.code || customer.code || '',
+        oldCode: oldCustomer.code || customer.code || "",
         object: {
-          code: customer.code || '',
+          code: customer.code || "",
           name,
-          defaultCategory: (config.customerCategoryCode || '').toString(),
-          email: customer.primaryEmail || '',
-          phone: customer.primaryPhone || '',
+          defaultCategory: (config.customerCategoryCode || "").toString(),
+          email: customer.primaryEmail || "",
+          phone: customer.primaryPhone || "",
         },
       };
 
-      toErkhet(models, syncLog, config, sendData, 'customer-change');
+      toErkhet(models, syncLog, config, sendData, "customer-change");
     } catch (e) {
       await models.SyncLogs.updateOne(
         { _id: syncLog._id },
-        { $set: { error: e.message } },
+        { $set: { error: e.message } }
       );
     }
   }
 };
 
 export const validCompanyCode = async (config, companyCode) => {
-  let result = '';
+  let result = "";
   if (
     !config ||
     !config.checkCompanyUrl ||
-    !config.checkCompanyUrl.includes('http')
+    !config.checkCompanyUrl.includes("http")
   ) {
     return result;
   }
 
-  const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)|(^\d{11}$)|(^\d{12}$)/gui;
+  const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)|(^\d{11}$)|(^\d{12}$)/giu;
 
   if (re.test(companyCode)) {
-    const response = await getCompanyInfo({checkTaxpayerUrl: config.checkCompanyUrl, no: companyCode})
+    const response = await getCompanyInfo({
+      checkTaxpayerUrl: config.checkCompanyUrl,
+      no: companyCode,
+    });
 
-    if (response.status === 'checked' && response.tin) {
+    if (response.status === "checked" && response.tin) {
       result = response.result?.data?.name;
     }
   }
@@ -80,7 +83,7 @@ export const validCompanyCode = async (config, companyCode) => {
 
 export const companyToErkhet = async (models, params, action) => {
   const syncLogDoc = getSyncLogDoc(params);
-  const configs = await models.Configs.getConfig('erkhetConfig', {});
+  const configs = await models.Configs.getConfig("erkhetConfig", {});
 
   const configBrandIds = Object.keys(configs);
   if (!configBrandIds.length) {
@@ -101,21 +104,21 @@ export const companyToErkhet = async (models, params, action) => {
     try {
       const sendData = {
         action,
-        oldCode: oldCompany.code || company.code || '',
+        oldCode: oldCompany.code || company.code || "",
         object: {
-          code: company.code || '',
+          code: company.code || "",
           name: company.primaryName,
           defaultCategory: config.companyCategoryCode,
-          email: company.primaryEmail || '',
-          phone: company.primaryPhone || '',
+          email: company.primaryEmail || "",
+          phone: company.primaryPhone || "",
         },
       };
 
-      toErkhet(models, syncLog, config, sendData, 'customer-change');
+      toErkhet(models, syncLog, config, sendData, "customer-change");
     } catch (e) {
       await models.SyncLogs.updateOne(
         { _id: syncLog._id },
-        { $set: { error: e.message } },
+        { $set: { error: e.message } }
       );
     }
   }
