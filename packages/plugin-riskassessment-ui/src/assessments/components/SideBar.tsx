@@ -21,7 +21,6 @@ interface LayoutProps {
   label: string;
   field: any;
   clearable?: boolean;
-  type?: string;
 }
 
 export function SideBar({ queryParams }) {
