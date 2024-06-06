@@ -8,7 +8,6 @@ import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import { Alert } from "@erxes/ui/src/utils";
 import { __ } from "coreui/utils";
-import { DrawerDetail } from "../../../styles";
 import { DURATION_TYPES } from "../../../../constants";
 import { FLOWJOB_TYPES } from "../../../constants";
 import { FlowJobFooter } from "./styles";
@@ -19,7 +18,7 @@ import {
 } from "@erxes/ui/src/styles/main";
 import { IJob } from "../../../types";
 import { IJobRefer } from "../../../../job/types";
-import { ScrolledContent } from "../../../styles";
+import { ScrolledContent, DrawerDetail } from "../../../styles";
 
 type Props = {
   closeModal: () => void;
