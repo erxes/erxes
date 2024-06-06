@@ -4,7 +4,6 @@ import {
   ButtonMutate,
   Chooser,
   ControlLabel,
-  EmptyState,
   FormGroup,
   Spinner,
   Toggle,
@@ -18,12 +17,11 @@ import RiskGroupsForm from "../../../indicator/groups/containers/Form";
 import RiskIndicatorForm from "../../../indicator/containers/Form";
 import { SelectGroupsAssignedUsers } from "../common/utils";
 import { gql } from "@apollo/client";
+import { grap, useQuery } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 import { queries as groupsQueries } from "../../../indicator/groups/graphql";
 import { queries } from "../graphql";
 import { mutations as riskIndicatorMutattions } from "../../../indicator/graphql";
-import { useQuery } from "@apollo/client";
-import { withProps } from "@erxes/ui/src/utils/core";
 
 type Props = {
   detail: any;
@@ -57,9 +55,9 @@ function SelectIndicators(props: FinalProps) {
   const [searchValue, setSearchValue] = useState("");
   const [useGroups, setUseGroups] = useState(false);
   const [groupsAssignedUsers, setGroupsAssignedUsers] = useState<any[]>([]);
-  const [isSplittedUsers, setSplitUsers] = useState(false);
+  const [isSplittedUsers, setIsSplittedUsers] = useState(false);
   const [selectedItems, setSelectedItems] = useState<any[]>([]);
-  const { data, error, loading } = useQuery(
+  const { data, loading } = useQuery(
     gql(useGroups ? groupsQueries.list : queries.riskIndicators),
     {
       variables: { searchValue, perPage, ...props.filters },
@@ -75,13 +73,13 @@ function SelectIndicators(props: FinalProps) {
       if (riskIndicatorsGroups) {
         setUseGroups(true);
         if (props.detail.isSplittedUsers) {
-          setSplitUsers(true);
+          setIsSplittedUsers(true);
         }
         setSelectedItems(
-          !!riskIndicatorsGroups.length ? riskIndicatorsGroups : []
+          riskIndicatorsGroups.length ? riskIndicatorsGroups : []
         );
       } else {
-        setSelectedItems(!!riskIndicators?.length ? riskIndicators : []);
+        setSelectedItems(riskIndicators?.length ? riskIndicators : []);
       }
     }
   }, [props.selectedItemsQuery]);
@@ -131,12 +129,12 @@ function SelectIndicators(props: FinalProps) {
   const renderFilters = () => {
     const toggleGrouping = () => {
       setUseGroups((useGroups) => !useGroups);
-      setSplitUsers(false);
+      setIsSplittedUsers(false);
       setSelectedItems([]);
     };
 
     const toggleSplitAssignedUsers = () => {
-      setSplitUsers((isSplittedUsers) => !isSplittedUsers);
+      setIsSplittedUsers((isSplittedUsers) => !isSplittedUsers);
     };
 
     return (
