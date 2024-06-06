@@ -247,7 +247,7 @@ const PerSettings = (props: Props) => {
   return (
     <CollapseContent
       title={__(config.title)}
-      open={props.currentConfigKey === "newStageInSaleConfig" ? true : false}
+      open={props.currentConfigKey === "newStageInSaleConfig"}
     >
       <FormWrapper>
         <FormColumn>
@@ -311,7 +311,7 @@ const PerSettings = (props: Props) => {
           icon="check-circle"
           onClick={onSave}
           uppercase={false}
-          disabled={config.stageId ? false : true}
+          disabled={!config.stageId}
         >
           Save
         </Button>

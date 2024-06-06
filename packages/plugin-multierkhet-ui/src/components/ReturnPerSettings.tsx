@@ -4,12 +4,12 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-} from '@erxes/ui/src/components';
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import { __ } from '@erxes/ui/src/utils';
-import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
-import React, { useState } from 'react';
-import { IConfigsMap } from '../types';
+} from "@erxes/ui/src/components";
+import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import { __ } from "@erxes/ui/src/utils";
+import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
+import React, { useState } from "react";
+import { IConfigsMap } from "../types";
 
 type Props = {
   configsMap: IConfigsMap;
@@ -76,13 +76,13 @@ const PerSettings = (props: Props) => {
   return (
     <CollapseContent
       title={__(config.title)}
-      open={props.currentConfigKey === 'newStageInReturnConfig' ? true : false}
+      open={props.currentConfigKey === "newStageInReturnConfig"}
     >
       <FormGroup>
-        <ControlLabel>{'Title'}</ControlLabel>
+        <ControlLabel>{"Title"}</ControlLabel>
         <FormControl
-          defaultValue={config['title']}
-          onChange={onChangeInput.bind(this, 'title')}
+          defaultValue={config["title"]}
+          onChange={onChangeInput.bind(this, "title")}
           required={true}
           autoFocus={true}
         />
@@ -102,7 +102,7 @@ const PerSettings = (props: Props) => {
         />
       </FormGroup>
 
-      {renderInput('userEmail', 'userEmail', '')}
+      {renderInput("userEmail", "userEmail", "")}
 
       <ModalFooter>
         <Button
@@ -119,7 +119,7 @@ const PerSettings = (props: Props) => {
           icon="check-circle"
           onClick={onSave}
           uppercase={false}
-          disabled={config.stageId ? false : true}
+          disabled={!config.stageId}
         >
           Save
         </Button>
