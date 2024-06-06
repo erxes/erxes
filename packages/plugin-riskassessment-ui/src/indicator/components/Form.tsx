@@ -291,7 +291,7 @@ class Form extends React.Component<Props, State> {
   renderGeneralFormsLogics(formProps) {
     const { riskIndicator } = this.state;
 
-    if (!(riskIndicator?.forms?.length > 1)) {
+    if (riskIndicator?.forms?.length <= 1) {
       return null;
     }
 
