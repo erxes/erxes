@@ -1,5 +1,4 @@
-import { SidebarList as List } from "@erxes/ui/src/layout";
-import { Wrapper } from "@erxes/ui/src/layout";
+import { SidebarList as List, Wrapper } from "@erxes/ui/src/layout";
 import { __, router } from "@erxes/ui/src/utils";
 import React, { useRef } from "react";
 import FormGroup from "@erxes/ui/src/components/form/Group";
