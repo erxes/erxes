@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
-import { __ } from "@erxes/ui/src/utils";
 import {
   Button,
   ControlLabel,
@@ -10,15 +9,8 @@ import {
   FormGroup,
 } from "@erxes/ui/src/components";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-import {
-  ITimeframe,
-  ITimeProportion,
-  ITimeProportionParams,
-} from "../../types";
-import {
-  MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
-} from "@erxes/ui/src/styles/eindex";
+import { ITimeframe, ITimeProportionParams } from "../../types";
+import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
 import { FlexItem, FlexRow } from "@erxes/ui-settings/src/styles";
 import FormControl from "@erxes/ui/src/components/form/Control";
 
