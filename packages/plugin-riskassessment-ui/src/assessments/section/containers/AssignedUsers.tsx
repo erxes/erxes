@@ -26,10 +26,6 @@ type FinalProps = {
 } & Props;
 
 class AssignedMembers extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const {
       assignedMembersQueryResponse,
