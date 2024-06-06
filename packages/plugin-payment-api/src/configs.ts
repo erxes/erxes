@@ -15,6 +15,7 @@ import { callbackHandler } from './utils';
 import i18n = require('i18n');
 import { PAYMENTS } from './api/constants';
 import app from '@erxes/api-utils/src/app';
+import { QPayQuickQrAPI } from './api/qpayQuickqr/api';
 
 export default {
   name: 'payment',

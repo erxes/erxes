@@ -23,6 +23,8 @@ export const PAYMENTS = {
       merchantList: 'merchant/list',
       checkInvoice: 'payment/check',
       invoice: 'invoice',
+      cities: 'aimaghot',
+      districts: 'sumduureg',
     },
   },
   socialpay: {
@@ -121,3 +123,94 @@ export const PLUGIN_RESOLVERS_META = {
   },
   'cards:deals': { action: 'deals.findOne', queryKey: '_id' },
 };
+
+export const CITIES = [
+  {
+    code: '11000',
+    name: 'Улаанбаатар',
+  },
+  {
+    code: '21000',
+    name: 'Дорнод аймаг',
+  },
+  {
+    code: '22000',
+    name: 'Сүхбаатар аймаг',
+  },
+  {
+    code: '23000',
+    name: 'Хэнтий аймаг',
+  },
+  {
+    code: '41000',
+    name: 'Төв аймаг',
+  },
+  {
+    code: '42000',
+    name: 'Говьсүмбэр аймаг',
+  },
+  {
+    code: '43000',
+    name: 'Сэлэнгэ аймаг',
+  },
+  {
+    code: '44000',
+    name: 'Дорноговь аймаг',
+  },
+  {
+    code: '45000',
+    name: 'Дархан-уул аймаг',
+  },
+  {
+    code: '46000',
+    name: 'Өмнөговь аймаг',
+  },
+  {
+    code: '48000',
+    name: 'Дундговь аймаг',
+  },
+  {
+    code: '61000',
+    name: 'Орхон аймаг',
+  },
+  {
+    code: '62000',
+    name: 'Өвөрхангай аймаг',
+  },
+  {
+    code: '63000',
+    name: 'Булган аймаг',
+  },
+  {
+    code: '64000',
+    name: 'Баянхонгор аймаг',
+  },
+  {
+    code: '65000',
+    name: 'Архангай аймаг',
+  },
+  {
+    code: '67000',
+    name: 'Хөвсгөл аймаг',
+  },
+  {
+    code: '81000',
+    name: 'Завхан аймаг',
+  },
+  {
+    code: '82000',
+    name: 'Говь-алтай аймаг',
+  },
+  {
+    code: '83000',
+    name: 'Баянөлгий аймаг',
+  },
+  {
+    code: '84000',
+    name: 'Ховд аймаг',
+  },
+  {
+    code: '85000',
+    name: 'Увс аймаг',
+  }
+];
