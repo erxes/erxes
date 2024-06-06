@@ -4,7 +4,7 @@ import React from "react";
 import Row from "./DayLabelRow";
 import Sidebar from "./DayLabelSidebar";
 import { __, Alert, confirm } from "@erxes/ui/src/utils";
-import { BarItems, Wrapper } from "@erxes/ui/src/layout";
+import { Wrapper } from "@erxes/ui/src/layout";
 import {
   Button,
   DataWithLoader,
