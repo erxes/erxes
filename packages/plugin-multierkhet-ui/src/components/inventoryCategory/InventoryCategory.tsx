@@ -1,14 +1,14 @@
-import { CollapseContent, Pagination } from '@erxes/ui/src/components';
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import Table from '@erxes/ui/src/components/table';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils/core';
-import React, { useState, useEffect } from 'react';
-import Row from './InventoryCategoryRow';
-import { menuMultierkhet } from '../../constants';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
+import { CollapseContent, Pagination } from "@erxes/ui/src/components";
+import Button from "@erxes/ui/src/components/Button";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import Table from "@erxes/ui/src/components/table";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "@erxes/ui/src/utils/core";
+import React, { useState, useEffect } from "react";
+import Row from "./InventoryCategoryRow";
+import { menuMultierkhet } from "../../constants";
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
 
 type Props = {
   loading: boolean;
@@ -42,12 +42,12 @@ const InventoryCategory = (props: Props) => {
           data = data.slice(
             Number(queryParams.page - 1) * queryParams.perPage,
             Number((queryParams.page - 1) * queryParams.perPage) +
-              Number(queryParams.perPage),
+              Number(queryParams.perPage)
           );
         } else {
           data = data.slice(
             (queryParams.page - 1) * 20,
-            (queryParams.page - 1) * 20 + 20,
+            (queryParams.page - 1) * 20 + 20
           );
         }
       }
@@ -59,7 +59,7 @@ const InventoryCategory = (props: Props) => {
   };
 
   const excludeSyncTrue = (data: any) => {
-    return data.filter((d) => d.syncStatus == false);
+    return data.filter((d) => !d.syncStatus);
   };
 
   const renderTable = (data: any, action: string) => {
@@ -70,16 +70,14 @@ const InventoryCategory = (props: Props) => {
     };
 
     const syncButton = (
-      <>
-        <Button
-          btnStyle="primary"
-          size="small"
-          icon="check-1"
-          onClick={onClickSync}
-        >
-          Sync
-        </Button>
-      </>
+      <Button
+        btnStyle="primary"
+        size="small"
+        icon="check-1"
+        onClick={onClickSync}
+      >
+        Sync
+      </Button>
     );
     const header = <Wrapper.ActionBar right={syncButton} />;
 
@@ -89,11 +87,11 @@ const InventoryCategory = (props: Props) => {
         <Table $hover={true}>
           <thead>
             <tr>
-              <th>{__('Code')}</th>
-              <th>{__('Name')}</th>
-              {action === 'UPDATE' ? <th>{__('Update Status')}</th> : <></>}
-              {action === 'CREATE' ? <th>{__('Create Status')}</th> : <></>}
-              {action === 'DELETE' ? <th>{__('Delete Status')}</th> : <></>}
+              <th>{__("Code")}</th>
+              <th>{__("Name")}</th>
+              {action === "UPDATE" ? <th>{__("Update Status")}</th> : <></>}
+              {action === "CREATE" ? <th>{__("Create Status")}</th> : <></>}
+              {action === "DELETE" ? <th>{__("Delete Status")}</th> : <></>}
             </tr>
           </thead>
           <tbody>{renderRow(data, action)}</tbody>
@@ -107,7 +105,7 @@ const InventoryCategory = (props: Props) => {
   };
 
   const checkOpenCollapse = (num: number): boolean => {
-    return openCollapse == num ? true : false;
+    return openCollapse == num;
   };
 
   const onChangeCollapse = (num: number): void => {
@@ -121,14 +119,14 @@ const InventoryCategory = (props: Props) => {
   const checkButton = (
     <BarItems>
       <SelectBrands
-        label={__('Choose brands')}
+        label={__("Choose brands")}
         onSelect={(brand) => props.setBrand(brand as string)}
         initialValue={props.queryParams.brandId}
         multi={false}
         name="selectedBrands"
         customOption={{
-          label: 'No Brand (noBrand)',
-          value: '',
+          label: "No Brand (noBrand)",
+          value: "",
         }}
       />
 
@@ -149,10 +147,9 @@ const InventoryCategory = (props: Props) => {
       <br />
       <CollapseContent
         title={__(
-          'Create categories' +
-            (items.create ? ':  ' + items.create.count : ''),
+          "Create categories" + (items.create ? ":  " + items.create.count : "")
         )}
-        id={'1'}
+        id={"1"}
         onClick={() => {
           onChangeCollapse(1);
         }}
@@ -161,10 +158,10 @@ const InventoryCategory = (props: Props) => {
         <>
           <DataWithLoader
             data={
-              items.create ? renderTable(items.create?.items, 'CREATE') : []
+              items.create ? renderTable(items.create?.items, "CREATE") : []
             }
             loading={false}
-            emptyText={'Please check first.'}
+            emptyText={"Please check first."}
             emptyIcon="leaf"
             size="large"
             objective={true}
@@ -174,10 +171,9 @@ const InventoryCategory = (props: Props) => {
       </CollapseContent>
       <CollapseContent
         title={__(
-          'Update categories' +
-            (items.update ? ':  ' + items.update.count : ''),
+          "Update categories" + (items.update ? ":  " + items.update.count : "")
         )}
-        id={'2'}
+        id={"2"}
         onClick={() => {
           onChangeCollapse(2);
         }}
@@ -185,9 +181,9 @@ const InventoryCategory = (props: Props) => {
       >
         <>
           <DataWithLoader
-            data={items.update ? renderTable(items.update.items, 'UPDATE') : []}
+            data={items.update ? renderTable(items.update.items, "UPDATE") : []}
             loading={false}
-            emptyText={'Please check first.'}
+            emptyText={"Please check first."}
             emptyIcon="leaf"
             size="large"
             objective={true}
@@ -197,10 +193,9 @@ const InventoryCategory = (props: Props) => {
       </CollapseContent>
       <CollapseContent
         title={__(
-          'Delete categories' +
-            (items.delete ? ':  ' + items.delete.count : ''),
+          "Delete categories" + (items.delete ? ":  " + items.delete.count : "")
         )}
-        id={'3'}
+        id={"3"}
         onClick={() => {
           onChangeCollapse(3);
         }}
@@ -208,9 +203,9 @@ const InventoryCategory = (props: Props) => {
       >
         <>
           <DataWithLoader
-            data={items.delete ? renderTable(items.delete.items, 'DELETE') : []}
+            data={items.delete ? renderTable(items.delete.items, "DELETE") : []}
             loading={false}
-            emptyText={'Please check first.'}
+            emptyText={"Please check first."}
             emptyIcon="leaf"
             size="large"
             objective={true}
