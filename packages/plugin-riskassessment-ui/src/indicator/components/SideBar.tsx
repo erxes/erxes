@@ -6,10 +6,6 @@ type Props = {
 };
 
 class SideBar extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { queryParams } = this.props;
 
