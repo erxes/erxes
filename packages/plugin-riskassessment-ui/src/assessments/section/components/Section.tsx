@@ -20,10 +20,6 @@ type Props = {
 };
 
 class Section extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-  }
-
   renderChooserModal = (
     trigger: React.ReactNode,
     riskAssessment?: RiskAssessmentTypes
@@ -138,8 +134,6 @@ class Section extends React.Component<Props> {
     if (riskAssessments.length > 1) {
       return this.renderBulkAssessment(riskAssessments);
     }
-
-    return;
   }
 
   render() {
