@@ -108,7 +108,7 @@ export const FormContainer = styledTS<{
 }>(styled.div)`
   display: flex;
   flex-wrap: wrap;
-  padding:${({ padding }) => (padding ? padding : '')};
+  padding:${({ padding }) => (padding || '')};
   flex-direction: ${({ $row }) => $row && 'row'} ${({ $column }) =>
   $column && 'column'};
   justify-content: ${({ $spaceBetween }) =>
@@ -116,13 +116,13 @@ export const FormContainer = styledTS<{
   $spaceAround ? 'space-around' : ''};
   gap: ${({ $gap }) => ($gap ? '25px' : '')};
   gap: ${({ $gapBetween }) => ($gapBetween ? `${$gapBetween}px` : '')};
-  place-items:${({ align }) => (align ? align : '')};
+  place-items:${({ align }) => (align || '')};
   justify-content:${({ $justifyCenter }) => ($justifyCenter ? 'center' : '')}; 
-  justify-content:${({ justify }) => (justify ? justify : '')}; 
-  place-content:${({ placeContent }) => (placeContent ? placeContent : '')};
+  justify-content:${({ justify }) => (justify || '')}; 
+  place-content:${({ placeContent }) => (placeContent || '')};
   flex-wrap: ${({ $flexWrap }) => ($flexWrap ? 'wrap' : '')};
-  align-self:${({ alignSelf }) => (alignSelf ? alignSelf : '')};
-  width:${({ width }) => (width ? width : '')};
+  align-self:${({ alignSelf }) => (alignSelf || '')};
+  width:${({ width }) => (width || '')};
   ${({ $flex }) =>
     $flex
       ? `div {
@@ -444,8 +444,8 @@ export const ScheduleCard = styledTS<{
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-width: ${({ minWidth }) => (minWidth ? minWidth : '400px')};
-  max-width: ${({ maxWidth }) => (maxWidth ? maxWidth : '400px')};;
+  min-width: ${({ minWidth }) => (minWidth || '400px')};
+  max-width: ${({ maxWidth }) => (maxWidth || '400px')};;
   box-shadow: 0 0 5px 0 rgba(221, 221, 221, 0.7);
   border-radius: 15px;
   place-items: center;
