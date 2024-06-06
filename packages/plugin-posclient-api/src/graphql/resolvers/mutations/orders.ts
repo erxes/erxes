@@ -118,7 +118,7 @@ export const getStatus = (config, buttonType, doc, order?) => {
     return ORDER_STATUSES.COMPLETE;
   }
 
-  if (type === 'paid' && (!order ?? !order.paidDate)) {
+  if (type === 'paid' && (!order || !order.paidDate)) {
     return ORDER_STATUSES.PENDING;
   }
 
