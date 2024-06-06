@@ -1,24 +1,21 @@
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import React, { useState } from 'react';
-import Label from '@erxes/ui/src/components/Label';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectLabels from '../../settings/containers/SelectLabels';
-import { __ } from '@erxes/ui/src/utils';
-import dayjs from 'dayjs';
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import React, { useState } from "react";
+import Label from "@erxes/ui/src/components/Label";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import SelectLabels from "../../settings/containers/SelectLabels";
+import { __ } from "@erxes/ui/src/utils";
+import dayjs from "dayjs";
 import {
   Button,
   ControlLabel,
   Form as CommonForm,
   FormGroup,
-} from '@erxes/ui/src/components';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { IDayLabel, IDayLabelParams } from '../types';
-import {
-  MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
-} from '@erxes/ui/src/styles/eindex';
+} from "@erxes/ui/src/components";
+import { DateContainer } from "@erxes/ui/src/styles/main";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { IDayLabelParams } from "../types";
+import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -57,7 +54,7 @@ const Form = (props: Props) => {
   const removeDate = (date, e) => {
     const newDayLabelParam = { ...dayLabelParams };
     newDayLabelParam.dates = (newDayLabelParam.dates || []).filter(
-      (d) => d !== date,
+      (d) => d !== date
     );
     setDayLabelParams(newDayLabelParam);
   };
@@ -65,9 +62,9 @@ const Form = (props: Props) => {
   const onSelectDate = (value) => {
     const newDayLabelParam = { ...dayLabelParams };
 
-    const strVal = dayjs(value).format('YYYY/MM/DD');
+    const strVal = dayjs(value).format("YYYY/MM/DD");
 
-    if (strVal === 'Invalid Date') {
+    if (strVal === "Invalid Date") {
       return;
     }
 
@@ -109,8 +106,8 @@ const Form = (props: Props) => {
           <SelectBranches
             label="Choose branch"
             name="branchIds"
-            initialValue={''}
-            onSelect={(branchIds) => onSelectChange('branchIds', branchIds)}
+            initialValue={""}
+            onSelect={(branchIds) => onSelectChange("branchIds", branchIds)}
             multi={true}
           />
         </FormGroup>
@@ -119,9 +116,9 @@ const Form = (props: Props) => {
           <SelectDepartments
             label="Choose department"
             name="departmentIds"
-            initialValue={''}
+            initialValue={""}
             onSelect={(departmentIds) =>
-              onSelectChange('departmentIds', departmentIds)
+              onSelectChange("departmentIds", departmentIds)
             }
             multi={true}
           />
@@ -131,8 +128,8 @@ const Form = (props: Props) => {
           <SelectLabels
             label="Choose label"
             name="labelIds"
-            initialValue={''}
-            onSelect={(labelIds) => onSelectChange('labelIds', labelIds)}
+            initialValue={""}
+            onSelect={(labelIds) => onSelectChange("labelIds", labelIds)}
             multi={true}
           />
         </FormGroup>
