@@ -236,7 +236,7 @@ export const getNeedProductsFromFlow = async (
 
   let needProducts: IProductsData[] = [];
   const jobReferIds = beginJobs
-    .filter((bj) => bj.config && bj.config.jobReferId)
+    .filter((bj) => bj.config?.jobReferId)
     .map((bj) => bj.config.jobReferId);
   const jobRefers = await models.JobRefers.find({
     _id: { $in: jobReferIds },

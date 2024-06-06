@@ -134,12 +134,8 @@ export const getPostData = async (subdomain, pos, order) => {
     {
       date: getPureDate(order.paidDate).toISOString().slice(0, 10),
       orderId: order._id,
-      hasVat: order.taxInfo
-        ? order.taxInfo.hasVat
-        : pos.ebarimtConfig && pos.ebarimtConfig.hasVat,
-      hasCitytax: order.taxInfo
-        ? order.taxInfo.hasCitytax
-        : pos.ebarimtConfig && pos.ebarimtConfig.hasCitytax,
+      hasVat: order.taxInfo?.hasVat ?? pos.ebarimtConfig?.hasVat,
+      hasCitytax: order.taxInfo?.hasCitytax ?? pos.ebarimtConfig?.hasCitytax,
       billType: order.billType,
       customerCode,
       description: `${pos.name}`,
