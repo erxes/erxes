@@ -98,7 +98,7 @@ class FlowForm extends React.Component<Props, State> {
       name: lenFlow.length ? flow.name : "Your flow title",
       flowJobs,
       currentTab: "flowJobs",
-      isActive: (flow.status === "active" && true) || false,
+      isActive: flow.status === "active",
       showDrawer: false,
       showFlowJob: false,
       isZoomable: false,
@@ -131,7 +131,7 @@ class FlowForm extends React.Component<Props, State> {
     if (nextProps.flow !== this.props.flow) {
       this.setState({
         flowValidation: nextProps.flow.flowValidation,
-        isActive: (nextProps.flow.status === "active" && true) || false,
+        isActive: nextProps.flow.status === "active",
       });
     }
   }
@@ -153,9 +153,9 @@ class FlowForm extends React.Component<Props, State> {
         transformOrigin[0] * 100 + "% " + transformOrigin[1] * 100 + "%";
 
       // tslint:disable-next-line:prefer-for-of
-      for (let i = 0; i < p.length; i++) {
-        el.style[p[i] + "Transform"] = s;
-        el.style[p[i] + "TransformOrigin"] = oString;
+      for (let i of p) {
+        el.style[i + "Transform"] = s;
+        el.style[i + "TransformOrigin"] = oString;
       }
 
       localStorage.setItem("processFlowZoom", JSON.stringify(zoom));
@@ -337,7 +337,7 @@ class FlowForm extends React.Component<Props, State> {
       showFlowJob: true,
       showDrawer: true,
       currentTab: "flowJobs",
-      activeFlowJob: flowJob ? flowJob : ({} as IJob),
+      activeFlowJob: flowJob || ({} as IJob),
     });
   };
 
@@ -498,8 +498,8 @@ class FlowForm extends React.Component<Props, State> {
   reRenderControl = (key: string, item: IJob, onClick: any) => {
     const idElm = `${key}-${item.id}`;
 
-    jquery(`#canvas #${idElm} .job-label`).html(item.label || "Unknown");
-    jquery(`#canvas #${idElm} .job-description`).html(item.description || "");
+    jquery(`#canvas #${idElm} .job-label`).html(item.label ?? "Unknown");
+    jquery(`#canvas #${idElm} .job-description`).html(item.description ?? "");
 
     jquery("#canvas").off("dblclick", `#${idElm}`);
     jquery("#canvas").on("dblclick", `#${idElm}`, (event) => {
@@ -511,16 +511,14 @@ class FlowForm extends React.Component<Props, State> {
 
   renderButtons() {
     return (
-      <>
-        <Button
-          btnStyle="primary"
-          size="small"
-          icon="plus-circle"
-          onClick={this.toggleDrawer.bind(this, "flowJobs")}
-        >
-          Add a Job
-        </Button>
-      </>
+      <Button
+        btnStyle="primary"
+        size="small"
+        icon="plus-circle"
+        onClick={this.toggleDrawer.bind(this, "flowJobs")}
+      >
+        Add a Job
+      </Button>
     );
   }
 
@@ -554,7 +552,7 @@ class FlowForm extends React.Component<Props, State> {
             <Toggle
               defaultChecked={(flowValidation === "" && isActive) || false}
               onChange={this.onToggle}
-              disabled={flowValidation === "" ? false : true}
+              disabled={flowValidation !== ""}
             />
           </ToggleWrapper>
         )) || (
@@ -563,7 +561,7 @@ class FlowForm extends React.Component<Props, State> {
             <Toggle
               defaultChecked={(flowValidation === "" && isActive) || false}
               onChange={this.onToggle}
-              disabled={flowValidation === "" ? false : true}
+              disabled={flowValidation !== ""}
             />
             <span className={!isActive ? "active" : ""}>{__("Active")}</span>
           </ToggleWrapper>
