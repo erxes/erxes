@@ -250,8 +250,6 @@ export default function Repeat(props: Props) {
           </div>
         </>
       );
-
-    return;
   };
 
   return (
