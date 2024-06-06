@@ -1,6 +1,6 @@
 import * as compose from "lodash.flowright";
 
-import { Alert, EmptyState, Spinner, confirm } from "@erxes/ui/src";
+import { Alert, Spinner, confirm } from "@erxes/ui/src";
 import { generateParams, refetchQueries } from "../common/utilss";
 import { mutations, queries } from "../graphql";
 
@@ -21,10 +21,6 @@ type FinalProps = {
 } & Props;
 
 class List extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { listQuery, removeGroups, queryParams } = this.props;
 
