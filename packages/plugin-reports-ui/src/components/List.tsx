@@ -30,7 +30,7 @@ type Props = {
 
 function List(props: Props) {
   const { reports, loading, queryParams, removeReports } = props;
-  const [searchValue, setSearchvalue] = useState(queryParams.searchValue || "");
+  const [searchValue, setSearchValue] = useState(queryParams.searchValue || "");
   const [chosenReportIds, setChosenReportIds] = useState<any>([]);
 
   const [timer, setTimer] = useState<NodeJS.Timer>(undefined);
@@ -46,7 +46,7 @@ function List(props: Props) {
     }
 
     const value = e.target.value;
-    setSearchvalue(value);
+    setSearchValue(value);
 
     setTimer(
       setTimeout(() => {
