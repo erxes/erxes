@@ -11,7 +11,6 @@ type IProps = {
   indicator: RiskIndicatorsType;
   selectedItems: string[];
   onChange: (id: string) => void;
-  queryParams: any;
   handleDuplicate: (_id: string) => void;
 };
 
