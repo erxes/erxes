@@ -1,11 +1,11 @@
-import { ButtonMutate } from '@erxes/ui/src';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils/core';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { refetchQueries } from '../common';
-import FormComponent from '../components/Form';
-import { mutations } from '../graphql';
+import { ButtonMutate } from "@erxes/ui/src";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { withProps } from "@erxes/ui/src/utils/core";
+import * as compose from "lodash.flowright";
+import React from "react";
+import { refetchQueries } from "../common";
+import FormComponent from "../components/Form";
+import { mutations } from "../graphql";
 
 type Props = {
   queryParams: any;
@@ -14,16 +14,13 @@ type Props = {
 };
 
 class Form extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-  }
   render() {
     const renderButton = ({
       text,
       values,
       isSubmitted,
       callback,
-      object
+      object,
     }: IButtonMutateProps) => {
       return (
         <ButtonMutate
@@ -35,7 +32,7 @@ class Form extends React.Component<Props> {
           type="submit"
           uppercase={false}
           successMessage={`You successfully ${
-            object ? 'updated' : 'added'
+            object ? "updated" : "added"
           } a ${text}`}
         />
       );
@@ -43,7 +40,7 @@ class Form extends React.Component<Props> {
 
     const updatedProps = {
       ...this.props,
-      renderButton
+      renderButton,
     };
 
     return <FormComponent {...updatedProps} />;
