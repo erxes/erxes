@@ -4,19 +4,19 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-} from '@erxes/ui/src/components';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
-import { __ } from '@erxes/ui/src/utils';
-import React, { useState } from 'react';
-import { KEY_LABELS } from '../constants';
-import { ContentBox } from '../styles';
-import { IConfigsMap } from '../types';
-import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
+} from "@erxes/ui/src/components";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
+import { __ } from "@erxes/ui/src/utils";
+import React, { useState } from "react";
+import { KEY_LABELS } from "../constants";
+import { ContentBox } from "../styles";
+import { IConfigsMap } from "../types";
+import { isEnabled, loadDynamicComponent } from "@erxes/ui/src/utils/core";
 import {
   FormColumn,
   FormWrapper,
   ModalFooter,
-} from '@erxes/ui/src/styles/main';
+} from "@erxes/ui/src/styles/main";
 
 type Props = {
   configsMap: IConfigsMap;
@@ -80,49 +80,49 @@ const PerSettings = (props: Props) => {
   return (
     <CollapseContent
       title={__(config.title)}
-      open={props.currentConfigKey === 'newBrand' ? true : false}
+      open={props.currentConfigKey === "newBrand"}
     >
-      <ContentBox id={'GeneralSettingsMenu'}>
+      <ContentBox id={"GeneralSettingsMenu"}>
         <CollapseContent title="General settings">
-          {renderItem('title')}
+          {renderItem("title")}
           <FormWrapper>
             <FormColumn>
               <FormGroup>
                 <ControlLabel>Brand</ControlLabel>
                 <SelectBrands
-                  label={__('Choose brands')}
+                  label={__("Choose brands")}
                   onSelect={(brand) => onChangeBrand(brand as string)}
                   initialValue={config.brandId}
                   multi={false}
                   name="selectedBrands"
                   customOption={{
-                    label: 'No Brand (noBrand)',
-                    value: 'noBrand',
+                    label: "No Brand (noBrand)",
+                    value: "noBrand",
                   }}
                 />
               </FormGroup>
-              {renderItem('apiToken')}
+              {renderItem("apiToken")}
             </FormColumn>
             <FormColumn>
-              {renderItem('apiKey')}
-              {renderItem('apiSecret')}
+              {renderItem("apiKey")}
+              {renderItem("apiSecret")}
             </FormColumn>
           </FormWrapper>
         </CollapseContent>
         <CollapseContent title="Product to erkhet">
           <FormWrapper>
             <FormColumn>
-              {renderItem('costAccount', 'Cost Account fullCode on erkhet')}
-              {renderItem('saleAccount', 'Sale Account fullCode on erkhet')}
+              {renderItem("costAccount", "Cost Account fullCode on erkhet")}
+              {renderItem("saleAccount", "Sale Account fullCode on erkhet")}
             </FormColumn>
             <FormColumn>
               {renderItem(
-                'productCategoryCode',
-                'Default Category Code on erkhet inventory',
+                "productCategoryCode",
+                "Default Category Code on erkhet inventory"
               )}
               {renderItem(
-                'consumeDescription',
-                'Set description when incoming erkhet inventory',
+                "consumeDescription",
+                "Set description when incoming erkhet inventory"
               )}
             </FormColumn>
           </FormWrapper>
@@ -130,36 +130,36 @@ const PerSettings = (props: Props) => {
         <CollapseContent title="Customer to erkhet">
           <FormWrapper>
             <FormColumn>
-              {renderItem('checkCompanyUrl')}
+              {renderItem("checkCompanyUrl")}
               {renderItem(
-                'customerDefaultName',
-                'Customer default name on erkhet',
+                "customerDefaultName",
+                "Customer default name on erkhet"
               )}
-              {renderItem('debtAccounts', 'Split "," account fullcode')}
+              {renderItem("debtAccounts", 'Split "," account fullcode')}
             </FormColumn>
             <FormColumn>
               {renderItem(
-                'customerCategoryCode',
-                'Customer default category code on erkhet',
+                "customerCategoryCode",
+                "Customer default category code on erkhet"
               )}
               {renderItem(
-                'companyCategoryCode',
-                'Company default category code on erkhet',
+                "companyCategoryCode",
+                "Company default category code on erkhet"
               )}
             </FormColumn>
           </FormWrapper>
         </CollapseContent>
-        {isEnabled('loans') && (
+        {isEnabled("loans") && (
           <CollapseContent title="Loan transaction to erkhet">
-            {renderItem('userEmail', 'user email')}
-            {renderItem('defaultCustomer', 'Customer default code on erkhet')}
+            {renderItem("userEmail", "user email")}
+            {renderItem("defaultCustomer", "Customer default code on erkhet")}
           </CollapseContent>
         )}
-        {isEnabled('payment') && (
+        {isEnabled("payment") && (
           <CollapseContent title="Allow online payments">
             <FormWrapper>
               <FormColumn>
-                {loadDynamicComponent('selectPayments', {
+                {loadDynamicComponent("selectPayments", {
                   defaultValue: config.paymentIds || [],
                   onChange: (ids: string[]) => onChangePayments(ids),
                 })}
@@ -183,7 +183,7 @@ const PerSettings = (props: Props) => {
           icon="check-circle"
           onClick={onSave}
           uppercase={false}
-          disabled={config.brandId ? false : true}
+          disabled={!config.brandId}
         >
           Save
         </Button>
