@@ -4,13 +4,15 @@ import { IModels } from '../connectionResolver';
 interface IOption {
   label: string;
   value: string;
-  aggregate?: {
-    project?: {
-      path: string;
-      value: any;
-    };
-    lookup?: any[];
-  } | any[];
+  aggregate?:
+    | {
+        project?: {
+          path: string;
+          value: any;
+        };
+        lookup?: any[];
+      }
+    | any[];
   format?: (v: any) => any;
 }
 
@@ -22,16 +24,19 @@ export function generateAggregateOption(
 ) {
   for (let key of filter) {
     const option = options.find((row) => row.value == key);
-    if (option) {
+    if (option && option.aggregate) {
       if (__.isArray(option.aggregate)) {
         aggregate = [...aggregate, ...option.aggregate];
-      } else if (__.isObject(option.aggregate?.project)) {
+      } else if (
+        option.aggregate?.project &&
+        __.isObject(option.aggregate.project)
+      ) {
         __.set(
           project,
           option.aggregate.project.path,
           option.aggregate.project.value
         );
-        if (__.isArray(option.aggregate.lookup)) {
+        if (option?.aggregate?.lookup && __.isArray(option.aggregate.lookup)) {
           aggregate = [...aggregate, ...option.aggregate.lookup];
         }
       }
