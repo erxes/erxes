@@ -102,7 +102,7 @@ const PermissionList = (props: Props) => {
 
     const extendedProps = {
       ...props,
-      groupId: queryParams.groupId || '',
+      groupId: queryParams && (queryParams.groupId || ""),
       categoryList,
       refetchQueries,
     };
