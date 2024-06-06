@@ -22,10 +22,6 @@ const generatePercentage = (value1, value2) =>
   handleNaN(((value1 / value2) * 100).toFixed(2));
 
 class Performance extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { plan } = this.props;
     const { configs, dashboard } = plan || {};
