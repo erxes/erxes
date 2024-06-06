@@ -1,13 +1,13 @@
-import { Spinner } from '@erxes/ui/src';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { RiskAssessmentSubmitFormQueryResponse } from '../../common/types';
-import { AssessmentFilters } from '../common/types';
-import RiskAssessmentFormComponent from '../components/RiskAssessmentForm';
-import { queries } from '../graphql';
+import { Spinner } from "@erxes/ui/src";
+import { withProps } from "@erxes/ui/src/utils/core";
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import { RiskAssessmentSubmitFormQueryResponse } from "../../common/types";
+import { AssessmentFilters } from "../common/types";
+import RiskAssessmentFormComponent from "../components/RiskAssessmentForm";
+import { queries } from "../graphql";
 
 type Props = {
   filters: AssessmentFilters;
@@ -20,17 +20,9 @@ type FinalProps = {
 } & Props;
 
 class RiskAssessmentForm extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
-    const {
-      formDetailQueryResponse,
-      filters,
-      closeModal,
-      onlyPreview
-    } = this.props;
+    const { formDetailQueryResponse, filters, closeModal, onlyPreview } =
+      this.props;
 
     if (formDetailQueryResponse.loading) {
       return <Spinner />;
@@ -42,7 +34,7 @@ class RiskAssessmentForm extends React.Component<FinalProps> {
       indicators: riskAssessmentSubmitForm,
       filters,
       closeModal,
-      onlyPreview
+      onlyPreview,
     };
 
     return <RiskAssessmentFormComponent {...updatedProps} />;
@@ -52,12 +44,12 @@ class RiskAssessmentForm extends React.Component<FinalProps> {
 export default withProps(
   compose(
     graphql<Props>(gql(queries.riskAssessmentSubmitForm), {
-      name: 'formDetailQueryResponse',
+      name: "formDetailQueryResponse",
       options: ({
-        filters: { cardId, cardType, userId, riskAssessmentId }
+        filters: { cardId, cardType, userId, riskAssessmentId },
       }) => ({
-        variables: { cardId, cardType, userId, riskAssessmentId }
-      })
+        variables: { cardId, cardType, userId, riskAssessmentId },
+      }),
     })
   )(RiskAssessmentForm)
 );
