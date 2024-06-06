@@ -1,5 +1,5 @@
-import { dimensions } from '@erxes/ui/src/styles';
-import styled, { css } from 'styled-components';
+import { dimensions } from "@erxes/ui/src/styles";
+import styled from "styled-components";
 
 export const LoyaltyAmount = styled.div`
   font-weight: 800;
