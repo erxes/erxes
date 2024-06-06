@@ -118,7 +118,7 @@ export const getStatus = (config, buttonType, doc, order?) => {
     return ORDER_STATUSES.COMPLETE;
   }
 
-  if (type === 'paid' && (!order || !order.paidDate)) {
+  if (type === 'paid' && (!order ?? !order.paidDate)) {
     return ORDER_STATUSES.PENDING;
   }
 
@@ -208,7 +208,7 @@ const ordersAdd = async (
       ...doc,
       ...orderDoc,
       totalAmount: getTotalAmount(preparedDoc.items),
-      branchId: config.branchId || doc.branchId,
+      branchId: config.branchId ?? doc.branchId,
       subBranchId: doc.branchId,
       posToken: config.token,
       departmentId: config.departmentId,
@@ -322,7 +322,7 @@ const ordersEdit = async (
   // dont change isPre
   const updatedOrder = await models.Orders.updateOrder(doc._id, {
     deliveryInfo: doc.deliveryInfo,
-    branchId: config.branchId || doc.branchId,
+    branchId: config.branchId ?? doc.branchId,
     subBranchId: doc.branchId,
     customerId: doc.customerId,
     customerType: doc.customerType,
@@ -574,7 +574,7 @@ const orderMutations = {
         ebarimtConfig,
         items,
         doc.billType,
-        doc.registerNumber || order.registerNumber,
+        doc.registerNumber ?? order.registerNumber,
       );
 
       let response;
@@ -658,7 +658,7 @@ const orderMutations = {
     const order = await models.Orders.getOrder(_id);
 
     const amount =
-      (cashAmount || 0) +
+      (cashAmount ?? 0) +
       (paidAmounts || []).reduce((sum, i) => Number(sum) + Number(i.amount), 0);
 
     checkOrderStatus(order);
@@ -667,8 +667,8 @@ const orderMutations = {
     const modifier: any = {
       $set: {
         cashAmount: cashAmount
-          ? (order.cashAmount || 0) + Number(cashAmount.toFixed(2))
-          : order.cashAmount || 0,
+          ? (order.cashAmount ?? 0) + Number(cashAmount.toFixed(2))
+          : order.cashAmount ?? 0,
         paidAmounts: (order.paidAmounts || []).concat(paidAmounts || []),
         saleStatus: ORDER_SALE_STATUS.CONFIRMED,
       },
@@ -817,7 +817,7 @@ const orderMutations = {
         currency: 'MNT',
         quantity: i.count,
         unitPrice: i.unitPrice,
-        amount: i.count * (i.unitPrice || 0),
+        amount: i.count * (i.unitPrice ?? 0),
         tickUsed: true,
       })),
     };
@@ -866,7 +866,7 @@ const orderMutations = {
           data: {
             mainType: 'deal',
             mainTypeId: deal._id,
-            relType: order.customerType || 'customer',
+            relType: order.customerType ?? 'customer',
             relTypeId: order.customerId,
           },
           isRPC: true,
@@ -925,7 +925,7 @@ const orderMutations = {
       );
     }
 
-    let _id = doc._id || '';
+    let _id = doc._id ?? '';
 
     if (!_id) {
       delete doc._id;
@@ -1035,7 +1035,7 @@ const orderMutations = {
     }
 
     const amount =
-      (cashAmount || 0) +
+      (cashAmount ?? 0) +
       (paidAmounts || []).reduce((sum, i) => Number(sum) + Number(i.amount), 0);
 
     if (order.isPre) {
@@ -1046,8 +1046,8 @@ const orderMutations = {
       }
 
       const savedPaidAmount =
-        (order.cashAmount || 0) +
-        (order.mobileAmount || 0) +
+        (order.cashAmount ?? 0) +
+        (order.mobileAmount ?? 0) +
         (order.paidAmounts || []).reduce(
           (sum, i) => Number(sum) + Number(i.amount),
           0,
@@ -1076,8 +1076,8 @@ const orderMutations = {
           returnBy: posUser._id,
         },
         cashAmount: cashAmount
-          ? (order.cashAmount || 0) - Number(cashAmount.toFixed(2))
-          : order.cashAmount || 0,
+          ? (order.cashAmount ?? 0) - Number(cashAmount.toFixed(2))
+          : order.cashAmount ?? 0,
         paidAmounts: (order.paidAmounts || []).concat(
           (paidAmounts || []).map((a) => ({ ...a, amount: -1 * a.amount })),
         ),
