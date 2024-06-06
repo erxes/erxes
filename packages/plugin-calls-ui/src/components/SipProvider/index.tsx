@@ -384,7 +384,7 @@ export default class SipProvider extends React.Component<
     const options = {
       extraHeaders,
       mediaConstraints: { audio: true, video: false },
-      rtcOfferConstraints: { iceRestart: this.props.iceRestart },
+      // rtcOfferConstraints: { iceRestart: this.props.iceRestart },
       pcConfig: {
         iceServers,
       },
