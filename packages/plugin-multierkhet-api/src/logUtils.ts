@@ -1,12 +1,12 @@
-import * as _ from 'underscore';
+import * as _ from "underscore";
 import {
   putCreateLog as commonPutCreateLog,
   putDeleteLog as commonPutDeleteLog,
   putUpdateLog as commonPutUpdateLog,
-} from '@erxes/api-utils/src/logUtils';
+} from "@erxes/api-utils/src/logUtils";
 
-import { IModels } from './connectionResolver';
-import { IUserDocument } from '@erxes/api-utils/src/types';
+import { IModels } from "./connectionResolver";
+import { IUserDocument } from "@erxes/api-utils/src/types";
 
 export type LogDesc = {
   [key: string]: any;
@@ -35,7 +35,7 @@ export const putCreateLog = async (
   models: IModels,
   subdomain: string,
   params: ILogDataParams,
-  user: IUserDocument,
+  user: IUserDocument
 ) => {
   return commonPutCreateLog(
     subdomain,
@@ -43,7 +43,7 @@ export const putCreateLog = async (
       ...params,
       type: `multierkhet:${params.type}`,
     },
-    user,
+    user
   );
 };
 
@@ -56,7 +56,7 @@ export const putUpdateLog = async (
   models: IModels,
   subdomain: string,
   params: ILogDataParams,
-  user: IUserDocument,
+  user: IUserDocument
 ) => {
   return commonPutUpdateLog(
     subdomain,
@@ -64,7 +64,7 @@ export const putUpdateLog = async (
       ...params,
       type: `multierkhet:${params.type}`,
     },
-    user,
+    user
   );
 };
 
@@ -77,11 +77,11 @@ export const putDeleteLog = async (
   models: IModels,
   subdomain: string,
   params: ILogDataParams,
-  user: IUserDocument,
+  user: IUserDocument
 ) => {
   return commonPutDeleteLog(
     subdomain,
     { ...params, type: `multierkhet:${params.type}` },
-    user,
+    user
   );
 };
