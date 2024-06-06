@@ -8,7 +8,7 @@ export interface IRiskFormSubmissionDocument extends Document {
   userId: string;
   formId: string;
   fieldId: string;
-  value: Number;
+  value: number;
   description: string;
   isFlagged?: boolean;
   attachments: IAttachment[];
