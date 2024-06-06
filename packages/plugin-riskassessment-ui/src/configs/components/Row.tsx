@@ -4,11 +4,11 @@ import {
   Icon,
   ModalTrigger,
   Tip,
-  __
-} from '@erxes/ui/src';
-import moment from 'moment';
-import React from 'react';
-import Form from '../containers/Form';
+  __,
+} from "@erxes/ui/src";
+import moment from "moment";
+import React from "react";
+import Form from "../containers/Form";
 type Props = {
   queryParams: any;
   config: any;
@@ -19,9 +19,6 @@ type Props = {
 type State = {};
 
 class Row extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-  }
   render() {
     const { config, checked, selectItem } = this.props;
 
