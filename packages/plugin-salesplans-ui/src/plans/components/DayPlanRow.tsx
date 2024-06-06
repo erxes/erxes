@@ -2,7 +2,6 @@ import ActionButtons from "@erxes/ui/src/components/ActionButtons";
 import Label from "@erxes/ui/src/components/Label";
 import moment from "moment";
 import React, { useState, useRef } from "react";
-import { __ } from "@erxes/ui/src/utils";
 import { colors, IDayPlan, IPlanValue } from "../types";
 import { FormControl } from "@erxes/ui/src/components";
 import { ITimeframe } from "../../settings/types";
