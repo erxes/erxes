@@ -1,7 +1,7 @@
-import { IContext } from '../../../connectionResolver';
-import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
-import { IFlow, IFlowDocument } from '../../../models/definitions/flows';
-import { getProductAndUoms } from './utils';
+import { IContext } from "../../../connectionResolver";
+import { sendCoreMessage, sendProductsMessage } from "../../../messageBroker";
+import { IFlow, IFlowDocument } from "../../../models/definitions/flows";
+import { getProductAndUoms } from "./utils";
 
 export default {
   async __resolveReference({ _id }, { models }: IContext) {
@@ -12,9 +12,9 @@ export default {
     return (
       (await sendProductsMessage({
         subdomain,
-        action: 'findOne',
-        data: { _id: flow.productId || '' },
-        isRPC: true
+        action: "findOne",
+        data: { _id: flow.productId ?? "" },
+        isRPC: true,
       })) || undefined
     );
   },
@@ -26,20 +26,20 @@ export default {
   async latestBranch(flow: IFlowDocument, {}, { subdomain }: IContext) {
     return sendCoreMessage({
       subdomain,
-      action: 'branches.findOne',
+      action: "branches.findOne",
       data: { _id: flow.latestBranchId },
       isRPC: true,
-      defaultValue: {}
+      defaultValue: {},
     });
   },
 
   async latestDepartment(flow: IFlowDocument, {}, { subdomain }: IContext) {
     return sendCoreMessage({
       subdomain,
-      action: 'departments.findOne',
+      action: "departments.findOne",
       data: { _id: flow.latestDepartmentId },
       isRPC: true,
-      defaultValue: {}
+      defaultValue: {},
     });
   },
 
@@ -81,5 +81,5 @@ export default {
     }
 
     return latestResultProducts;
-  }
+  },
 };
