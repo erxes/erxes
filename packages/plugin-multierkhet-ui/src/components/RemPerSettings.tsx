@@ -4,13 +4,13 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-} from '@erxes/ui/src/components';
-import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
-import { __ } from '@erxes/ui/src/utils';
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import React, { useState } from 'react';
-import { IConfigsMap } from '../types';
-import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
+} from "@erxes/ui/src/components";
+import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
+import { __ } from "@erxes/ui/src/utils";
+import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import React, { useState } from "react";
+import { IConfigsMap } from "../types";
+import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
 
 type Props = {
   configsMap: IConfigsMap;
@@ -73,13 +73,13 @@ const PerSettings = (props: Props) => {
   return (
     <CollapseContent
       title={__(config.title)}
-      open={props.currentConfigKey === 'newremainderConfig' ? true : false}
+      open={props.currentConfigKey === "newremainderConfig"}
     >
       <FormGroup>
-        <ControlLabel>{'Title'}</ControlLabel>
+        <ControlLabel>{"Title"}</ControlLabel>
         <FormControl
-          defaultValue={config['title']}
-          onChange={onChangeInput.bind(this, 'title')}
+          defaultValue={config["title"]}
+          onChange={onChangeInput.bind(this, "title")}
           required={true}
           autoFocus={true}
         />
@@ -99,8 +99,8 @@ const PerSettings = (props: Props) => {
           </FormGroup>
         </FormColumn>
         <FormColumn>
-          {renderInput('account', 'account', '')}
-          {renderInput('location', 'location', '')}
+          {renderInput("account", "account", "")}
+          {renderInput("location", "location", "")}
         </FormColumn>
       </FormWrapper>
       <ModalFooter>
@@ -118,7 +118,7 @@ const PerSettings = (props: Props) => {
           icon="check-circle"
           onClick={onSave}
           uppercase={false}
-          disabled={config.pipelineId ? false : true}
+          disabled={!config.pipelineId}
         >
           Save
         </Button>
