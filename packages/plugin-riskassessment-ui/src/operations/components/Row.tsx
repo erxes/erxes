@@ -12,10 +12,6 @@ type Props = {
 };
 
 class Row extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { operation, level, selectedItems } = this.props;
 
