@@ -84,10 +84,10 @@ export const checkPricing = async (
       item.bonusCount = bonusProductsToAdd[bonusProductId].count;
 
       if ((item.bonusCount || 0) > item.count) {
-        item.count = item.bonusCount || 0;
+        item.count = item.bonusCount ?? 0;
       }
       item.unitPrice = Math.floor(
-        (item.unitPrice * (item.count - (item.bonusCount || 0))) / item.count
+        (item.unitPrice * (item.count - (item.bonusCount ?? 0))) / item.count
       );
     }
   }
