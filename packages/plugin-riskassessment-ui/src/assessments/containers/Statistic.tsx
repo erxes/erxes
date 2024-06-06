@@ -1,10 +1,9 @@
 import { gql, useQuery } from "@apollo/client";
 
 import { Description } from "@erxes/ui-settings/src/styles";
-import { FormContainer } from "../../styles";
+import { FormContainer, Box as StatusBox } from "../../styles";
 import React from "react";
 import Spinner from "@erxes/ui/src/components/Spinner";
-import { Box as StatusBox } from "../../styles";
 import { __ } from "@erxes/ui/src/utils/core";
 import { generateParams } from "./List";
 import queries from "../graphql/queries";
