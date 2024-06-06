@@ -1,12 +1,8 @@
-import Response from './containers/Response';
-import React from 'react';
+import Response from "./containers/Response";
+import React from "react";
 
 const returnResponse = ({ currentUser }) => {
-  return (
-    <React.Fragment>
-      <Response />
-    </React.Fragment>
-  );
+  return <Response />;
 };
 
 export default returnResponse;
