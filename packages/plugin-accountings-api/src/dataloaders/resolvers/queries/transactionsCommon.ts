@@ -8,6 +8,8 @@ import { TR_STATUSES } from '../../../models/definitions/constants';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { generateFilter as accountGenerateFilter } from './accounts';
+import { IFollowsForTr, IHiddenTransaction, ITransactionDocument } from '../../../models/definitions/transaction';
+import { canShowTr, canShowTrs } from '../../../utils/trPermissions';
 
 interface IQueryParams {
   ids?: string[];
@@ -146,16 +148,17 @@ const generateFilter = async (
 const transactionCommon = {
   async transactionDetail(
     _root,
-    params: { id: string },
-    { models }: IContext,
+    params: { _id: string },
+    { models, user }: IContext,
   ) {
-    const { id } = params;
-    let firstTr = await models.Transactions.getTransaction({ _id: id });
+    const { _id } = params;
+    let firstTr = await models.Transactions.getTransaction({ $or: [{ _id }, { parentId: _id }] });
     if (firstTr.originId) {
       firstTr = await models.Transactions.getTransaction({ _id: firstTr.originId });
     }
 
-    return await models.Transactions.find({ $or: [{ ptrId: firstTr.ptrId }, { parentId: firstTr.parentId }] })
+    const relatedTrs: ITransactionDocument[] = await models.Transactions.find({ $or: [{ ptrId: firstTr.ptrId }, { parentId: firstTr.parentId }] }).lean();
+    return await canShowTrs(models, relatedTrs, user);
   },
 
   async transactions(
@@ -207,7 +210,7 @@ const transactionCommon = {
       user,
     );
 
-    return models.Transactions.find(filter).count();
+    return models.Transactions.find(filter).countDocuments();
   },
 };
 

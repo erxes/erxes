@@ -43,14 +43,15 @@ export interface ICashTrInput extends ISingleTrInput { }
 export interface IFundTrInput extends ISingleTrInput { }
 export interface IDebtTrInput extends ISingleTrInput { }
 
+export interface IFollowsForTr {
+  type: string;
+  id: string;
+}
 export interface ITrDetail {
   _id: string;
   accountId: string;
   originId?: string;
-  follows?: {
-    type: string;
-    id: string;
-  }[];
+  follows?: IFollowsForTr[];
 
   side: string;
   amount: number;
@@ -74,10 +75,7 @@ export interface ITransaction {
   journal: string;
   ptrStatus?: string;
   originId?: string;
-  follows?: {
-    type: string;
-    id: string;
-  }[];
+  follows?: IFollowsForTr[];
   preTrId?: string;
 
   branchId?: string;
@@ -104,6 +102,24 @@ export interface ITransactionDocument extends ITransaction, Document {
   createdAt: Date;
   modifiedAt?: Date;
 
+  sumDt: number;
+  sumCt: number;
+}
+
+export interface IHiddenTransaction extends Document {
+  _id: string,
+  parentId: string,
+  ptrId: string,
+  ptrStatus: string;
+  originId?: string,
+  follows?: IFollowsForTr[]
+  details: {
+    _id: string;
+    originId?: string;
+    follows?: IFollowsForTr[];
+
+    side: string;
+  }[]
   sumDt: number;
   sumCt: number;
 }
@@ -158,7 +174,7 @@ export const transactionSchema = schemaWrapper(
       index: true,
     }),
     ptrId: field({ type: String, label: 'Group' }),
-    parentId: field({ type: String, optional: true, label: 'parentId', index: true }),
+    parentId: field({ type: String, optional: true, label: 'Parent ID', index: true }),
     number: field({ type: String, optional: true, label: 'Number', index: true }),
     journal: field({
       type: String,
@@ -175,7 +191,7 @@ export const transactionSchema = schemaWrapper(
       optional: true,
       index: true,
     }),
-    originId: field({ type: String, label: 'Group' }),
+    originId: field({ type: String, label: 'Source Transaction' }),
     follows: field({
       type: [followInfoSchema], label: 'Follower transactions'
     }),

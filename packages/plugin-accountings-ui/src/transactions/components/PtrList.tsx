@@ -1,18 +1,17 @@
-import { __, router } from "@erxes/ui/src/utils";
-import { IAccount, IAccountCategory } from "../types";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Alert, __, confirm, router } from "@erxes/ui/src/utils";
+import { ITransaction } from "../types";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 
 import { BarItems } from "@erxes/ui/src/layout/styles";
 import Button from "@erxes/ui/src/components/Button";
-import CategoryList from "../containers/AccountCategoryList";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
-import Form from "../containers/AccountForm";
+// import Form from "../containers/AccountForm";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
-import Row from "./AccountRow";
+import Row from "./PtrRow";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import Table from "@erxes/ui/src/components/table";
 import { Title } from "@erxes/ui/src/styles/main";
@@ -20,33 +19,31 @@ import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 
 interface IProps {
   queryParams: any;
-  accounts: IAccount[];
-  accountsCount: number;
+  transactions: ITransaction[];
+  transactionsCount: number;
   isAllSelected: boolean;
   bulk: any[];
   emptyBulk: () => void;
   remove: (accountIds: string[], emptyBulk: () => void) => void;
   toggleBulk: () => void;
-  toggleAll: (targets: IAccount[], containerId: string) => void;
+  toggleAll: (targets: ITransaction[], containerId: string) => void;
   loading: boolean;
   searchValue: string;
-  currentCategory: IAccountCategory;
 }
 
-const AccountList: React.FC<IProps> = (props) => {
+const PtrList: React.FC<IProps> = (props) => {
   let timer;
 
   const {
-    accounts,
+    transactions,
     toggleBulk,
     bulk,
     toggleAll,
     remove,
     emptyBulk,
     loading,
-    currentCategory,
     isAllSelected,
-    accountsCount,
+    transactionsCount,
     queryParams,
   } = props;
 
@@ -63,29 +60,29 @@ const AccountList: React.FC<IProps> = (props) => {
   }, [checked, bulk]);
 
   const renderRow = () => {
-    return accounts.map((account) => (
+    return transactions.map((transaction) => (
       <Row
-        key={account._id}
-        account={account}
+        key={transaction._id}
+        transaction={transaction}
         toggleBulk={toggleBulk}
-        isChecked={(bulk || []).map((b) => b._id).includes(account._id)}
+        isChecked={(bulk || []).map((b) => b._id).includes(transaction._id)}
       />
     ));
   };
 
   const onChange = () => {
-    toggleAll(accounts, "accounts");
+    toggleAll(transactions, "transactions");
 
-    if (bulk.length === accounts.length) {
+    if (bulk.length === transactions.length) {
       router.removeParams(navigate, location, "ids");
       router.setParams(navigate, location, { page: 1 });
     }
   };
 
-  const removeAccounts = (accounts) => {
+  const removeAccounts = (transactions) => {
     const accountIds: string[] = [];
 
-    accounts.forEach((account) => {
+    transactions.forEach((account) => {
       accountIds.push(account._id);
     });
 
@@ -119,7 +116,7 @@ const AccountList: React.FC<IProps> = (props) => {
       return <Spinner objective={true} />;
     }
 
-    if (!accountsCount) {
+    if (!transactionsCount) {
       return (
         <EmptyState
           image="/images/actions/8.svg"
@@ -189,7 +186,7 @@ const AccountList: React.FC<IProps> = (props) => {
     </Button>
   );
 
-  const modalContent = (props) => <Form {...props} />;
+  // const modalContent = (props) => <Form {...props} />;
 
   const actionBarRight = () => {
     if (bulk.length > 0) {
@@ -233,7 +230,8 @@ const AccountList: React.FC<IProps> = (props) => {
           title="Add Account"
           trigger={trigger}
           autoOpenKey="showAccountModal"
-          content={modalContent}
+          content={'modalContent'}
+          // content={modalContent}
           size="lg"
         />
       </BarItems>
@@ -241,15 +239,14 @@ const AccountList: React.FC<IProps> = (props) => {
   };
 
   const actionBarLeft = (
-    <Title>{`${currentCategory?.name || "All accounts"
-      } (${accountsCount})`}</Title>
+    <Title>{`Transactions (${transactionsCount})`}</Title>
   );
 
   return (
     <Wrapper
       header={
         <Wrapper.Header
-          title={__("Accounts")}
+          title={__("Perfect Transactions")}
           queryParams={queryParams}
           breadcrumb={breadcrumb}
         />
@@ -259,17 +256,17 @@ const AccountList: React.FC<IProps> = (props) => {
           icon="/images/actions/30.svg"
           title={"Accounts"}
           description={`${__(
-            "All information and know-how related to your business accounts and services are found here"
+            "All information and know-how related to your business transactions and services are found here"
           )}.${__(
-            "Create and add in unlimited accounts and servicess so that you and your team members can edit and share"
+            "Create and add in unlimited transactions and servicess so that you and your team members can edit and share"
           )}`}
         />
       }
       actionBar={
         <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight()} />
       }
-      leftSidebar={<CategoryList queryParams={queryParams} />}
-      footer={<Pagination count={accountsCount} />}
+      // leftSidebar={<CategoryList queryParams={queryParams} />}
+      footer={<Pagination count={transactionsCount} />}
       content={renderContent()}
       transparent={true}
       hasBorder={true}
@@ -277,4 +274,4 @@ const AccountList: React.FC<IProps> = (props) => {
   );
 };
 
-export default AccountList;
+export default PtrList;

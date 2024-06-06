@@ -13,6 +13,13 @@ module.exports = {
   },
   menus: [
     {
+      text: "Accountings",
+      url: "/accountings/ptrs",
+      icon: "icon-lamp",
+      location: "mainNavigation",
+      permission: "showAccounts",
+    },
+    {
       text: 'Accounts',
       to: '/accountings/accounts',
       image: '/images/icons/erxes-31.png',

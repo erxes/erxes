@@ -67,8 +67,8 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
       const lastDoc = {
         ...doc,
         _id,
-        ptrId: doc.ptrId ?? nanoid(),
-        parentId: doc.parentId ?? _id,
+        ptrId: doc.ptrId || nanoid(),
+        parentId: doc.parentId || _id,
         ptrStatus: PTR_STATUSES.UNKNOWN,
         sumDt: doc.details.filter(d => d.side === TR_SIDES.DEBIT).reduce((sum, cur) => sum + cur.amount, 0),
         sumCt: doc.details.filter(d => d.side === TR_SIDES.CREDIT).reduce((sum, cur) => sum + cur.amount, 0),
@@ -90,7 +90,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
       await models.Transactions.updateOne({ _id }, {
         $set: {
           ...doc,
-          parentId: doc.parentId ?? _id,
+          parentId: doc.parentId || _id,
           sumDt: doc.details.filter(d => d.side === TR_SIDES.DEBIT).reduce((sum, cur) => sum + cur.amount, 0),
           sumCt: doc.details.filter(d => d.side === TR_SIDES.CREDIT).reduce((sum, cur) => sum + cur.amount, 0),
           modifiedAt: new Date()

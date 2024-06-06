@@ -126,14 +126,15 @@ const trsQueryParams = `
 `;
 
 export const queries = `
-  mainTransactions(
+  transactions(
     ${trsQueryParams},
     page: Int,
     perPage: Int,
     sortField: String
     sortDirection: Int
   ): [CommonTransaction]
-  mainTrTotalCount(${trsQueryParams}): Int
+  transactionDetail(_id: String!): CommonTransaction
+  transactionsCount(${trsQueryParams}): Int
   ptrs(
     ${trsQueryParams},
     page: Int,

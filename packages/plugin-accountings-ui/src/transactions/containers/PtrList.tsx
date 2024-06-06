@@ -1,14 +1,13 @@
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { Alert, confirm } from "@erxes/ui/src/utils";
 import {
-  AccountCategoryDetailQueryResponse,
-  RemoveAccountMutationResponse,
-  AccountsCountQueryResponse,
-  AccountsQueryResponse,
+  RemoveMainTrMutationResponse,
+  TransactionsCountQueryResponse,
+  TransactionsQueryResponse,
 } from "../types";
 import { mutations, queries } from "../graphql";
 import Bulk from "@erxes/ui/src/components/Bulk";
-import List from "../components/AccountList";
+import List from "../components/PtrList";
 import React, { useMemo } from 'react';
 
 type Props = {
@@ -16,7 +15,7 @@ type Props = {
   type?: string;
 };
 
-const AccountListContainer = (props: Props) => {
+const PtrListContainer = (props: Props) => {
 
   const {
     queryParams,
@@ -29,38 +28,26 @@ const AccountListContainer = (props: Props) => {
     };
   }, [queryParams]);
 
-  const accountsQuery = useQuery<AccountsQueryResponse>(
-    gql(queries.accounts),
+  const transactionsQuery = useQuery<TransactionsQueryResponse>(
+    gql(queries.transactions),
     {
       variables: variables
     }
   );
 
-  const accountsCountQuery = useQuery<AccountsCountQueryResponse>(
-    gql(queries.accountsCount),
+  const transactionsCountQuery = useQuery<TransactionsCountQueryResponse>(
+    gql(queries.transactionsCount),
     {
       variables: variables
     }
   );
-
-  const accountCategoryDetailQuery = useQuery<AccountCategoryDetailQueryResponse>(
-    gql(queries.accountCategoryDetail),
-    {
-      skip: !queryParams.categoryId,
-      fetchPolicy: "cache-and-network",
-      variables: { _id: queryParams.categoryId }
-    }
-  )
 
   const refetchQueries = [
-    "Accounts",
-    "AccountCategories",
-    "AccountCategoriesCount",
-    "AccountsCount",
+
   ];
 
-  const [removeAccountMutation] = useMutation<RemoveAccountMutationResponse>(
-    gql(mutations.accountsRemove),
+  const [removeAccountMutation] = useMutation<RemoveMainTrMutationResponse>(
+    gql(mutations.ptrRemove),
     {
       refetchQueries
     }
@@ -76,7 +63,7 @@ const AccountListContainer = (props: Props) => {
           // refresh queries
 
           emptyBulk();
-          const status = removeStatus.data?.removeAccountMutation || '';
+          const status = removeStatus.data?.removeMainTrMutation || '';
 
           // status === "deleted"
           //   ? Alert.success("You successfully deleted a Account")
@@ -88,9 +75,8 @@ const AccountListContainer = (props: Props) => {
     });
   };
 
-  const accounts = accountsQuery.data?.accounts || [];
-  const accountsCount = accountsCountQuery.data?.accountsCount || 0;
-  const currentCategory = accountCategoryDetailQuery?.data?.accountCategoryDetail;
+  const accounts = transactionsQuery.data?.transactions || [];
+  const accountsCount = transactionsCountQuery.data?.transactionsCount || 0;
 
   const searchValue = props.queryParams.searchValue || "";
 
@@ -99,10 +85,9 @@ const AccountListContainer = (props: Props) => {
     queryParams,
     accounts,
     remove,
-    loading: accountsQuery.loading || accountsCountQuery.loading || (accountCategoryDetailQuery && accountCategoryDetailQuery.loading),
+    loading: transactionsQuery.loading || transactionsCountQuery.loading,
     searchValue,
     accountsCount,
-    currentCategory,
   };
 
   const AccountList = (props) => {
@@ -112,4 +97,4 @@ const AccountListContainer = (props: Props) => {
   return <Bulk content={AccountList} />;
 };
 
-export default AccountListContainer;
+export default PtrListContainer;
