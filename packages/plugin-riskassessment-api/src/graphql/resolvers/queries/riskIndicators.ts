@@ -31,7 +31,7 @@ const generateConfigFilter = params => {
 const generateGroupsFilter = params => {
   let filter: any = {};
 
-  if (!!params?.ids?.length) {
+  if (params?.ids?.length) {
     filter._id = { $in: params.ids };
   }
 
