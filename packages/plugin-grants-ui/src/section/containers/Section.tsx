@@ -1,13 +1,12 @@
 import React from 'react';
 import { gql } from '@apollo/client';
 import { queries } from '../graphql';
-import { RequestQueryResponse } from '../../common/type';
+import { RequestQueryResponse, IGrantRequest } from '../../common/type';
 import { Spinner, withCurrentUser } from '@erxes/ui/src';
 
 import SectionComponent from '../components/Section';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { useQuery } from '@apollo/client';
-import { IGrantRequest } from '../../common/type';
 
 type Props = {
   history: any;
