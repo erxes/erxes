@@ -70,7 +70,6 @@ function Pipelines(props: Props) {
     props.pipelines || []
   );
   const [isDragDisabled, setIsDragDisabled] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
 
   useEffect(() => {
     if (props.pipelines !== pipelines) {
