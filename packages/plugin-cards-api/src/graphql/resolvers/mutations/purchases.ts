@@ -1,4 +1,3 @@
-import * as _ from 'underscore';
 import { nanoid } from 'nanoid';
 import { IItemDragCommonFields } from '../../../models/definitions/boards';
 import {
