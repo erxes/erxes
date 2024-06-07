@@ -1,4 +1,4 @@
-import { userTypes } from '../../common/graohql';
+import {  userTypes } from '../../common/graohql';
 
 const commonParams = `
     $perpage: Int,
