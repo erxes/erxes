@@ -78,13 +78,14 @@ const PipelinesContainer: React.FC<Props> = (props: Props) => {
   const archive = (pipelineId: string, status: string) => {
     let message = `This will archive the current pipeline. Are you absolutely sure?`;
     let action = "archived";
-    let successMessage = __(`You successfully ${action} a`);
-
+    
     if (status === "archived") {
       message = `This will unarchive the current pipeline. Are you absolutely sure?`;
       action = "unarchived";
     }
-
+    
+    let successMessage = __(`You successfully ${action} a`);
+    
     confirm(message).then(() => {
       archivePipelineMutation({
         variables: { _id: pipelineId },
