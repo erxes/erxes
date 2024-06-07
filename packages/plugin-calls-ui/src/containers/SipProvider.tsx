@@ -7,6 +7,7 @@ import { mutations, queries, subscriptions } from '../graphql';
 import { Alert } from '@erxes/ui/src/utils';
 import { CALL_DIRECTION_INCOMING } from '../lib/enums';
 import CallIntegrationForm from '../components/Form';
+import { CallWrapper } from '../styles';
 import IncomingCallContainer from './IncomingCall';
 import { ModalTrigger } from '@erxes/ui/src/components';
 import SipProvider from '../components/SipProvider';
@@ -24,6 +25,8 @@ const SipProviderContainer = (props) => {
   );
   const [historyId, setHistoryId] = useState('');
   const [hideIncomingCall, setHideIncomingCall] = useState(false);
+  const [currentCallConversationId, setCurrentCallConversationId] =
+    useState('');
 
   const { data, loading, error } = useQuery(gql(queries.callUserIntegrations));
   const { data: callConfigData, loading: callConfigLoading } = useQuery(
@@ -80,7 +83,9 @@ const SipProviderContainer = (props) => {
     callStatus: string,
     direction: string,
     customerPhone: string,
+    transferStatus?: string,
   ) => {
+    const transferedCallStatus = localStorage.getItem('transferedCallStatus');
     let duration = 0;
     if (callStartTime && callEndTime) {
       const startedMoment = moment(callStartTime);
@@ -98,6 +103,9 @@ const SipProviderContainer = (props) => {
           callStatus,
           callType: direction,
           customerPhone,
+          transferedCallStatus: transferStatus
+            ? 'remote'
+            : transferedCallStatus,
         },
         refetchQueries: ['callHistories'],
       })
@@ -152,7 +160,10 @@ const SipProviderContainer = (props) => {
     })
       .then(({ data }: any) => {
         const callHistoryId = data?.callHistoryAdd?._id;
+        const callConversationId = data?.callHistoryAdd?.conversationId;
         setHistoryId(callHistoryId);
+        setCurrentCallConversationId(callConversationId);
+
         Alert.success('Successfully updated status');
       })
       .catch((e) => {
@@ -196,11 +207,13 @@ const SipProviderContainer = (props) => {
 
   if (!config.isAvailable) {
     return (
-      <WidgetContainer
-        {...props}
-        callUserIntegrations={callUserIntegrations}
-        setConfig={handleSetConfig}
-      />
+      <CallWrapper>
+        <WidgetContainer
+          {...props}
+          callUserIntegrations={callUserIntegrations}
+          setConfig={handleSetConfig}
+        />
+      </CallWrapper>
     );
   }
 
@@ -248,32 +261,36 @@ const SipProviderContainer = (props) => {
   };
 
   return (
-    <SipProvider
-      {...sipConfig}
-      createSession={createSession}
-      updateHistory={updateHistory}
-      addHistory={addHistory}
-      callUserIntegration={filteredIntegration}
-    >
-      {(state) => (
-        <>
-          {state?.callDirection === CALL_DIRECTION_INCOMING && (
-            <IncomingCallContainer
+    <CallWrapper>
+      <SipProvider
+        {...sipConfig}
+        createSession={createSession}
+        updateHistory={updateHistory}
+        addHistory={addHistory}
+        callUserIntegration={filteredIntegration}
+      >
+        {(state) => (
+          <>
+            {state?.callDirection === CALL_DIRECTION_INCOMING && (
+              <IncomingCallContainer
+                {...props}
+                callUserIntegrations={callUserIntegrations}
+                hideIncomingCall={hideIncomingCall}
+                currentCallConversationId={currentCallConversationId || ''}
+              />
+            )}
+            <WidgetContainer
               {...props}
               callUserIntegrations={callUserIntegrations}
+              setConfig={handleSetConfig}
+              setHideIncomingCall={setHideIncomingCall}
               hideIncomingCall={hideIncomingCall}
+              currentCallConversationId={currentCallConversationId || ''}
             />
-          )}
-          <WidgetContainer
-            {...props}
-            callUserIntegrations={callUserIntegrations}
-            setConfig={handleSetConfig}
-            setHideIncomingCall={setHideIncomingCall}
-            hideIncomingCall={hideIncomingCall}
-          />
-        </>
-      )}
-    </SipProvider>
+          </>
+        )}
+      </SipProvider>
+    </CallWrapper>
   );
 };
 

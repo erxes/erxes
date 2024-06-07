@@ -53,9 +53,8 @@ class CategoryFormContainer extends React.Component<FinalProps> {
           isSubmitted={isSubmitted}
           type="submit"
           uppercase={false}
-          successMessage={`You successfully ${
-            object ? 'updated' : 'added'
-          } a ${name}`}
+          successMessage={`You successfully ${object ? 'updated' : 'added'
+            } a ${name}`}
         />
       );
     };
@@ -64,8 +63,7 @@ class CategoryFormContainer extends React.Component<FinalProps> {
       return <Spinner />;
     }
 
-    const fieldGroups =
-      (fieldsGroupsQuery && fieldsGroupsQuery.fieldsGroups) || [];
+    const fieldGroups = fieldsGroupsQuery?.fieldsGroups ?? [];
 
     const updatedProps = {
       ...this.props,

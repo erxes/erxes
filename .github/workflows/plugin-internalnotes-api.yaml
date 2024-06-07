@@ -9,9 +9,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-internalnotes-api/**"
-      - ".github/workflows/plugin-internalnotes-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-internalnotes-api/**'
+      - '.github/workflows/plugin-internalnotes-api.yaml'
   pull_request:
     branches:
       - dev
@@ -20,9 +20,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-internalnotes-api/**"
-      - ".github/workflows/plugin-internalnotes-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-internalnotes-api/**'
+      - '.github/workflows/plugin-internalnotes-api.yaml'
 
 jobs:
   api:

@@ -1,23 +1,23 @@
+import { Action, Name } from "../../styles";
 import {
-  __,
   Alert,
   Button,
-  confirm,
   DropdownToggle,
   Icon,
   MainStyleInfoWrapper as InfoWrapper,
   ModalTrigger,
   Sidebar,
+  __,
+  confirm,
 } from "@erxes/ui/src";
-import React from "react";
-import Dropdown from "@erxes/ui/src/components/Dropdown";
 
-import CarForm from "../../containers/CarForm";
-import { Action, Name } from "../../styles";
-import { ICar } from "../../types";
-import DetailInfo from "./DetailInfo";
-import { IAttachment } from "@erxes/ui/src/types";
 import Attachment from "@erxes/ui/src/components/Attachment";
+import CarForm from "../../containers/CarForm";
+import DetailInfo from "./DetailInfo";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import { IAttachment } from "@erxes/ui/src/types";
+import { ICar } from "../../types";
+import React from "react";
 
 type Props = {
   car: ICar;
@@ -28,23 +28,6 @@ const { Section } = Sidebar;
 
 const BasicInfoSection = (props: Props) => {
   const { car, remove } = props;
-
-  const renderEditForm = () => {
-    const content = (props) => <CarForm {...props} car={car} />;
-
-    return (
-      <ModalTrigger
-        title="Edit basic info"
-        trigger={
-          <li>
-            <a href="#edit">{__("Edit")}</a>
-          </li>
-        }
-        size="lg"
-        content={content}
-      />
-    );
-  };
 
   const renderImage = (item?: IAttachment) => {
     if (!item) {
@@ -62,10 +45,20 @@ const BasicInfoSection = (props: Props) => {
           Alert.error(error.message);
         });
 
+    const carForm = (props) => <CarForm {...props} car={car} />;
+
+    const menuItems = [
+      {
+        title: "Edit basic info",
+        trigger: <a href="#edit">{__("Edit")}</a>,
+        content: carForm,
+        additionalModalProps: { size: "lg" },
+      },
+    ];
+
     return (
       <Action>
         <Dropdown
-          unmount={false}
           as={DropdownToggle}
           toggleComponent={
             <Button btnStyle="simple" size="medium">
@@ -73,8 +66,8 @@ const BasicInfoSection = (props: Props) => {
               <Icon icon="angle-down" />
             </Button>
           }
+          modalMenuItems={menuItems}
         >
-          {renderEditForm()}
           <li>
             <a href="#delete" onClick={onDelete}>
               {__("Delete")}

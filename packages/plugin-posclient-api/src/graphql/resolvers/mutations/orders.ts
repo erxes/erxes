@@ -24,7 +24,6 @@ import {
   checkOrderStatus,
   cleanOrderItems,
   generateOrderNumber,
-  getDistrictName,
   getTotalAmount,
   prepareEbarimtData,
   prepareOrderDoc,
@@ -35,6 +34,7 @@ import {
 } from '../../utils/orderUtils';
 import { checkSlotStatus } from '../../utils/slots';
 import { prepareSettlePayment } from '../../../utils';
+import { IDoc } from '../../../models/PutData';
 
 interface IPaymentBase {
   billType: string;
@@ -437,7 +437,7 @@ const orderMutations = {
           action: 'createOrUpdateOrders',
           data: { action: 'statusToDone', order, posToken: config.token },
         });
-      } catch (e) {}
+      } catch (e) { }
     }
     return await models.Orders.getOrder(_id);
   },
@@ -568,7 +568,7 @@ const orderMutations = {
     try {
       const ebarimtResponses: any[] = [];
 
-      const ebarimtDatas = await prepareEbarimtData(
+      const ebarimtData: IDoc = await prepareEbarimtData(
         models,
         order,
         ebarimtConfig,
@@ -577,20 +577,13 @@ const orderMutations = {
         doc.registerNumber || order.registerNumber,
       );
 
-      ebarimtConfig.districtName = getDistrictName(
-        (config.ebarimtConfig && config.ebarimtConfig.districtCode) || '',
+      let response;
+
+      response = await models.PutResponses.putData(
+        { ...ebarimtData },
+        ebarimtConfig
       );
-
-      for (const data of ebarimtDatas) {
-        let response;
-
-        response = await models.PutResponses.putData({
-          ...data,
-          config: ebarimtConfig,
-          models,
-        });
-        ebarimtResponses.push(response);
-      }
+      ebarimtResponses.push(response);
 
       if (
         ebarimtResponses.length &&
@@ -692,8 +685,8 @@ const orderMutations = {
           _id: { $in: items.map((i) => i.productId) },
         }).lean();
         for (const item of items) {
-          const product = products.find((p) => p._id === item.productId) || {};
-          item.productName = `${product.code} - ${product.name}`;
+          const product = products.find((p) => p._id === item.productId);
+          item.productName = `${product?.code} - ${product?.name}`;
         }
       }
 
@@ -847,9 +840,8 @@ const orderMutations = {
             lng: marker.longitude || marker.lng,
             description: 'location',
           },
-          stringValue: `${marker.longitude || marker.lng},${
-            marker.latitude || marker.lat
-          }`,
+          stringValue: `${marker.longitude || marker.lng},${marker.latitude || marker.lat
+            }`,
         },
       ];
     }
@@ -912,12 +904,10 @@ const orderMutations = {
           '',
         content: `
           Pos order:
-            paid link: <a href="/pos-orders?posId=${config.posId}&search=${
-              order.number
-            }">${order.number}</a> <br />
-            posclient link: <a href="${config.pdomain || '/'}?orderId=${
-              order._id
-            }">${order.number}</a> <br />
+            paid link: <a href="/pos-orders?posId=${config.posId}&search=${order.number
+          }">${order.number}</a> <br />
+            posclient link: <a href="${config.pdomain ?? '/'}?orderId=${order._id
+          }">${order.number}</a> <br />
         `,
       },
       isRPC: true,
@@ -1100,12 +1090,14 @@ const orderMutations = {
       throw new Error('Please check ebarimt config');
     }
 
-    let returnResponses = (await models.PutResponses.returnBill({
-      contentId: _id,
-      contentType: 'pos',
-      number: order.number || '',
-      config: ebarimtConfig,
-    })) as any;
+    let returnResponses = (await models.PutResponses.returnBill(
+      {
+        contentId: _id,
+        contentType: 'pos',
+        number: order.number ?? ''
+      },
+      ebarimtConfig,
+    )) as any;
 
     if (returnResponses.error) {
       returnResponses = [];

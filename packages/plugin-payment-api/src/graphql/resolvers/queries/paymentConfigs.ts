@@ -2,7 +2,7 @@ import { paginate } from '@erxes/api-utils/src/core';
 import { IContext } from '../../../connectionResolver';
 
 const queries = {
-  getPaymentConfig(
+  async getPaymentConfig(
     _root,
     args: { contentType: string; contentTypeId: string },
     { models }: IContext

@@ -6,6 +6,8 @@ import React from 'react';
 import { Spinner } from '@erxes/ui/src/components';
 import { gql } from '@apollo/client';
 import { useQuery, useMutation } from '@apollo/client';
+import { queries as formQueries } from "@erxes/ui-forms/src/settings/properties/graphql";
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   component: any;
@@ -22,12 +24,26 @@ const SettingsContainer: React.FC<FinalProps> = (props) => {
     fetchPolicy: 'network-only',
   });
 
+  const fieldsQuery = useQuery(gql(formQueries.fieldsGroups), {
+    variables: { contentType: 'cards:deal' },
+    skip: !isEnabled("forms") || props.configCode !== 'EBARIMT',
+  });
+
   const [updateConfigs] = useMutation(gql(mutations.updateConfigs));
 
   if (configsQuery.loading) {
     return <Spinner />;
   }
 
+  let fieldGroups = [];
+
+  if (fieldsQuery && fieldsQuery.called) {
+    if (fieldsQuery.loading) {
+      return <Spinner />;
+    }
+
+    fieldGroups = fieldsQuery?.data?.fieldsGroups || [];
+  }
   // create or update action
   const save = (map: IConfigsMap) => {
     updateConfigs({
@@ -49,7 +65,7 @@ const SettingsContainer: React.FC<FinalProps> = (props) => {
   const configsMap = { [config.code]: config.value };
   const Component = props.component;
 
-  return <Component {...props} configsMap={configsMap} save={save} />;
+  return <Component {...props} configsMap={configsMap} save={save} fieldGroups={fieldGroups} />;
 };
 
 export default SettingsContainer;

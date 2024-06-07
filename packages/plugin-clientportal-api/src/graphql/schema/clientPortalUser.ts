@@ -205,8 +205,8 @@ export const mutations = () => `
   clientPortalLoginWithMailOTP(email: String!, clientPortalId: String!, deviceToken: String): JSON
   clientPortalLoginWithSocialPay(clientPortalId: String!, token: String!) : JSON
   clientPortalRefreshToken: String
-  clientPortalGoogleAuthentication(clientPortalId: String, code: String): JSON
-  clientPortalFacebookAuthentication(accessToken: String, clientPortalId: String!): JSON
+  clientPortalGoogleAuthentication(clientPortalId: String!, code: String!): JSON
+  clientPortalFacebookAuthentication(accessToken: String!, clientPortalId: String!): JSON
   clientPortalLogout: String
   
   clientPortalUsersReplacePhone(clientPortalId: String!, phone: String!): String!

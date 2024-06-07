@@ -6,7 +6,7 @@ const EditorToolbarWrapper = styled.div`
   gap: 0.325rem;
   padding: 0.625rem;
   border-bottom: 0.0625rem solid #e9ecef;
-  height: 49px;
+  min-height: 49px;
   overflow: visible !important;
 
   .Select-control {

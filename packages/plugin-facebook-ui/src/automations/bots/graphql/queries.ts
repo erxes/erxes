@@ -36,6 +36,7 @@ const detail = `
         persistentMenus {
           _id,text,type,link
         }
+        greetText
       }
     }
 `;

@@ -5,16 +5,19 @@ import {
   ModalTrigger,
   Tip,
   __,
-} from '@erxes/ui/src';
-import React from 'react';
-import DetailForm from './DetailForm';
-import { INonBalanceTransaction } from '../types';
-import dayjs from 'dayjs';
+} from "@erxes/ui/src";
+import React from "react";
+import DetailForm from "./DetailForm";
+import { INonBalanceTransaction } from "../types";
+import dayjs from "dayjs";
 
 type Props = {
   nonBalanceTransaction: INonBalanceTransaction;
   isChecked: boolean;
-  toggleBulk: (nonBalanceTransaction: INonBalanceTransaction, isChecked?: boolean) => void;
+  toggleBulk: (
+    nonBalanceTransaction: INonBalanceTransaction,
+    isChecked?: boolean
+  ) => void;
 };
 function nonBalanceTransactionRow({
   nonBalanceTransaction
@@ -22,15 +25,11 @@ function nonBalanceTransactionRow({
    
   const checkForm = () => {
     const content = () => {
-      return (
-        <DetailForm
-          nonBalanceTransaction={nonBalanceTransaction} 
-        />
-      );
+      return <DetailForm nonBalanceTransaction={nonBalanceTransaction} />;
     };
-  return <Bulk content={content} />;
+    return <Bulk content={content} />;
   };
-  
+
   return (
       <tr>
         <td key={'contractId'}>

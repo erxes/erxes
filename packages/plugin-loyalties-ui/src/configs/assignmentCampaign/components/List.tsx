@@ -9,15 +9,12 @@ import {
 } from "@erxes/ui/src/components";
 import {
   FilterContainer,
-  FlexItem,
   FlexRow,
-  InputBar,
   Title,
 } from "@erxes/ui-settings/src/styles";
 
 import CreateForm from "./CreateForm";
 import { IAssignmentCampaign } from "../types";
-import Icon from "@erxes/ui/src/components/Icon";
 import { Link } from "react-router-dom";
 import React, { useState } from "react";
 import Row from "./Row";
@@ -133,19 +130,14 @@ const AssignmentCampaigns = (props: Props) => {
     return (
       <FilterContainer>
         <FlexRow>
-          <InputBar type="searchBar">
-            <Icon icon="search-1" size={20} />
-            <FlexItem>
-              <FormControl
-                type="text"
-                placeholder={__("Type to search")}
-                onChange={search}
-                value={searchValue}
-                autoFocus={true}
-                onFocus={moveCursorAtTheEnd}
-              />
-            </FlexItem>
-          </InputBar>
+          <FormControl
+            type="text"
+            placeholder={__("Type to search")}
+            onChange={search}
+            value={searchValue}
+            autoFocus={true}
+            onFocus={moveCursorAtTheEnd}
+          />
           <Link to={`/erxes-plugin-loyalty/settings/assignment/create`}>
             <Button btnStyle="success" size="medium" icon="plus-circle">
               Add assignment campaign

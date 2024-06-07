@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import clientMain from "@/modules/apolloClientMain"
 import { queries } from "@/modules/orders/graphql"
 import { currentAmountAtom, invoiceIdAtom, paymentDataAtom } from "@/store"
-import { configAtom, coverConfigAtom } from "@/store/config.store"
+import { configAtom } from "@/store/config.store"
 import {
   activeOrderIdAtom,
   customerAtom,
@@ -11,7 +11,7 @@ import {
 } from "@/store/order.store"
 import { useMutation, useQuery } from "@apollo/client"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
-import { ShieldAlert } from "lucide-react"
+import { ShieldAlert, XIcon } from "lucide-react"
 
 import { IPaymentOption } from "@/types/payment.types"
 import { INSTRUCTIONS } from "@/lib/constants"
@@ -20,6 +20,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { Button } from "@/components/ui/button"
 import Loader from "@/components/ui/loader"
 import { RadioGroup } from "@/components/ui/radio-group"
+import { SheetClose } from "@/components/ui/sheet"
 import { useToast } from "@/components/ui/use-toast"
 
 import { mutations } from "../../graphql"
@@ -28,18 +29,16 @@ import PhoneNumber from "./phoneNumber"
 import QrDetail from "./QrDetail"
 
 const MobileSheet = () => {
-  const config = useAtomValue(configAtom)
+  const { erxesAppToken, paymentIds, token } = useAtomValue(configAtom) || {}
   const context = {
     headers: {
-      "erxes-app-token": config?.erxesAppToken,
+      "erxes-app-token": erxesAppToken,
     },
   }
   const { data, loading, error } = useQuery(queries.payment, {
     client: clientMain,
     context,
   })
-
-  const coverConfig = useAtomValue(coverConfigAtom)
 
   const [createInvoice, { reset, data: invoiceData, loading: loadingInvoice }] =
     useMutation(mutations.createInvoice, {
@@ -69,7 +68,7 @@ const MobileSheet = () => {
   const PHONE_PAYMENTS = ["socialpay", "storepay"]
 
   const payments = (allPayments || []).filter((pm: IPaymentOption) =>
-    coverConfig?.paymentIds.includes(pm._id)
+    (paymentIds || []).includes(pm._id)
   )
 
   const getKindById = (_id: string) =>
@@ -90,7 +89,7 @@ const MobileSheet = () => {
         customerId: customer?._id || "empty",
         customerType: customerType || "customer",
         description: `${activeOrderId} - ${orderNumber}`,
-        data: { posToken: config?.token },
+        data: { posToken: token },
         selectedPaymentId: id,
         phone,
       },
@@ -132,15 +131,24 @@ const MobileSheet = () => {
   if (loading) return <Loader />
   return (
     <div>
-      <h1 className="font-bold text-lg mb-4 pb-1 border-b border-dashed">
+      <h1 className="font-bold text-lg mb-4 pb-2 border-b border-dashed relative">
         Цахимаар төлөх
+        <SheetClose asChild>
+          <Button
+            className="ml-auto absolute right-0"
+            size="icon"
+            variant="ghost"
+          >
+            <XIcon className="h-5 w-5" />
+          </Button>
+        </SheetClose>
       </h1>
       {!error && (
         <div className="text-black/60 mb-1">Төлбөрийн хэрэгслээ сонгоно уу</div>
       )}
       {!!error && <Error />}
       <RadioGroup
-        className="grid grid-cols-2 gap-2 mb-6"
+        className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-6"
         value={selected}
         onValueChange={handleValueChange}
       >
@@ -210,7 +218,6 @@ const Error = () => (
     <div className="relative pb-[56.25%] h-0 mt-2 overflow-hidden rounded-lg">
       <iframe
         src={INSTRUCTIONS.PAYMENT_APP_TOKEN}
-        frameBorder="0"
         allowFullScreen
         className="absolute top-0 left-0 h-full w-full"
       />

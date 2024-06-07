@@ -9,7 +9,7 @@ const generateFilter = async (models, params, commonQuerySelector) => {
       { number: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
       { _id: 1 }
     );
-    filter.contractId = { $in: contracts.map(item => item._id) };
+    filter.contractId = { $in: contracts.map((item) => item._id) };
   }
 
   if (params.ids) {
@@ -57,10 +57,18 @@ const generateFilter = async (models, params, commonQuerySelector) => {
     filter.contractId = { $in: ['', null] };
   }
 
+  if (params.description) {
+    filter.description = { $in:  [new RegExp(`.*${params.description}.*`, 'i')] };
+  }
+
+  if (params.total) {
+    filter.total = params.total
+  }
+
   return filter;
 };
 
-export const sortBuilder = params => {
+export const sortBuilder = (params) => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -80,7 +88,7 @@ const transactionQueries = {
     params,
     { commonQuerySelector, models }: IContext
   ) => {
-    return paginate(
+    return await paginate(
       models.Transactions.find(
         await generateFilter(models, params, commonQuerySelector)
       ),
@@ -110,7 +118,7 @@ const transactionQueries = {
           perPage: params.perPage
         }
       ),
-      totalCount: await models.Transactions.find(filter).count()
+      totalCount: await models.Transactions.find(filter).countDocuments()
     };
   },
 
@@ -133,6 +141,7 @@ const transactionQueries = {
       scheduleDate
     );
   }
+
 };
 
 checkPermission(transactionQueries, 'transactions', 'showTransactions');

@@ -173,10 +173,10 @@ const performQueries = {
       commonQuerySelector
     );
 
-    return models.Performs.find(selector).count();
+    return models.Performs.find(selector).countDocuments();
   },
 
-  performDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  async performDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Performs.getPerform(_id);
   },
 

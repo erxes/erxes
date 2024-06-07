@@ -9,9 +9,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-contacts-api/**"
-      - ".github/workflows/plugin-contacts-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-contacts-api/**'
+      - '.github/workflows/plugin-contacts-api.yaml'
   pull_request:
     branches:
       - dev
@@ -20,9 +20,9 @@ on:
       - staging
       - build-test
     paths:
-      - "packages/api-utils/**"
-      - "packages/plugin-contacts-api/**"
-      - ".github/workflows/plugin-contacts-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/plugin-contacts-api/**'
+      - '.github/workflows/plugin-contacts-api.yaml'
 
 jobs:
   api:

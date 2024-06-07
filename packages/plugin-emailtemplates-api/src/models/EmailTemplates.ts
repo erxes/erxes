@@ -66,13 +66,13 @@ export const loadEmailTemplateClass = (models: IModels) => {
      * Delete email template
      */
     public static async removeEmailTemplate(_id: string) {
-      const emailTemplateObj = await models.EmailTemplates.findOne({ _id });
+      const emailTemplateObj = await models.EmailTemplates.findOneAndDelete({ _id });
 
       if (!emailTemplateObj) {
         throw new Error(`Email template not found with id ${_id}`);
       }
 
-      return emailTemplateObj.remove();
+      return emailTemplateObj;
     }
 
     /**

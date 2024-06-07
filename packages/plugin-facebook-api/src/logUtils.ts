@@ -19,11 +19,14 @@ export const putCreateLog = async (
     action: 'create',
   });
 
-  const customer = await models.Customers.findOne({ _id: customerId }).lean();
+  // FIXME: commonPutCreateLog's 3rd parameter is supposed to be user, not customer.
+  // const customer = await models.Customers.findOne({ _id: customerId }).lean();
 
-  await commonPutCreateLog(
-    subdomain,
-    { ...logDoc, description, extraDesc, type: `facebook:${logDoc.type}` },
-    customer,
-  );
+  // if(customer) {
+  //   await commonPutCreateLog(
+  //     subdomain,
+  //     { ...logDoc, description, extraDesc, type: `facebook:${logDoc.type}` },
+  //     customer,
+  //   );
+  // }
 };

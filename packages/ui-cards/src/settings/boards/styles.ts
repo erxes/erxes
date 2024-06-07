@@ -5,8 +5,8 @@ import { SidebarListItem } from '@erxes/ui-settings/src/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const BoardItem = styledTS<{ $isActive: boolean }>(styled(SidebarListItem))`
-  overflow: hidden;
+const BoardItem = styledTS<{ $isActive: boolean, $withOverflow?: boolean }>(styled(SidebarListItem))`
+  ${props => !props.$withOverflow && `overflow: hidden;`}
   
   > button {
     padding: 10px 15px 10px 20px;

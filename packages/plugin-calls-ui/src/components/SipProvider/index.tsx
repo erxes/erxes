@@ -64,6 +64,7 @@ export default class SipProvider extends React.Component<
       callStatus: string,
       direction: string,
       customerPhone: string,
+      diversionHeader?: string,
     ) => void;
     addHistory: (
       callStatus: string,
@@ -80,6 +81,7 @@ export default class SipProvider extends React.Component<
     callStatus: CallStatus;
     callDirection: CallDirection | null;
     callCounterpart: string | null;
+    groupName: string | null;
     callId: string | null;
     rtcSession;
   }
@@ -148,6 +150,7 @@ export default class SipProvider extends React.Component<
       callStatus: CALL_STATUS_IDLE,
       callDirection: null,
       callCounterpart: null,
+      groupName: '',
       callId: null,
     };
     this.ua = null;
@@ -170,6 +173,7 @@ export default class SipProvider extends React.Component<
         direction: this.state.callDirection,
         counterpart: this.state.callCounterpart,
         startTime: this.state.rtcSession?._start_time?.toString(),
+        groupName: this.state.groupName,
       },
       registerSip: this.registerSip,
       unregisterSip: this.unregisterSip,
@@ -562,13 +566,19 @@ export default class SipProvider extends React.Component<
         } else if (originator === 'remote') {
           const foundUri = rtcRequest.from.toString();
           const delimiterPosition = foundUri.indexOf(';') || null;
+
+          const fromParameters = rtcRequest.from._parameters;
+          const groupName = fromParameters['x-gs-group-name'] || '';
+
           this.setState({
             callDirection: CALL_DIRECTION_INCOMING,
             callStatus: CALL_STATUS_STARTING,
             callCounterpart:
               foundUri.substring(0, delimiterPosition) || foundUri,
+            groupName,
           });
         }
+        const diversionHeader = rtcRequest.getHeader('Diversion');
 
         const { rtcSession: rtcSessionInState } = this.state;
 
@@ -613,6 +623,7 @@ export default class SipProvider extends React.Component<
               'cancelled',
               direction,
               customerPhone,
+              diversionHeader || '',
             );
           }
           this.setState({
@@ -656,6 +667,7 @@ export default class SipProvider extends React.Component<
               'connected',
               direction,
               customerPhone,
+              diversionHeader || '',
             );
           }
           this.setState({
@@ -663,6 +675,7 @@ export default class SipProvider extends React.Component<
             callStatus: CALL_STATUS_IDLE,
             callDirection: null,
             callCounterpart: null,
+            groupName: '',
           });
           this.ua?.terminateSessions();
           rtcSession = null;
@@ -678,6 +691,7 @@ export default class SipProvider extends React.Component<
             callStatus: CALL_STATUS_IDLE,
             callDirection: null,
             callCounterpart: null,
+            groupName: '',
           });
           this.ua?.terminateSessions();
           rtcSession = null;
@@ -705,6 +719,7 @@ export default class SipProvider extends React.Component<
             callStatus: CALL_STATUS_IDLE,
             callDirection: null,
             callCounterpart: null,
+            groupName: '',
           });
           this.ua?.terminateSessions();
         });

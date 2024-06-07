@@ -3,9 +3,7 @@ import { IModels } from '../../connectionResolver';
 import { IPayment } from '../resolvers/mutations/orders';
 import { IOrderInput, IOrderItemInput } from '../types';
 import { IOrderItemDocument } from '../../models/definitions/orderItems';
-import fetch from 'node-fetch';
 import {
-  DISTRICTS,
   BILL_TYPES,
   ORDER_TYPES,
   ORDER_ITEM_STATUSES
@@ -17,7 +15,6 @@ import {
 } from '../../models/definitions/configs';
 import * as moment from 'moment';
 import { debugError } from '@erxes/api-utils/src/debuggers';
-import { isValidBarcode } from './otherUtils';
 import { IProductDocument } from '../../models/definitions/products';
 import { checkLoyalties } from './loyalties';
 import { checkPricing } from './pricing';
@@ -25,6 +22,7 @@ import { checkRemainders } from './products';
 import { getPureDate } from '@erxes/api-utils/src';
 import { checkDirectDiscount } from './directDiscount';
 import { IPosUserDocument } from '../../models/definitions/posUsers';
+import { getCompanyInfo } from '../../models/PutData';
 
 interface IDetailItem {
   count: number;
@@ -258,227 +256,66 @@ export const getTotalAmount = (items: IOrderItemInput[] = []): number => {
   return Number(total.toFixed(2));
 };
 
-export const getDistrictName = (districtCode: string): string => {
-  if (DISTRICTS[districtCode]) {
-    return DISTRICTS[districtCode];
-  }
-
-  return '';
-};
-
 export const prepareEbarimtData = async (
   models: IModels,
   order: IOrderDocument,
   config: IEbarimtConfig,
   items: IOrderItemDocument[] = [],
-  orderBillType: string,
-  registerNumber?: string,
-  paymentTypes?: any[]
+  orderBillType?: string,
+  registerNumber?: string
 ) => {
-  if (!config) {
-    throw new Error('has not ebarimt config');
-  }
-  if (!order) {
-    throw new Error('Order must be specified');
-  }
-
-  let billType = orderBillType || order.billType || BILL_TYPES.CITIZEN;
+  const billType = orderBillType || order.billType || BILL_TYPES.CITIZEN;
+  let type: string = billType === '3' ? 'B2B_RECEIPT' : 'B2C_RECEIPT';
+  let customerTin = '';
   let customerCode = '';
   let customerName = '';
 
   if (registerNumber) {
-    const response = await fetch(
-      config.checkCompanyUrl +
-        '?' +
-        new URLSearchParams({ regno: registerNumber })
-    ).then(res => res.json());
+    const resp = await getCompanyInfo({ checkTaxpayerUrl: config.checkTaxpayerUrl, no: registerNumber })
 
-    if (response.found) {
-      billType = BILL_TYPES.ENTITY;
+    if (resp.status === 'checked' && resp.tin) {
+      type = 'B2B_RECEIPT';
+      customerTin = resp.tin;
       customerCode = registerNumber;
-      customerName = response.name;
-    }
-  }
-
-  let itemAmountPrePercent = 0;
-  const preTaxPaymentTypes = (paymentTypes || []).filter(p =>
-    (p.config || '').includes('preTax: true')
-  );
-  if (
-    preTaxPaymentTypes.length &&
-    order.paidAmounts &&
-    order.paidAmounts.length
-  ) {
-    let preSentAmount = 0;
-    for (const preTaxPaymentType of preTaxPaymentTypes) {
-      const matchOrderPays = order.paidAmounts.filter(
-        pa => pa.type === preTaxPaymentType.type
-      );
-      if (matchOrderPays.length) {
-        for (const matchOrderPay of matchOrderPays) {
-          preSentAmount += matchOrderPay.amount;
-        }
-      }
-    }
-
-    if (preSentAmount && preSentAmount <= order.totalAmount) {
-      itemAmountPrePercent = (preSentAmount / order.totalAmount) * 100;
+      customerName = resp.result?.data?.name;
     }
   }
 
   const productIds = items.map(item => item.productId);
-  const products = await models.Products.find({ _id: { $in: productIds } });
+  const products: IProductDocument[] = await models.Products.find({ _id: { $in: productIds } }).lean();
   const productsById = {};
 
   for (const product of products) {
     productsById[product._id] = product;
   }
 
-  const details: IDetailItem[] = [];
-  const detailsFree: IDetailItem[] = [];
-  const details0: IDetailItem[] = [];
-  const detailsInner: (IDetailItem & { itemId: string })[] = [];
-  let amountDefault = 0;
-  let amountFree = 0;
-  let amount0 = 0;
-  let amountInner = 0;
+  return {
+    contentType: 'pos',
+    contentId: order._id,
+    number: order.number ?? '',
 
-  for (const item of items) {
-    const product = productsById[item.productId];
+    date: new Date(),
+    type,
 
-    // if wrong productId then not sent
-    if (!product) {
-      continue;
-    }
-
-    const tempAmount = (item.count || 0) * (item.unitPrice || 0);
-    const amount = tempAmount - (tempAmount / 100) * itemAmountPrePercent;
-
-    const stock = {
-      count: item.count,
-      amount,
-      discount: item.discountAmount,
-      inventoryCode: product.code,
-      productId: item.productId
-    };
-
-    if (product.taxType === '2') {
-      detailsFree.push({ ...stock, barcode: product.taxCode });
-      amountFree += amount;
-    } else if (product.taxType === '3' && billType === '3') {
-      details0.push({ ...stock, barcode: product.taxCode });
-      amount0 += amount;
-    } else if (product.taxType === '5') {
-      detailsInner.push({
-        ...stock,
-        barcode: product.taxCode,
-        itemId: item._id
-      });
-      amountInner += amount;
-    } else {
-      let trueBarcode = '';
-      for (const barcode of product.barcodes) {
-        if (isValidBarcode(barcode)) {
-          trueBarcode = barcode;
-          continue;
-        }
-      }
-      details.push({ ...stock, barcode: trueBarcode });
-      amountDefault += amount;
-    }
-  }
-
-  const commonOderInfo = {
-    date: new Date().toISOString().slice(0, 10),
-    orderId: order._id,
-    number: order.number,
-    hasVat: config.hasVat || false,
-    hasCitytax: config.hasCitytax || false,
-    billType,
     customerCode,
     customerName,
-    description: order.number,
-    ebarimtResponse: {},
-    productsById,
-    contentType: 'pos',
-    contentId: order._id
-  };
+    customerTin,
 
-  const result: any[] = [];
-  let calcCashAmount = order.cashAmount || 0;
-  let cashAmount = 0;
-
-  if (detailsFree && detailsFree.length) {
-    if (calcCashAmount > amountFree) {
-      cashAmount = amountFree;
-      calcCashAmount -= amountFree;
-    } else {
-      cashAmount = calcCashAmount;
-      calcCashAmount = 0;
-    }
-    result.push({
-      ...commonOderInfo,
-      hasVat: false,
-      taxType: '2',
-      details: detailsFree,
-      cashAmount,
-      nonCashAmount: amountFree - cashAmount
-    });
+    details: items.filter(item => {
+      return Boolean(productsById[item.productId]);
+    }).map(item => {
+      const product: IProductDocument = productsById[item.productId];
+      return {
+        recId: item._id,
+        product,
+        quantity: item.count,
+        unitPrice: item.unitPrice ?? 0,
+        totalDiscount: item.discountAmount,
+        totalAmount: item.count * (item.unitPrice ?? 0)
+      }
+    }),
+    nonCashAmounts: [...order.paidAmounts || [], ...order.mobileAmounts || []].map(pay => ({ amount: pay.amount }))
   }
-
-  if (details0 && details0.length) {
-    if (calcCashAmount > amount0) {
-      cashAmount = amount0;
-      calcCashAmount -= amount0;
-    } else {
-      cashAmount = calcCashAmount;
-      calcCashAmount = 0;
-    }
-    result.push({
-      ...commonOderInfo,
-      hasVat: false,
-      taxType: '3',
-      details: details0,
-      cashAmount,
-      nonCashAmount: amount0 - cashAmount
-    });
-  }
-
-  if (detailsInner && detailsInner.length) {
-    if (calcCashAmount > amountInner) {
-      cashAmount = amountInner;
-      calcCashAmount -= amountInner;
-    } else {
-      cashAmount = calcCashAmount;
-      calcCashAmount = 0;
-    }
-    result.push({
-      ...commonOderInfo,
-      hasVat: false,
-      hasCityTax: false,
-      itemIds: detailsInner.map(di => di.itemId),
-      inner: true,
-      details: detailsInner,
-      cashAmount,
-      nonCashAmount: amountInner - cashAmount
-    });
-  }
-
-  if (details && details.length) {
-    if (calcCashAmount > amountDefault) {
-      cashAmount = amountDefault;
-    } else {
-      cashAmount = calcCashAmount;
-    }
-    result.push({
-      ...commonOderInfo,
-      details,
-      cashAmount,
-      nonCashAmount: amountDefault - cashAmount
-    });
-  }
-
-  return result;
 };
 
 const getMatchMaps = (matchOrders, lastCatProdMaps, product) => {
@@ -559,8 +396,8 @@ export const prepareOrderDoc = async (
     const fixedUnitPrice = Number(
       Number(
         ((productsOfId[item.productId] || {}).prices || {})[config.token] ||
-          item.unitPrice ||
-          0
+        item.unitPrice ||
+        0
       ).toFixed(2)
     );
 
@@ -734,3 +571,60 @@ export const reverseItemStatus = async (
     return e;
   }
 };
+
+export const fakePutData = async (models: IModels, items: IOrderItemDocument[], order: IOrderDocument, config: IConfig) => {
+  const products = await models.Products.find({
+    _id: { $in: items.map(item => item.productId) }
+  });
+  const productById = {};
+  for (const product of products) {
+    productById[product._id] = product;
+  }
+
+  return {
+    id: 'tempBill',
+    number: order.number,
+    contentType: 'pos',
+    contentId: order._id,
+    posToken: config.token,
+    totalAmount: order.totalAmount,
+    totalVAT: 0,
+    totalCityTax: 0,
+    type: '9',
+    status: 'SUCCESS',
+    qrData: '',
+    lottery: '',
+    date: moment(order.paidDate).format('yyyy-MM-dd hh:mm:ss'),
+
+    cashAmount: order.cashAmount ?? 0,
+    nonCashAmount: order.totalAmount - (order.cashAmount ?? 0),
+    registerNo: '',
+    customerNo: '',
+    customerName: '',
+
+    receipts: [{
+      _id: '',
+      id: '',
+      totalAmount: order.totalAmount,
+      totalVAT: 0,
+      totalCityTax: 0,
+      taxType: 'NOT_SEND',
+      items: items.map(item => ({
+        _id: item._id,
+        id: item.id,
+        name: productById[item.productId].shortName || productById[item.productId].name,
+        measureUnit: productById[item.productId].uom || 'ш',
+        qty: item.count,
+        unitPrice: item.unitPrice,
+        totalAmount: (item.unitPrice ?? 0) * item.count,
+        totalVAT: 0,
+        totalCityTax: 0,
+        totalBonus: item.discountAmount,
+      })),
+    }],
+    payments: [
+      {}
+    ],
+
+  };
+}

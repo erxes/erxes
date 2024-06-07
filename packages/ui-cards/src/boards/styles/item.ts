@@ -82,7 +82,7 @@ export const LastUpdate = styled.div`
 
 export const ColumnChild = styled.td`
   &:first-child {
-    width: 500px;
+    max-width: 400px;
   }
 
   &:last-child {
@@ -91,7 +91,7 @@ export const ColumnChild = styled.td`
 `;
 
 export const LabelColumn = styled.td`
-  width: 300px;
+  max-width: 200px;
 `;
 
 export const StageColumn = styled.td`
@@ -250,7 +250,7 @@ export const HeaderContentSmall = styled.div`
 export const FormFooter = styled.div`
   text-align: right;
   margin-top: 20px;
-  width: max-content;
+  width: 100%;
 `;
 
 export const SpaceContent = styled(Flex)`
@@ -332,6 +332,9 @@ export const ActionContainer = styled(MoveContainer)`
   flex-wrap: wrap;
   > div {
     margin: 0 ${dimensions.unitSpacing / 2}px ${dimensions.unitSpacing / 2}px 0;
+  }
+  [id^="headlessui-menu-items-"] {
+    padding: 7px 0;
   }
 `;
 

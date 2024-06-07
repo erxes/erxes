@@ -15,18 +15,13 @@ const CreateConnection = () => {
   const queryParams = queryString.parse(location.search);
   const { type } = queryParams;
 
-  return (
-    <SipProvider typeId={type} />
-  );
+  return <SipProvider typeId={type} />;
 };
 
 const routes = () => {
   return (
     <Routes>
-      <Route
-        path="/calls/"
-        element={<CreateConnection />}
-      />
+      <Route path="/calls/" element={<CreateConnection />} />
     </Routes>
   );
 };

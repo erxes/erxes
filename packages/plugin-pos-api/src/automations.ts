@@ -74,7 +74,7 @@ export default {
         icon: 'lamp',
         label: 'Pos order',
         description:
-          'Start with a blank workflow that enralls and is triggered off Pos orders'
+          'Start with a blank workflow that enrolls and is triggered off Pos orders'
       }
     ]
   },

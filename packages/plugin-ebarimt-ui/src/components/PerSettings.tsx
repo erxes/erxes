@@ -6,6 +6,8 @@ import {
   FormGroup,
   Icon,
 } from "@erxes/ui/src/components";
+import { FlexBetween } from '@erxes/ui-settings/src/styles';
+import { FormColumn, FormWrapper, } from "@erxes/ui/src/styles/main";
 import React, { useState } from "react";
 
 import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
@@ -60,9 +62,14 @@ const PerSettings: React.FC<Props> = (props: Props) => {
     e.preventDefault();
     const key = state.config.stageId;
 
-    delete configsMap.stageInEbarimt[currentConfigKey];
-    configsMap.stageInEbarimt[key] = state.config;
-    save(configsMap);
+    const stageInEbarimt = { ...configsMap.stageInEbarimt };
+
+    if (key !== currentConfigKey) {
+      delete stageInEbarimt[currentConfigKey];
+    }
+
+    stageInEbarimt[key] = state.config;
+    save({ ...configsMap, stageInEbarimt });
   };
 
   const onDelete = (e) => {
@@ -128,56 +135,97 @@ const PerSettings: React.FC<Props> = (props: Props) => {
       beforeTitle={<Icon icon="settings" />}
       open={currentConfigKey === "newEbarimtConfig" ? true : false}
     >
-      <FormGroup>
-        <ControlLabel>{"Title"}</ControlLabel>
-        <FormControl
-          defaultValue={state.config["title"]}
-          onChange={onChangeInput.bind(this, "title")}
-          required={true}
-          autoFocus={true}
-        />
-      </FormGroup>
+      <FormWrapper>
+        <FormColumn>
+          <FormGroup>
+            <ControlLabel>{"Title"}</ControlLabel>
+            <FormControl
+              defaultValue={state.config["title"]}
+              onChange={onChangeInput.bind(this, "title")}
+              required={true}
+              autoFocus={true}
+            />
+          </FormGroup>
 
-      <FormGroup>
-        <ControlLabel>Destination Stage</ControlLabel>
-        <BoardSelectContainer
-          type="deal"
-          autoSelectStage={false}
-          boardId={state.config.boardId}
-          pipelineId={state.config.pipelineId}
-          stageId={state.config.stageId}
-          onChangeBoard={onChangeBoard}
-          onChangePipeline={onChangePipeline}
-          onChangeStage={onChangeStage}
-        />
-      </FormGroup>
-      {renderInput("companyName", "companyName", "optional")}
-      {renderInput("userEmail", "userEmail", "")}
-
-      <FormGroup>
-        <ControlLabel>{__("Provice/District")}</ControlLabel>
-        <FormControl
-          componentclass="select"
-          defaultValue={state.config.districtName}
-          options={DISTRICTS}
-          onChange={onChangeInput.bind(this, "districtName")}
-          required={true}
-        />
-      </FormGroup>
-
-      {renderInput("companyRD", "companyRD", "")}
-      {renderInput("vatPercent", "vatPercent", "")}
-      {renderInput("cityTaxPercent", "cityTaxPercent", "")}
-      {renderInput("defaultGSCode", "defaultGSCode", "")}
-
-      {renderCheckbox("hasVat", "has Vat", "")}
-      {renderCheckbox("hasCitytax", "has Citytax", "")}
-      {renderCheckbox(
-        "skipPutData",
-        "skip Ebarimt",
-        "When checked only  print inner bill"
-      )}
-
+          <FormGroup>
+            <ControlLabel>Destination Stage</ControlLabel>
+            <BoardSelectContainer
+              type="deal"
+              autoSelectStage={false}
+              boardId={state.config.boardId}
+              pipelineId={state.config.pipelineId}
+              stageId={state.config.stageId}
+              onChangeBoard={onChangeBoard}
+              onChangePipeline={onChangePipeline}
+              onChangeStage={onChangeStage}
+            />
+          </FormGroup>
+          {renderInput('posNo', 'pos No', '')}
+          {renderInput('branchNo', 'branch No', '')}
+          {renderCheckbox(
+            'skipPutData',
+            'skip Ebarimt',
+            'When checked only  print inner bill'
+          )}
+        </FormColumn>
+        <FormColumn>
+          {renderInput("companyName", "company Name")}
+          {renderInput('companyRD', 'company RD', '')}
+          {renderInput('merchantTin', 'merchantTin', '')}
+          <FlexBetween>
+            <FormGroup>
+              <ControlLabel>Branch of Provice / District</ControlLabel>
+              <FormControl
+                componentclass="select"
+                value={(state.config['districtCode'] as string)?.substring(0, 2) || ''}
+                options={[
+                  { value: '', label: '' },
+                  ...DISTRICTS.map(d => ({ value: d.branchCode, label: d.branchName }))
+                ]}
+                onChange={(e) => {
+                  onChangeConfig('districtCode', (e.target as any).value)
+                }}
+                required={true}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>SUB Provice / District</ControlLabel>
+              <FormControl
+                componentclass="select"
+                value={(state.config['districtCode'] as string)?.substring(2, 4) || ''}
+                options={[
+                  { value: '', label: '' },
+                  ...(DISTRICTS.find(d => (
+                    d.branchCode === (state.config['districtCode'] as string)?.substring(0, 2)
+                  ))?.subBranches || []).map(sd => (
+                    { value: sd.subBranchCode, label: sd.subBranchName })
+                  )
+                ]}
+                onChange={(e) => {
+                  onChangeConfig(
+                    'districtCode',
+                    `${(state.config['districtCode'] as string)?.substring(0, 2)}${(e.target as any).value}`
+                  )
+                }}
+                required={true}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>District Code</ControlLabel>
+              <FormControl
+                value={state.config['districtCode']}
+                onChange={onChangeInput.bind(this, 'districtCode')}
+                required={true}
+              />
+            </FormGroup>
+          </FlexBetween>
+          {renderInput('defaultGSCode', 'default united code', '')}
+          {renderCheckbox('hasVat', 'has Vat', '')}
+          {renderInput('vatPercent', 'vat Percent', '')}
+          {renderCheckbox('hasCitytax', 'has Citytax', '')}
+          {renderInput('cityTaxPercent', 'cityTax Percent', '')}
+        </FormColumn>
+      </FormWrapper>
       <ModalFooter>
         <Button
           btnStyle="danger"

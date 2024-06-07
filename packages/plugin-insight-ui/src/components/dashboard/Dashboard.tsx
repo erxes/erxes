@@ -57,14 +57,14 @@ const Dashboard = (props: Props) => {
   };
 
   const renderActionBar = () => {
-    const leftActionBar = <Title>{__(`${dashboard.name || ""}`)}</Title>;
+    const leftActionBar = <Title>{`${dashboard.name || ""}`}</Title>;
 
     const trigger = (
       <div>
         {dashboard && !!dashboard?.members?.length ? (
           <Participators participatedUsers={dashboard.members} limit={4} />
         ) : (
-          <Button btnStyle="simple" icon="users-alt">
+          <Button btnStyle="success" icon="users-alt" size="small">
             Add User
           </Button>
         )}
@@ -73,9 +73,6 @@ const Dashboard = (props: Props) => {
 
     const rightActionBar = (
       <BarItems>
-        {/* <Button btnStyle="simple" onClick={() => {}} icon="arrow-to-bottom">
-          Export
-        </Button> */}
         {dashboard.visibility === "private" && (
           <SelectMembersPopover
             targets={[dashboard]}
@@ -84,7 +81,9 @@ const Dashboard = (props: Props) => {
           />
         )}
         <Button
-          btnStyle="simple"
+          btnStyle="success"
+          icon="plus-circle"
+          size="small"
           onClick={() => {
             setCurrentChart(undefined);
             setShowDrawer(!showDrawer);
@@ -92,14 +91,14 @@ const Dashboard = (props: Props) => {
         >
           Add Chart
         </Button>
-        {/* <Button btnStyle="simple" onClick={() => {}} icon="share-alt">
-          Share
-        </Button> */}
         <Dropdown
           drop="down"
           as={DropdownToggle}
-          toggleComponent={<Button btnStyle="simple" icon="ellipsis-h" />}
-          // alignRight={true}
+          toggleComponent={
+            <Button btnStyle="simple" size="small">
+              Actions
+            </Button>
+          }
         >
           <li>
             <a
@@ -109,6 +108,7 @@ const Dashboard = (props: Props) => {
               }}
             >
               <Icon icon="copy" />
+              &nbsp;
               {__("Duplicate")}
             </a>
           </li>
@@ -120,7 +120,7 @@ const Dashboard = (props: Props) => {
               }}
             >
               <Icon icon="trash-alt" />
-
+              &nbsp;
               {__("Delete")}
             </a>
           </li>
@@ -161,7 +161,8 @@ const Dashboard = (props: Props) => {
       filter: JSON.stringify(item.filter),
       dimension: JSON.stringify(item.dimension),
       layout: JSON.stringify(item.layout),
-      vizState: JSON.stringify(item.vizState)
+      vizState: JSON.stringify(item.vizState),
+      chartType: "table",
     });
 
     const { REACT_APP_API_URL } = getEnv();
