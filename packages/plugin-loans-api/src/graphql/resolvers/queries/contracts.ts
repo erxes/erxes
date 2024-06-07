@@ -53,7 +53,7 @@ const generateFilter = async (params, commonQuerySelector) => {
       };
     }
 
-    if (!!closeDateType) {
+    if (closeDateType) {
       let currentDate = new Date();
       switch (closeDateType) {
         case 'today':
