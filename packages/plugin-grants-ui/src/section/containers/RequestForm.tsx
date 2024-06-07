@@ -101,7 +101,7 @@ const RequestFormContainer: React.FC<Props> = (props) => {
     loading,
   };
 
-  if (!!Object.keys(request).length) {
+  if (Object.keys(request).length) {
     updatedProps.request = {
       ...request,
       params: JSON.parse(request?.params || '{}'),
