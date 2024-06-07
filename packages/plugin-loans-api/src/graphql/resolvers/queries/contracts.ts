@@ -11,7 +11,7 @@ const generateFilter = async (params, commonQuerySelector) => {
   if (params) {
     const {
       page,
-      pageSize,
+      perPage,
       ids,
       searchValue,
       sortField,
@@ -122,6 +122,8 @@ const generateFilter = async (params, commonQuerySelector) => {
 
     filter = { ...filter, ...(otherFilter || {}) };
   }
+
+  console.log('filter',filter)
 
   return filter;
 };
