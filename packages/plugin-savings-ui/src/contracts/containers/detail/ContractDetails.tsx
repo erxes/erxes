@@ -1,16 +1,15 @@
-import { Alert, EmptyState, Spinner } from '@erxes/ui/src';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { gql } from '@apollo/client';
-import React from 'react';
-import ContractDetails from '../../components/detail/ContractDetails';
-import { mutations, queries } from '../../graphql';
+import { Alert, EmptyState, Spinner } from "@erxes/ui/src";
+import { IUser } from "@erxes/ui/src/auth/types";
+import React from "react";
+import ContractDetails from "../../components/detail/ContractDetails";
+import { mutations, queries } from "../../graphql";
 import {
   DetailQueryResponse,
   EditMutationResponse,
   IContractDoc,
   RegenSchedulesMutationResponse,
-} from '../../types';
-import { useQuery, useMutation } from '@apollo/client';
+} from "../../types";
+import { useQuery, useMutation, gql } from "@apollo/client";
 
 type Props = {
   id: string;
@@ -29,28 +28,28 @@ const ContractDetailsContainer = (props: FinalProps) => {
       variables: {
         _id: id,
       },
-    },
+    }
   );
 
   const [contractsEdit] = useMutation<EditMutationResponse>(
     gql(mutations.contractsEdit),
     {
-      refetchQueries: ['contractDetail'],
-    },
+      refetchQueries: ["contractDetail"],
+    }
   );
 
   const [regenSchedules] = useMutation<RegenSchedulesMutationResponse>(
     gql(mutations.regenSchedules),
     {
-      refetchQueries: ['schedules', 'scheduleYears'],
-    },
+      refetchQueries: ["schedules", "scheduleYears"],
+    }
   );
 
   const [fixSchedules] = useMutation<RegenSchedulesMutationResponse>(
     gql(mutations.fixSchedules),
     {
-      refetchQueries: ['schedules', 'scheduleYears'],
-    },
+      refetchQueries: ["schedules", "scheduleYears"],
+    }
   );
 
   const saveItem = (doc: IContractDoc, callback: (item) => void) => {

@@ -5,7 +5,6 @@ import { Alert } from "@erxes/ui/src";
 import BasicInfoSection from "../../components/common/BasicInfoSection";
 import { IUser } from "@erxes/ui/src/auth/types";
 import React from "react";
-import { graphql } from "@apollo/client/react/hoc";
 import { mutations } from "../../graphql";
 import { useNavigate } from "react-router-dom";
 

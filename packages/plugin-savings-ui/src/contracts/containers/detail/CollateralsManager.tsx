@@ -1,13 +1,11 @@
-import { AppConsumer } from '@erxes/ui/src';
-import { Alert } from '@erxes/ui/src';
-import { IProduct } from '@erxes/ui-products/src/types';
-import { gql } from '@apollo/client';
-import React, { useState } from 'react';
+import { AppConsumer, Alert } from "@erxes/ui/src";
+import { IProduct } from "@erxes/ui-products/src/types";
+import { gql, useMutation } from "@apollo/client";
+import React, { useState } from "react";
 
-import CollateralsManager from '../../components/collaterals/CollateralsManager';
-import { mutations } from '../../graphql';
-import { FillFromDealMutationResponse, ICollateralData } from '../../types';
-import { useMutation } from '@apollo/client';
+import CollateralsManager from "../../components/collaterals/CollateralsManager";
+import { mutations } from "../../graphql";
+import { FillFromDealMutationResponse, ICollateralData } from "../../types";
 
 type Props = {
   onChangeCollateralsData: (collateralsData: ICollateralData[]) => void;
@@ -21,11 +19,11 @@ type Props = {
 
 const CollateralsManagerContainer = (props: Props) => {
   const [collateralsData, setCollateralsData] = useState<ICollateralData[]>(
-    props.collateralsData,
+    props.collateralsData
   );
 
   const [getProductsData] = useMutation<FillFromDealMutationResponse>(
-    gql(mutations.getProductsData),
+    gql(mutations.getProductsData)
   );
 
   const fillFromDeal = () => {
