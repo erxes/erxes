@@ -1,11 +1,10 @@
-import * as compose from 'lodash.flowright';
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import { BurenScoringQueryResponse, ConfigsResponse, IConfigsMaps } from '../../types';
+
+import { Alert } from '@erxes/ui/src/utils';
+import { ConfigsResponse, IConfigsMaps } from '../../types';
 import { mutations, queries } from '../../graphql';
 
-import { useQuery, useMutation } from "@apollo/client";
+import { useQuery, useMutation, gql } from "@apollo/client";
 import React from 'react';
-import { gql } from '@apollo/client';
 
 type Props = {
   component: any;

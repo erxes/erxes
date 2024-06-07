@@ -10,7 +10,6 @@ import {
 } from '@erxes/ui/src';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { IBurenScoring } from '../types';
-import Select from 'react-select';
 import React, { useState } from "react";
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -24,7 +23,7 @@ type State = {
 
 export default function ScoringMainForm (props:Props) {
 
-  const [keyword, setKeyWord]= useState('')
+  const [keyword, setKeyword]= useState('')
   const [reportPurpose, setReportPurpose] =  useState('')
   
   const generateDoc = (values) => {
@@ -44,7 +43,7 @@ export default function ScoringMainForm (props:Props) {
               type={'text'}
               name="keyword"
               value={keyword}
-              onChange={(e:any)=>setKeyWord(e.target.value)}
+              onChange={(e:any)=>setKeyword(e.target.value)}
               required={true}
             />
           </FormGroup>
