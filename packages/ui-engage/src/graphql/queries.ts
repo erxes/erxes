@@ -366,6 +366,12 @@ const engageLogs = `
   }
 `;
 
+const domains = `
+query engageSocketLabsDomains {
+  engageSocketLabsDomains
+}
+`
+
 export default {
   engageMessages,
   engageMessagesTotalCount,
@@ -387,4 +393,5 @@ export default {
   emailTemplates,
   totalCount,
   engageLogs,
+  domains
 };

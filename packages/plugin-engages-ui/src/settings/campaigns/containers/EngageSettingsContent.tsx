@@ -58,13 +58,17 @@ class SettingsContainer extends React.Component<Props> {
       );
     };
 
-    const verifyEmail = (email: string) => {
+    const verifyEmail = (email: string, callback) => {
       engagesVerifyEmailMutation({
         variables: {
           email,
         },
       })
-        .then(() => {
+        .then(({data}) => {
+          if (callback) {
+            callback(data?.engageMessageVerifyEmail);
+          }
+
           engagesVerifiedEmailsQuery.refetch();
           Alert.success(
             'Successfully sent verification email. Please check your inbox',

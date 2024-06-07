@@ -1,6 +1,6 @@
-import { Document, Model, Schema } from "mongoose";
-import { IModels } from "../connectionResolver";
-import { getValueAsString } from "../utils";
+import { Document, Model, Schema } from 'mongoose';
+import { IModels } from '../connectionResolver';
+import { getValueAsString } from '../utils';
 
 export interface IConfig {
   code: string;
@@ -17,8 +17,8 @@ export interface IConfigDocument extends IConfig, Document {
 }
 
 export const configsSchema = new Schema({
-  code: { type: String, label: "Code", unique: true },
-  value: { type: String, label: "Value" }
+  code: { type: String, label: 'Code', unique: true },
+  value: { type: String, label: 'Value' },
 });
 
 export interface IConfigModel extends Model<IConfigDocument> {
@@ -26,6 +26,12 @@ export interface IConfigModel extends Model<IConfigDocument> {
   updateConfigs(configsMap): Promise<void>;
   createOrUpdateConfig({ code, value }: IConfig): IConfigDocument;
   getSESConfigs(): Promise<ISESConfig>;
+  getSocketLabsConfigs(): Promise<{
+    apiKey: string;
+    serverId: string;
+    username: string;
+    password: string;
+  }>;
 }
 
 export const loadConfigClass = (models: IModels) => {
@@ -37,7 +43,7 @@ export const loadConfigClass = (models: IModels) => {
       const config = await models.Configs.findOne({ code });
 
       if (!config) {
-        return { value: "" };
+        return { value: '' };
       }
 
       return config;
@@ -48,7 +54,7 @@ export const loadConfigClass = (models: IModels) => {
      */
     public static async createOrUpdateConfig({
       code,
-      value
+      value,
     }: {
       code: string;
       value: string[];
@@ -88,28 +94,60 @@ export const loadConfigClass = (models: IModels) => {
     public static async getSESConfigs() {
       const accessKeyId = await getValueAsString(
         models,
-        "accessKeyId",
-        "AWS_SES_ACCESS_KEY_ID"
+        'accessKeyId',
+        'AWS_SES_ACCESS_KEY_ID',
       );
       const secretAccessKey = await getValueAsString(
         models,
-        "secretAccessKey",
-        "AWS_SES_SECRET_ACCESS_KEY"
+        'secretAccessKey',
+        'AWS_SES_SECRET_ACCESS_KEY',
       );
-      const region = await getValueAsString(models, "region", "AWS_REGION");
+      const region = await getValueAsString(models, 'region', 'AWS_REGION');
       const unverifiedEmailsLimit = await getValueAsString(
         models,
-        "unverifiedEmailsLimit",
-        "EMAILS_LIMIT",
-        "100"
+        'unverifiedEmailsLimit',
+        'EMAILS_LIMIT',
+        '100',
       );
 
       return {
         accessKeyId,
         secretAccessKey,
         region,
-        unverifiedEmailsLimit
+        unverifiedEmailsLimit,
       };
+    }
+
+    public static async getSocketLabsConfigs() {
+      const apiKey = await getValueAsString(
+        models,
+        'socketLabsApiKey',
+        'SOCKETLABS_API_KEY',
+      );
+      const serverId = await getValueAsString(
+        models,
+        'socketLabsServerId',
+        'SOCKETLABS_SERVER_ID',
+      );
+      const username = await getValueAsString(
+        models,
+        'socketLabsUsername',
+        'SOCKETLABS_USERNAME',
+      );
+      const password = await getValueAsString(
+        models,
+        'socketLabsPassword',
+        'SOCKETLABS_PASSWORD',
+      );
+
+      const unverifiedEmailsLimit = await getValueAsString(
+        models,
+        'unverifiedEmailsLimit',
+        'EMAILS_LIMIT',
+        '100',
+      );
+
+      return { apiKey, serverId, username, password, unverifiedEmailsLimit };
     }
   }
 
