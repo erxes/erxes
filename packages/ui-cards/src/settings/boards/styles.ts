@@ -109,12 +109,15 @@ const Attributes = styled.ul`
     color: black;
   }
 
-  span {
+  button {
     color: ${colors.colorCoreGray};
     padding-bottom: ${dimensions.unitSpacing - 5}px;
     cursor: pointer;
     font-weight: 400;
     transition: all ease 0.3s;
+    border: none;
+    background: none;
+    text-align: left;
 
     &:hover {
       color: ${colors.textPrimary};

@@ -39,9 +39,9 @@ export default function Attribution(props: Props) {
             <b>{__("Attributions")}</b>
           </li>
           {attributions.map((item) => (
-            <span key={item.value} onClick={() => onClickAttribute(item, close)}>
+            <button key={item.value} onClick={() => onClickAttribute(item, close)}>
               {__(item.label)}
-            </span>
+            </button>
           ))}
         </React.Fragment>
       </Attributes>
