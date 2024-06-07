@@ -78,12 +78,14 @@ const PipelinesContainer: React.FC<Props> = (props: Props) => {
   const archive = (pipelineId: string, status: string) => {
     let message = `This will archive the current pipeline. Are you absolutely sure?`;
     let action = "archived";
-
+    
     if (status === "archived") {
       message = `This will unarchive the current pipeline. Are you absolutely sure?`;
       action = "unarchived";
     }
-
+    
+    let successMessage = __(`You successfully ${action} a`);
+    
     confirm(message).then(() => {
       archivePipelineMutation({
         variables: { _id: pipelineId },
@@ -91,9 +93,7 @@ const PipelinesContainer: React.FC<Props> = (props: Props) => {
       })
         .then(() => {
           refetchPipelines({ boardId });
-          Alert.success(
-            `${__(`You successfully ${action} a`)} ${__("pipeline")}.`
-          );
+          Alert.success(`${successMessage} ${__("pipeline")}.`);
         })
         .catch((error) => {
           Alert.error(error.message);
@@ -112,7 +112,7 @@ const PipelinesContainer: React.FC<Props> = (props: Props) => {
         .then(() => {
           refetchPipelines({ boardId });
           Alert.success(
-            `${__(`You successfully duplicated a`)} ${__("pipeline")}.`
+            `${__("You successfully duplicated a")} ${__("pipeline")}.`
           );
         })
         .catch((error) => {
@@ -131,7 +131,7 @@ const PipelinesContainer: React.FC<Props> = (props: Props) => {
           .then(() => {
             refetchPipelines({ boardId });
             Alert.success(
-              `${__(`You successfully deleted a`)} ${__("pipeline")}.`
+              `${__("You successfully deleted a")} ${__("pipeline")}.`
             );
           })
           .catch((error) => {
@@ -196,25 +196,26 @@ const PipelinesContainer: React.FC<Props> = (props: Props) => {
 
 const getRefetchQueries = (boardId, pipelineId?: string) => {
   return [
-  "pipelinesQuery",
-  {
-    query: GET_BOARD_DETAIL,
-    variables: { _id: boardId },
-  },
-  {
-    query: gql(boardQueries.stages),
-    variables: {
-      pipelineId,
-      search: undefined,
-      customerIds: undefined,
-      companyIds: undefined,
-      assignedUserIds: undefined,
-      labelIds: undefined,
-      extraParams: {},
-      closeDateType: undefined,
-      userIds: undefined,
+    "pipelinesQuery",
+    {
+      query: GET_BOARD_DETAIL,
+      variables: { _id: boardId },
     },
-  },
-];}
+    {
+      query: gql(boardQueries.stages),
+      variables: {
+        pipelineId,
+        search: undefined,
+        customerIds: undefined,
+        companyIds: undefined,
+        assignedUserIds: undefined,
+        labelIds: undefined,
+        extraParams: {},
+        closeDateType: undefined,
+        userIds: undefined,
+      },
+    },
+  ];
+};
 
 export default PipelinesContainer;

@@ -55,25 +55,25 @@ const PipelineForm = (props: Props) => {
     (props.stages || []).map((stage) => ({ ...stage }))
   );
   const [visibility, setVisibility] = useState(
-    pipeline ? pipeline.visibility || "public" : "public"
+    pipeline ? pipeline.visibility : "public"
   );
   const [selectedMemberIds, setSelectedMemberIds] = useState(
-    pipeline ? pipeline.memberIds || [] : []
+    pipeline ? pipeline.memberIds : []
   );
   const [backgroundColor, setBackgroundColor] = useState(
     (pipeline && pipeline.bgColor) || colors.colorPrimaryDark
   );
   const [isCheckDate, setIsCheckDate] = useState(
-    pipeline ? pipeline.isCheckDate || false : false
+    pipeline ? pipeline.isCheckDate : false
   );
   const [isCheckUser, setIsCheckUser] = useState(
-    pipeline ? pipeline.isCheckUser || false : false
+    pipeline ? pipeline.isCheckUser : false
   );
   const [isCheckDepartment, setIsCheckDepartment] = useState(
-    pipeline ? pipeline.isCheckDepartment || false : false
+    pipeline ? pipeline.isCheckDepartment : false
   );
   const [excludeCheckUserIds, setExcludeCheckUserIds] = useState(
-    pipeline ? pipeline.excludeCheckUserIds || [] : []
+    pipeline ? pipeline.excludeCheckUserIds : []
   );
   const [boardId, setBoardId] = useState(props.boardId || "");
   const [tagId, setTagId] = useState(pipeline ? pipeline.tagId : "");
@@ -84,7 +84,7 @@ const PipelineForm = (props: Props) => {
     (pipeline && pipeline.numberSize) || ""
   );
   const [departmentIds, setDepartmentIds] = useState(
-    pipeline ? pipeline.departmentIds || [] : []
+    pipeline ? pipeline.departmentIds : []
   );
 
   const onChangeStages = (stages) => {
