@@ -6,15 +6,15 @@ import {
   FormGroup,
   MainStyleTitle as Title,
   Wrapper,
-} from '@erxes/ui/src';
-import { dimensions } from '@erxes/ui/src';
-import styled from 'styled-components';
+  dimensions,
+} from "@erxes/ui/src";
+import styled from "styled-components";
 
-import React, { useState } from 'react';
-import { JOURNALS_KEY_LABELS } from '../constants';
-import { IContractTypeDetail } from '../types';
-import { __ } from 'coreui/utils';
-import { ScrollWrapper } from '@erxes/ui/src/styles/main';
+import React, { useState } from "react";
+import { JOURNALS_KEY_LABELS } from "../constants";
+import { IContractTypeDetail } from "../types";
+import { __ } from "coreui/utils";
+import { ScrollWrapper } from "@erxes/ui/src/styles/main";
 
 const ContentBox = styled.div`
   padding: ${dimensions.coreSpacing}px;
@@ -33,7 +33,7 @@ type Props = {
 
 const GeneralSettings = (props: Props) => {
   const [currentMap, setCurrentMap] = useState(
-    props.contractType.config || ({} as any),
+    props.contractType.config || ({} as any)
   );
   const { contractType } = props;
 
@@ -56,7 +56,7 @@ const GeneralSettings = (props: Props) => {
   const renderItem = (
     key: string,
     description?: string,
-    controlProps?: any,
+    controlProps?: any
   ) => {
     return (
       <FormGroup>
@@ -78,47 +78,47 @@ const GeneralSettings = (props: Props) => {
       icon="check-circle"
       uppercase={false}
     >
-      {__('Save')}
+      {__("Save")}
     </Button>
   );
 
   const content = (
     <ScrollWrapper>
       <ContentBox>
-        <CollapseContent title={__('Данс')}>
-          {renderItem('transAccount')}
-          {renderItem('savingAccount')}
-          {renderItem('interestAccount')}
-          {renderItem('storedInterestAccount')}
+        <CollapseContent title={__("Данс")}>
+          {renderItem("transAccount")}
+          {renderItem("savingAccount")}
+          {renderItem("interestAccount")}
+          {renderItem("storedInterestAccount")}
         </CollapseContent>
-        <CollapseContent title={__('Range config')}>
-          {renderItem('minInterest', 'Min interest /Month/', {
-            type: 'number',
+        <CollapseContent title={__("Range config")}>
+          {renderItem("minInterest", "Min interest /Month/", {
+            type: "number",
           })}
-          {renderItem('maxInterest', 'Max interest /Month/', {
-            type: 'number',
+          {renderItem("maxInterest", "Max interest /Month/", {
+            type: "number",
           })}
-          {renderItem('defaultInterest', 'Default interest /Month/', {
-            type: 'number',
+          {renderItem("defaultInterest", "Default interest /Month/", {
+            type: "number",
           })}
-          {renderItem('minDuration', 'Min duration /Month/', {
-            type: 'number',
+          {renderItem("minDuration", "Min duration /Month/", {
+            type: "number",
           })}
-          {renderItem('maxDuration', 'Max duration /Month/', {
-            type: 'number',
+          {renderItem("maxDuration", "Max duration /Month/", {
+            type: "number",
           })}
-          {renderItem('minAmount', 'Min amount /Month/', {
-            type: 'number',
+          {renderItem("minAmount", "Min amount /Month/", {
+            type: "number",
             useNumberFormat: true,
           })}
-          {renderItem('maxAmount', 'Max amount /Month/', {
-            type: 'number',
+          {renderItem("maxAmount", "Max amount /Month/", {
+            type: "number",
             useNumberFormat: true,
           })}
         </CollapseContent>
-        <CollapseContent title={__('Store interest config')}>
-          {renderItem('Store interest time', 'Store interest time', {
-            type: 'time',
+        <CollapseContent title={__("Store interest config")}>
+          {renderItem("Store interest time", "Store interest time", {
+            type: "time",
           })}
         </CollapseContent>
       </ContentBox>
@@ -128,7 +128,7 @@ const GeneralSettings = (props: Props) => {
   return (
     <ContentWrapper>
       <Wrapper.ActionBar
-        left={<Title>{__('Journals configs')}</Title>}
+        left={<Title>{__("Journals configs")}</Title>}
         right={actionButtons}
       />
       {content}
