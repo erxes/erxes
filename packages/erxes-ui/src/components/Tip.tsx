@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import { Popover } from "@headlessui/react";
-import { TipContent } from "@erxes/ui/src/styles/main";
+import { Flex, TipContent } from "@erxes/ui/src/styles/main";
 import { usePopper } from "react-popper";
 
 type Props = {
@@ -38,7 +38,7 @@ const Tip = ({ text, children, placement }: Props) => {
     <Popover>
       {({ open, close }) => (
         <>
-          <div
+          <Flex
             className="headlessui-popover-tooltip"
             ref={setReferenceElement}
             onMouseEnter={() => {
@@ -51,7 +51,7 @@ const Tip = ({ text, children, placement }: Props) => {
             }}
           >
             {children}
-          </div>
+          </Flex>
 
           {opens && (
             <TipContent
