@@ -1,10 +1,9 @@
 import React from "react";
 import List from "../components/List";
-import { gql } from "@apollo/client";
+import { gql, useQuery, useMutation } from "@apollo/client";
 import { queries, mutations } from "../graphql";
 import { Alert, Spinner, confirm } from "@erxes/ui/src";
 import { generatePaginationParams } from "@erxes/ui/src/utils/router";
-import { useQuery, useMutation } from "@apollo/client";
 
 type Props = {
   queryParams: any;
