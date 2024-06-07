@@ -73,6 +73,7 @@ const queryParams = `
   sortField: String
   sortDirection: Int
   description: String
+  total: Float
 `;
 
 export const queries = `
