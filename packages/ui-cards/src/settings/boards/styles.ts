@@ -97,6 +97,8 @@ const Attributes = styled.ul`
   overflow: auto;
   padding: ${dimensions.unitSpacing}px;
   border-radius: ${dimensions.unitSpacing - 5}px;
+  display: flex;
+  flex-direction: column;
 
   > div {
     padding: 0;
@@ -107,7 +109,7 @@ const Attributes = styled.ul`
     color: black;
   }
 
-  li {
+  span {
     color: ${colors.colorCoreGray};
     padding-bottom: ${dimensions.unitSpacing - 5}px;
     cursor: pointer;
