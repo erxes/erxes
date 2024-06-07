@@ -1,5 +1,3 @@
-import * as compose from 'lodash.flowright';
-
 import CollapseContent from '@erxes/ui/src/components/CollapseContent';
 import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
