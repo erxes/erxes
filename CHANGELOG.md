@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.11.6](https://github.com/erxes/erxes/compare/1.11.5...1.11.6) (2024-06-07)
+
+
+### Features
+
+* ebarimt putresponses filter by contentId ([4c71ab0](https://github.com/erxes/erxes/commit/4c71ab06b2193d8e11d8c3ea0f559a6ddb41ed70))
+
+
+### Bug Fixes
+
+* **payment:** quick qr ([dd8fad4](https://github.com/erxes/erxes/commit/dd8fad41a9dc19644f2bac9d213fcca4c9a07074))
+
 ## [1.11.5](https://github.com/erxes/erxes/compare/1.11.4...1.11.5) (2024-06-03)
 
 
