@@ -113,7 +113,7 @@ const Section: React.FC<Props> = (props) => {
 
     const trigger = (
       <button>
-        <Icon icon={!!Object.keys(request).length ? 'edit-3' : 'plus-circle'} />
+        <Icon icon={Object.keys(request).length ? 'edit-3' : 'plus-circle'} />
       </button>
     );
 
