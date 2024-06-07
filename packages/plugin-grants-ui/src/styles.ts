@@ -17,9 +17,8 @@ export const Padding = styledTS<{
   vertical?: boolean;
   padding?: string;
 }>(styled.div)`
-  padding: ${({ horizontal, vertical, padding }) =>
-    !horizontal && !vertical
-      ? '10px': `${vertical ? (padding ? `${padding}px` : '10px') : '0px'} ${horizontal}`}
+  padding: ${({ horizontal, vertical, padding }) => 
+    !horizontal && !vertical ? '10px' : `${vertical ? (`${padding || 10}px`) : '0px'} ${ horizontal ? (`${padding || 10}px`) : '0px'}`}
 `;
 export const ClearableBtn = styled.a`
   cursor: pointer;

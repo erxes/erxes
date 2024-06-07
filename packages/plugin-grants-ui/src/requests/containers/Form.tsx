@@ -17,7 +17,7 @@ const DetailForm: React.FC<Props> = ({ _id }: Props) => {
     gql(queries.requestDetail),
     {
       variables: { _id },
-      skip: !_id ? true : false,
+      skip: Boolean(_id )
     },
   );
 
