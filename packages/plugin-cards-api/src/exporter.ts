@@ -466,7 +466,7 @@ const fillValue = async (
         }
       }
 
-      value = totalAmount ? totalAmount : '-';
+      value = totalAmount ?? '-';
 
       break;
 
