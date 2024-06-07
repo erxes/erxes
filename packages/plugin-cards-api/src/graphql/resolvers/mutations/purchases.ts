@@ -104,7 +104,7 @@ const purchaseMutations = {
       );
       const oldAssignedUserPdata = (oldpurchase.productsData || [])
         .filter((pdata) => pdata.assignUserId)
-        .map((pdata) => pdata.assignUserId || '');
+        .map((pdata) => pdata.assignUserId ?? '');
       const cantRemoveUserIds = removedUserIds.filter((userId) =>
         oldAssignedUserPdata.includes(userId),
       );
@@ -118,11 +118,11 @@ const purchaseMutations = {
     if (doc.productsData) {
       const assignedUsersPdata = doc.productsData
         .filter((pdata) => pdata.assignUserId)
-        .map((pdata) => pdata.assignUserId || '');
+        .map((pdata) => pdata.assignUserId ?? '');
 
       const oldAssignedUserPdata = (oldpurchase.productsData || [])
         .filter((pdata) => pdata.assignUserId)
-        .map((pdata) => pdata.assignUserId || '');
+        .map((pdata) => pdata.assignUserId ?? '');
 
       const { addedUserIds, removedUserIds } = checkUserIds(
         oldAssignedUserPdata,
@@ -185,7 +185,7 @@ const purchaseMutations = {
 
         for (const pdata of doc.productsData) {
           pdata.expenseAmount =
-            (pdata.expenseAmount || 0) + perExpense * (pdata.amount || 0);
+            (pdata.expenseAmount ?? 0) + perExpense * (pdata.amount ?? 0);
         }
       }
     }
