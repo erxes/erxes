@@ -40,9 +40,8 @@ import {
   loadClass as loadConversationClass,
 } from './models/Conversations';
 import { IConversationDocument } from './models/definitions/conversations';
-import { IScriptModel } from './models/Scripts';
+import { IScriptModel, loadClass as loadScriptClass  } from './models/Scripts';
 import { IScriptDocument } from './models/definitions/scripts';
-import { loadClass as loadScriptClass } from './models/Scripts';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 export interface IModels {
