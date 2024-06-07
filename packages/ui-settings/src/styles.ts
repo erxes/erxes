@@ -124,7 +124,6 @@ const SidebarListItem = styledTS<{
     (props.$isActive && rgba(colors.colorPrimary, 0.2)) ||
     props.backgroundColor ||
     colors.colorWhite};
-  overflow: hidden;
   display: flex;
   justify-content: space-between;
   align-items: center;
