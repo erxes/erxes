@@ -13,9 +13,7 @@ export class BaseApi {
     return await getAuthHeaders(this.config);
   }
 
-  get apiUrl() {
-    return 'https://staging-api.burenscore.mn';
-  }
+
 
   async request(args: {
     method: string;
@@ -35,7 +33,7 @@ export class BaseApi {
         requestOptions.headers['Content-Type'] = 'application/json';
       }
       return await fetch(
-        `${this.apiUrl}/${path}`,
+        `${this.config.url}/${path}`,
         requestOptions,
       )
     } catch (e) {
