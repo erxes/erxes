@@ -115,7 +115,7 @@ export default class Builder {
   public userRelevanceQuery() {
     return [
       { userRelevance: { $exists: false } },
-      { userRelevance: new RegExp(this.user.code || '') }
+      { userRelevance: new RegExp(this.user.code ?? '') }
     ];
   }
 
