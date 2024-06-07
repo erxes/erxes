@@ -5,123 +5,122 @@ import { IContext } from '../../../connectionResolver';
 
 const generateFilter = async (params, commonQuerySelector) => {
   let filter: any = commonQuerySelector;
-  
+
   filter.status = { $ne: 'Deleted' };
 
-  filter = { ...filter, ...(params || {}) };
+  if (params) {
+    const {
+      page,
+      pageSize,
+      ids,
+      searchValue,
+      sortField,
+      sortDirection,
+      closeDate,
+      isExpired,
+      closeDateType,
+      repaymentDate,
+      startStartDate,
+      endStartDate,
+      ...otherFilter
+    } = params;
 
-  if (params.ids) {
-    filter._id = { $in: params.ids };
-  }
-
-  if (params.searchValue) {
-    filter.number = { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] };
-  }
-
-  if (params.closeDate) {
-    const date = getFullDate(params.closeDate);
-    filter.closeDate = {
-      $gte: date,
-      $lte: new Date(date.getTime() + 1000 * 3600 * 24)
-    };
-  }
-
-  if (params.isExpired === 'true') {
-    filter.isExpired = !!params.isExpired;
-  }
-
-  if (params.repaymentDate === 'today') {
-    const date = getFullDate(new Date());
-    filter.repaymentDate = {
-      $gte: date,
-      $lte: new Date(date.getTime() + 1000 * 3600 * 24)
-    };
-  }
-
-  if (!!params.closeDateType) {
-    let currentDate = new Date();
-    switch (params.closeDateType) {
-      case 'today':
-        const date = getFullDate(currentDate);
-        filter.closeDate = {
-          $gte: date,
-          $lte: new Date(date.getTime() + 1000 * 3600 * 24)
-        };
-        break;
-      case 'thisWeek':
-        let firstDayOfWeek = new Date(
-          currentDate.setDate(currentDate.getDate() - currentDate.getDay())
-        );
-        let lastDayOfWeek = new Date(
-          currentDate.setDate(currentDate.getDate() - currentDate.getDay() + 6)
-        );
-        filter.closeDate = {
-          $gte: firstDayOfWeek,
-          $lte: lastDayOfWeek
-        };
-        break;
-      case 'thisMonth':
-        let firstDayOfMonth = new Date(
-          currentDate.setDate(currentDate.getDate() - currentDate.getDay())
-        );
-        let lastDayOfMonth = new Date(
-          currentDate.setDate(currentDate.getDate() - currentDate.getDay() + 6)
-        );
-        filter.closeDate = {
-          $gte: firstDayOfMonth,
-          $lte: lastDayOfMonth
-        };
-        break;
-
-      default:
-        break;
+    if (ids) {
+      filter._id = { $in: params.ids };
     }
-  }
 
-  if (params.startStartDate || params.endStartDate) {
-    switch (`${!!params.startStartDate}-${!!params.endStartDate}`) {
-      case 'true-true':
-        filter.closeDate = {
-          $gte: getFullDate(params.startStartDate),
-          $lte: getFullDate(params.endStartDate)
-        };
-        break;
-      case 'false-true':
-        filter.closeDate = {
-          $lte: getFullDate(params.endStartDate)
-        };
-        break;
-      case 'true-false':
-        filter.closeDate = {
-          $gte: getFullDate(params.startStartDate)
-        };
-        break;
-      default:
-        break;
+    if (searchValue) {
+      filter.number = { $in: [new RegExp(`.*${searchValue}.*`, 'i')] };
     }
-  }
 
-  if (params.startCloseDate || params.endCloseDate) {
-    switch (`${!!params.startCloseDate}-${!!params.endCloseDate}`) {
-      case 'true-true':
-        filter.closeDate = {
-          $gte: getFullDate(params.startCloseDate),
-          $lte: getFullDate(params.endCloseDate)
-        };
-        break;
-      case 'false-true':
-        filter.closeDate = {
-          $lte: getFullDate(params.endCloseDate)
-        };
-        break;
-      case 'true-false':
-        filter.closeDate = {
-          $gte: getFullDate(params.startCloseDate)
-        };
-        break;
-      default:
-        break;
+    if (isExpired === 'true') {
+      filter.isExpired = !!isExpired;
     }
+
+    if (repaymentDate === 'today') {
+      const date = getFullDate(new Date());
+      filter.repaymentDate = {
+        $gte: date,
+        $lte: new Date(date.getTime() + 1000 * 3600 * 24)
+      };
+    }
+
+    if (closeDate) {
+      const date = getFullDate(closeDate);
+      filter.closeDate = {
+        $gte: date,
+        $lte: new Date(date.getTime() + 1000 * 3600 * 24)
+      };
+    }
+
+    if (!!closeDateType) {
+      let currentDate = new Date();
+      switch (closeDateType) {
+        case 'today':
+          const date = getFullDate(currentDate);
+          filter.closeDate = {
+            $gte: date,
+            $lte: new Date(date.getTime() + 1000 * 3600 * 24)
+          };
+          break;
+        case 'thisWeek':
+          let firstDayOfWeek = new Date(
+            currentDate.setDate(currentDate.getDate() - currentDate.getDay())
+          );
+          let lastDayOfWeek = new Date(
+            currentDate.setDate(
+              currentDate.getDate() - currentDate.getDay() + 6
+            )
+          );
+          filter.closeDate = {
+            $gte: firstDayOfWeek,
+            $lte: lastDayOfWeek
+          };
+          break;
+        case 'thisMonth':
+          let firstDayOfMonth = new Date(
+            currentDate.setDate(currentDate.getDate() - currentDate.getDay())
+          );
+          let lastDayOfMonth = new Date(
+            currentDate.setDate(
+              currentDate.getDate() - currentDate.getDay() + 6
+            )
+          );
+          filter.closeDate = {
+            $gte: firstDayOfMonth,
+            $lte: lastDayOfMonth
+          };
+          break;
+
+        default:
+          break;
+      }
+
+      if (startStartDate || endStartDate) {
+        switch (`${!!startStartDate}-${!!endStartDate}`) {
+          case 'true-true':
+            filter.closeDate = {
+              $gte: getFullDate(startStartDate),
+              $lte: getFullDate(endStartDate)
+            };
+            break;
+          case 'false-true':
+            filter.closeDate = {
+              $lte: getFullDate(endStartDate)
+            };
+            break;
+          case 'true-false':
+            filter.closeDate = {
+              $gte: getFullDate(startStartDate)
+            };
+            break;
+          default:
+            break;
+        }
+      }
+    }
+
+    filter = { ...filter, ...(otherFilter || {}) };
   }
 
   return filter;
