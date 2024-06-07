@@ -1,15 +1,15 @@
-import { checkPermission, paginate } from '@erxes/api-utils/src';
-import { IContext } from '../../../connectionResolver';
-import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
+import { paginate } from "@erxes/api-utils/src";
+import { IContext } from "../../../connectionResolver";
+import { moduleRequireLogin } from "@erxes/api-utils/src/permissions";
 
 const generateFilter = async (params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
 
   if (params.searchValue) {
     filter.$or = [
-      { name: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
-      { code: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
-      { number: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } }
+      { name: { $in: [new RegExp(`.*${params.searchValue}.*`, "i")] } },
+      { code: { $in: [new RegExp(`.*${params.searchValue}.*`, "i")] } },
+      { number: { $in: [new RegExp(`.*${params.searchValue}.*`, "i")] } },
     ];
   }
 
@@ -46,7 +46,7 @@ const contractTypeQueries = {
       ),
       {
         page: params.page,
-        perPage: params.perPage
+        perPage: params.perPage,
       }
     );
   },
@@ -67,10 +67,10 @@ const contractTypeQueries = {
         models.ContractTypes.find(filter).sort(sortBuilder(params)),
         {
           page: params.page,
-          perPage: params.perPage
+          perPage: params.perPage,
         }
       ),
-      totalCount: await models.ContractTypes.find(filter).countDocuments()
+      totalCount: await models.ContractTypes.find(filter).countDocuments(),
     };
   },
 
@@ -80,7 +80,7 @@ const contractTypeQueries = {
 
   savingsContractTypeDetail: async (_root, { _id }, { models }: IContext) => {
     return models.ContractTypes.getContractType({ _id });
-  }
+  },
 };
 
 moduleRequireLogin(contractTypeQueries);
