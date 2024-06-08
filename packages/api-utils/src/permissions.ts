@@ -101,7 +101,7 @@ export const getUserActionsMap = async (
           data: userPermissionQuery,
         }));
 
-    const groupQuery: any = {};
+    const groupQuery = { $or: [] as any[] };
 
     if (user?.branchIds?.length) {
       const branches = await sendRPCMessage('core:branches.findWithChild', {
@@ -116,7 +116,9 @@ export const getUserActionsMap = async (
         },
       });
 
-      groupQuery.branchIds = { $in: branches.map((branch) => branch._id) };
+      groupQuery.$or.push({
+        branchIds: { $in: branches.map((branch) => branch._id) },
+      });
     }
 
     if (user?.departmentIds?.length) {
@@ -134,15 +136,16 @@ export const getUserActionsMap = async (
           },
         },
       );
-
-      groupQuery.departmentIds = {
-        $in: departments.map((department) => department._id),
-      };
+      groupQuery.$or.push({
+        departmentIds: {
+          $in: departments.map((department) => department._id),
+        },
+      });
     }
 
     let groupIds: string[] = [];
 
-    if (Object.keys(groupQuery).length) {
+    if (groupQuery?.$or?.length > 0) {
       groupIds = await sendRPCMessage('core:userGroups.getIds', {
         subdomain,
         data: groupQuery,
