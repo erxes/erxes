@@ -1,29 +1,26 @@
-import Box from '@erxes/ui/src/components/Box';
-import React from 'react';
-import { __ } from '@erxes/ui/src';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { ButtonRelated } from '@erxes/ui/src/styles/main';
-import ScoringForm from '../../containers/ScoringForm';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Box from "@erxes/ui/src/components/Box";
+import React from "react";
+import { __ } from "@erxes/ui/src";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import { ButtonRelated } from "@erxes/ui/src/styles/main";
+import ScoringForm from "../../containers/ScoringForm";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
 type Props = {
   collapseCallback?: () => void;
   title?: string;
   mainType?: string;
-  mainTypeId?: string;
+  id?: string;
 };
 
-function Component(
- props: Props
-) {
+function Component(props: Props) {
   const trigger = (
     <ButtonRelated>
-      <span>{__('See related scoring..')}</span>
+      <span>{__("See related scoring..")}</span>
     </ButtonRelated>
   );
-
-  const modalContent = props => {
-    console.log("props",props)
-    return <ScoringForm {...props} customerId={props.mainTypeId} />;
+  const { id } = props;
+  const modalContent = (props) => {
+    return <ScoringForm {...props} customerId={id} />;
   };
   const scoringButton = (
     <ModalTrigger
@@ -42,7 +39,7 @@ function Component(
 
   return (
     <Box
-      title={__(`${props.title || 'Loan scoring'}`)}
+      title={__(`${props.title || "Loan scoring"}`)}
       name="showBurenScoring"
       isOpen={true}
       callback={props.collapseCallback}
@@ -52,4 +49,4 @@ function Component(
   );
 }
 
-export default Component
+export default Component;
