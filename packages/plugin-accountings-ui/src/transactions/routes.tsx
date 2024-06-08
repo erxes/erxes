@@ -31,7 +31,7 @@ const AccountRoutes = () => {
         path="/accountings/transaction/edit/:parentId"
         element={<TransactionFormContainer />}
       />
-      <Route key="/accountings/transaction/create" path="/pos/create" element={<TransactionFormContainer />} />
+      <Route key="/accountings/transaction/create" path="/accountings/transaction/create" element={<TransactionFormContainer />} />
     </Routes>
   );
 };

@@ -43,16 +43,16 @@ export interface IFundTrInput extends ISingleTrInput { }
 export interface IDebtTrInput extends ISingleTrInput { }
 
 export interface ITrDetail {
-  _id: string;
-  accountId: string;
+  _id?: string;
+  accountId?: string;
   originId?: string;
   follows?: {
     type: string;
     id: string;
   }[];
 
-  side: string;
-  amount: number;
+  side?: string;
+  amount?: number;
   currency?: string;
   currencyAmount?: number;
   customRate?: number;
@@ -62,13 +62,13 @@ export interface ITrDetail {
   count?: number;
   unitPrice?: number;
 
-  account: IAccount;
+  account?: IAccount;
 };
 
 export interface ITransaction {
-  _id: string;
-  date: Date;
-  description: string;
+  _id?: string;
+  date?: Date;
+  description?: string;
   status?: string;
   ptrId?: string;
   parentId?: string;
@@ -93,43 +93,16 @@ export interface ITransaction {
   createdBy?: string;
   modifiedBy?: string;
 
-  createdAt: Date;
+  createdAt?: Date;
   modifiedAt?: Date;
 
   sumDt: number;
   sumCt: number;
-}
-
-export interface IHiddenTransaction {
-  _id: string;
-  ptrId?: string;
-  parentId?: string;
-  journal: string;
-  ptrStatus?: string;
-  originId?: string;
-  follows?: {
-    type: string;
-    id: string;
-  }[];
-
-  details: {
-    _id: string;
-    originId?: string;
-    follows?: {
-      type: string;
-      id: string;
-    }[];
-
-    side: string;
-  }[];
-  shortDetail?: ITrDetail;
-
-  sumDt: number;
-  sumCt: number;
+  permission?: string;
 }
 
 export type TransactionDetailQueryResponse = {
-  transactionDetail: (ITransaction | IHiddenTransaction)[];
+  transactionDetail: ITransaction[];
 } & QueryResponse;
 
 export type TransactionsQueryResponse = {

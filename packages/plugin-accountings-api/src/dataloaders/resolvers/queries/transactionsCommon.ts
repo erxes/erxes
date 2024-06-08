@@ -8,8 +8,8 @@ import { TR_STATUSES } from '../../../models/definitions/constants';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { generateFilter as accountGenerateFilter } from './accounts';
-import { IFollowsForTr, IHiddenTransaction, ITransactionDocument } from '../../../models/definitions/transaction';
-import { canShowTr, canShowTrs } from '../../../utils/trPermissions';
+import { ITransactionDocument } from '../../../models/definitions/transaction';
+import { checkPermissionTrs } from '../../../utils/trPermissions';
 
 interface IQueryParams {
   ids?: string[];
@@ -158,7 +158,7 @@ const transactionCommon = {
     }
 
     const relatedTrs: ITransactionDocument[] = await models.Transactions.find({ $or: [{ ptrId: firstTr.ptrId }, { parentId: firstTr.parentId }] }).lean();
-    return await canShowTrs(models, relatedTrs, user);
+    return await checkPermissionTrs(models, relatedTrs, user);
   },
 
   async transactions(

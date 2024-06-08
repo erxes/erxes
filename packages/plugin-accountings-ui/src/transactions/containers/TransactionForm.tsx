@@ -43,38 +43,39 @@ const PosContainer = (props: Props) => {
     return <Spinner objective={true} />;
   }
 
-  // const save = (doc) => {
-  //   setLoading(true);
+  const save = (doc) => {
+    setLoading(true);
 
-  //   const saveMutation = posId ? editPosMutation : addPosMutation;
+    // const saveMutation = posId ? editPosMutation : addPosMutation;
 
-  //   saveMutation({
-  //     variables: {
-  //       _id: posId,
-  //       ...doc,
-  //     },
-  //   })
-  //     .then(() => {
-  //       Alert.success("You successfully updated a pos");
+    // saveMutation({
+    //   variables: {
+    //     _id: posId,
+    //     ...doc,
+    //   },
+    // })
+    //   .then(() => {
+    //     Alert.success("You successfully updated a pos");
 
-  //       navigate({
-  //         pathname: `/pos`,
-  //         search: "?refetchList=true",
-  //       });
-  //     })
+    //     navigate({
+    //       pathname: `/pos`,
+    //       search: "?refetchList=true",
+    //     });
+    //   })
 
-  //     .catch((error) => {
-  //       Alert.error(error.message);
+    //   .catch((error) => {
+    //     Alert.error(error.message);
 
-  //       setLoading(false);
-  //     });
-  // };
+    //     setLoading(false);
+    //   });
+  };
 
-  const transactions = trDetailQuery?.data?.transactionDetail || [];
+  const transactions = trDetailQuery?.data?.transactionDetail;
 
   const updatedProps = {
     ...props,
     transactions,
+    save,
     isActionLoading: loading,
   };
 

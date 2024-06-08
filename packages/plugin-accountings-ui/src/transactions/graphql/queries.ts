@@ -74,6 +74,7 @@ export const commonTransactionFields = `
     sumDt
     sumCt
   }
+  permission
 `;
 
 const accountsFilterParamDefs = `
@@ -104,6 +105,7 @@ const accountsFilterParamDefs = `
   $journal: String,
   $statuses: [String],
 `;
+
 const accountsFilterParams = `
   ids: $ids,
   excludeIds: $excludeIds,

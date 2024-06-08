@@ -18,32 +18,51 @@ const convertToHidden = (transaction: ITransactionDocument) => {
     })),
     sumDt: transaction.sumDt,
     sumCt: transaction.sumCt,
+    permission: 'hidden'
   } as IHiddenTransaction
 }
 
-const canShowTr = async (models: IModels, transaction: ITransactionDocument, user: IUserDocument) => {
-  if (!user._id) {
-    return false
-  }
-  return true;
+const convertToWithPerm = (transaction: ITransactionDocument, perm: string) => {
+  transaction.permission = perm;
+  return transaction
 }
 
-export const canShowTrs = async (models: IModels, transactions: ITransactionDocument[], user: IUserDocument) => {
+const canShowTr = async (models: IModels, transaction: ITransactionDocument, user: IUserDocument) => {
+  // hidden, readOnly, update, delete|full|null
+  if (!user._id) {
+    return 'false'
+  }
+  return;
+}
+
+export const checkPermissionTrs = async (models: IModels, transactions: ITransactionDocument[], user: IUserDocument) => {
   const originTrs = transactions.filter(tr => !tr.originId);
 
   const result: (ITransactionDocument | IHiddenTransaction)[] = [];
 
   for (const otr of originTrs) {
-    if (await canShowTr(models, otr, user)) {
-      result.push(otr)
-      for (const atr of transactions.filter(tr => tr.originId === otr._id)) {
-        result.push(atr)
-      }
-    } else {
+    const permStr: string | undefined = await canShowTr(models, otr, user)
+
+    if (permStr === 'hidden') {
       result.push(convertToHidden(otr))
       for (const atr of transactions.filter(tr => tr.originId === otr._id)) {
         result.push(convertToHidden(atr))
       }
+      continue;
+    }
+
+    if (permStr) {
+      result.push(convertToWithPerm(otr, permStr))
+      for (const atr of transactions.filter(tr => tr.originId === otr._id)) {
+        result.push(convertToWithPerm(atr, permStr))
+      }
+      continue;
+    }
+
+    // permStr in undefined || '' || null or full
+    result.push(otr)
+    for (const atr of transactions.filter(tr => tr.originId === otr._id)) {
+      result.push(atr)
     }
   }
 

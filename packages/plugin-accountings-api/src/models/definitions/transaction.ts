@@ -104,6 +104,7 @@ export interface ITransactionDocument extends ITransaction, Document {
 
   sumDt: number;
   sumCt: number;
+  permission?: string;
 }
 
 export interface IHiddenTransaction extends Document {
@@ -122,6 +123,7 @@ export interface IHiddenTransaction extends Document {
   }[]
   sumDt: number;
   sumCt: number;
+  permission?: string;
 }
 
 export const transactionDetailSchema = schemaWrapper(

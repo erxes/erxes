@@ -52,6 +52,7 @@ export const types = () => `
     createdBy: String
     modifiedBy: String
 
+    permission: String
     followTrs: [CommonTransaction]
   }
 `;

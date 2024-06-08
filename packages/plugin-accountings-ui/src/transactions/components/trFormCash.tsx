@@ -2,7 +2,6 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import {
   FormColumn,
   FormWrapper,
-  ModalFooter,
 } from "@erxes/ui/src/styles/main";
 import {
   __,
@@ -17,12 +16,16 @@ type Props = {
   queryParams: IQueryParams;
 };
 
-const TrFormMain = (props: Props) => {
+const TrFormCash = (props: Props) => {
+  const {
+    transactions,
+  } = props;
+
   return (
     <FormWrapper>
       <FormColumn>
         <FormGroup>
-          <ControlLabel required={true}>{__('MainForm')}</ControlLabel>
+          <ControlLabel required={true}>{__('CashForm')}</ControlLabel>
 
         </FormGroup>
       </FormColumn>
@@ -30,4 +33,4 @@ const TrFormMain = (props: Props) => {
   );
 };
 
-export default TrFormMain;
+export default TrFormCash;
