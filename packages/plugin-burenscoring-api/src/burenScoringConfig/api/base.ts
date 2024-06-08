@@ -12,9 +12,6 @@ export class BaseApi {
   async getHeaders() {
     return await getAuthHeaders(this.config);
   }
-
-
-
   async request(args: {
     method: string;
     path: string;
@@ -34,7 +31,7 @@ export class BaseApi {
       }
       return await fetch(
         `${this.config.url}/${path}`,
-        requestOptions,
+        requestOptions
       )
     } catch (e) {
       const errorMessage = JSON.parse(e.message).message || e.message;

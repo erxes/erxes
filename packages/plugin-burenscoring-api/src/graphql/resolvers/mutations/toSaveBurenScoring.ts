@@ -6,13 +6,14 @@ import { IBurenscoring } from "../../../models/definitions/burenscoring";
 
 const burenScoringMutations = {
 
-  toSaveBurenScoring: async (
+ toSaveBurenScoring: async (
     _root,
     doc: IBurenscoring,
     { subdomain }: IContext
   ) => {
     let data = doc
     if (data?.externalScoringResponse || data?.restInquiryResponse) {
+      
       const extRes = doc.externalScoringResponse
       const inquiryRes = doc.restInquiryResponse
       data = {
@@ -33,7 +34,8 @@ const burenScoringMutations = {
         score: doc.score || 0,
         customerId: doc.customerId || '',
         reportPurpose: doc.reportPurpose || '',
-        keyword: doc.keyword
+        keyword: doc.keyword,
+        vendor: doc.vendor
       }
     }
     const models = await generateModels(subdomain);
@@ -42,7 +44,7 @@ const burenScoringMutations = {
   },
   toCheckScore: async (
     _root,
-    { customerId, keyword, reportPurpose }: { customerId: string, keyword: string; reportPurpose: string },
+    { customerId, keyword, reportPurpose, vendor }: { customerId: string; keyword: string; reportPurpose: string;  vendor: string },
     { subdomain }: IContext
   ) => {
     const config = await getBurenScoringConfig('burenScoringConfig', subdomain)
@@ -52,18 +54,42 @@ const burenScoringMutations = {
     const burenConfig = new BurenScoringApi(config);
     const scoring = await burenConfig.getScoring({
       keyword,
-      reportPurpose
+      reportPurpose,
+      vendor
     });
-
+console.log('customerId Save ;;;',customerId)
+ 
     if (scoring.hasOwnProperty('externalScoringResponse') && scoring.hasOwnProperty('restInquiryResponse')) {
-
-      const data: IBurenscoring = scoring
-      data.customerId = customerId
-      data.keyword = keyword
-      data.reportPurpose = reportPurpose
+      
+      
+      const extRes = scoring.externalScoringResponse
+      const inquiryRes = scoring.restInquiryResponse
+      const data: IBurenscoring = {
+        externalScoringResponse: {
+          data: {
+            uuid: extRes.data.uuid || '',
+            requestId: extRes.data.requestId || '',
+            detail: extRes.data.detail,
+          },
+          message: extRes.message || ''
+        },
+        restInquiryResponse: {
+          customer: inquiryRes.customer || {},
+          inquiry: inquiryRes.inquiry || [],
+          groupedPurposes: inquiryRes.groupedPurposes || [],
+          histories: inquiryRes.histories || []
+        },
+        score: scoring.score || 0,
+        customerId: customerId || '',
+        reportPurpose: reportPurpose || '',
+        keyword: keyword,
+        vendor: scoring.vendor || 'AND_SCORING'
+      }
       const models = await generateModels(subdomain);
+
       return await models.BurenScorings.createBurenScoring(subdomain, data);
-    }
+    } else {throw new Error(scoring.message);}
+   
 
   }
 };

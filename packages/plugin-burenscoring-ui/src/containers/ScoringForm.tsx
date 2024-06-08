@@ -24,6 +24,8 @@ type FinalProps = {
 class ScoringFormContainer extends React.Component<FinalProps> {
   render() {
     const { customerId, detailQuery } = this.props;
+
+    
     const renderButton = ({
       name,
       values,
@@ -50,8 +52,8 @@ class ScoringFormContainer extends React.Component<FinalProps> {
         >  {__('Scoring')}</ButtonMutate>
       );
     };
-
-
+  
+console.log( detailQuery.getCustomerScore )
     const updatedProps = {
       ...this.props,
       renderButton,

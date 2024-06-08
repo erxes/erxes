@@ -13,14 +13,8 @@ type Props = {
 };
 
 function Component(
-  this: any,
-  {
-    collapseCallback,
-    title,
-    mainTypeId = '',
-  }: Props
+ props: Props
 ) {
-
   const trigger = (
     <ButtonRelated>
       <span>{__('See related scoring..')}</span>
@@ -28,7 +22,8 @@ function Component(
   );
 
   const modalContent = props => {
-    return <ScoringForm {...props} customerId={mainTypeId} />;
+    console.log("props",props)
+    return <ScoringForm {...props} customerId={props.mainTypeId} />;
   };
   const scoringButton = (
     <ModalTrigger
@@ -47,10 +42,10 @@ function Component(
 
   return (
     <Box
-      title={__(`${title || 'Loan scoring'}`)}
+      title={__(`${props.title || 'Loan scoring'}`)}
       name="showBurenScoring"
       isOpen={true}
-      callback={collapseCallback}
+      callback={props.collapseCallback}
     >
       {content}
     </Box>
