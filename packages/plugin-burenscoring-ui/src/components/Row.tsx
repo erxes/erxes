@@ -1,4 +1,4 @@
-import { Button } from '@erxes/ui/src';
+import { Button, ModalTrigger } from '@erxes/ui/src';
 import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -17,6 +17,33 @@ type Props = {
 
 export default function Row(props: Props) {
     const { burenScoring } = props
+
+    const addConfig = (
+      <Button
+        btnStyle="success"
+        block={true}
+        uppercase={false}
+        icon="eye"
+      >
+       detail
+      </Button>
+    );
+    const renderSidebarHeader = () => {
+
+  
+      const formContent = (formProps) => <Form {...formProps} />;
+  
+      return (
+          <ModalTrigger
+            size="sm"
+            title="Score detail"
+            trigger={addConfig}
+            enforceFocus={false}
+            content={formContent}
+          />
+      );
+    };
+  
     return (
       <tr>
         <th>{burenScoring.keyword}</th>
