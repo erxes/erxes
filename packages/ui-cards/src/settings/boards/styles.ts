@@ -97,6 +97,8 @@ const Attributes = styled.ul`
   overflow: auto;
   padding: ${dimensions.unitSpacing}px;
   border-radius: ${dimensions.unitSpacing - 5}px;
+  display: flex;
+  flex-direction: column;
 
   > div {
     padding: 0;
@@ -107,12 +109,15 @@ const Attributes = styled.ul`
     color: black;
   }
 
-  li {
+  button {
     color: ${colors.colorCoreGray};
     padding-bottom: ${dimensions.unitSpacing - 5}px;
     cursor: pointer;
     font-weight: 400;
     transition: all ease 0.3s;
+    border: none;
+    background: none;
+    text-align: left;
 
     &:hover {
       color: ${colors.textPrimary};

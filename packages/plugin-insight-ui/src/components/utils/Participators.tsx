@@ -6,6 +6,7 @@ import { __ } from "@erxes/ui/src/utils/index";
 import { colors } from "@erxes/ui/src/styles";
 import { getUserAvatar } from "@erxes/ui/src/utils/index";
 import styled from "styled-components";
+import { Flex } from "@erxes/ui/src/styles/main";
 
 const spacing = 30;
 
@@ -54,7 +55,9 @@ const Participators = (props: Props) => {
 
     return (
       <Tip placement="top" text={name}>
-        <ParticipatorImg key={user._id} src={getUserAvatar(user)} />
+        <Flex>
+          <ParticipatorImg key={user._id} src={getUserAvatar(user)} />
+        </Flex>
       </Tip>
     );
   };
