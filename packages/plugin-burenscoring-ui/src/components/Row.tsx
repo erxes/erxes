@@ -2,7 +2,7 @@ import { Button, ModalTrigger } from "@erxes/ui/src";
 import React from "react";
 import styled from "styled-components";
 import styledTS from "styled-components-ts";
-import DetailForm from "./detailForm";
+import DetailForm from "./DetailForma";
 export const BurenscoringWrapper = styledTS<{ space: number }>(
   styled.div
 )`padding-left: ${(props) => props.space * 20}px;

@@ -40,18 +40,3 @@ export default function ListContainer(props: Props) {
   };
   return <List {...updatedProps} />;
 }
-
-// export default withProps<Props>(
-//   compose(
-//     graphql<Props, BurenScoringQueryResponse, {}>(
-//       gql(queries.burenCustomerScoringsMain),
-//       {
-//         name: "ListMainQuery",
-//         options: ({ queryParams }) => ({
-//           variables: generateParams({ queryParams }),
-//           fetchPolicy: "network-only",
-//         }),
-//       }
-//     )
-//   )(ListContainer)
-// );

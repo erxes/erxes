@@ -1,7 +1,7 @@
 import { CollapseContent, Table, __ } from "@erxes/ui/src";
 
 import { IBurenScoring } from "../types";
-import React, { useState } from "react";
+import React from "react";
 type Props = {
   customerScore: IBurenScoring;
 };
@@ -112,7 +112,7 @@ export default function DetailForm(props: Props) {
           <tbody>
             {inquiries.map((inquiry) => {
               return (
-                <tr>
+                <tr key={inquiry.ROWNUM}>
                   <th>{inquiry?.LOANTYPE}</th>
                   <th>{inquiry?.ADVAMOUNT}</th>
                   <th>{inquiry?.BALANCE}</th>
