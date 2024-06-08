@@ -1,3 +1,4 @@
+import { Button } from '@erxes/ui/src';
 import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -14,27 +15,18 @@ type Props = {
   burenScoring: any;
 };
 
-type State = {
-  checked: boolean;
-};
-
-class Row extends React.Component<Props, State> {
-  render() {
-    const { burenScoring } = this.props;
+export default function Row(props: Props) {
+    const { burenScoring } = props
     return (
       <tr>
-        <th>{burenScoring.score}</th>
-        <th>{burenScoring?.customer?.firstname || ''}</th>
         <th>{burenScoring.keyword}</th>
+        <th>{burenScoring?.score}</th>
         <th>{burenScoring.reportPurpose}</th>
-        <th>{burenScoring?.externalScoringResponse?.data?.detail?.creditSummary?.loanClasses?.total?.normal || 0}</th>
-        <th>{burenScoring?.externalScoringResponse?.data?.detail?.creditSummary?.loanClasses?.total?.bad || 0}</th>
-        <th>{burenScoring?.restInquiryResponse?.inquiry.lenght || 0}</th>
-        <th>{burenScoring?.externalScoringResponse?.data?.detail?.creditSummary?.loanClasses?.total?.bad || 0}</th>
-
+        <th>{burenScoring?.createdAt}</th>
+        <th><Button size="small" btnStyle="primary">Detail</Button></th>
       </tr>
     );
-  }
+  
 }
 
-export default Row;
+

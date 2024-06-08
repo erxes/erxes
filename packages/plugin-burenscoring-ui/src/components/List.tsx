@@ -20,13 +20,11 @@ function List({
     <Table $whiteSpace="nowrap" $bordered={true} $hover={true} $striped>
       <thead>
         <tr>
-          <th>{__('score')}</th>
-          <th>{__('firstname')}</th>
-          <th>{__('registerno')}</th>
-          <th>{__('Type')}</th>
-          <th>{__('active normal loans')}</th>
-          <th>{__('active bad loans')}</th>
-          <th>{__('closed loans')}</th>
+          <th>{__('Register')}</th>
+          <th>{__('Score')}</th>
+          <th>{__('Purpose')}</th>
+          <th>{__('date')}</th>
+          <th>{__('detail')}</th>
         </tr>
       </thead>
       <tbody id={'BurenscoringsShowing'}>
@@ -42,7 +40,7 @@ function List({
     </Table>
   );
   const breadcrumb = [
-    { title: __('Settings'), link: '/settings' },
+    { title: __('Scoring'), link: '/Burenscoring' },
     { title: __('Burenscorings'), link: '/burenscorings' }
   ];
 
