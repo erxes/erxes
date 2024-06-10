@@ -1,6 +1,5 @@
 import React from 'react';
-import { useMutation } from '@apollo/client';
-import { gql } from '@apollo/client';
+import { useMutation , gql } from '@apollo/client';
 // erxes
 import { Alert } from '@erxes/ui/src/utils';
 // local
