@@ -1,4 +1,4 @@
-import { Alert, __ } from "@erxes/ui/src/utils";
+import { Alert } from "@erxes/ui/src/utils";
 import {
   CustomRangeContainer,
   FlexCenter,
@@ -30,10 +30,10 @@ const extractForm = (props: Props) => {
   const { departments, branches, extractTimeLogsFromMsSQL } = props;
 
   const [extractType, setExtractType] = useState("All team members");
-  const [currUserIds, setUserIds] = useState([]);
+  const [currUserIds, setCurrUserIds] = useState([]);
 
-  const [selectedBranches, setBranches] = useState<string[]>([]);
-  const [selectedDepartments, setDepartments] = useState<string[]>([]);
+  const [selectedBranches, setSelectedBranches] = useState<string[]>([]);
+  const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
 
   const [startDate, setStartDate] = useState(
     new Date(localStorage.getItem("startDate") || Date.now())
@@ -61,17 +61,17 @@ const extractForm = (props: Props) => {
   const onBranchSelect = (el) => {
     const selectedBranchIds: string[] = [];
     selectedBranchIds.push(...el.map((branch) => branch.value));
-    setBranches(selectedBranchIds);
+    setSelectedBranches(selectedBranchIds);
   };
 
   const onDepartmentSelect = (el) => {
     const selectedDeptIds: string[] = [];
     selectedDeptIds.push(...el.map((dept) => dept.value));
-    setDepartments(selectedDeptIds);
+    setSelectedDepartments(selectedDeptIds);
   };
 
   const onMemberSelect = (selectedUsers) => {
-    setUserIds(selectedUsers);
+    setCurrUserIds(selectedUsers);
   };
 
   const onStartDateChange = (dateVal) => {
