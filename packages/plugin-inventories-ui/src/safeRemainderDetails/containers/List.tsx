@@ -1,9 +1,8 @@
 import React from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import { useQuery, useMutation } from '@apollo/client';
+import { useQuery, useMutation, gql } from '@apollo/client';
 import { router } from '@erxes/ui/src/utils';
 import queryString from 'query-string';
-import { gql } from '@apollo/client';
 // erxes
 import Alert from '@erxes/ui/src/utils/Alert';
 // local
