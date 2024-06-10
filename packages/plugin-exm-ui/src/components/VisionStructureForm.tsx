@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 
 import CommonForm from '@erxes/ui-settings/src/common/components/Form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps , IFormProps } from '@erxes/ui/src/types';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-import { IFormProps } from '@erxes/ui/src/types';
 
 type Props = {
   object?: any;
