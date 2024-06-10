@@ -1,6 +1,5 @@
-import { Model } from 'mongoose';
+import { Model, Document, Schema } from 'mongoose';
 
-import { Document, Schema } from 'mongoose';
 
 interface IDiscussion {
   createdAt: Date;
