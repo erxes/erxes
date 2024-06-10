@@ -1,7 +1,3 @@
-import { ICompany } from '@erxes/ui-contacts/src/companies/types';
-import { IContract } from '../contracts/types';
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-
 export interface ITrDefaultDoc {
   date: Date;
   description: string;

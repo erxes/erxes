@@ -1,5 +1,4 @@
 import { Alert, Bulk, router } from "@erxes/ui/src";
-import { gql } from "@apollo/client";
 import queryString from "query-string";
 import React, { useState } from "react";
 
@@ -7,7 +6,7 @@ import { FILTER_PARAMS_TR } from "../../constants";
 import TransactionList from "../components/TransactionList";
 import { mutations, queries } from "../graphql";
 import { MainQueryResponse, RemoveMutationResponse } from "../types";
-import { useQuery, useMutation } from "@apollo/client";
+import { useQuery, useMutation, gql } from "@apollo/client";
 import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {

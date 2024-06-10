@@ -1,5 +1,5 @@
-import { dimensions } from '@erxes/ui/src';
-import styled, { css } from 'styled-components';
+import { dimensions } from "@erxes/ui/src";
+import styled from "styled-components";
 
 export const ContentBox = styled.div`
   padding: ${dimensions.coreSpacing}px;

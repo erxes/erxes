@@ -10,7 +10,6 @@ import {
   Table,
   Wrapper,
   confirm,
-  router,
 } from "@erxes/ui/src";
 import React, { useRef, useState } from "react";
 
