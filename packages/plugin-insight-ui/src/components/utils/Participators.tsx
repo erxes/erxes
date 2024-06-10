@@ -68,7 +68,7 @@ const Participators = (props: Props) => {
   return (
     <ParticipatorWrapper>
       {participatedUsers
-        .slice(0, limit ? limit : length)
+        .slice(0, limit || length)
         .map((user) => Trigger(user))}
       {limit && length - limit > 0 && Tooltip}
     </ParticipatorWrapper>
