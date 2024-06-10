@@ -6,22 +6,22 @@ import {
   LogDesc,
   IDescriptions,
   getSchemaLabels,
-} from '@erxes/api-utils/src/logUtils';
-import { IModels, generateModels } from './connectionResolver';
-import { ITagDocument, tagSchema } from './models/definitions/tags';
+} from "@erxes/api-utils/src/logUtils";
+import { IModels, generateModels } from "./connectionResolver";
+import { ITagDocument, tagSchema } from "./models/definitions/tags";
 
 export const LOG_ACTIONS = {
-  CREATE: 'create',
-  UPDATE: 'update',
-  DELETE: 'delete',
+  CREATE: "create",
+  UPDATE: "update",
+  DELETE: "delete",
 };
 
 const gatherTagNames = async (
   models: IModels,
   doc: ITagDocument,
-  prevList?: LogDesc[],
+  prevList?: LogDesc[]
 ) => {
-  const options: LogDesc[] = prevList ? prevList : [];
+  const options: LogDesc[] = prevList || [];
 
   if (doc.parentId) {
     const parent = await models.Tags.findOne({ _id: doc.parentId });
@@ -47,7 +47,7 @@ const gatherTagNames = async (
 
 const gatherDescriptions = async (
   models: IModels,
-  params: any,
+  params: any
 ): Promise<IDescriptions> => {
   const { action, object, updatedDocument } = params;
 
@@ -70,7 +70,7 @@ export const putDeleteLog = async (models, subdomain, logDoc, user) => {
   await commonPutDeleteLog(
     subdomain,
     { ...logDoc, description, extraDesc, type: `tags:${logDoc.type}` },
-    user,
+    user
   );
 };
 
@@ -83,7 +83,7 @@ export const putUpdateLog = async (models, subdomain, logDoc, user) => {
   await commonPutUpdateLog(
     subdomain,
     { ...logDoc, description, extraDesc, type: `tags:${logDoc.type}` },
-    user,
+    user
   );
 };
 
@@ -96,13 +96,13 @@ export const putCreateLog = async (models, subdomain, logDoc, user) => {
   await commonPutCreateLog(
     subdomain,
     { ...logDoc, description, extraDesc, type: `tags:${logDoc.type}` },
-    user,
+    user
   );
 };
 
 export const putActivityLog = async (
   subdomain: string,
-  params: { action: string; data: any },
+  params: { action: string; data: any }
 ) => {
   const { data } = params;
 
@@ -124,14 +124,14 @@ export const putActivityLog = async (
 
 export default {
   getSchemaLabels: ({ data: { type } }) => ({
-    status: 'success',
-    data: getSchemaLabels(type, [{ name: 'tag', schemas: [tagSchema] }]),
+    status: "success",
+    data: getSchemaLabels(type, [{ name: "tag", schemas: [tagSchema] }]),
   }),
   getActivityContent: async ({ subdomain, data }) => {
     const { action, content } = data;
     const models = await generateModels(subdomain);
 
-    if (action === 'tagged') {
+    if (action === "tagged") {
       let tags: ITagDocument[] = [];
 
       if (content) {
@@ -140,13 +140,13 @@ export default {
 
       return {
         data: tags,
-        status: 'success',
+        status: "success",
       };
     }
 
     return {
-      status: 'error',
-      data: 'wrong action',
+      status: "error",
+      data: "wrong action",
     };
   },
 };

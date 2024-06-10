@@ -1,12 +1,12 @@
 import {
   checkPermission,
   requireLogin,
-} from '@erxes/api-utils/src/permissions';
+} from "@erxes/api-utils/src/permissions";
 
-import { IContext } from '../../../connectionResolver';
-import { paginate } from '@erxes/api-utils/src';
-import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
-import { getContentTypes } from '../../../utils';
+import { IContext } from "../../../connectionResolver";
+import { paginate } from "@erxes/api-utils/src";
+import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
+import { getContentTypes } from "../../../utils";
 
 const tagQueries = {
   /**
@@ -44,7 +44,7 @@ const tagQueries = {
       type: string;
       searchValue?: string;
     },
-    { models, commonQuerySelector }: IContext,
+    { models, commonQuerySelector }: IContext
   ) {
     const selector: any = { ...commonQuerySelector };
 
@@ -53,7 +53,7 @@ const tagQueries = {
     }
 
     if (searchValue) {
-      selector.name = new RegExp(`.*${searchValue}.*`, 'i');
+      selector.name = new RegExp(`.*${searchValue}.*`, "i");
     }
 
     const tagsCount = await models.Tags.find(selector).countDocuments();
@@ -82,14 +82,14 @@ const tagQueries = {
       page: any;
       perPage: any;
     },
-    { models, commonQuerySelector, serverTiming }: IContext,
+    { models, commonQuerySelector, serverTiming }: IContext
   ) {
-    serverTiming.startTime('query');
+    serverTiming.startTime("query");
 
     const selector: any = { ...commonQuerySelector };
 
     if (type) {
-      const [serviceName, contentType] = type.split(":")
+      const [serviceName, contentType] = type.split(":");
 
       if (contentType === "all") {
         const contentTypes: Array<string> = await getContentTypes(serviceName);
@@ -100,7 +100,7 @@ const tagQueries = {
     }
 
     if (searchValue) {
-      selector.name = new RegExp(`.*${searchValue}.*`, 'i');
+      selector.name = new RegExp(`.*${searchValue}.*`, "i");
     }
 
     if (tagIds) {
@@ -108,7 +108,7 @@ const tagQueries = {
     }
 
     if (ids && ids.length > 0) {
-      selector._id = { [excludeIds ? '$nin' : '$in']: ids };
+      selector._id = { [excludeIds ? "$nin" : "$in"]: ids };
     }
 
     const pagintationArgs = { page, perPage };
@@ -118,20 +118,18 @@ const tagQueries = {
     }
 
     if (parentId) {
-      const parentTag = await models.Tags.find({ parentId }).distinct('_id');
+      const parentTag = await models.Tags.find({ parentId }).distinct("_id");
       let ids = [parentId, ...parentTag];
 
       const getChildTags = async (parentTagIds: string[]) => {
         const childTag = await models.Tags.find({
           parentId: { $in: parentTagIds },
-        }).distinct('_id');
+        }).distinct("_id");
 
         if (childTag.length > 0) {
           ids = [...ids, ...childTag];
           await getChildTags(childTag);
         }
-
-        return;
       };
 
       await getChildTags(parentTag);
@@ -143,10 +141,10 @@ const tagQueries = {
       models.Tags.find(selector).sort({
         order: 1,
       }),
-      pagintationArgs,
+      pagintationArgs
     );
 
-    serverTiming.endTime('query');
+    serverTiming.endTime("query");
 
     return tags;
   },
@@ -159,7 +157,7 @@ const tagQueries = {
   },
 };
 
-requireLogin(tagQueries, 'tagDetail');
-checkPermission(tagQueries, 'tags', 'showTags', []);
+requireLogin(tagQueries, "tagDetail");
+checkPermission(tagQueries, "tags", "showTags", []);
 
 export default tagQueries;
