@@ -1,14 +1,14 @@
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import React from 'react';
-import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
-import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
-import { __ } from '@erxes/ui/src/utils/core';
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import React from "react";
+import SelectBrand from "@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand";
+import SelectChannels from "@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels";
+import { __ } from "@erxes/ui/src/utils/core";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -18,25 +18,21 @@ type Props = {
 };
 
 class IntegrationForm extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-  }
-
   generateDoc = (values: { name: string; brandId: string; token: string }) => {
     return {
       name: values.name,
       brandId: values.brandId,
-      kind: 'viber',
+      kind: "viber",
       data: {
-        token: values.token
-      }
+        token: values.token,
+      },
     };
   };
 
   renderField = ({
     label,
     fieldName,
-    formProps
+    formProps,
   }: {
     label: string;
     fieldName: string;
@@ -49,7 +45,7 @@ class IntegrationForm extends React.Component<Props> {
           {...formProps}
           name={fieldName}
           required={true}
-          autoFocus={fieldName === 'name'}
+          autoFocus={fieldName === "name"}
         />
       </FormGroup>
     );
@@ -63,14 +59,14 @@ class IntegrationForm extends React.Component<Props> {
       <>
         <p>Please enter your Viber app info</p>
 
-        {this.renderField({ label: 'Name', fieldName: 'name', formProps })}
+        {this.renderField({ label: "Name", fieldName: "name", formProps })}
 
-        {this.renderField({ label: 'Token', fieldName: 'token', formProps })}
+        {this.renderField({ label: "Token", fieldName: "token", formProps })}
 
         <SelectBrand
           isRequired={true}
           formProps={formProps}
-          description={'Which specific Brand does this integration belong to?'}
+          description={"Which specific Brand does this integration belong to?"}
         />
 
         <SelectChannels
@@ -84,7 +80,7 @@ class IntegrationForm extends React.Component<Props> {
           target="_blank"
           rel="noreferrer"
         >
-          {__('Get your viber token')}
+          {__("Get your viber token")}
         </a>
 
         <ModalFooter>
@@ -99,7 +95,7 @@ class IntegrationForm extends React.Component<Props> {
           {renderButton({
             values: this.generateDoc(values),
             isSubmitted,
-            callback
+            callback,
           })}
         </ModalFooter>
       </>
