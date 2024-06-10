@@ -87,7 +87,7 @@ const Form = (props: Props) => {
   const [metric, setMetric] = useState<string>(goal.metric || METRIC[0].value);
   const [target, setTarget] = useState<number>(goal.target || 0);
 
-  const [specificPeriodGoals, setspecificPeriodGoals] = useState<
+  const [specificPeriodGoals, setSpecificPeriodGoals] = useState<
     Array<{
       _id: string;
       addMonthly: string;
@@ -164,7 +164,7 @@ const Form = (props: Props) => {
         (periodGoal === "Weekly" && goal.addMonthly.includes("Week"))
     );
 
-    setspecificPeriodGoals(filteredGoals);
+    setSpecificPeriodGoals(filteredGoals);
   };
 
   const renderContent = (formProps: IFormProps) => {
