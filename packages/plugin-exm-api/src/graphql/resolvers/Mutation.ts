@@ -56,6 +56,7 @@ const exmMutations = {
         isRPC: true
       });
     } catch (e) {
+      console.log('Error occured: ', e)
       throw e;
     }
   }
