@@ -156,7 +156,6 @@ const generateMessages = async (
 
 export const checkMessageTrigger = (subdomain, { target, config }) => {
   const { conditions = [], botId } = config;
-  console.log({ botId, target, conditions });
   if (target.botId !== botId) {
     return;
   }

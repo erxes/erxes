@@ -148,7 +148,6 @@ const receiveMessage = async (
   });
 
   if (!conversationMessage) {
-    console.log({ mid: message.mid, conversationMessage });
     try {
       const created = await models.ConversationMessages.create({
         conversationId: conversation._id,
