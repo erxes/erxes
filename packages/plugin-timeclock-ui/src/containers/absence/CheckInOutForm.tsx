@@ -3,16 +3,16 @@ import {
   IAbsence,
   TimeClockMutationResponse,
   TimeClockQueryResponse,
-  TimeLogsPerUserQueryResponse
-} from '../../types';
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import * as compose from 'lodash.flowright';
-import { graphql } from '@apollo/client/react/hoc';
-import { gql } from '@apollo/client';
-import { mutations, queries } from '../../graphql';
-import CheckInOutForm from '../../components/absence/CheckInOutForm';
-import React from 'react';
-import { TimeClockPerUserQueryResponse } from '../../types';
+  TimeLogsPerUserQueryResponse,
+  TimeClockPerUserQueryResponse,
+} from "../../types";
+import { Alert, withProps } from "@erxes/ui/src/utils";
+import * as compose from "lodash.flowright";
+import { graphql } from "@apollo/client/react/hoc";
+import { gql } from "@apollo/client";
+import { mutations, queries } from "../../graphql";
+import CheckInOutForm from "../../components/absence/CheckInOutForm";
+import React from "react";
 
 type Props = {
   userId: string;
@@ -51,23 +51,23 @@ const ListContainer = (props: FinalProps) => {
     listTimeclocksPerUser,
     timeclockEditMutation,
     timeclockCreateMutation,
-    solveAbsenceMutation
+    solveAbsenceMutation,
   } = props;
 
-  const editTimeclock = values => {
+  const editTimeclock = (values) => {
     timeclockEditMutation({ variables: values })
-      .then(() => Alert.success('Successfully edited time clock'))
-      .catch(err => Alert.error(err.message));
+      .then(() => Alert.success("Successfully edited time clock"))
+      .catch((err) => Alert.error(err.message));
   };
 
-  const createTimeclock = values => {
+  const createTimeclock = (values) => {
     timeclockCreateMutation({ variables: values })
-      .then(() => Alert.success('Successfully created time clock'))
-      .catch(err => Alert.error(err.message));
+      .then(() => Alert.success("Successfully created time clock"))
+      .catch((err) => Alert.error(err.message));
   };
 
-  const solveAbsence = values => {
-    solveAbsenceMutation({ variables: values }).catch(err =>
+  const solveAbsence = (values) => {
+    solveAbsenceMutation({ variables: values }).catch((err) =>
       Alert.error(err.message)
     );
   };
@@ -78,7 +78,7 @@ const ListContainer = (props: FinalProps) => {
     editTimeclock,
     solveAbsence,
     timelogsPerUser: listTimeLogsPerUser.timeLogsPerUser || [],
-    timeclocksPerUser: listTimeclocksPerUser.timeclocksPerUser || []
+    timeclocksPerUser: listTimeclocksPerUser.timeclocksPerUser || [],
   };
 
   return <CheckInOutForm {...updatedProps} />;
@@ -87,43 +87,43 @@ const ListContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql<Props, TimeClockQueryResponse>(gql(queries.timeclocksPerUser), {
-      name: 'listTimeclocksPerUser',
+      name: "listTimeclocksPerUser",
       options: ({ userId, startDate, endDate }) => ({
         variables: { userId, startDate, endDate },
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: "network-only",
+      }),
     }),
 
     graphql<Props, TimeClockQueryResponse>(gql(queries.timeLogsPerUser), {
-      name: 'listTimeLogsPerUser',
+      name: "listTimeLogsPerUser",
       options: ({ userId, startDate, endDate }) => ({
         variables: { userId, startDate, endDate },
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: "network-only",
+      }),
     }),
 
     graphql<Props, TimeClockQueryResponse>(gql(mutations.timeclockEdit), {
-      name: 'timeclockEditMutation',
+      name: "timeclockEditMutation",
       options: () => ({
-        refetchQueries: ['timeclocksMain']
-      })
+        refetchQueries: ["timeclocksMain"],
+      }),
     }),
 
     graphql<Props, TimeClockQueryResponse>(gql(mutations.timeclockCreate), {
-      name: 'timeclockCreateMutation'
+      name: "timeclockCreateMutation",
     }),
 
     graphql<Props, AbsenceMutationResponse>(
       gql(mutations.solveAbsenceRequest),
       {
-        name: 'solveAbsenceMutation',
+        name: "solveAbsenceMutation",
         options: ({ absenceId, status }) => ({
           variables: {
             _id: absenceId,
-            status
+            status,
           },
-          refetchQueries: ['requestsMain']
-        })
+          refetchQueries: ["requestsMain"],
+        }),
       }
     )
   )(ListContainer)
