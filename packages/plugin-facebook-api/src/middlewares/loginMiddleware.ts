@@ -73,7 +73,11 @@ const loginMiddleware = async (req, res) => {
   // we'll send that and get the access token
 
   return graph.authorize(config, async (_err, facebookRes) => {
+<<<<<<< HEAD
     console.log(_err, '_err');
+=======
+    console.log(_err, facebookRes, 'facebook-res');
+>>>>>>> d9486077479f7567a0e9a9cba843b614170b3707
     const { access_token } = facebookRes;
 
     const userAccount: {

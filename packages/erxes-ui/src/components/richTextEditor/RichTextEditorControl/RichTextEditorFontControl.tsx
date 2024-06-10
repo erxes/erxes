@@ -1,8 +1,12 @@
-import { FontSelectWrapper } from "./styles";
-import React from "react";
-import Select from "react-select";
-import { getAttributesForEachSelected } from "../utils/getAttributesForEachSelected";
-import { useRichTextEditorContext } from "../RichTextEditor.context";
+import React from 'react';
+import Select, { type DropdownIndicatorProps, components } from 'react-select';
+import { getAttributesForEachSelected } from '../utils/getAttributesForEachSelected';
+import { useRichTextEditorContext } from '../RichTextEditor.context';
+import Icon from '../../Icon';
+import styled from 'styled-components';
+import { rgba } from '../../../styles/ecolor';
+import { colors } from '../../../styles';
+import { getReactSelectStyle } from './styles';
 
 export type SelectProps = {
   value: string;
@@ -10,26 +14,37 @@ export type SelectProps = {
 };
 
 const DEFAULT_FONT_SIZE_SELECT_OPTIONS: Array<any> = [
-  "default",
-  "8",
-  "9",
-  "10",
-  "11",
-  "12",
-  "14",
-  "16",
-  "18",
-  "20",
-  "22",
-  "24",
-  "26",
-  "28",
-  "36",
-  "42",
-  "72",
+  'default',
+  '8',
+  '9',
+  '10',
+  '11',
+  '12',
+  '14',
+  '16',
+  '18',
+  '20',
+  '22',
+  '24',
+  '26',
+  '28',
+  '36',
+  '42',
+  '72',
 ];
 
-export const RichTextEditorFontControl = ({ toolbarPlacement }) => {
+const MoreIcon = () => <Icon icon="angle-down" />;
+
+const DropdownIndicator: React.FC<DropdownIndicatorProps> = (props) => {
+  return (
+    <components.DropdownIndicator {...props}>
+      <MoreIcon />
+    </components.DropdownIndicator>
+  );
+};
+const StyledSelect = styled(Select)``;
+
+export const RichTextEditorFontControl = () => {
   const { editor, isSourceEnabled } = useRichTextEditorContext();
   // Determine if all of the selected content shares the same set font size.
   // Scenarios:
@@ -44,17 +59,17 @@ export const RichTextEditorFontControl = ({ toolbarPlacement }) => {
   //    unsetOption as selected.
 
   const allCurrentTextStyleAttrs = editor
-    ? getAttributesForEachSelected(editor?.state, "textStyle")
+    ? getAttributesForEachSelected(editor?.state, 'textStyle')
     : [];
-  const isTextStyleAppliedToEntireSelection = !!editor?.isActive("textStyle");
+  const isTextStyleAppliedToEntireSelection = !!editor?.isActive('textStyle');
   const currentFontSizes: string[] = allCurrentTextStyleAttrs.map(
-    (attrs) => attrs.fontSize ?? "" // Treat any null/missing font-size as ""
+    (attrs) => attrs.fontSize ?? '' // Treat any null/missing font-size as ""
   );
   if (!isTextStyleAppliedToEntireSelection) {
     // If there is some selected content that does not have textStyle, we can
     // treat it the same as a selected textStyle mark with fontSize set to null
     // or ""
-    currentFontSizes.push("");
+    currentFontSizes.push('');
   }
   const numUniqueCurrentFontSizes = new Set(currentFontSizes).size;
 
@@ -71,38 +86,41 @@ export const RichTextEditorFontControl = ({ toolbarPlacement }) => {
     // selected, which would prevent the user from unsetting the font sizes
     // for the selected content (since Select onChange does not fire when the
     // currently selected option is chosen again).
-    currentFontSize = "";
+    currentFontSize = '';
   } else {
     // Show as unset (empty), since there are no font sizes in any of the
     // selected content. This will show the "unset option" with the
     // unsetOptionLabel as selected, if `hideUnsetOption` is false.
-    currentFontSize = "";
+    currentFontSize = '';
   }
 
   const setSize = (size: string) => {
-    if (size === "default") {
+    if (size === 'default') {
       editor?.chain().unsetFontSize().focus().run();
       return;
     }
     editor?.chain().setFontSize(size).focus().run();
   };
 
-  const options = DEFAULT_FONT_SIZE_SELECT_OPTIONS.map((size) => ({
-    value: size,
-    label: size,
-  }));
-
   return (
-    <FontSelectWrapper $toolbarPlacement={toolbarPlacement}>
-      <Select
-        placeholder="Size"
-        isMulti={false}
-        value={options.find((o) => o.value === (currentFontSize || ""))}
-        onChange={(val: any) => setSize(val.value)}
-        options={options}
-        isDisabled={isSourceEnabled}
-        isSearchable={false}
-      />
-    </FontSelectWrapper>
+    <StyledSelect
+      placeholder="Size"
+      isMulti={false}
+      isSearchable={false}
+      menuPlacement="auto"
+      maxMenuHeight={200}
+      value={currentFontSize || ''}
+      onChange={(val: any) => setSize(val.value)}
+      options={DEFAULT_FONT_SIZE_SELECT_OPTIONS.map((size) => ({
+        value: size,
+        label: size,
+      }))}
+      isDisabled={isSourceEnabled}
+      components={{
+        DropdownIndicator,
+      }}
+      menuPortalTarget={document.body}
+      styles={getReactSelectStyle(isSourceEnabled)}
+    />
   );
 };

@@ -1,32 +1,14 @@
+import { FlexRow, LeftContent } from '@erxes/ui-settings/src/styles';
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import { IOption } from "@erxes/ui/src/types";
 import { __ } from "@erxes/ui/src/utils";
 import React from "react";
 import Select from "react-select";
-import styled from "styled-components";
 
 import { IPaymentDocument } from "../types";
 
-const LeftContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-`;
 
-const Row = styled.div`
-  display: flex;
-
-  .Select {
-    flex: 1;
-  }
-
-  button {
-    flex-shrink: 0;
-    margin-left: 10px;
-    align-self: baseline;
-  }
-`;
 
 type Props = {
   payments: IPaymentDocument[];
@@ -63,7 +45,7 @@ const SelectPayments: React.FC<Props> = (props) => {
           ? description
           : __("Select payments that you want to use ")}
       </p>
-      <Row>
+      <FlexRow>
         <LeftContent>
           <Select
             placeholder={__("Select payments")}
@@ -75,7 +57,7 @@ const SelectPayments: React.FC<Props> = (props) => {
             isMulti={true}
           />
         </LeftContent>
-      </Row>
+      </FlexRow>
     </FormGroup>
   );
 };
