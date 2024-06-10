@@ -26,7 +26,6 @@ const receiveMessage = async (
   subdomain: string,
   activity: Activity
 ) => {
-  console.log('received message');
   let {
     recipient,
     sender,
@@ -52,8 +51,6 @@ const receiveMessage = async (
     message.payload = message.quick_reply.payload;
   }
 
-  console.log('startging message');
-
   const integration = await models.Integrations.getIntegration({
     $and: [
       { facebookPageIds: { $in: [recipient.id] } },
@@ -74,19 +71,13 @@ const receiveMessage = async (
     kind
   );
 
-  console.log('Customer:', !!customer);
-
   // get conversation
   let conversation = await models.Conversations.findOne({
     senderId: userId,
     recipientId: recipient.id
   });
 
-  console.log('conversation:');
-
   const botId = await checkIsBot(models, message, recipient.id);
-
-  console.log('botId:', botId);
 
   // create conversation
   if (!conversation) {
@@ -125,11 +116,8 @@ const receiveMessage = async (
       url: att.payload ? att.payload.url : ''
     }));
 
-  console.log('formattedAttachments:');
-
   // save on api
   try {
-    console.log('create-or-update-conversation');
     const apiConversationResponse = await sendInboxMessage({
       subdomain,
       action: 'integrations.receive',
@@ -147,8 +135,6 @@ const receiveMessage = async (
       isRPC: true
     });
 
-    console.log('create-or-update-conversation Done:');
-
     conversation.erxesApiId = apiConversationResponse._id;
 
     await conversation.save();
@@ -161,9 +147,9 @@ const receiveMessage = async (
     mid: message.mid
   });
 
-  console.log('conversation Message');
+  console.log({ mid: message.mid, conversationMessage });
+
   if (!conversationMessage) {
-    console.log('conversation Message dasc');
     try {
       const created = await models.ConversationMessages.create({
         conversationId: conversation._id,
@@ -174,7 +160,6 @@ const receiveMessage = async (
         attachments: formattedAttachments,
         botId
       });
-      console.log('created');
       await sendInboxMessage({
         subdomain,
         action: 'conversationClientMessageInserted',
@@ -183,8 +168,6 @@ const receiveMessage = async (
           conversationId: conversation.erxesApiId
         }
       });
-
-      console.log('pubsub');
 
       graphqlPubsub.publish(
         `conversationMessageInserted:${conversation.erxesApiId}`,
@@ -195,9 +178,7 @@ const receiveMessage = async (
           }
         }
       );
-      console.log('pubsub Done');
       conversationMessage = created;
-      console.log({ payload: JSON.parse(message.payload || '{}') });
       await putCreateLog(
         models,
         subdomain,
