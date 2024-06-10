@@ -10,7 +10,6 @@ import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
-import Table from "@erxes/ui/src/components/table";
 // local
 import { TableTransactionAdd } from "../../styles";
 // erxes
