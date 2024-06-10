@@ -57,8 +57,12 @@ const useOrderCU = (onCompleted?: (id: string) => void) => {
         setCartChanged(false)
         return onCompleted && onCompleted(_id)
       },
+      onError(error) {
+        if (origin !== "market") {
+          return onError(error)
+        }
+      },
       refetchQueries: ["orderDetail", "PoscSlots"],
-      onError,
     }
   )
 

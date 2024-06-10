@@ -8,6 +8,8 @@ import { atomWithStorage } from "jotai/utils"
 import { modeT } from "@/types/config.types"
 import { IPaymentAmountType } from "@/types/order.types"
 
+import { setInitialAtom } from "./order.store"
+
 // products
 export const searchAtom = atom<string>("")
 export const activeCategoryAtom = atom<string>("")
@@ -64,6 +66,16 @@ export const scrollWidthAtom = atomWithStorage<number>("scrollWidth", 8)
 export const mobileTabAtom = atomWithStorage<"products" | "checkout">(
   "mobileTab",
   "products"
+)
+
+export const resetAtom = atom(
+  () => "",
+  (get, set) => {
+    set(setInitialAtom)
+    set(activeCategoryAtom, "")
+    set(slotFilterAtom, null)
+    set(refetchUserAtom, true)
+  }
 )
 
 const JotaiProvider = ({ children }: { children: React.ReactNode }) => {
