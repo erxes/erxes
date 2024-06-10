@@ -48,8 +48,9 @@ export const types = `
     customer: Customer,
     company: Company,
     calcedInfo: CalcedInfo
-    currency:String
-    ebarimt:JSON
+    currency: String
+    ebarimt: JSON
+    transactionType: String
   }
 
   type TransactionsListResponse {
@@ -73,6 +74,7 @@ const queryParams = `
   sortField: String
   sortDirection: Int
   description: String
+  transactionType: String
   total: Float
 `;
 

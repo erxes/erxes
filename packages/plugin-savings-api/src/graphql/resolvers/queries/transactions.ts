@@ -42,15 +42,13 @@ const generateFilter = async (models, params, commonQuerySelector) => {
 
   if (params.startDate && params.endDate) {
     filter.payDate = {
-      $and: [
-        { $gte: new Date(params.startDate) },
-        { $lte: new Date(params.endDate) }
-      ]
+      $gte: new Date(params.startDate),
+      $lte: new Date(params.endDate)
     };
   }
 
   if (params.payDate === 'today') {
-    filter.payDate = { $and: [{ $gte: new Date() }, { $lte: new Date() }] };
+    filter.payDate = { $gte: new Date(), $lte: new Date() };
   }
 
   if (params.contractHasnt) {
@@ -66,9 +64,9 @@ const generateFilter = async (models, params, commonQuerySelector) => {
       $in: [new RegExp(`.*${params.description}.*`, 'i')]
     };
   }
-  
+
   if (params.total) {
-    filter.total = params.total
+    filter.total = params.total;
   }
 
   return filter;
