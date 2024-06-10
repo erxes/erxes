@@ -11,8 +11,6 @@ import {
 } from "@erxes/ui/src";
 import React, { useState } from "react";
 import { can, isEnabled } from "@erxes/ui/src/utils/core";
-
-import BlockForm from "../../containers/detail/BlockForm";
 import CloseForm from "../../containers/detail/CloseForm";
 import ContractForm from "../../containers/ContractForm";
 import DetailInfo from "./DetailInfo";
