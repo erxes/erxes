@@ -1,12 +1,10 @@
 import { sendMessage } from '@erxes/api-utils/src/core';
 import type {
-  MessageArgs,
   MessageArgsOmitService,
 } from '@erxes/api-utils/src/core';
-import { consumeQueue } from '@erxes/api-utils/src/messageBroker';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import { sendRPCMessage as sendRPCMessageCore } from '@erxes/api-utils/src/messageBroker';
-export const setupMessageConsumers = async () => {};
+export const setupMessageConsumers = async () => { };
 
 export const sendRPCMessage = async (message): Promise<any> => {
   return sendRPCMessageCore('rpc_queue:api_to_integrations', message);
