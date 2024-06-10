@@ -1,9 +1,7 @@
 import dayjs from "dayjs";
-import { __ } from "coreui/utils";
-import _ from "lodash";
 import React from "react";
 
-import { ExtraRow, DidAmount, WillAmount } from "../../styles";
+import { ExtraRow, DidAmount } from "../../styles";
 import { ITransaction } from "../../../transactions/types";
 
 type Props = {

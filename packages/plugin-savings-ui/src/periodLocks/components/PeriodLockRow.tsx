@@ -31,10 +31,9 @@ function renderFormTrigger(trigger: React.ReactNode, periodLock: IPeriodLock) {
 
 function renderEditAction(periodLock: IPeriodLock) {
   const trigger = (
-    <ActionButton
-      style={{ cursor: "pointer" }}
-      children={<Icon icon="edit-1" />}
-    />
+    <ActionButton style={{ cursor: "pointer" }}>
+      <Icon icon="edit-1" />
+    </ActionButton>
   );
 
   return renderFormTrigger(trigger, periodLock);
