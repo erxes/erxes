@@ -275,8 +275,6 @@ export const checkPermission = async (
   if (!allowed) {
     throw new Error('Permission required');
   }
-
-  return;
 };
 
 export const createConformity = async (
