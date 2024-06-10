@@ -1,5 +1,4 @@
 import * as xlsxPopulate from 'xlsx-populate';
-import { IModels } from './connectionResolver';
 import { chartGetResult } from './graphql/resolvers/utils';
 
 /**

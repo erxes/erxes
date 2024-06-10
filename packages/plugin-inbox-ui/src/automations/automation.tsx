@@ -3,13 +3,12 @@ import HistoryName from './components/HistoryName';
 
 const Automation = props => {
   const { componentType } = props;
-
-  switch (componentType) {
-    case 'HistoryName':
-      return <HistoryName {...props} />;
-
-    default:
-      return null;
+  if(componentType ==='HistoryName'){
+    return <HistoryName{...props}/>;
+  }
+  else
+  {
+    return null;
   }
 };
 
