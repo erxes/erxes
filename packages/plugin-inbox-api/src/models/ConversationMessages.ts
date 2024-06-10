@@ -61,7 +61,7 @@ export const loadClass = (models: IModels) => {
 
       if (!doc.fromBot) {
         convDocModifier.messageCount = messageCount;
-        convDocModifier.isCustomerRespondedLast = doc.customerId ? true : false;
+        convDocModifier.isCustomerRespondedLast = !! doc.customerId;
       }
 
       await models.Conversations.updateConversation(
