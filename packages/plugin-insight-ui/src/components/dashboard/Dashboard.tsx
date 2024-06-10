@@ -229,7 +229,7 @@ const Dashboard = (props: Props) => {
       <DataWithLoader
         data={
           <DragField
-            haveChart={(charts ?? []).length ? true : false}
+            haveChart={!!charts.length}
             cols={2 * 3}
             margin={[30, 30]}
             onDragStart={() => setIsDragging(true)}
