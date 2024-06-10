@@ -134,12 +134,11 @@ export const sendEmail = async (
     if (VERSION === 'saas') {
       const serverId = getEnv({ name: 'SOCKETLABS_SERVER_ID' });
       const password = getEnv({ name: 'SOCKETLABS_PASSWORD' });
-      console.log(serverId);
-      console.log(password);
-
+  
       transporter = nodemailer.createTransport({
         host: 'smtp.socketlabs.com',
-        port: 587,
+        port: 465,
+        secure: true,
         auth: {
           user: `server${serverId}`,
           pass: password,
@@ -1183,7 +1182,7 @@ export const uploadFile = async (
   if (UPLOAD_SERVICE_TYPE === 'CLOUDFLARE') {
     nameOrLink = await uploadFileCloudflare(
       file,
-      VERSION === 'saas' ? true : false,
+      !!(VERSION === 'saas'),
       models
     );
   }
