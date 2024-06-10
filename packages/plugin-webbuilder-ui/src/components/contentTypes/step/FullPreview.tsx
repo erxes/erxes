@@ -1,11 +1,10 @@
-import { FlexItem, FullPreview } from '@erxes/ui/src/components/step/style';
+import { FlexItem, FullPreview } from "@erxes/ui/src/components/step/style";
 
-import { Alert } from '@erxes/ui/src/utils';
-import FieldForm from '../FieldForm';
-import FieldsPreview from '@erxes/ui-forms/src/forms/components/FieldsPreview';
-import FormPreview from '@erxes/ui/src/components/step/preview/FormPreview';
-import React from 'react';
-import { __ } from '@erxes/ui/src/utils/core';
+import { Alert } from "@erxes/ui/src/utils";
+import FieldForm from "../FieldForm";
+import FieldsPreview from "@erxes/ui-forms/src/forms/components/FieldsPreview";
+import FormPreview from "@erxes/ui/src/components/step/preview/FormPreview";
+import React from "react";
 
 type Props = {
   type: string;
@@ -16,7 +15,7 @@ type Props = {
 };
 
 type State = {
-  currentMode: 'create' | 'update' | undefined;
+  currentMode: "create" | "update" | undefined;
   currentField?: any;
 };
 
@@ -26,12 +25,12 @@ class FullPreviewStep extends React.Component<Props, State> {
 
     this.state = {
       currentMode: undefined,
-      currentField: undefined
+      currentField: undefined,
     };
   }
 
   onFieldClick = (field: any) => {
-    this.setState({ currentMode: 'update', currentField: field });
+    this.setState({ currentMode: "update", currentField: field });
   };
 
   onFieldSubmit = (field: any) => {
@@ -39,17 +38,17 @@ class FullPreviewStep extends React.Component<Props, State> {
 
     let duplicated: boolean = false;
 
-    fields.forEach(fld => {
+    fields.forEach((fld) => {
       if (fld._id !== field._id && fld.code === field.code) {
         duplicated = true;
       }
     });
 
     if (duplicated) {
-      return Alert.error('Sorry field code duplicated!');
+      return Alert.error("Sorry field code duplicated!");
     }
 
-    onChange('fields', fields);
+    onChange("fields", fields);
 
     this.setState({ currentField: undefined });
   };
@@ -58,13 +57,13 @@ class FullPreviewStep extends React.Component<Props, State> {
     const { onChange } = this.props;
 
     // remove field from state
-    const fields = this.props.fields.filter(f => f._id !== field._id);
+    const fields = this.props.fields.filter((f) => f._id !== field._id);
 
     this.setState({
-      currentField: undefined
+      currentField: undefined,
     });
 
-    onChange('fields', fields);
+    onChange("fields", fields);
   };
 
   onFieldFormCancel = () => {
@@ -76,13 +75,11 @@ class FullPreviewStep extends React.Component<Props, State> {
     const { fields } = this.props;
 
     const previewRenderer = () => (
-      <>
-        <FieldsPreview
-          fields={fields || []}
-          onFieldClick={this.onFieldClick}
-          currentPage={1}
-        />
-      </>
+      <FieldsPreview
+        fields={fields || []}
+        onFieldClick={this.onFieldClick}
+        currentPage={1}
+      />
     );
 
     return (
@@ -90,14 +87,14 @@ class FullPreviewStep extends React.Component<Props, State> {
         <FormPreview
           {...this.props}
           formData={{}}
-          title={'Entry'}
-          btnText={'Add entry'}
+          title={"Entry"}
+          btnText={"Add entry"}
           previewRenderer={previewRenderer}
           currentPage={1}
         />
         {currentField && (
           <FieldForm
-            mode={currentMode || 'create'}
+            mode={currentMode || "create"}
             field={currentField}
             onSubmit={this.onFieldSubmit}
             onDelete={this.onFieldDelete}

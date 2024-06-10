@@ -1,14 +1,13 @@
-import 'grapesjs/dist/css/grapes.min.css';
+import "grapesjs/dist/css/grapes.min.css";
 
-import { ISite, ISiteDoc } from '../../types';
+import { ISite, ISiteDoc } from "../../types";
 
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import React from "react";
 
 type Props = {
   closeModal: () => void;
@@ -27,27 +26,23 @@ class TemplateForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      name: props.selectedSite.name
+      name: props.selectedSite.name,
     };
   }
 
   onClick = () => {
     const { name } = this.state;
-    const {
-      useTemplate,
-      saveSite,
-      selectedSite,
-      currentTemplateId
-    } = this.props;
+    const { useTemplate, saveSite, selectedSite, currentTemplateId } =
+      this.props;
 
     if (selectedSite._id) {
       return saveSite(selectedSite._id, {
         name,
-        domain: selectedSite.domain || ''
+        domain: selectedSite.domain || "",
       });
     }
 
-    return useTemplate(currentTemplateId || '', name);
+    return useTemplate(currentTemplateId || "", name);
   };
 
   render() {

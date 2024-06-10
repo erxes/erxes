@@ -14,7 +14,6 @@ import Table from "@erxes/ui/src/components/table";
 import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
-  loading: boolean;
   entries: IEntryDoc[];
   contentType: IContentType;
   remove: (_id: string) => void;
