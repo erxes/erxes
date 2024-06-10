@@ -1,7 +1,4 @@
 import { IContext } from '../../../connectionResolver';
-import { paginate } from '@erxes/api-utils/src';
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
-
 const generateFilter = async (params, commonQuerySelector) => {
   const { branch, department, unit, contribution, date, endDate } = params;
   let filter: any = {};
