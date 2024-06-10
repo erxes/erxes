@@ -52,7 +52,7 @@ const TimeclockContainer = (props: FinalProps) => {
   const timeclockEdit = (variables: any) => {
     timeclockEditMutation({ variables })
       .then(() => Alert.success("Successfully edited timeclock"))
-      .catch((err) => Alert.error(err.message));
+      .catch(err => Alert.error(err.message));
   };
 
   const { list = [], totalCount } =
