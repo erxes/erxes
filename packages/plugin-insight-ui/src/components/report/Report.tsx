@@ -70,7 +70,7 @@ const Report = (props: Props) => {
         {report && !!report?.members?.length ? (
           <Participators participatedUsers={report.members} limit={4} />
         ) : (
-          <Button btnStyle="simple" icon="users-alt">
+          <Button btnStyle="success" icon="users-alt" size="small">
             Add User
           </Button>
         )}
@@ -87,7 +87,9 @@ const Report = (props: Props) => {
           />
         )}
         <Button
-          btnStyle="simple"
+          btnStyle="success"
+          size="small"
+          icon="plus-circle"
           onClick={() => {
             setCurrentChart(undefined);
             setShowDrawer(!showDrawer);
@@ -99,7 +101,11 @@ const Report = (props: Props) => {
         <Dropdown
           drop="down"
           as={DropdownToggle}
-          toggleComponent={<Button btnStyle="simple" icon="ellipsis-h" />}
+          toggleComponent={
+            <Button btnStyle="simple" size="small">
+              Actions
+            </Button>
+          }
           // alignRight={true}
         >
           <li>
@@ -162,7 +168,7 @@ const Report = (props: Props) => {
       dimension: JSON.stringify(item.dimension),
       layout: JSON.stringify(item.layout),
       vizState: JSON.stringify(item.vizState),
-      chartType: 'table'
+      chartType: "table",
     });
 
     const { REACT_APP_API_URL } = getEnv();
