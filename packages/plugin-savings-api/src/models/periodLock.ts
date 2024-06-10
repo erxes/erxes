@@ -3,9 +3,8 @@ import {
   IPeriodLockDocument,
   periodLockSchema,
 } from "./definitions/periodLocks";
-import { Model } from "mongoose";
 import { IModels } from "../connectionResolver";
-import { FilterQuery } from "mongoose";
+import { FilterQuery, Model } from "mongoose";
 import { IStoredInterestDocument } from "./definitions/storedInterest";
 import { getDiffDay, getFullDate } from "./utils/utils";
 import { CONTRACT_STATUS } from "./definitions/constants";

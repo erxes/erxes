@@ -9,9 +9,8 @@ import {
   removeTrAfterSchedule,
   transactionDealt,
 } from "./utils/transactionUtils";
-import { Model } from "mongoose";
 import { IModels } from "../connectionResolver";
-import { FilterQuery } from "mongoose";
+import { FilterQuery, Model } from "mongoose";
 import { IContractDocument } from "./definitions/contracts";
 import { TRANSACTION_TYPE } from "./definitions/constants";
 

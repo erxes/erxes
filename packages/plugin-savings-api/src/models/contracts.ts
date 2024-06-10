@@ -6,9 +6,8 @@ import {
   IContractDocument,
 } from "./definitions/contracts";
 import { addMonths, getFullDate, getNumber } from "./utils/utils";
-import { Model } from "mongoose";
 import { IModels } from "../connectionResolver";
-import { FilterQuery } from "mongoose";
+import { FilterQuery, Model } from "mongoose";
 
 export interface IContractModel extends Model<IContractDocument> {
   getContract(
