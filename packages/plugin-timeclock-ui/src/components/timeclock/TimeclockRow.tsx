@@ -14,7 +14,6 @@ import { TextAlignCenter } from "../../styles";
 
 type Props = {
   isCurrentUserAdmin: boolean;
-
   history?: any;
   timelogsPerUser?: ITimelog[];
   timeclock: ITimeclock;
@@ -22,17 +21,6 @@ type Props = {
 };
 
 class Row extends React.Component<Props> {
-  modalContent = (props) => (
-    <TimeForm
-      {...props}
-      selectedUserId={
-        this.props.timeclock.user ? this.props.timeclock.user._id : null
-      }
-      shiftId={this.props.timeclock._id}
-      shiftStarted={this.props.timeclock.shiftActive}
-    />
-  );
-
   renderTimeLogs = () => {
     const { timelogsPerUser } = this.props;
   };
@@ -108,7 +96,7 @@ class Row extends React.Component<Props> {
               size="lg"
               title="Edit Shift"
               trigger={this.editShiftTimeTrigger()}
-              content={(contentProps) =>
+              content={contentProps =>
                 this.editShiftTimeContent(contentProps, timeclock)
               }
             />
