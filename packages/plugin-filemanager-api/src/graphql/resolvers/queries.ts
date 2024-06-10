@@ -1,7 +1,6 @@
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../connectionResolver';
-import { sendCoreMessage } from '../../messageBroker';
 import { checkFilePermission } from '../../utils';
 
 const queries = {
@@ -104,7 +103,7 @@ const queries = {
     }
 
     return models.Files.find(selector).sort({
-      [sortField ? sortField : 'createdAt']: sortDirection || -1
+      [sortField || 'createdAt']: sortDirection ?? -1
     } as any);
   },
 
