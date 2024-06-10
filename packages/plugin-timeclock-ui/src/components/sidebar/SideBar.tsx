@@ -1,19 +1,16 @@
 import {
   FlexColumnCustom,
-  FlexRow,
   SidebarActions,
   SidebarHeader,
   Trigger,
+  CustomRangeContainer,
 } from "../../styles";
 import { IBranch, IDepartment } from "@erxes/ui/src/team/types";
 import React, { useState } from "react";
-import { __, router } from "@erxes/ui/src/utils";
+import { router } from "@erxes/ui/src/utils";
 import { useLocation, useNavigate } from "react-router-dom";
-
 import Button from "@erxes/ui/src/components/Button";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
-import { CustomRangeContainer } from "../../styles";
-import DateControl from "@erxes/ui/src/components/form/DateControl";
 import { IUser } from "@erxes/ui/src/auth/types";
 import Select from "react-select";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
@@ -46,11 +43,13 @@ const LeftSideBar = (props: Props) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [currUserIds, setUserIds] = useState(queryParams.userIds);
+  const [currUserIds, setCurrUserIds] = useState(queryParams.userIds);
 
-  const [selectedBranches, setBranches] = useState(queryParams.branchIds || '');
-  const [selectedDepartments, setDepartments] = useState(
-    queryParams.departmentIds || ''
+  const [selectedBranches, setSelectedBranches] = useState(
+    queryParams.branchIds || ""
+  );
+  const [selectedDepartments, setSelectedDepartments] = useState(
+    queryParams.departmentIds || ""
   );
 
   const [isHovered, setIsHovered] = useState(false);
@@ -156,7 +155,7 @@ const LeftSideBar = (props: Props) => {
   };
 
   const onBranchSelect = (selectedBranch) => {
-    setBranches(selectedBranch);
+    setSelectedBranches(selectedBranch);
 
     const selectedBranchIds: string[] = [];
 
@@ -168,7 +167,7 @@ const LeftSideBar = (props: Props) => {
   };
 
   const onDepartmentSelect = (selectedDepartment) => {
-    setDepartments(selectedDepartment);
+    setSelectedDepartments(selectedDepartment);
 
     const selectedDepartmentIds: string[] = [];
 
@@ -180,7 +179,7 @@ const LeftSideBar = (props: Props) => {
   };
 
   const onMemberSelect = (selectedUsers) => {
-    setUserIds(selectedUsers);
+    setCurrUserIds(selectedUsers);
 
     setParams("userIds", selectedUsers);
   };
