@@ -14,17 +14,15 @@ export const compareStartAndEndTime = (
   shiftDate?
 ) => {
   const currShift = scheduleDates[day_key];
-  const currShiftDate = shiftDate
-    ? shiftDate
-    : currShift
+  const currShiftDate = shiftDate || (currShift
     ? currShift.shiftDate
       ? currShift.shiftDate.toLocaleDateString()
       : currShift.shiftStart?.toLocaleDateString()
-    : newShiftStart.toLocaleDateString();
+    : newShiftStart.toLocaleDateString());
 
-  const currShiftEnd = newShiftEnd ? newShiftEnd : currShift.shiftEnd;
-  const currShiftStart = newShiftStart ? newShiftStart : currShift.shiftStart;
-
+  const currShiftEnd = newShiftEnd || currShift.shiftEnd;
+  const currShiftStart = newShiftStart || currShift.shiftStart;
+newShiftEnd || currShift.shiftEnd
   let overnightShift = false;
   let correctShiftEnd;
 
