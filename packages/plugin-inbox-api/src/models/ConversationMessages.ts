@@ -99,7 +99,7 @@ export const loadClass = (models: IModels) => {
       }
 
       // normalize content, attachments
-      const content = doc.content || '';
+      const content = doc.content ?? '';
       const attachments = doc.attachments || [];
 
       doc.content = content;
