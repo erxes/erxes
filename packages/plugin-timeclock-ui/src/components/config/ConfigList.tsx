@@ -76,13 +76,13 @@ function ConfigList(props: Props) {
     refetchDeviceConfigsQuery,
   } = props;
 
-  const [selectedType, setType] = useState(
+  const [selectedType, setSelectedType] = useState(
     localStorage.getItem("contentType") || "Schedule Configs"
   );
 
   const renderSelectionBar = () => {
     const onTypeSelect = (type) => {
-      setType(type.value);
+      setSelectedType(type.value);
       localStorage.setItem("contentType", type.value);
     };
 
