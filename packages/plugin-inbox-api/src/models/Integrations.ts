@@ -517,7 +517,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
         onlineHours = [],
         timezone = ''
       } = messengerData;
-      const timezoneString = userTimezone || timezone || momentTz.tz.guess();
+      const timezoneString = userTimezone ?? timezone ?? momentTz.tz.guess();
 
       /*
        * Manual: We can determine state from isOnline field value when method is manual
