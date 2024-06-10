@@ -1,6 +1,6 @@
 import { mutations, queries } from "../graphql";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery , gql } from "@apollo/client";
 
 import Alert from "@erxes/ui/src/utils/Alert";
 // erxes
@@ -8,7 +8,6 @@ import Bulk from "@erxes/ui/src/components/Bulk";
 // local
 import ListComponent from "../components/List";
 import React from "react";
-import { gql } from "@apollo/client";
 import queryString from "query-string";
 import { router } from "@erxes/ui/src/utils";
 
