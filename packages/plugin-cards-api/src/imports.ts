@@ -56,8 +56,7 @@ export default {
 
         switch (property.name) {
           case 'customProperty':
-            {
-              doc.customFieldsData.push({
+                          doc.customFieldsData.push({
                 field: property.id,
                 value: fieldValue[colIndex]
               });
@@ -70,8 +69,7 @@ export default {
                 defaultValue: doc.customFieldsData,
                 timeout: 60 * 1000 // 1 minute,
               });
-            }
-            break;
+                        break;
 
           case 'boardName':
             boardName = value;
