@@ -2,7 +2,7 @@ import { Document, Model, Schema } from 'mongoose';
 
 import { IModels } from '.';
 import { field } from './definitions/utils';
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 
 export interface IIntegration {
   kind: string;
