@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { gql } from '@apollo/client';
-import { useQuery } from '@apollo/client';
+import { gql , useQuery } from '@apollo/client';
 
 import { queries } from '../graphql';
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
