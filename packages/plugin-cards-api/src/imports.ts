@@ -107,8 +107,7 @@ export default {
             break;
 
           default:
-            {
-              doc[property.name] = value;
+                          doc[property.name] = value;
 
               if (property.name === 'createdAt' && value) {
                 doc.createdAt = new Date(value);
@@ -121,8 +120,7 @@ export default {
               if (property.name === 'isComplete') {
                 doc.isComplete = Boolean(value);
               }
-            }
-            break;
+                        break;
         }
 
         colIndex++;
